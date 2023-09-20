@@ -98,19 +98,13 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
  */
 
 /**
- * Initializes the album and sticker cache
+ * Initializes the album cache
  * @param mpd_worker_state pointer to mpd_worker_state struct
  * @param album_cache pointer to empty album_cache
  * @return true on success else false
  */
 static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache) {
     MYMPD_LOG_INFO("default", "Creating caches");
-    if (mpd_worker_state->partition_state->mpd_state->feat_albums == false) {
-        MYMPD_LOG_NOTICE("default", "Skipping album cache creation");
-    }
-    if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
-        MYMPD_LOG_NOTICE("default", "Skipping sticker cache creation");
-    }
 
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;

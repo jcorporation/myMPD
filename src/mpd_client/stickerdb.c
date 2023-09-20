@@ -95,7 +95,7 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
         mpd_client_disconnect_silent(partition_state, MPD_DISCONNECTED);
     }
     // try to connect
-    MYMPD_LOG_INFO(partition_state->name, "Creating mpd connection for partition \"%s\"", partition_state->name);
+    MYMPD_LOG_INFO(partition_state->name, "Creating mpd connection for %s", partition_state->name);
     if (mpd_client_connect(partition_state, false) == false) {
         MYMPD_LOG_DEBUG("stickerdb", "Connecting to MPD");
         return false;
@@ -488,7 +488,10 @@ static bool inc_sticker(struct t_partition_state *partition_state, const char *u
  */
 static bool enter_idle(struct t_partition_state *partition_state) {
     MYMPD_LOG_DEBUG("stickerdb", "Entering idle mode");
-    if (mpd_send_idle(partition_state->conn) == false) {
+    // we use MPD_IDLE_MOUNT because it is seldomly emitted
+    // setting no idle event is not supported
+    // the idle events are discarded in the mympd api loop
+    if (mpd_send_idle_mask(partition_state->conn, MPD_IDLE_MOUNT) == false) {
         MYMPD_LOG_ERROR("stickerdb", "Error entering idle mode");
         mpd_client_disconnect_silent(partition_state, MPD_DISCONNECTED);
         return false;
