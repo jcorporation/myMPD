@@ -38,7 +38,7 @@ bool mympd_api_sticker_set_like(struct t_partition_state *partition_state, sds u
  * Gets the stickers from sticker cache and returns a json list
  * Shortcut for get_sticker_from_cache and print_sticker
  * @param buffer already allocated sds string to append the list
- * @param sticker_cache pointer to sticker cache
+ * @param partition_state pointer to partition state
  * @param uri song uri
  * @return pointer to the modified buffer
  */

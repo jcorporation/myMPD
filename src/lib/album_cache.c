@@ -512,7 +512,7 @@ static struct t_tags *album_cache_read_tags(sds workdir) {
 
 /**
  * Creates a mpd_song struct from cache
- * @param line json line to parse
+ * @param album_node mpack node to parse
  * @param tagcols tags to read
  * @param key already allocated sds string to set the album key
  * @return struct mpd_song* allocated mpd_song struct

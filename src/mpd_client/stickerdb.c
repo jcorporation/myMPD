@@ -208,6 +208,7 @@ void sticker_struct_clear(struct t_sticker *sticker) {
  * Gets all stickers for a song
  * @param partition_state pointer to the partition state
  * @param uri song uri
+ * @param sticker pointer to t_sticker struct to populate
  * @param user_defined get user defines stickers?
  * @return pointer to the list of stickers
  */
