@@ -553,7 +553,6 @@
     "Startup view": "Startbildschirm",
     "Statistics": "Statistiken",
     "Sticker": "Sticker",
-    "Sticker cache is NULL": "Sticker Cache ist leer",
     "Stop": "Stop",
     "Stop playback": "Wiedergabe anhalten",
     "Stop playback after current song": "Wiedergabe nach aktuellem Lied beenden",
@@ -615,10 +614,8 @@
     "Update from WebradioDB": "Favorit aktualisieren",
     "Update interval": "Update Intervall",
     "Update of album cache failed": "Album Cache konnte nicht aktualisiert werden",
-    "Update of sticker cache failed": "Sticker Cache konnte nicht aktualisiert werden",
     "Update smart playlist": "Intelligente Wiedergabeliste aktualisieren",
     "Updated album cache": "Album Cache wurde aktualisiert",
-    "Updated sticker cache": "Sticker Cache wurde aktualisiert",
     "Updating MPD database": "MPD Datenbank wird aktualisiert",
     "Updating smart playlist %{playlist} failed": "Intelligente Wiedergabeliste %{playlist} konnte nicht aktualisiert werden",
     "Uri": "Url",
@@ -807,7 +804,6 @@
     "Session": "Sitzung",
     "Error connecting to radio-browser.info": "Verbindung zu radio-browser.info fehlgeschlagen",
     "Error creating album cache": "Albumcache konnte nicht erstellt werden",
-    "Error creating sticker cache": "Stickercache konnte nicht erstellt werden",
     "Open partitions": "Öffne: Partitionen",
     "Toggle single mode": "Nur ein Lied Modus ändern",
     "myMPD uri": "myMPD URL",
@@ -1094,5 +1090,6 @@
     "Neighbors": "Neighbors",
     "Show neighbors": "Neighbors anzeigen",
     "Open playback settings": "Öffne: Wiedergabeeinstellungen",
-    "Album feature is disabled": "Album-Feature ist deaktiviert"
+    "Album feature is disabled": "Album-Feature ist deaktiviert",
+    "MPD does not support stickers": "MPD unterstützt keine Sticker"
 }

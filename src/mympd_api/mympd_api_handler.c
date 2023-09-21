@@ -428,8 +428,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     // mpd connection
         case MYMPD_API_CONNECTION_SAVE: {
             sds old_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
-
+            sds old_stickerdb_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->stickerdb->mpd_state->mpd_host, mympd_state->stickerdb->mpd_state->mpd_port, mympd_state->stickerdb->mpd_state->mpd_pass);
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_connection_save, mympd_state, NULL, 100, &parse_error) == true) {
+                // primary mpd connection
                 sds new_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
                 if (strcmp(old_mpd_settings, new_mpd_settings) != 0) {
                     //disconnect all partitions
@@ -445,9 +446,23 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     mpd_client_mpd_features(partition_state);
                 }
                 FREE_SDS(new_mpd_settings);
+
+                // stickerdb connection
+                sds new_stickerdb_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->stickerdb->mpd_state->mpd_host, mympd_state->stickerdb->mpd_state->mpd_port, mympd_state->stickerdb->mpd_state->mpd_pass);
+                if (strcmp(old_stickerdb_settings, new_stickerdb_settings) != 0) {
+                    // reconnect
+                    MYMPD_LOG_DEBUG("stickerdb", "MPD host has changed, reconnecting");
+                    mpd_client_disconnect_silent(mympd_state->stickerdb, MPD_DISCONNECTED);
+                    // connect to stickerdb
+                    if (stickerdb_connect(mympd_state->stickerdb) == true) {
+                        stickerdb_enter_idle(mympd_state->stickerdb);
+                    }
+                }
+                FREE_SDS(new_stickerdb_settings);
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);
             }
             FREE_SDS(old_mpd_settings);
+            FREE_SDS(old_stickerdb_settings);
             break;
         }
     // covercache

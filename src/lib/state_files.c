@@ -62,6 +62,7 @@ sds camel_to_snake(sds text) {
 
 /**
  * Reads a string from a file or writes the file with a default value if not exists or value is invalid
+ * Frees the default value.
  * @param workdir mympd working directory
  * @param dir subdir 
  * @param name filename to read/write

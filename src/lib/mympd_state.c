@@ -94,9 +94,13 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mympd_state->partition_state, MPD_PARTITION_DEFAULT, mympd_state);
-    //stickerdb
+    // stickerdb
+    // use the partition struct to store the mpd connection for the stickerdb
     mympd_state->stickerdb = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mympd_state->stickerdb, "stickerdb", mympd_state);
+    // do not use the shared mpd_state - we can connect to another mpd server for stickers
+    mympd_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
+    mpd_state_default(mympd_state->stickerdb->mpd_state, mympd_state);
     //triggers;
     list_init(&mympd_state->trigger_list);
     //home icons
@@ -126,6 +130,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
         partition_state = next;
     }
     //stickerdb
+    mpd_state_free(mympd_state->stickerdb->mpd_state);
     partition_state_free(mympd_state->stickerdb);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
@@ -201,7 +206,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
  * @param mpd_state pointer to mpd_state
  */
 void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
-    mpd_state->feat_stickers = false;
+    mpd_state->feat_stickers = mpd_state->mympd_state->config->stickers;
     mpd_state->feat_playlists = false;
     mpd_state->feat_tags = false;
     mpd_state->feat_fingerprint = false;

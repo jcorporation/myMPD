@@ -139,11 +139,7 @@ static void features_commands(struct t_partition_state *partition_state) {
     if (mpd_send_allowed_commands(partition_state->conn) == true) {
         struct mpd_pair *pair;
         while ((pair = mpd_recv_command_pair(partition_state->conn)) != NULL) {
-            if (strcmp(pair->value, "sticker") == 0) {
-                MYMPD_LOG_DEBUG(partition_state->name, "MPD supports stickers");
-                partition_state->mpd_state->feat_stickers = partition_state->mympd_state->config->stickers;
-            }
-            else if (strcmp(pair->value, "listplaylists") == 0) {
+            if (strcmp(pair->value, "listplaylists") == 0) {
                 MYMPD_LOG_DEBUG(partition_state->name, "MPD supports playlists");
                 partition_state->mpd_state->feat_playlists = true;
             }

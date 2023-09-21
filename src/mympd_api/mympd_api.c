@@ -76,6 +76,10 @@ void *mympd_api_loop(void *arg_config) {
     struct t_work_response *web_server_response = create_response_new(CONN_ID_CONFIG_TO_WEBSERVER, 0, INTERNAL_API_WEBSERVER_READY, MPD_PARTITION_DEFAULT);
     mympd_queue_push(web_server_queue, web_server_response, 0);
 
+    // connect to stickerdb
+    if (stickerdb_connect(mympd_state->stickerdb) == true) {
+        stickerdb_enter_idle(mympd_state->stickerdb);
+    }
     //thread loop
     while (s_signal_received == 0) {
         mpd_client_idle(mympd_state);
