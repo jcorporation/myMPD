@@ -15,6 +15,7 @@
 #include "src/lib/utility.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mympd_api/trigger.h"
 
 #include <inttypes.h>
 #include <limits.h>
@@ -161,6 +162,7 @@ bool stickerdb_idle(struct t_partition_state *partition_state) {
         // exit and reenter the idle mode to discard waiting events
         // this prevents the connection to timeout
         MYMPD_LOG_DEBUG("stickerdb", "Discarding idle events");
+        mympd_api_trigger_execute(&partition_state->mympd_state->trigger_list, TRIGGER_MPD_STICKER, partition_state->name);
         return stickerdb_exit_idle(partition_state) &&
             stickerdb_enter_idle(partition_state);
     }
