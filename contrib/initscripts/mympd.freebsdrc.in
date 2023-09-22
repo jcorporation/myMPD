@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# PROVIDE: mympd
+# REQUIRE: DAEMON NETWORKING
+# KEYWORD: shutdown
+#
+# mympd_enable (bool):	Set to "YES" to enable myMPD.
+#			(default: "NO")
+# mympd_realuser (str):	The user that the myMPD will run with.
+#			(defualt: "mympd")
+# mympd_workdir (str):	The directory where the myMPD will store its files.
+#			(defualt: "/var/lib/mympd")
+# mympd_cachedir (str):	The directory that the myMPD will use as a cache.
+#			(default: "/var/cache/mympd")
+
+. /etc/rc.subr
+
+name=mympd
+rcvar=mympd_enable
+desc="myMPD web client for Music Player Daemon"
+
+load_rc_config $name
+
+: ${mympd_enable:="NO"}
+: ${mympd_realuser:="mympd"}
+: ${mympd_workdir:="/var/lib/mympd"}
+: ${mympd_cachedir:="/var/cache/mympd"}
+
+logfile="/var/log/${name}.log"
+pidfile="/var/run/${name}.pid"
+procfile="/usr/local/bin/${name}"
+procflags="-u ${mympd_realuser} -w ${mympd_workdir} -a ${mympd_cachedir}"
+
+command=/usr/sbin/daemon
+command_args="-fr -P ${pidfile} -o ${logfile} ${procfile} ${procflags}"
+
+run_rc_command $1
