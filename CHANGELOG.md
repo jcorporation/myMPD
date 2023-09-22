@@ -10,6 +10,7 @@ Describe the release here.
 
 ## Changelog
 
+- Feat: replace sticker cache with central sticker database #1111
 - Feat: Use mpack to store caches on disc #1104
 - Feat: Add a switch to disable album and sticker features #1103
 - Upd: remove default smart playlist generation tag
