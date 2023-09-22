@@ -471,7 +471,14 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeou
         MYMPD_LOG_DEBUG(NULL, "Caches are disabled");
         return true;
     }
+#if defined __FreeBSD__ && __FreeBSD__ < 14
+    (void)timeout;
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_CACHES_CREATE, NULL, MPD_PARTITION_DEFAULT);
+    request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
+    return mympd_queue_push(mympd_api_queue, request, 0);
+#else
     MYMPD_LOG_DEBUG(NULL, "Adding timer to update the caches");
     return mympd_api_timer_replace(&mympd_state->timer_list, timeout, TIMER_ONE_SHOT_REMOVE,
             timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
+#endif /*__FreeBSD__*/
 }
