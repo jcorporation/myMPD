@@ -58,6 +58,7 @@ target_sources(mympd PRIVATE
   lib/rax_extras.c
   lib/sds_extras.c
   lib/smartpls.c
+  lib/sticker.c
   lib/state_files.c
   lib/utility.c
   lib/validate.c

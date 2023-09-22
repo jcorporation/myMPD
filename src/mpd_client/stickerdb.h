@@ -10,20 +10,6 @@
 #include "src/lib/mympd_state.h"
 
 /**
- * myMPD sticker types
- */
-enum mympd_sticker_types {
-    STICKER_UNKNOWN = -1,
-    STICKER_PLAY_COUNT,
-    STICKER_SKIP_COUNT,
-    STICKER_LIKE,
-    STICKER_LAST_PLAYED,
-    STICKER_LAST_SKIPPED,
-    STICKER_ELAPSED,
-    STICKER_COUNT
-};
-
-/**
  * Valid values for like sticker
  */
 enum sticker_like {
@@ -44,9 +30,6 @@ struct t_sticker {
     long like;              //!< hate/neutral/love value
     struct t_list stickers; //!< list of all other stickers
 };
-
-const char *stickerdb_name_lookup(enum mympd_sticker_types sticker);
-enum mympd_sticker_types stickerdb_name_parse(const char *name);
 
 void sticker_struct_init(struct t_sticker *sticker);
 void sticker_struct_clear(struct t_sticker *sticker);

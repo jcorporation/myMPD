@@ -12,6 +12,7 @@
 #include "src/lib/log.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/sticker.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
@@ -25,18 +26,6 @@
 
 // Private definitions
 
-/**
- * myMPD sticker names
- */
-static const char *const mympd_sticker_names[STICKER_COUNT] = {
-    [STICKER_PLAY_COUNT] = "playCount",
-    [STICKER_SKIP_COUNT] = "skipCount",
-    [STICKER_LIKE] = "like",
-    [STICKER_LAST_PLAYED] = "lastPlayed",
-    [STICKER_LAST_SKIPPED] = "lastSkipped",
-    [STICKER_ELAPSED] = "elapsed"
-};
-
 static sds get_sticker_value(struct t_partition_state *partition_state, const char *uri, const char *name);
 static long long get_sticker_llong(struct t_partition_state *partition_state, const char *uri, const char *name);
 static bool set_sticker_value(struct t_partition_state *partition_state, const char *uri, const char *name, const char *value);
@@ -44,35 +33,6 @@ static bool set_sticker_llong(struct t_partition_state *partition_state, const c
 static bool inc_sticker(struct t_partition_state *partition_state, const char *uri, const char *name);
 
 // Public functions
-
-/**
- * Returns the sticker name as string
- * @param sticker enum mympd_sticker_types
- * @return const char* the sticker name
- */
-const char *stickerdb_name_lookup(enum mympd_sticker_types sticker) {
-    if ((unsigned)sticker >= STICKER_COUNT) {
-        return NULL;
-    }
-    return mympd_sticker_names[sticker];
-}
-
-/**
- * Parses the sticker name
- * @param name sticker name
- * @return enum mpd_tag_type the sticker enum
- */
-enum mympd_sticker_types stickerdb_name_parse(const char *name) {
-    if (name == NULL) {
-        return STICKER_UNKNOWN;
-    }
-    for (unsigned i = 0; i < STICKER_COUNT; ++i) {
-        if (strcmp(name, mympd_sticker_names[i]) == 0) {
-            return (enum mympd_sticker_types)i;
-        }
-    }
-    return STICKER_UNKNOWN;
-}
 
 /**
  * This function connects to mpd sticker instance on demand
@@ -303,7 +263,7 @@ bool stickerdb_get_all_batch(struct t_partition_state *partition_state, const ch
 
     if (mpd_send_sticker_list(partition_state->conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(partition_state->conn)) != NULL) {
-            enum mympd_sticker_types sticker_type = stickerdb_name_parse(pair->name);
+            enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
             switch(sticker_type) {
                 case STICKER_PLAY_COUNT:
                     sticker->play_count = (long)strtoimax(pair->value, NULL, 10);
@@ -470,7 +430,7 @@ bool stickerdb_inc(struct t_partition_state *partition_state, const char *uri, c
  * @return true on success, else false
  */
 bool stickerdb_set_elapsed(struct t_partition_state *partition_state, const char *uri, time_t elapsed) {
-    return stickerdb_set_llong(partition_state, uri, stickerdb_name_lookup(STICKER_ELAPSED), (long long)elapsed);
+    return stickerdb_set_llong(partition_state, uri, sticker_name_lookup(STICKER_ELAPSED), (long long)elapsed);
 }
 
 /**
@@ -491,8 +451,8 @@ bool stickerdb_inc_set(struct t_partition_state *partition_state, const char *ur
     if (stickerdb_connect(partition_state) == false) {
         return false;
     }
-    bool rc = set_sticker_llong(partition_state, uri, stickerdb_name_lookup(name_timestamp), (long long)timestamp) &&
-        inc_sticker(partition_state, uri, stickerdb_name_lookup(name_inc));
+    bool rc = set_sticker_llong(partition_state, uri, sticker_name_lookup(name_timestamp), (long long)timestamp) &&
+        inc_sticker(partition_state, uri, sticker_name_lookup(name_inc));
     stickerdb_enter_idle(partition_state);
     return rc;
 }
@@ -530,7 +490,7 @@ bool stickerdb_set_like(struct t_partition_state *partition_state, const char *u
     if (value < 0 || value > 2) {
         return false;
     }
-    return stickerdb_set_llong(partition_state, uri, stickerdb_name_lookup(STICKER_LIKE), (long long)value);
+    return stickerdb_set_llong(partition_state, uri, sticker_name_lookup(STICKER_LIKE), (long long)value);
 }
 
 // Private functions

@@ -11,6 +11,8 @@
 #include "src/lib/api.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/sticker.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 
 #include <errno.h>
@@ -1277,7 +1279,12 @@ static bool icb_json_get_tag(const char *path, sds key, sds value, int vtype, va
     struct t_tags *tags = (struct t_tags *) userdata;
     enum mpd_tag_type tag = mpd_tag_name_iparse(value);
     if (tag != MPD_TAG_UNKNOWN) {
-        tags->tags[tags->len++] = tag;
+        tags->tags[tags->tags_len++] = tag;
+        return true;
+    }
+    enum mympd_sticker_types sticker = sticker_name_parse(value);
+    if (sticker != STICKER_UNKNOWN) {
+        tags->stickers[tags->stickers_len++] = sticker;
     }
     return true;
 }

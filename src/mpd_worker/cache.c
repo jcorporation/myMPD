@@ -114,7 +114,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
 
     //set interesting tags - add additional tags: disc
     if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, MPD_TAG_DISC) == true) {
-        mpd_worker_state->mpd_state->tags_album.tags[mpd_worker_state->mpd_state->tags_album.len++] = MPD_TAG_DISC;
+        mpd_worker_state->mpd_state->tags_album.tags[mpd_worker_state->mpd_state->tags_album.tags_len++] = MPD_TAG_DISC;
     }
     else {
         MYMPD_LOG_WARN("default", "Disc tag is not enabled");

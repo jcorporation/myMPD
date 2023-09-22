@@ -288,7 +288,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     list_init(&partition_state->jukebox_queue_tmp);
     partition_state->jukebox_mode = JUKEBOX_OFF;
     partition_state->jukebox_playlist = sdsnew(MYMPD_JUKEBOX_PLAYLIST);
-    partition_state->jukebox_unique_tag.len = 1;
+    partition_state->jukebox_unique_tag.tags_len = 1;
     partition_state->jukebox_unique_tag.tags[0] = MYMPD_JUKEBOX_UNIQUE_TAG;
     partition_state->jukebox_last_played = MYMPD_JUKEBOX_LAST_PLAYED;
     partition_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
@@ -358,6 +358,8 @@ void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list) {
  * @param tags pointer to t_tags struct
 */
 void reset_t_tags(struct t_tags *tags) {
-    tags->len = 0;
+    tags->tags_len = 0;
     memset(tags->tags, 0, sizeof(tags->tags));
+    tags->stickers_len = 0;
+    memset(tags->stickers, 0, sizeof(tags->stickers));
 }

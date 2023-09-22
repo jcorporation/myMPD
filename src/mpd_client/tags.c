@@ -189,7 +189,7 @@ bool enable_all_mpd_tags(struct t_partition_state *partition_state) {
  */
 sds print_tags_array(sds buffer, const char *tagsname, const struct t_tags *tags) {
     buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
-    for (unsigned i = 0; i < tags->len; i++) {
+    for (unsigned i = 0; i < tags->tags_len; i++) {
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);
         }
@@ -214,8 +214,8 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
         if (mpd_send_clear_tag_types(partition_state->conn) == false) {
             mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_clear_tag_types");
         }
-        if (enable_tags->len > 0) {
-            if (mpd_send_enable_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->len) == false) {
+        if (enable_tags->tags_len > 0) {
+            if (mpd_send_enable_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->tags_len) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_enable_tag_types");
             }
         }
@@ -299,7 +299,7 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
 {
     const char *uri = mpd_song_get_uri(song);
     if (tags_enabled == true) {
-        for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
+        for (unsigned tagnr = 0; tagnr < tagcols->tags_len; ++tagnr) {
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
             buffer = mpd_client_get_tag_values(song, tagcols->tags[tagnr], buffer);
             buffer = sdscatlen(buffer, ",", 1);
@@ -375,7 +375,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
         else {
             if (mpd_client_tag_exists(allowed_tag_types, tag) == true) {
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(tag));
-                tagtypes->tags[tagtypes->len++] = tag;
+                tagtypes->tags[tagtypes->tags_len++] = tag;
             }
             else {
                 MYMPD_LOG_DEBUG(NULL, "Disabling tag %s", mpd_tag_name(tag));
@@ -394,7 +394,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
  * @return true if tag is in tagtypes else false
  */
 bool mpd_client_tag_exists(const struct t_tags *tagtypes, enum mpd_tag_type tag) {
-    for (size_t i = 0; i < tagtypes->len; i++) {
+    for (size_t i = 0; i < tagtypes->tags_len; i++) {
         if (tagtypes->tags[i] == tag) {
             return true;
         }

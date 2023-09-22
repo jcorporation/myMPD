@@ -202,7 +202,7 @@ static void features_tags(struct t_partition_state *partition_state) {
  */
 static void set_album_tags(struct t_partition_state *partition_state) {
     sds logline = sdscatfmt(sdsempty(), "Enabled tag_list_album: ");
-    for (size_t i = 0; i < partition_state->mpd_state->tags_mympd.len; i++) {
+    for (size_t i = 0; i < partition_state->mpd_state->tags_mympd.tags_len; i++) {
         switch(partition_state->mpd_state->tags_mympd.tags[i]) {
             case MPD_TAG_MUSICBRAINZ_RELEASETRACKID:
             case MPD_TAG_MUSICBRAINZ_TRACKID:
@@ -214,7 +214,7 @@ static void set_album_tags(struct t_partition_state *partition_state) {
                 //ignore this tags for albums
                 break;
             default:
-                partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.len++] = partition_state->mpd_state->tags_mympd.tags[i];
+                partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.tags_len++] = partition_state->mpd_state->tags_mympd.tags[i];
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
         }
     }
@@ -237,7 +237,7 @@ static void features_mpd_tags(struct t_partition_state *partition_state) {
             enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
             if (tag != MPD_TAG_UNKNOWN) {
                 logline = sdscatfmt(logline, "%s ", pair->value);
-                partition_state->mpd_state->tags_mpd.tags[partition_state->mpd_state->tags_mpd.len++] = tag;
+                partition_state->mpd_state->tags_mpd.tags[partition_state->mpd_state->tags_mpd.tags_len++] = tag;
             }
             else {
                 MYMPD_LOG_WARN(partition_state->name, "Unknown tag %s (libmpdclient too old)", pair->value);
@@ -248,7 +248,7 @@ static void features_mpd_tags(struct t_partition_state *partition_state) {
     mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_tag_types");
 
-    if (partition_state->mpd_state->tags_mpd.len == 0) {
+    if (partition_state->mpd_state->tags_mpd.tags_len == 0) {
         logline = sdscatlen(logline, "none", 4);
         MYMPD_LOG_NOTICE(partition_state->name, "%s", logline);
         MYMPD_LOG_NOTICE(partition_state->name, "Tags are disabled");

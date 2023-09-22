@@ -397,7 +397,7 @@ bool mpd_client_get_all_playlists(struct t_partition_state *partition_state, str
  */
 static bool playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr, sds *error) {
     struct t_tags sort_tags = {
-        .len = 1,
+        .tags_len = 1,
         .tags[0] = mpd_tag_name_parse(tagstr)
     };
 
