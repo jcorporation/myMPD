@@ -19,8 +19,15 @@
 #include <poll.h>
 #include <stdbool.h>
 #include <string.h>
-#include <sys/timerfd.h>
 #include <unistd.h>
+
+/* timerfd is not supported on FreeBSD < 14, so the timers doesn't work */
+#if defined __FreeBSD__ && __FreeBSD__ < 14
+#define timerfd_create(a, b) -1
+#define timerfd_settime(a, b, c, d) (void)0
+#else
+#include <sys/timerfd.h>
+#endif
 
 /**
  * Private definitions
