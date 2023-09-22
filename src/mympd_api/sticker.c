@@ -40,6 +40,7 @@ bool mympd_api_sticker_set_like(struct t_partition_state *partition_state, sds u
  * @param buffer already allocated sds string to append the list
  * @param partition_state pointer to partition state
  * @param uri song uri
+ * @param tags array of stickers to print
  * @return pointer to the modified buffer
  */
 sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *partition_state, const char *uri, const struct t_tags *tags) {
@@ -57,6 +58,7 @@ sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *partition_
  * Print the sticker struct as json list
  * @param buffer already allocated sds string to append the list
  * @param sticker pointer to sticker struct to print
+ * @param tags array of stickers to print
  * @return pointer to the modified buffer
  */
 sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct t_tags *tags) {
