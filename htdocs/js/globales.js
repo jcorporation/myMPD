@@ -1028,13 +1028,14 @@ const mpdVersion = {
 const browseFilesystemHistory = {};
 
 //list of stickers
+/** @type {Array} */
 const stickerList = [
-    'stickerPlayCount',
-    'stickerSkipCount',
-    'stickerLastPlayed',
-    'stickerLastSkipped',
-    'stickerLike',
-    'stickerElapsed'
+    'playCount',
+    'skipCount',
+    'lastPlayed',
+    'lastSkipped',
+    'like',
+    'elapsed'
 ];
 
 //application state

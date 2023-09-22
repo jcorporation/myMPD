@@ -12,8 +12,7 @@
 #include "dist/sds/sds.h"
 #include "src/lib/config_def.h"
 #include "src/lib/list.h"
-#include "src/lib/sticker.h"
-
+#include "src/lib/tags.h"
 #include <poll.h>
 #include <time.h>
 
@@ -38,17 +37,6 @@ enum mpd_conn_states {
     MPD_DISCONNECT_INSTANT,  //!< disconnect mpd and reconnect as soon as possible
     MPD_WAIT,                //!< waiting for reconnection
     MPD_REMOVED              //!< connection was removed
-};
-
-/**
- * Struct for a mpd tag and sticker lists
- * libmpdclient uses a similar declaration, but for tags only
- */
-struct t_tags {
-    size_t tags_len;                        //!< number of tags in the array
-    enum mpd_tag_type tags[64];             //!< tags array
-    size_t stickers_len;                    //!< number of stickers in the array
-    enum mympd_sticker_types stickers[64];  //!< stickers array
 };
 
 /**
@@ -275,8 +263,5 @@ void mpd_state_free(struct t_mpd_state *mpd_state);
 
 void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state);
 void partition_state_free(struct t_partition_state *partition_state);
-
-void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);
-void reset_t_tags(struct t_tags *tags);
 
 #endif

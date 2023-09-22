@@ -231,20 +231,6 @@ long long stickerdb_get_llong(struct t_partition_state *partition_state, const c
     return value;
 }
 
-void sticker_struct_init(struct t_sticker *sticker) {
-    sticker->play_count = 0;
-    sticker->skip_count = 0;
-    sticker->last_played = 0;
-    sticker->last_skipped = 0;
-    sticker->like = 1;
-    sticker->elapsed = 0;
-    list_init(&sticker->stickers);
-}
-
-void sticker_struct_clear(struct t_sticker *sticker) {
-    list_clear(&sticker->stickers);
-}
-
 /**
  * Gets all stickers for a song.
  * You must manage the idle state manually.
@@ -256,37 +242,20 @@ void sticker_struct_clear(struct t_sticker *sticker) {
  */
 bool stickerdb_get_all_batch(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined) {
     struct mpd_pair *pair;
+    sticker_struct_init(sticker);
+    
     if (is_streamuri(uri) == true) {
         return false;
     }
-    sticker_struct_init(sticker);
 
     if (mpd_send_sticker_list(partition_state->conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(partition_state->conn)) != NULL) {
             enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
-            switch(sticker_type) {
-                case STICKER_PLAY_COUNT:
-                    sticker->play_count = (long)strtoimax(pair->value, NULL, 10);
-                    break;
-                case STICKER_SKIP_COUNT:
-                    sticker->skip_count = (long)strtoimax(pair->value, NULL, 10);
-                    break;
-                case STICKER_LAST_PLAYED:
-                    sticker->last_played = (time_t)strtoimax(pair->value, NULL, 10);
-                    break;
-                case STICKER_LAST_SKIPPED:
-                    sticker->last_skipped = (time_t)strtoimax(pair->value, NULL, 10);
-                    break;
-                case STICKER_LIKE:
-                    sticker->like = (int)strtoimax(pair->value, NULL, 10);
-                    break;
-                case STICKER_ELAPSED:
-                    sticker->elapsed = (time_t)strtoimax(pair->value, NULL, 10);
-                    break;
-                default:
-                    if (user_defined == true) {
-                        list_push(&sticker->stickers, pair->name, 0, pair->value, NULL);
-                    }
+            if (sticker_type != STICKER_UNKNOWN) {
+                sticker->mympd[sticker_type] = strtoll(pair->value, NULL, 10);
+            }
+            else if (user_defined == true) {
+                list_push(&sticker->user, pair->name, 0, pair->value, NULL);
             }
             mpd_return_sticker(partition_state->conn, pair);
         }

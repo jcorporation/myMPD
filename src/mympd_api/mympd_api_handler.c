@@ -28,6 +28,7 @@
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/presets.h"
 #include "src/mpd_client/queue.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_worker/mpd_worker.h"
 #include "src/mympd_api/albumart.h"
 #include "src/mympd_api/browse.h"

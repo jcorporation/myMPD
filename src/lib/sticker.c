@@ -49,3 +49,21 @@ enum mympd_sticker_types sticker_name_parse(const char *name) {
     }
     return STICKER_UNKNOWN;
 }
+
+/**
+ * Initializes the sticker struct
+ * @param sticker struct to init
+ */
+void sticker_struct_init(struct t_sticker *sticker) {
+    memset(sticker->mympd, 0, sizeof(sticker->mympd));
+    list_init(&sticker->user);
+}
+
+/**
+ * Clears the sticker struct
+ * @param sticker 
+ */
+void sticker_struct_clear(struct t_sticker *sticker) {
+    memset(sticker->mympd, 0, sizeof(sticker->mympd));
+    list_clear(&sticker->user);
+}

@@ -60,6 +60,7 @@ target_sources(mympd PRIVATE
   lib/smartpls.c
   lib/sticker.c
   lib/state_files.c
+  lib/tags.c
   lib/utility.c
   lib/validate.c
   mpd_client/autoconf.c

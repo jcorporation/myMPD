@@ -12,7 +12,6 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker.h"
-#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 
 #include <errno.h>

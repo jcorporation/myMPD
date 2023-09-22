@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/sticker.h"
 #include "src/mympd_api/playlists.h"
 
 #include "dist/utf8/utf8.h"
@@ -675,13 +676,15 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                         : tojson_char(buffer, "Type", "song", true);
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
                     buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
-                    if (partition_state->mpd_state->feat_stickers) {
+                    if (partition_state->mpd_state->feat_stickers == true &&
+                        tagcols->stickers_len > 0)
+                    {
                         buffer = sdscatlen(buffer, ",", 1);
                         struct t_sticker sticker;
                         stickerdb_get_all(partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), &sticker, false);
-                        buffer = mympd_api_sticker_print(buffer, &sticker);
-                        if (sticker.last_played > last_played_max) {
-                            last_played_max = sticker.last_played;
+                        buffer = mympd_api_sticker_print(buffer, &sticker, tagcols);
+                        if (sticker.mympd[STICKER_LAST_PLAYED] > last_played_max) {
+                            last_played_max = sticker.mympd[STICKER_LAST_PLAYED];
                             last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
                         }
                         sticker_struct_clear(&sticker);

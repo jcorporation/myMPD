@@ -9,31 +9,6 @@
 
 #include "src/lib/mympd_state.h"
 
-/**
- * Valid values for like sticker
- */
-enum sticker_like {
-    STICKER_LIKE_HATE = 0,
-    STICKER_LIKE_NEUTRAL = 1,
-    STICKER_LIKE_LOVE = 2
-};
-
-/**
- * MPD sticker values
- */
-struct t_sticker {
-    long play_count;        //!< number how often the song was played
-    long skip_count;        //!< number how often the song was skipped
-    time_t last_played;     //!< timestamp when the song was played the last time
-    time_t last_skipped;    //!< timestamp when the song was skipped the last time
-    time_t elapsed;         //!< recent song position
-    long like;              //!< hate/neutral/love value
-    struct t_list stickers; //!< list of all other stickers
-};
-
-void sticker_struct_init(struct t_sticker *sticker);
-void sticker_struct_clear(struct t_sticker *sticker);
-
 bool stickerdb_connect(struct t_partition_state *partition_state);
 bool stickerdb_idle(struct t_partition_state *partition_state);
 bool stickerdb_enter_idle(struct t_partition_state *partition_state);

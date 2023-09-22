@@ -93,9 +93,11 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
                             buffer = sdscat(buffer, "{\"Type\": \"song\",");
                             buffer = tojson_long(buffer, "Pos", entity_count, true);
                             buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
-                            if (partition_state->mpd_state->feat_stickers) {
+                            if (partition_state->mpd_state->feat_stickers == true &&
+                                tagcols->stickers_len > 0)
+                            {
                                 buffer = sdscatlen(buffer, ",", 1);
-                                buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song));
+                                buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
                             }
                             buffer = sdscatlen(buffer, "}", 1);
                         }

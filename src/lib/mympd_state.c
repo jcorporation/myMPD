@@ -343,23 +343,3 @@ void partition_state_free(struct t_partition_state *partition_state) {
     //struct itself
     FREE_PTR(partition_state);
 }
-
-/**
- * Copy a struct t_tags struct to another one
- * @param src_tag_list source
- * @param dst_tag_list destination
- */
-void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list) {
-    memcpy((void *)dst_tag_list, (void *)src_tag_list, sizeof(struct t_tags));
-}
-
-/**
- * (Re-)initializes a t_tags struct
- * @param tags pointer to t_tags struct
-*/
-void reset_t_tags(struct t_tags *tags) {
-    tags->tags_len = 0;
-    memset(tags->tags, 0, sizeof(tags->tags));
-    tags->stickers_len = 0;
-    memset(tags->stickers, 0, sizeof(tags->stickers));
-}

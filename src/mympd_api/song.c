@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/sticker.h"
 #include "src/mympd_api/song.h"
 
 #include "src/lib/jsonrpc.h"
@@ -41,7 +42,10 @@ sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer
 
     if (partition_state->mpd_state->feat_stickers) {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, uri);
+        struct t_tags tagcols;
+        reset_t_tags(&tagcols);
+        tags_enable_all_stickers(&tagcols);
+        buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, uri, &tagcols);
     }
 
     buffer = sdscatlen(buffer, ",", 1);

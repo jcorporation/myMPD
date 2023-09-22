@@ -474,9 +474,11 @@ function isColSortable(tableName, colName) {
     {
         return false;
     }
+    // @ts-ignore
     if (colName === 'Duration' ||
         colName === 'AudioFormat' ||
-        colName.indexOf('sticker') === 0)
+        // @ts-ignore
+        stickerList.includes(colName) === true)
     {
         return false;
     }
