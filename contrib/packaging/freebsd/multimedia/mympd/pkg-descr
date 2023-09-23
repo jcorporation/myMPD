@@ -1,0 +1,3 @@
+myMPD is a standalone and lightweight web-based MPD client written in C.
+It's tuned for minimal resource usage and requires only very few dependencies.
+Therefore myMPD is ideal for raspberry pis and similar devices.
