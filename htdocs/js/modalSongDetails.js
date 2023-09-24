@@ -221,7 +221,7 @@ function parseSongDetails(obj) {
             )
         );
         for (const sticker of stickerList) {
-            if (sticker === 'stickerLike') {
+            if (sticker === 'like') {
                 const thDown = elCreateText('button', {"data-vote": "0", "data-title-phrase": "Hate song", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
                 if (obj.result[sticker] === 0) {
                     thDown.classList.add('active');
