@@ -310,7 +310,7 @@ function appInit() {
     //update state on window focus - browser pauses javascript
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');
-        sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState, false);
+        getState();
         websocketKeepAlive();
     }, false);
     //global keymap

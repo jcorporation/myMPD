@@ -11,9 +11,7 @@
  */
 function clearMPDerror() {
     sendAPI('MYMPD_API_PLAYER_CLEARERROR',{}, function() {
-        sendAPI('MYMPD_API_PLAYER_STATE', {}, function(obj) {
-            parseState(obj);
-        }, false);
+        getState();
     }, false);
 }
 
@@ -82,11 +80,25 @@ function setCounter() {
         clearTimeout(progressTimer);
     }
     if (currentState.state === 'play') {
+        if (currentState.totalTime > 0 &&
+            currentState.totalTime < currentState.elapsedTime)
+        {
+            // this should not appear, update state
+            getState();
+        }
         progressTimer = setTimeout(function() {
             currentState.elapsedTime += 1;
             setCounter();
         }, 1000);
     }
+}
+
+/**
+ * Gets the player state
+ * @returns {void}
+ */
+function getState() {
+    sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState, false);
 }
 
 /**

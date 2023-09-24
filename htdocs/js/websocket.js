@@ -80,7 +80,7 @@ function webSocketConnect() {
                 case 'welcome':
                     showNotification(tn('Connected to myMPD') + ': ' +
                         tn('Partition') + ' ' + localSettings.partition, 'general', 'info');
-                    sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
+                    getState();
                     if (session.token !== '') {
                         validateSession();
                     }
@@ -108,7 +108,7 @@ function webSocketConnect() {
                 case 'mpd_connected':
                     //MPD connection established get state and settings
                     showNotification(tn('Connected to MPD'), 'general', 'info');
-                    sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, false);
+                    getState();
                     getSettings(parseSettings);
                     break;
                 case 'update_options':
