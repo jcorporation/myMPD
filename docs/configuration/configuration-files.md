@@ -18,7 +18,7 @@ You can use `mympd -c` to create the initial configuration in the `/var/lib/mymp
 
 Use [systemd-run]({{ site.baseurl }}/running#manual-startup), if you use a distribution with systemd, e.g.:
 
-```
+```sh
 systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -E MYMPD_LOGLEVEL=4 -E MYMPD_HTTP=false -E MYMPD_SSL_PORT=1333 mympd -c
 ```
 

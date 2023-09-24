@@ -12,7 +12,9 @@ Describe the release here.
 
 - Feat: replace sticker cache with central sticker database #1111
 - Feat: Use mpack to store caches on disc #1104
-- Feat: Add a switch to disable album and sticker features #1103
+- Feat: Add a switch to disable album feature #1103
+- Feat: Refresh status if webui progress timer is greater than song length #1115
+- Feat: Improve album cache creation #1113
 - Upd: remove default smart playlist generation tag
 
 ***
