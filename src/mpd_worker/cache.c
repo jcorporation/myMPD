@@ -105,7 +105,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
  * Initializes the album cache
  * @param mpd_worker_state pointer to mpd_worker_state struct
  * @param album_cache pointer to empty album_cache
- * @return true on success else false
+ * @return true on success, else false
  */
 static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache) {
     MYMPD_LOG_INFO("default", "Creating album cache");
@@ -213,7 +213,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
  * This is faster as the cache_init function, but does not fetch all the album details.
  * @param mpd_worker_state pointer to mpd_worker_state struct
  * @param album_cache pointer to empty album_cache
- * @return true on success else false
+ * @return true on success, else false
  */
 static bool cache_init_simple(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache) {
     MYMPD_LOG_INFO("default", "Creating simple album cache");
@@ -225,7 +225,7 @@ static bool cache_init_simple(struct t_mpd_worker_state *mpd_worker_state, rax *
         mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) == false ||
         mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, MPD_TAG_DATE) == false)
     {
-        MYMPD_LOG_WARN("default", "Not all tags for album cache creation enabled: Artist, Album, Date");
+        MYMPD_LOG_ERROR("default", "Not all tags for album cache creation enabled: Artist, Album, Date");
         return false;
     }
 

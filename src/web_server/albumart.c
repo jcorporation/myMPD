@@ -67,6 +67,40 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
 }
 
 /**
+ * Request handler for /albumart/<albumid>
+ * @param nc mongoose connection
+ * @param hm http message
+ * @param mg_user_data pointer to mongoose configuration
+ * @param conn_id connection id
+ * @return true if an image is served,
+ *         false if waiting for mpd_client to handle request
+ */
+bool request_handler_albumart_by_album_id(struct mg_connection *nc, struct mg_http_message *hm,
+    struct t_mg_user_data *mg_user_data, long long conn_id)
+{
+    sds uri = sdsnewlen(hm->uri.ptr, hm->uri.len);
+    //remove /albumart/
+    sdsrange(uri, 10, -1);
+
+    // TODO: check cache
+
+    if (mg_user_data->feat_albumart == true) {
+        MYMPD_LOG_DEBUG(NULL, "Sending getalbumart to mpd_client_queue");
+        struct t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART_BY_ALBUMID, NULL, MPD_PARTITION_DEFAULT);
+        request->data = tojson_sds(request->data, "uri", uri, false);
+        request->data = jsonrpc_end(request->data);
+        mympd_queue_push(mympd_api_queue, request, 0);
+        FREE_SDS(uri);
+        return false;
+    }
+
+    MYMPD_LOG_INFO(NULL, "No coverimage found for \"%s\"", uri);
+    FREE_SDS(uri);
+    webserver_serve_na_image(nc);
+    return true;
+}
+
+/**
  * Request handler for /albumart
  * @param nc mongoose connection
  * @param hm http message
@@ -76,7 +110,7 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
  * @return true if an image is served,
  *         false if waiting for mpd_client to handle request
  */
-bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *hm,
+bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, long long conn_id, enum albumart_sizes size)
 {
     struct t_config *config = mg_user_data->config;
@@ -275,7 +309,7 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
         offset == 0)
     {
         MYMPD_LOG_DEBUG(NULL, "Sending getalbumart to mpd_client_queue");
-        struct t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART, NULL, MPD_PARTITION_DEFAULT);
+        struct t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART_BY_URI, NULL, MPD_PARTITION_DEFAULT);
         request->data = tojson_sds(request->data, "uri", uri_decoded, false);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);

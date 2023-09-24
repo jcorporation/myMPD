@@ -169,10 +169,12 @@ function parseDatabaseAlbumList(obj) {
             continue;
         }
 
-        let image = '';
         const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
 
-        image = '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
+        const image = settings.features.featAlbums === true
+            ? '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri)
+            : '/albumart/' + obj.result.data[i].AlbumId;
+
         card.appendChild(
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
         );

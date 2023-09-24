@@ -7,14 +7,76 @@
 #include "compile_time.h"
 #include "src/mympd_api/albumart.h"
 
+#include "dist/rax/rax.h"
+#include "src/lib/api.h"
 #include "src/lib/covercache.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/mimetype.h"
+#include "src/lib/sds_extras.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/search.h"
+
+#include <string.h>
 
 /**
- * Reads the albumart from mpd
+ * Reads the albumart by album id
+ * @param partition_state pointer to partition specific states
+ * @param buffer already allocated sds string for the jsonrpc response
+ * @param request_id request id
+ * @param albumid the album id
+ * @param binary pointer to an already allocated sds string for the binary response
+ * @return jsonrpc response
+ */
+sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, sds buffer, long request_id,
+        const char *albumid, sds *binary)
+{
+    struct mpd_song *album = raxFind(partition_state->mpd_state->album_cache.cache, (unsigned char *)albumid, strlen(albumid));
+    if (album == raxNotFound) {
+        return jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
+    }
+
+    // search for one song in the album
+    sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, album);
+
+    if (mpd_search_db_songs(partition_state->conn, false) == false ||
+        mpd_search_add_expression(partition_state->conn, expression) == false ||
+        mpd_search_add_window(partition_state->conn, 0, 1) == false)
+    {
+        mpd_search_cancel(partition_state->conn);
+        FREE_SDS(expression);
+        return jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
+    }
+
+    struct mpd_song *song = NULL;
+    if (mpd_search_commit(partition_state->conn) == true &&
+        (song = mpd_recv_song(partition_state->conn)) != NULL &&
+        mpd_response_finish(partition_state->conn) == true)
+    {
+        // found a song
+        // TODO:
+        // - search music dir for albumart
+        // - write cache
+        buffer = mympd_api_albumart_getcover_by_uri(partition_state, buffer, request_id, mpd_song_get_uri(song), binary);
+        mpd_song_free(song);
+        FREE_SDS(expression);
+        return buffer;
+    }
+
+    // no song found
+    if (song != NULL) {
+        mpd_song_free(song);
+    }
+    FREE_SDS(expression);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, "mpd_search_db_songs") == false) {
+        return buffer;
+    }
+    return jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
+}
+
+/**
+ * Reads the albumart from mpd by song uri
  * @param partition_state pointer to partition specific states
  * @param buffer already allocated sds string for the jsonrpc response
  * @param request_id request id
@@ -22,7 +84,7 @@
  * @param binary pointer to an already allocated sds string for the binary response
  * @return jsonrpc response
  */
-sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds buffer, long request_id,
+sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state, sds buffer, long request_id,
         const char *uri, sds *binary)
 {
     unsigned offset = 0;
@@ -76,7 +138,7 @@ sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds b
     if (offset > 0) {
         MYMPD_LOG_DEBUG(partition_state->name, "Albumart found by mpd for uri \"%s\" (%lu bytes)", uri, (unsigned long)sdslen(*binary));
         const char *mime_type = get_mime_type_by_magic_stream(*binary);
-        buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART, request_id);
+        buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
         buffer = jsonrpc_end(buffer);
         if (partition_state->mympd_state->config->covercache_keep_days > 0) {
@@ -88,7 +150,7 @@ sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds b
     }
     else {
         MYMPD_LOG_INFO(partition_state->name, "No albumart found by mpd for uri \"%s\"", uri);
-        buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
+        buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }
     return buffer;
 }

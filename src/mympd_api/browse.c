@@ -5,9 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/song.h"
-#include "src/lib/sticker.h"
-#include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/browse.h"
 
 #include "dist/utf8/utf8.h"
@@ -16,9 +13,11 @@
 #include "src/lib/log.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/sticker.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/search.h"
 #include "src/mpd_client/search_local.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/extra_media.h"
 #include "src/mympd_api/sticker.h"
