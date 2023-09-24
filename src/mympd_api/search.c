@@ -11,6 +11,7 @@
 #include "src/lib/jsonrpc.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/search.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/sticker.h"
 
@@ -49,6 +50,11 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
     }
 
     unsigned entities_returned = 0;
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+    }
     if (mpd_search_commit(partition_state->conn) == true) {
         struct mpd_song *song;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
@@ -61,13 +67,18 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
                 tagcols->stickers_len > 0)
             {
                 buffer = sdscatlen(buffer, ",", 1);
-                buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
+                buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
             }
             buffer = sdscatlen(buffer, "}", 1);
             mpd_song_free(song);
         }
     }
     mpd_response_finish(partition_state->conn);
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+    }
     *result = mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_songs");
     if (*result == false) {
         return buffer;

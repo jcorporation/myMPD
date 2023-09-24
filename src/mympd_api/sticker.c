@@ -36,7 +36,7 @@ bool mympd_api_sticker_set_like(struct t_partition_state *partition_state, sds u
 
 /**
  * Gets the stickers from sticker cache and returns a json list
- * Shortcut for get_sticker_from_cache and print_sticker
+ * Shortcut for stickerdb_get_all and print_sticker
  * @param buffer already allocated sds string to append the list
  * @param partition_state pointer to partition state
  * @param uri song uri
@@ -49,6 +49,27 @@ sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *partition_
     }
     struct t_sticker sticker;
     stickerdb_get_all(partition_state->mympd_state->stickerdb, uri, &sticker, false);
+    buffer = mympd_api_sticker_print(buffer, &sticker, tags);
+    sticker_struct_clear(&sticker);
+    return buffer;
+}
+
+/**
+ * Gets the stickers from sticker cache and returns a json list.
+ * Shortcut for stickerdb_get_all_batch and print_sticker.
+ * You must exit the stickerdb idle mode before.
+ * @param buffer already allocated sds string to append the list
+ * @param partition_state pointer to partition state
+ * @param uri song uri
+ * @param tags array of stickers to print
+ * @return pointer to the modified buffer
+ */
+sds mympd_api_sticker_get_print_batch(sds buffer, struct t_partition_state *partition_state, const char *uri, const struct t_tags *tags) {
+    if (tags->stickers_len == 0) {
+        return buffer;
+    }
+    struct t_sticker sticker;
+    stickerdb_get_all_batch(partition_state->mympd_state->stickerdb, uri, &sticker, false);
     buffer = mympd_api_sticker_print(buffer, &sticker, tags);
     sticker_struct_clear(&sticker);
     return buffer;

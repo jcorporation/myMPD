@@ -16,6 +16,7 @@
 #include "src/lib/validate.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/search_local.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/sticker.h"
 
@@ -171,6 +172,11 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
     long real_limit = offset + limit;
     struct t_list *expr_list = parse_search_expression_to_list(expression);
     // first get entries from memory
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+    }
     if (offset < partition_state->last_played.length) {
         struct t_list_node *current = partition_state->last_played.head;
         while (current != NULL) {
@@ -247,6 +253,11 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
         FREE_SDS(lp_file);
     }
     FREE_SDS(obj);
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+    }
     free_search_expression_list(expr_list);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", -1, true);
@@ -287,7 +298,7 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
                     tagcols->stickers_len > 0)
                 {
                     buffer = sdscatlen(buffer, ",", 1);
-                    buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
+                    buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
                 }
                 buffer = sdscatlen(buffer, "}", 1);
             }
