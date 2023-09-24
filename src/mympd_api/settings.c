@@ -97,7 +97,8 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
             mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, value);
         }
         else {
-            mympd_state->stickerdb->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, value);
+            // stickerdb connection
+            mympd_state->stickerdb->mpd_state->mpd_host = sds_replace(mympd_state->stickerdb->mpd_state->mpd_host, value);
         }
     }
     else if ((strcmp(key, "mpdPort") == 0 || strcmp(key, "stickerdbMpdPort") == 0) &&
@@ -112,6 +113,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
             mympd_state->mpd_state->mpd_port = mpd_port;
         }
         else {
+            // stickerdb connection
             mympd_state->stickerdb->mpd_state->mpd_port = mpd_port;
         }
     }
@@ -127,7 +129,8 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
                 mympd_state->mpd_state->mpd_pass = sds_replace(mympd_state->mpd_state->mpd_pass, value);
             }
             else {
-                mympd_state->stickerdb->mpd_state->mpd_pass = sds_replace(mympd_state->mpd_state->mpd_pass, value);
+                // stickerdb connection
+                mympd_state->stickerdb->mpd_state->mpd_pass = sds_replace(mympd_state->stickerdb->mpd_state->mpd_pass, value);
             }
         }
         else {
@@ -150,6 +153,8 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
             }
         }
         else {
+            // stickerdb connection
+            mympd_state->stickerdb->mpd_state->mpd_timeout = mpd_timeout;
             // this disconnects the stickerdb connection on next stickerdb call
             mympd_state->stickerdb->conn_state = MPD_FAILURE;
         }
@@ -169,6 +174,8 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
             }
         }
         else {
+            // stickerdb connection
+            mympd_state->stickerdb->mpd_state->mpd_keepalive = keepalive;
             // this disconnects the stickerdb connection on next stickerdb call
             mympd_state->stickerdb->conn_state = MPD_FAILURE;
         }

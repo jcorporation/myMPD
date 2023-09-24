@@ -55,6 +55,14 @@ function initModalSettingsConnection() {
             if (parseSettings(obj) === true) {
                 cleanupModalId('modalConnection');
                 populateConnectionFrm();
+                if (settings.mpdHost !== settings.stickerdbMpdHost ||
+                    settings.mpdPort !== settings.stickerdbMpdPort)
+                {
+                    toggleBtnChkCollapseId('modalConnectionStickerdbToggleBtn', 'modalConnectionStickerdbCollapse', true);
+                }
+                else {
+                    toggleBtnChkCollapseId('modalConnectionStickerdbToggleBtn', 'modalConnectionStickerdbCollapse', false);
+                }
                 uiElements.modalConnection.show();
             }
         });
@@ -93,6 +101,15 @@ function saveConnection(target) {
         return;
     }
 
+    const useStickerdbMPDhost = getBtnChkValueId('modalConnectionStickerdbToggleBtn');
+    if (useStickerdbMPDhost === false) {
+        elGetById('modalConnectionStickerdbMpdHostInput').value = elGetById('modalConnectionMpdHostInput').value;
+        elGetById('modalConnectionStickerdbMpdPortInput').value = elGetById('modalConnectionMpdPortInput').value;
+        elGetById('modalConnectionStickerdbMpdPassInput').value = elGetById('modalConnectionMpdPassInput').value;
+        elGetById('modalConnectionStickerdbMpdTimeoutInput').value = elGetById('modalConnectionMpdTimeoutInput').value;
+        elGetById('modalConnectionStickerdbMpdKeepaliveInput').value = elGetById('modalConnectionMpdKeepaliveInput').value;
+    }
+
     if (formToJson('modalConnection', settingsParams, settingsConnectionFields) === true) {
         if (musicDirectory === 'custom') {
             settingsParams.musicDirectory = elGetById('modalConnectionMusicDirectoryInput').value;
@@ -106,9 +123,9 @@ function saveConnection(target) {
         else {
             settingsParams.playlistDirectory = playlistDirectory;
         }
-
         settingsParams.mpdBinarylimit = settingsParams.mpdBinarylimit * 1024;
         settingsParams.mpdTimeout = settingsParams.mpdTimeout * 1000;
+        settingsParams.stickerdbMpdTimeout = settingsParams.stickerdbMpdTimeout * 1000;
         btnWaiting(target, true);
         sendAPIpartition('default', 'MYMPD_API_CONNECTION_SAVE', settingsParams, saveConnectionClose, true);
     }
@@ -132,6 +149,7 @@ function saveConnectionClose(obj) {
 function populateConnectionFrm() {
     jsonToForm(settings, settingsConnectionFields, 'modalConnection');
     elGetById('modalConnectionMpdTimeoutInput').value = settings.mpdTimeout / 1000;
+    elGetById('modalConnectionStickerdbMpdTimeoutInput').value = settings.stickerdbMpdTimeout / 1000;
     elGetById('modalConnectionMpdBinarylimitInput').value = settings.mpdBinarylimit / 1024;
 
     if (settings.musicDirectory === 'auto') {
