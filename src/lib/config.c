@@ -126,7 +126,6 @@ void mympd_config_defaults(struct t_config *config) {
     config->save_caches = startup_getenv_bool("MYMPD_SAVE_CACHES", CFG_MYMPD_SAVE_CACHES, config->first_startup);
     config->mympd_uri = startup_getenv_string("MYMPD_URI", CFG_MYMPD_URI, vcb_isname, config->first_startup);
     config->albums = startup_getenv_bool("MYMPD_ENABLE_ALBUMS", CFG_MYMPD_ENABLE_ALBUMS, config->first_startup);
-    config->stickers = startup_getenv_bool("MYMPD_ENABLE_STICKERS", CFG_MYMPD_ENABLE_STICKERS, config->first_startup);
 }
 
 /**
@@ -165,7 +164,6 @@ bool mympd_config_rw(struct t_config *config, bool write) {
     config->save_caches = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "save_caches", config->save_caches, write);
     config->mympd_uri = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "mympd_uri", config->mympd_uri, vcb_isname, write);
     config->albums = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "enable_albums", config->albums, write);
-    config->stickers = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "enable_stickers", config->stickers, write);
     //overwrite configured loglevel
     config->loglevel = getenv_int("MYMPD_LOGLEVEL", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX);
     return true;

@@ -74,7 +74,7 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
         while ((pair = mpd_recv_command_pair(partition_state->conn)) != NULL) {
             if (strcmp(pair->value, "sticker") == 0) {
                 MYMPD_LOG_DEBUG("stickerdb", "MPD supports stickers");
-                partition_state->mpd_state->feat_stickers = partition_state->mympd_state->config->stickers;
+                partition_state->mpd_state->feat_stickers = true;
                 mpd_return_pair(partition_state->conn, pair);
                 // set feature flag also on shared mpd state
                 partition_state->mpd_state->feat_stickers = true;

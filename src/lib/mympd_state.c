@@ -206,7 +206,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
  * @param mpd_state pointer to mpd_state
  */
 void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
-    mpd_state->feat_stickers = mpd_state->mympd_state->config->stickers;
+    mpd_state->feat_stickers = false;
     mpd_state->feat_playlists = false;
     mpd_state->feat_tags = false;
     mpd_state->feat_fingerprint = false;
