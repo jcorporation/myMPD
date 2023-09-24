@@ -393,9 +393,7 @@ function parseMPDSettings() {
         setColsChecklist('Playback', menu);
     }
 
-    if (features.featAlbums === false ||
-        features.featTags === false)
-    {
+    if (features.featTags === false) {
         app.cards.Browse.active = 'Filesystem';
     }
 

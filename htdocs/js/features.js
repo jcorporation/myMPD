@@ -62,7 +62,6 @@ function setFeatures() {
         features.featStartsWith = settings.features.featStartsWith;
         features.featPcre = settings.features.featPcre;
         features.featPcreOrStartsWith = settings.features.featPcre || settings.features.featStartsWith;
-        features.featAlbums = settings.features.featAlbums;
     }
 }
 

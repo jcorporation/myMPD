@@ -295,7 +295,7 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
  * @return new sds pointer to buffer
  */
 sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
-        const struct mpd_song *song)
+        const struct mpd_song *song, bool album_adv_mode)
 {
     const char *uri = mpd_song_get_uri(song);
     if (tags_enabled == true) {
@@ -305,7 +305,7 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
             buffer = sdscatlen(buffer, ",", 1);
         }
         if (is_streamuri(uri) == false) {
-            sds albumid = album_cache_get_key(sdsempty(), song);
+            sds albumid = album_cache_get_key(sdsempty(), song, album_adv_mode);
             buffer = tojson_sds(buffer, "AlbumId", albumid, true);
             FREE_SDS(albumid);
         }
@@ -329,9 +329,9 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
  * @return new sds pointer to buffer
  */
 sds print_album_tags(sds buffer, const struct t_tags *tagcols,
-        const struct mpd_song *album)
+        const struct mpd_song *album, bool album_adv_mode)
 {
-    buffer = print_song_tags(buffer, true, tagcols, album);
+    buffer = print_song_tags(buffer, true, tagcols, album, album_adv_mode);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
     buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), false);

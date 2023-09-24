@@ -675,7 +675,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                         ? tojson_char(buffer, "Type", "stream", true)
                         : tojson_char(buffer, "Type", "song", true);
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
-                    buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
+                    buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, partition_state->mympd_state->config->albums);
                     if (partition_state->mpd_state->feat_stickers == true &&
                         tagcols->stickers_len > 0)
                     {

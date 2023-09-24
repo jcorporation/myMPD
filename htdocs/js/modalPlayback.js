@@ -240,7 +240,7 @@ function populatePlaybackFrm() {
             elEnableId('modalPlaybackJukeboxLastPlayedInput');
             elEnableId('modalPlaybackJukeboxIgnoreHatedInput');
         }
-        if (features.featAlbums === false) {
+        if (features.featTags === false) {
             elGetById('modalPlaybackJukeboxModeGroup').children[1].classList.add('rounded-end');
         }
         else {

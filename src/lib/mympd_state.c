@@ -223,7 +223,6 @@ void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
     mpd_state->feat_playlist_dir_auto = false;
     mpd_state->feat_starts_with = false;
     mpd_state->feat_pcre = true;
-    mpd_state->feat_albums = false;
 }
 
 /**

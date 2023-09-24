@@ -66,11 +66,9 @@ function addTagList(elId, list) {
         elId === 'BrowseRadioRadiobrowserNavDropdown')
     {
         elClear(stack);
-        if (features.featAlbums === true) {
-            stack.appendChild(
-                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, 'Database')
-            );
-        }
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, 'Database')
+        );
     }
     if (elId === 'BrowseDatabaseAlbumListTagDropdown' ||
         elId === 'BrowseDatabaseTagListTagDropdown' ||

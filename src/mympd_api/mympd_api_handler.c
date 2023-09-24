@@ -908,11 +908,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         case MYMPD_API_QUEUE_APPEND_ALBUMS:
         case MYMPD_API_QUEUE_REPLACE_ALBUMS: {
-            if (partition_state->mpd_state->feat_albums == false) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album feature is disabled");
-                break;
-            }
             struct t_list albumids;
             list_init(&albumids);
             if (json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isalnum, MPD_COMMANDS_MAX, &parse_error) == true &&
@@ -929,11 +924,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         }
         case MYMPD_API_QUEUE_INSERT_ALBUMS: {
-            if (partition_state->mpd_state->feat_albums == false) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album feature is disabled");
-                break;
-            }
             struct t_list albumids;
             list_init(&albumids);
             if (json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isalnum, MPD_COMMANDS_MAX, &parse_error) == true &&
@@ -951,11 +941,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         }
         case MYMPD_API_QUEUE_APPEND_ALBUM_DISC:
         case MYMPD_API_QUEUE_REPLACE_ALBUM_DISC: {
-            if (partition_state->mpd_state->feat_albums == false) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album feature is disabled");
-                break;
-            }
             if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true &&
                 json_get_string(request->data, "$.params.disc", 1, NAME_LEN_MAX, &sds_buf2, vcb_isdigit, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
@@ -970,11 +955,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         }
         case MYMPD_API_QUEUE_INSERT_ALBUM_DISC: {
-            if (partition_state->mpd_state->feat_albums == false) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album feature is disabled");
-                break;
-            }
             if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true &&
                 json_get_string(request->data, "$.params.disc", 1, NAME_LEN_MAX, &sds_buf2, vcb_isdigit, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
@@ -1168,11 +1148,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         case MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUMS:
         case MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUMS: {
-            if (partition_state->mpd_state->feat_albums == false) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album feature is disabled");
-                break;
-            }
             struct t_list albumids;
             list_init(&albumids);
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
@@ -1188,11 +1163,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         }
         case MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUMS: {
-            if (partition_state->mpd_state->feat_albums == false) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album feature is disabled");
-                break;
-            }
             struct t_list albumids;
             list_init(&albumids);
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
@@ -1208,11 +1178,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         }
         case MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC:
         case MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_DISC:
-            if (partition_state->mpd_state->feat_albums == false) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album feature is disabled");
-                break;
-            }
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.albumid", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isalnum, &parse_error) == true &&
                 json_get_string(request->data, "$.params.disc", 1, FILENAME_LEN_MAX, &sds_buf3, vcb_isdigit, &parse_error) == true)
@@ -1225,11 +1190,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_DISC:
-            if (partition_state->mpd_state->feat_albums == false) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album feature is disabled");
-                break;
-            }
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.albumid", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isalnum, &parse_error) == true &&
                 json_get_string(request->data, "$.params.disc", 1, FILENAME_LEN_MAX, &sds_buf3, vcb_isdigit, &parse_error) == true &&
@@ -1427,11 +1387,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_DATABASE_ALBUM_LIST: {
-            if (partition_state->mpd_state->feat_albums == false) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album feature is disabled");
-                break;
-            }
             struct t_tags tagcols;
             reset_t_tags(&tagcols);
             if (json_get_long(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &parse_error) == true &&
@@ -1447,11 +1402,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         }
         case MYMPD_API_DATABASE_ALBUM_DETAIL: {
-            if (partition_state->mpd_state->feat_albums == false) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album feature is disabled");
-                break;
-            }
             struct t_tags tagcols;
             reset_t_tags(&tagcols);
             if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true &&

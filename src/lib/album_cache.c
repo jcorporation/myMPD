@@ -247,16 +247,19 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
  * Constructs the albumkey from song info
  * @param albumkey already allocated sds string to set the key
  * @param song mpd song struct
+ * @param adv_mode advanced mode, uses the MusicBrainz album id field
  * @return pointer to changed albumkey
  */
-sds album_cache_get_key(sds albumkey, const struct mpd_song *song) {
+sds album_cache_get_key(sds albumkey, const struct mpd_song *song, bool adv_mode) {
     sdsclear(albumkey);
-    // use MusicBrainz album id
-    const char *mb_album_id = mpd_song_get_tag(song, MPD_TAG_MUSICBRAINZ_ALBUMID, 0);
-    if (mb_album_id != NULL &&
-        strlen(mb_album_id) == MBID_LENGTH) // MBID must be 36 characters
-    {
-        return sdscatlen(albumkey, mb_album_id, MBID_LENGTH);
+    if (adv_mode == true) {
+        // use MusicBrainz album id
+        const char *mb_album_id = mpd_song_get_tag(song, MPD_TAG_MUSICBRAINZ_ALBUMID, 0);
+        if (mb_album_id != NULL &&
+            strlen(mb_album_id) == MBID_LENGTH) // MBID must be 36 characters
+        {
+            return sdscatlen(albumkey, mb_album_id, MBID_LENGTH);
+        }
     }
 
     // fallback to hashed AlbumArtist::Album tag

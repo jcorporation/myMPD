@@ -91,8 +91,8 @@ function gotoBrowse(event) {
     {
         return;
     }
-    if (features.featAlbums === false) {
-        // open search if album feature is disabled
+    if (features.featTags === false) {
+        // open search if tags are disabled
         gotoSearch(tag, name);
     }
     else if (settings.tagListBrowse.includes(tag)) {

@@ -11,6 +11,7 @@ Following tags should be enabled for the best user experience:
 - Album
 - AlbumArtist / MUSICBRAINZ_ALBUMID (for support of multiartist albums)
 - Artist
+- Date (for simple album mode)
 - Disc (to support multidisc albums)
 - Genre
 - Name (to display extended playlist information)
@@ -38,6 +39,21 @@ I personally use [Picard](https://picard.musicbrainz.org/) to tag my music files
 
 ### Albums
 
-- If available myMPD uses the MUSICBRAINZ_ALBUMID to group songs into albums, else it falls back to AlbumArtist + Album. 
+myMPD supports two modes for handling albums.
+
+The default is the advanced album mode. It should be preferred one, except your mpd song database is very huge.
+
+#### Advanced album mode
+
+The album mode queries each song to build the album cache. This can take a long time, if your mpd song database is very huge.
+
+- If available myMPD uses the MUSICBRAINZ_ALBUMID to group songs into albums, else it falls back to AlbumArtist + Album.
 - To support multiartist albums you must use the MUSICBRAINZ_ALBUMID tag or the AlbumArtist tag and set it e. g. to `Various`.
 - To support multidisc albums you must use the Disc tag (numeric or in the format `1/2`).
+
+#### Simple album mode
+
+The simple album mode uses a simple command to get all uniq album tags from mpd. It is faster than the advanced album mode, but does not provide the same feature set.
+
+- myMPD uses the combination of Album + AlbumArtist + Date to identify uniq albums.
+- All the advanced properties as song count, album duration, etc. are not available.

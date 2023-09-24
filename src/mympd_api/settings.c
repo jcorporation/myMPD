@@ -967,7 +967,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "featPlaylistDirAuto", partition_state->mpd_state->feat_playlist_dir_auto, true);
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat_starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat_pcre, true);
-        buffer = tojson_bool(buffer, "featAlbums", mympd_state->mpd_state->feat_albums, true);
+        buffer = tojson_bool(buffer, "featAlbums", mympd_state->config->albums, true);
     }
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
     #ifdef MYMPD_ENABLE_LUA

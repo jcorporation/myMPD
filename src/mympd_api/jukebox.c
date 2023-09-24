@@ -98,7 +98,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
                             }
                             buffer = sdscat(buffer, "{\"Type\": \"song\",");
                             buffer = tojson_long(buffer, "Pos", entity_count, true);
-                            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
+                            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, partition_state->mympd_state->config->albums);
                             if (partition_state->mpd_state->feat_stickers == true &&
                                 tagcols->stickers_len > 0)
                             {
@@ -137,7 +137,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
                     }
                     buffer = sdscat(buffer, "{\"Type\": \"album\",");
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
-                    buffer = print_album_tags(buffer, &partition_state->mpd_state->tags_album, album);
+                    buffer = print_album_tags(buffer, &partition_state->mpd_state->tags_album, album, partition_state->mympd_state->config->albums);
                     buffer = sdscatlen(buffer, "}", 1);
                 }
                 entities_found++;

@@ -89,7 +89,6 @@ struct t_mpd_state {
     bool feat_playlist_dir_auto;        //!< mpd supports autodetection of playlist directory
     bool feat_starts_with;              //!< mpd supports starts_with filter expression
     bool feat_pcre;                     //!< mpd supports pcre for filter expressions
-    bool feat_albums;                   //!< album feature is enabled and supported
     //caches
     struct t_cache album_cache;         //!< the album cache created by the mpd_worker thread
     //lists

@@ -143,7 +143,7 @@ function addMenuItemsNavbarActions(target, popoverBody) {
             addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", false]}, 'Update database');
             addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true]}, 'Rescan database');
             addDivider(popoverBody);
-            if (features.featAlbums === true) {
+            if (features.featTags === true) {
                 addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
             }
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
@@ -687,7 +687,7 @@ function createMenuListsSecondary(target, contextMenuTitle, contextMenuBody) {
             }
             const albumid = getData(dataNode, 'AlbumId');
             if (albumid !== undefined &&
-                features.featAlbums === true)
+                features.featTags === true)
             {
                 contextMenuTitle.textContent = tn('Album');
                 contextMenuTitle.classList.add('offcanvas-title-album');
