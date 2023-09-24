@@ -25,8 +25,8 @@ myMPD uses stickers to save statistics and votes of songs.
 
 - The song has been played for at least 10 seconds
 
-## Sticker cache
+## Central sticker database
 
-myMPD uses an internal sticker cache to speed up the access. Sticker writes are always delegated to MPD, but reads are always from the cache.
+myMPD uses a distinct mpd connection to read and write stickers. You can configure this connection to use an other mpd server to maintain song statistics across several myMPD instances.
 
-<div class="alert alert-warning">Stickers should only modified by myMPD.</div>
+- [MPD satellite setup]({{site.baseurl}}/additional-topics/mpd-satellite-setup.md)

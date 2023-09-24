@@ -8,7 +8,7 @@
 #include "src/mympd_api/sticker.h"
 
 #include "src/lib/jsonrpc.h"
-#include "src/lib/sticker_cache.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/trigger.h"
 
 /**
@@ -24,7 +24,7 @@ bool mympd_api_sticker_set_like(struct t_partition_state *partition_state, sds u
         *error = sdscat(*error, "MPD stickers are disabled");
         return false;
     }
-    bool rc = sticker_set_like(&partition_state->mpd_state->sticker_queue, uri, like);
+    bool rc = stickerdb_set_like(partition_state->mympd_state->stickerdb, uri, (enum sticker_like)like);
     if (rc == false) {
         *error = sdscat(*error, "Failed to set like");
         return false;
@@ -36,39 +36,61 @@ bool mympd_api_sticker_set_like(struct t_partition_state *partition_state, sds u
 
 /**
  * Gets the stickers from sticker cache and returns a json list
- * Shortcut for get_sticker_from_cache and print_sticker
+ * Shortcut for stickerdb_get_all and print_sticker
  * @param buffer already allocated sds string to append the list
- * @param sticker_cache pointer to sticker cache
+ * @param partition_state pointer to partition state
  * @param uri song uri
+ * @param tags array of stickers to print
  * @return pointer to the modified buffer
  */
-sds mympd_api_sticker_get_print(sds buffer, struct t_cache *sticker_cache, const char *uri) {
-    struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
-    return mympd_api_sticker_print(buffer, sticker);
+sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *partition_state, const char *uri, const struct t_tags *tags) {
+    if (tags->stickers_len == 0) {
+        return buffer;
+    }
+    struct t_sticker sticker;
+    stickerdb_get_all(partition_state->mympd_state->stickerdb, uri, &sticker, false);
+    buffer = mympd_api_sticker_print(buffer, &sticker, tags);
+    sticker_struct_clear(&sticker);
+    return buffer;
+}
+
+/**
+ * Gets the stickers from sticker cache and returns a json list.
+ * Shortcut for stickerdb_get_all_batch and print_sticker.
+ * You must exit the stickerdb idle mode before.
+ * @param buffer already allocated sds string to append the list
+ * @param partition_state pointer to partition state
+ * @param uri song uri
+ * @param tags array of stickers to print
+ * @return pointer to the modified buffer
+ */
+sds mympd_api_sticker_get_print_batch(sds buffer, struct t_partition_state *partition_state, const char *uri, const struct t_tags *tags) {
+    if (tags->stickers_len == 0) {
+        return buffer;
+    }
+    struct t_sticker sticker;
+    stickerdb_get_all_batch(partition_state->mympd_state->stickerdb, uri, &sticker, false);
+    buffer = mympd_api_sticker_print(buffer, &sticker, tags);
+    sticker_struct_clear(&sticker);
+    return buffer;
 }
 
 /**
  * Print the sticker struct as json list
  * @param buffer already allocated sds string to append the list
  * @param sticker pointer to sticker struct to print
+ * @param tags array of stickers to print
  * @return pointer to the modified buffer
  */
-sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker) {
-    if (sticker != NULL) {
-        buffer = tojson_long(buffer, "stickerPlayCount", sticker->play_count, true);
-        buffer = tojson_long(buffer, "stickerSkipCount", sticker->skip_count, true);
-        buffer = tojson_long(buffer, "stickerLike", sticker->like, true);
-        buffer = tojson_time(buffer, "stickerLastPlayed", sticker->last_played, true);
-        buffer = tojson_time(buffer, "stickerLastSkipped", sticker->last_skipped, true);
-        buffer = tojson_time(buffer, "stickerElapsed", sticker->elapsed, false);
+sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct t_tags *tags) {
+    if (sticker == NULL) {
+        return buffer;
     }
-    else {
-        buffer = tojson_long(buffer, "stickerPlayCount", 0, true);
-        buffer = tojson_long(buffer, "stickerSkipCount", 0, true);
-        buffer = tojson_long(buffer, "stickerLike", 1, true);
-        buffer = tojson_long(buffer, "stickerLastPlayed", 0, true);
-        buffer = tojson_long(buffer, "stickerLastSkipped", 0, true);
-        buffer = tojson_llong(buffer, "stickerElapsed", 0, false);
+    for (size_t i = 0; i < tags->stickers_len; i++) {
+        if (i > 0) {
+            buffer = sdscatlen(buffer, ",", 1);
+        }
+        buffer = tojson_llong(buffer, sticker_name_lookup(tags->stickers[i]), sticker->mympd[tags->stickers[i]], false);
     }
     return buffer;
 }

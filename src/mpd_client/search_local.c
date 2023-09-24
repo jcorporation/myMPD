@@ -64,7 +64,7 @@ bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
         return true;
     }
     bool rc = false;
-    if (tagcols->len == 0) {
+    if (tagcols->tags_len == 0) {
         //fallback to filename if no tags are enabled
         sds filename = sdsnew(mpd_song_get_uri(song));
         basename_uri(filename);
@@ -74,7 +74,7 @@ bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
         FREE_SDS(filename);
         return rc;
     }
-    for (unsigned i = 0; i < tagcols->len; i++) {
+    for (unsigned i = 0; i < tagcols->tags_len; i++) {
         const char *value;
         unsigned idx = 0;
         while ((value = mpd_song_get_tag(song, tagcols->tags[i], idx)) != NULL) {
@@ -201,7 +201,7 @@ void *free_search_expression_list(struct t_list *expr_list) {
  */
 bool search_song_expression(const struct mpd_song *song, const struct t_list *expr_list, const struct t_tags *tag_types) {
     struct t_tags one_tag;
-    one_tag.len = 1;
+    one_tag.tags_len = 1;
     struct t_list_node *current = expr_list->head;
     while (current != NULL) {
         struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
@@ -211,7 +211,7 @@ bool search_song_expression(const struct mpd_song *song, const struct t_list *ex
             : &one_tag;  //use only selected tag
 
         bool rc = false;
-        for (size_t i = 0; i < tags->len; i++) {
+        for (size_t i = 0; i < tags->tags_len; i++) {
             rc = true;
             unsigned j = 0;
             const char *value = NULL;

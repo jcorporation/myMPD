@@ -25,7 +25,7 @@ static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype", "AudioFormat", "LastModified",
-    "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", "stickerElapsed",
+    "Lyrics", "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", "elapsed",
     "Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate", //Columns for webradiodb
     "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes", //Columns for radiobrowser
     "Discs", "SongCount", //Columns for albums

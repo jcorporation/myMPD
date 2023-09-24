@@ -12,7 +12,7 @@
 #include "dist/sds/sds.h"
 #include "src/lib/config_def.h"
 #include "src/lib/list.h"
-
+#include "src/lib/tags.h"
 #include <poll.h>
 #include <time.h>
 
@@ -37,15 +37,6 @@ enum mpd_conn_states {
     MPD_DISCONNECT_INSTANT,  //!< disconnect mpd and reconnect as soon as possible
     MPD_WAIT,                //!< waiting for reconnection
     MPD_REMOVED              //!< connection was removed
-};
-
-/**
- * Struct for a mpd tag lists
- * libmpdclient uses the same declaration
- */
-struct t_tags {
-    size_t len;                 //!< number of tags in the array
-    enum mpd_tag_type tags[64]; //!< tags array
 };
 
 /**
@@ -101,7 +92,6 @@ struct t_mpd_state {
     bool feat_albums;                   //!< album feature is enabled and supported
     //caches
     struct t_cache album_cache;         //!< the album cache created by the mpd_worker thread
-    struct t_cache sticker_cache;       //!< the sticker cache created by the mpd_worker thread
     //lists
     long last_played_count;             //!< number of songs to keep in the last played list (disk + memory)
     struct t_list sticker_queue;        //!< queue for stickers to set (cache if sticker cache is rebuilding) 
@@ -218,6 +208,7 @@ struct t_mympd_state {
     struct t_config *config;                      //!< pointer to static config
     struct t_mpd_state *mpd_state;                //!< mpd state shared across partitions
     struct t_partition_state *partition_state;    //!< list of partition states
+    struct t_partition_state *stickerdb;          //!< states for stickerdb connection
     struct pollfd fds[MPD_CONNECTION_MAX];        //!< mpd connection fds
     nfds_t nfds;                                  //!< number of mpd connection fds
     struct t_timer_list timer_list;               //!< list of timers
@@ -272,8 +263,5 @@ void mpd_state_free(struct t_mpd_state *mpd_state);
 
 void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state);
 void partition_state_free(struct t_partition_state *partition_state);
-
-void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);
-void reset_t_tags(struct t_tags *tags);
 
 #endif

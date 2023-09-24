@@ -15,6 +15,7 @@
 #include "src/lib/smartpls.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/extra_media.h"
 #include "src/mympd_api/sticker.h"
@@ -135,6 +136,11 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
     raxIterator iter;
     raxStart(&iter, entity_list);
     raxSeek(&iter, "^", NULL, 0);
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+    }
     while (raxNext(&iter)) {
         struct t_dir_entry *entry_data = (struct t_dir_entry *)iter.data;
         if (entity_count >= offset &&
@@ -153,9 +159,11 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                     basename_uri(filename);
                     buffer = tojson_sds(buffer, "Filename", filename, false);
                     FREE_SDS(filename);
-                    if (partition_state->mpd_state->feat_stickers) {
+                    if (partition_state->mpd_state->feat_stickers == true &&
+                        tagcols->stickers_len > 0)
+                    {
                         buffer = sdscatlen(buffer, ",", 1);
-                        buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
+                        buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                     break;
@@ -189,6 +197,11 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
         entity_count++;
     }
     raxStop(&iter);
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+    }
     buffer = sdscatlen(buffer, "],", 2);
     buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, path, true);
     buffer = sdscatlen(buffer, ",", 1);

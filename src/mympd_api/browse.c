@@ -5,6 +5,9 @@
 */
 
 #include "compile_time.h"
+#include "mpd/song.h"
+#include "src/lib/sticker.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/browse.h"
 
 #include "dist/utf8/utf8.h"
@@ -13,7 +16,6 @@
 #include "src/lib/log.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/sticker_cache.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/search.h"
 #include "src/mpd_client/search_local.h"
@@ -67,29 +69,40 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
 
         struct mpd_song *song;
         int entities_returned = 0;
-
+        if (partition_state->mpd_state->feat_stickers == true &&
+            tagcols->stickers_len > 0)
+        {
+            stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+        }
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
             buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
-            if (partition_state->mpd_state->feat_stickers) {
+            if (partition_state->mpd_state->feat_stickers == true &&
+                tagcols->stickers_len > 0)
+            {
                 buffer = sdscatlen(buffer, ",", 1);
-                struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
-                buffer = mympd_api_sticker_print(buffer, sticker);
-                if (sticker != NULL &&
-                    sticker->last_played > last_played_max)
-                {
-                    last_played_max = sticker->last_played;
+                struct t_sticker sticker;
+                stickerdb_get_all_batch(partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), &sticker, false);
+                buffer = mympd_api_sticker_print(buffer, &sticker, tagcols);
+                if (sticker.mympd[STICKER_LAST_PLAYED] > last_played_max) {
+                    last_played_max = sticker.mympd[STICKER_LAST_PLAYED];
                     last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
                 }
+                sticker_struct_clear(&sticker);
             }
             buffer = sdscatlen(buffer, "}", 1);
             mpd_song_free(song);
         }
     }
     mpd_response_finish(partition_state->conn);
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+    }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
         FREE_SDS(last_played_song_uri);
         return buffer;

@@ -1086,6 +1086,21 @@ const APImethods = {
                 "example": 6600,
                 "desc": "MPD port to use"
             },
+            "mpdPass": {
+                "type": APItypes.string,
+                "example": "dontsetpassword",
+                "desc": "MPD password to use, set it to 'dontsetpassword' to not change the password"
+            },
+            "mpdTimeout": {
+                "type": APItypes.uint,
+                "example": 120000,
+                "desc": "MPD timeout in ms"
+            },
+            "mpdKeepalive": {
+                "type": APItypes.bool,
+                "example": true,
+                "desc": "Enables tcp keepalives"
+            },
             "musicDirectory": {
                 "type": APItypes.string,
                 "example": "auto",
@@ -1107,10 +1122,30 @@ const APImethods = {
                 "example": 8192,
                 "desc": "chunk size in bytes for binary data"
             },
-            "mpdTimeout": {
+            "stickerdbMpdHost": {
+                "type": APItypes.string,
+                "example": "/run/mpd/socket",
+                "desc": "MPD host or socket (sticker database)"
+            },
+            "stickerdbMpdPort": {
+                "type": APItypes.uint,
+                "example": 6600,
+                "desc": "MPD port to use (sticker database)"
+            },
+            "stickerdbMpdPass": {
+                "type": APItypes.string,
+                "example": "dontsetpassword",
+                "desc": "MPD password to use, set it to 'dontsetpassword' to not change the password (sticker database)"
+            },
+            "stickerdbMpdTimeout": {
                 "type": APItypes.uint,
                 "example": 120000,
-                "desc": "MPD timeout in ms"
+                "desc": "MPD timeout in ms (sticker database)"
+            },
+            "stickerdbMpdKeepalive": {
+                "type": APItypes.bool,
+                "example": true,
+                "desc": "Enables tcp keepalives (sticker database)"
             }
         }
     },

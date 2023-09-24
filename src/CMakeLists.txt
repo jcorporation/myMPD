@@ -58,8 +58,9 @@ target_sources(mympd PRIVATE
   lib/rax_extras.c
   lib/sds_extras.c
   lib/smartpls.c
+  lib/sticker.c
   lib/state_files.c
-  lib/sticker_cache.c
+  lib/tags.c
   lib/utility.c
   lib/validate.c
   mpd_client/autoconf.c
@@ -74,6 +75,7 @@ target_sources(mympd PRIVATE
   mpd_client/presets.c
   mpd_client/search.c
   mpd_client/search_local.c
+  mpd_client/stickerdb.c
   mpd_client/shortcuts.c
   mpd_client/tags.c
   mpd_client/volume.c

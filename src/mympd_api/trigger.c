@@ -61,6 +61,7 @@ static const char *const trigger_event_names[] = {
     "mpd_output",
     "mpd_options",
     "mpd_partition",
+    "mpd_sticker",           // triggered through stickerdb connection
     NULL
 };
 

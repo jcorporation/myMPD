@@ -861,7 +861,49 @@ const settingsConnectionFields = {
         "help": "helpConnectionBinaryLimit",
         "unit": "kB",
         "class": ["alwaysEnabled"]
-    }
+    },
+    "stickerdbMpdHost": {
+        "defaultValue": defaults["MYMPD_MPD_HOST"],
+        "inputType": "text",
+        "title": "MPD host",
+        "form": "modalConnectionStickerdbFrm",
+        "help": "helpConnectionMPDHost",
+        "class": ["alwaysEnabled"]
+    },
+    "stickerdbMpdPort": {
+        "defaultValue": defaults["MYMPD_MPD_PORT"],
+        "inputType": "text",
+        "contentType": "number",
+        "title": "MPD port",
+        "form": "modalConnectionStickerdbFrm",
+        "help": "helpConnectionMPDPort",
+        "class": ["alwaysEnabled"]
+    },
+    "stickerdbMpdPass": {
+        "defaultValue": defaults["MYMPD_MPD_PASS"],
+        "inputType": "password",
+        "title": "MPD password",
+        "form": "modalConnectionStickerdbFrm",
+        "help": "helpConnectionMPDPassword",
+        "class": ["alwaysEnabled"]
+    },
+    "stickerdbMpdTimeout": {
+        "defaultValue": defaults["MYMPD_MPD_TIMEOUT_SEC"],
+        "inputType": "text",
+        "title": "Timeout",
+        "form": "modalConnectionStickerdbFrm",
+        "help": "helpConnectionTimeout",
+        "unit": "Seconds",
+        "class": ["alwaysEnabled"]
+    },
+    "stickerdbMpdKeepalive": {
+        "defaultValue": defaults["MYMPD_MPD_KEEPALIVE"],
+        "inputType": "checkbox",
+        "title": "Keepalive",
+        "form": "modalConnectionStickerdbFrm",
+        "help": "helpConnectionKeepalive",
+        "class": ["alwaysEnabled"]
+    },
 };
 
 const settingsPlaybackFields = {
@@ -1028,13 +1070,14 @@ const mpdVersion = {
 const browseFilesystemHistory = {};
 
 //list of stickers
+/** @type {Array} */
 const stickerList = [
-    'stickerPlayCount',
-    'stickerSkipCount',
-    'stickerLastPlayed',
-    'stickerLastSkipped',
-    'stickerLike',
-    'stickerElapsed'
+    'playCount',
+    'skipCount',
+    'lastPlayed',
+    'lastSkipped',
+    'like',
+    'elapsed'
 ];
 
 //application state

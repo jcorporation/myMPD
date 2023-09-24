@@ -121,6 +121,12 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_NOTICE(NULL, "Setting mpd port to \"%d\"", MYMPD_MPD_PORT);
     mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, MYMPD_MPD_HOST);
     mympd_state->mpd_state->mpd_port = MYMPD_MPD_PORT;
+
+    // copy config to stickerdb connection
+    mympd_state->stickerdb->mpd_state->mpd_host = sds_replace(mympd_state->stickerdb->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
+    mympd_state->stickerdb->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;
+    mympd_state->stickerdb->mpd_state->mpd_timeout = mympd_state->mpd_state->mpd_timeout;
+    mympd_state->stickerdb->mpd_state->mpd_keepalive = mympd_state->mpd_state->mpd_keepalive;
 }
 
 /**

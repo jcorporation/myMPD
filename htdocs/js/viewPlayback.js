@@ -151,7 +151,7 @@ function parseCurrentSong(obj) {
     }
 
     if (features.featStickers === true) {
-        setVoteSongBtns(obj.result.stickerLike, obj.result.uri);
+        setVoteSongBtns(obj.result.like, obj.result.uri);
     }
 
     setPlaybackCardTags(obj.result);

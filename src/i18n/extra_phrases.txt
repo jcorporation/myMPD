@@ -216,12 +216,12 @@ SongCount
 Startup view
 state
 sticker
-stickerElapsed
-stickerLastPlayed
-stickerLastSkipped
-stickerLike
-stickerPlayCount
-stickerSkipCount
+elapsed
+lastPlayed
+lastSkipped
+like
+playCount
+skipCount
 stop only
 Stop playback after current song
 Stream

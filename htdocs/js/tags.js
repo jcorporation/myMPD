@@ -259,10 +259,10 @@ function printValue(key, value) {
             return document.createTextNode(value + 1);
         case 'LastModified':
         case 'LastPlayed':
-        case 'stickerLastPlayed':
-        case 'stickerLastSkipped':
+        case 'lastPlayed':
+        case 'lastSkipped':
             return document.createTextNode(value === 0 ? tn('never') : fmtDate(value));
-        case 'stickerLike':
+        case 'like':
             return elCreateText('span', {"class": ["mi"]},
                 value === 0
                     ? 'thumb_down'
@@ -270,7 +270,7 @@ function printValue(key, value) {
                         ? 'horizontal_rule'
                         : 'thumb_up'
             );
-        case 'stickerElapsed':
+        case 'elapsed':
             return document.createTextNode(fmtSongDuration(value));
         case 'Artist':
         case 'ArtistSort':

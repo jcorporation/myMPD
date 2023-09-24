@@ -10,7 +10,6 @@
 #include "src/lib/album_cache.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/sticker_cache.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/presets.h"
 #include "src/mympd_api/home.h"
@@ -29,7 +28,6 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
-    sticker_cache_write(&mympd_state->mpd_state->sticker_cache, mympd_state->config->workdir, free_data);
 
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
@@ -96,6 +94,13 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mympd_state->partition_state, MPD_PARTITION_DEFAULT, mympd_state);
+    // stickerdb
+    // use the partition struct to store the mpd connection for the stickerdb
+    mympd_state->stickerdb = malloc_assert(sizeof(struct t_partition_state));
+    partition_state_default(mympd_state->stickerdb, "stickerdb", mympd_state);
+    // do not use the shared mpd_state - we can connect to another mpd server for stickers
+    mympd_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
+    mpd_state_default(mympd_state->stickerdb->mpd_state, mympd_state);
     //triggers;
     list_init(&mympd_state->trigger_list);
     //home icons
@@ -124,6 +129,9 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
         partition_state_free(partition_state);
         partition_state = next;
     }
+    //stickerdb
+    mpd_state_free(mympd_state->stickerdb->mpd_state);
+    partition_state_free(mympd_state->stickerdb);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);
@@ -180,9 +188,6 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
     reset_t_tags(&mpd_state->tags_browse);
     reset_t_tags(&mpd_state->tags_album);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
-    //sticker cache
-    mpd_state->sticker_cache.building = false;
-    mpd_state->sticker_cache.cache = NULL;
     //album cache
     mpd_state->album_cache.building = false;
     mpd_state->album_cache.cache = NULL;
@@ -201,7 +206,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
  * @param mpd_state pointer to mpd_state
  */
 void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
-    mpd_state->feat_stickers = false;
+    mpd_state->feat_stickers = mpd_state->mympd_state->config->stickers;
     mpd_state->feat_playlists = false;
     mpd_state->feat_tags = false;
     mpd_state->feat_fingerprint = false;
@@ -233,7 +238,6 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
     //lists
     list_clear(&mpd_state->sticker_queue);
     //caches
-    sticker_cache_free(&mpd_state->sticker_cache);
     album_cache_free(&mpd_state->album_cache);
 
     FREE_SDS(mpd_state->booklet_name);
@@ -284,7 +288,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     list_init(&partition_state->jukebox_queue_tmp);
     partition_state->jukebox_mode = JUKEBOX_OFF;
     partition_state->jukebox_playlist = sdsnew(MYMPD_JUKEBOX_PLAYLIST);
-    partition_state->jukebox_unique_tag.len = 1;
+    partition_state->jukebox_unique_tag.tags_len = 1;
     partition_state->jukebox_unique_tag.tags[0] = MYMPD_JUKEBOX_UNIQUE_TAG;
     partition_state->jukebox_last_played = MYMPD_JUKEBOX_LAST_PLAYED;
     partition_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
@@ -338,22 +342,4 @@ void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->stream_uri);
     //struct itself
     FREE_PTR(partition_state);
-}
-
-/**
- * Copy a struct t_tags struct to another one
- * @param src_tag_list source
- * @param dst_tag_list destination
- */
-void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list) {
-    memcpy((void *)dst_tag_list, (void *)src_tag_list, sizeof(struct t_tags));
-}
-
-/**
- * (Re-)initializes a t_tags struct
- * @param tags pointer to t_tags struct
-*/
-void reset_t_tags(struct t_tags *tags) {
-    tags->len = 0;
-    memset(tags->tags, 0, sizeof(tags->tags));
 }
