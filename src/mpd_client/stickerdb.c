@@ -26,6 +26,7 @@
 
 // Private definitions
 
+static struct t_sticker *get_sticker_all(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined);
 static sds get_sticker_value(struct t_partition_state *partition_state, const char *uri, const char *name);
 static long long get_sticker_llong(struct t_partition_state *partition_state, const char *uri, const char *name);
 static bool set_sticker_value(struct t_partition_state *partition_state, const char *uri, const char *name, const char *value);
@@ -74,7 +75,6 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
         while ((pair = mpd_recv_command_pair(partition_state->conn)) != NULL) {
             if (strcmp(pair->value, "sticker") == 0) {
                 MYMPD_LOG_DEBUG("stickerdb", "MPD supports stickers");
-                partition_state->mpd_state->feat_stickers = true;
                 mpd_return_pair(partition_state->conn, pair);
                 // set feature flag also on shared mpd state
                 partition_state->mpd_state->feat_stickers = true;
@@ -189,7 +189,7 @@ sds stickerdb_get(struct t_partition_state *partition_state, const char *uri, co
     if (stickerdb_connect(partition_state) == false) {
         return sdsempty();
     }
-    sds value = stickerdb_get_batch(partition_state, uri, name);
+    sds value = get_sticker_value(partition_state, uri, name);
     stickerdb_enter_idle(partition_state);
     return value;
 }
@@ -226,7 +226,7 @@ long long stickerdb_get_llong(struct t_partition_state *partition_state, const c
     if (stickerdb_connect(partition_state) == false) {
         return false;
     }
-    value = stickerdb_get_llong_batch(partition_state, uri, name);
+    value = get_sticker_llong(partition_state, uri, name);
     stickerdb_enter_idle(partition_state);
     return value;
 }
@@ -238,31 +238,13 @@ long long stickerdb_get_llong(struct t_partition_state *partition_state, const c
  * @param uri song uri
  * @param sticker pointer to t_sticker struct to populate
  * @param user_defined get user defines stickers?
- * @return pointer to the list of stickers
+ * @return Initialized and populated sticker struct or NULL on error
  */
-bool stickerdb_get_all_batch(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined) {
-    struct mpd_pair *pair;
-    sticker_struct_init(sticker);
-    
+struct t_sticker *stickerdb_get_all_batch(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined) {
     if (is_streamuri(uri) == true) {
-        return false;
+        return NULL;
     }
-
-    if (mpd_send_sticker_list(partition_state->conn, "song", uri)) {
-        while ((pair = mpd_recv_sticker(partition_state->conn)) != NULL) {
-            enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
-            if (sticker_type != STICKER_UNKNOWN) {
-                sticker->mympd[sticker_type] = strtoll(pair->value, NULL, 10);
-            }
-            else if (user_defined == true) {
-                list_push(&sticker->user, pair->name, 0, pair->value, NULL);
-            }
-            mpd_return_sticker(partition_state->conn, pair);
-        }
-    }
-    mpd_response_finish(partition_state->conn);
-    mympd_check_error_and_recover(partition_state, NULL, "mpd_send_sticker_list");
-    return true;
+    return get_sticker_all(partition_state, uri, sticker, user_defined);
 }
 
 /**
@@ -271,18 +253,18 @@ bool stickerdb_get_all_batch(struct t_partition_state *partition_state, const ch
  * @param uri song uri
  * @param sticker pointer to t_sticker struct to populate
  * @param user_defined get user defines stickers?
- * @return pointer to the list of stickers
+ * @return Initialized and populated sticker struct or NULL on error
  */
-bool stickerdb_get_all(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined) {
+struct t_sticker *stickerdb_get_all(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined) {
     if (is_streamuri(uri) == true) {
-        return false;
+        return NULL;
     }
     if (stickerdb_connect(partition_state) == false) {
-        return false;
+        return NULL;
     }
-    bool rc = stickerdb_get_all_batch(partition_state, uri, sticker, user_defined);
+    sticker = get_sticker_all(partition_state, uri, sticker, user_defined);
     stickerdb_enter_idle(partition_state);
-    return rc;
+    return sticker;
 }
 
 /**
@@ -463,6 +445,35 @@ bool stickerdb_set_like(struct t_partition_state *partition_state, const char *u
 }
 
 // Private functions
+
+/**
+ * Initializes the sticker struct and gets all stickers for a song.
+ * You must manage the idle state manually.
+ * @param partition_state pointer to the partition state
+ * @param uri song uri
+ * @param sticker pointer to t_sticker struct to populate
+ * @param user_defined get user defines stickers?
+ * @return the initialized and populated sticker struct
+ */
+static struct t_sticker *get_sticker_all(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined) {
+    struct mpd_pair *pair;
+    sticker_struct_init(sticker);
+    if (mpd_send_sticker_list(partition_state->conn, "song", uri)) {
+        while ((pair = mpd_recv_sticker(partition_state->conn)) != NULL) {
+            enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
+            if (sticker_type != STICKER_UNKNOWN) {
+                sticker->mympd[sticker_type] = strtoll(pair->value, NULL, 10);
+            }
+            else if (user_defined == true) {
+                list_push(&sticker->user, pair->name, 0, pair->value, NULL);
+            }
+            mpd_return_sticker(partition_state->conn, pair);
+        }
+    }
+    mpd_response_finish(partition_state->conn);
+    mympd_check_error_and_recover(partition_state, NULL, "mpd_send_sticker_list");
+    return sticker;
+}
 
 /**
  * Gets a string value from sticker
