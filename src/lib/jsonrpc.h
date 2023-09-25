@@ -10,7 +10,7 @@
 #include "dist/sds/sds.h"
 #include "src/lib/api.h"
 #include "src/lib/list.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/tags.h"
 #include "src/lib/validate.h"
 
 #include <stdbool.h>
@@ -99,6 +99,7 @@ sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long request_
 sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message, int count, ...);
 
+sds json_comma(sds buffer);
 sds tojson_raw(sds buffer, const char *key, const char *value, bool comma);
 sds tojson_sds(sds buffer, const char *key, sds value, bool comma);
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma);

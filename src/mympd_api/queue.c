@@ -18,6 +18,7 @@
 #include "src/mpd_client/queue.h"
 #include "src/mpd_client/search.h"
 #include "src/mpd_client/shortcuts.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_api/webradios.h"
@@ -579,6 +580,11 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
         offset = 0;
     }
     //list the queue
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+    }
     unsigned real_limit = offset + limit;
     if (mpd_send_list_queue_range_meta(partition_state->conn, offset, real_limit) == true) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -603,6 +609,11 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
         buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+    }
     mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_queue_range_meta");
     return buffer;
 }
@@ -642,6 +653,11 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
             JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
     }
     FREE_SDS(real_expression);
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+    }
     if (mpd_search_commit(partition_state->conn)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
@@ -684,6 +700,11 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
         buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+    }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_queue_songs") == false) {
         return buffer;
     }
@@ -778,8 +799,7 @@ sds print_queue_entry(struct t_partition_state *partition_state, sds buffer,
     if (partition_state->mpd_state->feat_stickers == true &&
         tagcols->stickers_len > 0)
     {
-        buffer = sdscatlen(buffer, ",", 1);
-        buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, uri, tagcols);
+        buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, uri, tagcols);
     }
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;

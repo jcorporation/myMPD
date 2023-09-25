@@ -374,7 +374,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
         reset_t_tags(&tagcols);
         tags_enable_all_stickers(&tagcols);
         buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, uri, &tagcols);
-        buffer = sdscatlen(buffer, ",", 1);
+        buffer = json_comma(buffer);
         buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
         if (is_streamuri(uri) == true) {
             sds webradio = get_webradio_from_uri(partition_state->mympd_state->config->workdir, uri);

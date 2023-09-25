@@ -48,9 +48,10 @@ sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *partition_
         return buffer;
     }
     struct t_sticker sticker;
-    stickerdb_get_all(partition_state->mympd_state->stickerdb, uri, &sticker, false);
-    buffer = mympd_api_sticker_print(buffer, &sticker, tags);
-    sticker_struct_clear(&sticker);
+    if (stickerdb_get_all(partition_state->mympd_state->stickerdb, uri, &sticker, false) != NULL) {
+        buffer = mympd_api_sticker_print(buffer, &sticker, tags);
+        sticker_struct_clear(&sticker);
+    }
     return buffer;
 }
 
@@ -69,9 +70,10 @@ sds mympd_api_sticker_get_print_batch(sds buffer, struct t_partition_state *part
         return buffer;
     }
     struct t_sticker sticker;
-    stickerdb_get_all_batch(partition_state->mympd_state->stickerdb, uri, &sticker, false);
-    buffer = mympd_api_sticker_print(buffer, &sticker, tags);
-    sticker_struct_clear(&sticker);
+    if (stickerdb_get_all_batch(partition_state->mympd_state->stickerdb, uri, &sticker, false) != NULL) {
+        buffer = mympd_api_sticker_print(buffer, &sticker, tags);
+        sticker_struct_clear(&sticker);
+    }
     return buffer;
 }
 
@@ -86,6 +88,7 @@ sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct 
     if (sticker == NULL) {
         return buffer;
     }
+    buffer = json_comma(buffer);
     for (size_t i = 0; i < tags->stickers_len; i++) {
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);

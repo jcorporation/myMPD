@@ -162,7 +162,6 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                     if (partition_state->mpd_state->feat_stickers == true &&
                         tagcols->stickers_len > 0)
                     {
-                        buffer = sdscatlen(buffer, ",", 1);
                         buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
                     }
                     buffer = sdscatlen(buffer, "}", 1);

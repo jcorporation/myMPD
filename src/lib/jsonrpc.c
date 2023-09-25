@@ -359,6 +359,20 @@ sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long r
  */
 
 /**
+ * Appends a comma on demand
+ * @param buffer sds string to append the comma
+ * @return pointer to buffer
+ */
+sds json_comma(sds buffer) {
+    size_t len = sdslen(buffer);
+    if (len == 0 ||
+        buffer[len - 1] == ',') {
+        return buffer;
+    }
+    return sdscatlen(buffer, ",", 1);
+}
+
+/**
  * Prints a json key/value pair for already encoded values
  * value is printed raw without any encoding done
  * @param buffer sds string to append

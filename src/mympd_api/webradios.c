@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/webradios.h"
 
+#include "dist/rax/rax.h"
 #include "dist/utf8/utf8.h"
 #include "src/lib/api.h"
 #include "src/lib/filehandler.h"

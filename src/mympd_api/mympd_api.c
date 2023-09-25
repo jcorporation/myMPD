@@ -93,7 +93,7 @@ void *mympd_api_loop(void *arg_config) {
 
     //disconnect from mpd
     mpd_client_disconnect_all(mympd_state, MPD_DISCONNECT_INSTANT);
-    if (mympd_state->mpd_state->feat_stickers == true) {
+    if (mympd_state->stickerdb->conn != NULL) {
         mpd_client_disconnect(mympd_state->stickerdb, MPD_DISCONNECT_INSTANT);
     }
 
