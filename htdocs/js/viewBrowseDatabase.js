@@ -65,6 +65,8 @@ function initViewBrowseDatabase() {
         }
         app.current.search = '';
         elGetById('BrowseDatabaseTagSearchStr').value = '';
+        // clear album search input
+        elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
         appGoto(app.current.card, app.current.tab, 'AlbumList', 0, undefined, 'Album', {'tag': tagAlbumArtist, 'desc': false}, 'Album',
             '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'tag')) + '\'))');
     }, false);
