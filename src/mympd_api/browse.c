@@ -62,6 +62,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     FREE_SDS(expression);
     int entities_returned = 0;
     time_t last_played_max = 0;
+    sds first_song_uri = sdsempty();
     sds last_played_song_uri = sdsempty();
     if (mpd_search_commit(partition_state->conn)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -76,6 +77,9 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
+            }
+            else {
+                first_song_uri = sdscat(first_song_uri, mpd_song_get_uri(song));
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
             buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, partition_state->mympd_state->config->albums);
@@ -103,12 +107,13 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
         stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
+        FREE_SDS(first_song_uri);
         FREE_SDS(last_played_song_uri);
         return buffer;
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, mpd_song_get_uri(mpd_album), false);
+    buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, first_song_uri, false);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_int(buffer, "returnedEntities", entities_returned, true);
     buffer = print_album_tags(buffer, &partition_state->mpd_state->tags_album, mpd_album, partition_state->mympd_state->config->albums);
@@ -118,6 +123,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_end(buffer);
 
+    FREE_SDS(first_song_uri);
     FREE_SDS(last_played_song_uri);
     return buffer;
 }

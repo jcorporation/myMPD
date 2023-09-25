@@ -175,7 +175,7 @@ function parseDatabaseAlbumList(obj) {
 
         const image = settings.features.featAlbums === true
             ? '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri)
-            : '/albumart/' + obj.result.data[i].AlbumId;
+            : '/albumart-thumb/' + obj.result.data[i].AlbumId;
 
         card.appendChild(
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})

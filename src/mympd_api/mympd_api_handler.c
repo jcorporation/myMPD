@@ -211,8 +211,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case INTERNAL_API_ALBUMART_BY_ALBUMID:
-            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
-                response->data = mympd_api_albumart_getcover_by_album_id(partition_state, response->data, request->id, sds_buf1, &response->binary);
+            if (json_get_string(request->data, "$.params.albumid", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.size", 0, 1, &uint_buf1, &parse_error) == true) {
+                response->data = mympd_api_albumart_getcover_by_album_id(partition_state, response->data, request->id, sds_buf1, uint_buf1);
             }
             break;
     // Home icons

@@ -372,10 +372,11 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
         if ((int)nc->is_websocket == 0 &&
             nc->id == (long unsigned)response->conn_id)
         {
-            if (response->cmd_id == INTERNAL_API_ALBUMART_BY_ALBUMID ||
-                response->cmd_id == INTERNAL_API_ALBUMART_BY_URI)
-            {
+            if (response->cmd_id == INTERNAL_API_ALBUMART_BY_URI) {
                 webserver_send_albumart(nc, response->data, response->binary);
+            }
+            else if (response->cmd_id == INTERNAL_API_ALBUMART_BY_ALBUMID) {
+                webserver_send_albumart_redirect(nc, response->data);
             }
             else {
                 MYMPD_LOG_DEBUG(response->partition, "Sending response to conn_id %lu (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
@@ -610,8 +611,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     FREE_SDS(response);
                 }
             }
+            else if (mg_http_match_uri(hm, "/albumart-thumb/*") == true) {
+                request_handler_albumart_by_album_id(hm, (long long)nc->id, ALBUMART_THUMBNAIL);
+            }
             else if (mg_http_match_uri(hm, "/albumart/*") == true) {
-                request_handler_albumart_by_album_id(nc, hm, mg_user_data, (long long)nc->id);
+                request_handler_albumart_by_album_id(hm, (long long)nc->id, ALBUMART_FULL);
             }
             else if (mg_http_match_uri(hm, "/albumart-thumb") == true) {
                 request_handler_albumart_by_uri(nc, hm, mg_user_data, (long long)nc->id, ALBUMART_THUMBNAIL);

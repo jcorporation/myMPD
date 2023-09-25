@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/song.h"
 #include "src/mympd_api/albumart.h"
 
 #include "dist/rax/rax.h"
@@ -30,7 +31,7 @@
  * @return jsonrpc response
  */
 sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const char *albumid, sds *binary)
+        const char *albumid, unsigned size)
 {
     struct mpd_song *album = raxFind(partition_state->mpd_state->album_cache.cache, (unsigned char *)albumid, strlen(albumid));
     if (album == raxNotFound) {
@@ -54,11 +55,11 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
         (song = mpd_recv_song(partition_state->conn)) != NULL &&
         mpd_response_finish(partition_state->conn) == true)
     {
-        // found a song
-        // TODO:
-        // - search music dir for albumart
-        // - write cache
-        buffer = mympd_api_albumart_getcover_by_uri(partition_state, buffer, request_id, mpd_song_get_uri(song), binary);
+        // found a song - send redirect to albumart by uri
+        buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id);
+        buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), true);
+        buffer = tojson_uint(buffer, "size", size, false);
+        buffer = jsonrpc_end(buffer);
         mpd_song_free(song);
         FREE_SDS(expression);
         return buffer;
