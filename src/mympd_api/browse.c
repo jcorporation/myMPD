@@ -87,7 +87,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
                 buffer = mympd_api_sticker_print(buffer, &sticker, tagcols);
 
                 if (sticker.mympd[STICKER_LAST_PLAYED] > last_played_max) {
-                    last_played_max = sticker.mympd[STICKER_LAST_PLAYED];
+                    last_played_max = (time_t)sticker.mympd[STICKER_LAST_PLAYED];
                     last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
                 }
                 sticker_struct_clear(&sticker);
