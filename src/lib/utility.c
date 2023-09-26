@@ -99,8 +99,8 @@ const char *get_extension_from_filename(const char *filename) {
 
 /**
  * Calculates the basename for files and uris
- * for files the path is removed
- * for uris the query string and hash is removed
+ * - for files the path is removed
+ * - for uris the query string and hash is removed
  * @param uri sds string to modify in place
  */
 void basename_uri(sds uri) {

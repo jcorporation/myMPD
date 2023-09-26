@@ -359,14 +359,16 @@ sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long r
  */
 
 /**
- * Appends a comma on demand
- * @param buffer sds string to append the comma
+ * Appends a comma on demand.
+ * Comma is ommited on start of string or end of string is already a comma.
+ * @param buffer sds string to append
  * @return pointer to buffer
  */
 sds json_comma(sds buffer) {
     size_t len = sdslen(buffer);
     if (len == 0 ||
-        buffer[len - 1] == ',') {
+        buffer[len - 1] == ',')
+    {
         return buffer;
     }
     return sdscatlen(buffer, ",", 1);
