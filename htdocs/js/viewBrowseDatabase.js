@@ -163,16 +163,8 @@ function parseDatabaseAlbumList(obj) {
     }
     let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
-        if (cols[i] !== undefined &&
-            getData(cols[i].firstChild, 'AlbumId') === obj.result.data[i].AlbumId)
-        {
-            continue;
-        }
-
-        let image = '';
         const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
-
-        image = '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
+        const image = '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
         card.appendChild(
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
         );
