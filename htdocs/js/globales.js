@@ -266,21 +266,24 @@ const settingsFields = {
         "inputType": "text",
         "contentType": "number",
         "title": "Volume min.",
-        "form": "modalSettingsVolumeFrm"
+        "form": "modalSettingsVolumeFrm",
+        "invalid": "Must be a number"
     },
     "volumeMax": {
         "defaultValue": defaults["MYMPD_VOLUME_MAX"],
         "inputType": "text",
         "contentType": "number",
         "title": "Volume max.",
-        "form": "modalSettingsVolumeFrm"
+        "form": "modalSettingsVolumeFrm",
+        "invalid": "Must be a number"
     },
     "volumeStep": {
         "defaultValue": defaults["MYMPD_VOLUME_STEP"],
         "inputType": "text",
         "contentType": "number",
         "title": "Volume step",
-        "form": "modalSettingsVolumeFrm"
+        "form": "modalSettingsVolumeFrm",
+        "invalid": "Must be a number"
     },
     "lyricsUsltExt": {
         "defaultValue": defaults["MYMPD_LYRICS_USLT_EXT"],
@@ -821,7 +824,12 @@ const settingsWebuiFields = {
         "contentType": "number",
         "title": "Seek step",
         "unit": "Seconds",
-        "form": "modalSettingsSeekFrm"
+        "form": "modalSettingsSeekFrm",
+        "validate": {
+            "cmd": "validateUintEl",
+            "options": []
+        },
+        "invalid": "Must be a number"
     },
 };
 

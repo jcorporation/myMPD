@@ -77,6 +77,7 @@ function setIsInvalid(el) {
     el.classList.add('is-invalid');
     const col = el.closest('.col-sm-8');
     col.classList.add('is-invalid');
+    col.firstElementChild.classList.add('is-invalid');
 }
 
 /**
