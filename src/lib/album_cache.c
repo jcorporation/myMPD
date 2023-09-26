@@ -263,7 +263,7 @@ sds album_cache_get_key(sds albumkey, const struct mpd_song *song, bool adv_mode
         }
     }
 
-    // fallback to hashed AlbumArtist::Album tag
+    // fallback to hashed AlbumArtist::Album::Date tag
     // first try AlbumArtist tag
     albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, albumkey);
     if (sdslen(albumkey) == 0) {
@@ -285,7 +285,11 @@ sds album_cache_get_key(sds albumkey, const struct mpd_song *song, bool adv_mode
     }
     // append album
     albumkey = sdscatfmt(albumkey, "::%s", album_name);
-
+    //append date optionally
+    const char *date_value = mpd_song_get_tag(song, MPD_TAG_DATE, 0);
+    if (date_value != NULL) {
+        albumkey = sdscatfmt(albumkey, "::%s", date_value);
+    }
     // return the hash
     return sds_hash_sha1_sds(albumkey);
 }
