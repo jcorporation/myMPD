@@ -1091,5 +1091,9 @@
     "Neighbors": "Neighbors",
     "Show neighbors": "Neighbors anzeigen",
     "Open playback settings": "Öffne: Wiedergabeeinstellungen",
-    "MPD does not support stickers": "MPD unterstützt keine Sticker"
+    "MPD does not support stickers": "MPD unterstützt keine Sticker",
+    "Fast forward": "Vorwärts spulen",
+    "Fast rewind": "Zurück spulen",
+    "Seek": "Spulen",
+    "Seek step": "Spulen-Schritt"
 }

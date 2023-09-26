@@ -130,6 +130,15 @@ function parseSettings(obj) {
     else {
         elHideId('footerStopBtn');
     }
+
+    if (settings.webuiSettings.footerSeek === true) {
+        elShowId('footerFastRewindBtn');
+        elShowId('footerFastForwardBtn');
+    }
+    else {
+        elHideId('footerFastRewindBtn');
+        elHideId('footerFastForwardBtn');
+    }
     
     if (settings.partition.jukeboxMode !== 'off') {
         elGetById('footerNextBtn').removeAttribute('disabled');

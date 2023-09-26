@@ -570,6 +570,13 @@ const settingsWebuiFields = {
         "form": "modalSettingsFooterFrm",
         "sort": 1
     },
+    "footerSeek": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Seek",
+        "form": "modalSettingsFooterFrm",
+        "sort": 1
+    },
     "footerVolumeLevel": {
         "defaultValue": false,
         "inputType": "checkbox",
@@ -807,7 +814,15 @@ const settingsWebuiFields = {
             "snapcast": "hub"
         },
         "inputType": "none"
-    }
+    },
+    "seekStep": {
+        "defaultValue": 10,
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Seek step",
+        "unit": "Seconds",
+        "form": "modalSettingsSeekFrm"
+    },
 };
 
 const settingsConnectionFields = {

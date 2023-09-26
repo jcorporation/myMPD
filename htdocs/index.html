@@ -1045,8 +1045,10 @@
       <div class="btn-toolbar nav-item flex-nowrap">
         <div class="btn-group me-2">
           <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="footerPrevBtn" type="button" class="btn px-2 mi rounded-2">skip_previous</button>
+          <button data-title-phrase="Fast rewind" data-href='{"cmd": "clickFastRewind", "options": []}' id="footerFastRewindBtn" type="button" class="btn px-2 mi rounded-2 d-none">fast_rewind</button>
           <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="footerStopBtn" type="button" class="btn px-2 mi rounded-2 d-none">stop</button>
           <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="footerPlayBtn" type="button" class="footerPlayBtn btn btn-lg px-1 mi mi-lg rounded-2">pause</button>
+          <button data-title-phrase="Fast forward" data-href='{"cmd": "clickFastForward", "options": []}' id="footerFastForwardBtn" type="button" class="btn px-2 mi rounded-2 d-none">fast_forward</button>
           <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="footerNextBtn" type="button" class="btn px-2 mi rounded-2">skip_next</button>
         </div>
         <div class="align-self-center footerCounter">
@@ -1592,6 +1594,9 @@
               <hr/>
               <h4 data-phrase="Volume control"></h4>
               <div id="modalSettingsVolumeFrm"></div>
+              <hr/>
+              <h4 data-phrase="Seek"></h4>
+              <div id="modalSettingsSeekFrm"></div>
               <div class="featLibrary">
                 <hr/>
                 <h4 data-phrase="Booklet"></h4>

@@ -319,6 +319,30 @@ function clickNext() {
 }
 
 /**
+ * Handler for click on fast rewind button
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function clickFastRewind() {
+    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
+        "seek": -settings.webuiSettings.seekStep,
+        "relative": true
+    }, null, false);
+}
+
+/**
+ * Handler for click on fast rewind button
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function clickFastForward() {
+    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
+        "seek": settings.webuiSettings.seekStep,
+        "relative": true
+    }, null, false);
+}
+
+/**
  * Handler for click on single button
  * @param {string} mode single mode: "0" = off, "1" = single, "oneshot" = single one shot
  * @returns {void}
