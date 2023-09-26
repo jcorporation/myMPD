@@ -165,12 +165,6 @@ function parseDatabaseAlbumList(obj) {
     }
     let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
-        if (cols[i] !== undefined &&
-            getData(cols[i].firstChild, 'AlbumId') === obj.result.data[i].AlbumId)
-        {
-            continue;
-        }
-
         const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
 
         const image = obj.result.data[i].FirstSongUri !== 'albumid'
