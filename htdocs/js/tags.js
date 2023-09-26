@@ -117,9 +117,11 @@ function addTagList(elId, list) {
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, 'Date')
             );
         }
-        stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, 'Last modified')
-        );
+        if (settings.features.featAlbums === true) {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, 'Last modified')
+            );
+        }
     }
     else if (elId === 'QueueCurrentSearchTags') {
         if (features.featAdvqueue === true)

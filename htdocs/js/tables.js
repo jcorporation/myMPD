@@ -356,19 +356,29 @@ function setColTags(tableName) {
         case 'BrowseRadioRadiobrowser':
             return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
         case 'BrowseDatabaseAlbumList': {
-            const tags = settings.tagListAlbum.slice();
-            tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
-            return tags.filter(function(value) {
-                return value !== 'Disc';
-            });
+            if (settings.features.featAlbums === true) {
+                const tags = settings.tagListAlbum.slice();
+                tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
+                return tags.filter(function(value) {
+                    return value !== 'Disc';
+                });
+            }
+            else {
+                return settings.tagListSimpleAlbum;
+            }
         }
         case 'BrowseDatabaseAlbumDetailInfo': {
-            const tags = settings.tagListAlbum.slice();
-            tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
-            return tags.filter(function(value) {
-                return value !== 'Disc' &&
-                       value !== 'Album';
-            });
+            if (settings.features.featAlbums === true) {
+                const tags = settings.tagListAlbum.slice();
+                tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
+                return tags.filter(function(value) {
+                    return value !== 'Disc' &&
+                        value !== 'Album';
+                });
+            }
+            else {
+                return settings.tagListSimpleAlbum;
+            }
         }
         case 'QueueJukeboxAlbum': {
             const tags = settings.tagListAlbum.slice();
