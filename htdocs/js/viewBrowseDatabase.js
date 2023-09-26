@@ -173,7 +173,7 @@ function parseDatabaseAlbumList(obj) {
 
         const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
 
-        const image = settings.features.featAlbums === true
+        const image = obj.result.data[i].FirstSongUri !== 'albumid'
             ? '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri)
             : '/albumart-thumb/' + obj.result.data[i].AlbumId;
 

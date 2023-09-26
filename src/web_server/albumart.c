@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "dist/rax/rax.h"
 #include "src/web_server/albumart.h"
 
 #include "src/lib/api.h"
@@ -104,7 +105,6 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
 bool request_handler_albumart_by_album_id(struct mg_http_message *hm, long long conn_id, enum albumart_sizes size) {
     sds albumid = sdsnewlen(hm->uri.ptr, hm->uri.len);
     basename_uri(albumid);
-
     MYMPD_LOG_DEBUG(NULL, "Sending getalbumart to mpd_client_queue");
     struct t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART_BY_ALBUMID, NULL, MPD_PARTITION_DEFAULT);
     request->data = tojson_sds(request->data, "albumid", albumid, true);

@@ -9,6 +9,7 @@
 #include "src/mympd_api/albumart.h"
 
 #include "dist/rax/rax.h"
+#include "src/lib/album_cache.h"
 #include "src/lib/api.h"
 #include "src/lib/covercache.h"
 #include "src/lib/jsonrpc.h"
@@ -38,6 +39,16 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
         return jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }
 
+    // check album cache for uri
+    if (strcmp(mpd_song_get_uri(album), "albumid") != 0) {
+        // uri is cached - send redirect to albumart by uri
+        buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id);
+        buffer = tojson_char(buffer, "uri", mpd_song_get_uri(album), true);
+        buffer = tojson_uint(buffer, "size", size, false);
+        buffer = jsonrpc_end(buffer);
+        return buffer;
+    }
+
     // search for one song in the album
     sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, album);
 
@@ -60,6 +71,8 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
         buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), true);
         buffer = tojson_uint(buffer, "size", size, false);
         buffer = jsonrpc_end(buffer);
+        // update album cache with uri
+        album_cache_set_uri(album, mpd_song_get_uri(song));
         mpd_song_free(song);
         FREE_SDS(expression);
         return buffer;

@@ -257,7 +257,9 @@ static bool cache_init_simple(struct t_mpd_worker_state *mpd_worker_state, rax *
                     // construct a virtual song uri
                     sdsclear(key);
                     key = sdscatfmt(key, "%S::%S::%S", artist, album, date);
-                    struct mpd_song *song = mpd_song_new(key);
+                    // we do not fetch the uri for performance reasons.
+                    // the real song uri will be set after first call of mympd_api_albumart_getcover_by_album_id.
+                    struct mpd_song *song = mpd_song_new("albumid");
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ARTIST, artist);
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM_ARTIST, artist);
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM, album);

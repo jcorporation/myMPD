@@ -32,5 +32,6 @@ void album_cache_set_song_count(struct mpd_song *album, unsigned count);
 void album_cache_inc_song_count(struct mpd_song *album);
 bool album_cache_append_tags(struct mpd_song *album, const struct mpd_song *song, const struct t_tags *tags);
 bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mpd_tag_type dst);
+void album_cache_set_uri(struct mpd_song *album, const char *uri);
 
 #endif

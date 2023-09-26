@@ -21,6 +21,7 @@
 
 #include <errno.h>
 #include <inttypes.h>
+#include <stdio.h>
 #include <string.h>
 
 /**
@@ -462,6 +463,18 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
         value_nr++;
     }
     return true;
+}
+
+/**
+ * Replaces the uri
+ * @param album pointer to a mpd_song struct
+ * @param uri new uri to set
+ */
+void album_cache_set_uri(struct mpd_song *album, const char *uri) {
+    free(album->uri);
+    size_t len = strlen(uri);
+    album->uri = malloc_assert(len + 1);
+    snprintf(album->uri, len, "%s", uri);
 }
 
 /**
