@@ -18,14 +18,15 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 
 ## Changelog
 
-- Feat: replace sticker cache with central sticker database #1111
-- Feat: Use mpack to store caches on disc #1104
+- Feat: Add config option to disable sticker support
+- Feat: Replace sticker cache with central sticker database #1111
+- Feat: Use the MessagePack to store caches on disc #1104
 - Feat: Improve album cache creation #1113
 - Feat: Add a simple album cache (fewer features, but much better performance) #113
 - Feat: Refresh status, if webui progress timer is greater than song length #1115
-- Feat: Add actions to database tag view
-- Feat: add option to display seek buttons #1110
-- Upd: remove default smart playlist generation tag
+- Feat: Add actions to the database tag view
+- Feat: Add option to display seek buttons in the footer #1110
+- Upd: Remove default smart playlist generation tag
 
 ***
 

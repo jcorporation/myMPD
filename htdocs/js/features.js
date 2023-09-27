@@ -27,6 +27,7 @@ function setFeatures() {
     features.featMediaSession = checkMediaSessionSupport();
     features.featFooterNotifications = settings.webuiSettings.footerNotifications;
     features.featSession = settings.pin;
+    features.featStickersEnabled = settings.features.featStickersEnabled;
 
     //mpd features
     if (settings.partition.mpdConnected === true) {

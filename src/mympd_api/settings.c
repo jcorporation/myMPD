@@ -955,6 +955,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "featTags", partition_state->mpd_state->feat_tags, true);
         buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat_library, true);
         buffer = tojson_bool(buffer, "featStickers", partition_state->mpd_state->feat_stickers, true);
+        buffer = tojson_bool(buffer, "featStickersEnabled", partition_state->mympd_state->config->stickers, true);
         buffer = tojson_bool(buffer, "featFingerprint", partition_state->mpd_state->feat_fingerprint, true);
         buffer = tojson_bool(buffer, "featPartitions", partition_state->mpd_state->feat_partitions, true);
         buffer = tojson_bool(buffer, "featMounts", partition_state->mpd_state->feat_mount, true);

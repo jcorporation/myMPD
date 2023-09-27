@@ -116,7 +116,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define CFG_MYMPD_LOG_TO_SYSLOG false
 #define CFG_MYMPD_COVERCACHE_KEEP_DAYS 31
 #define CFG_MYMPD_ALBUMS true
-#define CFG_MYMPD_ENABLE_STICKERS true
+#define CFG_MYMPD_STICKERS true
 
 //default partition state settings
 #define PARTITION_HIGHLIGHT_COLOR "#28a745"

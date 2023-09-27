@@ -25,6 +25,7 @@ struct t_config {
     bool save_caches;         //!< true = save caches between restart
     bool ssl;                 //!< enable listening on ssl_port
     bool albums;              //!< enable advanced albums
+    bool stickers;              //!< enable sticker support
     int covercache_keep_days; //!< expiration time for covercache files
     int http_port;            //!< http port to listen
     int loglevel;             //!< loglevel

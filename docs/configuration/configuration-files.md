@@ -27,8 +27,8 @@ systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -
 | FILE | TYPE | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ---- | ---- | ----------- | ------- | ----------- |
 | acl | string | MYMPD_ACL | | ACL to access the myMPD webserver: [ACL]({{ site.baseurl }}/configuration/acl), allows all hosts in the default configuration |
-| covercache_keep_days | number | MYMPD_COVERCACHE_KEEP_DAYS | 31 | How long to keep images in the covercache, 0 to disable the cache |
 | albums | boolean | MYMPD_ALBUMS | true | Enables the enhanced album view. |
+| covercache_keep_days | number | MYMPD_COVERCACHE_KEEP_DAYS | 31 | How long to keep images in the covercache, 0 to disable the cache |
 | http | boolean | MYMPD_HTTP | true | `true` = Enable listening on http_port |
 | http_host | string | MYMPD_HTTP_HOST | 0.0.0.0 | IP address to listen on, use `[::]` to listen on IPv6 and IPv4 |
 | http_port | number | MYMPD_HTTP_PORT | 80 | Port to listen for plain http requests. Redirects to `ssl_port` if `ssl` is set to `true`. *1 |
@@ -38,6 +38,7 @@ systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -
 | pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |
 | save_caches | boolean | MYMPD_SAVE_CACHES | true | `true` = saves caches between restart, `false` = create caches on startup |
 | scriptacl | string | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL]({{ site.baseurl }}/configuration/acl), allows only local connections in the default configuration. The acl above must also grant access. |
+| stickers | boolean | MYMPD_STICKERS | true | Enables the support for MPD stickers. |
 {: .table .table-sm }
 
 1. If http_port is disabled: The MPD curl plugin must trust the myMPD CA or certificate checking must be disabled. MPD fetches webradio playlists with http(s) from myMPD webserver.

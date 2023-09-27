@@ -75,9 +75,12 @@ void *mympd_api_loop(void *arg_config) {
     mympd_queue_push(web_server_queue, web_server_response, 0);
 
     // connect to stickerdb
-    if (stickerdb_connect(mympd_state->stickerdb) == true) {
-        stickerdb_enter_idle(mympd_state->stickerdb);
+    if (mympd_state->config->stickers == true) {
+        if (stickerdb_connect(mympd_state->stickerdb) == true) {
+            stickerdb_enter_idle(mympd_state->stickerdb);
+        }
     }
+
     //thread loop
     while (s_signal_received == 0) {
         mpd_client_idle(mympd_state);
@@ -99,7 +102,9 @@ void *mympd_api_loop(void *arg_config) {
 
     // write album cache to disc
     // only for simple mode to save the cached uris
-    if (mympd_state->config->albums == false) {
+    if (mympd_state->config->save_caches == true &&
+        mympd_state->config->albums == false)
+    {
         album_cache_write(&mympd_state->mpd_state->album_cache, mympd_state->config->workdir, &mympd_state->mpd_state->tags_album, true);
     }
 
