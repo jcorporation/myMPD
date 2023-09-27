@@ -430,7 +430,7 @@ function parseAlbumDetails(obj) {
         elCreateNode('tr', {"class": ["not-clickable"]},
             elCreateNode('td', {"colspan": colspan + 1},
                 elCreateNodes('small', {}, [
-                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.SongCount),
+                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.returnedEntities),
                     elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.Duration))
                 ])
             )

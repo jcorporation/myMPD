@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/song.h"
 #include "src/mympd_api/browse.h"
 
 #include "dist/utf8/utf8.h"
@@ -64,6 +65,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     time_t last_played_max = 0;
     sds first_song_uri = sdsempty();
     sds last_played_song_uri = sdsempty();
+    unsigned duration = 0;
     if (mpd_search_commit(partition_state->conn)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
@@ -97,6 +99,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
                 sticker_struct_clear(&sticker);
             }
             buffer = sdscatlen(buffer, "}", 1);
+            duration += mpd_song_get_duration(song);
             mpd_song_free(song);
         }
     }
@@ -110,6 +113,11 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
         FREE_SDS(first_song_uri);
         FREE_SDS(last_played_song_uri);
         return buffer;
+    }
+
+    // Set album duration for simple album mode
+    if (partition_state->mympd_state->config->albums == false) {
+        album_cache_set_total_time(mpd_album, duration);
     }
 
     buffer = sdscatlen(buffer, "],", 2);
