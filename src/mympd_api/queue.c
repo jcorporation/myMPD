@@ -5,8 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "dist/sds/sds.h"
-#include "src/lib/mympd_state.h"
 #include "src/mympd_api/queue.h"
 
 #include "src/lib/album_cache.h"

@@ -5,10 +5,8 @@
 */
 
 #include "compile_time.h"
-#include "mpd/song.h"
 #include "src/mympd_api/albumart.h"
 
-#include "dist/rax/rax.h"
 #include "src/lib/album_cache.h"
 #include "src/lib/api.h"
 #include "src/lib/covercache.h"

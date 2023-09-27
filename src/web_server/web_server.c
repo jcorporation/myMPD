@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "dist/sds/sds.h"
 #include "src/web_server/web_server.h"
 
 #include "src/lib/api.h"

@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/sticker.h"
 #include "src/mympd_api/playlists.h"
 
 #include "dist/utf8/utf8.h"

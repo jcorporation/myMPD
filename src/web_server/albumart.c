@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "dist/rax/rax.h"
 #include "src/web_server/albumart.h"
 
 #include "src/lib/api.h"

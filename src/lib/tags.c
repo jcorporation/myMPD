@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/sticker.h"
 #include "src/lib/tags.h"
 
 #include <string.h>
