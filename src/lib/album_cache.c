@@ -397,6 +397,16 @@ void album_cache_set_last_modified(struct mpd_song *album, const struct mpd_song
 }
 
 /**
+ * Sets the albums duration
+ * @param album mpd_song struct representing the album
+ * @param song pointer to a mpd_song struct
+ */
+void album_cache_set_total_time(struct mpd_song *album, unsigned duration) {
+    album->duration = duration;
+    album->duration_ms = duration * 1000;
+}
+
+/**
  * Increments the albums duration
  * @param album mpd_song struct representing the album
  * @param song pointer to a mpd_song struct
