@@ -32,10 +32,10 @@
  * @return jsonrpc response
  */
 sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const char *albumid, unsigned size)
+        sds albumid, unsigned size)
 {
-    struct mpd_song *album = raxFind(partition_state->mpd_state->album_cache.cache, (unsigned char *)albumid, strlen(albumid));
-    if (album == raxNotFound) {
+    struct mpd_song *album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
+    if (album == NULL) {
         return jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }
 

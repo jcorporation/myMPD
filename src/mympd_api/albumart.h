@@ -10,7 +10,7 @@
 #include "src/lib/mympd_state.h"
 
 sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const char *albumid, unsigned size);
+        sds albumid, unsigned size);
 sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state, sds buffer, long request_id,
         const char *uri, sds *binary);
 #endif
