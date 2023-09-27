@@ -72,7 +72,7 @@ function gotoBrowse(event) {
     let target = event.target;
     let tag = getData(target, 'tag');
     if (tag === 'undefined') {
-        // string undefined means do not go further down the dom
+        // String undefined means do not go further down the dom
         return;
     }
     let name = getData(target, 'name');
@@ -91,8 +91,10 @@ function gotoBrowse(event) {
     {
         return;
     }
-    if (features.featTags === false) {
-        // open search if tags are disabled
+    if (settings.features.featAlbums === false &&
+        settings.tagListSimpleAlbum.includes(tag) === false)
+    {
+        // The tag is not available in simple album mode
         gotoSearch(tag, name);
     }
     else if (settings.tagListBrowse.includes(tag)) {
@@ -102,18 +104,22 @@ function gotoBrowse(event) {
                 albumId = getData(target.parentNode, 'AlbumId');
             }
             if (albumId !== null) {
-                //Show album details
+                // Show album details
                 gotoAlbum(albumId);
             }
             else {
-                //show filtered album list
+                // Show filtered album list
                 gotoAlbumList(tag, name);
             }
         }
         else {
-            //show filtered album list
+            // Show filtered album list
             gotoAlbumList(tag, name);
         }
+    }
+    else {
+        // The tag is not available for albums
+        gotoSearch(tag, name);
     }
 }
 

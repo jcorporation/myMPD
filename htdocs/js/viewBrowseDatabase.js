@@ -67,8 +67,7 @@ function initViewBrowseDatabase() {
         elGetById('BrowseDatabaseTagSearchStr').value = '';
         // clear album search input
         elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
-        appGoto(app.current.card, app.current.tab, 'AlbumList', 0, undefined, 'Album', {'tag': tagAlbumArtist, 'desc': false}, 'Album',
-            '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'tag')) + '\'))');
+        gotoBrowse(event);
     }, false);
 
     initSearchSimple('BrowseDatabaseTag');
@@ -290,7 +289,8 @@ function saveColsDatabaseAlbumList() {
                 "title": obj.result.data[i].value}, obj.result.data[i].value)
         );
         setData(card, 'image', image);
-        setData(card, 'tag', obj.result.data[i].value);
+        setData(card, 'tag', obj.result.tag);
+        setData(card, 'name', obj.result.data[i].value);
 
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 
