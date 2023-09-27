@@ -97,6 +97,12 @@ void *mympd_api_loop(void *arg_config) {
         mpd_client_disconnect(mympd_state->stickerdb, MPD_DISCONNECT_INSTANT);
     }
 
+    // write album cache to disc
+    // only for simple mode to save the cached uris
+    if (mympd_state->config->albums == false) {
+        album_cache_write(&mympd_state->mpd_state->album_cache, mympd_state->config->workdir, &mympd_state->mpd_state->tags_album, true);
+    }
+
     //save and free states
     mympd_state_save(mympd_state, true);
 
