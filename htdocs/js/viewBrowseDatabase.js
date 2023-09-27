@@ -64,10 +64,28 @@ function initViewBrowseDatabase() {
             return;
         }
         app.current.search = '';
-        elGetById('BrowseDatabaseTagSearchStr').value = '';
-        // clear album search input
-        elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
-        gotoBrowse(event);
+        if (event.target.nodeName === 'DIV') {
+            elGetById('BrowseDatabaseTagSearchStr').value = '';
+            // clear album search input
+            elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
+            gotoBrowse(event);
+        }
+        else if (event.target.nodeName === 'A') {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.target.getAttribute('data-list') === 'song') {
+                elGetById('SearchSearchStr').value = '';
+                const tag = getData(event.target.parentNode.parentNode, 'tag');
+                const value = getData(event.target.parentNode.parentNode, 'name');
+                gotoSearch(tag, value);
+            }
+            else {
+                elGetById('BrowseDatabaseTagSearchStr').value = '';
+                // clear album search input
+                elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
+                gotoBrowse(event);
+            }
+        }
     }, false);
 
     initSearchSimple('BrowseDatabaseTag');
@@ -264,6 +282,10 @@ function saveColsDatabaseAlbumList() {
         return;
     }
 
+    const listAlbums = settings.features.featAlbums === true
+        ? settings.tagListAlbum.includes(obj.result.tag)
+        : settings.tagListSimpleAlbum.includes(obj.result.tag);
+
     if (cardContainer.querySelector('.not-clickable') !== null) {
         elClear(cardContainer);
     }
@@ -275,18 +297,25 @@ function saveColsDatabaseAlbumList() {
             continue;
         }
 
-        let image = '';
         const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
 
-        image = '/tagart?uri=' + myEncodeURIComponent(obj.result.tag + '/' + obj.result.data[i].value);
+        const image = '/tagart?uri=' + myEncodeURIComponent(obj.result.tag + '/' + obj.result.data[i].value);
         if (obj.result.pics === true) {
             card.appendChild(
                 elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
             );
         }
+        const footerElements = [
+            elCreateText('div', {}, obj.result.data[i].value)
+        ];
+        if (listAlbums === true) {
+            footerElements.push(
+                elCreateText('a', {"class": ["mi", "mi-sm"], "href": "#", "data-list": "song", "data-title-phrase": "Show songs", "title": tn("Show songs")}, 'music_note'),
+                elCreateText('a', {"class": ["mi", "mi-sm"], "href": "#", "data-list": "album", "data-title-phrase": "Show albums", "title": tn("Show albums")}, 'album')
+            );
+        }
         card.appendChild(
-            elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2"],
-                "title": obj.result.data[i].value}, obj.result.data[i].value)
+            elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "card-footer-tags", "p-2"], "title": obj.result.data[i].value}, footerElements)
         );
         setData(card, 'image', image);
         setData(card, 'tag', obj.result.tag);
@@ -300,13 +329,14 @@ function saveColsDatabaseAlbumList() {
         else {
             cardContainer.append(col);
         }
-
-        if (userAgentData.hasIO === true) {
-            const observer = new IntersectionObserver(setGridImage, {root: null, rootMargin: '0px'});
-            observer.observe(col);
-        }
-        else {
-            col.firstChild.firstChild.style.backgroundImage = getCssImageUri(image);
+        if (obj.result.pics === true) {
+            if (userAgentData.hasIO === true) {
+                const observer = new IntersectionObserver(setGridImage, {root: null, rootMargin: '0px'});
+                observer.observe(col);
+            }
+            else {
+                col.firstChild.firstChild.style.backgroundImage = getCssImageUri(image);
+            }
         }
     }
     //remove obsolete cards

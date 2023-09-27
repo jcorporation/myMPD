@@ -496,6 +496,17 @@ div#homeActions {
   text-overflow: ellipsis;
 }
 
+.card-footer-tags a {
+  margin-top: 1rem;
+  display: inline-block;
+  width: 50%;
+  text-align: center;
+}
+
+.card-footer-tags a:last-child {
+  text-align: center;
+}
+
 .album-cover-grid {
   background-size: cover;
   background-position: center center;
