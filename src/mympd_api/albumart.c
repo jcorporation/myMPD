@@ -26,7 +26,7 @@
  * @param buffer already allocated sds string for the jsonrpc response
  * @param request_id request id
  * @param albumid the album id
- * @param binary pointer to an already allocated sds string for the binary response
+ * @param size size of the albumart
  * @return jsonrpc response
  */
 sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, sds buffer, long request_id,

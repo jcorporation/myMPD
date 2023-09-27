@@ -45,7 +45,6 @@ static bool handle_coverextract_flac(sds cachedir, const char *uri, const char *
  * Sends the albumart redirect response from the albumart_by_albumid handler
  * @param nc mongoose connection
  * @param data jsonrpc response
- * @param binary the image
  */
 void webserver_send_albumart_redirect(struct mg_connection *nc, sds data) {
     sds uri = NULL;
@@ -93,15 +92,13 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
 }
 
 /**
- * Request handler for /albumart/<albumid> and /albumart-thumb/<albumid>
- * @param nc mongoose connection
+ * Request handler for /albumart/albumid and /albumart-thumb/albumid.
+ * Sends the request to the mympd_api thread.
  * @param hm http message
- * @param mg_user_data pointer to mongoose configuration
  * @param conn_id connection id
- * @return true if an image is served,
- *         false if waiting for mpd_client to handle request
+ * @param size size of the albumart
  */
-bool request_handler_albumart_by_album_id(struct mg_http_message *hm, long long conn_id, enum albumart_sizes size) {
+void request_handler_albumart_by_album_id(struct mg_http_message *hm, long long conn_id, enum albumart_sizes size) {
     sds albumid = sdsnewlen(hm->uri.ptr, hm->uri.len);
     basename_uri(albumid);
     MYMPD_LOG_DEBUG(NULL, "Sending getalbumart to mpd_client_queue");
@@ -111,7 +108,6 @@ bool request_handler_albumart_by_album_id(struct mg_http_message *hm, long long 
     request->data = jsonrpc_end(request->data);
     mympd_queue_push(mympd_api_queue, request, 0);
     FREE_SDS(albumid);
-    return false;
 }
 
 /**
@@ -121,8 +117,8 @@ bool request_handler_albumart_by_album_id(struct mg_http_message *hm, long long 
  * @param mg_user_data pointer to mongoose configuration
  * @param conn_id connection id
  * @param size albumart size
- * @return true if an image is served,
- *         false if waiting for mpd_client to handle request
+ * @return true: an image was served,
+ *         false: request was sent to the mympd_api thread to get the image by MPD
  */
 bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, long long conn_id, enum albumart_sizes size)

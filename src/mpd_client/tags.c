@@ -292,6 +292,7 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
  * @param tags_enabled true=mpd tags are enabled, else false
  * @param tagcols pointer to t_tags struct (tags to retrieve)
  * @param song pointer to a mpd_song struct to retrieve tags from
+ * @param album_adv_mode album mode of myMPD
  * @return new sds pointer to buffer
  */
 sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
@@ -326,6 +327,7 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
  * @param buffer already allocated sds string to append the values
  * @param tagcols pointer to t_tags struct (tags to retrieve)
  * @param album pointer to a mpd_song struct representing the album
+ * @param album_adv_mode album mode of myMPD
  * @return new sds pointer to buffer
  */
 sds print_album_tags(sds buffer, const struct t_tags *tagcols,
