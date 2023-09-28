@@ -91,7 +91,7 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
     mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_allowed_commands") == true) {
         if (partition_state->mpd_state->feat_stickers == false) {
-            MYMPD_LOG_ERROR("stickerdb", "MPD does not support stickers");
+            MYMPD_LOG_WARN("stickerdb", "MPD does not support stickers");
             mpd_client_disconnect_silent(partition_state, MPD_DISCONNECTED);
             send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "MPD does not support stickers");
             return false;
