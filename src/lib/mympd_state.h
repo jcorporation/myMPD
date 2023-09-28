@@ -177,17 +177,14 @@ struct t_timer_definition {
 };
 
 /**
- * forward declaration
- */
-struct t_timer_node;
-
-/**
  * Struct for timers containing a t_list with t_timer_nodes
  */
 struct t_timer_list {
-    long long last_id;   //!< highest timer id in the list
-    int active;          //!< number of enabled timers
-    struct t_list list;  //!< timer definition
+    long long last_id;                   //!< highest timer id in the list
+    int active;                          //!< number of enabled timers
+    struct t_list list;                  //!< timer definition
+    struct pollfd ufds[LIST_TIMER_MAX];  //!< timerfds to poll
+    nfds_t ufds_len;                     //!< number of fds in ufds
 };
 
 /**

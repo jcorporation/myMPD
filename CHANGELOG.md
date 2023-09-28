@@ -26,6 +26,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Feat: Refresh status, if webui progress timer is greater than song length #1115
 - Feat: Add actions to the database tag view
 - Feat: Add option to display seek buttons in the footer #1110
+- Upd: rework timer implementation
 - Upd: Remove default smart playlist generation tag
 
 ***
