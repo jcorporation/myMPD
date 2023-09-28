@@ -370,10 +370,12 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
         buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, &partition_state->mpd_state->tags_mympd,
             song, partition_state->mympd_state->config->albums);
         buffer = sdscatlen(buffer, ",", 1);
-        struct t_tags tagcols;
-        reset_t_tags(&tagcols);
-        tags_enable_all_stickers(&tagcols);
-        buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, uri, &tagcols);
+        if (partition_state->mpd_state->feat_stickers == true) {
+            struct t_tags tagcols;
+            reset_t_tags(&tagcols);
+            tags_enable_all_stickers(&tagcols);
+            buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, uri, &tagcols);
+        }
         buffer = json_comma(buffer);
         buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
         if (is_streamuri(uri) == true) {

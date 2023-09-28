@@ -80,6 +80,9 @@ void *mympd_api_loop(void *arg_config) {
             stickerdb_enter_idle(mympd_state->stickerdb);
         }
     }
+    else {
+        MYMPD_LOG_NOTICE("stickerdb", "Stickers are disabled by config");
+    }
 
     //thread loop
     while (s_signal_received == 0) {

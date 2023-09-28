@@ -41,6 +41,10 @@ static bool inc_sticker(struct t_partition_state *partition_state, const char *u
  * @param partition_state pointer to the partition state
  */
 bool stickerdb_connect(struct t_partition_state *partition_state) {
+    if (partition_state->mympd_state->config->stickers == false) {
+        MYMPD_LOG_WARN("stickerdb", "Stickers are disabled by config");
+        return false;
+    }
     if (partition_state->conn_state == MPD_FAILURE) {
         MYMPD_LOG_DEBUG("stickerdb", "Disconnecting from MPD");
         mpd_client_disconnect_silent(partition_state, MPD_DISCONNECTED);
