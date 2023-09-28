@@ -38,7 +38,7 @@ static void timer_handler_caches_create(void);
  * @param timer_id the internal timer_id from enum timer_ids
  * @param definition the timer definition - not used
  */
-void timer_handler_by_id(int timer_id, struct t_timer_definition *definition) {
+void timer_handler_by_id(long long timer_id, struct t_timer_definition *definition) {
     (void) definition; // not used
     switch(timer_id) {
         case TIMER_ID_COVERCACHE_CROP:
@@ -60,8 +60,8 @@ void timer_handler_by_id(int timer_id, struct t_timer_definition *definition) {
  * @param timer_id the timer id
  * @param definition the timer definition
  */
-void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
-    MYMPD_LOG_INFO(definition->partition, "Start timer_handler_select for timer \"%s\" (%d)", definition->name, timer_id);
+void timer_handler_select(long long timer_id, struct t_timer_definition *definition) {
+    MYMPD_LOG_INFO(definition->partition, "Start timer_handler_select for timer \"%s\" (%lld)", definition->name, timer_id);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
         struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_STOP, NULL, definition->partition);
         request->data = jsonrpc_end(request->data);

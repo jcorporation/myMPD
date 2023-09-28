@@ -16,8 +16,8 @@ enum timer_ids {
     TIMER_ID_CACHES_CREATE = 3
 };
 
-void timer_handler_by_id(int timer_id, struct t_timer_definition *definition);
-void timer_handler_select(int timer_id, struct t_timer_definition *definition);
+void timer_handler_by_id(long long timer_id, struct t_timer_definition *definition);
+void timer_handler_select(long long timer_id, struct t_timer_definition *definition);
 bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         unsigned volume, sds playlist, sds preset);
 #endif

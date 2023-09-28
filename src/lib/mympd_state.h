@@ -182,13 +182,12 @@ struct t_timer_definition {
 struct t_timer_node;
 
 /**
- * Linked list of timers containing t_timer_nodes
+ * Struct for timers containing a t_list with t_timer_nodes
  */
 struct t_timer_list {
-    int length;                 //!< length of the timer list
-    int last_id;                //!< highest timer id in the list
-    int active;                 //!< number of enabled timers
-    struct t_timer_node *list;  //!< timer definition
+    long long last_id;   //!< highest timer id in the list
+    int active;          //!< number of enabled timers
+    struct t_list list;  //!< timer definition
 };
 
 /**
