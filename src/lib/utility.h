@@ -26,6 +26,7 @@ void sanitize_filename(sds filename);
 void my_msleep(long msec);
 
 sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config);
+bool get_ipv6_support(void);
 
 //measure time
 #define MEASURE_INIT struct timespec tic;\

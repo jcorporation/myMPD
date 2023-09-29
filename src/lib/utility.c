@@ -252,6 +252,31 @@ sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
 }
 
 /**
+ * Gets the ip address of the first interface
+ * @return ip address as sds string
+ */
+bool get_ipv6_support(void) {
+    struct ifaddrs *ifaddr;
+    struct ifaddrs *ifa;
+    bool rc = false;
+    errno = 0;
+    if (getifaddrs(&ifaddr) == -1) {
+        MYMPD_LOG_ERROR(NULL, "Can not get list of interface ip addresses");
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return rc;
+    }
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        int family = ifa->ifa_addr->sa_family;
+        if (family == AF_INET6) {
+            rc = true;
+            break;
+        }
+    }
+    freeifaddrs(ifaddr);
+    return rc;
+}
+
+/**
  * Private functions
  */
 
