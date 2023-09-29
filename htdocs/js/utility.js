@@ -489,9 +489,11 @@ async function httpGet(uri, callback, json) {
  */
 function getMyMPDuri(proto) {
     const protocol = proto === 'ws'
-        ? window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        ? window.location.protocol === 'https:'
+            ? 'wss:'
+            : 'ws:'
         : window.location.protocol;
-    return protocol + window.location.hostname +
+    return protocol + '//' + window.location.hostname +
             (window.location.port !== '' ? ':' + window.location.port : '') +
             subdir;
 }
