@@ -260,7 +260,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
  */
 bool mympd_api_timer_remove(struct t_timer_list *l, long long timer_id) {
     struct t_list_node *current = l->list.head;
-    long long idx = 0;
+    long idx = 0;
     while (current != NULL) {
         if (current->value_i == timer_id) {
             break;
