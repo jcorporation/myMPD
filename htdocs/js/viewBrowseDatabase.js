@@ -183,11 +183,9 @@ function parseDatabaseAlbumList(obj) {
     let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
         const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
-
         const image = obj.result.data[i].FirstSongUri !== 'albumid'
             ? '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri)
             : '/albumart-thumb/' + obj.result.data[i].AlbumId;
-
         card.appendChild(
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
         );

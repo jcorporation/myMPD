@@ -39,6 +39,7 @@ This is a small bug fix release.
 
 - Fix: check OS IPv6 support before enabling IPv6 listening socket #1118
 - Fix: correct calculation of myMPD uri
+- Fix: always replace cards of albumlist
 
 ***
 
