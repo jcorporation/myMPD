@@ -28,8 +28,17 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Feat: Add option to display seek buttons in the footer #1110
 - Upd: rework timer implementation
 - Upd: Remove default smart playlist generation tag
-- Fix: correct calculation of uri for local playback
-- Fix: check OS IPv6 support before enabling IPv6 listening socket
+
+***
+
+## myMPD v12.0.3 (not yet released)
+
+This is a small bug fix release.
+
+## Changelog
+
+- Fix: check OS IPv6 support before enabling IPv6 listening socket #1118
+- Fix: correct calculation of myMPD uri
 
 ***
 
