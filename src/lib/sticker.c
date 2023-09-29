@@ -56,6 +56,7 @@ enum mympd_sticker_types sticker_name_parse(const char *name) {
  */
 void sticker_struct_init(struct t_sticker *sticker) {
     memset(sticker->mympd, 0, sizeof(sticker->mympd));
+    sticker->mympd[STICKER_LIKE] = 1;
     list_init(&sticker->user);
 }
 
