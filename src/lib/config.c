@@ -12,6 +12,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
+#include "src/lib/utility.h"
 #include "src/lib/validate.h"
 
 #include <inttypes.h>
@@ -92,7 +93,12 @@ void mympd_config_defaults(struct t_config *config) {
     //configurable with environment variables at first startup
     config->http = startup_getenv_bool("MYMPD_HTTP", CFG_MYMPD_HTTP, config->first_startup);
     #ifdef MYMPD_ENABLE_IPV6
-        config->http_host = startup_getenv_string("MYMPD_HTTP_HOST", CFG_MYMPD_HTTP_HOST_IPV6, vcb_isname, config->first_startup);
+        if (get_ipv6_support() == true) {
+            config->http_host = startup_getenv_string("MYMPD_HTTP_HOST", CFG_MYMPD_HTTP_HOST_IPV6, vcb_isname, config->first_startup);
+        }
+        else {
+            config->http_host = startup_getenv_string("MYMPD_HTTP_HOST", CFG_MYMPD_HTTP_HOST_IPV4, vcb_isname, config->first_startup);
+        }
     #else
         config->http_host = startup_getenv_string("MYMPD_HTTP_HOST", CFG_MYMPD_HTTP_HOST_IPV4, vcb_isname, config->first_startup);
     #endif
