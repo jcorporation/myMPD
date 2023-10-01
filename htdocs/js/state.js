@@ -123,6 +123,7 @@ function parseState(obj) {
     //Set playback buttons
     if (obj.result.state === 'stop') {
         elGetById('footerPlayBtn').textContent = 'play_arrow';
+        elGetById('popoverFooterPlayBtn').textContent = 'play_arrow';
         domCache.progressBar.style.width = '0';
     }
     else if (obj.result.state === 'play') {
@@ -130,10 +131,12 @@ function parseState(obj) {
             settings.webuiSettings.footerPlaybackControls === 'stop'
                 ? 'stop'
                 : 'pause';
+        elGetById('popoverFooterPlayBtn').textContent = 'pause';
     }
     else {
         //pause
         elGetById('footerPlayBtn').textContent = 'play_arrow';
+        elGetById('popoverFooterPlayBtn').textContent = 'play_arrow';
     }
     if (app.id === 'QueueCurrent') {
         setPlayingRow();

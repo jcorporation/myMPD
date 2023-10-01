@@ -1095,5 +1095,10 @@
     "Fast forward": "Vorwärts spulen",
     "Fast rewind": "Zurück spulen",
     "Seek": "Spulen",
-    "Seek step": "Spulen-Schritt"
+    "Seek step": "Spulen-Schritt",
+    "Advanced playback controls": "Erweiterte Wiedergabekontrollen",
+    "Goto position": "Gehe zur Position",
+    "Seek seconds": "Spule Sekunden",
+    "Show albums": "Zeige Alben",
+    "Show songs": "Zeige Lieder"
 }

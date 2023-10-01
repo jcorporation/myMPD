@@ -139,7 +139,14 @@ function parseSettings(obj) {
         elHideId('footerFastRewindBtn');
         elHideId('footerFastForwardBtn');
     }
-    
+
+    if (settings.webuiSettings.footerPlaybackControlsPopover === true) {
+        elShowId('advPlaybackControlsBtn');
+    }
+    else {
+        elHideId('advPlaybackControlsBtn');
+    }
+
     if (settings.partition.jukeboxMode !== 'off') {
         elGetById('footerNextBtn').removeAttribute('disabled');
     }

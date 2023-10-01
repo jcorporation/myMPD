@@ -158,6 +158,8 @@ let materialIcons = {};
 let phrasesDefault = {};
 let phrases = {};
 
+let lastSeekStep = 10;
+
 /**
  * This settings are saved in the browsers localStorage
  */
@@ -571,6 +573,13 @@ const settingsWebuiFields = {
         "inputType": "checkbox",
         "title": "Playback settings",
         "form": "modalSettingsFooterFrm",
+        "sort": 2
+    },
+    "footerPlaybackControlsPopover": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Advanced playback controls",
+        "form": "modalSettingsFooterFrm",
         "sort": 1
     },
     "footerSeek": {
@@ -585,14 +594,14 @@ const settingsWebuiFields = {
         "inputType": "checkbox",
         "title": "Volume level",
         "form": "modalSettingsFooterFrm",
-        "sort": 2
+        "sort": 3
     },
     "footerNotifications": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Notification icon",
         "form": "modalSettingsFooterFrm",
-        "sort": 3
+        "sort": 4
     },
     "showHelp": {
         "defaultValue": true,

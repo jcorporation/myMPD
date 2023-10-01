@@ -27,8 +27,10 @@ function showPopover(target, contextMenuType) {
             case 'NavbarPlayback':
             case 'NavbarQueue':
             case 'NavbarBrowse':
-                //navbar icons - use a popover
                 popoverInit = createPopoverSimple(target, target.getAttribute('title'), addMenuItemsNavbarActions);
+                break;
+            case 'footer':
+                popoverInit = createPopoverSimple(target, 'Playback controls', addActionsPopoverFooter);
                 break;
             // No Default
         }
@@ -140,6 +142,15 @@ function createPopoverClickHandler(el) {
                 hidePopover();
             }
         }
+        else if (eventClick.target.nodeName === 'BUTTON') {
+            const cmd = getData(eventClick.target, 'href');
+            if (typeof(cmd) === 'object') {
+                parseCmd(eventClick, cmd);
+            }
+            else {
+                parseCmdFromJSON(eventClick, cmd);
+            }
+        }
         eventClick.preventDefault();
         eventClick.stopPropagation();
     }, false);
@@ -205,4 +216,39 @@ function createPopoverTabs(target, tab1Callback, tab2Callback) {
         }
     }, false);
     return popoverInit;
+}
+
+/**
+ * Populates the footer popover
+ * @param {EventTarget} target the triggering target
+ * @param {Element} popoverBody the popover body
+ * @returns {void}
+ */
+function addActionsPopoverFooter(target, popoverBody) {
+    const elapsed = currentState !== null
+        ? fmtSongDuration(currentState.elapsedTime)
+        : '0:00';
+    popoverBody.appendChild(
+        elCreateNodes('form', {"class": ["px-3"]}, [
+            elCreateNodes('div', {"class": ["btn-group-vertical", "playbackPopoverBtns"]}, [
+                elCreateNodes('div', {"class": ["btn-group"]}, [
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-start"], "data-href": '{"cmd": "clickPrev", "options": []}'}, 'skip_previous'),
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi"], "id": "popoverFooterPlayBtn", "data-href": '{"cmd": "clickPlay", "options": []}'}, 'play_arrow'),
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi"], "data-href": '{"cmd": "clickStop", "options": []}'}, 'stop'),
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-end"], "data-href": '{"cmd": "clickNext", "options": []}'}, 'skip_next')
+                ]),
+                elCreateTextTn('div', {"class": ["w-100", "text-center", "p-2"]}, 'Seek seconds'),
+                elCreateNodes('div', {"class": ["btn-group"]}, [
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-start"], "data-href": '{"cmd": "clickFastRewindValue", "options": []}'}, 'fast_rewind'),
+                    elCreateEmpty('input', {"class": ["form-control", "rounded-0", "text-center"], "id": "popoverFooterSeekInput", "value": lastSeekStep.toString()}),
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-end"], "data-href": '{"cmd": "clickFastForwardValue", "options": []}'}, 'fast_forward')
+                ]),
+                elCreateTextTn('div', {"class": ["w-100", "text-center", "p-2"]}, 'Goto position'),
+                elCreateNodes('div', {"class": ["btn-group"]}, [
+                    elCreateEmpty('input', {"class": ["form-control", "rounded-start", "rounded-end-0"], "id": "popoverFooterGotoInput", "value": elapsed}),
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-end"], "data-href": '{"cmd": "clickGotoPos", "options": []}'}, 'play_for_work')
+                ])
+            ])
+        ])
+    );
 }

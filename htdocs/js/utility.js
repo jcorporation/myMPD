@@ -494,6 +494,52 @@ function getMyMPDuri(proto) {
             : 'ws:'
         : window.location.protocol;
     return protocol + '//' + window.location.hostname +
-            (window.location.port !== '' ? ':' + window.location.port : '') +
-            subdir;
+        (window.location.port !== '' ? ':' + window.location.port : '') +
+        subdir;
+}
+
+/**
+ * Parses a string to seconds
+ * @param {string} value [hh:]mm:ss value to parse
+ * @returns {number} value in seconds
+ */
+function parseToSeconds(value) {
+    let match = value.match(/(\d+):(\d+):(\d+)/);
+    if (match) {
+        return Number(match[1]) * 60 * 60 +
+            Number(match[1]) * 60 +
+            Number(match[2]);
+    }
+    match = value.match(/(\d+):(\d+)/);
+    if (match) {
+        return Number(match[1]) * 60 +
+            Number(match[2]);
+    }
+    return Number(value);
+}
+
+/**
+ * Initializes elements with data-href attribute
+ * @param {Node} root root of the elements to initialize
+ * @returns {void}
+ */
+function initLinks(root) {
+    const hrefs = root.querySelectorAll('[data-href]');
+    for (const href of hrefs) {
+        if (href.nodeName !== 'A' &&
+            href.nodeName !== 'BUTTON' &&
+            href.classList.contains('not-clickable') === false)
+        {
+            href.classList.add('clickable');
+        }
+        if (href.parentNode.classList.contains('noInitChilds') ||
+            href.parentNode.parentNode.classList.contains('noInitChilds'))
+        {
+            //handler on parentnode
+            continue;
+        }
+        href.addEventListener('click', function(event) {
+            parseCmdFromJSON(event, getData(this, 'href'));
+        }, false);
+    }
 }

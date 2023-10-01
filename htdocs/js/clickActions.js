@@ -324,10 +324,17 @@ function clickNext() {
  */
 //eslint-disable-next-line no-unused-vars
 function clickFastRewind() {
-    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
-        "seek": -settings.webuiSettings.seekStep,
-        "relative": true
-    }, null, false);
+    clickSeek(-settings.webuiSettings.seekStep, true);
+}
+
+/**
+ * Handler for click on fast rewind button in playback controls popover
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function clickFastRewindValue() {
+    lastSeekStep = parseToSeconds(elGetById('popoverFooterSeekInput').value);
+    clickSeek(-lastSeekStep, true);
 }
 
 /**
@@ -336,9 +343,50 @@ function clickFastRewind() {
  */
 //eslint-disable-next-line no-unused-vars
 function clickFastForward() {
+    clickSeek(settings.webuiSettings.seekStep, true);
+}
+
+/**
+ * Handler for click on fast rewind button in playback controls popover
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function clickFastForwardValue() {
+    lastSeekStep = parseToSeconds(elGetById('popoverFooterSeekInput').value);
+    clickSeek(lastSeekStep, true);
+}
+
+/**
+ * Handler for click on goto position button in playback controls popover
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function clickGotoPos() {
+    const seekToPos = parseToSeconds(elGetById('popoverFooterGotoInput').value);
+    clickSeek(seekToPos, false);
+}
+
+/**
+ * Shows the advanced playback control popover
+ * @param {Event} event triggering event
+ * @returns {void}
+ */
+function showAdvPlaycontrolsPopover(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    showPopover(domCache.footer, 'footer');
+}
+
+/**
+ * Seek handler
+ * @param {number} value seek by/to value
+ * @param {boolean} relative true = number is relative
+ * @returns {void}
+ */
+function clickSeek(value, relative) {
     sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
-        "seek": settings.webuiSettings.seekStep,
-        "relative": true
+        "seek": value,
+        "relative": relative
     }, null, false);
 }
 

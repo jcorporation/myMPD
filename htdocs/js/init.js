@@ -192,24 +192,7 @@ function appInitStart() {
  */
 function appInit() {
     //init links
-    const hrefs = document.querySelectorAll('[data-href]');
-    for (const href of hrefs) {
-        if (href.nodeName !== 'A' &&
-            href.nodeName !== 'BUTTON' &&
-            href.classList.contains('not-clickable') === false)
-        {
-            href.classList.add('clickable');
-        }
-        if (href.parentNode.classList.contains('noInitChilds') ||
-            href.parentNode.parentNode.classList.contains('noInitChilds'))
-        {
-            //handler on parentnode
-            continue;
-        }
-        href.addEventListener('click', function(event) {
-            parseCmdFromJSON(event, getData(this, 'href'));
-        }, false);
-    }
+    initLinks(document);
     //hide popover
     domCache.body.addEventListener('click', function() {
         hidePopover();
@@ -398,11 +381,8 @@ function initNavs() {
         if (currentState.currentSongId >= 0 &&
             currentState.totalTime > 0)
         {
-            const seekVal = Math.ceil((currentState.totalTime * event.clientX) / domCache.progress.offsetWidth);
-            sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
-                "seek": seekVal,
-                "relative": false
-            }, null, false);
+            const seekToPos = Math.ceil((currentState.totalTime * event.clientX) / domCache.progress.offsetWidth);
+            clickSeek(seekToPos, false);
         }
     }, false);
 
@@ -463,6 +443,13 @@ function initNavs() {
             }, 400);
             execScript(getData(target, 'href'));
         }
+    }, false);
+
+    domCache.footer.addEventListener('contextmenu', function(event) {
+        showAdvPlaycontrolsPopover(event);
+    }, false);
+    domCache.footer.addEventListener('long-press', function(event) {
+        showAdvPlaycontrolsPopover(event);
     }, false);
 }
 

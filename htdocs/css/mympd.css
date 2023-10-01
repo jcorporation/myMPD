@@ -1226,3 +1226,11 @@ h4.offcanvas-title-stream::before {
   min-width: fit-content !important;
   display: var(--mympd-show-help-btn);
 }
+
+.playbackPopoverBtns button {
+  width: 3rem;
+}
+
+.playbackPopoverBtns input {
+  max-width: 6rem;
+}
