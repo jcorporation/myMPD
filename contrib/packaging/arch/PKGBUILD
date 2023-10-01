@@ -17,9 +17,8 @@ build() {
   local cmake_options=(
     -B build
     -S "${srcdir}"
-    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo
     -DCMAKE_INSTALL_PREFIX=/usr
-    -DMYMPD_STRIP_BINARY=OFF
     -Wno-dev
   )
 

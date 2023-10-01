@@ -24,9 +24,11 @@ message("Compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
 message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 message("CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
 
-# reset cmake default Release and Debug flags
-set(CMAKE_C_FLAGS_RELEASE "")
+# reset cmake default flags
 set(CMAKE_C_FLAGS_DEBUG "")
+set(CMAKE_C_FLAGS_RELEASE "")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "")
+set(CMAKE_C_FLAGS_MINSIZEREL "")
 
 # default is to deliver the assets from htdocs for Debug
 # and embedded assets for all other build types
@@ -39,17 +41,14 @@ if(NOT DEFINED MYMPD_EMBEDDED_ASSETS)
 endif()
 
 # set debug define for source
-if(NOT DEFINED MYMPD_DEBUG)
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(MYMPD_DEBUG "ON")
-  else()
-    set(MYMPD_DEBUG "OFF")
-  endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(MYMPD_DEBUG "ON")
+else()
+  set(MYMPD_DEBUG "OFF")
 endif()
 
 # available options
 option(MYMPD_BUILD_TESTING "Enables building of unit tests" "OFF")
-option(MYMPD_DEBUG "Enables myMPD debug mode, default OFF, ON for Debug" "OFF")
 option(MYMPD_EMBEDDED_ASSETS "Embed assets in binary, default ON, OFF for Debug" "ON")
 option(MYMPD_ENABLE_FLAC "Enables flac support, default ON" "ON")
 option(MYMPD_ENABLE_IPV6 "Enables IPv6, default ON" "ON")
@@ -57,7 +56,6 @@ option(MYMPD_ENABLE_LIBID3TAG "Enables libid3tag support, default ON" "ON")
 option(MYMPD_ENABLE_LUA "Enables lua support, default ON" "ON")
 option(MYMPD_MANPAGES "Creates and installs manpages" "ON")
 option(MYMPD_MINIMAL "Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags" "OFF")
-option(MYMPD_STRIP_BINARY "Enables stripping the binaries for Release, default ON" "ON")
 option(MYMPD_STARTUP_SCRIPT "Installs the startup script, default ON" "ON")
 # sanitizer options
 option(MYMPD_ENABLE_ASAN "Enables build with address sanitizer, default OFF" "OFF")
@@ -238,7 +236,7 @@ configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.se
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
-if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
+if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
   # set strict global compile flags
   add_compile_options(
     "-fdata-sections"
@@ -319,26 +317,26 @@ elseif(MYMPD_ENABLE_TSAN)
   )
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  add_compile_options(
+    "-ggdb"
+    "-Og"
+  )
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
+elseif(CMAKE_BUILD_TYPE MATCHES "(Release|RelWithDebInfo|MinSizeRel)")
   add_compile_options(
     "-fPIE"
     "-O2"
   )
-  if(NOT MYMPD_STRIP_BINARY)
+  if(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     message("Generating binary with debug symbols")
     add_compile_options("-g")
   endif()
   # IPO/LTO support
   check_ipo_supported()
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  add_compile_options(
-    "-ggdb"
-    "-Og"
-  )
-  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
 else()
-  # if CMAKE_BUILD_TYPE is neither Release nor Debug,
+  # if CMAKE_BUILD_TYPE is not Debug, Release, RelWithDebInfo or MinSizeRel
   # do not alter compile options
 endif()
 
@@ -351,17 +349,17 @@ elseif(MYMPD_ENABLE_TSAN)
   add_link_options(${TSAN_FLAGS})
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
+if(CMAKE_BUILD_TYPE MATCHES "(Release|RelWithDebInfo|MinSizeRel)")
   add_link_options(
     "-pie"
     "-Wl,-z,relro,-z,now,--gc-sections,--as-needed"
   )
-  if(MYMPD_STRIP_BINARY)
+  if(CMAKE_BUILD_TYPE MATCHES "(Release|MinSizeRel)")
     message("Generating stripped binary")
     add_link_options("-s")
   endif()
 else()
-  # if CMAKE_BUILD_TYPE is neither Release nor Debug,
+  # if CMAKE_BUILD_TYPE is not Release, RelWithDebInfo or MinSizeRel
   # do not alter link options
 endif()
 

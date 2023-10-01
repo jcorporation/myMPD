@@ -20,7 +20,7 @@ target_compile_options(mjson
     "-DMJSON_ENABLE_MERGE=0"
 )
 
-if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
+if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
   if((CMAKE_C_COMPILER_ID STREQUAL "Clang") AND (CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "15.0.0"))
     #clang 15 compatibility
     target_compile_options(mjson

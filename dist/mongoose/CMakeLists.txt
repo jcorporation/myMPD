@@ -16,8 +16,14 @@ target_compile_options(mongoose
     "-DMG_ENABLE_DIRECTORY_LISTING=1"
     "-DMG_ENABLE_SSI=0"
     "-DMG_ENABLE_OPENSSL=1"
-    "-Wno-unused-parameter"
 )
+
+if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
+  target_compile_options(mongoose
+    PRIVATE
+      "-Wno-unused-parameter"
+  )
+endif()
 
 if(MYMPD_ENABLE_IPV6)
   message("Mongoose: IPv6 is enabled")

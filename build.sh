@@ -303,10 +303,11 @@ createassets() {
 }
 
 buildrelease() {
+  BUILD_TYPE=$1
   echo "Compiling myMPD v${VERSION}"
   cmake -B release \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
-    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
     .
   make -C release
 }
@@ -1352,8 +1353,11 @@ run_jsdoc() {
 }
 
 case "$ACTION" in
-  release)
-    buildrelease
+  release|MinSizeRel)
+    buildrelease "Release"
+  ;;
+  RelWithDebInfo)
+    buildrelease "RelWithDebInfo"
   ;;
   install)
     installrelease
@@ -1517,7 +1521,8 @@ case "$ACTION" in
     echo "Version: ${VERSION}"
     echo ""
     echo "Build options:"
-    echo "  release:          build release files in directory release"
+    echo "  release:          build release files in directory release (stripped)"
+    echo "  RelWithDebInfo:   build release files in directory release (with debug info)"
     echo "  install:          installs release files from directory release"
     echo "                    following environment variables are respected"
     echo "                      - DESTDIR=\"\""
