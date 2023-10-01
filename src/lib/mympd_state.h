@@ -94,7 +94,6 @@ struct t_mpd_state {
     struct t_cache album_cache;         //!< the album cache created by the mpd_worker thread
     //lists
     long last_played_count;             //!< number of songs to keep in the last played list (disk + memory)
-    struct t_list sticker_queue;        //!< queue for stickers to set (cache if sticker cache is rebuilding) 
     sds booklet_name;                   //!< name of the booklet files
 };
 

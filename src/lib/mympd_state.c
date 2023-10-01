@@ -194,8 +194,6 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
     mpd_state->album_cache.cache = NULL;
     //init last played songs list
     mpd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
-    //init sticker queue
-    list_init(&mpd_state->sticker_queue);
     //booklet name
     mpd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
     //features
@@ -230,17 +228,14 @@ void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
  * Frees the t_mpd_state struct
  */
 void mpd_state_free(struct t_mpd_state *mpd_state) {
+    FREE_SDS(mpd_state->booklet_name);
     FREE_SDS(mpd_state->mpd_host);
     FREE_SDS(mpd_state->mpd_pass);
     FREE_SDS(mpd_state->tag_list);
     FREE_SDS(mpd_state->music_directory_value);
     FREE_SDS(mpd_state->playlist_directory_value);
-    //lists
-    list_clear(&mpd_state->sticker_queue);
     //caches
     album_cache_free(&mpd_state->album_cache);
-
-    FREE_SDS(mpd_state->booklet_name);
     //struct itself
     FREE_PTR(mpd_state);
 }
