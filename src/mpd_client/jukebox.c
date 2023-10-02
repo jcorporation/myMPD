@@ -632,8 +632,12 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
     }
     bool from_database = strcmp(playlist, "Database") == 0 ? true : false;
     sds tag_value = sdsempty();
-    rax *stickers_last_played = stickerdb_find_stickers_by_name(partition_state->mympd_state->stickerdb, "lastPlayed");
-    rax *stickers_like = stickerdb_find_stickers_by_name(partition_state->mympd_state->stickerdb, "like");
+    rax *stickers_last_played = NULL;
+    rax *stickers_like = NULL;
+    if (partition_state->mpd_state->feat_stickers == true) {
+        stickers_last_played = stickerdb_find_stickers_by_name(partition_state->mympd_state->stickerdb, "lastPlayed");
+        stickers_like = stickerdb_find_stickers_by_name(partition_state->mympd_state->stickerdb, "like");
+    }
     do {
         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: iterating through source, start: %u", start);
 
@@ -658,19 +662,26 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             sdsclear(tag_value);
             tag_value = mpd_client_get_tag_value_string(song, partition_state->jukebox_unique_tag.tags[0], tag_value);
-
             const char *uri = mpd_song_get_uri(song);
-            void *sticker_value_hated = raxFind(stickers_like, (unsigned char *)uri, strlen(uri));
+
+            void *sticker_value_hated = raxNotFound;
+            if (stickers_like != NULL) {
+                sticker_value_hated = raxFind(stickers_like, (unsigned char *)uri, strlen(uri));
+            }
             bool is_hated = sticker_value_hated != raxNotFound
                 ? ((sds)sticker_value_hated)[0] == '0' && partition_state->jukebox_ignore_hated == true
                     ? true
                     : false
                 : false;
-            long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
-            void *sticker_value_last_played = raxFind(stickers_last_played, (unsigned char *)uri, strlen(uri));
+
+            void *sticker_value_last_played = raxNotFound;
+            if (stickers_last_played != NULL) {
+                sticker_value_last_played = raxFind(stickers_last_played, (unsigned char *)uri, strlen(uri));
+            }
             time_t sticker_last_played = sticker_value_last_played == raxNotFound
                 ? 0
                 : strtol((sds)sticker_value_last_played, NULL, 10);
+            long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
             if (sticker_last_played > since) {
                 //song was played too recently
                 is_uniq = JUKEBOX_UNIQ_IN_QUEUE;
@@ -710,8 +721,12 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
         start = end;
         end = end + MPD_RESULTS_MAX;
     } while (from_database == true && lineno + skipno > (long)start);
-    stickerdb_free_find_result(stickers_last_played);
-    stickerdb_free_find_result(stickers_like);
+    if (stickers_last_played != NULL) {
+        stickerdb_free_find_result(stickers_last_played);
+    }
+    if (stickers_like != NULL) {
+        stickerdb_free_find_result(stickers_like);
+    }
     FREE_SDS(tag_value);
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox iterated through %ld songs, skipped %ld", lineno, skipno);
     return (int)add_list->length;
