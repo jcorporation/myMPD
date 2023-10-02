@@ -120,49 +120,11 @@ function parseState(obj) {
     }
     //save state
     currentState = obj.result;
-    //Set playback buttons
-    if (obj.result.state === 'stop') {
-        elGetById('footerPlayBtn').textContent = 'play_arrow';
-        elGetById('popoverFooterPlayBtn').textContent = 'play_arrow';
-        domCache.progressBar.style.width = '0';
-    }
-    else if (obj.result.state === 'play') {
-        elGetById('footerPlayBtn').textContent =
-            settings.webuiSettings.footerPlaybackControls === 'stop'
-                ? 'stop'
-                : 'pause';
-        elGetById('popoverFooterPlayBtn').textContent = 'pause';
-    }
-    else {
-        //pause
-        elGetById('footerPlayBtn').textContent = 'play_arrow';
-        elGetById('popoverFooterPlayBtn').textContent = 'play_arrow';
-    }
+    // set state of playback controls
+    updatePlaybackControls();
+    // update playing row in current queue view
     if (app.id === 'QueueCurrent') {
         setPlayingRow();
-    }
-
-    if (obj.result.queueLength === 0) {
-        elDisableId('footerPlayBtn');
-    }
-    else {
-        elEnableId('footerPlayBtn');
-    }
-
-    if (obj.result.nextSongPos === -1 &&
-        settings.partition.jukeboxMode === 'off')
-    {
-        elDisableId('footerNextBtn');
-    }
-    else {
-        elEnableId('footerNextBtn');
-    }
-
-    if (obj.result.songPos < 0) {
-        elDisableId('footerPrevBtn');
-    }
-    else {
-        elEnableId('footerPrevBtn');
     }
     //media session
     mediaSessionSetState();
@@ -227,6 +189,60 @@ function parseState(obj) {
         }
         logDebug('Refreshing settings');
         getSettings(parseSettings);
+    }
+}
+
+/**
+ * Sets the state of the playback control buttons
+ * @returns {void}
+ */
+function updatePlaybackControls() {
+    const prefixes = ['footer'];
+    if (document.querySelector('.playbackPopoverBtns') !== null) {
+        prefixes.push('popoverFooter');
+    }
+    for (const prefix of prefixes) {
+        //Set playback buttons
+        if (currentState.state === 'stop') {
+            elGetById(prefix + 'PlayBtn').textContent = 'play_arrow';
+            domCache.progressBar.style.width = '0';
+        }
+        else if (currentState.state === 'play') {
+            elGetById(prefix + 'PlayBtn').textContent =
+                settings.webuiSettings.footerPlaybackControls === 'stop'
+                    ? 'stop'
+                    : 'pause';
+        }
+        else {
+            //pause
+            elGetById(prefix + 'PlayBtn').textContent = 'play_arrow';
+        }
+
+        if (currentState.queueLength === 0) {
+            // no song in queue
+            elDisableId(prefix + 'PlayBtn');
+        }
+        else {
+            elEnableId(prefix + 'PlayBtn');
+        }
+
+        if (currentState.nextSongPos === -1 &&
+            settings.partition.jukeboxMode === 'off')
+        {
+            // last song in queue and disabled jukebox
+            elDisableId(prefix + 'NextBtn');
+        }
+        else {
+            elEnableId(prefix + 'NextBtn');
+        }
+
+        if (currentState.songPos < 0) {
+            // no current song
+            elDisableId(prefix + 'PrevBtn');
+        }
+        else {
+            elEnableId(prefix + 'PrevBtn');
+        }
     }
 }
 

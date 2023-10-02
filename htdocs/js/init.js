@@ -446,10 +446,10 @@ function initNavs() {
     }, false);
 
     domCache.footer.addEventListener('contextmenu', function(event) {
-        showAdvPlaycontrolsPopover(event);
+        toggleAdvPlaycontrolsPopover(event);
     }, false);
     domCache.footer.addEventListener('long-press', function(event) {
-        showAdvPlaycontrolsPopover(event);
+        toggleAdvPlaycontrolsPopover(event);
     }, false);
 }
 

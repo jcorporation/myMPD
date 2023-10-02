@@ -371,10 +371,15 @@ function clickGotoPos() {
  * @param {Event} event triggering event
  * @returns {void}
  */
-function showAdvPlaycontrolsPopover(event) {
+function toggleAdvPlaycontrolsPopover(event) {
     event.preventDefault();
     event.stopPropagation();
-    showPopover(domCache.footer, 'footer');
+    if (domCache.footer.getAttribute('aria-describedby') === null) {
+        showPopover(domCache.footer, 'footer');
+    }
+    else {
+        hidePopover();
+    }
 }
 
 /**

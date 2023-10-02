@@ -21,7 +21,7 @@ function showPopover(target, contextMenuType) {
     }
     //check for existing popover instance
     let popoverInit = BSN.Popover.getInstance(target);
-    //create it if no popover instance is found
+    //create it, if no popover instance is found
     if (popoverInit === null) {
         switch (contextMenuType) {
             case 'NavbarPlayback':
@@ -31,6 +31,15 @@ function showPopover(target, contextMenuType) {
                 break;
             case 'footer':
                 popoverInit = createPopoverSimple(target, 'Playback controls', addActionsPopoverFooter);
+                domCache.footer.addEventListener('updated.bs.popover', function() {
+                    updatePlaybackControls();
+                }, false);
+                domCache.footer.addEventListener('show.bs.popover', function() {
+                    elGetById('advPlaybackControlsBtn').classList.add('active');
+                }, false);
+                domCache.footer.addEventListener('hidden.bs.popover', function() {
+                    elGetById('advPlaybackControlsBtn').classList.remove('active');
+                }, false);
                 break;
             // No Default
         }
@@ -121,7 +130,9 @@ function createPopoverInit(target, title, bodyTemplate) {
         case 'NavbarQueue':
         case 'NavbarBrowse':
             // @ts-ignore
-            options.placement = getXpos(target) < 100 ? 'right' : 'bottom';
+            options.placement = getXpos(target) < 100
+                ? 'right'
+                : 'bottom';
             break;
         // No Default
     }
@@ -232,10 +243,10 @@ function addActionsPopoverFooter(target, popoverBody) {
         elCreateNodes('form', {"class": ["px-3"]}, [
             elCreateNodes('div', {"class": ["btn-group-vertical", "playbackPopoverBtns"]}, [
                 elCreateNodes('div', {"class": ["btn-group"]}, [
-                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-start"], "data-href": '{"cmd": "clickPrev", "options": []}'}, 'skip_previous'),
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-start"], "id": "popoverFooterPrevBtn", "data-href": '{"cmd": "clickPrev", "options": []}'}, 'skip_previous'),
                     elCreateText('button', {"class": ["btn", "btn-secondary", "mi"], "id": "popoverFooterPlayBtn", "data-href": '{"cmd": "clickPlay", "options": []}'}, 'play_arrow'),
-                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi"], "data-href": '{"cmd": "clickStop", "options": []}'}, 'stop'),
-                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-end"], "data-href": '{"cmd": "clickNext", "options": []}'}, 'skip_next')
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi"], "id": "popoverFooterStopBtn", "data-href": '{"cmd": "clickStop", "options": []}'}, 'stop'),
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-end"], "id": "popoverFooterNextBtn", "data-href": '{"cmd": "clickNext", "options": []}'}, 'skip_next')
                 ]),
                 elCreateTextTn('div', {"class": ["w-100", "text-center", "p-2"]}, 'Seek seconds'),
                 elCreateNodes('div', {"class": ["btn-group"]}, [
