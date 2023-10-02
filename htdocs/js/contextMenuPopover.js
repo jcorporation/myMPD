@@ -250,14 +250,14 @@ function addActionsPopoverFooter(target, popoverBody) {
                 ]),
                 elCreateTextTn('div', {"class": ["w-100", "text-center", "p-2"]}, 'Seek seconds'),
                 elCreateNodes('div', {"class": ["btn-group"]}, [
-                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-start"], "data-href": '{"cmd": "clickFastRewindValue", "options": []}'}, 'fast_rewind'),
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-start"], "id": "popoverFooterFastRewindBtn", "data-href": '{"cmd": "clickFastRewindValue", "options": []}'}, 'fast_rewind'),
                     elCreateEmpty('input', {"class": ["form-control", "rounded-0", "text-center"], "id": "popoverFooterSeekInput", "value": lastSeekStep.toString()}),
-                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-end"], "data-href": '{"cmd": "clickFastForwardValue", "options": []}'}, 'fast_forward')
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-end"], "id": "popoverFooterFastForwardBtn", "data-href": '{"cmd": "clickFastForwardValue", "options": []}'}, 'fast_forward')
                 ]),
                 elCreateTextTn('div', {"class": ["w-100", "text-center", "p-2"]}, 'Goto position'),
                 elCreateNodes('div', {"class": ["btn-group"]}, [
                     elCreateEmpty('input', {"class": ["form-control", "rounded-start", "rounded-end-0"], "id": "popoverFooterGotoInput", "value": elapsed}),
-                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-end"], "data-href": '{"cmd": "clickGotoPos", "options": []}'}, 'play_for_work')
+                    elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "rounded-end"], "id": "popoverFooterGotoBtn", "data-href": '{"cmd": "clickGotoPos", "options": []}'}, 'play_for_work')
                 ])
             ])
         ])

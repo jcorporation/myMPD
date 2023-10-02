@@ -200,22 +200,31 @@ function updatePlaybackControls() {
     const prefixes = ['footer'];
     if (document.querySelector('.playbackPopoverBtns') !== null) {
         prefixes.push('popoverFooter');
+        if (currentState.songPos < 0) {
+            elDisableId('popoverFooterGotoBtn');
+        }
+        else {
+            elEnableId('popoverFooterGotoBtn');
+        }
     }
     for (const prefix of prefixes) {
         //Set playback buttons
         if (currentState.state === 'stop') {
             elGetById(prefix + 'PlayBtn').textContent = 'play_arrow';
             domCache.progressBar.style.width = '0';
+            elDisableId(prefix + 'StopBtn');
         }
         else if (currentState.state === 'play') {
             elGetById(prefix + 'PlayBtn').textContent =
                 settings.webuiSettings.footerPlaybackControls === 'stop'
                     ? 'stop'
                     : 'pause';
+            elEnableId(prefix + 'StopBtn');
         }
         else {
             //pause
             elGetById(prefix + 'PlayBtn').textContent = 'play_arrow';
+            elEnableId(prefix + 'StopBtn');
         }
 
         if (currentState.queueLength === 0) {
