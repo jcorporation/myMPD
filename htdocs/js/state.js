@@ -239,9 +239,13 @@ function updatePlaybackControls() {
         if (currentState.songPos < 0) {
             // no current song
             elDisableId(prefix + 'PrevBtn');
+            elDisableId(prefix + 'FastRewindBtn');
+            elDisableId(prefix + 'FastForwardBtn');
         }
         else {
             elEnableId(prefix + 'PrevBtn');
+            elEnableId(prefix + 'FastRewindBtn');
+            elEnableId(prefix + 'FastForwardBtn');
         }
     }
 }
