@@ -5,10 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "dist/mpack/mpack.h"
-#include "mpd/search.h"
-#include "mpd/song.h"
-#include "src/lib/list.h"
 #include "src/mpd_client/jukebox.h"
 
 #include "dist/rax/rax.h"
