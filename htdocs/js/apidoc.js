@@ -1490,7 +1490,7 @@ const APImethods = {
             "consume": {
                 "type": APItypes.string,
                 "example": "1",
-                "desc": "MPD consume mode: 0, 1, oneshot"
+                "desc": "MPD consume mode: \"0\", \"1\", \"oneshot\""
             },
             "random": {
                 "type": APItypes.bool,
@@ -1500,7 +1500,7 @@ const APImethods = {
             "single": {
                 "type": APItypes.string,
                 "example": "1",
-                "desc": "MPD single mode: 0, 1, oneshot"
+                "desc": "MPD single mode: \"0\", \"1\", \"oneshot\""
             },
             "repeat": {
                 "type": APItypes.bool,
@@ -1530,7 +1530,7 @@ const APImethods = {
             "jukeboxMode": {
                 "type": APItypes.string,
                 "example": "off",
-                "desc": "Jukebox modes: off, song, album"
+                "desc": "Jukebox modes: \"off\", \"song\", \"album\""
             },
             "jukeboxPlaylist": {
                 "type": APItypes.string,
@@ -1550,7 +1550,7 @@ const APImethods = {
             "jukeboxUniqueTag": {
                 "type": APItypes.string,
                 "example": "Album",
-                "desc": "Tag to maintain unique values in internal jukebox queue."
+                "desc": "Tag for which unique values are enforced in the queue."
             },
             "jukeboxIgnoreHated": {
                 "type": APItypes.bool,
@@ -1567,7 +1567,7 @@ const APImethods = {
             "autoPlay": {
                 "type": APItypes.bool,
                 "example": false,
-                "desc": "Start playing if a song is adder to queue."
+                "desc": "Start playing if a song is added to the queue."
             }
         }
     },
