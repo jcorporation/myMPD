@@ -29,7 +29,7 @@
 //private definitions
 static bool jukebox(struct t_partition_state *partition_state);
 static void jukebox_get_last_played_add(struct t_partition_state *partition_state,
-    struct mpd_song *song, struct t_list *queue_list, enum jukebox_modes jukebox_mode);
+        struct mpd_song *song, struct t_list *queue_list, enum jukebox_modes jukebox_mode);
 static struct t_list *jukebox_get_last_played(struct t_partition_state *partition_state,
         enum jukebox_modes jukebox_mode);
 static bool jukebox_run_fill_jukebox_queue(struct t_partition_state *partition_state,
@@ -694,7 +694,9 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
                         }
                     }
                     else {
-                        long pos = add_songs > 1 ? start_length + randrange(0, add_songs - 1) : 0;
+                        long pos = add_songs > 1
+                            ? start_length + randrange(0, add_songs - 1)
+                            : 0;
                         if (list_replace(add_list, pos, uri, lineno, tag_value, NULL) == false) {
                             MYMPD_LOG_ERROR(partition_state->name, "Can't replace jukebox_queue element pos %ld", pos);
                         }
