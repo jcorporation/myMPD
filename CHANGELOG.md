@@ -25,8 +25,10 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Feat: Add a simple album cache (fewer features, but much better performance) #113
 - Feat: Refresh status, if webui progress timer is greater than song length #1115
 - Feat: Add actions to the database tag view
-- Feat: Add option to display seek buttons to the footer #1110
+- Feat: Add option to display seek buttons in the footer #1110
 - Feat: Add advanced playback controls popover to footer #1110
+- Feat: Add exclude and include filter expression for jukebox mode #1098
+- Feat: Add min. duration option for jukebox mode #1098
 - Upd: rework timer implementation
 - Upd: Remove default smart playlist generation tag
 
