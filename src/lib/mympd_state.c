@@ -289,6 +289,9 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
     partition_state->jukebox_enforce_unique = MYMPD_JUKEBOX_ENFORCE_UNIQUE;
     partition_state->jukebox_ignore_hated = MYMPD_JUKEBOX_IGNORE_HATED;
+    partition_state->jukebox_filter_include = sdsempty();
+    partition_state->jukebox_filter_exclude = sdsempty();
+    partition_state->jukebox_min_song_duration = MYMPD_JUKEBOX_MIN_SONG_DURATION;
     //add pointer to other states
     partition_state->mympd_state = mympd_state;
     partition_state->mpd_state = mympd_state->mpd_state;
@@ -327,6 +330,8 @@ void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->last_song_uri);
     //jukebox
     FREE_SDS(partition_state->jukebox_playlist);
+    FREE_SDS(partition_state->jukebox_filter_include);
+    FREE_SDS(partition_state->jukebox_filter_exclude);
     //do not use jukebox_clear wrapper to prevent obsolet notification
     list_clear(&partition_state->jukebox_queue);
     list_clear(&partition_state->jukebox_queue_tmp);

@@ -144,6 +144,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_JUKEBOX_QUEUE_LENGTH 1
 #define MYMPD_JUKEBOX_ENFORCE_UNIQUE true
 #define MYMPD_JUKEBOX_IGNORE_HATED false
+#define MYMPD_JUKEBOX_MIN_SONG_DURATION 0
 #define MYMPD_COVERIMAGE_NAMES "cover,folder"
 #define MYMPD_THUMBNAIL_NAMES "cover-sm,folder-sm"
 #define MYMPD_TAG_LIST_SEARCH "Album,AlbumArtist,Artist,Genre,Title"
@@ -306,6 +307,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define VOLUME_STEP_MAX 25 //prct
 #define JUKEBOX_MODE_MIN 0
 #define JUKEBOX_MODE_MAX 2
+#define JUKEBOX_MIN_SONG_DURATION_MAX UINT_MAX
 #define SCROBBLE_TIME_MIN 10 //minimum song length in seconds for the scrobble event
 #define SCROBBLE_TIME_MAX 240 //maximum elapsed seconds before scrobble event occurs
 #define SCROBBLE_TIME_TOTAL 480 //if the song is longer then this value, scrobble at SCROBBLE_TIME_MAX

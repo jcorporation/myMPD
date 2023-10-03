@@ -323,6 +323,32 @@ bool vcb_ismpdsort(sds data) {
 }
 
 /**
+ * Checks if string is a valid mpd search expression
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_issearchexpression(sds data) {
+    size_t len = sdslen(data);
+    if (len == 0) {
+        return true;
+    }
+    //check if it is valid utf8
+    if (utf8valid(data) != 0) {
+        MYMPD_LOG_ERROR(NULL, "String is not valid utf8");
+        return false;
+    }
+    //only some basic checks
+    if (len < 2 ||
+        data[0] != '(' ||
+        data[len - 1] != ')')
+    {
+        MYMPD_LOG_ERROR(NULL, "String is not a valid search expression");
+        return false;
+    }
+    return check_for_invalid_chars(data, invalid_name_chars);
+}
+
+/**
  * Private functions
  */
 

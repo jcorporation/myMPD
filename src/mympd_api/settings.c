@@ -637,6 +637,37 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             jukebox_changed = true;
         }
     }
+    else if (strcmp(key, "jukeboxFilterInclude") == 0 && vtype == MJSON_TOK_STRING) {
+        if (vcb_issearchexpression(value) == false) {
+            set_invalid_value(error, path, key, value, "Invalid MPD search expression");
+            return false;
+        }
+        if (strcmp(partition_state->jukebox_filter_include, value) != 0) {
+            partition_state->jukebox_filter_include = sds_replace(partition_state->jukebox_filter_include, value);
+            jukebox_changed = true;
+        }
+    }
+    else if (strcmp(key, "jukeboxFilterExclude") == 0 && vtype == MJSON_TOK_STRING) {
+        if (vcb_issearchexpression(value) == false) {
+            set_invalid_value(error, path, key, value, "Invalid MPD search expression");
+            return false;
+        }
+        if (strcmp(partition_state->jukebox_filter_exclude, value) != 0) {
+            partition_state->jukebox_filter_exclude = sds_replace(partition_state->jukebox_filter_exclude, value);
+            jukebox_changed = true;
+        }
+    }
+    else if (strcmp(key, "jukeboxMinSongDuration") == 0 && vtype == MJSON_TOK_NUMBER) {
+        unsigned min_song_duration = (unsigned)strtoumax(value, NULL, 10);
+        if (min_song_duration > JUKEBOX_MIN_SONG_DURATION_MAX) {
+            set_invalid_value(error, path, key, value, "Invalid value");
+            return false;
+        }
+        if (min_song_duration != partition_state->jukebox_min_song_duration) {
+            partition_state->jukebox_min_song_duration = min_song_duration;
+            jukebox_changed = true;
+        }
+    }
     else if (strcmp(key, "name") == 0) {
         //ignore
         rc = true;
@@ -818,6 +849,9 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
     partition_state->jukebox_last_played = state_file_rw_long(workdir, partition_state->state_dir, "jukebox_last_played", partition_state->jukebox_last_played, JUKEBOX_LAST_PLAYED_MIN, JUKEBOX_LAST_PLAYED_MAX, true);
     partition_state->jukebox_unique_tag.tags[0] = state_file_rw_int(workdir, partition_state->state_dir, "jukebox_unique_tag", partition_state->jukebox_unique_tag.tags[0], 0, MPD_TAG_COUNT, true);
     partition_state->jukebox_ignore_hated = state_file_rw_bool(workdir, partition_state->state_dir, "jukebox_ignore_hated", MYMPD_JUKEBOX_IGNORE_HATED, true);
+    partition_state->jukebox_filter_include = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_include", partition_state->jukebox_filter_include, vcb_issearchexpression, true);
+    partition_state->jukebox_filter_exclude = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_exclude", partition_state->jukebox_filter_exclude, vcb_issearchexpression, true);
+    partition_state->jukebox_min_song_duration= state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_min_song_duration", partition_state->jukebox_min_song_duration, 0, JUKEBOX_MIN_SONG_DURATION_MAX, true);
     partition_state->highlight_color = state_file_rw_string_sds(workdir, partition_state->state_dir, "highlight_color", partition_state->highlight_color, vcb_ishexcolor, true);
     partition_state->highlight_color_contrast = state_file_rw_string_sds(workdir, partition_state->state_dir, "highlight_color_contrast", partition_state->highlight_color_contrast, vcb_ishexcolor, true);
     partition_state->mpd_stream_port = state_file_rw_uint(workdir, partition_state->state_dir, "mpd_stream_port", partition_state->mpd_stream_port, MPD_PORT_MIN, MPD_PORT_MAX, true);
@@ -901,6 +935,9 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_char(buffer, "jukeboxUniqueTag", mpd_tag_name(partition_state->jukebox_unique_tag.tags[0]), true);
     buffer = tojson_long(buffer, "jukeboxLastPlayed", partition_state->jukebox_last_played, true);
     buffer = tojson_bool(buffer, "jukeboxIgnoreHated", partition_state->jukebox_ignore_hated, true);
+    buffer = tojson_char(buffer, "jukeboxFilterInclude", partition_state->jukebox_filter_include, true);
+    buffer = tojson_char(buffer, "jukeboxFilterExclude", partition_state->jukebox_filter_exclude, true);
+    buffer = tojson_uint(buffer, "jukeboxMinSongDuration", partition_state->jukebox_min_song_duration, true);
     buffer = tojson_bool(buffer, "autoPlay", partition_state->auto_play, true);
     buffer = tojson_char(buffer, "highlightColor", partition_state->highlight_color, true);
     buffer = tojson_char(buffer, "highlightColorContrast", partition_state->highlight_color_contrast, true);

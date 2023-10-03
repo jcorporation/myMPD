@@ -189,6 +189,9 @@ struct t_list *parse_search_expression_to_list(sds expression) {
  * @param expr_list pointer to the list
  */
 void *free_search_expression_list(struct t_list *expr_list) {
+    if (expr_list == NULL) {
+        return NULL;
+    }
     return list_free_user_data(expr_list, free_search_expression_node);
 }
 

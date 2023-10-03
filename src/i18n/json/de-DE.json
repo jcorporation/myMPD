@@ -303,6 +303,7 @@
     "Invalid trigger name": "Ungültiger Trigger Name",
     "Invalid type": "Ungültiger Typ",
     "Invalid volume level": "Ungültige Lautstärke",
+    "Invalid value": "Ungültiger Wert",
     "JavaScript error": "JavaScript Fehler",
     "Jukebox": "Jukebox",
     "Jukebox Queue": "Jukebox Warteschlange",
@@ -1100,5 +1101,12 @@
     "Goto position": "Gehe zur Position",
     "Seek seconds": "Spule Sekunden",
     "Show albums": "Zeige Alben",
-    "Show songs": "Zeige Lieder"
+    "Show songs": "Zeige Lieder",
+    "helpJukeboxFilterInclude": "MPD Suchfilter, der Lieder inkludiert.",
+    "helpJukeboxFilterExclude": "MPD Suchfilter, der Lieder exkludiert.",
+    "Exclude expression": "Ausklammernder Suchfilter",
+    "Include expression": "Suchfilter",
+    "Invalid MPD search expression": "Ungültiger MPD Suchfilter",
+    "Min. song duration": "Mindeste Liedlänge",
+    "helpJukeboxMinSongDuration": "Nur Lieder mit dieser Mindestlänge werden berücksichtigt."
 }

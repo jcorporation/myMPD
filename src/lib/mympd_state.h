@@ -140,6 +140,9 @@ struct t_partition_state {
     struct t_list jukebox_queue;           //!< the jukebox queue itself
     struct t_list jukebox_queue_tmp;       //!< temporary jukebox queue for the add random to queue function
     bool jukebox_ignore_hated;             //!< ignores hated songs for the jukebox mode
+    sds jukebox_filter_include;            //!< mpd search filter to include songs / albums
+    sds jukebox_filter_exclude;            //!< mpd search filter to exclude songs / albums
+    unsigned jukebox_min_song_duration;    //!< minimum song duration
     //partition
     sds name;                              //!< partition name
     sds highlight_color;                   //!< highlight color

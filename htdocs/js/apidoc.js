@@ -1557,6 +1557,8 @@ const APImethods = {
                 "example": true,
                 "desc": "Ignores hated songs."
             },
+            "jukeboxFilterInclude": APIparams.expression,
+            "jukeboxFilterExclude": APIparams.expression,
             "autoPlay": {
                 "type": APItypes.bool,
                 "example": false,

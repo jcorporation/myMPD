@@ -1028,6 +1028,30 @@ const settingsPlaybackFields = {
         "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxIgnoreHated",
         "class": ["jukeboxSongOnly"]
+    },
+    "jukeboxFilterInclude": {
+        "inputType": "text",
+        "defaultValue": "",
+        "title": "Include expression",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxFilterInclude"
+    },
+    "jukeboxFilterExclude": {
+        "inputType": "text",
+        "defaultValue": "",
+        "title": "Exclude expression",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxFilterExclude"
+    },
+    "jukeboxMinSongDuration": {
+        "inputType": "text",
+        "contentType": "number",
+        "defaultValue": defaults["MYMPD_JUKEBOX_MIN_SONG_DURATION"],
+        "title": "Min. song duration",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxMinSongDuration",
+        "class": ["jukeboxSongOnly"],
+        "unit": "Seconds"
     }
 };
 
