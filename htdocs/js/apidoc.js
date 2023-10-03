@@ -1559,6 +1559,11 @@ const APImethods = {
             },
             "jukeboxFilterInclude": APIparams.expression,
             "jukeboxFilterExclude": APIparams.expression,
+            "jukeboxMinSongDuration": {
+                "type": APItypes.uint,
+                "example": 60,
+                "desc": "Only songs with this minimum length will be considered."
+            },
             "autoPlay": {
                 "type": APItypes.bool,
                 "example": false,
