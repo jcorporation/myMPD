@@ -313,7 +313,7 @@ function saveColsDatabaseAlbumList() {
             );
         }
         card.appendChild(
-            elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "card-footer-tags", "p-2"], "title": obj.result.data[i].value}, footerElements)
+            elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "card-footer-tags", "text-center", "p-2"], "title": obj.result.data[i].value}, footerElements)
         );
         setData(card, 'image', image);
         setData(card, 'tag', obj.result.tag);
