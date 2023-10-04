@@ -174,18 +174,29 @@ function toggleJukeboxSettings() {
         elGetById('modalPlaybackJukeboxUniqueTagInput').value = 'Album';
         // hide rows that are not configurable in jukebox album mode
         for (const input of songOnlyInputs) {
-            input.closest('.row').classList.add('d-none');
+            elHide(input.closest('.row'));
         }
     }
     else if (value === 'song') {
         // show rows that are configurable in jukebox song mode only
         for (const input of songOnlyInputs) {
-            input.closest('.row').classList.remove('d-none');
+            elShow(input.closest('.row'));
         }
     }
     if (value !== 'off') {
         toggleBtnGroupValueId('modalPlaybackConsumeGroup', '1');
         toggleBtnGroupValueId('modalPlaybackSingleGroup', '0');
+    }
+
+    if (features.featStickers === false) {
+        elShowId('modalPlaybackPlaybackStatisticsWarn');
+        elHide(elGetById('modalPlaybackJukeboxLastPlayedInput').closest('.row'));
+        elHide(elGetById('modalPlaybackJukeboxIgnoreHatedInput').closest('.row'));
+        toggleBtnChkId('modalPlaybackJukeboxIgnoreHatedInput', false);
+    }
+    else {
+        elHideId('modalPlaybackPlaybackStatisticsWarn');
+        elShow(elGetById('modalPlaybackJukeboxLastPlayedInput').closest('.row'));
     }
 }
 
@@ -230,16 +241,6 @@ function populatePlaybackFrm() {
         toggleBtnGroupValueId('modalPlaybackConsumeGroup', settings.partition.consume);
         toggleBtnGroupValueId('modalPlaybackSingleGroup', settings.partition.single);
         toggleBtnGroupValueId('modalPlaybackReplaygainGroup', settings.partition.replaygain);
-        if (features.featStickers === false) {
-            elShowId('modalPlaybackPlaybackStatisticsWarn');
-            elDisableId('modalPlaybackJukeboxLastPlayedInput');
-            elDisableId('modalPlaybackJukeboxIgnoreHatedInput');
-        }
-        else {
-            elHideId('modalPlaybackPlaybackStatisticsWarn');
-            elEnableId('modalPlaybackJukeboxLastPlayedInput');
-            elEnableId('modalPlaybackJukeboxIgnoreHatedInput');
-        }
         if (features.featTags === false) {
             elGetById('modalPlaybackJukeboxModeGroup').children[1].classList.add('rounded-end');
         }
