@@ -87,7 +87,9 @@ void *mympd_api_loop(void *arg_config) {
     //thread loop
     while (s_signal_received == 0) {
         mpd_client_idle(mympd_state);
-        mympd_api_timer_check(&mympd_state->timer_list);
+        if (mympd_state->timer_list.active > 0) {
+            mympd_api_timer_check(&mympd_state->timer_list);
+        }
         if (mympd_state->mpd_state->feat_stickers == true) {
             stickerdb_idle(mympd_state->stickerdb);
         }
