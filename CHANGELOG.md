@@ -4,6 +4,18 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v12.0.3 (not yet released)
+
+This is a small bug fix release.
+
+## Changelog
+
+- Fix: check OS IPv6 support before enabling IPv6 listening socket #1118
+- Fix: correct calculation of myMPD uri
+- Fix: always replace cards of albumlist
+
+***
+
 ## myMPD v12.0.2 (2023-09-22)
 
 This is a small bug fix release.
