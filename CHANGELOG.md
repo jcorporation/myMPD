@@ -34,7 +34,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 
 ***
 
-## myMPD v12.0.3 (not yet released)
+## myMPD v12.0.3 (2023-10-04)
 
 This is a small bug fix release.
 
