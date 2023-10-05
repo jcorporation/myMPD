@@ -34,13 +34,13 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 
 ***
 
-## myMPD v12.0.4 (not yet released)
+## myMPD v12.0.4 (2023-10-05)
 
 ### Changelog
 
 This is a small bug fix release.
 
-- Fix: SEGV detecting ipV6 support #1121
+- Fix: SEGV detecting IPv6 support #1121
 
 ***
 
