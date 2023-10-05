@@ -6,6 +6,8 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v12.0.4 (not yet released)
 
+### Changelog
+
 This is a small bug fix release.
 
 - Fix: SEGV detecting ipV6 support #1121
