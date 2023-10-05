@@ -74,7 +74,8 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
             if (mpd_worker_state->config->save_caches == true) {
-                album_cache_write(&album_cache, mpd_worker_state->config->workdir, &mpd_worker_state->mpd_state->tags_album, false);
+                album_cache_write(&album_cache, mpd_worker_state->config->workdir,
+                    &mpd_worker_state->mpd_state->tags_album, mpd_worker_state->config->albums, false);
             }
         }
         else {

@@ -187,7 +187,6 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
     reset_t_tags(&mpd_state->tags_search);
     reset_t_tags(&mpd_state->tags_browse);
     reset_t_tags(&mpd_state->tags_album);
-    reset_t_tags(&mpd_state->tags_simple_album);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     //album cache
     mpd_state->album_cache.building = false;

@@ -280,9 +280,7 @@ function saveColsDatabaseAlbumList() {
         return;
     }
 
-    const listAlbums = settings.features.featAlbums === true
-        ? settings.tagListAlbum.includes(obj.result.tag)
-        : settings.tagListSimpleAlbum.includes(obj.result.tag);
+    const listAlbums = settings.tagListAlbum.includes(obj.result.tag);
 
     if (cardContainer.querySelector('.not-clickable') !== null) {
         elClear(cardContainer);

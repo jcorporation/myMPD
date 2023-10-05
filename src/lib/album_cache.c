@@ -9,6 +9,7 @@
 
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/libmympdclient/src/isong.h"
+#include "dist/mpack/mpack.h"
 #include "dist/rax/rax.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
@@ -39,7 +40,7 @@
  * Private definitions
  */
 
-static struct t_tags *album_cache_read_tags(sds workdir);
+static struct t_tags *album_cache_read_tags(sds workdir, bool album_mode_expected);
 static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_tags *tagcols, sds *key);
 
 /**
@@ -67,14 +68,15 @@ bool album_cache_remove(sds workdir) {
  * Reads the album cache from disc
  * @param album_cache pointer to t_cache struct
  * @param workdir myMPD working directory
+ * @param album_mode_expected the expected album mode
  * @return bool true on success, else false
  */
-bool album_cache_read(struct t_cache *album_cache, sds workdir) {
+bool album_cache_read(struct t_cache *album_cache, sds workdir, bool album_mode_expected) {
     #ifdef MYMPD_DEBUG
         MEASURE_INIT
         MEASURE_START
     #endif
-    struct t_tags *album_tags = album_cache_read_tags(workdir);
+    struct t_tags *album_tags = album_cache_read_tags(workdir, album_mode_expected);
     if (album_tags == NULL) {
         album_cache_remove(workdir);
         return false;
@@ -131,10 +133,11 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
  * @param album_cache pointer to t_cache struct
  * @param workdir myMPD working directory
  * @param album_tags album tags to write
+ * @param album_mode the album mode
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, bool free_data) {
+bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, bool album_mode, bool free_data) {
     if (album_cache->cache == NULL) {
         MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not saving anything");
         return true;
@@ -147,11 +150,16 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
     size_t data_size;
     mpack_writer_init_growable(&writer, &data, &data_size);
     mpack_writer_set_error_handler(&writer, log_mpack_write_error);
+    mpack_build_map(&writer);
+    mpack_write_cstr(&writer, "albumMode");
+    mpack_write_bool(&writer, album_mode);
+    mpack_write_cstr(&writer, "tags");
     mpack_start_array(&writer, (uint32_t)album_tags->tags_len);
     for (unsigned tagnr = 0; tagnr < album_tags->tags_len; ++tagnr) {
         mpack_write_cstr(&writer, mpd_tag_name(album_tags->tags[tagnr]));
     }
     mpack_finish_array(&writer);
+    mpack_complete_map(&writer);
     // finish writing
     if (mpack_writer_destroy(&writer) != mpack_ok) {
         MYMPD_LOG_ERROR("default", "An error occurred encoding the data");
@@ -498,13 +506,14 @@ void album_cache_set_uri(struct mpd_song *album, const char *uri) {
 /**
  * Reads and parses the album cache tags file
  * @param workdir myMPD working dir
+ * @param album_mode_expected the expected album mode
  * @return struct t_tags* newly allocated t_tags struct or NULL on error
  */
-static struct t_tags *album_cache_read_tags(sds workdir) {
+static struct t_tags *album_cache_read_tags(sds workdir, bool album_mode_expected) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE_TAGS);
     if (testfile_read(filepath) == false) {
         FREE_SDS(filepath);
-        return false;
+        return NULL;
     }
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);
@@ -513,12 +522,22 @@ static struct t_tags *album_cache_read_tags(sds workdir) {
     mpack_tree_parse(&tree);
     mpack_node_t root = mpack_tree_root(&tree);
 
+    // check for expected album_mode
+    bool album_mode = mpack_node_bool(mpack_node_map_cstr(root, "albumMode"));
+    if (album_mode != album_mode_expected) {
+        mpack_tree_destroy(&tree);
+        MYMPD_LOG_WARN(NULL, "Unexpected album mode");
+        return NULL;
+    }
+
+    // read tags array
     struct t_tags *tags = malloc_assert(sizeof(struct t_tags));
     reset_t_tags(tags);
 
-    size_t len = mpack_node_array_length(root);
+    mpack_node_t tags_node = mpack_node_map_cstr(root, "tags");
+    size_t len = mpack_node_array_length(tags_node);
     for (size_t i = 0; i < len; i++) {
-        mpack_node_t value_node = mpack_node_array_at(root, i);
+        mpack_node_t value_node = mpack_node_array_at(tags_node, i);
         char *value = mpack_node_cstr_alloc(value_node, JSONRPC_STR_MAX);
         if (value == NULL) {
             break;
@@ -528,13 +547,13 @@ static struct t_tags *album_cache_read_tags(sds workdir) {
             tags->tags[tags->tags_len++] = tag;
         }
         else {
-            MYMPD_LOG_ERROR("default", "Unkown MPD tag type: \"%s\"", value);
+            MYMPD_LOG_ERROR(NULL, "Unkown MPD tag type: \"%s\"", value);
         }
         MPACK_FREE(value);
     }
     // clean up and check for errors
     if (mpack_tree_destroy(&tree) != mpack_ok) {
-        MYMPD_LOG_ERROR("default", "An error occurred decoding the data");
+        MYMPD_LOG_ERROR(NULL, "An error occurred decoding the data");
         FREE_PTR(tags);
     }
     return tags;

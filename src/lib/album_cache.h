@@ -13,8 +13,8 @@
 #include <stdbool.h>
 
 bool album_cache_remove(sds workdir);
-bool album_cache_read(struct t_cache *album_cache, sds workdir);
-bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, bool free_data);
+bool album_cache_read(struct t_cache *album_cache, sds workdir, bool album_mode_expected);
+bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, bool album_mode, bool free_data);
 
 sds album_cache_get_key(sds albumkey, const struct mpd_song *song, bool adv_mode);
 struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key);

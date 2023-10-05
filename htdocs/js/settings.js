@@ -449,13 +449,13 @@ function parseMPDSettings() {
         addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListBrowse');
     }
     else {
-        addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListSimpleAlbum');
+        addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListAlbum');
     }
     if (settings.features.featAlbums === true) {
         addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListBrowse');
     }
     else {
-        addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListSimpleAlbum');
+        addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListAlbum');
     }
     addTagList('BrowsePlaylistDetailSortTagsDropdown', 'tagList');
 

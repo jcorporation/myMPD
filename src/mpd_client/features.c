@@ -168,14 +168,17 @@ static void features_tags(struct t_partition_state *partition_state) {
     reset_t_tags(&partition_state->mpd_state->tags_search);
     reset_t_tags(&partition_state->mpd_state->tags_browse);
     reset_t_tags(&partition_state->mpd_state->tags_album);
-    reset_t_tags(&partition_state->mpd_state->tags_simple_album);
     reset_t_tags(&partition_state->mympd_state->smartpls_generate_tag_types);
     //check for enabled mpd tags
     features_mpd_tags(partition_state);
     //parse the webui taglists and set the tag structs
     if (partition_state->mpd_state->feat_tags == true) {
-        set_album_tags(partition_state);
-        set_simple_album_tags(partition_state);
+        if (partition_state->mympd_state->config->albums == true) {
+            set_album_tags(partition_state);
+        }
+        else {
+            set_simple_album_tags(partition_state);
+        }
         check_tags(partition_state->mympd_state->tag_list_search, "tag_list_search",
             &partition_state->mpd_state->tags_search, &partition_state->mpd_state->tags_mympd);
         check_tags(partition_state->mympd_state->tag_list_browse, "tag_list_browse",
@@ -222,7 +225,7 @@ static void set_simple_album_tags(struct t_partition_state *partition_state) {
             case MPD_TAG_ALBUM:
             case MPD_TAG_ALBUM_ARTIST:
             case MPD_TAG_DATE:
-                partition_state->mpd_state->tags_simple_album.tags[partition_state->mpd_state->tags_simple_album.tags_len++] = partition_state->mpd_state->tags_mympd.tags[i];
+                partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.tags_len++] = partition_state->mpd_state->tags_mympd.tags[i];
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
             default:
                 // ignore other tags

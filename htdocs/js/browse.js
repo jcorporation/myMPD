@@ -92,7 +92,7 @@ function gotoBrowse(event) {
         return;
     }
     if (settings.features.featAlbums === false &&
-        settings.tagListSimpleAlbum.includes(tag) === false)
+        settings.tagListAlbum.includes(tag) === false)
     {
         // The tag is not available in simple album mode
         gotoSearch(tag, name);

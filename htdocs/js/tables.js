@@ -364,7 +364,7 @@ function setColTags(tableName) {
                 });
             }
             else {
-                return settings.tagListSimpleAlbum;
+                return settings.tagListAlbum;
             }
         }
         case 'BrowseDatabaseAlbumDetailInfo': {
@@ -377,7 +377,7 @@ function setColTags(tableName) {
                 });
             }
             else {
-                return settings.tagListSimpleAlbum;
+                return settings.tagListAlbum;
             }
         }
         case 'QueueJukeboxAlbum': {

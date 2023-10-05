@@ -68,7 +68,6 @@ struct t_mpd_state {
     struct t_tags tags_search;          //!< tags enabled for search
     struct t_tags tags_browse;          //!< tags enabled for browse
     struct t_tags tags_album;           //!< tags enabled for albums
-    struct t_tags tags_simple_album;    //!< tags enabled for simple albums
     enum mpd_tag_type tag_albumartist;  //!< tag to use for AlbumArtist
     //Feature flags
     const unsigned *protocol;           //!< mpd protocol version

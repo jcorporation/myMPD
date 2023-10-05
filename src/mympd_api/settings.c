@@ -1029,8 +1029,6 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = sdscatlen(buffer, ",", 1);
         buffer = print_tags_array(buffer, "tagListAlbum", &partition_state->mpd_state->tags_album);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "tagListSimpleAlbum", &partition_state->mpd_state->tags_simple_album);
-        buffer = sdscatlen(buffer, ",", 1);
         buffer = print_tags_array(buffer, "smartplsGenerateTagList", &mympd_state->smartpls_generate_tag_types);
         //trigger events
         buffer = sdscat(buffer, ",\"triggerEvents\":{");
