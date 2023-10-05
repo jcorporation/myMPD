@@ -4,6 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+<<<<<<< HEAD
 ## myMPD v13.0.0 (not yet released)
 
 The album cache was reworked substantially. It uses now Album+AlbumArtist+Date tag to group albums as fallback for the MusicBrainz AlbumId, in earlier versions the fallback was Album+AlbumArtist.
@@ -31,6 +32,13 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Feat: Add min. duration option for jukebox mode #1098
 - Upd: rework timer implementation
 - Upd: Remove default smart playlist generation tag
+=======
+## myMPD v12.0.4 (not yet released)
+
+This is a small bug fix release.
+
+- Fix: SEGV detecting ipV6 support #1121
+>>>>>>> devel
 
 ***
 
