@@ -252,8 +252,8 @@ sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
 }
 
 /**
- * Gets the ip address of the first interface
- * @return ip address as sds string
+ * Checks for IPv6 support by searching for an IPv6 adress on all interfaces
+ * @return true on IPv6 support, else false
  */
 bool get_ipv6_support(void) {
     struct ifaddrs *ifaddr;
@@ -266,8 +266,9 @@ bool get_ipv6_support(void) {
         return rc;
     }
     for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-        int family = ifa->ifa_addr->sa_family;
-        if (family == AF_INET6) {
+        if (ifa->ifa_addr != NULL &&
+            ifa->ifa_addr->sa_family == AF_INET6)
+        {
             rc = true;
             break;
         }
