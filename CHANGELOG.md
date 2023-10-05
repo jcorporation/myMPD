@@ -10,7 +10,7 @@ https://github.com/jcorporation/myMPD/
 
 This is a small bug fix release.
 
-- Fix: SEGV detecting ipV6 support #1121
+- Fix: SEGV detecting IPv6 support #1121
 
 ***
 
