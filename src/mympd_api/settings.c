@@ -926,7 +926,8 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);
     buffer = tojson_sds(buffer, "listenbrainzToken", mympd_state->listenbrainz_token, true);
     buffer = tojson_bool(buffer, "tagDiscEmptyIsFirst", mympd_state->tag_disc_empty_is_first, true);
-    buffer = tojson_char(buffer, "albumMode", lookup_album_mode(mympd_state->config->album_mode), true);
+    buffer = tojson_char(buffer, "albumMode", lookup_album_mode(mympd_state->config->albums.mode), true);
+    buffer = tojson_char(buffer, "albumGroupTag", mpd_tag_name(mympd_state->config->albums.group_tag), true);
     buffer = tojson_raw(buffer, "webuiSettings", mympd_state->webui_settings, true);
     //partition specific settings
     buffer = sdscat(buffer, "\"partition\":{");

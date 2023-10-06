@@ -16,10 +16,10 @@ enum album_modes parse_album_mode(const char *mode_str);
 const char *lookup_album_mode(enum album_modes mode);
 
 bool album_cache_remove(sds workdir);
-bool album_cache_read(struct t_cache *album_cache, sds workdir, enum album_modes album_mode_expected);
-bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, enum album_modes album_mode, bool free_data);
+bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_albums_config *album_config);
+bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, const struct t_albums_config *album_config, bool free_data);
 
-sds album_cache_get_key(sds albumkey, const struct mpd_song *song, enum album_modes album_mode);
+sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct t_albums_config *album_config);
 struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key);
 void album_cache_free(struct t_cache *album_cache);
 

@@ -83,7 +83,8 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
                 first_song_uri = sdscat(first_song_uri, mpd_song_get_uri(song));
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
-            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, partition_state->mympd_state->config->album_mode);
+            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song,
+                &partition_state->mympd_state->config->albums);
             if (partition_state->mpd_state->feat_stickers == true &&
                 tagcols->stickers_len > 0)
             {
@@ -115,7 +116,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     }
 
     // Set album duration for simple album mode
-    if (partition_state->mympd_state->config->album_mode == ALBUM_MODE_SIMPLE) {
+    if (partition_state->mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE) {
         album_cache_set_total_time(mpd_album, duration);
     }
 
@@ -123,7 +124,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, first_song_uri, false);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_int(buffer, "returnedEntities", entities_returned, true);
-    buffer = print_album_tags(buffer, &partition_state->mpd_state->tags_album, mpd_album, partition_state->mympd_state->config->album_mode);
+    buffer = print_album_tags(buffer, &partition_state->mpd_state->tags_album, mpd_album, &partition_state->mympd_state->config->albums);
     buffer = sdscat(buffer, ",\"lastPlayedSong\":{");
     buffer = tojson_time(buffer, "time", last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
@@ -238,7 +239,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             }
             struct mpd_song *album = (struct mpd_song *)iter.data;
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
-            buffer = print_album_tags(buffer, tagcols, album, partition_state->mympd_state->config->album_mode);
+            buffer = print_album_tags(buffer, tagcols, album, &partition_state->mympd_state->config->albums);
             buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), false);
             buffer = sdscatlen(buffer, "}", 1);

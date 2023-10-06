@@ -293,7 +293,7 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
                 buffer = sdscat(buffer, "{\"Type\": \"song\",");
                 buffer = tojson_long(buffer, "Pos", entity_count, true);
                 buffer = tojson_llong(buffer, "LastPlayed", last_played, true);
-                buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, partition_state->mympd_state->config->album_mode);
+                buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, &partition_state->mympd_state->config->albums);
                 if (partition_state->mpd_state->feat_stickers == true &&
                     tagcols->stickers_len > 0)
                 {

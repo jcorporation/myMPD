@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/tag.h"
 #include "src/lib/album_cache.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
@@ -90,10 +91,10 @@ bool album_cache_remove(sds workdir) {
  * Reads the album cache from disc
  * @param album_cache pointer to t_cache struct
  * @param workdir myMPD working directory
- * @param album_mode_expected the expected album mode
+ * @param album_config the album config
  * @return bool true on success, else false
  */
-bool album_cache_read(struct t_cache *album_cache, sds workdir, enum album_modes album_mode_expected) {
+bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_albums_config *album_config) {
     #ifdef MYMPD_DEBUG
         MEASURE_INIT
         MEASURE_START
@@ -113,9 +114,19 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, enum album_modes
 
     // check for expected album_mode
     enum album_modes album_mode = (enum album_modes)mpack_node_int(mpack_node_map_cstr(root, "albumMode"));
-    if (album_mode != album_mode_expected) {
+    if (album_mode != album_config->mode) {
         mpack_tree_destroy(&tree);
-        MYMPD_LOG_WARN(NULL, "Unexpected album mode");
+        MYMPD_LOG_WARN(NULL, "Unexpected album mode, discarding cache");
+        album_cache_remove(workdir);
+        return NULL;
+    }
+
+    // check for expected album_group_tag
+    enum mpd_tag_type group_tag = (enum mpd_tag_type)mpack_node_int(mpack_node_map_cstr(root, "albumGroupTag"));
+    if (group_tag != album_config->group_tag) {
+        mpack_tree_destroy(&tree);
+        MYMPD_LOG_WARN(NULL, "Unexpected album group tag, discarding cache");
+        album_cache_remove(workdir);
         return NULL;
     }
 
@@ -164,7 +175,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, enum album_modes
         ? false
         : true;
     if (rc == false) {
-        MYMPD_LOG_ERROR("default", "An error occurred decoding the data");
+        MYMPD_LOG_ERROR("default", "Reading album cache failed, discarding cache");
         album_cache_remove(workdir);
         album_cache_free(album_cache);
     }
@@ -189,7 +200,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, enum album_modes
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, enum album_modes album_mode, bool free_data) {
+bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, const struct t_albums_config *album_config, bool free_data) {
     if (album_cache->cache == NULL) {
         MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not saving anything");
         return true;
@@ -206,7 +217,8 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
     mpack_writer_init_stdfile(&writer, fp, true);
     mpack_writer_set_error_handler(&writer, log_mpack_write_error);
     mpack_build_map(&writer);
-    mpack_write_kv(&writer, "albumMode", album_mode);
+    mpack_write_kv(&writer, "albumMode", album_config->mode);
+    mpack_write_kv(&writer, "albumGroupTag", album_config->group_tag);
     mpack_write_cstr(&writer, "tags");
     mpack_start_array(&writer, (uint32_t)album_tags->tags_len);
     for (unsigned tagnr = 0; tagnr < album_tags->tags_len; ++tagnr) {
@@ -290,11 +302,12 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
  * @param albumkey already allocated sds string to set the key
  * @param song mpd song struct
  * @param album_mode advanced mode, uses the MusicBrainz album id field
+ * @param group_tag additional group tag for albums
  * @return pointer to changed albumkey
  */
-sds album_cache_get_key(sds albumkey, const struct mpd_song *song, enum album_modes album_mode) {
+sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct t_albums_config *album_config) {
     sdsclear(albumkey);
-    if (album_mode == ALBUM_MODE_ADV) {
+    if (album_config->mode == ALBUM_MODE_ADV) {
         // use MusicBrainz album id
         const char *mb_album_id = mpd_song_get_tag(song, MPD_TAG_MUSICBRAINZ_ALBUMID, 0);
         if (mb_album_id != NULL &&
@@ -327,9 +340,11 @@ sds album_cache_get_key(sds albumkey, const struct mpd_song *song, enum album_mo
     // append album
     albumkey = sdscatfmt(albumkey, "::%s", album_name);
     //append date optionally
-    const char *date_value = mpd_song_get_tag(song, MPD_TAG_DATE, 0);
-    if (date_value != NULL) {
-        albumkey = sdscatfmt(albumkey, "::%s", date_value);
+    if (album_config->group_tag != MPD_TAG_UNKNOWN) {
+        const char *date_value = mpd_song_get_tag(song, MPD_TAG_DATE, 0);
+        if (date_value != NULL) {
+            albumkey = sdscatfmt(albumkey, "::%s", date_value);
+        }
     }
     // return the hash
     return sds_hash_sha1_sds(albumkey);

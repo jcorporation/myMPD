@@ -32,7 +32,6 @@ I personally use [Picard](https://picard.musicbrainz.org/) to tag my music files
 - Disable the AlbumArtist tag if your music files are not tagged with it.
 - If the AlbumArtist tag is not enabled, myMPD falls back to the Artist tag.
 - If the AlbumArtist tag is empty, MPD and myMPD falls back to Artist tag for filters.
-- `Genre` is in the default configuration used to build default smart playlists.
 - If no tags are enabled, myMPD uses the basename of the filename as title.
 - ID3 tags with multiple values works only for IDv2.4, older versions uses a separator for values in one tag and that is not supported by MPD.
 - MPD does not support multi-value MusicBrainz ID tags: [MPD issue](https://github.com/MusicPlayerDaemon/MPD/issues/687). myMPD implements a workaround and splits the MUSICBRAINZ_ARTISTID and MUSICBRAINZ_ALBUMARTISTID tags by semicolon.
@@ -41,7 +40,9 @@ I personally use [Picard](https://picard.musicbrainz.org/) to tag my music files
 
 myMPD supports two modes for handling albums.
 
-The default is the advanced album mode. It is the preferred one, except the mpd song database is very huge.
+The default is the advanced album mode. It is the preferred one, except the mpd song database is very huge. You can configure the album mode via `/var/lib/mympd/config/album_mode`.
+
+You can configure the tag for grouping albums by replacing the tag name in `/var/lib/mympd/config/album_group_tag`, it defaults to `Date`.
 
 #### Advanced album mode
 
@@ -57,4 +58,4 @@ The album mode queries each song to build the album cache. This can take a long 
 The simple album mode uses a simple command to get all uniq album tags from mpd. It is faster than the advanced album mode, but does not provide the same feature set.
 
 - myMPD uses the combination of Album + AlbumArtist + Date to identify uniq albums.
-- All the advanced properties as song count, album duration, etc. are not available.
+- All the advanced properties as genre, song count, album duration, etc. are not available.

@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/tag.h"
 #include "src/lib/config.h"
 
 #include "src/lib/album_cache.h"
@@ -135,8 +136,12 @@ void mympd_config_defaults(struct t_config *config) {
     config->stickers = startup_getenv_bool("MYMPD_STICKERS", CFG_MYMPD_STICKERS, config->first_startup);
 
     sds album_mode_str = startup_getenv_string("MYMPD_ALBUM_MODE", CFG_MYMPD_ALBUM_MODE, vcb_isname, config->first_startup);
-    config->album_mode = parse_album_mode(album_mode_str);
+    config->albums.mode = parse_album_mode(album_mode_str);
     FREE_SDS(album_mode_str);
+
+    sds album_group_tag_str = startup_getenv_string("MYMPD_ALBUM_GROUP_TAG", CFG_MYMPD_ALBUM_GROUP_TAG, vcb_isname, config->first_startup);
+    config->albums.group_tag = mpd_tag_name_iparse(album_group_tag_str);
+    FREE_SDS(album_group_tag_str);
 }
 
 /**
@@ -174,10 +179,16 @@ bool mympd_config_rw(struct t_config *config, bool write) {
     config->loglevel = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "loglevel", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, write);
     config->save_caches = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "save_caches", config->save_caches, write);
     config->mympd_uri = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "mympd_uri", config->mympd_uri, vcb_isname, write);
-    sds album_mode_str = state_file_rw_string(config->workdir, DIR_WORK_CONFIG, "album_mode", lookup_album_mode(config->album_mode), vcb_isname, write);
-    config->album_mode = parse_album_mode(album_mode_str);
-    FREE_SDS(album_mode_str);
     config->stickers = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "stickers", config->stickers, write);
+
+    sds album_mode_str = state_file_rw_string(config->workdir, DIR_WORK_CONFIG, "album_mode", lookup_album_mode(config->albums.mode), vcb_isname, write);
+    config->albums.mode = parse_album_mode(album_mode_str);
+    FREE_SDS(album_mode_str);
+
+    sds album_group_tag_str = state_file_rw_string(config->workdir, DIR_WORK_CONFIG, "album_group_tag", mpd_tag_name(config->albums.group_tag), vcb_isname, write);
+    config->albums.group_tag = mpd_tag_name_iparse(album_group_tag_str);
+    FREE_SDS(album_group_tag_str);
+
     //overwrite configured loglevel
     config->loglevel = getenv_int("MYMPD_LOGLEVEL", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX);
     return true;

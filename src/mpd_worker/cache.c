@@ -64,7 +64,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
     if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {
         struct t_cache album_cache;
         album_cache.cache = raxNew();
-        rc = mpd_worker_state->config->album_mode == ALBUM_MODE_ADV
+        rc = mpd_worker_state->config->albums.mode == ALBUM_MODE_ADV
             ? cache_init(mpd_worker_state, album_cache.cache)
             : cache_init_simple(mpd_worker_state, album_cache.cache);
         if (rc == true) {
@@ -75,7 +75,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
             if (mpd_worker_state->config->save_caches == true) {
                 album_cache_write(&album_cache, mpd_worker_state->config->workdir,
-                    &mpd_worker_state->mpd_state->tags_album, mpd_worker_state->config->album_mode, false);
+                    &mpd_worker_state->mpd_state->tags_album, &mpd_worker_state->config->albums, false);
             }
         }
         else {
@@ -150,7 +150,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                     album_cache_set_disc_count(song, 1);
                 }
                 // construct the key
-                key = album_cache_get_key(key, song, true);
+                key = album_cache_get_key(key, song, &mpd_worker_state->config->albums);
                 if (sdslen(key) > 0) {
                     if (mpd_worker_state->partition_state->mpd_state->tag_albumartist == MPD_TAG_ALBUM_ARTIST &&
                         mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0) == NULL)
@@ -265,7 +265,7 @@ static bool cache_init_simple(struct t_mpd_worker_state *mpd_worker_state, rax *
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM, album);
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_DATE, date);
                     // insert album into cache
-                    key = album_cache_get_key(key, song, false);
+                    key = album_cache_get_key(key, song, &mpd_worker_state->config->albums);
                     raxInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, NULL);
                     album_count++;
                 }
