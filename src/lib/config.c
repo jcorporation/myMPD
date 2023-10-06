@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/lib/config.h"
 
+#include "src/lib/album_cache.h"
 #include "src/lib/env.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -131,8 +132,11 @@ void mympd_config_defaults(struct t_config *config) {
     config->covercache_keep_days = startup_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", CFG_MYMPD_COVERCACHE_KEEP_DAYS, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, config->first_startup);
     config->save_caches = startup_getenv_bool("MYMPD_SAVE_CACHES", CFG_MYMPD_SAVE_CACHES, config->first_startup);
     config->mympd_uri = startup_getenv_string("MYMPD_URI", CFG_MYMPD_URI, vcb_isname, config->first_startup);
-    config->albums = startup_getenv_bool("MYMPD_ALBUMS", CFG_MYMPD_ALBUMS, config->first_startup);
     config->stickers = startup_getenv_bool("MYMPD_STICKERS", CFG_MYMPD_STICKERS, config->first_startup);
+
+    sds album_mode_str = startup_getenv_string("MYMPD_ALBUM_MODE", CFG_MYMPD_ALBUM_MODE, vcb_isname, config->first_startup);
+    config->album_mode = parse_album_mode(album_mode_str);
+    FREE_SDS(album_mode_str);
 }
 
 /**
@@ -170,7 +174,9 @@ bool mympd_config_rw(struct t_config *config, bool write) {
     config->loglevel = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "loglevel", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, write);
     config->save_caches = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "save_caches", config->save_caches, write);
     config->mympd_uri = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "mympd_uri", config->mympd_uri, vcb_isname, write);
-    config->albums = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "albums", config->albums, write);
+    sds album_mode_str = state_file_rw_string(config->workdir, DIR_WORK_CONFIG, "album_mode", lookup_album_mode(config->album_mode), vcb_isname, write);
+    config->album_mode = parse_album_mode(album_mode_str);
+    FREE_SDS(album_mode_str);
     config->stickers = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "stickers", config->stickers, write);
     //overwrite configured loglevel
     config->loglevel = getenv_int("MYMPD_LOGLEVEL", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX);

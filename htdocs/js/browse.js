@@ -91,7 +91,7 @@ function gotoBrowse(event) {
     {
         return;
     }
-    if (settings.features.featAlbums === false &&
+    if (settings.albumMode === 'simple' &&
         settings.tagListAlbum.includes(tag) === false)
     {
         // The tag is not available in simple album mode

@@ -67,7 +67,6 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 //standard file names and folders
 #define FILENAME_ALBUMCACHE "album_cache.mpack"
-#define FILENAME_ALBUMCACHE_TAGS "album_cache_tags.mpack"
 #define FILENAME_HOME "home_list"
 #define FILENAME_LAST_PLAYED "last_played_list"
 #define FILENAME_PRESETS "preset_list"
@@ -115,7 +114,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define CFG_MYMPD_SAVE_CACHES true
 #define CFG_MYMPD_LOG_TO_SYSLOG false
 #define CFG_MYMPD_COVERCACHE_KEEP_DAYS 31
-#define CFG_MYMPD_ALBUMS true
+#define CFG_MYMPD_ALBUM_MODE "adv"
 #define CFG_MYMPD_STICKERS true
 
 //default partition state settings

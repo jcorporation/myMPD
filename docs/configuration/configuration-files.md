@@ -27,7 +27,7 @@ systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -
 | FILE | TYPE | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ---- | ---- | ----------- | ------- | ----------- |
 | acl | string | MYMPD_ACL | | ACL to access the myMPD webserver: [ACL]({{ site.baseurl }}/configuration/acl), allows all hosts in the default configuration |
-| albums | boolean | MYMPD_ALBUMS | true | Enables the enhanced album view. |
+| album_mode | string | MYMPD_ALBUM_MODE | adv | Set the album mode: `adv` or `simple` |
 | covercache_keep_days | number | MYMPD_COVERCACHE_KEEP_DAYS | 31 | How long to keep images in the covercache, 0 to disable the cache |
 | http | boolean | MYMPD_HTTP | true | `true` = Enable listening on http_port |
 | http_host | string | MYMPD_HTTP_HOST | 0.0.0.0 | IP address to listen on, use `[::]` to listen on IPv6 and IPv4 |

@@ -292,11 +292,11 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
  * @param tags_enabled true=mpd tags are enabled, else false
  * @param tagcols pointer to t_tags struct (tags to retrieve)
  * @param song pointer to a mpd_song struct to retrieve tags from
- * @param album_adv_mode album mode of myMPD
+ * @param album_mode album mode of myMPD
  * @return new sds pointer to buffer
  */
 sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
-        const struct mpd_song *song, bool album_adv_mode)
+        const struct mpd_song *song, enum album_modes album_mode)
 {
     const char *uri = mpd_song_get_uri(song);
     if (tags_enabled == true) {
@@ -306,7 +306,7 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
             buffer = sdscatlen(buffer, ",", 1);
         }
         if (is_streamuri(uri) == false) {
-            sds albumid = album_cache_get_key(sdsempty(), song, album_adv_mode);
+            sds albumid = album_cache_get_key(sdsempty(), song, album_mode);
             buffer = tojson_sds(buffer, "AlbumId", albumid, true);
             FREE_SDS(albumid);
         }
@@ -327,13 +327,13 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
  * @param buffer already allocated sds string to append the values
  * @param tagcols pointer to t_tags struct (tags to retrieve)
  * @param album pointer to a mpd_song struct representing the album
- * @param album_adv_mode album mode of myMPD
+ * @param album_mode album mode of myMPD
  * @return new sds pointer to buffer
  */
 sds print_album_tags(sds buffer, const struct t_tags *tagcols,
-        const struct mpd_song *album, bool album_adv_mode)
+        const struct mpd_song *album, enum album_modes album_mode)
 {
-    buffer = print_song_tags(buffer, true, tagcols, album, album_adv_mode);
+    buffer = print_song_tags(buffer, true, tagcols, album, album_mode);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
     buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), false);

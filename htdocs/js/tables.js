@@ -356,7 +356,7 @@ function setColTags(tableName) {
         case 'BrowseRadioRadiobrowser':
             return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
         case 'BrowseDatabaseAlbumList': {
-            if (settings.features.featAlbums === true) {
+            if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();
                 tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
                 return tags.filter(function(value) {
@@ -368,7 +368,7 @@ function setColTags(tableName) {
             }
         }
         case 'BrowseDatabaseAlbumDetailInfo': {
-            if (settings.features.featAlbums === true) {
+            if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();
                 tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
                 return tags.filter(function(value) {

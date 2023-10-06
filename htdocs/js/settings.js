@@ -445,13 +445,13 @@ function parseMPDSettings() {
     addTagList('QueueJukeboxAlbumSearchTags', 'tagListSearch');
     addTagList('BrowsePlaylistDetailSearchTags', 'tagListSearch');
     addTagList('SearchSearchTags', 'tagListSearch');
-    if (settings.features.featAlbums === true) {
+    if (settings.albumMode === 'adv') {
         addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListBrowse');
     }
     else {
         addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListAlbum');
     }
-    if (settings.features.featAlbums === true) {
+    if (settings.albumMode === 'adv') {
         addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListBrowse');
     }
     else {

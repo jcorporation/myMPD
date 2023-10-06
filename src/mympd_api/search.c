@@ -62,7 +62,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
-            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, partition_state->mympd_state->config->albums);
+            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, partition_state->mympd_state->config->album_mode);
             if (partition_state->mpd_state->feat_stickers == true &&
                 tagcols->stickers_len > 0)
             {

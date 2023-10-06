@@ -8,6 +8,7 @@
 #include "src/mympd_api/settings.h"
 
 #include "dist/mjson/mjson.h"
+#include "src/lib/album_cache.h"
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"
@@ -925,6 +926,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);
     buffer = tojson_sds(buffer, "listenbrainzToken", mympd_state->listenbrainz_token, true);
     buffer = tojson_bool(buffer, "tagDiscEmptyIsFirst", mympd_state->tag_disc_empty_is_first, true);
+    buffer = tojson_char(buffer, "albumMode", lookup_album_mode(mympd_state->config->album_mode), true);
     buffer = tojson_raw(buffer, "webuiSettings", mympd_state->webui_settings, true);
     //partition specific settings
     buffer = sdscat(buffer, "\"partition\":{");
@@ -1005,7 +1007,6 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "featPlaylistDirAuto", partition_state->mpd_state->feat_playlist_dir_auto, true);
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat_starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat_pcre, true);
-        buffer = tojson_bool(buffer, "featAlbums", mympd_state->config->albums, true);
     }
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
     #ifdef MYMPD_ENABLE_LUA

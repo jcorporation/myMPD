@@ -173,7 +173,7 @@ static void features_tags(struct t_partition_state *partition_state) {
     features_mpd_tags(partition_state);
     //parse the webui taglists and set the tag structs
     if (partition_state->mpd_state->feat_tags == true) {
-        if (partition_state->mympd_state->config->albums == true) {
+        if (partition_state->mympd_state->config->album_mode == ALBUM_MODE_ADV) {
             set_album_tags(partition_state);
         }
         else {

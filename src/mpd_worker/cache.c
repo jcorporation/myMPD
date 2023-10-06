@@ -64,7 +64,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
     if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {
         struct t_cache album_cache;
         album_cache.cache = raxNew();
-        rc = mpd_worker_state->config->albums == true
+        rc = mpd_worker_state->config->album_mode == ALBUM_MODE_ADV
             ? cache_init(mpd_worker_state, album_cache.cache)
             : cache_init_simple(mpd_worker_state, album_cache.cache);
         if (rc == true) {
@@ -75,7 +75,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
             if (mpd_worker_state->config->save_caches == true) {
                 album_cache_write(&album_cache, mpd_worker_state->config->workdir,
-                    &mpd_worker_state->mpd_state->tags_album, mpd_worker_state->config->albums, false);
+                    &mpd_worker_state->mpd_state->tags_album, mpd_worker_state->config->album_mode, false);
             }
         }
         else {
