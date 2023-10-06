@@ -34,7 +34,8 @@ static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
-static bool check_acl(struct mg_connection *nc, sds acl);
+static bool enforce_acl(struct mg_connection *nc, sds acl);
+static bool enforce_conn_limit(struct mg_connection *nc, int connection_count);
 static void mongoose_log(char ch, void *param);
 
 /**
@@ -395,7 +396,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
  * @param acl acl string to check
  * @return true if acl matches, else false
  */
-static bool check_acl(struct mg_connection *nc, sds acl) {
+static bool enforce_acl(struct mg_connection *nc, sds acl) {
     if (sdslen(acl) == 0) {
         return true;
     }
@@ -428,7 +429,7 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
  * @param connection_count connection count
  * @return true if connection count is not exceeded, else false
  */
-static bool check_conn_limit(struct mg_connection *nc, int connection_count) {
+static bool enforce_conn_limit(struct mg_connection *nc, int connection_count) {
     if (connection_count > HTTP_CONNECTIONS_MAX) {
         MYMPD_LOG_DEBUG(NULL, "Connections: %d", connection_count);
         MYMPD_LOG_ERROR(NULL, "Concurrent connections limit exceeded: %d", connection_count);
@@ -467,9 +468,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             frontend_nc_data->backend_nc = NULL; // used for reverse proxy function
             nc->fn_data = frontend_nc_data;
             //set labels
-            nc->data[0] = 'F';
-            nc->data[1] = '-';
-            nc->data[2] = 'C';
+            nc->data[0] = 'F'; // connection type
+            nc->data[1] = '-'; // http method
+            nc->data[2] = 'C'; // connection header
             break;
         }
         case MG_EV_ACCEPT:
@@ -487,12 +488,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 };
                 mg_tls_init(nc, &tls_opts);
             }
-            //check connection count
-            if (check_conn_limit(nc, mg_user_data->connection_count) == false) {
+            //enforce connection limit
+            if (enforce_conn_limit(nc, mg_user_data->connection_count) == false) {
                 break;
             }
-            //check acl
-            if (check_acl(nc, config->acl) == false) {
+            //enforce acl
+            if (enforce_acl(nc, config->acl) == false) {
                 break;
             }
             break;
@@ -666,8 +667,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 request_handler_serverinfo(nc);
             }
             else if (mg_http_match_uri(hm, "/script-api/*") == true) {
-                //check acl
-                if (check_acl(nc, config->scriptacl) == false) {
+                //enforce script acl
+                if (enforce_acl(nc, config->scriptacl) == false) {
                     break;
                 }
                 //check partition
@@ -771,19 +772,19 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             mg_user_data->connection_count++;
             break;
         case MG_EV_ACCEPT:
-            //check connection count
-            if (check_conn_limit(nc, mg_user_data->connection_count) == false) {
+            //enforce connection limit
+            if (enforce_conn_limit(nc, mg_user_data->connection_count) == false) {
                 break;
             }
-            //check acl
-            if (check_acl(nc, config->acl) == false) {
+            //enforce acl
+            if (enforce_acl(nc, config->acl) == false) {
                 break;
             }
             break;
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             if (mg_http_match_uri(hm, "/browse/webradios/*") == true) {
-                //we serve the webradio directory without https to avoid ssl configuration for the mpd curl plugin
+                //we serve the webradio directory without https to avoid the required ssl configuration for the mpd curl plugin
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                 s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
