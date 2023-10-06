@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/tag.h"
 #include "src/lib/config.h"
 
 #include "src/lib/album_cache.h"
