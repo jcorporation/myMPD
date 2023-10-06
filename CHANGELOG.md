@@ -31,6 +31,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Feat: Add min. duration option for jukebox mode #1098
 - Upd: rework timer implementation
 - Upd: Remove default smart playlist generation tag
+- Upd: some websocket connection improvements
 
 ***
 
