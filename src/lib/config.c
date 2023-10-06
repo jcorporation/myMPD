@@ -9,6 +9,7 @@
 
 #include "src/lib/album_cache.h"
 #include "src/lib/env.h"
+#include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
@@ -17,6 +18,7 @@
 #include "src/lib/validate.h"
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include <string.h>
 #include <time.h>
 
@@ -191,6 +193,37 @@ bool mympd_config_rw(struct t_config *config, bool write) {
     //overwrite configured loglevel
     config->loglevel = getenv_int("MYMPD_LOGLEVEL", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX);
     return true;
+}
+
+/**
+ * Writes the current version to the version file
+ * @param workdir working directory
+ * @return true if file was written, else false
+ */
+bool mympd_version_set(sds workdir) {
+    sds version = sdsnew(MYMPD_VERSION);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/version", workdir, DIR_WORK_CONFIG);
+    bool rc = write_data_to_file(filepath, version, sdslen(version));
+    FREE_SDS(version);
+    FREE_SDS(filepath);
+    return rc;
+}
+
+/**
+ * Checks the version of the configuration against current version
+ * @param workdir working directory
+ * @return true if version has not changed, else false
+ */
+bool mympd_version_check(sds workdir) {
+    sds version = sdsempty();
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/version", workdir, DIR_WORK_CONFIG);
+    sds_getfile(&version, filepath, 10, true, false);
+    bool rc = strcmp(version, MYMPD_VERSION) == 0
+        ? true
+        : false;
+    FREE_SDS(version);
+    FREE_SDS(filepath);
+    return rc;
 }
 
 /**

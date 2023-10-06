@@ -517,9 +517,14 @@ int main(int argc, char **argv) {
     }
 
     //saves the config to /var/lib/mympd/config folder
-    //at first startup of myMPD
-    if (config->first_startup == true) {
+    //at first startup of myMPD or if version has changed
+    if (config->first_startup == true ||
+        mympd_version_check(config->workdir) == false)
+    {
+        MYMPD_LOG_INFO(NULL, "Writing configuration files");
         mympd_config_rw(config, true);
+        MYMPD_LOG_INFO(NULL, "Setting myMPD version to %s", MYMPD_VERSION);
+        mympd_version_set(config->workdir);
     }
 
     //check ssl certificates
