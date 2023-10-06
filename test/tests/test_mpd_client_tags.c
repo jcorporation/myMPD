@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/config_def.h"
 #include "utility.h"
 
 #include "dist/utest/utest.h"
@@ -56,13 +57,17 @@ struct mpd_song *new_song(void) {
 }
 
 UTEST(album_cache, test_album_cache_get_key) {
+    struct t_albums_config album_config = {
+        .group_tag = MPD_TAG_DATE,
+        .mode = ALBUM_MODE_ADV
+    };
     struct mpd_song *song = new_song();
-    sds key = album_cache_get_key(sdsempty(), song, true);
+    sds key = album_cache_get_key(sdsempty(), song, &album_config);
     ASSERT_STREQ("3efe3b6f830dbcf2a14cd563be79ce37605ef493", key);
     sdsfree(key);
 
     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_MUSICBRAINZ_ALBUMID, "0c50c04e-994b-4e63-b969-ea82e6b36d3b");
-    key = album_cache_get_key(sdsempty(), song, true);
+    key = album_cache_get_key(sdsempty(), song, &album_config);
     ASSERT_STREQ("0c50c04e-994b-4e63-b969-ea82e6b36d3b", key);
     sdsfree(key);
 
