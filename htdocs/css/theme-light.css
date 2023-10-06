@@ -62,5 +62,5 @@ html[data-bs-theme="light"] .form-range::-moz-range-track {
 }
 
 html[data-bs-theme="light"] .card {
-  --bs-card-cap-bg: rgba(248,249,250,0.6);
+  --bs-card-cap-bg: rgba(248, 249, 250, 60%);
 }
