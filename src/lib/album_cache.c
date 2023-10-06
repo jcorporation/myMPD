@@ -338,11 +338,11 @@ sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct 
     }
     // append album
     albumkey = sdscatfmt(albumkey, "::%s", album_name);
-    //append date optionally
+    //optionally append group tag
     if (album_config->group_tag != MPD_TAG_UNKNOWN) {
-        const char *date_value = mpd_song_get_tag(song, MPD_TAG_DATE, 0);
-        if (date_value != NULL) {
-            albumkey = sdscatfmt(albumkey, "::%s", date_value);
+        const char *group_tag_value = mpd_song_get_tag(song, album_config->group_tag, 0);
+        if (group_tag_value != NULL) {
+            albumkey = sdscatfmt(albumkey, "::%s", group_tag_value);
         }
     }
     // return the hash
