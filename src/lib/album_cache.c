@@ -91,7 +91,7 @@ bool album_cache_remove(sds workdir) {
  * Reads the album cache from disc
  * @param album_cache pointer to t_cache struct
  * @param workdir myMPD working directory
- * @param album_config the album config
+ * @param album_config album configuration
  * @return bool true on success, else false
  */
 bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_albums_config *album_config) {
@@ -196,7 +196,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
  * @param album_cache pointer to t_cache struct
  * @param workdir myMPD working directory
  * @param album_tags album tags to write
- * @param album_mode the album mode
+ * @param album_config album configuration
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
@@ -301,8 +301,7 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
  * Constructs the albumkey from song info
  * @param albumkey already allocated sds string to set the key
  * @param song mpd song struct
- * @param album_mode advanced mode, uses the MusicBrainz album id field
- * @param group_tag additional group tag for albums
+ * @param album_config album configuration
  * @return pointer to changed albumkey
  */
 sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct t_albums_config *album_config) {
