@@ -294,6 +294,9 @@ function appInit() {
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');
         getState();
+        if (app.id === 'QueueCurrent') {
+            execSearchExpression(elGetById('QueueCurrentSearchStr').value);
+        }
         websocketKeepAlive();
     }, false);
     //global keymap
