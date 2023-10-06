@@ -161,7 +161,9 @@ int sds_getfile_from_fp(sds *s, FILE *fp, size_t max, bool remove_newline) {
         int c = fgetc(fp);
         if (c == EOF) {
             sdstrim(*s, "\r \t\n");
-            MYMPD_LOG_DEBUG(NULL, "Read %lu bytes from file", (unsigned long)sdslen(*s));
+            #ifdef MYMPD_DEBUG
+                MYMPD_LOG_DEBUG(NULL, "Read %lu bytes from file", (unsigned long)sdslen(*s));
+            #endif
             return (int)sdslen(*s);
         }
         if (remove_newline == true &&
