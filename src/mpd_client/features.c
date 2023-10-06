@@ -224,12 +224,16 @@ static void set_simple_album_tags(struct t_partition_state *partition_state) {
         switch(partition_state->mpd_state->tags_mympd.tags[i]) {
             case MPD_TAG_ALBUM:
             case MPD_TAG_ALBUM_ARTIST:
-            case MPD_TAG_DATE:
                 partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.tags_len++] = partition_state->mpd_state->tags_mympd.tags[i];
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
-            default:
-                // ignore other tags
                 break;
+            default:
+                if (partition_state->mpd_state->tags_mympd.tags[i] == partition_state->mympd_state->config->albums.group_tag) {
+                    // add album group tag
+                    partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.tags_len++] = partition_state->mpd_state->tags_mympd.tags[i];
+                    logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
+                }
+                // ignore all other tags
         }
     }
     MYMPD_LOG_NOTICE(partition_state->name, "%s", logline);
