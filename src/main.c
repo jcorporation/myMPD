@@ -460,8 +460,14 @@ int main(int argc, char **argv) {
         log_to_syslog = true;
     }
 
-    #ifdef MYMPD_ENABLE_LIBASAN
-        MYMPD_LOG_NOTICE(NULL, "Running with libasan memory checker");
+    #ifdef MYMPD_ENABLE_ASAN
+        MYMPD_LOG_NOTICE(NULL, "Running with address sanitizer");
+    #endif
+    #ifdef MYMPD_ENABLE_UBSAN
+        MYMPD_LOG_NOTICE(NULL, "Running with undefined behavior sanitizer");
+    #endif
+    #ifdef MYMPD_ENABLE_TSAN
+        MYMPD_LOG_NOTICE(NULL, "Running with thread sanitizer");
     #endif
 
     MYMPD_LOG_NOTICE(NULL, "Starting myMPD %s", MYMPD_VERSION);
