@@ -12,10 +12,6 @@ There is now also a simple album cache that can be created much faster than the 
 
 The sticker database was removed in this release. myMPD fetches now all stickers on demand from MPD. myMPD creates a separate MPD connection for the stickers. You can set this connection to another MPD instance to maintain central song statistics.
 
-## Notes
-
-- You should recreate the album cache after the update.
-
 ## Changelog
 
 - Feat: Add config option to disable sticker support
