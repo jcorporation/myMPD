@@ -454,6 +454,13 @@ cleanup() {
   #compilation database
   rm -f src/compile_commands.json
 
+  #caches
+  rm -fr src/.cache
+  rm -fr .cache
+
+  #node modules
+  rm -fr dist/bootstrap/node_modules
+
   #clang tidy
   rm -f clang-tidy.out
 }
@@ -638,6 +645,7 @@ prepare() {
     [ "$F" = "$STARTPATH/osc" ] && continue
     [ "$F" = "$STARTPATH/builder" ] && continue
     cp -a "$F" .
+    rm -fr src/.cache
   done
 }
 
@@ -943,6 +951,7 @@ updatebootstrap() {
   then
     cp -v compiled/custom.css "$STARTPATH/htdocs/css/bootstrap.css"
   fi
+  rm -fr  dist/bootstrap/node_modules
 }
 
 #Also deletes stale installations in other locations.
