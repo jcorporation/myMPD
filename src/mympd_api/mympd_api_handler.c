@@ -75,6 +75,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     int int_buf1;
     int int_buf2;
     bool bool_buf1;
+    bool bool_buf2;
     bool rc;
     sds sds_buf1 = NULL;
     sds sds_buf2 = NULL;
@@ -892,10 +893,12 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_issearchexpression, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &parse_error) == true &&
-                json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
+                json_get_string(request->data, "$.params.sort", 0, NAME_LEN_MAX, &sds_buf2, vcb_ismpdsort, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf2, &parse_error) == true)
             {
-                rc = mympd_api_queue_insert_search(partition_state, sds_buf1, uint_buf1, uint_buf2, &error) &&
-                        mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+                rc = mympd_api_queue_insert_search(partition_state, sds_buf1, uint_buf1, uint_buf2, sds_buf2, bool_buf1, &error) &&
+                        mpd_client_queue_check_start_play(partition_state, bool_buf2, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, "Queue updated", error);
             }
@@ -903,12 +906,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_QUEUE_APPEND_SEARCH:
         case MYMPD_API_QUEUE_REPLACE_SEARCH:
             if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_issearchexpression, &parse_error) == true &&
-                json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
+                json_get_string(request->data, "$.params.sort", 0, NAME_LEN_MAX, &sds_buf2, vcb_ismpdsort, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf2, &parse_error) == true)
             {
                 rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_SEARCH
-                        ? mympd_api_queue_append_search(partition_state, sds_buf1, &error)
-                        : mympd_api_queue_replace_search(partition_state, sds_buf1, &error)) &&
-                    mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+                        ? mympd_api_queue_append_search(partition_state, sds_buf1, sds_buf2, bool_buf1, &error)
+                        : mympd_api_queue_replace_search(partition_state, sds_buf1, sds_buf2, bool_buf1, &error)) &&
+                    mpd_client_queue_check_start_play(partition_state, bool_buf2, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, "Queue updated", error);
             }
@@ -1134,9 +1139,11 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf2, vcb_issearchexpression, &parse_error) == true &&
-                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true)
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
+                json_get_string(request->data, "$.params.sort", 0, NAME_LEN_MAX, &sds_buf3, vcb_ismpdsort, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &parse_error) == true)
             {
-                rc = mympd_api_playlist_content_insert_search(partition_state, sds_buf2, sds_buf1, uint_buf1, &error);
+                rc = mympd_api_playlist_content_insert_search(partition_state, sds_buf2, sds_buf1, uint_buf1, sds_buf3, bool_buf1, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
             }
@@ -1144,11 +1151,13 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH:
         case MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
-                json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf2, vcb_issearchexpression, &parse_error) == true)
+                json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf2, vcb_issearchexpression, &parse_error) == true &&
+                json_get_string(request->data, "$.params.sort", 0, NAME_LEN_MAX, &sds_buf3, vcb_ismpdsort, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &parse_error) == true)
             {
                 rc = request->cmd_id == MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH
-                    ? mympd_api_playlist_content_append_search(partition_state, sds_buf2, sds_buf1, &error)
-                    : mympd_api_playlist_content_replace_search(partition_state, sds_buf2, sds_buf1, &error);
+                    ? mympd_api_playlist_content_append_search(partition_state, sds_buf2, sds_buf1, sds_buf3, bool_buf1, &error)
+                    : mympd_api_playlist_content_replace_search(partition_state, sds_buf2, sds_buf1, sds_buf3, bool_buf1, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
             }

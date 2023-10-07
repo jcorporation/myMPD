@@ -418,6 +418,8 @@ const APImethods = {
             "expression": APIparams.expression,
             "to": APIparams.to,
             "whence": APIparams.whence,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc,
             "play": APIparams.play
         }
     },
@@ -458,6 +460,8 @@ const APImethods = {
         "desc": "Appends the search result to the queue.",
         "params": {
             "expression": APIparams.expression,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc,
             "play": APIparams.play
         }
     },
@@ -494,6 +498,8 @@ const APImethods = {
         "desc": "Replaces the queue with search result.",
         "params": {
             "expression": APIparams.expression,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc,
             "play": APIparams.play
         }
     },
@@ -692,21 +698,27 @@ const APImethods = {
         "params": {
             "plist": APIparams.plist,
             "expression": APIparams.expression,
-            "to": APIparams.to
+            "to": APIparams.to,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH": {
         "desc": "Appends the search result to the playlist.",
         "params": {
             "plist": APIparams.plist,
-            "expression": APIparams.expression
+            "expression": APIparams.expression,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH": {
         "desc": "Replaces the playlist content with the search result",
         "params": {
             "plist": APIparams.plist,
-            "expression": APIparams.expression
+            "expression": APIparams.expression,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_RM_POSITIONS": {

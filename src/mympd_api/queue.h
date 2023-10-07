@@ -24,9 +24,12 @@ bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, stru
 bool mympd_api_queue_append(struct t_partition_state *partition_state, struct t_list *uris, sds *error);
 bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_list *uris, unsigned to, unsigned whence, sds *error);
 bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t_list *uris, sds *error);
-bool mympd_api_queue_insert_search(struct t_partition_state *partition_state, sds expression, unsigned to, unsigned whence, sds *error);
-bool mympd_api_queue_append_search(struct t_partition_state *partition_state, sds expression, sds *error);
-bool mympd_api_queue_replace_search(struct t_partition_state *partition_state, sds expression, sds *error);
+bool mympd_api_queue_insert_search(struct t_partition_state *partition_state, sds expression,
+        unsigned to, unsigned whence, const char *sort, bool sort_desc, sds *error);
+bool mympd_api_queue_append_search(struct t_partition_state *partition_state, sds expression,
+        const char *sort, bool sort_desc, sds *error);
+bool mympd_api_queue_replace_search(struct t_partition_state *partition_state, sds expression,
+        const char *sort, bool sort_desc, sds *error);
 bool mympd_api_queue_append_plist(struct t_partition_state *partition_state, struct t_list *plists, sds *error);
 bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, struct t_list *plists, unsigned to, unsigned whence, sds *error);
 bool mympd_api_queue_replace_plist(struct t_partition_state *partition_state, struct t_list *plists, sds *error);

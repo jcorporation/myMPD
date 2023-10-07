@@ -272,42 +272,52 @@ bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t
  * @param expression mpd search expression
  * @param to position to insert
  * @param whence how to interpret the to parameter
+ * @param sort sort by tag
+ * @param sort_desc sort descending?
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_queue_insert_search(struct t_partition_state *partition_state, sds expression, unsigned to, unsigned whence, sds *error) {
+bool mympd_api_queue_insert_search(struct t_partition_state *partition_state, sds expression,
+        unsigned to, unsigned whence, const char *sort, bool sort_desc, sds *error)
+{
     if (whence != MPD_POSITION_ABSOLUTE &&
         partition_state->mpd_state->feat_whence == false)
     {
         *error = sdscat(*error, "Method not supported");
         return false;
     }
-    const char *sort = NULL;
-    bool sortdesc = false;
-    return mpd_client_search_add_to_queue(partition_state, expression, to, whence, sort, sortdesc, error);
+    return mpd_client_search_add_to_queue(partition_state, expression, to, whence, sort, sort_desc, error);
 }
 
 /**
  * Appends the search results to the queue
  * @param partition_state pointer to partition state
  * @param expression mpd search expression
+ * @param sort sort by tag
+ * @param sort_desc sort descending?
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_queue_append_search(struct t_partition_state *partition_state, sds expression, sds *error) {
-    return mympd_api_queue_insert_search(partition_state, expression, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
+bool mympd_api_queue_append_search(struct t_partition_state *partition_state, sds expression,
+        const char *sort, bool sort_desc, sds *error)
+{
+    return mympd_api_queue_insert_search(partition_state, expression, UINT_MAX, MPD_POSITION_ABSOLUTE, sort, sort_desc, error);
 }
 
 /**
  * Replaces the queue with the search result
  * @param partition_state pointer to partition state
  * @param expression mpd search expression
+ * @param sort sort by tag
+ * @param sort_desc sort descending?
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_queue_replace_search(struct t_partition_state *partition_state, sds expression, sds *error) {
+bool mympd_api_queue_replace_search(struct t_partition_state *partition_state, sds expression,
+        const char *sort, bool sort_desc, sds *error)
+{
     return mpd_client_queue_clear(partition_state, error) &&
-        mympd_api_queue_append_search(partition_state, expression, error);
+        mympd_api_queue_append_search(partition_state, expression, sort, sort_desc, error);
 }
 
 /**

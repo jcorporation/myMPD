@@ -49,9 +49,12 @@ bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partiti
 bool mympd_api_playlist_content_append_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, sds *error);
 bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, unsigned to, sds *error);
 bool mympd_api_playlist_content_replace_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, sds *error);
-bool mympd_api_playlist_content_insert_search(struct t_partition_state *partition_state, sds expression, sds plist, unsigned to, sds *error);
-bool mympd_api_playlist_content_append_search(struct t_partition_state *partition_state, sds expression, sds plist, sds *error);
-bool mympd_api_playlist_content_replace_search(struct t_partition_state *partition_state, sds expression, sds plist, sds *error);
+bool mympd_api_playlist_content_insert_search(struct t_partition_state *partition_state, sds expression, sds plist, unsigned to,
+        const char *sort, bool sort_desc, sds *error);
+bool mympd_api_playlist_content_append_search(struct t_partition_state *partition_state, sds expression, sds plist,
+        const char *sort, bool sort_desc, sds *error);
+bool mympd_api_playlist_content_replace_search(struct t_partition_state *partition_state, sds expression, sds plist,
+        const char *sort, bool sort_desc, sds *error);
 bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
         struct t_list *src_plists, sds dst_plist, enum plist_copy_modes mode, sds *error);
 bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *partition_state, sds src_plist, sds dst_plist,

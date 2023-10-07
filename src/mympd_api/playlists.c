@@ -278,19 +278,21 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
  * @param expression mpd search expression
  * @param plist stored playlist name
  * @param to position to insert
+ * @param sort sort by tag
+ * @param sort_desc sort descending?
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_insert_search(struct t_partition_state *partition_state, sds expression, sds plist, unsigned to, sds *error) {
+bool mympd_api_playlist_content_insert_search(struct t_partition_state *partition_state, sds expression, sds plist,
+        unsigned to, const char *sort, bool sort_desc, sds *error)
+{
     if (to != UINT_MAX &&
         partition_state->mpd_state->feat_whence == false)
     {
         *error = sdscat(*error, "Method not supported");
         return false;
     }
-    const char *sort = NULL;
-    bool sortdesc = false;
-    return mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
+    return mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sort_desc, error);
 }
 
 /**
@@ -298,11 +300,15 @@ bool mympd_api_playlist_content_insert_search(struct t_partition_state *partitio
  * @param partition_state pointer to partition state
  * @param expression mpd search expression
  * @param plist stored playlist name
+ * @param sort sort by tag
+ * @param sort_desc sort descending?
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_append_search(struct t_partition_state *partition_state, sds expression, sds plist, sds *error) {
-    return mympd_api_playlist_content_insert_search(partition_state, expression, plist, UINT_MAX, error);
+bool mympd_api_playlist_content_append_search(struct t_partition_state *partition_state, sds expression, sds plist,
+        const char *sort, bool sort_desc, sds *error)
+{
+    return mympd_api_playlist_content_insert_search(partition_state, expression, plist, UINT_MAX, sort, sort_desc, error);
 }
 
 /**
@@ -310,12 +316,16 @@ bool mympd_api_playlist_content_append_search(struct t_partition_state *partitio
  * @param partition_state pointer to partition state
  * @param expression mpd search expression
  * @param plist stored playlist name
+ * @param sort sort by tag
+ * @param sort_desc sort descending?
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_replace_search(struct t_partition_state *partition_state, sds expression, sds plist, sds *error) {
+bool mympd_api_playlist_content_replace_search(struct t_partition_state *partition_state, sds expression, sds plist,
+        const char *sort, bool sort_desc, sds *error)
+{
     return mpd_client_playlist_clear(partition_state, plist, error) &&
-        mympd_api_playlist_content_append_search(partition_state, expression, plist, error);
+        mympd_api_playlist_content_append_search(partition_state, expression, plist, sort, sort_desc, error);
 }
 
 /**
