@@ -25,6 +25,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Feat: Add advanced playback controls popover to footer #1110
 - Feat: Add exclude and include filter expression for jukebox mode #1098
 - Feat: Add min. duration option for jukebox mode #1098
+- Upd: Use more standard cmake build options #1119
 - Upd: rework timer implementation
 - Upd: Remove default smart playlist generation tag
 - Upd: some websocket connection improvements

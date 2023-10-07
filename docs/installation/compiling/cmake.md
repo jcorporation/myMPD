@@ -40,15 +40,18 @@ sudo make -C build install
 - **Release, MinSizeRel**
   - Uses predefined compile and link options for a release build
   - Embed assets in binary
+  - No debug output
   - Strips binary
 - **RelWithDebInfo**
   - Uses predefined compile and link options for a release build
   - Embed assets in binary
   - No debug output
+  - Included Debug info
 - **Debug**
   - Uses predefined compile and link options for a debug build
   - Assets are served from the `htdocs` folder in the source directory
   - Debug output
+  - Included Debug info
 - **None**
   - Use this option to set your own compile and link options
 
