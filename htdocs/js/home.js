@@ -161,18 +161,8 @@ function addAlbumToHome(albumId, name, image) {
  */
 //eslint-disable-next-line no-unused-vars
 function addStreamToHome() {
-    const mode = getRadioBoxValueId('modalPlaylistAddToPos');
+    const action = getRadioBoxValueId('modalPlaylistAddToPos') + 'Queue';
     const uri = elGetById('modalPlaylistAddToUrisInput').value;
-    let action;
-    switch(mode) {
-        case 'append': action = 'appendQueue'; break;
-        case 'appendPlay': action = 'appendPlayQueue'; break;
-        case 'insertAfterCurrent': action = 'insertAfterCurrentQueue'; break;
-        case 'insertPlayAfterCurrent': action = 'insertPlayAfterCurrentQueue'; break;
-        case 'replace': action = 'replaceQueue'; break;
-        case 'replacePlay': action = 'replacePlayQueue'; break;
-        default: logError('Invalid mode: ' + mode);
-    }
     _addHomeIcon(action, '', 'stream', '', ['stream', uri]);
 }
 
