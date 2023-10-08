@@ -2,11 +2,11 @@
     "default": {"desc":"Browser default", "missingPhrases": 0},
     "de-DE": {"desc":"Deutsch (de-DE)", "missingPhrases": 0},
     "en-US": {"desc":"English (en-US)", "missingPhrases": 0},
-    "es-AR": {"desc":"Español (es-AR)", "missingPhrases": 20},
-    "fr-FR": {"desc":"Français (fr-FR)", "missingPhrases": 20},
-    "ja-JP": {"desc":"日本語 (ja-JP)", "missingPhrases": 20},
-    "ko-KR": {"desc":"한국어 (ko-KR)", "missingPhrases": 20},
-    "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 20},
-    "ru-RU": {"desc":"Russian (ru-RU)", "missingPhrases": 20},
-    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 20}
+    "es-AR": {"desc":"Español (es-AR)", "missingPhrases": 22},
+    "fr-FR": {"desc":"Français (fr-FR)", "missingPhrases": 22},
+    "ja-JP": {"desc":"日本語 (ja-JP)", "missingPhrases": 22},
+    "ko-KR": {"desc":"한국어 (ko-KR)", "missingPhrases": 22},
+    "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 22},
+    "ru-RU": {"desc":"Russian (ru-RU)", "missingPhrases": 22},
+    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 22}
 }

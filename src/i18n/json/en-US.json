@@ -103,6 +103,7 @@
     "helpJukeboxFilterInclude": "MPD search expression to include only matching songs.",
     "helpJukeboxFilterExclude": "MPD search expression to exclude matching songs.",
     "helpJukeboxMinSongDuration": "Only songs with this minimum length will be considered.",
+    "helpSettingsRadiobrowserStationclicks": "Disable this for enhanced privacy.",
     "icon-all": "All",
     "icon-action": "Action",
     "icon-alert": "Alert",

@@ -40,6 +40,7 @@ This version brings a few improvements.
 
 - Feat: Add all from filesystem respects path and search, fixes #1123
 - Feat: Song search support for special tag 'base'
+- Feat: Disable click count submition to radiobrowser.info #1124
 
 ***
 
