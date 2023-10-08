@@ -1108,5 +1108,6 @@
     "Include expression": "Suchfilter",
     "Invalid MPD search expression": "Ungültiger MPD Suchfilter",
     "Min. song duration": "Mindeste Liedlänge",
-    "helpJukeboxMinSongDuration": "Nur Lieder mit dieser Mindestlänge werden berücksichtigt."
+    "helpJukeboxMinSongDuration": "Nur Lieder mit dieser Mindestlänge werden berücksichtigt.",
+    "Path": "Pfad"
 }
