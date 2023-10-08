@@ -204,6 +204,8 @@ function insertQueue(type, uris, to, whence, play, callback) {
         case 'searchdir':
             sendAPI("MYMPD_API_QUEUE_INSERT_SEARCH", {
                 "expression": createBaseSearchExpression(uris[0], uris[1]),
+                "to": to,
+                "whence": whence,
                 "play": play
             }, callback, true);
             break;

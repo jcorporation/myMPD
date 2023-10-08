@@ -41,6 +41,14 @@ function initSearchExpression(appid) {
     elGetById(appid + 'SearchTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getData(event.target, 'tag');
+            const searchMatchEl = elGetById(appid + 'SearchMatch');
+            if (app.current.filter === 'base') {
+                //this sepcial tag allows no operator
+                searchMatchEl.value = '';
+            }
+            else if (getSelectValue(searchMatchEl) === undefined) {
+                searchMatchEl.value = 'contains';
+            }
             execSearchExpression(elGetById(appid + 'SearchStr').value);
         }
     }, false);
@@ -120,6 +128,37 @@ function execSearchExpression(value) {
 }
 
 /**
+ * Parses a mpd filter expression
+ * @param {string} expression mpd filter
+ * @returns {object} parsed expression elements or null on error
+ */
+function parseExpression(expression) {
+    let fields = expression.match(/^\((\w+)\s+(\S+)\s+'(.*)'\)$/);
+    if (fields !== null &&
+        fields.length === 4)
+    {
+        return {
+            'tag': fields[1],
+            'op': fields[2],
+            'value': unescapeMPD(fields[3])
+        };
+    }
+    // support expressions without operator, e.g. base
+    fields = expression.match(/^\((\w+)\s+'(.*)'\)$/);
+    if (fields !== null &&
+        fields.length === 3)
+    {
+        return {
+            'tag': fields[1],
+            'op': '',
+            'value': unescapeMPD(fields[2])
+        };
+    }
+    logError('Failure parsing expression: ' + expression);
+    return null;
+}
+
+/**
  * Creates the search breadcrumbs from a mpd search expression
  * @param {string} searchStr the search expression
  * @param {HTMLElement} searchEl search input element
@@ -131,21 +170,23 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
     const elements = searchStr.substring(1, app.current.search.length - 1).split(' AND ');
     //add all but last element to crumbs
     for (let i = 0, j = elements.length - 1; i < j; i++) {
-        const fields = elements[i].match(/^\((\w+)\s+(\S+)\s+'(.*)'\)$/);
-        if (fields !== null && fields.length === 4) {
-            crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
+        const fields = parseExpression(elements[i]);
+        if (fields !== null) {
+            crumbEl.appendChild(createSearchCrumb(fields.tag, fields.op, fields.value));
         }
     }
     //check if we should add the last element to the crumbs
     if (searchEl.value === '' &&
         elements.length >= 1)
     {
-        const fields = elements[elements.length - 1].match(/^\((\w+)\s+(\S+)\s+'(.*)'\)$/);
-        if (fields !== null && fields.length === 4) {
-            crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
+        const fields = parseExpression(elements[elements.length - 1]);
+        if (fields !== null) {
+            crumbEl.appendChild(createSearchCrumb(fields.tag, fields.op, fields.value));
         }
     }
-    crumbEl.childElementCount > 0 ? elShow(crumbEl) : elHide(crumbEl);
+    crumbEl.childElementCount > 0
+        ? elShow(crumbEl)
+        : elHide(crumbEl);
 }
 
 /**
@@ -156,6 +197,9 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
  * @returns {HTMLElement} search crumb element
  */
 function createSearchCrumb(filter, op, value) {
+    if (op === undefined) {
+        op = '';
+    }
     const btn = elCreateNodes('button', {"class": ["btn", "btn-dark", "me-2"]}, [
         document.createTextNode(tn(filter) + ' ' + tn(op) + ' \'' + value + '\''),
         elCreateText('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×')
@@ -189,9 +233,15 @@ function _createSearchExpression(tag, op, value) {
             op = 'contains';
         }
     }
+    if (tag === 'base') {
+        //this tag allows no operator
+        op = '';
+    }
     return '(' + tag + ' ' + op + ' ' +
-        (op === '>=' ? value : '\'' + escapeMPD(value) + '\'') +
-        ')';
+        (op === '>='
+            ? value
+            : '\'' + escapeMPD(value) + '\''
+        ) + ')';
 }
 
 /**

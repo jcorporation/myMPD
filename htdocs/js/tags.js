@@ -48,6 +48,11 @@ function addTagList(elId, list) {
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, 'Filename')
         );
+        if (elId === 'SearchSearchTags') {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "base"}, 'Path')
+            );
+        }
     }
     if (elId === 'BrowseDatabaseAlbumListSearchTags') {
         stack.appendChild(
