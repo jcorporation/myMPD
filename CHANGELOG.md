@@ -34,7 +34,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 
 ## myMPD v12.1.0 (not yet released)
 
-This release enhances the 'Add all' button functionality, this function respects now the base path and the search value.
+This version brings a few improvements.
 
 ### Changelog
 
