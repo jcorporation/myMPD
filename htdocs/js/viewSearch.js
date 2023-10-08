@@ -117,29 +117,28 @@ function saveSearchAsSmartPlaylist() {
 /**
  * Appends the current search to the queue
  * @param {string} mode one of: append, appendPlay, insertAfterCurrent, insertPlayAfterCurrent, replace, replacePlay
- * @param {string} type one of: search, dir
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function addAllFromSearch(mode, type) {
+function addAllFromSearch(mode) {
     switch(mode) {
         case 'append':
-            appendQueue(type, [app.current.search]);
+            appendQueue('search', [app.current.search]);
             break;
         case 'appendPlay':
-            appendPlayQueue(type, [app.current.search]);
+            appendPlayQueue('search', [app.current.search]);
             break;
         case 'insertAfterCurrent':
-            insertAfterCurrentQueue(type, [app.current.search]);
+            insertAfterCurrentQueue('search', [app.current.search]);
             break;
         case 'insertPlayAfterCurrent':
-            insertPlayAfterCurrentQueue(type, [app.current.search]);
+            insertPlayAfterCurrentQueue('search', [app.current.search]);
             break;
         case 'replace':
-            replaceQueue(type, [app.current.search]);
+            replaceQueue('search', [app.current.search]);
             break;
         case 'replacePlay':
-            replacePlayQueue(type, [app.current.search]);
+            replacePlayQueue('search', [app.current.search]);
             break;
         default:
             logError('Invalid mode: ' + mode);

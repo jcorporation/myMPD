@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v12.0.5 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Add all from filesystem respects path and search #1123
+
+***
+
 ## myMPD v12.0.4 (2023-10-05)
 
 This is a small bug fix release.
