@@ -11,6 +11,7 @@ This release enhances the 'Add all' button functionality, this function respects
 ### Changelog
 
 - Feat: Add all from filesystem respects path and search, fixes #1123
+- Feat: Song search support for special tag 'base'
 
 ***
 
