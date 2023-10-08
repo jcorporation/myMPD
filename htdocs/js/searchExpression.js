@@ -227,3 +227,17 @@ function createSearchExpression(crumbsEl, tag, op, value) {
     }
     return expression;
 }
+
+/**
+ * Creates a mpd filter expression consisting of base and any tag search
+ * @param {string} base the base path
+ * @param {string} value value to search in any tag
+ * @returns {string} the mpd search expression
+ */
+function createBaseSearchExpression(base, value) {
+    let expression = '(base \'' + escapeMPD(base) + '\')';
+    if (isEmptyTag(value) === false) {
+        expression += ' AND ' + _createSearchExpression('any', 'contains', value);
+    }
+    return '(' + expression + ')';
+}

@@ -767,17 +767,17 @@
             <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseFilesystemSearchStr"/>
           </div>
           <div class="btn-group me-2" id="BrowseFilesystemAddAllSongsGrp">
-            <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromSearch", "options": ["append", "dir"]}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary mi">library_add</button>
+            <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromFilesystem", "options": ["append"]}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary mi">library_add</button>
             <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
             <div class="dropdown-menu px-2 dropdownWide" id="BrowseFilesystemAddAllSongsDropdown">
               <div class="d-grid gap-2">
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["append", "dir"]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["appendPlay", "dir"]}' data-phrase="Append to queue and play" type="button" class="btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["insertAfterCurrent", "dir"]}' data-phrase="Insert after current playing song" type="button" class="featWhence btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["replace", "dir"]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["replacePlay", "dir"]}' data-phrase="Replace queue and play" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromFilesystem", "options": ["append"]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromFilesystem", "options": ["appendPlay"]}' data-phrase="Append to queue and play" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromFilesystem", "options": ["insertAfterCurrent"]}' data-phrase="Insert after current playing song" type="button" class="featWhence btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromFilesystem", "options": ["replace"]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromFilesystem", "options": ["replacePlay"]}' data-phrase="Replace queue and play" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "showAddToPlaylistFromFilesystem", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm featPlaylists"></button>
-                <button data-href='{"cmd": "addDirToHome", "options": []}' data-phrase="Add to homescreen" type="button" class="btn btn-secondary btn-sm featHome"></button>
+                <button data-href='{"cmd": "addSearchDirToHome", "options": []}' data-phrase="Add to homescreen" type="button" class="btn btn-secondary btn-sm featHome"></button>
               </div>
             </div>
           </div>
@@ -989,15 +989,15 @@
             <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="SearchSearchStr"/>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Append to queue" id="SearchAddAllSongsBtn" class="btn btn-secondary mi" data-href='{"cmd": "addAllFromSearch", "options": ["append", "search"]}'>library_add</button>
+            <button data-title-phrase="Append to queue" id="SearchAddAllSongsBtn" class="btn btn-secondary mi" data-href='{"cmd": "addAllFromSearch", "options": ["append"]}'>library_add</button>
             <button id="SearchAddAllSongsDropdownBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
             <div class="dropdown-menu px-2 dropdownWide">
               <div class="d-grid gap-2">
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["append", "search"]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["appendPlay", "search"]}' data-phrase="Append to queue and play" type="button" class="btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["insertAfterCurrent", "search"]}' data-phrase="Insert after current playing song" type="button" class="featWhence btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["replace", "search"]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm"></button>
-                <button data-href='{"cmd": "addAllFromSearch", "options": ["replacePlay", "search"]}' data-phrase="Replace queue and play" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["append"]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["appendPlay"]}' data-phrase="Append to queue and play" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["insertAfterCurrent"]}' data-phrase="Insert after current playing song" type="button" class="featWhence btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["replace"]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm"></button>
+                <button data-href='{"cmd": "addAllFromSearch", "options": ["replacePlay"]}' data-phrase="Replace queue and play" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm featPlaylists"></button>
                 <button data-href='{"cmd": "saveSearchAsSmartPlaylist", "options": []}' data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm featSmartpls"></button>
                 <button data-href='{"cmd": "addSearchToHome", "options": []}' data-phrase="Add to homescreen" type="button" class="btn btn-secondary btn-sm featHome"></button>

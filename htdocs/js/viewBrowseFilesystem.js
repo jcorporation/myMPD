@@ -182,10 +182,41 @@ function initViewBrowseFilesystem() {
 }
 
 /**
+ * Appends the current filesystem view to the queue
+ * @param {string} mode one of: append, appendPlay, insertAfterCurrent, insertPlayAfterCurrent, replace, replacePlay
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function addAllFromFilesystem(mode) {
+    switch(mode) {
+        case 'append':
+            appendQueue('searchdir', [app.current.filter, app.current.search]);
+            break;
+        case 'appendPlay':
+            appendPlayQueue('searchdir', [app.current.filter, app.current.search]);
+            break;
+        case 'insertAfterCurrent':
+            insertAfterCurrentQueue('searchdir', [app.current.filter, app.current.search]);
+            break;
+        case 'insertPlayAfterCurrent':
+            insertPlayAfterCurrentQueue('searchdir', [app.current.filter, app.current.search]);
+            break;
+        case 'replace':
+            replaceQueue('searchdir', [app.current.filter, app.current.search]);
+            break;
+        case 'replacePlay':
+            replacePlayQueue('searchdir', [app.current.filter, app.current.search]);
+            break;
+        default:
+            logError('Invalid mode: ' + mode);
+    }
+}
+
+/**
  * Adds the current directory to a playlist
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistFromFilesystem() {
-    showAddToPlaylist('song', [app.current.filter]);
+    showAddToPlaylist('searchdir', [app.current.filter, app.current.search]);
 }
