@@ -4,13 +4,13 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v12.0.5 (not yet released)
+## myMPD v12.1.0 (not yet released)
 
-This is a small bug fix release.
+This release enhances the 'Add all' button functionality, this function respects now the base path and the search value.
 
 ### Changelog
 
-- Fix: Add all from filesystem respects path and search #1123
+- Feat: Add all from filesystem respects path and search, fixes #1123
 
 ***
 
