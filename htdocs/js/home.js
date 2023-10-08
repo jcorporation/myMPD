@@ -231,6 +231,7 @@ function homeIconGoto(type, uri) {
             gotoFilesystem(uri[0], type);
             break;
         case 'search':
+            elGetById('SearchSearchStr').value = '';
             appGoto('Search', undefined, undefined, 0, undefined, 'any', {'tag': 'Title', 'desc': false}, '', uri[0]);
             break;
         case 'album':
