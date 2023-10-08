@@ -1022,11 +1022,8 @@
     "helpScriptOrder": "Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü",
     "helpTimerPlaylist": "Wiedergabeliste wird ignoriert, wenn die Voreinstellung die Jukebox aktiviert",
     "helpTimerPreset": "Voreinstellungen werden in den Wiedergabeeinstellungen verwaltet.",
-<<<<<<< HEAD
     "Use different MPD host for sticker database": "Andere MPD-Verbindung für Stickerdatenbank verwenden",
-=======
     "helpSettingsRadiobrowserStationclicks": "Deaktiviert für mehr Datenschutz.",
->>>>>>> devel
     "History back": "Zurück",
     "Home icon": "Home Icon",
     "Hours ago": "Std",
