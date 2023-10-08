@@ -1025,6 +1025,7 @@
     "helpScriptOrder": "Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü",
     "helpTimerPlaylist": "Wiedergabeliste wird ignoriert, wenn die Voreinstellung die Jukebox aktiviert",
     "helpTimerPreset": "Voreinstellungen werden in den Wiedergabeeinstellungen verwaltet.",
+    "helpSettingsRadiobrowserStationclicks": "Deaktiviert für mehr Datenschutz.",
     "History back": "Zurück",
     "Home icon": "Home Icon",
     "Hours ago": "Std",
@@ -1094,5 +1095,6 @@
     "Neighbors": "Neighbors",
     "Show neighbors": "Neighbors anzeigen",
     "Open playback settings": "Öffne: Wiedergabeeinstellungen",
-    "Path": "Pfad"
+    "Path": "Pfad",
+    "Submit station clicks to radiobrowser.info": "Sende Webradio-Klicks zu radiobrowser.info"
 }

@@ -795,6 +795,13 @@ const settingsWebuiFields = {
         "form": "modalSettingsCloudFrm",
         "help": "helpSettingsMusicBrainzLinks"
     },
+    "radiobrowserStationclicks": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Submit station clicks to radiobrowser.info",
+        "form": "modalSettingsCloudFrm",
+        "help": "helpSettingsRadiobrowserStationclicks"
+    },
     "outputLigatures": {
         "defaultValue": {
             "default": "speaker",

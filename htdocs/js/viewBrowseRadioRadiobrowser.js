@@ -80,7 +80,9 @@ function initViewBrowseRadioRadiobrowser() {
  * @returns {void}
  */
 function countClickRadiobrowser(uuid) {
-    if (uuid !== '') {
+    if (uuid !== '' && 
+        settings.webuiSettings.radiobrowserStationclicks === true)
+    {
         sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT", {
             "uuid": uuid
         }, null, false);
