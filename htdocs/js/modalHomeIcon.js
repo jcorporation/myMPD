@@ -169,7 +169,9 @@ function _editHomeIcon(pos, replace, title) {
         elGetById('modalHomeIconCmdInput').value = obj.result.data.cmd;
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList();
-        elGetById('modalHomeIconImageInput').value = obj.result.data.image === '' ? tn('Use ligature') : obj.result.data.image;
+        elGetById('modalHomeIconImageInput').value = obj.result.data.image === ''
+            ? tn('Use ligature')
+            : obj.result.data.image;
         setData(elGetById('modalHomeIconImageInput'),'value', obj.result.data.image);
 
         elGetById('modalHomeIconPreview').textContent = obj.result.data.ligature;

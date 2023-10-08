@@ -190,22 +190,22 @@ function initViewBrowseFilesystem() {
 function addAllFromFilesystem(mode) {
     switch(mode) {
         case 'append':
-            appendQueue('searchdir', [app.current.filter, app.current.search]);
+            appendQueue('searchdir', [app.current.filter, app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         case 'appendPlay':
-            appendPlayQueue('searchdir', [app.current.filter, app.current.search]);
+            appendPlayQueue('searchdir', [app.current.filter, app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         case 'insertAfterCurrent':
-            insertAfterCurrentQueue('searchdir', [app.current.filter, app.current.search]);
+            insertAfterCurrentQueue('searchdir', [app.current.filter, app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         case 'insertPlayAfterCurrent':
-            insertPlayAfterCurrentQueue('searchdir', [app.current.filter, app.current.search]);
+            insertPlayAfterCurrentQueue('searchdir', [app.current.filter, app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         case 'replace':
-            replaceQueue('searchdir', [app.current.filter, app.current.search]);
+            replaceQueue('searchdir', [app.current.filter, app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         case 'replacePlay':
-            replacePlayQueue('searchdir', [app.current.filter, app.current.search]);
+            replacePlayQueue('searchdir', [app.current.filter, app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         default:
             logError('Invalid mode: ' + mode);
@@ -218,5 +218,5 @@ function addAllFromFilesystem(mode) {
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistFromFilesystem() {
-    showAddToPlaylist('searchdir', [app.current.filter, app.current.search]);
+    showAddToPlaylist('searchdir', [app.current.filter, app.current.search, app.current.sort.tag, app.current.sort.desc]);
 }

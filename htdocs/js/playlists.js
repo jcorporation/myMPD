@@ -173,7 +173,9 @@ function appendPlaylist(type, uris, plist, callback) {
         case 'searchdir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH", {
                 "expression": createBaseSearchExpression(uris[0], uris[1]),
-                "plist": plist
+                "plist": plist,
+                "sort": uris[2],
+                "sortdesc": uris[3],
             }, callback, true);
             break;
         case 'song':
@@ -187,7 +189,9 @@ function appendPlaylist(type, uris, plist, callback) {
         case 'search':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH", {
                 "expression": uris[0],
-                "plist": plist
+                "plist": plist,
+                "sort": uris[1],
+                "sortdesc": uris[2],
             }, callback, true);
             break;
         case 'album':
@@ -222,7 +226,9 @@ function insertPlaylist(type, uris, plist, to, callback) {
         case 'searchdir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH", {
                 "expression": createBaseSearchExpression(uris[0], uris[1]),
-                "plist": plist
+                "plist": plist,
+                "sort": uris[2],
+                "sortdesc": uris[3],
             }, callback, true);
             break;
         case 'song':
@@ -238,7 +244,9 @@ function insertPlaylist(type, uris, plist, to, callback) {
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH", {
                 "expression": uris[0],
                 "plist": plist,
-                "to": to
+                "to": to,
+                "sort": uris[1],
+                "sortdesc": uris[2],
             }, callback, true);
             break;
         case 'album':
@@ -274,7 +282,9 @@ function replacePlaylist(type, uris, plist, callback) {
         case 'searchdir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH", {
                 "expression": createBaseSearchExpression(uris[0], uris[1]),
-                "plist": plist
+                "plist": plist,
+                "sort": uris[2],
+                "sortdesc": uris[3]
             }, callback, true);
             break;
         case 'song':
@@ -288,7 +298,9 @@ function replacePlaylist(type, uris, plist, callback) {
         case 'search':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH", {
                 "expression": uris[0],
-                "plist": plist
+                "plist": plist,
+                "sort": uris[1],
+                "sortdesc": uris[2],
             }, callback, true);
             break;
         case 'album':

@@ -123,22 +123,22 @@ function saveSearchAsSmartPlaylist() {
 function addAllFromSearch(mode) {
     switch(mode) {
         case 'append':
-            appendQueue('search', [app.current.search]);
+            appendQueue('search', [app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         case 'appendPlay':
-            appendPlayQueue('search', [app.current.search]);
+            appendPlayQueue('search', [app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         case 'insertAfterCurrent':
-            insertAfterCurrentQueue('search', [app.current.search]);
+            insertAfterCurrentQueue('search', [app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         case 'insertPlayAfterCurrent':
-            insertPlayAfterCurrentQueue('search', [app.current.search]);
+            insertPlayAfterCurrentQueue('search', [app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         case 'replace':
-            replaceQueue('search', [app.current.search]);
+            replaceQueue('search', [app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         case 'replacePlay':
-            replacePlayQueue('search', [app.current.search]);
+            replacePlayQueue('search', [app.current.search, app.current.sort.tag, app.current.sort.desc]);
             break;
         default:
             logError('Invalid mode: ' + mode);
@@ -151,5 +151,5 @@ function addAllFromSearch(mode) {
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSearch() {
-    showAddToPlaylist('search', [app.current.search]);
+    showAddToPlaylist('search', [app.current.search, app.current.sort.tag, app.current.sort.desc]);
 }

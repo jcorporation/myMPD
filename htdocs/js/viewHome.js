@@ -106,6 +106,11 @@ function parseHomeIcons(obj) {
             }
         }
 
+        if (obj.result.data[i].options[0] === 'search') {
+            //add default search order
+            obj.result.data[i].options[1].push('');
+            obj.result.data[i].options[1].push(false);
+        }
         setData(card, 'href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         setData(card, 'pos', i);
         const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);

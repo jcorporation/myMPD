@@ -117,6 +117,8 @@ function _appendQueue(type, uris, play, callback) {
         case 'searchdir':
             sendAPI("MYMPD_API_QUEUE_APPEND_SEARCH", {
                 "expression": createBaseSearchExpression(uris[0], uris[1]),
+                "sort": uris[2],
+                "sortdesc": uris[3],
                 "play": play
             }, callback, true);
             break;
@@ -140,6 +142,8 @@ function _appendQueue(type, uris, play, callback) {
             //search is limited to one at a time
             sendAPI("MYMPD_API_QUEUE_APPEND_SEARCH", {
                 "expression": uris[0],
+                "sort": uris[1],
+                "sortdesc": uris[2],
                 "play": play
             }, callback, true);
             break;
@@ -191,7 +195,7 @@ function insertPlayAfterCurrentQueue(type, uris, callback) {
  * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album, disc, searchdir
  * @param {Array} uris element uris
  * @param {number} to position to insert
- * @param {number} whence how t interpret the to parameter: 0 = absolute, 1 = after, 2 = before current song
+ * @param {number} whence how to interpret the to parameter: 0 = absolute, 1 = after, 2 = before current song
  * @param {boolean} play true = play added entry, false = insert only
  * @param {Function} callback callback function
  * @returns {void}
@@ -206,6 +210,8 @@ function insertQueue(type, uris, to, whence, play, callback) {
                 "expression": createBaseSearchExpression(uris[0], uris[1]),
                 "to": to,
                 "whence": whence,
+                "sort": uris[2],
+                "sortdesc": uris[3],
                 "play": play
             }, callback, true);
             break;
@@ -235,6 +241,8 @@ function insertQueue(type, uris, to, whence, play, callback) {
                 "expression": uris[0],
                 "to": to,
                 "whence": whence,
+                "sort": uris[1],
+                "sortdesc": uris[2],
                 "play": play
             }, callback, true);
             break;
@@ -298,6 +306,8 @@ function _replaceQueue(type, uris, play, callback) {
         case 'searchdir':
             sendAPI("MYMPD_API_QUEUE_REPLACE_SEARCH", {
                 "expression": createBaseSearchExpression(uris[0], uris[1]),
+                "sort": uris[2],
+                "sortdesc": uris[3],
                 "play": play
             }, callback, true);
             break;
@@ -321,6 +331,8 @@ function _replaceQueue(type, uris, play, callback) {
             //search is limited to one at a time
             sendAPI("MYMPD_API_QUEUE_REPLACE_SEARCH", {
                 "expression": uris[0],
+                "sort": uris[1],
+                "sortdesc": uris[2],
                 "play": play
             }, callback, true);
             break;

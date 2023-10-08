@@ -47,6 +47,9 @@ function showAddToPlaylist(type, entities) {
                 names.push(tn('Search') + ': ' + entities[1]);
             }
         }
+        else if (type === 'search') {
+            names.push(tn('Search') + ': ' + entities[0]);
+        }
         else {
             for (const entity of entities) {
                 names.push(basename(entity, true));

@@ -377,21 +377,23 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
  * Appends search actions to the context menu
  * @param {HTMLElement} contextMenuBody element to append the menu items
  * @param {string} expression search expression
+ * @param {string} sort sort tag
+ * @param {boolean} sortdesc descending?
  * @returns {void}
  */
-function addMenuItemsSearchActions(contextMenuBody, expression) {
-    addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["search", [expression]]}, 'Append to queue');
-    addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["search", [expression]]}, 'Append to queue and play');
+function addMenuItemsSearchActions(contextMenuBody, expression, sort, sortdesc) {
+    addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["search", [expression, sort, sortdesc]]}, 'Append to queue');
+    addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["search", [expression, sort, sortdesc]]}, 'Append to queue and play');
     if (features.featWhence === true &&
         currentState.currentSongId !== -1)
     {
-        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["search", [expression], 0, 1, false]}, 'Insert after current playing song');
+        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["search", [expression, sort, sortdesc], 0, 1, false]}, 'Insert after current playing song');
     }
-    addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["search", [expression]]}, 'Replace queue');
-    addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": ["search", [expression]]}, 'Replace queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["search", [expression, sort, sortdesc]]}, 'Replace queue');
+    addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": ["search", [expression, sort, sortdesc]]}, 'Replace queue and play');
     if (features.featPlaylists === true) {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": ["search", [expression]]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": ["search", [expression, sort, sortdesc]]}, 'Add to playlist');
     }
     addDivider(contextMenuBody);
     addMenuItem(contextMenuBody, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", {"tag": "Title", "desc": false}, "", expression]}, 'Show search');
@@ -761,7 +763,7 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
             addMenuItemsSongActions(null, contextMenuBody, href.options[1][0], type, href.options[1][0]);
             break;
         case 'search':
-            addMenuItemsSearchActions(contextMenuBody, href.options[1][0]);
+            addMenuItemsSearchActions(contextMenuBody, href.options[1][0], href.options[1][1], href.options[1][2]);
             break;
         case 'album':
             addMenuItemsAlbumActions(null, null, contextMenuBody, href.options[1][0]);
