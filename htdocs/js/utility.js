@@ -543,3 +543,21 @@ function initLinks(root) {
         }, false);
     }
 }
+
+/**
+ * Tries to convert a strint to number or bool
+ * @param {string} str string to convert
+ * @returns {string|number|boolean} parsed string
+ */
+function convertType(str) {
+    if (str === 'true') {
+        return true;
+    }
+    if (str === 'false') {
+        return false;
+    }
+    if (str.match(/^(-)?[\d.]+$/)) {
+        return Number(str);
+    }
+    return str;
+}

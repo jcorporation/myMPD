@@ -209,28 +209,28 @@ function openExternalLink(link) {
 /**
  * Goto handler for home icons
  * @param {string} type one of dir, search, album, plist, smartpls
- * @param {string} uri type = search: search expression,
- *                     type = album: album id,
- *                     else uri of directory or playlist
+ * @param {Array} options type = search: search expression, sort, sortdec
+ *                        type = album: albumId,
+ *                        else uri of directory or playlist
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function homeIconGoto(type, uri) {
+function homeIconGoto(type, options) {
     switch(type) {
         case 'dir':
-            gotoFilesystem(uri[0], type);
+            gotoFilesystem(options[0], type);
             break;
         case 'search':
             elGetById('SearchSearchStr').value = '';
-            appGoto('Search', undefined, undefined, 0, undefined, 'any', {'tag': 'Title', 'desc': false}, '', uri[0]);
+            appGoto('Search', undefined, undefined, 0, undefined, 'any', {'tag': options[1], 'desc': options[2]}, '', options[0]);
             break;
         case 'album':
             //uri = AlbumId
-            gotoAlbum(uri[0]);
+            gotoAlbum(options[0]);
             break;
         case 'plist':
         case 'smartpls':
-            playlistDetails(uri[0]);
+            playlistDetails(options[0]);
             break;
         default:
             logError('Invalid type: ' + type);

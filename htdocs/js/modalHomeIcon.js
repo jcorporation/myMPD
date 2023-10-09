@@ -337,33 +337,38 @@ function populateHomeIconCmdSelect(cmd, type) {
             break;
         }
         default: {
-            const paramName = type === 'search'
-                ? 'Expression'
-                : type === 'album'
-                    ? 'AlbumId'
-                    : 'Uri';
+            const options = ["Type"];
+            if (type === 'search') {
+                options.push('Expression', 'Sort', 'Sortdesc');
+            }
+            else if (type === 'album') {
+                options.push('AlbumId');
+            }
+            else {
+                options.push('Uri');
+            }
             modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "replaceQueue"}, 'Replace queue')
             );
-            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": options});
             modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "replacePlayQueue"}, 'Replace queue and play')
             );
-            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": options});
             if (features.featWhence === true) {
                 modalHomeIconCmdInput.appendChild(
                     elCreateTextTn('option', {"value": "insertAfterCurrentQueue"}, 'Insert after current playing song')
                 );
-                setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
+                setData(modalHomeIconCmdInput.lastChild, 'options', {"options": options});
             }
             modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "appendQueue"}, 'Append to queue')
             );
-            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": options});
             modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "appendPlayQueue"}, 'Append to queue and play')
             );
-            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": options});
             if (type === 'dir' ||
                 type === 'search' ||
                 type === 'plist' ||
@@ -380,7 +385,7 @@ function populateHomeIconCmdSelect(cmd, type) {
                 modalHomeIconCmdInput.appendChild(
                     elCreateTextTn('option', {"value": "homeIconGoto"}, title)
                 );
-                setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
+                setData(modalHomeIconCmdInput.lastChild, 'options', {"options": options});
             }
         }
     }

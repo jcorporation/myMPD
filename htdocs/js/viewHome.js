@@ -87,10 +87,15 @@ function parseHomeIcons(obj) {
         const actionType = friendlyActions[obj.result.data[i].cmd];
 
         if (obj.result.data[i].cmd !== 'appGoto') {
-            // second option must be an array
+            const opt0 = obj.result.data[i].options[0];
+            const opt1 = [];
+            // convert array to [opt0, [opt1,...]] and parse 
             if (obj.result.data[i].options[1] !== undefined) {
-                obj.result.data[i].options[1] = [obj.result.data[i].options[1]];
+                for (let j = 1; j < obj.result.data[i].options.length; j++) {
+                    opt1.push(convertType(obj.result.data[i].options[j]));
+                }
             }
+            obj.result.data[i].options = [opt0, opt1];
         }
 
         const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
@@ -106,11 +111,6 @@ function parseHomeIcons(obj) {
             }
         }
 
-        if (obj.result.data[i].options[0] === 'search') {
-            //add default search order
-            obj.result.data[i].options[1].push('');
-            obj.result.data[i].options[1].push(false);
-        }
         setData(card, 'href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         setData(card, 'pos', i);
         const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);

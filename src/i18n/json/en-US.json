@@ -160,5 +160,6 @@
     "AudioFormat": "Audio format",
     "OriginalDate": "Original date",
     "Value length for JSON path \"$.params.newName\" is too short": "Invalid name",
-    "Value length for JSON path \"$.params.plist\" is too short": "Invalid playlist name"
+    "Value length for JSON path \"$.params.plist\" is too short": "Invalid playlist name",
+    "Sortdesc": "Sort descending"
 }

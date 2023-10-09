@@ -1111,5 +1111,6 @@
     "Min. song duration": "Mindeste Liedlänge",
     "helpJukeboxMinSongDuration": "Nur Lieder mit dieser Mindestlänge werden berücksichtigt.",
     "Path": "Pfad",
-    "Submit station clicks to radiobrowser.info": "Sende Webradio-Klicks zu radiobrowser.info"
+    "Submit station clicks to radiobrowser.info": "Sende Webradio-Klicks zu radiobrowser.info",
+    "Sortdesc": "Sortierreihenfolge umdrehen"
 }
