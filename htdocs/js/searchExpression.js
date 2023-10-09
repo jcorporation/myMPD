@@ -19,6 +19,26 @@ function handleSearchExpression(appid) {
         searchStrEl.value = '';
     }
     selectTag(appid + 'SearchTags', appid + 'SearchTagsDesc', app.current.filter);
+    selectSearchMatch(appid);
+}
+
+/**
+ * Toggles the state of the SearchMatch select, based on selected tag
+ * @param {string} appid the application id
+ * @returns {void}
+ */
+function selectSearchMatch(appid) {
+    const searchMatchEl = elGetById(appid + 'SearchMatch');
+    if (app.current.filter === 'base') {
+        elDisable(searchMatchEl);
+        searchMatchEl.value = '';
+    }
+    else {
+        elEnable(searchMatchEl);
+        if (getSelectValue(searchMatchEl) === undefined) {
+            searchMatchEl.value = 'contains';
+        }
+    }
 }
 
 /**
@@ -41,14 +61,7 @@ function initSearchExpression(appid) {
     elGetById(appid + 'SearchTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getData(event.target, 'tag');
-            const searchMatchEl = elGetById(appid + 'SearchMatch');
-            if (app.current.filter === 'base') {
-                //this sepcial tag allows no operator
-                searchMatchEl.value = '';
-            }
-            else if (getSelectValue(searchMatchEl) === undefined) {
-                searchMatchEl.value = 'contains';
-            }
+            selectSearchMatch(appid);
             execSearchExpression(elGetById(appid + 'SearchStr').value);
         }
     }, false);
@@ -133,6 +146,9 @@ function execSearchExpression(value) {
  * @returns {object} parsed expression elements or null on error
  */
 function parseExpression(expression) {
+    if (expression.length === 0) {
+        return null;
+    }
     let fields = expression.match(/^\((\w+)\s+(\S+)\s+'(.*)'\)$/);
     if (fields !== null &&
         fields.length === 4)
