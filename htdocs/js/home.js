@@ -110,7 +110,7 @@ function addSearchDirToHome() {
     }
     // Add a saved search to home screen
     const expression = createBaseSearchExpression(app.current.filter, app.current.search);
-    const name = basename(app.current.filter, false) + '(' + app.current.search + ')';
+    const name = basename(app.current.filter, false) + ' (' + app.current.search + ')';
     _addHomeIcon('replaceQueue', name, 'saved_search', '', ['search', expression]);
 }
 
