@@ -14,6 +14,7 @@ This version brings a few improvements.
 - Feat: Song search support for special tag 'base'
 - Feat: Disable click count submition to radiobrowser.info #1124
 - Fix: Restore maximum binary size to 5 MB #1125
+- Fix: Zoom coverimages
 
 ***
 
