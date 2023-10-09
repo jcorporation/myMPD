@@ -34,6 +34,7 @@ sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds b
             MYMPD_LOG_DEBUG(partition_state->name, "Received %d bytes from mpd albumart command", recv_len);
             *binary = sdscatlen(*binary, binary_buffer, (size_t)recv_len);
             if (sdslen(*binary) > MPD_BINARY_SIZE_MAX) {
+
                 MYMPD_LOG_WARN(partition_state->name, "Retrieved binary data is too large, discarding");
                 sdsclear(*binary);
                 offset = 0;
