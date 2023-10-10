@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "dist/sds/sds.h"
 #include "src/mympd_api/trigger.h"
 
 #include "src/lib/api.h"
@@ -193,15 +194,35 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
 bool mympd_api_trigger_save(struct t_list *trigger_list, sds name, int trigger_id, int event, sds partition,
         struct t_trigger_data *trigger_data, sds *error)
 {
+    // delete old trigger, ignore error
+    if (trigger_id >= 0 &&
+        mympd_api_trigger_delete(trigger_list, trigger_id, error) == false)
+    {
+        return false;
+    }
+
     bool rc = list_push(trigger_list, name, event, partition, trigger_data);
-    if (rc == true) {
-        if (trigger_id >= 0) {
-            //delete old entry
-            return mympd_api_trigger_delete(trigger_list, trigger_id, error);
-        }
+    if (rc == false) {
+        *error = sdscat(*error, "Could not save trigger");
+    }
+    return rc;
+}
+
+/**
+ * Deletes a trigger
+ * @param trigger_list trigger list
+ * @param idx index of trigger node to remove
+ * @param error already allocated sds string to append the error message
+ * @return true on success, else false
+ */
+bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx, sds *error) {
+    struct t_list_node *to_remove = list_node_extract(trigger_list, idx);
+    if (to_remove != NULL) {
+        list_node_free_user_data(to_remove, list_free_cb_trigger_data);
         return true;
     }
-    *error = sdscat(*error, "Could not save trigger");
+    MYMPD_LOG_ERROR(NULL, "Trigger with id %ld not found", idx);
+    *error = sdscat(*error, "Could not delete trigger");
     return false;
 }
 
@@ -295,23 +316,6 @@ sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_
     }
 
     return buffer;
-}
-
-/**
- * Deletes a trigger
- * @param trigger_list trigger list
- * @param idx index of trigger node to remove
- * @param error already allocated sds string to append the error message
- * @return true on success, else false
- */
-bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx, sds *error) {
-    struct t_list_node *to_remove = list_node_extract(trigger_list, idx);
-    if (to_remove != NULL) {
-        list_node_free_user_data(to_remove, list_free_cb_trigger_data);
-        return true;
-    }
-    *error = sdscat(*error, "Could not delete trigger");
-    return false;
 }
 
 /**
