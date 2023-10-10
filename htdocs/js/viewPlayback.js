@@ -56,11 +56,20 @@ function parseCurrentSong(obj) {
     mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
     setCurrentCover(obj.result.uri);
 
-    for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'PlaybackTitle', 'PlaybackCover']) {
-        elGetById(elName).classList.remove('clickable');
+    const footerAlbumEl = elGetById('footerAlbum');
+    const footerArtistEl = elGetById('footerArtist');
+    const footerTitleEl = elGetById('footerTitle');
+    const footerCoverEl = elGetById('footerCover');
+    const footerDividerEl = elGetById('footerDivider');
+    const PlaybackTitleEl = elGetById('PlaybackTitle');
+    const PlaybackCoverEl = elGetById('PlaybackCover');
+
+    for (const el of [footerTitleEl, footerArtistEl, footerAlbumEl, footerCoverEl,
+                      PlaybackTitleEl, PlaybackCoverEl])
+    {
+        el.classList.remove('clickable');
     }
 
-    const footerArtistEl = elGetById('footerArtist');
     if (isEmptyTag(obj.result.Artist) === false) {
         const artists = joinArray(obj.result.Artist);
         textNotification.push(artists);
@@ -72,11 +81,8 @@ function parseCurrentSong(obj) {
     else {
         elClear(footerArtistEl);
         setData(footerArtistEl, 'name', ['']);
-        footerArtistEl.classList.remove('clickable');
     }
 
-    const footerDividerEl = elGetById('footerDivider');
-    const footerAlbumEl = elGetById('footerAlbum');
     if (isEmptyTag(obj.result.Album) === false) {
         textNotification.push(obj.result.Album);
         footerAlbumEl.textContent = obj.result.Album;
@@ -90,7 +96,6 @@ function parseCurrentSong(obj) {
              isEmptyTag(obj.result.Name) === false)
     {
         footerAlbumEl.textContent = obj.result.Name;
-        footerAlbumEl.classList.remove('clickable');
         footerAlbumEl.setAttribute('data-tag', 'undefined');
         footerDividerEl.classList.add('d-none');
     }
@@ -99,14 +104,9 @@ function parseCurrentSong(obj) {
         setData(footerAlbumEl, 'name', '');
         setData(footerAlbumEl, 'AlbumId', '');
         footerAlbumEl.setAttribute('data-tag', 'undefined');
-        footerAlbumEl.classList.remove('clickable');
         footerDividerEl.classList.add('d-none');
     }
 
-    const footerTitleEl = elGetById('footerTitle');
-    const footerCoverEl = elGetById('footerCover');
-    const PlaybackTitleEl = elGetById('PlaybackTitle');
-    const PlaybackCoverEl = elGetById('PlaybackCover');
     if (isEmptyTag(obj.result.Title) === false) {
         pageTitle.push(obj.result.Title);
         PlaybackTitleEl.textContent = obj.result.Title;
@@ -126,9 +126,6 @@ function parseCurrentSong(obj) {
             elClear(footerTitleEl);
         }
         setData(PlaybackTitleEl, 'uri', '');
-        PlaybackTitleEl.classList.remove('clickable');
-        footerTitleEl.classList.remove('clickable');
-        footerCoverEl.classList.remove('clickable');
     }
     document.title = 'myMPD: ' + pageTitle.join(smallSpace + nDash + smallSpace);
     footerCoverEl.title = pageTitle.join(smallSpace + nDash + smallSpace);
@@ -136,12 +133,9 @@ function parseCurrentSong(obj) {
     if (isValidUri(obj.result.uri) === true &&
         isStreamUri(obj.result.uri) === false)
     {
+        // valid uri and not a stream
         footerTitleEl.classList.add('clickable');
         PlaybackTitleEl.classList.add('clickable');
-    }
-    else {
-        footerTitleEl.classList.remove('clickable');
-        PlaybackTitleEl.classList.remove('clickable');
     }
 
     if (obj.result.uri !== undefined) {
