@@ -85,6 +85,7 @@ function setCounter() {
         {
             // this should not appear, update state
             getState();
+            return;
         }
         progressTimer = setTimeout(function() {
             currentState.elapsedTime += 1;
