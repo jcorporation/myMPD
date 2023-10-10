@@ -65,6 +65,7 @@ function parseStats(obj) {
     elGetById('modalAboutMympdUptime').textContent = fmtDuration(obj.result.myMPDuptime);
     elGetById('modalAboutDbUpdated').textContent = fmtDate(obj.result.dbUpdated);
     elGetById('modalAboutMympdVersion').textContent = obj.result.mympdVersion;
+    elGetById('modalAboutMympdVersion').title = myMPDbuild;
     elGetById('modalAboutMympdUri').textContent = obj.result.myMPDuri;
 
     const mpdInfoVersionEl = elGetById('modalAboutProtocolVersion');
