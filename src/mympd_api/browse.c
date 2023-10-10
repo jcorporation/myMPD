@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/tag.h"
 #include "src/mympd_api/browse.h"
 
 #include "dist/utf8/utf8.h"
@@ -64,7 +65,12 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     time_t last_played_max = 0;
     sds first_song_uri = sdsempty();
     sds last_played_song_uri = sdsempty();
-    unsigned duration = 0;
+    if (partition_state->mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE) {
+        // reset album values for simple album mode
+        album_cache_set_total_time(mpd_album, 0);
+        album_cache_set_disc_count(mpd_album, 0);
+        album_cache_set_song_count(mpd_album, 0);
+    }
     if (mpd_search_commit(partition_state->conn)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
@@ -99,7 +105,12 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
                 sticker_struct_clear(&sticker);
             }
             buffer = sdscatlen(buffer, "}", 1);
-            duration += mpd_song_get_duration(song);
+            if (partition_state->mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE) {
+                // calculate some album values for simple album mode
+                album_cache_inc_total_time(mpd_album, song);
+                album_cache_set_discs(mpd_album, song);
+                album_cache_inc_song_count(mpd_album);
+            }
             mpd_song_free(song);
         }
     }
@@ -113,11 +124,6 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
         FREE_SDS(first_song_uri);
         FREE_SDS(last_played_song_uri);
         return buffer;
-    }
-
-    // Set album duration for simple album mode
-    if (partition_state->mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE) {
-        album_cache_set_total_time(mpd_album, duration);
     }
 
     buffer = sdscatlen(buffer, "],", 2);
