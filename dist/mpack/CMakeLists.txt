@@ -4,9 +4,21 @@
 
 add_library(mpack "")
 
+target_compile_options(mpack
+  PRIVATE
+    "-DMPACK_HAS_CONFIG=1"
+)
+
 target_sources(mpack
   PRIVATE
     mpack.c
+    mpack-config.h
   PUBLIC
     mpack.h
+)
+
+target_include_directories(mpack
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_BINARY_DIR}
 )
