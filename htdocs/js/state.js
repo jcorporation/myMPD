@@ -200,7 +200,10 @@ function updatePlaybackControls() {
     const prefixes = ['footer'];
     if (document.querySelector('.playbackPopoverBtns') !== null) {
         prefixes.push('popoverFooter');
-        if (currentState.songPos < 0) {
+        if (currentState.songPos < 0 ||
+            currentState.totalTime === 0 ||
+            currentState.state === 'stop')
+        {
             elDisableId('popoverFooterGotoBtn');
         }
         else {
@@ -213,6 +216,10 @@ function updatePlaybackControls() {
             elGetById(prefix + 'PlayBtn').textContent = 'play_arrow';
             domCache.progressBar.style.width = '0';
             elDisableId(prefix + 'StopBtn');
+            elDisableId(prefix + 'NextBtn');
+            elDisableId(prefix + 'PrevBtn');
+            elDisableId(prefix + 'FastRewindBtn');
+            elDisableId(prefix + 'FastForwardBtn');
         }
         else if (currentState.state === 'play') {
             elGetById(prefix + 'PlayBtn').textContent =
@@ -220,11 +227,19 @@ function updatePlaybackControls() {
                     ? 'stop'
                     : 'pause';
             elEnableId(prefix + 'StopBtn');
+            elEnableId(prefix + 'NextBtn');
+            elEnableId(prefix + 'PrevBtn');
+            elEnableId(prefix + 'FastRewindBtn');
+            elEnableId(prefix + 'FastForwardBtn');
         }
         else {
             //pause
             elGetById(prefix + 'PlayBtn').textContent = 'play_arrow';
             elEnableId(prefix + 'StopBtn');
+            elEnableId(prefix + 'NextBtn');
+            elEnableId(prefix + 'PrevBtn');
+            elEnableId(prefix + 'FastRewindBtn');
+            elEnableId(prefix + 'FastForwardBtn');
         }
 
         if (currentState.queueLength === 0) {
@@ -241,7 +256,7 @@ function updatePlaybackControls() {
             // last song in queue and disabled jukebox
             elDisableId(prefix + 'NextBtn');
         }
-        else {
+        else if (currentState.state !== 'stop') {
             elEnableId(prefix + 'NextBtn');
         }
 
@@ -251,7 +266,7 @@ function updatePlaybackControls() {
             elDisableId(prefix + 'FastRewindBtn');
             elDisableId(prefix + 'FastForwardBtn');
         }
-        else {
+        else if (currentState.state !== 'stop') {
             elEnableId(prefix + 'PrevBtn');
             elEnableId(prefix + 'FastRewindBtn');
             elEnableId(prefix + 'FastForwardBtn');
