@@ -56,7 +56,7 @@ function parseCurrentSong(obj) {
     mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
     setCurrentCover(obj.result.uri);
 
-    for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'PlaybackTitle']) {
+    for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'PlaybackTitle', 'PlaybackCover']) {
         elGetById(elName).classList.remove('clickable');
     }
 
@@ -106,12 +106,15 @@ function parseCurrentSong(obj) {
     const footerTitleEl = elGetById('footerTitle');
     const footerCoverEl = elGetById('footerCover');
     const PlaybackTitleEl = elGetById('PlaybackTitle');
+    const PlaybackCoverEl = elGetById('PlaybackCover');
     if (isEmptyTag(obj.result.Title) === false) {
         pageTitle.push(obj.result.Title);
         PlaybackTitleEl.textContent = obj.result.Title;
         setData(PlaybackTitleEl, 'uri', obj.result.uri);
         footerTitleEl.textContent = obj.result.Title;
         footerCoverEl.classList.add('clickable');
+        PlaybackTitleEl.classList.add('clickable');
+        PlaybackCoverEl.classList.add('clickable');
     }
     else {
         if (currentState.songPos === -1) {

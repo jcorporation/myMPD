@@ -150,6 +150,7 @@ function parseState(obj) {
         footerTitleEl.classList.remove('clickable');
         elGetById('footerCover').classList.remove('clickable');
         elGetById('PlaybackTitle').classList.remove('clickable');
+        elGetById('PlaybackCover').classList.remove('clickable');
         clearCurrentCover();
         const pb = document.querySelectorAll('#PlaybackListTags p');
         for (let i = 0, j = pb.length; i < j; i++) {
