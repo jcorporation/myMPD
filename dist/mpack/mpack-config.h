@@ -9,7 +9,6 @@
 #define MPACK_DOUBLE  0
 #define MPACK_FLOAT   0
 
-#include "compile_time.h"
 #include "src/lib/mem.h"
 
 #define MPACK_MALLOC malloc_assert

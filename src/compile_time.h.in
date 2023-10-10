@@ -16,7 +16,6 @@
 #include <signal.h>
 
 //build options
-#cmakedefine MYMPD_DEBUG
 #cmakedefine MYMPD_EMBEDDED_ASSETS
 
 //sanitizers

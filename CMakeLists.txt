@@ -40,13 +40,6 @@ if(NOT DEFINED MYMPD_EMBEDDED_ASSETS)
   endif()
 endif()
 
-# set debug define for source
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(MYMPD_DEBUG "ON")
-else()
-  set(MYMPD_DEBUG "OFF")
-endif()
-
 # available options
 option(MYMPD_BUILD_TESTING "Enables building of unit tests" "OFF")
 option(MYMPD_EMBEDDED_ASSETS "Embed assets in binary, default ON, OFF for Debug" "ON")
@@ -235,6 +228,17 @@ configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
 configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.service @ONLY)
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
+
+# global compile options
+add_compile_options(
+  "-DMPACK_HAS_CONFIG=1"
+)
+# set myMPD specific debug define
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  add_compile_options(
+    "-DMYMPD_DEBUG=ON"
+  )
+endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
   # set strict global compile flags

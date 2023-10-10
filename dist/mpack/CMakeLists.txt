@@ -4,11 +4,6 @@
 
 add_library(mpack "")
 
-target_compile_options(mpack
-  PRIVATE
-    "-DMPACK_HAS_CONFIG=1"
-)
-
 target_sources(mpack
   PRIVATE
     mpack.c
