@@ -223,12 +223,15 @@ int testdir(const char *desc, const char *dir_name, bool create, bool silent) {
             //directory does not exist and creating it failed
             return DIR_CREATE_FAILED;
         }
-        MYMPD_LOG_NOTICE(NULL, "%s: \"%s\" created", desc, dir_name);
+        if (silent == false) {
+            MYMPD_LOG_NOTICE(NULL, "%s: \"%s\" created", desc, dir_name);
+        }
         //directory successfully created
         return DIR_CREATED;
     }
-
-    MYMPD_LOG_ERROR(NULL, "%s: \"%s\" does not exist", desc, dir_name);
+    if (silent == false) {
+        MYMPD_LOG_ERROR(NULL, "%s: \"%s\" does not exist", desc, dir_name);
+    }
     //directory does not exist
     return DIR_NOT_EXISTS;
 }
