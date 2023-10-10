@@ -10,6 +10,7 @@
 
 #include "dist/utf8/utf8.h"
 #include "src/lib/album_cache.h"
+#include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/rax_extras.h"
@@ -26,6 +27,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <stdbool.h>
 #include <string.h>
 
 /**
@@ -359,22 +361,12 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
         FREE_SDS(iter.data);
     }
     raxStop(&iter);
+
     //checks if this tag has a directory with pictures in /src/lib/mympd/pics
     sds pic_path = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_PICS, tag);
-    bool pic = false;
-    errno = 0;
-    DIR* dir = opendir(pic_path);
-    if (dir != NULL) {
-        closedir(dir);
-        pic = true;
-    }
-    else {
-        MYMPD_LOG_DEBUG(partition_state->name, "Can not open directory \"%s\"", pic_path);
-        if (errno != ENOENT) {
-            MYMPD_LOG_ERRNO(partition_state->name, errno);
-        }
-        //ignore error
-    }
+    bool pic =  testdir(pic_path, "Tag pics folder", false, true) == DIR_EXISTS
+        ? true
+        : false;
     FREE_SDS(pic_path);
 
     buffer = sdscatlen(buffer, "],", 2);
