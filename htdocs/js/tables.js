@@ -747,8 +747,12 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
     //disc handling for album view
     let z = 0;
-    let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? Number(obj.result.data[0].Disc) : 0;
-    if (obj.result.Discs !== undefined && obj.result.Discs > 1) {
+    let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined
+        ? Number(obj.result.data[0].Disc)
+        : 0;
+    if (obj.result.Discs !== undefined &&
+        obj.result.Discs > 1)
+    {
         const row = addDiscRow(1, obj.result.AlbumId, colspan);
         if (z < tr.length) {
             replaceTblRow(mode, tr[z], row);
@@ -760,7 +764,9 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     }
     for (let i = 0; i < nrItems; i++) {
         //disc handling for album view
-        if (obj.result.data[0].Disc !== undefined && lastDisc < Number(obj.result.data[i].Disc)) {
+        if (obj.result.data[0].Disc !== undefined &&
+            lastDisc < Number(obj.result.data[i].Disc))
+        {
             const row = addDiscRow(obj.result.data[i].Disc, obj.result.AlbumId, colspan);
             if (i + z < tr.length) {
                 replaceTblRow(mode, tr[i + z], row);
@@ -772,7 +778,9 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             lastDisc = obj.result.data[i].Disc;
         }
         const row = elCreateEmpty('tr', {});
-        if (perRowCallback !== undefined && typeof(perRowCallback) === 'function') {
+        if (perRowCallback !== undefined &&
+            typeof(perRowCallback) === 'function')
+        {
             perRowCallback(row, obj.result.data[i]);
         }
         //data row
@@ -793,7 +801,9 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             obj.result.data[i].Title = obj.result.data[i].name;
         }
 
-        if (createRowCellsCallback !== undefined && typeof(createRowCellsCallback) === 'function') {
+        if (createRowCellsCallback !== undefined &&
+            typeof(createRowCellsCallback) === 'function')
+        {
             //custom row content
             createRowCellsCallback(row, obj.result.data[i]);
         }
@@ -998,7 +1008,9 @@ function checkResult(obj, tbody) {
  */
 function uiSmallWidthTagRows() {
     if (settings.webuiSettings.smallWidthTagRows === true) {
-        return window.innerWidth < 576 ? true : false;
+        return window.innerWidth < 576
+            ? true
+            : false;
     }
     return false;
 }
