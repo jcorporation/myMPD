@@ -316,6 +316,7 @@ function setBackgroundImage(el, url) {
     el.insertBefore(div, el.firstChild);
     //create dummy img element for preloading and fade-in
     const img = new Image();
+    // add reference to image container
     setData(img, 'div', div);
     img.onload = function(event) {
         //fade-in current cover
