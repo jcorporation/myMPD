@@ -1040,12 +1040,12 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         }
     // song
         case MYMPD_API_SONG_DETAILS:
-            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_ispathfilename, &parse_error) == true) {
                 response->data = mympd_api_song_details(partition_state, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_SONG_COMMENTS:
-            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_ispathfilename, &parse_error) == true) {
                 response->data = mympd_api_song_comments(partition_state, response->data, request->id, sds_buf1);
             }
             break;

@@ -25,6 +25,7 @@ bool vcb_istext(sds data);
 bool vcb_isfilename_silent(sds data);
 bool vcb_isfilename(sds data);
 bool vcb_isfilepath(sds data);
+bool vcb_ispathfilename(sds data);
 bool vcb_isuri(sds data);
 bool vcb_isstreamuri(sds data);
 bool vcb_iscolumn(sds data);

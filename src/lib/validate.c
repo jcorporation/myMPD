@@ -210,7 +210,7 @@ bool vcb_isfilename(sds data) {
 }
 
 /**
- * Checks if string is a valid filepath
+ * Checks if string is a valid filename with path or path only
  * @param data sds string to check
  * @return true on success else false
  */
@@ -236,6 +236,21 @@ bool vcb_isfilepath(sds data) {
         MYMPD_LOG_WARN(NULL, "Found illegal character in file path");
     }
     return rc;
+}
+
+/**
+ * Checks if string is a valid path + filename
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_ispathfilename(sds data) {
+    bool rc = vcb_isfilepath(data);
+    if (rc == true) {
+        return data[sdslen(data) - 1] == '/'
+            ? false
+            : true;
+    }
+    return false;
 }
 
 /**

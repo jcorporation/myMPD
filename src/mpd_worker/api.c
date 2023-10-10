@@ -41,7 +41,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
 
     switch(request->cmd_id) {
         case MYMPD_API_SONG_FINGERPRINT:
-            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_ispathfilename, &parse_error) == true) {
                 response->data = mpd_worker_song_fingerprint(partition_state, response->data, request->id, sds_buf1);
             }
             break;
