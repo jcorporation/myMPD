@@ -34,7 +34,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 
 ## myMPD v12.1.0 (not yet released)
 
-This version brings a few improvements.
+This version ships a few improvements and bug fixes.
 
 ### Changelog
 
@@ -43,6 +43,7 @@ This version brings a few improvements.
 - Feat: Disable click count submition to radiobrowser.info #1124
 - Fix: Restore maximum binary size to 5 MB #1125
 - Fix: Zoom coverimages
+- Fix: double free if trigger was not found
 
 ***
 
