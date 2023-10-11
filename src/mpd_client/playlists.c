@@ -463,17 +463,20 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     unsigned i = 0;
     raxIterator iter;
     raxStart(&iter, plist);
+    int (*iterator)(struct raxIterator *iter);
     if (sortdesc == false) {
         raxSeek(&iter, "^", NULL, 0);
+        iterator = &raxNext;
     }
     else {
         raxSeek(&iter, "$", NULL, 0);
+        iterator = &raxPrev;
     }
     rc = true;
     while (i < plist->numele) {
         if (mpd_command_list_begin(partition_state->conn, false)) {
             long j = 0;
-            while (sortdesc == false ? raxNext(&iter) : raxPrev(&iter)) {
+            while (iterator(&iter)) {
                 i++;
                 j++;
                 if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, iter.data) == false) {

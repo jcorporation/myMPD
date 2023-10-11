@@ -233,14 +233,16 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     long entity_count = 0;
     long entities_returned = 0;
     raxStart(&iter, albums);
-
+    int (*iterator)(struct raxIterator *iter);
     if (sortdesc == false) {
         raxSeek(&iter, "^", NULL, 0);
+        iterator = &raxNext;
     }
     else {
         raxSeek(&iter, "$", NULL, 0);
+        iterator = &raxPrev;
     }
-    while (sortdesc == false ? raxNext(&iter) : raxPrev(&iter)) {
+    while (iterator(&iter)) {
         if (entity_count >= offset) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
@@ -339,14 +341,16 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
     long entities_returned = 0;
     raxIterator iter;
     raxStart(&iter, taglist);
-
+    int (*iterator)(struct raxIterator *iter);
     if (sortdesc == false) {
         raxSeek(&iter, "^", NULL, 0);
+        iterator = &raxNext;
     }
     else {
         raxSeek(&iter, "$", NULL, 0);
+        iterator = &raxPrev;
     }
-    while (sortdesc == false ? raxNext(&iter) : raxPrev(&iter)) {
+    while (iterator(&iter)) {
         if (entity_count >= offset &&
             entity_count < real_limit)
         {
