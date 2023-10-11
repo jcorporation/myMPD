@@ -1024,8 +1024,8 @@
     "helpScriptOrder": "Ordre de tri du script, 0 désactive le listing dans le menu principal",
     "History back": "Retour",
     "Home icon": "Icône d'accueil",
-    "Hours ago": "Il y a X heures",
-    "Song was played last": "Le morceau a été joué la dernière fois ",
+    "Hours ago": "Heures",
+    "Song was played last": "Le morceau a été joué la dernière fois endéans les",
     "ListenBrainz Token": "Jeton ListenBrainz",
     "Navigation bar": "Barre de navigation",
     "Web notifications are blocked by the browser": "Les notifications web sont bloquées par votre navigateur",
@@ -1093,5 +1093,8 @@
     "Show neighbors": "Afficher les voisins",
     "Open playback settings": "Ouvrir les paramètres de lecture",
     "helpScriptArguments": "Noms pour les arguments du script, ceux-ci sont disponibles via la table Lua 'arguments' à l'intérieur du script.",
-    "helpTimerPreset": "Les préréglages sont gérés dans les paramètres de lecture."
+    "helpTimerPreset": "Les préréglages sont gérés dans les paramètres de lecture.",
+    "Path": "Chemin",
+    "helpSettingsRadiobrowserStationclicks": "Désactivez ceci pour une meilleure confidentialité.",
+    "Submit station clicks to radiobrowser.info": "Transmettre les clicks des stations radios à radiobrowser.info"
 }
