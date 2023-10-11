@@ -29,4 +29,7 @@ bool mpd_client_tag_exists(const struct t_tags *tagtypes, enum mpd_tag_type tag)
 sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values);
 sds mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values);
 sds print_tags_array(sds buffer, const char *tagsname, const struct t_tags *tags);
+sds mpd_client_get_tag_value_padded(const struct mpd_song *song, enum mpd_tag_type tag, const char pad, size_t len, sds tag_values);
+int mpd_client_get_tag_value_int(const struct mpd_song *song, enum mpd_tag_type tag);
+
 #endif

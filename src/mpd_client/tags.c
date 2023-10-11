@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/tag.h"
 #include "src/mpd_client/tags.h"
 
 #include "dist/libmympdclient/src/isong.h"
@@ -18,6 +17,7 @@
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/shortcuts.h"
 
+#include <inttypes.h>
 #include <string.h>
 
 /**
@@ -227,6 +227,45 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, NULL, "mpd_send_enable_tag_types");
+}
+
+/**
+ * Get's a tag value from mpd song and converts it to int
+ * @param song mpd song struct
+ * @param tag mdp tag type
+ * @return parsed tag value
+ */
+int mpd_client_get_tag_value_int(const struct mpd_song *song, enum mpd_tag_type tag) {
+    const char *value = mpd_song_get_tag(song, tag, 0);
+    return value != NULL
+        ? (int)strtoimax(value, NULL, 10)
+        : 0;
+}
+
+/**
+ * Get's a tag value from mpd song and pads it
+ * @param song mpd song struct
+ * @param tag mpd tag type
+ * @param pad padding char
+ * @param len length to pad
+ * @param tag_values already allocated sds string to append
+ * @return sds new sds pointer to tag_values
+ */
+sds mpd_client_get_tag_value_padded(const struct mpd_song *song, enum mpd_tag_type tag, const char pad, size_t len, sds tag_values) {
+    const char *value = mpd_song_get_tag(song, tag, 0);
+    size_t value_len = value == NULL
+        ? 0
+        : strlen(value);
+    if (value_len < len) {
+        len = len - value_len;
+        for (size_t i = 0; i < len; i++) {
+            tag_values = sdscatfmt(tag_values, "%c", pad);
+        }
+    }
+    if (value != NULL) {
+        tag_values = sdscatlen(tag_values, value, value_len);
+    }
+    return tag_values;
 }
 
 /**
