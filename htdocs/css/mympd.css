@@ -1071,6 +1071,7 @@ button.weekday {
   max-width: 80vw;
 
   --bs-dropdown-zindex: 1050;
+  --bs-dropdown-min-width: 12rem;
 }
 
 .dropdown-item {
