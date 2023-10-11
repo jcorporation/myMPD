@@ -632,6 +632,7 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
     bool from_database = strcmp(playlist, "Database") == 0
         ? true
         : false;
+    bool rc = true;
     sds tag_value = sdsempty();
     rax *stickers_last_played = NULL;
     rax *stickers_like = NULL;
@@ -711,23 +712,21 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
         }
         mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, NULL, "mpd_search_db_songs") == false) {
-            FREE_SDS(tag_value);
-            return -1;
+            rc = false;
+            break;
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
     } while (from_database == true && lineno + skipno > (long)start);
-    if (stickers_last_played != NULL) {
-        stickerdb_free_find_result(stickers_last_played);
-    }
-    if (stickers_like != NULL) {
-        stickerdb_free_find_result(stickers_like);
-    }
+    stickerdb_free_find_result(stickers_last_played);
+    stickerdb_free_find_result(stickers_like);
     free_search_expression_list(include_expr_list);
     free_search_expression_list(exclude_expr_list);
     FREE_SDS(tag_value);
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox iterated through %ld songs, skipped %ld", lineno, skipno);
-    return (int)add_list->length;
+    return rc == false
+        ? -1
+        : (int)add_list->length;
 }
 
 /**
