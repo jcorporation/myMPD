@@ -426,11 +426,8 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
             const char *song_uri = mpd_song_get_uri(song);
             sdsclear(key);
             if (sort_tags.tags[0] == MPD_TAG_TRACK) {
-                const char *track = mpd_song_get_tag(song, MPD_TAG_TRACK, 0);
-                int track_nr = track != NULL
-                    ? (int)strtoimax(track, NULL, 10)
-                    : 0;
-                key = sdscatprintf(key, "%09d:%s", track_nr, song_uri);
+                key = mpd_client_get_tag_value_padded(song, MPD_TAG_TRACK, '0', 9, key);
+                key = sdscat(key, song_uri);
             }
             else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
                 //sort by tag
