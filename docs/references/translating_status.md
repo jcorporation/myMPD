@@ -4,7 +4,7 @@
 - es-VE: 801 missing phrases
 - fi-FI: 798 missing phrases
 - fr-FR: 3 missing phrases
-- it-IT: 158 missing phrases
+- it-IT: 2 missing phrases
 - ja-JP: 3 missing phrases
 - ko-KR: 3 missing phrases
 - nl-NL: 3 missing phrases
