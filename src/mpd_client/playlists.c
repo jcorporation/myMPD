@@ -24,7 +24,7 @@
  * Private definitions
  */
 
-static bool playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr, sds *error);
+static bool playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr, bool sortdesc, sds *error);
 static bool replace_playlist(struct t_partition_state *partition_state, const char *new_pl,
         const char *to_replace_pl, sds *error);
 
@@ -307,11 +307,12 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
  * @param partition_state pointer to partition specific states
  * @param playlist playlist to shuffle
  * @param tagstr mpd tag to sort by
+ * @param sortdesc sort descending?
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success else false
  */
-bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr, sds *error) {
-    bool rc = playlist_sort(partition_state, playlist, tagstr, error);
+bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr, bool sortdesc, sds *error) {
+    bool rc = playlist_sort(partition_state, playlist, tagstr, sortdesc, error);
     enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
     return rc;
 }
@@ -392,10 +393,11 @@ bool mpd_client_get_all_playlists(struct t_partition_state *partition_state, str
  * @param partition_state pointer to partition specific states
  * @param playlist playlist to shuffle
  * @param tagstr mpd tag to sort by
+ * @param sortdesc sort descending?
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success else false
  */
-static bool playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr, sds *error) {
+static bool playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr, bool sortdesc, sds *error) {
     struct t_tags sort_tags = {
         .tags_len = 1,
         .tags[0] = mpd_tag_name_parse(tagstr)
@@ -457,12 +459,17 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     unsigned i = 0;
     raxIterator iter;
     raxStart(&iter, plist);
-    raxSeek(&iter, "^", NULL, 0);
+    if (sortdesc == false) {
+        raxSeek(&iter, "^", NULL, 0);
+    }
+    else {
+        raxSeek(&iter, "$", NULL, 0);
+    }
     rc = true;
     while (i < plist->numele) {
         if (mpd_command_list_begin(partition_state->conn, false)) {
             long j = 0;
-            while (raxNext(&iter)) {
+            while (sortdesc == false ? raxNext(&iter) : raxPrev(&iter)) {
                 i++;
                 j++;
                 if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, iter.data) == false) {

@@ -45,7 +45,7 @@ function initViewPlaylists() {
     elGetById('BrowsePlaylistDetailSortTagsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
-            currentPlaylistSort(getData(event.target, 'tag'));
+            currentPlaylistSort(getData(event.target, 'tag'), getBtnChkValueId('BrowsePlaylistDetailSortDesc'));
         }
     }, false);
 
@@ -236,14 +236,16 @@ function currentPlaylistValidateDedup(remove) {
 /**
  * Sorts the playlist by tag
  * @param {string} tag sort tag
+ * @param {boolean} sortdesc sort descending
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function currentPlaylistSort(tag) {
+function currentPlaylistSort(tag, sortdesc) {
     setUpdateViewId('BrowsePlaylistDetailList');
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SORT", {
         "plist": getDataId('BrowsePlaylistDetailList', 'uri'),
-        "tag": tag
+        "tag": tag,
+        "sortdesc": sortdesc
     }, null, false);
 }
 

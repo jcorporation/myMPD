@@ -12,9 +12,9 @@
 #include <stdbool.h>
 
 bool smartpls_save_sticker(sds workdir, const char *playlist, const char *sticker,
-    int max_entries, int min_value, const char *sort);
-bool smartpls_save_newest(sds workdir, const char *playlist, int timerange, const char *sort);
-bool smartpls_save_search(sds workdir, const char *playlist, const char *expression, const char *sort);
+    int max_entries, int min_value, const char *sort, bool sortdesc);
+bool smartpls_save_newest(sds workdir, const char *playlist, int timerange, const char *sort, bool sortdesc);
+bool smartpls_save_search(sds workdir, const char *playlist, const char *expression, const char *sort, bool sortdesc);
 
 bool smartpls_update(const char *playlist);
 bool smartpls_update_all(void);

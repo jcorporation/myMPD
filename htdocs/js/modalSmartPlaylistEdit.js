@@ -27,6 +27,8 @@ function parseSmartPlaylist(obj) {
     elGetById('modalSmartPlaylistEditTypeInput').value = tn(obj.result.type);
     elGetById('modalSmartPlaylistEditSortInput').value = obj.result.sort;
     setDataId('modalSmartPlaylistEditTypeInput', 'value', obj.result.type);
+    toggleBtnChkId('modalSmartPlaylistEditSortdescInput', obj.result.sortdesc);
+
     elHideId('modalSmartPlaylistEditTypeSearch');
     elHideId('modalSmartPlaylistEditTypeSticker');
     elHideId('modalSmartPlaylistEditTypeNewest');
@@ -66,13 +68,15 @@ function saveSmartPlaylist(target) {
     const name = elGetById('modalSmartPlaylistEditPlistInput').value;
     const type = getDataId('modalSmartPlaylistEditTypeInput', 'value');
     const sort = getSelectValueId('modalSmartPlaylistEditSortInput');
+    const sortdesc = getBtnChkValueId('modalSmartPlaylistEditSortdescInput');
 
     switch(type) {
         case 'search':
             sendAPI("MYMPD_API_SMARTPLS_SEARCH_SAVE", {
                 "plist": name,
                 "expression": elGetById('modalSmartPlaylistEditExpressionInput').value,
-                "sort": sort
+                "sort": sort,
+                "sortdesc": sortdesc
             }, modalClose, true);
             break;
         case 'sticker': {
@@ -81,7 +85,8 @@ function saveSmartPlaylist(target) {
                 "sticker": getSelectValueId('modalSmartPlaylistEditStickerInput'),
                 "maxentries": Number(elGetById('modalSmartPlaylistEditMaxentriesInput').value),
                 "minvalue": Number(elGetById('modalSmartPlaylistEditMinvalueInput').value),
-                "sort": sort
+                "sort": sort,
+                "sortdesc": sortdesc
             }, modalClose, true);
             break;
         }
@@ -90,7 +95,8 @@ function saveSmartPlaylist(target) {
             sendAPI("MYMPD_API_SMARTPLS_NEWEST_SAVE", {
                 "plist": name,
                 "timerange": Number(timerange) * 60 * 60 * 24,
-                "sort": sort
+                "sort": sort,
+                "sortdesc": sortdesc
             }, modalClose, true);
             break;
         }
@@ -107,8 +113,11 @@ function saveSmartPlaylist(target) {
  */
 //eslint-disable-next-line no-unused-vars
 function addSmartpls(type) {
-    const obj = {"jsonrpc": "2.0", "id": 0, "result": {"method": "MYMPD_API_SMARTPLS_GET"}};
-    obj.result.sort = '';
+    const obj = {"jsonrpc": "2.0", "id": 0, "result": {
+        "method": "MYMPD_API_SMARTPLS_GET",
+        "sort": "",
+        "sortdesc": false
+    }};
     switch(type) {
         case 'mostPlayed':
             obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'mostPlayed';

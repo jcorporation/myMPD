@@ -81,11 +81,14 @@ sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char 
         if (rc == true) {
             FREE_SDS(sds_buf1);
             if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
-                buffer = tojson_sds(buffer, "sort", sds_buf1, false);
+                buffer = tojson_sds(buffer, "sort", sds_buf1, true);
             }
             else {
-                buffer = tojson_char_len(buffer, "sort", "", 0, false);
+                buffer = tojson_char_len(buffer, "sort", "", 0, true);
             }
+            bool bool_buf = false;
+            json_get_bool(content, "$.sortdesc", &bool_buf, NULL);
+            buffer = tojson_bool(buffer, "sortdesc", bool_buf, false);
             buffer = jsonrpc_end(buffer);
         }
         else {

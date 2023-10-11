@@ -307,7 +307,14 @@ rax *stickerdb_find_stickers_by_name(struct t_partition_state *partition_state, 
     return stickers;
 }
 
+/**
+ * Frees the sticker find result
+ * @param stickers pointer to stickers rax tree
+ */
 void stickerdb_free_find_result(rax *stickers) {
+    if (stickers == NULL) {
+        return;
+    }
     raxIterator iter;
     raxStart(&iter, stickers);
     raxSeek(&iter, "^", NULL, 0);

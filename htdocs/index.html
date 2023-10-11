@@ -541,6 +541,13 @@
                 <div class="dropdown-menu px-2">
                   <h2 class="dropdown-header" data-phrase="Sort playlist"></h2>
                   <div id="BrowsePlaylistDetailSortTagsDropdown"></div>
+                  <div class="dropdown-divider"></div>
+                  <form>
+                    <div class="form-check">
+                      <button class="btn btn-secondary btn-xs mi mi-sm" id="BrowsePlaylistDetailSortDesc" data-href='{"cmd": "toggleBtnChk", "options": ["target"]}'>radio_button_unchecked</button>&nbsp;
+                      <label class="form-check-label" for="BrowsePlaylistDetailSortDesc" data-phrase="Descending"></label>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
@@ -1369,6 +1376,12 @@
             <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditSortInput" data-phrase="Order"></label>
             <div class="col-sm-8">
               <select id="modalSmartPlaylistEditSortInput" class="form-select"></select>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditSortdescInput" data-phrase="Descending"></label>
+            <div class="col-sm-8">
+              <button class="btn btn-secondary btn-xs mi mi-sm" id="modalSmartPlaylistEditSortdescInput" data-href='{"cmd": "toggleBtnChk", "options": ["target"]}'>radio_button_unchecked</button>
             </div>
           </div>
           <hr/>

@@ -33,7 +33,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
 static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist);
 static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state,
-        const char *playlist, const char *expression);
+        const char *playlist, const char *expression, const char *sort, bool sortdesc);
 static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, const char *sticker, int maxentries, int minvalue);
 static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state,
@@ -119,14 +119,25 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     sds smartpltype = NULL;
     bool rc = true;
     sds sds_buf1 = NULL;
+    sds sort = NULL;
+    bool sortdesc = false;
     int int_buf1;
     int int_buf2;
 
+    // first get the type
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
         MYMPD_LOG_ERROR(NULL, "Cant read smart playlist type from \"%s\"", filename);
         FREE_SDS(filename);
         return false;
     }
+
+    // get sort options
+    if (json_get_string(content, "$.sort", 0, 100, &sort, vcb_ismpdsort, NULL) == true &&
+        strcmp(sort, "shuffle") != 0)
+    {
+        json_get_bool(content, "$.sortdesc", &sortdesc, NULL);
+    }
+
     if (strcmp(smartpltype, "sticker") == 0 &&
         mpd_worker_state->mpd_state->feat_stickers == true)
     {
@@ -158,7 +169,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     }
     else if (strcmp(smartpltype, "search") == 0) {
         if (json_get_string(content, "$.expression", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
-            rc = mpd_worker_smartpls_update_search(mpd_worker_state, playlist, sds_buf1);
+            rc = mpd_worker_smartpls_update_search(mpd_worker_state, playlist, sds_buf1, sort, sortdesc);
             if (rc == false) {
                 MYMPD_LOG_ERROR(NULL, "Update of smart playlist \"%s\" (search) failed", playlist);
             }
@@ -169,22 +180,19 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         }
     }
     if (rc == true) {
-        FREE_SDS(sds_buf1);
-        if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
-            if (sdslen(sds_buf1) > 0) {
-                if (strcmp(sds_buf1, "shuffle") == 0) {
-                    rc = mpd_client_playlist_shuffle(mpd_worker_state->partition_state, playlist, NULL);
-                }
-                else {
-                    rc = mpd_client_playlist_sort(mpd_worker_state->partition_state, playlist, sds_buf1, NULL);
-                }
-            }
+        if (strcmp(sort, "shuffle") == 0) {
+            rc = mpd_client_playlist_shuffle(mpd_worker_state->partition_state, playlist, NULL);
+        }
+        else if (strcmp(smartpltype, "search") != 0) {
+            // search smart playlists already sorted
+            rc = mpd_client_playlist_sort(mpd_worker_state->partition_state, playlist, sort, sortdesc, NULL);
         }
     }
     FREE_SDS(smartpltype);
     FREE_SDS(sds_buf1);
     FREE_SDS(content);
     FREE_SDS(filename);
+    FREE_SDS(sort);
     return rc;
 }
 
@@ -234,7 +242,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
                 sds expression = sdsnewlen("(", 1);
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscatlen(expression, ")", 1);
-                bool rc = smartpls_save_search(mpd_worker_state->config->workdir, playlist, expression, mpd_worker_state->smartpls_sort);
+                bool rc = smartpls_save_search(mpd_worker_state->config->workdir, playlist, expression, mpd_worker_state->smartpls_sort, false);
                 FREE_SDS(expression);
                 if (rc == true) {
                     MYMPD_LOG_INFO(NULL, "Created smart playlist \"%s\"", playlist);
@@ -293,17 +301,17 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
  * @param playlist playlist to delete
  * @param expression mpd search expression
+ * @param sort sort by tag
+ * @param sortdesc sort descending?
  * @return true on success, else false
  */
 static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state,
-        const char *playlist, const char *expression)
+        const char *playlist, const char *expression, const char *sort, bool sortdesc)
 {
     if (mpd_worker_smartpls_delete(mpd_worker_state, playlist) == false) {
         return false;
     }
     sds error = sdsempty();
-    const char *sort = NULL;
-    bool sortdesc = false;
     bool rc = mpd_client_search_add_to_plist(mpd_worker_state->partition_state,
         expression, playlist, UINT_MAX, sort, sortdesc, &error);
     if (rc == true) {

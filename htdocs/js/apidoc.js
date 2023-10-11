@@ -792,7 +792,8 @@ const APImethods = {
                 "type": APItypes.string,
                 "example": "Artist",
                 "desc": "Tag to sort"
-            }
+            },
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_DEDUP": {
@@ -885,7 +886,8 @@ const APImethods = {
                 "example": 604800,
                 "desc": "timerange in seconds"
             },
-            "sort": APIparams.sortShuffle
+            "sort": APIparams.sortShuffle,
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_SMARTPLS_STICKER_SAVE": {
@@ -907,7 +909,8 @@ const APImethods = {
                 "example": 2,
                 "desc": "minimum integer value"
             },
-            "sort": APIparams.sortShuffle
+            "sort": APIparams.sortShuffle,
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_SMARTPLS_SEARCH_SAVE": {
@@ -915,7 +918,8 @@ const APImethods = {
         "params": {
             "plist": APIparams.plist,
             "expression": APIparams.expression,
-            "sort": APIparams.sortShuffle
+            "sort": APIparams.sortShuffle,
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_SMARTPLS_GET": {

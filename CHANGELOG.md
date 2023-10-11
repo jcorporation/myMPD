@@ -26,6 +26,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Feat: Add exclude and include filter expression for jukebox mode #1098
 - Feat: Add min. duration option for jukebox mode #1098
 - Feat: Respect search order for searches added to queue or playlist #1078
+- Feat: add support for descending sort for smart playlists and playlists
 - Upd: Use more standard cmake build types #1119
 - Upd: rework timer implementation
 - Upd: Remove default smart playlist generation tag

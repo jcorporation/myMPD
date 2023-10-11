@@ -20,7 +20,7 @@
 //privat definitions
 static bool smartpls_save(sds workdir, const char *smartpltype,
         const char *playlist, const char *expression, int max_entries,
-        int timerange, const char *sort);
+        int timerange, const char *sort, bool sortdesc);
 
 //public functions
 
@@ -32,12 +32,13 @@ static bool smartpls_save(sds workdir, const char *smartpltype,
  * @param max_entries maximum number of playlist entries
  * @param min_value minimum integer value of sticker
  * @param sort tag to sort the playlist: empty = no sorting, shuffle or mpd tag
+ * @param sortdesc sort descending?
  * @return true on success else false
  */
 bool smartpls_save_sticker(sds workdir, const char *playlist, const char *sticker,
-    int max_entries, int min_value, const char *sort)
+    int max_entries, int min_value, const char *sort, bool sortdesc)
 {
-    return smartpls_save(workdir, "sticker", playlist, sticker, max_entries, min_value, sort);
+    return smartpls_save(workdir, "sticker", playlist, sticker, max_entries, min_value, sort, sortdesc);
 }
 
 /**
@@ -46,10 +47,11 @@ bool smartpls_save_sticker(sds workdir, const char *playlist, const char *sticke
  * @param playlist playlist name
  * @param timerange number of second since now
  * @param sort tag to sort the playlist: empty = no sorting, shuffle or mpd tag
+ * @param sortdesc sort descending?
  * @return true on success else false
  */
-bool smartpls_save_newest(sds workdir, const char *playlist, int timerange, const char *sort) {
-    return smartpls_save(workdir, "newest", playlist, NULL, 0, timerange, sort);
+bool smartpls_save_newest(sds workdir, const char *playlist, int timerange, const char *sort, bool sortdesc) {
+    return smartpls_save(workdir, "newest", playlist, NULL, 0, timerange, sort, sortdesc);
 }
 
 /**
@@ -58,10 +60,11 @@ bool smartpls_save_newest(sds workdir, const char *playlist, int timerange, cons
  * @param playlist playlist name
  * @param expression mpd search expression
  * @param sort tag to sort the playlist: empty = no sorting, shuffle or mpd tag
+ * @param sortdesc sort descending?
  * @return true on success else false
  */
-bool smartpls_save_search(sds workdir, const char *playlist, const char *expression, const char *sort) {
-    return smartpls_save(workdir, "search", playlist, expression, 0, 0, sort);
+bool smartpls_save_search(sds workdir, const char *playlist, const char *expression, const char *sort, bool sortdesc) {
+    return smartpls_save(workdir, "search", playlist, expression, 0, 0, sort, sortdesc);
 }
 
 /**
@@ -105,16 +108,16 @@ bool smartpls_default(sds workdir) {
 
     bool rc = true;
     sds playlist = sdscatfmt(sdsempty(), "%S-bestRated", prefix);
-    rc = smartpls_save_sticker(workdir, playlist, "like", 200, 2, "");
+    rc = smartpls_save_sticker(workdir, playlist, "like", 200, 2, "", false);
     if (rc == true) {
         sdsclear(playlist);
         playlist = sdscatfmt(playlist, "%S-mostPlayed", prefix);
-        rc = smartpls_save_sticker(workdir, playlist, "playCount", 200, 1, "");
+        rc = smartpls_save_sticker(workdir, playlist, "playCount", 200, 1, "", false);
     }
     if (rc == true) {
         sdsclear(playlist);
         playlist = sdscatfmt(playlist, "%S-newestSongs", prefix);
-        rc = smartpls_save_newest(workdir, playlist, 604800, "");
+        rc = smartpls_save_newest(workdir, playlist, 604800, "", false);
     }
     FREE_SDS(playlist);
     FREE_SDS(prefix);
@@ -154,11 +157,11 @@ bool smartpls_update_all(void) {
  * @param max_entries max entries for the playlist
  * @param timerange timerange for newest smart playlist type
  * @param sort mpd tag to sort or shuffle
+ * @param sortdesc sort descending?
  * @return true on success else false
  */
 static bool smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
-                              const char *expression, int max_entries,
-                              int timerange, const char *sort)
+        const char *expression, int max_entries, int timerange, const char *sort, bool sortdesc)
 {
     sds line = sdscatlen(sdsempty(), "{", 1);
     line = tojson_char(line, "type", smartpltype, true);
@@ -173,7 +176,8 @@ static bool smartpls_save(sds workdir, const char *smartpltype, const char *play
     else if (strcmp(smartpltype, "search") == 0) {
         line = tojson_char(line, "expression", expression, true);
     }
-    line = tojson_char(line, "sort", sort, false);
+    line = tojson_char(line, "sort", sort, true);
+    line = tojson_bool(line, "sortdesc", sortdesc, false);
     line = sdscatlen(line, "}", 1);
 
     sds pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);

@@ -1318,25 +1318,28 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     json_get_string(request->data, "$.params.sticker", 1, NAME_LEN_MAX, &sds_buf2, vcb_isalnum, &parse_error) == true &&
                     json_get_int(request->data, "$.params.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &parse_error) == true &&
                     json_get_int(request->data, "$.params.minvalue", 0, 100, &int_buf2, &parse_error) == true &&
-                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &parse_error) == true)
+                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &parse_error) == true &&
+                    json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true)
                 {
-                    rc = smartpls_save_sticker(config->workdir, sds_buf1, sds_buf2, int_buf1, int_buf2, sds_buf3);
+                    rc = smartpls_save_sticker(config->workdir, sds_buf1, sds_buf2, int_buf1, int_buf2, sds_buf3, bool_buf1);
                 }
             }
             else if (request->cmd_id == MYMPD_API_SMARTPLS_NEWEST_SAVE) {
                 if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                     json_get_int(request->data, "$.params.timerange", 0, JSONRPC_INT_MAX, &int_buf1, &parse_error) == true &&
-                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf2, vcb_ismpdsort, &parse_error) == true)
+                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf2, vcb_ismpdsort, &parse_error) == true &&
+                    json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true)
                 {
-                    rc = smartpls_save_newest(config->workdir, sds_buf1, int_buf1, sds_buf2);
+                    rc = smartpls_save_newest(config->workdir, sds_buf1, int_buf1, sds_buf2, bool_buf1);
                 }
             }
             else if (request->cmd_id == MYMPD_API_SMARTPLS_SEARCH_SAVE) {
                 if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                     json_get_string(request->data, "$.params.expression", 1, EXPRESSION_LEN_MAX, &sds_buf2, vcb_issearchexpression, &parse_error) == true &&
-                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &parse_error) == true)
+                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &parse_error) == true &&
+                    json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true)
                 {
-                    rc = smartpls_save_search(config->workdir, sds_buf1, sds_buf2, sds_buf3);
+                    rc = smartpls_save_search(config->workdir, sds_buf1, sds_buf2, sds_buf3, bool_buf1);
                 }
             }
             if (parse_error.message == NULL) {
