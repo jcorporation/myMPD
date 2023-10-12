@@ -30,7 +30,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Upd: Use more standard cmake build types #1119
 - Upd: rework timer implementation
 - Upd: some websocket connection improvements
-- Update to Mongoose 7.12 #1132
+- Upd: Mongoose 7.12 #1132
 
 ***
 
