@@ -29,7 +29,6 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Feat: add support for descending sort for smart playlists and playlists
 - Upd: Use more standard cmake build types #1119
 - Upd: rework timer implementation
-- Upd: Remove default smart playlist generation tag
 - Upd: some websocket connection improvements
 - Update to Mongoose 7.12 #1132
 
