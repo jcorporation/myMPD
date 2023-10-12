@@ -1093,5 +1093,8 @@
     "Show neighbors": "이웃 보기",
     "Open playback settings": "연주 설정 열기",
     "helpScriptArguments": "helpScriptArguments",
-    "helpTimerPreset": "helpTimerPreset"
+    "helpTimerPreset": "helpTimerPreset",
+    "Path": "경로",
+    "helpSettingsRadiobrowserStationclicks": "helpSettingsRadiobrowserStationclicks",
+    "Submit station clicks to radiobrowser.info": "Submit station clicks to radiobrowser.info"
 }
