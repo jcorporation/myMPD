@@ -21,6 +21,7 @@
 #include "src/mpd_client/tags.h"
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include <string.h>
 
 /**
@@ -45,16 +46,22 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE);
     time_t album_cache_mtime = get_mtime(filepath);
     MYMPD_LOG_DEBUG("default", "Album cache mtime: %lld", (long long)album_cache_mtime);
-    sdsclear(filepath);
-    filepath = sdscatfmt(filepath, "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
-    time_t sticker_cache_mtime = get_mtime(filepath);
-    MYMPD_LOG_DEBUG("default", "Sticker cache mtime: %lld", (long long)sticker_cache_mtime);
+    bool run_update = db_mtime > album_cache_mtime
+        ? true
+        : force;
+
+    if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
+        sdsclear(filepath);
+        filepath = sdscatfmt(filepath, "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
+        time_t sticker_cache_mtime = get_mtime(filepath);
+        MYMPD_LOG_DEBUG("default", "Sticker cache mtime: %lld", (long long)sticker_cache_mtime);
+        if (db_mtime > sticker_cache_mtime) {
+            run_update = true;
+        }
+    }
     FREE_SDS(filepath);
 
-    if (force == false &&
-        db_mtime < album_cache_mtime &&
-        db_mtime < sticker_cache_mtime)
-    {
+    if (run_update == false) {
         MYMPD_LOG_INFO("default", "Caches are up-to-date");
         send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Caches are up-to-date");
         if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {

@@ -18,6 +18,7 @@ This version ships a few improvements and bug fixes.
 - Fix: Zoom coverimages
 - Fix: double free if trigger was not found
 - Fix: Increase LINE_LENGTH_MAX to 8192 #1129
+- Fix: do not update album cache every time if stickers are disabled
 
 ***
 
