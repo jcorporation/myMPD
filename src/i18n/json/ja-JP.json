@@ -1089,5 +1089,8 @@
     "Show neighbors": "隣接端末を表示",
     "Open playback settings": "再生設定を開く",
     "helpScriptArguments": "スクリプト内の'arguments' luaテーブルからアクセスできるスクリプトの引数名。",
-    "helpTimerPreset": "プリセットは再生設定で管理できます。"
+    "helpTimerPreset": "プリセットは再生設定で管理できます。",
+    "Path": "パス",
+    "helpSettingsRadiobrowserStationclicks": "プライバシーを強化するにはこれを無効にしてください。",
+    "Submit station clicks to radiobrowser.info": "ステーションのクリックをradiobrowser.infoに送信する"
 }

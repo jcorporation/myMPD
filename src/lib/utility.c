@@ -185,7 +185,7 @@ sds replace_file_extension(sds filename, const char *ext) {
 static const char *invalid_filename_chars = "<>/.:?&$!#=;\a\b\f\n\r\t\v\\|";
 
 /**
- * Replaces invalid filename characters with "_"
+ * Replaces invalid and uncommon filename characters with "_"
  * @param filename sds string to sanitize
  */
 void sanitize_filename(sds filename) {
@@ -193,6 +193,24 @@ void sanitize_filename(sds filename) {
     for (size_t i = 0; i < len; i++) {
         for (size_t j = 0; j < sdslen(filename); j++) {
             if (filename[j] == invalid_filename_chars[i]) {
+                filename[j] = '_';
+            }
+        }
+    }
+}
+
+static const char *invalid_filename_chars2 = "\a\b\f\n\r\t\v/\\";
+
+/**
+ * Replaces invalid filename characters with "_",
+ * same chars as vcb_isfilename
+ * @param filename sds string to sanitize
+ */
+void sanitize_filename2(sds filename) {
+    const size_t len = strlen(invalid_filename_chars2);
+    for (size_t i = 0; i < len; i++) {
+        for (size_t j = 0; j < sdslen(filename); j++) {
+            if (filename[j] == invalid_filename_chars2[i]) {
                 filename[j] = '_';
             }
         }

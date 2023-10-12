@@ -45,8 +45,12 @@ This version ships a few improvements and bug fixes.
 - Feat: Song search support for special tag 'base'
 - Feat: Disable click count submition to radiobrowser.info #1124
 - Fix: Restore maximum binary size to 5 MB #1125
+- Upd: remove default smart playlist generation tag #1131
 - Fix: Zoom coverimages
 - Fix: double free if trigger was not found
+- Fix: Increase LINE_LENGTH_MAX to 8192 #1129
+- Fix: Do not update album cache every time if stickers are disabled
+- Fix: handle tag values with special characters for tagart #1130
 
 ***
 

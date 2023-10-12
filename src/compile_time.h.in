@@ -336,7 +336,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define FILEPATH_LEN_MAX 1000
 
 //file size limits
-#define LINE_LENGTH_MAX 4000
+#define LINE_LENGTH_MAX 8192 // 8 kb
 #define LYRICS_SIZE_MAX 10000 //bytes
 #define SCRIPTS_SIZE_MAX 10000 //bytes
 #define SMARTPLS_SIZE_MAX 2000 //bytes

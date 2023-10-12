@@ -22,6 +22,7 @@ void strip_file_extension(sds filename);
 sds replace_file_extension(sds filename, const char *ext);
 void strip_slash(sds dirname);
 void sanitize_filename(sds filename);
+void sanitize_filename2(sds filename);
 
 void my_msleep(long msec);
 

@@ -1089,5 +1089,7 @@
     "Open playback settings": "Apre impostazioni di riproduzione",
     "helpScriptArguments": "Nomi per gli argomenti dello script, accessibili attraverso la Lua table 'arguments' all'interno dello script.",
     "helpTimerPreset": "I valori preimpostati sono gestiti nelle impostazioni della riproduzione.",
-    "Path": "Percorso"
+    "Path": "Percorso",
+    "helpSettingsRadiobrowserStationclicks": "Disabilitare per una maggiore privacy.",
+    "Submit station clicks to radiobrowser.info": "Invia click sulla stazione a radiobrowser.info"
 }

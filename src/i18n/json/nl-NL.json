@@ -1021,7 +1021,7 @@
     "History back": "Terug",
     "Home icon": "Home icon",
     "Hours ago": "uren geleden",
-    "Song was played last": "Het lied werd laatst gespeeld",
+    "Song was played last": "Lied werd laatst gespeeld",
     "ListenBrainz Token": "ListenBrainz Token",
     "Navigation bar": "Navigatiebar",
     "Web notifications are blocked by the browser": "Meldingen zijn verboden door de browser",
@@ -1089,5 +1089,8 @@
     "Show neighbors": "Neighbors tonen",
     "Open playback settings": "Openen: Afspeelinstellingen",
     "helpScriptArguments": "Namen voor de scriptargumenten, deze zijn beschikbaar via de Lua-tabel 'arguments' in het script.",
-    "helpTimerPreset": "Presets worden beheerd in de afspeelinstellingen."
+    "helpTimerPreset": "Presets worden beheerd in de afspeelinstellingen.",
+    "Path": "Pad",
+    "helpSettingsRadiobrowserStationclicks": "Uitschakelen voor betere privacy.",
+    "Submit station clicks to radiobrowser.info": "Station clicks doorsturen naar radiobrowser.info"
 }
