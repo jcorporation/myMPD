@@ -16,6 +16,7 @@ This version ships a few improvements and bug fixes.
 - Fix: Restore maximum binary size to 5 MB #1125
 - Fix: Zoom coverimages
 - Fix: double free if trigger was not found
+- Fix: Increase LINE_LENGTH_MAX to 8192 #1129
 
 ***
 
