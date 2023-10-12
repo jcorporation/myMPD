@@ -13,9 +13,9 @@ target_sources(mongoose
 
 target_compile_options(mongoose
   PRIVATE
-    "-DMG_ENABLE_DIRECTORY_LISTING=1"
+    "-DMG_ENABLE_DIRLIST=1"
     "-DMG_ENABLE_SSI=0"
-    "-DMG_ENABLE_OPENSSL=1"
+    "-DMG_TLS=MG_TLS_OPENSSL"
 )
 
 if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
