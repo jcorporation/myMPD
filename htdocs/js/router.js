@@ -199,14 +199,14 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         if (jsonHash === null) {
             appPrepare();
-            let initialStartupView = settings.webuiSettings.startupView;
-            if (initialStartupView === undefined ||
-                initialStartupView === null)
-            {
-                initialStartupView = features.featHome === true
+            const initialStartupView = settings.webuiSettings.startupView === undefined || settings.webuiSettings.startupView === null
+                ? features.featHome === true
                     ? 'Home'
-                    : 'Playback';
-            }
+                    : 'Playback'
+                : features.featHome === false && settings.webuiSettings.startupView === 'Home'
+                    ? 'Playback'
+                    : settings.webuiSettings.startupView;
+            settings.webuiSettings.startupView = initialStartupView;
             const path = initialStartupView.split('/');
             // @ts-ignore
             appGoto(...path);
