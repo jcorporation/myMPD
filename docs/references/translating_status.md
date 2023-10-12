@@ -3,11 +3,11 @@
 - es-ES: 798 missing phrases
 - es-VE: 801 missing phrases
 - fi-FI: 798 missing phrases
-- fr-FR: 3 missing phrases
-- it-IT: 2 missing phrases
-- ja-JP: 3 missing phrases
-- ko-KR: 3 missing phrases
-- nl-NL: 3 missing phrases
+- fr-FR: fully translated
+- it-IT: fully translated
+- ja-JP: fully translated
+- ko-KR: fully translated
+- nl-NL: fully translated
 - pl-PL: 973 missing phrases
 - ru-RU: 3 missing phrases
 - zh-Hans: 3 missing phrases
