@@ -124,7 +124,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         //If uri is https://, tell client connection to use TLS
         if (mg_url_is_ssl(mg_client_request->uri)) {
             struct mg_tls_opts tls_opts = {
-                .srvname = host
+                .name = host
             };
             mg_tls_init(nc, &tls_opts);
         }

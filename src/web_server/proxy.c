@@ -90,7 +90,7 @@ void send_backend_request(struct mg_connection *nc, void *fn_data) {
     MYMPD_LOG_INFO(NULL, "Backend connection \"%lu\" established, host \"%.*s\"", nc->id, (int)host.len, host.ptr);
     if (mg_url_is_ssl(backend_nc_data->uri)) {
         struct mg_tls_opts tls_opts = {
-            .srvname = host
+            .name = host
         };
         mg_tls_init(nc, &tls_opts);
     }

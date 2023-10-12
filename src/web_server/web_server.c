@@ -483,8 +483,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (config->ssl == true) {
                 MYMPD_LOG_DEBUG(NULL, "Init tls with cert \"%s\" and key \"%s\" for connection \"%lu\"", config->ssl_cert, config->ssl_key, nc->id);
                 struct mg_tls_opts tls_opts = {
-                    .cert = config->ssl_cert,
-                    .certkey = config->ssl_key
+                    .cert = mg_str(config->ssl_cert),
+                    .key = mg_str(config->ssl_key)
                 };
                 mg_tls_init(nc, &tls_opts);
             }

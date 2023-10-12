@@ -30,6 +30,7 @@ if(MYMPD_ENABLE_IPV6)
   target_compile_options(mongoose
     PUBLIC
       "-DMG_ENABLE_IPV6=1"
+      "-DMG_IPV6_V6ONLY=0"
   )
 else()
   message("Mongoose: IPv6 is disabled")
