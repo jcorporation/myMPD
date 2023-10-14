@@ -77,11 +77,6 @@ struct t_mympd_queue *mympd_script_queue;
  * @param sig_num the signal to handle
  */
 static void mympd_signal_handler(int sig_num) {
-    // Reinstantiate signal handler
-    if (signal(sig_num, mympd_signal_handler) == SIG_ERR) {
-        MYMPD_LOG_ERROR(NULL, "Could not set signal handler for %d", sig_num);
-    }
-
     switch(sig_num) {
         case SIGTERM:
         case SIGINT: {
@@ -105,6 +100,22 @@ static void mympd_signal_handler(int sig_num) {
             //Other signals are not handled
         }
     }
+}
+
+/**
+ * Sets the mympd_signal_handler for the given signal
+ * @param sig_num signal to handle
+ * @return true on success, else false
+ */
+static bool set_signal_handler(int sig_num) {
+    struct sigaction sa;
+    sa.sa_handler = mympd_signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART; // Restart functions if interrupted by handler
+    if (sigaction(sig_num, &sa, NULL) == -1) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -487,26 +498,19 @@ int main(int argc, char **argv) {
     #endif
 
     //set signal handler
-    if (signal(SIGTERM, mympd_signal_handler) == SIG_ERR) {
-        MYMPD_LOG_EMERG(NULL, "Could not set signal handler for SIGTERM");
-        goto cleanup;
-    }
-    if (signal(SIGINT, mympd_signal_handler) == SIG_ERR) {
-        MYMPD_LOG_EMERG(NULL, "Could not set signal handler for SIGINT");
-        goto cleanup;
-    }
-    if (signal(SIGHUP, mympd_signal_handler) == SIG_ERR) {
-        MYMPD_LOG_EMERG(NULL, "Could not set signal handler for SIGHUP");
+    if (set_signal_handler(SIGTERM) == false ||
+        set_signal_handler(SIGINT) == false ||
+        set_signal_handler(SIGHUP) == false)
+    {
+        MYMPD_LOG_EMERG(NULL, "Could not set signal handler for SIGTERM, SIGINT and SIGUP");
         goto cleanup;
     }
 
     //set output buffers
-    if (setvbuf(stdout, NULL, _IOLBF, 0) != 0) {
-        MYMPD_LOG_EMERG(NULL, "Could not set stdout buffer");
-        goto cleanup;
-    }
-    if (setvbuf(stderr, NULL, _IOLBF, 0) != 0) {
-        MYMPD_LOG_EMERG(NULL, "Could not set stderr buffer");
+    if (setvbuf(stdout, NULL, _IOLBF, 0) != 0 ||
+        setvbuf(stderr, NULL, _IOLBF, 0) != 0)
+    {
+        MYMPD_LOG_EMERG(NULL, "Could not set stdout and stderr buffer");
         goto cleanup;
     }
 

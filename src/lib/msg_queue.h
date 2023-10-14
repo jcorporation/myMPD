@@ -34,7 +34,7 @@ struct t_mympd_queue {
     struct t_mympd_msg *head;     //!< pointer to first message
     struct t_mympd_msg *tail;     //!< pointer to last message
     pthread_mutex_t mutex;        //!< the mutex
-    pthread_cond_t wakeup;        //!< condition varibale for the mutex
+    pthread_cond_t wakeup;        //!< condition variable for the mutex
     const char *name;             //!< descriptive name
     enum mympd_queue_types type;  //!< the queue type (request or response)
 };
