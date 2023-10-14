@@ -341,6 +341,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define SCRIPTS_SIZE_MAX 10000 //bytes
 #define SMARTPLS_SIZE_MAX 2000 //bytes
 #define WEBRADIODB_SIZE_MAX 1048576 //bytes, 1 MB
+#define SSL_FILE_MAX 8192 // 8 kb
 
 //limits for stickers
 #define STICKER_PLAY_COUNT_MAX INT_MAX / 2

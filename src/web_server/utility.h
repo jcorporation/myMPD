@@ -36,6 +36,10 @@ struct t_mg_user_data {
     sds custom_na_image;         //!< name of custom not available image
     sds custom_stream_image;     //!< name of custom stream image
     bool mympd_api_started;      //!< true if the mympd_api thread is ready, else false
+    sds cert_content;            //!< the server certificate
+    sds key_content;             //!< the server key
+    struct mg_str cert;          //!< pointer to ssl cert_content
+    struct mg_str key;           //!< pointer to ssl key_content
 };
 
 /**

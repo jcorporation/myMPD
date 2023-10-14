@@ -8,6 +8,7 @@
 #include "src/web_server/web_server.h"
 
 #include "src/lib/api.h"
+#include "src/lib/filehandler.h"
 #include "src/lib/http_client.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
@@ -71,6 +72,10 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     list_init(&mg_user_data->stream_uris);
     list_init(&mg_user_data->session_list);
     mg_user_data->mympd_api_started = false;
+    mg_user_data->cert_content = sdsempty();
+    mg_user_data->cert = mg_str("");
+    mg_user_data->key_content = sdsempty();
+    mg_user_data->key = mg_str("");
 
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -108,11 +113,20 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
             return false;
         }
         MYMPD_LOG_NOTICE(NULL, "Listening on https://%s:%d", config->http_host, config->ssl_port);
+        //read key and cert
+        if (sds_getfile(&mg_user_data->cert_content, config->ssl_cert, SSL_FILE_MAX, false, true) <= 0 ||
+            sds_getfile(&mg_user_data->key_content, config->ssl_key, SSL_FILE_MAX, false, true) <= 0)
+        {
+            MYMPD_LOG_ERROR(NULL, "Failure reading ssl key and cert from disc");
+            return false;
+        }
     }
     else if (config->http == false) {
         MYMPD_LOG_ERROR(NULL, "Not listening on any port.");
         return false;
     }
+    mg_user_data->cert = mg_str(mg_user_data->cert_content);
+    mg_user_data->key = mg_str(mg_user_data->key_content);
     MYMPD_LOG_NOTICE(NULL, "Serving files from \"%s\"", MYMPD_DOC_ROOT);
     return true;
 }
@@ -483,8 +497,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (config->ssl == true) {
                 MYMPD_LOG_DEBUG(NULL, "Init tls with cert \"%s\" and key \"%s\" for connection \"%lu\"", config->ssl_cert, config->ssl_key, nc->id);
                 struct mg_tls_opts tls_opts = {
-                    .cert = mg_str(config->ssl_cert),
-                    .key = mg_str(config->ssl_key)
+                    .cert = mg_user_data->cert,
+                    .key = mg_user_data->key
                 };
                 mg_tls_init(nc, &tls_opts);
             }

@@ -104,6 +104,8 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->custom_mympd_image);
     FREE_SDS(mg_user_data->custom_na_image);
     FREE_SDS(mg_user_data->custom_stream_image);
+    FREE_SDS(mg_user_data->cert_content);
+    FREE_SDS(mg_user_data->key_content);
     FREE_PTR(mg_user_data);
     return NULL;
 }
