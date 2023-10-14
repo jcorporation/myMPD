@@ -460,9 +460,7 @@ int main(int argc, char **argv) {
     #endif
 
     //set loglevel
-    #ifdef MYMPD_DEBUG
-        set_loglevel(LOG_DEBUG);
-    #else
+    #ifndef MYMPD_DEBUG
         set_loglevel(config->loglevel);
     #endif
 
