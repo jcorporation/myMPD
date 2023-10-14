@@ -34,6 +34,16 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 
 ***
 
+## myMPD v12.1.1 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Smart playlist option disappears after it is turned off in settings #1133
+
+***
+
 ## myMPD v12.1.0 (2023-10-14)
 
 This version ships a few improvements and bug fixes.
