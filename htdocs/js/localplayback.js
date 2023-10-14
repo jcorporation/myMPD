@@ -13,6 +13,7 @@ function initLocalPlayback() {
     elGetById('localPlaybackVolumeBar').addEventListener('change', function(event) {
         setLocalPlaybackVolume(Number(event.target.value));
     }, false);
+    elGetById('localPlayer').volume = 0.5;
 }
 
 /**
@@ -22,7 +23,9 @@ function initLocalPlayback() {
  */
 //eslint-disable-next-line no-unused-vars
 function localPlaybackVolumeStep(dir) {
-    const increment = dir === 'up' ? 0.1 : -0.1;
+    const increment = dir === 'up'
+        ? 0.1
+        : -0.1;
     const volumeBar = elGetById('localPlaybackVolumeBar');
     let newValue = Number(volumeBar.value) + increment;
     if (newValue < 0) {
@@ -61,7 +64,9 @@ function controlLocalPlayback(newState) {
 
     switch(newState) {
         case 'play':
-            if (curState === 'stop' || curState === undefined) {
+            if (curState === 'stop' ||
+                curState === undefined)
+            {
                 el.click();
             }
             break;
@@ -84,7 +89,9 @@ function controlLocalPlayback(newState) {
 //eslint-disable-next-line no-unused-vars
 function createLocalPlaybackEl(createEvent) {
     createEvent.stopPropagation();
-    const el = createEvent.target.nodeName === 'SPAN' ? createEvent.target.parentNode : createEvent.target;
+    const el = createEvent.target.nodeName === 'SPAN' ?
+        createEvent.target.parentNode :
+        createEvent.target;
     const curState = getData(el, 'state');
     elReplaceChild(el,
         elCreateText('span', {"class": ["mi"]}, 'play_arrow')
