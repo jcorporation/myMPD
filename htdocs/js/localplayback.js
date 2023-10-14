@@ -13,6 +13,7 @@ function initLocalPlayback() {
     elGetById('localPlaybackVolumeBar').addEventListener('change', function(event) {
         setLocalPlaybackVolume(Number(event.target.value));
     }, false);
+    // @ts-ignore
     elGetById('localPlayer').volume = 0.5;
 }
 
