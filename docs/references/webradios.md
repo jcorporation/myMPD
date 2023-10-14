@@ -6,13 +6,16 @@ title: Webradios
 
 ## Online search
 
-myMPD uses the great [radio-browser.info](https://www.radio-browser.info/) project for the online webradio search interface.
+myMPD uses two online sources for webradios.
+
+1. [webradiodb](https://jcorporation.github.io/webradiodb/) - my project for a curated webradio database
+2. [radio-browser.info](https://www.radio-browser.info/)
 
 ## Favorites
 
 myMPD saves webradio favorites as single extended m3u files in the directory `/var/lib/mympd/webradios`. The filename is the sanitized stream uri.
 
-MPD loads this playlist with the curl plugin, myMPD calculates the correct http uri.
+MPD loads this playlist with the curl plugin, myMPD calculates the correct http uri. If you run myMPD behind a reverse proxy, you can set the correct url with the `mympd_uri` configuration option.
 
 ### File format
 
