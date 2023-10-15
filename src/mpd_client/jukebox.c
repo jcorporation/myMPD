@@ -571,13 +571,15 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
             jukebox_unique_album(partition_state, tag_album, tag_albumartist, manual, queue_list) == JUKEBOX_UNIQ_IS_UNIQ)
         {
             if (randrange(0, lineno) < add_albums) {
-                if (add_list->length < add_albums) {
+                if (add_list->length < start_length + add_albums) {
                     if (list_push(add_list, tag_album, lineno, tag_albumartist, album) == false) {
                         MYMPD_LOG_ERROR(partition_state->name, "Can't push jukebox_queue element");
                     }
                 }
                 else {
-                    long pos = add_albums > 1 ? start_length + randrange(0, add_albums -1) : 0;
+                    long pos = add_albums > 1
+                        ? start_length + randrange(0, add_albums -1)
+                        : 0;
                     if (list_replace(add_list, pos, tag_album, lineno, tag_albumartist, album) == false) {
                         MYMPD_LOG_ERROR(partition_state->name, "Can't replace jukebox_queue element pos %ld", pos);
                     }
@@ -689,7 +691,7 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
                 jukebox_unique_tag(partition_state, uri, tag_value, manual, queue_list) == JUKEBOX_UNIQ_IS_UNIQ)
             {
                 if (randrange(0, lineno) < add_songs) {
-                    if (add_list->length < add_songs) {
+                    if (add_list->length < start_length + add_songs) {
                         if (list_push(add_list, uri, lineno, tag_value, NULL) == false) {
                             MYMPD_LOG_ERROR(partition_state->name, "Can't push jukebox_queue element");
                         }

@@ -41,6 +41,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Smart playlist option disappears after it is turned off in settings #1133
+- Fix: Fill jukebox queue respects function should respect current length
 
 ***
 
