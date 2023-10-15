@@ -66,9 +66,13 @@ enum album_modes parse_album_mode(const char *mode_str) {
  * @return album mode as string
  */
 const char *lookup_album_mode(enum album_modes mode) {
-    if (mode == ALBUM_MODE_SIMPLE) {
-        return "simple";
+    switch (mode) {
+        case ALBUM_MODE_SIMPLE:
+            return "simple";
+        case ALBUM_MODE_ADV:
+            return "adv";
     }
+    // default is adv
     return "adv";
 }
 

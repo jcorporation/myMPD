@@ -91,7 +91,7 @@ const char *jukebox_mode_lookup(enum jukebox_modes mode) {
             return "song";
         case JUKEBOX_ADD_ALBUM:
             return "album";
-        default:
+        case JUKEBOX_UNKNOWN:
             return NULL;
     }
     return NULL;
