@@ -1,5 +1,5 @@
 - bg-BG: 1016 missing phrases
-- es-AR: 23 missing phrases
+- es-AR: 20 missing phrases
 - es-ES: 814 missing phrases
 - es-VE: 817 missing phrases
 - fi-FI: 814 missing phrases
