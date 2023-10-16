@@ -275,19 +275,19 @@ struct t_sticker *stickerdb_get_all(struct t_partition_state *partition_state, c
  * Gets all song stickers by name
  * @param partition_state pointer to the partition state
  * @param name sticker name
- * @return newly allocated radix tree
+ * @return newly allocated radix tree or NULL on error
  */
 rax *stickerdb_find_stickers_by_name(struct t_partition_state *partition_state, const char *name) {
-    rax *stickers = raxNew();
     if (stickerdb_connect(partition_state) == false) {
-        return false;
+        return NULL;
     }
+    rax *stickers = raxNew();
     struct mpd_pair *pair;
     ssize_t name_len = (ssize_t)strlen(name);
     name_len++;
     sds file = sdsempty();
     if (mpd_send_sticker_find(partition_state->conn, "song", "", name) == true) {
-        while ((pair = mpd_recv_sticker(partition_state->conn)) != NULL) {
+        while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
             if (strcmp(pair->name, "file") == 0) {
                 file = sds_replace(file, pair->value);
             }
@@ -304,6 +304,11 @@ rax *stickerdb_find_stickers_by_name(struct t_partition_state *partition_state, 
     if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_sticker_list") == true) {
         stickerdb_enter_idle(partition_state);
     }
+    else {
+        stickerdb_free_find_result(stickers);
+        return NULL;
+    }
+    MYMPD_LOG_DEBUG("stickerdb", "Found %llu stickers for \"%s\"", (long long unsigned)stickers->numele, name);
     return stickers;
 }
 
