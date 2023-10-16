@@ -5,14 +5,11 @@
 */
 
 #include "compile_time.h"
-#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_worker/smartpls.h"
 
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
-#include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/utility.h"
@@ -20,6 +17,7 @@
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/search.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 
 #include <dirent.h>
