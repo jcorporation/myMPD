@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_worker/smartpls.h"
 
 #include "src/lib/filehandler.h"
@@ -325,24 +326,6 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
 }
 
 /**
- * Simple helper struct for mpd_worker_smartpls_update_sticker_ge
- */
-struct t_sticker_value {
-    sds uri;    //!< song uri
-    int value;  //!< integer value of the sticker
-};
-
-/**
- * Frees the t_sticker_value struct used as callback for rax_free_data
- * @param data void pointer to a t_sticker_value struct
- */
-static void free_t_sticker_value(void *data) {
-    struct t_sticker_value *sticker_value = (struct t_sticker_value *)data;
-    FREE_SDS(sticker_value->uri);
-    FREE_PTR(sticker_value);
-}
-
-/**
  * Updates a sticker based smart playlist (numeric stickers only)
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
  * @param playlist playlist to delete
@@ -354,69 +337,46 @@ static void free_t_sticker_value(void *data) {
 static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, const char *sticker, int maxentries, int minvalue)
 {
-    rax *add_list = raxNew();
-    int value_max = 0;
-    if (mpd_send_sticker_find(mpd_worker_state->partition_state->conn, "song", "", sticker)) {
-        struct mpd_pair *pair;
-        sds uri = sdsempty();
-        sds key = sdsempty();
-
-        while ((pair = mpd_recv_pair(mpd_worker_state->partition_state->conn)) != NULL) {
-            if (strcmp(pair->name, "file") == 0) {
-                sdsclear(uri);
-                uri = sdscat(uri, pair->value);
-            }
-            else if (strcmp(pair->name, "sticker") == 0) {
-                size_t j;
-                const char *p_value = mpd_parse_sticker(pair->value, &j);
-                if (p_value != NULL) {
-                    char *crap;
-                    int value = (int)strtoimax(p_value, &crap, 10);
-                    if (value >= minvalue) {
-                        sdsclear(key);
-                        //create uniq key
-                        key = sdscatprintf(key, "%09d:%s", value, uri);
-                        struct t_sticker_value *data = malloc_assert(sizeof(struct t_sticker_value));
-                        data->uri = sdsdup(uri);
-                        data->value = value;
-                        while (raxTryInsert(add_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
-                            //duplicate - add chars until it is uniq
-                            key = sdscatlen(key, ":", 1);
-                        }
-                        if (value > value_max) {
-                            value_max = value;
-                        }
-                    }
-                }
-            }
-            mpd_return_pair(mpd_worker_state->partition_state->conn, pair);
-        }
-        FREE_SDS(uri);
-        FREE_SDS(key);
-    }
-    mpd_response_finish(mpd_worker_state->partition_state->conn);
-    if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_send_sticker_find") == false) {
-        rax_free_data(add_list, free_t_sticker_value);
+    rax *add_list = stickerdb_find_stickers_by_name(mpd_worker_state->stickerdb, sticker);
+    if (add_list == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Could not fetch stickers for \"%s\"", sticker);
         return false;
     }
+    raxIterator iter;
 
-    mpd_worker_smartpls_delete(mpd_worker_state, playlist);
-
-    //set mininum sticker value - autodetects value_min if minvalue is zero
-    const int value_min = minvalue > 0 ? minvalue :
-        value_max > 2 ? value_max / 2 : value_max;
-
-    int i = 0;
-    if (mpd_command_list_begin(mpd_worker_state->partition_state->conn, false)) {
-        raxIterator iter;
+    int value_min = minvalue;
+    // autodetects value_min if minvalue is zero
+    if (minvalue == 0) {
+        // find max value
+        int value_max = 0;
         raxStart(&iter, add_list);
         raxSeek(&iter, "^", NULL, 0);
         while (raxNext(&iter)) {
-            struct t_sticker_value *data = (struct t_sticker_value *)iter.data;
-            if (data->value >= value_min &&
+            int data = (int)strtoimax((sds)iter.data, NULL, 10);
+            if (data > value_max) {
+                value_max = data;
+            }
+        }
+        raxStop(&iter);
+        // min value must be 2 or higher
+        value_min = value_max > 2
+            ? value_max / 2
+            : value_max;
+        MYMPD_LOG_DEBUG(NULL, "Setting minimum value to %d", value_min);
+    }
+
+    int i = 0;
+    sds uri = sdsempty();
+    if (mpd_command_list_begin(mpd_worker_state->partition_state->conn, false)) {
+        raxStart(&iter, add_list);
+        raxSeek(&iter, "^", NULL, 0);
+        while (raxNext(&iter)) {
+            int data = (int)strtoimax((sds)iter.data, NULL, 10);
+            if (data >= value_min &&
                 i < maxentries)
             {
-                if (mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, data->uri) == false) {
+                uri = sds_replacelen(uri, (char *)iter.key, iter.key_len);
+                if (mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, uri) == false) {
                     mympd_set_mpd_failure(mpd_worker_state->partition_state, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
@@ -426,7 +386,8 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
         mpd_command_list_end(mpd_worker_state->partition_state->conn);
         raxStop(&iter);
     }
-    rax_free_data(add_list, free_t_sticker_value);
+    FREE_SDS(uri);
+    stickerdb_free_find_result(add_list);
     mpd_response_finish(mpd_worker_state->partition_state->conn);
     if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_send_playlist_add") == true) {
         MYMPD_LOG_INFO(NULL, "Updated smart playlist \"%s\" with %d songs, minimum value: %d",

@@ -49,7 +49,9 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     //create mpd worker state from mympd_state
     struct t_mpd_worker_state *mpd_worker_state = malloc_assert(sizeof(struct t_mpd_worker_state));
     mpd_worker_state->request = request;
-    mpd_worker_state->smartpls = mympd_state->smartpls == true ? mympd_state->mpd_state->feat_playlists : false;
+    mpd_worker_state->smartpls = mympd_state->smartpls == true ?
+        mympd_state->mpd_state->feat_playlists
+        : false;
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
     mpd_worker_state->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
     mpd_worker_state->tag_disc_empty_is_first = mympd_state->tag_disc_empty_is_first;
@@ -77,6 +79,21 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     copy_tag_types(&mympd_state->mpd_state->tags_mympd, &mpd_worker_state->mpd_state->tags_mympd);
     copy_tag_types(&mympd_state->mpd_state->tags_album, &mpd_worker_state->mpd_state->tags_album);
 
+    //stickerdb
+    mpd_worker_state->stickerdb = malloc_assert(sizeof(struct t_partition_state));
+    //worker runs always in default partition
+    partition_state_default(mpd_worker_state->stickerdb, mympd_state->partition_state->name, mympd_state);
+    // do not use the shared mpd_state - we can connect to another mpd server for stickers
+    mpd_worker_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
+    mpd_state_default(mpd_worker_state->stickerdb->mpd_state, mympd_state);
+    //copy some mpd_state settings
+    mpd_worker_state->stickerdb->mpd_state->mpd_keepalive = mympd_state->stickerdb->mpd_state->mpd_keepalive;
+    mpd_worker_state->stickerdb->mpd_state->mpd_timeout = mympd_state->stickerdb->mpd_state->mpd_timeout;
+    mpd_worker_state->stickerdb->mpd_state->mpd_host = sds_replace(mpd_worker_state->stickerdb->mpd_state->mpd_host, mympd_state->stickerdb->mpd_state->mpd_host);
+    mpd_worker_state->stickerdb->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;
+    mpd_worker_state->stickerdb->mpd_state->mpd_pass = sds_replace(mpd_worker_state->stickerdb->mpd_state->mpd_pass, mympd_state->stickerdb->mpd_state->mpd_pass);
+
+    //create the worker thread
     if (pthread_create(&mpd_worker_thread, &attr, mpd_worker_run, mpd_worker_state) != 0) {
         MYMPD_LOG_ERROR(NULL, "Can not create mpd_worker thread");
         mpd_worker_state_free(mpd_worker_state);
@@ -104,6 +121,9 @@ static void *mpd_worker_run(void *arg) {
         mpd_worker_api(mpd_worker_state);
         //disconnect
         mpd_client_disconnect_silent(mpd_worker_state->partition_state, MPD_REMOVED);
+    }
+    if (mpd_worker_state->stickerdb->conn != NULL) {
+        mpd_client_disconnect_silent(mpd_worker_state->stickerdb, MPD_DISCONNECT_INSTANT);
     }
     MYMPD_LOG_NOTICE(NULL, "Stopping mpd_worker thread");
     mpd_worker_state_free(mpd_worker_state);

@@ -23,6 +23,7 @@ struct t_mpd_worker_state {
     struct t_config *config;                      //!< pointer to myMPD config
     struct t_work_request *request;               //!< work request from msg queue
     bool tag_disc_empty_is_first;                 //!< handle empty disc tag as disc one for albums
+    struct t_partition_state *stickerdb;          //!< pointer to the partition state for stickers
 };
 
 void *mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state);
