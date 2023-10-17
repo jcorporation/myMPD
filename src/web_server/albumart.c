@@ -237,12 +237,10 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
             offset == 0)
         {
             sds path = sdsdup(uri_decoded);
-            dirname(path);
-            sdsupdatelen(path);
+            path = sds_dirname(path);
             if (is_virtual_cuedir(mg_user_data->music_directory, path) == true) {
                 //fix virtual cue sheet directories
-                dirname(path);
-                sdsupdatelen(path);
+                path = sds_dirname(path);
             }
             bool found = false;
             sds coverfile = sdsempty();

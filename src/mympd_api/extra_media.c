@@ -98,14 +98,12 @@ sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const c
 static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
     sds path = sdsnew(uri);
     if (is_dirname == false) {
-        dirname(path);
-        sdsupdatelen(path);
+        path = sds_dirname(path);
     }
 
     if (is_virtual_cuedir(mpd_state->music_directory_value, path)) {
         //fix virtual cue sheet directories
-        dirname(path);
-        sdsupdatelen(path);
+        path = sds_dirname(path);
     }
     sds albumpath = sdscatfmt(sdsempty(), "%S/%S", mpd_state->music_directory_value, path);
     sds fullpath = sdsempty();

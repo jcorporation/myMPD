@@ -554,7 +554,8 @@ int main(int argc, char **argv) {
     //mympd api
     MYMPD_LOG_NOTICE(NULL, "Starting mympd api thread");
     if ((thread_rc = pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config)) != 0) {
-        MYMPD_LOG_ERROR(NULL, "Can't create mympd api thread: %s", strerror(thread_rc));
+        MYMPD_LOG_ERROR(NULL, "Can't create mympd api thread");
+        MYMPD_LOG_ERRNO(NULL, thread_rc);
         mympd_api_thread = 0;
         s_signal_received = SIGTERM;
     }
@@ -562,7 +563,8 @@ int main(int argc, char **argv) {
     //webserver
     MYMPD_LOG_NOTICE(NULL, "Starting webserver thread");
     if ((thread_rc = pthread_create(&web_server_thread, NULL, web_server_loop, mgr)) != 0) {
-        MYMPD_LOG_ERROR(NULL, "Can't create webserver thread: %s", strerror(thread_rc));
+        MYMPD_LOG_ERROR(NULL, "Can't create webserver thread");
+        MYMPD_LOG_ERRNO(NULL, thread_rc);
         web_server_thread = 0;
         s_signal_received = SIGTERM;
     }
@@ -577,7 +579,8 @@ int main(int argc, char **argv) {
     //wait for threads
     if (web_server_thread > (pthread_t)0) {
         if ((thread_rc = pthread_join(web_server_thread, NULL)) != 0) {
-            MYMPD_LOG_ERROR(NULL, "Error stopping webserver thread: %s", strerror(thread_rc));
+            MYMPD_LOG_ERROR(NULL, "Error stopping webserver thread");
+            MYMPD_LOG_ERRNO(NULL, thread_rc);
         }
         else {
             MYMPD_LOG_NOTICE(NULL, "Finished web server thread");
@@ -585,7 +588,8 @@ int main(int argc, char **argv) {
     }
     if (mympd_api_thread > (pthread_t)0) {
         if ((thread_rc = pthread_join(mympd_api_thread, NULL)) != 0) {
-            MYMPD_LOG_ERROR(NULL, "Error stopping mympd api thread: %s", strerror(thread_rc));
+            MYMPD_LOG_ERROR(NULL, "Error stopping mympd api thread");
+            MYMPD_LOG_ERRNO(NULL, thread_rc);
         }
         else {
             MYMPD_LOG_NOTICE(NULL, "Finished mympd api thread");

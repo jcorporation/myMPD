@@ -17,6 +17,8 @@
     SDS_PTR = NULL; \
 } while (0)
 
+sds sds_basename(sds s);
+sds sds_dirname(sds s);
 sds *sds_split_comma_trim(sds s, int *count);
 int sds_toimax(sds s);
 void sds_utf8_tolower(sds s);

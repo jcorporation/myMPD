@@ -305,9 +305,9 @@ static void get_placeholder_image(sds workdir, const char *name, sds *result) {
     file = webserver_find_image_file(file);
     sdsclear(*result);
     if (sdslen(file) > 0) {
-        const char *filename = basename(file);
-        MYMPD_LOG_INFO(NULL, "Setting custom placeholder image for na to \"%s\"", filename);
-        *result = sdscat(*result, filename);
+        file = sds_basename(file);
+        MYMPD_LOG_INFO(NULL, "Setting custom placeholder image for na to \"%s\"", file);
+        *result = sdscatsds(*result, file);
     }
     FREE_SDS(file);
 }
