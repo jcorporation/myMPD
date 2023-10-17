@@ -131,11 +131,13 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
     {
         MYMPD_LOG_NOTICE(NULL, "Dropping privileges to user \"%s\"", username);
         //get user
-        errno = 0;
-        struct passwd *pw = getpwnam(username);
-        if (pw  == NULL) {
-            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", username);
-            MYMPD_LOG_ERRNO(NULL, errno);
+        struct passwd pwd;
+        struct passwd *pwd_ptr = &pwd;
+        struct passwd *tempPwdPtr;
+        char pwdbuffer[250];
+        int rc;
+        if ((rc = getpwnam_r(username, pwd_ptr, pwdbuffer, 250, &tempPwdPtr)) != 0) {
+            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist (%d)", username, rc);
             return false;
         }
         //purge supplementary groups
@@ -147,21 +149,21 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
         }
         //set new supplementary groups from target user
         errno = 0;
-        if (initgroups(username, pw->pw_gid) == -1) {
+        if (initgroups(username, pwd_ptr->pw_gid) == -1) {
             MYMPD_LOG_ERROR(NULL, "initgroups() failed");
             MYMPD_LOG_ERRNO(NULL, errno);
             return false;
         }
         //change primary group to group of target user
         errno = 0;
-        if (setgid(pw->pw_gid) == -1 ) {
+        if (setgid(pwd_ptr->pw_gid) == -1 ) {
             MYMPD_LOG_ERROR(NULL, "setgid() failed");
             MYMPD_LOG_ERRNO(NULL, errno);
             return false;
         }
         //change user
         errno = 0;
-        if (setuid(pw->pw_uid) == -1) {
+        if (setuid(pwd_ptr->pw_uid) == -1) {
             MYMPD_LOG_ERROR(NULL, "setuid() failed");
             MYMPD_LOG_ERRNO(NULL, errno);
             return false;
@@ -187,10 +189,13 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     bool chown_dirs = false;
     if (startup_uid == 0) {
         //check for user
-        errno = 0;
-        struct passwd *pw = getpwnam(config->user);
-        if (pw == NULL) {
-            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", config->user);
+        struct passwd pwd;
+        struct passwd *pwd_ptr = &pwd;
+        struct passwd *tempPwdPtr;
+        char pwdbuffer[250];
+        int rc;
+        if ((rc = getpwnam_r(config->user, pwd_ptr, pwdbuffer, 250, &tempPwdPtr)) != 0) {
+            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist (%d)", config->user, rc);
             return false;
         }
         chown_dirs = true;
