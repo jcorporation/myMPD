@@ -86,7 +86,7 @@ enum jukebox_modes jukebox_mode_parse(const char *str) {
  * @return jukebox mode as string
  */
 const char *jukebox_mode_lookup(enum jukebox_modes mode) {
-	switch (mode) {
+    switch (mode) {
         case JUKEBOX_OFF:
             return "off";
         case JUKEBOX_ADD_SONG:
