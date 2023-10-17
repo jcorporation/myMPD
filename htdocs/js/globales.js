@@ -1017,8 +1017,7 @@ const settingsPlaybackFields = {
         "defaultValue": defaults["MYMPD_JUKEBOX_UNIQUE_TAG"],
         "title": "Enforce uniqueness",
         "form": "modalPlaybackJukeboxCollapse",
-        "help": "helpJukeboxUniqueTag",
-        "class": ["jukeboxSongOnly"]
+        "help": "helpJukeboxUniqueTag"
     },
     "jukeboxLastPlayed": {
         "inputType": "text",
@@ -1027,7 +1026,8 @@ const settingsPlaybackFields = {
         "title": "Song was played last",
         "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxLastPlayed",
-        "unit": "Hours ago"
+        "unit": "Hours ago",
+        "class": ["featAdvAlbum"]
     },
     "jukeboxIgnoreHated": {
         "inputType": "checkbox",

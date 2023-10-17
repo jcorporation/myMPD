@@ -126,8 +126,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
         struct t_list_node *current = partition_state->jukebox_queue.head;
         while (current != NULL) {
             struct mpd_song *album = (struct mpd_song *)current->user_data;
-            if (search_song_expression(album, expr_list, tagcols) == true)
-            {
+            if (search_song_expression(album, expr_list, tagcols) == true) {
                 if (entities_found >= offset &&
                     entities_found < real_limit)
                 {

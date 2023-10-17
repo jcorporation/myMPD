@@ -11,6 +11,7 @@
  */
 function setFeatures() {
     //web ui features
+    features.featAdvAlbum = settings.albumMode === 'adv';
     features.featCacert = settings.features.featCacert;
     features.featHome = settings.webuiSettings.enableHome;
     features.featVolumeLevel = settings.webuiSettings.footerVolumeLevel;

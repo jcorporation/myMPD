@@ -169,13 +169,13 @@ function addTagListSelect(elId, list) {
         }
         select.appendChild(optGroup);
     }
-    else if (elId === 'modalPlaybackJukeboxUniqueTagInput' &&
-        settings.tagListBrowse.includes('Title') === false)
-    {
-        //Title tag should be always in the list
-        select.appendChild(
-            elCreateTextTn('option', {"value": "Title"}, 'Song')
-        );
+    else if (elId === 'modalPlaybackJukeboxUniqueTagInput') {
+        if (settings.tagListBrowse.includes('Title') === false) {
+            //Title tag should be always in the list
+            select.appendChild(
+                elCreateTextTn('option', {"value": "Title"}, 'Song')
+            );
+        }
         for (let i = 0, j = settings[list].length; i < j; i++) {
             select.appendChild(
                 elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i])

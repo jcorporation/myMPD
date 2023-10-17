@@ -171,13 +171,20 @@ function toggleJukeboxSettings() {
         toggleBtnChkId('modalPlaybackJukeboxIgnoreHatedInput', false);
         elGetById('modalPlaybackJukeboxPlaylistInput').value = tn('Database');
         setDataId('modalPlaybackJukeboxPlaylistInput', 'value', 'Database');
-        elGetById('modalPlaybackJukeboxUniqueTagInput').value = 'Album';
+        const select = elGetById('modalPlaybackJukeboxUniqueTagInput');
+        elClear(select);
+        for (const tag of ['Album', tagAlbumArtist]) {
+            select.appendChild(
+                elCreateTextTn('option', {"value": tag}, tag)
+            );
+        }
         // hide rows that are not configurable in jukebox album mode
         for (const input of songOnlyInputs) {
             elHide(input.closest('.row'));
         }
     }
     else if (value === 'song') {
+        addTagListSelect('modalPlaybackJukeboxUniqueTagInput', 'tagListBrowse');
         // show rows that are configurable in jukebox song mode only
         for (const input of songOnlyInputs) {
             elShow(input.closest('.row'));
@@ -224,7 +231,6 @@ function populatePlaybackFrm() {
     jsonToForm(settings.partition, settingsPlaybackFields, 'modalPlayback');
 
     toggleBtnGroupValueCollapse(elGetById('modalPlaybackJukeboxModeGroup'), 'modalPlaybackJukeboxCollapse', settings.partition.jukeboxMode);
-    addTagListSelect('modalPlaybackJukeboxUniqueTagInput', 'tagListBrowse');
     toggleJukeboxSettings();
 
     populateListPresets();
@@ -265,10 +271,6 @@ function saveSettingsPlayback(target) {
         params.consume = getBtnGroupValueId('modalPlaybackConsumeGroup');
         params.single = getBtnGroupValueId('modalPlaybackSingleGroup');
         params.replaygain = getBtnGroupValueId('modalPlaybackReplaygainGroup');
-        // enforce uniq tag for jukebox album mode
-        params.jukeboxUniqueTag = params.jukeboxMode === 'album'
-            ? 'Album'
-            : getSelectValueId('modalPlaybackJukeboxUniqueTagInput');
         //set preset name to blank string if not defined, else it is not send to the api
         params.name = getDataId('modalPlaybackNameInput', 'value');
         if (params.name === undefined) {
