@@ -283,8 +283,7 @@ rax *stickerdb_find_stickers_by_name(struct t_partition_state *partition_state, 
     }
     rax *stickers = raxNew();
     struct mpd_pair *pair;
-    ssize_t name_len = (ssize_t)strlen(name);
-    name_len++;
+    ssize_t name_len = (ssize_t)strlen(name) + 1;
     sds file = sdsempty();
     if (mpd_send_sticker_find(partition_state->conn, "song", "", name) == true) {
         while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {

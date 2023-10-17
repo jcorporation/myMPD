@@ -79,7 +79,10 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
         time_t playlist_mtime = mpd_client_get_playlist_mtime(mpd_worker_state->partition_state, next_file->d_name);
         time_t smartpls_mtime = smartpls_get_mtime(mpd_worker_state->config->workdir, next_file->d_name);
         MYMPD_LOG_DEBUG(NULL, "Playlist %s: playlist mtime %lld, smartpls mtime %lld", next_file->d_name, (long long)playlist_mtime, (long long)smartpls_mtime);
-        if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
+        if (force == true ||
+            db_mtime > playlist_mtime ||
+            smartpls_mtime > playlist_mtime)
+        {
             mpd_worker_smartpls_update(mpd_worker_state, next_file->d_name);
             updated++;
         }
