@@ -20,10 +20,10 @@
  * Jukebox state
  */
 enum jukebox_modes {
-    JUKEBOX_OFF,       //!< jukebox is disabled
-    JUKEBOX_ADD_SONG,  //!< jukebox adds single songs
-    JUKEBOX_ADD_ALBUM, //!< jukebox adds whole albums
-    JUKEBOX_UNKNOWN    //!< jukebox mode is unknown
+    JUKEBOX_OFF,        //!< jukebox is disabled
+    JUKEBOX_ADD_SONG,   //!< jukebox adds single songs
+    JUKEBOX_ADD_ALBUM,  //!< jukebox adds whole albums
+    JUKEBOX_UNKNOWN     //!< jukebox mode is unknown
 };
 
 /**
