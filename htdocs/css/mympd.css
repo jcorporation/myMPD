@@ -836,8 +836,7 @@ div#modalPictureImg {
 div#BrowseFilesystemImages {
   height: calc(var(--mympd-thumbnail-size, 175px) + 1rem);
   margin-bottom: 1rem;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto hidden;
   white-space: nowrap;
 }
 
