@@ -19,9 +19,9 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
+#include "src/lib/passwd.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"
-#include "src/lib/utility.h"
 #include "src/mympd_api/mympd_api.h"
 #include "src/web_server/web_server.h"
 

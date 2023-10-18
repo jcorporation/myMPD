@@ -51,6 +51,7 @@ target_sources(mympd PRIVATE
   lib/m3u.c
   lib/mimetype.c
   lib/mpack.c
+  lib/passwd.c
   lib/pin.c
   lib/msg_queue.c
   lib/mympd_state.c

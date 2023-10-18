@@ -11,14 +11,6 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 
-#include <pwd.h>
-
-UTEST(utility, test_get_passwd_entry) {
-    struct passwd pwd;
-    struct passwd *pwd_ptr = get_passwd_entry(&pwd, "root");
-    ASSERT_TRUE(pwd_ptr != NULL);
-}
-
 UTEST(utility, test_my_msleep) {
     struct timespec begin, end;
     clock_gettime(CLOCK_MONOTONIC_RAW, &begin);

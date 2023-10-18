@@ -22,6 +22,7 @@ set(TEST_SOURCES
   ../src/lib/mpack.c
   ../src/lib/msg_queue.c
   ../src/lib/mympd_state.c
+  ../src/lib/passwd.c
   ../src/lib/random.c
   ../src/lib/sds_extras.c
   ../src/lib/state_files.c
@@ -146,6 +147,7 @@ list(APPEND test_categories
   "mpd_client_tags"
   "mympd_queue"
   "mympd_state"
+  "passwd"
   "radix_sort"
   "random"
   "sds_extras"

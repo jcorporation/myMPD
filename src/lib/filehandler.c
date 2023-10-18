@@ -8,9 +8,8 @@
 #include "src/lib/filehandler.h"
 
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
+#include "src/lib/passwd.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/utility.h"
 
 #include <dirent.h>
 #include <errno.h>
