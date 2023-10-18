@@ -1590,7 +1590,7 @@ case "$ACTION" in
     echo "                    following environment variables are respected"
     echo "                      - SIGN=\"FALSE\""
     echo "                      - GPGKEYID=\"\""
-    echo "  pkgdocker:        creates the docker image (debian based)"
+    echo "  pkgdocker:        creates the docker image (Alpine Linux based)"
     echo "                    following environment variables are respected"
     echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
     echo "  pkgbuildx:        creates a multiarch docker image with buildx"
