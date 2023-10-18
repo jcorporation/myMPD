@@ -8,7 +8,9 @@
 #include "src/lib/filehandler.h"
 
 #include "src/lib/log.h"
+#include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -25,16 +27,6 @@
  * @return true on success else false
  */
 bool do_chown(const char *file_path, const char *username) {
-    struct passwd pwd;
-    struct passwd *pwd_ptr = &pwd;
-    struct passwd *tempPwdPtr;
-    char pwdbuffer[250];
-    int rc;
-    if ((rc = getpwnam_r(username, pwd_ptr, pwdbuffer, 250, &tempPwdPtr)) != 0) {
-        MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist (%d)", username, rc);
-        return false;
-    }
-
     errno = 0;
     int fd = open(file_path, O_RDONLY | O_CLOEXEC);
     if (fd == -1) {
@@ -51,8 +43,14 @@ bool do_chown(const char *file_path, const char *username) {
         return false;
     }
 
-    if (status.st_uid == pwd_ptr->pw_uid &&
-        status.st_gid == pwd_ptr->pw_gid)
+    struct passwd pwd;
+    if (get_passwd_entry(&pwd, username) == NULL) {
+        MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", username);
+        return false;
+    }
+
+    if (status.st_uid == pwd.pw_uid &&
+        status.st_gid == pwd.pw_gid)
     {
         //owner and group already set
         close(fd);
@@ -60,7 +58,7 @@ bool do_chown(const char *file_path, const char *username) {
     }
 
     errno = 0;
-    rc = fchown(fd, pwd_ptr->pw_uid, pwd_ptr->pw_gid); /* Flawfinder: ignore */
+    int rc = fchown(fd, pwd.pw_uid, pwd.pw_gid); /* Flawfinder: ignore */
     close(fd);
     if (rc == -1) {
         MYMPD_LOG_ERROR(NULL, "Can't chown \"%s\" to \"%s\"", file_path, username);

@@ -21,6 +21,7 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"
+#include "src/lib/utility.h"
 #include "src/mympd_api/mympd_api.h"
 #include "src/web_server/web_server.h"
 
@@ -130,41 +131,19 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
         sdslen(username) > 0)
     {
         MYMPD_LOG_NOTICE(NULL, "Dropping privileges to user \"%s\"", username);
-        //get user
+        //get passwd entry
         struct passwd pwd;
-        struct passwd *pwd_ptr = &pwd;
-        struct passwd *tempPwdPtr;
-        char pwdbuffer[250];
-        int rc;
-        if ((rc = getpwnam_r(username, pwd_ptr, pwdbuffer, 250, &tempPwdPtr)) != 0) {
-            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist (%d)", username, rc);
+        if (get_passwd_entry(&pwd, username) == NULL) {
+            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", username);
             return false;
         }
-        //purge supplementary groups
         errno = 0;
-        if (setgroups(0, NULL) == -1) {
-            MYMPD_LOG_ERROR(NULL, "setgroups() failed");
-            MYMPD_LOG_ERRNO(NULL, errno);
-            return false;
-        }
-        //set new supplementary groups from target user
-        errno = 0;
-        if (initgroups(username, pwd_ptr->pw_gid) == -1) {
-            MYMPD_LOG_ERROR(NULL, "initgroups() failed");
-            MYMPD_LOG_ERRNO(NULL, errno);
-            return false;
-        }
-        //change primary group to group of target user
-        errno = 0;
-        if (setgid(pwd_ptr->pw_gid) == -1 ) {
-            MYMPD_LOG_ERROR(NULL, "setgid() failed");
-            MYMPD_LOG_ERRNO(NULL, errno);
-            return false;
-        }
-        //change user
-        errno = 0;
-        if (setuid(pwd_ptr->pw_uid) == -1) {
-            MYMPD_LOG_ERROR(NULL, "setuid() failed");
+        if (setgroups(0, NULL) == -1 ||                 //purge supplementary groups
+            initgroups(username, pwd.pw_gid) == -1 ||  //set new supplementary groups from target user
+            setgid(pwd.pw_gid) == -1 ||                //change primary group to group of target user
+            setuid(pwd.pw_uid) == -1)                  //change user
+        {
+            MYMPD_LOG_ERROR(NULL, "Dropping privileges failed");
             MYMPD_LOG_ERRNO(NULL, errno);
             return false;
         }
@@ -190,12 +169,8 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     if (startup_uid == 0) {
         //check for user
         struct passwd pwd;
-        struct passwd *pwd_ptr = &pwd;
-        struct passwd *tempPwdPtr;
-        char pwdbuffer[250];
-        int rc;
-        if ((rc = getpwnam_r(config->user, pwd_ptr, pwdbuffer, 250, &tempPwdPtr)) != 0) {
-            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist (%d)", config->user, rc);
+        if (get_passwd_entry(&pwd, config->user) == NULL) {
+            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", config->user);
             return false;
         }
         chown_dirs = true;

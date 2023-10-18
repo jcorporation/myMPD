@@ -13,7 +13,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-
+struct passwd *get_passwd_entry(struct passwd *pwd, const char *username);
 bool is_streamuri(const char *uri);
 bool is_virtual_cuedir(sds music_directory, sds filename);
 const char *get_extension_from_filename(const char *filename);

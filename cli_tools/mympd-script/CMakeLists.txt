@@ -15,8 +15,9 @@ target_sources(mympd-script
     mympd-script.c
     ../log.c
     ../../src/lib/filehandler.c
-    ../../src/lib/sds_extras.c
     ../../src/lib/http_client.c
+    ../../src/lib/sds_extras.c
+    ../../src/lib/utility.c
 )
 
 target_link_libraries(mympd-script
