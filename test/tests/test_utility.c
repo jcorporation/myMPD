@@ -62,6 +62,9 @@ UTEST(utility, test_get_extension_from_filename) {
     const char *ext = get_extension_from_filename("test.txt");
     ASSERT_STREQ(ext, "txt");
 
+    const char *ext2 = get_extension_from_filename("test.mp3.txt");
+    ASSERT_STREQ(ext2, "txt");
+
     const char *wo = get_extension_from_filename("test");
     ASSERT_TRUE(wo == NULL);
 }
