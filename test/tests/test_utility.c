@@ -11,6 +11,14 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 
+#include <pwd.h>
+
+UTEST(utility, test_get_passwd_entry) {
+    struct passwd pwd;
+    struct passwd *pwd_ptr = get_passwd_entry(&pwd, "root");
+    ASSERT_TRUE(pwd_ptr != NULL);
+}
+
 UTEST(utility, test_my_msleep) {
     struct timespec begin, end;
     clock_gettime(CLOCK_MONOTONIC_RAW, &begin);
@@ -58,7 +66,7 @@ UTEST(utility, test_get_extension_from_filename) {
     ASSERT_TRUE(wo == NULL);
 }
 
-UTEST(sds_extras, test_basename_uri) {
+UTEST(utility, test_basename_uri) {
     struct t_input_result testcases[] = {
         {"http://host:80/verz/verz/test?safsaf#798234",   "http://host:80/verz/verz/test" },
         {"https://host:443/verz/verz/test?safsaf#798234", "https://host:443/verz/verz/test" },
@@ -79,7 +87,7 @@ UTEST(sds_extras, test_basename_uri) {
     sdsfree(test_input);
 }
 
-UTEST(sds_extras, test_strip_slash) {
+UTEST(utility, test_strip_slash) {
     struct t_input_result testcases[] = {
         {"//",           ""},
         {"/test/woext/", "/test/woext"},
@@ -100,7 +108,7 @@ UTEST(sds_extras, test_strip_slash) {
     sdsfree(testfilename);
 }
 
-UTEST(sds_extras, test_strip_file_extension) {
+UTEST(utility, test_strip_file_extension) {
     struct t_input_result testcases[] = {
         {"/test/test.mp3",   "/test/test"},
         {"/test/woext",      "/test/woext"},
@@ -120,7 +128,7 @@ UTEST(sds_extras, test_strip_file_extension) {
     sdsfree(test_input);
 }
 
-UTEST(sds_extras, test_replace_file_extension) {
+UTEST(utility, test_replace_file_extension) {
     struct t_input_result testcases[] = {
         {"/test/test.mp3",   "/test/test.lrc"},
         {"/test/woext",      "/test/woext.lrc"},
@@ -141,7 +149,7 @@ UTEST(sds_extras, test_replace_file_extension) {
     sdsfree(test_input);
 }
 
-UTEST(sds_extras, test_sanitize_filename) {
+UTEST(utility, test_sanitize_filename) {
     struct t_input_result testcases[] = {
         {"http://host:80/verz/verz/test?safsaf#798234",   "http___host_80_verz_verz_test_safsaf_798234" },
         {"https://host:443/verz/verz/test?safsaf#798234", "https___host_443_verz_verz_test_safsaf_798234" },
@@ -155,6 +163,25 @@ UTEST(sds_extras, test_sanitize_filename) {
     while (p->input != NULL) {
         test_input = sdscatfmt(test_input, "%s", p->input);
         sanitize_filename(test_input);
+        ASSERT_STREQ(p->result, test_input);
+        sdsclear(test_input);
+        p++;
+    }
+    sdsfree(test_input);
+}
+
+UTEST(utility, test_sanitize_filename2) {
+    struct t_input_result testcases[] = {
+        {"http://host:80/verz/verz/test?safsaf#798234",   "http:__host:80_verz_verz_test?safsaf#798234" },
+        {"",                                              "" },
+        {"/test/test.mp3.mp3",                            "_test_test.mp3.mp3" },
+        {NULL,                                            NULL}
+    };
+    struct t_input_result *p = testcases;
+    sds test_input = sdsempty();
+    while (p->input != NULL) {
+        test_input = sdscatfmt(test_input, "%s", p->input);
+        sanitize_filename2(test_input);
         ASSERT_STREQ(p->result, test_input);
         sdsclear(test_input);
         p++;
