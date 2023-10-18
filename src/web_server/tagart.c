@@ -58,7 +58,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
         return true;
     }
 
-    sanitize_filename(value);
+    sanitize_filename2(value);
 
     MYMPD_LOG_DEBUG(NULL, "Handle tagart for \"%s\": \"%s\"", tag, value);
     //create absolute filepath

@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Fix: Smart playlist option disappears after it is turned off in settings #1133
 - Fix: Fill jukebox queue respects function should respect current length
+- Fix: sanitize only / and special escape values for tagart #1136
 
 ***
 
