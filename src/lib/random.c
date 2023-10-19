@@ -14,11 +14,25 @@
 #include <openssl/rand.h>
 
 /**
- * Generates a 32bit positive random number in range (inclusive lower and upper bounds)
+ * Generates a long type positive random number in range (inclusive lower and upper bounds)
  * @param lower lower boundary
  * @param upper upper boundary
  * @return random number
  */
+#if __WORDSIZE == 64
+long randrange(long lower, long upper) {
+    uint64_t buf;
+    uint64_t u_lower = (uint64_t)lower;
+    uint64_t u_upper = (uint64_t)upper;
+    if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) == 1) {
+        return (long)(u_lower + buf / (UINT64_MAX / (u_upper - u_lower + 1) + 1));
+    }
+
+    MYMPD_LOG_ERROR(NULL, "Error generating random number in range");
+    assert(NULL);
+    return 0;
+}
+#else
 long randrange(long lower, long upper) {
     uint32_t buf;
     uint32_t u_lower = (uint32_t)lower;
@@ -31,20 +45,4 @@ long randrange(long lower, long upper) {
     assert(NULL);
     return 0;
 }
-
-/**
- * Generates a 64bit positive random number in range (inclusive lower and upper bounds)
- * @param lower lower boundary
- * @param upper upper boundary
- * @return random number
- */
-uint64_t randrange64(uint64_t lower, uint64_t upper) {
-    uint64_t buf;
-    if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) == 1) {
-        return lower + buf / (UINT64_MAX / (upper - lower + 1) + 1);
-    }
-
-    MYMPD_LOG_ERROR(NULL, "Error generating random number in range");
-    assert(NULL);
-    return 0;
-}
+#endif

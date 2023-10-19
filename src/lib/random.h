@@ -10,5 +10,4 @@
 #include <inttypes.h>
 
 long randrange(long lower, long upper);
-uint64_t randrange64(uint64_t lower, uint64_t upper);
 #endif
