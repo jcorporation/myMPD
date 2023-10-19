@@ -138,6 +138,29 @@ UTEST(validate, test_validate_isfilepath) {
     sdsfree(data);
 }
 
+UTEST(validate, test_validate_ispathfilename) {
+    //valid
+    sds data = sdsnew("01231wer23-äö2");
+    ASSERT_TRUE(vcb_ispathfilename(data));
+    sdsclear(data);
+    data = sdscat(data, "/dir/dir2/file");
+    ASSERT_TRUE(vcb_ispathfilename(data));
+    sdsclear(data);
+    //invalid
+    data = sdscat(data, "/dir/dir2/file/");
+    ASSERT_FALSE(vcb_ispathfilename(data));
+    sdsclear(data);
+    data = sdscat(data, "asdfs\bfdjl");
+    ASSERT_FALSE(vcb_ispathfilename(data));
+    sdsclear(data);
+    data = sdscat(data, "asdfsfd\\u5676jl");
+    ASSERT_FALSE(vcb_ispathfilename(data));
+    sdsclear(data);
+    data = sdscatlen(data, "asdfsfd\0jl", 10);
+    ASSERT_FALSE(vcb_ispathfilename(data));
+    sdsfree(data);
+}
+
 UTEST(validate, test_validate_isuri) {
     //valid
     sds data = sdsnew("https://jcgames.de");
