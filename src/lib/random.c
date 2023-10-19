@@ -20,7 +20,16 @@
  * @return random number
  */
 long randrange(long lower, long upper) {
-    return (long)randrange64((uint64_t)lower, (uint64_t)upper);
+    uint32_t buf;
+    uint32_t u_lower = (uint32_t)lower;
+    uint32_t u_upper = (uint32_t)upper;
+    if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) == 1) {
+        return (long)(u_lower + buf / (UINT32_MAX / (u_upper - u_lower + 1) + 1));
+    }
+
+    MYMPD_LOG_ERROR(NULL, "Error generating random number in range");
+    assert(NULL);
+    return 0;
 }
 
 /**
