@@ -196,13 +196,13 @@ mpd_run_save(struct mpd_connection *connection, const char *name)
 		mpd_response_finish(connection);
 }
 
-enum mpd_queue_save_mode mpd_parse_queue_save_mode(const char *mode)
+enum mpd_queue_save_mode mpd_parse_queue_save_mode(const char *p)
 {
-	if (strcmp(mode, "create") == 0)
+	if (strcmp(p, "create") == 0)
 		return MPD_QUEUE_SAVE_MODE_CREATE;
-	else if (strcmp(mode, "replace") == 0)
+	else if (strcmp(p, "replace") == 0)
 		return MPD_QUEUE_SAVE_MODE_REPLACE;
-	else if (strcmp(mode, "append") == 0)
+	else if (strcmp(p, "append") == 0)
 		return MPD_QUEUE_SAVE_MODE_APPEND;
 	else
 		return MPD_QUEUE_SAVE_MODE_UNKNOWN;

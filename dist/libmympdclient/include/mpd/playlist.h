@@ -65,17 +65,17 @@ struct mpd_playlist;
  * @since libmpdclient 2.21, MPD 0.24.
  */
 enum mpd_queue_save_mode {
-   /** Create new playlist */
+	/** Create new playlist */
 	MPD_QUEUE_SAVE_MODE_CREATE = 0,
 
-   /** Replace existing playlist */
+	/** Replace existing playlist */
 	MPD_QUEUE_SAVE_MODE_REPLACE,
 
-   /** Append to existing playlist */
+	/** Append to existing playlist */
 	MPD_QUEUE_SAVE_MODE_APPEND,
 
-   /** Unknown state */
-   MPD_QUEUE_SAVE_MODE_UNKNOWN
+	/** Unknown queue save mode */
+	MPD_QUEUE_SAVE_MODE_UNKNOWN
 };
 
 #ifdef __cplusplus

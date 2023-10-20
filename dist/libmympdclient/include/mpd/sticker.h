@@ -176,6 +176,26 @@ mpd_send_sticker_find(struct mpd_connection *connection, const char *type,
 		      const char *base_uri, const char *name);
 
 /**
+ * Searches for stickers with the specified name and value.
+ * Call mpd_recv_sticker() to receive each response item.
+ *
+ * @param connection the connection to MPD
+ * @param type the object type, e.g. "song"
+ * @param base_uri the base URI to start the search, e.g. a directory;
+ * NULL to search for all objects of the specified type
+ * @param name the name of the sticker
+ * @param op the compare operator, valid: =, <, >
+ * @param value the value to be compared against
+ * @return true on success, false on error
+ *
+ * @since MPD 0.20, libmpdclient 2.21
+ */
+bool
+mpd_send_sticker_find_value(struct mpd_connection *connection, const char *type,
+				const char *base_uri, const char *name, const char *op,
+				const char *value);
+
+/**
  * Parse a sticker input line in the form "name=value".
  *
  * @param input the input value, the value from a received pair named

@@ -115,6 +115,24 @@ mpd_send_sticker_find(struct mpd_connection *connection, const char *type,
 				type, base_uri, name, NULL);
 }
 
+bool
+mpd_send_sticker_find_value(struct mpd_connection *connection, const char *type,
+			const char *base_uri, const char *name, const char *op,
+			const char *value)
+{
+	assert(connection != NULL);
+	assert(type != NULL);
+	assert(name != NULL);
+	assert(op != NULL);
+	assert(value != NULL);
+
+	if (base_uri == NULL)
+		base_uri = "";
+
+	return mpd_send_command(connection, "sticker", "find",
+				type, base_uri, name, op, value, NULL);
+}
+
 const char *
 mpd_parse_sticker(const char *input, size_t *name_length_r)
 {
