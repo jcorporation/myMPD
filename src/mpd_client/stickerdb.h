@@ -23,6 +23,8 @@ long long stickerdb_get_llong_batch(struct t_partition_state *partition_state, c
 struct t_sticker *stickerdb_get_all_batch(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined);
 
 rax *stickerdb_find_stickers_by_name(struct t_partition_state *partition_state, const char *name);
+rax *stickerdb_find_stickers_by_name_value(struct t_partition_state *partition_state,
+        const char *name, const char *op, const char *value);
 void stickerdb_free_find_result(rax *stickers);
 
 bool stickerdb_set(struct t_partition_state *partition_state, const char *uri, const char *name, const char *value);

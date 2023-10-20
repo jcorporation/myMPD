@@ -291,9 +291,9 @@ rax *stickerdb_find_stickers_by_name(struct t_partition_state *partition_state, 
                 file = sds_replace(file, pair->value);
             }
             else if (strcmp(pair->name, "sticker") == 0) {
-                sds value = sdsnew(pair->value);
-                sdsrange(value, name_len, -1);
-                raxInsert(stickers, (unsigned char *)file, sdslen(file), value, NULL);
+                sds sticker_value = sdsnew(pair->value);
+                sdsrange(sticker_value, name_len, -1);
+                raxInsert(stickers, (unsigned char *)file, sdslen(file), sticker_value, NULL);
             }
             mpd_return_sticker(partition_state->conn, pair);
         }
@@ -308,6 +308,51 @@ rax *stickerdb_find_stickers_by_name(struct t_partition_state *partition_state, 
         return NULL;
     }
     MYMPD_LOG_DEBUG("stickerdb", "Found %llu stickers for \"%s\"", (long long unsigned)stickers->numele, name);
+    return stickers;
+}
+
+/**
+ * Gets all song stickers by name and value
+ * @param partition_state pointer to the partition state
+ * @param name sticker name
+ * @param op compare operator: =, >, <
+ * @param value sticker value
+ * @return newly allocated radix tree or NULL on error
+ */
+rax *stickerdb_find_stickers_by_name_value(struct t_partition_state *partition_state,
+        const char *name, const char *op, const char *value)
+{
+    if (stickerdb_connect(partition_state) == false) {
+        return NULL;
+    }
+    rax *stickers = raxNew();
+    struct mpd_pair *pair;
+    ssize_t name_len = (ssize_t)strlen(name) + 1;
+    sds file = sdsempty();
+    if (mpd_send_sticker_find_value(partition_state->conn, "song", "", name, op, value) == true) {
+        while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
+            if (strcmp(pair->name, "file") == 0) {
+                file = sds_replace(file, pair->value);
+            }
+            else if (strcmp(pair->name, "sticker") == 0) {
+                sds sticker_value = sdsnew(pair->value);
+                sdsrange(sticker_value, name_len, -1);
+                raxInsert(stickers, (unsigned char *)file, sdslen(file), sticker_value, NULL);
+            }
+            mpd_return_sticker(partition_state->conn, pair);
+        }
+    }
+    mpd_response_finish(partition_state->conn);
+    FREE_SDS(file);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_sticker_list") == true) {
+        stickerdb_enter_idle(partition_state);
+    }
+    else {
+        stickerdb_free_find_result(stickers);
+        return NULL;
+    }
+    MYMPD_LOG_DEBUG("stickerdb", "Found %llu stickers for \"%s\"%s\"%s\"",
+        (long long unsigned)stickers->numele, name, op, value);
     return stickers;
 }
 
