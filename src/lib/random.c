@@ -19,7 +19,7 @@
  * @param upper upper boundary
  * @return random number
  */
-#if __WORDSIZE == 64
+#if ULONG_MAX == 0xffffffffffffffff
 long randrange(long lower, long upper) {
     uint64_t buf;
     uint64_t u_lower = (uint64_t)lower;
