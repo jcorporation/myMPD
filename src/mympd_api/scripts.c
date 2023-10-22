@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/thread.h"
 #include "src/mympd_api/scripts.h"
 
 #include "src/lib/api.h"
@@ -18,6 +17,7 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/thread.h"
 #include "src/lib/utility.h"
 
 #include <dirent.h>
