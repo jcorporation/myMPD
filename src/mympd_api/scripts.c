@@ -15,15 +15,16 @@
 #include "src/lib/lua_mympd_state.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
+#include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 
 #include <dirent.h>
 #include <errno.h>
+#include <limits.h>
 #include <pthread.h>
 #include <string.h>
 #include <sys/prctl.h>
-#include <sys/syscall.h>
 #include <unistd.h>
 
 #ifdef MYMPD_ENABLE_LUA
@@ -702,10 +703,10 @@ static int lua_mympd_api(lua_State *lua_vm) {
         MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: Invalid partition");
         return luaL_error(lua_vm, "Invalid partition");
     }
-    //get the thread id
-    long tid = syscall(__NR_gettid);
+    //generate a request id
+    long request_id = randrange(0, LONG_MAX);
     //create the request
-    struct t_work_request *request = create_request(-2, tid, method_id, NULL, partition);
+    struct t_work_request *request = create_request(-2, request_id, method_id, NULL, partition);
     const char *params = lua_tostring(lua_vm, 2);
     if (params[0] != '{') {
         //param is invalid json, ignore it
@@ -716,12 +717,12 @@ static int lua_mympd_api(lua_State *lua_vm) {
         request->data = sdscat(request->data, params);
     }
     request->data = sdscatlen(request->data, "}", 1);
-    mympd_queue_push(mympd_api_queue, request, tid);
+    mympd_queue_push(mympd_api_queue, request, request_id);
 
     int i = 0;
     while (s_signal_received == 0 && i < 60) {
         i++;
-        struct t_work_response *response = mympd_queue_shift(mympd_script_queue, 1000000, tid);
+        struct t_work_response *response = mympd_queue_shift(mympd_script_queue, 1000000, request_id);
         if (response != NULL) {
             MYMPD_LOG_DEBUG(NULL, "Got response: %s", response->data);
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
