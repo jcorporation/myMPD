@@ -313,7 +313,7 @@ sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct 
         // use MusicBrainz album id
         const char *mb_album_id = mpd_song_get_tag(song, MPD_TAG_MUSICBRAINZ_ALBUMID, 0);
         if (mb_album_id != NULL &&
-            strlen(mb_album_id) == MBID_LENGTH) // MBID must be 36 characters
+            strlen(mb_album_id) == MBID_LENGTH) // MBID must be exactly 36 characters long
         {
             return sdscatlen(albumkey, mb_album_id, MBID_LENGTH);
         }
@@ -324,7 +324,9 @@ sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct 
     albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, albumkey);
     if (sdslen(albumkey) == 0) {
         // AlbumArtist tag is empty, fallback to Artist tag
-        MYMPD_LOG_DEBUG(NULL, "AlbumArtist for uri \"%s\" is empty, falling back to Artist", mpd_song_get_uri(song));
+        #ifdef MYMPD_DEBUG
+            MYMPD_LOG_DEBUG(NULL, "AlbumArtist for uri \"%s\" is empty, falling back to Artist", mpd_song_get_uri(song));
+        #endif
         albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ARTIST, albumkey);
     }
     if (sdslen(albumkey) == 0) {
