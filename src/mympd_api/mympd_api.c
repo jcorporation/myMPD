@@ -13,6 +13,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/thread.h"
 #include "src/mpd_client/autoconf.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/idle.h"
@@ -23,15 +24,13 @@
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
 
-#include <sys/prctl.h>
-
 /**
  * This is the main function for the mympd_api thread
  * @param arg_config void pointer to t_config struct
  */
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sds_replace(thread_logname, "mympdapi");
-    prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
+    set_threadname(thread_logname);
 
     //create initial mympd_state struct and set defaults
     struct t_mympd_state *mympd_state = malloc_assert(sizeof(struct t_mympd_state));

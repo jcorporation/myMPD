@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/thread.h"
 #include "src/mympd_api/scripts.h"
 
 #include "src/lib/api.h"
@@ -24,7 +25,6 @@
 #include <limits.h>
 #include <pthread.h>
 #include <string.h>
-#include <sys/prctl.h>
 #include <unistd.h>
 
 #ifdef MYMPD_ENABLE_LUA
@@ -463,7 +463,7 @@ static sds script_get_result(lua_State *lua_vm, int rc) {
  */
 static void *script_execute(void *script_thread_arg) {
     thread_logname = sds_replace(thread_logname, "script");
-    prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
+    set_threadname(thread_logname);
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
 
     int rc = 0;

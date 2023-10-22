@@ -15,6 +15,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/thread.h"
 #include "src/web_server/albumart.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/request_handler.h"
@@ -22,7 +23,6 @@
 
 #include <inttypes.h>
 #include <libgen.h>
-#include <sys/prctl.h>
 
 /**
  * Private definitions
@@ -151,7 +151,7 @@ void *web_server_free(struct mg_mgr *mgr) {
  */
 void *web_server_loop(void *arg_mgr) {
     thread_logname = sds_replace(thread_logname, "webserver");
-    prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
+    set_threadname(thread_logname);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
 
