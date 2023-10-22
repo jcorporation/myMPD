@@ -206,8 +206,8 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
     new_node->timeout = timeout;
     new_node->interval = interval;
 
-    if (definition == NULL ||
-        definition->enabled == true)
+    if (definition == NULL ||           // internal timers
+        definition->enabled == true)    // user defined timers
     {
         errno = 0;
         new_node->fd = timerfd_create(CLOCK_REALTIME, 0);
