@@ -1054,7 +1054,12 @@ function tableClickHandler(event) {
     }
     //action td
     if (event.target.nodeName === 'A') {
-        handleActionTdClick(event);
+        if (event.target.parentNode.getAttribute('data-col') === 'Action') {
+            handleActionTdClick(event);
+        }
+        else {
+            // allow default link action
+        }
         return null;
     }
     //table header
