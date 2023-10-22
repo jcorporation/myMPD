@@ -1011,9 +1011,14 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     }
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
     #ifdef MYMPD_ENABLE_LUA
-        buffer = tojson_bool(buffer, "featScripting", true, false);
+        buffer = tojson_bool(buffer, "featScripting", true, true);
     #else
-        buffer = tojson_bool(buffer, "featScripting", false, false);
+        buffer = tojson_bool(buffer, "featScripting", false, true);
+    #endif
+    #ifdef MYMPD_NO_TIMERFD
+        buffer = tojson_bool(buffer, "featTimer", false, false);
+    #else
+        buffer = tojson_bool(buffer, "featTimer", true, false);
     #endif
     buffer = sdscatlen(buffer, "}", 1);
     if (partition_state->conn_state == MPD_CONNECTED) {

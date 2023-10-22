@@ -230,6 +230,7 @@ function populateSettingsFrm() {
     // handle features: show or hide warnings - use the settings object
     setFeatureBtnId('modalSettingsEnableLyricsInput', settings.features.featLibrary);
     setFeatureBtnId('modalSettingsEnableScriptingInput', settings.features.featScripting);
+    setFeatureBtnId('modalSettingsEnableTimerInput', settings.features.featTimer);
     setFeatureBtnId('modalSettingsEnableMountsInput', settings.features.featMounts);
     setFeatureBtnId('modalSettingsEnablePartitionsInput', settings.features.featPartitions);
 }
