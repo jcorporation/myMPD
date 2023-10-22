@@ -46,6 +46,11 @@
 #cmakedefine I18N_ru_RU
 #cmakedefine I18N_zh_Hans
 
+//detect 32 or 64 bit platform
+#if ULONG_MAX == 0xffffffffffffffff
+    #define MYMPD_64BIT
+#endif
+
 //myMPD version from cmake
 #define MYMPD_VERSION "${PROJECT_VERSION}"
 

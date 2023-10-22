@@ -19,7 +19,7 @@
  * @param upper upper boundary
  * @return random number
  */
-#if ULONG_MAX == 0xffffffffffffffff
+#ifdef MYMPD_64BIT
 long randrange(long lower, long upper) {
     uint64_t buf;
     uint64_t u_lower = (uint64_t)lower;
