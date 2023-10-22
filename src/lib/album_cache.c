@@ -377,7 +377,6 @@ struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key) {
  */
 void album_cache_free(struct t_cache *album_cache) {
     if (album_cache->cache == NULL) {
-        MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not freeing anything");
         return;
     }
     MYMPD_LOG_DEBUG(NULL, "Freeing album cache");

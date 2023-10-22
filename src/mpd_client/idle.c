@@ -460,17 +460,13 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
 }
 
 /**
- * Checks if we should create the caches and adds an one-shot timer
- * We do not create the caches instantly to debounce MPD_IDLE_DATABASE events
+ * Adds an one-shot timer to create / refresh the caches.
+ * We do not create the caches instantly to debounce MPD_IDLE_DATABASE events.
  * @param mympd_state pointer to the central mympd_state struct
  * @param timeout seconds after the timer triggers
  * @return true on success else false
  */
 static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeout) {
-    if (mympd_state->mpd_state->feat_tags == false) {
-        MYMPD_LOG_DEBUG(NULL, "Caches are disabled");
-        return true;
-    }
     MYMPD_LOG_DEBUG(NULL, "Adding timer to update the caches");
     return mympd_api_timer_replace(&mympd_state->timer_list, timeout, TIMER_ONE_SHOT_REMOVE,
             timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
