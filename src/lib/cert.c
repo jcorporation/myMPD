@@ -26,6 +26,9 @@
 #include <openssl/x509v3.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef __FreeBSD__
+#include <sys/socket.h>
+#endif /*__FreeBSD__*/
 
 //private definitions
 static bool certificates_create(sds dir, sds custom_san);
