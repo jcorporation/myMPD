@@ -213,15 +213,12 @@ function updatePlaybackControls() {
         }
     }
     for (const prefix of prefixes) {
-        //Set playback buttons
         if (currentState.state === 'stop') {
             elGetById(prefix + 'PlayBtn').textContent = 'play_arrow';
             domCache.progressBar.style.width = '0';
             elDisableId(prefix + 'StopBtn');
             elDisableId(prefix + 'NextBtn');
             elDisableId(prefix + 'PrevBtn');
-            elDisableId(prefix + 'FastRewindBtn');
-            elDisableId(prefix + 'FastForwardBtn');
         }
         else if (currentState.state === 'play') {
             elGetById(prefix + 'PlayBtn').textContent =
@@ -231,15 +228,24 @@ function updatePlaybackControls() {
             elEnableId(prefix + 'StopBtn');
             elEnableId(prefix + 'NextBtn');
             elEnableId(prefix + 'PrevBtn');
-            elEnableId(prefix + 'FastRewindBtn');
-            elEnableId(prefix + 'FastForwardBtn');
         }
         else {
-            //pause
+            // pause
             elGetById(prefix + 'PlayBtn').textContent = 'play_arrow';
             elEnableId(prefix + 'StopBtn');
             elEnableId(prefix + 'NextBtn');
             elEnableId(prefix + 'PrevBtn');
+        }
+
+        if (currentState.songPos < 0 ||
+            currentState.totalTime === 0 ||
+            currentState.state === 'stop')
+        {
+            elDisableId(prefix + 'FastRewindBtn');
+            elDisableId(prefix + 'FastForwardBtn');
+        }
+        else {
+            // enable seeking only if totalTime is known
             elEnableId(prefix + 'FastRewindBtn');
             elEnableId(prefix + 'FastForwardBtn');
         }
@@ -259,19 +265,16 @@ function updatePlaybackControls() {
             elDisableId(prefix + 'NextBtn');
         }
         else if (currentState.state !== 'stop') {
+            // next button triggers jukebox
             elEnableId(prefix + 'NextBtn');
         }
 
         if (currentState.songPos < 0) {
             // no current song
             elDisableId(prefix + 'PrevBtn');
-            elDisableId(prefix + 'FastRewindBtn');
-            elDisableId(prefix + 'FastForwardBtn');
         }
         else if (currentState.state !== 'stop') {
             elEnableId(prefix + 'PrevBtn');
-            elEnableId(prefix + 'FastRewindBtn');
-            elEnableId(prefix + 'FastForwardBtn');
         }
     }
 }
