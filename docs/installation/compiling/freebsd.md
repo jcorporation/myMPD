@@ -45,7 +45,11 @@ I would use the poudriere's ports tree installed in `/usr/local/poudriere/ports/
     mv /usr/ports /usr/ports.bu
     ln -s /usr/local/poudriere/ports/local /usr/ports
     ```
-4. Install myMPD (consult the options with the handbook):
+4. Build the myMPD package (consult the options with the handbook):
     ```
     poudriere bulk -j 13amd64 -p local multimedia/mympd
+    ```
+5. Install the package. You may need to add poudriere's repository if you haven't done that earlier.
+    ```
+    pkg install myMPD
     ```
