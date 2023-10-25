@@ -98,7 +98,7 @@ for my $filename (@files) {
             while ($line =~ /(elCreateTextTnNr|elCreateTextTn)\('\w+', \{[^}]*\}, '([^']+)'/g) {
                 add_phrase($2);
             }
-            while ($line =~ /"(title|help|invalid|unit|hintText)":\s+"([^"]+)"/g) {
+            while ($line =~ /"(title|help|invalid|unit|hintText|warn)":\s+"([^"]+)"/g) {
                 add_phrase($2);
             }
         }

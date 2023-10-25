@@ -1112,5 +1112,6 @@
     "Invalid MPD search expression": "Ungültiger MPD Suchfilter",
     "Min. song duration": "Mindeste Liedlänge",
     "helpJukeboxMinSongDuration": "Nur Lieder mit dieser Mindestlänge werden berücksichtigt.",
-    "Sortdesc": "Sortierreihenfolge umdrehen"
+    "Sortdesc": "Sortierreihenfolge umdrehen",
+    "Timers are not supported by platform": "Timer sind von der Plattform nicht unterstützt."
 }
