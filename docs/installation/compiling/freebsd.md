@@ -4,13 +4,14 @@ permalink: /installation/compiling/freebsd
 title: FreeBSD
 ---
 
-This is a general how-to for building myMPD on FreeBSD.
-It is highly recommended to check the FreeBSD handbook if you are unsure how software installation and building works.
+This is a general how-to for building myMPD on FreeBSD. It is highly recommended to check the FreeBSD handbook if you are unsure how software installation and building works.
 
-[https://docs.freebsd.org/en/books/handbook/ports/](https://docs.freebsd.org/en/books/handbook/ports/)
+- [https://docs.freebsd.org/en/books/handbook/ports/](https://docs.freebsd.org/en/books/handbook/ports/)
 
+myMPD timers are only supported with FreeBSD >= 14.
 
 ## Building directly from the ports tree
+
 This is the basic way to install myMPD on FreeBSD system and it is only advised
 for those using ports tree to install software directly.
 
@@ -29,6 +30,7 @@ It is expected you have /usr/ports populated.
     ```
 
 ## Building with poudriere
+
 This is more advanced way to build packages for pkg(1) package manager.
 Consult the handbook how to setup the poudriere and its building jails.
 

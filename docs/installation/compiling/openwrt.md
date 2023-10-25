@@ -20,7 +20,7 @@ title: OpenWrt
     ```
     make -j$(nproc) BUILD_LOG=1
     ```
-6. Resulting package will be placed in 'bin' directory.
+6. Resulting package will be placed in `bin` directory.
 
 ## Building in full OpenWrt buildroot
 

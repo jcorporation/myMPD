@@ -11,4 +11,9 @@ myMPD should run on all current linux distributions. There are four ways to inst
 3. [Docker]({{ site.baseurl }}/installation/docker)
 4. [Compiling myMPD]({{ site.baseurl }}/installation/compiling/)
 
-myMPD also runs on [OpenWrt]({{ site.baseurl }}/installation/compiling/openwrt) and [Termux]({{ site.baseurl }}/installation/compiling/termux).
+## Supported plattforms
+
+- All current linux distributions (x86 and arm)
+- [FreeBSD]({{ site.baseurl }}/installation/compiling/freebsd) (full support since FreeBSD 14)
+- [OpenWrt]({{ site.baseurl }}/installation/compiling/openwrt)
+- [Termux]({{ site.baseurl }}/installation/compiling/termux)
