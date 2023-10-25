@@ -4,11 +4,11 @@ permalink: /references/pictures
 title: Pictures
 ---
 
-myMPD supports local coverart for albums and streams.
+myMPD supports local coverart for albums, streams and tags.
 
 ## Albumart
 
-myMPD can get albumart through the MPD protocol or through direct access to the MPD music directory.
+myMPD can get albumart through through direct access to the MPD music directory or through the MPD protocol.
 
 ### Direct access
 
@@ -58,6 +58,8 @@ myMPD restricts the size to 5 MB.
 The "Browse Database" grid view can display pictures for other tags than album also. To enable this simply create a directory with the tagname in the `/var/lib/mympd/pics` directory and put pictures with filename equal the tag value in this directory.
 
 You can download artistart with the script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)
+
+Tag values are case sensitive and are sanitized: `/` is replaced with `_` (`AC/DC` -> `AC_DC`)
 
 ### Example
 
