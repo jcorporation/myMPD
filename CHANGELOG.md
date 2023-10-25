@@ -28,6 +28,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Feat: Respect search order for searches added to queue or playlist #1078
 - Feat: Add support for descending sort for smart playlists and playlists
 - Feat: Improve jukebox album mode
+- Feat: FreeBSD support #117
 - Upd: Use more standard cmake build types #1119
 - Upd: rework timer implementation
 - Upd: some websocket connection improvements
