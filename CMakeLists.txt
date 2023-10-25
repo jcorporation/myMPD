@@ -228,6 +228,7 @@ configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
 configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.service @ONLY)
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
+configure_file(contrib/initscripts/mympd.freebsdrc.in contrib/initscripts/mympd.freebsdrc @ONLY)
 
 # global compile options
 add_compile_options(

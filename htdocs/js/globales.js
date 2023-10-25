@@ -688,6 +688,7 @@ const settingsWebuiFields = {
         "inputType": "checkbox",
         "title": "Timer",
         "form": "modalSettingsFurtherFeaturesFrm",
+        "warn": "Timers are not supported by platform",
         "help": "helpSettingsEnableTimer"
     },
     "enableMounts": {

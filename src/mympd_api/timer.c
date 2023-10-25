@@ -20,8 +20,14 @@
 #include <poll.h>
 #include <stdbool.h>
 #include <string.h>
-#include <sys/timerfd.h>
 #include <unistd.h>
+
+#ifdef MYMPD_NO_TIMERFD
+    #define timerfd_create(a, b) -1
+    #define timerfd_settime(a, b, c, d) -1
+#else
+    #include <sys/timerfd.h>
+#endif
 
 /**
  * Private definitions
@@ -200,6 +206,10 @@ bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interva
 bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, timer_handler handler,
         long long timer_id, struct t_timer_definition *definition)
 {
+    #ifdef MYMPD_NO_TIMERFD
+        MYMPD_LOG_DEBUG(NULL, "Timers are not supported by platform");
+        return true;
+    #endif
     struct t_timer_node *new_node = malloc_assert(sizeof(struct t_timer_node));
     new_node->callback = handler;
     new_node->definition = definition;
@@ -229,6 +239,10 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
             ? interval
             : 0;
         new_value.it_interval.tv_nsec = 0;
+
+        #ifdef MYMPD_NO_TIMERFD
+            (void) new_value;
+        #endif
 
         errno = 0;
         if (timerfd_settime(new_node->fd, 0, &new_value, NULL) == -1) {

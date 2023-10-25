@@ -23,7 +23,7 @@ function setFeatures() {
     features.featScripting = settings.webuiSettings.enableScripting
         ? settings.features.featScripting
         : false;
-    features.featTimer = settings.webuiSettings.enableTimer;
+    features.featTimer = settings.features.featTimer && settings.webuiSettings.enableTimer;
     features.featTrigger = settings.webuiSettings.enableTrigger;
     features.featMediaSession = checkMediaSessionSupport();
     features.featFooterNotifications = settings.webuiSettings.footerNotifications;

@@ -46,9 +46,15 @@
 #cmakedefine I18N_ru_RU
 #cmakedefine I18N_zh_Hans
 
-//detect 32 or 64 bit platform
+// detect 32 or 64 bit platform
 #if ULONG_MAX == 0xffffffffffffffff
     #define MYMPD_64BIT
+#endif
+
+// detect timerfd support
+#if defined __FreeBSD__ && __FreeBSD__ < 14
+    /* timerfd is not supported on FreeBSD < 14, so the timers doesn't work */
+    #define MYMPD_NO_TIMERFD
 #endif
 
 //myMPD version from cmake

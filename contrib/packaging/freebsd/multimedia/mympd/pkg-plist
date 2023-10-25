@@ -1,0 +1,3 @@
+bin/mympd
+etc/rc.d/mympd
+share/man/man1/mympd.1.gz

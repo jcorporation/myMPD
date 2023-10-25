@@ -26,6 +26,7 @@
 #include <openssl/x509v3.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/socket.h>
 
 //private definitions
 static bool certificates_create(sds dir, sds custom_san);

@@ -23,6 +23,13 @@ if("@MYMPD_STARTUP_SCRIPT@" STREQUAL "ON")
     file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
         DESTINATION "/etc/init.d"
         FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+  elseif(EXISTS "/bin/freebsd-version")
+    #Install FreeBSD rc script
+    file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.freebsdrc"
+                "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
+    file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
+        DESTINATION "/usr/local/etc/rc.d"
+        FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
   else()
     message("No supported init system found, no startup script was installed")
   endif()
