@@ -405,9 +405,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
         .tags_len = 1,
         .tags[0] = mpd_tag_name_parse(tagstr)
     };
-
     bool rc = false;
-
     if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
         MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by tag \"%s\"", playlist, tagstr);
         enable_mpd_tags(partition_state, &sort_tags);
