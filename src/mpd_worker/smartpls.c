@@ -402,7 +402,7 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
  * Updates a newest song smart playlist
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
  * @param playlist playlist to delete
- * @param timerange timerange in seconds since now
+ * @param timerange timerange in seconds since last database update
  * @return true on success, else false
  */
 static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state,
@@ -424,7 +424,8 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     }
 
     //prevent overflow
-    if (timerange < 0) {
+    if (timerange < 0 ||
+        (unsigned long)timerange > value_max) {
         return false;
     }
     value_max = value_max - (unsigned long)timerange;
