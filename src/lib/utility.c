@@ -13,12 +13,12 @@
 #include <errno.h>
 #include <ifaddrs.h>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <pwd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
+#include <sys/stat.h>
 
 /**
  * Private definitions
