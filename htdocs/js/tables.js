@@ -358,7 +358,7 @@ function setColTags(tableName) {
         case 'BrowseDatabaseAlbumList': {
             if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();
-                tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
+                tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified');
                 return tags.filter(function(value) {
                     return value !== 'Disc';
                 });
@@ -370,7 +370,7 @@ function setColTags(tableName) {
         case 'BrowseDatabaseAlbumDetailInfo': {
             if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();
-                tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
+                tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified');
                 return tags.filter(function(value) {
                     return value !== 'Disc' &&
                         value !== 'Album';
@@ -382,7 +382,7 @@ function setColTags(tableName) {
         }
         case 'QueueJukeboxAlbum': {
             const tags = settings.tagListAlbum.slice();
-            tags.push('Pos', 'Discs', 'SongCount', 'Duration', 'LastModified');
+            tags.push('Pos', 'Discs', 'SongCount', 'Duration', 'Last-Modified');
             return tags.filter(function(value) {
                 return value !== 'Disc';
             });
@@ -394,7 +394,7 @@ function setColTags(tableName) {
     if (features.featTags === false) {
         tags.push('Title');
     }
-    tags.push('Duration', 'LastModified');
+    tags.push('Duration', 'Last-Modified');
 
     switch(tableName) {
         case 'QueueCurrent':

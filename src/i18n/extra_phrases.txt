@@ -106,7 +106,7 @@ Label
 language
 lastchangetime
 lastcheckok
-LastModified
+Last-Modified
 Last played list count
 Light
 Location

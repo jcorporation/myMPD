@@ -240,7 +240,7 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
         mpack_write_kv(&writer, "Discs", album_get_discs(album));
         mpack_write_kv(&writer, "Songs", album_get_song_count(album));
         mpack_write_kv(&writer, "Duration", mpd_song_get_duration(album));
-        mpack_write_kv(&writer, "LastModified", (uint64_t)mpd_song_get_last_modified(album));
+        mpack_write_kv(&writer, "Last-Modified", (uint64_t)mpd_song_get_last_modified(album));
         mpack_write_cstr(&writer, "AlbumId");
         mpack_write_str(&writer, (char *)iter.key, (uint32_t)iter.key_len);
         for (unsigned tagnr = 0; tagnr < album_tags->tags_len; ++tagnr) {
@@ -573,7 +573,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
         album->pos = mpack_node_uint(mpack_node_map_cstr(album_node, "Discs"));
         album->prio = mpack_node_uint(mpack_node_map_cstr(album_node, "Songs"));
         album->duration = mpack_node_uint(mpack_node_map_cstr(album_node, "Duration"));
-        album->last_modified = mpack_node_int(mpack_node_map_cstr(album_node, "LastModified"));
+        album->last_modified = mpack_node_int(mpack_node_map_cstr(album_node, "Last-Modified"));
         album->duration_ms = album->duration * 1000;
         for (size_t i = 0; i < tagcols->tags_len; i++) {
             enum mpd_tag_type tag = tagcols->tags[i];

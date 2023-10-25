@@ -10,7 +10,7 @@
     "Each 604800": "weekly |||| each %{smart_count} weeks",
     "Each 86400": "daily |||| each %{smart_count} days",
     "Homescreen welcome": "You have not added any home icons yet. Home icons can be added through the context menus and following icons:",
-    "LastModified": "Last modified",
+    "Last-Modified": "Last modified",
     "LastPlayed": "Last played",
     "Missing translations": "Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations",
     "Num entries": "%{smart_count} Entry |||| %{smart_count} Entries",

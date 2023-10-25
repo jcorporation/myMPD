@@ -5,6 +5,8 @@
 */
 
 #include "compile_time.h"
+#include "mpd/song.h"
+#include "mpd/tag.h"
 #include "src/mpd_client/playlists.h"
 
 #include "dist/rax/rax.h"
@@ -18,6 +20,7 @@
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 
+#include <stdbool.h>
 #include <string.h>
 
 /**
@@ -405,14 +408,25 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
 
     bool rc = false;
 
-    if (strcmp(tagstr, "filename") == 0) {
-        MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by filename", playlist);
-        rc = mpd_send_list_playlist(partition_state->conn, playlist);
-    }
-    else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
+    if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
         MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by tag \"%s\"", playlist, tagstr);
         enable_mpd_tags(partition_state, &sort_tags);
         rc = mpd_send_list_playlist_meta(partition_state->conn, playlist);
+    }
+    else if (strcmp(tagstr, "filename") == 0) {
+        MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by %s", playlist, tagstr);
+        rc = mpd_send_list_playlist(partition_state->conn, playlist);
+        sort_tags.tags[0] = -3;
+    }
+    else if (strcmp(tagstr, "Last-Modified") == 0)
+    {
+        MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by %s", playlist, tagstr);
+        rc = mpd_send_list_playlist(partition_state->conn, playlist);
+        sort_tags.tags[0] = -2;
+        //swap sort direction
+        sortdesc = sortdesc == true
+            ? false
+            : true;
     }
     else {
         return false;
@@ -427,9 +441,13 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
             sdsclear(key);
             if (sort_tags.tags[0] == MPD_TAG_TRACK) {
                 key = mpd_client_get_tag_value_padded(song, MPD_TAG_TRACK, '0', 9, key);
-                key = sdscat(key, song_uri);
+                key = sdscatfmt(key, "::", song_uri);
             }
-            else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
+            else if (sort_tags.tags[0] == -2) {
+                //sort by Last-Modified
+                key = sdscatprintf(key, "%020lld::%s", (long long)mpd_song_get_last_modified(song), song_uri);
+            }
+            else if (sort_tags.tags[0] > MPD_TAG_UNKNOWN) {
                 //sort by tag
                 key = mpd_client_get_tag_value_string(song, sort_tags.tags[0], key);
                 key = sdscatfmt(key, "::%s", song_uri);

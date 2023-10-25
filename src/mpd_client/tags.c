@@ -357,7 +357,7 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
         buffer = sdscatlen(buffer, ",", 1);
     }
     buffer = tojson_uint(buffer, "Duration", mpd_song_get_duration(song), true);
-    buffer = tojson_time(buffer, "LastModified", mpd_song_get_last_modified(song), true);
+    buffer = tojson_time(buffer, "Last-Modified", mpd_song_get_last_modified(song), true);
     buffer = tojson_char(buffer, "uri", uri, false);
     return buffer;
 }

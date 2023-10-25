@@ -24,7 +24,7 @@ static const char *invalid_name_chars = "\a\b\f\n\r\t\v";
 static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
-static const char *mympd_cols[]={"Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype", "AudioFormat", "LastModified",
+static const char *mympd_cols[]={"Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype", "AudioFormat", "Last-Modified",
     "Lyrics", "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", "elapsed",
     "Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate", //Columns for webradiodb
     "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes", //Columns for radiobrowser
@@ -327,7 +327,7 @@ bool vcb_ismpdsort(sds data) {
     if (tag == MPD_TAG_UNKNOWN &&
         strcmp(data, "filename") != 0 &&
         strcmp(data, "shuffle") != 0 &&
-        strcmp(data, "LastModified") != 0 &&
+        strcmp(data, "Last-Modified") != 0 &&
         strcmp(data, "Date") != 0 &&
         strcmp(data, "Priority") != 0)
     {

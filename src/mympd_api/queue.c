@@ -744,7 +744,7 @@ static bool add_queue_search_adv_params(struct t_partition_state *partition_stat
             return false;
         }
     }
-    else if (strcmp(sort, "LastModified") == 0) {
+    else if (strcmp(sort, "Last-Modified") == 0) {
         //swap order
         sortdesc = sortdesc == false ? true : false;
         if (mpd_search_add_sort_name(partition_state->conn, "Last-Modified", sortdesc) == false) {

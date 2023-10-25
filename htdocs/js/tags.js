@@ -124,7 +124,7 @@ function addTagList(elId, list) {
         }
         if (settings.albumMode === 'adv') {
             stack.appendChild(
-                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, 'Last modified')
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, 'Last modified')
             );
         }
     }
@@ -262,7 +262,7 @@ function printValue(key, value) {
         case 'Pos':
             //mpd is 0-indexed but humans wants 1-indexed lists
             return document.createTextNode(value + 1);
-        case 'LastModified':
+        case 'Last-Modified':
         case 'LastPlayed':
         case 'lastPlayed':
         case 'lastSkipped':
