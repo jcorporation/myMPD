@@ -30,12 +30,11 @@ title: OpenWrt
     scripts/feeds update -a
     scripts/feeds install libflac libid3tag liblua5.3 libopenssl libpcre2
     ```
-3. Copy contents of `contrib/packaging/openwrt` from myMPD tree
-   to `package/mympd` directory of SDK.
+3. Copy contents of `contrib/packaging/openwrt` from myMPD tree to `package/mympd` directory of SDK.
 4. To select myMPD package build run:
-    make menuconfig
-   and select it in 'Sound' menu, to build it run:
-    make -j$(nproc) BUILD_LOG=1
+    - `make menuconfig`
+    - Select it in 'Sound' menu, to build it run:
+    - make -j$(nproc) BUILD_LOG=1`
 6. Resulting package will be placed in `bin` directory.
 
 ***
