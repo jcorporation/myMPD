@@ -112,7 +112,8 @@ setversion() {
 
   for F in contrib/packaging/alpine/APKBUILD contrib/packaging/arch/PKGBUILD \
       contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog \
-      contrib/packaging/openwrt/Makefile contrib/man/mympd.1 contrib/man/mympd-script.1
+      contrib/packaging/openwrt/Makefile contrib/man/mympd.1 contrib/man/mympd-script.1 \
+      contrib/packaging/freebsd/multimedia/mympd/Makefile
   do
     echo "$F"
     sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" \
