@@ -310,7 +310,7 @@ buildrelease() {
   echo "Compiling myMPD v${VERSION}"
   cmake -B release \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
-    -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+    -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     .
   make -C release
 }
@@ -1090,8 +1090,9 @@ createi18n() {
   fi
   #json to js
   printf "const i18n = " > "$MYMPD_BUILDDIR/htdocs/js/i18n.js"
-  BYTES=$((`wc -c <src/i18n/json/i18n.json`-1))
-  head -c $BYTES "src/i18n/json/i18n.json" >> "$MYMPD_BUILDDIR/htdocs/js/i18n.js"
+  BYTES=$(wc -c < src/i18n/json/i18n.json)
+  BYTES=$((BYTES-1))
+  head -c "$BYTES" "src/i18n/json/i18n.json" >> "$MYMPD_BUILDDIR/htdocs/js/i18n.js"
   echo ";" >> "$MYMPD_BUILDDIR/htdocs/js/i18n.js"
   #Update serviceworker
   TO_CACHE=""
