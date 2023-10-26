@@ -9,5 +9,5 @@
     "ko-KR": {"desc":"한국어 (ko-KR)", "missingPhrases": 1},
     "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 1},
     "ru-RU": {"desc":"Russian (ru-RU)", "missingPhrases": 30},
-    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 27}
+    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 0}
 }
