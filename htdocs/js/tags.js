@@ -158,16 +158,21 @@ function addTagListSelect(elId, list) {
         select.appendChild(
             elCreateTextTn('option', {"value": "shuffle"}, 'Shuffle')
         );
-        const optGroup = elCreateEmpty('optgroup', {"label": tn('Sort by tag'), "data-label-phrase": "Sort by tag"});
-        optGroup.appendChild(
+        select.appendChild(
+            elCreateTextTn('option', {"value": "Last-Modified"}, 'Last-Modified')
+        );
+        select.appendChild(
             elCreateTextTn('option', {"value": "filename"}, 'Filename')
         );
-        for (let i = 0, j = settings[list].length; i < j; i++) {
-            optGroup.appendChild(
-                elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i])
-            );
+        if (features.featTags === true) {
+            const optGroup = elCreateEmpty('optgroup', {"label": tn('Sort by tag'), "data-label-phrase": "Sort by tag"});
+            for (let i = 0, j = settings[list].length; i < j; i++) {
+                optGroup.appendChild(
+                    elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i])
+                );
+            }
+            select.appendChild(optGroup);
         }
-        select.appendChild(optGroup);
     }
     else if (elId === 'modalPlaybackJukeboxUniqueTagInput') {
         if (settings.tagListBrowse.includes('Title') === false) {
