@@ -372,6 +372,10 @@ function clickGotoPos() {
  * @returns {void}
  */
 function toggleAdvPlaycontrolsPopover(event) {
+    console.log(event.target.closest('.dropdown'));
+    if (event.target.closest('.dropdown-menu') !== null) {
+        return;
+    }
     event.preventDefault();
     event.stopPropagation();
     if (domCache.footer.getAttribute('aria-describedby') === null) {
