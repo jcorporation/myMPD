@@ -5,8 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/song.h"
-#include "mpd/tag.h"
 #include "src/mpd_client/playlists.h"
 
 #include "dist/rax/rax.h"
