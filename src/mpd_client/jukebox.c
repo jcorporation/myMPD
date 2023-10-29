@@ -309,7 +309,8 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_so
  * @return true on success, else false
  */
 static bool add_album_to_queue(struct t_partition_state *partition_state, struct mpd_song *album) {
-    sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, album);
+    sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, album,
+        &partition_state->mympd_state->config->albums);
     if (mpd_search_add_db_songs(partition_state->conn, true) &&
         mpd_search_add_expression(partition_state->conn, expression))
     {

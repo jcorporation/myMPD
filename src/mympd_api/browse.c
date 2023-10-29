@@ -50,7 +50,8 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Could not find album");
     }
 
-    sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, mpd_album);
+    sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, mpd_album,
+        &partition_state->mympd_state->config->albums);
 
     if (mpd_search_db_songs(partition_state->conn, true) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
