@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v13.0.0 (not yet released)
 
-The album cache was reworked substantially. It uses now Album + AlbumArtist + Date tag to group albums as fallback for the MusicBrainz AlbumId, in earlier versions the fallback was Album+AlbumArtist.
+The album cache was reworked substantially. It uses now Album + AlbumArtist + Date tag to group albums as fallback for the MusicBrainz AlbumId, in earlier versions the fallback was Album + AlbumArtist.
 
 There is now also a simple album cache that can be created much faster than the traditional album cache. Enable the simple album mode is only reasonable, if you have a very big music collection. The simple album cache contains only the AlbumArtist, Album and Date tags.
 
@@ -14,7 +14,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 
 ## Notes
 
-- LastModifed was renamed to Last-Modified. Home icons, column settings and links with references to the old name must be manually updated.
+- LastModified was renamed to Last-Modified. Home icons, column settings and links with references to the old name must be manually updated.
 
 ## Changelog
 
