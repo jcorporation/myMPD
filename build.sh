@@ -312,7 +312,7 @@ buildrelease() {
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     .
-  make -C release
+  make -j4 -C release
 }
 
 addmympduser() {
@@ -405,7 +405,7 @@ builddebug() {
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     $CMAKE_SANITIZER_OPTIONS \
     .
-  make -C debug VERBOSE=1
+  make -j4 -C debug VERBOSE=1
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
     -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
@@ -421,8 +421,8 @@ buildtest() {
     -DMYMPD_ENABLE_ASAN=ON \
     -DMYMPD_BUILD_TESTING=ON \
     .
-  make -C debug
-  make -C debug test
+  make -j4 -C debug
+  make -j4 -C debug test
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
     -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
@@ -1366,6 +1366,25 @@ run_jsdoc() {
   jsdoc htdocs/js/ -c jsdoc.json -d docs/jsdoc/
 }
 
+create_doc() {
+  DOC_DEST=$1
+  if ! check_cmd jekyll
+  then
+    echo "Jekyll not installed, can not create documentation"
+    return 1
+  fi
+  if ! run_doxygen
+  then
+    echo "Skipped generation of c api documentation"
+  fi
+  if ! run_jsdoc
+  then
+    echo "Skipped generation of js api documentation"
+  fi
+  install -d "$DOC_DEST" || return 1
+  jekyll build -s "$STARTPATH/docs" -d "$DOC_DEST"
+}
+
 case "$ACTION" in
   release|MinSizeRel)
     buildrelease "Release"
@@ -1527,6 +1546,14 @@ case "$ACTION" in
     fi
     cp -v htdocs/js/apidoc.js docs/assets/apidoc.js
   ;;
+  doc)
+    if [ -z "${2+x}" ]
+    then
+      echo "Usage: $0 $1 <destination folder>"
+      exit 1
+    fi
+    create_doc "$2"
+    ;;
   cloc)
     cloc --exclude-dir=dist .
   ;;
@@ -1627,6 +1654,7 @@ case "$ACTION" in
     echo "  addmympduser:     adds mympd group and user"
     echo "  luascript_index:  creates the json index of lua scripts"
     echo "  api_doc:          generates the api documentation"
+    echo "  doc:              generates the html documentation"
     echo "  cloc:             runs cloc (count lines of code)"
     echo ""
     echo "Source update options:"

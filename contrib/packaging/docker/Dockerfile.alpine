@@ -7,7 +7,9 @@ FROM alpine:latest as build
 COPY . /myMPD/
 WORKDIR /myMPD
 RUN ./build.sh installdeps
-RUN ./build.sh release
+RUN cmake -B "release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MANPAGES=OFF -DMYMPD_DOC=OFF .
+RUN make -j4 -C "release"
+RUN make -C "release" install
 
 FROM alpine:latest
 RUN apk add --no-cache openssl libid3tag flac lua5.4 pcre2

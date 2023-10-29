@@ -15,6 +15,7 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 ## Notes
 
 - LastModified was renamed to Last-Modified. Home icons, column settings and links with references to the old name must be manually updated.
+- For packagers: cmake options are slightly changed and the new MYMPD_DOC options is enabled as default
 
 ## Changelog
 

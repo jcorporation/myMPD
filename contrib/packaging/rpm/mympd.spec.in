@@ -45,6 +45,11 @@ make -C release
 
 %install
 make -C release install DESTDIR=%{buildroot}
+if [ "%{_defaultdocdir}" == "/usr/share/doc/packages" ]
+then
+  install -d "%{buildroot}%{_defaultdocdir}"
+  mv -v "%{buildroot}/usr/share/doc/mympd" "%{buildroot}%{_defaultdocdir}/mympd"
+fi
 
 %files
 %defattr(-,root,root,-)
@@ -54,6 +59,10 @@ make -C release install DESTDIR=%{buildroot}
 /usr/lib/systemd/system/mympd.service
 %{_mandir}/man1/mympd.1.gz
 %{_mandir}/man1/mympd-script.1.gz
+%{_defaultdocdir}/mympd/CHANGELOG.md
+%{_defaultdocdir}/mympd/LICENSE.md
+%{_defaultdocdir}/mympd/README.md
+%{_defaultdocdir}/mympd/SECURITY.md
 %license LICENSE.md
 
 %changelog

@@ -28,5 +28,4 @@ build() {
 
 package() {
   DESTDIR="$pkgdir" cmake --install build
-  install -vDm 644 "${srcdir}"/{CHANGELOG,README}.md -t "$pkgdir/usr/share/doc/$pkgname/"
 }

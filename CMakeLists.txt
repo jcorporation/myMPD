@@ -42,6 +42,8 @@ endif()
 
 # available options
 option(MYMPD_BUILD_TESTING "Enables building of unit tests" "OFF")
+option(MYMPD_DOC "Installs documentation, default ON" "ON")
+option(MYMPD_DOC_HTML "Creates and installs the html documentation, default OFF" "OFF")
 option(MYMPD_EMBEDDED_ASSETS "Embed assets in binary, default ON, OFF for Debug" "ON")
 option(MYMPD_ENABLE_FLAC "Enables flac support, default ON" "ON")
 option(MYMPD_ENABLE_IPV6 "Enables IPv6, default ON" "ON")
@@ -119,6 +121,7 @@ if(RC_CREATE_ASSETS GREATER 0)
 endif()
 
 message("Document root: ${MYMPD_DOC_ROOT}")
+message("Docdir: ${CMAKE_INSTALL_FULL_DOCDIR}")
 
 # required dependencies
 find_package(Threads REQUIRED)
@@ -222,9 +225,17 @@ if(MYMPD_EMBEDDED_ASSETS)
   endif()
 endif()
 
+# create html documentation
+if(MYMPD_DOC_HTML)
+  execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" doc "${PROJECT_BINARY_DIR}/htmldoc" RESULT_VARIABLE RC_CREATE_DOC)
+endif()
+if(RC_CREATE_DOC GREATER 0)
+  message(FATAL_ERROR "Creating documentation failed")
+endif()
+
 # configure some files - version and path information
 configure_file(src/compile_time.h.in "${PROJECT_BINARY_DIR}/compile_time.h")
-configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
+configure_file(cmake/Install.cmake.in cmake/Install.cmake @ONLY)
 configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.service @ONLY)
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
@@ -404,7 +415,7 @@ endif()
 
 # install
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
-install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/cmake/CopyConfig.cmake)
+install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/cmake/Install.cmake)
 
 # test
 if(MYMPD_BUILD_TESTING)
