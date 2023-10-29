@@ -113,9 +113,9 @@ static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds 
     if (album_dir != NULL) {
         struct dirent *next_file;
         while ((next_file = readdir(album_dir)) != NULL) {
-            if (strcmp(next_file->d_name, mpd_state->booklet_name) == 0) {
+            if (strcmp(next_file->d_name, mpd_state->mympd_state->booklet_name) == 0) {
                 MYMPD_LOG_DEBUG(NULL, "Found booklet for uri %s", uri);
-                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mpd_state->booklet_name);
+                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mpd_state->mympd_state->booklet_name);
             }
             else if (is_image(next_file->d_name) == true) {
                 fullpath = sdscatfmt(fullpath, "/browse/music/%S/%s", path, next_file->d_name);

@@ -32,7 +32,7 @@
 sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, sds buffer, long request_id,
         sds albumid, unsigned size)
 {
-    struct mpd_song *album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
+    struct mpd_song *album = album_cache_get_album(&partition_state->mympd_state->album_cache, albumid);
     if (album == NULL) {
         return jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }

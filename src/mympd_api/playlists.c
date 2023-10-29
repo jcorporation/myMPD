@@ -351,7 +351,7 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
     struct t_list_node *current = albumids->head;
     bool rc = true;
     while (current != NULL) {
-        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
+        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mympd_state->album_cache, current->key);
         if (mpd_album == NULL) {
             rc = false;
             break;
@@ -412,7 +412,7 @@ bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *part
         *error = sdscat(*error, "Method not supported");
         return false;
     }
-    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
+    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mympd_state->album_cache, albumid);
     if (mpd_album == NULL) {
         return false;
     }

@@ -88,6 +88,8 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
     reset_t_tags(&mympd_state->smartpls_generate_tag_types);
     mympd_state->tag_disc_empty_is_first = MYMPD_TAG_DISC_EMPTY_IS_FIRST;
+    mympd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
+    mympd_state->info_txt_name = sdsnew(MYMPD_INFO_TXT_NAME);
     //mpd shared state
     mympd_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
     mpd_state_default(mympd_state->mpd_state, mympd_state);
@@ -107,6 +109,11 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     list_init(&mympd_state->home_list);
     //timer
     mympd_api_timer_timerlist_init(&mympd_state->timer_list);
+    //album cache
+    mympd_state->album_cache.building = false;
+    mympd_state->album_cache.cache = NULL;
+    //init last played songs list
+    mympd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
 }
 
 /**
@@ -132,6 +139,8 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     //stickerdb
     mpd_state_free(mympd_state->stickerdb->mpd_state);
     partition_state_free(mympd_state->stickerdb);
+    //caches
+    album_cache_free(&mympd_state->album_cache);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);
@@ -162,6 +171,8 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->lyrics.vorbis_uslt);
     FREE_SDS(mympd_state->lyrics.vorbis_sylt);
     FREE_SDS(mympd_state->listenbrainz_token);
+    FREE_SDS(mympd_state->booklet_name);
+    FREE_SDS(mympd_state->info_txt_name);
     //struct itself
     FREE_PTR(mympd_state);
 }
@@ -188,13 +199,6 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
     reset_t_tags(&mpd_state->tags_browse);
     reset_t_tags(&mpd_state->tags_album);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
-    //album cache
-    mpd_state->album_cache.building = false;
-    mpd_state->album_cache.cache = NULL;
-    //init last played songs list
-    mpd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
-    //booklet name
-    mpd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
     //features
     mpd_state_features_disable(mpd_state);
 }
@@ -227,14 +231,11 @@ void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
  * Frees the t_mpd_state struct
  */
 void mpd_state_free(struct t_mpd_state *mpd_state) {
-    FREE_SDS(mpd_state->booklet_name);
     FREE_SDS(mpd_state->mpd_host);
     FREE_SDS(mpd_state->mpd_pass);
     FREE_SDS(mpd_state->tag_list);
     FREE_SDS(mpd_state->music_directory_value);
     FREE_SDS(mpd_state->playlist_directory_value);
-    //caches
-    album_cache_free(&mpd_state->album_cache);
     //struct itself
     FREE_PTR(mpd_state);
 }

@@ -314,7 +314,16 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
     }
     else if (strcmp(key, "bookletName") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_isfilename(value) == true) {
-            mympd_state->mpd_state->booklet_name = sds_replace(mympd_state->mpd_state->booklet_name, value);
+            mympd_state->booklet_name = sds_replace(mympd_state->booklet_name, value);
+        }
+        else {
+            set_invalid_value(error, path, key, value, "Must be a valid filename");
+            return false;
+        }
+    }
+    else if (strcmp(key, "infoTxtName") == 0 && vtype == MJSON_TOK_STRING) {
+        if (vcb_isfilename(value) == true) {
+            mympd_state->info_txt_name = sds_replace(mympd_state->info_txt_name, value);
         }
         else {
             set_invalid_value(error, path, key, value, "Must be a valid filename");
@@ -327,7 +336,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
             set_invalid_value(error, path, key, value, "Must be zero or a positive number");
             return false;
         }
-        mympd_state->mpd_state->last_played_count = last_played_count;
+        mympd_state->last_played_count = last_played_count;
     }
     else if (strcmp(key, "volumeMin") == 0 && vtype == MJSON_TOK_NUMBER) {
         unsigned volume_min = (unsigned)strtoumax(value, NULL, 10);
@@ -792,9 +801,10 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->stickerdb->mpd_state->mpd_timeout = state_file_rw_uint(workdir, DIR_WORK_STATE, "stickerdb_mpd_timeout", mympd_state->mpd_state->mpd_timeout, MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX, true);
     mympd_state->stickerdb->mpd_state->mpd_keepalive = state_file_rw_bool(workdir, DIR_WORK_STATE, "stickerdb_mpd_keepalive", mympd_state->mpd_state->mpd_keepalive, true);
     // other settings
-    mympd_state->mpd_state->booklet_name = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "booklet_name", mympd_state->mpd_state->booklet_name, vcb_isfilename, true);
-    mympd_state->mpd_state->last_played_count = state_file_rw_long(workdir, DIR_WORK_STATE, "last_played_count", mympd_state->mpd_state->last_played_count, 0, MPD_PLAYLIST_LENGTH_MAX, true);
     mympd_state->mpd_state->tag_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "tag_list", mympd_state->mpd_state->tag_list, vcb_istaglist, true);
+    mympd_state->last_played_count = state_file_rw_long(workdir, DIR_WORK_STATE, "last_played_count", mympd_state->last_played_count, 0, MPD_PLAYLIST_LENGTH_MAX, true);
+    mympd_state->booklet_name = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "booklet_name", mympd_state->booklet_name, vcb_isfilename, true);
+    mympd_state->info_txt_name = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "info_txt_name", mympd_state->info_txt_name, vcb_isfilename, true);
     mympd_state->tag_list_search = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "tag_list_search", mympd_state->tag_list_search, vcb_istaglist, true);
     mympd_state->tag_list_browse = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "tag_list_browse", mympd_state->tag_list_browse, vcb_istaglist, true);
     mympd_state->smartpls = state_file_rw_bool(workdir, DIR_WORK_STATE, "smartpls", mympd_state->smartpls, true);
@@ -899,10 +909,11 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_sds(buffer, "smartplsSort", mympd_state->smartpls_sort, true);
     buffer = tojson_sds(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
     buffer = tojson_time(buffer, "smartplsInterval", mympd_state->smartpls_interval, true);
-    buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->mpd_state->last_played_count, true);
+    buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->last_played_count, true);
     buffer = tojson_sds(buffer, "musicDirectory", mympd_state->music_directory, true);
     buffer = tojson_sds(buffer, "playlistDirectory", mympd_state->playlist_directory, true);
-    buffer = tojson_sds(buffer, "bookletName", mympd_state->mpd_state->booklet_name, true);
+    buffer = tojson_sds(buffer, "bookletName", mympd_state->booklet_name, true);
+    buffer = tojson_sds(buffer, "infoTxtName", mympd_state->info_txt_name, true);
     buffer = tojson_uint(buffer, "volumeMin", mympd_state->volume_min, true);
     buffer = tojson_uint(buffer, "volumeMax", mympd_state->volume_max, true);
     buffer = tojson_uint(buffer, "volumeStep", mympd_state->volume_step, true);

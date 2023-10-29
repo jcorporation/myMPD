@@ -78,7 +78,7 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
         FILE *fi = fopen(filepath, OPEN_FLAGS_READ);
         if (fi != NULL) {
             while (sds_getline(&line, fi, LINE_LENGTH_MAX) >= 0 &&
-                count < partition_state->mpd_state->last_played_count)
+                count < partition_state->mympd_state->last_played_count)
             {
                 line = sdscatlen(line, "\n", 1);
                 if (fputs(line, fp) == EOF) {
@@ -113,7 +113,7 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
  */
 bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, int song_id) {
     if (song_id == -1 ||                                    // no current song
-        partition_state->mpd_state->last_played_count == 0) // last played is disabled
+        partition_state->mympd_state->last_played_count == 0) // last played is disabled
     {
         return true;
     }
@@ -137,7 +137,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, i
 
     //write last_played list to disc
     if (partition_state->last_played.length >= LAST_PLAYED_MEM_MAX ||
-        partition_state->last_played.length > partition_state->mpd_state->last_played_count)
+        partition_state->last_played.length > partition_state->mympd_state->last_played_count)
     {
         mympd_api_last_played_file_save(partition_state);
     }

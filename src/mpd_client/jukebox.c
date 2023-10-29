@@ -521,7 +521,7 @@ static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state
 static long fill_jukebox_queue_albums(struct t_partition_state *partition_state, long add_albums,
         bool manual, struct t_list *queue_list, struct t_list *add_list)
 {
-    if (partition_state->mpd_state->album_cache.cache == NULL) {
+    if (partition_state->mympd_state->album_cache.cache == NULL) {
         MYMPD_LOG_WARN(partition_state->name, "Album cache is null, jukebox can not add albums");
         return -1;
     }
@@ -557,7 +557,7 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
 
     sds tag_value = sdsempty();
     raxIterator iter;
-    raxStart(&iter, partition_state->mpd_state->album_cache.cache);
+    raxStart(&iter, partition_state->mympd_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
         struct mpd_song *album= (struct mpd_song *)iter.data;

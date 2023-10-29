@@ -138,28 +138,28 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
             }
             if (request->cmd_id == MYMPD_API_CACHES_CREATE) {
-                if (mympd_state->mpd_state->album_cache.building == true) {
+                if (mympd_state->album_cache.building == true) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_WARN, "Cache update is already running");
                     MYMPD_LOG_WARN(partition_state->name, "Cache update is already running");
                     break;
                 }
-                mympd_state->mpd_state->album_cache.building = mympd_state->mpd_state->feat_tags;
+                mympd_state->album_cache.building = mympd_state->mpd_state->feat_tags;
             }
             async = mpd_worker_start(mympd_state, request);
             if (async == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error starting worker thread");
-                mympd_state->mpd_state->album_cache.building = false;
+                mympd_state->album_cache.building = false;
             }
             break;
     // Async responses from the worker thread
         case INTERNAL_API_ALBUMCACHE_SKIPPED:
-            mympd_state->mpd_state->album_cache.building = false;
+            mympd_state->album_cache.building = false;
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
             break;
         case INTERNAL_API_ALBUMCACHE_ERROR:
-            mympd_state->mpd_state->album_cache.building = false;
+            mympd_state->album_cache.building = false;
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating album cache");
             break;
@@ -169,8 +169,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 MYMPD_LOG_INFO(partition_state->name, "Clearing jukebox queues");
                 jukebox_clear_all(mympd_state);
                 //free the old album cache and replace it with the freshly generated one
-                album_cache_free(&mympd_state->mpd_state->album_cache);
-                mympd_state->mpd_state->album_cache.cache = (rax *) request->extra;
+                album_cache_free(&mympd_state->album_cache);
+                mympd_state->album_cache.cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 MYMPD_LOG_INFO(partition_state->name, "Album cache was replaced");
             }
@@ -179,7 +179,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album cache is NULL");
             }
-            mympd_state->mpd_state->album_cache.building = false;
+            mympd_state->album_cache.building = false;
             break;
     // Misc
         case MYMPD_API_LOGLEVEL:
