@@ -1,3 +1,11 @@
+## Note
+
+This is a slightly modified version of mongoose.
+
+https://github.com/jcorporation/mongoose
+
+## Original license
+
 Copyright (c) 2004-2013 Sergey Lyubka
 Copyright (c) 2013-2023 Cesanta Software Limited
 All rights reserved

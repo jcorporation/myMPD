@@ -1,3 +1,11 @@
+## Note
+
+This is a slightly modified version of sds.
+
+https://github.com/jcorporation/sds
+
+## Original license
+
 Copyright (c) 2006-2014, Salvatore Sanfilippo <antirez at gmail dot com>
 
 All rights reserved.
@@ -22,3 +30,5 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+https://github.com/antirez/sds

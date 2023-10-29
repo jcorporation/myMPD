@@ -1,3 +1,11 @@
+## Note
+
+This is a slightly modified version of libmpdclient.
+
+https://github.com/jcorporation/libmympdclient
+
+## Original license
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
@@ -24,3 +32,23 @@ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+https://github.com/MusicPlayerDaemon/libmpdclient
+
+### libmpdclient authors
+
+libmpdclient was developed by many people, including:
+
+Max Kellermann <max.kellermann@gmail.com>
+Marc Pavot <marc.pavot@gmail.com>
+Martijn Koedam <qball@sarine.nl>
+Avuton Olrich <avuton@gmail.com>
+Andrzej Rybczak <electricityispower@gmail.com>
+Roman Nuritdinov <ky6uk.kun@gmail.com>
+Romain Bignon <romain@peerfuse.org>
+
+### Former libmpdclient developers
+
+J. Alexander Treuman <jat@spatialrift.net>
+Warren Dukes <warren.dukes@gmail.com>
+Eric Wong

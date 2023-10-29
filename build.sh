@@ -908,8 +908,7 @@ updatelibmympdclient() {
   rsync -av "$TMPDIR/libmympdclient/output/version.h" include/mpd/version.h
   rsync -av "$TMPDIR/libmympdclient/output/config.h" include/config.h
 
-  rsync -av "$TMPDIR/libmympdclient/COPYING" COPYING
-  rsync -av "$TMPDIR/libmympdclient/AUTHORS" AUTHORS
+  rsync -av "$TMPDIR/libmympdclient/LICENSE.md" LICENSE.md
 
   rm -rf "$TMPDIR"
 }
