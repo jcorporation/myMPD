@@ -155,16 +155,28 @@ function parseCurrentSong(obj) {
 
     const bookletEl = elGetById('PlaybackBooklet');
     elClear(bookletEl);
-    if (obj.result.bookletPath !== '' &&
-        obj.result.bookletPath !== undefined &&
-        features.featLibrary === true)
-    {
+    if (obj.result.bookletPath !== '') {
         bookletEl.appendChild(
             elCreateText('span', {"class": ["mi", "me-2"]}, 'description')
         );
         bookletEl.appendChild(
-            elCreateTextTn('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)}, 'Download booklet')
+            elCreateTextTn('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)}, 'Booklet')
         );
+    }
+
+    const infoTxtEl = elGetById('PlaybackInfoTxt');
+    elClear(infoTxtEl);
+    if (obj.result.infoTxtPath !== '') {
+        infoTxtEl.appendChild(
+            elCreateText('span', {"class": ["mi", "me-2"]}, 'article')
+        );
+        infoTxtEl.appendChild(
+            elCreateTextTn('span', {"href": myEncodeURI(subdir + obj.result.infoTxtPath)}, 'Album info')
+        );
+        setData(infoTxtEl, 'uri', obj.result.infoTxtPath);
+    }
+    else {
+        rmData(infoTxtEl, 'uri');
     }
 
     //update queue card

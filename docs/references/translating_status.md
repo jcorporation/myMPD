@@ -1,13 +1,13 @@
-- bg-BG: 955 missing phrases
-- es-AR: 1 missing phrases
-- es-ES: 815 missing phrases
-- es-VE: 818 missing phrases
-- fi-FI: 815 missing phrases
-- fr-FR: 1 missing phrases
-- it-IT: 1 missing phrases
-- ja-JP: 1 missing phrases
-- ko-KR: 1 missing phrases
-- nl-NL: 1 missing phrases
-- pl-PL: 990 missing phrases
-- ru-RU: 30 missing phrases
-- zh-Hans: fully translated
+- bg-BG: 959 missing phrases
+- es-AR: 5 missing phrases
+- es-ES: 819 missing phrases
+- es-VE: 822 missing phrases
+- fi-FI: 819 missing phrases
+- fr-FR: 5 missing phrases
+- it-IT: 5 missing phrases
+- ja-JP: 5 missing phrases
+- ko-KR: 5 missing phrases
+- nl-NL: 5 missing phrases
+- pl-PL: 994 missing phrases
+- ru-RU: 34 missing phrases
+- zh-Hans: 4 missing phrases

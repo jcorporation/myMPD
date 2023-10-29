@@ -212,6 +212,16 @@ function parseSongDetails(obj) {
             )
         );
     }
+    if (obj.result.infoTxtPath !== '') {
+        const infoTxtEl = elCreateTextTn('span', {"class": ["text-success", "clickable"]}, 'Show');
+        setData(infoTxtEl, 'uri', obj.result.infoTxtPath);
+        infoTxtEl.addEventListener('click', function(event) {
+            showInfoTxt(event.target);
+        }, false);
+        tbody.appendChild(
+            songDetailsRow('Album info', infoTxtEl)
+        );
+    }
     if (features.featStickers === true) {
         tbody.appendChild(
             elCreateNode('tr', {},

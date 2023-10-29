@@ -335,8 +335,15 @@ const settingsFields = {
         "defaultValue": defaults["MYMPD_BOOKLET_NAME"],
         "inputType": "text",
         "title": "Booklet filename",
-        "form": "modalSettingsBookletFrm",
+        "form": "modalSettingsAlbumInfoFrm",
         "help": "helpSettingsBookletName"
+    },
+    "infoTxtName": {
+        "defaultValue": defaults["MYMPD_INFO_TXT_NAME"],
+        "inputType": "text",
+        "title": "Info filename",
+        "form": "modalSettingsAlbumInfoFrm",
+        "help": "helpSettingsInfoTxtName"
     },
     "coverimageNames": {
         "defaultValue": defaults["MYMPD_COVERIMAGE_NAMES"],

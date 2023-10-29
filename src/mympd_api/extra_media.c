@@ -31,7 +31,8 @@
  * Private definitons
  */
 
-static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
+static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path,
+        sds *info_txt_path, struct t_list *images, bool is_dirname);
 static int get_embedded_covers_count(const char *media_file);
 static int get_embedded_covers_count_id3(const char *media_file);
 static int get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
@@ -52,12 +53,14 @@ sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const c
     struct t_list images;
     list_init(&images);
     sds booklet_path = sdsempty();
+    sds info_txt_path = sdsempty();
     if (is_streamuri(uri) == false &&
         mpd_state->feat_library == true)
     {
-        get_extra_files(mpd_state, uri, &booklet_path, &images, is_dirname);
+        get_extra_files(mpd_state, uri, &booklet_path, &info_txt_path, &images, is_dirname);
     }
     buffer = tojson_sds(buffer, "bookletPath", booklet_path, true);
+    buffer = tojson_sds(buffer, "infoTxtPath", info_txt_path, true);
     buffer = sdscat(buffer, "\"images\": [");
     struct t_list_node *current = images.head;
     while (current != NULL) {
@@ -80,6 +83,7 @@ sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const c
     buffer = tojson_int(buffer, "embeddedImageCount", image_count, false);
     list_clear(&images);
     FREE_SDS(booklet_path);
+    FREE_SDS(info_txt_path);
     return buffer;
 }
 
@@ -91,11 +95,14 @@ sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const c
  * Looks for images and the booklet in the songs directory
  * @param mpd_state pointer to the shared mpd state
  * @param uri song uri to get extra media for
- * @param booklet_path pointer to sds to populate with the booklet path
+ * @param booklet_path pointer to already allocated sds to populate with the booklet path
+ * @param info_txt_path pointer to already allocated sds to populate with the info txt path
  * @param images pointer to already allocated list
  * @param is_dirname true if uri is a directory, else false
  */
-static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
+static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path,
+        sds *info_txt_path, struct t_list *images, bool is_dirname)
+{
     sds path = sdsnew(uri);
     if (is_dirname == false) {
         path = sds_dirname(path);
@@ -107,7 +114,7 @@ static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds 
     }
     sds albumpath = sdscatfmt(sdsempty(), "%S/%S", mpd_state->music_directory_value, path);
     sds fullpath = sdsempty();
-    MYMPD_LOG_DEBUG(NULL, "Read extra files from albumpath: \"%s\"", albumpath);
+    MYMPD_LOG_DEBUG(NULL, "Read extra files from album path: \"%s\"", albumpath);
     errno = 0;
     DIR *album_dir = opendir(albumpath);
     if (album_dir != NULL) {
@@ -116,6 +123,10 @@ static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds 
             if (strcmp(next_file->d_name, mpd_state->mympd_state->booklet_name) == 0) {
                 MYMPD_LOG_DEBUG(NULL, "Found booklet for uri %s", uri);
                 *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mpd_state->mympd_state->booklet_name);
+            }
+            else if (strcmp(next_file->d_name, mpd_state->mympd_state->info_txt_name) == 0) {
+                MYMPD_LOG_DEBUG(NULL, "Found info txt for uri %s", uri);
+                *info_txt_path = sdscatfmt(*info_txt_path, "/browse/music/%S/%S", path, mpd_state->mympd_state->info_txt_name);
             }
             else if (is_image(next_file->d_name) == true) {
                 fullpath = sdscatfmt(fullpath, "/browse/music/%S/%s", path, next_file->d_name);
