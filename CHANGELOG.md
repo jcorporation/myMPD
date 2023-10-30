@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPV v13.1.0 (not yet released)
+
+This version ships a few improvements and bug fixes.
+
+## Changelog
+
+- Feat: support info.txt in music directory folders #1120
+
+***
+
 ## myMPD v13.0.0 (2023-10-29)
 
 The album cache was reworked substantially. It uses now Album + AlbumArtist + Date tag to group albums as fallback for the MusicBrainz AlbumId, in earlier versions the fallback was Album + AlbumArtist.
