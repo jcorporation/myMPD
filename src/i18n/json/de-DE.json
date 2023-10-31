@@ -359,7 +359,6 @@
     "Max. songs": "Max. Lieder",
     "Media session": "Media Session",
     "Method not supported": "Methode ist nicht unterstützt",
-    "Min. value": "Min. Wert",
     "Minimum one weekday must be selected": "Es muss mindestens ein Wochentag ausgewählt sein.",
     "Minutes": "Min",
     "Missing translations": "Für die ausgewählte Sprache fehlt %{smart_count} Übersetzung |||| Für die ausgewählte Sprache fehlen %{smart_count} Übersetzungen",
@@ -1119,5 +1118,8 @@
     "Timers are not supported by platform": "Timer sind von der Plattform nicht unterstützt.",
     "Album info": "Album Infos",
     "Info filename": "Info Dateiname",
-    "Markdown could not be parsed.": "Markdown konnte nicht geparsed werden."
+    "Markdown could not be parsed.": "Markdown konnte nicht geparsed werden.",
+    "equal": "gleich",
+    "greater": "größer",
+    "lesser": "kleiner"
 }

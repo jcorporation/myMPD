@@ -425,6 +425,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
             : true;
     }
     else {
+        MYMPD_LOG_ERROR(partition_state->name, "Invalid sort tag: %s", tagstr);
         return false;
     }
 

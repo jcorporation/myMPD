@@ -12,6 +12,8 @@ This version ships a few improvements.
 
 - Feat: support info.txt in music directory folders #1120
 - Feat: add max. song duration as jukebox constraint #1146
+- Feat: add operator lt, gt, eq to sticker based smart playlists #1090
+- Feat: add max entries option to all smart playlists
 
 ***
 

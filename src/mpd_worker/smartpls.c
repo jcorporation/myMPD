@@ -23,6 +23,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <string.h>
 
 /**
@@ -33,8 +34,8 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
         const char *playlist);
 static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, const char *expression, const char *sort, bool sortdesc);
-static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd_worker_state,
-        const char *playlist, const char *sticker, int maxentries, int minvalue);
+static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_worker_state,
+        const char *playlist, const char *sticker, const char *value, const char *op);
 static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, int timerange, const char *sort, bool sortdesc);
 
@@ -121,10 +122,12 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     sds smartpltype = NULL;
     bool rc = true;
     sds sds_buf1 = NULL;
+    sds sds_buf2 = NULL;
+    sds sds_buf3 = NULL;
     sds sort = NULL;
     bool sortdesc = false;
     int int_buf1;
-    int int_buf2;
+    unsigned max_entries = 0;
 
     // first get the type
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
@@ -140,14 +143,18 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         json_get_bool(content, "$.sortdesc", &sortdesc, NULL);
     }
 
+    // get max entries
+    json_get_uint(content, "$.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &max_entries, NULL);
+
+    // update the playlists
     if (strcmp(smartpltype, "sticker") == 0 &&
         mpd_worker_state->mpd_state->feat_stickers == true)
     {
-        if (json_get_string(content, "$.sticker", 1, 200, &sds_buf1, vcb_isalnum, NULL) == true &&
-            json_get_int(content, "$.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, NULL) == true &&
-            json_get_int(content, "$.minvalue", 0, 100, &int_buf2, NULL) == true)
+        if (json_get_string(content, "$.sticker", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, NULL) == true &&
+            json_get_string(content, "$.value", 0, NAME_LEN_MAX, &sds_buf2, vcb_isname, NULL) == true &&
+            json_get_string(content, "$.op", 1, 1, &sds_buf3, vcb_iscompareop, NULL) == true)
         {
-            rc = mpd_worker_smartpls_update_sticker_ge(mpd_worker_state, playlist, sds_buf1, int_buf1, int_buf2);
+            rc = mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, sds_buf1, sds_buf2, sds_buf3);
             if (rc == false) {
                 MYMPD_LOG_ERROR(NULL, "Update of smart playlist \"%s\" (sticker) failed.", playlist);
             }
@@ -181,17 +188,31 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
             rc = false;
         }
     }
+    // sort or shuffle
     if (rc == true) {
         if (strcmp(sort, "shuffle") == 0) {
             rc = mpd_client_playlist_shuffle(mpd_worker_state->partition_state, playlist, NULL);
         }
-        else if (strcmp(smartpltype, "sticker") == 0) {
+        else if (strcmp(smartpltype, "sticker") == 0 &&
+                 sdslen(sort) > 0)
+        {
             // only sticker based smart playlists must be sorted after creation
             rc = mpd_client_playlist_sort(mpd_worker_state->partition_state, playlist, sort, sortdesc, NULL);
         }
     }
+
+    // max entries
+    if (rc == true &&
+        max_entries > 0 &&
+        mpd_worker_state->mpd_state->feat_playlist_rm_range == true)
+    {
+        mpd_run_playlist_delete_range(mpd_worker_state->partition_state->conn, playlist, max_entries, UINT_MAX);
+    }
+
     FREE_SDS(smartpltype);
     FREE_SDS(sds_buf1);
+    FREE_SDS(sds_buf2);
+    FREE_SDS(sds_buf3);
     FREE_SDS(content);
     FREE_SDS(filename);
     FREE_SDS(sort);
@@ -244,7 +265,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
                 sds expression = sdsnewlen("(", 1);
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscatlen(expression, ")", 1);
-                bool rc = smartpls_save_search(mpd_worker_state->config->workdir, playlist, expression, mpd_worker_state->smartpls_sort, false);
+                bool rc = smartpls_save_search(mpd_worker_state->config->workdir, playlist, expression, mpd_worker_state->smartpls_sort, false, 0);
                 FREE_SDS(expression);
                 if (rc == true) {
                     MYMPD_LOG_INFO(NULL, "Created smart playlist \"%s\"", playlist);
@@ -331,58 +352,32 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
  * @param playlist playlist to delete
  * @param sticker sticker evaluate
- * @param maxentries maximum entries
- * @param minvalue minimum sticker value
+ * @param value sticker value
+ * @param op compare operator
  * @return true on success, else false
  */
-static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd_worker_state,
-        const char *playlist, const char *sticker, int maxentries, int minvalue)
+static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_worker_state,
+        const char *playlist, const char *sticker, const char *value, const char *op)
 {
-    rax *add_list = stickerdb_find_stickers_by_name(mpd_worker_state->stickerdb, sticker);
+    rax *add_list = stickerdb_find_stickers_by_name_value(mpd_worker_state->stickerdb, sticker, op, value);
     if (add_list == NULL) {
         MYMPD_LOG_ERROR(NULL, "Could not fetch stickers for \"%s\"", sticker);
         return false;
     }
-    raxIterator iter;
-
-    int value_min = minvalue;
-    // autodetects value_min if minvalue is zero
-    if (minvalue == 0) {
-        // find max value
-        int value_max = 0;
-        raxStart(&iter, add_list);
-        raxSeek(&iter, "^", NULL, 0);
-        while (raxNext(&iter)) {
-            int data = (int)strtoimax((sds)iter.data, NULL, 10);
-            if (data > value_max) {
-                value_max = data;
-            }
-        }
-        raxStop(&iter);
-        // min value must be 2 or higher
-        value_min = value_max > 2
-            ? value_max / 2
-            : value_max;
-        MYMPD_LOG_DEBUG(NULL, "Setting minimum value to %d", value_min);
-    }
-
+    
     int i = 0;
     sds uri = sdsempty();
     if (mpd_command_list_begin(mpd_worker_state->partition_state->conn, false)) {
+        raxIterator iter;
         raxStart(&iter, add_list);
         raxSeek(&iter, "^", NULL, 0);
         while (raxNext(&iter)) {
-            int data = (int)strtoimax((sds)iter.data, NULL, 10);
-            if (data >= value_min &&
-                i < maxentries)
-            {
-                uri = sds_replacelen(uri, (char *)iter.key, iter.key_len);
-                if (mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, uri) == false) {
-                    mympd_set_mpd_failure(mpd_worker_state->partition_state, "Error adding command to command list mpd_send_playlist_add");
-                    break;
-                }
-                i++;
+            uri = sds_replacelen(uri, (char *)iter.key, iter.key_len);
+            if (mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, uri) == false) {
+                mympd_set_mpd_failure(mpd_worker_state->partition_state, "Error adding command to command list mpd_send_playlist_add");
+                break;
             }
+            i++;
         }
         mpd_command_list_end(mpd_worker_state->partition_state->conn);
         raxStop(&iter);
@@ -391,8 +386,7 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
     stickerdb_free_find_result(add_list);
     mpd_response_finish(mpd_worker_state->partition_state->conn);
     if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_send_playlist_add") == true) {
-        MYMPD_LOG_INFO(NULL, "Updated smart playlist \"%s\" with %d songs, minimum value: %d",
-            playlist, i, value_min);
+        MYMPD_LOG_INFO(NULL, "Updated smart playlist \"%s\" with %d songs", playlist, i);
         return true;
     }
     return false;
