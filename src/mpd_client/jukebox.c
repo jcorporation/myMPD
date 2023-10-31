@@ -632,7 +632,7 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
     long start_length = 0;
     if (manual == false) {
         start_length = partition_state->jukebox_queue.length;
-        add_songs = (long)MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH - start_length;
+        add_songs = (long)MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH - start_length;
         if (add_songs <= 0) {
             return 0;
         }

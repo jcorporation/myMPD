@@ -232,6 +232,7 @@ function populatePlaybackFrm() {
 
     toggleBtnGroupValueCollapse(elGetById('modalPlaybackJukeboxModeGroup'), 'modalPlaybackJukeboxCollapse', settings.partition.jukeboxMode);
     toggleJukeboxSettings();
+    elGetById('modalPlaybackJukeboxUniqueTagInput').value = settings.partition.jukeboxUniqueTag;
 
     populateListPresets();
 
