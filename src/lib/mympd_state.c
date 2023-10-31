@@ -292,6 +292,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->jukebox_filter_include = sdsempty();
     partition_state->jukebox_filter_exclude = sdsempty();
     partition_state->jukebox_min_song_duration = MYMPD_JUKEBOX_MIN_SONG_DURATION;
+    partition_state->jukebox_max_song_duration = MYMPD_JUKEBOX_MAX_SONG_DURATION;
     //add pointer to other states
     partition_state->mympd_state = mympd_state;
     partition_state->mpd_state = mympd_state->mpd_state;

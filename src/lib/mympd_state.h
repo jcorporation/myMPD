@@ -137,6 +137,7 @@ struct t_partition_state {
     sds jukebox_filter_include;            //!< mpd search filter to include songs / albums
     sds jukebox_filter_exclude;            //!< mpd search filter to exclude songs / albums
     unsigned jukebox_min_song_duration;    //!< minimum song duration
+    unsigned jukebox_max_song_duration;    //!< maximum song duration
     //partition
     sds name;                              //!< partition name
     sds highlight_color;                   //!< highlight color

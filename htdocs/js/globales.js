@@ -1055,6 +1055,16 @@ const settingsPlaybackFields = {
         "class": ["jukeboxSongOnly"],
         "unit": "Seconds"
     },
+    "jukeboxMaxSongDuration": {
+        "inputType": "text",
+        "contentType": "number",
+        "defaultValue": defaults["MYMPD_JUKEBOX_MAX_SONG_DURATION"],
+        "title": "Max. song duration",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxMaxSongDuration",
+        "class": ["jukeboxSongOnly"],
+        "unit": "Seconds"
+    },
     "jukeboxFilterInclude": {
         "inputType": "text",
         "defaultValue": "",

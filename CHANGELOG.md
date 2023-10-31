@@ -6,11 +6,12 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPV v13.1.0 (not yet released)
 
-This version ships a few improvements and bug fixes.
+This version ships a few improvements.
 
 ## Changelog
 
 - Feat: support info.txt in music directory folders #1120
+- Feat: add max. song duration as jukebox constraint #1146
 
 ***
 

@@ -678,6 +678,17 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             jukebox_changed = true;
         }
     }
+    else if (strcmp(key, "jukeboxMaxSongDuration") == 0 && vtype == MJSON_TOK_NUMBER) {
+        unsigned max_song_duration = (unsigned)strtoumax(value, NULL, 10);
+        if (max_song_duration > JUKEBOX_MAX_SONG_DURATION_MAX) {
+            set_invalid_value(error, path, key, value, "Invalid value");
+            return false;
+        }
+        if (max_song_duration != partition_state->jukebox_max_song_duration) {
+            partition_state->jukebox_max_song_duration = max_song_duration;
+            jukebox_changed = true;
+        }
+    }
     else if (strcmp(key, "name") == 0) {
         //ignore
         rc = true;
@@ -863,6 +874,7 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
     partition_state->jukebox_filter_include = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_include", partition_state->jukebox_filter_include, vcb_issearchexpression, true);
     partition_state->jukebox_filter_exclude = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_exclude", partition_state->jukebox_filter_exclude, vcb_issearchexpression, true);
     partition_state->jukebox_min_song_duration= state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_min_song_duration", partition_state->jukebox_min_song_duration, 0, JUKEBOX_MIN_SONG_DURATION_MAX, true);
+    partition_state->jukebox_max_song_duration= state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_max_song_duration", partition_state->jukebox_max_song_duration, 0, JUKEBOX_MAX_SONG_DURATION_MAX, true);
     partition_state->highlight_color = state_file_rw_string_sds(workdir, partition_state->state_dir, "highlight_color", partition_state->highlight_color, vcb_ishexcolor, true);
     partition_state->highlight_color_contrast = state_file_rw_string_sds(workdir, partition_state->state_dir, "highlight_color_contrast", partition_state->highlight_color_contrast, vcb_ishexcolor, true);
     partition_state->mpd_stream_port = state_file_rw_uint(workdir, partition_state->state_dir, "mpd_stream_port", partition_state->mpd_stream_port, MPD_PORT_MIN, MPD_PORT_MAX, true);
@@ -952,6 +964,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_char(buffer, "jukeboxFilterInclude", partition_state->jukebox_filter_include, true);
     buffer = tojson_char(buffer, "jukeboxFilterExclude", partition_state->jukebox_filter_exclude, true);
     buffer = tojson_uint(buffer, "jukeboxMinSongDuration", partition_state->jukebox_min_song_duration, true);
+    buffer = tojson_uint(buffer, "jukeboxMaxSongDuration", partition_state->jukebox_max_song_duration, true);
     buffer = tojson_bool(buffer, "autoPlay", partition_state->auto_play, true);
     buffer = tojson_char(buffer, "highlightColor", partition_state->highlight_color, true);
     buffer = tojson_char(buffer, "highlightColorContrast", partition_state->highlight_color_contrast, true);

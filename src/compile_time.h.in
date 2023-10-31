@@ -155,6 +155,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_JUKEBOX_ENFORCE_UNIQUE true
 #define MYMPD_JUKEBOX_IGNORE_HATED false
 #define MYMPD_JUKEBOX_MIN_SONG_DURATION 0
+#define MYMPD_JUKEBOX_MAX_SONG_DURATION 0
 #define MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH 100 // length of the internal jukebox queue for songs
 #define MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH 25 // length of the internal jukebox queue for albums
 #define MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH_MIN 10 // length of the internal jukebox queue for songs
@@ -323,7 +324,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define VOLUME_STEP_MAX 25 //prct
 #define JUKEBOX_MODE_MIN 0
 #define JUKEBOX_MODE_MAX 2
-#define JUKEBOX_MIN_SONG_DURATION_MAX UINT_MAX
+#define JUKEBOX_MIN_SONG_DURATION_MAX INT_MAX
+#define JUKEBOX_MAX_SONG_DURATION_MAX INT_MAX
 #define SCROBBLE_TIME_MIN 10 //minimum song length in seconds for the scrobble event
 #define SCROBBLE_TIME_MAX 240 //maximum elapsed seconds before scrobble event occurs
 #define SCROBBLE_TIME_TOTAL 480 //if the song is longer then this value, scrobble at SCROBBLE_TIME_MAX

@@ -102,6 +102,7 @@
     "helpJukeboxFilterInclude": "MPD search expression to include only matching songs.",
     "helpJukeboxFilterExclude": "MPD search expression to exclude matching songs.",
     "helpJukeboxMinSongDuration": "Only songs with this minimum length will be considered.",
+    "helpJukeboxMaxSongDuration": "If greater then zero: Only songs with this maximum length will be considered.",
     "helpSettingsRadiobrowserStationclicks": "Disable this for enhanced privacy.",
     "helpSettingsBookletName": "Filename for booklets residing in the same folder as the album.",
     "helpSettingsInfoTxtName": "Filename for informational textfile residing in the same folder as the album.",
