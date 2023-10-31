@@ -8,7 +8,18 @@ https://github.com/jcorporation/myMPD/
 
 This version ships a few improvements.
 
-## Changelog
+### Notes
+
+The schema of smart playlist was changed, you must recreate it.
+
+### API changes
+
+- MYMPD_API_RATING: new
+- MYMPD_API_SMARTPLS_STICKER_SAVE: parameters changed
+- MYMPD_API_SMARTPLS_NEWEST_SAVE: parameters changed
+- MYMPD_API_SMARTPLS_SEARCH_SAVE: parameters changed
+
+### Changelog
 
 - Feat: support info.txt in music directory folders #1120
 - Feat: add max. song duration as jukebox constraint #1146
