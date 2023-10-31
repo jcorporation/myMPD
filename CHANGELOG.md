@@ -6,11 +6,12 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPV v13.1.0 (not yet released)
 
-This version ships a few improvements.
+This version ships a few improvements for stickers and smart playlists.
 
 ### Notes
 
-The schema of smart playlist was changed, you must recreate it.
+- The schema of smart playlist was changed, you must recreate it.
+- Arguments for the TRIGGER_MYMPD_FEEDBACK trigger has changed to support the new rating sticker.
 
 ### API changes
 
@@ -25,6 +26,7 @@ The schema of smart playlist was changed, you must recreate it.
 - Feat: add max. song duration as jukebox constraint #1146
 - Feat: add operator lt, gt, eq to sticker based smart playlists #1090
 - Feat: add max entries option to all smart playlists
+- Feat: add rating sticker - stars like cantata #1141
 
 ***
 
