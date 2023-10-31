@@ -18,7 +18,8 @@ static const char *const mympd_sticker_names[STICKER_COUNT] = {
     [STICKER_LIKE] = "like",
     [STICKER_LAST_PLAYED] = "lastPlayed",
     [STICKER_LAST_SKIPPED] = "lastSkipped",
-    [STICKER_ELAPSED] = "elapsed"
+    [STICKER_ELAPSED] = "elapsed",
+    [STICKER_RATING] = "rating"
 };
 
 /**

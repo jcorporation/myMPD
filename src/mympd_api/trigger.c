@@ -6,6 +6,7 @@
 
 #include "compile_time.h"
 #include "dist/sds/sds.h"
+#include "src/lib/sticker.h"
 #include "src/mympd_api/trigger.h"
 
 #include "src/lib/api.h"
@@ -152,18 +153,25 @@ void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events 
  * Executes the feedback timer
  * @param trigger_list trigger list
  * @param uri feedback uri
- * @param vote the feedback
+ * @param type feedback type
+ * @param value the feedback
  * @param partition mpd partition
  */
-void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote, const char *partition) {
-    MYMPD_LOG_DEBUG(partition, "Trigger event: mympd_feedback (-6) for \"%s\", vote %d", uri, vote);
+void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, enum feedback_type type, int value, const char *partition) {
+    MYMPD_LOG_DEBUG(partition, "Trigger event: mympd_feedback (-6) for \"%s\", type %d, value %d", uri, type, value);
     //trigger mympd_feedback executes scripts with uri and vote arguments
     struct t_list script_arguments;
     list_init(&script_arguments);
     list_push(&script_arguments, "uri", 0, uri, NULL);
-    const char *vote_str = vote == 0 ? "0" :
-                           vote == 1 ? "1" : "2";
-    list_push(&script_arguments, "vote", 0, vote_str, NULL);
+    sds value_str = sdsfromlonglong((long long)value);
+    list_push(&script_arguments, "vote", 0, value_str, NULL);
+    FREE_SDS(value_str);
+    list_push(&script_arguments, "type", 0, (
+        type == FEEDBACK_LIKE
+            ? "like"
+            : "rating"
+    ), NULL);
+
     struct t_list_node *current = trigger_list->head;
     while (current != NULL) {
         if (current->value_i == TRIGGER_MYMPD_FEEDBACK &&

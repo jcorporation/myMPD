@@ -4,7 +4,7 @@ permalink: /references/sticker
 title: Sticker
 ---
 
-myMPD uses stickers to save statistics and votes of songs.
+myMPD uses the MPD stickers to save song states, playback statistics and votes of songs.
 
 | STICKER | DESCRIPTION |
 | ------- | ----------- |
@@ -13,6 +13,7 @@ myMPD uses stickers to save statistics and votes of songs.
 | lastSkipped | last skipped time of songs (unix timestamp) |
 | like | 0 - dislike, 1 - neutral, 2 - like |
 | playCount | How often the song was played |
+| rating | 0 - 10 stars rating |
 | skipCount | How often the song was skipped |
 {: .table .table-sm }
 

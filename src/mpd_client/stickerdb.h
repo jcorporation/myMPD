@@ -37,5 +37,6 @@ bool stickerdb_set_elapsed(struct t_partition_state *partition_state, const char
 bool stickerdb_inc_play_count(struct t_partition_state *partition_state, const char *uri, time_t timestamp);
 bool stickerdb_inc_skip_count(struct t_partition_state *partition_state, const char *uri);
 bool stickerdb_set_like(struct t_partition_state *partition_state, const char *uri, enum sticker_like value);
+bool stickerdb_set_rating(struct t_partition_state *partition_state, const char *uri, int value);
 
 #endif

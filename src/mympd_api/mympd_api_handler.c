@@ -734,7 +734,16 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
                 json_get_int(request->data, "$.params.like", 0, 2, &int_buf1, &parse_error) == true)
             {
-                rc = mympd_api_sticker_set_like(partition_state, sds_buf1, int_buf1, &error);
+                rc = mympd_api_sticker_set_feedback(partition_state, sds_buf1, FEEDBACK_LIKE, int_buf1, &error);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_STICKER, error);
+            }
+            break;
+        case MYMPD_API_RATING:
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
+                json_get_int(request->data, "$.params.rating", 0, 10, &int_buf1, &parse_error) == true)
+            {
+                rc = mympd_api_sticker_set_feedback(partition_state, sds_buf1, FEEDBACK_STAR, int_buf1, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_STICKER, error);
             }

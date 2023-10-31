@@ -1057,6 +1057,17 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_RATING": {
+        "desc": "Sets the stars rating of a song.",
+        "params": {
+            "uri": APIparams.uri,
+            "rating": {
+                "type": APItypes.uint,
+                "example": 5,
+                "desc": "0 - 10 stars"
+            }
+        }
+    },
     "MYMPD_API_MOUNT_LIST": {
         "desc": "Lists the MPD mounts.",
         "params": {}

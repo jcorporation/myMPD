@@ -504,6 +504,20 @@ bool stickerdb_set_like(struct t_partition_state *partition_state, const char *u
     return stickerdb_set_llong(partition_state, uri, sticker_name_lookup(STICKER_LIKE), (long long)value);
 }
 
+/**
+ * Sets the myMPD rating sticker
+ * @param partition_state pointer to the partition state
+ * @param uri song uri
+ * @param value 0 - 10 stars
+ * @return true on success, else false
+ */
+bool stickerdb_set_rating(struct t_partition_state *partition_state, const char *uri, int value) {
+    if (value < 0 || value > 10) {
+        return false;
+    }
+    return stickerdb_set_llong(partition_state, uri, sticker_name_lookup(STICKER_LIKE), (long long)value);
+}
+
 // Private functions
 
 /**
