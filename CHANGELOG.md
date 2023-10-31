@@ -10,6 +10,9 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: display selected jukebox uniq tag #1142
+- Fix: jukebox internal queue randomness #1142
+
 ***
 
 ## myMPD v13.0.0 (2023-10-29)
