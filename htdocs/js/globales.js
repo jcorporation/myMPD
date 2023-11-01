@@ -855,7 +855,7 @@ const settingsWebuiFields = {
             "options": []
         },
         "invalid": "Must be a number"
-    },
+    }
 };
 
 const settingsConnectionFields = {
