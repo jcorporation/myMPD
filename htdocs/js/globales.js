@@ -855,6 +855,10 @@ const settingsWebuiFields = {
             "options": []
         },
         "invalid": "Must be a number"
+    },
+    "feedback": {
+        "defaultValue": "like",
+        "inputType": "none"
     }
 };
 

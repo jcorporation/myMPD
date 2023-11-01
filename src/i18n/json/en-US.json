@@ -106,6 +106,7 @@
     "helpSettingsRadiobrowserStationclicks": "Disable this for enhanced privacy.",
     "helpSettingsBookletName": "Filename for booklets residing in the same folder as the album.",
     "helpSettingsInfoTxtName": "Filename for informational textfile residing in the same folder as the album.",
+    "helpSettingsFeedback": "Rate songs by love/hate or with 5 stars.",
     "icon-all": "All",
     "icon-action": "Action",
     "icon-alert": "Alert",

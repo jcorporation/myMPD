@@ -137,6 +137,9 @@ function populateSettingsFrm() {
     jsonToForm(settings.partition, settingsPartitionFields, 'modalSettings');
     jsonToForm(localSettings, settingsLocalFields, 'modalSettings');
 
+    // feedback
+    toggleBtnGroupValueId('modalSettingsFeedbackGroup', settings.webuiSettings.feedback);
+
     // background image select
     getBgImageList();
     const bgImageInput = elGetById('modalSettingsBgImageInput');
@@ -298,6 +301,7 @@ function saveSettings(target, closeModal) {
         settingsParams.tagList = getTagMultiSelectValues(elGetById('modalSettingsEnabledTagsList'), false);
         settingsParams.tagListSearch = getTagMultiSelectValues(elGetById('modalSettingsSearchTagsList'), false);
         settingsParams.tagListBrowse = getTagMultiSelectValues(elGetById('modalSettingsBrowseTagsList'), false);
+        settingsParams.webuiSettings.feedback = getBtnGroupValueId('modalSettingsFeedbackGroup');
 
         btnWaiting(target, true);
         if (closeModal === true) {

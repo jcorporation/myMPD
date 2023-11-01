@@ -1121,5 +1121,6 @@
     "Markdown could not be parsed.": "Markdown konnte nicht geparsed werden.",
     "equal": "gleich",
     "greater": "größer",
-    "lesser": "kleiner"
+    "lesser": "kleiner",
+    "helpSettingsFeedback": "Bewerte Lieder mit gefällt mir (nicht) oder 5 Sternen."
 }
