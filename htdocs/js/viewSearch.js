@@ -111,6 +111,7 @@ function saveSearchAsSmartPlaylist() {
         "type": "search",
         "sort": app.current.sort.tag,
         "sortdesc": app.current.sort.desc,
+        "maxentries": 0,
         "expression": app.current.search
     }});
 }
