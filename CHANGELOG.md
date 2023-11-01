@@ -30,6 +30,16 @@ This version ships a few improvements for stickers, smart playlists and the juke
 
 ***
 
+## myMPD v13.0.2 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: compilation on FreeBSD
+
+***
+
 ## myMPD v13.0.1 (2023-11-01)
 
 This is a small bugfix release.
