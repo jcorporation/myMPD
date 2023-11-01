@@ -28,6 +28,7 @@ void set_threadname(const char *threadname) {
  * @param threadname name of thread
  */
 void set_threadname(const char *threadname) {
+    (void) threadname;
     MYMPD_LOG_DEBUG("Setting the thread name is not supported");
 }
 

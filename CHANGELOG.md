@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: compilation on FreeBSD
+
 ***
 
 ## myMPD v13.0.1 (2023-11-01)
