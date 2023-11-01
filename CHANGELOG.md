@@ -11,6 +11,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: compilation on FreeBSD
+- Fix: search based smart playlists in shuffle mode
 
 ***
 
