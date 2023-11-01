@@ -9,6 +9,7 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/list.h"
+#include "src/lib/sticker.h"
 
 /**
  * myMPD trigger events. The list is composed of MPD idle events and
@@ -50,7 +51,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir);
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir);
 void mympd_api_trigger_list_clear(struct t_list *trigger_list);
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition);
-void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote, const char *partition);
+void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, enum feedback_type type, int value, const char *partition);
 bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx, sds *error);
 const char *mympd_api_event_name(long event);
 sds mympd_api_trigger_print_event_list(sds buffer);

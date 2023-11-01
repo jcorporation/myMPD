@@ -178,6 +178,11 @@ const APIparams = {
         "type": APItypes.string,
         "example": "1",
         "desc": "album disc"
+    },
+    "maxentries": {
+        "type": APItypes.uint,
+        "example": 200,
+        "desc": "Maximum entries"
     }
 };
 
@@ -887,7 +892,8 @@ const APImethods = {
                 "desc": "timerange in seconds"
             },
             "sort": APIparams.sortShuffle,
-            "sortdesc": APIparams.sortdesc
+            "sortdesc": APIparams.sortdesc,
+            "maxentries": APIparams.maxentries
         }
     },
     "MYMPD_API_SMARTPLS_STICKER_SAVE": {
@@ -899,18 +905,19 @@ const APImethods = {
                 "example": "like",
                 "desc": "Sticker name"
             },
-            "maxentries": {
-                "type": APItypes.uint,
-                "example": 200,
-                "desc": "maximum entries"
+            "value": {
+                "type": APItypes.string,
+                "example": "2",
+                "desc": "Sticker value"
             },
-            "minvalue": {
-                "type": APItypes.uint,
-                "example": 2,
-                "desc": "minimum integer value"
+            "op": {
+                "type": APItypes.string,
+                "example": "=",
+                "desc": "Compare operator: =, <, >"
             },
             "sort": APIparams.sortShuffle,
-            "sortdesc": APIparams.sortdesc
+            "sortdesc": APIparams.sortdesc,
+            "maxentries": APIparams.maxentries
         }
     },
     "MYMPD_API_SMARTPLS_SEARCH_SAVE": {
@@ -919,7 +926,8 @@ const APImethods = {
             "plist": APIparams.plist,
             "expression": APIparams.expression,
             "sort": APIparams.sortShuffle,
-            "sortdesc": APIparams.sortdesc
+            "sortdesc": APIparams.sortdesc,
+            "maxentries": APIparams.maxentries
         }
     },
     "MYMPD_API_SMARTPLS_GET": {
@@ -1046,6 +1054,17 @@ const APImethods = {
                 "type": APItypes.uint,
                 "example": 1,
                 "desc": "0 = dislike, 1 = neutral, 2 = like"
+            }
+        }
+    },
+    "MYMPD_API_RATING": {
+        "desc": "Sets the stars rating of a song.",
+        "params": {
+            "uri": APIparams.uri,
+            "rating": {
+                "type": APItypes.uint,
+                "example": 5,
+                "desc": "0 - 10 stars"
             }
         }
     },

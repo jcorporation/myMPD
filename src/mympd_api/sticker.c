@@ -12,25 +12,28 @@
 #include "src/mympd_api/trigger.h"
 
 /**
- * Sets the like sticker
+ * Sets the like sticker and triggers the feedback event
  * @param partition_state pointer to partition state
- * @param uri uri to like
- * @param like like value to set
+ * @param uri uri to set the feedback
+ * @param type feedback type
+ * @param value feedback value to set
  * @param error already allocated sds string to append the error message
  * @return true on success, else false
  */
-bool mympd_api_sticker_set_like(struct t_partition_state *partition_state, sds uri, int like, sds *error) {
+bool mympd_api_sticker_set_feedback(struct t_partition_state *partition_state, sds uri, enum feedback_type type, int value, sds *error) {
     if (partition_state->mpd_state->feat_stickers == false) {
         *error = sdscat(*error, "MPD stickers are disabled");
         return false;
     }
-    bool rc = stickerdb_set_like(partition_state->mympd_state->stickerdb, uri, (enum sticker_like)like);
+    bool rc = type == FEEDBACK_LIKE
+        ? stickerdb_set_like(partition_state->mympd_state->stickerdb, uri, (enum sticker_like)value)
+        : stickerdb_set_rating(partition_state->mympd_state->stickerdb, uri, value);
     if (rc == false) {
-        *error = sdscat(*error, "Failed to set like");
+        *error = sdscat(*error, "Failed to set feedback");
         return false;
     }
     //mympd_feedback trigger
-    mympd_api_trigger_execute_feedback(&partition_state->mympd_state->trigger_list, uri, like, partition_state->name);
+    mympd_api_trigger_execute_feedback(&partition_state->mympd_state->trigger_list, uri, type, value, partition_state->name);
     return true;
 }
 

@@ -26,6 +26,7 @@ function parseSmartPlaylist(obj) {
     elGetById('modalSmartPlaylistEditPlistInput').value = obj.result.plist;
     elGetById('modalSmartPlaylistEditTypeInput').value = tn(obj.result.type);
     elGetById('modalSmartPlaylistEditSortInput').value = obj.result.sort;
+    elGetById('modalSmartPlaylistEditMaxentriesInput').value = obj.result.maxentries;
     setDataId('modalSmartPlaylistEditTypeInput', 'value', obj.result.type);
     toggleBtnChkId('modalSmartPlaylistEditSortdescInput', obj.result.sortdesc);
 
@@ -41,8 +42,8 @@ function parseSmartPlaylist(obj) {
         case 'sticker':
             elShowId('modalSmartPlaylistEditTypeSticker');
             elGetById('modalSmartPlaylistEditStickerInput').value = obj.result.sticker;
-            elGetById('modalSmartPlaylistEditMaxentriesInput').value = obj.result.maxentries;
-            elGetById('modalSmartPlaylistEditMinvalueInput').value = obj.result.minvalue;
+            elGetById('modalSmartPlaylistEditValueInput').value = obj.result.value;
+            elGetById('modalSmartPlaylistEditOpInput').value = obj.result.op;
             break;
         case 'newest':
             elShowId('modalSmartPlaylistEditTypeNewest');
@@ -69,6 +70,7 @@ function saveSmartPlaylist(target) {
     const type = getDataId('modalSmartPlaylistEditTypeInput', 'value');
     const sort = getSelectValueId('modalSmartPlaylistEditSortInput');
     const sortdesc = getBtnChkValueId('modalSmartPlaylistEditSortdescInput');
+    const maxentries = Number(elGetById('modalSmartPlaylistEditMaxentriesInput').value);
 
     switch(type) {
         case 'search':
@@ -76,17 +78,19 @@ function saveSmartPlaylist(target) {
                 "plist": name,
                 "expression": elGetById('modalSmartPlaylistEditExpressionInput').value,
                 "sort": sort,
-                "sortdesc": sortdesc
+                "sortdesc": sortdesc,
+                "maxentries": maxentries
             }, modalClose, true);
             break;
         case 'sticker': {
             sendAPI("MYMPD_API_SMARTPLS_STICKER_SAVE", {
                 "plist": name,
                 "sticker": getSelectValueId('modalSmartPlaylistEditStickerInput'),
-                "maxentries": Number(elGetById('modalSmartPlaylistEditMaxentriesInput').value),
-                "minvalue": Number(elGetById('modalSmartPlaylistEditMinvalueInput').value),
+                "value": elGetById('modalSmartPlaylistEditValueInput').value,
+                "op": getSelectValueId('modalSmartPlaylistEditOpInput'),
                 "sort": sort,
-                "sortdesc": sortdesc
+                "sortdesc": sortdesc,
+                "maxentries": maxentries
             }, modalClose, true);
             break;
         }
@@ -96,7 +100,8 @@ function saveSmartPlaylist(target) {
                 "plist": name,
                 "timerange": Number(timerange) * 60 * 60 * 24,
                 "sort": sort,
-                "sortdesc": sortdesc
+                "sortdesc": sortdesc,
+                "maxentries": maxentries
             }, modalClose, true);
             break;
         }
@@ -116,15 +121,16 @@ function addSmartpls(type) {
     const obj = {"jsonrpc": "2.0", "id": 0, "result": {
         "method": "MYMPD_API_SMARTPLS_GET",
         "sort": "",
-        "sortdesc": false
+        "sortdesc": false,
+        "maxentries": 0
     }};
     switch(type) {
         case 'mostPlayed':
             obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'mostPlayed';
             obj.result.type = 'sticker';
             obj.result.sticker = 'playCount';
-            obj.result.maxentries = 200;
-            obj.result.minvalue = 10;
+            obj.result.value = 10;
+            obj.result.op = '>';
             break;
         case 'newest':
             obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'newestSongs';
@@ -136,8 +142,8 @@ function addSmartpls(type) {
             obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'bestRated';
             obj.result.type = 'sticker';
             obj.result.sticker = 'like';
-            obj.result.maxentries = 200;
-            obj.result.minvalue = 2;
+            obj.result.value = 2;
+            obj.result.op = '=';
             break;
         default:
             logError('Invalid smart playlist type: ' + type);

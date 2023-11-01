@@ -38,22 +38,26 @@ sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char 
 
     sds smartpltype = NULL;
     sds sds_buf1 = NULL;
+    sds sds_buf2 = NULL;
+    sds sds_buf3 = NULL;
     int int_buf1 = 0;
-    int int_buf2 = 0;
 
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) == true) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_char(buffer, "plist", playlist, true);
         buffer = tojson_char(buffer, "type", smartpltype, true);
+        unsigned max_entries = 0;
+        json_get_uint(content, "$.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &max_entries, NULL);
+        buffer = tojson_uint(buffer, "maxentries", max_entries, true);
         bool rc = true;
         if (strcmp(smartpltype, "sticker") == 0) {
             if (json_get_string(content, "$.sticker", 1, 200, &sds_buf1, vcb_isalnum, NULL) == true &&
-                json_get_int(content, "$.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, NULL) == true &&
-                json_get_int(content, "$.minvalue", 0, 100, &int_buf2, NULL) == true)
+                json_get_string(content, "$.value", 0, NAME_LEN_MAX, &sds_buf2, vcb_isname, NULL) == true &&
+                json_get_string(content, "$.op", 1, 1, &sds_buf3, vcb_iscompareop, NULL) == true)
             {
                 buffer = tojson_sds(buffer, "sticker", sds_buf1, true);
-                buffer = tojson_long(buffer, "maxentries", int_buf1, true);
-                buffer = tojson_long(buffer, "minvalue", int_buf2, true);
+                buffer = tojson_sds(buffer, "value", sds_buf2, true);
+                buffer = tojson_sds(buffer, "op", sds_buf3, true);
             }
             else {
                 rc = false;
@@ -105,5 +109,7 @@ sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char 
     FREE_SDS(smartpltype);
     FREE_SDS(content);
     FREE_SDS(sds_buf1);
+    FREE_SDS(sds_buf2);
+    FREE_SDS(sds_buf3);
     return buffer;
 }

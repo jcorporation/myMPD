@@ -155,6 +155,7 @@
               <div class="featTags row" id="PlaybackListTags"></div>
               <div class="d-none row" id="PlaybackListWebradio"></div>
               <div id="PlaybackBooklet"></div>
+              <div id="PlaybackInfoTxt" data-href='{"cmd": "showInfoTxt", "options": ["target"]}'></div>
             </div>
           </div>
         </div>
@@ -1384,6 +1385,13 @@
               <button class="btn btn-secondary mi" id="modalSmartPlaylistEditSortdescInput" data-href='{"cmd": "toggleBtnChk", "options": ["target"]}'>radio_button_unchecked</button>
             </div>
           </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditMaxentriesInput" data-phrase="Max. songs"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="modalSmartPlaylistEditMaxentriesInput"/>
+              <div class="invalid-feedback" data-phrase="Must be a number"></div>
+            </div>
+          </div>
           <hr/>
           <div class="d-none" id="modalSmartPlaylistEditTypeSearch">
             <div class="mb-3 row">
@@ -1404,17 +1412,20 @@
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditMinvalueInput" data-phrase="Min. value"></label>
+              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditOpInput" data-phrase="Value"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="modalSmartPlaylistEditMinvalueInput"/>
-                <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                <select id="modalSmartPlaylistEditOpInput" class="form-select">
+                  <option value="=" data-phrase="equal"></option>
+                  <option value="&gt;" data-phrase="greater"></option>
+                  <option value="&lt;" data-phrase="lesser"></option>
+                </select>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditMaxentriesInput" data-phrase="Max. songs"></label>
+              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditValueInput" data-phrase="Value"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="modalSmartPlaylistEditMaxentriesInput"/>
-                <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                <input class="form-control" id="modalSmartPlaylistEditValueInput"/>
+                <div class="invalid-feedback" data-phrase="Invalid value"></div>
               </div>
             </div>
           </div>
@@ -1613,8 +1624,8 @@
               <div id="modalSettingsSeekFrm"></div>
               <div class="featLibrary">
                 <hr/>
-                <h4 data-phrase="Booklet"></h4>
-                <div id="modalSettingsBookletFrm"></div>
+                <h4 data-phrase="Album info"></h4>
+                <div id="modalSettingsAlbumInfoFrm"></div>
               </div>
             </div>
             <div class="tab-pane" id="modalSettingsCloudTab">
@@ -2408,6 +2419,24 @@
     </div>
   </div>
 <!-- Modal picture end -->
+<!-- Modal picture start -->
+<div class="modal fade" id="modalInfoTxt" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><span class="mi title-icon">article</span> <span data-phrase="Album info"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="modalInfoTxtText"></div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal picture end -->
 <!-- Modal trigger start -->
   <div class="modal fade" id="modalTrigger" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -3009,6 +3038,7 @@
 <!--debug-->  <script src="js/modal.js"></script>
 <!--debug-->  <script src="js/modalAbout.js"></script>
 <!--debug-->  <script src="js/modalEnterPin.js"></script>
+<!--debug-->  <script src="js/modalInfoTxt.js"></script>
 <!--debug-->  <script src="js/modalMaintenance.js"></script>
 <!--debug-->  <script src="js/modalMounts.js"></script>
 <!--debug-->  <script src="js/modalNotifications.js"></script>

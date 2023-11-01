@@ -335,8 +335,15 @@ const settingsFields = {
         "defaultValue": defaults["MYMPD_BOOKLET_NAME"],
         "inputType": "text",
         "title": "Booklet filename",
-        "form": "modalSettingsBookletFrm",
+        "form": "modalSettingsAlbumInfoFrm",
         "help": "helpSettingsBookletName"
+    },
+    "infoTxtName": {
+        "defaultValue": defaults["MYMPD_INFO_TXT_NAME"],
+        "inputType": "text",
+        "title": "Info filename",
+        "form": "modalSettingsAlbumInfoFrm",
+        "help": "helpSettingsInfoTxtName"
     },
     "coverimageNames": {
         "defaultValue": defaults["MYMPD_COVERIMAGE_NAMES"],
@@ -1045,6 +1052,16 @@ const settingsPlaybackFields = {
         "title": "Min. song duration",
         "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxMinSongDuration",
+        "class": ["jukeboxSongOnly"],
+        "unit": "Seconds"
+    },
+    "jukeboxMaxSongDuration": {
+        "inputType": "text",
+        "contentType": "number",
+        "defaultValue": defaults["MYMPD_JUKEBOX_MAX_SONG_DURATION"],
+        "title": "Max. song duration",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxMaxSongDuration",
         "class": ["jukeboxSongOnly"],
         "unit": "Seconds"
     },

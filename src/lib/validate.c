@@ -269,6 +269,22 @@ bool vcb_iscolumn(sds data) {
 }
 
 /**
+ * Checks if string is a compare operator
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_iscompareop(sds data) {
+    if (data[0] == '=' ||
+        data[0] == '<' ||
+        data[0] == '>')
+    {
+        return true;
+    }
+    MYMPD_LOG_WARN(NULL, "Unknown compare operator: %s", data);
+    return false;
+}
+
+/**
  * Checks if string is a valid comma separated list of tags
  * @param data sds string to check
  * @return true on success else false

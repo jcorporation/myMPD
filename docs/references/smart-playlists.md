@@ -24,23 +24,24 @@ myMPD creates per default three smart playlists. Smart playlists are defined in 
 | --- | ------------------- | ----------- |
 | type | all | Type of smart playlist: `sticker`, `newest` or `search` |
 | sticker | sticker | stickername, see [Sticker]({{ site.baseurl }}/references/sticker) |
-| maxentries | sticker | Maximum entries for the playlist |
-| minvalue | sticker | Minimum sticker value |
-| timerange | newest | timerange since last database update in seconds |
+| value | sticker | Sticker value |
+| op | sticker | Sticker compare operator |
+| timerange | newest | Timerange since last database update in seconds |
 | expression | search | MPD filter expression |
 | sort | all | tag to sort (e.g. `Artist`), an empty string or `shuffle` |
 | sortdesc | all | `false` = sort ascending, `true` = sort descending |
+| maxentries | all | Maximum entries for the playlist |
 {: .table .table-sm }
 
 ### Sticker based
 
-- myMPDsmart-bestRated: `{"type": "sticker", "sticker": "like", "maxentries": 200, "minvalue": 2, "sort": "", "sortdesc": false}`
-- myMPDsmart-mostPlayed: `{"type": "sticker", "sticker": "playCount", "maxentries": 200, "minvalue": 10,"sort": "", "sortdesc": false}`
+- myMPDsmart-bestRated: `{"type": "sticker", "sticker": "like", "value": "2", "op": "=" "sort": "", "sortdesc": false, "maxentries": 200}`
+- myMPDsmart-mostPlayed: `{"type": "sticker", "sticker": "playCount", "value": "10", "op": ">", "sort": "", "sortdesc": false, "maxentries": 200}`
 
 ### Newest songs
 
-- myMPDsmart-newestSongs: `{"type": "newest", "timerange": 604800, "sort":"", "sortdesc": false}`
+- myMPDsmart-newestSongs: `{"type": "newest", "timerange": 604800, "sort":"", "sortdesc": false, "maxentries": 0}`
 
 ### Saved search
 
-- savedSearch: `{"type":"search", "expression":"((Artist contains 'test'))", "sort":"Album", "sortdesc": false}`
+- savedSearch: `{"type":"search", "expression":"((Artist contains 'test'))", "sort":"Album", "sortdesc": false, "maxentries": 0}`

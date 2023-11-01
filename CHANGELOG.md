@@ -4,6 +4,32 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPV v14.0.0 (not yet released)
+
+This version ships a few improvements for stickers, smart playlists and the jukebox mode.
+
+### Notes
+
+- The schema of smart playlist was changed, you must recreate it.
+- Arguments for the TRIGGER_MYMPD_FEEDBACK trigger has changed to support the new rating sticker.
+
+### API changes
+
+- MYMPD_API_RATING: new
+- MYMPD_API_SMARTPLS_STICKER_SAVE: parameters changed
+- MYMPD_API_SMARTPLS_NEWEST_SAVE: parameters changed
+- MYMPD_API_SMARTPLS_SEARCH_SAVE: parameters changed
+
+### Changelog
+
+- Feat: support info.txt in music directory folders #1120
+- Feat: add max. song duration as jukebox constraint #1146
+- Feat: add operator lt, gt, eq to sticker based smart playlists #1090
+- Feat: add max entries option to all smart playlists
+- Feat: add rating sticker - stars like cantata #1141
+
+***
+
 ## myMPD v13.0.1 (2023-11-01)
 
 This is a small bugfix release.

@@ -44,7 +44,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_ALBUM_DETAIL;
 
-    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
+    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mympd_state->album_cache, albumid);
     if (mpd_album == NULL) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Could not find album");
@@ -161,7 +161,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
 sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds buffer, long request_id,
         sds expression, sds sort, bool sortdesc, long offset, long limit, const struct t_tags *tagcols)
 {
-    if (partition_state->mpd_state->album_cache.cache == NULL) {
+    if (partition_state->mympd_state->album_cache.cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Albumcache not ready");
         return buffer;
@@ -196,7 +196,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     long real_limit = offset + limit;
     rax *albums = raxNew();
     raxIterator iter;
-    raxStart(&iter, partition_state->mpd_state->album_cache.cache);
+    raxStart(&iter, partition_state->mympd_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
     sds key = sdsempty();
     while (raxNext(&iter)) {

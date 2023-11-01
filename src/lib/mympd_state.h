@@ -89,11 +89,6 @@ struct t_mpd_state {
     bool feat_playlist_dir_auto;        //!< mpd supports autodetection of playlist directory
     bool feat_starts_with;              //!< mpd supports starts_with filter expression
     bool feat_pcre;                     //!< mpd supports pcre for filter expressions
-    //caches
-    struct t_cache album_cache;         //!< the album cache created by the mpd_worker thread
-    //lists
-    long last_played_count;             //!< number of songs to keep in the last played list (disk + memory)
-    sds booklet_name;                   //!< name of the booklet files
 };
 
 /**
@@ -142,6 +137,7 @@ struct t_partition_state {
     sds jukebox_filter_include;            //!< mpd search filter to include songs / albums
     sds jukebox_filter_exclude;            //!< mpd search filter to exclude songs / albums
     unsigned jukebox_min_song_duration;    //!< minimum song duration
+    unsigned jukebox_max_song_duration;    //!< maximum song duration
     //partition
     sds name;                              //!< partition name
     sds highlight_color;                   //!< highlight color
@@ -244,6 +240,10 @@ struct t_mympd_state {
     sds listenbrainz_token;                       //!< listenbrainz token
     sds webui_settings;                           //!< settings only relevant for webui, saved as string containing json
     bool tag_disc_empty_is_first;                 //!< handle empty disc tag as disc one for albums
+    sds booklet_name;                             //!< name of the booklet files
+    sds info_txt_name;                            //!< name of album info files
+    struct t_cache album_cache;                   //!< the album cache created by the mpd_worker thread
+    long last_played_count;                       //!< number of songs to keep in the last played list (disk + memory)
 };
 
 /**

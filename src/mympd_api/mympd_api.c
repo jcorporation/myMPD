@@ -57,7 +57,7 @@ void *mympd_api_loop(void *arg_config) {
     if (mympd_state->config->save_caches == true) {
         //album cache
         MYMPD_LOG_INFO(NULL, "Reading album cache from disc");
-        album_cache_read(&mympd_state->mpd_state->album_cache, mympd_state->config->workdir, &mympd_state->config->albums);
+        album_cache_read(&mympd_state->album_cache, mympd_state->config->workdir, &mympd_state->config->albums);
     }
     //set timers
     if (mympd_state->config->covercache_keep_days > 0) {
@@ -109,7 +109,7 @@ void *mympd_api_loop(void *arg_config) {
     if (mympd_state->config->save_caches == true &&
         mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE)
     {
-        album_cache_write(&mympd_state->mpd_state->album_cache, mympd_state->config->workdir,
+        album_cache_write(&mympd_state->album_cache, mympd_state->config->workdir,
             &mympd_state->mpd_state->tags_album, &mympd_state->config->albums, true);
     }
 

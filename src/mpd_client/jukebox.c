@@ -45,6 +45,7 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
         bool manual, struct t_list *queue_list, struct t_list *add_list);
 
 static bool check_min_duration(const struct mpd_song *song, unsigned min_duration);
+static bool check_max_duration(const struct mpd_song *song, unsigned max_duration);
 static bool check_expression(const struct mpd_song *song, struct t_tags *tags,
         struct t_list *include_expr_list, struct t_list *exclude_expr_list);
 static bool check_not_hated(rax *stickers_like, const char *uri, bool jukebox_ignore_hated);
@@ -521,7 +522,7 @@ static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state
 static long fill_jukebox_queue_albums(struct t_partition_state *partition_state, long add_albums,
         bool manual, struct t_list *queue_list, struct t_list *add_list)
 {
-    if (partition_state->mpd_state->album_cache.cache == NULL) {
+    if (partition_state->mympd_state->album_cache.cache == NULL) {
         MYMPD_LOG_WARN(partition_state->name, "Album cache is null, jukebox can not add albums");
         return -1;
     }
@@ -557,7 +558,7 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
 
     sds tag_value = sdsempty();
     raxIterator iter;
-    raxStart(&iter, partition_state->mpd_state->album_cache.cache);
+    raxStart(&iter, partition_state->mympd_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
         struct mpd_song *album= (struct mpd_song *)iter.data;
@@ -693,6 +694,7 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
             const char *uri = mpd_song_get_uri(song);
 
             if (check_min_duration(song, partition_state->jukebox_min_song_duration) == true &&
+                check_max_duration(song, partition_state->jukebox_max_song_duration) == true &&
                 check_last_played(stickers_last_played, uri, since) == true &&
                 check_not_hated(stickers_like, uri, partition_state->jukebox_ignore_hated) == true &&
                 check_expression(song, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
@@ -745,12 +747,24 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
 /**
  * Checks for minimum duration constraint for songs
  * @param song mpd song struct to check
- * @param min_duration the minimum duration
+ * @param min_duration the minimum duration, 0 for no limit
  * @return if song is longer then min_duration true, else false
  */
 static bool check_min_duration(const struct mpd_song *song, unsigned min_duration) {
     return min_duration > 0
         ? mpd_song_get_duration(song) > min_duration
+        : true;
+}
+
+/**
+ * Checks for maximum duration constraint for songs
+ * @param song mpd song struct to check
+ * @param max_duration the maximum duration, 0 for no limit
+ * @return if song is shorter then min_duration true, else false
+ */
+static bool check_max_duration(const struct mpd_song *song, unsigned max_duration) {
+    return max_duration > 0
+        ? mpd_song_get_duration(song) < max_duration
         : true;
 }
 

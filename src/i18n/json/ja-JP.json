@@ -359,7 +359,6 @@
     "Max. songs": "最大楽曲数",
     "Media session": "メディアセッション",
     "Method not supported": "対応していないメソッドです",
-    "Min. value": "最小値",
     "Minimum one weekday must be selected": "最低でも曜日を1つ選択する必要があります",
     "Minutes": "分",
     "Missing translations": "選択した言語は翻訳が %{smart_count} 件不足しています |||| 選択した言語は翻訳が %{smart_count} 件不足しています",

@@ -138,28 +138,28 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
             }
             if (request->cmd_id == MYMPD_API_CACHES_CREATE) {
-                if (mympd_state->mpd_state->album_cache.building == true) {
+                if (mympd_state->album_cache.building == true) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_WARN, "Cache update is already running");
                     MYMPD_LOG_WARN(partition_state->name, "Cache update is already running");
                     break;
                 }
-                mympd_state->mpd_state->album_cache.building = mympd_state->mpd_state->feat_tags;
+                mympd_state->album_cache.building = mympd_state->mpd_state->feat_tags;
             }
             async = mpd_worker_start(mympd_state, request);
             if (async == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error starting worker thread");
-                mympd_state->mpd_state->album_cache.building = false;
+                mympd_state->album_cache.building = false;
             }
             break;
     // Async responses from the worker thread
         case INTERNAL_API_ALBUMCACHE_SKIPPED:
-            mympd_state->mpd_state->album_cache.building = false;
+            mympd_state->album_cache.building = false;
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
             break;
         case INTERNAL_API_ALBUMCACHE_ERROR:
-            mympd_state->mpd_state->album_cache.building = false;
+            mympd_state->album_cache.building = false;
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating album cache");
             break;
@@ -169,8 +169,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 MYMPD_LOG_INFO(partition_state->name, "Clearing jukebox queues");
                 jukebox_clear_all(mympd_state);
                 //free the old album cache and replace it with the freshly generated one
-                album_cache_free(&mympd_state->mpd_state->album_cache);
-                mympd_state->mpd_state->album_cache.cache = (rax *) request->extra;
+                album_cache_free(&mympd_state->album_cache);
+                mympd_state->album_cache.cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 MYMPD_LOG_INFO(partition_state->name, "Album cache was replaced");
             }
@@ -179,7 +179,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album cache is NULL");
             }
-            mympd_state->mpd_state->album_cache.building = false;
+            mympd_state->album_cache.building = false;
             break;
     // Misc
         case MYMPD_API_LOGLEVEL:
@@ -734,7 +734,16 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
                 json_get_int(request->data, "$.params.like", 0, 2, &int_buf1, &parse_error) == true)
             {
-                rc = mympd_api_sticker_set_like(partition_state, sds_buf1, int_buf1, &error);
+                rc = mympd_api_sticker_set_feedback(partition_state, sds_buf1, FEEDBACK_LIKE, int_buf1, &error);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_STICKER, error);
+            }
+            break;
+        case MYMPD_API_RATING:
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
+                json_get_int(request->data, "$.params.rating", 0, 10, &int_buf1, &parse_error) == true)
+            {
+                rc = mympd_api_sticker_set_feedback(partition_state, sds_buf1, FEEDBACK_STAR, int_buf1, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_STICKER, error);
             }
@@ -1316,30 +1325,33 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (request->cmd_id == MYMPD_API_SMARTPLS_STICKER_SAVE) {
                 if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                     json_get_string(request->data, "$.params.sticker", 1, NAME_LEN_MAX, &sds_buf2, vcb_isalnum, &parse_error) == true &&
-                    json_get_int(request->data, "$.params.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &parse_error) == true &&
-                    json_get_int(request->data, "$.params.minvalue", 0, 100, &int_buf2, &parse_error) == true &&
+                    json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf5, vcb_isname, &parse_error) == true &&
+                    json_get_string(request->data, "$.params.op", 0, 2, &sds_buf4, vcb_iscompareop, &parse_error) == true &&
                     json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &parse_error) == true &&
-                    json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true)
+                    json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true &&
+                    json_get_int(request->data, "$.params.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &parse_error) == true)
                 {
-                    rc = smartpls_save_sticker(config->workdir, sds_buf1, sds_buf2, int_buf1, int_buf2, sds_buf3, bool_buf1);
+                    rc = smartpls_save_sticker(config->workdir, sds_buf1, sds_buf2, sds_buf5, sds_buf4, sds_buf3, bool_buf1, int_buf1);
                 }
             }
             else if (request->cmd_id == MYMPD_API_SMARTPLS_NEWEST_SAVE) {
                 if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                     json_get_int(request->data, "$.params.timerange", 0, JSONRPC_INT_MAX, &int_buf1, &parse_error) == true &&
                     json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf2, vcb_ismpdsort, &parse_error) == true &&
-                    json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true)
+                    json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true &&
+                    json_get_int(request->data, "$.params.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf2, &parse_error) == true)
                 {
-                    rc = smartpls_save_newest(config->workdir, sds_buf1, int_buf1, sds_buf2, bool_buf1);
+                    rc = smartpls_save_newest(config->workdir, sds_buf1, int_buf1, sds_buf2, bool_buf1, int_buf2);
                 }
             }
             else if (request->cmd_id == MYMPD_API_SMARTPLS_SEARCH_SAVE) {
                 if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                     json_get_string(request->data, "$.params.expression", 1, EXPRESSION_LEN_MAX, &sds_buf2, vcb_issearchexpression, &parse_error) == true &&
                     json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &parse_error) == true &&
-                    json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true)
+                    json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true &&
+                    json_get_int(request->data, "$.params.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &parse_error) == true)
                 {
-                    rc = smartpls_save_search(config->workdir, sds_buf1, sds_buf2, sds_buf3, bool_buf1);
+                    rc = smartpls_save_search(config->workdir, sds_buf1, sds_buf2, sds_buf3, bool_buf1, int_buf1);
                 }
             }
             if (parse_error.message == NULL) {

@@ -31,7 +31,16 @@ enum mympd_sticker_types {
     STICKER_LAST_PLAYED,
     STICKER_LAST_SKIPPED,
     STICKER_ELAPSED,
+    STICKER_RATING,
     STICKER_COUNT
+};
+
+/**
+ * myMPD feedback types
+ */
+enum feedback_type {
+    FEEDBACK_LIKE,
+    FEEDBACK_STAR
 };
 
 /**

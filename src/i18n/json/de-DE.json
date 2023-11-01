@@ -359,7 +359,6 @@
     "Max. songs": "Max. Lieder",
     "Media session": "Media Session",
     "Method not supported": "Methode ist nicht unterstützt",
-    "Min. value": "Min. Wert",
     "Minimum one weekday must be selected": "Es muss mindestens ein Wochentag ausgewählt sein.",
     "Minutes": "Min",
     "Missing translations": "Für die ausgewählte Sprache fehlt %{smart_count} Übersetzung |||| Für die ausgewählte Sprache fehlen %{smart_count} Übersetzungen",
@@ -1001,6 +1000,7 @@
     "helpSettingsSearchTags": "Nach diesen Tags kann gesucht werden. Voreinstellung: Artist, Album, Albumartist, Title, Genre",
     "helpSettingsBrowseTags": "Diese Tags sind in der Browse Tags Anzeige auswählbar. Voreinstellung: Artist, Album, Albumartist, Genre",
     "helpSettingsBookletName": "Dateiname für Booklets, die im gleichen Verzeichnis wie das Lied oder Album gespeichert sein muss.",
+    "helpSettingsInfoTxtName": "Dateiname für Albuminformationen, die im gleichen Verzeichnis wie das Lied oder Album gespeichert sein muss.",
     "helpSettingsCoverimageNames": "Durch Komma getrennte Liste von Dateinamen oder Basisnamen.",
     "helpSettingsThumbnailNames": "Durch Kommata getrennte Liste von Dateinamen oder Basisnamen für Thumbnails.",
     "helpSettingsSmartplsPrefix": "Prefix für die Namen von intelligenten Wiedergabelisten.",
@@ -1111,7 +1111,15 @@
     "Include expression": "Suchfilter",
     "Invalid MPD search expression": "Ungültiger MPD Suchfilter",
     "Min. song duration": "Mindeste Liedlänge",
+    "Max. song duration": "Maximale Liedlänge",
     "helpJukeboxMinSongDuration": "Nur Lieder mit dieser Mindestlänge werden berücksichtigt.",
+    "helpJukeboxMaxSongDuration": "Wenn größer Null: Nur Lieder mit dieser Maximallänge werden berücksichtigt.",
     "Sortdesc": "Sortierreihenfolge umdrehen",
-    "Timers are not supported by platform": "Timer sind von der Plattform nicht unterstützt."
+    "Timers are not supported by platform": "Timer sind von der Plattform nicht unterstützt.",
+    "Album info": "Album Infos",
+    "Info filename": "Info Dateiname",
+    "Markdown could not be parsed.": "Markdown konnte nicht geparsed werden.",
+    "equal": "gleich",
+    "greater": "größer",
+    "lesser": "kleiner"
 }
