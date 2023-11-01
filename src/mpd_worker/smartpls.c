@@ -335,8 +335,11 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
         return false;
     }
     sds error = sdsempty();
+    const char *r_sort = strcmp(sort, "shuffle") == 0
+        ? NULL
+        : sort;
     bool rc = mpd_client_search_add_to_plist(mpd_worker_state->partition_state,
-        expression, playlist, UINT_MAX, sort, sortdesc, &error);
+        expression, playlist, UINT_MAX, r_sort, sortdesc, &error);
     if (rc == true) {
         MYMPD_LOG_INFO(NULL, "Updated smart playlist \"%s\"", playlist);
     }
@@ -427,9 +430,12 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     value_max = value_max - (unsigned long)timerange;
 
     sds error = sdsempty();
+    const char *r_sort = strcmp(sort, "shuffle") == 0
+        ? NULL
+        : sort;
     sds expression = sdscatfmt(sdsempty(), "(modified-since '%U')", value_max);
     bool rc = mpd_client_search_add_to_plist(mpd_worker_state->partition_state, expression,
-        playlist, UINT_MAX, sort, sortdesc, &error);
+        playlist, UINT_MAX, r_sort, sortdesc, &error);
     FREE_SDS(expression);
     
     if (rc == true) {
