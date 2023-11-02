@@ -145,6 +145,13 @@ function addSmartpls(type) {
             obj.result.value = 2;
             obj.result.op = '=';
             break;
+        case 'mostStars':
+            obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'mostStars';
+            obj.result.type = 'sticker';
+            obj.result.sticker = 'rating';
+            obj.result.value = 5;
+            obj.result.op = '>';
+            break;
         default:
             logError('Invalid smart playlist type: ' + type);
     }

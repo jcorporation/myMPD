@@ -466,7 +466,8 @@
               <div class="dropdown-menu px-2">
                 <h2 class="dropdown-header" data-phrase="Add smart playlist"></h2>
                 <div class="d-grid gap-2">
-                  <button data-phrase="Best rated" data-href='{"cmd": "addSmartpls", "options": ["bestRated"]}' type="button" class="btn btn-secondary"></button>
+                  <button data-phrase="Best rated" data-href='{"cmd": "addSmartpls", "options": ["bestRated"]}' type="button" class="btn btn-secondary featLike"></button>
+                  <button data-phrase="Most stars" data-href='{"cmd": "addSmartpls", "options": ["mostStars"]}' type="button" class="btn btn-secondary featRating"></button>
                   <button data-phrase="Most played" data-href='{"cmd": "addSmartpls", "options": ["mostPlayed"]}' type="button" class="btn btn-secondary"></button>
                   <button data-phrase="Newest songs" data-href='{"cmd": "addSmartpls", "options": ["newest"]}' type="button" class="btn btn-secondary"></button>
                 </div>
@@ -1413,7 +1414,8 @@
               <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditStickerInput" data-phrase="Sticker"></label>
               <div class="col-sm-8">
                 <select id="modalSmartPlaylistEditStickerInput" class="form-select">
-                  <option value="like" data-phrase="Like"></option>
+                  <option value="like" data-phrase="Like" class="featLike"></option>
+                  <option value="rating" data-phrase="Rating" class="featRating"></option>
                   <option value="playCount" data-phrase="Play count"></option>
                 </select>
               </div>
