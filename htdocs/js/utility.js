@@ -282,7 +282,7 @@ function parseCmdFromJSON(event, str) {
 /**
  * Executes a javascript command object
  * @param {Event} event triggering event
- * @param {object} cmd string to parse
+ * @param {object} cmd cmd object
  * @returns {void}
  */
 function parseCmd(event, cmd) {
@@ -293,20 +293,22 @@ function parseCmd(event, cmd) {
     }
     const func = getFunctionByName(cmd.cmd);
     if (typeof func === 'function') {
-        for (let i = 0, j = cmd.options.length; i < j; i++) {
-            if (cmd.options[i] === 'event') {
-                cmd.options[i] = event;
-            }
-            else if (cmd.options[i] === 'target') {
-                cmd.options[i] = event.target;
-            }
-        }
         if (cmd.cmd === 'sendAPI') {
             sendAPI(cmd.options[0].cmd, {}, null, false);
         }
         else {
+            // copy - we do not want to modify the original object
+            const options = cmd.options.slice();
+            for (let i = 0, j = options.length; i < j; i++) {
+                if (options[i] === 'event') {
+                    options[i] = event;
+                }
+                else if (options[i] === 'target') {
+                    options[i] = event.target;
+                }
+            }
             // @ts-ignore
-            func(... cmd.options);
+            func(... options);
         }
     }
     else {
