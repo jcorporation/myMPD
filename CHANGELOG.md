@@ -12,6 +12,7 @@ This is a small bugfix release.
 
 - Fix: compilation on FreeBSD
 - Fix: search based smart playlists in shuffle mode
+- Fix:  Round the volume for local playback to integer #1149
 
 ***
 

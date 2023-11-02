@@ -172,7 +172,7 @@ function createLocalPlaybackEl(createEvent) {
         elClear(el);
         btnWaiting(el, true);
         elGetById('localPlaybackVolumeBar').value = localPlayer.volume;
-        elGetById('localPlaybackVolume').textContent = localPlayer.volume * 100 + ' %';
+        elGetById('localPlaybackVolume').textContent = Math.round(localPlayer.volume * 100).toString() + ' %';
     }
     else {
         setData(el, 'state', 'stop');
