@@ -27,6 +27,7 @@ This version ships a few improvements for stickers, smart playlists and the juke
 - Feat: add operator lt, gt, eq to sticker based smart playlists #1090
 - Feat: add max entries option to all smart playlists
 - Feat: add rating sticker - stars like cantata #1141
+- Upd: libmympdclient 1.0.24
 
 ***
 

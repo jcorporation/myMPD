@@ -37,6 +37,7 @@
 #include <mpd/audio_format.h>
 
 #include <stdbool.h>
+#include <time.h>
 
 struct mpd_tag_value {
 	struct mpd_tag_value *next;
@@ -77,6 +78,12 @@ struct mpd_song {
 	 * that is unknown.
 	 */
 	time_t last_modified;
+
+	/**
+	 * The POSIX UTC time stamp of database addition, or 0 if
+	 * that is unknown.
+	 */
+	time_t added;
 
 	/**
 	 * The position of this song within the queue.

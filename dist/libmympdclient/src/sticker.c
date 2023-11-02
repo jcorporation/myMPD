@@ -178,3 +178,11 @@ mpd_return_sticker(struct mpd_connection *connection, struct mpd_pair *pair)
 {
 	mpd_return_pair(connection, pair);
 }
+
+bool
+mpd_send_stickernames(struct mpd_connection *connection)
+{
+	assert(connection != NULL);
+
+	return mpd_send_command(connection, "stickernames", NULL);
+}

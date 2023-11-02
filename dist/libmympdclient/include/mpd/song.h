@@ -147,6 +147,16 @@ time_t
 mpd_song_get_last_modified(const struct mpd_song *song);
 
 /**
+ * @return the POSIX UTC time stamp of database addition, or 0 if
+ * that is unknown.
+ *
+ * @since libmpdclient 2.21, MPD 0.24
+ */
+mpd_pure
+time_t
+mpd_song_get_added(const struct mpd_song *song);
+
+/**
  * Sets the position within the queue.  This value is not used for
  * songs which are not in the queue.
  *

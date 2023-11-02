@@ -72,6 +72,7 @@ mpd_song_new(const char *uri)
 	song->start = 0;
 	song->end = 0;
 	song->last_modified = 0;
+	song->added = 0;
 	song->pos = 0;
 	song->id = 0;
 	song->prio = 0;
@@ -152,6 +153,7 @@ mpd_song_dup(const struct mpd_song *song)
 	ret->start = song->start;
 	ret->end = song->end;
 	ret->last_modified = song->last_modified;
+	ret->added = song->added;
 	ret->pos = song->pos;
 	ret->id = song->id;
 	ret->prio = song->prio;
@@ -324,6 +326,20 @@ mpd_song_get_last_modified(const struct mpd_song *song)
 	return song->last_modified;
 }
 
+static void
+mpd_song_set_added(struct mpd_song *song, time_t addtime)
+{
+	song->added = addtime;
+}
+
+time_t
+mpd_song_get_added(const struct mpd_song *song)
+{
+	assert(song != NULL);
+
+	return song->added;
+}
+
 void
 mpd_song_set_pos(struct mpd_song *song, unsigned pos)
 {
@@ -469,6 +485,8 @@ mpd_song_feed(struct mpd_song *song, const struct mpd_pair *pair)
 		mpd_song_parse_range(song, pair->value);
 	else if (strcmp(pair->name, "Last-Modified") == 0)
 		mpd_song_set_last_modified(song, iso8601_datetime_parse(pair->value));
+	else if (strcmp(pair->name, "Added") == 0)
+		mpd_song_set_added(song, iso8601_datetime_parse(pair->value));
 	else if (strcmp(pair->name, "Pos") == 0)
 		mpd_song_set_pos(song, strtoul(pair->value, NULL, 10));
 	else if (strcmp(pair->name, "Id") == 0)
