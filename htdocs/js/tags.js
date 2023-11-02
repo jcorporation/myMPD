@@ -280,6 +280,9 @@ function printValue(key, value) {
                         ? 'horizontal_rule'
                         : 'thumb_up'
             );
+        case 'rating': {
+            return showStarRating(value);
+        }
         case 'elapsed':
             return document.createTextNode(fmtSongDuration(value));
         case 'Artist':

@@ -148,7 +148,12 @@ function parseCurrentSong(obj) {
     }
 
     if (features.featStickers === true) {
-        setVoteSongBtns(obj.result.like, obj.result.uri);
+        if (settings.webuiSettings.feedback === 'like') {
+            setVoteSongBtns(obj.result.like, obj.result.uri);
+        }
+        else if (settings.webuiSettings.feedback === 'rating') {
+            setRating(elGetById('PlaybackSongRating'), obj.result.rating);
+        }
     }
 
     setPlaybackCardTags(obj.result);

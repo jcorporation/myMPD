@@ -231,27 +231,35 @@ function parseSongDetails(obj) {
             )
         );
         for (const sticker of stickerList) {
-            if (sticker === 'like') {
-                const thDown = elCreateText('button', {"data-vote": "0", "data-title-phrase": "Hate song", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
-                if (obj.result[sticker] === 0) {
-                    thDown.classList.add('active');
+            if (sticker === 'like' ||
+                sticker === 'rating')
+            {
+                if (sticker === 'like' &&
+                    features.featLike === true)
+                {
+                    const grp = createLike(obj.result.like);
+                    setData(grp, 'href', {"cmd": "voteSongLike", "options": ["target"]});
+                    setData(grp, 'uri', obj.result.uri);
+                    tbody.appendChild(
+                        elCreateNodes('tr', {}, [
+                            elCreateTextTn('th', {}, 'Like'),
+                            elCreateNode('td', {}, grp)
+                        ])
+                    );
                 }
-                const thUp = elCreateText('button', {"data-vote": "2", "data-title-phrase": "Love song", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
-                if (obj.result[sticker] === 2) {
-                    thUp.classList.add('active');
+                else if (sticker === 'rating' &&
+                    features.featRating === true)
+                {
+                    const grp = createStarRating(obj.result.rating);
+                    setData(grp, 'href', {"cmd": "voteSongRating", "options": ["target"]});
+                    setData(grp, 'uri', obj.result.uri);
+                    tbody.appendChild(
+                        elCreateNodes('tr', {}, [
+                            elCreateTextTn('th', {}, 'Stars'),
+                            elCreateNode('td', {}, grp)
+                        ])
+                    );
                 }
-                const grp = elCreateNodes('div', {"class": ["btn-group", "btn-group-sm"]}, [
-                    thDown,
-                    thUp
-                ]);
-                setData(grp, 'href', {"cmd": "voteSong", "options": ["target"]});
-                setData(grp, 'uri', obj.result.uri);
-                tbody.appendChild(
-                    elCreateNodes('tr', {}, [
-                        elCreateTextTn('th', {}, 'Like'),
-                        elCreateNode('td', {}, grp)
-                    ])
-                );
             }
             else {
                 tbody.appendChild(

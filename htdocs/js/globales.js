@@ -85,7 +85,9 @@ const ligatures = {
     'more': 'menu',
     'unchecked': 'radio_button_unchecked',
     'partitionSpecific': 'dashboard',
-    'browserSpecific': 'web_asset'
+    'browserSpecific': 'web_asset',
+    'stared': 'star',
+    'star': 'star_border'
 };
 
 // pre-generated elements
@@ -1163,6 +1165,7 @@ const stickerList = [
     'lastPlayed',
     'lastSkipped',
     'like',
+    'rating',
     'elapsed'
 ];
 
