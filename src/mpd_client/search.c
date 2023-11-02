@@ -196,12 +196,21 @@ static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, str
         count++;
     }
     //and for album
-    expression = escape_mpd_search_expression(expression, "Album", "==", mpd_song_get_tag(album, MPD_TAG_ALBUM, 0));
+    value = mpd_song_get_tag(album, MPD_TAG_ALBUM, 0);
+    if (value != NULL) {
+        expression = escape_mpd_search_expression(expression, "Album", "==", value);
+    }
+    else {
+        expression = escape_mpd_search_expression(expression, "Album", "==", "");
+    }
     //optionally append group tag
     if (album_config->group_tag != MPD_TAG_UNKNOWN) {
-        expression = sdscat(expression, " AND ");
-        expression = escape_mpd_search_expression(expression, mpd_tag_name(album_config->group_tag),
-            "==", mpd_song_get_tag(album, album_config->group_tag, 0));
+        value = mpd_song_get_tag(album, album_config->group_tag, 0);
+        if (value != NULL) {
+            expression = sdscat(expression, " AND ");
+            expression = escape_mpd_search_expression(expression, mpd_tag_name(album_config->group_tag),
+                "==", value);
+        }
     }
     return expression;
 }
