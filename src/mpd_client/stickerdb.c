@@ -515,7 +515,7 @@ bool stickerdb_set_rating(struct t_partition_state *partition_state, const char 
     if (value < 0 || value > 10) {
         return false;
     }
-    return stickerdb_set_llong(partition_state, uri, sticker_name_lookup(STICKER_LIKE), (long long)value);
+    return stickerdb_set_llong(partition_state, uri, sticker_name_lookup(STICKER_RATING), (long long)value);
 }
 
 // Private functions
