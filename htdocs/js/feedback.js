@@ -127,7 +127,7 @@ function createStarRating(rating) {
                 ? 'ps-0'
                 : 'px-0';
         div.appendChild(
-            elCreateText('button', {"class": ["btn", "btn-secondary", "mi", padding], "data-vote": vote.toString() }, lig)
+            elCreateText('button', {"class": ["btn", "btn-secondary", "mi", padding], "title": vote.toString(), "data-vote": vote.toString() }, lig)
         );
     }
     return div;
@@ -146,7 +146,7 @@ function showStarRating(rating) {
             ? ligatures.stared
             : ligatures.star;
         div.appendChild(
-            elCreateText('span', {"class": ["mi"], "data-vote": vote.toString() }, lig)
+            elCreateText('span', {"class": ["mi"], "title": vote.toString() }, lig)
         );
     }
     return div;
