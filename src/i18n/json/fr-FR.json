@@ -904,7 +904,6 @@
     "Could not save columns": "Impossible de sauver les colonnes",
     "Clearing the playlist %{playlist} failed: %{error}": "Echec de la purge de la list de lecture %{playlist}: %{error}",
     "Error starting worker thread": "Erreur au démarrage du worker thread",
-    "Failed to set like": "Impossible de liker",
     "Invalid timer id": "ID de programmation horaire invalide",
     "No album ids provided": "Aucun id d'album fourni",
     "No webradios provided": "Aucune webradio fournie",

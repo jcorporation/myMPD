@@ -904,7 +904,6 @@
     "Could not save columns": "열을 저장할 수 없음",
     "Clearing the playlist %{playlist} failed: %{error}": "재생 목록 %{playlist} 지우기 실패: %{error}",
     "Error starting worker thread": "작업 스레드 시작 오류",
-    "Failed to set like": "좋아요 설정 실패",
     "Invalid timer id": "잘못된 타이머 ID",
     "No album ids provided": "앨범 ID 없음",
     "No webradios provided": "웹라디오 없음",

@@ -904,7 +904,6 @@
     "Could not save columns": "カラムを保存できません",
     "Clearing the playlist %{playlist} failed: %{error}": "プレイリスト %{playlist} の消去に失敗しました: %{error}",
     "Error starting worker thread": "ワーカースレッドの開始中にエラーが発生しました",
-    "Failed to set like": "評価の登録に失敗しました",
     "Invalid timer id": "無効なタイマーIDです",
     "No album ids provided": "アルバムIDが渡されていません",
     "No webradios provided": "ウェブラジオが渡されていません",

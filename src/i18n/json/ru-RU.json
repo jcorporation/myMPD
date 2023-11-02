@@ -904,7 +904,6 @@
     "Could not save columns": "Столбцы не удалось сохранить.",
     "Clearing the playlist %{playlist} failed: %{error}": "Не удалось очистить плейлист: %{error}",
     "Error starting worker thread": "Рабочий поток не удалось запустить",
-    "Failed to set like": "Не удалось сохранить оценку.",
     "Invalid timer id": "Неверный идентификатор таймера",
     "No album ids provided": "Идентификаторы альбомов не переданы",
     "No webradios provided": "Веб-радио не передано",

@@ -904,7 +904,6 @@
     "Could not save columns": "Spalten konnten nicht gespeichert werden",
     "Clearing the playlist %{playlist} failed: %{error}": "Leeren der Wiedergabeliste fehlgeschlagen: %{error}",
     "Error starting worker thread": "Workerthread konnte nicht gestartet werden",
-    "Failed to set like": "Bewertung konnte nicht gespeichert werden",
     "Invalid timer id": "Ungültige Timer-ID",
     "No album ids provided": "Keine Album-IDs übergeben",
     "No webradios provided": "Keine Webradios übergeben",
@@ -1091,6 +1090,7 @@
     "lastPlayed": "Zuletzt gespielt",
     "lastSkipped": "Zuletzt übersprungen",
     "like": "Wertung",
+    "rating": "Sterne",
     "playCount": "Gespielt",
     "skipCount": "Übersprungen",
     "elapsed": "Letzte Position",
@@ -1122,5 +1122,11 @@
     "equal": "gleich",
     "greater": "größer",
     "lesser": "kleiner",
-    "helpSettingsFeedback": "Bewerte Lieder mit gefällt mir (nicht) oder 5 Sternen."
+    "helpSettingsFeedback": "Bewerte Lieder mit gefällt mir (nicht) oder 5 Sternen.",
+    "Failed to set feedback": "Wertung konnte nicht gespeichert werden",
+    "Feedback": "Wertung",
+    "Love, hate": "Gefällt mir / nicht",
+    "Most stars": "Meiste Sterne",
+    "Rating": "Sternewertung",
+    "Stars": "Sterne"
 }

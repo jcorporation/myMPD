@@ -904,7 +904,6 @@
     "Could not save columns": "Kan kolommen niet opslaan",
     "Clearing the playlist %{playlist} failed: %{error}": "Kan afspeellijst %{playlist} niet wissen: %{error}",
     "Error starting worker thread": "Fout bij het starten van werkthread",
-    "Failed to set like": "Kan niet \"like\" opslaan",
     "Invalid timer id": "Ongeldige Timer-ID",
     "No album ids provided": "Geen album-ID opgegeven",
     "No webradios provided": "Geen internetradio doorgegeven",

@@ -904,7 +904,6 @@
     "Could not save columns": "",
     "Clearing the playlist %{playlist} failed: %{error}": "",
     "Error starting worker thread": "",
-    "Failed to set like": "",
     "Invalid timer id": "",
     "No album ids provided": "",
     "No webradios provided": "",

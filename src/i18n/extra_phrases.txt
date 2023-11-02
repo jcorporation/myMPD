@@ -220,6 +220,7 @@ elapsed
 lastPlayed
 lastSkipped
 like
+rating
 playCount
 skipCount
 stop only
