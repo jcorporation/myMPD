@@ -39,7 +39,9 @@ This is a small bugfix release.
 
 - Fix: compilation on FreeBSD
 - Fix: search based smart playlists in shuffle mode
-- Fix:  Round the volume for local playback to integer #1149
+- Fix: Round the volume for local playback to integer #1149
+- Fix: do not modify dom properties in parseCmd
+- Fix: SEGVAULT creating album search expression #1151
 
 ***
 
