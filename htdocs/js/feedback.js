@@ -75,7 +75,7 @@ function createLike(like) {
  */
 //eslint-disable-next-line no-unused-vars
 function voteSongRating(el) {
-    let rating = Number(el.getAttribute('data-vote'));
+    const rating = Number(el.getAttribute('data-vote'));
     let uri = getData(el.parentNode, 'uri');
     if (uri === undefined) {
         //fallback to current song
