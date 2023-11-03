@@ -76,11 +76,6 @@ function createLike(like) {
 //eslint-disable-next-line no-unused-vars
 function voteSongRating(el) {
     let rating = Number(el.getAttribute('data-vote'));
-    if (rating === 2 &&
-        el.textContent === ligatures.stared)
-    {
-        rating = 0;
-    }
     let uri = getData(el.parentNode, 'uri');
     if (uri === undefined) {
         //fallback to current song
@@ -102,10 +97,16 @@ function voteSongRating(el) {
  */
 function setRating(el, rating) {
     const starEls = el.querySelectorAll('button');
-    for (let i = 0; i < 5; i++) {
-        starEls[i].textContent = rating >= (i + 1) * 2
+    for (let i = 1; i < 6; i++) {
+        starEls[i].textContent = rating >= i * 2
             ? ligatures.stared
             : ligatures.star;
+    }
+    if (rating === 0) {
+        elDisable(starEls[0]);
+    }
+    else {
+        elEnable(starEls[0]);
     }
 }
 
@@ -116,18 +117,21 @@ function setRating(el, rating) {
  */
 function createStarRating(rating) {
     const div = elCreateEmpty('div', {"class": ["btn-group"]});
-    for (let i = 0; i < 5; i++) {
-        const vote = (i + 1) * 2;
+    const clearEl = elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "px-1"], "data-title-phrase": "Clear", "title": "Clear", "data-vote": "0" }, 'clear');
+    if (rating === 0) {
+        clearEl.setAttribute('disabled', 'disabled');
+    }
+    div.appendChild(clearEl);
+    for (let i = 1; i < 6; i++) {
+        const vote = i * 2;
         const lig = rating >= vote
             ? ligatures.stared
             : ligatures.star;
-        const padding = i === 0
-            ? 'pe-0'
-            : i === 4
-                ? 'ps-0'
-                : 'px-0';
+        const padding = i === 5
+                ? ['ps-0', 'pe-1']
+                : ['px-0'];
         div.appendChild(
-            elCreateText('button', {"class": ["btn", "btn-secondary", "mi", padding], "title": vote.toString(), "data-vote": vote.toString() }, lig)
+            elCreateText('button', {"class": ["btn", "btn-secondary", "mi", ... padding], "title": vote.toString(), "data-vote": vote.toString() }, lig)
         );
     }
     return div;
@@ -140,13 +144,13 @@ function createStarRating(rating) {
  */
 function showStarRating(rating) {
     const div = elCreateEmpty('div', {});
-    for (let i = 0; i < 5; i++) {
-        const vote = (i + 1) * 2;
+    for (let i = 1; i < 6; i++) {
+        const vote = i * 2;
         const lig = rating >= vote
             ? ligatures.stared
             : ligatures.star;
         div.appendChild(
-            elCreateText('span', {"class": ["mi"], "title": vote.toString() }, lig)
+            elCreateText('span', {"class": ["mi"], "title": vote.toString()}, lig)
         );
     }
     return div;
