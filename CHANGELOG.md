@@ -15,6 +15,7 @@ This is a small bugfix release.
 - Fix: Round the volume for local playback to integer #1149
 - Fix: do not modify dom properties in parseCmd
 - Fix: SEGVAULT creating album search expression #1151
+- Fix: Album details cover zoom #1153
 
 ***
 
