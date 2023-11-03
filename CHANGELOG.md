@@ -31,7 +31,7 @@ This version ships a few improvements for stickers, smart playlists and the juke
 
 ***
 
-## myMPD v13.0.2 (not yet released)
+## myMPD v13.0.2 (2023-11-03)
 
 This is a small bugfix release.
 
