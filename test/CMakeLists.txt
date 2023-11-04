@@ -10,6 +10,7 @@ set(TEST_SOURCES
   ../src/lib/album_cache.c
   ../src/lib/api.c
   ../src/lib/cert.c
+  ../src/lib/datetime.c
   ../src/lib/env.c
   ../src/lib/filehandler.c
   ../src/lib/http_client.c
@@ -58,6 +59,7 @@ set(TEST_SOURCES
   ../src/mympd_api/webradios.c
   tests/test_api.c
   tests/test_cert.c
+  tests/test_datetime.c
   tests/test_env.c
   tests/test_filehandler.c
   tests/test_http_client.c
@@ -136,6 +138,7 @@ list(APPEND test_categories
   "album_cache"
   "api"
   "cert"
+  "datetime"
   "env"
   "filehandler"
   "http_client"

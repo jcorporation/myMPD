@@ -9,6 +9,6 @@
 
 #include <time.h>
 
-time_t parse_time(const char *str);
+time_t parse_date(const char *str);
 
 #endif

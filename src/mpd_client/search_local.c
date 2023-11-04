@@ -200,7 +200,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             expr->re_compiled = compile_regex(expr->value);
         }
         else if (expr->op == SEARCH_OP_NEWER) {
-            expr->value_time = parse_time(expr->value);
+            expr->value_time = parse_date(expr->value);
         }
         list_push(expr_list, "", 0, NULL, expr);
         MYMPD_LOG_DEBUG(NULL, "Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, expr->value);

@@ -17,7 +17,7 @@
  * @param str string to parse
  * @return time_t unix timestamp
  */
-time_t parse_time(const char *str) {
+time_t parse_date(const char *str) {
     struct tm tm;
     memset(&tm, '\0', sizeof (tm));
     if (strptime (str, "%Y-%m-%d", &tm) == NULL) {
