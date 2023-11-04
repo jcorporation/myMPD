@@ -8,10 +8,12 @@ https://github.com/jcorporation/myMPD/
 
 This version ships a few improvements for stickers, smart playlists and the jukebox mode.
 
+It also supports the new "added" timestamp for songs in the mpd database.
+
 ### Notes
 
 - The schema of smart playlist was changed, you must recreate it.
-- Arguments for the TRIGGER_MYMPD_FEEDBACK trigger has changed to support the new rating sticker.
+- Arguments for the feedback trigger has changed to support the new rating sticker.
 
 ### API changes
 
@@ -22,12 +24,13 @@ This version ships a few improvements for stickers, smart playlists and the juke
 
 ### Changelog
 
-- Feat: support info.txt in music directory folders #1120
-- Feat: add max. song duration as jukebox constraint #1146
-- Feat: add operator lt, gt, eq to sticker based smart playlists #1090
-- Feat: add max entries option to all smart playlists
-- Feat: add rating sticker - stars like cantata #1141
-- Feat: support added timestamp for songs (MPD 0.24) #1150
+- Feat: Support info.txt in music directory folders #1120
+- Feat: Add max. song duration as jukebox constraint #1146
+- Feat: Add operator lt, gt, eq to sticker based smart playlists #1090
+- Feat: Add max entries option to all smart playlists #1157
+- Feat: Add rating sticker - stars like cantata #1141
+- Feat: Support added timestamp for songs (MPD 0.24) #1150
+- Feat: Support added-since and modified-since for search expressions #1158
 - Upd: libmympdclient 1.0.24
 
 ***
@@ -38,10 +41,10 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Fix: compilation on FreeBSD
-- Fix: search based smart playlists in shuffle mode
+- Fix: Compilation on FreeBSD
+- Fix: Search based smart playlists in shuffle mode
 - Fix: Round the volume for local playback to integer #1149
-- Fix: do not modify dom properties in parseCmd
+- Fix: Do not modify dom properties in parseCmd
 - Fix: SEGVAULT creating album search expression #1151
 - Fix: Album details cover zoom #1153
 
@@ -53,8 +56,8 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Fix: display selected jukebox uniq tag #1142
-- Fix: jukebox internal queue randomness #1142
+- Fix: Display selected jukebox uniq tag #1142
+- Fix: Jukebox internal queue randomness #1142
 
 ***
 
@@ -90,8 +93,8 @@ The sticker database was removed in this release. myMPD fetches now all stickers
 - Feat: Improve jukebox album mode
 - Feat: FreeBSD support #117
 - Upd: Use more standard cmake build types #1119
-- Upd: rework timer implementation
-- Upd: some websocket connection improvements
+- Upd: Rework timer implementation
+- Upd: Some websocket connection improvements
 - Upd: Mongoose 7.12 #1132
 
 ***
