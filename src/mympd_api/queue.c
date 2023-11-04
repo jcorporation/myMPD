@@ -748,8 +748,19 @@ static bool add_queue_search_adv_params(struct t_partition_state *partition_stat
     }
     else if (strcmp(sort, "Last-Modified") == 0) {
         //swap order
-        sortdesc = sortdesc == false ? true : false;
+        sortdesc = sortdesc == false
+            ? true
+            : false;
         if (mpd_search_add_sort_name(partition_state->conn, "Last-Modified", sortdesc) == false) {
+            return false;
+        }
+    }
+    else if (strcmp(sort, "Added") == 0) {
+        //swap order
+        sortdesc = sortdesc == false
+            ? true
+            : false;
+        if (mpd_search_add_sort_name(partition_state->conn, "Added", sortdesc) == false) {
             return false;
         }
     }
@@ -787,7 +798,7 @@ sds print_queue_entry(struct t_partition_state *partition_state, sds buffer,
     const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
     buffer = printAudioFormat(buffer, audioformat);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, &partition_state->mympd_state->config->albums);
+    buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, ",", 1);
     if (is_streamuri(uri) == true) {

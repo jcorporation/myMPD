@@ -126,6 +126,11 @@ function addTagList(elId, list) {
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, 'Last modified')
             );
+            if (features.featDbAdded === true) {
+                stack.appendChild(
+                    elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Added"}, 'Added')
+                );
+            }
         }
     }
     else if (elId === 'QueueCurrentSearchTags') {
@@ -161,6 +166,11 @@ function addTagListSelect(elId, list) {
         select.appendChild(
             elCreateTextTn('option', {"value": "Last-Modified"}, 'Last-Modified')
         );
+        if (features.featDbAdded === true) {
+            select.appendChild(
+                elCreateTextTn('option', {"value": "Added"}, 'Added')
+            );
+        }
         select.appendChild(
             elCreateTextTn('option', {"value": "filename"}, 'Filename')
         );
@@ -267,6 +277,7 @@ function printValue(key, value) {
         case 'Pos':
             //mpd is 0-indexed but humans wants 1-indexed lists
             return document.createTextNode(value + 1);
+        case 'Added':
         case 'Last-Modified':
         case 'LastPlayed':
         case 'lastPlayed':

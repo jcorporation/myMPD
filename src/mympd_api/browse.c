@@ -6,6 +6,7 @@
 
 #include "compile_time.h"
 #include "mpd/tag.h"
+#include "src/lib/tags.h"
 #include "src/mympd_api/browse.h"
 
 #include "dist/utf8/utf8.h"
@@ -92,8 +93,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
                 first_song_uri = sdscat(first_song_uri, mpd_song_get_uri(song));
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
-            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song,
-                &partition_state->mympd_state->config->albums);
+            buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
             if (partition_state->mpd_state->feat_stickers == true &&
                 tagcols->stickers_len > 0)
             {
@@ -133,7 +133,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, first_song_uri, false);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_int(buffer, "returnedEntities", entities_returned, true);
-    buffer = print_album_tags(buffer, &partition_state->mpd_state->tags_album, mpd_album, &partition_state->mympd_state->config->albums);
+    buffer = print_album_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_album, mpd_album);
     buffer = sdscat(buffer, ",\"lastPlayedSong\":{");
     buffer = tojson_time(buffer, "time", last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
@@ -171,18 +171,27 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     buffer = sdscat(buffer, "\"data\":[");
 
     //parse sort tag
-    bool sort_by_last_modified = false;
     enum mpd_tag_type sort_tag = MPD_TAG_ALBUM;
+    enum sort_by_type sort_by = SORT_BY_TAG;
 
     if (sdslen(sort) > 0) {
         sort_tag = mpd_tag_name_parse(sort);
         if (sort_tag != MPD_TAG_UNKNOWN) {
             sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_state->tags_mympd);
         }
-        else if (strcmp(sort, "Last-Modified") == 0) {
-            sort_by_last_modified = true;
+        else if (strcmp(sort, "Added") == 0) {
+            sort_by = SORT_BY_ADDED;
             //swap order
-            sortdesc = sortdesc == false ? true : false;
+            sortdesc = sortdesc == false
+                ? true
+                : false;
+        }
+        else if (strcmp(sort, "Last-Modified") == 0) {
+            sort_by = SORT_BY_LAST_MODIFIED;
+            //swap order
+            sortdesc = sortdesc == false
+                ? true
+                : false;
         }
         else {
             MYMPD_LOG_WARN(partition_state->name, "Unknown sort tag: %s", sort);
@@ -204,8 +213,11 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
         if (expr_list->length == 0 ||
             search_song_expression(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
-            if (sort_by_last_modified == true) {
+            if (sort_by == SORT_BY_LAST_MODIFIED) {
                 key = sdscatprintf(key, "%020lld::%s", (long long)mpd_song_get_last_modified(album), mpd_song_get_uri(album));
+            }
+            else if (sort_by == SORT_BY_ADDED) {
+                key = sdscatprintf(key, "%020lld::%s", (long long)mpd_song_get_added(album), mpd_song_get_uri(album));
             }
             else {
                 key = mpd_client_get_tag_value_string(album, sort_tag, key);
@@ -250,7 +262,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             }
             struct mpd_song *album = (struct mpd_song *)iter.data;
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
-            buffer = print_album_tags(buffer, tagcols, album, &partition_state->mympd_state->config->albums);
+            buffer = print_album_tags(buffer, partition_state->mpd_state, tagcols, album);
             buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), false);
             buffer = sdscatlen(buffer, "}", 1);

@@ -367,8 +367,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_uint(buffer, "pos", mpd_song_get_pos(song), true);
         buffer = tojson_long(buffer, "currentSongId", partition_state->song_id, true);
-        buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, &partition_state->mpd_state->tags_mympd,
-            song, &partition_state->mympd_state->config->albums);
+        buffer = print_song_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_mympd, song);
         buffer = sdscatlen(buffer, ",", 1);
         if (partition_state->mpd_state->feat_stickers == true) {
             struct t_tags tagcols;

@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/tags.h"
 #include "src/mpd_client/playlists.h"
 
 #include "dist/rax/rax.h"
@@ -403,22 +404,27 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
         .tags_len = 1,
         .tags[0] = mpd_tag_name_parse(tagstr)
     };
+    enum sort_by_type sort_by = SORT_BY_TAG;
     bool rc = false;
     if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-        MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by tag \"%s\"", playlist, tagstr);
         enable_mpd_tags(partition_state, &sort_tags);
         rc = mpd_send_list_playlist_meta(partition_state->conn, playlist);
     }
     else if (strcmp(tagstr, "filename") == 0) {
-        MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by %s", playlist, tagstr);
         rc = mpd_send_list_playlist(partition_state->conn, playlist);
-        sort_tags.tags[0] = -3;
+        sort_by = SORT_BY_FILENAME;
     }
-    else if (strcmp(tagstr, "Last-Modified") == 0)
-    {
-        MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by %s", playlist, tagstr);
+    else if (strcmp(tagstr, "Last-Modified") == 0) {
         rc = mpd_send_list_playlist(partition_state->conn, playlist);
-        sort_tags.tags[0] = -2;
+        sort_by = SORT_BY_LAST_MODIFIED;
+        //swap sort direction
+        sortdesc = sortdesc == true
+            ? false
+            : true;
+    }
+    else if (strcmp(tagstr, "Added") == 0) {
+        rc = mpd_send_list_playlist(partition_state->conn, playlist);
+        sort_by = SORT_BY_ADDED;
         //swap sort direction
         sortdesc = sortdesc == true
             ? false
@@ -428,6 +434,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
         MYMPD_LOG_ERROR(partition_state->name, "Invalid sort tag: %s", tagstr);
         return false;
     }
+    MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by tag \"%s\"", playlist, tagstr);
 
     rax *plist = raxNew();
     if (rc == true) {
@@ -440,9 +447,11 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
                 key = mpd_client_get_tag_value_padded(song, MPD_TAG_TRACK, '0', 9, key);
                 key = sdscatfmt(key, "::", song_uri);
             }
-            else if (sort_tags.tags[0] == -2) {
-                //sort by Last-Modified
+            if (sort_by == SORT_BY_LAST_MODIFIED) {
                 key = sdscatprintf(key, "%020lld::%s", (long long)mpd_song_get_last_modified(song), song_uri);
+            }
+            else if (sort_by == SORT_BY_ADDED) {
+                key = sdscatprintf(key, "%020lld::%s", (long long)mpd_song_get_added(song), song_uri);
             }
             else if (sort_tags.tags[0] > MPD_TAG_UNKNOWN) {
                 //sort by tag
@@ -450,7 +459,6 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
                 key = sdscatfmt(key, "::%s", song_uri);
             }
             else {
-                //sort by filename
                 key = sdscat(key, song_uri);
             }
             sds_utf8_tolower(key);

@@ -194,7 +194,10 @@ function parseSongDetails(obj) {
 
     tbody.appendChild(songDetailsRow('AudioFormat', printValue('AudioFormat', obj.result.AudioFormat)));
     tbody.appendChild(songDetailsRow('Filetype', filetype(rUri)));
-    tbody.appendChild(songDetailsRow('Last-Modified', fmtDate(obj.result['Last-Modified'])));
+    tbody.appendChild(songDetailsRow('Last-Modified', printValue('Last-Modified', obj.result['Last-Modified'])));
+    if (features.featDbAdded === true) {
+        tbody.appendChild(songDetailsRow('Added', printValue('Added', obj.result.Added)));
+    }
     //fingerprint command is not supported for cuesheet virtual tracks
     if (features.featFingerprint === true &&
         isCuesheet === false)

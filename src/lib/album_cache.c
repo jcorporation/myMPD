@@ -31,6 +31,7 @@
  * Used fields:
  *   tags: tags from all songs of the album
  *   last_modified: last_modified from newest song
+ *   added: added from oldest song
  *   duration: the album total time in seconds
  *   duration_ms: the album total time in milliseconds
  *   pos: number of discs
@@ -241,6 +242,7 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
         mpack_write_kv(&writer, "Songs", album_get_song_count(album));
         mpack_write_kv(&writer, "Duration", mpd_song_get_duration(album));
         mpack_write_kv(&writer, "Last-Modified", (uint64_t)mpd_song_get_last_modified(album));
+        mpack_write_kv(&writer, "Added", (uint64_t)mpd_song_get_added(album));
         mpack_write_cstr(&writer, "AlbumId");
         mpack_write_str(&writer, (char *)iter.key, (uint32_t)iter.key_len);
         for (unsigned tagnr = 0; tagnr < album_tags->tags_len; ++tagnr) {
@@ -445,13 +447,24 @@ void album_cache_set_disc_count(struct mpd_song *album, unsigned count) {
 }
 
 /**
- * Sets the albums last modified date
+ * Sets the albums last modified timestamp
  * @param album mpd_song struct representing the album
  * @param song mpd song to set last_modified from
  */
 void album_cache_set_last_modified(struct mpd_song *album, const struct mpd_song *song) {
     if (album->last_modified < song->last_modified) {
         album->last_modified = song->last_modified;
+    }
+}
+
+/**
+ * Sets the albums added timestamp
+ * @param album mpd_song struct representing the album
+ * @param song mpd song to set added from
+ */
+void album_cache_set_added(struct mpd_song *album, const struct mpd_song *song) {
+    if (album->added > song->added) {
+        album->added = song->added;
     }
 }
 
@@ -574,6 +587,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
         album->prio = mpack_node_uint(mpack_node_map_cstr(album_node, "Songs"));
         album->duration = mpack_node_uint(mpack_node_map_cstr(album_node, "Duration"));
         album->last_modified = mpack_node_int(mpack_node_map_cstr(album_node, "Last-Modified"));
+        album->added = mpack_node_int(mpack_node_map_cstr(album_node, "Added"));
         album->duration_ms = album->duration * 1000;
         for (size_t i = 0; i < tagcols->tags_len; i++) {
             enum mpd_tag_type tag = tagcols->tags[i];

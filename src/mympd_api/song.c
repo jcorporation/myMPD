@@ -30,8 +30,7 @@ sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer
             const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
             buffer = printAudioFormat(buffer, audioformat);
             buffer = sdscatlen(buffer, ",", 1);
-            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, &partition_state->mpd_state->tags_mympd,
-                song, &partition_state->mympd_state->config->albums);
+            buffer = print_song_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_mympd, song);
             mpd_song_free(song);
         }
     }

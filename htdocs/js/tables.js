@@ -359,6 +359,9 @@ function setColTags(tableName) {
             if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();
                 tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified');
+                if (features.featDbAdded === true) {
+                    tags.push('Added');
+                }
                 return tags.filter(function(value) {
                     return value !== 'Disc';
                 });
@@ -371,6 +374,9 @@ function setColTags(tableName) {
             if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();
                 tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified');
+                if (features.featDbAdded === true) {
+                    tags.push('Added');
+                }
                 return tags.filter(function(value) {
                     return value !== 'Disc' &&
                         value !== 'Album';
@@ -383,6 +389,9 @@ function setColTags(tableName) {
         case 'QueueJukeboxAlbum': {
             const tags = settings.tagListAlbum.slice();
             tags.push('Pos', 'Discs', 'SongCount', 'Duration', 'Last-Modified');
+            if (features.featDbAdded === true) {
+                tags.push('Added');
+            }
             return tags.filter(function(value) {
                 return value !== 'Disc';
             });
@@ -395,6 +404,9 @@ function setColTags(tableName) {
         tags.push('Title');
     }
     tags.push('Duration', 'Last-Modified');
+    if (features.featDbAdded === true) {
+        tags.push('Added');
+    }
 
     switch(tableName) {
         case 'QueueCurrent':

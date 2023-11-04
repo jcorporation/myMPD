@@ -27,7 +27,7 @@ static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 static const char *mympd_cols[]={
     // Columns for songs
     "Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype",
-    "AudioFormat", "Last-Modified", "Lyrics",
+    "AudioFormat", "Last-Modified", "Lyrics", "Added",
     // Columns for stickers
     "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", "rating", "elapsed",
      // Columns for webradiodb
@@ -354,6 +354,7 @@ bool vcb_ismpdsort(sds data) {
         strcmp(data, "filename") != 0 &&
         strcmp(data, "shuffle") != 0 &&
         strcmp(data, "Last-Modified") != 0 &&
+        strcmp(data, "Added") != 0 &&
         strcmp(data, "Date") != 0 &&
         strcmp(data, "Priority") != 0)
     {

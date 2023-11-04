@@ -155,7 +155,6 @@ bool mpd_client_add_search_sort_param(struct t_partition_state *partition_state,
     }
     if (sort != NULL &&
         sort[0] != '\0' &&
-        sort[0] != '-' &&
         partition_state->mpd_state->feat_tags == true)
     {
         enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
@@ -163,10 +162,12 @@ bool mpd_client_add_search_sort_param(struct t_partition_state *partition_state,
             sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_state->tags_mpd);
             return mpd_search_add_sort_tag(partition_state->conn, sort_tag, sortdesc);
         }
-        if (strcmp(sort, "Last-Modified") == 0) {
+        if (strcmp(sort, "Last-Modified") == 0 ||
+            strcmp(sort, "Added") == 0)
+        {
             //swap order
             sortdesc = sortdesc == false ? true : false;
-            return mpd_search_add_sort_name(partition_state->conn, "Last-Modified", sortdesc);
+            return mpd_search_add_sort_name(partition_state->conn, sort, sortdesc);
         }
         MYMPD_LOG_WARN(partition_state->name, "Unknown sort tag: %s", sort);
         return false;
