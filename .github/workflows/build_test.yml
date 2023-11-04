@@ -11,4 +11,6 @@ jobs:
     - name: installdeps
       run: sudo ./build.sh installdeps
     - name: build
-      run: ./build.sh test
+      run: |
+        ./build.sh test
+        cat debug/Testing/Temporary/LastTest.log
