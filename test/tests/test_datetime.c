@@ -10,7 +10,7 @@
 #include "dist/utest/utest.h"
 #include "src/lib/datetime.h"
 
-UTEST(env, test_getenv_int) {
+UTEST(datetime, test_parse_date) {
     const char *str1 = "2023-11-05";
     time_t ts = parse_date(str1);
     ASSERT_EQ(ts, 1699138800);
