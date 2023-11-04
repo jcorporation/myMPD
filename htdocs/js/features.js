@@ -64,6 +64,7 @@ function setFeatures() {
         features.featPcreOrStartsWith = settings.features.featPcre || settings.features.featStartsWith;
         features.featLike = features.featStickers && settings.webuiSettings.feedback === 'like';
         features.featRating = features.featStickers && settings.webuiSettings.feedback === 'rating';
+        features.featDbAdded = settings.features.featDbAdded;
     }
 }
 
@@ -90,4 +91,3 @@ function applyFeatures() {
         }
     }
 }
-

@@ -89,6 +89,7 @@ struct t_mpd_state {
     bool feat_playlist_dir_auto;        //!< mpd supports autodetection of playlist directory
     bool feat_starts_with;              //!< mpd supports starts_with filter expression
     bool feat_pcre;                     //!< mpd supports pcre for filter expressions
+    bool feat_db_added;                 //!< mpd supports added attribute for songs
 };
 
 /**
