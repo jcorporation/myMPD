@@ -5,15 +5,15 @@
 */
 
 #include "compile_time.h"
-#include "mpd/song.h"
-#include "mpd/tag.h"
 #include "src/mpd_client/search_local.h"
 
 #include "dist/utf8/utf8.h"
+#include "src/lib/datetime.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
+
 #include <inttypes.h>
 
 #define PCRE2_CODE_UNIT_WIDTH 8
@@ -175,9 +175,10 @@ struct t_list *parse_search_expression_to_list(sds expression) {
                 free_search_expression(expr);
                 break;
             }
+            p++;
         }
-        //skip space and apostrophe
-        p = p + 2;
+        //skip apostrophe
+        p++;
         //value
         while (p < end) {
             if (*p == '\\') {
@@ -199,7 +200,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             expr->re_compiled = compile_regex(expr->value);
         }
         else if (expr->op == SEARCH_OP_NEWER) {
-            expr->value_time = (time_t)strtoll(expr->value, NULL, 10);
+            expr->value_time = parse_time(expr->value);
         }
         list_push(expr_list, "", 0, NULL, expr);
         MYMPD_LOG_DEBUG(NULL, "Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, expr->value);

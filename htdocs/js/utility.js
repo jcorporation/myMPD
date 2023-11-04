@@ -332,14 +332,6 @@ function parseCmd(event, cmd) {
 }
 
 /**
- * Gets a unix timestamp
- * @returns {number} the unix timestamp
- */
-function getTimestamp() {
-    return Math.floor(Date.now() / 1000);
-}
-
-/**
  * Checks for support of the media session api
  * @returns {boolean} true if media session api is supported, else false
  */
@@ -562,4 +554,25 @@ function convertType(str) {
         return Number(str);
     }
     return str;
+}
+
+/**
+ * Gets a unix timestamp
+ * @returns {number} the unix timestamp
+ */
+function getTimestamp() {
+    return Math.floor(Date.now() / 1000);
+}
+
+/**
+ * Parses a YYYY-MM-DD string to unix timestamp
+ * @param {string} value string to parses
+ * @returns {number} unix timestamp
+ */
+function parseDateFromText(value) {
+    const m = value.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (m !== null) {
+        return Date.parse(value) / 1000;
+    }
+    return NaN;
 }

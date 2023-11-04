@@ -40,6 +40,7 @@ target_sources(mympd PRIVATE
   lib/cert.c
   lib/config.c
   lib/covercache.c
+  lib/datetime.c
   lib/env.c
   lib/filehandler.c
   lib/handle_options.c

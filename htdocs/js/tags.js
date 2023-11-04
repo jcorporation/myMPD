@@ -39,12 +39,22 @@
  */
 function addTagList(elId, list) {
     const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
-    if (list === 'tagListSearch') {
+    if (list === 'tagListSearch' ||
+        elId === 'BrowseDatabaseAlbumListSearchTags')
+    {
         if (features.featTags === true) {
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
             );
         }
+        
+    }
+    for (let i = 0, j = settings[list].length; i < j; i++) {
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i])
+        );
+    }
+    if (list === 'tagListSearch') {
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, 'Filename')
         );
@@ -54,15 +64,17 @@ function addTagList(elId, list) {
             );
         }
     }
-    if (elId === 'BrowseDatabaseAlbumListSearchTags') {
+    if (list === 'tagListSearch' ||
+        elId === 'BrowseDatabaseAlbumListSearchTags')
+    {
         stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "modified-since"}, 'Modified-Since')
         );
-    }
-    for (let i = 0, j = settings[list].length; i < j; i++) {
-        stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i])
-        );
+        if (features.featDbAdded) {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "added-since"}, 'Added-Since')
+            );
+        }
     }
     if (elId === 'BrowseFilesystemNavDropdown' ||
         elId === 'BrowsePlaylistListNavDropdown' ||

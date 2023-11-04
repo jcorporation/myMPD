@@ -1129,5 +1129,7 @@
     "Most stars": "Meiste Sterne",
     "Rating": "Sternewertung",
     "Stars": "Sterne",
-    "Added": "Hinzugefügt"
+    "Added": "Hinzugefügt",
+    "Added-Since": "Hinzugefügt seit",
+    "Modified-Since": "Geändert seit"
 }

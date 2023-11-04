@@ -178,11 +178,11 @@ function gotoFilesystem(uri, type) {
 function gotoSearch(tag, value) {
     const filters = [];
     if (typeof(value) === 'string') {
-        filters.push(_createSearchExpression(tag, '==', value));
+        filters.push(createSearchExpressionComponent(tag, '==', value));
     }
     else {
         for (const v of value) {
-            filters.push(_createSearchExpression(tag, '==', v));
+            filters.push(createSearchExpressionComponent(tag, '==', v));
         }
     }
     const expression = '(' + filters.join(' AND ') + ')';
