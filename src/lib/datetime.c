@@ -20,8 +20,8 @@
 time_t parse_date(const char *str) {
     struct tm tm;
     memset(&tm, '\0', sizeof (tm));
-    if (strptime (str, "%Y-%m-%d", &tm) == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Can not parse date string");
+    if (strptime(str, "%Y-%m-%d", &tm) == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Can not parse date string: \"%s\"", str);
         return 0;
     }
     return mktime(&tm);
