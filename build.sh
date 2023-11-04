@@ -36,24 +36,6 @@ echo_warn() {
   printf "\e[m"
 }
 
-#clang tidy options
-CLANG_TIDY_CHECKS="*"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-id-dependent-backward-branch"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-unroll-loops"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-struct-pack-align,-clang-analyzer-optin.performance.Padding"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-easily-swappable-parameters"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-assignment-in-if-condition"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-clang-diagnostic-invalid-command-line-argument"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-concurrency-mt-unsafe"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-cppcoreguidelines*"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-hicpp-*"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvmlibc-restrict-system-libc-headers"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-identifier-length"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-google-readability-todo"
-
 #save script path and change to it
 STARTPATH=$(dirname "$(realpath "$0")")
 cd "$STARTPATH" || exit 1
@@ -543,9 +525,8 @@ check_file() {
   then
     echo "Running clang-tidy"
     rm -f clang-tidy.out
-    clang-tidy --checks="$CLANG_TIDY_CHECKS" \
-      "$FILE" > ../clang-tidy.out 2>/dev/null
-    grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
+    clang-tidy --config-file="$STARTPATH/.clang-tidy" "$FILE" > ../clang-tidy.out 2>/dev/null
+    grep -v -E "(/usr/include/|memset|memcpy|_XOPEN_SOURCE|\^)" ../clang-tidy.out
   else
     echo_warn "clang-tidy not found"
   fi
@@ -622,8 +603,8 @@ check() {
     rm -f clang-tidy.out
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
-      --checks="$CLANG_TIDY_CHECKS" {} \; >> ../clang-tidy.out 2>/dev/null
-    ERRORS=$(grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out)
+      --config-file="$STARTPATH/.clang-tidy" {} \; >> ../clang-tidy.out 2>/dev/null
+    ERRORS=$(grep -v -E "(/usr/include/|memset|memcpy|_XOPEN_SOURCE|\^)" ../clang-tidy.out)
     if [ -n "$ERRORS" ]
     then
       echo "$ERRORS"

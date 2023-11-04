@@ -1,0 +1,6 @@
+Checks: '*,-altera-*,-clang-analyzer-optin.performance.Padding,-bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition,-clang-diagnostic-invalid-command-line-argument,-concurrency-mt-unsafe,-cppcoreguidelines*,-hicpp-*,-llvmlibc-restrict-system-libc-headers,-readability-identifier-length,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size,-readability-magic-numbers,-readability-non-const-parameter,-google-readability-todo'
+WarningsAsErrors:  ''
+HeaderFilterRegex: ''
+FormatStyle:       none
+CheckOptions:
+  bugprone-reserved-identifier.AllowedIdentifiers: '_XOPEN_SOURCE'
