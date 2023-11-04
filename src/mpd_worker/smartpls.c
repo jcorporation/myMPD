@@ -433,7 +433,9 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     const char *r_sort = strcmp(sort, "shuffle") == 0
         ? NULL
         : sort;
-    sds expression = sdscatfmt(sdsempty(), "(modified-since '%U')", value_max);
+    sds expression = mpd_worker_state->mpd_state->feat_db_added == true
+        ? sdscatfmt(sdsempty(), "(added-since '%U')", value_max)
+        : sdscatfmt(sdsempty(), "(modified-since '%U')", value_max);
     bool rc = mpd_client_search_add_to_plist(mpd_worker_state->partition_state, expression,
         playlist, UINT_MAX, r_sort, sortdesc, &error);
     FREE_SDS(expression);
