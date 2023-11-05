@@ -98,7 +98,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
 }
 
 /**
- * Updates a smart playlists
+ * Updates a smart playlist
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
  * @param playlist smart playlist to update
  * @return true on success, else false
@@ -140,6 +140,10 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         json_get_bool(content, "$.sortdesc", &sortdesc, NULL);
     }
 
+    // delete existing mpd playlist
+    mpd_worker_smartpls_delete(mpd_worker_state, playlist);
+
+    // recreate the mpd playlist
     if (strcmp(smartpltype, "sticker") == 0 &&
         mpd_worker_state->mpd_state->feat_stickers == true)
     {
@@ -265,7 +269,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
 /**
  * Deletes playlists if it exists
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
- * @param playlist playlist to delete
+ * @param playlist playlist to update
  * @return true on success, else false
  */
 static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_state, const char *playlist) {
@@ -301,7 +305,7 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
 /**
  * Updates a search based smart playlist
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
- * @param playlist playlist to delete
+ * @param playlist playlist to updaate
  * @param expression mpd search expression
  * @param sort sort by tag
  * @param sortdesc sort descending?
@@ -310,9 +314,6 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
 static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, const char *expression, const char *sort, bool sortdesc)
 {
-    if (mpd_worker_smartpls_delete(mpd_worker_state, playlist) == false) {
-        return false;
-    }
     sds error = sdsempty();
     const char *r_sort = strcmp(sort, "shuffle") == 0
         ? NULL
@@ -332,7 +333,7 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
 /**
  * Updates a sticker based smart playlist (numeric stickers only)
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
- * @param playlist playlist to delete
+ * @param playlist playlist to update
  * @param sticker sticker evaluate
  * @param maxentries maximum entries
  * @param minvalue minimum sticker value
@@ -421,10 +422,6 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     }
     mpd_response_finish(mpd_worker_state->partition_state->conn);
     if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_run_stats") == false) {
-        return false;
-    }
-
-    if (mpd_worker_smartpls_delete(mpd_worker_state, playlist) == false) {
         return false;
     }
 

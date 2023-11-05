@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: delete mpd playlist before creating the smart playlist
+
 ***
 
 ## myMPD v13.0.3 (2023-11-05)
