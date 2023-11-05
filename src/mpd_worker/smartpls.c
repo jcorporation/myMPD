@@ -214,7 +214,6 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     // enforce max entries
     if (rc == true &&
         max_entries > 0 &&
-
         mpd_worker_state->mpd_state->feat_playlist_rm_range == true)
     {
         mpd_run_playlist_delete_range(mpd_worker_state->partition_state->conn, playlist, max_entries, UINT_MAX);
@@ -347,7 +346,9 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
     const char *r_sort = strcmp(sort, "shuffle") == 0
         ? NULL
         : sort;
-    if (strcmp(sort, "shuffle") == 0) {
+    if (strcmp(sort, "shuffle") == 0 ||
+        max_entries == 0)
+    {
         max_entries = UINT_MAX;
     }
     bool rc = mpd_client_search_add_to_plist_window(mpd_worker_state->partition_state,
@@ -384,7 +385,9 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
         return false;
     }
 
-    if (sort[0] != '\0') {
+    if (sort[0] != '\0' ||
+        max_entries == 0)
+    {
         // we must get all entries and sort the result later
         max_entries = UINT_MAX;
     }
@@ -460,7 +463,9 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     }
     value_max = value_max - (unsigned long)timerange;
 
-    if (strcmp(sort, "shuffle") == 0) {
+    if (strcmp(sort, "shuffle") == 0 ||
+        max_entries == 0)
+    {
         max_entries = UINT_MAX;
     }
 

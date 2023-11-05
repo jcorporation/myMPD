@@ -307,6 +307,7 @@ mpd_search_add_sort_tag(struct mpd_connection *connection,
  * @param connection a #mpd_connection
  * @param start the start offset (including)
  * @param end the end offset (not including)
+ * value "UINT_MAX" makes the end of the range open
  * @return true on success, false on error
  *
  * @since libmpdclient 2.10

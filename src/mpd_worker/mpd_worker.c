@@ -78,6 +78,8 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->mpd_state->tag_albumartist = mympd_state->partition_state->mpd_state->tag_albumartist;
     mpd_worker_state->mpd_state->feat_playlist_rm_range = mympd_state->partition_state->mpd_state->feat_playlist_rm_range;
     mpd_worker_state->mpd_state->feat_db_added = mympd_state->partition_state->mpd_state->feat_db_added;
+    mpd_worker_state->mpd_state->feat_sticker_sort_window = mympd_state->partition_state->mpd_state->feat_sticker_sort_window;
+    mpd_worker_state->mpd_state->feat_search_add_sort_window = mympd_state->partition_state->mpd_state->feat_search_add_sort_window;
     copy_tag_types(&mympd_state->mpd_state->tags_mympd, &mpd_worker_state->mpd_state->tags_mympd);
     copy_tag_types(&mympd_state->mpd_state->tags_album, &mpd_worker_state->mpd_state->tags_album);
 

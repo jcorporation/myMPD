@@ -37,6 +37,7 @@
 #include "internal.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -152,7 +153,11 @@ mpd_request_add_window(struct mpd_connection *connection,
 	if (dest == NULL)
 		return false;
 
-	snprintf(dest, size, " window %u:%u", start, end);
+	if (end == UINT_MAX)
+		/* the special value -1 means "open end" */
+		snprintf(dest, size, " window %u:", start);
+	else
+		snprintf(dest, size, " window %u:%u", start, end);
 	return true;
 }
 
