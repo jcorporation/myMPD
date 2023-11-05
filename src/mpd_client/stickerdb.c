@@ -574,7 +574,7 @@ enum mpd_sticker_operator sticker_oper_parse(const char *str) {
 
 /**
  * Adds a mpd sticker search value constraint if value is not NULL
- * @param conn pointer to the partition state
+ * @param partition_state pointer to the partition state
  * @param op compare operator
  * @param value sticker value to search
  * @return true on success, else false
@@ -588,7 +588,7 @@ static bool sticker_search_add_value_constraint(struct t_partition_state *partit
 
 /**
  * Adds a mpd sticker sort definition, if name is not NULL and supported by MPD
- * @param conn pointer to the partition state
+ * @param partition_state pointer to the partition state
  * @param name one of "uri", "value"
  * @param desc sort descending?
  * @return true on success, else false
@@ -604,7 +604,7 @@ static bool sticker_search_add_sort(struct t_partition_state *partition_state, c
 
 /**
  * Adds a mpd sticker window definition, if supported by MPD
- * @param conn pointer to the partition state
+ * @param partition_state pointer to the partition state
  * @param start window start (including)
  * @param end window end (excluding)
  * @return true on success, else false
