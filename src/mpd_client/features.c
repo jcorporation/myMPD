@@ -66,6 +66,8 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 0) >= 0) {
         partition_state->mpd_state->feat_partitions = true;
         MYMPD_LOG_NOTICE(partition_state->name, "Enabling partitions feature");
+        partition_state->mpd_state->feat_search_add_sort_window = true;
+        MYMPD_LOG_NOTICE(partition_state->name, "Enabling searchadd sort and window feature");
     }
     else {
         MYMPD_LOG_WARN(partition_state->name, "Disabling partitions feature, depends on mpd >= 0.22.0");

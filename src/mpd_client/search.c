@@ -18,8 +18,41 @@
 static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, struct mpd_song *album,
         const struct t_albums_config *album_config, sds expression);
 static bool add_search_whence_param(struct t_partition_state *partition_state, unsigned to, unsigned whence);
+static bool add_search_window_param(struct t_partition_state *partition_state, unsigned start, unsigned end);
 
 //public functions
+
+/**
+ * Searches the mpd database for songs by expression and adds the result to a playlist
+ * @param partition_state pointer to partition specific states
+ * @param expression mpd search expression
+ * @param plist playlist to create or to append the result
+ * @param to position to insert the songs, UINT_MAX to append
+ * @param sort tag to sort
+ * @param sortdesc false = ascending, true = descending
+ * @param start window start (including)
+ * @param end window end (excluding), UINT_MAX for open end
+ * @param error pointer to already allocated sds string for the error message
+ *              or NULL to return no response
+ * @return true on success else false
+ */
+bool mpd_client_search_add_to_plist_window(struct t_partition_state *partition_state, const char *expression,
+        const char *plist, unsigned to, const char *sort, bool sortdesc, unsigned start, unsigned end, sds *error)
+{
+    if (mpd_search_add_db_songs_to_playlist(partition_state->conn, plist) == false ||
+        mpd_search_add_expression(partition_state->conn, expression) == false ||
+        mpd_client_add_search_sort_param(partition_state, sort, sortdesc, true) == false ||
+        add_search_window_param(partition_state, start, end) == false ||
+        add_search_whence_param(partition_state, to, MPD_POSITION_ABSOLUTE) == false)
+    {
+        mpd_search_cancel(partition_state->conn);
+        *error = sdscat(*error, "Error creating MPD search command");
+        return false;
+    }
+    mpd_search_commit(partition_state->conn);
+    mpd_response_finish(partition_state->conn);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_search_add_db_songs_to_playlist");
+}
 
 /**
  * Searches the mpd database for songs by expression and adds the result to a playlist
@@ -36,18 +69,7 @@ static bool add_search_whence_param(struct t_partition_state *partition_state, u
 bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, const char *expression,
         const char *plist, unsigned to, const char *sort, bool sortdesc, sds *error)
 {
-    if (mpd_search_add_db_songs_to_playlist(partition_state->conn, plist) == false ||
-        mpd_search_add_expression(partition_state->conn, expression) == false ||
-        mpd_client_add_search_sort_param(partition_state, sort, sortdesc, true) == false ||
-        add_search_whence_param(partition_state, to, MPD_POSITION_ABSOLUTE) == false)
-    {
-        mpd_search_cancel(partition_state->conn);
-        *error = sdscat(*error, "Error creating MPD search command");
-        return false;
-    }
-    mpd_search_commit(partition_state->conn);
-    mpd_response_finish(partition_state->conn);
-    return mympd_check_error_and_recover(partition_state, error, "mpd_search_add_db_songs_to_playlist");
+    return mpd_client_search_add_to_plist_window(partition_state, expression, plist, to, sort, sortdesc, 0, UINT_MAX, error);
 }
 
 /**
@@ -148,7 +170,7 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
  */
 bool mpd_client_add_search_sort_param(struct t_partition_state *partition_state, const char *sort, bool sortdesc, bool check_version) {
     if (check_version == true &&
-        mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 0) < 0)
+        partition_state->mpd_state->feat_search_add_sort_window == false)
     {
         //silently ignore sort, MPD is too old
         return true;
@@ -231,6 +253,20 @@ static bool add_search_whence_param(struct t_partition_state *partition_state, u
         to < UINT_MAX) //to = UINT_MAX is append
     {
         return mpd_search_add_position(partition_state->conn, to, whence);
+    }
+    return true;
+}
+
+/**
+ * Adds the window parameter to the search command
+ * @param partition_state pointer to partition state
+ * @param start start of the window (including)
+ * @param end end of the window (excluding)
+ * @return true on success, else false
+ */
+static bool add_search_window_param(struct t_partition_state *partition_state, unsigned start, unsigned end) {
+    if (partition_state->mpd_state->feat_search_add_sort_window == true) {
+        return mpd_search_add_window(partition_state->conn, start, end);
     }
     return true;
 }
