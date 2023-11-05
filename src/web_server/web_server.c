@@ -113,21 +113,33 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
             return false;
         }
         MYMPD_LOG_NOTICE(NULL, "Listening on https://%s:%d", config->http_host, config->ssl_port);
-        //read key and cert
-        if (sds_getfile(&mg_user_data->cert_content, config->ssl_cert, SSL_FILE_MAX, false, true) <= 0 ||
-            sds_getfile(&mg_user_data->key_content, config->ssl_key, SSL_FILE_MAX, false, true) <= 0)
-        {
-            MYMPD_LOG_ERROR(NULL, "Failure reading ssl key and cert from disc");
-            return false;
-        }
     }
     else if (config->http == false) {
         MYMPD_LOG_ERROR(NULL, "Not listening on any port.");
         return false;
     }
+    MYMPD_LOG_NOTICE(NULL, "Serving files from \"%s\"", MYMPD_DOC_ROOT);
+    return true;
+}
+
+/**
+ * Reads the ssl key and certificate from disc
+ * @param mg_user_data pointer to mongoose user data
+ * @param config pointer to myMPD config
+ * @return true on success, else false
+ */
+bool webserver_read_certs(struct t_mg_user_data *mg_user_data, struct t_config *config) {
+    if (config->ssl == false) {
+        return true;
+    }
+    if (sds_getfile(&mg_user_data->cert_content, config->ssl_cert, SSL_FILE_MAX, false, true) <= 0 ||
+        sds_getfile(&mg_user_data->key_content, config->ssl_key, SSL_FILE_MAX, false, true) <= 0)
+    {
+        MYMPD_LOG_ERROR(NULL, "Failure reading ssl key and cert from disc");
+        return false;
+    }
     mg_user_data->cert = mg_str(mg_user_data->cert_content);
     mg_user_data->key = mg_str(mg_user_data->key_content);
-    MYMPD_LOG_NOTICE(NULL, "Serving files from \"%s\"", MYMPD_DOC_ROOT);
     return true;
 }
 

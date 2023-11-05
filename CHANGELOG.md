@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: Read certificates after creation #1160
+
 ***
 
 ## myMPD v13.0.2 (2023-11-03)
