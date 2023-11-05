@@ -35,7 +35,7 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
 static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, const char *expression, const char *sort, bool sortdesc);
 static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_worker_state,
-        const char *playlist, const char *sticker, const char *value, const char *op);
+        const char *playlist, const char *sticker, const char *value, const char *op, bool sort_desc);
 static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, int timerange, const char *sort, bool sortdesc);
 
@@ -158,7 +158,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
             json_get_string(content, "$.value", 0, NAME_LEN_MAX, &sds_buf2, vcb_isname, NULL) == true &&
             json_get_string(content, "$.op", 1, 1, &sds_buf3, vcb_iscompareop, NULL) == true)
         {
-            rc = mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, sds_buf1, sds_buf2, sds_buf3);
+            rc = mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, sds_buf1, sds_buf2, sds_buf3, sortdesc);
             if (rc == false) {
                 MYMPD_LOG_ERROR(NULL, "Update of smart playlist \"%s\" (sticker) failed.", playlist);
             }
@@ -200,7 +200,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         else if (strcmp(smartpltype, "sticker") == 0 &&
                  sdslen(sort) > 0)
         {
-            // only sticker based smart playlists must be sorted after creation
+            // sticker based smart playlists are sorted by value as default, resort if needed
             rc = mpd_client_playlist_sort(mpd_worker_state->partition_state, playlist, sort, sortdesc, NULL);
         }
     }
@@ -361,39 +361,35 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
  * @return true on success, else false
  */
 static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_worker_state,
-        const char *playlist, const char *sticker, const char *value, const char *op)
+        const char *playlist, const char *sticker, const char *value, const char *op, bool sort_desc)
 {
-    enum mpd_sticker_operator opper = sticker_opper_parse(op);
-    if (opper == MPD_STICKER_OP_UNKOWN) {
+    enum mpd_sticker_operator oper = sticker_oper_parse(op);
+    if (oper == MPD_STICKER_OP_UNKOWN) {
         MYMPD_LOG_ERROR(NULL, "Invalid sticker compare operator");
         return false;
     }
 
-    rax *add_list = stickerdb_find_stickers_by_name_value(mpd_worker_state->stickerdb, sticker, opper, value);
+    struct t_list *add_list = stickerdb_find_stickers_sorted(mpd_worker_state->stickerdb,
+        sticker, oper, value, "value", sort_desc, 0, UINT_MAX);
     if (add_list == NULL) {
         MYMPD_LOG_ERROR(NULL, "Could not fetch stickers for \"%s\"", sticker);
         return false;
     }
     
     int i = 0;
-    sds uri = sdsempty();
     if (mpd_command_list_begin(mpd_worker_state->partition_state->conn, false)) {
-        raxIterator iter;
-        raxStart(&iter, add_list);
-        raxSeek(&iter, "^", NULL, 0);
-        while (raxNext(&iter)) {
-            uri = sds_replacelen(uri, (char *)iter.key, iter.key_len);
-            if (mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, uri) == false) {
+        struct t_list_node *current;
+        while ((current = list_shift_first(add_list)) != NULL) {
+            if (mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, current->key) == false) {
                 mympd_set_mpd_failure(mpd_worker_state->partition_state, "Error adding command to command list mpd_send_playlist_add");
                 break;
             }
+            list_node_free(current);
             i++;
         }
         mpd_command_list_end(mpd_worker_state->partition_state->conn);
-        raxStop(&iter);
     }
-    FREE_SDS(uri);
-    stickerdb_free_find_result(add_list);
+    list_free(add_list);
     mpd_response_finish(mpd_worker_state->partition_state->conn);
     if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_send_playlist_add") == true) {
         MYMPD_LOG_INFO(NULL, "Updated smart playlist \"%s\" with %d songs", playlist, i);
