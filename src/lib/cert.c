@@ -296,37 +296,37 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
  * @param cert pointer to X509 struct to populate
  */
 static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 **cert) {
-	BIO *bio = NULL;
-	*cert = NULL;
-	*key = NULL;
+    BIO *bio = NULL;
+    *cert = NULL;
+    *key = NULL;
 
-	/* Load private key. */
-	bio = BIO_new(BIO_s_file());
-	if (!BIO_read_filename(bio, key_file)) {
-	    BIO_free_all(bio);
-	    return false;
-	}
-	*key = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);
-	BIO_free_all(bio);
-	if (*key == NULL) {
-	    return false;
-	}
+    /* Load private key. */
+    bio = BIO_new(BIO_s_file());
+    if (!BIO_read_filename(bio, key_file)) {
+        BIO_free_all(bio);
+        return false;
+    }
+    *key = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);
+    BIO_free_all(bio);
+    if (*key == NULL) {
+        return false;
+    }
 
-	/* Load certificate. */
-	bio = BIO_new(BIO_s_file());
-	if (!BIO_read_filename(bio, cert_file)) {
-	    BIO_free_all(bio);
-	    EVP_PKEY_free(*key);
-	    return false;
-	}
-	*cert = PEM_read_bio_X509(bio, NULL, NULL, NULL);
-	BIO_free_all(bio);
-	if (!*cert) {
-	    EVP_PKEY_free(*key);
-	    return false;
-	}
+    /* Load certificate. */
+    bio = BIO_new(BIO_s_file());
+    if (!BIO_read_filename(bio, cert_file)) {
+        BIO_free_all(bio);
+        EVP_PKEY_free(*key);
+        return false;
+    }
+    *cert = PEM_read_bio_X509(bio, NULL, NULL, NULL);
+    BIO_free_all(bio);
+    if (!*cert) {
+        EVP_PKEY_free(*key);
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 /**
