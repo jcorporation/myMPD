@@ -165,5 +165,5 @@ if(FLAC_FOUND)
 endif()
 
 foreach(CAT IN LISTS test_categories)
-  add_test(NAME "test_${CAT}" COMMAND "unit_test" "--filter=${CAT}.*" "--rerun-failed" "--output-on-failure")
+  add_test(NAME "test_${CAT}" COMMAND "unit_test" "--filter=${CAT}.*")
 endforeach()
