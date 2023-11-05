@@ -26,7 +26,10 @@
 
 // Private definitions
 
-static const char *get_sticker_opper_str(enum mpd_sticker_operator oper);
+static bool sticker_search_add_value_constraint(struct t_partition_state *partition_state, enum mpd_sticker_operator op, const char *value);
+static bool sticker_search_add_sort(struct t_partition_state *partition_state, const char *name, bool desc);
+static bool sticker_search_add_window(struct t_partition_state *partition_state, unsigned start, unsigned end);
+
 static struct t_sticker *get_sticker_all(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined);
 static sds get_sticker_value(struct t_partition_state *partition_state, const char *uri, const char *name);
 static long long get_sticker_llong(struct t_partition_state *partition_state, const char *uri, const char *name);
@@ -279,37 +282,7 @@ struct t_sticker *stickerdb_get_all(struct t_partition_state *partition_state, c
  * @return newly allocated radix tree or NULL on error
  */
 rax *stickerdb_find_stickers_by_name(struct t_partition_state *partition_state, const char *name) {
-    if (stickerdb_connect(partition_state) == false) {
-        return NULL;
-    }
-    rax *stickers = raxNew();
-    struct mpd_pair *pair;
-    ssize_t name_len = (ssize_t)strlen(name) + 1;
-    sds file = sdsempty();
-    if (mpd_send_sticker_find(partition_state->conn, "song", "", name) == true) {
-        while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
-            if (strcmp(pair->name, "file") == 0) {
-                file = sds_replace(file, pair->value);
-            }
-            else if (strcmp(pair->name, "sticker") == 0) {
-                sds sticker_value = sdsnew(pair->value);
-                sdsrange(sticker_value, name_len, -1);
-                raxInsert(stickers, (unsigned char *)file, sdslen(file), sticker_value, NULL);
-            }
-            mpd_return_sticker(partition_state->conn, pair);
-        }
-    }
-    mpd_response_finish(partition_state->conn);
-    FREE_SDS(file);
-    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_sticker_list") == true) {
-        stickerdb_enter_idle(partition_state);
-    }
-    else {
-        stickerdb_free_find_result(stickers);
-        return NULL;
-    }
-    MYMPD_LOG_DEBUG("stickerdb", "Found %llu stickers for \"%s\"", (long long unsigned)stickers->numele, name);
-    return stickers;
+    return stickerdb_find_stickers_by_name_value(partition_state, name, MPD_STICKER_OP_UNKOWN, NULL);
 }
 
 /**
@@ -331,7 +304,7 @@ rax *stickerdb_find_stickers_by_name_value(struct t_partition_state *partition_s
     ssize_t name_len = (ssize_t)strlen(name) + 1;
     sds file = sdsempty();
     if (mpd_sticker_search_begin(partition_state->conn, "song", NULL, name) == false ||
-        mpd_sticker_search_add_value_constraint(partition_state->conn, op, value) == false)
+        sticker_search_add_value_constraint(partition_state, op, value) == false)
     {
         mpd_sticker_search_cancel(partition_state->conn);
         stickerdb_free_find_result(stickers);
@@ -359,8 +332,67 @@ rax *stickerdb_find_stickers_by_name_value(struct t_partition_state *partition_s
         stickerdb_free_find_result(stickers);
         return NULL;
     }
-    MYMPD_LOG_DEBUG("stickerdb", "Found %llu stickers for \"%s\"%s\"%s\"",
-        (long long unsigned)stickers->numele, name, get_sticker_opper_str(op), value);
+    MYMPD_LOG_DEBUG("stickerdb", "Found %llu stickers for %s",
+            (long long unsigned)stickers->numele, name);
+    return stickers;
+}
+
+/**
+ * Gets a sorted list of stickers by name and value
+ * @param partition_state pointer to the partition state
+ * @param name sticker name
+ * @param op compare operator: MPD_STICKER_OP_EQ, MPD_STICKER_OP_GT, MPD_STICKER_OP_LT
+ * @param value sticker value or NULL to get all stickers with name
+ * @param sort one of "uri", "value"
+ * @param sort_desc sort descending?
+ * @param start window start (including)
+ * @param end window end (excluding), use UINT_MAX for open end
+ * @return struct t_list* 
+ */
+struct t_list *stickerdb_find_stickers_sorted(struct t_partition_state *partition_state,
+        const char *name, enum mpd_sticker_operator op, const char *value,
+        const char *sort, bool sort_desc, unsigned start, unsigned end)
+{
+    if (stickerdb_connect(partition_state) == false) {
+        return NULL;
+    }
+    struct t_list *stickers = list_new();
+    struct mpd_pair *pair;
+    ssize_t name_len = (ssize_t)strlen(name) + 1;
+    sds file = sdsempty();
+    if (mpd_sticker_search_begin(partition_state->conn, "song", NULL, name) == false ||
+        sticker_search_add_value_constraint(partition_state, op, value) == false ||
+        sticker_search_add_sort(partition_state, sort, sort_desc) == false ||
+        sticker_search_add_window(partition_state, start, end) == false)
+    {
+        mpd_sticker_search_cancel(partition_state->conn);
+        list_free(stickers);
+        return NULL;
+    }
+    if (mpd_sticker_search_commit(partition_state->conn) == true) {
+        while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
+            if (strcmp(pair->name, "file") == 0) {
+                file = sds_replace(file, pair->value);
+            }
+            else if (strcmp(pair->name, "sticker") == 0) {
+                sds sticker_value = sdsnew(pair->value);
+                sdsrange(sticker_value, name_len, -1);
+                list_push(stickers, file, 0, sticker_value, NULL);
+                FREE_SDS(sticker_value);
+            }
+            mpd_return_sticker(partition_state->conn, pair);
+        }
+    }
+    mpd_response_finish(partition_state->conn);
+    FREE_SDS(file);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_sticker_list") == true) {
+        stickerdb_enter_idle(partition_state);
+    }
+    else {
+        list_free(stickers);
+        return NULL;
+    }
+    MYMPD_LOG_DEBUG("stickerdb", "Found %ld stickers for %s", stickers->length, name);
     return stickers;
 }
 
@@ -531,7 +563,7 @@ bool stickerdb_set_rating(struct t_partition_state *partition_state, const char 
  * @param str string to parse
  * @return mpd sticker operator
  */
-enum mpd_sticker_operator sticker_opper_parse(const char *str) {
+enum mpd_sticker_operator sticker_oper_parse(const char *str) {
     if (str[0] == '=') { return MPD_STICKER_OP_EQ; }
     if (str[0] == '>') { return MPD_STICKER_OP_GT; }
     if (str[0] == '<') { return MPD_STICKER_OP_LT; }
@@ -541,18 +573,47 @@ enum mpd_sticker_operator sticker_opper_parse(const char *str) {
 // Private functions
 
 /**
- * Lookups the sticker operator string
- * @param oper one of #mpd_sticker_operator
- * @return string literal or empty if operator is invalid
+ * Adds a mpd sticker search value constraint if value is not NULL
+ * @param conn pointer to the partition state
+ * @param op compare operator
+ * @param value sticker value to search
+ * @return true on success, else false
  */
-static const char *get_sticker_opper_str(enum mpd_sticker_operator op) {
-    switch(op) {
-        case MPD_STICKER_OP_EQ: return "=";
-        case MPD_STICKER_OP_GT: return ">";
-        case MPD_STICKER_OP_LT: return "<";
-        case MPD_STICKER_OP_UNKOWN: return "";
+static bool sticker_search_add_value_constraint(struct t_partition_state *partition_state, enum mpd_sticker_operator op, const char *value) {
+    if (value != NULL) {
+        return mpd_sticker_search_add_value_constraint(partition_state->conn, op, value);
     }
-    return "";
+    return true;
+}
+
+/**
+ * Adds a mpd sticker sort definition, if name is not NULL and supported by MPD
+ * @param conn pointer to the partition state
+ * @param name one of "uri", "value"
+ * @param desc sort descending?
+ * @return true on success, else false
+ */
+static bool sticker_search_add_sort(struct t_partition_state *partition_state, const char *name, bool desc) {
+    if (partition_state->mpd_state->feat_sticker_sort_window == true &&
+        name != NULL)
+    {
+        return mpd_sticker_search_add_sort(partition_state->conn, name, desc);
+    }
+    return true;
+}
+
+/**
+ * Adds a mpd sticker window definition, if supported by MPD
+ * @param conn pointer to the partition state
+ * @param start window start (including)
+ * @param end window end (excluding)
+ * @return true on success, else false
+ */
+static bool sticker_search_add_window(struct t_partition_state *partition_state, unsigned start, unsigned end) {
+    if (partition_state->mpd_state->feat_sticker_sort_window == true) {
+        return mpd_sticker_search_add_window(partition_state->conn, start, end);
+    }
+    return true;
 }
 
 /**
