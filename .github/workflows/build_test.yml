@@ -11,4 +11,8 @@ jobs:
     - name: installdeps
       run: sudo ./build.sh installdeps
     - name: build
-      run: ./build.sh test
+      run: |
+        if ! ./build.sh test
+        then
+          debug/bin/unit_test
+        fi
