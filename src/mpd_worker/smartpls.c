@@ -290,7 +290,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
 /**
  * Deletes playlists if it exists
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
- * @param playlist playlist to delete
+ * @param playlist playlist to update
  * @return true on success, else false
  */
 static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_state, const char *playlist) {

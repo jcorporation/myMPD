@@ -35,6 +35,16 @@ It also supports the new "added" timestamp for songs in the mpd database.
 
 ***
 
+## myMPD v13.0.4 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: delete mpd playlist before creating the smart playlist
+
+***
+
 ## myMPD v13.0.3 (2023-11-05)
 
 This is a small bugfix release.
