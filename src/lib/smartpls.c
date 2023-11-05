@@ -125,16 +125,16 @@ bool smartpls_default(sds workdir) {
 
     bool rc = true;
     sds playlist = sdscatfmt(sdsempty(), "%S-bestRated", prefix);
-    rc = smartpls_save_sticker(workdir, playlist, "like", "2", "eq", "", false, 200);
+    rc = smartpls_save_sticker(workdir, playlist, "like", "2", "eq", "", false, MYMPD_SMARTPLS_MAX_ENTRIES_DEFAULT);
     if (rc == true) {
         sdsclear(playlist);
         playlist = sdscatfmt(playlist, "%S-mostPlayed", prefix);
-        rc = smartpls_save_sticker(workdir, playlist, "playCount", "1", "gt", "", false, 200);
+        rc = smartpls_save_sticker(workdir, playlist, "playCount", "1", "gt", "", false, MYMPD_SMARTPLS_MAX_ENTRIES_DEFAULT);
     }
     if (rc == true) {
         sdsclear(playlist);
         playlist = sdscatfmt(playlist, "%S-newestSongs", prefix);
-        rc = smartpls_save_newest(workdir, playlist, 604800, "Last-Modified", true, 200);
+        rc = smartpls_save_newest(workdir, playlist, 604800, "Last-Modified", true, MYMPD_SMARTPLS_MAX_ENTRIES_DEFAULT);
     }
     FREE_SDS(playlist);
     FREE_SDS(prefix);
