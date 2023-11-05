@@ -44,6 +44,16 @@
 
 struct mpd_connection;
 
+/**
+ * Comparison operators for sticker search api
+ */
+enum mpd_sticker_operator {
+	MPD_STICKER_OP_UNKOWN = -1,
+	MPD_STICKER_OP_EQ,
+	MPD_STICKER_OP_GT,
+	MPD_STICKER_OP_LT,
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -176,26 +186,6 @@ mpd_send_sticker_find(struct mpd_connection *connection, const char *type,
 		      const char *base_uri, const char *name);
 
 /**
- * Searches for stickers with the specified name and value.
- * Call mpd_recv_sticker() to receive each response item.
- *
- * @param connection the connection to MPD
- * @param type the object type, e.g. "song"
- * @param base_uri the base URI to start the search, e.g. a directory;
- * NULL to search for all objects of the specified type
- * @param name the name of the sticker
- * @param op the compare operator, valid: =, <, >
- * @param value the value to be compared against
- * @return true on success, false on error
- *
- * @since MPD 0.20, libmpdclient 2.21
- */
-bool
-mpd_send_sticker_find_value(struct mpd_connection *connection, const char *type,
-				const char *base_uri, const char *name, const char *op,
-				const char *value);
-
-/**
  * Parse a sticker input line in the form "name=value".
  *
  * @param input the input value, the value from a received pair named
@@ -235,13 +225,90 @@ mpd_return_sticker(struct mpd_connection *connection, struct mpd_pair *pair);
  * Obtains an uniq and sortes list of all sticker names. Call
  * mpd_recv_pair() to receive each response item.
  *
- * @param connection the connection to MPD
+ * @param connection a #mpd_connection
  * @return true on success, false on error
  *
  * @since libmpdclient 2.21, MPD 0.24
  */
 bool
 mpd_send_stickernames(struct mpd_connection *connection);
+
+/**
+ * Search for stickers in the database.
+ * Constraints may be specified with mpd_search_add_tag_constraint().
+ * Send the search command with mpd_search_commit(), and read the
+ * response items with mpd_recv_song().
+ *
+ * @param connection the connection to MPD
+ * @param type the object type, e.g. "song"
+ * @param base_uri the base URI to start the search, e.g. a directory;
+ * NULL to search for all objects of the specified type
+ * @param name the name of the sticker
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.24
+ */
+bool
+mpd_sticker_search_begin(struct mpd_connection *connection, const char *type,
+			 const char *base_uri, const char *name);
+
+bool
+mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
+					enum mpd_sticker_operator oper,
+					const char *value);
+
+/**
+ * Sort the results by the specified named attribute.
+ *
+ * @param connection a #mpd_connection
+ * @param name the attribute name to sort with; can be "uri" or
+ * "value"
+ * @param descending sort in reverse order?
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.24
+ */
+bool
+mpd_sticker_search_add_sort(struct mpd_connection *connection,
+			    const char *name, bool descending);
+
+/**
+ * Request only a portion of the result set.
+ *
+ * @param connection a #mpd_connection
+ * @param start the start offset (including)
+ * @param end the end offset (not including)
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.24
+ */
+bool
+mpd_sticker_search_add_window(struct mpd_connection *connection,
+			      unsigned start, unsigned end);
+
+/**
+ * Starts the real search with constraints added with
+ * mpd_sticker_search_add_constraint().
+ *
+ * @param connection the connection to MPD
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.24
+ */
+bool
+mpd_sticker_search_commit(struct mpd_connection *connection);
+
+/**
+ * Cancels the search request before you have called
+ * mpd_sticker_search_commit(). Call this to clear the current search
+ * request.
+ *
+ * @param connection the connection to MPD
+ *
+ * @since libmpdclient 2.21, MPD 0.24
+ */
+void
+mpd_sticker_search_cancel(struct mpd_connection *connection);
 
 #ifdef __cplusplus
 }

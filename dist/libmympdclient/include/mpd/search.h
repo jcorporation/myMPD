@@ -230,6 +230,21 @@ mpd_search_add_modified_since_constraint(struct mpd_connection *connection,
 					 time_t value);
 
 /**
+ * Limit the search to files added after the given time stamp.
+ *
+ * @param connection a #mpd_connection
+ * @param oper reserved, pass #MPD_OPERATOR_DEFAULT
+ * @param value the reference time stamp
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.24
+ */
+bool
+mpd_search_add_added_since_constraint(struct mpd_connection *connection,
+				      enum mpd_operator oper,
+				      time_t value);
+
+/**
  * Add an expression string.
  *
  * @param connection a #mpd_connection

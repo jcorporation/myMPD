@@ -650,7 +650,7 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
         stickers_last_played = stickerdb_find_stickers_by_name(partition_state->mympd_state->stickerdb, "lastPlayed");
         if (partition_state->jukebox_ignore_hated == true) {
             MYMPD_LOG_DEBUG(partition_state->name, "Fetching stickers for hated songs");
-            stickers_like = stickerdb_find_stickers_by_name_value(partition_state->mympd_state->stickerdb, "like", "=", "0");
+            stickers_like = stickerdb_find_stickers_by_name_value(partition_state->mympd_state->stickerdb, "like", MPD_STICKER_OP_EQ, "0");
         }
     }
     //parse mpd search expression

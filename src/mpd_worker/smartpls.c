@@ -99,7 +99,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
 }
 
 /**
- * Updates a smart playlists
+ * Updates a smart playlist
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
  * @param playlist smart playlist to update
  * @return true on success, else false
@@ -133,6 +133,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
         MYMPD_LOG_ERROR(NULL, "Cant read smart playlist type from \"%s\"", filename);
         FREE_SDS(filename);
+        FREE_SDS(content);
         return false;
     }
 
@@ -146,7 +147,10 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     // get max entries
     json_get_uint(content, "$.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &max_entries, NULL);
 
-    // update the playlists
+    // delete the playlist
+    mpd_worker_smartpls_delete(mpd_worker_state, playlist);
+
+    // recreate the playlist
     if (strcmp(smartpltype, "sticker") == 0 &&
         mpd_worker_state->mpd_state->feat_stickers == true)
     {
@@ -322,7 +326,7 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
 /**
  * Updates a search based smart playlist
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
- * @param playlist playlist to delete
+ * @param playlist playlist to update
  * @param expression mpd search expression
  * @param sort sort by tag
  * @param sortdesc sort descending?
@@ -331,9 +335,6 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
 static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, const char *expression, const char *sort, bool sortdesc)
 {
-    if (mpd_worker_smartpls_delete(mpd_worker_state, playlist) == false) {
-        return false;
-    }
     sds error = sdsempty();
     const char *r_sort = strcmp(sort, "shuffle") == 0
         ? NULL
@@ -351,9 +352,9 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
 }
 
 /**
- * Updates a sticker based smart playlist (numeric stickers only)
+ * Updates a sticker based smart playlist
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
- * @param playlist playlist to delete
+ * @param playlist playlist to update
  * @param sticker sticker evaluate
  * @param value sticker value
  * @param op compare operator
@@ -362,7 +363,13 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
 static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, const char *sticker, const char *value, const char *op)
 {
-    rax *add_list = stickerdb_find_stickers_by_name_value(mpd_worker_state->stickerdb, sticker, op, value);
+    enum mpd_sticker_operator opper = sticker_opper_parse(op);
+    if (opper == MPD_STICKER_OP_UNKOWN) {
+        MYMPD_LOG_ERROR(NULL, "Invalid sticker compare operator");
+        return false;
+    }
+
+    rax *add_list = stickerdb_find_stickers_by_name_value(mpd_worker_state->stickerdb, sticker, opper, value);
     if (add_list == NULL) {
         MYMPD_LOG_ERROR(NULL, "Could not fetch stickers for \"%s\"", sticker);
         return false;
@@ -398,7 +405,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
 /**
  * Updates a newest song smart playlist
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct
- * @param playlist playlist to delete
+ * @param playlist playlist to update
  * @param timerange timerange in seconds since last database update
  * @param sort sort by tag
  * @param sortdesc sort descending?
@@ -415,10 +422,6 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     }
     mpd_response_finish(mpd_worker_state->partition_state->conn);
     if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_run_stats") == false) {
-        return false;
-    }
-
-    if (mpd_worker_smartpls_delete(mpd_worker_state, playlist) == false) {
         return false;
     }
 

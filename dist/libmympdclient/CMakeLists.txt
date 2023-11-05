@@ -55,6 +55,7 @@ target_sources(libmympdclient
     src/response.c
     src/rplaylist.c
     src/run.c
+    src/isearch.c
     src/search.c
     src/send.c
     src/settings.c

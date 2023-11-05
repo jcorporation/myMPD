@@ -24,7 +24,7 @@ struct t_sticker *stickerdb_get_all_batch(struct t_partition_state *partition_st
 
 rax *stickerdb_find_stickers_by_name(struct t_partition_state *partition_state, const char *name);
 rax *stickerdb_find_stickers_by_name_value(struct t_partition_state *partition_state,
-        const char *name, const char *op, const char *value);
+        const char *name, enum mpd_sticker_operator op, const char *value);
 void stickerdb_free_find_result(rax *stickers);
 
 bool stickerdb_set(struct t_partition_state *partition_state, const char *uri, const char *name, const char *value);
@@ -38,5 +38,7 @@ bool stickerdb_inc_play_count(struct t_partition_state *partition_state, const c
 bool stickerdb_inc_skip_count(struct t_partition_state *partition_state, const char *uri);
 bool stickerdb_set_like(struct t_partition_state *partition_state, const char *uri, enum sticker_like value);
 bool stickerdb_set_rating(struct t_partition_state *partition_state, const char *uri, int value);
+
+enum mpd_sticker_operator sticker_opper_parse(const char *str);
 
 #endif

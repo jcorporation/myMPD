@@ -35,6 +35,7 @@
 #include <mpd/pair.h>
 #include <mpd/recv.h>
 #include "internal.h"
+#include "isearch.h"
 #include "iso8601.h"
 
 #include <assert.h>
@@ -139,58 +140,6 @@ mpd_searchcount_db_songs(struct mpd_connection *connection)
 	return mpd_search_init(connection, "searchcount");
 }
 
-static char *
-mpd_search_prepare_append(struct mpd_connection *connection,
-			  size_t add_length)
-{
-	assert(connection != NULL);
-
-	if (mpd_error_is_defined(&connection->error))
-		return NULL;
-
-	if (connection->request == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_STATE);
-		mpd_error_message(&connection->error,
-				  "no search in progress");
-		return NULL;
-	}
-
-	const size_t old_length = strlen(connection->request);
-	char *new_request = realloc(connection->request,
-				    old_length + add_length + 1);
-	if (new_request == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_OOM);
-		return NULL;
-	}
-
-	connection->request = new_request;
-	return new_request + old_length;
-}
-
-static char *
-mpd_sanitize_arg(const char *src)
-{
-	assert(src != NULL);
-
-	/* instead of counting in that loop above, just
-	 * use a bit more memory and half running time
-	 */
-	char *result = malloc(strlen(src) * 2 + 1);
-	if (result == NULL)
-		return NULL;
-
-	char *dest = result;
-	char ch;
-	do {
-		ch = *src++;
-		if (ch == '"' || ch == '\\')
-			*dest++ = '\\';
-		*dest++ = ch;
-	} while (ch != 0);
-
-	return result;
-}
-
 static bool
 mpd_search_add_constraint(struct mpd_connection *connection,
 			  mpd_unused enum mpd_operator oper,
@@ -278,6 +227,23 @@ mpd_search_add_modified_since_constraint(struct mpd_connection *connection,
 
 	return mpd_search_add_constraint(connection, oper,
 					 "modified-since", buffer);
+}
+
+bool
+mpd_search_add_added_since_constraint(struct mpd_connection *connection,
+				      enum mpd_operator oper,
+				      time_t value)
+{
+	char buffer[64];
+	if (!iso8601_datetime_format(buffer, sizeof(buffer), value)) {
+		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
+		mpd_error_message(&connection->error,
+				  "failed to format time stamp");
+		return false;
+	}
+
+	return mpd_search_add_constraint(connection, oper,
+					 "added-since", buffer);
 }
 
 bool

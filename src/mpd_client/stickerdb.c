@@ -26,6 +26,7 @@
 
 // Private definitions
 
+static const char *get_sticker_opper_str(enum mpd_sticker_operator oper);
 static struct t_sticker *get_sticker_all(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined);
 static sds get_sticker_value(struct t_partition_state *partition_state, const char *uri, const char *name);
 static long long get_sticker_llong(struct t_partition_state *partition_state, const char *uri, const char *name);
@@ -315,12 +316,12 @@ rax *stickerdb_find_stickers_by_name(struct t_partition_state *partition_state, 
  * Gets all song stickers by name and value
  * @param partition_state pointer to the partition state
  * @param name sticker name
- * @param op compare operator: =, >, <
+ * @param op compare operator: MPD_STICKER_OP_EQ, MPD_STICKER_OP_GT, MPD_STICKER_OP_LT
  * @param value sticker value
  * @return newly allocated radix tree or NULL on error
  */
 rax *stickerdb_find_stickers_by_name_value(struct t_partition_state *partition_state,
-        const char *name, const char *op, const char *value)
+        const char *name, enum mpd_sticker_operator op, const char *value)
 {
     if (stickerdb_connect(partition_state) == false) {
         return NULL;
@@ -329,7 +330,14 @@ rax *stickerdb_find_stickers_by_name_value(struct t_partition_state *partition_s
     struct mpd_pair *pair;
     ssize_t name_len = (ssize_t)strlen(name) + 1;
     sds file = sdsempty();
-    if (mpd_send_sticker_find_value(partition_state->conn, "song", "", name, op, value) == true) {
+    if (mpd_sticker_search_begin(partition_state->conn, "song", NULL, name) == false ||
+        mpd_sticker_search_add_value_constraint(partition_state->conn, op, value) == false)
+    {
+        mpd_sticker_search_cancel(partition_state->conn);
+        stickerdb_free_find_result(stickers);
+        return NULL;
+    }
+    if (mpd_sticker_search_commit(partition_state->conn) == true) {
         while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
             if (strcmp(pair->name, "file") == 0) {
                 file = sds_replace(file, pair->value);
@@ -352,7 +360,7 @@ rax *stickerdb_find_stickers_by_name_value(struct t_partition_state *partition_s
         return NULL;
     }
     MYMPD_LOG_DEBUG("stickerdb", "Found %llu stickers for \"%s\"%s\"%s\"",
-        (long long unsigned)stickers->numele, name, op, value);
+        (long long unsigned)stickers->numele, name, get_sticker_opper_str(op), value);
     return stickers;
 }
 
@@ -518,7 +526,34 @@ bool stickerdb_set_rating(struct t_partition_state *partition_state, const char 
     return stickerdb_set_llong(partition_state, uri, sticker_name_lookup(STICKER_RATING), (long long)value);
 }
 
+/**
+ * Converts a string to a mpd sticker operator
+ * @param str string to parse
+ * @return mpd sticker operator
+ */
+enum mpd_sticker_operator sticker_opper_parse(const char *str) {
+    if (str[0] == '=') { return MPD_STICKER_OP_EQ; }
+    if (str[0] == '>') { return MPD_STICKER_OP_GT; }
+    if (str[0] == '<') { return MPD_STICKER_OP_LT; }
+    return MPD_STICKER_OP_UNKOWN;
+}
+
 // Private functions
+
+/**
+ * Lookups the sticker operator string
+ * @param oper one of #mpd_sticker_operator
+ * @return string literal or empty if operator is invalid
+ */
+static const char *get_sticker_opper_str(enum mpd_sticker_operator op) {
+    switch(op) {
+        case MPD_STICKER_OP_EQ: return "=";
+        case MPD_STICKER_OP_GT: return ">";
+        case MPD_STICKER_OP_LT: return "<";
+        case MPD_STICKER_OP_UNKOWN: return "";
+    }
+    return "";
+}
 
 /**
  * Initializes the sticker struct and gets all stickers for a song.
