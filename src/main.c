@@ -516,7 +516,9 @@ int main(int argc, char **argv) {
     }
 
     //check ssl certificates
-    if (create_certificates(config) == false) {
+    if (create_certificates(config) == false ||
+        webserver_read_certs(mg_user_data, config) == false)
+    {
         goto cleanup;
     }
 

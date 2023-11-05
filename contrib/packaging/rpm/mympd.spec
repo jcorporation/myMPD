@@ -66,5 +66,5 @@ fi
 %license LICENSE.md
 
 %changelog
-* Fri Nov 03 2023 Juergen Mang <mail@jcgames.de> 14.0.0-0
+* Sun Nov 05 2023 Juergen Mang <mail@jcgames.de> 14.0.0-0
 - Version from master

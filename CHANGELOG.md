@@ -35,6 +35,16 @@ It also supports the new "added" timestamp for songs in the mpd database.
 
 ***
 
+## myMPD v13.0.3 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: Read certificates after creation #1160
+
+***
+
 ## myMPD v13.0.2 (2023-11-03)
 
 This is a small bugfix release.
