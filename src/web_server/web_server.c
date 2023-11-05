@@ -8,6 +8,7 @@
 #include "src/web_server/web_server.h"
 
 #include "src/lib/api.h"
+#include "src/lib/cert.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/http_client.h"
 #include "src/lib/jsonrpc.h"
@@ -138,6 +139,11 @@ bool webserver_read_certs(struct t_mg_user_data *mg_user_data, struct t_config *
         MYMPD_LOG_ERROR(NULL, "Failure reading ssl key and cert from disc");
         return false;
     }
+    sds cert_details = certificate_get_detail(mg_user_data->cert_content);
+    if (sdslen(cert_details) > 0) {
+        MYMPD_LOG_INFO(NULL, "Certificate: %s", cert_details);
+    }
+    FREE_SDS(cert_details);
     mg_user_data->cert = mg_str(mg_user_data->cert_content);
     mg_user_data->key = mg_str(mg_user_data->key_content);
     return true;

@@ -12,4 +12,6 @@
 #include <stdbool.h>
 
 bool certificates_check(sds workdir, sds ssl_san);
+sds certificate_get_detail(sds cert_content);
+
 #endif
