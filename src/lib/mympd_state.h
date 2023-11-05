@@ -90,6 +90,7 @@ struct t_mpd_state {
     bool feat_starts_with;              //!< mpd supports starts_with filter expression
     bool feat_pcre;                     //!< mpd supports pcre for filter expressions
     bool feat_db_added;                 //!< mpd supports added attribute for songs
+    bool feat_sticker_sort_window;      //!< mpd supports sticker sort and window api
 };
 
 /**

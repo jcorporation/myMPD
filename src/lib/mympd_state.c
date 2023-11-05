@@ -226,6 +226,7 @@ void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
     mpd_state->feat_starts_with = false;
     mpd_state->feat_pcre = true;
     mpd_state->feat_db_added = false;
+    mpd_state->feat_sticker_sort_window = false;
 }
 
 /**
