@@ -31,7 +31,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Feat: Add rating sticker - stars like cantata #1141
 - Feat: Support added timestamp for songs (MPD 0.24) #1150
 - Feat: Support added-since and modified-since for search expressions #1158
-- Upd: libmympdclient 1.0.24
+- Upd: libmympdclient 1.0.25
 
 ***
 

@@ -177,18 +177,10 @@ bool
 mpd_sticker_search_begin(struct mpd_connection *connection, const char *type,
 			 const char *base_uri, const char *name)
 {
-	assert(connection != NULL);
 	assert(name != NULL);
 
-	if (mpd_error_is_defined(&connection->error))
+	if (!mpd_request_begin(connection)) 
 		return false;
-
-	if (connection->request) {
-		mpd_error_code(&connection->error, MPD_ERROR_STATE);
-		mpd_error_message(&connection->error,
-				  "search already in progress");
-		return false;
-	}
 
 	if (base_uri == NULL)
 		base_uri = "";
@@ -223,7 +215,7 @@ mpd_sticker_search_begin(struct mpd_connection *connection, const char *type,
 	return true;
 }
 
-static const char *get_sticker_opper_str(enum mpd_sticker_operator oper) {
+static const char *get_sticker_oper_str(enum mpd_sticker_operator oper) {
 	switch(oper) {
 	case MPD_STICKER_OP_EQ: return "=";
 	case MPD_STICKER_OP_GT: return ">";
@@ -248,13 +240,13 @@ mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
 	}
 
 	const size_t size = 4 + strlen(arg) + 2;
-	char *dest = mpd_search_prepare_append(connection, size);
+	char *dest = mpd_request_prepare_append(connection, size);
 	if (dest == NULL) {
 		free(arg);
 		return false;
 	}
 
-	const char *oper_str = get_sticker_opper_str(oper);
+	const char *oper_str = get_sticker_oper_str(oper);
 	if (oper_str == NULL)
 		return false;
 
@@ -267,66 +259,26 @@ mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
 
 bool
 mpd_sticker_search_add_sort(struct mpd_connection *connection,
-			 const char *name, bool descending)
+			    const char *name, bool descending)
 {
-	assert(connection != NULL);
-
-	const size_t size = 64;
-	char *dest = mpd_search_prepare_append(connection, size);
-	if (dest == NULL)
-		return false;
-
-	snprintf(dest, size, " sort %s%s",
-		 descending ? "-" : "",
-		 name);
-	return true;
+	return mpd_request_add_sort(connection, name, descending);
 }
 
 bool
 mpd_sticker_search_add_window(struct mpd_connection *connection,
 			      unsigned start, unsigned end)
 {
-	assert(connection != NULL);
-	assert(start <= end);
-
-	const size_t size = 64;
-	char *dest = mpd_search_prepare_append(connection, size);
-	if (dest == NULL)
-		return false;
-
-	snprintf(dest, size, " window %u:%u", start, end);
-	return true;
+	return mpd_request_add_window(connection, start, end);
 }
 
 bool
 mpd_sticker_search_commit(struct mpd_connection *connection)
 {
-	assert(connection != NULL);
-
-	if (mpd_error_is_defined(&connection->error)) {
-		mpd_sticker_search_cancel(connection);
-		return false;
-	}
-
-	if (connection->request == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_STATE);
-		mpd_error_message(&connection->error,
-				  "no search in progress");
-		return false;
-	}
-
-	bool success = mpd_send_command(connection, connection->request, NULL);
-	free(connection->request);
-	connection->request = NULL;
-
-	return success;
+	return mpd_request_commit(connection);
 }
 
 void
 mpd_sticker_search_cancel(struct mpd_connection *connection)
 {
-	assert(connection != NULL);
-
-	free(connection->request);
-	connection->request = NULL;
+	mpd_request_cancel(connection);
 }

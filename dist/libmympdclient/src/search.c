@@ -43,66 +43,35 @@
 #include <stdio.h>
 #include <string.h>
 
-static bool
-mpd_search_init(struct mpd_connection *connection, const char *cmd)
-{
-	assert(connection != NULL);
-	assert(cmd != NULL);
-
-	if (mpd_error_is_defined(&connection->error))
-		return false;
-
-	if (connection->request) {
-		mpd_error_code(&connection->error, MPD_ERROR_STATE);
-		mpd_error_message(&connection->error,
-				  "search already in progress");
-		return false;
-	}
-
-	connection->request = strdup(cmd);
-	if (connection->request == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_OOM);
-		return false;
-	}
-
-	return true;
-}
-
 bool
 mpd_search_db_songs(struct mpd_connection *connection, bool exact)
 {
-	return mpd_search_init(connection,
-			       exact ? "find" : "search");
+	return mpd_request_begin(connection) &&
+	       mpd_request_command(connection,
+				   exact ? "find" : "search");
 }
 
 bool
 mpd_search_add_db_songs(struct mpd_connection *connection, bool exact)
 {
-	return mpd_search_init(connection,
-			       exact ? "findadd" : "searchadd");
+	return mpd_request_begin(connection) &&
+	       mpd_request_command(connection,
+			           exact ? "findadd" : "searchadd");
 }
 
 bool
 mpd_search_queue_songs(struct mpd_connection *connection, bool exact)
 {
-	return mpd_search_init(connection,
-			       exact ? "playlistfind" : "playlistsearch");
+	return mpd_request_begin(connection) &&
+	       mpd_request_command(connection,
+			           exact ? "playlistfind" : "playlistsearch");
 }
 
 bool
 mpd_search_db_tags(struct mpd_connection *connection, enum mpd_tag_type type)
 {
-	assert(connection != NULL);
-
-	if (mpd_error_is_defined(&connection->error))
+	if (!mpd_request_begin(connection)) 
 		return false;
-
-	if (connection->request) {
-		mpd_error_code(&connection->error, MPD_ERROR_STATE);
-		mpd_error_message(&connection->error,
-				  "search already in progress");
-		return false;
-	}
 
 	const char *strtype = mpd_tag_name(type);
 	if (strtype == NULL) {
@@ -129,7 +98,8 @@ mpd_count_db_songs(struct mpd_connection *connection)
 {
 	assert(connection != NULL);
 
-	return mpd_search_init(connection, "count");
+	return mpd_request_begin(connection) &&
+	       mpd_request_command(connection, "count");
 }
 
 bool
@@ -137,7 +107,8 @@ mpd_searchcount_db_songs(struct mpd_connection *connection)
 {
 	assert(connection != NULL);
 
-	return mpd_search_init(connection, "searchcount");
+	return mpd_request_begin(connection) &&
+	       mpd_request_command(connection, "searchcount");
 }
 
 static bool
@@ -158,7 +129,7 @@ mpd_search_add_constraint(struct mpd_connection *connection,
 
 	const size_t add_length = 1 + strlen(name) + 2 + strlen(arg) + 1;
 
-	char *dest = mpd_search_prepare_append(connection, add_length);
+	char *dest = mpd_request_prepare_append(connection, add_length);
 	if (dest == NULL) {
 		free(arg);
 		return false;
@@ -261,7 +232,7 @@ mpd_search_add_expression(struct mpd_connection *connection,
 
 	const size_t add_length = 2 + strlen(arg) + 1;
 
-	char *dest = mpd_search_prepare_append(connection, add_length);
+	char *dest = mpd_request_prepare_append(connection, add_length);
 	if (dest == NULL) {
 		free(arg);
 		return false;
@@ -280,7 +251,7 @@ mpd_search_add_group_tag(struct mpd_connection *connection,
 	assert(connection != NULL);
 
 	const size_t size = 64;
-	char *dest = mpd_search_prepare_append(connection, size);
+	char *dest = mpd_request_prepare_append(connection, size);
 	if (dest == NULL)
 		return false;
 
@@ -292,17 +263,7 @@ bool
 mpd_search_add_sort_name(struct mpd_connection *connection,
 			 const char *name, bool descending)
 {
-	assert(connection != NULL);
-
-	const size_t size = 64;
-	char *dest = mpd_search_prepare_append(connection, size);
-	if (dest == NULL)
-		return false;
-
-	snprintf(dest, size, " sort %s%s",
-		 descending ? "-" : "",
-		 name);
-	return true;
+	return mpd_request_add_sort(connection, name, descending);
 }
 
 bool
@@ -318,16 +279,7 @@ bool
 mpd_search_add_window(struct mpd_connection *connection,
 		      unsigned start, unsigned end)
 {
-	assert(connection != NULL);
-	assert(start <= end);
-
-	const size_t size = 64;
-	char *dest = mpd_search_prepare_append(connection, size);
-	if (dest == NULL)
-		return false;
-
-	snprintf(dest, size, " window %u:%u", start, end);
-	return true;
+	return mpd_request_add_window(connection, start, end);
 }
 
 bool
@@ -337,7 +289,7 @@ mpd_search_add_position(struct mpd_connection *connection,
 	assert(connection != NULL);
 
 	const size_t size = 64;
-	char *dest = mpd_search_prepare_append(connection, size);
+	char *dest = mpd_request_prepare_append(connection, size);
 	if (dest == NULL)
 		return false;
 
@@ -350,34 +302,13 @@ mpd_search_add_position(struct mpd_connection *connection,
 bool
 mpd_search_commit(struct mpd_connection *connection)
 {
-	assert(connection != NULL);
-
-	if (mpd_error_is_defined(&connection->error)) {
-		mpd_search_cancel(connection);
-		return false;
-	}
-
-	if (connection->request == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_STATE);
-		mpd_error_message(&connection->error,
-				  "no search in progress");
-		return false;
-	}
-
-	bool success = mpd_send_command(connection, connection->request, NULL);
-	free(connection->request);
-	connection->request = NULL;
-
-	return success;
+	return mpd_request_commit(connection);
 }
 
 void
 mpd_search_cancel(struct mpd_connection *connection)
 {
-	assert(connection != NULL);
-
-	free(connection->request);
-	connection->request = NULL;
+	mpd_request_cancel(connection);
 }
 
 struct mpd_pair *
@@ -396,18 +327,10 @@ bool
 mpd_search_add_db_songs_to_playlist(struct mpd_connection *connection,
 				    const char *playlist_name)
 {
-	assert(connection != NULL);
 	assert(playlist_name != NULL);
 
-	if (mpd_error_is_defined(&connection->error))
+	if (!mpd_request_begin(connection)) 
 		return false;
-
-	if (connection->request) {
-		mpd_error_code(&connection->error, MPD_ERROR_STATE);
-		mpd_error_message(&connection->error,
-				  "search already in progress");
-		return false;
-	}
 
 	char *arg = mpd_sanitize_arg(playlist_name);
 	if (arg == NULL) {

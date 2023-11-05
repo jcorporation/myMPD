@@ -225,7 +225,7 @@ mpd_return_sticker(struct mpd_connection *connection, struct mpd_pair *pair);
  * Obtains an uniq and sortes list of all sticker names. Call
  * mpd_recv_pair() to receive each response item.
  *
- * @param connection a #mpd_connection
+ * @param connection the connection to MPD
  * @return true on success, false on error
  *
  * @since libmpdclient 2.21, MPD 0.24
@@ -252,6 +252,15 @@ bool
 mpd_sticker_search_begin(struct mpd_connection *connection, const char *type,
 			 const char *base_uri, const char *name);
 
+/**
+ * Adds the value constraint to the search
+ * @param connection a #mpd_connection
+ * @param oper compare operator
+ * @param value value to compare against
+ * @return true on success, else false
+ *
+ * @since libmpdclient 2.21, MPD 0.24
+ */
 bool
 mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
 					enum mpd_sticker_operator oper,
@@ -284,7 +293,7 @@ mpd_sticker_search_add_sort(struct mpd_connection *connection,
  */
 bool
 mpd_sticker_search_add_window(struct mpd_connection *connection,
-			      unsigned start, unsigned end);
+		              unsigned start, unsigned end);
 
 /**
  * Starts the real search with constraints added with
