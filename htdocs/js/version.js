@@ -1,2 +1,2 @@
-const myMPDversion = '13.0.3';
-const myMPDbuild = 'd30ca9cbff769d0d654b73e169133a3ae3760141';
+const myMPDversion = '13.0.4';
+const myMPDbuild = 'cb917a93a8dc8ac289ee5ad5987960c6db1ba5c0';
