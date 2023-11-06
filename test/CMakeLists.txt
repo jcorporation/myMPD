@@ -58,6 +58,7 @@ set(TEST_SOURCES
   ../src/mympd_api/trigger.c
   ../src/mympd_api/queue.c
   ../src/mympd_api/webradios.c
+  tests/test_album_cache.c
   tests/test_api.c
   tests/test_cert.c
   tests/test_datetime.c
@@ -68,13 +69,14 @@ set(TEST_SOURCES
   tests/test_list.c
   tests/test_m3u.c
   tests/test_mimetype.c
-  tests/test_mpd_client_tags.c
   tests/test_mympd_queue.c
   tests/test_mympd_state.c
   tests/test_radix_sort.c
   tests/test_random.c
   tests/test_sds_extras.c
+  tests/test_search_local.c
   tests/test_state_files.c
+  tests/test_tags.c
   tests/test_timer.c
   tests/test_utility.c
   tests/test_validate.c
@@ -147,15 +149,15 @@ list(APPEND test_categories
   "list"
   "m3u"
   "mimetype"
-  "mpd_client_search_local"
-  "mpd_client_tags"
   "mympd_queue"
   "mympd_state"
   "passwd"
   "radix_sort"
   "random"
   "sds_extras"
+  "search_local"
   "state_files"
+  "tags"
   "timer"
   "utility"
   "validate"

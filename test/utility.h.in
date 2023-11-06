@@ -21,4 +21,6 @@ struct t_input_result {
 void init_testenv(void);
 void clean_testenv(void);
 
+struct mpd_song *new_song(void);
+
 #endif
