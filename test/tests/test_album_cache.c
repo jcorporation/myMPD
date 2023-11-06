@@ -73,13 +73,29 @@ UTEST(album_cache, test_album_cache_set_last_modified) {
     struct mpd_song *album = new_song();
     struct mpd_song *song = new_song();
     
-    song->last_modified = 3000;
+    song->last_modified = 1699304602;
     album_cache_set_last_modified(album, song);
-    ASSERT_EQ(3000, mpd_song_get_last_modified(album));
+    ASSERT_EQ(1699304602, mpd_song_get_last_modified(album));
 
     song->last_modified = 1000;
     album_cache_set_last_modified(album, song);
-    ASSERT_EQ(3000, mpd_song_get_last_modified(album));
+    ASSERT_EQ(1699304602, mpd_song_get_last_modified(album));
+
+    mpd_song_free(album);
+    mpd_song_free(song);
+}
+
+UTEST(album_cache, test_album_cache_set_added) {
+    struct mpd_song *album = new_song();
+    struct mpd_song *song = new_song();
+    
+    song->added = 1699304602;
+    album_cache_set_added(album, song);
+    ASSERT_EQ(1699304451, mpd_song_get_added(album));
+
+    song->added = 1000;
+    album_cache_set_added(album, song);
+    ASSERT_EQ(1000, mpd_song_get_added(album));
 
     mpd_song_free(album);
     mpd_song_free(song);

@@ -49,8 +49,8 @@ struct mpd_song *new_song(void) {
     song->duration_ms = 10000;
     song->start = 0;
     song->end = 0;
-    song->last_modified = 2000;
-    song->added = 1000;
+    song->last_modified = 1699304451;
+    song->added = 1699304451;
     song->pos = 0;
     song->id = 0;
     song->prio = 0;

@@ -72,6 +72,39 @@ UTEST(search_local, test_search_mpd_song_expression) {
     ASSERT_FALSE(search_by_expression("((Artist != 'Blixa Bargeld'))")); //not exact match
     ASSERT_FALSE(search_by_expression("((Artist !~ 'Blixa.*'))"));       //regex mismatch
 
-    ASSERT_TRUE(search_by_expression("((Artist contains 'MG\\'s'))"));   //escaping
-    ASSERT_FALSE(search_by_expression("((Artist contains 'MGs\\))"));   //escaping
+    //escaping
+    ASSERT_TRUE(search_by_expression("((Artist contains 'MG\\'s'))"));
+    ASSERT_FALSE(search_by_expression("((Artist contains 'MGs\\))"));
+
+    //without operators
+    ASSERT_TRUE(search_by_expression("((modified-since '2023-10-10'))"));
+    ASSERT_FALSE(search_by_expression("((modified-since '2023-11-17'))"));
+
+    ASSERT_TRUE(search_by_expression("((added-since '2023-10-10'))"));
+    ASSERT_FALSE(search_by_expression("((added-since '2023-11-17'))"));
+}
+
+long try_parse(const char *expr) {
+    sds expression = sdsnew(expr);
+    struct t_list *expr_list = parse_search_expression_to_list(expression);
+    sdsfree(expression);
+    long len = expr_list->length;
+    free_search_expression_list(expr_list);
+    return len;
+}
+
+UTEST(search_local, test_parse_expression) {
+    ASSERT_EQ(0, try_parse("asdf"));
+    ASSERT_EQ(0, try_parse("(asdf)"));
+    ASSERT_EQ(0, try_parse("((asdf))"));
+    ASSERT_EQ(0, try_parse("((asdf ="));
+    ASSERT_EQ(0, try_parse("((asdf =="));
+    ASSERT_EQ(0, try_parse("((asdf == "));
+    ASSERT_EQ(0, try_parse("((adsf == '"));
+    ASSERT_EQ(0, try_parse("((asdf == 'asdf"));
+    ASSERT_EQ(0, try_parse("((Artist == '"));
+    ASSERT_EQ(0, try_parse("((modified-since == 'asdf"));
+    ASSERT_EQ(0, try_parse("((modified-since 'asdf"));
+    ASSERT_EQ(0, try_parse("((added-since == 'asdf"));
+    ASSERT_EQ(0, try_parse("((added-since 'asdf"));
 }
