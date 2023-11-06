@@ -27,22 +27,11 @@ int main(int argc, const char *const argv[]) {
     set_loglevel(7);
     workdir = sdsnew("/tmp/mympd-test");
 
-    //create dirs for tests
-    mkdir("/tmp/mympd-test", 0770);
-    mkdir("/tmp/mympd-test/state", 0770);
-    mkdir("/tmp/mympd-test/state/default", 0770);
-    mkdir("/tmp/mympd-test/webradios", 0770);
-
     //utest main
     int rc = utest_main(argc, argv);
 
     //cleanup
     FREE_SDS(thread_logname);
-    rmdir("/tmp/mympd-test/ssl");
-    rmdir("/tmp/mympd-test/state/default");
-    rmdir("/tmp/mympd-test/state");
-    rmdir("/tmp/mympd-test/webradios");
-    rmdir("/tmp/mympd-test");
     sdsfree(workdir);
     return rc;
 }
