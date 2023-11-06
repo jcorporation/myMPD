@@ -108,8 +108,6 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
         MYMPD_LOG_NOTICE(partition_state->name, "Enabling starts_with filter expression feature");
         partition_state->mpd_state->feat_db_added = true;
         MYMPD_LOG_NOTICE(partition_state->name, "Enabling db added feature");
-        partition_state->mpd_state->feat_sticker_sort_window = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling sticker sort and window feature");
     }
     else {
         MYMPD_LOG_WARN(partition_state->name, "Disabling advanced queue feature, depends on mpd >= 0.24.0");
@@ -117,7 +115,6 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
         MYMPD_LOG_WARN(partition_state->name, "Disabling playlist directory autoconfiguration feature, depends on mpd >= 0.24.0");
         MYMPD_LOG_WARN(partition_state->name, "Disabling starts_with filter expression feature, depends on mpd >= 0.24.0");
         MYMPD_LOG_WARN(partition_state->name, "Disabling db added feature, depends on mpd >= 0.24.0");
-        MYMPD_LOG_WARN(partition_state->name, "Disabling sticker sort and window feature, depends on mpd >= 0.24.0");
     }
     settings_to_webserver(partition_state->mympd_state);
 }

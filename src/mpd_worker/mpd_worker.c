@@ -96,6 +96,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->stickerdb->mpd_state->mpd_host = sds_replace(mpd_worker_state->stickerdb->mpd_state->mpd_host, mympd_state->stickerdb->mpd_state->mpd_host);
     mpd_worker_state->stickerdb->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;
     mpd_worker_state->stickerdb->mpd_state->mpd_pass = sds_replace(mpd_worker_state->stickerdb->mpd_state->mpd_pass, mympd_state->stickerdb->mpd_state->mpd_pass);
+    mpd_worker_state->stickerdb->mpd_state->feat_sticker_sort_window = mympd_state->stickerdb->mpd_state->feat_sticker_sort_window;
 
     //create the worker thread
     if (pthread_create(&mpd_worker_thread, &attr, mpd_worker_run, mpd_worker_state) != 0) {

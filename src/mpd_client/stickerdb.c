@@ -75,6 +75,12 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
         mpd_client_disconnect_silent(partition_state, MPD_DISCONNECTED);
         return false;
     }
+    if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0) {
+        MYMPD_LOG_DEBUG(partition_state->name, "Enabling sticker sort and window feature");
+        partition_state->mpd_state->feat_sticker_sort_window = true;
+        // set feature flag also on shared mpd state
+        partition_state->mympd_state->mpd_state->feat_sticker_sort_window = true;
+    }
     // check for sticker support
     partition_state->mpd_state->feat_stickers = false;
     partition_state->mympd_state->mpd_state->feat_stickers = false;
@@ -84,8 +90,8 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
             if (strcmp(pair->value, "sticker") == 0) {
                 MYMPD_LOG_DEBUG("stickerdb", "MPD supports stickers");
                 mpd_return_pair(partition_state->conn, pair);
-                // set feature flag also on shared mpd state
                 partition_state->mpd_state->feat_stickers = true;
+                // set feature flag also on shared mpd state
                 partition_state->mympd_state->mpd_state->feat_stickers = true;
                 break;
             }
@@ -95,7 +101,7 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
     mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_allowed_commands") == true) {
         if (partition_state->mpd_state->feat_stickers == false) {
-            MYMPD_LOG_WARN("stickerdb", "MPD does not support stickers");
+            MYMPD_LOG_ERROR("stickerdb", "MPD does not support stickers");
             mpd_client_disconnect_silent(partition_state, MPD_DISCONNECTED);
             send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "MPD does not support stickers");
             return false;
