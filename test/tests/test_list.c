@@ -342,6 +342,8 @@ sds write_disk_cb(sds buffer, struct t_list_node *current) {
 }
 
 UTEST(list, test_list_write_to_disk) {
+    init_testenv();
+
     struct t_list test_list;
     populate_list(&test_list);
     sds filepath = sdsnew("/tmp/mympd-test/state/test_list");
@@ -350,6 +352,8 @@ UTEST(list, test_list_write_to_disk) {
     unlink(filepath);
     sdsfree(filepath);
     list_clear(&test_list);
+
+    clean_testenv();
 }
 
 UTEST(list, list_sort_by_value_i) {

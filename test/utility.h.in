@@ -7,7 +7,7 @@
 #ifndef TEST_UTILITY_H
 #define TEST_UTILITY_H
 
-#include "src/lib/sds_extras.h"
+#include "dist/sds/sds.h"
 
 #define MYMPD_BUILD_DIR "${PROJECT_BINARY_DIR}"
 
@@ -17,5 +17,8 @@ struct t_input_result {
     const char *input;
     const char *result;
 };
+
+void init_testenv(void);
+void clean_testenv(void);
 
 #endif

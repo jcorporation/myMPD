@@ -73,6 +73,8 @@ UTEST(timer, test_timer_parse_definition) {
 }
 
 UTEST(timer, test_timer_write_read) {
+    init_testenv();
+
     struct t_timer_list l;
     mympd_api_timer_timerlist_init(&l);
     sds s1 = sdsnew("{\"params\":{\"partition\":\"default\",\"timerid\":103,\"name\":\"example timer1\",\"interval\":86400,\"enabled\":true,\"startHour\":7,\"startMinute\":0,\"action\":\"player\",\"subaction\":\"startplay\",\"playlist\":\"\",\"volume\":50,\"preset\":\"test-preset\",\"weekdays\":[false,false,false,false,false,true,true],\"arguments\": {\"arg1\":\"value1\"}}}");
@@ -94,6 +96,7 @@ UTEST(timer, test_timer_write_read) {
     ASSERT_STREQ("example timer1", timer_node->definition->name);
 
     mympd_api_timer_timerlist_clear(&l);
-    unlink("/tmp/mympd-test/state/timer_list");
     sdsfree(s1);
+
+    clean_testenv();
 }
