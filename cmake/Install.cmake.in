@@ -2,37 +2,58 @@
 # myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
+# Install startup script
+function(install_systemd)
+  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
+       DESTINATION "/usr/lib/systemd/system"
+       FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
+endfunction()
+
+function(install_openrc)
+  file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.openrc"
+       "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
+  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
+       DESTINATION "/etc/init.d"
+       FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+endfunction()
+
+function(install_sysvinit)
+  file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.sysVinit"
+       "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
+  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
+       DESTINATION "/etc/init.d"
+       FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+endfunction()
+
+function(install_freebsd)
+  file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.freebsdrc"
+       "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
+  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
+       DESTINATION "/usr/local/etc/rc.d"
+       FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+endfunction()
+
 if("@MYMPD_STARTUP_SCRIPT@" STREQUAL "ON")
-  # Install startup script
+  # Try to detect installes init system
   if(EXISTS "/lib/systemd/system" OR EXISTS "/usr/lib/systemd/system")
-    #Install systemd unit
-    file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
-        DESTINATION "/usr/lib/systemd/system"
-        FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
+    install_systemd()
   elseif(EXISTS "/sbin/openrc-run")
-    #Install openrc script
-    file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.openrc"
-                "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
-    file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
-        DESTINATION "/etc/init.d"
-        FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install_openrc()
   elseif(EXISTS "/etc/init.d")
-    #Install sysVinit script
-    file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.sysVinit"
-                "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
-    file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
-        DESTINATION "/etc/init.d"
-        FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install_sysvinit()
   elseif(EXISTS "/bin/freebsd-version")
-    #Install FreeBSD rc script
-    file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.freebsdrc"
-                "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
-    file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
-        DESTINATION "/usr/local/etc/rc.d"
-        FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install_freebsd()
   else()
     message("No supported init system found, no startup script was installed")
   endif()
+elseif("@MYMPD_STARTUP_SCRIPT@" STREQUAL "SYSTEMD")
+  install_systemd()
+elseif("@MYMPD_STARTUP_SCRIPT@" STREQUAL "OPENRC")
+  install_openrc()
+elseif("@MYMPD_STARTUP_SCRIPT@" STREQUAL "SYSVINIT")
+  install_sysvinit()
+elseif("@MYMPD_STARTUP_SCRIPT@" STREQUAL "FREEBSD")
+  install_freebsd()
 endif()
 
 # Install and compress manpages
