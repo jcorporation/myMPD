@@ -665,6 +665,11 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
     unsigned total_time = 0;
     time_t last_played_max = 0;
     sds last_played_song_uri = sdsempty();
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+    }
     if (mpd_send_list_playlist_meta(partition_state->conn, plist)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer,"\"data\":[");
@@ -692,7 +697,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                     {
                         buffer = sdscatlen(buffer, ",", 1);
                         struct t_sticker sticker;
-                        stickerdb_get_all(partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), &sticker, false);
+                        stickerdb_get_all_batch(partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), &sticker, false);
                         buffer = mympd_api_sticker_print(buffer, &sticker, tagcols);
                         if (sticker.mympd[STICKER_LAST_PLAYED] > last_played_max) {
                             last_played_max = (time_t)sticker.mympd[STICKER_LAST_PLAYED];
@@ -710,6 +715,12 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
         free_search_expression_list(expr_list);
     }
     mpd_response_finish(partition_state->conn);
+    if (partition_state->mpd_state->feat_stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+    }
+
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlist_meta") == false) {
         FREE_SDS(last_played_song_uri);
         return buffer;
