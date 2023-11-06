@@ -193,21 +193,29 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             p++;
         }
         //push to list
-        if (expr->op == SEARCH_OP_REGEX ||
-            expr->op == SEARCH_OP_NOT_REGEX)
-        {
-            //is regex, compile
-            expr->re_compiled = compile_regex(expr->value);
-        }
-        else if (expr->op == SEARCH_OP_NEWER) {
-            expr->value_time = parse_date(expr->value);
-            if (expr->value_time == 0) {
-                free_search_expression(expr);
-                break;
+        if (*end == '\'') {
+            if (expr->op == SEARCH_OP_REGEX ||
+                expr->op == SEARCH_OP_NOT_REGEX)
+            {
+                //is regex, compile
+                expr->re_compiled = compile_regex(expr->value);
             }
+            else if (expr->op == SEARCH_OP_NEWER) {
+                expr->value_time = parse_date(expr->value);
+                if (expr->value_time == 0) {
+                    MYMPD_LOG_ERROR(NULL, "Can not parse search expression, invalid date");
+                    free_search_expression(expr);
+                    break;
+                }
+            }
+            list_push(expr_list, "", 0, NULL, expr);
+            MYMPD_LOG_DEBUG(NULL, "Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, expr->value);
         }
-        list_push(expr_list, "", 0, NULL, expr);
-        MYMPD_LOG_DEBUG(NULL, "Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, expr->value);
+        else {
+            free_search_expression(expr);
+            MYMPD_LOG_ERROR(NULL, "Can not parse search expression");
+            break;
+        }
     }
     FREE_SDS(tag);
     FREE_SDS(op);

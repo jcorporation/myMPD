@@ -74,7 +74,7 @@ UTEST(search_local, test_search_mpd_song_expression) {
 
     //escaping
     ASSERT_TRUE(search_by_expression("((Artist contains 'MG\\'s'))"));
-    ASSERT_FALSE(search_by_expression("((Artist contains 'MGs\\))"));
+    ASSERT_FALSE(search_by_expression("((Artist contains 'MGs\\'))"));
 
     //without operators
     ASSERT_TRUE(search_by_expression("((modified-since '2023-10-10'))"));
@@ -103,6 +103,7 @@ UTEST(search_local, test_parse_expression) {
     ASSERT_EQ(0, try_parse("((adsf == '"));
     ASSERT_EQ(0, try_parse("((asdf == 'asdf"));
     ASSERT_EQ(0, try_parse("((Artist == '"));
+    ASSERT_EQ(0, try_parse("((Artist == 'asdf"));
     ASSERT_EQ(0, try_parse("((modified-since == 'asdf"));
     ASSERT_EQ(0, try_parse("((modified-since 'asdf"));
     ASSERT_EQ(0, try_parse("((added-since == 'asdf"));
