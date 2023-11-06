@@ -116,7 +116,7 @@ bool mpd_client_set_timeout(struct t_partition_state *partition_state) {
  */
 bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
     bool rc = true;
-    if (partition_state->mpd_state->feat_binarylimit == true) {
+    if (partition_state->mpd_state->feat.binarylimit == true) {
         MYMPD_LOG_INFO(partition_state->name, "Setting binarylimit to %u kB", partition_state->mpd_state->mpd_binarylimit);
         mpd_run_binarylimit(partition_state->conn, partition_state->mpd_state->mpd_binarylimit);
         sds message = sdsempty();

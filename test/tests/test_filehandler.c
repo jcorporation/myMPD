@@ -9,7 +9,6 @@
 
 #include "dist/utest/utest.h"
 #include "src/lib/filehandler.h"
-#include "src/lib/sds_extras.h"
 
 UTEST(filehandler, test_cleanup_rm_directory) {
     init_testenv();
@@ -41,15 +40,6 @@ UTEST(filehandler, test_testdir) {
     clean_testenv();
 }
 
-static bool create_testfile(void) {
-    sds file = sdsnew("/tmp/mympd-test/state/test");
-    const char *data ="asdfjlkasdfjklsafd\nasfdsdfawaerwer\n";
-    size_t len = strlen(data);
-    bool rc = write_data_to_file(file, data, len);
-    sdsfree(file);
-    return rc;
-}
-
 UTEST(filehandler, test_write_data_to_file) {
     init_testenv();
 
@@ -77,7 +67,7 @@ UTEST(filehandler, test_testfile_read) {
     clean_testenv();
 }
 
-UTEST(sds_extras, test_sds_getfile_from_fp) {
+UTEST(filehandler, test_sds_getfile_from_fp) {
     init_testenv();
 
     create_testfile();
@@ -99,7 +89,7 @@ UTEST(sds_extras, test_sds_getfile_from_fp) {
     clean_testenv();
 }
 
-UTEST(sds_extras, test_sds_getfile) {
+UTEST(filehandler, test_sds_getfile) {
     init_testenv();
 
     create_testfile();
@@ -117,7 +107,7 @@ UTEST(sds_extras, test_sds_getfile) {
     clean_testenv();
 }
 
-UTEST(sds_extras, test_sds_getline) {
+UTEST(filehandler, test_sds_getline) {
     init_testenv();
 
     create_testfile();

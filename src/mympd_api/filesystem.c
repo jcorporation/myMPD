@@ -137,7 +137,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
     raxIterator iter;
     raxStart(&iter, entity_list);
     raxSeek(&iter, "^", NULL, 0);
-    if (partition_state->mpd_state->feat_stickers == true &&
+    if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
         stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
@@ -160,7 +160,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                     basename_uri(filename);
                     buffer = tojson_sds(buffer, "Filename", filename, false);
                     FREE_SDS(filename);
-                    if (partition_state->mpd_state->feat_stickers == true &&
+                    if (partition_state->mpd_state->feat.stickers == true &&
                         tagcols->stickers_len > 0)
                     {
                         buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
@@ -197,7 +197,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
         entity_count++;
     }
     raxStop(&iter);
-    if (partition_state->mpd_state->feat_stickers == true &&
+    if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
         stickerdb_enter_idle(partition_state->mympd_state->stickerdb);

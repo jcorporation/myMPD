@@ -51,7 +51,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
         db_mtime < album_cache_mtime) {
         MYMPD_LOG_INFO("default", "Caches are up-to-date");
         send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Caches are up-to-date");
-        if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {
+        if (mpd_worker_state->partition_state->mpd_state->feat.tags == true) {
             struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
             request->data = jsonrpc_end(request->data);
             mympd_queue_push(mympd_api_queue, request, 0);
@@ -61,7 +61,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
     send_jsonrpc_event(JSONRPC_EVENT_UPDATE_CACHE_STARTED, MPD_PARTITION_ALL);
 
     bool rc = true;
-    if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {
+    if (mpd_worker_state->partition_state->mpd_state->feat.tags == true) {
         struct t_cache album_cache;
         album_cache.cache = raxNew();
         rc = mpd_worker_state->config->albums.mode == ALBUM_MODE_ADV

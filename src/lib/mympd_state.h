@@ -48,6 +48,33 @@ struct t_cache {
 };
 
 /**
+ * MPD feature flags
+ */
+struct t_mpd_features {
+    bool advqueue;                 //!< mpd supports the prio filter / sort for queue and the save modes
+    bool albumart;                 //!< mpd supports the albumart command
+    bool binarylimit;              //!< mpd supports the binarylimit command
+    bool fingerprint;              //!< mpd supports the fingerprint command
+    bool library;                  //!< myMPD has access to the mpd music directory
+    bool mount;                    //!< mpd supports mounts
+    bool neighbor;                 //!< mpd supports neighbors command
+    bool partitions;               //!< mpd supports partitions
+    bool playlists;                //!< mpd supports playlists
+    bool playlist_rm_range;        //!< mpd supports the playlist rm range command
+    bool readpicture;              //!< mpd supports the readpicture command
+    bool stickers;                 //!< mpd supports stickers
+    bool tags;                     //!< mpd tags are enabled
+    bool whence;                   //!< mpd supports the whence feature (relative position in queue)
+    bool consume_oneshot;          //!< mpd supports consume oneshot mode
+    bool playlist_dir_auto;        //!< mpd supports autodetection of playlist directory
+    bool starts_with;              //!< mpd supports starts_with filter expression
+    bool pcre;                     //!< mpd supports pcre for filter expressions
+    bool db_added;                 //!< mpd supports added attribute for songs
+    bool sticker_sort_window;      //!< mpd supports sticker sort and window api
+    bool search_add_sort_window;   //!< mpd supports search and window for findadd/searchadd/searchaddpl
+};
+
+/**
  * Holds MPD specific states shared across all partitions
  */
 struct t_mpd_state {
@@ -71,27 +98,7 @@ struct t_mpd_state {
     enum mpd_tag_type tag_albumartist;  //!< tag to use for AlbumArtist
     //Feature flags
     const unsigned *protocol;           //!< mpd protocol version
-    bool feat_advqueue;                 //!< mpd supports the prio filter / sort for queue and the save modes
-    bool feat_albumart;                 //!< mpd supports the albumart command
-    bool feat_binarylimit;              //!< mpd supports the binarylimit command
-    bool feat_fingerprint;              //!< mpd supports the fingerprint command
-    bool feat_library;                  //!< myMPD has access to the mpd music directory
-    bool feat_mount;                    //!< mpd supports mounts
-    bool feat_neighbor;                 //!< mpd supports neighbors command
-    bool feat_partitions;               //!< mpd supports partitions
-    bool feat_playlists;                //!< mpd supports playlists
-    bool feat_playlist_rm_range;        //!< mpd supports the playlist rm range command
-    bool feat_readpicture;              //!< mpd supports the readpicture command
-    bool feat_stickers;                 //!< mpd supports stickers
-    bool feat_tags;                     //!< mpd tags are enabled
-    bool feat_whence;                   //!< mpd supports the whence feature (relative position in queue)
-    bool feat_consume_oneshot;          //!< mpd supports consume oneshot mode
-    bool feat_playlist_dir_auto;        //!< mpd supports autodetection of playlist directory
-    bool feat_starts_with;              //!< mpd supports starts_with filter expression
-    bool feat_pcre;                     //!< mpd supports pcre for filter expressions
-    bool feat_db_added;                 //!< mpd supports added attribute for songs
-    bool feat_sticker_sort_window;      //!< mpd supports sticker sort and window api
-    bool feat_search_add_sort_window;   //!< mpd supports search and window for findadd/searchadd/searchaddpl
+    struct t_mpd_features feat;     //!< feature flags
 };
 
 /**
@@ -258,7 +265,8 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
 void mympd_state_free(struct t_mympd_state *mympd_state);
 
 void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mympd_state);
-void mpd_state_features_disable(struct t_mpd_state *mpd_state);
+void mpd_state_features_disable(struct t_mpd_features *feat);
+void mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *dst);
 void mpd_state_free(struct t_mpd_state *mpd_state);
 
 void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state);

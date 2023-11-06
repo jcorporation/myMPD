@@ -7,6 +7,7 @@
 #include "utility.h"
 
 #include "dist/libmympdclient/src/isong.h"
+#include "src/lib/filehandler.h"
 #include "src/mpd_client/tags.h"
 
 #include <stdio.h>
@@ -27,6 +28,15 @@ void clean_testenv(void) {
         printf("Failure cleaning /tmp/mympd-test\n");
     }
     unsetenv("TESTVAR");
+}
+
+bool create_testfile(void) {
+    sds file = sdsnew("/tmp/mympd-test/state/test");
+    const char *data ="asdfjlkasdfjklsafd\nasfdsdfawaerwer\n";
+    size_t len = strlen(data);
+    bool rc = write_data_to_file(file, data, len);
+    sdsfree(file);
+    return rc;
 }
 
 struct mpd_song *new_song(void) {

@@ -177,7 +177,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                 mympd_api_timer_replace(&partition_state->mympd_state->timer_list, 30, (int)partition_state->mympd_state->smartpls_interval,
                     timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
                 //populate the partition list
-                if (partition_state->mpd_state->feat_partitions == true) {
+                if (partition_state->mpd_state->feat.partitions == true) {
                     partitions_populate(partition_state->mympd_state);
                 }
             }
@@ -277,7 +277,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                     //add song to the last_played list
                     mympd_api_last_played_add_song(partition_state, partition_state->song_id);
                     //set stickers
-                    if (partition_state->mpd_state->feat_stickers == true) {
+                    if (partition_state->mpd_state->feat.stickers == true) {
                         stickerdb_inc_play_count(partition_state->mympd_state->stickerdb,
                             partition_state->song_uri, partition_state->song_start_time);
                     }
@@ -378,7 +378,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                 }
                 case MPD_IDLE_PLAYER:
                     //player status has changed - partition specific event
-                    if (partition_state->mpd_state->feat_stickers == true &&
+                    if (partition_state->mpd_state->feat.stickers == true &&
                         partition_state->song_id > -1)
                     {
                         //set song elapsed sticker
@@ -401,7 +401,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                         partition_state->last_song_uri != NULL)
                     {
                         time_t now = time(NULL);
-                        if (partition_state->mpd_state->feat_stickers == true &&  //stickers enabled
+                        if (partition_state->mpd_state->feat.stickers == true &&  //stickers enabled
                             partition_state->last_song_scrobble_time > now)       //time is in the future
                         {
                             //last song skipped
@@ -411,7 +411,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                                 sdslen(partition_state->last_song_uri) > 0)
                             {
                                 MYMPD_LOG_DEBUG(partition_state->name, "Song \"%s\" skipped", partition_state->last_song_uri);
-                                if (partition_state->mpd_state->feat_stickers == true) {
+                                if (partition_state->mpd_state->feat.stickers == true) {
                                     stickerdb_inc_skip_count(partition_state->mympd_state->stickerdb, partition_state->last_song_uri);
                                 }
                                 partition_state->last_skipped_id = partition_state->last_song_id;
@@ -467,7 +467,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
  * @return true on success else false
  */
 static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeout) {
-    if (mympd_state->mpd_state->feat_tags == false) {
+    if (mympd_state->mpd_state->feat.tags == false) {
         MYMPD_LOG_DEBUG(NULL, "Caches are disabled");
         return true;
     }

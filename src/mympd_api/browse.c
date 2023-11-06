@@ -80,7 +80,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
         buffer = sdscat(buffer, "\"data\":[");
 
         struct mpd_song *song;
-        if (partition_state->mpd_state->feat_stickers == true &&
+        if (partition_state->mpd_state->feat.stickers == true &&
             tagcols->stickers_len > 0)
         {
             stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
@@ -94,7 +94,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
             buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
-            if (partition_state->mpd_state->feat_stickers == true &&
+            if (partition_state->mpd_state->feat.stickers == true &&
                 tagcols->stickers_len > 0)
             {
                 struct t_sticker sticker;
@@ -118,7 +118,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (partition_state->mpd_state->feat_stickers == true &&
+    if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
         stickerdb_enter_idle(partition_state->mympd_state->stickerdb);

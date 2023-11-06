@@ -185,7 +185,7 @@ static bool jukebox(struct t_partition_state *partition_state) {
         add_songs = 99;
     }
 
-    if (partition_state->mpd_state->feat_playlists == false && strcmp(partition_state->jukebox_playlist, "Database") != 0) {
+    if (partition_state->mpd_state->feat.playlists == false && strcmp(partition_state->jukebox_playlist, "Database") != 0) {
         MYMPD_LOG_WARN(partition_state->name, "Jukebox: Playlists are disabled");
         return true;
     }
@@ -543,7 +543,7 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
     sds albumid = sdsempty();
     rax *stickers_last_played = NULL;
     if (partition_state->mympd_state->config->albums.mode == ALBUM_MODE_ADV &&
-        partition_state->mpd_state->feat_stickers == true)
+        partition_state->mpd_state->feat.stickers == true)
     {
         stickers_last_played = stickerdb_find_stickers_by_name(partition_state->mympd_state->stickerdb, "lastPlayed");
     }
@@ -645,7 +645,7 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
     sds tag_value = sdsempty();
     rax *stickers_last_played = NULL;
     rax *stickers_like = NULL;
-    if (partition_state->mpd_state->feat_stickers == true) {
+    if (partition_state->mpd_state->feat.stickers == true) {
         MYMPD_LOG_DEBUG(partition_state->name, "Fetching lastPlayed stickers");
         stickers_last_played = stickerdb_find_stickers_by_name(partition_state->mympd_state->stickerdb, "lastPlayed");
         if (partition_state->jukebox_ignore_hated == true) {

@@ -200,34 +200,43 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
     reset_t_tags(&mpd_state->tags_album);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     //features
-    mpd_state_features_disable(mpd_state);
+    mpd_state_features_disable(&mpd_state->feat);
 }
 
 /**
  * Sets all feature states to disabled
  * @param mpd_state pointer to mpd_state
  */
-void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
-    mpd_state->feat_stickers = false;
-    mpd_state->feat_playlists = false;
-    mpd_state->feat_tags = false;
-    mpd_state->feat_fingerprint = false;
-    mpd_state->feat_albumart = false;
-    mpd_state->feat_readpicture = false;
-    mpd_state->feat_mount = false;
-    mpd_state->feat_neighbor = false;
-    mpd_state->feat_partitions = false;
-    mpd_state->feat_binarylimit = false;
-    mpd_state->feat_playlist_rm_range = false;
-    mpd_state->feat_whence = false;
-    mpd_state->feat_advqueue = false;
-    mpd_state->feat_consume_oneshot = false;
-    mpd_state->feat_playlist_dir_auto = false;
-    mpd_state->feat_starts_with = false;
-    mpd_state->feat_pcre = true;
-    mpd_state->feat_db_added = false;
-    mpd_state->feat_sticker_sort_window = false;
-    mpd_state->feat_search_add_sort_window = false;
+void mpd_state_features_disable(struct t_mpd_features *feat) {
+    feat->stickers = false;
+    feat->playlists = false;
+    feat->tags = false;
+    feat->fingerprint = false;
+    feat->albumart = false;
+    feat->readpicture = false;
+    feat->mount = false;
+    feat->neighbor = false;
+    feat->partitions = false;
+    feat->binarylimit = false;
+    feat->playlist_rm_range = false;
+    feat->whence = false;
+    feat->advqueue = false;
+    feat->consume_oneshot = false;
+    feat->playlist_dir_auto = false;
+    feat->starts_with = false;
+    feat->pcre = true;
+    feat->db_added = false;
+    feat->sticker_sort_window = false;
+    feat->search_add_sort_window = false;
+}
+
+/**
+ * Copy mpd state feature flags
+ * @param src source
+ * @param dst destination
+ */
+void mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *dst) {
+    memcpy((void *)dst, (void *)src, sizeof(struct t_mpd_features));
 }
 
 /**

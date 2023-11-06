@@ -144,7 +144,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     MYMPD_LOG_WARN(partition_state->name, "Cache update is already running");
                     break;
                 }
-                mympd_state->album_cache.building = mympd_state->mpd_state->feat_tags;
+                mympd_state->album_cache.building = mympd_state->mpd_state->feat.tags;
             }
             async = mpd_worker_start(mympd_state, request);
             if (async == false) {
@@ -1316,7 +1316,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_SMARTPLS_STICKER_SAVE:
         case MYMPD_API_SMARTPLS_NEWEST_SAVE:
         case MYMPD_API_SMARTPLS_SEARCH_SAVE:
-            if (mympd_state->mpd_state->feat_playlists == false) {
+            if (mympd_state->mpd_state->feat.playlists == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "MPD does not support playlists");
                 break;

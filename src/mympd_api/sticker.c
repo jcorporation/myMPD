@@ -21,7 +21,7 @@
  * @return true on success, else false
  */
 bool mympd_api_sticker_set_feedback(struct t_partition_state *partition_state, sds uri, enum feedback_type type, int value, sds *error) {
-    if (partition_state->mpd_state->feat_stickers == false) {
+    if (partition_state->mpd_state->feat.stickers == false) {
         *error = sdscat(*error, "MPD stickers are disabled");
         return false;
     }

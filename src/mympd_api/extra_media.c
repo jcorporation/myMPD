@@ -55,7 +55,7 @@ sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const c
     sds booklet_path = sdsempty();
     sds info_txt_path = sdsempty();
     if (is_streamuri(uri) == false &&
-        mpd_state->feat_library == true)
+        mpd_state->feat.library == true)
     {
         get_extra_files(mpd_state, uri, &booklet_path, &info_txt_path, &images, is_dirname);
     }
@@ -74,7 +74,7 @@ sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const c
     int image_count = 0;
     if (is_dirname == false &&
         is_streamuri(uri) == false &&
-        mpd_state->feat_library == true)
+        mpd_state->feat.library == true)
     {
         sds fullpath = sdscatfmt(sdsempty(), "%S/%s", mpd_state->music_directory_value, uri);
         image_count = get_embedded_covers_count(fullpath);

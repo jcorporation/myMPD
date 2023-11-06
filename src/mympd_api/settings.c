@@ -53,7 +53,7 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
     extra->playlist_directory = sdsdup(mympd_state->mpd_state->playlist_directory_value);
     extra->coverimage_names = sdsdup(mympd_state->coverimage_names);
     extra->thumbnail_names = sdsdup(mympd_state->thumbnail_names);
-    extra->feat_albumart = mympd_state->mpd_state->feat_albumart;
+    extra->feat_albumart = mympd_state->mpd_state->feat.albumart;
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
     list_init(&extra->partitions);
     struct t_partition_state *partition_state = mympd_state->partition_state;
@@ -1015,24 +1015,24 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     //features
     buffer = sdscat(buffer, "},\"features\":{");
     if (partition_state->conn_state == MPD_CONNECTED) {
-        buffer = tojson_bool(buffer, "featPlaylists", partition_state->mpd_state->feat_playlists, true);
-        buffer = tojson_bool(buffer, "featTags", partition_state->mpd_state->feat_tags, true);
-        buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat_library, true);
-        buffer = tojson_bool(buffer, "featStickers", partition_state->mpd_state->feat_stickers, true);
+        buffer = tojson_bool(buffer, "featPlaylists", partition_state->mpd_state->feat.playlists, true);
+        buffer = tojson_bool(buffer, "featTags", partition_state->mpd_state->feat.tags, true);
+        buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat.library, true);
+        buffer = tojson_bool(buffer, "featStickers", partition_state->mpd_state->feat.stickers, true);
         buffer = tojson_bool(buffer, "featStickersEnabled", partition_state->mympd_state->config->stickers, true);
-        buffer = tojson_bool(buffer, "featFingerprint", partition_state->mpd_state->feat_fingerprint, true);
-        buffer = tojson_bool(buffer, "featPartitions", partition_state->mpd_state->feat_partitions, true);
-        buffer = tojson_bool(buffer, "featMounts", partition_state->mpd_state->feat_mount, true);
-        buffer = tojson_bool(buffer, "featNeighbors", partition_state->mpd_state->feat_neighbor, true);
-        buffer = tojson_bool(buffer, "featBinarylimit", partition_state->mpd_state->feat_binarylimit, true);
-        buffer = tojson_bool(buffer, "featPlaylistRmRange", partition_state->mpd_state->feat_playlist_rm_range, true);
-        buffer = tojson_bool(buffer, "featWhence", partition_state->mpd_state->feat_whence, true);
-        buffer = tojson_bool(buffer, "featAdvqueue", partition_state->mpd_state->feat_advqueue, true);
-        buffer = tojson_bool(buffer, "featConsumeOneshot", partition_state->mpd_state->feat_consume_oneshot, true);
-        buffer = tojson_bool(buffer, "featPlaylistDirAuto", partition_state->mpd_state->feat_playlist_dir_auto, true);
-        buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat_starts_with, true);
-        buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat_pcre, true);
-        buffer = tojson_bool(buffer, "featDbAdded", partition_state->mpd_state->feat_db_added, true);
+        buffer = tojson_bool(buffer, "featFingerprint", partition_state->mpd_state->feat.fingerprint, true);
+        buffer = tojson_bool(buffer, "featPartitions", partition_state->mpd_state->feat.partitions, true);
+        buffer = tojson_bool(buffer, "featMounts", partition_state->mpd_state->feat.mount, true);
+        buffer = tojson_bool(buffer, "featNeighbors", partition_state->mpd_state->feat.neighbor, true);
+        buffer = tojson_bool(buffer, "featBinarylimit", partition_state->mpd_state->feat.binarylimit, true);
+        buffer = tojson_bool(buffer, "featPlaylistRmRange", partition_state->mpd_state->feat.playlist_rm_range, true);
+        buffer = tojson_bool(buffer, "featWhence", partition_state->mpd_state->feat.whence, true);
+        buffer = tojson_bool(buffer, "featAdvqueue", partition_state->mpd_state->feat.advqueue, true);
+        buffer = tojson_bool(buffer, "featConsumeOneshot", partition_state->mpd_state->feat.consume_oneshot, true);
+        buffer = tojson_bool(buffer, "featPlaylistDirAuto", partition_state->mpd_state->feat.playlist_dir_auto, true);
+        buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat.starts_with, true);
+        buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat.pcre, true);
+        buffer = tojson_bool(buffer, "featDbAdded", partition_state->mpd_state->feat.db_added, true);
     }
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
     #ifdef MYMPD_ENABLE_LUA

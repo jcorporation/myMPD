@@ -9,6 +9,8 @@
 
 #include "dist/sds/sds.h"
 
+#include <stdbool.h>
+
 #define MYMPD_BUILD_DIR "${PROJECT_BINARY_DIR}"
 
 extern sds workdir;
@@ -20,7 +22,7 @@ struct t_input_result {
 
 void init_testenv(void);
 void clean_testenv(void);
-
+bool create_testfile(void);
 struct mpd_song *new_song(void);
 
 #endif

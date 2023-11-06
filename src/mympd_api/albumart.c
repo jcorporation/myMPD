@@ -103,7 +103,7 @@ sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state
     unsigned offset = 0;
     void *binary_buffer = malloc_assert(partition_state->mpd_state->mpd_binarylimit);
     int recv_len = 0;
-    if (partition_state->mpd_state->feat_albumart == true) {
+    if (partition_state->mpd_state->feat.albumart == true) {
         MYMPD_LOG_DEBUG(partition_state->name, "Try mpd command albumart for \"%s\"", uri);
         while ((recv_len = mpd_run_albumart(partition_state->conn, uri, offset, binary_buffer, partition_state->mpd_state->mpd_binarylimit)) > 0) {
             MYMPD_LOG_DEBUG(partition_state->name, "Received %d bytes from mpd albumart command", recv_len);
@@ -121,7 +121,7 @@ sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state
         }
     }
     if (offset == 0 &&
-        partition_state->mpd_state->feat_readpicture == true)
+        partition_state->mpd_state->feat.readpicture == true)
     {
         //silently clear the error if no albumart is found
         mpd_connection_clear_error(partition_state->conn);

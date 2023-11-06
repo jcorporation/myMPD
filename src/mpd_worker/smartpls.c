@@ -53,7 +53,7 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
  * @return true on success, else false
  */
 bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state, bool force) {
-    if (mpd_worker_state->partition_state->mpd_state->feat_playlists == false) {
+    if (mpd_worker_state->partition_state->mpd_state->feat.playlists == false) {
         MYMPD_LOG_DEBUG(NULL, "Playlists are disabled");
         return true;
     }
@@ -107,7 +107,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
  * @return true on success, else false
  */
 bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, const char *playlist) {
-    if (mpd_worker_state->partition_state->mpd_state->feat_playlists == false) {
+    if (mpd_worker_state->partition_state->mpd_state->feat.playlists == false) {
         MYMPD_LOG_WARN(NULL, "Playlists are disabled");
         return true;
     }
@@ -157,7 +157,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
 
     // recreate the playlist
     if (strcmp(smartpltype, "sticker") == 0 &&
-        mpd_worker_state->mpd_state->feat_stickers == true)
+        mpd_worker_state->mpd_state->feat.stickers == true)
     {
         if (json_get_string(content, "$.sticker", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, NULL) == true &&
             json_get_string(content, "$.value", 0, NAME_LEN_MAX, &sds_buf2, vcb_isname, NULL) == true &&
@@ -214,7 +214,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     // enforce max entries
     if (rc == true &&
         max_entries > 0 &&
-        mpd_worker_state->mpd_state->feat_playlist_rm_range == true)
+        mpd_worker_state->mpd_state->feat.playlist_rm_range == true)
     {
         mpd_run_playlist_delete_range(mpd_worker_state->partition_state->conn, playlist, max_entries, UINT_MAX);
     }
@@ -473,7 +473,7 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     const char *r_sort = strcmp(sort, "shuffle") == 0
         ? NULL
         : sort;
-    sds expression = mpd_worker_state->mpd_state->feat_db_added == true
+    sds expression = mpd_worker_state->mpd_state->feat.db_added == true
         ? sdscatfmt(sdsempty(), "(added-since '%U')", value_max)
         : sdscatfmt(sdsempty(), "(modified-since '%U')", value_max);
     bool rc = mpd_client_search_add_to_plist_window(mpd_worker_state->partition_state, expression,

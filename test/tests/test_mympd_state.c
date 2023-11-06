@@ -26,3 +26,17 @@ UTEST(mympd_state, test_copy_tag_types) {
     ASSERT_EQ(MPD_TAG_ALBUM_ARTIST, dst_taglist.tags[1]);
 
 }
+
+UTEST(mympd_state, test_mpd_state_features_copy) {
+    struct t_mpd_features src;
+    mpd_state_features_disable(&src);
+    src.albumart = true;
+
+    struct t_mpd_features dst;
+    mpd_state_features_copy(&src, &dst);
+    ASSERT_TRUE(dst.albumart);
+    ASSERT_FALSE(dst.advqueue);
+
+    mpd_state_features_disable(&src);
+    ASSERT_FALSE(src.albumart);
+}

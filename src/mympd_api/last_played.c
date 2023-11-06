@@ -172,7 +172,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
     long real_limit = offset + limit;
     struct t_list *expr_list = parse_search_expression_to_list(expression);
     // first get entries from memory
-    if (partition_state->mpd_state->feat_stickers == true &&
+    if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
         stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
@@ -253,7 +253,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
         FREE_SDS(lp_file);
     }
     FREE_SDS(obj);
-    if (partition_state->mpd_state->feat_stickers == true &&
+    if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
         stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
@@ -294,7 +294,7 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
                 buffer = tojson_long(buffer, "Pos", entity_count, true);
                 buffer = tojson_llong(buffer, "LastPlayed", last_played, true);
                 buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
-                if (partition_state->mpd_state->feat_stickers == true &&
+                if (partition_state->mpd_state->feat.stickers == true &&
                     tagcols->stickers_len > 0)
                 {
                     buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);

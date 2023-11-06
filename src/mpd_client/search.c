@@ -170,14 +170,14 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
  */
 bool mpd_client_add_search_sort_param(struct t_partition_state *partition_state, const char *sort, bool sortdesc, bool check_version) {
     if (check_version == true &&
-        partition_state->mpd_state->feat_search_add_sort_window == false)
+        partition_state->mpd_state->feat.search_add_sort_window == false)
     {
         //silently ignore sort, MPD is too old
         return true;
     }
     if (sort != NULL &&
         sort[0] != '\0' &&
-        partition_state->mpd_state->feat_tags == true)
+        partition_state->mpd_state->feat.tags == true)
     {
         enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
         if (sort_tag != MPD_TAG_UNKNOWN) {
@@ -249,7 +249,7 @@ static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, str
  * @return true on success, else false
  */
 static bool add_search_whence_param(struct t_partition_state *partition_state, unsigned to, unsigned whence) {
-    if (partition_state->mpd_state->feat_whence == true &&
+    if (partition_state->mpd_state->feat.whence == true &&
         to < UINT_MAX) //to = UINT_MAX is append
     {
         return mpd_search_add_position(partition_state->conn, to, whence);
@@ -265,7 +265,7 @@ static bool add_search_whence_param(struct t_partition_state *partition_state, u
  * @return true on success, else false
  */
 static bool add_search_window_param(struct t_partition_state *partition_state, unsigned start, unsigned end) {
-    if (partition_state->mpd_state->feat_search_add_sort_window == true) {
+    if (partition_state->mpd_state->feat.search_add_sort_window == true) {
         return mpd_search_add_window(partition_state->conn, start, end);
     }
     return true;

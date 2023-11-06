@@ -72,7 +72,7 @@ sds mympd_api_status_print(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_long(buffer, "nextSongId", mpd_status_get_next_song_id(status), true);
     buffer = tojson_long(buffer, "lastSongId", (partition_state->last_song_id ?
         partition_state->last_song_id : -1), true);
-    if (partition_state->mpd_state->feat_partitions == true) {
+    if (partition_state->mpd_state->feat.partitions == true) {
         buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
     }
     const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
@@ -301,7 +301,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
         lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox_ignore_hated);
         lua_mympd_state_set_p(lua_partition_state, "jukebox_unique_tag", mpd_tag_name(partition_state->jukebox_unique_tag.tags[0]));
         lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", partition_state->mympd_state->listenbrainz_token);
-        if (partition_state->mpd_state->feat_partitions == true) {
+        if (partition_state->mpd_state->feat.partitions == true) {
             lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));
         }
         mpd_status_free(status);
@@ -369,7 +369,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
         buffer = tojson_long(buffer, "currentSongId", partition_state->song_id, true);
         buffer = print_song_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_mympd, song);
         buffer = sdscatlen(buffer, ",", 1);
-        if (partition_state->mpd_state->feat_stickers == true) {
+        if (partition_state->mpd_state->feat.stickers == true) {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);
             tags_enable_all_stickers(&tagcols);

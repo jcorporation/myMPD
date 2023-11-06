@@ -48,7 +48,7 @@ UTEST(env, test_getenv_bool) {
     unsetenv("TESTVAR");
 }
 
-UTEST(utility, test_getenv_string) {
+UTEST(env, test_getenv_string) {
     setenv("TESTVAR", "testvalue", 1);
     sds testvar = getenv_string("TESTVAR", "default", vcb_isname);
     ASSERT_STREQ(testvar, "testvalue");

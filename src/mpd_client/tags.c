@@ -207,7 +207,7 @@ sds print_tags_array(sds buffer, const char *tagsname, const struct t_tags *tags
  * @param enable_tags pointer to t_tags struct
  */
 bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_tags *enable_tags) {
-    if (partition_state->mpd_state->feat_tags == false) {
+    if (partition_state->mpd_state->feat.tags == false) {
         return true;
     }
     MYMPD_LOG_INFO(partition_state->name, "Setting interesting mpd tag types");
@@ -338,7 +338,7 @@ sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struc
         const struct mpd_song *song)
 {
     const char *uri = mpd_song_get_uri(song);
-    if (mpd_state->feat_tags == true) {
+    if (mpd_state->feat.tags == true) {
         for (unsigned tagnr = 0; tagnr < tagcols->tags_len; ++tagnr) {
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
             buffer = mpd_client_get_tag_values(song, tagcols->tags[tagnr], buffer);
@@ -357,7 +357,7 @@ sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struc
     }
     buffer = tojson_uint(buffer, "Duration", mpd_song_get_duration(song), true);
     buffer = tojson_time(buffer, "Last-Modified", mpd_song_get_last_modified(song), true);
-    if (mpd_state->feat_db_added == true) {
+    if (mpd_state->feat.db_added == true) {
         buffer = tojson_time(buffer, "Added", mpd_song_get_added(song), true);
     }
     buffer = tojson_char(buffer, "uri", uri, false);

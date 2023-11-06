@@ -50,7 +50,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     struct t_mpd_worker_state *mpd_worker_state = malloc_assert(sizeof(struct t_mpd_worker_state));
     mpd_worker_state->request = request;
     mpd_worker_state->smartpls = mympd_state->smartpls == true ?
-        mympd_state->mpd_state->feat_playlists
+        mympd_state->mpd_state->feat.playlists
         : false;
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
     mpd_worker_state->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
@@ -70,16 +70,9 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->mpd_state->mpd_host = sds_replace(mpd_worker_state->partition_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
     mpd_worker_state->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;
     mpd_worker_state->mpd_state->mpd_pass = sds_replace(mpd_worker_state->partition_state->mpd_state->mpd_pass, mympd_state->mpd_state->mpd_pass);
-    mpd_worker_state->mpd_state->feat_tags = mympd_state->mpd_state->feat_tags;
-    mpd_worker_state->mpd_state->feat_stickers = mympd_state->mpd_state->feat_stickers;
-    mpd_worker_state->mpd_state->feat_playlists = mympd_state->mpd_state->feat_playlists;
-    mpd_worker_state->mpd_state->feat_whence = mympd_state->mpd_state->feat_whence;
-    mpd_worker_state->mpd_state->feat_fingerprint = mympd_state->mpd_state->feat_fingerprint;
-    mpd_worker_state->mpd_state->tag_albumartist = mympd_state->partition_state->mpd_state->tag_albumartist;
-    mpd_worker_state->mpd_state->feat_playlist_rm_range = mympd_state->partition_state->mpd_state->feat_playlist_rm_range;
-    mpd_worker_state->mpd_state->feat_db_added = mympd_state->partition_state->mpd_state->feat_db_added;
-    mpd_worker_state->mpd_state->feat_sticker_sort_window = mympd_state->partition_state->mpd_state->feat_sticker_sort_window;
-    mpd_worker_state->mpd_state->feat_search_add_sort_window = mympd_state->partition_state->mpd_state->feat_search_add_sort_window;
+    //copy feature flags
+    mpd_state_features_copy(&mympd_state->mpd_state->feat, &mpd_worker_state->mpd_state->feat);
+    //copy tag types
     copy_tag_types(&mympd_state->mpd_state->tags_mympd, &mpd_worker_state->mpd_state->tags_mympd);
     copy_tag_types(&mympd_state->mpd_state->tags_album, &mpd_worker_state->mpd_state->tags_album);
 
@@ -96,7 +89,8 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->stickerdb->mpd_state->mpd_host = sds_replace(mpd_worker_state->stickerdb->mpd_state->mpd_host, mympd_state->stickerdb->mpd_state->mpd_host);
     mpd_worker_state->stickerdb->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;
     mpd_worker_state->stickerdb->mpd_state->mpd_pass = sds_replace(mpd_worker_state->stickerdb->mpd_state->mpd_pass, mympd_state->stickerdb->mpd_state->mpd_pass);
-    mpd_worker_state->stickerdb->mpd_state->feat_sticker_sort_window = mympd_state->stickerdb->mpd_state->feat_sticker_sort_window;
+    //copy feature flags
+    mpd_state_features_copy(&mympd_state->stickerdb->mpd_state->feat, &mpd_worker_state->stickerdb->mpd_state->feat);
 
     //create the worker thread
     if (pthread_create(&mpd_worker_thread, &attr, mpd_worker_run, mpd_worker_state) != 0) {

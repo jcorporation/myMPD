@@ -195,5 +195,3 @@ UTEST(sds_extras, test_sds_catbool) {
     ASSERT_STREQ("true", s);
     sdsfree(s);
 }
-
-//test_sds_getfile, test_sds_getline and test_sds_getline_n are in test_filehandler.c
