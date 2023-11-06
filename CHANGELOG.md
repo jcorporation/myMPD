@@ -11,6 +11,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: delete mpd playlist before creating the smart playlist
+- Fix: remove unit tests execution order dependencies #1161
 
 ***
 
