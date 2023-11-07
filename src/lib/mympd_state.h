@@ -265,7 +265,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
 void mympd_state_free(struct t_mympd_state *mympd_state);
 
 void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mympd_state);
-void mpd_state_features_disable(struct t_mpd_features *feat);
+void mpd_state_features_default(struct t_mpd_features *feat);
 void mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *dst);
 void mpd_state_free(struct t_mpd_state *mpd_state);
 

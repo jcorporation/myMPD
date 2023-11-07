@@ -200,14 +200,14 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
     reset_t_tags(&mpd_state->tags_album);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     //features
-    mpd_state_features_disable(&mpd_state->feat);
+    mpd_state_features_default(&mpd_state->feat);
 }
 
 /**
- * Sets all feature states to disabled
- * @param mpd_state pointer to mpd_state
+ * Sets all feature states to default
+ * @param feat pointer to mpd feature struct
  */
-void mpd_state_features_disable(struct t_mpd_features *feat) {
+void mpd_state_features_default(struct t_mpd_features *feat) {
     feat->stickers = false;
     feat->playlists = false;
     feat->tags = false;
