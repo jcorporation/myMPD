@@ -27,9 +27,21 @@ UTEST(mympd_state, test_copy_tag_types) {
 
 }
 
+UTEST(mympd_state, test_mpd_state_copy) {
+    struct t_mpd_state *src = malloc(sizeof(struct t_mpd_state));
+    mpd_state_default(src, NULL);
+
+    struct t_mpd_state *dst = malloc(sizeof(struct t_mpd_state));
+    mpd_state_copy(src, dst);
+    ASSERT_EQ(6600U, dst->mpd_port);
+
+    mpd_state_free(src);
+    mpd_state_free(dst);
+}
+
 UTEST(mympd_state, test_mpd_state_features_copy) {
     struct t_mpd_features src;
-    mpd_state_features_disable(&src);
+    mpd_state_features_default(&src);
     src.albumart = true;
 
     struct t_mpd_features dst;
@@ -37,6 +49,6 @@ UTEST(mympd_state, test_mpd_state_features_copy) {
     ASSERT_TRUE(dst.albumart);
     ASSERT_FALSE(dst.advqueue);
 
-    mpd_state_features_disable(&src);
+    mpd_state_features_default(&src);
     ASSERT_FALSE(src.albumart);
 }
