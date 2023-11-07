@@ -264,9 +264,11 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data);
 void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *config);
 void mympd_state_free(struct t_mympd_state *mympd_state);
 
-void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mympd_state);
 void mpd_state_features_default(struct t_mpd_features *feat);
 void mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *dst);
+
+void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mympd_state);
+void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst);
 void mpd_state_free(struct t_mpd_state *mpd_state);
 
 void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state);

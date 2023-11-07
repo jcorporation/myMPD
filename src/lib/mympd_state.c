@@ -204,6 +204,31 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
 }
 
 /**
+ * Copy mpd state
+ * @param src source
+ * @param dst destination
+ */
+void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
+    dst->mympd_state = src->mympd_state;
+    dst->mpd_keepalive = src->mpd_keepalive;
+    dst->mpd_timeout = src->mpd_timeout;
+    dst->mpd_host = sdsdup(src->mpd_host);
+    dst->mpd_port = src->mpd_port;
+    dst->mpd_pass = sdsdup(src->mpd_pass);
+    dst->mpd_binarylimit = src->mpd_binarylimit;
+    dst->music_directory_value = sdsdup(src->music_directory_value);
+    dst->playlist_directory_value = sdsdup(src->playlist_directory_value);
+    dst->tag_list = sdsdup( src->tag_list);
+    copy_tag_types(&src->tags_mympd, &dst->tags_mympd);
+    copy_tag_types(&src->tags_mpd, &dst->tags_mpd);
+    copy_tag_types(&src->tags_search, &dst->tags_search);
+    copy_tag_types(&src->tags_browse, &dst->tags_browse);
+    copy_tag_types(&src->tags_album, &dst->tags_album);
+    dst->tag_albumartist = src->tag_albumartist;
+    mpd_state_features_copy(&src->feat, &dst->feat);
+}
+
+/**
  * Sets all feature states to default
  * @param feat pointer to mpd feature struct
  */
