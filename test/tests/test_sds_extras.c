@@ -29,15 +29,17 @@ UTEST(sds_extras, test_sds_dirname) {
     const char **p = test_dirnames;
     while (*p != NULL) {
         printf("Testing: \"%s\"\n", *p);
+
         sds dir = sdsnew(*p);
-        sds dir_check = sdsnew(*p);
-        sds dir_check_org = dir_check;
-        dir_check = dirname(dir_check);
-        sdsupdatelen(dir_check);
         dir = sds_dirname(dir);
+
+        char *dir_check = strdup(*p);
+        char *dir_check_org = dir_check;
+        dir_check = dirname(dir_check);
+
         ASSERT_STREQ(dir_check, dir);
         sdsfree(dir);
-        sdsfree(dir_check_org);
+        free(dir_check_org);
         p++;
     }
 }
@@ -46,15 +48,17 @@ UTEST(sds_extras, test_sds_basename) {
     const char **p = test_dirnames;
     while (*p != NULL) {
         printf("Testing: \"%s\"\n", *p);
+
         sds dir = sdsnew(*p);
-        sds dir_check = sdsnew(*p);
-        sds dir_check_org = dir_check;
-        dir_check = basename(dir_check);
-        sdsupdatelen(dir_check);
         dir = sds_basename(dir);
+
+        char *dir_check = strdup(*p);
+        char *dir_check_org = dir_check;
+        dir_check = basename(dir_check);
+
         ASSERT_STREQ(dir_check, dir);
         sdsfree(dir);
-        sdsfree(dir_check_org);
+        free(dir_check_org);
         p++;
     }
 }
