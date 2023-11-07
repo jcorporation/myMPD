@@ -286,7 +286,9 @@ bool vcb_iscolumn(sds data) {
 bool vcb_iscompareop(sds data) {
     if (data[0] == '=' ||
         data[0] == '<' ||
-        data[0] == '>')
+        data[0] == '>' ||
+        strcmp(data, "gt") == 0 ||
+        strcmp(data, "lt") == 0)
     {
         return true;
     }

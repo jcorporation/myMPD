@@ -27,7 +27,7 @@
 // Private definitions
 
 static bool sticker_search_add_value_constraint(struct t_partition_state *partition_state, enum mpd_sticker_operator op, const char *value);
-static bool sticker_search_add_sort(struct t_partition_state *partition_state, const char *name, bool desc);
+static bool sticker_search_add_sort(struct t_partition_state *partition_state, enum mpd_sticker_sort sort, bool desc);
 static bool sticker_search_add_window(struct t_partition_state *partition_state, unsigned start, unsigned end);
 
 static struct t_sticker *get_sticker_all(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker, bool user_defined);
@@ -357,7 +357,7 @@ rax *stickerdb_find_stickers_by_name_value(struct t_partition_state *partition_s
  */
 struct t_list *stickerdb_find_stickers_sorted(struct t_partition_state *partition_state,
         const char *name, enum mpd_sticker_operator op, const char *value,
-        const char *sort, bool sort_desc, unsigned start, unsigned end)
+        enum mpd_sticker_sort sort, bool sort_desc, unsigned start, unsigned end)
 {
     if (stickerdb_connect(partition_state) == false) {
         return NULL;
@@ -573,6 +573,8 @@ enum mpd_sticker_operator sticker_oper_parse(const char *str) {
     if (str[0] == '=') { return MPD_STICKER_OP_EQ; }
     if (str[0] == '>') { return MPD_STICKER_OP_GT; }
     if (str[0] == '<') { return MPD_STICKER_OP_LT; }
+    if (strcmp(str, "gt") == 0) { return MPD_STICKER_OP_GT_INT; }
+    if (strcmp(str, "lt") == 0) { return MPD_STICKER_OP_LT_INT; }
     return MPD_STICKER_OP_UNKOWN;
 }
 
@@ -599,11 +601,11 @@ static bool sticker_search_add_value_constraint(struct t_partition_state *partit
  * @param desc sort descending?
  * @return true on success, else false
  */
-static bool sticker_search_add_sort(struct t_partition_state *partition_state, const char *name, bool desc) {
+static bool sticker_search_add_sort(struct t_partition_state *partition_state, enum mpd_sticker_sort sort, bool desc) {
     if (partition_state->mpd_state->feat.sticker_sort_window == true &&
-        name != NULL)
+        sort != MPD_STICKER_SORT_UNKOWN)
     {
-        return mpd_sticker_search_add_sort(partition_state->conn, name, desc);
+        return mpd_sticker_search_add_sort(partition_state->conn, sort, desc);
     }
     return true;
 }

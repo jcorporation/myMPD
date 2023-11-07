@@ -217,9 +217,11 @@ mpd_sticker_search_begin(struct mpd_connection *connection, const char *type,
 
 static const char *get_sticker_oper_str(enum mpd_sticker_operator oper) {
 	switch(oper) {
-	case MPD_STICKER_OP_EQ: return "=";
-	case MPD_STICKER_OP_GT: return ">";
-	case MPD_STICKER_OP_LT: return "<";
+	case MPD_STICKER_OP_EQ:     return "=";
+	case MPD_STICKER_OP_GT:     return ">";
+	case MPD_STICKER_OP_LT:     return "<";
+	case MPD_STICKER_OP_GT_INT: return "gt";
+	case MPD_STICKER_OP_LT_INT: return "lt";
 	case MPD_STICKER_OP_UNKOWN: return NULL;
 	}
 	return NULL;
@@ -239,16 +241,16 @@ mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
 		return false;
 	}
 
-	const size_t size = 4 + strlen(arg) + 2;
+	const char *oper_str = get_sticker_oper_str(oper);
+	if (oper_str == NULL)
+		return false;
+
+	const size_t size = 1 + strlen(oper_str) + 2 + strlen(arg) + 2;
 	char *dest = mpd_request_prepare_append(connection, size);
 	if (dest == NULL) {
 		free(arg);
 		return false;
 	}
-
-	const char *oper_str = get_sticker_oper_str(oper);
-	if (oper_str == NULL)
-		return false;
 
 	snprintf(dest, size, " %s \"%s\"",
 		 oper_str,
@@ -257,11 +259,22 @@ mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
 	return true;
 }
 
+static const char *get_sticker_sort_name(enum mpd_sticker_sort sort) {
+	switch(sort) {
+	case MPD_STICKER_SORT_URI:       return "uri";
+	case MPD_STICKER_SORT_VALUE:     return "value";
+	case MPD_STICKER_SORT_VALUE_INT: return "value_int";
+	case MPD_STICKER_SORT_UNKOWN:    return NULL;
+	}
+	return NULL;
+}
+
 bool
 mpd_sticker_search_add_sort(struct mpd_connection *connection,
-			    const char *name, bool descending)
+			    enum mpd_sticker_sort sort, bool descending)
 {
-	return mpd_request_add_sort(connection, name, descending);
+	const char *sort_str = get_sticker_sort_name(sort);
+	return mpd_request_add_sort(connection, sort_str, descending);
 }
 
 bool

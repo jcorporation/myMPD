@@ -29,7 +29,7 @@ void stickerdb_free_find_result(rax *stickers);
 
 struct t_list *stickerdb_find_stickers_sorted(struct t_partition_state *partition_state,
         const char *name, enum mpd_sticker_operator op, const char *value,
-        const char *sort, bool sort_desc, unsigned start, unsigned end);
+        enum mpd_sticker_sort sort, bool sort_desc, unsigned start, unsigned end);
 
 bool stickerdb_set(struct t_partition_state *partition_state, const char *uri, const char *name, const char *value);
 bool stickerdb_set_llong(struct t_partition_state *partition_state, const char *uri, const char *name, long long value);

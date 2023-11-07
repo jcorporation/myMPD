@@ -125,7 +125,7 @@ bool smartpls_default(sds workdir) {
 
     bool rc = true;
     sds playlist = sdscatfmt(sdsempty(), "%S-bestRated", prefix);
-    rc = smartpls_save_sticker(workdir, playlist, "like", "2", "eq", "", false, MYMPD_SMARTPLS_MAX_ENTRIES_DEFAULT);
+    rc = smartpls_save_sticker(workdir, playlist, "like", "2", "=", "", false, MYMPD_SMARTPLS_MAX_ENTRIES_DEFAULT);
     if (rc == true) {
         sdsclear(playlist);
         playlist = sdscatfmt(playlist, "%S-mostPlayed", prefix);

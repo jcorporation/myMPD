@@ -161,7 +161,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     {
         if (json_get_string(content, "$.sticker", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, NULL) == true &&
             json_get_string(content, "$.value", 0, NAME_LEN_MAX, &sds_buf2, vcb_isname, NULL) == true &&
-            json_get_string(content, "$.op", 1, 1, &sds_buf3, vcb_iscompareop, NULL) == true)
+            json_get_string(content, "$.op", 1, 2, &sds_buf3, vcb_iscompareop, NULL) == true)
         {
             rc = mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, sds_buf1, sds_buf2, sds_buf3, sort, sortdesc, max_entries);
             if (rc == false) {
@@ -393,7 +393,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
     }
 
     struct t_list *add_list = stickerdb_find_stickers_sorted(mpd_worker_state->stickerdb,
-        sticker, oper, value, "value", sort_desc, 0, max_entries);
+        sticker, oper, value, MPD_STICKER_SORT_VALUE_INT, sort_desc, 0, max_entries);
     if (add_list == NULL) {
         MYMPD_LOG_ERROR(NULL, "Could not fetch stickers for \"%s\"", sticker);
         return false;

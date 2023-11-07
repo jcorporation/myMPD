@@ -52,6 +52,18 @@ enum mpd_sticker_operator {
 	MPD_STICKER_OP_EQ,
 	MPD_STICKER_OP_GT,
 	MPD_STICKER_OP_LT,
+	MPD_STICKER_OP_GT_INT,
+	MPD_STICKER_OP_LT_INT,
+};
+
+/**
+ * Comparison operators for sticker search api
+ */
+enum mpd_sticker_sort {
+	MPD_STICKER_SORT_UNKOWN = -1,
+	MPD_STICKER_SORT_URI,
+	MPD_STICKER_SORT_VALUE,
+	MPD_STICKER_SORT_VALUE_INT,
 };
 
 #ifdef __cplusplus
@@ -270,8 +282,7 @@ mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
  * Sort the results by the specified named attribute.
  *
  * @param connection a #mpd_connection
- * @param name the attribute name to sort with; can be "uri" or
- * "value"
+ * @param sort sort operator
  * @param descending sort in reverse order?
  * @return true on success, false on error
  *
@@ -279,7 +290,7 @@ mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
  */
 bool
 mpd_sticker_search_add_sort(struct mpd_connection *connection,
-			    const char *name, bool descending);
+			    enum mpd_sticker_sort sort, bool descending);
 
 /**
  * Request only a portion of the result set.
