@@ -36,6 +36,7 @@ static long long get_sticker_llong(struct t_partition_state *partition_state, co
 static bool set_sticker_value(struct t_partition_state *partition_state, const char *uri, const char *name, const char *value);
 static bool set_sticker_llong(struct t_partition_state *partition_state, const char *uri, const char *name, long long value);
 static bool inc_sticker(struct t_partition_state *partition_state, const char *uri, const char *name);
+static bool remove_sticker(struct t_partition_state *partition_state, const char *uri, const char *name);
 
 // Public functions
 
@@ -565,6 +566,25 @@ bool stickerdb_set_rating(struct t_partition_state *partition_state, const char 
 }
 
 /**
+ * Removes a sticker
+ * @param partition_state pointer to the partition state
+ * @param uri song uri
+ * @param name sticker name
+ * @return bool true on success, else false
+ */
+bool stickerdb_remove(struct t_partition_state *partition_state, const char *uri, const char *name) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
+    if (stickerdb_connect(partition_state) == false) {
+        return false;
+    }
+    bool rc = remove_sticker(partition_state, uri, name);
+    stickerdb_enter_idle(partition_state);
+    return rc;
+}
+
+/**
  * Converts a string to a mpd sticker operator
  * @param str string to parse
  * @return mpd sticker operator
@@ -597,7 +617,7 @@ static bool sticker_search_add_value_constraint(struct t_partition_state *partit
 /**
  * Adds a mpd sticker sort definition, if name is not NULL and supported by MPD
  * @param partition_state pointer to the partition state
- * @param name one of "uri", "value"
+ * @param sort mpd sticker sort type
  * @param desc sort descending?
  * @return true on success, else false
  */
@@ -741,4 +761,17 @@ static bool inc_sticker(struct t_partition_state *partition_state, const char *u
         value++;
     }
     return set_sticker_llong(partition_state, uri, name, value);
+}
+
+/**
+ * Removes a sticker
+ * @param partition_state  pointer to the partition state
+ * @param uri song uri
+ * @param name sticker name
+ * @return true on success, else false
+ */
+static bool remove_sticker(struct t_partition_state *partition_state, const char *uri, const char *name) {
+    MYMPD_LOG_INFO(partition_state->name, "Removing sticker: \"%s\" -> %s", uri, name);
+    mpd_run_sticker_delete(partition_state->conn, "song", uri, name);
+    return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_sticker_delete");
 }

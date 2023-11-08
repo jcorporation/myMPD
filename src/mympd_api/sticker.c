@@ -26,8 +26,12 @@ bool mympd_api_sticker_set_feedback(struct t_partition_state *partition_state, s
         return false;
     }
     bool rc = type == FEEDBACK_LIKE
-        ? stickerdb_set_like(partition_state->mympd_state->stickerdb, uri, (enum sticker_like)value)
-        : stickerdb_set_rating(partition_state->mympd_state->stickerdb, uri, value);
+        ? value == 1
+            ? stickerdb_remove(partition_state->mympd_state->stickerdb, uri, "like")
+            : stickerdb_set_like(partition_state->mympd_state->stickerdb, uri, (enum sticker_like)value)
+        : value == 0
+            ? stickerdb_remove(partition_state->mympd_state->stickerdb, uri, "rating")
+            : stickerdb_set_rating(partition_state->mympd_state->stickerdb, uri, value);
     if (rc == false) {
         *error = sdscat(*error, "Failed to set feedback");
         return false;
