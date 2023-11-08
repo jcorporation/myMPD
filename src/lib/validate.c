@@ -10,6 +10,7 @@
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/utf8/utf8.h"
 #include "src/lib/log.h"
+#include "src/lib/sticker.h"
 
 #include <ctype.h>
 #include <limits.h>
@@ -279,24 +280,6 @@ bool vcb_iscolumn(sds data) {
 }
 
 /**
- * Checks if string is a compare operator
- * @param data sds string to check
- * @return true on success else false
- */
-bool vcb_iscompareop(sds data) {
-    if (data[0] == '=' ||
-        data[0] == '<' ||
-        data[0] == '>' ||
-        strcmp(data, "gt") == 0 ||
-        strcmp(data, "lt") == 0)
-    {
-        return true;
-    }
-    MYMPD_LOG_WARN(NULL, "Unknown compare operator: %s", data);
-    return false;
-}
-
-/**
  * Checks if string is a valid comma separated list of tags
  * @param data sds string to check
  * @return true on success else false
@@ -360,7 +343,47 @@ bool vcb_ismpdsort(sds data) {
         strcmp(data, "Date") != 0 &&
         strcmp(data, "Priority") != 0)
     {
-        MYMPD_LOG_WARN(NULL, "Unknown tag \"%s\"", data);
+        MYMPD_LOG_WARN(NULL, "Unknown sort tag \"%s\"", data);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if string is a valid sticker sort type
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_isstickersort(sds data) {
+    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKOWN) {
+        MYMPD_LOG_WARN(NULL, "Unknown compare operator: %s", data);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if string is valid sticker or mpd sort type
+ * @param data sds string to check
+ * @return bool true on success else false
+ */
+bool vcb_ismpd_sticker_sort(sds data) {
+    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKOWN &&
+        vcb_ismpdsort(data) == false)
+    {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if string is a compare operator
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_isstickerop(sds data) {
+    if (sticker_oper_parse(data) == MPD_STICKER_OP_UNKOWN) {
+        MYMPD_LOG_WARN(NULL, "Unknown compare operator: %s", data);
         return false;
     }
     return true;

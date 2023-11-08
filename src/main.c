@@ -21,7 +21,6 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/passwd.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/smartpls.h"
 #include "src/mympd_api/mympd_api.h"
 #include "src/web_server/web_server.h"
 
@@ -525,11 +524,6 @@ int main(int argc, char **argv) {
     //check for required directories
     if (check_dirs(config) == false) {
         goto cleanup;
-    }
-
-    //default smart playlists
-    if (config->first_startup == true) {
-        smartpls_default(config->workdir);
     }
 
     //Create working threads

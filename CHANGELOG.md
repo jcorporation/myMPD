@@ -29,6 +29,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Feat: Add operator lt, gt, eq to sticker based smart playlists #1090
 - Feat: Add max entries option to all smart playlists #1157
 - Feat: Add rating sticker - stars like cantata #1141
+- Feat: Add sort by sticker for smart playlists #1162
 - Feat: Support added timestamp for songs (MPD 0.24) #1150
 - Feat: Support added-since and modified-since for search expressions #1158
 - Upd: libmympdclient 1.0.25

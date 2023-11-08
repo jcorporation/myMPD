@@ -76,11 +76,16 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
         mpd_client_disconnect_silent(partition_state, MPD_DISCONNECTED);
         return false;
     }
+    partition_state->mpd_state->feat.sticker_sort_window = false;
+    partition_state->mpd_state->feat.sticker_int = false;
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0) {
         MYMPD_LOG_DEBUG(partition_state->name, "Enabling sticker sort and window feature");
         partition_state->mpd_state->feat.sticker_sort_window = true;
+        MYMPD_LOG_DEBUG(partition_state->name, "Enabling sticker value int handling feature");
+        partition_state->mpd_state->feat.sticker_int = true;
         // set feature flag also on shared mpd state
         partition_state->mympd_state->mpd_state->feat.sticker_sort_window = true;
+        partition_state->mympd_state->mpd_state->feat.sticker_int = true;
     }
     // check for sticker support
     partition_state->mpd_state->feat.stickers = false;
@@ -348,9 +353,9 @@ rax *stickerdb_find_stickers_by_name_value(struct t_partition_state *partition_s
  * Gets a sorted list of stickers by name and value
  * @param partition_state pointer to the partition state
  * @param name sticker name
- * @param op compare operator: MPD_STICKER_OP_EQ, MPD_STICKER_OP_GT, MPD_STICKER_OP_LT
- * @param value sticker value or NULL to get all stickers with name
- * @param sort one of "uri", "value"
+ * @param op mpd sticker compare operator
+ * @param value sticker value or NULL to get all stickers with this name
+ * @param sort sticker sort type
  * @param sort_desc sort descending?
  * @param start window start (including)
  * @param end window end (excluding), use UINT_MAX for open end
@@ -582,20 +587,6 @@ bool stickerdb_remove(struct t_partition_state *partition_state, const char *uri
     bool rc = remove_sticker(partition_state, uri, name);
     stickerdb_enter_idle(partition_state);
     return rc;
-}
-
-/**
- * Converts a string to a mpd sticker operator
- * @param str string to parse
- * @return mpd sticker operator
- */
-enum mpd_sticker_operator sticker_oper_parse(const char *str) {
-    if (str[0] == '=') { return MPD_STICKER_OP_EQ; }
-    if (str[0] == '>') { return MPD_STICKER_OP_GT; }
-    if (str[0] == '<') { return MPD_STICKER_OP_LT; }
-    if (strcmp(str, "gt") == 0) { return MPD_STICKER_OP_GT_INT; }
-    if (strcmp(str, "lt") == 0) { return MPD_STICKER_OP_LT_INT; }
-    return MPD_STICKER_OP_UNKOWN;
 }
 
 // Private functions

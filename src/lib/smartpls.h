@@ -20,7 +20,6 @@ bool smartpls_save_search(sds workdir, const char *playlist, const char *express
 
 bool smartpls_update(const char *playlist);
 bool smartpls_update_all(void);
-bool smartpls_default(sds workdir);
 
 bool is_smartpls(sds workdir, const char *playlist);
 time_t smartpls_get_mtime(sds workdir, const char *playlist);

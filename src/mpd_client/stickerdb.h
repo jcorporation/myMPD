@@ -44,6 +44,4 @@ bool stickerdb_set_like(struct t_partition_state *partition_state, const char *u
 bool stickerdb_set_rating(struct t_partition_state *partition_state, const char *uri, int value);
 bool stickerdb_remove(struct t_partition_state *partition_state, const char *uri, const char *name);
 
-enum mpd_sticker_operator sticker_oper_parse(const char *str);
-
 #endif

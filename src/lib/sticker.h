@@ -7,6 +7,7 @@
 #ifndef MYMPD_STICKER_H
 #define MYMPD_STICKER_H
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/list.h"
 
 #include <time.h>
@@ -55,5 +56,8 @@ const char *sticker_name_lookup(enum mympd_sticker_types sticker);
 enum mympd_sticker_types sticker_name_parse(const char *name);
 void sticker_struct_init(struct t_sticker *sticker);
 void sticker_struct_clear(struct t_sticker *sticker);
+
+enum mpd_sticker_operator sticker_oper_parse(const char *str);
+enum mpd_sticker_sort sticker_sort_parse(const char *str);
 
 #endif

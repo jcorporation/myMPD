@@ -252,6 +252,7 @@ void mpd_state_features_default(struct t_mpd_features *feat) {
     feat->pcre = true;
     feat->db_added = false;
     feat->sticker_sort_window = false;
+    feat->sticker_int = false;
     feat->search_add_sort_window = false;
 }
 

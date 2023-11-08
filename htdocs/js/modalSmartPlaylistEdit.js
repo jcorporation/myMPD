@@ -38,16 +38,19 @@ function parseSmartPlaylist(obj) {
         case 'search':
             elShowId('modalSmartPlaylistEditTypeSearch');
             elGetById('modalSmartPlaylistEditExpressionInput').value = obj.result.expression;
+            elHideId('modalSmartPlaylistEditSortInputSticker');
             break;
         case 'sticker':
             elShowId('modalSmartPlaylistEditTypeSticker');
             elGetById('modalSmartPlaylistEditStickerInput').value = obj.result.sticker;
             elGetById('modalSmartPlaylistEditValueInput').value = obj.result.value;
             elGetById('modalSmartPlaylistEditOpInput').value = obj.result.op;
+            elShowId('modalSmartPlaylistEditSortInputSticker');
             break;
         case 'newest':
             elShowId('modalSmartPlaylistEditTypeNewest');
             elGetById('modalSmartPlaylistEditTimerangeInput').value = obj.result.timerange / 24 / 60 / 60;
+            elHideId('modalSmartPlaylistEditSortInputSticker');
             break;
         default:
             logError('Invalid smart playlist type: ' + obj.result.type);
@@ -130,13 +133,13 @@ function addSmartpls(type) {
             obj.result.type = 'sticker';
             obj.result.sticker = 'playCount';
             obj.result.value = 10;
-            obj.result.op = '>';
-            break;
-        case 'newest':
-            obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'newestSongs';
-            obj.result.type = 'newest';
-            //14 days
-            obj.result.timerange = 1209600;
+            if (features.featStickerInt === true) {
+                obj.result.op = 'gt';
+                obj.result.sort = 'value_int';
+            }
+            else {
+                obj.result.op = '=';
+            }
             break;
         case 'bestRated':
             obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'bestRated';
@@ -150,7 +153,26 @@ function addSmartpls(type) {
             obj.result.type = 'sticker';
             obj.result.sticker = 'rating';
             obj.result.value = 5;
-            obj.result.op = '>';
+            if (features.featStickerInt === true) {
+                obj.result.op = 'gt';
+                obj.result.sort = 'value_int';
+            }
+            else {
+                obj.result.op = '=';
+            }
+            break;
+        case 'newest':
+            obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'newestSongs';
+            obj.result.type = 'newest';
+            //14 days
+            obj.result.timerange = 1209600;
+            break;
+        case 'sticker':
+            obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'sticker';
+            obj.result.type = 'sticker';
+            obj.result.sticker = 'elapsed';
+            obj.result.value = '';
+            obj.result.op = '=';
             break;
         default:
             logError('Invalid smart playlist type: ' + type);

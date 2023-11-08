@@ -469,8 +469,9 @@
                 <div class="d-grid gap-2">
                   <button data-phrase="Best rated" data-href='{"cmd": "addSmartpls", "options": ["bestRated"]}' type="button" class="btn btn-secondary featLike"></button>
                   <button data-phrase="Most stars" data-href='{"cmd": "addSmartpls", "options": ["mostStars"]}' type="button" class="btn btn-secondary featRating"></button>
-                  <button data-phrase="Most played" data-href='{"cmd": "addSmartpls", "options": ["mostPlayed"]}' type="button" class="btn btn-secondary"></button>
+                  <button data-phrase="Most played" data-href='{"cmd": "addSmartpls", "options": ["mostPlayed"]}' type="button" class="btn btn-secondary featStickerInt"></button>
                   <button data-phrase="Newest songs" data-href='{"cmd": "addSmartpls", "options": ["newest"]}' type="button" class="btn btn-secondary"></button>
+                  <button data-phrase="Sticker based" data-href='{"cmd": "addSmartpls", "options": ["sticker"]}' type="button" class="btn btn-secondary"></button>
                 </div>
               </div>
             </div>
@@ -1415,9 +1416,13 @@
               <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditStickerInput" data-phrase="Sticker"></label>
               <div class="col-sm-8">
                 <select id="modalSmartPlaylistEditStickerInput" class="form-select">
+                  <option value="elapsed" data-phrase="Elapsed" class="featStickerInt"></option>
                   <option value="like" data-phrase="Like" class="featLike"></option>
                   <option value="rating" data-phrase="Rating" class="featRating"></option>
-                  <option value="playCount" data-phrase="Play count"></option>
+                  <option value="playCount" data-phrase="Play count" class="featStickerInt"></option>
+                  <option value="skipCount" data-phrase="Skip count" class="featStickerInt"></option>
+                  <option value="lastPlayed" data-phrase="Last played" class="featStickerInt"></option>
+                  <option value="lastSkipped" data-phrase="Last skipped" class="featStickerInt"></option>
                 </select>
               </div>
             </div>
@@ -1426,10 +1431,8 @@
               <div class="col-sm-8">
                 <select id="modalSmartPlaylistEditOpInput" class="form-select">
                   <option value="=" data-phrase="equal"></option>
-                  <option value="&gt;" data-phrase="greater"></option>
-                  <option value="&lt;" data-phrase="lesser"></option>
-                  <option value="gt" data-phrase="greater (int)"></option>
-                  <option value="lt" data-phrase="lesser (int)"></option>
+                  <option value="gt" data-phrase="greater" class="featStickerInt"></option>
+                  <option value="lt" data-phrase="lesser" class="featStickerInt"></option>
                 </select>
               </div>
             </div>

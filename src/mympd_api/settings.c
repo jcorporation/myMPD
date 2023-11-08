@@ -1033,6 +1033,8 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat.starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat.pcre, true);
         buffer = tojson_bool(buffer, "featDbAdded", partition_state->mpd_state->feat.db_added, true);
+        buffer = tojson_bool(buffer, "featStickerSortWindow", partition_state->mpd_state->feat.sticker_sort_window, true);
+        buffer = tojson_bool(buffer, "featStickerInt", partition_state->mpd_state->feat.sticker_int, true);
     }
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
     #ifdef MYMPD_ENABLE_LUA

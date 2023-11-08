@@ -1326,8 +1326,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                     json_get_string(request->data, "$.params.sticker", 1, NAME_LEN_MAX, &sds_buf2, vcb_isalnum, &parse_error) == true &&
                     json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf5, vcb_isname, &parse_error) == true &&
-                    json_get_string(request->data, "$.params.op", 1, 2, &sds_buf4, vcb_iscompareop, &parse_error) == true &&
-                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &parse_error) == true &&
+                    json_get_string(request->data, "$.params.op", 1, 2, &sds_buf4, vcb_isstickerop, &parse_error) == true &&
+                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpd_sticker_sort, &parse_error) == true &&
                     json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true &&
                     json_get_int(request->data, "$.params.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &parse_error) == true)
                 {

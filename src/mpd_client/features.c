@@ -50,8 +50,10 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
 
     // first disable all features
     mpd_state_features_default(&partition_state->mpd_state->feat);
-    // copy sticker feature flag from stickerdb connection
+    // copy sticker feature flags from stickerdb connection
     partition_state->mpd_state->feat.stickers = partition_state->mympd_state->stickerdb->mpd_state->feat.stickers;
+    partition_state->mpd_state->feat.sticker_sort_window = partition_state->mympd_state->stickerdb->mpd_state->feat.sticker_sort_window;
+    partition_state->mpd_state->feat.sticker_int = partition_state->mympd_state->stickerdb->mpd_state->feat.sticker_int;
 
     //get features
     features_commands(partition_state);

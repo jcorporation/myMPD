@@ -115,33 +115,6 @@ time_t smartpls_get_mtime(sds workdir, const char *playlist) {
 }
 
 /**
- * Creates the default myMPD smart playlists on first startup
- * @param workdir myMPD working directory
- * @return true on success else false
- */
-bool smartpls_default(sds workdir) {
-    //try to get prefix from state file, fallback to default value
-    sds prefix = state_file_rw_string(workdir, DIR_WORK_STATE, "smartpls_prefix", MYMPD_SMARTPLS_PREFIX, vcb_isname, false);
-
-    bool rc = true;
-    sds playlist = sdscatfmt(sdsempty(), "%S-bestRated", prefix);
-    rc = smartpls_save_sticker(workdir, playlist, "like", "2", "=", "", false, MYMPD_SMARTPLS_MAX_ENTRIES_DEFAULT);
-    if (rc == true) {
-        sdsclear(playlist);
-        playlist = sdscatfmt(playlist, "%S-mostPlayed", prefix);
-        rc = smartpls_save_sticker(workdir, playlist, "playCount", "1", "gt", "", false, MYMPD_SMARTPLS_MAX_ENTRIES_DEFAULT);
-    }
-    if (rc == true) {
-        sdsclear(playlist);
-        playlist = sdscatfmt(playlist, "%S-newestSongs", prefix);
-        rc = smartpls_save_newest(workdir, playlist, 604800, "Last-Modified", true, MYMPD_SMARTPLS_MAX_ENTRIES_DEFAULT);
-    }
-    FREE_SDS(playlist);
-    FREE_SDS(prefix);
-    return rc;
-}
-
-/**
  * Sends a request to the mympd_api_queue to update a smart playlist
  * @param playlist smart playlist to update
  * @return true on success else false

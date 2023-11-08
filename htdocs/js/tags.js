@@ -195,6 +195,13 @@ function addTagListSelect(elId, list) {
             }
             select.appendChild(optGroup);
         }
+        if (elId === 'modalSmartPlaylistEditSortInput') {
+            const optGroup = elCreateEmpty('optgroup', {"id": "modalSmartPlaylistEditSortInputSticker", "label": tn('Sort by sticker'), "data-label-phrase": "Sort by sticker"});
+            optGroup.appendChild(elCreateTextTn('option', {"value": "uri"}, "URI"));
+            optGroup.appendChild(elCreateTextTn('option', {"value": "value"}, "Value"));
+            optGroup.appendChild(elCreateTextTn('option', {"value": "value_int", "class": ["featStickerInt"]}, "Value (Number)"));
+            select.appendChild(optGroup);
+        }
     }
     else if (elId === 'modalPlaybackJukeboxUniqueTagInput') {
         if (settings.tagListBrowse.includes('Title') === false) {

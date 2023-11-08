@@ -53,7 +53,7 @@ sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char 
         if (strcmp(smartpltype, "sticker") == 0) {
             if (json_get_string(content, "$.sticker", 1, 200, &sds_buf1, vcb_isalnum, NULL) == true &&
                 json_get_string(content, "$.value", 0, NAME_LEN_MAX, &sds_buf2, vcb_isname, NULL) == true &&
-                json_get_string(content, "$.op", 1, 2, &sds_buf3, vcb_iscompareop, NULL) == true)
+                json_get_string(content, "$.op", 1, 2, &sds_buf3, vcb_isstickerop, NULL) == true)
             {
                 buffer = tojson_sds(buffer, "sticker", sds_buf1, true);
                 buffer = tojson_sds(buffer, "value", sds_buf2, true);
@@ -84,7 +84,7 @@ sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char 
         }
         if (rc == true) {
             FREE_SDS(sds_buf1);
-            if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
+            if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpd_sticker_sort, NULL) == true) {
                 buffer = tojson_sds(buffer, "sort", sds_buf1, true);
             }
             else {

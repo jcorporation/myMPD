@@ -69,3 +69,29 @@ void sticker_struct_clear(struct t_sticker *sticker) {
     memset(sticker->mympd, 0, sizeof(sticker->mympd));
     list_clear(&sticker->user);
 }
+
+/**
+ * Converts a string to a mpd sticker operator
+ * @param str string to parse
+ * @return mpd sticker operator
+ */
+enum mpd_sticker_operator sticker_oper_parse(const char *str) {
+    if (str[0] == '=') { return MPD_STICKER_OP_EQ; }
+    if (str[0] == '>') { return MPD_STICKER_OP_GT; }
+    if (str[0] == '<') { return MPD_STICKER_OP_LT; }
+    if (strcmp(str, "gt") == 0) { return MPD_STICKER_OP_GT_INT; }
+    if (strcmp(str, "lt") == 0) { return MPD_STICKER_OP_LT_INT; }
+    return MPD_STICKER_OP_UNKOWN;
+}
+
+/**
+ * Converts a string to a mpd sticker operator
+ * @param str string to parse
+ * @return mpd sticker sort type
+ */
+enum mpd_sticker_sort sticker_sort_parse(const char *str) {
+    if (strcmp(str, "uri") == 0) { return MPD_STICKER_SORT_URI; }
+    if (strcmp(str, "value") == 0) { return MPD_STICKER_SORT_VALUE; }
+    if (strcmp(str, "value_int") == 0) { return MPD_STICKER_SORT_VALUE_INT; }
+    return MPD_STICKER_SORT_UNKOWN;
+}

@@ -1132,5 +1132,11 @@
     "Added": "Hinzugefügt",
     "Added-Since": "Hinzugefügt seit",
     "Modified-Since": "Geändert seit",
-    "Operator": "Operator"
+    "Operator": "Operator",
+    "Elapsed": "Letzte Position",
+    "Last played": "Zuletzt gespielt",
+    "Last skipped": "Zuletzt übersprungen",
+    "Skip count": "Übersprungen",
+    "Sort by sticker": "Sortieren nach Sticker",
+    "Sticker based": "Stickerbasiert"
 }
