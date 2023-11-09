@@ -4,13 +4,7 @@ permalink: /references/smart-playlists
 title: Smart playlists
 ---
 
-In the default configuration there are three smart playlists:
-
-1. Best Rated
-2. Most Played
-3. Newest Songs
-
-Additionally there is a smart playlist generation rule that creates one smart playlist per genre.
+In the default configuration there are no smart playlists. You can add smart playlists in the playlist view or through a saved song search.
 
 ## Playlist rule
 
@@ -18,17 +12,18 @@ myMPD can generate smart playlists per tag value, e.g. one playlist for each gen
 
 ## Smart playlists
 
-myMPD creates per default three smart playlists. Smart playlists are defined in the folder `/var/lib/mympd/smartpls` (one JSON file per smart playlist). myMPD creates from this definitions normal MPD playlists on startup or database changes (you can enforce updating the playlists in the maintenance dialog in the gui).
+Smart playlists are saved in the folder `/var/lib/mympd/smartpls` (one JSON file per smart playlist). myMPD creates from this definitions normal MPD playlists on startup, after database changes and a specified interval. You can also enforce an update of all smart playlists in the maintenance dialog in the gui.
 
-| KEY | SMART PLAYLIST TYPE | DESCRIPTION |
-| --- | ------------------- | ----------- |
+| KEY | TYPE | DESCRIPTION |
+| --- | ---- | ----------- |
 | type | all | Type of smart playlist: `sticker`, `newest` or `search` |
-| sticker | sticker | stickername, see [Sticker]({{ site.baseurl }}/references/sticker) |
+| sticker | sticker | Stickername, see [Sticker]({{ site.baseurl }}/references/sticker) |
 | value | sticker | Sticker value |
-| op | sticker | Sticker compare operator |
+| op | sticker | Sticker compare operator: `=`, `<`, `>`, `gt` (MPD 0.24), `lt` (MPD 0.24) |
 | timerange | newest | Timerange since last database update in seconds |
 | expression | search | MPD filter expression |
-| sort | all | tag to sort (e.g. `Artist`), an empty string or `shuffle` |
+| sort | newest, expression | Tag to sort (e.g. `Artist`), `shuffle` or empty string |
+| sort | sticker | Tag to sort `uri`, `value`, `value_int` (MPD 0.24) |
 | sortdesc | all | `false` = sort ascending, `true` = sort descending |
 | maxentries | all | Maximum entries for the playlist |
 {: .table .table-sm }
@@ -36,7 +31,7 @@ myMPD creates per default three smart playlists. Smart playlists are defined in 
 ### Sticker based
 
 - myMPDsmart-bestRated: `{"type": "sticker", "sticker": "like", "value": "2", "op": "=" "sort": "", "sortdesc": false, "maxentries": 200}`
-- myMPDsmart-mostPlayed: `{"type": "sticker", "sticker": "playCount", "value": "10", "op": ">", "sort": "", "sortdesc": false, "maxentries": 200}`
+- myMPDsmart-mostPlayed: `{"type": "sticker", "sticker": "playCount", "value": "10", "op": "gt", "sort": "", "sortdesc": false, "maxentries": 200}`
 
 ### Newest songs
 
