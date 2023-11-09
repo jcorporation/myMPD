@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPV v14.0.0 (not yet released)
 
-This version ships a few improvements for stickers, smart playlists and the jukebox mode.
+This version ships a many improvements for stickers, smart playlists and the jukebox mode.
 
 It also supports the new "added" timestamp for songs in the mpd database.
 
@@ -26,12 +26,13 @@ It also supports the new "added" timestamp for songs in the mpd database.
 
 - Feat: Support info.txt in music directory folders #1120
 - Feat: Add max. song duration as jukebox constraint #1146
-- Feat: Add operator lt, gt, eq to sticker based smart playlists #1090
+- Feat: Add operator lt, gt, eq to sticker based smart playlists (MPD 0.24) #1090
 - Feat: Add max entries option to all smart playlists #1157
 - Feat: Add rating sticker - stars like cantata #1141
-- Feat: Add sort by sticker for smart playlists #1162
+- Feat: Add sort by sticker for smart playlists (MPD 0.24) #1162
 - Feat: Support added timestamp for songs (MPD 0.24) #1150
-- Feat: Support added-since and modified-since for search expressions #1158
+- Feat: Support modified-since for search expressions #1158
+- Feat: Support added-since for search expressions (MPD 0.24) #1158
 - Upd: libmympdclient 1.0.25
 
 ***
