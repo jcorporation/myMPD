@@ -33,6 +33,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Feat: Support added timestamp for songs (MPD 0.24) #1150
 - Feat: Support modified-since for search expressions #1158
 - Feat: Support added-since for search expressions (MPD 0.24) #1158
+- Feat: Support new "State" field of webradiodb #1165
 - Upd: libmympdclient 1.0.25
 
 ***
