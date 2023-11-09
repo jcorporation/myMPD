@@ -22,6 +22,6 @@ Triggers are enabled if scripts are enabled. Triggers can call scripts with argu
 | TRIGGER_MPD_OUTPUT | 32 | Partition specific: Output configuration has changed |
 | TRIGGER_MPD_OPTIONS | 64 | Partition specific: MPD player options has changed |
 | TRIGGER_MPD_UPDATE | 128 | Only for default partition: Database update has started or finished |
-| TRIGGER_MPD_PARTITION | 2048 | Only for default partition: Partition was added or removed |
 | TRIGGER_MPD_STICKER | 256 | Global: Sticker database has changed |
+| TRIGGER_MPD_PARTITION | 2048 | Only for default partition: Partition was added or removed |
 {: .table .table-sm }
