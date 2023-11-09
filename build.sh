@@ -1384,6 +1384,91 @@ create_doc() {
   jekyll build -s "$STARTPATH/docs" -d "$DOC_DEST"
 }
 
+translation_import() {
+  #shellcheck disable=SC1091
+  . secrets
+  if [ -z "${POEDITOR_TOKEN+x}" ]
+  then
+    echo_error "POEDITOR_TOKEN variable not set."
+    exit 1
+  fi
+  LANG_SHORT=$1
+  LANG_CODE=$2
+  if RESPONSE=$(curl -s -f --show-error -X POST https://api.poeditor.com/v2/projects/export \
+    -d api_token="$POEDITOR_TOKEN" \
+    -d id="550213" \
+    -d language="$LANG_SHORT" \
+    -d type="key_value_json" \
+    -d order="terms")
+  then
+    URL=$(echo "$RESPONSE" | jq -r ".result.url")
+    if [ "$URL" != "null" ]
+    then
+      if curl -s -f --show-error "$URL" -o "src/i18n/json/$LANG_CODE.tmp"
+      then
+        mv "src/i18n/json/$LANG_CODE.tmp" "src/i18n/json/$LANG_CODE.json"
+        return 0
+      fi
+    else
+      echo_error "Download failed: $RESPONSE"
+      return 1
+    fi
+  fi
+  return 1
+}
+
+translation_import_all() {
+  #shellcheck disable=SC1091
+  . secrets
+  if [ -z "${POEDITOR_TOKEN+x}" ]
+  then
+    echo_error "POEDITOR_TOKEN variable not set."
+    exit 1
+  fi
+  while IFS=":" read -r LANG_SHORT LANG_CODE LANG_DESC
+  do
+    [ "$LANG_CODE" = "en-US" ] && continue
+    echo "$LANG_SHORT: $LANG_DESC"
+    translation_import "$LANG_SHORT" "$LANG_CODE"
+  done < src/i18n/i18n.txt
+}
+
+terms_export() {
+  #shellcheck disable=SC1091
+  . secrets
+  if [ -z "${POEDITOR_TOKEN+x}" ]
+  then
+    echo_error "POEDITOR_TOKEN variable not set."
+    exit 1
+  fi
+  curl -s -f --show-error -X POST https://api.poeditor.com/v2/projects/upload \
+    -F api_token="$POEDITOR_TOKEN" \
+    -F id="550213" \
+    -F updating="terms" \
+    -F sync_terms="1" \
+    -F file=@"src/i18n/json/phrases.json"
+  echo ""
+}
+
+translation_export() {
+  #shellcheck disable=SC1091
+  . secrets
+  if [ -z "${POEDITOR_TOKEN+x}" ]
+  then
+    echo_error "POEDITOR_TOKEN variable not set."
+    exit 1
+  fi
+  LANG_SHORT=$1
+  UPLOAD_FILE=$2
+  curl -s -f --show-error -X POST https://api.poeditor.com/v2/projects/upload \
+    -F api_token="$POEDITOR_TOKEN" \
+    -F id="550213" \
+    -F updating="translations" \
+    -F language="$LANG_SHORT" \
+    -F file=@"$UPLOAD_FILE"
+  echo ""
+}
+
 case "$ACTION" in
   release|MinSizeRel)
     buildrelease "Release"
@@ -1473,6 +1558,30 @@ case "$ACTION" in
   purge)
     uninstall
     purge
+  ;;
+  terms_export)
+    terms_export
+    ;;
+  trans_export)
+    if [ -z "${2+x}" ] || [ -z "${3+x}" ]
+    then
+      echo "Usage: $0 $1 <code short> <file>"
+      echo "  e.g. $0 $1 de src/i18n/json/de-DE.json"
+      exit 1
+    fi
+    translation_export  "$2" "$3"
+    ;;
+  trans_import)
+    if [ -z "${2+x}" ] || [ -z "${3+x}" ]
+    then
+      echo "Usage: $0 $1 <code short> <lang code full>"
+      echo "  e.g. $0 $1 de de-DE"
+      exit 1
+    fi
+    translation_import "$2" "$3"
+  ;;
+  trans_import_all)
+    translation_import_all
   ;;
   translate)
     src/i18n/translate.pl verbose
@@ -1585,6 +1694,10 @@ case "$ACTION" in
     echo "Translation options:"
     echo "  translate:        builds the translation file for debug builds"
     echo "  transstatus:      shows the translation status"
+    echo "  trans_import:     Import a translation from poeditor.com"
+    echo "  trans_import_all: Import all translations from poeditor.com"
+    echo "  trans_export:     Exports a translation to poeditor.com"
+    echo "  terms_export:     Exports the terms to poeditor.com"
     echo ""
     echo "Check options:"
     echo "  check:            runs cppcheck, flawfinder and clang-tidy on source files"
