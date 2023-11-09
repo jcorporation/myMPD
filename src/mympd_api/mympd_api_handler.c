@@ -1556,6 +1556,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             MYMPD_LOG_ERROR(partition_state->name, "Unknown API request: %.*s", (int)sdslen(request->data), request->data);
     }
 
+    FREE_SDS(sds_buf0);
     FREE_SDS(sds_buf1);
     FREE_SDS(sds_buf2);
     FREE_SDS(sds_buf3);
@@ -1565,7 +1566,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     FREE_SDS(sds_buf7);
     FREE_SDS(sds_buf8);
     FREE_SDS(sds_buf9);
-    FREE_SDS(sds_buf0);
+    FREE_SDS(sds_buf10);
 
     #ifdef MYMPD_DEBUG
         MEASURE_END
