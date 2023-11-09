@@ -211,10 +211,10 @@ function updateFromWebradioDb() {
     const webradio = streamUriToName(elGetById('modalRadioFavoriteEditStreamUriInput').value) + '.m3u';
     for (const v of ['Name', 'StreamUri', 'Genre', 'Homepage', 'Image', 'Country', 'Language', 'Description', 'Codec', 'Bitrate']) {
         if (v === 'Image') {
-            elGetById('editRadioFavorite' + v).value = webradioDbPicsUri + webradioDb.webradios[webradio][v];
+            elGetById('modalRadioFavoriteEdit' + v + 'Input').value = webradioDbPicsUri + webradioDb.webradios[webradio][v];
         }
         else {
-            elGetById('editRadioFavorite' + v).value = webradioDb.webradios[webradio][v];
+            elGetById('modalRadioFavoriteEdit' + v + 'Input').value = webradioDb.webradios[webradio][v];
         }
     }
     _checkWebradioDb();

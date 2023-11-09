@@ -14,6 +14,7 @@ This is a small bugfix release.
 - Upd: Translations
 - Fix: Delete mpd playlist before creating the smart playlist
 - Fix: Remove unit tests execution order dependencies #1161
+- Fix: Update favorite from webradiodb
 
 ***
 
