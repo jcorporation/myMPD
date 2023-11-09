@@ -39,3 +39,6 @@
 /docs/scripting/scripts/index.json
 /docs/.jekyll-cache/
 /docs/_site/
+
+#private files
+.secrets
