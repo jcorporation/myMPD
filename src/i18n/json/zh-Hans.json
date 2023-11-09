@@ -304,7 +304,6 @@
     "Facility": "工具",
     "Failed to clean up the cover cache": "清除封面缓存失败",
     "Failed to parse response from %{uri}": "解析%{uri}无响应",
-    "Failed to set like": "设置喜爱失败",
     "Fast forward": "快进",
     "Fast rewind": "快退",
     "Favorite and WebradioDb entry are different": "收藏夹和网络电台数据不相符",
@@ -477,7 +476,6 @@
 <<<<<<< HEAD
 =======
     "Min. song duration": "最小歌曲时长",
-    "Min. value": "最小值",
 >>>>>>> devel
     "Minimum one weekday must be selected": "必须选择至少一周",
     "Minutes": "分钟",

@@ -304,7 +304,6 @@
     "Facility": "Категория",
     "Failed to clean up the cover cache": "Ошибка очистки кэша обложки",
     "Failed to parse response from %{uri}": "Не удалось проанализировать ответ: %{uri}",
-    "Failed to set like": "Не удалось сохранить оценку.",
     "Fast forward": "",
     "Fast rewind": "",
     "Favorite and WebradioDb entry are different": "Избранное и запись WebradioDB разные",
@@ -477,7 +476,6 @@
 <<<<<<< HEAD
 =======
     "Min. song duration": "",
-    "Min. value": "Мин. Значение",
 >>>>>>> devel
     "Minimum one weekday must be selected": "Минимум один день недели должен быть выбран",
     "Minutes": "Минуты",

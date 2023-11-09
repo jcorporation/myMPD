@@ -304,7 +304,6 @@
     "Facility": "ファシリティー",
     "Failed to clean up the cover cache": "カバーキャッシュの消去に失敗しました",
     "Failed to parse response from %{uri}": "%{uri} からのレスポンスのパースに失敗しました",
-    "Failed to set like": "評価の登録に失敗しました",
     "Fast forward": "早送り",
     "Fast rewind": "巻き戻し",
     "Favorite and WebradioDb entry are different": "お気に入りとWebradioDBのエントリーは異なります",
@@ -477,7 +476,6 @@
 <<<<<<< HEAD
 =======
     "Min. song duration": "最短の楽曲時間",
-    "Min. value": "最小値",
 >>>>>>> devel
     "Minimum one weekday must be selected": "最低でも曜日を1つ選択する必要があります",
     "Minutes": "分",

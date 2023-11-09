@@ -304,7 +304,6 @@
     "Facility": "Servizio",
     "Failed to clean up the cover cache": "Svuotamento cache delle cover non riuscito",
     "Failed to parse response from %{uri}": "Analisi della risposta da %{uri} fallita",
-    "Failed to set like": "Impossibile impostare il \"like\"",
     "Fast forward": "Avanti rapido",
     "Fast rewind": "Riavvolgimento rapido",
     "Favorite and WebradioDb entry are different": "Le voci preferita e di WebradioDb sono diverse",
@@ -477,7 +476,6 @@
 <<<<<<< HEAD
 =======
     "Min. song duration": "Min. durata brano",
-    "Min. value": "Valore min.",
 >>>>>>> devel
     "Minimum one weekday must be selected": "Deve essere selezionato almeno un giorno della settimana",
     "Minutes": "Minuti",

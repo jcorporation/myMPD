@@ -304,7 +304,6 @@
     "Facility": "Catégorie",
     "Failed to clean up the cover cache": "Echec du nettoyage du cache des jaquettes",
     "Failed to parse response from %{uri}": "Echec d'interprétation de la réponse de %{uri}",
-    "Failed to set like": "Impossible de liker",
     "Fast forward": "Avance rapide",
     "Fast rewind": "Retour en arrière rapide",
     "Favorite and WebradioDb entry are different": "Les entrées de la base de webradio et des favoris sont différentes",
@@ -477,7 +476,6 @@
 <<<<<<< HEAD
 =======
     "Min. song duration": "Durée minimum du morceau",
-    "Min. value": "Valeur min.",
 >>>>>>> devel
     "Minimum one weekday must be selected": "Choisir au moins un jour",
     "Minutes": "Min",

@@ -304,7 +304,6 @@
     "Facility": "시설",
     "Failed to clean up the cover cache": "음반표지 캐시를 지울 수 없음",
     "Failed to parse response from %{uri}": "%{uri}의 응답 분석 안 됨",
-    "Failed to set like": "좋아요 설정 실패",
     "Fast forward": "빨리 감기",
     "Fast rewind": "빨리 되감기",
     "Favorite and WebradioDb entry are different": "즐겨찾기와 웹라디오 DB 항목이 다름",
@@ -477,7 +476,6 @@
 <<<<<<< HEAD
 =======
     "Min. song duration": "최소 곡 길이",
-    "Min. value": "최소 값",
 >>>>>>> devel
     "Minimum one weekday must be selected": "최소 일주일 선택해야 함",
     "Minutes": "분",
