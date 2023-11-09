@@ -32,7 +32,7 @@ static const char *mympd_cols[]={
     // Columns for stickers
     "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", "rating", "elapsed",
      // Columns for webradiodb
-    "Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri",
+    "Country", "State", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri",
     "Codec", "Bitrate",
      // Columns for radiobrowser
     "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok",

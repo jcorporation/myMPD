@@ -358,6 +358,7 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
             "StreamUri": uri,
             "Homepage": getData(dataNode, 'homepage'),
             "Country": getData(dataNode, 'country'),
+            "State": getData(dataNode, 'state'),
             "Language": getData(dataNode, 'language'),
             "Codec": getData(dataNode, 'codec'),
             "Bitrate": getData(dataNode, 'bitrate'),

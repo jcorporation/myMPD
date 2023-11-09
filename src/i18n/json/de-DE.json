@@ -134,7 +134,7 @@
     "Could not save script": "Skript konnte nicht gespeichert werden",
     "Could not save trigger": "Konnte Trigger nicht speichern",
     "Could not save webradio favorite": "Konnte Webradio Favorit nicht speichern",
-    "Country": "Land",
+    "Country": "Staat",
     "Crop": "Abschneiden",
     "Crop queue": "Warteschlange abschneiden",
     "Crossfade": "Crossfade",
@@ -1139,5 +1139,6 @@
     "Skip count": "Übersprungen",
     "Sort by sticker": "Sortieren nach Sticker",
     "Sticker based": "Stickerbasiert",
-    "Value (Number)": "Wert (numerisch)"
+    "Value (Number)": "Wert (numerisch)",
+    "State": "Land"
 }

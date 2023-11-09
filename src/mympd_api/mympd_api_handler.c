@@ -77,6 +77,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     bool bool_buf1;
     bool bool_buf2;
     bool rc;
+    sds sds_buf0 = NULL;
     sds sds_buf1 = NULL;
     sds sds_buf2 = NULL;
     sds sds_buf3 = NULL;
@@ -86,7 +87,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     sds sds_buf7 = NULL;
     sds sds_buf8 = NULL;
     sds sds_buf9 = NULL;
-    sds sds_buf0 = NULL;
+    sds sds_buf10 = NULL;
     sds error = sdsempty();
     bool async = false;
 
@@ -1524,10 +1525,11 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_string(request->data, "$.params.language", 0, FILEPATH_LEN_MAX, &sds_buf8, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.codec", 0, FILEPATH_LEN_MAX, &sds_buf9, vcb_isprint, &parse_error) == true &&
                 json_get_int(request->data, "$.params.bitrate", 0, 2048, &int_buf1, &parse_error) == true &&
-                json_get_string(request->data, "$.params.description", 0, CONTENT_LEN_MAX, &sds_buf0, vcb_isname, &parse_error) == true)
+                json_get_string(request->data, "$.params.description", 0, CONTENT_LEN_MAX, &sds_buf0, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.state", 0, CONTENT_LEN_MAX, &sds_buf10, vcb_isname, &parse_error) == true)
             {
                 rc = mympd_api_webradio_save(config->workdir, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, sds_buf7,
-                    sds_buf8, sds_buf9, int_buf1, sds_buf0);
+                    sds_buf8, sds_buf9, int_buf1, sds_buf0, sds_buf10);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_DATABASE, "Webradio favorite successfully saved", "Could not save webradio favorite");
             }

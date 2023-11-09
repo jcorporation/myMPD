@@ -2112,6 +2112,11 @@ const APImethods = {
                 "example": "Germany",
                 "desc": "Country"
             },
+            "state": {
+                "type": APItypes.string,
+                "example": "Bayern",
+                "desc": "State or Region"
+            },
             "language": {
                 "type": APItypes.string,
                 "example": "German",

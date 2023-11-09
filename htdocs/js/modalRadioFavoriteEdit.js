@@ -26,6 +26,7 @@ function manualAddRadioFavorite() {
         "Genre": "",
         "Homepage": "",
         "Country": "",
+        "State": "",
         "Language": "",
         "Codec": "",
         "Bitrate": "",
@@ -45,6 +46,7 @@ function showEditRadioFavorite(obj) {
     elGetById('modalRadioFavoriteEditGenreInput').value = obj.Genre === undefined ? '' : obj.Genre;
     elGetById('modalRadioFavoriteEditHomepageInput').value = obj.Homepage === undefined ? '' : obj.Homepage;
     elGetById('modalRadioFavoriteEditCountryInput').value = obj.Country === undefined ? '' : obj.Country;
+    elGetById('modalRadioFavoriteEditStateInput').value = obj.State === undefined ? '' : obj.State;
     elGetById('modalRadioFavoriteEditLanguageInput').value = obj.Language === undefined ? '' : obj.Language;
     elGetById('modalRadioFavoriteEditCodecInput').value = obj.Codec === undefined ? '' : obj.Codec;
     elGetById('modalRadioFavoriteEditBitrateInput').value = obj.Bitrate === undefined ? '' : obj.Bitrate;
@@ -83,6 +85,7 @@ function saveRadioFavorite(target) {
         "image": elGetById('modalRadioFavoriteEditImageInput').value,
         "homepage": elGetById('modalRadioFavoriteEditHomepageInput').value,
         "country": elGetById('modalRadioFavoriteEditCountryInput').value,
+        "state": elGetById('modalRadioFavoriteEditStateInput').value,
         "language": elGetById('modalRadioFavoriteEditLanguageInput').value,
         "codec": elGetById('modalRadioFavoriteEditCodecInput').value,
         "bitrate": Number(elGetById('modalRadioFavoriteEditBitrateInput').value),
@@ -190,7 +193,7 @@ function compareWebradioDb() {
     let v1 = '';
     let v2 = '';
     const webradio = streamUriToName(elGetById('modalRadioFavoriteEditStreamUriInput').value) + '.m3u';
-    for (const v of ['Name', 'StreamUri', 'Genre', 'Homepage', 'Image', 'Country', 'Language', 'Description', 'Codec', 'Bitrate']) {
+    for (const v of ['Name', 'StreamUri', 'Genre', 'Homepage', 'Image', 'Country', 'State', 'Language', 'Description', 'Codec', 'Bitrate']) {
         if (v === 'Image') {
             v1 += basename(elGetById('modalRadioFavoriteEdit' + v + 'Input').value, false);
         }
@@ -209,12 +212,12 @@ function compareWebradioDb() {
 //eslint-disable-next-line no-unused-vars
 function updateFromWebradioDb() {
     const webradio = streamUriToName(elGetById('modalRadioFavoriteEditStreamUriInput').value) + '.m3u';
-    for (const v of ['Name', 'StreamUri', 'Genre', 'Homepage', 'Image', 'Country', 'Language', 'Description', 'Codec', 'Bitrate']) {
+    for (const v of ['Name', 'StreamUri', 'Genre', 'Homepage', 'Image', 'Country', 'State', 'Language', 'Description', 'Codec', 'Bitrate']) {
         if (v === 'Image') {
-            elGetById('editRadioFavorite' + v).value = webradioDbPicsUri + webradioDb.webradios[webradio][v];
+            elGetById('modalRadioFavoriteEdit' + v + 'Input').value = webradioDbPicsUri + webradioDb.webradios[webradio][v];
         }
         else {
-            elGetById('editRadioFavorite' + v).value = webradioDb.webradios[webradio][v];
+            elGetById('modalRadioFavoriteEdit' + v + 'Input').value = webradioDb.webradios[webradio][v];
         }
     }
     _checkWebradioDb();
@@ -234,6 +237,7 @@ function addToWebradioDb() {
         '&homepage=' + encodeURIComponent(elGetById('modalRadioFavoriteEditHomepageInput').value) +
         '&image=' + encodeURIComponent(elGetById('modalRadioFavoriteEditImageInput').value) +
         '&country=' + encodeURIComponent(elGetById('modalRadioFavoriteEditCountryInput').value) +
+        '&state=' + encodeURIComponent(elGetById('modalRadioFavoriteEditStateInput').value) +
         '&language=' + encodeURIComponent(elGetById('modalRadioFavoriteEditLanguageInput').value) +
         '&codec=' + encodeURIComponent(elGetById('modalRadioFavoriteEditCodecInput').value) +
         '&bitrate=' + encodeURIComponent(elGetById('modalRadioFavoriteEditBitrateInput').value) +
@@ -256,6 +260,7 @@ function updateWebradioDb() {
         '&homepage=' + encodeURIComponent(elGetById('modalRadioFavoriteEditHomepageInput').value) +
         '&image=' + encodeURIComponent(elGetById('modalRadioFavoriteEditImageInput').value) +
         '&country=' + encodeURIComponent(elGetById('modalRadioFavoriteEditCountryInput').value) +
+        '&state=' + encodeURIComponent(elGetById('modalRadioFavoriteEditStateInput').value) +
         '&language=' + encodeURIComponent(elGetById('modalRadioFavoriteEditLanguageInput').value) +
         '&codec=' + encodeURIComponent(elGetById('modalRadioFavoriteEditCodecInput').value) +
         '&bitrate=' + encodeURIComponent(elGetById('modalRadioFavoriteEditBitrateInput').value) +

@@ -288,6 +288,7 @@ function parseSearchWebradiodb(obj) {
         setData(row, 'image', webradioDbPicsUri + data.Image);
         setData(row, 'homepage', data.Homepage);
         setData(row, 'country', data.Country);
+        setData(row, 'state', data.State);
         setData(row, 'language', data.Languages);
         setData(row, 'description', data.Description);
         setData(row, 'codec', data.Codec);

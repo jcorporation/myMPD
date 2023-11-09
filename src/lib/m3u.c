@@ -144,6 +144,7 @@ static const char *m3ufields_map(sds field) {
     if (strcmp(field, "EXTIMG") == 0)      { return "Image"; }
     if (strcmp(field, "HOMEPAGE") == 0)    { return "Homepage"; }
     if (strcmp(field, "COUNTRY") == 0)     { return "Country"; }
+    if (strcmp(field, "STATE") == 0)       { return "State"; }
     if (strcmp(field, "LANGUAGE") == 0)    { return "Language"; }
     if (strcmp(field, "DESCRIPTION") == 0) { return "Description"; }
     if (strcmp(field, "PLAYLIST") == 0)    { return "Name"; }

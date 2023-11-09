@@ -209,11 +209,12 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
  * @param codec codec
  * @param bitrate bitrate
  * @param description short description
+ * @param state statea
  * @return true on success, else false
  */
 bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
         sds genre, sds picture, sds homepage, sds country, sds language, sds codec, int bitrate,
-        sds description)
+        sds description, sds state)
 {
     sds filename = sdsdup(uri);
     sanitize_filename(filename);
@@ -226,12 +227,13 @@ bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
         "#EXTIMG:%S\n"
         "#HOMEPAGE:%S\n"
         "#COUNTRY:%S\n"
+        "#STATE:%S\n"
         "#LANGUAGE:%S\n"
         "#DESCRIPTION:%S\n"
         "#CODEC:%S\n"
         "#BITRATE:%i\n"
         "%S\n",
-        name, genre, name, picture, homepage, country, language, description, codec, bitrate, uri);
+        name, genre, name, picture, homepage, country, state, language, description, codec, bitrate, uri);
 
     bool rc = write_data_to_file(filepath, content, sdslen(content));
 
