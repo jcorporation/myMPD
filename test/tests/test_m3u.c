@@ -24,11 +24,12 @@ static bool webradio_save(void) {
     sds picture = sdsnew("http___yumicoradio_net_8000_stream.webp");
     sds homepage = sdsnew("http://yumicoradio.net");
     sds country = sdsnew("France");
+    sds state = sdsnew("Paris");
     sds language = sdsnew("English");
     sds codec = sdsnew("MP3");
     sds description = sdsnew("24/7 webradio that plays Future Funk, City Pop, Anime Groove, Nu Disco, Electronica, a little bit of Vaporwave and some of the sub-genres derived.");
     int bitrate = 256;
-    bool rc = mympd_api_webradio_save(workdir, name, uri, uri_old, genre, picture, homepage, country, language, codec, bitrate, description);
+    bool rc = mympd_api_webradio_save(workdir, name, uri, uri_old, genre, picture, homepage, country, language, codec, bitrate, description, state);
     sdsfree(name);
     sdsfree(uri);
     sdsfree(uri_old);
@@ -39,6 +40,7 @@ static bool webradio_save(void) {
     sdsfree(language);
     sdsfree(codec);
     sdsfree(description);
+    sdsfree(state);
     return rc;
 }
 
@@ -70,7 +72,7 @@ UTEST(m3u, test_m3u_to_json) {
     sds s = sdsempty();
     sds m3ufields = sdsempty();
     s = m3u_to_json(s, "/tmp/mympd-test/webradios/http___yumicoradio_net_8000_stream.m3u", &m3ufields);
-    const char *e = "-1,yumi co. radiofuture funk, city pop, anime groove, vaporwave, nu disco, electronicyumi co. radiohttp___yumicoradio_net_8000_stream.webphttp://yumicoradio.netfranceenglish24/7 webradio that plays future funk, city pop, anime groove, nu disco, electronica, a little bit of vaporwave and some of the sub-genres derived.mp3256";
+    const char *e = "-1,yumi co. radiofuture funk, city pop, anime groove, vaporwave, nu disco, electronicyumi co. radiohttp___yumicoradio_net_8000_stream.webphttp://yumicoradio.netfranceparisenglish24/7 webradio that plays future funk, city pop, anime groove, nu disco, electronica, a little bit of vaporwave and some of the sub-genres derived.mp3256";
     ASSERT_STREQ(e, m3ufields);
     sdsfree(s);
     sdsfree(m3ufields);
