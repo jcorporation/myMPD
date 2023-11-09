@@ -473,10 +473,7 @@
     "Media session": "メディアセッション",
     "Message": "メッセージ",
     "Method not supported": "対応していないメソッドです",
-<<<<<<< HEAD
-=======
     "Min. song duration": "最短の楽曲時間",
->>>>>>> devel
     "Minimum one weekday must be selected": "最低でも曜日を1つ選択する必要があります",
     "Minutes": "分",
     "Missing translations": "選択した言語は翻訳が %{smart_count} 件不足しています |||| 選択した言語は翻訳が %{smart_count} 件不足しています",

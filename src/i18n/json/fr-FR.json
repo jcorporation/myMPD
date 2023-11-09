@@ -473,10 +473,7 @@
     "Media session": "Session média",
     "Message": "Message",
     "Method not supported": "Méthode non supportée",
-<<<<<<< HEAD
-=======
     "Min. song duration": "Durée minimum du morceau",
->>>>>>> devel
     "Minimum one weekday must be selected": "Choisir au moins un jour",
     "Minutes": "Min",
     "Missing translations": "Selected locale is missing %{smart_count} translation |||| Il manque %{smart_count} traductions à la langue sélectionnée",

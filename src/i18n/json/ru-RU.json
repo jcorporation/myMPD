@@ -473,10 +473,7 @@
     "Media session": "Медиа сессия",
     "Message": "Сообщение",
     "Method not supported": "Метод не поддерживается",
-<<<<<<< HEAD
-=======
     "Min. song duration": "",
->>>>>>> devel
     "Minimum one weekday must be selected": "Минимум один день недели должен быть выбран",
     "Minutes": "Минуты",
     "Missing translations": "Для выбранного языка, %{smart_count} перевод |||| Для выбранного языка %{smart_count} переводы",

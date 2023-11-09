@@ -473,10 +473,7 @@
     "Media session": "多媒体会话",
     "Message": "消息",
     "Method not supported": "不支持的方法",
-<<<<<<< HEAD
-=======
     "Min. song duration": "最小歌曲时长",
->>>>>>> devel
     "Minimum one weekday must be selected": "必须选择至少一周",
     "Minutes": "分钟",
     "Missing translations": "所选的语言第%{smart_count}个翻译缺失 |||| 所选的语言第%{smart_count}个翻译缺失",

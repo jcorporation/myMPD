@@ -473,10 +473,7 @@
     "Media session": "",
     "Message": "",
     "Method not supported": "",
-<<<<<<< HEAD
-=======
     "Min. song duration": "",
->>>>>>> devel
     "Minimum one weekday must be selected": "Vähintään yksi päivä pitää valita",
     "Minutes": "Min",
     "Missing translations": "Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations",
