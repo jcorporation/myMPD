@@ -43,10 +43,10 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Upd: translations are now managed through poeditor.com api
-- Upd: translations
-- Fix: delete mpd playlist before creating the smart playlist
-- Fix: remove unit tests execution order dependencies #1161
+- Upd: Translations are now managed through poeditor.com api
+- Upd: Translations
+- Fix: Delete mpd playlist before creating the smart playlist
+- Fix: Remove unit tests execution order dependencies #1161
 
 ***
 
