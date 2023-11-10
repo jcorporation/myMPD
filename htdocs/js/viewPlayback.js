@@ -288,7 +288,14 @@ function setPlaybackCardTags(songObj) {
         PlaybackListWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateTextTn('small', {}, 'Country'),
-                elCreateText('p', {}, songObj.webradio.Country + smallSpace + nDash + smallSpace + songObj.webradio.Language)
+                elCreateText('p', {}, songObj.webradio.Country + 
+                    (songObj.webradio.State !== '' ? smallSpace + nDash + smallSpace + songObj.webradio.State : ''))
+            ])
+        );
+        PlaybackListWebradio.appendChild(
+            elCreateNodes('div', {"class": ["col-xl-6"]}, [
+                elCreateTextTn('small', {}, 'Language'),
+                elCreateText('p', {}, songObj.webradio.Language)
             ])
         );
         if (songObj.webradio.Homepage !== '') {
