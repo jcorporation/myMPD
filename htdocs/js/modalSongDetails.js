@@ -133,8 +133,8 @@ function parseSongDetails(obj) {
         const td = elCreateEmpty('td', {});
         setData(td, 'tag', settings.tagList[i]);
         setData(td, 'name', obj.result[settings.tagList[i]]);
-        if (settings.tagList[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
-            setData(td, 'AlbumArtist', obj.result[tagAlbumArtist]);
+        if (settings.tagList[i] === 'Album') {
+            setData(td, 'AlbumId', obj.result.AlbumId);
         }
         if (settings.tagListBrowse.includes(settings.tagList[i]) &&
             isEmptyTag(obj.result[settings.tagList[i]]) === false)
