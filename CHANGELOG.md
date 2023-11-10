@@ -15,6 +15,7 @@ This is a small bugfix release.
 - Fix: Delete mpd playlist before creating the smart playlist
 - Fix: Remove unit tests execution order dependencies #1161
 - Fix: Update favorite from webradiodb
+- Fix: Show album from song details modal #1167
 
 ***
 
