@@ -11,7 +11,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: switch grid mode by Strg+Click #1169
-- Fix: respect "parent dir" entry counting total filesystem list length #1168
+- Fix: remove "parent dir" entry in filesystem view #1168
 
 ***
 
