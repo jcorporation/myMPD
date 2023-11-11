@@ -9,7 +9,7 @@ cmake_policy(SET CMP0003 NEW)
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd
-  VERSION 13.0.4
+  VERSION 13.0.5
   LANGUAGES C
 )
 
