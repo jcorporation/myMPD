@@ -131,6 +131,8 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
         buffer = sdscatlen(buffer, "}", 1);
         entity_count++;
         entities_returned++;
+        real_limit++;
+        offset++;
         FREE_SDS(parent_dir);
     }
 
