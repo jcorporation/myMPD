@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: switch grid mode by Strg+Click #1169
+
 ***
 
 ## myMPD v13.0.4 (2023-11-11)
