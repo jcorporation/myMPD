@@ -95,6 +95,7 @@ bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
 /**
  * Defines methods that should work with no mpd connection,
  * this is necessary for correct startup and changing mpd connection settings.
+ * The list is not complete.
  * @param cmd_id myMPD API method
  * @return true if method works with no mpd connection else false
  */
@@ -104,6 +105,8 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_HOME_ICON_LIST:
         case MYMPD_API_SCRIPT_LIST:
         case MYMPD_API_SETTINGS_GET:
+        case MYMPD_API_COVERCACHE_CLEAR:
+        case MYMPD_API_COVERCACHE_CROP:
             return true;
         default:
             return false;

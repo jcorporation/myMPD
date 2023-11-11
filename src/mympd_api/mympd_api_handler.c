@@ -9,7 +9,6 @@
 
 #include "src/lib/album_cache.h"
 #include "src/lib/api.h"
-#include "src/lib/covercache.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"
@@ -124,6 +123,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SONG_FINGERPRINT:
+        case MYMPD_API_COVERCACHE_CROP:
+        case MYMPD_API_COVERCACHE_CLEAR:
             if (worker_threads > MAX_WORKER_THREADS) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Too many worker threads are already running");
@@ -165,6 +166,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating album cache");
             break;
         case INTERNAL_API_ALBUMCACHE_CREATED:
+            mympd_state->album_cache.building = false;
             if (request->extra != NULL) {
                 //first clear the jukebox queues - it has references to the album cache
                 MYMPD_LOG_INFO(partition_state->name, "Clearing jukebox queues");
@@ -180,7 +182,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album cache is NULL");
             }
-            mympd_state->album_cache.building = false;
             break;
     // Misc
         case MYMPD_API_LOGLEVEL:
@@ -475,21 +476,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             FREE_SDS(old_stickerdb_settings);
             break;
         }
-    // covercache
-        case MYMPD_API_COVERCACHE_CROP:
-        case MYMPD_API_COVERCACHE_CLEAR:
-            int_buf2 = request->cmd_id == MYMPD_API_COVERCACHE_CLEAR
-                ? 0
-                : mympd_state->config->covercache_keep_days;
-            int_buf1 = covercache_clear(config->cachedir, int_buf2);
-            sds_buf1 = sdsfromlonglong((long long) int_buf1);
-            response->data = int_buf1 < 0
-                ? jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Failed to clean up the cover cache")
-                : jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_INFO, "Removed %{smart_count} cover |||| Removed %{smart_count} covers",
-                    2, "smartCount", sds_buf1);
-            break;
     // timers
         case MYMPD_API_TIMER_SAVE: {
             struct t_timer_definition *timer_def = NULL;

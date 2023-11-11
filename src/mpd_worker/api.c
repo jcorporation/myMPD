@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/mpd_worker/api.h"
 
+#include "src/lib/covercache.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
@@ -24,6 +25,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     bool rc;
     bool bool_buf1;
     bool async = false;
+    int int_buf1;
     sds sds_buf1 = NULL;
     sds sds_buf2 = NULL;
     sds sds_buf3 = NULL;
@@ -40,6 +42,20 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     struct t_partition_state *partition_state = mpd_worker_state->partition_state;
 
     switch(request->cmd_id) {
+        case MYMPD_API_COVERCACHE_CROP:
+        case MYMPD_API_COVERCACHE_CLEAR:
+            int_buf1 = request->cmd_id == MYMPD_API_COVERCACHE_CLEAR
+                ? 0
+                : mpd_worker_state->config->covercache_keep_days;
+            int_buf1 = covercache_clear(mpd_worker_state->config->cachedir, int_buf1);
+            sds_buf1 = sdsfromlonglong((long long) int_buf1);
+            response->data = int_buf1 < 0
+                ? jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Failed to clean up the cover cache")
+                : jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_INFO, "Removed %{smart_count} cover |||| Removed %{smart_count} covers",
+                    2, "smartCount", sds_buf1);
+            break;
         case MYMPD_API_SONG_FINGERPRINT:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_ispathfilename, &parse_error) == true) {
                 response->data = mpd_worker_song_fingerprint(partition_state, response->data, request->id, sds_buf1);
