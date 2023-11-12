@@ -103,6 +103,18 @@ UTEST(state_files, test_state_file_rw_uint) {
     clean_testenv();
 }
 
+UTEST(state_files, test_state_file_rw_tag) {
+    init_testenv();
+
+    enum mpd_tag_type tag = state_file_rw_tag(workdir, "state", "test", MPD_TAG_ALBUM, true);
+    ASSERT_EQ(MPD_TAG_ALBUM, tag);
+    sds content = get_file_content();
+    ASSERT_STREQ("Album", content);
+    sdsfree(content);
+
+    clean_testenv();
+}
+
 UTEST(state_files, test_state_file_write) {
     init_testenv();
 
