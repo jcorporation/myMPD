@@ -498,9 +498,11 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
     }
 
     long start_length = 0;
+    long add_list_expected_len = add_albums;
     if (manual == false) {
         start_length = partition_state->jukebox_queue.length;
         add_albums = MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH - partition_state->jukebox_queue.length;
+        add_list_expected_len = MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH;
         if (add_albums <= 0) {
             return 0;
         }
@@ -545,7 +547,7 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
             check_unique_tag(partition_state, albumid, tag_value, manual, queue_list) == JUKEBOX_UNIQ_IS_UNIQ)
         {
             if (randrange(0, lineno) < add_albums) {
-                if (add_list->length < MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH) {
+                if (add_list->length < add_list_expected_len) {
                     // append to fill the queue
                     if (list_push(add_list, albumid, lineno, tag_value, album) == false) {
                         MYMPD_LOG_ERROR(partition_state->name, "Can't push jukebox_queue element");
@@ -601,9 +603,11 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
     time_t since = time(NULL) - (partition_state->jukebox_last_played * 3600);
 
     long start_length = 0;
+    long add_list_expected_len = add_songs;
     if (manual == false) {
         start_length = partition_state->jukebox_queue.length;
         add_songs = (long)MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH - start_length;
+        add_list_expected_len = MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH;
         if (add_songs <= 0) {
             return 0;
         }
@@ -671,7 +675,7 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
                 check_unique_tag(partition_state, uri, tag_value, manual, queue_list) == JUKEBOX_UNIQ_IS_UNIQ)
             {
                 if (randrange(0, lineno) < add_songs) {
-                    if (add_list->length < MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH) {
+                    if (add_list->length < add_list_expected_len) {
                         // append to fill the queue
                         if (list_push(add_list, uri, lineno, tag_value, NULL) == false) {
                             MYMPD_LOG_ERROR(partition_state->name, "Can't push jukebox_queue element");
