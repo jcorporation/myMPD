@@ -163,7 +163,9 @@ static bool jukebox(struct t_partition_state *partition_state) {
     }
 
     //add song if add_time is reached or queue is empty
-    long add_songs = partition_state->jukebox_queue_length > queue_length ? partition_state->jukebox_queue_length - queue_length : 0;
+    long add_songs = partition_state->jukebox_queue_length > queue_length
+        ? partition_state->jukebox_queue_length - queue_length
+        : 0;
 
     if (now > add_time &&
         add_time > 0 &&
@@ -228,8 +230,8 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_so
     if (manual == false) {
         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox queue length: %ld", partition_state->jukebox_queue.length);
     }
-    if ((manual == false && add_songs > partition_state->jukebox_queue.length) ||
-        (manual == true))
+    if (manual == true ||
+        add_songs > partition_state->jukebox_queue.length)
     {
         bool rc = jukebox_run_fill_jukebox_queue(partition_state, add_songs, jukebox_mode, playlist, manual);
         if (rc == false) {
@@ -237,13 +239,9 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_so
         }
     }
     long added = 0;
-    struct t_list_node *current;
-    if (manual == false) {
-        current = partition_state->jukebox_queue.head;
-    }
-    else {
-        current = partition_state->jukebox_queue_tmp.head;
-    }
+    struct t_list_node *current = manual == false
+        ? partition_state->jukebox_queue.head
+        : partition_state->jukebox_queue_tmp.head;
     while (current != NULL &&
         added < add_songs)
     {
