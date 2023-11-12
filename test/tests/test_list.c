@@ -10,7 +10,7 @@
 #include "dist/utest/utest.h"
 #include "src/lib/list.h"
 
-static void populate_list(struct t_list *l) {
+static long populate_list(struct t_list *l) {
     list_init(l);
     list_push(l, "key1", 1, "value1", NULL);
     list_push(l, "key2", 2, "value2", NULL);
@@ -18,6 +18,7 @@ static void populate_list(struct t_list *l) {
     list_push(l, "key4", 4, "value4", NULL);
     list_push(l, "key5", 5, "value5", NULL);
     list_insert(l, "key0", 0, "value0", NULL);
+    return l->length;
 }
 
 static void print_list(struct t_list *l) {
@@ -405,4 +406,57 @@ UTEST(list, test_list_sort_by_key) {
     ASSERT_EQ(6, test_list.length);
 
     list_clear(&test_list);
+}
+
+static long count_list(struct t_list *l) {
+    long i = 0;
+    struct t_list_node *current = l->head;
+    while (current != NULL) {
+        i++;
+        current = current->next;
+    }
+    return i;
+}
+
+UTEST(list, test_list_crop) {
+    struct t_list test_list;
+
+    // crop to 0
+    populate_list(&test_list);
+    list_crop(&test_list, 0, NULL);
+    ASSERT_EQ(0, test_list.length);
+    long count = count_list(&test_list);
+    ASSERT_EQ(0, count);
+    list_clear(&test_list);
+    ASSERT_TRUE(test_list.tail == NULL);
+
+    // crop to 2
+    populate_list(&test_list);
+    list_crop(&test_list, 2, NULL);
+    ASSERT_EQ(2, test_list.length);
+    count = count_list(&test_list);
+    ASSERT_EQ(2, count);
+    list_clear(&test_list);
+    ASSERT_FALSE(test_list.head != NULL);
+    ASSERT_FALSE(test_list.tail != NULL);
+
+    // crop greater than list length
+    long org_len = populate_list(&test_list);
+    list_crop(&test_list, 10, NULL);
+    ASSERT_EQ(org_len, test_list.length);
+    count = count_list(&test_list);
+    ASSERT_EQ(org_len, count);
+    list_clear(&test_list);
+    ASSERT_FALSE(test_list.head != NULL);
+    ASSERT_FALSE(test_list.tail != NULL);
+
+    // crop to exact list length
+    org_len = populate_list(&test_list);
+    list_crop(&test_list, org_len, NULL);
+    ASSERT_EQ(org_len, test_list.length);
+    count = count_list(&test_list);
+    ASSERT_EQ(org_len, count);
+    list_clear(&test_list);
+    ASSERT_FALSE(test_list.head != NULL);
+    ASSERT_FALSE(test_list.tail != NULL);
 }

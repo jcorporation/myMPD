@@ -68,6 +68,8 @@ bool list_replace_user_data(struct t_list *l, long idx, const char *key, long lo
 bool list_replace_len_user_data(struct t_list *l, long idx, const char *key, size_t key_len, long long value_i,
         const char *value_p, size_t value_len, void *user_data, user_data_callback free_cb);
 
+void list_crop(struct t_list *l, long length, user_data_callback free_cb);
+
 bool list_shuffle(struct t_list *l);
 bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2);
 bool list_move_item_pos(struct t_list *l, long from, long to);

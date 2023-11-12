@@ -612,6 +612,33 @@ bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callba
 }
 
 /**
+ * Crops the list to the defined length
+ * @param l pointer to list to crop
+ * @param length max length
+ * @param free_cb callback function to free user_data pointer
+ */
+void list_crop(struct t_list *l, long length, user_data_callback free_cb) {
+    if (l->length <= length) {
+        return;
+    }
+    long idx = length - 1;
+    if (idx < 0) {
+        list_clear(l);
+        return;
+    }
+    struct t_list_node *last = list_node_at(l, idx);
+    struct t_list_node *current = last->next;
+    while (current != NULL) {
+        struct t_list_node *next = current->next;
+        list_node_free_user_data(current, free_cb);
+        current = next;
+    }
+    l->length = length;
+    last->next = NULL;
+    l->tail = last;
+}
+
+/**
  * Internal compare function to sort by value_i
  * @param current current list node
  * @param next next list node
