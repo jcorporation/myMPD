@@ -122,17 +122,6 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
 
     long entity_count = 0;
     long entities_returned = 0;
-    if (sdslen(path) > 1) {
-        sds parent_dir = sdsdup(path);
-        parent_dir = sds_dirname(parent_dir);
-
-        buffer = sdscat(buffer, "{\"Type\":\"parentDir\",\"name\":\"parentDir\",");
-        buffer = tojson_char(buffer, "uri", (parent_dir[0] == '.' ? "/" : parent_dir), false);
-        buffer = sdscatlen(buffer, "}", 1);
-        entity_count++;
-        entities_returned++;
-        FREE_SDS(parent_dir);
-    }
 
     raxIterator iter;
     raxStart(&iter, entity_list);
@@ -205,7 +194,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
     buffer = sdscatlen(buffer, "],", 2);
     buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, path, true);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = tojson_llong(buffer, "totalEntities", (long long)entity_list->numele, true);
+    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "search", searchstr, false);

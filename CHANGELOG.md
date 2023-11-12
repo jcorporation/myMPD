@@ -39,6 +39,17 @@ It also supports the new "added" timestamp for songs in the mpd database.
 
 ***
 
+## myMPD v13.0.5 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: switch grid mode by Strg+Click #1169
+- Fix: remove "parent dir" entry in filesystem view #1168
+
+***
+
 ## myMPD v13.0.4 (2023-11-11)
 
 This is a small bugfix release.

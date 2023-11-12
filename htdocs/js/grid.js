@@ -71,7 +71,7 @@ function selectCard(event) {
         mode === null)
     {
         //enable select mode
-        switchGridMode(elGetById('btn' + app.id + 'SelectMode'));
+        switchGridMode(elGetById(app.id + 'SelectModeBtn'));
     }
     else if (mode === null) {
         return false;
