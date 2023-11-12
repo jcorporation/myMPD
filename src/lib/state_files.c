@@ -142,7 +142,9 @@ bool state_file_rw_bool(sds workdir, const char *dir, const char *name, bool def
     bool value = def_value;
     sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", NULL, write);
     if (sdslen(line) > 0) {
-        value = line[0] == 't' ? true : false;
+        value = line[0] == 't'
+            ? true
+            : false;
     }
     FREE_SDS(line);
     return value;
@@ -161,6 +163,26 @@ bool state_file_rw_bool(sds workdir, const char *dir, const char *name, bool def
  */
 int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_value, int min, int max, bool write) {
     return (int)state_file_rw_long(workdir, dir, name, def_value, min, max, write);
+}
+
+/**
+ * Reads a tag name from a file, parses it to a mpd_tag_type or writes the file with a default value if not exists or value is invalid
+ * @param workdir mympd working directory
+ * @param dir subdir
+ * @param name filename to read/write
+ * @param def_value default value as mpd_tag_type
+ * @param write if true create the file if not exists
+ * @return parsed string as mpd_tag_type
+ */
+enum mpd_tag_type state_file_rw_tag(sds workdir, const char *dir, const char *name, enum mpd_tag_type def_value, bool write) {
+    sds line = state_file_rw_string(workdir, dir, name, mpd_tag_name(def_value), NULL, write);
+    enum mpd_tag_type value = sdslen(line) > 0
+        ? mpd_tag_name_iparse(line)
+        : def_value;
+    FREE_SDS(line);
+    return value == MPD_TAG_UNKNOWN
+        ? def_value
+        : value;
 }
 
 /**
