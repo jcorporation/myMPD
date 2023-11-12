@@ -9,6 +9,7 @@
 
 #include "src/lib/album_cache.h"
 #include "src/lib/filehandler.h"
+#include "src/lib/last_played.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
@@ -47,6 +48,8 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_settings_statefiles_global_read(mympd_state);
     //read myMPD states for default partition
     mympd_api_settings_statefiles_partition_read(mympd_state->partition_state);
+    // last played for default partition
+    last_played_file_read(mympd_state->partition_state);
     //home icons
     mympd_api_home_file_read(&mympd_state->home_list, mympd_state->config->workdir);
     //timer
@@ -56,7 +59,6 @@ void *mympd_api_loop(void *arg_config) {
     //caches
     if (mympd_state->config->save_caches == true) {
         //album cache
-        MYMPD_LOG_INFO(NULL, "Reading album cache from disc");
         album_cache_read(&mympd_state->album_cache, mympd_state->config->workdir, &mympd_state->config->albums);
     }
     //set timers

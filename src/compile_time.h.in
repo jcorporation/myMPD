@@ -78,7 +78,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 //standard file names and folders
 #define FILENAME_ALBUMCACHE "album_cache.mpack"
 #define FILENAME_HOME "home_list"
-#define FILENAME_LAST_PLAYED "last_played_list"
+#define FILENAME_LAST_PLAYED "last_played_list.mpack"
 #define FILENAME_PRESETS "preset_list"
 #define FILENAME_STICKERCACHE "sticker_cache.mpack"
 #define FILENAME_TIMER "timer_list"
@@ -347,7 +347,6 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JUKEBOX_LAST_PLAYED_MAX 5000
 #define JUKEBOX_UNIQ_RANGE 50
 #define SCRIPT_ARGUMENTS_MAX 20
-#define LAST_PLAYED_MEM_MAX 10
 
 //filesystem limits
 #define FILENAME_LEN_MAX 200

@@ -8,12 +8,12 @@
 #include "src/lib/mympd_state.h"
 
 #include "src/lib/album_cache.h"
+#include "src/lib/last_played.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/presets.h"
 #include "src/mympd_api/home.h"
-#include "src/mympd_api/last_played.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/trigger.h"
 
@@ -31,7 +31,7 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
 
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
-        mympd_api_last_played_file_save(partition_state);
+        last_played_file_save(partition_state);
         preset_list_save(partition_state);
         partition_state = partition_state->next;
     }

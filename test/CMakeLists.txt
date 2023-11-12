@@ -16,6 +16,7 @@ set(TEST_SOURCES
   ../src/lib/filehandler.c
   ../src/lib/http_client.c
   ../src/lib/jsonrpc.c
+  ../src/lib/last_played.c
   ../src/lib/list.c
   ../src/lib/log.c
   ../src/lib/lua_mympd_state.c

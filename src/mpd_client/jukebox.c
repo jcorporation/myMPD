@@ -369,6 +369,9 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     if (mpd_send_list_queue_meta(partition_state->conn)) {
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             jukebox_get_last_played_add(partition_state, song, queue_list, jukebox_mode);
+            if (queue_list->length == JUKEBOX_UNIQ_RANGE) {
+                break;
+            }
         }
     }
     mpd_response_finish(partition_state->conn);
@@ -377,55 +380,25 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
         return NULL;
     }
 
-    // append last_played from memory to queue list
-    struct t_list_node *current = partition_state->last_played.head;
-    while (current != NULL) {
-        if (mpd_send_list_meta(partition_state->conn, current->key)) {
-            song = mpd_recv_song(partition_state->conn);
-            jukebox_get_last_played_add(partition_state, song, queue_list, jukebox_mode);
-        }
-        mpd_response_finish(partition_state->conn);
-        mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
-        current = current->next;
-    }
-
+    // append last_played to queue list
     if (queue_list->length < JUKEBOX_UNIQ_RANGE) {
-        // append last_played from disc to queue list
-        sds lp_file = sdscatfmt(sdsempty(), "%S/%S/%s",
-            partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
-        errno = 0;
-        FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
-        if (fp != NULL) {
-            sds line = sdsempty();
-            while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0 &&
-                    queue_list->length < JUKEBOX_UNIQ_RANGE)
-            {
-                sds uri = NULL;
-                if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true) {
-                    if (mpd_send_list_meta(partition_state->conn, uri)) {
-                        song = mpd_recv_song(partition_state->conn);
-                        jukebox_get_last_played_add(partition_state, song, queue_list, jukebox_mode);
-                    }
-                    mpd_response_finish(partition_state->conn);
-                    mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
+        struct t_list_node *current = partition_state->last_played.head;
+        while (current != NULL) {
+            if (mpd_send_list_meta(partition_state->conn, current->key)) {
+                if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+                    jukebox_get_last_played_add(partition_state, song, queue_list, jukebox_mode);
                 }
                 else {
-                    MYMPD_LOG_ERROR(partition_state->name, "Reading last_played line failed");
-                    MYMPD_LOG_DEBUG(partition_state->name, "Erroneous line: %s", line);
+                    MYMPD_LOG_WARN(partition_state->name, "Failure fetching song information for uri \"%s\"", current->key);
                 }
-                FREE_SDS(uri);
             }
-            (void) fclose(fp);
-            FREE_SDS(line);
-        }
-        else {
-            MYMPD_LOG_DEBUG(partition_state->name, "Can not open \"%s\"", lp_file);
-            if (errno != ENOENT) {
-                //ignore missing last_played file
-                MYMPD_LOG_ERRNO(partition_state->name, errno);
+            mpd_response_finish(partition_state->conn);
+            mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
+            if (queue_list->length == JUKEBOX_UNIQ_RANGE) {
+                break;
             }
+            current = current->next;
         }
-        FREE_SDS(lp_file);
     }
 
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox last_played list length: %ld", queue_list->length);

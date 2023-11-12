@@ -398,7 +398,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
  * @return true on success, else false
  */
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir) {
-    MYMPD_LOG_INFO(NULL, "Saving triggers to disc");
+    MYMPD_LOG_INFO(NULL, "Saving %ld triggers to disc", trigger_list->length);
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_TRIGGER);
     bool rc = list_write_to_disk(filepath, trigger_list, trigger_to_line_cb);
     FREE_SDS(filepath);

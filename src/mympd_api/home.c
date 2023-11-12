@@ -139,7 +139,7 @@ static sds homeicon_to_line_cb(sds buffer, struct t_list_node *current) {
  * @return true on success, else false
  */
 bool mympd_api_home_file_save(struct t_list *home_list, sds workdir) {
-    MYMPD_LOG_INFO(NULL, "Saving home icons to disc");
+    MYMPD_LOG_INFO(NULL, "Saving %ld home icons to disc", home_list->length);
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_HOME);
     bool rc = list_write_to_disk(filepath, home_list, homeicon_to_line_cb);
     FREE_SDS(filepath);

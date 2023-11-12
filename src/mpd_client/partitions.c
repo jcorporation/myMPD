@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/mpd_client/partitions.h"
 
+#include "src/lib/last_played.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/mpd_client/errorhandler.h"
@@ -130,6 +131,7 @@ void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
     partition_state_default(partition_state->next, name, mympd_state);
     //read partition specific state from disc
     mympd_api_settings_statefiles_partition_read(partition_state->next);
+    last_played_file_read(partition_state->next);
     //push settings to web_server_queue
     settings_to_webserver(partition_state->mympd_state);
 }

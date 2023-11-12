@@ -46,6 +46,7 @@ target_sources(mympd PRIVATE
   lib/handle_options.c
   lib/http_client.c
   lib/jsonrpc.c
+  lib/last_played.c
   lib/list.c
   lib/log.c
   lib/lua_mympd_state.c
