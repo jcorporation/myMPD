@@ -49,6 +49,7 @@ static bool check_max_duration(const struct mpd_song *song, unsigned max_duratio
 static bool check_expression(const struct mpd_song *song, struct t_tags *tags,
         struct t_list *include_expr_list, struct t_list *exclude_expr_list);
 static bool check_not_hated(rax *stickers_like, const char *uri, bool jukebox_ignore_hated);
+static bool check_last_played_album(rax *stickers_last_played, const char *uri, time_t since, enum album_modes album_mode);
 static bool check_last_played(rax *stickers_last_played, const char *uri, time_t since);
 static long check_unique_tag(struct t_partition_state *partition_state, const char *uri,
         const char *value, bool manual, struct t_list *queue_list);
@@ -540,11 +541,11 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
         tag_value = mpd_client_get_tag_value_string(album, partition_state->jukebox_unique_tag.tags[0], tag_value);
 
         // we use the song uri in the album cache for enforcing last_played constraint,
-        // because we do not know when an album was last played fully, this only supported in advanced album mode
-        if ((partition_state->mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE ||
-             check_last_played(stickers_last_played, mpd_song_get_uri(album), since) == true) &&
-            check_expression(album, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
-            check_unique_tag(partition_state, albumid, tag_value, manual, queue_list) == JUKEBOX_UNIQ_IS_UNIQ)
+        // because we do not know when an album was last played fully
+        if (manual == true || // manual mode should not respect the jukebox constraints
+                (check_last_played_album(stickers_last_played, mpd_song_get_uri(album), since, partition_state->mympd_state->config->albums.mode) == true &&
+                 check_expression(album, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
+                 check_unique_tag(partition_state, albumid, tag_value, manual, queue_list) == JUKEBOX_UNIQ_IS_UNIQ))
         {
             if (randrange(0, lineno) < add_albums) {
                 if (add_list->length < add_list_expected_len) {
@@ -667,12 +668,13 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
             tag_value = mpd_client_get_tag_value_string(song, partition_state->jukebox_unique_tag.tags[0], tag_value);
             const char *uri = mpd_song_get_uri(song);
 
-            if (check_min_duration(song, partition_state->jukebox_min_song_duration) == true &&
-                check_max_duration(song, partition_state->jukebox_max_song_duration) == true &&
-                check_last_played(stickers_last_played, uri, since) == true &&
-                check_not_hated(stickers_like, uri, partition_state->jukebox_ignore_hated) == true &&
-                check_expression(song, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
-                check_unique_tag(partition_state, uri, tag_value, manual, queue_list) == JUKEBOX_UNIQ_IS_UNIQ)
+            if (manual == true || // manual mode should not respect the jukebox constraints
+                    (check_min_duration(song, partition_state->jukebox_min_song_duration) == true &&
+                     check_max_duration(song, partition_state->jukebox_max_song_duration) == true &&
+                     check_last_played(stickers_last_played, uri, since) == true &&
+                     check_not_hated(stickers_like, uri, partition_state->jukebox_ignore_hated) == true &&
+                     check_expression(song, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
+                     check_unique_tag(partition_state, uri, tag_value, manual, queue_list) == JUKEBOX_UNIQ_IS_UNIQ))
             {
                 if (randrange(0, lineno) < add_songs) {
                     if (add_list->length < add_list_expected_len) {
@@ -859,6 +861,22 @@ static bool check_last_played(rax *stickers_last_played, const char *uri, time_t
         ? 0
         : strtol((sds)sticker_value_last_played, NULL, 10);
     return sticker_last_played < since;
+}
+
+/**
+ * Checks if the album last_played time is older then since
+ * @param stickers_last_played last_played stickers
+ * @param uri uri to check against the stickers_last_played
+ * @param since timestamp to check against
+ * @param album_mode myMPD album mode
+ * @return true if songs last_played time is older then since, else false
+ */
+static bool check_last_played_album(rax *stickers_last_played, const char *uri, time_t since, enum album_modes album_mode) {
+    if (album_mode == ALBUM_MODE_SIMPLE) {
+        // this only supported in advanced album mode
+        return true;
+    }
+    return check_last_played(stickers_last_played, uri, since);
 }
 
 /**
