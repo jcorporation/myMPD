@@ -12,6 +12,7 @@ This is a small bugfix release.
 
 - Fix: switch grid mode by Strg+Click #1169
 - Fix: remove "parent dir" entry in filesystem view #1168
+- Fix: add random songs to queue
 
 ***
 
