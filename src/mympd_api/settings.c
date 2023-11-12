@@ -869,7 +869,7 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
     partition_state->jukebox_playlist = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_playlist", partition_state->jukebox_playlist, vcb_isfilename, true);
     partition_state->jukebox_queue_length = state_file_rw_long(workdir, partition_state->state_dir, "jukebox_queue_length", partition_state->jukebox_queue_length, JUKEBOX_QUEUE_MIN, JUKEBOX_QUEUE_MAX, true);
     partition_state->jukebox_last_played = state_file_rw_long(workdir, partition_state->state_dir, "jukebox_last_played", partition_state->jukebox_last_played, JUKEBOX_LAST_PLAYED_MIN, JUKEBOX_LAST_PLAYED_MAX, true);
-    partition_state->jukebox_unique_tag.tags[0] = state_file_rw_int(workdir, partition_state->state_dir, "jukebox_unique_tag", partition_state->jukebox_unique_tag.tags[0], 0, MPD_TAG_COUNT, true);
+    partition_state->jukebox_unique_tag.tags[0] = state_file_rw_tag(workdir, partition_state->state_dir, "jukebox_unique_tag", partition_state->jukebox_unique_tag.tags[0], true);
     partition_state->jukebox_ignore_hated = state_file_rw_bool(workdir, partition_state->state_dir, "jukebox_ignore_hated", MYMPD_JUKEBOX_IGNORE_HATED, true);
     partition_state->jukebox_filter_include = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_include", partition_state->jukebox_filter_include, vcb_issearchexpression, true);
     partition_state->jukebox_filter_exclude = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_exclude", partition_state->jukebox_filter_exclude, vcb_issearchexpression, true);
