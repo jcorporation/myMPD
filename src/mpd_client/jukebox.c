@@ -369,9 +369,6 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     if (mpd_send_list_queue_meta(partition_state->conn)) {
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             jukebox_get_last_played_add(partition_state, song, queue_list, jukebox_mode);
-            if (queue_list->length == JUKEBOX_UNIQ_RANGE) {
-                break;
-            }
         }
     }
     mpd_response_finish(partition_state->conn);
@@ -381,12 +378,14 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     }
 
     // append last_played to queue list
+    int added = 0;
     if (queue_list->length < JUKEBOX_UNIQ_RANGE) {
         struct t_list_node *current = partition_state->last_played.head;
         while (current != NULL) {
             if (mpd_send_list_meta(partition_state->conn, current->key)) {
                 if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                     jukebox_get_last_played_add(partition_state, song, queue_list, jukebox_mode);
+                    added++;
                 }
                 else {
                     MYMPD_LOG_WARN(partition_state->name, "Failure fetching song information for uri \"%s\"", current->key);
@@ -394,7 +393,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
             }
             mpd_response_finish(partition_state->conn);
             mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
-            if (queue_list->length == JUKEBOX_UNIQ_RANGE) {
+            if (added == JUKEBOX_UNIQ_RANGE) {
                 break;
             }
             current = current->next;
