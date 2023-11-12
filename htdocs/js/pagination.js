@@ -35,7 +35,7 @@ function gotoPageDir(direction, limit) {
  * @param {number} limit maximum entries to display
  * @returns {void}
  */
- function gotoPage(offset, limit) {
+function gotoPage(offset, limit) {
     app.current.offset = offset;
     if (limit !== undefined) {
         if (limit === 0) {
@@ -187,48 +187,50 @@ function createPaginationEls(totalPages, curPage) {
     }
     pageGrp.appendChild(first);
 
-    for (let i = start; i < end; i++) {
-        pageGrp.appendChild(
-            elCreateText('button', {"class": ["btn", "btn-secondary"]}, (i + 1).toString())
-        );
-        if (i + 1 === curPage) {
-            pageGrp.lastChild.classList.add('active');
+    if (end > start) {
+        for (let i = start; i < end; i++) {
+            pageGrp.appendChild(
+                elCreateText('button', {"class": ["btn", "btn-secondary"]}, (i + 1).toString())
+            );
+            if (i + 1 === curPage) {
+                pageGrp.lastChild.classList.add('active');
+            }
+            if (totalPages === -1) {
+                elDisable(pageGrp.lastChild);
+            }
+            else {
+                pageGrp.lastChild.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    gotoPage(i * app.current.limit, undefined);
+                }, false);
+            }
         }
-        if (totalPages === -1) {
-            elDisable(pageGrp.lastChild);
+
+        const last = elCreateEmpty('button', {"data-title-phrase": "Last page", "type": "button", "class": ["btn", "btn-secondary"]});
+        if (totalPages === end + 1) {
+            last.textContent = (end + 1).toString();
         }
         else {
-            pageGrp.lastChild.addEventListener('click', function(event) {
+            last.textContent = 'last_page';
+            last.classList.add('mi');
+        }
+        if (totalPages === -1) {
+            elDisable(last);
+        }
+        else if (totalPages === curPage) {
+            if (curPage !== 1) {
+                last.classList.add('active');
+            }
+            elDisable(last);
+        }
+        else {
+            last.addEventListener('click', function(event) {
                 event.preventDefault();
-                gotoPage(i * app.current.limit, undefined);
+                gotoPage(totalPages * app.current.limit - app.current.limit, undefined);
             }, false);
         }
+        pageGrp.appendChild(last);
     }
-
-    const last = elCreateEmpty('button', {"data-title-phrase": "Last page", "type": "button", "class": ["btn", "btn-secondary"]});
-    if (totalPages === end + 1) {
-        last.textContent = (end + 1).toString();
-    }
-    else {
-        last.textContent = 'last_page';
-        last.classList.add('mi');
-    }
-    if (totalPages === -1) {
-        elDisable(last);
-    }
-    else if (totalPages === curPage) {
-        if (curPage !== 1) {
-            last.classList.add('active');
-        }
-        elDisable(last);
-    }
-    else {
-        last.addEventListener('click', function(event) {
-            event.preventDefault();
-            gotoPage(totalPages * app.current.limit - app.current.limit, undefined);
-        }, false);
-    }
-    pageGrp.appendChild(last);
 
     pageDropdownMenu.appendChild(
         elCreateNode('div', {"class": ["row", "mb-3"]}, pageGrp)
