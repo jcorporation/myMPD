@@ -73,14 +73,14 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
         //partition state
         mpd_worker_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
         //worker runs always in default partition
-        partition_state_default(mpd_worker_state->partition_state, mympd_state->partition_state->name, mympd_state);
+        partition_state_default(mpd_worker_state->partition_state, mympd_state->partition_state->name, NULL);
         //use mpd state from worker
         mpd_worker_state->partition_state->mpd_state = mpd_worker_state->mpd_state;
 
         //stickerdb
         mpd_worker_state->stickerdb = malloc_assert(sizeof(struct t_partition_state));
         //worker runs always in default partition
-        partition_state_default(mpd_worker_state->stickerdb, mympd_state->partition_state->name, mympd_state);
+        partition_state_default(mpd_worker_state->stickerdb, mympd_state->partition_state->name, NULL);
         // do not use the shared mpd_state - we can connect to another mpd server for stickers
         mpd_worker_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
         mpd_state_copy(mympd_state->stickerdb->mpd_state, mpd_worker_state->stickerdb->mpd_state);
