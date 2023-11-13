@@ -203,7 +203,7 @@ function addTagListSelect(elId, list) {
             select.appendChild(optGroup);
         }
     }
-    else if (elId === 'modalPlaybackJukeboxUniqueTagInput') {
+    else if (elId === 'modalPlaybackJukeboxUniqTagInput') {
         if (settings.tagListBrowse.includes('Title') === false) {
             //Title tag should be always in the list
             select.appendChild(

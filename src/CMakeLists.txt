@@ -77,6 +77,7 @@ target_sources(mympd PRIVATE
   mpd_client/playlists.c
   mpd_client/queue.c
   mpd_client/presets.c
+  mpd_client/random_select.c
   mpd_client/search.c
   mpd_client/search_local.c
   mpd_client/stickerdb.c

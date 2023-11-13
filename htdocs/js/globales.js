@@ -1026,9 +1026,9 @@ const settingsPlaybackFields = {
         "help": "helpJukeboxQueueLength",
         "class": ["jukeboxSongOnly"]
     },
-    "jukeboxUniqueTag": {
+    "jukeboxUniqTag": {
         "inputType": "select",
-        "defaultValue": defaults["MYMPD_JUKEBOX_UNIQUE_TAG"],
+        "defaultValue": defaults["MYMPD_JUKEBOX_UNIQ_TAG"],
         "title": "Enforce uniqueness",
         "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxUniqueTag"

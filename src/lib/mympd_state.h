@@ -140,8 +140,7 @@ struct t_partition_state {
     sds jukebox_playlist;                  //!< playlist from which the jukebox queue is generated
     long jukebox_queue_length;             //!< how many songs should the mpd queue have
     long jukebox_last_played;              //!< only add songs with last_played state older than this timestamp
-    struct t_tags jukebox_unique_tag;      //!< single tag for the jukebox unique constraint
-    bool jukebox_enforce_unique;           //!< flag indicating if unique constraint is enabled
+    struct t_tags jukebox_uniq_tag;        //!< single tag for the jukebox uniq constraint
     struct t_list jukebox_queue;           //!< the jukebox queue itself
     struct t_list jukebox_queue_tmp;       //!< temporary jukebox queue for the add random to queue function
     bool jukebox_ignore_hated;             //!< ignores hated songs for the jukebox mode

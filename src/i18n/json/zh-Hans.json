@@ -634,7 +634,6 @@
     "Playlist successfully copied": "复制播放列表成功",
     "Playlist successfully moved": "删除播放列表成功",
     "Playlist successfully replaced": "替换播放列表成功",
-    "Playlist to small, disabling jukebox unique constraints temporarily": "播放列表太小，暂时禁用音乐盒的唯一性限制",
     "Playlist updated": "播放列表已更新",
     "Playlists": "播放列表",
     "Playlists deduplication started": "开始去除重复的播放列表",

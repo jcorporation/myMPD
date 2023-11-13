@@ -16,7 +16,7 @@ enum search_filters {
 };
 
 bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tags);
-struct t_list *parse_search_expression_to_list(sds expression);
+struct t_list *parse_search_expression_to_list(const char *expression);
 void *free_search_expression_list(struct t_list *expr_list);
 bool search_song_expression(const struct mpd_song *song, const struct t_list *expr_list, const struct t_tags *browse_tag_types);
 #endif

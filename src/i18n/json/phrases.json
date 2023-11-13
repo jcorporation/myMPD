@@ -649,7 +649,6 @@
 {"term":"Playlist successfully copied"},
 {"term":"Playlist successfully moved"},
 {"term":"Playlist successfully replaced"},
-{"term":"Playlist to small, disabling jukebox unique constraints temporarily"},
 {"term":"Playlist updated"},
 {"term":"Playlists"},
 {"term":"Playlists deduplication started"},

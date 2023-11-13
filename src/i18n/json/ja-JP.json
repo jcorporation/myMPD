@@ -634,7 +634,6 @@
     "Playlist successfully copied": "プレイリストを正常にコピーしました",
     "Playlist successfully moved": "プレイリストを正常に移動しました",
     "Playlist successfully replaced": "プレイリストを正常に置き換えました",
-    "Playlist to small, disabling jukebox unique constraints temporarily": "プレイリストが小さすぎるため、ジュークボックスの重複排除の制限を一時的に無効にします",
     "Playlist updated": "プレイリストを更新しました",
     "Playlists": "プレイリスト",
     "Playlists deduplication started": "プレイリストの重複項目の削除を開始しました",

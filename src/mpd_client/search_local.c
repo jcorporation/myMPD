@@ -98,10 +98,10 @@ bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
  * @param expression mpd search expression
  * @return list of the expression
  */
-struct t_list *parse_search_expression_to_list(sds expression) {
+struct t_list *parse_search_expression_to_list(const char *expression) {
     struct t_list *expr_list = list_new();
     int count = 0;
-    sds *tokens = sdssplitlen(expression, (ssize_t)sdslen(expression), ") AND (", 7, &count);
+    sds *tokens = sdssplitlen(expression, (ssize_t)strlen(expression), ") AND (", 7, &count);
     sds tag = sdsempty();
     sds op = sdsempty();
     for (int j = 0; j < count; j++) {

@@ -18,7 +18,7 @@ This is the description of the lua table mympd_state. This table must be initial
 | jukebox_mode | Integer | Jukebox mode: 0 = off, 1 = song, 2 = album |
 | jukebox_playlist | String | Jukebox playlist: Database or MPD playlist name |
 | jukebox_queue_length | Integer | Length of the queue length to maintain |
-| jukebox_unique_tag | String | Build the jukebox queue with this tag as unique constraint: Song, Album, Artist |
+| jukebox_uniq_tag | String | Build the jukebox queue with this tag as uniq constraint: Song, Album, Artist |
 | listenbrainz_token | String | ListenBrainz Token |
 | mixrampdelay | Float | Mixramp delay |
 | mixrampdb | Float | Mixramp DB |

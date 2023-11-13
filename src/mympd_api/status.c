@@ -299,7 +299,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
         lua_mympd_state_set_i(lua_partition_state, "jukebox_queue_length", partition_state->jukebox_queue_length);
         lua_mympd_state_set_i(lua_partition_state, "jukebox_last_played", partition_state->jukebox_last_played);
         lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox_ignore_hated);
-        lua_mympd_state_set_p(lua_partition_state, "jukebox_unique_tag", mpd_tag_name(partition_state->jukebox_unique_tag.tags[0]));
+        lua_mympd_state_set_p(lua_partition_state, "jukebox_uniq_tag", mpd_tag_name(partition_state->jukebox_uniq_tag.tags[0]));
         lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", partition_state->mympd_state->listenbrainz_token);
         if (partition_state->mpd_state->feat.partitions == true) {
             lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));

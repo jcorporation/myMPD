@@ -634,7 +634,6 @@
     "Playlist successfully copied": "재생목록 복사됨",
     "Playlist successfully moved": "재생목록 이동됨",
     "Playlist successfully replaced": "재생목록 대체됨",
-    "Playlist to small, disabling jukebox unique constraints temporarily": "연주목록이 작아서, 임시로 뮤직박스의 하나 제한 사용 안 함",
     "Playlist updated": "재생목록 업데이트됨",
     "Playlists": "연주목록",
     "Playlists deduplication started": "재생목록 중복 제거 시작함",

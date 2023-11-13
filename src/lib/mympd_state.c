@@ -321,11 +321,10 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     list_init(&partition_state->jukebox_queue_tmp);
     partition_state->jukebox_mode = JUKEBOX_OFF;
     partition_state->jukebox_playlist = sdsnew(MYMPD_JUKEBOX_PLAYLIST);
-    partition_state->jukebox_unique_tag.tags_len = 1;
-    partition_state->jukebox_unique_tag.tags[0] = MYMPD_JUKEBOX_UNIQUE_TAG;
+    partition_state->jukebox_uniq_tag.tags_len = 1;
+    partition_state->jukebox_uniq_tag.tags[0] = MYMPD_JUKEBOX_UNIQ_TAG;
     partition_state->jukebox_last_played = MYMPD_JUKEBOX_LAST_PLAYED;
     partition_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
-    partition_state->jukebox_enforce_unique = MYMPD_JUKEBOX_ENFORCE_UNIQUE;
     partition_state->jukebox_ignore_hated = MYMPD_JUKEBOX_IGNORE_HATED;
     partition_state->jukebox_filter_include = sdsempty();
     partition_state->jukebox_filter_exclude = sdsempty();

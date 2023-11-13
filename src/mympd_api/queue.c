@@ -343,17 +343,7 @@ bool mympd_api_queue_insert_albums(struct t_partition_state *partition_state, st
     struct t_list_node *current = albumids->head;
     bool rc = true;
     while (current != NULL) {
-        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mympd_state->album_cache, current->key);
-        if (mpd_album == NULL) {
-            *error = sdscat(*error, "Album not found");
-            return false;
-        }
-        sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist,
-            mpd_album, &partition_state->mympd_state->config->albums);
-        const char *sort = NULL;
-        bool sortdesc = false;
-        rc = mpd_client_search_add_to_queue(partition_state, expression, to, whence, sort, sortdesc, error);
-        FREE_SDS(expression);
+        rc = mpd_client_add_album_to_queue(partition_state, current->key, to, whence, error);
         if (rc == false) {
             break;
         }
