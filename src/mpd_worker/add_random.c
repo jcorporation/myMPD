@@ -20,6 +20,7 @@
  * @return true on success, else false
  */
 bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state, long add, unsigned mode, sds plist) {
+    //TODO: implement after album cache is thread save
     (void) mpd_worker_state;
     (void) add;
     (void) mode;
