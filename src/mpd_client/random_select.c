@@ -66,6 +66,9 @@ long random_select_albums(struct t_partition_state *partition_state, struct t_st
         return 0;
     }
 
+    MYMPD_LOG_DEBUG(partition_state->name, "Add list current length: %ld", initial_length);
+    MYMPD_LOG_DEBUG(partition_state->name, "Add list expected length: %ld", add_list_expected_len);
+
     long skipno = 0;
     long lineno = 1;
     time_t since = time(NULL);
@@ -155,10 +158,13 @@ long random_select_songs(struct t_partition_state *partition_state, struct t_sti
 {
     long initial_length = add_list->length;
     long add_list_expected_len = add_songs;
-    add_songs = add_songs - add_list->length;
+    add_songs = add_list_expected_len - add_list->length;
     if (add_songs <= 0) {
         return 0;
     }
+
+    MYMPD_LOG_DEBUG(partition_state->name, "Add list current length: %ld", initial_length);
+    MYMPD_LOG_DEBUG(partition_state->name, "Add list expected length: %ld", add_list_expected_len);
 
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
