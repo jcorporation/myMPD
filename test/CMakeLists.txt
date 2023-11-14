@@ -39,6 +39,7 @@ set(TEST_SOURCES
   ../src/mpd_client/jukebox.c
   ../src/mpd_client/presets.c
   ../src/mpd_client/queue.c
+  ../src/mpd_client/random_select.c
   ../src/mpd_client/search.c
   ../src/mpd_client/search_local.c
   ../src/mpd_client/shortcuts.c
@@ -51,6 +52,7 @@ set(TEST_SOURCES
   ../src/mympd_api/last_played.c
   ../src/mympd_api/jukebox.c
   ../src/mympd_api/lyrics.c
+  ../src/mympd_api/requests.c
   ../src/mympd_api/settings.c
   ../src/mympd_api/status.c
   ../src/mympd_api/sticker.c
