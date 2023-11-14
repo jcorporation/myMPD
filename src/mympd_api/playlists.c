@@ -660,7 +660,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, long request_id, sds plist, long offset, long limit, sds expression, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_CONTENT_LIST;

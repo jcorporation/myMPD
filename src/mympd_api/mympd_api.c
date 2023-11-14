@@ -103,7 +103,7 @@ void *mympd_api_loop(void *arg_config) {
     //disconnect from mpd
     mpd_client_disconnect_all(mympd_state, MPD_DISCONNECT_INSTANT);
     if (mympd_state->stickerdb->conn != NULL) {
-        mpd_client_disconnect(mympd_state->stickerdb, MPD_DISCONNECT_INSTANT);
+        stickerdb_disconnect(mympd_state->stickerdb, MPD_DISCONNECT_INSTANT);
     }
 
     // write album cache to disc

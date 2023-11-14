@@ -24,7 +24,7 @@
  * Private definitions
  */
 
-static sds get_last_played_obj(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+static sds get_last_played_obj(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, long entity_count, long long last_played, const char *uri, struct t_list *expr_list, const struct t_tags *tagcols);
 
 /**
@@ -79,7 +79,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, l
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, long request_id, long offset, long limit, sds expression, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_LAST_PLAYED_LIST;
@@ -150,7 +150,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-static sds get_last_played_obj(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+static sds get_last_played_obj(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, long entity_count, long long last_played, const char *uri, struct t_list *expr_list, const struct t_tags *tagcols)
 {
     if (mpd_send_list_meta(partition_state->conn, uri)) {

@@ -29,7 +29,7 @@
  */
 static bool add_queue_search_adv_params(struct t_partition_state *partition_state,
         sds sort, bool sortdesc, unsigned offset, unsigned limit);
-sds print_queue_entry(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+sds print_queue_entry(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, const struct t_tags *tagcols, struct mpd_song *song);
 
 /**
@@ -581,7 +581,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, long request_id, unsigned offset, unsigned limit, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
@@ -643,7 +643,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_par
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-sds mympd_api_queue_search(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+sds mympd_api_queue_search(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, long request_id, sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
         const struct t_tags *tagcols)
 {
@@ -790,7 +790,7 @@ static bool add_queue_search_adv_params(struct t_partition_state *partition_stat
  * @param song pointer to mpd song struct
  * @return pointer to buffer
  */
-sds print_queue_entry(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+sds print_queue_entry(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, const struct t_tags *tagcols, struct mpd_song *song)
 {
     buffer = sdscatlen(buffer, "{", 1);

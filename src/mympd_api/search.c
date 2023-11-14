@@ -29,7 +29,7 @@
  * @param result pointer to bool to set returncode
  * @return pointer to buffer
  */
-sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_partition_state *stickerdb, 
+sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, 
         sds buffer, long request_id, const char *expression, const char *sort, bool sortdesc,
         unsigned offset, unsigned limit, const struct t_tags *tagcols, bool *result)
 {

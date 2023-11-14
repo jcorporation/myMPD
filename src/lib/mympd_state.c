@@ -98,8 +98,8 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     partition_state_default(mympd_state->partition_state, MPD_PARTITION_DEFAULT, mympd_state->mpd_state, config);
     // stickerdb
     // use the partition struct to store the mpd connection for the stickerdb
-    mympd_state->stickerdb = malloc_assert(sizeof(struct t_partition_state));
-    partition_state_default(mympd_state->stickerdb, "stickerdb", NULL, config);
+    mympd_state->stickerdb = malloc_assert(sizeof(struct t_stickerdb_state));
+    stickerdb_state_default(mympd_state->stickerdb, config);
     // do not use the shared mpd_state - we can connect to another mpd server for stickers
     mympd_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
     mpd_state_default(mympd_state->stickerdb->mpd_state, config);
@@ -138,7 +138,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     }
     //stickerdb
     mpd_state_free(mympd_state->stickerdb->mpd_state);
-    partition_state_free(mympd_state->stickerdb);
+    stickerdb_state_free(mympd_state->stickerdb);
     //caches
     album_cache_free(&mympd_state->album_cache);
     //sds
@@ -180,7 +180,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
 /**
  * Sets mpd_state defaults.
  * @param mpd_state pointer to mpd_state
- * @param mympd_state pointer to central myMPD state
+ * @param config pointer to static config
  */
 void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config) {
     mpd_state->config = config;
@@ -282,7 +282,8 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
  * Sets per partition state defaults
  * @param partition_state pointer to t_partition_state struct
  * @param name partition name
- * @param mympd_state pointer to central myMPD state
+ * @param mpd_state pointer to shared mpd state
+ * @param config pointer to static config
  */
 void partition_state_default(struct t_partition_state *partition_state, const char *name,
         struct t_mpd_state *mpd_state, struct t_config *config)
@@ -382,4 +383,25 @@ void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->stream_uri);
     //struct itself
     FREE_PTR(partition_state);
+}
+
+/**
+ * Sets stickerdb state defaults
+ * @param mpd_state pointer to shared mpd state
+ */
+void stickerdb_state_default(struct t_stickerdb_state *stickerdb, struct t_config *config) {
+    stickerdb->config = config;
+    stickerdb->mpd_state = NULL;
+    stickerdb->conn_state = MPD_DISCONNECTED;
+    stickerdb->conn = NULL;
+    stickerdb->name = sdsnew("stickerdb");
+}
+
+/**
+ * Frees the t_stickerdb_state struct
+ * @param stickerdb pointer to struct
+ */
+void stickerdb_state_free(struct t_stickerdb_state *stickerdb) {
+    FREE_SDS(stickerdb->name);
+    FREE_PTR(stickerdb);
 }

@@ -25,18 +25,18 @@
 #include <string.h>
 
 //private definitions
-static bool jukebox(struct t_partition_state *partition_state, struct t_partition_state *stickerdb, struct t_cache *album_cache);
+static bool jukebox(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, struct t_cache *album_cache);
 static void jukebox_get_last_played_add(struct t_partition_state *partition_state,
         struct mpd_song *song, struct t_list *queue_list, enum jukebox_modes jukebox_mode);
 static struct t_list *jukebox_get_last_played(struct t_partition_state *partition_state,
         enum jukebox_modes jukebox_mode);
 static bool jukebox_add_to_queue(struct t_partition_state *partition_state,
-        struct t_partition_state *stickerdb, struct t_cache *album_cache, long add_songs,
+        struct t_stickerdb_state *stickerdb, struct t_cache *album_cache, long add_songs,
         enum jukebox_modes jukebox_mode, const char *playlist);
 static bool jukebox_run_fill_jukebox_queue(struct t_partition_state *partition_state,
-        struct t_partition_state *stickerdb, struct t_cache *album_cache,
+        struct t_stickerdb_state *stickerdb, struct t_cache *album_cache,
         long add_songs, enum jukebox_modes jukebox_mode, const char *playlist);
-static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         struct t_cache *album_cache, long add_songs, enum jukebox_modes jukebox_mode, const char *playlist);
 
 /**
@@ -100,7 +100,7 @@ void jukebox_clear_all(struct t_mympd_state *mympd_state) {
  * @param partition_state pointer to myMPD partition state
  * @return true on success, else false
  */
-bool jukebox_run(struct t_partition_state *partition_state, struct t_partition_state *stickerdb, struct t_cache *album_cache) {
+bool jukebox_run(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, struct t_cache *album_cache) {
     for (int i = 1; i < 3; i++) {
          if (jukebox(partition_state, stickerdb, album_cache) == true) {
              return true;
@@ -119,7 +119,7 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_partition_s
  * @param partition_state pointer to myMPD partition state
  * @return true on success, else false
  */
-static bool jukebox(struct t_partition_state *partition_state, struct t_partition_state *stickerdb, struct t_cache *album_cache) {
+static bool jukebox(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, struct t_cache *album_cache) {
     long queue_length = 0;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status != NULL) {
@@ -207,7 +207,7 @@ static bool jukebox(struct t_partition_state *partition_state, struct t_partitio
  * @return true on success, else false
  */
 static bool jukebox_add_to_queue(struct t_partition_state *partition_state,
-        struct t_partition_state *stickerdb, struct t_cache *album_cache, long add_songs,
+        struct t_stickerdb_state *stickerdb, struct t_cache *album_cache, long add_songs,
         enum jukebox_modes jukebox_mode, const char *playlist)
 {
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox queue length: %ld", partition_state->jukebox_queue.length);
@@ -354,7 +354,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
  * @return true on success, else false
  */
 static bool jukebox_run_fill_jukebox_queue(struct t_partition_state *partition_state,
-        struct t_partition_state *stickerdb, struct t_cache *album_cache,
+        struct t_stickerdb_state *stickerdb, struct t_cache *album_cache,
         long add_songs, enum jukebox_modes jukebox_mode, const char *playlist)
 {
     send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_INFO, partition_state->name, "Filling jukebox queue");
@@ -377,7 +377,7 @@ static bool jukebox_run_fill_jukebox_queue(struct t_partition_state *partition_s
  * @param playlist playlist to add songs from
  * @return true on success, else false
  */
-static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         struct t_cache *album_cache, long add_songs, enum jukebox_modes jukebox_mode, const char *playlist)
 {
     //get last_played and current queue

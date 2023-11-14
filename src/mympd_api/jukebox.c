@@ -68,7 +68,7 @@ bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions,
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, enum mympd_cmd_ids cmd_id, long request_id, long offset, long limit, sds expression, const struct t_tags *tagcols)
 {
     long entity_count = 0;

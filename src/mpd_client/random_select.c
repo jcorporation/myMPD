@@ -50,7 +50,7 @@ enum random_add_uniq_result {
  * @param constraints constraints for album selection
  * @return new length of add_list
  */
-long random_select_albums(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+long random_select_albums(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         struct t_cache *album_cache, long add_albums, struct t_list *queue_list, struct t_list *add_list,
         struct t_random_add_constraints *constraints)
 {
@@ -149,7 +149,7 @@ long random_select_albums(struct t_partition_state *partition_state, struct t_pa
  * @param constraints constraints for song selection
  * @return new length of add_list
  */
-long random_select_songs(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+long random_select_songs(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         long add_songs, const char *playlist, struct t_list *queue_list, struct t_list *add_list,
         struct t_random_add_constraints *constraints)
 {

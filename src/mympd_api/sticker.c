@@ -20,7 +20,7 @@
  * @param error already allocated sds string to append the error message
  * @return true on success, else false
  */
-bool mympd_api_sticker_set_feedback(struct t_partition_state *stickerdb, struct t_list *trigger_list, const char *partition_name,
+bool mympd_api_sticker_set_feedback(struct t_stickerdb_state *stickerdb, struct t_list *trigger_list, const char *partition_name,
     sds uri, enum feedback_type type, int value, sds *error)
 {
     if (stickerdb->mpd_state->feat.stickers == false) {
@@ -52,7 +52,7 @@ bool mympd_api_sticker_set_feedback(struct t_partition_state *stickerdb, struct 
  * @param tags array of stickers to print
  * @return pointer to the modified buffer
  */
-sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *stickerdb, const char *uri, const struct t_tags *tags) {
+sds mympd_api_sticker_get_print(sds buffer, struct t_stickerdb_state *stickerdb, const char *uri, const struct t_tags *tags) {
     if (tags->stickers_len == 0) {
         return buffer;
     }
@@ -74,7 +74,7 @@ sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *stickerdb,
  * @param tags array of stickers to print
  * @return pointer to the modified buffer
  */
-sds mympd_api_sticker_get_print_batch(sds buffer, struct t_partition_state *stickerdb, const char *uri, const struct t_tags *tags) {
+sds mympd_api_sticker_get_print_batch(sds buffer, struct t_stickerdb_state *stickerdb, const char *uri, const struct t_tags *tags) {
     if (tags->stickers_len == 0) {
         return buffer;
     }

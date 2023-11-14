@@ -166,6 +166,18 @@ struct t_partition_state {
 };
 
 /**
+ * Holds stickerdb specific states
+ */
+struct t_stickerdb_state {
+    struct t_config *config;               //!< pointer to static config
+    struct t_mpd_state *mpd_state;         //!< pointer to shared mpd state
+    //mpd connection
+    struct mpd_connection *conn;           //!< mpd connection object from libmpdclient
+    enum mpd_conn_states conn_state;       //!< mpd connection state
+    sds name;                              //!< name for logging
+};
+
+/**
  * Optional timer definition from GUI
  */
 struct t_timer_definition {
@@ -211,7 +223,7 @@ struct t_mympd_state {
     struct t_config *config;                      //!< pointer to static config
     struct t_mpd_state *mpd_state;                //!< mpd state shared across partitions
     struct t_partition_state *partition_state;    //!< list of partition states
-    struct t_partition_state *stickerdb;          //!< states for stickerdb connection
+    struct t_stickerdb_state *stickerdb;          //!< states for stickerdb connection
     struct pollfd fds[MPD_CONNECTION_MAX];        //!< mpd connection fds
     nfds_t nfds;                                  //!< number of mpd connection fds
     struct t_timer_list timer_list;               //!< list of timers
@@ -274,5 +286,8 @@ void mpd_state_free(struct t_mpd_state *mpd_state);
 void partition_state_default(struct t_partition_state *partition_state, const char *name,
         struct t_mpd_state *mpd_state, struct t_config *config);
 void partition_state_free(struct t_partition_state *partition_state);
+
+void stickerdb_state_default(struct t_stickerdb_state *stickerdb, struct t_config *config);
+void stickerdb_state_free(struct t_stickerdb_state *stickerdb);
 
 #endif

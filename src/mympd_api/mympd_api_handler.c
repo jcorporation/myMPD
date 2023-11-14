@@ -477,7 +477,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     if (strcmp(old_stickerdb_settings, new_stickerdb_settings) != 0) {
                         // reconnect
                         MYMPD_LOG_DEBUG("stickerdb", "MPD host has changed, reconnecting");
-                        mpd_client_disconnect_silent(mympd_state->stickerdb, MPD_DISCONNECTED);
+                        stickerdb_disconnect(mympd_state->stickerdb, MPD_DISCONNECTED);
                         // connect to stickerdb
                         if (stickerdb_connect(mympd_state->stickerdb) == true) {
                             stickerdb_enter_idle(mympd_state->stickerdb);
@@ -736,7 +736,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
                 json_get_int(request->data, "$.params.like", 0, 2, &int_buf1, &parse_error) == true)
             {
-                rc = mympd_api_sticker_set_feedback(partition_state, &mympd_state->trigger_list, partition_state->name, sds_buf1, FEEDBACK_LIKE, int_buf1, &error);
+                rc = mympd_api_sticker_set_feedback(mympd_state->stickerdb, &mympd_state->trigger_list, partition_state->name, sds_buf1, FEEDBACK_LIKE, int_buf1, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_STICKER, error);
             }
@@ -745,7 +745,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
                 json_get_int(request->data, "$.params.rating", 0, 10, &int_buf1, &parse_error) == true)
             {
-                rc = mympd_api_sticker_set_feedback(partition_state, &mympd_state->trigger_list, partition_state->name, sds_buf1, FEEDBACK_STAR, int_buf1, &error);
+                rc = mympd_api_sticker_set_feedback(mympd_state->stickerdb, &mympd_state->trigger_list, partition_state->name, sds_buf1, FEEDBACK_STAR, int_buf1, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_STICKER, error);
             }

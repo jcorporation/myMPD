@@ -25,7 +25,7 @@ void mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state) {
     }
     if (mpd_worker_state->stickerdb != NULL) {
         mpd_state_free(mpd_worker_state->stickerdb->mpd_state);
-        partition_state_free(mpd_worker_state->stickerdb);
+        stickerdb_state_free(mpd_worker_state->stickerdb);
     }
     FREE_PTR(mpd_worker_state);
 }
