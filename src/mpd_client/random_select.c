@@ -50,10 +50,11 @@ enum random_add_uniq_result {
  * @param constraints constraints for album selection
  * @return new length of add_list
  */
-long random_select_albums(struct t_partition_state *partition_state, long add_albums,
-        struct t_list *queue_list, struct t_list *add_list, struct t_random_add_constraints *constraints)
+long random_select_albums(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+        struct t_cache *album_cache, long add_albums, struct t_list *queue_list, struct t_list *add_list,
+        struct t_random_add_constraints *constraints)
 {
-    if (partition_state->mympd_state->album_cache.cache == NULL) {
+    if (album_cache->cache == NULL) {
         MYMPD_LOG_WARN(partition_state->name, "Album cache is null, can not add random albums");
         return -1;
     }
@@ -71,10 +72,10 @@ long random_select_albums(struct t_partition_state *partition_state, long add_al
     since = since - (constraints->last_played * 3600);
     sds albumid = sdsempty();
     rax *stickers_last_played = NULL;
-    if (partition_state->mympd_state->config->albums.mode == ALBUM_MODE_ADV &&
+    if (partition_state->config->albums.mode == ALBUM_MODE_ADV &&
         partition_state->mpd_state->feat.stickers == true)
     {
-        stickers_last_played = stickerdb_find_stickers_by_name(partition_state->mympd_state->stickerdb, "lastPlayed");
+        stickers_last_played = stickerdb_find_stickers_by_name(stickerdb, "lastPlayed");
     }
 
     //parse mpd search expression
@@ -87,7 +88,7 @@ long random_select_albums(struct t_partition_state *partition_state, long add_al
 
     sds tag_value = sdsempty();
     raxIterator iter;
-    raxStart(&iter, partition_state->mympd_state->album_cache.cache);
+    raxStart(&iter, album_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
         struct mpd_song *album= (struct mpd_song *)iter.data;
@@ -98,7 +99,7 @@ long random_select_albums(struct t_partition_state *partition_state, long add_al
 
         // we use the song uri in the album cache for enforcing last_played constraint,
         // because we do not know when an album was last played fully
-        if (check_last_played_album(stickers_last_played, mpd_song_get_uri(album), since, partition_state->mympd_state->config->albums.mode) == true &&
+        if (check_last_played_album(stickers_last_played, mpd_song_get_uri(album), since, partition_state->config->albums.mode) == true &&
             check_expression(album, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
             check_uniq_tag(albumid, tag_value, queue_list, add_list) == RANDOM_ADD_UNIQ_IS_UNIQ)
         {
@@ -148,8 +149,9 @@ long random_select_albums(struct t_partition_state *partition_state, long add_al
  * @param constraints constraints for song selection
  * @return new length of add_list
  */
-long random_select_songs(struct t_partition_state *partition_state, long add_songs, const char *playlist,
-        struct t_list *queue_list, struct t_list *add_list, struct t_random_add_constraints *constraints)
+long random_select_songs(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+        long add_songs, const char *playlist, struct t_list *queue_list, struct t_list *add_list,
+        struct t_random_add_constraints *constraints)
 {
     long initial_length = add_list->length;
     long add_list_expected_len = add_songs;
@@ -173,10 +175,10 @@ long random_select_songs(struct t_partition_state *partition_state, long add_son
     rax *stickers_like = NULL;
     if (partition_state->mpd_state->feat.stickers == true) {
         MYMPD_LOG_DEBUG(partition_state->name, "Fetching lastPlayed stickers");
-        stickers_last_played = stickerdb_find_stickers_by_name(partition_state->mympd_state->stickerdb, "lastPlayed");
+        stickers_last_played = stickerdb_find_stickers_by_name(stickerdb, "lastPlayed");
         if (constraints->ignore_hated == true) {
             MYMPD_LOG_DEBUG(partition_state->name, "Fetching stickers for hated songs");
-            stickers_like = stickerdb_find_stickers_by_name_value(partition_state->mympd_state->stickerdb, "like", MPD_STICKER_OP_EQ, "0");
+            stickers_like = stickerdb_find_stickers_by_name_value(stickerdb, "like", MPD_STICKER_OP_EQ, "0");
         }
     }
 

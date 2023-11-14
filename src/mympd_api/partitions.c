@@ -98,7 +98,7 @@ bool mympd_api_partition_outputs_move(struct t_partition_state *partition_state,
  * @param partition partition to remove
  * @return pointer to buffer
  */
-sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer, long request_id, sds partition) {
+sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, sds buffer, long request_id, sds partition) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PARTITION_RM;
     if (partition_state->is_default == false) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD,
@@ -108,7 +108,7 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD,
                 JSONRPC_SEVERITY_ERROR, "Default partition can not be deleted");
     }
-    struct t_partition_state *partition_to_remove = partitions_get_by_name(partition_state->mympd_state, partition);
+    struct t_partition_state *partition_to_remove = partitions_get_by_name(mympd_state, partition);
     if (partition_to_remove == NULL) {
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Partition not found");
         return buffer;
@@ -165,7 +165,7 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
     if (result == true) {
         //partition was removed
         partition_to_remove->conn_state = MPD_REMOVED;
-        sds dirpath = sdscatfmt(sdsempty(),"%S/%s/%S",partition_state->mympd_state->config->workdir, DIR_WORK_STATE, partition);
+        sds dirpath = sdscatfmt(sdsempty(),"%S/%s/%S",partition_state->config->workdir, DIR_WORK_STATE, partition);
         clean_rm_directory(dirpath);
         FREE_SDS(dirpath);
     }

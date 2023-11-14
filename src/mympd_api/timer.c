@@ -133,10 +133,10 @@ void mympd_api_timer_check(struct t_timer_list *l) {
  * @param error pointer to already allocated sds string to append an error message
  * @return true on success, else false
  */
-bool mympd_api_timer_save(struct t_partition_state *partition_state, int interval, long long timerid,
+bool mympd_api_timer_save(struct t_partition_state *partition_state, struct t_timer_list *timer_list, int interval, long long timerid,
         struct t_timer_definition *timer_def, sds *error)
 {
-    if (partition_state->mympd_state->timer_list.list.length > LIST_TIMER_MAX) {
+    if (timer_list->list.length > LIST_TIMER_MAX) {
         *error = sdscat(*error, "Too many timers defined");
         return false;
     }
@@ -153,7 +153,7 @@ bool mympd_api_timer_save(struct t_partition_state *partition_state, int interva
         return false;
     }
     if (new == true) {
-        timerid = partition_state->mympd_state->timer_list.last_id + 1;
+        timerid = timer_list->last_id + 1;
     }
     else if (timerid < USER_TIMER_ID_MIN) {
         //existing timer
@@ -164,13 +164,13 @@ bool mympd_api_timer_save(struct t_partition_state *partition_state, int interva
     }
     //calculate start time and add/replace timer
     time_t start = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
-    bool rc = mympd_api_timer_replace(&partition_state->mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def);
+    bool rc = mympd_api_timer_replace(timer_list, start, interval, timer_handler_select, timerid, timer_def);
     if (rc == false) {
         *error = sdscat(*error, "Saving timer failed");
         return false;
     }
     if (new == true) {
-        partition_state->mympd_state->timer_list.last_id = timerid;
+        timer_list->last_id = timerid;
     }
     return true;
 }

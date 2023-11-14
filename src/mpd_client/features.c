@@ -26,10 +26,10 @@
 
 static void features_commands(struct t_partition_state *partition_state);
 static void features_mpd_tags(struct t_partition_state *partition_state);
-static void features_tags(struct t_partition_state *partition_state);
+static void features_tags(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state);
 static void set_simple_album_tags(struct t_partition_state *partition_state);
 static void set_album_tags(struct t_partition_state *partition_state);
-static void features_config(struct t_partition_state *partition_state);
+static void features_config(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state);
 static sds set_directory(const char *desc, sds directory, sds value);
 
 /**
@@ -40,7 +40,7 @@ static sds set_directory(const char *desc, sds directory, sds value);
  * Detects MPD features and disables/enables myMPD features accordingly
  * @param partition_state pointer to partition state
  */
-void mpd_client_mpd_features(struct t_partition_state *partition_state) {
+void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {
     partition_state->mpd_state->protocol = mpd_connection_get_server_version(partition_state->conn);
     MYMPD_LOG_NOTICE(partition_state->name, "MPD protocol version: %u.%u.%u",
         partition_state->mpd_state->protocol[0],
@@ -50,19 +50,20 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
 
     // first disable all features
     mpd_state_features_default(&partition_state->mpd_state->feat);
+
     // copy sticker feature flags from stickerdb connection
-    partition_state->mpd_state->feat.stickers = partition_state->mympd_state->stickerdb->mpd_state->feat.stickers;
-    partition_state->mpd_state->feat.sticker_sort_window = partition_state->mympd_state->stickerdb->mpd_state->feat.sticker_sort_window;
-    partition_state->mpd_state->feat.sticker_int = partition_state->mympd_state->stickerdb->mpd_state->feat.sticker_int;
+    partition_state->mpd_state->feat.stickers = mympd_state->stickerdb->mpd_state->feat.stickers;
+    partition_state->mpd_state->feat.sticker_sort_window = mympd_state->stickerdb->mpd_state->feat.sticker_sort_window;
+    partition_state->mpd_state->feat.sticker_int = mympd_state->stickerdb->mpd_state->feat.sticker_int;
 
     //get features
     features_commands(partition_state);
-    features_config(partition_state);
-    features_tags(partition_state);
+    features_config(mympd_state, partition_state);
+    features_tags(mympd_state, partition_state);
 
     //set state
     sds buffer = sdsempty();
-    buffer = mympd_api_status_get(partition_state, buffer, 0, RESPONSE_TYPE_JSONRPC_RESPONSE);
+    buffer = mympd_api_status_get(partition_state, &mympd_state->album_cache, buffer, 0, RESPONSE_TYPE_JSONRPC_RESPONSE);
     FREE_SDS(buffer);
 
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 0) >= 0) {
@@ -118,7 +119,7 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
         MYMPD_LOG_WARN(partition_state->name, "Disabling starts_with filter expression feature, depends on mpd >= 0.24.0");
         MYMPD_LOG_WARN(partition_state->name, "Disabling db added feature, depends on mpd >= 0.24.0");
     }
-    settings_to_webserver(partition_state->mympd_state);
+    settings_to_webserver(mympd_state);
 }
 
 /**
@@ -168,30 +169,30 @@ static void features_commands(struct t_partition_state *partition_state) {
  * Sets enabled tags for myMPD
  * @param partition_state pointer to partition state
  */
-static void features_tags(struct t_partition_state *partition_state) {
+static void features_tags(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {
     //reset all tags
     reset_t_tags(&partition_state->mpd_state->tags_mpd);
     reset_t_tags(&partition_state->mpd_state->tags_mympd);
     reset_t_tags(&partition_state->mpd_state->tags_search);
     reset_t_tags(&partition_state->mpd_state->tags_browse);
     reset_t_tags(&partition_state->mpd_state->tags_album);
-    reset_t_tags(&partition_state->mympd_state->smartpls_generate_tag_types);
+    reset_t_tags(&mympd_state->smartpls_generate_tag_types);
     //check for enabled mpd tags
     features_mpd_tags(partition_state);
     //parse the webui taglists and set the tag structs
     if (partition_state->mpd_state->feat.tags == true) {
-        if (partition_state->mympd_state->config->albums.mode == ALBUM_MODE_ADV) {
+        if (partition_state->config->albums.mode == ALBUM_MODE_ADV) {
             set_album_tags(partition_state);
         }
         else {
             set_simple_album_tags(partition_state);
         }
-        check_tags(partition_state->mympd_state->tag_list_search, "tag_list_search",
+        check_tags(mympd_state->tag_list_search, "tag_list_search",
             &partition_state->mpd_state->tags_search, &partition_state->mpd_state->tags_mympd);
-        check_tags(partition_state->mympd_state->tag_list_browse, "tag_list_browse",
+        check_tags(mympd_state->tag_list_browse, "tag_list_browse",
             &partition_state->mpd_state->tags_browse, &partition_state->mpd_state->tags_mympd);
-        check_tags(partition_state->mympd_state->smartpls_generate_tag_list, "smartpls_generate_tag_list",
-            &partition_state->mympd_state->smartpls_generate_tag_types, &partition_state->mpd_state->tags_mympd);
+        check_tags(mympd_state->smartpls_generate_tag_list, "smartpls_generate_tag_list",
+            &mympd_state->smartpls_generate_tag_types, &partition_state->mpd_state->tags_mympd);
     }
 }
 
@@ -235,7 +236,7 @@ static void set_simple_album_tags(struct t_partition_state *partition_state) {
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
                 break;
             default:
-                if (partition_state->mpd_state->tags_mympd.tags[i] == partition_state->mympd_state->config->albums.group_tag) {
+                if (partition_state->mpd_state->tags_mympd.tags[i] == partition_state->config->albums.group_tag) {
                     // add album group tag
                     partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.tags_len++] = partition_state->mpd_state->tags_mympd.tags[i];
                     logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
@@ -302,7 +303,7 @@ static void features_mpd_tags(struct t_partition_state *partition_state) {
  * Uses the config command to check for MPD features
  * @param partition_state pointer to partition state
  */
-static void features_config(struct t_partition_state *partition_state) {
+static void features_config(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {
     partition_state->mpd_state->feat.library = false;
     sdsclear(partition_state->mpd_state->music_directory_value);
     sdsclear(partition_state->mpd_state->playlist_directory_value);
@@ -320,12 +321,12 @@ static void features_config(struct t_partition_state *partition_state) {
             while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0 &&
                     is_streamuri(pair->value) == false &&
-                    strncmp(partition_state->mympd_state->music_directory, "auto", 4) == 0)
+                    strncmp(mympd_state->music_directory, "auto", 4) == 0)
                 {
                     partition_state->mpd_state->music_directory_value = sds_replace(partition_state->mpd_state->music_directory_value, pair->value);
                 }
                 else if (strcmp(pair->name, "playlist_directory") == 0 &&
-                    strncmp(partition_state->mympd_state->playlist_directory, "auto", 4) == 0)
+                    strncmp(mympd_state->playlist_directory, "auto", 4) == 0)
                 {
                     //supported since MPD 0.24
                     partition_state->mpd_state->playlist_directory_value = sds_replace(partition_state->mpd_state->playlist_directory_value, pair->value);
@@ -348,9 +349,9 @@ static void features_config(struct t_partition_state *partition_state) {
         mympd_check_error_and_recover(partition_state, NULL, "config");
     }
 
-    partition_state->mpd_state->music_directory_value = set_directory("music", partition_state->mympd_state->music_directory,
+    partition_state->mpd_state->music_directory_value = set_directory("music", mympd_state->music_directory,
         partition_state->mpd_state->music_directory_value);
-    partition_state->mpd_state->playlist_directory_value = set_directory("playlist", partition_state->mympd_state->playlist_directory,
+    partition_state->mpd_state->playlist_directory_value = set_directory("playlist", mympd_state->playlist_directory,
         partition_state->mpd_state->playlist_directory_value);
 
     //set feat_library

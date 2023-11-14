@@ -37,16 +37,16 @@ bool mpd_client_command_list_end_check(struct t_partition_state *partition_state
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mpd_client_add_album_to_queue(struct t_partition_state *partition_state, sds album_id,
-        unsigned to, unsigned whence, sds *error)
+bool mpd_client_add_album_to_queue(struct t_partition_state *partition_state, struct t_cache *album_cache,
+    sds album_id, unsigned to, unsigned whence, sds *error)
 {
-    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mympd_state->album_cache, album_id);
+    struct mpd_song *mpd_album = album_cache_get_album(album_cache, album_id);
     if (mpd_album == NULL) {
         *error = sdscat(*error, "Album not found");
         return false;
     }
     sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist,
-        mpd_album, &partition_state->mympd_state->config->albums);
+        mpd_album, &partition_state->config->albums);
     const char *sort = NULL;
     bool sortdesc = false;
     bool rc = mpd_client_search_add_to_queue(partition_state, expression, to, whence, sort, sortdesc, error);

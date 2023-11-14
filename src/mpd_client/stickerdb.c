@@ -16,7 +16,7 @@
 #include "src/lib/utility.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
-#include "src/mympd_api/trigger.h"
+#include "src/mympd_api/requests.h"
 
 #include <inttypes.h>
 #include <limits.h>
@@ -46,7 +46,7 @@ static bool remove_sticker(struct t_partition_state *partition_state, const char
  * @param partition_state pointer to the partition state
  */
 bool stickerdb_connect(struct t_partition_state *partition_state) {
-    if (partition_state->mympd_state->config->stickers == false) {
+    if (partition_state->config->stickers == false) {
         MYMPD_LOG_WARN("stickerdb", "Stickers are disabled by config");
         return false;
     }
@@ -65,7 +65,7 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
     }
     // try to connect
     MYMPD_LOG_INFO(partition_state->name, "Creating mpd connection for %s", partition_state->name);
-    if (mpd_client_connect(partition_state, false) == false) {
+    if (mpd_client_connect(partition_state) == false) {
         MYMPD_LOG_DEBUG("stickerdb", "Connecting to MPD");
         return false;
     }
@@ -83,13 +83,9 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
         partition_state->mpd_state->feat.sticker_sort_window = true;
         MYMPD_LOG_DEBUG(partition_state->name, "Enabling sticker value int handling feature");
         partition_state->mpd_state->feat.sticker_int = true;
-        // set feature flag also on shared mpd state
-        partition_state->mympd_state->mpd_state->feat.sticker_sort_window = true;
-        partition_state->mympd_state->mpd_state->feat.sticker_int = true;
     }
     // check for sticker support
     partition_state->mpd_state->feat.stickers = false;
-    partition_state->mympd_state->mpd_state->feat.stickers = false;
     if (mpd_send_allowed_commands(partition_state->conn) == true) {
         struct mpd_pair *pair;
         while ((pair = mpd_recv_command_pair(partition_state->conn)) != NULL) {
@@ -97,13 +93,13 @@ bool stickerdb_connect(struct t_partition_state *partition_state) {
                 MYMPD_LOG_DEBUG("stickerdb", "MPD supports stickers");
                 mpd_return_pair(partition_state->conn, pair);
                 partition_state->mpd_state->feat.stickers = true;
-                // set feature flag also on shared mpd state
-                partition_state->mympd_state->mpd_state->feat.stickers = true;
                 break;
             }
             mpd_return_pair(partition_state->conn, pair);
         }
     }
+    mympd_api_request_sticker_features(partition_state->mpd_state->feat.stickers,
+        partition_state->mpd_state->feat.sticker_sort_window, partition_state->mpd_state->feat.sticker_int);
     mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_allowed_commands") == true) {
         if (partition_state->mpd_state->feat.stickers == false) {
@@ -142,7 +138,7 @@ bool stickerdb_idle(struct t_partition_state *partition_state) {
         // exit and reenter the idle mode to discard waiting events
         // this prevents the connection to timeout
         MYMPD_LOG_DEBUG("stickerdb", "Discarding idle events");
-        mympd_api_trigger_execute(&partition_state->mympd_state->trigger_list, TRIGGER_MPD_STICKER, partition_state->name);
+        mympd_api_request_trigger_event_emit(TRIGGER_MPD_STICKER, partition_state->name);
         return stickerdb_exit_idle(partition_state) &&
             stickerdb_enter_idle(partition_state);
     }

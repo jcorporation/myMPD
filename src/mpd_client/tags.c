@@ -345,7 +345,7 @@ sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struc
             buffer = sdscatlen(buffer, ",", 1);
         }
         if (is_streamuri(uri) == false) {
-            sds albumid = album_cache_get_key(sdsempty(), song, &mpd_state->mympd_state->config->albums);
+            sds albumid = album_cache_get_key(sdsempty(), song, &mpd_state->config->albums);
             buffer = tojson_sds(buffer, "AlbumId", albumid, true);
             FREE_SDS(albumid);
         }

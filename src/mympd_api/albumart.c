@@ -29,10 +29,16 @@
  * @param size size of the albumart
  * @return jsonrpc response
  */
-sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds albumid, unsigned size)
+sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds buffer, long request_id, sds albumid, unsigned size)
 {
-    struct mpd_song *album = album_cache_get_album(&partition_state->mympd_state->album_cache, albumid);
+    if (album_cache->cache == NULL) {
+        buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Albumcache not ready");
+        return buffer;
+    }
+
+    struct mpd_song *album = album_cache_get_album(album_cache, albumid);
     if (album == NULL) {
         return jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }
@@ -49,7 +55,7 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
 
     // search for one song in the album
     sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist,
-        album, &partition_state->mympd_state->config->albums);
+        album, &partition_state->config->albums);
 
     if (mpd_search_db_songs(partition_state->conn, false) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
@@ -154,8 +160,8 @@ sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state
         buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
         buffer = jsonrpc_end(buffer);
-        if (partition_state->mympd_state->config->covercache_keep_days > 0) {
-            covercache_write_file(partition_state->mympd_state->config->cachedir, uri, mime_type, *binary, 0);
+        if (partition_state->config->covercache_keep_days > 0) {
+            covercache_write_file(partition_state->config->cachedir, uri, mime_type, *binary, 0);
         }
         else {
             MYMPD_LOG_DEBUG(partition_state->name, "Covercache is disabled");

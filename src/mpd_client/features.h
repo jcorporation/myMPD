@@ -9,5 +9,5 @@
 
 #include "src/lib/mympd_state.h"
 
-void mpd_client_mpd_features(struct t_partition_state *partition_state);
+void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state);
 #endif

@@ -21,7 +21,9 @@
  * @param uri song uri
  * @return pointer to buffer
  */
-sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
+sds mympd_api_song_details(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+    sds buffer, long request_id, const char *uri)
+{
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_DETAILS;
     if (mpd_send_list_meta(partition_state->conn, uri)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -43,11 +45,11 @@ sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer
         struct t_tags tagcols;
         reset_t_tags(&tagcols);
         tags_enable_all_stickers(&tagcols);
-        buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, uri, &tagcols);
+        buffer = mympd_api_sticker_get_print(buffer, mympd_state->stickerdb, uri, &tagcols);
     }
 
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
+    buffer = mympd_api_get_extra_media(buffer, partition_state->mpd_state, mympd_state->booklet_name, mympd_state->info_txt_name, uri, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }

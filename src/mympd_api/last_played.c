@@ -24,8 +24,8 @@
  * Private definitions
  */
 
-static sds get_last_played_obj(struct t_partition_state *partition_state, sds buffer, long entity_count,
-        long long last_played, const char *uri, struct t_list *expr_list, const struct t_tags *tagcols);
+static sds get_last_played_obj(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+        sds buffer, long entity_count, long long last_played, const char *uri, struct t_list *expr_list, const struct t_tags *tagcols);
 
 /**
  * Public functions
@@ -37,9 +37,9 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
  * @param song_id the song id to add
  * @return true on success, else false
  */
-bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, int song_id) {
+bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, long last_played_count, int song_id) {
     if (song_id == -1 ||                                    // no current song
-        partition_state->mympd_state->last_played_count == 0) // last played is disabled
+        last_played_count == 0) // last played is disabled
     {
         return true;
     }
@@ -61,7 +61,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, i
         return false;
     }
 
-    list_crop(&partition_state->last_played, partition_state->mympd_state->last_played_count, NULL);
+    list_crop(&partition_state->last_played, last_played_count, NULL);
 
     //notify clients
     send_jsonrpc_event(JSONRPC_EVENT_UPDATE_LAST_PLAYED, partition_state->name);
@@ -79,8 +79,8 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, i
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds buffer,
-        long request_id, long offset, long limit, sds expression, const struct t_tags *tagcols)
+sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+        sds buffer, long request_id, long offset, long limit, sds expression, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_LAST_PLAYED_LIST;
     long entity_count = 0;
@@ -96,12 +96,12 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
     if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
-        stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+        stickerdb_exit_idle(stickerdb);
     }
 
     struct t_list_node *current = partition_state->last_played.head;
     while (current != NULL) {
-        obj = get_last_played_obj(partition_state, obj, entity_count, current->value_i,
+        obj = get_last_played_obj(partition_state, stickerdb, obj, entity_count, current->value_i,
             current->key, expr_list, tagcols);
         if (sdslen(obj) > 0) {
             if (entities_found >= offset) {
@@ -123,7 +123,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
     if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
-        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+        stickerdb_enter_idle(stickerdb);
     }
     free_search_expression_list(expr_list);
     buffer = sdscatlen(buffer, "],", 2);
@@ -150,8 +150,8 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-static sds get_last_played_obj(struct t_partition_state *partition_state, sds buffer, long entity_count,
-        long long last_played, const char *uri, struct t_list *expr_list, const struct t_tags *tagcols)
+static sds get_last_played_obj(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+        sds buffer, long entity_count, long long last_played, const char *uri, struct t_list *expr_list, const struct t_tags *tagcols)
 {
     if (mpd_send_list_meta(partition_state->conn, uri)) {
         struct mpd_song *song;
@@ -164,7 +164,7 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
                 if (partition_state->mpd_state->feat.stickers == true &&
                     tagcols->stickers_len > 0)
                 {
-                    buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
+                    buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, mpd_song_get_uri(song), tagcols);
                 }
                 buffer = sdscatlen(buffer, "}", 1);
             }

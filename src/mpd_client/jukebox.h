@@ -12,7 +12,6 @@
 enum jukebox_modes jukebox_mode_parse(const char *str);
 const char *jukebox_mode_lookup(enum jukebox_modes mode);
 void jukebox_clear_all(struct t_mympd_state *mympd_state);
-bool jukebox_run(struct t_partition_state *partition_state);
-bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_songs,
-        enum jukebox_modes jukebox_mode, const char *playlist);
+bool jukebox_run(struct t_partition_state *partition_state, struct t_partition_state *stickerdb, struct t_cache *album_cache);
+
 #endif

@@ -9,7 +9,7 @@
 
 #include "src/lib/jsonrpc.h"
 #include "src/mpd_client/stickerdb.h"
-#include "src/mympd_api/trigger.h"
+#include "src/mympd_api/requests.h"
 
 /**
  * Sets the like sticker and triggers the feedback event
@@ -20,24 +20,26 @@
  * @param error already allocated sds string to append the error message
  * @return true on success, else false
  */
-bool mympd_api_sticker_set_feedback(struct t_partition_state *partition_state, sds uri, enum feedback_type type, int value, sds *error) {
-    if (partition_state->mpd_state->feat.stickers == false) {
+bool mympd_api_sticker_set_feedback(struct t_partition_state *stickerdb, struct t_list *trigger_list, const char *partition_name,
+    sds uri, enum feedback_type type, int value, sds *error)
+{
+    if (stickerdb->mpd_state->feat.stickers == false) {
         *error = sdscat(*error, "MPD stickers are disabled");
         return false;
     }
     bool rc = type == FEEDBACK_LIKE
         ? value == 1
-            ? stickerdb_remove(partition_state->mympd_state->stickerdb, uri, "like")
-            : stickerdb_set_like(partition_state->mympd_state->stickerdb, uri, (enum sticker_like)value)
+            ? stickerdb_remove(stickerdb, uri, "like")
+            : stickerdb_set_like(stickerdb, uri, (enum sticker_like)value)
         : value == 0
-            ? stickerdb_remove(partition_state->mympd_state->stickerdb, uri, "rating")
-            : stickerdb_set_rating(partition_state->mympd_state->stickerdb, uri, value);
+            ? stickerdb_remove(stickerdb, uri, "rating")
+            : stickerdb_set_rating(stickerdb, uri, value);
     if (rc == false) {
         *error = sdscat(*error, "Failed to set feedback");
         return false;
     }
     //mympd_feedback trigger
-    mympd_api_trigger_execute_feedback(&partition_state->mympd_state->trigger_list, uri, type, value, partition_state->name);
+    mympd_api_trigger_execute_feedback(trigger_list, uri, type, value, partition_name);
     return true;
 }
 
@@ -50,12 +52,12 @@ bool mympd_api_sticker_set_feedback(struct t_partition_state *partition_state, s
  * @param tags array of stickers to print
  * @return pointer to the modified buffer
  */
-sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *partition_state, const char *uri, const struct t_tags *tags) {
+sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *stickerdb, const char *uri, const struct t_tags *tags) {
     if (tags->stickers_len == 0) {
         return buffer;
     }
     struct t_sticker sticker;
-    if (stickerdb_get_all(partition_state->mympd_state->stickerdb, uri, &sticker, false) != NULL) {
+    if (stickerdb_get_all(stickerdb, uri, &sticker, false) != NULL) {
         buffer = mympd_api_sticker_print(buffer, &sticker, tags);
         sticker_struct_clear(&sticker);
     }
@@ -72,12 +74,12 @@ sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *partition_
  * @param tags array of stickers to print
  * @return pointer to the modified buffer
  */
-sds mympd_api_sticker_get_print_batch(sds buffer, struct t_partition_state *partition_state, const char *uri, const struct t_tags *tags) {
+sds mympd_api_sticker_get_print_batch(sds buffer, struct t_partition_state *stickerdb, const char *uri, const struct t_tags *tags) {
     if (tags->stickers_len == 0) {
         return buffer;
     }
     struct t_sticker sticker;
-    if (stickerdb_get_all_batch(partition_state->mympd_state->stickerdb, uri, &sticker, false) != NULL) {
+    if (stickerdb_get_all_batch(stickerdb, uri, &sticker, false) != NULL) {
         buffer = mympd_api_sticker_print(buffer, &sticker, tags);
         sticker_struct_clear(&sticker);
     }

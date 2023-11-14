@@ -9,9 +9,10 @@
 
 #include "src/lib/mympd_state.h"
 
-bool mympd_api_sticker_set_feedback(struct t_partition_state *partition_state, sds uri, enum feedback_type type, int value, sds *error);
-sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *partition_state, const char *uri, const struct t_tags *tags);
-sds mympd_api_sticker_get_print_batch(sds buffer, struct t_partition_state *partition_state, const char *uri, const struct t_tags *tags);
+bool mympd_api_sticker_set_feedback(struct t_partition_state *stickerdb, struct t_list *trigger_list, const char *partition_name,
+    sds uri, enum feedback_type type, int value, sds *error);
+sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *stickerdb, const char *uri, const struct t_tags *tags);
+sds mympd_api_sticker_get_print_batch(sds buffer, struct t_partition_state *stickerdb, const char *uri, const struct t_tags *tags);
 sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct t_tags *tags);
 
 #endif

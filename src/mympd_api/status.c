@@ -56,7 +56,7 @@ unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status) {
  * @param status pointer to mpd_status struct
  * @return pointer to buffer
  */
-sds mympd_api_status_print(struct t_partition_state *partition_state, sds buffer, struct mpd_status *status) {
+sds mympd_api_status_print(struct t_partition_state *partition_state, struct t_cache *album_cache, sds buffer, struct mpd_status *status) {
     enum mpd_state playstate = mpd_status_get_state(status);
 
     buffer = tojson_char(buffer, "state", get_playstate_name(playstate), true);
@@ -79,7 +79,7 @@ sds mympd_api_status_print(struct t_partition_state *partition_state, sds buffer
     buffer = printAudioFormat(buffer, audioformat);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "updateState", mpd_status_get_update_id(status), true);
-    buffer = tojson_bool(buffer, "updateCacheState", partition_state->mympd_state->album_cache.building, true);
+    buffer = tojson_bool(buffer, "updateCacheState", album_cache->building, true);
     buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
     return buffer;
 }
@@ -134,7 +134,9 @@ long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
  * @param response_type jsonrpc response type: RESPONSE_TYPE_RESPONSE or RESPONSE_TYPE_NOTIFY
  * @return pointer to buffer
  */
-sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, long request_id, enum response_types response_type) {
+sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds buffer, long request_id, enum response_types response_type)
+{
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_STATE;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     int song_id = -1;
@@ -193,7 +195,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
         else {
             buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         }
-        buffer = mympd_api_status_print(partition_state, buffer, status);
+        buffer = mympd_api_status_print(partition_state, album_cache, buffer, status);
         buffer = jsonrpc_end(buffer);
 
         mpd_status_free(status);
@@ -255,7 +257,9 @@ bool mympd_api_status_clear_error(struct t_partition_state *partition_state, sds
  * @param partition_state pointer to partition state
  * @return true on success, else false
  */
-bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_partition_state *partition_state) {
+bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_mympd_state *mympd_state,
+        struct t_partition_state *partition_state)
+{
     if (mpd_command_list_begin(partition_state->conn, true)) {
         if (mpd_send_status(partition_state->conn) == false) {
             mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status");
@@ -291,8 +295,8 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
         lua_mympd_state_set_i(lua_partition_state, "replaygain", replay_gain_mode);
         lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
         lua_mympd_state_set_p(lua_partition_state, "playlist_directory", partition_state->mpd_state->playlist_directory_value);
-        lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->mympd_state->config->workdir);
-        lua_mympd_state_set_p(lua_partition_state, "cachedir", partition_state->mympd_state->config->cachedir);
+        lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->config->workdir);
+        lua_mympd_state_set_p(lua_partition_state, "cachedir", partition_state->config->cachedir);
         lua_mympd_state_set_b(lua_partition_state, "auto_play", partition_state->auto_play);
         lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox_mode);
         lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox_playlist);
@@ -300,7 +304,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
         lua_mympd_state_set_i(lua_partition_state, "jukebox_last_played", partition_state->jukebox_last_played);
         lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox_ignore_hated);
         lua_mympd_state_set_p(lua_partition_state, "jukebox_uniq_tag", mpd_tag_name(partition_state->jukebox_uniq_tag.tags[0]));
-        lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", partition_state->mympd_state->listenbrainz_token);
+        lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", mympd_state->listenbrainz_token);
         if (partition_state->mpd_state->feat.partitions == true) {
             lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));
         }
@@ -343,7 +347,9 @@ sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds b
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
-sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds buffer, long request_id) {
+sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+        sds buffer, long request_id)
+{
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_CURRENT_SONG;
     if (mpd_command_list_begin(partition_state->conn, true)) {
         if (mpd_send_status(partition_state->conn) == false) {
@@ -373,12 +379,12 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
             struct t_tags tagcols;
             reset_t_tags(&tagcols);
             tags_enable_all_stickers(&tagcols);
-            buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, uri, &tagcols);
+            buffer = mympd_api_sticker_get_print(buffer, mympd_state->stickerdb, uri, &tagcols);
         }
         buffer = json_comma(buffer);
-        buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
+        buffer = mympd_api_get_extra_media(buffer, partition_state->mpd_state, mympd_state->booklet_name, mympd_state->info_txt_name, uri, false);
         if (is_streamuri(uri) == true) {
-            sds webradio = get_webradio_from_uri(partition_state->mympd_state->config->workdir, uri);
+            sds webradio = get_webradio_from_uri(partition_state->config->workdir, uri);
             if (sdslen(webradio) > 0) {
                 buffer = sdscat(buffer, ",\"webradio\":{");
                 buffer = sdscatsds(buffer, webradio);

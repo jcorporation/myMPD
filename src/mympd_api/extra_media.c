@@ -31,8 +31,8 @@
  * Private definitons
  */
 
-static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path,
-        sds *info_txt_path, struct t_list *images, bool is_dirname);
+static void get_extra_files(sds music_directory, sds booklet_name, sds info_txt_name, const char *uri,
+        sds *booklet_path, sds *info_txt_path, struct t_list *images, bool is_dirname);
 static int get_embedded_covers_count(const char *media_file);
 static int get_embedded_covers_count_id3(const char *media_file);
 static int get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
@@ -49,7 +49,7 @@ static int get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
  * @param is_dirname true if uri is a directory, else false
  * @return pointer to buffer
  */
-sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const char *uri, bool is_dirname) {
+sds mympd_api_get_extra_media(sds buffer, struct t_mpd_state *mpd_state, sds booklet_name, sds info_txt_name, const char *uri, bool is_dirname) {
     struct t_list images;
     list_init(&images);
     sds booklet_path = sdsempty();
@@ -57,7 +57,7 @@ sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const c
     if (is_streamuri(uri) == false &&
         mpd_state->feat.library == true)
     {
-        get_extra_files(mpd_state, uri, &booklet_path, &info_txt_path, &images, is_dirname);
+        get_extra_files(mpd_state->music_directory_value, booklet_name, info_txt_name, uri, &booklet_path, &info_txt_path, &images, is_dirname);
     }
     buffer = tojson_sds(buffer, "bookletPath", booklet_path, true);
     buffer = tojson_sds(buffer, "infoTxtPath", info_txt_path, true);
@@ -100,19 +100,19 @@ sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const c
  * @param images pointer to already allocated list
  * @param is_dirname true if uri is a directory, else false
  */
-static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path,
-        sds *info_txt_path, struct t_list *images, bool is_dirname)
+static void get_extra_files(sds music_directory, sds booklet_name, sds info_txt_name, const char *uri,
+        sds *booklet_path, sds *info_txt_path, struct t_list *images, bool is_dirname)
 {
     sds path = sdsnew(uri);
     if (is_dirname == false) {
         path = sds_dirname(path);
     }
 
-    if (is_virtual_cuedir(mpd_state->music_directory_value, path)) {
+    if (is_virtual_cuedir(music_directory, path)) {
         //fix virtual cue sheet directories
         path = sds_dirname(path);
     }
-    sds albumpath = sdscatfmt(sdsempty(), "%S/%S", mpd_state->music_directory_value, path);
+    sds albumpath = sdscatfmt(sdsempty(), "%S/%S", music_directory, path);
     sds fullpath = sdsempty();
     MYMPD_LOG_DEBUG(NULL, "Read extra files from album path: \"%s\"", albumpath);
     errno = 0;
@@ -120,13 +120,13 @@ static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds 
     if (album_dir != NULL) {
         struct dirent *next_file;
         while ((next_file = readdir(album_dir)) != NULL) {
-            if (strcmp(next_file->d_name, mpd_state->mympd_state->booklet_name) == 0) {
+            if (strcmp(next_file->d_name, booklet_name) == 0) {
                 MYMPD_LOG_DEBUG(NULL, "Found booklet for uri %s", uri);
-                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mpd_state->mympd_state->booklet_name);
+                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, booklet_name);
             }
-            else if (strcmp(next_file->d_name, mpd_state->mympd_state->info_txt_name) == 0) {
+            else if (strcmp(next_file->d_name, info_txt_name) == 0) {
                 MYMPD_LOG_DEBUG(NULL, "Found info txt for uri %s", uri);
-                *info_txt_path = sdscatfmt(*info_txt_path, "/browse/music/%S/%S", path, mpd_state->mympd_state->info_txt_name);
+                *info_txt_path = sdscatfmt(*info_txt_path, "/browse/music/%S/%S", path, info_txt_name);
             }
             else if (is_image(next_file->d_name) == true) {
                 fullpath = sdscatfmt(fullpath, "/browse/music/%S/%s", path, next_file->d_name);

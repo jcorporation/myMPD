@@ -55,8 +55,8 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds path, long offset, long limit, sds searchstr, const struct t_tags *tagcols)
+sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+        sds buffer, long request_id, sds path, long offset, long limit, sds searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_FILESYSTEM_LIST;
     sds key = sdsempty();
@@ -129,7 +129,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
     if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
-        stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+        stickerdb_exit_idle(mympd_state->stickerdb);
     }
     while (raxNext(&iter)) {
         struct t_dir_entry *entry_data = (struct t_dir_entry *)iter.data;
@@ -152,7 +152,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                     if (partition_state->mpd_state->feat.stickers == true &&
                         tagcols->stickers_len > 0)
                     {
-                        buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
+                        buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                     break;
@@ -168,7 +168,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                 }
                 case MPD_ENTITY_TYPE_PLAYLIST: {
                     const struct mpd_playlist *pl = mpd_entity_get_playlist(entry_data->entity);
-                    bool smartpls = is_smartpls(partition_state->mympd_state->config->workdir, entry_data->name);
+                    bool smartpls = is_smartpls(partition_state->config->workdir, entry_data->name);
                     buffer = sdscatfmt(buffer, "{\"Type\": \"%s\",", (smartpls == true ? "smartpls" : "plist"));
                     buffer = tojson_char(buffer, "uri", mpd_playlist_get_path(pl), true);
                     buffer = tojson_sds(buffer, "name", entry_data->name, true);
@@ -189,10 +189,10 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
     if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
-        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+        stickerdb_enter_idle(mympd_state->stickerdb);
     }
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, path, true);
+    buffer = mympd_api_get_extra_media(buffer, partition_state->mpd_state, mympd_state->booklet_name, mympd_state->info_txt_name, path, true);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);

@@ -12,6 +12,6 @@
 sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long request_id);
 bool mympd_api_partition_new(struct t_partition_state *partition_state, sds partition, sds *error);
 bool mympd_api_partition_outputs_move(struct t_partition_state *partition_state, struct t_list *outputs, sds *error);
-sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer, long request_id, sds partition);
+sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, sds buffer, long request_id, sds partition);
 
 #endif

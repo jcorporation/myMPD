@@ -12,7 +12,7 @@
 #include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
-#include "src/mpd_client/jukebox.h"
+#include "src/mympd_api/requests.h"
 #include "src/mympd_api/settings.h"
 
 #include <errno.h>
@@ -31,9 +31,7 @@ bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sd
         jsonrpc_parse_error_init(&parse_error);
         if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
             if (partition_state->jukebox_mode != JUKEBOX_OFF) {
-                //clear and start jukebox
-                jukebox_clear_all(partition_state->mympd_state);
-                jukebox_run(partition_state);
+                mympd_api_request_jukebox_restart(partition_state->name);
             }
             jsonrpc_parse_error_clear(&parse_error);
             return true;
@@ -117,7 +115,7 @@ static sds preset_to_line_cb(sds buffer, struct t_list_node *current) {
  */
 bool preset_list_save(struct t_partition_state *partition_state) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%S/%s",
-        partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_PRESETS);
+        partition_state->config->workdir, partition_state->state_dir, FILENAME_PRESETS);
     bool rc = list_write_to_disk(filepath, &partition_state->preset_list, preset_to_line_cb);
     FREE_SDS(filepath);
     return rc;
@@ -130,7 +128,7 @@ bool preset_list_save(struct t_partition_state *partition_state) {
  */
 bool preset_list_load(struct t_partition_state *partition_state) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%S/%s",
-        partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_PRESETS);
+        partition_state->config->workdir, partition_state->state_dir, FILENAME_PRESETS);
     errno = 0;
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp != NULL) {

@@ -79,7 +79,7 @@ struct t_mpd_features {
  * Holds MPD specific states shared across all partitions
  */
 struct t_mpd_state {
-    struct t_mympd_state *mympd_state;  //!< pointer to myMPD state
+    struct t_config *config;            //!< pointer to static config
     //connection configuration
     sds mpd_host;                       //!< mpd host configuration
     unsigned mpd_port;                  //!< mpd port configuration
@@ -99,14 +99,14 @@ struct t_mpd_state {
     enum mpd_tag_type tag_albumartist;  //!< tag to use for AlbumArtist
     //Feature flags
     const unsigned *protocol;           //!< mpd protocol version
-    struct t_mpd_features feat;     //!< feature flags
+    struct t_mpd_features feat;         //!< feature flags
 };
 
 /**
  * Holds partition specific states
  */
 struct t_partition_state {
-    struct t_mympd_state *mympd_state;     //!< pointer to myMPD state
+    struct t_config *config;               //!< pointer to static config
     struct t_mpd_state *mpd_state;         //!< pointer to shared mpd state
     //mpd connection
     struct mpd_connection *conn;           //!< mpd connection object from libmpdclient
@@ -267,11 +267,12 @@ void mympd_state_free(struct t_mympd_state *mympd_state);
 void mpd_state_features_default(struct t_mpd_features *feat);
 void mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *dst);
 
-void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mympd_state);
+void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config);
 void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst);
 void mpd_state_free(struct t_mpd_state *mpd_state);
 
-void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state);
+void partition_state_default(struct t_partition_state *partition_state, const char *name,
+        struct t_mpd_state *mpd_state, struct t_config *config);
 void partition_state_free(struct t_partition_state *partition_state);
 
 #endif

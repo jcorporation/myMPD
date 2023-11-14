@@ -15,12 +15,14 @@
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/features.h"
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/partitions.h"
 #include "src/mpd_client/queue.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/last_played.h"
 #include "src/mympd_api/mympd_api_handler.h"
+#include "src/mympd_api/requests.h"
 #include "src/mympd_api/status.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
@@ -33,9 +35,9 @@
  * Private definitions
  */
 
-static void mpd_client_idle_partition(struct t_partition_state *partition_state,
+static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         bool mpd_idle_event_waiting, struct t_work_request *request);
-static void mpd_client_parse_idle(struct t_partition_state *partition_state, unsigned idle_bitmask);
+static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, unsigned idle_bitmask);
 static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeout);
 
 /**
@@ -77,11 +79,11 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             strcmp(request->partition, partition_state->name) == 0)
         {
             //API request is for this partition
-            mpd_client_idle_partition(partition_state, mpd_idle_event_waiting, request);
+            mpd_client_idle_partition(mympd_state, partition_state, mpd_idle_event_waiting, request);
             request = NULL;
         }
         else {
-            mpd_client_idle_partition(partition_state, mpd_idle_event_waiting, NULL);
+            mpd_client_idle_partition(mympd_state, partition_state, mpd_idle_event_waiting, NULL);
         }
     } while ((partition_state = partition_state->next) != NULL);
     //cleanup
@@ -109,7 +111,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
  * @param mpd_idle_event_waiting true if mpd idle event is waiting, else false
  * @param request api request
  */
-static void mpd_client_idle_partition(struct t_partition_state *partition_state,
+static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         bool mpd_idle_event_waiting, struct t_work_request *request)
 {
     //Handle api requests if mpd is not connected
@@ -119,7 +121,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
         if (is_mympd_only_api_method(request->cmd_id) == true) {
             //request that are handled without a mpd connection
             MYMPD_LOG_DEBUG(partition_state->name, "Handle request \"%s\" (mpd disconnected)", get_cmd_id_method_name(request->cmd_id));
-            mympd_api_handler(partition_state, request);
+            mympd_api_handler(mympd_state, partition_state, request);
         }
         else {
             //other requests not allowed
@@ -147,7 +149,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
         case MPD_DISCONNECTED:
             //try to connect
             MYMPD_LOG_INFO(partition_state->name, "Creating mpd connection for partition \"%s\"", partition_state->name);
-            if (mpd_client_connect(partition_state, partition_state->is_default) == false) {
+            if (mpd_client_connect(partition_state) == false) {
                 break;
             }
             if (partition_state->is_default == true) {
@@ -157,6 +159,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                     s_signal_received = 1;
                     break;
                 }
+                mpd_client_mpd_features(mympd_state, partition_state);
             }
             //we are connected
             if (partition_state->is_default == false) {
@@ -171,26 +174,26 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
             }
             if (partition_state->is_default == true) {
                 //initiate cache updates
-                update_mympd_caches(partition_state->mympd_state, 2);
+                update_mympd_caches(mympd_state, 2);
                 //set timer for smart playlist update
                 MYMPD_LOG_DEBUG(NULL, "Adding timer to update the smart playlists");
-                mympd_api_timer_replace(&partition_state->mympd_state->timer_list, 30, (int)partition_state->mympd_state->smartpls_interval,
+                mympd_api_timer_replace(&mympd_state->timer_list, 30, (int)mympd_state->smartpls_interval,
                     timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
                 //populate the partition list
                 if (partition_state->mpd_state->feat.partitions == true) {
-                    partitions_populate(partition_state->mympd_state);
+                    partitions_populate(mympd_state);
                 }
             }
             //jukebox
             if (partition_state->jukebox_mode != JUKEBOX_OFF) {
-                jukebox_run(partition_state);
+                jukebox_run(partition_state, mympd_state->stickerdb, &mympd_state->album_cache);
             }
             if (mpd_send_idle_mask(partition_state->conn, partition_state->idle_mask) == false) {
                 MYMPD_LOG_ERROR(partition_state->name, "Entering idle mode failed");
                 partition_state->conn_state = MPD_FAILURE;
             }
             send_jsonrpc_event(JSONRPC_EVENT_MPD_CONNECTED, partition_state->name);
-            mympd_api_trigger_execute(&partition_state->mympd_state->trigger_list, TRIGGER_MYMPD_CONNECTED, partition_state->name);
+            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_CONNECTED, partition_state->name);
             break;
         case MPD_FAILURE:
             MYMPD_LOG_ERROR(partition_state->name, "MPD connection failed");
@@ -258,7 +261,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                     //Handle idle events
                     MYMPD_LOG_DEBUG(partition_state->name, "Checking for idle events");
                     enum mpd_idle idle_bitmask = mpd_recv_idle(partition_state->conn, false);
-                    mpd_client_parse_idle(partition_state, idle_bitmask);
+                    mpd_client_parse_idle(mympd_state, partition_state, idle_bitmask);
                 }
                 else {
                     mpd_response_finish(partition_state->conn);
@@ -275,24 +278,24 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                     partition_state->last_scrobbled_id = partition_state->song_id;
                     partition_state->last_song_scrobble_time = partition_state->song_scrobble_time;
                     //add song to the last_played list
-                    mympd_api_last_played_add_song(partition_state, partition_state->song_id);
+                    mympd_api_last_played_add_song(partition_state, mympd_state->last_played_count, partition_state->song_id);
                     //set stickers
                     if (partition_state->mpd_state->feat.stickers == true) {
-                        stickerdb_inc_play_count(partition_state->mympd_state->stickerdb,
+                        stickerdb_inc_play_count(mympd_state->stickerdb,
                             partition_state->song_uri, partition_state->song_start_time);
                     }
                     //scrobble event
-                    mympd_api_trigger_execute(&partition_state->mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE, partition_state->name);
+                    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE, partition_state->name);
                 }
                 //trigger jukebox
                 if (jukebox_add_song == true) {
-                    jukebox_run(partition_state);
+                    jukebox_run(partition_state, mympd_state->stickerdb, &mympd_state->album_cache);
                 }
                 //an api request is there
                 if (request != NULL) {
                     //Handle request
                     MYMPD_LOG_DEBUG(partition_state->name, "Handle API request \"%s\"", get_cmd_id_method_name(request->cmd_id));
-                    mympd_api_handler(partition_state, request);
+                    mympd_api_handler(mympd_state, partition_state, request);
                 }
                 //re-enter idle mode
                 if (partition_state->conn_state == MPD_CONNECTED) {
@@ -318,7 +321,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
  * @param partition_state pointer to partition specific state
  * @param idle_bitmask triggered mpd idle events as bitmask
  */
-static void mpd_client_parse_idle(struct t_partition_state *partition_state, unsigned idle_bitmask) {
+static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, unsigned idle_bitmask) {
     sds buffer = sdsempty();
     for (unsigned j = 0;; j++) {
         enum mpd_idle idle_event = 1 << j;
@@ -335,7 +338,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                     MYMPD_LOG_INFO(partition_state->name, "MPD database has changed");
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_DATABASE);
                     //add timer for cache updates
-                    update_mympd_caches(partition_state->mympd_state, 10);
+                    update_mympd_caches(mympd_state, 10);
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     //a playlist has changed - global event
@@ -347,18 +350,18 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                     break;
                 case MPD_IDLE_PARTITION:
                     //partitions are changed - global event
-                    partitions_populate(partition_state->mympd_state);
+                    partitions_populate(mympd_state);
                     break;
                 case MPD_IDLE_QUEUE: {
                     //MPD_IDLE_PLAYLIST is the same
                     //queue has changed - partition specific event
-                    buffer = mpd_client_queue_status(partition_state, buffer);
+                    buffer = mpd_client_queue_status_print(partition_state, &mympd_state->album_cache, buffer);
                     //jukebox enabled
                     if (partition_state->jukebox_mode != JUKEBOX_OFF &&
                         partition_state->queue_length < partition_state->jukebox_queue_length)
                     {
                         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox mode: %s", jukebox_mode_lookup(partition_state->jukebox_mode));
-                        jukebox_run(partition_state);
+                        jukebox_run(partition_state, mympd_state->stickerdb, &mympd_state->album_cache);
                     }
                     //autoPlay enabled
                     if (partition_state->auto_play == true &&
@@ -391,10 +394,10 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                             //10 seconds inaccuracy
                             elapsed = 0;
                         }
-                        stickerdb_set_elapsed(partition_state->mympd_state->stickerdb, partition_state->song_uri, elapsed);
+                        stickerdb_set_elapsed(mympd_state->stickerdb, partition_state->song_uri, elapsed);
                     }
                     //get and put mpd state
-                    buffer = mympd_api_status_get(partition_state, buffer, 0, RESPONSE_TYPE_JSONRPC_NOTIFY);
+                    buffer = mympd_api_status_get(partition_state, &mympd_state->album_cache, buffer, 0, RESPONSE_TYPE_JSONRPC_NOTIFY);
                     //check if song has changed
                     if (partition_state->song_id != partition_state->last_song_id &&
                         partition_state->last_skipped_id != partition_state->last_song_id &&
@@ -412,7 +415,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                             {
                                 MYMPD_LOG_DEBUG(partition_state->name, "Song \"%s\" skipped", partition_state->last_song_uri);
                                 if (partition_state->mpd_state->feat.stickers == true) {
-                                    stickerdb_inc_skip_count(partition_state->mympd_state->stickerdb, partition_state->last_song_uri);
+                                    stickerdb_inc_skip_count(mympd_state->stickerdb, partition_state->last_song_uri);
                                 }
                                 partition_state->last_skipped_id = partition_state->last_song_id;
                             }
@@ -429,7 +432,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                     break;
                 case MPD_IDLE_OPTIONS:
                     //mpd playback options are changed - partition specific event
-                    mpd_client_queue_status(partition_state, NULL);
+                    mpd_client_queue_status_update(partition_state);
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OPTIONS);
                     break;
                 default: {
@@ -437,7 +440,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                 }
             }
             //check for attached triggers
-            mympd_api_trigger_execute(&partition_state->mympd_state->trigger_list, (enum trigger_events)idle_event, partition_state->name);
+            mympd_api_trigger_execute(&mympd_state->trigger_list, (enum trigger_events)idle_event, partition_state->name);
             //broadcast event to all websockets
             if (sdslen(buffer) > 0) {
                 switch(idle_event) {
@@ -474,9 +477,7 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeou
     #ifdef MYMPD_NO_TIMERFD
         // Workaround for plattforms without timerfd support
         (void)timeout;
-        struct t_work_request *request = create_request(-1, 0, MYMPD_API_CACHES_CREATE, NULL, MPD_PARTITION_DEFAULT);
-        request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
-        return mympd_queue_push(mympd_api_queue, request, 0);
+        mympd_api_request_caches_create();
     #endif
     MYMPD_LOG_DEBUG(NULL, "Adding timer to update the caches");
     return mympd_api_timer_replace(&mympd_state->timer_list, timeout, TIMER_ONE_SHOT_REMOVE,

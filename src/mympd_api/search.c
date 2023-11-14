@@ -29,9 +29,9 @@
  * @param result pointer to bool to set returncode
  * @return pointer to buffer
  */
-sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const char *expression, const char *sort, bool sortdesc, unsigned offset, unsigned limit,
-        const struct t_tags *tagcols, bool *result)
+sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_partition_state *stickerdb, 
+        sds buffer, long request_id, const char *expression, const char *sort, bool sortdesc,
+        unsigned offset, unsigned limit, const struct t_tags *tagcols, bool *result)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_SEARCH;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -53,7 +53,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
     if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
-        stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+        stickerdb_exit_idle(stickerdb);
     }
     if (mpd_search_commit(partition_state->conn) == true) {
         struct mpd_song *song;
@@ -66,7 +66,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
             if (partition_state->mpd_state->feat.stickers == true &&
                 tagcols->stickers_len > 0)
             {
-                buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
+                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, mpd_song_get_uri(song), tagcols);
             }
             buffer = sdscatlen(buffer, "}", 1);
             mpd_song_free(song);
@@ -76,7 +76,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
     if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
-        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+        stickerdb_enter_idle(stickerdb);
     }
     *result = mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_songs");
     if (*result == false) {

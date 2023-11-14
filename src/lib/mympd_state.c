@@ -92,17 +92,17 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->info_txt_name = sdsnew(MYMPD_INFO_TXT_NAME);
     //mpd shared state
     mympd_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
-    mpd_state_default(mympd_state->mpd_state, mympd_state);
+    mpd_state_default(mympd_state->mpd_state, config);
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
-    partition_state_default(mympd_state->partition_state, MPD_PARTITION_DEFAULT, mympd_state);
+    partition_state_default(mympd_state->partition_state, MPD_PARTITION_DEFAULT, mympd_state->mpd_state, config);
     // stickerdb
     // use the partition struct to store the mpd connection for the stickerdb
     mympd_state->stickerdb = malloc_assert(sizeof(struct t_partition_state));
-    partition_state_default(mympd_state->stickerdb, "stickerdb", mympd_state);
+    partition_state_default(mympd_state->stickerdb, "stickerdb", NULL, config);
     // do not use the shared mpd_state - we can connect to another mpd server for stickers
     mympd_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
-    mpd_state_default(mympd_state->stickerdb->mpd_state, mympd_state);
+    mpd_state_default(mympd_state->stickerdb->mpd_state, config);
     //triggers;
     list_init(&mympd_state->trigger_list);
     //home icons
@@ -182,8 +182,8 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
  * @param mpd_state pointer to mpd_state
  * @param mympd_state pointer to central myMPD state
  */
-void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mympd_state) {
-    mpd_state->mympd_state = mympd_state;
+void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config) {
+    mpd_state->config = config;
     mpd_state->mpd_keepalive = MYMPD_MPD_KEEPALIVE;
     mpd_state->mpd_timeout = MYMPD_MPD_TIMEOUT;
     mpd_state->mpd_host = sdsnew(MYMPD_MPD_HOST);
@@ -209,7 +209,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
  * @param dst destination
  */
 void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
-    dst->mympd_state = src->mympd_state;
+    dst->config = src->config;
     dst->mpd_keepalive = src->mpd_keepalive;
     dst->mpd_timeout = src->mpd_timeout;
     dst->mpd_host = sdsdup(src->mpd_host);
@@ -284,7 +284,9 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
  * @param name partition name
  * @param mympd_state pointer to central myMPD state
  */
-void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state) {
+void partition_state_default(struct t_partition_state *partition_state, const char *name,
+        struct t_mpd_state *mpd_state, struct t_config *config)
+{
     partition_state->name = sdsnew(name);
     partition_state->highlight_color = sdsnew(PARTITION_HIGHLIGHT_COLOR);
     partition_state->highlight_color_contrast = sdsnew(PARTITION_HIGHLIGHT_COLOR_CONTRAST);
@@ -331,8 +333,8 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->jukebox_min_song_duration = MYMPD_JUKEBOX_MIN_SONG_DURATION;
     partition_state->jukebox_max_song_duration = MYMPD_JUKEBOX_MAX_SONG_DURATION;
     //add pointer to other states
-    partition_state->mympd_state = mympd_state;
-    partition_state->mpd_state = mympd_state->mpd_state;
+    partition_state->config = config;
+    partition_state->mpd_state = mpd_state;
     //mpd idle mask
     if (strcmp(name, MPD_PARTITION_DEFAULT) == 0) {
         partition_state->is_default = true;

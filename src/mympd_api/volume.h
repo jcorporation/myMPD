@@ -11,7 +11,9 @@
 #include "src/lib/api.h"
 #include "src/lib/mympd_state.h"
 
-sds mympd_api_volume_set(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id, unsigned volume);
-sds mympd_api_volume_change(struct t_partition_state *partition_state, sds buffer, long request_id, int relative_volume);
+sds mympd_api_volume_set(struct t_partition_state *partition_state, unsigned volumen_min, unsigned volume_max,
+        sds buffer, enum mympd_cmd_ids cmd_id, long request_id, unsigned volume);
+sds mympd_api_volume_change(struct t_partition_state *partition_state, unsigned volumen_min, unsigned volume_max,
+        sds buffer, long request_id, int relative_volume);
 
 #endif

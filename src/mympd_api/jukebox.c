@@ -68,8 +68,8 @@ bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions,
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
-        long offset, long limit, sds expression, const struct t_tags *tagcols)
+sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_partition_state *stickerdb,
+        sds buffer, enum mympd_cmd_ids cmd_id, long request_id, long offset, long limit, sds expression, const struct t_tags *tagcols)
 {
     long entity_count = 0;
     long entities_returned = 0;
@@ -83,7 +83,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
         if (partition_state->mpd_state->feat.stickers == true &&
             tagcols->stickers_len > 0)
         {
-            stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+            stickerdb_exit_idle(stickerdb);
         }
         while (current != NULL) {
             if (mpd_send_list_meta(partition_state->conn, current->key)) {
@@ -102,7 +102,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
                             if (partition_state->mpd_state->feat.stickers == true &&
                                 tagcols->stickers_len > 0)
                             {
-                                buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
+                                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, mpd_song_get_uri(song), tagcols);
                             }
                             buffer = sdscatlen(buffer, "}", 1);
                         }
@@ -119,7 +119,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
         if (partition_state->mpd_state->feat.stickers == true &&
             tagcols->stickers_len > 0)
         {
-            stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+            stickerdb_enter_idle(stickerdb);
         }
     }
     else if (partition_state->jukebox_mode == JUKEBOX_ADD_ALBUM) {

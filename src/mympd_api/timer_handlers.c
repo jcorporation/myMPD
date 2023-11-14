@@ -18,6 +18,7 @@
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/volume.h"
+#include "src/mympd_api/requests.h"
 
 #include <string.h>
 
@@ -200,7 +201,5 @@ static void timer_handler_smartpls_update(void) {
  */
 static void timer_handler_caches_create(void) {
     MYMPD_LOG_INFO(NULL, "Start timer_handler_caches_create");
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_CACHES_CREATE, NULL, MPD_PARTITION_DEFAULT);
-    request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
-    mympd_queue_push(mympd_api_queue, request, 0);
+    mympd_api_request_caches_create();
 }

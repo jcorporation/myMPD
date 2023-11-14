@@ -12,6 +12,7 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/playlists.h"
+#include "src/mpd_worker/add_random.h"
 #include "src/mpd_worker/cache.h"
 #include "src/mpd_worker/smartpls.h"
 #include "src/mpd_worker/song.h"
@@ -26,6 +27,8 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     bool bool_buf1;
     bool async = false;
     int int_buf1;
+    long long_buf1;
+    unsigned uint_buf1;
     sds sds_buf1 = NULL;
     sds sds_buf2 = NULL;
     sds sds_buf3 = NULL;
@@ -42,6 +45,21 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     struct t_partition_state *partition_state = mpd_worker_state->partition_state;
 
     switch(request->cmd_id) {
+        case MYMPD_API_QUEUE_ADD_RANDOM:
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.mode", 0, 2, &uint_buf1, &parse_error) == true &&
+                json_get_long(request->data, "$.params.quantity", 1, 1000, &long_buf1, &parse_error) == true)
+            {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Adding random songs to queue started");
+                push_response(response, request->id, request->conn_id);
+                rc = mpd_worker_add_random_to_queue(mpd_worker_state, long_buf1, uint_buf1, sds_buf1);
+                sds_buf1 = jsonrpc_respond_with_message_or_error(sdsempty(), request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_QUEUE, "Successfully added random songs to queue", "Adding random songs to queue failed");
+                ws_notify_client(sds_buf1, request->id);
+                async = true;
+            }
+            break;
         case MYMPD_API_COVERCACHE_CROP:
         case MYMPD_API_COVERCACHE_CLEAR:
             int_buf1 = request->cmd_id == MYMPD_API_COVERCACHE_CLEAR

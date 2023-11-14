@@ -85,6 +85,7 @@ target_sources(mympd PRIVATE
   mpd_client/tags.c
   mpd_client/volume.c
   mpd_worker/mpd_worker.c
+  mpd_worker/add_random.c
   mpd_worker/api.c
   mpd_worker/cache.c
   mpd_worker/smartpls.c
@@ -107,6 +108,7 @@ target_sources(mympd PRIVATE
   mympd_api/pictures.c
   mympd_api/playlists.c
   mympd_api/queue.c
+  mympd_api/requests.c
   mympd_api/search.c
   mympd_api/scripts.c
   mympd_api/settings.c

@@ -371,7 +371,7 @@ bool mpd_client_get_all_playlists(struct t_partition_state *partition_state, str
         struct mpd_playlist *pl;
         while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
-            bool sp = is_smartpls(partition_state->mympd_state->config->workdir, plpath);
+            bool sp = is_smartpls(partition_state->config->workdir, plpath);
             if (!(smartpls == false && sp == true)) {
                 list_push(l, plpath, sp, NULL, NULL);
             }

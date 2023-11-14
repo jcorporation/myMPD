@@ -10,5 +10,5 @@
 #include "src/lib/api.h"
 #include "src/lib/mympd_state.h"
 
-void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_request *request);
+void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, struct t_work_request *request);
 #endif

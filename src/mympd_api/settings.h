@@ -15,7 +15,7 @@
 bool settings_to_webserver(struct t_mympd_state *mympd_state);
 void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state);
 void mympd_api_settings_statefiles_partition_read(struct t_partition_state *partition_state);
-sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer, long request_id);
+sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, sds buffer, long request_id);
 bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, sds cols);
 bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error);
 bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error);

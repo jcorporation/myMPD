@@ -545,7 +545,7 @@ bool mympd_api_settings_partition_set(const char *path, sds key, sds value, int 
         return false;
     }
     sds state_filename = camel_to_snake(key);
-    bool rc = state_file_write(partition_state->mympd_state->config->workdir, partition_state->state_dir, state_filename, value);
+    bool rc = state_file_write(partition_state->config->workdir, partition_state->state_dir, state_filename, value);
     FREE_SDS(state_filename);
     return rc;
 }
@@ -781,7 +781,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
     }
     if (write_state_file == true) {
         sds state_filename = camel_to_snake(key);
-        rc = state_file_write(partition_state->mympd_state->config->workdir, partition_state->state_dir, state_filename, value);
+        rc = state_file_write(partition_state->config->workdir, partition_state->state_dir, state_filename, value);
         FREE_SDS(state_filename);
     }
     return rc;
@@ -862,7 +862,7 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
  * @param partition_state pointer to the t_partition_state struct
  */
 void mympd_api_settings_statefiles_partition_read(struct t_partition_state *partition_state) {
-    sds workdir = partition_state->mympd_state->config->workdir;
+    sds workdir = partition_state->config->workdir;
     MYMPD_LOG_NOTICE(partition_state->name, "Reading partition states from directory \"%s/%s\"", workdir, partition_state->state_dir);
     partition_state->auto_play = state_file_rw_bool(workdir, partition_state->state_dir, "auto_play", partition_state->auto_play, true);
     partition_state->jukebox_mode = state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_mode", partition_state->jukebox_mode, JUKEBOX_MODE_MIN, JUKEBOX_MODE_MAX, true);
@@ -888,8 +888,7 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
-sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer, long request_id) {
-    struct t_mympd_state *mympd_state = partition_state->mympd_state;
+sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SETTINGS_GET;
 
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -902,11 +901,11 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_bool(buffer, "mpdKeepalive", partition_state->mpd_state->mpd_keepalive, true);
     buffer = tojson_uint(buffer, "mpdBinarylimit", partition_state->mpd_state->mpd_binarylimit, true);
     // stickerdb connection
-    buffer = tojson_sds(buffer, "stickerdbMpdHost", partition_state->mympd_state->stickerdb->mpd_state->mpd_host, true);
-    buffer = tojson_uint(buffer, "stickerdbMpdPort", partition_state->mympd_state->stickerdb->mpd_state->mpd_port, true);
+    buffer = tojson_sds(buffer, "stickerdbMpdHost", mympd_state->stickerdb->mpd_state->mpd_host, true);
+    buffer = tojson_uint(buffer, "stickerdbMpdPort", mympd_state->stickerdb->mpd_state->mpd_port, true);
     buffer = tojson_char(buffer, "stickerdbMpdPass", "dontsetpassword", true);
-    buffer = tojson_uint(buffer, "stickerdbMpdTimeout", partition_state->mympd_state->stickerdb->mpd_state->mpd_timeout, true);
-    buffer = tojson_bool(buffer, "stickerdbMpdKeepalive", partition_state->mympd_state->stickerdb->mpd_state->mpd_keepalive, true);
+    buffer = tojson_uint(buffer, "stickerdbMpdTimeout", mympd_state->stickerdb->mpd_state->mpd_timeout, true);
+    buffer = tojson_bool(buffer, "stickerdbMpdKeepalive", mympd_state->stickerdb->mpd_state->mpd_keepalive, true);
     // other settings
     buffer = tojson_bool(buffer, "pin", (sdslen(mympd_state->config->pin_hash) == 0 ? false : true), true);
     #ifdef MYMPD_DEBUG
@@ -1019,7 +1018,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "featTags", partition_state->mpd_state->feat.tags, true);
         buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat.library, true);
         buffer = tojson_bool(buffer, "featStickers", partition_state->mpd_state->feat.stickers, true);
-        buffer = tojson_bool(buffer, "featStickersEnabled", partition_state->mympd_state->config->stickers, true);
+        buffer = tojson_bool(buffer, "featStickersEnabled", partition_state->config->stickers, true);
         buffer = tojson_bool(buffer, "featFingerprint", partition_state->mpd_state->feat.fingerprint, true);
         buffer = tojson_bool(buffer, "featPartitions", partition_state->mpd_state->feat.partitions, true);
         buffer = tojson_bool(buffer, "featMounts", partition_state->mpd_state->feat.mount, true);
