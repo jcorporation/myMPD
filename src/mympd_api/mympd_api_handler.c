@@ -759,9 +759,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             break;
         case INTERNAL_API_STICKER_FEATURES:
-            if (json_get_bool(request->data, "$params.sticker", &bool_buf1, &parse_error) == true &&
-                json_get_bool(request->data, "$params.sticker_sort_window", &bool_buf2, &parse_error) == true &&
-                json_get_bool(request->data, "$params.sticker_int", &bool_buf3, &parse_error) == true)
+            if (json_get_bool(request->data, "$.params.sticker", &bool_buf1, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.sticker_sort_window", &bool_buf2, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.sticker_int", &bool_buf3, &parse_error) == true)
             {
                 mympd_state->mpd_state->feat.stickers = bool_buf1;
                 mympd_state->mpd_state->feat.sticker_sort_window = bool_buf2;
