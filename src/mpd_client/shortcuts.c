@@ -31,6 +31,7 @@ bool mpd_client_command_list_end_check(struct t_partition_state *partition_state
 /**
  * Adds an album to the queue
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param album_id album id to add
  * @param to position to insert
  * @param whence how to interpret the to parameter

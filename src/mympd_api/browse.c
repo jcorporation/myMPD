@@ -33,6 +33,7 @@
 
 /**
  * Lists album details
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition specific states
  * @param buffer sds string to append response
  * @param request_id jsonrpc request id
@@ -154,6 +155,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
 /**
  * Lists albums from the album_cache
  * @param partition_state pointer to partition specific states
+ * @param album_cache pointer to album cache
  * @param buffer sds string to append response
  * @param request_id jsonrpc request id
  * @param expression mpd search expression

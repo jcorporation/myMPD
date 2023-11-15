@@ -45,6 +45,7 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
 /**
  * Lists the entry of directory in the mpd music directory as jsonrpc response
  * Custom order: directories, playlists, songs
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to the partition state
  * @param buffer already allocated sds string to append result
  * @param request_id jsonrpc request id

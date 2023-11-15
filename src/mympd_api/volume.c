@@ -17,6 +17,8 @@
 /**
  * Sets an absolute volume level
  * @param partition_state pointer to partition state
+ * @param volume_min minimum volume
+ * @param volume_max maximum volume
  * @param buffer already allocated sds string to append the response
  * @param cmd_id jsonrpc method
  * @param request_id jsonrpc request id
@@ -46,6 +48,8 @@ sds mympd_api_volume_set(struct t_partition_state *partition_state, unsigned vol
 /**
  * Changes the volume by relative_volume
  * @param partition_state pointer to partition state
+ * @param volume_min minimum volume
+ * @param volume_max maximum volume
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param relative_volume the relative volume between -100 and 100

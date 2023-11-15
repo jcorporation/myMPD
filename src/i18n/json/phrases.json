@@ -42,6 +42,7 @@
 {"term":"Advanced Audio Coding"},
 {"term":"Advanced playback controls"},
 {"term":"Album"},
+{"term":"Album cache could not be replaced"},
 {"term":"Album cache is NULL"},
 {"term":"Album details"},
 {"term":"Album info"},

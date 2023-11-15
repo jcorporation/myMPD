@@ -9,6 +9,7 @@
 
 #include "src/mpd_worker/state.h"
 
-bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state, long add, unsigned mode, sds plist);
+bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
+        long add, unsigned mode, sds plist, sds partition);
 
 #endif

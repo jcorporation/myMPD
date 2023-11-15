@@ -13,19 +13,31 @@
  * Initializes a cache struct
  * @param cache 
  */
-void cache_init(struct t_cache *cache) {
+bool cache_init(struct t_cache *cache) {
     cache->building = false;
     cache->cache = NULL;
-    pthread_rwlock_init(cache->rwlock, NULL);
+    int rc = pthread_rwlock_init(&cache->rwlock, NULL);
+    if (rc == 0) {
+        return true;
+    }
+    MYMPD_LOG_ERROR(NULL, "Can not init lock");
+    MYMPD_LOG_ERRNO(NULL, rc);
+    return false;
 }
 
 /**
  * Initializes a cache struct
  * @param cache 
  */
-void cache_free(struct t_cache *cache) {
+bool cache_free(struct t_cache *cache) {
     cache->cache = NULL;
-    pthread_rwlock_destroy(cache->rwlock);
+    int rc = pthread_rwlock_destroy(&cache->rwlock);
+    if (rc == 0) {
+        return true;
+    }
+    MYMPD_LOG_ERROR(NULL, "Can not get destroy lock");
+    MYMPD_LOG_ERRNO(NULL, rc);
+    return false;
 }
 
 /**
@@ -34,8 +46,8 @@ void cache_free(struct t_cache *cache) {
  * @return true on success, else false
  */
 bool cache_get_read_lock(struct t_cache *cache) {
-    int rc = pthread_rwlock_rdlock(cache->rwlock);
-    if ( rc == 0) {
+    int rc = pthread_rwlock_rdlock(&cache->rwlock);
+    if (rc == 0) {
         return true;
     }
     MYMPD_LOG_ERROR(NULL, "Can not get read lock");
@@ -49,8 +61,8 @@ bool cache_get_read_lock(struct t_cache *cache) {
  * @return true on success, else false
  */
 bool cache_get_write_lock(struct t_cache *cache) {
-    int rc = pthread_rwlock_wrlock(cache->rwlock);
-    if ( rc == 0) {
+    int rc = pthread_rwlock_wrlock(&cache->rwlock);
+    if (rc == 0) {
         return true;
     }
     MYMPD_LOG_ERROR(NULL, "Can not get write lock");
@@ -63,9 +75,9 @@ bool cache_get_write_lock(struct t_cache *cache) {
  * @param cache pointer to cache struct
  * @return true on success, else false
  */
-bool cache_free_lock(struct t_cache *cache) {
-    int rc = pthread_rwlock_unlock(cache->rwlock);
-    if ( rc == 0) {
+bool cache_release_lock(struct t_cache *cache) {
+    int rc = pthread_rwlock_unlock(&cache->rwlock);
+    if (rc == 0) {
         return true;
     }
     MYMPD_LOG_ERROR(NULL, "Can not free the lock");

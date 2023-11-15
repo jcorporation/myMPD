@@ -883,6 +883,7 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
 
 /**
  * Prints all settings
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id

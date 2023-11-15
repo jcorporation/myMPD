@@ -62,6 +62,7 @@
 
 /**
  * Central myMPD api handler function
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition state
  * @param request pointer to the jsonrpc request struct
  */
@@ -173,8 +174,15 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 MYMPD_LOG_INFO(partition_state->name, "Clearing jukebox queues");
                 jukebox_clear_all(mympd_state);
                 //free the old album cache and replace it with the freshly generated one
+                if (cache_get_write_lock(&mympd_state->album_cache) == false) {
+                    album_cache_free_rt(request->extra);
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album cache could not be replaced");
+                    break;
+                }
                 album_cache_free(&mympd_state->album_cache);
                 mympd_state->album_cache.cache = (rax *) request->extra;
+                cache_release_lock(&mympd_state->album_cache);
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 MYMPD_LOG_INFO(partition_state->name, "Album cache was replaced");
             }

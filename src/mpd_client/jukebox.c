@@ -98,6 +98,8 @@ void jukebox_clear_all(struct t_mympd_state *mympd_state) {
 /**
  * Wrapper for the real jukebox function that retries adding songs or albums three times.
  * @param partition_state pointer to myMPD partition state
+ * @param stickerdb pointer to stickerdb state
+ * @param album_cache pointer to album cache
  * @return true on success, else false
  */
 bool jukebox_run(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, struct t_cache *album_cache) {
@@ -117,6 +119,8 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_stickerdb_s
  * The real jukebox function.
  * It determines if a song must be added or not and starts playing.
  * @param partition_state pointer to myMPD partition state
+ * @param stickerdb pointer to stickerdb state
+ * @param album_cache pointer to album cache
  * @return true on success, else false
  */
 static bool jukebox(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, struct t_cache *album_cache) {
@@ -201,6 +205,8 @@ static bool jukebox(struct t_partition_state *partition_state, struct t_stickerd
  * This functions checks if the jukebox queue is long enough, refills the queue if necessary
  * and adds songs or albums to the queue.
  * @param partition_state pointer to myMPD partition state
+ * @param stickerdb pointer to stickerdb state
+ * @param album_cache pointer to album cache
  * @param add_songs number of songs to add
  * @param jukebox_mode jukebox mode
  * @param playlist playlist to add songs from
@@ -348,7 +354,8 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
 /**
  * Wrapper function for the real jukebox queue filling function.
  * @param partition_state pointer to myMPD partition state
- * @param add_songs number of songs or albums to add
+ * @param stickerdb pointer to stickerdb state
+ * @param album_cache pointer to album cache
  * @param jukebox_mode the jukebox mode
  * @param playlist playlist to add songs from
  * @return true on success, else false
@@ -372,6 +379,8 @@ static bool jukebox_run_fill_jukebox_queue(struct t_partition_state *partition_s
 /**
  * The real jukebox queue filling function.
  * @param partition_state pointer to myMPD partition state
+ * @param stickerdb pointer to stickerdb state
+ * @param album_cache pointer to album cache
  * @param jukebox_mode the jukebox mode
  * @param playlist playlist to add songs from
  * @return true on success, else false

@@ -331,6 +331,7 @@ bool mympd_api_playlist_content_replace_search(struct t_partition_state *partiti
 /**
  * Insert albums into a playlist
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumids album ids to insert
  * @param to position to insert
@@ -374,6 +375,7 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
 /**
  * Appends albums to a playlist
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumids album ids to append
  * @param error pointer to an already allocated sds string for the error message
@@ -386,6 +388,7 @@ bool mympd_api_playlist_content_append_albums(struct t_partition_state *partitio
 /**
  * Replaces the playlist with albums
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumids album ids to insert
  * @param error pointer to an already allocated sds string for the error message
@@ -399,6 +402,7 @@ bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partiti
 /**
  * Insert one disc of an album into a playlist
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumid album id to insert
  * @param disc disc to insert
@@ -429,6 +433,7 @@ bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *part
 /**
  * Appends one disc of an album to a playlist
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumid album id to append
  * @param disc disc to append
@@ -444,6 +449,7 @@ bool mympd_api_playlist_content_append_album_disc(struct t_partition_state *part
 /**
  * Replaces the playlist with on disc of an album
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumid album id to insert
  * @param disc disc to insert
@@ -651,6 +657,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
 /**
  * Lists the content of a mpd playlist
  * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param plist playlist name to list contents

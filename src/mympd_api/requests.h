@@ -14,6 +14,6 @@
 bool mympd_api_request_caches_create(void);
 bool mympd_api_request_jukebox_restart(const char *partition);
 bool mympd_api_request_trigger_event_emit(enum trigger_events event, const char *partition);
-bool mympd_api_request_sticker_features(bool feat_sticker, bool feat_sticker_sort_window, bool sticker_int);
+bool mympd_api_request_sticker_features(bool feat_sticker, bool feat_sticker_sort_window, bool feat_sticker_int);
 
 #endif

@@ -18,6 +18,7 @@
 /**
  * Searches the mpd database for songs by expression and returns an jsonrpc result
  * @param partition_state pointer to partition specific states
+ * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the result
  * @param request_id jsonrpc request id
  * @param expression mpd search expression

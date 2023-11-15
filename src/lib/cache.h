@@ -18,14 +18,14 @@
 struct t_cache {
     bool building;             //!< true if the mpd_worker thread is creating the cache
     rax *cache;                //!< pointer to the cache
-    pthread_rwlock_t *rwlock;  //!< pthreads read-write lock object
+    pthread_rwlock_t rwlock;  //!< pthreads read-write lock object
 };
 
-void cache_init(struct t_cache *cache);
-void cache_free(struct t_cache *cache);
+bool cache_init(struct t_cache *cache);
+bool cache_free(struct t_cache *cache);
 
 bool cache_get_read_lock(struct t_cache *cache);
 bool cache_get_write_lock(struct t_cache *cache);
-bool cache_free_lock(struct t_cache *cache);
+bool cache_release_lock(struct t_cache *cache);
 
 #endif

@@ -53,10 +53,10 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Adding random songs to queue started");
                 push_response(response, request->id, request->conn_id);
-                rc = mpd_worker_add_random_to_queue(mpd_worker_state, long_buf1, uint_buf1, sds_buf1);
-                sds_buf1 = jsonrpc_respond_with_message_or_error(sdsempty(), request->cmd_id, request->id, rc,
+                rc = mpd_worker_add_random_to_queue(mpd_worker_state, long_buf1, uint_buf1, sds_buf1, request->partition);
+                sds_buf2 = jsonrpc_respond_with_message_or_error(sdsempty(), request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, "Successfully added random songs to queue", "Adding random songs to queue failed");
-                ws_notify_client(sds_buf1, request->id);
+                ws_notify_client(sds_buf2, request->id);
                 async = true;
             }
             break;

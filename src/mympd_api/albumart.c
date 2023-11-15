@@ -23,6 +23,7 @@
 /**
  * Reads the albumart by album id
  * @param partition_state pointer to partition specific states
+ * @param album_cache pointer to album cache
  * @param buffer already allocated sds string for the jsonrpc response
  * @param request_id request id
  * @param albumid the album id

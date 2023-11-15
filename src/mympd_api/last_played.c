@@ -34,11 +34,12 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, struct
 /**
  * Adds a song from queue with song_id to the last played list in memory
  * @param partition_state pointer to partition state
+ * @param last_played_count max songs in last_played list
  * @param song_id the song id to add
  * @return true on success, else false
  */
 bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, long last_played_count, int song_id) {
-    if (song_id == -1 ||                                    // no current song
+    if (song_id == -1 ||        // no current song
         last_played_count == 0) // last played is disabled
     {
         return true;
@@ -71,6 +72,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, l
 /**
  * Prints a jsonrpc response with the last played songs (memory and disc)
  * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param offset offset
@@ -142,6 +144,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct
 /**
  * Gets the song and searches for searchstr and prints it as json object
  * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated buffer to append the result
  * @param entity_count position in the list
  * @param last_played songs last played time as unix timestamp

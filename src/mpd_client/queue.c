@@ -62,8 +62,6 @@ bool mpd_client_queue_check_start_play(struct t_partition_state *partition_state
 /**
  * Prints the queue status and updates internal state
  * @param partition_state pointer to partition state
- * @param buffer already allocated sds string to append the response
- * @return pointer to buffer
  */
 void mpd_client_queue_status_update(struct t_partition_state *partition_state) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
@@ -81,6 +79,7 @@ void mpd_client_queue_status_update(struct t_partition_state *partition_state) {
 /**
  * Prints the queue status and updates internal state
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param buffer already allocated sds string to append the response
  * @return pointer to buffer
  */

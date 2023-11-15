@@ -36,6 +36,8 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Feat: Support new "State" field of webradiodb #1165
 - Feat: Cleanup covercache in worker thread #1166
 - Feat: Simplify Last-Played implementation and save it in MessagePack format
+- Feat: "Add random songs/album" is executed in worker thread
+- Feat: Rework structs for better thread safety
 - Upd: Manual add random songs or albums should ignore the jukebox constraints
 - Upd: libmympdclient 1.0.25
 

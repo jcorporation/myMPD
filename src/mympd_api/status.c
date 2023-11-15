@@ -52,6 +52,7 @@ unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status) {
 /**
  * Prints the mpd_status as jsonrpc object string
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param buffer already allocated sds string to append the response
  * @param status pointer to mpd_status struct
  * @return pointer to buffer
@@ -129,6 +130,7 @@ long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
 /**
  * Gets the mpd status, updates internal myMPD states and returns a jsonrpc notify or response
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param response_type jsonrpc response type: RESPONSE_TYPE_RESPONSE or RESPONSE_TYPE_NOTIFY
@@ -254,6 +256,7 @@ bool mympd_api_status_clear_error(struct t_partition_state *partition_state, sds
 /**
  * Copies mpd and myMPD states to the lua_mympd_state struct
  * @param lua_partition_state pointer to struct t_list
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition state
  * @return true on success, else false
  */
@@ -342,6 +345,7 @@ sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds b
 
 /**
  * Gets the current playing song as jsonrpc response
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id

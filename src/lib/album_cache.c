@@ -382,16 +382,24 @@ void album_cache_free(struct t_cache *album_cache) {
     if (album_cache->cache == NULL) {
         return;
     }
+    album_cache_free_rt(album_cache->cache);
+    album_cache->cache = NULL;
+}
+
+/**
+ * Frees the album cache radix tree
+ * @param album_cache_rt 
+ */
+void album_cache_free_rt(rax *album_cache_rt) {
     MYMPD_LOG_DEBUG(NULL, "Freeing album cache");
     raxIterator iter;
-    raxStart(&iter, album_cache->cache);
+    raxStart(&iter, album_cache_rt);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
         mpd_song_free((struct mpd_song *)iter.data);
     }
     raxStop(&iter);
-    raxFree(album_cache->cache);
-    album_cache->cache = NULL;
+    raxFree(album_cache_rt);
 }
 
 /**

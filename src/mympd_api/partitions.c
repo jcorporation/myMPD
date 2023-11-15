@@ -92,6 +92,7 @@ bool mympd_api_partition_outputs_move(struct t_partition_state *partition_state,
 /**
  * Disconnects and removes a partition.
  * Assigned outputs are moved to the default partition: https://github.com/MusicPlayerDaemon/MPD/discussions/1611
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition state for default partition
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id

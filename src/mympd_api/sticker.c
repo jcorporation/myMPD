@@ -9,11 +9,13 @@
 
 #include "src/lib/jsonrpc.h"
 #include "src/mpd_client/stickerdb.h"
-#include "src/mympd_api/requests.h"
+#include "src/mympd_api/trigger.h"
 
 /**
  * Sets the like sticker and triggers the feedback event
- * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb
+ * @param trigger_list pointer to trigger list
+ * @param partition_name the partition name
  * @param uri uri to set the feedback
  * @param type feedback type
  * @param value feedback value to set
@@ -47,7 +49,7 @@ bool mympd_api_sticker_set_feedback(struct t_stickerdb_state *stickerdb, struct 
  * Gets the stickers from sticker cache and returns a json list
  * Shortcut for stickerdb_get_all and print_sticker
  * @param buffer already allocated sds string to append the list
- * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb
  * @param uri song uri
  * @param tags array of stickers to print
  * @return pointer to the modified buffer
@@ -69,7 +71,7 @@ sds mympd_api_sticker_get_print(sds buffer, struct t_stickerdb_state *stickerdb,
  * Shortcut for stickerdb_get_all_batch and print_sticker.
  * You must exit the stickerdb idle mode before.
  * @param buffer already allocated sds string to append the list
- * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb
  * @param uri song uri
  * @param tags array of stickers to print
  * @return pointer to the modified buffer

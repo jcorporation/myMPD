@@ -38,6 +38,7 @@ static sds set_directory(const char *desc, sds directory, sds value);
 
 /**
  * Detects MPD features and disables/enables myMPD features accordingly
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition state
  */
 void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {
@@ -167,6 +168,7 @@ static void features_commands(struct t_partition_state *partition_state) {
 
 /**
  * Sets enabled tags for myMPD
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition state
  */
 static void features_tags(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {
@@ -301,6 +303,7 @@ static void features_mpd_tags(struct t_partition_state *partition_state) {
 
 /**
  * Uses the config command to check for MPD features
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition state
  */
 static void features_config(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {

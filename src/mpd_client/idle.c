@@ -22,7 +22,6 @@
 #include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/last_played.h"
 #include "src/mympd_api/mympd_api_handler.h"
-#include "src/mympd_api/requests.h"
 #include "src/mympd_api/status.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
@@ -107,6 +106,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
 
 /**
  * This function handles api requests and mpd events per partition.
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to the partition state
  * @param mpd_idle_event_waiting true if mpd idle event is waiting, else false
  * @param request api request
@@ -318,6 +318,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
 
 /**
  * Handles mpd idle events
+ * @param mympd_state pointer to partition state
  * @param partition_state pointer to partition specific state
  * @param idle_bitmask triggered mpd idle events as bitmask
  */

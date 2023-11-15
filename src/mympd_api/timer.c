@@ -127,6 +127,7 @@ void mympd_api_timer_check(struct t_timer_list *l) {
 /**
  * Saves a new or existing timer
  * @param partition_state pointer to partition state
+ * @param timer_list pointer to timer list
  * @param interval timer interval
  * @param timerid the timerid
  * @param timer_def pointer to populated timer definition

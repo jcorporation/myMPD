@@ -59,6 +59,7 @@ bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions,
 /**
  * Prints the jukebox queue as an jsonrpc response
  * @param partition_state pointer to myMPD partition state
+ * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the result
  * @param cmd_id jsonrpc method
  * @param request_id jsonrpc request id

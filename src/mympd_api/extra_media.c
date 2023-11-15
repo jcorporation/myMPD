@@ -43,8 +43,10 @@ static int get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
 
 /**
  * Looks for images and the booklet in the songs directory and counts the number of embedded images
- * @param mpd_state pointer to the shared mpd state
  * @param buffer buffer to append the jsonrpc result
+ * @param mpd_state pointer to the shared mpd state
+ * @param booklet_name filename for booklet
+ * @param info_txt_name filename for album info
  * @param uri song uri to get extra media for
  * @param is_dirname true if uri is a directory, else false
  * @return pointer to buffer
@@ -93,7 +95,9 @@ sds mympd_api_get_extra_media(sds buffer, struct t_mpd_state *mpd_state, sds boo
 
 /**
  * Looks for images and the booklet in the songs directory
- * @param mpd_state pointer to the shared mpd state
+ * @param music_directory MPD music directory
+ * @param booklet_name filename for booklet
+ * @param info_txt_name filename for album info
  * @param uri song uri to get extra media for
  * @param booklet_path pointer to already allocated sds to populate with the booklet path
  * @param info_txt_path pointer to already allocated sds to populate with the info txt path

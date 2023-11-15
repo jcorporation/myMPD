@@ -387,7 +387,8 @@ void partition_state_free(struct t_partition_state *partition_state) {
 
 /**
  * Sets stickerdb state defaults
- * @param mpd_state pointer to shared mpd state
+ * @param stickerdb pointer to stickerdb state
+ * @param config pointer to static config
  */
 void stickerdb_state_default(struct t_stickerdb_state *stickerdb, struct t_config *config) {
     stickerdb->config = config;

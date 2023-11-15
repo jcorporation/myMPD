@@ -323,6 +323,7 @@ bool mympd_api_queue_replace_search(struct t_partition_state *partition_state, s
 /**
  * Inserts albums into the queue
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param albumids album ids to insert
  * @param to position to insert
  * @param whence how to interpret the to parameter
@@ -357,6 +358,7 @@ bool mympd_api_queue_insert_albums(struct t_partition_state *partition_state, st
 /**
  * Appends albums to the queue
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param albumids album ids to append
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
@@ -370,6 +372,7 @@ bool mympd_api_queue_append_albums(struct t_partition_state *partition_state, st
 /**
  * Replaces the queue with albums
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param albumids album ids to insert
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
@@ -384,6 +387,7 @@ bool mympd_api_queue_replace_albums(struct t_partition_state *partition_state, s
 /**
  * Inserts one disc of an album into the queue
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param albumid album id to insert
  * @param disc disc to insert
  * @param to position to insert
@@ -417,6 +421,7 @@ bool mympd_api_queue_insert_album_disc(struct t_partition_state *partition_state
 /**
  * Appends one disc of an album to the queue
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param albumid album id to append
  * @param disc disc to append
  * @param error pointer to an already allocated sds string for the error message
@@ -431,6 +436,7 @@ bool mympd_api_queue_append_album_disc(struct t_partition_state *partition_state
 /**
  * Replaces the queue with one disc of an album
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param albumid album id to insert
  * @param disc disc to insert
  * @param error pointer to an already allocated sds string for the error message
@@ -574,6 +580,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
 /**
  * Lists the queue, this is faster for older MPD servers than the search function below.
  * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc id
  * @param offset offset for the list
@@ -633,6 +640,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_sti
 /**
  * Searches the queue
  * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc id
  * @param expression mpd filter expression
@@ -785,6 +793,7 @@ static bool add_queue_search_adv_params(struct t_partition_state *partition_stat
 /**
  * Prints a queue entry as an json object string
  * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the response
  * @param tagcols columns to print
  * @param song pointer to mpd song struct

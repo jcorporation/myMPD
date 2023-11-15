@@ -44,6 +44,8 @@ enum random_add_uniq_result {
 /**
  * Adds albums to the add_list
  * @param partition_state pointer to myMPD partition state
+ * @param stickerdb pointer to stickerdb state
+ * @param album_cache pointer to album cache
  * @param add_albums number of albums expected in add_list
  * @param queue_list list of current songs in mpd queue and last played
  * @param add_list list to add the albums
@@ -145,6 +147,7 @@ long random_select_albums(struct t_partition_state *partition_state, struct t_st
 /**
  * Adds songs to the add_list
  * @param partition_state pointer to myMPD partition state
+ * @param stickerdb pointer to stickerdb state
  * @param add_songs number of songs expected in add_list
  * @param playlist playlist from which songs are added
  * @param queue_list list of current songs in mpd queue and last played
@@ -319,6 +322,9 @@ static bool check_max_duration(const struct mpd_song *song, unsigned max_duratio
  */
 static long check_uniq_tag(const char *uri, const char *value, struct t_list *queue_list, struct t_list *add_list)
 {
+    if (queue_list == NULL) {
+        return RANDOM_ADD_UNIQ_IS_UNIQ;
+    }
     // check mpd queue and last_played
     struct t_list_node *current = queue_list->head;
     while(current != NULL) {
@@ -435,13 +441,13 @@ static bool check_last_played_album(rax *stickers_last_played, const char *uri, 
 
 /**
  * Adds an expression if not empty, else adds an empty uri constraint to match all songs
- * @param include_expression include expression
+ * @param expression include expression
  * @param partition_state pointer to partition state
  * @return true on success, else false
  */
-static bool add_uri_constraint_or_expression(const char *include_expression, struct t_partition_state *partition_state) {
-    if (include_expression != NULL) {
+static bool add_uri_constraint_or_expression(const char *expression, struct t_partition_state *partition_state) {
+    if (expression == NULL) {
         return mpd_search_add_uri_constraint(partition_state->conn, MPD_OPERATOR_DEFAULT, "");
     }
-    return mpd_search_add_expression(partition_state->conn, include_expression);
+    return mpd_search_add_expression(partition_state->conn, expression);
 }

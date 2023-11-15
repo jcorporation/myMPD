@@ -60,6 +60,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
     mpd_worker_state->tag_disc_empty_is_first = mympd_state->tag_disc_empty_is_first;
     copy_tag_types(&mympd_state->smartpls_generate_tag_types, &mpd_worker_state->smartpls_generate_tag_types);
+    mpd_worker_state->album_cache = &mympd_state->album_cache;
 
     if (mpd_worker_state->mympd_only == true) {
         mpd_worker_state->mpd_state = NULL;
