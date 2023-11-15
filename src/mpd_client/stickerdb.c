@@ -153,7 +153,7 @@ bool stickerdb_idle(struct t_stickerdb_state *stickerdb) {
         // exit and reenter the idle mode to discard waiting events
         // this prevents the connection to timeout
         MYMPD_LOG_DEBUG("stickerdb", "Discarding idle events");
-        mympd_api_request_trigger_event_emit(TRIGGER_MPD_STICKER, stickerdb->name);
+        mympd_api_request_trigger_event_emit(TRIGGER_MPD_STICKER, MPD_PARTITION_DEFAULT);
         return stickerdb_exit_idle(stickerdb) &&
             stickerdb_enter_idle(stickerdb);
     }
