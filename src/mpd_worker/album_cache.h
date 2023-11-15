@@ -4,10 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_MPD_WORKER_CACHE_H
-#define MYMPD_MPD_WORKER_CACHE_H
+#ifndef MYMPD_MPD_WORKER_ALBUM_CACHE_H
+#define MYMPD_MPD_WORKER_ALBUM_CACHE_H
 
 #include "src/mpd_worker/state.h"
 
-bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool force);
+bool mpd_worker_album_cache_create(struct t_mpd_worker_state *mpd_worker_state, bool force);
 #endif

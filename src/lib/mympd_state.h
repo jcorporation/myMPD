@@ -8,8 +8,8 @@
 #define MYMPD_STATE_H
 
 #include "dist/libmympdclient/include/mpd/client.h"
-#include "dist/rax/rax.h"
 #include "dist/sds/sds.h"
+#include "src/lib/cache.h"
 #include "src/lib/config_def.h"
 #include "src/lib/list.h"
 #include "src/lib/tags.h"
@@ -37,14 +37,6 @@ enum mpd_conn_states {
     MPD_DISCONNECT_INSTANT,  //!< disconnect mpd and reconnect as soon as possible
     MPD_WAIT,                //!< waiting for reconnection
     MPD_REMOVED              //!< connection was removed
-};
-
-/**
- * Holds cache information
- */
-struct t_cache {
-    bool building;  //!< true if the mpd_worker thread is creating the cache
-    rax *cache;     //!< pointer to the cache
 };
 
 /**

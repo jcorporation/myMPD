@@ -110,8 +110,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     //timer
     mympd_api_timer_timerlist_init(&mympd_state->timer_list);
     //album cache
-    mympd_state->album_cache.building = false;
-    mympd_state->album_cache.cache = NULL;
+    cache_init(&mympd_state->album_cache);
     //init last played songs list
     mympd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
 }
@@ -141,6 +140,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     stickerdb_state_free(mympd_state->stickerdb);
     //caches
     album_cache_free(&mympd_state->album_cache);
+    cache_free(&mympd_state->album_cache);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);

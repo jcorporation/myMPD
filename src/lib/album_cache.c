@@ -16,7 +16,6 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/mpack.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/tags.h"

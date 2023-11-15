@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/mpd_worker/cache.h"
+#include "src/mpd_worker/album_cache.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/libmympdclient/src/isong.h"
@@ -26,20 +26,20 @@
 /**
  * Private definitions
  */
-static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache);
-static bool cache_init_simple(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache);
+static bool album_cache_create(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache);
+static bool album_cache_create_simple(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache);
 
 /**
  * Public functions
  */
 
 /**
- * Creates the caches and returns it to mympd_api thread
+ * Creates the album cache and returns it to mympd_api thread
  * @param mpd_worker_state pointer to mpd_worker_state struct
  * @param force true=force update, false=update only if mpd database is newer then the caches
  * @return true on success else false
  */
-bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool force) {
+bool mpd_worker_album_cache_create(struct t_mpd_worker_state *mpd_worker_state, bool force) {
     time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
     MYMPD_LOG_DEBUG("default", "Database mtime: %lld", (long long)db_mtime);
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE);
@@ -65,8 +65,8 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
         struct t_cache album_cache;
         album_cache.cache = raxNew();
         rc = mpd_worker_state->config->albums.mode == ALBUM_MODE_ADV
-            ? cache_init(mpd_worker_state, album_cache.cache)
-            : cache_init_simple(mpd_worker_state, album_cache.cache);
+            ? album_cache_create(mpd_worker_state, album_cache.cache)
+            : album_cache_create_simple(mpd_worker_state, album_cache.cache);
         if (rc == true) {
             struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_CREATED, NULL, mpd_worker_state->partition_state->name);
             request->data = jsonrpc_end(request->data);
@@ -107,7 +107,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
  * @param album_cache pointer to empty album_cache
  * @return true on success, else false
  */
-static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache) {
+static bool album_cache_create(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache) {
     MYMPD_LOG_INFO("default", "Creating album cache");
 
     unsigned start = 0;
@@ -215,7 +215,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
  * @param album_cache pointer to empty album_cache
  * @return true on success, else false
  */
-static bool cache_init_simple(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache) {
+static bool album_cache_create_simple(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache) {
     MYMPD_LOG_INFO("default", "Creating simple album cache");
     int album_count = 0;
     int skip_count = 0;

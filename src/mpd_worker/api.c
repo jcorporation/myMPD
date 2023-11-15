@@ -13,7 +13,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_worker/add_random.h"
-#include "src/mpd_worker/cache.h"
+#include "src/mpd_worker/album_cache.h"
 #include "src/mpd_worker/smartpls.h"
 #include "src/mpd_worker/song.h"
 
@@ -83,7 +83,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (json_get_bool(request->data, "$.params.force", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 push_response(response, request->id, request->conn_id);
-                mpd_worker_cache_init(mpd_worker_state, bool_buf1);
+                mpd_worker_album_cache_create(mpd_worker_state, bool_buf1);
                 async = true;
             }
             break;
