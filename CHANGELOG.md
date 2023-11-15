@@ -53,6 +53,8 @@ This is a small bugfix release.
 - Fix: Remove "parent dir" entry in filesystem view #1168
 - Fix: Add random songs to queue
 - Fix: Parse uniq jukebox mode from state file
+- Fix: Detection of folder for tag pictures #1172
+- Fix: set TFD_NONBLOCK | TFD_CLOEXEC for timerfds
 
 ***
 

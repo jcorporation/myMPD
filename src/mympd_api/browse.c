@@ -389,7 +389,7 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
 
     //checks if this tag has a directory with pictures in /src/lib/mympd/pics
     sds pic_path = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->config->workdir, DIR_WORK_PICS, tag);
-    bool pic =  testdir(pic_path, "Tag pics folder", false, true) == DIR_EXISTS
+    bool pic =  testdir("Tag pics folder", pic_path, false, true) == DIR_EXISTS
         ? true
         : false;
     FREE_SDS(pic_path);
