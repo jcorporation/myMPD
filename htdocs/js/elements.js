@@ -180,7 +180,7 @@ function elClearId(id) {
 
 /**
  * Hides the element
- * @param {Element | EventTarget} el element to hide
+ * @param {Element | EventTarget | ParentNode} el element to hide
  * @returns {void}
  */
 function elHide(el) {
@@ -189,7 +189,7 @@ function elHide(el) {
 
 /**
  * Shows the element
- * @param {Element} el element to show
+ * @param {Element | ParentNode} el element to show
  * @returns {void}
  */
 function elShow(el) {
