@@ -10,6 +10,7 @@ set(TEST_SOURCES
   utility.c
   ../src/lib/album_cache.c
   ../src/lib/api.c
+  ../src/lib/cache.c
   ../src/lib/cert.c
   ../src/lib/datetime.c
   ../src/lib/env.c
