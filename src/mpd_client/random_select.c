@@ -446,7 +446,9 @@ static bool check_last_played_album(rax *stickers_last_played, const char *uri, 
  * @return true on success, else false
  */
 static bool add_uri_constraint_or_expression(const char *expression, struct t_partition_state *partition_state) {
-    if (expression == NULL) {
+    if (expression == NULL ||
+        strlen(expression) == 0)
+    {
         return mpd_search_add_uri_constraint(partition_state->conn, MPD_OPERATOR_DEFAULT, "");
     }
     return mpd_search_add_expression(partition_state->conn, expression);
