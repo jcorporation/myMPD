@@ -13,7 +13,7 @@ struct t_random_add_constraints {
     const char *filter_include;
     const char *filter_exclude;
     enum mpd_tag_type uniq_tag;
-    long last_played;
+    unsigned last_played;
     bool ignore_hated;
     unsigned min_song_duration;
     unsigned max_song_duration;

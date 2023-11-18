@@ -34,7 +34,7 @@ static sds get_local_ip(void);
  * Sleep function that is interuptable
  * @param msec milliseconds to sleep
  */
-void my_msleep(unsigned msec) {
+void my_msleep(int msec) {
     struct timespec ts = {
         .tv_sec = (time_t)(msec / 1000),
         .tv_nsec = (msec % 1000L) * 1000000L
