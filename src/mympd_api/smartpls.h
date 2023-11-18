@@ -9,6 +9,6 @@
 
 #include "dist/sds/sds.h"
 
-sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char *playlist);
+sds mympd_api_smartpls_get(sds workdir, sds buffer, unsigned request_id, const char *playlist);
 
 #endif

@@ -23,7 +23,8 @@ void strip_slash(sds dirname);
 void sanitize_filename(sds filename);
 void sanitize_filename2(sds filename);
 
-void my_msleep(long msec);
+void my_msleep(unsigned msec);
+void readable_time(char *buf, time_t timestamp);
 
 sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config);
 bool get_ipv6_support(void);
@@ -33,6 +34,7 @@ bool get_ipv6_support(void);
     struct timespec toc;
 #define MEASURE_START clock_gettime(CLOCK_MONOTONIC, &tic);
 #define MEASURE_END clock_gettime(CLOCK_MONOTONIC, &toc);
-#define MEASURE_PRINT(PART, X) MYMPD_LOG_DEBUG(PART, "Execution time for %s: %lld ms", X, ((long long)(toc.tv_sec) * 1000 + toc.tv_nsec / 1000000) - ((long long)(tic.tv_sec) * 1000 + tic.tv_nsec / 1000000));
+#define MEASURE_PRINT(PART, X) MYMPD_LOG_DEBUG(PART, "Execution time for %s: %" PRId64 " ms", X, \
+    (toc.tv_sec * 1000 + toc.tv_nsec / 1000000) - (tic.tv_sec * 1000 + tic.tv_nsec / 1000000));
 
 #endif

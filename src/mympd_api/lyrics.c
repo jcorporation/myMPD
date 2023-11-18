@@ -55,7 +55,7 @@ static const char *mympd_id3_field_getlanguage(union id3_field const *field);
  * @param uri song uri 
  * @return pointer to buffer
  */
-sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffer, long request_id, sds uri) {
+sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffer, unsigned request_id, sds uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_LYRICS_GET;
     if (is_streamuri(uri) == true) {
         MYMPD_LOG_ERROR(NULL, "Can not get lyrics for stream uri");
@@ -85,17 +85,17 @@ sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffe
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
         struct t_list_node *current = NULL;
-        int i = 0;
-        long returned_entities = extracted.length;
+        unsigned entity_count = 0;
         while ((current = list_shift_first(&extracted)) != NULL) {
-            if (i++) {
+            if (entity_count++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatsds(buffer, current->key);
             list_node_free(current);
         }
         buffer = sdscatlen(buffer, "],", 2);
-        buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
+        buffer = tojson_uint(buffer, "totalEntities", entity_count, true);
+        buffer = tojson_uint(buffer, "returnedEntities", entity_count, false);
         buffer = jsonrpc_end(buffer);
     }
 
@@ -287,7 +287,7 @@ static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
             buffer = sdscat(buffer, "{\"synced\":true,");
 
             enum id3_field_textencoding encoding = id3_field_gettextencoding(&frame->fields[0]);
-            buffer = tojson_long(buffer, "encoding", encoding, true);
+            buffer = tojson_uint(buffer, "encoding", encoding, true);
 
             const char *lang = mympd_id3_field_getlanguage(&frame->fields[1]);
             if (lang != NULL) {
@@ -297,11 +297,11 @@ static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
                 buffer = tojson_char_len(buffer, "lang", "", 0, true);
             }
 
-            long time_stamp = id3_field_getint(&frame->fields[2]);
-            buffer = tojson_long(buffer, "timestamp", time_stamp, true);
+            int64_t time_stamp = id3_field_getint(&frame->fields[2]);
+            buffer = tojson_int64(buffer, "timestamp", time_stamp, true);
 
-            long content_type = id3_field_getint(&frame->fields[3]);
-            buffer = tojson_long(buffer, "contenttype", content_type, true);
+            int64_t content_type = id3_field_getint(&frame->fields[3]);
+            buffer = tojson_int64(buffer, "contenttype", content_type, true);
 
             const id3_ucs4_t *uslt_desc = id3_field_getstring(&frame->fields[4]);
             if (uslt_desc != NULL) {

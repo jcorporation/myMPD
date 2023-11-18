@@ -27,7 +27,7 @@
  * @return true on success, else false
  */
 bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
-        long add, unsigned mode, sds plist, sds partition)
+        unsigned add, unsigned mode, sds plist, sds partition)
 {
     if (strcmp(partition, MPD_PARTITION_DEFAULT) != 0) {
         if (mpd_run_switch_partition(mpd_worker_state->partition_state->conn, partition) == false) {
@@ -49,7 +49,7 @@ bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
     struct t_list add_list;
     list_init(&add_list);
 
-    long new_length = 0;
+    unsigned new_length = 0;
     sds error = sdsempty();
     if (mode == JUKEBOX_ADD_ALBUM) {
         if (cache_get_read_lock(mpd_worker_state->album_cache) == true) {
@@ -73,7 +73,7 @@ bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
     list_clear(&add_list);
 
     if (new_length < add) {
-        MYMPD_LOG_WARN(partition, "Could not select %ld entries", add);
+        MYMPD_LOG_WARN(partition, "Could not select %u entries", add);
         return false;
     }
     return true;

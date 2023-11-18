@@ -20,7 +20,7 @@
  */
 
 static bool check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, enum mympd_cmd_ids cmd_id,
-        long request_id, enum response_types response_type, const char *command);
+        unsigned request_id, enum jsonrpc_response_types response_type, const char *command);
 
 /**
  * Public functions
@@ -57,7 +57,7 @@ bool mympd_check_error_and_recover(struct t_partition_state *partition_state, sd
  * @return true on success else false
  */
 bool mympd_check_error_and_recover_respond(struct t_partition_state *partition_state, sds *buffer,
-        enum mympd_cmd_ids cmd_id, long request_id, const char *command)
+        enum mympd_cmd_ids cmd_id, unsigned request_id, const char *command)
 {
     return check_error_and_recover(partition_state, buffer, cmd_id, request_id, RESPONSE_TYPE_JSONRPC_RESPONSE, command);
 }
@@ -99,7 +99,7 @@ bool mympd_check_error_and_recover_plain(struct t_partition_state *partition_sta
  * @return pointer to buffer
  */
 sds mympd_respond_with_error_or_ok(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id,
-        long request_id, const char *command, bool *result)
+        unsigned request_id, const char *command, bool *result)
 {
     *result = check_error_and_recover(partition_state, &buffer, cmd_id, request_id, RESPONSE_TYPE_JSONRPC_RESPONSE, command);
     if (*result == false) {
@@ -123,7 +123,7 @@ sds mympd_respond_with_error_or_ok(struct t_partition_state *partition_state, sd
  * @return true on success else false
  */
 static bool check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, enum mympd_cmd_ids cmd_id,
-        long request_id, enum response_types response_type, const char *command)
+        unsigned request_id, enum jsonrpc_response_types response_type, const char *command)
 {
     enum mpd_error error = mpd_connection_get_error(partition_state->conn);
     if (error != MPD_ERROR_SUCCESS) {

@@ -18,7 +18,7 @@
  * @param uri song uri
  * @return pointer to buffer
  */
-sds mpd_worker_song_fingerprint(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
+sds mpd_worker_song_fingerprint(struct t_partition_state *partition_state, sds buffer, unsigned request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_FINGERPRINT;
     if (partition_state->mpd_state->feat.fingerprint == false) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,

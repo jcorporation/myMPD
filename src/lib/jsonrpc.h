@@ -18,7 +18,7 @@
 /**
  * Response types for error messages
  */
-enum response_types {
+enum jsonrpc_response_types {
     RESPONSE_TYPE_JSONRPC_RESPONSE = 0,
     RESPONSE_TYPE_JSONRPC_NOTIFY,
     RESPONSE_TYPE_PLAIN,
@@ -80,23 +80,23 @@ struct t_jsonrpc_parse_error {
 typedef bool (*iterate_callback) (const char *, sds, sds, int, validate_callback, void *, struct t_jsonrpc_parse_error *);
 
 void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *partition, const char *message);
-void send_jsonrpc_notify_client(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, long request_id, const char *message);
+void send_jsonrpc_notify_client(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, unsigned request_id, const char *message);
 void send_jsonrpc_event(enum jsonrpc_events event, const char *partition);
 sds jsonrpc_event(sds buffer, enum jsonrpc_events event);
 sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message);
 sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message, int count, ...);
 sds jsonrpc_notify_start(sds buffer, enum jsonrpc_events event);
 
-sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, long request_id);
+sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id);
 sds jsonrpc_end(sds buffer);
-sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, enum jsonrpc_facilities facility);
-sds jsonrpc_respond_with_ok_or_error(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id, enum jsonrpc_facilities facility);
+sds jsonrpc_respond_with_ok_or_error(sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id,
         bool rc, enum jsonrpc_facilities facility, const char *error);
-sds jsonrpc_respond_with_message_or_error(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+sds jsonrpc_respond_with_message_or_error(sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id,
         bool rc, enum jsonrpc_facilities facility, const char *message, const char *error);
-sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id,
         enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message);
-sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id,
         enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message, int count, ...);
 
 sds json_comma(sds buffer);
@@ -107,12 +107,10 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma);
 sds tojson_int(sds buffer, const char *key, int value, bool comma);
 sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma);
-sds tojson_long(sds buffer, const char *key, long value, bool comma);
 sds tojson_time(sds buffer, const char *key, time_t value, bool comma);
-sds tojson_llong(sds buffer, const char *key, long long value, bool comma);
-sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma);
-sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool comma);
 sds tojson_double(sds buffer, const char *key, double value, bool comma);
+sds tojson_int64(sds buffer, const char *key, int64_t value, bool comma);
+sds tojson_uint64(sds buffer, const char *key, uint64_t value, bool comma);
 
 void jsonrpc_parse_error_init(struct t_jsonrpc_parse_error *parse_error);
 void jsonrpc_parse_error_clear(struct t_jsonrpc_parse_error *parse_error);
@@ -121,17 +119,15 @@ bool json_get_bool(sds s, const char *path, bool *result, struct t_jsonrpc_parse
 bool json_get_int_max(sds s, const char *path, int *result, struct t_jsonrpc_parse_error *error);
 bool json_get_int(sds s, const char *path, int min, int max, int *result, struct t_jsonrpc_parse_error *error);
 bool json_get_time_max(sds s, const char *path, time_t *result, struct t_jsonrpc_parse_error *error);
-bool json_get_long_max(sds s, const char *path, long *result, struct t_jsonrpc_parse_error *error);
-bool json_get_long(sds s, const char *path, long min, long max, long *result, struct t_jsonrpc_parse_error *error);
-bool json_get_llong_max(sds s, const char *path, long long *result, struct t_jsonrpc_parse_error *error);
-bool json_get_llong(sds s, const char *path, long long min, long long max, long long *result, struct t_jsonrpc_parse_error *error);
+bool json_get_int64_max(sds s, const char *path, int64_t *result, struct t_jsonrpc_parse_error *error);
+bool json_get_int64(sds s, const char *path, int64_t min, int64_t max, int64_t *result, struct t_jsonrpc_parse_error *error);
 bool json_get_uint_max(sds s, const char *path, unsigned *result, struct t_jsonrpc_parse_error *error);
 bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result, struct t_jsonrpc_parse_error *error);
 bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb, struct t_jsonrpc_parse_error *error);
 bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, struct t_jsonrpc_parse_error *error);
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result, struct t_jsonrpc_parse_error *error);
 bool json_get_array_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error);
-bool json_get_array_llong(sds s, const char *path, struct t_list *l, int max_elements, struct t_jsonrpc_parse_error *error);
+bool json_get_array_int64(sds s, const char *path, struct t_list *l, int max_elements, struct t_jsonrpc_parse_error *error);
 bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error);
 bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error);
 bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_elements, struct t_jsonrpc_parse_error *error);

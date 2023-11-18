@@ -391,8 +391,8 @@ sds print_album_tags(sds buffer, const struct t_mpd_state *mpd_state, const stru
 sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
     buffer = sdscat(buffer, "\"AudioFormat\":{");
     buffer = tojson_uint(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
-    buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
-    buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
+    buffer = tojson_uint(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
+    buffer = tojson_uint(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;
 }

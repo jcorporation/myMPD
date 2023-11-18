@@ -105,7 +105,7 @@ struct t_partition_state {
     enum mpd_conn_states conn_state;       //!< mpd connection state
     //reconnect timer
     time_t reconnect_time;                 //!< timestamp at which next connection attempt is made
-    time_t reconnect_interval;             //!< interval for connections attempts (increases by failed attempts)
+    int reconnect_interval;                //!< interval for connections attempts (increases by failed attempts)
     //track player states
     enum mpd_state play_state;             //!< mpd player state
     int song_id;                           //!< current song id from queue
@@ -115,7 +115,7 @@ struct t_partition_state {
     sds song_uri;                          //!< current song uri
     sds last_song_uri;                     //!< previous song uri
     unsigned queue_version;                //!< queue version number (increments on queue change)
-    long long queue_length;                //!< length of the queue
+    unsigned queue_length;                 //!< length of the queue
     int last_scrobbled_id;                 //!< last scrobble event was fired for this song id
     int last_skipped_id;                   //!< last skipped event was fired for this song id
     time_t song_end_time;                  //!< timestamp at which current song should end (starttime + duration)
@@ -130,8 +130,8 @@ struct t_partition_state {
     //jukebox
     enum jukebox_modes jukebox_mode;       //!< the jukebox mode
     sds jukebox_playlist;                  //!< playlist from which the jukebox queue is generated
-    long jukebox_queue_length;             //!< how many songs should the mpd queue have
-    long jukebox_last_played;              //!< only add songs with last_played state older than this timestamp
+    unsigned jukebox_queue_length;         //!< how many songs should the mpd queue have
+    unsigned jukebox_last_played;          //!< only add songs with last_played state older than seconds from now
     struct t_tags jukebox_uniq_tag;        //!< single tag for the jukebox uniq constraint
     struct t_list jukebox_queue;           //!< the jukebox queue itself
     struct t_list jukebox_queue_tmp;       //!< temporary jukebox queue for the add random to queue function
@@ -191,7 +191,7 @@ struct t_timer_definition {
  * Struct for timers containing a t_list with t_timer_nodes
  */
 struct t_timer_list {
-    long long last_id;                   //!< highest timer id in the list
+    unsigned last_id;                   //!< highest timer id in the list
     int active;                          //!< number of enabled timers
     struct t_list list;                  //!< timer definition
     struct pollfd ufds[LIST_TIMER_MAX];  //!< timerfds to poll
@@ -257,7 +257,7 @@ struct t_mympd_state {
     sds booklet_name;                             //!< name of the booklet files
     sds info_txt_name;                            //!< name of album info files
     struct t_cache album_cache;                   //!< the album cache created by the mpd_worker thread
-    long last_played_count;                       //!< number of songs to keep in the last played list (disk + memory)
+    unsigned last_played_count;                       //!< number of songs to keep in the last played list (disk + memory)
 };
 
 /**

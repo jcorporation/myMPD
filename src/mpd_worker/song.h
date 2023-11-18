@@ -9,5 +9,5 @@
 
 #include "src/lib/mympd_state.h"
 
-sds mpd_worker_song_fingerprint(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri);
+sds mpd_worker_song_fingerprint(struct t_partition_state *partition_state, sds buffer, unsigned request_id, const char *uri);
 #endif

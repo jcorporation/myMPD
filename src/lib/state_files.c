@@ -151,21 +151,6 @@ bool state_file_rw_bool(sds workdir, const char *dir, const char *name, bool def
 }
 
 /**
- * Reads an integer from a file or writes the file with a default value if not exists or value is invalid
- * @param workdir mympd working directory
- * @param dir subdir 
- * @param name filename to read/write
- * @param def_value default value as sds string (is freed by this function)
- * @param min minimum value
- * @param max maximum value
- * @param write if true create the file if not exists
- * @return newly allocated sds string
- */
-int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_value, int min, int max, bool write) {
-    return (int)state_file_rw_long(workdir, dir, name, def_value, min, max, write);
-}
-
-/**
  * Reads a tag name from a file, parses it to a mpd_tag_type or writes the file with a default value if not exists or value is invalid
  * @param workdir mympd working directory
  * @param dir subdir
@@ -186,7 +171,7 @@ enum mpd_tag_type state_file_rw_tag(sds workdir, const char *dir, const char *na
 }
 
 /**
- * Reads a long from a file or writes the file with a default value if not exists or value is invalid
+ * Reads an int value from a file or writes the file with a default value if not exists or value is invalid
  * @param workdir mympd working directory
  * @param dir subdir 
  * @param name filename to read/write
@@ -196,12 +181,12 @@ enum mpd_tag_type state_file_rw_tag(sds workdir, const char *dir, const char *na
  * @param write if true create the file if not exists
  * @return newly allocated sds string
  */
-long state_file_rw_long(sds workdir, const char *dir, const char *name, long def_value, long min, long max, bool write) {
+int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_value, int min, int max, bool write) {
     char *crap = NULL;
     sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, write);
     FREE_SDS(def_value_str);
-    long value = (long)strtoimax(line, &crap, 10);
+    int value = (int)strtoimax(line, &crap, 10);
     FREE_SDS(line);
     if (value >= min && value <= max) {
         return value;
@@ -210,7 +195,7 @@ long state_file_rw_long(sds workdir, const char *dir, const char *name, long def
 }
 
 /**
- * Reads an unsigned from a file or writes the file with a default value if not exists or value is invalid
+ * Reads an unsigned value from a file or writes the file with a default value if not exists or value is invalid
  * @param workdir mympd working directory
  * @param dir subdir 
  * @param name filename to read/write

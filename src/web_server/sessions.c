@@ -27,7 +27,7 @@
  * @param session session hash
  * @param mg_user_data webserver configuration
  */
-void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, sds body, int request_id,
+void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, sds body, unsigned request_id,
         sds session, struct t_mg_user_data *mg_user_data)
 {
     switch(cmd_id) {
@@ -130,7 +130,7 @@ sds webserver_session_new(struct t_list *session_list) {
 bool webserver_session_validate(struct t_list *session_list, const char *session) {
     time_t now = time(NULL);
     struct t_list_node *current = session_list->head;
-    int i = 0;
+    unsigned i = 0;
     while (current != NULL) {
         if (current->value_i < now) {
             MYMPD_LOG_DEBUG(NULL, "Session %s timed out", current->key);
@@ -166,7 +166,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
  */
 bool webserver_session_remove(struct t_list *session_list, const char *session) {
     struct t_list_node *current = session_list->head;
-    int i = 0;
+    unsigned i = 0;
     while (current != NULL) {
         if (strcmp(current->key, session) == 0) {
             MYMPD_LOG_DEBUG(NULL, "Session %s removed", current->key);

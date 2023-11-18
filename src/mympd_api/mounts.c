@@ -20,12 +20,12 @@
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
-sds mympd_api_mounts_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
+sds mympd_api_mounts_list(struct t_partition_state *partition_state, sds buffer, unsigned request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_MOUNT_LIST;
     if (mpd_send_list_mounts(partition_state->conn)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
-        long entity_count = 0;
+        unsigned entity_count = 0;
         struct mpd_mount *mount;
         while ((mount = mpd_recv_mount(partition_state->conn)) != NULL) {
             const char *uri = mpd_mount_get_uri(mount);
@@ -42,8 +42,8 @@ sds mympd_api_mounts_list(struct t_partition_state *partition_state, sds buffer,
             mpd_mount_free(mount);
         }
         buffer = sdscatlen(buffer, "],", 2);
-        buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-        buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
+        buffer = tojson_uint(buffer, "totalEntities", entity_count, true);
+        buffer = tojson_uint(buffer, "returnedEntities", entity_count, false);
         buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);
@@ -59,12 +59,12 @@ sds mympd_api_mounts_list(struct t_partition_state *partition_state, sds buffer,
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
-sds mympd_api_mounts_urlhandler_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
+sds mympd_api_mounts_urlhandler_list(struct t_partition_state *partition_state, sds buffer, unsigned request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_MOUNT_URLHANDLER_LIST;
     if (mpd_send_command(partition_state->conn, "urlhandlers", NULL)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
-        long entity_count = 0;
+        unsigned entity_count = 0;
         struct mpd_pair *pair;
         while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
             if (entity_count++) {
@@ -74,8 +74,8 @@ sds mympd_api_mounts_urlhandler_list(struct t_partition_state *partition_state, 
             mpd_return_pair(partition_state->conn, pair);
         }
         buffer = sdscatlen(buffer, "],", 2);
-        buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-        buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
+        buffer = tojson_uint(buffer, "totalEntities", entity_count, true);
+        buffer = tojson_uint(buffer, "returnedEntities", entity_count, false);
         buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);
@@ -90,12 +90,12 @@ sds mympd_api_mounts_urlhandler_list(struct t_partition_state *partition_state, 
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
-sds mympd_api_mounts_neighbor_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
+sds mympd_api_mounts_neighbor_list(struct t_partition_state *partition_state, sds buffer, unsigned request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_MOUNT_NEIGHBOR_LIST;
     if (mpd_send_list_neighbors(partition_state->conn)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
-        long entity_count = 0;
+        unsigned entity_count = 0;
         struct mpd_neighbor *neighbor;
         while ((neighbor = mpd_recv_neighbor(partition_state->conn)) != NULL) {
             const char *uri = mpd_neighbor_get_uri(neighbor);
@@ -112,8 +112,8 @@ sds mympd_api_mounts_neighbor_list(struct t_partition_state *partition_state, sd
             mpd_neighbor_free(neighbor);
         }
         buffer = sdscatlen(buffer, "],", 2);
-        buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-        buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
+        buffer = tojson_uint(buffer, "totalEntities", entity_count, true);
+        buffer = tojson_uint(buffer, "returnedEntities", entity_count, false);
         buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);

@@ -89,7 +89,7 @@ static const char *const mympd_event_names[] = {
  * @param event event to resolv
  * @return trigger as string
  */
-const char *mympd_api_event_name(long event) {
+const char *mympd_api_event_name(int event) {
     if (event < 0) {
         for (int i = 0; mympd_event_names[i] != NULL; ++i) {
             if (event == (-1 - i)) {
@@ -113,14 +113,14 @@ const char *mympd_api_event_name(long event) {
  */
 sds mympd_api_trigger_print_event_list(sds buffer) {
     for (int i = 0; mympd_event_names[i] != NULL; ++i) {
-        buffer = tojson_long(buffer, mympd_event_names[i], (-1 - i), true);
+        buffer = tojson_int(buffer, mympd_event_names[i], (-1 - i), true);
     }
 
     for (int i = 0; trigger_event_names[i] != NULL; ++i) {
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = tojson_long(buffer, trigger_event_names[i], (1 << i), false);
+        buffer = tojson_int(buffer, trigger_event_names[i], (1 << i), false);
     }
     return buffer;
 }
@@ -204,7 +204,7 @@ bool mympd_api_trigger_save(struct t_list *trigger_list, sds name, int trigger_i
 {
     // delete old trigger, ignore error
     if (trigger_id >= 0 &&
-        mympd_api_trigger_delete(trigger_list, trigger_id, error) == false)
+        mympd_api_trigger_delete(trigger_list, (unsigned)trigger_id, error) == false)
     {
         return false;
     }
@@ -223,13 +223,13 @@ bool mympd_api_trigger_save(struct t_list *trigger_list, sds name, int trigger_i
  * @param error already allocated sds string to append the error message
  * @return true on success, else false
  */
-bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx, sds *error) {
+bool mympd_api_trigger_delete(struct t_list *trigger_list, unsigned idx, sds *error) {
     struct t_list_node *to_remove = list_node_extract(trigger_list, idx);
     if (to_remove != NULL) {
         list_node_free_user_data(to_remove, list_free_cb_trigger_data);
         return true;
     }
-    MYMPD_LOG_ERROR(NULL, "Trigger with id %ld not found", idx);
+    MYMPD_LOG_ERROR(NULL, "Trigger with id %u not found", idx);
     *error = sdscat(*error, "Could not delete trigger");
     return false;
 }
@@ -242,11 +242,11 @@ bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx, sds *error)
  * @param partition mpd partition
  * @return pointer to buffer
  */
-sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id, const char *partition) {
+sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, unsigned request_id, const char *partition) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_TRIGGER_GET;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    int entities_returned = 0;
+    unsigned entities_returned = 0;
     struct t_list_node *current = trigger_list->head;
     int j = 0;
     while (current != NULL) {
@@ -260,8 +260,8 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request
             buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_int(buffer, "id", j, true);
             buffer = tojson_sds(buffer, "name", current->key, true);
-            buffer = tojson_llong(buffer, "event", current->value_i, true);
-            buffer = tojson_char(buffer, "eventName", mympd_api_event_name((long)current->value_i), true);
+            buffer = tojson_int64(buffer, "event", current->value_i, true);
+            buffer = tojson_char(buffer, "eventName", mympd_api_event_name((int)current->value_i), true);
             buffer = tojson_sds(buffer, "partition", current->value_p, true);
             buffer = tojson_sds(buffer, "script", trigger_data->script, true);
             buffer = sdscat(buffer, "\"arguments\": {");
@@ -281,7 +281,7 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }
@@ -291,18 +291,18 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request
  * @param trigger_list trigger list
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
- * @param id trigger id to print
+ * @param trigger_id trigger id to print
  * @return pointer to buffer
  */
-sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_id, long id) {
+sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, unsigned request_id, unsigned trigger_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_TRIGGER_GET;
-    struct t_list_node *current = list_node_at(trigger_list, id);
+    struct t_list_node *current = list_node_at(trigger_list, trigger_id);
     if (current != NULL) {
         struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-        buffer = tojson_long(buffer, "id", id, true);
+        buffer = tojson_uint(buffer, "id", trigger_id, true);
         buffer = tojson_sds(buffer, "name", current->key, true);
-        buffer = tojson_llong(buffer, "event", current->value_i, true);
+        buffer = tojson_int64(buffer, "event", current->value_i, true);
         buffer = tojson_sds(buffer, "partition", current->value_p, true);
         buffer = tojson_sds(buffer, "script", trigger_data->script, true);
         buffer = sdscat(buffer, "\"arguments\": {");
@@ -386,7 +386,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
     }
     FREE_SDS(line);
     (void) fclose(fp);
-    MYMPD_LOG_INFO(NULL, "Read %ld triggers(s) from disc", trigger_list->length);
+    MYMPD_LOG_INFO(NULL, "Read %u triggers(s) from disc", trigger_list->length);
     FREE_SDS(trigger_file);
     return true;
 }
@@ -398,7 +398,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
  * @return true on success, else false
  */
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir) {
-    MYMPD_LOG_INFO(NULL, "Saving %ld triggers to disc", trigger_list->length);
+    MYMPD_LOG_INFO(NULL, "Saving %u triggers to disc", trigger_list->length);
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_TRIGGER);
     bool rc = list_write_to_disk(filepath, trigger_list, trigger_to_line_cb);
     FREE_SDS(filepath);
@@ -456,7 +456,7 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
     struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_sds(buffer, "name", current->key, true);
-    buffer = tojson_llong(buffer, "event", current->value_i, true);
+    buffer = tojson_int64(buffer, "event", current->value_i, true);
     buffer = tojson_sds(buffer, "partition", current->value_p, true);
     buffer = tojson_sds(buffer, "script", trigger_data->script, true);
     buffer = sdscat(buffer, "\"arguments\":{");
@@ -480,7 +480,7 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
  * @param partition mpd partition
  */
 void trigger_execute(sds script, struct t_list *arguments, const char *partition) {
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, partition);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, partition);
     request->data = tojson_sds(request->data, "script", script, true);
     request->data = sdscat(request->data, "\"arguments\": {");
     struct t_list_node *argument = arguments->head;

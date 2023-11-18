@@ -13,6 +13,7 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/features.h"
@@ -37,7 +38,7 @@
 static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         bool mpd_idle_event_waiting, struct t_work_request *request);
 static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, unsigned idle_bitmask);
-static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeout);
+static bool update_mympd_caches(struct t_mympd_state *mympd_state, int timeout);
 
 /**
  * Public functions
@@ -89,11 +90,11 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
     if (request != NULL) {
         //request was for unknown partition, discard it
         MYMPD_LOG_WARN(NULL, "Discarding request for unknown partition \"%s\"", request->partition);
-        if (request->conn_id > -1) {
+        if (request->type == REQUEST_TYPE_DEFAULT) {
             struct t_work_response *response = create_response(request);
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                 JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Unknown partition");
-            MYMPD_LOG_DEBUG(NULL, "Send http response to connection %lld: %s", request->conn_id, response->data);
+            MYMPD_LOG_DEBUG(NULL, "Send http response to connection %lu: %s", request->conn_id, response->data);
             mympd_queue_push(web_server_queue, response, 0);
         }
         free_request(request);
@@ -125,11 +126,11 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
         }
         else {
             //other requests not allowed
-            if (request->conn_id > -1) {
+            if (request->type == REQUEST_TYPE_DEFAULT) {
                 struct t_work_response *response = create_response(request);
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "MPD disconnected");
-                MYMPD_LOG_DEBUG(partition_state->name, "Send http response to connection %lld: %s", request->conn_id, response->data);
+                MYMPD_LOG_DEBUG(partition_state->name, "Send http response to connection %lu: %s", request->conn_id, response->data);
                 mympd_queue_push(web_server_queue, response, 0);
             }
             free_request(request);
@@ -208,7 +209,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                     partition_state->reconnect_interval += 2;
                 }
                 partition_state->reconnect_time = time(NULL) + partition_state->reconnect_interval;
-                MYMPD_LOG_INFO(partition_state->name, "Waiting %lld seconds before reconnection", (long long)partition_state->reconnect_interval);
+                MYMPD_LOG_INFO(partition_state->name, "Waiting %d seconds before reconnection", partition_state->reconnect_interval);
             }
             else {
                 partition_state->conn_state = MPD_DISCONNECTED;
@@ -228,7 +229,11 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                     partition_state->song_scrobble_time > 0 &&
                     partition_state->last_song_scrobble_time != partition_state->song_scrobble_time)
                 {
-                    MYMPD_LOG_DEBUG(partition_state->name, "Song scrobble time reached: %lld", (long long)partition_state->song_scrobble_time);
+                    #ifdef MYMPD_DEBUG
+                        char fmt_time[32];
+                        readable_time(fmt_time, partition_state->song_scrobble_time);
+                        MYMPD_LOG_DEBUG(partition_state->name, "Song scrobble time reached: %s", fmt_time);
+                    #endif
                     set_played = true;
                 }
                 //check if the jukebox should add a song
@@ -278,7 +283,9 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                     partition_state->last_scrobbled_id = partition_state->song_id;
                     partition_state->last_song_scrobble_time = partition_state->song_scrobble_time;
                     //add song to the last_played list
-                    mympd_api_last_played_add_song(partition_state, mympd_state->last_played_count, partition_state->song_id);
+                    if (partition_state->song_id > 0) {
+                        mympd_api_last_played_add_song(partition_state, mympd_state->last_played_count, (unsigned)partition_state->song_id);
+                    }
                     //set stickers
                     if (partition_state->mpd_state->feat.stickers == true) {
                         stickerdb_inc_play_count(mympd_state->stickerdb,
@@ -470,7 +477,7 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
  * @param timeout seconds after the timer triggers
  * @return true on success else false
  */
-static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeout) {
+static bool update_mympd_caches(struct t_mympd_state *mympd_state, int timeout) {
     if (mympd_state->mpd_state->feat.tags == false) {
         MYMPD_LOG_DEBUG(NULL, "Caches are disabled");
         return true;

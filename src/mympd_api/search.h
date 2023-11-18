@@ -10,7 +10,7 @@
 #include "src/lib/mympd_state.h"
 
 sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, 
-        sds buffer, long request_id, const char *expression, const char *sort, bool sortdesc,
+        sds buffer, unsigned request_id, const char *expression, const char *sort, bool sortdesc,
         unsigned offset, unsigned limit, const struct t_tags *tagcols, bool *result);
 
 #endif

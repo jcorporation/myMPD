@@ -95,7 +95,7 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         unsigned i = 0;
         bool rc = true;
         while ((current = list_shift_first(positions)) != NULL) {
-            struct t_list_node *n = list_node_at(&src, (long)current->value_i);
+            struct t_list_node *n = list_node_at(&src, (unsigned)current->value_i);
             rc = mode == 0 
                 ? mpd_send_playlist_add(partition_state->conn, dst_plist, n->key)
                 : mpd_send_playlist_add_to(partition_state->conn, dst_plist, n->key, i);
@@ -540,13 +540,13 @@ bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition
  * @param type playlist type to list
  * @return pointer to buffer
  */
-sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        long offset, long limit, sds searchstr, enum playlist_types type)
+sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
+        unsigned offset, unsigned limit, sds searchstr, enum playlist_types type)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_LIST;
     rax *entity_list = raxNew();
     size_t search_len = sdslen(searchstr);
-    long real_limit = offset + limit;
+    unsigned real_limit = offset + limit;
     sds key = sdsempty();
 
     if (mpd_send_list_playlists(partition_state->conn)) {
@@ -618,8 +618,8 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
-    long entity_count = 0;
-    long entities_returned = 0;
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
     raxIterator iter;
     raxStart(&iter, entity_list);
     raxSeek(&iter, "^", NULL, 0);
@@ -635,7 +635,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
             buffer = tojson_char(buffer, "Type", (data->type == PLTYPE_STATIC ? "plist" : "smartpls"), true);
             buffer = tojson_sds(buffer, "uri", data->name, true);
             buffer = tojson_sds(buffer, "name", data->name, true);
-            buffer = tojson_llong(buffer, "lastModified", data->last_modified, true);
+            buffer = tojson_int64(buffer, "lastModified", (int64_t)data->last_modified, true);
             buffer = tojson_bool(buffer, "smartplsOnly", data->type == PLTYPE_SMARTPLS_ONLY ? true : false, false);
             buffer = sdscatlen(buffer, "}", 1);
         }
@@ -646,9 +646,9 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
     raxStop(&iter);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_sds(buffer, "searchstr", searchstr, true);
-    buffer = tojson_llong(buffer, "totalEntities", (long long)entity_list->numele, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_long(buffer, "offset", offset, false);
+    buffer = tojson_uint64(buffer, "totalEntities", entity_list->numele, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "offset", offset, false);
     buffer = jsonrpc_end(buffer);
     raxFree(entity_list);
     return buffer;
@@ -668,12 +668,12 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
  * @return pointer to buffer
  */
 sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        sds buffer, long request_id, sds plist, long offset, long limit, sds expression, const struct t_tags *tagcols)
+        sds buffer, unsigned request_id, sds plist, unsigned offset, unsigned limit, sds expression, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_CONTENT_LIST;
-    long entities_returned = 0;
-    long entities_found = 0;
-    long entity_count = 0;
+    unsigned entities_returned = 0;
+    unsigned entities_found = 0;
+    unsigned entity_count = 0;
     unsigned total_time = 0;
     time_t last_played_max = 0;
     sds last_played_song_uri = sdsempty();
@@ -687,7 +687,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
         buffer = sdscat(buffer,"\"data\":[");
 
         struct mpd_song *song;
-        long real_limit = offset + limit;
+        unsigned real_limit = offset + limit;
         struct t_list *expr_list = parse_search_expression_to_list(expression);
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (search_song_expression(song, expr_list, tagcols) == true) {
@@ -702,7 +702,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                     buffer = is_streamuri(mpd_song_get_uri(song)) == true
                         ? tojson_char(buffer, "Type", "stream", true)
                         : tojson_char(buffer, "Type", "song", true);
-                    buffer = tojson_long(buffer, "Pos", entity_count, true);
+                    buffer = tojson_uint(buffer, "Pos", entity_count, true);
                     buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
                     if (partition_state->mpd_state->feat.stickers == true &&
                         tagcols->stickers_len > 0)
@@ -741,10 +741,10 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
     bool smartpls = is_smartpls(partition_state->config->workdir, plist);
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalEntities", entities_found, true);
+    buffer = tojson_uint(buffer, "totalEntities", entities_found, true);
     buffer = tojson_uint(buffer, "totalTime", total_time, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "expression", expression, true);
     buffer = tojson_sds(buffer, "plist", plist, true);
     buffer = tojson_bool(buffer, "smartpls", smartpls, true);
@@ -768,7 +768,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
  * @return pointer to buffer
  */
 sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buffer,
-        long request_id, const char *old_playlist, const char *new_playlist)
+        unsigned request_id, const char *old_playlist, const char *new_playlist)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_RENAME;
     if (strcmp(old_playlist, new_playlist) == 0) {
@@ -909,7 +909,7 @@ enum plist_delete_criterias parse_plist_delete_criteria(const char *str) {
  * @return pointer to buffer
  */
 sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds buffer,
-        long request_id, enum plist_delete_criterias criteria)
+        unsigned request_id, enum plist_delete_criterias criteria)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_RM_ALL;
 

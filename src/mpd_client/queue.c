@@ -67,7 +67,7 @@ void mpd_client_queue_status_update(struct t_partition_state *partition_state) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status != NULL) {
         partition_state->queue_version = mpd_status_get_queue_version(status);
-        partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
+        partition_state->queue_length = mpd_status_get_queue_length(status);
         partition_state->crossfade = (time_t)mpd_status_get_crossfade(status);
         partition_state->play_state = mpd_status_get_state(status);
         mpd_status_free(status);
@@ -87,7 +87,7 @@ sds mpd_client_queue_status_print(struct t_partition_state *partition_state, str
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status != NULL) {
         partition_state->queue_version = mpd_status_get_queue_version(status);
-        partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
+        partition_state->queue_length = mpd_status_get_queue_length(status);
         partition_state->crossfade = (time_t)mpd_status_get_crossfade(status);
         partition_state->play_state = mpd_status_get_state(status);
 

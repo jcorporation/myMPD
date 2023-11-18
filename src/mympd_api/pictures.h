@@ -9,6 +9,6 @@
 
 #include "dist/sds/sds.h"
 
-sds mympd_api_settings_picture_list(sds workdir, sds buffer, long request_id, sds subdir);
+sds mympd_api_settings_picture_list(sds workdir, sds buffer, unsigned request_id, sds subdir);
 
 #endif

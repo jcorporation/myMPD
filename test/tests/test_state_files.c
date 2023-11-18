@@ -79,18 +79,6 @@ UTEST(state_files, test_state_file_rw_int) {
     clean_testenv();
 }
 
-UTEST(state_files, test_state_file_rw_long) {
-    init_testenv();
-
-    long value = state_file_rw_long(workdir, "state", "test", 10, 1, 20, true);
-    ASSERT_EQ(10, value);
-    sds content = get_file_content();
-    ASSERT_STREQ("10", content);
-    sdsfree(content);
-
-    clean_testenv();
-}
-
 UTEST(state_files, test_state_file_rw_uint) {
     init_testenv();
 

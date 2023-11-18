@@ -23,7 +23,7 @@
  * @param playlist smart playlist name to print
  * @return pointer to buffer
  */
-sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char *playlist) {
+sds mympd_api_smartpls_get(sds workdir, sds buffer, unsigned request_id, const char *playlist) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SMARTPLS_GET;
     sds pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_SMARTPLS, playlist);
     sds content = sdsempty();
@@ -65,7 +65,7 @@ sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char 
         }
         else if (strcmp(smartpltype, "newest") == 0) {
             if (json_get_int(content, "$.timerange", 0, JSONRPC_INT_MAX, &int_buf1, NULL) == true) {
-                buffer = tojson_long(buffer, "timerange", int_buf1, true);
+                buffer = tojson_int(buffer, "timerange", int_buf1, true);
             }
             else {
                 rc = false;

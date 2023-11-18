@@ -61,7 +61,7 @@ void *mympd_queue_free(struct t_mympd_queue *queue) {
  * @param id id of the queue entry
  * @return true on success else false
  */
-bool mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
+bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR(NULL, "Error in pthread_mutex_lock: %d", rc);
@@ -100,7 +100,7 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
  * @param id 0 for first entry or specific id
  * @return t_work_request or t_work_response
  */
-void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
+void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, unsigned id) {
     //lock the queue
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
@@ -159,7 +159,7 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
                 unlock_mutex(&queue->mutex);
                 return data;
             }
-            MYMPD_LOG_DEBUG(NULL, "Skipping queue entry with id %ld", current->id);
+            MYMPD_LOG_DEBUG(NULL, "Skipping queue entry with id %u", current->id);
         }
     }
 

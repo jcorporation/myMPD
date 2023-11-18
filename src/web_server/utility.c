@@ -37,15 +37,15 @@ int mg_str_to_int(struct mg_str *str) {
 }
 
 /**
- * Converts a mg_str to long
+ * Converts a mg_str to unsigned int
  * @param str pointer to struct mg_str
  * @return parsed integer
  */
-long mg_str_to_long(struct mg_str *str) {
+unsigned mg_str_to_uint(struct mg_str *str) {
     sds s = sdsnewlen(str->ptr, str->len);
-    long l = strtol(s, NULL, 10);
+    unsigned i = (unsigned)strtoimax(s, NULL, 10);
     FREE_SDS(s);
-    return l;
+    return i;
 }
 
 /**
@@ -209,7 +209,7 @@ void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
         "%s"
         "Content-Length: %lu\r\n\r\n",
-        headers, len);
+        headers, (unsigned long)len);
 }
 
 /**

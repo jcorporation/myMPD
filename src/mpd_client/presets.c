@@ -78,8 +78,8 @@ bool preset_save(struct t_list *preset_list, sds preset_name, sds preset_value, 
         return false;
     }
 
-    int idx = list_get_node_idx(preset_list, preset_name);
-    if (idx > -1) {
+    unsigned idx = list_get_node_idx(preset_list, preset_name);
+    if (idx != UINT_MAX) {
         // update existing preset
         return list_replace(preset_list, idx, preset_name, 0, preset_value, NULL);
     }
@@ -94,7 +94,7 @@ bool preset_save(struct t_list *preset_list, sds preset_name, sds preset_value, 
  * @return bool 
  */
 bool preset_delete(struct t_list *preset_list, const char *preset_name) {
-    int idx = list_get_node_idx(preset_list, preset_name);
+    unsigned idx = list_get_node_idx(preset_list, preset_name);
     return list_remove_node(preset_list, idx);
 }
 

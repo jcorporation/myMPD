@@ -52,27 +52,27 @@ enum random_add_uniq_result {
  * @param constraints constraints for album selection
  * @return new length of add_list
  */
-long random_select_albums(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        struct t_cache *album_cache, long add_albums, struct t_list *queue_list, struct t_list *add_list,
+unsigned random_select_albums(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        struct t_cache *album_cache, unsigned add_albums, struct t_list *queue_list, struct t_list *add_list,
         struct t_random_add_constraints *constraints)
 {
     if (album_cache->cache == NULL) {
         MYMPD_LOG_WARN(partition_state->name, "Album cache is null, can not add random albums");
-        return -1;
+        return add_list->length;
     }
 
-    long initial_length = add_list->length;
-    long add_list_expected_len = add_albums;
+    unsigned initial_length = add_list->length;
+    unsigned add_list_expected_len = add_albums;
+    if (add_list->length >= add_albums) {
+        return add_list->length;
+    }
     add_albums = add_albums - add_list->length;
-    if (add_albums <= 0) {
-        return 0;
-    }
 
-    MYMPD_LOG_DEBUG(partition_state->name, "Add list current length: %ld", initial_length);
-    MYMPD_LOG_DEBUG(partition_state->name, "Add list expected length: %ld", add_list_expected_len);
+    MYMPD_LOG_DEBUG(partition_state->name, "Add list current length: %u", initial_length);
+    MYMPD_LOG_DEBUG(partition_state->name, "Add list expected length: %u", add_list_expected_len);
 
-    long skipno = 0;
-    long lineno = 1;
+    unsigned skipno = 0;
+    unsigned lineno = 1;
     time_t since = time(NULL);
     since = since - (constraints->last_played * 3600);
     sds albumid = sdsempty();
@@ -118,11 +118,11 @@ long random_select_albums(struct t_partition_state *partition_state, struct t_st
                 else {
                     // replace at initial_length + random position
                     // existing entries should not be touched
-                    long pos = add_albums > 1
+                    unsigned pos = add_albums > 1
                         ? initial_length + randrange(0, add_albums -1)
                         : 0;
                     if (list_replace(add_list, pos, albumid, lineno, tag_value, album) == false) {
-                        MYMPD_LOG_ERROR(partition_state->name, "Can't replace list element pos %ld", pos);
+                        MYMPD_LOG_ERROR(partition_state->name, "Can't replace list element pos %u", pos);
                     }
                 }
             }
@@ -140,7 +140,7 @@ long random_select_albums(struct t_partition_state *partition_state, struct t_st
     if (stickers_last_played != NULL) {
         stickerdb_free_find_result(stickers_last_played);
     }
-    MYMPD_LOG_DEBUG(partition_state->name, "Iterated through %ld albums, skipped %ld", lineno, skipno);
+    MYMPD_LOG_DEBUG(partition_state->name, "Iterated through %u albums, skipped %u", lineno, skipno);
     return add_list->length;
 }
 
@@ -155,30 +155,29 @@ long random_select_albums(struct t_partition_state *partition_state, struct t_st
  * @param constraints constraints for song selection
  * @return new length of add_list
  */
-long random_select_songs(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        long add_songs, const char *playlist, struct t_list *queue_list, struct t_list *add_list,
+unsigned random_select_songs(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        unsigned add_songs, const char *playlist, struct t_list *queue_list, struct t_list *add_list,
         struct t_random_add_constraints *constraints)
 {
-    long initial_length = add_list->length;
-    long add_list_expected_len = add_songs;
-    add_songs = add_list_expected_len - add_list->length;
-    if (add_songs <= 0) {
-        return 0;
+    unsigned initial_length = add_list->length;
+    unsigned add_list_expected_len = add_songs;
+    if (add_list->length >= add_songs) {
+        return add_list->length;
     }
+    add_songs = add_list_expected_len - add_list->length;
 
-    MYMPD_LOG_DEBUG(partition_state->name, "Add list current length: %ld", initial_length);
-    MYMPD_LOG_DEBUG(partition_state->name, "Add list expected length: %ld", add_list_expected_len);
+    MYMPD_LOG_DEBUG(partition_state->name, "Add list current length: %u", initial_length);
+    MYMPD_LOG_DEBUG(partition_state->name, "Add list expected length: %u", add_list_expected_len);
 
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
-    long skipno = 0;
-    long lineno = 1;
+    unsigned skipno = 0;
+    unsigned lineno = 1;
     time_t since = time(NULL) - (constraints->last_played * 3600);
 
     bool from_database = strcmp(playlist, "Database") == 0
         ? true
         : false;
-    bool rc = true;
     sds tag_value = sdsempty();
     rax *stickers_last_played = NULL;
     rax *stickers_like = NULL;
@@ -248,11 +247,11 @@ long random_select_songs(struct t_partition_state *partition_state, struct t_sti
                     else {
                         // replace at initial_length + random position
                         // existing entries should not be touched
-                        long pos = add_songs > 1
+                        unsigned pos = add_songs > 1
                             ? initial_length + randrange(0, add_songs - 1)
                             : 0;
                         if (list_replace(add_list, pos, uri, lineno, tag_value, NULL) == false) {
-                            MYMPD_LOG_ERROR(partition_state->name, "Can't replace list element pos %ld", pos);
+                            MYMPD_LOG_ERROR(partition_state->name, "Can't replace list element pos %u", pos);
                         }
                     }
                 }
@@ -265,21 +264,18 @@ long random_select_songs(struct t_partition_state *partition_state, struct t_sti
         }
         mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, NULL, "mpd_search_db_songs") == false) {
-            rc = false;
             break;
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
-    } while (from_database == true && lineno + skipno > (long)start);
+    } while (from_database == true && lineno + skipno > start);
     stickerdb_free_find_result(stickers_last_played);
     stickerdb_free_find_result(stickers_like);
     free_search_expression_list(include_expr_list);
     free_search_expression_list(exclude_expr_list);
     FREE_SDS(tag_value);
-    MYMPD_LOG_DEBUG(partition_state->name, "Iterated through %ld songs, skipped %ld", lineno, skipno);
-    return rc == false
-        ? -1
-        : (int)add_list->length;
+    MYMPD_LOG_DEBUG(partition_state->name, "Iterated through %u songs, skipped %u", lineno, skipno);
+    return add_list->length;
 }
 
 /**

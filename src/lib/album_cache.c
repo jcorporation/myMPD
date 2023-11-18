@@ -183,7 +183,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         album_cache_free(album_cache);
     }
     else {
-        MYMPD_LOG_INFO(NULL, "Read %lld album(s) from disc", (long long)album_cache->cache->numele);
+        MYMPD_LOG_INFO(NULL, "Read %" PRIu64 " album(s) from disc", album_cache->cache->numele);
     }
     FREE_PTR(album_tags);
     album_cache->building = false;

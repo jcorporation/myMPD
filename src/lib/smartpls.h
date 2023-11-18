@@ -13,7 +13,7 @@
 
 bool smartpls_save_sticker(sds workdir, const char *playlist, const char *sticker,
         const char *value, const char *op, const char *sort, bool sortdesc, int max_entries);
-bool smartpls_save_newest(sds workdir, const char *playlist, int timerange,
+bool smartpls_save_newest(sds workdir, const char *playlist, unsigned timerange,
         const char *sort, bool sortdesc, int max_entries);
 bool smartpls_save_search(sds workdir, const char *playlist, const char *expression,
         const char *sort, bool sortdesc, int max_entries);

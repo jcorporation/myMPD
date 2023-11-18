@@ -27,12 +27,12 @@
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
-sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long request_id) {
+sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, unsigned request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PARTITION_LIST;
     struct t_partition_state *partition_state = mympd_state->partition_state;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    long entity_count = 0;
+    unsigned entity_count = 0;
     while (partition_state != NULL) {
         if (entity_count++) {
             buffer = sdscatlen(buffer, ",", 1);
@@ -45,8 +45,8 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-    buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
+    buffer = tojson_uint(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }
@@ -99,7 +99,7 @@ bool mympd_api_partition_outputs_move(struct t_partition_state *partition_state,
  * @param partition partition to remove
  * @return pointer to buffer
  */
-sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, sds buffer, long request_id, sds partition) {
+sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, sds buffer, unsigned request_id, sds partition) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PARTITION_RM;
     if (partition_state->is_default == false) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD,

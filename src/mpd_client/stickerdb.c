@@ -14,8 +14,6 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker.h"
 #include "src/lib/utility.h"
-#include "src/mpd_client/connection.h"
-#include "src/mpd_client/errorhandler.h"
 #include "src/mympd_api/requests.h"
 
 #include <inttypes.h>
@@ -32,9 +30,9 @@ static bool sticker_search_add_window(struct t_stickerdb_state *stickerdb, unsig
 
 static struct t_sticker *get_sticker_all(struct t_stickerdb_state *stickerdb, const char *uri, struct t_sticker *sticker, bool user_defined);
 static sds get_sticker_value(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
-static long long get_sticker_llong(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
+static int64_t get_sticker_int64(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
 static bool set_sticker_value(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, const char *value);
-static bool set_sticker_llong(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, long long value);
+static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, int64_t value);
 static bool inc_sticker(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
 static bool remove_sticker(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
 static bool stickerdb_connect_mpd(struct t_stickerdb_state *stickerdb);
@@ -257,38 +255,38 @@ sds stickerdb_get(struct t_stickerdb_state *stickerdb, const char *uri, const ch
 }
 
 /**
- * Gets a long long value sticker for a song
+ * Gets an int64_t value sticker for a song
  * You must manage the idle state manually.
  * @param stickerdb pointer to the stickerdb state
  * @param uri song uri
  * @param name sticker name
  * @return pointer to sticker value
  */
-long long stickerdb_get_llong_batch(struct t_stickerdb_state *stickerdb, const char *uri, const char *name) {
-    long long value = 0;
+int64_t stickerdb_get_int64_batch(struct t_stickerdb_state *stickerdb, const char *uri, const char *name) {
+    int64_t value = 0;
     if (is_streamuri(uri) == true) {
         return value;
     }
-    value = get_sticker_llong(stickerdb, uri, name);
+    value = get_sticker_int64(stickerdb, uri, name);
     return value;
 }
 
 /**
- * Gets a long long value sticker for a song
+ * Gets an int64_t value sticker for a song
  * @param stickerdb pointer to the stickerdb state
  * @param uri song uri
  * @param name sticker name
  * @return pointer to sticker value
  */
-long long stickerdb_get_llong(struct t_stickerdb_state *stickerdb, const char *uri, const char *name) {
-    long long value = 0;
+int64_t stickerdb_get_int64(struct t_stickerdb_state *stickerdb, const char *uri, const char *name) {
+    int64_t value = 0;
     if (is_streamuri(uri) == true) {
         return value;
     }
     if (stickerdb_connect(stickerdb) == false) {
         return false;
     }
-    value = get_sticker_llong(stickerdb, uri, name);
+    value = get_sticker_int64(stickerdb, uri, name);
     stickerdb_enter_idle(stickerdb);
     return value;
 }
@@ -386,8 +384,8 @@ rax *stickerdb_find_stickers_by_name_value(struct t_stickerdb_state *stickerdb,
         stickerdb_free_find_result(stickers);
         return NULL;
     }
-    MYMPD_LOG_DEBUG("stickerdb", "Found %llu stickers for %s",
-            (long long unsigned)stickers->numele, name);
+    MYMPD_LOG_DEBUG("stickerdb", "Found %" PRIu64 " stickers for %s",
+            stickers->numele, name);
     return stickers;
 }
 
@@ -446,7 +444,7 @@ struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerd
         list_free(stickers);
         return NULL;
     }
-    MYMPD_LOG_DEBUG("stickerdb", "Found %ld stickers for %s", stickers->length, name);
+    MYMPD_LOG_DEBUG("stickerdb", "Found %u stickers for %s", stickers->length, name);
     return stickers;
 }
 
@@ -496,14 +494,14 @@ bool stickerdb_set(struct t_stickerdb_state *stickerdb, const char *uri, const c
  * @param value sticker value
  * @return true on success, else false
  */
-bool stickerdb_set_llong(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, long long value) {
+bool stickerdb_set_int64(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, int64_t value) {
     if (is_streamuri(uri) == true) {
         return true;
     }
     if (stickerdb_connect(stickerdb) == false) {
         return false;
     }
-    bool rc = set_sticker_llong(stickerdb, uri, name, value);
+    bool rc = set_sticker_int64(stickerdb, uri, name, value);
     stickerdb_enter_idle(stickerdb);
     return rc;
 }
@@ -535,7 +533,7 @@ bool stickerdb_inc(struct t_stickerdb_state *stickerdb, const char *uri, const c
  * @return true on success, else false
  */
 bool stickerdb_set_elapsed(struct t_stickerdb_state *stickerdb, const char *uri, time_t elapsed) {
-    return stickerdb_set_llong(stickerdb, uri, sticker_name_lookup(STICKER_ELAPSED), (long long)elapsed);
+    return stickerdb_set_int64(stickerdb, uri, sticker_name_lookup(STICKER_ELAPSED), (int64_t)elapsed);
 }
 
 /**
@@ -556,7 +554,7 @@ bool stickerdb_inc_set(struct t_stickerdb_state *stickerdb, const char *uri,
     if (stickerdb_connect(stickerdb) == false) {
         return false;
     }
-    bool rc = set_sticker_llong(stickerdb, uri, sticker_name_lookup(name_timestamp), (long long)timestamp) &&
+    bool rc = set_sticker_int64(stickerdb, uri, sticker_name_lookup(name_timestamp), (int64_t)timestamp) &&
         inc_sticker(stickerdb, uri, sticker_name_lookup(name_inc));
     stickerdb_enter_idle(stickerdb);
     return rc;
@@ -595,7 +593,7 @@ bool stickerdb_set_like(struct t_stickerdb_state *stickerdb, const char *uri, en
     if (value < 0 || value > 2) {
         return false;
     }
-    return stickerdb_set_llong(stickerdb, uri, sticker_name_lookup(STICKER_LIKE), (long long)value);
+    return stickerdb_set_int64(stickerdb, uri, sticker_name_lookup(STICKER_LIKE), (int64_t)value);
 }
 
 /**
@@ -609,7 +607,7 @@ bool stickerdb_set_rating(struct t_stickerdb_state *stickerdb, const char *uri, 
     if (value < 0 || value > 10) {
         return false;
     }
-    return stickerdb_set_llong(stickerdb, uri, sticker_name_lookup(STICKER_RATING), (long long)value);
+    return stickerdb_set_int64(stickerdb, uri, sticker_name_lookup(STICKER_RATING), (int64_t)value);
 }
 
 /**
@@ -693,7 +691,7 @@ static struct t_sticker *get_sticker_all(struct t_stickerdb_state *stickerdb, co
         while ((pair = mpd_recv_sticker(stickerdb->conn)) != NULL) {
             enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
             if (sticker_type != STICKER_UNKNOWN) {
-                sticker->mympd[sticker_type] = strtoll(pair->value, NULL, 10);
+                sticker->mympd[sticker_type] = (int)strtoimax(pair->value, NULL, 10);
             }
             else if (user_defined == true) {
                 list_push(&sticker->user, pair->name, 0, pair->value, NULL);
@@ -730,19 +728,19 @@ static sds get_sticker_value(struct t_stickerdb_state *stickerdb, const char *ur
 }
 
 /**
- * Gets a long long value from sticker
+ * Gets an int64t value from sticker
  * @param stickerdb pointer to the stickerdb state
  * @param uri song uri
  * @param name sticker name
  * @return number
  */
-long long get_sticker_llong(struct t_stickerdb_state *stickerdb, const char *uri, const char *name) {
+int64_t get_sticker_int64(struct t_stickerdb_state *stickerdb, const char *uri, const char *name) {
     struct mpd_pair *pair;
-    long long value = 0;
+    int64_t value = 0;
     if (mpd_send_sticker_list(stickerdb->conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(stickerdb->conn)) != NULL) {
             if (strcmp(pair->name, name) == 0) {
-                value = strtoll(pair->value, NULL, 10);
+                value = (int64_t)strtoll(pair->value, NULL, 10);
             }
             mpd_return_sticker(stickerdb->conn, pair);
         }
@@ -767,15 +765,15 @@ static bool set_sticker_value(struct t_stickerdb_state *stickerdb, const char *u
 }
 
 /**
- * Sets a long long sticker value
+ * Sets an int64_t sticker value
  * @param stickerdb pointer to the stickerdb state
  * @param uri song uri
  * @param name sticker name
  * @param value number to set
  * @return true on success, else false
  */
-static bool set_sticker_llong(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, long long value) {
-    sds value_str = sdsfromlonglong(value);
+static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, int64_t value) {
+    sds value_str = sdsfromlonglong((long long)value);
     bool rc = set_sticker_value(stickerdb, uri, name, value_str);
     FREE_SDS(value_str);
     return rc;
@@ -789,11 +787,11 @@ static bool set_sticker_llong(struct t_stickerdb_state *stickerdb, const char *u
  * @return true on success, else false
  */
 static bool inc_sticker(struct t_stickerdb_state *stickerdb, const char *uri, const char *name) {
-    long long value = get_sticker_llong(stickerdb, uri, name);
+    int64_t value = get_sticker_int64(stickerdb, uri, name);
     if (value < INT_MAX) {
         value++;
     }
-    return set_sticker_llong(stickerdb, uri, name, value);
+    return set_sticker_int64(stickerdb, uri, name, value);
 }
 
 /**

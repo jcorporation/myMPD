@@ -19,7 +19,7 @@
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
-sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, long request_id) {
+sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, unsigned request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_STATS;
     struct mpd_stats *stats = mpd_run_stats(partition_state->conn);
     if (stats != NULL) {
@@ -32,11 +32,11 @@ sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, l
         buffer = tojson_uint(buffer, "artists", mpd_stats_get_number_of_artists(stats), true);
         buffer = tojson_uint(buffer, "albums", mpd_stats_get_number_of_albums(stats), true);
         buffer = tojson_uint(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
-        buffer = tojson_ulong(buffer, "playtime", mpd_stats_get_play_time(stats), true);
-        buffer = tojson_ulong(buffer, "uptime", mpd_stats_get_uptime(stats), true);
+        buffer = tojson_uint64(buffer, "playtime", mpd_stats_get_play_time(stats), true);
+        buffer = tojson_uint64(buffer, "uptime", mpd_stats_get_uptime(stats), true);
         buffer = tojson_time(buffer, "myMPDuptime", (time(NULL) - partition_state->config->startup_time), true);
-        buffer = tojson_ulong(buffer, "dbUpdated", mpd_stats_get_db_update_time(stats), true);
-        buffer = tojson_ulong(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
+        buffer = tojson_uint64(buffer, "dbUpdated", mpd_stats_get_db_update_time(stats), true);
+        buffer = tojson_uint64(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
         buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
         buffer = tojson_char(buffer, "mpdProtocolVersion", mpd_protocol_version, true);
         buffer = tojson_char(buffer, "myMPDuri", mympd_uri,false);

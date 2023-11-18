@@ -41,10 +41,16 @@ static bool album_cache_create_simple(struct t_mpd_worker_state *mpd_worker_stat
  */
 bool mpd_worker_album_cache_create(struct t_mpd_worker_state *mpd_worker_state, bool force) {
     time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
-    MYMPD_LOG_DEBUG("default", "Database mtime: %lld", (long long)db_mtime);
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE);
     time_t album_cache_mtime = get_mtime(filepath);
-    MYMPD_LOG_DEBUG("default", "Album cache mtime: %lld", (long long)album_cache_mtime);
+    #ifdef MYMPD_DEBUG
+        char fmt_time_db[32];
+        readable_time(fmt_time_db, db_mtime);
+        char fmt_time_album_cache[32];
+        readable_time(fmt_time_album_cache, album_cache_mtime);
+        MYMPD_LOG_DEBUG("default", "Database mtime: %s", fmt_time_db);
+        MYMPD_LOG_DEBUG("default", "Album cache mtime: %s", fmt_time_album_cache);
+    #endif
     FREE_SDS(filepath);
 
     if (force == false &&
@@ -52,7 +58,7 @@ bool mpd_worker_album_cache_create(struct t_mpd_worker_state *mpd_worker_state, 
         MYMPD_LOG_INFO("default", "Caches are up-to-date");
         send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Caches are up-to-date");
         if (mpd_worker_state->partition_state->mpd_state->feat.tags == true) {
-            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
+            struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
             request->data = jsonrpc_end(request->data);
             mympd_queue_push(mympd_api_queue, request, 0);
         }
@@ -68,7 +74,7 @@ bool mpd_worker_album_cache_create(struct t_mpd_worker_state *mpd_worker_state, 
             ? album_cache_create(mpd_worker_state, album_cache.cache)
             : album_cache_create_simple(mpd_worker_state, album_cache.cache);
         if (rc == true) {
-            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_CREATED, NULL, mpd_worker_state->partition_state->name);
+            struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_CREATED, NULL, mpd_worker_state->partition_state->name);
             request->data = jsonrpc_end(request->data);
             request->extra = (void *) album_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
@@ -81,14 +87,14 @@ bool mpd_worker_album_cache_create(struct t_mpd_worker_state *mpd_worker_state, 
         else {
             album_cache_free(&album_cache);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Update of album cache failed");
-            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_ERROR, NULL, mpd_worker_state->partition_state->name);
+            struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_ERROR, NULL, mpd_worker_state->partition_state->name);
             request->data = jsonrpc_end(request->data);
             mympd_queue_push(mympd_api_queue, request, 0);
         }
     }
     else {
         MYMPD_LOG_INFO("default", "Skipped album cache creation, tags are disabled");
-        struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
+        struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
     }

@@ -185,12 +185,16 @@ void *web_server_loop(void *arg_mgr) {
         //poll webserver response queue
         struct t_work_response *response = mympd_queue_shift(web_server_queue, 50, 0);
         if (response != NULL) {
-            switch(response->conn_id) {
-                case CONN_ID_NOTIFY_CLIENT:
+            switch(response->type) {
+                case RESPONSE_TYPE_NOTIFY_CLIENT:
                     //websocket notify for specific clients
                     send_ws_notify_client(mgr, response);
                     break;
-                case CONN_ID_CONFIG_TO_WEBSERVER:
+                case RESPONSE_TYPE_NOTIFY_PARTITION:
+                    //websocket notify for all clients
+                    send_ws_notify(mgr, response);
+                    break;
+                case RESPONSE_TYPE_PUSH_CONFIG:
                     //internal message
                     if (response->cmd_id == INTERNAL_API_WEBSERVER_READY) {
                         mg_user_data->mympd_api_started = true;
@@ -203,14 +207,14 @@ void *web_server_loop(void *arg_mgr) {
                         MYMPD_LOG_ERROR(response->partition, "Invalid API method: %s", get_cmd_id_method_name(response->cmd_id));
                     }
                     break;
-                case CONN_ID_NOTIFY_ALL:
-                    //websocket notify for all clients
-                    send_ws_notify(mgr, response);
-                    break;
-                default:
+                case RESPONSE_TYPE_DEFAULT:
                     //api response
-                    MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lld\"", response->conn_id);
+                    MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lu\"", response->conn_id);
                     send_api_response(mgr, response);
+                case RESPONSE_TYPE_SCRIPT:
+                case RESPONSE_TYPE_DISCARD:
+                    //ignore
+                    break;
             }
         }
         //webserver polling
@@ -345,7 +349,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
             if (strcmp(response->partition, frontend_nc_data->partition) == 0 ||
                 strcmp(response->partition, MPD_PARTITION_ALL) == 0)
             {
-                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id %lu: %s", nc->id, response->data);
+                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id \"%lu\": %s", nc->id, response->data);
                 mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
                 send_count++;
             }
@@ -373,13 +377,13 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
-    const long clientId = response->id / 1000;
-    //const long requestId = response->id % 1000;
+    const unsigned clientId = response->id / 1000;
+    //const unsigned requestId = response->id % 1000;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 1) {
             struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
             if (clientId == frontend_nc_data->id) {
-                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id %lu, jsonrpc client id %ld: %s", nc->id, clientId, response->data);
+                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id \"%lu\", jsonrpc client id %u: %s", nc->id, clientId, response->data);
                 mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
                 send_count++;
                 break;
@@ -402,7 +406,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 0 &&
-            nc->id == (long unsigned)response->conn_id)
+            nc->id == response->conn_id)
         {
             if (response->cmd_id == INTERNAL_API_ALBUMART_BY_URI) {
                 webserver_send_albumart(nc, response->data, response->binary);
@@ -411,7 +415,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
                 webserver_send_albumart_redirect(nc, response->data);
             }
             else {
-                MYMPD_LOG_DEBUG(response->partition, "Sending response to conn_id %lu (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
+                MYMPD_LOG_DEBUG(response->partition, "Sending response to conn_id \"%lu\" (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
                 webserver_send_data(nc, response->data, sdslen(response->data), EXTRA_HEADERS_JSON_CONTENT);
             }
             break;
@@ -537,15 +541,15 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
             #endif
             if (wm->data.len > 9) {
-                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", (long unsigned)wm->data.len);
+                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", (unsigned long)wm->data.len);
                 sent = mg_ws_send(nc, "too long", 8, WEBSOCKET_OP_TEXT);
             }
             else if (mg_vcmp(&wm->data, "ping") == 0) {
                 sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
             }
             else if (mg_match(wm->data, mg_str("id:*"), matches)) {
-                frontend_nc_data->id = mg_str_to_long(&matches[0]);
-                MYMPD_LOG_INFO(frontend_nc_data->partition, "Setting websocket id to %ld", frontend_nc_data->id);
+                frontend_nc_data->id = mg_str_to_uint(&matches[0]);
+                MYMPD_LOG_INFO(frontend_nc_data->partition, "Setting websocket id to \"%u\"", frontend_nc_data->id);
                 sent = mg_ws_send(nc, "ok", 2, WEBSOCKET_OP_TEXT);
             }
             else {
@@ -646,16 +650,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             else if (mg_http_match_uri(hm, "/albumart-thumb/*") == true) {
-                request_handler_albumart_by_album_id(hm, (long long)nc->id, ALBUMART_THUMBNAIL);
+                request_handler_albumart_by_album_id(hm, nc->id, ALBUMART_THUMBNAIL);
             }
             else if (mg_http_match_uri(hm, "/albumart/*") == true) {
-                request_handler_albumart_by_album_id(hm, (long long)nc->id, ALBUMART_FULL);
+                request_handler_albumart_by_album_id(hm, nc->id, ALBUMART_FULL);
             }
             else if (mg_http_match_uri(hm, "/albumart-thumb") == true) {
-                request_handler_albumart_by_uri(nc, hm, mg_user_data, (long long)nc->id, ALBUMART_THUMBNAIL);
+                request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_THUMBNAIL);
             }
             else if (mg_http_match_uri(hm, "/albumart") == true) {
-                request_handler_albumart_by_uri(nc, hm, mg_user_data, (long long)nc->id, ALBUMART_FULL);
+                request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_FULL);
             }
             else if (mg_http_match_uri(hm, "/tagart") == true) {
                 request_handler_tagart(nc, hm, mg_user_data);
@@ -764,7 +768,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             break;
         }
         case MG_EV_CLOSE: {
-            MYMPD_LOG_INFO(NULL, "HTTP connection %lu closed", nc->id);
+            MYMPD_LOG_INFO(NULL, "HTTP connection \"%lu\" closed", nc->id);
             mg_user_data->connection_count--;
             if (frontend_nc_data == NULL) {
                 MYMPD_LOG_WARN(NULL, "frontend_nc_data not allocated");
@@ -849,7 +853,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             break;
         }
         case MG_EV_CLOSE:
-            MYMPD_LOG_INFO(NULL, "Connection %lu closed", nc->id);
+            MYMPD_LOG_INFO(NULL, "Connection \"%lu\" closed", nc->id);
             mg_user_data->connection_count--;
             break;
     }

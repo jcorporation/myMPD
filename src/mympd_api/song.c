@@ -23,7 +23,7 @@
  * @return pointer to buffer
  */
 sds mympd_api_song_details(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
-    sds buffer, long request_id, const char *uri)
+    sds buffer, unsigned request_id, const char *uri)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_DETAILS;
     if (mpd_send_list_meta(partition_state->conn, uri)) {
@@ -63,9 +63,9 @@ sds mympd_api_song_details(struct t_mympd_state *mympd_state, struct t_partition
  * @param uri song uri
  * @return pointer to buffer
  */
-sds mympd_api_song_comments(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
+sds mympd_api_song_comments(struct t_partition_state *partition_state, sds buffer, unsigned request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_COMMENTS;
-    int entities_returned = 0;
+    unsigned entities_returned = 0;
     if (mpd_send_read_comments(partition_state->conn, uri)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":{");
@@ -83,8 +83,8 @@ sds mympd_api_song_comments(struct t_partition_state *partition_state, sds buffe
         return buffer;
     }
     buffer = sdscatlen(buffer, "},", 2);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_long(buffer, "totalEntities", entities_returned, false);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "totalEntities", entities_returned, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }

@@ -22,9 +22,10 @@
  * @param path path to update
  * @return pointer to buffer
  */
-sds mympd_api_database_update(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id, sds path) {
-    long update_id = mympd_api_status_updatedb_id(partition_state);
-    if (update_id == -1) {
+sds mympd_api_database_update(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id, sds path) {
+    unsigned update_id = mympd_api_status_updatedb_id(partition_state);
+
+    if (update_id == UINT_MAX) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
                 JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error getting MPD status");
     }

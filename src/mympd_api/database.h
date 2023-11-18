@@ -13,6 +13,6 @@
 
 #include <stdbool.h>
 
-sds mympd_api_database_update(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id, sds path);
+sds mympd_api_database_update(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id, sds path);
 
 #endif

@@ -31,7 +31,7 @@
  * @return jsonrpc response
  */
 sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, struct t_cache *album_cache,
-        sds buffer, long request_id, sds albumid, unsigned size)
+        sds buffer, unsigned request_id, sds albumid, unsigned size)
 {
     if (album_cache->cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id,
@@ -104,7 +104,7 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
  * @param binary pointer to an already allocated sds string for the binary response
  * @return jsonrpc response
  */
-sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state, sds buffer, long request_id,
+sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
         const char *uri, sds *binary)
 {
     unsigned offset = 0;

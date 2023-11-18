@@ -54,63 +54,33 @@ UTEST(jsonrpc, test_json_get_int_max) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_long) {
-    long result;
+UTEST(jsonrpc, test_json_get_int64) {
+    int64_t result;
     //valid
     sds data = sdsnew("{\"key1\": 10}");
-    ASSERT_TRUE(json_get_long(data, "$.key1", 0, 20, &result, NULL));
+    ASSERT_TRUE(json_get_int64(data, "$.key1", 0, 20, &result, NULL));
     sdsclear(data);
     data = sdscat(data, "{\"key1\": -30}");
-    ASSERT_TRUE(json_get_long(data, "$.key1", -50, 20, &result, NULL));
+    ASSERT_TRUE(json_get_int64(data, "$.key1", -50, 20, &result, NULL));
     sdsclear(data);
     //invalid
     data = sdscat(data, "{\"key1\": 30}");
-    ASSERT_FALSE(json_get_long(data, "$.key1", 0, 20, &result, NULL));
+    ASSERT_FALSE(json_get_int64(data, "$.key1", 0, 20, &result, NULL));
     sdsclear(data);
     data = sdscat(data, "{\"key2\": 10}");
-    ASSERT_FALSE(json_get_long(data, "$.key1", 0, 20, &result, NULL));
+    ASSERT_FALSE(json_get_int64(data, "$.key1", 0, 20, &result, NULL));
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_long_max) {
-    long result;
+UTEST(jsonrpc, test_json_get_int64_max) {
+    int64_t result;
     //valid
     sds data = sdsnew("{\"key1\": 10}");
-    ASSERT_TRUE(json_get_long_max(data, "$.key1", &result, NULL));
+    ASSERT_TRUE(json_get_int64_max(data, "$.key1", &result, NULL));
     sdsclear(data);
     //invalid
     data = sdscat(data, "{\"key2\": 10}");
-    ASSERT_FALSE(json_get_long_max(data, "$.key1", &result, NULL));
-    FREE_SDS(data);
-}
-
-UTEST(jsonrpc, test_json_get_llong) {
-    long long result;
-    //valid
-    sds data = sdsnew("{\"key1\": 10}");
-    ASSERT_TRUE(json_get_llong(data, "$.key1", 0, 20, &result, NULL));
-    sdsclear(data);
-    data = sdscat(data, "{\"key1\": -30}");
-    ASSERT_TRUE(json_get_llong(data, "$.key1", -50, 20, &result, NULL));
-    sdsclear(data);
-    //invalid
-    data = sdscat(data, "{\"key1\": 30}");
-    ASSERT_FALSE(json_get_llong(data, "$.key1", 0, 20, &result, NULL));
-    sdsclear(data);
-    data = sdscat(data, "{\"key2\": 10}");
-    ASSERT_FALSE(json_get_llong(data, "$.key1", 0, 20, &result, NULL));
-    FREE_SDS(data);
-}
-
-UTEST(jsonrpc, test_json_get_llong_max) {
-    long long result;
-    //valid
-    sds data = sdsnew("{\"key1\": 10}");
-    ASSERT_TRUE(json_get_llong_max(data, "$.key1", &result, NULL));
-    sdsclear(data);
-    //invalid
-    data = sdscat(data, "{\"key2\": 10}");
-    ASSERT_FALSE(json_get_llong_max(data, "$.key1", &result, NULL));
+    ASSERT_FALSE(json_get_int64_max(data, "$.key1", &result, NULL));
     FREE_SDS(data);
 }
 
@@ -208,7 +178,7 @@ UTEST(jsonrpc, test_json_get_array_string) {
     list_clear(&l);
     //invalid - too many array elements
     ASSERT_TRUE(json_get_array_string(data, "$.key1", &l, vcb_isname, 1, NULL));
-    ASSERT_EQ(1, l.length);
+    ASSERT_EQ(1U, l.length);
     FREE_SDS(data);
     list_clear(&l);
 }
@@ -218,15 +188,15 @@ UTEST(jsonrpc, test_json_get_array_llong) {
     list_init(&l);
     sds data = sdsnew("{\"key1\": [123, 789]}");
     //valid
-    ASSERT_TRUE(json_get_array_llong(data, "$.key1", &l, 10, NULL));
+    ASSERT_TRUE(json_get_array_int64(data, "$.key1", &l, 10, NULL));
     list_clear(&l);
     //invalid - no numeric value
     data = sds_replace(data, "{\"key1\": [\"asdf\", \"wer\"]}");
-    ASSERT_FALSE(json_get_array_llong(data, "$.key1", &l, 10, NULL));
+    ASSERT_FALSE(json_get_array_int64(data, "$.key1", &l, 10, NULL));
     list_clear(&l);
     //invalid - too many array elements
-    ASSERT_FALSE(json_get_array_llong(data, "$.key1", &l, 1, NULL));
-    ASSERT_EQ(0, l.length);
+    ASSERT_FALSE(json_get_array_int64(data, "$.key1", &l, 1, NULL));
+    ASSERT_EQ(0U, l.length);
     FREE_SDS(data);
     list_clear(&l);
 }
@@ -243,7 +213,7 @@ UTEST(jsonrpc, test_json_get_object_string) {
     list_clear(&l);
     //invalid - too many array elements
     ASSERT_TRUE(json_get_object_string(data, "$.key1", &l, vcb_isname, 1, NULL));
-    ASSERT_EQ(1, l.length);
+    ASSERT_EQ(1U, l.length);
     FREE_SDS(data);
     list_clear(&l);
 }

@@ -17,11 +17,11 @@ bool stickerdb_exit_idle(struct t_stickerdb_state *stickerdb);
 bool stickerdb_check_error_and_recover(struct t_stickerdb_state *stickerdb, const char *command);
 
 sds stickerdb_get(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
-long long stickerdb_get_llong(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
+int64_t stickerdb_get_int64(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
 struct t_sticker *stickerdb_get_all(struct t_stickerdb_state *stickerdb, const char *uri, struct t_sticker *sticker, bool user_defined);
 
 sds stickerdb_get_batch(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
-long long stickerdb_get_llong_batch(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
+int64_t stickerdb_get_int64_batch(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
 struct t_sticker *stickerdb_get_all_batch(struct t_stickerdb_state *stickerdb, const char *uri, struct t_sticker *sticker, bool user_defined);
 
 rax *stickerdb_find_stickers_by_name(struct t_stickerdb_state *stickerdb, const char *name);
@@ -34,7 +34,7 @@ struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerd
         enum mpd_sticker_sort sort, bool sort_desc, unsigned start, unsigned end);
 
 bool stickerdb_set(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, const char *value);
-bool stickerdb_set_llong(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, long long value);
+bool stickerdb_set_int64(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, int64_t value);
 bool stickerdb_inc(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
 bool stickerdb_inc_set(struct t_stickerdb_state *stickerdb, const char *uri,
         enum mympd_sticker_types name_inc, enum mympd_sticker_types name_timestamp, time_t timestamp);

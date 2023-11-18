@@ -44,7 +44,7 @@ bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions,
     struct t_list_node *current;
     bool rc = true;
     while ((current = list_shift_first(positions)) != NULL) {
-        rc = list_remove_node(list, (long)current->value_i);
+        rc = list_remove_node(list, (unsigned)current->value_i);
         list_node_free(current);
         if (rc == false) {
             *error = sdscat(*error, "Could not remove song from jukebox queue");
@@ -70,12 +70,12 @@ bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions,
  * @return pointer to buffer
  */
 sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        sds buffer, enum mympd_cmd_ids cmd_id, long request_id, long offset, long limit, sds expression, const struct t_tags *tagcols)
+        sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id, unsigned offset, unsigned limit, sds expression, const struct t_tags *tagcols)
 {
-    long entity_count = 0;
-    long entities_returned = 0;
-    long entities_found = 0;
-    long real_limit = offset + limit;
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
+    unsigned entities_found = 0;
+    unsigned real_limit = offset + limit;
     struct t_list *expr_list = parse_search_expression_to_list(expression);
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -98,7 +98,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
                                 buffer = sdscatlen(buffer, ",", 1);
                             }
                             buffer = sdscat(buffer, "{\"Type\": \"song\",");
-                            buffer = tojson_long(buffer, "Pos", entity_count, true);
+                            buffer = tojson_uint(buffer, "Pos", entity_count, true);
                             buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
                             if (partition_state->mpd_state->feat.stickers == true &&
                                 tagcols->stickers_len > 0)
@@ -135,7 +135,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
                         buffer = sdscatlen(buffer, ",", 1);
                     }
                     buffer = sdscat(buffer, "{\"Type\": \"album\",");
-                    buffer = tojson_long(buffer, "Pos", entity_count, true);
+                    buffer = tojson_uint(buffer, "Pos", entity_count, true);
                     buffer = print_album_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_album, album);
                     buffer = sdscatlen(buffer, "}", 1);
                 }
@@ -149,9 +149,9 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
     buffer = sdscatlen(buffer, "],", 2);
     const char *jukebox_mode_str = jukebox_mode_lookup(partition_state->jukebox_mode);
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);
-    buffer = tojson_long(buffer, "totalEntities", entities_found, true);
-    buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+    buffer = tojson_uint(buffer, "totalEntities", entities_found, true);
+    buffer = tojson_uint(buffer, "offset", offset, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end(buffer);
 
     return buffer;

@@ -27,8 +27,8 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     bool bool_buf1;
     bool async = false;
     int int_buf1;
-    long long_buf1;
     unsigned uint_buf1;
+    unsigned uint_buf2;
     sds sds_buf1 = NULL;
     sds sds_buf2 = NULL;
     sds sds_buf3 = NULL;
@@ -38,7 +38,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     jsonrpc_parse_error_init(&parse_error);
 
     const char *method = get_cmd_id_method_name(request->cmd_id);
-    MYMPD_LOG_INFO(NULL, "MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, method, request->data);
+    MYMPD_LOG_INFO(NULL, "MPD WORKER API request (%lu)(%u) %s: %s", request->conn_id, request->id, method, request->data);
     //create response struct
     struct t_work_response *response = create_response(request);
     //some shortcuts
@@ -48,12 +48,12 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
         case MYMPD_API_QUEUE_ADD_RANDOM:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 2, &uint_buf1, &parse_error) == true &&
-                json_get_long(request->data, "$.params.quantity", 1, 1000, &long_buf1, &parse_error) == true)
+                json_get_uint(request->data, "$.params.quantity", 1, 1000, &uint_buf2, &parse_error) == true)
             {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Adding random songs to queue started");
-                push_response(response, request->id, request->conn_id);
-                rc = mpd_worker_add_random_to_queue(mpd_worker_state, long_buf1, uint_buf1, sds_buf1, request->partition);
+                    JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Task to add random songs to queue has started");
+                push_response(response);
+                rc = mpd_worker_add_random_to_queue(mpd_worker_state, uint_buf2, uint_buf1, sds_buf1, request->partition);
                 sds_buf2 = jsonrpc_respond_with_message_or_error(sdsempty(), request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, "Successfully added random songs to queue", "Adding random songs to queue failed");
                 ws_notify_client(sds_buf2, request->id);
@@ -82,7 +82,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
         case MYMPD_API_CACHES_CREATE:
             if (json_get_bool(request->data, "$.params.force", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
-                push_response(response, request->id, request->conn_id);
+                push_response(response);
                 mpd_worker_album_cache_create(mpd_worker_state, bool_buf1);
                 async = true;
             }
@@ -140,7 +140,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (json_get_bool(request->data, "$.params.remove", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists validation started");
-                push_response(response, request->id, request->conn_id);
+                push_response(response);
                 long result = mpd_client_playlist_validate_all(partition_state, bool_buf1, &error);
                 if (result == -1) {
                     sds_buf1 = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
@@ -195,7 +195,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (json_get_bool(request->data, "$.params.remove", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists deduplication started");
-                push_response(response, request->id, request->conn_id);
+                push_response(response);
                 sds buffer;
                 long result = mpd_client_playlist_dedup_all(partition_state, bool_buf1, &error);
                 if (result == -1) {
@@ -263,7 +263,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (json_get_bool(request->data, "$.params.remove", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists validation and deduplication started");
-                push_response(response, request->id, request->conn_id);
+                push_response(response);
                 long result1 = mpd_client_playlist_validate_all(partition_state, bool_buf1, &error);
                 long result2 = -1;
                 if (result1 > -1) {
@@ -329,7 +329,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (json_get_bool(request->data, "$.params.force", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Smart playlists update started");
-                push_response(response, request->id, request->conn_id);
+                push_response(response);
                 rc = mpd_worker_smartpls_update_all(mpd_worker_state, bool_buf1);
                 if (rc == true) {
                     send_jsonrpc_notify(JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Smart playlists updated");
@@ -378,7 +378,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "No response for method \"%s\"", method);
         }
     }
-    push_response(response, request->id, request->conn_id);
+    push_response(response);
     free_request(request);
     FREE_SDS(error);
     jsonrpc_parse_error_clear(&parse_error);

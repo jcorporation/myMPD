@@ -11,6 +11,7 @@
 #include "src/lib/log.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -60,8 +61,9 @@ int covercache_clear(sds cachedir, int keepdays) {
     time_t expire_time = time(NULL) - (time_t)(keepdays * 24 * 60 * 60);
 
     sds covercache = sdscatfmt(sdsempty(), "%S/%s", cachedir, DIR_CACHE_COVER);
-    MYMPD_LOG_NOTICE(NULL, "Cleaning covercache \"%s\"", covercache);
-    MYMPD_LOG_DEBUG(NULL, "Remove files older than %lld sec", (long long)expire_time);
+    char fmt_time[32];
+    readable_time(fmt_time, expire_time);
+    MYMPD_LOG_INFO(NULL, "Cleaning covercache \"%s\", removing files older than %s ", covercache, fmt_time);
     errno = 0;
     DIR *covercache_dir = opendir(covercache);
     if (covercache_dir == NULL) {
@@ -81,7 +83,7 @@ int covercache_clear(sds cachedir, int keepdays) {
         filepath = sdscatfmt(filepath, "%S/%s", covercache, next_file->d_name);
         time_t mtime = get_mtime(filepath);
         if (mtime < expire_time) {
-            MYMPD_LOG_DEBUG(NULL, "Deleting \"%s\": %lld", filepath, (long long)mtime);
+            MYMPD_LOG_DEBUG(NULL, "Deleting \"%s\"", filepath);
             rc = rm_file(filepath);
             if (rc == true) {
                 num_deleted++;

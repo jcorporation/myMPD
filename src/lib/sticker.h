@@ -48,7 +48,7 @@ enum feedback_type {
  * MPD sticker values
  */
 struct t_sticker {
-    long long mympd[STICKER_COUNT];  //!< array of myMPD stickers
+    int mympd[STICKER_COUNT];    //!< array of myMPD stickers
     struct t_list user;              //!< list of user defined stickers
 };
 

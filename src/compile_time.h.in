@@ -12,6 +12,7 @@
 #ifndef MYMPD_COMPILE_TIME_H
 #define MYMPD_COMPILE_TIME_H
 
+#include <inttypes.h>
 #include <limits.h>
 #include <signal.h>
 
@@ -302,10 +303,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 //limits for json parsing
 #define JSONRPC_INT_MIN INT_MIN
 #define JSONRPC_INT_MAX INT_MAX
-#define JSONRPC_LONG_MIN INT_MIN
-#define JSONRPC_LONG_MAX INT_MAX
-#define JSONRPC_LLONG_MIN LLONG_MIN
-#define JSONRPC_LLONG_MAX LLONG_MAX
+#define JSONRPC_INT64_MIN LLONG_MIN
+#define JSONRPC_INT64_MAX LLONG_MAX
 #define JSONRPC_UINT_MAX INT_MAX
 #define JSONRPC_STR_MAX 3000
 #define JSONRPC_KEY_MAX 50

@@ -71,7 +71,7 @@ sds get_webradio_from_uri(sds workdir, const char *uri) {
  * @param filename webradio m3u filename
  * @return pointer to buffer
  */
-sds mympd_api_webradio_get(sds workdir, sds buffer, long request_id, sds filename) {
+sds mympd_api_webradio_get(sds workdir, sds buffer, unsigned request_id, sds filename) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_GET;
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S", workdir, DIR_WORK_WEBRADIOS, filename);
     sds entry = sdsempty();
@@ -101,7 +101,7 @@ sds mympd_api_webradio_get(sds workdir, sds buffer, long request_id, sds filenam
  * @param limit maximum entries to print
  * @return pointer to buffer
  */
-sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds searchstr, long offset, long limit) {
+sds mympd_api_webradio_list(sds workdir, sds buffer, unsigned request_id, sds searchstr, unsigned offset, unsigned limit) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_GET;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -121,7 +121,7 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
     struct dirent *next_file;
     rax *webradios = raxNew();
     sds key = sdsempty();
-    long real_limit = offset + limit;
+    unsigned real_limit = offset + limit;
     //read dir
     sds filepath = sdsempty();
     while ((next_file = readdir(webradios_dir)) != NULL ) {
@@ -163,8 +163,8 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
     FREE_SDS(webradios_dirname);
     FREE_SDS(key);
     //print result
-    long entity_count = 0;
-    long entities_returned = 0;
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
     raxIterator iter;
     raxStart(&iter, webradios);
     raxSeek(&iter, "^", NULL, 0);
@@ -188,8 +188,8 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
     }
     raxStop(&iter);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_llong(buffer, "totalEntities", (long long)webradios->numele, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+    buffer = tojson_uint64(buffer, "totalEntities", webradios->numele, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end(buffer);
     raxFree(webradios);
     return buffer;

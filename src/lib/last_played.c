@@ -31,7 +31,7 @@ static bool old_last_played_file_read(struct t_partition_state *partition_state)
  * @return true on success, else false
  */
 bool last_played_file_save(struct t_partition_state *partition_state) {
-    MYMPD_LOG_INFO(partition_state->name, "Saving %ld last_played entries to disc", partition_state->last_played.length);
+    MYMPD_LOG_INFO(partition_state->name, "Saving %u last_played entries to disc", partition_state->last_played.length);
     mpack_writer_t writer;
     sds tmp_file = sdscatfmt(sdsempty(), "%S/%S/%s.XXXXXX",
         partition_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
@@ -44,11 +44,11 @@ bool last_played_file_save(struct t_partition_state *partition_state) {
     mpack_writer_init_stdfile(&writer, fp, true);
     mpack_writer_set_error_handler(&writer, log_mpack_write_error);
 
-    mpack_start_array(&writer, (uint32_t)partition_state->last_played.length);
+    mpack_start_array(&writer, partition_state->last_played.length);
     struct t_list_node *current = partition_state->last_played.head;
     while (current != NULL) {
         mpack_build_map(&writer);
-        mpack_write_kv(&writer, "Last-Played", (int64_t)current->value_i);
+        mpack_write_kv(&writer, "Last-Played", current->value_i);
         mpack_write_kv(&writer, "uri", current->key);
         mpack_complete_map(&writer);
         current = current->next;
@@ -103,13 +103,13 @@ bool last_played_file_read(struct t_partition_state *partition_state) {
         int64_t last_played = mpack_node_i64(mpack_node_map_cstr(entry, "Last-Played"));
         const char *uri = mpack_node_str(mpack_node_map_cstr(entry, "uri"));
         size_t uri_len = mpack_node_strlen(mpack_node_map_cstr(entry, "uri"));
-        list_push_len(&partition_state->last_played, uri, uri_len, (long long)last_played, NULL, 0, NULL);
+        list_push_len(&partition_state->last_played, uri, uri_len, last_played, NULL, 0, NULL);
     }
     // clean up and check for errors
     bool rc = mpack_tree_destroy(&tree) != mpack_ok
         ? false
         : true;
-    MYMPD_LOG_INFO(NULL, "Read %ld last_played entries from disc", partition_state->last_played.length);
+    MYMPD_LOG_INFO(NULL, "Read %u last_played entries from disc", partition_state->last_played.length);
     FREE_SDS(filepath);
     return rc;
 }
@@ -136,9 +136,9 @@ static bool old_last_played_file_read(struct t_partition_state *partition_state)
     sds line = sdsempty();
     while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         sds uri = NULL;
-        long long last_played;
+        int64_t last_played;
         if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true &&
-            json_get_llong_max(line, "$.LastPlayed", &last_played, NULL) == true)
+            json_get_int64_max(line, "$.LastPlayed", &last_played, NULL) == true)
         {
             list_push(&partition_state->last_played, uri, last_played, NULL, NULL);
         }

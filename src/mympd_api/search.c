@@ -31,7 +31,7 @@
  * @return pointer to buffer
  */
 sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, 
-        sds buffer, long request_id, const char *expression, const char *sort, bool sortdesc,
+        sds buffer, unsigned request_id, const char *expression, const char *sort, bool sortdesc,
         unsigned offset, unsigned limit, const struct t_tags *tagcols, bool *result)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_SEARCH;
@@ -88,7 +88,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
 
     buffer = offset == 0 && entities_returned < limit
         ? tojson_uint(buffer, "totalEntities", entities_returned, true)
-        : tojson_long(buffer, "totalEntities", -1, true);
+        : tojson_int(buffer, "totalEntities", -1, true);
 
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);

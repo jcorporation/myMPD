@@ -106,7 +106,7 @@ bool getenv_bool(const char *env_var, bool default_value) {
 /**
  * Gets an environment variable and checks its length
  * @param env_var environment variable name
- * @return environment variable value or NULL if it is not set or to long
+ * @return environment variable value or NULL if it is not set or too long
  */
 static const char *getenv_check(const char *env_var) {
     const char *env_value = getenv(env_var); /* Flawfinder: ignore */

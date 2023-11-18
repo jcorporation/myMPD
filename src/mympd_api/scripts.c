@@ -60,7 +60,7 @@ static sds script_get_result(lua_State *lua_vm, int rc);
 const char *lua_err_to_str(int rc);
 static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state);
 static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value);
-static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long long value);
+static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, int64_t value);
 static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, double value);
 static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value);
 static void register_lua_functions(lua_State *lua_vm);
@@ -82,7 +82,7 @@ static int lua_http_client(lua_State *lua_vm);
  * @param all true = print all scripts, false = print only scripts with order > 0
  * @return pointer to buffer
  */
-sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all) {
+sds mympd_api_script_list(sds workdir, sds buffer, unsigned request_id, bool all) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_LIST;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -232,7 +232,7 @@ bool mympd_api_script_validate(sds name, sds content, sds lualibs, sds *error) {
  * @param script scriptname to read from filesystem
  * @return pointer to buffer
  */
-sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
+sds mympd_api_script_get(sds workdir, sds buffer, unsigned request_id, sds script) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_GET;
     sds scriptfilename = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
     errno = 0;
@@ -609,11 +609,11 @@ static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const
  * Helper functions to push a lua table
  * @param lua_vm lua instance
  * @param key the key
- * @param value long long value (lua integer)
+ * @param value int64_t value (lua integer)
  */
-static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long long value) {
+static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, int64_t value) {
     lua_pushstring(lua_vm, key);
-    lua_pushinteger(lua_vm, value);
+    lua_pushinteger(lua_vm, (long long)value);
     lua_settable(lua_vm, -3);
 }
 
@@ -704,9 +704,9 @@ static int lua_mympd_api(lua_State *lua_vm) {
         return luaL_error(lua_vm, "Invalid partition");
     }
     //generate a request id
-    long request_id = randrange(0, LONG_MAX);
+    unsigned request_id = randrange(0, UINT_MAX);
     //create the request
-    struct t_work_request *request = create_request(-2, request_id, method_id, NULL, partition);
+    struct t_work_request *request = create_request(REQUEST_TYPE_SCRIPT, 0, request_id, method_id, NULL, partition);
     const char *params = lua_tostring(lua_vm, 2);
     if (params[0] != '{') {
         //param is invalid json, ignore it

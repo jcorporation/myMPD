@@ -9,5 +9,5 @@
 
 #include "src/lib/mympd_state.h"
 
-sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, long request_id);
+sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, unsigned request_id);
 #endif

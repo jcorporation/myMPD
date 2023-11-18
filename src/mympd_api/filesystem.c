@@ -57,12 +57,12 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
  * @return pointer to buffer
  */
 sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
-        sds buffer, long request_id, sds path, long offset, long limit, sds searchstr, const struct t_tags *tagcols)
+        sds buffer, unsigned request_id, sds path, unsigned offset, unsigned limit, sds searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_FILESYSTEM_LIST;
     sds key = sdsempty();
     rax *entity_list = raxNew();
-    long real_limit = offset + limit;
+    unsigned real_limit = offset + limit;
 
     if (mpd_send_list_meta(partition_state->conn, path)) {
         struct mpd_entity *entity;
@@ -121,8 +121,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
 
-    long entity_count = 0;
-    long entities_returned = 0;
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
 
     raxIterator iter;
     raxStart(&iter, entity_list);
@@ -195,9 +195,9 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
     buffer = sdscatlen(buffer, "],", 2);
     buffer = mympd_api_get_extra_media(buffer, partition_state->mpd_state, mympd_state->booklet_name, mympd_state->info_txt_name, path, true);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_uint(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "search", searchstr, false);
     buffer = jsonrpc_end(buffer);
     raxFree(entity_list);

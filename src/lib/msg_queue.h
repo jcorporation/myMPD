@@ -21,7 +21,7 @@ enum mympd_queue_types {
  */
 struct t_mympd_msg {
     void *data;                //!< data t_work_request or t_work_response
-    long id;                   //!< id of the message
+    unsigned id;                   //!< id of the message
     time_t timestamp;          //!< messages added timestamp
     struct t_mympd_msg *next;  //!< pointer to next message
 };
@@ -30,7 +30,7 @@ struct t_mympd_msg {
  * Struct for the thread save message queue
  */
 struct t_mympd_queue {
-    int length;                   //!< length of the queue
+    unsigned length;                   //!< length of the queue
     struct t_mympd_msg *head;     //!< pointer to first message
     struct t_mympd_msg *tail;     //!< pointer to last message
     pthread_mutex_t mutex;        //!< the mutex
@@ -41,7 +41,7 @@ struct t_mympd_queue {
 
 struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_types type);
 void *mympd_queue_free(struct t_mympd_queue *queue);
-bool mympd_queue_push(struct t_mympd_queue *queue, void *data, long id);
-void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id);
+bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id);
+void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, unsigned id);
 int mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age);
 #endif

@@ -42,7 +42,7 @@
  * @return pointer to buffer
  */
 sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
-        sds buffer, long request_id, sds albumid, const struct t_tags *tagcols)
+        sds buffer, unsigned request_id, sds albumid, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_ALBUM_DETAIL;
 
@@ -166,8 +166,8 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
  * @param tagcols tags to print
  * @return pointer to buffer
  */
-sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struct t_cache *album_cache, sds buffer, long request_id,
-        sds expression, sds sort, bool sortdesc, long offset, long limit, const struct t_tags *tagcols)
+sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struct t_cache *album_cache, sds buffer, unsigned request_id,
+        sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit, const struct t_tags *tagcols)
 {
     if (album_cache->cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
@@ -210,7 +210,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
     struct t_list *expr_list = parse_search_expression_to_list(expression);
     
     //search and sort albumlist
-    long real_limit = offset + limit;
+    unsigned real_limit = offset + limit;
     rax *albums = raxNew();
     raxIterator iter;
     raxStart(&iter, album_cache->cache);
@@ -222,10 +222,10 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
             search_song_expression(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
             if (sort_by == SORT_BY_LAST_MODIFIED) {
-                key = sdscatprintf(key, "%020lld::%s", (long long)mpd_song_get_last_modified(album), mpd_song_get_uri(album));
+                key = sdscatprintf(key, "%020" PRId64 "::%s", (int64_t)mpd_song_get_last_modified(album), mpd_song_get_uri(album));
             }
             else if (sort_by == SORT_BY_ADDED) {
-                key = sdscatprintf(key, "%020lld::%s", (long long)mpd_song_get_added(album), mpd_song_get_uri(album));
+                key = sdscatprintf(key, "%020" PRId64 "::%s", (int64_t)mpd_song_get_added(album), mpd_song_get_uri(album));
             }
             else {
                 key = mpd_client_get_tag_value_string(album, sort_tag, key);
@@ -251,8 +251,8 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
     FREE_SDS(key);
 
     //print album list
-    long entity_count = 0;
-    long entities_returned = 0;
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
     raxStart(&iter, albums);
     int (*iterator)(struct raxIterator *iter);
     if (sortdesc == false) {
@@ -283,9 +283,9 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
     raxStop(&iter);
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_llong(buffer, "totalEntities", (long long)albums->numele, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_uint64(buffer, "totalEntities", albums->numele, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "expression", expression, true);
     buffer = tojson_sds(buffer, "sort", sort, true);
     buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
@@ -307,8 +307,8 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
  * @param sortdesc true to sort descending, false to sort ascending
  * @return pointer to buffer
  */
-sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds searchstr, sds tag, long offset, long limit, bool sortdesc)
+sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
+        sds searchstr, sds tag, unsigned offset, unsigned limit, bool sortdesc)
 {
     size_t searchstr_len = sdslen(searchstr);
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_TAG_LIST;
@@ -319,7 +319,7 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
             JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
     }
 
-    long real_limit = offset + limit;
+    unsigned real_limit = offset + limit;
     rax *taglist = raxNew();
     sds key = sdsempty();
 
@@ -358,8 +358,8 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
     //print list
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    long entity_count = 0;
-    long entities_returned = 0;
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
     raxIterator iter;
     raxStart(&iter, taglist);
     int (*iterator)(struct raxIterator *iter);
@@ -395,9 +395,9 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
     FREE_SDS(pic_path);
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_llong(buffer, "totalEntities", (long long)taglist->numele, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_uint64(buffer, "totalEntities", taglist->numele, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "searchstr", searchstr, true);
     buffer = tojson_sds(buffer, "tag", tag, true);
     buffer = tojson_bool(buffer, "pics", pic, false);

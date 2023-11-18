@@ -520,7 +520,7 @@ bool mympd_api_queue_replace_plist(struct t_partition_state *partition_state, st
  * @param or_clear if true: clears the queue if there is no current playing or paused song
  * @return pointer to buffer
  */
-sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id, bool or_clear) {
+sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id, bool or_clear) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     unsigned length = 0;
     int playing_song_pos = 0;
@@ -589,7 +589,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
  * @return pointer to buffer
  */
 sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        sds buffer, long request_id, unsigned offset, unsigned limit, const struct t_tags *tagcols)
+        sds buffer, unsigned request_id, unsigned offset, unsigned limit, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
     //update the queue status
@@ -622,7 +622,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_sti
 
         buffer = sdscatlen(buffer, "],", 2);
         buffer = tojson_uint(buffer, "totalTime", total_time, true);
-        buffer = tojson_llong(buffer, "totalEntities", partition_state->queue_length, true);
+        buffer = tojson_uint(buffer, "totalEntities", partition_state->queue_length, true);
         buffer = tojson_uint(buffer, "offset", offset, true);
         buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
         buffer = jsonrpc_end(buffer);
@@ -652,7 +652,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_sti
  * @return pointer to buffer
  */
 sds mympd_api_queue_search(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        sds buffer, long request_id, sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
+        sds buffer, unsigned request_id, sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
         const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
@@ -707,13 +707,13 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, struct t_s
         buffer = sdscatlen(buffer, "],", 2);
         buffer = tojson_uint(buffer, "totalTime", total_time, true);
         if (sdslen(expression) == 0) {
-            buffer = tojson_llong(buffer, "totalEntities", partition_state->queue_length, true);
+            buffer = tojson_uint(buffer, "totalEntities", partition_state->queue_length, true);
         }
         if (entities_returned < limit) {
             buffer = tojson_uint(buffer, "totalEntities", (offset + entities_returned), true);
         }
         else {
-            buffer = tojson_long(buffer, "totalEntities", -1, true);
+            buffer = tojson_int(buffer, "totalEntities", -1, true);
         }
         buffer = tojson_uint(buffer, "offset", offset, true);
         buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);

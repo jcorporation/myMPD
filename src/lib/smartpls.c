@@ -56,10 +56,10 @@ bool smartpls_save_sticker(sds workdir, const char *playlist, const char *sticke
  * @param max_entries maximum number of playlist entries
  * @return true on success else false
  */
-bool smartpls_save_newest(sds workdir, const char *playlist, int timerange,
+bool smartpls_save_newest(sds workdir, const char *playlist, unsigned timerange,
         const char *sort, bool sortdesc, int max_entries)
 {
-    sds fields = tojson_long(sdsempty(), "timerange", timerange, true);
+    sds fields = tojson_uint(sdsempty(), "timerange", timerange, true);
     bool rc = smartpls_save(workdir, "newest", playlist, fields, sort, sortdesc, max_entries);
     FREE_SDS(fields);
     return rc;
@@ -120,7 +120,7 @@ time_t smartpls_get_mtime(sds workdir, const char *playlist) {
  * @return true on success else false
  */
 bool smartpls_update(const char *playlist) {
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, NULL, MPD_PARTITION_DEFAULT);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_SMARTPLS_UPDATE, NULL, MPD_PARTITION_DEFAULT);
     request->data = tojson_char(request->data, "plist", playlist, false);
     request->data = jsonrpc_end(request->data);
     return mympd_queue_push(mympd_api_queue, request, 0);
@@ -131,7 +131,7 @@ bool smartpls_update(const char *playlist) {
  * @return true on success else false
  */
 bool smartpls_update_all(void) {
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL, MPD_PARTITION_DEFAULT);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL, MPD_PARTITION_DEFAULT);
     request->data = jsonrpc_end(request->data);
     return mympd_queue_push(mympd_api_queue, request, 0);
 }
@@ -155,7 +155,7 @@ static bool smartpls_save(sds workdir, const char *smartpltype, const char *play
     sds line = sdscatlen(sdsempty(), "{", 1);
     line = tojson_char(line, "type", smartpltype, true);
     line = sdscat(line, fields);
-    line = tojson_long(line, "maxentries", max_entries, true);
+    line = tojson_int(line, "maxentries", max_entries, true);
     line = tojson_char(line, "sort", sort, true);
     line = tojson_bool(line, "sortdesc", sortdesc, false);
     line = sdscatlen(line, "}", 1);

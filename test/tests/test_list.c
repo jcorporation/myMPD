@@ -40,7 +40,7 @@ UTEST(list, test_list_push) {
 
     list_push(&test_list, "last", 6, "value6", NULL);
     ASSERT_STREQ("last", test_list.tail->key);
-    ASSERT_EQ(7, test_list.length);
+    ASSERT_EQ(7U, test_list.length);
     current = list_node_at(&test_list, test_list.length - 1);
     ASSERT_STREQ(current->key, test_list.tail->key);
 
@@ -55,7 +55,7 @@ UTEST(list, test_list_insert) {
 
     list_insert(&test_list, "first", -1, "value-1", NULL);
     ASSERT_STREQ("first", test_list.head->key);
-    ASSERT_EQ(7, test_list.length);
+    ASSERT_EQ(7U, test_list.length);
     current = list_node_at(&test_list, 0);
     ASSERT_STREQ(current->key, test_list.head->key);
 
@@ -69,7 +69,7 @@ UTEST(list, test_list_insert_empty) {
 
     list_insert(&test_list, "first", -1, "value-1", NULL);
     ASSERT_STREQ("first", test_list.head->key);
-    ASSERT_EQ(1, test_list.length);
+    ASSERT_EQ(1U, test_list.length);
     current = list_node_at(&test_list, 0);
     ASSERT_STREQ(current->key, test_list.head->key);
     ASSERT_STREQ(current->key, test_list.tail->key);
@@ -86,12 +86,12 @@ UTEST(list, test_remove_node) {
     list_remove_node(&test_list, 3);
     current = list_node_at(&test_list, 4);
     ASSERT_STREQ("key5", current->key);
-    ASSERT_EQ(5, test_list.length);
+    ASSERT_EQ(5U, test_list.length);
 
     //remove last item
     list_remove_node(&test_list, test_list.length - 1);
     ASSERT_STREQ("key4", test_list.tail->key);
-    ASSERT_EQ(4, test_list.length);
+    ASSERT_EQ(4U, test_list.length);
 
     //check tail
     current = list_node_at(&test_list, test_list.length - 1);
@@ -100,7 +100,7 @@ UTEST(list, test_remove_node) {
     //remove first item
     list_remove_node(&test_list, 0);
     ASSERT_STREQ("key1", test_list.head->key);
-    ASSERT_EQ(3, test_list.length);
+    ASSERT_EQ(3U, test_list.length);
 
     current = list_node_at(&test_list, 0);
     ASSERT_STREQ(current->key, test_list.head->key);
@@ -117,21 +117,21 @@ UTEST(list, test_list_replace) {
     list_replace(&test_list, 4, "replace0", 0, NULL, NULL);
     current = list_node_at(&test_list, 4);
     ASSERT_STREQ("replace0", current->key);
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     //replace last item
     list_replace(&test_list, test_list.length - 1, "replace1", 0, NULL, NULL);
     ASSERT_STREQ("replace1", test_list.tail->key);
     current = list_node_at(&test_list, 5);
     ASSERT_STREQ(current->key, test_list.tail->key);
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     //replace first item
     list_replace(&test_list, 0, "replace2", 0, NULL, NULL);
     ASSERT_STREQ("replace2", test_list.head->key);
     current = list_node_at(&test_list, 0);
     ASSERT_STREQ(current->key, test_list.head->key);
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -151,7 +151,7 @@ UTEST(list, test_list_shuffle) {
     }
     ASSERT_TRUE(shuffled);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
     list_clear(&test_list);
 }
 
@@ -167,7 +167,7 @@ UTEST(list, test_list_move_item_pos_4_2) {
     current = list_node_at(&test_list, 4);
     ASSERT_STREQ("key3", current->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -183,7 +183,7 @@ UTEST(list, test_list_move_item_pos_4_3) {
     current = list_node_at(&test_list, 4);
     ASSERT_STREQ("key3", current->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -199,7 +199,7 @@ UTEST(list, test_list_move_item_pos_2_4) {
     current = list_node_at(&test_list, 2);
     ASSERT_STREQ("key3", current->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -215,7 +215,7 @@ UTEST(list, test_list_move_item_pos_2_3) {
     current = list_node_at(&test_list, 2);
     ASSERT_STREQ("key3", current->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -234,7 +234,7 @@ UTEST(list, test_list_move_item_pos_to_start) {
     current = list_node_at(&test_list, 1);
     ASSERT_STREQ("key0", current->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -251,7 +251,7 @@ UTEST(list, test_list_move_item_pos_to_end) {
     ASSERT_STREQ("key1", current->key);
     ASSERT_STREQ("key1", test_list.tail->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -270,7 +270,7 @@ UTEST(list, test_list_move_item_pos_from_start) {
     current = list_node_at(&test_list, 2);
     ASSERT_STREQ("key0", current->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -290,7 +290,7 @@ UTEST(list, test_list_move_item_pos_from_end) {
     current = list_node_at(&test_list, 1);
     ASSERT_STREQ("key5", current->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -311,7 +311,7 @@ UTEST(list, test_list_move_item_pos_from_start_to_end) {
     ASSERT_STREQ("key1", current->key);
     ASSERT_STREQ("key1", test_list.head->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -332,7 +332,7 @@ UTEST(list, test_list_move_item_pos_from_end_to_start) {
     ASSERT_STREQ("key5", current->key);
     ASSERT_STREQ("key5", test_list.head->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -369,7 +369,7 @@ UTEST(list, list_sort_by_value_i) {
     ASSERT_EQ(0, test_list.head->value_i);
     ASSERT_EQ(5, test_list.tail->value_i);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -386,7 +386,7 @@ UTEST(list, test_list_sort_by_value_p) {
     ASSERT_STREQ("value0", test_list.head->value_p);
     ASSERT_STREQ("value5", test_list.tail->value_p);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -403,7 +403,7 @@ UTEST(list, test_list_sort_by_key) {
     ASSERT_STREQ("key0", test_list.head->key);
     ASSERT_STREQ("key5", test_list.tail->key);
 
-    ASSERT_EQ(6, test_list.length);
+    ASSERT_EQ(6U, test_list.length);
 
     list_clear(&test_list);
 }
@@ -424,7 +424,7 @@ UTEST(list, test_list_crop) {
     // crop to 0
     populate_list(&test_list);
     list_crop(&test_list, 0, NULL);
-    ASSERT_EQ(0, test_list.length);
+    ASSERT_EQ(0U, test_list.length);
     long count = count_list(&test_list);
     ASSERT_EQ(0, count);
     list_clear(&test_list);
@@ -433,7 +433,7 @@ UTEST(list, test_list_crop) {
     // crop to 2
     populate_list(&test_list);
     list_crop(&test_list, 2, NULL);
-    ASSERT_EQ(2, test_list.length);
+    ASSERT_EQ(2U, test_list.length);
     count = count_list(&test_list);
     ASSERT_EQ(2, count);
     list_clear(&test_list);

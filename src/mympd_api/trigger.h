@@ -45,15 +45,15 @@ struct t_trigger_data {
 
 bool mympd_api_trigger_save(struct t_list *trigger_list, sds name, int trigger_id, int event, sds partition,
         struct t_trigger_data *trigger_data, sds *error);
-sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id, const char *partition);
-sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_id, long id);
+sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, unsigned request_id, const char *partition);
+sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, unsigned request_id, unsigned trigger_id);
 bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir);
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir);
 void mympd_api_trigger_list_clear(struct t_list *trigger_list);
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition);
 void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, enum feedback_type type, int value, const char *partition);
-bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx, sds *error);
-const char *mympd_api_event_name(long event);
+bool mympd_api_trigger_delete(struct t_list *trigger_list, unsigned idx, sds *error);
+const char *mympd_api_event_name(int event);
 sds mympd_api_trigger_print_event_list(sds buffer);
 struct t_trigger_data *trigger_data_new(void);
 void mympd_api_trigger_data_free(struct t_trigger_data *trigger_data);

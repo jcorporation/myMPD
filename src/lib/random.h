@@ -9,5 +9,5 @@
 
 #include <inttypes.h>
 
-long randrange(long lower, long upper);
+unsigned randrange(unsigned lower, unsigned upper);
 #endif

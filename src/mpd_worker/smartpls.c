@@ -39,7 +39,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
         const char *playlist, const char *sticker, const char *value, const char *op,
         const char *sort, bool sort_desc, unsigned max_entries);
 static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state,
-        const char *playlist, int timerange, const char *sort, bool sortdesc, unsigned max_entries);
+        const char *playlist, unsigned timerange, const char *sort, bool sortdesc, unsigned max_entries);
 
 /**
  * Public functions
@@ -61,7 +61,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
     mpd_worker_smartpls_per_tag(mpd_worker_state);
 
     time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
-    MYMPD_LOG_DEBUG(NULL, "Database mtime: %lld", (long long)db_mtime);
+    MYMPD_LOG_DEBUG(NULL, "Database mtime: %" PRId64, (int64_t)db_mtime);
 
     sds dirname = sdscatfmt(sdsempty(), "%S/%s", mpd_worker_state->config->workdir, DIR_WORK_SMARTPLS);
     errno = 0;
@@ -81,7 +81,14 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
         }
         time_t playlist_mtime = mpd_client_get_playlist_mtime(mpd_worker_state->partition_state, next_file->d_name);
         time_t smartpls_mtime = smartpls_get_mtime(mpd_worker_state->config->workdir, next_file->d_name);
-        MYMPD_LOG_DEBUG(NULL, "Playlist %s: playlist mtime %lld, smartpls mtime %lld", next_file->d_name, (long long)playlist_mtime, (long long)smartpls_mtime);
+        #ifdef MYMPD_DEBUG
+            char fmt_time_playlist[32];
+            readable_time(fmt_time_playlist, playlist_mtime);
+            char fmt_time_smartpls[32];
+            readable_time(fmt_time_smartpls, smartpls_mtime);
+            MYMPD_LOG_DEBUG(NULL, "Playlist %s: playlist mtime %s, smartpls mtime %s",
+                next_file->d_name, fmt_time_playlist, fmt_time_smartpls);
+        #endif
         if (force == true ||
             db_mtime > playlist_mtime ||
             smartpls_mtime > playlist_mtime)
@@ -128,7 +135,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     sds sds_buf3 = NULL;
     sds sort = NULL;
     bool sortdesc = false;
-    int int_buf1;
+    unsigned uint_buf1;
     unsigned max_entries = 0;
 
     // first get the type
@@ -174,8 +181,8 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         }
     }
     else if (strcmp(smartpltype, "newest") == 0) {
-        if (json_get_int(content, "$.timerange", 0, JSONRPC_INT_MAX, &int_buf1, NULL) == true) {
-            rc = mpd_worker_smartpls_update_newest(mpd_worker_state, playlist, int_buf1, sort, sortdesc, max_entries);
+        if (json_get_uint(content, "$.timerange", 0, JSONRPC_INT_MAX, &uint_buf1, NULL) == true) {
+            rc = mpd_worker_smartpls_update_newest(mpd_worker_state, playlist, uint_buf1, sort, sortdesc, max_entries);
             if (rc == false) {
                 MYMPD_LOG_ERROR(NULL, "Update of smart playlist \"%s\" failed (newest)", playlist);
             }
@@ -405,12 +412,12 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
         return false;
     }
 
-    long i = 0;
+    unsigned i = 0;
     struct t_list_node *current;
     bool rc = true;
     while (i < add_list->length) {
         if (mpd_command_list_begin(mpd_worker_state->partition_state->conn, false)) {
-            long j = 0;
+            unsigned j = 0;
             while ((current = list_shift_first(add_list)) != NULL) {
                 i++;
                 j++;
@@ -433,7 +440,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
     }
     list_free(add_list);
     if (rc == true) {
-        MYMPD_LOG_INFO(NULL, "Updated smart playlist \"%s\" with %ld songs", playlist, i);
+        MYMPD_LOG_INFO(NULL, "Updated smart playlist \"%s\" with %u songs", playlist, i);
     }
     return rc;
 }
@@ -449,7 +456,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
  * @return true on success, else false
  */
 static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state,
-        const char *playlist, int timerange, const char *sort, bool sortdesc, unsigned max_entries)
+        const char *playlist, unsigned timerange, const char *sort, bool sortdesc, unsigned max_entries)
 {
     unsigned long value_max = 0;
     struct mpd_stats *stats = mpd_run_stats(mpd_worker_state->partition_state->conn);
@@ -463,11 +470,10 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     }
 
     //prevent overflow
-    if (timerange < 0 ||
-        (unsigned long)timerange > value_max) {
+    if (timerange > value_max) {
         return false;
     }
-    value_max = value_max - (unsigned long)timerange;
+    value_max = value_max - timerange;
 
     if (strcmp(sort, "shuffle") == 0 ||
         max_entries == 0)
