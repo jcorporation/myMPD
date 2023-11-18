@@ -39,6 +39,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Feat: "Add random songs/album" is executed in worker thread
 - Feat: Rework structs to improve thread safety
 - Feat: Add toggle button to show mpd search expression instead of breadcrumbs
+- Feat: Improve random number generation
 - Upd: Manual add random songs or albums should ignore the jukebox constraints
 - Upd: libmympdclient 1.0.25
 

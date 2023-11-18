@@ -119,7 +119,7 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
                     // replace at initial_length + random position
                     // existing entries should not be touched
                     unsigned pos = add_albums > 1
-                        ? initial_length + randrange(0, add_albums -1)
+                        ? initial_length + randrange(0, add_albums)
                         : 0;
                     if (list_replace(add_list, pos, albumid, lineno, tag_value, album) == false) {
                         MYMPD_LOG_ERROR(partition_state->name, "Can't replace list element pos %u", pos);
@@ -248,7 +248,7 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
                         // replace at initial_length + random position
                         // existing entries should not be touched
                         unsigned pos = add_songs > 1
-                            ? initial_length + randrange(0, add_songs - 1)
+                            ? initial_length + randrange(0, add_songs)
                             : 0;
                         if (list_replace(add_list, pos, uri, lineno, tag_value, NULL) == false) {
                             MYMPD_LOG_ERROR(partition_state->name, "Can't replace list element pos %u", pos);
