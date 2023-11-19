@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPV v14.0.0 (not yet released)
 
-This version ships a many improvements for stickers, smart playlists and the jukebox mode.
+This version ships many improvements for stickers, smart playlists and the jukebox mode.
 
 It also supports the new "added" timestamp for songs in the mpd database.
 
