@@ -45,7 +45,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 
 ***
 
-## myMPD v13.0.5 (not yet released)
+## myMPD v13.0.5 (2023-11-19)
 
 This is a small bugfix release.
 
