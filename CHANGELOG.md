@@ -42,6 +42,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Feat: Improve random number generation
 - Upd: Manual add random songs or albums should ignore the jukebox constraints
 - Upd: libmympdclient 1.0.25
+- Upd: bootstrap.native to 5.0.10 #1176
 
 ***
 
