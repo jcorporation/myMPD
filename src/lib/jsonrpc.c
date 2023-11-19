@@ -476,38 +476,6 @@ sds tojson_int(sds buffer, const char *key, int value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for a long value
- * @param buffer sds string to append
- * @param key json key
- * @param value integer value
- * @param comma true to append a comma
- * @return pointer to buffer
- */
-sds tojson_long(sds buffer, const char *key, long value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":%l", key, value);
-    if (comma) {
-        buffer = sdscatlen(buffer, ",", 1);
-    }
-    return buffer;
-}
-
-/**
- * Prints a json key/value pair for an unsigned long value
- * @param buffer sds string to append
- * @param key json key
- * @param value integer value
- * @param comma true to append a comma
- * @return pointer to buffer
- */
-sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":%L", key, value);
-    if (comma) {
-        buffer = sdscatlen(buffer, ",", 1);
-    }
-    return buffer;
-}
-
-/**
  * Prints a json key/value pair for an unsigned
  * @param buffer sds string to append
  * @param key json key
