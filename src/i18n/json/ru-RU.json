@@ -289,7 +289,6 @@
     "Error executing script %{script}: Runtime error": "Ошибка выполнения скрипта %{script}: ошибка во время выполнения",
     "Error executing script %{script}: Syntax error during precompilation": "Ошибка выполнения скрипта %{script}: ошибка синтаксиса во время предварительной компиляции",
     "Error executing timer start play": "Ошибка выполнения таймера начало воспроизведения",
-    "Error getting MPD status": "Ошибка получения статуса MPD",
     "Error getting mympd state for script execution": "Ошибка получения состояния mympd для выполнения скрипта",
     "Error loading stream": "Ошибка загрузки потока",
     "Error starting worker thread": "Рабочий поток не удалось запустить",

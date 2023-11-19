@@ -289,7 +289,6 @@
     "Error executing script %{script}: Runtime error": "Error ejecutando el script %{script}: Error en tiempo de ejecución",
     "Error executing script %{script}: Syntax error during precompilation": "Error ejecutando el script %{script}: Error de sintaxis durante la precompilación",
     "Error executing timer start play": "Error ejecutando el comienzo de la reproducción temporizada",
-    "Error getting MPD status": "Error obteniendo el estado de MPD",
     "Error getting mympd state for script execution": "Error obteniendo el estado de myMPD para la ejecución del script",
     "Error loading stream": "Error cargando flujo",
     "Error starting worker thread": "",

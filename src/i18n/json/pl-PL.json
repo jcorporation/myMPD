@@ -289,7 +289,6 @@
     "Error executing script %{script}: Runtime error": "",
     "Error executing script %{script}: Syntax error during precompilation": "",
     "Error executing timer start play": "",
-    "Error getting MPD status": "",
     "Error getting mympd state for script execution": "",
     "Error loading stream": "",
     "Error starting worker thread": "",

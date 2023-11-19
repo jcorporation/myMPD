@@ -289,7 +289,6 @@
     "Error executing script %{script}: Runtime error": "执行脚本%{script}出错: 运行环境错误",
     "Error executing script %{script}: Syntax error during precompilation": "执行脚本%{script}出错: 预编译时语法错误",
     "Error executing timer start play": "执行计时器开始播放出错",
-    "Error getting MPD status": "获取 MPD 状态错误",
     "Error getting mympd state for script execution": "为执行脚本获取 mympd 状态时出错",
     "Error loading stream": "加载流媒体出错",
     "Error starting worker thread": "启动工作线程出错",

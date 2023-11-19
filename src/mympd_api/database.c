@@ -27,7 +27,7 @@ sds mympd_api_database_update(struct t_partition_state *partition_state, sds buf
 
     if (update_id == UINT_MAX) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
-                JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error getting MPD status");
+                JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error getting database update id");
     }
     if (update_id > 0) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,

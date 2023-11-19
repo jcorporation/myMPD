@@ -294,7 +294,6 @@
 {"term":"Error executing script %{script}: Runtime error"},
 {"term":"Error executing script %{script}: Syntax error during precompilation"},
 {"term":"Error executing timer start play"},
-{"term":"Error getting MPD status"},
 {"term":"Error getting database update id"},
 {"term":"Error getting mympd state for script execution"},
 {"term":"Error loading stream"},

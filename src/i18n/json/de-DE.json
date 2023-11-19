@@ -219,7 +219,6 @@
     "Error executing script %{script}: Runtime error": "Fehler beim Ausführen des Skripts %{script}: Laufzeitfehler",
     "Error executing script %{script}: Syntax error during precompilation": "Fehler beim Ausführen des Skripts %{script}: Syntax Fehler",
     "Error executing timer start play": "Fehler beim Ausführen des Wiedergabe starten Timers",
-    "Error getting MPD status": "Fehler beim Ermitteln des MPD Status",
     "Error getting mympd state for script execution": "Konnte myMPD Status",
     "Error loading stream": "Fehler beim Laden des Streams",
     "Event": "Ereignis",
@@ -1139,5 +1138,9 @@
     "Sort by sticker": "Sortieren nach Sticker",
     "Sticker based": "Stickerbasiert",
     "Value (Number)": "Wert (numerisch)",
-    "State": "Land"
+    "State": "Land",
+    "Album cache could not be replaced": "Album Cache konnte nicht aktualisiert werden",
+    "Error getting database update id": "Konnte Aktualisierungsstatus der Datenbank nicht bestimmen",
+    "Error starting the jukebox": "Jukebox konnte nicht gestartet werden",
+    "Task to add random songs to queue has started": "Task zum Hinzufügen von zufälligen Liedern wurde gestartet"
 }

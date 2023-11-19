@@ -289,7 +289,6 @@
     "Error executing script %{script}: Runtime error": "スクリプト %{script} の実行中にエラーが発生しました: ランタイムエラー",
     "Error executing script %{script}: Syntax error during precompilation": "スクリプト %{script} の実行中にエラーが発生しました: プリコンパイル中のシンタックスエラー",
     "Error executing timer start play": "タイマーの再生実行時にエラーが発生しました",
-    "Error getting MPD status": "MPDのステータス取得中にエラーが発生しました",
     "Error getting mympd state for script execution": "スクリプトの実行でmympdの状態取得中にエラーが発生しました",
     "Error loading stream": "ストリームの読み込み中にエラーが発生しました",
     "Error starting worker thread": "ワーカースレッドの開始中にエラーが発生しました",

@@ -289,7 +289,6 @@
     "Error executing script %{script}: Runtime error": "Fout bij uitvoeren script %{script}: Runtime-fout",
     "Error executing script %{script}: Syntax error during precompilation": "Fout bij uitvoeren script %{script}: syntaxisfout tijdens precompilatie",
     "Error executing timer start play": "Fout bij uitvoeren timer start afspelen",
-    "Error getting MPD status": "Fout bij verkrijgen status MPD",
     "Error getting mympd state for script execution": "Kan status MPD",
     "Error loading stream": "Fout bij laden stream",
     "Error starting worker thread": "Fout bij het starten van werkthread",
