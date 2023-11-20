@@ -734,8 +734,8 @@ bool json_get_int64_max(sds s, const char *path, int64_t *result, struct t_jsonr
 bool json_get_int64(sds s, const char *path, int64_t min, int64_t max, int64_t *result, struct t_jsonrpc_parse_error *error) {
     double value;
     if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
-        if (value >= JSONRPC_INT64_MIN &&
-            value <= JSONRPC_INT64_MAX)
+        if (value >= (double)JSONRPC_INT64_MIN &&
+            value <= (double)JSONRPC_INT64_MAX)
         {
             int64_t value_int64 = (int64_t)value;
             if (value_int64 >= min && value_int64 <= max) {
