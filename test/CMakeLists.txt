@@ -12,6 +12,7 @@ set(TEST_SOURCES
   ../src/lib/api.c
   ../src/lib/cache.c
   ../src/lib/cert.c
+  ../src/lib/convert.c
   ../src/lib/datetime.c
   ../src/lib/env.c
   ../src/lib/filehandler.c
@@ -22,6 +23,7 @@ set(TEST_SOURCES
   ../src/lib/log.c
   ../src/lib/lua_mympd_state.c
   ../src/lib/m3u.c
+  ../src/lib/mg_str_utils.c
   ../src/lib/mimetype.c
   ../src/lib/mpack.c
   ../src/lib/msg_queue.c
@@ -65,6 +67,7 @@ set(TEST_SOURCES
   tests/test_album_cache.c
   tests/test_api.c
   tests/test_cert.c
+  tests/test_convert.c
   tests/test_datetime.c
   tests/test_env.c
   tests/test_filehandler.c
@@ -145,6 +148,7 @@ list(APPEND test_categories
   "album_cache"
   "api"
   "cert"
+  "convert"
   "datetime"
   "env"
   "filehandler"

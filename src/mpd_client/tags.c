@@ -9,6 +9,7 @@
 
 #include "dist/libmympdclient/src/isong.h"
 #include "src/lib/album_cache.h"
+#include "src/lib/convert.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -237,8 +238,13 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
  */
 int mpd_client_get_tag_value_int(const struct mpd_song *song, enum mpd_tag_type tag) {
     const char *value = mpd_song_get_tag(song, tag, 0);
-    return value != NULL
-        ? (int)strtoimax(value, NULL, 10)
+    if (value == NULL) {
+        return 0;
+    }
+    int int_value;
+    enum str2int_errno rc = str2int(&int_value, value);
+    return rc == STR2INT_SUCCESS
+        ? int_value
         : 0;
 }
 

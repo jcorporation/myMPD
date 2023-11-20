@@ -104,7 +104,7 @@ sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct 
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = tojson_int(buffer, sticker_name_lookup(tags->stickers[i]), sticker->mympd[tags->stickers[i]], false);
+        buffer = tojson_int64(buffer, sticker_name_lookup(tags->stickers[i]), sticker->mympd[tags->stickers[i]], false);
     }
     return buffer;
 }

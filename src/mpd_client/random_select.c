@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/mpd_client/random_select.h"
 
+#include "src/lib/convert.h"
 #include "src/lib/log.h"
 #include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
@@ -413,9 +414,14 @@ static bool check_last_played(rax *stickers_last_played, const char *uri, time_t
         return true;
     }
     void *sticker_value_last_played = raxFind(stickers_last_played, (unsigned char *)uri, strlen(uri));
-    time_t sticker_last_played = sticker_value_last_played == raxNotFound
-        ? 0
-        : strtol((sds)sticker_value_last_played, NULL, 10);
+    if (sticker_value_last_played == raxNotFound) {
+        return true;
+    }
+    int64_t sticker_last_played;
+    enum str2int_errno rc = str2int64(&sticker_last_played, (sds)sticker_value_last_played);
+    if (rc != STR2INT_SUCCESS) {
+        return true;
+    }
     return sticker_last_played < since;
 }
 

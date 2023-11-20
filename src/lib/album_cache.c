@@ -12,6 +12,7 @@
 #include "dist/mpack/mpack.h"
 #include "dist/rax/rax.h"
 #include "src/lib/config_def.h"
+#include "src/lib/convert.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -435,12 +436,16 @@ unsigned album_get_total_time(const struct mpd_song *album) {
  * @param song mpd song to set discs from
  */
 void album_cache_set_discs(struct mpd_song *album, const struct mpd_song *song) {
-    const char *disc;
-    if ((disc = mpd_song_get_tag(song, MPD_TAG_DISC, 0)) != NULL) {
-        unsigned d = (unsigned)strtoumax(disc, NULL, 10);
-        if (d > album->pos) {
-            album->pos = d;
-        }
+    const char *disc = mpd_song_get_tag(song, MPD_TAG_DISC, 0);
+    if (disc == NULL) {
+        return;
+    }
+    unsigned d = 0;
+    enum str2int_errno rc = str2uint(&d, disc);
+    if (rc == STR2INT_SUCCESS && 
+        d > album->pos)
+    {
+        album->pos = d;
     }
 }
 

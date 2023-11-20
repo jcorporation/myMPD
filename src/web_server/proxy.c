@@ -11,6 +11,7 @@
 #include "src/lib/covercache.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
+#include "src/lib/mg_str_utils.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
 #include "src/web_server/utility.h"

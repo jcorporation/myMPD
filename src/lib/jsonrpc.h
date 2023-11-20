@@ -108,7 +108,7 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma);
 sds tojson_int(sds buffer, const char *key, int value, bool comma);
 sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma);
 sds tojson_time(sds buffer, const char *key, time_t value, bool comma);
-sds tojson_double(sds buffer, const char *key, double value, bool comma);
+sds tojson_float(sds buffer, const char *key, float value, bool comma);
 sds tojson_int64(sds buffer, const char *key, int64_t value, bool comma);
 sds tojson_uint64(sds buffer, const char *key, uint64_t value, bool comma);
 

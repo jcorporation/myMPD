@@ -10,6 +10,7 @@
 #include "dist/mongoose/mongoose.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
+#include "src/lib/mg_str_utils.h"
 #include "src/lib/sds_extras.h"
 
 #include <errno.h>
@@ -172,11 +173,11 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
             mg_client_response->header = sdscatlen(mg_client_response->header, "\n", 1);
         }
         //http response code
-        sds response_code = sdsnewlen(hm->uri.ptr, hm->uri.len);
-        mg_client_response->response_code = (int)strtoimax(response_code, NULL, 10);
-        FREE_SDS(response_code);
+        mg_client_response->response_code = mg_str_to_int(&hm->uri);
         //set response code
-        mg_client_response->rc =  mg_client_response->response_code == 200 ? 0: 1;
+        mg_client_response->rc = mg_client_response->response_code == 200
+            ? 0
+            : 1;
 
         MYMPD_LOG_DEBUG(NULL, "HTTP client response code \"%d\"", mg_client_response->response_code);
         MYMPD_LOG_DEBUG(NULL, "HTTP client received body \"%s\"", mg_client_response->body);

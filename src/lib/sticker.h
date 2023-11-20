@@ -48,8 +48,8 @@ enum feedback_type {
  * MPD sticker values
  */
 struct t_sticker {
-    int mympd[STICKER_COUNT];    //!< array of myMPD stickers
-    struct t_list user;              //!< list of user defined stickers
+    int64_t mympd[STICKER_COUNT];  //!< array of myMPD stickers
+    struct t_list user;            //!< list of user defined stickers
 };
 
 const char *sticker_name_lookup(enum mympd_sticker_types sticker);

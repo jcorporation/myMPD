@@ -9,6 +9,7 @@
 
 #include "dist/mjson/mjson.h"
 #include "src/lib/api.h"
+#include "src/lib/convert.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker.h"
@@ -504,15 +505,15 @@ sds tojson_time(sds buffer, const char *key, time_t value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for a double value
+ * Prints a json key/value pair for a float value
  * @param buffer sds string to append
  * @param key json key
  * @param value double value
  * @param comma true to append a comma
  * @return pointer to buffer
  */
-sds tojson_double(sds buffer, const char *key, double value, bool comma) {
-    buffer = sdscatprintf(buffer, "\"%s\":%f", key, value);
+sds tojson_float(sds buffer, const char *key, float value, bool comma) {
+    buffer = sdscatprintf(buffer, "\"%s\":%.2f", key, value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
@@ -1048,9 +1049,9 @@ static bool icb_json_get_array_int64(const char *path, sds key, sds value, int v
         set_parse_error(error, path, "", "Validation of value \"%s\" has failed", value);
         return false;
     }
-    errno = 0;
-    int64_t value_int64 = (int64_t)strtoll(value, NULL, 10);
-    if (errno != 0) {
+    int64_t value_int64; 
+    enum str2int_errno rc = str2int64(&value_int64, value);
+    if (rc != STR2INT_SUCCESS) {
         return false;
     }
     struct t_list *l = (struct t_list *)userdata;

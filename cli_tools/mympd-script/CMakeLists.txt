@@ -14,8 +14,10 @@ target_sources(mympd-script
   PRIVATE
     mympd-script.c
     ../log.c
+    ../../src/lib/convert.c
     ../../src/lib/filehandler.c
     ../../src/lib/http_client.c
+    ../../src/lib/mg_str_utils.c
     ../../src/lib/sds_extras.c
     ../../src/lib/passwd.c
 )

@@ -40,6 +40,7 @@ target_sources(mympd PRIVATE
   lib/cache.c
   lib/cert.c
   lib/config.c
+  lib/convert.c
   lib/covercache.c
   lib/datetime.c
   lib/env.c
@@ -52,6 +53,7 @@ target_sources(mympd PRIVATE
   lib/log.c
   lib/lua_mympd_state.c
   lib/m3u.c
+  lib/mg_str_utils.c
   lib/mimetype.c
   lib/mpack.c
   lib/passwd.c

@@ -9,6 +9,7 @@
 
 #include "dist/sds/sds.h"
 #include "dist/utf8/utf8.h"
+#include "src/lib/convert.h"
 
 #include <ctype.h>
 #include <openssl/evp.h>
@@ -156,10 +157,12 @@ int sds_toimax(sds s) {
         nr = sds_catchar(nr, s[0]);
         sdsrange(s, 1, -1);
     }
-    char *crap;
-    int number = (int)strtoimax(nr, &crap, 10);
+    int number;
+    enum str2int_errno rc = str2int(&number, nr);
     FREE_SDS(nr);
-    return number;
+    return rc == STR2INT_SUCCESS
+        ? number
+        : 0;
 }
 
 /**

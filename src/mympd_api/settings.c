@@ -10,6 +10,7 @@
 #include "dist/mjson/mjson.h"
 #include "src/lib/album_cache.h"
 #include "src/lib/api.h"
+#include "src/lib/convert.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"
@@ -105,8 +106,9 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
     else if ((strcmp(key, "mpdPort") == 0 || strcmp(key, "stickerdbMpdPort") == 0) &&
         vtype == MJSON_TOK_NUMBER)
     {
-        unsigned mpd_port = (unsigned)strtoumax(value, NULL, 10);
-        if (mpd_port < MPD_PORT_MIN || mpd_port > MPD_PORT_MAX) {
+        unsigned mpd_port;
+        enum str2int_errno rc = str2uint(&mpd_port, value);
+        if (rc != STR2INT_SUCCESS || mpd_port < MPD_PORT_MIN || mpd_port > MPD_PORT_MAX) {
             set_invalid_value(error, path, key, value, "Allowed port range is between 1024 and 65535");
             return false;
         }
@@ -142,8 +144,9 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
     else if ((strcmp(key, "mpdTimeout") == 0 || strcmp(key, "stickerdbMpdTimeout") == 0) &&
         vtype == MJSON_TOK_NUMBER)
     {
-        unsigned mpd_timeout = (unsigned)strtoumax(value, NULL, 10);
-        if (mpd_timeout < MPD_TIMEOUT_MIN || mpd_timeout > MPD_TIMEOUT_MAX) {
+        unsigned mpd_timeout;
+        enum str2int_errno rc = str2uint(&mpd_timeout, value);
+        if (rc != STR2INT_SUCCESS || mpd_timeout < MPD_TIMEOUT_MIN || mpd_timeout > MPD_TIMEOUT_MAX) {
             set_invalid_value(error, path, key, value, "Must be a number between 10 and 1000");
             return false;
         }
@@ -182,8 +185,9 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
         }
     }
     else if (strcmp(key, "mpdBinarylimit") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned binarylimit = (unsigned)strtoumax(value, NULL, 10);
-        if (binarylimit < MPD_BINARY_CHUNK_SIZE_MIN || binarylimit > MPD_BINARY_CHUNK_SIZE_MAX) {
+        unsigned binarylimit;
+        enum str2int_errno rc = str2uint(&binarylimit, value);
+        if (rc != STR2INT_SUCCESS || binarylimit < MPD_BINARY_CHUNK_SIZE_MIN || binarylimit > MPD_BINARY_CHUNK_SIZE_MAX) {
             set_invalid_value(error, path, key, value, "Allowed binary limit range is between 4kB and 256kB");
             return false;
         }
@@ -331,32 +335,36 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         }
     }
     else if (strcmp(key, "lastPlayedCount") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned last_played_count = (unsigned)strtoumax(value, NULL, 10);
-        if (last_played_count > MPD_PLAYLIST_LENGTH_MAX) {
+        unsigned last_played_count;
+        enum str2int_errno rc = str2uint(&last_played_count, value);
+        if (rc != STR2INT_SUCCESS || last_played_count > MPD_PLAYLIST_LENGTH_MAX) {
             set_invalid_value(error, path, key, value, "Must be zero or a positive number");
             return false;
         }
         mympd_state->last_played_count = last_played_count;
     }
     else if (strcmp(key, "volumeMin") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned volume_min = (unsigned)strtoumax(value, NULL, 10);
-        if (volume_min > VOLUME_MAX) {
+        unsigned volume_min;
+        enum str2int_errno rc = str2uint(&volume_min, value);
+        if (rc != STR2INT_SUCCESS || volume_min > VOLUME_MAX) {
             set_invalid_value(error, path, key, value, "Must be a number between 0 and 100");
             return false;
         }
         mympd_state->volume_min = volume_min;
     }
     else if (strcmp(key, "volumeMax") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned volume_max = (unsigned)strtoumax(value, NULL, 10);
-        if (volume_max > VOLUME_MAX) {
+        unsigned volume_max;
+        enum str2int_errno rc = str2uint(&volume_max, value);
+        if (rc != STR2INT_SUCCESS || volume_max > VOLUME_MAX) {
             set_invalid_value(error, path, key, value, "Must be a number between 0 and 100");
             return false;
         }
         mympd_state->volume_max = volume_max;
     }
     else if (strcmp(key, "volumeStep") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned volume_step = (unsigned)strtoimax(value, NULL, 10);
-        if (volume_step < VOLUME_STEP_MIN || volume_step > VOLUME_STEP_MAX) {
+        unsigned volume_step;
+        enum str2int_errno rc = str2uint(&volume_step, value);
+        if (rc != STR2INT_SUCCESS || volume_step < VOLUME_STEP_MIN || volume_step > VOLUME_STEP_MAX) {
             set_invalid_value(error, path, key, value, "Must be a number between 1 and 25");
             return false;
         }
@@ -414,8 +422,9 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         mympd_state->smartpls_prefix = sds_replacelen(mympd_state->smartpls_prefix, value, sdslen(value));
     }
     else if (strcmp(key, "smartplsInterval") == 0 && vtype == MJSON_TOK_NUMBER) {
-        int interval = (int)strtoimax(value, NULL, 10);
-        if (interval < TIMER_INTERVAL_MIN || interval > TIMER_INTERVAL_MAX) {
+        int interval;
+        enum str2int_errno rc = str2int(&interval, value);
+        if (rc != STR2INT_SUCCESS || interval < TIMER_INTERVAL_MIN || interval > TIMER_INTERVAL_MAX) {
             set_invalid_value(error, path, key, value, "Must be zero or a positive number");
             return false;
         }
@@ -524,8 +533,9 @@ bool mympd_api_settings_partition_set(const char *path, sds key, sds value, int 
         partition_state->highlight_color_contrast = sds_replace(partition_state->highlight_color_contrast, value);
     }
     else if (strcmp(key, "mpdStreamPort") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned mpd_stream_port = (unsigned)strtoumax(value, NULL, 10);
-        if (mpd_stream_port < MPD_PORT_MIN || mpd_stream_port > MPD_PORT_MAX) {
+        unsigned mpd_stream_port;
+        enum str2int_errno rc = str2uint(&mpd_stream_port, value);
+        if (rc != STR2INT_SUCCESS || mpd_stream_port < MPD_PORT_MIN || mpd_stream_port > MPD_PORT_MAX) {
             set_invalid_value(error, path, key, value, "Allowed port range is between 1024 and 65535");
             return false;
         }
@@ -607,8 +617,9 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
         }
     }
     else if (strcmp(key, "jukeboxQueueLength") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned jukebox_queue_length = (unsigned)strtoumax(value, NULL, 10);
-        if (jukebox_queue_length <= JUKEBOX_QUEUE_MIN || jukebox_queue_length > JUKEBOX_QUEUE_MAX) {
+        unsigned jukebox_queue_length;
+        enum str2int_errno crc = str2uint(&jukebox_queue_length, value);
+        if (crc != STR2INT_SUCCESS || jukebox_queue_length <= JUKEBOX_QUEUE_MIN || jukebox_queue_length > JUKEBOX_QUEUE_MAX) {
             set_invalid_value(error, path, key, value, "Must be a number between 1 and 999");
             return false;
         }
@@ -626,8 +637,9 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
         }
     }
     else if (strcmp(key, "jukeboxLastPlayed") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned jukebox_last_played = (unsigned)strtoimax(value, NULL, 10);
-        if (jukebox_last_played > JUKEBOX_LAST_PLAYED_MAX) {
+        unsigned jukebox_last_played;
+        enum str2int_errno crc = str2uint(&jukebox_last_played, value);
+        if (crc != STR2INT_SUCCESS || jukebox_last_played > JUKEBOX_LAST_PLAYED_MAX) {
             set_invalid_value(error, path, key, value, "Must be a number between 0 and 5000");
             return false;
         }
@@ -668,8 +680,9 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
         }
     }
     else if (strcmp(key, "jukeboxMinSongDuration") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned min_song_duration = (unsigned)strtoumax(value, NULL, 10);
-        if (min_song_duration > JUKEBOX_MIN_SONG_DURATION_MAX) {
+        unsigned min_song_duration;
+        enum str2int_errno crc = str2uint(&min_song_duration, value);
+        if (crc != STR2INT_SUCCESS || min_song_duration > JUKEBOX_MIN_SONG_DURATION_MAX) {
             set_invalid_value(error, path, key, value, "Invalid value");
             return false;
         }
@@ -679,8 +692,9 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
         }
     }
     else if (strcmp(key, "jukeboxMaxSongDuration") == 0 && vtype == MJSON_TOK_NUMBER) {
-        unsigned max_song_duration = (unsigned)strtoumax(value, NULL, 10);
-        if (max_song_duration > JUKEBOX_MAX_SONG_DURATION_MAX) {
+        unsigned max_song_duration;
+        enum str2int_errno crc = str2uint(&max_song_duration, value);
+        if (crc != STR2INT_SUCCESS || max_song_duration > JUKEBOX_MAX_SONG_DURATION_MAX) {
             set_invalid_value(error, path, key, value, "Invalid value");
             return false;
         }
@@ -727,8 +741,9 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             mpd_run_single_state(partition_state->conn, state);
         }
         else if (strcmp(key, "crossfade") == 0 && vtype == MJSON_TOK_NUMBER) {
-            unsigned uint_buf = (unsigned)strtoumax(value, NULL, 10);
-            if (uint_buf > MPD_CROSSFADE_MAX) {
+            unsigned uint_buf;
+            enum str2int_errno crc = str2uint(&uint_buf, value);
+            if (crc != STR2INT_SUCCESS || uint_buf > MPD_CROSSFADE_MAX) {
                 set_invalid_value(error, path, key, value, "Must be a number between 0 and 100");
                 return false;
             }
@@ -743,8 +758,9 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             mpd_run_replay_gain_mode(partition_state->conn, mode);
         }
         else if (strcmp(key, "mixrampDb") == 0 && vtype == MJSON_TOK_NUMBER) {
-            float db = strtof(value, NULL);
-            if (db < -100 || db > 0) {
+            float db;
+            enum str2int_errno crc = str2float(&db, value);
+            if (crc != STR2INT_SUCCESS || db < -100 || db > 0) {
                 // mixramp db should be a negative value
                 // 0 means mixrampdb is disabled.
                 set_invalid_value(error, path, key, value, "Must be a number between -100 and 0");
@@ -753,8 +769,9 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             mpd_run_mixrampdb(partition_state->conn, db);
         }
         else if (strcmp(key, "mixrampDelay") == 0 && vtype == MJSON_TOK_NUMBER) {
-            float delay = strtof(value, NULL);
-            if (delay < -1.0 || delay > 100) {
+            float delay;
+            enum str2int_errno crc = str2float(&delay, value);
+            if (crc != STR2INT_SUCCESS || delay < -1.0 || delay > 100) {
                 // mixramp delay should be a positive value
                 // 0 disables mixramp
                 // Negative means mixrampdelay is disabled
@@ -994,8 +1011,8 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
             enum mpd_single_state single_state = mpd_status_get_single_state(status);
             buffer = tojson_char(buffer, "single", mpd_lookup_single_state(single_state), true);
             buffer = tojson_uint(buffer, "crossfade", mpd_status_get_crossfade(status), true);
-            buffer = tojson_double(buffer, "mixrampDb", mpd_status_get_mixrampdb(status), true);
-            buffer = tojson_double(buffer, "mixrampDelay", mpd_status_get_mixrampdelay(status), true);
+            buffer = tojson_float(buffer, "mixrampDb", mpd_status_get_mixrampdb(status), true);
+            buffer = tojson_float(buffer, "mixrampDelay", mpd_status_get_mixrampdelay(status), true);
             buffer = tojson_bool(buffer, "repeat", mpd_status_get_repeat(status), true);
             buffer = tojson_bool(buffer, "random", mpd_status_get_random(status), true);
             enum mpd_consume_state consume_state = mpd_status_get_consume_state(status);

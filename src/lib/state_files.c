@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/lib/state_files.h"
 
+#include "src/lib/convert.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
@@ -182,12 +183,15 @@ enum mpd_tag_type state_file_rw_tag(sds workdir, const char *dir, const char *na
  * @return newly allocated sds string
  */
 int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_value, int min, int max, bool write) {
-    char *crap = NULL;
     sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, write);
     FREE_SDS(def_value_str);
-    int value = (int)strtoimax(line, &crap, 10);
+    int value;
+    enum str2int_errno rc = str2int(&value, line);
     FREE_SDS(line);
+    if (rc != STR2INT_SUCCESS) {
+        return def_value;
+    }
     if (value >= min && value <= max) {
         return value;
     }
@@ -206,12 +210,15 @@ int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_va
  * @return newly allocated sds string
  */
 unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, unsigned def_value, unsigned min, unsigned max, bool write) {
-    char *crap = NULL;
     sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, write);
     FREE_SDS(def_value_str);
-    unsigned value = (unsigned)strtoumax(line, &crap, 10);
+    unsigned value;
+    enum str2int_errno rc = str2uint(&value, line);
     FREE_SDS(line);
+    if (rc != STR2INT_SUCCESS) {
+        return def_value;
+    }
     if (value >= min && value <= max) {
         return value;
     }

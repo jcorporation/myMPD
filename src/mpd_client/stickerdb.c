@@ -8,6 +8,7 @@
 #include "src/mpd_client/stickerdb.h"
 
 #include "dist/rax/rax.h"
+#include "src/lib/convert.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mympd_state.h"
@@ -691,7 +692,11 @@ static struct t_sticker *get_sticker_all(struct t_stickerdb_state *stickerdb, co
         while ((pair = mpd_recv_sticker(stickerdb->conn)) != NULL) {
             enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
             if (sticker_type != STICKER_UNKNOWN) {
-                sticker->mympd[sticker_type] = (int)strtoimax(pair->value, NULL, 10);
+                int num;
+                enum str2int_errno rc = str2int(&num, pair->value);
+                sticker->mympd[sticker_type] = rc == STR2INT_SUCCESS
+                    ? num
+                    : 0;
             }
             else if (user_defined == true) {
                 list_push(&sticker->user, pair->name, 0, pair->value, NULL);
@@ -740,7 +745,7 @@ int64_t get_sticker_int64(struct t_stickerdb_state *stickerdb, const char *uri, 
     if (mpd_send_sticker_list(stickerdb->conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(stickerdb->conn)) != NULL) {
             if (strcmp(pair->name, name) == 0) {
-                value = (int64_t)strtoll(pair->value, NULL, 10);
+                str2int64(&value, pair->value);
             }
             mpd_return_sticker(stickerdb->conn, pair);
         }

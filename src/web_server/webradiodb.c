@@ -10,6 +10,7 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/mg_str_utils.h"
 #include "src/lib/sds_extras.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/utility.h"
