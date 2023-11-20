@@ -303,12 +303,15 @@ extern struct t_mympd_queue *mympd_script_queue;
 //limits for json parsing
 #define JSONRPC_INT_MIN INT_MIN
 #define JSONRPC_INT_MAX INT_MAX
-#define JSONRPC_INT64_MIN LLONG_MIN
-#define JSONRPC_INT64_MAX LLONG_MAX
-#define JSONRPC_UINT_MAX INT_MAX
+#define JSONRPC_INT64_MIN INT64_MIN
+#define JSONRPC_INT64_MAX INT64_MAX
+#define JSONRPC_UINT_MIN 0
+#define JSONRPC_UINT_MAX UINT_MAX
 #define JSONRPC_STR_MAX 3000
 #define JSONRPC_KEY_MAX 50
-#define JSONRPC_ARRAY_MAX 100
+#define JSONRPC_ARRAY_MAX 1000
+#define JSONRPC_TIME_MIN 0 // Do 1. Jan 01:00:00 CET 1970
+#define JSONRPC_TIME_MAX 253402297169 // Fr 31. Dez 23:59:29 CET 9999
 
 //some other limits
 #define TIMER_INTERVAL_MIN 5 //seconds

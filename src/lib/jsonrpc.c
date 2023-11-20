@@ -630,7 +630,9 @@ sds json_get_cols_as_string(sds s, sds cols, bool *rc) {
 bool json_get_bool(sds s, const char *path, bool *result, struct t_jsonrpc_parse_error *error) {
     int v = 0;
     if (mjson_get_bool(s, (int)sdslen(s), path, &v) != 0) {
-        *result = v == 1 ? true : false;
+        *result = v == 1
+            ? true
+            : false;
         return true;
     }
     set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
@@ -662,10 +664,16 @@ bool json_get_int_max(sds s, const char *path, int *result, struct t_jsonrpc_par
 bool json_get_int(sds s, const char *path, int min, int max, int *result, struct t_jsonrpc_parse_error *error) {
     double value;
     if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
-        int value_int = (int)value;
-        if (value_int >= min && value_int <= max) {
-            *result = value_int;
-            return true;
+        if (value >= JSONRPC_INT_MIN &&
+            value <= JSONRPC_INT_MAX)
+        {
+            int value_int = (int)value;
+            if (value_int >= min &&
+                value_int <= max)
+            {
+                *result = value_int;
+                return true;
+            }
         }
         set_parse_error(error, path, "", "Number is out of valid range");
     }
@@ -686,7 +694,9 @@ bool json_get_int(sds s, const char *path, int min, int max, int *result, struct
 bool json_get_time_max(sds s, const char *path, time_t *result, struct t_jsonrpc_parse_error *error) {
     double value;
     if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
-        if (value >= 0 && value <= (double)JSONRPC_INT64_MAX) {
+        if (value >= JSONRPC_TIME_MIN &&
+            value <= JSONRPC_TIME_MAX)
+        {
             time_t value_time = (time_t)value;
             *result = value_time;
             return true;
@@ -724,10 +734,14 @@ bool json_get_int64_max(sds s, const char *path, int64_t *result, struct t_jsonr
 bool json_get_int64(sds s, const char *path, int64_t min, int64_t max, int64_t *result, struct t_jsonrpc_parse_error *error) {
     double value;
     if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
-        int64_t value_int64 = (int64_t)value;
-        if (value_int64 >= min && value_int64 <= max) {
-            *result = value_int64;
-            return true;
+        if (value >= JSONRPC_INT64_MIN &&
+            value <= JSONRPC_INT64_MAX)
+        {
+            int64_t value_int64 = (int64_t)value;
+            if (value_int64 >= min && value_int64 <= max) {
+                *result = value_int64;
+                return true;
+            }
         }
         set_parse_error(error, path, "", "Number is out of valid range");
     }
@@ -762,9 +776,15 @@ bool json_get_uint_max(sds s, const char *path, unsigned *result, struct t_jsonr
 bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result, struct t_jsonrpc_parse_error *error) {
     double value;
     if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
-        if (value >= min && value <= max) {
-            *result = (unsigned)value;
-            return true;
+        if (value >= JSONRPC_UINT_MIN &&
+            value <= JSONRPC_UINT_MAX)
+        {
+            if (value >= min &&
+                value <= max)
+            {
+                *result = (unsigned)value;
+                return true;
+            }
         }
         set_parse_error(error, path, "", "Number is out of valid range");
     }
