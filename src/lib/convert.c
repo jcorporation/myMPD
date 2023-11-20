@@ -33,7 +33,7 @@ enum str2int_errno str2int(int *out, const char *s) {
     }
     char *end;
     errno = 0;
-    long l = strtoimax(s, &end, 10);
+    long l = strtol(s, &end, 10);
     /* Both checks are needed because INT_MAX == LONG_MAX is possible. */
     if (l > INT_MAX || (errno == ERANGE && l == LONG_MAX)) {
         MYMPD_LOG_ERROR(NULL, "Integer overflow");
@@ -55,7 +55,7 @@ enum str2int_errno str2int(int *out, const char *s) {
 
 /**
  * Convert string s to unsigned out.
- * The format is the same as strtol, except that the following are inconvertible:
+ * The format is the same as strtoul, except that the following are inconvertible:
  * NULL, empty string, leading whitespace, any trailing characters
  * @param out pointer to integer
  * @param s string to convert
@@ -75,7 +75,7 @@ enum str2int_errno str2uint(unsigned *out, const char *s) {
     }
     errno = 0;
     char *end;
-    unsigned long l = strtoumax(s, &end, 10);
+    unsigned long l = strtoul(s, &end, 10);
     /* Both checks are needed because UINT_MAX == ULONG_MAX is possible. */
     if (l > UINT_MAX ||
         (errno == ERANGE && l == ULONG_MAX))

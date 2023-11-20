@@ -440,7 +440,7 @@ void album_cache_set_discs(struct mpd_song *album, const struct mpd_song *song) 
     if (disc == NULL) {
         return;
     }
-    unsigned d = 0;
+    unsigned d;
     enum str2int_errno rc = str2uint(&d, disc);
     if (rc == STR2INT_SUCCESS && 
         d > album->pos)

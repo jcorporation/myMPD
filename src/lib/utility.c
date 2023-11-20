@@ -46,7 +46,6 @@ void my_msleep(int msec) {
  * Appends a formated time to the buffer
  * @param buf already allocated sds string
  * @param timestamp timestamp to display
- * @return sds pointer to buffer
  */
 void readable_time(char *buf, time_t timestamp) {
     struct tm *tmp = localtime(&timestamp);
