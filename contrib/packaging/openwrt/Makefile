@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2021 Tomasz Maciej Nowak <tmn505@gmail.com>
+# Copyright (C) 2021-2023 Tomasz Maciej Nowak <tmn505@gmail.com>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 # myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
@@ -21,8 +21,11 @@ PKG_LICENSE_FILE := LICENSE.md
 PKG_MAINTAINER := Juergen Mang <mail [at] jcgames [dot] de>
 
 PKG_BUILD_DIR := $(BUILD_DIR)/myMPD-$(PKG_VERSION)
+PKG_BUILD_FLAGS := no-mips16
 PKG_BUILD_PARALLEL := 1
+PKG_ASLR_PIE_REGULAR := 1
 PKG_FORTIFY_SOURCE := 0
+PKG_USE_NINJA := 0
 PKG_CONFIG_DEPENDS := \
     CONFIG_MYMPD_FLAC \
     CONFIG_MYMPD_ID3TAG \
@@ -65,20 +68,19 @@ define Package/mympd/config
 endef
 
 CMAKE_OPTIONS += \
-    -DCMAKE_BUILD_TYPE=Release \
     -DMYMPD_ENABLE_FLAC=$(if $(CONFIG_MYMPD_FLAC),ON,OFF) \
     -DMYMPD_ENABLE_LIBID3TAG=$(if $(CONFIG_MYMPD_ID3TAG),ON,OFF) \
     -DMYMPD_ENABLE_LUA=$(if $(CONFIG_MYMPD_LUA),ON,OFF)
 
 define Package/mympd/install
-    $(INSTALL_DIR) $(1)/usr/bin
-    $(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mympd $(1)/usr/bin/
-    $(if $(CONFIG_MYMPD_LUA),$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mympd-script $(1)/usr/bin/)
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mympd $(1)/usr/bin/
+	$(if $(CONFIG_MYMPD_LUA),$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mympd-script $(1)/usr/bin/)
 
-    $(INSTALL_DIR) $(1)/etc/config
-    $(INSTALL_CONF) ./files/mympd.config $(1)/etc/config/mympd
-    $(INSTALL_DIR) $(1)/etc/init.d
-    $(INSTALL_BIN) ./files/mympd.init $(1)/etc/init.d/mympd
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/mympd.config $(1)/etc/config/mympd
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/mympd.init $(1)/etc/init.d/mympd
 endef
 
 $(eval $(call BuildPackage,mympd))
