@@ -599,8 +599,8 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             set_invalid_value(error, path, key, value, "Invalid jukebox mode");
             return false;
         }
-        if (partition_state->jukebox_mode != jukebox_mode) {
-            partition_state->jukebox_mode = jukebox_mode;
+        if (partition_state->jukebox.mode != jukebox_mode) {
+            partition_state->jukebox.mode = jukebox_mode;
             jukebox_changed = true;
         }
         sdsclear(value);
@@ -611,8 +611,8 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             set_invalid_value(error, path, key, value, "Must be valid MPD playlist");
             return false;
         }
-        if (strcmp(partition_state->jukebox_playlist, value) != 0) {
-            partition_state->jukebox_playlist = sds_replace(partition_state->jukebox_playlist, value);
+        if (strcmp(partition_state->jukebox.playlist, value) != 0) {
+            partition_state->jukebox.playlist = sds_replace(partition_state->jukebox.playlist, value);
             jukebox_changed = true;
         }
     }
@@ -623,7 +623,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             set_invalid_value(error, path, key, value, "Must be a number between 1 and 999");
             return false;
         }
-        partition_state->jukebox_queue_length = jukebox_queue_length;
+        partition_state->jukebox.queue_length = jukebox_queue_length;
     }
     else if (strcmp(key, "jukeboxUniqTag") == 0 && vtype == MJSON_TOK_STRING) {
         enum mpd_tag_type uniq_tag = mpd_tag_name_parse(value);
@@ -631,8 +631,8 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             set_invalid_value(error, path, key, value, "Must be a valid tag name");
             return false;
         }
-        if (partition_state->jukebox_uniq_tag.tags[0] != uniq_tag) {
-            partition_state->jukebox_uniq_tag.tags[0] = uniq_tag;
+        if (partition_state->jukebox.uniq_tag.tags[0] != uniq_tag) {
+            partition_state->jukebox.uniq_tag.tags[0] = uniq_tag;
             jukebox_changed = true;
         }
     }
@@ -643,8 +643,8 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             set_invalid_value(error, path, key, value, "Must be a number between 0 and 5000");
             return false;
         }
-        if (jukebox_last_played != partition_state->jukebox_last_played) {
-            partition_state->jukebox_last_played = jukebox_last_played;
+        if (jukebox_last_played != partition_state->jukebox.last_played) {
+            partition_state->jukebox.last_played = jukebox_last_played;
             jukebox_changed = true;
         }
     }
@@ -654,8 +654,8 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             return false;
         }
         bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
-        if (bool_buf != partition_state->jukebox_ignore_hated) {
-            partition_state->jukebox_ignore_hated = bool_buf;
+        if (bool_buf != partition_state->jukebox.ignore_hated) {
+            partition_state->jukebox.ignore_hated = bool_buf;
             jukebox_changed = true;
         }
     }
@@ -664,8 +664,8 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             set_invalid_value(error, path, key, value, "Invalid MPD search expression");
             return false;
         }
-        if (strcmp(partition_state->jukebox_filter_include, value) != 0) {
-            partition_state->jukebox_filter_include = sds_replace(partition_state->jukebox_filter_include, value);
+        if (strcmp(partition_state->jukebox.filter_include, value) != 0) {
+            partition_state->jukebox.filter_include = sds_replace(partition_state->jukebox.filter_include, value);
             jukebox_changed = true;
         }
     }
@@ -674,8 +674,8 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             set_invalid_value(error, path, key, value, "Invalid MPD search expression");
             return false;
         }
-        if (strcmp(partition_state->jukebox_filter_exclude, value) != 0) {
-            partition_state->jukebox_filter_exclude = sds_replace(partition_state->jukebox_filter_exclude, value);
+        if (strcmp(partition_state->jukebox.filter_exclude, value) != 0) {
+            partition_state->jukebox.filter_exclude = sds_replace(partition_state->jukebox.filter_exclude, value);
             jukebox_changed = true;
         }
     }
@@ -686,8 +686,8 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             set_invalid_value(error, path, key, value, "Invalid value");
             return false;
         }
-        if (min_song_duration != partition_state->jukebox_min_song_duration) {
-            partition_state->jukebox_min_song_duration = min_song_duration;
+        if (min_song_duration != partition_state->jukebox.min_song_duration) {
+            partition_state->jukebox.min_song_duration = min_song_duration;
             jukebox_changed = true;
         }
     }
@@ -698,8 +698,8 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             set_invalid_value(error, path, key, value, "Invalid value");
             return false;
         }
-        if (max_song_duration != partition_state->jukebox_max_song_duration) {
-            partition_state->jukebox_max_song_duration = max_song_duration;
+        if (max_song_duration != partition_state->jukebox.max_song_duration) {
+            partition_state->jukebox.max_song_duration = max_song_duration;
             jukebox_changed = true;
         }
     }
@@ -792,9 +792,9 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
         MYMPD_LOG_WARN(partition_state->name, "Unknown setting \"%s\": \"%s\"", key, value);
         return false;
     }
-    if (jukebox_changed == true && partition_state->jukebox_queue.length > 0) {
+    if (jukebox_changed == true && partition_state->jukebox.queue->length > 0) {
         MYMPD_LOG_INFO(partition_state->name, "Jukebox options changed, clearing jukebox queue");
-        mympd_api_jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
+        mympd_api_jukebox_clear(partition_state->jukebox.queue, partition_state->name);
     }
     if (write_state_file == true) {
         sds state_filename = camel_to_snake(key);
@@ -882,16 +882,16 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
     sds workdir = partition_state->config->workdir;
     MYMPD_LOG_NOTICE(partition_state->name, "Reading partition states from directory \"%s/%s\"", workdir, partition_state->state_dir);
     partition_state->auto_play = state_file_rw_bool(workdir, partition_state->state_dir, "auto_play", partition_state->auto_play, true);
-    partition_state->jukebox_mode = state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_mode", partition_state->jukebox_mode, JUKEBOX_MODE_MIN, JUKEBOX_MODE_MAX, true);
-    partition_state->jukebox_playlist = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_playlist", partition_state->jukebox_playlist, vcb_isfilename, true);
-    partition_state->jukebox_queue_length = state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_queue_length", partition_state->jukebox_queue_length, JUKEBOX_QUEUE_MIN, JUKEBOX_QUEUE_MAX, true);
-    partition_state->jukebox_last_played = state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_last_played", partition_state->jukebox_last_played, JUKEBOX_LAST_PLAYED_MIN, JUKEBOX_LAST_PLAYED_MAX, true);
-    partition_state->jukebox_uniq_tag.tags[0] = state_file_rw_tag(workdir, partition_state->state_dir, "jukebox_uniq_tag", partition_state->jukebox_uniq_tag.tags[0], true);
-    partition_state->jukebox_ignore_hated = state_file_rw_bool(workdir, partition_state->state_dir, "jukebox_ignore_hated", MYMPD_JUKEBOX_IGNORE_HATED, true);
-    partition_state->jukebox_filter_include = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_include", partition_state->jukebox_filter_include, vcb_issearchexpression, true);
-    partition_state->jukebox_filter_exclude = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_exclude", partition_state->jukebox_filter_exclude, vcb_issearchexpression, true);
-    partition_state->jukebox_min_song_duration= state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_min_song_duration", partition_state->jukebox_min_song_duration, 0, JUKEBOX_MIN_SONG_DURATION_MAX, true);
-    partition_state->jukebox_max_song_duration= state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_max_song_duration", partition_state->jukebox_max_song_duration, 0, JUKEBOX_MAX_SONG_DURATION_MAX, true);
+    partition_state->jukebox.mode = state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_mode", partition_state->jukebox.mode, JUKEBOX_MODE_MIN, JUKEBOX_MODE_MAX, true);
+    partition_state->jukebox.playlist = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_playlist", partition_state->jukebox.playlist, vcb_isfilename, true);
+    partition_state->jukebox.queue_length = state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_queue_length", partition_state->jukebox.queue_length, JUKEBOX_QUEUE_MIN, JUKEBOX_QUEUE_MAX, true);
+    partition_state->jukebox.last_played = state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_last_played", partition_state->jukebox.last_played, JUKEBOX_LAST_PLAYED_MIN, JUKEBOX_LAST_PLAYED_MAX, true);
+    partition_state->jukebox.uniq_tag.tags[0] = state_file_rw_tag(workdir, partition_state->state_dir, "jukebox_uniq_tag", partition_state->jukebox.uniq_tag.tags[0], true);
+    partition_state->jukebox.ignore_hated = state_file_rw_bool(workdir, partition_state->state_dir, "jukebox_ignore_hated", MYMPD_JUKEBOX_IGNORE_HATED, true);
+    partition_state->jukebox.filter_include = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_include", partition_state->jukebox.filter_include, vcb_issearchexpression, true);
+    partition_state->jukebox.filter_exclude = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_exclude", partition_state->jukebox.filter_exclude, vcb_issearchexpression, true);
+    partition_state->jukebox.min_song_duration= state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_min_song_duration", partition_state->jukebox.min_song_duration, 0, JUKEBOX_MIN_SONG_DURATION_MAX, true);
+    partition_state->jukebox.max_song_duration= state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_max_song_duration", partition_state->jukebox.max_song_duration, 0, JUKEBOX_MAX_SONG_DURATION_MAX, true);
     partition_state->highlight_color = state_file_rw_string_sds(workdir, partition_state->state_dir, "highlight_color", partition_state->highlight_color, vcb_ishexcolor, true);
     partition_state->highlight_color_contrast = state_file_rw_string_sds(workdir, partition_state->state_dir, "highlight_color_contrast", partition_state->highlight_color_contrast, vcb_ishexcolor, true);
     partition_state->mpd_stream_port = state_file_rw_uint(workdir, partition_state->state_dir, "mpd_stream_port", partition_state->mpd_stream_port, MPD_PORT_MIN, MPD_PORT_MAX, true);
@@ -971,17 +971,17 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_raw(buffer, "webuiSettings", mympd_state->webui_settings, true);
     //partition specific settings
     buffer = sdscat(buffer, "\"partition\":{");
-    const char *jukebox_mode_str = jukebox_mode_lookup(partition_state->jukebox_mode);
+    const char *jukebox_mode_str = jukebox_mode_lookup(partition_state->jukebox.mode);
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);
-    buffer = tojson_sds(buffer, "jukeboxPlaylist", partition_state->jukebox_playlist, true);
-    buffer = tojson_uint(buffer, "jukeboxQueueLength", partition_state->jukebox_queue_length, true);
-    buffer = tojson_char(buffer, "jukeboxUniqTag", mpd_tag_name(partition_state->jukebox_uniq_tag.tags[0]), true);
-    buffer = tojson_uint(buffer, "jukeboxLastPlayed", partition_state->jukebox_last_played, true);
-    buffer = tojson_bool(buffer, "jukeboxIgnoreHated", partition_state->jukebox_ignore_hated, true);
-    buffer = tojson_char(buffer, "jukeboxFilterInclude", partition_state->jukebox_filter_include, true);
-    buffer = tojson_char(buffer, "jukeboxFilterExclude", partition_state->jukebox_filter_exclude, true);
-    buffer = tojson_uint(buffer, "jukeboxMinSongDuration", partition_state->jukebox_min_song_duration, true);
-    buffer = tojson_uint(buffer, "jukeboxMaxSongDuration", partition_state->jukebox_max_song_duration, true);
+    buffer = tojson_sds(buffer, "jukeboxPlaylist", partition_state->jukebox.playlist, true);
+    buffer = tojson_uint(buffer, "jukeboxQueueLength", partition_state->jukebox.queue_length, true);
+    buffer = tojson_char(buffer, "jukeboxUniqTag", mpd_tag_name(partition_state->jukebox.uniq_tag.tags[0]), true);
+    buffer = tojson_uint(buffer, "jukeboxLastPlayed", partition_state->jukebox.last_played, true);
+    buffer = tojson_bool(buffer, "jukeboxIgnoreHated", partition_state->jukebox.ignore_hated, true);
+    buffer = tojson_char(buffer, "jukeboxFilterInclude", partition_state->jukebox.filter_include, true);
+    buffer = tojson_char(buffer, "jukeboxFilterExclude", partition_state->jukebox.filter_exclude, true);
+    buffer = tojson_uint(buffer, "jukeboxMinSongDuration", partition_state->jukebox.min_song_duration, true);
+    buffer = tojson_uint(buffer, "jukeboxMaxSongDuration", partition_state->jukebox.max_song_duration, true);
     buffer = tojson_bool(buffer, "autoPlay", partition_state->auto_play, true);
     buffer = tojson_char(buffer, "highlightColor", partition_state->highlight_color, true);
     buffer = tojson_char(buffer, "highlightColorContrast", partition_state->highlight_color_contrast, true);

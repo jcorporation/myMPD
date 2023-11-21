@@ -10,5 +10,7 @@
 #include "src/lib/api.h"
 #include "src/lib/mympd_state.h"
 
-bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *request);
+bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+        struct t_work_request *request);
+
 #endif

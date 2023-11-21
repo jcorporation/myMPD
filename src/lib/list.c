@@ -50,6 +50,9 @@ void list_clear(struct t_list *l) {
  * @return NULL
  */
 void *list_free(struct t_list *l) {
+    if (l == NULL) {
+        return NULL;
+    }
     list_clear_user_data(l, list_free_cb_ignore_user_data);
     FREE_PTR(l);
     return NULL;

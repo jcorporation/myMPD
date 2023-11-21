@@ -320,19 +320,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->next = NULL;
     partition_state->player_error = false;
     //jukebox
-    list_init(&partition_state->jukebox_queue);
-    list_init(&partition_state->jukebox_queue_tmp);
-    partition_state->jukebox_mode = JUKEBOX_OFF;
-    partition_state->jukebox_playlist = sdsnew(MYMPD_JUKEBOX_PLAYLIST);
-    partition_state->jukebox_uniq_tag.tags_len = 1;
-    partition_state->jukebox_uniq_tag.tags[0] = MYMPD_JUKEBOX_UNIQ_TAG;
-    partition_state->jukebox_last_played = MYMPD_JUKEBOX_LAST_PLAYED;
-    partition_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
-    partition_state->jukebox_ignore_hated = MYMPD_JUKEBOX_IGNORE_HATED;
-    partition_state->jukebox_filter_include = sdsempty();
-    partition_state->jukebox_filter_exclude = sdsempty();
-    partition_state->jukebox_min_song_duration = MYMPD_JUKEBOX_MIN_SONG_DURATION;
-    partition_state->jukebox_max_song_duration = MYMPD_JUKEBOX_MAX_SONG_DURATION;
+    jukebox_state_default(&partition_state->jukebox);
     //add pointer to other states
     partition_state->config = config;
     partition_state->mpd_state = mpd_state;
@@ -370,12 +358,7 @@ void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->song_uri);
     FREE_SDS(partition_state->last_song_uri);
     //jukebox
-    FREE_SDS(partition_state->jukebox_playlist);
-    FREE_SDS(partition_state->jukebox_filter_include);
-    FREE_SDS(partition_state->jukebox_filter_exclude);
-    //do not use jukebox_clear wrapper to prevent obsolet notification
-    list_clear(&partition_state->jukebox_queue);
-    list_clear(&partition_state->jukebox_queue_tmp);
+    jukebox_state_free(&partition_state->jukebox);
     //lists
     list_clear(&partition_state->last_played);
     list_clear(&partition_state->preset_list);
@@ -383,6 +366,58 @@ void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->stream_uri);
     //struct itself
     FREE_PTR(partition_state);
+}
+
+/**
+ * Sets jukebox state defaults
+ * @param jukebox_state pointer to t_jukebox_state struct
+ */
+void jukebox_state_default(struct t_jukebox_state *jukebox_state) {
+    jukebox_state->queue = list_new();
+    jukebox_state->mode = JUKEBOX_OFF;
+    jukebox_state->playlist = sdsnew(MYMPD_JUKEBOX_PLAYLIST);
+    jukebox_state->uniq_tag.tags_len = 1;
+    jukebox_state->uniq_tag.tags[0] = MYMPD_JUKEBOX_UNIQ_TAG;
+    jukebox_state->last_played = MYMPD_JUKEBOX_LAST_PLAYED;
+    jukebox_state->queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
+    jukebox_state->ignore_hated = MYMPD_JUKEBOX_IGNORE_HATED;
+    jukebox_state->filter_include = sdsempty();
+    jukebox_state->filter_exclude = sdsempty();
+    jukebox_state->min_song_duration = MYMPD_JUKEBOX_MIN_SONG_DURATION;
+    jukebox_state->max_song_duration = MYMPD_JUKEBOX_MAX_SONG_DURATION;
+}
+
+/**
+ * Frees the t_jukebox_state struct
+ * @param jukebox_state pointer to t_jukebox_state struct
+ */
+void jukebox_state_free(struct t_jukebox_state *jukebox_state) {
+    FREE_SDS(jukebox_state->playlist);
+    FREE_SDS(jukebox_state->filter_include);
+    FREE_SDS(jukebox_state->filter_exclude);
+    list_free(jukebox_state->queue);
+}
+
+/**
+ * Copies the jukebox settings
+ * @param src source
+ * @param dst destination
+ */
+void jukebox_state_copy(struct t_jukebox_state *src, struct t_jukebox_state *dst) {
+    dst->mode = src->mode;
+    dst->playlist = sds_replace(dst->playlist, src->playlist);
+    dst->filter_include = sds_replace(dst->filter_include, src->filter_include);
+    dst->filter_exclude = sds_replace(dst->filter_exclude, src->filter_exclude);
+    dst->uniq_tag.tags[0] = src->uniq_tag.tags[0];
+    dst->last_played = src->last_played;
+    dst->ignore_hated = src->ignore_hated;
+    dst->min_song_duration = src->min_song_duration;
+    dst->max_song_duration = src->max_song_duration;
+    struct t_list_node *current = src->queue->head;
+    while (current != NULL) {
+        list_push(dst->queue, current->key, current->value_i, current->value_p, current->user_data);
+        current = current->next;
+    }
 }
 
 /**

@@ -110,6 +110,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
 
     switch(request->cmd_id) {
     // methods that are delegated to a new worker thread
+        case INTERNAL_API_JUKEBOX_REFILL:
+        case INTERNAL_API_JUKEBOX_REFILL_ADD:
         case MYMPD_API_CACHES_CREATE:
         case MYMPD_API_PLAYLIST_CONTENT_DEDUP:
         case MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL:
@@ -148,22 +150,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 }
                 mympd_state->album_cache.building = mympd_state->mpd_state->feat.tags;
             }
-            async = mpd_worker_start(mympd_state, request);
+            async = mpd_worker_start(mympd_state, partition_state, request);
             if (async == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error starting worker thread");
                 mympd_state->album_cache.building = false;
             }
             break;
-    // Async responses from the worker thread
+    // Album cache
         case INTERNAL_API_ALBUMCACHE_SKIPPED:
-            mympd_state->album_cache.building = false;
-            response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
-            break;
         case INTERNAL_API_ALBUMCACHE_ERROR:
             mympd_state->album_cache.building = false;
-            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating album cache");
             break;
         case INTERNAL_API_ALBUMCACHE_CREATED:
             mympd_state->album_cache.building = false;
@@ -174,20 +171,16 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 //free the old album cache and replace it with the freshly generated one
                 if (cache_get_write_lock(&mympd_state->album_cache) == false) {
                     album_cache_free_rt(request->extra);
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album cache could not be replaced");
+                    send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Album cache could not be replaced");
                     break;
                 }
                 album_cache_free(&mympd_state->album_cache);
                 mympd_state->album_cache.cache = (rax *) request->extra;
                 cache_release_lock(&mympd_state->album_cache);
-                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 MYMPD_LOG_INFO(partition_state->name, "Album cache was replaced");
             }
             else {
                 MYMPD_LOG_ERROR(partition_state->name, "Album cache is NULL");
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album cache is NULL");
             }
             break;
     // Misc
@@ -422,9 +415,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 break;
             }
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
-                if (partition_state->jukebox_mode != JUKEBOX_OFF) {
+                if (partition_state->jukebox.mode != JUKEBOX_OFF) {
                     // start jukebox
-                    jukebox_run(partition_state, mympd_state->stickerdb, &mympd_state->album_cache);
+                    jukebox_run(partition_state, &mympd_state->album_cache);
                 }
                 // save options as preset if name is found and not empty
                 if (json_find_key(request->data, "$.params.name") == true && // prevent warning message
@@ -556,7 +549,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             list_init(&positions);
             if (json_get_array_int64(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &parse_error) == true)
             {
-                rc = mympd_api_jukebox_rm_entries(&partition_state->jukebox_queue, &positions, partition_state->name, &error);
+                rc = mympd_api_jukebox_rm_entries(partition_state->jukebox.queue, &positions, partition_state->name, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_JUKEBOX, error);
             }
@@ -564,7 +557,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         }
         case MYMPD_API_JUKEBOX_CLEAR:
-            mympd_api_jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
+            mympd_api_jukebox_clear(partition_state->jukebox.queue, partition_state->name);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
             break;
         case MYMPD_API_JUKEBOX_LIST: {
@@ -581,10 +574,20 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         }
         case MYMPD_API_JUKEBOX_RESTART:
-            mympd_api_jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
-            rc = jukebox_run(partition_state, mympd_state->stickerdb, &mympd_state->album_cache);
+            mympd_api_jukebox_clear(partition_state->jukebox.queue, partition_state->name);
+            rc = jukebox_run(partition_state, &mympd_state->album_cache);
             response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                     JSONRPC_FACILITY_JUKEBOX, "Error starting the jukebox");
+            break;
+        case INTERNAL_API_JUKEBOX_CREATED:
+            if (request->extra != NULL) {
+                list_free(partition_state->jukebox.queue);
+                partition_state->jukebox.queue = (struct t_list *)request->extra;
+                send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_state->name);
+            }
+            else {
+                MYMPD_LOG_ERROR(partition_state->name, "Jukebox queue is NULL");
+            }
             break;
     // trigger
         case MYMPD_API_TRIGGER_LIST:
@@ -1608,7 +1611,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
             MYMPD_LOG_ERROR(partition_state->name, "Error processing method \"%s\"", method);
         }
-        else {
+        else if (response->type != RESPONSE_TYPE_DISCARD) {
             // no response and no error - this should not occur
             response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);

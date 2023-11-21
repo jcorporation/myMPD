@@ -25,6 +25,9 @@
     X(INTERNAL_API_ALBUMCACHE_CREATED) \
     X(INTERNAL_API_ALBUMCACHE_ERROR) \
     X(INTERNAL_API_ALBUMCACHE_SKIPPED) \
+    X(INTERNAL_API_JUKEBOX_CREATED) \
+    X(INTERNAL_API_JUKEBOX_REFILL) \
+    X(INTERNAL_API_JUKEBOX_REFILL_ADD) \
     X(INTERNAL_API_SCRIPT_INIT) \
     X(INTERNAL_API_SCRIPT_POST_EXECUTE) \
     X(INTERNAL_API_STATE_SAVE) \
@@ -224,9 +227,10 @@ enum work_response_types {
  * Request types
  */
 enum work_request_types {
-    REQUEST_TYPE_DEFAULT = 0,  //!< Request is from a mongoose connection
-    REQUEST_TYPE_SCRIPT,       //!< Request is from th script thread
-    REQUEST_TYPE_DISCARD       //!< Response will be discarded
+    REQUEST_TYPE_DEFAULT = 0,       //!< Request is from a mongoose connection
+    REQUEST_TYPE_SCRIPT,            //!< Request is from th script thread
+    REQUEST_TYPE_NOTIFY_PARTITION,  //!< Send message to all clients in a specific partition
+    REQUEST_TYPE_DISCARD            //!< Response will be discarded
 };
 
 /**

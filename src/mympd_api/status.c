@@ -311,12 +311,14 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
         lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->config->workdir);
         lua_mympd_state_set_p(lua_partition_state, "cachedir", partition_state->config->cachedir);
         lua_mympd_state_set_b(lua_partition_state, "auto_play", partition_state->auto_play);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox_mode);
-        lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox_playlist);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_queue_length", partition_state->jukebox_queue_length);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_last_played", partition_state->jukebox_last_played);
-        lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox_ignore_hated);
-        lua_mympd_state_set_p(lua_partition_state, "jukebox_uniq_tag", mpd_tag_name(partition_state->jukebox_uniq_tag.tags[0]));
+        lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox.mode);
+        lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox.playlist);
+        lua_mympd_state_set_i(lua_partition_state, "jukebox_queue_length", partition_state->jukebox.queue_length);
+        lua_mympd_state_set_i(lua_partition_state, "jukebox_last_played", partition_state->jukebox.last_played);
+        lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox.ignore_hated);
+        lua_mympd_state_set_p(lua_partition_state, "jukebox_uniq_tag", mpd_tag_name(partition_state->jukebox.uniq_tag.tags[0]));
+        lua_mympd_state_set_i(lua_partition_state, "jukebox_min_song_duration", partition_state->jukebox.min_song_duration);
+        lua_mympd_state_set_i(lua_partition_state, "jukebox_max_song_duration", partition_state->jukebox.max_song_duration);
         lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", mympd_state->listenbrainz_token);
         if (partition_state->mpd_state->feat.partitions == true) {
             lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));

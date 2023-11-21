@@ -238,7 +238,7 @@
     "Filesystem": "Dateisystem",
     "Filetype": "Dateityp",
     "Filling jukebox queue": "Jukebox Warteschlange wird aufgefüllt",
-    "Filling jukebox queue failed, disabling jukebox": "Jukebox Warteschlange konnte nicht aufgefüllt werden, Jukebox wurde deaktiviert",
+    "Filling jukebox queue failed": "Jukebox Warteschlange konnte nicht aufgefüllt werden",
     "Filter": "Filter",
     "Fingerprint": "Fingerabdruck",
     "Fingerprint command not supported": "Fingerprint Befehl wird nicht unterstützt",

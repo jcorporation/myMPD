@@ -109,8 +109,8 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         unsigned volume, sds playlist, sds preset)
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
-    enum jukebox_modes old_jukebox_mode = partition_state->jukebox_mode;
-    partition_state->jukebox_mode = JUKEBOX_OFF;
+    enum jukebox_modes old_jukebox_mode = partition_state->jukebox.mode;
+    partition_state->jukebox.mode = JUKEBOX_OFF;
 
     int old_volume = mpd_client_get_volume(partition_state);
 
@@ -159,7 +159,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
     }
     mpd_response_finish(partition_state->conn);
     //restore old jukebox mode
-    partition_state->jukebox_mode = old_jukebox_mode;
+    partition_state->jukebox.mode = old_jukebox_mode;
 
     if (sdslen(preset) > 0) {
         //load the preset

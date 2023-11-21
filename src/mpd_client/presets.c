@@ -30,7 +30,7 @@ bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sd
         struct t_jsonrpc_parse_error parse_error;
         jsonrpc_parse_error_init(&parse_error);
         if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
-            if (partition_state->jukebox_mode != JUKEBOX_OFF) {
+            if (partition_state->jukebox.mode != JUKEBOX_OFF) {
                 mympd_api_request_jukebox_restart(partition_state->name);
             }
             jsonrpc_parse_error_clear(&parse_error);

@@ -186,8 +186,8 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 }
             }
             //jukebox
-            if (partition_state->jukebox_mode != JUKEBOX_OFF) {
-                jukebox_run(partition_state, mympd_state->stickerdb, &mympd_state->album_cache);
+            if (partition_state->jukebox.mode != JUKEBOX_OFF) {
+                jukebox_run(partition_state, &mympd_state->album_cache);
             }
             if (mpd_send_idle_mask(partition_state->conn, partition_state->idle_mask) == false) {
                 MYMPD_LOG_ERROR(partition_state->name, "Entering idle mode failed");
@@ -237,12 +237,12 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                     set_played = true;
                 }
                 //check if the jukebox should add a song
-                if (partition_state->jukebox_mode != JUKEBOX_OFF) {
+                if (partition_state->jukebox.mode != JUKEBOX_OFF) {
                     //add time is crossfade + 10s before song end time
                     time_t add_time = partition_state->song_end_time - (partition_state->crossfade + 10);
                     if (now > add_time &&
                         add_time > 0 &&
-                        partition_state->queue_length <= partition_state->jukebox_queue_length)
+                        partition_state->queue_length <= partition_state->jukebox.queue_length)
                     {
                         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox should add song");
                         jukebox_add_song = true;
@@ -296,7 +296,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 }
                 //trigger jukebox
                 if (jukebox_add_song == true) {
-                    jukebox_run(partition_state, mympd_state->stickerdb, &mympd_state->album_cache);
+                    jukebox_run(partition_state, &mympd_state->album_cache);
                 }
                 //an api request is there
                 if (request != NULL) {
@@ -365,11 +365,11 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                     //queue has changed - partition specific event
                     buffer = mpd_client_queue_status_print(partition_state, &mympd_state->album_cache, buffer);
                     //jukebox enabled
-                    if (partition_state->jukebox_mode != JUKEBOX_OFF &&
-                        partition_state->queue_length < partition_state->jukebox_queue_length)
+                    if (partition_state->jukebox.mode != JUKEBOX_OFF &&
+                        partition_state->queue_length < partition_state->jukebox.queue_length)
                     {
-                        MYMPD_LOG_DEBUG(partition_state->name, "Jukebox mode: %s", jukebox_mode_lookup(partition_state->jukebox_mode));
-                        jukebox_run(partition_state, mympd_state->stickerdb, &mympd_state->album_cache);
+                        MYMPD_LOG_DEBUG(partition_state->name, "Jukebox mode: %s", jukebox_mode_lookup(partition_state->jukebox.mode));
+                        jukebox_run(partition_state, &mympd_state->album_cache);
                     }
                     //autoPlay enabled
                     if (partition_state->auto_play == true &&

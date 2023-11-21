@@ -94,6 +94,20 @@ struct t_mpd_state {
     struct t_mpd_features feat;         //!< feature flags
 };
 
+struct t_jukebox_state {
+    enum jukebox_modes mode;       //!< the jukebox mode
+    sds playlist;                  //!< playlist from which the jukebox queue is generated
+    unsigned queue_length;         //!< how many songs should the mpd queue have
+    unsigned last_played;          //!< only add songs with last_played state older than seconds from now
+    struct t_tags uniq_tag;        //!< single tag for the jukebox uniq constraint
+    struct t_list *queue;          //!< the jukebox queue itself
+    bool ignore_hated;             //!< ignores hated songs for the jukebox mode
+    sds filter_include;            //!< mpd search filter to include songs / albums
+    sds filter_exclude;            //!< mpd search filter to exclude songs / albums
+    unsigned min_song_duration;    //!< minimum song duration
+    unsigned max_song_duration;    //!< maximum song duration
+};
+
 /**
  * Holds partition specific states
  */
@@ -127,19 +141,7 @@ struct t_partition_state {
     time_t last_song_scrobble_time;        //!< timestamp of the previous scrobble event
     bool auto_play;                        //!< start play if queue changes
     bool player_error;                     //!< signals mpd player error condition
-    //jukebox
-    enum jukebox_modes jukebox_mode;       //!< the jukebox mode
-    sds jukebox_playlist;                  //!< playlist from which the jukebox queue is generated
-    unsigned jukebox_queue_length;         //!< how many songs should the mpd queue have
-    unsigned jukebox_last_played;          //!< only add songs with last_played state older than seconds from now
-    struct t_tags jukebox_uniq_tag;        //!< single tag for the jukebox uniq constraint
-    struct t_list jukebox_queue;           //!< the jukebox queue itself
-    struct t_list jukebox_queue_tmp;       //!< temporary jukebox queue for the add random to queue function
-    bool jukebox_ignore_hated;             //!< ignores hated songs for the jukebox mode
-    sds jukebox_filter_include;            //!< mpd search filter to include songs / albums
-    sds jukebox_filter_exclude;            //!< mpd search filter to exclude songs / albums
-    unsigned jukebox_min_song_duration;    //!< minimum song duration
-    unsigned jukebox_max_song_duration;    //!< maximum song duration
+    struct t_jukebox_state jukebox;        //!< jukebox
     //partition
     sds name;                              //!< partition name
     sds highlight_color;                   //!< highlight color
@@ -281,5 +283,9 @@ void partition_state_free(struct t_partition_state *partition_state);
 
 void stickerdb_state_default(struct t_stickerdb_state *stickerdb, struct t_config *config);
 void stickerdb_state_free(struct t_stickerdb_state *stickerdb);
+
+void jukebox_state_default(struct t_jukebox_state *jukebox_state);
+void jukebox_state_copy(struct t_jukebox_state *src, struct t_jukebox_state *dst);
+void jukebox_state_free(struct t_jukebox_state *jukebox_state);
 
 #endif

@@ -18,6 +18,7 @@
 #include "src/mpd_worker/api.h"
 
 #include <pthread.h>
+#include <string.h>
 
 /**
  * Private definitions
@@ -32,10 +33,13 @@ static void *mpd_worker_run(void *arg);
 /**
  * Starts the worker thread in detached state.
  * @param mympd_state pointer to mympd_state struct
+ * @param partition_state pointer to partition_state struct
  * @param request the work request
  * @return true on success, else false
  */
-bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *request) {
+bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+        struct t_work_request *request)
+{
     MYMPD_LOG_NOTICE(NULL, "Starting mpd_worker thread for %s", get_cmd_id_method_name(request->cmd_id));
     pthread_t mpd_worker_thread;
     pthread_attr_t attr;
@@ -74,9 +78,11 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
 
         //partition state
         mpd_worker_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
-        //worker runs always in default partition
-        partition_state_default(mpd_worker_state->partition_state, mympd_state->partition_state->name,
+        //set defaults
+        partition_state_default(mpd_worker_state->partition_state, partition_state->name,
                 mpd_worker_state->mpd_state, mpd_worker_state->config);
+        //copy jukebox settings
+        jukebox_state_copy(&partition_state->jukebox, &mpd_worker_state->partition_state->jukebox);
         //use mpd state from worker
         mpd_worker_state->partition_state->mpd_state = mpd_worker_state->mpd_state;
 
@@ -116,10 +122,19 @@ static void *mpd_worker_run(void *arg) {
         mpd_worker_api(mpd_worker_state);
     }
     else if (mpd_client_connect(mpd_worker_state->partition_state) == true) {
-        //call api handler
-        mpd_worker_api(mpd_worker_state);
-        //disconnect
-        mpd_client_disconnect_silent(mpd_worker_state->partition_state, MPD_REMOVED);
+        bool rc = true;
+        if (strcmp(mpd_worker_state->partition_state->name, MPD_PARTITION_DEFAULT) != 0) {
+            if (mpd_run_switch_partition(mpd_worker_state->partition_state->conn, mpd_worker_state->partition_state->name) == true) {
+                MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "Could not switch to partition \"%s\"", mpd_worker_state->partition_state->name);
+                rc = false;
+            }
+        }
+        if (rc == true) {
+            //call api handler
+            mpd_worker_api(mpd_worker_state);
+            //disconnect
+            mpd_client_disconnect_silent(mpd_worker_state->partition_state, MPD_REMOVED);
+        }
         if (mpd_worker_state->stickerdb->conn != NULL) {
             stickerdb_disconnect(mpd_worker_state->stickerdb, MPD_DISCONNECT_INSTANT);
         }

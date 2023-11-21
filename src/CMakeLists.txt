@@ -91,6 +91,7 @@ target_sources(mympd PRIVATE
   mpd_worker/add_random.c
   mpd_worker/album_cache.c
   mpd_worker/api.c
+  mpd_worker/jukebox.c
   mpd_worker/smartpls.c
   mpd_worker/state.c
   mpd_worker/song.c

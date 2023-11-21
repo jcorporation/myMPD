@@ -14,6 +14,7 @@
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_worker/add_random.h"
 #include "src/mpd_worker/album_cache.h"
+#include "src/mpd_worker/jukebox.h"
 #include "src/mpd_worker/smartpls.h"
 #include "src/mpd_worker/song.h"
 
@@ -45,6 +46,32 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     struct t_partition_state *partition_state = mpd_worker_state->partition_state;
 
     switch(request->cmd_id) {
+        case INTERNAL_API_JUKEBOX_REFILL: {
+            free_response(response);
+            struct t_list *queue_list = (struct t_list *)request->extra;
+            rc = mpd_worker_jukebox_queue_fill(mpd_worker_state, queue_list);
+            if (rc == true) {
+                mpd_worker_jukebox_push(mpd_worker_state);
+            }
+            list_free(queue_list);
+            request->extra = NULL;
+            async = true;
+            break;
+        }
+        case INTERNAL_API_JUKEBOX_REFILL_ADD: {
+            free_response(response);
+            struct t_list *queue_list = (struct t_list *)request->extra;
+            if (json_get_uint(request->data, "$.params.addSongs", 1, JUKEBOX_ADD_SONG_MAX, &uint_buf1, &parse_error) == true ) {
+                rc = mpd_worker_jukebox_queue_fill_add(mpd_worker_state, queue_list, uint_buf1);
+                if (rc == true) {
+                    mpd_worker_jukebox_push(mpd_worker_state);
+                }
+            }
+            list_free(queue_list);
+            request->extra = NULL;
+            async = true;
+            break;
+        }
         case MYMPD_API_QUEUE_ADD_RANDOM:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 2, &uint_buf1, &parse_error) == true &&

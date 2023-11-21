@@ -147,6 +147,7 @@ struct t_work_response *create_response(struct t_work_request *request) {
     switch(request->type) {
         case REQUEST_TYPE_DEFAULT: type = RESPONSE_TYPE_DEFAULT; break;
         case REQUEST_TYPE_SCRIPT:  type = RESPONSE_TYPE_SCRIPT; break;
+        case REQUEST_TYPE_NOTIFY_PARTITION: type = RESPONSE_TYPE_NOTIFY_PARTITION; break;
         case REQUEST_TYPE_DISCARD: type = RESPONSE_TYPE_DISCARD; break;
     }
     struct t_work_response *response = create_response_new(type, request->conn_id, request->id, request->cmd_id, request->partition);

@@ -37,6 +37,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Feat: Cleanup covercache in worker thread #1166
 - Feat: Simplify Last-Played implementation and save it in MessagePack format
 - Feat: "Add random songs/album" is executed in worker thread
+- Feat: Filling the jukebox queue is executed in worker thread
 - Feat: Rework structs to improve thread safety
 - Feat: Add toggle button to show mpd search expression instead of breadcrumbs
 - Feat: Improve random number generation

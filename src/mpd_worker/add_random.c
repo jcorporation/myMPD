@@ -29,13 +29,6 @@
 bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
         unsigned add, unsigned mode, sds plist, sds partition)
 {
-    if (strcmp(partition, MPD_PARTITION_DEFAULT) != 0) {
-        if (mpd_run_switch_partition(mpd_worker_state->partition_state->conn, partition) == false) {
-            MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "Could not switch to partition \"%s\"", partition);
-            return false;
-        }
-    }
-
     struct t_random_add_constraints constraints = {
         .filter_include = NULL,
         .filter_exclude = NULL,

@@ -79,8 +79,8 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
     struct t_list *expr_list = parse_search_expression_to_list(expression);
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    if (partition_state->jukebox_mode == JUKEBOX_ADD_SONG) {
-        struct t_list_node *current = partition_state->jukebox_queue.head;
+    if (partition_state->jukebox.mode == JUKEBOX_ADD_SONG) {
+        struct t_list_node *current = partition_state->jukebox.queue->head;
         if (partition_state->mpd_state->feat.stickers == true &&
             tagcols->stickers_len > 0)
         {
@@ -123,8 +123,8 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
             stickerdb_enter_idle(stickerdb);
         }
     }
-    else if (partition_state->jukebox_mode == JUKEBOX_ADD_ALBUM) {
-        struct t_list_node *current = partition_state->jukebox_queue.head;
+    else if (partition_state->jukebox.mode == JUKEBOX_ADD_ALBUM) {
+        struct t_list_node *current = partition_state->jukebox.queue->head;
         while (current != NULL) {
             struct mpd_song *album = (struct mpd_song *)current->user_data;
             if (search_song_expression(album, expr_list, tagcols) == true) {
@@ -147,7 +147,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
     }
     free_search_expression_list(expr_list);
     buffer = sdscatlen(buffer, "],", 2);
-    const char *jukebox_mode_str = jukebox_mode_lookup(partition_state->jukebox_mode);
+    const char *jukebox_mode_str = jukebox_mode_lookup(partition_state->jukebox.mode);
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);
     buffer = tojson_uint(buffer, "totalEntities", entities_found, true);
     buffer = tojson_uint(buffer, "offset", offset, true);
