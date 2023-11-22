@@ -385,6 +385,7 @@ void jukebox_state_default(struct t_jukebox_state *jukebox_state) {
     jukebox_state->filter_exclude = sdsempty();
     jukebox_state->min_song_duration = MYMPD_JUKEBOX_MIN_SONG_DURATION;
     jukebox_state->max_song_duration = MYMPD_JUKEBOX_MAX_SONG_DURATION;
+    jukebox_state->filling = false;
 }
 
 /**
@@ -413,6 +414,7 @@ void jukebox_state_copy(struct t_jukebox_state *src, struct t_jukebox_state *dst
     dst->ignore_hated = src->ignore_hated;
     dst->min_song_duration = src->min_song_duration;
     dst->max_song_duration = src->max_song_duration;
+    dst->filling = src->filling;
     struct t_list_node *current = src->queue->head;
     while (current != NULL) {
         list_push(dst->queue, current->key, current->value_i, current->value_p, current->user_data);

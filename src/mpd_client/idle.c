@@ -242,7 +242,8 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                     time_t add_time = partition_state->song_end_time - (partition_state->crossfade + 10);
                     if (now > add_time &&
                         add_time > 0 &&
-                        partition_state->queue_length <= partition_state->jukebox.queue_length)
+                        partition_state->queue_length <= partition_state->jukebox.queue_length &&
+                        partition_state->jukebox.filling == false)
                     {
                         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox should add song");
                         jukebox_add_song = true;

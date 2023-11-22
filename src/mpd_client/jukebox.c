@@ -95,6 +95,10 @@ void jukebox_clear_all(struct t_mympd_state *mympd_state) {
  * @return true on success, else false
  */
 bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *album_cache) {
+    if (partition_state->jukebox.filling == true) {
+        MYMPD_LOG_DEBUG(partition_state->name, "Filling the jukebox queue is already in progress");
+        return true;
+    }
     mpd_client_queue_status_update(partition_state);
 
     time_t now = time(NULL);
@@ -131,6 +135,7 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
     if (add_songs > partition_state->jukebox.queue->length) {
         // start mpd worker thread
         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: Starting worker thread to fill the jukebox queue");
+        partition_state->jukebox.filling = true;
         struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_REFILL_ADD, NULL, partition_state->name);
         request->data = tojson_char(request->data, "partition", partition_state->name, true);
         request->data = tojson_uint(request->data, "addSongs", add_songs, false);
@@ -148,6 +153,7 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
     {
         // start mpd worker thread
         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: Starting worker thread to fill the jukebox queue");
+        partition_state->jukebox.filling = true;
         struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_REFILL, NULL, partition_state->name);
         request->data = sdscatlen(request->data, "}}", 2);
         struct t_list *queue_list = jukebox_get_last_played(partition_state, partition_state->jukebox.mode);

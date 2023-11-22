@@ -53,6 +53,9 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (rc == true) {
                 mpd_worker_jukebox_push(mpd_worker_state);
             }
+            else {
+                    mpd_worker_jukebox_error(mpd_worker_state);
+                }
             list_free(queue_list);
             request->extra = NULL;
             async = true;
@@ -65,6 +68,9 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 rc = mpd_worker_jukebox_queue_fill_add(mpd_worker_state, queue_list, uint_buf1);
                 if (rc == true) {
                     mpd_worker_jukebox_push(mpd_worker_state);
+                }
+                else {
+                    mpd_worker_jukebox_error(mpd_worker_state);
                 }
             }
             list_free(queue_list);

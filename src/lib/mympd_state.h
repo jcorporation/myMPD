@@ -106,6 +106,7 @@ struct t_jukebox_state {
     sds filter_exclude;            //!< mpd search filter to exclude songs / albums
     unsigned min_song_duration;    //!< minimum song duration
     unsigned max_song_duration;    //!< maximum song duration
+    bool filling;                  //!< indication flag for filling jukebox thread
 };
 
 /**

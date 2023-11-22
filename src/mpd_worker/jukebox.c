@@ -26,6 +26,13 @@ bool mpd_worker_jukebox_push(struct t_mpd_worker_state *mpd_worker_state) {
     return mympd_queue_push(mympd_api_queue, request, 0);
 }
 
+bool mpd_worker_jukebox_error(struct t_mpd_worker_state *mpd_worker_state) {
+    // push error to the mympd api thread
+    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_ERROR, NULL, mpd_worker_state->partition_state->name);
+    request->data = jsonrpc_end(request->data);
+    return mympd_queue_push(mympd_api_queue, request, 0);
+}
+
 /**
  * 
  * @param mpd_worker_state pointer to mpd worker state

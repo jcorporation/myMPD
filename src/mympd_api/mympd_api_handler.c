@@ -588,6 +588,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             else {
                 MYMPD_LOG_ERROR(partition_state->name, "Jukebox queue is NULL");
             }
+            partition_state->jukebox.filling = false;
+            break;
+        case INTERNAL_API_JUKEBOX_ERROR:
+            partition_state->jukebox.filling = false;
             break;
     // trigger
         case MYMPD_API_TRIGGER_LIST:
