@@ -592,6 +592,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case INTERNAL_API_JUKEBOX_ERROR:
             partition_state->jukebox.filling = false;
+            partition_state->jukebox.mode = JUKEBOX_OFF;
+            send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, "Filling jukebox queue failed, disabling jukebox");
             break;
     // trigger
         case MYMPD_API_TRIGGER_LIST:
