@@ -323,6 +323,7 @@
 {"term":"Filetype"},
 {"term":"Filling jukebox queue"},
 {"term":"Filling jukebox queue failed"},
+{"term":"Filling jukebox queue failed, disabling jukebox"},
 {"term":"Filter"},
 {"term":"Fingerprint"},
 {"term":"Fingerprint command not supported"},
