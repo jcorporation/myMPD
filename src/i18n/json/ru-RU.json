@@ -313,7 +313,6 @@
     "Filesystem": "Файловая система",
     "Filetype": "Тип файла",
     "Filling jukebox queue": "Заполнение очереди jukebox",
-    "Filling jukebox queue failed, disabling jukebox": "Заполнение очереди на jukebox не удалось, отключение jukebox",
     "Filter": "Фильтр",
     "Fingerprint": "Отпечаток пальца",
     "Fingerprint command not supported": "Команда отпечатков пальцев не поддерживается",

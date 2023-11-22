@@ -2021,6 +2021,10 @@ const APImethods = {
         "desc": "Clears the jukebox queue.",
         "params": {}
     },
+    "MYMPD_API_JUKEBOX_CLEARERROR": {
+        "desc": "Clears the jukebox error state.",
+        "params": {}
+    },
     "MYMPD_API_JUKEBOX_RESTART": {
         "desc": "Restarts the jukebox.",
         "params": {}

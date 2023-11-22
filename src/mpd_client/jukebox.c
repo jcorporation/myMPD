@@ -100,6 +100,7 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
         return true;
     }
     mpd_client_queue_status_update(partition_state);
+    sdsclear(partition_state->jukebox.last_error);
 
     time_t now = time(NULL);
     time_t add_time = partition_state->song_end_time - (partition_state->crossfade + 10);
@@ -146,7 +147,15 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
     }
     
     // add from jukebox queue to mpd queue
-    bool rc = jukebox_add_to_queue(partition_state, album_cache, add_songs);
+    sds error = sdsempty();
+    bool rc = jukebox_add_to_queue(partition_state, album_cache, add_songs, &error);
+    if (rc == false) {
+        partition_state->jukebox.last_error = sds_replace(partition_state->jukebox.last_error, error);
+        send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, error);
+        FREE_SDS(error);
+        return false;
+    }
+    FREE_SDS(error);
 
     if ((partition_state->jukebox.mode == JUKEBOX_ADD_SONG && partition_state->jukebox.queue->length < MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH_MIN) ||
         (partition_state->jukebox.mode == JUKEBOX_ADD_ALBUM && partition_state->jukebox.queue->length < MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH_MIN))
@@ -168,10 +177,11 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
  * @param partition_state pointer to myMPD partition state
  * @param album_cache pointer to album cache
  * @param add_songs number of songs to add
+ * @param error pointer to allocates sds for error message
  * @return true on success, else false
  */
 bool jukebox_add_to_queue(struct t_partition_state *partition_state,
-        struct t_cache *album_cache, unsigned add_songs)
+        struct t_cache *album_cache, unsigned add_songs, sds *error)
 {
     unsigned added = 0;
     struct t_list_node *current;
@@ -203,6 +213,7 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state,
     if (added == 0) {
         MYMPD_LOG_ERROR(partition_state->name, "Error adding song(s)");
         send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, "Adding songs from jukebox to queue failed");
+        *error = sdscat(*error, "Adding songs from jukebox to queue failed");
         return false;
     }
 
@@ -211,7 +222,11 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state,
     if (partition_state->play_state != MPD_STATE_PLAY) {
         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: start playback");
         mpd_run_play(partition_state->conn);
-        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_play");
+        if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_play") == false) {
+            send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, "Start playing failed");
+            *error = sdscat(*error, "Start playing failed");
+            return false;
+        }
     }
     return true;
 }

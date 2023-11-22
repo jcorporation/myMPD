@@ -110,6 +110,7 @@ struct t_jukebox_state {
     unsigned min_song_duration;    //!< minimum song duration
     unsigned max_song_duration;    //!< maximum song duration
     bool filling;                  //!< indication flag for filling jukebox thread
+    sds last_error;                //!< last jukebox error message
 };
 
 /**

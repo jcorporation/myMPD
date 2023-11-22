@@ -16,6 +16,6 @@ bool jukebox_run(struct t_partition_state *partition_state,
     struct t_cache *album_cache);
 
 bool jukebox_add_to_queue(struct t_partition_state *partition_state,
-        struct t_cache *album_cache, unsigned add_songs);
+        struct t_cache *album_cache, unsigned add_songs, sds *error);
 
 #endif

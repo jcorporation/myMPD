@@ -415,6 +415,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 break;
             }
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
+                sdsclear(partition_state->jukebox.last_error);
                 if (partition_state->jukebox.mode != JUKEBOX_OFF) {
                     // start jukebox
                     jukebox_run(partition_state, &mympd_state->album_cache);
@@ -544,6 +545,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             break;
     // jukebox
+        case MYMPD_API_JUKEBOX_CLEARERROR: {
+            sdsclear(partition_state->jukebox.last_error);
+            response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
+            break;
+        }
         case MYMPD_API_JUKEBOX_RM: {
             struct t_list positions;
             list_init(&positions);
@@ -581,6 +587,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case INTERNAL_API_JUKEBOX_CREATED:
             if (request->extra != NULL) {
+                sdsclear(partition_state->jukebox.last_error);
                 list_free(partition_state->jukebox.queue);
                 partition_state->jukebox.queue = (struct t_list *)request->extra;
                 send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_state->name);
@@ -593,7 +600,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case INTERNAL_API_JUKEBOX_ERROR:
             partition_state->jukebox.filling = false;
             partition_state->jukebox.mode = JUKEBOX_OFF;
-            send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, "Filling jukebox queue failed, disabling jukebox");
+            if (json_get_string_max(request->data, "$.params.error", &sds_buf1, vcb_isname, &parse_error) == true) {
+                send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, sds_buf1);
+                partition_state->jukebox.last_error = sds_replace(partition_state->jukebox.last_error, sds_buf1);
+            }
             break;
     // trigger
         case MYMPD_API_TRIGGER_LIST:

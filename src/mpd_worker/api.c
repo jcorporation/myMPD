@@ -49,12 +49,12 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
         case INTERNAL_API_JUKEBOX_REFILL: {
             free_response(response);
             struct t_list *queue_list = (struct t_list *)request->extra;
-            rc = mpd_worker_jukebox_queue_fill(mpd_worker_state, queue_list);
+            rc = mpd_worker_jukebox_queue_fill(mpd_worker_state, queue_list, &error);
             if (rc == true) {
                 mpd_worker_jukebox_push(mpd_worker_state);
             }
             else {
-                mpd_worker_jukebox_error(mpd_worker_state);
+                mpd_worker_jukebox_error(mpd_worker_state, error);
             }
             list_free(queue_list);
             request->extra = NULL;
@@ -65,12 +65,12 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             free_response(response);
             struct t_list *queue_list = (struct t_list *)request->extra;
             if (json_get_uint(request->data, "$.params.addSongs", 1, JUKEBOX_ADD_SONG_MAX, &uint_buf1, &parse_error) == true ) {
-                rc = mpd_worker_jukebox_queue_fill_add(mpd_worker_state, queue_list, uint_buf1);
+                rc = mpd_worker_jukebox_queue_fill_add(mpd_worker_state, queue_list, uint_buf1, &error);
                 if (rc == true) {
                     mpd_worker_jukebox_push(mpd_worker_state);
                 }
                 else {
-                    mpd_worker_jukebox_error(mpd_worker_state);
+                    mpd_worker_jukebox_error(mpd_worker_state, error);
                 }
             }
             list_free(queue_list);

@@ -16,6 +16,16 @@ function clearMPDerror() {
 }
 
 /**
+ * Clears the jukebox error
+ * @returns {void}
+ */
+function clearJukeboxError() {
+    sendAPI('MYMPD_API_JUKEBOX_CLEARERROR',{}, function() {
+        getState();
+    }, false);
+}
+
+/**
  * Creates the elapsed / duration counter text
  * @returns {string} song counter text
  */
@@ -170,6 +180,8 @@ function parseState(obj) {
 
     //handle error from mpd status response
     toggleAlert('alertMpdStatusError', (obj.result.lastError === '' ? false : true), obj.result.lastError);
+    //handle jukebox error status
+    toggleAlert('alertJukeboxStatusError', (obj.result.lastJukeboxError === '' ? false : true), obj.result.lastJukeboxError);
 
     //handle mpd update status
     toggleAlert('alertUpdateDBState', (obj.result.updateState === 0 ? false : true), tn('Updating MPD database'));

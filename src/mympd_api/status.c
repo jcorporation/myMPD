@@ -81,7 +81,8 @@ sds mympd_api_status_print(struct t_partition_state *partition_state, struct t_c
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "updateState", mpd_status_get_update_id(status), true);
     buffer = tojson_bool(buffer, "updateCacheState", album_cache->building, true);
-    buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
+    buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), true);
+    buffer = tojson_sds(buffer, "lastJukeboxError", partition_state->jukebox.last_error, false);
     return buffer;
 }
 

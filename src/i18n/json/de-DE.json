@@ -1140,5 +1140,7 @@
     "Album cache could not be replaced": "Album Cache konnte nicht aktualisiert werden",
     "Error getting database update id": "Konnte Aktualisierungsstatus der Datenbank nicht bestimmen",
     "Error starting the jukebox": "Jukebox konnte nicht gestartet werden",
-    "Task to add random songs to queue has started": "Task zum Hinzufügen von zufälligen Liedern wurde gestartet"
+    "Task to add random songs to queue has started": "Task zum Hinzufügen von zufälligen Liedern wurde gestartet",
+    "Can not get lock for album cache": "Reservierung des Album Caches fehlgeschlagen",
+    "Start playing failed": "Wiedergabe konnte nicht gestartet werden"
 }

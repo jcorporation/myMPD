@@ -59,6 +59,15 @@ function toggleAlert(alertBoxId, state, msg) {
                 }, false);
                 break;
             }
+            case 'alertJukeboxStatusError': {
+                alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
+                const clBtn = elCreateEmpty('button', {"class": ["btn-close"]});
+                alertBoxEl.appendChild(clBtn);
+                clBtn.addEventListener('click', function() {
+                    clearJukeboxError();
+                }, false);
+                break;
+            }
             case 'alertUpdateDBState':
             case 'alertUpdateCacheState': {
                 alertBoxEl.classList.add('alert-success');
@@ -168,6 +177,13 @@ function showNotification(message, facility, severity) {
         if (show === false) {
             return;
         }
+    }
+
+    if (facility === 'jukebox' &&
+        severity === 'error')
+    {
+        toggleAlert('alertJukeboxStatusError', true, message);
+        return;
     }
 
     if (settings.webuiSettings.notifyWeb === true) {

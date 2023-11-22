@@ -36,9 +36,10 @@ bool mpd_worker_jukebox_push(struct t_mpd_worker_state *mpd_worker_state) {
  * @param mpd_worker_state pointer to mpd worker state
  * @return true on success, else false
  */
-bool mpd_worker_jukebox_error(struct t_mpd_worker_state *mpd_worker_state) {
+bool mpd_worker_jukebox_error(struct t_mpd_worker_state *mpd_worker_state, sds error) {
     // push error to the mympd api thread
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_ERROR, NULL, mpd_worker_state->partition_state->name);
+    request->data = tojson_sds(request->data, "error", error, false);
     request->data = jsonrpc_end(request->data);
     return mympd_queue_push(mympd_api_queue, request, 0);
 }
@@ -47,9 +48,10 @@ bool mpd_worker_jukebox_error(struct t_mpd_worker_state *mpd_worker_state) {
  * 
  * @param mpd_worker_state pointer to mpd worker state
  * @param queue_list list to check uniq constraint against
+ * @param error pointer to allocates sds for error message
  * @return bool true on success, else false
  */
-bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, struct t_list *queue_list) {
+bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, struct t_list *queue_list, sds *error) {
     send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_INFO, mpd_worker_state->partition_state->name, "Filling jukebox queue");
     struct t_random_add_constraints constraints = {
         .filter_include = mpd_worker_state->partition_state->jukebox.filter_include,
@@ -71,6 +73,7 @@ bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, 
             cache_release_lock(mpd_worker_state->album_cache);
         }
         else {
+            *error = sdscat(*error, "Can not get lock for album cache");
             return false;
         }
     }
@@ -84,6 +87,7 @@ bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, 
     if (new_length < expected_length) {
         MYMPD_LOG_WARN(mpd_worker_state->partition_state->name, "Jukebox queue didn't contain %u entries", expected_length);
         send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, mpd_worker_state->partition_state->name, "Filling jukebox queue failed");
+        *error = sdscat(*error, "Filling jukebox queue failed");
         return false;
     }
     return true;
@@ -94,11 +98,12 @@ bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, 
  * @param mpd_worker_state pointer to mpd worker state
  * @param queue_list list to check uniq constraint against
  * @param add_songs number of songs to add
+ * @param error pointer to allocates sds for error message
  * @return true on success, else false
  */
 bool mpd_worker_jukebox_queue_fill_add(struct t_mpd_worker_state *mpd_worker_state, struct t_list *queue_list,
-        unsigned add_songs)
+        unsigned add_songs, sds *error)
 {
-    return mpd_worker_jukebox_queue_fill(mpd_worker_state, queue_list) &&
-        jukebox_add_to_queue(mpd_worker_state->partition_state, mpd_worker_state->album_cache, add_songs);
+    return mpd_worker_jukebox_queue_fill(mpd_worker_state, queue_list, error) &&
+        jukebox_add_to_queue(mpd_worker_state->partition_state, mpd_worker_state->album_cache, add_songs, error);
 }

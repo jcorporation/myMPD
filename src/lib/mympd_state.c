@@ -386,6 +386,7 @@ void jukebox_state_default(struct t_jukebox_state *jukebox_state) {
     jukebox_state->min_song_duration = MYMPD_JUKEBOX_MIN_SONG_DURATION;
     jukebox_state->max_song_duration = MYMPD_JUKEBOX_MAX_SONG_DURATION;
     jukebox_state->filling = false;
+    jukebox_state->last_error = sdsempty();
 }
 
 /**
@@ -396,6 +397,7 @@ void jukebox_state_free(struct t_jukebox_state *jukebox_state) {
     FREE_SDS(jukebox_state->playlist);
     FREE_SDS(jukebox_state->filter_include);
     FREE_SDS(jukebox_state->filter_exclude);
+    FREE_SDS(jukebox_state->last_error);
     list_free(jukebox_state->queue);
 }
 
