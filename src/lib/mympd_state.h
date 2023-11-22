@@ -94,6 +94,9 @@ struct t_mpd_state {
     struct t_mpd_features feat;         //!< feature flags
 };
 
+/**
+ * Holds the jukebox states for a partition
+ */
 struct t_jukebox_state {
     enum jukebox_modes mode;       //!< the jukebox mode
     sds playlist;                  //!< playlist from which the jukebox queue is generated

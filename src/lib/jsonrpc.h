@@ -72,9 +72,12 @@ enum jsonrpc_events {
     JSONRPC_EVENT_MAX
 };
 
+/**
+ * Struct that holds the validation errors for the json_get_* functions
+ */
 struct t_jsonrpc_parse_error {
-    sds message;
-    sds path;
+    sds message;  //!< the error message
+    sds path;     //!< the json path of the invalid value
 };
 
 typedef bool (*iterate_callback) (const char *, sds, sds, int, validate_callback, void *, struct t_jsonrpc_parse_error *);

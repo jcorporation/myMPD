@@ -15,6 +15,11 @@
 
 #include <string.h>
 
+/**
+ * Pushes the created jukebox queue to the mympd api thread
+ * @param mpd_worker_state pointer to mpd worker state
+ * @return true on success, else false
+ */
 bool mpd_worker_jukebox_push(struct t_mpd_worker_state *mpd_worker_state) {
     // save and detach the creates jukebox list
     struct t_list *jukebox_queue = mpd_worker_state->partition_state->jukebox.queue;
@@ -26,6 +31,11 @@ bool mpd_worker_jukebox_push(struct t_mpd_worker_state *mpd_worker_state) {
     return mympd_queue_push(mympd_api_queue, request, 0);
 }
 
+/**
+ * Pushes an jukebox creation error to the mympd api thread
+ * @param mpd_worker_state pointer to mpd worker state
+ * @return true on success, else false
+ */
 bool mpd_worker_jukebox_error(struct t_mpd_worker_state *mpd_worker_state) {
     // push error to the mympd api thread
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_ERROR, NULL, mpd_worker_state->partition_state->name);

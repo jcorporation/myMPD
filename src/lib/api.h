@@ -238,7 +238,7 @@ enum work_request_types {
  * Struct for work request in the queue
  */
 struct t_work_request {
-    enum work_request_types type;  //! request type
+    enum work_request_types type;  //!< request type
     unsigned long conn_id;         //!< mongoose connection id
     unsigned id;                   //!< the jsonrpc id
     enum mympd_cmd_ids cmd_id;     //!< the jsonrpc method as enum

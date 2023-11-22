@@ -54,8 +54,8 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 mpd_worker_jukebox_push(mpd_worker_state);
             }
             else {
-                    mpd_worker_jukebox_error(mpd_worker_state);
-                }
+                mpd_worker_jukebox_error(mpd_worker_state);
+            }
             list_free(queue_list);
             request->extra = NULL;
             async = true;

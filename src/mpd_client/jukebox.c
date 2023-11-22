@@ -164,8 +164,7 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
 }
 
 /**
- * This functions checks if the jukebox queue is long enough, refills the queue if necessary
- * and adds songs or albums to the queue.
+ * Adds songs or albums from the jukebox queue to the MPD queue and starts playing.
  * @param partition_state pointer to myMPD partition state
  * @param album_cache pointer to album cache
  * @param add_songs number of songs to add
@@ -252,7 +251,7 @@ static void jukebox_get_last_played_add(struct t_partition_state *partition_stat
 }
 
 /**
- * Gets the song list from queue and last played.
+ * Gets the songs or albums from queue and last played.
  * This list is used to enforce the uniq tag constraint
  * @param partition_state pointer to myMPD partition state
  * @param jukebox_mode the jukebox mode
@@ -278,7 +277,9 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     int added = 0;
     if (queue_list->length < JUKEBOX_UNIQ_RANGE) {
         struct t_list_node *current = partition_state->last_played.head;
-        while (current != NULL) {
+        while (added < JUKEBOX_UNIQ_RANGE &&
+               current != NULL)
+        {
             if (mpd_send_list_meta(partition_state->conn, current->key)) {
                 if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                     jukebox_get_last_played_add(partition_state, song, queue_list, jukebox_mode);
@@ -290,9 +291,6 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
             }
             mpd_response_finish(partition_state->conn);
             mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
-            if (added == JUKEBOX_UNIQ_RANGE) {
-                break;
-            }
             current = current->next;
         }
     }

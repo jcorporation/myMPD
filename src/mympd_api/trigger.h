@@ -38,9 +38,12 @@ enum trigger_events {
     TRIGGER_MPD_MOUNT = 0x2000         //!< mpd mount idle event
 };
 
+/**
+ * Holds the scripts and its arguments for a trigger
+ */
 struct t_trigger_data {
-    sds script;
-    struct t_list arguments;
+    sds script;               //!< script to execute
+    struct t_list arguments;  //!< arguments for the script to execute
 };
 
 bool mympd_api_trigger_save(struct t_list *trigger_list, sds name, int trigger_id, int event, sds partition,

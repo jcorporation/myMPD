@@ -9,14 +9,17 @@
 
 #include "src/lib/mympd_state.h"
 
+/**
+ * Jukebox constraints for song/album selection
+ */
 struct t_random_add_constraints {
-    const char *filter_include;
-    const char *filter_exclude;
-    enum mpd_tag_type uniq_tag;
-    unsigned last_played;
-    bool ignore_hated;
-    unsigned min_song_duration;
-    unsigned max_song_duration;
+    const char *filter_include;  //!< mpd search filter to include songs / albums
+    const char *filter_exclude;  //!< mpd search filter to exclude songs / albums
+    enum mpd_tag_type uniq_tag;  //!< single tag for the jukebox uniq constraint
+    unsigned last_played;        //!< only add songs with last_played state older than seconds from now
+    bool ignore_hated;           //!< ignores hated songs for the jukebox mode
+    unsigned min_song_duration;  //!< minimum song duration
+    unsigned max_song_duration;  //!< maximum song duration
 };
 
 unsigned random_select_albums(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
