@@ -93,7 +93,7 @@ function initSearchExpression(appid) {
             const op = getSelectValueId(appid + 'SearchMatch');
             const crumbEl = elGetById(appid + 'SearchCrumb');
             crumbEl.appendChild(createSearchCrumb(app.current.filter, op, value));
-            elShow(crumbEl.parentNode);
+            elShow(crumbEl);
             this.value = '';
         }
         else {
@@ -138,12 +138,11 @@ function initSearchExpression(appid) {
             searchStrEl.value = unescapeMPD(getData(event.target, 'filter-value'));
             selectTag(appid + 'SearchTags', appid + 'SearchTagsDesc', getData(event.target, 'filter-tag'));
             elGetById(appid + 'SearchMatch').value = getData(event.target, 'filter-op');
-            app.current.filter = getData(event.target,'filter-tag');
             event.target.remove();
+            app.current.filter = getData(event.target,'filter-tag');
             execSearchExpression(searchStrEl.value);
-            const crumbEl = elGetById(appid + 'SearchCrumb');
-            if (crumbEl.childElementCount === 0) {
-                elHide(crumbEl.parentNode);
+            if (elGetById(appid + 'SearchCrumb').childElementCount === 0) {
+                elHideId(appid + 'SearchCrumb');
             }
             searchStrEl.updateBtn();
         }
@@ -225,9 +224,8 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
         }
     }
     crumbEl.childElementCount > 0
-        ? elShow(crumbEl.parentNode)
-        : elHide(crumbEl.parentNode);
-    crumbEl.classList.remove('input');
+        ? elShow(crumbEl)
+        : elHide(crumbEl);
 }
 
 /**
@@ -296,7 +294,7 @@ function createSearchExpressionComponent(tag, op, value) {
  */
 function createSearchExpression(crumbsEl, tag, op, value) {
     let expression = '(';
-    const crumbs = crumbsEl.querySelectorAll('button');
+    const crumbs = crumbsEl.children;
     for (let i = 0, j = crumbs.length; i < j; i++) {
         if (i > 0) {
             expression += ' AND ';
@@ -332,24 +330,4 @@ function createBaseSearchExpression(base, value) {
         expression += ' AND ' + createSearchExpressionComponent('any', 'contains', value);
     }
     return '(' + expression + ')';
-}
-
-/**
- * Switches between breadcrumbs and search expression input
- * @param {EventTarget} target triggering element
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function toggleSearchBreadcrumb(target) {
-    const crumbContainer = target.previousElementSibling;
-    if (crumbContainer.classList.contains('input')) {
-        crumbContainer.classList.remove('input');
-        crumbContainer.querySelector('input').remove();
-    }
-    else {
-        crumbContainer.classList.add('input');
-        crumbContainer.appendChild(
-            elCreateEmpty('input', {'class': ['form-control'], 'value': app.current.search})
-        );
-    }
 }

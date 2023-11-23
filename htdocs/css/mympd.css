@@ -1234,28 +1234,3 @@ h4.offcanvas-title-stream::before {
 .playbackPopoverBtns input {
   max-width: 6rem;
 }
-
-.breadcrumbSearchToggleBtn {
-  margin-top: -3.7rem;
-  margin-right: 0.5rem;
-  float: right;
-  padding: 0.2rem;
-}
-
-.breadcrumbSearch {
-  padding-right: 2.5rem !important;
-  padding-bottom: 0 !important;
-}
-
-.breadcrumbSearch.input > button {
-  display: none;
-}
-
-.breadcrumbSearch > button,
-.breadcrumbSearch > input {
-  margin-bottom: 0.5rem;
-}
-
-.breadcrumbSearch > input {
-  margin-right: 0.5rem;
-}
