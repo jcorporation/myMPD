@@ -58,12 +58,46 @@ function initViewQueueJukebox(view) {
  * @returns {void}
  */
 function getJukeboxList(view) {
+    if (settings.partition.jukeboxMode === 'off') {
+        elHideId(view + 'List');
+        elShowId(view + 'Disabled');
+    }
+    else {
+        elShowId(view + 'List');
+        elHideId(view + 'Disabled');
+    }
     sendAPI("MYMPD_API_JUKEBOX_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
         "cols": settings['cols' + view + 'Fetch'],
         "expression": app.current.search
     }, parseJukeboxList, true);
+}
+
+/**
+ * Parses the response from MYMPD_API_JUKEBOX_LIST
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function parseJukeboxList(obj) {
+    const view = settings.partition.jukeboxMode === 'album'
+        ? 'QueueJukeboxAlbum'
+        : 'QueueJukeboxSong';
+    if (checkResultId(obj, view + 'List') === false) {
+        return;
+    }
+
+    const rowTitle = settings.partition.jukeboxMode === 'song' ?
+        settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
+        settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
+    updateTable(obj, view, function(row, data) {
+        setData(row, 'uri', data.uri);
+        setData(row, 'name', data.Title);
+        setData(row, 'type', data.Type);
+        setData(row, 'pos', data.Pos);
+        row.setAttribute('title', tn(rowTitle));
+        row.setAttribute('tabindex', 0);
+    });
 }
 
 /**
@@ -97,43 +131,4 @@ function delQueueJukeboxEntries(pos) {
     sendAPI("MYMPD_API_JUKEBOX_RM", {
         "positions": pos
     }, null, false);
-}
-
-/**
- * Parses the response from MYMPD_API_JUKEBOX_LIST
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function parseJukeboxList(obj) {
-    const view = settings.partition.jukeboxMode === 'album'
-        ? 'QueueJukeboxAlbum'
-        : 'QueueJukeboxSong';
-    if (checkResultId(obj, view + 'List') === false) {
-        if (obj.result !== undefined) {
-            if (obj.result.jukeboxMode === 'off') {
-                elHideId(view + 'List');
-                elShowId(view + 'Disabled');
-            }
-            else {
-                elShowId(view + 'List');
-                elHideId(view + 'Disabled');
-            }
-        }
-        return;
-    }
-
-    elShowId(view + 'List');
-    elHideId(view + 'Disabled');
-
-    const rowTitle = settings.partition.jukeboxMode === 'song' ?
-        settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
-        settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
-    updateTable(obj, view, function(row, data) {
-        setData(row, 'uri', data.uri);
-        setData(row, 'name', data.Title);
-        setData(row, 'type', data.Type);
-        setData(row, 'pos', data.Pos);
-        row.setAttribute('title', tn(rowTitle));
-        row.setAttribute('tabindex', 0);
-    });
 }
