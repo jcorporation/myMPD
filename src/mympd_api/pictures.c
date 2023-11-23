@@ -56,7 +56,7 @@ sds mympd_api_settings_picture_list(sds workdir, sds buffer, unsigned request_id
     closedir(pic_dir);
     FREE_SDS(pic_dirname);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_uint(buffer, "totalEntities", returned_entities, false);
+    buffer = tojson_uint(buffer, "totalEntities", returned_entities, true);
     buffer = tojson_uint(buffer, "returnedEntities", returned_entities, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
