@@ -46,6 +46,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Upd: Manual add random songs or albums should ignore the jukebox constraints
 - Upd: libmympdclient 1.0.25
 - Upd: bootstrap.native to 5.0.10 #1176
+- Upd: sanitize % special char for stream images
 
 ***
 

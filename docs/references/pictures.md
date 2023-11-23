@@ -50,7 +50,7 @@ myMPD restricts the size to 5 MB.
 
 ## Streams
 
-1. Images must be named as the uri of the stream, replace the characters `<>/.:?&$!#\|;=` with `_`, e.g. `http___stream_laut_fm_nonpop.png` for uri `http://stream.laut.fm/nonpop`.
+1. Images must be named as the uri of the stream, replace the characters `<>/.:?&$%!#\|;=` with `_`, e.g. `http___stream_laut_fm_nonpop.png` for uri `http://stream.laut.fm/nonpop`.
 2. Put these images in the `/var/lib/mympd/pics/thumbs` folder.
 
 ## Pictures for other tags

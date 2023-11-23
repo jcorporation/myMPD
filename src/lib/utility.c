@@ -195,7 +195,7 @@ sds replace_file_extension(sds filename, const char *ext) {
     return newname;
 }
 
-static const char *invalid_filename_chars = "<>/.:?&$!#=;\a\b\f\n\r\t\v\\|";
+static const char *invalid_filename_chars = "<>/.:?&$%!#=;\a\b\f\n\r\t\v\\|";
 
 /**
  * Replaces invalid and uncommon filename characters with "_"
