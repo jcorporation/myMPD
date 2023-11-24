@@ -364,7 +364,7 @@ static pcre2_code *compile_regex(char *regex_str) {
         //Compilation failed
         PCRE2_UCHAR buffer[256];
         pcre2_get_error_message(rc, buffer, sizeof(buffer));
-        MYMPD_LOG_ERROR(NULL, "PCRE2 compilation failed at offset %d: \"%s\"", (int)erroroffset, buffer);
+        MYMPD_LOG_ERROR(NULL, "PCRE2 compilation failed at offset %lu: \"%s\"", (unsigned long)erroroffset, buffer);
         return NULL;
     }
     return re_compiled;
