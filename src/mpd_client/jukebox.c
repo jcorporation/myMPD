@@ -103,7 +103,7 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
     sdsclear(partition_state->jukebox.last_error);
 
     time_t now = time(NULL);
-    time_t add_time = partition_state->song_end_time - (partition_state->crossfade + 10);
+    time_t add_time = partition_state->song_end_time - (partition_state->crossfade + JUKEBOX_ADD_SONG_OFFSET);
 
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: MPD queue length: %u", partition_state->queue_length);
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: min queue length: %u", partition_state->jukebox.queue_length);
@@ -157,8 +157,8 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
     }
     FREE_SDS(error);
 
-    if ((partition_state->jukebox.mode == JUKEBOX_ADD_SONG && partition_state->jukebox.queue->length < MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH_MIN) ||
-        (partition_state->jukebox.mode == JUKEBOX_ADD_ALBUM && partition_state->jukebox.queue->length < MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH_MIN))
+    if ((partition_state->jukebox.mode == JUKEBOX_ADD_SONG && partition_state->jukebox.queue->length < JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH_MIN) ||
+        (partition_state->jukebox.mode == JUKEBOX_ADD_ALBUM && partition_state->jukebox.queue->length < JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH_MIN))
     {
         // start mpd worker thread
         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: Starting worker thread to fill the jukebox queue");

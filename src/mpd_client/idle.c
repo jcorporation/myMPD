@@ -125,7 +125,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
             mympd_api_handler(mympd_state, partition_state, request);
         }
         else {
-            //other requests not allowed
+            //other requests are not allowed
             if (request->type != REQUEST_TYPE_DISCARD) {
                 struct t_work_response *response = create_response(request);
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -241,7 +241,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 //check if the jukebox should add a song
                 if (partition_state->jukebox.mode != JUKEBOX_OFF) {
                     //add time is crossfade + 10s before song end time
-                    time_t add_time = partition_state->song_end_time - (partition_state->crossfade + 10);
+                    time_t add_time = partition_state->song_end_time - (partition_state->crossfade + JUKEBOX_ADD_SONG_OFFSET);
                     if (now > add_time &&
                         add_time > 0 &&
                         partition_state->queue_length <= partition_state->jukebox.queue_length &&
@@ -486,7 +486,7 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state, int timeout) 
         return true;
     }
     #ifdef MYMPD_NO_TIMERFD
-        // Workaround for plattforms without timerfd support
+        // Workaround for platforms without timerfd support
         (void)timeout;
         mympd_api_request_caches_create();
     #endif

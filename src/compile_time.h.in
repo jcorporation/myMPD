@@ -161,10 +161,6 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_JUKEBOX_IGNORE_HATED false
 #define MYMPD_JUKEBOX_MIN_SONG_DURATION 0
 #define MYMPD_JUKEBOX_MAX_SONG_DURATION 0
-#define MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH 100 // length of the internal jukebox queue for songs
-#define MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH 25 // length of the internal jukebox queue for albums
-#define MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH_MIN 10 // length of the internal jukebox queue for songs
-#define MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH_MIN 5 // length of the internal jukebox queue for albums
 #define MYMPD_COVERIMAGE_NAMES "cover,folder"
 #define MYMPD_THUMBNAIL_NAMES "cover-sm,folder-sm"
 #define MYMPD_TAG_LIST_SEARCH "Album,AlbumArtist,Artist,Genre,Title"
@@ -335,6 +331,11 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JUKEBOX_ADD_SONG_MAX 99
 #define JUKEBOX_MIN_SONG_DURATION_MAX INT_MAX
 #define JUKEBOX_MAX_SONG_DURATION_MAX INT_MAX
+#define JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH 100 // length of the internal jukebox queue for songs
+#define JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH 25 // length of the internal jukebox queue for albums
+#define JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH_MIN 10 // length of the internal jukebox queue for songs
+#define JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH_MIN 5 // length of the internal jukebox queue for albums
+#define JUKEBOX_ADD_SONG_OFFSET 10 // add new song 10 seconds before current song ends
 #define SCROBBLE_TIME_MIN 10 //minimum song length in seconds for the scrobble event
 #define SCROBBLE_TIME_MAX 240 //maximum elapsed seconds before scrobble event occurs
 #define SCROBBLE_TIME_TOTAL 480 //if the song is longer then this value, scrobble at SCROBBLE_TIME_MAX
