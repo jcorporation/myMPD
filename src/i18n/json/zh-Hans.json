@@ -299,7 +299,7 @@
     "External link": "外部链接",
     "Facilities": "工具",
     "Facility": "工具",
-    "Failed to clean up the cover cache": "清除封面缓存失败",
+    "Failed to clean up the covercache": "清除封面缓存失败",
     "Failed to parse response from %{uri}": "解析%{uri}无响应",
     "Fast forward": "快进",
     "Fast rewind": "快退",

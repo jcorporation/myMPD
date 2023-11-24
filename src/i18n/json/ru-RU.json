@@ -299,7 +299,7 @@
     "External link": "Внешняя ссылка",
     "Facilities": "Категория",
     "Facility": "Категория",
-    "Failed to clean up the cover cache": "Ошибка очистки кэша обложки",
+    "Failed to clean up the covercache": "Ошибка очистки кэша обложки",
     "Failed to parse response from %{uri}": "Не удалось проанализировать ответ: %{uri}",
     "Fast forward": "",
     "Fast rewind": "",

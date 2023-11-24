@@ -299,7 +299,7 @@
     "External link": "Link esterno",
     "Facilities": "Funzioni",
     "Facility": "Servizio",
-    "Failed to clean up the cover cache": "Svuotamento cache delle cover non riuscito",
+    "Failed to clean up the covercache": "Svuotamento cache delle cover non riuscito",
     "Failed to parse response from %{uri}": "Analisi della risposta da %{uri} fallita",
     "Fast forward": "Avanti rapido",
     "Fast rewind": "Riavvolgimento rapido",

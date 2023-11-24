@@ -299,7 +299,7 @@
     "External link": "외부 링크",
     "Facilities": "기능",
     "Facility": "시설",
-    "Failed to clean up the cover cache": "음반표지 캐시를 지울 수 없음",
+    "Failed to clean up the covercache": "음반표지 캐시를 지울 수 없음",
     "Failed to parse response from %{uri}": "%{uri}의 응답 분석 안 됨",
     "Fast forward": "빨리 감기",
     "Fast rewind": "빨리 되감기",

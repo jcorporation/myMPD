@@ -299,7 +299,7 @@
     "External link": "Externe link",
     "Facilities": "Categorie",
     "Facility": "Categorie",
-    "Failed to clean up the cover cache": "Fout bij het opkuisen van de cover cache",
+    "Failed to clean up the covercache": "Fout bij het opkuisen van de cover cache",
     "Failed to parse response from %{uri}": "Kan antwoord van %{uri} niet interpreteren",
     "Fast forward": "Wind vooruit",
     "Fast rewind": "Terugspoelen",

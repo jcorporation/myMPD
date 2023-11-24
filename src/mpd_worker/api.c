@@ -102,7 +102,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             sds_buf1 = sdsfromlonglong((long long) int_buf1);
             response->data = int_buf1 < 0
                 ? jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Failed to clean up the cover cache")
+                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Failed to clean up the covercache")
                 : jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_INFO, "Removed %{smart_count} cover |||| Removed %{smart_count} covers",
                     2, "smartCount", sds_buf1);

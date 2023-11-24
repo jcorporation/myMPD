@@ -299,7 +299,7 @@
     "External link": "Lien externe",
     "Facilities": "Facilités",
     "Facility": "Catégorie",
-    "Failed to clean up the cover cache": "Echec du nettoyage du cache des jaquettes",
+    "Failed to clean up the covercache": "Echec du nettoyage du cache des jaquettes",
     "Failed to parse response from %{uri}": "Echec d'interprétation de la réponse de %{uri}",
     "Fast forward": "Avance rapide",
     "Fast rewind": "Retour en arrière rapide",

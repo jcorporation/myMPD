@@ -299,7 +299,7 @@
     "External link": "Enlace externo",
     "Facilities": "Instalaciones",
     "Facility": "Instalaciones",
-    "Failed to clean up the cover cache": "Error al limpiar la caché de portadas",
+    "Failed to clean up the covercache": "Error al limpiar la caché de portadas",
     "Failed to parse response from %{uri}": "Error al analizar la respuesta de %{uri}",
     "Fast forward": "Avance rápido",
     "Fast rewind": "Retroceso rápido",

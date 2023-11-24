@@ -307,7 +307,7 @@
 {"term":"External link"},
 {"term":"Facilities"},
 {"term":"Facility"},
-{"term":"Failed to clean up the cover cache"},
+{"term":"Failed to clean up the covercache"},
 {"term":"Failed to parse response from %{uri}"},
 {"term":"Failed to set feedback"},
 {"term":"Fast forward"},

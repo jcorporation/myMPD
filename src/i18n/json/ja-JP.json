@@ -299,7 +299,7 @@
     "External link": "外部リンク",
     "Facilities": "ファシリティー",
     "Facility": "ファシリティー",
-    "Failed to clean up the cover cache": "カバーキャッシュの消去に失敗しました",
+    "Failed to clean up the covercache": "カバーキャッシュの消去に失敗しました",
     "Failed to parse response from %{uri}": "%{uri} からのレスポンスのパースに失敗しました",
     "Fast forward": "早送り",
     "Fast rewind": "巻き戻し",

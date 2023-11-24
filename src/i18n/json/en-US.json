@@ -90,7 +90,7 @@
     "helpSettingsThumbnailNames": "Comma separated list of filenames or basenames for thumbnails.",
     "helpSettingsSmartplsPrefix": "Prefix for the name of the smart playlists.",
     "helpSettingsSmartplsSort": "Sort smart playlists by selected tag.",
-    "helpSettingsSmartplsInterval": "Smart playlists are updated in this interval.",
+    "helpSettingsSmartplsInterval": "Smart playlists are updated in this interval, 0 = disable",
     "helpSettingsGeneratePlsTags": "Creates one playlist for each value of the selected tags.",
     "helpSettingsTagDiscEmptyIsFirst": "Handles an empty disc tag as disc one for the album view.",
     "helpMountsMountPoint": "Path to mount the uri, e.g. music",
