@@ -48,7 +48,6 @@
     "Albumcache not ready": "アルバムキャッシュがまだありません",
     "Albums": "アルバム",
     "All partitions": "すべてのパーティション",
-    "Allowed binary limit range is between 4kB and 256kB": "利用できるバイナリ上限範囲は4kBから256kBです",
     "Allowed port range is between 1024 and 65535": "使用可能なポートの範囲は1024から65535です",
     "Alternative stream uri": "代替ストリームURI",
     "Alternative streams": "代替ストリーム",

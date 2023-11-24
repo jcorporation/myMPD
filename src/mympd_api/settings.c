@@ -186,7 +186,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
         unsigned binarylimit;
         enum str2int_errno rc = str2uint(&binarylimit, value);
         if (rc != STR2INT_SUCCESS || binarylimit < MPD_BINARY_CHUNK_SIZE_MIN || binarylimit > MPD_BINARY_CHUNK_SIZE_MAX) {
-            set_invalid_value(error, path, key, value, "Allowed binary limit range is between 4kB and 256kB");
+            set_invalid_value(error, path, key, value, "Number is out of valid range");
             return false;
         }
         if (binarylimit != mympd_state->mpd_state->mpd_binarylimit) {

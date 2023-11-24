@@ -32,7 +32,7 @@
     "helpConnectionPlaylistDirectory": "The MPD playlist directory. The value 'Autodetect' only works for local unix socket connections.",
     "helpConnectionTimeout": "Timeout for the MPD connection.",
     "helpConnectionKeepalive": "Enables TCP keepalive.",
-    "helpConnectionBinaryLimit": "Max chunk size for binary data. The limit must be between 4 kB and 256 kB.",
+    "helpConnectionBinaryLimit": "Max chunk size for binary data. The limit must be between 4 kB and 1024 kB.",
     "helpJukeboxIgnoreHated": "Does not select hated songs.",
     "helpJukeboxLastPlayed": "Does not add songs that has been played in this range from now.",
     "helpJukeboxMode": "Adds random songs or albums to the queue before it ends.",

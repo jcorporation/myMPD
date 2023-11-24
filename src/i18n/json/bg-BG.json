@@ -48,7 +48,7 @@
     "Albumcache not ready": "Кешът за албуми не е готов",
     "Albums": "Албуми",
     "All partitions": "",
-    "Allowed binary limit range is between 4kB and 256kB": "",
+    "Allowed binary limit range is between 4kB and 1024kB": "",
     "Allowed port range is between 1024 and 65535": "",
     "Alternative stream uri": "Идентификатор на допълнителен поток",
     "Alternative streams": "Допълнителни стриймове",

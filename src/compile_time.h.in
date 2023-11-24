@@ -149,7 +149,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_MPD_HOST "localhost"
 #define MYMPD_MPD_PORT 6600
 #define MYMPD_MPD_PASS ""
-#define MYMPD_MPD_BINARYLIMIT 8192 //bytes
+#define MYMPD_MPD_BINARYLIMIT 262144 // 256 kB
 
 //default mympd state settings
 #define MYMPD_MUSIC_DIRECTORY "auto"
@@ -294,8 +294,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MPD_RESULTS_MAX 10000 //maximum mpd results to request
 #define MPD_COMMANDS_MAX 10000 //maximum number of commands for mpd command lists
 #define MPD_PLAYLIST_LENGTH_MAX INT_MAX //max mpd queue or playlist length
-#define MPD_BINARY_CHUNK_SIZE_MIN 4096 //4 kB is the mpd default
-#define MPD_BINARY_CHUNK_SIZE_MAX 262144 //256 kB
+#define MPD_BINARY_CHUNK_SIZE_MIN 4096 // 4 kB is the mpd default
+#define MPD_BINARY_CHUNK_SIZE_MAX 1048576 // 1 MB
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB
 #define MPD_QUEUE_PRIO_MAX 255
 #define MPD_CROSSFADE_MAX 100

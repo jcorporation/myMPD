@@ -48,7 +48,6 @@
     "Albumcache not ready": "앨범 캐시 준비 안 됨",
     "Albums": "음반",
     "All partitions": "모든 파티션",
-    "Allowed binary limit range is between 4kB and 256kB": "이진 파일이 4kB에서 256kB사이어야 함",
     "Allowed port range is between 1024 and 65535": "포트가 100에서 65535사이의 범위이어야 함",
     "Alternative stream uri": "대체 스트림 URI",
     "Alternative streams": "대체 스트림",

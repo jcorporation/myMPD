@@ -52,7 +52,6 @@
 {"term":"Albumcache not ready"},
 {"term":"Albums"},
 {"term":"All partitions"},
-{"term":"Allowed binary limit range is between 4kB and 256kB"},
 {"term":"Allowed port range is between 1024 and 65535"},
 {"term":"Alternative stream uri"},
 {"term":"Alternative streams"},
