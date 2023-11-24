@@ -210,6 +210,10 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state,
         }
         list_node_free(current);
     }
+
+    //notify clients
+    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_state->name);
+
     if (added == 0) {
         MYMPD_LOG_ERROR(partition_state->name, "Error adding song(s)");
         send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, "Adding songs from jukebox to queue failed");
