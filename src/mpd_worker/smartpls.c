@@ -61,7 +61,11 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
     mpd_worker_smartpls_per_tag(mpd_worker_state);
 
     time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
-    MYMPD_LOG_DEBUG(NULL, "Database mtime: %" PRId64, (int64_t)db_mtime);
+    #ifdef MYMPD_DEBUG
+        char fmt_db_mtime[32];
+        readable_time(fmt_db_mtime, db_mtime);
+        MYMPD_LOG_DEBUG(NULL, "Database mtime: %s", fmt_db_mtime);
+    #endif
 
     sds dirname = sdscatfmt(sdsempty(), "%S/%s", mpd_worker_state->config->workdir, DIR_WORK_SMARTPLS);
     errno = 0;
