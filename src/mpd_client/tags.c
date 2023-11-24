@@ -135,7 +135,7 @@ bool is_multivalue_tag(enum mpd_tag_type tag) {
 /**
  * Checks if tag is a numeric tag
  * @param tag mpd tag type
- * @return true if it is a multivalue tag, else false
+ * @return true if it is a numeric tag, else false
  */
 bool is_numeric_tag(enum mpd_tag_type tag) {
     switch(tag) {
