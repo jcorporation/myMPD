@@ -47,11 +47,6 @@
 #cmakedefine I18N_ru_RU
 #cmakedefine I18N_zh_Hans
 
-// detect 32 or 64 bit platform
-#if ULONG_MAX == 0xffffffffffffffff
-    #define MYMPD_64BIT
-#endif
-
 // detect timerfd support
 #if defined __FreeBSD__ && __FreeBSD__ < 14
     /* timerfd is not supported on FreeBSD < 14, so the timers doesn't work */
@@ -86,7 +81,6 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define FILENAME_HOME "home_list"
 #define FILENAME_LAST_PLAYED "last_played_list.mpack"
 #define FILENAME_PRESETS "preset_list"
-#define FILENAME_STICKERCACHE "sticker_cache.mpack"
 #define FILENAME_TIMER "timer_list"
 #define FILENAME_TRIGGER "trigger_list"
 #define FILENAME_WEBRADIODB "webradiodb-combined.min.json"
