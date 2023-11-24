@@ -440,33 +440,14 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
         sds key = sdsempty();
         struct mpd_song *song;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            const char *song_uri = mpd_song_get_uri(song);
-            sdsclear(key);
-            if (sort_tags.tags[0] == MPD_TAG_TRACK) {
-                key = mpd_client_get_tag_value_padded(song, MPD_TAG_TRACK, '0', 9, key);
-                key = sdscatfmt(key, "::", song_uri);
-            }
-            if (sort_by == SORT_BY_LAST_MODIFIED) {
-                key = sdscatprintf(key, "%020" PRId64 "::%s", (int64_t)mpd_song_get_last_modified(song), song_uri);
-            }
-            else if (sort_by == SORT_BY_ADDED) {
-                key = sdscatprintf(key, "%020" PRId64 "::%s", (int64_t)mpd_song_get_added(song), song_uri);
-            }
-            else if (sort_tags.tags[0] > MPD_TAG_UNKNOWN) {
-                //sort by tag
-                key = mpd_client_get_tag_value_string(song, sort_tags.tags[0], key);
-                key = sdscatfmt(key, "::%s", song_uri);
-            }
-            else {
-                key = sdscat(key, song_uri);
-            }
-            sds_utf8_tolower(key);
-            sds data = sdsnew(song_uri);
+            key = get_sort_key(key, sort_by, sort_tags.tags[0], song);
+            sds data = sdsnew(mpd_song_get_uri(song));
             while (raxTryInsert(plist, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
                 //duplicate - add chars until it is uniq
                 key = sdscatlen(key, ":", 1);
             }
             mpd_song_free(song);
+            sdsclear(key);
         }
         FREE_SDS(key);
     }

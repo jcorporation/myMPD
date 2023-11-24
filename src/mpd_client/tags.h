@@ -14,6 +14,7 @@ time_t mpd_client_get_db_mtime(struct t_partition_state *partition_state);
 bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
         enum mpd_tag_type type, const char *value);
 bool is_multivalue_tag(enum mpd_tag_type tag);
+bool is_numeric_tag(enum mpd_tag_type tag);
 sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat);
 bool disable_all_mpd_tags(struct t_partition_state *partition_state);
 bool enable_all_mpd_tags(struct t_partition_state *partition_state);
@@ -31,5 +32,7 @@ sds mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_ty
 sds print_tags_array(sds buffer, const char *tagsname, const struct t_tags *tags);
 sds mpd_client_get_tag_value_padded(const struct mpd_song *song, enum mpd_tag_type tag, const char pad, size_t len, sds tag_values);
 int mpd_client_get_tag_value_int(const struct mpd_song *song, enum mpd_tag_type tag);
+sds mpd_client_get_value_padded(int64_t value, sds tag_values);
+sds get_sort_key(sds key, enum sort_by_type sort_by, enum mpd_tag_type sort_tag, const struct mpd_song *song);
 
 #endif

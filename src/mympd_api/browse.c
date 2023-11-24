@@ -221,24 +221,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
         if (expr_list->length == 0 ||
             search_song_expression(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
-            if (sort_by == SORT_BY_LAST_MODIFIED) {
-                key = sdscatprintf(key, "%020" PRId64 "::%s", (int64_t)mpd_song_get_last_modified(album), mpd_song_get_uri(album));
-            }
-            else if (sort_by == SORT_BY_ADDED) {
-                key = sdscatprintf(key, "%020" PRId64 "::%s", (int64_t)mpd_song_get_added(album), mpd_song_get_uri(album));
-            }
-            else {
-                key = mpd_client_get_tag_value_string(album, sort_tag, key);
-                if (sdslen(key) > 0) {
-                    key = sdscatfmt(key, "::%s", mpd_song_get_uri(album));
-                }
-                else {
-                    //sort tag not present, append to end of the list
-                    MYMPD_LOG_WARN(partition_state->name, "Sort tag \"%s\" not set for \"%.*s\"", mpd_tag_name(sort_tag), (int)iter.key_len, (char *)iter.key);
-                    key = sdscatfmt(key, "zzzzzzzzzz::%s", mpd_song_get_uri(album));
-                }
-            }
-            sds_utf8_tolower(key);
+            key = get_sort_key(key, sort_by, sort_tag, album);
             while (raxTryInsert(albums, (unsigned char*)key, sdslen(key), iter.data, NULL) == 0) {
                 //duplicate - add chars until it is uniq
                 key = sdscatlen(key, ":", 1);
