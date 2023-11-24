@@ -177,7 +177,7 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
  * @param partition_state pointer to myMPD partition state
  * @param album_cache pointer to album cache
  * @param add_songs number of songs to add
- * @param error pointer to allocates sds for error message
+ * @param error pointer to allocated sds for error message
  * @return true on success, else false
  */
 bool jukebox_add_to_queue(struct t_partition_state *partition_state,

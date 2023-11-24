@@ -11,7 +11,8 @@
 
 bool mpd_worker_jukebox_push(struct t_mpd_worker_state *mpd_worker_state);
 bool mpd_worker_jukebox_error(struct t_mpd_worker_state *mpd_worker_state, sds error);
-bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, struct t_list *queue_list, sds *error);
+bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, struct t_list *queue_list,
+        unsigned add_songs, sds *error);
 bool mpd_worker_jukebox_queue_fill_add(struct t_mpd_worker_state *mpd_worker_state, struct t_list *queue_list,
         unsigned add_songs, sds *error);
 

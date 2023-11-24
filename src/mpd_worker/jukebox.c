@@ -48,10 +48,13 @@ bool mpd_worker_jukebox_error(struct t_mpd_worker_state *mpd_worker_state, sds e
  * 
  * @param mpd_worker_state pointer to mpd worker state
  * @param queue_list list to check uniq constraint against
+ * @param add_songs number of songs to additionally add
  * @param error pointer to allocates sds for error message
  * @return bool true on success, else false
  */
-bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, struct t_list *queue_list, sds *error) {
+bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, struct t_list *queue_list,
+        unsigned add_songs, sds *error)
+{
     send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_INFO, mpd_worker_state->partition_state->name, "Filling jukebox queue");
     struct t_random_add_constraints constraints = {
         .filter_include = mpd_worker_state->partition_state->jukebox.filter_include,
@@ -66,7 +69,7 @@ bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, 
     unsigned expected_length;
     unsigned new_length = 0;
     if (mpd_worker_state->partition_state->jukebox.mode == JUKEBOX_ADD_ALBUM) {
-        expected_length = MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH;
+        expected_length = MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH + add_songs;
         if (cache_get_read_lock(mpd_worker_state->album_cache) == true) {
             new_length = random_select_albums(mpd_worker_state->partition_state, mpd_worker_state->stickerdb, mpd_worker_state->album_cache,
                 expected_length, queue_list, mpd_worker_state->partition_state->jukebox.queue, &constraints);
@@ -79,7 +82,7 @@ bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, 
     }
     else {
         // JUKEBOX_ADD_SONG
-        expected_length = MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH;
+        expected_length = MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH + add_songs;
         new_length = random_select_songs(mpd_worker_state->partition_state, mpd_worker_state->stickerdb, expected_length,
             mpd_worker_state->partition_state->jukebox.playlist, queue_list, mpd_worker_state->partition_state->jukebox.queue, &constraints);
     }
@@ -104,6 +107,6 @@ bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, 
 bool mpd_worker_jukebox_queue_fill_add(struct t_mpd_worker_state *mpd_worker_state, struct t_list *queue_list,
         unsigned add_songs, sds *error)
 {
-    return mpd_worker_jukebox_queue_fill(mpd_worker_state, queue_list, error) &&
+    return mpd_worker_jukebox_queue_fill(mpd_worker_state, queue_list, add_songs, error) &&
         jukebox_add_to_queue(mpd_worker_state->partition_state, mpd_worker_state->album_cache, add_songs, error);
 }

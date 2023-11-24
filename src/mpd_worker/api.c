@@ -49,7 +49,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
         case INTERNAL_API_JUKEBOX_REFILL: {
             free_response(response);
             struct t_list *queue_list = (struct t_list *)request->extra;
-            rc = mpd_worker_jukebox_queue_fill(mpd_worker_state, queue_list, &error);
+            rc = mpd_worker_jukebox_queue_fill(mpd_worker_state, queue_list, 0, &error);
             if (rc == true) {
                 mpd_worker_jukebox_push(mpd_worker_state);
             }
