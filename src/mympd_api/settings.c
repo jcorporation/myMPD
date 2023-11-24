@@ -48,7 +48,6 @@ static void enable_set_conn_options(struct t_mympd_state *mympd_state);
  * @return true on success, else false
  */
 bool settings_to_webserver(struct t_mympd_state *mympd_state) {
-    //push settings to web_server_queue
     struct set_mg_user_data_request *extra = malloc_assert(sizeof(struct set_mg_user_data_request));
     extra->music_directory = sdsdup(mympd_state->mpd_state->music_directory_value);
     extra->playlist_directory = sdsdup(mympd_state->mpd_state->playlist_directory_value);
@@ -65,7 +64,6 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
         }
         partition_state = partition_state->next;
     }
-
     struct t_work_response *web_server_response = create_response_new(RESPONSE_TYPE_PUSH_CONFIG, 0, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
     web_server_response->extra = extra;
     return mympd_queue_push(web_server_queue, web_server_response, 0);
@@ -77,7 +75,7 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
  * @param key setting key
  * @param value setting value
  * @param vtype value type
- * @param vcb validation callback
+ * @param vcb validation callback (unused)
  * @param userdata pointer to the t_mympd_state struct
  * @param error pointer to t_jsonrpc_parse_error
  * @return true on success, else false
@@ -287,7 +285,7 @@ bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, 
  * @param key setting key
  * @param value setting value
  * @param vtype value type
- * @param vcb validation callback
+ * @param vcb validation callback (unused)
  * @param userdata pointer to central myMPD state
  * @param error pointer to t_jsonrpc_parse_error
  * @return true on success, else false
@@ -512,7 +510,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
  * @param key setting key
  * @param value setting value
  * @param vtype value type
- * @param vcb validation callback
+ * @param vcb validation callback (unused)
  * @param userdata pointer to partition state
  * @param error pointer to t_jsonrpc_parse_error
  * @return true on success, else false
@@ -571,7 +569,7 @@ bool mympd_api_settings_partition_set(const char *path, sds key, sds value, int 
  * @param key setting key
  * @param value setting value
  * @param vtype value type
- * @param vcb validation callback
+ * @param vcb validation callback (unused)
  * @param userdata pointer to the t_partition_state struct
  * @param error pointer to t_jsonrpc_parse_error
  * @return true on success, else false
