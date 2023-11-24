@@ -70,7 +70,7 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
         return false;
     }
     // check version
-    if (mpd_connection_cmp_server_version(stickerdb->conn, 0, 21, 0) < 0) {
+    if (mpd_connection_cmp_server_version(stickerdb->conn, MPD_VERSION_MIN_MAJOR, MPD_VERSION_MIN_MINOR, MPD_VERSION_MIN_PATCH) < 0) {
         MYMPD_LOG_DEBUG("stickerdb", "Checking version");
         MYMPD_LOG_EMERG(stickerdb->name, "MPD version too old, myMPD supports only MPD version >= 0.21");
         stickerdb_disconnect(stickerdb, MPD_DISCONNECTED);

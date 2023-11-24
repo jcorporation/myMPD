@@ -126,12 +126,12 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
         }
         else {
             //other requests not allowed
-            if (request->type == REQUEST_TYPE_DEFAULT) {
+            if (request->type != REQUEST_TYPE_DISCARD) {
                 struct t_work_response *response = create_response(request);
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "MPD disconnected");
                 MYMPD_LOG_DEBUG(partition_state->name, "Send http response to connection %lu: %s", request->conn_id, response->data);
-                mympd_queue_push(web_server_queue, response, 0);
+                push_response(response);
             }
             free_request(request);
         }
@@ -155,7 +155,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
             }
             if (partition_state->is_default == true) {
                 //check version
-                if (mpd_connection_cmp_server_version(partition_state->conn, 0, 21, 0) < 0) {
+                if (mpd_connection_cmp_server_version(partition_state->conn, MPD_VERSION_MIN_MAJOR, MPD_VERSION_MIN_MINOR, MPD_VERSION_MIN_PATCH) < 0) {
                     MYMPD_LOG_EMERG(partition_state->name, "MPD version too old, myMPD supports only MPD version >= 0.21");
                     s_signal_received = 1;
                     break;
