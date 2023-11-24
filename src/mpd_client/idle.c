@@ -179,7 +179,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 //set timer for smart playlist update
                 if (mympd_state->smartpls_interval > 0) {
                     MYMPD_LOG_DEBUG(NULL, "Adding timer to update the smart playlists");
-                    mympd_api_timer_replace(&mympd_state->timer_list, 30, mympd_state->smartpls_interval,
+                    mympd_api_timer_replace(&mympd_state->timer_list, TIMER_SMARTPLS_UPDATE_OFFSET, mympd_state->smartpls_interval,
                         timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
                 }
                 //populate the partition list
