@@ -233,7 +233,7 @@ struct t_mympd_state {
     bool smartpls;                                //!< enable smart playlists
     sds smartpls_sort;                            //!< sort smart playlists by this tag
     sds smartpls_prefix;                          //!< name prefix for smart playlists
-    time_t smartpls_interval;                     //!< interval to refresh smart playlists in seconds
+    int smartpls_interval;                     //!< interval to refresh smart playlists in seconds
     struct t_tags smartpls_generate_tag_types;    //!< generate smart playlists for each value for this tag
     sds smartpls_generate_tag_list;               //!< generate smart playlists for each value for this tag (string representation)
     sds cols_queue_current;                       //!< columns for the queue view

@@ -430,7 +430,12 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         }
         if (interval != mympd_state->smartpls_interval) {
             mympd_state->smartpls_interval = interval;
-            mympd_api_timer_replace(&mympd_state->timer_list, interval, interval, timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
+            if (interval > 0) {
+                mympd_api_timer_replace(&mympd_state->timer_list, interval, interval, timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
+            }
+            else {
+                mympd_api_timer_remove(&mympd_state->timer_list, TIMER_ID_SMARTPLS_UPDATE);
+            }
         }
     }
     else if (strcmp(key, "smartplsGenerateTagList") == 0 && vtype == MJSON_TOK_STRING) {
@@ -838,7 +843,7 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->smartpls = state_file_rw_bool(workdir, DIR_WORK_STATE, "smartpls", mympd_state->smartpls, true);
     mympd_state->smartpls_sort = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "smartpls_sort", mympd_state->smartpls_sort, vcb_ismpdsort, true);
     mympd_state->smartpls_prefix = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "smartpls_prefix", mympd_state->smartpls_prefix, vcb_isname, true);
-    mympd_state->smartpls_interval = state_file_rw_int(workdir, DIR_WORK_STATE, "smartpls_interval", (int)mympd_state->smartpls_interval, TIMER_INTERVAL_MIN, TIMER_INTERVAL_MAX, true);
+    mympd_state->smartpls_interval = state_file_rw_int(workdir, DIR_WORK_STATE, "smartpls_interval", mympd_state->smartpls_interval, TIMER_INTERVAL_MIN, TIMER_INTERVAL_MAX, true);
     mympd_state->smartpls_generate_tag_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "smartpls_generate_tag_list", mympd_state->smartpls_generate_tag_list, vcb_istaglist, true);
     mympd_state->cols_queue_current = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_queue_current", mympd_state->cols_queue_current, vcb_isname, true);
     mympd_state->cols_search = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_search", mympd_state->cols_search, vcb_isname, true);
@@ -937,7 +942,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_bool(buffer, "smartpls", mympd_state->smartpls, true);
     buffer = tojson_sds(buffer, "smartplsSort", mympd_state->smartpls_sort, true);
     buffer = tojson_sds(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
-    buffer = tojson_time(buffer, "smartplsInterval", mympd_state->smartpls_interval, true);
+    buffer = tojson_int(buffer, "smartplsInterval", mympd_state->smartpls_interval, true);
     buffer = tojson_uint(buffer, "lastPlayedCount", mympd_state->last_played_count, true);
     buffer = tojson_sds(buffer, "musicDirectory", mympd_state->music_directory, true);
     buffer = tojson_sds(buffer, "playlistDirectory", mympd_state->playlist_directory, true);
