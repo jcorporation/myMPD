@@ -60,7 +60,6 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
     //first add all missing partitions to the list
     if (mpd_send_listpartitions(mympd_state->partition_state->conn)) {
         struct mpd_pair *partition;
-        
         while ((partition = mpd_recv_partition_pair(mympd_state->partition_state->conn)) != NULL) {
             const char *name = partition->value;
             if (partitions_check(mympd_state, name) == false) {
