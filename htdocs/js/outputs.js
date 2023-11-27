@@ -50,14 +50,14 @@ function parseOutputs(obj) {
         );
         return;
     }
-    if (obj.result.numOutputs === 0) {
+    if (obj.result.returnedEntities === 0) {
         outputList.appendChild(
             elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, 'No outputs found')
         );
         return;
     }
 
-    for (let i = 0; i < obj.result.numOutputs; i++) {
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
         if (obj.result.data[i].plugin === 'dummy') {
             continue;
         }

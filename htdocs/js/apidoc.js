@@ -319,6 +319,7 @@ const APImethods = {
     },
     "MYMPD_API_QUEUE_ADD_RANDOM": {
         "desc": "Adds random songs or albums to the queue.",
+        "async": true,
         "params": {
             "plist": {
                 "type": APItypes.string,

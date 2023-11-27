@@ -72,7 +72,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
             JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
     }
     FREE_SDS(expression);
-    int entities_returned = 0;
+    unsigned entities_returned = 0;
     time_t last_played_max = 0;
     sds first_song_uri = sdsempty();
     sds last_played_song_uri = sdsempty();
@@ -139,7 +139,8 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
     buffer = sdscatlen(buffer, "],", 2);
     buffer = mympd_api_get_extra_media(buffer, partition_state->mpd_state, mympd_state->booklet_name, mympd_state->info_txt_name, first_song_uri, false);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = tojson_int(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "totalEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
     buffer = print_album_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_album, mpd_album);
     buffer = sdscat(buffer, ",\"lastPlayedSong\":{");
     buffer = tojson_time(buffer, "time", last_played_max, true);

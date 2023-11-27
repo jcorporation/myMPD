@@ -23,6 +23,8 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - MYMPD_API_SMARTPLS_SEARCH_SAVE: parameters changed
 - MYMPD_API_JUKEBOX_CLEARERROR: new
 - MYMPD_API_JUKEBOX_RESTART: new
+- MYMPD_API_PLAYER_OUTPUT_LIST: response changed
+- MYMPD_API_QUEUE_ADD_RANDOM: is now async
 
 ### Changelog
 
