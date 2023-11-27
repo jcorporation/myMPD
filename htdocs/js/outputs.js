@@ -73,7 +73,7 @@ function parseOutputs(obj) {
         ]);
         setData(btn, 'output-name', obj.result.data[i].name);
         setData(btn, 'output-id', obj.result.data[i].id);
-        if (obj.result.data[i].state === 1) {
+        if (obj.result.data[i].state === true) {
             btn.classList.add('active');
         }
         outputList.appendChild(btn);
