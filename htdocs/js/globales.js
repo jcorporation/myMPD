@@ -1142,7 +1142,7 @@ function setUserAgentData() {
                 ? false
                 : /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
         /** @type {boolean} */
-        userAgentData.isSafari = /Safari/i.test(navigator.userAgent);
+        userAgentData.isSafari = /Safari/i.test(navigator.userAgent) && ! /Chrome/i.test(navigator.userAgent);
     }
 }
 setUserAgentData();
