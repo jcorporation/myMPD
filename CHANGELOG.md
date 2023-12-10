@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: detection of Safari browsers #1185
+
 ***
 
 ## myMPD v13.0.5 (2023-11-19)
