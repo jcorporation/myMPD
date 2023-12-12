@@ -72,18 +72,19 @@ UTEST(filehandler, test_sds_getfile_from_fp) {
 
     create_testfile();
 
-    sds line = sdsempty();
     FILE *fp = fopen("/tmp/mympd-test/state/test", "r");
-    int rc = sds_getfile_from_fp(&line, fp, 1000, false);
+    int nread = 0;
+    sds line = sds_getfile_from_fp(sdsempty(), fp, 1000, false, &nread);
     fclose(fp);
-    ASSERT_LT(0, rc);
+    ASSERT_GT(nread, 0);
     ASSERT_STREQ(line, "asdfjlkasdfjklsafd\nasfdsdfawaerwer");
 
     // too big
     fp = fopen("/tmp/mympd-test/state/test", "r");
-    rc = sds_getfile_from_fp(&line, fp, 5, true);
+    nread = 0;
+    line = sds_getfile_from_fp(line, fp, 5, true, &nread);
     fclose(fp);
-    ASSERT_EQ(-2, rc);
+    ASSERT_EQ(nread, -2);
     sdsfree(line);
 
     clean_testenv();
@@ -94,14 +95,15 @@ UTEST(filehandler, test_sds_getfile) {
 
     create_testfile();
 
-    sds line = sdsempty();
-    int rc = sds_getfile(&line, "/tmp/mympd-test/state/test", 1000, false, true);
-    ASSERT_GE(rc, 0);
+    int nread = 0;
+    sds line = sds_getfile(sdsempty(), "/tmp/mympd-test/state/test", 1000, false, true, &nread);
+    ASSERT_GE(nread, 0);
     ASSERT_STREQ(line, "asdfjlkasdfjklsafd\nasfdsdfawaerwer");
 
     // too big
-    rc = sds_getfile(&line, "/tmp/mympd-test/state/test", 5, true, true);
-    ASSERT_EQ(-2, rc);
+    nread = 0;
+    line = sds_getfile(line, "/tmp/mympd-test/state/test", 5, true, true, &nread);
+    ASSERT_EQ(nread, -2);
     sdsfree(line);
 
     clean_testenv();
@@ -112,18 +114,19 @@ UTEST(filehandler, test_sds_getline) {
 
     create_testfile();
 
-    sds line = sdsempty();
-    FILE *fp = fopen("/tmp/mympd-test/state/test", "r");
-    int rc = sds_getline(&line, fp, 1000);
+    FILE *fp = fopen("/tmp/mympd-test/state/test", "re");
+    int nread = 0;
+    sds line = sds_getline(sdsempty(), fp, 1000, &nread);
     fclose(fp);
-    ASSERT_LT(0, rc);
+    ASSERT_GT(nread, 0);
     ASSERT_STREQ(line, "asdfjlkasdfjklsafd");
 
     // read 5 chars
-    fp = fopen("/tmp/mympd-test/state/test", "r");
-    rc = sds_getline(&line, fp, 5);
+    fp = fopen("/tmp/mympd-test/state/test", "re");
+    nread = 0;
+    line = sds_getline(line, fp, 5, &nread);
     fclose(fp);
-    ASSERT_EQ(5, rc);
+    ASSERT_EQ(nread, 5);
     sdsfree(line);
 
     clean_testenv();

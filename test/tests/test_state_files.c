@@ -15,8 +15,8 @@
 #include <sys/stat.h>
 
 sds get_file_content(void) {
-    sds line = sdsempty();
-    sds_getfile(&line, "/tmp/mympd-test/state/test", 1000, true, true);
+    int nread = 0;
+    sds line = sds_getfile(sdsempty(), "/tmp/mympd-test/state/test", 1000, true, true, &nread);
     return line;
 }
 
