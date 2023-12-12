@@ -103,7 +103,8 @@ bool mympd_api_home_file_read(struct t_list *home_list, sds workdir) {
     }
 
     sds line = sdsempty();
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
+    int nread = 0;
+    while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
         if (validate_json_object(line) == false) {
             MYMPD_LOG_ERROR(NULL, "Invalid line");
             break;

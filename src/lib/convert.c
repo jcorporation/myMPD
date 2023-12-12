@@ -35,7 +35,9 @@ enum str2int_errno str2int(int *out, const char *s) {
     errno = 0;
     long l = strtol(s, &end, 10);
     /* Both checks are needed because INT_MAX == LONG_MAX is possible. */
-    if (l > INT_MAX || (errno == ERANGE && l == LONG_MAX)) {
+    if (l > INT_MAX ||
+        (errno == ERANGE && l == LONG_MAX))
+    {
         MYMPD_LOG_ERROR(NULL, "Integer overflow");
         return STR2INT_OVERFLOW;
     }
@@ -115,7 +117,9 @@ enum str2int_errno str2int64(int64_t *out, const char *s) {
     char *end;
     long long l = strtoll(s, &end, 10);
     /* Both checks are needed because INT_MAX == LONG_MAX is possible. */
-    if (l > INT64_MAX || (errno == ERANGE && l == LLONG_MAX)) {
+    if (l > INT64_MAX ||
+        (errno == ERANGE && l == LLONG_MAX))
+    {
         MYMPD_LOG_ERROR(NULL, "Integer overflow");
         return STR2INT_OVERFLOW;
     }

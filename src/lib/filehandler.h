@@ -29,9 +29,9 @@ enum try_rm_file_status {
 bool do_chown(const char *file_path, const char *username);
 time_t get_mtime(const char *filepath);
 
-int sds_getline(sds *s, FILE *fp, size_t max);
-int sds_getfile(sds *s, const char *file_path, size_t max, bool remove_newline, bool warn);
-int sds_getfile_from_fp(sds *s, FILE *fp, size_t max, bool remove_newline);
+sds sds_getline(sds s, FILE *fp, size_t max, int *nread);
+sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, bool warn, int *nread);
+sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *nread);
 
 FILE *open_tmp_file(sds filepath);
 bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc);

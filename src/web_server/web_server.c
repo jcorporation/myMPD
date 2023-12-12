@@ -134,10 +134,16 @@ bool webserver_read_certs(struct t_mg_user_data *mg_user_data, struct t_config *
     if (config->ssl == false) {
         return true;
     }
-    if (sds_getfile(&mg_user_data->cert_content, config->ssl_cert, SSL_FILE_MAX, false, true) <= 0 ||
-        sds_getfile(&mg_user_data->key_content, config->ssl_key, SSL_FILE_MAX, false, true) <= 0)
-    {
-        MYMPD_LOG_ERROR(NULL, "Failure reading ssl key and cert from disc");
+    int nread = 0;
+    mg_user_data->cert_content = sds_getfile(mg_user_data->cert_content, config->ssl_cert, SSL_FILE_MAX, false, true, &nread);
+    if (nread <= 0) {
+        MYMPD_LOG_ERROR(NULL, "Failure reading ssl certificate from disc");
+        return false;
+    }
+    nread = 0;
+    mg_user_data->key_content = sds_getfile(mg_user_data->key_content, config->ssl_key, SSL_FILE_MAX, false, true, &nread);
+    if (nread <= 0) {
+        MYMPD_LOG_ERROR(NULL, "Failure reading ssl key from disc");
         return false;
     }
     sds cert_details = certificate_get_detail(mg_user_data->cert_content);

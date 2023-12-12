@@ -105,9 +105,9 @@ static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
             rm_file(filepath);
         }
         else {
-            sds data = sdsempty();
-            int rc = sds_getfile(&data, filepath, WEBRADIODB_SIZE_MAX, true, true);
-            if (rc <= 0) {
+            int nread = 0;
+            sds data = sds_getfile(sdsempty(), filepath, WEBRADIODB_SIZE_MAX, true, true, &nread);
+            if (nread <= 0) {
                 FREE_SDS(data);
                 FREE_SDS(filepath);
                 return NULL;

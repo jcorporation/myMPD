@@ -516,7 +516,8 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
     int i = 0;
     sds line = sdsempty();
     sds param = sdsempty();
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
+    int nread = 0;
+    while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
         if (i > LIST_TIMER_MAX) {
             MYMPD_LOG_WARN(NULL, "Too many timers defined");
             break;

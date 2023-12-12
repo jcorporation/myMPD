@@ -124,9 +124,9 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     }
 
     sds filename = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_SMARTPLS, playlist);
-    sds content = sdsempty();
-    int rc_get = sds_getfile(&content, filename, SMARTPLS_SIZE_MAX, true, true);
-    if (rc_get <= 0) {
+    int nread = 0;
+    sds content = sds_getfile(sdsempty(), filename, SMARTPLS_SIZE_MAX, true, true, &nread);
+    if (nread <= 0) {
         FREE_SDS(filename);
         FREE_SDS(content);
         return false;

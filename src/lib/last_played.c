@@ -134,7 +134,8 @@ static bool old_last_played_file_read(struct t_partition_state *partition_state)
     }
 
     sds line = sdsempty();
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
+    int nread = 0;
+    while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
         sds uri = NULL;
         int64_t last_played;
         if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true &&

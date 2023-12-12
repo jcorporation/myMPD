@@ -215,9 +215,9 @@ bool mympd_version_set(sds workdir) {
  * @return true if version has not changed, else false
  */
 bool mympd_version_check(sds workdir) {
-    sds version = sdsempty();
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/version", workdir, DIR_WORK_CONFIG);
-    sds_getfile(&version, filepath, 10, true, false);
+    int nread = 0;
+    sds version = sds_getfile(sdsempty(), filepath, 10, true, false, &nread);
     bool rc = strcmp(version, MYMPD_VERSION) == 0
         ? true
         : false;

@@ -153,9 +153,9 @@ static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char 
     //try file in folder in the music directory
     sds lyricsfile = replace_file_extension(mediafile, ext);
     MYMPD_LOG_DEBUG(NULL, "Trying to open lyrics file: %s", lyricsfile);
-    sds text = sdsempty();
-    int rc = sds_getfile(&text, lyricsfile, LYRICS_SIZE_MAX, false, false);
-    if (rc > 0) {
+    int nread = 0;
+    sds text = sds_getfile(sdsempty(), lyricsfile, LYRICS_SIZE_MAX, false, false, &nread);
+    if (nread > 0) {
         sds buffer = sdsempty();
         buffer = sdscatlen(buffer, "{", 1);
         buffer = tojson_bool(buffer, "synced", synced, true);

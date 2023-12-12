@@ -240,8 +240,9 @@ sds mympd_api_script_get(sds workdir, sds buffer, unsigned request_id, sds scrip
     if (fp != NULL) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_sds(buffer, "script", script, true);
-        sds line = sdsempty();
-        if (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0 &&
+        int nread = 0;
+        sds line = sds_getline(sdsempty(), fp, LINE_LENGTH_MAX, &nread);
+        if (nread >= 0 &&
             strncmp(line, "-- ", 3) == 0)
         {
             sdsrange(line, 3, -1);
@@ -262,8 +263,8 @@ sds mympd_api_script_get(sds workdir, sds buffer, unsigned request_id, sds scrip
         }
         FREE_SDS(line);
         buffer = sdscat(buffer, ",\"content\":");
-        sds content = sdsempty();
-        sds_getfile_from_fp(&content, fp, SCRIPTS_SIZE_MAX, false);
+        nread = 0;
+        sds content = sds_getfile_from_fp(sdsempty(), fp, SCRIPTS_SIZE_MAX, false, &nread);
         (void) fclose(fp);
         buffer = sds_catjson(buffer, content, sdslen(content));
         FREE_SDS(content);
@@ -347,8 +348,9 @@ static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *or
         return buffer;
     }
 
-    sds line = sdsempty();
-    if (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0 &&
+    int nread = 0;
+    sds line = sds_getline(sdsempty(), fp, LINE_LENGTH_MAX, &nread);
+    if (nread >= 0 &&
         strncmp(line, "-- ", 3) == 0)
     {
         sdsrange(line, 3, -1);

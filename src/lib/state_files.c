@@ -110,9 +110,10 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
     }
     FREE_SDS(cfg_file);
     //file exists - read the value
-    int n = sds_getfile_from_fp(&result, fp, LINE_LENGTH_MAX, true);
+    int nread = 0;
+    result = sds_getfile_from_fp(result, fp, LINE_LENGTH_MAX, true, &nread);
     (void) fclose(fp);
-    if (n > 0 &&              //successfully read the value
+    if (nread > 0 &&              //successfully read the value
         vcb != NULL &&        //has validation callback
         vcb(result) == false) //validation failed, return default
     {
@@ -121,7 +122,7 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
         MYMPD_LOG_ERROR(NULL, "Validation failed for state \"%s\"", name);
         return result;
     }
-    if (n <= 0) {
+    if (nread <= 0) {
         //error reading state file, use default
         sdsclear(result);
         result = sdscat(result, def_value);
