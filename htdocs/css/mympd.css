@@ -287,7 +287,13 @@ div > .albumartbg {
 }
 
 div.footerCounter {
-  width: 7rem;
+  min-width: 8rem;
+  max-width: 12rem;
+}
+
+#footerAudioFormat {
+  font-size: 80%;
+  width: 12rem;
 }
 
 #footerCover {

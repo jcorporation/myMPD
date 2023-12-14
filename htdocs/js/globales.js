@@ -599,6 +599,13 @@ const settingsWebuiFields = {
         "form": "modalSettingsFooterFrm",
         "sort": 1
     },
+    "footerAudioFormat": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "AudioFormat",
+        "form": "modalSettingsFooterFrm",
+        "sort": 1
+    },
     "footerVolumeLevel": {
         "defaultValue": false,
         "inputType": "checkbox",

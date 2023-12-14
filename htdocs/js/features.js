@@ -29,6 +29,7 @@ function setFeatures() {
     features.featFooterNotifications = settings.webuiSettings.footerNotifications;
     features.featSession = settings.pin;
     features.featStickersEnabled = settings.features.featStickersEnabled;
+    features.featFooterAudioFormat = settings.webuiSettings.footerAudioFormat;
 
     //mpd features
     if (settings.partition.mpdConnected === true) {

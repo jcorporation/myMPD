@@ -167,6 +167,7 @@ function parseState(obj) {
         for (let i = 0, j = pb.length; i < j; i++) {
             elClear(pb[i]);
         }
+        elClearId('footerAudioFormat');
     }
     else {
         const cff = elGetById('currentAudioFormat');
@@ -176,6 +177,7 @@ function parseState(obj) {
                 printValue('AudioFormat', obj.result.AudioFormat)
             );
         }
+        elReplaceChildId('footerAudioFormat', printValue('AudioFormat', obj.result.AudioFormat));
     }
 
     //handle error from mpd status response
