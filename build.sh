@@ -1386,7 +1386,7 @@ create_doc() {
 
 translation_import() {
   #shellcheck disable=SC1091
-  . secrets
+  . "$STARTPATH/.secrets"
   if [ -z "${POEDITOR_TOKEN+x}" ]
   then
     echo_error "POEDITOR_TOKEN variable not set."
@@ -1419,7 +1419,7 @@ translation_import() {
 
 translation_import_all() {
   #shellcheck disable=SC1091
-  . secrets
+  . "$STARTPATH/.secrets"
   if [ -z "${POEDITOR_TOKEN+x}" ]
   then
     echo_error "POEDITOR_TOKEN variable not set."
@@ -1435,7 +1435,7 @@ translation_import_all() {
 
 terms_export() {
   #shellcheck disable=SC1091
-  . secrets
+  . "$STARTPATH/.secrets"
   if [ -z "${POEDITOR_TOKEN+x}" ]
   then
     echo_error "POEDITOR_TOKEN variable not set."
@@ -1452,7 +1452,7 @@ terms_export() {
 
 translation_export() {
   #shellcheck disable=SC1091
-  . secrets
+  . "$STARTPATH/.secrets"
   if [ -z "${POEDITOR_TOKEN+x}" ]
   then
     echo_error "POEDITOR_TOKEN variable not set."
