@@ -200,10 +200,40 @@ sds sds_catjson_plain(sds s, const char *p, size_t len) {
     /* To avoid continuous reallocations, let's start with a buffer that
      * can hold at least stringlength + 10 chars. */
     s = sdsMakeRoomFor(s, len + 10);
+    size_t i = sdslen(s);
     while (len--) {
-        s = sds_catjsonchar(s, *p);
+        switch(*p) {
+            case '\\':
+            case '"':
+            case '\b':
+            case '\f':
+            case '\n':
+            case '\r':
+            case '\t':
+                if (sdsavail(s) == 0) {
+                    s = sdsMakeRoomFor(s, 2);
+                }
+                s[i++] = '\\';
+                s[i++] = *p;
+                sdsinclen(s, 2);
+                break;
+            //ignore vertical tabulator and alert
+            case '\v':
+            case '\a':
+                //this escapes are not accepted in the unescape function
+                break;
+            default:
+                if (sdsavail(s) == 0) {
+                    s = sdsMakeRoomFor(s, 1);
+                }
+                s[i++] = *p;
+                sdsinclen(s, 1);
+                break;
+        }
         p++;
     }
+    // Add null-term
+    s[i] = '\0';
     return s;
 }
 
@@ -220,12 +250,8 @@ sds sds_catjson(sds s, const char *p, size_t len) {
     /* To avoid continuous reallocations, let's start with a buffer that
      * can hold at least stringlength + 10 chars. */
     s = sdsMakeRoomFor(s, len + 10);
-
     s = sdscatlen(s, "\"", 1);
-    while (len--) {
-        s = sds_catjsonchar(s, *p);
-        p++;
-    }
+    s = sds_catjson_plain(s, p, len);
     return sdscatlen(s, "\"", 1);
 }
 
