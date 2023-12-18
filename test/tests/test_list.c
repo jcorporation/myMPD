@@ -143,7 +143,7 @@ UTEST(list, test_list_shuffle) {
 
     list_shuffle(&test_list);
     bool shuffled = false;
-    for (long i = 0; i < test_list.length; i++) {
+    for (unsigned i = 0; i < test_list.length; i++) {
         current = list_node_at(&test_list, i);
         if (current->value_i != (int)i) {
             shuffled = true;
@@ -408,7 +408,7 @@ UTEST(list, test_list_sort_by_key) {
     list_clear(&test_list);
 }
 
-static long count_list(struct t_list *l) {
+static unsigned count_list(struct t_list *l) {
     long i = 0;
     struct t_list_node *current = l->head;
     while (current != NULL) {
@@ -425,8 +425,8 @@ UTEST(list, test_list_crop) {
     populate_list(&test_list);
     list_crop(&test_list, 0, NULL);
     ASSERT_EQ(0U, test_list.length);
-    long count = count_list(&test_list);
-    ASSERT_EQ(0, count);
+    unsigned count = count_list(&test_list);
+    ASSERT_EQ(0U, count);
     list_clear(&test_list);
     ASSERT_TRUE(test_list.tail == NULL);
 
@@ -435,13 +435,13 @@ UTEST(list, test_list_crop) {
     list_crop(&test_list, 2, NULL);
     ASSERT_EQ(2U, test_list.length);
     count = count_list(&test_list);
-    ASSERT_EQ(2, count);
+    ASSERT_EQ(2U, count);
     list_clear(&test_list);
     ASSERT_FALSE(test_list.head != NULL);
     ASSERT_FALSE(test_list.tail != NULL);
 
     // crop greater than list length
-    long org_len = populate_list(&test_list);
+    unsigned org_len = populate_list(&test_list);
     list_crop(&test_list, 10, NULL);
     ASSERT_EQ(org_len, test_list.length);
     count = count_list(&test_list);
