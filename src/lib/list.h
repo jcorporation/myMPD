@@ -17,7 +17,7 @@
 struct t_list_node {
     sds key;                   //!< key string
     sds value_p;               //!< string value
-    int64_t value_i;         //!< unsigned unsigned value
+    int64_t value_i;           //!< unsigned unsigned value
     void *user_data;           //!< custom data
     struct t_list_node *next;  //!< pointer to next node
 };
@@ -26,7 +26,7 @@ struct t_list_node {
  * List struct itself
  */
 struct t_list {
-    unsigned length;               //!< length of the list
+    unsigned length;           //!< length of the list
     struct t_list_node *head;  //!< pointer to first node
     struct t_list_node *tail;  //!< pointer to last node
 };
