@@ -285,11 +285,7 @@
     "Error executing script %{script}: Memory allocation error": "스크립트 %{script} 실행 오류: 메모리 할당 오류",
     "Error executing script %{script}: Runtime error": "스크립트 %{script} 실행 오류: 런타임 오류",
     "Error executing script %{script}: Syntax error during precompilation": "스크립트 %{script} 실행 오류: 전처리 컴파일 문법 오류",
-<<<<<<< HEAD
-    "Error executing timer start play": "타이머 시작 재생 오류",
-=======
     "Error executing timer start play": "타이머 연주 시작 오류",
->>>>>>> master
     "Error getting mympd state for script execution": "스크립트 실행을 위한 myMPD 상태를 알 수 없음",
     "Error loading stream": "스트림 읽기 오류",
     "Error starting worker thread": "작업 스레드 시작 오류",
@@ -630,17 +626,10 @@
     "Playlist directory": "연주목록 디렉터리",
     "Playlist directory not found": "연주목록 디렉터리를 찾을 수 없음",
     "Playlist is empty": "연주목록이 비었음",
-<<<<<<< HEAD
-    "Playlist successfully copied": "재생목록 복사됨",
-    "Playlist successfully moved": "재생목록 이동됨",
-    "Playlist successfully replaced": "재생목록 대체됨",
-    "Playlist updated": "재생목록 업데이트됨",
-=======
     "Playlist successfully copied": "연주목록 복사됨",
     "Playlist successfully moved": "연주목록 이동됨",
     "Playlist successfully replaced": "연주목록 대체됨",
     "Playlist updated": "연주목록 업데이트됨",
->>>>>>> master
     "Playlists": "연주목록",
     "Playlists deduplication started": "연주목록 중복 제거 시작함",
     "Playlists to copy": "복사할 연주목록",
@@ -1116,10 +1105,5 @@
     "tags": "태그",
     "url_resolved": "URL",
     "votes": "투표",
-<<<<<<< HEAD
-    "wasapi": "wasapi"
-}
-=======
     "wasapi": "Windows Audio Session API"
 }
->>>>>>> master
