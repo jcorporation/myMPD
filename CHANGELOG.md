@@ -54,13 +54,15 @@ It also supports the new "added" timestamp for songs in the mpd database.
 
 ***
 
-## myMPD v13.0.6 (not yet released)
+## myMPD v13.0.6 (2023-12-20)
 
 This is a small bugfix release.
 
 ### Changelog
 
 - Fix: detection of Safari browsers #1185
+- Upd: translations
+- Upd: utf8 and utest dependencies
 
 ***
 
