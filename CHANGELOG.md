@@ -4,6 +4,18 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v13.0.6 (2023-12-20)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: detection of Safari browsers #1185
+- Upd: translations
+- Upd: utf8 and utest dependencies
+
+***
+
 ## myMPD v13.0.5 (2023-11-19)
 
 This is a small bugfix release.
