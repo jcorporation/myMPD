@@ -13,6 +13,8 @@
 
 #define DEFAULT_SOCKET "/run/mpd/socket"
 
+#define DEFAULT_TIMEOUT 30000
+
 #define ENABLE_TCP
 
 #define HAVE_GETADDRINFO

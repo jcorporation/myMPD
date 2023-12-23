@@ -10,6 +10,7 @@
 #include "iso8601.h"
 
 #include <assert.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -41,6 +42,8 @@ mpd_search_queue_songs(struct mpd_connection *connection, bool exact)
 bool
 mpd_search_db_tags(struct mpd_connection *connection, enum mpd_tag_type type)
 {
+	assert(connection != NULL);
+
 	if (!mpd_request_begin(connection)) 
 		return false;
 
@@ -298,6 +301,7 @@ bool
 mpd_search_add_db_songs_to_playlist(struct mpd_connection *connection,
 				    const char *playlist_name)
 {
+	assert(connection != NULL);
 	assert(playlist_name != NULL);
 
 	if (!mpd_request_begin(connection)) 

@@ -32,7 +32,7 @@ enum mpd_sticker_operator {
 };
 
 /**
- * Comparison operators for sticker search api
+ * Sort by settings for sticker search api
  */
 enum mpd_sticker_sort {
 	MPD_STICKER_SORT_UNKOWN = -1,
@@ -212,6 +212,9 @@ mpd_return_sticker(struct mpd_connection *connection, struct mpd_pair *pair);
  * Obtains an uniq and sorted list of all sticker names. Call
  * mpd_recv_pair() to receive each response item.
  *
+ * @param connection the connection to MPD
+ * @return true on success, false on error
+ *
  * @since libmpdclient 2.21, MPD 0.24
  */
 bool
@@ -230,7 +233,7 @@ mpd_send_stickernames(struct mpd_connection *connection);
  * @param name the name of the sticker
  * @return true on success, false on error
  *
- * @since libmpdclient 2.21, MPD 0.24
+ * @since libmpdclient 2.23, MPD 0.24
  */
 bool
 mpd_sticker_search_begin(struct mpd_connection *connection, const char *type,
@@ -243,7 +246,7 @@ mpd_sticker_search_begin(struct mpd_connection *connection, const char *type,
  * @param value value to compare against
  * @return true on success, else false
  *
- * @since libmpdclient 2.21, MPD 0.24
+ * @since libmpdclient 2.23, MPD 0.24
  */
 bool
 mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
@@ -254,11 +257,11 @@ mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
  * Sort the results by the specified named attribute.
  *
  * @param connection a #mpd_connection
- * @param sort sort operator
+ * @param sort sort by field
  * @param descending sort in reverse order?
  * @return true on success, false on error
  *
- * @since libmpdclient 2.21, MPD 0.24
+ * @since libmpdclient 2.23, MPD 0.24
  */
 bool
 mpd_sticker_search_add_sort(struct mpd_connection *connection,
@@ -273,7 +276,7 @@ mpd_sticker_search_add_sort(struct mpd_connection *connection,
  * value "UINT_MAX" makes the end of the range open
  * @return true on success, false on error
  *
- * @since libmpdclient 2.21, MPD 0.24
+ * @since libmpdclient 2.23, MPD 0.24
  */
 bool
 mpd_sticker_search_add_window(struct mpd_connection *connection,
@@ -286,7 +289,7 @@ mpd_sticker_search_add_window(struct mpd_connection *connection,
  * @param connection the connection to MPD
  * @return true on success, false on error
  *
- * @since libmpdclient 2.21, MPD 0.24
+ * @since libmpdclient 2.23, MPD 0.24
  */
 bool
 mpd_sticker_search_commit(struct mpd_connection *connection);
@@ -298,7 +301,7 @@ mpd_sticker_search_commit(struct mpd_connection *connection);
  *
  * @param connection the connection to MPD
  *
- * @since libmpdclient 2.21, MPD 0.24
+ * @since libmpdclient 2.23, MPD 0.24
  */
 void
 mpd_sticker_search_cancel(struct mpd_connection *connection);

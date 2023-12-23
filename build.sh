@@ -881,7 +881,8 @@ updatelibmympdclient() {
 
   cd "$STARTPATH/dist/libmympdclient" || exit 1
   install -d src
-  install -d include/mpd/
+  install -d include/mpd
+  install -d LICENSES
 
   rsync -av --delete "$TMPDIR/libmympdclient/src/" ./src/
   rsync -av --delete "$TMPDIR/libmympdclient/include/mpd/" ./include/mpd/
@@ -889,7 +890,7 @@ updatelibmympdclient() {
   rsync -av "$TMPDIR/libmympdclient/output/include/mpd/version.h" include/mpd/version.h
   rsync -av "$TMPDIR/libmympdclient/output/config.h" include/config.h
 
-  rsync -av "$TMPDIR/libmympdclient/LICENSE.md" LICENSE.md
+  rsync -av "$TMPDIR/libmympdclient/LICENSES/" LICENSES/
 
   rm -rf "$TMPDIR"
 }

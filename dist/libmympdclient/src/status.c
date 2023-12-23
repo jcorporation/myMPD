@@ -222,10 +222,9 @@ mpd_lookup_consume_state(enum mpd_consume_state state)
 		return "1";
 	case MPD_CONSUME_ONESHOT:
 		return "oneshot";
-	case MPD_CONSUME_UNKNOWN:
+	default:
 		return NULL;
 	}
-	return NULL;
 }
 
 void

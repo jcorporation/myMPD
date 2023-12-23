@@ -154,7 +154,7 @@ mpd_default_timeout_ms(void)
 	}
 
 	/* 30s is the default */
-	return 30000;
+	return DEFAULT_TIMEOUT;
 }
 
 struct mpd_settings *
