@@ -877,7 +877,7 @@ updatelibmympdclient() {
   cd "$TMPDIR" || exit 1
   git clone --depth=1 -b libmympdclient https://github.com/jcorporation/libmympdclient.git
   cd libmympdclient || exit 1
-  meson . output -Dbuffer_size=8192
+  meson setup . output -Dbuffer_size=8192
 
   cd "$STARTPATH/dist/libmympdclient" || exit 1
   install -d src
@@ -886,7 +886,7 @@ updatelibmympdclient() {
   rsync -av --delete "$TMPDIR/libmympdclient/src/" ./src/
   rsync -av --delete "$TMPDIR/libmympdclient/include/mpd/" ./include/mpd/
 
-  rsync -av "$TMPDIR/libmympdclient/output/version.h" include/mpd/version.h
+  rsync -av "$TMPDIR/libmympdclient/output/include/mpd/version.h" include/mpd/version.h
   rsync -av "$TMPDIR/libmympdclient/output/config.h" include/config.h
 
   rsync -av "$TMPDIR/libmympdclient/LICENSE.md" LICENSE.md

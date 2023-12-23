@@ -47,7 +47,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Feat: Add option to show audioformat in the footer #1184
 - Upd: Improve number conversions and enforcement of limits
 - Upd: Manual add random songs or albums should ignore the jukebox constraints
-- Upd: libmympdclient 1.0.25
+- Upd: libmympdclient 1.0.26 (based on libmpdclient 2.23)
 - Upd: bootstrap.native to 5.0.10 #1176
 - Upd: Sanitize % special char for stream images
 - Upd: Smart playlist interval can be disabled
