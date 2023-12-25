@@ -151,6 +151,7 @@ sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, b
             MYMPD_LOG_ERRNO(NULL, errno);
         }
         *nread = -1;
+        return s;
     }
     s = sds_getfile_from_fp(s, fp, max, remove_newline, nread);
     (void) fclose(fp);
