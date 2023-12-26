@@ -9,11 +9,12 @@
 
 #include "dist/utest/utest.h"
 #include "src/lib/api.h"
+#include "src/lib/event.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 
 UTEST(mympd_queue, push_shift) {
-    struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST);
+    struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST, false);
     sds test_data_in0 = sdsnew("test0");
     sds test_data_in1 = sdsnew("test0");
     sds test_data_in2 = sdsnew("test0");
@@ -45,7 +46,7 @@ UTEST(mympd_queue, push_shift) {
 }
 
 UTEST(mympd_queue, push_shift_id) {
-    struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST);
+    struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST, false);
     sds test_data_in0 = sdsnew("test0");
     sds test_data_in1 = sdsnew("test0");
     sds test_data_in2 = sdsnew("test0");
@@ -79,7 +80,7 @@ UTEST(mympd_queue, push_shift_id) {
 }
 
 UTEST(mympd_queue, expire) {
-    struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST);
+    struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST, false);
     for (int i = 0; i < 50; i++) {
         struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_COLS_SAVE, "test", MPD_PARTITION_DEFAULT);
         request->extra = malloc(10);
@@ -117,5 +118,14 @@ UTEST(mympd_queue, expire) {
     ASSERT_EQ(1, expired);
     ASSERT_EQ(45U, test_queue->length);
 
+    mympd_queue_free(test_queue);
+}
+
+UTEST(mympd_queue, event) {
+    struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST, true);
+    bool rc = event_eventfd_write(test_queue->event_fd);
+    ASSERT_TRUE(rc);
+    rc = event_pfd_read_fd(test_queue->event_fd);
+    ASSERT_TRUE(rc);
     mympd_queue_free(test_queue);
 }

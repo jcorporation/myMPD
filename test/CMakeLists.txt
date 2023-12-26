@@ -14,6 +14,7 @@ set(TEST_SOURCES
   ../src/lib/cert.c
   ../src/lib/convert.c
   ../src/lib/datetime.c
+  ../src/lib/event.c
   ../src/lib/env.c
   ../src/lib/filehandler.c
   ../src/lib/http_client.c
