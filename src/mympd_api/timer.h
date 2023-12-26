@@ -34,7 +34,7 @@ struct t_timer_node {
 
 void mympd_api_timer_timerlist_init(struct t_timer_list *l);
 void mympd_api_timer_timerlist_clear(struct t_timer_list *l);
-void mympd_api_timer_check(struct t_timer_list *l);
+bool mympd_api_timer_check(int fd, struct t_timer_list *timer_list);
 bool mympd_api_timer_save(struct t_partition_state *partition_state, struct t_timer_list *timer_list, int interval, unsigned timerid,
         struct t_timer_definition *timer_def, sds *error);
 bool mympd_api_timer_add(struct t_timer_list *l, int timeout, int interval,

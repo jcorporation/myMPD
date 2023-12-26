@@ -8,6 +8,7 @@
 #include "src/lib/msg_queue.h"
 
 #include "src/lib/api.h"
+#include "src/lib/event.h"
 #include "src/lib/log.h"
 #include "src/lib/lua_mympd_state.h"
 #include "src/lib/mem.h"
@@ -30,9 +31,10 @@ static void set_wait_time(int timeout, struct timespec *max_wait);
  * Creates a thread safe message queue
  * @param name description of the queue
  * @param type type of the queue QUEUE_TYPE_REQUEST or QUEUE_TYPE_RESPONSE
+ * @param event create an eventfd?
  * @return pointer to allocated and initialized queue struct
  */
-struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_types type) {
+struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_types type, bool event) {
     struct t_mympd_queue *queue = malloc_assert(sizeof(struct t_mympd_queue));
     queue->head = NULL;
     queue->tail = NULL;
@@ -41,6 +43,9 @@ struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_type
     queue->type = type;
     queue->mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
     queue->wakeup = (pthread_cond_t)PTHREAD_COND_INITIALIZER;
+    queue->event_fd = event == true
+        ? event_eventfd_create()
+        : -1;
     return queue;
 }
 
@@ -50,6 +55,7 @@ struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_type
  */
 void *mympd_queue_free(struct t_mympd_queue *queue) {
     mympd_queue_expire(queue, 0);
+    event_fd_close(queue->event_fd);
     FREE_PTR(queue);
     return NULL;
 }
@@ -89,6 +95,9 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id) {
     if (rc != 0) {
         MYMPD_LOG_ERROR(NULL, "Error in pthread_cond_signal: %d", rc);
         return 0;
+    }
+    if (queue->event_fd > -1) {
+        event_eventfd_write(queue->event_fd);
     }
     return true;
 }

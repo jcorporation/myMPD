@@ -8,6 +8,7 @@
 #include "src/lib/mympd_state.h"
 
 #include "src/lib/album_cache.h"
+#include "src/lib/event.h"
 #include "src/lib/last_played.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
@@ -113,6 +114,8 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     cache_init(&mympd_state->album_cache);
     //init last played songs list
     mympd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
+    //poll fds
+    event_pfd_init(&mympd_state->pfds);
 }
 
 /**
@@ -435,6 +438,7 @@ void stickerdb_state_default(struct t_stickerdb_state *stickerdb, struct t_confi
     stickerdb->conn_state = MPD_DISCONNECTED;
     stickerdb->conn = NULL;
     stickerdb->name = sdsnew("stickerdb");
+    stickerdb->update_fds = true;
 }
 
 /**

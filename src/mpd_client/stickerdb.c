@@ -46,6 +46,7 @@ static bool stickerdb_connect_mpd(struct t_stickerdb_state *stickerdb);
  * @param stickerdb pointer to the stickerdb state
  */
 bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
+    stickerdb->update_fds = true;
     if (stickerdb->config->stickers == false) {
         MYMPD_LOG_WARN("stickerdb", "Stickers are disabled by config");
         return false;
@@ -126,37 +127,19 @@ void stickerdb_disconnect(struct t_stickerdb_state *stickerdb, enum mpd_conn_sta
     }
     stickerdb->conn = NULL;
     stickerdb->conn_state = new_conn_state;
+    stickerdb->update_fds = true;
 }
 
 /**
- * Discards waiting idle events for the stickerdb connection
+ * Discards waiting idle events for the stickerdb connection.
+ * This prevents the connection to timeout.
  * @param stickerdb pointer to the stickerdb state
  */
 bool stickerdb_idle(struct t_stickerdb_state *stickerdb) {
-    if (stickerdb->conn == NULL ||
-        stickerdb->conn_state != MPD_CONNECTED)
-    {
-        // not connected
-        return true;
-    }
-    struct pollfd fd[1];
-    fd->fd = mpd_connection_get_fd(stickerdb->conn);
-    fd->events = POLLIN;
-    int pollrc = poll(fd, 1, 50);
-    if (pollrc < 0) {
-        MYMPD_LOG_ERROR(NULL, "Error polling mpd connection");
-        stickerdb->conn_state = MPD_FAILURE;
-        return false;
-    }
-    if (fd[0].revents & POLLIN) {
-        // exit and reenter the idle mode to discard waiting events
-        // this prevents the connection to timeout
-        MYMPD_LOG_DEBUG("stickerdb", "Discarding idle events");
-        mympd_api_request_trigger_event_emit(TRIGGER_MPD_STICKER, MPD_PARTITION_DEFAULT);
-        return stickerdb_exit_idle(stickerdb) &&
-            stickerdb_enter_idle(stickerdb);
-    }
-    return true;
+    MYMPD_LOG_DEBUG("stickerdb", "Discarding idle events");
+    mympd_api_request_trigger_event_emit(TRIGGER_MPD_STICKER, MPD_PARTITION_DEFAULT);
+    return stickerdb_exit_idle(stickerdb) &&
+        stickerdb_enter_idle(stickerdb);
 }
 
 /**

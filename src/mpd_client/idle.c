@@ -48,18 +48,9 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state, int timeout);
  * This is the central function to handle api requests and mpd events.
  * It is called from the mympd_api thread.
  * @param mympd_state pointer to the mympd state struct
+ * @param request work request from the mympd_api queue
  */
-void mpd_client_idle(struct t_mympd_state *mympd_state) {
-    //poll all mpd connection fds
-    partitions_get_fds(mympd_state);
-    if (mympd_state->nfds > 0) {
-        int pollrc = poll(mympd_state->fds, mympd_state->nfds, 50);
-        if (pollrc < 0) {
-            MYMPD_LOG_ERROR(NULL, "Error polling mpd connection");
-        }
-    }
-    //check the mympd_api_queue
-    struct t_work_request *request = mympd_queue_shift(mympd_api_queue, 50, 0);
+void mpd_client_idle(struct t_mympd_state *mympd_state, struct t_work_request *request) {
     //iterate through all partitions
     struct t_partition_state *partition_state = mympd_state->partition_state;
     int i = 0;
@@ -67,7 +58,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
     do {
         if (partition_state->conn_state == MPD_CONNECTED) {
             //only connected partitions has a fd
-            mpd_idle_event_waiting = mympd_state->fds[i].revents & POLLIN
+            mpd_idle_event_waiting = mympd_state->pfds.fds[i].revents & POLLIN
                 ? true
                 : false;
             i++;
@@ -106,7 +97,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
  */
 
 /**
- * This function handles api requests and mpd events per partition.
+ * This function checks the mpd connection state, handles api requests and mpd events per partition.
  * @param mympd_state pointer to mympd state
  * @param partition_state pointer to the partition state
  * @param mpd_idle_event_waiting true if mpd idle event is waiting, else false
@@ -163,6 +154,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 mpd_client_mpd_features(mympd_state, partition_state);
             }
             //we are connected
+            mympd_state->pfds.update_fds = true;
             if (partition_state->is_default == false) {
                 //change partition
                 MYMPD_LOG_INFO(partition_state->name, "Switching to partition \"%s\"", partition_state->name);
@@ -204,6 +196,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
         case MPD_DISCONNECT:
         case MPD_DISCONNECT_INSTANT:
             mpd_client_disconnect(partition_state, partition_state->conn_state);
+            mympd_state->pfds.update_fds = true;
             //set wait time for next connection attempt
             if (partition_state->conn_state != MPD_DISCONNECT_INSTANT) {
                 partition_state->conn_state = MPD_WAIT;
@@ -320,6 +313,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
         }
         case MPD_REMOVED:
             MYMPD_LOG_DEBUG(partition_state->name, "removed");
+            mympd_state->pfds.update_fds = true;
             break;
         default:
             MYMPD_LOG_ERROR(partition_state->name, "Invalid mpd connection state");

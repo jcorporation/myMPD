@@ -55,74 +55,55 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
 }
 
 /**
- * Checks for timers and executes the callback function
- * @param l timer list
+ * Checks the timer event and executes the callback function
+ * @param fd fd with POLLIN event
+ * @param timer_list timer list
  */
-void mympd_api_timer_check(struct t_timer_list *l) {
-    errno = 0;
-    int read_fds = poll(l->ufds, l->ufds_len, 100);
-    if (read_fds < 0) {
-        MYMPD_LOG_ERROR(NULL, "Error polling timerfd");
-        MYMPD_LOG_ERRNO(NULL, errno);
-        return;
+bool mympd_api_timer_check(int fd, struct t_timer_list *timer_list) {
+    struct t_list_node *current = get_timer_from_fd(timer_list, fd);
+    if (current == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Could not get timer from fd");
+        return false;
     }
-    if (read_fds == 0) {
-        //no timer triggered
-        return;
-    }
-
-    for (unsigned i = 0; i < l->ufds_len; i++) {
-        if (l->ufds[i].revents & POLLIN) {
-            uint64_t exp;
-            ssize_t s = read(l->ufds[i].fd, &exp, sizeof(uint64_t));
-            if (s != sizeof(uint64_t)) {
-                continue;
-            }
-            struct t_list_node *current = get_timer_from_fd(l, l->ufds[i].fd);
-            if (current == NULL) {
-                MYMPD_LOG_ERROR(NULL, "Could not get timer from fd");
-                continue;
-            }
-            struct t_timer_node *current_timer = (struct t_timer_node *)current->user_data;
-            if (current_timer->definition != NULL) {
-                //user defined timers
-                if (current_timer->definition->enabled == false) {
-                    MYMPD_LOG_DEBUG(NULL, "Skipping timer with id %" PRId64 ", not enabled", current->value_i);
-                    continue;
-                }
-                time_t t = time(NULL);
-                struct tm now;
-                if (localtime_r(&t, &now) == NULL) {
-                    MYMPD_LOG_ERROR(NULL, "Localtime is NULL");
-                    continue;
-                }
-                int wday = now.tm_wday;
-                wday = wday > 0 ? wday - 1 : 6;
-                if (current_timer->definition->weekdays[wday] == false) {
-                    MYMPD_LOG_DEBUG(NULL, "Skipping timer with id %" PRId64 ", not enabled on this weekday", current->value_i);
-                    continue;
-                }
-            }
-            //execute callback function
-            MYMPD_LOG_DEBUG(NULL, "Timer with id %" PRId64 " triggered", current->value_i);
-            if (current_timer->callback) {
-                current_timer->callback((unsigned)current->value_i, current_timer->definition);
-            }
-            //handle one shot timers
-            if (current_timer->interval == TIMER_ONE_SHOT_DISABLE &&
-                current_timer->definition != NULL)
-            {
-                //user defined "one shot and disable" timers
-                MYMPD_LOG_DEBUG(NULL, "One shot timer disabled: %" PRId64, current->value_i);
-                current_timer->definition->enabled = false;
-            }
-            else if (current_timer->interval <= TIMER_ONE_SHOT_REMOVE) {
-                //"one shot and remove" timers
-                MYMPD_LOG_DEBUG(NULL, "One shot timer removed: %" PRId64, current->value_i);
-                mympd_api_timer_remove(l, (unsigned)current->value_i);
-            }
+    struct t_timer_node *current_timer = (struct t_timer_node *)current->user_data;
+    if (current_timer->definition != NULL) {
+        //user defined timers
+        if (current_timer->definition->enabled == false) {
+            MYMPD_LOG_DEBUG(NULL, "Skipping timer with id %" PRId64 ", not enabled", current->value_i);
+            return false;
+        }
+        time_t t = time(NULL);
+        struct tm now;
+        if (localtime_r(&t, &now) == NULL) {
+            MYMPD_LOG_ERROR(NULL, "Localtime is NULL");
+            return false;
+        }
+        int wday = now.tm_wday;
+        wday = wday > 0 ? wday - 1 : 6;
+        if (current_timer->definition->weekdays[wday] == false) {
+            MYMPD_LOG_DEBUG(NULL, "Skipping timer with id %" PRId64 ", not enabled on this weekday", current->value_i);
+            return false;
         }
     }
+    //execute callback function
+    MYMPD_LOG_DEBUG(NULL, "Timer with id %" PRId64 " triggered", current->value_i);
+    if (current_timer->callback) {
+        current_timer->callback((unsigned)current->value_i, current_timer->definition);
+    }
+    //handle one shot timers
+    if (current_timer->interval == TIMER_ONE_SHOT_DISABLE &&
+        current_timer->definition != NULL)
+    {
+        //user defined "one shot and disable" timers
+        MYMPD_LOG_DEBUG(NULL, "One shot timer disabled: %" PRId64, current->value_i);
+        current_timer->definition->enabled = false;
+    }
+    else if (current_timer->interval <= TIMER_ONE_SHOT_REMOVE) {
+        //"one shot and remove" timers
+        MYMPD_LOG_DEBUG(NULL, "One shot timer removed: %" PRId64, current->value_i);
+        mympd_api_timer_remove(timer_list, (unsigned)current->value_i);
+    }
+    return true;
 }
 
 /**
@@ -614,20 +595,7 @@ bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
  * @param l timer list
  */
 static void set_timerfds(struct t_timer_list *l) {
-    l->ufds_len = 0;
-    memset(l->ufds, 0, sizeof(struct pollfd) * LIST_TIMER_MAX);
-    struct t_list_node *current = l->list.head;
-    while (current != NULL &&
-           l->ufds_len <= LIST_TIMER_MAX)
-    {
-        struct t_timer_node *current_timer = (struct t_timer_node *)current->user_data;
-        if (current_timer->fd > -1) {
-            l->ufds[l->ufds_len].fd = current_timer->fd;
-            l->ufds[l->ufds_len].events = POLLIN;
-            l->ufds_len++;
-        }
-        current = current->next;
-    }
+    l->update_fds = true;
 }
 
 /**

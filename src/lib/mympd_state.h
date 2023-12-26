@@ -11,6 +11,7 @@
 #include "dist/sds/sds.h"
 #include "src/lib/cache.h"
 #include "src/lib/config_def.h"
+#include "src/lib/event.h"
 #include "src/lib/list.h"
 #include "src/lib/tags.h"
 #include <poll.h>
@@ -174,6 +175,7 @@ struct t_stickerdb_state {
     struct mpd_connection *conn;           //!< mpd connection object from libmpdclient
     enum mpd_conn_states conn_state;       //!< mpd connection state
     sds name;                              //!< name for logging
+    bool update_fds;                       //!< Update the poll fds array
 };
 
 /**
@@ -199,10 +201,9 @@ struct t_timer_definition {
  */
 struct t_timer_list {
     unsigned last_id;                   //!< highest timer id in the list
-    int active;                          //!< number of enabled timers
-    struct t_list list;                  //!< timer definition
-    struct pollfd ufds[LIST_TIMER_MAX];  //!< timerfds to poll
-    nfds_t ufds_len;                     //!< number of fds in ufds
+    int active;                         //!< number of enabled timers
+    struct t_list list;                 //!< timer definition
+    bool update_fds;                    //!< update the poll fds array?
 };
 
 /**
@@ -223,8 +224,7 @@ struct t_mympd_state {
     struct t_mpd_state *mpd_state;                //!< mpd state shared across partitions
     struct t_partition_state *partition_state;    //!< list of partition states
     struct t_stickerdb_state *stickerdb;          //!< states for stickerdb connection
-    struct pollfd fds[MPD_CONNECTION_MAX];        //!< mpd connection fds
-    nfds_t nfds;                                  //!< number of mpd connection fds
+    struct mympd_pfds pfds;                       //!< fds to poll in the event loop
     struct t_timer_list timer_list;               //!< list of timers
     struct t_list home_list;                      //!< list of home icons
     struct t_list trigger_list;                   //!< list of triggers

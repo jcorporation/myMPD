@@ -134,26 +134,3 @@ void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
     //push settings to web_server_queue
     settings_to_webserver(mympd_state);
 }
-
-/**
- * Populates the mpd connection fds
- * @param mympd_state pointer to t_mympd_state struct
- */
-void partitions_get_fds(struct t_mympd_state *mympd_state) {
-    struct t_partition_state *partition_state = mympd_state->partition_state;
-    mympd_state->nfds = 0;
-    while (partition_state != NULL) {
-        if (mympd_state->nfds == MPD_CONNECTION_MAX) {
-            MYMPD_LOG_ERROR(NULL, "Too many partitions");
-            break;
-        }
-        if (partition_state->conn != NULL &&
-            partition_state->conn_state == MPD_CONNECTED)
-        {
-            mympd_state->fds[mympd_state->nfds].fd = mpd_connection_get_fd(partition_state->conn);
-            mympd_state->fds[mympd_state->nfds].events = POLLIN;
-            mympd_state->nfds++;
-        }
-        partition_state = partition_state->next;
-    }
-}

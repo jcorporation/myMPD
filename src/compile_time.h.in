@@ -351,6 +351,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JUKEBOX_UNIQ_RANGE 50
 #define SCRIPT_ARGUMENTS_MAX 20
 
+// timer + mpd connections + stickerdb + eventfd (mympd api queue)
+#define POLL_FDS_MAX LIST_TIMER_MAX + MPD_CONNECTION_MAX + 1 + 1
+
 //filesystem limits
 #define FILENAME_LEN_MAX 200
 #define FILEPATH_LEN_MAX 1000

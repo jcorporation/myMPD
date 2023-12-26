@@ -25,6 +25,14 @@
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
 
+#include <errno.h>
+
+// private definitions
+
+static void populate_pfds(struct t_mympd_state *mympd_state);
+
+// public functions
+
 /**
  * This is the main function for the mympd_api thread
  * @param arg_config void pointer to t_config struct
@@ -87,13 +95,41 @@ void *mympd_api_loop(void *arg_config) {
 
     //thread loop
     while (s_signal_received == 0) {
-        mpd_client_idle(mympd_state);
-        if (mympd_state->timer_list.active > 0) {
-            mympd_api_timer_check(&mympd_state->timer_list);
+        populate_pfds(mympd_state);
+        errno = 0;
+        int cnt = poll(mympd_state->pfds.fds, mympd_state->pfds.len, 1000);
+        if (cnt < 0) {
+            MYMPD_LOG_ERROR(NULL, "Error polling file descriptors");
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
-        if (mympd_state->mpd_state->feat.stickers == true) {
-            stickerdb_idle(mympd_state->stickerdb);
+        struct t_work_request *request = NULL;
+        if (cnt > 0) {
+            for (nfds_t i = 0; i < mympd_state->pfds.len; i++) {
+                if (mympd_state->pfds.fds[i].revents & POLLIN) {
+                    switch (mympd_state->pfds.fd_types[i]) {
+                        case PFD_TYPE_TIMER:
+                            if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
+                                mympd_api_timer_check(mympd_state->pfds.fds[i].fd, &mympd_state->timer_list);
+                            }
+                            break;
+                        case PFD_TYPE_STICKERDB:
+                            stickerdb_idle(mympd_state->stickerdb);
+                            break;
+                        case PFD_TYPE_QUEUE:
+                            // check the mympd_api_queue
+                            if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
+                                request = mympd_queue_shift(mympd_api_queue, 50, 0);
+                            }
+                            break;
+                        case PFD_TYPE_PARTITION:
+                            // this is handled in the mpd_client_idle call
+                            break;
+                    }
+                }
+            }
         }
+        // Iterate through mpd partitions and handle the events
+        mpd_client_idle(mympd_state, request);
     }
     MYMPD_LOG_DEBUG(NULL, "Stopping mympd_api thread");
 
@@ -120,4 +156,55 @@ void *mympd_api_loop(void *arg_config) {
 
     FREE_SDS(thread_logname);
     return NULL;
+}
+
+// private functions
+
+/**
+ * Populates the poll fds array with fds from:
+ * mpd partitions, mpd stickerdb, timers
+ * @param mympd_state pointer to mympd state
+ */
+static void populate_pfds(struct t_mympd_state *mympd_state) {
+    if (mympd_state->timer_list.update_fds == false &&
+        mympd_state->pfds.update_fds == false &&
+        mympd_state->stickerdb->update_fds == false)
+    {
+        return;
+    }
+    #ifdef MYMPD_DEBUG
+        MYMPD_LOG_DEBUG(NULL, "Populating poll fds array");
+    #endif
+    // Reset connection
+    mympd_state->pfds.len = 0;
+    // Connections for MPD partitions
+    // These fd types must be the first in the array
+    struct t_partition_state *partition_state = mympd_state->partition_state;
+    while (partition_state != NULL) {
+        if (partition_state->conn != NULL &&
+            partition_state->conn_state == MPD_CONNECTED)
+        {
+            event_pfd_add_fd(&mympd_state->pfds, mpd_connection_get_fd(partition_state->conn), PFD_TYPE_PARTITION);
+        }
+        partition_state = partition_state->next;
+    }
+    // StickerDB MPD connection
+    if (mympd_state->stickerdb->conn != NULL &&
+        mympd_state->stickerdb->conn_state == MPD_CONNECTED)
+    {
+        event_pfd_add_fd(&mympd_state->pfds, mpd_connection_get_fd(mympd_state->stickerdb->conn), PFD_TYPE_STICKERDB);
+    }
+    // mympd_api_queue
+    event_pfd_add_fd(&mympd_state->pfds, mympd_api_queue->event_fd, PFD_TYPE_QUEUE);
+    // Timer
+    struct t_list_node *current = mympd_state->timer_list.list.head;
+    while (current != NULL) {
+        struct t_timer_node *current_timer = (struct t_timer_node *)current->user_data;
+        event_pfd_add_fd(&mympd_state->pfds, current_timer->fd, PFD_TYPE_TIMER);
+        current = current->next;
+    }
+    // Poll fds array is now up-to-date
+    mympd_state->timer_list.update_fds = false;
+    mympd_state->pfds.update_fds = false;
+    mympd_state->stickerdb->update_fds = false;
 }

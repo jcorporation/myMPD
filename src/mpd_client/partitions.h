@@ -14,5 +14,4 @@ void partitions_list_clear(struct t_mympd_state *mympd_state);
 bool partitions_populate(struct t_mympd_state *mympd_state);
 bool partitions_check(struct t_mympd_state *mympd_state, const char *name);
 void partitions_add(struct t_mympd_state *mympd_state, const char *name);
-void partitions_get_fds(struct t_mympd_state *mympd_state);
 #endif

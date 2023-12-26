@@ -51,6 +51,8 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Upd: bootstrap.native to 5.0.10 #1176
 - Upd: Sanitize % special char for stream images
 - Upd: Smart playlist interval can be disabled
+- Upd: Improve JSON encoding performance
+- Upd: mympd_api thread ressource usage
 
 ***
 
