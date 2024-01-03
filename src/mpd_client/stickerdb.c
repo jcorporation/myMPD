@@ -574,7 +574,7 @@ bool stickerdb_inc_skip_count(struct t_stickerdb_state *stickerdb, const char *u
  * @return true on success, else false
  */
 bool stickerdb_set_like(struct t_stickerdb_state *stickerdb, const char *uri, enum sticker_like value) {
-    if (value < 0 || value > 2) {
+    if (value < STICKER_LIKE_MIN || value > STICKER_LIKE_MAX) {
         return false;
     }
     return stickerdb_set_int64(stickerdb, uri, sticker_name_lookup(STICKER_LIKE), (int64_t)value);
@@ -588,7 +588,7 @@ bool stickerdb_set_like(struct t_stickerdb_state *stickerdb, const char *uri, en
  * @return true on success, else false
  */
 bool stickerdb_set_rating(struct t_stickerdb_state *stickerdb, const char *uri, int value) {
-    if (value < 0 || value > 10) {
+    if (value < STICKER_RATING_MIN || value > STICKER_RATING_MAX) {
         return false;
     }
     return stickerdb_set_int64(stickerdb, uri, sticker_name_lookup(STICKER_RATING), (int64_t)value);
@@ -630,7 +630,7 @@ static bool sticker_search_add_value_constraint(struct t_stickerdb_state *sticke
 }
 
 /**
- * Adds a mpd sticker sort definition, if name is not NULL and supported by MPD
+ * Adds a mpd sticker sort definition, if supported by MPD
  * @param stickerdb pointer to the stickerdb state
  * @param sort mpd sticker sort type
  * @param desc sort descending?

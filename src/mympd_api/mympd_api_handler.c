@@ -764,7 +764,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     // sticker
         case MYMPD_API_LIKE:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
-                json_get_int(request->data, "$.params.like", 0, 2, &int_buf1, &parse_error) == true)
+                json_get_int(request->data, "$.params.like", STICKER_LIKE_MIN, STICKER_LIKE_MAX, &int_buf1, &parse_error) == true)
             {
                 rc = mympd_api_sticker_set_feedback(mympd_state->stickerdb, &mympd_state->trigger_list, partition_state->name, sds_buf1, FEEDBACK_LIKE, int_buf1, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
@@ -773,7 +773,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case MYMPD_API_RATING:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
-                json_get_int(request->data, "$.params.rating", 0, 10, &int_buf1, &parse_error) == true)
+                json_get_int(request->data, "$.params.rating", STICKER_RATING_MIN, STICKER_RATING_MAX, &int_buf1, &parse_error) == true)
             {
                 rc = mympd_api_sticker_set_feedback(mympd_state->stickerdb, &mympd_state->trigger_list, partition_state->name, sds_buf1, FEEDBACK_STAR, int_buf1, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
