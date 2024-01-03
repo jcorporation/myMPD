@@ -42,7 +42,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Feat: Simplify Last-Played implementation and save it in MessagePack format
 - Feat: "Add random songs/album" is executed in worker thread
 - Feat: Filling the jukebox queue is executed in worker thread
-- Feat: Rework structs to improve thread safety
+- Feat: Rework data structures to improve thread safety
 - Feat: Improve random number generation
 - Feat: Add option to show audioformat in the footer #1184
 - Upd: Improve number conversions and enforcement of limits
@@ -52,7 +52,8 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Upd: Sanitize % special char for stream images
 - Upd: Smart playlist interval can be disabled
 - Upd: Improve JSON encoding performance
-- Upd: mympd_api thread ressource usage
+- Upd: mympd_api thread resource usage
+- Upd: utf8 dependency
 
 ***
 
