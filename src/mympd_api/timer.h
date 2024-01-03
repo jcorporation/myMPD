@@ -28,7 +28,7 @@ struct t_timer_node {
     int fd;                                 //!< holds the timerfd
     timer_handler callback;                 //!< timer callback function
     struct t_timer_definition *definition;  //!< optional pointer to timer definition (GUI)
-    int timeout;                         //!< seconds when timer will run
+    int timeout;                            //!< seconds when timer will run
     int interval;                           //!< reschedule timer interval
 };
 
