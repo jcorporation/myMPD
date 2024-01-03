@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #SPDX-License-Identifier: GPL-3.0-or-later
-#myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+#myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 #https://github.com/jcorporation/mympd
 
 #exit on error
@@ -45,7 +45,7 @@ umask 0022
 
 #get myMPD version
 VERSION=$(grep "  VERSION" CMakeLists.txt | sed 's/  VERSION //')
-COPYRIGHT="myMPD ${VERSION} | (c) 2018-2023 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
+COPYRIGHT="myMPD ${VERSION} | (c) 2018-2024 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
 
 MYMPD_MINIFY_JS="1"
 if [ -f .git/HEAD ] && ! grep -q "master" .git/HEAD

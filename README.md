@@ -66,6 +66,6 @@ myMPD is in active development. If you like myMPD, you can help to improve it (n
 
 ## Copyright
 
-2018-2023 Juergen Mang <mail@jcgames.de>
+2018-2024 Juergen Mang <mail@jcgames.de>
 
 myMPD was originally a fork of [ympd](https://github.com/notandy/ympd), but it has evolved into a much more comprehensive MPD client.
