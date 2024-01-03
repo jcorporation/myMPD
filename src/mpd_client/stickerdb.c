@@ -77,13 +77,15 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
         stickerdb_disconnect(stickerdb, MPD_DISCONNECTED);
         return false;
     }
-    stickerdb->mpd_state->feat.sticker_sort_window = false;
-    stickerdb->mpd_state->feat.sticker_int = false;
     if (mpd_connection_cmp_server_version(stickerdb->conn, 0, 24, 0) >= 0) {
         MYMPD_LOG_DEBUG(stickerdb->name, "Enabling sticker sort and window feature");
         stickerdb->mpd_state->feat.sticker_sort_window = true;
         MYMPD_LOG_DEBUG(stickerdb->name, "Enabling sticker value int handling feature");
         stickerdb->mpd_state->feat.sticker_int = true;
+    }
+    else {
+        stickerdb->mpd_state->feat.sticker_sort_window = false;
+        stickerdb->mpd_state->feat.sticker_int = false;
     }
     // check for sticker support
     stickerdb->mpd_state->feat.stickers = false;
@@ -99,9 +101,9 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
             mpd_return_pair(stickerdb->conn, pair);
         }
     }
+    mpd_response_finish(stickerdb->conn);
     mympd_api_request_sticker_features(stickerdb->mpd_state->feat.stickers,
         stickerdb->mpd_state->feat.sticker_sort_window, stickerdb->mpd_state->feat.sticker_int);
-    mpd_response_finish(stickerdb->conn);
     if (stickerdb_check_error_and_recover(stickerdb, "mpd_send_allowed_commands") == true) {
         if (stickerdb->mpd_state->feat.stickers == false) {
             MYMPD_LOG_ERROR("stickerdb", "MPD does not support stickers");
