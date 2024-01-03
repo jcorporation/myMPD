@@ -67,7 +67,7 @@ int event_eventfd_create(void) {
     errno = 0;
     int fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK | EFD_SEMAPHORE);
     if (fd == -1) {
-        MYMPD_LOG_ERROR(NULL, "Unable to write to fd");
+        MYMPD_LOG_ERROR(NULL, "Unable to create fd");
         MYMPD_LOG_ERRNO(NULL, errno);
     }
     return fd;
