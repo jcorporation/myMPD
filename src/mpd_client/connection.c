@@ -71,9 +71,6 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
     partition_state->conn_state = MPD_CONNECTED;
     //set connection options
     mpd_client_set_connection_options(partition_state);
-    //reset reconnection intervals
-    partition_state->reconnect_interval = 0;
-    partition_state->reconnect_time = 0;
     return true;
 }
 
@@ -138,10 +135,9 @@ bool mpd_client_set_connection_options(struct t_partition_state *partition_state
 /**
  * Disconnects from MPD, sends a notification and execute triggers
  * @param partition_state pointer to partition state
- * @param new_conn_state new connection state
  */
-void mpd_client_disconnect(struct t_partition_state *partition_state, enum mpd_conn_states new_conn_state) {
-    mpd_client_disconnect_silent(partition_state, new_conn_state);
+void mpd_client_disconnect(struct t_partition_state *partition_state) {
+    mpd_client_disconnect_silent(partition_state);
     send_jsonrpc_event(JSONRPC_EVENT_MPD_DISCONNECTED, partition_state->name);
     mympd_api_request_trigger_event_emit(TRIGGER_MYMPD_DISCONNECTED, partition_state->name);
 }
@@ -149,15 +145,14 @@ void mpd_client_disconnect(struct t_partition_state *partition_state, enum mpd_c
 /**
  * Disconnects from MPD silently
  * @param partition_state pointer to partition state
- * @param new_conn_state new connection state
  */
-void mpd_client_disconnect_silent(struct t_partition_state *partition_state, enum mpd_conn_states new_conn_state) {
+void mpd_client_disconnect_silent(struct t_partition_state *partition_state) {
     if (partition_state->conn != NULL) {
         MYMPD_LOG_INFO(partition_state->name, "Disconnecting from mpd");
         mpd_connection_free(partition_state->conn);
     }
     partition_state->conn = NULL;
-    partition_state->conn_state = new_conn_state;
+    partition_state->conn_state = MPD_DISCONNECTED;
 }
 
 /**
@@ -165,10 +160,10 @@ void mpd_client_disconnect_silent(struct t_partition_state *partition_state, enu
  * @param mympd_state pointer to central myMPD state
  * @param new_conn_state new connection state
  */
-void mpd_client_disconnect_all(struct t_mympd_state *mympd_state, enum mpd_conn_states new_conn_state) {
+void mpd_client_disconnect_all(struct t_mympd_state *mympd_state) {
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
-        mpd_client_disconnect(partition_state, new_conn_state);
+        mpd_client_disconnect(partition_state);
         partition_state = partition_state->next;
     }
 }

@@ -293,7 +293,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB
 #define MPD_QUEUE_PRIO_MAX 255
 #define MPD_CROSSFADE_MAX 100
-#define MPD_CONNECTION_MAX 100
+#define MPD_CONNECTION_MAX 25
 
 //limits for json parsing
 #define JSONRPC_INT_MIN INT_MIN
@@ -357,7 +357,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define SCRIPT_ARGUMENTS_MAX 20
 
 // timer + mpd connections + stickerdb + eventfd (mympd api queue)
-#define POLL_FDS_MAX LIST_TIMER_MAX + MPD_CONNECTION_MAX + 1 + 1
+#define POLL_FDS_MAX LIST_TIMER_MAX + MPD_CONNECTION_MAX * 4 + 1 + 1
 
 //filesystem limits
 #define FILENAME_LEN_MAX 200

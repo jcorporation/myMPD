@@ -133,10 +133,10 @@ static void *mpd_worker_run(void *arg) {
             //call api handler
             mpd_worker_api(mpd_worker_state);
             //disconnect
-            mpd_client_disconnect_silent(mpd_worker_state->partition_state, MPD_REMOVED);
+            mpd_client_disconnect_silent(mpd_worker_state->partition_state);
         }
         if (mpd_worker_state->stickerdb->conn != NULL) {
-            stickerdb_disconnect(mpd_worker_state->stickerdb, MPD_DISCONNECT_INSTANT);
+            stickerdb_disconnect(mpd_worker_state->stickerdb);
         }
     }
     else {

@@ -10,7 +10,7 @@
 #include "src/lib/mympd_state.h"
 
 bool stickerdb_connect(struct t_stickerdb_state *stickerdb);
-void stickerdb_disconnect(struct t_stickerdb_state *stickerdb, enum mpd_conn_states new_conn_state);
+void stickerdb_disconnect(struct t_stickerdb_state *stickerdb);
 bool stickerdb_idle(struct t_stickerdb_state *stickerdb);
 bool stickerdb_enter_idle(struct t_stickerdb_state *stickerdb);
 bool stickerdb_exit_idle(struct t_stickerdb_state *stickerdb);

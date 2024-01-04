@@ -20,7 +20,6 @@
  */
 void event_pfd_init(struct mympd_pfds *pfds) {
     memset(pfds, 0, sizeof(struct mympd_pfds));
-    pfds->update_fds = true;
 }
 
 /**
@@ -31,6 +30,9 @@ void event_pfd_init(struct mympd_pfds *pfds) {
  * @return true on success, else false
  */
 bool event_pfd_add_fd(struct mympd_pfds *pfds, int fd, enum pfd_type type) {
+    if (fd == -1) {
+        return false;
+    }
     if (pfds->len == POLL_FDS_MAX) {
         MYMPD_LOG_ERROR(NULL, "Too many file descriptors");
         return false;

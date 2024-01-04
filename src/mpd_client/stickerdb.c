@@ -46,14 +46,13 @@ static bool stickerdb_connect_mpd(struct t_stickerdb_state *stickerdb);
  * @param stickerdb pointer to the stickerdb state
  */
 bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
-    stickerdb->update_fds = true;
     if (stickerdb->config->stickers == false) {
         MYMPD_LOG_WARN("stickerdb", "Stickers are disabled by config");
         return false;
     }
     if (stickerdb->conn_state == MPD_FAILURE) {
         MYMPD_LOG_DEBUG("stickerdb", "Disconnecting from MPD");
-        stickerdb_disconnect(stickerdb, MPD_DISCONNECTED);
+        stickerdb_disconnect(stickerdb);
     }
     if (stickerdb->conn_state == MPD_CONNECTED) {
         // already connected
@@ -62,7 +61,7 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
             return true;
         }
         // stickerdb connection broken
-        stickerdb_disconnect(stickerdb, MPD_DISCONNECTED);
+        stickerdb_disconnect(stickerdb);
     }
     // try to connect
     MYMPD_LOG_INFO(stickerdb->name, "Creating mpd connection for %s", stickerdb->name);
@@ -74,7 +73,7 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
     if (mpd_connection_cmp_server_version(stickerdb->conn, MPD_VERSION_MIN_MAJOR, MPD_VERSION_MIN_MINOR, MPD_VERSION_MIN_PATCH) < 0) {
         MYMPD_LOG_DEBUG("stickerdb", "Checking version");
         MYMPD_LOG_EMERG(stickerdb->name, "MPD version too old, myMPD supports only MPD version >= 0.21");
-        stickerdb_disconnect(stickerdb, MPD_DISCONNECTED);
+        stickerdb_disconnect(stickerdb);
         return false;
     }
     if (mpd_connection_cmp_server_version(stickerdb->conn, 0, 24, 0) >= 0) {
@@ -107,7 +106,7 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
     if (stickerdb_check_error_and_recover(stickerdb, "mpd_send_allowed_commands") == true) {
         if (stickerdb->mpd_state->feat.stickers == false) {
             MYMPD_LOG_ERROR("stickerdb", "MPD does not support stickers");
-            stickerdb_disconnect(stickerdb, MPD_DISCONNECTED);
+            stickerdb_disconnect(stickerdb);
             send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "MPD does not support stickers");
             return false;
         }
@@ -120,16 +119,14 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
 /**
  * Disconnects from MPD
  * @param stickerdb pointer to stickerdb state
- * @param new_conn_state new connection state
  */
-void stickerdb_disconnect(struct t_stickerdb_state *stickerdb, enum mpd_conn_states new_conn_state) {
+void stickerdb_disconnect(struct t_stickerdb_state *stickerdb) {
     if (stickerdb->conn != NULL) {
         MYMPD_LOG_INFO(stickerdb->name, "Disconnecting from mpd");
         mpd_connection_free(stickerdb->conn);
     }
     stickerdb->conn = NULL;
-    stickerdb->conn_state = new_conn_state;
-    stickerdb->update_fds = true;
+    stickerdb->conn_state = MPD_DISCONNECTED;
 }
 
 /**
@@ -154,7 +151,7 @@ bool stickerdb_enter_idle(struct t_stickerdb_state *stickerdb) {
     // the idle events are discarded in the mympd api loop
     if (mpd_send_idle_mask(stickerdb->conn, MPD_IDLE_STICKER) == false) {
         MYMPD_LOG_ERROR("stickerdb", "Error entering idle mode");
-        stickerdb_disconnect(stickerdb, MPD_DISCONNECTED);
+        stickerdb_disconnect(stickerdb);
         return false;
     }
     return true;

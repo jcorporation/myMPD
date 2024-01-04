@@ -31,13 +31,9 @@ enum jukebox_modes {
  * MPD connection states
  */
 enum mpd_conn_states {
-    MPD_CONNECTED,           //!< mpd is connected
-    MPD_DISCONNECTED,        //!< mpd is disconnected, try to reconnect
-    MPD_FAILURE,             //!< mpd connection failed, disconnect mpd and reconnect after wait time
-    MPD_DISCONNECT,          //!< disconnect mpd and reconnect after wait time
-    MPD_DISCONNECT_INSTANT,  //!< disconnect mpd and reconnect as soon as possible
-    MPD_WAIT,                //!< waiting for reconnection
-    MPD_REMOVED              //!< connection was removed
+    MPD_CONNECTED,     //!< mpd is connected
+    MPD_DISCONNECTED,  //!< mpd is disconnected
+    MPD_FAILURE        //!< mpd is in unrecoverable failure state
 };
 
 /**
@@ -123,9 +119,6 @@ struct t_partition_state {
     //mpd connection
     struct mpd_connection *conn;           //!< mpd connection object from libmpdclient
     enum mpd_conn_states conn_state;       //!< mpd connection state
-    //reconnect timer
-    time_t reconnect_time;                 //!< timestamp at which next connection attempt is made
-    int reconnect_interval;                //!< interval for connections attempts (increases by failed attempts)
     //track player states
     enum mpd_state play_state;             //!< mpd player state
     int song_id;                           //!< current song id from queue
@@ -136,15 +129,12 @@ struct t_partition_state {
     sds last_song_uri;                     //!< previous song uri
     unsigned queue_version;                //!< queue version number (increments on queue change)
     unsigned queue_length;                 //!< length of the queue
-    int last_scrobbled_id;                 //!< last scrobble event was fired for this song id
     int last_skipped_id;                   //!< last skipped event was fired for this song id
     time_t song_end_time;                  //!< timestamp at which current song should end (starttime + duration)
     time_t last_song_end_time;             //!< timestamp at which previous song should end (starttime + duration)
     time_t song_start_time;                //!< timestamp at which current song has started
     time_t last_song_start_time;           //!< timestamp at which previous song has started
     time_t crossfade;                      //!< used for determine when to add next song from jukebox queue
-    time_t song_scrobble_time;             //!< timestamp at which the next scrobble event will be fired
-    time_t last_song_scrobble_time;        //!< timestamp of the previous scrobble event
     bool auto_play;                        //!< start play if queue changes
     bool player_error;                     //!< signals mpd player error condition
     struct t_jukebox_state jukebox;        //!< jukebox
@@ -163,6 +153,12 @@ struct t_partition_state {
     //lists
     struct t_list last_played;             //!< last_played list
     struct t_list preset_list;             //!< Playback presets
+    //timers
+    int timer_fd_jukebox;                  //!< Timerfd for jukebox runs
+    int timer_fd_scrobble;                 //!< Timerfd for scrobble event
+    int timer_fd_mpd_connect;              //!< Timerfd for mpd reconnection
+    //events
+    enum pfd_type waiting_events;          //!< Bitmask for events
 };
 
 /**
@@ -175,7 +171,6 @@ struct t_stickerdb_state {
     struct mpd_connection *conn;           //!< mpd connection object from libmpdclient
     enum mpd_conn_states conn_state;       //!< mpd connection state
     sds name;                              //!< name for logging
-    bool update_fds;                       //!< Update the poll fds array
 };
 
 /**
@@ -203,7 +198,6 @@ struct t_timer_list {
     unsigned last_id;                   //!< highest timer id in the list
     int active;                         //!< number of enabled timers
     struct t_list list;                 //!< timer definition
-    bool update_fds;                    //!< update the poll fds array?
 };
 
 /**

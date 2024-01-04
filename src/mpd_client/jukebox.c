@@ -99,21 +99,22 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
         MYMPD_LOG_DEBUG(partition_state->name, "Filling the jukebox queue is already in progress");
         return true;
     }
+
     mpd_client_queue_status_update(partition_state);
     sdsclear(partition_state->jukebox.last_error);
 
-    time_t now = time(NULL);
-    time_t add_time = partition_state->song_end_time - (partition_state->crossfade + JUKEBOX_ADD_SONG_OFFSET);
-
+    //time_t now = time(NULL);
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: MPD queue length: %u", partition_state->queue_length);
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: min queue length: %u", partition_state->jukebox.queue_length);
 
+    /*
     if (partition_state->queue_length >= partition_state->jukebox.queue_length &&
-        now < add_time)
+        (now < partition_state->jukebox_add_time || partition_state->jukebox_add_time == 0))
     {
         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: MPD queue length >= %u and add_time not reached", partition_state->jukebox.queue_length);
         return true;
     }
+    */
 
     unsigned add_songs = partition_state->jukebox.queue_length > partition_state->queue_length
         ? partition_state->jukebox.queue_length - partition_state->queue_length
@@ -123,14 +124,6 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
         MYMPD_LOG_WARN(partition_state->name, "Jukebox: max songs to add set to %u, adding max. %d songs", add_songs, JUKEBOX_ADD_SONG_MAX);
         add_songs = JUKEBOX_ADD_SONG_MAX;
     }
-
-    #ifdef MYMPD_DEBUG
-        char fmt_time_now[32];
-        readable_time(fmt_time_now, now);
-        char fmt_time_add[32];
-        readable_time(fmt_time_add, add_time);
-        MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: time now %s greater than add_time %s, adding %u song(s)", fmt_time_now, fmt_time_add, add_songs);
-    #endif
 
     // check if jukebox queue is long enough
     if (add_songs > partition_state->jukebox.queue->length) {

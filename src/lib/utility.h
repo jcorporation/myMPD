@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_UTILITY_H
-#define MYMPD_UTILITY_H
+#ifndef MYMPD_LIB_UTILITY_H
+#define MYMPD_LIB_UTILITY_H
 
 #include "dist/sds/sds.h"
 #include "src/lib/config_def.h"

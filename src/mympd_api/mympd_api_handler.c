@@ -421,7 +421,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
                 sdsclear(partition_state->jukebox.last_error);
-                if (partition_state->jukebox.mode != JUKEBOX_OFF) {
+                if (partition_state->jukebox.mode != JUKEBOX_OFF &&
+                    partition_state->queue_length == 0)
+                {
                     // start jukebox
                     jukebox_run(partition_state, &mympd_state->album_cache);
                 }
@@ -464,7 +466,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 if (strcmp(old_mpd_settings, new_mpd_settings) != 0) {
                     //disconnect all partitions
                     MYMPD_LOG_DEBUG(partition_state->name, "MPD host has changed, disconnecting");
-                    mpd_client_disconnect_all(mympd_state, MPD_DISCONNECTED);
+                    mpd_client_disconnect_all(mympd_state);
                     //remove all but default partition
                     partitions_list_clear(mympd_state);
                     //remove caches
@@ -482,7 +484,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     if (strcmp(old_stickerdb_settings, new_stickerdb_settings) != 0) {
                         // reconnect
                         MYMPD_LOG_DEBUG("stickerdb", "MPD host has changed, reconnecting");
-                        stickerdb_disconnect(mympd_state->stickerdb, MPD_DISCONNECTED);
+                        stickerdb_disconnect(mympd_state->stickerdb);
                         // connect to stickerdb
                         if (stickerdb_connect(mympd_state->stickerdb) == true) {
                             stickerdb_enter_idle(mympd_state->stickerdb);

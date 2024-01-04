@@ -10,6 +10,8 @@
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/timer.h"
+#include "src/mpd_client/connection.h"
 #include "src/mpd_client/tags.h"
 
 #include <errno.h>
@@ -32,7 +34,8 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
  */
 void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char *errormessage) {
     MYMPD_LOG_ERROR(partition_state->name, "%s", errormessage);
-    partition_state->conn_state = MPD_FAILURE;
+    mpd_client_disconnect(partition_state);
+    mympd_timer_set(partition_state->timer_fd_mpd_connect, 0, 5);
 }
 
 /**

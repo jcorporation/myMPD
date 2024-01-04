@@ -11,4 +11,5 @@
 #include "src/lib/mympd_state.h"
 
 void mpd_client_idle(struct t_mympd_state *mympd_state, struct t_work_request *request);
+void mpd_client_scrobble(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state);
 #endif

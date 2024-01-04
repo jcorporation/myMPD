@@ -14,6 +14,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
+#include "src/lib/timer.h"
 #include "src/lib/utility.h"
 #include "src/mympd_api/timer_handlers.h"
 
@@ -23,18 +24,10 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifdef MYMPD_NO_TIMERFD
-    #define timerfd_create(a, b) -1
-    #define timerfd_settime(a, b, c, d) -1
-#else
-    #include <sys/timerfd.h>
-#endif
-
 /**
  * Private definitions
  */
 
-static void set_timerfds(struct t_timer_list *l);
 static void mympd_api_timer_free_node(struct t_list_node *node);
 static struct t_list_node *get_timer_from_fd(struct t_timer_list *l, int fd);
 static sds print_timer_node(sds buffer, unsigned timer_id, struct t_timer_node *current);
@@ -51,7 +44,6 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
     l->active = 0;
     l->last_id = USER_TIMER_ID_START;
     list_init(&l->list);
-    set_timerfds(l);
 }
 
 /**
@@ -179,7 +171,7 @@ bool mympd_api_timer_replace(struct t_timer_list *l, int timeout, int interval, 
 /**
  * Adds a timer with given timer_id
  * @param l timer list
- * @param timeout seconds when timer will run
+ * @param timeout seconds when timer will run (offset from now)
  * @param interval reschedule timer interval
  * @param handler timer callback function
  * @param timer_id id of the timer
@@ -202,36 +194,12 @@ bool mympd_api_timer_add(struct t_timer_list *l, int timeout, int interval, time
     if (definition == NULL ||           // internal timers
         definition->enabled == true)    // user defined timers
     {
-        errno = 0;
-        new_node->fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);
+        // Interval:
+        //  0 = oneshot and deactivate
+        // -1 = oneshot and remove
+        new_node->fd = mympd_timer_create(CLOCK_REALTIME, timeout, (interval > 0 ? interval : 0));
         if (new_node->fd == -1) {
             FREE_PTR(new_node);
-            MYMPD_LOG_ERROR(NULL, "Can't create timerfd");
-            MYMPD_LOG_ERRNO(NULL, errno);
-            return false;
-        }
-
-        struct itimerspec new_value;
-        //timeout
-        new_value.it_value.tv_sec = timeout;
-        new_value.it_value.tv_nsec = 0;
-        //interval
-        //0 = oneshot and deactivate
-        //-1 = oneshot and remove
-        new_value.it_interval.tv_sec = interval > 0
-            ? interval
-            : 0;
-        new_value.it_interval.tv_nsec = 0;
-
-        #ifdef MYMPD_NO_TIMERFD
-            (void) new_value;
-        #endif
-
-        errno = 0;
-        if (timerfd_settime(new_node->fd, 0, &new_value, NULL) == -1) {
-            FREE_PTR(new_node);
-            MYMPD_LOG_ERROR(NULL, "Can't set expiration for timer");
-            MYMPD_LOG_ERRNO(NULL, errno);
             return false;
         }
     }
@@ -247,9 +215,8 @@ bool mympd_api_timer_add(struct t_timer_list *l, int timeout, int interval, time
     #ifdef MYMPD_DEBUG
         char fmt_time[32];
         readable_time(fmt_time, timeout);
-        MYMPD_LOG_DEBUG(NULL, "Added timer with id %u, start time %s" PRId64, timer_id, fmt_time);
+        MYMPD_LOG_DEBUG(NULL, "Added timer with id %u, start time %s", timer_id, fmt_time);
     #endif
-    set_timerfds(l);
     return true;
 }
 
@@ -277,7 +244,6 @@ bool mympd_api_timer_remove(struct t_timer_list *l, unsigned timer_id) {
             l->active--;
         }
         list_remove_node_user_data(&l->list, idx, mympd_api_timer_free_node);
-        set_timerfds(l);
         return true;
     }
     return false;
@@ -589,14 +555,6 @@ bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
 /**
  * Private functions
  */
-
-/**
- * Sets the timerfds to poll
- * @param l timer list
- */
-static void set_timerfds(struct t_timer_list *l) {
-    l->update_fds = true;
-}
 
 /**
  * Frees a timer node

@@ -138,7 +138,7 @@ sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition
         return buffer;
     }
     //disconnect partition
-    mpd_client_disconnect(partition_to_remove, MPD_DISCONNECTED);
+    mpd_client_disconnect(partition_to_remove);
     //move outputs
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
@@ -165,7 +165,7 @@ sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition
     buffer = mympd_respond_with_error_or_ok(partition_state, buffer, cmd_id, request_id, "mpd_run_delete_partition", &result);
     if (result == true) {
         //partition was removed
-        partition_to_remove->conn_state = MPD_REMOVED;
+        partition_to_remove->conn_state = MPD_DISCONNECTED;
         sds dirpath = sdscatfmt(sdsempty(),"%S/%s/%S",partition_state->config->workdir, DIR_WORK_STATE, partition);
         clean_rm_directory(dirpath);
         FREE_SDS(dirpath);

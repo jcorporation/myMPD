@@ -7,6 +7,7 @@
 #ifndef MYMPD_EVENT_H
 #define MYMPD_EVENT_H
 
+#include "compile_time.h"
 #include <poll.h>
 #include <stdbool.h>
 
@@ -14,10 +15,13 @@
  * Poll fd types
  */
 enum pfd_type {
-    PFD_TYPE_PARTITION,
-    PFD_TYPE_STICKERDB,
-    PFD_TYPE_TIMER,
-    PFD_TYPE_QUEUE
+    PFD_TYPE_PARTITION = 0x1,
+    PFD_TYPE_STICKERDB = 0x2,
+    PFD_TYPE_TIMER = 0x4,
+    PFD_TYPE_QUEUE = 0x8,
+    PFD_TYPE_TIMER_MPD_CONNECT = 0x10,
+    PFD_TYPE_TIMER_SCROBBLE = 0x20,
+    PFD_TYPE_TIMER_JUKEBOX = 0x40
 };
 
 /**
@@ -27,7 +31,6 @@ struct mympd_pfds {
     struct pollfd fds[POLL_FDS_MAX];       //!< fds
     enum pfd_type fd_types[POLL_FDS_MAX];  //!< fd types
     nfds_t len;                            //!< number of mpd connection fds
-    bool update_fds;                       //!< Update the fds array?
 };
 
 void event_pfd_init(struct mympd_pfds *pfds);

@@ -69,6 +69,7 @@ target_sources(mympd PRIVATE
   lib/state_files.c
   lib/tags.c
   lib/thread.c
+  lib/timer.c
   lib/utility.c
   lib/validate.c
   mpd_client/autoconf.c

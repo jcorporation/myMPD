@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/timer.h"
 #include "src/mympd_api/status.h"
 
 #include "src/lib/jsonrpc.h"
@@ -154,7 +155,6 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
             partition_state->last_song_id = partition_state->song_id;
             partition_state->last_song_end_time = partition_state->song_end_time;
             partition_state->last_song_start_time = partition_state->song_start_time;
-            partition_state->last_song_scrobble_time = partition_state->song_scrobble_time;
         }
 
         const char *player_error = mpd_status_get_error(status);
@@ -171,35 +171,30 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
 
         time_t total_time = (time_t)mpd_status_get_total_time(status);
         time_t elapsed_time = (time_t)mympd_api_get_elapsed_seconds(status);
-        //scrobble time is half length of song or SCROBBLE_TIME_MAX (4 minutes) whatever is shorter
-        time_t scrobble_time = total_time > SCROBBLE_TIME_TOTAL
-            ? SCROBBLE_TIME_MAX
-            : total_time / 2;
-
         partition_state->song_start_time = now - elapsed_time;
         partition_state->song_end_time = total_time == 0
             ? 0
             : now + total_time - elapsed_time;
 
-        if (total_time <= SCROBBLE_TIME_MIN ||  //don't track songs with length < SCROBBLE_TIME_MIN (10s)
-            elapsed_time > scrobble_time)       //don't track songs that exceeded scrobble time
-        {
-            partition_state->song_scrobble_time = 0;
-        }
-        else {
-            partition_state->song_scrobble_time = now - elapsed_time + scrobble_time;
-        }
+        //scrobble time is half length of song or SCROBBLE_TIME_MAX (4 minutes) whatever is shorter
+        time_t scrobble_offset = total_time > SCROBBLE_TIME_TOTAL
+            ? SCROBBLE_TIME_MAX - elapsed_time
+            : total_time / 2 - elapsed_time;
+        mympd_timer_set(partition_state->timer_fd_scrobble, (scrobble_offset <= 0 ? 0 : (int)scrobble_offset), 0);
+
+        //jukebox add time is crossfade + 10s before song end time
+        time_t add_offset = total_time - (elapsed_time + partition_state->crossfade + JUKEBOX_ADD_SONG_OFFSET);
+        mympd_timer_set(partition_state->timer_fd_jukebox, (add_offset <= 0 ? 0 : (int)add_offset), 0);
+
         #ifdef MYMPD_DEBUG 
             char fmt_time_now[32];
             readable_time(fmt_time_now, now);
             char fmt_time_start[32];
             readable_time(fmt_time_start, partition_state->song_start_time);
-            char fmt_time_scrobble[32];
-            readable_time(fmt_time_scrobble, partition_state->song_scrobble_time);
             char fmt_time_end[32];
             readable_time(fmt_time_end, partition_state->song_end_time);
-            MYMPD_LOG_DEBUG(partition_state->name, "Now %s, start time %s, scrobble time %s, end time %s",
-                fmt_time_now, fmt_time_start, fmt_time_scrobble, fmt_time_end);
+            MYMPD_LOG_DEBUG(partition_state->name, "Now %s, start time %s, end time %s",
+                fmt_time_now, fmt_time_start, fmt_time_end);
         #endif
 
         if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {

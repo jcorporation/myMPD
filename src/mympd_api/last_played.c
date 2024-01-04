@@ -32,35 +32,19 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, struct
  */
 
 /**
- * Adds a song from queue with song_id to the last played list in memory
+ * Adds the current playing song to the last played list
  * @param partition_state pointer to partition state
  * @param last_played_count max songs in last_played list
- * @param song_id the song id to add
  * @return true on success, else false
  */
-bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, unsigned last_played_count, unsigned song_id) {
-    if (last_played_count == 0) {
-        // last played is disable
+bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, unsigned last_played_count) {
+    if (last_played_count == 0 || // Last played list is disabled
+        is_streamuri(partition_state->song_uri) == true) // Don't add streams to last played list
+    {
         return true;
     }
 
-    // get current playing song and add it
-    struct mpd_song *song = mpd_run_get_queue_song_id(partition_state->conn, song_id);
-    if (song != NULL) {
-        const char *uri = mpd_song_get_uri(song);
-        if (is_streamuri(uri) == true) {
-            //Don't add streams to last played list
-            mpd_song_free(song);
-            return true;
-        }
-        list_insert(&partition_state->last_played, uri, (int64_t)time(NULL), NULL, NULL);
-        mpd_song_free(song);
-    }
-    mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_get_queue_song_id") == false) {
-        return false;
-    }
-
+    list_insert(&partition_state->last_played, partition_state->song_uri, (int64_t)time(NULL), NULL, NULL);
     list_crop(&partition_state->last_played, last_played_count, NULL);
 
     //notify clients

@@ -12,12 +12,14 @@
 #include "src/lib/last_played.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/timer.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/presets.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/trigger.h"
 
+#include <bits/time.h>
 #include <string.h>
 
 /**
@@ -301,8 +303,6 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->conn = NULL;
     partition_state->conn_state = MPD_DISCONNECTED;
     partition_state->play_state = MPD_STATE_UNKNOWN;
-    partition_state->reconnect_time = 0;
-    partition_state->reconnect_interval = 0;
     partition_state->song_id = -1;
     partition_state->song_uri = sdsempty();
     partition_state->next_song_id = -1;
@@ -310,12 +310,9 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->last_song_uri = sdsempty();
     partition_state->queue_version = 0;
     partition_state->queue_length = 0;
-    partition_state->last_scrobbled_id = -1;
     partition_state->song_start_time = 0;
-    partition_state->song_scrobble_time = 0;
     partition_state->song_end_time = 0;
     partition_state->last_song_start_time = 0;
-    partition_state->last_song_scrobble_time = 0;
     partition_state->last_song_end_time = 0;
     partition_state->last_skipped_id = 0;
     partition_state->crossfade = 0;
@@ -347,6 +344,12 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     list_init(&partition_state->last_played);
     list_init(&partition_state->preset_list);
     preset_list_load(partition_state);
+    //timers
+    partition_state->timer_fd_jukebox = mympd_timer_create(CLOCK_MONOTONIC, 0, 0);
+    partition_state->timer_fd_scrobble = mympd_timer_create(CLOCK_MONOTONIC, 0, 0);
+    partition_state->timer_fd_mpd_connect = mympd_timer_create(CLOCK_MONOTONIC, 0, 0);
+    //events
+    partition_state->waiting_events = 0;
 }
 
 /**
@@ -367,6 +370,10 @@ void partition_state_free(struct t_partition_state *partition_state) {
     list_clear(&partition_state->preset_list);
     //local playback
     FREE_SDS(partition_state->stream_uri);
+    //timers
+    mympd_timer_close(partition_state->timer_fd_jukebox);
+    mympd_timer_close (partition_state->timer_fd_scrobble);
+    mympd_timer_close(partition_state->timer_fd_mpd_connect);
     //struct itself
     FREE_PTR(partition_state);
 }
@@ -438,7 +445,6 @@ void stickerdb_state_default(struct t_stickerdb_state *stickerdb, struct t_confi
     stickerdb->conn_state = MPD_DISCONNECTED;
     stickerdb->conn = NULL;
     stickerdb->name = sdsnew("stickerdb");
-    stickerdb->update_fds = true;
 }
 
 /**
