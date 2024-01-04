@@ -11,7 +11,6 @@
 
 bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state);
 struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_state, const char *name);
-struct t_partition_state *partitions_get_by_fd(struct t_mympd_state *mympd_state, enum pfd_type fd_type, int fd);
 void partitions_list_clear(struct t_mympd_state *mympd_state);
 bool partitions_populate(struct t_mympd_state *mympd_state);
 bool partitions_check(struct t_mympd_state *mympd_state, const char *name);

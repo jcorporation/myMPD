@@ -28,13 +28,14 @@ enum pfd_type {
  * Struct holding the poll fds and there types
  */
 struct mympd_pfds {
-    struct pollfd fds[POLL_FDS_MAX];       //!< fds
-    enum pfd_type fd_types[POLL_FDS_MAX];  //!< fd types
-    nfds_t len;                            //!< number of mpd connection fds
+    struct pollfd fds[POLL_FDS_MAX];                           //!< fds
+    enum pfd_type fd_types[POLL_FDS_MAX];                      //!< fd types
+    nfds_t len;                                                //!< number of mpd connection fds
+    struct t_partition_state *partition_states[POLL_FDS_MAX];  //!< pointer to partition_state
 };
 
 void event_pfd_init(struct mympd_pfds *pfds);
-bool event_pfd_add_fd(struct mympd_pfds *pfds, int fd, enum pfd_type type);
+bool event_pfd_add_fd(struct mympd_pfds *pfds, int fd, enum pfd_type type, struct t_partition_state *partition_state);
 bool event_pfd_read_fd(int fd);
 int event_eventfd_create(void);
 bool event_eventfd_write(int fd);

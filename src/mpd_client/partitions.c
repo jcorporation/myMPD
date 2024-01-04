@@ -100,27 +100,6 @@ struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_sta
 }
 
 /**
- * Get the partition state struct by file descriptor
- * @param mympd_state pointer to central myMPD state
- * @param name mpd partition name
- * @return pointer to partition_state, NULL if partition is not found
- */
-struct t_partition_state *partitions_get_by_fd(struct t_mympd_state *mympd_state, enum pfd_type fd_type, int fd) {
-    struct t_partition_state *partition_state = mympd_state->partition_state;
-    while (partition_state != NULL) {
-        if ((fd_type == PFD_TYPE_PARTITION && mpd_connection_get_fd(partition_state->conn) == fd) ||
-            (fd_type == PFD_TYPE_TIMER_SCROBBLE && partition_state->timer_fd_scrobble == fd) ||
-            (fd_type == PFD_TYPE_TIMER_JUKEBOX && partition_state->timer_fd_jukebox == fd) ||
-            (fd_type == PFD_TYPE_TIMER_MPD_CONNECT && partition_state->timer_fd_mpd_connect == fd))
-        {
-            return partition_state;
-        }
-        partition_state = partition_state->next;
-    }
-    return NULL;
-}
-
-/**
  * Removes all but default partition from the list
  * @param mympd_state pointer to central myMPD state
  */

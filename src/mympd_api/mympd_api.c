@@ -134,47 +134,26 @@ void *mympd_api_loop(void *arg_config) {
                             partition_state->waiting_events |= PFD_TYPE_QUEUE;
                         }
                         break;
-                    case PFD_TYPE_PARTITION: {
+                    case PFD_TYPE_PARTITION:
                         // mpd idle event
-                        struct t_partition_state *partition_state = partitions_get_by_fd(mympd_state, PFD_TYPE_PARTITION, mympd_state->pfds.fds[i].fd);
-                        if (partition_state == NULL) {
-                                MYMPD_LOG_ERROR(NULL, "Unable to find partition for partition fd: %d", mympd_state->pfds.fds[i].fd);
-                                break;
-                            }
-                        partition_state->waiting_events |= PFD_TYPE_PARTITION;
+                        mympd_state->pfds.partition_states[i]->waiting_events |= PFD_TYPE_PARTITION;
                         break;
-                    }
                     case PFD_TYPE_TIMER_JUKEBOX:
                         // jukebox should add a song
                         if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
-                            struct t_partition_state *partition_state = partitions_get_by_fd(mympd_state, PFD_TYPE_TIMER_JUKEBOX, mympd_state->pfds.fds[i].fd);
-                            if (partition_state == NULL) {
-                                MYMPD_LOG_ERROR(NULL, "Unable to find partition for jukebox fd: %d", mympd_state->pfds.fds[i].fd);
-                                break;
-                            }
-                            partition_state->waiting_events |= PFD_TYPE_TIMER_JUKEBOX;
+                            mympd_state->pfds.partition_states[i]->waiting_events |= PFD_TYPE_TIMER_JUKEBOX;
                         }
                         break;
                     case PFD_TYPE_TIMER_SCROBBLE:
                         // the scrobble event
                         if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
-                            struct t_partition_state *partition_state = partitions_get_by_fd(mympd_state, PFD_TYPE_TIMER_SCROBBLE, mympd_state->pfds.fds[i].fd);
-                            if (partition_state == NULL) {
-                                MYMPD_LOG_ERROR(NULL, "Unable to find partition for scrobble fd: %d", mympd_state->pfds.fds[i].fd);
-                                break;
-                            }
-                            mpd_client_scrobble(mympd_state, partition_state);
+                            mpd_client_scrobble(mympd_state, mympd_state->pfds.partition_states[i]);
                         }
                         break;
                     case PFD_TYPE_TIMER_MPD_CONNECT:
                         // connect to mpd
                         if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
-                            struct t_partition_state *partition_state = partitions_get_by_fd(mympd_state, PFD_TYPE_TIMER_MPD_CONNECT, mympd_state->pfds.fds[i].fd);
-                            if (partition_state == NULL) {
-                                MYMPD_LOG_ERROR(NULL, "Unable to find partition for connect fd: %d", mympd_state->pfds.fds[i].fd);
-                                break;
-                            }
-                            partitions_connect(mympd_state, partition_state);
+                            partitions_connect(mympd_state, mympd_state->pfds.partition_states[i]);
                         }
                         break;
                 }
@@ -223,30 +202,29 @@ static void populate_pfds(struct t_mympd_state *mympd_state) {
     #endif
     mympd_state->pfds.len = 0;
     // Connections for MPD partitions
-    // These fd types must be the first in the array
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
         if (partition_state->conn != NULL) {
-            event_pfd_add_fd(&mympd_state->pfds, mpd_connection_get_fd(partition_state->conn), PFD_TYPE_PARTITION);
-            event_pfd_add_fd(&mympd_state->pfds, partition_state->timer_fd_scrobble, PFD_TYPE_TIMER_SCROBBLE);
-            event_pfd_add_fd(&mympd_state->pfds, partition_state->timer_fd_jukebox, PFD_TYPE_TIMER_JUKEBOX);
+            event_pfd_add_fd(&mympd_state->pfds, mpd_connection_get_fd(partition_state->conn), PFD_TYPE_PARTITION, partition_state);
+            event_pfd_add_fd(&mympd_state->pfds, partition_state->timer_fd_scrobble, PFD_TYPE_TIMER_SCROBBLE, partition_state);
+            event_pfd_add_fd(&mympd_state->pfds, partition_state->timer_fd_jukebox, PFD_TYPE_TIMER_JUKEBOX, partition_state);
         }
-        event_pfd_add_fd(&mympd_state->pfds, partition_state->timer_fd_mpd_connect, PFD_TYPE_TIMER_MPD_CONNECT);
+        event_pfd_add_fd(&mympd_state->pfds, partition_state->timer_fd_mpd_connect, PFD_TYPE_TIMER_MPD_CONNECT, partition_state);
         partition_state = partition_state->next;
     }
     // StickerDB MPD connection
     if (mympd_state->stickerdb->conn != NULL &&
         mympd_state->stickerdb->conn_state == MPD_CONNECTED)
     {
-        event_pfd_add_fd(&mympd_state->pfds, mpd_connection_get_fd(mympd_state->stickerdb->conn), PFD_TYPE_STICKERDB);
+        event_pfd_add_fd(&mympd_state->pfds, mpd_connection_get_fd(mympd_state->stickerdb->conn), PFD_TYPE_STICKERDB, NULL);
     }
     // mympd_api_queue
-    event_pfd_add_fd(&mympd_state->pfds, mympd_api_queue->event_fd, PFD_TYPE_QUEUE);
+    event_pfd_add_fd(&mympd_state->pfds, mympd_api_queue->event_fd, PFD_TYPE_QUEUE, NULL);
     // Timer
     struct t_list_node *current = mympd_state->timer_list.list.head;
     while (current != NULL) {
         struct t_timer_node *current_timer = (struct t_timer_node *)current->user_data;
-        event_pfd_add_fd(&mympd_state->pfds, current_timer->fd, PFD_TYPE_TIMER);
+        event_pfd_add_fd(&mympd_state->pfds, current_timer->fd, PFD_TYPE_TIMER, NULL);
         current = current->next;
     }
 }

@@ -27,9 +27,10 @@ void event_pfd_init(struct mympd_pfds *pfds) {
  * @param pfds struct to add the fd
  * @param fd fd to add
  * @param type fd type to add
+ * @param partition_state pointer to partition_state or NULL
  * @return true on success, else false
  */
-bool event_pfd_add_fd(struct mympd_pfds *pfds, int fd, enum pfd_type type) {
+bool event_pfd_add_fd(struct mympd_pfds *pfds, int fd, enum pfd_type type, struct t_partition_state *partition_state) {
     if (fd == -1) {
         return false;
     }
@@ -40,6 +41,7 @@ bool event_pfd_add_fd(struct mympd_pfds *pfds, int fd, enum pfd_type type) {
     pfds->fds[pfds->len].fd = fd;
     pfds->fds[pfds->len].events = POLLIN;
     pfds->fd_types[pfds->len] = type;
+    pfds->partition_states[pfds->len] = partition_state;
     pfds->len++;
     return true;
 }

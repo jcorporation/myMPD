@@ -13,7 +13,6 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/timer.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
@@ -53,7 +52,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state, struct t_work_request *r
     // iterate through all partitions
     struct t_partition_state *partition_state = mympd_state->partition_state;
     do {
-        if (partition_state->waiting_events > 0) {
+        if (partition_state->waiting_events > 0 ||
+            partition_state->set_conn_options == true)
+        {
             if (partition_state->waiting_events & PFD_TYPE_QUEUE) {
                 mpd_client_idle_partition(mympd_state, partition_state, request);
                 request = NULL;
