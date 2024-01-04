@@ -15,12 +15,19 @@
  * Poll fd types
  */
 enum pfd_type {
+    /* MPD connection for partitions */
     PFD_TYPE_PARTITION = 0x1,
+    /* MPD connection for stickerdb */
     PFD_TYPE_STICKERDB = 0x2,
+    /* myMPD timers */
     PFD_TYPE_TIMER = 0x4,
+    /* Message queue */
     PFD_TYPE_QUEUE = 0x8,
+    /* Timer for mpd connect and reconnect */
     PFD_TYPE_TIMER_MPD_CONNECT = 0x10,
+    /* Scrobble timer */
     PFD_TYPE_TIMER_SCROBBLE = 0x20,
+    /* Jukebox timer */
     PFD_TYPE_TIMER_JUKEBOX = 0x40
 };
 
