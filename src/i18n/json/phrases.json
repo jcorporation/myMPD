@@ -855,7 +855,6 @@
 {"term":"Timer saved successfully"},
 {"term":"Timer with given id not found"},
 {"term":"Timerange (days)"},
-{"term":"Timers are not supported by platform"},
 {"term":"Timestamp"},
 {"term":"Title"},
 {"term":"To"},

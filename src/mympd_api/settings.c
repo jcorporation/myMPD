@@ -1062,11 +1062,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     #else
         buffer = tojson_bool(buffer, "featScripting", false, true);
     #endif
-    #ifdef MYMPD_NO_TIMERFD
-        buffer = tojson_bool(buffer, "featTimer", false, false);
-    #else
-        buffer = tojson_bool(buffer, "featTimer", true, false);
-    #endif
     buffer = sdscatlen(buffer, "}", 1);
     if (partition_state->conn_state == MPD_CONNECTED) {
         buffer = sdscatlen(buffer, ",", 1);

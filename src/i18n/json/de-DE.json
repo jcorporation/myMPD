@@ -1110,7 +1110,6 @@
     "helpJukeboxMinSongDuration": "Nur Lieder mit dieser Mindestlänge werden berücksichtigt.",
     "helpJukeboxMaxSongDuration": "Wenn größer Null: Nur Lieder mit dieser Maximallänge werden berücksichtigt.",
     "Sortdesc": "Sortierreihenfolge umdrehen",
-    "Timers are not supported by platform": "Timer sind von der Plattform nicht unterstützt.",
     "Album info": "Album Infos",
     "Info filename": "Info Dateiname",
     "Markdown could not be parsed.": "Markdown konnte nicht geparsed werden.",

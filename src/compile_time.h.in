@@ -47,12 +47,6 @@
 #cmakedefine I18N_ru_RU
 #cmakedefine I18N_zh_Hans
 
-// detect timerfd support
-#if defined __FreeBSD__ && __FreeBSD__ < 14
-    /* timerfd is not supported on FreeBSD < 14, so the timers doesn't work */
-    #define MYMPD_NO_TIMERFD
-#endif
-
 //myMPD version from cmake
 #define MYMPD_VERSION "${PROJECT_VERSION}"
 

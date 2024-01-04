@@ -34,6 +34,7 @@ set(TEST_SOURCES
   ../src/lib/sds_extras.c
   ../src/lib/state_files.c
   ../src/lib/sticker.c
+  ../src/lib/timer.c
   ../src/lib/tags.c
   ../src/lib/utility.c
   ../src/lib/validate.c

@@ -181,10 +181,6 @@ bool mympd_api_timer_replace(struct t_timer_list *l, int timeout, int interval, 
 bool mympd_api_timer_add(struct t_timer_list *l, int timeout, int interval, timer_handler handler,
         unsigned timer_id, struct t_timer_definition *definition)
 {
-    #ifdef MYMPD_NO_TIMERFD
-        MYMPD_LOG_DEBUG(NULL, "Timers are not supported by platform");
-        return true;
-    #endif
     struct t_timer_node *new_node = malloc_assert(sizeof(struct t_timer_node));
     new_node->callback = handler;
     new_node->definition = definition;
