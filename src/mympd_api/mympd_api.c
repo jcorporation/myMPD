@@ -126,12 +126,14 @@ void *mympd_api_loop(void *arg_config) {
                         // check the mympd_api_queue
                         if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
                             request = mympd_queue_shift(mympd_api_queue, 50, 0);
-                            struct t_partition_state *partition_state = partitions_get_by_name(mympd_state, request->partition);
-                            if (partition_state == NULL) {
-                                MYMPD_LOG_ERROR(NULL, "Unable to find partition for queue fd: %d", mympd_state->pfds.fds[i].fd);
-                                break;
+                            if (request != NULL) {
+                                struct t_partition_state *partition_state = partitions_get_by_name(mympd_state, request->partition);
+                                if (partition_state == NULL) {
+                                    MYMPD_LOG_ERROR(NULL, "Unable to find partition for queue fd: %d", mympd_state->pfds.fds[i].fd);
+                                    break;
+                                }
+                                partition_state->waiting_events |= PFD_TYPE_QUEUE;
                             }
-                            partition_state->waiting_events |= PFD_TYPE_QUEUE;
                         }
                         break;
                     case PFD_TYPE_PARTITION:

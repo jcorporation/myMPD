@@ -192,10 +192,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_INFO, sds_buf1);
             }
             break;
-        case INTERNAL_API_EXIT:
-            // This simply wakeups the mympd api poll
-            response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
-            break;
         case INTERNAL_API_STATE_SAVE:
             mympd_state_save(mympd_state, false);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);

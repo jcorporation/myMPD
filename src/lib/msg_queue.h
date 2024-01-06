@@ -37,7 +37,9 @@ struct t_mympd_queue {
     pthread_cond_t wakeup;        //!< condition variable for the mutex
     const char *name;             //!< descriptive name
     enum mympd_queue_types type;  //!< the queue type (request or response)
+    // to wakeup the mympd_api event loop
     int event_fd;                 //!< event fd
+    // to wakeup the mongoose event loop
     unsigned long mg_conn_id;     //!< mongoose listener id
     void *mg_mgr;                 //!< mongoose mgr
 };

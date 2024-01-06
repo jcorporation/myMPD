@@ -14,6 +14,7 @@
 #include "src/lib/config.h"
 #include "src/lib/config_def.h"
 #include "src/lib/env.h"
+#include "src/lib/event.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/handle_options.h"
 #include "src/lib/log.h"
@@ -86,9 +87,7 @@ static void mympd_signal_handler(int sig_num) {
             pthread_cond_signal(&mympd_api_queue->wakeup);
             pthread_cond_signal(&mympd_script_queue->wakeup);
             pthread_cond_signal(&web_server_queue->wakeup);
-            struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_EXIT, NULL, MPD_PARTITION_DEFAULT);
-            request->data = sdscatlen(request->data, "}}", 2);
-            mympd_queue_push(mympd_api_queue, request, 0);
+            event_eventfd_write(mympd_api_queue->event_fd);
             MYMPD_LOG_NOTICE(NULL, "Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
             if (web_server_queue->mg_mgr != NULL) {
                 mg_wakeup(web_server_queue->mg_mgr, web_server_queue->mg_conn_id, "", 0);
