@@ -38,9 +38,12 @@ struct t_mympd_queue {
     const char *name;             //!< descriptive name
     enum mympd_queue_types type;  //!< the queue type (request or response)
     int event_fd;                 //!< event fd
+    unsigned long mg_conn_id;     //!< mongoose listener id
+    void *mg_mgr;                 //!< mongoose mgr
 };
 
-struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_types type, bool event);
+struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_types type,
+        bool event);
 void *mympd_queue_free(struct t_mympd_queue *queue);
 bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id);
 void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, unsigned id);

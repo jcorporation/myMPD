@@ -52,7 +52,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Upd: Sanitize % special char for stream images
 - Upd: Smart playlist interval can be disabled
 - Upd: Improve JSON encoding performance
-- Upd: mympd_api thread resource usage
+- Upd: Improve event loop resource usage
 - Upd: utf8 dependency
 
 ***

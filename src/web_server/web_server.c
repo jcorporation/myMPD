@@ -31,6 +31,7 @@
  */
 
 static void get_placeholder_image(sds workdir, const char *name, sds *result);
+static void read_queue(struct mg_mgr *mgr);
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
@@ -183,49 +184,15 @@ void *web_server_loop(void *arg_mgr) {
     //set mongoose loglevel to error
     mg_log_set(1);
     mg_log_set_fn(mongoose_log, NULL);
-
+    // Initialise wakeup socket pair
+    mg_wakeup_init(mgr);
     if (mg_user_data->config->ssl == true) {
         MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
         MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
     }
     while (s_signal_received == 0) {
-        //poll webserver response queue
-        struct t_work_response *response = mympd_queue_shift(web_server_queue, 50, 0);
-        if (response != NULL) {
-            switch(response->type) {
-                case RESPONSE_TYPE_NOTIFY_CLIENT:
-                    //websocket notify for specific clients
-                    send_ws_notify_client(mgr, response);
-                    break;
-                case RESPONSE_TYPE_NOTIFY_PARTITION:
-                    //websocket notify for all clients
-                    send_ws_notify(mgr, response);
-                    break;
-                case RESPONSE_TYPE_PUSH_CONFIG:
-                    //internal message
-                    if (response->cmd_id == INTERNAL_API_WEBSERVER_READY) {
-                        mg_user_data->mympd_api_started = true;
-                        free_response(response);
-                    }
-                    else if (response->cmd_id == INTERNAL_API_WEBSERVER_SETTINGS){
-                        parse_internal_message(response, mg_user_data);
-                    }
-                    else {
-                        MYMPD_LOG_ERROR(response->partition, "Invalid API method: %s", get_cmd_id_method_name(response->cmd_id));
-                    }
-                    break;
-                case RESPONSE_TYPE_DEFAULT:
-                    //api response
-                    MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lu\"", response->conn_id);
-                    send_api_response(mgr, response);
-                case RESPONSE_TYPE_SCRIPT:
-                case RESPONSE_TYPE_DISCARD:
-                    //ignore
-                    break;
-            }
-        }
         //webserver polling
-        mg_mgr_poll(mgr, 50);
+        mg_mgr_poll(mgr, -1);
     }
     MYMPD_LOG_DEBUG(NULL, "Stopping web_server thread");
     FREE_SDS(thread_logname);
@@ -235,6 +202,48 @@ void *web_server_loop(void *arg_mgr) {
 /**
  * Private functions
  */
+
+/**
+ * Reads a message from the queue
+ * @param mgr pointer to mongoose mgr
+ */
+static void read_queue(struct mg_mgr *mgr) {
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
+    struct t_work_response *response = mympd_queue_shift(web_server_queue, 50, 0);
+    if (response != NULL) {
+        switch(response->type) {
+            case RESPONSE_TYPE_NOTIFY_CLIENT:
+                //websocket notify for specific clients
+                send_ws_notify_client(mgr, response);
+                break;
+            case RESPONSE_TYPE_NOTIFY_PARTITION:
+                //websocket notify for all clients
+                send_ws_notify(mgr, response);
+                break;
+            case RESPONSE_TYPE_PUSH_CONFIG:
+                //internal message
+                if (response->cmd_id == INTERNAL_API_WEBSERVER_READY) {
+                    mg_user_data->mympd_api_started = true;
+                    free_response(response);
+                }
+                else if (response->cmd_id == INTERNAL_API_WEBSERVER_SETTINGS){
+                    parse_internal_message(response, mg_user_data);
+                }
+                else {
+                    MYMPD_LOG_ERROR(response->partition, "Invalid API method: %s", get_cmd_id_method_name(response->cmd_id));
+                }
+                break;
+            case RESPONSE_TYPE_DEFAULT:
+                //api response
+                MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lu\"", response->conn_id);
+                send_api_response(mgr, response);
+            case RESPONSE_TYPE_SCRIPT:
+            case RESPONSE_TYPE_DISCARD:
+                //ignore
+                break;
+        }
+    }
+}
 
 /**
  * Sets the mg_user_data values from set_mg_user_data_request.
@@ -503,19 +512,29 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
     struct t_config *config = mg_user_data->config;
     switch(ev) {
         case MG_EV_OPEN: {
-            mg_user_data->connection_count++;
-            //initialize fn_data
-            frontend_nc_data = malloc_assert(sizeof(struct t_frontend_nc_data));
-            frontend_nc_data->partition = NULL;  // populated on websocket handshake
-            frontend_nc_data->id = 0;            // populated through websocket message
-            frontend_nc_data->backend_nc = NULL; // used for reverse proxy function
-            nc->fn_data = frontend_nc_data;
-            //set labels
-            nc->data[0] = 'F'; // connection type
-            nc->data[1] = '-'; // http method
-            nc->data[2] = 'C'; // connection header
+            if (nc->is_listening) {
+                nc->fn_data = NULL;
+                web_server_queue->mg_conn_id = nc->id;
+                web_server_queue->mg_mgr = nc->mgr;
+            }
+            else {
+                mg_user_data->connection_count++;
+                //initialize fn_data
+                frontend_nc_data = malloc_assert(sizeof(struct t_frontend_nc_data));
+                frontend_nc_data->partition = NULL;  // populated on websocket handshake
+                frontend_nc_data->id = 0;            // populated through websocket message
+                frontend_nc_data->backend_nc = NULL; // used for reverse proxy function
+                nc->fn_data = frontend_nc_data;
+                //set labels
+                nc->data[0] = 'F'; // connection type
+                nc->data[1] = '-'; // http method
+                nc->data[2] = 'C'; // connection header
+            }
             break;
         }
+        case MG_EV_WAKEUP:
+            read_queue(nc->mgr);
+            break;
         case MG_EV_ACCEPT:
             if (loglevel == LOG_DEBUG) {
                 sds ip = print_ip(sdsempty(), &nc->rem);
@@ -778,7 +797,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             MYMPD_LOG_INFO(NULL, "HTTP connection \"%lu\" closed", nc->id);
             mg_user_data->connection_count--;
             if (frontend_nc_data == NULL) {
-                MYMPD_LOG_WARN(NULL, "frontend_nc_data not allocated");
+                if (nc->is_listening == 0) {
+                    MYMPD_LOG_WARN(NULL, "frontend_nc_data not allocated");
+                }
                 break;
             }
             if (frontend_nc_data->backend_nc != NULL) {

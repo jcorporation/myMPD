@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/lib/msg_queue.h"
 
+#include "dist/mongoose/mongoose.h"
 #include "src/lib/api.h"
 #include "src/lib/event.h"
 #include "src/lib/log.h"
@@ -34,7 +35,8 @@ static void set_wait_time(int timeout, struct timespec *max_wait);
  * @param event create an eventfd?
  * @return pointer to allocated and initialized queue struct
  */
-struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_types type, bool event) {
+struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_types type,
+        bool event) {
     struct t_mympd_queue *queue = malloc_assert(sizeof(struct t_mympd_queue));
     queue->head = NULL;
     queue->tail = NULL;
@@ -46,6 +48,8 @@ struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_type
     queue->event_fd = event == true
         ? event_eventfd_create()
         : -1;
+    queue->mg_mgr = NULL;
+    queue->mg_conn_id = 0;
     return queue;
 }
 
@@ -98,6 +102,9 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id) {
     }
     if (queue->event_fd > -1) {
         event_eventfd_write(queue->event_fd);
+    }
+    else if (queue->mg_mgr != NULL) {
+        mg_wakeup(queue->mg_mgr, queue->mg_conn_id, "", 0);
     }
     return true;
 }

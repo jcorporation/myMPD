@@ -90,6 +90,9 @@ static void mympd_signal_handler(int sig_num) {
             request->data = sdscatlen(request->data, "}}", 2);
             mympd_queue_push(mympd_api_queue, request, 0);
             MYMPD_LOG_NOTICE(NULL, "Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
+            if (web_server_queue->mg_mgr != NULL) {
+                mg_wakeup(web_server_queue->mg_mgr, web_server_queue->mg_conn_id, "", 0);
+            }
             break;
         }
         case SIGHUP: {
