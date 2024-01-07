@@ -19,7 +19,6 @@
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/trigger.h"
 
-#include <bits/time.h>
 #include <string.h>
 
 /**

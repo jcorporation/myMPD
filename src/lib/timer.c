@@ -16,7 +16,7 @@
 
 /**
  * Creates a new timer
- * @param clock onf off CLOCK_MONOTONIC or CLOCK_REALTIME
+ * @param clock one off CLOCK_MONOTONIC or CLOCK_REALTIME
  * @param timeout timeout in seconds
  * @param interval interval in seconds
  * @return timer fd
