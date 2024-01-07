@@ -25,6 +25,7 @@ sudo make -C build install
 | MYMPD_DOC | ON | Installs documentation |
 | MYMPD_DOC_HTML | OFF | Creates and installs the html documentation |
 | MYMPD_EMBEDDED_ASSETS | ON | Embed assets in binary, default ON, OFF for Debug |
+| MYMPD_ENABLE_EXPERIMENTAL | OFF | Enable experimental features |
 | MYMPD_ENABLE_FLAC | ON | Enables flac support |
 | MYMPD_ENABLE_IPV6 | ON | Enables IPv6 |
 | MYMPD_ENABLE_ASAN | OFF | Enables build with address sanitizer |

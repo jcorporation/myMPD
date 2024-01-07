@@ -478,6 +478,9 @@ int main(int argc, char **argv) {
     #ifdef MYMPD_ENABLE_FLAC
         MYMPD_LOG_INFO(NULL, "FLAC %d.%d.%d", FLAC_API_VERSION_CURRENT, FLAC_API_VERSION_REVISION, FLAC_API_VERSION_AGE);
     #endif
+    #ifdef MYMPD_ENABLE_EXPERIMENTAL
+        MYMPD_LOG_INFO(NULL, "Experimental features are enabled");
+    #endif
 
     //set signal handler
     if (set_signal_handler(SIGTERM) == false ||
