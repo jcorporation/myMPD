@@ -8,7 +8,7 @@ This is a general how-to for building myMPD on FreeBSD. It is highly recommended
 
 - [https://docs.freebsd.org/en/books/handbook/ports/](https://docs.freebsd.org/en/books/handbook/ports/)
 
-FreeBSD is supported by [https://github.com/jiixyj/epoll-shim](https://github.com/jiixyj/epoll-shim).
+FreeBSD 14 is fully supported. For FreeBSD 13 support the [https://github.com/jiixyj/epoll-shim](https://github.com/jiixyj/epoll-shim) is required.
 
 ## Building directly from the ports tree
 
