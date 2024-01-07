@@ -43,6 +43,10 @@ int mympd_timer_create(int clock, int timeout, int interval) {
  * @return true on success, else false
  */
 bool mympd_timer_set(int timer_fd, int timeout, int interval) {
+    if (timer_fd == -1) {
+        MYMPD_LOG_DEBUG(NULL, "Unable to set timeout, timerfd is closed");
+        return false;
+    }
     struct itimerspec its;
     its.it_value.tv_sec = timeout;
     its.it_value.tv_nsec = timeout == 0 && interval > 0 ? 1 : 0;

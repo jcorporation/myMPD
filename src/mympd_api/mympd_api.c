@@ -34,6 +34,7 @@
 // private definitions
 
 static void populate_pfds(struct t_mympd_state *mympd_state);
+static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i, short revents);
 
 // public functions
 
@@ -160,6 +161,9 @@ void *mympd_api_loop(void *arg_config) {
                         break;
                 }
             }
+            else if (mympd_state->pfds.fds[i].revents & (POLLHUP | POLLERR | POLLNVAL)) {
+                handle_socket_error(mympd_state, i, mympd_state->pfds.fds[i].revents);
+            }
         }
         // Iterate through mpd partitions and handle the events
         mpd_client_idle(mympd_state, request);
@@ -192,6 +196,17 @@ void *mympd_api_loop(void *arg_config) {
 }
 
 // private functions
+
+/**
+ * Handles socket errors
+ * @param mympd_state pointer to mympd state
+ * @param i fd number from pfds array
+ * @param revents poll event
+ */
+static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i, short revents) {
+    MYMPD_LOG_ERROR(NULL, "Socket error %s for %d of type %s", lookup_pfd_revents(revents),
+        mympd_state->pfds.fds[i].fd, lookup_pfd_type(mympd_state->pfds.fd_types[i]));
+}
 
 /**
  * Populates the poll fds array with fds from:

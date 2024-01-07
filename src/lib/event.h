@@ -47,5 +47,7 @@ bool event_pfd_read_fd(int fd);
 int event_eventfd_create(void);
 bool event_eventfd_write(int fd);
 void event_fd_close(int fd);
+const char *lookup_pfd_type(enum pfd_type type);
+const char *lookup_pfd_revents(short revent);
 
 #endif

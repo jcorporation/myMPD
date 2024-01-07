@@ -102,3 +102,36 @@ void event_fd_close(int fd) {
         close(fd);
     }
 }
+
+/**
+ * Lookups the name for a pfd_type
+ * @param type pfd_type
+ * @return name as string
+ */
+const char *lookup_pfd_type(enum pfd_type type) {
+    switch(type) {
+        case PFD_TYPE_PARTITION: return "partition socket";
+        case PFD_TYPE_STICKERDB: return "stickerdb socket";
+        case PFD_TYPE_TIMER: return "general timer";
+        case PFD_TYPE_QUEUE: return "queue event";
+        case PFD_TYPE_TIMER_MPD_CONNECT: return "connect timer";
+        case PFD_TYPE_TIMER_SCROBBLE: return "scrobble timer";
+        case PFD_TYPE_TIMER_JUKEBOX: return "jukebox timer";
+    }
+    return "invalid";
+}
+
+/**
+ * Lookups the name for poll revents
+ * @param revent poll return event
+ * @return name as string
+ */
+const char *lookup_pfd_revents(short revent) {
+    if (revent & POLLIN) { return "POLLIN"; }
+    if (revent & POLLPRI) { return "POLLPRI"; }
+    if (revent & POLLOUT) { return "POLLOUT"; }
+    if (revent & POLLHUP) { return "POLLHUP"; }
+    if (revent & POLLERR) { return "POLLERR"; }
+    if (revent & POLLNVAL) { return "POLLNVAL"; }
+    return "";
+}

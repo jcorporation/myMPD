@@ -190,7 +190,7 @@ void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
         partition_state = partition_state->next;
     }
     //append new partition struct and set defaults
-    //connection will be established in next idle loop run
+    //connection will be established through connect timer
     partition_state->next = malloc_assert(sizeof(struct t_partition_state));
     //set default partition state
     partition_state_default(partition_state->next, name, mympd_state->mpd_state, mympd_state->config);
