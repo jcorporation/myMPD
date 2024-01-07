@@ -76,16 +76,17 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
         stickerdb_disconnect(stickerdb);
         return false;
     }
-    if (mpd_connection_cmp_server_version(stickerdb->conn, 0, 24, 0) >= 0) {
-        MYMPD_LOG_DEBUG(stickerdb->name, "Enabling sticker sort and window feature");
-        stickerdb->mpd_state->feat.sticker_sort_window = true;
-        MYMPD_LOG_DEBUG(stickerdb->name, "Enabling sticker value int handling feature");
-        stickerdb->mpd_state->feat.sticker_int = true;
-    }
-    else {
-        stickerdb->mpd_state->feat.sticker_sort_window = false;
-        stickerdb->mpd_state->feat.sticker_int = false;
-    }
+    stickerdb->mpd_state->feat.sticker_sort_window = false;
+    stickerdb->mpd_state->feat.sticker_int = false;
+    #ifdef MYMPD_ENABLE_EXPERIMENTAL
+        // This waits for the merge of: https://github.com/MusicPlayerDaemon/MPD/pull/1895
+        if (mpd_connection_cmp_server_version(stickerdb->conn, 0, 24, 0) >= 0) {
+            MYMPD_LOG_INFO(stickerdb->name, "Enabling sticker sort and window feature");
+            stickerdb->mpd_state->feat.sticker_sort_window = true;
+            MYMPD_LOG_INFO(stickerdb->name, "Enabling sticker value int handling feature");
+            stickerdb->mpd_state->feat.sticker_int = true;
+        }
+    #endif
     // check for sticker support
     stickerdb->mpd_state->feat.stickers = false;
     if (mpd_send_allowed_commands(stickerdb->conn) == true) {
