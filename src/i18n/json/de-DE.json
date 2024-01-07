@@ -1140,5 +1140,6 @@
     "Error starting the jukebox": "Jukebox konnte nicht gestartet werden",
     "Task to add random songs to queue has started": "Task zum Hinzufügen von zufälligen Liedern wurde gestartet",
     "Can not get lock for album cache": "Reservierung des Album Caches fehlgeschlagen",
-    "Start playing failed": "Wiedergabe konnte nicht gestartet werden"
+    "Start playing failed": "Wiedergabe konnte nicht gestartet werden",
+    "MPD version is too old": "MPD Version ist zu alt"
 }

@@ -37,6 +37,7 @@ static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, const char *u
 static bool inc_sticker(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
 static bool remove_sticker(struct t_stickerdb_state *stickerdb, const char *uri, const char *name);
 static bool stickerdb_connect_mpd(struct t_stickerdb_state *stickerdb);
+static bool check_sticker_support(struct t_stickerdb_state *stickerdb);
 
 // Public functions
 
@@ -72,49 +73,37 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
     // check version
     if (mpd_connection_cmp_server_version(stickerdb->conn, MPD_VERSION_MIN_MAJOR, MPD_VERSION_MIN_MINOR, MPD_VERSION_MIN_PATCH) < 0) {
         MYMPD_LOG_DEBUG("stickerdb", "Checking version");
-        MYMPD_LOG_EMERG(stickerdb->name, "MPD version too old, myMPD supports only MPD version >= 0.21");
+        MYMPD_LOG_ERROR(stickerdb->name, "MPD version too old, myMPD supports only MPD version >= 0.21");
         stickerdb_disconnect(stickerdb);
+        send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "MPD version is too old");
+        mympd_api_request_sticker_features(false, false, false);
         return false;
     }
+    // check for sticker support
+    stickerdb->mpd_state->feat.stickers = check_sticker_support(stickerdb);
     stickerdb->mpd_state->feat.sticker_sort_window = false;
     stickerdb->mpd_state->feat.sticker_int = false;
+
+    if (stickerdb->mpd_state->feat.stickers == false) {
+        MYMPD_LOG_ERROR("stickerdb", "MPD does not support stickers");
+        stickerdb_disconnect(stickerdb);
+        send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "MPD does not support stickers");
+        mympd_api_request_sticker_features(false, false, false);
+        return false;
+    }
     #ifdef MYMPD_ENABLE_EXPERIMENTAL
-        // This waits for the merge of: https://github.com/MusicPlayerDaemon/MPD/pull/1895
         if (mpd_connection_cmp_server_version(stickerdb->conn, 0, 24, 0) >= 0) {
+            // Waits for merging of: https://github.com/MusicPlayerDaemon/MPD/pull/1895
             MYMPD_LOG_INFO(stickerdb->name, "Enabling sticker sort and window feature");
             stickerdb->mpd_state->feat.sticker_sort_window = true;
             MYMPD_LOG_INFO(stickerdb->name, "Enabling sticker value int handling feature");
             stickerdb->mpd_state->feat.sticker_int = true;
         }
     #endif
-    // check for sticker support
-    stickerdb->mpd_state->feat.stickers = false;
-    if (mpd_send_allowed_commands(stickerdb->conn) == true) {
-        struct mpd_pair *pair;
-        while ((pair = mpd_recv_command_pair(stickerdb->conn)) != NULL) {
-            if (strcmp(pair->value, "sticker") == 0) {
-                MYMPD_LOG_DEBUG("stickerdb", "MPD supports stickers");
-                mpd_return_pair(stickerdb->conn, pair);
-                stickerdb->mpd_state->feat.stickers = true;
-                break;
-            }
-            mpd_return_pair(stickerdb->conn, pair);
-        }
-    }
-    mpd_response_finish(stickerdb->conn);
     mympd_api_request_sticker_features(stickerdb->mpd_state->feat.stickers,
         stickerdb->mpd_state->feat.sticker_sort_window, stickerdb->mpd_state->feat.sticker_int);
-    if (stickerdb_check_error_and_recover(stickerdb, "mpd_send_allowed_commands") == true) {
-        if (stickerdb->mpd_state->feat.stickers == false) {
-            MYMPD_LOG_ERROR("stickerdb", "MPD does not support stickers");
-            stickerdb_disconnect(stickerdb);
-            send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "MPD does not support stickers");
-            return false;
-        }
-        MYMPD_LOG_DEBUG("stickerdb", "MPD connected and waiting for commands");
-        return true;
-    }
-    return false;
+    MYMPD_LOG_DEBUG("stickerdb", "MPD connected and waiting for commands");
+    return true;
 }
 
 /**
@@ -849,4 +838,29 @@ static bool stickerdb_connect_mpd(struct t_stickerdb_state *stickerdb) {
     MYMPD_LOG_NOTICE(stickerdb->name, "Connected to MPD");
     stickerdb->conn_state = MPD_CONNECTED;
     return true;
+}
+
+/**
+ * Check for sticker support
+ * @param stickerdb pointer to the stickerdb state
+ * @return true if stickers are supported, else false
+ */
+static bool check_sticker_support(struct t_stickerdb_state *stickerdb) {
+    bool supported = false;
+    if (mpd_send_allowed_commands(stickerdb->conn) == true) {
+        struct mpd_pair *pair;
+        while ((pair = mpd_recv_command_pair(stickerdb->conn)) != NULL) {
+            if (strcmp(pair->value, "sticker") == 0) {
+                mpd_return_pair(stickerdb->conn, pair);
+                supported = true;
+                break;
+            }
+            mpd_return_pair(stickerdb->conn, pair);
+        }
+    }
+    mpd_response_finish(stickerdb->conn);
+    if (stickerdb_check_error_and_recover(stickerdb, "mpd_send_allowed_commands") == false) {
+        return false;
+    }
+    return supported;
 }

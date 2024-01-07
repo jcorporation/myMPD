@@ -467,6 +467,7 @@
 {"term":"MPD stickers are disabled"},
 {"term":"MPD uptime"},
 {"term":"MPD version is outdated"},
+{"term":"MPD version is too old"},
 {"term":"MPEG-1 Audio Layer III"},
 {"term":"MPEG-4"},
 {"term":"MUSICBRAINZ_ALBUMARTISTID"},
