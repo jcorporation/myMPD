@@ -69,9 +69,9 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
 
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 0) >= 0) {
         partition_state->mpd_state->feat.partitions = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling partitions feature");
+        MYMPD_LOG_INFO(partition_state->name, "Enabling partitions feature");
         partition_state->mpd_state->feat.search_add_sort_window = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling searchadd sort and window feature");
+        MYMPD_LOG_INFO(partition_state->name, "Enabling searchadd sort and window feature");
     }
     else {
         MYMPD_LOG_WARN(partition_state->name, "Disabling partitions feature, depends on mpd >= 0.22.0");
@@ -79,7 +79,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
 
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 4) >= 0 ) {
         partition_state->mpd_state->feat.binarylimit = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling binarylimit feature");
+        MYMPD_LOG_INFO(partition_state->name, "Enabling binarylimit feature");
     }
     else {
         MYMPD_LOG_WARN(partition_state->name, "Disabling binarylimit feature, depends on mpd >= 0.22.4");
@@ -87,7 +87,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
 
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 23, 3) >= 0 ) {
         partition_state->mpd_state->feat.playlist_rm_range = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling delete playlist range feature");
+        MYMPD_LOG_INFO(partition_state->name, "Enabling delete playlist range feature");
     }
     else {
         MYMPD_LOG_WARN(partition_state->name, "Disabling delete playlist range feature, depends on mpd >= 0.23.3");
@@ -95,7 +95,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
 
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 23, 5) >= 0 ) {
         partition_state->mpd_state->feat.whence = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling position whence feature");
+        MYMPD_LOG_INFO(partition_state->name, "Enabling position whence feature");
     }
     else {
         MYMPD_LOG_WARN(partition_state->name, "Disabling position whence feature, depends on mpd >= 0.23.5");
@@ -103,15 +103,15 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
 
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0 ) {
         partition_state->mpd_state->feat.advqueue = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling advanced queue feature");
+        MYMPD_LOG_INFO(partition_state->name, "Enabling advanced queue feature");
         partition_state->mpd_state->feat.consume_oneshot = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling consume oneshot feature");
+        MYMPD_LOG_INFO(partition_state->name, "Enabling consume oneshot feature");
         partition_state->mpd_state->feat.playlist_dir_auto = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling playlist directory autoconfiguration feature");
+        MYMPD_LOG_INFO(partition_state->name, "Enabling playlist directory autoconfiguration feature");
         partition_state->mpd_state->feat.starts_with = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling starts_with filter expression feature");
+        MYMPD_LOG_INFO(partition_state->name, "Enabling starts_with filter expression feature");
         partition_state->mpd_state->feat.db_added = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "Enabling db added feature");
+        MYMPD_LOG_INFO(partition_state->name, "Enabling db added feature");
     }
     else {
         MYMPD_LOG_WARN(partition_state->name, "Disabling advanced queue feature, depends on mpd >= 0.24.0");
@@ -136,27 +136,27 @@ static void features_commands(struct t_partition_state *partition_state) {
         struct mpd_pair *pair;
         while ((pair = mpd_recv_command_pair(partition_state->conn)) != NULL) {
             if (strcmp(pair->value, "listplaylists") == 0) {
-                MYMPD_LOG_DEBUG(partition_state->name, "MPD supports playlists");
+                MYMPD_LOG_INFO(partition_state->name, "MPD supports playlists");
                 partition_state->mpd_state->feat.playlists = true;
             }
             else if (strcmp(pair->value, "getfingerprint") == 0) {
-                MYMPD_LOG_DEBUG(partition_state->name, "MPD supports fingerprint");
+                MYMPD_LOG_INFO(partition_state->name, "MPD supports fingerprint");
                 partition_state->mpd_state->feat.fingerprint = true;
             }
             else if (strcmp(pair->value, "albumart") == 0) {
-                MYMPD_LOG_DEBUG(partition_state->name, "MPD supports albumart");
+                MYMPD_LOG_INFO(partition_state->name, "MPD supports albumart");
                 partition_state->mpd_state->feat.albumart = true;
             }
             else if (strcmp(pair->value, "readpicture") == 0) {
-                MYMPD_LOG_DEBUG(partition_state->name, "MPD supports readpicture");
+                MYMPD_LOG_INFO(partition_state->name, "MPD supports readpicture");
                 partition_state->mpd_state->feat.readpicture = true;
             }
             else if (strcmp(pair->value, "mount") == 0) {
-                MYMPD_LOG_DEBUG(partition_state->name, "MPD supports mounts");
+                MYMPD_LOG_INFO(partition_state->name, "MPD supports mounts");
                 partition_state->mpd_state->feat.mount = true;
             }
             else if (strcmp(pair->value, "listneighbors") == 0) {
-                MYMPD_LOG_DEBUG(partition_state->name, "MPD supports neighbors");
+                MYMPD_LOG_INFO(partition_state->name, "MPD supports neighbors");
                 partition_state->mpd_state->feat.neighbor = true;
             }
             mpd_return_pair(partition_state->conn, pair);
@@ -220,7 +220,7 @@ static void set_album_tags(struct t_partition_state *partition_state) {
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
         }
     }
-    MYMPD_LOG_NOTICE(partition_state->name, "%s", logline);
+    MYMPD_LOG_INFO(partition_state->name, "%s", logline);
     FREE_SDS(logline);
 }
 
@@ -246,7 +246,7 @@ static void set_simple_album_tags(struct t_partition_state *partition_state) {
                 // ignore all other tags
         }
     }
-    MYMPD_LOG_NOTICE(partition_state->name, "%s", logline);
+    MYMPD_LOG_INFO(partition_state->name, "%s", logline);
     FREE_SDS(logline);
 }
 
@@ -278,13 +278,13 @@ static void features_mpd_tags(struct t_partition_state *partition_state) {
 
     if (partition_state->mpd_state->tags_mpd.tags_len == 0) {
         logline = sdscatlen(logline, "none", 4);
-        MYMPD_LOG_NOTICE(partition_state->name, "%s", logline);
-        MYMPD_LOG_NOTICE(partition_state->name, "Tags are disabled");
+        MYMPD_LOG_INFO(partition_state->name, "%s", logline);
+        MYMPD_LOG_INFO(partition_state->name, "Tags are disabled");
         partition_state->mpd_state->feat.tags = false;
     }
     else {
         partition_state->mpd_state->feat.tags = true;
-        MYMPD_LOG_NOTICE(partition_state->name, "%s", logline);
+        MYMPD_LOG_INFO(partition_state->name, "%s", logline);
         //populate tags_mympd tags struct
         check_tags(partition_state->mpd_state->tag_list, "tag_list",
             &partition_state->mpd_state->tags_mympd, &partition_state->mpd_state->tags_mpd);
@@ -316,7 +316,7 @@ static void features_config(struct t_mympd_state *mympd_state, struct t_partitio
         if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) == -1 ) {
             //assume true for older MPD versions
             partition_state->mpd_state->feat.pcre = true;
-            MYMPD_LOG_NOTICE(partition_state->name, "Enabling pcre feature");
+            MYMPD_LOG_INFO(partition_state->name, "Enabling pcre feature");
         }
         //get directories from mpd
         if (mpd_send_command(partition_state->conn, "config", NULL)) {
@@ -338,7 +338,7 @@ static void features_config(struct t_mympd_state *mympd_state, struct t_partitio
                     //supported since MPD 0.24
                     if (pair->value[0] == '1') {
                         partition_state->mpd_state->feat.pcre = true;
-                        MYMPD_LOG_NOTICE(partition_state->name, "Enabling pcre feature");
+                        MYMPD_LOG_INFO(partition_state->name, "Enabling pcre feature");
                     }
                     else {
                         partition_state->mpd_state->feat.pcre = false;
@@ -396,7 +396,7 @@ static sds set_directory(const char *desc, sds directory, sds value) {
         sdsclear(value);
     }
     if (sdslen(value) == 0) {
-        MYMPD_LOG_INFO(NULL, "MPD %s directory is not set", desc);
+        MYMPD_LOG_WARN(NULL, "MPD %s directory is not set", desc);
     }
     else {
         MYMPD_LOG_INFO(NULL, "MPD %s directory is \"%s\"", desc, value);
