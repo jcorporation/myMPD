@@ -192,7 +192,7 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state,
             }
         }
         else {
-            bool rc = mpd_client_add_album_to_queue(partition_state, album_cache, current->key, UINT_MAX, MPD_POSITION_ABSOLUTE, NULL);
+            bool rc = mpd_client_add_album_to_queue(partition_state, album_cache, current->key, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
             if (rc == true) {
                 MYMPD_LOG_NOTICE(partition_state->name, "Jukebox adding album: %s - %s", current->value_p, current->key);
                 added++;
@@ -210,7 +210,9 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state,
     if (added == 0) {
         MYMPD_LOG_ERROR(partition_state->name, "Error adding song(s)");
         send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, "Adding songs from jukebox to queue failed");
-        *error = sdscat(*error, "Adding songs from jukebox to queue failed");
+        if (sdslen(*error) == 0) {
+            *error = sdscat(*error, "Adding songs from jukebox to queue failed");
+        }
         return false;
     }
 
