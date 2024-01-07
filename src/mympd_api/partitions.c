@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -27,12 +27,12 @@
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
-sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long request_id) {
+sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, unsigned request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PARTITION_LIST;
     struct t_partition_state *partition_state = mympd_state->partition_state;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    long entity_count = 0;
+    unsigned entity_count = 0;
     while (partition_state != NULL) {
         if (entity_count++) {
             buffer = sdscatlen(buffer, ",", 1);
@@ -45,8 +45,8 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-    buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
+    buffer = tojson_uint(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }
@@ -92,13 +92,14 @@ bool mympd_api_partition_outputs_move(struct t_partition_state *partition_state,
 /**
  * Disconnects and removes a partition.
  * Assigned outputs are moved to the default partition: https://github.com/MusicPlayerDaemon/MPD/discussions/1611
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition state for default partition
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param partition partition to remove
  * @return pointer to buffer
  */
-sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer, long request_id, sds partition) {
+sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, sds buffer, unsigned request_id, sds partition) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PARTITION_RM;
     if (partition_state->is_default == false) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD,
@@ -108,7 +109,7 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD,
                 JSONRPC_SEVERITY_ERROR, "Default partition can not be deleted");
     }
-    struct t_partition_state *partition_to_remove = partitions_get_by_name(partition_state->mympd_state, partition);
+    struct t_partition_state *partition_to_remove = partitions_get_by_name(mympd_state, partition);
     if (partition_to_remove == NULL) {
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Partition not found");
         return buffer;
@@ -137,7 +138,7 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
         return buffer;
     }
     //disconnect partition
-    mpd_client_disconnect(partition_to_remove, MPD_DISCONNECTED);
+    mpd_client_disconnect(partition_to_remove);
     //move outputs
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
@@ -164,8 +165,8 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
     buffer = mympd_respond_with_error_or_ok(partition_state, buffer, cmd_id, request_id, "mpd_run_delete_partition", &result);
     if (result == true) {
         //partition was removed
-        partition_to_remove->conn_state = MPD_REMOVED;
-        sds dirpath = sdscatfmt(sdsempty(),"%S/%s/%S",partition_state->mympd_state->config->workdir, DIR_WORK_STATE, partition);
+        partition_to_remove->conn_state = MPD_DISCONNECTED;
+        sds dirpath = sdscatfmt(sdsempty(),"%S/%s/%S",partition_state->config->workdir, DIR_WORK_STATE, partition);
         clean_rm_directory(dirpath);
         FREE_SDS(dirpath);
     }

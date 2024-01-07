@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -16,23 +16,23 @@
 UTEST(timer, test_timer_add_replace_remove) {
     struct t_timer_list l;
     mympd_api_timer_timerlist_init(&l);
-    ASSERT_EQ(USER_TIMER_ID_START, l.last_id);
+    ASSERT_EQ((unsigned)USER_TIMER_ID_START, l.last_id);
 
     bool rc = mympd_api_timer_add(&l, 10, 0, timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
     ASSERT_TRUE(rc);
-    ASSERT_EQ(1, l.list.length);
-    ASSERT_EQ(USER_TIMER_ID_START, l.last_id);
+    ASSERT_EQ(1U, l.list.length);
+    ASSERT_EQ((unsigned)USER_TIMER_ID_START, l.last_id);
 
     mympd_api_timer_add(&l, 10, 0, timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
     mympd_api_timer_add(&l, 10, 0, timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
-    ASSERT_EQ(3, l.list.length);
+    ASSERT_EQ(3U, l.list.length);
     
     rc = mympd_api_timer_replace(&l, 10, 0, timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
     ASSERT_TRUE(rc);
-    ASSERT_EQ(3, l.list.length);
+    ASSERT_EQ(3U, l.list.length);
     
     mympd_api_timer_remove(&l, TIMER_ID_CACHES_CREATE);
-    ASSERT_EQ(2, l.list.length);
+    ASSERT_EQ(2U, l.list.length);
 
     mympd_api_timer_timerlist_clear(&l);
 }
@@ -90,7 +90,7 @@ UTEST(timer, test_timer_write_read) {
     mympd_api_timer_timerlist_clear(&l);
 
     rc = mympd_api_timer_file_read(&l, workdir);
-    ASSERT_EQ(1, l.list.length);
+    ASSERT_EQ(1U, l.list.length);
     ASSERT_TRUE(rc);
     struct t_timer_node *timer_node = (struct t_timer_node *)l.list.head->user_data;
     ASSERT_STREQ("example timer1", timer_node->definition->name);

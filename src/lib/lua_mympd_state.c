@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -32,19 +32,19 @@ void lua_mympd_state_set_p(struct t_list *lua_mympd_state, const char *k, const 
 }
 
 /**
- * Pushes a long long to the lua_mympd_state list
+ * Pushes an int64_t value to the lua_mympd_state list
  * @param lua_mympd_state pointer to a t_list struct
  * @param k variable name
  * @param v variable value
  */
-void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, long long v) {
+void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, int64_t v) {
     struct t_lua_mympd_state_value *value = malloc_assert(sizeof(struct t_lua_mympd_state_value));
     value->i = v;
     list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
 }
 
 /**
- * Pushes a double to the lua_mympd_state list
+ * Pushes a double value to the lua_mympd_state list
  * @param lua_mympd_state pointer to a t_list struct
  * @param k variable name
  * @param v variable value
@@ -56,19 +56,19 @@ void lua_mympd_state_set_f(struct t_list *lua_mympd_state, const char *k, double
 }
 
 /**
- * Pushes a unsigned int to the lua_mympd_state list
+ * Pushes a unsigned int value to the lua_mympd_state list
  * @param lua_mympd_state pointer to a t_list struct
  * @param k variable name
  * @param v variable value
  */
 void lua_mympd_state_set_u(struct t_list *lua_mympd_state, const char *k, unsigned v) {
     struct t_lua_mympd_state_value *value = malloc_assert(sizeof(struct t_lua_mympd_state_value));
-    value->i = (long long)v;
+    value->i = (int64_t)v;
     list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
 }
 
 /**
- * Pushes a bool to the lua_mympd_state list
+ * Pushes a bool value to the lua_mympd_state list
  * @param lua_mympd_state pointer to a t_list struct
  * @param k variable name
  * @param v variable value

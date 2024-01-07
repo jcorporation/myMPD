@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module modalPartitionOutputs_js */
@@ -87,7 +87,7 @@ function parsePartitionOutputsList(allOutputs, partitionOutputs) {
     elClear(outputList);
     /** @type {object} */
     const curOutputs = [];
-    for (let i = 0; i < partitionOutputs.result.numOutputs; i++) {
+    for (let i = 0; i < partitionOutputs.result.returnedEntities; i++) {
         if (partitionOutputs.result.data[i].plugin !== 'dummy') {
             curOutputs.push(partitionOutputs.result.data[i].name);
         }
@@ -96,7 +96,7 @@ function parsePartitionOutputsList(allOutputs, partitionOutputs) {
     const selBtn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-sm", "me-3"]}, 'radio_button_unchecked');
 
     let nr = 0;
-    for (let i = 0; i < allOutputs.result.numOutputs; i++) {
+    for (let i = 0; i < allOutputs.result.returnedEntities; i++) {
         if (curOutputs.includes(allOutputs.result.data[i].name) === false) {
             const tr = elCreateNode('tr', {},
                 elCreateNodes('td', {}, [

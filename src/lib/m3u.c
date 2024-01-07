@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -42,7 +42,8 @@ sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     size_t field_len = strlen(field);
     size_t min_line_len = field_len + 2;
     sds line = sdsempty();
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
+    int nread = 0;
+    while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
         if (sdslen(line) > min_line_len &&
             strncmp(line, field, field_len) == 0)
         {
@@ -72,9 +73,9 @@ sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields) {
         sdsclear(buffer);
         return buffer;
     }
-    sds line = sdsempty();
     //check ext m3u header
-    sds_getline(&line, fp, LINE_LENGTH_MAX);
+    int nread = 0;
+    sds line = sds_getline(sdsempty(), fp, LINE_LENGTH_MAX, &nread);
     if (strcmp(line, "#EXTM3U") != 0) {
         MYMPD_LOG_WARN(NULL, "Invalid ext m3u file");
         FREE_SDS(line);
@@ -84,7 +85,8 @@ sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields) {
     }
     int line_count = 0;
     sds field = sdsempty();
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
+    nread = 0;
+    while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
         if (line[0] == '\0') {
             //skip blank lines
             continue;
@@ -144,6 +146,7 @@ static const char *m3ufields_map(sds field) {
     if (strcmp(field, "EXTIMG") == 0)      { return "Image"; }
     if (strcmp(field, "HOMEPAGE") == 0)    { return "Homepage"; }
     if (strcmp(field, "COUNTRY") == 0)     { return "Country"; }
+    if (strcmp(field, "STATE") == 0)       { return "State"; }
     if (strcmp(field, "LANGUAGE") == 0)    { return "Language"; }
     if (strcmp(field, "DESCRIPTION") == 0) { return "Description"; }
     if (strcmp(field, "PLAYLIST") == 0)    { return "Name"; }

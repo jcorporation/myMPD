@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -9,6 +9,7 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/list.h"
+#include "src/lib/sticker.h"
 
 /**
  * myMPD trigger events. The list is composed of MPD idle events and
@@ -37,22 +38,25 @@ enum trigger_events {
     TRIGGER_MPD_MOUNT = 0x2000         //!< mpd mount idle event
 };
 
+/**
+ * Holds the scripts and its arguments for a trigger
+ */
 struct t_trigger_data {
-    sds script;
-    struct t_list arguments;
+    sds script;               //!< script to execute
+    struct t_list arguments;  //!< arguments for the script to execute
 };
 
 bool mympd_api_trigger_save(struct t_list *trigger_list, sds name, int trigger_id, int event, sds partition,
         struct t_trigger_data *trigger_data, sds *error);
-sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id, const char *partition);
-sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_id, long id);
+sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, unsigned request_id, const char *partition);
+sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, unsigned request_id, unsigned trigger_id);
 bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir);
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir);
 void mympd_api_trigger_list_clear(struct t_list *trigger_list);
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition);
-void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote, const char *partition);
-bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx, sds *error);
-const char *mympd_api_event_name(long event);
+void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, enum feedback_type type, int value, const char *partition);
+bool mympd_api_trigger_delete(struct t_list *trigger_list, unsigned idx, sds *error);
+const char *mympd_api_event_name(int event);
 sds mympd_api_trigger_print_event_list(sds buffer);
 struct t_trigger_data *trigger_data_new(void);
 void mympd_api_trigger_data_free(struct t_trigger_data *trigger_data);

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -40,11 +40,11 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
 
     sds cmd = NULL;
     sds jsonrpc = NULL;
-    int request_id = 0;
+    unsigned request_id = 0;
 
     if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc, NULL) == false ||
         json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
-        json_get_int_max(body, "$.id", &request_id, NULL) == false)
+        json_get_uint_max(body, "$.id", &request_id, NULL) == false)
     {
         MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid jsonrpc2 request");
         FREE_SDS(cmd);
@@ -52,7 +52,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         return false;
     }
 
-    MYMPD_LOG_INFO(frontend_nc_data->partition, "API request (%lld): %s", (long long)nc->id, cmd);
+    MYMPD_LOG_INFO(frontend_nc_data->partition, "API request (%lu): %s", nc->id, cmd);
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
     if (cmd_id == GENERAL_API_UNKNOWN) {
@@ -119,7 +119,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
             break;
         default: {
             //forward API request to mympd_api_handler
-            struct t_work_request *request = create_request((long long)nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
+            struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
             mympd_queue_push(mympd_api_queue, request, 0);
         }
     }
@@ -147,11 +147,11 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
 
     sds cmd = NULL;
     sds jsonrpc = NULL;
-    int id = 0;
+    unsigned request_id = 0;
 
     if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc, NULL) == false ||
         json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
-        json_get_int_max(body, "$.id", &id, NULL) == false)
+        json_get_uint_max(body, "$.id", &request_id, NULL) == false)
     {
         MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid jsonrpc2 request");
         FREE_SDS(cmd);
@@ -168,7 +168,7 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
         FREE_SDS(jsonrpc);
         return false;
     }
-    struct t_work_request *request = create_request((long long)nc->id, id, cmd_id, body, frontend_nc_data->partition);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
     mympd_queue_push(mympd_api_queue, request, 0);
 
     FREE_SDS(cmd);

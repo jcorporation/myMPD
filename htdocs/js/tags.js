@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module tags_js */
@@ -39,12 +39,22 @@
  */
 function addTagList(elId, list) {
     const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
-    if (list === 'tagListSearch') {
+    if (list === 'tagListSearch' ||
+        elId === 'BrowseDatabaseAlbumListSearchTags')
+    {
         if (features.featTags === true) {
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
             );
         }
+        
+    }
+    for (let i = 0, j = settings[list].length; i < j; i++) {
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i])
+        );
+    }
+    if (list === 'tagListSearch') {
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, 'Filename')
         );
@@ -54,15 +64,17 @@ function addTagList(elId, list) {
             );
         }
     }
-    if (elId === 'BrowseDatabaseAlbumListSearchTags') {
+    if (list === 'tagListSearch' ||
+        elId === 'BrowseDatabaseAlbumListSearchTags')
+    {
         stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "modified-since"}, 'Modified-Since')
         );
-    }
-    for (let i = 0, j = settings[list].length; i < j; i++) {
-        stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i])
-        );
+        if (features.featDbAdded) {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "added-since"}, 'Added-Since')
+            );
+        }
     }
     if (elId === 'BrowseFilesystemNavDropdown' ||
         elId === 'BrowsePlaylistListNavDropdown' ||
@@ -126,6 +138,11 @@ function addTagList(elId, list) {
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, 'Last modified')
             );
+            if (features.featDbAdded === true) {
+                stack.appendChild(
+                    elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Added"}, 'Added')
+                );
+            }
         }
     }
     else if (elId === 'QueueCurrentSearchTags') {
@@ -161,6 +178,11 @@ function addTagListSelect(elId, list) {
         select.appendChild(
             elCreateTextTn('option', {"value": "Last-Modified"}, 'Last-Modified')
         );
+        if (features.featDbAdded === true) {
+            select.appendChild(
+                elCreateTextTn('option', {"value": "Added"}, 'Added')
+            );
+        }
         select.appendChild(
             elCreateTextTn('option', {"value": "filename"}, 'Filename')
         );
@@ -173,8 +195,15 @@ function addTagListSelect(elId, list) {
             }
             select.appendChild(optGroup);
         }
+        if (elId === 'modalSmartPlaylistEditSortInput') {
+            const optGroup = elCreateEmpty('optgroup', {"id": "modalSmartPlaylistEditSortInputSticker", "label": tn('Sort by sticker'), "data-label-phrase": "Sort by sticker"});
+            optGroup.appendChild(elCreateTextTn('option', {"value": "uri"}, "URI"));
+            optGroup.appendChild(elCreateTextTn('option', {"value": "value"}, "Value"));
+            optGroup.appendChild(elCreateTextTn('option', {"value": "value_int", "class": ["featStickerInt"]}, "Value (Number)"));
+            select.appendChild(optGroup);
+        }
     }
-    else if (elId === 'modalPlaybackJukeboxUniqueTagInput') {
+    else if (elId === 'modalPlaybackJukeboxUniqTagInput') {
         if (settings.tagListBrowse.includes('Title') === false) {
             //Title tag should be always in the list
             select.appendChild(
@@ -267,6 +296,7 @@ function printValue(key, value) {
         case 'Pos':
             //mpd is 0-indexed but humans wants 1-indexed lists
             return document.createTextNode(value + 1);
+        case 'Added':
         case 'Last-Modified':
         case 'LastPlayed':
         case 'lastPlayed':
@@ -280,6 +310,9 @@ function printValue(key, value) {
                         ? 'horizontal_rule'
                         : 'thumb_up'
             );
+        case 'rating': {
+            return showStarRating(value);
+        }
         case 'elapsed':
             return document.createTextNode(fmtSongDuration(value));
         case 'Artist':

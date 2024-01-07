@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -25,7 +25,7 @@
  * @param subdir subdirectory in workdir/pics/ to get images from
  * @return pointer to buffer
  */
-sds mympd_api_settings_picture_list(sds workdir, sds buffer, long request_id, sds subdir) {
+sds mympd_api_settings_picture_list(sds workdir, sds buffer, unsigned request_id, sds subdir) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PICTURE_LIST;
     sds pic_dirname = sdscatfmt(sdsempty(), "%S/%s/%S", workdir, DIR_WORK_PICS, subdir);
     errno = 0;
@@ -41,7 +41,7 @@ sds mympd_api_settings_picture_list(sds workdir, sds buffer, long request_id, sd
 
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    int returned_entities = 0;
+    unsigned returned_entities = 0;
     struct dirent *next_file;
     while ((next_file = readdir(pic_dir)) != NULL ) {
         if (next_file->d_type == DT_REG) {
@@ -56,7 +56,8 @@ sds mympd_api_settings_picture_list(sds workdir, sds buffer, long request_id, sd
     closedir(pic_dir);
     FREE_SDS(pic_dirname);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
+    buffer = tojson_uint(buffer, "totalEntities", returned_entities, true);
+    buffer = tojson_uint(buffer, "returnedEntities", returned_entities, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }

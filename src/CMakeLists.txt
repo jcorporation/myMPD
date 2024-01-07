@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+# myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
 add_executable(mympd "")
@@ -37,18 +37,24 @@ target_sources(mympd PRIVATE
   main.c
   lib/album_cache.c
   lib/api.c
+  lib/cache.c
   lib/cert.c
   lib/config.c
+  lib/convert.c
   lib/covercache.c
+  lib/datetime.c
   lib/env.c
+  lib/event.c
   lib/filehandler.c
   lib/handle_options.c
   lib/http_client.c
   lib/jsonrpc.c
+  lib/last_played.c
   lib/list.c
   lib/log.c
   lib/lua_mympd_state.c
   lib/m3u.c
+  lib/mg_str_utils.c
   lib/mimetype.c
   lib/mpack.c
   lib/passwd.c
@@ -63,6 +69,7 @@ target_sources(mympd PRIVATE
   lib/state_files.c
   lib/tags.c
   lib/thread.c
+  lib/timer.c
   lib/utility.c
   lib/validate.c
   mpd_client/autoconf.c
@@ -75,6 +82,7 @@ target_sources(mympd PRIVATE
   mpd_client/playlists.c
   mpd_client/queue.c
   mpd_client/presets.c
+  mpd_client/random_select.c
   mpd_client/search.c
   mpd_client/search_local.c
   mpd_client/stickerdb.c
@@ -82,8 +90,10 @@ target_sources(mympd PRIVATE
   mpd_client/tags.c
   mpd_client/volume.c
   mpd_worker/mpd_worker.c
+  mpd_worker/add_random.c
+  mpd_worker/album_cache.c
   mpd_worker/api.c
-  mpd_worker/cache.c
+  mpd_worker/jukebox.c
   mpd_worker/smartpls.c
   mpd_worker/state.c
   mpd_worker/song.c
@@ -104,6 +114,7 @@ target_sources(mympd PRIVATE
   mympd_api/pictures.c
   mympd_api/playlists.c
   mympd_api/queue.c
+  mympd_api/requests.c
   mympd_api/search.c
   mympd_api/scripts.c
   mympd_api/settings.c

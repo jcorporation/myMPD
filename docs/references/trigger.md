@@ -13,7 +13,7 @@ Triggers are enabled if scripts are enabled. Triggers can call scripts with argu
 | TRIGGER_MYMPD_STOP | -3 | Global: myMPD is stopping |
 | TRIGGER_MYMPD_CONNECTED | -4 | Partition specific: MPD connection is established |
 | TRIGGER_MYMPD_DISCONNECTED | -5 | Partition specific: MPD is disconnected |
-| TRIGGER_MYMPD_FEEDBACK | -6 | Partition specific: Love or hate song feedback is set by user. Script is executed with arguments `uri` and `vote`. |
+| TRIGGER_MYMPD_FEEDBACK | -6 | Partition specific: Love, hate or rating feedback is set by user. Script is executed with arguments `uri`, `vote` and `type`. |
 | TRIGGER_MPD_DATABASE | 1 | Only for default partition: Database has been modified |
 | TRIGGER_MPD_STORED_PLAYLIST | 2 | Only for default partition: A playlist was added, removed or changed |
 | TRIGGER_MPD_QUEUE | 4 | Partition specific: MPD queue has changed |
@@ -22,6 +22,6 @@ Triggers are enabled if scripts are enabled. Triggers can call scripts with argu
 | TRIGGER_MPD_OUTPUT | 32 | Partition specific: Output configuration has changed |
 | TRIGGER_MPD_OPTIONS | 64 | Partition specific: MPD player options has changed |
 | TRIGGER_MPD_UPDATE | 128 | Only for default partition: Database update has started or finished |
-| TRIGGER_MPD_PARTITION | 2048 | Only for default partition: Partition was added or removed |
 | TRIGGER_MPD_STICKER | 256 | Global: Sticker database has changed |
+| TRIGGER_MPD_PARTITION | 2048 | Only for default partition: Partition was added or removed |
 {: .table .table-sm }

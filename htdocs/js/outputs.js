@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module outputs_js */
@@ -50,14 +50,14 @@ function parseOutputs(obj) {
         );
         return;
     }
-    if (obj.result.numOutputs === 0) {
+    if (obj.result.returnedEntities === 0) {
         outputList.appendChild(
             elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, 'No outputs found')
         );
         return;
     }
 
-    for (let i = 0; i < obj.result.numOutputs; i++) {
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
         if (obj.result.data[i].plugin === 'dummy') {
             continue;
         }
@@ -73,7 +73,7 @@ function parseOutputs(obj) {
         ]);
         setData(btn, 'output-name', obj.result.data[i].name);
         setData(btn, 'output-id', obj.result.data[i].id);
-        if (obj.result.data[i].state === 1) {
+        if (obj.result.data[i].state === true) {
             btn.classList.add('active');
         }
         outputList.appendChild(btn);

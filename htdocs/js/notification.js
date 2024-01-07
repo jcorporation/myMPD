@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module notifications_js */
@@ -56,6 +56,15 @@ function toggleAlert(alertBoxId, state, msg) {
                 alertBoxEl.appendChild(clBtn);
                 clBtn.addEventListener('click', function() {
                     clearMPDerror();
+                }, false);
+                break;
+            }
+            case 'alertJukeboxStatusError': {
+                alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
+                const clBtn = elCreateEmpty('button', {"class": ["btn-close"]});
+                alertBoxEl.appendChild(clBtn);
+                clBtn.addEventListener('click', function() {
+                    clearJukeboxError();
                 }, false);
                 break;
             }
@@ -168,6 +177,13 @@ function showNotification(message, facility, severity) {
         if (show === false) {
             return;
         }
+    }
+
+    if (facility === 'jukebox' &&
+        severity === 'error')
+    {
+        toggleAlert('alertJukeboxStatusError', true, message);
+        return;
     }
 
     if (settings.webuiSettings.notifyWeb === true) {

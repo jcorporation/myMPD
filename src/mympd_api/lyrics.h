@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -9,5 +9,5 @@
 
 #include "src/lib/mympd_state.h"
 
-sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffer, long request_id, sds uri);
+sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffer, unsigned request_id, sds uri);
 #endif

@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module tables_js */
@@ -352,13 +352,16 @@ function dragAndDropTableHeader(tableName) {
 function setColTags(tableName) {
     switch(tableName) {
         case 'BrowseRadioWebradiodb':
-            return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "StreamUri", "Codec", "Bitrate"];
+            return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "State", "StreamUri", "Codec", "Bitrate"];
         case 'BrowseRadioRadiobrowser':
             return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
         case 'BrowseDatabaseAlbumList': {
             if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();
                 tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified');
+                if (features.featDbAdded === true) {
+                    tags.push('Added');
+                }
                 return tags.filter(function(value) {
                     return value !== 'Disc';
                 });
@@ -371,6 +374,9 @@ function setColTags(tableName) {
             if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();
                 tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified');
+                if (features.featDbAdded === true) {
+                    tags.push('Added');
+                }
                 return tags.filter(function(value) {
                     return value !== 'Disc' &&
                         value !== 'Album';
@@ -383,6 +389,9 @@ function setColTags(tableName) {
         case 'QueueJukeboxAlbum': {
             const tags = settings.tagListAlbum.slice();
             tags.push('Pos', 'Discs', 'SongCount', 'Duration', 'Last-Modified');
+            if (features.featDbAdded === true) {
+                tags.push('Added');
+            }
             return tags.filter(function(value) {
                 return value !== 'Disc';
             });
@@ -395,6 +404,9 @@ function setColTags(tableName) {
         tags.push('Title');
     }
     tags.push('Duration', 'Last-Modified');
+    if (features.featDbAdded === true) {
+        tags.push('Added');
+    }
 
     switch(tableName) {
         case 'QueueCurrent':

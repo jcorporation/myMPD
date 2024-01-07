@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -15,13 +15,16 @@
 
 /**
  * Gets the song details, tags and stickers
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param uri song uri
  * @return pointer to buffer
  */
-sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
+sds mympd_api_song_details(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+    sds buffer, unsigned request_id, const char *uri)
+{
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_DETAILS;
     if (mpd_send_list_meta(partition_state->conn, uri)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -30,8 +33,7 @@ sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer
             const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
             buffer = printAudioFormat(buffer, audioformat);
             buffer = sdscatlen(buffer, ",", 1);
-            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, &partition_state->mpd_state->tags_mympd,
-                song, &partition_state->mympd_state->config->albums);
+            buffer = print_song_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_mympd, song);
             mpd_song_free(song);
         }
     }
@@ -40,15 +42,15 @@ sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer
         return buffer;
     }
 
-    if (partition_state->mpd_state->feat_stickers == true) {
+    if (partition_state->mpd_state->feat.stickers == true) {
         struct t_tags tagcols;
         reset_t_tags(&tagcols);
         tags_enable_all_stickers(&tagcols);
-        buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, uri, &tagcols);
+        buffer = mympd_api_sticker_get_print(buffer, mympd_state->stickerdb, uri, &tagcols);
     }
 
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
+    buffer = mympd_api_get_extra_media(buffer, partition_state->mpd_state, mympd_state->booklet_name, mympd_state->info_txt_name, uri, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }
@@ -61,9 +63,9 @@ sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer
  * @param uri song uri
  * @return pointer to buffer
  */
-sds mympd_api_song_comments(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
+sds mympd_api_song_comments(struct t_partition_state *partition_state, sds buffer, unsigned request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_COMMENTS;
-    int entities_returned = 0;
+    unsigned entities_returned = 0;
     if (mpd_send_read_comments(partition_state->conn, uri)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":{");
@@ -81,8 +83,8 @@ sds mympd_api_song_comments(struct t_partition_state *partition_state, sds buffe
         return buffer;
     }
     buffer = sdscatlen(buffer, "},", 2);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_long(buffer, "totalEntities", entities_returned, false);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "totalEntities", entities_returned, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }

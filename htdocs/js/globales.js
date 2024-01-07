@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module globales_js */
@@ -85,7 +85,9 @@ const ligatures = {
     'more': 'menu',
     'unchecked': 'radio_button_unchecked',
     'partitionSpecific': 'dashboard',
-    'browserSpecific': 'web_asset'
+    'browserSpecific': 'web_asset',
+    'stared': 'star',
+    'star': 'star_border'
 };
 
 // pre-generated elements
@@ -335,8 +337,15 @@ const settingsFields = {
         "defaultValue": defaults["MYMPD_BOOKLET_NAME"],
         "inputType": "text",
         "title": "Booklet filename",
-        "form": "modalSettingsBookletFrm",
+        "form": "modalSettingsAlbumInfoFrm",
         "help": "helpSettingsBookletName"
+    },
+    "infoTxtName": {
+        "defaultValue": defaults["MYMPD_INFO_TXT_NAME"],
+        "inputType": "text",
+        "title": "Info filename",
+        "form": "modalSettingsAlbumInfoFrm",
+        "help": "helpSettingsInfoTxtName"
     },
     "coverimageNames": {
         "defaultValue": defaults["MYMPD_COVERIMAGE_NAMES"],
@@ -590,6 +599,13 @@ const settingsWebuiFields = {
         "form": "modalSettingsFooterFrm",
         "sort": 1
     },
+    "footerAudioFormat": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "AudioFormat",
+        "form": "modalSettingsFooterFrm",
+        "sort": 1
+    },
     "footerVolumeLevel": {
         "defaultValue": false,
         "inputType": "checkbox",
@@ -688,7 +704,6 @@ const settingsWebuiFields = {
         "inputType": "checkbox",
         "title": "Timer",
         "form": "modalSettingsFurtherFeaturesFrm",
-        "warn": "Timers are not supported by platform",
         "help": "helpSettingsEnableTimer"
     },
     "enableMounts": {
@@ -849,6 +864,10 @@ const settingsWebuiFields = {
         },
         "invalid": "Must be a number"
     },
+    "feedback": {
+        "defaultValue": "like",
+        "inputType": "none"
+    }
 };
 
 const settingsConnectionFields = {
@@ -1013,9 +1032,9 @@ const settingsPlaybackFields = {
         "help": "helpJukeboxQueueLength",
         "class": ["jukeboxSongOnly"]
     },
-    "jukeboxUniqueTag": {
+    "jukeboxUniqTag": {
         "inputType": "select",
-        "defaultValue": defaults["MYMPD_JUKEBOX_UNIQUE_TAG"],
+        "defaultValue": defaults["MYMPD_JUKEBOX_UNIQ_TAG"],
         "title": "Enforce uniqueness",
         "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxUniqueTag"
@@ -1045,6 +1064,16 @@ const settingsPlaybackFields = {
         "title": "Min. song duration",
         "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxMinSongDuration",
+        "class": ["jukeboxSongOnly"],
+        "unit": "Seconds"
+    },
+    "jukeboxMaxSongDuration": {
+        "inputType": "text",
+        "contentType": "number",
+        "defaultValue": defaults["MYMPD_JUKEBOX_MAX_SONG_DURATION"],
+        "title": "Max. song duration",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxMaxSongDuration",
         "class": ["jukeboxSongOnly"],
         "unit": "Seconds"
     },
@@ -1142,6 +1171,7 @@ const stickerList = [
     'lastPlayed',
     'lastSkipped',
     'like',
+    'rating',
     'elapsed'
 ];
 

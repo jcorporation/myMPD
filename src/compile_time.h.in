@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -12,6 +12,7 @@
 #ifndef MYMPD_COMPILE_TIME_H
 #define MYMPD_COMPILE_TIME_H
 
+#include <inttypes.h>
 #include <limits.h>
 #include <signal.h>
 
@@ -24,10 +25,11 @@
 #cmakedefine MYMPD_ENABLE_UBSAN
 
 //features
-#cmakedefine MYMPD_ENABLE_LIBID3TAG
+#cmakedefine MYMPD_ENABLE_EXPERIMENTAL
 #cmakedefine MYMPD_ENABLE_FLAC
-#cmakedefine MYMPD_ENABLE_LUA
 #cmakedefine MYMPD_ENABLE_IPV6
+#cmakedefine MYMPD_ENABLE_LIBID3TAG
+#cmakedefine MYMPD_ENABLE_LUA
 
 //translation files
 #cmakedefine I18N_bg_BG
@@ -46,19 +48,13 @@
 #cmakedefine I18N_ru_RU
 #cmakedefine I18N_zh_Hans
 
-// detect 32 or 64 bit platform
-#if ULONG_MAX == 0xffffffffffffffff
-    #define MYMPD_64BIT
-#endif
-
-// detect timerfd support
-#if defined __FreeBSD__ && __FreeBSD__ < 14
-    /* timerfd is not supported on FreeBSD < 14, so the timers doesn't work */
-    #define MYMPD_NO_TIMERFD
-#endif
-
 //myMPD version from cmake
 #define MYMPD_VERSION "${PROJECT_VERSION}"
+
+//minimum mpd version
+#define MPD_VERSION_MIN_MAJOR 0
+#define MPD_VERSION_MIN_MINOR 21
+#define MPD_VERSION_MIN_PATCH 0
 
 //default paths from cmake
 #define MYMPD_DOC_ROOT "${MYMPD_DOC_ROOT}"
@@ -78,9 +74,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 //standard file names and folders
 #define FILENAME_ALBUMCACHE "album_cache.mpack"
 #define FILENAME_HOME "home_list"
-#define FILENAME_LAST_PLAYED "last_played_list"
+#define FILENAME_LAST_PLAYED "last_played_list.mpack"
 #define FILENAME_PRESETS "preset_list"
-#define FILENAME_STICKERCACHE "sticker_cache.mpack"
 #define FILENAME_TIMER "timer_list"
 #define FILENAME_TRIGGER "trigger_list"
 #define FILENAME_WEBRADIODB "webradiodb-combined.min.json"
@@ -143,22 +138,18 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_MPD_HOST "localhost"
 #define MYMPD_MPD_PORT 6600
 #define MYMPD_MPD_PASS ""
-#define MYMPD_MPD_BINARYLIMIT 8192 //bytes
+#define MYMPD_MPD_BINARYLIMIT 262144 // 256 kB
 
 //default mympd state settings
 #define MYMPD_MUSIC_DIRECTORY "auto"
 #define MYMPD_PLAYLIST_DIRECTORY "auto"
 #define MYMPD_JUKEBOX_PLAYLIST "Database"
-#define MYMPD_JUKEBOX_UNIQUE_TAG MPD_TAG_ARTIST
+#define MYMPD_JUKEBOX_UNIQ_TAG MPD_TAG_ARTIST
 #define MYMPD_JUKEBOX_LAST_PLAYED 24 // hours
 #define MYMPD_JUKEBOX_QUEUE_LENGTH 1 // minimum length of MPD queue
-#define MYMPD_JUKEBOX_ENFORCE_UNIQUE true
 #define MYMPD_JUKEBOX_IGNORE_HATED false
 #define MYMPD_JUKEBOX_MIN_SONG_DURATION 0
-#define MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH 100 // length of the internal jukebox queue for songs
-#define MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH 25 // length of the internal jukebox queue for albums
-#define MYMPD_JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH_MIN 10 // length of the internal jukebox queue for songs
-#define MYMPD_JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH_MIN 5 // length of the internal jukebox queue for albums
+#define MYMPD_JUKEBOX_MAX_SONG_DURATION 0
 #define MYMPD_COVERIMAGE_NAMES "cover,folder"
 #define MYMPD_THUMBNAIL_NAMES "cover-sm,folder-sm"
 #define MYMPD_TAG_LIST_SEARCH "Album,AlbumArtist,Artist,Genre,Title"
@@ -168,9 +159,11 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_SMARTPLS true
 #define MYMPD_SMARTPLS_SORT ""
 #define MYMPD_SMARTPLS_PREFIX "myMPDsmart"
+#define MYMPD_SMARTPLS_MAX_ENTRIES_DEFAULT 200
 #define MYMPD_SMARTPLS_INTERVAL 14400 //seconds - 4 hours
 #define MYMPD_SMARTPLS_INTERVAL_HOURS 4 //hours
 #define MYMPD_BOOKLET_NAME "booklet.pdf"
+#define MYMPD_INFO_TXT_NAME "info.txt"
 #define MYMPD_AUTO_PLAY false
 #define MYMPD_COLS_QUEUE_CURRENT "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"
 #define MYMPD_COLS_SEARCH "[\"Title\",\"Artist\",\"Album\",\"Duration\"]"
@@ -290,45 +283,59 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MPD_RESULTS_MAX 10000 //maximum mpd results to request
 #define MPD_COMMANDS_MAX 10000 //maximum number of commands for mpd command lists
 #define MPD_PLAYLIST_LENGTH_MAX INT_MAX //max mpd queue or playlist length
-#define MPD_BINARY_CHUNK_SIZE_MIN 4096 //4 kB is the mpd default
-#define MPD_BINARY_CHUNK_SIZE_MAX 262144 //256 kB
+#define MPD_BINARY_CHUNK_SIZE_MIN 4096 // 4 kB is the mpd default
+#define MPD_BINARY_CHUNK_SIZE_MAX 1048576 // 1 MB
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB
 #define MPD_QUEUE_PRIO_MAX 255
 #define MPD_CROSSFADE_MAX 100
-#define MPD_CONNECTION_MAX 100
+#define MPD_CONNECTION_MAX 25
 
 //limits for json parsing
 #define JSONRPC_INT_MIN INT_MIN
 #define JSONRPC_INT_MAX INT_MAX
-#define JSONRPC_LONG_MIN INT_MIN
-#define JSONRPC_LONG_MAX INT_MAX
-#define JSONRPC_LLONG_MIN LLONG_MIN
-#define JSONRPC_LLONG_MAX LLONG_MAX
-#define JSONRPC_UINT_MAX INT_MAX
+#define JSONRPC_INT64_MIN INT64_MIN
+#define JSONRPC_INT64_MAX INT64_MAX
+#define JSONRPC_UINT_MIN 0
+#define JSONRPC_UINT_MAX UINT_MAX
 #define JSONRPC_STR_MAX 3000
 #define JSONRPC_KEY_MAX 50
-#define JSONRPC_ARRAY_MAX 100
+#define JSONRPC_ARRAY_MAX 1000
+#define JSONRPC_TIME_MIN 0 // Do 1. Jan 01:00:00 CET 1970
+#define JSONRPC_TIME_MAX 253402297169 // Fr 31. Dez 23:59:29 CET 9999
 
 //some other limits
-#define TIMER_INTERVAL_MIN 5 //seconds
+#define TIMER_INTERVAL_MIN 0 //seconds
 #define TIMER_INTERVAL_MAX 7257600 //12 weeks
+#define TIMER_SMARTPLS_UPDATE_OFFSET 30 //seconds
+#define TIMER_COVERCACHE_CLEANUP_OFFSET 60 //seconds
+#define TIMER_COVERCACHE_CLEANUP_INTERVAL 86400 //seconds
 #define COVERCACHE_AGE_MIN 0 //days
 #define COVERCACHE_AGE_MAX 365 //days
-#define COVERCACHE_CLEANUP_OFFSET 60 //seconds
-#define COVERCACHE_CLEANUP_INTERVAL 86400 //seconds
 #define VOLUME_MIN 0 //prct
 #define VOLUME_MAX 100 //prct
 #define VOLUME_STEP_MIN 1 //prct
 #define VOLUME_STEP_MAX 25 //prct
 #define JUKEBOX_MODE_MIN 0
 #define JUKEBOX_MODE_MAX 2
-#define JUKEBOX_MIN_SONG_DURATION_MAX UINT_MAX
+#define JUKEBOX_ADD_SONG_MAX 99
+#define JUKEBOX_MIN_SONG_DURATION_MAX INT_MAX
+#define JUKEBOX_MAX_SONG_DURATION_MAX INT_MAX
+#define JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH 100 // length of the internal jukebox queue for songs
+#define JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH 25 // length of the internal jukebox queue for albums
+#define JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH_MIN 10 // length of the internal jukebox queue for songs
+#define JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH_MIN 5 // length of the internal jukebox queue for albums
+#define JUKEBOX_ADD_SONG_OFFSET 10 // add new song 10 seconds before current song ends
 #define SCROBBLE_TIME_MIN 10 //minimum song length in seconds for the scrobble event
 #define SCROBBLE_TIME_MAX 240 //maximum elapsed seconds before scrobble event occurs
 #define SCROBBLE_TIME_TOTAL 480 //if the song is longer then this value, scrobble at SCROBBLE_TIME_MAX
 #define MAX_ENV_LENGTH 100 //maximum length of environment variables
 #define MAX_WORKER_THREADS 5 //maximum number of concurrent worker threads
 #define MBID_LENGTH 36 //length of a MusicBrainz ID
+#define STICKER_LIKE_MIN 0
+#define STICKER_LIKE_MAX 2
+#define STICKER_RATING_MIN 0
+#define STICKER_RATING_MAX 10
+
 
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99
@@ -343,7 +350,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JUKEBOX_LAST_PLAYED_MAX 5000
 #define JUKEBOX_UNIQ_RANGE 50
 #define SCRIPT_ARGUMENTS_MAX 20
-#define LAST_PLAYED_MEM_MAX 10
+
+// timer + mpd connections + stickerdb + eventfd (mympd api queue)
+#define POLL_FDS_MAX LIST_TIMER_MAX + MPD_CONNECTION_MAX * 4 + 1 + 1
 
 //filesystem limits
 #define FILENAME_LEN_MAX 200

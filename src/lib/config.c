@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -215,9 +215,9 @@ bool mympd_version_set(sds workdir) {
  * @return true if version has not changed, else false
  */
 bool mympd_version_check(sds workdir) {
-    sds version = sdsempty();
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/version", workdir, DIR_WORK_CONFIG);
-    sds_getfile(&version, filepath, 10, true, false);
+    int nread = 0;
+    sds version = sds_getfile(sdsempty(), filepath, 10, true, false, &nread);
     bool rc = strcmp(version, MYMPD_VERSION) == 0
         ? true
         : false;

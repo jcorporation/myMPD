@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -25,13 +25,16 @@
     X(INTERNAL_API_ALBUMCACHE_CREATED) \
     X(INTERNAL_API_ALBUMCACHE_ERROR) \
     X(INTERNAL_API_ALBUMCACHE_SKIPPED) \
+    X(INTERNAL_API_JUKEBOX_CREATED) \
+    X(INTERNAL_API_JUKEBOX_ERROR) \
+    X(INTERNAL_API_JUKEBOX_REFILL) \
+    X(INTERNAL_API_JUKEBOX_REFILL_ADD) \
     X(INTERNAL_API_SCRIPT_INIT) \
     X(INTERNAL_API_SCRIPT_POST_EXECUTE) \
     X(INTERNAL_API_STATE_SAVE) \
-    X(INTERNAL_API_STICKERCACHE_CREATED) \
-    X(INTERNAL_API_STICKERCACHE_ERROR) \
-    X(INTERNAL_API_STICKERCACHE_SKIPPED) \
+    X(INTERNAL_API_STICKER_FEATURES) \
     X(INTERNAL_API_TIMER_STARTPLAY) \
+    X(INTERNAL_API_TRIGGER_EVENT_EMIT) \
     X(INTERNAL_API_WEBSERVER_NOTIFY) \
     X(INTERNAL_API_WEBSERVER_READY) \
     X(INTERNAL_API_WEBSERVER_SETTINGS) \
@@ -60,7 +63,9 @@
     X(MYMPD_API_HOME_ICON_SAVE) \
     X(MYMPD_API_HOME_ICON_LIST) \
     X(MYMPD_API_JUKEBOX_CLEAR) \
+    X(MYMPD_API_JUKEBOX_CLEARERROR) \
     X(MYMPD_API_JUKEBOX_LIST) \
+    X(MYMPD_API_JUKEBOX_RESTART) \
     X(MYMPD_API_JUKEBOX_RM) \
     X(MYMPD_API_LAST_PLAYED_LIST) \
     X(MYMPD_API_LIKE) \
@@ -128,6 +133,7 @@
     X(MYMPD_API_PLAYLIST_RENAME) \
     X(MYMPD_API_PLAYLIST_RM) \
     X(MYMPD_API_PLAYLIST_RM_ALL) \
+    X(MYMPD_API_RATING) \
     X(MYMPD_API_PRESET_RM) \
     X(MYMPD_API_PRESET_APPLY) \
     X(MYMPD_API_QUEUE_ADD_RANDOM) \
@@ -208,28 +214,52 @@ enum mympd_cmd_ids {
 };
 
 /**
+ * Response types
+ */
+enum work_response_types {
+    RESPONSE_TYPE_DEFAULT = 0,       //!< Send message back to the mongoose connection
+    RESPONSE_TYPE_NOTIFY_CLIENT,     //!< Send message to client identified by jsonrpc id
+    RESPONSE_TYPE_NOTIFY_PARTITION,  //!< Send message to all clients in a specific partition
+    RESPONSE_TYPE_PUSH_CONFIG,       //!< Internal message from myMPD API thread to webserver thread to push the configuration
+    RESPONSE_TYPE_SCRIPT,            //!< Respond is for the script thread
+    RESPONSE_TYPE_DISCARD            //!< Response will be discarded
+};
+
+/**
+ * Request types
+ */
+enum work_request_types {
+    REQUEST_TYPE_DEFAULT = 0,       //!< Request is from a mongoose connection
+    REQUEST_TYPE_SCRIPT,            //!< Request is from th script thread
+    REQUEST_TYPE_NOTIFY_PARTITION,  //!< Send message to all clients in a specific partition
+    REQUEST_TYPE_DISCARD            //!< Response will be discarded
+};
+
+/**
  * Struct for work request in the queue
  */
 struct t_work_request {
-    long long conn_id;         //!< mongoose connection id
-    long id;                   //!< the jsonrpc id
-    enum mympd_cmd_ids cmd_id; //!< the jsonrpc method as enum
-    sds data;                  //!< full jsonrpc request
-    void *extra;               //!< extra data for the request
-    sds partition;             //!< mpd partition
+    enum work_request_types type;  //!< request type
+    unsigned long conn_id;         //!< mongoose connection id
+    unsigned id;                   //!< the jsonrpc id
+    enum mympd_cmd_ids cmd_id;     //!< the jsonrpc method as enum
+    sds data;                      //!< full jsonrpc request
+    void *extra;                   //!< extra data for the request
+    sds partition;                 //!< mpd partition
 };
 
 /**
  * Struct for work responses in the queue
  */
 struct t_work_response {
-    long long conn_id;         //!< mongoose connection id
-    long id;                   //!< the jsonrpc id
-    enum mympd_cmd_ids cmd_id; //!< the jsonrpc method as enum
-    sds data;                  //!< full jsonrpc response
-    sds binary;                //!< binary data for the response
-    void *extra;               //!< extra data for the response
-    sds partition;             //!< mpd partition
+    enum work_response_types type;  //!< response type
+    unsigned long conn_id;          //!< mongoose connection id
+    unsigned id;                    //!< the jsonrpc id
+    enum mympd_cmd_ids cmd_id;      //!< the jsonrpc method as enum
+    sds data;                       //!< full jsonrpc response
+    sds binary;                     //!< binary data for the response
+    void *extra;                    //!< extra data for the response
+    sds partition;                  //!< mpd partition
 };
 
 /**
@@ -246,16 +276,6 @@ struct set_mg_user_data_request {
 };
 
 /**
- * Special myMPD connection ids.
- * All other connection ids are from mongoose and identifies client connections.
- */
-enum conn_ids {
-    CONN_ID_NOTIFY_CLIENT = -2,        //!< Send message to client identified by jsonrpc id
-    CONN_ID_CONFIG_TO_WEBSERVER = -1,  //!< Internal message from myMPD API thread to webserver thread to push the configuration
-    CONN_ID_NOTIFY_ALL = 0             //!< Send message to all clients in a specific partition
-};
-
-/**
  * Public functions
  */
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
@@ -264,12 +284,14 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
 void ws_notify(sds message, const char *partition);
-void ws_notify_client(sds message, long request_id);
+void ws_notify_client(sds message, unsigned request_id);
 struct t_work_response *create_response(struct t_work_request *request);
-struct t_work_response *create_response_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *partition);
-struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data, const char *partition);
+struct t_work_response *create_response_new(enum work_response_types type, unsigned long conn_id,
+        unsigned request_id, enum mympd_cmd_ids cmd_id, const char *partition);
+struct t_work_request *create_request(enum work_request_types type, unsigned long conn_id,
+        unsigned request_id, enum mympd_cmd_ids cmd_id, const char *data, const char *partition);
 void free_request(struct t_work_request *request);
 void free_response(struct t_work_response *response);
-bool push_response(struct t_work_response *response, long request_id, long long conn_id);
+bool push_response(struct t_work_response *response);
 
 #endif

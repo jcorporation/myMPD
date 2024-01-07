@@ -1,19 +1,86 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
 #include "compile_time.h"
 #include "src/mpd_client/partitions.h"
 
+#include "src/lib/last_played.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
+#include "src/lib/mympd_state.h"
+#include "src/lib/timer.h"
+#include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/features.h"
+#include "src/mpd_client/jukebox.h"
 #include "src/mympd_api/settings.h"
-
+#include "src/mympd_api/timer.h"
+#include "src/mympd_api/timer_handlers.h"
+#include "src/mympd_api/trigger.h"
 
 #include <string.h>
+
+bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {
+    MYMPD_LOG_INFO(partition_state->name, "Creating mpd connection for partition \"%s\"", partition_state->name);
+    if (mpd_client_connect(partition_state) == false) {
+        return false;
+    }
+    // we are connected
+    if (partition_state->is_default == true) {
+        // check version
+        if (mpd_connection_cmp_server_version(partition_state->conn, MPD_VERSION_MIN_MAJOR, MPD_VERSION_MIN_MINOR, MPD_VERSION_MIN_PATCH) < 0) {
+            MYMPD_LOG_EMERG(partition_state->name, "MPD version too old, myMPD supports only MPD version >= 0.21");
+            s_signal_received = 1;
+            return false;
+        }
+        mpd_client_mpd_features(mympd_state, partition_state);
+        // initiate cache updates
+        if (mympd_state->mpd_state->feat.tags == true) {
+            mympd_api_timer_replace(&mympd_state->timer_list, 2, TIMER_ONE_SHOT_REMOVE,
+                timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
+        }
+        // set timer for smart playlist update
+        if (mympd_state->smartpls_interval > 0) {
+            MYMPD_LOG_DEBUG(NULL, "Adding timer to update the smart playlists");
+            mympd_api_timer_replace(&mympd_state->timer_list, TIMER_SMARTPLS_UPDATE_OFFSET, mympd_state->smartpls_interval,
+                timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
+        }
+        // populate the partition list
+        if (partition_state->mpd_state->feat.partitions == true) {
+            partitions_populate(mympd_state);
+        }
+    }
+    else {
+        // change partition
+        MYMPD_LOG_INFO(partition_state->name, "Switching to partition \"%s\"", partition_state->name);
+        mpd_run_switch_partition(partition_state->conn, partition_state->name);
+        if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_switch_partition") == false) {
+            MYMPD_LOG_ERROR(partition_state->name, "Could not switch to partition \"%s\"", partition_state->name);
+            mpd_client_disconnect(partition_state);
+            return false;
+        }
+    }
+    // disarm connect timer
+    mympd_timer_set(partition_state->timer_fd_mpd_connect, 0, 0);
+    // jukebox
+    if (partition_state->jukebox.mode != JUKEBOX_OFF &&
+        partition_state->queue_length == 0)
+    {
+        jukebox_run(partition_state, &mympd_state->album_cache);
+    }
+
+    if (mpd_send_idle_mask(partition_state->conn, partition_state->idle_mask) == false) {
+        mympd_check_error_and_recover(partition_state, NULL, "mpd_send_idle_mask");
+        return false;
+    }
+    
+    send_jsonrpc_event(JSONRPC_EVENT_MPD_CONNECTED, partition_state->name);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_CONNECTED, partition_state->name);
+    return true;
+}
 
 /**
  * Get the partition state struct by partition name
@@ -59,7 +126,6 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
     //first add all missing partitions to the list
     if (mpd_send_listpartitions(mympd_state->partition_state->conn)) {
         struct mpd_pair *partition;
-        
         while ((partition = mpd_recv_partition_pair(mympd_state->partition_state->conn)) != NULL) {
             const char *name = partition->value;
             if (partitions_check(mympd_state, name) == false) {
@@ -124,35 +190,15 @@ void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
         partition_state = partition_state->next;
     }
     //append new partition struct and set defaults
-    //connection will be established in next idle loop run
+    //connection will be established through connect timer
     partition_state->next = malloc_assert(sizeof(struct t_partition_state));
     //set default partition state
-    partition_state_default(partition_state->next, name, mympd_state);
+    partition_state_default(partition_state->next, name, mympd_state->mpd_state, mympd_state->config);
     //read partition specific state from disc
     mympd_api_settings_statefiles_partition_read(partition_state->next);
+    last_played_file_read(partition_state->next);
+    //set connect timer
+    mympd_timer_set(partition_state->next->timer_fd_mpd_connect, 0, 5);
     //push settings to web_server_queue
-    settings_to_webserver(partition_state->mympd_state);
-}
-
-/**
- * Populates the mpd connection fds
- * @param mympd_state pointer to t_mympd_state struct
- */
-void partitions_get_fds(struct t_mympd_state *mympd_state) {
-    struct t_partition_state *partition_state = mympd_state->partition_state;
-    mympd_state->nfds = 0;
-    while (partition_state != NULL) {
-        if (mympd_state->nfds == MPD_CONNECTION_MAX) {
-            MYMPD_LOG_ERROR(NULL, "Too many partitions");
-            break;
-        }
-        if (partition_state->conn != NULL &&
-            partition_state->conn_state == MPD_CONNECTED)
-        {
-            mympd_state->fds[mympd_state->nfds].fd = mpd_connection_get_fd(partition_state->conn);
-            mympd_state->fds[mympd_state->nfds].events = POLLIN;
-            mympd_state->nfds++;
-        }
-        partition_state = partition_state->next;
-    }
+    settings_to_webserver(mympd_state);
 }

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -12,6 +12,7 @@
 bool mpd_client_queue_play_newly_inserted(struct t_partition_state *partition_state, sds *error);
 bool mpd_client_queue_check_start_play(struct t_partition_state *partition_state, bool play, sds *error);
 bool mpd_client_queue_clear(struct t_partition_state *partition_state, sds *error);
-sds mpd_client_queue_status(struct t_partition_state *partition_state, sds buffer);
+void mpd_client_queue_status_update(struct t_partition_state *partition_state);
+sds mpd_client_queue_status_print(struct t_partition_state *partition_state, struct t_cache *album_cache, sds buffer);
 
 #endif

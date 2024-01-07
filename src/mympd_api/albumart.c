@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -23,16 +23,23 @@
 /**
  * Reads the albumart by album id
  * @param partition_state pointer to partition specific states
+ * @param album_cache pointer to album cache
  * @param buffer already allocated sds string for the jsonrpc response
  * @param request_id request id
  * @param albumid the album id
  * @param size size of the albumart
  * @return jsonrpc response
  */
-sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds albumid, unsigned size)
+sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds buffer, unsigned request_id, sds albumid, unsigned size)
 {
-    struct mpd_song *album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
+    if (album_cache->cache == NULL) {
+        buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Albumcache not ready");
+        return buffer;
+    }
+
+    struct mpd_song *album = album_cache_get_album(album_cache, albumid);
     if (album == NULL) {
         return jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }
@@ -49,7 +56,7 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
 
     // search for one song in the album
     sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist,
-        album, &partition_state->mympd_state->config->albums);
+        album, &partition_state->config->albums);
 
     if (mpd_search_db_songs(partition_state->conn, false) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
@@ -97,13 +104,13 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
  * @param binary pointer to an already allocated sds string for the binary response
  * @return jsonrpc response
  */
-sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state, sds buffer, long request_id,
+sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
         const char *uri, sds *binary)
 {
     unsigned offset = 0;
     void *binary_buffer = malloc_assert(partition_state->mpd_state->mpd_binarylimit);
     int recv_len = 0;
-    if (partition_state->mpd_state->feat_albumart == true) {
+    if (partition_state->mpd_state->feat.albumart == true) {
         MYMPD_LOG_DEBUG(partition_state->name, "Try mpd command albumart for \"%s\"", uri);
         while ((recv_len = mpd_run_albumart(partition_state->conn, uri, offset, binary_buffer, partition_state->mpd_state->mpd_binarylimit)) > 0) {
             MYMPD_LOG_DEBUG(partition_state->name, "Received %d bytes from mpd albumart command", recv_len);
@@ -121,7 +128,7 @@ sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state
         }
     }
     if (offset == 0 &&
-        partition_state->mpd_state->feat_readpicture == true)
+        partition_state->mpd_state->feat.readpicture == true)
     {
         //silently clear the error if no albumart is found
         mpd_connection_clear_error(partition_state->conn);
@@ -154,8 +161,8 @@ sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state
         buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
         buffer = jsonrpc_end(buffer);
-        if (partition_state->mympd_state->config->covercache_keep_days > 0) {
-            covercache_write_file(partition_state->mympd_state->config->cachedir, uri, mime_type, *binary, 0);
+        if (partition_state->config->covercache_keep_days > 0) {
+            covercache_write_file(partition_state->config->cachedir, uri, mime_type, *binary, 0);
         }
         else {
             MYMPD_LOG_DEBUG(partition_state->name, "Covercache is disabled");

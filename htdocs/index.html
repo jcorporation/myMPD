@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd
 -->
 <html lang="en">
 <head>
@@ -121,9 +121,17 @@
     <div class="card" id="cardPlayback">
       <div class="card-body">
         <div class="btn-toolbar card-toolbar">
-          <div class="btn-group featStickers me-2" data-href='{"cmd": "voteSong", "options": ["target"]}'>
+          <div class="btn-group featLike me-2" data-href='{"cmd": "voteSongLike", "options": ["target"]}'>
             <button data-vote="0" data-title-phrase="Hate song" id="PlaybackSongHateBtn" class="btn btn-secondary mi">thumb_down</button>
             <button data-vote="2" data-title-phrase="Love song" id="PlaybackSongLoveBtn" class="btn btn-secondary mi">thumb_up</button>
+          </div>
+          <div id="PlaybackSongRating" class="btn-group featRating me-2" data-href='{"cmd": "voteSongRating", "options": ["target"]}'>
+            <button data-vote="0" title="Clear" class="btn btn-secondary mi px-1">clear</button>
+            <button data-vote="2" title="2" class="btn btn-secondary mi px-0">star_border</button>
+            <button data-vote="4" title="4" class="btn btn-secondary mi px-0">star_border</button>
+            <button data-vote="6" title="6" class="btn btn-secondary mi px-0">star_border</button>
+            <button data-vote="8" title="8" class="btn btn-secondary mi px-0">star_border</button>
+            <button data-vote="10" title="10" class="btn btn-secondary mi ps-0 pe-1">star_border</button>
           </div>
           <div class="btn-group btn-group featPlaylists me-2">
             <button id="PlaybackAddToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary mi">playlist_add</button>
@@ -155,6 +163,7 @@
               <div class="featTags row" id="PlaybackListTags"></div>
               <div class="d-none row" id="PlaybackListWebradio"></div>
               <div id="PlaybackBooklet"></div>
+              <div id="PlaybackInfoTxt" data-href='{"cmd": "showInfoTxt", "options": ["target"]}'></div>
             </div>
           </div>
         </div>
@@ -239,7 +248,7 @@
           </div>
           <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
-        <ol class="breadcrumb p-2 rounded-2 d-none" id="QueueCurrentSearchCrumb"></ol>
+        <div class="breadcrumb p-2 rounded-2 d-none" id="QueueCurrentSearchCrumb"></div>
         <div class="table-responsive scrollContainer">
           <table id="QueueCurrentList" class="table table-hover table-sm">
             <thead>
@@ -298,7 +307,7 @@
           </div>
           <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
-        <ol class="breadcrumb p-2 rounded-2 d-none" id="QueueLastPlayedSearchCrumb"></ol>
+        <div class="breadcrumb p-2 rounded-2 d-none" id="QueueLastPlayedSearchCrumb"></div>
         <div class="table-responsive scrollContainer">
           <table id="QueueLastPlayedList" class="table table-hover table-sm">
             <thead>
@@ -360,7 +369,7 @@
             </div>
             <div id="QueueJukeboxSongPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <ol class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxSongSearchCrumb"></ol>
+          <div class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxSongSearchCrumb"></div>
           <div class="table-responsive scrollContainer">
             <div id="QueueJukeboxSongDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
             <table id="QueueJukeboxSongList" class="table table-hover table-sm">
@@ -422,7 +431,7 @@
             </div>
             <div id="QueueJukeboxAlbumPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <ol class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxAlbumSearchCrumb"></ol>
+          <div class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxAlbumSearchCrumb"></div>
           <div class="table-responsive scrollContainer">
             <div id="QueueJukeboxAlbumDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
             <table id="QueueJukeboxAlbumList" class="table table-hover table-sm">
@@ -458,9 +467,11 @@
               <div class="dropdown-menu px-2">
                 <h2 class="dropdown-header" data-phrase="Add smart playlist"></h2>
                 <div class="d-grid gap-2">
-                  <button data-phrase="Best rated" data-href='{"cmd": "addSmartpls", "options": ["bestRated"]}' type="button" class="btn btn-secondary"></button>
-                  <button data-phrase="Most played" data-href='{"cmd": "addSmartpls", "options": ["mostPlayed"]}' type="button" class="btn btn-secondary"></button>
+                  <button data-phrase="Best rated" data-href='{"cmd": "addSmartpls", "options": ["bestRated"]}' type="button" class="btn btn-secondary featLike"></button>
+                  <button data-phrase="Most stars" data-href='{"cmd": "addSmartpls", "options": ["mostStars"]}' type="button" class="btn btn-secondary featRating"></button>
+                  <button data-phrase="Most played" data-href='{"cmd": "addSmartpls", "options": ["mostPlayed"]}' type="button" class="btn btn-secondary featStickerInt"></button>
                   <button data-phrase="Newest songs" data-href='{"cmd": "addSmartpls", "options": ["newest"]}' type="button" class="btn btn-secondary"></button>
+                  <button data-phrase="Sticker based" data-href='{"cmd": "addSmartpls", "options": ["sticker"]}' type="button" class="btn btn-secondary"></button>
                 </div>
               </div>
             </div>
@@ -585,7 +596,7 @@
             </div>
             <div id="BrowsePlaylistDetailPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <ol class="breadcrumb p-2 rounded-2 d-none" id="BrowsePlaylistDetailSearchCrumb"></ol>
+          <div class="breadcrumb p-2 rounded-2 d-none" id="BrowsePlaylistDetailSearchCrumb"></div>
           <div class="table-responsive scrollContainer">
             <div id="playlistDetailAlert" class="alert alert-warning alert-dismissible d-none">
               <span></span>
@@ -692,7 +703,7 @@
             </div>
             <div id="BrowseDatabaseAlbumListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <ol class="breadcrumb p-2 rounded-2 d-none" id="BrowseDatabaseAlbumListSearchCrumb"></ol>
+          <div class="breadcrumb p-2 rounded-2 d-none" id="BrowseDatabaseAlbumListSearchCrumb"></div>
           <div class="container-fluid cardsContainer scrollContainer">
             <div id="BrowseDatabaseAlbumListList" class="row mympd-grid"></div>
           </div>
@@ -800,7 +811,7 @@
           </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
-        <ol id="BrowseBreadcrumb" class="breadcrumb p-2 rounded-2 overflow-auto nowrap"></ol>
+        <ol id="BrowseFilesystemBreadcrumb" class="breadcrumb p-2 rounded-2 overflow-auto nowrap"></ol>
         <div id="BrowseFilesystemImages" class="featLibrary not-clickable" data-href='{"cmd": "zoomPicture", "options": ["target"]}'></div>
         <div class="table-responsive scrollContainer">
           <table id="BrowseFilesystemList" class="table table-hover table-sm">
@@ -1023,7 +1034,7 @@
           </div>
           <div id="SearchPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
-        <ol class="breadcrumb p-2 rounded-2 d-none" id="SearchSearchCrumb"></ol>
+        <div class="breadcrumb p-2 rounded-2 d-none" id="SearchSearchCrumb"></div>
         <div class="table-responsive scrollContainer">
           <table id="SearchList" class="table table-hover table-sm">
             <thead>
@@ -1059,8 +1070,9 @@
           <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="footerNextBtn" type="button" class="btn px-2 mi rounded-2">skip_next</button>
           <button data-title-phrase="Advanced playback controls" data-href='{"cmd": "toggleAdvPlaycontrolsPopover", "options": ["event"]}' id="advPlaybackControlsBtn" type="button" class="btn px-2 mi rounded-2">drag_indicator</button>
         </div>
-        <div class="align-self-center footerCounter">
-          <small id="counter"></small>
+        <div class="footerCounter text-center">
+          <div id="counter" class="fs-5"></div>
+          <div id="footerAudioFormat" class="featFooterAudioFormat"></div>
         </div>
       </div>
       <div class="d-flex flex-fill navbar-nav ms-3 text-truncate" id="footerInfo">
@@ -1384,6 +1396,13 @@
               <button class="btn btn-secondary mi" id="modalSmartPlaylistEditSortdescInput" data-href='{"cmd": "toggleBtnChk", "options": ["target"]}'>radio_button_unchecked</button>
             </div>
           </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditMaxentriesInput" data-phrase="Max. songs"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="modalSmartPlaylistEditMaxentriesInput"/>
+              <div class="invalid-feedback" data-phrase="Must be a number"></div>
+            </div>
+          </div>
           <hr/>
           <div class="d-none" id="modalSmartPlaylistEditTypeSearch">
             <div class="mb-3 row">
@@ -1398,23 +1417,31 @@
               <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditStickerInput" data-phrase="Sticker"></label>
               <div class="col-sm-8">
                 <select id="modalSmartPlaylistEditStickerInput" class="form-select">
-                  <option value="like" data-phrase="Like"></option>
-                  <option value="playCount" data-phrase="Play count"></option>
+                  <option value="elapsed" data-phrase="Elapsed" class="featStickerInt"></option>
+                  <option value="like" data-phrase="Like" class="featLike"></option>
+                  <option value="rating" data-phrase="Rating" class="featRating"></option>
+                  <option value="playCount" data-phrase="Play count" class="featStickerInt"></option>
+                  <option value="skipCount" data-phrase="Skip count" class="featStickerInt"></option>
+                  <option value="lastPlayed" data-phrase="Last played" class="featStickerInt"></option>
+                  <option value="lastSkipped" data-phrase="Last skipped" class="featStickerInt"></option>
                 </select>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditMinvalueInput" data-phrase="Min. value"></label>
+              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditOpInput" data-phrase="Operator"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="modalSmartPlaylistEditMinvalueInput"/>
-                <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                <select id="modalSmartPlaylistEditOpInput" class="form-select">
+                  <option value="=" data-phrase="equal"></option>
+                  <option value="gt" data-phrase="greater" class="featStickerInt"></option>
+                  <option value="lt" data-phrase="lesser" class="featStickerInt"></option>
+                </select>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditMaxentriesInput" data-phrase="Max. songs"></label>
+              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditValueInput" data-phrase="Value"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="modalSmartPlaylistEditMaxentriesInput"/>
-                <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                <input class="form-control" id="modalSmartPlaylistEditValueInput"/>
+                <div class="invalid-feedback" data-phrase="Invalid value"></div>
               </div>
             </div>
           </div>
@@ -1519,6 +1546,16 @@
               <hr/>
               <h4 data-phrase="Statistics"></h4>
               <div id="modalSettingsStatisticsFrm"></div>
+              <div class="mb-3 row featStickers">
+                <label class="col-sm-4 col-form-label" data-phrase="Feedback"></label>
+                <div class="col-sm-8">
+                  <div class="btn-group" id="modalSettingsFeedbackGroup">
+                    <button data-value="like" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="Love, hate"></button>
+                    <button data-value="rating" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="Stars"></button>
+                  </div>
+                  <small class="help" data-phrase="helpSettingsFeedback"></small>
+                </div>
+              </div>
               <div class="featSmartplsAvailable">
                 <hr/>
                 <h4 data-phrase="Smart playlists"></h4>
@@ -1613,8 +1650,8 @@
               <div id="modalSettingsSeekFrm"></div>
               <div class="featLibrary">
                 <hr/>
-                <h4 data-phrase="Booklet"></h4>
-                <div id="modalSettingsBookletFrm"></div>
+                <h4 data-phrase="Album info"></h4>
+                <div id="modalSettingsAlbumInfoFrm"></div>
               </div>
             </div>
             <div class="tab-pane" id="modalSettingsCloudTab">
@@ -2408,6 +2445,24 @@
     </div>
   </div>
 <!-- Modal picture end -->
+<!-- Modal picture start -->
+<div class="modal fade" id="modalInfoTxt" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><span class="mi title-icon">article</span> <span data-phrase="Album info"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="modalInfoTxtText"></div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal picture end -->
 <!-- Modal trigger start -->
   <div class="modal fade" id="modalTrigger" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -2870,6 +2925,12 @@
             </div>
           </div>
           <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditStateInput" data-phrase="State"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="modalRadioFavoriteEditStateInput"/>
+            </div>
+          </div>
+          <div class="row mb-3">
             <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditLanguageInput" data-phrase="Language"></label>
             <div class="col-sm-8">
               <input class="form-control" id="modalRadioFavoriteEditLanguageInput"/>
@@ -2994,6 +3055,7 @@
 <!--debug-->  <script src="js/defines.js"></script>
 <!--debug-->  <script src="js/elements.js"></script>
 <!--debug-->  <script src="js/features.js"></script>
+<!--debug-->  <script src="js/feedback.js"></script>
 <!--debug-->  <script src="js/forms.js"></script>
 <!--debug-->  <script src="js/globales.js"></script>
 <!--debug-->  <script src="js/grid.js"></script>
@@ -3009,6 +3071,7 @@
 <!--debug-->  <script src="js/modal.js"></script>
 <!--debug-->  <script src="js/modalAbout.js"></script>
 <!--debug-->  <script src="js/modalEnterPin.js"></script>
+<!--debug-->  <script src="js/modalInfoTxt.js"></script>
 <!--debug-->  <script src="js/modalMaintenance.js"></script>
 <!--debug-->  <script src="js/modalMounts.js"></script>
 <!--debug-->  <script src="js/modalNotifications.js"></script>
@@ -3049,7 +3112,6 @@
 <!--debug-->  <script src="js/session.js"></script>
 <!--debug-->  <script src="js/settings.js"></script>
 <!--debug-->  <script src="js/smartPlaylist.js"></script>
-<!--debug-->  <script src="js/song.js"></script>
 <!--debug-->  <script src="js/state.js"></script>
 <!--debug-->  <script src="js/tables.js"></script>
 <!--debug-->  <script src="js/tags.js"></script>

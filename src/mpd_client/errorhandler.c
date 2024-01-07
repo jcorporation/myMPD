@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -10,6 +10,8 @@
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/timer.h"
+#include "src/mpd_client/connection.h"
 #include "src/mpd_client/tags.h"
 
 #include <errno.h>
@@ -20,7 +22,7 @@
  */
 
 static bool check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, enum mympd_cmd_ids cmd_id,
-        long request_id, enum response_types response_type, const char *command);
+        unsigned request_id, enum jsonrpc_response_types response_type, const char *command);
 
 /**
  * Public functions
@@ -32,7 +34,8 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
  */
 void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char *errormessage) {
     MYMPD_LOG_ERROR(partition_state->name, "%s", errormessage);
-    partition_state->conn_state = MPD_FAILURE;
+    mpd_client_disconnect(partition_state);
+    mympd_timer_set(partition_state->timer_fd_mpd_connect, 0, 5);
 }
 
 /**
@@ -57,7 +60,7 @@ bool mympd_check_error_and_recover(struct t_partition_state *partition_state, sd
  * @return true on success else false
  */
 bool mympd_check_error_and_recover_respond(struct t_partition_state *partition_state, sds *buffer,
-        enum mympd_cmd_ids cmd_id, long request_id, const char *command)
+        enum mympd_cmd_ids cmd_id, unsigned request_id, const char *command)
 {
     return check_error_and_recover(partition_state, buffer, cmd_id, request_id, RESPONSE_TYPE_JSONRPC_RESPONSE, command);
 }
@@ -99,7 +102,7 @@ bool mympd_check_error_and_recover_plain(struct t_partition_state *partition_sta
  * @return pointer to buffer
  */
 sds mympd_respond_with_error_or_ok(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id,
-        long request_id, const char *command, bool *result)
+        unsigned request_id, const char *command, bool *result)
 {
     *result = check_error_and_recover(partition_state, &buffer, cmd_id, request_id, RESPONSE_TYPE_JSONRPC_RESPONSE, command);
     if (*result == false) {
@@ -123,7 +126,7 @@ sds mympd_respond_with_error_or_ok(struct t_partition_state *partition_state, sd
  * @return true on success else false
  */
 static bool check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, enum mympd_cmd_ids cmd_id,
-        long request_id, enum response_types response_type, const char *command)
+        unsigned request_id, enum jsonrpc_response_types response_type, const char *command)
 {
     enum mpd_error error = mpd_connection_get_error(partition_state->conn);
     if (error != MPD_ERROR_SUCCESS) {

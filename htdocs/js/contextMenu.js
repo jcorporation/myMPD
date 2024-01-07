@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module contextMenu_js */
@@ -358,6 +358,7 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
             "StreamUri": uri,
             "Homepage": getData(dataNode, 'homepage'),
             "Country": getData(dataNode, 'country'),
+            "State": getData(dataNode, 'state'),
             "Language": getData(dataNode, 'language'),
             "Codec": getData(dataNode, 'codec'),
             "Bitrate": getData(dataNode, 'bitrate'),

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -46,7 +46,7 @@ UTEST(api, test_is_mympd_only_api_method) {
 }
 
 UTEST(api, test_request_result) {
-    struct t_work_request *request = create_request(1, 1, MYMPD_API_SETTINGS_SET, "test", MPD_PARTITION_DEFAULT);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 1, 1, MYMPD_API_SETTINGS_SET, "test", MPD_PARTITION_DEFAULT);
     bool rc = request == NULL ? false : true;
     ASSERT_TRUE(rc);
 

@@ -1,13 +1,15 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
 #include "compile_time.h"
 #include "src/lib/msg_queue.h"
 
+#include "dist/mongoose/mongoose.h"
 #include "src/lib/api.h"
+#include "src/lib/event.h"
 #include "src/lib/log.h"
 #include "src/lib/lua_mympd_state.h"
 #include "src/lib/mem.h"
@@ -30,9 +32,11 @@ static void set_wait_time(int timeout, struct timespec *max_wait);
  * Creates a thread safe message queue
  * @param name description of the queue
  * @param type type of the queue QUEUE_TYPE_REQUEST or QUEUE_TYPE_RESPONSE
+ * @param event create an eventfd?
  * @return pointer to allocated and initialized queue struct
  */
-struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_types type) {
+struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_types type,
+        bool event) {
     struct t_mympd_queue *queue = malloc_assert(sizeof(struct t_mympd_queue));
     queue->head = NULL;
     queue->tail = NULL;
@@ -41,6 +45,11 @@ struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_type
     queue->type = type;
     queue->mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
     queue->wakeup = (pthread_cond_t)PTHREAD_COND_INITIALIZER;
+    queue->event_fd = event == true
+        ? event_eventfd_create()
+        : -1;
+    queue->mg_mgr = NULL;
+    queue->mg_conn_id = 0;
     return queue;
 }
 
@@ -50,6 +59,7 @@ struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_type
  */
 void *mympd_queue_free(struct t_mympd_queue *queue) {
     mympd_queue_expire(queue, 0);
+    event_fd_close(queue->event_fd);
     FREE_PTR(queue);
     return NULL;
 }
@@ -61,7 +71,7 @@ void *mympd_queue_free(struct t_mympd_queue *queue) {
  * @param id id of the queue entry
  * @return true on success else false
  */
-bool mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
+bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR(NULL, "Error in pthread_mutex_lock: %d", rc);
@@ -90,6 +100,12 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
         MYMPD_LOG_ERROR(NULL, "Error in pthread_cond_signal: %d", rc);
         return 0;
     }
+    if (queue->event_fd > -1) {
+        event_eventfd_write(queue->event_fd);
+    }
+    else if (queue->mg_mgr != NULL) {
+        mg_wakeup(queue->mg_mgr, queue->mg_conn_id, "", 0);
+    }
     return true;
 }
 
@@ -100,7 +116,7 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
  * @param id 0 for first entry or specific id
  * @return t_work_request or t_work_response
  */
-void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
+void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, unsigned id) {
     //lock the queue
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
@@ -159,7 +175,7 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
                 unlock_mutex(&queue->mutex);
                 return data;
             }
-            MYMPD_LOG_DEBUG(NULL, "Skipping queue entry with id %ld", current->id);
+            MYMPD_LOG_DEBUG(NULL, "Skipping queue entry with id %u", current->id);
         }
     }
 

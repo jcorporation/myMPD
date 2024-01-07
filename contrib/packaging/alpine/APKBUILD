@@ -1,12 +1,12 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-# myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+# myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 #
 # Maintainer: Juergen Mang <mail@jcgames.de>
 #
 pkgname=mympd
-pkgver=13.0.6
+pkgver=14.0.0
 pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web-based MPD client."
 url="https://jcorporation.github.io/myMPD/"
@@ -15,14 +15,14 @@ license="GPL-3.0-or-later"
 depends="libid3tag flac openssl lua5.4 pcre2"
 makedepends="cmake perl gzip jq libid3tag-dev flac-dev openssl-dev linux-headers lua5.4-dev pcre2-dev"
 install="$pkgname.pre-install"
-subpackages="$pkgname-dbg"
+subpackages="$pkgname-dbg $pkgname-doc"
 source="mympd_$pkgver.orig.tar.gz"
 builddir="$srcdir"
 options="!check"
 #no test suite
 
 build() {
-    cmake -B "$builddir/release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo -DMYMPD_MANPAGES=OFF "$builddir"
+    cmake -B "$builddir/release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo "$builddir"
     make -C "$builddir/release"
 }
 

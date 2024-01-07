@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module modalSettings_js */
@@ -137,6 +137,9 @@ function populateSettingsFrm() {
     jsonToForm(settings.partition, settingsPartitionFields, 'modalSettings');
     jsonToForm(localSettings, settingsLocalFields, 'modalSettings');
 
+    // feedback
+    toggleBtnGroupValueId('modalSettingsFeedbackGroup', settings.webuiSettings.feedback);
+
     // background image select
     getBgImageList();
     const bgImageInput = elGetById('modalSettingsBgImageInput');
@@ -230,7 +233,6 @@ function populateSettingsFrm() {
     // handle features: show or hide warnings - use the settings object
     setFeatureBtnId('modalSettingsEnableLyricsInput', settings.features.featLibrary);
     setFeatureBtnId('modalSettingsEnableScriptingInput', settings.features.featScripting);
-    setFeatureBtnId('modalSettingsEnableTimerInput', settings.features.featTimer);
     setFeatureBtnId('modalSettingsEnableMountsInput', settings.features.featMounts);
     setFeatureBtnId('modalSettingsEnablePartitionsInput', settings.features.featPartitions);
 }
@@ -298,6 +300,7 @@ function saveSettings(target, closeModal) {
         settingsParams.tagList = getTagMultiSelectValues(elGetById('modalSettingsEnabledTagsList'), false);
         settingsParams.tagListSearch = getTagMultiSelectValues(elGetById('modalSettingsSearchTagsList'), false);
         settingsParams.tagListBrowse = getTagMultiSelectValues(elGetById('modalSettingsBrowseTagsList'), false);
+        settingsParams.webuiSettings.feedback = getBtnGroupValueId('modalSettingsFeedbackGroup');
 
         btnWaiting(target, true);
         if (closeModal === true) {

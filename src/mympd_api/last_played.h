@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -9,8 +9,7 @@
 
 #include "src/lib/mympd_state.h"
 
-bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, int song_id);
-bool mympd_api_last_played_file_save(struct t_partition_state *partition_state);
-sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds buffer,
-        long request_id, long offset, long limit, sds expression, const struct t_tags *tagcols);
+bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, unsigned last_played_count);
+sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        sds buffer, unsigned request_id, unsigned offset, unsigned limit, sds expression, const struct t_tags *tagcols);
 #endif

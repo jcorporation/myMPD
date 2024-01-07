@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -94,23 +94,34 @@ time_t get_mtime(const char *filepath) {
  * @param s an already allocated sds string
  * @param fp a file descriptor to read from
  * @param max max line length to read
- * @return Number of bytes read or -1 on eof
+ * @param nread Number of bytes read,
+                -1 on EOF
+ * @return Pointer to s
  */
-int sds_getline(sds *s, FILE *fp, size_t max) {
-    sdsclear(*s);
+sds sds_getline(sds s, FILE *fp, size_t max, int *nread) {
+    sdsclear(s);
+    s = sdsMakeRoomFor(s, max + 1);
     for (size_t i = 0; i < max; i++) {
         int c = fgetc(fp);
         if (c == EOF ||
             c == '\n')
         {
-            sdstrim(*s, "\r \t");
-            return c == EOF ? -1 : (int)sdslen(*s);
+            s[i] = '\0';
+            sdstrim(s, "\r \t");
+            *nread = c == EOF
+                ? -1
+                : (int)sdslen(s);
+            return s;
         }
-        *s = sds_catchar(*s, (char)c);
+        s[i] = (char)c;
+        sdsinclen(s, 1);
     }
     MYMPD_LOG_ERROR(NULL, "Line is too long, max length is %lu", (unsigned long)max);
-    sdstrim(*s, "\r \t");
-    return (int)sdslen(*s);
+    s[max] = '\0';
+    sdstrim(s, "\r \t");
+
+    *nread = (int)sdslen(s);
+    return s;
 }
 
 /**
@@ -121,11 +132,12 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
  * @param max maximum bytes to read
  * @param remove_newline removes CR/LF if true
  * @param warn log an error if file does not exist
- * @return Number of bytes read,
- *         -1 error reading file,
- *         -2 file is too big
+ * @param nread Number of bytes read,
+ *              -1 error reading file,
+ *              -2 file is too big
+ * @return pointer to s
  */
-int sds_getfile(sds *s, const char *file_path, size_t max, bool remove_newline, bool warn) {
+sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, bool warn, int *nread) {
     errno = 0;
     FILE *fp = fopen(file_path, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -138,11 +150,12 @@ int sds_getfile(sds *s, const char *file_path, size_t max, bool remove_newline, 
             MYMPD_LOG_ERROR(NULL, "Error opening file \"%s\"", file_path);
             MYMPD_LOG_ERRNO(NULL, errno);
         }
-        return -1;
+        *nread = -1;
+        return s;
     }
-    int rc = sds_getfile_from_fp(s, fp, max, remove_newline);
+    s = sds_getfile_from_fp(s, fp, max, remove_newline, nread);
     (void) fclose(fp);
-    return rc;
+    return s;
 }
 
 /**
@@ -152,28 +165,37 @@ int sds_getfile(sds *s, const char *file_path, size_t max, bool remove_newline, 
  * @param fp FILE pointer to read
  * @param max maximum bytes to read
  * @param remove_newline removes CR/LF if true
- * @return Number of bytes read, -2 if file was too big
+ * @param nread Number of bytes read,
+ *              -2 if file is too big
+ * @return pointer to s
  */
-int sds_getfile_from_fp(sds *s, FILE *fp, size_t max, bool remove_newline) {
-    sdsclear(*s);
+sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *nread) {
+    sdsclear(s);
+    s = sdsMakeRoomFor(s, max + 1);
     for (size_t i = 0; i <= max; i++) {
         int c = fgetc(fp);
         if (c == EOF) {
-            sdstrim(*s, "\r \t\n");
+            s[i] = '\0';
+            sdstrim(s, "\r \t\n");
+            *nread = (int)sdslen(s);
             #ifdef MYMPD_DEBUG
-                MYMPD_LOG_DEBUG(NULL, "Read %lu bytes from file", (unsigned long)sdslen(*s));
+                MYMPD_LOG_DEBUG(NULL, "Read %lu bytes from file", (unsigned long)sdslen(s));
             #endif
-            return (int)sdslen(*s);
+            return s;
         }
         if (remove_newline == true &&
             (c == '\n' || c == '\r'))
         {
             continue;
         }
-        *s = sds_catchar(*s, (char)c);
+        s[i] = (char)c;
+        sdsinclen(s, 1);
     }
+    s[max] = '\0';
+    sdstrim(s, "\r \t\n");
     MYMPD_LOG_ERROR(NULL, "File is too big, max size is %lu", (unsigned long)max);
-    return -2;
+    *nread = -2;
+    return s;
 }
 
 /**

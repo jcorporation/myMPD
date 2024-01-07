@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module modalRadioWebradiodbDetail_js */
@@ -32,6 +32,7 @@ function showWebradiodbDetails(uri) {
         'Homepage',
         'Genre',
         'Country',
+        'State',
         'Language',
         'Codec',
         'Bitrate',
@@ -63,6 +64,7 @@ function showWebradiodbDetails(uri) {
                     "Genre": result.Genre,
                     "Homepage": result.Homepage,
                     "Country": result.Country,
+                    "State": result.State,
                     "Language": result.Languages,
                     "Codec": result.alternativeStreams[name].Codec,
                     "Bitrate": result.alternativeStreams[name].Bitrate,

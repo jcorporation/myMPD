@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module Playback_js */
@@ -148,23 +148,40 @@ function parseCurrentSong(obj) {
     }
 
     if (features.featStickers === true) {
-        setVoteSongBtns(obj.result.like, obj.result.uri);
+        if (settings.webuiSettings.feedback === 'like') {
+            setVoteSongBtns(obj.result.like, obj.result.uri);
+        }
+        else if (settings.webuiSettings.feedback === 'rating') {
+            setRating(elGetById('PlaybackSongRating'), obj.result.rating);
+        }
     }
 
     setPlaybackCardTags(obj.result);
 
     const bookletEl = elGetById('PlaybackBooklet');
     elClear(bookletEl);
-    if (obj.result.bookletPath !== '' &&
-        obj.result.bookletPath !== undefined &&
-        features.featLibrary === true)
-    {
+    if (obj.result.bookletPath !== '') {
         bookletEl.appendChild(
             elCreateText('span', {"class": ["mi", "me-2"]}, 'description')
         );
         bookletEl.appendChild(
-            elCreateTextTn('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)}, 'Download booklet')
+            elCreateTextTn('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)}, 'Booklet')
         );
+    }
+
+    const infoTxtEl = elGetById('PlaybackInfoTxt');
+    elClear(infoTxtEl);
+    if (obj.result.infoTxtPath !== '') {
+        infoTxtEl.appendChild(
+            elCreateText('span', {"class": ["mi", "me-2"]}, 'article')
+        );
+        infoTxtEl.appendChild(
+            elCreateTextTn('span', {"href": myEncodeURI(subdir + obj.result.infoTxtPath)}, 'Album info')
+        );
+        setData(infoTxtEl, 'uri', obj.result.infoTxtPath);
+    }
+    else {
+        rmData(infoTxtEl, 'uri');
     }
 
     //update queue card
@@ -271,7 +288,14 @@ function setPlaybackCardTags(songObj) {
         PlaybackListWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateTextTn('small', {}, 'Country'),
-                elCreateText('p', {}, songObj.webradio.Country + smallSpace + nDash + smallSpace + songObj.webradio.Language)
+                elCreateText('p', {}, songObj.webradio.Country + 
+                    (songObj.webradio.State !== '' ? smallSpace + nDash + smallSpace + songObj.webradio.State : ''))
+            ])
+        );
+        PlaybackListWebradio.appendChild(
+            elCreateNodes('div', {"class": ["col-xl-6"]}, [
+                elCreateTextTn('small', {}, 'Language'),
+                elCreateText('p', {}, songObj.webradio.Language)
             ])
         );
         if (songObj.webradio.Homepage !== '') {

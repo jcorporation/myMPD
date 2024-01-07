@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module Browse_js */
@@ -178,11 +178,11 @@ function gotoFilesystem(uri, type) {
 function gotoSearch(tag, value) {
     const filters = [];
     if (typeof(value) === 'string') {
-        filters.push(_createSearchExpression(tag, '==', value));
+        filters.push(createSearchExpressionComponent(tag, '==', value));
     }
     else {
         for (const v of value) {
-            filters.push(_createSearchExpression(tag, '==', v));
+            filters.push(createSearchExpressionComponent(tag, '==', v));
         }
     }
     const expression = '(' + filters.join(' AND ') + ')';

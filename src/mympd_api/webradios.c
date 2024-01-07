@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -71,7 +71,7 @@ sds get_webradio_from_uri(sds workdir, const char *uri) {
  * @param filename webradio m3u filename
  * @return pointer to buffer
  */
-sds mympd_api_webradio_get(sds workdir, sds buffer, long request_id, sds filename) {
+sds mympd_api_webradio_get(sds workdir, sds buffer, unsigned request_id, sds filename) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_GET;
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S", workdir, DIR_WORK_WEBRADIOS, filename);
     sds entry = sdsempty();
@@ -101,7 +101,7 @@ sds mympd_api_webradio_get(sds workdir, sds buffer, long request_id, sds filenam
  * @param limit maximum entries to print
  * @return pointer to buffer
  */
-sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds searchstr, long offset, long limit) {
+sds mympd_api_webradio_list(sds workdir, sds buffer, unsigned request_id, sds searchstr, unsigned offset, unsigned limit) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_GET;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -121,7 +121,7 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
     struct dirent *next_file;
     rax *webradios = raxNew();
     sds key = sdsempty();
-    long real_limit = offset + limit;
+    unsigned real_limit = offset + limit;
     //read dir
     sds filepath = sdsempty();
     while ((next_file = readdir(webradios_dir)) != NULL ) {
@@ -163,8 +163,8 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
     FREE_SDS(webradios_dirname);
     FREE_SDS(key);
     //print result
-    long entity_count = 0;
-    long entities_returned = 0;
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
     raxIterator iter;
     raxStart(&iter, webradios);
     raxSeek(&iter, "^", NULL, 0);
@@ -188,8 +188,8 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
     }
     raxStop(&iter);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_llong(buffer, "totalEntities", (long long)webradios->numele, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+    buffer = tojson_uint64(buffer, "totalEntities", webradios->numele, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end(buffer);
     raxFree(webradios);
     return buffer;
@@ -209,11 +209,12 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
  * @param codec codec
  * @param bitrate bitrate
  * @param description short description
+ * @param state statea
  * @return true on success, else false
  */
 bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
         sds genre, sds picture, sds homepage, sds country, sds language, sds codec, int bitrate,
-        sds description)
+        sds description, sds state)
 {
     sds filename = sdsdup(uri);
     sanitize_filename(filename);
@@ -226,12 +227,13 @@ bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
         "#EXTIMG:%S\n"
         "#HOMEPAGE:%S\n"
         "#COUNTRY:%S\n"
+        "#STATE:%S\n"
         "#LANGUAGE:%S\n"
         "#DESCRIPTION:%S\n"
         "#CODEC:%S\n"
         "#BITRATE:%i\n"
         "%S\n",
-        name, genre, name, picture, homepage, country, language, description, codec, bitrate, uri);
+        name, genre, name, picture, homepage, country, state, language, description, codec, bitrate, uri);
 
     bool rc = write_data_to_file(filepath, content, sdslen(content));
 

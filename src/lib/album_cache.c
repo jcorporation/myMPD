@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -12,11 +12,11 @@
 #include "dist/mpack/mpack.h"
 #include "dist/rax/rax.h"
 #include "src/lib/config_def.h"
+#include "src/lib/convert.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/mpack.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/tags.h"
@@ -31,6 +31,7 @@
  * Used fields:
  *   tags: tags from all songs of the album
  *   last_modified: last_modified from newest song
+ *   added: added from oldest song
  *   duration: the album total time in seconds
  *   duration_ms: the album total time in milliseconds
  *   pos: number of discs
@@ -183,7 +184,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         album_cache_free(album_cache);
     }
     else {
-        MYMPD_LOG_INFO(NULL, "Read %lld album(s) from disc", (long long)album_cache->cache->numele);
+        MYMPD_LOG_INFO(NULL, "Read %" PRIu64 " album(s) from disc", album_cache->cache->numele);
     }
     FREE_PTR(album_tags);
     album_cache->building = false;
@@ -241,6 +242,7 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
         mpack_write_kv(&writer, "Songs", album_get_song_count(album));
         mpack_write_kv(&writer, "Duration", mpd_song_get_duration(album));
         mpack_write_kv(&writer, "Last-Modified", (uint64_t)mpd_song_get_last_modified(album));
+        mpack_write_kv(&writer, "Added", (uint64_t)mpd_song_get_added(album));
         mpack_write_cstr(&writer, "AlbumId");
         mpack_write_str(&writer, (char *)iter.key, (uint32_t)iter.key_len);
         for (unsigned tagnr = 0; tagnr < album_tags->tags_len; ++tagnr) {
@@ -381,16 +383,24 @@ void album_cache_free(struct t_cache *album_cache) {
     if (album_cache->cache == NULL) {
         return;
     }
+    album_cache_free_rt(album_cache->cache);
+    album_cache->cache = NULL;
+}
+
+/**
+ * Frees the album cache radix tree
+ * @param album_cache_rt 
+ */
+void album_cache_free_rt(rax *album_cache_rt) {
     MYMPD_LOG_DEBUG(NULL, "Freeing album cache");
     raxIterator iter;
-    raxStart(&iter, album_cache->cache);
+    raxStart(&iter, album_cache_rt);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
         mpd_song_free((struct mpd_song *)iter.data);
     }
     raxStop(&iter);
-    raxFree(album_cache->cache);
-    album_cache->cache = NULL;
+    raxFree(album_cache_rt);
 }
 
 /**
@@ -426,12 +436,16 @@ unsigned album_get_total_time(const struct mpd_song *album) {
  * @param song mpd song to set discs from
  */
 void album_cache_set_discs(struct mpd_song *album, const struct mpd_song *song) {
-    const char *disc;
-    if ((disc = mpd_song_get_tag(song, MPD_TAG_DISC, 0)) != NULL) {
-        unsigned d = (unsigned)strtoumax(disc, NULL, 10);
-        if (d > album->pos) {
-            album->pos = d;
-        }
+    const char *disc = mpd_song_get_tag(song, MPD_TAG_DISC, 0);
+    if (disc == NULL) {
+        return;
+    }
+    unsigned d;
+    enum str2int_errno rc = str2uint(&d, disc);
+    if (rc == STR2INT_SUCCESS && 
+        d > album->pos)
+    {
+        album->pos = d;
     }
 }
 
@@ -445,13 +459,24 @@ void album_cache_set_disc_count(struct mpd_song *album, unsigned count) {
 }
 
 /**
- * Sets the albums last modified date
+ * Sets the albums last modified timestamp
  * @param album mpd_song struct representing the album
  * @param song mpd song to set last_modified from
  */
 void album_cache_set_last_modified(struct mpd_song *album, const struct mpd_song *song) {
     if (album->last_modified < song->last_modified) {
         album->last_modified = song->last_modified;
+    }
+}
+
+/**
+ * Sets the albums added timestamp
+ * @param album mpd_song struct representing the album
+ * @param song mpd song to set added from
+ */
+void album_cache_set_added(struct mpd_song *album, const struct mpd_song *song) {
+    if (album->added > song->added) {
+        album->added = song->added;
     }
 }
 
@@ -574,6 +599,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
         album->prio = mpack_node_uint(mpack_node_map_cstr(album_node, "Songs"));
         album->duration = mpack_node_uint(mpack_node_map_cstr(album_node, "Duration"));
         album->last_modified = mpack_node_int(mpack_node_map_cstr(album_node, "Last-Modified"));
+        album->added = mpack_node_int(mpack_node_map_cstr(album_node, "Added"));
         album->duration_ms = album->duration * 1000;
         for (size_t i = 0; i < tagcols->tags_len; i++) {
             enum mpd_tag_type tag = tagcols->tags[i];

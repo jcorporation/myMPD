@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -19,6 +19,13 @@ struct t_tags {
     enum mpd_tag_type tags[64];                        //!< tags array
     size_t stickers_len;                               //!< number of stickers in the array
     enum mympd_sticker_types stickers[STICKER_COUNT];  //!< stickers array
+};
+
+enum sort_by_type {
+    SORT_BY_TAG,
+    SORT_BY_LAST_MODIFIED,
+    SORT_BY_ADDED,
+    SORT_BY_FILENAME
 };
 
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);

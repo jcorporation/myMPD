@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -15,8 +15,8 @@
 #include <sys/stat.h>
 
 sds get_file_content(void) {
-    sds line = sdsempty();
-    sds_getfile(&line, "/tmp/mympd-test/state/test", 1000, true, true);
+    int nread = 0;
+    sds line = sds_getfile(sdsempty(), "/tmp/mympd-test/state/test", 1000, true, true, &nread);
     return line;
 }
 
@@ -79,18 +79,6 @@ UTEST(state_files, test_state_file_rw_int) {
     clean_testenv();
 }
 
-UTEST(state_files, test_state_file_rw_long) {
-    init_testenv();
-
-    long value = state_file_rw_long(workdir, "state", "test", 10, 1, 20, true);
-    ASSERT_EQ(10, value);
-    sds content = get_file_content();
-    ASSERT_STREQ("10", content);
-    sdsfree(content);
-
-    clean_testenv();
-}
-
 UTEST(state_files, test_state_file_rw_uint) {
     init_testenv();
 
@@ -98,6 +86,18 @@ UTEST(state_files, test_state_file_rw_uint) {
     ASSERT_EQ((unsigned)10, value);
     sds content = get_file_content();
     ASSERT_STREQ("10", content);
+    sdsfree(content);
+
+    clean_testenv();
+}
+
+UTEST(state_files, test_state_file_rw_tag) {
+    init_testenv();
+
+    enum mpd_tag_type tag = state_file_rw_tag(workdir, "state", "test", MPD_TAG_ALBUM, true);
+    ASSERT_EQ(MPD_TAG_ALBUM, tag);
+    sds content = get_file_content();
+    ASSERT_STREQ("Album", content);
     sdsfree(content);
 
     clean_testenv();

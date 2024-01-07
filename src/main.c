@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -14,6 +14,7 @@
 #include "src/lib/config.h"
 #include "src/lib/config_def.h"
 #include "src/lib/env.h"
+#include "src/lib/event.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/handle_options.h"
 #include "src/lib/log.h"
@@ -21,7 +22,6 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/passwd.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/smartpls.h"
 #include "src/mympd_api/mympd_api.h"
 #include "src/web_server/web_server.h"
 
@@ -87,12 +87,16 @@ static void mympd_signal_handler(int sig_num) {
             pthread_cond_signal(&mympd_api_queue->wakeup);
             pthread_cond_signal(&mympd_script_queue->wakeup);
             pthread_cond_signal(&web_server_queue->wakeup);
+            event_eventfd_write(mympd_api_queue->event_fd);
             MYMPD_LOG_NOTICE(NULL, "Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
+            if (web_server_queue->mg_mgr != NULL) {
+                mg_wakeup(web_server_queue->mg_mgr, web_server_queue->mg_conn_id, "", 0);
+            }
             break;
         }
         case SIGHUP: {
             MYMPD_LOG_NOTICE(NULL, "Signal SIGHUP received, saving states");
-            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
+            struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
             request->data = sdscatlen(request->data, "}}", 2);
             mympd_queue_push(mympd_api_queue, request, 0);
             break;
@@ -371,9 +375,9 @@ int main(int argc, char **argv) {
     //only owner should have rw access
     umask(0077);
 
-    mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST);
-    web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE);
-    mympd_script_queue = mympd_queue_create("mympd_script_queue", QUEUE_TYPE_RESPONSE);
+    mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST, true);
+    web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE, false);
+    mympd_script_queue = mympd_queue_create("mympd_script_queue", QUEUE_TYPE_RESPONSE, false);
 
     //mympd config defaults
     config = malloc_assert(sizeof(struct t_config));
@@ -474,6 +478,9 @@ int main(int argc, char **argv) {
     #ifdef MYMPD_ENABLE_FLAC
         MYMPD_LOG_INFO(NULL, "FLAC %d.%d.%d", FLAC_API_VERSION_CURRENT, FLAC_API_VERSION_REVISION, FLAC_API_VERSION_AGE);
     #endif
+    #ifdef MYMPD_ENABLE_EXPERIMENTAL
+        MYMPD_LOG_INFO(NULL, "Experimental features are enabled");
+    #endif
 
     //set signal handler
     if (set_signal_handler(SIGTERM) == false ||
@@ -525,11 +532,6 @@ int main(int argc, char **argv) {
     //check for required directories
     if (check_dirs(config) == false) {
         goto cleanup;
-    }
-
-    //default smart playlists
-    if (config->first_startup == true) {
-        smartpls_default(config->workdir);
     }
 
     //Create working threads

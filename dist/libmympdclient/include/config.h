@@ -11,7 +11,9 @@
 
 #define DEFAULT_PORT 6600
 
-#define DEFAULT_SOCKET "/var/run/mpd/socket"
+#define DEFAULT_SOCKET "/run/mpd/socket"
+
+#define DEFAULT_TIMEOUT 30000
 
 #define ENABLE_TCP
 
@@ -21,5 +23,5 @@
 
 #define PACKAGE "libmpdclient"
 
-#define VERSION "2.21"
+#define VERSION "2.23"
 

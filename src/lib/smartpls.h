@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -12,13 +12,14 @@
 #include <stdbool.h>
 
 bool smartpls_save_sticker(sds workdir, const char *playlist, const char *sticker,
-    int max_entries, int min_value, const char *sort, bool sortdesc);
-bool smartpls_save_newest(sds workdir, const char *playlist, int timerange, const char *sort, bool sortdesc);
-bool smartpls_save_search(sds workdir, const char *playlist, const char *expression, const char *sort, bool sortdesc);
+        const char *value, const char *op, const char *sort, bool sortdesc, int max_entries);
+bool smartpls_save_newest(sds workdir, const char *playlist, unsigned timerange,
+        const char *sort, bool sortdesc, int max_entries);
+bool smartpls_save_search(sds workdir, const char *playlist, const char *expression,
+        const char *sort, bool sortdesc, int max_entries);
 
 bool smartpls_update(const char *playlist);
 bool smartpls_update_all(void);
-bool smartpls_default(sds workdir);
 
 bool is_smartpls(sds workdir, const char *playlist);
 time_t smartpls_get_mtime(sds workdir, const char *playlist);

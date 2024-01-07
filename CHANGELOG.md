@@ -4,6 +4,59 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPV v14.0.0 (not yet released)
+
+This version ships many improvements for stickers, smart playlists and the jukebox mode.
+
+It also supports the new "added" timestamp for songs in the mpd database.
+
+### Notes
+
+- The schema of smart playlist was changed, you must recreate it.
+- Arguments for the feedback trigger has changed to support the new rating sticker.
+
+### API changes
+
+- MYMPD_API_RATING: new
+- MYMPD_API_SMARTPLS_STICKER_SAVE: parameters changed
+- MYMPD_API_SMARTPLS_NEWEST_SAVE: parameters changed
+- MYMPD_API_SMARTPLS_SEARCH_SAVE: parameters changed
+- MYMPD_API_JUKEBOX_CLEARERROR: new
+- MYMPD_API_JUKEBOX_RESTART: new
+- MYMPD_API_PLAYER_OUTPUT_LIST: response changed
+- MYMPD_API_QUEUE_ADD_RANDOM: is now async
+
+### Changelog
+
+- Feat: Support info.txt in music directory folders #1120
+- Feat: Add max. song duration as jukebox constraint #1146
+- Feat: Add operator lt, gt, eq to sticker based smart playlists (MPD 0.24) #1090
+- Feat: Add max entries option to all smart playlists #1157
+- Feat: Add rating sticker - stars like cantata #1141
+- Feat: Add sort by sticker for smart playlists (MPD 0.24) #1162
+- Feat: Support added timestamp for songs (MPD 0.24) #1150
+- Feat: Support modified-since for search expressions #1158
+- Feat: Support added-since for search expressions (MPD 0.24) #1158
+- Feat: Support new "State" field of webradiodb #1165
+- Feat: Cleanup covercache in worker thread #1166
+- Feat: Simplify Last-Played implementation and save it in MessagePack format
+- Feat: "Add random songs/album" is executed in worker thread
+- Feat: Filling the jukebox queue is executed in worker thread
+- Feat: Rework data structures to improve thread safety
+- Feat: Improve random number generation
+- Feat: Add option to show audioformat in the footer #1184
+- Upd: Improve number conversions and enforcement of limits
+- Upd: Manual add random songs or albums should ignore the jukebox constraints
+- Upd: libmympdclient 1.0.26 (based on libmpdclient 2.23)
+- Upd: bootstrap.native to 5.0.10 #1176
+- Upd: Sanitize % special char for stream images
+- Upd: Smart playlist interval can be disabled
+- Upd: Improve JSON encoding performance
+- Upd: Improve event loop resource usage
+- Upd: utf8 dependency
+
+***
+
 ## myMPD v13.0.6 (2023-12-20)
 
 This is a small bugfix release.

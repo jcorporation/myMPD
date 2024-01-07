@@ -1,12 +1,13 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
 #include "compile_time.h"
 #include "src/lib/env.h"
 
+#include "src/lib/convert.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 
@@ -58,7 +59,11 @@ int getenv_int(const char *env_var, int default_value, int min, int max) {
     if (env_value == NULL) {
         return default_value;
     }
-    int value = (int)strtoimax(env_value, NULL, 10);
+    int value;
+    enum str2int_errno rc = str2int(&value, env_value);
+    if (rc != STR2INT_SUCCESS) {
+        return default_value;
+    }
     if (value >= min && value <= max) {
         return value;
     }
@@ -79,7 +84,11 @@ unsigned getenv_uint(const char *env_var, unsigned default_value, unsigned min, 
     if (env_value == NULL) {
         return default_value;
     }
-    unsigned value = (unsigned)strtoumax(env_value, NULL, 10);
+    unsigned value;
+    enum str2int_errno rc = str2uint(&value, env_value);
+    if (rc != STR2INT_SUCCESS) {
+        return default_value;
+    }
     if (value >= min && value <= max) {
         return value;
     }
@@ -106,7 +115,7 @@ bool getenv_bool(const char *env_var, bool default_value) {
 /**
  * Gets an environment variable and checks its length
  * @param env_var environment variable name
- * @return environment variable value or NULL if it is not set or to long
+ * @return environment variable value or NULL if it is not set or too long
  */
 static const char *getenv_check(const char *env_var) {
     const char *env_value = getenv(env_var); /* Flawfinder: ignore */

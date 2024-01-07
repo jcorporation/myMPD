@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -9,5 +9,5 @@
 
 #include "src/lib/mympd_state.h"
 
-void mpd_client_mpd_features(struct t_partition_state *partition_state);
+void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state);
 #endif

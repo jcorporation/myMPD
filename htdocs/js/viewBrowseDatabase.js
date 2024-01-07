@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module viewBrowseDatabase_js */
@@ -397,15 +397,25 @@ function parseAlbumDetails(obj) {
         );
     }
 
-    if (obj.result.bookletPath !== '' &&
-        features.featLibrary === true)
-    {
+    if (obj.result.bookletPath !== '') {
         infoEl.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateText('span', {"class": ["mi", "me-2"]}, 'description'),
                 elCreateTextTn('a', {"target": "_blank", "href": subdir + myEncodeURI(obj.result.bookletPath)}, 'Download booklet')
             ])
         );
+    }
+
+    if (obj.result.infoTxtPath !== '') {
+        const infoTxtEl = elCreateNodes('div', {"class": ["col-xl-6"]}, [
+            elCreateText('span', {"class": ["mi", "me-2"]}, 'article'),
+            elCreateTextTn('span', {"class": ["clickable"]}, 'Album info')
+        ]);
+        setData(infoTxtEl, 'uri', obj.result.infoTxtPath);
+        infoTxtEl.addEventListener('click', function(event) {
+            showInfoTxt(event.target);
+        }, false);
+        infoEl.appendChild(infoTxtEl);
     }
 
     const mbField = addMusicbrainzFields(obj.result, false);

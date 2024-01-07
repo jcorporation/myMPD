@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -18,9 +18,8 @@
 #include <sys/stat.h>
 
 //privat definitions
-static bool smartpls_save(sds workdir, const char *smartpltype,
-        const char *playlist, const char *expression, int max_entries,
-        int timerange, const char *sort, bool sortdesc);
+static bool smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
+        const char *fields, const char *sort, bool sortdesc, int max_entries);
 
 //public functions
 
@@ -29,42 +28,60 @@ static bool smartpls_save(sds workdir, const char *smartpltype,
  * @param workdir myMPD working directory
  * @param playlist playlist name
  * @param sticker sticker name
- * @param max_entries maximum number of playlist entries
- * @param min_value minimum integer value of sticker
+ * @param value minimum integer value of sticker
+ * @param op compare operator
  * @param sort tag to sort the playlist: empty = no sorting, shuffle or mpd tag
  * @param sortdesc sort descending?
+ * @param max_entries maximum number of playlist entries
  * @return true on success else false
  */
 bool smartpls_save_sticker(sds workdir, const char *playlist, const char *sticker,
-    int max_entries, int min_value, const char *sort, bool sortdesc)
+        const char *value, const char *op, const char *sort, bool sortdesc, int max_entries)
 {
-    return smartpls_save(workdir, "sticker", playlist, sticker, max_entries, min_value, sort, sortdesc);
+    sds fields = tojson_char(sdsempty(), "sticker", sticker, true);
+    fields = tojson_char(fields, "value", value, true);
+    fields = tojson_char(fields, "op", op, true);
+    bool rc = smartpls_save(workdir, "sticker", playlist, fields, sort, sortdesc, max_entries);
+    FREE_SDS(fields);
+    return rc;
 }
 
 /**
- * Saves a sticker based smart playlist
+ * Saves a newest smart playlist
  * @param workdir myMPD working directory
  * @param playlist playlist name
  * @param timerange number of second since now
  * @param sort tag to sort the playlist: empty = no sorting, shuffle or mpd tag
  * @param sortdesc sort descending?
+ * @param max_entries maximum number of playlist entries
  * @return true on success else false
  */
-bool smartpls_save_newest(sds workdir, const char *playlist, int timerange, const char *sort, bool sortdesc) {
-    return smartpls_save(workdir, "newest", playlist, NULL, 0, timerange, sort, sortdesc);
+bool smartpls_save_newest(sds workdir, const char *playlist, unsigned timerange,
+        const char *sort, bool sortdesc, int max_entries)
+{
+    sds fields = tojson_uint(sdsempty(), "timerange", timerange, true);
+    bool rc = smartpls_save(workdir, "newest", playlist, fields, sort, sortdesc, max_entries);
+    FREE_SDS(fields);
+    return rc;
 }
 
 /**
- * Saves a sticker based smart playlist
+ * Saves a search based smart playlist
  * @param workdir myMPD working directory
  * @param playlist playlist name
  * @param expression mpd search expression
  * @param sort tag to sort the playlist: empty = no sorting, shuffle or mpd tag
  * @param sortdesc sort descending?
+ * @param max_entries maximum number of playlist entries
  * @return true on success else false
  */
-bool smartpls_save_search(sds workdir, const char *playlist, const char *expression, const char *sort, bool sortdesc) {
-    return smartpls_save(workdir, "search", playlist, expression, 0, 0, sort, sortdesc);
+bool smartpls_save_search(sds workdir, const char *playlist, const char *expression,
+        const char *sort, bool sortdesc, int max_entries)
+{
+    sds fields = tojson_char(sdsempty(), "expression", expression, true);
+    bool rc = smartpls_save(workdir, "search", playlist, fields, sort, sortdesc, max_entries);
+    FREE_SDS(fields);
+    return rc;
 }
 
 /**
@@ -98,39 +115,12 @@ time_t smartpls_get_mtime(sds workdir, const char *playlist) {
 }
 
 /**
- * Creates the default myMPD smart playlists on first startup
- * @param workdir myMPD working directory
- * @return true on success else false
- */
-bool smartpls_default(sds workdir) {
-    //try to get prefix from state file, fallback to default value
-    sds prefix = state_file_rw_string(workdir, DIR_WORK_STATE, "smartpls_prefix", MYMPD_SMARTPLS_PREFIX, vcb_isname, false);
-
-    bool rc = true;
-    sds playlist = sdscatfmt(sdsempty(), "%S-bestRated", prefix);
-    rc = smartpls_save_sticker(workdir, playlist, "like", 200, 2, "", false);
-    if (rc == true) {
-        sdsclear(playlist);
-        playlist = sdscatfmt(playlist, "%S-mostPlayed", prefix);
-        rc = smartpls_save_sticker(workdir, playlist, "playCount", 200, 1, "", false);
-    }
-    if (rc == true) {
-        sdsclear(playlist);
-        playlist = sdscatfmt(playlist, "%S-newestSongs", prefix);
-        rc = smartpls_save_newest(workdir, playlist, 604800, "", false);
-    }
-    FREE_SDS(playlist);
-    FREE_SDS(prefix);
-    return rc;
-}
-
-/**
  * Sends a request to the mympd_api_queue to update a smart playlist
  * @param playlist smart playlist to update
  * @return true on success else false
  */
 bool smartpls_update(const char *playlist) {
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, NULL, MPD_PARTITION_DEFAULT);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_SMARTPLS_UPDATE, NULL, MPD_PARTITION_DEFAULT);
     request->data = tojson_char(request->data, "plist", playlist, false);
     request->data = jsonrpc_end(request->data);
     return mympd_queue_push(mympd_api_queue, request, 0);
@@ -141,7 +131,7 @@ bool smartpls_update(const char *playlist) {
  * @return true on success else false
  */
 bool smartpls_update_all(void) {
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL, MPD_PARTITION_DEFAULT);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL, MPD_PARTITION_DEFAULT);
     request->data = jsonrpc_end(request->data);
     return mympd_queue_push(mympd_api_queue, request, 0);
 }
@@ -153,29 +143,19 @@ bool smartpls_update_all(void) {
  * @param workdir myMPD working directory
  * @param smartpltype type of the smart playlist: sticker, newest or search
  * @param playlist name of the smart playlist
- * @param expression mpd search expression
- * @param max_entries max entries for the playlist
- * @param timerange timerange for newest smart playlist type
- * @param sort mpd tag to sort or shuffle
+ * @param fields custom fields
+ * @param sort mpd tag to sort or the string "shuffle"
  * @param sortdesc sort descending?
+ * @param max_entries maximum songs
  * @return true on success else false
  */
 static bool smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
-        const char *expression, int max_entries, int timerange, const char *sort, bool sortdesc)
+        const char *fields, const char *sort, bool sortdesc, int max_entries)
 {
     sds line = sdscatlen(sdsempty(), "{", 1);
     line = tojson_char(line, "type", smartpltype, true);
-    if (strcmp(smartpltype, "sticker") == 0) {
-        line = tojson_char(line, "sticker", expression, true);
-        line = tojson_long(line, "maxentries", max_entries, true);
-        line = tojson_long(line, "minvalue", timerange, true);
-    }
-    else if (strcmp(smartpltype, "newest") == 0) {
-        line = tojson_long(line, "timerange", timerange, true);
-    }
-    else if (strcmp(smartpltype, "search") == 0) {
-        line = tojson_char(line, "expression", expression, true);
-    }
+    line = sdscat(line, fields);
+    line = tojson_int(line, "maxentries", max_entries, true);
     line = tojson_char(line, "sort", sort, true);
     line = tojson_bool(line, "sortdesc", sortdesc, false);
     line = sdscatlen(line, "}", 1);

@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #SPDX-License-Identifier: GPL-3.0-or-later
-#myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+#myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 #https://github.com/jcorporation/mympd
 
 #exit on error
@@ -36,24 +36,6 @@ echo_warn() {
   printf "\e[m"
 }
 
-#clang tidy options
-CLANG_TIDY_CHECKS="*"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-id-dependent-backward-branch"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-unroll-loops"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-struct-pack-align,-clang-analyzer-optin.performance.Padding"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-easily-swappable-parameters"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-assignment-in-if-condition"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-clang-diagnostic-invalid-command-line-argument"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-concurrency-mt-unsafe"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-cppcoreguidelines*"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-hicpp-*"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvmlibc-restrict-system-libc-headers"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-identifier-length"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-google-readability-todo"
-
 #save script path and change to it
 STARTPATH=$(dirname "$(realpath "$0")")
 cd "$STARTPATH" || exit 1
@@ -63,7 +45,7 @@ umask 0022
 
 #get myMPD version
 VERSION=$(grep "  VERSION" CMakeLists.txt | sed 's/  VERSION //')
-COPYRIGHT="myMPD ${VERSION} | (c) 2018-2023 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
+COPYRIGHT="myMPD ${VERSION} | (c) 2018-2024 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
 
 MYMPD_MINIFY_JS="1"
 if [ -f .git/HEAD ] && ! grep -q "master" .git/HEAD
@@ -543,9 +525,8 @@ check_file() {
   then
     echo "Running clang-tidy"
     rm -f clang-tidy.out
-    clang-tidy --checks="$CLANG_TIDY_CHECKS" \
-      "$FILE" > ../clang-tidy.out 2>/dev/null
-    grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
+    clang-tidy --config-file="$STARTPATH/.clang-tidy" "$FILE" > ../clang-tidy.out 2>/dev/null
+    grep -v -E "(/usr/include/|memset|memcpy|_XOPEN_SOURCE|\^)" ../clang-tidy.out
   else
     echo_warn "clang-tidy not found"
   fi
@@ -622,8 +603,8 @@ check() {
     rm -f clang-tidy.out
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
-      --checks="$CLANG_TIDY_CHECKS" {} \; >> ../clang-tidy.out 2>/dev/null
-    ERRORS=$(grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out)
+      --config-file="$STARTPATH/.clang-tidy" {} \; >> ../clang-tidy.out 2>/dev/null
+    ERRORS=$(grep -v -E "(/usr/include/|memset|memcpy|_XOPEN_SOURCE|\^)" ../clang-tidy.out)
     if [ -n "$ERRORS" ]
     then
       echo "$ERRORS"
@@ -896,19 +877,20 @@ updatelibmympdclient() {
   cd "$TMPDIR" || exit 1
   git clone --depth=1 -b libmympdclient https://github.com/jcorporation/libmympdclient.git
   cd libmympdclient || exit 1
-  meson . output -Dbuffer_size=8192
+  meson setup . output -Dbuffer_size=8192
 
   cd "$STARTPATH/dist/libmympdclient" || exit 1
   install -d src
-  install -d include/mpd/
+  install -d include/mpd
+  install -d LICENSES
 
   rsync -av --delete "$TMPDIR/libmympdclient/src/" ./src/
   rsync -av --delete "$TMPDIR/libmympdclient/include/mpd/" ./include/mpd/
 
-  rsync -av "$TMPDIR/libmympdclient/output/version.h" include/mpd/version.h
+  rsync -av "$TMPDIR/libmympdclient/output/include/mpd/version.h" include/mpd/version.h
   rsync -av "$TMPDIR/libmympdclient/output/config.h" include/config.h
 
-  rsync -av "$TMPDIR/libmympdclient/LICENSE.md" LICENSE.md
+  rsync -av "$TMPDIR/libmympdclient/LICENSES/" LICENSES/
 
   rm -rf "$TMPDIR"
 }

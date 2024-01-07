@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -10,6 +10,7 @@
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/utf8/utf8.h"
 #include "src/lib/log.h"
+#include "src/lib/sticker.h"
 
 #include <ctype.h>
 #include <limits.h>
@@ -24,11 +25,21 @@ static const char *invalid_name_chars = "\a\b\f\n\r\t\v";
 static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
-static const char *mympd_cols[]={"Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype", "AudioFormat", "Last-Modified",
-    "Lyrics", "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", "elapsed",
-    "Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate", //Columns for webradiodb
-    "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes", //Columns for radiobrowser
-    "Discs", "SongCount", //Columns for albums
+static const char *mympd_cols[]={
+    // Columns for songs
+    "Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype",
+    "AudioFormat", "Last-Modified", "Lyrics", "Added",
+    // Columns for stickers
+    "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", "rating", "elapsed",
+     // Columns for webradiodb
+    "Country", "State", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri",
+    "Codec", "Bitrate",
+     // Columns for radiobrowser
+    "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok",
+    "tags", "url_resolved", "votes",
+    // Columns for albums
+    "Discs", "SongCount",
+    // End
     0};
 
 static bool check_for_invalid_chars(sds data, const char *invalid_chars);
@@ -328,10 +339,51 @@ bool vcb_ismpdsort(sds data) {
         strcmp(data, "filename") != 0 &&
         strcmp(data, "shuffle") != 0 &&
         strcmp(data, "Last-Modified") != 0 &&
+        strcmp(data, "Added") != 0 &&
         strcmp(data, "Date") != 0 &&
         strcmp(data, "Priority") != 0)
     {
-        MYMPD_LOG_WARN(NULL, "Unknown tag \"%s\"", data);
+        MYMPD_LOG_WARN(NULL, "Unknown sort tag \"%s\"", data);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if string is a valid sticker sort type
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_isstickersort(sds data) {
+    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKOWN) {
+        MYMPD_LOG_WARN(NULL, "Unknown compare operator: %s", data);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if string is valid sticker or mpd sort type
+ * @param data sds string to check
+ * @return bool true on success else false
+ */
+bool vcb_ismpd_sticker_sort(sds data) {
+    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKOWN &&
+        vcb_ismpdsort(data) == false)
+    {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if string is a compare operator
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_isstickerop(sds data) {
+    if (sticker_oper_parse(data) == MPD_STICKER_OP_UNKOWN) {
+        MYMPD_LOG_WARN(NULL, "Unknown compare operator: %s", data);
         return false;
     }
     return true;

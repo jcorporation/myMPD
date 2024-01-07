@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -287,7 +287,13 @@ div > .albumartbg {
 }
 
 div.footerCounter {
-  width: 7rem;
+  min-width: 8rem;
+  max-width: 12rem;
+}
+
+#footerAudioFormat {
+  font-size: 80%;
+  width: 12rem;
 }
 
 #footerCover {

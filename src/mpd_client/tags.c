@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -9,6 +9,7 @@
 
 #include "dist/libmympdclient/src/isong.h"
 #include "src/lib/album_cache.h"
+#include "src/lib/convert.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -132,6 +133,21 @@ bool is_multivalue_tag(enum mpd_tag_type tag) {
 }
 
 /**
+ * Checks if tag is a numeric tag
+ * @param tag mpd tag type
+ * @return true if it is a numeric tag, else false
+ */
+bool is_numeric_tag(enum mpd_tag_type tag) {
+    switch(tag) {
+        case MPD_TAG_DISC:
+        case MPD_TAG_TRACK:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/**
  * Maps a tag to its sort tag pendant and checks if the sort tag is enabled.
  * @param tag mpd tag type
  * @param available_tags pointer to enabled tags
@@ -158,7 +174,38 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, const struct t_tags *avail
         default:
             return tag;
     }
-    return mpd_client_tag_exists(available_tags, sort_tag) == true ? sort_tag : tag;
+    return mpd_client_tag_exists(available_tags, sort_tag) == true
+        ? sort_tag
+        : tag;
+}
+
+/**
+ * Gets an alphanumeric string for sorting
+ * @param key already allocated sds string to append
+ * @param sort_by enum sort_by
+ * @param sort_tag mpd tag to sort by
+ * @param song pointer to mpd song
+ * @return pointer to key
+ */
+sds get_sort_key(sds key, enum sort_by_type sort_by, enum mpd_tag_type sort_tag, const struct mpd_song *song) {
+    if (sort_by == SORT_BY_LAST_MODIFIED) {
+        key = mpd_client_get_value_padded((int64_t)mpd_song_get_last_modified(song), key);
+    }
+    else if (sort_by == SORT_BY_ADDED) {
+        key = mpd_client_get_value_padded((int64_t)mpd_song_get_added(song), key);
+    }
+    else if (is_numeric_tag(sort_tag) == true) {
+        key = mpd_client_get_tag_value_padded(song, sort_tag, '0', 9, key);
+    }
+    else if (sort_tag > MPD_TAG_UNKNOWN) {
+        key = mpd_client_get_tag_value_string(song, sort_tag, key);
+        if (sdslen(key) == 0) {
+            key = sdscatlen(key, "zzzzzzzzzz", 10);
+        }
+    }
+    key = sdscatfmt(key, "::%s", mpd_song_get_uri(song));
+    sds_utf8_tolower(key);
+    return key;
 }
 
 /**
@@ -207,7 +254,7 @@ sds print_tags_array(sds buffer, const char *tagsname, const struct t_tags *tags
  * @param enable_tags pointer to t_tags struct
  */
 bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_tags *enable_tags) {
-    if (partition_state->mpd_state->feat_tags == false) {
+    if (partition_state->mpd_state->feat.tags == false) {
         return true;
     }
     MYMPD_LOG_INFO(partition_state->name, "Setting interesting mpd tag types");
@@ -237,8 +284,13 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
  */
 int mpd_client_get_tag_value_int(const struct mpd_song *song, enum mpd_tag_type tag) {
     const char *value = mpd_song_get_tag(song, tag, 0);
-    return value != NULL
-        ? (int)strtoimax(value, NULL, 10)
+    if (value == NULL) {
+        return 0;
+    }
+    int int_value;
+    enum str2int_errno rc = str2int(&int_value, value);
+    return rc == STR2INT_SUCCESS
+        ? int_value
         : 0;
 }
 
@@ -266,6 +318,19 @@ sds mpd_client_get_tag_value_padded(const struct mpd_song *song, enum mpd_tag_ty
         tag_values = sdscatlen(tag_values, value, value_len);
     }
     return tag_values;
+}
+
+/**
+ * Prints a zero padded value
+ * @param song mpd song struct
+ * @param tag mpd tag type
+ * @param pad padding char
+ * @param len length to pad
+ * @param tag_values already allocated sds string to append
+ * @return sds new sds pointer to tag_values
+ */
+sds mpd_client_get_value_padded(int64_t value, sds tag_values) {
+    return sdscatprintf(tag_values, "%020" PRId64, value);
 }
 
 /**
@@ -329,24 +394,23 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
 /**
  * Prints the tag values for a mpd song as json string
  * @param buffer already allocated sds string to append the values
- * @param tags_enabled true=mpd tags are enabled, else false
+ * @param mpd_state pointer to mpd_state
  * @param tagcols pointer to t_tags struct (tags to retrieve)
  * @param song pointer to a mpd_song struct to retrieve tags from
- * @param album_config album config
  * @return new sds pointer to buffer
  */
-sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
-        const struct mpd_song *song, const struct t_albums_config *album_config)
+sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struct t_tags *tagcols,
+        const struct mpd_song *song)
 {
     const char *uri = mpd_song_get_uri(song);
-    if (tags_enabled == true) {
+    if (mpd_state->feat.tags == true) {
         for (unsigned tagnr = 0; tagnr < tagcols->tags_len; ++tagnr) {
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
             buffer = mpd_client_get_tag_values(song, tagcols->tags[tagnr], buffer);
             buffer = sdscatlen(buffer, ",", 1);
         }
         if (is_streamuri(uri) == false) {
-            sds albumid = album_cache_get_key(sdsempty(), song, album_config);
+            sds albumid = album_cache_get_key(sdsempty(), song, &mpd_state->config->albums);
             buffer = tojson_sds(buffer, "AlbumId", albumid, true);
             FREE_SDS(albumid);
         }
@@ -358,6 +422,9 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
     }
     buffer = tojson_uint(buffer, "Duration", mpd_song_get_duration(song), true);
     buffer = tojson_time(buffer, "Last-Modified", mpd_song_get_last_modified(song), true);
+    if (mpd_state->feat.db_added == true) {
+        buffer = tojson_time(buffer, "Added", mpd_song_get_added(song), true);
+    }
     buffer = tojson_char(buffer, "uri", uri, false);
     return buffer;
 }
@@ -365,15 +432,15 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
 /**
  * Prints the tag values for an album as json string
  * @param buffer already allocated sds string to append the values
+ * @param mpd_state pointer to mpd_state
  * @param tagcols pointer to t_tags struct (tags to retrieve)
  * @param album pointer to a mpd_song struct representing the album
- * @param album_config album config
  * @return new sds pointer to buffer
  */
-sds print_album_tags(sds buffer, const struct t_tags *tagcols,
-        const struct mpd_song *album, const struct t_albums_config *album_config)
+sds print_album_tags(sds buffer, const struct t_mpd_state *mpd_state, const struct t_tags *tagcols,
+        const struct mpd_song *album)
 {
-    buffer = print_song_tags(buffer, true, tagcols, album, album_config);
+    buffer = print_song_tags(buffer, mpd_state, tagcols, album);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
     buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), false);
@@ -389,8 +456,8 @@ sds print_album_tags(sds buffer, const struct t_tags *tagcols,
 sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
     buffer = sdscat(buffer, "\"AudioFormat\":{");
     buffer = tojson_uint(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
-    buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
-    buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
+    buffer = tojson_uint(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
+    buffer = tojson_uint(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;
 }

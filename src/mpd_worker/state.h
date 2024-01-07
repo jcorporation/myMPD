@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -23,8 +23,10 @@ struct t_mpd_worker_state {
     struct t_config *config;                      //!< pointer to myMPD config
     struct t_work_request *request;               //!< work request from msg queue
     bool tag_disc_empty_is_first;                 //!< handle empty disc tag as disc one for albums
-    struct t_partition_state *stickerdb;          //!< pointer to the partition state for stickers
+    struct t_stickerdb_state *stickerdb;          //!< pointer to the stickerdb state
+    bool mympd_only;                              //!< true = no mpd connection required
+    struct t_cache *album_cache;                  //!< the album cache, use it only with a read lock
 };
 
-void *mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state);
+void mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state);
 #endif

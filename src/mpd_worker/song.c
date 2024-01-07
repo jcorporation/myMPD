@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -18,9 +18,9 @@
  * @param uri song uri
  * @return pointer to buffer
  */
-sds mpd_worker_song_fingerprint(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
+sds mpd_worker_song_fingerprint(struct t_partition_state *partition_state, sds buffer, unsigned request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_FINGERPRINT;
-    if (partition_state->mpd_state->feat_fingerprint == false) {
+    if (partition_state->mpd_state->feat.fingerprint == false) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
                 JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Fingerprint command not supported");
     }

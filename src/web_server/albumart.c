@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -98,11 +98,11 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
  * @param conn_id connection id
  * @param size size of the albumart
  */
-void request_handler_albumart_by_album_id(struct mg_http_message *hm, long long conn_id, enum albumart_sizes size) {
+void request_handler_albumart_by_album_id(struct mg_http_message *hm, unsigned long conn_id, enum albumart_sizes size) {
     sds albumid = sdsnewlen(hm->uri.ptr, hm->uri.len);
     basename_uri(albumid);
     MYMPD_LOG_DEBUG(NULL, "Sending getalbumart to mpd_client_queue");
-    struct t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART_BY_ALBUMID, NULL, MPD_PARTITION_DEFAULT);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, 0, INTERNAL_API_ALBUMART_BY_ALBUMID, NULL, MPD_PARTITION_DEFAULT);
     request->data = tojson_sds(request->data, "albumid", albumid, true);
     request->data = tojson_uint(request->data, "size", size, false);
     request->data = jsonrpc_end(request->data);
@@ -121,7 +121,7 @@ void request_handler_albumart_by_album_id(struct mg_http_message *hm, long long 
  *         false: request was sent to the mympd_api thread to get the image by MPD
  */
 bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, long long conn_id, enum albumart_sizes size)
+        struct t_mg_user_data *mg_user_data, unsigned long conn_id, enum albumart_sizes size)
 {
     struct t_config *config = mg_user_data->config;
     sds query = sdsnewlen(hm->query.ptr, hm->query.len);
@@ -317,7 +317,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         offset == 0)
     {
         MYMPD_LOG_DEBUG(NULL, "Sending getalbumart to mpd_client_queue");
-        struct t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART_BY_URI, NULL, MPD_PARTITION_DEFAULT);
+        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, 0, INTERNAL_API_ALBUMART_BY_URI, NULL, MPD_PARTITION_DEFAULT);
         request->data = tojson_sds(request->data, "uri", uri_decoded, false);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);

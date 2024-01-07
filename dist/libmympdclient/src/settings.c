@@ -1,44 +1,49 @@
-/* libmpdclient
-   (c) 2003-2019 The Music Player Daemon Project
-   This project's homepage is: http://www.musicpd.org
-
-   Redistribution and use in source and binary forms, with or without
-   modification, are permitted provided that the following conditions
-   are met:
-
-   - Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-
-   - Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR
-   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// SPDX-License-Identifier: BSD-2-Clause
+// Copyright The Music Player Daemon Project
 
 #include <mpd/settings.h>
 #include "config.h"
+#include "internal.h"
 
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 
+
+/**
+ * This opaque object represents the connection settings used to
+ * connect to a MPD server.
+ * Call mpd_settings_new() to create a new instance.
+ */
 struct mpd_settings {
+	/**
+	 * The hostname, in null-terminated string form.
+	 * Can also be a local socket path on UNIX systems.
+	 * Should never be null after mpd_settings_new().
+	 */
 	char *host;
 
-	unsigned port, timeout_ms;
+	/**
+	 * The port number, as an unsigned integer.
+	 * Will be 0 if the host field is a local socket path.
+	 */
+	unsigned port;
 
+	/**
+	 * The timeout in milliseconds, as an unsigned integer. Never zero.
+	 */
+	unsigned timeout_ms;
+
+	/**
+	 * The password used to connect to a MPD server, may be null.
+	 */
 	char *password;
+
+	/**
+	 * A pointer to the next alternative set of settings to try, if any.
+	 * Null indicates there are no (more) alternatives to try.
+	 */
+	struct mpd_settings *next;
 };
 
 /**
@@ -149,7 +154,7 @@ mpd_default_timeout_ms(void)
 	}
 
 	/* 30s is the default */
-	return 30000;
+	return DEFAULT_TIMEOUT;
 }
 
 struct mpd_settings *
@@ -161,6 +166,8 @@ mpd_settings_new(const char *host, unsigned port, unsigned timeout_ms,
 	struct mpd_settings *settings = malloc(sizeof(*settings));
 	if (settings == NULL)
 		return settings;
+
+	settings->next = NULL;
 
 	if (host != NULL) {
 		settings->host = strdup(host);
@@ -191,11 +198,20 @@ mpd_settings_new(const char *host, unsigned port, unsigned timeout_ms,
 
 	if (settings->host == NULL) {
 #ifdef DEFAULT_SOCKET
-		if (port == 0)
+		if (port == 0) {
 			/* default to local socket only if no port was
 			   explicitly configured */
+#ifdef ENABLE_TCP
+			settings->next = mpd_settings_new(DEFAULT_HOST, DEFAULT_PORT, timeout_ms,
+							  reserved, password);
+			if (settings->next == NULL) {
+				mpd_settings_free(settings);
+				return NULL;
+			}
+#endif
+
 			settings->host = strdup(DEFAULT_SOCKET);
-		else
+		} else
 #endif
 			settings->host = strdup(DEFAULT_HOST);
 
@@ -221,6 +237,8 @@ mpd_settings_new(const char *host, unsigned port, unsigned timeout_ms,
 void
 mpd_settings_free(struct mpd_settings *settings)
 {
+	if (settings->next != NULL)
+		mpd_settings_free(settings->next);
 	free(settings->host);
 	free(settings->password);
 	free(settings);
@@ -248,4 +266,10 @@ const char *
 mpd_settings_get_password(const struct mpd_settings *settings)
 {
 	return settings->password;
+}
+
+const struct mpd_settings *
+mpd_settings_get_next(const struct mpd_settings *settings)
+{
+	return settings->next;
 }

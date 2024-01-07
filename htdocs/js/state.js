@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module state_js */
@@ -11,6 +11,16 @@
  */
 function clearMPDerror() {
     sendAPI('MYMPD_API_PLAYER_CLEARERROR',{}, function() {
+        getState();
+    }, false);
+}
+
+/**
+ * Clears the jukebox error
+ * @returns {void}
+ */
+function clearJukeboxError() {
+    sendAPI('MYMPD_API_JUKEBOX_CLEARERROR',{}, function() {
         getState();
     }, false);
 }
@@ -157,6 +167,7 @@ function parseState(obj) {
         for (let i = 0, j = pb.length; i < j; i++) {
             elClear(pb[i]);
         }
+        elClearId('footerAudioFormat');
     }
     else {
         const cff = elGetById('currentAudioFormat');
@@ -166,10 +177,13 @@ function parseState(obj) {
                 printValue('AudioFormat', obj.result.AudioFormat)
             );
         }
+        elReplaceChildId('footerAudioFormat', printValue('AudioFormat', obj.result.AudioFormat));
     }
 
     //handle error from mpd status response
     toggleAlert('alertMpdStatusError', (obj.result.lastError === '' ? false : true), obj.result.lastError);
+    //handle jukebox error status
+    toggleAlert('alertJukeboxStatusError', (obj.result.lastJukeboxError === '' ? false : true), obj.result.lastJukeboxError);
 
     //handle mpd update status
     toggleAlert('alertUpdateDBState', (obj.result.updateState === 0 ? false : true), tn('Updating MPD database'));

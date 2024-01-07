@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -12,5 +12,5 @@
 #include "src/lib/api.h"
 
 void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc,
-    enum mympd_cmd_ids cmd_id, sds body, int request_id);
+    enum mympd_cmd_ids cmd_id, sds body, unsigned request_id);
 #endif

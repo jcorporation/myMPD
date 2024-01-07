@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module features_js */
@@ -23,12 +23,13 @@ function setFeatures() {
     features.featScripting = settings.webuiSettings.enableScripting
         ? settings.features.featScripting
         : false;
-    features.featTimer = settings.features.featTimer && settings.webuiSettings.enableTimer;
+    features.featTimer = settings.webuiSettings.enableTimer;
     features.featTrigger = settings.webuiSettings.enableTrigger;
     features.featMediaSession = checkMediaSessionSupport();
     features.featFooterNotifications = settings.webuiSettings.footerNotifications;
     features.featSession = settings.pin;
     features.featStickersEnabled = settings.features.featStickersEnabled;
+    features.featFooterAudioFormat = settings.webuiSettings.footerAudioFormat;
 
     //mpd features
     if (settings.partition.mpdConnected === true) {
@@ -62,6 +63,11 @@ function setFeatures() {
         features.featStartsWith = settings.features.featStartsWith;
         features.featPcre = settings.features.featPcre;
         features.featPcreOrStartsWith = settings.features.featPcre || settings.features.featStartsWith;
+        features.featLike = features.featStickers && settings.webuiSettings.feedback === 'like';
+        features.featRating = features.featStickers && settings.webuiSettings.feedback === 'rating';
+        features.featDbAdded = settings.features.featDbAdded;
+        features.featStickerSortWindow  = features.featStickers && settings.features.featStickerSortWindow;
+        features.featStickerInt  = features.featStickers && settings.features.featStickerInt;
     }
 }
 
@@ -88,4 +94,3 @@ function applyFeatures() {
         }
     }
 }
-

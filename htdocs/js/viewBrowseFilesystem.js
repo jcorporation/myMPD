@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module viewBrowseFilesystem_js */
@@ -25,7 +25,7 @@ function handleBrowseFilesystem() {
     }, parseFilesystem, true);
 
     //Create breadcrumb
-    const crumbEl = elGetById('BrowseBreadcrumb');
+    const crumbEl = elGetById('BrowseFilesystemBreadcrumb');
     elClear(crumbEl);
     const home = elCreateText('a', {"class": ["mi"], "href": "#"}, 'home');
     setData(home, 'uri', '/');
@@ -93,7 +93,7 @@ function initViewBrowseFilesystem() {
         }
     }, false);
 
-    elGetById('BrowseBreadcrumb').addEventListener('click', function(event) {
+    elGetById('BrowseFilesystemBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
             const uri = getData(event.target, 'uri');

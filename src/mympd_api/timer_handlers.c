@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -18,6 +18,7 @@
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/volume.h"
+#include "src/mympd_api/requests.h"
 
 #include <string.h>
 
@@ -38,7 +39,7 @@ static void timer_handler_caches_create(void);
  * @param timer_id the internal timer_id from enum timer_ids
  * @param definition the timer definition - not used
  */
-void timer_handler_by_id(long long timer_id, struct t_timer_definition *definition) {
+void timer_handler_by_id(unsigned timer_id, struct t_timer_definition *definition) {
     (void) definition; // not used
     switch(timer_id) {
         case TIMER_ID_COVERCACHE_CROP:
@@ -60,15 +61,15 @@ void timer_handler_by_id(long long timer_id, struct t_timer_definition *definiti
  * @param timer_id the timer id
  * @param definition the timer definition
  */
-void timer_handler_select(long long timer_id, struct t_timer_definition *definition) {
-    MYMPD_LOG_INFO(definition->partition, "Start timer_handler_select for timer \"%s\" (%lld)", definition->name, timer_id);
+void timer_handler_select(unsigned timer_id, struct t_timer_definition *definition) {
+    MYMPD_LOG_INFO(definition->partition, "Start timer_handler_select for timer \"%s\" (%u)", definition->name, timer_id);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
-        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_STOP, NULL, definition->partition);
+        struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_PLAYER_STOP, NULL, definition->partition);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "startplay") == 0) {
-        struct t_work_request *request = create_request(-1, 0, INTERNAL_API_TIMER_STARTPLAY, NULL, definition->partition);
+        struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_TIMER_STARTPLAY, NULL, definition->partition);
         request->data = tojson_uint(request->data, "volume", definition->volume, true);
         request->data = tojson_sds(request->data, "plist", definition->playlist, true);
         request->data = tojson_sds(request->data, "preset", definition->preset, false);
@@ -76,7 +77,7 @@ void timer_handler_select(long long timer_id, struct t_timer_definition *definit
         mympd_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "script") == 0) {
-        struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, definition->partition);
+        struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, definition->partition);
         request->data = tojson_sds(request->data, "script", definition->subaction, true);
         request->data = sdscat(request->data, "\"arguments\":{");
         struct t_list_node *argument = definition->arguments.head;
@@ -108,8 +109,8 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         unsigned volume, sds playlist, sds preset)
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
-    enum jukebox_modes old_jukebox_mode = partition_state->jukebox_mode;
-    partition_state->jukebox_mode = JUKEBOX_OFF;
+    enum jukebox_modes old_jukebox_mode = partition_state->jukebox.mode;
+    partition_state->jukebox.mode = JUKEBOX_OFF;
 
     int old_volume = mpd_client_get_volume(partition_state);
 
@@ -158,11 +159,11 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
     }
     mpd_response_finish(partition_state->conn);
     //restore old jukebox mode
-    partition_state->jukebox_mode = old_jukebox_mode;
+    partition_state->jukebox.mode = old_jukebox_mode;
 
     if (sdslen(preset) > 0) {
         //load the preset
-        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PRESET_APPLY, NULL, partition_state->name);
+        struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_PRESET_APPLY, NULL, partition_state->name);
         request->data = tojson_sds(request->data, "name", preset, false);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
@@ -180,7 +181,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
  */
 static void timer_handler_covercache_crop(void) {
     MYMPD_LOG_INFO(NULL, "Start timer_handler_covercache_crop");
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_COVERCACHE_CROP, NULL, MPD_PARTITION_DEFAULT);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_COVERCACHE_CROP, NULL, MPD_PARTITION_DEFAULT);
     request->data = jsonrpc_end(request->data);
     mympd_queue_push(mympd_api_queue, request, 0);
 }
@@ -190,7 +191,7 @@ static void timer_handler_covercache_crop(void) {
  */
 static void timer_handler_smartpls_update(void) {
     MYMPD_LOG_INFO(NULL, "Start timer_handler_smartpls_update");
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL, MPD_PARTITION_DEFAULT);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL, MPD_PARTITION_DEFAULT);
     request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
     mympd_queue_push(mympd_api_queue, request, 0);
 }
@@ -200,7 +201,5 @@ static void timer_handler_smartpls_update(void) {
  */
 static void timer_handler_caches_create(void) {
     MYMPD_LOG_INFO(NULL, "Start timer_handler_caches_create");
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_CACHES_CREATE, NULL, MPD_PARTITION_DEFAULT);
-    request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
-    mympd_queue_push(mympd_api_queue, request, 0);
+    mympd_api_request_caches_create();
 }

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -34,5 +34,10 @@ bool vcb_ismpdtag(sds data);
 bool vcb_ismpdtag_or_any(sds data);
 bool vcb_ismpdsort(sds data);
 bool vcb_issearchexpression(sds data);
+
+bool vcb_isstickersort(sds data);
+bool vcb_isstickerop(sds data);
+
+bool vcb_ismpd_sticker_sort(sds data);
 
 #endif

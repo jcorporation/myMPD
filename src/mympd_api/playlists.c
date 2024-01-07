@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -95,7 +95,7 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         unsigned i = 0;
         bool rc = true;
         while ((current = list_shift_first(positions)) != NULL) {
-            struct t_list_node *n = list_node_at(&src, (long)current->value_i);
+            struct t_list_node *n = list_node_at(&src, (unsigned)current->value_i);
             rc = mode == 0 
                 ? mpd_send_playlist_add(partition_state->conn, dst_plist, n->key)
                 : mpd_send_playlist_add_to(partition_state->conn, dst_plist, n->key, i);
@@ -217,7 +217,7 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
  */
 bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state, sds plist, struct t_list *uris, unsigned to, sds *error) {
     if (to != UINT_MAX &&
-        partition_state->mpd_state->feat_whence == false)
+        partition_state->mpd_state->feat.whence == false)
     {
         *error = sdscat(*error, "Method not supported");
         return false;
@@ -287,7 +287,7 @@ bool mympd_api_playlist_content_insert_search(struct t_partition_state *partitio
         unsigned to, const char *sort, bool sort_desc, sds *error)
 {
     if (to != UINT_MAX &&
-        partition_state->mpd_state->feat_whence == false)
+        partition_state->mpd_state->feat.whence == false)
     {
         *error = sdscat(*error, "Method not supported");
         return false;
@@ -331,15 +331,17 @@ bool mympd_api_playlist_content_replace_search(struct t_partition_state *partiti
 /**
  * Insert albums into a playlist
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumids album ids to insert
  * @param to position to insert
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, unsigned to, sds *error) {
+bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds plist, struct t_list *albumids, unsigned to, sds *error) {
     if (to != UINT_MAX &&
-        partition_state->mpd_state->feat_whence == false)
+        partition_state->mpd_state->feat.whence == false)
     {
         *error = sdscat(*error, "Method not supported");
         return false;
@@ -351,13 +353,13 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
     struct t_list_node *current = albumids->head;
     bool rc = true;
     while (current != NULL) {
-        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
+        struct mpd_song *mpd_album = album_cache_get_album(album_cache, current->key);
         if (mpd_album == NULL) {
             rc = false;
             break;
         }
         sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, mpd_album,
-            &partition_state->mympd_state->config->albums);
+            &partition_state->config->albums);
         const char *sort = NULL;
         bool sortdesc = false;
         rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
@@ -373,31 +375,34 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
 /**
  * Appends albums to a playlist
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumids album ids to append
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_append_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, sds *error) {
-    return mympd_api_playlist_content_insert_albums(partition_state, plist, albumids, UINT_MAX, error);
+bool mympd_api_playlist_content_append_albums(struct t_partition_state *partition_state, struct t_cache *album_cache, sds plist, struct t_list *albumids, sds *error) {
+    return mympd_api_playlist_content_insert_albums(partition_state, album_cache, plist, albumids, UINT_MAX, error);
 }
 
 /**
  * Replaces the playlist with albums
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumids album ids to insert
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, sds *error) {
+bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partition_state, struct t_cache *album_cache, sds plist, struct t_list *albumids, sds *error) {
     return mpd_client_playlist_clear(partition_state, plist, error) &&
-        mympd_api_playlist_content_append_albums(partition_state, plist, albumids, error);
+        mympd_api_playlist_content_append_albums(partition_state, album_cache, plist, albumids, error);
 }
 
 /**
  * Insert one disc of an album into a playlist
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumid album id to insert
  * @param disc disc to insert
@@ -405,19 +410,19 @@ bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partiti
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, unsigned to, sds *error) {
+bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache, sds plist, sds albumid, sds disc, unsigned to, sds *error) {
     if (to != UINT_MAX &&
-        partition_state->mpd_state->feat_whence == false)
+        partition_state->mpd_state->feat.whence == false)
     {
         *error = sdscat(*error, "Method not supported");
         return false;
     }
-    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
+    struct mpd_song *mpd_album = album_cache_get_album(album_cache, albumid);
     if (mpd_album == NULL) {
         return false;
     }
     sds expression = get_search_expression_album_disc(partition_state->mpd_state->tag_albumartist, mpd_album,
-        disc, &partition_state->mympd_state->config->albums);
+        disc, &partition_state->config->albums);
     const char *sort = NULL;
     bool sortdesc = false;
     bool rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
@@ -428,28 +433,34 @@ bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *part
 /**
  * Appends one disc of an album to a playlist
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumid album id to append
  * @param disc disc to append
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_append_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, sds *error) {
-    return mympd_api_playlist_content_insert_album_disc(partition_state, plist, albumid, disc, UINT_MAX, error);
+bool mympd_api_playlist_content_append_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds plist, sds albumid, sds disc, sds *error)
+{
+    return mympd_api_playlist_content_insert_album_disc(partition_state, album_cache, plist, albumid, disc, UINT_MAX, error);
 }
 
 /**
  * Replaces the playlist with on disc of an album
  * @param partition_state pointer to partition state
+ * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumid album id to insert
  * @param disc disc to insert
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_replace_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, sds *error) {
+bool mympd_api_playlist_content_replace_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds plist, sds albumid, sds disc, sds *error)
+{
     return mpd_client_playlist_clear(partition_state, plist, error) &&
-        mympd_api_playlist_content_append_album_disc(partition_state, plist, albumid, disc, error);
+        mympd_api_playlist_content_append_album_disc(partition_state, album_cache, plist, albumid, disc, error);
 }
 
 /**
@@ -476,7 +487,7 @@ bool mympd_api_playlist_content_move(struct t_partition_state *partition_state, 
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_rm_range(struct t_partition_state *partition_state, sds plist, unsigned start, int end, sds *error) {
-    if (partition_state->mpd_state->feat_playlist_rm_range == false) {
+    if (partition_state->mpd_state->feat.playlist_rm_range == false) {
         *error = sdscat(*error, "Method not supported");
         return false;
     }
@@ -529,26 +540,28 @@ bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition
  * @param type playlist type to list
  * @return pointer to buffer
  */
-sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        long offset, long limit, sds searchstr, enum playlist_types type)
+sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
+        unsigned offset, unsigned limit, sds searchstr, enum playlist_types type)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_LIST;
     rax *entity_list = raxNew();
     size_t search_len = sdslen(searchstr);
-    long real_limit = offset + limit;
+    unsigned real_limit = offset + limit;
     sds key = sdsempty();
 
     if (mpd_send_list_playlists(partition_state->conn)) {
         struct mpd_playlist *pl;
         while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
-            bool smartpls = is_smartpls(partition_state->mympd_state->config->workdir, plpath);
+            bool smartpls = is_smartpls(partition_state->config->workdir, plpath);
             if ((search_len == 0 || utf8casestr(plpath, searchstr) != NULL) &&
                 (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
             {
                 struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
                 data->last_modified = mpd_playlist_get_last_modified(pl);
-                data->type = smartpls == true ? PLTYPE_SMART : PLTYPE_STATIC;
+                data->type = smartpls == true
+                    ? PLTYPE_SMART
+                    : PLTYPE_STATIC;
                 data->name = sdsnew(plpath);
                 sdsclear(key);
                 key = sdscatsds(key, data->name);
@@ -572,7 +585,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
 
     //add empty smart playlists
     if (type != PLTYPE_STATIC) {
-        sds smartpls_path = sdscatfmt(sdsempty(), "%S/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS);
+        sds smartpls_path = sdscatfmt(sdsempty(), "%S/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS);
         errno = 0;
         DIR *smartpls_dir = opendir(smartpls_path);
         if (smartpls_dir != NULL) {
@@ -582,7 +595,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
                     (search_len == 0 || utf8casestr(next_file->d_name, searchstr) != NULL)
                 ) {
                     struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
-                    data->last_modified = smartpls_get_mtime(partition_state->mympd_state->config->workdir, next_file->d_name);
+                    data->last_modified = smartpls_get_mtime(partition_state->config->workdir, next_file->d_name);
                     data->type = PLTYPE_SMARTPLS_ONLY;
                     data->name = sdsnew(next_file->d_name);
                     sdsclear(key);
@@ -607,8 +620,8 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
-    long entity_count = 0;
-    long entities_returned = 0;
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
     raxIterator iter;
     raxStart(&iter, entity_list);
     raxSeek(&iter, "^", NULL, 0);
@@ -624,7 +637,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
             buffer = tojson_char(buffer, "Type", (data->type == PLTYPE_STATIC ? "plist" : "smartpls"), true);
             buffer = tojson_sds(buffer, "uri", data->name, true);
             buffer = tojson_sds(buffer, "name", data->name, true);
-            buffer = tojson_llong(buffer, "lastModified", data->last_modified, true);
+            buffer = tojson_time(buffer, "lastModified", data->last_modified, true);
             buffer = tojson_bool(buffer, "smartplsOnly", data->type == PLTYPE_SMARTPLS_ONLY ? true : false, false);
             buffer = sdscatlen(buffer, "}", 1);
         }
@@ -635,9 +648,9 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
     raxStop(&iter);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_sds(buffer, "searchstr", searchstr, true);
-    buffer = tojson_llong(buffer, "totalEntities", (long long)entity_list->numele, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_long(buffer, "offset", offset, false);
+    buffer = tojson_uint64(buffer, "totalEntities", entity_list->numele, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "offset", offset, false);
     buffer = jsonrpc_end(buffer);
     raxFree(entity_list);
     return buffer;
@@ -646,6 +659,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
 /**
  * Lists the content of a mpd playlist
  * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param plist playlist name to list contents
@@ -655,22 +669,27 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds plist, long offset, long limit, sds expression, const struct t_tags *tagcols)
+sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        sds buffer, unsigned request_id, sds plist, unsigned offset, unsigned limit, sds expression, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_CONTENT_LIST;
-    long entities_returned = 0;
-    long entities_found = 0;
-    long entity_count = 0;
+    unsigned entities_returned = 0;
+    unsigned entities_found = 0;
+    unsigned entity_count = 0;
     unsigned total_time = 0;
     time_t last_played_max = 0;
     sds last_played_song_uri = sdsempty();
+    if (partition_state->mpd_state->feat.stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_exit_idle(stickerdb);
+    }
     if (mpd_send_list_playlist_meta(partition_state->conn, plist)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer,"\"data\":[");
 
         struct mpd_song *song;
-        long real_limit = offset + limit;
+        unsigned real_limit = offset + limit;
         struct t_list *expr_list = parse_search_expression_to_list(expression);
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (search_song_expression(song, expr_list, tagcols) == true) {
@@ -685,14 +704,14 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                     buffer = is_streamuri(mpd_song_get_uri(song)) == true
                         ? tojson_char(buffer, "Type", "stream", true)
                         : tojson_char(buffer, "Type", "song", true);
-                    buffer = tojson_long(buffer, "Pos", entity_count, true);
-                    buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, &partition_state->mympd_state->config->albums);
-                    if (partition_state->mpd_state->feat_stickers == true &&
+                    buffer = tojson_uint(buffer, "Pos", entity_count, true);
+                    buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
+                    if (partition_state->mpd_state->feat.stickers == true &&
                         tagcols->stickers_len > 0)
                     {
                         buffer = sdscatlen(buffer, ",", 1);
                         struct t_sticker sticker;
-                        stickerdb_get_all(partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), &sticker, false);
+                        stickerdb_get_all_batch(stickerdb, mpd_song_get_uri(song), &sticker, false);
                         buffer = mympd_api_sticker_print(buffer, &sticker, tagcols);
                         if (sticker.mympd[STICKER_LAST_PLAYED] > last_played_max) {
                             last_played_max = (time_t)sticker.mympd[STICKER_LAST_PLAYED];
@@ -710,18 +729,24 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
         free_search_expression_list(expr_list);
     }
     mpd_response_finish(partition_state->conn);
+    if (partition_state->mpd_state->feat.stickers == true &&
+        tagcols->stickers_len > 0)
+    {
+        stickerdb_enter_idle(stickerdb);
+    }
+
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlist_meta") == false) {
         FREE_SDS(last_played_song_uri);
         return buffer;
     }
 
-    bool smartpls = is_smartpls(partition_state->mympd_state->config->workdir, plist);
+    bool smartpls = is_smartpls(partition_state->config->workdir, plist);
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalEntities", entities_found, true);
+    buffer = tojson_uint(buffer, "totalEntities", entities_found, true);
     buffer = tojson_uint(buffer, "totalTime", total_time, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "expression", expression, true);
     buffer = tojson_sds(buffer, "plist", plist, true);
     buffer = tojson_bool(buffer, "smartpls", smartpls, true);
@@ -745,7 +770,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
  * @return pointer to buffer
  */
 sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buffer,
-        long request_id, const char *old_playlist, const char *new_playlist)
+        unsigned request_id, const char *old_playlist, const char *new_playlist)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_RENAME;
     if (strcmp(old_playlist, new_playlist) == 0) {
@@ -754,8 +779,8 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
         return buffer;
     }
     //first handle smart playlists
-    sds old_pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, old_playlist);
-    sds new_pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, new_playlist);
+    sds old_pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, old_playlist);
+    sds new_pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, new_playlist);
     //link old name to new name
     if (testfile_read(old_pl_file) == true) {
         //smart playlist file exists
@@ -828,7 +853,7 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
     if (mpd_command_list_begin(partition_state->conn, false)) {
         while (current != NULL) {
             // try to remove smart playlist, ignores none existing error
-            pl_file = sdscatfmt(pl_file, "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
+            pl_file = sdscatfmt(pl_file, "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
             if (try_rm_file(pl_file) == RM_FILE_ERROR) {
                 *error = sdscat(*error, "Deleting smart playlist failed");
                 MYMPD_LOG_ERROR(partition_state->name, "Deleting smart playlist \"%s\" failed", current->key);
@@ -886,7 +911,7 @@ enum plist_delete_criterias parse_plist_delete_criteria(const char *str) {
  * @return pointer to buffer
  */
 sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds buffer,
-        long request_id, enum plist_delete_criterias criteria)
+        unsigned request_id, enum plist_delete_criterias criteria)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_RM_ALL;
 
@@ -913,7 +938,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
     }
     int delete_count = 0;
     //delete each smart playlist file that have no corresponding mpd playlist file
-    sds smartpls_path = sdscatfmt(sdsempty(), "%S/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS);
+    sds smartpls_path = sdscatfmt(sdsempty(), "%S/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS);
     errno = 0;
     DIR *smartpls_dir = opendir(smartpls_path);
     if (smartpls_dir != NULL) {
@@ -922,7 +947,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         while ((next_file = readdir(smartpls_dir)) != NULL ) {
             if (next_file->d_type == DT_REG) {
                 if (list_get_node(&playlists, next_file->d_name) == NULL) {
-                    smartpls_file = sdscatfmt(smartpls_file, "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
+                    smartpls_file = sdscatfmt(smartpls_file, "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
                     if (rm_file(smartpls_file) == true) {
                         MYMPD_LOG_INFO(partition_state->name, "Removed orphaned smartpls file \"%s\"", smartpls_file);
                         delete_count++;
@@ -953,7 +978,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         while ((current = list_shift_first(&playlists)) != NULL) {
             bool smartpls = false;
             if (criteria == PLAYLIST_DELETE_SMARTPLS) {
-                sds smartpls_file = sdscatfmt(sdsempty(), "%S/%s/%S", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
+                sds smartpls_file = sdscatfmt(sdsempty(), "%S/%s/%S", partition_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
                 if (try_rm_file(smartpls_file) == RM_FILE_OK) {
                     MYMPD_LOG_INFO(partition_state->name, "Smartpls file %s removed", smartpls_file);
                     smartpls = true;

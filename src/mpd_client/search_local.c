@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -8,10 +8,13 @@
 #include "src/mpd_client/search_local.h"
 
 #include "dist/utf8/utf8.h"
+#include "src/lib/datetime.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
+
+#include <inttypes.h>
 
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
@@ -30,7 +33,8 @@ enum search_operators {
     SEARCH_OP_CONTAINS,
     SEARCH_OP_NOT_EQUAL,
     SEARCH_OP_REGEX,
-    SEARCH_OP_NOT_REGEX
+    SEARCH_OP_NOT_REGEX,
+    SEARCH_OP_NEWER
 };
 
 /**
@@ -40,6 +44,7 @@ struct t_search_expression {
     int tag;                   //!< tag to search in
     enum search_operators op;  //!< search operator
     sds value;                 //!< value to match
+    time_t value_time;         //!< time value to match
     pcre2_code *re_compiled;   //!< compiled regex if operator is a regex
 };
 
@@ -93,10 +98,10 @@ bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
  * @param expression mpd search expression
  * @return list of the expression
  */
-struct t_list *parse_search_expression_to_list(sds expression) {
+struct t_list *parse_search_expression_to_list(const char *expression) {
     struct t_list *expr_list = list_new();
     int count = 0;
-    sds *tokens = sdssplitlen(expression, (ssize_t)sdslen(expression), ") AND (", 7, &count);
+    sds *tokens = sdssplitlen(expression, (ssize_t)strlen(expression), ") AND (", 7, &count);
     sds tag = sdsempty();
     sds op = sdsempty();
     for (int j = 0; j < count; j++) {
@@ -122,39 +127,58 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             break;
         }
         expr->tag = mpd_tag_name_parse(tag);
-        if (expr->tag == -1 &&
-            strcmp(tag, "any") == 0)
-        {
-            expr->tag = -2;
+        if (expr->tag == MPD_TAG_UNKNOWN) {
+            if (strcmp(tag, "any") == 0) {
+                expr->tag = SEARCH_FILTER_ANY_TAG;
+            }
+            else if (strcmp(tag, "modified-since") == 0) {
+                expr->tag = SEARCH_FILTER_MODIFIED_SINCE;
+            }
+            else if (strcmp(tag, "added-since") == 0) {
+                expr->tag = SEARCH_FILTER_ADDED_SINCE;
+            }
+            else {
+                MYMPD_LOG_ERROR(NULL, "Can not parse search expression, invalid tag");
+                free_search_expression(expr);
+                break;
+            }
         }
         //skip space
         p++;
         //operator
-        while (p < end) {
-            if (*p == ' ') {
+        if (expr->tag == SEARCH_FILTER_MODIFIED_SINCE ||
+            expr->tag == SEARCH_FILTER_ADDED_SINCE)
+        {
+            expr->op = SEARCH_OP_NEWER;
+        }
+        else {
+            while (p < end) {
+                if (*p == ' ') {
+                    break;
+                }
+                op = sds_catchar(op, *p);
+                p++;
+            }
+            if (p + 2 >= end) {
+                MYMPD_LOG_ERROR(NULL, "Can not parse search expression");
+                free_search_expression(expr);
                 break;
             }
-            op = sds_catchar(op, *p);
+            if (strcmp(op, "contains") == 0) { expr->op = SEARCH_OP_CONTAINS; }
+            else if (strcmp(op, "starts_with") == 0) { expr->op = SEARCH_OP_STARTS_WITH; }
+            else if (strcmp(op, "==") == 0) { expr->op = SEARCH_OP_EQUAL; }
+            else if (strcmp(op, "!=") == 0) { expr->op = SEARCH_OP_NOT_EQUAL; }
+            else if (strcmp(op, "=~") == 0) { expr->op = SEARCH_OP_REGEX; }
+            else if (strcmp(op, "!~") == 0) { expr->op = SEARCH_OP_NOT_REGEX; }
+            else {
+                MYMPD_LOG_ERROR(NULL, "Unknown search operator: \"%s\"", op);
+                free_search_expression(expr);
+                break;
+            }
             p++;
         }
-        if (p + 2 >= end) {
-            MYMPD_LOG_ERROR(NULL, "Can not parse search expression");
-            free_search_expression(expr);
-            break;
-        }
-        if (strcmp(op, "contains") == 0) { expr->op = SEARCH_OP_CONTAINS; }
-        else if (strcmp(op, "starts_with") == 0) { expr->op = SEARCH_OP_STARTS_WITH; }
-        else if (strcmp(op, "==") == 0) { expr->op = SEARCH_OP_EQUAL; }
-        else if (strcmp(op, "!=") == 0) { expr->op = SEARCH_OP_NOT_EQUAL; }
-        else if (strcmp(op, "=~") == 0) { expr->op = SEARCH_OP_REGEX; }
-        else if (strcmp(op, "!~") == 0) { expr->op = SEARCH_OP_NOT_REGEX; }
-        else {
-            MYMPD_LOG_ERROR(NULL, "Unknown search operator: \"%s\"", op);
-            free_search_expression(expr);
-            break;
-        }
-        //skip space and apostrophe
-        p = p + 2;
+        //skip apostrophe
+        p++;
         //value
         while (p < end) {
             if (*p == '\\') {
@@ -169,14 +193,29 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             p++;
         }
         //push to list
-        if (expr->op == SEARCH_OP_REGEX ||
-            expr->op == SEARCH_OP_NOT_REGEX)
-        {
-            //is regex, compile
-            expr->re_compiled = compile_regex(expr->value);
+        if (*end == '\'') {
+            if (expr->op == SEARCH_OP_REGEX ||
+                expr->op == SEARCH_OP_NOT_REGEX)
+            {
+                //is regex, compile
+                expr->re_compiled = compile_regex(expr->value);
+            }
+            else if (expr->op == SEARCH_OP_NEWER) {
+                expr->value_time = parse_date(expr->value);
+                if (expr->value_time == 0) {
+                    MYMPD_LOG_ERROR(NULL, "Can not parse search expression, invalid date");
+                    free_search_expression(expr);
+                    break;
+                }
+            }
+            list_push(expr_list, "", 0, NULL, expr);
+            MYMPD_LOG_DEBUG(NULL, "Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, expr->value);
         }
-        list_push(expr_list, "", 0, NULL, expr);
-        MYMPD_LOG_DEBUG(NULL, "Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, expr->value);
+        else {
+            free_search_expression(expr);
+            MYMPD_LOG_ERROR(NULL, "Can not parse search expression");
+            break;
+        }
     }
     FREE_SDS(tag);
     FREE_SDS(op);
@@ -208,58 +247,70 @@ bool search_song_expression(const struct mpd_song *song, const struct t_list *ex
     struct t_list_node *current = expr_list->head;
     while (current != NULL) {
         struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
-        one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
-        const struct t_tags *tags = expr->tag == -2
-            ? tag_types  //any - use all browse tags
-            : &one_tag;  //use only selected tag
-
-        bool rc = false;
-        for (size_t i = 0; i < tags->tags_len; i++) {
-            rc = true;
-            unsigned j = 0;
-            const char *value = NULL;
-            while ((value = mpd_song_get_tag(song, tags->tags[i], j)) != NULL) {
-                j++;
-                if ((expr->op == SEARCH_OP_CONTAINS && utf8casestr(value, expr->value) == NULL) ||
-                    (expr->op == SEARCH_OP_STARTS_WITH && utf8ncasecmp(expr->value, value, sdslen(expr->value)) != 0) ||
-                    (expr->op == SEARCH_OP_EQUAL && utf8casecmp(value, expr->value) != 0) ||
-                    (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value) == false))
-                {
-                    //expression does not match
-                    rc = false;
-                }
-                else if ((expr->op == SEARCH_OP_NOT_EQUAL && utf8casecmp(value, expr->value) == 0) ||
-                         (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value) == true))
-                {
-                    //negated match operator - exit instantly
-                    rc = false;
-                    break;
-                }
-                else {
-                    //tag value matched
-                    rc = true;
-                    if (expr->op != SEARCH_OP_NOT_EQUAL &&
-                        expr->op != SEARCH_OP_NOT_REGEX)
-                    {
-                        //exit only for positive match operators
-                        break;
-                    }
-                }
-            }
-            if (j == 0) {
-                //no tag value found
-                rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
-                    ? true
-                    : false;
-            }
-            if (rc == true) {
-                //exit on first tag value match
-                break;
+        if (expr->tag == SEARCH_FILTER_MODIFIED_SINCE) {
+            if (expr->value_time > mpd_song_get_last_modified(song)) {
+                return false;
             }
         }
-        if (rc == false) {
-            //exit on first expression mismatch
-            return false;
+        else if (expr->tag == SEARCH_FILTER_ADDED_SINCE) {
+            if (expr->value_time > mpd_song_get_added(song)) {
+                return false;
+            }
+        }
+        else {
+            one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
+            const struct t_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
+                ? tag_types  //any - use all browse tags
+                : &one_tag;  //use only selected tag
+
+            bool rc = false;
+            for (size_t i = 0; i < tags->tags_len; i++) {
+                rc = true;
+                unsigned j = 0;
+                const char *value = NULL;
+                while ((value = mpd_song_get_tag(song, tags->tags[i], j)) != NULL) {
+                    j++;
+                    if ((expr->op == SEARCH_OP_CONTAINS && utf8casestr(value, expr->value) == NULL) ||
+                        (expr->op == SEARCH_OP_STARTS_WITH && utf8ncasecmp(expr->value, value, sdslen(expr->value)) != 0) ||
+                        (expr->op == SEARCH_OP_EQUAL && utf8casecmp(value, expr->value) != 0) ||
+                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value) == false))
+                    {
+                        //expression does not match
+                        rc = false;
+                    }
+                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && utf8casecmp(value, expr->value) == 0) ||
+                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value) == true))
+                    {
+                        //negated match operator - exit instantly
+                        rc = false;
+                        break;
+                    }
+                    else {
+                        //tag value matched
+                        rc = true;
+                        if (expr->op != SEARCH_OP_NOT_EQUAL &&
+                            expr->op != SEARCH_OP_NOT_REGEX)
+                        {
+                            //exit only for positive match operators
+                            break;
+                        }
+                    }
+                }
+                if (j == 0) {
+                    //no tag value found
+                    rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
+                        ? true
+                        : false;
+                }
+                if (rc == true) {
+                    //exit on first tag value match
+                    break;
+                }
+            }
+            if (rc == false) {
+                //exit on first expression mismatch
+                return false;
+            }
         }
         current = current->next;
     }
@@ -313,7 +364,7 @@ static pcre2_code *compile_regex(char *regex_str) {
         //Compilation failed
         PCRE2_UCHAR buffer[256];
         pcre2_get_error_message(rc, buffer, sizeof(buffer));
-        MYMPD_LOG_ERROR(NULL, "PCRE2 compilation failed at offset %d: \"%s\"", (int)erroroffset, buffer);
+        MYMPD_LOG_ERROR(NULL, "PCRE2 compilation failed at offset %lu: \"%s\"", (unsigned long)erroroffset, buffer);
         return NULL;
     }
     return re_compiled;

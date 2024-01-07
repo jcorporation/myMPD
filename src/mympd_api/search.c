@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -18,6 +18,7 @@
 /**
  * Searches the mpd database for songs by expression and returns an jsonrpc result
  * @param partition_state pointer to partition specific states
+ * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the result
  * @param request_id jsonrpc request id
  * @param expression mpd search expression
@@ -29,9 +30,9 @@
  * @param result pointer to bool to set returncode
  * @return pointer to buffer
  */
-sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const char *expression, const char *sort, bool sortdesc, unsigned offset, unsigned limit,
-        const struct t_tags *tagcols, bool *result)
+sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, 
+        sds buffer, unsigned request_id, const char *expression, const char *sort, bool sortdesc,
+        unsigned offset, unsigned limit, const struct t_tags *tagcols, bool *result)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_SEARCH;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -50,10 +51,10 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
     }
 
     unsigned entities_returned = 0;
-    if (partition_state->mpd_state->feat_stickers == true &&
+    if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
-        stickerdb_exit_idle(partition_state->mympd_state->stickerdb);
+        stickerdb_exit_idle(stickerdb);
     }
     if (mpd_search_commit(partition_state->conn) == true) {
         struct mpd_song *song;
@@ -62,21 +63,21 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
-            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song, &partition_state->mympd_state->config->albums);
-            if (partition_state->mpd_state->feat_stickers == true &&
+            buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
+            if (partition_state->mpd_state->feat.stickers == true &&
                 tagcols->stickers_len > 0)
             {
-                buffer = mympd_api_sticker_get_print_batch(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), tagcols);
+                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, mpd_song_get_uri(song), tagcols);
             }
             buffer = sdscatlen(buffer, "}", 1);
             mpd_song_free(song);
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (partition_state->mpd_state->feat_stickers == true &&
+    if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers_len > 0)
     {
-        stickerdb_enter_idle(partition_state->mympd_state->stickerdb);
+        stickerdb_enter_idle(stickerdb);
     }
     *result = mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_songs");
     if (*result == false) {
@@ -87,7 +88,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
 
     buffer = offset == 0 && entities_returned < limit
         ? tojson_uint(buffer, "totalEntities", entities_returned, true)
-        : tojson_long(buffer, "totalEntities", -1, true);
+        : tojson_int(buffer, "totalEntities", -1, true);
 
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);

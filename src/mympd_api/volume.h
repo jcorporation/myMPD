@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -11,7 +11,9 @@
 #include "src/lib/api.h"
 #include "src/lib/mympd_state.h"
 
-sds mympd_api_volume_set(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id, unsigned volume);
-sds mympd_api_volume_change(struct t_partition_state *partition_state, sds buffer, long request_id, int relative_volume);
+sds mympd_api_volume_set(struct t_partition_state *partition_state, unsigned volume_min, unsigned volume_max,
+        sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id, unsigned volume);
+sds mympd_api_volume_change(struct t_partition_state *partition_state, unsigned volume_min, unsigned volume_max,
+        sds buffer, unsigned request_id, int relative_volume);
 
 #endif

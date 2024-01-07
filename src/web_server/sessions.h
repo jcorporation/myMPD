@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -15,7 +15,7 @@
 
 #include <stdbool.h>
 
-void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, sds body, int request_id,
+void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, sds body, unsigned request_id,
         sds session, struct t_mg_user_data *mg_user_data);
 sds webserver_session_new(struct t_list *session_list);
 bool webserver_session_validate(struct t_list *session_list, const char *check_session);

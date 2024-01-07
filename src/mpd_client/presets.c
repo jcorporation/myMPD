@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -12,7 +12,7 @@
 #include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
-#include "src/mpd_client/jukebox.h"
+#include "src/mympd_api/requests.h"
 #include "src/mympd_api/settings.h"
 
 #include <errno.h>
@@ -30,10 +30,8 @@ bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sd
         struct t_jsonrpc_parse_error parse_error;
         jsonrpc_parse_error_init(&parse_error);
         if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
-            if (partition_state->jukebox_mode != JUKEBOX_OFF) {
-                //clear and start jukebox
-                jukebox_clear_all(partition_state->mympd_state);
-                jukebox_run(partition_state);
+            if (partition_state->jukebox.mode != JUKEBOX_OFF) {
+                mympd_api_request_jukebox_restart(partition_state->name);
             }
             jsonrpc_parse_error_clear(&parse_error);
             return true;
@@ -80,8 +78,8 @@ bool preset_save(struct t_list *preset_list, sds preset_name, sds preset_value, 
         return false;
     }
 
-    int idx = list_get_node_idx(preset_list, preset_name);
-    if (idx > -1) {
+    unsigned idx = list_get_node_idx(preset_list, preset_name);
+    if (idx != UINT_MAX) {
         // update existing preset
         return list_replace(preset_list, idx, preset_name, 0, preset_value, NULL);
     }
@@ -96,7 +94,7 @@ bool preset_save(struct t_list *preset_list, sds preset_name, sds preset_value, 
  * @return bool 
  */
 bool preset_delete(struct t_list *preset_list, const char *preset_name) {
-    int idx = list_get_node_idx(preset_list, preset_name);
+    unsigned idx = list_get_node_idx(preset_list, preset_name);
     return list_remove_node(preset_list, idx);
 }
 
@@ -117,7 +115,7 @@ static sds preset_to_line_cb(sds buffer, struct t_list_node *current) {
  */
 bool preset_list_save(struct t_partition_state *partition_state) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%S/%s",
-        partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_PRESETS);
+        partition_state->config->workdir, partition_state->state_dir, FILENAME_PRESETS);
     bool rc = list_write_to_disk(filepath, &partition_state->preset_list, preset_to_line_cb);
     FREE_SDS(filepath);
     return rc;
@@ -130,12 +128,13 @@ bool preset_list_save(struct t_partition_state *partition_state) {
  */
 bool preset_list_load(struct t_partition_state *partition_state) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%S/%s",
-        partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_PRESETS);
+        partition_state->config->workdir, partition_state->state_dir, FILENAME_PRESETS);
     errno = 0;
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp != NULL) {
         sds line = sdsempty();
-        while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
+        int nread = 0;
+        while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
             sds name = NULL;
             if (json_get_string_max(line, "$.name", &name, vcb_isname, NULL) == true) {
                 list_push(&partition_state->preset_list, name, 0, line, NULL);

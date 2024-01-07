@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
- myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -11,6 +11,7 @@
 #include "src/lib/covercache.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
+#include "src/lib/mg_str_utils.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
 #include "src/web_server/utility.h"

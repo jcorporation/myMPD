@@ -1,6 +1,6 @@
 "use strict";
 // SPDX-License-Identifier: GPL-3.0-or-later
-// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
 /** @module modalPlayback_js */
@@ -171,7 +171,7 @@ function toggleJukeboxSettings() {
         toggleBtnChkId('modalPlaybackJukeboxIgnoreHatedInput', false);
         elGetById('modalPlaybackJukeboxPlaylistInput').value = tn('Database');
         setDataId('modalPlaybackJukeboxPlaylistInput', 'value', 'Database');
-        const select = elGetById('modalPlaybackJukeboxUniqueTagInput');
+        const select = elGetById('modalPlaybackJukeboxUniqTagInput');
         elClear(select);
         for (const tag of ['Album', tagAlbumArtist]) {
             select.appendChild(
@@ -184,7 +184,7 @@ function toggleJukeboxSettings() {
         }
     }
     else if (value === 'song') {
-        addTagListSelect('modalPlaybackJukeboxUniqueTagInput', 'tagListBrowse');
+        addTagListSelect('modalPlaybackJukeboxUniqTagInput', 'tagListBrowse');
         // show rows that are configurable in jukebox song mode only
         for (const input of songOnlyInputs) {
             elShow(input.closest('.row'));
@@ -232,7 +232,7 @@ function populatePlaybackFrm() {
 
     toggleBtnGroupValueCollapse(elGetById('modalPlaybackJukeboxModeGroup'), 'modalPlaybackJukeboxCollapse', settings.partition.jukeboxMode);
     toggleJukeboxSettings();
-    elGetById('modalPlaybackJukeboxUniqueTagInput').value = settings.partition.jukeboxUniqueTag;
+    elGetById('modalPlaybackJukeboxUniqTagInput').value = settings.partition.jukeboxUniqTag;
 
     populateListPresets();
 
