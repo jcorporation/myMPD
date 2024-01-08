@@ -423,6 +423,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     // start jukebox
                     jukebox_run(partition_state, &mympd_state->album_cache);
                 }
+                if (partition_state->jukebox.mode == JUKEBOX_OFF) {
+                    jukebox_disable(partition_state);
+                }
                 // save options as preset if name is found and not empty
                 if (json_find_key(request->data, "$.params.name") == true && // prevent warning message
                     json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&

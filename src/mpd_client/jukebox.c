@@ -15,7 +15,7 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/utility.h"
+#include "src/lib/timer.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/queue.h"
 #include "src/mpd_client/shortcuts.h"
@@ -88,6 +88,15 @@ void jukebox_clear_all(struct t_mympd_state *mympd_state) {
 }
 
 /**
+ * Disables the jukebox timer
+ * @param partition_state pointer to partition state
+ */
+void jukebox_disable(struct t_partition_state *partition_state) {
+    MYMPD_LOG_DEBUG(partition_state->name, "Disabling jukebox timer");
+    mympd_timer_set(partition_state->timer_fd_jukebox, 0, 0);
+}
+
+/**
  * The real jukebox function.
  * It determines if a song must be added or not and starts playing.
  * @param partition_state pointer to myMPD partition state
@@ -97,6 +106,10 @@ void jukebox_clear_all(struct t_mympd_state *mympd_state) {
 bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *album_cache) {
     if (partition_state->jukebox.filling == true) {
         MYMPD_LOG_DEBUG(partition_state->name, "Filling the jukebox queue is already in progress");
+        return true;
+    }
+    if (partition_state->jukebox.mode == JUKEBOX_OFF) {
+        MYMPD_LOG_DEBUG(partition_state->name, "Jukebox is disabled");
         return true;
     }
 
@@ -191,7 +204,7 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state,
                 MYMPD_LOG_ERROR(partition_state->name, "Jukebox adding song %s failed", current->key);
             }
         }
-        else {
+        else if (partition_state->jukebox.mode == JUKEBOX_ADD_ALBUM) {
             bool rc = mpd_client_add_album_to_queue(partition_state, album_cache, current->key, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
             if (rc == true) {
                 MYMPD_LOG_NOTICE(partition_state->name, "Jukebox adding album: %s - %s", current->value_p, current->key);
@@ -200,6 +213,10 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state,
             else {
                 MYMPD_LOG_ERROR(partition_state->name, "Jukebox adding album %s - %s failed", current->value_p, current->key);
             }
+        }
+        else {
+            // This should not appear
+            MYMPD_LOG_WARN(partition_state->name, "Jukebox is disabled");
         }
         list_node_free(current);
     }

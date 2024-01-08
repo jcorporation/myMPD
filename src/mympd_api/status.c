@@ -5,13 +5,15 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/timer.h"
 #include "src/mympd_api/status.h"
 
 #include "src/lib/jsonrpc.h"
+#include "src/mpd_client/jukebox.h"
 #include "src/lib/log.h"
 #include "src/lib/lua_mympd_state.h"
+#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/timer.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/shortcuts.h"
@@ -182,9 +184,15 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
             : total_time / 2 - elapsed_time;
         mympd_timer_set(partition_state->timer_fd_scrobble, (scrobble_offset <= 0 ? 0 : (int)scrobble_offset), 0);
 
-        //jukebox add time is crossfade + 10s before song end time
-        time_t add_offset = total_time - (elapsed_time + partition_state->crossfade + JUKEBOX_ADD_SONG_OFFSET);
-        mympd_timer_set(partition_state->timer_fd_jukebox, (add_offset <= 0 ? 0 : (int)add_offset), 0);
+        if (partition_state->jukebox.mode == JUKEBOX_OFF) {
+            jukebox_disable(partition_state);
+        }
+        else {
+            //jukebox add time is crossfade + 10s before song end time
+            MYMPD_LOG_DEBUG(partition_state->name, "Setting jukebox timer");
+            time_t add_offset = total_time - (elapsed_time + partition_state->crossfade + JUKEBOX_ADD_SONG_OFFSET);
+            mympd_timer_set(partition_state->timer_fd_jukebox, (add_offset <= 0 ? 0 : (int)add_offset), 0);
+        }
 
         #ifdef MYMPD_DEBUG 
             char fmt_time_now[32];

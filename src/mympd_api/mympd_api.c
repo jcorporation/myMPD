@@ -116,45 +116,54 @@ void *mympd_api_loop(void *arg_config) {
             if (mympd_state->pfds.fds[i].revents & POLLIN) {
                 switch (mympd_state->pfds.fd_types[i]) {
                     case PFD_TYPE_TIMER:
+                        MYMPD_LOG_DEBUG(NULL, "Timer event");
                         if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
                             mympd_api_timer_check(mympd_state->pfds.fds[i].fd, &mympd_state->timer_list);
                         }
                         break;
                     case PFD_TYPE_STICKERDB:
+                        MYMPD_LOG_DEBUG("stickerdb", "Stickerdb event");
                         stickerdb_idle(mympd_state->stickerdb);
                         break;
                     case PFD_TYPE_QUEUE:
                         // check the mympd_api_queue
+                        MYMPD_LOG_DEBUG(NULL, "Queue event");
                         if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
                             request = mympd_queue_shift(mympd_api_queue, 50, 0);
-                            if (request != NULL) {
-                                struct t_partition_state *partition_state = partitions_get_by_name(mympd_state, request->partition);
-                                if (partition_state == NULL) {
-                                    MYMPD_LOG_ERROR(NULL, "Unable to find partition for queue fd: %d", mympd_state->pfds.fds[i].fd);
-                                    break;
-                                }
-                                partition_state->waiting_events |= PFD_TYPE_QUEUE;
+                            if (request == NULL) {
+                                MYMPD_LOG_ERROR("NULL", "Unable to read request from queue");
+                                break;
                             }
+                            struct t_partition_state *partition_state = partitions_get_by_name(mympd_state, request->partition);
+                            if (partition_state == NULL) {
+                                MYMPD_LOG_ERROR(NULL, "Unable to find partition for queue fd: %d", mympd_state->pfds.fds[i].fd);
+                                break;
+                            }
+                            MYMPD_LOG_DEBUG(partition_state->name, "Queue event");
+                            partition_state->waiting_events |= PFD_TYPE_QUEUE;
                         }
                         break;
                     case PFD_TYPE_PARTITION:
                         // mpd idle event
+                        MYMPD_LOG_DEBUG(mympd_state->pfds.partition_states[i]->name, "Partition event");
                         mympd_state->pfds.partition_states[i]->waiting_events |= PFD_TYPE_PARTITION;
                         break;
                     case PFD_TYPE_TIMER_JUKEBOX:
                         // jukebox should add a song
+                        MYMPD_LOG_DEBUG(mympd_state->pfds.partition_states[i]->name, "Jukebox event");
                         if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
                             mympd_state->pfds.partition_states[i]->waiting_events |= PFD_TYPE_TIMER_JUKEBOX;
                         }
                         break;
                     case PFD_TYPE_TIMER_SCROBBLE:
-                        // the scrobble event
+                        MYMPD_LOG_DEBUG(mympd_state->pfds.partition_states[i]->name, "Scrobble event");
                         if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
                             mpd_client_scrobble(mympd_state, mympd_state->pfds.partition_states[i]);
                         }
                         break;
                     case PFD_TYPE_TIMER_MPD_CONNECT:
                         // connect to mpd
+                        MYMPD_LOG_DEBUG(mympd_state->pfds.partition_states[i]->name, "Connect event");
                         if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
                             partitions_connect(mympd_state, mympd_state->pfds.partition_states[i]);
                         }

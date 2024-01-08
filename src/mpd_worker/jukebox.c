@@ -80,11 +80,14 @@ bool mpd_worker_jukebox_queue_fill(struct t_mpd_worker_state *mpd_worker_state, 
             return false;
         }
     }
-    else {
-        // JUKEBOX_ADD_SONG
+    else if (mpd_worker_state->partition_state->jukebox.mode == JUKEBOX_ADD_SONG) {
         expected_length = JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH + add_songs;
         new_length = random_select_songs(mpd_worker_state->partition_state, mpd_worker_state->stickerdb, expected_length,
             mpd_worker_state->partition_state->jukebox.playlist, queue_list, mpd_worker_state->partition_state->jukebox.queue, &constraints);
+    }
+    else {
+        *error = sdscat(*error, "Jukebox is disabled");
+        return false;
     }
 
     if (new_length < expected_length) {

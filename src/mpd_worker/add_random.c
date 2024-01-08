@@ -54,13 +54,18 @@ bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
             cache_release_lock(mpd_worker_state->album_cache);
         }
     }
-    else {
-        // JUKEBOX_ADD_SONG
+    else if  (mode == JUKEBOX_ADD_SONG){
         new_length = random_select_songs(mpd_worker_state->partition_state, mpd_worker_state->stickerdb,
             add, plist, NULL, &add_list, &constraints);
         if (new_length > 0) {
             mympd_api_queue_append(mpd_worker_state->partition_state, &add_list, &error);
         }
+    }
+    else {
+        MYMPD_LOG_WARN(partition, "Jukebox is disabled");
+        FREE_SDS(error);
+        list_clear(&add_list);
+        return false;
     }
     FREE_SDS(error);
     list_clear(&add_list);
