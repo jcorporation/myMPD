@@ -8,7 +8,6 @@
 #include "src/mympd_api/status.h"
 
 #include "src/lib/jsonrpc.h"
-#include "src/mpd_client/jukebox.h"
 #include "src/lib/log.h"
 #include "src/lib/lua_mympd_state.h"
 #include "src/lib/mympd_state.h"
@@ -16,6 +15,7 @@
 #include "src/lib/timer.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 #include "src/mpd_client/volume.h"
