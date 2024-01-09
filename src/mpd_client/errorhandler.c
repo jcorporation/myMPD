@@ -128,6 +128,10 @@ sds mympd_respond_with_error_or_ok(struct t_partition_state *partition_state, sd
 static bool check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, enum mympd_cmd_ids cmd_id,
         unsigned request_id, enum jsonrpc_response_types response_type, const char *command)
 {
+    if (partition_state->conn == NULL) {
+        mympd_set_mpd_failure(partition_state, "Unrecoverable MPD error");
+        return false;
+    }
     enum mpd_error error = mpd_connection_get_error(partition_state->conn);
     if (error != MPD_ERROR_SUCCESS) {
         const char *error_msg = mpd_connection_get_error_message(partition_state->conn);

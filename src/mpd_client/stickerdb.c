@@ -168,6 +168,10 @@ bool stickerdb_exit_idle(struct t_stickerdb_state *stickerdb) {
  * @return true on success else false
  */
 bool stickerdb_check_error_and_recover(struct t_stickerdb_state *stickerdb, const char *command) {
+    if (stickerdb->conn == NULL) {
+        stickerdb->conn_state = MPD_FAILURE;
+        return false;
+    }
     enum mpd_error error = mpd_connection_get_error(stickerdb->conn);
     if (error != MPD_ERROR_SUCCESS) {
         const char *error_msg = mpd_connection_get_error_message(stickerdb->conn);
