@@ -8,7 +8,9 @@
 #define MYMPD_ALBUM_CACHE_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/cache.h"
+#include "src/lib/config_def.h"
+#include "src/lib/tags.h"
 
 #include <stdbool.h>
 

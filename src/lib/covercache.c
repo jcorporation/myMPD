@@ -18,7 +18,6 @@
 #include <sys/stat.h>
 #include <time.h>
 
-
 /**
  * Writes the coverimage (as binary buffer) to the covercache,
  * filename is the hash of the full path
