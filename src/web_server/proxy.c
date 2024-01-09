@@ -98,10 +98,12 @@ void send_backend_request(struct mg_connection *nc, void *fn_data) {
     mg_printf(nc, "GET %s HTTP/1.1\r\n"
         "Host: %.*s\r\n"
         "User-Agent: myMPD/"MYMPD_VERSION"\r\n"
+        "Accept: */*\r\n"
         "Connection: close\r\n"
         "\r\n",
         mg_url_uri(backend_nc_data->uri),
-        (int)host.len, host.ptr);
+        (int)host.len, host.ptr
+    );
     MYMPD_LOG_DEBUG(NULL, "Sending GET %s HTTP/1.1 to backend connection \"%lu\"", mg_url_uri(backend_nc_data->uri), nc->id);
 }
 
