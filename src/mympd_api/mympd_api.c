@@ -131,7 +131,6 @@ void *mympd_api_loop(void *arg_config) {
                         if (event_pfd_read_fd(mympd_state->pfds.fds[i].fd) == true) {
                             request = mympd_queue_shift(mympd_api_queue, 50, 0);
                             if (request == NULL) {
-                                MYMPD_LOG_ERROR("NULL", "Unable to read request from queue");
                                 break;
                             }
                             struct t_partition_state *partition_state = partitions_get_by_name(mympd_state, request->partition);
@@ -215,6 +214,21 @@ void *mympd_api_loop(void *arg_config) {
 static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i, short revents) {
     MYMPD_LOG_ERROR(NULL, "Socket error %s for %d of type %s", lookup_pfd_revents(revents),
         mympd_state->pfds.fds[i].fd, lookup_pfd_type(mympd_state->pfds.fd_types[i]));
+    switch (mympd_state->pfds.fd_types[i]) {
+        case PFD_TYPE_PARTITION:
+            mpd_client_disconnect(mympd_state->pfds.partition_states[i]);
+            break;
+        case PFD_TYPE_STICKERDB:
+            stickerdb_disconnect(mympd_state->stickerdb);
+            break;
+        case PFD_TYPE_QUEUE:
+            event_fd_close(mympd_state->pfds.fds[i].fd);
+            mympd_api_queue->event_fd = event_eventfd_create();
+            break;
+        default:
+            MYMPD_LOG_DEBUG(NULL, "Closing socket");
+            event_fd_close(mympd_state->pfds.fds[i].fd);
+    }
 }
 
 /**
