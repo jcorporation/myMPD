@@ -116,18 +116,13 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
     mpd_client_queue_status_update(partition_state);
     sdsclear(partition_state->jukebox.last_error);
 
-    //time_t now = time(NULL);
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: MPD queue length: %u", partition_state->queue_length);
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: min queue length: %u", partition_state->jukebox.queue_length);
 
-    /*
-    if (partition_state->queue_length >= partition_state->jukebox.queue_length &&
-        (now < partition_state->jukebox_add_time || partition_state->jukebox_add_time == 0))
-    {
-        MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: MPD queue length >= %u and add_time not reached", partition_state->jukebox.queue_length);
+    if (partition_state->queue_length > partition_state->jukebox.queue_length) {
+        MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: MPD queue length > %u", partition_state->jukebox.queue_length);
         return true;
     }
-    */
 
     unsigned add_songs = partition_state->jukebox.queue_length > partition_state->queue_length
         ? partition_state->jukebox.queue_length - partition_state->queue_length

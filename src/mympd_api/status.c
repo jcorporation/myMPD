@@ -189,9 +189,14 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
         }
         else {
             //jukebox add time is crossfade + 10s before song end time
-            MYMPD_LOG_DEBUG(partition_state->name, "Setting jukebox timer");
             time_t add_offset = total_time - (elapsed_time + partition_state->crossfade + JUKEBOX_ADD_SONG_OFFSET);
-            mympd_timer_set(partition_state->timer_fd_jukebox, (add_offset <= 0 ? 0 : (int)add_offset), 0);
+            if (add_offset > 0) {
+                MYMPD_LOG_DEBUG(partition_state->name, "Setting jukebox timer");
+                mympd_timer_set(partition_state->timer_fd_jukebox, (int)add_offset, 0);
+            }
+            else {
+                jukebox_disable(partition_state);
+            }
         }
 
         #ifdef MYMPD_DEBUG 
