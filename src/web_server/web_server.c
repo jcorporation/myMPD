@@ -71,7 +71,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->publish_music = false;
     mg_user_data->publish_playlists = false;
     mg_user_data->feat_albumart = false;
-    mg_user_data->connection_count = 0;
+    mg_user_data->connection_count = 2; // listening + wakup
     list_init(&mg_user_data->stream_uris);
     list_init(&mg_user_data->session_list);
     mg_user_data->mympd_api_started = false;
