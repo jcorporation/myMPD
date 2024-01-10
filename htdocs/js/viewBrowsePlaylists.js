@@ -194,7 +194,9 @@ function currentPlaylistShuffle() {
     setUpdateViewId('BrowsePlaylistDetailList');
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SHUFFLE", {
         "plist": getDataId('BrowsePlaylistDetailList', 'uri')
-    }, null, false);
+    }, function() {
+        unsetUpdateViewId('BrowsePlaylistDetailList');
+    }, true);
 }
 
 /**
@@ -246,7 +248,9 @@ function currentPlaylistSort(tag, sortdesc) {
         "plist": getDataId('BrowsePlaylistDetailList', 'uri'),
         "tag": tag,
         "sortdesc": sortdesc
-    }, null, false);
+    }, function() {
+        unsetUpdateViewId('BrowsePlaylistDetailList');
+    }, true);
 }
 
 /**
