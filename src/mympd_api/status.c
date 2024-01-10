@@ -179,13 +179,20 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
             ? 0
             : now + total_time - elapsed_time;
 
-        //scrobble time is half length of song or SCROBBLE_TIME_MAX (4 minutes) whatever is shorter
-        time_t scrobble_offset = total_time > SCROBBLE_TIME_TOTAL
-            ? SCROBBLE_TIME_MAX - elapsed_time
-            : total_time / 2 - elapsed_time;
-        mympd_timer_set(partition_state->timer_fd_scrobble, (scrobble_offset <= 0 ? 0 : (int)scrobble_offset), 0);
+        if (partition_state->play_state == MPD_STATE_PLAY) {
+            //scrobble time is half length of song or SCROBBLE_TIME_MAX (4 minutes) whatever is shorter
+            time_t scrobble_offset = total_time > SCROBBLE_TIME_TOTAL
+                ? SCROBBLE_TIME_MAX - elapsed_time
+                : total_time / 2 - elapsed_time;
+            mympd_timer_set(partition_state->timer_fd_scrobble, (scrobble_offset <= 0 ? 0 : (int)scrobble_offset), 0);
+        }
+        else {
+            mympd_timer_set(partition_state->timer_fd_scrobble, 0, 0);
+        }
 
-        if (partition_state->jukebox.mode == JUKEBOX_OFF) {
+        if (partition_state->jukebox.mode == JUKEBOX_OFF ||
+            partition_state->play_state != MPD_STATE_PLAY)
+        {
             jukebox_disable(partition_state);
         }
         else {
