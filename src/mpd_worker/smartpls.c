@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/mpd_worker/smartpls.h"
 
+#include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"

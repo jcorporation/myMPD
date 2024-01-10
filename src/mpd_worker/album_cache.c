@@ -10,6 +10,7 @@
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/libmympdclient/src/isong.h"
 #include "src/lib/album_cache.h"
+#include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"

@@ -43,16 +43,6 @@ void my_msleep(int msec) {
 }
 
 /**
- * Appends a formated time to the buffer
- * @param buf already allocated sds string
- * @param timestamp timestamp to display
- */
-void readable_time(char *buf, time_t timestamp) {
-    struct tm *tmp = localtime(&timestamp);
-    (void)strftime(buf, 32, "%Y-%m-%dT%H:%M:%SZ", tmp);
-}
-
-/**
  * Checks if the filename is a mpd virtual cue sheet directory
  * MPD uses the cue filename as path, we simply check if the filename is a file or not
  * @param music_directory mpd music directory

@@ -10,5 +10,6 @@
 #include <time.h>
 
 time_t parse_date(const char *str);
+void readable_time(char *buf, time_t timestamp);
 
 #endif

@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/status.h"
 
+#include "src/lib/datetime.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/lua_mympd_state.h"

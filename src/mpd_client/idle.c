@@ -7,13 +7,13 @@
 #include "compile_time.h"
 #include "src/mpd_client/idle.h"
 
+#include "src/lib/datetime.h"
 #include "src/lib/event.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/utility.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
@@ -27,7 +27,6 @@
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
 
-#include <poll.h>
 #include <string.h>
 
 /**
@@ -240,13 +239,13 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                         partition_state->queue_length > 0)
                     {
                         if (partition_state->play_state != MPD_STATE_PLAY) {
-                            MYMPD_LOG_INFO(partition_state->name, "AutoPlay enabled, start playing");
+                            MYMPD_LOG_INFO(partition_state->name, "Auto play enabled, start playing");
                             if (mpd_run_play(partition_state->conn) == false) {
                                 mympd_check_error_and_recover(partition_state, NULL, "mpd_run_play");
                             }
                         }
                         else {
-                            MYMPD_LOG_DEBUG(partition_state->name, "Autoplay enabled, already playing");
+                            MYMPD_LOG_DEBUG(partition_state->name, "Auto play enabled, already playing");
                         }
                     }
                     break;
@@ -275,9 +274,9 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                         partition_state->last_skipped_id != partition_state->last_song_id &&
                         partition_state->last_song_uri != NULL)
                     {
-                        time_t now = time(NULL);
                         if (partition_state->mpd_state->feat.stickers == true) {
-                            //last song skipped
+                            //check if last song was skipped
+                            time_t now = time(NULL);
                             time_t elapsed = now - partition_state->last_song_start_time;
                             if (elapsed > SCROBBLE_TIME_MIN &&
                                 partition_state->last_song_start_time > 0 &&

@@ -7,8 +7,8 @@
 #include "compile_time.h"
 #include "src/lib/timer.h"
 
+#include "src/lib/datetime.h"
 #include "src/lib/log.h"
-#include "src/lib/utility.h"
 
 #include <errno.h>
 #include <sys/timerfd.h>

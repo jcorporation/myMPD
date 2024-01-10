@@ -247,9 +247,6 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i) {
  * @param mympd_state pointer to mympd state
  */
 static void populate_pfds(struct t_mympd_state *mympd_state) {
-    #ifdef MYMPD_DEBUG
-        MYMPD_LOG_DEBUG(NULL, "Populating poll fds array");
-    #endif
     mympd_state->pfds.len = 0;
     // Connections for MPD partitions
     struct t_partition_state *partition_state = mympd_state->partition_state;
@@ -277,4 +274,7 @@ static void populate_pfds(struct t_mympd_state *mympd_state) {
         event_pfd_add_fd(&mympd_state->pfds, current_timer->fd, PFD_TYPE_TIMER, NULL);
         current = current->next;
     }
+    #ifdef MYMPD_DEBUG
+        MYMPD_LOG_DEBUG(NULL, "Polling %lu fds", mympd_state->pfds.len);
+    #endif
 }

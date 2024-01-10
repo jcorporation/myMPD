@@ -11,12 +11,14 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/mympd_state.h"
+#include "src/lib/sds_extras.h"
 #include "src/lib/timer.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/features.h"
 #include "src/mpd_client/jukebox.h"
 #include "src/mympd_api/settings.h"
+#include "src/mympd_api/status.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
@@ -63,8 +65,15 @@ bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_st
             return false;
         }
     }
+
+    // update state
+    sds buffer = sdsempty();
+    buffer = mympd_api_status_get(partition_state, &mympd_state->album_cache, buffer, 0, RESPONSE_TYPE_JSONRPC_RESPONSE);
+    FREE_SDS(buffer);
+
     // disarm connect timer
     mympd_timer_set(partition_state->timer_fd_mpd_connect, 0, 0);
+
     // jukebox
     if (partition_state->jukebox.mode != JUKEBOX_OFF &&
         partition_state->queue_length == 0)
@@ -72,6 +81,7 @@ bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_st
         jukebox_run(partition_state, &mympd_state->album_cache);
     }
 
+    // enter idle mode
     if (mpd_send_idle_mask(partition_state->conn, partition_state->idle_mask) == false) {
         mympd_check_error_and_recover(partition_state, NULL, "mpd_send_idle_mask");
         return false;

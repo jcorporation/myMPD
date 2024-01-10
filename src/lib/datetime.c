@@ -10,6 +10,7 @@
 #include "src/lib/datetime.h"
 #include "src/lib/log.h"
 
+#include <stdio.h>
 #include <string.h>
 
 /**
@@ -25,4 +26,19 @@ time_t parse_date(const char *str) {
         return 0;
     }
     return mktime(&tm);
+}
+
+/**
+ * Appends a formated time to the buffer
+ * @param buf already allocated sds string
+ * @param timestamp timestamp to display
+ */
+void readable_time(char *buf, time_t timestamp) {
+    if (timestamp == 0) {
+        snprintf(buf, 2, "0");
+    }
+    else {
+        struct tm *tmp = localtime(&timestamp);
+        (void)strftime(buf, 32, "%Y-%m-%dT%H:%M:%SZ", tmp);
+    }
 }

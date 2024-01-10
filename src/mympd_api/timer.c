@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/timer.h"
 
+#include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"
@@ -15,14 +16,11 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
 #include "src/lib/timer.h"
-#include "src/lib/utility.h"
 #include "src/mympd_api/timer_handlers.h"
 
 #include <errno.h>
-#include <poll.h>
 #include <stdbool.h>
 #include <string.h>
-#include <unistd.h>
 
 /**
  * Private definitions
@@ -558,9 +556,7 @@ bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
  */
 static void mympd_api_timer_free_node(struct t_list_node *node) {
     struct t_timer_node *timer = (struct t_timer_node *)node->user_data;
-    if (timer->fd > -1) {
-        close(timer->fd);
-    }
+    mympd_timer_close(timer->fd);
     if (timer->definition != NULL) {
         mympd_api_timer_free_definition(timer->definition);
     }

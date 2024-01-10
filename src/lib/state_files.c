@@ -20,7 +20,6 @@
 #include <inttypes.h>
 #include <string.h>
 
-
 /**
  * Checks if the state dir for a partition exists
  * @param workdir myMPD working directory

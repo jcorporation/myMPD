@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/position.h"
 #include "src/mpd_worker/add_random.h"
 
 #include "dist/sds/sds.h"
@@ -12,7 +13,7 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/random_select.h"
-#include "src/mympd_api/queue.h"
+#include "src/mpd_client/shortcuts.h"
 
 #include <stdbool.h>
 #include <string.h>
@@ -49,7 +50,8 @@ bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
             new_length = random_select_albums(mpd_worker_state->partition_state, mpd_worker_state->stickerdb,
                 mpd_worker_state->album_cache, add, NULL, &add_list, &constraints);
             if (new_length > 0) {
-                mympd_api_queue_append_albums(mpd_worker_state->partition_state, mpd_worker_state->album_cache, &add_list, &error);
+                mpd_client_add_albums_to_queue(mpd_worker_state->partition_state, mpd_worker_state->album_cache, &add_list,
+                    UINT_MAX, MPD_POSITION_ABSOLUTE, &error);
             }
             cache_release_lock(mpd_worker_state->album_cache);
         }
@@ -58,7 +60,7 @@ bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
         new_length = random_select_songs(mpd_worker_state->partition_state, mpd_worker_state->stickerdb,
             add, plist, NULL, &add_list, &constraints);
         if (new_length > 0) {
-            mympd_api_queue_append(mpd_worker_state->partition_state, &add_list, &error);
+            mpd_client_add_uris_to_queue(mpd_worker_state->partition_state, &add_list, UINT_MAX, MPD_POSITION_ABSOLUTE, &error);
         }
     }
     else {

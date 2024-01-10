@@ -15,7 +15,6 @@
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/settings.h"
-#include "src/mympd_api/status.h"
 
 #include <stdbool.h>
 #include <string.h>
@@ -61,11 +60,6 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
     features_commands(partition_state);
     features_config(mympd_state, partition_state);
     features_tags(mympd_state, partition_state);
-
-    //set state
-    sds buffer = sdsempty();
-    buffer = mympd_api_status_get(partition_state, &mympd_state->album_cache, buffer, 0, RESPONSE_TYPE_JSONRPC_RESPONSE);
-    FREE_SDS(buffer);
 
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 0) >= 0) {
         partition_state->mpd_state->feat.partitions = true;

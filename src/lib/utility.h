@@ -24,7 +24,6 @@ void sanitize_filename(sds filename);
 void sanitize_filename2(sds filename);
 
 void my_msleep(int msec);
-void readable_time(char *buf, time_t timestamp);
 
 sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config);
 bool get_ipv6_support(void);

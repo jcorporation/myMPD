@@ -14,7 +14,7 @@
 #include "src/lib/event.h"
 #include "src/lib/list.h"
 #include "src/lib/tags.h"
-#include <poll.h>
+
 #include <time.h>
 
 /**

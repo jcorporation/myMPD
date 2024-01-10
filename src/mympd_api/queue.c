@@ -212,35 +212,7 @@ bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, st
  * @return true on success, else false
  */
 bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_list *uris, unsigned to, unsigned whence, sds *error) {
-    if (whence != MPD_POSITION_ABSOLUTE &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
-    if (uris->length == 0) {
-        *error = sdscat(*error, "No uris provided");
-        return false;
-    }
-    if (mpd_command_list_begin(partition_state->conn, false)) {
-        struct t_list_node *current;
-        while ((current = list_shift_first(uris)) != NULL) {
-            bool rc = to == UINT_MAX
-                ? mpd_send_add(partition_state->conn, current->key)
-                : mpd_send_add_whence(partition_state->conn, current->key, to, whence);
-            list_node_free(current);
-            if (rc == false) {
-                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_add");
-                break;
-            }
-            if (to != UINT_MAX) {
-                to++;
-            }
-        }
-        mpd_client_command_list_end_check(partition_state);
-    }
-    mpd_response_finish(partition_state->conn);
-    return mympd_check_error_and_recover(partition_state, error, "mpd_send_add_whence");
+    return mpd_client_add_uris_to_queue(partition_state, uris, to, whence, error);
 }
 
 /**
@@ -251,7 +223,7 @@ bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_
  * @return true on success, else false
  */
 bool mympd_api_queue_append(struct t_partition_state *partition_state, struct t_list *uris, sds *error) {
-    return mympd_api_queue_insert(partition_state, uris, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
+    return mpd_client_add_uris_to_queue(partition_state, uris, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
 }
 
 /**
@@ -333,26 +305,7 @@ bool mympd_api_queue_replace_search(struct t_partition_state *partition_state, s
 bool mympd_api_queue_insert_albums(struct t_partition_state *partition_state, struct t_cache *album_cache,
     struct t_list *albumids, unsigned to, unsigned whence, sds *error)
 {
-    if (whence != MPD_POSITION_ABSOLUTE &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
-    if (albumids->length == 0) {
-        *error = sdscat(*error, "No album ids provided");
-        return false;
-    }
-    struct t_list_node *current = albumids->head;
-    bool rc = true;
-    while (current != NULL) {
-        rc = mpd_client_add_album_to_queue(partition_state, album_cache, current->key, to, whence, error);
-        if (rc == false) {
-            break;
-        }
-        current = current->next;
-    }
-    return rc;
+    return mpd_client_add_albums_to_queue(partition_state, album_cache, albumids, to, whence, error);
 }
 
 /**
@@ -366,7 +319,7 @@ bool mympd_api_queue_insert_albums(struct t_partition_state *partition_state, st
 bool mympd_api_queue_append_albums(struct t_partition_state *partition_state, struct t_cache *album_cache,
         struct t_list *albumids, sds *error)
 {
-    return mympd_api_queue_insert_albums(partition_state, album_cache, albumids, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
+    return mpd_client_add_albums_to_queue(partition_state, album_cache, albumids, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
 }
 
 /**
