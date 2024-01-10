@@ -130,6 +130,9 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
  * @returns {void}
  */
 function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
+    if (selectedPlaylist === undefined) {
+        selectedPlaylist = '';
+    }
     const selectEl = elGetById(playlistSelectId);
     //set input element values
     selectEl.value = selectedPlaylist === 'Database'
