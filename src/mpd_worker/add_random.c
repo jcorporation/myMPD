@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/position.h"
 #include "src/mpd_worker/add_random.h"
 
 #include "dist/sds/sds.h"
