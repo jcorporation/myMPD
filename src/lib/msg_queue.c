@@ -112,7 +112,9 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id) {
 /**
  * Gets the first entry or the entry with specific id
  * @param queue pointer to the queue
- * @param timeout timeout in ms to wait for a queue entry, 0 to wait infinite
+ * @param timeout timeout in ms to wait for a queue entry,
+ *                 0 to wait infinite
+ *                -1 for no wait
  * @param id 0 for first entry or specific id
  * @return t_work_request or t_work_response
  */
@@ -123,27 +125,29 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, unsigned id) {
         MYMPD_LOG_ERROR(NULL, "Error in pthread_mutex_lock: %d", rc);
         assert(NULL);
     }
-    //check and wait for entries
-    if (queue->length == 0) {
-        if (timeout > 0) {
-            struct timespec max_wait = {0, 0};
-            set_wait_time(timeout, &max_wait);
-            errno = 0;
-            rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
-        }
-        else {
-            //wait infinite for a queue entry
-            errno = 0;
-            rc = pthread_cond_wait(&queue->wakeup, &queue->mutex);
-        }
-
-        if (rc != 0) {
-            if (rc != ETIMEDOUT) {
-                MYMPD_LOG_ERROR(NULL, "Error in pthread_cond_timedwait: %d", rc);
-                MYMPD_LOG_ERRNO(NULL, errno);
+    if (timeout > -1) {
+        //check and wait for entries
+        if (queue->length == 0) {
+            if (timeout > 0) {
+                struct timespec max_wait = {0, 0};
+                set_wait_time(timeout, &max_wait);
+                errno = 0;
+                rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
             }
-            unlock_mutex(&queue->mutex);
-            return NULL;
+            else {
+                //wait infinite for a queue entry
+                errno = 0;
+                rc = pthread_cond_wait(&queue->wakeup, &queue->mutex);
+            }
+
+            if (rc != 0) {
+                if (rc != ETIMEDOUT) {
+                    MYMPD_LOG_ERROR(NULL, "Error in pthread_cond_timedwait: %d", rc);
+                    MYMPD_LOG_ERRNO(NULL, errno);
+                }
+                unlock_mutex(&queue->mutex);
+                return NULL;
+            }
         }
     }
     //queue has entry
@@ -156,7 +160,6 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, unsigned id) {
                 id == current->id)
             {
                 void *data = current->data;
-
                 if (previous == NULL) {
                     //Fix beginning pointer
                     queue->head = current->next;
@@ -169,16 +172,15 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, unsigned id) {
                 if (queue->tail == current) {
                     queue->tail = previous;
                 }
-
                 FREE_PTR(current);
                 queue->length--;
+                MYMPD_LOG_DEBUG(NULL, "Queue \"%s\": %u entries", queue->name, queue->length);
                 unlock_mutex(&queue->mutex);
                 return data;
             }
             MYMPD_LOG_DEBUG(NULL, "Skipping queue entry with id %u", current->id);
         }
     }
-
     unlock_mutex(&queue->mutex);
     return NULL;
 }

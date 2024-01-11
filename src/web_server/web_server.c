@@ -204,13 +204,13 @@ void *web_server_loop(void *arg_mgr) {
  */
 
 /**
- * Reads a message from the queue
+ * Reads and processes all messages from the queue
  * @param mgr pointer to mongoose mgr
  */
 static void read_queue(struct mg_mgr *mgr) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
-    struct t_work_response *response = mympd_queue_shift(web_server_queue, 50, 0);
-    if (response != NULL) {
+    struct t_work_response *response;
+    while ((response = mympd_queue_shift(web_server_queue, -1, 0)) != NULL) {
         switch(response->type) {
             case RESPONSE_TYPE_NOTIFY_CLIENT:
                 //websocket notify for specific clients
