@@ -150,8 +150,8 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, unsigned id) {
             }
         }
     }
-    //queue has entry
     if (queue->head != NULL) {
+        //queue has entry
         struct t_mympd_msg *current = NULL;
         struct t_mympd_msg *previous = NULL;
 
