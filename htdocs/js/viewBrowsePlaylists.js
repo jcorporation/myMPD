@@ -114,8 +114,6 @@ function parsePlaylistList(obj) {
  */
 function parsePlaylistDetail(obj) {
     const table = elGetById('BrowsePlaylistDetailList');
-    const tfoot = table.querySelector('tfoot');
-    const colspan = settings.colsBrowsePlaylistDetail.length + 1;
 
     if (checkResultId(obj, 'BrowsePlaylistDetailList') === false) {
         return;
@@ -172,7 +170,7 @@ function parsePlaylistDetail(obj) {
  * @returns {void}
  */
 function setPlaylistDetailListFooter(entities, playtime) {
-    const footerEl = entities == -1
+    const footerEl = entities === -1
         ? elCreateNode('small', {},
               elCreateText('button', {"data-title-phrase": "Enumerate", "title": "Enumerate", "id": "BrowsePlaylistDetailEnumerateBtn", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'insights')
           )
@@ -190,7 +188,7 @@ function setPlaylistDetailListFooter(entities, playtime) {
         )
     );
 
-    if (entities == -1) {
+    if (entities === -1) {
         footerEl.addEventListener('click', function() {
             currentPlaylistEnumerate();
         }, false);
@@ -210,7 +208,7 @@ function currentPlaylistEnumerate() {
             setPlaylistDetailListFooter(obj.result.entities, obj.result.playtime);
         }
         else {
-            setPlaylistDetailListFooter(-1, 0)
+            setPlaylistDetailListFooter(-1, 0);
         }
     }, true);
 }
