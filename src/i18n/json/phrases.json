@@ -278,6 +278,7 @@
 {"term":"Enter"},
 {"term":"Enter pin"},
 {"term":"Entities to add"},
+{"term":"Enumerate"},
 {"term":"Error"},
 {"term":"Error accessing %{uri}"},
 {"term":"Error connecting to radio-browser.info"},

@@ -677,6 +677,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
     unsigned entities_found = 0;
     unsigned entity_count = 0;
     unsigned total_time = 0;
+    unsigned real_limit = offset + limit;
     time_t last_played_max = 0;
     sds last_played_song_uri = sdsempty();
     if (partition_state->mpd_state->feat.stickers == true &&
@@ -689,14 +690,11 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
         buffer = sdscat(buffer,"\"data\":[");
 
         struct mpd_song *song;
-        unsigned real_limit = offset + limit;
         struct t_list *expr_list = parse_search_expression_to_list(expression);
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (search_song_expression(song, expr_list, tagcols) == true) {
                 total_time += mpd_song_get_duration(song);
-                if (entities_found >= offset &&
-                    entities_found < real_limit)
-                {
+                if (entities_found >= offset) {
                     if (entities_returned++) {
                         buffer= sdscatlen(buffer, ",", 1);
                     }
@@ -722,6 +720,10 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                     buffer = sdscatlen(buffer, "}", 1);
                 }
                 entities_found++;
+                if (entities_found == real_limit) {
+                    mpd_song_free(song);
+                    break;
+                }
             }
             entity_count++;
             mpd_song_free(song);
@@ -743,8 +745,14 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
     bool smartpls = is_smartpls(partition_state->config->workdir, plist);
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_uint(buffer, "totalEntities", entities_found, true);
-    buffer = tojson_uint(buffer, "totalTime", total_time, true);
+    if (entities_found == real_limit) {
+        buffer = tojson_int(buffer, "totalEntities", -1, true);
+        buffer = tojson_int(buffer, "totalTime", 0, true);
+    }
+    else {
+        buffer = tojson_uint(buffer, "totalEntities", entities_found, true);
+        buffer = tojson_uint(buffer, "totalTime", total_time, true);
+    }
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "expression", expression, true);

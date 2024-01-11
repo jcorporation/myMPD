@@ -25,6 +25,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - MYMPD_API_JUKEBOX_RESTART: new
 - MYMPD_API_PLAYER_OUTPUT_LIST: response changed
 - MYMPD_API_QUEUE_ADD_RANDOM: is now async
+- MYMPD_API_PLAYLIST_CONTENT_ENUMERATE: new
 
 ### Changelog
 

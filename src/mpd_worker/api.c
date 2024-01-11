@@ -15,6 +15,7 @@
 #include "src/mpd_worker/add_random.h"
 #include "src/mpd_worker/album_cache.h"
 #include "src/mpd_worker/jukebox.h"
+#include "src/mpd_worker/playlists.h"
 #include "src/mpd_worker/smartpls.h"
 #include "src/mpd_worker/song.h"
 
@@ -118,6 +119,11 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 push_response(response);
                 mpd_worker_album_cache_create(mpd_worker_state, bool_buf1);
                 async = true;
+            }
+            break;
+        case MYMPD_API_PLAYLIST_CONTENT_ENUMERATE:
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true) {
+                response->data = mpd_worker_playlist_content_enumerate(partition_state, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:

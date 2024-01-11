@@ -151,16 +151,7 @@ function parsePlaylistDetail(obj) {
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
     const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
 
-    elReplaceChild(tfoot,
-        elCreateNode('tr', {"class": ["not-clickable"]},
-            elCreateNode('td', {"colspan": colspan},
-                elCreateNodes('small', {}, [
-                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities), 
-                    elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
-                ])
-            )
-        )
-    );
+    setPlaylistDetailListFooter(obj.result.totalEntities, obj.result.totalTime);
 
     updateTable(obj, 'BrowsePlaylistDetail', function(row, data) {
         row.setAttribute('id', 'playlistSongId' + data.Pos);
@@ -172,6 +163,56 @@ function parsePlaylistDetail(obj) {
         setData(row, 'pos', data.Pos);
         row.setAttribute('title', tn(rowTitle));
     });
+}
+
+/**
+ * Sets the footer text for the playlist content view
+ * @param {number} entities entity count
+ * @param {number} playtime total playtime
+ * @returns {void}
+ */
+function setPlaylistDetailListFooter(entities, playtime) {
+    const footerEl = entities == -1
+        ? elCreateNode('small', {},
+              elCreateText('button', {"data-title-phrase": "Enumerate", "title": "Enumerate", "id": "BrowsePlaylistDetailEnumerateBtn", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'insights')
+          )
+        : elCreateNodes('small', {}, [
+              elCreateTextTnNr('span', {}, 'Num songs', entities),
+              elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(playtime))
+          ]);
+
+    const tfoot = elGetById('BrowsePlaylistDetailList').querySelector('tfoot');
+    const colspan = settings.colsBrowsePlaylistDetail.length + 1;
+
+    elReplaceChild(tfoot,
+        elCreateNode('tr', {"class": ["not-clickable"]},
+            elCreateNode('td', {"colspan": colspan}, footerEl)
+        )
+    );
+
+    if (entities == -1) {
+        footerEl.addEventListener('click', function() {
+            currentPlaylistEnumerate();
+        }, false);
+    }
+}
+
+/**
+ * Enumerates the current displayed playlist
+ * @returns {void}
+ */
+function currentPlaylistEnumerate() {
+    btnWaitingId('BrowsePlaylistDetailEnumerateBtn', true);
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_ENUMERATE", {
+        "plist": getDataId('BrowsePlaylistDetailList', 'uri')
+    }, function(obj) {
+        if (obj.result) {
+            setPlaylistDetailListFooter(obj.result.entities, obj.result.playtime);
+        }
+        else {
+            setPlaylistDetailListFooter(-1, 0)
+        }
+    }, true);
 }
 
 /**

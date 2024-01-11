@@ -278,6 +278,7 @@
     "Enter": "Abschicken",
     "Enter pin": "Pin eingeben",
     "Entities to add": "Hinzuzufügende Objekte",
+    "Enumerate": "Zählen",
     "Error": "Fehler",
     "Error accessing %{uri}": "Fehler beim Zugriff auf %{uri}",
     "Error connecting to radio-browser.info": "Verbindung zu radio-browser.info fehlgeschlagen",

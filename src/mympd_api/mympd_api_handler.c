@@ -114,6 +114,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case INTERNAL_API_JUKEBOX_REFILL:
         case INTERNAL_API_JUKEBOX_REFILL_ADD:
         case MYMPD_API_CACHES_CREATE:
+        case MYMPD_API_PLAYLIST_CONTENT_ENUMERATE:
         case MYMPD_API_PLAYLIST_CONTENT_DEDUP:
         case MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL:
         case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:

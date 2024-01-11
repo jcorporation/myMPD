@@ -784,6 +784,12 @@ const APImethods = {
             "cols": APIparams.cols
         }
     },
+    "MYMPD_API_PLAYLIST_CONTENT_ENUMERATE": {
+        "desc": "Enumerates the playlist and returns the count and total length.",
+        "params": {
+            "plist": APIparams.plist
+        }
+    },
     "MYMPD_API_PLAYLIST_CONTENT_SHUFFLE": {
         "desc": "Shuffles the playlist.",
         "params": {
