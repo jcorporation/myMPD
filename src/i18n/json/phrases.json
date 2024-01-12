@@ -402,6 +402,7 @@
 {"term":"Invalid script order"},
 {"term":"Invalid selection"},
 {"term":"Invalid session"},
+{"term":"Invalid sort tag"},
 {"term":"Invalid timer id"},
 {"term":"Invalid timer interval"},
 {"term":"Invalid trigger name"},
