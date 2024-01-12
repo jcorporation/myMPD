@@ -7,9 +7,27 @@
 #include "compile_time.h"
 #include "src/lib/rax_extras.h"
 
+#include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
 
 #include <stdlib.h>
+
+/**
+ * Inserts the key into the radix tree.
+ * Appends random chars to the key until it is uniq.
+ * @param r rax tree to insert
+ * @param key key to insert
+ * @param data data to insert
+ */
+void rax_insert_no_dup(rax *r, sds key, void *data) {
+    if (raxTryInsert(r, (unsigned char*)key, sdslen(key), data, NULL) == 1) {
+        return;
+    }
+    //duplicate - add random chars until it is uniq
+    while (raxTryInsert(r, (unsigned char*)key, sdslen(key), data, NULL) == 0) {
+        key = sds_catchar(key, randchar());
+    }
+}
 
 /**
  * Frees a rax tree and its data with a free_cb
