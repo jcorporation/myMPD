@@ -127,14 +127,14 @@ function addTagList(elId, list) {
         }
     }
     else if (elId === 'BrowseDatabaseAlbumListSortTagsList') {
-        if (settings.tagList.includes('Date') === true &&
-            settings[list].includes('Date') === false)
-        {
-            stack.appendChild(
-                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, 'Date')
-            );
-        }
         if (settings.albumMode === 'adv') {
+            if (settings.tagList.includes('Date') === true &&
+                settings[list].includes('Date') === false)
+            {
+                stack.appendChild(
+                    elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, 'Date')
+                );
+            }
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, 'Last modified')
             );
@@ -143,6 +143,13 @@ function addTagList(elId, list) {
                     elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Added"}, 'Added')
                 );
             }
+        }
+        else if (settings.albumGroupTag !== '' &&
+            settings[list].includes(settings.albumGroupTag) === false)
+        {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings.albumGroupTag}, settings.albumGroupTag)
+            );
         }
     }
     else if (elId === 'QueueCurrentSearchTags') {
