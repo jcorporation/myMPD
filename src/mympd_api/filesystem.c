@@ -236,10 +236,7 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
         entry_data->name = entity_name;
         entry_data->entity = entity;
         sds_utf8_tolower(key);
-        while (raxTryInsert(rt, (unsigned char *)key, sdslen(key), entry_data, NULL) == 0) {
-            //duplicate - add chars until it is uniq
-            key = sdscatlen(key, ":", 1);
-        }
+        rax_insert_no_dup(rt, key, entry_data);
         return true;
     }
     mpd_entity_free(entity);

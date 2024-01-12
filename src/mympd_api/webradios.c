@@ -15,6 +15,7 @@
 #include "src/lib/log.h"
 #include "src/lib/m3u.h"
 #include "src/lib/mem.h"
+#include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 
@@ -149,10 +150,7 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, unsigned request_id, sds se
             webradio->entry = entry;
             key = sdscatsds(key, next_file->d_name); //append filename to keep it unique
             sds_utf8_tolower(key);
-            while (raxTryInsert(webradios, (unsigned char *)key, sdslen(key), webradio, NULL) == 0) {
-                //duplicate - add chars until it is uniq
-                key = sdscatlen(key, ":", 1);
-            }
+            rax_insert_no_dup(webradios, key, webradio);
         }
         else {
             FREE_SDS(entry);

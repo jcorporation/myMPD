@@ -566,10 +566,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
                 sdsclear(key);
                 key = sdscatsds(key, data->name);
                 sds_utf8_tolower(key);
-                while (raxTryInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
-                    //duplicate - add chars until it is uniq
-                    key = sdscatlen(key, ":", 1);
-                }
+                rax_insert_no_dup(entity_list, key, data);
             }
             mpd_playlist_free(pl);
         }

@@ -259,8 +259,9 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
         return false;
     }
 
-    unsigned randnr = randrange(100000, 999999);
-    sds playlist_tmp = sdscatfmt(sdsempty(), "%u-tmp-%s", randnr, playlist);
+    char rand_str[10];
+    randstring(rand_str, 10);
+    sds playlist_tmp = sdscatfmt(sdsempty(), "%s-tmp-%s", rand_str, playlist);
 
     //add shuffled songs to tmp playlist
     //uses command list to add MPD_COMMANDS_MAX songs at once
@@ -442,10 +443,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             key = get_sort_key(key, sort_by, sort_tags.tags[0], song);
             sds data = sdsnew(mpd_song_get_uri(song));
-            while (raxTryInsert(plist, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
-                //duplicate - add chars until it is uniq
-                key = sdscatlen(key, ":", 1);
-            }
+            rax_insert_no_dup(plist, key, data);
             mpd_song_free(song);
             sdsclear(key);
         }
@@ -458,8 +456,9 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
         return false;
     }
 
-    unsigned randnr = randrange(100000, 999999);
-    sds playlist_tmp = sdscatfmt(sdsempty(), "%u-tmp-%s", randnr, playlist);
+    char rand_str[10];
+    randstring(rand_str, 10);
+    sds playlist_tmp = sdscatfmt(sdsempty(), "%s-tmp-%s", rand_str, playlist);
 
     //add sorted songs to tmp playlist
     //uses command list to add MPD_COMMANDS_MAX songs at once
