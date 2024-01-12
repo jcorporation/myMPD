@@ -298,7 +298,9 @@ static bool album_cache_create_simple(struct t_mpd_worker_state *mpd_worker_stat
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ARTIST, artist);
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM_ARTIST, artist);
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM, album);
-                    mympd_mpd_song_add_tag_dedup(song, mpd_worker_state->config->albums.group_tag, group_tag);
+                    if (sdslen(group_tag) > 0) {
+                        mympd_mpd_song_add_tag_dedup(song, mpd_worker_state->config->albums.group_tag, group_tag);
+                    }
                     // insert album into cache
                     key = album_cache_get_key(key, song, &mpd_worker_state->config->albums);
                     raxInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, NULL);
