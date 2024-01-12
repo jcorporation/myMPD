@@ -31,6 +31,13 @@
 #include <stdbool.h>
 #include <string.h>
 
+// private definitions
+
+static bool check_album_sort_tag(enum sort_by_type sort_by, enum mpd_tag_type sort_tag,
+        struct t_albums_config *album_config);
+
+// public functions
+
 /**
  * Lists album details
  * @param mympd_state pointer to mympd state
@@ -207,6 +214,13 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
             sort_tag = MPD_TAG_ALBUM;
         }
     }
+
+    if (check_album_sort_tag(sort_by, sort_tag, &partition_state->config->albums) == false) {
+        buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Invalid sort tag");
+        return buffer;
+    }
+
     //parse mpd search expression
     struct t_list *expr_list = parse_search_expression_to_list(expression);
     
@@ -223,10 +237,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
             search_song_expression(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
             key = get_sort_key(key, sort_by, sort_tag, album);
-            while (raxTryInsert(albums, (unsigned char*)key, sdslen(key), iter.data, NULL) == 0) {
-                //duplicate - add chars until it is uniq
-                key = sdscatlen(key, ":", 1);
-            }
+            rax_insert_no_dup(albums, key, iter.data);
             sdsclear(key);
         }
     }
@@ -323,10 +334,7 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
                 //handle tags case insensitive
                 sds_utf8_tolower(key);
                 sds data = sdsnew(pair->value);
-                while (raxTryInsert(taglist, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
-                    //duplicate - add chars until it is uniq
-                    key = sdscatlen(key, ":", 1);
-                }
+                rax_insert_no_dup(taglist, key, data);
                 sdsclear(key);
             }
             mpd_return_pair(partition_state->conn, pair);
@@ -388,4 +396,38 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
     buffer = jsonrpc_end(buffer);
     raxFree(taglist);
     return buffer;
+}
+
+// private functions
+
+/**
+ * Validates the album sort tag
+ * @param sort_by sort by type
+ * @param sort_tag sort tag
+ * @param album_config pointer to album config
+ * @return true on valid tag, else false
+ */
+static bool check_album_sort_tag(enum sort_by_type sort_by, enum mpd_tag_type sort_tag,
+        struct t_albums_config *album_config)
+{
+    if (album_config->mode == ALBUM_MODE_SIMPLE) {
+        if (sort_by != SORT_BY_TAG) {
+            return false;
+        }
+        if (album_config->group_tag != MPD_TAG_UNKNOWN &&
+            sort_tag == album_config->group_tag)
+        {
+            return true;
+        }
+        switch(sort_tag) {
+            case MPD_TAG_ALBUM_ARTIST_SORT:
+            case MPD_TAG_ALBUM_ARTIST:
+            case MPD_TAG_ALBUM_SORT:
+            case MPD_TAG_ALBUM:
+                return true;
+            default:
+                return false;
+        }
+    }
+    return true;
 }
