@@ -29,3 +29,27 @@ unsigned randrange(unsigned lower, unsigned upper) {
     assert(NULL);
     return 0;
 }
+
+static const char *dict = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+static unsigned dict_len = 62;
+
+/**
+ * Returns a random ascii char
+ * @return random char
+ */
+char randchar(void) {
+    return dict[randrange(0, dict_len)];
+}
+
+/**
+ * Fills the buffer with random ascii chars and NULL-terminates it.
+ * @param buffer buffer to fill
+ * @param len length of buffer
+ */
+void randstring(char *buffer, size_t len) {
+    size_t max = len - 1;
+    for (size_t i = 0; i < max; i++) {
+        buffer[i] = randchar();
+    }
+    buffer[max] = '\0';
+}

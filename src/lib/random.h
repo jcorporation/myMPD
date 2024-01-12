@@ -8,6 +8,10 @@
 #define MYMPD_RANDOM_H
 
 #include <inttypes.h>
+#include <stddef.h>
 
 unsigned randrange(unsigned lower, unsigned upper);
+char randchar(void);
+void randstring(char *buffer, size_t len);
+
 #endif

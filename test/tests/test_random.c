@@ -10,6 +10,13 @@
 #include "dist/utest/utest.h"
 #include "src/lib/random.h"
 
+UTEST(random, test_random_char) {
+    char buffer[25];
+    randstring(buffer, 25);
+    ASSERT_STRNE(buffer, "");
+    printf("Random chars: %s", buffer);
+}
+
 UTEST(random, test_random_xsmall) {
     printf("Random number: ");
     for (int i = 0; i < 100; i++) {

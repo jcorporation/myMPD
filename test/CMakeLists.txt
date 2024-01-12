@@ -31,6 +31,7 @@ set(TEST_SOURCES
   ../src/lib/mympd_state.c
   ../src/lib/passwd.c
   ../src/lib/random.c
+  ../src/lib/rax_extras.c
   ../src/lib/sds_extras.c
   ../src/lib/state_files.c
   ../src/lib/sticker.c
