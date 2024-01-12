@@ -18,6 +18,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/search.h"
 #include "src/mpd_client/tags.h"
 
 #include <inttypes.h>
@@ -55,7 +56,8 @@ bool mpd_worker_album_cache_create(struct t_mpd_worker_state *mpd_worker_state, 
     FREE_SDS(filepath);
 
     if (force == false &&
-        db_mtime < album_cache_mtime) {
+        db_mtime < album_cache_mtime)
+    {
         MYMPD_LOG_INFO("default", "Caches are up-to-date");
         send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Caches are up-to-date");
         if (mpd_worker_state->partition_state->mpd_state->feat.tags == true) {
@@ -116,6 +118,12 @@ bool mpd_worker_album_cache_create(struct t_mpd_worker_state *mpd_worker_state, 
  */
 static bool album_cache_create(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache) {
     MYMPD_LOG_INFO("default", "Creating album cache");
+    if (mpd_worker_state->config->albums.group_tag != MPD_TAG_UNKNOWN) {
+        MYMPD_LOG_DEBUG("default", "Additional group tag: %s", mpd_tag_name(mpd_worker_state->config->albums.group_tag));
+    }
+    else {
+        MYMPD_LOG_DEBUG("default", "Additional group tag: None");
+    }
 
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
@@ -123,12 +131,24 @@ static bool album_cache_create(struct t_mpd_worker_state *mpd_worker_state, rax 
     int album_count = 0;
     int skip_count = 0;
 
-    //set interesting tags - add additional tags: disc
+    //set interesting tags
     if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, MPD_TAG_DISC) == true) {
-        mpd_worker_state->mpd_state->tags_album.tags[mpd_worker_state->mpd_state->tags_album.tags_len++] = MPD_TAG_DISC;
+        if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_album, MPD_TAG_DISC) == false) {
+            mpd_worker_state->mpd_state->tags_album.tags[mpd_worker_state->mpd_state->tags_album.tags_len++] = MPD_TAG_DISC;
+        }
     }
     else {
         MYMPD_LOG_WARN("default", "Disc tag is not enabled");
+    }
+    if (mpd_worker_state->config->albums.group_tag != MPD_TAG_UNKNOWN) {
+        if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, mpd_worker_state->config->albums.group_tag) == true) {
+            if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_album, mpd_worker_state->config->albums.group_tag) == false) {
+                mpd_worker_state->mpd_state->tags_album.tags[mpd_worker_state->mpd_state->tags_album.tags_len++] = mpd_worker_state->config->albums.group_tag;
+            }
+        }
+        else {
+            MYMPD_LOG_WARN("default", "%s tag is not enabled", mpd_tag_name(mpd_worker_state->config->albums.group_tag));
+        }
     }
     enable_mpd_tags(mpd_worker_state->partition_state, &mpd_worker_state->mpd_state->tags_album);
 
@@ -224,16 +244,27 @@ static bool album_cache_create(struct t_mpd_worker_state *mpd_worker_state, rax 
  */
 static bool album_cache_create_simple(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache) {
     MYMPD_LOG_INFO("default", "Creating simple album cache");
+    if (mpd_worker_state->config->albums.group_tag != MPD_TAG_UNKNOWN) {
+        MYMPD_LOG_DEBUG("default", "Additional group tag: %s", mpd_tag_name(mpd_worker_state->config->albums.group_tag));
+    }
+    else {
+        MYMPD_LOG_DEBUG("default", "Additional group tag: None");
+    }
     int album_count = 0;
     int skip_count = 0;
 
-    //set interesting tags - add additional tags: disc
+    //check for required tags
     if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, MPD_TAG_ARTIST) == false ||
-        mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) == false ||
-        mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, MPD_TAG_DATE) == false)
+        mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) == false)
     {
-        MYMPD_LOG_ERROR("default", "Not all tags for album cache creation enabled: Artist, Album, Date");
+        MYMPD_LOG_ERROR("default", "Required tags for album cache creation are not enabled: Artist, Album");
         return false;
+    }
+    if (mpd_worker_state->config->albums.group_tag != MPD_TAG_UNKNOWN) {
+        if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, mpd_worker_state->config->albums.group_tag) == false) {
+            MYMPD_LOG_ERROR("default", "Required tag for album cache creation is not enabled: %s", mpd_tag_name(mpd_worker_state->config->albums.group_tag));
+        return false;
+        }
     }
 
     //get all songs and set albums
@@ -244,10 +275,10 @@ static bool album_cache_create_simple(struct t_mpd_worker_state *mpd_worker_stat
     sds key = sdsempty();
     sds album = sdsempty();
     sds artist = sdsempty();
-    sds date = sdsempty();
+    sds group_tag = sdsempty();
     if (mpd_search_db_tags(mpd_worker_state->partition_state->conn, MPD_TAG_ALBUM) == false ||
         mpd_search_add_group_tag(mpd_worker_state->partition_state->conn, MPD_TAG_ALBUM_ARTIST) == false ||
-        mpd_search_add_group_tag(mpd_worker_state->partition_state->conn, MPD_TAG_DATE) == false)
+        mpd_client_add_search_group_param(mpd_worker_state->partition_state->conn, mpd_worker_state->config->albums.group_tag) == false)
     {
         MYMPD_LOG_ERROR("default", "Cache update failed");
         mpd_search_cancel(mpd_worker_state->partition_state->conn);
@@ -261,20 +292,20 @@ static bool album_cache_create_simple(struct t_mpd_worker_state *mpd_worker_stat
                 if (sdslen(album) > 0 &&
                     sdslen(artist) > 0)
                 {
-                    // construct a virtual song uri
-                    sdsclear(key);
-                    key = sdscatfmt(key, "%S::%S::%S", artist, album, date);
                     // we do not fetch the uri for performance reasons.
                     // the real song uri will be set after first call of mympd_api_albumart_getcover_by_album_id.
                     struct mpd_song *song = mpd_song_new("albumid");
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ARTIST, artist);
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM_ARTIST, artist);
                     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM, album);
-                    mympd_mpd_song_add_tag_dedup(song, MPD_TAG_DATE, date);
+                    mympd_mpd_song_add_tag_dedup(song, mpd_worker_state->config->albums.group_tag, group_tag);
                     // insert album into cache
                     key = album_cache_get_key(key, song, &mpd_worker_state->config->albums);
                     raxInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, NULL);
                     album_count++;
+                    sdsclear(artist);
+                    sdsclear(album);
+                    sdsclear(group_tag);
                 }
                 else {
                     skip_count++;
@@ -283,10 +314,8 @@ static bool album_cache_create_simple(struct t_mpd_worker_state *mpd_worker_stat
             else if (strcmp(pair->name, mpd_tag_name(MPD_TAG_ALBUM_ARTIST)) == 0) {
                 artist = sds_replace(artist, pair->value);
             }
-            else if (strcmp(pair->name, mpd_tag_name(MPD_TAG_DATE)) == 0) {
-                date = sds_replace(date, pair->value);
-                sdsclear(artist);
-                sdsclear(album);
+            else if (strcmp(pair->name, mpd_tag_name(mpd_worker_state->config->albums.group_tag)) == 0) {
+                group_tag = sds_replace(group_tag, pair->value);
             }
             mpd_return_pair(mpd_worker_state->partition_state->conn, pair);
         }
@@ -299,7 +328,7 @@ static bool album_cache_create_simple(struct t_mpd_worker_state *mpd_worker_stat
     FREE_SDS(key);
     FREE_SDS(album);
     FREE_SDS(artist);
-    FREE_SDS(date);
+    FREE_SDS(group_tag);
     #ifdef MYMPD_DEBUG
         MEASURE_END
         MEASURE_PRINT("default", "Populate album cache")

@@ -197,6 +197,19 @@ bool mpd_client_add_search_sort_param(struct t_partition_state *partition_state,
     return true;
 }
 
+/**
+ * Adds the group parameter to the search command.
+ * Ignores MPD_TAG_UNKNOWN.
+ * @param conn mpd connection
+ * @param tag group tag to add
+ * @return true on success or MPD_TAG_UNKNOWN, else false
+ */
+bool mpd_client_add_search_group_param(struct mpd_connection *conn, enum mpd_tag_type tag) {
+    return tag != MPD_TAG_UNKNOWN
+        ? mpd_search_add_group_tag(conn, tag)
+        : true;
+}
+
 //private functions
 
 /**
