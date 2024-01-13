@@ -90,6 +90,9 @@ void mympd_config_defaults_initial(struct t_config *config) {
  * @param config pointer to config struct
  */
 void mympd_config_defaults(struct t_config *config) {
+    if (config->bootstrap == true) {
+        config->first_startup = true;
+    }
     if (config->first_startup == true) {
         MYMPD_LOG_INFO(NULL, "Reading environment variables");
     }

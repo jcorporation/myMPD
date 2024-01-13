@@ -10,7 +10,7 @@ At the first start (if there is no config folder in the working folder) myMPD re
 After the first start all environment variables are ignored, except loglevel.
 </div>
 
-To change these settings afterwards, you must edit the files in the folder `/var/lib/mympd/config/` and restart myMPD.
+To change these settings afterwards, you can use the `mympd-config` utility and restart myMPD. As an alternative you can edit the files in the folder `/var/lib/mympd/config/`.
 
 You can use `mympd -c` to create the initial configuration in the `/var/lib/mympd/config/` directory.
 

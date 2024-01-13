@@ -55,9 +55,11 @@ fi
 %defattr(-,root,root,-)
 %doc README.md
 /usr/bin/mympd
+/usr/bin/mympd-config
 /usr/bin/mympd-script
 /usr/lib/systemd/system/mympd.service
 %{_mandir}/man1/mympd.1.gz
+%{_mandir}/man1/mympd-config.1.gz
 %{_mandir}/man1/mympd-script.1.gz
 %{_defaultdocdir}/mympd/CHANGELOG.md
 %{_defaultdocdir}/mympd/LICENSE.md
@@ -66,5 +68,5 @@ fi
 %license LICENSE.md
 
 %changelog
-* Wed Dec 20 2023 Juergen Mang <mail@jcgames.de> 14.0.0-0
+* Sat Jan 13 2024 Juergen Mang <mail@jcgames.de> 14.0.0-0
 - Version from master

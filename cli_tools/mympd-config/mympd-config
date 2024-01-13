@@ -1,0 +1,326 @@
+#!/bin/sh
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+# myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
+
+if [ -n "${1+x}" ]
+then
+    CONFIG_DIR="$1"
+else
+    CONFIG_DIR="/var/lib/mympd/config"
+fi
+
+if [ -d "/lib/systemd/system" ] || [ -d "/usr/lib/systemd/system" ]
+then
+    MYMPD_SYSTEMD=1
+else
+    MYMPD_SYSTEMD=0
+fi
+
+# whiptail
+WHIPTAIL=$(command -v whiptail)
+if [ -z "$WHIPTAIL" ]
+then
+    echo "whiptail not found"
+    exit 1
+fi
+
+BACKTITLE="myMPD configuration"
+MENU_WIDTH="40"
+
+export NEWT_COLORS='
+root=,blue
+checkbox=black,lightgray
+actlistbox=white,blue
+roottext=,blue
+disabledentry=gray,
+entry=white,gray'
+
+set_default() {
+    MYMPD_ACL=""
+    MYMPD_ALBUM_GROUP_TAG="Date"
+    MYMPD_ALBUM_MODE="adv"
+    MYMPD_COVERCACHE_KEEP_DAYS="31"
+    MYMPD_LOGLEVEL="5"
+    MYMPD_LUALIBS="all"
+    MYMPD_URI="auto"
+    MYMPD_SAVE_CACHES="true"
+    MYMPD_SCRIPTACL="+127.0.0.1"
+    MYMPD_STICKERS="true"
+    MYMPD_HTTP_HOST="[::]"
+    MYMPD_HTTP="true"
+    MYMPD_HTTP_PORT="80"
+    MYMPD_SSL="true"
+    MYMPD_SSL_PORT="443"
+    MYMPD_SSL_SAN=""
+    MYMPD_CUSTOM_CERT="false"
+    MYMPD_SSL_CERT=""
+    MYMPD_SSL_KEY=""
+}
+
+read_config() {
+    [ -f "${CONFIG_DIR}/acl" ] && read -r MYMPD_ACL < "${CONFIG_DIR}/acl"
+    [ -f "${CONFIG_DIR}/album_group_tag" ] && read -r MYMPD_ALBUM_GROUP_TAG < "${CONFIG_DIR}/album_group_tag"
+    [ -f "${CONFIG_DIR}/album_mode" ] && read -r MYMPD_ALBUM_MODE < "${CONFIG_DIR}/album_mode"
+    [ -f "${CONFIG_DIR}/covercache_keep_days" ] && read -r MYMPD_COVERCACHE_KEEP_DAYS < "${CONFIG_DIR}/covercache_keep_days"
+    [ -f "${CONFIG_DIR}/loglevel" ] && read -r MYMPD_LOGLEVEL < "${CONFIG_DIR}/loglevel"
+    [ -f "${CONFIG_DIR}/lualibs" ] && read -r MYMPD_LUALIBS < "${CONFIG_DIR}/lualibs"
+    [ -f "${CONFIG_DIR}/mympd_uri" ] && read -r MYMPD_URI < "${CONFIG_DIR}/mympd_uri"
+    [ -f "${CONFIG_DIR}/save_caches" ] && read -r MYMPD_SAVE_CACHES < "${CONFIG_DIR}/save_caches"
+    [ -f "${CONFIG_DIR}/scriptacl" ] && read -r MYMPD_SCRIPTACL < "${CONFIG_DIR}/scriptacl"
+    [ -f "${CONFIG_DIR}/stickers" ] && read -r MYMPD_STICKERS < "${CONFIG_DIR}/stickers"
+    [ -f "${CONFIG_DIR}/http_host" ] && read -r MYMPD_HTTP_HOST < "${CONFIG_DIR}/http_host"
+    [ -f "${CONFIG_DIR}/http" ] && read -r MYMPD_HTTP < "${CONFIG_DIR}/http"
+    [ -f "${CONFIG_DIR}/http_port" ] && read -r MYMPD_HTTP_PORT < "${CONFIG_DIR}/http_port"
+    [ -f "${CONFIG_DIR}/ssl" ] && read -r MYMPD_SSL < "${CONFIG_DIR}/ssl"
+    [ -f "${CONFIG_DIR}/ssl_port" ] && read -r MYMPD_SSL_PORT < "${CONFIG_DIR}/ssl_port"
+    [ -f "${CONFIG_DIR}/ssl_san" ] && read -r MYMPD_SSL_SAN < "${CONFIG_DIR}/ssl_san"
+    [ -f "${CONFIG_DIR}/custom_cert" ] && read -r MYMPD_CUSTOM_CERT < "${CONFIG_DIR}/custom_cert"
+    [ -f "${CONFIG_DIR}/ssl_cert" ] && read -r MYMPD_SSL_CERT < "${CONFIG_DIR}/ssl_cert"
+    [ -f "${CONFIG_DIR}/ssl_key" ] && read -r MYMPD_SSL_KEY < "${CONFIG_DIR}/ssl_key"
+}
+
+apply_config() {
+    if [ "$MYMPD_SYSTEMD" -eq 1 ]
+    then
+        systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd \
+            -E MYMPD_ACL="$MYMPD_ACL" \
+            -E MYMPD_ALBUM_GROUP_TAG="$MYMPD_ALBUM_GROUP_TAG" \
+            -E MYMPD_ALBUM_MODE="$MYMPD_ALBUM_MODE" \
+            -E MYMPD_COVERCACHE_KEEP_DAYS="$MYMPD_COVERCACHE_KEEP_DAYS" \
+            -E MYMPD_LOGLEVEL="$MYMPD_LOGLEVEL" \
+            -E MYMPD_LUALIBS="$MYMPD_LUALIBS" \
+            -E MYMPD_URI="$MYMPD_URI" \
+            -E MYMPD_SAVE_CACHES="$MYMPD_SAVE_CACHES" \
+            -E MYMPD_SCRIPTACL="$MYMPD_SCRIPTACL" \
+            -E MYMPD_STICKERS="$MYMPD_STICKERS" \
+            -E MYMPD_HTTP_HOST="$MYMPD_HTTP_HOST" \
+            -E MYMPD_HTTP="$MYMPD_HTTP" \
+            -E MYMPD_HTTP_PORT="$MYMPD_HTTP_PORT" \
+            -E MYMPD_SSL="$MYMPD_SSL" \
+            -E MYMPD_SSL_PORT="$MYMPD_SSL_PORT" \
+            -E MYMPD_SSL_SAN="$MYMPD_SSL_SAN" \
+            -E MYMPD_CUSTOM_CERT="$MYMPD_CUSTOM_CERT" \
+            -E MYMPD_SSL_CERT="$MYMPD_SSL_CERT" \
+            -E MYMPD_SSL_KEY="$MYMPD_SSL_KEY" \
+            mympd -c
+    else
+        export MYMPD_ACL
+        export MYMPD_ALBUM_GROUP_TAG
+        export MYMPD_ALBUM_MODE
+        export MYMPD_COVERCACHE_KEEP_DAYS
+        export MYMPD_LOGLEVEL
+        export MYMPD_LUALIBS
+        export MYMPD_URI
+        export MYMPD_SAVE_CACHES
+        export MYMPD_SCRIPTACL
+        export MYMPD_STICKERS
+        export MYMPD_HTTP_HOST
+        export MYMPD_HTTP
+        export MYMPD_HTTP_PORT
+        export MYMPD_SSL
+        export MYMPD_SSL_PORT
+        export MYMPD_SSL_SAN
+        export MYMPD_CUSTOM_CERT
+        export MYMPD_SSL_CERT
+        export MYMPD_SSL_KEY
+        mympd -c
+    fi
+}
+
+set_pin() {
+    if [ "$MYMPD_SYSTEMD" -eq 1 ]
+    then
+        systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd \
+            mympd -p
+    else
+        mympd -p
+    fi
+}
+
+get_input() {
+    if INPUT=$(whiptail --clear --cancel-button Cancel --backtitle "$BACKTITLE" --inputbox "$1" 0 "$MENU_WIDTH" "$2" \
+        3>&1 1>&2 2>&3)
+    then
+        printf "%s" "$INPUT"
+    else
+        printf "%s" "$2"
+    fi
+}
+
+toggle_bool() {
+    if [ "$1" = "true" ]
+    then
+        printf "false"
+    else
+        printf "true"
+    fi
+}
+
+menu_webserver() {
+    SELECT=$(whiptail --clear --cancel-button "Back" --backtitle "$BACKTITLE" --menu "Webserver" 0 "$MENU_WIDTH" 0 \
+        "Listening IP" "$MYMPD_HTTP_HOST" \
+        "HTTP" "$MYMPD_HTTP" \
+        "ACL" "$MYMPD_ACL" \
+        "Script ACL" "$MYMPD_SCRIPTACL" \
+        "HTTP Port" "$MYMPD_HTTP_PORT" \
+        "SSL" "$MYMPD_SSL" \
+        "SSL Port" "$MYMPD_SSL_PORT" \
+        "SAN" "$MYMPD_SSL_SAN" \
+        "Custom certificate" "$MYMPD_CUSTOM_CERT" \
+        "Certificate file" "$MYMPD_SSL_CERT" \
+        "Private key file" "$MYMPD_SSL_KEY" \
+        3>&1 1>&2 2>&3)
+    case "$SELECT" in
+        "Listening IP") MYMPD_HTTP_HOST=$(get_input "$SELECT" "$MYMPD_HTTP_HOST") ;;
+        "HTTP") MYMPD_HTTP=$(toggle_bool "$MYMPD_HTTP") ;;
+        "ACL") MYMPD_ACL=$(toggle_bool "$MYMPD_ACL") ;;
+        "Script ACL") MYMPD_SCRIPTACL=$(toggle_bool "$MYMPD_SCRIPTACL") ;;
+        "HTTP Port") MYMPD_HTTP_PORT=$(get_input "$SELECT" "$MYMPD_HTTP_PORT") ;;
+        "SSL") MYMPD_SSL=$(toggle_bool "$MYMPD_SSL") ;;
+        "SSL Port") MYMPD_SSL_PORT=$(get_input "$SELECT" "$MYMPD_SSL_PORT") ;;
+        "SAN") MYMPD_SSL_SAN=$(get_input "$SELECT" "$MYMPD_SSL_SAN") ;;
+        "Custom certificate") MYMPD_CUSTOM_CERT=$(get_input "$SELECT" "$MYMPD_CUSTOM_CERT") ;;
+        "Certificate file") MYMPD_SSL_CERT=$(get_input "$SELECT" "$MYMPD_SSL_CERT") ;;
+        "Private key file") MYMPD_SSL_KEY=$(get_input "$SELECT" "$MYMPD_SSL_KEY") ;;
+        "") return ;;
+    esac
+    menu_webserver
+}
+
+toggle_album_mode() {
+    if [ "$1" = "adv" ]
+    then
+        printf "simple"
+    else
+        printf "adv"
+    fi
+}
+
+select_loglevel() {
+    case "$1" in
+        "0") S_EMERG=1 ;;
+        "1") S_ALERT=1 ;;
+        "2") S_CRITICAL=1 ;;
+        "3") S_ERROR=1 ;;
+        "4") S_WARN=1 ;;
+        "5") S_NOTICE=1 ;;
+        "6") S_INFO=1 ;;
+        "7") S_DEBUG=1 ;;
+    esac
+    if SELECT=$(whiptail --clear --cancel-button "Cancel" --backtitle "$BACKTITLE" --radiolist "Loglevel" 0 "$MENU_WIDTH" 0 \
+        "0" "Emerg" "$S_EMERG" \
+        "1" "Alert" "$S_ALERT" \
+        "2" "Critical" "$S_CRITICAL" \
+        "3" "Error" "$S_ERROR" \
+        "4" "Warn" "$S_WARN" \
+        "5" "Notice" "$S_NOTICE" \
+        "6" "Info" "$S_INFO" \
+        "7" "Debug" "$S_DEBUG" \
+        3>&1 1>&2 2>&3)
+    then
+        printf "%s" "$SELECT"
+    else
+        printf "%s" "$1"
+    fi
+}
+
+select_lualibs() {
+    case "$1" in
+        *all*) S_ALL=1 ;;
+        *mympd*) S_MYMPD=1 ;;
+        *json*) S_JSON=1 ;;
+        *base*) S_BASE=1 ;;
+        *coroutine*) S_COROUTINE=1 ;;
+        *debug*) S_DEBUG=1 ;;
+        *io*) S_IO=1 ;;
+        *math*) S_MATH=1 ;;
+        *os*) S_OS=1 ;;
+        *package*) S_PACKAGE=1 ;;
+        *string*) S_STRING=1 ;;
+        *table*) S_TABLE=1 ;;
+        *utf8*) S_UTF8=1 ;;
+    esac
+    if SELECT=$(whiptail --clear --cancel-button "Cancel" --backtitle "$BACKTITLE" --checklist "Lua libraries" 0 "$MENU_WIDTH" 0 \
+        "all" "all" "$S_ALL" \
+        "mympd" "mympd" "$S_MYMPD" \
+        "json" "json" "$S_JSON" \
+        "base" "base" "$S_BASE" \
+        "coroutine" "coroutine" "$S_COROUTINE" \
+        "debug" "debug" "$S_DEBUG" \
+        "io" "io" "$S_IO" \
+        "math" "math" "$S_MATH" \
+        "os" "os" "$S_OS" \
+        "package" "package" "$S_PACKAGE" \
+        "string" "string" "$S_STRING" \
+        "table" "table" "$S_TABLE" \
+        "utf8" "utf8" "$S_UTF8" \
+        3>&1 1>&2 2>&3)
+    then
+        [ -z "$SELECT" ] && SELECT="all"
+        case "$SELECT" in
+            *all*) SELECT="all"
+        esac
+        SELECT=$(printf "%s" "$SELECT" | sed 's/"//g')
+        I=0
+        for L in $SELECT
+        do
+            [ "$I" -eq 1 ] && printf ","
+            printf "%s" "$L"
+            I=1
+        done
+    else
+        printf "%s" "$1"
+    fi
+}
+
+menu_misc() {
+    SELECT=$(whiptail --clear --cancel-button "Back" --backtitle "$BACKTITLE" --menu "Misc" 0 "$MENU_WIDTH" 0 \
+        "Album group tag" "$MYMPD_ALBUM_GROUP_TAG" \
+        "Album mode" "$MYMPD_ALBUM_MODE" \
+        "Covercache expiration (days)" "$MYMPD_COVERCACHE_KEEP_DAYS" \
+        "Loglevel" "$MYMPD_LOGLEVEL" \
+        "Lua libraries" "$MYMPD_LUALIBS" \
+        "myMPD URI" "$MYMPD_URI" \
+        "Save Caches" "$MYMPD_SAVE_CACHES" \
+        "Enable stickers" "$MYMPD_STICKERS" \
+        3>&1 1>&2 2>&3)
+    case "$SELECT" in
+        "Album group tag") MYMPD_ALBUM_GROUP_TAG=$(get_input "$SELECT" "$MYMPD_ALBUM_GROUP_TAG") ;;
+        "Album mode") MYMPD_ALBUM_MODE=$(toggle_album_mode "$MYMPD_ALBUM_MODE") ;;
+        "Covercache") MYMPD_COVERCACHE_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_COVERCACHE_KEEP_DAYS") ;;
+        "Loglevel") MYMPD_LOGLEVEL=$(select_loglevel "$MYMPD_LOGLEVEL") ;;
+        "Lua libraries") MYMPD_LUALIBS=$(select_lualibs "$MYMPD_LUALIBS") ;;
+        "myMPD URI") MYMPD_URI=$(get_input "$SELECT" "$MYMPD_URI") ;;
+        "Save Caches") MYMPD_SAVE_CACHES=$(toggle_bool "$MYMPD_SAVE_CACHES") ;;
+        "Enable stickers") MYMPD_STICKERS=$(toggle_bool "$MYMPD_STICKERS") ;;
+        "") return ;;
+    esac
+    menu_misc
+}
+
+menu_main() {
+    SELECT=$(whiptail --clear --notags --cancel-button "Exit" --backtitle "$BACKTITLE" --menu "$BACKTITLE" 0 "$MENU_WIDTH" 0 \
+        "W" "Webserver" \
+        "M" "Misc" \
+        "P" "Set PIN" \
+        "R" "Reset to default" \
+        "A" "Apply" \
+        3>&1 1>&2 2>&3)
+    case "$SELECT" in
+        "W") menu_webserver ;;
+        "M") menu_misc ;;
+        "P") set_pin ;;
+        "R") set_default ;;
+        "A") apply_config ;;
+        "") return ;;
+    esac
+    menu_main
+}
+
+# main
+set_default
+read_config
+menu_main
+exit 0

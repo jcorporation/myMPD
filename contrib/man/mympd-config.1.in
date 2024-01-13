@@ -1,0 +1,21 @@
+.\" Manpage for mympd-config.
+.\" Contact <mail@jcgames.de> to correct errors or typos.
+.TH man 1 "__DATE_F3__" "__VERSION__" "mympd-config man page"
+
+.SH NAME
+mympd-config \- mympd configuration tool
+
+.SH SYNOPSIS
+mympd-config [</path/to/config/dir>]
+
+.SH DESCRIPTION
+mympd-config is a small commandline tool to configure basic myMPD settings.
+
+.SH AUTHOR
+Juergen Mang (mail@jcgames.de)
+
+.SH BUGS
+If you find a bug, please report it at https://github.com/jcorporation/myMPD/issues
+
+.SH SEE ALSO
+https://github.com/jcorporation/myMPD
