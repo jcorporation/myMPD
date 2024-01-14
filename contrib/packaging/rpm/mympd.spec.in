@@ -24,6 +24,7 @@ BuildRequires:  pkgconfig
 BuildRequires:  unzip
 BuildRequires:  gzip
 BuildRequires:  jq
+Requires: whiptail
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description

@@ -832,34 +832,35 @@ installdeps() {
     fi
     apt-get install -y --no-install-recommends \
       gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-      build-essential pkg-config libpcre2-dev gzip jq
+      build-essential pkg-config libpcre2-dev gzip jq whiptail
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq
+    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq libnewt
   elif [ -f /etc/alpine-release ]
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev \
-      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq
+      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq whiptail
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-      lua-devel unzip pcre2-devel gzip jq
+      lua-devel unzip pcre2-devel gzip jq whiptail
   elif [ -f /etc/redhat-release ]
   then
     #fedora
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-      lua-devel unzip pcre2-devel gzip jq
+      lua-devel unzip pcre2-devel gzip jq whiptail
   else
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
-    echo "  - gcc"
+    echo "  - gcc or clang"
     echo "  - cmake"
     echo "  - perl"
     echo "  - gzip"
     echo "  - jq"
+    echo "  - whiptail"
     echo "  - openssl (devel)"
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
