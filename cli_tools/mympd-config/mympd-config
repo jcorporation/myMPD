@@ -11,7 +11,7 @@ else
     CONFIG_DIR="/var/lib/mympd/config"
 fi
 
-if [ -d "/lib/systemd/system" ] || [ -d "/usr/lib/systemd/system" ]
+if grep "DynamicUser=yes" "/usr/lib/systemd/system/mympd.service" > /dev/null 2>&1
 then
     MYMPD_SYSTEMD=1
 else
