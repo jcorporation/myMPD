@@ -19,8 +19,11 @@ function getWebsocketState() {
  * @returns {void}
  */
 function webSocketConnect() {
-    if (getWebsocketState() === true)
-    {
+    if (websocketKeepAliveTimer === null) {
+        websocketKeepAliveTimer = setInterval(websocketKeepAlive, 30000);
+    }
+
+    if (getWebsocketState() === true) {
         logDebug('Socket already connected');
         return;
     }
@@ -44,10 +47,7 @@ function webSocketConnect() {
     socket.onopen = function() {
         logDebug('Websocket is connected');
         socket.send('id:' + jsonrpcClientId);
-        if (websocketKeepAliveTimer === null) {
-            websocketKeepAliveTimer = setInterval(websocketKeepAlive, 30000);
-            websocketLastPong = getTimestamp();
-        }
+        websocketLastPong = getTimestamp();
     };
 
     socket.onmessage = function(msg) {
@@ -261,7 +261,7 @@ function webSocketClose() {
  * @returns {void}
  */
 function websocketKeepAlive() {
-    const awaitedTime = getTimestamp() - 65;
+    const awaitedTime = getTimestamp() - 32;
     if (websocketLastPong <  awaitedTime) {
         // stale websocket connection
         logError('Stale websocket connection, reconnecting');

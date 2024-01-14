@@ -57,6 +57,8 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Upd: Improve JSON encoding performance
 - Upd: Improve event loop resource usage
 - Upd: utf8 dependency
+- Fix: More reliable websocket reconnection
+- Fix: limit sort tags for simple album mode #1204
 
 ***
 

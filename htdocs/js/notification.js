@@ -73,6 +73,15 @@ function toggleAlert(alertBoxId, state, msg) {
                 alertBoxEl.classList.add('alert-success');
                 break;
             }
+            case 'alertMympdState': {
+                alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
+                const clBtn = elCreateText('button', {"class": ["alwaysEnabled", "btn-retry", "mi"], "title": tn('Reconnect'), "data-title-phrase": "Reconnect"}, "refresh");
+                alertBoxEl.appendChild(clBtn);
+                clBtn.addEventListener('click', function() {
+                    onShow();
+                }, false);
+                break;
+            }
             default:
                 alertBoxEl.classList.add('alert-danger');
         }
