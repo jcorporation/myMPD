@@ -184,9 +184,17 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
             time_t scrobble_offset = total_time > SCROBBLE_TIME_TOTAL
                 ? SCROBBLE_TIME_MAX - elapsed_time
                 : total_time / 2 - elapsed_time;
-            mympd_timer_set(partition_state->timer_fd_scrobble, (scrobble_offset <= 0 ? 0 : (int)scrobble_offset), 0);
+            if (scrobble_offset > 0) {
+                MYMPD_LOG_DEBUG(partition_state->name, "Setting scrobble timer");
+                mympd_timer_set(partition_state->timer_fd_scrobble, (int)scrobble_offset, 0);
+            }
+            else {
+                MYMPD_LOG_DEBUG(partition_state->name, "Disabling scrobble timer");
+                mympd_timer_set(partition_state->timer_fd_scrobble, 0, 0);
+            }
         }
         else {
+            MYMPD_LOG_DEBUG(partition_state->name, "Disabling scrobble timer");
             mympd_timer_set(partition_state->timer_fd_scrobble, 0, 0);
         }
 
