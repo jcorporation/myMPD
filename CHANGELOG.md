@@ -32,7 +32,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 
 - Feat: Support info.txt in music directory folders #1120
 - Feat: Add max. song duration as jukebox constraint #1146
-- Feat: Add operator lt, gt, eq to sticker based smart playlists (MPD 0.24) #1090
+- Feat: Add numeric and string operators lt, gt, eq for sticker based smart playlists (MPD 0.24) #1090
 - Feat: Add max entries option to all smart playlists #1157
 - Feat: Add rating sticker - stars like cantata #1141
 - Feat: Add sort by sticker for smart playlists (MPD 0.24) #1162
@@ -48,6 +48,7 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Feat: Improve random number generation
 - Feat: Add option to show audioformat in the footer #1184
 - Feat: New mympd-config utility
+- Feat: Add config option to pad integer values for stickers
 - Upd: Date tag is optional for simple album cache
 - Upd: Improve number conversions and enforcement of limits
 - Upd: Manual add random songs or albums should ignore the jukebox constraints

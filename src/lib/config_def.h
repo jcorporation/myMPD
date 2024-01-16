@@ -41,8 +41,9 @@ struct t_config {
     bool log_to_syslog;             //!< enable syslog logging
     bool save_caches;               //!< true = save caches between restart
     bool ssl;                       //!< enable listening on ssl_port
-    struct t_albums_config albums;  //!< album specific config
     bool stickers;                  //!< enable sticker support
+    bool stickers_pad_int;          //!< enable the padding of integer sticker values
+    struct t_albums_config albums;  //!< album specific config
     int covercache_keep_days;       //!< expiration time for covercache files
     int http_port;                  //!< http port to listen
     int loglevel;                   //!< loglevel

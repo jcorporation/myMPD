@@ -755,7 +755,9 @@ static bool set_sticker_value(struct t_stickerdb_state *stickerdb, const char *u
  */
 static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, int64_t value) {
     sds value_str = sdsfromlonglong((long long)value);
-    if (stickerdb->mpd_state->feat.sticker_int == false) {
+    if (stickerdb->config->stickers_pad_int == true &&
+        stickerdb->mpd_state->feat.sticker_int == false)
+    {
         sds pad_str = sdsempty();
         size_t value_len = sdslen(value_str);
         if (value_len < PADDING_LENGTH) {

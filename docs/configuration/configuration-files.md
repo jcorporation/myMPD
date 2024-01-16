@@ -40,6 +40,7 @@ systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -
 | save_caches | boolean | MYMPD_SAVE_CACHES | true | `true` = saves caches between restart, `false` = create caches on startup |
 | scriptacl | string | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL]({{ site.baseurl }}/configuration/acl), allows only local connections in the default configuration. The acl above must also grant access. |
 | stickers | boolean | MYMPD_STICKERS | true | Enables the support for MPD stickers. |
+| stickers_pad_int | boolean | MYMPD_STICKERS_PAD_INT | false | Enables the padding of integer sticker values (12 digits). |
 {: .table .table-sm }
 
 1. If http_port is disabled: The MPD curl plugin must trust the myMPD CA or certificate checking must be disabled. MPD fetches webradio playlists with http(s) from myMPD webserver.

@@ -48,6 +48,7 @@ set_default() {
     MYMPD_SAVE_CACHES="true"
     MYMPD_SCRIPTACL="+127.0.0.1"
     MYMPD_STICKERS="true"
+    MYMPD_STICKERS_PAD_INT="false"
     MYMPD_HTTP_HOST="[::]"
     MYMPD_HTTP="true"
     MYMPD_HTTP_PORT="80"
@@ -70,6 +71,7 @@ read_config() {
     [ -f "${CONFIG_DIR}/save_caches" ] && read -r MYMPD_SAVE_CACHES < "${CONFIG_DIR}/save_caches"
     [ -f "${CONFIG_DIR}/scriptacl" ] && read -r MYMPD_SCRIPTACL < "${CONFIG_DIR}/scriptacl"
     [ -f "${CONFIG_DIR}/stickers" ] && read -r MYMPD_STICKERS < "${CONFIG_DIR}/stickers"
+    [ -f "${CONFIG_DIR}/stickers_pad_int" ] && read -r MYMPD_STICKERS_PAD_INT < "${CONFIG_DIR}/stickers_pad_int"
     [ -f "${CONFIG_DIR}/http_host" ] && read -r MYMPD_HTTP_HOST < "${CONFIG_DIR}/http_host"
     [ -f "${CONFIG_DIR}/http" ] && read -r MYMPD_HTTP < "${CONFIG_DIR}/http"
     [ -f "${CONFIG_DIR}/http_port" ] && read -r MYMPD_HTTP_PORT < "${CONFIG_DIR}/http_port"
@@ -95,6 +97,7 @@ apply_config() {
             -E MYMPD_SAVE_CACHES="$MYMPD_SAVE_CACHES" \
             -E MYMPD_SCRIPTACL="$MYMPD_SCRIPTACL" \
             -E MYMPD_STICKERS="$MYMPD_STICKERS" \
+            -E MYMPD_STICKERS_PAD_INT="$MYMPD_STICKERS_PAD_INT" \
             -E MYMPD_HTTP_HOST="$MYMPD_HTTP_HOST" \
             -E MYMPD_HTTP="$MYMPD_HTTP" \
             -E MYMPD_HTTP_PORT="$MYMPD_HTTP_PORT" \
@@ -116,6 +119,7 @@ apply_config() {
         export MYMPD_SAVE_CACHES
         export MYMPD_SCRIPTACL
         export MYMPD_STICKERS
+        export MYMPD_STICKERS_PAD_INT
         export MYMPD_HTTP_HOST
         export MYMPD_HTTP
         export MYMPD_HTTP_PORT
@@ -285,6 +289,7 @@ menu_misc() {
         "myMPD URI" "$MYMPD_URI" \
         "Save Caches" "$MYMPD_SAVE_CACHES" \
         "Enable stickers" "$MYMPD_STICKERS" \
+        "Enable sticker padding" "$MYMPD_STICKERS_PAD_INT" \
         3>&1 1>&2 2>&3)
     case "$SELECT" in
         "Album group tag") MYMPD_ALBUM_GROUP_TAG=$(get_input "$SELECT" "$MYMPD_ALBUM_GROUP_TAG") ;;
@@ -295,6 +300,7 @@ menu_misc() {
         "myMPD URI") MYMPD_URI=$(get_input "$SELECT" "$MYMPD_URI") ;;
         "Save Caches") MYMPD_SAVE_CACHES=$(toggle_bool "$MYMPD_SAVE_CACHES") ;;
         "Enable stickers") MYMPD_STICKERS=$(toggle_bool "$MYMPD_STICKERS") ;;
+        "Enable sticker padding") MYMPD_STICKERS_PAD_INT=$(toggle_bool "$MYMPD_STICKERS_PAD_INT") ;;
         "") return ;;
     esac
     menu_misc

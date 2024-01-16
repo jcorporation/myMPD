@@ -122,6 +122,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define CFG_MYMPD_ALBUM_MODE "adv"
 #define CFG_MYMPD_ALBUM_GROUP_TAG "Date"
 #define CFG_MYMPD_STICKERS true
+#define CFG_MYMPD_STICKERS_PAD_INT false
 
 //default partition state settings
 #define PARTITION_HIGHLIGHT_COLOR "#28a745"
