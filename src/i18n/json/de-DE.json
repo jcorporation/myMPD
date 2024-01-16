@@ -960,6 +960,7 @@
     "current": "aktive",
     "elapsed": "Letzte Position",
     "equal": "gleich",
+    "equal (numeric)": "gleich (numerisch)",
     "fifo": "FIFO",
     "greater (numeric)": "größer (numerisch)",
     "greater": "größer",

@@ -195,6 +195,7 @@ static const char *get_sticker_oper_str(enum mpd_sticker_operator oper) {
 	case MPD_STICKER_OP_EQ:     return "=";
 	case MPD_STICKER_OP_GT:     return ">";
 	case MPD_STICKER_OP_LT:     return "<";
+	case MPD_STICKER_OP_EQ_INT: return "eq";
 	case MPD_STICKER_OP_GT_INT: return "gt";
 	case MPD_STICKER_OP_LT_INT: return "lt";
 	case MPD_STICKER_OP_UNKOWN: return NULL;

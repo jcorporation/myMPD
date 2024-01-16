@@ -960,6 +960,7 @@
 {"term":"current"},
 {"term":"elapsed"},
 {"term":"equal"},
+{"term":"equal (numeric)"},
 {"term":"fifo"},
 {"term":"greater"},
 {"term":"greater (numeric)"},

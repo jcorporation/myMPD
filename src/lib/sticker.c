@@ -79,6 +79,7 @@ enum mpd_sticker_operator sticker_oper_parse(const char *str) {
     if (str[0] == '=') { return MPD_STICKER_OP_EQ; }
     if (str[0] == '>') { return MPD_STICKER_OP_GT; }
     if (str[0] == '<') { return MPD_STICKER_OP_LT; }
+    if (strcmp(str, "eq") == 0) { return MPD_STICKER_OP_EQ_INT; }
     if (strcmp(str, "gt") == 0) { return MPD_STICKER_OP_GT_INT; }
     if (strcmp(str, "lt") == 0) { return MPD_STICKER_OP_LT_INT; }
     return MPD_STICKER_OP_UNKOWN;
