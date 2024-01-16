@@ -336,7 +336,6 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define STICKER_RATING_MIN 0
 #define STICKER_RATING_MAX 10
 
-
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99
 #define LIST_TRIGGER_MAX 99
@@ -369,6 +368,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 //limits for stickers
 #define STICKER_PLAY_COUNT_MAX INT_MAX / 2
 #define STICKER_SKIP_COUNT_MAX INT_MAX / 2
+
+#define PADDING_LENGTH 12
 
 //cloud api hosts
 #define RADIOBROWSER_HOST "all.api.radio-browser.info"

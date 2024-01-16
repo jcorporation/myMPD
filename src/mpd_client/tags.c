@@ -195,7 +195,7 @@ sds get_sort_key(sds key, enum sort_by_type sort_by, enum mpd_tag_type sort_tag,
         key = mpd_client_get_value_padded((int64_t)mpd_song_get_added(song), key);
     }
     else if (is_numeric_tag(sort_tag) == true) {
-        key = mpd_client_get_tag_value_padded(song, sort_tag, '0', 9, key);
+        key = mpd_client_get_tag_value_padded(song, sort_tag, '0', PADDING_LENGTH, key);
     }
     else if (sort_tag > MPD_TAG_UNKNOWN) {
         key = mpd_client_get_tag_value_string(song, sort_tag, key);

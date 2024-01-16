@@ -755,6 +755,18 @@ static bool set_sticker_value(struct t_stickerdb_state *stickerdb, const char *u
  */
 static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, const char *uri, const char *name, int64_t value) {
     sds value_str = sdsfromlonglong((long long)value);
+    if (stickerdb->mpd_state->feat.sticker_int == false) {
+        sds pad_str = sdsempty();
+        size_t value_len = sdslen(value_str);
+        if (value_len < PADDING_LENGTH) {
+            for (size_t i = 0, j = PADDING_LENGTH - value_len; i < j; i++) {
+                pad_str = sds_catchar(pad_str, '0');
+            }
+        }
+        pad_str = sdscatsds(pad_str, value_str);
+        FREE_SDS(value_str);
+        value_str = pad_str;
+    }
     bool rc = set_sticker_value(stickerdb, uri, name, value_str);
     FREE_SDS(value_str);
     return rc;
