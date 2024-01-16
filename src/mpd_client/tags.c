@@ -96,7 +96,7 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 
         tag->value = strdup(value);
         if (tag->value == NULL) {
-        FREE_PTR(tag);
+            FREE_PTR(tag);
             return false;
         }
 
