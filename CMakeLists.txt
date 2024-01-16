@@ -65,6 +65,10 @@ if(MYMPD_MINIMAL)
   set(MYMPD_ENABLE_LIBID3TAG "OFF")
 endif()
 
+if(MYMPD_ENABLE_EXPERIMENTAL)
+  message("Experimental features enabled")
+endif()
+
 # cmake modules
 include(CheckCCompilerFlag)
 include(CheckCSourceCompiles)
