@@ -50,6 +50,7 @@ struct t_frontend_nc_data {
     //for websocket connections only
     sds partition;                     //!< partition
     unsigned id;                       //!< jsonrpc id (client id)
+    time_t last_ws_ping;               //!< last websocket ping from client
 };
 
 #ifdef MYMPD_EMBEDDED_ASSETS

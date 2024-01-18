@@ -263,6 +263,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define HTTP_CONNECTIONS_MAX 100
 #define URI_LENGTH_MAX 1000
 #define BODY_SIZE_MAX 8192 //bytes
+#define WS_PING_TIMEOUT 300 // seconds
 
 //session limits
 #define HTTP_SESSIONS_MAX 10

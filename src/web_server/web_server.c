@@ -359,10 +359,15 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
     int conn_count = 0;
+    time_t last_ping = time(NULL) - WS_PING_TIMEOUT;
     while (nc != NULL) {
-        if ((int)nc->is_websocket == 1) {
+        if (nc->is_websocket == 1U) {
             struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
-            if (strcmp(response->partition, frontend_nc_data->partition) == 0 ||
+            if (frontend_nc_data->last_ws_ping < last_ping) {
+                MYMPD_LOG_INFO(NULL, "Closing stale websocket connection \"%lu\"", nc->id);
+                nc->is_closing = 1;
+            }
+            else if (strcmp(response->partition, frontend_nc_data->partition) == 0 ||
                 strcmp(response->partition, MPD_PARTITION_ALL) == 0)
             {
                 MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id \"%lu\": %s", nc->id, response->data);
@@ -396,7 +401,7 @@ static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *re
     const unsigned clientId = response->id / 1000;
     //const unsigned requestId = response->id % 1000;
     while (nc != NULL) {
-        if ((int)nc->is_websocket == 1) {
+        if (nc->is_websocket == 1U) {
             struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
             if (clientId == frontend_nc_data->id) {
                 MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id \"%lu\", jsonrpc client id %u: %s", nc->id, clientId, response->data);
@@ -421,7 +426,7 @@ static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *re
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
-        if ((int)nc->is_websocket == 0 &&
+        if (nc->is_websocket == 0U &&
             nc->id == response->conn_id)
         {
             if (response->cmd_id == INTERNAL_API_ALBUMART_BY_URI) {
@@ -521,9 +526,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 mg_user_data->connection_count++;
                 //initialize fn_data
                 frontend_nc_data = malloc_assert(sizeof(struct t_frontend_nc_data));
-                frontend_nc_data->partition = NULL;  // populated on websocket handshake
-                frontend_nc_data->id = 0;            // populated through websocket message
-                frontend_nc_data->backend_nc = NULL; // used for reverse proxy function
+                frontend_nc_data->partition = NULL;           // populated on websocket handshake
+                frontend_nc_data->id = 0;                     // populated through websocket message
+                frontend_nc_data->last_ws_ping = time(NULL);  // websocket ping timestamp
+                frontend_nc_data->backend_nc = NULL;          // used for reverse proxy function
                 nc->fn_data = frontend_nc_data;
                 //set labels
                 nc->data[0] = 'F'; // connection type
@@ -585,6 +591,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (sent == 0) {
                 MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket: Could not reply, closing connection");
                 nc->is_closing = 1;
+            }
+            else {
+                frontend_nc_data->last_ws_ping = time(NULL);
             }
             break;
         }
