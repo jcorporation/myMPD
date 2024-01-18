@@ -80,11 +80,11 @@ function moveOutputsCheckError(obj) {
  */
 function parsePartitionOutputsList(allOutputs, partitionOutputs) {
     const outputList = elGetById('modalPartitionOutputsList');
-    if (checkResult(partitionOutputs, outputList) === false) {
+    elClear(outputList);
+    if (partitionOutputs.error) {
+        outputList.appendChild(errorRow(partitionOutputs, 1));
         return;
     }
-
-    elClear(outputList);
     /** @type {object} */
     const curOutputs = [];
     for (let i = 0; i < partitionOutputs.result.returnedEntities; i++) {
@@ -94,8 +94,7 @@ function parsePartitionOutputsList(allOutputs, partitionOutputs) {
     }
 
     const selBtn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-sm", "me-3"]}, 'radio_button_unchecked');
-
-    let nr = 0;
+    let count = 0;
     for (let i = 0; i < allOutputs.result.returnedEntities; i++) {
         if (curOutputs.includes(allOutputs.result.data[i].name) === false) {
             const tr = elCreateNode('tr', {},
@@ -106,10 +105,10 @@ function parsePartitionOutputsList(allOutputs, partitionOutputs) {
             );
             setData(tr, 'output', allOutputs.result.data[i].name);
             outputList.appendChild(tr);
-            nr++;
+            count++;
         }
     }
-    if (nr === 0) {
+    if (count === 0) {
         outputList.appendChild(emptyRow(1));
     }
 }
