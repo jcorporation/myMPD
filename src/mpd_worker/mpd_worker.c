@@ -124,7 +124,7 @@ static void *mpd_worker_run(void *arg) {
     else if (mpd_client_connect(mpd_worker_state->partition_state) == true) {
         bool rc = true;
         if (strcmp(mpd_worker_state->partition_state->name, MPD_PARTITION_DEFAULT) != 0) {
-            if (mpd_run_switch_partition(mpd_worker_state->partition_state->conn, mpd_worker_state->partition_state->name) == true) {
+            if (mpd_run_switch_partition(mpd_worker_state->partition_state->conn, mpd_worker_state->partition_state->name) == false) {
                 MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "Could not switch to partition \"%s\"", mpd_worker_state->partition_state->name);
                 rc = false;
             }
