@@ -16,7 +16,7 @@ do
             ;;
     esac
 done
-shift $(($OPTIND - 1))
+shift "$((OPTIND - 1))"
 
 if grep "DynamicUser=yes" "/usr/lib/systemd/system/mympd.service" > /dev/null 2>&1
 then
@@ -374,6 +374,6 @@ if [ "$#" -eq 0 ]
 then
     menu_main
 else
-    parse_options $@
+    parse_options "$@"
 fi
 exit 0
