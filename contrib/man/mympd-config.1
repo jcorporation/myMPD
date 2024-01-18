@@ -6,10 +6,21 @@
 mympd-config \- mympd configuration tool
 
 .SH SYNOPSIS
-mympd-config [</path/to/config/dir>]
+mympd-config [-c </path/to/config/dir>] [SETTING VALUE ...]
 
 .SH DESCRIPTION
 mympd-config is a small commandline tool to configure basic myMPD settings.
+
+.SH OPTIONS
+.TP
+\fB-c </path/to/config/dir>\fR
+Set's the path to the myMPD config directory.
+.TP
+\fBSETTING VALUE\fR
+Valid settings are the environment variables respected by "mympd -c".
+
+Reference: https://jcorporation.github.io/myMPD/configuration/configuration-files
+
 
 .SH AUTHOR
 Juergen Mang (mail@jcgames.de)

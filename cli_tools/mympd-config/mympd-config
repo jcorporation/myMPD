@@ -4,12 +4,19 @@
 # myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
-if [ -n "${1+x}" ]
-then
-    CONFIG_DIR="$1"
-else
-    CONFIG_DIR="/var/lib/mympd/config"
-fi
+CONFIG_DIR="/var/lib/mympd/config"
+
+while getopts ':c:' OPTION
+do
+    case "$OPTION" in
+        c) CONFIG_DIR="$OPTARG" ;;
+        *)
+            echo "Usage: $(basename "$0") [-c </path/to/config/dir>] [SETTING VALUE ...]"
+            exit 1
+            ;;
+    esac
+done
+shift $(($OPTIND - 1))
 
 if grep "DynamicUser=yes" "/usr/lib/systemd/system/mympd.service" > /dev/null 2>&1
 then
@@ -325,8 +332,48 @@ menu_main() {
     menu_main
 }
 
+parse_options() {
+    while [ "$#" -ge 2 ]
+    do
+        case "$1" in
+            MYMPD_ACL) MYMPD_ACL="$2" ;;
+            MYMPD_ALBUM_GROUP_TAG) MYMPD_ALBUM_GROUP_TAG="$2" ;;
+            MYMPD_ALBUM_MODE) MYMPD_ALBUM_MODE="$2" ;;
+            MYMPD_COVERCACHE_KEEP_DAYS) MYMPD_COVERCACHE_KEEP_DAYS="$2" ;;
+            MYMPD_LOGLEVEL) MYMPD_LOGLEVEL="$2" ;;
+            MYMPD_LUALIBS) MYMPD_LUALIBS="$2" ;;
+            MYMPD_URI) MYMPD_URI="$2" ;;
+            MYMPD_SAVE_CACHES) MYMPD_SAVE_CACHES="$2" ;;
+            MYMPD_SCRIPTACL) MYMPD_SCRIPTACL="$2" ;;
+            MYMPD_STICKERS) MYMPD_STICKERS="$2" ;;
+            MYMPD_STICKERS_PAD_INT) MYMPD_STICKERS_PAD_INT="$2" ;;
+            MYMPD_HTTP_HOST) MYMPD_HTTP_HOST="$2" ;;
+            MYMPD_HTTP) MYMPD_HTTP="$2" ;;
+            MYMPD_HTTP_PORT) MYMPD_HTTP_PORT="$2" ;;
+            MYMPD_SSL) MYMPD_SSL="$2" ;;
+            MYMPD_SSL_PORT) MYMPD_SSL_PORT="$2" ;;
+            MYMPD_SSL_SAN) MYMPD_SSL_SAN="$2" ;;
+            MYMPD_CUSTOM_CERT) MYMPD_CUSTOM_CERT="$2" ;;
+            MYMPD_SSL_CERT) MYMPD_SSL_CERT="$2" ;;
+            MYMPD_SSL_KEY) MYMPD_SSL_KEY="$2" ;;
+            *)
+                echo "Invalid configuration setting"
+                exit 1
+                ;;
+        esac
+        shift
+        shift
+    done
+    apply_config
+}
+
 # main
 set_default
 read_config
-menu_main
+if [ "$#" -eq 0 ]
+then
+    menu_main
+else
+    parse_options $@
+fi
 exit 0
