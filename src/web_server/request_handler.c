@@ -245,7 +245,7 @@ void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
         //decode uri
         uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
         if (is_allowed_proxy_uri(uri_decoded) == true) {
-            create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_stream);
+            create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_stream, true);
         }
         else {
             webserver_send_error(nc, 403, "Host is not allowed");
@@ -280,7 +280,7 @@ void request_handler_proxy_covercache(struct mg_connection *nc, struct mg_http_m
         uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
         struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)nc->mgr->userdata;
         if (check_covercache(nc, hm, mg_user_data, uri_decoded, 0) == false) {
-            create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_covercache);
+            create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_covercache, false);
         }
     }
     else {

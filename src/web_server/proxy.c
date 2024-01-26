@@ -60,9 +60,9 @@ void free_backend_nc_data(struct t_backend_nc_data *data) {
 /**
  * Handles the connection close on backend side
  * @param nc mongoose connection
- * @param backend_nc_data backend data
  */
-void handle_backend_close(struct mg_connection *nc, struct t_backend_nc_data *backend_nc_data) {
+void handle_backend_close(struct mg_connection *nc) {
+    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)nc->fn_data;
     MYMPD_LOG_INFO(NULL, "Backend tcp connection \"%lu\" closed", nc->id);
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     mg_user_data->connection_count--;
@@ -83,9 +83,9 @@ void handle_backend_close(struct mg_connection *nc, struct t_backend_nc_data *ba
  * @param nc mongoose backend connection
  * @param fn_data mongoose fn_data pointer
  */
-void send_backend_request(struct mg_connection *nc, void *fn_data) {
+void send_backend_request(struct mg_connection *nc) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
-    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
+    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)nc->fn_data;
     mg_user_data->connection_count++;
     struct mg_str host = mg_url_host(backend_nc_data->uri);
     MYMPD_LOG_INFO(NULL, "Backend connection \"%lu\" established, host \"%.*s\"", nc->id, (int)host.len, host.ptr);
@@ -112,16 +112,21 @@ void send_backend_request(struct mg_connection *nc, void *fn_data) {
  * @param nc mongoose frontend connection
  * @param backend_nc pointer to use for backend connection
  * @param uri uri to connection
- * @param fn mongoose fn_data pointer
+ * @param fn event handler function
+ * @param stream is the backend connection a stream?
  * @return backend connection on success, else NULL
  */
-struct mg_connection *create_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc, sds uri, mg_event_handler_t fn) {
+struct mg_connection *create_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc,
+        sds uri, mg_event_handler_t fn, bool stream)
+{
     if (backend_nc == NULL) {
         MYMPD_LOG_INFO(NULL, "Creating new http backend connection to \"%s\"", uri);
         struct t_backend_nc_data *backend_nc_data = malloc(sizeof(struct t_backend_nc_data));
         backend_nc_data->uri = sdsdup(uri);
         backend_nc_data->frontend_nc = nc;
-        backend_nc = mg_http_connect(nc->mgr, uri, fn, backend_nc_data);
+        backend_nc = stream == false
+            ? mg_http_connect(nc->mgr, uri, fn, backend_nc_data)  // http connection with MG_EV_HTTP_MSG event
+            : mg_connect(nc->mgr, uri, fn, backend_nc_data); // tcp connection with MG_EV_READ event
         if (backend_nc == NULL) {
             //no backend connection, close frontend connection
             MYMPD_LOG_WARN(NULL, "Can not create http backend connection");
@@ -153,14 +158,13 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
  * @param nc mongoose backend connection
  * @param ev mongoose event
  * @param ev_data mongoose ev_data (not used)
- * @param fn_data mongoose fn_data (t_backend_nc_data)
  */
-void forward_backend_to_frontend_stream(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
+void forward_backend_to_frontend_stream(struct mg_connection *nc, int ev, void *ev_data) {
     (void) ev_data;
-    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
+    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)nc->fn_data;
     switch(ev) {
         case MG_EV_CONNECT: {
-            send_backend_request(nc, fn_data);
+            send_backend_request(nc);
             break;
         }
         case MG_EV_ERROR:
@@ -173,7 +177,7 @@ void forward_backend_to_frontend_stream(struct mg_connection *nc, int ev, void *
             mg_iobuf_del(&nc->recv, 0, nc->recv.len);
             break;
         case MG_EV_CLOSE: {
-            handle_backend_close(nc, backend_nc_data);
+            handle_backend_close(nc);
             break;
         }
     }
@@ -184,13 +188,12 @@ void forward_backend_to_frontend_stream(struct mg_connection *nc, int ev, void *
  * @param nc mongoose backend connection
  * @param ev mongoose event
  * @param ev_data mongoose ev_data (not used)
- * @param fn_data mongoose fn_data (t_backend_nc_data)
  */
-void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
+void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, void *ev_data) {
+    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)nc->fn_data;
     switch(ev) {
         case MG_EV_CONNECT: {
-            send_backend_request(nc, fn_data);
+            send_backend_request(nc);
             break;
         }
         case MG_EV_ERROR: {
@@ -232,7 +235,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
             break;
         }
         case MG_EV_CLOSE: {
-            handle_backend_close(nc, backend_nc_data);
+            handle_backend_close(nc);
             break;
         }
     }

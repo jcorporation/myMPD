@@ -19,7 +19,7 @@
  */
 static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_nc,
         enum mympd_cmd_ids cmd_id, const char *path);
-static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
+static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data);
 
 /**
  * Public functions
@@ -139,7 +139,7 @@ static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *ba
 {
     const char *host = RADIOBROWSER_HOST;
     sds uri = sdscatfmt(sdsempty(), "https://%s%s", host, path);
-    backend_nc = create_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
+    backend_nc = create_backend_connection(nc, backend_nc, uri, radiobrowser_handler, false);
     FREE_SDS(uri);
     if (backend_nc != NULL) {
         struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)backend_nc->fn_data;
@@ -154,13 +154,12 @@ static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *ba
  * @param nc mongoose backend connection
  * @param ev mongoose event
  * @param ev_data mongoose ev_data (http response)
- * @param fn_data mongoose fn_data (t_backend_nc_data)
  */
-static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
+static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data) {
+    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)nc->fn_data;
     switch(ev) {
         case MG_EV_CONNECT: {
-            send_backend_request(nc, fn_data);
+            send_backend_request(nc);
             break;
         }
         case MG_EV_ERROR:
@@ -198,7 +197,7 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             break;
         }
         case MG_EV_CLOSE: {
-            handle_backend_close(nc, backend_nc_data);
+            handle_backend_close(nc);
             break;
         }
     }

@@ -23,11 +23,11 @@ struct t_backend_nc_data {
 };
 
 bool is_allowed_proxy_uri(const char *uri);
-void send_backend_request(struct mg_connection *nc, void *fn_data);
-void handle_backend_close(struct mg_connection *nc, struct t_backend_nc_data *backend_nc_data);
+void send_backend_request(struct mg_connection *nc);
+void handle_backend_close(struct mg_connection *nc);
 void free_backend_nc_data(struct t_backend_nc_data *data);
 struct mg_connection *create_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc,
-        sds uri, mg_event_handler_t fn);
-void forward_backend_to_frontend_stream(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
-void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
+        sds uri, mg_event_handler_t fn, bool stream);
+void forward_backend_to_frontend_stream(struct mg_connection *nc, int ev, void *ev_data);
+void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, void *ev_data);
 #endif

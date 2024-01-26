@@ -19,8 +19,7 @@
 /**
  * Private definitions
  */
-static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data,
-    void *fn_data);
+static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 
 /**
  * Public functions
@@ -113,11 +112,8 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
  * @param nc mongoose network connection
  * @param ev event id
  * @param ev_data event data (http response)
- * @param fn_data struct mg_client_response
  */
-static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data,
-    void *fn_data)
-{
+static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     struct mg_client_request_t *mg_client_request = (struct mg_client_request_t *) nc->mgr->userdata;
     if (ev == MG_EV_CONNECT) {
         //Connected to server. Extract host name from URL
@@ -161,7 +157,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
     else if (ev == MG_EV_HTTP_MSG) {
         //Response is received. Return it
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-        struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) fn_data;
+        struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) nc->fn_data;
         mg_client_response->body = sdscatlen(mg_client_response->body, hm->body.ptr, hm->body.len);
         //headers string
         for (int i = 0; i < MG_MAX_HTTP_HEADERS; i++) {
@@ -186,7 +182,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         nc->is_closing = 1;
     }
     else if (ev == MG_EV_ERROR) {
-        struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) fn_data;
+        struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) nc->fn_data;
         mg_client_response->body = sdscat(mg_client_response->body, "HTTP connection failed");
         mg_client_response->rc = 2;
         MYMPD_LOG_ERROR(NULL, "HTTP connection to \"%s\" failed", mg_client_request->uri);

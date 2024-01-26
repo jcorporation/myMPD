@@ -21,7 +21,7 @@
 
 static bool webradiodb_send(struct mg_connection *nc, struct mg_connection *backend_nc,
         enum mympd_cmd_ids cmd_id, const char *path);
-static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
+static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data);
 static sds webradiodb_cache_check(sds cachedir, const char *cache_file);
 static bool webradiodb_cache_write(sds cachedir, const char *cache_file, const char *data, size_t data_len);
 
@@ -148,7 +148,7 @@ static bool webradiodb_send(struct mg_connection *nc, struct mg_connection *back
         enum mympd_cmd_ids cmd_id, const char *path)
 {
     sds uri = sdscatfmt(sdsempty(), "https://%s%s", WEBRADIODB_HOST, path);
-    backend_nc = create_backend_connection(nc, backend_nc, uri, webradiodb_handler);
+    backend_nc = create_backend_connection(nc, backend_nc, uri, webradiodb_handler, false);
     FREE_SDS(uri);
     if (backend_nc != NULL) {
         struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)backend_nc->fn_data;
@@ -163,15 +163,14 @@ static bool webradiodb_send(struct mg_connection *nc, struct mg_connection *back
  * @param nc mongoose backend connection
  * @param ev mongoose event
  * @param ev_data mongoose ev_data (http response)
- * @param fn_data mongoose fn_data (t_backend_nc_data)
  */
-static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
+static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
-    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
+    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)nc->fn_data;
     struct t_config *config = mg_user_data->config;
     switch(ev) {
         case MG_EV_CONNECT: {
-            send_backend_request(nc, fn_data);
+            send_backend_request(nc);
             break;
         }
         case MG_EV_ERROR:
@@ -213,7 +212,7 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, 
             break;
         }
         case MG_EV_CLOSE: {
-            handle_backend_close(nc, backend_nc_data);
+            handle_backend_close(nc);
             break;
         }
     }

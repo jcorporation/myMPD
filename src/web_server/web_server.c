@@ -33,8 +33,8 @@
 static void get_placeholder_image(sds workdir, const char *name, sds *result);
 static void read_queue(struct mg_mgr *mgr);
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
-static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
-static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
+static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
+static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
@@ -507,11 +507,10 @@ static bool enforce_conn_limit(struct mg_connection *nc, int connection_count) {
  * @param nc mongoose connection
  * @param ev connection event
  * @param ev_data event data (http / websocket message)
- * @param fn_data backend connection for proxy connections
  */
-static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
+static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     //connection specific data structure
-    struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *) fn_data;
+    struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *) nc->fn_data;
     //mongoose user data
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
@@ -724,7 +723,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     nc->is_draining = 1;
                     break;
                 }
-                create_backend_connection(nc, frontend_nc_data->backend_nc, node->value_p, forward_backend_to_frontend_stream);
+                create_backend_connection(nc, frontend_nc_data->backend_nc, node->value_p, forward_backend_to_frontend_stream, true);
             }
             else if (mg_http_match_uri(hm, "/proxy") == true) {
                 //Makes a get request to the defined uri and returns the response
@@ -833,10 +832,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
  * @param nc mongoose connection
  * @param ev connection event
  * @param ev_data event data (http / websocket message)
- * @param fn_data not used
  */
-static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    (void)fn_data;
+static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
 

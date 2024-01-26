@@ -1,5 +1,5 @@
 // Copyright (c) 2004-2013 Sergey Lyubka
-// Copyright (c) 2013-2022 Cesanta Software Limited
+// Copyright (c) 2013-2024 Cesanta Software Limited
 // All rights reserved
 //
 // This software is dual-licensed: you can redistribute it and/or modify
@@ -239,7 +239,8 @@ void mg_device_reset(void) {
 #endif
 
 
-#if MG_DEVICE == MG_DEVICE_STM32H7 || MG_DEVICE == MG_DEVICE_STM32H5
+#if MG_DEVICE == MG_DEVICE_STM32H7 || MG_DEVICE == MG_DEVICE_STM32H5 || \
+    MG_DEVICE == MG_DEVICE_RT1020 || MG_DEVICE == MG_DEVICE_RT1060
 // Flash can be written only if it is erased. Erased flash is 0xff (all bits 1)
 // Writes must be mg_flash_write_align() - aligned. Thus if we want to save an
 // object, we pad it at the end for alignment.
@@ -350,7 +351,7 @@ bool mg_flash_save(void *sector, uint32_t key, const void *buf, size_t len) {
     while ((n = mg_flash_next(s + ofs, s + ss, NULL, NULL)) > 0) ofs += n;
 
     // If there is not enough space left, cleanup sector and re-eval ofs
-    if (ofs + needed_aligned > ss) {
+    if (ofs + needed_aligned >= ss) {
       mg_flash_sector_cleanup(s);
       ofs = 0;
       while ((n = mg_flash_next(s + ofs, s + ss, NULL, NULL)) > 0) ofs += n;
@@ -407,6 +408,349 @@ bool mg_flash_load(void *sector, uint32_t key, void *buf, size_t len) {
   (void) sector, (void) key, (void) buf, (void) len;
   return false;
 }
+#endif
+
+#ifdef MG_ENABLE_LINES
+#line 1 "src/device_imxrt.c"
+#endif
+
+
+
+#if MG_DEVICE == MG_DEVICE_RT1020 || MG_DEVICE == MG_DEVICE_RT1060
+
+struct mg_flexspi_lut_seq {
+  uint8_t seqNum;
+  uint8_t seqId;
+  uint16_t reserved;
+};
+
+struct mg_flexspi_mem_config {
+  uint32_t tag;
+  uint32_t version;
+  uint32_t reserved0;
+  uint8_t readSampleClkSrc;
+  uint8_t csHoldTime;
+  uint8_t csSetupTime;
+  uint8_t columnAddressWidth;
+  uint8_t deviceModeCfgEnable;
+  uint8_t deviceModeType;
+  uint16_t waitTimeCfgCommands;
+  struct mg_flexspi_lut_seq deviceModeSeq;
+  uint32_t deviceModeArg;
+  uint8_t configCmdEnable;
+  uint8_t configModeType[3];
+  struct mg_flexspi_lut_seq configCmdSeqs[3];
+  uint32_t reserved1;
+  uint32_t configCmdArgs[3];
+  uint32_t reserved2;
+  uint32_t controllerMiscOption;
+  uint8_t deviceType;
+  uint8_t sflashPadType;
+  uint8_t serialClkFreq;
+  uint8_t lutCustomSeqEnable;
+  uint32_t reserved3[2];
+  uint32_t sflashA1Size;
+  uint32_t sflashA2Size;
+  uint32_t sflashB1Size;
+  uint32_t sflashB2Size;
+  uint32_t csPadSettingOverride;
+  uint32_t sclkPadSettingOverride;
+  uint32_t dataPadSettingOverride;
+  uint32_t dqsPadSettingOverride;
+  uint32_t timeoutInMs;
+  uint32_t commandInterval;
+  uint16_t dataValidTime[2];
+  uint16_t busyOffset;
+  uint16_t busyBitPolarity;
+  uint32_t lookupTable[64];
+  struct mg_flexspi_lut_seq lutCustomSeq[12];
+  uint32_t reserved4[4];
+};
+
+struct mg_flexspi_nor_config {
+  struct mg_flexspi_mem_config memConfig;
+  uint32_t pageSize;
+  uint32_t sectorSize;
+  uint8_t ipcmdSerialClkFreq;
+  uint8_t isUniformBlockSize;
+  uint8_t reserved0[2];
+  uint8_t serialNorType;
+  uint8_t needExitNoCmdMode;
+  uint8_t halfClkForNonReadCmd;
+  uint8_t needRestoreNoCmdMode;
+  uint32_t blockSize;
+  uint32_t reserve2[11];
+};
+
+/* FLEXSPI memory config block related defintions */
+#define MG_FLEXSPI_CFG_BLK_TAG (0x42464346UL)      // ascii "FCFB" Big Endian
+#define MG_FLEXSPI_CFG_BLK_VERSION (0x56010400UL)  // V1.4.0
+
+#define MG_FLEXSPI_LUT_SEQ(cmd0, pad0, op0, cmd1, pad1, op1)                                      \
+  (MG_FLEXSPI_LUT_OPERAND0(op0) | MG_FLEXSPI_LUT_NUM_PADS0(pad0) | MG_FLEXSPI_LUT_OPCODE0(cmd0) | \
+   MG_FLEXSPI_LUT_OPERAND1(op1) | MG_FLEXSPI_LUT_NUM_PADS1(pad1) | MG_FLEXSPI_LUT_OPCODE1(cmd1))
+
+#define MG_CMD_SDR 0x01
+#define MG_CMD_DDR 0x21
+#define MG_DUMMY_SDR 0x0C
+#define MG_DUMMY_DDR 0x2C
+#define MG_RADDR_SDR 0x02
+#define MG_RADDR_DDR 0x22
+#define MG_READ_SDR 0x09
+#define MG_READ_DDR 0x29
+#define MG_WRITE_SDR 0x08
+#define MG_WRITE_DDR 0x28
+#define MG_STOP 0
+
+#define MG_FLEXSPI_1PAD 0
+#define MG_FLEXSPI_2PAD 1
+#define MG_FLEXSPI_4PAD 2
+#define MG_FLEXSPI_8PAD 3
+
+#define MG_FLEXSPI_QSPI_LUT                                                                        \
+  {                                                                                                \
+    [0] = MG_FLEXSPI_LUT_SEQ(MG_CMD_SDR, MG_FLEXSPI_1PAD, 0xEB, MG_RADDR_SDR, MG_FLEXSPI_4PAD,     \
+                             0x18),                                                                \
+    [1] = MG_FLEXSPI_LUT_SEQ(MG_DUMMY_SDR, MG_FLEXSPI_4PAD, 0x06, MG_READ_SDR, MG_FLEXSPI_4PAD,    \
+                             0x04),                                                                \
+    [4 * 1 + 0] =                                                                                  \
+        MG_FLEXSPI_LUT_SEQ(MG_CMD_SDR, MG_FLEXSPI_1PAD, 0x05, MG_READ_SDR, MG_FLEXSPI_1PAD, 0x04), \
+    [4 * 3 + 0] =                                                                                  \
+        MG_FLEXSPI_LUT_SEQ(MG_CMD_SDR, MG_FLEXSPI_1PAD, 0x06, MG_STOP, MG_FLEXSPI_1PAD, 0x0),      \
+    [4 * 5 + 0] = MG_FLEXSPI_LUT_SEQ(MG_CMD_SDR, MG_FLEXSPI_1PAD, 0x20, MG_RADDR_SDR,              \
+                                     MG_FLEXSPI_1PAD, 0x18),                                       \
+    [4 * 8 + 0] = MG_FLEXSPI_LUT_SEQ(MG_CMD_SDR, MG_FLEXSPI_1PAD, 0xD8, MG_RADDR_SDR,              \
+                                     MG_FLEXSPI_1PAD, 0x18),                                       \
+    [4 * 9 + 0] = MG_FLEXSPI_LUT_SEQ(MG_CMD_SDR, MG_FLEXSPI_1PAD, 0x02, MG_RADDR_SDR,              \
+                                     MG_FLEXSPI_1PAD, 0x18),                                       \
+    [4 * 9 + 1] =                                                                                  \
+        MG_FLEXSPI_LUT_SEQ(MG_WRITE_SDR, MG_FLEXSPI_1PAD, 0x04, MG_STOP, MG_FLEXSPI_1PAD, 0x0),    \
+    [4 * 11 + 0] =                                                                                 \
+        MG_FLEXSPI_LUT_SEQ(MG_CMD_SDR, MG_FLEXSPI_1PAD, 0x60, MG_STOP, MG_FLEXSPI_1PAD, 0x0),      \
+  }
+
+#define MG_FLEXSPI_LUT_OPERAND0(x) (((uint32_t) (((uint32_t) (x)))) & 0xFFU)
+#define MG_FLEXSPI_LUT_NUM_PADS0(x) (((uint32_t) (((uint32_t) (x)) << 8U)) & 0x300U)
+#define MG_FLEXSPI_LUT_OPCODE0(x) (((uint32_t) (((uint32_t) (x)) << 10U)) & 0xFC00U)
+#define MG_FLEXSPI_LUT_OPERAND1(x) (((uint32_t) (((uint32_t) (x)) << 16U)) & 0xFF0000U)
+#define MG_FLEXSPI_LUT_NUM_PADS1(x) (((uint32_t) (((uint32_t) (x)) << 24U)) & 0x3000000U)
+#define MG_FLEXSPI_LUT_OPCODE1(x) (((uint32_t) (((uint32_t) (x)) << 26U)) & 0xFC000000U)
+
+#define FLEXSPI_NOR_INSTANCE 0
+
+#if MG_DEVICE == MG_DEVICE_RT1020
+struct mg_flexspi_nor_driver_interface {
+  uint32_t version;
+  int (*init)(uint32_t instance, struct mg_flexspi_nor_config *config);
+  int (*program)(uint32_t instance, struct mg_flexspi_nor_config *config, uint32_t dst_addr,
+                 const uint32_t *src);
+  uint32_t reserved;
+  int (*erase)(uint32_t instance, struct mg_flexspi_nor_config *config, uint32_t start,
+               uint32_t lengthInBytes);
+  uint32_t reserved2;
+  int (*update_lut)(uint32_t instance, uint32_t seqIndex, const uint32_t *lutBase,
+                    uint32_t seqNumber);
+  int (*xfer)(uint32_t instance, char *xfer);
+  void (*clear_cache)(uint32_t instance);
+};
+#elif MG_DEVICE == MG_DEVICE_RT1060
+struct mg_flexspi_nor_driver_interface {
+  uint32_t version;
+  int (*init)(uint32_t instance, struct mg_flexspi_nor_config *config);
+  int (*program)(uint32_t instance, struct mg_flexspi_nor_config *config, uint32_t dst_addr,
+                 const uint32_t *src);
+  int (*erase_all)(uint32_t instance, struct mg_flexspi_nor_config *config);
+  int (*erase)(uint32_t instance, struct mg_flexspi_nor_config *config, uint32_t start,
+               uint32_t lengthInBytes);
+  int (*read)(uint32_t instance, struct mg_flexspi_nor_config *config, uint32_t *dst, uint32_t addr,
+              uint32_t lengthInBytes);
+  void (*clear_cache)(uint32_t instance);
+  int (*xfer)(uint32_t instance, char *xfer);
+  int (*update_lut)(uint32_t instance, uint32_t seqIndex, const uint32_t *lutBase,
+                    uint32_t seqNumber);
+  int (*get_config)(uint32_t instance, struct mg_flexspi_nor_config *config, uint32_t *option);
+};
+#endif
+
+#define flexspi_nor (*((struct mg_flexspi_nor_driver_interface**) \
+                          (*(uint32_t*)0x0020001c + 16)))
+
+static bool s_flash_irq_disabled;
+
+MG_IRAM void *mg_flash_start(void) {
+  return (void *) 0x60000000;
+}
+MG_IRAM size_t mg_flash_size(void) {
+  return 8 * 1024 * 1024;
+}
+MG_IRAM size_t mg_flash_sector_size(void) {
+  return 4 * 1024;  // 4k
+}
+MG_IRAM size_t mg_flash_write_align(void) {
+  return 256;
+}
+MG_IRAM int mg_flash_bank(void) {
+  return 0;
+}
+
+MG_IRAM static bool flash_page_start(volatile uint32_t *dst) {
+  char *base = (char *) mg_flash_start(), *end = base + mg_flash_size();
+  volatile char *p = (char *) dst;
+  return p >= base && p < end && ((p - base) % mg_flash_sector_size()) == 0;
+}
+
+// Note: the get_config function below works both for RT1020 and 1060
+#if MG_DEVICE == MG_DEVICE_RT1020
+MG_IRAM static int flexspi_nor_get_config(struct mg_flexspi_nor_config *config) {
+  struct mg_flexspi_nor_config default_config = {
+      .memConfig = {.tag = MG_FLEXSPI_CFG_BLK_TAG,
+                    .version = MG_FLEXSPI_CFG_BLK_VERSION,
+                    .readSampleClkSrc = 1,  // ReadSampleClk_LoopbackFromDqsPad
+                    .csHoldTime = 3,
+                    .csSetupTime = 3,
+                    .controllerMiscOption = MG_BIT(4),
+                    .deviceType = 1,  // serial NOR
+                    .sflashPadType = 4,
+                    .serialClkFreq = 7,  // 133MHz
+                    .sflashA1Size = 8 * 1024 * 1024,
+                    .lookupTable = MG_FLEXSPI_QSPI_LUT},
+      .pageSize = 256,
+      .sectorSize = 4 * 1024,
+      .ipcmdSerialClkFreq = 1,
+      .blockSize = 64 * 1024,
+      .isUniformBlockSize = false};
+
+  *config = default_config;
+  return 0;
+}
+#else
+MG_IRAM static int flexspi_nor_get_config(struct mg_flexspi_nor_config *config) {
+  uint32_t options[] = {0xc0000000, 0x00};
+
+  MG_ARM_DISABLE_IRQ();
+  uint32_t status =
+      flexspi_nor->get_config(FLEXSPI_NOR_INSTANCE, config, options);
+  if (!s_flash_irq_disabled) {
+    MG_ARM_ENABLE_IRQ();
+  }
+  if (status) {
+    MG_ERROR(("Failed to extract flash configuration: status %u", status));
+  }
+  return status;
+}
+#endif
+
+MG_IRAM bool mg_flash_erase(void *addr) {
+  struct mg_flexspi_nor_config config;
+  if (flexspi_nor_get_config(&config) != 0) {
+    return false;
+  }
+  if (flash_page_start(addr) == false) {
+    MG_ERROR(("%p is not on a sector boundary", addr));
+    return false;
+  }
+
+  void *dst = (void *)((char *) addr - (char *) mg_flash_start());
+
+  // Note: Interrupts must be disabled before any call to the ROM API on RT1020
+  // and 1060
+  MG_ARM_DISABLE_IRQ();
+  bool ok = (flexspi_nor->erase(FLEXSPI_NOR_INSTANCE, &config, (uint32_t) dst,
+                                mg_flash_sector_size()) == 0);
+  if (!s_flash_irq_disabled) {
+    MG_ARM_ENABLE_IRQ();  // Reenable them after the call
+  }
+  MG_DEBUG(("Sector starting at %p erasure: %s", addr, ok ? "ok" : "fail"));
+  return ok;
+}
+
+MG_IRAM bool mg_flash_swap_bank() {
+  return true;
+}
+
+static inline void spin(volatile uint32_t count) {
+  while (count--) (void) 0;
+}
+
+static inline void flash_wait(void) {
+  while ((*((volatile uint32_t *)(0x402A8000 + 0xE0)) & MG_BIT(1)) == 0)
+    spin(1);
+}
+
+MG_IRAM static void *flash_code_location(void) {
+  return (void *) ((char *) mg_flash_start() + 0x2000);
+}
+
+MG_IRAM bool mg_flash_write(void *addr, const void *buf, size_t len) {
+  struct mg_flexspi_nor_config config;
+  if (flexspi_nor_get_config(&config) != 0) {
+    return false;
+  }
+  if ((len % mg_flash_write_align()) != 0) {
+    MG_ERROR(("%lu is not aligned to %lu", len, mg_flash_write_align()));
+    return false;
+  }
+
+  if ((char *) addr < (char *) mg_flash_start()) {
+    MG_ERROR(("Invalid flash write address: %p", addr));
+    return false;
+  }
+
+  uint32_t *dst = (uint32_t *) addr;
+  uint32_t *src = (uint32_t *) buf;
+  uint32_t *end = (uint32_t *) ((char *) buf + len);
+  bool ok = true;
+
+  // Note: If we overwrite the flash irq section of the image, we must also
+  // make sure interrupts are disabled and are not reenabled until we write
+  // this sector with another irq table.
+  if ((char *) addr == (char *) flash_code_location()) {
+    s_flash_irq_disabled = true;
+    MG_ARM_DISABLE_IRQ();
+  }
+
+  while (ok && src < end) {
+    if (flash_page_start(dst) && mg_flash_erase(dst) == false) {
+      break;
+    }
+    uint32_t status;
+    uint32_t dst_ofs = (uint32_t) dst - (uint32_t) mg_flash_start();
+    if ((char *) buf >= (char *) mg_flash_start()) {
+      // If we copy from FLASH to FLASH, then we first need to copy the source
+      // to RAM
+      size_t tmp_buf_size = mg_flash_write_align() / sizeof(uint32_t);
+      uint32_t tmp[tmp_buf_size];
+
+      for (size_t i = 0; i < tmp_buf_size; i++) {
+        flash_wait();
+        tmp[i] = src[i];
+      }
+      MG_ARM_DISABLE_IRQ();
+      status = flexspi_nor->program(FLEXSPI_NOR_INSTANCE, &config,
+                                    (uint32_t) dst_ofs, tmp);
+    } else {
+      MG_ARM_DISABLE_IRQ();
+      status = flexspi_nor->program(FLEXSPI_NOR_INSTANCE, &config,
+                                    (uint32_t) dst_ofs, src);
+    }
+    if (!s_flash_irq_disabled) {
+      MG_ARM_ENABLE_IRQ();
+    }
+    src = (uint32_t *) ((char *) src + mg_flash_write_align());
+    dst = (uint32_t *) ((char *) dst + mg_flash_write_align());
+    if (status != 0) {
+      ok = false;
+    }
+  }
+  MG_DEBUG(("Flash write %lu bytes @ %p: %s.", len, dst, ok ? "ok" : "fail"));
+  return ok;
+}
+
+MG_IRAM void mg_device_reset(void) {
+  MG_DEBUG(("Resetting device..."));
+  *(volatile unsigned long *) 0xe000ed0c = 0x5fa0004;
+}
+
 #endif
 
 #ifdef MG_ENABLE_LINES
@@ -852,8 +1196,7 @@ bool mg_dns_parse(const uint8_t *buf, size_t len, struct mg_dns_message *dm) {
   return true;
 }
 
-static void dns_cb(struct mg_connection *c, int ev, void *ev_data,
-                   void *fn_data) {
+static void dns_cb(struct mg_connection *c, int ev, void *ev_data) {
   struct dns_data *d, *tmp;
   struct dns_data **head = (struct dns_data **) &c->mgr->active_dns_requests;
   if (ev == MG_EV_POLL) {
@@ -907,7 +1250,6 @@ static void dns_cb(struct mg_connection *c, int ev, void *ev_data,
       mg_dns_free(head, d);
     }
   }
-  (void) fn_data;
 }
 
 static bool mg_dns_send(struct mg_connection *c, const struct mg_str *name,
@@ -1003,11 +1345,9 @@ void mg_call(struct mg_connection *c, int ev, void *ev_data) {
     MG_PROF_ADD(c, names[ev]);
   }
 #endif
-  // Run user-defined handler first, in order to give it an ability
-  // to intercept processing (e.g. clean input buffer) before the
-  // protocol handler kicks in
-  if (c->fn != NULL) c->fn(c, ev, ev_data, c->fn_data);
-  if (c->pfn != NULL) c->pfn(c, ev, ev_data, c->pfn_data);
+  // Fire protocol handler first, user handler second. See #2559
+  if (c->pfn != NULL) c->pfn(c, ev, ev_data);
+  if (c->fn != NULL) c->fn(c, ev, ev_data);
 }
 
 void mg_error(struct mg_connection *c, const char *fmt, ...) {
@@ -1018,7 +1358,7 @@ void mg_error(struct mg_connection *c, const char *fmt, ...) {
   va_end(ap);
   MG_ERROR(("%lu %ld %s", c->id, c->fd, buf));
   c->is_closing = 1;             // Set is_closing before sending MG_EV_CALL
-  mg_call(c, MG_EV_ERROR, buf);  // Let user handler to override it
+  mg_call(c, MG_EV_ERROR, buf);  // Let user handler override it
 }
 
 #ifdef MG_ENABLE_LINES
@@ -1589,7 +1929,7 @@ struct mg_fs mg_fs_packed = {
 #endif
 
 
-#if MG_ENABLE_FILE
+#if MG_ENABLE_POSIX_FS
 
 #ifndef MG_STAT_STRUCT
 #define MG_STAT_STRUCT stat
@@ -2286,7 +2626,7 @@ void mg_http_reply(struct mg_connection *c, int code, const char *headers,
   c->is_resp = 0;
 }
 
-static void http_cb(struct mg_connection *, int, void *, void *);
+static void http_cb(struct mg_connection *, int, void *);
 static void restore_http_cb(struct mg_connection *c) {
   mg_fs_close((struct mg_fd *) c->pfn_data);
   c->pfn_data = NULL;
@@ -2300,10 +2640,9 @@ char *mg_http_etag(char *buf, size_t len, size_t size, time_t mtime) {
   return buf;
 }
 
-static void static_cb(struct mg_connection *c, int ev, void *ev_data,
-                      void *fn_data) {
+static void static_cb(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_WRITE || ev == MG_EV_POLL) {
-    struct mg_fd *fd = (struct mg_fd *) fn_data;
+    struct mg_fd *fd = (struct mg_fd *) c->pfn_data;
     // Read to send IO buffer directly, avoid extra on-stack buffer
     size_t n, max = MG_IO_SIZE, space;
     size_t *cl = (size_t *) &c->data[(sizeof(c->data) - sizeof(size_t)) /
@@ -2818,6 +3157,7 @@ static int skip_chunk(const char *buf, int len, int *pl, int *dl) {
   int i = 0, n = 0;
   if (len < 3) return 0;
   while (i < len && is_hex_digit(buf[i])) i++;
+  if (i == 0) return -1;                     // Error, no length specified
   if (i > (int) sizeof(int) * 2) return -1;  // Chunk length is too big
   if (len < i + 1 || buf[i] != '\r' || buf[i + 1] != '\n') return -1;  // Error
   n = (int) mg_unhexn(buf, (size_t) i);  // Decode chunk length
@@ -2828,7 +3168,7 @@ static int skip_chunk(const char *buf, int len, int *pl, int *dl) {
   return i + 2 + n + 2;
 }
 
-static void http_cb(struct mg_connection *c, int ev, void *evd, void *fnd) {
+static void http_cb(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_READ || ev == MG_EV_CLOSE) {
     struct mg_http_message hm;
     size_t ofs = 0;  // Parsing offset
@@ -2890,10 +3230,10 @@ static void http_cb(struct mg_connection *c, int ev, void *evd, void *fnd) {
     }
     if (ofs > 0) mg_iobuf_del(&c->recv, 0, ofs);  // Delete processed data
   }
-  (void) evd, (void) fnd;
+  (void) ev_data;
 }
 
-static void mg_hfn(struct mg_connection *c, int ev, void *ev_data, void *fnd) {
+static void mg_hfn(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = (struct mg_http_message *) ev_data;
     if (mg_http_match_uri(hm, "/quit")) {
@@ -2908,7 +3248,7 @@ static void mg_hfn(struct mg_connection *c, int ev, void *ev_data, void *fnd) {
       mg_http_reply(c, 200, "", "hi\n");
     }
   } else if (ev == MG_EV_CLOSE) {
-    if (c->data[0] == 'X') *(bool *) fnd = true;
+    if (c->data[0] == 'X') *(bool *) c->fn_data = true;
   }
 }
 
@@ -4062,7 +4402,8 @@ int mg_mqtt_parse(const uint8_t *buf, size_t len, uint8_t version,
       }
       if (p > end) return MQTT_MALFORMED;
       if (version == 5 && p + 2 < end) {
-        len_len = (uint32_t) decode_varint(p, (size_t) (end - p), &m->props_size);
+        len_len =
+            (uint32_t) decode_varint(p, (size_t) (end - p), &m->props_size);
         if (!len_len) return MQTT_MALFORMED;
         m->props_start = (size_t) (p + len_len - buf);
         p += len_len + m->props_size;
@@ -4078,8 +4419,7 @@ int mg_mqtt_parse(const uint8_t *buf, size_t len, uint8_t version,
   return MQTT_OK;
 }
 
-static void mqtt_cb(struct mg_connection *c, int ev, void *ev_data,
-                    void *fn_data) {
+static void mqtt_cb(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_READ) {
     for (;;) {
       uint8_t version = c->is_mqtt5 ? 5 : 4;
@@ -4147,7 +4487,6 @@ static void mqtt_cb(struct mg_connection *c, int ev, void *ev_data,
     }
   }
   (void) ev_data;
-  (void) fn_data;
 }
 
 void mg_mqtt_ping(struct mg_connection *nc) {
@@ -4877,7 +5216,8 @@ static void rx_dhcp_client(struct mg_tcpip_if *ifp, struct pkt *pkt) {
     ifp->state = MG_TCPIP_STATE_UP, ifp->ip = 0;
   } else if (msgtype == 2 && ifp->state == MG_TCPIP_STATE_UP && ip && gw &&
              lease) {                                 // DHCPOFFER
-    tx_dhcp_request_sel(ifp, ip, pkt->dhcp->siaddr);  // select IP, (4.4.1)
+    // select IP, (4.4.1) (fallback to IP source addr on foul play)
+    tx_dhcp_request_sel(ifp, ip, pkt->dhcp->siaddr ? pkt->dhcp->siaddr : pkt->ip->src);
     ifp->state = MG_TCPIP_STATE_REQ;                  // REQUESTING state
   } else if (msgtype == 5) {                          // DHCPACK
     if (ifp->state == MG_TCPIP_STATE_REQ && ip && gw && lease) {  // got an IP
@@ -6630,7 +6970,7 @@ int64_t mg_sntp_parse(const unsigned char *buf, size_t len) {
   return res;
 }
 
-static void sntp_cb(struct mg_connection *c, int ev, void *evd, void *fnd) {
+static void sntp_cb(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_READ) {
     int64_t milliseconds = mg_sntp_parse(c->recv.buf, c->recv.len);
     if (milliseconds > 0) {
@@ -6644,8 +6984,7 @@ static void sntp_cb(struct mg_connection *c, int ev, void *evd, void *fnd) {
     mg_sntp_request(c);
   } else if (ev == MG_EV_CLOSE) {
   }
-  (void) fnd;
-  (void) evd;
+  (void) ev_data;
 }
 
 void mg_sntp_request(struct mg_connection *c) {
@@ -6958,14 +7297,13 @@ static void read_conn(struct mg_connection *c) {
       n = recv_raw(c, (char *) &c->rtls.buf[c->rtls.len],
                    c->rtls.size - c->rtls.len);
       // MG_DEBUG(("%lu %ld", c->id, n));
-      if (n == MG_IO_ERR) {
+      if (n == MG_IO_ERR && mg_tls_pending(c) == 0 && c->rtls.len == 0) {
+        // Close only if we have fully drained both raw (rtls) and TLS buffers
         c->is_closing = 1;
-      } else if (n > 0) {
-        c->rtls.len += (size_t) n;
+      } else {
+        if (n > 0) c->rtls.len += (size_t) n;
         if (c->is_tls_hs) mg_tls_handshake(c);
         if (c->is_tls_hs) return;
-        n = mg_tls_recv(c, buf, len);
-      } else if (n == MG_IO_WAIT) {
         n = mg_tls_recv(c, buf, len);
       }
     } else {
@@ -7296,7 +7634,7 @@ static bool mg_socketpair(MG_SOCKET_TYPE sp[2], union usa usa[2]) {
 }
 
 // mg_wakeup() event handler
-static void wufn(struct mg_connection *c, int ev, void *evd, void *fnd) {
+static void wufn(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_READ) {
     unsigned long *id = (unsigned long *) c->recv.buf;
     // MG_INFO(("Got data"));
@@ -7316,7 +7654,7 @@ static void wufn(struct mg_connection *c, int ev, void *evd, void *fnd) {
     closesocket(c->mgr->pipe);         // When we're closing, close the other
     c->mgr->pipe = MG_INVALID_SOCKET;  // side of the socketpair, too
   }
-  (void) evd, (void) fnd;
+  (void) ev_data;
 }
 
 bool mg_wakeup_init(struct mg_mgr *mgr) {
@@ -8868,7 +9206,9 @@ static void sub(fe out, const fe a, const fe b) {
   propagate(out, (limb_t) (1 + carry));
 }
 
-static void mul(fe out, const fe a, const fe b, unsigned nb) {
+// `b` can contain less than 8 limbs, thus we use `limb_t *` instead of `fe`
+// to avoid build warnings
+static void mul(fe out, const fe a, const limb_t *b, unsigned nb) {
   limb_t accum[2 * NLIMBS] = {0};
   unsigned i, j;
 
@@ -9038,8 +9378,8 @@ static int x25519(uint8_t out[X25519_BYTES], const uint8_t scalar[X25519_BYTES],
 
 // helper to hexdump buffers inline
 static void mg_tls_hexdump(const char *msg, uint8_t *buf, size_t bufsz) {
-  char p[2048];
-  MG_INFO(("%s: %s", msg, mg_hex(buf, bufsz, p)));
+  char p[512];
+  MG_VERBOSE(("%s: %s", msg, mg_hex(buf, bufsz, p)));
 }
 
 // TLS1.3 secret derivation based on the key label
@@ -9061,8 +9401,8 @@ static void mg_tls_derive_secret(const char *label, uint8_t *key, size_t keysz,
 
 // Did we receive a full TLS message in the c->rtls buffer?
 static bool mg_tls_got_msg(struct mg_connection *c) {
-  return c->rtls.len >= TLS_HDR_SIZE &&
-         c->rtls.len >= (TLS_HDR_SIZE + MG_LOAD_BE16(c->rtls.buf + 3));
+  return c->rtls.len >= (size_t) TLS_HDR_SIZE &&
+         c->rtls.len >= (size_t) (TLS_HDR_SIZE + MG_LOAD_BE16(c->rtls.buf + 3));
 }
 
 // Remove a single TLS record from the recv buffer
@@ -13736,8 +14076,7 @@ static bool mg_ws_client_handshake(struct mg_connection *c) {
   return false;  // Continue event handler
 }
 
-static void mg_ws_cb(struct mg_connection *c, int ev, void *ev_data,
-                     void *fn_data) {
+static void mg_ws_cb(struct mg_connection *c, int ev, void *ev_data) {
   struct ws_msg msg;
   size_t ofs = (size_t) c->pfn_data;
 
@@ -13803,7 +14142,6 @@ static void mg_ws_cb(struct mg_connection *c, int ev, void *ev_data,
       }
     }
   }
-  (void) fn_data;
   (void) ev_data;
 }
 
@@ -14042,7 +14380,12 @@ static uint8_t s_rxbuf[ETH_DESC_CNT][ETH_PKT_SIZE] MG_64BIT_ALIGNED;
 static uint8_t s_txbuf[ETH_DESC_CNT][ETH_PKT_SIZE] MG_64BIT_ALIGNED;
 static struct mg_tcpip_if *s_ifp;  // MIP interface
 
-enum { PHY_BCR = 0, PHY_BSR = 1, PHY_ID1 = 2, PHY_ID2 = 3 };
+enum {
+  MG_PHYREG_BCR = 0,
+  MG_PHYREG_BSR = 1,
+  MG_PHYREG_ID1 = 2,
+  MG_PHYREG_ID2 = 3
+};
 
 static uint16_t enet_phy_read(uint8_t addr, uint8_t reg) {
   ENET->EIR |= MG_BIT(23);  // MII interrupt clear
@@ -14059,8 +14402,8 @@ static void enet_phy_write(uint8_t addr, uint8_t reg, uint16_t val) {
 }
 
 static uint32_t enet_phy_id(uint8_t addr) {
-  uint16_t phy_id1 = enet_phy_read(addr, PHY_ID1);
-  uint16_t phy_id2 = enet_phy_read(addr, PHY_ID2);
+  uint16_t phy_id1 = enet_phy_read(addr, MG_PHYREG_ID1);
+  uint16_t phy_id2 = enet_phy_read(addr, MG_PHYREG_ID2);
   return (uint32_t) phy_id1 << 16 | phy_id2;
 }
 
@@ -14094,8 +14437,9 @@ static bool mg_tcpip_driver_imxrt_init(struct mg_tcpip_if *ifp) {
   int cr = (d == NULL || d->mdc_cr < 0) ? 24 : d->mdc_cr;
   ENET->MSCR = (1 << 8) | ((cr & 0x3f) << 1);  // HOLDTIME 2 clks
 
-  enet_phy_write(d->phy_addr, PHY_BCR, MG_BIT(15));  // Reset PHY
-  enet_phy_write(d->phy_addr, PHY_BCR, MG_BIT(12));  // Set autonegotiation
+  enet_phy_write(d->phy_addr, MG_PHYREG_BCR, MG_BIT(15));  // Reset PHY
+  enet_phy_write(d->phy_addr, MG_PHYREG_BCR,
+                 MG_BIT(12));  // Set autonegotiation
 
   // PHY: Enable 50 MHz external ref clock at XI (preserve defaults)
   uint32_t id = enet_phy_id(d->phy_addr);
@@ -14161,7 +14505,7 @@ static size_t mg_tcpip_driver_imxrt_tx(const void *buf, size_t len,
 static bool mg_tcpip_driver_imxrt_up(struct mg_tcpip_if *ifp) {
   struct mg_tcpip_driver_imxrt_data *d =
       (struct mg_tcpip_driver_imxrt_data *) ifp->driver_data;
-  uint32_t bsr = enet_phy_read(d->phy_addr, PHY_BSR);
+  uint32_t bsr = enet_phy_read(d->phy_addr, MG_PHYREG_BSR);
   bool up = bsr & MG_BIT(2) ? 1 : 0;
   if ((ifp->state == MG_TCPIP_STATE_DOWN) && up) {  // link state just went up
     // tmp = reg with flags set to the most likely situation: 100M full-duplex
@@ -14238,11 +14582,11 @@ static uint8_t s_txno;                           // Current TX descriptor
 static uint8_t s_rxno;                           // Current RX descriptor
 
 static struct mg_tcpip_if *s_ifp;  // MIP interface
-enum { PHY_ADDR = 0, PHY_BCR = 0, PHY_BSR = 1 };
+enum { MG_PHY_ADDR = 0, MG_PHYREG_BCR = 0, MG_PHYREG_BSR = 1 };
 
-#define PHY_BCR_DUPLEX_MODE_Msk MG_BIT(8)
-#define PHY_BCR_SPEED_Msk MG_BIT(13)
-#define PHY_BSR_LINK_STATUS_Msk MG_BIT(2)
+#define MG_PHYREGBIT_BCR_DUPLEX_MODE MG_BIT(8)
+#define MG_PHYREGBIT_BCR_SPEED MG_BIT(13)
+#define MG_PHYREGBIT_BSR_LINK_STATUS MG_BIT(2)
 
 static uint16_t eth_read_phy(uint8_t addr, uint8_t reg) {
   GMAC_REGS->GMAC_MAN = GMAC_MAN_CLTTO_Msk |
@@ -14280,8 +14624,12 @@ int get_clock_rate(struct mg_tcpip_driver_same54_data *d) {
       case GCLK_GENCTRL_SRC_XOSC1_Val:
         mclk = 32000000UL; /* 32MHz */
         break;
-      case GCLK_GENCTRL_SRC_OSCULP32K_Val: mclk = 32000UL; break;
-      case GCLK_GENCTRL_SRC_XOSC32K_Val: mclk = 32000UL; break;
+      case GCLK_GENCTRL_SRC_OSCULP32K_Val:
+        mclk = 32000UL;
+        break;
+      case GCLK_GENCTRL_SRC_XOSC32K_Val:
+        mclk = 32000UL;
+        break;
       case GCLK_GENCTRL_SRC_DFLL_Val:
         mclk = 48000000UL; /* 48MHz */
         break;
@@ -14291,7 +14639,8 @@ int get_clock_rate(struct mg_tcpip_driver_same54_data *d) {
       case GCLK_GENCTRL_SRC_DPLL1_Val:
         mclk = 200000000UL; /* 200MHz */
         break;
-      default: mclk = 200000000UL; /* 200MHz */
+      default:
+        mclk = 200000000UL; /* 200MHz */
     }
 
     mclk /= div;
@@ -14382,17 +14731,17 @@ static size_t mg_tcpip_driver_same54_tx(const void *buf, size_t len,
 }
 
 static bool mg_tcpip_driver_same54_up(struct mg_tcpip_if *ifp) {
-  uint16_t bsr = eth_read_phy(PHY_ADDR, PHY_BSR);
-  bool up = bsr & PHY_BSR_LINK_STATUS_Msk ? 1 : 0;
+  uint16_t bsr = eth_read_phy(MG_PHY_ADDR, MG_PHYREG_BSR);
+  bool up = bsr & MG_PHYREGBIT_BSR_LINK_STATUS ? 1 : 0;
 
   // If PHY is ready, update NCFGR accordingly
   if (ifp->state == MG_TCPIP_STATE_DOWN && up) {
-    uint16_t bcr = eth_read_phy(PHY_ADDR, PHY_BCR);
-    bool fd = bcr & PHY_BCR_DUPLEX_MODE_Msk ? 1 : 0;
-    bool spd = bcr & PHY_BCR_SPEED_Msk ? 1 : 0;
-    GMAC_REGS->GMAC_NCFGR =
-        (GMAC_REGS->GMAC_NCFGR & ~(GMAC_NCFGR_SPD_Msk | PHY_BCR_SPEED_Msk)) |
-        GMAC_NCFGR_SPD(spd) | GMAC_NCFGR_FD(fd);
+    uint16_t bcr = eth_read_phy(MG_PHY_ADDR, MG_PHYREG_BCR);
+    bool fd = bcr & MG_PHYREGBIT_BCR_DUPLEX_MODE ? 1 : 0;
+    bool spd = bcr & MG_PHYREGBIT_BCR_SPEED ? 1 : 0;
+    GMAC_REGS->GMAC_NCFGR = (GMAC_REGS->GMAC_NCFGR &
+                             ~(GMAC_NCFGR_SPD_Msk | MG_PHYREGBIT_BCR_SPEED)) |
+                            GMAC_NCFGR_SPD(spd) | GMAC_NCFGR_FD(fd);
   }
 
   return up;
@@ -14466,7 +14815,13 @@ static uint8_t s_txno;                               // Current TX descriptor
 static uint8_t s_rxno;                               // Current RX descriptor
 
 static struct mg_tcpip_if *s_ifp;  // MIP interface
-enum { PHY_BCR = 0, PHY_BSR = 1, PHY_ID1 = 2, PHY_ID2 = 3, PHY_CSCR = 31 };
+enum {
+  MG_PHYREG_BCR = 0,
+  MG_PHYREG_BSR = 1,
+  MG_PHYREG_ID1 = 2,
+  MG_PHYREG_ID2 = 3,
+  MG_PHYREG_CSCR = 31
+};
 
 static uint32_t eth_read_phy(uint8_t addr, uint8_t reg) {
   ETH->MACMIIAR &= (7 << 2);
@@ -14574,18 +14929,18 @@ static bool mg_tcpip_driver_stm32f_init(struct mg_tcpip_if *ifp) {
   ETH->MACIMR = MG_BIT(3) | MG_BIT(9);  // Mask timestamp & PMT IT
   ETH->MACFCR = MG_BIT(7);              // Disable zero quarta pause
   // ETH->MACFFR = MG_BIT(31);                            // Receive all
-  eth_write_phy(phy_addr, PHY_BCR, MG_BIT(15));     // Reset PHY
-  eth_write_phy(phy_addr, PHY_BCR, MG_BIT(12));     // Set autonegotiation
-  ETH->DMARDLAR = (uint32_t) (uintptr_t) s_rxdesc;  // RX descriptors
-  ETH->DMATDLAR = (uint32_t) (uintptr_t) s_txdesc;  // RX descriptors
-  ETH->DMAIER = MG_BIT(6) | MG_BIT(16);             // RIE, NISE
+  eth_write_phy(phy_addr, MG_PHYREG_BCR, MG_BIT(15));  // Reset PHY
+  eth_write_phy(phy_addr, MG_PHYREG_BCR, MG_BIT(12));  // Set autonegotiation
+  ETH->DMARDLAR = (uint32_t) (uintptr_t) s_rxdesc;     // RX descriptors
+  ETH->DMATDLAR = (uint32_t) (uintptr_t) s_txdesc;     // RX descriptors
+  ETH->DMAIER = MG_BIT(6) | MG_BIT(16);                // RIE, NISE
   ETH->MACCR =
       MG_BIT(2) | MG_BIT(3) | MG_BIT(11) | MG_BIT(14);  // RE, TE, Duplex, Fast
   ETH->DMAOMR =
       MG_BIT(1) | MG_BIT(13) | MG_BIT(21) | MG_BIT(25);  // SR, ST, TSF, RSF
 
-  MG_DEBUG(("PHY ID: %#04hx %#04hx", eth_read_phy(phy_addr, PHY_ID1),
-            eth_read_phy(phy_addr, PHY_ID2)));
+  MG_DEBUG(("PHY ID: %#04hx %#04hx", eth_read_phy(phy_addr, MG_PHYREG_ID1),
+            eth_read_phy(phy_addr, MG_PHYREG_ID2)));
 
   // MAC address filtering
   ETH->MACA0HR = ((uint32_t) ifp->mac[5] << 8U) | ifp->mac[4];
@@ -14622,10 +14977,10 @@ static bool mg_tcpip_driver_stm32f_up(struct mg_tcpip_if *ifp) {
   struct mg_tcpip_driver_stm32f_data *d =
       (struct mg_tcpip_driver_stm32f_data *) ifp->driver_data;
   uint8_t phy_addr = d == NULL ? 0 : d->phy_addr;
-  uint32_t bsr = eth_read_phy(phy_addr, PHY_BSR);
+  uint32_t bsr = eth_read_phy(phy_addr, MG_PHYREG_BSR);
   bool up = bsr & MG_BIT(2) ? 1 : 0;
   if ((ifp->state == MG_TCPIP_STATE_DOWN) && up) {  // link state just went up
-    uint32_t scsr = eth_read_phy(phy_addr, PHY_CSCR);
+    uint32_t scsr = eth_read_phy(phy_addr, MG_PHYREG_CSCR);
     // tmp = reg with flags set to the most likely situation: 100M full-duplex
     // if(link is slow or half) set flags otherwise
     // reg = tmp
@@ -14722,10 +15077,10 @@ static uint8_t s_rxbuf[ETH_DESC_CNT][ETH_PKT_SIZE];       // RX ethernet buffers
 static uint8_t s_txbuf[ETH_DESC_CNT][ETH_PKT_SIZE];       // TX ethernet buffers
 static struct mg_tcpip_if *s_ifp;                         // MIP interface
 enum {
-  PHY_ADDR = 0,
-  PHY_BCR = 0,
-  PHY_BSR = 1,
-  PHY_CSCR = 31
+  MG_PHY_ADDR = 0,
+  MG_PHYREG_BCR = 0,
+  MG_PHYREG_BSR = 1,
+  MG_PHYREG_CSCR = 31
 };  // PHY constants
 
 static uint32_t eth_read_phy(uint8_t addr, uint8_t reg) {
@@ -14850,8 +15205,9 @@ static bool mg_tcpip_driver_stm32h_init(struct mg_tcpip_if *ifp) {
   ETH->MACIER = 0;  // Do not enable additional irq sources (reset value)
   ETH->MACTFCR = MG_BIT(7);  // Disable zero-quanta pause
   // ETH->MACPFR = MG_BIT(31);  // Receive all
-  eth_write_phy(PHY_ADDR, PHY_BCR, MG_BIT(15));  // Reset PHY
-  eth_write_phy(PHY_ADDR, PHY_BCR, MG_BIT(12));  // Set autonegotiation
+  eth_write_phy(MG_PHY_ADDR, MG_PHYREG_BCR, MG_BIT(15));  // Reset PHY
+  eth_write_phy(MG_PHY_ADDR, MG_PHYREG_BCR,
+                MG_BIT(12));  // Set autonegotiation
   ETH->DMACRDLAR =
       (uint32_t) (uintptr_t) s_rxdesc;  // RX descriptors start address
   ETH->DMACRDRLR = ETH_DESC_CNT - 1;    // ring length
@@ -14906,10 +15262,10 @@ static size_t mg_tcpip_driver_stm32h_tx(const void *buf, size_t len,
 }
 
 static bool mg_tcpip_driver_stm32h_up(struct mg_tcpip_if *ifp) {
-  uint32_t bsr = eth_read_phy(PHY_ADDR, PHY_BSR);
+  uint32_t bsr = eth_read_phy(MG_PHY_ADDR, MG_PHYREG_BSR);
   bool up = bsr & MG_BIT(2) ? 1 : 0;
   if ((ifp->state == MG_TCPIP_STATE_DOWN) && up) {  // link state just went up
-    uint32_t scsr = eth_read_phy(PHY_ADDR, PHY_CSCR);
+    uint32_t scsr = eth_read_phy(MG_PHY_ADDR, MG_PHYREG_CSCR);
     // tmp = reg with flags set to the most likely situation: 100M full-duplex
     // if(link is slow or half) set flags otherwise
     // reg = tmp
