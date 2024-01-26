@@ -792,6 +792,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 mympd_state->mpd_state->feat.sticker_sort_window = bool_buf2;
                 mympd_state->mpd_state->feat.sticker_int = bool_buf3;
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
+                send_jsonrpc_event(JSONRPC_EVENT_UPDATE_OPTIONS, MPD_PARTITION_ALL);
             }
             break;
     // queue
