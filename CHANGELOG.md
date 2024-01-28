@@ -58,9 +58,10 @@ It also supports the new "added" timestamp for songs in the mpd database.
 - Upd: Smart playlist interval can be disabled
 - Upd: Improve JSON encoding performance
 - Upd: Improve event loop resource usage
-- Upd: utf8 dependency
+- Upd: utf8.h dependency
 - Fix: More reliable websocket reconnection
-- Fix: limit sort tags for simple album mode #1204
+- Fix: Limit sort tags for simple album mode #1204
+- Fix: Sticker feature detection
 
 ***
 
