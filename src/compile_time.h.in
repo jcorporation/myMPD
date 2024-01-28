@@ -47,6 +47,7 @@
 #cmakedefine I18N_pl_PL
 #cmakedefine I18N_ru_RU
 #cmakedefine I18N_zh_Hans
+#cmakedefine I18N_zh_Hant
 
 //myMPD version from cmake
 #define MYMPD_VERSION "${PROJECT_VERSION}"

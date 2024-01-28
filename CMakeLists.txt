@@ -228,6 +228,9 @@ if(MYMPD_EMBEDDED_ASSETS)
   if(EXISTS "${PROJECT_BINARY_DIR}/htdocs/assets/i18n/zh-Hans.json.gz")
     set(I18N_zh_Hans "ON")
   endif()
+  if(EXISTS "${PROJECT_BINARY_DIR}/htdocs/assets/i18n/zh-Hant.json.gz")
+    set(I18N_zh_Hant "ON")
+  endif()
 endif()
 
 # create html documentation

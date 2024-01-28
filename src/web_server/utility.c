@@ -404,6 +404,9 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         #ifdef I18N_zh_Hans
         {"/assets/i18n/zh-Hans.json", "application/json", true, true, i18n_zh_Hans_json_data, i18n_zh_Hans_json_size},
         #endif
+        #ifdef I18N_zh_Hant
+        {"/assets/i18n/zh-Hant.json", "application/json", true, true, i18n_zh_Hant_json_data, i18n_zh_Hant_json_size},
+        #endif
         {NULL, NULL, false, false, NULL, 0}
     };
     //decode uri

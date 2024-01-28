@@ -70,6 +70,9 @@ INCBIN(ligatures_json, "../htdocs/assets/ligatures.json.gz");
 #ifdef I18N_zh_Hans
     INCBIN(i18n_zh_Hans_json, "../htdocs/assets/i18n/zh-Hans.json.gz");
 #endif
+#ifdef I18N_zh_Hant
+    INCBIN(i18n_zh_Hant_json, "../htdocs/assets/i18n/zh-Hant.json.gz");
+#endif
 //uncompressed assets
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
 INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");

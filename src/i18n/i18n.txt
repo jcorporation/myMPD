@@ -13,3 +13,4 @@ nl:nl-NL:Nederlands
 pl:pl-PL:Polish
 ru:ru-RU:Russian
 zh-Hans:zh-Hans:简体中文
+zh-Hant:zh-Hant:简体中文
