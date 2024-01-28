@@ -169,7 +169,6 @@
     "Could not delete script": "Le fichier de script n'a pu être supprimé",
     "Could not delete trigger": "Le déclencheur n'a pu être supprimé",
     "Could not delete webradio favorite": "La webradio favorite n'a pu être supprimée",
-    "Could not find album": "L'album n'a pu être trouvé",
     "Could not get local ip": "L'adresse IP locale n'a pu être déterminée",
     "Could not load preset": "Impossible de charger le profil",
     "Could not remove song from jukebox queue": "La chanson n'a pu être retirée de la file de lecture du jukebox",

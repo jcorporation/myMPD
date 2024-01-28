@@ -169,7 +169,6 @@
 {"term":"Could not delete script"},
 {"term":"Could not delete trigger"},
 {"term":"Could not delete webradio favorite"},
-{"term":"Could not find album"},
 {"term":"Could not get local ip"},
 {"term":"Could not load preset"},
 {"term":"Could not remove song from jukebox queue"},
