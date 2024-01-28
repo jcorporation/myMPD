@@ -356,6 +356,7 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
         struct mpd_song *mpd_album = album_cache_get_album(album_cache, current->key);
         if (mpd_album == NULL) {
             rc = false;
+            *error = sdscat(*error, "Album not found");
             break;
         }
         sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, mpd_album,
@@ -419,6 +420,7 @@ bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *part
     }
     struct mpd_song *mpd_album = album_cache_get_album(album_cache, albumid);
     if (mpd_album == NULL) {
+        *error = sdscat(*error, "Album not found");
         return false;
     }
     sds expression = get_search_expression_album_disc(partition_state->mpd_state->tag_albumartist, mpd_album,
