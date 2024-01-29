@@ -160,7 +160,7 @@ function parseCurrentSong(obj) {
 
     const bookletEl = elGetById('PlaybackBooklet');
     elClear(bookletEl);
-    if (obj.result.bookletPath !== '') {
+    if (isEmptyTag(obj.result.bookletPath) === false) {
         bookletEl.appendChild(
             elCreateText('span', {"class": ["mi", "me-2"]}, 'description')
         );
@@ -171,7 +171,7 @@ function parseCurrentSong(obj) {
 
     const infoTxtEl = elGetById('PlaybackInfoTxt');
     elClear(infoTxtEl);
-    if (obj.result.infoTxtPath !== '') {
+    if (isEmptyTag(obj.result.infoTxtPath) === false) {
         infoTxtEl.appendChild(
             elCreateText('span', {"class": ["mi", "me-2"]}, 'article')
         );
