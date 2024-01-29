@@ -372,7 +372,6 @@ function clickGotoPos() {
  * @returns {void}
  */
 function toggleAdvPlaycontrolsPopover(event) {
-    console.log(event.target.closest('.dropdown'));
     if (event.target.closest('.dropdown-menu') !== null) {
         return;
     }
