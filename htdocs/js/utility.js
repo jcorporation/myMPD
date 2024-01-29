@@ -462,18 +462,20 @@ async function httpGet(uri, callback, json) {
         return;
     }
 
+    let data;
     try {
-        const data = json === true
+        data = json === true
             ? await response.json()
             : await response.text();
-        callback(data);
     }
     catch(error) {
         showNotification(tn('API error') + '\n' + tn('Can not parse response from %{uri}', {"uri": uri}), 'general', 'error');
         logError('Can not parse response from ' + uri);
         logError(error);
         callback(null);
+        return;
     }
+    callback(data);
 }
 
 /**
