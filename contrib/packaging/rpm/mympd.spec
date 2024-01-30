@@ -69,5 +69,5 @@ fi
 %license LICENSE.md
 
 %changelog
-* Sat Jan 13 2024 Juergen Mang <mail@jcgames.de> 14.0.0-0
+* Tue Jan 30 2024 Juergen Mang <mail@jcgames.de> 14.0.0-0
 - Version from master

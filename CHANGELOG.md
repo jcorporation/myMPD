@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPV v14.0.0 (not yet released)
+## myMPD v14.0.0 (2024-01-30)
 
 This version ships many improvements for stickers, smart playlists and the jukebox mode.
 
