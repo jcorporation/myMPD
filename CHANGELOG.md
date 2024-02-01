@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Feat: Add setting for default sort tag in library view #1207
+
 ***
 
 ## myMPD v14.0.0 (2024-01-30)
