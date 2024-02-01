@@ -119,7 +119,12 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
     if (offset === null || offset === undefined) { offset = ptr.offset; }
     if (limit === null || limit === undefined)   { limit = ptr.limit; }
     if (filter === null || filter === undefined) { filter = ptr.filter; }
-    if (sort === null || sort === undefined)     { sort = ptr.sort; }
+    if (sort === null || sort === undefined) {
+        sort = ptr.sort;
+        if (card === 'Browse' && tab === 'Database' && view === 'AlbumList') {
+            sort.tag = settings.webuiSettings.browseDatabaseAlbumListSort;
+        }
+    }
     if (tag === null || tag === undefined)       { tag = ptr.tag; }
     if (search === null || search === undefined) { search = ptr.search; }
     //enforce number type

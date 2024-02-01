@@ -127,28 +127,10 @@ function addTagList(elId, list) {
         }
     }
     else if (elId === 'BrowseDatabaseAlbumListSortTagsList') {
-        if (settings.albumMode === 'adv') {
-            if (settings.tagList.includes('Date') === true &&
-                settings[list].includes('Date') === false)
-            {
-                stack.appendChild(
-                    elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, 'Date')
-                );
-            }
+        const tags = setBrowseDatabaseAlbumListSortTags(list);
+        for (let i = 0, j = tags.length; i < j; i++) {
             stack.appendChild(
-                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, 'Last modified')
-            );
-            if (features.featDbAdded === true) {
-                stack.appendChild(
-                    elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Added"}, 'Added')
-                );
-            }
-        }
-        else if (settings.albumGroupTag !== '' &&
-            settings[list].includes(settings.albumGroupTag) === false)
-        {
-            stack.appendChild(
-                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings.albumGroupTag}, settings.albumGroupTag)
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": tags[i][0]}, tags[i][1])
             );
         }
     }
@@ -223,6 +205,45 @@ function addTagListSelect(elId, list) {
             );
         }
     }
+    else if (elId === 'modalSettingsBrowseDatabaseAlbumListSortInput') {
+        for (let i = 0, j = settings[list].length; i < j; i++) {
+            select.appendChild(
+                elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i])
+            );
+        }
+        const tags = setBrowseDatabaseAlbumListSortTags(list);
+        for (let i = 0, j = tags.length; i < j; i++) {
+            select.appendChild(
+                elCreateTextTn('option', {"value": tags[i][0]}, tags[i][1])
+            );
+        }
+    }
+}
+
+/**
+ * Returns additional tags for the album list sort tag elements
+ * @param {string} list name of the taglist
+ * @returns {Array} array of tags and descriptions
+ */
+function setBrowseDatabaseAlbumListSortTags(list) {
+    const tags = [];
+    if (settings.albumMode === 'adv') {
+        if (settings.tagList.includes('Date') === true &&
+            settings[list].includes('Date') === false)
+        {
+            tags.push(['Date','Date']);
+        }
+        tags.push(['Last-Modified', 'Last modified']);
+        if (features.featDbAdded === true) {
+            tags.push(['Added', 'Added']);
+        }
+    }
+    else if (settings.albumGroupTag !== '' &&
+        settings[list].includes(settings.albumGroupTag) === false)
+    {
+        tags.push([settings.albumGroupTag, settings.albumGroupTag]);
+    }
+    return tags;
 }
 
 /**

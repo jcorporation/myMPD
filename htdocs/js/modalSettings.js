@@ -132,6 +132,8 @@ function getBgImageList() {
  * @returns {void}
  */
 function populateSettingsFrm() {
+    addTagListSelect('modalSettingsBrowseDatabaseAlbumListSortInput', 'tagListAlbum');
+
     jsonToForm(settings, settingsFields, 'modalSettings');
     jsonToForm(settings.webuiSettings, settingsWebuiFields, 'modalSettings');
     jsonToForm(settings.partition, settingsPartitionFields, 'modalSettings');

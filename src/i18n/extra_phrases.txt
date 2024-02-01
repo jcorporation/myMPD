@@ -31,6 +31,7 @@ Context menu
 country
 CSS filter
 Dark
+Date
 Default
 Default image
 Default image dark
