@@ -1112,6 +1112,7 @@
     "mympd_disconnected": "Déconnecté",
     "mympd_feedback": "Note",
     "mympd_scrobble": "Scrobble",
+    "mympd_skipped": "",
     "mympd_start": "Démarré",
     "mympd_stop": "Arrêté",
     "name": "nom",

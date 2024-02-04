@@ -1112,6 +1112,7 @@
     "mympd_disconnected": "切断",
     "mympd_feedback": "フィードバック",
     "mympd_scrobble": "Scrobble",
+    "mympd_skipped": "",
     "mympd_start": "開始",
     "mympd_stop": "停止",
     "name": "名前",

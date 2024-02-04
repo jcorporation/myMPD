@@ -1112,6 +1112,7 @@
     "mympd_disconnected": "연결 안 됨",
     "mympd_feedback": "피드백",
     "mympd_scrobble": "스크로블",
+    "mympd_skipped": "",
     "mympd_start": "시작",
     "mympd_stop": "정지",
     "name": "이름",
