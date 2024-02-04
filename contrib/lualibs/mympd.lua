@@ -6,7 +6,7 @@
 -- https://github.com/jcorporation/mympd
 --
 
-mympd = { _version = "0.4.0" }
+mympd = { _version = "0.5.0" }
 
 --
 -- Calls the myMPD jsonrpc api
@@ -58,5 +58,41 @@ function mympd.os_capture(cmd)
     return "io library must be loaded"
   end
 end
+
+---
+--- myGPIOd integration functions
+--- This functions requires a running myGPIOd service.
+--- myMPD must be compiled with libmygpio.
+---
+
+mymypd.mygpiod_socket = "/run/mygpiod/socket"
+
+--
+-- Blinks a GPIO with given timeout and interval
+--
+function mympd.gpio_blink(gpio, timeout_ms, interval_ms) {
+  return mygpio_gpio_blink(mymypd.mygpiod_socket, gpio, timeout_ms, interval_ms)
+}
+
+--
+-- Returns the active state of a GPIO
+--
+function mympd.gpio_get(gpio) {
+  return mygpio_gpio_get(mymypd.mygpiod_socket, gpio)
+}
+
+--
+-- Sets the active value of a GPIO
+--
+function mympd.gpio_set(gpio, value) {
+  return mygpio_gpio_set(mymypd.mygpiod_socket, gpio, value)
+}
+
+--
+-- Toggles the active value of a GPIO
+--
+function mympd.gpio_toggle(gpio) {
+  return mygpio_gpio_toggle(mymypd.mygpiod_socket, gpio)
+}
 
 return mympd

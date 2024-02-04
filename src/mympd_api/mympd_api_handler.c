@@ -42,7 +42,6 @@
 #include "src/mympd_api/pictures.h"
 #include "src/mympd_api/playlists.h"
 #include "src/mympd_api/queue.h"
-#include "src/mympd_api/scripts.h"
 #include "src/mympd_api/search.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/smartpls.h"
@@ -55,6 +54,10 @@
 #include "src/mympd_api/trigger.h"
 #include "src/mympd_api/volume.h"
 #include "src/mympd_api/webradios.h"
+
+#ifdef MYMPD_ENABLE_LUA
+    #include "src/mympd_api/scripts/scripts.h"
+#endif
 
 #include <stdbool.h>
 #include <stdlib.h>

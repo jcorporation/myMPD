@@ -5,20 +5,21 @@
 */
 
 #include "compile_time.h"
-#include "src/mympd_api/scripts.h"
+#include "src/mympd_api/scripts/scripts.h"
 
 #include "src/lib/api.h"
 #include "src/lib/filehandler.h"
-#include "src/lib/http_client.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/lua_mympd_state.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
-#include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
 #include "src/lib/utility.h"
+#include "src/mympd_api/scripts/interface.h"
+#include "src/mympd_api/scripts/interface_http_client.h"
+#include "src/mympd_api/scripts/interface_mygpio.h"
+#include "src/mympd_api/scripts/interface_mympd_api.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -27,14 +28,12 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifdef MYMPD_ENABLE_LUA
-
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
 #ifdef MYMPD_EMBEDDED_ASSETS
     //embedded files for release build
-    #include "scripts_lualibs.c"
+    #include "src/mympd_api/scripts/lualibs.c"
 #endif
 
 /**
@@ -58,17 +57,10 @@ static lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc);
 static void *script_execute(void *script_thread_arg);
 static sds script_get_result(lua_State *lua_vm, int rc);
 const char *lua_err_to_str(int rc);
-static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state);
-static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value);
-static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, int64_t value);
-static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, double value);
-static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value);
 static void register_lua_functions(lua_State *lua_vm);
 static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg);
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
 static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *order);
-static int lua_mympd_api(lua_State *lua_vm);
-static int lua_http_client(lua_State *lua_vm);
 
 /**
  * Public functions
@@ -596,158 +588,18 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
 }
 
 /**
- * Helper functions to push a lua table
- * @param lua_vm lua instance
- * @param key the key
- * @param value string value
- */
-static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value) {
-    lua_pushstring(lua_vm, key);
-    lua_pushstring(lua_vm, value);
-    lua_settable(lua_vm, -3);
-}
-
-/**
- * Helper functions to push a lua table
- * @param lua_vm lua instance
- * @param key the key
- * @param value int64_t value (lua integer)
- */
-static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, int64_t value) {
-    lua_pushstring(lua_vm, key);
-    lua_pushinteger(lua_vm, (long long)value);
-    lua_settable(lua_vm, -3);
-}
-
-/**
- * Helper functions to push a lua table
- * @param lua_vm lua instance
- * @param key the key
- * @param value double value (lua number)
- */
-static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, double value) {
-    lua_pushstring(lua_vm, key);
-    lua_pushnumber(lua_vm, value);
-    lua_settable(lua_vm, -3);
-}
-
-/**
- * Helper functions to push a lua table
- * @param lua_vm lua instance
- * @param key the key
- * @param value bool value
- */
-static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value) {
-    lua_pushstring(lua_vm, key);
-    lua_pushboolean(lua_vm, value);
-    lua_settable(lua_vm, -3);
-}
-
-/**
- * Populates the lua table from the lua_mympd_state struct
- * @param lua_vm lua instance
- * @param lua_mympd_state 
- */
-static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state) {
-    struct t_list_node *current = lua_mympd_state->head;
-    while (current != NULL) {
-        struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)current->user_data;
-        switch (current->value_i) {
-            case LUA_TYPE_STRING:
-                populate_lua_table_field_p(lua_vm, current->key, value->p);
-                break;
-            case LUA_TYPE_INTEGER:
-                populate_lua_table_field_i(lua_vm, current->key, value->i);
-                break;
-            case LUA_TYPE_NUMBER:
-                populate_lua_table_field_f(lua_vm, current->key, value->f);
-                break;
-            case LUA_TYPE_BOOLEAN:
-                populate_lua_table_field_b(lua_vm, current->key, value->b);
-                break;
-        }
-        current = current->next;
-    }
-}
-
-/**
  * Registers myMPD specific lua functions
  * @param lua_vm lua instance
  */
 static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_api", lua_mympd_api);
     lua_register(lua_vm, "mympd_api_http_client", lua_http_client);
-}
-
-/**
- * Function that implements mympd_api lua function
- * @param lua_vm lua instance
- * @return return code
- */
-static int lua_mympd_api(lua_State *lua_vm) {
-    //check arguments
-    int n = lua_gettop(lua_vm);
-    if (n != 2) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: invalid number of arguments");
-        return luaL_error(lua_vm, "Invalid number of arguments");
-    }
-    //get method
-    const char *method = lua_tostring(lua_vm, 1);
-    enum mympd_cmd_ids method_id = get_cmd_id(method);
-    if (method_id == GENERAL_API_UNKNOWN) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: Invalid method \"%s\"", method);
-        return luaL_error(lua_vm, "Invalid method");
-    }
-    //get partition
-    lua_getglobal(lua_vm, "partition");
-    const char *partition = lua_tostring(lua_vm, -1);
-    if (partition == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: Invalid partition");
-        return luaL_error(lua_vm, "Invalid partition");
-    }
-    //generate a request id
-    unsigned request_id = randrange(0, UINT_MAX);
-    //create the request
-    struct t_work_request *request = create_request(REQUEST_TYPE_SCRIPT, 0, request_id, method_id, NULL, partition);
-    const char *params = lua_tostring(lua_vm, 2);
-    if (params[0] != '{') {
-        //param is invalid json, ignore it
-        request->data = sdscatlen(request->data, "}", 1);
-    }
-    else {
-        sdsrange(request->data, 0, -2); //trim opening curly bracket
-        request->data = sdscat(request->data, params);
-    }
-    request->data = sdscatlen(request->data, "}", 1);
-    mympd_queue_push(mympd_api_queue, request, request_id);
-
-    int i = 0;
-    while (s_signal_received == 0 && i < 60) {
-        i++;
-        struct t_work_response *response = mympd_queue_shift(mympd_script_queue, 1000000, request_id);
-        if (response != NULL) {
-            MYMPD_LOG_DEBUG(NULL, "Got response: %s", response->data);
-            if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
-                //this populates a lua table with some MPD and myMPD states
-                MYMPD_LOG_DEBUG(NULL, "Populating lua global state table mympd");
-                if (response->extra != NULL) {
-                    struct t_list *lua_mympd_state = (struct t_list *)response->extra;
-                    lua_newtable(lua_vm);
-                    populate_lua_table(lua_vm, lua_mympd_state);
-                    lua_setglobal(lua_vm, "mympd_state");
-                    lua_mympd_state_free(lua_mympd_state);
-                }
-            }
-            //push return code and jsonrpc response
-            int rc = json_find_key(response->data, "$.error.message") == true ? 1 : 0;
-            lua_pushinteger(lua_vm, rc);
-            lua_pushlstring(lua_vm, response->data, sdslen(response->data));
-            free_response(response);
-            //return response count
-            return 2;
-        }
-    }
-    return luaL_error(lua_vm, "No API response, timeout after 60s");
+    #ifdef MYMPD_ENABLE_MYGPIOD
+        lua_register(lua_vm, "mygpio_gpio_blink", lua_mygpio_gpio_blink);
+        lua_register(lua_vm, "mygpio_gpio_get", lua_mygpio_gpio_get);
+        lua_register(lua_vm, "mygpio_gpio_set", lua_mygpio_gpio_set);
+        lua_register(lua_vm, "mygpio_gpio_toggle", lua_mygpio_gpio_toggle);
+    #endif
 }
 
 /**
@@ -762,43 +614,3 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
     list_free(script_thread_arg->arguments);
     FREE_PTR(script_thread_arg);
 }
-
-/**
- * Simple HTTP client for lua
- * @param lua_vm lua instance
- * @return number of variables on the stack with the response
- */
-static int lua_http_client(lua_State *lua_vm) {
-    int n = lua_gettop(lua_vm);
-    if (n != 4) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api_http_client: invalid number of arguments");
-        return luaL_error(lua_vm, "Invalid number of arguments");
-    }
-
-    struct mg_client_request_t mg_client_request = {
-        .method = lua_tostring(lua_vm, 1),
-        .uri = lua_tostring(lua_vm, 2),
-        .extra_headers = lua_tostring(lua_vm, 3),
-        .post_data = lua_tostring(lua_vm, 4)
-    };
-
-    struct mg_client_response_t mg_client_response = {
-        .rc = -1,
-        .response_code = 0,
-        .header = sdsempty(),
-        .body = sdsempty()
-    };
-
-    http_client_request(&mg_client_request, &mg_client_response);
-
-    lua_pushinteger(lua_vm, mg_client_response.rc);
-    lua_pushinteger(lua_vm, mg_client_response.response_code);
-    lua_pushlstring(lua_vm, mg_client_response.header, sdslen(mg_client_response.header));
-    lua_pushlstring(lua_vm, mg_client_response.body, sdslen(mg_client_response.body));
-    FREE_SDS(mg_client_response.header);
-    FREE_SDS(mg_client_response.body);
-    //return response count
-    return 4;
-}
-
-#endif

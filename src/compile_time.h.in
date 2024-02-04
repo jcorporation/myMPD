@@ -30,6 +30,7 @@
 #cmakedefine MYMPD_ENABLE_IPV6
 #cmakedefine MYMPD_ENABLE_LIBID3TAG
 #cmakedefine MYMPD_ENABLE_LUA
+#cmakedefine MYMPD_ENABLE_MYGPIOD
 
 //translation files
 #cmakedefine I18N_bg_BG
