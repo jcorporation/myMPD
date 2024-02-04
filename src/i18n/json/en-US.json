@@ -152,6 +152,7 @@
     "mympd_disconnected": "Disconnected",
     "mympd_feedback": "Feedback",
     "mympd_scrobble": "Scrobble",
+    "mympd_skipped": "Skipped",
     "mympd_start": "Start",
     "mympd_stop": "Stop",
     "MUSICBRAINZ_ALBUMARTISTID": "MusicBrainz AlbumArtist ID",
