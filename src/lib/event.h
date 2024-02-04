@@ -43,8 +43,8 @@ struct mympd_pfds {
 
 void event_pfd_init(struct mympd_pfds *pfds);
 bool event_pfd_add_fd(struct mympd_pfds *pfds, int fd, enum pfd_type type, struct t_partition_state *partition_state);
-bool event_pfd_read_fd(int fd);
 int event_eventfd_create(void);
+bool event_eventfd_read(int fd);
 bool event_eventfd_write(int fd);
 void event_fd_close(int fd);
 const char *lookup_pfd_type(enum pfd_type type);

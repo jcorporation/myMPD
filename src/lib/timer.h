@@ -10,6 +10,7 @@
 #include <stdbool.h>
 
 int mympd_timer_create(int clock, int timeout, int interval);
+bool mympd_timer_read(int fd);
 bool mympd_timer_set(int timer_fd, int timeout, int interval);
 void mympd_timer_log_next_expire(int timer_fd);
 void mympd_timer_close(int fd);
