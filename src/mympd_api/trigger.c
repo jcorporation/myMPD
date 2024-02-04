@@ -77,6 +77,7 @@ static const char *const mympd_event_names[] = {
     "mympd_connected",
     "mympd_disconnected",
     "mympd_feedback",
+    "mympd_skipped",
     NULL
 };
 
