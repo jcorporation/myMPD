@@ -1112,6 +1112,7 @@
     "mympd_disconnected": "",
     "mympd_feedback": "",
     "mympd_scrobble": "",
+    "mympd_skipped": "",
     "mympd_start": "",
     "mympd_stop": "",
     "name": "",

@@ -1113,6 +1113,7 @@
 {"term":"mympd_disconnected"},
 {"term":"mympd_feedback"},
 {"term":"mympd_scrobble"},
+{"term":"mympd_skipped"},
 {"term":"mympd_start"},
 {"term":"mympd_stop"},
 {"term":"name"},
