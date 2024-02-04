@@ -22,6 +22,7 @@ enum trigger_events {
     TRIGGER_MYMPD_CONNECTED = -4,      //!< myMPD connected to mpd event
     TRIGGER_MYMPD_DISCONNECTED = -5,   //!< myMPD disconnect from mpd event
     TRIGGER_MYMPD_FEEDBACK = -6,       //!< myMPD feedback event (love/hate)
+    TRIGGER_MYMPD_SKIPPED = -7,        //!< myMPD song skipped (same event is used for skipped sticker)
     TRIGGER_MPD_DATABASE = 0x1,        //!< mpd database has changed
     TRIGGER_MPD_STORED_PLAYLIST = 0x2, //!< mpd playlist idle event
     TRIGGER_MPD_QUEUE = 0x4,           //!< mpd queue idle event

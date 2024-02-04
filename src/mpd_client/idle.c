@@ -272,22 +272,19 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                     //check if song has changed
                     if (partition_state->song_id != partition_state->last_song_id &&
                         partition_state->last_skipped_id != partition_state->last_song_id &&
-                        partition_state->last_song_uri != NULL)
+                        sdslen(partition_state->last_song_uri) > 0)
                     {
-                        if (partition_state->mpd_state->feat.stickers == true) {
-                            //check if last song was skipped
-                            time_t now = time(NULL);
-                            time_t elapsed = now - partition_state->last_song_start_time;
-                            if (elapsed > SCROBBLE_TIME_MIN &&
-                                partition_state->last_song_start_time > 0 &&
-                                sdslen(partition_state->last_song_uri) > 0)
-                            {
-                                MYMPD_LOG_DEBUG(partition_state->name, "Song \"%s\" skipped", partition_state->last_song_uri);
-                                if (partition_state->mpd_state->feat.stickers == true) {
-                                    stickerdb_inc_skip_count(mympd_state->stickerdb, partition_state->last_song_uri);
-                                }
-                                partition_state->last_skipped_id = partition_state->last_song_id;
+                        //check if last song was skipped
+                        time_t last_song_elapsed = partition_state->song_start_time - partition_state->last_song_start_time;
+                        if (partition_state->last_song_start_time + last_song_elapsed < partition_state->last_song_end_time - SCROBBLE_TIME_MIN &&
+                            partition_state->last_song_start_time > 0)
+                        {
+                            MYMPD_LOG_DEBUG(partition_state->name, "Song \"%s\" skipped", partition_state->last_song_uri);
+                            if (partition_state->mpd_state->feat.stickers == true) {
+                                stickerdb_inc_skip_count(mympd_state->stickerdb, partition_state->last_song_uri);
                             }
+                            partition_state->last_skipped_id = partition_state->last_song_id;
+                            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SKIPPED, partition_state->name);
                         }
                     }
                     break;

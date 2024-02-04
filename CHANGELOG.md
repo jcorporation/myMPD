@@ -12,6 +12,17 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v14.0.1 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: Skip event
+- Feat: Add skip event trigger
+
+***
+
 ## myMPD v14.0.0 (2024-01-30)
 
 This version ships many improvements for stickers, smart playlists and the jukebox mode.
