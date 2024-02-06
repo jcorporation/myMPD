@@ -183,6 +183,8 @@ void *web_server_loop(void *arg_mgr) {
 
     //set mongoose loglevel to error
     mg_log_set(1);
+    //debug logging
+    //mg_log_set(4);
     mg_log_set_fn(mongoose_log, NULL);
     // Initialise wakeup socket pair
     mg_wakeup_init(mgr);
