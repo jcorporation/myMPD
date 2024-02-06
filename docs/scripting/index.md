@@ -146,6 +146,9 @@ The GPIO interface depends on libmygpio and requires a configured [myGPIOd](http
 All functions are connecting to the socket `/run/mygpiod/socket`, issues the command and disconnects.
 
 ```lua
+-- Set non default socket for myGPIOd connection
+mympd.mygpiod_socket = "/run/mygpiod/socket.debug"
+
 -- Blink a GPIO at given timeout and interval
 rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)
 
