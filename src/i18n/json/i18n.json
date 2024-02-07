@@ -4,7 +4,7 @@
     "en-US": {"desc":"English (en-US)", "missingPhrases": 0},
     "es-AR": {"desc":"Español (es-AR)", "missingPhrases": 7},
     "fr-FR": {"desc":"Français (fr-FR)", "missingPhrases": 1},
-    "it-IT": {"desc":"Italiano (it-IT)", "missingPhrases": 7},
+    "it-IT": {"desc":"Italiano (it-IT)", "missingPhrases": 0},
     "ja-JP": {"desc":"日本語 (ja-JP)", "missingPhrases": 12},
     "ko-KR": {"desc":"한국어 (ko-KR)", "missingPhrases": 1},
     "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 1},
