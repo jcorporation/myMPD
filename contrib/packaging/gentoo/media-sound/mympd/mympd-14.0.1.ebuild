@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~x86 ~arm ~arm64"
 IUSE="+flac +id3tag +lua systemd"
 
 BDEPEND="
-    >=dev-util/cmake-3.13
+    >=dev-build/cmake-3.13
     dev-lang/perl
     app-misc/jq"
 
