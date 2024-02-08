@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v14.0.1 (not yet released)
+## myMPD v14.0.1 (2024-02-08)
 
 This is a small bugfix release.
 
@@ -12,6 +12,7 @@ This is a small bugfix release.
 
 - Fix: Skip event
 - Feat: Add skip event trigger
+- Fix: cmake dependency for Gentoo #1210
 
 ***
 
