@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 - bg-BG: 990 missing phrases
 - es-AR: 8 missing phrases
 - es-ES: 852 missing phrases
@@ -12,3 +13,19 @@
 - ru-RU: 75 missing phrases
 - zh-Hans: 2 missing phrases
 - zh-Hant: 1145 missing phrases
+=======
+- bg-BG: 991 missing phrases
+- es-AR: 7 missing phrases
+- es-ES: 853 missing phrases
+- es-VE: 853 missing phrases
+- fi-FI: 850 missing phrases
+- fr-FR: 1 missing phrases
+- it-IT: fully translated
+- ja-JP: 12 missing phrases
+- ko-KR: 1 missing phrases
+- nl-NL: 1 missing phrases
+- pl-PL: 1 missing phrases
+- ru-RU: 74 missing phrases
+- zh-Hans: 1 missing phrases
+- zh-Hant: 1149 missing phrases
+>>>>>>> master
