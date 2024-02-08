@@ -125,5 +125,16 @@ int lua_mygpio_gpio_toggle(lua_State *lua_vm) {
  * @return myGPIOd connection or NULL on error
  */
 static struct t_mygpio_connection *mygpio_connect(const char *mygpiod_socket) {
-    return mygpio_connection_new(mygpiod_socket, 5000);
+    struct t_mygpio_connection *conn = mygpio_connection_new(mygpiod_socket, 5000);
+    if (conn == NULL) {
+        MYMPD_LOG_ERROR(NULL, "libmygpiod: Out of memory");
+        return NULL;
+    }
+    if (mygpio_connection_get_state(conn) != MYGPIO_STATE_OK) {
+        MYMPD_LOG_ERROR(NULL, "libmygpiod: %s", mygpio_connection_get_error(conn));
+        mygpio_connection_free(conn);
+        return NULL;
+    }
+    MYMPD_LOG_DEBUG(NULL, "libmygpiod: Connected to %s", mygpiod_socket);
+    return conn;
 }
