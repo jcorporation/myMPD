@@ -39,7 +39,6 @@ int lua_mygpio_gpio_blink(lua_State *lua_vm) {
         //return response count
         return 1;
     }
-    MYMPD_LOG_ERROR(NULL, "Lua - Unable to connect to myGPIOd: %s", mygpiod_socket);
     return luaL_error(lua_vm, "Unable to connect to myGPIOd");
 }
 
@@ -64,7 +63,6 @@ int lua_mygpio_gpio_get(lua_State *lua_vm) {
         //return response count
         return 1;
     }
-    MYMPD_LOG_ERROR(NULL, "Lua - Unable to connect to myGPIOd: %s", mygpiod_socket);
     return luaL_error(lua_vm, "Unable to connect to myGPIOd");
 }
 
@@ -90,7 +88,6 @@ int lua_mygpio_gpio_set(lua_State *lua_vm) {
         //return response count
         return 1;
     }
-    MYMPD_LOG_ERROR(NULL, "Lua - Unable to connect to myGPIOd: %s", mygpiod_socket);
     return luaL_error(lua_vm, "Unable to connect to myGPIOd");
 }
 
@@ -115,7 +112,6 @@ int lua_mygpio_gpio_toggle(lua_State *lua_vm) {
         //return response count
         return 1;
     }
-    MYMPD_LOG_ERROR(NULL, "Lua - Unable to connect to myGPIOd: %s", mygpiod_socket);
     return luaL_error(lua_vm, "Unable to connect to myGPIOd");
 }
 
