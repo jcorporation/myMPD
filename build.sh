@@ -287,6 +287,7 @@ createassets() {
 }
 
 lualibs() {
+  [ -z "${MYMPD_ENABLE_MYGPIOD+x}" ] && MYMPD_ENABLE_MYGPIOD="OFF"
   echo "Copy integrated lua libraries"
   mkdir -p "$MYMPD_BUILDDIR/contrib/lualibs"
   cp -v contrib/lualibs/json.lua "$MYMPD_BUILDDIR/contrib/lualibs/"
