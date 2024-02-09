@@ -4,12 +4,20 @@
 # https://github.com/jcorporation/mympd
 #
 FROM alpine:latest as build
+
+WORKDIR /
+RUN apk add --no-cache git lua5.4-dev libmpdclient-dev curl-dev linux-headers alpine-sdk cmake autoconf automake libtool linux-headers autoconf-archive
+RUN git clone --depth=1 https://github.com/jcorporation/myGPIOd.git
+WORKDIR /myGPIOd
+RUN cmake -B "release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYGPIOD_DAEMON=OFF -DMYGPIOD_CLIENT=OFF -DMYGPIOD_MANPAGES=OFF -DMYGPIOD_DOC=OFF .
+RUN make -j4 -C "release"
+RUN make -C "release" install
+
 COPY . /myMPD/
 WORKDIR /myMPD
 RUN ./build.sh installdeps
 RUN cmake -B "release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MANPAGES=OFF -DMYMPD_DOC=OFF .
 RUN make -j4 -C "release"
-RUN make -C "release" install
 
 FROM alpine:latest
 RUN apk add --no-cache openssl libid3tag flac lua5.4 pcre2 newt
@@ -17,5 +25,7 @@ RUN adduser -S -D -H -h /var/lib/mympd -s /sbin/nologin -g myMPD mympd 2>/dev/nu
 COPY --from=build /myMPD/release/bin/mympd /usr/bin/
 COPY --from=build /myMPD/release/bin/mympd-script /usr/bin/
 COPY --from=build /myMPD/cli_tools/mympd-config/mympd-config /usr/bin/
+COPY --from=build /myGPIOd/release/libmygpio/libmygpio.so /usr/lib/
+COPY --from=build /myGPIOd/release/libmygpio/libmygpio.so.0 /usr/lib/
 
 ENTRYPOINT ["/usr/bin/mympd"]

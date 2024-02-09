@@ -4,12 +4,19 @@
 # https://github.com/jcorporation/mympd
 #
 FROM alpine:latest
+
+WORKDIR /
+RUN apk add --no-cache git lua5.4-dev libmpdclient-dev curl-dev linux-headers alpine-sdk cmake autoconf automake libtool linux-headers autoconf-archive
+RUN git clone --depth=1 https://github.com/jcorporation/myGPIOd.git
+WORKDIR /myGPIOd
+RUN cmake -B "release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Debug -DMYGPIOD_DAEMON=OFF -DMYGPIOD_CLIENT=OFF -DMYGPIOD_MANPAGES=OFF -DMYGPIOD_DOC=OFF .
+RUN make -j4 -C "release"
+RUN make -C "release" install
+
 COPY . /myMPD/
 WORKDIR /myMPD
 RUN ./build.sh installdeps
 RUN ./build.sh debug
 RUN ./build.sh addmympduser
 
-ENV MPD_HOST=127.0.0.1
-ENV MPD_PORT=6600
 ENTRYPOINT ["/myMPD/debug/mympd"]
