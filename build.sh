@@ -281,10 +281,21 @@ createassets() {
   cp -v dist/material-icons/MaterialIcons-Regular.woff2 "$MYMPD_BUILDDIR/htdocs/assets/"
   $ZIPCAT dist/material-icons/ligatures.json > "$MYMPD_BUILDDIR/htdocs/assets/ligatures.json.gz"
 
+  lualibs
+
+  return 0
+}
+
+lualibs() {
   echo "Copy integrated lua libraries"
   mkdir -p "$MYMPD_BUILDDIR/contrib/lualibs"
-  cp -v contrib/lualibs/*.lua "$MYMPD_BUILDDIR/contrib/lualibs/"
-  return 0
+  cp -v contrib/lualibs/json.lua "$MYMPD_BUILDDIR/contrib/lualibs/"
+  cp -v contrib/lualibs/mympd/00-start.lua "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/10-mympd.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/20-http_client.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/30-execute.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  [ "$MYMPD_ENABLE_MYGPIOD" = "ON" ] && cat contrib/lualibs/mympd/40-mygpiod.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/99-end.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
 }
 
 buildrelease() {
@@ -355,6 +366,8 @@ copyassets() {
   cp -v "$STARTPATH/dist/long-press-event/long-press-event.js" "$STARTPATH/htdocs/js/long-press-event.js"
   cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
   cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
+
+  lualibs
 
   #Create defines
   create_js_defines
