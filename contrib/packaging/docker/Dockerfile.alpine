@@ -6,7 +6,7 @@
 FROM alpine:latest as build
 
 WORKDIR /
-RUN apk add --no-cache git lua5.4-dev libmpdclient-dev curl-dev linux-headers alpine-sdk cmake autoconf automake libtool linux-headers autoconf-archive
+RUN apk add --no-cache git alpine-sdk cmake
 RUN git clone --depth=1 https://github.com/jcorporation/myGPIOd.git
 WORKDIR /myGPIOd
 RUN cmake -B "release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYGPIOD_DAEMON=OFF -DMYGPIOD_CLIENT=OFF -DMYGPIOD_MANPAGES=OFF -DMYGPIOD_DOC=OFF .
