@@ -16,6 +16,7 @@
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"
+#include "src/lib/timer.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 #include "src/mpd_client/connection.h"
@@ -475,6 +476,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     partitions_list_clear(mympd_state);
                     //remove caches
                     album_cache_remove(config->workdir);
+                    mympd_timer_set(mympd_state->partition_state->timer_fd_mpd_connect, 0, 5);
                 }
                 else if (partition_state->conn_state == MPD_CONNECTED) {
                     //feature detection

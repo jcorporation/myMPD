@@ -173,7 +173,8 @@ static void features_tags(struct t_mympd_state *mympd_state, struct t_partition_
     reset_t_tags(&partition_state->mpd_state->tags_browse);
     reset_t_tags(&partition_state->mpd_state->tags_album);
     reset_t_tags(&mympd_state->smartpls_generate_tag_types);
-    //check for enabled mpd tags
+    //check for all mpd tags
+    enable_all_mpd_tags(partition_state);
     features_mpd_tags(partition_state);
     //parse the webui taglists and set the tag structs
     if (partition_state->mpd_state->feat.tags == true) {
@@ -190,6 +191,8 @@ static void features_tags(struct t_mympd_state *mympd_state, struct t_partition_
         check_tags(mympd_state->smartpls_generate_tag_list, "smartpls_generate_tag_list",
             &mympd_state->smartpls_generate_tag_types, &partition_state->mpd_state->tags_mympd);
     }
+    //enable only configures tags
+    enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
 }
 
 /**
@@ -250,8 +253,6 @@ static void set_simple_album_tags(struct t_partition_state *partition_state) {
  * @param partition_state pointer to partition state
  */
 static void features_mpd_tags(struct t_partition_state *partition_state) {
-    enable_all_mpd_tags(partition_state);
-
     sds logline = sdsnew("MPD supported tags: ");
     if (mpd_send_list_tag_types(partition_state->conn)) {
         struct mpd_pair *pair;

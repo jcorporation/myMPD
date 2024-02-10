@@ -129,7 +129,7 @@ bool mpd_client_set_connection_options(struct t_partition_state *partition_state
     return mpd_client_set_binarylimit(partition_state) &&
         mpd_client_set_keepalive(partition_state) &&
         mpd_client_set_timeout(partition_state) &&
-        enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);;
+        enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
 }
 
 /**
