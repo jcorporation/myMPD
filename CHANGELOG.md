@@ -9,6 +9,7 @@ https://github.com/jcorporation/myMPD/
 ### Changelog
 
 - Feat: Add setting for default sort tag in library view #1207
+- Feat: Add lua library for myGPIOd support #1208
 
 ***
 
