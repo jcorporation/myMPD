@@ -10,8 +10,9 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Fix: use only configured tags #1215
-- Fix: reconnect to MPD after connection parameters has changed
+- Fix: Use only configured tags #1215
+- Fix: Reconnect to MPD after connection parameters has changed
+- Fix: Remove split char from vorbis comment value #1217
 
 ***
 

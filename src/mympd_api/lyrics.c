@@ -533,6 +533,7 @@ static void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is
                 if (field_value != NULL &&
                     strlen(field_value) > 1)
                 {
+                    field_value++;
                     buffer = sdscatlen(buffer, "{", 1);
                     buffer = tojson_bool(buffer, "synced", synced, true);
                     buffer = tojson_char_len(buffer, "lang", "", 0, true);
