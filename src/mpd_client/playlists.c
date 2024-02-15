@@ -9,6 +9,7 @@
 #include "src/mpd_client/playlists.h"
 
 #include "dist/rax/rax.h"
+#include "src/lib/convert.h"
 #include "src/lib/log.h"
 #include "src/lib/random.h"
 #include "src/lib/rax_extras.h"
@@ -29,6 +30,10 @@
 static bool playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr, bool sortdesc, sds *error);
 static bool replace_playlist(struct t_partition_state *partition_state, const char *new_pl,
         const char *to_replace_pl, sds *error);
+static bool mpd_worker_playlist_content_enumerate_mpd(struct t_partition_state *partition_state, const char *plist,
+        unsigned *count, unsigned *duration, sds *error);
+static bool mpd_worker_playlist_content_enumerate_manual(struct t_partition_state *partition_state, const char *plist,
+        unsigned *count, unsigned *duration, sds *error);
 
 /**
  * Public functions
@@ -322,28 +327,80 @@ bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const c
 /**
  * Counts the number of songs in the playlist
  * @param partition_state pointer to partition specific states
- * @param playlist playlist to enumerate
- * @param empty_check true: checks only if playlist is not empty
- *                    false: enumerates the complete playlist
+ * @param plist playlist to enumerate
+ * @param count pointer to unsigned for entity count
+ * @param duration pointer to unsigned for total playtime
+ * @param error pointer to an already allocated sds string for the error message
  * @return number of songs or -1 on error
  */
-int mpd_client_enum_playlist(struct t_partition_state *partition_state, const char *playlist, bool empty_check) {
-    int entity_count = 0;
-    if (mpd_send_list_playlist(partition_state->conn, playlist)) {
-        struct mpd_song *song;
-        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            entity_count++;
-            mpd_song_free(song);
-            if (empty_check == true) {
-                break;
+bool mpd_client_enum_playlist(struct t_partition_state *partition_state, const char *plist,
+        unsigned *count, unsigned *duration, sds *error)
+{
+    return mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0
+        ? mpd_worker_playlist_content_enumerate_mpd(partition_state, plist, count, duration, error)
+        : mpd_worker_playlist_content_enumerate_manual(partition_state, plist, count, duration, error);
+}
+
+/**
+ * Enumerates the playlist and returns the count and total length
+ * This functions uses the playlistlength command of MPD 0.24
+ * @param partition_state pointer to partition state
+ * @param plist playlist name to enumerate
+ * @param count pointer to unsigned for entity count
+ * @param duration pointer to unsigned for total playtime
+ * @param error pointer to an already allocated sds string for the error message
+ * @return pointer to buffer 
+ */
+static bool mpd_worker_playlist_content_enumerate_mpd(struct t_partition_state *partition_state, const char *plist,
+        unsigned *count, unsigned *duration, sds *error)
+{
+    *count = 0;
+    *duration = 0;
+    if (mpd_send_playlistlength(partition_state->conn, plist)) {
+        struct mpd_pair *pair;
+        while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
+            if (strcmp(pair->name, "songs") == 0) {
+                str2uint(count, pair->value);
             }
+            else if (strcmp(pair->name, "playtime") == 0) {
+                str2uint(duration, pair->value);
+            }
+            mpd_return_pair(partition_state->conn, pair);
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlist") == false) {
-        return -1;
+    return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlistlength");
+}
+
+/**
+ * Enumerates the playlist and returns the count and total length.
+ * This functions retrieves the complete playlist.
+ * @param partition_state pointer to partition state
+ * @param plist playlist name to enumerate
+ * @param count pointer to unsigned for entity count
+ * @param duration pointer to unsigned for total playtime
+ * @param error pointer to an already allocated sds string for the error message
+ * @return pointer to buffer 
+ */
+static bool mpd_worker_playlist_content_enumerate_manual(struct t_partition_state *partition_state, const char *plist,
+        unsigned *count, unsigned *duration, sds *error)
+{
+    unsigned entity_count = 0;
+    unsigned total_time = 0;
+    disable_all_mpd_tags(partition_state);
+    if (mpd_send_list_playlist_meta(partition_state->conn, plist)) {
+        struct mpd_song *song;
+        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+            total_time += mpd_song_get_duration(song);
+            entity_count++;
+            mpd_song_free(song);
+        }
     }
-    return entity_count;
+    mpd_response_finish(partition_state->conn);
+    *count = entity_count;
+    *duration = total_time;
+    return mympd_check_error_and_recover(partition_state, error, "mpd_send_list_playlist_meta") &&
+        enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
 }
 
 /**

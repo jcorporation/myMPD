@@ -975,7 +975,11 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
     if (criteria == PLAYLIST_DELETE_EMPTY) {
         struct t_list_node *current = playlists.head;
         while (current != NULL) {
-            current->value_i = mpd_client_enum_playlist(partition_state, current->key, true);
+            unsigned count = 0;
+            unsigned duration = 0;
+            current->value_i = mpd_client_enum_playlist(partition_state, current->key, &count, &duration, NULL) == true
+                 ? count
+                 : 1; // set it to not empty on error
             current = current->next;
         }
     }
