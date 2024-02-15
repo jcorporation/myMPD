@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 mympd (15.0.0-1) unstable; urgency=medium
 
   * Release from master
 
  -- Juergen Mang <mail@jcgames.de>  Sun, 11 Feb 2024 12:02:56 +0100
+=======
+mympd (14.0.3-1) unstable; urgency=medium
+
+  * Release from master
+
+ -- Juergen Mang <mail@jcgames.de>  Thu, 15 Feb 2024 21:02:19 +0100
+>>>>>>> devel

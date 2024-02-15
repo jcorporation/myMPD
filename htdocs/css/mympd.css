@@ -619,9 +619,12 @@ button.mi::after {
 }
 
 .form-range::-webkit-slider-thumb,
-.form-range::-webkit-slider-thumb:active,
+.form-range::-webkit-slider-thumb:active {
+  background-color: var(--mympd-highlightcolor);
+}
+
 .form-range::-moz-range-thumb,
-.form-range::-moz-range-thumb:active{
+.form-range::-moz-range-thumb:active {
   background-color: var(--mympd-highlightcolor);
 }
 

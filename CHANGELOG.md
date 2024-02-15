@@ -15,6 +15,18 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD 14.0.3 (2024-02-15)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: myMPD does not work with safari on iOS #1212
+- Fix: Volume slider color #1218
+- Fix: Gentoo ebuild install #1219
+
+***
+
 ## myMPD v14.0.2 (2024-02-11)
 
 This is a small bugfix release.
