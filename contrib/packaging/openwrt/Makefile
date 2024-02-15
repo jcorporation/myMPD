@@ -8,11 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME := mympd
-<<<<<<< HEAD
 PKG_VERSION := 15.0.0
-=======
-PKG_VERSION := 14.0.3
->>>>>>> devel
 PKG_RELEASE := 1
 
 PKG_SOURCE := $(PKG_NAME)-$(PKG_VERSION).tar.gz
