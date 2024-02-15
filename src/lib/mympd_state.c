@@ -258,6 +258,7 @@ void mpd_state_features_default(struct t_mpd_features *feat) {
     feat->sticker_sort_window = false;
     feat->sticker_int = false;
     feat->search_add_sort_window = false;
+    feat->listplaylist_range = false;
 }
 
 /**

@@ -106,6 +106,8 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
         MYMPD_LOG_INFO(partition_state->name, "Enabling starts_with filter expression feature");
         partition_state->mpd_state->feat.db_added = true;
         MYMPD_LOG_INFO(partition_state->name, "Enabling db added feature");
+        partition_state->mpd_state->feat.listplaylist_range = true;
+        MYMPD_LOG_INFO(partition_state->name, "Enabling listplaylist range feature");
     }
     else {
         MYMPD_LOG_WARN(partition_state->name, "Disabling advanced queue feature, depends on mpd >= 0.24.0");

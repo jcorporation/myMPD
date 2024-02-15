@@ -62,6 +62,7 @@ struct t_mpd_features {
     bool sticker_sort_window;      //!< mpd supports sticker sort and window api
     bool sticker_int;              //!< mpd supports sticker value handling as integer
     bool search_add_sort_window;   //!< mpd supports search and window for findadd/searchadd/searchaddpl
+    bool listplaylist_range;       //!< mpd supports the listplaylist with range parameter
 };
 
 /**

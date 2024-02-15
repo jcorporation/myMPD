@@ -656,6 +656,46 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
 }
 
 /**
+ * Appends a playlist entry to buffer
+ * @param buffer already allocated sds string to append the response
+ * @param song mpd song to print
+ * @param pos position in playlist
+ * @param stickers print stickers?
+ * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb state
+ * @param tagcols columns to print
+ * @param last_played_max played time from last played song
+ * @param last_played_song_uri last played song
+ * @return pointer to buffer
+ */
+static sds print_plist_entry(sds buffer, struct mpd_song *song, unsigned pos, bool stickers,
+        struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        const struct t_tags *tagcols, time_t *last_played_max, sds *last_played_song_uri)
+{
+    const char *uri = mpd_song_get_uri(song);
+    buffer = sdscatlen(buffer, "{", 1);
+    buffer = is_streamuri(uri) == true
+        ? tojson_char(buffer, "Type", "stream", true)
+        : tojson_char(buffer, "Type", "song", true);
+    buffer = tojson_uint(buffer, "Pos", pos, true);
+    buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
+    if (stickers == true) {
+        buffer = sdscatlen(buffer, ",", 1);
+        struct t_sticker sticker;
+        stickerdb_get_all_batch(stickerdb, uri, &sticker, false);
+        buffer = mympd_api_sticker_print(buffer, &sticker, tagcols);
+        if (sticker.mympd[STICKER_LAST_PLAYED] > *last_played_max) {
+            *last_played_max = (time_t)sticker.mympd[STICKER_LAST_PLAYED];
+            *last_played_song_uri = sds_replace(*last_played_song_uri, uri);
+        }
+        sticker_struct_clear(&sticker);
+    }
+    buffer = sdscatlen(buffer, "}", 1);
+    mpd_song_free(song);
+    return buffer;
+}
+
+/**
  * Lists the content of a mpd playlist
  * @param partition_state pointer to partition state
  * @param stickerdb pointer to stickerdb state
@@ -668,7 +708,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+sds mympd_api_playlist_content_search(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, unsigned request_id, sds plist, unsigned offset, unsigned limit, sds expression, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_CONTENT_LIST;
@@ -678,61 +718,60 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
     unsigned total_time = 0;
     unsigned real_limit = offset + limit;
     time_t last_played_max = 0;
+    struct mpd_song *song;
     sds last_played_song_uri = sdsempty();
-    if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers_len > 0)
-    {
+    bool print_stickers = partition_state->mpd_state->feat.stickers == true && tagcols->stickers_len > 0;
+    if (print_stickers == true) {
         stickerdb_exit_idle(stickerdb);
     }
-    if (mpd_send_list_playlist_meta(partition_state->conn, plist)) {
-        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-        buffer = sdscat(buffer,"\"data\":[");
-
-        struct mpd_song *song;
-        struct t_list *expr_list = parse_search_expression_to_list(expression);
-        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            if (search_song_expression(song, expr_list, tagcols) == true) {
+    if (sdslen(expression) == 0 &&
+        partition_state->mpd_state->feat.listplaylist_range == true)
+    {
+        entity_count = offset;
+        if (mpd_send_list_playlist_range_meta(partition_state->conn, plist, offset, real_limit)) {
+            buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+            buffer = sdscat(buffer,"\"data\":[");
+            while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                 total_time += mpd_song_get_duration(song);
-                if (entities_found >= offset) {
-                    if (entities_returned++) {
-                        buffer= sdscatlen(buffer, ",", 1);
-                    }
-                    buffer = sdscatlen(buffer, "{", 1);
-                    buffer = is_streamuri(mpd_song_get_uri(song)) == true
-                        ? tojson_char(buffer, "Type", "stream", true)
-                        : tojson_char(buffer, "Type", "song", true);
-                    buffer = tojson_uint(buffer, "Pos", entity_count, true);
-                    buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
-                    if (partition_state->mpd_state->feat.stickers == true &&
-                        tagcols->stickers_len > 0)
-                    {
-                        buffer = sdscatlen(buffer, ",", 1);
-                        struct t_sticker sticker;
-                        stickerdb_get_all_batch(stickerdb, mpd_song_get_uri(song), &sticker, false);
-                        buffer = mympd_api_sticker_print(buffer, &sticker, tagcols);
-                        if (sticker.mympd[STICKER_LAST_PLAYED] > last_played_max) {
-                            last_played_max = (time_t)sticker.mympd[STICKER_LAST_PLAYED];
-                            last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
-                        }
-                        sticker_struct_clear(&sticker);
-                    }
-                    buffer = sdscatlen(buffer, "}", 1);
+                if (entities_returned++) {
+                    buffer= sdscatlen(buffer, ",", 1);
                 }
-                entities_found++;
-                if (entities_found == real_limit) {
-                    mpd_song_free(song);
-                    break;
-                }
+                buffer = print_plist_entry(buffer, song, entity_count, print_stickers, partition_state, stickerdb, tagcols,
+                    &last_played_max, &last_played_song_uri);
+                entity_count++;
             }
-            entity_count++;
-            mpd_song_free(song);
         }
-        free_search_expression_list(expr_list);
+        entities_found = entity_count;
+    }
+    else {
+        if (mpd_send_list_playlist_meta(partition_state->conn, plist)) {
+            buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+            buffer = sdscat(buffer,"\"data\":[");
+            struct t_list *expr_list = parse_search_expression_to_list(expression);
+            while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+                if (search_song_expression(song, expr_list, tagcols) == true) {
+                    total_time += mpd_song_get_duration(song);
+                    if (entities_found >= offset) {
+                        if (entities_returned++) {
+                            buffer= sdscatlen(buffer, ",", 1);
+                        }
+                        buffer = print_plist_entry(buffer, song, entity_count, print_stickers, partition_state, stickerdb, tagcols,
+                            &last_played_max, &last_played_song_uri);
+                    }
+                    entities_found++;
+                    if (entities_found == real_limit) {
+                        mpd_song_free(song);
+                        break;
+                    }
+                }
+                entity_count++;
+                mpd_song_free(song);
+            }
+            free_search_expression_list(expr_list);
+        }
     }
     mpd_response_finish(partition_state->conn);
-    if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers_len > 0)
-    {
+    if (print_stickers == true) {
         stickerdb_enter_idle(stickerdb);
     }
 
