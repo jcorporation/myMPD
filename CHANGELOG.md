@@ -10,6 +10,8 @@ https://github.com/jcorporation/myMPD/
 
 - Feat: Add setting for default sort tag in library view #1207
 - Feat: Add lua library for myGPIOd support #1208
+- Feat: Support range for listplaylist and listplaylistinfo #1214
+- Feat: support playlistlength command #1213
 
 ***
 
