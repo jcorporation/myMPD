@@ -840,9 +840,6 @@ struct mg_str {
   size_t len;       // String len
 };
 
-#define MG_NULL_STR \
-  { NULL, 0 }
-
 #define MG_C_STR(a) \
   { (a), sizeof(a) - 1 }
 
@@ -862,8 +859,7 @@ struct mg_str mg_strdup(const struct mg_str s);
 const char *mg_strstr(const struct mg_str haystack, const struct mg_str needle);
 bool mg_match(struct mg_str str, struct mg_str pattern, struct mg_str *caps);
 bool mg_globmatch(const char *pattern, size_t plen, const char *s, size_t n);
-bool mg_commalist(struct mg_str *s, struct mg_str *k, struct mg_str *v);
-bool mg_split(struct mg_str *s, struct mg_str *k, struct mg_str *v, char delim);
+bool mg_span(struct mg_str s, struct mg_str *a, struct mg_str *b, char delim);
 char *mg_hex(const void *buf, size_t len, char *dst);
 void mg_unhex(const char *buf, size_t len, unsigned char *to);
 unsigned long mg_unhexn(const char *s, size_t len);
@@ -1025,6 +1021,7 @@ struct mg_fd {
 
 struct mg_fd *mg_fs_open(struct mg_fs *fs, const char *path, int flags);
 void mg_fs_close(struct mg_fd *fd);
+bool mg_fs_ls(struct mg_fs *fs, const char *path, char *buf, size_t len);
 char *mg_file_read(struct mg_fs *fs, const char *path, size_t *size);
 bool mg_file_write(struct mg_fs *fs, const char *path, const void *, size_t);
 bool mg_file_printf(struct mg_fs *fs, const char *path, const char *fmt, ...);
@@ -2292,7 +2289,7 @@ size_t mg_url_encode(const char *s, size_t n, char *buf, size_t len);
 void mg_http_creds(struct mg_http_message *, char *, size_t, char *, size_t);
 bool mg_http_match_uri(const struct mg_http_message *, const char *glob);
 long mg_http_upload(struct mg_connection *c, struct mg_http_message *hm,
-                    struct mg_fs *fs, const char *path, size_t max_size);
+                    struct mg_fs *fs, const char *dir, size_t max_size);
 void mg_http_bauth(struct mg_connection *, const char *user, const char *pass);
 struct mg_str mg_http_get_header_var(struct mg_str s, struct mg_str v);
 size_t mg_http_next_multipart(struct mg_str, size_t, struct mg_http_part *);
@@ -2582,6 +2579,7 @@ size_t mg_dns_parse_rr(const uint8_t *buf, size_t len, size_t ofs,
 enum { MG_JSON_TOO_DEEP = -1, MG_JSON_INVALID = -2, MG_JSON_NOT_FOUND = -3 };
 int mg_json_get(struct mg_str json, const char *path, int *toklen);
 
+struct mg_str mg_json_get_tok(struct mg_str json, const char *path);
 bool mg_json_get_num(struct mg_str json, const char *path, double *v);
 bool mg_json_get_bool(struct mg_str json, const char *path, bool *v);
 long mg_json_get_long(struct mg_str json, const char *path, long dflt);
