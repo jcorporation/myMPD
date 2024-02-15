@@ -141,6 +141,22 @@ bool
 mpd_send_list_playlist(struct mpd_connection *connection, const char *name);
 
 /**
+ * Like mpd_send_list_playlist(), but specifies a (position) range.
+ * Use mpd_recv_entity() to receive the songs (#MPD_ENTITY_TYPE_SONG).
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist
+ * @param start the start position of the range (including)
+ * @param end the end position of the range (excluding); the special
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_list_playlist_range(struct mpd_connection *connection, const char *name,
+			     unsigned start, unsigned end);
+
+/**
  * List the content, with full metadata, of the stored playlist identified by
  * name.  Use mpd_recv_entity() to receive the songs (#MPD_ENTITY_TYPE_SONG).
  *
@@ -150,6 +166,22 @@ mpd_send_list_playlist(struct mpd_connection *connection, const char *name);
  */
 bool
 mpd_send_list_playlist_meta(struct mpd_connection *connection, const char *name);
+
+/**
+ * Like mpd_send_list_playlist_meta(), but specifies a (position) range.
+ * Use mpd_recv_entity() to receive the songs (#MPD_ENTITY_TYPE_SONG).
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist
+ * @param start the start position of the range (including)
+ * @param end the end position of the range (excluding); the special
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_list_playlist_range_meta(struct mpd_connection *connection, const char *name,
+				  unsigned start, unsigned end);
 
 /**
  * Clear the playlist name (i.e. truncate name.m3u)
@@ -553,6 +585,19 @@ mpd_send_rm(struct mpd_connection *connection, const char *name);
  */
 bool
 mpd_run_rm(struct mpd_connection *connection, const char *name);
+
+/**
+ * Count the number of songs and their total playtime (seconds) in the
+ * playlist.
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist file
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_playlistlength(struct mpd_connection *connection, const char *name);
 
 #ifdef __cplusplus
 }
