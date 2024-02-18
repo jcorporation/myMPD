@@ -9,6 +9,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Upd: translations
+- Fix: Disable search on type for Android #1220
 
 ***
 
