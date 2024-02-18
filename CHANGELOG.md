@@ -8,6 +8,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Upd: translations
+
 ***
 
 ## myMPD 14.0.3 (2024-02-15)
