@@ -15,6 +15,17 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD 14.0.4 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Upd: translations
+- Fix: Disable search on type for Android #1220
+
+***
+
 ## myMPD 14.0.3 (2024-02-15)
 
 This is a small bugfix release.

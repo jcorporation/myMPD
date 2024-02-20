@@ -38,8 +38,9 @@ function handleBrowseRadioWebradiodb() {
  * @returns {void}
  */
 function initViewBrowseRadioWebradiodb() {
-    elGetById('BrowseRadioWebradiodbSearchStr').addEventListener('keyup', function(event) {
-        if (ignoreKeys(event) === true) {
+    elGetById('BrowseRadioWebradiodbSearchStr').addEventListener('keydown', function(event) {
+        //handle Enter key on keydown for IME composing compatibility
+        if (event.key !== 'Enter') {
             return;
         }
         clearSearchTimer();
@@ -47,6 +48,19 @@ function initViewBrowseRadioWebradiodb() {
             doSearchWebradiodb();
         }, searchTimerTimeout);
     }, false);
+
+    // Android does not support search on type
+    if (userAgentData.isAndroid === false) {
+        elGetById('BrowseRadioWebradiodbSearchStr').addEventListener('keyup', function(event) {
+            if (ignoreKeys(event) === true) {
+                return;
+            }
+            clearSearchTimer();
+            searchTimer = setTimeout(function() {
+                doSearchWebradiodb();
+            }, searchTimerTimeout);
+        }, false);
+    }
 
     elGetById('BrowseRadioWebradiodbFilter').addEventListener('shown.bs.collapse', function() {
         elGetById('BrowseRadioWebradiodbFilterBtn').classList.add('active');

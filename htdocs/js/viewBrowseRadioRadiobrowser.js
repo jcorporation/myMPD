@@ -37,8 +37,9 @@ function handleBrowseRadioRadiobrowser() {
  * @returns {void}
  */
 function initViewBrowseRadioRadiobrowser() {
-    elGetById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
-        if (ignoreKeys(event) === true) {
+    elGetById('BrowseRadioRadiobrowserSearchStr').addEventListener('keydown', function(event) {
+        //handle Enter key on keydown for IME composing compatibility
+        if (event.key !== 'Enter') {
             return;
         }
         clearSearchTimer();
@@ -46,6 +47,19 @@ function initViewBrowseRadioRadiobrowser() {
             searchRadiobrowser();
         }, searchTimerTimeout);
     }, false);
+
+    // Android does not support search on type
+    if (userAgentData.isAndroid === false) {
+        elGetById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
+            if (ignoreKeys(event) === true) {
+                return;
+            }
+            clearSearchTimer();
+            searchTimer = setTimeout(function() {
+                searchRadiobrowser();
+            }, searchTimerTimeout);
+        }, false);
+    }
 
     elGetById('BrowseRadioRadiobrowserFilter').addEventListener('show.bs.collapse', function() {
         elGetById('BrowseRadioRadiobrowserFilterBtn').classList.add('active');
