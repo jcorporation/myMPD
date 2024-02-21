@@ -139,7 +139,7 @@ function parseCurrentSong(obj) {
     }
 
     if (obj.result.uri !== undefined) {
-        obj.result['Filetype'] = filetype(obj.result.uri);
+        obj.result['Filetype'] = filetype(obj.result.uri, true);
         elEnableId('PlaybackAddToPlaylist');
     }
     else {

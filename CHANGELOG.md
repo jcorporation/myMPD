@@ -12,6 +12,7 @@ https://github.com/jcorporation/myMPD/
 - Feat: Add lua library for myGPIOd support #1208
 - Feat: Support range for listplaylist and listplaylistinfo #1214
 - Feat: support playlistlength command #1213
+- Feat: Add column for "File type" in song lists #1225
 
 ***
 

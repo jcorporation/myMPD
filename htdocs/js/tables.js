@@ -403,7 +403,7 @@ function setColTags(tableName) {
     if (features.featTags === false) {
         tags.push('Title');
     }
-    tags.push('Duration', 'Last-Modified');
+    tags.push('Duration', 'Last-Modified', 'Filetype');
     if (features.featDbAdded === true) {
         tags.push('Added');
     }
@@ -414,14 +414,13 @@ function setColTags(tableName) {
             //fall through
         case 'BrowsePlaylistDetail':
         case 'QueueJukeboxSong':
-        case 'QueueJukeboxAlbum':
             tags.push('Pos');
             break;
         case 'BrowseFilesystem':
             tags.push('Type', 'Filename');
             break;
         case 'Playback':
-            tags.push('AudioFormat', 'Filetype');
+            tags.push('AudioFormat');
             if (features.featLyrics === true) {
                 tags.push('Lyrics');
             }
@@ -813,6 +812,10 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             obj.result.data[i].Title = obj.result.data[i].name;
         }
 
+        //set Filetype
+        if (obj.result.data[i].Filetype === undefined) {
+            obj.result.data[i].Filetype = filetype(obj.result.data[i].uri, false);
+        }
         if (createRowCellsCallback !== undefined &&
             typeof(createRowCellsCallback) === 'function')
         {
@@ -856,59 +859,54 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
  * @returns {void}
  */
 function tableRow(row, data, list, colspan, smallWidth) {
-    if (data.Type === 'parentDir') {
-        row.appendChild(elCreateText('td', {"colspan": (colspan + 1), "data-title-phrase": "Open parent folder"}, '..'));
-    }
-    else {
-        if (smallWidth === true) {
-            const td = elCreateEmpty('td', {"colspan": colspan});
-            for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                td.appendChild(
-                    elCreateNodes('div', {"class": ["row"]}, [
-                        elCreateTextTn('small', {"class": ["col-3"]}, settings['cols' + list][c]),
-                        elCreateNode('span', {"data-col": settings['cols' + list][c], "class": ["col-9"]},
-                            printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
-                        )
-                    ])
-                );
-            }
-            row.appendChild(td);
-        }
-        else {
-            for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
-                row.appendChild(
-                    elCreateNode('td', {"data-col": settings['cols' + list][c]},
+    if (smallWidth === true) {
+        const td = elCreateEmpty('td', {"colspan": colspan});
+        for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+            td.appendChild(
+                elCreateNodes('div', {"class": ["row"]}, [
+                    elCreateTextTn('small', {"class": ["col-3"]}, settings['cols' + list][c]),
+                    elCreateNode('span', {"data-col": settings['cols' + list][c], "class": ["col-9"]},
                         printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
                     )
-                );
-            }
+                ])
+            );
         }
-        switch(app.id) {
-            case 'BrowsePlaylistDetail':
-                // add quick play and remove action
-                row.appendChild(
-                    pEl.actionPlaylistDetailTd.cloneNode(true)
-                );
-                break;
-            case 'QueueCurrent':
-                // add quick remove action
-                row.appendChild(
-                    pEl.actionQueueTd.cloneNode(true)
-                );
-                break;
-            case 'QueueJukeboxSong':
-            case 'QueueJukeboxAlbum':
-                // add quick play and remove action
-                row.appendChild(
-                    pEl.actionJukeboxTd.cloneNode(true)
-                );
-                break;
-            default:
-                // add quick play action
-                row.appendChild(
-                    pEl.actionTd.cloneNode(true)
-                );
+        row.appendChild(td);
+    }
+    else {
+        for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+            row.appendChild(
+                elCreateNode('td', {"data-col": settings['cols' + list][c]},
+                    printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
+                )
+            );
         }
+    }
+    switch(app.id) {
+        case 'BrowsePlaylistDetail':
+            // add quick play and remove action
+            row.appendChild(
+                pEl.actionPlaylistDetailTd.cloneNode(true)
+            );
+            break;
+        case 'QueueCurrent':
+            // add quick remove action
+            row.appendChild(
+                pEl.actionQueueTd.cloneNode(true)
+            );
+            break;
+        case 'QueueJukeboxSong':
+        case 'QueueJukeboxAlbum':
+            // add quick play and remove action
+            row.appendChild(
+                pEl.actionJukeboxTd.cloneNode(true)
+            );
+            break;
+        default:
+            // add quick play action
+            row.appendChild(
+                pEl.actionTd.cloneNode(true)
+            );
     }
 }
 
