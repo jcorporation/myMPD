@@ -12,7 +12,8 @@
 enum search_filters {
     SEARCH_FILTER_ANY_TAG = -2,
     SEARCH_FILTER_MODIFIED_SINCE = -3,
-    SEARCH_FILTER_ADDED_SINCE = -4
+    SEARCH_FILTER_ADDED_SINCE = -4,
+    SEARCH_FILTER_FILE = -5
 };
 
 bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tags);

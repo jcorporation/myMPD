@@ -137,6 +137,9 @@ struct t_list *parse_search_expression_to_list(const char *expression) {
             else if (strcmp(tag, "added-since") == 0) {
                 expr->tag = SEARCH_FILTER_ADDED_SINCE;
             }
+            else if (strcmp(tag, "file") == 0) {
+                expr->tag = SEARCH_FILTER_FILE;
+            }
             else {
                 MYMPD_LOG_ERROR(NULL, "Can not parse search expression, invalid tag");
                 free_search_expression(expr);
@@ -254,6 +257,11 @@ bool search_song_expression(const struct mpd_song *song, const struct t_list *ex
         }
         else if (expr->tag == SEARCH_FILTER_ADDED_SINCE) {
             if (expr->value_time > mpd_song_get_added(song)) {
+                return false;
+            }
+        }
+        else if (expr->tag == SEARCH_FILTER_FILE) {
+            if (utf8casestr(mpd_song_get_uri(song), expr->value) == NULL) {
                 return false;
             }
         }

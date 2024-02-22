@@ -67,17 +67,6 @@ function initViewBrowseFilesystem() {
             const uri = getData(target, 'uri');
             const dataType = getData(target, 'type');
             switch(dataType) {
-                case 'parentDir': {
-                    const offset = browseFilesystemHistory[uri] !== undefined
-                        ? browseFilesystemHistory[uri].offset
-                        : 0;
-                    const scrollPos = browseFilesystemHistory[uri] !== undefined
-                        ? browseFilesystemHistory[uri].scrollPos
-                        : 0;
-                    app.current.filter = '-';
-                    appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, uri, app.current.sort, 'dir', '', scrollPos);
-                    break;
-                }
                 case 'dir':
                     clickFolder(uri);
                     break;
@@ -154,10 +143,6 @@ function initViewBrowseFilesystem() {
     else {
         //playlist response
         elHide(imageList);
-        obj.result.totalEntities++;
-        obj.result.returnedEntities++;
-        const parentUri = dirname(obj.result.plist);
-        obj.result.data.unshift({"Type": "parentDir", "name": "parentDir", "uri": parentUri});
     }
 
     const rowTitleSong = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];

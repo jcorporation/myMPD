@@ -691,7 +691,6 @@ static sds print_plist_entry(sds buffer, struct mpd_song *song, unsigned pos, bo
         sticker_struct_clear(&sticker);
     }
     buffer = sdscatlen(buffer, "}", 1);
-    mpd_song_free(song);
     return buffer;
 }
 
@@ -738,6 +737,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
                 }
                 buffer = print_plist_entry(buffer, song, entity_count, print_stickers, partition_state, stickerdb, tagcols,
                     &last_played_max, &last_played_song_uri);
+                mpd_song_free(song);
                 entity_count++;
             }
         }

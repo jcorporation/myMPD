@@ -1431,7 +1431,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &parse_error) == true)
             {
                 if (strcmp(sds_buf3, "plist") == 0) {
-                    sds expr = escape_mpd_search_expression(sdsempty(), "any", "contains", sds_buf1);
+                    sds expr = sdslen(sds_buf1) > 0
+                        ? escape_mpd_search_expression(sdsempty(), "file", "contains", sds_buf1)
+                        : sdsempty();
                     response->data = mympd_api_playlist_content_search(partition_state, mympd_state->stickerdb, response->data, request->id,
                         sds_buf2, uint_buf1, uint_buf2, expr, &tagcols);
                     FREE_SDS(expr);
