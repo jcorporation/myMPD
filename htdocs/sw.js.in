@@ -13,6 +13,7 @@ const urlsToCache = [
     subdir + '/assets/coverimage-stream.svg',
     subdir + '/assets/coverimage-notavailable.svg',
     subdir + '/assets/coverimage-mympd.svg',
+    subdir + '/assets/coverimage-playlist.svg',
     __I18NASSETS__
     subdir + '/assets/ligatures.json',
     subdir + '/assets/MaterialIcons-Regular.woff2',
@@ -29,6 +30,7 @@ const ignoreRequests = new RegExp(subdir + '/(' + [
     'stream/.*',
     'albumart.*',
     'tagart.*',
+    'folderart.*',
     'proxy.*',
     'browse/.*'].join('|') + ')$');
 

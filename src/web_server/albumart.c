@@ -204,14 +204,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         }
         if (sdslen(coverfile) > 0) {
             //found a local coverfile
-            const char *mime_type = get_mime_type_by_ext(coverfile);
-            MYMPD_LOG_DEBUG(NULL, "Serving file \"%s\" (%s)", coverfile, mime_type);
-            static struct mg_http_serve_opts s_http_server_opts;
-            s_http_server_opts.root_dir = mg_user_data->browse_directory;
-            s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
-            s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-            mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);
-            webserver_handle_connection_close(nc);
+            webserver_serve_file(nc, hm, mg_user_data->browse_directory, coverfile);
         }
         else {
             //serve fallback image
@@ -245,47 +238,13 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
             bool found = false;
             sds coverfile = sdsempty();
             if (size == ALBUMART_THUMBNAIL) {
-                //thumbnail images
-                for (int j = 0; j < mg_user_data->thumbnail_names_len; j++) {
-                    coverfile = sdscatfmt(coverfile, "%S/%S/%S", mg_user_data->music_directory, path, mg_user_data->thumbnail_names[j]);
-                    if (strchr(mg_user_data->thumbnail_names[j], '.') == NULL) {
-                        //basename, try extensions
-                        coverfile = webserver_find_image_file(coverfile);
-                    }
-                    if (sdslen(coverfile) > 0 &&
-                        testfile_read(coverfile) == true)
-                    {
-                        found = true;
-                        break;
-                    }
-                    sdsclear(coverfile);
-                }
+                found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
             }
             if (found == false) {
-                for (int j = 0; j < mg_user_data->coverimage_names_len; j++) {
-                    coverfile = sdscatfmt(coverfile, "%S/%S/%S", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
-                    if (strchr(mg_user_data->coverimage_names[j], '.') == NULL) {
-                        //basename, try extensions
-                        coverfile = webserver_find_image_file(coverfile);
-                    }
-                    if (sdslen(coverfile) > 0 &&
-                        testfile_read(coverfile) == true)
-                    {
-                        found = true;
-                        break;
-                    }
-                    sdsclear(coverfile);
-                }
+                found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
             }
             if (found == true) {
-                const char *mime_type = get_mime_type_by_ext(coverfile);
-                MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", coverfile, mime_type);
-                static struct mg_http_serve_opts s_http_server_opts;
-                s_http_server_opts.root_dir = mg_user_data->browse_directory;
-                s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
-                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-                mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);
-                webserver_handle_connection_close(nc);
+                webserver_serve_file(nc, hm, mg_user_data->browse_directory, coverfile);
                 FREE_SDS(uri_decoded);
                 FREE_SDS(coverfile);
                 FREE_SDS(mediafile);

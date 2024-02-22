@@ -132,6 +132,7 @@ target_sources(mympd
     mympd_api/webradios.c
     web_server/web_server.c
     web_server/albumart.c
+    web_server/folderart.c
     web_server/request_handler.c
     web_server/proxy.c
     web_server/radiobrowser.c

@@ -19,6 +19,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
 #include "src/web_server/albumart.h"
+#include "src/web_server/folderart.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/request_handler.h"
 #include "src/web_server/tagart.h"
@@ -62,6 +63,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->custom_mympd_image = sdsempty();
     mg_user_data->custom_na_image = sdsempty();
     mg_user_data->custom_stream_image = sdsempty();
+    mg_user_data->custom_playlist_image = sdsempty();
     sds default_coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
     mg_user_data->coverimage_names= sds_split_comma_trim(default_coverimage_names, &mg_user_data->coverimage_names_len);
     FREE_SDS(default_coverimage_names);
@@ -319,6 +321,7 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         get_placeholder_image(config->workdir, "coverimage-mympd", &mg_user_data->custom_mympd_image);
         get_placeholder_image(config->workdir, "coverimage-notavailable", &mg_user_data->custom_na_image);
         get_placeholder_image(config->workdir, "coverimage-stream", &mg_user_data->custom_stream_image);
+        get_placeholder_image(config->workdir, "coverimage-playlist", &mg_user_data->custom_playlist_image);
 
         //cleanup
         FREE_SDS(new_mg_user_data->mpd_host);
@@ -346,7 +349,7 @@ static void get_placeholder_image(sds workdir, const char *name, sds *result) {
     sdsclear(*result);
     if (sdslen(file) > 0) {
         file = sds_basename(file);
-        MYMPD_LOG_INFO(NULL, "Setting custom placeholder image for na to \"%s\"", file);
+        MYMPD_LOG_INFO(NULL, "Setting custom placeholder image for %s to \"%s\"", name, file);
         *result = sdscatsds(*result, file);
     }
     FREE_SDS(file);
@@ -697,6 +700,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_http_match_uri(hm, "/albumart") == true) {
                 request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_FULL);
             }
+            else if (mg_http_match_uri(hm, "/folderart") == true) {
+                request_handler_folderart(nc, hm, mg_user_data);
+            }
             else if (mg_http_match_uri(hm, "/tagart") == true) {
                 request_handler_tagart(nc, hm, mg_user_data);
             }
@@ -769,6 +775,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             else if (mg_http_match_uri(hm, "/assets/coverimage-stream") == true) {
                 webserver_serve_stream_image(nc);
+            }
+            else if (mg_http_match_uri(hm, "/assets/coverimage-playlist") == true) {
+                webserver_serve_plist_image(nc);
             }
             else if (mg_http_match_uri(hm, "/index.html") == true) {
                 webserver_send_header_redirect(nc, "/");

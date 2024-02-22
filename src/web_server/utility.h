@@ -35,6 +35,7 @@ struct t_mg_user_data {
     sds custom_mympd_image;      //!< name of custom mympd image
     sds custom_na_image;         //!< name of custom not available image
     sds custom_stream_image;     //!< name of custom stream image
+    sds custom_playlist_image;   //!< name of custom playlist image
     bool mympd_api_started;      //!< true if the mympd_api thread is ready, else false
     sds cert_content;            //!< the server certificate
     sds key_content;             //!< the server key
@@ -61,11 +62,14 @@ bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm
 bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset);
 sds webserver_find_image_file(sds basefilename);
+bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *names, int names_len);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
+void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm, const char *path, const char *file);
 void webserver_serve_na_image(struct mg_connection *nc);
 void webserver_serve_stream_image(struct mg_connection *nc);
 void webserver_serve_mympd_image(struct mg_connection *nc);
 void webserver_serve_booklet_image(struct mg_connection *nc);
+void webserver_serve_plist_image(struct mg_connection *nc);
 void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *headers);
 void webserver_send_header_redirect(struct mg_connection *nc, const char *location);
 void webserver_send_header_found(struct mg_connection *nc, const char *location);

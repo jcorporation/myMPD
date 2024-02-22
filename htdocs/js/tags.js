@@ -414,6 +414,13 @@ function printValue(key, value) {
                 return document.createTextNode('-');
             }
             return document.createTextNode(tn('Num discs', {"smartCount": value}));
+        case 'Albumart': {
+            const img = elCreateEmpty('div', {"class": ["thumbnail"]});
+            if (value !== undefined) {
+                img.style.backgroundImage = value;
+            }
+            return img;
+        }
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);

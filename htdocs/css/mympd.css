@@ -523,6 +523,14 @@ div#homeActions {
   padding: 0.5rem;
 }
 
+.thumbnail {
+  background-size: cover;
+  background-position: center center;
+  overflow: hidden;
+  width: 2rem;
+  height: 2rem;
+}
+
 @media only screen and (300px <= width <= 400px) {
   .card-grid {
     width: calc((100vw - 4rem) / 2);

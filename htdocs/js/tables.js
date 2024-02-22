@@ -404,6 +404,9 @@ function setColTags(tableName) {
         tags.push('Title');
     }
     tags.push('Duration', 'Last-Modified', 'Filetype');
+    if (tableName !== 'Playback') {
+        tags.push('Albumart');
+    }
     if (features.featDbAdded === true) {
         tags.push('Added');
     }
@@ -815,6 +818,20 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         //set Filetype
         if (obj.result.data[i].Filetype === undefined) {
             obj.result.data[i].Filetype = filetype(obj.result.data[i].uri, false);
+        }
+        //set Albumart
+        switch(obj.result.data[i].Type) {
+            case 'song':
+                obj.result.data[i].Albumart = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].uri));
+                break;
+            case 'dir': 
+                obj.result.data[i].Albumart = getCssImageUri('/folderart?uri=' + myEncodeURIComponent(obj.result.data[i].uri));
+                break;
+            case 'plist':
+            case 'smartpls':
+                obj.result.data[i].Albumart = getCssImageUri('/assets/coverimage-playlist');
+                break;
+            // No Default
         }
         if (createRowCellsCallback !== undefined &&
             typeof(createRowCellsCallback) === 'function')

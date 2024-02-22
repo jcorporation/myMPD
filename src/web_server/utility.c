@@ -80,6 +80,7 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->custom_mympd_image);
     FREE_SDS(mg_user_data->custom_na_image);
     FREE_SDS(mg_user_data->custom_stream_image);
+    FREE_SDS(mg_user_data->custom_playlist_image);
     FREE_SDS(mg_user_data->cert_content);
     FREE_SDS(mg_user_data->key_content);
     FREE_PTR(mg_user_data);
@@ -158,6 +159,32 @@ sds webserver_find_image_file(sds basefilename) {
 }
 
 /**
+ * Finds an image in a specific subdir in dir
+ * @param coverfile point to already allocated sds string to append the found image path
+ * @param music_directory parent directory
+ * @param path subdirectory
+ * @param names sds array of names
+ * @param names_len length of sds array
+ * @return true on success, else false
+ */
+bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *names, int names_len) {
+    for (int j = 0; j < names_len; j++) {
+        *coverfile = sdscatfmt(*coverfile, "%S/%S/%S", music_directory, path, names[j]);
+        if (strchr(names[j], '.') == NULL) {
+            //basename, try extensions
+            *coverfile = webserver_find_image_file(*coverfile);
+        }
+        if (sdslen(*coverfile) > 0 &&
+            testfile_read(*coverfile) == true)
+        {
+            return true;
+        }
+        sdsclear(*coverfile);
+    }
+    return false;
+}
+
+/**
  * Sends a http error response
  * @param nc mongoose connection
  * @param code http error code
@@ -199,6 +226,24 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
     MYMPD_LOG_DEBUG(NULL, "Sending %lu bytes to %lu", (unsigned long)len, nc->id);
     webserver_send_header_ok(nc, len, headers);
     mg_send(nc, data, len);
+    webserver_handle_connection_close(nc);
+}
+
+/**
+ * Serves a file defined by file from path
+ * @param nc mongoose connection
+ * @param hm mongoose http message
+ * @param path document root
+ * @param file file to serve
+ */
+void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm, const char *path, const char *file) {
+    const char *mime_type = get_mime_type_by_ext(file);
+    MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", file, mime_type);
+    static struct mg_http_serve_opts s_http_server_opts;
+    s_http_server_opts.root_dir = path;
+    s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
+    s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+    mg_http_serve_file(nc, hm, file, &s_http_server_opts);
     webserver_handle_connection_close(nc);
 }
 
@@ -323,6 +368,22 @@ void webserver_serve_booklet_image(struct mg_connection *nc) {
     }
 }
 
+/**
+ * Redirects to the playlist image
+ * @param nc mongoose connection
+ */
+void webserver_serve_plist_image(struct mg_connection *nc) {
+    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
+    if (sdslen(mg_user_data->custom_booklet_image) == 0) {
+        webserver_send_header_found(nc, "/assets/coverimage-playlist.svg");
+    }
+    else {
+        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_playlist_image);
+        webserver_send_header_found(nc, uri);
+        FREE_SDS(uri);
+    }
+}
+
 #ifdef MYMPD_EMBEDDED_ASSETS
 /**
  * Struct holding embedded file information
@@ -354,6 +415,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/coverimage-stream.svg", "image/svg+xml", true, true, coverimage_stream_svg_data, coverimage_stream_svg_size},
         {"/assets/coverimage-booklet.svg", "image/svg+xml", true, true, coverimage_booklet_svg_data, coverimage_booklet_svg_size},
         {"/assets/coverimage-mympd.svg", "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
+        {"/assets/coverimage-playlist.svg", "image/svg+xml", true, true, coverimage_playlist_svg_data, coverimage_playlist_svg_size},
         {"/assets/mympd-background-dark.svg", "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
         {"/assets/mympd-background-light.svg", "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},
         {"/assets/appicon-192.png", "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
