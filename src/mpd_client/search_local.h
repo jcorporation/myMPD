@@ -9,13 +9,6 @@
 
 #include "src/lib/mympd_state.h"
 
-enum search_filters {
-    SEARCH_FILTER_ANY_TAG = -2,
-    SEARCH_FILTER_MODIFIED_SINCE = -3,
-    SEARCH_FILTER_ADDED_SINCE = -4,
-    SEARCH_FILTER_FILE = -5
-};
-
 bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tags);
 struct t_list *parse_search_expression_to_list(const char *expression);
 void *free_search_expression_list(struct t_list *expr_list);

@@ -38,6 +38,16 @@ enum search_operators {
 };
 
 /**
+ * Search filter types
+ */
+enum search_filters {
+    SEARCH_FILTER_ANY_TAG = -2,
+    SEARCH_FILTER_MODIFIED_SINCE = -3,
+    SEARCH_FILTER_ADDED_SINCE = -4,
+    SEARCH_FILTER_FILE = -5
+};
+
+/**
  * Struct to hold a parsed search expression triple
  */
 struct t_search_expression {
