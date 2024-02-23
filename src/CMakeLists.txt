@@ -137,6 +137,7 @@ target_sources(mympd
     web_server/proxy.c
     web_server/radiobrowser.c
     web_server/sessions.c
+    web_server/playlistart.c
     web_server/tagart.c
     web_server/utility.c
     web_server/webradiodb.c

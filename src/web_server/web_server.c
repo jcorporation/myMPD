@@ -20,6 +20,7 @@
 #include "src/lib/thread.h"
 #include "src/web_server/albumart.h"
 #include "src/web_server/folderart.h"
+#include "src/web_server/playlistart.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/request_handler.h"
 #include "src/web_server/tagart.h"
@@ -712,6 +713,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             else if (mg_http_match_uri(hm, "/tagart") == true) {
                 request_handler_tagart(nc, hm, mg_user_data);
+            }
+            else if (mg_http_match_uri(hm, "/playlistart") == true) {
+                request_handler_playlistart(nc, hm, mg_user_data);
             }
             else if (mg_http_match_uri(hm, "/browse/#") == true) {
                 request_handler_browse(nc, hm, mg_user_data);

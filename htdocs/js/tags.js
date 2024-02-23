@@ -414,7 +414,7 @@ function printValue(key, value) {
                 return document.createTextNode('-');
             }
             return document.createTextNode(tn('Num discs', {"smartCount": value}));
-        case 'Albumart': {
+        case 'Thumbnail': {
             const img = elCreateEmpty('div', {"class": ["thumbnail"]});
             if (value !== undefined) {
                 img.style.backgroundImage = value;

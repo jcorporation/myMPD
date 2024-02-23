@@ -9,7 +9,6 @@
 
 #include "src/lib/config_def.h"
 #include "src/lib/log.h"
-#include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
@@ -66,13 +65,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
     MYMPD_LOG_DEBUG(NULL, "Absolut media_file: %s", mediafile);
     mediafile = webserver_find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
-        const char *mime_type = get_mime_type_by_ext(mediafile);
-        MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", mediafile, mime_type);
-        static struct mg_http_serve_opts s_http_server_opts;
-        s_http_server_opts.root_dir = mg_user_data->browse_directory;
-        s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
-        s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-        mg_http_serve_file(nc, hm, mediafile, &s_http_server_opts);
+        webserver_serve_file(nc, hm, mg_user_data->browse_directory, mediafile);
     }
     else {
         MYMPD_LOG_DEBUG(NULL, "No image for tag found");

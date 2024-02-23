@@ -71,6 +71,10 @@ Create a directory named `AlbumArtist` under `/var/lib/mympd/pics`. Add pictures
 
 Pictures for the home icons must be placed in the directory `/var/lib/mympd/pics/thumbs`.
 
+### Playlist pictures
+
+Pictures for playlists must be placed in the directory `/var/lib/mympd/pics/thumbs`.
+
 ### Background images
 
 Background images must be saved in the `/var/lib/mympd/pics/backgrounds` folder.
