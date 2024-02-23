@@ -17,6 +17,7 @@ INCBIN(index_html, "../htdocs/index.html.gz");
 INCBIN(coverimage_notavailable_svg, "../htdocs/assets/coverimage-notavailable.svg.gz");
 INCBIN(coverimage_stream_svg, "../htdocs/assets/coverimage-stream.svg.gz");
 INCBIN(coverimage_booklet_svg, "../htdocs/assets/coverimage-booklet.svg.gz");
+INCBIN(coverimage_folder_svg, "../htdocs/assets/coverimage-folder.svg.gz");
 INCBIN(coverimage_mympd_svg, "../htdocs/assets/coverimage-mympd.svg.gz");
 INCBIN(coverimage_playlist_svg, "../htdocs/assets/coverimage-playlist.svg.gz");
 INCBIN(coverimage_smartpls_svg, "../htdocs/assets/coverimage-smartpls.svg.gz");

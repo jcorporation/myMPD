@@ -65,6 +65,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->placeholder_stream = sdsempty();
     mg_user_data->placeholder_playlist = sdsempty();
     mg_user_data->placeholder_smartpls = sdsempty();
+    mg_user_data->placeholder_folder = sdsempty();
     sds default_coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
     mg_user_data->coverimage_names= sds_split_comma_trim(default_coverimage_names, &mg_user_data->coverimage_names_len);
     FREE_SDS(default_coverimage_names);
@@ -319,6 +320,7 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
 
         //custom placeholder images
         get_placeholder_image(config->workdir, "coverimage-booklet", &mg_user_data->placeholder_booklet);
+        get_placeholder_image(config->workdir, "coverimage-folder", &mg_user_data->placeholder_folder);
         get_placeholder_image(config->workdir, "coverimage-mympd", &mg_user_data->placeholder_mympd);
         get_placeholder_image(config->workdir, "coverimage-notavailable", &mg_user_data->placeholder_na);
         get_placeholder_image(config->workdir, "coverimage-stream", &mg_user_data->placeholder_stream);

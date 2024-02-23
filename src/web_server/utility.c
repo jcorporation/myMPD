@@ -82,6 +82,7 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->placeholder_stream);
     FREE_SDS(mg_user_data->placeholder_playlist);
     FREE_SDS(mg_user_data->placeholder_smartpls);
+    FREE_SDS(mg_user_data->placeholder_folder);
     FREE_SDS(mg_user_data->cert_content);
     FREE_SDS(mg_user_data->key_content);
     FREE_PTR(mg_user_data);
@@ -330,6 +331,9 @@ void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholde
         case PLACEHOLDER_SMARTPLS:
             webserver_send_header_found(nc, mg_user_data->placeholder_smartpls);
             break;
+        case PLACEHOLDER_FOLDER:
+            webserver_send_header_found(nc, mg_user_data->placeholder_folder);
+            break;
     }
 }
 
@@ -366,6 +370,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/coverimage-mympd.svg", "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
         {"/assets/coverimage-playlist.svg", "image/svg+xml", true, true, coverimage_playlist_svg_data, coverimage_playlist_svg_size},
         {"/assets/coverimage-smartpls.svg", "image/svg+xml", true, true, coverimage_smartpls_svg_data, coverimage_smartpls_svg_size},
+        {"/assets/coverimage-folder.svg", "image/svg+xml", true, true, coverimage_folder_svg_data, coverimage_folder_svg_size},
         {"/assets/mympd-background-dark.svg", "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
         {"/assets/mympd-background-light.svg", "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},
         {"/assets/appicon-192.png", "image/png", false, true, appicon_192_png_data, appicon_192_png_size},

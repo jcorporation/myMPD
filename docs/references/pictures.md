@@ -86,6 +86,7 @@ myMPD recognizes following file extensions:
 You can add custom placeholder images for albumart.
 
 - `/var/lib/mympd/pics/thumbs/coverimage-booklet.webp`
+- `/var/lib/mympd/pics/thumbs/coverimage-folder.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-mympd.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-notavailable.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-playlist.webp`

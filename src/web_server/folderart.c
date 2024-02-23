@@ -39,7 +39,7 @@ bool request_handler_folderart(struct mg_connection *nc, struct mg_http_message 
         vcb_isfilepath(uri_decoded) == false)
     {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_FOLDER);
         FREE_SDS(uri_decoded);
         return false;
     }
@@ -57,6 +57,6 @@ bool request_handler_folderart(struct mg_connection *nc, struct mg_http_message 
     MYMPD_LOG_INFO(NULL, "No folderimage found for \"%s\"", uri_decoded);
     FREE_SDS(uri_decoded);
     FREE_SDS(coverfile);
-    webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+    webserver_serve_placeholder_image(nc, PLACEHOLDER_FOLDER);
     return false;
 }

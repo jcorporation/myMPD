@@ -36,7 +36,8 @@ struct t_mg_user_data {
     sds placeholder_na;          //!< name of custom not available image
     sds placeholder_stream;      //!< name of custom stream image
     sds placeholder_playlist;    //!< name of custom playlist image
-    sds placeholder_smartpls;   //!< name of custom smart playlist image
+    sds placeholder_smartpls;    //!< name of custom smart playlist image
+    sds placeholder_folder;      //!< name of custom folder image
     bool mympd_api_started;      //!< true if the mympd_api thread is ready, else false
     sds cert_content;            //!< the server certificate
     sds key_content;             //!< the server key
@@ -61,7 +62,8 @@ enum placeholder_types {
     PLACEHOLDER_MYMPD,
     PLACEHOLDER_BOOKLET,
     PLACEHOLDER_PLAYLIST,
-    PLACEHOLDER_SMARTPLS
+    PLACEHOLDER_SMARTPLS,
+    PLACEHOLDER_FOLDER
 };
 
 #ifdef MYMPD_EMBEDDED_ASSETS
