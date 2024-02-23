@@ -220,6 +220,7 @@ function searchWebradiodb(name, genre, country, language, codec, bitrate, sort, 
             (codec === '' || webradioDb.webradios[key].allCodecs.includes(codec)) &&
             (bitrate === 0 || bitrate <= webradioDb.webradios[key].highestBitrate)
         ) {
+            webradioDb.webradios[key].Type = 'webradiodb';
             obj.result.data.push(webradioDb.webradios[key]);
             obj.result.totalEntities++;
         }

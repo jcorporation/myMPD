@@ -14,6 +14,7 @@ https://github.com/jcorporation/myMPD/
 - Feat: support playlistlength command #1213
 - Feat: Add column for "File type" in song lists #1225
 - Feat: Add thumbnail column to views #1093
+- Feat: Add playlist art handler
 
 ***
 

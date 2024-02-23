@@ -352,7 +352,7 @@ function dragAndDropTableHeader(tableName) {
 function setColTags(tableName) {
     switch(tableName) {
         case 'BrowseRadioWebradiodb':
-            return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "State", "StreamUri", "Codec", "Bitrate"];
+            return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "State", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
         case 'BrowseRadioRadiobrowser':
             return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
         case 'BrowseDatabaseAlbumList': {
@@ -830,6 +830,9 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             case 'plist':
             case 'smartpls':
                 obj.result.data[i].Thumbnail = getCssImageUri('/playlistart?playlist=' + myEncodeURIComponent(obj.result.data[i].uri));
+                break;
+            case 'webradiodb':
+                obj.result.data[i].Thumbnail = getCssImageUri(webradioDbPicsUri + obj.result.data[i].Image);
                 break;
             // No Default
         }
