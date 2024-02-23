@@ -89,6 +89,7 @@ You can add custom placeholder images for albumart.
 - `/var/lib/mympd/pics/thumbs/coverimage-mympd.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-notavailable.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-playlist.webp`
+- `/var/lib/mympd/pics/thumbs/coverimage-smartpls.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-stream.webp`
 
 You can use every supported file extension.

@@ -59,11 +59,12 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->config = config;
     mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_EMPTY);
     mg_user_data->music_directory = sdsempty();
-    mg_user_data->custom_booklet_image = sdsempty();
-    mg_user_data->custom_mympd_image = sdsempty();
-    mg_user_data->custom_na_image = sdsempty();
-    mg_user_data->custom_stream_image = sdsempty();
-    mg_user_data->custom_playlist_image = sdsempty();
+    mg_user_data->placeholder_booklet = sdsempty();
+    mg_user_data->placeholder_mympd = sdsempty();
+    mg_user_data->placeholder_na = sdsempty();
+    mg_user_data->placeholder_stream = sdsempty();
+    mg_user_data->placeholder_playlist = sdsempty();
+    mg_user_data->placeholder_smartpls = sdsempty();
     sds default_coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
     mg_user_data->coverimage_names= sds_split_comma_trim(default_coverimage_names, &mg_user_data->coverimage_names_len);
     FREE_SDS(default_coverimage_names);
@@ -317,11 +318,12 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         FREE_SDS(uri);
 
         //custom placeholder images
-        get_placeholder_image(config->workdir, "coverimage-booklet", &mg_user_data->custom_booklet_image);
-        get_placeholder_image(config->workdir, "coverimage-mympd", &mg_user_data->custom_mympd_image);
-        get_placeholder_image(config->workdir, "coverimage-notavailable", &mg_user_data->custom_na_image);
-        get_placeholder_image(config->workdir, "coverimage-stream", &mg_user_data->custom_stream_image);
-        get_placeholder_image(config->workdir, "coverimage-playlist", &mg_user_data->custom_playlist_image);
+        get_placeholder_image(config->workdir, "coverimage-booklet", &mg_user_data->placeholder_booklet);
+        get_placeholder_image(config->workdir, "coverimage-mympd", &mg_user_data->placeholder_mympd);
+        get_placeholder_image(config->workdir, "coverimage-notavailable", &mg_user_data->placeholder_na);
+        get_placeholder_image(config->workdir, "coverimage-stream", &mg_user_data->placeholder_stream);
+        get_placeholder_image(config->workdir, "coverimage-playlist", &mg_user_data->placeholder_playlist);
+        get_placeholder_image(config->workdir, "coverimage-smartpls", &mg_user_data->placeholder_smartpls);
 
         //cleanup
         FREE_SDS(new_mg_user_data->mpd_host);
@@ -350,7 +352,10 @@ static void get_placeholder_image(sds workdir, const char *name, sds *result) {
     if (sdslen(file) > 0) {
         file = sds_basename(file);
         MYMPD_LOG_INFO(NULL, "Setting custom placeholder image for %s to \"%s\"", name, file);
-        *result = sdscatsds(*result, file);
+        *result = sdscatfmt(*result, "/browse/%s/%S", DIR_WORK_PICS_THUMBS, file);
+    }
+    else {
+        *result = sdscatfmt(*result, "/assets/%s.svg", name);
     }
     FREE_SDS(file);
 }
@@ -765,19 +770,22 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
             }
             else if (mg_http_match_uri(hm, "/assets/coverimage-booklet") == true) {
-                webserver_serve_booklet_image(nc);
+                webserver_serve_placeholder_image(nc, PLACEHOLDER_BOOKLET);
             }
             else if (mg_http_match_uri(hm, "/assets/coverimage-mympd") == true) {
-                webserver_serve_mympd_image(nc);
+                webserver_serve_placeholder_image(nc, PLACEHOLDER_MYMPD);
             }
             else if (mg_http_match_uri(hm, "/assets/coverimage-notavailable") == true) {
-                webserver_serve_na_image(nc);
+                webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
             }
             else if (mg_http_match_uri(hm, "/assets/coverimage-stream") == true) {
-                webserver_serve_stream_image(nc);
+                webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
             }
             else if (mg_http_match_uri(hm, "/assets/coverimage-playlist") == true) {
-                webserver_serve_plist_image(nc);
+                webserver_serve_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
+            }
+            else if (mg_http_match_uri(hm, "/assets/coverimage-smartpls") == true) {
+                webserver_serve_placeholder_image(nc, PLACEHOLDER_SMARTPLS);
             }
             else if (mg_http_match_uri(hm, "/index.html") == true) {
                 webserver_send_header_redirect(nc, "/");

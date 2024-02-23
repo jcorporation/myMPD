@@ -52,7 +52,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
         sdslen(value) == 0)
     {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
-        webserver_serve_na_image(nc);
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
         FREE_SDS(tag);
         FREE_SDS(value);
         return true;
@@ -76,7 +76,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
     }
     else {
         MYMPD_LOG_DEBUG(NULL, "No image for tag found");
-        webserver_serve_na_image(nc);
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
     }
     FREE_SDS(mediafile);
     FREE_SDS(tag);

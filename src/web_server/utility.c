@@ -76,11 +76,12 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     sdsfreesplitres(mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
     list_clear(&mg_user_data->stream_uris);
     list_clear(&mg_user_data->session_list);
-    FREE_SDS(mg_user_data->custom_booklet_image);
-    FREE_SDS(mg_user_data->custom_mympd_image);
-    FREE_SDS(mg_user_data->custom_na_image);
-    FREE_SDS(mg_user_data->custom_stream_image);
-    FREE_SDS(mg_user_data->custom_playlist_image);
+    FREE_SDS(mg_user_data->placeholder_booklet);
+    FREE_SDS(mg_user_data->placeholder_mympd);
+    FREE_SDS(mg_user_data->placeholder_na);
+    FREE_SDS(mg_user_data->placeholder_stream);
+    FREE_SDS(mg_user_data->placeholder_playlist);
+    FREE_SDS(mg_user_data->placeholder_smartpls);
     FREE_SDS(mg_user_data->cert_content);
     FREE_SDS(mg_user_data->key_content);
     FREE_PTR(mg_user_data);
@@ -305,82 +306,30 @@ void webserver_handle_connection_close(struct mg_connection *nc) {
 }
 
 /**
- * Redirects to the not available image
+ * Redirects to the placeholder image
  * @param nc mongoose connection
  */
-void webserver_serve_na_image(struct mg_connection *nc) {
+void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholder_types placeholder_type) {
     struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
-    if (sdslen(mg_user_data->custom_na_image) == 0) {
-        webserver_send_header_found(nc, "/assets/coverimage-notavailable.svg");
-    }
-    else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_na_image);
-        webserver_send_header_found(nc, uri);
-        FREE_SDS(uri);
-    }
-}
-
-/**
- * Redirects to the stream image
- * @param nc mongoose connection
- */
-void webserver_serve_stream_image(struct mg_connection *nc) {
-    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
-    if (sdslen(mg_user_data->custom_stream_image) == 0) {
-        webserver_send_header_found(nc, "/assets/coverimage-stream.svg");
-    }
-    else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_stream_image);
-        webserver_send_header_found(nc, uri);
-        FREE_SDS(uri);
-    }
-}
-
-/**
- * Redirects to the mympd image
- * @param nc mongoose connection
- */
-void webserver_serve_mympd_image(struct mg_connection *nc) {
-    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
-    if (sdslen(mg_user_data->custom_mympd_image) == 0) {
-        webserver_send_header_found(nc, "/assets/coverimage-mympd.svg");
-    }
-    else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_mympd_image);
-        webserver_send_header_found(nc, uri);
-        FREE_SDS(uri);
-    }
-}
-
-/**
- * Redirects to the booklet image
- * @param nc mongoose connection
- */
-void webserver_serve_booklet_image(struct mg_connection *nc) {
-    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
-    if (sdslen(mg_user_data->custom_booklet_image) == 0) {
-        webserver_send_header_found(nc, "/assets/coverimage-booklet.svg");
-    }
-    else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_booklet_image);
-        webserver_send_header_found(nc, uri);
-        FREE_SDS(uri);
-    }
-}
-
-/**
- * Redirects to the playlist image
- * @param nc mongoose connection
- */
-void webserver_serve_plist_image(struct mg_connection *nc) {
-    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
-    if (sdslen(mg_user_data->custom_booklet_image) == 0) {
-        webserver_send_header_found(nc, "/assets/coverimage-playlist.svg");
-    }
-    else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_playlist_image);
-        webserver_send_header_found(nc, uri);
-        FREE_SDS(uri);
+    switch (placeholder_type) {
+        case PLACEHOLDER_NA:
+            webserver_send_header_found(nc, mg_user_data->placeholder_na);
+            break;
+        case PLACEHOLDER_STREAM:
+            webserver_send_header_found(nc, mg_user_data->placeholder_stream);
+            break;
+        case PLACEHOLDER_MYMPD:
+            webserver_send_header_found(nc, mg_user_data->placeholder_mympd);
+            break;
+        case PLACEHOLDER_BOOKLET:
+            webserver_send_header_found(nc, mg_user_data->placeholder_booklet);
+            break;
+        case PLACEHOLDER_PLAYLIST:
+            webserver_send_header_found(nc, mg_user_data->placeholder_playlist);
+            break;
+        case PLACEHOLDER_SMARTPLS:
+            webserver_send_header_found(nc, mg_user_data->placeholder_smartpls);
+            break;
     }
 }
 
@@ -416,6 +365,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/coverimage-booklet.svg", "image/svg+xml", true, true, coverimage_booklet_svg_data, coverimage_booklet_svg_size},
         {"/assets/coverimage-mympd.svg", "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
         {"/assets/coverimage-playlist.svg", "image/svg+xml", true, true, coverimage_playlist_svg_data, coverimage_playlist_svg_size},
+        {"/assets/coverimage-smartpls.svg", "image/svg+xml", true, true, coverimage_smartpls_svg_data, coverimage_smartpls_svg_size},
         {"/assets/mympd-background-dark.svg", "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
         {"/assets/mympd-background-light.svg", "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},
         {"/assets/appicon-192.png", "image/png", false, true, appicon_192_png_data, appicon_192_png_size},

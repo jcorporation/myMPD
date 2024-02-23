@@ -19,6 +19,7 @@ INCBIN(coverimage_stream_svg, "../htdocs/assets/coverimage-stream.svg.gz");
 INCBIN(coverimage_booklet_svg, "../htdocs/assets/coverimage-booklet.svg.gz");
 INCBIN(coverimage_mympd_svg, "../htdocs/assets/coverimage-mympd.svg.gz");
 INCBIN(coverimage_playlist_svg, "../htdocs/assets/coverimage-playlist.svg.gz");
+INCBIN(coverimage_smartpls_svg, "../htdocs/assets/coverimage-smartpls.svg.gz");
 INCBIN(mympd_background_dark_svg, "../htdocs/assets/mympd-background-dark.svg.gz");
 INCBIN(mympd_background_light_svg, "../htdocs/assets/mympd-background-light.svg.gz");
 INCBIN(combined_css, "../htdocs/css/combined.css.gz");

@@ -828,8 +828,10 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
                 obj.result.data[i].Albumart = getCssImageUri('/folderart?uri=' + myEncodeURIComponent(obj.result.data[i].uri));
                 break;
             case 'plist':
-            case 'smartpls':
                 obj.result.data[i].Albumart = getCssImageUri('/assets/coverimage-playlist');
+                break;
+            case 'smartpls':
+                obj.result.data[i].Albumart = getCssImageUri('/assets/coverimage-smartpls');
                 break;
             // No Default
         }

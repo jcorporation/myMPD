@@ -61,7 +61,7 @@ void webserver_send_albumart_redirect(struct mg_connection *nc, sds data) {
         FREE_SDS(redirect_uri);
     }
     else {
-        webserver_serve_na_image(nc);
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
     }
     FREE_SDS(uri);
 }
@@ -86,7 +86,7 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
         FREE_SDS(headers);
     }
     else {
-        webserver_serve_na_image(nc);
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
     }
     FREE_SDS(mime_type);
 }
@@ -145,7 +145,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
     FREE_SDS(query);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
-        webserver_serve_na_image(nc);
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
         FREE_SDS(uri_decoded);
         return true;
     }
@@ -154,7 +154,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         vcb_isfilepath(uri_decoded) == false)
     {
         MYMPD_LOG_ERROR(NULL, "Invalid URI: %s", uri_decoded);
-        webserver_serve_na_image(nc);
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
         FREE_SDS(uri_decoded);
         return true;
     }
@@ -165,7 +165,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
     if (is_streamuri(uri_decoded) == true) {
         if (sdslen(uri_decoded) == 0) {
             MYMPD_LOG_ERROR(NULL, "Uri to short");
-            webserver_serve_na_image(nc);
+            webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
             FREE_SDS(uri_decoded);
             return true;
         }
@@ -208,7 +208,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         }
         else {
             //serve fallback image
-            webserver_serve_stream_image(nc);
+            webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
         }
         FREE_SDS(uri_decoded);
         FREE_SDS(coverfile);
@@ -286,7 +286,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
 
     MYMPD_LOG_INFO(NULL, "No coverimage found for \"%s\"", uri_decoded);
     FREE_SDS(uri_decoded);
-    webserver_serve_na_image(nc);
+    webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
     return true;
 }
 
