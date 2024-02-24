@@ -338,6 +338,7 @@ function parseMPDSettings() {
     }
     setCols('BrowseRadioWebradiodb');
     setCols('BrowseRadioRadiobrowser');
+    setCols('BrowsePlaylistList');
 
     //tagselect dropdowns
     for (const table of ['BrowseDatabaseAlbumList', 'BrowseDatabaseAlbumDetailInfo']) {

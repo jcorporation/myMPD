@@ -635,8 +635,8 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
             buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_char(buffer, "Type", (data->type == PLTYPE_STATIC ? "plist" : "smartpls"), true);
             buffer = tojson_sds(buffer, "uri", data->name, true);
-            buffer = tojson_sds(buffer, "name", data->name, true);
-            buffer = tojson_time(buffer, "lastModified", data->last_modified, true);
+            buffer = tojson_sds(buffer, "Name", data->name, true);
+            buffer = tojson_time(buffer, "Last-Modified", data->last_modified, true);
             buffer = tojson_bool(buffer, "smartplsOnly", data->type == PLTYPE_SMARTPLS_ONLY ? true : false, false);
             buffer = sdscatlen(buffer, "}", 1);
         }

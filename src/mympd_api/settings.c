@@ -251,6 +251,9 @@ bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, 
     else if (strcmp(table, "colsBrowsePlaylistDetail") == 0) {
         mympd_state->cols_browse_playlist_detail = sds_replace(mympd_state->cols_browse_playlist_detail, cols);
     }
+    else if (strcmp(table, "colsBrowsePlaylistList") == 0) {
+        mympd_state->cols_browse_playlist_list = sds_replace(mympd_state->cols_browse_playlist_list, cols);
+    }
     else if (strcmp(table, "colsBrowseFilesystem") == 0) {
         mympd_state->cols_browse_filesystem = sds_replace(mympd_state->cols_browse_filesystem, cols);
     }
@@ -848,6 +851,7 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->cols_browse_database_album_detail_info = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_database_album_detail_info", mympd_state->cols_browse_database_album_detail_info, vcb_isname, true);
     mympd_state->cols_browse_database_album_detail = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_database_album_detail", mympd_state->cols_browse_database_album_detail, vcb_isname, true);
     mympd_state->cols_browse_database_album_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_database_album_list", mympd_state->cols_browse_database_album_list, vcb_isname, true);
+    mympd_state->cols_browse_playlist_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_playlist_list", mympd_state->cols_browse_playlist_list, vcb_isname, true);
     mympd_state->cols_browse_playlist_detail = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_playlist_detail", mympd_state->cols_browse_playlist_detail, vcb_isname, true);
     mympd_state->cols_browse_filesystem = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_filesystem", mympd_state->cols_browse_filesystem, vcb_isname, true);
     mympd_state->cols_playback = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_playback", mympd_state->cols_playback, vcb_isname, true);
@@ -958,6 +962,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_raw(buffer, "colsBrowseDatabaseAlbumDetailInfo", mympd_state->cols_browse_database_album_detail_info, true);
     buffer = tojson_raw(buffer, "colsBrowseDatabaseAlbumDetail", mympd_state->cols_browse_database_album_detail, true);
     buffer = tojson_raw(buffer, "colsBrowseDatabaseAlbumList", mympd_state->cols_browse_database_album_list, true);
+    buffer = tojson_raw(buffer, "colsBrowsePlaylistList", mympd_state->cols_browse_playlist_list, true);
     buffer = tojson_raw(buffer, "colsBrowsePlaylistDetail", mympd_state->cols_browse_playlist_detail, true);
     buffer = tojson_raw(buffer, "colsBrowseFilesystem", mympd_state->cols_browse_filesystem, true);
     buffer = tojson_raw(buffer, "colsPlayback", mympd_state->cols_playback, true);

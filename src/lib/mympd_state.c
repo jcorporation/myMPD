@@ -70,6 +70,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->cols_browse_database_album_detail_info = sdsnew(MYMPD_COLS_BROWSE_DATABASE_ALBUM_DETAIL_INFO);
     mympd_state->cols_browse_database_album_detail = sdsnew(MYMPD_COLS_BROWSE_DATABASE_ALBUM_DETAIL);
     mympd_state->cols_browse_database_album_list = sdsnew(MYMPD_COLS_BROWSE_DATABASE_ALBUM_LIST);
+    mympd_state->cols_browse_playlist_list = sdsnew(MYMPD_COLS_BROWSE_PLAYLIST_LIST);
     mympd_state->cols_browse_playlist_detail = sdsnew(MYMPD_COLS_BROWSE_PLAYLIST_DETAIL);
     mympd_state->cols_browse_filesystem = sdsnew(MYMPD_COLS_BROWSE_FILESYSTEM);
     mympd_state->cols_playback = sdsnew(MYMPD_COLS_PLAYBACK);
@@ -154,6 +155,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->cols_browse_database_album_detail_info);
     FREE_SDS(mympd_state->cols_browse_database_album_detail);
     FREE_SDS(mympd_state->cols_browse_database_album_list);
+    FREE_SDS(mympd_state->cols_browse_playlist_list);
     FREE_SDS(mympd_state->cols_browse_playlist_detail);
     FREE_SDS(mympd_state->cols_browse_filesystem);
     FREE_SDS(mympd_state->cols_playback);

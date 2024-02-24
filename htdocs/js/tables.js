@@ -351,6 +351,8 @@ function dragAndDropTableHeader(tableName) {
  */
 function setColTags(tableName) {
     switch(tableName) {
+        case 'BrowsePlaylistList':
+            return ["Type", "Name", "Last-Modified", "Thumbnail"];
         case 'BrowseRadioWebradiodb':
             return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "State", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
         case 'BrowseRadioRadiobrowser':

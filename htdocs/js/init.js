@@ -249,6 +249,7 @@ function appInit() {
         'Search',
         'BrowseFilesystem',
         'BrowsePlaylistDetail',
+        'BrowsePlaylistList',
         'BrowseDatabaseAlbumDetail',
         'BrowseRadioWebradiodb',
         'BrowseRadioRadiobrowser'

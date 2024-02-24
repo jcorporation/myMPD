@@ -174,6 +174,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_COLS_BROWSE_DATABASE_ALBUM_DETAIL "[\"Track\",\"Title\",\"Duration\"]"
 #define MYMPD_COLS_BROWSE_DATABASE_ALBUM_LIST "[\"Album\",\"AlbumArtist\"]"
 #define MYMPD_COLS_BROWSE_PLAYLIST_DETAIL "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"
+#define MYMPD_COLS_BROWSE_PLAYLIST_LIST "[\"Type\",\"Name\",\"Last-Modified\"]"
 #define MYMPD_COLS_BROWSE_FILESYSTEM "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"
 #define MYMPD_COLS_PLAYBACK "[\"Artist\",\"Album\"]"
 #define MYMPD_COLS_QUEUE_LAST_PLAYED "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]"

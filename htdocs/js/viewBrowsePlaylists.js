@@ -86,24 +86,9 @@ function parsePlaylistList(obj) {
     updateTable(obj, 'BrowsePlaylistList', function(row, data) {
         setData(row, 'uri', data.uri);
         setData(row, 'type', data.Type);
-        setData(row, 'name', data.name);
+        setData(row, 'name', data.Name);
         setData(row, 'smartpls-only', data.smartplsOnly);
         row.setAttribute('title', tn(rowTitle));
-    }, function(row, data) {
-        row.appendChild(
-            elCreateNode('td', {"data-col": "Type"},
-                elCreateText('span', {"class": ["mi"]}, (data.Type === 'smartpls' ? 'queue_music' : 'list'))
-            )
-        );
-        row.appendChild(
-            elCreateText('td', {}, data.name)
-        );
-        row.appendChild(
-            elCreateText('td', {}, fmtDate(data.lastModified))
-        );
-        row.appendChild(
-            pEl.actionPlaylistTd.cloneNode(true)
-        );
     });
 }
 

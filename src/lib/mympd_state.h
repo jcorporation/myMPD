@@ -228,7 +228,7 @@ struct t_mympd_state {
     bool smartpls;                                //!< enable smart playlists
     sds smartpls_sort;                            //!< sort smart playlists by this tag
     sds smartpls_prefix;                          //!< name prefix for smart playlists
-    int smartpls_interval;                     //!< interval to refresh smart playlists in seconds
+    int smartpls_interval;                        //!< interval to refresh smart playlists in seconds
     struct t_tags smartpls_generate_tag_types;    //!< generate smart playlists for each value for this tag
     sds smartpls_generate_tag_list;               //!< generate smart playlists for each value for this tag (string representation)
     sds cols_queue_current;                       //!< columns for the queue view
@@ -236,7 +236,8 @@ struct t_mympd_state {
     sds cols_browse_database_album_detail_info;   //!< columns for the album detail view
     sds cols_browse_database_album_detail;        //!< columns for the album detail title list
     sds cols_browse_database_album_list;          //!< columns for the album list view
-    sds cols_browse_playlist_detail;              //!< columns for the listing of playlists
+    sds cols_browse_playlist_list;                //!< columns for the listing of playlists
+    sds cols_browse_playlist_detail;              //!< columns for the listing of playlist contents
     sds cols_browse_filesystem;                   //!< columns for filesystem listing
     sds cols_playback;                            //!< columns for playback view
     sds cols_queue_last_played;                   //!< columns for last played view
@@ -259,7 +260,7 @@ struct t_mympd_state {
     sds booklet_name;                             //!< name of the booklet files
     sds info_txt_name;                            //!< name of album info files
     struct t_cache album_cache;                   //!< the album cache created by the mpd_worker thread
-    unsigned last_played_count;                       //!< number of songs to keep in the last played list (disk + memory)
+    unsigned last_played_count;                   //!< number of songs to keep in the last played list (disk + memory)
 };
 
 /**
