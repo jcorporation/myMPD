@@ -54,7 +54,8 @@ function toggleAlert(alertBoxId, state, msg) {
                 alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
                 const clBtn = elCreateEmpty('button', {"class": ["btn-close"]});
                 alertBoxEl.appendChild(clBtn);
-                clBtn.addEventListener('click', function() {
+                clBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
                     clearMPDerror();
                 }, false);
                 break;
@@ -63,7 +64,8 @@ function toggleAlert(alertBoxId, state, msg) {
                 alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
                 const clBtn = elCreateEmpty('button', {"class": ["btn-close"]});
                 alertBoxEl.appendChild(clBtn);
-                clBtn.addEventListener('click', function() {
+                clBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
                     clearJukeboxError();
                 }, false);
                 break;
@@ -77,7 +79,8 @@ function toggleAlert(alertBoxId, state, msg) {
                 alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
                 const clBtn = elCreateText('button', {"class": ["alwaysEnabled", "btn-retry", "mi"], "title": tn('Reconnect'), "data-title-phrase": "Reconnect"}, "refresh");
                 alertBoxEl.appendChild(clBtn);
-                clBtn.addEventListener('click', function() {
+                clBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
                     onShow();
                 }, false);
                 break;
