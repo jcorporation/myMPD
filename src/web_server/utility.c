@@ -44,6 +44,28 @@ sds print_ip(sds s, struct mg_addr *addr) {
 }
 
 /**
+ * Gets an decodes an url parameter
+ * @param query query string to parse
+ * @param name name to get, you must append "=" to the name
+ * @return url decoded value or NULL on error
+ */
+sds get_uri_param(struct mg_str *query, const char *name) {
+    sds result = NULL;
+    int count = 0;
+    size_t name_len = strlen(name);
+    sds *params = sdssplitlen(query->ptr, (ssize_t)query->len, "&", 1, &count);
+    for (int i = 0; i < count; i++) {
+        if (strncmp(params[i], name, name_len) == 0) {
+            sdsrange(params[i], (ssize_t)name_len, -1);
+            result = sds_urldecode(sdsempty(), params[i], sdslen(params[i]), false);
+            break;
+        }
+    }
+    sdsfreesplitres(params, count);
+    return result;
+}
+
+/**
  * Sets the partition from uri and handles errors
  * @param nc mongoose connection
  * @param hm http message

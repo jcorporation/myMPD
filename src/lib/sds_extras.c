@@ -147,25 +147,6 @@ sds sds_hash_sha256_sds(sds s) {
 }
 
 /**
- * Reads the integer from start of the string, the integer is removed from string
- * @param s sds string to modify in place
- * @return the number at the beginning of the sds string
- */
-int sds_toimax(sds s) {
-    sds nr = sdsempty();
-    while (isdigit(s[0])) {
-        nr = sds_catchar(nr, s[0]);
-        sdsrange(s, 1, -1);
-    }
-    int number;
-    enum str2int_errno rc = str2int(&number, nr);
-    FREE_SDS(nr);
-    return rc == STR2INT_SUCCESS
-        ? number
-        : 0;
-}
-
-/**
  * Makes the string lower case (utf8 aware)
  * @param s sds string to modify in place
  */

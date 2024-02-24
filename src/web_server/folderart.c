@@ -25,37 +25,31 @@ bool request_handler_folderart(struct mg_connection *nc, struct mg_http_message 
         webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
         return false;
     }
-    sds query = sdsnewlen(hm->query.ptr, hm->query.len);
-    sds uri_decoded = sdsempty();
-    if (sdslen(query) > 4 &&
-        strncmp(query, "uri=", 4) == 0)
-    {
-        //remove uri=
-        sdsrange(query, 4, -1);
-        uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
-    }
-    FREE_SDS(query);
-    if (sdslen(uri_decoded) == 0 ||
-        vcb_isfilepath(uri_decoded) == false)
+
+    sds path = get_uri_param(&hm->query, "path=");
+
+    if (path == NULL ||
+        sdslen(path) == 0 ||
+        vcb_isfilepath(path) == false)
     {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
         webserver_serve_placeholder_image(nc, PLACEHOLDER_FOLDER);
-        FREE_SDS(uri_decoded);
+        FREE_SDS(path);
         return false;
     }
     sds coverfile = sdsempty();
-    bool found = find_image_in_folder(&coverfile, mg_user_data->music_directory, uri_decoded, mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len) ||
-        find_image_in_folder(&coverfile, mg_user_data->music_directory, uri_decoded, mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
+    bool found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len) ||
+        find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
 
     if (found == true) {
         webserver_serve_file(nc, hm, mg_user_data->browse_directory, coverfile);
-        FREE_SDS(uri_decoded);
+        FREE_SDS(path);
         FREE_SDS(coverfile);
         return true;
     }
 
-    MYMPD_LOG_INFO(NULL, "No folderimage found for \"%s\"", uri_decoded);
-    FREE_SDS(uri_decoded);
+    MYMPD_LOG_INFO(NULL, "No folderimage found for \"%s\"", path);
+    FREE_SDS(path);
     FREE_SDS(coverfile);
     webserver_serve_placeholder_image(nc, PLACEHOLDER_FOLDER);
     return false;

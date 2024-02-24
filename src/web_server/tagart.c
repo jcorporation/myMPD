@@ -24,31 +24,13 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
         struct t_mg_user_data *mg_user_data)
 {
     struct t_config *config = mg_user_data->config;
-    sds query = sdsnewlen(hm->query.ptr, hm->query.len);
-    sds tag = sdsempty();
-    sds value = sdsempty();
-    // remove 'tag='
-    sdsrange(query, 4, -1);
-    size_t query_len = sdslen(query);
-    // get tagname
-    size_t i = 0;
-    while (query[i] != '&' &&
-        i < query_len)
-    {
-        tag = sdscatfmt(tag, "%c", query[i]);
-        i++;
-    }
-    // remove 'tagname&value='
-    size_t to_remove = i + 7;
-    if (query_len > to_remove) {
-        sdsrange(query, (ssize_t)to_remove, -1);
-        // rest is the tag value
-        value = sds_urldecode(value, query, sdslen(query), false);
-    }
-    FREE_SDS(query);
-    // verify
-    if (vcb_ismpdtag(tag) == false ||
-        sdslen(value) == 0)
+    sds tag = get_uri_param(&hm->query, "tag=");
+    sds value = get_uri_param(&hm->query, "value=");
+
+    if (tag == NULL ||
+        value == NULL ||
+        sdslen(value) == 0 ||
+        vcb_ismpdtag(tag) == false)
     {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
         webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);

@@ -827,7 +827,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
                 obj.result.data[i].Thumbnail = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].uri));
                 break;
             case 'dir': 
-                obj.result.data[i].Thumbnail = getCssImageUri('/folderart?uri=' + myEncodeURIComponent(obj.result.data[i].uri));
+                obj.result.data[i].Thumbnail = getCssImageUri('/folderart?path=' + myEncodeURIComponent(obj.result.data[i].uri));
                 break;
             case 'plist':
             case 'smartpls':

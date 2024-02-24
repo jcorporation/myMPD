@@ -24,30 +24,23 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
         struct t_mg_user_data *mg_user_data)
 {
     struct t_config *config = mg_user_data->config;
-    sds query = sdsnewlen(hm->query.ptr, hm->query.len);
-    sds uri_decoded = sdsempty();
-    if (sdslen(query) > 4 &&
-        strncmp(query, "playlist=", 9) == 0)
-    {
-        //remove playlist=
-        sdsrange(query, 9, -1);
-        uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
-    }
-    FREE_SDS(query);
-    if (sdslen(uri_decoded) == 0 ||
-        vcb_isfilepath(uri_decoded) == false)
+    sds name = get_uri_param(&hm->query, "playlist=");
+
+    if (name == NULL ||
+        sdslen(name) == 0 ||
+        vcb_isfilepath(name) == false)
     {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
         webserver_serve_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
-        FREE_SDS(uri_decoded);
+        FREE_SDS(name);
         return false;
     }
-    strip_file_extension(uri_decoded);
-    sanitize_filename2(uri_decoded);
+    strip_file_extension(name);
+    sanitize_filename2(name);
 
-    MYMPD_LOG_DEBUG(NULL, "Handle playlistart for \"%s\"", uri_decoded);
+    MYMPD_LOG_DEBUG(NULL, "Handle playlistart for \"%s\"", name);
     //create absolute filepath
-    sds mediafile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, uri_decoded);
+    sds mediafile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, name);
     MYMPD_LOG_DEBUG(NULL, "Absolut media_file: %s", mediafile);
     mediafile = webserver_find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
@@ -58,6 +51,6 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
         webserver_serve_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
     }
     FREE_SDS(mediafile);
-    FREE_SDS(uri_decoded);
+    FREE_SDS(name);
     return true;
 }
