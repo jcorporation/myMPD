@@ -6,6 +6,10 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v15.0.0 (not yet released)
 
+### API changes
+
+- MYMPD_API_PLAYLIST_LIST: response changed
+
 ### Changelog
 
 - Feat: Add setting for default sort tag in library view #1207
@@ -15,6 +19,8 @@ https://github.com/jcorporation/myMPD/
 - Feat: Add column for "File type" in song lists #1225
 - Feat: Add thumbnail column to views #1093
 - Feat: Add playlist art handler
+- Feat: configurable columns for playlist table
+- Fix: list and search playlists in filesystem view
 
 ***
 
