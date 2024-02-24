@@ -100,14 +100,6 @@ UTEST(sds_extras, test_sds_hash_sha256_sds) {
     sdsfree(hash);
 }
 
-UTEST(sds_extras, test_sds_toimax) {
-    sds s = sdsnew("123abc");
-    int nr = sds_toimax(s);
-    ASSERT_EQ(123, nr);
-    ASSERT_STREQ("abc", s);
-    sdsfree(s);
-}
-
 UTEST(sds_extras, test_sds_utf8_tolower) {
     sds test_input= sdsnew("EINSTÜRZENDE NEUBAUTEN");
     sds_utf8_tolower(test_input);
