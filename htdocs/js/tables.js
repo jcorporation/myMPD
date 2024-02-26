@@ -824,6 +824,8 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         //set Thumbnail
         switch(obj.result.data[i].Type) {
             case 'song':
+            case 'stream':
+            case 'webradio':
                 obj.result.data[i].Thumbnail = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].uri));
                 break;
             case 'dir': 
