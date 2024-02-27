@@ -20,6 +20,7 @@ https://github.com/jcorporation/myMPD/
 - Feat: Add thumbnail column to views #1093
 - Feat: Add playlist art handler
 - Feat: configurable columns for playlist table
+- Upd: Bootstrap 5.3.3
 - Fix: list and search playlists in filesystem view
 
 ***
