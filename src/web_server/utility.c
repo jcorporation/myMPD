@@ -119,7 +119,7 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
  * @param uri_decoded image uri
  * @param offset embedded image offset
  * @return true if an image is served,
- *         false if waiting for mpd_client to handle request
+ *         false if no image was found in cache
  */
 bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset)
@@ -158,7 +158,7 @@ static const char *image_file_extensions[] = {
 /**
  * Finds the first image with basefilename by trying out extensions
  * @param basefilename basefilename to append extensions
- * @return pointer to basefilename
+ * @return pointer to extended basefilename on success, else empty
  */
 sds webserver_find_image_file(sds basefilename) {
     MYMPD_LOG_DEBUG(NULL, "Searching image file for basename \"%s\"", basefilename);
@@ -184,7 +184,7 @@ sds webserver_find_image_file(sds basefilename) {
 
 /**
  * Finds an image in a specific subdir in dir
- * @param coverfile point to already allocated sds string to append the found image path
+ * @param coverfile pointer to already allocated sds string to append the found image path
  * @param music_directory parent directory
  * @param path subdirectory
  * @param names sds array of names
