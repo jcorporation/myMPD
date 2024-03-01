@@ -77,7 +77,7 @@ UTEST(filehandler, test_sds_getfile_from_fp) {
     sds line = sds_getfile_from_fp(sdsempty(), fp, 1000, false, &nread);
     fclose(fp);
     ASSERT_GT(nread, 0);
-    ASSERT_STREQ(line, "asdfjlkasdfjklsafd\nasfdsdfawaerwer");
+    ASSERT_STREQ("asdfjlkasdfjklsafd\nasfdsdfawaerwer", line);
 
     // too big
     fp = fopen("/tmp/mympd-test/state/test", "r");
@@ -85,8 +85,16 @@ UTEST(filehandler, test_sds_getfile_from_fp) {
     line = sds_getfile_from_fp(line, fp, 5, true, &nread);
     fclose(fp);
     ASSERT_EQ(nread, -2);
-    sdsfree(line);
 
+    //remove newline
+    fp = fopen("/tmp/mympd-test/state/test", "r");
+    nread = 0;
+    line = sds_getfile_from_fp(line, fp, 1000, true, &nread);
+    fclose(fp);
+    ASSERT_GT(nread, 0);
+    ASSERT_STREQ("asdfjlkasdfjklsafdasfdsdfawaerwer", line);
+
+    sdsfree(line);
     clean_testenv();
 }
 
