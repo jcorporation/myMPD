@@ -172,15 +172,14 @@ sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, b
 sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *nread) {
     sdsclear(s);
     s = sdsMakeRoomFor(s, max + 1);
-    for (size_t i = 0; i <= max; i++) {
-        int c = fgetc(fp);
-        if (c == EOF) {
-            s[i] = '\0';
+    int c;
+    size_t i = 0;
+    while ((c = fgetc(fp)) != EOF) {
+        if (i > max) {
+            s[max] = '\0';
             sdstrim(s, "\r \t\n");
-            *nread = (int)sdslen(s);
-            #ifdef MYMPD_DEBUG
-                MYMPD_LOG_DEBUG(NULL, "Read %lu bytes from file", (unsigned long)sdslen(s));
-            #endif
+            MYMPD_LOG_ERROR(NULL, "File is too big, max size is %lu", (unsigned long)max);
+            *nread = -2;
             return s;
         }
         if (remove_newline == true &&
@@ -190,11 +189,11 @@ sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *n
         }
         s[i] = (char)c;
         sdsinclen(s, 1);
+        i++;
     }
-    s[max] = '\0';
+    s[i] = '\0';
     sdstrim(s, "\r \t\n");
-    MYMPD_LOG_ERROR(NULL, "File is too big, max size is %lu", (unsigned long)max);
-    *nread = -2;
+    *nread = (int)sdslen(s);
     return s;
 }
 

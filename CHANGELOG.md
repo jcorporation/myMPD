@@ -33,6 +33,7 @@ This is a small bugfix release.
 
 - Upd: translations
 - Fix: Disable search on type for Android #1220
+- Fix: Remove newlines from state files #1232
 
 ***
 
