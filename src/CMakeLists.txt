@@ -153,6 +153,22 @@ if(MYMPD_ENABLE_LUA)
   )
 endif()
 
+if(MYMPD_ENABLE_FLAC)
+  target_sources(mympd
+    PRIVATE
+      mympd_api/lyrics_flac.c
+      web_server/albumart_flac.c
+  )
+endif()
+
+if(MYMPD_ENABLE_LIBID3TAG)
+  target_sources(mympd
+    PRIVATE
+      mympd_api/lyrics_id3.c
+      web_server/albumart_id3.c
+  )
+endif()
+
 if(MYMPD_ENABLE_MYGPIOD)
   target_sources(mympd
     PRIVATE

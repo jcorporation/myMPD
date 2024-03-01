@@ -10,7 +10,6 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
@@ -20,11 +19,11 @@
 
 //optional includes
 #ifdef MYMPD_ENABLE_LIBID3TAG
-    #include <id3tag.h>
+    #include "src/mympd_api/lyrics_id3.h"
 #endif
 
 #ifdef MYMPD_ENABLE_FLAC
-    #include <FLAC/metadata.h>
+    #include "src/mympd_api/lyrics_flac.h"
 #endif
 
 /**
@@ -33,14 +32,6 @@
 static void lyrics_get(struct t_lyrics *lyrics, struct t_list *extracted,
         sds mediafile, const char *mime_type_mediafile);
 static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char *ext, bool synced);
-static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file);
-static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file);
-static void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is_ogg, const char *comment_name, bool synced);
-
-#ifdef MYMPD_ENABLE_LIBID3TAG
-static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length, enum id3_field_textencoding encoding);
-static const char *mympd_id3_field_getlanguage(union id3_field const *field);
-#endif
 
 /**
  * Public functions
@@ -120,25 +111,37 @@ static void lyrics_get(struct t_lyrics *lyrics, struct t_list *extracted,
     lyrics_fromfile(extracted, mediafile, lyrics->uslt_ext, false);
     //get embedded unsynced lyrics
     if (strcmp(mime_type_mediafile, "audio/mpeg") == 0) {
-        lyricsextract_unsynced_id3(extracted, mediafile);
+        #ifdef MYMPD_ENABLE_LIBID3TAG
+            lyricsextract_unsynced_id3(extracted, mediafile);
+        #endif
     }
     else if (strcmp(mime_type_mediafile, "audio/ogg") == 0) {
-        lyricsextract_flac(extracted, mediafile, true, lyrics->vorbis_uslt, false);
+        #ifdef MYMPD_ENABLE_FLAC
+            lyricsextract_flac(extracted, mediafile, true, lyrics->vorbis_uslt, false);
+        #endif
     }
     else if (strcmp(mime_type_mediafile, "audio/flac") == 0) {
-        lyricsextract_flac(extracted, mediafile, false, lyrics->vorbis_uslt, false);
+        #ifdef MYMPD_ENABLE_FLAC
+            lyricsextract_flac(extracted, mediafile, false, lyrics->vorbis_uslt, false);
+        #endif
     }
     //try synced lyrics file in folder of the song
     lyrics_fromfile(extracted, mediafile, lyrics->sylt_ext, true);
     //get embedded synced lyrics
     if (strcmp(mime_type_mediafile, "audio/mpeg") == 0) {
-        lyricsextract_synced_id3(extracted, mediafile);
+        #ifdef MYMPD_ENABLE_LIBID3TAG
+            lyricsextract_synced_id3(extracted, mediafile);
+        #endif
     }
     else if (strcmp(mime_type_mediafile, "audio/ogg") == 0) {
-        lyricsextract_flac(extracted, mediafile, true, lyrics->vorbis_sylt, true);
+        #ifdef MYMPD_ENABLE_FLAC
+            lyricsextract_flac(extracted, mediafile, true, lyrics->vorbis_sylt, true);
+        #endif
     }
     else if (strcmp(mime_type_mediafile, "audio/flac") == 0) {
-        lyricsextract_flac(extracted, mediafile, false, lyrics->vorbis_sylt, true);
+        #ifdef MYMPD_ENABLE_FLAC
+            lyricsextract_flac(extracted, mediafile, false, lyrics->vorbis_sylt, true);
+        #endif
     }
 }
 
@@ -168,402 +171,4 @@ static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char 
     }
     FREE_SDS(text);
     FREE_SDS(lyricsfile);
-}
-
-/**
- * Extracts unsynced lyrics from a id3 tagged mp3 file
- * @param extracted t_list struct to append found lyrics
- * @param media_file absolute filename to read lyrics from
- */
-static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file) {
-    #ifdef MYMPD_ENABLE_LIBID3TAG
-    MYMPD_LOG_DEBUG(NULL, "Exctracting unsynced lyrics from %s", media_file);
-    struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
-    if (file_struct == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Can't parse id3_file: %s", media_file);
-        return;
-    }
-    struct id3_tag *tags = id3_file_tag(file_struct);
-    if (tags == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Can't read id3 tags from file: %s", media_file);
-        id3_file_close(file_struct);
-        return;
-    }
-
-    unsigned i = 0;
-    unsigned found_lyrics = 0;
-    struct id3_frame *frame;
-    sds buffer = sdsempty();
-    while ((frame = id3_tag_findframe(tags, "USLT", i)) != NULL) {
-        //fields of USLT:
-        //ID3_FIELD_TYPE_TEXTENCODING -> can be ignored
-        //ID3_FIELD_TYPE_LANGUAGE -> lang (3 chars)
-        //ID3_FIELD_TYPE_STRING -> desc
-        //ID3_FIELD_TYPE_STRINGFULL -> lyrics
-        const id3_ucs4_t *uslt_text = id3_field_getfullstring(&frame->fields[3]);
-        if (uslt_text != NULL) {
-            buffer = sdscat(buffer, "{\"synced\":false,");
-            //libid3tag has not get function for language, use own function
-            const char *lang = mympd_id3_field_getlanguage(&frame->fields[1]);
-            if (lang != NULL) {
-                buffer = tojson_char(buffer, "lang", lang, true);
-            }
-            else {
-                buffer = tojson_char_len(buffer, "lang", "", 0, true);
-            }
-
-            const id3_ucs4_t *uslt_desc = id3_field_getstring(&frame->fields[2]);
-            if (uslt_desc != NULL) {
-                id3_utf8_t *uslt_desc_utf8 = id3_ucs4_utf8duplicate(uslt_desc);
-                buffer = tojson_char(buffer, "desc", (char *)uslt_desc_utf8, true);
-                FREE_PTR(uslt_desc_utf8);
-            }
-            else {
-                buffer = tojson_char_len(buffer, "desc", "", 0, true);
-            }
-
-            id3_utf8_t *uslt_text_utf8 = id3_ucs4_utf8duplicate(uslt_text);
-            buffer = tojson_char(buffer, "text", (char *)uslt_text_utf8, false);
-            FREE_PTR(uslt_text_utf8);
-            buffer = sdscatlen(buffer, "}", 1);
-            list_push(extracted, buffer, 0 , NULL, NULL);
-            sdsclear(buffer);
-            found_lyrics++;
-            MYMPD_LOG_DEBUG(NULL, "Unsynced lyrics successfully extracted");
-        }
-        else {
-            MYMPD_LOG_DEBUG(NULL, "Can not read embedded unsynced lyrics");
-            break;
-        }
-        i++;
-    }
-    id3_file_close(file_struct);
-    FREE_SDS(buffer);
-
-    if (found_lyrics == 0) {
-        MYMPD_LOG_DEBUG(NULL, "No embedded unsynced lyrics found");
-    }
-    #else
-    (void) media_file;
-    (void) extracted;
-    #endif
-}
-
-/**
- * Extracts synced lyrics from a id3 tagged mp3 file
- * @param extracted t_list struct to append found lyrics
- * @param media_file absolute filename to read lyrics from
- */
-static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
-    #ifdef MYMPD_ENABLE_LIBID3TAG
-    MYMPD_LOG_DEBUG(NULL, "Exctracting synced lyrics from \"%s\"", media_file);
-    struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
-    if (file_struct == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Can't parse id3_file: %s", media_file);
-        return;
-    }
-    struct id3_tag *tags = id3_file_tag(file_struct);
-    if (tags == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Can't read id3 tags from file \"%s\"", media_file);
-        id3_file_close(file_struct);
-        return;
-    }
-
-    unsigned i = 0;
-    unsigned found_lyrics = 0;
-    struct id3_frame *frame;
-    sds buffer = sdsempty();
-    while ((frame = id3_tag_findframe(tags, "SYLT", i)) != NULL) {
-        //fields of SYLT:
-        //ID3_FIELD_TYPE_TEXTENCODING -> can be ignored
-        //ID3_FIELD_TYPE_LANGUAGE -> lang (3 chars)
-        //ID3_FIELD_TYPE_INT8 -> time stamp
-        //ID3_FIELD_TYPE_INT8 -> content type
-        //ID3_FIELD_TYPE_STRING -> desc
-        //ID3_FIELD_TYPE_BINARYDATA -> lyrics
-        id3_length_t sylt_data_len;
-        const id3_byte_t *sylt_data = id3_field_getbinarydata(id3_frame_field(frame, 5), &sylt_data_len);
-        if (sylt_data != NULL) {
-            buffer = sdscat(buffer, "{\"synced\":true,");
-
-            enum id3_field_textencoding encoding = id3_field_gettextencoding(&frame->fields[0]);
-            buffer = tojson_uint(buffer, "encoding", encoding, true);
-
-            const char *lang = mympd_id3_field_getlanguage(&frame->fields[1]);
-            if (lang != NULL) {
-                buffer = tojson_char(buffer, "lang", lang, true);
-            }
-            else {
-                buffer = tojson_char_len(buffer, "lang", "", 0, true);
-            }
-
-            int64_t time_stamp = id3_field_getint(&frame->fields[2]);
-            buffer = tojson_int64(buffer, "timestamp", time_stamp, true);
-
-            int64_t content_type = id3_field_getint(&frame->fields[3]);
-            buffer = tojson_int64(buffer, "contenttype", content_type, true);
-
-            const id3_ucs4_t *uslt_desc = id3_field_getstring(&frame->fields[4]);
-            if (uslt_desc != NULL) {
-                id3_utf8_t *uslt_desc_utf8 = id3_ucs4_utf8duplicate(uslt_desc);
-                buffer = tojson_char(buffer, "desc", (char *)uslt_desc_utf8, true);
-                FREE_PTR(uslt_desc_utf8);
-            }
-            else {
-                buffer = tojson_char_len(buffer, "desc", "", 0, true);
-            }
-            sds text = decode_sylt(sylt_data, sylt_data_len, encoding);
-            //sylt data is already encoded as json value
-            buffer = sdscatprintf(buffer, "\"text\":\"%s\"", text);
-            FREE_SDS(text);
-            buffer = sdscatlen(buffer, "}", 1);
-            list_push(extracted, buffer, 0 , NULL, NULL);
-            sdsclear(buffer);
-            found_lyrics++;
-            MYMPD_LOG_DEBUG(NULL, "Synced lyrics successfully extracted");
-        }
-        else {
-            MYMPD_LOG_DEBUG(NULL, "Can not read embedded synced lyrics");
-            break;
-        }
-        i++;
-    }
-    id3_file_close(file_struct);
-    FREE_SDS(buffer);
-    if (found_lyrics == 0) {
-        MYMPD_LOG_DEBUG(NULL, "No embedded synced lyrics found");
-    }
-    #else
-    (void) media_file;
-    (void) extracted;
-    #endif
-}
-
-#ifdef MYMPD_ENABLE_LIBID3TAG
-
-/**
- * Custom function to get the id3 language field
- * libid3tag has not get function for language
- * @param field pointer to frame field
- * @return language
- */
-static const char *mympd_id3_field_getlanguage(union id3_field const *field) {
-    assert(field);
-    if (field->type != ID3_FIELD_TYPE_LANGUAGE) {
-        return NULL;
-    }
-    return field->immediate.value;
-}
-
-/**
- * Decodes the binary sylt tag from id3 tagged files
- * @param binary_data the binary sylt tag
- * @param binary_length length of the binary data
- * @param encoding text encoding
- * @return decoded sylt tag
- */
-static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length, enum id3_field_textencoding encoding) {
-    sds sylt_text = sdsempty();
-    //text buffer
-    sds text_buf = sdsempty();
-    id3_length_t sep_len = encoding == 0 || encoding == 3 ? 1 : 2;
-    id3_length_t i = 0;
-
-    MYMPD_LOG_DEBUG(NULL, "Sylt encoding: %u", encoding);
-
-    while (i + sep_len + 4 < binary_length) {
-        //look for bom and skip it
-        if ((encoding == 1 && binary_data[i] == 0xff && binary_data[i + 1] == 0xfe) ||
-            (encoding == 2 && binary_data[i] == 0xfe && binary_data[i + 1] == 0xff)) {
-            //utf-16 le or be
-            i = i + 2;
-        }
-        else if (encoding == 3 && binary_data[i] == 0xef && binary_data[i + 1] == 0xbb && binary_data[i + 2] == 0xbf) {
-            //utf-8
-            i = i + 3;
-        }
-        //skip newline char
-        if ((encoding == 0 || encoding == 3) && binary_data[i] == '\n') {
-            i++;
-        }
-        else if ((encoding == 1 && binary_data[i] == '\n' && binary_data[i + 1] == '\0') ||
-                 (encoding == 2 && binary_data[i] == '\0' && binary_data[i + 1] == '\n'))
-        {
-            i = i + 2;
-        }
-        //read text
-        if (encoding == 0) {
-            //latin - read text until \0 separator
-            while (i < binary_length && binary_data[i] != '\0') {
-                text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
-                i++;
-            }
-        }
-        else if (encoding == 1) {
-            //utf16le - read text until \0\0 separator
-            while (i + 2 < binary_length && (binary_data[i] != '\0' || binary_data[i + 1] != '\0')) {
-                if ((binary_data[i] & 0x80) == 0x00 && binary_data[i + 1] == '\0') {
-                    //printable ascii char
-                    text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
-                }
-                else {
-                    unsigned c = (unsigned)((binary_data[i + 1] << 8) | binary_data[i]);
-                    if (c <= 0xd7ff || c >= 0xe000) {
-                        text_buf = sdscatprintf(text_buf, "\\u%04x", c);
-                    }
-                    else {
-                        //surrogate pair
-                        c = (unsigned)((binary_data[i + 1] << 24) | (binary_data[i] << 16) | (binary_data[i + 3] << 8) | binary_data[i + 2]);
-                        c = c - 0x10000;
-                        if (c <= 0x10ffff) {
-                            text_buf = sdscatprintf(text_buf, "\\u%04x%04x", 0xd800 + (c >> 10), 0xdc00 + (c & 0x3ff));
-                        }
-                    }
-                }
-                i = i + 2;
-            }
-        }
-        else if (encoding == 2) {
-            //utf16be - read text until \0\0 separator
-            while (i + 2 < binary_length && (binary_data[i] != '\0' || binary_data[i + 1] != '\0')) {
-                if ((binary_data[i + 1] & 0x80) == 0x00 && binary_data[i] == '\0') {
-                    //printable ascii char
-                    text_buf = sds_catjsonchar(text_buf, (char)binary_data[i + 1]);
-                }
-                else {
-                    unsigned c = (unsigned)((binary_data[i] << 8) | binary_data[i + 1]);
-                    if (c <= 0xd7ff || c >= 0xe000) {
-                        text_buf = sdscatprintf(text_buf, "\\u%04x", c);
-                    }
-                    else if (i + 4 < binary_length) {
-                        //surrogate pair
-                        c = (unsigned)((binary_data[i] << 24) | (binary_data[i + 1] << 16) | (binary_data[i + 2] << 8) | binary_data[i + 3]);
-                        c = c - 0x10000;
-                        if (c <= 0x10ffff) {
-                            text_buf = sdscatprintf(text_buf, "\\u%04x%04x", 0xd800 + (c >> 10), 0xdc00 + (c & 0x3ff));
-                        }
-                    }
-                    else {
-                        MYMPD_LOG_ERROR(NULL, "Premature end of data");
-                        break;
-                    }
-                }
-                i = i + 2;
-            }
-        }
-        else if (encoding == 3) {
-            //utf8 - read text until \0 separator
-            while (i < binary_length && binary_data[i] != '\0') {
-                if ((binary_data[i] & 0x80) == 0x00) {
-                    //ascii char
-                    text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
-                }
-                else {
-                    text_buf = sds_catchar(text_buf, (char)binary_data[i]);
-                }
-                i++;
-            }
-        }
-        else {
-            MYMPD_LOG_ERROR(NULL, "Unknown text encoding");
-            break;
-        }
-        //skip separator
-        if (i + sep_len < binary_length) {
-            i = i + sep_len;
-        }
-        else {
-            MYMPD_LOG_ERROR(NULL, "Premature end of data");
-            break;
-        }
-        //read timestamp - 4 bytes
-        if (i + 3 < binary_length) {
-            int ms = (binary_data[i] << 24) | (binary_data[i + 1] << 16) | (binary_data[i + 2] << 8) | binary_data[i + 3];
-            int min = ms / 60000;
-            ms = ms - min * 60000;
-            int sec = ms / 1000;
-            ms = ms - sec * 1000;
-            sylt_text = sdscatprintf(sylt_text, "[%02d:%02d.%02d]%s\\n", min, sec, ms, text_buf);
-            sdsclear(text_buf);
-            i = i + 4;
-        }
-        else {
-            MYMPD_LOG_ERROR(NULL, "No timestamp found");
-            break;
-        }
-    }
-    FREE_SDS(text_buf);
-    return sylt_text;
-}
-#endif
-
-/**
- * Extracts unsynced lyrics from a vorbis comment
- * @param extracted t_list struct to append found lyrics
- * @param media_file absolute filename to read lyrics from
- * @param is_ogg true if is a ogg file else false (flac)
- * @param comment_name name of vorbis comment with the lyrics
- * @param synced true for synced lyrics else false
- */
-static void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is_ogg, const char *comment_name, bool synced) {
-    #ifdef MYMPD_ENABLE_FLAC
-    MYMPD_LOG_DEBUG(NULL, "Exctracting lyrics from \"%s\"", media_file);
-    FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
-
-    if (! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
-        MYMPD_LOG_ERROR(NULL, "Can't read metadata from file \"%s\"", media_file);
-        FLAC__metadata_chain_delete(chain);
-        return;
-    }
-
-    FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
-    assert(iterator);
-    FLAC__metadata_iterator_init(iterator, chain);
-    int found_lyrics = 0;
-    sds buffer = sdsempty();
-    do {
-        FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
-        if (block->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
-            int field_num = 0;
-            while ((field_num = FLAC__metadata_object_vorbiscomment_find_entry_from(block, (unsigned)field_num, comment_name)) > -1) {
-                FLAC__StreamMetadata_VorbisComment *vc = &block->data.vorbis_comment;
-                FLAC__StreamMetadata_VorbisComment_Entry *field = &vc->comments[field_num++];
-
-                char *field_value = memchr(field->entry, '=', field->length);
-                if (field_value != NULL &&
-                    strlen(field_value) > 1)
-                {
-                    field_value++;
-                    buffer = sdscatlen(buffer, "{", 1);
-                    buffer = tojson_bool(buffer, "synced", synced, true);
-                    buffer = tojson_char_len(buffer, "lang", "", 0, true);
-                    buffer = tojson_char_len(buffer, "desc", "", 0, true);
-                    buffer = tojson_char(buffer, "text", field_value, false);
-                    buffer = sdscatlen(buffer, "}", 1);
-                    list_push(extracted, buffer, 0 , NULL, NULL);
-                    sdsclear(buffer);
-                    found_lyrics++;
-                    MYMPD_LOG_DEBUG(NULL, "Found embedded lyrics");
-                    field_value++;
-                }
-                else {
-                    MYMPD_LOG_DEBUG(NULL, "Invalid vorbis comment");
-                }
-            }
-        }
-    } while (FLAC__metadata_iterator_next(iterator));
-
-    if (found_lyrics == 0) {
-        MYMPD_LOG_DEBUG(NULL, "No embedded lyrics found");
-    }
-    FLAC__metadata_iterator_delete(iterator);
-    FLAC__metadata_chain_delete(chain);
-    FREE_SDS(buffer);
-    #else
-    (void) media_file;
-    (void) is_ogg;
-    (void) comment_name;
-    (void) synced;
-    (void) extracted;
-    #endif
 }

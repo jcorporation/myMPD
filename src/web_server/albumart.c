@@ -9,7 +9,6 @@
 
 #include "src/lib/api.h"
 #include "src/lib/convert.h"
-#include "src/lib/covercache.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
@@ -24,19 +23,17 @@
 
 //optional includes
 #ifdef MYMPD_ENABLE_LIBID3TAG
-    #include <id3tag.h>
+    #include "src/web_server/albumart_id3.h"
 #endif
 
 #ifdef MYMPD_ENABLE_FLAC
-    #include <FLAC/metadata.h>
+    #include "src/web_server/albumart_flac.h"
 #endif
 
 /**
  * Privat definitions
  */
 static bool handle_coverextract(struct mg_connection *nc, sds cachedir, const char *uri, const char *media_file, bool covercache, int offset);
-static bool handle_coverextract_id3(sds cachedir, const char *uri, const char *media_file, sds *binary, bool covercache, int offset);
-static bool handle_coverextract_flac(sds cachedir, const char *uri, const char *media_file, sds *binary, bool is_ogg, bool covercache, int offset);
 
 /**
  * Public functions
@@ -281,19 +278,32 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
 static bool handle_coverextract(struct mg_connection *nc, sds cachedir,
         const char *uri, const char *media_file, bool covercache, int offset)
 {
+    #if !defined MYMPD_ENABLE_LIBID3TAG && !defined MYMPD_ENABLE_FLAC
+        (void) covercache;
+        (void) cachedir;
+        (void) offset;
+        return false;
+    #endif
+
     bool rc = false;
     const char *mime_type_media_file = get_mime_type_by_ext(media_file);
     MYMPD_LOG_DEBUG(NULL, "Handle coverextract for uri \"%s\"", uri);
     MYMPD_LOG_DEBUG(NULL, "Mimetype of %s is %s", media_file, mime_type_media_file);
     sds binary = sdsempty();
     if (strcmp(mime_type_media_file, "audio/mpeg") == 0) {
-        rc = handle_coverextract_id3(cachedir, uri, media_file, &binary, covercache, offset);
+        #ifdef MYMPD_ENABLE_LIBID3TAG
+            rc = handle_coverextract_id3(cachedir, uri, media_file, &binary, covercache, offset);
+        #endif
     }
     else if (strcmp(mime_type_media_file, "audio/ogg") == 0) {
-        rc = handle_coverextract_flac(cachedir, uri, media_file, &binary, true, covercache, offset);
+        #ifdef MYMPD_ENABLE_FLAC
+            rc = handle_coverextract_flac(cachedir, uri, media_file, &binary, true, covercache, offset);
+        #endif
     }
     else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
-        rc = handle_coverextract_flac(cachedir, uri, media_file, &binary, false, covercache, offset);
+        #ifdef MYMPD_ENABLE_FLAC
+            rc = handle_coverextract_flac(cachedir, uri, media_file, &binary, false, covercache, offset);
+        #endif
     }
     if (rc == true) {
         const char *mime_type = get_mime_type_by_magic_stream(binary);
@@ -304,156 +314,5 @@ static bool handle_coverextract(struct mg_connection *nc, sds cachedir,
         FREE_SDS(headers);
     }
     FREE_SDS(binary);
-    return rc;
-}
-
-/**
- * Extracts albumart from id3v2 tagged files
- * @param cachedir covercache directory
- * @param uri song uri
- * @param media_file full path to the song
- * @param binary pointer to already allocates sds string to hold the image
- * @param covercache true = covercache is enabled
- * @param offset number of embedded image to extract
- * @return true on success, else false
- */
-static bool handle_coverextract_id3(sds cachedir, const char *uri, const char *media_file,
-        sds *binary, bool covercache, int offset)
-{
-    bool rc = false;
-    #ifdef MYMPD_ENABLE_LIBID3TAG
-    MYMPD_LOG_DEBUG(NULL, "Exctracting coverimage from %s", media_file);
-    struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
-    if (file_struct == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Can't parse id3_file: %s", media_file);
-        return false;
-    }
-    struct id3_tag *tags = id3_file_tag(file_struct);
-    if (tags == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Can't read id3 tags from file: %s", media_file);
-        return false;
-    }
-    struct id3_frame *frame = id3_tag_findframe(tags, "APIC", (unsigned)offset);
-    if (frame != NULL) {
-        id3_length_t length = 0;
-        const id3_byte_t *pic = id3_field_getbinarydata(id3_frame_field(frame, 4), &length);
-        if (length > 0) {
-            *binary = sdscatlen(*binary, pic, length);
-            const char *mime_type = get_mime_type_by_magic_stream(*binary);
-            if (mime_type != NULL) {
-                if (covercache == true) {
-                    covercache_write_file(cachedir, uri, mime_type, *binary, offset);
-                }
-                else {
-                    MYMPD_LOG_DEBUG(NULL, "Covercache is disabled");
-                }
-                MYMPD_LOG_DEBUG(NULL, "Coverimage successfully extracted (%lu bytes)", (unsigned long)sdslen(*binary));
-                rc = true;
-            }
-            else {
-                MYMPD_LOG_WARN(NULL, "Could not determine mimetype, discarding image");
-                sdsclear(*binary);
-            }
-        }
-        else {
-            MYMPD_LOG_WARN(NULL, "Embedded picture size is zero");
-        }
-    }
-    else {
-        MYMPD_LOG_DEBUG(NULL, "No embedded picture detected");
-    }
-    id3_file_close(file_struct);
-    #else
-    (void) cachedir;
-    (void) uri;
-    (void) media_file;
-    (void) binary;
-    (void) covercache;
-    (void) offset;
-    #endif
-    return rc;
-}
-
-/**
- * Extracts albumart from vorbis tagged files
- * @param cachedir covercache directory
- * @param uri song uri
- * @param media_file full path to the song
- * @param binary pointer to already allocates sds string to hold the image
- * @param is_ogg true if it is a ogg file, false if it is a flac file
- * @param covercache true = covercache is enabled
- * @param offset number of embedded image to extract
- * @return true on success, else false
- */
-static bool handle_coverextract_flac(sds cachedir, const char *uri, const char *media_file,
-        sds *binary, bool is_ogg, bool covercache, int offset)
-{
-    bool rc = false;
-    #ifdef MYMPD_ENABLE_FLAC
-    MYMPD_LOG_DEBUG(NULL, "Exctracting coverimage from %s", media_file);
-    FLAC__StreamMetadata *metadata = NULL;
-
-    FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
-
-    if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
-        MYMPD_LOG_ERROR(NULL, "Error reading metadata from \"%s\"", media_file);
-        FLAC__metadata_chain_delete(chain);
-        return false;
-    }
-
-    FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
-    FLAC__metadata_iterator_init(iterator, chain);
-    if (iterator == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Error initializing iterator for \"%s\"", media_file);
-        FLAC__metadata_chain_delete(chain);
-        return false;
-    }
-    int i = 0;
-    do {
-        FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
-        if (block->type == FLAC__METADATA_TYPE_PICTURE) {
-            if (i == offset) {
-                metadata = block;
-                break;
-            }
-            i++;
-        }
-    } while (FLAC__metadata_iterator_next(iterator) && metadata == NULL);
-
-    if (metadata == NULL) {
-        MYMPD_LOG_DEBUG(NULL, "No embedded picture detected");
-    }
-    else if (metadata->data.picture.data_length > 0) {
-        *binary = sdscatlen(*binary, metadata->data.picture.data, metadata->data.picture.data_length);
-        const char *mime_type = get_mime_type_by_magic_stream(*binary);
-        if (mime_type != NULL) {
-            if (covercache == true) {
-                covercache_write_file(cachedir, uri, mime_type, *binary, offset);
-            }
-            else {
-                MYMPD_LOG_DEBUG(NULL, "Covercache is disabled");
-            }
-            MYMPD_LOG_DEBUG(NULL, "Coverimage successfully extracted (%lu bytes)", (unsigned long)sdslen(*binary));
-            rc = true;
-        }
-        else {
-            MYMPD_LOG_WARN(NULL, "Could not determine mimetype, discarding image");
-            sdsclear(*binary);
-        }
-    }
-    else {
-        MYMPD_LOG_WARN(NULL, "Embedded picture size is zero");
-    }
-    FLAC__metadata_iterator_delete(iterator);
-    FLAC__metadata_chain_delete(chain);
-    #else
-    (void) cachedir;
-    (void) uri;
-    (void) media_file;
-    (void) binary;
-    (void) is_ogg;
-    (void) covercache;
-    (void) offset;
-    #endif
     return rc;
 }
