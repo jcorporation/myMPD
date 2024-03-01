@@ -8,14 +8,16 @@ myMPD could be hosted behind a reverse proxy to add features like http2 and auth
 
 Configure myMPD to disable ssl and listen on localhost on port 8080.
 
-```
+```sh
 printf "false" > /var/lib/mympd/config/ssl
 printf "8080" > /var/lib/mympd/config/http_port
 printf "127.0.0.1" > /var/lib/mympd/config/http_host
 ```
 
 The reverse proxy should be configured to:
+
 - remove the subdirectory
+- rewrite location headers
 - support websockets for the `/ws/` uri
 
 In this examples myMPD is proxied behind the path `/mympd`.
@@ -25,6 +27,7 @@ In this examples myMPD is proxied behind the path `/mympd`.
 ```
 location /mympd/ {
   proxy_pass http://127.0.0.1:8080/;
+  proxy_redirect / /mympd/;
 }
 ```
 
@@ -33,10 +36,12 @@ location /mympd/ {
 ### Basic setup with proxypass
 
 To access mympd behind apache2 enable following modules, e.g. with `a2enmod`:
+
 - proxy
 - proxy_wstunnel
 
 Add the following to a existing or a new virtual host:
+
 ```
 ProxyRequests Off 
 ProxyPreserveHost on
