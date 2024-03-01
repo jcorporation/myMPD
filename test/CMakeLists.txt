@@ -93,10 +93,16 @@ set(TEST_SOURCES
 )
 
 if(LIBID3TAG_FOUND)
-  set(TEST_SOURCES_LIBID3TAG "tests/test_lyrics_id3.c")
+  set(TEST_SOURCES_LIBID3TAG
+    ../src/mympd_api/lyrics_id3.c
+    tests/test_lyrics_id3.c
+  )
 endif()
 if(FLAC_FOUND)
-  set(TEST_SOURCES_FLAC "tests/test_lyrics_flac.c")
+  set(TEST_SOURCES_FLAC
+  ../src/mympd_api/lyrics_flac.c
+    tests/test_lyrics_flac.c
+  )
 endif()
 
 add_executable(unit_test
