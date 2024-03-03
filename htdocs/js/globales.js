@@ -1138,6 +1138,8 @@ function setUserAgentData() {
             //Safari does not support this API
             /** @type {boolean} */
             userAgentData.isSafari = false;
+            /** @type {boolean} */
+            userAgentData.isAndroid = /Android/i.test(ua.platform);
         });
     }
     else {
@@ -1149,6 +1151,8 @@ function setUserAgentData() {
                 : /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
         /** @type {boolean} */
         userAgentData.isSafari = /Safari/i.test(navigator.userAgent) && ! /Chrome/i.test(navigator.userAgent);
+        /** @type {boolean} */
+        userAgentData.isAndroid = /Android/i.test(navigator.userAgent);
     }
 }
 setUserAgentData();

@@ -2,6 +2,17 @@
 
 https://github.com/jcorporation/myMPD/
 
+## myMPD 14.0.4 (2024-03-03)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Upd: translations
+- Fix: Disable search on type for Android #1220
+- Fix: Remove newlines from state files #1232
+- Fix: Remember last state of filesystem folder #1234
+
 ***
 
 ## myMPD 14.0.3 (2024-02-15)

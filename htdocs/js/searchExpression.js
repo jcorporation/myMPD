@@ -88,7 +88,7 @@ function initSearchExpression(appid) {
             return;
         }
         clearSearchTimer();
-        const value = this.value;
+        let value = this.value;
         if (value !== '') {
             const op = getSelectValueId(appid + 'SearchMatch');
             const crumbEl = elGetById(appid + 'SearchCrumb');
@@ -96,33 +96,39 @@ function initSearchExpression(appid) {
             elShow(crumbEl);
             this.value = '';
         }
-        else {
+        if (userAgentData.isAndroid === true) {
+            value = '';
+        }
+        if (value === '') {
             searchTimer = setTimeout(function() {
                 execSearchExpression(value);
             }, searchTimerTimeout);
         }
     }, false);
 
-    elGetById(appid + 'SearchStr').addEventListener('keyup', function(event) {
-        if (ignoreKeys(event) === true) {
-            return;
-        }
-        //@ts-ignore
-        if (searchTagsTimestamp.includes(app.current.filter) &&
-            isNaN(parseDateFromText(this.value)) === true)
-        {
-            // disable search on type for timestamps
-            return;
-        }
-        clearSearchTimer();
-        const value = this.value;
-        searchTimer = setTimeout(function() {
-            execSearchExpression(value);
-        }, searchTimerTimeout);
-    }, false);
+    // Android does not support search on type
+    if (userAgentData.isAndroid === false) {
+        elGetById(appid + 'SearchStr').addEventListener('keyup', function(event) {
+            if (ignoreKeys(event) === true) {
+                return;
+            }
+            //@ts-ignore
+            if (searchTagsTimestamp.includes(app.current.filter) &&
+                isNaN(parseDateFromText(this.value)) === true)
+            {
+                // disable search on type for timestamps
+                return;
+            }
+            clearSearchTimer();
+            const value = this.value;
+            searchTimer = setTimeout(function() {
+                execSearchExpression(value);
+            }, searchTimerTimeout);
+        }, false);
+    }
 
     elGetById(appid + 'SearchCrumb').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'SPAN') {
+        if (event.target.classList.contains('badge')) {
             //remove search expression
             event.preventDefault();
             event.stopPropagation();
@@ -130,7 +136,7 @@ function initSearchExpression(appid) {
             execSearchExpression('');
             elGetById(appid + 'SearchStr').updateBtn();
         }
-        else if (event.target.nodeName === 'BUTTON') {
+        else if (event.target.classList.contains('btn')) {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
@@ -239,9 +245,9 @@ function createSearchCrumb(filter, op, value) {
     if (op === undefined) {
         op = '';
     }
-    const btn = elCreateNodes('button', {"class": ["btn", "btn-dark", "me-2"]}, [
+    const btn = elCreateNodes('div', {"class": ["btn", "btn-dark", "me-2"]}, [
         document.createTextNode(tn(filter) + ' ' + tn(op) + ' \'' + value + '\''),
-        elCreateText('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×')
+        elCreateText('div', {"class": ["ml-2", "badge", "bg-secondary", "clickable"]}, '×')
     ]);
     setData(btn, 'filter-tag', filter);
     setData(btn, 'filter-op', op);

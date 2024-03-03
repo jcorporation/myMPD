@@ -11,12 +11,13 @@
  * @returns {boolean} true if key event should be ignored, else false
  */
 function ignoreKeys(event) {
-    if (event === undefined ||
-        event.key === undefined)
-    {
+    if (event === undefined) {
         return true;
     }
     switch (event.key) {
+        case undefined:
+        case 'Unidentified':
+            return true;
         case 'Escape':
             // @ts-ignore
             event.target.blur();

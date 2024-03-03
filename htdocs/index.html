@@ -201,7 +201,7 @@
               <option value="!~" class="featPcre">!~</option>
               <option id="QueueCurrentSearchPriorityMatch" value=">=">&gt;=</option>
             </select>
-            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" class="form-control rounded-start-0 rounded-end" id="QueueCurrentSearchStr"/>
+            <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search queue" class="form-control rounded-start-0 rounded-end" id="QueueCurrentSearchStr"/>
           </div>
           <div class="btn-group me-2">
             <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" href="#modalPlayback">tune</button>
@@ -290,7 +290,7 @@
               <option value="!=">!=</option>
               <option value="!~">!~</option>
             </select>
-            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="QueueLastPlayedSearchStr"/>
+            <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="QueueLastPlayedSearchStr"/>
           </div>
           <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
@@ -349,7 +349,7 @@
                 <option value="!=">!=</option>
                 <option value="!~">!~</option>
               </select>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="QueueJukeboxSongSearchStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="QueueJukeboxSongSearchStr"/>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Clear jukebox queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearJukeboxQueue", "options": []}'>clear_all</button>
@@ -411,7 +411,7 @@
                 <option value="!=">!=</option>
                 <option value="!~">!~</option>
               </select>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="QueueJukeboxAlbumSearchStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="QueueJukeboxAlbumSearchStr"/>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Clear jukebox queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearJukeboxQueue", "options": []}'>clear_all</button>
@@ -460,7 +460,7 @@
                 <span class="mi me-2">search</span>
                 <span id="BrowsePlaylistListSearchTagsDesc"></span>
               </span>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowsePlaylistListSearchStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowsePlaylistListSearchStr"/>
             </div>
             <div class="btn-group me-2 featSmartpls">
               <button data-title-phrase="Add smart playlist" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">playlist_add</button>
@@ -528,7 +528,7 @@
                 <option value="!=">!=</option>
                 <option value="!~">!~</option>
               </select>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowsePlaylistDetailSearchStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowsePlaylistDetailSearchStr"/>
             </div>
             <div id="BrowsePlaylistDetailContentBtns">
               <div class="btn-group me-2">
@@ -628,7 +628,7 @@
                 <span class="mi me-2">search</span>
                 <span id="BrowseDatabaseTagSearchTagDesc"></span>
               </span>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseDatabaseTagSearchStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseDatabaseTagSearchStr"/>
             </div>
             <div class="btn-group me-2">
               <button class="btn btn-secondary mi" id="BrowseDatabaseTagListSortDesc" data-title-phrase="Sort">sort</button>
@@ -667,7 +667,7 @@
                 <option value="!=">!=</option>
                 <option value="!~">!~</option>
               </select>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseDatabaseAlbumListSearchStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseDatabaseAlbumListSearchStr"/>
             </div>
             <div class="btn-group me-2">
               <button id="btnDatabaseAlbumListSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
@@ -782,7 +782,7 @@
               <span class="mi me-2">search</span>
               <span id="BrowseFilesystemSearchTagDesc"></span>
             </span>
-            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseFilesystemSearchStr"/>
+            <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseFilesystemSearchStr"/>
           </div>
           <div class="btn-group me-2" id="BrowseFilesystemAddAllSongsGrp">
             <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromFilesystem", "options": ["append"]}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary mi">library_add</button>
@@ -848,7 +848,7 @@
             </div>
             <div class="input-group flex-grow-1 me-2">
               <span class="input-group-text border-secondary bg-secondary mi">search</span>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseRadioFavoritesSearchStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseRadioFavoritesSearchStr"/>
             </div>
             <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
@@ -882,7 +882,7 @@
             </div>
             <div class="input-group flex-grow-1 me-2">
               <span class="input-group-text border-secondary bg-secondary mi">search</span>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseRadioWebradiodbSearchStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseRadioWebradiodbSearchStr"/>
             </div>
             <div class="btn-group me-2">
               <button id="BrowseRadioWebradiodbFilterBtn" data-title-phrase="Filter" class="btn btn-secondary rounded-end mi" type="button" data-bs-target="#BrowseRadioWebradiodbFilter" data-bs-toggle="collapse">filter_list_off</button>
@@ -944,7 +944,7 @@
             </div>
             <div class="input-group flex-grow-1 me-2">
               <span class="input-group-text border-secondary bg-secondary mi">search</span>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseRadioRadiobrowserSearchStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseRadioRadiobrowserSearchStr"/>
             </div>
             <div class="btn-group me-2">
               <button id="BrowseRadioRadiobrowserFilterBtn" data-title-phrase="Filter" class="btn btn-secondary rounded-end mi" type="button" data-bs-target="#BrowseRadioRadiobrowserFilter" data-bs-toggle="collapse">filter_list_off</button>
@@ -1004,7 +1004,7 @@
               <option value="!=">!=</option>
               <option value="!~" class="featPcre">!~</option>
             </select>
-            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="SearchSearchStr"/>
+            <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="SearchSearchStr"/>
           </div>
           <div class="btn-group me-2">
             <button data-title-phrase="Append to queue" id="SearchAddAllSongsBtn" class="btn btn-secondary mi" data-href='{"cmd": "addAllFromSearch", "options": ["append"]}'>library_add</button>
@@ -2573,7 +2573,7 @@
                     <div class="dropdown-menu px-2 dropdownHomeIconLigature">
                       <div class="row">
                         <div class="col position-relative">
-                          <input data-is="mympd-input-clear" data-clear-event="keyup" id="modalHomeIconLigatureSearch" class="form-control" data-placeholder-phrase="Filter"/>
+                          <input data-is="mympd-input-clear" data-clear-event="keydown" id="modalHomeIconLigatureSearch" class="form-control" data-placeholder-phrase="Filter"/>
                         </div>
                         <div class="col">
                           <select id="modalHomeIconSearchCat" class="form-select"></select>
