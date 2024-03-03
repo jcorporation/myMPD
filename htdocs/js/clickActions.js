@@ -208,12 +208,12 @@ function clickFilesystemPlaylist(uri, event) {
         case 'replacePlay': return replacePlayQueue('plist', [uri]);
         case 'view':
             //remember offset for current browse uri
-            browseFilesystemHistory[app.current.search] = {
+            browseFilesystemHistory[app.current.filter] = {
                 "offset": app.current.offset,
                 "scrollPos": document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop
             };
-            //reset filter and show playlist
-            app.current.filter = '-';
+            //reset search and show playlist
+            app.current.search = '';
             appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, uri, app.current.sort, 'plist', '', 0);
             break;
         case 'context': return showContextMenu(event);
@@ -228,11 +228,12 @@ function clickFilesystemPlaylist(uri, event) {
  */
 function clickFolder(uri) {
     //remember offset for current browse uri
-    browseFilesystemHistory[app.current.search] = {
+    browseFilesystemHistory[app.current.filter] = {
         "offset": app.current.offset,
         "scrollPos": getScrollPosY()
     };
-    //reset filter and open folder
+    //reset search and open folder
+    app.current.search = '';
     appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, uri, app.current.sort, 'dir', '', 0);
 }
 
