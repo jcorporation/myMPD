@@ -22,7 +22,8 @@ https://github.com/jcorporation/myMPD/
 - Feat: Configurable columns for playlist view
 - Feat: Add option to disable covercache pruning #1237
 - Upd: Bootstrap 5.3.3
-- Fix: list and search playlists in filesystem view
+- Fix: List and search playlists in filesystem view
+- Fix: Re-add custom csss to mongoose dir listing
 
 ***
 

@@ -20,7 +20,7 @@
 #ifndef MONGOOSE_H
 #define MONGOOSE_H
 
-#define MG_VERSION "7.12"
+#define MG_VERSION "7.13"
 
 #ifdef __cplusplus
 extern "C" {
@@ -179,12 +179,13 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h> // rand(), strtol(), atoi()
+#include <stdlib.h>  // rand(), strtol(), atoi()
 #include <string.h>
 #if defined(__ARMCC_VERSION)
 #define mode_t size_t
-#include <time.h>
 #include <alloca.h>
+#include <time.h>
+#elif defined(__CCRH__)
 #else
 #include <sys/stat.h>
 #endif
@@ -1022,7 +1023,7 @@ struct mg_fd {
 struct mg_fd *mg_fs_open(struct mg_fs *fs, const char *path, int flags);
 void mg_fs_close(struct mg_fd *fd);
 bool mg_fs_ls(struct mg_fs *fs, const char *path, char *buf, size_t len);
-char *mg_file_read(struct mg_fs *fs, const char *path, size_t *size);
+struct mg_str mg_file_read(struct mg_fs *fs, const char *path);
 bool mg_file_write(struct mg_fs *fs, const char *path, const void *, size_t);
 bool mg_file_printf(struct mg_fs *fs, const char *path, const char *fmt, ...);
 
@@ -1055,9 +1056,9 @@ uint64_t mg_now(void);     // Return milliseconds since Epoch
 #define mg_htons(x) mg_ntohs(x)
 #define mg_htonl(x) mg_ntohl(x)
 
-#define MG_U32(a, b, c, d)                                         \
-  (((uint32_t) ((a) &255) << 24) | ((uint32_t) ((b) &255) << 16) | \
-   ((uint32_t) ((c) &255) << 8) | (uint32_t) ((d) &255))
+#define MG_U32(a, b, c, d)                                           \
+  (((uint32_t) ((a) & 255) << 24) | ((uint32_t) ((b) & 255) << 16) | \
+   ((uint32_t) ((c) & 255) << 8) | (uint32_t) ((d) & 255))
 
 // For printing IPv4 addresses: printf("%d.%d.%d.%d\n", MG_IPADDR_PARTS(&ip))
 #define MG_U8P(ADDR) ((uint8_t *) (ADDR))
@@ -1071,9 +1072,12 @@ uint64_t mg_now(void);     // Return milliseconds since Epoch
 #define MG_ROUND_UP(x, a) ((a) == 0 ? (x) : ((((x) + (a) -1) / (a)) * (a)))
 #define MG_ROUND_DOWN(x, a) ((a) == 0 ? (x) : (((x) / (a)) * (a)))
 
-#ifdef __GNUC__
+#if defined(__GNUC__)
 #define MG_ARM_DISABLE_IRQ() asm volatile("cpsid i" : : : "memory")
 #define MG_ARM_ENABLE_IRQ() asm volatile("cpsie i" : : : "memory")
+#elif defined(__CCRH__)
+#define MG_RH850_DISABLE_IRQ() __DI()
+#define MG_RH850_ENABLE_IRQ() __EI()
 #else
 #define MG_ARM_DISABLE_IRQ()
 #define MG_ARM_ENABLE_IRQ()
@@ -1216,8 +1220,8 @@ void mg_hmac_sha256(uint8_t dst[32], uint8_t *key, size_t keysz, uint8_t *data,
 #define AES_DECRYPTION 1  // whether AES decryption is supported
 /******************************************************************************/
 
-#define ENCRYPT 1  // specify whether we're encrypting
-#define DECRYPT 0  // or decrypting
+#define MG_ENCRYPT 1  // specify whether we're encrypting
+#define MG_DECRYPT 0  // or decrypting
 
 
 
@@ -1335,7 +1339,7 @@ int gcm_setkey(gcm_context *ctx,   // caller-provided context ptr
  ******************************************************************************/
 int gcm_crypt_and_tag(
     gcm_context *ctx,    // gcm context with key already setup
-    int mode,            // cipher direction: ENCRYPT (1) or DECRYPT (0)
+    int mode,            // cipher direction: MG_ENCRYPT (1) or MG_DECRYPT (0)
     const uchar *iv,     // pointer to the 12-byte initialization vector
     size_t iv_len,       // byte length if the IV. should always be 12
     const uchar *add,    // pointer to the non-ciphered additional data
@@ -1380,7 +1384,7 @@ int gcm_auth_decrypt(
  ******************************************************************************/
 int gcm_start(
     gcm_context *ctx,  // pointer to user-provided GCM context
-    int mode,          // ENCRYPT (1) or DECRYPT (0)
+    int mode,          // MG_ENCRYPT (1) or MG_DECRYPT (0)
     const uchar *iv,   // pointer to initialization vector
     size_t iv_len,     // IV length in bytes (should == 12)
     const uchar *add,  // pointer to additional AEAD data (NULL if none)
@@ -2109,7 +2113,8 @@ enum {
   MG_EV_READ,       // Data received from socket    long *bytes_read
   MG_EV_WRITE,      // Data written to socket       long *bytes_written
   MG_EV_CLOSE,      // Connection closed            NULL
-  MG_EV_HTTP_MSG,   // HTTP request/response        struct mg_http_message *
+  MG_EV_HTTP_HDRS,  // HTTP headers                 struct mg_http_message *
+  MG_EV_HTTP_MSG,   // Full HTTP request/response   struct mg_http_message *
   MG_EV_WS_OPEN,    // Websocket handshake done     struct mg_http_message *
   MG_EV_WS_MSG,     // Websocket msg, text or bin   struct mg_ws_message *
   MG_EV_WS_CTL,     // Websocket control msg        struct mg_ws_message *
@@ -2678,6 +2683,7 @@ MG_IRAM void mg_ota_boot(void);  // Bootloader function
 #define MG_DEVICE_RT1020 3      // IMXRT1020
 #define MG_DEVICE_RT1060 4      // IMXRT1060
 #define MG_DEVICE_CH32V307 100  // WCH CH32V307
+#define MG_DEVICE_U2A 200       // Renesas U2A16, U2A8, U2A6
 #define MG_DEVICE_CUSTOM 1000   // Custom implementation
 
 #ifndef MG_DEVICE
@@ -2763,6 +2769,7 @@ extern struct mg_tcpip_driver mg_tcpip_driver_stm32h;
 extern struct mg_tcpip_driver mg_tcpip_driver_imxrt;
 extern struct mg_tcpip_driver mg_tcpip_driver_same54;
 extern struct mg_tcpip_driver mg_tcpip_driver_cmsis;
+extern struct mg_tcpip_driver mg_tcpip_driver_ra;
 
 // Drivers that require SPI, can use this SPI abstraction
 struct mg_tcpip_spi {
@@ -2870,6 +2877,14 @@ struct mg_tcpip_driver_imxrt_data {
   //    66 MHz        13
   int mdc_cr;  // Valid values: -1 to 63
 
+  uint8_t phy_addr;  // PHY address
+};
+
+
+struct mg_tcpip_driver_ra_data {
+  // MDC clock "divider". MDC clock is software generated,
+  uint32_t clock;    // core clock frequency in Hz
+  uint16_t irqno;    // IRQn, R_ICU->IELSR[irqno]
   uint8_t phy_addr;  // PHY address
 };
 
