@@ -19,7 +19,8 @@ https://github.com/jcorporation/myMPD/
 - Feat: Add column for "File type" in song lists #1225
 - Feat: Add thumbnail column to views #1093
 - Feat: Add playlist art handler
-- Feat: configurable columns for playlist table
+- Feat: Configurable columns for playlist view
+- Feat: Add option to disable covercache pruning #1237
 - Upd: Bootstrap 5.3.3
 - Fix: list and search playlists in filesystem view
 

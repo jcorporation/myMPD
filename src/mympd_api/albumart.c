@@ -161,7 +161,7 @@ sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state
         buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
         buffer = jsonrpc_end(buffer);
-        if (partition_state->config->covercache_keep_days > 0) {
+        if (partition_state->config->covercache_keep_days != COVERCACHE_DISABLED) {
             covercache_write_file(partition_state->config->cachedir, uri, mime_type, *binary, 0);
         }
         else {

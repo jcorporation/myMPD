@@ -314,7 +314,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define TIMER_SMARTPLS_UPDATE_OFFSET 30 //seconds
 #define TIMER_COVERCACHE_CLEANUP_OFFSET 60 //seconds
 #define TIMER_COVERCACHE_CLEANUP_INTERVAL 86400 //seconds
-#define COVERCACHE_AGE_MIN 0 //days
+#define COVERCACHE_AGE_MIN -1 //days
 #define COVERCACHE_AGE_MAX 365 //days
 #define VOLUME_MIN 0 //prct
 #define VOLUME_MAX 100 //prct

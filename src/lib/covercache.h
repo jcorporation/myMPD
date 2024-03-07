@@ -11,6 +11,11 @@
 
 #include <stdbool.h>
 
+enum covercache_conf {
+    COVERCACHE_NO_PRUNE = -1,
+    COVERCACHE_DISABLED = 0
+};
+
 bool covercache_write_file(sds cachedir, const char *uri, const char *mime_type, sds binary, int offset);
 int covercache_clear(sds cachedir, int keepdays);
 #endif
