@@ -713,6 +713,10 @@ div.key {
   background-color: inherit;
 }
 
+.offcanvas-body {
+  --bs-offcanvas-padding-x: 0;
+}
+
 .offcanvas-body .dropdown-item {
   padding: 0.2rem 1.5rem;
 }
