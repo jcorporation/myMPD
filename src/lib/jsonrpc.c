@@ -26,7 +26,7 @@
 /**
  * private definitions
  */
-static bool icb_json_get_tag(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error);
+static bool icb_json_get_field(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error);
 static bool icb_json_get_tag_value(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error);
 static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, struct t_jsonrpc_parse_error *error);
 static void set_parse_error(struct t_jsonrpc_parse_error *error, const char *path, const char *key, const char *fmt, ...);
@@ -598,25 +598,22 @@ void jsonrpc_parse_error_clear(struct t_jsonrpc_parse_error *parse_error) {
 }
 
 /**
- * Helper function to get myMPD columns out of a jsonrpc request
+ * Helper function to get myMPD fields out of a jsonrpc request
  * and return a validated json array
  * @param s sds string to parse
- * @param cols sds string to append the
- * @param rc pointer to bool with the result code
- * @return pointer to cols
+ * @param fields sds string to append the fields
+ * @param error pointer to t_jsonrpc_parse_error
+ * @return true on success, else false
  */
-sds json_get_cols_as_string(sds s, sds cols, bool *rc) {
+bool json_get_fields_as_string(sds s, sds *fields, struct t_jsonrpc_parse_error *error) {
     struct t_list col_list;
     list_init(&col_list);
-    if (json_get_array_string(s, "$.params.cols", &col_list, vcb_iscolumn, 20, NULL) == true) {
-        cols = list_to_json_array(cols, &col_list);
-        *rc = true;
-    }
-    else {
-        *rc = false;
+    bool rc = json_get_array_string(s, "$.params.fields", &col_list, vcb_isfield, 20, error);
+    if (rc == true) {
+        *fields = list_to_json_array(*fields, &col_list);
     }
     list_clear(&col_list);
-    return cols;
+    return rc;
 }
 
 /**
@@ -1142,8 +1139,8 @@ bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_
  * @param error pointer to t_jsonrpc_parse_error
  * @return true on success else false
  */
-bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_elements, struct t_jsonrpc_parse_error *error) {
-    return json_iterate_object(s, path, icb_json_get_tag, tags, NULL, max_elements, error);
+bool json_get_fields(sds s, const char *path, struct t_fields *tags, int max_elements, struct t_jsonrpc_parse_error *error) {
+    return json_iterate_object(s, path, icb_json_get_field, tags, NULL, max_elements, error);
 }
 
 /**
@@ -1241,7 +1238,7 @@ static const char *jsonrpc_event_name(enum jsonrpc_events event) {
  * @param error pointer to t_jsonrpc_parse_error
  * @return true on success else false
  */
-static bool icb_json_get_tag(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error) {
+static bool icb_json_get_field(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error) {
     (void) key;
     (void) vcb;
     if (vtype != MJSON_TOK_STRING) {
@@ -1249,15 +1246,15 @@ static bool icb_json_get_tag(const char *path, sds key, sds value, int vtype, va
         return false;
     }
 
-    struct t_tags *tags = (struct t_tags *) userdata;
+    struct t_fields *fields = (struct t_fields *) userdata;
     enum mpd_tag_type tag = mpd_tag_name_iparse(value);
     if (tag != MPD_TAG_UNKNOWN) {
-        tags->tags[tags->tags_len++] = tag;
+        fields->tags.tags[fields->tags.len++] = tag;
         return true;
     }
     enum mympd_sticker_types sticker = sticker_name_parse(value);
     if (sticker != STICKER_UNKNOWN) {
-        tags->stickers[tags->stickers_len++] = sticker;
+        fields->stickers.stickers[fields->stickers.len++] = sticker;
     }
     return true;
 }

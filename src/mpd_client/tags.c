@@ -229,7 +229,7 @@ bool enable_all_mpd_tags(struct t_partition_state *partition_state) {
 }
 
 /**
- * Helper function to print a t_tags struct as json array
+ * Helper function to print athe tags of a t_fields struct as json array
  * @param buffer already allocated sds string to append the response
  * @param tagsname key for the json array
  * @param tags tags to print
@@ -237,7 +237,7 @@ bool enable_all_mpd_tags(struct t_partition_state *partition_state) {
  */
 sds print_tags_array(sds buffer, const char *tagsname, const struct t_tags *tags) {
     buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
-    for (unsigned i = 0; i < tags->tags_len; i++) {
+    for (unsigned i = 0; i < tags->len; i++) {
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);
         }
@@ -251,7 +251,7 @@ sds print_tags_array(sds buffer, const char *tagsname, const struct t_tags *tags
 /**
  * Enables specific mpd tags
  * @param partition_state pointer to partition specific states
- * @param enable_tags pointer to t_tags struct
+ * @param enable_tags pointer to t_fields struct
  */
 bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_tags *enable_tags) {
     if (partition_state->mpd_state->feat.tags == false) {
@@ -262,8 +262,8 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
         if (mpd_send_clear_tag_types(partition_state->conn) == false) {
             mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_clear_tag_types");
         }
-        if (enable_tags->tags_len > 0) {
-            if (mpd_send_enable_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->tags_len) == false) {
+        if (enable_tags->len > 0) {
+            if (mpd_send_enable_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->len) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_enable_tag_types");
             }
         }
@@ -395,7 +395,7 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
  * Prints the tag values for a mpd song as json string
  * @param buffer already allocated sds string to append the values
  * @param mpd_state pointer to mpd_state
- * @param tagcols pointer to t_tags struct (tags to retrieve)
+ * @param tagcols pointer to t_fields struct (tags to retrieve)
  * @param song pointer to a mpd_song struct to retrieve tags from
  * @return new sds pointer to buffer
  */
@@ -404,7 +404,7 @@ sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struc
 {
     const char *uri = mpd_song_get_uri(song);
     if (mpd_state->feat.tags == true) {
-        for (unsigned tagnr = 0; tagnr < tagcols->tags_len; ++tagnr) {
+        for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
             buffer = mpd_client_get_tag_values(song, tagcols->tags[tagnr], buffer);
             buffer = sdscatlen(buffer, ",", 1);
@@ -450,7 +450,7 @@ sds print_album_tags(sds buffer, const struct t_mpd_state *mpd_state, const stru
 /**
  * Prints the audioformat as json object
  * @param buffer already allocated sds string to append the values
- * @param audioformat pointer to t_tags struct (tags to retrieve)
+ * @param audioformat pointer to t_fields struct (tags to retrieve)
  * @return new sds pointer to buffer
  */
 sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
@@ -467,7 +467,7 @@ sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
  * @param taglist comma separated tags to check
  * @param taglistname descriptive name of taglist
  * @param tagtypes pointer to t_tags struct to add tags from taglist
- * @param allowed_tag_types pointer to t_tags struct for allowed tags
+ * @param allowed_tag_types pointer to t_fields struct for allowed tags
  */
 void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
                 const struct t_tags *allowed_tag_types)
@@ -484,7 +484,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
         else {
             if (mpd_client_tag_exists(allowed_tag_types, tag) == true) {
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(tag));
-                tagtypes->tags[tagtypes->tags_len++] = tag;
+                tagtypes->tags[tagtypes->len++] = tag;
             }
             else {
                 MYMPD_LOG_DEBUG(NULL, "Disabling tag %s", mpd_tag_name(tag));
@@ -503,7 +503,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
  * @return true if tag is in tagtypes else false
  */
 bool mpd_client_tag_exists(const struct t_tags *tagtypes, enum mpd_tag_type tag) {
-    for (size_t i = 0; i < tagtypes->tags_len; i++) {
+    for (size_t i = 0; i < tagtypes->len; i++) {
         if (tagtypes->tags[i] == tag) {
             return true;
         }

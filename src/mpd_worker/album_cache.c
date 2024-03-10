@@ -134,7 +134,7 @@ static bool album_cache_create(struct t_mpd_worker_state *mpd_worker_state, rax 
     //set interesting tags
     if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, MPD_TAG_DISC) == true) {
         if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_album, MPD_TAG_DISC) == false) {
-            mpd_worker_state->mpd_state->tags_album.tags[mpd_worker_state->mpd_state->tags_album.tags_len++] = MPD_TAG_DISC;
+            mpd_worker_state->mpd_state->tags_album.tags[mpd_worker_state->mpd_state->tags_album.len++] = MPD_TAG_DISC;
         }
     }
     else {
@@ -143,7 +143,7 @@ static bool album_cache_create(struct t_mpd_worker_state *mpd_worker_state, rax 
     if (mpd_worker_state->config->albums.group_tag != MPD_TAG_UNKNOWN) {
         if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, mpd_worker_state->config->albums.group_tag) == true) {
             if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_album, mpd_worker_state->config->albums.group_tag) == false) {
-                mpd_worker_state->mpd_state->tags_album.tags[mpd_worker_state->mpd_state->tags_album.tags_len++] = mpd_worker_state->config->albums.group_tag;
+                mpd_worker_state->mpd_state->tags_album.tags[mpd_worker_state->mpd_state->tags_album.len++] = mpd_worker_state->config->albums.group_tag;
             }
         }
         else {

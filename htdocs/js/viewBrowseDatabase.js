@@ -22,7 +22,7 @@ function handleBrowseDatabaseAlbumList() {
         "expression": app.current.search,
         "sort": app.current.sort.tag,
         "sortdesc": app.current.sort.desc,
-        "cols": settings.colsBrowseDatabaseAlbumListFetch
+        "fields": settings.colsBrowseDatabaseAlbumListFetch.fields
     }, parseDatabaseAlbumList, true);
 }
 
@@ -50,7 +50,7 @@ function handleBrowseDatabaseTagList() {
 function handleBrowseDatabaseAlbumDetail() {
     sendAPI("MYMPD_API_DATABASE_ALBUM_DETAIL", {
         "albumid": app.current.filter,
-        "cols": settings.colsBrowseDatabaseAlbumDetailFetch
+        "fields": settings.colsBrowseDatabaseAlbumDetailFetch.cols
     }, parseAlbumDetails, true);
 }
 

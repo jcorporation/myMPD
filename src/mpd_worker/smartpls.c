@@ -251,7 +251,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
  * @return true on success, else false
  */
 static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_state) {
-    for (unsigned i = 0; i < mpd_worker_state->smartpls_generate_tag_types.tags_len; i++) {
+    for (unsigned i = 0; i < mpd_worker_state->smartpls_generate_tag_types.len; i++) {
         enum mpd_tag_type tag = mpd_worker_state->smartpls_generate_tag_types.tags[i];
 
         if (mpd_search_db_tags(mpd_worker_state->partition_state->conn, tag) == false) {

@@ -42,7 +42,7 @@
  * Private definitions
  */
 
-static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_tags *tagcols, sds *key);
+static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_tags *fields, sds *key);
 
 /**
  * Public functions
@@ -136,7 +136,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
 
     // read tags array
     struct t_tags *album_tags = malloc_assert(sizeof(struct t_tags));
-    reset_t_tags(album_tags);
+    tags_reset(album_tags);
 
     mpack_node_t tags_node = mpack_node_map_cstr(root, "tags");
     size_t len = mpack_node_array_length(tags_node);
@@ -148,7 +148,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         }
         enum mpd_tag_type tag = mpd_tag_name_parse(value);
         if (tag != MPD_TAG_UNKNOWN) {
-            album_tags->tags[album_tags->tags_len++] = tag;
+            album_tags->tags[album_tags->len++] = tag;
         }
         else {
             MYMPD_LOG_ERROR(NULL, "Unkown MPD tag type: \"%s\"", value);
@@ -224,8 +224,8 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
     mpack_write_kv(&writer, "albumMode", album_config->mode);
     mpack_write_kv(&writer, "albumGroupTag", album_config->group_tag);
     mpack_write_cstr(&writer, "tags");
-    mpack_start_array(&writer, (uint32_t)album_tags->tags_len);
-    for (unsigned tagnr = 0; tagnr < album_tags->tags_len; ++tagnr) {
+    mpack_start_array(&writer, (uint32_t)album_tags->len);
+    for (unsigned tagnr = 0; tagnr < album_tags->len; ++tagnr) {
         mpack_write_cstr(&writer, mpd_tag_name(album_tags->tags[tagnr]));
     }
     mpack_finish_array(&writer);
@@ -245,7 +245,7 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
         mpack_write_kv(&writer, "Added", (uint64_t)mpd_song_get_added(album));
         mpack_write_cstr(&writer, "AlbumId");
         mpack_write_str(&writer, (char *)iter.key, (uint32_t)iter.key_len);
-        for (unsigned tagnr = 0; tagnr < album_tags->tags_len; ++tagnr) {
+        for (unsigned tagnr = 0; tagnr < album_tags->len; ++tagnr) {
             enum mpd_tag_type tag = album_tags->tags[tagnr];
             if (mpd_song_get_tag(album, tag, 0) == NULL) {
                 // do not write empty tags
@@ -527,7 +527,7 @@ void album_cache_inc_song_count(struct mpd_song *album) {
 bool album_cache_append_tags(struct mpd_song *album,
         const struct mpd_song *song, const struct t_tags *tags)
 {
-    for (unsigned tagnr = 0; tagnr < tags->tags_len; ++tagnr) {
+    for (unsigned tagnr = 0; tagnr < tags->len; ++tagnr) {
         const char *value;
         enum mpd_tag_type tag = tags->tags[tagnr];
         //append only multivalue tags
@@ -601,7 +601,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
         album->last_modified = mpack_node_int(mpack_node_map_cstr(album_node, "Last-Modified"));
         album->added = mpack_node_int(mpack_node_map_cstr(album_node, "Added"));
         album->duration_ms = album->duration * 1000;
-        for (size_t i = 0; i < tagcols->tags_len; i++) {
+        for (size_t i = 0; i < tagcols->len; i++) {
             enum mpd_tag_type tag = tagcols->tags[i];
             const char *tag_name = mpd_tag_name(tag);
             mpack_node_t value_node = mpack_node_map_cstr_optional(album_node, tag_name);

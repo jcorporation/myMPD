@@ -17,7 +17,7 @@ function handleBrowsePlaylistDetail() {
         "limit": app.current.limit,
         "expression": app.current.search,
         "plist": app.current.tag,
-        "cols": settings.colsBrowsePlaylistDetailFetch
+        "fields": settings.colsBrowsePlaylistDetailFetch.fields
     }, parsePlaylistDetail, true);
 }
 

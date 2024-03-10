@@ -5,11 +5,11 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/tags.h"
 #include "src/mpd_client/playlists.h"
 
 #include "dist/rax/rax.h"
 #include "src/lib/convert.h"
+#include "src/lib/fields.h"
 #include "src/lib/log.h"
 #include "src/lib/random.h"
 #include "src/lib/rax_extras.h"
@@ -458,7 +458,7 @@ bool mpd_client_get_all_playlists(struct t_partition_state *partition_state, str
  */
 static bool playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr, bool sortdesc, sds *error) {
     struct t_tags sort_tags = {
-        .tags_len = 1,
+        .len = 1,
         .tags[0] = mpd_tag_name_parse(tagstr)
     };
     enum sort_by_type sort_by = SORT_BY_TAG;

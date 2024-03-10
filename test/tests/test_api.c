@@ -11,18 +11,18 @@
 #include "src/lib/api.h"
 
 UTEST(api, test_get_cmd_id) {
-    enum mympd_cmd_ids cmd_id = get_cmd_id("MYMPD_API_COLS_SAVE");
-    const bool rc = cmd_id == MYMPD_API_COLS_SAVE ? true : false;
+    enum mympd_cmd_ids cmd_id = get_cmd_id("MYMPD_API_VIEW_SAVE");
+    const bool rc = cmd_id == MYMPD_API_VIEW_SAVE ? true : false;
     ASSERT_TRUE(rc);
 }
 
 UTEST(api, test_get_cmd_id_method_name) {
-    const char *name = get_cmd_id_method_name(MYMPD_API_COLS_SAVE);
-    ASSERT_STREQ(name, "MYMPD_API_COLS_SAVE");
+    const char *name = get_cmd_id_method_name(MYMPD_API_VIEW_SAVE);
+    ASSERT_STREQ(name, "MYMPD_API_VIEW_SAVE");
 }
 
 UTEST(api, test_is_protected_api_method) {
-    bool rc = is_protected_api_method(MYMPD_API_COLS_SAVE);
+    bool rc = is_protected_api_method(MYMPD_API_VIEW_SAVE);
     ASSERT_FALSE(rc);
 
     rc = is_protected_api_method(MYMPD_API_SETTINGS_SET);

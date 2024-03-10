@@ -8,7 +8,10 @@ https://github.com/jcorporation/myMPD/
 
 ### API changes
 
+- The `cols` param was renamed to `fields`
 - MYMPD_API_PLAYLIST_LIST: response changed
+- MYMPD_API_VIEW_SAVE: new
+- MYMPD_API_COLS_SAVE: removed
 
 ### Changelog
 
@@ -23,7 +26,7 @@ https://github.com/jcorporation/myMPD/
 - Feat: Add option to disable covercache pruning #1237
 - Upd: Bootstrap 5.3.3
 - Fix: List and search playlists in filesystem view
-- Fix: Re-add custom csss to mongoose dir listing
+- Fix: Re-add custom css to mongoose dir listing
 
 ***
 

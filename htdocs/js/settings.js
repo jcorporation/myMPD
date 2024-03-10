@@ -328,11 +328,12 @@ function parseMPDSettings() {
         filterCols(table);
         setCols(table);
         //add all browse tags (advanced action in popover menu)
-        const col = 'cols' + table + 'Fetch';
-        settings[col] = settings['cols' + table].slice();
+        const col = 'view' + table + 'Fetch';
+        settings[col].mode = settings['view' + table].mode;
+        settings[col].fields = settings['view' + table].fields.slice();
         for (const tag of settings.tagListBrowse) {
             if (settings[col].includes(tag) === false) {
-                settings[col].push(tag);
+                settings[col].cols.push(tag);
             }
         }
     }

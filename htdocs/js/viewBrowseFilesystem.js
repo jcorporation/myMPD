@@ -21,7 +21,7 @@ function handleBrowseFilesystem() {
         "path": app.current.filter,
         "searchstr": app.current.search,
         "type": app.current.tag,
-        "cols": settings.colsBrowseFilesystemFetch
+        "fields": settings.colsBrowseFilesystemFetch.fields
     }, parseFilesystem, true);
 
     //Create breadcrumb

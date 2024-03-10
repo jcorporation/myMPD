@@ -25,7 +25,7 @@ static const char *invalid_name_chars = "\a\b\f\n\r\t\v";
 static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
-static const char *mympd_cols[]={
+static const char *mympd_fields[]={
     // Columns for songs
     "Name",
     // Columns for songs
@@ -46,7 +46,7 @@ static const char *mympd_cols[]={
 
 static bool check_for_invalid_chars(sds data, const char *invalid_chars);
 static bool validate_json(sds data, char start, char end);
-static bool is_mympd_col(sds token);
+static bool is_mympd_field(sds token);
 
 /**
  * Public functions
@@ -271,9 +271,9 @@ bool vcb_ispathfilename(sds data) {
  * @param data sds string to check
  * @return true on success else false
  */
-bool vcb_iscolumn(sds data) {
+bool vcb_isfield(sds data) {
     if (mpd_tag_name_iparse(data) != MPD_TAG_UNKNOWN ||
-        is_mympd_col(data) == true)
+        is_mympd_field(data) == true)
     {
         return true;
     }
@@ -471,12 +471,12 @@ static bool validate_json(sds data, char start, char end) {
 }
 
 /**
- * Helper function that checks if token is a valid column name
+ * Helper function that checks if token is a valid field name
  * @param token string to check
  * @return true on success else false
  */
-static bool is_mympd_col(sds token) {
-    const char** ptr = mympd_cols;
+static bool is_mympd_field(sds token) {
+    const char** ptr = mympd_fields;
     while (*ptr != 0) {
         if (strncmp(token, *ptr, sdslen(token)) == 0) {
             return true;

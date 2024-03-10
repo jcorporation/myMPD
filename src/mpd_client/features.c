@@ -169,12 +169,12 @@ static void features_commands(struct t_partition_state *partition_state) {
  */
 static void features_tags(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {
     //reset all tags
-    reset_t_tags(&partition_state->mpd_state->tags_mpd);
-    reset_t_tags(&partition_state->mpd_state->tags_mympd);
-    reset_t_tags(&partition_state->mpd_state->tags_search);
-    reset_t_tags(&partition_state->mpd_state->tags_browse);
-    reset_t_tags(&partition_state->mpd_state->tags_album);
-    reset_t_tags(&mympd_state->smartpls_generate_tag_types);
+    tags_reset(&partition_state->mpd_state->tags_mpd);
+    tags_reset(&partition_state->mpd_state->tags_mympd);
+    tags_reset(&partition_state->mpd_state->tags_search);
+    tags_reset(&partition_state->mpd_state->tags_browse);
+    tags_reset(&partition_state->mpd_state->tags_album);
+    tags_reset(&mympd_state->smartpls_generate_tag_types);
     //check for all mpd tags
     enable_all_mpd_tags(partition_state);
     features_mpd_tags(partition_state);
@@ -203,7 +203,7 @@ static void features_tags(struct t_mympd_state *mympd_state, struct t_partition_
  */
 static void set_album_tags(struct t_partition_state *partition_state) {
     sds logline = sdscatfmt(sdsempty(), "Enabled tag_list_album: ");
-    for (size_t i = 0; i < partition_state->mpd_state->tags_mympd.tags_len; i++) {
+    for (size_t i = 0; i < partition_state->mpd_state->tags_mympd.len; i++) {
         switch(partition_state->mpd_state->tags_mympd.tags[i]) {
             case MPD_TAG_MUSICBRAINZ_RELEASETRACKID:
             case MPD_TAG_MUSICBRAINZ_TRACKID:
@@ -215,7 +215,7 @@ static void set_album_tags(struct t_partition_state *partition_state) {
                 //ignore this tags for albums
                 break;
             default:
-                partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.tags_len++] = partition_state->mpd_state->tags_mympd.tags[i];
+                partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.len++] = partition_state->mpd_state->tags_mympd.tags[i];
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
         }
     }
@@ -229,17 +229,17 @@ static void set_album_tags(struct t_partition_state *partition_state) {
  */
 static void set_simple_album_tags(struct t_partition_state *partition_state) {
     sds logline = sdscatfmt(sdsempty(), "Enabled tag_list_album: ");
-    for (size_t i = 0; i < partition_state->mpd_state->tags_mympd.tags_len; i++) {
+    for (size_t i = 0; i < partition_state->mpd_state->tags_mympd.len; i++) {
         switch(partition_state->mpd_state->tags_mympd.tags[i]) {
             case MPD_TAG_ALBUM:
             case MPD_TAG_ALBUM_ARTIST:
-                partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.tags_len++] = partition_state->mpd_state->tags_mympd.tags[i];
+                partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.len++] = partition_state->mpd_state->tags_mympd.tags[i];
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
                 break;
             default:
                 if (partition_state->mpd_state->tags_mympd.tags[i] == partition_state->config->albums.group_tag) {
                     // add album group tag
-                    partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.tags_len++] = partition_state->mpd_state->tags_mympd.tags[i];
+                    partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.len++] = partition_state->mpd_state->tags_mympd.tags[i];
                     logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
                 }
                 // ignore all other tags
@@ -262,7 +262,7 @@ static void features_mpd_tags(struct t_partition_state *partition_state) {
             enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
             if (tag != MPD_TAG_UNKNOWN) {
                 logline = sdscatfmt(logline, "%s ", pair->value);
-                partition_state->mpd_state->tags_mpd.tags[partition_state->mpd_state->tags_mpd.tags_len++] = tag;
+                partition_state->mpd_state->tags_mpd.tags[partition_state->mpd_state->tags_mpd.len++] = tag;
             }
             else {
                 MYMPD_LOG_WARN(partition_state->name, "Unknown tag %s (libmpdclient too old)", pair->value);
@@ -273,7 +273,7 @@ static void features_mpd_tags(struct t_partition_state *partition_state) {
     mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_tag_types");
 
-    if (partition_state->mpd_state->tags_mpd.tags_len == 0) {
+    if (partition_state->mpd_state->tags_mpd.len == 0) {
         logline = sdscatlen(logline, "none", 4);
         MYMPD_LOG_INFO(partition_state->name, "%s", logline);
         MYMPD_LOG_INFO(partition_state->name, "Tags are disabled");

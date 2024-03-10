@@ -10,7 +10,7 @@
 #include "dist/sds/sds.h"
 #include "src/lib/cache.h"
 #include "src/lib/config_def.h"
-#include "src/lib/tags.h"
+#include "src/lib/fields.h"
 
 #include <stdbool.h>
 

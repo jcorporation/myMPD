@@ -37,8 +37,8 @@ UTEST(tags, test_is_multivalue_tag) {
 
 UTEST(tags, test_get_sort_tag) {
     struct t_tags tags;
-    reset_t_tags(&tags);
-    tags.tags_len = 4;
+    tags_reset(&tags);
+    tags.len = 4;
     tags.tags[0] = MPD_TAG_ALBUM;
     tags.tags[1] = MPD_TAG_ALBUM_SORT;
     tags.tags[2] = MPD_TAG_PERFORMER;
@@ -78,15 +78,15 @@ UTEST(tags, test_mpd_client_get_tag_values) {
 UTEST(tags, test_check_tags) {
     sds s = sdsnew("Artist, Album,Title");
     struct t_tags tags;
-    reset_t_tags(&tags);
+    tags_reset(&tags);
     struct t_tags allowed;
-    reset_t_tags(&allowed);
-    allowed.tags_len++;
+    tags_reset(&allowed);
+    allowed.len++;
     allowed.tags[0] = MPD_TAG_ALBUM;
-    allowed.tags_len++;
+    allowed.len++;
     allowed.tags[1] = MPD_TAG_TITLE;
     check_tags(s, "taglist", &tags, &allowed);
-    ASSERT_EQ(2, (int)tags.tags_len);
+    ASSERT_EQ(2, (int)tags.len);
     ASSERT_EQ(MPD_TAG_ALBUM, tags.tags[0]);
     ASSERT_EQ(MPD_TAG_TITLE, tags.tags[1]);
     sdsfree(s);
@@ -94,10 +94,10 @@ UTEST(tags, test_check_tags) {
 
 UTEST(tags, test_mpd_client_tag_exists) {
     struct t_tags tags;
-    reset_t_tags(&tags);
-    tags.tags_len++;
+    tags_reset(&tags);
+    tags.len++;
     tags.tags[0] = MPD_TAG_ALBUM;
-    tags.tags_len++;
+    tags.len++;
     tags.tags[1] = MPD_TAG_ARTIST;
     ASSERT_TRUE(mpd_client_tag_exists(&tags, MPD_TAG_ALBUM));
     ASSERT_FALSE(mpd_client_tag_exists(&tags, MPD_TAG_ALBUM_ARTIST));

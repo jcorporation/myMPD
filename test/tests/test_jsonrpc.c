@@ -219,16 +219,16 @@ UTEST(jsonrpc, test_json_get_object_string) {
 }
 
 UTEST(jsonrpc, test_json_get_tags) {
-    struct t_tags tagcols;
-    reset_t_tags(&tagcols);
-    sds data = sdsnew("{\"params\": {\"cols\": [\"Artist\", \"Duration\"]}}");
+    struct t_fields tagcols;
+    fields_reset(&tagcols);
+    sds data = sdsnew("{\"params\": {\"fields\": [\"Artist\", \"Duration\"]}}");
     //valid
-    ASSERT_TRUE(json_get_tags(data, "$.params.cols", &tagcols, COLS_MAX, NULL));
+    ASSERT_TRUE(json_get_fields(data, "$.params.fields", &tagcols, FIELDS_MAX, NULL));
     sdsclear(data);
-    reset_t_tags(&tagcols);
-    data = sdscat(data, "{\"params\": {\"cols\": [\"Artist\", \"Invalid column name\"]}}");
-    //invalid column names are ignored
-    ASSERT_TRUE(json_get_tags(data, "$.params.cols", &tagcols, COLS_MAX, NULL));
+    fields_reset(&tagcols);
+    data = sdscat(data, "{\"params\": {\"fields\": [\"Artist\", \"Invalid column name\"]}}");
+    //invalid field names are ignored
+    ASSERT_TRUE(json_get_fields(data, "$.params.fields", &tagcols, FIELDS_MAX, NULL));
     FREE_SDS(data);
 }
 
@@ -244,13 +244,14 @@ UTEST(jsonrpc, test_list_to_json_array) {
     FREE_SDS(s);
 }
 
-UTEST(jsonrpc, test_json_get_cols_as_string) {
+UTEST(jsonrpc, test_json_get_fields_as_string) {
     struct t_list l;
     list_init(&l);
-    bool error;
-    sds data = sdsnew("{\"params\": {\"cols\": [\"Artist\", \"Duration\"]}}");
+    struct t_jsonrpc_parse_error error;
+    sds data = sdsnew("{\"params\": {\"fields\": [\"Artist\", \"Duration\"]}}");
     sds cols = sdsempty();
-    cols = json_get_cols_as_string(data, cols, &error);
+    bool rc = json_get_fields_as_string(data, &cols, &error);
+    ASSERT_TRUE(rc);
     ASSERT_STREQ("[\"Artist\",\"Duration\"]", cols);
     list_clear(&l);
     FREE_SDS(cols);

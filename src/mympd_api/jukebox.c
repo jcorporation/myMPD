@@ -70,7 +70,7 @@ bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions,
  * @return pointer to buffer
  */
 sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id, unsigned offset, unsigned limit, sds expression, const struct t_tags *tagcols)
+        sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id, unsigned offset, unsigned limit, sds expression, const struct t_fields *tagcols)
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
@@ -82,7 +82,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
     if (partition_state->jukebox.mode == JUKEBOX_ADD_SONG) {
         struct t_list_node *current = partition_state->jukebox.queue->head;
         if (partition_state->mpd_state->feat.stickers == true &&
-            tagcols->stickers_len > 0)
+            tagcols->stickers.len > 0)
         {
             stickerdb_exit_idle(stickerdb);
         }
@@ -90,7 +90,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
             if (mpd_send_list_meta(partition_state->conn, current->key)) {
                 struct mpd_song *song;
                 if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-                    if (search_song_expression(song, expr_list, tagcols) == true) {
+                    if (search_song_expression(song, expr_list, &tagcols->tags) == true) {
                         if (entities_found >= offset &&
                             entities_found < real_limit)
                         {
@@ -99,11 +99,11 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
                             }
                             buffer = sdscat(buffer, "{\"Type\": \"song\",");
                             buffer = tojson_uint(buffer, "Pos", entity_count, true);
-                            buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
+                            buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->tags, song);
                             if (partition_state->mpd_state->feat.stickers == true &&
-                                tagcols->stickers_len > 0)
+                                tagcols->stickers.len > 0)
                             {
-                                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, mpd_song_get_uri(song), tagcols);
+                                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, mpd_song_get_uri(song), &tagcols->stickers);
                             }
                             buffer = sdscatlen(buffer, "}", 1);
                         }
@@ -118,7 +118,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
             current = current->next;
         }
         if (partition_state->mpd_state->feat.stickers == true &&
-            tagcols->stickers_len > 0)
+            tagcols->stickers.len > 0)
         {
             stickerdb_enter_idle(stickerdb);
         }
@@ -127,7 +127,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
         struct t_list_node *current = partition_state->jukebox.queue->head;
         while (current != NULL) {
             struct mpd_song *album = (struct mpd_song *)current->user_data;
-            if (search_song_expression(album, expr_list, tagcols) == true) {
+            if (search_song_expression(album, expr_list, &tagcols->tags) == true) {
                 if (entities_found >= offset &&
                     entities_found < real_limit)
                 {
