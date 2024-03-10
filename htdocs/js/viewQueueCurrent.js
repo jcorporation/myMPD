@@ -25,7 +25,7 @@ function handleQueueCurrent() {
         "sort": app.current.sort.tag,
         "sortdesc": app.current.sort.desc,
         "expression": app.current.search,
-        "cols": settings.colsQueueCurrentFetch
+        "fields": settings.colsQueueCurrentFetch.fields
     }, parseQueue, true);
 
     if (app.current.filter === 'prio') {

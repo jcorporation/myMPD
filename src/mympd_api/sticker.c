@@ -46,43 +46,43 @@ bool mympd_api_sticker_set_feedback(struct t_stickerdb_state *stickerdb, struct 
 }
 
 /**
- * Gets the stickers from sticker cache and returns a json list
+ * Gets the stickers from stickerdb and returns a json list
  * Shortcut for stickerdb_get_all and print_sticker
  * @param buffer already allocated sds string to append the list
  * @param stickerdb pointer to stickerdb
  * @param uri song uri
- * @param tags array of stickers to print
+ * @param stickers array of stickers to print
  * @return pointer to the modified buffer
  */
-sds mympd_api_sticker_get_print(sds buffer, struct t_stickerdb_state *stickerdb, const char *uri, const struct t_tags *tags) {
-    if (tags->stickers_len == 0) {
+sds mympd_api_sticker_get_print(sds buffer, struct t_stickerdb_state *stickerdb, const char *uri, const struct t_stickers *stickers) {
+    if (stickers->len == 0) {
         return buffer;
     }
     struct t_sticker sticker;
     if (stickerdb_get_all(stickerdb, uri, &sticker, false) != NULL) {
-        buffer = mympd_api_sticker_print(buffer, &sticker, tags);
+        buffer = mympd_api_sticker_print(buffer, &sticker, stickers);
         sticker_struct_clear(&sticker);
     }
     return buffer;
 }
 
 /**
- * Gets the stickers from sticker cache and returns a json list.
+ * Gets the stickers from stickerdb and returns a json list.
  * Shortcut for stickerdb_get_all_batch and print_sticker.
  * You must exit the stickerdb idle mode before.
  * @param buffer already allocated sds string to append the list
  * @param stickerdb pointer to stickerdb
  * @param uri song uri
- * @param tags array of stickers to print
+ * @param stickers array of stickers to print
  * @return pointer to the modified buffer
  */
-sds mympd_api_sticker_get_print_batch(sds buffer, struct t_stickerdb_state *stickerdb, const char *uri, const struct t_tags *tags) {
-    if (tags->stickers_len == 0) {
+sds mympd_api_sticker_get_print_batch(sds buffer, struct t_stickerdb_state *stickerdb, const char *uri, const struct t_stickers *stickers) {
+    if (stickers->len == 0) {
         return buffer;
     }
     struct t_sticker sticker;
     if (stickerdb_get_all_batch(stickerdb, uri, &sticker, false) != NULL) {
-        buffer = mympd_api_sticker_print(buffer, &sticker, tags);
+        buffer = mympd_api_sticker_print(buffer, &sticker, stickers);
         sticker_struct_clear(&sticker);
     }
     return buffer;
@@ -92,19 +92,19 @@ sds mympd_api_sticker_get_print_batch(sds buffer, struct t_stickerdb_state *stic
  * Print the sticker struct as json list
  * @param buffer already allocated sds string to append the list
  * @param sticker pointer to sticker struct to print
- * @param tags array of stickers to print
+ * @param stickers array of stickers to print
  * @return pointer to the modified buffer
  */
-sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct t_tags *tags) {
+sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct t_stickers *stickers) {
     if (sticker == NULL) {
         return buffer;
     }
     buffer = json_comma(buffer);
-    for (size_t i = 0; i < tags->stickers_len; i++) {
+    for (size_t i = 0; i < stickers->len; i++) {
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = tojson_int64(buffer, sticker_name_lookup(tags->stickers[i]), sticker->mympd[tags->stickers[i]], false);
+        buffer = tojson_int64(buffer, sticker_name_lookup(stickers->stickers[i]), sticker->mympd[stickers->stickers[i]], false);
     }
     return buffer;
 }

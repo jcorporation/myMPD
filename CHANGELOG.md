@@ -8,7 +8,10 @@ https://github.com/jcorporation/myMPD/
 
 ### API changes
 
+- The `cols` param was renamed to `fields`
 - MYMPD_API_PLAYLIST_LIST: response changed
+- MYMPD_API_VIEW_SAVE: new
+- MYMPD_API_COLS_SAVE: removed
 
 ### Changelog
 
@@ -45,6 +48,7 @@ This release enables the support for sticker sorting and fixes a severe mongoose
 - Feat: Sort sticker search results (MPD 0.24) #1094
 - Fix: Problems with settings in 14.0.x #1221
 - Fix: Browse filesystem layout #1235
+- Fix: Re-add custom css to mongoose dir listing
 
 ***
 

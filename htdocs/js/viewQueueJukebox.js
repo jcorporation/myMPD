@@ -69,7 +69,7 @@ function getJukeboxList(view) {
     sendAPI("MYMPD_API_JUKEBOX_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
-        "cols": settings['cols' + view + 'Fetch'],
+        "fields": settings['view' + view + 'Fetch'].fields,
         "expression": app.current.search
     }, parseJukeboxList, true);
 }

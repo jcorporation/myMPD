@@ -173,7 +173,7 @@
 {"term":"Could not get local ip"},
 {"term":"Could not load preset"},
 {"term":"Could not remove song from jukebox queue"},
-{"term":"Could not save columns"},
+{"term":"Could not save fields"},
 {"term":"Could not save script"},
 {"term":"Could not save trigger"},
 {"term":"Could not save webradio favorite"},

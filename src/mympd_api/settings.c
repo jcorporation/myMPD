@@ -225,59 +225,73 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
 /**
  * Saves columns
  * @param mympd_state pointer to the t_mympd_state struct
- * @param table save columns for this table
- * @param cols json object with the columns
+ * @param view save columns for this view
+ * @param mode mode for this view: table, grid
+ * @param fields json object with the columns
  * @return true on success, else false
  */
-bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, sds cols) {
-    if (strcmp(table, "colsQueueCurrent") == 0) {
-        mympd_state->cols_queue_current = sds_replace(mympd_state->cols_queue_current, cols);
-    }
-    else if (strcmp(table, "colsQueueLastPlayed") == 0) {
-        mympd_state->cols_queue_last_played = sds_replace(mympd_state->cols_queue_last_played, cols);
-    }
-    else if (strcmp(table, "colsSearch") == 0) {
-        mympd_state->cols_search = sds_replace(mympd_state->cols_search, cols);
-    }
-    else if (strcmp(table, "colsBrowseDatabaseAlbumDetailInfo") == 0) {
-        mympd_state->cols_browse_database_album_detail_info = sds_replace(mympd_state->cols_browse_database_album_detail_info, cols);
-    }
-    else if (strcmp(table, "colsBrowseDatabaseAlbumDetail") == 0) {
-        mympd_state->cols_browse_database_album_detail = sds_replace(mympd_state->cols_browse_database_album_detail, cols);
-    }
-    else if (strcmp(table, "colsBrowseDatabaseAlbumList") == 0) {
-        mympd_state->cols_browse_database_album_list = sds_replace(mympd_state->cols_browse_database_album_list, cols);
-    }
-    else if (strcmp(table, "colsBrowsePlaylistDetail") == 0) {
-        mympd_state->cols_browse_playlist_detail = sds_replace(mympd_state->cols_browse_playlist_detail, cols);
-    }
-    else if (strcmp(table, "colsBrowsePlaylistList") == 0) {
-        mympd_state->cols_browse_playlist_list = sds_replace(mympd_state->cols_browse_playlist_list, cols);
-    }
-    else if (strcmp(table, "colsBrowseFilesystem") == 0) {
-        mympd_state->cols_browse_filesystem = sds_replace(mympd_state->cols_browse_filesystem, cols);
-    }
-    else if (strcmp(table, "colsPlayback") == 0) {
-        mympd_state->cols_playback = sds_replace(mympd_state->cols_playback, cols);
-    }
-    else if (strcmp(table, "colsQueueJukeboxSong") == 0) {
-        mympd_state->cols_queue_jukebox_song = sds_replace(mympd_state->cols_queue_jukebox_song, cols);
-    }
-    else if (strcmp(table, "colsQueueJukeboxAlbum") == 0) {
-        mympd_state->cols_queue_jukebox_album = sds_replace(mympd_state->cols_queue_jukebox_album, cols);
-    }
-    else if (strcmp(table, "colsBrowseRadioWebradiodb") == 0) {
-        mympd_state->cols_browse_radio_webradiodb = sds_replace(mympd_state->cols_browse_radio_webradiodb, cols);
-    }
-    else if (strcmp(table, "colsBrowseRadioRadiobrowser") == 0) {
-        mympd_state->cols_browse_radio_radiobrowser = sds_replace(mympd_state->cols_browse_radio_radiobrowser, cols);
-    }
-    else {
-        MYMPD_LOG_ERROR(NULL, "MYMPD_API_COLS_SAVE: Unknown table %s", table);
+bool mympd_api_settings_view_save(struct t_mympd_state *mympd_state, sds view, sds mode, sds fields) {
+    sds def = sdsnewlen("{", 1);
+    def = tojson_char(def, "mode", mode, true);
+    def = sdscat(def, "\"fields\":");
+    def = sdscatsds(def, fields);
+    def = sdscatlen(def, "}", 1);
+
+    if (strcmp(mode, "table") != 0 &&
+        strcmp(mode, "grid") != 0)
+    {
+        MYMPD_LOG_ERROR(NULL, "MYMPD_API_VIEW_SAVE: Unknown mode \"%s\"", mode);
         return false;
     }
-    sds tablename = camel_to_snake(table);
-    bool rc = state_file_write(mympd_state->config->workdir, DIR_WORK_STATE, tablename, cols);
+
+    if (strcmp(view, "viewQueueCurrent") == 0) {
+        mympd_state->view_queue_current = sds_replace(mympd_state->view_queue_current, view);
+    }
+    else if (strcmp(view, "viewQueueLastPlayed") == 0) {
+        mympd_state->view_queue_last_played = sds_replace(mympd_state->view_queue_last_played, view);
+    }
+    else if (strcmp(view, "viewSearch") == 0) {
+        mympd_state->view_search = sds_replace(mympd_state->view_search, view);
+    }
+    else if (strcmp(view, "viewBrowseDatabaseAlbumDetailInfo") == 0) {
+        mympd_state->view_browse_database_album_detail_info = sds_replace(mympd_state->view_browse_database_album_detail_info, view);
+    }
+    else if (strcmp(view, "viewBrowseDatabaseAlbumDetail") == 0) {
+        mympd_state->view_browse_database_album_detail = sds_replace(mympd_state->view_browse_database_album_detail, view);
+    }
+    else if (strcmp(view, "viewBrowseDatabaseAlbumList") == 0) {
+        mympd_state->view_browse_database_album_list = sds_replace(mympd_state->view_browse_database_album_list, view);
+    }
+    else if (strcmp(view, "viewBrowsePlaylistDetail") == 0) {
+        mympd_state->view_browse_playlist_detail = sds_replace(mympd_state->view_browse_playlist_detail, view);
+    }
+    else if (strcmp(view, "viewBrowsePlaylistList") == 0) {
+        mympd_state->view_browse_playlist_list = sds_replace(mympd_state->view_browse_playlist_list, view);
+    }
+    else if (strcmp(view, "viewBrowseFilesystem") == 0) {
+        mympd_state->view_browse_filesystem = sds_replace(mympd_state->view_browse_filesystem, view);
+    }
+    else if (strcmp(view, "viewPlayback") == 0) {
+        mympd_state->view_playback = sds_replace(mympd_state->view_playback, view);
+    }
+    else if (strcmp(view, "viewQueueJukeboxSong") == 0) {
+        mympd_state->view_queue_jukebox_song = sds_replace(mympd_state->view_queue_jukebox_song, view);
+    }
+    else if (strcmp(view, "viewQueueJukeboxAlbum") == 0) {
+        mympd_state->view_queue_jukebox_album = sds_replace(mympd_state->view_queue_jukebox_album, view);
+    }
+    else if (strcmp(view, "viewBrowseRadioWebradiodb") == 0) {
+        mympd_state->view_browse_radio_webradiodb = sds_replace(mympd_state->view_browse_radio_webradiodb, view);
+    }
+    else if (strcmp(view, "viewBrowseRadioRadiobrowser") == 0) {
+        mympd_state->view_browse_radio_radiobrowser = sds_replace(mympd_state->view_browse_radio_radiobrowser, view);
+    }
+    else {
+        MYMPD_LOG_ERROR(NULL, "MYMPD_API_VIEW_SAVE: Unknown table \"%s\"", view);
+        return false;
+    }
+    sds tablename = camel_to_snake(view);
+    bool rc = state_file_write(mympd_state->config->workdir, DIR_WORK_STATE, tablename, view);
     FREE_SDS(tablename);
     return rc;
 }
@@ -846,20 +860,20 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->smartpls_prefix = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "smartpls_prefix", mympd_state->smartpls_prefix, vcb_isname, true);
     mympd_state->smartpls_interval = state_file_rw_int(workdir, DIR_WORK_STATE, "smartpls_interval", mympd_state->smartpls_interval, TIMER_INTERVAL_MIN, TIMER_INTERVAL_MAX, true);
     mympd_state->smartpls_generate_tag_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "smartpls_generate_tag_list", mympd_state->smartpls_generate_tag_list, vcb_istaglist, true);
-    mympd_state->cols_queue_current = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_queue_current", mympd_state->cols_queue_current, vcb_isname, true);
-    mympd_state->cols_search = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_search", mympd_state->cols_search, vcb_isname, true);
-    mympd_state->cols_browse_database_album_detail_info = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_database_album_detail_info", mympd_state->cols_browse_database_album_detail_info, vcb_isname, true);
-    mympd_state->cols_browse_database_album_detail = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_database_album_detail", mympd_state->cols_browse_database_album_detail, vcb_isname, true);
-    mympd_state->cols_browse_database_album_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_database_album_list", mympd_state->cols_browse_database_album_list, vcb_isname, true);
-    mympd_state->cols_browse_playlist_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_playlist_list", mympd_state->cols_browse_playlist_list, vcb_isname, true);
-    mympd_state->cols_browse_playlist_detail = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_playlist_detail", mympd_state->cols_browse_playlist_detail, vcb_isname, true);
-    mympd_state->cols_browse_filesystem = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_filesystem", mympd_state->cols_browse_filesystem, vcb_isname, true);
-    mympd_state->cols_playback = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_playback", mympd_state->cols_playback, vcb_isname, true);
-    mympd_state->cols_queue_last_played = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_queue_last_played", mympd_state->cols_queue_last_played, vcb_isname, true);
-    mympd_state->cols_queue_jukebox_song = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_queue_jukebox_song", mympd_state->cols_queue_jukebox_song, vcb_isname, true);
-    mympd_state->cols_queue_jukebox_album = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_queue_jukebox_album", mympd_state->cols_queue_jukebox_album, vcb_isname, true);
-    mympd_state->cols_browse_radio_webradiodb = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_radio_webradiodb", mympd_state->cols_browse_radio_webradiodb, vcb_isname, true);
-    mympd_state->cols_browse_radio_radiobrowser = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_radio_radiobrowser", mympd_state->cols_browse_radio_radiobrowser, vcb_isname, true);
+    mympd_state->view_queue_current = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_queue_current", mympd_state->view_queue_current, vcb_isname, true);
+    mympd_state->view_search = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_search", mympd_state->view_search, vcb_isname, true);
+    mympd_state->view_browse_database_album_detail_info = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_database_album_detail_info", mympd_state->view_browse_database_album_detail_info, vcb_isname, true);
+    mympd_state->view_browse_database_album_detail = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_database_album_detail", mympd_state->view_browse_database_album_detail, vcb_isname, true);
+    mympd_state->view_browse_database_album_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_database_album_list", mympd_state->view_browse_database_album_list, vcb_isname, true);
+    mympd_state->view_browse_playlist_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_playlist_list", mympd_state->view_browse_playlist_list, vcb_isname, true);
+    mympd_state->view_browse_playlist_detail = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_playlist_detail", mympd_state->view_browse_playlist_detail, vcb_isname, true);
+    mympd_state->view_browse_filesystem = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_filesystem", mympd_state->view_browse_filesystem, vcb_isname, true);
+    mympd_state->view_playback = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_playback", mympd_state->view_playback, vcb_isname, true);
+    mympd_state->view_queue_last_played = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_queue_last_played", mympd_state->view_queue_last_played, vcb_isname, true);
+    mympd_state->view_queue_jukebox_song = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_queue_jukebox_song", mympd_state->view_queue_jukebox_song, vcb_isname, true);
+    mympd_state->view_queue_jukebox_album = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_queue_jukebox_album", mympd_state->view_queue_jukebox_album, vcb_isname, true);
+    mympd_state->view_browse_radio_webradiodb = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_radio_webradiodb", mympd_state->view_browse_radio_webradiodb, vcb_isname, true);
+    mympd_state->view_browse_radio_radiobrowser = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_radio_radiobrowser", mympd_state->view_browse_radio_radiobrowser, vcb_isname, true);
     mympd_state->coverimage_names = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "coverimage_names", mympd_state->coverimage_names, vcb_isfilename, true);
     mympd_state->thumbnail_names = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "thumbnail_names", mympd_state->thumbnail_names, vcb_isfilename, true);
     mympd_state->music_directory = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "music_directory", mympd_state->music_directory, vcb_isfilepath, true);
@@ -957,20 +971,20 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_sds(buffer, "lyricsSyltExt", mympd_state->lyrics.sylt_ext, true);
     buffer = tojson_sds(buffer, "lyricsVorbisUslt", mympd_state->lyrics.vorbis_uslt, true);
     buffer = tojson_sds(buffer, "lyricsVorbisSylt", mympd_state->lyrics.vorbis_sylt, true);
-    buffer = tojson_raw(buffer, "colsQueueCurrent", mympd_state->cols_queue_current, true);
-    buffer = tojson_raw(buffer, "colsSearch", mympd_state->cols_search, true);
-    buffer = tojson_raw(buffer, "colsBrowseDatabaseAlbumDetailInfo", mympd_state->cols_browse_database_album_detail_info, true);
-    buffer = tojson_raw(buffer, "colsBrowseDatabaseAlbumDetail", mympd_state->cols_browse_database_album_detail, true);
-    buffer = tojson_raw(buffer, "colsBrowseDatabaseAlbumList", mympd_state->cols_browse_database_album_list, true);
-    buffer = tojson_raw(buffer, "colsBrowsePlaylistList", mympd_state->cols_browse_playlist_list, true);
-    buffer = tojson_raw(buffer, "colsBrowsePlaylistDetail", mympd_state->cols_browse_playlist_detail, true);
-    buffer = tojson_raw(buffer, "colsBrowseFilesystem", mympd_state->cols_browse_filesystem, true);
-    buffer = tojson_raw(buffer, "colsPlayback", mympd_state->cols_playback, true);
-    buffer = tojson_raw(buffer, "colsQueueLastPlayed", mympd_state->cols_queue_last_played, true);
-    buffer = tojson_raw(buffer, "colsQueueJukeboxSong", mympd_state->cols_queue_jukebox_song, true);
-    buffer = tojson_raw(buffer, "colsQueueJukeboxAlbum", mympd_state->cols_queue_jukebox_album, true);
-    buffer = tojson_raw(buffer, "colsBrowseRadioWebradiodb", mympd_state->cols_browse_radio_webradiodb, true);
-    buffer = tojson_raw(buffer, "colsBrowseRadioRadiobrowser", mympd_state->cols_browse_radio_radiobrowser, true);
+    buffer = tojson_raw(buffer, "viewQueueCurrent", mympd_state->view_queue_current, true);
+    buffer = tojson_raw(buffer, "viewSearch", mympd_state->view_search, true);
+    buffer = tojson_raw(buffer, "viewBrowseDatabaseAlbumDetailInfo", mympd_state->view_browse_database_album_detail_info, true);
+    buffer = tojson_raw(buffer, "viewBrowseDatabaseAlbumDetail", mympd_state->view_browse_database_album_detail, true);
+    buffer = tojson_raw(buffer, "viewBrowseDatabaseAlbumList", mympd_state->view_browse_database_album_list, true);
+    buffer = tojson_raw(buffer, "viewBrowsePlaylistList", mympd_state->view_browse_playlist_list, true);
+    buffer = tojson_raw(buffer, "viewBrowsePlaylistDetail", mympd_state->view_browse_playlist_detail, true);
+    buffer = tojson_raw(buffer, "viewBrowseFilesystem", mympd_state->view_browse_filesystem, true);
+    buffer = tojson_raw(buffer, "viewPlayback", mympd_state->view_playback, true);
+    buffer = tojson_raw(buffer, "viewQueueLastPlayed", mympd_state->view_queue_last_played, true);
+    buffer = tojson_raw(buffer, "viewQueueJukeboxSong", mympd_state->view_queue_jukebox_song, true);
+    buffer = tojson_raw(buffer, "viewQueueJukeboxAlbum", mympd_state->view_queue_jukebox_album, true);
+    buffer = tojson_raw(buffer, "viewBrowseRadioWebradiodb", mympd_state->view_browse_radio_webradiodb, true);
+    buffer = tojson_raw(buffer, "viewBrowseRadioRadiobrowser", mympd_state->view_browse_radio_radiobrowser, true);
     buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);
     buffer = tojson_sds(buffer, "listenbrainzToken", mympd_state->listenbrainz_token, true);
     buffer = tojson_bool(buffer, "tagDiscEmptyIsFirst", mympd_state->tag_disc_empty_is_first, true);

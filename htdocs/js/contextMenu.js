@@ -80,7 +80,7 @@ function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
     contextMenuBody.appendChild(applyEl);
     applyEl.addEventListener('click', function(eventClick) {
         eventClick.preventDefault();
-        saveCols(app.id);
+        saveView(app.id);
     }, false);
     contextMenuBody.setAttribute('id', app.id + 'ColsDropdown');
 }

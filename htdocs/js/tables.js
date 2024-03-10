@@ -335,7 +335,7 @@ function dragAndDropTableHeader(tableName) {
         tableHeader.insertBefore(dragEl, event.target);
         // save this state
         setUpdateViewId(tableName + 'List');
-        saveCols(tableName);
+        saveView(tableName);
     }, false);
 
     tableHeader.addEventListener('dragend', function() {
@@ -470,7 +470,7 @@ function setColsChecklist(tableName, menu) {
             const btnId = tableName + tags[i] + 'Col';
             const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-sm", "me-2"],
                 "id": btnId, "name": tags[i]}, 'radio_button_unchecked');
-            if (settings['cols' + tableName].includes(tags[i])) {
+            if (settings['view' + tableName].fields.includes(tags[i])) {
                 btn.classList.add('active');
                 btn.textContent = 'check';
             }
@@ -481,6 +481,22 @@ function setColsChecklist(tableName, menu) {
             menu.appendChild(div);
         }
     }
+}
+
+/**
+ * Filters the selected column by available tags
+ * @param {string} tableName the table name
+ * @returns {void}
+ */
+function filterCols(tableName) {
+    //set available tags
+    const tags = setColTags(tableName);
+    //column name
+    const set = "view" + tableName;
+    settings[set].cols = settings[set].filter(function(value) {
+        return tags.includes(value);
+    });
+    logDebug('Columns for ' + set + ': ' + settings[set]);
 }
 
 /**
@@ -534,12 +550,12 @@ function setCols(tableName) {
     const thead = document.querySelector('#' + tableName + 'List > thead > tr');
     elClear(thead);
 
-    for (let i = 0, j = settings['cols' + tableName].length; i < j; i++) {
-        const hname = settings['cols' + tableName][i];
+    for (let i = 0, j = settings['view' + tableName].fields.length; i < j; i++) {
+        const hname = settings['view' + tableName].fields[i];
         const clickable = isColSortable(tableName, hname)
             ? 'clickable'
             : 'not-clickable';
-        const th = elCreateTextTn('th', {"class": [clickable], "draggable": "true", "data-col": settings['cols' + tableName][i]}, hname);
+        const th = elCreateTextTn('th', {"class": [clickable], "draggable": "true", "data-col": settings['view' + tableName].fields[i]}, hname);
         thead.appendChild(th);
 
         const sort = tableName === 'Search'
@@ -576,7 +592,7 @@ function setCols(tableName) {
  * @param {HTMLElement} [tableEl] table element or undefined
  * @returns {void}
  */
-function saveCols(tableName, tableEl) {
+function saveView(tableName, tableEl) {
     const colsDropdown = elGetById(tableName + 'ColsDropdown');
     if (tableEl === undefined) {
         //select the table by name
@@ -603,7 +619,11 @@ function saveCols(tableName, tableEl) {
         }
     }
     //construct columns to save from actual table header
-    const params = {"table": "cols" + tableName, "cols": []};
+    const params = {
+        "view": "view" + tableName,
+        "mode": settings['view' + tableName].mode,
+        "fields": []
+    };
     const ths = header.querySelectorAll('th');
     for (let i = 0, j = ths.length; i < j; i++) {
         const name = ths[i].getAttribute('data-col');
@@ -613,7 +633,7 @@ function saveCols(tableName, tableEl) {
             params.cols.push(name);
         }
     }
-    sendAPI("MYMPD_API_COLS_SAVE", params, saveColsCheckError, true);
+    sendAPI("MYMPD_API_VIEW_SAVE", params, saveViewCheckError, true);
 }
 
 /**
@@ -624,7 +644,11 @@ function saveCols(tableName, tableEl) {
  */
 //eslint-disable-next-line no-unused-vars
 function saveColsDropdown(tableName, dropdownId) {
-    const params = {"table": tableName, "cols": []};
+    const params = {
+        "view": "view" + tableName,
+        "mode": settings['view' + tableName].mode,
+        "fields": []
+    };
     const colInputs = document.querySelectorAll('#' + dropdownId + ' button.active');
     for (let i = 0, j = colInputs.length; i < j; i++) {
         const name = colInputs[i].getAttribute('name');
@@ -632,14 +656,14 @@ function saveColsDropdown(tableName, dropdownId) {
             params.cols.push(name);
         }
     }
-    sendAPI("MYMPD_API_COLS_SAVE", params, saveColsCheckError, true);
+    sendAPI("MYMPD_API_VIEW_SAVE", params, saveViewCheckError, true);
 }
 
 /**
- * Handles the jsonrpc response for MYMPD_API_COLS_SAVE
+ * Handles the jsonrpc response for MYMPD_API_VIEW_SAVE
  * @returns {void}
  */
-function saveColsCheckError() {
+function saveViewCheckError() {
     // refresh the settings
     getSettings(parseSettings);
 }
@@ -746,8 +770,8 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         ? true
         : false;
     const tbody = table.querySelector('tbody');
-    const colspan = settings['cols' + list] !== undefined
-        ? settings['cols' + list].length
+    const colspan = settings['view' + list] !== undefined
+        ? settings['view' + list].length
         : 0;
 
     const nrItems = obj.result.returnedEntities;
@@ -885,12 +909,12 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 function tableRow(row, data, list, colspan, smallWidth) {
     if (smallWidth === true) {
         const td = elCreateEmpty('td', {"colspan": colspan});
-        for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+        for (let c = 0, d = settings['view' + list].fields.length; c < d; c++) {
             td.appendChild(
                 elCreateNodes('div', {"class": ["row"]}, [
-                    elCreateTextTn('small', {"class": ["col-3"]}, settings['cols' + list][c]),
-                    elCreateNode('span', {"data-col": settings['cols' + list][c], "class": ["col-9"]},
-                        printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
+                    elCreateTextTn('small', {"class": ["col-3"]}, settings['view' + list].fields[c]),
+                    elCreateNode('span', {"data-col": settings['view' + list].fields[c], "class": ["col-9"]},
+                        printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]])
                     )
                 ])
             );
@@ -898,10 +922,10 @@ function tableRow(row, data, list, colspan, smallWidth) {
         row.appendChild(td);
     }
     else {
-        for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
+        for (let c = 0, d = settings['view' + list].fields.length; c < d; c++) {
             row.appendChild(
-                elCreateNode('td', {"data-col": settings['cols' + list][c]},
-                    printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
+                elCreateNode('td', {"data-col": settings['view' + list].fields[c]},
+                    printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]])
                 )
             );
         }
