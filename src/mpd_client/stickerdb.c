@@ -81,9 +81,6 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
     }
     // check for sticker support
     stickerdb->mpd_state->feat.stickers = check_sticker_support(stickerdb);
-    stickerdb->mpd_state->feat.sticker_sort_window = false;
-    stickerdb->mpd_state->feat.sticker_int = false;
-
     if (stickerdb->mpd_state->feat.stickers == false) {
         MYMPD_LOG_ERROR("stickerdb", "MPD does not support stickers");
         stickerdb_disconnect(stickerdb);
@@ -91,15 +88,18 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
         mympd_api_request_sticker_features(false, false, false);
         return false;
     }
-    #ifdef MYMPD_ENABLE_EXPERIMENTAL
-        if (mpd_connection_cmp_server_version(stickerdb->conn, 0, 24, 0) >= 0) {
-            // Waits for merging of: https://github.com/MusicPlayerDaemon/MPD/pull/1895
-            MYMPD_LOG_INFO(stickerdb->name, "Enabling sticker sort and window feature");
-            stickerdb->mpd_state->feat.sticker_sort_window = true;
-            MYMPD_LOG_INFO(stickerdb->name, "Enabling sticker value int handling feature");
-            stickerdb->mpd_state->feat.sticker_int = true;
-        }
-    #endif
+    if (mpd_connection_cmp_server_version(stickerdb->conn, 0, 24, 0) >= 0) {
+        MYMPD_LOG_INFO(stickerdb->name, "Enabling sticker sort and window feature");
+        stickerdb->mpd_state->feat.sticker_sort_window = true;
+        MYMPD_LOG_INFO(stickerdb->name, "Enabling sticker value int handling feature");
+        stickerdb->mpd_state->feat.sticker_int = true;
+    }
+    else {
+        MYMPD_LOG_INFO(stickerdb->name, "Disabling sticker sort and window feature");
+        stickerdb->mpd_state->feat.sticker_sort_window = false;
+        MYMPD_LOG_INFO(stickerdb->name, "Disabling sticker value int handling feature");
+        stickerdb->mpd_state->feat.sticker_int = false;
+    }
     mympd_api_request_sticker_features(stickerdb->mpd_state->feat.stickers,
         stickerdb->mpd_state->feat.sticker_sort_window, stickerdb->mpd_state->feat.sticker_int);
     MYMPD_LOG_DEBUG("stickerdb", "MPD connected and waiting for commands");
