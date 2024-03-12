@@ -23,7 +23,6 @@ https://github.com/jcorporation/myMPD/
 - Feat: Add option to disable covercache pruning #1237
 - Upd: Bootstrap 5.3.3
 - Fix: List and search playlists in filesystem view
-- Fix: Re-add custom csss to mongoose dir listing
 
 ***
 
