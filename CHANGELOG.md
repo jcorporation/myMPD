@@ -8,6 +8,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Feat: sort sticker search results (MPD 0.24) #1094
+
 ## myMPD 14.0.4 (2024-03-03)
 
 This is a small bugfix release.
