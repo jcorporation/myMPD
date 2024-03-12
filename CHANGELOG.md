@@ -8,7 +8,9 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Feat: sort sticker search results (MPD 0.24) #1094
+- Feat: Sort sticker search results (MPD 0.24) #1094
+- Fix: Problems with settings in 14.0.x #1221
+- Fix: Browse filesystem layout #1235
 
 ## myMPD 14.0.4 (2024-03-03)
 
