@@ -1,7 +1,11 @@
 # Maintainer: Juergen Mang <mail@jcgames.de>
 
 pkgname=mympd
+<<<<<<< HEAD
 pkgver=15.0.0
+=======
+pkgver=14.1.0
+>>>>>>> devel
 pkgrel=1
 pkgdesc="A standalone and mobile friendly web-based MPD client."
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')

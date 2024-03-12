@@ -1,6 +1,10 @@
 PORTNAME=	myMPD
 DISTVERSIONPREFIX= v
+<<<<<<< HEAD
 DISTVERSION=	15.0.0
+=======
+DISTVERSION=	14.1.0
+>>>>>>> devel
 CATEGORIES=	multimedia
 
 MAINTAINER=	robert.david@posteo.net

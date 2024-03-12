@@ -26,7 +26,18 @@ https://github.com/jcorporation/myMPD/
 - Feat: Add option to disable covercache pruning #1237
 - Upd: Bootstrap 5.3.3
 - Fix: List and search playlists in filesystem view
-- Fix: Re-add custom css to mongoose dir listing
+
+***
+
+## myMPD 14.1.0 (not yet released)
+
+This release enables the support for sticker sorting and fixes a severe mongoose bug.
+
+### Changelog
+
+- Feat: Sort sticker search results (MPD 0.24) #1094
+- Fix: Problems with settings in 14.0.x #1221
+- Fix: Browse filesystem layout #1235
 
 ***
 
