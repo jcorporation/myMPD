@@ -25,6 +25,7 @@ https://github.com/jcorporation/myMPD/
 - Fix: List and search playlists in filesystem view
 
 ***
+
 ## myMPD 14.1.0 (not yet released)
 
 This release enables the support for sticker sorting and fixes a severe mongoose bug.
