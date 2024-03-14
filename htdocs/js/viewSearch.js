@@ -27,7 +27,7 @@ function handleSearch() {
             "sort": app.current.sort.tag,
             "sortdesc": app.current.sort.desc,
             "expression": app.current.search,
-            "cols": settings.colsSearchFetch
+            "fields": settings.viewSearchFetch.fields
         }, parseSearch, true);
     }
     else {
@@ -91,7 +91,7 @@ function parseSearch(obj) {
     });
 
     if (obj.result.totalEntities > 0) {
-        const colspan = settings.colsSearch.length + 1;
+        const colspan = settings.viewSearch.fields.length + 1;
         tfoot.appendChild(
             elCreateNode('tr', {"class": ["not-clickable"]},
                 elCreateTextTnNr('td', {"colspan": colspan}, 'Num songs', obj.result.totalEntities)

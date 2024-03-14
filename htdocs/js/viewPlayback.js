@@ -222,7 +222,7 @@ function setPlaybackCardTags(songObj) {
     if (songObj.webradio === undefined) {
         elHideId('PlaybackListWebradio');
         elShowId('PlaybackListTags');
-        for (const col of settings.colsPlayback) {
+        for (const col of settings.viewPlayback.fields) {
             const c = elGetById('current' + col);
             if (c === null) {
                 continue;

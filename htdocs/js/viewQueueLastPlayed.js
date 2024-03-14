@@ -14,7 +14,7 @@ function handleQueueLastPlayed() {
     sendAPI("MYMPD_API_LAST_PLAYED_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
-        "fields": settings.colsQueueLastPlayedFetch.fields,
+        "fields": settings.viewQueueLastPlayedFetch.fields,
         "expression": app.current.search
     }, parseLastPlayed, true);
 }

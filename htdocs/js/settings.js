@@ -328,12 +328,13 @@ function parseMPDSettings() {
         filterCols(table);
         setCols(table);
         //add all browse tags (advanced action in popover menu)
-        const col = 'view' + table + 'Fetch';
-        settings[col].mode = settings['view' + table].mode;
-        settings[col].fields = settings['view' + table].fields.slice();
+        const view = 'view' + table + 'Fetch';
+        settings[view] = {};
+        settings[view].mode = settings['view' + table].mode;
+        settings[view].fields = settings['view' + table].fields.slice();
         for (const tag of settings.tagListBrowse) {
-            if (settings[col].includes(tag) === false) {
-                settings[col].cols.push(tag);
+            if (settings[view].fields.includes(tag) === false) {
+                settings[view].fields.push(tag);
             }
         }
     }
@@ -350,19 +351,21 @@ function parseMPDSettings() {
     }
 
     //enforce album and albumartist for album list view
-    settings['colsBrowseDatabaseAlbumListFetch'] = settings['colsBrowseDatabaseAlbumList'].slice();
-    if (settings.colsBrowseDatabaseAlbumListFetch.includes('Album') === false) {
-        settings.colsBrowseDatabaseAlbumListFetch.push('Album');
+    settings['viewBrowseDatabaseAlbumListFetch'] = {};
+    settings['viewBrowseDatabaseAlbumListFetch'].mode = settings['viewBrowseDatabaseAlbumList'].mode;
+    settings['viewBrowseDatabaseAlbumListFetch'].fields = settings['viewBrowseDatabaseAlbumList'].fields.slice();
+    if (settings.viewBrowseDatabaseAlbumListFetch.fields.includes('Album') === false) {
+        settings.viewBrowseDatabaseAlbumListFetch.fields.push('Album');
     }
-    if (settings.colsBrowseDatabaseAlbumListFetch.includes(tagAlbumArtist) === false) {
-        settings.colsBrowseDatabaseAlbumListFetch.push(tagAlbumArtist);
+    if (settings.viewBrowseDatabaseAlbumListFetch.fields.includes(tagAlbumArtist) === false) {
+        settings.viewBrowseDatabaseAlbumListFetch.fields.push(tagAlbumArtist);
     }
 
     //enforce disc for album detail list view
-    if (settings.colsBrowseDatabaseAlbumDetailFetch.includes('Disc') === false &&
+    if (settings.viewBrowseDatabaseAlbumDetailFetch.fields.includes('Disc') === false &&
         settings.tagList.includes('Disc'))
     {
-        settings.colsBrowseDatabaseAlbumDetailFetch.push('Disc');
+        settings.viewBrowseDatabaseAlbumDetailFetch.fields.push('Disc');
     }
 
     if (features.featTags === false) {
@@ -381,20 +384,20 @@ function parseMPDSettings() {
         //construct playback view
         const pbtl = elGetById('PlaybackListTags');
         elClear(pbtl);
-        for (let i = 0, j = settings.colsPlayback.length; i < j; i++) {
+        for (let i = 0, j = settings.viewPlayback.fields.length; i < j; i++) {
             let colWidth;
-            switch(settings.colsPlayback[i]) {
+            switch(settings.viewPlayback.fields[i]) {
                 case 'Lyrics':
                     colWidth = "col-xl-12";
                     break;
                 default:
                     colWidth = "col-xl-6";
             }
-            const div = elCreateNodes('div', {"id": "current" + settings.colsPlayback[i],"class": [colWidth]}, [
-                elCreateTextTn('small', {}, settings.colsPlayback[i]),
+            const div = elCreateNodes('div', {"id": "current" + settings.viewPlayback.fields[i],"class": [colWidth]}, [
+                elCreateTextTn('small', {}, settings.viewPlayback.fields[i]),
                 elCreateEmpty('p', {})
             ]);
-            setData(div, 'tag', settings.colsPlayback[i]);
+            setData(div, 'tag', settings.viewPlayback.fields[i]);
             pbtl.appendChild(div);
         }
         //musicbrainz

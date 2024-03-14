@@ -493,7 +493,7 @@ function filterCols(tableName) {
     const tags = setColTags(tableName);
     //column name
     const set = "view" + tableName;
-    settings[set].cols = settings[set].filter(function(value) {
+    settings[set].fields = settings[set].fields.filter(function(value) {
         return tags.includes(value);
     });
     logDebug('Columns for ' + set + ': ' + settings[set]);
