@@ -22,7 +22,7 @@ function handleBrowseDatabaseAlbumList() {
         "expression": app.current.search,
         "sort": app.current.sort.tag,
         "sortdesc": app.current.sort.desc,
-        "fields": settings.colsBrowseDatabaseAlbumListFetch.fields
+        "fields": settings.viewBrowseDatabaseAlbumListFetch.fields
     }, parseDatabaseAlbumList, true);
 }
 
@@ -50,7 +50,7 @@ function handleBrowseDatabaseTagList() {
 function handleBrowseDatabaseAlbumDetail() {
     sendAPI("MYMPD_API_DATABASE_ALBUM_DETAIL", {
         "albumid": app.current.filter,
-        "fields": settings.colsBrowseDatabaseAlbumDetailFetch.cols
+        "fields": settings.viewBrowseDatabaseAlbumDetailFetch.fields
     }, parseAlbumDetails, true);
 }
 
@@ -192,7 +192,7 @@ function parseDatabaseAlbumList(obj) {
         const taglist = [
             pEl.gridSelectBtn.cloneNode(true)
         ];
-        for (const tag of settings.colsBrowseDatabaseAlbumList) {
+        for (const tag of settings.viewBrowseDatabaseAlbumList.fields) {
             taglist.push(
                 elCreateNode((tag === 'Album' ? 'span' : 'small'), {"class": ["d-block"]},
                     printValue(tag, obj.result.data[i][tag])
@@ -251,7 +251,7 @@ function saveColsDatabaseAlbumList() {
         col.firstChild.firstChild.removeAttribute('id');
     }
 
-    saveColsDropdown('colsBrowseDatabaseAlbumList', 'BrowseDatabaseAlbumListColsDropdown');
+    saveColsDropdown('viewBrowseDatabaseAlbumList', 'BrowseDatabaseAlbumListColsDropdown');
 }
 
 /**
@@ -368,7 +368,7 @@ function addAlbumPlayButton(parentEl) {
 function parseAlbumDetails(obj) {
     const table = elGetById('BrowseDatabaseAlbumDetailList');
     const tfoot = table.querySelector('tfoot');
-    const colspan = settings.colsBrowseDatabaseAlbumDetail.length;
+    const colspan = settings.viewBrowseDatabaseAlbumDetail.fields.length;
     const infoEl = elGetById('viewDatabaseAlbumDetailInfoTags');
 
     if (checkResultId(obj, 'BrowseDatabaseAlbumDetailList') === false) {
@@ -386,7 +386,7 @@ function parseAlbumDetails(obj) {
     infoEl.appendChild(
         elCreateText('h1', {}, obj.result.Album)
     );
-    for (const col of settings.colsBrowseDatabaseAlbumDetailInfo) {
+    for (const col of settings.viewBrowseDatabaseAlbumDetailInfo.fields) {
         infoEl.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateTextTn('small', {}, col),

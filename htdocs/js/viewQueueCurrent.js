@@ -25,7 +25,7 @@ function handleQueueCurrent() {
         "sort": app.current.sort.tag,
         "sortdesc": app.current.sort.desc,
         "expression": app.current.search,
-        "fields": settings.colsQueueCurrentFetch.fields
+        "fields": settings.viewQueueCurrentFetch.fields
     }, parseQueue, true);
 
     if (app.current.filter === 'prio') {
@@ -81,7 +81,7 @@ function parseQueue(obj) {
         return;
     }
 
-    const colspan = settings['colsQueueCurrent'].length;
+    const colspan = settings['viewQueueCurrent'].fields.length;
     const smallWidth = uiSmallWidthTagRows();
 
     const rowTitle = settingsWebuiFields.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
