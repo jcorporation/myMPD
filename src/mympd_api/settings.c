@@ -231,12 +231,6 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
  * @return true on success, else false
  */
 bool mympd_api_settings_view_save(struct t_mympd_state *mympd_state, sds view, sds mode, sds fields) {
-    sds def = sdsnewlen("{", 1);
-    def = tojson_char(def, "mode", mode, true);
-    def = sdscat(def, "\"fields\":");
-    def = sdscatsds(def, fields);
-    def = sdscatlen(def, "}", 1);
-
     if (strcmp(mode, "table") != 0 &&
         strcmp(mode, "grid") != 0)
     {
@@ -244,55 +238,62 @@ bool mympd_api_settings_view_save(struct t_mympd_state *mympd_state, sds view, s
         return false;
     }
 
+    sds def = sdsnewlen("{", 1);
+    def = tojson_char(def, "mode", mode, true);
+    def = sdscat(def, "\"fields\":");
+    def = sdscatsds(def, fields);
+    def = sdscatlen(def, "}", 1);
+
     if (strcmp(view, "viewQueueCurrent") == 0) {
-        mympd_state->view_queue_current = sds_replace(mympd_state->view_queue_current, view);
+        mympd_state->view_queue_current = sds_replace(mympd_state->view_queue_current, def);
     }
     else if (strcmp(view, "viewQueueLastPlayed") == 0) {
-        mympd_state->view_queue_last_played = sds_replace(mympd_state->view_queue_last_played, view);
+        mympd_state->view_queue_last_played = sds_replace(mympd_state->view_queue_last_played, def);
     }
     else if (strcmp(view, "viewSearch") == 0) {
-        mympd_state->view_search = sds_replace(mympd_state->view_search, view);
+        mympd_state->view_search = sds_replace(mympd_state->view_search, def);
     }
     else if (strcmp(view, "viewBrowseDatabaseAlbumDetailInfo") == 0) {
-        mympd_state->view_browse_database_album_detail_info = sds_replace(mympd_state->view_browse_database_album_detail_info, view);
+        mympd_state->view_browse_database_album_detail_info = sds_replace(mympd_state->view_browse_database_album_detail_info, def);
     }
     else if (strcmp(view, "viewBrowseDatabaseAlbumDetail") == 0) {
-        mympd_state->view_browse_database_album_detail = sds_replace(mympd_state->view_browse_database_album_detail, view);
+        mympd_state->view_browse_database_album_detail = sds_replace(mympd_state->view_browse_database_album_detail, def);
     }
     else if (strcmp(view, "viewBrowseDatabaseAlbumList") == 0) {
-        mympd_state->view_browse_database_album_list = sds_replace(mympd_state->view_browse_database_album_list, view);
+        mympd_state->view_browse_database_album_list = sds_replace(mympd_state->view_browse_database_album_list, def);
     }
     else if (strcmp(view, "viewBrowsePlaylistDetail") == 0) {
-        mympd_state->view_browse_playlist_detail = sds_replace(mympd_state->view_browse_playlist_detail, view);
+        mympd_state->view_browse_playlist_detail = sds_replace(mympd_state->view_browse_playlist_detail, def);
     }
     else if (strcmp(view, "viewBrowsePlaylistList") == 0) {
-        mympd_state->view_browse_playlist_list = sds_replace(mympd_state->view_browse_playlist_list, view);
+        mympd_state->view_browse_playlist_list = sds_replace(mympd_state->view_browse_playlist_list, def);
     }
     else if (strcmp(view, "viewBrowseFilesystem") == 0) {
-        mympd_state->view_browse_filesystem = sds_replace(mympd_state->view_browse_filesystem, view);
+        mympd_state->view_browse_filesystem = sds_replace(mympd_state->view_browse_filesystem, def);
     }
     else if (strcmp(view, "viewPlayback") == 0) {
-        mympd_state->view_playback = sds_replace(mympd_state->view_playback, view);
+        mympd_state->view_playback = sds_replace(mympd_state->view_playback, def);
     }
     else if (strcmp(view, "viewQueueJukeboxSong") == 0) {
-        mympd_state->view_queue_jukebox_song = sds_replace(mympd_state->view_queue_jukebox_song, view);
+        mympd_state->view_queue_jukebox_song = sds_replace(mympd_state->view_queue_jukebox_song, def);
     }
     else if (strcmp(view, "viewQueueJukeboxAlbum") == 0) {
-        mympd_state->view_queue_jukebox_album = sds_replace(mympd_state->view_queue_jukebox_album, view);
+        mympd_state->view_queue_jukebox_album = sds_replace(mympd_state->view_queue_jukebox_album, def);
     }
     else if (strcmp(view, "viewBrowseRadioWebradiodb") == 0) {
-        mympd_state->view_browse_radio_webradiodb = sds_replace(mympd_state->view_browse_radio_webradiodb, view);
+        mympd_state->view_browse_radio_webradiodb = sds_replace(mympd_state->view_browse_radio_webradiodb, def);
     }
     else if (strcmp(view, "viewBrowseRadioRadiobrowser") == 0) {
-        mympd_state->view_browse_radio_radiobrowser = sds_replace(mympd_state->view_browse_radio_radiobrowser, view);
+        mympd_state->view_browse_radio_radiobrowser = sds_replace(mympd_state->view_browse_radio_radiobrowser, def);
     }
     else {
-        MYMPD_LOG_ERROR(NULL, "MYMPD_API_VIEW_SAVE: Unknown table \"%s\"", view);
+        MYMPD_LOG_ERROR(NULL, "MYMPD_API_VIEW_SAVE: Unknown view \"%s\"", view);
         return false;
     }
-    sds tablename = camel_to_snake(view);
-    bool rc = state_file_write(mympd_state->config->workdir, DIR_WORK_STATE, tablename, view);
-    FREE_SDS(tablename);
+    sds view_name = camel_to_snake(view);
+    bool rc = state_file_write(mympd_state->config->workdir, DIR_WORK_STATE, view_name, def);
+    FREE_SDS(view_name);
+    FREE_SDS(def);
     return rc;
 }
 
