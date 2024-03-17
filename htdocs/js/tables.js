@@ -278,73 +278,6 @@ function dragAndDropTable(tableId) {
 }
 
 /**
- * Initializes a table header for drag and drop of columns
- * @param {string} tableName table name
- * @returns {void}
- */
-function dragAndDropTableHeader(tableName) {
-    const tableHeader = document.querySelector('#' + tableName + 'List > thead > tr');
-
-    tableHeader.addEventListener('dragstart', function(event) {
-        if (event.target.nodeName === 'TH') {
-            event.target.classList.add('opacity05');
-            // @ts-ignore
-            event.dataTransfer.setDragImage(event.target, 0, 0);
-            event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('Text', event.target.getAttribute('data-col'));
-            dragEl = event.target;
-        }
-    }, false);
-
-    tableHeader.addEventListener('dragenter', function(event) {
-        if (dragEl !== undefined &&
-            dragEl.nodeName === event.target.nodeName)
-        {
-            event.target.classList.add('dragover-th');
-        }
-    }, false);
-
-    tableHeader.addEventListener('dragleave', function(event) {
-        if (dragEl !== undefined &&
-            dragEl.nodeName === event.target.nodeName)
-        {
-            event.target.classList.remove('dragover-th');
-        }
-    }, false);
-
-    tableHeader.addEventListener('dragover', function(event) {
-        // prevent default to allow drop
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
-    }, false);
-
-    tableHeader.addEventListener('drop', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        if (dragEl === undefined ||
-            dragEl.nodeName !== 'TH')
-        {
-            return;
-        }
-        event.target.classList.remove('dragover-th');
-        if (event.dataTransfer.getData('Text') === event.target.getAttribute('data-col')) {
-            return;
-        }
-        // move element
-        // @ts-ignore
-        tableHeader.insertBefore(dragEl, event.target);
-        // save this state
-        setUpdateViewId(tableName + 'List');
-        saveViewTable(tableName);
-    }, false);
-
-    tableHeader.addEventListener('dragend', function() {
-        dragEl.classList.remove('opacity05');
-        dragEl = undefined;
-    }, false);
-}
-
-/**
  * Sets the available table columns
  * @param {string} tableName table name
  * @returns {object} array of available columns
@@ -439,7 +372,6 @@ function setColTags(tableName) {
     tags.sort();
     //append stickers
     if (features.featStickers === true) {
-        tags.push('dropdownTitleSticker');
         for (const sticker of stickerList) {
             tags.push(sticker);
         }
@@ -453,34 +385,107 @@ function setColTags(tableName) {
  * @param {HTMLElement} menu element to populate
  * @returns {void}
  */
-function setColsChecklist(tableName, menu) {
-    const tags = setColTags(tableName);
-    for (let i = 0, j = tags.length; i < j; i++) {
-        if (tableName === 'Playback' &&
-            (tags[i] === 'Title' || tags[i].indexOf('MUSICBRAINZ_') === 0))
-        {
+function setViewOptions(tableName, menu) {
+    menu.appendChild(
+        elCreateTextTn('h6', {"class": ["dropdown-header"]}, 'Selected')
+    );
+    const enabledList = elCreateEmpty('ul', {"class": ["list-group"]});
+    for (const field of settings['view' + tableName].fields) {
+        enabledList.appendChild(
+            elCreateTextTn('li', {"class":["list-group-item", "clickable"], "draggable": "true", "data-field": field}, field)
+        );
+    }
+    menu.appendChild(enabledList);
+    enabledList.addEventListener('click', function(event) {
+        event.stopPropagation();
+        const target = event.target;
+        target.removeAttribute('draggable');
+        target.parentNode.parentNode.querySelectorAll('ul')[1].appendChild(target);
+    }, false);
+    dragAndDropList(enabledList);
+    menu.appendChild(
+        elCreateTextTn('h6', {"class": ["dropdown-header","mt-2"]}, 'Available')
+    );
+    const allTags = setColTags(tableName);
+    const availableList = elCreateEmpty('ul', {"class": ["list-group"]});
+    for (const field of allTags) {
+        if (settings['view' + tableName].fields.includes(field) === true) {
             continue;
         }
-        if (tags[i] === 'dropdownTitleSticker') {
-            menu.appendChild(
-                elCreateTextTn('h6', {"class": ["dropdown-header"]}, 'Sticker')
-            );
-        }
-        else {
-            const btnId = tableName + tags[i] + 'Col';
-            const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-sm", "me-2"],
-                "id": btnId, "name": tags[i]}, 'radio_button_unchecked');
-            if (settings['view' + tableName].fields.includes(tags[i])) {
-                btn.classList.add('active');
-                btn.textContent = 'check';
-            }
-            const div = elCreateNodes('div', {"class": ["form-check"]}, [
-                btn,
-                elCreateTextTn('label', {"class": ["form-check-label"], "for": btnId}, tags[i])
-            ]);
-            menu.appendChild(div);
-        }
+        availableList.appendChild(
+            elCreateTextTn('li', {"class":["list-group-item", "clickable"], "data-field": field}, field)
+        );
     }
+    menu.appendChild(availableList);
+    availableList.addEventListener('click', function(event) {
+        event.stopPropagation();
+        const target = event.target;
+        target.setAttribute('draggable', 'true');
+        target.parentNode.parentNode.querySelector('ul').appendChild(target);
+    }, false);
+}
+
+/**
+ * Initializes a list-group for drag and drop of list-items
+ * @param {object} list list to enable drag and drop
+ * @returns {void}
+ */
+function dragAndDropList(list) {
+    list.addEventListener('dragstart', function(event) {
+        if (event.target.nodeName === 'LI') {
+            event.target.classList.add('opacity05');
+            // @ts-ignore
+            event.dataTransfer.setDragImage(event.target, 0, 0);
+            event.dataTransfer.effectAllowed = 'move';
+            dragEl = event.target;
+        }
+    }, false);
+
+    list.addEventListener('dragenter', function(event) {
+        const target = event.target;
+        if (dragEl !== undefined &&
+            dragEl.nodeName === target.nodeName)
+        {
+            target.classList.add('dragover');
+        }
+    }, false);
+
+    list.addEventListener('dragleave', function(event) {
+        const target = event.target;
+        if (dragEl !== undefined &&
+            dragEl.nodeName === target.nodeName)
+        {
+            target.classList.remove('dragover');
+        }
+    }, false);
+
+    list.addEventListener('dragover', function(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+    }, false);
+
+    list.addEventListener('drop', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (dragEl === undefined ||
+            dragEl.nodeName !== 'LI')
+        {
+            return;
+        }
+        const target = event.target.closest('LI');
+        target.classList.remove('dragover');
+        const newField = getData(target, 'field');
+        const oldField = getData(dragEl, 'field');
+        if (oldField === newField) {
+            return;
+        }
+        target.parentNode.insertBefore(dragEl, target);
+    }, false);
+
+    list.addEventListener('dragend', function() {
+        dragEl.classList.remove('opacity05');
+        dragEl = undefined;
+    }, false);
 }
 
 /**
@@ -582,73 +587,21 @@ function setCols(tableName) {
 }
 
 /**
- * Saves the selected columns for the table
- * @param {string} tableName table name
- * @returns {void}
- */
-function saveViewTable(tableName) {
-    const colsDropdown = elGetById(tableName + 'ColsDropdown');
-    //select the table by name
-    const tableEl = elGetById(tableName + 'List');
-    const header = tableEl.querySelector('tr');
-    if (colsDropdown !== null) {
-        //apply the columns select list to the table header
-        const colInputs = colsDropdown.querySelectorAll('button');
-        for (let i = 0, j = colInputs.length; i < j; i++) {
-            if (colInputs[i].getAttribute('name') === null) {
-                continue;
-            }
-            let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
-            if (colInputs[i].classList.contains('active') === false) {
-                if (th) {
-                    th.remove();
-                }
-            }
-            else if (!th) {
-                th = elCreateTextTn('th', {"data-col": colInputs[i].name}, colInputs[i].name);
-                header.insertBefore(th, header.lastChild);
-            }
-        }
-    }
-    //construct columns to save from actual table header
-    const params = {
-        "view": "view" + tableName,
-        "mode": settings['view' + tableName].mode,
-        "fields": []
-    };
-    const ths = header.querySelectorAll('th');
-    for (let i = 0, j = ths.length; i < j; i++) {
-        const name = ths[i].getAttribute('data-col');
-        if (name !== 'Action' &&
-            name !== null)
-        {
-            params.fields.push(name);
-        }
-    }
-    sendAPI("MYMPD_API_VIEW_SAVE", params, saveViewCheckError, true);
-}
-
-/**
- * Saves the fields for the playback card
+ * Saves the fields for views
  * @param {string} tableName table name
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveViewGrid(tableName) {
+function saveView(tableName) {
     const params = {
         "view": "view" + tableName,
         "mode": settings['view' + tableName].mode,
         "fields": []
     };
-    const colsDropdown = elGetById(tableName + 'ColsDropdown');
-    const colInputs = colsDropdown.querySelectorAll('button');
+    const colsDropdown = elGetById(tableName + 'FieldsSelect');
+    const colInputs = colsDropdown.querySelector('ul').querySelectorAll('li');
     for (let i = 0, j = colInputs.length; i < j; i++) {
-        const name = colInputs[i].getAttribute('name');
-        if (name !== null &&
-            colInputs[i].classList.contains('active') === true)
-        {
-            params.fields.push(name);
-        }
+        params.fields.push(colInputs[i].getAttribute('data-field'));
     }
     sendAPI("MYMPD_API_VIEW_SAVE", params, saveViewCheckError, true);
 }
