@@ -674,12 +674,9 @@ tfoot td {
   width: 60vw;
 }
 
+.dragover,
 .dragover > td {
-  border-top: 2px solid var(--mympd-highlightcolor);
-}
-
-.dragover-th {
-  border-left: 2px solid var(--mympd-highlightcolor);
+  border-top: 2px solid var(--mympd-highlightcolor) !important;
 }
 
 [draggable] {

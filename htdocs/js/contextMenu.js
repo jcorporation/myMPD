@@ -52,6 +52,13 @@ function showContextMenu(event) {
  * Functions to add the menu items
  */
 
+/**
+ * Creates the column check list for views
+ * @param {EventTarget} target event target
+ * @param {HTMLElement} contextMenuTitle title element
+ * @param {HTMLElement} contextMenuBody element to append the menu item
+ * @returns {void}
+ */
 function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
     if (app.id === 'BrowseDatabaseAlbumDetail') {
         createMenuColumnsAppid(target, 'BrowseDatabaseAlbumDetailInfo', contextMenuTitle, contextMenuBody);
@@ -65,47 +72,25 @@ function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
 }
 
 /**
- * Creates the column check list for tables
+ * Creates the column check list for views
  * @param {EventTarget} target event target
+ * @param {string} appid application id
  * @param {HTMLElement} contextMenuTitle title element
  * @param {HTMLElement} contextMenuBody element to append the menu item
  * @returns {void}
  */
 function createMenuColumnsAppid(target, appid, contextMenuTitle, contextMenuBody) {
     const menu = elCreateEmpty('form', {});
-    menu.setAttribute('id', appid + 'ColsDropdown');
-    setColsChecklist(appid, menu);
-    menu.addEventListener('click', function(eventClick) {
-        if (eventClick.target.nodeName === 'BUTTON') {
-            toggleBtnChk(eventClick.target, undefined);
-            eventClick.preventDefault();
-            eventClick.stopPropagation();
-        }
-        else if (eventClick.target.nodeName === 'LABEL') {
-            toggleBtnChk(eventClick.target.previousElementSibling, undefined);
-            eventClick.preventDefault();
-            eventClick.stopPropagation();
-        }
-    }, false);
+    menu.setAttribute('id', appid + 'FieldsSelect');
+    setViewOptions(appid, menu);
     contextMenuBody.classList.add('px-3');
     contextMenuBody.appendChild(menu);
     const applyEl = elCreateTextTn('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, 'Apply');
     contextMenuBody.appendChild(applyEl);
-    if (appid === 'Playback' ||
-        appid === 'BrowseDatabaseAlbumList' ||
-        appid === 'BrowseDatabaseAlbumDetailInfo')
-    {
-        applyEl.addEventListener('click', function(eventClick) {
-            eventClick.preventDefault();
-            saveViewGrid(appid);
-        }, false);
-    }
-    else {
-        applyEl.addEventListener('click', function(eventClick) {
-            eventClick.preventDefault();
-            saveViewTable(appid);
-        }, false);
-    }
+    applyEl.addEventListener('click', function(eventClick) {
+        eventClick.preventDefault();
+        saveView(appid);
+    }, false);
 }
 
 /**

@@ -241,22 +241,6 @@ function appInit() {
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);
     }
-    const dndTableHeader = [
-        'QueueCurrent',
-        'QueueLastPlayed',
-        'QueueJukeboxSong',
-        'QueueJukeboxAlbum',
-        'Search',
-        'BrowseFilesystem',
-        'BrowsePlaylistDetail',
-        'BrowsePlaylistList',
-        'BrowseDatabaseAlbumDetail',
-        'BrowseRadioWebradiodb',
-        'BrowseRadioRadiobrowser'
-    ];
-    for (const table of dndTableHeader) {
-        dragAndDropTableHeader(table);
-    }
     //init custom elements
     initElements(domCache.body);
     //add bootstrap native updated event listeners for dropdowns
