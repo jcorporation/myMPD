@@ -126,7 +126,7 @@ function initWebradiodbFilter(id, dbField, name) {
 function getWebradiodb() {
     const list = document.querySelector('#BrowseRadioWebradiodbList > tbody');
     elReplaceChild(list, 
-        loadingRow(settings.colsBrowseRadioWebradiodb.length + 1)
+        loadingRow(settings.viewBrowseRadioWebradiodb.fields.length + 1)
     );
     sendAPI("MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET", {}, function(obj) {
         webradioDb = obj.result.data;
@@ -313,7 +313,7 @@ function parseSearchWebradiodb(obj) {
     });
 
     if (obj.result.totalEntities > 0) {
-        const colspan = settings.colsBrowseRadioWebradiodb.length + 1;
+        const colspan = settings.viewBrowseRadioWebradiodb.fields.length + 1;
         tfoot.appendChild(
             elCreateNode('tr', {"class": ["not-clickable"]},
                 elCreateTextTnNr('td', {"colspan": colspan}, 'Num entries', obj.result.totalEntities)

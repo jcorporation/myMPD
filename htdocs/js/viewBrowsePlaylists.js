@@ -17,7 +17,7 @@ function handleBrowsePlaylistDetail() {
         "limit": app.current.limit,
         "expression": app.current.search,
         "plist": app.current.tag,
-        "fields": settings.colsBrowsePlaylistDetailFetch.fields
+        "fields": settings.viewBrowsePlaylistDetailFetch.fields
     }, parsePlaylistDetail, true);
 }
 
@@ -165,7 +165,7 @@ function setPlaylistDetailListFooter(entities, playtime) {
           ]);
 
     const tfoot = elGetById('BrowsePlaylistDetailList').querySelector('tfoot');
-    const colspan = settings.colsBrowsePlaylistDetail.length + 1;
+    const colspan = settings.viewBrowsePlaylistDetail.fields.length + 1;
 
     elReplaceChild(tfoot,
         elCreateNode('tr', {"class": ["not-clickable"]},

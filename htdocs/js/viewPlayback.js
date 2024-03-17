@@ -18,16 +18,6 @@ function handlePlayback() {
  * @returns {void}
  */
  function initViewPlayback() {
-    elGetById('PlaybackColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON' &&
-            event.target.classList.contains('mi'))
-        {
-            event.stopPropagation();
-            event.preventDefault();
-            toggleBtnChk(event.target, undefined);
-        }
-    }, false);
-
     elGetById('PlaybackListTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'P' ||
             event.target.nodeName === 'SPAN')

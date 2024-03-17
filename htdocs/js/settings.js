@@ -342,14 +342,6 @@ function parseMPDSettings() {
     setCols('BrowseRadioRadiobrowser');
     setCols('BrowsePlaylistList');
 
-    //tagselect dropdowns
-    for (const table of ['BrowseDatabaseAlbumList', 'BrowseDatabaseAlbumDetailInfo']) {
-        filterCols(table);
-        const menu = document.querySelector('#' + table + 'ColsDropdown > form');
-        elClear(menu);
-        setColsChecklist(table, menu);
-    }
-
     //enforce album and albumartist for album list view
     settings['viewBrowseDatabaseAlbumListFetch'] = {};
     settings['viewBrowseDatabaseAlbumListFetch'].mode = settings['viewBrowseDatabaseAlbumList'].mode;
@@ -408,10 +400,6 @@ function parseMPDSettings() {
         if (currentSongObj !== null) {
             setPlaybackCardTags(currentSongObj);
         }
-        //tagselect dropdown
-        const menu = document.querySelector('#PlaybackColsDropdown > form');
-        elClear(menu);
-        setColsChecklist('Playback', menu);
     }
 
     if (features.featTags === false) {
