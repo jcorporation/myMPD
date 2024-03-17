@@ -147,12 +147,7 @@
             </div>
           </div>
           <div class="btn-group me-2 featTags">
-            <button data-title-phrase="Display tags" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
-            <div class="dropdown-menu px-2" id="PlaybackColsDropdown">
-              <h2 class="dropdown-header" data-phrase="Tags"></h2>
-              <form></form>
-              <button data-phrase="Apply" data-href='{"cmd": "saveColsDropdown", "options": ["colsPlayback", "PlaybackColsDropdown"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
-            </div>
+            <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
           </div>
         </div>
         <div class="container-fluid scrollContainer">
@@ -248,6 +243,9 @@
               <small class="mb-0 px-2"></small>
             </div>
           </div>
+          <div class="btn-group me-2 featTags">
+            <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+          </div>
           <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <div class="breadcrumb p-2 rounded-2 d-none" id="QueueCurrentSearchCrumb"></div>
@@ -306,6 +304,9 @@
               <div class="dropdown-divider"></div>
               <small class="mb-0 px-2"></small>
             </div>
+          </div>
+          <div class="btn-group me-2 featTags">
+            <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
           </div>
           <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
@@ -369,6 +370,9 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
             <div id="QueueJukeboxSongPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxSongSearchCrumb"></div>
@@ -431,6 +435,9 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
             <div id="QueueJukeboxAlbumPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxAlbumSearchCrumb"></div>
@@ -489,6 +496,9 @@
                 <div class="dropdown-divider"></div>
                 <small class="mb-0 px-2"></small>
               </div>
+            </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
             </div>
             <div id="BrowsePlaylistListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
@@ -596,6 +606,9 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
             <div id="BrowsePlaylistDetailPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="BrowsePlaylistDetailSearchCrumb"></div>
@@ -682,14 +695,6 @@
                 </div>
               </div>
             </div>
-            <div class="btn-group me-2 featTags">
-              <button data-title-phrase="Display tags" id="DatabaseAlbumListColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
-              <div class="dropdown-menu px-2" id="BrowseDatabaseAlbumListColsDropdown">
-                <h2 class="dropdown-header" data-phrase="Tags"></h2>
-                <form></form>
-                <button data-phrase="Apply" data-href='{"cmd": "saveColsDatabaseAlbumList", "options": []}' class="btn btn-success w-100 btn-sm mt-2"></button>
-              </div>
-            </div>
             <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
             </div>
@@ -702,6 +707,9 @@
                 <div class="dropdown-divider"></div>
                 <small class="mb-0 px-2"></small>
               </div>
+            </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
             </div>
             <div id="BrowseDatabaseAlbumListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
@@ -744,12 +752,7 @@
               </div>
             </div>
             <div class="btn-group me-2 featTags">
-              <button data-title-phrase="Display tags" id="DatabaseAlbumDetailInfoColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
-              <div class="dropdown-menu px-2" id="BrowseDatabaseAlbumDetailInfoColsDropdown">
-                <h2 class="dropdown-header" data-phrase="Tags"></h2>
-                <form></form>
-                <button data-phrase="Apply" data-href='{"cmd": "saveColsDropdown", "options": ["colsBrowseDatabaseAlbumDetailInfo", "BrowseDatabaseAlbumDetailInfoColsDropdown"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
-              </div>
+              <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
             </div>
           </div>
           <div class="table-responsive scrollContainer">
@@ -810,6 +813,9 @@
               <div class="dropdown-divider"></div>
               <small class="mb-0 px-2"></small>
             </div>
+          </div>
+          <div class="btn-group me-2 featTags">
+            <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
           </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
@@ -919,6 +925,9 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
             <div id="BrowseRadioWebradiodbPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="table-responsive scrollContainer">
@@ -969,6 +978,9 @@
                 <div class="dropdown-divider"></div>
                 <small class="mb-0 px-2"></small>
               </div>
+            </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
             </div>
             <div id="BrowseRadioRadiobrowserPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
@@ -1033,6 +1045,9 @@
               <div class="dropdown-divider"></div>
               <small class="mb-0 px-2"></small>
             </div>
+          </div>
+          <div class="btn-group me-2 featTags">
+            <button data-title-phrase="Display tags" data-contextmenu="columns" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
           </div>
           <div id="SearchPaginationTop" class="btn-group me-2 pagination"></div>
         </div>

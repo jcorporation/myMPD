@@ -111,26 +111,6 @@ function initViewBrowseDatabase() {
         }
     }, false);
 
-    elGetById('BrowseDatabaseAlbumListColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON' &&
-            event.target.classList.contains('mi'))
-        {
-            event.stopPropagation();
-            event.preventDefault();
-            toggleBtnChk(event.target, undefined);
-        }
-    }, false);
-
-    elGetById('BrowseDatabaseAlbumDetailInfoColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON' &&
-            event.target.classList.contains('mi'))
-        {
-            event.stopPropagation();
-            event.preventDefault();
-            toggleBtnChk(event.target, undefined);
-        }
-    }, false);
-
     elGetById('BrowseDatabaseAlbumListSortDesc').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -237,21 +217,6 @@ function parseDatabaseAlbumList(obj) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     setScrollViewHeight(cardContainer);
     scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
-}
-
-/**
- * Saves the fields for the database album list
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function saveColsDatabaseAlbumList() {
-    //remove ids to force card refresh
-    const cols = elGetById('BrowseDatabaseAlbumListList').querySelectorAll('.col');
-    for (const col of cols) {
-        col.firstChild.firstChild.removeAttribute('id');
-    }
-
-    saveColsDropdown('viewBrowseDatabaseAlbumList', 'BrowseDatabaseAlbumListColsDropdown');
 }
 
 /**

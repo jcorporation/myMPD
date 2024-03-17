@@ -335,7 +335,7 @@ function dragAndDropTableHeader(tableName) {
         tableHeader.insertBefore(dragEl, event.target);
         // save this state
         setUpdateViewId(tableName + 'List');
-        saveView(tableName);
+        saveViewTable(tableName);
     }, false);
 
     tableHeader.addEventListener('dragend', function() {
@@ -575,11 +575,6 @@ function setCols(tableName) {
     }
     //append action column
     const th = elCreateEmpty('th', {"data-col": "Action"});
-    if (features.featTags === true) {
-        th.appendChild(
-            pEl.columnsBtn.cloneNode(true)
-        );
-    }
     th.appendChild(
         pEl.selectAllBtn.cloneNode(true)
     );
@@ -589,19 +584,16 @@ function setCols(tableName) {
 /**
  * Saves the selected columns for the table
  * @param {string} tableName table name
- * @param {HTMLElement} [tableEl] table element or undefined
  * @returns {void}
  */
-function saveView(tableName, tableEl) {
+function saveViewTable(tableName) {
     const colsDropdown = elGetById(tableName + 'ColsDropdown');
-    if (tableEl === undefined) {
-        //select the table by name
-        tableEl = elGetById(tableName + 'List');
-    }
+    //select the table by name
+    const tableEl = elGetById(tableName + 'List');
     const header = tableEl.querySelector('tr');
     if (colsDropdown !== null) {
         //apply the columns select list to the table header
-        const colInputs = colsDropdown.firstChild.querySelectorAll('button');
+        const colInputs = colsDropdown.querySelectorAll('button');
         for (let i = 0, j = colInputs.length; i < j; i++) {
             if (colInputs[i].getAttribute('name') === null) {
                 continue;
@@ -630,7 +622,7 @@ function saveView(tableName, tableEl) {
         if (name !== 'Action' &&
             name !== null)
         {
-            params.cols.push(name);
+            params.fields.push(name);
         }
     }
     sendAPI("MYMPD_API_VIEW_SAVE", params, saveViewCheckError, true);
@@ -639,21 +631,23 @@ function saveView(tableName, tableEl) {
 /**
  * Saves the fields for the playback card
  * @param {string} tableName table name
- * @param {string} dropdownId id fo the column select dropdown
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveColsDropdown(tableName, dropdownId) {
+function saveViewGrid(tableName) {
     const params = {
         "view": "view" + tableName,
         "mode": settings['view' + tableName].mode,
         "fields": []
     };
-    const colInputs = document.querySelectorAll('#' + dropdownId + ' button.active');
+    const colsDropdown = elGetById(tableName + 'ColsDropdown');
+    const colInputs = colsDropdown.querySelectorAll('button');
     for (let i = 0, j = colInputs.length; i < j; i++) {
         const name = colInputs[i].getAttribute('name');
-        if (name) {
-            params.cols.push(name);
+        if (name !== null &&
+            colInputs[i].classList.contains('active') === true)
+        {
+            params.fields.push(name);
         }
     }
     sendAPI("MYMPD_API_VIEW_SAVE", params, saveViewCheckError, true);

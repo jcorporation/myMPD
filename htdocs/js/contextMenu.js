@@ -52,6 +52,18 @@ function showContextMenu(event) {
  * Functions to add the menu items
  */
 
+function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
+    if (app.id === 'BrowseDatabaseAlbumDetail') {
+        createMenuColumnsAppid(target, 'BrowseDatabaseAlbumDetailInfo', contextMenuTitle, contextMenuBody);
+        contextMenuBody.appendChild(
+            elCreateEmpty('div', {"class": ["dropdown-divider2"]})
+        );
+        const contextMenuSubtitle = elCreateTextTn('h4', {"class": ["offcanvas-title", "mt-4", "mb-2"]}, 'Table');
+        contextMenuBody.appendChild(contextMenuSubtitle);
+    }
+    createMenuColumnsAppid(target, app.id, contextMenuTitle, contextMenuBody);
+}
+
 /**
  * Creates the column check list for tables
  * @param {EventTarget} target event target
@@ -59,9 +71,10 @@ function showContextMenu(event) {
  * @param {HTMLElement} contextMenuBody element to append the menu item
  * @returns {void}
  */
-function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
+function createMenuColumnsAppid(target, appid, contextMenuTitle, contextMenuBody) {
     const menu = elCreateEmpty('form', {});
-    setColsChecklist(app.id, menu);
+    menu.setAttribute('id', appid + 'ColsDropdown');
+    setColsChecklist(appid, menu);
     menu.addEventListener('click', function(eventClick) {
         if (eventClick.target.nodeName === 'BUTTON') {
             toggleBtnChk(eventClick.target, undefined);
@@ -78,11 +91,21 @@ function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
     contextMenuBody.appendChild(menu);
     const applyEl = elCreateTextTn('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, 'Apply');
     contextMenuBody.appendChild(applyEl);
-    applyEl.addEventListener('click', function(eventClick) {
-        eventClick.preventDefault();
-        saveView(app.id);
-    }, false);
-    contextMenuBody.setAttribute('id', app.id + 'ColsDropdown');
+    if (appid === 'Playback' ||
+        appid === 'BrowseDatabaseAlbumList' ||
+        appid === 'BrowseDatabaseAlbumDetailInfo')
+    {
+        applyEl.addEventListener('click', function(eventClick) {
+            eventClick.preventDefault();
+            saveViewGrid(appid);
+        }, false);
+    }
+    else {
+        applyEl.addEventListener('click', function(eventClick) {
+            eventClick.preventDefault();
+            saveViewTable(appid);
+        }, false);
+    }
 }
 
 /**
