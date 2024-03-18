@@ -20,7 +20,7 @@ function getWebsocketState() {
  */
 function webSocketConnect() {
     if (websocketKeepAliveTimer === null) {
-        websocketKeepAliveTimer = setInterval(websocketKeepAlive, 30000);
+        websocketKeepAliveTimer = setInterval(websocketKeepAlive, 5000);
     }
 
     if (getWebsocketState() === true) {
@@ -261,7 +261,7 @@ function webSocketClose() {
  * @returns {void}
  */
 function websocketKeepAlive() {
-    const awaitedTime = getTimestamp() - 32;
+    const awaitedTime = getTimestamp() - 7;
     if (websocketLastPong <  awaitedTime) {
         // stale websocket connection
         logError('Stale websocket connection, reconnecting');
