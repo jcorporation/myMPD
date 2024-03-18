@@ -50,7 +50,7 @@ function filterFields(tableName) {
  * @returns {HTMLElement} li element
  */
 function createFieldItem(field) {
-    const item = elCreateNodes('li', {"class": ["list-group-item", "clickable"], "draggable": "true", "data-field": field}, [
+    return elCreateNodes('li', {"class": ["list-group-item", "clickable"], "draggable": "true", "data-field": field}, [
         document.createTextNode(tn(field)),
         elCreateNodes('div', {'class': ['btn-group', 'float-end', 'fieldsEnabledBtns']}, [
             elCreateText('button', {"class": ["btn", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'remove', 'title': tn('Remove')}, 'close'),
@@ -61,7 +61,6 @@ function createFieldItem(field) {
             elCreateText('button', {"class": ["btn", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'add', 'title': tn('Add')}, 'add')
         ])
     ]);
-    return item;
 }
 
 /**
