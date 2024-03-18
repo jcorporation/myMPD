@@ -380,6 +380,64 @@ function setColTags(tableName) {
 }
 
 /**
+ * Creates the list element for fields
+ * @param {string} field field name
+ * @returns {HTMLElement} li element
+ */
+function createFieldItem(field) {
+    const item = elCreateNodes('li', {"class": ["list-group-item", "clickable"], "draggable": "true", "data-field": field}, [
+        document.createTextNode(tn(field)),
+        elCreateNodes('div', {'class': ['btn-group', 'float-end', 'fieldsEnabledBtns']}, [
+            elCreateText('button', {"class": ["btn", "btn-sm", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'remove', 'title': tn('Remove')}, 'close'),
+            elCreateText('button', {"class": ["btn", "btn-sm", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'up', 'title': tn('Move up')}, 'arrow_upward'),
+            elCreateText('button', {"class": ["btn", "btn-sm", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'down', 'title': tn('Move down')}, 'arrow_downward'),
+        ]),
+        elCreateNodes('div', {'class': ['btn-group', 'float-end', 'fieldsAvailableBtns']}, [
+            elCreateText('button', {"class": ["btn", "btn-sm", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'add', 'title': tn('Add')}, 'add')
+        ])
+    ]);
+    return item;
+}
+
+/**
+ * Handles click events for fields
+ * @param {Event} event click event
+ * @returns {void}
+ */
+function fieldClick(event) {
+    event.stopPropagation();
+    const target = event.target;
+    const ul = target.closest('ul');
+    const li = target.closest('li');
+    if (target.nodeName === 'LI') {
+        if (ul.classList.contains('fieldsEnabled')) {
+            ul.parentNode.querySelectorAll('ul')[1].appendChild(li);
+        }
+        else {
+            ul.parentNode.querySelector('ul').appendChild(li);
+        }
+    }
+    else if (target.nodeName === 'BUTTON') {
+        const action = target.getAttribute('data-action');
+        switch(action) {
+            case 'remove':
+                ul.parentNode.querySelectorAll('ul')[1].appendChild(li);
+                break;
+            case 'add':
+                ul.parentNode.querySelector('ul').appendChild(li);
+                break;
+            case 'up':
+                ul.insertBefore(li, li.previousSibling);
+                break;
+            case 'down':
+                li.nextSibling.after(li);
+                break;
+            //No Default
+        }
+    }
+}
+
+/**
  * Creates the select columns checkbox list
  * @param {string} tableName table name
  * @param {HTMLElement} menu element to populate
@@ -389,39 +447,54 @@ function setViewOptions(tableName, menu) {
     menu.appendChild(
         elCreateTextTn('h6', {"class": ["dropdown-header"]}, 'Selected')
     );
-    const enabledList = elCreateEmpty('ul', {"class": ["list-group"]});
+    const enabledList = elCreateEmpty('ul', {"class": ["list-group", "fieldsEnabled"]});
     for (const field of settings['view' + tableName].fields) {
         enabledList.appendChild(
-            elCreateTextTn('li', {"class":["list-group-item", "clickable"], "draggable": "true", "data-field": field}, field)
+            createFieldItem(field)
         );
     }
     menu.appendChild(enabledList);
     enabledList.addEventListener('click', function(event) {
-        event.stopPropagation();
-        const target = event.target;
-        target.removeAttribute('draggable');
-        target.parentNode.parentNode.querySelectorAll('ul')[1].appendChild(target);
+        fieldClick(event);
     }, false);
     dragAndDropList(enabledList);
     menu.appendChild(
         elCreateTextTn('h6', {"class": ["dropdown-header","mt-2"]}, 'Available')
     );
     const allTags = setColTags(tableName);
-    const availableList = elCreateEmpty('ul', {"class": ["list-group"]});
+    const availableList = elCreateEmpty('ul', {"class": ["list-group", "fieldsAvailable"]});
     for (const field of allTags) {
         if (settings['view' + tableName].fields.includes(field) === true) {
             continue;
         }
         availableList.appendChild(
-            elCreateTextTn('li', {"class":["list-group-item", "clickable"], "data-field": field}, field)
+            createFieldItem(field)
         );
     }
     menu.appendChild(availableList);
     availableList.addEventListener('click', function(event) {
-        event.stopPropagation();
-        const target = event.target;
-        target.setAttribute('draggable', 'true');
-        target.parentNode.parentNode.querySelector('ul').appendChild(target);
+        fieldClick(event);
+    }, false);
+    dragList(availableList);
+}
+
+/**
+ * Initializes a list-group for drag of list-items
+ * @param {object} list list to enable drag and drop
+ * @returns {void}
+ */
+function dragList(list) {
+    list.addEventListener('dragstart', function(event) {
+        const target = event.target.nodeName === 'LI'
+            ? event.target
+            : event.target.closest('li');
+        if (target.nodeName === 'LI') {
+            target.classList.add('opacity05');
+            // @ts-ignore
+            event.dataTransfer.setDragImage(target, 0, 0);
+            event.dataTransfer.effectAllowed = 'move';
+            dragEl = target;
+        }
     }, false);
 }
 
@@ -431,18 +504,15 @@ function setViewOptions(tableName, menu) {
  * @returns {void}
  */
 function dragAndDropList(list) {
-    list.addEventListener('dragstart', function(event) {
-        if (event.target.nodeName === 'LI') {
-            event.target.classList.add('opacity05');
-            // @ts-ignore
-            event.dataTransfer.setDragImage(event.target, 0, 0);
-            event.dataTransfer.effectAllowed = 'move';
-            dragEl = event.target;
-        }
-    }, false);
+    dragList(list);
 
     list.addEventListener('dragenter', function(event) {
-        const target = event.target;
+        if (event.target.closest('form') !== dragEl.closest('form')) {
+            return;
+        }
+        const target = event.target.nodeName === 'LI'
+            ? event.target
+            : event.target.closest('li');
         if (dragEl !== undefined &&
             dragEl.nodeName === target.nodeName)
         {
@@ -451,7 +521,12 @@ function dragAndDropList(list) {
     }, false);
 
     list.addEventListener('dragleave', function(event) {
-        const target = event.target;
+        if (event.target.closest('form') !== dragEl.closest('form')) {
+            return;
+        }
+        const target = event.target.nodeName === 'LI'
+            ? event.target
+            : event.target.closest('li');
         if (dragEl !== undefined &&
             dragEl.nodeName === target.nodeName)
         {
@@ -460,6 +535,10 @@ function dragAndDropList(list) {
     }, false);
 
     list.addEventListener('dragover', function(event) {
+        if (event.target.closest('form') !== dragEl.closest('form')) {
+            event.dataTransfer.dropEffect = 'none';
+            return;
+        }
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
     }, false);
@@ -467,12 +546,17 @@ function dragAndDropList(list) {
     list.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
+        if (event.target.closest('form') !== dragEl.closest('form')) {
+            return;
+        }
         if (dragEl === undefined ||
             dragEl.nodeName !== 'LI')
         {
             return;
         }
-        const target = event.target.closest('LI');
+        const target = event.target.nodeName === 'LI'
+            ? event.target
+            : event.target.closest('li');
         target.classList.remove('dragover');
         const newField = getData(target, 'field');
         const oldField = getData(dragEl, 'field');

@@ -143,7 +143,6 @@
     "Cloud": "Cloud",
     "Codec": "Codec",
     "Color": "Farbe",
-    "Columns": "Spalten",
     "Comment": "Kommentar",
     "Comments": "Kommentare",
     "Compact grids": "Kompaktes Grid",
@@ -173,7 +172,6 @@
     "Could not get local ip": "Lokale IP konnte nicht ermittelt werden",
     "Could not load preset": "Voreinstellung konnte nicht geladen werden",
     "Could not remove song from jukebox queue": "Konnte Lied nicht aus der Jukebox Warteschlange entfernen",
-    "Could not save columns": "Spalten konnten nicht gespeichert werden",
     "Could not save script": "Skript konnte nicht gespeichert werden",
     "Could not save trigger": "Konnte Trigger nicht speichern",
     "Could not save webradio favorite": "Konnte Webradio Favorit nicht speichern",
@@ -600,7 +598,6 @@
     "Open modal": "Dialog anzeigen",
     "Open mounts": "Öffne: Einhängepunkte",
     "Open notifications": "Öffne Hinweise",
-    "Open parent folder": "Gehe zum darüberliegenden Verzeichnis",
     "Open partitions": "Öffne: Partitionen",
     "Open playback settings": "Öffne: Wiedergabeeinstellungen",
     "Open scripts": "Öffne: Skripte",
@@ -1149,5 +1146,11 @@
     "tags": "Tags",
     "url_resolved": "URL",
     "votes": "Stimmen",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Available": "Verfügbar",
+    "Could not save fields": "Felder konnten nicht gespeichert werden",
+    "Move down": "Nach unten",
+    "Move up": "Nach oben",
+    "Selected": "Ausgewählt",
+    "Table": "Tabelle"
 }

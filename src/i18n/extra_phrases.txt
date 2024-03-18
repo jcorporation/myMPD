@@ -232,6 +232,7 @@ Synced lyrics extension
 Synced lyrics vorbis comment
 Tab
 tags
+Thumbnail
 Thumbnail size
 Title
 Too many results, list is cropped

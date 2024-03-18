@@ -1266,3 +1266,19 @@ h4.offcanvas-title-stream::before {
 .playbackPopoverBtns input {
   max-width: 6rem;
 }
+
+.fieldsEnabled > li > div.fieldsAvailableBtns {
+  display: none;
+}
+
+.fieldsAvailable > li > div.fieldsEnabledBtns {
+  display: none;
+}
+
+.fieldsEnabled > li:last-child > div.fieldsEnabledBtns > button:last-child {
+  visibility: hidden;
+}
+
+.fieldsEnabled > li:first-child > div.fieldsEnabledBtns > button:nth-child(2) {
+  visibility: hidden;
+}
