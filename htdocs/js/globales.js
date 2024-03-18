@@ -1581,7 +1581,7 @@ const typeFriendly = {
     'view': 'View',
     'appGoto': 'View',
     'webradio': 'Webradio',
-    'cols': 'Columns',
+    'viewSettings': 'View settings',
     'disc': 'Disc'
 };
 

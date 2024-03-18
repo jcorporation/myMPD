@@ -230,7 +230,6 @@
     "Discnum": "ディスク %{smart_count}",
     "Disconnected from myMPD": "myMPDから切断されました",
     "Discs": "ディスク",
-    "Display tags": "タグを表示",
     "Display tags in rows for small displays": "小さな画面向けにタグを並べて表示",
     "Do you really want to clear the playlist?": "本当にプレイリスト %{playlist} を消去してよろしいですか？",
     "Do you really want to clear the queue?": "本当に再生待ちを消去してよろしいですか？",

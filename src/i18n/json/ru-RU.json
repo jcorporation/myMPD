@@ -230,7 +230,6 @@
     "Discnum": "CD %{smart_count}",
     "Disconnected from myMPD": "Не подключен к myMPD",
     "Discs": "Диски",
-    "Display tags": "Теги для отображения",
     "Display tags in rows for small displays": "Отображать теги в строках для небольших дисплеев",
     "Do you really want to clear the playlist?": "Вы действительно хотите очистить плейлист \\\"%{playlist}\\\"?",
     "Do you really want to clear the queue?": "Вы действительно хотите очистить очередь?",

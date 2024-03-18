@@ -230,7 +230,6 @@
     "Discnum": "CD %{smart_count}",
     "Disconnected from myMPD": "Afgemeld uit myMPD",
     "Discs": "Discs",
-    "Display tags": "Toon tags",
     "Display tags in rows for small displays": "Tags in rijen weergeven voor kleine schermen",
     "Do you really want to clear the playlist?": "Afspeellijst \"%{playlist}\" echt wissen?",
     "Do you really want to clear the queue?": "Wachtrij echt wissen?",

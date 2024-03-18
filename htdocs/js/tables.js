@@ -388,12 +388,12 @@ function createFieldItem(field) {
     const item = elCreateNodes('li', {"class": ["list-group-item", "clickable"], "draggable": "true", "data-field": field}, [
         document.createTextNode(tn(field)),
         elCreateNodes('div', {'class': ['btn-group', 'float-end', 'fieldsEnabledBtns']}, [
-            elCreateText('button', {"class": ["btn", "btn-sm", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'remove', 'title': tn('Remove')}, 'close'),
-            elCreateText('button', {"class": ["btn", "btn-sm", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'up', 'title': tn('Move up')}, 'arrow_upward'),
-            elCreateText('button', {"class": ["btn", "btn-sm", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'down', 'title': tn('Move down')}, 'arrow_downward'),
+            elCreateText('button', {"class": ["btn", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'remove', 'title': tn('Remove')}, 'close'),
+            elCreateText('button', {"class": ["btn", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'up', 'title': tn('Move up')}, 'arrow_upward'),
+            elCreateText('button', {"class": ["btn", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'down', 'title': tn('Move down')}, 'arrow_downward'),
         ]),
         elCreateNodes('div', {'class': ['btn-group', 'float-end', 'fieldsAvailableBtns']}, [
-            elCreateText('button', {"class": ["btn", "btn-sm", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'add', 'title': tn('Add')}, 'add')
+            elCreateText('button', {"class": ["btn", "btn-sm", "mi", "mi-sm", "pt-0", "pb-0"], 'data-action':'add', 'title': tn('Add')}, 'add')
         ])
     ]);
     return item;

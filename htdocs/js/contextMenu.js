@@ -59,13 +59,32 @@ function showContextMenu(event) {
  * @param {HTMLElement} contextMenuBody element to append the menu item
  * @returns {void}
  */
-function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
+function createMenuViewSettings(target, contextMenuTitle, contextMenuBody) {
+    if (app.id !== 'Playback' &&
+        app.id !== 'BrowseDatabaseAlbumDetail')
+    {
+        contextMenuBody.appendChild(
+            elCreateNodes('div', {'class': ['row']}, [
+                elCreateTextTn('label', {'class': ['col-4','col-form-label']}, 'Mode'),
+                elCreateNode('div', {'class': ['col-8']},
+                    elCreateNodes('div', {'class': ['btn-group', 'w-100'], "id": "viewSettingsMode"}, [
+                        elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'table'}, 'Table'),
+                        elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'grid'}, 'Grid')
+                    ])
+                )
+            ])
+        );
+        toggleBtnGroupValueId('viewSettingsMode', settings['view' + app.id].mode);
+        contextMenuBody.appendChild(
+            elCreateEmpty('div', {"class": ["dropdown-divider2", "mb-3"]})
+        );
+    }
     if (app.id === 'BrowseDatabaseAlbumDetail') {
         createMenuColumnsAppid(target, 'BrowseDatabaseAlbumDetailInfo', contextMenuTitle, contextMenuBody);
         contextMenuBody.appendChild(
             elCreateEmpty('div', {"class": ["dropdown-divider2"]})
         );
-        const contextMenuSubtitle = elCreateTextTn('h4', {"class": ["offcanvas-title", "mt-4", "mb-2"]}, 'Table');
+        const contextMenuSubtitle = elCreateTextTn('h4', {"class": ["offcanvas-title", "mt-4", "mb-2"]}, 'Song list');
         contextMenuBody.appendChild(contextMenuSubtitle);
     }
     createMenuColumnsAppid(target, app.id, contextMenuTitle, contextMenuBody);
@@ -85,7 +104,7 @@ function createMenuColumnsAppid(target, appid, contextMenuTitle, contextMenuBody
     setViewOptions(appid, menu);
     contextMenuBody.classList.add('px-3');
     contextMenuBody.appendChild(menu);
-    const applyEl = elCreateTextTn('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, 'Apply');
+    const applyEl = elCreateTextTn('button', {"class": ["btn", "btn-success", "w-100", "mt-2"]}, 'Apply');
     contextMenuBody.appendChild(applyEl);
     applyEl.addEventListener('click', function(eventClick) {
         eventClick.preventDefault();
