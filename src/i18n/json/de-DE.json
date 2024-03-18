@@ -231,7 +231,6 @@
     "Discnum": "CD %{smart_count}",
     "Disconnected from myMPD": "Nicht mit myMPD verbunden",
     "Discs": "Discs",
-    "Display tags": "Tags zum Anzeigen",
     "Display tags in rows for small displays": "Zeige Tags in Zeilen für kleine Displays",
     "Do you really want to clear the playlist?": "Willst du wirklich die Wiedergabeliste \"%{playlist}\" leeren?",
     "Do you really want to clear the queue?": "Willst du die Warteschlange wirklich leeren?",
@@ -1152,5 +1151,9 @@
     "Move down": "Nach unten",
     "Move up": "Nach oben",
     "Selected": "Ausgewählt",
-    "Table": "Tabelle"
+    "Table": "Tabelle",
+    "Grid": "Grid",
+    "Mode": "Modus",
+    "View settings": "Anzeigeeinstellungen",
+    "Song list": "Liedliste"
 }

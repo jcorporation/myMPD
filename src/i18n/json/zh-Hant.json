@@ -230,7 +230,6 @@
     "Discnum": "Disc %{smart_count}",
     "Disconnected from myMPD": "斷開 myMPD 的連線",
     "Discs": "碟片",
-    "Display tags": "顯示標籤",
     "Display tags in rows for small displays": "顯示區域小的時候分行顯示標籤",
     "Do you really want to clear the playlist?": "確定清空播放列表?",
     "Do you really want to clear the queue?": "確定清除播放佇列嗎?",

@@ -34,13 +34,13 @@ function showContextMenuOffcanvas(target, contextMenuType) {
     const contextMenu = BSN.Offcanvas.getInstance(contextMenuEl);
 
     switch (contextMenuType) {
-        case 'columns':
+        case 'viewSettings':
             //column select in table header
-            createContextMenuOffcanvas(target, contextMenuEl, 'cols', createMenuColumns, undefined);
+            createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, createMenuViewSettings, undefined);
             break;
         case 'disc':
             //disc actions in album details view
-            createContextMenuOffcanvas(target, contextMenuEl, 'disc', addMenuItemsDiscActions, undefined);
+            createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, addMenuItemsDiscActions, undefined);
             break;
         case 'home':
             //home card actions
@@ -48,11 +48,11 @@ function showContextMenuOffcanvas(target, contextMenuType) {
             break;
         case 'webradio':
             //webradio favorite actions
-            createContextMenuOffcanvas(target, contextMenuEl, 'webradio', addMenuItemsWebradioFavoritesActions, undefined);
+            createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, addMenuItemsWebradioFavoritesActions, undefined);
             break;
         case 'album':
             //album action in album list
-            createContextMenuOffcanvas(target, contextMenuEl, 'album', addMenuItemsAlbumActions, undefined);
+            createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, addMenuItemsAlbumActions, undefined);
             break;
         default:
             createContextMenuOffcanvas(target, contextMenuEl, '', createMenuLists, createMenuListsSecondary);

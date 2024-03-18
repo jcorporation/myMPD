@@ -230,7 +230,6 @@
     "Discnum": "Disco %{smart_count}",
     "Disconnected from myMPD": "Desconectado de myMPD",
     "Discs": "Discos",
-    "Display tags": "Mostrar etiquetas",
     "Display tags in rows for small displays": "Mostrar etiquetas en filas para pantallas pequeñas",
     "Do you really want to clear the playlist?": "¿De verdad querés limpiar la lista de reproducción \"%{playlist}\"?",
     "Do you really want to clear the queue?": "¿De verdad querés limpiar la fila?",
