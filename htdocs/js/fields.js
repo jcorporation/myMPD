@@ -17,10 +17,10 @@ function saveView(tableName) {
         "mode": settings['view' + tableName].mode,
         "fields": []
     };
-    const colsDropdown = elGetById(tableName + 'FieldsSelect');
-    const colInputs = colsDropdown.querySelector('ul').querySelectorAll('li');
-    for (let i = 0, j = colInputs.length; i < j; i++) {
-        params.fields.push(colInputs[i].getAttribute('data-field'));
+    const fieldsForm = elGetById(tableName + 'FieldsSelect');
+    const fields = fieldsForm.querySelector('ul').querySelectorAll('li');
+    for (let i = 0, j = fields.length; i < j; i++) {
+        params.fields.push(fields[i].getAttribute('data-field'));
     }
     sendAPI("MYMPD_API_VIEW_SAVE", params, function() {
         // refresh the settings
