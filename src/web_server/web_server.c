@@ -581,9 +581,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
             struct mg_str matches[1];
             size_t sent = 0;
-            #ifdef MYMPD_DEBUG
-                MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
-            #endif
             if (wm->data.len > 9) {
                 MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", (unsigned long)wm->data.len);
                 sent = mg_ws_send(nc, "too long", 8, WEBSOCKET_OP_TEXT);
@@ -597,6 +594,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 sent = mg_ws_send(nc, "ok", 2, WEBSOCKET_OP_TEXT);
             }
             else {
+                MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
                 MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid Websocket message");
                 sent = mg_ws_send(nc, "invalid", 7, WEBSOCKET_OP_TEXT);
             }
