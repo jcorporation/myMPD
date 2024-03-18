@@ -319,13 +319,13 @@ function parseMPDSettings() {
     settings.tagListSearch.sort();
     settings.tagListBrowse.sort();
 
-    filterCols('Playback');
+    filterFields('Playback');
 
     for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed',
             'QueueJukeboxSong', 'QueueJukeboxAlbum',
             'BrowsePlaylistDetail', 'BrowseFilesystem', 'BrowseDatabaseAlbumDetail'])
     {
-        filterCols(table);
+        filterFields(table);
         setCols(table);
         //add all browse tags (advanced action in popover menu)
         const view = 'view' + table + 'Fetch';
