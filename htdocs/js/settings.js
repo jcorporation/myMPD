@@ -364,13 +364,13 @@ function parseMPDSettings() {
         app.cards.Search.sort.tag = 'filename';
         app.cards.Search.filter = 'filename';
         app.cards.Queue.tabs.Current.filter = 'filename';
-        settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
-        settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
-        settings.colsQueueJukeboxSong = ["Pos", "Title"];
-        settings.colsQueueJukeboxAlbum = ["Pos", "Title"];
-        settings.colsSearch = ["Title", "Duration"];
-        settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
-        settings.colsPlayback = [];
+        settings.viewQueueCurrent.fields = ["Pos", "Title", "Duration"];
+        settings.viewQueueLastPlayed.fields = ["Pos", "Title", "LastPlayed"];
+        settings.viewQueueJukeboxSong.fields = ["Pos", "Title"];
+        settings.viewQueueJukeboxAlbum.fields = ["Pos", "Title"];
+        settings.viewSearch.fields = ["Title", "Duration"];
+        settings.viewBrowseFilesystem.fields = ["Type", "Title", "Duration"];
+        settings.viewPlayback.fields = [];
     }
     else {
         //construct playback view
