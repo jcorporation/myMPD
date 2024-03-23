@@ -278,39 +278,6 @@ function dragAndDropTable(tableId) {
 }
 
 /**
- * Checks if a table column is sortable
- * @param {string} tableName name of the table
- * @param {string} colName name of the column
- * @returns {boolean} true if clickable, else false
- */
-function isColSortable(tableName, colName) {
-    if (colName === 'Action') {
-        return false;
-    }
-    if (tableName === 'QueueCurrent' &&
-        features.featAdvqueue === false)
-    {
-        return false;
-    }
-    if (tableName !== 'Search' &&
-        tableName !== 'QueueCurrent' &&
-        tableName !== 'BrowseRadioWebradiodb')
-    {
-        return false;
-    }
-    // @ts-ignore
-    if (colName === 'Duration' ||
-        colName === 'AudioFormat' ||
-        colName === 'Thumbnail' ||
-        // @ts-ignore
-        stickerList.includes(colName) === true)
-    {
-        return false;
-    }
-    return true;
-}
-
-/**
  * Sets the table header columns
  * @param {string} tableName table name
  * @returns {void}
@@ -335,26 +302,8 @@ function setCols(tableName) {
 
     for (let i = 0, j = settings['view' + tableName].fields.length; i < j; i++) {
         const hname = settings['view' + tableName].fields[i];
-        const clickable = isColSortable(tableName, hname)
-            ? 'clickable'
-            : 'not-clickable';
-        const th = elCreateTextTn('th', {"class": [clickable], "data-col": settings['view' + tableName].fields[i]}, hname);
+        const th = elCreateTextTn('th', {"data-col": settings['view' + tableName].fields[i]}, hname);
         thead.appendChild(th);
-
-        const sort = tableName === 'Search'
-            ? app.cards.Search.sort
-            : tableName === 'BrowseRadioWebradiodb'
-                ? app.cards.Browse.tabs.Radio.views.Webradiodb.sort
-                : tableName === 'QueueCurrent'
-                    ? app.cards.Queue.tabs.Current.sort
-                    : undefined;
-        if ((tableName === 'Search' && hname === sort.tag) ||
-            (tableName === 'BrowseRadioWebradiodb' && hname === sort.tag) ||
-            (tableName === 'QueueCurrent' && hname === sort.tag)
-           )
-        {
-            addSortIndicator(th, sort.desc);
-        }
     }
     //append action column
     const th = elCreateEmpty('th', {"data-col": "Action"});
@@ -362,53 +311,6 @@ function setCols(tableName) {
         pEl.selectAllBtn.cloneNode(true)
     );
     thead.appendChild(th);
-}
-
-/**
- * Toggles the sorting of the table
- * @param {EventTarget} th clicked table header column
- * @param {string} colName column name
- * @returns {void}
- */
-function toggleSort(th, colName) {
-    if (th.nodeName !== 'TH' ||
-        th.textContent === '' ||
-        th.getAttribute('data-col') === 'Action')
-    {
-        return;
-    }
-
-    if (app.current.sort.tag === colName) {
-        //toggle sort direction
-        app.current.sort.desc = app.current.sort.desc === false
-            ? true
-            : false;
-    }
-    else {
-        //sort by new colum ascending
-        app.current.sort.desc = false;
-        app.current.sort.tag = colName;
-    }
-    addSortIndicator(th, app.current.sort.desc);
-}
-
-/**
- * Add the sort indicator and removes old ones.
- * @param {HTMLElement | EventTarget} th header element
- * @param {boolean} desc descending?
- * @returns {void}
- */
-function addSortIndicator(th, desc) {
-    // remove old sort indicator
-    const oldIndicators = th.parentNode.querySelectorAll('.sort-dir');
-    for (const i of oldIndicators) {
-        i.classList.remove('sort-dir', 'sort-desc', 'sort-asc');
-    }
-    const order = desc === false
-        ? 'asc'
-        : 'desc';
-    // add new sort indicator
-    th.classList.add('sort-dir', 'sort-' + order);
 }
 
 /**
@@ -819,19 +721,6 @@ function tableClickHandler(event) {
     }
     //table header
     if (event.target.nodeName === 'TH') {
-        if (app.id === 'QueueCurrent' &&
-            features.featAdvqueue === false)
-        {
-            return null;
-        }
-        const colName = event.target.getAttribute('data-col');
-        if (isColSortable(app.id, colName) === false) {
-            //by this fields can not be sorted
-            return null;
-        }
-        toggleSort(event.target, colName);
-        appGoto(app.current.card, app.current.tab, app.current.view,
-            app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         return null;
     }
     //table body

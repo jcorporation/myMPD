@@ -81,13 +81,6 @@ function initViewBrowseRadioWebradiodb() {
     initWebradiodbFilter('BrowseRadioWebradiodbCodecFilter', 'webradioCodecs', 'Codec');
     initWebradiodbFilter('BrowseRadioWebradiodbBitrateFilter', 'webradioBitrates', 'Bitrate');
 
-    document.querySelector('#BrowseRadioWebradiodbList > thead > tr').addEventListener('click', function(event) {
-        const colName = event.target.getAttribute('data-col');
-        toggleSort(event.target, colName);
-        appGoto(app.current.card, app.current.tab, app.current.view,
-            app.current.offset, app.current.limit, app.current.filter, app.current.sort, '-', app.current.search);
-    }, false);
-
     elGetById('BrowseRadioWebradiodbList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {

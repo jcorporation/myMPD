@@ -5,8 +5,13 @@
 
 /** @module sort_js */
 
-function initSortBtns(view) {
-    elGetById(view + 'SortDesc').addEventListener('click', function(event) {
+/**
+ * Initializes the buttons in the sort dropdown
+ * @param {string} appid app id 
+ * @returns {void}
+ */
+function initSortBtns(appid) {
+    elGetById(appid + 'SortDesc').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         toggleBtnChk(this, undefined);
@@ -14,7 +19,7 @@ function initSortBtns(view) {
         appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
 
-    elGetById(view + 'SortTags').addEventListener('click', function(event) {
+    elGetById(appid + 'SortTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
