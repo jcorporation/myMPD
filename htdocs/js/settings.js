@@ -438,18 +438,8 @@ function parseMPDSettings() {
     addTagList('QueueJukeboxAlbumSearchTags', 'tagListSearch');
     addTagList('BrowsePlaylistDetailSearchTags', 'tagListSearch');
     addTagList('SearchSearchTags', 'tagListSearch');
-    if (settings.albumMode === 'adv') {
-        addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListBrowse');
-    }
-    else {
-        addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListAlbum');
-    }
-    if (settings.albumMode === 'adv') {
-        addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListBrowse');
-    }
-    else {
-        addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListAlbum');
-    }
+    addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListAlbum');
+    addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListAlbum');
     addTagList('BrowsePlaylistDetailSortTagsDropdown', 'tagList');
 
     addTagListSelect('modalSmartPlaylistEditSortInput', 'tagList');
