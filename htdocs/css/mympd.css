@@ -409,6 +409,7 @@ th,
   width: 2rem;
   text-align: right;
   word-break: keep-all;
+  padding: 0.25rem !important;
 }
 
 table[data-rw="false"] [data-col="Action"] a[data-action="quickRemove"] {
@@ -417,10 +418,6 @@ table[data-rw="false"] [data-col="Action"] a[data-action="quickRemove"] {
 
 table.smallWidth [data-col="Action"] {
   word-break: break-all;
-}
-
-th[data-col="Action"] {
-  padding: 0.25rem !important;
 }
 
 div.card {
