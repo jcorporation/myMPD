@@ -16,6 +16,9 @@ function handleBrowseRadioWebradiodb() {
         getWebradiodb();
         return;
     }
+    toggleBtnChkId('BrowseRadioWebradiodbSortDesc', app.current.sort.desc);
+    selectTag('BrowseRadioWebradiodbSortTagsList', undefined, app.current.sort.tag);
+
     setDataId('BrowseRadioWebradiodbGenreFilter', 'value', app.current.filter['genre']);
     elGetById('BrowseRadioWebradiodbGenreFilter').value = app.current.filter['genre'];
     setDataId('BrowseRadioWebradiodbCountryFilter', 'value', app.current.filter['country']);
@@ -102,6 +105,8 @@ function initViewBrowseRadioWebradiodb() {
             }
         }
     }, false);
+
+    initSortBtns('BrowseRadioWebradiodb');
 }
 
 /**

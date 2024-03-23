@@ -111,23 +111,7 @@ function initViewBrowseDatabase() {
         }
     }, false);
 
-    elGetById('BrowseDatabaseAlbumListSortDesc').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        toggleBtnChk(this, undefined);
-        app.current.sort.desc = app.current.sort.desc === true ? false : true;
-        appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
-    }, false);
-
-    elGetById('BrowseDatabaseAlbumListSortTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            event.preventDefault();
-            event.stopPropagation();
-            app.current.sort.tag = getData(event.target, 'tag');
-            appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
-        }
-    }, false);
-
+    initSortBtns('BrowseDatabaseAlbumList');
     initSearchExpression('BrowseDatabaseAlbumList');
 }
 

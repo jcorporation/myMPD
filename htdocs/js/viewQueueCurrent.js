@@ -11,6 +11,8 @@
  */
 function handleQueueCurrent() {
     handleSearchExpression('QueueCurrent');
+    toggleBtnChkId('QueueCurrentSortDesc', app.current.sort.desc);
+    selectTag('QueueCurrentSortTagsList', undefined, app.current.sort.tag);
     const searchMatchEl = elGetById(app.id + 'SearchMatch');
 
     if (app.current.sort.tag === '' ||
@@ -52,6 +54,7 @@ function initViewQueueCurrent() {
         }
     }, false);
 
+    initSortBtns('QueueCurrent');
     initSearchExpression('QueueCurrent');
 }
 

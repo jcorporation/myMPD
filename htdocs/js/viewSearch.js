@@ -11,6 +11,8 @@
  */
 function handleSearch() {
     handleSearchExpression('Search');
+    toggleBtnChkId('SearchSortDesc', app.current.sort.desc);
+    selectTag('SearchSortTagsList', undefined, app.current.sort.tag);
     const searchStrEl = elGetById(app.id + 'SearchStr');
     const searchCrumbEl = elGetById(app.id + 'SearchCrumb');
     if (searchStrEl.value.length >= 2 ||
@@ -54,6 +56,7 @@ function initViewSearch() {
         }
     }, false);
 
+    initSortBtns('Search');
     initSearchExpression('Search');
 }
 
