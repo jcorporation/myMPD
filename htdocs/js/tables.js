@@ -293,7 +293,8 @@ function isColSortable(tableName, colName) {
         return false;
     }
     if (tableName !== 'Search' &&
-        tableName !== 'QueueCurrent')
+        tableName !== 'QueueCurrent' &&
+        tableName !== 'BrowseRadioWebradiodb')
     {
         return false;
     }
