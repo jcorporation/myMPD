@@ -433,14 +433,17 @@ function parseMPDSettings() {
     addTagList('BrowseRadioRadiobrowserNavDropdown', 'tagListBrowse');
 
     addTagList('QueueCurrentSearchTags', 'tagListSearch');
+    addTagList('QueueCurrentSortTagsList', 'tagList');
     addTagList('QueueLastPlayedSearchTags', 'tagListSearch');
     addTagList('QueueJukeboxSongSearchTags', 'tagListSearch');
     addTagList('QueueJukeboxAlbumSearchTags', 'tagListSearch');
     addTagList('BrowsePlaylistDetailSearchTags', 'tagListSearch');
-    addTagList('SearchSearchTags', 'tagListSearch');
     addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListAlbum');
     addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListAlbum');
     addTagList('BrowsePlaylistDetailSortTagsDropdown', 'tagList');
+    addTagList('BrowseRadioWebradiodbSortTagsList', '');
+    addTagList('SearchSearchTags', 'tagListSearch');
+    addTagList('SearchSortTagsList', 'tagList');
 
     addTagListSelect('modalSmartPlaylistEditSortInput', 'tagList');
 }
