@@ -336,7 +336,7 @@ function setCols(tableName) {
         const clickable = isColSortable(tableName, hname)
             ? 'clickable'
             : 'not-clickable';
-        const th = elCreateTextTn('th', {"class": [clickable], "draggable": "true", "data-col": settings['view' + tableName].fields[i]}, hname);
+        const th = elCreateTextTn('th', {"class": [clickable], "data-col": settings['view' + tableName].fields[i]}, hname);
         thead.appendChild(th);
 
         const sort = tableName === 'Search'
