@@ -301,6 +301,7 @@ function isColSortable(tableName, colName) {
     // @ts-ignore
     if (colName === 'Duration' ||
         colName === 'AudioFormat' ||
+        colName === 'Thumbnail' ||
         // @ts-ignore
         stickerList.includes(colName) === true)
     {
