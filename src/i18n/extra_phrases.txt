@@ -105,6 +105,7 @@ jack
 Jukebox Queue
 Label
 language
+Languages
 lastchangetime
 lastcheckok
 Last-Modified
