@@ -284,6 +284,9 @@ function dragAndDropTable(tableId) {
  * @returns {boolean} true if clickable, else false
  */
 function isColSortable(tableName, colName) {
+    if (colName === 'Action') {
+        return false;
+    }
     if (tableName === 'QueueCurrent' &&
         features.featAdvqueue === false)
     {
@@ -814,7 +817,9 @@ function tableClickHandler(event) {
     }
     //table header
     if (event.target.nodeName === 'TH') {
-        if (features.featAdvqueue === false) {
+        if (app.id === 'QueueCurrent' &&
+            features.featAdvqueue === false)
+        {
             return null;
         }
         const colName = event.target.getAttribute('data-col');
