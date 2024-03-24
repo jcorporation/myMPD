@@ -21,7 +21,7 @@ function handleBrowseFilesystem() {
         "path": app.current.filter,
         "searchstr": app.current.search,
         "type": app.current.tag,
-        "fields": settings.colsBrowseFilesystemFetch.fields
+        "fields": settings.viewBrowseFilesystemFetch.fields
     }, parseFilesystem, true);
 
     //Create breadcrumb
@@ -116,15 +116,11 @@ function initViewBrowseFilesystem() {
         return;
     }
 
-    if (obj.result.images !== undefined) {
-        if (obj.result.images.length === 0 &&
-            obj.result.bookletPath === '')
-        {
-            elHide(imageList);
-        }
-        else {
-            elShow(imageList);
-        }
+    const showImageBar = (obj.result.images !== undefined && obj.result.images.length) > 0 ||
+        (obj.result.images !== undefined && obj.result.bookletPath !== '');
+
+    if (showImageBar == true) {
+        elShow(imageList);
         if (obj.result.bookletPath !== '') {
             const img = elCreateEmpty('div', {"class": ["booklet"], "title": tn('Booklet')});
             img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet")';
@@ -158,7 +154,7 @@ function initViewBrowseFilesystem() {
             data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
     });
 
-    const colspan = settings.colsBrowseFilesystem.length + 1;
+    const colspan = settings.viewBrowseFilesystem.fields.length + 1;
     tfoot.appendChild(
         elCreateNode('tr', {"class": ["not-clickable"]},
             elCreateTextTnNr('td', {"colspan": colspan}, 'Num entries', obj.result.totalEntities)
