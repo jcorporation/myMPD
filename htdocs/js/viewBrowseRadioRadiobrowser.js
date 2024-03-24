@@ -132,7 +132,7 @@ function parseRadiobrowserList(obj) {
         elGetById('BrowseRadioRadiobrowserFilterBtn').textContent = 'filter_list';
     }
 
-    if (checkResultId(obj, 'BrowseRadioRadiobrowserList') === false) {
+    if (checkResultId(obj, 'BrowseRadioRadiobrowserList', undefined) === false) {
         return;
     }
 

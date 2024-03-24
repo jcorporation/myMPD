@@ -70,7 +70,7 @@ function parseSearch(obj) {
     const tfoot = table.querySelector('tfoot');
     elClear(tfoot);
 
-    if (checkResultId(obj, 'SearchList') === false) {
+    if (checkResultId(obj, 'SearchList', undefined) === false) {
         return;
     }
 

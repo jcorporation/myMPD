@@ -468,7 +468,7 @@ function parseScriptList(obj) {
     const triggerScripts = elGetById('modalTriggerScriptInput');
     elClear(triggerScripts);
 
-    if (checkResult(obj, tbodyScripts) === false) {
+    if (checkResult(obj, tbodyScripts, 'table') === false) {
         return;
     }
 

@@ -78,7 +78,7 @@ function initViewPlaylists() {
  * @returns {void}
  */
 function parsePlaylistList(obj) {
-    if (checkResultId(obj, 'BrowsePlaylistListList') === false) {
+    if (checkResultId(obj, 'BrowsePlaylistListList', undefined) === false) {
         return;
     }
 
@@ -100,7 +100,7 @@ function parsePlaylistList(obj) {
 function parsePlaylistDetail(obj) {
     const table = elGetById('BrowsePlaylistDetailList');
 
-    if (checkResultId(obj, 'BrowsePlaylistDetailList') === false) {
+    if (checkResultId(obj, 'BrowsePlaylistDetailList', undefined) === false) {
         return;
     }
 

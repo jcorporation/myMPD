@@ -153,7 +153,7 @@ function parseListMounts(obj) {
     const tbody = document.querySelector('#modalMountsList');
     elClear(tbody);
 
-    if (checkResult(obj, tbody) === false) {
+    if (checkResult(obj, tbody, 'table') === false) {
         return;
     }
 

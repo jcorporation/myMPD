@@ -132,6 +132,7 @@ function parseDatabaseAlbumList(obj) {
         return;
     }
 
+
     const nrItems = obj.result.returnedEntities;
     if (nrItems === 0) {
         elReplaceChild(cardContainer,
@@ -320,7 +321,7 @@ function parseAlbumDetails(obj) {
     const colspan = settings.viewBrowseDatabaseAlbumDetail.fields.length;
     const infoEl = elGetById('viewDatabaseAlbumDetailInfoTags');
 
-    if (checkResultId(obj, 'BrowseDatabaseAlbumDetailList') === false) {
+    if (checkResultId(obj, 'BrowseDatabaseAlbumDetailList', 'grid') === false) {
         elClear(infoEl);
         return;
     }

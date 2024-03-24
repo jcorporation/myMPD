@@ -111,7 +111,7 @@ function initViewBrowseFilesystem() {
     const tfoot = table.querySelector('tfoot');
     elClear(tfoot);
 
-    if (checkResultId(obj, 'BrowseFilesystemList') === false) {
+    if (checkResultId(obj, 'BrowseFilesystemList', undefined) === false) {
         elHide(imageList);
         return;
     }
@@ -119,7 +119,7 @@ function initViewBrowseFilesystem() {
     const showImageBar = (obj.result.images !== undefined && obj.result.images.length) > 0 ||
         (obj.result.images !== undefined && obj.result.bookletPath !== '');
 
-    if (showImageBar == true) {
+    if (showImageBar === true) {
         elShow(imageList);
         if (obj.result.bookletPath !== '') {
             const img = elCreateEmpty('div', {"class": ["booklet"], "title": tn('Booklet')});

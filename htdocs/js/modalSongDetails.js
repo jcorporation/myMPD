@@ -293,7 +293,7 @@ function getComments(uri, el) {
     }, function(obj) {
         elClear(el);
         if (obj.result.returnedEntities === 0) {
-            el.appendChild(emptyRow(2));
+            el.appendChild(emptyMsgEl(2, 'table'));
             unsetUpdateView(el);
             return false;
         }
