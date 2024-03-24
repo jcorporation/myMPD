@@ -52,9 +52,6 @@ function addTagList(elId, list) {
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Priority"}, 'Priority')
         );
-        stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Pos"}, 'Position')
-        );
     }
     if (settings[list] !== undefined) {
         for (let i = 0, j = settings[list].length; i < j; i++) {
