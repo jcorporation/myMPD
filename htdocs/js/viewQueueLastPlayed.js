@@ -40,7 +40,7 @@ function initViewQueueLastPlayed() {
  * @returns {void}
  */
 function parseLastPlayed(obj) {
-    if (checkResultId(obj, 'QueueLastPlayedList') === false) {
+    if (checkResultId(obj, 'QueueLastPlayedList', undefined) === false) {
         return;
     }
 

@@ -83,7 +83,7 @@ function parseJukeboxList(obj) {
     const view = settings.partition.jukeboxMode === 'album'
         ? 'QueueJukeboxAlbum'
         : 'QueueJukeboxSong';
-    if (checkResultId(obj, view + 'List') === false) {
+    if (checkResultId(obj, view + 'List', undefined) === false) {
         return;
     }
 

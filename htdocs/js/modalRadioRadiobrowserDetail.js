@@ -42,7 +42,7 @@ function showRadiobrowserDetails(uuid) {
  */
 function parseRadiobrowserDetails(obj) {
     const tbody = elGetById('modalRadiobrowserDetailsList');
-    if (checkResult(obj, tbody) === false) {
+    if (checkResult(obj, tbody, 'table') === false) {
         return;
     }
     elClearId('modalRadiobrowserDetailsList');

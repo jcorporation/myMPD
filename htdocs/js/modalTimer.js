@@ -363,7 +363,7 @@ function showListTimer() {
  */
 function parseListTimer(obj) {
     const tbody = elGetById('modalTimerList');
-    if (checkResult(obj, tbody) === false) {
+    if (checkResult(obj, tbody, 'table') === false) {
         return;
     }
     elClear(tbody);

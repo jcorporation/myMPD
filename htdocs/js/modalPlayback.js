@@ -73,7 +73,7 @@ function populateListPresets() {
         presetsList.appendChild(createPresetsListRow(preset));
     }
     if (settings.partition.presets.length === 0) {
-        presetsList.appendChild(emptyRow(2));
+        presetsList.appendChild(emptyMsgEl(2, 'table'));
     }
     populatePresetDropdowns();
 }

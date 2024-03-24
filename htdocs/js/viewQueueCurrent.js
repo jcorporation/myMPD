@@ -69,7 +69,7 @@ function parseQueue(obj) {
     }
 
     const table = elGetById('QueueCurrentList');
-    if (checkResultId(obj, 'QueueCurrentList') === false) {
+    if (checkResultId(obj, 'QueueCurrentList', undefined) === false) {
         return;
     }
 

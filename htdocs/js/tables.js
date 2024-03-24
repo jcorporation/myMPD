@@ -488,7 +488,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
 
     if (nrItems === 0) {
-        tbody.appendChild(emptyRow(colspan + 1));
+        tbody.appendChild(emptyMsgEl(colspan + 1, 'table'));
     }
     unsetUpdateView(table);
     setScrollViewHeight(table);
@@ -554,109 +554,6 @@ function tableRow(row, data, list, colspan, smallWidth) {
                 pEl.actionTd.cloneNode(true)
             );
     }
-}
-
-/**
- * Creates an empty list hint
- * @param {number} colspan column count
- * @returns {HTMLElement} created row
- */
-function emptyRow(colspan) {
-    return elCreateNode('tr', {"class": ["not-clickable"]},
-        elCreateNode('td', {"colspan": colspan},
-            elCreateTextTn('div', {"class": ["alert", "alert-secondary"]}, 'Empty list')
-        )
-    );
-}
-
-/**
- * Creates a loading list hint
- * @param {number} colspan column count
- * @returns {HTMLElement} created row
- */
-function loadingRow(colspan) {
-    return elCreateNode('tr', {"class": ["not-clickable"]},
-        elCreateNode('td', {"colspan": colspan},
-            elCreateTextTn('div', {"class": ["alert", "alert-secondary"]}, 'Loading...')
-        )
-    );
-}
-
-/**
- * Creates a row with the error message
- * @param {object} obj jsonrpc error object
- * @param {number} colspan column count
- * @returns {HTMLElement} created row
- */
-function errorRow(obj, colspan) {
-    return elCreateNode('tr', {"class": ["not-clickable"]},
-        elCreateNode('td', {"colspan": colspan},
-            elCreateTextTn('div', {"class": ["alert", "alert-danger"]}, obj.error.message, obj.error.data)
-        )
-    );
-}
-
-/**
- * Creates a row with the warning message
- * @param {string} message phrase to display
- * @param {number} colspan column count
- * @returns {HTMLElement} created row
- */
-//eslint-disable-next-line no-unused-vars
-function warningRow(message, colspan) {
-    return elCreateNode('tr', {"class": ["not-clickable"]},
-        elCreateNode('td', {"colspan": colspan},
-            elCreateTextTn('div', {"class": ["alert", "alert-warning"]}, message)
-        )
-    );
-}
-
-/**
- * Wrapper for checkResult with id selector
- * @param {object} obj jsonrpc object to check
- * @param {string} id table id
- * @returns {boolean} true = result is not an error, else false
- */
-function checkResultId(obj, id) {
-    return checkResult(obj, document.querySelector('#' + id + ' > tbody'));
-}
-
-/**
- * Checks the json response for an error object or empty result
- * and displays the error in the table body.
- * @param {object} obj jsonrpc object to check
- * @param {HTMLElement} tbody body of the table
- * @returns {boolean} false = result is  empty or an error, else true
- */
-function checkResult(obj, tbody) {
-    //remove old alerts
-    const alert = tbody.querySelector('.alert');
-    if (alert) {
-        alert.parentNode.parentNode.remove();
-    }
-    if (obj.error ||
-        obj.result.returnedEntities === 0)
-    {
-        const thead = tbody.parentNode.querySelector('tr');
-        const colspan = thead !== null
-            ? thead.querySelectorAll('th').length
-            : 0;
-        elClear(tbody);
-        const tfoot = tbody.parentNode.querySelector('tfoot');
-        if (tfoot !== null) {
-            elClear(tfoot);
-        }
-        if (obj.error) {
-            tbody.appendChild(errorRow(obj, colspan));
-        }
-        else {
-            tbody.appendChild(emptyRow(colspan));
-        }
-        unsetUpdateView(tbody.parentNode);
-        setPagination(0, 0);
-        return false;
-    }
-    return true;
 }
 
 /**
