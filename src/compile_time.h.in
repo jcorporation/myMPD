@@ -173,6 +173,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_VIEW_BROWSE_DATABASE_ALBUM_DETAIL_INFO "{\"mode\":\"table\",\"fields\":[\"Album\",\"AlbumArtist\",\"Genre\"]}"
 #define MYMPD_VIEW_BROWSE_DATABASE_ALBUM_DETAIL "{\"mode\":\"table\",\"fields\":[\"Track\",\"Title\",\"Duration\"]}"
 #define MYMPD_VIEW_BROWSE_DATABASE_ALBUM_LIST "{\"mode\":\"grid\",\"fields\":[\"Album\",\"AlbumArtist\"]}"
+#define MYMPD_VIEW_BROWSE_DATABASE_TAG_LIST "{\"mode\":\"grid\",\"fields\":[\"value\"]}"
 #define MYMPD_VIEW_BROWSE_PLAYLIST_DETAIL "{\"mode\":\"table\",\"fields\":[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]}"
 #define MYMPD_VIEW_BROWSE_PLAYLIST_LIST "{\"mode\":\"table\",\"fields\":[\"Type\",\"Name\",\"Last-Modified\"]}"
 #define MYMPD_VIEW_BROWSE_FILESYSTEM "{\"mode\":\"table\",\"fields\":[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]}"
@@ -182,6 +183,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_VIEW_QUEUE_JUKEBOX_ALBUM "{\"mode\":\"table\",\"fields\":[\"Pos\",\"Album\",\"AlbumArtist\"]}"
 #define MYMPD_VIEW_BROWSE_RADIO_WEBRADIODB "{\"mode\":\"table\",\"fields\":[\"Name\",\"Country\",\"Language\",\"Genre\"]}"
 #define MYMPD_VIEW_BROWSE_RADIO_RADIOBROWSER "{\"mode\":\"table\",\"fields\":[\"name\",\"country\",\"language\",\"tags\"]}"
+#define MYMPD_VIEW_BROWSE_RADIO_FAVORITES "{\"mode\":\"grid\",\"fields\":[\"Name\",\"Genre\",\"Country\"]}"
 #define MYMPD_VOLUME_MIN 0 //prct
 #define MYMPD_VOLUME_MAX 100 //prct
 #define MYMPD_VOLUME_STEP 5 //prct

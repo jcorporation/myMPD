@@ -70,6 +70,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->view_browse_database_album_detail_info = sdsnew(MYMPD_VIEW_BROWSE_DATABASE_ALBUM_DETAIL_INFO);
     mympd_state->view_browse_database_album_detail = sdsnew(MYMPD_VIEW_BROWSE_DATABASE_ALBUM_DETAIL);
     mympd_state->view_browse_database_album_list = sdsnew(MYMPD_VIEW_BROWSE_DATABASE_ALBUM_LIST);
+    mympd_state->view_browse_database_tag_list = sdsnew(MYMPD_VIEW_BROWSE_DATABASE_TAG_LIST);
     mympd_state->view_browse_playlist_list = sdsnew(MYMPD_VIEW_BROWSE_PLAYLIST_LIST);
     mympd_state->view_browse_playlist_detail = sdsnew(MYMPD_VIEW_BROWSE_PLAYLIST_DETAIL);
     mympd_state->view_browse_filesystem = sdsnew(MYMPD_VIEW_BROWSE_FILESYSTEM);
@@ -79,6 +80,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->view_queue_jukebox_album = sdsnew(MYMPD_VIEW_QUEUE_JUKEBOX_ALBUM);
     mympd_state->view_browse_radio_webradiodb = sdsnew(MYMPD_VIEW_BROWSE_RADIO_WEBRADIODB);
     mympd_state->view_browse_radio_radiobrowser = sdsnew(MYMPD_VIEW_BROWSE_RADIO_RADIOBROWSER);
+    mympd_state->view_browse_radio_favorites = sdsnew(MYMPD_VIEW_BROWSE_RADIO_FAVORITES);
     mympd_state->volume_min = MYMPD_VOLUME_MIN;
     mympd_state->volume_max = MYMPD_VOLUME_MAX;
     mympd_state->volume_step = MYMPD_VOLUME_STEP;
@@ -155,6 +157,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->view_browse_database_album_detail_info);
     FREE_SDS(mympd_state->view_browse_database_album_detail);
     FREE_SDS(mympd_state->view_browse_database_album_list);
+    FREE_SDS(mympd_state->view_browse_database_tag_list);
     FREE_SDS(mympd_state->view_browse_playlist_list);
     FREE_SDS(mympd_state->view_browse_playlist_detail);
     FREE_SDS(mympd_state->view_browse_filesystem);
@@ -164,6 +167,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->view_queue_jukebox_album);
     FREE_SDS(mympd_state->view_browse_radio_webradiodb);
     FREE_SDS(mympd_state->view_browse_radio_radiobrowser);
+    FREE_SDS(mympd_state->view_browse_radio_favorites);
     FREE_SDS(mympd_state->coverimage_names);
     FREE_SDS(mympd_state->thumbnail_names);
     FREE_SDS(mympd_state->music_directory);

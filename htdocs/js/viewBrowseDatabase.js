@@ -122,31 +122,13 @@ function initViewBrowseDatabase() {
  */
 function parseDatabaseAlbumList(obj) {
     const cardContainer = elGetById('BrowseDatabaseAlbumListList');
+    if (checkResult(obj, cardContainer, undefined) === false) {
+        return;
+    }
+
     unsetUpdateView(cardContainer);
-
-    if (obj.error !== undefined) {
-        elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-warning"]}, obj.error.message, obj.error.data)
-        );
-        setPagination(0, 0);
-        return;
-    }
-
-
-    const nrItems = obj.result.returnedEntities;
-    if (nrItems === 0) {
-        elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, 'Empty list')
-        );
-        setPagination(0, 0);
-        return;
-    }
-
-    if (cardContainer.querySelector('.not-clickable') !== null) {
-        elClear(cardContainer);
-    }
     let cols = cardContainer.querySelectorAll('.col');
-    for (let i = 0; i < nrItems; i++) {
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
         const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
         const image = obj.result.data[i].FirstSongUri !== 'albumid'
             ? '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri)
@@ -175,7 +157,7 @@ function parseDatabaseAlbumList(obj) {
         setData(card, 'Album', obj.result.data[i].Album);
         setData(card, tagAlbumArtist, obj.result.data[i][tagAlbumArtist]);
         setData(card, 'AlbumId', obj.result.data[i].AlbumId);
-        addAlbumPlayButton(card.firstChild);
+        addGridQuickPlayButton(card.firstChild);
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 
         if (i < cols.length) {
@@ -195,7 +177,7 @@ function parseDatabaseAlbumList(obj) {
     }
     //remove obsolete cards
     cols = cardContainer.querySelectorAll('.col');
-    for (let i = cols.length - 1; i >= nrItems; i--) {
+    for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
         cols[i].remove();
     }
 
@@ -211,32 +193,14 @@ function parseDatabaseAlbumList(obj) {
  */
  function parseDatabaseTagList(obj) {
     const cardContainer = elGetById('BrowseDatabaseTagListList');
+    if (checkResult(obj, cardContainer, undefined) === false) {
+        return;
+    }
+
     unsetUpdateView(cardContainer);
-
-    if (obj.error !== undefined) {
-        elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-warning"]}, obj.error.message, obj.error.data)
-        );
-        setPagination(0, 0);
-        return;
-    }
-
-    const nrItems = obj.result.returnedEntities;
-    if (nrItems === 0) {
-        elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, 'Empty list')
-        );
-        setPagination(0, 0);
-        return;
-    }
-
     const listAlbums = settings.tagListAlbum.includes(obj.result.tag);
-
-    if (cardContainer.querySelector('.not-clickable') !== null) {
-        elClear(cardContainer);
-    }
     let cols = cardContainer.querySelectorAll('.col');
-    for (let i = 0; i < nrItems; i++) {
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
         if (cols[i] !== undefined &&
             getData(cols[i].firstChild,'tag') === obj.result.data[i].value)
         {
@@ -286,28 +250,13 @@ function parseDatabaseAlbumList(obj) {
     }
     //remove obsolete cards
     cols = cardContainer.querySelectorAll('.col');
-    for (let i = cols.length - 1; i >= nrItems; i--) {
+    for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
         cols[i].remove();
     }
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     setScrollViewHeight(cardContainer);
     scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
-}
-
-/**
- * Adds the album play button
- * @param {ChildNode | HTMLElement} parentEl parent element for the button
- * @returns {void}
- */
-function addAlbumPlayButton(parentEl) {
-    const playBtn = pEl.coverPlayBtn.cloneNode(true);
-    parentEl.appendChild(playBtn);
-    playBtn.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        clickQuickPlay(event.target);
-    }, false);
 }
 
 /**
