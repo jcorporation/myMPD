@@ -105,11 +105,16 @@ function checkResult(obj, parent, mode) {
     if (mode === undefined) {
         mode = settings['view' + app.id].mode;
     }
-    //remove old alerts
+    //remove old alert
     const alert = parent.querySelector('.alert');
     let colspan = 0;
     if (alert) {
-        alert.parentNode.parentNode.remove();
+        if (mode === 'table') {
+            alert.parentNode.parentNode.remove();
+        }
+        else {
+            alert.remove();
+        }
     }
     if (obj.error ||
         obj.result.returnedEntities === 0)

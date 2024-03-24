@@ -181,3 +181,18 @@ function gridClickHandler(event) {
     }
     return target;
 }
+
+/**
+ * Adds the quick play button to a grid element
+ * @param {ChildNode} parentEl the containing element
+ * @returns {void}
+ */
+function addGridQuickPlayButton(parentEl) {
+    const div = pEl.coverPlayBtn.cloneNode(true);
+    parentEl.appendChild(div);
+    div.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        clickQuickPlay(event.target);
+    }, false);
+}

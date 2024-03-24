@@ -49,31 +49,14 @@ function getRadioFavoriteList() {
  */
 function parseRadioFavoritesList(obj) {
     const cardContainer = elGetById('BrowseRadioFavoritesList');
+    if (checkResult(obj, cardContainer, undefined) === false) {
+        return;
+    }
+
     unsetUpdateView(cardContainer);
-
-    if (obj.error !== undefined) {
-        elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
-        );
-        setPagination(0, 0);
-        return;
-    }
-
-    const nrItems = obj.result.returnedEntities;
-    if (nrItems === 0) {
-        elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, 'Empty list')
-        );
-        setPagination(0, 0);
-        return;
-    }
-
-    if (cardContainer.querySelector('.not-clickable') !== null) {
-        elClear(cardContainer);
-    }
     let cols = cardContainer.querySelectorAll('.col');
     const rowTitle = tn(settingsWebuiFields.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
-    for (let i = 0; i < nrItems; i++) {
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
         const card = elCreateNodes('div', {"data-contextmenu": "webradio", "class": ["card", "card-grid", "clickable"], "tabindex": 0}, [
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "title": rowTitle}),
             elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, [
@@ -93,7 +76,7 @@ function parseRadioFavoritesList(obj) {
         setData(card, 'uri', obj.result.data[i].filename);
         setData(card, 'name', obj.result.data[i].Name);
         setData(card, 'type', 'webradio');
-        addRadioFavoritesPlayButton(card.firstChild);
+        addGridQuickPlayButton(card.firstChild);
 
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 
@@ -118,26 +101,11 @@ function parseRadioFavoritesList(obj) {
     }
     //remove obsolete cards
     cols = cardContainer.querySelectorAll('.col');
-    for (let i = cols.length - 1; i >= nrItems; i--) {
+    for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
         cols[i].remove();
     }
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     setScrollViewHeight(cardContainer);
     scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
-}
-
-/**
- * Adds the quick play button to the webradio favorite icon
- * @param {ChildNode} parentEl the containing element
- * @returns {void}
- */
-function addRadioFavoritesPlayButton(parentEl) {
-    const div = pEl.coverPlayBtn.cloneNode(true);
-    parentEl.appendChild(div);
-    div.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        clickQuickPlay(event.target);
-    }, false);
 }
