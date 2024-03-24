@@ -1221,7 +1221,7 @@ app.cards = {
                 "limit": 100,
                 "filter": "any",
                 "sort": {
-                    "tag": "Pos",
+                    "tag": "Priority",
                     "desc": false
                 },
                 "tag": "",

@@ -15,12 +15,6 @@ function handleQueueCurrent() {
     selectTag('QueueCurrentSortTagsList', undefined, app.current.sort.tag);
     const searchMatchEl = elGetById(app.id + 'SearchMatch');
 
-    if (app.current.sort.tag === '' ||
-        app.current.sort.tag === 'Pos')
-    {
-        app.current.sort.tag = 'Priority';
-    }
-
     sendAPI("MYMPD_API_QUEUE_SEARCH", {
         "offset": app.current.offset,
         "limit": app.current.limit,
