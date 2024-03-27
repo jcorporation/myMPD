@@ -2,6 +2,14 @@
 
 https://github.com/jcorporation/myMPD/
 
+## myMPD 14.1.1 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: mympd-config - cleanup before writing new values #1245
+
 ## myMPD 14.1.0 (2024-03-12)
 
 This release enables the support for sticker sorting and fixes a severe mongoose bug.
