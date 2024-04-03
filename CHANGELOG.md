@@ -26,7 +26,17 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD 14.1.0 (not yet released)
+## myMPD 14.1.1 (2023-04-03)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: `-c` command line option cleans up the config dir #1245
+
+***
+
+## myMPD 14.1.0 (2024-03-12)
 
 This release enables the support for sticker sorting and fixes a severe mongoose bug.
 

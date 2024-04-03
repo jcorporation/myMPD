@@ -421,6 +421,7 @@ int main(int argc, char **argv) {
     //bootstrap - write config files and exit
     if (config->bootstrap == true) {
         if (drop_privileges(config->user, startup_uid) == true &&
+            mympd_config_rm(config) == true &&
             mympd_config_rw(config, true) == true &&
             create_certificates(config) == true)
         {

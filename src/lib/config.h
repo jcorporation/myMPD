@@ -14,6 +14,7 @@
 void mympd_config_defaults_initial(struct t_config *config);
 void mympd_config_defaults(struct t_config *config);
 void *mympd_config_free(struct t_config *config);
+bool mympd_config_rm(struct t_config *config);
 bool mympd_config_rw(struct t_config *config, bool write);
 void mympd_autoconf(struct t_config *config);
 bool mympd_version_set(sds workdir);

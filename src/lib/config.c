@@ -17,6 +17,8 @@
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 
+#include <dirent.h>
+#include <errno.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <string.h>
@@ -147,6 +149,36 @@ void mympd_config_defaults(struct t_config *config) {
     sds album_group_tag_str = startup_getenv_string("MYMPD_ALBUM_GROUP_TAG", CFG_MYMPD_ALBUM_GROUP_TAG, vcb_isname, config->first_startup);
     config->albums.group_tag = mpd_tag_name_iparse(album_group_tag_str);
     FREE_SDS(album_group_tag_str);
+}
+
+/**
+ * Removes all files from the config directory
+ * @param config pointer to config struct
+ * @return bool true on success, else false
+ */
+bool mympd_config_rm(struct t_config *config) {
+    errno = 0;
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_CONFIG);
+    DIR *config_dir = opendir(filepath);
+    if (config_dir == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Error opening directory \"%s\"", filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        FREE_SDS(filepath);
+        return false;
+    }
+
+    struct dirent *next_file;
+    while ((next_file = readdir(config_dir)) != NULL ) {
+        if (next_file->d_type != DT_REG) {
+            continue;
+        }
+        sdsclear(filepath);
+        filepath = sdscatfmt(filepath, "%S/%s/%s", config->workdir, DIR_WORK_CONFIG, next_file->d_name);
+        rm_file(filepath);
+    }
+    closedir(config_dir);
+    FREE_SDS(filepath);
+    return true;
 }
 
 /**
