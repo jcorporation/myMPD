@@ -42,7 +42,7 @@
  * Private definitions
  */
 
-static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_tags *fields, sds *key);
+static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_tags *tags, sds *key);
 
 /**
  * Public functions
@@ -586,7 +586,7 @@ void album_cache_set_uri(struct mpd_song *album, const char *uri) {
  * @param key already allocated sds string to set the album key
  * @return struct mpd_song* allocated mpd_song struct
  */
-static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_tags *tagcols, sds *key) {
+static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_tags *tags, sds *key) {
     struct mpd_song *album = NULL;
     sdsclear(*key);
     char *uri = mpack_node_cstr_alloc(mpack_node_map_cstr(album_node, "uri"), JSONRPC_STR_MAX);
@@ -601,8 +601,8 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
         album->last_modified = mpack_node_int(mpack_node_map_cstr(album_node, "Last-Modified"));
         album->added = mpack_node_int(mpack_node_map_cstr(album_node, "Added"));
         album->duration_ms = album->duration * 1000;
-        for (size_t i = 0; i < tagcols->len; i++) {
-            enum mpd_tag_type tag = tagcols->tags[i];
+        for (size_t i = 0; i < tags->len; i++) {
+            enum mpd_tag_type tag = tags->tags[i];
             const char *tag_name = mpd_tag_name(tag);
             mpack_node_t value_node = mpack_node_map_cstr_optional(album_node, tag_name);
             if (mpack_node_is_missing(value_node) == false) {
@@ -611,7 +611,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
                     for (size_t j = 0; j < len; j++) {
                         char *value = mpack_node_cstr_alloc(mpack_node_array_at(value_node, j), JSONRPC_STR_MAX);
                         if (value != NULL) {
-                            mympd_mpd_song_add_tag_dedup(album, tagcols->tags[i], value);
+                            mympd_mpd_song_add_tag_dedup(album, tags->tags[i], value);
                             MPACK_FREE(value);
                         }
                     }
@@ -619,7 +619,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
                 else {
                     char *value = mpack_node_cstr_alloc(value_node, JSONRPC_STR_MAX);
                     if (value != NULL) {
-                        mympd_mpd_song_add_tag_dedup(album, tagcols->tags[i], value);
+                        mympd_mpd_song_add_tag_dedup(album, tags->tags[i], value);
                         MPACK_FREE(value);
                     }
                 }

@@ -58,9 +58,9 @@ void tags_reset(struct t_tags *tags) {
 
 /**
  * Copy a struct t_fields to another one
- * @param src_tag_list source
- * @param dst_tag_list destination
+ * @param src_tags source
+ * @param dst_tags destination
  */
-void tags_clone(struct t_tags *src_fields, struct t_tags *dst_fields) {
-    memcpy((void *)dst_fields, (void *)src_fields, sizeof(struct t_tags));
+void tags_clone(struct t_tags *src_tags, struct t_tags *dst_tags) {
+    memcpy((void *)dst_tags, (void *)src_tags, sizeof(struct t_tags));
 }
