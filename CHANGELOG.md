@@ -10,7 +10,7 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Fix: mympd-config - cleanup before writing new values #1245
+- Fix: `-c` command line option cleans up the config dir #1245
 
 ***
 

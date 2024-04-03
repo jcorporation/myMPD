@@ -91,7 +91,6 @@ read_config() {
 }
 
 apply_config() {
-    find "${CONFIG_DIR}" -maxdepth 1 -type f -delete
     if [ "$MYMPD_SYSTEMD" -eq 1 ]
     then
         systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd \
