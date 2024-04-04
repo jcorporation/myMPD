@@ -41,7 +41,7 @@ function handleBrowsePlaylistList() {
  * Initializes the playlist elements
  * @returns {void}
  */
-function initViewPlaylists() {
+function initViewPlaylist() {
     elGetById('BrowsePlaylistDetailSortTagsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
@@ -51,25 +51,35 @@ function initViewPlaylists() {
 
     initSearchSimple('BrowsePlaylistList');
     initSearchExpression('BrowsePlaylistDetail');
+}
 
-    elGetById('BrowsePlaylistListList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            if (getData(target, 'smartpls-only') === false) {
-                clickPlaylist(getData(target, 'uri'), event);
-            }
-            else {
-                showNotification(tn('Playlist is empty'), 'playlist', 'warn');
-            }
+/**
+ * Click event handler for playlist list
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewPlaylistListListClickHandler(event) {
+    const target = tableClickHandler(event);
+    if (target !== null) {
+        if (getData(target, 'smartpls-only') === false) {
+            clickPlaylist(getData(target, 'uri'), event);
         }
-    }, false);
+        else {
+            showNotification(tn('Playlist is empty'), 'playlist', 'warn');
+        }
+    }
+}
 
-    elGetById('BrowsePlaylistDetailList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            clickSong(getData(target, 'uri'), event);
-        }
-    }, false);
+/**
+ * Click event handler for playlist detail list
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewPlaylistDetailListClickHandler(event) {
+    const target = tableClickHandler(event);
+    if (target !== null) {
+        clickSong(getData(target, 'uri'), event);
+    }
 }
 
 /**

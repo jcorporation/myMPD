@@ -41,15 +41,20 @@ function handleQueueCurrent() {
  * @returns {void}
  */
 function initViewQueueCurrent() {
-    elGetById('QueueCurrentList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            clickQueueSong(getData(target, 'songid'), getData(target, 'uri'), event);
-        }
-    }, false);
-
     initSortBtns('QueueCurrent');
     initSearchExpression('QueueCurrent');
+}
+
+/**
+ * Click event handler for current queue list
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewQueueCurrentListClickHandler(event) {
+    const target = tableClickHandler(event);
+    if (target !== null) {
+        clickQueueSong(getData(target, 'songid'), getData(target, 'uri'), event);
+    }
 }
 
 /**

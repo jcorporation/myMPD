@@ -6,18 +6,122 @@
 /** @module fields_js */
 
 /**
+ * Insert the view container
+ * @param {string} viewName table name
+ * @returns {void}
+ */
+function setView(viewName) {
+    const mode = settings['view' + viewName].mode;
+    const curContainer = elGetById(viewName + 'Container');
+    const curMode = getData(curContainer, 'viewMode');
+    if (curMode === mode) {
+        return;
+    }
+    const newContainer = mode === 'table'
+        ? pEl.viewTable.cloneNode(true)
+        : pEl.viewGrid.cloneNode(true);
+    newContainer.setAttribute('id', viewName + 'Container');
+    newContainer.firstElementChild.setAttribute('id', viewName + 'List');
+    curContainer.replaceWith(newContainer);
+    setData(newContainer, 'viewMode', mode);
+    newContainer.firstElementChild.addEventListener('click', function(event) {
+        viewClickHandler(event);
+    }, false);
+    newContainer.firstElementChild.addEventListener('contextmenu', function(event) {
+        viewRightClickHandler(event);
+    }, false);
+    newContainer.firstElementChild.addEventListener('long-press', function(event) {
+        viewRightClickHandler(event);
+    }, false);
+}
+
+/**
+ * Central click handler for views
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewClickHandler(event) {
+    switch(app.id) {
+        case 'BrowseDatabaseTagList':
+            viewBrowseDatabaseTagListListClickHandler(event);
+            break;
+        case 'BrowseDatabaseAlbumList':
+            viewBrowseDatabaseAlbumListListClickHandler(event);
+            break;
+        case 'BrowseDatabaseAlbumDetail':
+            viewBrowseDatabaseAlbumDetailListClickHandler(event);
+            break;
+        case 'BrowseFilesystem':
+            viewBrowseFilesystemListClickHandler(event);
+            break;
+        case 'BrowsePlaylistList':
+            viewPlaylistListListClickHandler(event);
+            break;
+        case 'BrowsePlaylistDetail':
+            viewPlaylistDetailListClickHandler(event);
+            break;
+        case 'BrowseRadioFavorites':
+            viewBrowseRadioFavoritesListClickHandler(event);
+            break;
+        case 'BrowseRadioRadiobrowser':
+            viewBrowseRadioRadiobrowserListClickHandler(event);
+            break;
+        case 'BrowseRadioWebradiodb':
+            viewBrowseRadioWebradiodbListClickHandler(event);
+            break;
+        case 'Home':
+            viewHomeClickHandler(event);
+            break;
+        case 'QueueCurrent':
+            viewQueueCurrentListClickHandler(event);
+            break;
+        case 'QueueJukeboxAlbum':
+        case 'QueueJukeboxSong':
+            viewQueueJukeboxListClickHandler(event);
+            break;
+        case 'QueueLastPlayed':
+            viewQueueLastPlayedListClickHandler(event);
+            break;
+        // No default
+    }
+}
+
+/**
+ * Central right click handler for views
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewRightClickHandler(event) {
+    if (settings['view' + app.id].mode === 'table') {
+        if (event.target.parentNode.classList.contains('not-clickable') ||
+            event.target.parentNode.parentNode.classList.contains('not-clickable'))
+        {
+            return;
+        }
+        showContextMenu(event);
+    }
+    else {
+        if (event.target.classList.contains('card-body') ||
+            event.target.classList.contains('card-footer'))
+        {
+            showContextMenu(event);
+        }
+    }
+}
+
+/**
  * Saves the fields for views
- * @param {string} tableName table name
+ * @param {string} viewName table name
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveView(tableName) {
+function saveView(viewName) {
     const params = {
-        "view": "view" + tableName,
-        "mode": settings['view' + tableName].mode,
+        "view": "view" + viewName,
+        "mode": settings['view' + viewName].mode,
         "fields": []
     };
-    const fieldsForm = elGetById(tableName + 'FieldsSelect');
+    const fieldsForm = elGetById(viewName + 'FieldsSelect');
     const fields = fieldsForm.querySelector('ul').querySelectorAll('li');
     for (let i = 0, j = fields.length; i < j; i++) {
         params.fields.push(fields[i].getAttribute('data-field'));

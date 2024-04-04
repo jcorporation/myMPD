@@ -80,26 +80,30 @@ function initViewBrowseRadioWebradiodb() {
     initWebradiodbFilter('BrowseRadioWebradiodbLanguageFilter', 'webradioLanguages', 'Language');
     initWebradiodbFilter('BrowseRadioWebradiodbCodecFilter', 'webradioCodecs', 'Codec');
     initWebradiodbFilter('BrowseRadioWebradiodbBitrateFilter', 'webradioBitrates', 'Bitrate');
-
-    elGetById('BrowseRadioWebradiodbList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            const uri = getData(target, 'uri');
-            if (settings.webuiSettings.clickRadiobrowser === 'add') {
-                showEditRadioFavorite({
-                    "Name": getData(target, 'name'),
-                    "Genre": getData(target, 'genre'),
-                    "Image": getData(target, 'image'),
-                    "StreamUri": uri
-                });
-            }
-            else {
-                clickWebradiodb(uri, event);
-            }
-        }
-    }, false);
-
     initSortBtns('BrowseRadioWebradiodb');
+}
+
+/**
+ * Click event handler for WebradioDB list
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewBrowseRadioWebradiodbListClickHandler(event) {
+    const target = tableClickHandler(event);
+    if (target !== null) {
+        const uri = getData(target, 'uri');
+        if (settings.webuiSettings.clickRadiobrowser === 'add') {
+            showEditRadioFavorite({
+                "Name": getData(target, 'name'),
+                "Genre": getData(target, 'genre'),
+                "Image": getData(target, 'image'),
+                "StreamUri": uri
+            });
+        }
+        else {
+            clickWebradiodb(uri, event);
+        }
+    }
 }
 
 /**

@@ -168,6 +168,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_BOOKLET_NAME "booklet.pdf"
 #define MYMPD_INFO_TXT_NAME "info.txt"
 #define MYMPD_AUTO_PLAY false
+#define MYMPD_VIEW_HOME "{\"mode\":\"grid\",\"fields\":[\"Name\"]}"
 #define MYMPD_VIEW_QUEUE_CURRENT "{\"mode\":\"table\",\"fields\":[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]}"
 #define MYMPD_VIEW_SEARCH "{\"mode\":\"table\",\"fields\":[\"Title\",\"Artist\",\"Album\",\"Duration\"]}"
 #define MYMPD_VIEW_BROWSE_DATABASE_ALBUM_DETAIL_INFO "{\"mode\":\"table\",\"fields\":[\"Album\",\"AlbumArtist\",\"Genre\"]}"

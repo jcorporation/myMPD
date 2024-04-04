@@ -59,35 +59,6 @@ function handleBrowseDatabaseAlbumDetail() {
  * @returns {void}
  */
 function initViewBrowseDatabase() {
-    elGetById('BrowseDatabaseTagListList').addEventListener('click', function(event) {
-        if (event.target.classList.contains('row')) {
-            return;
-        }
-        app.current.search = '';
-        if (event.target.nodeName === 'DIV') {
-            elGetById('BrowseDatabaseTagSearchStr').value = '';
-            // clear album search input
-            elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
-            gotoBrowse(event);
-        }
-        else if (event.target.nodeName === 'A') {
-            event.preventDefault();
-            event.stopPropagation();
-            if (event.target.getAttribute('data-list') === 'song') {
-                elGetById('SearchSearchStr').value = '';
-                const tag = getData(event.target.parentNode.parentNode, 'tag');
-                const value = getData(event.target.parentNode.parentNode, 'name');
-                gotoSearch(tag, value);
-            }
-            else {
-                elGetById('BrowseDatabaseTagSearchStr').value = '';
-                // clear album search input
-                elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
-                gotoBrowse(event);
-            }
-        }
-    }, false);
-
     initSearchSimple('BrowseDatabaseTag');
 
     elGetById('BrowseDatabaseTagListSortDesc').addEventListener('click', function(event) {
@@ -97,22 +68,66 @@ function initViewBrowseDatabase() {
         appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
 
-    elGetById('BrowseDatabaseAlbumListList').addEventListener('click', function(event) {
-        const target = gridClickHandler(event);
-        if (target !== null) {
-            appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, getData(target.parentNode, 'AlbumId'));
-        }
-    }, false);
-
-    elGetById('BrowseDatabaseAlbumDetailList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            clickSong(getData(target, 'uri'), event);
-        }
-    }, false);
-
     initSortBtns('BrowseDatabaseAlbumList');
     initSearchExpression('BrowseDatabaseAlbumList');
+}
+
+/**
+ * Click event handler for database tag list
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewBrowseDatabaseTagListListClickHandler(event) {
+    if (event.target.classList.contains('row')) {
+        return;
+    }
+    app.current.search = '';
+    if (event.target.nodeName === 'DIV') {
+        elGetById('BrowseDatabaseTagSearchStr').value = '';
+        // clear album search input
+        elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
+        gotoBrowse(event);
+    }
+    else if (event.target.nodeName === 'A') {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.target.getAttribute('data-list') === 'song') {
+            elGetById('SearchSearchStr').value = '';
+            const tag = getData(event.target.parentNode.parentNode, 'tag');
+            const value = getData(event.target.parentNode.parentNode, 'name');
+            gotoSearch(tag, value);
+        }
+        else {
+            elGetById('BrowseDatabaseTagSearchStr').value = '';
+            // clear album search input
+            elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
+            gotoBrowse(event);
+        }
+    }
+}
+
+/**
+ * Click event handler for database album list
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewBrowseDatabaseAlbumListListClickHandler(event) {
+    const target = gridClickHandler(event);
+    if (target !== null) {
+        appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, getData(target.parentNode, 'AlbumId'));
+    }
+}
+
+/**
+ * Click event handler for database album detail song list
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewBrowseDatabaseAlbumDetailListClickHandler(event) {
+    const target = tableClickHandler(event);
+    if (target !== null) {
+        clickSong(getData(target, 'uri'), event);
+    }
 }
 
 /**

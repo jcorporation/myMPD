@@ -24,14 +24,19 @@ function handleQueueLastPlayed() {
  * @returns {void}
  */
 function initViewQueueLastPlayed() {
-    elGetById('QueueLastPlayedList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            clickSong(getData(target, 'uri'), event);
-        }
-    }, false);
-
     initSearchExpression('QueueLastPlayed');
+}
+
+/**
+ * Click event handler for last played
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewQueueLastPlayedListClickHandler(event) {
+    const target = tableClickHandler(event);
+    if (target !== null) {
+        clickSong(getData(target, 'uri'), event);
+    }
 }
 
 /**

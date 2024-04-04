@@ -20,14 +20,19 @@ function handleBrowseRadioFavorites() {
  */
 function initViewBrowseRadioFavorites() {
     initSearchSimple('BrowseRadioFavorites');
+}
 
-    elGetById('BrowseRadioFavoritesList').addEventListener('click', function(event) {
-        const target = gridClickHandler(event);
-        if (target !== null) {
-            const uri = getData(target.parentNode, 'uri');
-            clickRadioFavorites(uri, event);
-        }
-    }, false);
+/**
+ * Click event handler for radio favorites list
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewBrowseRadioFavoritesListClickHandler(event) {
+    const target = gridClickHandler(event);
+    if (target !== null) {
+        const uri = getData(target.parentNode, 'uri');
+        clickRadioFavorites(uri, event);
+    }
 }
 
 /**

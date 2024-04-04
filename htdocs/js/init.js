@@ -229,7 +229,7 @@ function appInit() {
     initViewBrowseRadioWebradiodb();
     initViewHome();
     initViewPlayback();
-    initViewPlaylists();
+    initViewPlaylist();
     initPresets();
     initSelectActions();
     initViewQueueCurrent();
@@ -305,52 +305,6 @@ function appInit() {
             event.stopPropagation();
         }
     }, false);
-    //contextmenu for tables
-    const tables = ['BrowseFilesystemList', 'BrowseDatabaseAlbumDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
-        'QueueJukeboxSongList', 'QueueJukeboxAlbumList', 'SearchList', 'BrowsePlaylistListList', 'BrowsePlaylistDetailList',
-        'BrowseRadioRadiobrowserList', 'BrowseRadioWebradiodbList'];
-    for (const tableId of tables) {
-        const tbody = document.querySelector('#' + tableId + ' > tbody');
-        tbody.addEventListener('long-press', function(event) {
-            if (event.target.parentNode.classList.contains('not-clickable') ||
-                event.target.parentNode.parentNode.classList.contains('not-clickable') ||
-                getData(event.target.parentNode, 'type') === 'parentDir')
-            {
-                return;
-            }
-            showContextMenu(event);
-        }, false);
-
-        tbody.addEventListener('contextmenu', function(event) {
-            if (event.target.parentNode.classList.contains('not-clickable') ||
-                event.target.parentNode.parentNode.classList.contains('not-clickable') ||
-                getData(event.target.parentNode, 'type') === 'parentDir')
-            {
-                return;
-            }
-            showContextMenu(event);
-        }, false);
-    }
-    //contextmenu for grids
-    const grids = ['HomeList', 'BrowseDatabaseAlbumListList', 'BrowseRadioFavoritesList'];
-    for (const gridId of grids) {
-        const gridEl = document.querySelector('#' + gridId);
-        gridEl.addEventListener('contextmenu', function(event) {
-            if (event.target.classList.contains('card-body') ||
-                event.target.classList.contains('card-footer'))
-            {
-                showContextMenu(event);
-            }
-        }, false);
-    
-        gridEl.addEventListener('long-press', function(event) {
-            if (event.target.classList.contains('card-body') ||
-                event.target.classList.contains('card-footer'))
-            {
-                showContextMenu(event);
-            }
-        }, false);
-    }
 
     //websocket
     window.addEventListener('beforeunload', function() {

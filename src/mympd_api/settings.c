@@ -980,7 +980,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_sds(buffer, "lyricsSyltExt", mympd_state->lyrics.sylt_ext, true);
     buffer = tojson_sds(buffer, "lyricsVorbisUslt", mympd_state->lyrics.vorbis_uslt, true);
     buffer = tojson_sds(buffer, "lyricsVorbisSylt", mympd_state->lyrics.vorbis_sylt, true);
-    buffer = tojson_raw(buffer, "viewQueueCurrent", mympd_state->view_queue_current, true);
+    buffer = tojson_raw(buffer, "viewHome", MYMPD_VIEW_HOME, true);
     buffer = tojson_raw(buffer, "viewSearch", mympd_state->view_search, true);
     buffer = tojson_raw(buffer, "viewBrowseDatabaseAlbumDetailInfo", mympd_state->view_browse_database_album_detail_info, true);
     buffer = tojson_raw(buffer, "viewBrowseDatabaseAlbumDetail", mympd_state->view_browse_database_album_detail, true);
@@ -990,6 +990,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_raw(buffer, "viewBrowsePlaylistDetail", mympd_state->view_browse_playlist_detail, true);
     buffer = tojson_raw(buffer, "viewBrowseFilesystem", mympd_state->view_browse_filesystem, true);
     buffer = tojson_raw(buffer, "viewPlayback", mympd_state->view_playback, true);
+    buffer = tojson_raw(buffer, "viewQueueCurrent", mympd_state->view_queue_current, true);
     buffer = tojson_raw(buffer, "viewQueueLastPlayed", mympd_state->view_queue_last_played, true);
     buffer = tojson_raw(buffer, "viewQueueJukeboxSong", mympd_state->view_queue_jukebox_song, true);
     buffer = tojson_raw(buffer, "viewQueueJukeboxAlbum", mympd_state->view_queue_jukebox_album, true);

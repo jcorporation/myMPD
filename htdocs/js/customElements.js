@@ -44,6 +44,18 @@ function createPreGeneratedElements() {
     pEl.actionPlaylistTd = pEl.actionTdMenu;
     pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
         "data-title-phrase": "Quick play"}, 'play_arrow');
+    pEl.viewTable = elCreateNode('div', {'class': ['table-responsive', 'scrollContainer']},
+        elCreateNodes('table', {'class': ['table', 'table-hover', 'table-sm']}, [
+            elCreateNode('thead', {},
+                elCreateEmpty('tr', {})
+            ),
+            elCreateEmpty('tbody', {'class': ['clickable']}),
+            elCreateEmpty('tfoot')
+        ])
+    );
+    pEl.viewGrid = elCreateNode('div', {'class': ['container-fluid', 'cardsContainer', 'scrollContainer']},
+        elCreateEmpty('div', {'class': ['row', 'mympd-grid']})
+    );
 }
 
 /**

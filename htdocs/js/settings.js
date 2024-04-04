@@ -80,6 +80,9 @@ function parseSettings(obj) {
         document.documentElement.style.setProperty('--mympd-card-footer-word-wrap', 'unset');
     }
 
+    //Add views
+
+
     // toggle help
     toggleHelp(settings.webuiSettings.showHelp);
 
@@ -323,10 +326,14 @@ function parseMPDSettings() {
 
     for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed',
             'QueueJukeboxSong', 'QueueJukeboxAlbum',
-            'BrowsePlaylistDetail', 'BrowseFilesystem', 'BrowseDatabaseAlbumDetail'])
+            'BrowsePlaylistDetail', 'BrowseFilesystem', 'BrowseDatabaseTagList',
+            'BrowseDatabaseAlbumList', 'BrowseDatabaseAlbumDetail'])
     {
+        setView(table);
         filterFields(table);
-        setCols(table);
+        if (settings['view' + table].mode === 'table') {
+            setCols(table);
+        }
         //add all browse tags (advanced action in popover menu)
         const view = 'view' + table + 'Fetch';
         settings[view] = {};
@@ -338,9 +345,12 @@ function parseMPDSettings() {
             }
         }
     }
-    setCols('BrowseRadioWebradiodb');
-    setCols('BrowseRadioRadiobrowser');
-    setCols('BrowsePlaylistList');
+    for (const table of ['Home', 'BrowseRadioWebradiodb', 'BrowseRadioRadiobrowser', 'BrowsePlaylistList']) {
+        setView(table);
+        if (settings['view' + table].mode === 'table') {
+            setCols(table);
+        }
+    }
 
     //enforce album and albumartist for album list view
     settings['viewBrowseDatabaseAlbumListFetch'] = {};

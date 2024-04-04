@@ -104,10 +104,9 @@ function setCols(tableName) {
             app.cards.Search.sort.tag = 'Filename';
         }
         else {
-            app.cards.Search.sort.tag = '-';
+            app.cards.Search.sort.tag = '';
         }
     }
-
     const thead = document.querySelector('#' + tableName + 'List > thead > tr');
     elClear(thead);
 

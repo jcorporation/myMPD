@@ -113,7 +113,7 @@
             <button data-phrase="Modal shortcut" data-href='{"cmd": "addOpenModalToHome", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
           </div>
         </div>
-        <div class="container-fluid cardsContainer scrollContainer">
+        <div id="HomeContainer" class="container-fluid cardsContainer scrollContainer">
           <div id="HomeList" class="row mympd-grid noInitChilds"></div>
         </div>
       </div>
@@ -150,7 +150,7 @@
             <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
           </div>
         </div>
-        <div class="container-fluid scrollContainer">
+        <div id="PlaybackContainer" class="container-fluid scrollContainer">
           <div id="PlaybackList" class="row">
             <div class="col-12 col-sm-6 col-xl-4 ps-0 mb-3">
               <div class="album-cover album-cover-loading clickable carousel" id="PlaybackCover" data-href='{"cmd": "zoomPicture", "options": ["target"]}'></div>
@@ -260,15 +260,7 @@
           <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <div class="breadcrumb p-2 rounded-2 d-none" id="QueueCurrentSearchCrumb"></div>
-        <div class="table-responsive scrollContainer">
-          <table id="QueueCurrentList" class="table table-hover table-sm">
-            <thead>
-              <tr></tr>
-            </thead>
-            <tbody class="clickable"></tbody>
-            <tfoot></tfoot>
-          </table>
-        </div>
+        <div id="QueueCurrentContainer"></div>
         <div class="btn-toolbar d-none justify-content-between" id="QueueCurrentButtonsBottom"></div>
       </div>
 <!-- Queue current end-->
@@ -322,14 +314,7 @@
           <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <div class="breadcrumb p-2 rounded-2 d-none" id="QueueLastPlayedSearchCrumb"></div>
-        <div class="table-responsive scrollContainer">
-          <table id="QueueLastPlayedList" class="table table-hover table-sm">
-            <thead>
-              <tr></tr>
-            </thead>
-            <tbody class="clickable"></tbody>
-          </table>
-        </div>
+        <div id="QueueLastPlayedContainer"></div>
         <div class="btn-toolbar d-none justify-content-between" id="QueueLastPlayedButtonsBottom"></div>
       </div>
 <!-- Last played end -->
@@ -387,15 +372,8 @@
             <div id="QueueJukeboxSongPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxSongSearchCrumb"></div>
-          <div class="table-responsive scrollContainer">
-            <div id="QueueJukeboxSongDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
-            <table id="QueueJukeboxSongList" class="table table-hover table-sm">
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-            </table>
-          </div>
+          <div id="QueueJukeboxSongDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
+          <div id="QueueJukeboxSongContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="QueueJukeboxSongButtonsBottom"></div>
         </div>
 <!-- Jukebox song end -->
@@ -452,15 +430,8 @@
             <div id="QueueJukeboxAlbumPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxAlbumSearchCrumb"></div>
-          <div class="table-responsive scrollContainer">
-            <div id="QueueJukeboxAlbumDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
-            <table id="QueueJukeboxAlbumList" class="table table-hover table-sm">
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-            </table>
-          </div>
+          <div id="QueueJukeboxAlbumDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
+          <div  id="QueueJukeboxAlbumContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="QueueJukeboxAlbumButtonsBottom"></div>
         </div>
       </div>
@@ -513,19 +484,7 @@
             </div>
             <div id="BrowsePlaylistListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="table-responsive scrollContainer">
-            <table id="BrowsePlaylistListList" class="table table-hover table-sm">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th data-phrase="Playlist"></th>
-                  <th data-phrase="Last modified"></th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-            </table>
-          </div>
+          <div id="BrowsePlaylistListContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistListButtonsBottom"></div>
         </div>
 <!--  Playlists end -->
@@ -623,20 +582,11 @@
             <div id="BrowsePlaylistDetailPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="BrowsePlaylistDetailSearchCrumb"></div>
-          <div class="table-responsive scrollContainer">
-            <div id="playlistDetailAlert" class="alert alert-warning alert-dismissible d-none">
-              <span></span>
-              <button class="btn-close" data-href='{"cmd": "hideAlert", "options": ["target"]}'></button>
-            </div>
-            <table id="BrowsePlaylistDetailList" class="table table-hover table-sm">
-              <caption></caption>
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-              <tfoot></tfoot>
-            </table>
+          <div id="playlistDetailAlert" class="alert alert-warning alert-dismissible d-none">
+            <span></span>
+            <button class="btn-close" data-href='{"cmd": "hideAlert", "options": ["target"]}'></button>
           </div>
+          <div id="BrowsePlaylistDetailContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistDetailButtonsBottom"></div>
         </div>
       </div>
@@ -664,9 +614,7 @@
             </div>
             <div id="BrowseDatabaseTagListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="container-fluid cardsContainer scrollContainer">
-            <div id="BrowseDatabaseTagListList" class="row mympd-grid"></div>
-          </div>
+          <div id="BrowseDatabaseTagListContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseDatabaseTagListButtonsBottom"></div>
         </div>
 <!-- Tag list end -->
@@ -725,9 +673,7 @@
             <div id="BrowseDatabaseAlbumListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="BrowseDatabaseAlbumListSearchCrumb"></div>
-          <div class="container-fluid cardsContainer scrollContainer">
-            <div id="BrowseDatabaseAlbumListList" class="row mympd-grid"></div>
-          </div>
+          <div id="BrowseDatabaseAlbumListContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseDatabaseAlbumListButtonsBottom"></div>
         </div>
 <!-- Album list end -->
@@ -766,7 +712,7 @@
               <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
             </div>
           </div>
-          <div class="table-responsive scrollContainer">
+          <div id="BrowseDatabaseAlbumDetailContainer" class="table-responsive scrollContainer">
             <div class="row me-0">
               <div class="col-12 col-sm-6 col-xl-4 mb-3">
                 <div id="viewDatabaseAlbumDetailCover" class="mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": ["target"]}'></div>
@@ -832,15 +778,7 @@
         </div>
         <ol id="BrowseFilesystemBreadcrumb" class="breadcrumb p-2 rounded-2 overflow-auto nowrap"></ol>
         <div id="BrowseFilesystemImages" class="featLibrary not-clickable" data-href='{"cmd": "zoomPicture", "options": ["target"]}'></div>
-        <div class="table-responsive scrollContainer">
-          <table id="BrowseFilesystemList" class="table table-hover table-sm">
-            <thead>
-              <tr></tr>
-            </thead>
-            <tbody class="clickable"></tbody>
-            <tfoot></tfoot>
-          </table>
-        </div>
+        <div id="BrowseFilesystemContainer"></div>
         <div class="btn-toolbar d-none justify-content-between" id="BrowseFilesystemButtonsBottom"></div>
       </div>
 <!-- Filesystem end -->
@@ -884,9 +822,7 @@
             </div>
             <div id="BrowseRadioFavoritesPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="container-fluid scrollContainer cardsContainer">
-            <div id="BrowseRadioFavoritesList" class="row mympd-grid"></div>
-          </div>
+          <div id="BrowseRadioFavoritesContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioFavoritesButtonsBottom"></div>
         </div>
 <!-- Radio favorites end -->
@@ -953,15 +889,7 @@
             </div>
             <div id="BrowseRadioWebradiodbPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="table-responsive scrollContainer">
-            <table id="BrowseRadioWebradiodbList" class="table table-hover table-sm">
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-              <tfoot></tfoot>
-            </table>
-          </div>
+          <div id="BrowseRadioWebradiodbContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioWebradiodbButtonsBottom"></div>
         </div>
 <!-- WebradioDB end -->
@@ -1007,15 +935,7 @@
             </div>
             <div id="BrowseRadioRadiobrowserPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="table-responsive scrollContainer">
-            <table id="BrowseRadioRadiobrowserList" class="table table-hover table-sm">
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-              <tfoot></tfoot>
-            </table>
-          </div>
+          <div id="BrowseRadioRadiobrowserContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioRadiobrowserButtonsBottom"></div>
         </div>
 <!-- Radiobrowser end -->
@@ -1086,15 +1006,7 @@
           <div id="SearchPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <div class="breadcrumb p-2 rounded-2 d-none" id="SearchSearchCrumb"></div>
-        <div class="table-responsive scrollContainer">
-          <table id="SearchList" class="table table-hover table-sm">
-            <thead>
-              <tr></tr>
-            </thead>
-            <tbody class="clickable"></tbody>
-            <tfoot></tfoot>
-          </table>
-        </div>
+        <div id="SearchContainer"></div>
         <div class="btn-toolbar d-none justify-content-between" id="SearchButtonsBottom"></div>
       </div>
     </div>
@@ -3111,7 +3023,7 @@
 <!--debug-->  <script src="js/elements.js"></script>
 <!--debug-->  <script src="js/features.js"></script>
 <!--debug-->  <script src="js/feedback.js"></script>
-<!--debug-->  <script src="js/fields.js"></script>
+<!--debug-->  <script src="js/views.js"></script>
 <!--debug-->  <script src="js/forms.js"></script>
 <!--debug-->  <script src="js/globales.js"></script>
 <!--debug-->  <script src="js/grid.js"></script>
@@ -3179,7 +3091,7 @@
 <!--debug-->  <script src="js/version.js"></script>
 <!--debug-->  <script src="js/viewBrowseDatabase.js"></script>
 <!--debug-->  <script src="js/viewBrowseFilesystem.js"></script>
-<!--debug-->  <script src="js/viewBrowsePlaylists.js"></script>
+<!--debug-->  <script src="js/viewBrowsePlaylist.js"></script>
 <!--debug-->  <script src="js/viewBrowseRadioFavorites.js"></script>
 <!--debug-->  <script src="js/viewBrowseRadioRadiobrowser.js"></script>
 <!--debug-->  <script src="js/viewBrowseRadioWebradiodb.js"></script>

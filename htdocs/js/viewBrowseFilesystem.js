@@ -61,27 +61,6 @@ function handleBrowseFilesystem() {
 function initViewBrowseFilesystem() {
     initSearchSimple('BrowseFilesystem');
 
-    elGetById('BrowseFilesystemList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            const uri = getData(target, 'uri');
-            const dataType = getData(target, 'type');
-            switch(dataType) {
-                case 'dir':
-                    clickFolder(uri);
-                    break;
-                case 'song':
-                    clickSong(uri, event);
-                    break;
-                case 'plist':
-                    clickFilesystemPlaylist(uri, event);
-                    break;
-                default:
-                    logError('Invalid type: ' + dataType);
-            }
-        }
-    }, false);
-
     elGetById('BrowseFilesystemBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
@@ -95,6 +74,32 @@ function initViewBrowseFilesystem() {
             appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, uri, app.current.sort, 'dir', '', scrollPos);
         }
     }, false);
+}
+
+/**
+ * Click event handler for filesystem list
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewBrowseFilesystemListClickHandler(event) {
+    const target = tableClickHandler(event);
+    if (target !== null) {
+        const uri = getData(target, 'uri');
+        const dataType = getData(target, 'type');
+        switch(dataType) {
+            case 'dir':
+                clickFolder(uri);
+                break;
+            case 'song':
+                clickSong(uri, event);
+                break;
+            case 'plist':
+                clickFilesystemPlaylist(uri, event);
+                break;
+            default:
+                logError('Invalid type: ' + dataType);
+        }
+    }
 }
 
 /**

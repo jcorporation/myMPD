@@ -18,17 +18,22 @@ function handleHome() {
  * @returns {void}
  */
 function initViewHome() {
-    elGetById('HomeList').addEventListener('click', function(event) {
-        const target = gridClickHandler(event);
-        if (target !== null) {
-            const href = getData(target.parentNode, 'href');
-            if (href !== undefined) {
-               parseCmd(event, href);
-            }
-        }
-    }, false);
-
     dragAndDropHome();
+}
+
+/**
+ * Click event handler for home icons
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewHomeClickHandler(event) {
+    const target = gridClickHandler(event);
+    if (target !== null) {
+        const href = getData(target.parentNode, 'href');
+        if (href !== undefined) {
+            parseCmd(event, href);
+        }
+    }
 }
 
 /**

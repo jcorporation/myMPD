@@ -68,24 +68,29 @@ function initViewBrowseRadioRadiobrowser() {
     elGetById('BrowseRadioRadiobrowserFilter').addEventListener('hide.bs.collapse', function() {
         elGetById('BrowseRadioRadiobrowserFilterBtn').classList.remove('active');
     }, false);
+}
 
-    elGetById('BrowseRadioRadiobrowserList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            const uri = getData(target, 'uri');
-            if (settings.webuiSettings.clickRadiobrowser === 'add') {
-                showEditRadioFavorite({
-                    "Name": getData(target, 'name'),
-                    "Genre": getData(target, 'genre'),
-                    "Image": getData(target, 'image'),
-                    "StreamUri": uri
-                });
-            }
-            else {
-                clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'), event);
-            }
+/**
+ * Click event handler for Radiobrowser list
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function viewBrowseRadioRadiobrowserListClickHandler(event) {
+    const target = tableClickHandler(event);
+    if (target !== null) {
+        const uri = getData(target, 'uri');
+        if (settings.webuiSettings.clickRadiobrowser === 'add') {
+            showEditRadioFavorite({
+                "Name": getData(target, 'name'),
+                "Genre": getData(target, 'genre'),
+                "Image": getData(target, 'image'),
+                "StreamUri": uri
+            });
         }
-    }, false);
+        else {
+            clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'), event);
+        }
+    }
 }
 
 /**
