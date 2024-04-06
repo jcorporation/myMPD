@@ -253,21 +253,7 @@ bool
 mpd_search_add_window(struct mpd_connection *connection,
 		      unsigned start, unsigned end)
 {
-	assert(connection != NULL);
-	assert(start <= end);
-
-	const size_t size = 64;
-	char *dest = mpd_request_prepare_append(connection, size);
-	if (dest == NULL)
-		return false;
-
-	if (end == UINT_MAX)
-		/* the special value -1 means "open end" */
-		snprintf(dest, size, " window %u:", start);
-	else
-		snprintf(dest, size, " window %u:%u", start, end);
-
-	return true;
+	return mpd_request_add_window(connection, start, end);
 }
 
 bool
