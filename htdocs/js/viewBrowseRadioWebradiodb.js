@@ -86,23 +86,21 @@ function initViewBrowseRadioWebradiodb() {
 /**
  * Click event handler for WebradioDB list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewBrowseRadioWebradiodbListClickHandler(event) {
-    const target = tableClickHandler(event);
-    if (target !== null) {
-        const uri = getData(target, 'uri');
-        if (settings.webuiSettings.clickRadiobrowser === 'add') {
-            showEditRadioFavorite({
-                "Name": getData(target, 'name'),
-                "Genre": getData(target, 'genre'),
-                "Image": getData(target, 'image'),
-                "StreamUri": uri
-            });
-        }
-        else {
-            clickWebradiodb(uri, event);
-        }
+function viewBrowseRadioWebradiodbListClickHandler(event, target) {
+    const uri = getData(target, 'uri');
+    if (settings.webuiSettings.clickRadiobrowser === 'add') {
+        showEditRadioFavorite({
+            "Name": getData(target, 'name'),
+            "Genre": getData(target, 'genre'),
+            "Image": getData(target, 'image'),
+            "StreamUri": uri
+        });
+    }
+    else {
+        clickWebradiodb(uri, event);
     }
 }
 

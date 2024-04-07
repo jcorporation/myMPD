@@ -56,30 +56,26 @@ function initViewPlaylist() {
 /**
  * Click event handler for playlist list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewPlaylistListListClickHandler(event) {
-    const target = tableClickHandler(event);
-    if (target !== null) {
-        if (getData(target, 'smartpls-only') === false) {
-            clickPlaylist(getData(target, 'uri'), event);
-        }
-        else {
-            showNotification(tn('Playlist is empty'), 'playlist', 'warn');
-        }
+function viewPlaylistListListClickHandler(event, target) {
+    if (getData(target, 'smartpls-only') === false) {
+        clickPlaylist(getData(target, 'uri'), event);
+    }
+    else {
+        showNotification(tn('Playlist is empty'), 'playlist', 'warn');
     }
 }
 
 /**
  * Click event handler for playlist detail list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewPlaylistDetailListClickHandler(event) {
-    const target = tableClickHandler(event);
-    if (target !== null) {
-        clickSong(getData(target, 'uri'), event);
-    }
+function viewPlaylistDetailListClickHandler(event, target) {
+    clickSong(getData(target, 'uri'), event);
 }
 
 /**

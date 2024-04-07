@@ -712,7 +712,7 @@
               <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
             </div>
           </div>
-          <div id="BrowseDatabaseAlbumDetailContainer" class="table-responsive scrollContainer">
+          <div class="scrollContainer table-responsive">
             <div class="row me-0">
               <div class="col-12 col-sm-6 col-xl-4 mb-3">
                 <div id="viewDatabaseAlbumDetailCover" class="mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": ["target"]}'></div>
@@ -721,13 +721,15 @@
                 <div id="viewDatabaseAlbumDetailInfoTags" class="row"></div>
               </div>
             </div>
-            <table id="BrowseDatabaseAlbumDetailList" class="table table-hover table-sm">
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-              <tfoot></tfoot>
-            </table>
+            <div id="BrowseDatabaseAlbumDetailContainer">
+              <table id="BrowseDatabaseAlbumDetailList" class="table table-hover table-sm">
+                <thead>
+                  <tr></tr>
+                </thead>
+                <tbody class="clickable"></tbody>
+                <tfoot></tfoot>
+              </table>
+            </div>
           </div>
         </div>
       </div>

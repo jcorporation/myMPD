@@ -43,17 +43,15 @@ function initViewQueueJukebox(view) {
 /**
  * Click event handler for jukebox list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewQueueJukeboxListClickHandler(event) {
-    const target = tableClickHandler(event);
-    if (target !== null) {
-        if (settings.partition.jukeboxMode === 'song') {
-            clickSong(getData(target, 'uri'), event);
-        }
-        else if (settings.partition.jukeboxMode === 'album') {
-            clickQuickPlay(target);
-        }
+function viewQueueJukeboxListClickHandler(event, target) {
+    if (settings.partition.jukeboxMode === 'song') {
+        clickSong(getData(target, 'uri'), event);
+    }
+    else if (settings.partition.jukeboxMode === 'album') {
+        clickQuickPlay(target);
     }
 }
 

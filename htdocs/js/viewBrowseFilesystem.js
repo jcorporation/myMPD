@@ -79,26 +79,24 @@ function initViewBrowseFilesystem() {
 /**
  * Click event handler for filesystem list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewBrowseFilesystemListClickHandler(event) {
-    const target = tableClickHandler(event);
-    if (target !== null) {
-        const uri = getData(target, 'uri');
-        const dataType = getData(target, 'type');
-        switch(dataType) {
-            case 'dir':
-                clickFolder(uri);
-                break;
-            case 'song':
-                clickSong(uri, event);
-                break;
-            case 'plist':
-                clickFilesystemPlaylist(uri, event);
-                break;
-            default:
-                logError('Invalid type: ' + dataType);
-        }
+function viewBrowseFilesystemListClickHandler(event, target) {
+    const uri = getData(target, 'uri');
+    const dataType = getData(target, 'type');
+    switch(dataType) {
+        case 'dir':
+            clickFolder(uri);
+            break;
+        case 'song':
+            clickSong(uri, event);
+            break;
+        case 'plist':
+            clickFilesystemPlaylist(uri, event);
+            break;
+        default:
+            logError('Invalid type: ' + dataType);
     }
 }
 

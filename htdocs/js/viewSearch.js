@@ -49,15 +49,18 @@ function handleSearch() {
  * @returns {void}
  */
 function initViewSearch() {
-    elGetById('SearchList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            clickSong(getData(target, 'uri'), event);
-        }
-    }, false);
-
     initSortBtns('Search');
     initSearchExpression('Search');
+}
+
+/**
+ * Click event handler for last played
+ * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
+ * @returns {void}
+ */
+function viewSearchListClickHandler(event, target) {
+    clickSong(getData(target, 'uri'), event);
 }
 
 /**

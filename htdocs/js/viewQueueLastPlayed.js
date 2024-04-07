@@ -30,13 +30,11 @@ function initViewQueueLastPlayed() {
 /**
  * Click event handler for last played
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewQueueLastPlayedListClickHandler(event) {
-    const target = tableClickHandler(event);
-    if (target !== null) {
-        clickSong(getData(target, 'uri'), event);
-    }
+function viewQueueLastPlayedListClickHandler(event, target) {
+    clickSong(getData(target, 'uri'), event);
 }
 
 /**

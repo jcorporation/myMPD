@@ -48,13 +48,11 @@ function initViewQueueCurrent() {
 /**
  * Click event handler for current queue list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewQueueCurrentListClickHandler(event) {
-    const target = tableClickHandler(event);
-    if (target !== null) {
-        clickQueueSong(getData(target, 'songid'), getData(target, 'uri'), event);
-    }
+function viewQueueCurrentListClickHandler(event, target) {
+    clickQueueSong(getData(target, 'songid'), getData(target, 'uri'), event);
 }
 
 /**

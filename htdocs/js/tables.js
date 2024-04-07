@@ -178,8 +178,8 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         ? true
         : false;
     const tbody = table.querySelector('tbody');
-    const colspan = settings['view' + list] !== undefined
-        ? settings['view' + list].length
+    const colspan = settings['view' + list].fields !== undefined
+        ? settings['view' + list].fields.length
         : 0;
 
     const nrItems = obj.result.returnedEntities;
@@ -400,45 +400,4 @@ function handleActionTdClick(event) {
         default:
             logError('Invalid action: ' + action);
     }
-}
-
-/**
- * Central table click handler.
- * Handles clicks on table header and body.
- * @param {MouseEvent} event the event to handle
- * @returns {HTMLElement} the event target (row) to handle or null if it was handled or should not be handled
- */
-function tableClickHandler(event) {
-    if (event.target.nodeName === 'CAPTION') {
-        return null;
-    }
-    //select mode
-    if (selectEntry(event) === true) {
-        return null;
-    }
-    //action td
-    if (event.target.nodeName === 'A') {
-        if (event.target.parentNode.getAttribute('data-col') === 'Action') {
-            handleActionTdClick(event);
-        }
-        else {
-            // allow default link action
-        }
-        return null;
-    }
-    //table header
-    if (event.target.nodeName === 'TH') {
-        return null;
-    }
-    //table body
-    const target = event.target.closest('TR');
-    if (target === null) {
-        return null;
-    }
-    if (target.parentNode.nodeName === 'TBODY' &&
-        checkTargetClick(target) === true)
-    {
-        return target;
-    }
-    return null;
 }

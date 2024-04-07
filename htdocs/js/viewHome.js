@@ -24,15 +24,13 @@ function initViewHome() {
 /**
  * Click event handler for home icons
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewHomeClickHandler(event) {
-    const target = gridClickHandler(event);
-    if (target !== null) {
-        const href = getData(target.parentNode, 'href');
-        if (href !== undefined) {
-            parseCmd(event, href);
-        }
+function viewHomeClickHandler(event, target) {
+    const href = getData(target, 'href');
+    if (href !== undefined) {
+        parseCmd(event, href);
     }
 }
 

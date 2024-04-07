@@ -78,9 +78,6 @@ function initViewBrowseDatabase() {
  * @returns {void}
  */
 function viewBrowseDatabaseTagListListClickHandler(event) {
-    if (event.target.classList.contains('row')) {
-        return;
-    }
     app.current.search = '';
     if (event.target.nodeName === 'DIV') {
         elGetById('BrowseDatabaseTagSearchStr').value = '';
@@ -89,8 +86,6 @@ function viewBrowseDatabaseTagListListClickHandler(event) {
         gotoBrowse(event);
     }
     else if (event.target.nodeName === 'A') {
-        event.preventDefault();
-        event.stopPropagation();
         if (event.target.getAttribute('data-list') === 'song') {
             elGetById('SearchSearchStr').value = '';
             const tag = getData(event.target.parentNode.parentNode, 'tag');
@@ -109,25 +104,21 @@ function viewBrowseDatabaseTagListListClickHandler(event) {
 /**
  * Click event handler for database album list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewBrowseDatabaseAlbumListListClickHandler(event) {
-    const target = gridClickHandler(event);
-    if (target !== null) {
-        appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, getData(target.parentNode, 'AlbumId'));
-    }
+function viewBrowseDatabaseAlbumListListClickHandler(event, target) {
+    appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, getData(target, 'AlbumId'));
 }
 
 /**
  * Click event handler for database album detail song list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewBrowseDatabaseAlbumDetailListClickHandler(event) {
-    const target = tableClickHandler(event);
-    if (target !== null) {
-        clickSong(getData(target, 'uri'), event);
-    }
+function viewBrowseDatabaseAlbumDetailListClickHandler(event, target) {
+    clickSong(getData(target, 'uri'), event);
 }
 
 /**

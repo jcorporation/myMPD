@@ -25,14 +25,12 @@ function initViewBrowseRadioFavorites() {
 /**
  * Click event handler for radio favorites list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewBrowseRadioFavoritesListClickHandler(event) {
-    const target = gridClickHandler(event);
-    if (target !== null) {
-        const uri = getData(target.parentNode, 'uri');
-        clickRadioFavorites(uri, event);
-    }
+function viewBrowseRadioFavoritesListClickHandler(event, target) {
+    const uri = getData(target, 'uri');
+    clickRadioFavorites(uri, event);
 }
 
 /**

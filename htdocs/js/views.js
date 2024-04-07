@@ -20,6 +20,10 @@ function setView(viewName) {
     const newContainer = mode === 'table'
         ? pEl.viewTable.cloneNode(true)
         : pEl.viewGrid.cloneNode(true);
+    if (curContainer.parentNode.classList.contains('scrollContainer')) {
+        // do not insert a scrolling container in an already scrolling parent
+        newContainer.classList.remove('scrollContainer', 'table-responsive');
+    }
     newContainer.setAttribute('id', viewName + 'Container');
     newContainer.firstElementChild.setAttribute('id', viewName + 'List');
     curContainer.replaceWith(newContainer);
@@ -41,46 +45,96 @@ function setView(viewName) {
  * @returns {void}
  */
 function viewClickHandler(event) {
+    if (event.target.classList.contains('row') ||
+        event.target.nodeName === 'CAPTION' ||
+        event.target.nodeName === 'TH')
+    {
+        return;
+    }
+    //select mode
+    if (selectEntry(event) === true) {
+        return;
+    }
+    let target = null;
+    if (settings['view' + app.id].mode === 'table') {
+        //action td
+        if (event.target.nodeName === 'A') {
+            if (event.target.parentNode.getAttribute('data-col') === 'Action') {
+                handleActionTdClick(event);
+            }
+            else {
+                // allow default link action
+            }
+            return;
+        }
+        //table body
+        target = event.target.closest('TR');
+        if (target === null) {
+            return;
+        }
+        if (target.parentNode.nodeName !== 'TBODY' ||
+            checkTargetClick(target) === false)
+        {
+            return;
+        }
+    }
+    else {
+        target = event.target.closest('DIV');
+        if (target === null) {
+            return;
+        }
+        if (target.classList.contains('card-footer')){
+            showContextMenu(event);
+            return;
+        }
+        // set target to card
+        target = target.parentNode;
+    }
+    event.preventDefault();
+    event.stopPropagation();
     switch(app.id) {
         case 'BrowseDatabaseTagList':
             viewBrowseDatabaseTagListListClickHandler(event);
             break;
         case 'BrowseDatabaseAlbumList':
-            viewBrowseDatabaseAlbumListListClickHandler(event);
+            viewBrowseDatabaseAlbumListListClickHandler(event, target);
             break;
         case 'BrowseDatabaseAlbumDetail':
-            viewBrowseDatabaseAlbumDetailListClickHandler(event);
+            viewBrowseDatabaseAlbumDetailListClickHandler(event, target);
             break;
         case 'BrowseFilesystem':
-            viewBrowseFilesystemListClickHandler(event);
+            viewBrowseFilesystemListClickHandler(event, target);
             break;
         case 'BrowsePlaylistList':
-            viewPlaylistListListClickHandler(event);
+            viewPlaylistListListClickHandler(event, target);
             break;
         case 'BrowsePlaylistDetail':
-            viewPlaylistDetailListClickHandler(event);
+            viewPlaylistDetailListClickHandler(event, target);
             break;
         case 'BrowseRadioFavorites':
-            viewBrowseRadioFavoritesListClickHandler(event);
+            viewBrowseRadioFavoritesListClickHandler(event, target);
             break;
         case 'BrowseRadioRadiobrowser':
-            viewBrowseRadioRadiobrowserListClickHandler(event);
+            viewBrowseRadioRadiobrowserListClickHandler(event, target);
             break;
         case 'BrowseRadioWebradiodb':
-            viewBrowseRadioWebradiodbListClickHandler(event);
+            viewBrowseRadioWebradiodbListClickHandler(event, target);
             break;
         case 'Home':
-            viewHomeClickHandler(event);
+            viewHomeClickHandler(event, target);
             break;
         case 'QueueCurrent':
-            viewQueueCurrentListClickHandler(event);
+            viewQueueCurrentListClickHandler(event, target);
             break;
         case 'QueueJukeboxAlbum':
         case 'QueueJukeboxSong':
-            viewQueueJukeboxListClickHandler(event);
+            viewQueueJukeboxListClickHandler(event, target);
             break;
         case 'QueueLastPlayed':
-            viewQueueLastPlayedListClickHandler(event);
+            viewQueueLastPlayedListClickHandler(event, target);
+            break;
+        case 'Search':
+            viewSearchListClickHandler(event, target);
             break;
         // No default
     }

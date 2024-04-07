@@ -73,23 +73,21 @@ function initViewBrowseRadioRadiobrowser() {
 /**
  * Click event handler for Radiobrowser list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewBrowseRadioRadiobrowserListClickHandler(event) {
-    const target = tableClickHandler(event);
-    if (target !== null) {
-        const uri = getData(target, 'uri');
-        if (settings.webuiSettings.clickRadiobrowser === 'add') {
-            showEditRadioFavorite({
-                "Name": getData(target, 'name'),
-                "Genre": getData(target, 'genre'),
-                "Image": getData(target, 'image'),
-                "StreamUri": uri
-            });
-        }
-        else {
-            clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'), event);
-        }
+function viewBrowseRadioRadiobrowserListClickHandler(event, target) {
+    const uri = getData(target, 'uri');
+    if (settings.webuiSettings.clickRadiobrowser === 'add') {
+        showEditRadioFavorite({
+            "Name": getData(target, 'name'),
+            "Genre": getData(target, 'genre'),
+            "Image": getData(target, 'image'),
+            "StreamUri": uri
+        });
+    }
+    else {
+        clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'), event);
     }
 }
 
