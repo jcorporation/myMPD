@@ -6,6 +6,8 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v15.0.0 (not yet released)
 
+This release reworks the table and grid layouts for all views. Each view can now be displayed as table or grid.
+
 ### API changes
 
 - The `cols` param was renamed to `fields`
@@ -15,16 +17,18 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Feat: All views can be displayed as table or grid (with pictures) #1051
 - Feat: Add setting for default sort tag in library view #1207
 - Feat: Add lua library for myGPIOd support #1208
-- Feat: Support range for listplaylist and listplaylistinfo #1214
-- Feat: support playlistlength command #1213
+- Feat: Support range for listplaylist and listplaylistinfo (MPD 0.24) #1214
+- Feat: support playlistlength command (MPD 0.24) #1213
 - Feat: Add column for "File type" in song lists #1225
 - Feat: Add thumbnail column to views #1093
 - Feat: Add playlist art handler
 - Feat: Configurable columns for playlist view
 - Feat: Add option to disable covercache pruning #1237
 - Upd: Bootstrap 5.3.3
+- Upd: Support ESLint 9
 - Fix: List and search playlists in filesystem view
 
 ***
