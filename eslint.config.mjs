@@ -4,6 +4,7 @@ import pluginJsdoc from "eslint-plugin-jsdoc";
 
 export default [
     pluginJs.configs.recommended,
+    pluginJsdoc.configs['flat/recommended-typescript-flavor'],
     {
         files: [
             "htdocs/sw.js",
@@ -13,7 +14,7 @@ export default [
             jsdoc: pluginJsdoc
         },
         linterOptions: {
-            reportUnusedDisableDirectives: "warn"
+            reportUnusedDisableDirectives: "off"
         },
         languageOptions: {
             sourceType: "script",
@@ -73,7 +74,7 @@ export default [
             "release/htdocs/js/i18n.min.js"
         ],
         linterOptions: {
-            reportUnusedDisableDirectives: "warn"
+            reportUnusedDisableDirectives: "off"
         },
         languageOptions: {
             sourceType: "script",
