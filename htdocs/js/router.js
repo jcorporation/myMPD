@@ -200,6 +200,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }
             catch(error) {
                 //do nothing
+                logDebug(error);
             }
         }
         if (jsonHash === null) {

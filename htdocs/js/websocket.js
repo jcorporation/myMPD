@@ -72,6 +72,7 @@ function webSocketConnect() {
         }
         catch(error) {
             logError('Invalid websocket notification received: ' + msg.data);
+            logError(error);
             return;
         }
 

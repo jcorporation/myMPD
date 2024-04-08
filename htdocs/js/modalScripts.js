@@ -213,6 +213,7 @@ function getImportScript(script) {
                 }
             });
             logError('Can not parse script arguments:' + firstLine);
+            logError(error);
         }
 
         elGetById('modalScriptsContentInput').removeAttribute('disabled');
