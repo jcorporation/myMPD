@@ -35,7 +35,7 @@ function showContextMenuOffcanvas(target, contextMenuType) {
 
     switch (contextMenuType) {
         case 'viewSettings':
-            //column select in table header
+            //view settings
             createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, createMenuViewSettings, undefined);
             break;
         case 'disc':
@@ -71,6 +71,7 @@ function createContextMenuOffcanvasInit(contextMenuEl, type) {
     const contextMenuBody = contextMenuEl.querySelector('.offcanvas-body');
     contextMenuBody.removeAttribute('id');
     contextMenuBody.classList.remove('px-3');
+    contextMenuBody.scrollTop = 0;
     elClear(contextMenuHeader);
     elClear(contextMenuBody);
     //title
