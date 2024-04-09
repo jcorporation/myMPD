@@ -75,6 +75,13 @@ function createMenuViewSettings(target, contextMenuTitle, contextMenuBody) {
             ])
         );
         toggleBtnGroupValueId('viewSettingsMode', settings['view' + app.id].mode);
+        for (const btn of elGetById('viewSettingsMode').childNodes) {
+            btn.addEventListener('click', function(event) {
+                toggleBtnGroup(event.target);
+                event.preventDefault();
+                event.stopPropagation();
+            }, false);
+        }
         contextMenuBody.appendChild(
             elCreateEmpty('div', {"class": ["dropdown-divider2", "mb-3"]})
         );
@@ -552,7 +559,9 @@ function addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name)
  * @returns {boolean} true on success, else false
  */
 function createMenuLists(target, contextMenuTitle, contextMenuBody) {
-    const dataNode = target.parentNode.parentNode;
+    const dataNode = settings['view' + app.id].mode === 'table'
+        ? target.closest('tr')
+        : target;
     const type = getData(dataNode, 'type');
     const uri = getData(dataNode, 'uri');
     const name = getData(dataNode, 'name');
@@ -561,6 +570,9 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
     contextMenuTitle.classList.add('offcanvas-title-' + type);
 
     switch(app.id) {
+        case 'BrowseDatabaseAlbumList':
+            addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody);
+            return true;
         case 'BrowseFilesystem':
         case 'Search':
         case 'BrowseRadioRadiobrowser':
@@ -703,7 +715,9 @@ function createMenuListsSecondary(target, contextMenuTitle, contextMenuBody) {
         case 'BrowseFilesystem':
         case 'BrowseDatabaseAlbumDetail':
         case 'BrowsePlaylistDetail': {
-            const dataNode = target.parentNode.parentNode;
+            const dataNode = settings['view' + app.id].mode === 'table'
+                ? target.closest('tr')
+                : target;
             const type = getData(dataNode, 'type');
             const uri = getData(dataNode, 'uri');
 

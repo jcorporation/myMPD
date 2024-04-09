@@ -111,8 +111,6 @@ function viewBrowseFilesystemListClickHandler(event, target) {
     elClear(imageList);
 
     const table = elGetById('BrowseFilesystemList');
-    const tfoot = table.querySelector('tfoot');
-    elClear(tfoot);
 
     if (checkResultId(obj, 'BrowseFilesystemList', undefined) === false) {
         elHide(imageList);
@@ -148,6 +146,8 @@ function viewBrowseFilesystemListClickHandler(event, target) {
     const rowTitleFolder = 'Open directory';
     const rowTitlePlaylist = settingsWebuiFields.clickFilesystemPlaylist.validValues[settings.webuiSettings.clickFilesystemPlaylist];
 
+    const tfoot = table.querySelector('tfoot');
+    elClear(tfoot);
     updateTable(obj, 'BrowseFilesystem', function(row, data) {
         setData(row, 'type', data.Type);
         setData(row, 'uri', data.uri);
@@ -156,12 +156,8 @@ function viewBrowseFilesystemListClickHandler(event, target) {
         row.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong :
             data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
     });
-
-    const colspan = settings.viewBrowseFilesystem.fields.length + 1;
-    tfoot.appendChild(
-        elCreateNode('tr', {"class": ["not-clickable"]},
-            elCreateTextTnNr('td', {"colspan": colspan}, 'Num entries', obj.result.totalEntities)
-        )
+    addTblFooter(tfoot,
+        elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
     );
 }
 

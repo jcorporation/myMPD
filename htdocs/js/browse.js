@@ -188,22 +188,3 @@ function gotoSearch(tag, value) {
     const expression = '(' + filters.join(' AND ') + ')';
     appGoto('Search', undefined, undefined, 0, undefined, tag, {'tag':'', 'desc': false}, tag, expression);
 }
-
-/**
- * Callback function for intersection observer to lazy load cover images
- * @param {object} changes IntersectionObserverEntry objects
- * @param {object} observer IntersectionObserver
- * @returns {void}
- */
-function setGridImage(changes, observer) {
-    changes.forEach(change => {
-        if (change.intersectionRatio > 0) {
-            observer.unobserve(change.target);
-            const uri = getData(change.target.firstChild, 'image');
-            const body = change.target.firstChild.querySelector('.card-body');
-            if (body) {
-                body.style.backgroundImage = getCssImageUri(uri);
-            }
-        }
-    });
-}

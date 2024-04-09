@@ -429,6 +429,7 @@ function printValue(key, value) {
             }
             return document.createTextNode(tn('Num discs', {"smartCount": value}));
         case 'Thumbnail': {
+            //TODO: use intersection observer
             const img = elCreateEmpty('div', {"class": ["thumbnail"]});
             if (value !== undefined) {
                 img.style.backgroundImage = value;

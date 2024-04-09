@@ -275,9 +275,6 @@ function searchWebradiodb(name, genre, country, language, codec, bitrate, sort, 
  * @returns {void}
  */
 function parseSearchWebradiodb(obj) {
-    const tfoot = document.querySelector('#BrowseRadioWebradiodbList > tfoot');
-    elClear(tfoot);
-
     if (app.current.filter['genre'] === '' &&
         app.current.filter['country'] === '' &&
         app.current.filter['language'] === '' &&
@@ -294,8 +291,9 @@ function parseSearchWebradiodb(obj) {
         return;
     }
 
+    const tfoot = document.querySelector('#BrowseRadioWebradiodbList > tfoot');
+    elClear(tfoot);
     const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
-
     updateTable(obj, 'BrowseRadioWebradiodb', function(row, data) {
         setData(row, 'uri', data.StreamUri);
         setData(row, 'name', data.Name);
@@ -313,11 +311,8 @@ function parseSearchWebradiodb(obj) {
     });
 
     if (obj.result.totalEntities > 0) {
-        const colspan = settings.viewBrowseRadioWebradiodb.fields.length + 1;
-        tfoot.appendChild(
-            elCreateNode('tr', {"class": ["not-clickable"]},
-                elCreateTextTnNr('td', {"colspan": colspan}, 'Num entries', obj.result.totalEntities)
-            )
+        addTblFooter(tfoot,
+            elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
         );
     }
 }

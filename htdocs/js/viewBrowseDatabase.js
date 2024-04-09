@@ -131,65 +131,30 @@ function parseDatabaseAlbumList(obj) {
     if (checkResult(obj, cardContainer, undefined) === false) {
         return;
     }
-
-    unsetUpdateView(cardContainer);
-    let cols = cardContainer.querySelectorAll('.col');
-    for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
-        const image = obj.result.data[i].FirstSongUri !== 'albumid'
-            ? '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri)
-            : '/albumart-thumb/' + obj.result.data[i].AlbumId;
-        card.appendChild(
-            elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = cardContainer.querySelector('tfoot');
+        elClear(tfoot);
+        updateTable(obj, app.id, function(row, data) {
+            setData(row, 'uri', data.FirstSongUri.replace(/\/[^/]+$/, ''));
+            setData(row, 'type', 'album');
+            setData(row, 'name', data.Album);
+            setData(row, 'Album', data.Album);
+            setData(row, tagAlbumArtist, data[tagAlbumArtist]);
+            setData(row, 'AlbumId', data.AlbumId);
+        });
+        addTblFooter(tfoot,
+            elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
         );
-        const taglist = [
-            pEl.gridSelectBtn.cloneNode(true)
-        ];
-        for (const tag of settings.viewBrowseDatabaseAlbumList.fields) {
-            taglist.push(
-                elCreateNode((tag === 'Album' ? 'span' : 'small'), {"class": ["d-block"]},
-                    printValue(tag, obj.result.data[i][tag])
-                )
-            );
-        }
-        card.appendChild(
-            elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"],
-                "title": obj.result.data[i][tagAlbumArtist] + ': ' + obj.result.data[i].Album}, taglist)
-        );
-        setData(card, 'image', image);
-        setData(card, 'uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        setData(card, 'uri', data.FirstSongUri.replace(/\/[^/]+$/, ''));
         setData(card, 'type', 'album');
-        setData(card, 'name', obj.result.data[i].Album);
-        setData(card, 'Album', obj.result.data[i].Album);
-        setData(card, tagAlbumArtist, obj.result.data[i][tagAlbumArtist]);
-        setData(card, 'AlbumId', obj.result.data[i].AlbumId);
-        addGridQuickPlayButton(card.firstChild);
-        const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
-
-        if (i < cols.length) {
-            cols[i].replaceWith(col);
-        }
-        else {
-            cardContainer.append(col);
-        }
-
-        if (userAgentData.hasIO === true) {
-            const observer = new IntersectionObserver(setGridImage, {root: null, rootMargin: '0px'});
-            observer.observe(col);
-        }
-        else {
-            col.firstChild.firstChild.style.backgroundImage = getCssImageUri(image);
-        }
-    }
-    //remove obsolete cards
-    cols = cardContainer.querySelectorAll('.col');
-    for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
-        cols[i].remove();
-    }
-
-    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
-    setScrollViewHeight(cardContainer);
-    scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
+        setData(card, 'name', data.Album);
+        setData(card, 'Album', data.Album);
+        setData(card, tagAlbumArtist, data[tagAlbumArtist]);
+        setData(card, 'AlbumId', data.AlbumId);
+    });
 }
 
 /**
@@ -213,7 +178,7 @@ function parseDatabaseAlbumList(obj) {
             continue;
         }
 
-        const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
+        const card = elCreateEmpty('div', {"class": ["card", "card-grid", "clickable"]});
         const image = '/tagart?tag=' + myEncodeURIComponent(obj.result.tag) + '&value=' + myEncodeURIComponent(obj.result.data[i].value);
         if (obj.result.pics === true) {
             card.appendChild(

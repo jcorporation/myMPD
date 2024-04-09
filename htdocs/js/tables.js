@@ -182,7 +182,6 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         ? settings['view' + list].fields.length
         : 0;
 
-    const nrItems = obj.result.returnedEntities;
     let tr = tbody.querySelectorAll('tr');
     const smallWidth = uiSmallWidthTagRows();
 
@@ -210,7 +209,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         }
         z++;
     }
-    for (let i = 0; i < nrItems; i++) {
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
         //disc handling for album view
         if (obj.result.data[0].Disc !== undefined &&
             lastDisc < Number(obj.result.data[i].Disc))
@@ -232,46 +231,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             perRowCallback(row, obj.result.data[i]);
         }
         //data row
-        //set AlbumId
-        if (obj.result.data[i].AlbumId !== undefined) {
-            setData(row, 'AlbumId', obj.result.data[i].AlbumId);
-        }
-        //and browse tags
-        for (const tag of settings.tagListBrowse) {
-            if (albumFilters.includes(tag) &&
-                isEmptyTag(obj.result.data[i][tag]) === false)
-            {
-                setData(row, tag, obj.result.data[i][tag]);
-            }
-        }
-        //set Title to name if not defined - for folders and playlists
-        if (obj.result.data[i].Title === undefined) {
-            obj.result.data[i].Title = obj.result.data[i].name;
-        }
-
-        //set Filetype
-        if (obj.result.data[i].Filetype === undefined) {
-            obj.result.data[i].Filetype = filetype(obj.result.data[i].uri, false);
-        }
-        //set Thumbnail
-        switch(obj.result.data[i].Type) {
-            case 'song':
-            case 'stream':
-            case 'webradio':
-                obj.result.data[i].Thumbnail = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].uri));
-                break;
-            case 'dir': 
-                obj.result.data[i].Thumbnail = getCssImageUri('/folderart?path=' + myEncodeURIComponent(obj.result.data[i].uri));
-                break;
-            case 'plist':
-            case 'smartpls':
-                obj.result.data[i].Thumbnail = getCssImageUri('/playlistart?playlist=' + myEncodeURIComponent(obj.result.data[i].uri));
-                break;
-            case 'webradiodb':
-                obj.result.data[i].Thumbnail = getCssImageUri(webradioDbPicsUri + obj.result.data[i].Image);
-                break;
-            // No Default
-        }
+        setEntryData(row, obj.result.data[i]);
         if (createRowCellsCallback !== undefined &&
             typeof(createRowCellsCallback) === 'function')
         {
@@ -291,13 +251,13 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     }
     //remove obsolete lines
     tr = tbody.querySelectorAll('tr');
-    for (let i = tr.length - 1; i >= nrItems + z; i --) {
+    for (let i = tr.length - 1; i >= obj.result.returnedEntities + z; i --) {
         tr[i].remove();
     }
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
 
-    if (nrItems === 0) {
+    if (obj.result.returnedEntities === 0) {
         tbody.appendChild(emptyMsgEl(colspan + 1, 'table'));
     }
     unsetUpdateView(table);
@@ -400,4 +360,17 @@ function handleActionTdClick(event) {
         default:
             logError('Invalid action: ' + action);
     }
+}
+
+/**
+ * Updates the table footer
+ * @param {Element} tfoot Element to insert the footer row
+ * @param {Element} content Dom node to insert
+ * @returns {void}
+ */
+function addTblFooter(tfoot, content) {
+    const colspan = settings['view' + app.id].fields.length + 1;
+    tfoot.appendChild(
+        elCreateNode('tr', {"class": ["not-clickable"], "colspan": colspan}, content)
+    );
 }

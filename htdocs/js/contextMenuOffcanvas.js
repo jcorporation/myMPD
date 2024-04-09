@@ -50,10 +50,6 @@ function showContextMenuOffcanvas(target, contextMenuType) {
             //webradio favorite actions
             createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, addMenuItemsWebradioFavoritesActions, undefined);
             break;
-        case 'album':
-            //album action in album list
-            createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, addMenuItemsAlbumActions, undefined);
-            break;
         default:
             createContextMenuOffcanvas(target, contextMenuEl, '', createMenuLists, createMenuListsSecondary);
     }

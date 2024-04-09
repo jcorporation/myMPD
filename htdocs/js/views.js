@@ -172,7 +172,7 @@ function viewRightClickHandler(event) {
 function saveView(viewName) {
     const params = {
         "view": "view" + viewName,
-        "mode": settings['view' + viewName].mode,
+        "mode": getBtnGroupValueId('viewSettingsMode'),
         "fields": []
     };
     const fieldsForm = elGetById(viewName + 'FieldsSelect');
@@ -410,7 +410,7 @@ function setFields(tableName) {
         case 'BrowseDatabaseAlbumList': {
             if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();
-                tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified');
+                tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified', 'Thumbnail');
                 if (features.featDbAdded === true) {
                     tags.push('Added');
                 }
@@ -419,7 +419,9 @@ function setFields(tableName) {
                 });
             }
             else {
-                return settings.tagListAlbum;
+                const tags = settings.tagListAlbum.slice();
+                tags.push('Thumbnail');
+                return tags;
             }
         }
         case 'BrowseDatabaseAlbumDetailInfo': {
@@ -494,4 +496,59 @@ function setFields(tableName) {
         }
     }
     return tags;
+}
+
+/**
+ * Sets the data from the jsonrpc object to the dom node and
+ * updates the jsonrpc object
+ * @param {Element} entry Dom node representing the entry
+ * @param {object} data Object data from jsonrpc response
+ * @returns {void}
+ */
+function setEntryData(entry, data) {
+    //set AlbumId
+    if (data.AlbumId !== undefined) {
+        setData(entry, 'AlbumId', data.AlbumId);
+    }
+    //and browse tags
+    for (const tag of settings.tagListBrowse) {
+        if (albumFilters.includes(tag) &&
+            isEmptyTag(data[tag]) === false)
+        {
+            setData(entry, tag, data[tag]);
+        }
+    }
+    //set Title to name if not defined - for folders and playlists
+    if (data.Title === undefined) {
+        data.Title = data.name;
+    }
+
+    //set Filetype
+    if (data.Filetype === undefined) {
+        data.Filetype = filetype(data.uri, false);
+    }
+    //set Thumbnail
+    switch(data.Type) {
+        case 'album':
+            data.Thumbnail = getCssImageUri(data.FirstSongUri !== 'albumid'
+                ? '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(data.FirstSongUri)
+                : '/albumart-thumb/' + data.AlbumId);
+            break;
+        case 'song':
+        case 'stream':
+        case 'webradio':
+            data.Thumbnail = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(data.uri));
+            break;
+        case 'dir': 
+            data.Thumbnail = getCssImageUri('/folderart?path=' + myEncodeURIComponent(data.uri));
+            break;
+        case 'plist':
+        case 'smartpls':
+            data.Thumbnail = getCssImageUri('/playlistart?playlist=' + myEncodeURIComponent(data.uri));
+            break;
+        case 'webradiodb':
+            data.Thumbnail = getCssImageUri(webradioDbPicsUri + data.Image);
+            break;
+        // No Default
+    }
 }

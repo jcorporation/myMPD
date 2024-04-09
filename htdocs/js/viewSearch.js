@@ -70,10 +70,7 @@ function viewSearchListClickHandler(event, target) {
  */
 function parseSearch(obj) {
     const table = elGetById('SearchList');
-    const tfoot = table.querySelector('tfoot');
-    elClear(tfoot);
-
-    if (checkResultId(obj, 'SearchList', undefined) === false) {
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
@@ -86,24 +83,29 @@ function parseSearch(obj) {
         elDisableId('SearchAddAllSongsDropdownBtn');
     }
 
-    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+        updateTable(obj, app.id, function(row, data) {
+            setData(row, 'type', data.Type);
+            setData(row, 'uri', data.uri);
+            setData(row, 'name', data.Title);
+            row.setAttribute('title', rowTitle);
+        });
 
-    updateTable(obj, 'Search', function(row, data) {
-        setData(row, 'type', data.Type);
-        setData(row, 'uri', data.uri);
-        setData(row, 'name', data.Title);
-        row.setAttribute('tabindex', 0);
-        row.setAttribute('title', rowTitle);
-    });
-
-    if (obj.result.totalEntities > 0) {
-        const colspan = settings.viewSearch.fields.length + 1;
-        tfoot.appendChild(
-            elCreateNode('tr', {"class": ["not-clickable"]},
-                elCreateTextTnNr('td', {"colspan": colspan}, 'Num songs', obj.result.totalEntities)
-            )
-        );
+        if (obj.result.totalEntities > 0) {
+            addTblFooter(tfoot,
+                elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities)
+            );
+        }
+        return;
     }
+    updateGrid(obj, app.id, function(card, data) {
+        setData(card, 'type', data.Type);
+        setData(card, 'uri', data.uri);
+        setData(card, 'name', data.Title);
+    });
 }
 
 /**
