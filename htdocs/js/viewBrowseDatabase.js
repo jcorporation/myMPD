@@ -78,12 +78,24 @@ function initViewBrowseDatabase() {
  * @returns {void}
  */
 function viewBrowseDatabaseTagListListClickHandler(event) {
+    event.preventDefault();
+    event.stopPropagation();
     app.current.search = '';
-    if (event.target.nodeName === 'DIV') {
-        elGetById('BrowseDatabaseTagSearchStr').value = '';
-        // clear album search input
-        elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
-        gotoBrowse(event);
+    if (event.target.nodeName === 'DIV' ||
+        event.target.nodeName === 'TD')
+    {
+        const tag = getData(event.target.parentNode, 'tag');
+        if (settings.tagListAlbum.includes(tag)) {
+            elGetById('BrowseDatabaseTagSearchStr').value = '';
+            // clear album search input
+            elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
+            gotoBrowse(event);
+        }
+        else {
+            elGetById('SearchSearchStr').value = '';
+            const value = getData(event.target.parentNode, 'name');
+            gotoSearch(tag, value);
+        }
     }
     else if (event.target.nodeName === 'A') {
         if (event.target.getAttribute('data-list') === 'song') {
@@ -167,67 +179,46 @@ function parseDatabaseAlbumList(obj) {
     if (checkResult(obj, cardContainer, undefined) === false) {
         return;
     }
-
-    unsetUpdateView(cardContainer);
-    const listAlbums = settings.tagListAlbum.includes(obj.result.tag);
-    let cols = cardContainer.querySelectorAll('.col');
-    for (let i = 0; i < obj.result.returnedEntities; i++) {
-        if (cols[i] !== undefined &&
-            getData(cols[i].firstChild,'tag') === obj.result.data[i].value)
-        {
-            continue;
-        }
-
-        const card = elCreateEmpty('div', {"class": ["card", "card-grid", "clickable"]});
-        const image = '/tagart?tag=' + myEncodeURIComponent(obj.result.tag) + '&value=' + myEncodeURIComponent(obj.result.data[i].value);
-        if (obj.result.pics === true) {
-            card.appendChild(
-                elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
-            );
-        }
-        const footerElements = [
-            elCreateText('div', {}, obj.result.data[i].value)
-        ];
-        if (listAlbums === true) {
-            footerElements.push(
-                elCreateText('a', {"class": ["mi", "mi-sm"], "href": "#", "data-list": "song", "data-title-phrase": "Show songs", "title": tn("Show songs")}, 'music_note'),
-                elCreateText('a', {"class": ["mi", "mi-sm"], "href": "#", "data-list": "album", "data-title-phrase": "Show albums", "title": tn("Show albums")}, 'album')
-            );
-        }
-        card.appendChild(
-            elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "card-footer-tags", "text-center", "p-2"], "title": obj.result.data[i].value}, footerElements)
-        );
-        setData(card, 'image', image);
-        setData(card, 'tag', obj.result.tag);
-        setData(card, 'name', obj.result.data[i].value);
-
-        const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
-
-        if (i < cols.length) {
-            cols[i].replaceWith(col);
-        }
-        else {
-            cardContainer.append(col);
-        }
-        if (obj.result.pics === true) {
-            if (userAgentData.hasIO === true) {
-                const observer = new IntersectionObserver(setGridImage, {root: null, rootMargin: '0px'});
-                observer.observe(col);
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = cardContainer.querySelector('tfoot');
+        const colspan = settings['view' + app.id].fields.length;
+        const smallWidth = uiSmallWidthTagRows();
+        elClear(tfoot);
+        updateTable(obj, app.id, function(row, data, result) {
+            if (result.pics === true) {
+                data.Thumbnail = getCssImageUri('/tagart?tag=' + myEncodeURIComponent(result.tag) + '&value=' + myEncodeURIComponent(data.value));
+            }
+            setData(row, 'tag', result.tag);
+            setData(row, 'name', data.Value);
+        }, function(row, data) {
+            tableRow(row, data, app.id, colspan, smallWidth);
+            if (settings.tagListAlbum.includes(obj.result.tag)) {
+                row.appendChild(pEl.BrowseDatabaseTagTd.cloneNode(true));
             }
             else {
-                col.firstChild.firstChild.style.backgroundImage = getCssImageUri(image);
+                row.appendChild(
+                    elCreateEmpty('td', {})
+                );
             }
+        });
+        addTblFooter(tfoot,
+            elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
+        );
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data, result) {
+        if (result.pics === true) {
+            data.Thumbnail = getCssImageUri('/tagart?tag=' + myEncodeURIComponent(result.tag) + '&value=' + myEncodeURIComponent(data.Value));
         }
-    }
-    //remove obsolete cards
-    cols = cardContainer.querySelectorAll('.col');
-    for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
-        cols[i].remove();
-    }
-
-    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
-    setScrollViewHeight(cardContainer);
-    scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
+        setData(card, 'tag', result.tag);
+        setData(card, 'name', data.Value);
+    }, function(footer, data) {
+        gridFooter(footer, data, app.id);
+        if (settings.tagListAlbum.includes(obj.result.tag)) {
+            footer.appendChild(pEl.showSongsBtn.cloneNode(true));
+            footer.appendChild(pEl.showAlbumsBtn.cloneNode(true));
+        }
+    });
 }
 
 /**

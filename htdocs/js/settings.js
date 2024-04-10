@@ -80,9 +80,6 @@ function parseSettings(obj) {
         document.documentElement.style.setProperty('--mympd-card-footer-word-wrap', 'unset');
     }
 
-    //Add views
-
-
     // toggle help
     toggleHelp(settings.webuiSettings.showHelp);
 
@@ -260,7 +257,7 @@ function parseSettings(obj) {
         pEl.actionPlaylistTd = pEl.actionTdMenu;
     }
 
-    pEl.coverPlayBtn.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    pEl.gridPlayBtn.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
 
     //goto view
     if (app.id === 'QueueJukeboxSong' ||

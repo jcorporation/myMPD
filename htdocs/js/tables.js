@@ -228,7 +228,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         if (perRowCallback !== undefined &&
             typeof(perRowCallback) === 'function')
         {
-            perRowCallback(row, obj.result.data[i]);
+            perRowCallback(row, obj.result.data[i], obj.result);
         }
         //data row
         setEntryData(row, obj.result.data[i]);
@@ -236,7 +236,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             typeof(createRowCellsCallback) === 'function')
         {
             //custom row content
-            createRowCellsCallback(row, obj.result.data[i]);
+            createRowCellsCallback(row, obj.result.data[i], obj.result);
         }
         else {
             //default row content
@@ -317,6 +317,9 @@ function tableRow(row, data, list, colspan, smallWidth) {
             row.appendChild(
                 pEl.actionJukeboxTd.cloneNode(true)
             );
+            break;
+        case 'BrowseDatabaseTagList':
+            // no default buttons
             break;
         default:
             // add quick play action

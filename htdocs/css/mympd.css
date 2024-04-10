@@ -21,11 +21,11 @@ body.not-mobile .card {
   margin-bottom: 0;
 }
 
-body.not-mobile .album-cover-grid > div {
+body.not-mobile .cover-grid > div {
   display: none;
 }
 
-body.not-mobile .album-cover-grid:hover > div {
+body.not-mobile .cover-grid:hover > div {
   display: block;
 }
 
@@ -499,18 +499,18 @@ div#homeActions {
   text-overflow: ellipsis;
 }
 
-.card-footer-tags a {
+.card-footer-grid a {
   margin-top: 1rem;
   display: inline-block;
   width: 50%;
   text-align: center;
 }
 
-.card-footer-tags a:last-child {
+.card-footer-grid a:last-child {
   text-align: center;
 }
 
-.album-cover-grid {
+.cover-grid {
   background-size: cover;
   background-position: center center;
   overflow: hidden;
@@ -539,7 +539,7 @@ div#homeActions {
   }
 }
 
-.album-cover-loading {
+.cover-loading {
   background-image: url("../assets/coverimage-mympd");
 }
 
@@ -901,7 +901,7 @@ div.homeIconPreview {
   padding-top: 1rem;
 }
 
-div.album-grid-mouseover {
+div.gridQuickButton {
   background-color: rgba(0, 0, 0, 50%);
   color: var(--bs-white);
   width: 3rem;
@@ -910,7 +910,7 @@ div.album-grid-mouseover {
   font-size: 2.4rem;
 }
 
-div.album-grid-mouseover:hover {
+div.gridQuickButton:hover {
   background-color: var(--mympd-highlightcolor);
 }
 

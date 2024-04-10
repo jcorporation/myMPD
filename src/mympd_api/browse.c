@@ -370,7 +370,7 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatlen(buffer, "{", 1);
-            buffer = tojson_sds(buffer, "value", (sds)iter.data, false);
+            buffer = tojson_sds(buffer, "Value", (sds)iter.data, false);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;

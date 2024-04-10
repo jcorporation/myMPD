@@ -35,8 +35,13 @@ function handleSearch() {
     else {
         // clear list if no search is defined
         const SearchListEl = elGetById('SearchList');
-        elClear(SearchListEl.querySelector('tbody'));
-        elClear(SearchListEl.querySelector('tfoot'));
+        if (settings['view' + app.id].mode === 'table') {
+            elClear(SearchListEl.querySelector('tbody'));
+            elClear(SearchListEl.querySelector('tfoot'));
+        }
+        else {
+            elClear(SearchListEl);
+        }
         elDisableId('SearchAddAllSongsBtn');
         elDisableId('SearchAddAllSongsDropdownBtn');
         unsetUpdateViewId('SearchList');

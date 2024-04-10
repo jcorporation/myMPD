@@ -186,5 +186,5 @@ function gotoSearch(tag, value) {
         }
     }
     const expression = '(' + filters.join(' AND ') + ')';
-    appGoto('Search', undefined, undefined, 0, undefined, tag, {'tag':'', 'desc': false}, tag, expression);
+    appGoto('Search', undefined, undefined, 0, undefined, tag, {'tag':app.cards.Search.sort.tag, 'desc': false}, tag, expression);
 }

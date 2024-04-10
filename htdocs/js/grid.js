@@ -21,12 +21,14 @@ function updateGrid(obj, list, perCardCallback, createCardFooterCallback) {
         if (perCardCallback !== undefined &&
             typeof(perCardCallback) === 'function')
         {
-            perCardCallback(card, obj.result.data[i]);
+            perCardCallback(card, obj.result.data[i], obj.result);
         }
         setEntryData(card, obj.result.data[i]);
-        if (settings.viewBrowseDatabaseAlbumList.fields.includes('Thumbnail')) {
+        if (settings['view' + app.id].fields.includes('Thumbnail') &&
+            obj.result.data[i].Thumbnail !== undefined)
+        {
             card.appendChild(
-                elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
+                elCreateEmpty('div', {"class": ["card-body", "cover-loading", "cover-grid", "d-flex"]})
             );
             setData(card, 'image', obj.result.data[i].Thumbnail);
             if (userAgentData.hasIO === true) {
@@ -36,30 +38,18 @@ function updateGrid(obj, list, perCardCallback, createCardFooterCallback) {
             else {
                 card.firstChild.style.backgroundImage = obj.result.data[i].Thumbnail;
             }
-            addGridQuickPlayButton(card.firstChild);
+            addGridQuickButtons(card.firstChild);
         }
         const footer = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-2"]});
         if (createCardFooterCallback !== undefined &&
             typeof(createCardFooterCallback) === 'function')
         {
             //custom footer content
-            createCardFooterCallback(footer, obj.result.data[i]);
+            createCardFooterCallback(footer, obj.result.data[i], obj.result);
         }
         else {
             //default footer content
-            footer.appendChild(
-                pEl.gridSelectBtn.cloneNode(true)
-            );
-            for (const tag of settings['view' + list].fields) {
-                if (tag === 'Thumbnail') {
-                    continue;
-                }
-                footer.appendChild(
-                    elCreateNode((tag === 'Album' ? 'span' : 'small'), {"class": ["d-block"]},
-                        printValue(tag, obj.result.data[i][tag])
-                    )
-                );
-            }
+            gridFooter(footer, obj.result.data[i], list);
         }
         card.appendChild(footer);
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
@@ -83,18 +73,60 @@ function updateGrid(obj, list, perCardCallback, createCardFooterCallback) {
 }
 
 /**
+ * Populates the grid footer
+ * @param {Element} footer grid footer to populate
+ * @param {object} data data to populate
+ * @param {string} list view name
+ * @returns {void}
+ */
+function gridFooter(footer, data, list) {
+    footer.appendChild(
+        pEl.gridSelectBtn.cloneNode(true)
+    );
+    let i = 0;
+    for (const tag of settings['view' + list].fields) {
+        if (tag === 'Thumbnail') {
+            continue;
+        }
+        footer.appendChild(
+            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"]},
+                printValue(tag, data[tag])
+            )
+        );
+        i++;
+    }
+}
+
+/**
  * Adds the quick play button to a grid element
  * @param {ChildNode} parentEl the containing element
  * @returns {void}
  */
-function addGridQuickPlayButton(parentEl) {
-    const div = pEl.coverPlayBtn.cloneNode(true);
-    parentEl.appendChild(div);
-    div.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        clickQuickPlay(event.target);
-    }, false);
+function addGridQuickButtons(parentEl) {
+    switch(app.id) {
+        case 'BrowsePlaylistDetail':
+        case 'QueueJukeboxSong':
+        case 'QueueJukeboxAlbum':
+            parentEl.appendChild(
+                pEl.gridPlayBtn.cloneNode(true)
+            );
+            parentEl.appendChild(
+                pEl.gridRemoveBtn.cloneNode(true)
+            );
+            break;
+        case 'QueueCurrent':
+            parentEl.appendChild(
+                pEl.gridRemoveBtn.cloneNode(true)
+            );
+            break;
+        case 'BrowseDatabaseTagList':
+            // no default buttons
+            break;
+        default:
+            parentEl.appendChild(
+                pEl.gridPlayBtn.cloneNode(true)
+            );
+    }
 }
 
 /**

@@ -28,15 +28,22 @@ function setView(viewName) {
     newContainer.firstElementChild.setAttribute('id', viewName + 'List');
     curContainer.replaceWith(newContainer);
     setData(newContainer, 'viewMode', mode);
-    newContainer.firstElementChild.addEventListener('click', function(event) {
-        viewClickHandler(event);
-    }, false);
-    newContainer.firstElementChild.addEventListener('contextmenu', function(event) {
-        viewRightClickHandler(event);
-    }, false);
-    newContainer.firstElementChild.addEventListener('long-press', function(event) {
-        viewRightClickHandler(event);
-    }, false);
+    if (viewName === 'BrowseDatabaseTagList') {
+        newContainer.firstElementChild.addEventListener('click', function(event) {
+            viewBrowseDatabaseTagListListClickHandler(event);
+        }, false);
+    }
+    else {
+        newContainer.firstElementChild.addEventListener('click', function(event) {
+            viewClickHandler(event);
+        }, false);
+        newContainer.firstElementChild.addEventListener('contextmenu', function(event) {
+            viewRightClickHandler(event);
+        }, false);
+        newContainer.firstElementChild.addEventListener('long-press', function(event) {
+            viewRightClickHandler(event);
+        }, false);
+    }
 }
 
 /**
@@ -79,8 +86,11 @@ function viewClickHandler(event) {
         }
     }
     else {
-        target = event.target.closest('DIV');
-        if (target === null) {
+        target = event.target.nodeName === 'DIV'
+            ? event.target
+            : event.target.closest('DIV');
+        if (target.classList.contains('gridQuickButton')) {
+            handleActionTdClick(event);
             return;
         }
         if (target.classList.contains('card-footer')){
@@ -88,7 +98,7 @@ function viewClickHandler(event) {
             return;
         }
         // set target to card
-        target = target.parentNode;
+        target = target.closest('.card');
     }
     event.preventDefault();
     event.stopPropagation();
@@ -407,6 +417,8 @@ function setFields(tableName) {
             return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "State", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
         case 'BrowseRadioRadiobrowser':
             return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
+        case 'BrowseDatabaseTagList':
+            return ["Value", "Thumbnail"];
         case 'BrowseDatabaseAlbumList': {
             if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();

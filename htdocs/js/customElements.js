@@ -17,6 +17,9 @@ function createPreGeneratedElements() {
     pEl.removeBtn = elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Remove"}, 'clear');
     pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Quick play"}, 'play_arrow');
 
+    pEl.showSongsBtn = elCreateText('a', {"class": ["mi", "mi-sm"], "href": "#", "data-list": "song", "data-title-phrase": "Show songs", "title": tn("Show songs")}, 'music_note');
+    pEl.showAlbumsBtn = elCreateText('a', {"class": ["mi", "mi-sm"], "href": "#", "data-list": "album", "data-title-phrase": "Show albums", "title": tn("Show albums")}, 'album');
+
     pEl.actionTdMenu = elCreateNodes('td', {"data-col": "Action"}, [
         pEl.actionsBtn.cloneNode(true),
         pEl.selectBtn.cloneNode(true)
@@ -37,13 +40,24 @@ function createPreGeneratedElements() {
         pEl.actionsBtn.cloneNode(true),
         pEl.selectBtn.cloneNode(true)
     ]);
+    pEl.BrowseDatabaseTagTd = elCreateNodes('td', {"data-col": "Action"}, [
+        pEl.showSongsBtn.cloneNode(true),
+        pEl.showAlbumsBtn.cloneNode(true)
+    ]);
+    pEl.BrowseDatabaseTagTd.firstChild.classList.remove('mi-sm');
+    pEl.BrowseDatabaseTagTd.lastChild.classList.remove('mi-sm');
+    pEl.BrowseDatabaseTagTd.firstChild.classList.add('color-darkgrey', 'me-1');
+    pEl.BrowseDatabaseTagTd.lastChild.classList.add('color-darkgrey');
+
     pEl.actionTd = pEl.actionTdMenu;
     pEl.actionQueueTd = pEl.actionTdMenu;
     pEl.actionJukeboxTd = pEl.actionTdMenu;
     pEl.actionPlaylistDetailTd = pEl.actionTdMenu;
     pEl.actionPlaylistTd = pEl.actionTdMenu;
-    pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
+    pEl.gridPlayBtn = elCreateText('div', {"data-action": "quickPlay", "class": ["align-self-end", "gridQuickButton", "mi", "rounded-circle", "clickable"],
         "data-title-phrase": "Quick play"}, 'play_arrow');
+    pEl.gridRemoveBtn = elCreateText('div', {"data-action": "quickRemove", "class": ["align-self-end", "gridQuickButton", "mi", "rounded-circle", "clickable"],
+        "data-title-phrase": "Quick play"}, 'clear');
     pEl.viewTable = elCreateNode('div', {'class': ['table-responsive', 'scrollContainer']},
         elCreateNodes('table', {'class': ['table', 'table-hover', 'table-sm']}, [
             elCreateNode('thead', {},

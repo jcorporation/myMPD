@@ -26,10 +26,10 @@ static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
 static const char *mympd_fields[]={
+    // Columns for tags
+    "Value",
     // Columns for songs
-    "Name",
-    // Columns for songs
-    "Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype",
+    "Name", "Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype",
     "AudioFormat", "Last-Modified", "Lyrics", "Added", "Thumbnail",
     // Columns for stickers
     "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", "rating", "elapsed",
