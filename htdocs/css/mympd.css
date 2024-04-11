@@ -364,8 +364,8 @@ th,
 
   #volumeMenu::after,
   #localPlaybackMenu::after,
-  #footerPlaying,
-  #footerCover {
+  #footerSettingsPlayback > button:nth-child(2),
+  #footerInfo {
     display: none !important;
   }
 }
