@@ -46,10 +46,6 @@ function showContextMenuOffcanvas(target, contextMenuType) {
             //home card actions
             createContextMenuOffcanvas(target, contextMenuEl, '', createMenuHome, createMenuHomeSecondary);
             break;
-        case 'webradio':
-            //webradio favorite actions
-            createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, addMenuItemsWebradioFavoritesActions, undefined);
-            break;
         default:
             createContextMenuOffcanvas(target, contextMenuEl, '', createMenuLists, createMenuListsSecondary);
     }

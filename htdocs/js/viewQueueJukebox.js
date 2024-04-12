@@ -86,20 +86,36 @@ function parseJukeboxList(obj) {
     const view = settings.partition.jukeboxMode === 'album'
         ? 'QueueJukeboxAlbum'
         : 'QueueJukeboxSong';
-    if (checkResultId(obj, view + 'List', undefined) === false) {
+    const table = elGetById(view + 'List');
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
-    const rowTitle = settings.partition.jukeboxMode === 'song' ?
-        settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
-        settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
-    updateTable(obj, view, function(row, data) {
-        setData(row, 'uri', data.uri);
-        setData(row, 'name', data.Title);
-        setData(row, 'type', data.Type);
-        setData(row, 'pos', data.Pos);
-        row.setAttribute('title', tn(rowTitle));
-        row.setAttribute('tabindex', 0);
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        const rowTitle = settings.partition.jukeboxMode === 'song' ?
+            settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
+            settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
+        updateTable(obj, view, function(row, data) {
+            setData(row, 'uri', data.uri);
+            setData(row, 'name', data.Title);
+            setData(row, 'type', data.Type);
+            setData(row, 'pos', data.Pos);
+            row.setAttribute('title', tn(rowTitle));
+        });
+        if (obj.result.totalEntities > 0) {
+            addTblFooter(tfoot,
+                elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
+            );
+        }
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        setData(card, 'uri', data.uri);
+        setData(card, 'name', data.Title);
+        setData(card, 'type', data.Type);
+        setData(card, 'pos', data.Pos);
     });
 }
 

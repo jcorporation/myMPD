@@ -124,7 +124,9 @@ function initWebradiodbFilter(id, dbField, name) {
  * @returns {void}
  */
 function getWebradiodb() {
-    const list = document.querySelector('#BrowseRadioWebradiodbList > tbody');
+    const list = settings['view' + app.id].mode === 'table'
+        ? document.querySelector('#BrowseRadioWebradiodbList > tbody')
+        : elGetById('BrowseRadioWebradiodbList');
     elReplaceChild(list, 
         loadingMsgEl(settings.viewBrowseRadioWebradiodb.fields.length + 1, undefined)
     );
@@ -275,6 +277,7 @@ function searchWebradiodb(name, genre, country, language, codec, bitrate, sort, 
  * @returns {void}
  */
 function parseSearchWebradiodb(obj) {
+    const table = elGetById('BrowseRadioWebradiodbList');
     if (app.current.filter['genre'] === '' &&
         app.current.filter['country'] === '' &&
         app.current.filter['language'] === '' &&
@@ -287,34 +290,51 @@ function parseSearchWebradiodb(obj) {
         elGetById('BrowseRadioWebradiodbFilterBtn').textContent = 'filter_list';
     }
 
-    if (checkResultId(obj, 'BrowseRadioWebradiodbList', undefined) === false) {
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
-    const tfoot = document.querySelector('#BrowseRadioWebradiodbList > tfoot');
-    elClear(tfoot);
-    const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
-    updateTable(obj, 'BrowseRadioWebradiodb', function(row, data) {
-        setData(row, 'uri', data.StreamUri);
-        setData(row, 'name', data.Name);
-        setData(row, 'genre', data.Genre);
-        setData(row, 'image', webradioDbPicsUri + data.Image);
-        setData(row, 'homepage', data.Homepage);
-        setData(row, 'country', data.Country);
-        setData(row, 'state', data.State);
-        setData(row, 'language', data.Languages);
-        setData(row, 'description', data.Description);
-        setData(row, 'codec', data.Codec);
-        setData(row, 'bitrate', data.Bitrate);
-        setData(row, 'type', 'stream');
-        row.setAttribute('title', rowTitle);
-    });
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
+        updateTable(obj, app.id, function(row, data) {
+            setData(row, 'uri', data.StreamUri);
+            setData(row, 'name', data.Name);
+            setData(row, 'genre', data.Genre);
+            setData(row, 'image', webradioDbPicsUri + data.Image);
+            setData(row, 'homepage', data.Homepage);
+            setData(row, 'country', data.Country);
+            setData(row, 'state', data.State);
+            setData(row, 'language', data.Languages);
+            setData(row, 'description', data.Description);
+            setData(row, 'codec', data.Codec);
+            setData(row, 'bitrate', data.Bitrate);
+            setData(row, 'type', 'stream');
+            row.setAttribute('title', rowTitle);
+        });
 
-    if (obj.result.totalEntities > 0) {
-        addTblFooter(tfoot,
-            elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
-        );
+        if (obj.result.totalEntities > 0) {
+            addTblFooter(tfoot,
+                elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
+            );
+        }
+        return;
     }
+    updateGrid(obj, app.id, function(card, data) {
+        setData(card, 'uri', data.StreamUri);
+        setData(card, 'name', data.Name);
+        setData(card, 'genre', data.Genre);
+        setData(card, 'image', webradioDbPicsUri + data.Image);
+        setData(card, 'homepage', data.Homepage);
+        setData(card, 'country', data.Country);
+        setData(card, 'state', data.State);
+        setData(card, 'language', data.Languages);
+        setData(card, 'description', data.Description);
+        setData(card, 'codec', data.Codec);
+        setData(card, 'bitrate', data.Bitrate);
+        setData(card, 'type', 'stream');
+    });
 }
 
 /**

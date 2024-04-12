@@ -139,23 +139,39 @@ function parseRadiobrowserList(obj) {
         return;
     }
 
-    const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
-    //set result keys for pagination
-    obj.result.returnedEntities = obj.result.data.length;
-    obj.result.totalEntities = -1;
+    if (settings['view' + app.id].mode === 'table') {
+        const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
+        //set result keys for pagination
+        obj.result.returnedEntities = obj.result.data.length;
+        obj.result.totalEntities = -1;
 
-    updateTable(obj, 'BrowseRadioRadiobrowser', function(row, data) {
-        setData(row, 'uri', data.url_resolved);
-        setData(row, 'name', data.name);
-        setData(row, 'genre', data.tags);
-        setData(row, 'image', data.favicon);
-        setData(row, 'homepage', data.homepage);
-        setData(row, 'country', data.country);
-        setData(row, 'language', data.language);
-        setData(row, 'codec', data.codec);
-        setData(row, 'bitrate', data.bitrate);
-        setData(row, 'RADIOBROWSERUUID', data.stationuuid);
-        setData(row, 'type', 'stream');
-        row.setAttribute('title', rowTitle);
+        updateTable(obj, app.id, function(row, data) {
+            setData(row, 'uri', data.url_resolved);
+            setData(row, 'name', data.name);
+            setData(row, 'genre', data.tags);
+            setData(row, 'image', data.favicon);
+            setData(row, 'homepage', data.homepage);
+            setData(row, 'country', data.country);
+            setData(row, 'language', data.language);
+            setData(row, 'codec', data.codec);
+            setData(row, 'bitrate', data.bitrate);
+            setData(row, 'RADIOBROWSERUUID', data.stationuuid);
+            setData(row, 'type', 'stream');
+            row.setAttribute('title', rowTitle);
+        });
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        setData(card, 'uri', data.url_resolved);
+        setData(card, 'name', data.name);
+        setData(card, 'genre', data.tags);
+        setData(card, 'image', data.favicon);
+        setData(card, 'homepage', data.homepage);
+        setData(card, 'country', data.country);
+        setData(card, 'language', data.language);
+        setData(card, 'codec', data.codec);
+        setData(card, 'bitrate', data.bitrate);
+        setData(card, 'RADIOBROWSERUUID', data.stationuuid);
+        setData(card, 'type', 'stream');
     });
 }

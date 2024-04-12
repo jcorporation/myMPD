@@ -374,6 +374,8 @@ function handleActionTdClick(event) {
 function addTblFooter(tfoot, content) {
     const colspan = settings['view' + app.id].fields.length + 1;
     tfoot.appendChild(
-        elCreateNode('tr', {"class": ["not-clickable"], "colspan": colspan}, content)
+        elCreateNode('tr', {"class": ["not-clickable"]},
+            elCreateNode('td', {"colspan": colspan}, content)
+        )
     );
 }

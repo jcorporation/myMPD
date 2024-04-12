@@ -112,7 +112,7 @@ function viewBrowseFilesystemListClickHandler(event, target) {
 
     const table = elGetById('BrowseFilesystemList');
 
-    if (checkResultId(obj, 'BrowseFilesystemList', undefined) === false) {
+    if (checkResult(obj, table, undefined) === false) {
         elHide(imageList);
         return;
     }
@@ -142,23 +142,31 @@ function viewBrowseFilesystemListClickHandler(event, target) {
         elHide(imageList);
     }
 
-    const rowTitleSong = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
-    const rowTitleFolder = 'Open directory';
-    const rowTitlePlaylist = settingsWebuiFields.clickFilesystemPlaylist.validValues[settings.webuiSettings.clickFilesystemPlaylist];
-
-    const tfoot = table.querySelector('tfoot');
-    elClear(tfoot);
-    updateTable(obj, 'BrowseFilesystem', function(row, data) {
-        setData(row, 'type', data.Type);
-        setData(row, 'uri', data.uri);
+    if (settings['view' + app.id].mode === 'table') {
+        const rowTitleSong = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+        const rowTitleFolder = 'Open directory';
+        const rowTitlePlaylist = settingsWebuiFields.clickFilesystemPlaylist.validValues[settings.webuiSettings.clickFilesystemPlaylist];
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        updateTable(obj, app.id, function(row, data) {
+            setData(row, 'type', data.Type);
+            setData(row, 'uri', data.uri);
+            //set Title to name if not defined - for folders and playlists
+            setData(row, 'name', data.Title === undefined ? data.name : data.Title);
+            row.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong :
+                data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
+        });
+        addTblFooter(tfoot,
+            elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
+        );
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        setData(card, 'type', data.Type);
+        setData(card, 'uri', data.uri);
         //set Title to name if not defined - for folders and playlists
-        setData(row, 'name', data.Title === undefined ? data.name : data.Title);
-        row.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong :
-            data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
+        setData(card, 'name', data.Title === undefined ? data.name : data.Title);
     });
-    addTblFooter(tfoot,
-        elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
-    );
 }
 
 /**

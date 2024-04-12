@@ -258,6 +258,7 @@ function parseSettings(obj) {
     }
 
     pEl.gridPlayBtn.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    pEl.gridRemoveBtn.title = tn('Remove');
 
     //goto view
     if (app.id === 'QueueJukeboxSong' ||
@@ -342,7 +343,7 @@ function parseMPDSettings() {
             }
         }
     }
-    for (const table of ['Home', 'BrowseRadioWebradiodb', 'BrowseRadioRadiobrowser', 'BrowsePlaylistList']) {
+    for (const table of ['Home', 'BrowseRadioFavorites', 'BrowseRadioWebradiodb', 'BrowseRadioRadiobrowser', 'BrowsePlaylistList']) {
         setView(table);
         if (settings['view' + table].mode === 'table') {
             setCols(table);

@@ -44,6 +44,16 @@ function setView(viewName) {
             viewRightClickHandler(event);
         }, false);
     }
+    if (mode === 'table') {
+        //init drag and drop
+        switch(viewName) {
+            case 'QueueCurrentList':
+            case 'BrowsePlaylistDetailList':
+                dragAndDropTable(viewName);
+                break;
+            // No default
+        }
+    }
 }
 
 /**
@@ -413,6 +423,7 @@ function setFields(tableName) {
     switch(tableName) {
         case 'BrowsePlaylistList':
             return ["Type", "Name", "Last-Modified", "Thumbnail"];
+        case 'BrowseRadioFavorites':
         case 'BrowseRadioWebradiodb':
             return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "State", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
         case 'BrowseRadioRadiobrowser':

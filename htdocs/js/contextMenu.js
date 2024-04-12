@@ -595,6 +595,9 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
             }
             return true;
         }
+        case 'BrowseRadioFavorites':
+            addMenuItemsWebradioFavoritesActions(dataNode, contextMenuTitle, contextMenuBody);
+            return true;
         case 'BrowsePlaylistList': {
             const smartplsOnly = getData(dataNode, 'smartpls-only');
             if (smartplsOnly === false ||

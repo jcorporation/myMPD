@@ -237,10 +237,6 @@ function appInit() {
     initViewQueueJukebox('QueueJukeboxAlbum');
     initViewQueueLastPlayed();
     initViewSearch();
-    //init drag and drop
-    for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
-        dragAndDropTable(table);
-    }
     //init custom elements
     initElements(domCache.body);
     //add bootstrap native updated event listeners for dropdowns

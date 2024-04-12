@@ -30,7 +30,7 @@ function updateGrid(obj, list, perCardCallback, createCardFooterCallback) {
             card.appendChild(
                 elCreateEmpty('div', {"class": ["card-body", "cover-loading", "cover-grid", "d-flex"]})
             );
-            setData(card, 'image', obj.result.data[i].Thumbnail);
+            setData(card, 'cssImageUrl', obj.result.data[i].Thumbnail);
             if (userAgentData.hasIO === true) {
                 const observer = new IntersectionObserver(setGridImage, {root: null, rootMargin: '0px'});
                 observer.observe(card);
@@ -89,7 +89,7 @@ function gridFooter(footer, data, list) {
             continue;
         }
         footer.appendChild(
-            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"]},
+            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"], "data-col": settings['view' + list].fields[i]},
                 printValue(tag, data[tag])
             )
         );
@@ -141,7 +141,7 @@ function setGridImage(changes, observer) {
             observer.unobserve(change.target);
             const body = change.target.querySelector('.card-body');
             if (body) {
-                body.style.backgroundImage = getData(change.target, 'image');
+                body.style.backgroundImage = getData(change.target, 'cssImageUrl');
             }
         }
     });

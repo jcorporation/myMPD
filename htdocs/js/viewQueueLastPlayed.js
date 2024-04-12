@@ -43,15 +43,29 @@ function viewQueueLastPlayedListClickHandler(event, target) {
  * @returns {void}
  */
 function parseLastPlayed(obj) {
-    if (checkResultId(obj, 'QueueLastPlayedList', undefined) === false) {
+    const table = elGetById('QueueLastPlayedList');
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
-    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
-    updateTable(obj, 'QueueLastPlayed', function(row, data) {
-        setData(row, 'uri', data.uri);
-        setData(row, 'name', data.Title);
-        setData(row, 'type', 'song');
-        row.setAttribute('title', tn(rowTitle));
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+        updateTable(obj, app.id, function(row, data) {
+            setData(row, 'uri', data.uri);
+            setData(row, 'name', data.Title);
+            setData(row, 'type', 'song');
+            row.setAttribute('title', tn(rowTitle));
+        });
+        addTblFooter(tfoot,
+            elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities)
+        );
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        setData(card, 'uri', data.uri);
+        setData(card, 'name', data.Title);
+        setData(card, 'type', 'song');
     });
 }

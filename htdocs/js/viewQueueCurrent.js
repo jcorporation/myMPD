@@ -81,67 +81,107 @@ function parseQueue(obj) {
         return;
     }
 
-    const colspan = settings['viewQueueCurrent'].fields.length;
-    const smallWidth = uiSmallWidthTagRows();
+    if (settings['view' + app.id].mode === 'table') {
+        const colspan = settings['viewQueueCurrent'].fields.length;
+        const smallWidth = uiSmallWidthTagRows();
 
-    const rowTitle = settingsWebuiFields.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
-    const tfoot = table.querySelector('tfoot');
-    elClear(tfoot);
-    updateTable(obj, 'QueueCurrent', function(row, data) {
-        if (features.featAdvqueue === false ||
-            app.current.sort.tag === 'Priority')
-        {
-            row.setAttribute('draggable', 'true');
+        const rowTitle = settingsWebuiFields.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        updateTable(obj, app.id, function(row, data) {
+            if (features.featAdvqueue === false ||   // always sorted by priority
+                app.current.sort.tag === 'Priority')
+            {
+                row.setAttribute('draggable', 'true');
+            }
+            row.setAttribute('id', 'queueSongId' + data.id);
+            row.setAttribute('title', tn(rowTitle));
+            setData(row, 'songid', data.id);
+            setData(row, 'pos', data.Pos);
+            setData(row, 'duration', data.Duration);
+            setData(row, 'uri', data.uri);
+            setData(row, 'type', data.Type);
+            if (data.Type === 'webradio') {
+                setData(row, 'webradioUri', data.webradio.filename);
+                setData(row, 'name', data.webradio.Name);
+            }
+            else {
+                setData(row, 'name', data.Title);
+                //set AlbumId
+                if (data.AlbumId !== undefined) {
+                    setData(row, 'AlbumId', data.AlbumId);
+                }
+                //and browse tags
+                for (const tag of settings.tagListBrowse) {
+                    if (albumFilters.includes(tag) &&
+                        isEmptyTag(data[tag]) === false)
+                    {
+                        setData(row, tag, data[tag]);
+                    }
+                }
+            }
+            //set Title to Name + Title for streams
+            data.Title = getDisplayTitle(data.Name, data.Title);
+        }, function(row, data) {
+            tableRow(row, data, app.id, colspan, smallWidth);
+            if (currentState.currentSongId === data.id) {
+                setPlayingRow(row);
+                if (currentState.state === 'play') {
+                    setQueueCounter(row, getCounterText());
+                }
+            }
+        });
+
+        if (obj.result.totalEntities > 0) {
+            const totalTime = obj.result.totalTime > 0
+                ? elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
+                : elCreateEmpty('span', {});
+            addTblFooter(tfoot,
+                elCreateNodes('small', {}, [
+                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
+                    totalTime
+                ])
+            );
         }
-        row.setAttribute('id', 'queueSongId' + data.id);
-        row.setAttribute('title', tn(rowTitle));
-        setData(row, 'songid', data.id);
-        setData(row, 'pos', data.Pos);
-        setData(row, 'duration', data.Duration);
-        setData(row, 'uri', data.uri);
-        setData(row, 'type', data.Type);
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        card.setAttribute('id', 'queueSongId' + data.id);
+        setData(card, 'songid', data.id);
+        setData(card, 'pos', data.Pos);
+        setData(card, 'duration', data.Duration);
+        setData(card, 'uri', data.uri);
+        setData(card, 'type', data.Type);
         if (data.Type === 'webradio') {
-            setData(row, 'webradioUri', data.webradio.filename);
-            setData(row, 'name', data.webradio.Name);
+            setData(card, 'webradioUri', data.webradio.filename);
+            setData(card, 'name', data.webradio.Name);
         }
         else {
-            setData(row, 'name', data.Title);
+            setData(card, 'name', data.Title);
             //set AlbumId
             if (data.AlbumId !== undefined) {
-                setData(row, 'AlbumId', data.AlbumId);
+                setData(card, 'AlbumId', data.AlbumId);
             }
             //and browse tags
             for (const tag of settings.tagListBrowse) {
                 if (albumFilters.includes(tag) &&
                     isEmptyTag(data[tag]) === false)
                 {
-                    setData(row, tag, data[tag]);
+                    setData(card, tag, data[tag]);
                 }
             }
         }
         //set Title to Name + Title for streams
         data.Title = getDisplayTitle(data.Name, data.Title);
-    }, function(row, data) {
-        tableRow(row, data, app.id, colspan, smallWidth);
+    }, function(card, data) {
+        gridFooter(card, data, app.id);
         if (currentState.currentSongId === data.id) {
-            setPlayingRow(row);
+            setPlayingRow();
             if (currentState.state === 'play') {
-                setQueueCounter(row, getCounterText());
+                setQueueCounter(card, getCounterText());
             }
         }
     });
-
-    if (obj.result.totalEntities > 0) {
-        const totalTime = obj.result.totalTime > 0
-            ? elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
-            : elCreateEmpty('span', {});
-        addTblFooter(tfoot,
-            elCreateNodes('small', {}, [
-                elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
-                totalTime
-            ])
-        );
-    }
 }
 
 /**

@@ -586,6 +586,7 @@
             <span></span>
             <button class="btn-close" data-href='{"cmd": "hideAlert", "options": ["target"]}'></button>
           </div>
+          <h3 id="BrowsePlaylistDetailTitle"></h3>
           <div id="BrowsePlaylistDetailContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistDetailButtonsBottom"></div>
         </div>
@@ -821,6 +822,9 @@
                 <div class="dropdown-divider"></div>
                 <small class="mb-0 px-2"></small>
               </div>
+            </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
             </div>
             <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
