@@ -109,6 +109,9 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
         : app.cards[card].tabs[tab].offset !== undefined
             ? app.cards[card].tabs[tab]
             : app.cards[card].tabs[tab].views[view];
+    const newappid = app.current.card +
+        (app.current.tab === undefined ? '' : app.current.tab) +
+        (app.current.view === undefined ? '' : app.current.view);
 
     //save scrollPos of old app
     if (oldptr !== ptr) {
@@ -121,7 +124,9 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
     if (filter === null || filter === undefined) { filter = ptr.filter; }
     if (sort === null || sort === undefined) {
         sort = ptr.sort;
-        if (card === 'Browse' && tab === 'Database' && view === 'AlbumList') {
+        if (newappid === 'BrowseDatabaseAlbumList' &&
+            ptr.sort.tag === '')
+        {
             sort.tag = settings.webuiSettings.browseDatabaseAlbumListSort;
         }
     }
@@ -200,6 +205,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }
             catch(error) {
                 //do nothing
+                logDebug(error);
             }
         }
         if (jsonHash === null) {

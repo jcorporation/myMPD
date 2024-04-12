@@ -8,8 +8,8 @@
 #include "src/web_server/albumart.h"
 
 #include "src/lib/api.h"
-#include "src/lib/covercache.h"
 #include "src/lib/convert.h"
+#include "src/lib/covercache.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"

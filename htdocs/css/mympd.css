@@ -21,11 +21,11 @@ body.not-mobile .card {
   margin-bottom: 0;
 }
 
-body.not-mobile .album-cover-grid > div {
+body.not-mobile .cover-grid > div {
   display: none;
 }
 
-body.not-mobile .album-cover-grid:hover > div {
+body.not-mobile .cover-grid:hover > div {
   display: block;
 }
 
@@ -409,6 +409,7 @@ th,
   width: 2rem;
   text-align: right;
   word-break: keep-all;
+  padding: 0.25rem !important;
 }
 
 table[data-rw="false"] [data-col="Action"] a[data-action="quickRemove"] {
@@ -417,10 +418,6 @@ table[data-rw="false"] [data-col="Action"] a[data-action="quickRemove"] {
 
 table.smallWidth [data-col="Action"] {
   word-break: break-all;
-}
-
-th[data-col="Action"] {
-  padding: 0.25rem !important;
 }
 
 div.card {
@@ -502,18 +499,18 @@ div#homeActions {
   text-overflow: ellipsis;
 }
 
-.card-footer-tags a {
+.card-footer-grid a {
   margin-top: 1rem;
   display: inline-block;
   width: 50%;
   text-align: center;
 }
 
-.card-footer-tags a:last-child {
+.card-footer-grid a:last-child {
   text-align: center;
 }
 
-.album-cover-grid {
+.cover-grid {
   background-size: cover;
   background-position: center center;
   overflow: hidden;
@@ -542,7 +539,7 @@ div#homeActions {
   }
 }
 
-.album-cover-loading {
+.cover-loading {
   background-image: url("../assets/coverimage-mympd");
 }
 
@@ -674,12 +671,9 @@ tfoot td {
   width: 60vw;
 }
 
+.dragover,
 .dragover > td {
-  border-top: 2px solid var(--mympd-highlightcolor);
-}
-
-.dragover-th {
-  border-left: 2px solid var(--mympd-highlightcolor);
+  border-top: 2px solid var(--mympd-highlightcolor) !important;
 }
 
 [draggable] {
@@ -907,7 +901,7 @@ div.homeIconPreview {
   padding-top: 1rem;
 }
 
-div.album-grid-mouseover {
+div.gridQuickButton {
   background-color: rgba(0, 0, 0, 50%);
   color: var(--bs-white);
   width: 3rem;
@@ -916,7 +910,7 @@ div.album-grid-mouseover {
   font-size: 2.4rem;
 }
 
-div.album-grid-mouseover:hover {
+div.gridQuickButton:hover {
   background-color: var(--mympd-highlightcolor);
 }
 
@@ -1125,6 +1119,8 @@ button.weekday {
 .dropdown-divider2 {
   height: 0;
   margin-top: 1.5rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
   overflow: hidden;
   opacity: 1;
 }
@@ -1268,4 +1264,20 @@ h4.offcanvas-title-stream::before {
 
 .playbackPopoverBtns input {
   max-width: 6rem;
+}
+
+.fieldsEnabled > li > div.fieldsAvailableBtns {
+  display: none;
+}
+
+.fieldsAvailable > li > div.fieldsEnabledBtns {
+  display: none;
+}
+
+.fieldsEnabled > li:last-child > div.fieldsEnabledBtns > button:last-child {
+  visibility: hidden;
+}
+
+.fieldsEnabled > li:first-child > div.fieldsEnabledBtns > button:nth-child(2) {
+  visibility: hidden;
 }

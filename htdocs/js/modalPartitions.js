@@ -144,7 +144,7 @@ function switchPartition(partition) {
  */
 function parsePartitionList(obj) {
     const partitionList = elGetById('modalPartitionsPartitionsList');
-    if (checkResult(obj, partitionList) === false) {
+    if (checkResult(obj, partitionList, 'table') === false) {
         return;
     }
 

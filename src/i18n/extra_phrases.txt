@@ -105,6 +105,7 @@ jack
 Jukebox Queue
 Label
 language
+Languages
 lastchangetime
 lastcheckok
 Last-Modified
@@ -232,6 +233,7 @@ Synced lyrics extension
 Synced lyrics vorbis comment
 Tab
 tags
+Thumbnail
 Thumbnail size
 Title
 Too many results, list is cropped

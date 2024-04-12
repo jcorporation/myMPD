@@ -12,8 +12,8 @@
 #include "src/lib/cache.h"
 #include "src/lib/config_def.h"
 #include "src/lib/event.h"
+#include "src/lib/fields.h"
 #include "src/lib/list.h"
-#include "src/lib/tags.h"
 
 #include <time.h>
 
@@ -100,7 +100,7 @@ struct t_jukebox_state {
     sds playlist;                  //!< playlist from which the jukebox queue is generated
     unsigned queue_length;         //!< how many songs should the mpd queue have
     unsigned last_played;          //!< only add songs with last_played state older than seconds from now
-    struct t_tags uniq_tag;        //!< single tag for the jukebox uniq constraint
+    struct t_tags uniq_tag;      //!< single tag for the jukebox uniq constraint
     struct t_list *queue;          //!< the jukebox queue itself
     bool ignore_hated;             //!< ignores hated songs for the jukebox mode
     sds filter_include;            //!< mpd search filter to include songs / albums
@@ -231,20 +231,22 @@ struct t_mympd_state {
     int smartpls_interval;                        //!< interval to refresh smart playlists in seconds
     struct t_tags smartpls_generate_tag_types;    //!< generate smart playlists for each value for this tag
     sds smartpls_generate_tag_list;               //!< generate smart playlists for each value for this tag (string representation)
-    sds cols_queue_current;                       //!< columns for the queue view
-    sds cols_search;                              //!< columns for the search view
-    sds cols_browse_database_album_detail_info;   //!< columns for the album detail view
-    sds cols_browse_database_album_detail;        //!< columns for the album detail title list
-    sds cols_browse_database_album_list;          //!< columns for the album list view
-    sds cols_browse_playlist_list;                //!< columns for the listing of playlists
-    sds cols_browse_playlist_detail;              //!< columns for the listing of playlist contents
-    sds cols_browse_filesystem;                   //!< columns for filesystem listing
-    sds cols_playback;                            //!< columns for playback view
-    sds cols_queue_last_played;                   //!< columns for last played view
-    sds cols_queue_jukebox_song;                  //!< columns for the jukebox queue view for songs
-    sds cols_queue_jukebox_album;                 //!< columns for the jukebox queue view for albums
-    sds cols_browse_radio_webradiodb;             //!< columns for the webradiodb view
-    sds cols_browse_radio_radiobrowser;           //!< columns for the radiobrowser view
+    sds view_queue_current;                       //!< view settings for the queue view
+    sds view_search;                              //!< view settings for the search view
+    sds view_browse_database_album_detail_info;   //!< view settings for the album detail view
+    sds view_browse_database_album_detail;        //!< view settings for the album detail title list
+    sds view_browse_database_album_list;          //!< view settings for the album list view
+    sds view_browse_database_tag_list;            //!< view settings for the album list view
+    sds view_browse_playlist_list;                //!< view settings for the listing of playlists
+    sds view_browse_playlist_detail;              //!< view settings for the listing of playlist contents
+    sds view_browse_filesystem;                   //!< view settings for filesystem listing
+    sds view_playback;                            //!< view settings for playback view
+    sds view_queue_last_played;                   //!< view settings for last played view
+    sds view_queue_jukebox_song;                  //!< view settings for the jukebox queue view for songs
+    sds view_queue_jukebox_album;                 //!< view settings for the jukebox queue view for albums
+    sds view_browse_radio_webradiodb;             //!< view settings for the webradiodb view
+    sds view_browse_radio_radiobrowser;           //!< view settings for the radiobrowser view
+    sds view_browse_radio_favorites;              //!< view settings for the radio favorites view
     sds music_directory;                          //!< mpd music directory setting (real value is in mpd_state)
     sds playlist_directory;                       //!< mpd playlist directory (real value is in mpd_state)
     sds navbar_icons;                             //!< json string of navigation bar icons

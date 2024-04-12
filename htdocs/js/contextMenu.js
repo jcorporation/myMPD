@@ -53,36 +53,70 @@ function showContextMenu(event) {
  */
 
 /**
- * Creates the column check list for tables
+ * Creates the column check list for views
  * @param {EventTarget} target event target
  * @param {HTMLElement} contextMenuTitle title element
  * @param {HTMLElement} contextMenuBody element to append the menu item
  * @returns {void}
  */
-function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
+function createMenuViewSettings(target, contextMenuTitle, contextMenuBody) {
+    if (app.id !== 'Playback' &&
+        app.id !== 'BrowseDatabaseAlbumDetail')
+    {
+        contextMenuBody.appendChild(
+            elCreateNodes('div', {'class': ['row']}, [
+                elCreateTextTn('label', {'class': ['col-4','col-form-label']}, 'Mode'),
+                elCreateNode('div', {'class': ['col-8']},
+                    elCreateNodes('div', {'class': ['btn-group', 'w-100'], "id": "viewSettingsMode"}, [
+                        elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'table'}, 'Table'),
+                        elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'grid'}, 'Grid')
+                    ])
+                )
+            ])
+        );
+        toggleBtnGroupValueId('viewSettingsMode', settings['view' + app.id].mode);
+        for (const btn of elGetById('viewSettingsMode').childNodes) {
+            btn.addEventListener('click', function(event) {
+                toggleBtnGroup(event.target);
+                event.preventDefault();
+                event.stopPropagation();
+            }, false);
+        }
+        contextMenuBody.appendChild(
+            elCreateEmpty('div', {"class": ["dropdown-divider2", "mb-3"]})
+        );
+    }
+    if (app.id === 'BrowseDatabaseAlbumDetail') {
+        createMenuColumnsAppid(target, 'BrowseDatabaseAlbumDetailInfo', contextMenuTitle, contextMenuBody);
+        contextMenuBody.appendChild(
+            elCreateEmpty('div', {"class": ["dropdown-divider2"]})
+        );
+        const contextMenuSubtitle = elCreateTextTn('h4', {"class": ["offcanvas-title", "mt-4", "mb-2"]}, 'Song list');
+        contextMenuBody.appendChild(contextMenuSubtitle);
+    }
+    createMenuColumnsAppid(target, app.id, contextMenuTitle, contextMenuBody);
+}
+
+/**
+ * Creates the column check list for views
+ * @param {EventTarget} target event target
+ * @param {string} appid application id
+ * @param {HTMLElement} contextMenuTitle title element
+ * @param {HTMLElement} contextMenuBody element to append the menu item
+ * @returns {void}
+ */
+function createMenuColumnsAppid(target, appid, contextMenuTitle, contextMenuBody) {
     const menu = elCreateEmpty('form', {});
-    setColsChecklist(app.id, menu);
-    menu.addEventListener('click', function(eventClick) {
-        if (eventClick.target.nodeName === 'BUTTON') {
-            toggleBtnChk(eventClick.target, undefined);
-            eventClick.preventDefault();
-            eventClick.stopPropagation();
-        }
-        else if (eventClick.target.nodeName === 'LABEL') {
-            toggleBtnChk(eventClick.target.previousElementSibling, undefined);
-            eventClick.preventDefault();
-            eventClick.stopPropagation();
-        }
-    }, false);
+    menu.setAttribute('id', appid + 'FieldsSelect');
+    setViewOptions(appid, menu);
     contextMenuBody.classList.add('px-3');
     contextMenuBody.appendChild(menu);
-    const applyEl = elCreateTextTn('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, 'Apply');
+    const applyEl = elCreateTextTn('button', {"class": ["btn", "btn-success", "w-100", "mt-2"]}, 'Apply');
     contextMenuBody.appendChild(applyEl);
     applyEl.addEventListener('click', function(eventClick) {
         eventClick.preventDefault();
-        saveCols(app.id);
+        saveView(appid);
     }, false);
-    contextMenuBody.setAttribute('id', app.id + 'ColsDropdown');
 }
 
 /**
@@ -525,7 +559,9 @@ function addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name)
  * @returns {boolean} true on success, else false
  */
 function createMenuLists(target, contextMenuTitle, contextMenuBody) {
-    const dataNode = target.parentNode.parentNode;
+    const dataNode = settings['view' + app.id].mode === 'table'
+        ? target.closest('tr')
+        : target;
     const type = getData(dataNode, 'type');
     const uri = getData(dataNode, 'uri');
     const name = getData(dataNode, 'name');
@@ -534,6 +570,9 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
     contextMenuTitle.classList.add('offcanvas-title-' + type);
 
     switch(app.id) {
+        case 'BrowseDatabaseAlbumList':
+            addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody);
+            return true;
         case 'BrowseFilesystem':
         case 'Search':
         case 'BrowseRadioRadiobrowser':
@@ -556,6 +595,9 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
             }
             return true;
         }
+        case 'BrowseRadioFavorites':
+            addMenuItemsWebradioFavoritesActions(dataNode, contextMenuTitle, contextMenuBody);
+            return true;
         case 'BrowsePlaylistList': {
             const smartplsOnly = getData(dataNode, 'smartpls-only');
             if (smartplsOnly === false ||
@@ -676,7 +718,9 @@ function createMenuListsSecondary(target, contextMenuTitle, contextMenuBody) {
         case 'BrowseFilesystem':
         case 'BrowseDatabaseAlbumDetail':
         case 'BrowsePlaylistDetail': {
-            const dataNode = target.parentNode.parentNode;
+            const dataNode = settings['view' + app.id].mode === 'table'
+                ? target.closest('tr')
+                : target;
             const type = getData(dataNode, 'type');
             const uri = getData(dataNode, 'uri');
 

@@ -1221,7 +1221,7 @@ app.cards = {
                 "limit": 100,
                 "filter": "any",
                 "sort": {
-                    "tag": "Pos",
+                    "tag": "Priority",
                     "desc": false
                 },
                 "tag": "",
@@ -1581,7 +1581,7 @@ const typeFriendly = {
     'view': 'View',
     'appGoto': 'View',
     'webradio': 'Webradio',
-    'cols': 'Columns',
+    'viewSettings': 'View settings',
     'disc': 'Disc'
 };
 

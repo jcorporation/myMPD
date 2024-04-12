@@ -198,7 +198,7 @@ function elShow(el) {
 
 /**
  * Clears the element
- * @param {Element} el element to clear
+ * @param {Element | ChildNode} el element to clear
  * @returns {void}
  */
 function elClear(el) {

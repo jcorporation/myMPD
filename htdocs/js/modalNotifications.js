@@ -38,7 +38,7 @@ function showMessages() {
         overview.firstElementChild);
     }
     if (overview.querySelector('tr') === null) {
-        overview.appendChild(emptyRow(4));
+        overview.appendChild(emptyMsgEl(4, 'table'));
     }
 }
 
@@ -52,7 +52,7 @@ function clearMessages(target) {
     btnWaiting(target, true);
     const overview = elGetById('modalNotificationsList');
     elClear(overview);
-    overview.appendChild(emptyRow(4));
+    overview.appendChild(emptyMsgEl(4, 'table'));
     messages.length = 0;
     btnWaiting(target, false);
 }

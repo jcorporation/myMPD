@@ -113,11 +113,13 @@
             <button data-phrase="Modal shortcut" data-href='{"cmd": "addOpenModalToHome", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
           </div>
         </div>
-        <div class="container-fluid cardsContainer scrollContainer">
+        <div id="HomeContainer" class="container-fluid cardsContainer scrollContainer">
           <div id="HomeList" class="row mympd-grid noInitChilds"></div>
         </div>
       </div>
     </div>
+<!-- Home end -->
+<!-- Playback start -->
     <div class="card" id="cardPlayback">
       <div class="card-body">
         <div class="btn-toolbar card-toolbar">
@@ -145,15 +147,10 @@
             </div>
           </div>
           <div class="btn-group me-2 featTags">
-            <button data-title-phrase="Display tags" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
-            <div class="dropdown-menu px-2" id="PlaybackColsDropdown">
-              <h2 class="dropdown-header" data-phrase="Tags"></h2>
-              <form></form>
-              <button data-phrase="Apply" data-href='{"cmd": "saveColsDropdown", "options": ["colsPlayback", "PlaybackColsDropdown"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
-            </div>
+            <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
           </div>
         </div>
-        <div class="container-fluid scrollContainer">
+        <div id="PlaybackContainer" class="container-fluid scrollContainer">
           <div id="PlaybackList" class="row">
             <div class="col-12 col-sm-6 col-xl-4 ps-0 mb-3">
               <div class="album-cover album-cover-loading clickable carousel" id="PlaybackCover" data-href='{"cmd": "zoomPicture", "options": ["target"]}'></div>
@@ -169,7 +166,7 @@
         </div>
       </div>
     </div>
-<!-- Home end -->
+<!-- Playback end -->
     <div class="card d-none" id="cardQueue">
 <!-- Queue current start-->
       <div class="card-body d-none" id="tabQueueCurrent">
@@ -233,11 +230,19 @@
           <div class="btn-group me-2">
             <button id="QueueCurrentGotoPlayingSongBtn" data-title-phrase="Goto playing song" type="button" class="btn btn-secondary mi" data-href='{"cmd": "gotoPlayingSong", "options": []}'>playlist_play</button>
           </div>
-          <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+          <div class="btn-group me-2 featAdvqueue">
+            <button id="QueueCurrentSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
+            <div class="dropdown-menu px-2" id="QueueCurrentSortTags">
+              <div id="QueueCurrentSortTagsList"></div>
+              <div class="dropdown-divider"></div>
+              <div class="form-check">
+                <button class="btn btn-secondary btn-xs mi mi-sm" id="QueueCurrentSortDesc">radio_button_unchecked</button>&nbsp;
+                <label class="form-check-label" for="QueueCurrentSortDesc" data-phrase="Descending"></label>
+              </div>
+            </div>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Select" id="QueueCurrentSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+            <button data-title-phrase="Select" id="QueueCurrentSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
             <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
             <div class="dropdown-menu px-2 dropdownWide" id="QueueCurrentSelectionDropdown">
               <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -246,18 +251,16 @@
               <small class="mb-0 px-2"></small>
             </div>
           </div>
+          <div class="btn-group me-2 featTags">
+            <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+          </div>
+          <div class="btn-group me-2 featHome">
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+          </div>
           <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <div class="breadcrumb p-2 rounded-2 d-none" id="QueueCurrentSearchCrumb"></div>
-        <div class="table-responsive scrollContainer">
-          <table id="QueueCurrentList" class="table table-hover table-sm">
-            <thead>
-              <tr></tr>
-            </thead>
-            <tbody class="clickable"></tbody>
-            <tfoot></tfoot>
-          </table>
-        </div>
+        <div id="QueueCurrentContainer"></div>
         <div class="btn-toolbar d-none justify-content-between" id="QueueCurrentButtonsBottom"></div>
       </div>
 <!-- Queue current end-->
@@ -292,11 +295,8 @@
             </select>
             <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="QueueLastPlayedSearchStr"/>
           </div>
-          <div class="btn-group me-2 featHome">
-            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
-          </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Select" id="QueueLastPlayedSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+            <button data-title-phrase="Select" id="QueueLastPlayedSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
             <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
             <div class="dropdown-menu px-2 dropdownWide" id="QueueLastPlayedSelectionDropdown">
               <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -305,17 +305,16 @@
               <small class="mb-0 px-2"></small>
             </div>
           </div>
+          <div class="btn-group me-2 featTags">
+            <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+          </div>
+          <div class="btn-group me-2 featHome">
+            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+          </div>
           <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <div class="breadcrumb p-2 rounded-2 d-none" id="QueueLastPlayedSearchCrumb"></div>
-        <div class="table-responsive scrollContainer">
-          <table id="QueueLastPlayedList" class="table table-hover table-sm">
-            <thead>
-              <tr></tr>
-            </thead>
-            <tbody class="clickable"></tbody>
-          </table>
-        </div>
+        <div id="QueueLastPlayedContainer"></div>
         <div class="btn-toolbar d-none justify-content-between" id="QueueLastPlayedButtonsBottom"></div>
       </div>
 <!-- Last played end -->
@@ -354,11 +353,8 @@
             <div class="btn-group me-2">
               <button data-title-phrase="Clear jukebox queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearJukeboxQueue", "options": []}'>clear_all</button>
             </div>
-            <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
-            </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="QueueJukeboxSongSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="QueueJukeboxSongSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="QueueJukeboxSongSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -367,18 +363,17 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
+            <div class="btn-group me-2 featHome">
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+            </div>
             <div id="QueueJukeboxSongPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxSongSearchCrumb"></div>
-          <div class="table-responsive scrollContainer">
-            <div id="QueueJukeboxSongDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
-            <table id="QueueJukeboxSongList" class="table table-hover table-sm">
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-            </table>
-          </div>
+          <div id="QueueJukeboxSongDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
+          <div id="QueueJukeboxSongContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="QueueJukeboxSongButtonsBottom"></div>
         </div>
 <!-- Jukebox song end -->
@@ -416,11 +411,8 @@
             <div class="btn-group me-2">
               <button data-title-phrase="Clear jukebox queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearJukeboxQueue", "options": []}'>clear_all</button>
             </div>
-            <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
-            </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="QueueJukeboxAlbumSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="QueueJukeboxAlbumSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="QueueJukeboxAlbumSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -429,18 +421,17 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
+            <div class="btn-group me-2 featHome">
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+            </div>
             <div id="QueueJukeboxAlbumPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxAlbumSearchCrumb"></div>
-          <div class="table-responsive scrollContainer">
-            <div id="QueueJukeboxAlbumDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
-            <table id="QueueJukeboxAlbumList" class="table table-hover table-sm">
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-            </table>
-          </div>
+          <div id="QueueJukeboxAlbumDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
+          <div  id="QueueJukeboxAlbumContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="QueueJukeboxAlbumButtonsBottom"></div>
         </div>
       </div>
@@ -475,11 +466,8 @@
                 </div>
               </div>
             </div>
-            <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
-            </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowsePlaylistListSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowsePlaylistListSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowsePlaylistListSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -488,21 +476,15 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
+            <div class="btn-group me-2 featHome">
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+            </div>
             <div id="BrowsePlaylistListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="table-responsive scrollContainer">
-            <table id="BrowsePlaylistListList" class="table table-hover table-sm">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th data-phrase="Playlist"></th>
-                  <th data-phrase="Last modified"></th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-            </table>
-          </div>
+          <div id="BrowsePlaylistListContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistListButtonsBottom"></div>
         </div>
 <!--  Playlists end -->
@@ -585,7 +567,7 @@
               </div>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowsePlaylistDetailSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowsePlaylistDetailSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowsePlaylistDetailSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -594,23 +576,18 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
             <div id="BrowsePlaylistDetailPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="BrowsePlaylistDetailSearchCrumb"></div>
-          <div class="table-responsive scrollContainer">
-            <div id="playlistDetailAlert" class="alert alert-warning alert-dismissible d-none">
-              <span></span>
-              <button class="btn-close" data-href='{"cmd": "hideAlert", "options": ["target"]}'></button>
-            </div>
-            <table id="BrowsePlaylistDetailList" class="table table-hover table-sm">
-              <caption></caption>
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-              <tfoot></tfoot>
-            </table>
+          <div id="playlistDetailAlert" class="alert alert-warning alert-dismissible d-none">
+            <span></span>
+            <button class="btn-close" data-href='{"cmd": "hideAlert", "options": ["target"]}'></button>
           </div>
+          <h3 id="BrowsePlaylistDetailTitle"></h3>
+          <div id="BrowsePlaylistDetailContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistDetailButtonsBottom"></div>
         </div>
       </div>
@@ -633,14 +610,15 @@
             <div class="btn-group me-2">
               <button class="btn btn-secondary mi" id="BrowseDatabaseTagListSortDesc" data-title-phrase="Sort">sort</button>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
             <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
             </div>
             <div id="BrowseDatabaseTagListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="container-fluid cardsContainer scrollContainer">
-            <div id="BrowseDatabaseTagListList" class="row mympd-grid"></div>
-          </div>
+          <div id="BrowseDatabaseTagListContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseDatabaseTagListButtonsBottom"></div>
         </div>
 <!-- Tag list end -->
@@ -680,19 +658,8 @@
                 </div>
               </div>
             </div>
-            <div class="btn-group me-2 featTags">
-              <button data-title-phrase="Display tags" id="DatabaseAlbumListColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
-              <div class="dropdown-menu px-2" id="BrowseDatabaseAlbumListColsDropdown">
-                <h2 class="dropdown-header" data-phrase="Tags"></h2>
-                <form></form>
-                <button data-phrase="Apply" data-href='{"cmd": "saveColsDatabaseAlbumList", "options": []}' class="btn btn-success w-100 btn-sm mt-2"></button>
-              </div>
-            </div>
-            <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
-            </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseDatabaseAlbumListSelectModeBtn" data-href='{"cmd": "switchGridMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowseDatabaseAlbumListSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowseDatabaseAlbumListSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -701,12 +668,16 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
+            <div class="btn-group me-2 featHome">
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+            </div>
             <div id="BrowseDatabaseAlbumListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="BrowseDatabaseAlbumListSearchCrumb"></div>
-          <div class="container-fluid cardsContainer scrollContainer">
-            <div id="BrowseDatabaseAlbumListList" class="row mympd-grid"></div>
-          </div>
+          <div id="BrowseDatabaseAlbumListContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseDatabaseAlbumListButtonsBottom"></div>
         </div>
 <!-- Album list end -->
@@ -732,7 +703,7 @@
               </div>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseDatabaseAlbumDetailSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowseDatabaseAlbumDetailSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowseDatabaseAlbumDetailSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -742,15 +713,10 @@
               </div>
             </div>
             <div class="btn-group me-2 featTags">
-              <button data-title-phrase="Display tags" id="DatabaseAlbumDetailInfoColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
-              <div class="dropdown-menu px-2" id="BrowseDatabaseAlbumDetailInfoColsDropdown">
-                <h2 class="dropdown-header" data-phrase="Tags"></h2>
-                <form></form>
-                <button data-phrase="Apply" data-href='{"cmd": "saveColsDropdown", "options": ["colsBrowseDatabaseAlbumDetailInfo", "BrowseDatabaseAlbumDetailInfoColsDropdown"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
-              </div>
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
             </div>
           </div>
-          <div class="table-responsive scrollContainer">
+          <div class="scrollContainer table-responsive">
             <div class="row me-0">
               <div class="col-12 col-sm-6 col-xl-4 mb-3">
                 <div id="viewDatabaseAlbumDetailCover" class="mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": ["target"]}'></div>
@@ -759,13 +725,15 @@
                 <div id="viewDatabaseAlbumDetailInfoTags" class="row"></div>
               </div>
             </div>
-            <table id="BrowseDatabaseAlbumDetailList" class="table table-hover table-sm">
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-              <tfoot></tfoot>
-            </table>
+            <div id="BrowseDatabaseAlbumDetailContainer">
+              <table id="BrowseDatabaseAlbumDetailList" class="table table-hover table-sm">
+                <thead>
+                  <tr></tr>
+                </thead>
+                <tbody class="clickable"></tbody>
+                <tfoot></tfoot>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -800,7 +768,7 @@
             </div>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Select" id="BrowseFilesystemSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+            <button data-title-phrase="Select" id="BrowseFilesystemSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
             <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
             <div class="dropdown-menu px-2 dropdownWide" id="BrowseFilesystemSelectionDropdown">
               <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -809,19 +777,14 @@
               <small class="mb-0 px-2"></small>
             </div>
           </div>
+          <div class="btn-group me-2 featTags">
+            <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+          </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <ol id="BrowseFilesystemBreadcrumb" class="breadcrumb p-2 rounded-2 overflow-auto nowrap"></ol>
         <div id="BrowseFilesystemImages" class="featLibrary not-clickable" data-href='{"cmd": "zoomPicture", "options": ["target"]}'></div>
-        <div class="table-responsive scrollContainer">
-          <table id="BrowseFilesystemList" class="table table-hover table-sm">
-            <thead>
-              <tr></tr>
-            </thead>
-            <tbody class="clickable"></tbody>
-            <tfoot></tfoot>
-          </table>
-        </div>
+        <div id="BrowseFilesystemContainer"></div>
         <div class="btn-toolbar d-none justify-content-between" id="BrowseFilesystemButtonsBottom"></div>
       </div>
 <!-- Filesystem end -->
@@ -850,10 +813,8 @@
               <span class="input-group-text border-secondary bg-secondary mi">search</span>
               <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseRadioFavoritesSearchStr"/>
             </div>
-            <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
-            </div><div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseRadioFavoritesListSelectModeBtn" data-href='{"cmd": "switchGridMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+            <div class="btn-group me-2">
+              <button data-title-phrase="Select" id="BrowseRadioFavoritesListSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowseRadioFavoritesSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -862,11 +823,15 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
+            <div class="btn-group me-2 featHome">
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+            </div>
             <div id="BrowseRadioFavoritesPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="container-fluid scrollContainer cardsContainer">
-            <div id="BrowseRadioFavoritesList" class="row mympd-grid"></div>
-          </div>
+          <div id="BrowseRadioFavoritesContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioFavoritesButtonsBottom"></div>
         </div>
 <!-- Radio favorites end -->
@@ -904,11 +869,19 @@
                 <input readonly="readonly" data-is="mympd-select-search" id="BrowseRadioWebradiodbBitrateFilter" class="form-select" data-placeholder-phrase="Bitrate"/>
               </div>
             </div>
-            <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+            <div class="btn-group me-2">
+              <button id="BrowseRadioWebradiodbSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
+              <div class="dropdown-menu px-2" id="BrowseRadioWebradiodbSortTags">
+                <div id="BrowseRadioWebradiodbSortTagsList"></div>
+                <div class="dropdown-divider"></div>
+                <div class="form-check">
+                  <button class="btn btn-secondary btn-xs mi mi-sm" id="BrowseRadioWebradiodbSortDesc">radio_button_unchecked</button>&nbsp;
+                  <label class="form-check-label" for="SearchSortDesc" data-phrase="Descending"></label>
+                </div>
+              </div>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseRadioWebradiodbSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowseRadioWebradiodbSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowseRadioWebradiodbSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -917,17 +890,15 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
+            <div class="btn-group me-2 featHome">
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+            </div>
             <div id="BrowseRadioWebradiodbPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="table-responsive scrollContainer">
-            <table id="BrowseRadioWebradiodbList" class="table table-hover table-sm">
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-              <tfoot></tfoot>
-            </table>
-          </div>
+          <div id="BrowseRadioWebradiodbContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioWebradiodbButtonsBottom"></div>
         </div>
 <!-- WebradioDB end -->
@@ -955,11 +926,8 @@
                 <button class="btn btn-success rounded mi" data-href='{"cmd": "searchRadiobrowser", "options": []}'>done</button>
               </div>
             </div>
-            <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
-            </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseRadioRadiobrowserSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowseRadioRadiobrowserSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowseRadioRadiobrowserSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -968,17 +936,15 @@
                 <small class="mb-0 px-2"></small>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+            </div>
+            <div class="btn-group me-2 featHome">
+              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+            </div>
             <div id="BrowseRadioRadiobrowserPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="table-responsive scrollContainer">
-            <table id="BrowseRadioRadiobrowserList" class="table table-hover table-sm">
-              <thead>
-                <tr></tr>
-              </thead>
-              <tbody class="clickable"></tbody>
-              <tfoot></tfoot>
-            </table>
-          </div>
+          <div id="BrowseRadioRadiobrowserContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioRadiobrowserButtonsBottom"></div>
         </div>
 <!-- Radiobrowser end -->
@@ -1023,7 +989,18 @@
             </div>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Select" id="SearchSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+            <button id="SearchSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
+            <div class="dropdown-menu px-2" id="SearchSortTags">
+              <div id="SearchSortTagsList"></div>
+              <div class="dropdown-divider"></div>
+              <div class="form-check">
+                <button class="btn btn-secondary btn-xs mi mi-sm" id="SearchSortDesc">radio_button_unchecked</button>&nbsp;
+                <label class="form-check-label" for="SearchSortDesc" data-phrase="Descending"></label>
+              </div>
+            </div>
+          </div>
+          <div class="btn-group me-2">
+            <button data-title-phrase="Select" id="SearchSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
             <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
             <div class="dropdown-menu px-2 dropdownWide" id="SearchSelectionDropdown">
               <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -1032,18 +1009,13 @@
               <small class="mb-0 px-2"></small>
             </div>
           </div>
+          <div class="btn-group me-2 featTags">
+            <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
+          </div>
           <div id="SearchPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <div class="breadcrumb p-2 rounded-2 d-none" id="SearchSearchCrumb"></div>
-        <div class="table-responsive scrollContainer">
-          <table id="SearchList" class="table table-hover table-sm">
-            <thead>
-              <tr></tr>
-            </thead>
-            <tbody class="clickable"></tbody>
-            <tfoot></tfoot>
-          </table>
-        </div>
+        <div id="SearchContainer"></div>
         <div class="btn-toolbar d-none justify-content-between" id="SearchButtonsBottom"></div>
       </div>
     </div>
@@ -3062,6 +3034,7 @@
 <!--debug-->  <script src="js/elements.js"></script>
 <!--debug-->  <script src="js/features.js"></script>
 <!--debug-->  <script src="js/feedback.js"></script>
+<!--debug-->  <script src="js/views.js"></script>
 <!--debug-->  <script src="js/forms.js"></script>
 <!--debug-->  <script src="js/globales.js"></script>
 <!--debug-->  <script src="js/grid.js"></script>
@@ -3110,14 +3083,17 @@
 <!--debug-->  <script src="js/playlists.js"></script>
 <!--debug-->  <script src="js/presets.js"></script>
 <!--debug-->  <script src="js/queue.js"></script>
+<!--debug-->  <script src="js/result.js"></script>
 <!--debug-->  <script src="js/radioFavorites.js"></script>
 <!--debug-->  <script src="js/router.js"></script>
 <!--debug-->  <script src="js/searchExpression.js"></script>
 <!--debug-->  <script src="js/searchSimple.js"></script>
+<!--debug-->  <script src="js/selection.js"></script>
 <!--debug-->  <script src="js/selectActions.js"></script>
 <!--debug-->  <script src="js/session.js"></script>
 <!--debug-->  <script src="js/settings.js"></script>
 <!--debug-->  <script src="js/smartPlaylist.js"></script>
+<!--debug-->  <script src="js/sort.js"></script>
 <!--debug-->  <script src="js/state.js"></script>
 <!--debug-->  <script src="js/tables.js"></script>
 <!--debug-->  <script src="js/tags.js"></script>
@@ -3126,7 +3102,7 @@
 <!--debug-->  <script src="js/version.js"></script>
 <!--debug-->  <script src="js/viewBrowseDatabase.js"></script>
 <!--debug-->  <script src="js/viewBrowseFilesystem.js"></script>
-<!--debug-->  <script src="js/viewBrowsePlaylists.js"></script>
+<!--debug-->  <script src="js/viewBrowsePlaylist.js"></script>
 <!--debug-->  <script src="js/viewBrowseRadioFavorites.js"></script>
 <!--debug-->  <script src="js/viewBrowseRadioRadiobrowser.js"></script>
 <!--debug-->  <script src="js/viewBrowseRadioWebradiodb.js"></script>

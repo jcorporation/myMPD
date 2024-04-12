@@ -47,6 +47,7 @@ target_sources(mympd
     lib/datetime.c
     lib/env.c
     lib/event.c
+    lib/fields.c
     lib/filehandler.c
     lib/handle_options.c
     lib/http_client.c
@@ -69,7 +70,6 @@ target_sources(mympd
     lib/smartpls.c
     lib/sticker.c
     lib/state_files.c
-    lib/tags.c
     lib/thread.c
     lib/timer.c
     lib/utility.c

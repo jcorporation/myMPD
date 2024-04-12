@@ -21,8 +21,8 @@
 UTEST(search_local, test_search_mpd_song) {
     struct mpd_song *song = new_song();
     struct t_tags tags;
-    reset_t_tags(&tags);
-    tags.tags_len++;
+    tags_reset(&tags);
+    tags.len++;
     tags.tags[0] = MPD_TAG_ALBUM;
     sds s = sdsnew("tabula");
     ASSERT_TRUE(search_mpd_song(song, s, &tags));
@@ -38,10 +38,10 @@ bool search_by_expression(const char *expr_string) {
     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ARTIST, "MG's");
     //browse tag types
     struct t_tags tags;
-    reset_t_tags(&tags);
-    tags.tags_len++;
+    tags_reset(&tags);
+    tags.len++;
     tags.tags[0] = MPD_TAG_ALBUM;
-    tags.tags_len++;
+    tags.len++;
     tags.tags[1] = MPD_TAG_ARTIST;
 
     sds expression = sdsnew(expr_string);

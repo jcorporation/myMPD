@@ -18,16 +18,6 @@ function handlePlayback() {
  * @returns {void}
  */
  function initViewPlayback() {
-    elGetById('PlaybackColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON' &&
-            event.target.classList.contains('mi'))
-        {
-            event.stopPropagation();
-            event.preventDefault();
-            toggleBtnChk(event.target, undefined);
-        }
-    }, false);
-
     elGetById('PlaybackListTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'P' ||
             event.target.nodeName === 'SPAN')
@@ -222,7 +212,7 @@ function setPlaybackCardTags(songObj) {
     if (songObj.webradio === undefined) {
         elHideId('PlaybackListWebradio');
         elShowId('PlaybackListTags');
-        for (const col of settings.colsPlayback) {
+        for (const col of settings.viewPlayback.fields) {
             const c = elGetById('current' + col);
             if (c === null) {
                 continue;

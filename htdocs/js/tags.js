@@ -47,12 +47,18 @@ function addTagList(elId, list) {
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
             );
         }
-        
     }
-    for (let i = 0, j = settings[list].length; i < j; i++) {
+    if (elId === 'QueueCurrentSortTagsList') {
         stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i])
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Priority"}, 'Priority')
         );
+    }
+    if (settings[list] !== undefined) {
+        for (let i = 0, j = settings[list].length; i < j; i++) {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i])
+            );
+        }
     }
     if (list === 'tagListSearch') {
         stack.appendChild(
@@ -139,6 +145,14 @@ function addTagList(elId, list) {
         {
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "prio"}, 'Priority')
+            );
+        }
+    }
+    else if (elId === 'BrowseRadioWebradiodbSortTagsList') {
+        const tags = ["Bitrate", "Codec", "Country", "Description", "Genre", "Homepage", "Languages", "Name", "State"];
+        for (let i = 0, j = tags.length; i < j; i++) {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": tags[i]}, tags[i])
             );
         }
     }
@@ -415,6 +429,7 @@ function printValue(key, value) {
             }
             return document.createTextNode(tn('Num discs', {"smartCount": value}));
         case 'Thumbnail': {
+            //TODO: use intersection observer
             const img = elCreateEmpty('div', {"class": ["thumbnail"]});
             if (value !== undefined) {
                 img.style.backgroundImage = value;

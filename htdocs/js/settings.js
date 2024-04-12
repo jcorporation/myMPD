@@ -257,7 +257,8 @@ function parseSettings(obj) {
         pEl.actionPlaylistTd = pEl.actionTdMenu;
     }
 
-    pEl.coverPlayBtn.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    pEl.gridPlayBtn.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    pEl.gridRemoveBtn.title = tn('Remove');
 
     //goto view
     if (app.id === 'QueueJukeboxSong' ||
@@ -319,81 +320,84 @@ function parseMPDSettings() {
     settings.tagListSearch.sort();
     settings.tagListBrowse.sort();
 
-    filterCols('Playback');
+    filterFields('Playback');
 
     for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed',
             'QueueJukeboxSong', 'QueueJukeboxAlbum',
-            'BrowsePlaylistDetail', 'BrowseFilesystem', 'BrowseDatabaseAlbumDetail'])
+            'BrowsePlaylistDetail', 'BrowseFilesystem', 'BrowseDatabaseTagList',
+            'BrowseDatabaseAlbumList', 'BrowseDatabaseAlbumDetail'])
     {
-        filterCols(table);
-        setCols(table);
+        setView(table);
+        filterFields(table);
+        if (settings['view' + table].mode === 'table') {
+            setCols(table);
+        }
         //add all browse tags (advanced action in popover menu)
-        const col = 'cols' + table + 'Fetch';
-        settings[col] = settings['cols' + table].slice();
+        const view = 'view' + table + 'Fetch';
+        settings[view] = {};
+        settings[view].mode = settings['view' + table].mode;
+        settings[view].fields = settings['view' + table].fields.slice();
         for (const tag of settings.tagListBrowse) {
-            if (settings[col].includes(tag) === false) {
-                settings[col].push(tag);
+            if (settings[view].fields.includes(tag) === false) {
+                settings[view].fields.push(tag);
             }
         }
     }
-    setCols('BrowseRadioWebradiodb');
-    setCols('BrowseRadioRadiobrowser');
-    setCols('BrowsePlaylistList');
-
-    //tagselect dropdowns
-    for (const table of ['BrowseDatabaseAlbumList', 'BrowseDatabaseAlbumDetailInfo']) {
-        filterCols(table);
-        const menu = document.querySelector('#' + table + 'ColsDropdown > form');
-        elClear(menu);
-        setColsChecklist(table, menu);
+    for (const table of ['Home', 'BrowseRadioFavorites', 'BrowseRadioWebradiodb', 'BrowseRadioRadiobrowser', 'BrowsePlaylistList']) {
+        setView(table);
+        if (settings['view' + table].mode === 'table') {
+            setCols(table);
+        }
     }
 
     //enforce album and albumartist for album list view
-    settings['colsBrowseDatabaseAlbumListFetch'] = settings['colsBrowseDatabaseAlbumList'].slice();
-    if (settings.colsBrowseDatabaseAlbumListFetch.includes('Album') === false) {
-        settings.colsBrowseDatabaseAlbumListFetch.push('Album');
+    settings['viewBrowseDatabaseAlbumListFetch'] = {};
+    settings['viewBrowseDatabaseAlbumListFetch'].mode = settings['viewBrowseDatabaseAlbumList'].mode;
+    settings['viewBrowseDatabaseAlbumListFetch'].fields = settings['viewBrowseDatabaseAlbumList'].fields.slice();
+    if (settings.viewBrowseDatabaseAlbumListFetch.fields.includes('Album') === false) {
+        settings.viewBrowseDatabaseAlbumListFetch.fields.push('Album');
     }
-    if (settings.colsBrowseDatabaseAlbumListFetch.includes(tagAlbumArtist) === false) {
-        settings.colsBrowseDatabaseAlbumListFetch.push(tagAlbumArtist);
+    if (settings.viewBrowseDatabaseAlbumListFetch.fields.includes(tagAlbumArtist) === false) {
+        settings.viewBrowseDatabaseAlbumListFetch.fields.push(tagAlbumArtist);
     }
 
     //enforce disc for album detail list view
-    if (settings.colsBrowseDatabaseAlbumDetailFetch.includes('Disc') === false &&
+    if (settings.viewBrowseDatabaseAlbumDetailFetch.fields.includes('Disc') === false &&
         settings.tagList.includes('Disc'))
     {
-        settings.colsBrowseDatabaseAlbumDetailFetch.push('Disc');
+        settings.viewBrowseDatabaseAlbumDetailFetch.fields.push('Disc');
     }
 
     if (features.featTags === false) {
         app.cards.Search.sort.tag = 'filename';
         app.cards.Search.filter = 'filename';
         app.cards.Queue.tabs.Current.filter = 'filename';
-        settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
-        settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
-        settings.colsQueueJukeboxSong = ["Pos", "Title"];
-        settings.colsQueueJukeboxAlbum = ["Pos", "Title"];
-        settings.colsSearch = ["Title", "Duration"];
-        settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
-        settings.colsPlayback = [];
+        settings.viewQueueCurrent.fields = ["Pos", "Title", "Duration"];
+        settings.viewQueueLastPlayed.fields = ["Pos", "Title", "LastPlayed"];
+        settings.viewQueueJukeboxSong.fields = ["Pos", "Title"];
+        settings.viewQueueJukeboxAlbum.fields = ["Pos", "Title"];
+        settings.viewSearch.fields = ["Title", "Duration"];
+        settings.viewBrowseFilesystem.fields = ["Type", "Title", "Duration"];
+        settings.viewPlayback.fields = [];
     }
     else {
         //construct playback view
         const pbtl = elGetById('PlaybackListTags');
         elClear(pbtl);
-        for (let i = 0, j = settings.colsPlayback.length; i < j; i++) {
+        for (let i = 0, j = settings.viewPlayback.fields.length; i < j; i++) {
             let colWidth;
-            switch(settings.colsPlayback[i]) {
+            switch(settings.viewPlayback.fields[i]) {
                 case 'Lyrics':
                     colWidth = "col-xl-12";
                     break;
                 default:
                     colWidth = "col-xl-6";
             }
-            const div = elCreateNodes('div', {"id": "current" + settings.colsPlayback[i],"class": [colWidth]}, [
-                elCreateTextTn('small', {}, settings.colsPlayback[i]),
+            const div = elCreateNodes('div', {"id": "current" + settings.viewPlayback.fields[i],"class": [colWidth]}, [
+                elCreateTextTn('small', {}, settings.viewPlayback.fields[i]),
                 elCreateEmpty('p', {})
             ]);
-            setData(div, 'tag', settings.colsPlayback[i]);
+            setData(div, 'tag', settings.viewPlayback.fields[i]);
             pbtl.appendChild(div);
         }
         //musicbrainz
@@ -404,10 +408,6 @@ function parseMPDSettings() {
         if (currentSongObj !== null) {
             setPlaybackCardTags(currentSongObj);
         }
-        //tagselect dropdown
-        const menu = document.querySelector('#PlaybackColsDropdown > form');
-        elClear(menu);
-        setColsChecklist('Playback', menu);
     }
 
     if (features.featTags === false) {
@@ -441,24 +441,17 @@ function parseMPDSettings() {
     addTagList('BrowseRadioRadiobrowserNavDropdown', 'tagListBrowse');
 
     addTagList('QueueCurrentSearchTags', 'tagListSearch');
+    addTagList('QueueCurrentSortTagsList', 'tagList');
     addTagList('QueueLastPlayedSearchTags', 'tagListSearch');
     addTagList('QueueJukeboxSongSearchTags', 'tagListSearch');
     addTagList('QueueJukeboxAlbumSearchTags', 'tagListSearch');
     addTagList('BrowsePlaylistDetailSearchTags', 'tagListSearch');
-    addTagList('SearchSearchTags', 'tagListSearch');
-    if (settings.albumMode === 'adv') {
-        addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListBrowse');
-    }
-    else {
-        addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListAlbum');
-    }
-    if (settings.albumMode === 'adv') {
-        addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListBrowse');
-    }
-    else {
-        addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListAlbum');
-    }
+    addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListAlbum');
+    addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListAlbum');
     addTagList('BrowsePlaylistDetailSortTagsDropdown', 'tagList');
+    addTagList('BrowseRadioWebradiodbSortTagsList', '');
+    addTagList('SearchSearchTags', 'tagListSearch');
+    addTagList('SearchSortTagsList', 'tagList');
 
     addTagListSelect('modalSmartPlaylistEditSortInput', 'tagList');
 }

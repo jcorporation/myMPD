@@ -58,7 +58,6 @@ function tn(phrase, data) {
     }
     //replace variables
     if (data !== undefined) {
-        //eslint-disable-next-line no-useless-escape
         const tnRegex = /%\{(\w+)\}/g;
         result = result.replace(tnRegex, function(m0, m1) {
             return data[m1];
