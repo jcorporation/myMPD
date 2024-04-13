@@ -1034,10 +1034,10 @@ const APImethods = {
                 "example": 0,
                 "desc": "MPD output id"
             },
-            "state": {
-                "type": APItypes.uint,
-                "example": 0,
-                "desc": "0 = disable, 1 = enable"
+            "enabled": {
+                "type": APItypes.bool,
+                "example": true,
+                "desc": "Enabled state"
             }
         }
     },

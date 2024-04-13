@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: Output enabled state is bool type #1254
+
 ***
 
 ## myMPD 14.1.1 (2023-04-03)

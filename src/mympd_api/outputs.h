@@ -9,7 +9,7 @@
 
 #include "src/lib/mympd_state.h"
 
-bool mympd_api_output_toggle(struct t_partition_state *partition_state, unsigned output_id, unsigned state, sds *error);
+bool mympd_api_output_toggle(struct t_partition_state *partition_state, unsigned output_id, bool enabled, sds *error);
 sds mympd_api_output_get(struct t_partition_state *partition_state, sds buffer, unsigned request_id, sds output_name);
 sds mympd_api_output_list(struct t_partition_state *partition_state, sds buffer, unsigned request_id);
 bool mympd_api_output_attributes_set(struct t_partition_state *partition_state,
