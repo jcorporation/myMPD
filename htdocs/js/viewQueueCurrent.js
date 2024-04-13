@@ -43,6 +43,8 @@ function handleQueueCurrent() {
 function initViewQueueCurrent() {
     initSortBtns('QueueCurrent');
     initSearchExpression('QueueCurrent');
+
+    setView('QueueCurrent');
 }
 
 /**

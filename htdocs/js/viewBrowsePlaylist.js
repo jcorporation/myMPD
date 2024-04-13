@@ -51,6 +51,9 @@ function initViewPlaylist() {
 
     initSearchSimple('BrowsePlaylistList');
     initSearchExpression('BrowsePlaylistDetail');
+
+    setView('BrowsePlaylistList');
+    setView('BrowsePlaylistDetail');
 }
 
 /**

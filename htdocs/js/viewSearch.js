@@ -56,6 +56,7 @@ function handleSearch() {
 function initViewSearch() {
     initSortBtns('Search');
     initSearchExpression('Search');
+    setView('Search');
 }
 
 /**

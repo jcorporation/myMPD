@@ -128,6 +128,7 @@ function checkResult(obj, parent, mode) {
             if (tfoot !== null) {
                 elClear(tfoot);
             }
+            parent = parent.querySelector('tbody');
         }
         elClear(parent);
         

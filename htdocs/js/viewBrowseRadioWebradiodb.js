@@ -81,6 +81,8 @@ function initViewBrowseRadioWebradiodb() {
     initWebradiodbFilter('BrowseRadioWebradiodbCodecFilter', 'webradioCodecs', 'Codec');
     initWebradiodbFilter('BrowseRadioWebradiodbBitrateFilter', 'webradioBitrates', 'Bitrate');
     initSortBtns('BrowseRadioWebradiodb');
+
+    setView('BrowseRadioWebradiodb');
 }
 
 /**

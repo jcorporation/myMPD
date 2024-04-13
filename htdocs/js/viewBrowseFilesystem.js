@@ -74,6 +74,8 @@ function initViewBrowseFilesystem() {
             appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, uri, app.current.sort, 'dir', '', scrollPos);
         }
     }, false);
+
+    setView('BrowseFilesystem');
 }
 
 /**

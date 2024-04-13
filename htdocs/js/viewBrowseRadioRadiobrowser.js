@@ -68,6 +68,8 @@ function initViewBrowseRadioRadiobrowser() {
     elGetById('BrowseRadioRadiobrowserFilter').addEventListener('hide.bs.collapse', function() {
         elGetById('BrowseRadioRadiobrowserFilterBtn').classList.remove('active');
     }, false);
+
+    setView('BrowseRadioRadiobrowser');
 }
 
 /**

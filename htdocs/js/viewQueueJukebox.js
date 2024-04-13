@@ -38,6 +38,9 @@ function handleQueueJukebox(view) {
  */
 function initViewQueueJukebox(view) {
     initSearchExpression(view);
+
+    setView('QueueJukeboxAlbum');
+    setView('QueueJukeboxSong');
 }
 
 /**

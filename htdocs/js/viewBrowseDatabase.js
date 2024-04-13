@@ -70,6 +70,10 @@ function initViewBrowseDatabase() {
 
     initSortBtns('BrowseDatabaseAlbumList');
     initSearchExpression('BrowseDatabaseAlbumList');
+
+    setView('BrowseDatabaseAlbumList');
+    setView('BrowseDatabaseAlbumDetail');
+    setView('BrowseDatabaseTagList');
 }
 
 /**
@@ -153,6 +157,7 @@ function parseDatabaseAlbumList(obj) {
             setData(row, 'Album', data.Album);
             setData(row, tagAlbumArtist, data[tagAlbumArtist]);
             setData(row, 'AlbumId', data.AlbumId);
+            row.setAttribute('title', tn('Show album'));
         });
         addTblFooter(tfoot,
             elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
@@ -190,6 +195,7 @@ function parseDatabaseAlbumList(obj) {
             }
             setData(row, 'tag', result.tag);
             setData(row, 'name', data.Value);
+            row.setAttribute('title', tn(settings.tagListAlbum.includes(result.tag) ? 'Show albums' : 'Show songs'));
         }, function(row, data) {
             tableRow(row, data, app.id, colspan, smallWidth);
             if (settings.tagListAlbum.includes(obj.result.tag)) {

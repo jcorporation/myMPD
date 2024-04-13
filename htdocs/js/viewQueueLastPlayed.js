@@ -25,6 +25,8 @@ function handleQueueLastPlayed() {
  */
 function initViewQueueLastPlayed() {
     initSearchExpression('QueueLastPlayed');
+
+    setView('QueueLastPlayed');
 }
 
 /**

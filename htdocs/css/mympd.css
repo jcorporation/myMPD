@@ -1281,3 +1281,8 @@ h4.offcanvas-title-stream::before {
 .fieldsEnabled > li:first-child > div.fieldsEnabledBtns > button:nth-child(2) {
   visibility: hidden;
 }
+
+table > tr > td > div.alert {
+  color: var(--bs-alert-color);
+  background-color: var(--bs-alert-bg);
+}

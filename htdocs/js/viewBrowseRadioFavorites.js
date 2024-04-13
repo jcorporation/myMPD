@@ -20,6 +20,7 @@ function handleBrowseRadioFavorites() {
  */
 function initViewBrowseRadioFavorites() {
     initSearchSimple('BrowseRadioFavorites');
+    setView('BrowseRadioFavorites');
 }
 
 /**
