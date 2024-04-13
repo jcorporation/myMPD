@@ -34,6 +34,16 @@ This release reworks the table and grid layouts for all views. Each view can now
 
 ***
 
+## myMPD 14.1.2 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: Output enabled state is bool type #1254
+
+***
+
 ## myMPD 14.1.1 (2023-04-03)
 
 This is a small bugfix release.

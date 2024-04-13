@@ -25,9 +25,9 @@ function parseOutputAttributes(obj) {
     setDataId('modalOutputAttributes', 'outputId', obj.result.id);
     const tbody = elGetById('modalOutputAttributesList');
     elClear(tbody);
-    for (const n of ['name', 'state', 'plugin']) {
-        if (n === 'state') {
-            obj.result[n] = obj.result[n] === 1
+    for (const n of ['name', 'enabled', 'plugin']) {
+        if (n === 'enabled') {
+            obj.result[n] = obj.result[n] === true
                 ? tn('Enabled')
                 : tn('Disabled');
         }

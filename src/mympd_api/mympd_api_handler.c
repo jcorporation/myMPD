@@ -682,9 +682,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case MYMPD_API_PLAYER_OUTPUT_TOGGLE:
             if (json_get_uint(request->data, "$.params.outputId", 0, MPD_OUTPUT_ID_MAX, &uint_buf1, &parse_error) == true &&
-                json_get_uint(request->data, "$.params.state", 0, 1, &uint_buf2, &parse_error) == true)
+                json_get_bool(request->data, "$.params.enabled", &bool_buf1, &parse_error) == true)
             {
-                rc = mympd_api_output_toggle(partition_state, uint_buf1, uint_buf2, &error);
+                rc = mympd_api_output_toggle(partition_state, uint_buf1, bool_buf1, &error);
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_play_id", &rc);
             }
             break;

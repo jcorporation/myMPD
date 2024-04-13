@@ -17,12 +17,12 @@
  * Toggles the enabled state of a mpd output
  * @param partition_state pointer to partition state
  * @param output_id mpd output id
- * @param state the state, 1 = enabled, 0 = disabled
+ * @param enabled the enabled state
  * @param error already allocated sds string to append the error message
  * @return true on success, else false
  */
-bool mympd_api_output_toggle(struct t_partition_state *partition_state, unsigned output_id, unsigned state, sds *error) {
-    if (state == 1) {
+bool mympd_api_output_toggle(struct t_partition_state *partition_state, unsigned output_id, bool enabled, sds *error) {
+    if (enabled == true) {
         mpd_run_enable_output(partition_state->conn, output_id);
         return mympd_check_error_and_recover(partition_state, error, "mpd_run_enable_output");
     }
@@ -49,7 +49,7 @@ sds mympd_api_output_get(struct t_partition_state *partition_state, sds buffer, 
             if (strcmp(mpd_output_name, output_name) == 0) {
                 buffer = tojson_uint(buffer, "id", mpd_output_get_id(output), true);
                 buffer = tojson_char(buffer, "name", mpd_output_name, true);
-                buffer = tojson_bool(buffer, "state", mpd_output_get_enabled(output), true);
+                buffer = tojson_bool(buffer, "enabled", mpd_output_get_enabled(output), true);
                 buffer = tojson_char(buffer, "plugin", mpd_output_get_plugin(output), true);
                 buffer = sdscat(buffer, "\"attributes\":{");
                 const struct mpd_pair *attributes = mpd_output_first_attribute(output);
@@ -98,7 +98,7 @@ sds mympd_api_output_list(struct t_partition_state *partition_state, sds buffer,
             buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_uint(buffer, "id", mpd_output_get_id(output), true);
             buffer = tojson_char(buffer, "name", mpd_output_get_name(output), true);
-            buffer = tojson_bool(buffer, "state", mpd_output_get_enabled(output), true);
+            buffer = tojson_bool(buffer, "enabled", mpd_output_get_enabled(output), true);
             buffer = tojson_char(buffer, "plugin", mpd_output_get_plugin(output), false);
             buffer = sdscatlen(buffer, "}", 1);
             mpd_output_free(output);

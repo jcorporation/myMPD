@@ -29,7 +29,7 @@ function initOutputs() {
             event.preventDefault();
             sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {
                 "outputId": Number(getData(target, 'output-id')),
-                "state": (target.classList.contains('active') ? 0 : 1)
+                "enabled": (target.classList.contains('active') ? false : true)
             }, null, false);
             toggleBtn(target, undefined);
         }
@@ -73,7 +73,7 @@ function parseOutputs(obj) {
         ]);
         setData(btn, 'output-name', obj.result.data[i].name);
         setData(btn, 'output-id', obj.result.data[i].id);
-        if (obj.result.data[i].state === true) {
+        if (obj.result.data[i].enabled === true) {
             btn.classList.add('active');
         }
         outputList.appendChild(btn);
