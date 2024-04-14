@@ -11,7 +11,8 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: Output enabled state is bool type #1254
-- Fix: add missing sort parameters to home icon for search #1257
+- Fix: Add missing sort parameters to home icon for search #1257
+- Fix: Set default stream port if stream uri is defined #1255
 
 ***
 
