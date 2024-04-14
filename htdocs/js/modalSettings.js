@@ -345,6 +345,13 @@ function saveSettingsApply(obj) {
 function savePartitionSettings(closeModal) {
     const settingsParams = {};
     if (formToJson('modalSettings', settingsParams, settingsPartitionFields) === true) {
+        if (settingsParams.streamUri !== '' &&
+            settingsParams.mpdStreamPort === 0)
+        {
+            // use default stream port if stream uri is defined
+            console.log('reseting stream port');
+            settingsParams.mpdStreamPort = defaults["PARTITION_MPD_STREAM_PORT"];
+        }
         if (closeModal === true) {
             sendAPI('MYMPD_API_PARTITION_SAVE', settingsParams, savePartitionSettingsClose, true);
         }
