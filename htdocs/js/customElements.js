@@ -10,54 +10,48 @@
  * @returns {void}
  */
 function createPreGeneratedElements() {
-    pEl.gridSelectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey", "float-end", "d-none"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
     pEl.selectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
     pEl.selectAllBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0"], "data-title-phrase": "Select all"}, 'radio_button_unchecked');
     pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatures['more']);
     pEl.removeBtn = elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Remove"}, 'clear');
     pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Quick play"}, 'play_arrow');
+    pEl.showSongsBtn = elCreateText('a', {"data-action": "showSongsByTag", "class": ["mi", "color-darkgrey", "me-1"], "href": "#", "data-title-phrase": "Show songs", "title": tn("Show songs")}, 'music_note');
+    pEl.showAlbumsBtn = elCreateText('a', {"data-action": "showAlbumsByTag", "class": ["mi", "color-darkgrey", "me-1"], "href": "#", "data-title-phrase": "Show albums", "title": tn("Show albums")}, 'album');
 
-    pEl.showSongsBtn = elCreateText('a', {"class": ["mi", "mi-sm"], "href": "#", "data-list": "song", "data-title-phrase": "Show songs", "title": tn("Show songs")}, 'music_note');
-    pEl.showAlbumsBtn = elCreateText('a', {"class": ["mi", "mi-sm"], "href": "#", "data-list": "album", "data-title-phrase": "Show albums", "title": tn("Show albums")}, 'album');
+    pEl.actionMenu = [
+        pEl.actionsBtn,
+        pEl.selectBtn
+    ];
+    pEl.actionMenuPlay = [
+        pEl.playBtn,
+        pEl.actionsBtn,
+        pEl.selectBtn
+    ];
+    pEl.actionMenuRemove = [
+        pEl.removeBtn,
+        pEl.actionsBtn,
+        pEl.selectBtn
+    ];
+    pEl.actionMenuPlayRemove = [
+        pEl.playBtn,
+        pEl.removeBtn,
+        pEl.actionsBtn,
+        pEl.selectBtn
+    ];
+    pEl.actionMenuBrowseDatabaseTagSongs = [
+        pEl.showSongsBtn
+    ];
+    pEl.actionMenuBrowseDatabaseTagSongAlbums = [
+        pEl.showSongsBtn,
+        pEl.showAlbumsBtn
+    ];
 
-    pEl.actionTdMenu = elCreateNodes('td', {"data-col": "Action"}, [
-        pEl.actionsBtn.cloneNode(true),
-        pEl.selectBtn.cloneNode(true)
-    ]);
-    pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
-        pEl.playBtn.cloneNode(true),
-        pEl.actionsBtn.cloneNode(true),
-        pEl.selectBtn.cloneNode(true)
-    ]);
-    pEl.actionTdMenuRemove = elCreateNodes('td', {"data-col": "Action"}, [
-        pEl.removeBtn.cloneNode(true),
-        pEl.actionsBtn.cloneNode(true),
-        pEl.selectBtn.cloneNode(true)
-    ]);
-    pEl.actionTdMenuPlayRemove = elCreateNodes('td', {"data-col": "Action"}, [
-        pEl.playBtn.cloneNode(true),
-        pEl.removeBtn.cloneNode(true),
-        pEl.actionsBtn.cloneNode(true),
-        pEl.selectBtn.cloneNode(true)
-    ]);
-    pEl.BrowseDatabaseTagTd = elCreateNodes('td', {"data-col": "Action"}, [
-        pEl.showSongsBtn.cloneNode(true),
-        pEl.showAlbumsBtn.cloneNode(true)
-    ]);
-    pEl.BrowseDatabaseTagTd.firstChild.classList.remove('mi-sm');
-    pEl.BrowseDatabaseTagTd.lastChild.classList.remove('mi-sm');
-    pEl.BrowseDatabaseTagTd.firstChild.classList.add('color-darkgrey', 'me-1');
-    pEl.BrowseDatabaseTagTd.lastChild.classList.add('color-darkgrey');
+    pEl.actionIcons = pEl.actionMenu;
+    pEl.actionQueueIcons = pEl.actionMenu;
+    pEl.actionJukeboxIcons = pEl.actionMenu;
+    pEl.actionPlaylistDetailIcons = pEl.actionMenu;
+    pEl.actionPlaylistIcons = pEl.actionMenu;
 
-    pEl.actionTd = pEl.actionTdMenu;
-    pEl.actionQueueTd = pEl.actionTdMenu;
-    pEl.actionJukeboxTd = pEl.actionTdMenu;
-    pEl.actionPlaylistDetailTd = pEl.actionTdMenu;
-    pEl.actionPlaylistTd = pEl.actionTdMenu;
-    pEl.gridPlayBtn = elCreateText('div', {"data-action": "quickPlay", "class": ["align-self-end", "gridQuickButton", "mi", "rounded-circle", "clickable"],
-        "data-title-phrase": "Quick play"}, 'play_arrow');
-    pEl.gridRemoveBtn = elCreateText('div', {"data-action": "quickRemove", "class": ["align-self-end", "gridQuickButton", "mi", "rounded-circle", "clickable"],
-        "data-title-phrase": "Quick play"}, 'clear');
     pEl.viewTable = elCreateNode('div', {'class': ['table-responsive', 'scrollContainer']},
         elCreateNodes('table', {'class': ['table', 'table-hover', 'table-sm']}, [
             elCreateNode('thead', {},

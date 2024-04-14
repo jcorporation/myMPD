@@ -28,22 +28,15 @@ function setView(viewName) {
     newContainer.firstElementChild.setAttribute('id', viewName + 'List');
     curContainer.replaceWith(newContainer);
     setData(newContainer, 'viewMode', mode);
-    if (viewName === 'BrowseDatabaseTagList') {
-        newContainer.firstElementChild.addEventListener('click', function(event) {
-            viewBrowseDatabaseTagListListClickHandler(event);
-        }, false);
-    }
-    else {
-        newContainer.firstElementChild.addEventListener('click', function(event) {
-            viewClickHandler(event);
-        }, false);
-        newContainer.firstElementChild.addEventListener('contextmenu', function(event) {
-            viewRightClickHandler(event);
-        }, false);
-        newContainer.firstElementChild.addEventListener('long-press', function(event) {
-            viewRightClickHandler(event);
-        }, false);
-    }
+    newContainer.firstElementChild.addEventListener('click', function(event) {
+        viewClickHandler(event);
+    }, false);
+    newContainer.firstElementChild.addEventListener('contextmenu', function(event) {
+        viewRightClickHandler(event);
+    }, false);
+    newContainer.firstElementChild.addEventListener('long-press', function(event) {
+        viewRightClickHandler(event);
+    }, false);
     if (mode === 'table') {
         //init drag and drop
         switch(viewName) {
@@ -77,7 +70,7 @@ function viewClickHandler(event) {
         //action td
         if (event.target.nodeName === 'A') {
             if (event.target.parentNode.getAttribute('data-col') === 'Action') {
-                handleActionTdClick(event);
+                handleViewActionClick(event);
             }
             else {
                 // allow default link action
@@ -96,25 +89,18 @@ function viewClickHandler(event) {
         }
     }
     else {
-        target = event.target.nodeName === 'DIV'
-            ? event.target
-            : event.target.closest('DIV');
-        if (target.classList.contains('gridQuickButton')) {
-            handleActionTdClick(event);
-            return;
-        }
-        if (target.classList.contains('card-footer')){
-            showContextMenu(event);
+        if (event.target.nodeName === 'A') {
+            handleViewActionClick(event);
             return;
         }
         // set target to card
-        target = target.closest('.card');
+        target = event.target.closest('.card');
     }
     event.preventDefault();
     event.stopPropagation();
     switch(app.id) {
         case 'BrowseDatabaseTagList':
-            viewBrowseDatabaseTagListListClickHandler(event);
+            viewBrowseDatabaseTagListListClickHandler(event, target);
             break;
         case 'BrowseDatabaseAlbumList':
             viewBrowseDatabaseAlbumListListClickHandler(event, target);
@@ -175,11 +161,86 @@ function viewRightClickHandler(event) {
         showContextMenu(event);
     }
     else {
-        if (event.target.classList.contains('card-body') ||
+        if (event.target.classList.contains('card-title') ||
+            event.target.classList.contains('card-body') ||
+            event.target.parentNode.classList.contains('card-body') ||
             event.target.classList.contains('card-footer'))
         {
             showContextMenu(event);
         }
+    }
+}
+
+/**
+ * Handles the click on the actions column
+ * @param {MouseEvent} event click event
+ * @returns {void}
+ */
+function handleViewActionClick(event) {
+    event.preventDefault();
+    const action = event.target.getAttribute('data-action');
+    switch(action) {
+        case 'popover':
+            showContextMenu(event);
+            break;
+        case 'quickPlay':
+            clickQuickPlay(event.target);
+            break;
+        case 'quickRemove':
+            clickQuickRemove(event.target);
+            break;
+        case 'showSongsByTag': {
+            elGetById('SearchSearchStr').value = '';
+            const tag = getData(event.target.parentNode.parentNode, 'tag');
+            const value = getData(event.target.parentNode.parentNode, 'name');
+            gotoSearch(tag, value);
+            break;
+        }
+        case 'showAlbumsByTag':
+            elGetById('BrowseDatabaseTagSearchStr').value = '';
+            // clear album search input
+            elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
+            gotoBrowse(event);
+            break;
+        default:
+            logError('Invalid action: ' + action);
+    }
+}
+
+/**
+ * Return an array of pre-generated action links
+ * @param {*} userData custom user data
+ * @returns {Array} array of dom nodes
+ */
+function getActionLinks(userData) {
+    switch(app.id) {
+        case 'BrowsePlaylistDetail':
+            return pEl.actionPlaylistDetailIcons;
+        case 'QueueCurrent':
+            return pEl.actionQueueIcons;
+        case 'QueueJukeboxSong':
+        case 'QueueJukeboxAlbum':
+            return pEl.actionJukeboxIcons;
+        case 'BrowseDatabaseTagList':
+            if (settings.tagListAlbum.includes(userData)) {
+                return pEl.actionMenuBrowseDatabaseTagSongAlbums;
+            }
+            return pEl.actionMenuBrowseDatabaseTagSongs;
+        default:
+            return pEl.actionIcons;
+    }
+}
+
+/**
+ * Appends action links as child nodes by app.id
+ * @param {Element} container container to append the action links as child nodes
+ * @param {*} userData custom user data
+ * @returns {void}
+ */
+function addActionLinks(container, userData) {
+    const links = getActionLinks(userData);
+    for (const link of links) {
+        container.appendChild(link.cloneNode(true));
     }
 }
 

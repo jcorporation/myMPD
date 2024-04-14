@@ -213,52 +213,41 @@ function parseSettings(obj) {
     elGetById('volumeBar').setAttribute('max', settings.volumeMax);
 
     //set translations for pregenerated elements
-    pEl.actionTdMenu.firstChild.title = tn('Actions');
-
-    pEl.actionTdMenuPlay.firstChild.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
-    pEl.actionTdMenuPlay.lastChild.title = tn('Actions');
-
-    pEl.actionTdMenuRemove.firstChild.title = tn('Remove');
-    pEl.actionTdMenuRemove.lastChild.title = tn('Actions');
-
-    pEl.actionTdMenuPlayRemove.childNodes[0].title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
-    pEl.actionTdMenuPlayRemove.childNodes[1].title = tn('Remove');
-    pEl.actionTdMenuPlayRemove.childNodes[2].title = tn('Actions');
+    pEl.selectBtn.title = tn('Actions');
+    pEl.removeBtn.title = tn('Remove');
+    pEl.playBtn.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
 
     //update actions for table rows
     if (settings.webuiSettings.quickPlayButton === true &&
         settings.webuiSettings.quickRemoveButton === true)
     {
-        pEl.actionTd = pEl.actionTdMenuPlay;
-        pEl.actionQueueTd = pEl.actionTdMenuRemove;
-        pEl.actionJukeboxTd = pEl.actionTdMenuPlayRemove;
-        pEl.actionPlaylistDetailTd = pEl.actionTdMenuPlayRemove;
-        pEl.actionPlaylistTd = pEl.actionTdMenuPlayRemove;
+        pEl.actionIcons = pEl.actionMenuPlay;
+        pEl.actionQueueIcons = pEl.actionMenuRemove;
+        pEl.actionJukeboxIcons = pEl.actionMenuPlayRemove;
+        pEl.actionPlaylistDetailIcons = pEl.actionMenuPlayRemove;
+        pEl.actionPlaylistIcons = pEl.actionMenuPlayRemove;
     }
     else if (settings.webuiSettings.quickPlayButton === true) {
-        pEl.actionTd = pEl.actionTdMenuPlay;
-        pEl.actionQueueTd = pEl.actionTdMenu;
-        pEl.actionJukeboxTd = pEl.actionTdMenuPlay;
-        pEl.actionPlaylistDetailTd = pEl.actionTdMenuPlay;
-        pEl.actionPlaylistTd = pEl.actionTdMenuPlay;
+        pEl.actionIcons = pEl.actionMenuPlay;
+        pEl.actionQueueIcons = pEl.actionMenu;
+        pEl.actionJukeboxIcons = pEl.actionMenuPlay;
+        pEl.actionPlaylistDetailIcons = pEl.actionMenuPlay;
+        pEl.actionPlaylistIcons = pEl.actionMenuPlay;
     }
     else if (settings.webuiSettings.quickRemoveButton === true) {
-        pEl.actionTd = pEl.actionTdMenu;
-        pEl.actionQueueTd = pEl.actionTdMenuRemove;
-        pEl.actionJukeboxTd = pEl.actionTdMenuRemove;
-        pEl.actionPlaylistDetailTd = pEl.actionTdMenuRemove;
-        pEl.actionPlaylistTd = pEl.actionTdMenuRemove;
+        pEl.actionIcons = pEl.actionMenu;
+        pEl.actionQueueIcons = pEl.actionMenuRemove;
+        pEl.actionJukeboxIcons = pEl.actionMenuRemove;
+        pEl.actionPlaylistDetailIcons = pEl.actionMenuRemove;
+        pEl.actionPlaylistIcons = pEl.actionMenuRemove;
     }
     else {
-        pEl.actionTd = pEl.actionTdMenu;
-        pEl.actionQueueTd = pEl.actionTdMenu;
-        pEl.actionJukeboxTd = pEl.actionTdMenu;
-        pEl.actionPlaylistDetailTd = pEl.actionTdMenu;
-        pEl.actionPlaylistTd = pEl.actionTdMenu;
+        pEl.actionIcons = pEl.actionMenu;
+        pEl.actionQueueIcons = pEl.actionMenu;
+        pEl.actionJukeboxIcons = pEl.actionMenu;
+        pEl.actionPlaylistDetailIcons = pEl.actionMenu;
+        pEl.actionPlaylistIcons = pEl.actionMenu;
     }
-
-    pEl.gridPlayBtn.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
-    pEl.gridRemoveBtn.title = tn('Remove');
 
     //goto view
     if (app.id === 'QueueJukeboxSong' ||

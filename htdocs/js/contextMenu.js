@@ -13,24 +13,21 @@
 function showContextMenu(event) {
     event.preventDefault();
     event.stopPropagation();
-    //get the correct dom node for the triggering event
+    //get the correct dom node with data for the triggering event
     let target = event.target.nodeName === 'SPAN'
-               ? event.target.parentNode : event.target;
+               ? event.target.parentNode
+               : event.target;
     if (target.nodeName === 'SMALL') {
         target = target.parentNode;
     }
     if (target.nodeName === 'TD') {
-        //try to attach popover instance to action link in tables
-        const actionLink = target.parentNode.lastElementChild.firstElementChild;
-        if (actionLink !== null &&
-            actionLink.nodeName === 'A')
-        {
-            target = actionLink;
-        }
+        target = target.closest('tr');
     }
     else if (target.parentNode.classList.contains('card')) {
-        //attach popover instance to card
         target = target.parentNode;
+    }
+    else if (target.parentNode.parentNode.classList.contains('card')) {
+        target = target.parentNode.parentNode;
     }
     
     const contextMenuType = target.getAttribute('data-contextmenu');

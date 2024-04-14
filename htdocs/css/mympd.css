@@ -487,23 +487,24 @@ div#homeActions {
   margin-bottom: 1.25rem;
   overflow: hidden;
   max-width: 100%;
+  background-color: var(--bs-card-cap-bg);
 }
 
-.card-footer-grid {
+.card-body-grid {
   white-space: var(--mympd-card-footer-word-wrap);
   font-size: 0.9rem;
 }
 
-.card-footer-grid > * {
+.card-body-grid > * {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .card-footer-grid a {
-  margin-top: 1rem;
   display: inline-block;
   width: 50%;
   text-align: center;
+  margin-right: 0 !important;
 }
 
 .card-footer-grid a:last-child {
@@ -1131,21 +1132,15 @@ button.weekday {
 }
 
 table[data-mode="select"] > thead > tr > th[data-col="Action"] > a,
-table[data-mode="select"] > tbody > tr > td[data-col="Action"] > a {
+table[data-mode="select"] > tbody > tr > td[data-col="Action"] > a,
+div[data-mode="select"] .card-footer > a {
   display: none;
 }
 
 :not(table[data-mode="select"]) > thead > tr > th[data-col="Action"] > button,
-:not(table[data-mode="select"]) > tbody > tr > td[data-col="Action"] > button {
+:not(table[data-mode="select"]) > tbody > tr > td[data-col="Action"] > button,
+:not(div[data-mode="select"]) > div > div > .card-footer > button {
   display: none;
-}
-
-div[data-mode="select"] .card-footer > button {
-  display: block !important;
-}
-
-div[data-mode="select"] .card-body > div {
-  display: none !important;
 }
 
 tr.selected > td,
@@ -1282,7 +1277,7 @@ h4.offcanvas-title-stream::before {
   visibility: hidden;
 }
 
-table > tr > td > div.alert {
+table div.alert {
   color: var(--bs-alert-color);
   background-color: var(--bs-alert-bg);
 }

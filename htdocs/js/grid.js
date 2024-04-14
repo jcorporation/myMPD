@@ -10,14 +10,19 @@
  * @param {object} obj jsonrpc response
  * @param {string} list row name to populate
  * @param {Function} [perCardCallback] callback per card
- * @param {Function} [createCardFooterCallback] callback to create the footer
+ * @param {Function} [createCardBodyCallback] callback to create the footer
+ * @param {Function} [createCardActionsCallback] callback to create the footer
  * @returns {void}
  */
-function updateGrid(obj, list, perCardCallback, createCardFooterCallback) {
+function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCardActionsCallback) {
     const grid = elGetById(list + 'List');
     let cols = grid.querySelectorAll('.col');
+
+    const footer = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-2"]});
+    addActionLinks(footer);
+
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const card = elCreateEmpty('div', {"class": ["card", "card-grid", "clickable"]});
+        const card = elCreateEmpty('div', {"class": ["card", "card-grid", "clickable", "h-100"]});
         if (perCardCallback !== undefined &&
             typeof(perCardCallback) === 'function')
         {
@@ -28,7 +33,7 @@ function updateGrid(obj, list, perCardCallback, createCardFooterCallback) {
             obj.result.data[i].Thumbnail !== undefined)
         {
             card.appendChild(
-                elCreateEmpty('div', {"class": ["card-body", "cover-loading", "cover-grid", "d-flex"]})
+                elCreateEmpty('div', {"class": ["card-title", "cover-loading", "cover-grid", "d-flex"]})
             );
             setData(card, 'cssImageUrl', obj.result.data[i].Thumbnail);
             if (userAgentData.hasIO === true) {
@@ -38,20 +43,31 @@ function updateGrid(obj, list, perCardCallback, createCardFooterCallback) {
             else {
                 card.firstChild.style.backgroundImage = obj.result.data[i].Thumbnail;
             }
-            addGridQuickButtons(card.firstChild);
         }
-        const footer = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-2"]});
-        if (createCardFooterCallback !== undefined &&
-            typeof(createCardFooterCallback) === 'function')
+        const body = elCreateEmpty('div', {"class": ["card-body", "card-body-grid", "p-2"]});
+        if (createCardBodyCallback !== undefined &&
+            typeof(createCardBodyCallback) === 'function')
+        {
+            //custom body content
+            createCardBodyCallback(body, obj.result.data[i], obj.result);
+        }
+        else {
+            //default body content
+            gridBody(body, obj.result.data[i], list);
+        }
+        card.appendChild(body);
+        if (createCardActionsCallback !== undefined &&
+            typeof(createCardActionsCallback) === 'function')
         {
             //custom footer content
-            createCardFooterCallback(footer, obj.result.data[i], obj.result);
+            const customFooter = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-2"]});
+            createCardActionsCallback(customFooter, obj.result.data[i], obj.result);
+            card.appendChild(customFooter);
         }
         else {
             //default footer content
-            gridFooter(footer, obj.result.data[i], list);
+            card.appendChild(footer.cloneNode(true));
         }
-        card.appendChild(footer);
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
         if (i < cols.length) {
             cols[i].replaceWith(col);
@@ -73,59 +89,25 @@ function updateGrid(obj, list, perCardCallback, createCardFooterCallback) {
 }
 
 /**
- * Populates the grid footer
- * @param {Element} footer grid footer to populate
+ * Populates the grid body
+ * @param {Element} body grid footer to populate
  * @param {object} data data to populate
  * @param {string} list view name
  * @returns {void}
  */
-function gridFooter(footer, data, list) {
-    footer.appendChild(
-        pEl.gridSelectBtn.cloneNode(true)
-    );
+function gridBody(body, data, list) {
     let i = 0;
     for (const tag of settings['view' + list].fields) {
         if (tag === 'Thumbnail') {
             continue;
         }
-        footer.appendChild(
-            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"], "data-col": settings['view' + list].fields[i]},
-                printValue(tag, data[tag])
+        const value = printValue(tag, data[tag]);
+        body.appendChild(
+            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"], "data-col": settings['view' + list].fields[i], "title": value.textContent},
+                value
             )
         );
         i++;
-    }
-}
-
-/**
- * Adds the quick play button to a grid element
- * @param {ChildNode} parentEl the containing element
- * @returns {void}
- */
-function addGridQuickButtons(parentEl) {
-    switch(app.id) {
-        case 'BrowsePlaylistDetail':
-        case 'QueueJukeboxSong':
-        case 'QueueJukeboxAlbum':
-            parentEl.appendChild(
-                pEl.gridPlayBtn.cloneNode(true)
-            );
-            parentEl.appendChild(
-                pEl.gridRemoveBtn.cloneNode(true)
-            );
-            break;
-        case 'QueueCurrent':
-            parentEl.appendChild(
-                pEl.gridRemoveBtn.cloneNode(true)
-            );
-            break;
-        case 'BrowseDatabaseTagList':
-            // no default buttons
-            break;
-        default:
-            parentEl.appendChild(
-                pEl.gridPlayBtn.cloneNode(true)
-            );
     }
 }
 
@@ -139,7 +121,7 @@ function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            const body = change.target.querySelector('.card-body');
+            const body = change.target.querySelector('.card-title');
             if (body) {
                 body.style.backgroundImage = getData(change.target, 'cssImageUrl');
             }

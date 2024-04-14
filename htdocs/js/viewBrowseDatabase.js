@@ -79,41 +79,24 @@ function initViewBrowseDatabase() {
 /**
  * Click event handler for database tag list
  * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
  * @returns {void}
  */
-function viewBrowseDatabaseTagListListClickHandler(event) {
+function viewBrowseDatabaseTagListListClickHandler(event, target) {
     event.preventDefault();
     event.stopPropagation();
     app.current.search = '';
-    if (event.target.nodeName === 'DIV' ||
-        event.target.nodeName === 'TD')
-    {
-        const tag = getData(event.target.parentNode, 'tag');
-        if (settings.tagListAlbum.includes(tag)) {
-            elGetById('BrowseDatabaseTagSearchStr').value = '';
-            // clear album search input
-            elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
-            gotoBrowse(event);
-        }
-        else {
-            elGetById('SearchSearchStr').value = '';
-            const value = getData(event.target.parentNode, 'name');
-            gotoSearch(tag, value);
-        }
+    const tag = getData(target, 'tag');
+    if (settings.tagListAlbum.includes(tag)) {
+        elGetById('BrowseDatabaseTagSearchStr').value = '';
+        // clear album search input
+        elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
+        gotoBrowse(event);
     }
-    else if (event.target.nodeName === 'A') {
-        if (event.target.getAttribute('data-list') === 'song') {
-            elGetById('SearchSearchStr').value = '';
-            const tag = getData(event.target.parentNode.parentNode, 'tag');
-            const value = getData(event.target.parentNode.parentNode, 'name');
-            gotoSearch(tag, value);
-        }
-        else {
-            elGetById('BrowseDatabaseTagSearchStr').value = '';
-            // clear album search input
-            elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
-            gotoBrowse(event);
-        }
+    else {
+        elGetById('SearchSearchStr').value = '';
+        const value = getData(event.target.parentNode, 'name');
+        gotoSearch(tag, value);
     }
 }
 
@@ -184,10 +167,13 @@ function parseDatabaseAlbumList(obj) {
     if (checkResult(obj, cardContainer, undefined) === false) {
         return;
     }
+
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = cardContainer.querySelector('tfoot');
         const colspan = settings['view' + app.id].fields.length;
         const smallWidth = uiSmallWidthTagRows();
+        const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+        addActionLinks(actionTd, obj.result.tag);
         elClear(tfoot);
         updateTable(obj, app.id, function(row, data, result) {
             if (result.pics === true) {
@@ -197,15 +183,7 @@ function parseDatabaseAlbumList(obj) {
             setData(row, 'name', data.Value);
             row.setAttribute('title', tn(settings.tagListAlbum.includes(result.tag) ? 'Show albums' : 'Show songs'));
         }, function(row, data) {
-            tableRow(row, data, app.id, colspan, smallWidth);
-            if (settings.tagListAlbum.includes(obj.result.tag)) {
-                row.appendChild(pEl.BrowseDatabaseTagTd.cloneNode(true));
-            }
-            else {
-                row.appendChild(
-                    elCreateEmpty('td', {})
-                );
-            }
+            tableRow(row, data, app.id, colspan, smallWidth, actionTd);
         });
         addTblFooter(tfoot,
             elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
@@ -218,12 +196,8 @@ function parseDatabaseAlbumList(obj) {
         }
         setData(card, 'tag', result.tag);
         setData(card, 'name', data.Value);
-    }, function(footer, data) {
-        gridFooter(footer, data, app.id);
-        if (settings.tagListAlbum.includes(obj.result.tag)) {
-            footer.appendChild(pEl.showSongsBtn.cloneNode(true));
-            footer.appendChild(pEl.showAlbumsBtn.cloneNode(true));
-        }
+    }, undefined, function(footer, data, result) {
+        addActionLinks(footer, result.tag);
     });
 }
 

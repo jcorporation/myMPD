@@ -192,6 +192,9 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         table.classList.remove('smallWidth');
     }
 
+    const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+    addActionLinks(actionTd);
+
     //disc handling for album view
     let z = 0;
     let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined
@@ -240,7 +243,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         }
         else {
             //default row content
-            tableRow(row, obj.result.data[i], list, colspan, smallWidth);
+            tableRow(row, obj.result.data[i], list, colspan, smallWidth, actionTd);
         }
         if (i + z < tr.length) {
             replaceTblRow(mode, tr[i + z], row);
@@ -272,9 +275,10 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
  * @param {string} list table name
  * @param {number} colspan number of columns
  * @param {boolean} smallWidth true = print data in rows, false = print data in columns
+ * @param {Element} actionTd action table cell element
  * @returns {void}
  */
-function tableRow(row, data, list, colspan, smallWidth) {
+function tableRow(row, data, list, colspan, smallWidth, actionTd) {
     if (smallWidth === true) {
         const td = elCreateEmpty('td', {"colspan": colspan});
         for (let c = 0, d = settings['view' + list].fields.length; c < d; c++) {
@@ -298,35 +302,7 @@ function tableRow(row, data, list, colspan, smallWidth) {
             );
         }
     }
-    switch(app.id) {
-        case 'BrowsePlaylistDetail':
-            // add quick play and remove action
-            row.appendChild(
-                pEl.actionPlaylistDetailTd.cloneNode(true)
-            );
-            break;
-        case 'QueueCurrent':
-            // add quick remove action
-            row.appendChild(
-                pEl.actionQueueTd.cloneNode(true)
-            );
-            break;
-        case 'QueueJukeboxSong':
-        case 'QueueJukeboxAlbum':
-            // add quick play and remove action
-            row.appendChild(
-                pEl.actionJukeboxTd.cloneNode(true)
-            );
-            break;
-        case 'BrowseDatabaseTagList':
-            // no default buttons
-            break;
-        default:
-            // add quick play action
-            row.appendChild(
-                pEl.actionTd.cloneNode(true)
-            );
-    }
+    row.appendChild(actionTd.cloneNode(true));
 }
 
 /**
@@ -340,29 +316,6 @@ function uiSmallWidthTagRows() {
             : false;
     }
     return false;
-}
-
-/**
- * Handles the click on the actions column
- * @param {MouseEvent} event click event
- * @returns {void}
- */
-function handleActionTdClick(event) {
-    event.preventDefault();
-    const action = event.target.getAttribute('data-action');
-    switch(action) {
-        case 'popover':
-            showContextMenu(event);
-            break;
-        case 'quickPlay':
-            clickQuickPlay(event.target);
-            break;
-        case 'quickRemove':
-            clickQuickRemove(event.target);
-            break;
-        default:
-            logError('Invalid action: ' + action);
-    }
 }
 
 /**

@@ -90,6 +90,9 @@ function parseQueue(obj) {
         const rowTitle = settingsWebuiFields.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
+        const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+        addActionLinks(actionTd);
+
         updateTable(obj, app.id, function(row, data) {
             if (features.featAdvqueue === false ||   // always sorted by priority
                 app.current.sort.tag === 'Priority')
@@ -125,7 +128,7 @@ function parseQueue(obj) {
             //set Title to Name + Title for streams
             data.Title = getDisplayTitle(data.Name, data.Title);
         }, function(row, data) {
-            tableRow(row, data, app.id, colspan, smallWidth);
+            tableRow(row, data, app.id, colspan, smallWidth, actionTd);
             if (currentState.currentSongId === data.id) {
                 setPlayingRow(row);
                 if (currentState.state === 'play') {
@@ -176,7 +179,7 @@ function parseQueue(obj) {
         //set Title to Name + Title for streams
         data.Title = getDisplayTitle(data.Name, data.Title);
     }, function(card, data) {
-        gridFooter(card, data, app.id);
+        gridBody(card, data, app.id);
         if (currentState.currentSongId === data.id) {
             setPlayingRow();
             if (currentState.state === 'play') {
