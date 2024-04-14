@@ -11,6 +11,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: Output enabled state is bool type #1254
+- Fix: add missing sort parameters to home icon for search #1257
 
 ***
 
