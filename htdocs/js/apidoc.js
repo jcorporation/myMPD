@@ -1520,6 +1520,11 @@ const APImethods = {
                         "type": APItypes.bool,
                         "example": true,
                         "desc": "Shows links to MusicBrainz website in the playback and album views."
+                    },
+                    "browseDatabaseAlbumListSort": {
+                        "type": APItypes.string,
+                        "example": "Added",
+                        "desc": "Default sort tag for the album list."
                     }
                 }
             }
