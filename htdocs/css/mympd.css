@@ -455,7 +455,7 @@ div#homeActions {
   border-radius: 0;
 }
 
-.home-icons .card-body {
+.home-icons .card-title {
   font-size: 2rem;
   height: 4rem;
   width: 4rem;
@@ -468,7 +468,7 @@ div#homeActions {
   text-align: center;
 }
 
-.home-icons .card-footer {
+.home-icons .card-body {
   border-top: none;
   background-color: transparent;
 }

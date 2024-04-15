@@ -28,6 +28,10 @@ function initViewHome() {
  * @returns {void}
  */
 function viewHomeClickHandler(event, target) {
+    if (event.target.classList.contains('card-body')) {
+        showContextMenu(event);
+        return;
+    }
     const href = getData(target, 'href');
     if (href !== undefined) {
         parseCmd(event, href);
@@ -62,12 +66,10 @@ function parseHomeIcons(obj) {
     unsetUpdateView(cardContainer);
     const cols = cardContainer.querySelectorAll('.col');
 
-    if (obj.error !== undefined) {
-        elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
-        );
+    if (checkResult(obj, cardContainer, undefined) === false) {
         return;
     }
+
     if (cols.length === 0) {
         elClear(cardContainer);
     }
@@ -116,21 +118,21 @@ function parseHomeIcons(obj) {
 
         setData(card, 'href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         setData(card, 'pos', i);
-        const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
+        const cardTitle = elCreateText('div', {"class": ["card-title", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
         if (obj.result.data[i].image !== '') {
-            cardBody.style.backgroundImage = getCssImageUri(obj.result.data[i].image);
+            cardTitle.style.backgroundImage = getCssImageUri(obj.result.data[i].image);
         }
         if (obj.result.data[i].bgcolor !== '') {
-            cardBody.style.backgroundColor = obj.result.data[i].bgcolor;
+            cardTitle.style.backgroundColor = obj.result.data[i].bgcolor;
         }
         if (obj.result.data[i].color !== '' &&
             obj.result.data[i].color !== undefined)
         {
-            cardBody.style.color = obj.result.data[i].color;
+            cardTitle.style.color = obj.result.data[i].color;
         }
-        card.appendChild(cardBody);
+        card.appendChild(cardTitle);
         card.appendChild(
-            elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, obj.result.data[i].name)
+            elCreateText('div', {"class": ["card-body", "card-body-grid", "p-2", "clickable"]}, obj.result.data[i].name)
         );
         col.appendChild(card);
         if (i < cols.length) {
