@@ -534,7 +534,7 @@ div#homeActions {
     width: calc((100vw - 4rem) / 2);
   }
 
-  .album-cover-grid {
+  .cover-grid {
     width: calc((100vw - 4rem) / 2);
     height: calc((100vw - 4rem) / 2);
   }
