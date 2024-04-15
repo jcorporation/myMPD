@@ -119,8 +119,10 @@ function viewBrowseFilesystemListClickHandler(event, target) {
         return;
     }
 
-    const showImageBar = (obj.result.images !== undefined && obj.result.images.length > 0) ||
-        (obj.result.images !== undefined && obj.result.bookletPath !== '');
+    const showImageBar = settings['view' + app.id].mode === 'table'
+        ? (obj.result.images !== undefined && obj.result.images.length > 0) ||
+          (obj.result.images !== undefined && obj.result.bookletPath !== '')
+        : false;
 
     if (showImageBar === true) {
         elShow(imageList);
