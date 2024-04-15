@@ -33,7 +33,7 @@ This release reworks the table and grid layouts for all views. Each view can now
 
 ***
 
-## myMPD 14.1.2 (not yet released)
+## myMPD 14.1.2 (2024-04-15)
 
 This is a small bugfix release.
 
