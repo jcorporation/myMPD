@@ -18,7 +18,6 @@ This release reworks the table and grid layouts for all views. Each view can now
 ### Changelog
 
 - Feat: All views can be displayed as table or grid (with pictures) #1051
-- Feat: Add setting for default sort tag in library view #1207
 - Feat: Add lua library for myGPIOd support #1208
 - Feat: Support range for listplaylist and listplaylistinfo (MPD 0.24) #1214
 - Feat: support playlistlength command (MPD 0.24) #1213

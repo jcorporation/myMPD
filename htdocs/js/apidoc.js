@@ -1481,10 +1481,10 @@ const APImethods = {
                         "example": "dark",
                         "desc": "\"dark\", \"light\" or \"auto\""
                     },
-                    "thumbnailSize": {
+                    "gridSize": {
                         "type": APItypes.int,
                         "example": 175,
-                        "desc": "Size for thumbnails"
+                        "desc": "Width for grids."
                     },
                     "bgCover": {
                         "type": APItypes.bool,

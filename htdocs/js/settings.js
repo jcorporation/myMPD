@@ -166,7 +166,7 @@ function parseSettings(obj) {
     elGetById('modalAboutConnection').textContent = settings.mpdHost.indexOf('/') !== 0 ?
         settings.mpdHost + ':' + settings.mpdPort : settings.mpdHost;
 
-    document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.thumbnailSize + "px");
+    document.documentElement.style.setProperty('--mympd-grid-size', settings.webuiSettings.gridSize + "px");
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.partition.highlightColor);
     document.documentElement.style.setProperty('--mympd-highlightcolor-contrast', settings.partition.highlightColorContrast);
 

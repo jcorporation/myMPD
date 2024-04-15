@@ -344,6 +344,7 @@
 {"term":"Goto position"},
 {"term":"Goto view"},
 {"term":"Grid"},
+{"term":"Grid size"},
 {"term":"Grouping"},
 {"term":"HTTP client"},
 {"term":"Hate song"},

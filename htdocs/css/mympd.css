@@ -38,7 +38,7 @@ body.mobile > footer > nav {
 }
 
 :root {
-  --mympd-thumbnail-size: 175px;
+  --grid-thumbnail-size: 175px;
   --mympd-highlightcolor: var(--bs-green);
   --mympd-highlightcolor-contrast: var(--bs-light);
   --mympd-backgroundcolor: var(--bs-black);
@@ -482,7 +482,7 @@ div#homeActions {
 }
 
 .card-grid {
-  width: var(--mympd-thumbnail-size);
+  width: var(--grid-thumbnail-size);
   min-height: 0 !important;
   margin-bottom: 1.25rem;
   overflow: hidden;
@@ -515,8 +515,8 @@ div#homeActions {
   background-size: cover;
   background-position: center center;
   overflow: hidden;
-  width: var(--mympd-thumbnail-size);
-  height: var(--mympd-thumbnail-size);
+  width: var(--grid-thumbnail-size);
+  height: var(--grid-thumbnail-size);
   max-width: 100%;
   padding: 0.5rem;
 }
@@ -875,15 +875,15 @@ div#modalPictureImg {
 }
 
 div#BrowseFilesystemImages {
-  height: calc(var(--mympd-thumbnail-size, 175px) + 1rem);
+  height: calc(var(--grid-thumbnail-size, 175px) + 1rem);
   margin-bottom: 1rem;
   overflow: auto hidden;
   white-space: nowrap;
 }
 
 div#BrowseFilesystemImages > div {
-  height: var(--mympd-thumbnail-size, 175px);
-  width: var(--mympd-thumbnail-size, 175px);
+  height: var(--grid-thumbnail-size, 175px);
+  width: var(--grid-thumbnail-size, 175px);
   background-position: center center;
   background-size: cover;
   display: inline-block;

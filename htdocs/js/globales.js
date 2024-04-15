@@ -743,12 +743,12 @@ const settingsWebuiFields = {
         "onChange": "eventChangeTheme",
         "sort": 0
     },
-    "thumbnailSize": {
+    "gridSize": {
         "defaultValue": 175,
         "inputType": "text",
         "contentType": "number",
-        "title": "Thumbnail size",
-        "form": "modalSettingsAlbumartFrm",
+        "title": "Grid size",
+        "form": "modalSettingsListsFrm",
         "invalid": "Must be a number and greater than zero",
         "validate": {
             "cmd": "validateUintEl",
@@ -867,13 +867,6 @@ const settingsWebuiFields = {
     "feedback": {
         "defaultValue": "like",
         "inputType": "none"
-    },
-    "browseDatabaseAlbumListSort": {
-        "defaultValue": tagAlbumArtist,
-        "validValues": {},
-        "inputType": "select",
-        "title": "Album list sort",
-        "form": "modalSettingsSortFrm"
     }
 };
 
