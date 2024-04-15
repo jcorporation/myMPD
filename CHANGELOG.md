@@ -4,6 +4,18 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD 14.1.2 (2024-04-15)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: Output enabled state is bool type #1254
+- Fix: Add missing sort parameters to home icon for search #1257
+- Fix: Set default stream port if stream uri is defined #1255
+
+***
+
 ## myMPD 14.1.1 (2023-04-03)
 
 This is a small bugfix release.
