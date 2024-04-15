@@ -867,6 +867,13 @@ const settingsWebuiFields = {
     "feedback": {
         "defaultValue": "like",
         "inputType": "none"
+    },
+    "browseDatabaseAlbumListSort": {
+        "defaultValue": tagAlbumArtist,
+        "validValues": {},
+        "inputType": "select",
+        "title": "Album list sort",
+        "form": "modalSettingsSortFrm"
     }
 };
 
@@ -1328,7 +1335,7 @@ app.cards = {
                         "limit": 100,
                         "filter": "any",
                         "sort": {
-                            "tag": tagAlbumArtist,
+                            "tag": "",
                             "desc": false
                         },
                         "tag": "Album",

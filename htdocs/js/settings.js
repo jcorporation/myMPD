@@ -188,6 +188,10 @@ function parseSettings(obj) {
     app.cards.Browse.tabs.Database.views.AlbumDetail.limit = limit;
     app.cards.Search.limit = limit;
 
+    if (app.cards.Browse.tabs.Database.views.AlbumList.sort.tag === '') {
+        app.cards.Browse.tabs.Database.views.AlbumList.sort.tag = settings.webuiSettings.browseDatabaseAlbumListSort;
+    }
+
     //scripts
     if (scriptsInited === false) {
         const selectTimerAction = elGetById('modalTimerActionInput');
