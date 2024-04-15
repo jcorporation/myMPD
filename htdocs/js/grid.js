@@ -89,6 +89,21 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
 }
 
 /**
+ * Returns the friendly names for type icons
+ * @param {string} value tag value
+ * @returns {string} friendly name
+ */
+function getTypeTitle(value) {
+    switch(value) {
+        case 'queue_music': return tn('Smart playlist');
+        case 'list': return tn('Playlist');
+        case 'folder_open': return tn('Folder');
+        case 'music_note': return tn('Song');
+        default: return value;
+    }
+}
+
+/**
  * Populates the grid body
  * @param {Element} body grid footer to populate
  * @param {object} data data to populate
@@ -102,8 +117,11 @@ function gridBody(body, data, list) {
             continue;
         }
         const value = printValue(tag, data[tag]);
+        const title = tag === 'Type'
+            ? getTypeTitle(value.textContent)
+            : value.textContent;
         body.appendChild(
-            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"], "data-col": settings['view' + list].fields[i], "title": value.textContent},
+            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"], "data-col": settings['view' + list].fields[i], "title": title},
                 value
             )
         );
