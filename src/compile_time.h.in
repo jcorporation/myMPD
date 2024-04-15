@@ -173,7 +173,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_VIEW_SEARCH "{\"mode\":\"table\",\"fields\":[\"Title\",\"Artist\",\"Album\",\"Duration\"]}"
 #define MYMPD_VIEW_BROWSE_DATABASE_ALBUM_DETAIL_INFO "{\"mode\":\"table\",\"fields\":[\"Album\",\"AlbumArtist\",\"Genre\"]}"
 #define MYMPD_VIEW_BROWSE_DATABASE_ALBUM_DETAIL "{\"mode\":\"table\",\"fields\":[\"Track\",\"Title\",\"Duration\"]}"
-#define MYMPD_VIEW_BROWSE_DATABASE_ALBUM_LIST "{\"mode\":\"grid\",\"fields\":[\"Album\",\"AlbumArtist\"]}"
+#define MYMPD_VIEW_BROWSE_DATABASE_ALBUM_LIST "{\"mode\":\"grid\",\"fields\":[\"Album\",\"AlbumArtist\",\"Thumbnail\"]}"
 #define MYMPD_VIEW_BROWSE_DATABASE_TAG_LIST "{\"mode\":\"grid\",\"fields\":[\"Value\"]}"
 #define MYMPD_VIEW_BROWSE_PLAYLIST_DETAIL "{\"mode\":\"table\",\"fields\":[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]}"
 #define MYMPD_VIEW_BROWSE_PLAYLIST_LIST "{\"mode\":\"table\",\"fields\":[\"Type\",\"Name\",\"Last-Modified\"]}"
