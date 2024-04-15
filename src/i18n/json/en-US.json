@@ -108,6 +108,8 @@
     "helpSettingsBookletName": "Filename for booklets residing in the same folder as the album.",
     "helpSettingsInfoTxtName": "Filename for informational textfile residing in the same folder as the album.",
     "helpSettingsFeedback": "Rate songs by love/hate or with 5 stars.",
+    "helpSettingsGridSize": "Size of the images in grid view.",
+    "helpSettingsAlbumListSort": "Default sort tag for the album list.",
     "icon-all": "All",
     "icon-action": "Action",
     "icon-alert": "Alert",

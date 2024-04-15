@@ -754,7 +754,8 @@ const settingsWebuiFields = {
             "cmd": "validateUintEl",
             "options": []
         },
-        "unit": "Pixel"
+        "unit": "Pixel",
+        "help": "helpSettingsGridSize"
     },
     "bgCover": {
         "defaultValue": true,
@@ -873,7 +874,8 @@ const settingsWebuiFields = {
         "validValues": {},
         "inputType": "select",
         "title": "Album list sort",
-        "form": "modalSettingsSortFrm"
+        "form": "modalSettingsSortFrm",
+        "help": "helpSettingsAlbumListSort"
     }
 };
 
