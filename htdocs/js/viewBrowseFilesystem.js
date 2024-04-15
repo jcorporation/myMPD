@@ -119,7 +119,7 @@ function viewBrowseFilesystemListClickHandler(event, target) {
         return;
     }
 
-    const showImageBar = (obj.result.images !== undefined && obj.result.images.length) > 0 ||
+    const showImageBar = (obj.result.images !== undefined && obj.result.images.length > 0) ||
         (obj.result.images !== undefined && obj.result.bookletPath !== '');
 
     if (showImageBar === true) {
