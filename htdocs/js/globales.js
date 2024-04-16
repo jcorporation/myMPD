@@ -650,14 +650,14 @@ const settingsWebuiFields = {
         "help": "helpSettingsSmallWidthTagRows"
     },
     "quickPlayButton": {
-        "defaultValue": false,
+        "defaultValue": true,
         "inputType": "checkbox",
         "title": "Quick play button",
         "form": "modalSettingsListsFrm",
         "help": "helpSettingsQuickPlay"
     },
     "quickRemoveButton": {
-        "defaultValue": false,
+        "defaultValue": true,
         "inputType": "checkbox",
         "title": "Quick remove button",
         "form": "modalSettingsListsFrm",
