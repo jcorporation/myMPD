@@ -27,10 +27,6 @@
  * @param free_data true=free the struct, else not
  */
 void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
-    mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
-    mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
-    mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
-
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
         last_played_file_save(partition_state);
@@ -40,6 +36,9 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
     if (free_data == true) {
         mympd_state_free(mympd_state);
     }
+    mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
+    mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
+    mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
 }
 
 /**
