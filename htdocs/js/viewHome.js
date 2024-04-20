@@ -65,15 +65,11 @@ function parseHomeIcons(obj) {
     const cardContainer = elGetById('HomeList');
     unsetUpdateView(cardContainer);
     const cols = cardContainer.querySelectorAll('.col');
-
-    if (checkResult(obj, cardContainer, undefined) === false) {
-        return;
-    }
-
     if (cols.length === 0) {
+        // remove warning messages
         elClear(cardContainer);
     }
-    if (obj.result.returnedEntities === 0) {
+    if (obj.result && obj.result.returnedEntities === 0) {
         elClear(cardContainer);
         const div = elCreateNodes('div', {"class": ["px-3", "py-1"]}, [
             elCreateTextTn('h3', {}, 'Homescreen'),
@@ -87,6 +83,11 @@ function parseHomeIcons(obj) {
         cardContainer.appendChild(div);
         return;
     }
+
+    if (checkResult(obj, cardContainer, undefined) === false) {
+        return;
+    }
+
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const homeType = getHomeIconType(obj.result.data[i].cmd, obj.result.data[i].options[0]);
         const actionType = friendlyActions[obj.result.data[i].cmd];

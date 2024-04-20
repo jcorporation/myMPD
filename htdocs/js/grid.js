@@ -18,7 +18,7 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
     const grid = elGetById(list + 'List');
     let cols = grid.querySelectorAll('.col');
 
-    const footer = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-2"]});
+    const footer = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-0", "d-flex", "justify-content-center"]});
     addActionLinks(footer);
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {

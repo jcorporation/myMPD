@@ -501,14 +501,13 @@ div#homeActions {
 }
 
 .card-footer-grid a {
-  display: inline-block;
-  width: 50%;
+  flex: 1 1 auto !important;
+  padding: 0.5rem 0;
   text-align: center;
-  margin-right: 0 !important;
 }
 
-.card-footer-grid a:last-child {
-  text-align: center;
+.card-footer-grid button {
+  padding: 0.5rem 0;
 }
 
 .cover-grid {
@@ -1141,6 +1140,11 @@ div[data-mode="select"] .card-footer > a {
 :not(table[data-mode="select"]) > tbody > tr > td[data-col="Action"] > button,
 :not(div[data-mode="select"]) > div > div > .card-footer > button {
   display: none;
+}
+
+th[data-col="Action"] > button,
+td[data-col="Action"] > button {
+  padding: 0;
 }
 
 tr.selected > td,
