@@ -114,6 +114,7 @@ function gridBody(body, data, list) {
     let i = 0;
     for (const tag of settings['view' + list].fields) {
         if (tag === 'Thumbnail') {
+            i++;
             continue;
         }
         const value = printValue(tag, data[tag]);

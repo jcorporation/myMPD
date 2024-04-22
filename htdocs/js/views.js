@@ -67,7 +67,7 @@ function viewClickHandler(event) {
     }
     let target = null;
     if (settings['view' + app.id].mode === 'table') {
-        //action td
+        // Links
         if (event.target.nodeName === 'A') {
             if (event.target.parentNode.getAttribute('data-col') === 'Action') {
                 handleViewActionClick(event);
@@ -90,6 +90,10 @@ function viewClickHandler(event) {
     }
     else {
         if (event.target.nodeName === 'A') {
+            if (event.target.getAttribute('href') !== '#') {
+                // allow default link action
+                return;
+            }
             handleViewActionClick(event);
             return;
         }
