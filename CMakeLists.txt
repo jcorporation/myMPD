@@ -316,7 +316,9 @@ if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
 
   if(NOT MYMPD_ENABLE_ASAN AND NOT MYMPD_ENABLE_UBSAN)
     # incompatible with address sanitizers
-    add_compile_options("-D_FORTIFY_SOURCE=2")
+    if(NOT CMAKE_C_FLAGS MATCHES "_FORTIFY_SOURCE")
+      add_compile_options("-D_FORTIFY_SOURCE=2")
+    endif()
   endif()
 else()
   # if CMAKE_BUILD_TYPE is neither Release nor Debug,
