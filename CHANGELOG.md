@@ -28,6 +28,7 @@ This release reworks the table and grid layouts for all views. Each view can now
 - Feat: Configurable columns for playlist view
 - Feat: Add option to disable covercache pruning #1237
 - Feat: add support for sticker find operators contains, starts_with (MPD 0.24)
+- Feat: Provide and install a systemd user unit #1262
 - Upd: Bootstrap 5.3.3
 - Upd: Support ESLint 9
 - Fix: List and search playlists in filesystem view

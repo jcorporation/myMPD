@@ -57,7 +57,8 @@ src_install() {
     fi
     newinitd "contrib/initscripts/mympd.openrc" "${PN}"
     if use systemd; then
-        systemd_newunit contrib/initscripts/mympd.service mympd.service
+        systemd_newunit contrib/initscripts/system/mympd.service mympd.service
+        systemd_newuserunit contrib/initscripts/user/mympd.service mympd.service
     fi
     dodoc ${S}/README.md
 }

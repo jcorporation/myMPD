@@ -4,8 +4,11 @@
 
 # Install startup script
 function(install_systemd)
-  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
+  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/system/mympd.service"
        DESTINATION "/usr/lib/systemd/system"
+       FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
+  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/user/mympd.service"
+       DESTINATION "/usr/lib/systemd/user"
        FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 endfunction()
 

@@ -59,6 +59,7 @@ fi
 /usr/bin/mympd-config
 /usr/bin/mympd-script
 /usr/lib/systemd/system/mympd.service
+/usr/lib/systemd/user/mympd.service
 %{_mandir}/man1/mympd.1.gz
 %{_mandir}/man1/mympd-config.1.gz
 %{_mandir}/man1/mympd-script.1.gz
