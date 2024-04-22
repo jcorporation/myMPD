@@ -33,12 +33,12 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
         preset_list_save(partition_state);
         partition_state = partition_state->next;
     }
-    if (free_data == true) {
-        mympd_state_free(mympd_state);
-    }
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
+    if (free_data == true) {
+        mympd_state_free(mympd_state);
+    }
 }
 
 /**
