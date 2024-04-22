@@ -77,7 +77,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         if (auth_header != NULL &&
             auth_header->len == 20)
         {
-            session = sdscatlen(session, auth_header->ptr, auth_header->len);
+            session = sdscatlen(session, auth_header->buf, auth_header->len);
             rc = webserver_session_validate(&mg_user_data->session_list, session);
         }
         else {
@@ -188,7 +188,7 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
     static struct mg_http_serve_opts s_http_server_opts;
     s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-    if (mg_http_match_uri(hm, "/browse/")) {
+    if (mg_match(hm->uri, mg_str("/browse/"), NULL)) {
         sds dirs = sdsempty();
         if (mg_user_data->publish_music == true) {
             dirs = sdscat(dirs, "<tr><td><a href=\"music/\">music/</a></td><td>MPD music directory</td><td></td></tr>");
@@ -221,7 +221,7 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
     }
     else {
         s_http_server_opts.root_dir = mg_user_data->browse_directory;
-        MYMPD_LOG_INFO(NULL, "Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.ptr);
+        MYMPD_LOG_INFO(NULL, "Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.buf);
         mg_http_serve_dir(nc, hm, &s_http_server_opts);
     }
 }
@@ -235,7 +235,7 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
 void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
         struct mg_connection *backend_nc)
 {
-    sds query = sdsnewlen(hm->query.ptr, hm->query.len);
+    sds query = sdsnewlen(hm->query.buf, hm->query.len);
     sds uri_decoded = sdsempty();
     if (sdslen(query) > 4 &&
         strncmp(query, "uri=", 4) == 0)
@@ -269,7 +269,7 @@ void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
 void request_handler_proxy_covercache(struct mg_connection *nc, struct mg_http_message *hm,
         struct mg_connection *backend_nc)
 {
-    sds query = sdsnewlen(hm->query.ptr, hm->query.len);
+    sds query = sdsnewlen(hm->query.buf, hm->query.len);
     sds uri_decoded = sdsempty();
     if (sdslen(query) > 4 &&
         strncmp(query, "uri=", 4) == 0)

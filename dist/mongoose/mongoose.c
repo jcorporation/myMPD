@@ -1268,9 +1268,9 @@ static bool mg_dns_send(struct mg_connection *c, const struct mg_str *name,
   pkt.header.flags = mg_htons(0x100);
   pkt.header.num_questions = mg_htons(1);
   for (i = n = 0; i < sizeof(pkt.data) - 5; i++) {
-    if (name->ptr[i] == '.' || i >= name->len) {
+    if (name->buf[i] == '.' || i >= name->len) {
       pkt.data[n] = (uint8_t) (i - n);
-      memcpy(&pkt.data[n + 1], name->ptr + n, i - n);
+      memcpy(&pkt.data[n + 1], name->buf + n, i - n);
       n = i + 1;
     }
     if (i >= name->len) break;
@@ -1308,7 +1308,7 @@ static void mg_sendnsreq(struct mg_connection *c, struct mg_str *name, int ms,
     d->c = c;
     c->is_resolving = 1;
     MG_VERBOSE(("%lu resolving %.*s @ %s, txnid %hu", c->id, (int) name->len,
-                name->ptr, dnsc->url, d->txnid));
+                name->buf, dnsc->url, d->txnid));
     if (!mg_dns_send(dnsc->c, name, d->txnid, ipv6)) {
       mg_error(dnsc->c, "DNS send");
     }
@@ -1624,15 +1624,15 @@ struct mg_str mg_file_read(struct mg_fs *fs, const char *path) {
   void *fp;
   fs->st(path, &result.len, NULL);
   if ((fp = fs->op(path, MG_FS_READ)) != NULL) {
-    result.ptr = (char *) calloc(1, result.len + 1);
-    if (result.ptr != NULL &&
-        fs->rd(fp, (void *) result.ptr, result.len) != result.len) {
-      free((void *) result.ptr);
-      result.ptr = NULL;
+    result.buf = (char *) calloc(1, result.len + 1);
+    if (result.buf != NULL &&
+        fs->rd(fp, (void *) result.buf, result.len) != result.len) {
+      free((void *) result.buf);
+      result.buf = NULL;
     }
     fs->cl(fp);
   }
-  if (result.ptr == NULL) result.len = 0;
+  if (result.buf == NULL) result.len = 0;
   return result;
 }
 
@@ -1674,10 +1674,10 @@ bool mg_file_printf(struct mg_fs *fs, const char *path, const char *fmt, ...) {
 //        ...
 static void mg_fs_ls_fn(const char *filename, void *param) {
   struct mg_str *s = (struct mg_str *) param;
-  if (s->ptr[0] == '\0') {
-    mg_snprintf((char *) s->ptr, s->len, "%s", filename);
-  } else if (strcmp(s->ptr, filename) == 0) {
-    ((char *) s->ptr)[0] = '\0';  // Fetch next file
+  if (s->buf[0] == '\0') {
+    mg_snprintf((char *) s->buf, s->len, "%s", filename);
+  } else if (strcmp(s->buf, filename) == 0) {
+    ((char *) s->buf)[0] = '\0';  // Fetch next file
   }
 }
 
@@ -2230,17 +2230,17 @@ struct mg_fs mg_fs_posix = {p_stat,  p_list, p_open,   p_close,  p_read,
 bool mg_to_size_t(struct mg_str str, size_t *val);
 bool mg_to_size_t(struct mg_str str, size_t *val) {
   size_t i = 0, max = (size_t) -1, max2 = max / 10, result = 0, ndigits = 0;
-  while (i < str.len && (str.ptr[i] == ' ' || str.ptr[i] == '\t')) i++;
-  if (i < str.len && str.ptr[i] == '-') return false;
-  while (i < str.len && str.ptr[i] >= '0' && str.ptr[i] <= '9') {
-    size_t digit = (size_t) (str.ptr[i] - '0');
+  while (i < str.len && (str.buf[i] == ' ' || str.buf[i] == '\t')) i++;
+  if (i < str.len && str.buf[i] == '-') return false;
+  while (i < str.len && str.buf[i] >= '0' && str.buf[i] <= '9') {
+    size_t digit = (size_t) (str.buf[i] - '0');
     if (result > max2) return false;  // Overflow
     result *= 10;
     if (result > max - digit) return false;  // Overflow
     result += digit;
     i++, ndigits++;
   }
-  while (i < str.len && (str.ptr[i] == ' ' || str.ptr[i] == '\t')) i++;
+  while (i < str.len && (str.buf[i] == ' ' || str.buf[i] == '\t')) i++;
   if (ndigits == 0) return false;  // #2322: Content-Length = 1 * DIGIT
   if (i != str.len) return false;  // Ditto
   *val = (size_t) result;
@@ -2265,7 +2265,7 @@ bool mg_to_size_t(struct mg_str str, size_t *val) {
 size_t mg_http_next_multipart(struct mg_str body, size_t ofs,
                               struct mg_http_part *part) {
   struct mg_str cd = mg_str_n("Content-Disposition", 19);
-  const char *s = body.ptr;
+  const char *s = body.buf;
   size_t b = ofs, h1, h2, b1, b2, max = body.len;
 
   // Init part params
@@ -2284,7 +2284,7 @@ size_t mg_http_next_multipart(struct mg_str body, size_t ofs,
     if (h2 + 2 >= max) return 0;
     // MG_INFO(("Header: [%.*s]", (int) (h2 - h1), &s[h1]));
     if (part != NULL && h1 + cd.len + 2 < h2 && s[h1 + cd.len] == ':' &&
-        mg_ncasecmp(&s[h1], cd.ptr, cd.len) == 0) {
+        mg_ncasecmp(&s[h1], cd.buf, cd.len) == 0) {
       struct mg_str v = mg_str_n(&s[h1 + cd.len + 2], h2 - (h1 + cd.len + 2));
       part->name = mg_http_get_header_var(v, mg_str_n("name", 4));
       part->filename = mg_http_get_header_var(v, mg_str_n("filename", 8));
@@ -2312,12 +2312,12 @@ void mg_http_bauth(struct mg_connection *c, const char *user,
     char *buf = (char *) &c->send.buf[c->send.len];
     memcpy(buf, "Authorization: Basic ", 21);  // DON'T use mg_send!
     for (i = 0; i < u.len; i++) {
-      n = mg_base64_update(((unsigned char *) u.ptr)[i], buf + 21, n);
+      n = mg_base64_update(((unsigned char *) u.buf)[i], buf + 21, n);
     }
     if (p.len > 0) {
       n = mg_base64_update(':', buf + 21, n);
       for (i = 0; i < p.len; i++) {
-        n = mg_base64_update(((unsigned char *) p.ptr)[i], buf + 21, n);
+        n = mg_base64_update(((unsigned char *) p.buf)[i], buf + 21, n);
       }
     }
     n = mg_base64_final(buf + 21, n);
@@ -2332,7 +2332,7 @@ struct mg_str mg_http_var(struct mg_str buf, struct mg_str name) {
   struct mg_str entry, k, v, result = mg_str_n(NULL, 0);
   while (mg_span(buf, &entry, &buf, '&')) {
     if (mg_span(entry, &k, &v, '=') && name.len == k.len &&
-        mg_ncasecmp(name.ptr, k.ptr, k.len) == 0) {
+        mg_ncasecmp(name.buf, k.buf, k.len) == 0) {
       result = v;
       break;
     }
@@ -2348,14 +2348,14 @@ int mg_http_get_var(const struct mg_str *buf, const char *name, char *dst,
   }
   if (dst == NULL || dst_len == 0) {
     len = -2;  // Bad destination
-  } else if (buf->ptr == NULL || name == NULL || buf->len == 0) {
+  } else if (buf->buf == NULL || name == NULL || buf->len == 0) {
     len = -1;  // Bad source
   } else {
     struct mg_str v = mg_http_var(*buf, mg_str(name));
-    if (v.ptr == NULL) {
+    if (v.buf == NULL) {
       len = -4;  // Name does not exist
     } else {
-      len = mg_url_decode(v.ptr, v.len, dst, dst_len, 1);
+      len = mg_url_decode(v.buf, v.len, dst, dst_len, 1);
       if (len < 0) len = -3;  // Failed to decode
     }
   }
@@ -2407,7 +2407,7 @@ struct mg_str *mg_http_get_header(struct mg_http_message *h, const char *name) {
   size_t i, n = strlen(name), max = sizeof(h->headers) / sizeof(h->headers[0]);
   for (i = 0; i < max && h->headers[i].name.len > 0; i++) {
     struct mg_str *k = &h->headers[i].name, *v = &h->headers[i].value;
-    if (n == k->len && mg_ncasecmp(k->ptr, name, n) == 0) return v;
+    if (n == k->len && mg_ncasecmp(k->buf, name, n) == 0) return v;
   }
   return NULL;
 }
@@ -2431,7 +2431,7 @@ static size_t clen(const char *s, const char *end) {
 
 // Skip until the newline. Return advanced `s`, or NULL on error
 static const char *skiptorn(const char *s, const char *end, struct mg_str *v) {
-  v->ptr = s;
+  v->buf = (char *) s;
   while (s < end && s[0] != '\n' && s[0] != '\r') s++, v->len++;  // To newline
   if (s >= end || (s[0] == '\r' && s[1] != '\n')) return NULL;    // Stray \r
   if (s < end && s[0] == '\r') s++;                               // Skip \r
@@ -2446,7 +2446,7 @@ static bool mg_http_parse_headers(const char *s, const char *end,
     struct mg_str k = {NULL, 0}, v = {NULL, 0};
     if (s >= end) return false;
     if (s[0] == '\n' || (s[0] == '\r' && s[1] == '\n')) break;
-    k.ptr = s;
+    k.buf = (char *) s;
     while (s < end && s[0] != ':' && (n = clen(s, end)) > 0) s += n, k.len += n;
     if (k.len == 0) return false;                     // Empty name
     if (s >= end || clen(s, end) == 0) return false;  // Invalid UTF-8
@@ -2454,8 +2454,8 @@ static bool mg_http_parse_headers(const char *s, const char *end,
     // if (clen(s, end) == 0) return false;        // Invalid UTF-8
     while (s < end && s[0] == ' ') s++;  // Skip spaces
     if ((s = skiptorn(s, end, &v)) == NULL) return false;
-    while (v.len > 0 && v.ptr[v.len - 1] == ' ') v.len--;  // Trim spaces
-    // MG_INFO(("--HH [%.*s] [%.*s]", (int) k.len, k.ptr, (int) v.len, v.ptr));
+    while (v.len > 0 && v.buf[v.len - 1] == ' ') v.len--;  // Trim spaces
+    // MG_INFO(("--HH [%.*s] [%.*s]", (int) k.len, k.buf, (int) v.len, v.buf));
     h[i].name = k, h[i].value = v;  // Success. Assign values
   }
   return true;
@@ -2464,31 +2464,31 @@ static bool mg_http_parse_headers(const char *s, const char *end,
 int mg_http_parse(const char *s, size_t len, struct mg_http_message *hm) {
   int is_response, req_len = mg_http_get_request_len((unsigned char *) s, len);
   const char *end = s == NULL ? NULL : s + req_len, *qs;  // Cannot add to NULL
-  struct mg_str *cl;
+  const struct mg_str *cl;
   size_t n;
 
   memset(hm, 0, sizeof(*hm));
   if (req_len <= 0) return req_len;
 
-  hm->message.ptr = hm->head.ptr = s;
-  hm->body.ptr = end;
+  hm->message.buf = hm->head.buf = (char *) s;
+  hm->body.buf = (char *) end;
   hm->head.len = (size_t) req_len;
   hm->message.len = hm->body.len = (size_t) -1;  // Set body length to infinite
 
   // Parse request line
-  hm->method.ptr = s;
+  hm->method.buf = (char *) s;
   while (s < end && (n = clen(s, end)) > 0) s += n, hm->method.len += n;
   while (s < end && s[0] == ' ') s++;  // Skip spaces
-  hm->uri.ptr = s;
+  hm->uri.buf = (char *) s;
   while (s < end && (n = clen(s, end)) > 0) s += n, hm->uri.len += n;
   while (s < end && s[0] == ' ') s++;  // Skip spaces
   if ((s = skiptorn(s, end, &hm->proto)) == NULL) return false;
 
   // If URI contains '?' character, setup query string
-  if ((qs = (const char *) memchr(hm->uri.ptr, '?', hm->uri.len)) != NULL) {
-    hm->query.ptr = qs + 1;
-    hm->query.len = (size_t) (&hm->uri.ptr[hm->uri.len] - (qs + 1));
-    hm->uri.len = (size_t) (qs - hm->uri.ptr);
+  if ((qs = (const char *) memchr(hm->uri.buf, '?', hm->uri.len)) != NULL) {
+    hm->query.buf = (char *) qs + 1;
+    hm->query.len = (size_t) (&hm->uri.buf[hm->uri.len] - (qs + 1));
+    hm->uri.len = (size_t) (qs - hm->uri.buf);
   }
 
   // Sanity check. Allow protocol/reason to be empty
@@ -2515,7 +2515,7 @@ int mg_http_parse(const char *s, size_t len, struct mg_http_message *hm) {
   //
   // So, if it is HTTP request, and Content-Length is not set,
   // and method is not (PUT or POST) then reset body length to zero.
-  is_response = mg_ncasecmp(hm->method.ptr, "HTTP/", 5) == 0;
+  is_response = mg_ncasecmp(hm->method.buf, "HTTP/", 5) == 0;
   if (hm->body.len == (size_t) ~0 && !is_response &&
       mg_vcasecmp(&hm->method, "PUT") != 0 &&
       mg_vcasecmp(&hm->method, "POST") != 0) {
@@ -2687,6 +2687,7 @@ static void static_cb(struct mg_connection *c, int ev, void *ev_data) {
 // Known mime types. Keep it outside guess_content_type() function, since
 // some environments don't like it defined there.
 // clang-format off
+#define MG_C_STR(a) { (char *) (a), sizeof(a) - 1 }
 static struct mg_str s_known_types[] = {
     MG_C_STR("html"), MG_C_STR("text/html; charset=utf-8"),
     MG_C_STR("htm"), MG_C_STR("text/html; charset=utf-8"),
@@ -2727,8 +2728,8 @@ static struct mg_str guess_content_type(struct mg_str path, const char *extra) {
   size_t i = 0;
 
   // Shrink path to its extension only
-  while (i < path.len && path.ptr[path.len - i - 1] != '.') i++;
-  path.ptr += path.len - i;
+  while (i < path.len && path.buf[path.len - i - 1] != '.') i++;
+  path.buf += path.len - i;
   path.len = i;
 
   // Process user-provided mime type overrides, if any
@@ -2737,7 +2738,7 @@ static struct mg_str guess_content_type(struct mg_str path, const char *extra) {
   }
 
   // Process built-in mime types
-  for (i = 0; s_known_types[i].ptr != NULL; i += 2) {
+  for (i = 0; s_known_types[i].buf != NULL; i += 2) {
     if (mg_strcmp(path, s_known_types[i]) == 0) return s_known_types[i + 1];
   }
 
@@ -2747,8 +2748,8 @@ static struct mg_str guess_content_type(struct mg_str path, const char *extra) {
 static int getrange(struct mg_str *s, size_t *a, size_t *b) {
   size_t i, numparsed = 0;
   for (i = 0; i + 6 < s->len; i++) {
-    struct mg_str k, v = mg_str_n(s->ptr + i + 6, s->len - i - 6);
-    if (memcmp(&s->ptr[i], "bytes=", 6) != 0) continue;
+    struct mg_str k, v = mg_str_n(s->buf + i + 6, s->len - i - 6);
+    if (memcmp(&s->buf[i], "bytes=", 6) != 0) continue;
     if (mg_span(v, &k, &v, '-')) {
       if (mg_to_size_t(k, a)) numparsed++;
       if (v.len > 0 && mg_to_size_t(v, b)) numparsed++;
@@ -2831,7 +2832,7 @@ void mg_http_serve_file(struct mg_connection *c, struct mg_http_message *hm,
               "Etag: %s\r\n"
               "Content-Length: %llu\r\n"
               "%s%s%s\r\n",
-              status, mg_http_status_code_str(status), (int) mime.len, mime.ptr,
+              status, mg_http_status_code_str(status), (int) mime.len, mime.buf,
               etag, (uint64_t) cl, gzip ? "Content-Encoding: gzip\r\n" : "",
               range, opts->extra_headers ? opts->extra_headers : "");
     if (mg_vcasecmp(&hm->method, "HEAD") == 0) {
@@ -2926,7 +2927,7 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
   struct printdirentrydata d = {c, hm, opts, dir};
   char tmp[10], buf[MG_PATH_MAX];
   size_t off, n;
-  int len = mg_url_decode(hm->uri.ptr, hm->uri.len, buf, sizeof(buf), 0);
+  int len = mg_url_decode(hm->uri.buf, hm->uri.len, buf, sizeof(buf), 0);
   struct mg_str uri = len > 0 ? mg_str_n(buf, (size_t) len) : hm->uri;
 
   mg_printf(c,
@@ -2945,8 +2946,8 @@ static void listdir(struct mg_connection *c, struct mg_http_message *hm,
             "<th><a href=\"#\" rel=\"2\">Size</a></th></tr>"
             "</thead>"
             "<tbody id=\"tb\">\n",
-            (int) uri.len, uri.ptr, sort_js_code, sort_js_code2,
-            c->mgr->directory_listing_css, (int) uri.len, uri.ptr);
+            (int) uri.len, uri.buf, sort_js_code, sort_js_code2,
+            c->mgr->directory_listing_css, (int) uri.len, uri.buf);
   mg_printf(c, "%s",
             "  <tr><td><a href=\"..\">..</a></td>"
             "<td name=-1></td><td name=-1>[DIR]</td></tr>\n");
@@ -2969,7 +2970,7 @@ static int uri_to_path2(struct mg_connection *c, struct mg_http_message *hm,
                         char *path, size_t path_size) {
   int flags, tmp;
   // Append URI to the root_dir, and sanitize it
-  size_t n = mg_snprintf(path, path_size, "%.*s", (int) dir.len, dir.ptr);
+  size_t n = mg_snprintf(path, path_size, "%.*s", (int) dir.len, dir.buf);
   if (n + 2 >= path_size) {
     mg_http_reply(c, 400, "", "Exceeded path size");
     return -1;
@@ -2978,7 +2979,7 @@ static int uri_to_path2(struct mg_connection *c, struct mg_http_message *hm,
   // Terminate root dir with slash
   if (n > 0 && path[n - 1] != '/') path[n++] = '/', path[n] = '\0';
   if (url.len < hm->uri.len) {
-    mg_url_decode(hm->uri.ptr + url.len, hm->uri.len - url.len, path + n,
+    mg_url_decode(hm->uri.buf + url.len, hm->uri.len - url.len, path + n,
                   path_size - n, 0);
   }
   path[path_size - 1] = '\0';  // Double-check
@@ -2989,18 +2990,18 @@ static int uri_to_path2(struct mg_connection *c, struct mg_http_message *hm,
   n = strlen(path);
   while (n > 1 && path[n - 1] == '/') path[--n] = 0;  // Trim trailing slashes
   flags = mg_vcmp(&hm->uri, "/") == 0 ? MG_FS_DIR : fs->st(path, NULL, NULL);
-  MG_VERBOSE(("%lu %.*s -> %s %d", c->id, (int) hm->uri.len, hm->uri.ptr, path,
+  MG_VERBOSE(("%lu %.*s -> %s %d", c->id, (int) hm->uri.len, hm->uri.buf, path,
               flags));
   if (flags == 0) {
     // Do nothing - let's caller decide
   } else if ((flags & MG_FS_DIR) && hm->uri.len > 0 &&
-             hm->uri.ptr[hm->uri.len - 1] != '/') {
+             hm->uri.buf[hm->uri.len - 1] != '/') {
     mg_printf(c,
               "HTTP/1.1 301 Moved\r\n"
               "Location: %.*s/\r\n"
               "Content-Length: 0\r\n"
               "\r\n",
-              (int) hm->uri.len, hm->uri.ptr);
+              (int) hm->uri.len, hm->uri.buf);
     c->is_resp = 0;
     flags = -1;
   } else if (flags & MG_FS_DIR) {
@@ -3032,7 +3033,7 @@ static int uri_to_path(struct mg_connection *c, struct mg_http_message *hm,
     if (!mg_span(part, &k, &v, '=')) k = part, v = mg_str_n(NULL, 0);
     if (v.len == 0) v = k, k = mg_str("/"), u = k, p = v;
     if (hm->uri.len < k.len) continue;
-    if (mg_strcmp(k, mg_str_n(hm->uri.ptr, k.len)) != 0) continue;
+    if (mg_strcmp(k, mg_str_n(hm->uri.buf, k.len)) != 0) continue;
     u = k, p = v;
   }
   return uri_to_path2(c, hm, fs, u, p, path, path_size);
@@ -3086,49 +3087,45 @@ void mg_http_creds(struct mg_http_message *hm, char *user, size_t userlen,
                    char *pass, size_t passlen) {
   struct mg_str *v = mg_http_get_header(hm, "Authorization");
   user[0] = pass[0] = '\0';
-  if (v != NULL && v->len > 6 && memcmp(v->ptr, "Basic ", 6) == 0) {
+  if (v != NULL && v->len > 6 && memcmp(v->buf, "Basic ", 6) == 0) {
     char buf[256];
-    size_t n = mg_base64_decode(v->ptr + 6, v->len - 6, buf, sizeof(buf));
+    size_t n = mg_base64_decode(v->buf + 6, v->len - 6, buf, sizeof(buf));
     const char *p = (const char *) memchr(buf, ':', n > 0 ? n : 0);
     if (p != NULL) {
       mg_snprintf(user, userlen, "%.*s", p - buf, buf);
       mg_snprintf(pass, passlen, "%.*s", n - (size_t) (p - buf) - 1, p + 1);
     }
-  } else if (v != NULL && v->len > 7 && memcmp(v->ptr, "Bearer ", 7) == 0) {
-    mg_snprintf(pass, passlen, "%.*s", (int) v->len - 7, v->ptr + 7);
+  } else if (v != NULL && v->len > 7 && memcmp(v->buf, "Bearer ", 7) == 0) {
+    mg_snprintf(pass, passlen, "%.*s", (int) v->len - 7, v->buf + 7);
   } else if ((v = mg_http_get_header(hm, "Cookie")) != NULL) {
     struct mg_str t = mg_http_get_header_var(*v, mg_str_n("access_token", 12));
-    if (t.len > 0) mg_snprintf(pass, passlen, "%.*s", (int) t.len, t.ptr);
+    if (t.len > 0) mg_snprintf(pass, passlen, "%.*s", (int) t.len, t.buf);
   } else {
     mg_http_get_var(&hm->query, "access_token", pass, passlen);
   }
 }
 
 static struct mg_str stripquotes(struct mg_str s) {
-  return s.len > 1 && s.ptr[0] == '"' && s.ptr[s.len - 1] == '"'
-             ? mg_str_n(s.ptr + 1, s.len - 2)
+  return s.len > 1 && s.buf[0] == '"' && s.buf[s.len - 1] == '"'
+             ? mg_str_n(s.buf + 1, s.len - 2)
              : s;
 }
 
 struct mg_str mg_http_get_header_var(struct mg_str s, struct mg_str v) {
   size_t i;
   for (i = 0; v.len > 0 && i + v.len + 2 < s.len; i++) {
-    if (s.ptr[i + v.len] == '=' && memcmp(&s.ptr[i], v.ptr, v.len) == 0) {
-      const char *p = &s.ptr[i + v.len + 1], *b = p, *x = &s.ptr[s.len];
+    if (s.buf[i + v.len] == '=' && memcmp(&s.buf[i], v.buf, v.len) == 0) {
+      const char *p = &s.buf[i + v.len + 1], *b = p, *x = &s.buf[s.len];
       int q = p < x && *p == '"' ? 1 : 0;
       while (p < x &&
              (q ? p == b || *p != '"' : *p != ';' && *p != ' ' && *p != ','))
         p++;
-      // MG_INFO(("[%.*s] [%.*s] [%.*s]", (int) s.len, s.ptr, (int) v.len,
-      // v.ptr, (int) (p - b), b));
+      // MG_INFO(("[%.*s] [%.*s] [%.*s]", (int) s.len, s.buf, (int) v.len,
+      // v.buf, (int) (p - b), b));
       return stripquotes(mg_str_n(b, (size_t) (p - b + q)));
     }
   }
   return mg_str_n(NULL, 0);
-}
-
-bool mg_http_match_uri(const struct mg_http_message *hm, const char *glob) {
-  return mg_match(hm->uri, mg_str(glob), NULL);
 }
 
 long mg_http_upload(struct mg_connection *c, struct mg_http_message *hm,
@@ -3167,7 +3164,7 @@ long mg_http_upload(struct mg_connection *c, struct mg_http_message *hm,
       mg_http_reply(c, 400, "", "open(%s): %d", path, errno);
       res = -6;
     } else {
-      res = offset + (long) fs->wr(fd->fd, hm->body.ptr, hm->body.len);
+      res = offset + (long) fs->wr(fd->fd, hm->body.buf, hm->body.len);
       mg_fs_close(fd);
       mg_http_reply(c, 200, "", "%ld", res);
     }
@@ -3176,7 +3173,7 @@ long mg_http_upload(struct mg_connection *c, struct mg_http_message *hm,
 }
 
 int mg_http_status(const struct mg_http_message *hm) {
-  return atoi(hm->uri.ptr);
+  return atoi(hm->uri.buf);
 }
 
 static bool is_hex_digit(int c) {
@@ -3221,7 +3218,7 @@ static void http_cb(struct mg_connection *c, int ev, void *ev_data) {
       mg_call(c, MG_EV_HTTP_HDRS, &hm);  // Got all HTTP headers
       if (ev == MG_EV_CLOSE) {           // If client did not set Content-Length
         hm.message.len = c->recv.len - ofs;  // and closes now, deliver MSG
-        hm.body.len = hm.message.len - (size_t) (hm.body.ptr - hm.message.ptr);
+        hm.body.len = hm.message.len - (size_t) (hm.body.buf - hm.message.buf);
       }
       if ((te = mg_http_get_header(&hm, "Transfer-Encoding")) != NULL) {
         if (mg_vcasecmp(te, "chunked") == 0) {
@@ -3233,7 +3230,7 @@ static void http_cb(struct mg_connection *c, int ev, void *ev_data) {
       } else if (mg_http_get_header(&hm, "Content-length") == NULL) {
         // #2593: HTTP packets must contain either Transfer-Encoding or
         // Content-length
-        bool is_response = mg_ncasecmp(hm.method.ptr, "HTTP/", 5) == 0;
+        bool is_response = mg_ncasecmp(hm.method.buf, "HTTP/", 5) == 0;
         bool require_content_len = false;
         if (!is_response && (mg_vcasecmp(&hm.method, "POST") == 0 ||
                              mg_vcasecmp(&hm.method, "PUT") == 0)) {
@@ -3292,11 +3289,11 @@ static void http_cb(struct mg_connection *c, int ev, void *ev_data) {
 static void mg_hfn(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-    if (mg_http_match_uri(hm, "/quit")) {
+    if (mg_match(hm->uri, mg_str("/quit"), NULL)) {
       mg_http_reply(c, 200, "", "ok\n");
       c->is_draining = 1;
       c->data[0] = 'X';
-    } else if (mg_http_match_uri(hm, "/debug")) {
+    } else if (mg_match(hm->uri, mg_str("/debug"), NULL)) {
       int level = (int) mg_json_get_long(hm->body, "$.level", MG_LL_DEBUG);
       mg_log_set(level);
       mg_http_reply(c, 200, "", "Debug level set to %d\n", level);
@@ -3486,52 +3483,52 @@ size_t mg_json_next(struct mg_str obj, size_t ofs, struct mg_str *key,
                     struct mg_str *val) {
   if (ofs >= obj.len) {
     ofs = 0;  // Out of boundaries, stop scanning
-  } else if (obj.len < 2 || (*obj.ptr != '{' && *obj.ptr != '[')) {
+  } else if (obj.len < 2 || (*obj.buf != '{' && *obj.buf != '[')) {
     ofs = 0;  // Not an array or object, stop
   } else {
-    struct mg_str sub = mg_str_n(obj.ptr + ofs, obj.len - ofs);
-    if (ofs == 0) ofs++, sub.ptr++, sub.len--;
-    if (*obj.ptr == '[') {  // Iterate over an array
+    struct mg_str sub = mg_str_n(obj.buf + ofs, obj.len - ofs);
+    if (ofs == 0) ofs++, sub.buf++, sub.len--;
+    if (*obj.buf == '[') {  // Iterate over an array
       int n = 0, o = mg_json_get(sub, "$", &n);
       if (n < 0 || o < 0 || (size_t) (o + n) > sub.len) {
         ofs = 0;  // Error parsing key, stop scanning
       } else {
         if (key) *key = mg_str_n(NULL, 0);
-        if (val) *val = mg_str_n(sub.ptr + o, (size_t) n);
-        ofs = (size_t) (&sub.ptr[o + n] - obj.ptr);
+        if (val) *val = mg_str_n(sub.buf + o, (size_t) n);
+        ofs = (size_t) (&sub.buf[o + n] - obj.buf);
       }
     } else {  // Iterate over an object
       int n = 0, o = mg_json_get(sub, "$", &n);
       if (n < 0 || o < 0 || (size_t) (o + n) > sub.len) {
         ofs = 0;  // Error parsing key, stop scanning
       } else {
-        if (key) *key = mg_str_n(sub.ptr + o, (size_t) n);
-        sub.ptr += o + n, sub.len -= (size_t) (o + n);
-        while (sub.len > 0 && *sub.ptr != ':') sub.len--, sub.ptr++;
-        if (sub.len > 0 && *sub.ptr == ':') sub.len--, sub.ptr++;
+        if (key) *key = mg_str_n(sub.buf + o, (size_t) n);
+        sub.buf += o + n, sub.len -= (size_t) (o + n);
+        while (sub.len > 0 && *sub.buf != ':') sub.len--, sub.buf++;
+        if (sub.len > 0 && *sub.buf == ':') sub.len--, sub.buf++;
         n = 0, o = mg_json_get(sub, "$", &n);
         if (n < 0 || o < 0 || (size_t) (o + n) > sub.len) {
           ofs = 0;  // Error parsing value, stop scanning
         } else {
-          if (val) *val = mg_str_n(sub.ptr + o, (size_t) n);
-          ofs = (size_t) (&sub.ptr[o + n] - obj.ptr);
+          if (val) *val = mg_str_n(sub.buf + o, (size_t) n);
+          ofs = (size_t) (&sub.buf[o + n] - obj.buf);
         }
       }
     }
-    // MG_INFO(("SUB ofs %u %.*s", ofs, sub.len, sub.ptr));
+    // MG_INFO(("SUB ofs %u %.*s", ofs, sub.len, sub.buf));
     while (ofs && ofs < obj.len &&
-           (obj.ptr[ofs] == ' ' || obj.ptr[ofs] == '\t' ||
-            obj.ptr[ofs] == '\n' || obj.ptr[ofs] == '\r')) {
+           (obj.buf[ofs] == ' ' || obj.buf[ofs] == '\t' ||
+            obj.buf[ofs] == '\n' || obj.buf[ofs] == '\r')) {
       ofs++;
     }
-    if (ofs && ofs < obj.len && obj.ptr[ofs] == ',') ofs++;
+    if (ofs && ofs < obj.len && obj.buf[ofs] == ',') ofs++;
     if (ofs > obj.len) ofs = 0;
   }
   return ofs;
 }
 
 int mg_json_get(struct mg_str json, const char *path, int *toklen) {
-  const char *s = json.ptr;
+  const char *s = json.buf;
   int len = (int) json.len;
   enum { S_VALUE, S_KEY, S_COLON, S_COMMA_OR_EOO } expecting = S_VALUE;
   unsigned char nesting[MG_JSON_MAX_DEPTH];
@@ -3675,15 +3672,15 @@ int mg_json_get(struct mg_str json, const char *path, int *toklen) {
 
 struct mg_str mg_json_get_tok(struct mg_str json, const char *path) {
   int len = 0, ofs = mg_json_get(json, path, &len);
-  return mg_str_n(ofs < 0 ? NULL : json.ptr + ofs,
+  return mg_str_n(ofs < 0 ? NULL : json.buf + ofs,
                   (size_t) (len < 0 ? 0 : len));
 }
 
 bool mg_json_get_num(struct mg_str json, const char *path, double *v) {
   int n, toklen, found = 0;
   if ((n = mg_json_get(json, path, &toklen)) >= 0 &&
-      (json.ptr[n] == '-' || (json.ptr[n] >= '0' && json.ptr[n] <= '9'))) {
-    if (v != NULL) *v = mg_atod(json.ptr + n, toklen, NULL);
+      (json.buf[n] == '-' || (json.buf[n] >= '0' && json.buf[n] <= '9'))) {
+    if (v != NULL) *v = mg_atod(json.buf + n, toklen, NULL);
     found = 1;
   }
   return found;
@@ -3691,8 +3688,8 @@ bool mg_json_get_num(struct mg_str json, const char *path, double *v) {
 
 bool mg_json_get_bool(struct mg_str json, const char *path, bool *v) {
   int found = 0, off = mg_json_get(json, path, NULL);
-  if (off >= 0 && (json.ptr[off] == 't' || json.ptr[off] == 'f')) {
-    if (v != NULL) *v = json.ptr[off] == 't';
+  if (off >= 0 && (json.buf[off] == 't' || json.buf[off] == 'f')) {
+    if (v != NULL) *v = json.buf[off] == 't';
     found = 1;
   }
   return found;
@@ -3701,21 +3698,21 @@ bool mg_json_get_bool(struct mg_str json, const char *path, bool *v) {
 bool mg_json_unescape(struct mg_str s, char *to, size_t n) {
   size_t i, j;
   for (i = 0, j = 0; i < s.len && j < n; i++, j++) {
-    if (s.ptr[i] == '\\' && i + 5 < s.len && s.ptr[i + 1] == 'u') {
+    if (s.buf[i] == '\\' && i + 5 < s.len && s.buf[i + 1] == 'u') {
       //  \uXXXX escape. We could process a simple one-byte chars
       // \u00xx from the ASCII range. More complex chars would require
       // dragging in a UTF8 library, which is too much for us
-      if (s.ptr[i + 2] != '0' || s.ptr[i + 3] != '0') return false;  // Give up
-      ((unsigned char *) to)[j] = (unsigned char) mg_unhexn(s.ptr + i + 4, 2);
+      if (s.buf[i + 2] != '0' || s.buf[i + 3] != '0') return false;  // Give up
+      ((unsigned char *) to)[j] = (unsigned char) mg_unhexn(s.buf + i + 4, 2);
 
       i += 5;
-    } else if (s.ptr[i] == '\\' && i + 1 < s.len) {
-      char c = json_esc(s.ptr[i + 1], 0);
+    } else if (s.buf[i] == '\\' && i + 1 < s.len) {
+      char c = json_esc(s.buf[i + 1], 0);
       if (c == 0) return false;
       to[j] = c;
       i++;
     } else {
-      to[j] = s.ptr[i];
+      to[j] = s.buf[i];
     }
   }
   if (j >= n) return false;
@@ -3726,9 +3723,9 @@ bool mg_json_unescape(struct mg_str s, char *to, size_t n) {
 char *mg_json_get_str(struct mg_str json, const char *path) {
   char *result = NULL;
   int len = 0, off = mg_json_get(json, path, &len);
-  if (off >= 0 && len > 1 && json.ptr[off] == '"') {
+  if (off >= 0 && len > 1 && json.buf[off] == '"') {
     if ((result = (char *) calloc(1, (size_t) len)) != NULL &&
-        !mg_json_unescape(mg_str_n(json.ptr + off + 1, (size_t) (len - 2)),
+        !mg_json_unescape(mg_str_n(json.buf + off + 1, (size_t) (len - 2)),
                           result, (size_t) len)) {
       free(result);
       result = NULL;
@@ -3740,9 +3737,9 @@ char *mg_json_get_str(struct mg_str json, const char *path) {
 char *mg_json_get_b64(struct mg_str json, const char *path, int *slen) {
   char *result = NULL;
   int len = 0, off = mg_json_get(json, path, &len);
-  if (off >= 0 && json.ptr[off] == '"' && len > 1 &&
+  if (off >= 0 && json.buf[off] == '"' && len > 1 &&
       (result = (char *) calloc(1, (size_t) len)) != NULL) {
-    size_t k = mg_base64_decode(json.ptr + off + 1, (size_t) (len - 2), result,
+    size_t k = mg_base64_decode(json.buf + off + 1, (size_t) (len - 2), result,
                                 (size_t) len);
     if (slen != NULL) *slen = (int) k;
   }
@@ -3752,9 +3749,9 @@ char *mg_json_get_b64(struct mg_str json, const char *path, int *slen) {
 char *mg_json_get_hex(struct mg_str json, const char *path, int *slen) {
   char *result = NULL;
   int len = 0, off = mg_json_get(json, path, &len);
-  if (off >= 0 && json.ptr[off] == '"' && len > 1 &&
+  if (off >= 0 && json.buf[off] == '"' && len > 1 &&
       (result = (char *) calloc(1, (size_t) len / 2)) != NULL) {
-    mg_unhex(json.ptr + off + 1, (size_t) (len - 2), (uint8_t *) result);
+    mg_unhex(json.buf + off + 1, (size_t) (len - 2), (uint8_t *) result);
     result[len / 2 - 1] = '\0';
     if (slen != NULL) *slen = len / 2 - 1;
   }
@@ -4224,9 +4221,9 @@ static void mg_send_mqtt_properties(struct mg_connection *c,
     switch (mqtt_prop_type_by_id(props[i].id)) {
       case MQTT_PROP_TYPE_STRING_PAIR:
         mg_send_u16(c, mg_htons((uint16_t) props[i].key.len));
-        mg_send(c, props[i].key.ptr, props[i].key.len);
+        mg_send(c, props[i].key.buf, props[i].key.len);
         mg_send_u16(c, mg_htons((uint16_t) props[i].val.len));
-        mg_send(c, props[i].val.ptr, props[i].val.len);
+        mg_send(c, props[i].val.buf, props[i].val.len);
         break;
       case MQTT_PROP_TYPE_BYTE:
         mg_send(c, &props[i].iv, sizeof(uint8_t));
@@ -4239,11 +4236,11 @@ static void mg_send_mqtt_properties(struct mg_connection *c,
         break;
       case MQTT_PROP_TYPE_STRING:
         mg_send_u16(c, mg_htons((uint16_t) props[i].val.len));
-        mg_send(c, props[i].val.ptr, props[i].val.len);
+        mg_send(c, props[i].val.buf, props[i].val.len);
         break;
       case MQTT_PROP_TYPE_BINARY_DATA:
         mg_send_u16(c, mg_htons((uint16_t) props[i].val.len));
-        mg_send(c, props[i].val.ptr, props[i].val.len);
+        mg_send(c, props[i].val.buf, props[i].val.len);
         break;
       case MQTT_PROP_TYPE_VARIABLE_INT:
         len = encode_varint(buf_v, props[i].iv);
@@ -4255,8 +4252,8 @@ static void mg_send_mqtt_properties(struct mg_connection *c,
 
 size_t mg_mqtt_next_prop(struct mg_mqtt_message *msg, struct mg_mqtt_prop *prop,
                          size_t ofs) {
-  uint8_t *i = (uint8_t *) msg->dgram.ptr + msg->props_start + ofs;
-  uint8_t *end = (uint8_t *) msg->dgram.ptr + msg->dgram.len;
+  uint8_t *i = (uint8_t *) msg->dgram.buf + msg->props_start + ofs;
+  uint8_t *end = (uint8_t *) msg->dgram.buf + msg->dgram.len;
   size_t new_pos = ofs, len;
   prop->id = i[0];
 
@@ -4267,10 +4264,10 @@ size_t mg_mqtt_next_prop(struct mg_mqtt_message *msg, struct mg_mqtt_prop *prop,
   switch (mqtt_prop_type_by_id(prop->id)) {
     case MQTT_PROP_TYPE_STRING_PAIR:
       prop->key.len = (uint16_t) ((((uint16_t) i[0]) << 8) | i[1]);
-      prop->key.ptr = (char *) i + 2;
+      prop->key.buf = (char *) i + 2;
       i += 2 + prop->key.len;
       prop->val.len = (uint16_t) ((((uint16_t) i[0]) << 8) | i[1]);
-      prop->val.ptr = (char *) i + 2;
+      prop->val.buf = (char *) i + 2;
       new_pos += 2 * sizeof(uint16_t) + prop->val.len + prop->key.len;
       break;
     case MQTT_PROP_TYPE_BYTE:
@@ -4288,12 +4285,12 @@ size_t mg_mqtt_next_prop(struct mg_mqtt_message *msg, struct mg_mqtt_prop *prop,
       break;
     case MQTT_PROP_TYPE_STRING:
       prop->val.len = (uint16_t) ((((uint16_t) i[0]) << 8) | i[1]);
-      prop->val.ptr = (char *) i + 2;
+      prop->val.buf = (char *) i + 2;
       new_pos += 2 + prop->val.len;
       break;
     case MQTT_PROP_TYPE_BINARY_DATA:
       prop->val.len = (uint16_t) ((((uint16_t) i[0]) << 8) | i[1]);
-      prop->val.ptr = (char *) i + 2;
+      prop->val.buf = (char *) i + 2;
       new_pos += 2 + prop->val.len;
       break;
     case MQTT_PROP_TYPE_VARIABLE_INT:
@@ -4331,7 +4328,7 @@ void mg_mqtt_login(struct mg_connection *c, const struct mg_mqtt_opts *opts) {
     total_len += 2 + (uint32_t) opts->pass.len;
     hdr[7] |= MQTT_HAS_PASSWORD;
   }
-  if (opts->topic.len > 0 && opts->message.len > 0) {
+  if (opts->topic.len > 0) { // allow zero-length msgs, message.len is size_t
     total_len += 4 + (uint32_t) opts->topic.len + (uint32_t) opts->message.len;
     hdr[7] |= MQTT_HAS_WILL;
   }
@@ -4352,47 +4349,53 @@ void mg_mqtt_login(struct mg_connection *c, const struct mg_mqtt_opts *opts) {
   if (c->is_mqtt5) mg_send_mqtt_properties(c, opts->props, opts->num_props);
 
   mg_send_u16(c, mg_htons((uint16_t) cid.len));
-  mg_send(c, cid.ptr, cid.len);
+  mg_send(c, cid.buf, cid.len);
 
   if (hdr[7] & MQTT_HAS_WILL) {
     if (c->is_mqtt5)
       mg_send_mqtt_properties(c, opts->will_props, opts->num_will_props);
 
     mg_send_u16(c, mg_htons((uint16_t) opts->topic.len));
-    mg_send(c, opts->topic.ptr, opts->topic.len);
+    mg_send(c, opts->topic.buf, opts->topic.len);
     mg_send_u16(c, mg_htons((uint16_t) opts->message.len));
-    mg_send(c, opts->message.ptr, opts->message.len);
+    mg_send(c, opts->message.buf, opts->message.len);
   }
   if (opts->user.len > 0) {
     mg_send_u16(c, mg_htons((uint16_t) opts->user.len));
-    mg_send(c, opts->user.ptr, opts->user.len);
+    mg_send(c, opts->user.buf, opts->user.len);
   }
   if (opts->pass.len > 0) {
     mg_send_u16(c, mg_htons((uint16_t) opts->pass.len));
-    mg_send(c, opts->pass.ptr, opts->pass.len);
+    mg_send(c, opts->pass.buf, opts->pass.len);
   }
 }
 
-void mg_mqtt_pub(struct mg_connection *c, const struct mg_mqtt_opts *opts) {
+uint16_t mg_mqtt_pub(struct mg_connection *c, const struct mg_mqtt_opts *opts) {
+  uint16_t id = opts->retransmit_id;
   uint8_t flags = (uint8_t) (((opts->qos & 3) << 1) | (opts->retain ? 1 : 0));
   size_t len = 2 + opts->topic.len + opts->message.len;
   MG_DEBUG(("%lu [%.*s] -> [%.*s]", c->id, (int) opts->topic.len,
-            (char *) opts->topic.ptr, (int) opts->message.len,
-            (char *) opts->message.ptr));
+            (char *) opts->topic.buf, (int) opts->message.len,
+            (char *) opts->message.buf));
   if (opts->qos > 0) len += 2;
   if (c->is_mqtt5) len += get_props_size(opts->props, opts->num_props);
 
+  if (opts->qos > 0 && id != 0) flags |= 1 << 3;
   mg_mqtt_send_header(c, MQTT_CMD_PUBLISH, flags, (uint32_t) len);
   mg_send_u16(c, mg_htons((uint16_t) opts->topic.len));
-  mg_send(c, opts->topic.ptr, opts->topic.len);
-  if (opts->qos > 0) {
-    if (++c->mgr->mqtt_id == 0) ++c->mgr->mqtt_id;
-    mg_send_u16(c, mg_htons(c->mgr->mqtt_id));
+  mg_send(c, opts->topic.buf, opts->topic.len);
+  if (opts->qos > 0) {    // need to send 'id' field
+    if (id == 0) {  // generate new one if not resending
+      if (++c->mgr->mqtt_id == 0) ++c->mgr->mqtt_id;
+      id = c->mgr->mqtt_id;
+    }
+    mg_send_u16(c, mg_htons(id));
   }
 
   if (c->is_mqtt5) mg_send_mqtt_properties(c, opts->props, opts->num_props);
 
-  if (opts->message.len > 0) mg_send(c, opts->message.ptr, opts->message.len);
+  if (opts->message.len > 0) mg_send(c, opts->message.buf, opts->message.len);
+  return id;
 }
 
 void mg_mqtt_sub(struct mg_connection *c, const struct mg_mqtt_opts *opts) {
@@ -4406,7 +4409,7 @@ void mg_mqtt_sub(struct mg_connection *c, const struct mg_mqtt_opts *opts) {
   if (c->is_mqtt5) mg_send_mqtt_properties(c, opts->props, opts->num_props);
 
   mg_send_u16(c, mg_htons((uint16_t) opts->topic.len));
-  mg_send(c, opts->topic.ptr, opts->topic.len);
+  mg_send(c, opts->topic.buf, opts->topic.len);
   mg_send(c, &qos_, sizeof(qos_));
 }
 
@@ -4416,7 +4419,7 @@ int mg_mqtt_parse(const uint8_t *buf, size_t len, uint8_t version,
   uint32_t n = 0, len_len = 0;
 
   memset(m, 0, sizeof(*m));
-  m->dgram.ptr = (char *) buf;
+  m->dgram.buf = (char *) buf;
   if (len < 2) return MQTT_INCOMPLETE;
   m->cmd = (uint8_t) (buf[0] >> 4);
   m->qos = (buf[0] >> 1) & 3;
@@ -4454,7 +4457,7 @@ int mg_mqtt_parse(const uint8_t *buf, size_t len, uint8_t version,
     case MQTT_CMD_PUBLISH: {
       if (p + 2 > end) return MQTT_MALFORMED;
       m->topic.len = (uint16_t) ((((uint16_t) p[0]) << 8) | p[1]);
-      m->topic.ptr = (char *) p + 2;
+      m->topic.buf = (char *) p + 2;
       p += 2 + m->topic.len;
       if (p > end) return MQTT_MALFORMED;
       if (m->qos > 0) {
@@ -4471,7 +4474,7 @@ int mg_mqtt_parse(const uint8_t *buf, size_t len, uint8_t version,
         p += len_len + m->props_size;
       }
       if (p > end) return MQTT_MALFORMED;
-      m->data.ptr = (char *) p;
+      m->data.buf = (char *) p;
       m->data.len = (size_t) (end - p);
       break;
     }
@@ -4493,7 +4496,7 @@ static void mqtt_cb(struct mg_connection *c, int ev, void *ev_data) {
         break;
       } else if (rc == MQTT_OK) {
         MG_VERBOSE(("%lu MQTT CMD %d len %d [%.*s]", c->id, mm.cmd,
-                    (int) mm.dgram.len, (int) mm.data.len, mm.data.ptr));
+                    (int) mm.dgram.len, (int) mm.data.len, mm.data.buf));
         switch (mm.cmd) {
           case MQTT_CMD_CONNACK:
             mg_call(c, MG_EV_MQTT_OPEN, &mm.ack);
@@ -4506,7 +4509,7 @@ static void mqtt_cb(struct mg_connection *c, int ev, void *ev_data) {
             break;
           case MQTT_CMD_PUBLISH: {
             /*MG_DEBUG(("%lu [%.*s] -> [%.*s]", c->id, (int) mm.topic.len,
-                      mm.topic.ptr, (int) mm.data.len, mm.data.ptr));*/
+                      mm.topic.buf, (int) mm.data.len, mm.data.buf));*/
             if (mm.qos > 0) {
               uint16_t id = mg_ntohs(mm.id);
               uint32_t remaining_len = sizeof(id);
@@ -4638,18 +4641,18 @@ static bool mg_aton4(struct mg_str str, struct mg_addr *addr) {
   uint8_t data[4] = {0, 0, 0, 0};
   size_t i, num_dots = 0;
   for (i = 0; i < str.len; i++) {
-    if (str.ptr[i] >= '0' && str.ptr[i] <= '9') {
-      int octet = data[num_dots] * 10 + (str.ptr[i] - '0');
+    if (str.buf[i] >= '0' && str.buf[i] <= '9') {
+      int octet = data[num_dots] * 10 + (str.buf[i] - '0');
       if (octet > 255) return false;
       data[num_dots] = (uint8_t) octet;
-    } else if (str.ptr[i] == '.') {
-      if (num_dots >= 3 || i == 0 || str.ptr[i - 1] == '.') return false;
+    } else if (str.buf[i] == '.') {
+      if (num_dots >= 3 || i == 0 || str.buf[i - 1] == '.') return false;
       num_dots++;
     } else {
       return false;
     }
   }
-  if (num_dots != 3 || str.ptr[i - 1] == '.') return false;
+  if (num_dots != 3 || str.buf[i - 1] == '.') return false;
   memcpy(&addr->ip, data, sizeof(data));
   addr->is_ip6 = false;
   return true;
@@ -4659,12 +4662,12 @@ static bool mg_v4mapped(struct mg_str str, struct mg_addr *addr) {
   int i;
   uint32_t ipv4;
   if (str.len < 14) return false;
-  if (str.ptr[0] != ':' || str.ptr[1] != ':' || str.ptr[6] != ':') return false;
+  if (str.buf[0] != ':' || str.buf[1] != ':' || str.buf[6] != ':') return false;
   for (i = 2; i < 6; i++) {
-    if (str.ptr[i] != 'f' && str.ptr[i] != 'F') return false;
+    if (str.buf[i] != 'f' && str.buf[i] != 'F') return false;
   }
-  // struct mg_str s = mg_str_n(&str.ptr[7], str.len - 7);
-  if (!mg_aton4(mg_str_n(&str.ptr[7], str.len - 7), addr)) return false;
+  // struct mg_str s = mg_str_n(&str.buf[7], str.len - 7);
+  if (!mg_aton4(mg_str_n(&str.buf[7], str.len - 7), addr)) return false;
   memcpy(&ipv4, addr->ip, sizeof(ipv4));
   memset(addr->ip, 0, sizeof(addr->ip));
   addr->ip[10] = addr->ip[11] = 255;
@@ -4676,33 +4679,33 @@ static bool mg_v4mapped(struct mg_str str, struct mg_addr *addr) {
 static bool mg_aton6(struct mg_str str, struct mg_addr *addr) {
   size_t i, j = 0, n = 0, dc = 42;
   addr->scope_id = 0;
-  if (str.len > 2 && str.ptr[0] == '[') str.ptr++, str.len -= 2;
+  if (str.len > 2 && str.buf[0] == '[') str.buf++, str.len -= 2;
   if (mg_v4mapped(str, addr)) return true;
   for (i = 0; i < str.len; i++) {
-    if ((str.ptr[i] >= '0' && str.ptr[i] <= '9') ||
-        (str.ptr[i] >= 'a' && str.ptr[i] <= 'f') ||
-        (str.ptr[i] >= 'A' && str.ptr[i] <= 'F')) {
+    if ((str.buf[i] >= '0' && str.buf[i] <= '9') ||
+        (str.buf[i] >= 'a' && str.buf[i] <= 'f') ||
+        (str.buf[i] >= 'A' && str.buf[i] <= 'F')) {
       unsigned long val;
       if (i > j + 3) return false;
-      // MG_DEBUG(("%lu %lu [%.*s]", i, j, (int) (i - j + 1), &str.ptr[j]));
-      val = mg_unhexn(&str.ptr[j], i - j + 1);
+      // MG_DEBUG(("%lu %lu [%.*s]", i, j, (int) (i - j + 1), &str.buf[j]));
+      val = mg_unhexn(&str.buf[j], i - j + 1);
       addr->ip[n] = (uint8_t) ((val >> 8) & 255);
       addr->ip[n + 1] = (uint8_t) (val & 255);
-    } else if (str.ptr[i] == ':') {
+    } else if (str.buf[i] == ':') {
       j = i + 1;
-      if (i > 0 && str.ptr[i - 1] == ':') {
+      if (i > 0 && str.buf[i - 1] == ':') {
         dc = n;  // Double colon
-        if (i > 1 && str.ptr[i - 2] == ':') return false;
+        if (i > 1 && str.buf[i - 2] == ':') return false;
       } else if (i > 0) {
         n += 2;
       }
       if (n > 14) return false;
       addr->ip[n] = addr->ip[n + 1] = 0;  // For trailing ::
-    } else if (str.ptr[i] == '%') {       // Scope ID
+    } else if (str.buf[i] == '%') {       // Scope ID
       for (i = i + 1; i < str.len; i++) {
-        if (str.ptr[i] < '0' || str.ptr[i] > '9') return false;
+        if (str.buf[i] < '0' || str.buf[i] > '9') return false;
         addr->scope_id = (uint8_t) (addr->scope_id * 10);
-        addr->scope_id = (uint8_t) (addr->scope_id + (str.ptr[i] - '0'));
+        addr->scope_id = (uint8_t) (addr->scope_id + (str.buf[i] - '0'));
       }
     } else {
       return false;
@@ -4719,7 +4722,7 @@ static bool mg_aton6(struct mg_str str, struct mg_addr *addr) {
 }
 
 bool mg_aton(struct mg_str str, struct mg_addr *addr) {
-  // MG_INFO(("[%.*s]", (int) str.len, str.ptr));
+  // MG_INFO(("[%.*s]", (int) str.len, str.buf));
   return mg_atone(str, addr) || mg_atonl(str, addr) || mg_aton4(str, addr) ||
          mg_aton6(str, addr);
 }
@@ -4867,6 +4870,8 @@ void mg_mgr_init(struct mg_mgr *mgr) {
   // Ignore SIGPIPE signal, so if client cancels the request, it
   // won't kill the whole process.
   signal(SIGPIPE, SIG_IGN);
+#elif MG_ENABLE_TCPIP_DRIVER_INIT && defined(MG_TCPIP_DRIVER_INIT)
+  MG_TCPIP_DRIVER_INIT(mgr);
 #endif
   mgr->pipe = MG_INVALID_SOCKET;
   mgr->dnstimeout = 3000;
@@ -5022,7 +5027,7 @@ static void send_syn(struct mg_connection *c);
 
 static void mkpay(struct pkt *pkt, void *p) {
   pkt->pay =
-      mg_str_n((char *) p, (size_t) (&pkt->raw.ptr[pkt->raw.len] - (char *) p));
+      mg_str_n((char *) p, (size_t) (&pkt->raw.buf[pkt->raw.len] - (char *) p));
 }
 
 static uint32_t csumup(uint32_t sum, const void *buf, size_t len) {
@@ -5056,13 +5061,13 @@ static void settmout(struct mg_connection *c, uint8_t type) {
 }
 
 static size_t ether_output(struct mg_tcpip_if *ifp, size_t len) {
-  size_t n = ifp->driver->tx(ifp->tx.ptr, len, ifp);
+  size_t n = ifp->driver->tx(ifp->tx.buf, len, ifp);
   if (n == len) ifp->nsent++;
   return n;
 }
 
 static void arp_ask(struct mg_tcpip_if *ifp, uint32_t ip) {
-  struct eth *eth = (struct eth *) ifp->tx.ptr;
+  struct eth *eth = (struct eth *) ifp->tx.buf;
   struct arp *arp = (struct arp *) (eth + 1);
   memset(eth->dst, 255, sizeof(eth->dst));
   memcpy(eth->src, ifp->mac, sizeof(eth->src));
@@ -5092,7 +5097,7 @@ static void onstatechange(struct mg_tcpip_if *ifp) {
 static struct ip *tx_ip(struct mg_tcpip_if *ifp, uint8_t *mac_dst,
                         uint8_t proto, uint32_t ip_src, uint32_t ip_dst,
                         size_t plen) {
-  struct eth *eth = (struct eth *) ifp->tx.ptr;
+  struct eth *eth = (struct eth *) ifp->tx.buf;
   struct ip *ip = (struct ip *) (eth + 1);
   memcpy(eth->dst, mac_dst, sizeof(eth->dst));
   memcpy(eth->src, ifp->mac, sizeof(eth->src));  // Use our MAC
@@ -5205,7 +5210,7 @@ static void rx_arp(struct mg_tcpip_if *ifp, struct pkt *pkt) {
     // ARP request. Make a response, then send
     // MG_DEBUG(("ARP op %d %M: %M", mg_ntohs(pkt->arp->op), mg_print_ip4,
     //          &pkt->arp->spa, mg_print_ip4, &pkt->arp->tpa));
-    struct eth *eth = (struct eth *) ifp->tx.ptr;
+    struct eth *eth = (struct eth *) ifp->tx.buf;
     struct arp *arp = (struct arp *) (eth + 1);
     memcpy(eth->dst, pkt->eth->src, sizeof(eth->dst));
     memcpy(eth->src, ifp->mac, sizeof(eth->src));
@@ -5249,7 +5254,7 @@ static void rx_icmp(struct mg_tcpip_if *ifp, struct pkt *pkt) {
                           sizeof(struct icmp) + plen);
     struct icmp *icmp = (struct icmp *) (ip + 1);
     memset(icmp, 0, sizeof(*icmp));        // Set csum to 0
-    memcpy(icmp + 1, pkt->pay.ptr, plen);  // Copy RX payload to TX
+    memcpy(icmp + 1, pkt->pay.buf, plen);  // Copy RX payload to TX
     icmp->csum = ipcsum(icmp, sizeof(*icmp) + plen);
     ether_output(ifp, hlen + plen);
   }
@@ -5260,7 +5265,7 @@ static void rx_dhcp_client(struct mg_tcpip_if *ifp, struct pkt *pkt) {
   uint8_t msgtype = 0, state = ifp->state;
   // perform size check first, then access fields
   uint8_t *p = pkt->dhcp->options,
-          *end = (uint8_t *) &pkt->raw.ptr[pkt->raw.len];
+          *end = (uint8_t *) &pkt->raw.buf[pkt->raw.len];
   if (end < (uint8_t *) (pkt->dhcp + 1)) return;
   if (memcmp(&pkt->dhcp->xid, ifp->mac + 2, sizeof(pkt->dhcp->xid))) return;
   while (p + 1 < end && p[0] != 255) {  // Parse options RFC-1533 #9
@@ -5308,7 +5313,7 @@ static void rx_dhcp_client(struct mg_tcpip_if *ifp, struct pkt *pkt) {
 // Simple DHCP server that assigns a next IP address: ifp->ip + 1
 static void rx_dhcp_server(struct mg_tcpip_if *ifp, struct pkt *pkt) {
   uint8_t op = 0, *p = pkt->dhcp->options,
-          *end = (uint8_t *) &pkt->raw.ptr[pkt->raw.len];
+          *end = (uint8_t *) &pkt->raw.buf[pkt->raw.len];
   if (end < (uint8_t *) (pkt->dhcp + 1)) return;
   // struct dhcp *req = pkt->dhcp;
   struct dhcp res = {2, 1, 6, 0, 0, 0, 0, 0, 0, 0, 0, {0}, 0, {0}};
@@ -5360,7 +5365,7 @@ static void rx_udp(struct mg_tcpip_if *ifp, struct pkt *pkt) {
                !mg_iobuf_resize(&c->recv, c->recv.len + pkt->pay.len)) {
       mg_error(c, "oom");
     } else {
-      memcpy(&c->recv.buf[c->recv.len], pkt->pay.ptr, pkt->pay.len);
+      memcpy(&c->recv.buf[c->recv.len], pkt->pay.buf, pkt->pay.len);
       c->recv.len += pkt->pay.len;
       mg_call(c, MG_EV_READ, &pkt->pay.len);
     }
@@ -5403,8 +5408,8 @@ static size_t tx_tcp(struct mg_tcpip_if *ifp, uint8_t *dst_mac, uint32_t dst_ip,
   MG_VERBOSE(("TCP %M:%hu -> %M:%hu fl %x len %u", mg_print_ip4, &ip->src,
               mg_ntohs(tcp->sport), mg_print_ip4, &ip->dst,
               mg_ntohs(tcp->dport), tcp->flags, len));
-  // mg_hexdump(ifp->tx.ptr, PDIFF(ifp->tx.ptr, tcp + 1) + len);
-  return ether_output(ifp, PDIFF(ifp->tx.ptr, tcp + 1) + len);
+  // mg_hexdump(ifp->tx.buf, PDIFF(ifp->tx.buf, tcp + 1) + len);
+  return ether_output(ifp, PDIFF(ifp->tx.buf, tcp + 1) + len);
 }
 
 static size_t tx_tcp_pkt(struct mg_tcpip_if *ifp, struct pkt *pkt,
@@ -5493,6 +5498,17 @@ long mg_io_send(struct mg_connection *c, const void *buf, size_t len) {
   return (long) len;
 }
 
+static void handle_tls_recv(struct mg_connection *c, struct mg_iobuf *io) {
+  long n = mg_tls_recv(c, &io->buf[io->len], io->size - io->len);
+  if (n == MG_IO_ERR) {
+    mg_error(c, "TLS recv error");
+  } else if (n > 0) {
+    // Decrypted successfully - trigger MG_EV_READ
+    io->len += (size_t) n;
+    mg_call(c, MG_EV_READ, &n);
+  }
+}
+
 static void read_conn(struct mg_connection *c, struct pkt *pkt) {
   struct connstate *s = (struct connstate *) (c + 1);
   struct mg_iobuf *io = c->is_tls ? &c->rtls : &c->recv;
@@ -5539,7 +5555,7 @@ static void read_conn(struct mg_connection *c, struct pkt *pkt) {
     // therefore we copy that encrypted data to the c->rtls iobuffer instead,
     // and then call mg_tls_recv() to decrypt it. NOTE: mg_tls_recv() will
     // call back mg_io_recv() which grabs raw data from c->rtls
-    memcpy(&io->buf[io->len], pkt->pay.ptr, pkt->pay.len);
+    memcpy(&io->buf[io->len], pkt->pay.buf, pkt->pay.len);
     io->len += pkt->pay.len;
 
     MG_VERBOSE(("%lu SEQ %x -> %x", c->id, mg_htonl(pkt->tcp->seq), s->ack));
@@ -5571,14 +5587,7 @@ static void read_conn(struct mg_connection *c, struct pkt *pkt) {
         mg_error(c, "oom");
       } else {
         // Decrypt data directly into c->recv
-        long n = mg_tls_recv(c, &io->buf[io->len], io->size - io->len);
-        if (n == MG_IO_ERR) {
-          mg_error(c, "TLS recv error");
-        } else if (n > 0) {
-          // Decrypted successfully - trigger MG_EV_READ
-          io->len += (size_t) n;
-          mg_call(c, MG_EV_READ, &n);
-        }
+        handle_tls_recv(c, io);
       }
     } else {
       // Plain text connection, data is already in c->recv, trigger
@@ -5601,7 +5610,7 @@ static void rx_tcp(struct mg_tcpip_if *ifp, struct pkt *pkt) {
     settmout(c, MIP_TTYPE_KEEPALIVE);
     mg_call(c, MG_EV_CONNECT, NULL);  // Let user know
   } else if (c != NULL && c->is_connecting && pkt->tcp->flags != TH_ACK) {
-    // mg_hexdump(pkt->raw.ptr, pkt->raw.len);
+    // mg_hexdump(pkt->raw.buf, pkt->raw.len);
     tx_tcp_pkt(ifp, pkt, TH_RST | TH_ACK, pkt->tcp->ack, NULL, 0);
   } else if (c != NULL && pkt->tcp->flags & TH_RST) {
     mg_error(c, "peer RST");  // RFC-1122 4.2.2.13
@@ -5610,7 +5619,7 @@ static void rx_tcp(struct mg_tcpip_if *ifp, struct pkt *pkt) {
     MG_DEBUG(("%lu %d %M:%hu -> %M:%hu", c->id, (int) pkt->raw.len,
               mg_print_ip4, &pkt->ip->src, mg_ntohs(pkt->tcp->sport),
               mg_print_ip4, &pkt->ip->dst, mg_ntohs(pkt->tcp->dport)));
-    mg_hexdump(pkt->pay.ptr, pkt->pay.len);
+    mg_hexdump(pkt->pay.buf, pkt->pay.len);
 #endif
     s->tmiss = 0;                         // Reset missed keep-alive counter
     if (s->ttype == MIP_TTYPE_KEEPALIVE)  // Advance keep-alive timer
@@ -5699,7 +5708,7 @@ static void rx_ip6(struct mg_tcpip_if *ifp, struct pkt *pkt) {
 static void mg_tcpip_rx(struct mg_tcpip_if *ifp, void *buf, size_t len) {
   struct pkt pkt;
   memset(&pkt, 0, sizeof(pkt));
-  pkt.raw.ptr = (char *) buf;
+  pkt.raw.buf = (char *) buf;
   pkt.raw.len = len;
   pkt.eth = (struct eth *) buf;
   // mg_hexdump(buf, len > 16 ? 16: len);
@@ -5745,6 +5754,14 @@ static void mg_tcpip_poll(struct mg_tcpip_if *ifp, uint64_t now) {
   bool expired_1000ms = mg_timer_expired(&ifp->timer_1000ms, 1000, now);
   ifp->now = now;
 
+#if MG_ENABLE_TCPIP_PRINT_DEBUG_STATS
+  if (expired_1000ms) {
+    const char *names[] = {"down", "up", "req", "ready"};
+    MG_INFO(("Status: %s, IP: %M, rx:%u, tx:%u, dr:%u, er:%u",
+             names[ifp->state], mg_print_ip4, &ifp->ip, ifp->nrecv, ifp->nsent,
+             ifp->ndrop, ifp->nerr));
+  }
+#endif
   // Handle physical interface up/down status
   if (expired_1000ms && ifp->driver->up) {
     bool up = ifp->driver->up(ifp);
@@ -5853,7 +5870,7 @@ void mg_tcpip_init(struct mg_mgr *mgr, struct mg_tcpip_if *ifp) {
     MG_ERROR(("driver init failed"));
   } else {
     size_t framesize = 1540;
-    ifp->tx.ptr = (char *) calloc(1, framesize), ifp->tx.len = framesize;
+    ifp->tx.buf = (char *) calloc(1, framesize), ifp->tx.len = framesize;
     if (ifp->recv_queue.size == 0)
       ifp->recv_queue.size = ifp->driver->rx ? framesize : 8192;
     ifp->recv_queue.buf = (char *) calloc(1, ifp->recv_queue.size);
@@ -5867,13 +5884,13 @@ void mg_tcpip_init(struct mg_mgr *mgr, struct mg_tcpip_if *ifp) {
     mg_random(&ifp->eport, sizeof(ifp->eport));   // Random from 0 to 65535
     ifp->eport |= MG_EPHEMERAL_PORT_BASE;         // Random from
                                            // MG_EPHEMERAL_PORT_BASE to 65535
-    if (ifp->tx.ptr == NULL || ifp->recv_queue.buf == NULL) MG_ERROR(("OOM"));
+    if (ifp->tx.buf == NULL || ifp->recv_queue.buf == NULL) MG_ERROR(("OOM"));
   }
 }
 
 void mg_tcpip_free(struct mg_tcpip_if *ifp) {
   free(ifp->recv_queue.buf);
-  free((char *) ifp->tx.ptr);
+  free(ifp->tx.buf);
 }
 
 static void send_syn(struct mg_connection *c) {
@@ -5900,7 +5917,7 @@ void mg_connect_resolved(struct mg_connection *c) {
   if (c->is_udp && (rem_ip == 0xffffffff || rem_ip == (ifp->ip | ~ifp->mask))) {
     struct connstate *s = (struct connstate *) (c + 1);
     memset(s->mac, 0xFF, sizeof(s->mac));  // global or local broadcast
-  } else if (((rem_ip & ifp->mask) == (ifp->ip & ifp->mask))) {
+  } else if (ifp->ip && ((rem_ip & ifp->mask) == (ifp->ip & ifp->mask))) {
     // If we're in the same LAN, fire an ARP lookup.
     MG_DEBUG(("%lu ARP lookup...", c->id));
     arp_ask(ifp, rem_ip);
@@ -5971,8 +5988,9 @@ void mg_mgr_poll(struct mg_mgr *mgr, int ms) {
   struct mg_tcpip_if *ifp = (struct mg_tcpip_if *) mgr->priv;
   struct mg_connection *c, *tmp;
   uint64_t now = mg_millis();
-  if (ifp != NULL && ifp->driver != NULL) mg_tcpip_poll(ifp, now);
   mg_timer_poll(&mgr->timers, now);
+  if (ifp == NULL || ifp->driver == NULL) return;
+  mg_tcpip_poll(ifp, now);
   for (c = mgr->conns; c != NULL; c = tmp) {
     tmp = c->next;
     struct connstate *s = (struct connstate *) (c + 1);
@@ -5980,6 +5998,8 @@ void mg_mgr_poll(struct mg_mgr *mgr, int ms) {
     MG_VERBOSE(("%lu .. %c%c%c%c%c", c->id, c->is_tls ? 'T' : 't',
                 c->is_connecting ? 'C' : 'c', c->is_tls_hs ? 'H' : 'h',
                 c->is_resolving ? 'R' : 'r', c->is_closing ? 'C' : 'c'));
+    if (c->is_tls && mg_tls_pending(c) > 0)
+      handle_tls_recv(c, (struct mg_iobuf *) &c->rtls);
     if (can_write(c)) write_conn(c);
     if (c->is_draining && c->send.len == 0 && s->ttype != MIP_TTYPE_FIN)
       init_closure(c);
@@ -6550,7 +6570,7 @@ void mg_rpc_del(struct mg_rpc **head, void (*fn)(struct mg_rpc_req *)) {
   while ((r = *head) != NULL) {
     if (r->fn == fn || fn == NULL) {
       *head = r->next;
-      free((void *) r->method.ptr);
+      free((void *) r->method.buf);
       free(r);
     } else {
       head = &(*head)->next;
@@ -6565,21 +6585,21 @@ static void mg_rpc_call(struct mg_rpc_req *r, struct mg_str method) {
     r->rpc = h;
     h->fn(r);
   } else {
-    mg_rpc_err(r, -32601, "\"%.*s not found\"", (int) method.len, method.ptr);
+    mg_rpc_err(r, -32601, "\"%.*s not found\"", (int) method.len, method.buf);
   }
 }
 
 void mg_rpc_process(struct mg_rpc_req *r) {
   int len, off = mg_json_get(r->frame, "$.method", &len);
-  if (off > 0 && r->frame.ptr[off] == '"') {
-    struct mg_str method = mg_str_n(&r->frame.ptr[off + 1], (size_t) len - 2);
+  if (off > 0 && r->frame.buf[off] == '"') {
+    struct mg_str method = mg_str_n(&r->frame.buf[off + 1], (size_t) len - 2);
     mg_rpc_call(r, method);
   } else if ((off = mg_json_get(r->frame, "$.result", &len)) > 0 ||
              (off = mg_json_get(r->frame, "$.error", &len)) > 0) {
     mg_rpc_call(r, mg_str(""));  // JSON response! call "" method handler
   } else {
     mg_rpc_err(r, -32700, "%m", mg_print_esc, (int) r->frame.len,
-               r->frame.ptr);  // Invalid
+               r->frame.buf);  // Invalid
   }
 }
 
@@ -6587,7 +6607,7 @@ void mg_rpc_vok(struct mg_rpc_req *r, const char *fmt, va_list *ap) {
   int len, off = mg_json_get(r->frame, "$.id", &len);
   if (off > 0) {
     mg_xprintf(r->pfn, r->pfn_data, "{%m:%.*s,%m:", mg_print_esc, 0, "id", len,
-               &r->frame.ptr[off], mg_print_esc, 0, "result");
+               &r->frame.buf[off], mg_print_esc, 0, "result");
     mg_vxprintf(r->pfn, r->pfn_data, fmt == NULL ? "null" : fmt, ap);
     mg_xprintf(r->pfn, r->pfn_data, "}");
   }
@@ -6605,7 +6625,7 @@ void mg_rpc_verr(struct mg_rpc_req *r, int code, const char *fmt, va_list *ap) {
   mg_xprintf(r->pfn, r->pfn_data, "{");
   if (off > 0) {
     mg_xprintf(r->pfn, r->pfn_data, "%m:%.*s,", mg_print_esc, 0, "id", len,
-               &r->frame.ptr[off]);
+               &r->frame.buf[off]);
   }
   mg_xprintf(r->pfn, r->pfn_data, "%m:{%m:%d,%m:", mg_print_esc, 0, "error",
              mg_print_esc, 0, "code", code, mg_print_esc, 0, "message");
@@ -6626,7 +6646,7 @@ static size_t print_methods(mg_pfn_t pfn, void *pfn_data, va_list *ap) {
   for (h = *head; h != NULL; h = h->next) {
     if (h->method.len == 0) continue;  // Ignore response handler
     len += mg_xprintf(pfn, pfn_data, "%s%m", h == *head ? "" : ",",
-                      mg_print_esc, (int) h->method.len, h->method.ptr);
+                      mg_print_esc, (int) h->method.len, h->method.buf);
   }
   return len;
 }
@@ -6850,6 +6870,12 @@ void mg_sha1_final(unsigned char digest[20], mg_sha1_ctx *context) {
 #ifdef MG_ENABLE_LINES
 #line 1 "src/sha256.c"
 #endif
+// https://github.com/B-Con/crypto-algorithms
+// Author:     Brad Conte (brad AT bradconte.com)
+// Disclaimer: This code is presented "as is" without any guarantees.
+// Details:    Defines the API for the corresponding SHA1 implementation.
+// Copyright:  public domain
+
 
 
 #define ror(x, n) (((x) >> (n)) | ((x) << (32 - (n))))
@@ -6891,8 +6917,10 @@ static void mg_sha256_chunk(mg_sha256_ctx *ctx) {
   uint32_t a, b, c, d, e, f, g, h;
   uint32_t m[64];
   for (i = 0, j = 0; i < 16; ++i, j += 4)
-    m[i] = (uint32_t) ((ctx->buffer[j] << 24) | (ctx->buffer[j + 1] << 16) |
-                       (ctx->buffer[j + 2] << 8) | (ctx->buffer[j + 3]));
+    m[i] = (uint32_t) (((uint32_t) ctx->buffer[j] << 24) |
+                       ((uint32_t) ctx->buffer[j + 1] << 16) |
+                       ((uint32_t) ctx->buffer[j + 2] << 8) |
+                       ((uint32_t) ctx->buffer[j + 3]));
   for (; i < 64; ++i)
     m[i] = sig1(m[i - 2]) + m[i - 7] + sig0(m[i - 15]) + m[i - 16];
 
@@ -6990,7 +7018,7 @@ void mg_hmac_sha256(uint8_t dst[32], uint8_t *key, size_t keysz, uint8_t *data,
   memset(i_pad, 0x36, sizeof(i_pad));
   memset(o_pad, 0x5c, sizeof(o_pad));
   if (keysz < 64) {
-    memmove(k, key, keysz);
+    if (keysz > 0) memmove(k, key, keysz);
   } else {
     mg_sha256_init(&ctx);
     mg_sha256_update(&ctx, key, keysz);
@@ -7009,7 +7037,6 @@ void mg_hmac_sha256(uint8_t dst[32], uint8_t *key, size_t keysz, uint8_t *data,
   mg_sha256_update(&ctx, dst, 32);
   mg_sha256_final(dst, &ctx);
 }
-
 
 #ifdef MG_ENABLE_LINES
 #line 1 "src/sntp.c"
@@ -7924,12 +7951,12 @@ void mg_http_serve_ssi(struct mg_connection *c, const char *root,
 
 
 struct mg_str mg_str_s(const char *s) {
-  struct mg_str str = {s, s == NULL ? 0 : strlen(s)};
+  struct mg_str str = {(char *) s, s == NULL ? 0 : strlen(s)};
   return str;
 }
 
 struct mg_str mg_str_n(const char *s, size_t n) {
-  struct mg_str str = {s, n};
+  struct mg_str str = {(char *) s, n};
   return str;
 }
 
@@ -7953,26 +7980,26 @@ int mg_casecmp(const char *s1, const char *s2) {
 
 int mg_vcmp(const struct mg_str *s1, const char *s2) {
   size_t n2 = strlen(s2), n1 = s1->len;
-  int r = strncmp(s1->ptr, s2, (n1 < n2) ? n1 : n2);
+  int r = strncmp(s1->buf, s2, (n1 < n2) ? n1 : n2);
   if (r == 0) return (int) (n1 - n2);
   return r;
 }
 
 int mg_vcasecmp(const struct mg_str *str1, const char *str2) {
   size_t n2 = strlen(str2), n1 = str1->len;
-  int r = mg_ncasecmp(str1->ptr, str2, (n1 < n2) ? n1 : n2);
+  int r = mg_ncasecmp(str1->buf, str2, (n1 < n2) ? n1 : n2);
   if (r == 0) return (int) (n1 - n2);
   return r;
 }
 
 struct mg_str mg_strdup(const struct mg_str s) {
   struct mg_str r = {NULL, 0};
-  if (s.len > 0 && s.ptr != NULL) {
+  if (s.len > 0 && s.buf != NULL) {
     char *sc = (char *) calloc(1, s.len + 1);
     if (sc != NULL) {
-      memcpy(sc, s.ptr, s.len);
+      memcpy(sc, s.buf, s.len);
       sc[s.len] = '\0';
-      r.ptr = sc;
+      r.buf = sc;
       r.len = s.len;
     }
   }
@@ -7982,8 +8009,8 @@ struct mg_str mg_strdup(const struct mg_str s) {
 int mg_strcmp(const struct mg_str str1, const struct mg_str str2) {
   size_t i = 0;
   while (i < str1.len && i < str2.len) {
-    int c1 = str1.ptr[i];
-    int c2 = str2.ptr[i];
+    int c1 = str1.buf[i];
+    int c2 = str2.buf[i];
     if (c1 < c2) return -1;
     if (c1 > c2) return 1;
     i++;
@@ -7997,10 +8024,10 @@ const char *mg_strstr(const struct mg_str haystack,
                       const struct mg_str needle) {
   size_t i;
   if (needle.len > haystack.len) return NULL;
-  if (needle.len == 0) return haystack.ptr;
+  if (needle.len == 0) return haystack.buf;
   for (i = 0; i <= haystack.len - needle.len; i++) {
-    if (memcmp(haystack.ptr + i, needle.ptr, needle.len) == 0) {
-      return haystack.ptr + i;
+    if (memcmp(haystack.buf + i, needle.buf, needle.len) == 0) {
+      return haystack.buf + i;
     }
   }
   return NULL;
@@ -8011,39 +8038,39 @@ static bool is_space(int c) {
 }
 
 struct mg_str mg_strstrip(struct mg_str s) {
-  while (s.len > 0 && is_space((int) *s.ptr)) s.ptr++, s.len--;
-  while (s.len > 0 && is_space((int) *(s.ptr + s.len - 1))) s.len--;
+  while (s.len > 0 && is_space((int) *s.buf)) s.buf++, s.len--;
+  while (s.len > 0 && is_space((int) *(s.buf + s.len - 1))) s.len--;
   return s;
 }
 
 bool mg_match(struct mg_str s, struct mg_str p, struct mg_str *caps) {
   size_t i = 0, j = 0, ni = 0, nj = 0;
-  if (caps) caps->ptr = NULL, caps->len = 0;
+  if (caps) caps->buf = NULL, caps->len = 0;
   while (i < p.len || j < s.len) {
-    if (i < p.len && j < s.len && (p.ptr[i] == '?' || s.ptr[j] == p.ptr[i])) {
+    if (i < p.len && j < s.len && (p.buf[i] == '?' || s.buf[j] == p.buf[i])) {
       if (caps == NULL) {
-      } else if (p.ptr[i] == '?') {
-        caps->ptr = &s.ptr[j], caps->len = 1;     // Finalize `?` cap
-        caps++, caps->ptr = NULL, caps->len = 0;  // Init next cap
-      } else if (caps->ptr != NULL && caps->len == 0) {
-        caps->len = (size_t) (&s.ptr[j] - caps->ptr);  // Finalize current cap
-        caps++, caps->len = 0, caps->ptr = NULL;       // Init next cap
+      } else if (p.buf[i] == '?') {
+        caps->buf = &s.buf[j], caps->len = 1;     // Finalize `?` cap
+        caps++, caps->buf = NULL, caps->len = 0;  // Init next cap
+      } else if (caps->buf != NULL && caps->len == 0) {
+        caps->len = (size_t) (&s.buf[j] - caps->buf);  // Finalize current cap
+        caps++, caps->len = 0, caps->buf = NULL;       // Init next cap
       }
       i++, j++;
-    } else if (i < p.len && (p.ptr[i] == '*' || p.ptr[i] == '#')) {
-      if (caps && !caps->ptr) caps->len = 0, caps->ptr = &s.ptr[j];  // Init cap
+    } else if (i < p.len && (p.buf[i] == '*' || p.buf[i] == '#')) {
+      if (caps && !caps->buf) caps->len = 0, caps->buf = &s.buf[j];  // Init cap
       ni = i++, nj = j + 1;
-    } else if (nj > 0 && nj <= s.len && (p.ptr[ni] == '#' || s.ptr[j] != '/')) {
+    } else if (nj > 0 && nj <= s.len && (p.buf[ni] == '#' || s.buf[j] != '/')) {
       i = ni, j = nj;
-      if (caps && caps->ptr == NULL && caps->len == 0) {
+      if (caps && caps->buf == NULL && caps->len == 0) {
         caps--, caps->len = 0;  // Restart previous cap
       }
     } else {
       return false;
     }
   }
-  if (caps && caps->ptr && caps->len == 0) {
-    caps->len = (size_t) (&s.ptr[j] - caps->ptr);
+  if (caps && caps->buf && caps->len == 0) {
+    caps->len = (size_t) (&s.buf[j] - caps->buf);
   }
   return true;
 }
@@ -8053,14 +8080,14 @@ bool mg_globmatch(const char *s1, size_t n1, const char *s2, size_t n2) {
 }
 
 bool mg_span(struct mg_str s, struct mg_str *a, struct mg_str *b, char sep) {
-  if (s.len == 0 || s.ptr == NULL) {
+  if (s.len == 0 || s.buf == NULL) {
     return false;  // Empty string, nothing to span - fail
   } else {
     size_t len = 0;
-    while (len < s.len && s.ptr[len] != sep) len++;  // Find separator
-    if (a) *a = mg_str_n(s.ptr, len);                // Init a
-    if (b) *b = mg_str_n(s.ptr + len, s.len - len);  // Init b
-    if (b && len < s.len) b->ptr++, b->len--;        // Skip separator
+    while (len < s.len && s.buf[len] != sep) len++;  // Find separator
+    if (a) *a = mg_str_n(s.buf, len);                // Init a
+    if (b) *b = mg_str_n(s.buf + len, s.len - len);  // Init b
+    if (b && len < s.len) b->buf++, b->len--;        // Skip separator
     return true;
   }
 }
@@ -8176,10 +8203,177 @@ void mg_timer_poll(struct mg_timer **head, uint64_t now_ms) {
  *
  *******************************************************************************/
 
+/******************************************************************************/
+#define AES_DECRYPTION 1  // whether AES decryption is supported
+/******************************************************************************/
+
+#define MG_ENCRYPT 1  // specify whether we're encrypting
+#define MG_DECRYPT 0  // or decrypting
+
+
 
 
 
 #if MG_TLS == MG_TLS_BUILTIN
+/******************************************************************************
+ *  AES_INIT_KEYGEN_TABLES : MUST be called once before any AES use
+ ******************************************************************************/
+static void aes_init_keygen_tables(void);
+
+/******************************************************************************
+ *  AES_SETKEY : called to expand the key for encryption or decryption
+ ******************************************************************************/
+static int aes_setkey(aes_context *ctx,  // pointer to context
+                      int mode,          // 1 or 0 for Encrypt/Decrypt
+                      const uchar *key,  // AES input key
+                      uint keysize);  // size in bytes (must be 16, 24, 32 for
+                                      // 128, 192 or 256-bit keys respectively)
+                                      // returns 0 for success
+
+/******************************************************************************
+ *  AES_CIPHER : called to encrypt or decrypt ONE 128-bit block of data
+ ******************************************************************************/
+static int aes_cipher(aes_context *ctx,       // pointer to context
+                      const uchar input[16],  // 128-bit block to en/decipher
+                      uchar output[16]);      // 128-bit output result block
+                                              // returns 0 for success
+
+/******************************************************************************
+ *  GCM_CONTEXT : GCM context / holds keytables, instance data, and AES ctx
+ ******************************************************************************/
+typedef struct {
+  int mode;             // cipher direction: encrypt/decrypt
+  uint64_t len;         // cipher data length processed so far
+  uint64_t add_len;     // total add data length
+  uint64_t HL[16];      // precalculated lo-half HTable
+  uint64_t HH[16];      // precalculated hi-half HTable
+  uchar base_ectr[16];  // first counter-mode cipher output for tag
+  uchar y[16];          // the current cipher-input IV|Counter value
+  uchar buf[16];        // buf working value
+  aes_context aes_ctx;  // cipher context used
+} gcm_context;
+
+/******************************************************************************
+ *  GCM_SETKEY : sets the GCM (and AES) keying material for use
+ ******************************************************************************/
+static int gcm_setkey(
+    gcm_context *ctx,   // caller-provided context ptr
+    const uchar *key,   // pointer to cipher key
+    const uint keysize  // size in bytes (must be 16, 24, 32 for
+                        // 128, 192 or 256-bit keys respectively)
+);                      // returns 0 for success
+
+/******************************************************************************
+ *
+ *  GCM_CRYPT_AND_TAG
+ *
+ *  This either encrypts or decrypts the user-provided data and, either
+ *  way, generates an authentication tag of the requested length. It must be
+ *  called with a GCM context whose key has already been set with GCM_SETKEY.
+ *
+ *  The user would typically call this explicitly to ENCRYPT a buffer of data
+ *  and optional associated data, and produce its an authentication tag.
+ *
+ *  To reverse the process the user would typically call the companion
+ *  GCM_AUTH_DECRYPT function to decrypt data and verify a user-provided
+ *  authentication tag.  The GCM_AUTH_DECRYPT function calls this function
+ *  to perform its decryption and tag generation, which it then compares.
+ *
+ ******************************************************************************/
+static int gcm_crypt_and_tag(
+    gcm_context *ctx,    // gcm context with key already setup
+    int mode,            // cipher direction: MG_ENCRYPT (1) or MG_DECRYPT (0)
+    const uchar *iv,     // pointer to the 12-byte initialization vector
+    size_t iv_len,       // byte length if the IV. should always be 12
+    const uchar *add,    // pointer to the non-ciphered additional data
+    size_t add_len,      // byte length of the additional AEAD data
+    const uchar *input,  // pointer to the cipher data source
+    uchar *output,       // pointer to the cipher data destination
+    size_t length,       // byte length of the cipher data
+    uchar *tag,          // pointer to the tag to be generated
+    size_t tag_len);     // byte length of the tag to be generated
+
+/******************************************************************************
+ *
+ *  GCM_START
+ *
+ *  Given a user-provided GCM context, this initializes it, sets the encryption
+ *  mode, and preprocesses the initialization vector and additional AEAD data.
+ *
+ ******************************************************************************/
+static int gcm_start(
+    gcm_context *ctx,  // pointer to user-provided GCM context
+    int mode,          // MG_ENCRYPT (1) or MG_DECRYPT (0)
+    const uchar *iv,   // pointer to initialization vector
+    size_t iv_len,     // IV length in bytes (should == 12)
+    const uchar *add,  // pointer to additional AEAD data (NULL if none)
+    size_t add_len);   // length of additional AEAD data (bytes)
+
+/******************************************************************************
+ *
+ *  GCM_UPDATE
+ *
+ *  This is called once or more to process bulk plaintext or ciphertext data.
+ *  We give this some number of bytes of input and it returns the same number
+ *  of output bytes. If called multiple times (which is fine) all but the final
+ *  invocation MUST be called with length mod 16 == 0. (Only the final call can
+ *  have a partial block length of < 128 bits.)
+ *
+ ******************************************************************************/
+static int gcm_update(gcm_context *ctx,  // pointer to user-provided GCM context
+                      size_t length,     // length, in bytes, of data to process
+                      const uchar *input,  // pointer to source data
+                      uchar *output);      // pointer to destination data
+
+/******************************************************************************
+ *
+ *  GCM_FINISH
+ *
+ *  This is called once after all calls to GCM_UPDATE to finalize the GCM.
+ *  It performs the final GHASH to produce the resulting authentication TAG.
+ *
+ ******************************************************************************/
+static int gcm_finish(
+    gcm_context *ctx,  // pointer to user-provided GCM context
+    uchar *tag,        // ptr to tag buffer - NULL if tag_len = 0
+    size_t tag_len);   // length, in bytes, of the tag-receiving buf
+
+/******************************************************************************
+ *
+ *  GCM_ZERO_CTX
+ *
+ *  The GCM context contains both the GCM context and the AES context.
+ *  This includes keying and key-related material which is security-
+ *  sensitive, so it MUST be zeroed after use. This function does that.
+ *
+ ******************************************************************************/
+static void gcm_zero_ctx(gcm_context *ctx);
+
+/******************************************************************************
+ *
+ * THIS SOURCE CODE IS HEREBY PLACED INTO THE PUBLIC DOMAIN FOR THE GOOD OF ALL
+ *
+ * This is a simple and straightforward implementation of the AES Rijndael
+ * 128-bit block cipher designed by Vincent Rijmen and Joan Daemen. The focus
+ * of this work was correctness & accuracy.  It is written in 'C' without any
+ * particular focus upon optimization or speed. It should be endian (memory
+ * byte order) neutral since the few places that care are handled explicitly.
+ *
+ * This implementation of Rijndael was created by Steven M. Gibson of GRC.com.
+ *
+ * It is intended for general purpose use, but was written in support of GRC's
+ * reference implementation of the SQRL (Secure Quick Reliable Login) client.
+ *
+ * See:    http://csrc.nist.gov/archive/aes/rijndael/wsdindex.html
+ *
+ * NO COPYRIGHT IS CLAIMED IN THIS WORK, HOWEVER, NEITHER IS ANY WARRANTY MADE
+ * REGARDING ITS FITNESS FOR ANY PARTICULAR PURPOSE. USE IT AT YOUR OWN RISK.
+ *
+ *******************************************************************************/
+
+
+
+
 static int aes_tables_inited = 0;  // run-once flag for performing key
                                    // expasion table generation (see below)
 /*
@@ -8233,34 +8427,34 @@ static uint32_t RCON[10];  // AES round constants
 /*
  *  AES forward and reverse encryption round processing macros
  */
-#define AES_FROUND(X0, X1, X2, X3, Y0, Y1, Y2, Y3)         \
-  {                                                        \
-    X0 = *RK++ ^ FT0[(Y0) &0xFF] ^ FT1[(Y1 >> 8) & 0xFF] ^ \
-         FT2[(Y2 >> 16) & 0xFF] ^ FT3[(Y3 >> 24) & 0xFF];  \
-                                                           \
-    X1 = *RK++ ^ FT0[(Y1) &0xFF] ^ FT1[(Y2 >> 8) & 0xFF] ^ \
-         FT2[(Y3 >> 16) & 0xFF] ^ FT3[(Y0 >> 24) & 0xFF];  \
-                                                           \
-    X2 = *RK++ ^ FT0[(Y2) &0xFF] ^ FT1[(Y3 >> 8) & 0xFF] ^ \
-         FT2[(Y0 >> 16) & 0xFF] ^ FT3[(Y1 >> 24) & 0xFF];  \
-                                                           \
-    X3 = *RK++ ^ FT0[(Y3) &0xFF] ^ FT1[(Y0 >> 8) & 0xFF] ^ \
-         FT2[(Y1 >> 16) & 0xFF] ^ FT3[(Y2 >> 24) & 0xFF];  \
+#define AES_FROUND(X0, X1, X2, X3, Y0, Y1, Y2, Y3)          \
+  {                                                         \
+    X0 = *RK++ ^ FT0[(Y0) & 0xFF] ^ FT1[(Y1 >> 8) & 0xFF] ^ \
+         FT2[(Y2 >> 16) & 0xFF] ^ FT3[(Y3 >> 24) & 0xFF];   \
+                                                            \
+    X1 = *RK++ ^ FT0[(Y1) & 0xFF] ^ FT1[(Y2 >> 8) & 0xFF] ^ \
+         FT2[(Y3 >> 16) & 0xFF] ^ FT3[(Y0 >> 24) & 0xFF];   \
+                                                            \
+    X2 = *RK++ ^ FT0[(Y2) & 0xFF] ^ FT1[(Y3 >> 8) & 0xFF] ^ \
+         FT2[(Y0 >> 16) & 0xFF] ^ FT3[(Y1 >> 24) & 0xFF];   \
+                                                            \
+    X3 = *RK++ ^ FT0[(Y3) & 0xFF] ^ FT1[(Y0 >> 8) & 0xFF] ^ \
+         FT2[(Y1 >> 16) & 0xFF] ^ FT3[(Y2 >> 24) & 0xFF];   \
   }
 
-#define AES_RROUND(X0, X1, X2, X3, Y0, Y1, Y2, Y3)         \
-  {                                                        \
-    X0 = *RK++ ^ RT0[(Y0) &0xFF] ^ RT1[(Y3 >> 8) & 0xFF] ^ \
-         RT2[(Y2 >> 16) & 0xFF] ^ RT3[(Y1 >> 24) & 0xFF];  \
-                                                           \
-    X1 = *RK++ ^ RT0[(Y1) &0xFF] ^ RT1[(Y0 >> 8) & 0xFF] ^ \
-         RT2[(Y3 >> 16) & 0xFF] ^ RT3[(Y2 >> 24) & 0xFF];  \
-                                                           \
-    X2 = *RK++ ^ RT0[(Y2) &0xFF] ^ RT1[(Y1 >> 8) & 0xFF] ^ \
-         RT2[(Y0 >> 16) & 0xFF] ^ RT3[(Y3 >> 24) & 0xFF];  \
-                                                           \
-    X3 = *RK++ ^ RT0[(Y3) &0xFF] ^ RT1[(Y2 >> 8) & 0xFF] ^ \
-         RT2[(Y1 >> 16) & 0xFF] ^ RT3[(Y0 >> 24) & 0xFF];  \
+#define AES_RROUND(X0, X1, X2, X3, Y0, Y1, Y2, Y3)          \
+  {                                                         \
+    X0 = *RK++ ^ RT0[(Y0) & 0xFF] ^ RT1[(Y3 >> 8) & 0xFF] ^ \
+         RT2[(Y2 >> 16) & 0xFF] ^ RT3[(Y1 >> 24) & 0xFF];   \
+                                                            \
+    X1 = *RK++ ^ RT0[(Y1) & 0xFF] ^ RT1[(Y0 >> 8) & 0xFF] ^ \
+         RT2[(Y3 >> 16) & 0xFF] ^ RT3[(Y2 >> 24) & 0xFF];   \
+                                                            \
+    X2 = *RK++ ^ RT0[(Y2) & 0xFF] ^ RT1[(Y1 >> 8) & 0xFF] ^ \
+         RT2[(Y0 >> 16) & 0xFF] ^ RT3[(Y3 >> 24) & 0xFF];   \
+                                                            \
+    X3 = *RK++ ^ RT0[(Y3) & 0xFF] ^ RT1[(Y2 >> 8) & 0xFF] ^ \
+         RT2[(Y1 >> 16) & 0xFF] ^ RT3[(Y0 >> 24) & 0xFF];   \
   }
 
 /*
@@ -8366,7 +8560,8 @@ void aes_init_keygen_tables(void) {
  *  Valid lengths are: 16, 24 or 32 bytes (128, 192, 256 bits).
  *
  ******************************************************************************/
-static int aes_set_encryption_key(aes_context *ctx, const uchar *key, uint keysize) {
+static int aes_set_encryption_key(aes_context *ctx, const uchar *key,
+                                  uint keysize) {
   uint i;                  // general purpose iteration local
   uint32_t *RK = ctx->rk;  // initialize our RoundKey buffer pointer
 
@@ -8443,7 +8638,8 @@ static int aes_set_encryption_key(aes_context *ctx, const uchar *key, uint keysi
  *  length in bits. Valid lengths are: 128, 192, or 256 bits.
  *
  ******************************************************************************/
-static int aes_set_decryption_key(aes_context *ctx, const uchar *key, uint keysize) {
+static int aes_set_decryption_key(aes_context *ctx, const uchar *key,
+                                  uint keysize) {
   int i, j;
   aes_context cty;         // a calling aes context for set_encryption_key
   uint32_t *RK = ctx->rk;  // initialize our RoundKey buffer pointer
@@ -8479,10 +8675,10 @@ static int aes_set_decryption_key(aes_context *ctx, const uchar *key, uint keysi
  *  Invoked to establish the key schedule for subsequent encryption/decryption
  *
  ******************************************************************************/
-int aes_setkey(aes_context *ctx,  // AES context provided by our caller
-               int mode,          // ENCRYPT or DECRYPT flag
-               const uchar *key,  // pointer to the key
-               uint keysize)      // key length in bytes
+static int aes_setkey(aes_context *ctx,  // AES context provided by our caller
+                      int mode,          // ENCRYPT or DECRYPT flag
+                      const uchar *key,  // pointer to the key
+                      uint keysize)      // key length in bytes
 {
   // since table initialization is not thread safe, we could either add
   // system-specific mutexes and init the AES key generation tables on
@@ -8525,7 +8721,8 @@ int aes_setkey(aes_context *ctx,  // AES context provided by our caller
  *  and all keying information appropriate for the task.
  *
  ******************************************************************************/
-int aes_cipher(aes_context *ctx, const uchar input[16], uchar output[16]) {
+static int aes_cipher(aes_context *ctx, const uchar input[16],
+                      uchar output[16]) {
   int i;
   uint32_t *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;  // general purpose locals
 
@@ -8550,22 +8747,22 @@ int aes_cipher(aes_context *ctx, const uchar input[16], uchar output[16]) {
 
     AES_RROUND(Y0, Y1, Y2, Y3, X0, X1, X2, X3);
 
-    X0 = *RK++ ^ ((uint32_t) RSb[(Y0) &0xFF]) ^
+    X0 = *RK++ ^ ((uint32_t) RSb[(Y0) & 0xFF]) ^
          ((uint32_t) RSb[(Y3 >> 8) & 0xFF] << 8) ^
          ((uint32_t) RSb[(Y2 >> 16) & 0xFF] << 16) ^
          ((uint32_t) RSb[(Y1 >> 24) & 0xFF] << 24);
 
-    X1 = *RK++ ^ ((uint32_t) RSb[(Y1) &0xFF]) ^
+    X1 = *RK++ ^ ((uint32_t) RSb[(Y1) & 0xFF]) ^
          ((uint32_t) RSb[(Y0 >> 8) & 0xFF] << 8) ^
          ((uint32_t) RSb[(Y3 >> 16) & 0xFF] << 16) ^
          ((uint32_t) RSb[(Y2 >> 24) & 0xFF] << 24);
 
-    X2 = *RK++ ^ ((uint32_t) RSb[(Y2) &0xFF]) ^
+    X2 = *RK++ ^ ((uint32_t) RSb[(Y2) & 0xFF]) ^
          ((uint32_t) RSb[(Y1 >> 8) & 0xFF] << 8) ^
          ((uint32_t) RSb[(Y0 >> 16) & 0xFF] << 16) ^
          ((uint32_t) RSb[(Y3 >> 24) & 0xFF] << 24);
 
-    X3 = *RK++ ^ ((uint32_t) RSb[(Y3) &0xFF]) ^
+    X3 = *RK++ ^ ((uint32_t) RSb[(Y3) & 0xFF]) ^
          ((uint32_t) RSb[(Y2 >> 8) & 0xFF] << 8) ^
          ((uint32_t) RSb[(Y1 >> 16) & 0xFF] << 16) ^
          ((uint32_t) RSb[(Y0 >> 24) & 0xFF] << 24);
@@ -8580,22 +8777,22 @@ int aes_cipher(aes_context *ctx, const uchar input[16], uchar output[16]) {
 
     AES_FROUND(Y0, Y1, Y2, Y3, X0, X1, X2, X3);
 
-    X0 = *RK++ ^ ((uint32_t) FSb[(Y0) &0xFF]) ^
+    X0 = *RK++ ^ ((uint32_t) FSb[(Y0) & 0xFF]) ^
          ((uint32_t) FSb[(Y1 >> 8) & 0xFF] << 8) ^
          ((uint32_t) FSb[(Y2 >> 16) & 0xFF] << 16) ^
          ((uint32_t) FSb[(Y3 >> 24) & 0xFF] << 24);
 
-    X1 = *RK++ ^ ((uint32_t) FSb[(Y1) &0xFF]) ^
+    X1 = *RK++ ^ ((uint32_t) FSb[(Y1) & 0xFF]) ^
          ((uint32_t) FSb[(Y2 >> 8) & 0xFF] << 8) ^
          ((uint32_t) FSb[(Y3 >> 16) & 0xFF] << 16) ^
          ((uint32_t) FSb[(Y0 >> 24) & 0xFF] << 24);
 
-    X2 = *RK++ ^ ((uint32_t) FSb[(Y2) &0xFF]) ^
+    X2 = *RK++ ^ ((uint32_t) FSb[(Y2) & 0xFF]) ^
          ((uint32_t) FSb[(Y3 >> 8) & 0xFF] << 8) ^
          ((uint32_t) FSb[(Y0 >> 16) & 0xFF] << 16) ^
          ((uint32_t) FSb[(Y1 >> 24) & 0xFF] << 24);
 
-    X3 = *RK++ ^ ((uint32_t) FSb[(Y3) &0xFF]) ^
+    X3 = *RK++ ^ ((uint32_t) FSb[(Y3) & 0xFF]) ^
          ((uint32_t) FSb[(Y0 >> 8) & 0xFF] << 8) ^
          ((uint32_t) FSb[(Y1 >> 16) & 0xFF] << 16) ^
          ((uint32_t) FSb[(Y2 >> 24) & 0xFF] << 24);
@@ -8635,7 +8832,6 @@ int aes_cipher(aes_context *ctx, const uchar input[16], uchar output[16]) {
  * REGARDING ITS FITNESS FOR ANY PARTICULAR PURPOSE. USE IT AT YOUR OWN RISK.
  *
  *******************************************************************************/
-
 
 /******************************************************************************
  *                      ==== IMPLEMENTATION WARNING ====
@@ -8721,7 +8917,7 @@ static const uint64_t last4[16] = {
  *  environment is running.
  *
  ******************************************************************************/
-int gcm_initialize(void) {
+int mg_gcm_initialize(void) {
   aes_init_keygen_tables();
   return (0);
 }
@@ -8781,10 +8977,11 @@ static void gcm_mult(gcm_context *ctx,   // pointer to established context
  *  and populates the gcm context's pre-calculated HTables.
  *
  ******************************************************************************/
-int gcm_setkey(gcm_context *ctx,    // pointer to caller-provided gcm context
-               const uchar *key,    // pointer to the AES encryption key
-               const uint keysize)  // size in bytes (must be 16, 24, 32 for
-                                    // 128, 192 or 256-bit keys respectively)
+static int gcm_setkey(
+    gcm_context *ctx,    // pointer to caller-provided gcm context
+    const uchar *key,    // pointer to the AES encryption key
+    const uint keysize)  // size in bytes (must be 16, 24, 32 for
+                         // 128, 192 or 256-bit keys respectively)
 {
   int ret, i, j;
   uint64_t hi, lo;
@@ -8873,7 +9070,7 @@ int gcm_start(gcm_context *ctx,  // pointer to user-provided GCM context
   ctx->len = 0;
   ctx->add_len = 0;
 
-  ctx->mode = mode;             // set the GCM encryption/decryption mode
+  ctx->mode = mode;                // set the GCM encryption/decryption mode
   ctx->aes_ctx.mode = MG_ENCRYPT;  // GCM *always* runs AES in ENCRYPTION mode
 
   if (iv_len == 12) {            // GCM natively uses a 12-byte, 96-bit IV
@@ -9053,51 +9250,6 @@ int gcm_crypt_and_tag(
 
 /******************************************************************************
  *
- *  GCM_AUTH_DECRYPT
- *
- *  This DECRYPTS a user-provided data buffer with optional associated data.
- *  It then verifies a user-supplied authentication tag against the tag just
- *  re-created during decryption to verify that the data has not been altered.
- *
- *  This function calls GCM_CRYPT_AND_TAG (above) to perform the decryption
- *  and authentication tag generation.
- *
- ******************************************************************************/
-int gcm_auth_decrypt(
-    gcm_context *ctx,    // gcm context with key already setup
-    const uchar *iv,     // pointer to the 12-byte initialization vector
-    size_t iv_len,       // byte length if the IV. should always be 12
-    const uchar *add,    // pointer to the non-ciphered additional data
-    size_t add_len,      // byte length of the additional AEAD data
-    const uchar *input,  // pointer to the cipher data source
-    uchar *output,       // pointer to the cipher data destination
-    size_t length,       // byte length of the cipher data
-    const uchar *tag,    // pointer to the tag to be authenticated
-    size_t tag_len)      // byte length of the tag <= 16
-{
-  uchar check_tag[16];  // the tag generated and returned by decryption
-  int diff;             // an ORed flag to detect authentication errors
-  size_t i;             // our local iterator
-  /*
-     we use GCM_DECRYPT_AND_TAG (above) to perform our decryption
-     (which is an identical XORing to reverse the previous one)
-     and also to re-generate the matching authentication tag
-  */
-  gcm_crypt_and_tag(ctx, MG_DECRYPT, iv, iv_len, add, add_len, input, output,
-                    length, check_tag, tag_len);
-
-  // now we verify the authentication tag in 'constant time'
-  for (diff = 0, i = 0; i < tag_len; i++) diff |= tag[i] ^ check_tag[i];
-
-  if (diff != 0) {              // see whether any bits differed?
-    memset(output, 0, length);  // if so... wipe the output data
-    return (GCM_AUTH_FAILURE);  // return GCM_AUTH_FAILURE
-  }
-  return (0);
-}
-
-/******************************************************************************
- *
  *  GCM_ZERO_CTX
  *
  *  The GCM context contains both the GCM context and the AES context.
@@ -9117,36 +9269,36 @@ void gcm_zero_ctx(gcm_context *ctx) {
 //
 //
 
-int aes_gcm_encrypt(unsigned char *output,  //
-                    const unsigned char *input, size_t input_length,
-                    const unsigned char *key, const size_t key_len,
-                    const unsigned char *iv, const size_t iv_len,
-                    unsigned char *aead, size_t aead_len, unsigned char *tag,
-                    const size_t tag_len) {
+int mg_aes_gcm_encrypt(unsigned char *output,  //
+                       const unsigned char *input, size_t input_length,
+                       const unsigned char *key, const size_t key_len,
+                       const unsigned char *iv, const size_t iv_len,
+                       unsigned char *aead, size_t aead_len, unsigned char *tag,
+                       const size_t tag_len) {
   int ret = 0;      // our return value
   gcm_context ctx;  // includes the AES context structure
 
-  gcm_setkey(&ctx, key, (const uint) key_len);
+  gcm_setkey(&ctx, key, (uint) key_len);
 
-  ret = gcm_crypt_and_tag(&ctx, MG_ENCRYPT, iv, iv_len, aead, aead_len, input, output,
-                          input_length, tag, tag_len);
+  ret = gcm_crypt_and_tag(&ctx, MG_ENCRYPT, iv, iv_len, aead, aead_len, input,
+                          output, input_length, tag, tag_len);
 
   gcm_zero_ctx(&ctx);
 
   return (ret);
 }
 
-int aes_gcm_decrypt(unsigned char *output, const unsigned char *input,
-                    size_t input_length, const unsigned char *key,
-                    const size_t key_len, const unsigned char *iv,
-                    const size_t iv_len) {
+int mg_aes_gcm_decrypt(unsigned char *output, const unsigned char *input,
+                       size_t input_length, const unsigned char *key,
+                       const size_t key_len, const unsigned char *iv,
+                       const size_t iv_len) {
   int ret = 0;      // our return value
   gcm_context ctx;  // includes the AES context structure
 
   size_t tag_len = 0;
   unsigned char *tag_buf = NULL;
 
-  gcm_setkey(&ctx, key, (const uint) key_len);
+  gcm_setkey(&ctx, key, (uint) key_len);
 
   ret = gcm_crypt_and_tag(&ctx, MG_DECRYPT, iv, iv_len, NULL, 0, input, output,
                           input_length, tag_buf, tag_len);
@@ -9163,34 +9315,71 @@ int aes_gcm_decrypt(unsigned char *output, const unsigned char *input,
 #endif
 
 
+
+
 #if MG_TLS == MG_TLS_BUILTIN
 
-// handshake is re-entrant, so we need to keep track of its state
+/* TLS 1.3 Record Content Type (RFC8446 B.1) */
+#define MG_TLS_CHANGE_CIPHER 20
+#define MG_TLS_ALERT 21
+#define MG_TLS_HANDSHAKE 22
+#define MG_TLS_APP_DATA 23
+#define MG_TLS_HEARTBEAT 24
+
+/* TLS 1.3 Handshake Message Type (RFC8446 B.3) */
+#define MG_TLS_CLIENT_HELLO 1
+#define MG_TLS_SERVER_HELLO 2
+#define MG_TLS_ENCRYPTED_EXTENSIONS 8
+#define MG_TLS_CERTIFICATE 11
+#define MG_TLS_CERTIFICATE_VERIFY 15
+#define MG_TLS_FINISHED 20
+
+// handshake is re-entrant, so we need to keep track of its state state names
+// refer to RFC8446#A.1
 enum mg_tls_hs_state {
-  MG_TLS_HS_CLIENT_HELLO,  // first, wait for ClientHello
-  MG_TLS_HS_SERVER_HELLO,  // then, send all server handshake data at once
-  MG_TLS_HS_CLIENT_CHANGE_CIPHER,  // finally wait for ClientChangeCipher
-  MG_TLS_HS_CLIENT_FINISH,         // and ClientFinish (encrypted)
-  MG_TLS_HS_DONE,  // finish handshake, start application data flow
+  // Client state machine:
+  MG_TLS_STATE_CLIENT_START,          // Send ClientHello
+  MG_TLS_STATE_CLIENT_WAIT_SH,        // Wait for ServerHello
+  MG_TLS_STATE_CLIENT_WAIT_EE,        // Wait for EncryptedExtensions
+  MG_TLS_STATE_CLIENT_WAIT_CERT,      // Wait for Certificate
+  MG_TLS_STATE_CLIENT_WAIT_CV,        // Wait for CertificateVerify
+  MG_TLS_STATE_CLIENT_WAIT_FINISHED,  // Wait for Finished
+  MG_TLS_STATE_CLIENT_CONNECTED,      // Done
+
+  // Server state machine:
+  MG_TLS_STATE_SERVER_START,       // Wait for ClientHello
+  MG_TLS_STATE_SERVER_NEGOTIATED,  // Wait for Finished
+  MG_TLS_STATE_SERVER_CONNECTED    // Done
 };
 
 // per-connection TLS data
 struct tls_data {
   enum mg_tls_hs_state state;  // keep track of connection handshake progress
 
-  struct mg_iobuf send; // For the receive path, we're reusing c->rtls
+  struct mg_iobuf send;  // For the receive path, we're reusing c->rtls
+  struct mg_iobuf recv;  // While c->rtls contains full records, recv reuses
+                         // the same underlying buffer but points at individual
+                         // decrypted messages
+  uint8_t content_type;  // Last received record content type
 
   mg_sha256_ctx sha256;  // incremental SHA-256 hash for TLS handshake
 
   uint32_t sseq;  // server sequence number, used in encryption
   uint32_t cseq;  // client sequence number, used in decryption
 
+  uint8_t random[32];      // client random from ClientHello
   uint8_t session_id[32];  // client session ID between the handshake states
   uint8_t x25519_cli[32];  // client X25519 key between the handshake states
   uint8_t x25519_sec[32];  // x25519 secret between the handshake states
 
+  int skip_verification;          // perform checks on server certificate?
   struct mg_str server_cert_der;  // server certificate in DER format
   uint8_t server_key[32];         // server EC private key
+  char hostname[254];             // server hostname (client extension)
+
+  uint8_t certhash[32];  // certificate message hash
+  uint8_t pubkey[64];    // server EC public key to verify cert
+  uint8_t sighash[32];   // server EC public key to verify cert
 
   // keys for AES encryption
   uint8_t handshake_secret[32];
@@ -9203,256 +9392,143 @@ struct tls_data {
 };
 
 #define MG_LOAD_BE16(p) ((uint16_t) ((MG_U8P(p)[0] << 8U) | MG_U8P(p)[1]))
-#define TLS_HDR_SIZE 5  // 1 byte type, 2 bytes version, 2 bytes len
+#define MG_LOAD_BE24(p) \
+  ((uint32_t) ((MG_U8P(p)[0] << 16U) | (MG_U8P(p)[1] << 8U) | MG_U8P(p)[2]))
+#define MG_STORE_BE16(p, n)           \
+  do {                                \
+    MG_U8P(p)[0] = ((n) >> 8U) & 255; \
+    MG_U8P(p)[1] = (n) & 255;         \
+  } while (0)
+
+#define TLS_RECHDR_SIZE 5  // 1 byte type, 2 bytes version, 2 bytes length
+#define TLS_MSGHDR_SIZE 4  // 1 byte type, 3 bytes length
+
+#if 1
+static void mg_ssl_key_log(const char *label, uint8_t client_random[32],
+                           uint8_t *secret, size_t secretsz) {
+  (void) label;
+  (void) client_random;
+  (void) secret;
+  (void) secretsz;
+}
+#else
+#include <stdio.h>
+static void mg_ssl_key_log(const char *label, uint8_t client_random[32],
+                           uint8_t *secret, size_t secretsz) {
+  char *keylogfile = getenv("SSLKEYLOGFILE");
+  if (keylogfile == NULL) {
+    return;
+  }
+  FILE *f = fopen(keylogfile, "a");
+  fprintf(f, "%s ", label);
+  for (int i = 0; i < 32; i++) {
+    fprintf(f, "%02x", client_random[i]);
+  }
+  fprintf(f, " ");
+  for (unsigned int i = 0; i < secretsz; i++) {
+    fprintf(f, "%02x", secret[i]);
+  }
+  fprintf(f, "\n");
+  fclose(f);
+}
+#endif
 
 // for derived tls keys we need SHA256([0]*32)
 static uint8_t zeros[32] = {0};
-static uint8_t zeros_sha256_digest[32] =
-    "\xe3\xb0\xc4\x42\x98\xfc\x1c\x14\x9a\xfb\xf4\xc8\x99\x6f\xb9\x24"
-    "\x27\xae\x41\xe4\x64\x9b\x93\x4c\xa4\x95\x99\x1b\x78\x52\xb8\x55";
-
-#define X25519_BYTES 32
-const uint8_t X25519_BASE_POINT[X25519_BYTES] = {9};
-
-#define X25519_WBITS 32
-
-typedef uint32_t limb_t;
-typedef uint64_t dlimb_t;
-typedef int64_t sdlimb_t;
-#define LIMB(x) (uint32_t)(x##ull), (uint32_t) ((x##ull) >> 32)
-
-#define NLIMBS (256 / X25519_WBITS)
-typedef limb_t fe[NLIMBS];
-
-static limb_t umaal(limb_t *carry, limb_t acc, limb_t mand, limb_t mier) {
-  dlimb_t tmp = (dlimb_t) mand * mier + acc + *carry;
-  *carry = (limb_t) (tmp >> X25519_WBITS);
-  return (limb_t) tmp;
-}
-
-// These functions are implemented in terms of umaal on ARM
-static limb_t adc(limb_t *carry, limb_t acc, limb_t mand) {
-  dlimb_t total = (dlimb_t) *carry + acc + mand;
-  *carry = (limb_t) (total >> X25519_WBITS);
-  return (limb_t) total;
-}
-
-static limb_t adc0(limb_t *carry, limb_t acc) {
-  dlimb_t total = (dlimb_t) *carry + acc;
-  *carry = (limb_t) (total >> X25519_WBITS);
-  return (limb_t) total;
-}
-
-// - Precondition: carry is small.
-// - Invariant: result of propagate is < 2^255 + 1 word
-// - In particular, always less than 2p.
-// - Also, output x >= min(x,19)
-static void propagate(fe x, limb_t over) {
-  unsigned i;
-  limb_t carry;
-  over = x[NLIMBS - 1] >> (X25519_WBITS - 1) | over << 1;
-  x[NLIMBS - 1] &= ~((limb_t) 1 << (X25519_WBITS - 1));
-
-  carry = over * 19;
-  for (i = 0; i < NLIMBS; i++) {
-    x[i] = adc0(&carry, x[i]);
-  }
-}
-
-static void add(fe out, const fe a, const fe b) {
-  unsigned i;
-  limb_t carry = 0;
-  for (i = 0; i < NLIMBS; i++) {
-    out[i] = adc(&carry, a[i], b[i]);
-  }
-  propagate(out, carry);
-}
-
-static void sub(fe out, const fe a, const fe b) {
-  unsigned i;
-  sdlimb_t carry = -38;
-  for (i = 0; i < NLIMBS; i++) {
-    carry = carry + a[i] - b[i];
-    out[i] = (limb_t) carry;
-    carry >>= X25519_WBITS;
-  }
-  propagate(out, (limb_t) (1 + carry));
-}
-
-// `b` can contain less than 8 limbs, thus we use `limb_t *` instead of `fe`
-// to avoid build warnings
-static void mul(fe out, const fe a, const limb_t *b, unsigned nb) {
-  limb_t accum[2 * NLIMBS] = {0};
-  unsigned i, j;
-
-  limb_t carry2;
-  for (i = 0; i < nb; i++) {
-    limb_t mand = b[i];
-    carry2 = 0;
-    for (j = 0; j < NLIMBS; j++) {
-      accum[i + j] = umaal(&carry2, accum[i + j], mand, a[j]);
-    }
-    accum[i + j] = carry2;
-  }
-
-  carry2 = 0;
-  for (j = 0; j < NLIMBS; j++) {
-    out[j] = umaal(&carry2, accum[j], 38, accum[j + NLIMBS]);
-  }
-  propagate(out, carry2);
-}
-
-static void sqr(fe out, const fe a) {
-  mul(out, a, a, NLIMBS);
-}
-static void mul1(fe out, const fe a) {
-  mul(out, a, out, NLIMBS);
-}
-static void sqr1(fe a) {
-  mul1(a, a);
-}
-
-static void condswap(limb_t a[2 * NLIMBS], limb_t b[2 * NLIMBS],
-                     limb_t doswap) {
-  unsigned i;
-  for (i = 0; i < 2 * NLIMBS; i++) {
-    limb_t xor = (a[i] ^ b[i]) & doswap;
-    a[i] ^= xor;
-    b[i] ^= xor;
-  }
-}
-
-// Canonicalize a field element x, reducing it to the least residue which is
-// congruent to it mod 2^255-19
-// - Precondition: x < 2^255 + 1 word
-static limb_t canon(fe x) {
-  // First, add 19.
-  unsigned i;
-  limb_t carry0 = 19;
-  limb_t res;
-  sdlimb_t carry;
-  for (i = 0; i < NLIMBS; i++) {
-    x[i] = adc0(&carry0, x[i]);
-  }
-  propagate(x, carry0);
-
-  // Here, 19 <= x2 < 2^255
-  // - This is because we added 19, so before propagate it can't be less
-  // than 19. After propagate, it still can't be less than 19, because if
-  // propagate does anything it adds 19.
-  // - We know that the high bit must be clear, because either the input was ~
-  // 2^255 + one word + 19 (in which case it propagates to at most 2 words) or
-  // it was < 2^255. So now, if we subtract 19, we will get back to something in
-  // [0,2^255-19).
-  carry = -19;
-  res = 0;
-  for (i = 0; i < NLIMBS; i++) {
-    carry += x[i];
-    res |= x[i] = (limb_t) carry;
-    carry >>= X25519_WBITS;
-  }
-  return (limb_t) (((dlimb_t) res - 1) >> X25519_WBITS);
-}
-
-static const limb_t a24[1] = {121665};
-
-static void ladder_part1(fe xs[5]) {
-  limb_t *x2 = xs[0], *z2 = xs[1], *x3 = xs[2], *z3 = xs[3], *t1 = xs[4];
-  add(t1, x2, z2);                                 // t1 = A
-  sub(z2, x2, z2);                                 // z2 = B
-  add(x2, x3, z3);                                 // x2 = C
-  sub(z3, x3, z3);                                 // z3 = D
-  mul1(z3, t1);                                    // z3 = DA
-  mul1(x2, z2);                                    // x3 = BC
-  add(x3, z3, x2);                                 // x3 = DA+CB
-  sub(z3, z3, x2);                                 // z3 = DA-CB
-  sqr1(t1);                                        // t1 = AA
-  sqr1(z2);                                        // z2 = BB
-  sub(x2, t1, z2);                                 // x2 = E = AA-BB
-  mul(z2, x2, a24, sizeof(a24) / sizeof(a24[0]));  // z2 = E*a24
-  add(z2, z2, t1);                                 // z2 = E*a24 + AA
-}
-
-static void ladder_part2(fe xs[5], const fe x1) {
-  limb_t *x2 = xs[0], *z2 = xs[1], *x3 = xs[2], *z3 = xs[3], *t1 = xs[4];
-  sqr1(z3);         // z3 = (DA-CB)^2
-  mul1(z3, x1);     // z3 = x1 * (DA-CB)^2
-  sqr1(x3);         // x3 = (DA+CB)^2
-  mul1(z2, x2);     // z2 = AA*(E*a24+AA)
-  sub(x2, t1, x2);  // x2 = BB again
-  mul1(x2, t1);     // x2 = AA*BB
-}
-
-static void x25519_core(fe xs[5], const uint8_t scalar[X25519_BYTES],
-                        const uint8_t *x1, int clamp) {
-  int i;
-  limb_t swap = 0;
-  limb_t *x2 = xs[0], *x3 = xs[2], *z3 = xs[3];
-  memset(xs, 0, 4 * sizeof(fe));
-  x2[0] = z3[0] = 1;
-  memcpy(x3, x1, sizeof(fe));
-
-  for (i = 255; i >= 0; i--) {
-    uint8_t bytei = scalar[i / 8];
-    limb_t doswap;
-    if (clamp) {
-      if (i / 8 == 0) {
-        bytei &= (uint8_t) ~7U;
-      } else if (i / 8 == X25519_BYTES - 1) {
-        bytei &= 0x7F;
-        bytei |= 0x40;
-      }
-    }
-    doswap = 0 - (limb_t) ((bytei >> (i % 8)) & 1);
-    condswap(x2, x3, swap ^ doswap);
-    swap = doswap;
-
-    ladder_part1(xs);
-    ladder_part2(xs, (const limb_t *) x1);
-  }
-  condswap(x2, x3, swap);
-}
-
-static int x25519(uint8_t out[X25519_BYTES], const uint8_t scalar[X25519_BYTES],
-                  const uint8_t x1[X25519_BYTES], int clamp) {
-  int i, ret;
-  fe xs[5];
-  limb_t *x2, *z2, *z3, *prev;
-  static const struct {
-    uint8_t a, c, n;
-  } steps[13] = {{2, 1, 1},  {2, 1, 1},  {4, 2, 3},  {2, 4, 6},  {3, 1, 1},
-                 {3, 2, 12}, {4, 3, 25}, {2, 3, 25}, {2, 4, 50}, {3, 2, 125},
-                 {3, 1, 2},  {3, 1, 2},  {3, 1, 1}};
-  x25519_core(xs, scalar, x1, clamp);
-
-  // Precomputed inversion chain
-  x2 = xs[0];
-  z2 = xs[1];
-  z3 = xs[3];
-
-  prev = z2;
-  for (i = 0; i < 13; i++) {
-    int j;
-    limb_t *a = xs[steps[i].a];
-    for (j = steps[i].n; j > 0; j--) {
-      sqr(a, prev);
-      prev = a;
-    }
-    mul1(a, xs[steps[i].c]);
-  }
-
-  // Here prev = z3
-  // x2 /= z2
-  mul((limb_t *) out, x2, z3, NLIMBS);
-  ret = (int) canon((limb_t *) out);
-  if (!clamp) ret = 0;
-  return ret;
-}
+static uint8_t zeros_sha256_digest[32] = {
+    0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14, 0x9a, 0xfb, 0xf4,
+    0xc8, 0x99, 0x6f, 0xb9, 0x24, 0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b,
+    0x93, 0x4c, 0xa4, 0x95, 0x99, 0x1b, 0x78, 0x52, 0xb8, 0x55};
 
 // helper to hexdump buffers inline
 static void mg_tls_hexdump(const char *msg, uint8_t *buf, size_t bufsz) {
-  char p[512];
+  char p[8 * 4096];
   MG_VERBOSE(("%s: %s", msg, mg_hex(buf, bufsz, p)));
+}
+
+// helper utilities to parse ASN.1 DER
+struct mg_der_tlv {
+  uint8_t type;
+  uint32_t len;
+  uint8_t *value;
+};
+
+// parse DER into a TLV record
+static int mg_der_to_tlv(uint8_t *der, size_t dersz, struct mg_der_tlv *tlv) {
+  if (dersz < 2) {
+    return -1;
+  }
+  tlv->type = der[0];
+  tlv->len = der[1];
+  tlv->value = der + 2;
+  if (tlv->len > 0x7f) {
+    uint32_t i, n = tlv->len - 0x80;
+    tlv->len = 0;
+    for (i = 0; i < n; i++) {
+      tlv->len = (tlv->len << 8) | (der[2 + i]);
+    }
+    tlv->value = der + 2 + n;
+  }
+  if (der + dersz < tlv->value + tlv->len) {
+    return -1;
+  }
+  return 0;
+}
+
+static int mg_der_find(uint8_t *der, size_t dersz, uint8_t *oid, size_t oidsz,
+                       struct mg_der_tlv *tlv) {
+  uint8_t *p, *end;
+  struct mg_der_tlv child = {0, 0, NULL};
+  if (mg_der_to_tlv(der, dersz, tlv) < 0) {
+    return -1;                  // invalid DER
+  } else if (tlv->type == 6) {  // found OID, check value
+    return (tlv->len == oidsz && memcmp(tlv->value, oid, oidsz) == 0);
+  } else if ((tlv->type & 0x20) == 0) {
+    return 0;  // Primitive, but not OID: not found
+  }
+  // Constructed object: scan children
+  p = tlv->value;
+  end = tlv->value + tlv->len;
+  while (end > p) {
+    int r;
+    mg_der_to_tlv(p, (size_t) (end - p), &child);
+    r = mg_der_find(p, (size_t) (end - p), oid, oidsz, tlv);
+    if (r < 0) return -1;  // error
+    if (r > 0) return 1;   // found OID!
+    p = child.value + child.len;
+  }
+  return 0;  // not found
+}
+
+// Did we receive a full TLS record in the c->rtls buffer?
+static bool mg_tls_got_record(struct mg_connection *c) {
+  return c->rtls.len >= (size_t) TLS_RECHDR_SIZE &&
+         c->rtls.len >=
+             (size_t) (TLS_RECHDR_SIZE + MG_LOAD_BE16(c->rtls.buf + 3));
+}
+
+// Remove a single TLS record from the recv buffer
+static void mg_tls_drop_record(struct mg_connection *c) {
+  struct mg_iobuf *rio = &c->rtls;
+  uint16_t n = MG_LOAD_BE16(rio->buf + 3) + TLS_RECHDR_SIZE;
+  mg_iobuf_del(rio, 0, n);
+}
+
+// Remove a single TLS message from decrypted buffer, remove the wrapping
+// record if it was the last message within a record
+static void mg_tls_drop_message(struct mg_connection *c) {
+  uint32_t len;
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  if (tls->recv.len == 0) {
+    return;
+  }
+  len = MG_LOAD_BE24(tls->recv.buf + 1);
+  mg_sha256_update(&tls->sha256, tls->recv.buf, len + TLS_MSGHDR_SIZE);
+  tls->recv.buf += len + TLS_MSGHDR_SIZE;
+  tls->recv.len -= len + TLS_MSGHDR_SIZE;
+  if (tls->recv.len == 0) {
+    mg_tls_drop_record(c);
+  }
 }
 
 // TLS1.3 secret derivation based on the key label
@@ -9463,136 +9539,19 @@ static void mg_tls_derive_secret(const char *label, uint8_t *key, size_t keysz,
   uint8_t secret[32];
   uint8_t packed[256] = {0, (uint8_t) hashsz, (uint8_t) labelsz};
   // TODO: assert lengths of label, key, data and hash
-  memmove(packed + 3, label, labelsz);
+  if (labelsz > 0) memmove(packed + 3, label, labelsz);
   packed[3 + labelsz] = (uint8_t) datasz;
-  memmove(packed + labelsz + 4, data, datasz);
+  if (datasz > 0) memmove(packed + labelsz + 4, data, datasz);
   packed[4 + labelsz + datasz] = 1;
 
   mg_hmac_sha256(secret, key, keysz, packed, 5 + labelsz + datasz);
   memmove(hash, secret, hashsz);
 }
 
-// Did we receive a full TLS message in the c->rtls buffer?
-static bool mg_tls_got_msg(struct mg_connection *c) {
-  return c->rtls.len >= (size_t) TLS_HDR_SIZE &&
-         c->rtls.len >= (size_t) (TLS_HDR_SIZE + MG_LOAD_BE16(c->rtls.buf + 3));
-}
-
-// Remove a single TLS record from the recv buffer
-static void mg_tls_drop_packet(struct mg_iobuf *rio) {
-  uint16_t n = MG_LOAD_BE16(rio->buf + 3) + TLS_HDR_SIZE;
-  mg_iobuf_del(rio, 0, n);
-}
-
-// read and parse ClientHello record
-static int mg_tls_client_hello(struct mg_connection *c) {
-  struct tls_data *tls = c->tls;
-  struct mg_iobuf *rio = &c->rtls;
-  uint8_t session_id_len;
-  uint16_t j;
-  uint16_t cipher_suites_len;
-  uint16_t ext_len;
-  uint8_t *ext;
-
-  if (!mg_tls_got_msg(c)) {
-    return MG_IO_WAIT;
-  }
-  if (rio->buf[0] != 0x16 || rio->buf[5] != 0x01) {
-    mg_error(c, "not a hello packet");
-    return -1;
-  }
-  mg_sha256_update(&tls->sha256, rio->buf + 5, rio->len - 5);
-  session_id_len = rio->buf[43];
-  if (session_id_len == sizeof(tls->session_id)) {
-    memmove(tls->session_id, rio->buf + 44, session_id_len);
-  } else if (session_id_len != 0) {
-    MG_INFO(("bad session id len"));
-  }
-  cipher_suites_len = MG_LOAD_BE16(rio->buf + 44 + session_id_len);
-  ext_len = MG_LOAD_BE16(rio->buf + 48 + session_id_len + cipher_suites_len);
-  ext = rio->buf + 50 + session_id_len + cipher_suites_len;
-  for (j = 0; j < ext_len;) {
-    uint16_t k;
-    uint16_t key_exchange_len;
-    uint8_t *key_exchange;
-    uint16_t n = MG_LOAD_BE16(ext + j + 2);
-    if (ext[j] != 0x00 ||
-        ext[j + 1] != 0x33) {  // not a key share extension, ignore
-      j += (uint16_t) (n + 4);
-      continue;
-    }
-    key_exchange_len = MG_LOAD_BE16(ext + j + 5);
-    key_exchange = ext + j + 6;
-    for (k = 0; k < key_exchange_len;) {
-      uint16_t m = MG_LOAD_BE16(key_exchange + k + 2);
-      if (m == 32 && key_exchange[k] == 0x00 && key_exchange[k + 1] == 0x1d) {
-        memmove(tls->x25519_cli, key_exchange + k + 4, m);
-        mg_tls_drop_packet(rio);
-        return 0;
-      }
-      k += (uint16_t) (m + 4);
-    }
-    j += (uint16_t) (n + 4);
-  }
-  mg_error(c, "bad client hello");
-  return -1;
-}
-
-// put ServerHello record into wio buffer
-static void mg_tls_server_hello(struct mg_connection *c) {
-  struct tls_data *tls = c->tls;
-  struct mg_iobuf *wio = &tls->send;
-
-  uint8_t msg_server_hello[122] =
-      // server hello, tls 1.2
-      "\x02\x00\x00\x76\x03\x03"
-      // random (32 bytes)
-      "\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe"
-      "\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe\xfe"
-      // session ID length + session ID (32 bytes)
-      "\x20"
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-      "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-#if defined(CHACHA20) && CHACHA20
-      // TLS_CHACHA20_POLY1305_SHA256 + no compression
-      "\x13\x03\x00"
-#else
-      // TLS_AES_128_GCM_SHA256 + no compression
-      "\x13\x01\x00"
-#endif
-      // extensions + keyshare
-      "\x00\x2e\x00\x33\x00\x24\x00\x1d\x00\x20"
-      // x25519 keyshare
-      "\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab"
-      "\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab\xab"
-      // supported versions (tls1.3 == 0x304)
-      "\x00\x2b\x00\x02\x03\x04";
-
-  // calculate keyshare
-  uint8_t x25519_pub[X25519_BYTES];
-  uint8_t x25519_prv[X25519_BYTES];
-  mg_random(x25519_prv, sizeof(x25519_prv));
-  x25519(x25519_pub, x25519_prv, X25519_BASE_POINT, 1);
-  x25519(tls->x25519_sec, x25519_prv, tls->x25519_cli, 1);
-  mg_tls_hexdump("x25519 sec", tls->x25519_sec, sizeof(tls->x25519_sec));
-
-  // fill in the gaps: session ID + keyshare
-  memmove(msg_server_hello + 39, tls->session_id, sizeof(tls->session_id));
-  memmove(msg_server_hello + 84, x25519_pub, sizeof(x25519_pub));
-
-  // server hello message
-  mg_iobuf_add(wio, wio->len, "\x16\x03\x03\x00\x7a", 5);
-  mg_iobuf_add(wio, wio->len, msg_server_hello, sizeof(msg_server_hello));
-  mg_sha256_update(&tls->sha256, msg_server_hello, sizeof(msg_server_hello));
-
-  // change cipher message
-  mg_iobuf_add(wio, wio->len, "\x14\x03\x03\x00\x01\x01", 6);
-}
-
 // at this point we have x25519 shared secret, we can generate a set of derived
 // handshake encryption keys
 static void mg_tls_generate_handshake_keys(struct mg_connection *c) {
-  struct tls_data *tls = c->tls;
+  struct tls_data *tls = (struct tls_data *) c->tls;
 
   mg_sha256_ctx sha256;
   uint8_t early_secret[32];
@@ -9614,6 +9573,7 @@ static void mg_tls_generate_handshake_keys(struct mg_connection *c) {
   memmove(&sha256, &tls->sha256, sizeof(mg_sha256_ctx));
   mg_sha256_final(hello_hash, &sha256);
 
+  mg_tls_hexdump("hello hash", hello_hash, 32);
   // derive keys needed for the rest of the handshake
   mg_tls_derive_secret("tls13 s hs traffic", tls->handshake_secret, 32,
                        hello_hash, 32, server_hs_secret, 32);
@@ -9623,7 +9583,6 @@ static void mg_tls_generate_handshake_keys(struct mg_connection *c) {
                        tls->server_write_iv, 12);
   mg_tls_derive_secret("tls13 finished", server_hs_secret, 32, NULL, 0,
                        tls->server_finished_key, 32);
-  mg_tls_hexdump("s hs traffic", server_hs_secret, 32);
 
   mg_tls_derive_secret("tls13 c hs traffic", tls->handshake_secret, 32,
                        hello_hash, 32, client_hs_secret, 32);
@@ -9633,238 +9592,24 @@ static void mg_tls_generate_handshake_keys(struct mg_connection *c) {
                        tls->client_write_iv, 12);
   mg_tls_derive_secret("tls13 finished", client_hs_secret, 32, NULL, 0,
                        tls->client_finished_key, 32);
-}
 
-// AES GCM encryption of the message + put encoded data into the write buffer
-static void mg_tls_encrypt(struct mg_connection *c, const uint8_t *msg,
-                           size_t msgsz, uint8_t msgtype) {
-  struct tls_data *tls = c->tls;
-  struct mg_iobuf *wio = &tls->send;
-  uint8_t *outmsg;
-  uint8_t *tag;
-  size_t encsz = msgsz + 16 + 1;
-  uint8_t hdr[5] = {0x17, 0x03, 0x03, (encsz >> 8) & 0xff, encsz & 0xff};
-  uint8_t associated_data[5] = {0x17, 0x03, 0x03, (encsz >> 8) & 0xff,
-                                encsz & 0xff};
-  uint8_t nonce[12];
-  memmove(nonce, tls->server_write_iv, sizeof(tls->server_write_iv));
-  nonce[8] ^= (uint8_t) ((tls->sseq >> 24) & 255U);
-  nonce[9] ^= (uint8_t) ((tls->sseq >> 16) & 255U);
-  nonce[10] ^= (uint8_t) ((tls->sseq >> 8) & 255U);
-  nonce[11] ^= (uint8_t) ((tls->sseq) & 255U);
+  mg_tls_hexdump("s hs traffic", server_hs_secret, 32);
+  mg_tls_hexdump("s key", tls->server_write_key, 16);
+  mg_tls_hexdump("s iv", tls->server_write_iv, 12);
+  mg_tls_hexdump("s finished", tls->server_finished_key, 32);
+  mg_tls_hexdump("c hs traffic", client_hs_secret, 32);
+  mg_tls_hexdump("c key", tls->client_write_key, 16);
+  mg_tls_hexdump("c iv", tls->client_write_iv, 16);
+  mg_tls_hexdump("c finished", tls->client_finished_key, 32);
 
-  gcm_initialize();
-  mg_iobuf_add(wio, wio->len, hdr, sizeof(hdr));
-  mg_iobuf_resize(wio, wio->len + encsz);
-  outmsg = wio->buf + wio->len;
-  tag = wio->buf + wio->len + msgsz + 1;
-  memmove(outmsg, msg, msgsz);
-  outmsg[msgsz] = msgtype;
-  aes_gcm_encrypt(outmsg, outmsg, msgsz + 1, tls->server_write_key,
-                  sizeof(tls->server_write_key), nonce, sizeof(nonce),
-                  associated_data, sizeof(associated_data), tag, 16);
-  wio->len += encsz;
-  tls->sseq++;
-}
-
-// read an encrypted message, decrypt it into read buffer (AES GCM)
-static int mg_tls_recv_decrypt(struct mg_connection *c, void *buf,
-                               size_t bufsz) {
-  struct tls_data *tls = c->tls;
-  struct mg_iobuf *rio = &c->rtls;
-  // struct mg_iobuf *rio = &tls->recv;
-  uint16_t msgsz;
-  uint8_t *msg;
-  uint8_t nonce[12];
-  int r;
-  for (;;) {
-    if (!mg_tls_got_msg(c)) {
-      return MG_IO_WAIT;
-    }
-    if (rio->buf[0] == 0x17) {
-      break;
-    } else if (rio->buf[0] == 0x15) {
-      MG_INFO(("TLS ALERT packet received"));  // TODO: drop packet?
-    } else {
-      mg_error(c, "unexpected packet");
-      return -1;
-    }
-  }
-  msgsz = MG_LOAD_BE16(rio->buf + 3);
-  msg = rio->buf + 5;
-  memmove(nonce, tls->client_write_iv, sizeof(tls->client_write_iv));
-  nonce[8] ^= (uint8_t) ((tls->cseq >> 24) & 255U);
-  nonce[9] ^= (uint8_t) ((tls->cseq >> 16) & 255U);
-  nonce[10] ^= (uint8_t) ((tls->cseq >> 8) & 255U);
-  nonce[11] ^= (uint8_t) ((tls->cseq) & 255U);
-  aes_gcm_decrypt(msg, msg, msgsz - 16, tls->client_write_key,
-                  sizeof(tls->client_write_key), nonce, sizeof(nonce));
-  r = msgsz - 16 - 1;
-  if (msg[r] == 0x17) {
-    if (bufsz > 0) {
-      memmove(buf, msg, msgsz - 16);
-    }
-  } else {
-    r = 0;
-  }
-  tls->cseq++;
-  mg_tls_drop_packet(rio);
-  return r;
-}
-
-static void mg_tls_server_extensions(struct mg_connection *c) {
-  struct tls_data *tls = c->tls;
-  // server extensions
-  uint8_t ext[6] = {0x08, 0, 0, 2, 0, 0};
-  mg_sha256_update(&tls->sha256, ext, sizeof(ext));
-  mg_tls_encrypt(c, ext, sizeof(ext), 0x16);
-}
-
-static void mg_tls_server_cert(struct mg_connection *c) {
-  struct tls_data *tls = c->tls;
-  // server DER certificate (empty)
-  size_t n = tls->server_cert_der.len;
-  uint8_t *cert = calloc(1, 13 + n);             // FIXME: free
-  cert[0] = 0x0b;                                // handshake header
-  cert[1] = (uint8_t) (((n + 9) >> 16) & 255U);  // 3 bytes: payload length
-  cert[2] = (uint8_t) (((n + 9) >> 8) & 255U);
-  cert[3] = (uint8_t) ((n + 9) & 255U);
-  cert[4] = 0;                                   // request context
-  cert[5] = (uint8_t) (((n + 5) >> 16) & 255U);  // 3 bytes: cert (s) length
-  cert[6] = (uint8_t) (((n + 5) >> 8) & 255U);
-  cert[7] = (uint8_t) ((n + 5) & 255U);
-  cert[8] =
-      (uint8_t) (((n) >> 16) & 255U);  // 3 bytes: first (and only) cert len
-  cert[9] = (uint8_t) (((n) >> 8) & 255U);
-  cert[10] = (uint8_t) (n & 255U);
-  // bytes 11+ are certificate in DER format
-  memmove(cert + 11, tls->server_cert_der.ptr, n);
-  cert[11 + n] = cert[12 + n] = 0;  // certificate extensions (none)
-  mg_sha256_update(&tls->sha256, cert, 13 + n);
-  mg_tls_encrypt(c, cert, 13 + n, 0x16);
-}
-
-// type adapter between uECC hash context and our sha256 implementation
-typedef struct SHA256_HashContext {
-  uECC_HashContext uECC;
-  mg_sha256_ctx ctx;
-} SHA256_HashContext;
-
-static void init_SHA256(const uECC_HashContext *base) {
-  SHA256_HashContext *c = (SHA256_HashContext *) base;
-  mg_sha256_init(&c->ctx);
-}
-
-static void update_SHA256(const uECC_HashContext *base, const uint8_t *message,
-                          unsigned message_size) {
-  SHA256_HashContext *c = (SHA256_HashContext *) base;
-  mg_sha256_update(&c->ctx, message, message_size);
-}
-static void finish_SHA256(const uECC_HashContext *base, uint8_t *hash_result) {
-  SHA256_HashContext *c = (SHA256_HashContext *) base;
-  mg_sha256_final(hash_result, &c->ctx);
-}
-
-static void mg_tls_server_verify_ecdsa(struct mg_connection *c) {
-  struct tls_data *tls = c->tls;
-  // server certificate verify packet
-  uint8_t verify[82] = {0x0f, 0x00, 0x00, 0x00, 0x04, 0x03, 0x00, 0x00};
-  size_t sigsz, verifysz = 0;
-  uint8_t hash[32] = {0}, tmp[2 * 32 + 64] = {0};
-  struct SHA256_HashContext ctx = {
-      {&init_SHA256, &update_SHA256, &finish_SHA256, 64, 32, tmp},
-      {{0}, 0, 0, {0}}};
-  int neg1, neg2;
-  uint8_t sig[64], sig_content[130] = {
-                       "                                "
-                       "                                "
-                       "TLS 1.3, server CertificateVerify\0"};
-  mg_sha256_ctx sha256;
-  memmove(&sha256, &tls->sha256, sizeof(mg_sha256_ctx));
-  mg_sha256_final(sig_content + 98, &sha256);
-
-  mg_sha256_init(&sha256);
-  mg_sha256_update(&sha256, sig_content, sizeof(sig_content));
-  mg_sha256_final(hash, &sha256);
-
-  uECC_sign_deterministic(tls->server_key, hash, sizeof(hash), &ctx.uECC, sig,
-                          uECC_secp256r1());
-
-  neg1 = !!(sig[0] & 0x80);
-  neg2 = !!(sig[32] & 0x80);
-  verify[8] = 0x30;  // ASN.1 SEQUENCE
-  verify[9] = (uint8_t) (68 + neg1 + neg2);
-  verify[10] = 0x02;  // ASN.1 INTEGER
-  verify[11] = (uint8_t) (32 + neg1);
-  memmove(verify + 12 + neg1, sig, 32);
-  verify[12 + 32 + neg1] = 0x02;  // ASN.1 INTEGER
-  verify[13 + 32 + neg1] = (uint8_t) (32 + neg2);
-  memmove(verify + 14 + 32 + neg1 + neg2, sig + 32, 32);
-
-  sigsz = (size_t) (70 + neg1 + neg2);
-  verifysz = 8U + sigsz;
-  verify[3] = (uint8_t) (sigsz + 4);
-  verify[7] = (uint8_t) sigsz;
-
-  mg_tls_hexdump("verify", verify, verifysz);
-
-  mg_sha256_update(&tls->sha256, verify, verifysz);
-  mg_tls_encrypt(c, verify, verifysz, 0x16);
-}
-
-static void mg_tls_server_finish(struct mg_connection *c) {
-  struct tls_data *tls = c->tls;
-  struct mg_iobuf *wio = &tls->send;
-  mg_sha256_ctx sha256;
-  uint8_t hash[32];
-  uint8_t finish[36] = {0x14, 0, 0, 32};
-  memmove(&sha256, &tls->sha256, sizeof(mg_sha256_ctx));
-  mg_sha256_final(hash, &sha256);
-  mg_hmac_sha256(finish + 4, tls->server_finished_key, 32, hash, 32);
-  mg_tls_hexdump("hash", hash, sizeof(hash));
-  mg_tls_hexdump("key", tls->server_finished_key,
-                 sizeof(tls->server_finished_key));
-  mg_tls_encrypt(c, finish, sizeof(finish), 0x16);
-  mg_io_send(c, wio->buf, wio->len);
-  wio->len = 0;
-
-  mg_sha256_update(&tls->sha256, finish, sizeof(finish));
-}
-
-static int mg_tls_client_change_cipher(struct mg_connection *c) {
-  // struct tls_data *tls = c->tls;
-  struct mg_iobuf *rio = &c->rtls;
-  for (;;) {
-    if (!mg_tls_got_msg(c)) {
-      return MG_IO_WAIT;
-    }
-    if (rio->buf[0] == 0x14) {  // got a ChangeCipher record
-      break;
-    } else if (rio->buf[0] == 0x15) {  // skip Alert records
-      MG_DEBUG(("TLS ALERT packet received"));
-      mg_tls_drop_packet(rio);
-    } else {
-      mg_error(c, "unexpected packet");
-      return MG_IO_ERR;
-    }
-  }
-  // consume ChangeCipher packet
-  mg_tls_drop_packet(rio);
-  return 0;
-}
-
-static int mg_tls_client_finish(struct mg_connection *c) {
-  uint8_t tmp[2048];
-  int n = mg_tls_recv_decrypt(c, tmp, sizeof(tmp));
-  if (n < 0) {
-    return -1;
-  }
-  // TODO: make sure it's a ClientFinish record
-  return 0;
+  mg_ssl_key_log("SERVER_HANDSHAKE_TRAFFIC_SECRET", tls->random,
+                 server_hs_secret, 32);
+  mg_ssl_key_log("CLIENT_HANDSHAKE_TRAFFIC_SECRET", tls->random,
+                 client_hs_secret, 32);
 }
 
 static void mg_tls_generate_application_keys(struct mg_connection *c) {
-  struct tls_data *tls = c->tls;
+  struct tls_data *tls = (struct tls_data *) c->tls;
   uint8_t hash[32];
   uint8_t premaster_secret[32];
   uint8_t master_secret[32];
@@ -9892,41 +9637,908 @@ static void mg_tls_generate_application_keys(struct mg_connection *c) {
   mg_tls_derive_secret("tls13 iv", client_secret, 32, NULL, 0,
                        tls->client_write_iv, 12);
 
+  mg_tls_hexdump("s ap traffic", server_secret, 32);
+  mg_tls_hexdump("s key", tls->server_write_key, 16);
+  mg_tls_hexdump("s iv", tls->server_write_iv, 12);
+  mg_tls_hexdump("s finished", tls->server_finished_key, 32);
+  mg_tls_hexdump("c ap traffic", client_secret, 32);
+  mg_tls_hexdump("c key", tls->client_write_key, 16);
+  mg_tls_hexdump("c iv", tls->client_write_iv, 16);
+  mg_tls_hexdump("c finished", tls->client_finished_key, 32);
   tls->sseq = tls->cseq = 0;
+
+  mg_ssl_key_log("SERVER_TRAFFIC_SECRET_0", tls->random, server_secret, 32);
+  mg_ssl_key_log("CLIENT_TRAFFIC_SECRET_0", tls->random, client_secret, 32);
 }
 
-void mg_tls_handshake(struct mg_connection *c) {
-  struct tls_data *tls = c->tls;
+// AES GCM encryption of the message + put encoded data into the write buffer
+static void mg_tls_encrypt(struct mg_connection *c, const uint8_t *msg,
+                           size_t msgsz, uint8_t msgtype) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  struct mg_iobuf *wio = &tls->send;
+  uint8_t *outmsg;
+  uint8_t *tag;
+  size_t encsz = msgsz + 16 + 1;
+  uint8_t hdr[5] = {MG_TLS_APP_DATA, 0x03, 0x03,
+                    (uint8_t) ((encsz >> 8) & 0xff), (uint8_t) (encsz & 0xff)};
+  uint8_t associated_data[5] = {MG_TLS_APP_DATA, 0x03, 0x03,
+                                (uint8_t) ((encsz >> 8) & 0xff),
+                                (uint8_t) (encsz & 0xff)};
+  uint8_t nonce[12];
+
+  mg_gcm_initialize();
+
+  if (c->is_client) {
+    memmove(nonce, tls->client_write_iv, sizeof(tls->client_write_iv));
+    nonce[8] ^= (uint8_t) ((tls->cseq >> 24) & 255U);
+    nonce[9] ^= (uint8_t) ((tls->cseq >> 16) & 255U);
+    nonce[10] ^= (uint8_t) ((tls->cseq >> 8) & 255U);
+    nonce[11] ^= (uint8_t) ((tls->cseq) & 255U);
+  } else {
+    memmove(nonce, tls->server_write_iv, sizeof(tls->server_write_iv));
+    nonce[8] ^= (uint8_t) ((tls->sseq >> 24) & 255U);
+    nonce[9] ^= (uint8_t) ((tls->sseq >> 16) & 255U);
+    nonce[10] ^= (uint8_t) ((tls->sseq >> 8) & 255U);
+    nonce[11] ^= (uint8_t) ((tls->sseq) & 255U);
+  }
+
+  mg_iobuf_add(wio, wio->len, hdr, sizeof(hdr));
+  mg_iobuf_resize(wio, wio->len + encsz);
+  outmsg = wio->buf + wio->len;
+  tag = wio->buf + wio->len + msgsz + 1;
+  memmove(outmsg, msg, msgsz);
+  outmsg[msgsz] = msgtype;
+  if (c->is_client) {
+    mg_aes_gcm_encrypt(outmsg, outmsg, msgsz + 1, tls->client_write_key,
+                       sizeof(tls->client_write_key), nonce, sizeof(nonce),
+                       associated_data, sizeof(associated_data), tag, 16);
+    tls->cseq++;
+  } else {
+    mg_aes_gcm_encrypt(outmsg, outmsg, msgsz + 1, tls->server_write_key,
+                       sizeof(tls->server_write_key), nonce, sizeof(nonce),
+                       associated_data, sizeof(associated_data), tag, 16);
+    tls->sseq++;
+  }
+  wio->len += encsz;
+}
+
+// read an encrypted record, decrypt it in place
+static int mg_tls_recv_record(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  struct mg_iobuf *rio = &c->rtls;
+  uint16_t msgsz;
+  uint8_t *msg;
+  uint8_t nonce[12];
+  int r;
+  if (tls->recv.len > 0) {
+    return 0; /* some data from previous record is still present */
+  }
+  for (;;) {
+    if (!mg_tls_got_record(c)) {
+      return MG_IO_WAIT;
+    }
+    if (rio->buf[0] == MG_TLS_APP_DATA) {
+      break;
+    } else if (rio->buf[0] ==
+               MG_TLS_CHANGE_CIPHER) {  // Skip ChangeCipher messages
+      mg_tls_drop_record(c);
+    } else if (rio->buf[0] == MG_TLS_ALERT) {  // Skip Alerts
+      MG_INFO(("TLS ALERT packet received"));
+      mg_tls_drop_record(c);
+    } else {
+      mg_error(c, "unexpected packet");
+      return -1;
+    }
+  }
+
+  mg_gcm_initialize();
+  msgsz = MG_LOAD_BE16(rio->buf + 3);
+  msg = rio->buf + 5;
+  if (c->is_client) {
+    memmove(nonce, tls->server_write_iv, sizeof(tls->server_write_iv));
+    nonce[8] ^= (uint8_t) ((tls->sseq >> 24) & 255U);
+    nonce[9] ^= (uint8_t) ((tls->sseq >> 16) & 255U);
+    nonce[10] ^= (uint8_t) ((tls->sseq >> 8) & 255U);
+    nonce[11] ^= (uint8_t) ((tls->sseq) & 255U);
+    mg_aes_gcm_decrypt(msg, msg, msgsz - 16, tls->server_write_key,
+                       sizeof(tls->server_write_key), nonce, sizeof(nonce));
+    tls->sseq++;
+  } else {
+    memmove(nonce, tls->client_write_iv, sizeof(tls->client_write_iv));
+    nonce[8] ^= (uint8_t) ((tls->cseq >> 24) & 255U);
+    nonce[9] ^= (uint8_t) ((tls->cseq >> 16) & 255U);
+    nonce[10] ^= (uint8_t) ((tls->cseq >> 8) & 255U);
+    nonce[11] ^= (uint8_t) ((tls->cseq) & 255U);
+    mg_aes_gcm_decrypt(msg, msg, msgsz - 16, tls->client_write_key,
+                       sizeof(tls->client_write_key), nonce, sizeof(nonce));
+    tls->cseq++;
+  }
+  r = msgsz - 16 - 1;
+  tls->content_type = msg[msgsz - 16 - 1];
+  tls->recv.buf = msg;
+  tls->recv.size = tls->recv.len = msgsz - 16 - 1;
+  return r;
+}
+
+static void mg_tls_calc_cert_verify_hash(struct mg_connection *c,
+                                         uint8_t hash[32]) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  uint8_t sig_content[130] = {
+      "                                "
+      "                                "
+      "TLS 1.3, server CertificateVerify\0"};
+  mg_sha256_ctx sha256;
+  memmove(&sha256, &tls->sha256, sizeof(mg_sha256_ctx));
+  mg_sha256_final(sig_content + 98, &sha256);
+
+  mg_sha256_init(&sha256);
+  mg_sha256_update(&sha256, sig_content, sizeof(sig_content));
+  mg_sha256_final(hash, &sha256);
+}
+
+// read and parse ClientHello record
+static int mg_tls_server_recv_hello(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  struct mg_iobuf *rio = &c->rtls;
+  uint8_t session_id_len;
+  uint16_t j;
+  uint16_t cipher_suites_len;
+  uint16_t ext_len;
+  uint8_t *ext;
+  uint16_t msgsz;
+
+  if (!mg_tls_got_record(c)) {
+    return MG_IO_WAIT;
+  }
+  if (rio->buf[0] != MG_TLS_HANDSHAKE || rio->buf[5] != MG_TLS_CLIENT_HELLO) {
+    mg_error(c, "not a client hello packet");
+    return -1;
+  }
+  msgsz = MG_LOAD_BE16(rio->buf + 3);
+  mg_sha256_update(&tls->sha256, rio->buf + 5, msgsz);
+  // store client random
+  memmove(tls->random, rio->buf + 11, sizeof(tls->random));
+  // store session_id
+  session_id_len = rio->buf[43];
+  if (session_id_len == sizeof(tls->session_id)) {
+    memmove(tls->session_id, rio->buf + 44, session_id_len);
+  } else if (session_id_len != 0) {
+    MG_INFO(("bad session id len"));
+  }
+  cipher_suites_len = MG_LOAD_BE16(rio->buf + 44 + session_id_len);
+  ext_len = MG_LOAD_BE16(rio->buf + 48 + session_id_len + cipher_suites_len);
+  ext = rio->buf + 50 + session_id_len + cipher_suites_len;
+  for (j = 0; j < ext_len;) {
+    uint16_t k;
+    uint16_t key_exchange_len;
+    uint8_t *key_exchange;
+    uint16_t n = MG_LOAD_BE16(ext + j + 2);
+    if (ext[j] != 0x00 ||
+        ext[j + 1] != 0x33) {  // not a key share extension, ignore
+      j += (uint16_t) (n + 4);
+      continue;
+    }
+    key_exchange_len = MG_LOAD_BE16(ext + j + 5);
+    key_exchange = ext + j + 6;
+    for (k = 0; k < key_exchange_len;) {
+      uint16_t m = MG_LOAD_BE16(key_exchange + k + 2);
+      if (m == 32 && key_exchange[k] == 0x00 && key_exchange[k + 1] == 0x1d) {
+        memmove(tls->x25519_cli, key_exchange + k + 4, m);
+        mg_tls_drop_record(c);
+        return 0;
+      }
+      k += (uint16_t) (m + 4);
+    }
+    j += (uint16_t) (n + 4);
+  }
+  mg_error(c, "bad client hello");
+  return -1;
+}
+
+#define PLACEHOLDER_8B 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'
+#define PLACEHOLDER_16B PLACEHOLDER_8B, PLACEHOLDER_8B
+#define PLACEHOLDER_32B PLACEHOLDER_16B, PLACEHOLDER_16B
+
+// put ServerHello record into wio buffer
+static void mg_tls_server_send_hello(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  struct mg_iobuf *wio = &tls->send;
+
+  uint8_t msg_server_hello[122] = {
+    // server hello, tls 1.2
+    0x02,
+    0x00,
+    0x00,
+    0x76,
+    0x03,
+    0x03,
+    // random (32 bytes)
+    PLACEHOLDER_32B,
+    // session ID length + session ID (32 bytes)
+    0x20,
+    PLACEHOLDER_32B,
+#if defined(CHACHA20) && CHACHA20
+    // TLS_CHACHA20_POLY1305_SHA256 + no compression
+    0x13,
+    0x03,
+    0x00,
+#else
+    // TLS_AES_128_GCM_SHA256 + no compression
+    0x13,
+    0x01,
+    0x00,
+#endif
+    // extensions + keyshare
+    0x00,
+    0x2e,
+    0x00,
+    0x33,
+    0x00,
+    0x24,
+    0x00,
+    0x1d,
+    0x00,
+    0x20,
+    // x25519 keyshare
+    PLACEHOLDER_32B,
+    // supported versions (tls1.3 == 0x304)
+    0x00,
+    0x2b,
+    0x00,
+    0x02,
+    0x03,
+    0x04
+  };
+
+  // calculate keyshare
+  uint8_t x25519_pub[X25519_BYTES];
+  uint8_t x25519_prv[X25519_BYTES];
+  mg_random(x25519_prv, sizeof(x25519_prv));
+  mg_tls_x25519(x25519_pub, x25519_prv, X25519_BASE_POINT, 1);
+  mg_tls_x25519(tls->x25519_sec, x25519_prv, tls->x25519_cli, 1);
+  mg_tls_hexdump("s x25519 sec", tls->x25519_sec, sizeof(tls->x25519_sec));
+
+  // fill in the gaps: random + session ID + keyshare
+  memmove(msg_server_hello + 6, tls->random, sizeof(tls->random));
+  memmove(msg_server_hello + 39, tls->session_id, sizeof(tls->session_id));
+  memmove(msg_server_hello + 84, x25519_pub, sizeof(x25519_pub));
+
+  // server hello message
+  mg_iobuf_add(wio, wio->len, "\x16\x03\x03\x00\x7a", 5);
+  mg_iobuf_add(wio, wio->len, msg_server_hello, sizeof(msg_server_hello));
+  mg_sha256_update(&tls->sha256, msg_server_hello, sizeof(msg_server_hello));
+
+  // change cipher message
+  mg_iobuf_add(wio, wio->len, "\x14\x03\x03\x00\x01\x01", 6);
+}
+
+static void mg_tls_server_send_ext(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  // server extensions
+  uint8_t ext[6] = {0x08, 0, 0, 2, 0, 0};
+  mg_sha256_update(&tls->sha256, ext, sizeof(ext));
+  mg_tls_encrypt(c, ext, sizeof(ext), MG_TLS_HANDSHAKE);
+}
+
+static void mg_tls_server_send_cert(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  // server DER certificate (empty)
+  size_t n = tls->server_cert_der.len;
+  uint8_t *cert = (uint8_t *) calloc(1, 13 + n);
+  if (cert == NULL) {
+    mg_error(c, "tls cert oom");
+    return;
+  }
+  cert[0] = 0x0b;                                // handshake header
+  cert[1] = (uint8_t) (((n + 9) >> 16) & 255U);  // 3 bytes: payload length
+  cert[2] = (uint8_t) (((n + 9) >> 8) & 255U);
+  cert[3] = (uint8_t) ((n + 9) & 255U);
+  cert[4] = 0;                                   // request context
+  cert[5] = (uint8_t) (((n + 5) >> 16) & 255U);  // 3 bytes: cert (s) length
+  cert[6] = (uint8_t) (((n + 5) >> 8) & 255U);
+  cert[7] = (uint8_t) ((n + 5) & 255U);
+  cert[8] =
+      (uint8_t) (((n) >> 16) & 255U);  // 3 bytes: first (and only) cert len
+  cert[9] = (uint8_t) (((n) >> 8) & 255U);
+  cert[10] = (uint8_t) (n & 255U);
+  // bytes 11+ are certificate in DER format
+  memmove(cert + 11, tls->server_cert_der.buf, n);
+  cert[11 + n] = cert[12 + n] = 0;  // certificate extensions (none)
+  mg_sha256_update(&tls->sha256, cert, 13 + n);
+  mg_tls_encrypt(c, cert, 13 + n, MG_TLS_HANDSHAKE);
+  free(cert);
+}
+
+// type adapter between uECC hash context and our sha256 implementation
+typedef struct SHA256_HashContext {
+  MG_UECC_HashContext uECC;
+  mg_sha256_ctx ctx;
+} SHA256_HashContext;
+
+static void init_SHA256(const MG_UECC_HashContext *base) {
+  SHA256_HashContext *c = (SHA256_HashContext *) base;
+  mg_sha256_init(&c->ctx);
+}
+
+static void update_SHA256(const MG_UECC_HashContext *base,
+                          const uint8_t *message, unsigned message_size) {
+  SHA256_HashContext *c = (SHA256_HashContext *) base;
+  mg_sha256_update(&c->ctx, message, message_size);
+}
+static void finish_SHA256(const MG_UECC_HashContext *base,
+                          uint8_t *hash_result) {
+  SHA256_HashContext *c = (SHA256_HashContext *) base;
+  mg_sha256_final(hash_result, &c->ctx);
+}
+
+static void mg_tls_server_send_cert_verify(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  // server certificate verify packet
+  uint8_t verify[82] = {0x0f, 0x00, 0x00, 0x00, 0x04, 0x03, 0x00, 0x00};
+  size_t sigsz, verifysz = 0;
+  uint8_t hash[32] = {0}, tmp[2 * 32 + 64] = {0};
+  struct SHA256_HashContext ctx = {
+      {&init_SHA256, &update_SHA256, &finish_SHA256, 64, 32, tmp},
+      {{0}, 0, 0, {0}}};
+  int neg1, neg2;
+  uint8_t sig[64] = {0};
+
+  mg_tls_calc_cert_verify_hash(c, (uint8_t *) hash);
+
+  mg_uecc_sign_deterministic(tls->server_key, hash, sizeof(hash), &ctx.uECC,
+                             sig, mg_uecc_secp256r1());
+
+  neg1 = !!(sig[0] & 0x80);
+  neg2 = !!(sig[32] & 0x80);
+  verify[8] = 0x30;  // ASN.1 SEQUENCE
+  verify[9] = (uint8_t) (68 + neg1 + neg2);
+  verify[10] = 0x02;  // ASN.1 INTEGER
+  verify[11] = (uint8_t) (32 + neg1);
+  memmove(verify + 12 + neg1, sig, 32);
+  verify[12 + 32 + neg1] = 0x02;  // ASN.1 INTEGER
+  verify[13 + 32 + neg1] = (uint8_t) (32 + neg2);
+  memmove(verify + 14 + 32 + neg1 + neg2, sig + 32, 32);
+
+  sigsz = (size_t) (70 + neg1 + neg2);
+  verifysz = 8U + sigsz;
+  verify[3] = (uint8_t) (sigsz + 4);
+  verify[7] = (uint8_t) sigsz;
+
+  mg_sha256_update(&tls->sha256, verify, verifysz);
+  mg_tls_encrypt(c, verify, verifysz, MG_TLS_HANDSHAKE);
+}
+
+static void mg_tls_server_send_finish(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  struct mg_iobuf *wio = &tls->send;
+  mg_sha256_ctx sha256;
+  uint8_t hash[32];
+  uint8_t finish[36] = {0x14, 0, 0, 32};
+  memmove(&sha256, &tls->sha256, sizeof(mg_sha256_ctx));
+  mg_sha256_final(hash, &sha256);
+  mg_hmac_sha256(finish + 4, tls->server_finished_key, 32, hash, 32);
+  mg_tls_encrypt(c, finish, sizeof(finish), MG_TLS_HANDSHAKE);
+  mg_io_send(c, wio->buf, wio->len);
+  wio->len = 0;
+
+  mg_sha256_update(&tls->sha256, finish, sizeof(finish));
+}
+
+static int mg_tls_server_recv_finish(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  // we have to backup sha256 value to restore it later, since Finished record
+  // is exceptional and is not supposed to be added to the rolling hash
+  // calculation.
+  mg_sha256_ctx sha256 = tls->sha256;
+  if (mg_tls_recv_record(c) < 0) {
+    return -1;
+  }
+  if (tls->recv.buf[0] != MG_TLS_FINISHED) {
+    mg_error(c, "expected Finish but got msg 0x%02x", tls->recv.buf[0]);
+    return -1;
+  }
+  mg_tls_drop_message(c);
+
+  // restore hash
+  tls->sha256 = sha256;
+  return 0;
+}
+
+static void mg_tls_client_send_hello(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  struct mg_iobuf *wio = &tls->send;
+
+  const char *hostname = tls->hostname;
+  size_t hostnamesz = strlen(tls->hostname);
+  uint8_t x25519_pub[X25519_BYTES];
+
+  uint8_t msg_client_hello[162 + 32] = {
+    // TLS Client Hello header reported as TLS1.2 (5)
+    0x16,
+    0x03,
+    0x01,
+    0x00,
+    0xfe,
+    // server hello, tls 1.2 (6)
+    0x01,
+    0x00,
+    0x00,
+    0x8c,
+    0x03,
+    0x03,
+    // random (32 bytes)
+    PLACEHOLDER_32B,
+    // session ID length + session ID (32 bytes)
+    0x20,
+    PLACEHOLDER_32B,
+#if defined(CHACHA20) && CHACHA20
+    // TLS_CHACHA20_POLY1305_SHA256 + no compression
+    0x13,
+    0x03,
+    0x00,
+#else
+    0x00,
+    0x02,  // size = 2 bytes
+    0x13,
+    0x01,  // TLS_AES_128_GCM_SHA256
+    0x01,
+    0x00,  // no compression
+#endif
+
+    // extensions + keyshare
+    0x00,
+    0xfe,
+    // x25519 keyshare
+    0x00,
+    0x33,
+    0x00,
+    0x26,
+    0x00,
+    0x24,
+    0x00,
+    0x1d,
+    0x00,
+    0x20,
+    PLACEHOLDER_32B,
+    // supported groups (x25519)
+    0x00,
+    0x0a,
+    0x00,
+    0x04,
+    0x00,
+    0x02,
+    0x00,
+    0x1d,
+    // supported versions (tls1.3 == 0x304)
+    0x00,
+    0x2b,
+    0x00,
+    0x03,
+    0x02,
+    0x03,
+    0x04,
+    // session ticket (none)
+    0x00,
+    0x23,
+    0x00,
+    0x00,
+    // signature algorithms (we don't care, so list all the common ones)
+    0x00,
+    0x0d,
+    0x00,
+    0x24,
+    0x00,
+    0x22,
+    0x04,
+    0x03,
+    0x05,
+    0x03,
+    0x06,
+    0x03,
+    0x08,
+    0x07,
+    0x08,
+    0x08,
+    0x08,
+    0x1a,
+    0x08,
+    0x1b,
+    0x08,
+    0x1c,
+    0x08,
+    0x09,
+    0x08,
+    0x0a,
+    0x08,
+    0x0b,
+    0x08,
+    0x04,
+    0x08,
+    0x05,
+    0x08,
+    0x06,
+    0x04,
+    0x01,
+    0x05,
+    0x01,
+    0x06,
+    0x01,
+    // server name
+    0x00,
+    0x00,
+    0x00,
+    0xfe,
+    0x00,
+    0xfe,
+    0x00,
+    0x00,
+    0xfe
+  };
+
+  // patch ClientHello with correct hostname length + offset:
+  MG_STORE_BE16(msg_client_hello + 3, hostnamesz + 189);
+  MG_STORE_BE16(msg_client_hello + 7, hostnamesz + 185);
+  MG_STORE_BE16(msg_client_hello + 82, hostnamesz + 110);
+  MG_STORE_BE16(msg_client_hello + 187, hostnamesz + 5);
+  MG_STORE_BE16(msg_client_hello + 189, hostnamesz + 3);
+  MG_STORE_BE16(msg_client_hello + 192, hostnamesz);
+
+  // calculate keyshare
+  mg_random(tls->x25519_cli, sizeof(tls->x25519_cli));
+  mg_tls_x25519(x25519_pub, tls->x25519_cli, X25519_BASE_POINT, 1);
+
+  // fill in the gaps: random + session ID + keyshare
+  mg_random(tls->session_id, sizeof(tls->session_id));
+  mg_random(tls->random, sizeof(tls->random));
+  memmove(msg_client_hello + 11, tls->random, sizeof(tls->random));
+  memmove(msg_client_hello + 44, tls->session_id, sizeof(tls->session_id));
+  memmove(msg_client_hello + 94, x25519_pub, sizeof(x25519_pub));
+
+  // server hello message
+  mg_iobuf_add(wio, wio->len, msg_client_hello, sizeof(msg_client_hello));
+  mg_iobuf_add(wio, wio->len, hostname, strlen(hostname));
+  mg_sha256_update(&tls->sha256, msg_client_hello + 5,
+                   sizeof(msg_client_hello) - 5);
+  mg_sha256_update(&tls->sha256, (uint8_t *) hostname, strlen(hostname));
+
+  // change cipher message
+  mg_iobuf_add(wio, wio->len, (const char *) "\x14\x03\x03\x00\x01\x01", 6);
+  mg_io_send(c, wio->buf, wio->len);
+  wio->len = 0;
+}
+
+static int mg_tls_client_recv_hello(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  struct mg_iobuf *rio = &c->rtls;
+  uint16_t msgsz;
+  uint8_t *ext;
+  uint16_t ext_len;
+  int j;
+
+  if (!mg_tls_got_record(c)) {
+    return MG_IO_WAIT;
+  }
+  if (rio->buf[0] != MG_TLS_HANDSHAKE || rio->buf[5] != MG_TLS_SERVER_HELLO) {
+    if (rio->buf[0] == MG_TLS_ALERT && rio->len >= 7) {
+      mg_error(c, "tls alert %d", rio->buf[6]);
+      return -1;
+    }
+    MG_INFO(("got packet type 0x%02x/0x%02x", rio->buf[0], rio->buf[5]));
+    mg_error(c, "not a server hello packet");
+    return -1;
+  }
+
+  msgsz = MG_LOAD_BE16(rio->buf + 3);
+  mg_sha256_update(&tls->sha256, rio->buf + 5, msgsz);
+
+  ext_len = MG_LOAD_BE16(rio->buf + 5 + 39 + 32 + 3);
+  ext = rio->buf + 5 + 39 + 32 + 3 + 2;
+
+  for (j = 0; j < ext_len;) {
+    uint16_t ext_type = MG_LOAD_BE16(ext + j);
+    uint16_t ext_len2 = MG_LOAD_BE16(ext + j + 2);
+    uint16_t group;
+    uint8_t *key_exchange;
+    uint16_t key_exchange_len;
+    if (ext_type != 0x0033) {  // not a key share extension, ignore
+      j += (uint16_t) (ext_len2 + 4);
+      continue;
+    }
+    group = MG_LOAD_BE16(ext + j + 4);
+    if (group != 0x001d) {
+      mg_error(c, "bad key exchange group");
+      return -1;
+    }
+    key_exchange_len = MG_LOAD_BE16(ext + j + 6);
+    key_exchange = ext + j + 8;
+    if (key_exchange_len != 32) {
+      mg_error(c, "bad key exchange length");
+      return -1;
+    }
+    mg_tls_x25519(tls->x25519_sec, tls->x25519_cli, key_exchange, 1);
+    mg_tls_hexdump("c x25519 sec", tls->x25519_sec, 32);
+    mg_tls_drop_record(c);
+    /* generate handshake keys */
+    mg_tls_generate_handshake_keys(c);
+    return 0;
+  }
+  mg_error(c, "bad client hello");
+  return -1;
+}
+
+static int mg_tls_client_recv_ext(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  if (mg_tls_recv_record(c) < 0) {
+    return -1;
+  }
+  if (tls->recv.buf[0] != MG_TLS_ENCRYPTED_EXTENSIONS) {
+    mg_error(c, "expected server extensions but got msg 0x%02x",
+             tls->recv.buf[0]);
+    return -1;
+  }
+  mg_tls_drop_message(c);
+  return 0;
+}
+
+static int mg_tls_client_recv_cert(struct mg_connection *c) {
+  uint8_t *cert;
+  uint32_t certsz;
+  struct mg_der_tlv oid, pubkey, seq, subj;
+  int subj_match = 0;
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  if (mg_tls_recv_record(c) < 0) {
+    return -1;
+  }
+  if (tls->recv.buf[0] != MG_TLS_CERTIFICATE) {
+    mg_error(c, "expected server certificate but got msg 0x%02x",
+             tls->recv.buf[0]);
+    return -1;
+  }
+  if (tls->skip_verification) {
+    mg_tls_drop_message(c);
+    return 0;
+  }
+
+  if (tls->recv.len < 11) {
+    mg_error(c, "certificate list too short");
+    return -1;
+  }
+
+  cert = tls->recv.buf + 11;
+  certsz = MG_LOAD_BE24(tls->recv.buf + 8);
+  if (certsz > tls->recv.len - 11) {
+    mg_error(c, "certificate too long: %d vs %d", certsz, tls->recv.len - 11);
+    return -1;
+  }
+
+  do {
+    // secp256r1 public key
+    if (mg_der_find(cert, certsz,
+                    (uint8_t *) "\x2A\x86\x48\xCE\x3D\x03\x01\x07", 8,
+                    &oid) < 0) {
+      mg_error(c, "certificate secp256r1 public key OID not found");
+      return -1;
+    }
+    if (mg_der_to_tlv(oid.value + oid.len,
+                      (size_t) (cert + certsz - (oid.value + oid.len)),
+                      &pubkey) < 0) {
+      mg_error(c, "certificate secp256r1 public key not found");
+      return -1;
+    }
+
+    // expect BIT STRING, unpadded, uncompressed: [0]+[4]+32+32 content bytes
+    if (pubkey.type != 3 || pubkey.len != 66 || pubkey.value[0] != 0 ||
+        pubkey.value[1] != 4) {
+      mg_error(c, "unsupported public key bitstring encoding");
+      return -1;
+    }
+    memmove(tls->pubkey, pubkey.value + 2, pubkey.len - 2);
+  } while (0);
+
+  // Subject Alternative Names
+  do {
+    if (mg_der_find(cert, certsz, (uint8_t *) "\x55\x1d\x11", 3, &oid) < 0) {
+      mg_error(c, "certificate does not contain subject alternative names");
+      return -1;
+    }
+    if (mg_der_to_tlv(oid.value + oid.len,
+                      (size_t) (cert + certsz - (oid.value + oid.len)),
+                      &seq) < 0) {
+      mg_error(c, "certificate subject alternative names not found");
+      return -1;
+    }
+    if (mg_der_to_tlv(seq.value, seq.len, &seq) < 0) {
+      mg_error(
+          c,
+          "certificate subject alternative names is not a constructed object");
+      return -1;
+    }
+    MG_VERBOSE(("verify hostname %s", tls->hostname));
+    while (seq.len > 0) {
+      if (mg_der_to_tlv(seq.value, seq.len, &subj) < 0) {
+        mg_error(c, "bad subject alternative name");
+        return -1;
+      }
+      MG_VERBOSE(("subj=%.*s", subj.len, subj.value));
+      if (mg_match(mg_str((const char *) tls->hostname),
+                   mg_str_n((const char *) subj.value, subj.len), NULL)) {
+        subj_match = 1;
+        break;
+      }
+      seq.len = (uint32_t) (seq.value + seq.len - (subj.value + subj.len));
+      seq.value = subj.value + subj.len;
+    }
+    if (!subj_match) {
+      mg_error(c, "certificate did not match the hostname");
+      return -1;
+    }
+  } while (0);
+
+  mg_tls_drop_message(c);
+  mg_tls_calc_cert_verify_hash(c, tls->sighash);
+  return 0;
+}
+
+static int mg_tls_client_recv_cert_verify(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  if (mg_tls_recv_record(c) < 0) {
+    return -1;
+  }
+  if (tls->recv.buf[0] != MG_TLS_CERTIFICATE_VERIFY) {
+    mg_error(c, "expected server certificate verify but got msg 0x%02x",
+             tls->recv.buf[0]);
+    return -1;
+  }
+  // Ignore CertificateVerify is strict checks are not required
+  if (tls->skip_verification) {
+    mg_tls_drop_message(c);
+    return 0;
+  }
+
+  // Extract certificate signature and verify it using pubkey and sighash
+  do {
+    uint8_t sig[64];
+    struct mg_der_tlv seq, a, b;
+    if (mg_der_to_tlv(tls->recv.buf + 8, tls->recv.len - 8, &seq) < 0) {
+      mg_error(c, "verification message is not an ASN.1 DER sequence");
+      return -1;
+    }
+    if (mg_der_to_tlv(seq.value, seq.len, &a) < 0) {
+      mg_error(c, "missing first part of the signature");
+      return -1;
+    }
+    if (mg_der_to_tlv(a.value + a.len, seq.len - a.len, &b) < 0) {
+      mg_error(c, "missing second part of the signature");
+      return -1;
+    }
+    // Integers may be padded with zeroes
+    if (a.len > 32) {
+      a.value = a.value + (a.len - 32);
+      a.len = 32;
+    }
+    if (b.len > 32) {
+      b.value = b.value + (b.len - 32);
+      b.len = 32;
+    }
+
+    memmove(sig, a.value, a.len);
+    memmove(sig + 32, b.value, b.len);
+
+    if (mg_uecc_verify(tls->pubkey, tls->sighash, sizeof(tls->sighash), sig,
+                       mg_uecc_secp256r1()) != 1) {
+      mg_error(c, "failed to verify certificate");
+      return -1;
+    }
+  } while (0);
+
+  mg_tls_drop_message(c);
+  return 0;
+}
+
+static int mg_tls_client_recv_finish(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  if (mg_tls_recv_record(c) < 0) {
+    return -1;
+  }
+  if (tls->recv.buf[0] != MG_TLS_FINISHED) {
+    mg_error(c, "expected server finished but got msg 0x%02x",
+             tls->recv.buf[0]);
+    return -1;
+  }
+  mg_tls_drop_message(c);
+  return 0;
+}
+
+static void mg_tls_client_send_finish(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  struct mg_iobuf *wio = &tls->send;
+  mg_sha256_ctx sha256;
+  uint8_t hash[32];
+  uint8_t finish[36] = {0x14, 0, 0, 32};
+  memmove(&sha256, &tls->sha256, sizeof(mg_sha256_ctx));
+  mg_sha256_final(hash, &sha256);
+  mg_hmac_sha256(finish + 4, tls->client_finished_key, 32, hash, 32);
+  mg_tls_encrypt(c, finish, sizeof(finish), MG_TLS_HANDSHAKE);
+  mg_io_send(c, wio->buf, wio->len);
+  wio->len = 0;
+}
+
+static void mg_tls_client_handshake(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
   switch (tls->state) {
-    case MG_TLS_HS_CLIENT_HELLO:
-      if (mg_tls_client_hello(c) < 0) {
+    case MG_TLS_STATE_CLIENT_START:
+      mg_tls_client_send_hello(c);
+      tls->state = MG_TLS_STATE_CLIENT_WAIT_SH;
+      // Fallthrough
+    case MG_TLS_STATE_CLIENT_WAIT_SH:
+      if (mg_tls_client_recv_hello(c) < 0) {
+        break;
+      }
+      tls->state = MG_TLS_STATE_CLIENT_WAIT_EE;
+      // Fallthrough
+    case MG_TLS_STATE_CLIENT_WAIT_EE:
+      if (mg_tls_client_recv_ext(c) < 0) {
+        break;
+      }
+      tls->state = MG_TLS_STATE_CLIENT_WAIT_CERT;
+      // Fallthrough
+    case MG_TLS_STATE_CLIENT_WAIT_CERT:
+      if (mg_tls_client_recv_cert(c) < 0) {
+        break;
+      }
+      tls->state = MG_TLS_STATE_CLIENT_WAIT_CV;
+      // Fallthrough
+    case MG_TLS_STATE_CLIENT_WAIT_CV:
+      if (mg_tls_client_recv_cert_verify(c) < 0) {
+        break;
+      }
+      tls->state = MG_TLS_STATE_CLIENT_WAIT_FINISHED;
+      // Fallthrough
+    case MG_TLS_STATE_CLIENT_WAIT_FINISHED:
+      if (mg_tls_client_recv_finish(c) < 0) {
+        break;
+      }
+      mg_tls_client_send_finish(c);
+      mg_tls_generate_application_keys(c);
+      tls->state = MG_TLS_STATE_CLIENT_CONNECTED;
+      c->is_tls_hs = 0;
+      break;
+    default: mg_error(c, "unexpected client state: %d", tls->state); break;
+  }
+}
+
+static void mg_tls_server_handshake(struct mg_connection *c) {
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  switch (tls->state) {
+    case MG_TLS_STATE_SERVER_START:
+      if (mg_tls_server_recv_hello(c) < 0) {
         return;
       }
-      tls->state = MG_TLS_HS_SERVER_HELLO;
-      // fallthrough
-    case MG_TLS_HS_SERVER_HELLO:
-      mg_tls_server_hello(c);
+      mg_tls_server_send_hello(c);
       mg_tls_generate_handshake_keys(c);
-      mg_tls_server_extensions(c);
-      mg_tls_server_cert(c);
-      mg_tls_server_verify_ecdsa(c);
-      mg_tls_server_finish(c);
-      tls->state = MG_TLS_HS_CLIENT_CHANGE_CIPHER;
+      mg_tls_server_send_ext(c);
+      mg_tls_server_send_cert(c);
+      mg_tls_server_send_cert_verify(c);
+      mg_tls_server_send_finish(c);
+      tls->state = MG_TLS_STATE_SERVER_NEGOTIATED;
       // fallthrough
-    case MG_TLS_HS_CLIENT_CHANGE_CIPHER:
-      if (mg_tls_client_change_cipher(c) < 0) {
-        return;
-      }
-      tls->state = MG_TLS_HS_CLIENT_FINISH;
-      // fallthrough
-    case MG_TLS_HS_CLIENT_FINISH:
-      if (mg_tls_client_finish(c) < 0) {
+    case MG_TLS_STATE_SERVER_NEGOTIATED:
+      if (mg_tls_server_recv_finish(c) < 0) {
         return;
       }
       mg_tls_generate_application_keys(c);
-      tls->state = MG_TLS_HS_DONE;
-      // fallthrough
-    case MG_TLS_HS_DONE: c->is_tls_hs = 0; return;
+      tls->state = MG_TLS_STATE_SERVER_CONNECTED;
+      c->is_tls_hs = 0;
+      return;
+    default: mg_error(c, "unexpected server state: %d", tls->state); break;
+  }
+}
+
+void mg_tls_handshake(struct mg_connection *c) {
+  if (c->is_client) {
+    mg_tls_client_handshake(c);
+  } else {
+    mg_tls_server_handshake(c);
   }
 }
 
@@ -9943,11 +10555,11 @@ static int mg_parse_pem(const struct mg_str pem, const struct mg_str label,
   if (mg_strcmp(caps[1], label) != 0 || mg_strcmp(caps[3], label) != 0) {
     return -1;  // bad label
   }
-  if ((s = calloc(1, caps[2].len)) == NULL) {
+  if ((s = (char *) calloc(1, caps[2].len)) == NULL) {
     return -1;
   }
 
-  for (c = caps[2].ptr; c < caps[2].ptr + caps[2].len; c++) {
+  for (c = caps[2].buf; c < caps[2].buf + caps[2].len; c++) {
     if (*c == ' ' || *c == '\n' || *c == '\r' || *c == '\t') {
       continue;
     }
@@ -9958,7 +10570,7 @@ static int mg_parse_pem(const struct mg_str pem, const struct mg_str label,
     free(s);
     return -1;
   }
-  der->ptr = s;
+  der->buf = s;
   der->len = m;
   return 0;
 }
@@ -9970,27 +10582,30 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
     mg_error(c, "tls oom");
     return;
   }
-  // parse PEM or DER EC key
-  if (opts->key.ptr == NULL ||
-      mg_parse_pem(opts->key, mg_str_s("EC PRIVATE KEY"), &key) < 0) {
-    MG_ERROR(("Failed to load EC private key"));
+
+  tls->state =
+      c->is_client ? MG_TLS_STATE_CLIENT_START : MG_TLS_STATE_SERVER_START;
+
+  tls->skip_verification = opts->skip_verification;
+  tls->send.align = MG_IO_SIZE;
+
+  c->tls = tls;
+  c->is_tls = c->is_tls_hs = 1;
+  mg_sha256_init(&tls->sha256);
+
+  // save hostname (client extension)
+  if (opts->name.len > 0) {
+    if (opts->name.len >= sizeof(tls->hostname) - 1) {
+      mg_error(c, "hostname too long");
+    }
+    strncpy((char *) tls->hostname, opts->name.buf, sizeof(tls->hostname) - 1);
+    tls->hostname[opts->name.len] = 0;
+  }
+
+  if (c->is_client) {
+    tls->server_cert_der.buf = NULL;
     return;
   }
-  if (key.len < 39) {
-    MG_ERROR(("EC private key too short"));
-    return;
-  }
-  // expect ASN.1 SEQUENCE=[INTEGER=1, BITSTRING of 32 bytes, ...]
-  // 30 nn 02 01 01 04 20 [key] ...
-  if (key.ptr[0] != 0x30 || (key.ptr[1] & 0x80) != 0) {
-    MG_ERROR(("EC private key: ASN.1 bad sequence"));
-    return;
-  }
-  if (memcmp(key.ptr + 2, "\x02\x01\x01\x04\x20", 5) != 0) {
-    MG_ERROR(("EC private key: ASN.1 bad data"));
-  }
-  memmove(tls->server_key, key.ptr + 7, 32);
-  free((void *) key.ptr);
 
   // parse PEM or DER certificate
   if (mg_parse_pem(opts->cert, mg_str_s("CERTIFICATE"), &tls->server_cert_der) <
@@ -9999,28 +10614,50 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
     return;
   }
 
-  // tls->send.align = tls->recv.align = MG_IO_SIZE;
-  tls->send.align = MG_IO_SIZE;
-  c->tls = tls;
-  c->is_tls = c->is_tls_hs = 1;
-  mg_sha256_init(&tls->sha256);
+  // parse PEM or DER EC key
+  if (opts->key.buf == NULL) {
+    mg_error(c, "certificate provided without a private key");
+    return;
+  }
+
+  if (mg_parse_pem(opts->key, mg_str_s("EC PRIVATE KEY"), &key) == 0) {
+    if (key.len < 39) {
+      MG_ERROR(("EC private key too short"));
+      return;
+    }
+    // expect ASN.1 SEQUENCE=[INTEGER=1, BITSTRING of 32 bytes, ...]
+    // 30 nn 02 01 01 04 20 [key] ...
+    if (key.buf[0] != 0x30 || (key.buf[1] & 0x80) != 0) {
+      MG_ERROR(("EC private key: ASN.1 bad sequence"));
+      return;
+    }
+    if (memcmp(key.buf + 2, "\x02\x01\x01\x04\x20", 5) != 0) {
+      MG_ERROR(("EC private key: ASN.1 bad data"));
+    }
+    memmove(tls->server_key, key.buf + 7, 32);
+    free((void *) key.buf);
+  } else if (mg_parse_pem(opts->key, mg_str_s("PRIVATE KEY"), &key) == 0) {
+    mg_error(c, "PKCS8 private key format is not supported");
+  } else {
+    mg_error(c, "expected EC PRIVATE KEY or PRIVATE KEY");
+  }
 }
 
 void mg_tls_free(struct mg_connection *c) {
-  struct tls_data *tls = c->tls;
+  struct tls_data *tls = (struct tls_data *) c->tls;
   if (tls != NULL) {
     mg_iobuf_free(&tls->send);
-    free((void *) tls->server_cert_der.ptr);
+    free((void *) tls->server_cert_der.buf);
   }
   free(c->tls);
   c->tls = NULL;
 }
 
 long mg_tls_send(struct mg_connection *c, const void *buf, size_t len) {
-  struct tls_data *tls = c->tls;
+  struct tls_data *tls = (struct tls_data *) c->tls;
   long n = MG_IO_WAIT;
   if (len > MG_IO_SIZE) len = MG_IO_SIZE;
-  mg_tls_encrypt(c, buf, len, 0x17);
+  mg_tls_encrypt(c, (const uint8_t *) buf, len, MG_TLS_APP_DATA);
   while (tls->send.len > 0 &&
          (n = mg_io_send(c, tls->send.buf, tls->send.len)) > 0) {
     mg_iobuf_del(&tls->send, 0, (size_t) n);
@@ -10030,11 +10667,31 @@ long mg_tls_send(struct mg_connection *c, const void *buf, size_t len) {
 }
 
 long mg_tls_recv(struct mg_connection *c, void *buf, size_t len) {
-  return mg_tls_recv_decrypt(c, buf, len);
+  int r = 0;
+  struct tls_data *tls = (struct tls_data *) c->tls;
+  size_t minlen;
+
+  r = mg_tls_recv_record(c);
+  if (r < 0) {
+    return r;
+  }
+  if (tls->content_type != MG_TLS_APP_DATA) {
+    tls->recv.len = 0;
+    mg_tls_drop_record(c);
+    return MG_IO_WAIT;
+  }
+  minlen = len < tls->recv.len ? len : tls->recv.len;
+  memmove(buf, tls->recv.buf, minlen);
+  tls->recv.buf += minlen;
+  tls->recv.len -= minlen;
+  if (tls->recv.len == 0) {
+    mg_tls_drop_record(c);
+  }
+  return (long) minlen;
 }
 
 size_t mg_tls_pending(struct mg_connection *c) {
-  return mg_tls_got_msg(c) ? 1 : 0;
+  return mg_tls_got_record(c) ? 1 : 0;
 }
 
 void mg_tls_ctx_init(struct mg_mgr *mgr) {
@@ -10102,9 +10759,9 @@ static int mg_mbed_rng(void *ctx, unsigned char *buf, size_t len) {
 
 static bool mg_load_cert(struct mg_str str, mbedtls_x509_crt *p) {
   int rc;
-  if (str.ptr == NULL || str.ptr[0] == '\0' || str.ptr[0] == '*') return true;
-  if (str.ptr[0] == '-') str.len++;  // PEM, include trailing NUL
-  if ((rc = mbedtls_x509_crt_parse(p, (uint8_t *) str.ptr, str.len)) != 0) {
+  if (str.buf == NULL || str.buf[0] == '\0' || str.buf[0] == '*') return true;
+  if (str.buf[0] == '-') str.len++;  // PEM, include trailing NUL
+  if ((rc = mbedtls_x509_crt_parse(p, (uint8_t *) str.buf, str.len)) != 0) {
     MG_ERROR(("cert err %#x", -rc));
     return false;
   }
@@ -10113,9 +10770,9 @@ static bool mg_load_cert(struct mg_str str, mbedtls_x509_crt *p) {
 
 static bool mg_load_key(struct mg_str str, mbedtls_pk_context *p) {
   int rc;
-  if (str.ptr == NULL || str.ptr[0] == '\0' || str.ptr[0] == '*') return true;
-  if (str.ptr[0] == '-') str.len++;  // PEM, include trailing NUL
-  if ((rc = mbedtls_pk_parse_key(p, (uint8_t *) str.ptr, str.len, NULL,
+  if (str.buf == NULL || str.buf[0] == '\0' || str.buf[0] == '*') return true;
+  if (str.buf[0] == '-') str.len++;  // PEM, include trailing NUL
+  if ((rc = mbedtls_pk_parse_key(p, (uint8_t *) str.buf, str.len, NULL,
                                  0 MG_MBEDTLS_RNG_GET)) != 0) {
     MG_ERROR(("key err %#x", -rc));
     return false;
@@ -10213,8 +10870,8 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
   } else {
     if (mg_load_cert(opts->ca, &tls->ca) == false) goto fail;
     mbedtls_ssl_conf_ca_chain(&tls->conf, &tls->ca, NULL);
-    if (c->is_client && opts->name.ptr != NULL && opts->name.ptr[0] != '\0') {
-      char *host = mg_mprintf("%.*s", opts->name.len, opts->name.ptr);
+    if (c->is_client && opts->name.buf != NULL && opts->name.buf[0] != '\0') {
+      char *host = mg_mprintf("%.*s", opts->name.len, opts->name.buf);
       mbedtls_ssl_set_hostname(&tls->ssl, host);
       MG_DEBUG(("%lu hostname verification: %s", c->id, host));
       free(host);
@@ -10336,7 +10993,7 @@ static int mg_tls_err(struct mg_connection *c, struct mg_tls *tls, int res) {
 }
 
 static STACK_OF(X509_INFO) * load_ca_certs(struct mg_str ca) {
-  BIO *bio = BIO_new_mem_buf(ca.ptr, (int) ca.len);
+  BIO *bio = BIO_new_mem_buf(ca.buf, (int) ca.len);
   STACK_OF(X509_INFO) *certs =
       bio ? PEM_X509_INFO_read_bio(bio, NULL, NULL, NULL) : NULL;
   if (bio) BIO_free(bio);
@@ -10354,16 +11011,16 @@ static bool add_ca_certs(SSL_CTX *ctx, STACK_OF(X509_INFO) * certs) {
 }
 
 static EVP_PKEY *load_key(struct mg_str s) {
-  BIO *bio = BIO_new_mem_buf(s.ptr, (int) (long) s.len);
+  BIO *bio = BIO_new_mem_buf(s.buf, (int) (long) s.len);
   EVP_PKEY *key = bio ? PEM_read_bio_PrivateKey(bio, NULL, 0, NULL) : NULL;
   if (bio) BIO_free(bio);
   return key;
 }
 
 static X509 *load_cert(struct mg_str s) {
-  BIO *bio = BIO_new_mem_buf(s.ptr, (int) (long) s.len);
+  BIO *bio = BIO_new_mem_buf(s.buf, (int) (long) s.len);
   X509 *cert = bio == NULL ? NULL
-               : s.ptr[0] == '-'
+               : s.buf[0] == '-'
                    ? PEM_read_bio_X509(bio, NULL, NULL, NULL)  // PEM
                    : d2i_X509_bio(bio, NULL);                  // DER
   if (bio) BIO_free(bio);
@@ -10437,7 +11094,7 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
   SSL_set_options(tls->ssl, SSL_OP_CIPHER_SERVER_PREFERENCE);
 #endif
 
-  if (opts->ca.ptr != NULL && opts->ca.ptr[0] != '\0') {
+  if (opts->ca.buf != NULL && opts->ca.buf[0] != '\0') {
     SSL_set_verify(tls->ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT,
                    NULL);
     STACK_OF(X509_INFO) *certs = load_ca_certs(opts->ca);
@@ -10448,7 +11105,7 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
       goto fail;
     }
   }
-  if (opts->cert.ptr != NULL && opts->cert.ptr[0] != '\0') {
+  if (opts->cert.buf != NULL && opts->cert.buf[0] != '\0') {
     X509 *cert = load_cert(opts->cert);
     rc = cert == NULL ? 0 : SSL_use_certificate(tls->ssl, cert);
     X509_free(cert);
@@ -10457,7 +11114,7 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
       goto fail;
     }
   }
-  if (opts->key.ptr != NULL && opts->key.ptr[0] != '\0') {
+  if (opts->key.buf != NULL && opts->key.buf[0] != '\0') {
     EVP_PKEY *key = load_key(opts->key);
     rc = key == NULL ? 0 : SSL_use_PrivateKey(tls->ssl, key);
     EVP_PKEY_free(key);
@@ -10473,7 +11130,7 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
 #endif
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
   if (opts->name.len > 0) {
-    char *s = mg_mprintf("%.*s", (int) opts->name.len, opts->name.ptr);
+    char *s = mg_mprintf("%.*s", (int) opts->name.len, opts->name.buf);
     SSL_set1_host(tls->ssl, s);
     SSL_set_tlsext_host_name(tls->ssl, s);
     free(s);
@@ -10564,18 +11221,19 @@ void mg_tls_ctx_free(struct mg_mgr *mgr) {
 
 #if MG_TLS == MG_TLS_BUILTIN
 
-#ifndef uECC_RNG_MAX_TRIES
-#define uECC_RNG_MAX_TRIES 64
+#ifndef MG_UECC_RNG_MAX_TRIES
+#define MG_UECC_RNG_MAX_TRIES 64
 #endif
 
-#if uECC_ENABLE_VLI_API
-#define uECC_VLI_API
+#if MG_UECC_ENABLE_VLI_API
+#define MG_UECC_VLI_API
 #else
-#define uECC_VLI_API static
+#define MG_UECC_VLI_API static
 #endif
 
-#if (uECC_PLATFORM == uECC_avr) || (uECC_PLATFORM == uECC_arm) || \
-    (uECC_PLATFORM == uECC_arm_thumb) || (uECC_PLATFORM == uECC_arm_thumb2)
+#if (MG_UECC_PLATFORM == mg_uecc_avr) || (MG_UECC_PLATFORM == mg_uecc_arm) || \
+    (MG_UECC_PLATFORM == mg_uecc_arm_thumb) ||                                \
+    (MG_UECC_PLATFORM == mg_uecc_arm_thumb2)
 #define CONCATX(a, ...) a##__VA_ARGS__
 #define CONCAT(a, ...) CONCATX(a, __VA_ARGS__)
 
@@ -10646,83 +11304,84 @@ void mg_tls_ctx_free(struct mg_mgr *mgr) {
 #define REPEATM(N, macro) EVAL(REPEATM_SOME(N, macro))
 #endif
 
-//
+// 
 
-#if (uECC_WORD_SIZE == 1)
-#if uECC_SUPPORTS_secp160r1
-#define uECC_MAX_WORDS 21 /* Due to the size of curve_n. */
+#if (MG_UECC_WORD_SIZE == 1)
+#if MG_UECC_SUPPORTS_secp160r1
+#define MG_UECC_MAX_WORDS 21 /* Due to the size of curve_n. */
 #endif
-#if uECC_SUPPORTS_secp192r1
-#undef uECC_MAX_WORDS
-#define uECC_MAX_WORDS 24
+#if MG_UECC_SUPPORTS_secp192r1
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 24
 #endif
-#if uECC_SUPPORTS_secp224r1
-#undef uECC_MAX_WORDS
-#define uECC_MAX_WORDS 28
+#if MG_UECC_SUPPORTS_secp224r1
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 28
 #endif
-#if (uECC_SUPPORTS_secp256r1 || uECC_SUPPORTS_secp256k1)
-#undef uECC_MAX_WORDS
-#define uECC_MAX_WORDS 32
+#if (MG_UECC_SUPPORTS_secp256r1 || MG_UECC_SUPPORTS_secp256k1)
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 32
 #endif
-#elif (uECC_WORD_SIZE == 4)
-#if uECC_SUPPORTS_secp160r1
-#define uECC_MAX_WORDS 6 /* Due to the size of curve_n. */
+#elif (MG_UECC_WORD_SIZE == 4)
+#if MG_UECC_SUPPORTS_secp160r1
+#define MG_UECC_MAX_WORDS 6 /* Due to the size of curve_n. */
 #endif
-#if uECC_SUPPORTS_secp192r1
-#undef uECC_MAX_WORDS
-#define uECC_MAX_WORDS 6
+#if MG_UECC_SUPPORTS_secp192r1
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 6
 #endif
-#if uECC_SUPPORTS_secp224r1
-#undef uECC_MAX_WORDS
-#define uECC_MAX_WORDS 7
+#if MG_UECC_SUPPORTS_secp224r1
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 7
 #endif
-#if (uECC_SUPPORTS_secp256r1 || uECC_SUPPORTS_secp256k1)
-#undef uECC_MAX_WORDS
-#define uECC_MAX_WORDS 8
+#if (MG_UECC_SUPPORTS_secp256r1 || MG_UECC_SUPPORTS_secp256k1)
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 8
 #endif
-#elif (uECC_WORD_SIZE == 8)
-#if uECC_SUPPORTS_secp160r1
-#define uECC_MAX_WORDS 3
+#elif (MG_UECC_WORD_SIZE == 8)
+#if MG_UECC_SUPPORTS_secp160r1
+#define MG_UECC_MAX_WORDS 3
 #endif
-#if uECC_SUPPORTS_secp192r1
-#undef uECC_MAX_WORDS
-#define uECC_MAX_WORDS 3
+#if MG_UECC_SUPPORTS_secp192r1
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 3
 #endif
-#if uECC_SUPPORTS_secp224r1
-#undef uECC_MAX_WORDS
-#define uECC_MAX_WORDS 4
+#if MG_UECC_SUPPORTS_secp224r1
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 4
 #endif
-#if (uECC_SUPPORTS_secp256r1 || uECC_SUPPORTS_secp256k1)
-#undef uECC_MAX_WORDS
-#define uECC_MAX_WORDS 4
+#if (MG_UECC_SUPPORTS_secp256r1 || MG_UECC_SUPPORTS_secp256k1)
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 4
 #endif
-#endif /* uECC_WORD_SIZE */
+#endif /* MG_UECC_WORD_SIZE */
 
-#define BITS_TO_WORDS(num_bits)                             \
-  ((wordcount_t) ((num_bits + ((uECC_WORD_SIZE * 8) - 1)) / \
-                  (uECC_WORD_SIZE * 8)))
+#define BITS_TO_WORDS(num_bits)                                \
+  ((wordcount_t) ((num_bits + ((MG_UECC_WORD_SIZE * 8) - 1)) / \
+                  (MG_UECC_WORD_SIZE * 8)))
 #define BITS_TO_BYTES(num_bits) ((num_bits + 7) / 8)
 
-struct uECC_Curve_t {
+struct MG_UECC_Curve_t {
   wordcount_t num_words;
   wordcount_t num_bytes;
   bitcount_t num_n_bits;
-  uECC_word_t p[uECC_MAX_WORDS];
-  uECC_word_t n[uECC_MAX_WORDS];
-  uECC_word_t G[uECC_MAX_WORDS * 2];
-  uECC_word_t b[uECC_MAX_WORDS];
-  void (*double_jacobian)(uECC_word_t *X1, uECC_word_t *Y1, uECC_word_t *Z1,
-                          uECC_Curve curve);
-#if uECC_SUPPORT_COMPRESSED_POINT
-  void (*mod_sqrt)(uECC_word_t *a, uECC_Curve curve);
+  mg_uecc_word_t p[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t n[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t G[MG_UECC_MAX_WORDS * 2];
+  mg_uecc_word_t b[MG_UECC_MAX_WORDS];
+  void (*double_jacobian)(mg_uecc_word_t *X1, mg_uecc_word_t *Y1,
+                          mg_uecc_word_t *Z1, MG_UECC_Curve curve);
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
+  void (*mod_sqrt)(mg_uecc_word_t *a, MG_UECC_Curve curve);
 #endif
-  void (*x_side)(uECC_word_t *result, const uECC_word_t *x, uECC_Curve curve);
-#if (uECC_OPTIMIZATION_LEVEL > 0)
-  void (*mmod_fast)(uECC_word_t *result, uECC_word_t *product);
+  void (*x_side)(mg_uecc_word_t *result, const mg_uecc_word_t *x,
+                 MG_UECC_Curve curve);
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
+  void (*mmod_fast)(mg_uecc_word_t *result, mg_uecc_word_t *product);
 #endif
 };
 
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
 static void bcopy(uint8_t *dst, const uint8_t *src, unsigned num_bytes) {
   while (0 != num_bytes) {
     num_bytes--;
@@ -10731,16 +11390,17 @@ static void bcopy(uint8_t *dst, const uint8_t *src, unsigned num_bytes) {
 }
 #endif
 
-static cmpresult_t uECC_vli_cmp_unsafe(const uECC_word_t *left,
-                                       const uECC_word_t *right,
-                                       wordcount_t num_words);
+static cmpresult_t mg_uecc_vli_cmp_unsafe(const mg_uecc_word_t *left,
+                                          const mg_uecc_word_t *right,
+                                          wordcount_t num_words);
 
-#if (uECC_PLATFORM == uECC_arm || uECC_PLATFORM == uECC_arm_thumb || \
-     uECC_PLATFORM == uECC_arm_thumb2)
+#if (MG_UECC_PLATFORM == mg_uecc_arm ||       \
+     MG_UECC_PLATFORM == mg_uecc_arm_thumb || \
+     MG_UECC_PLATFORM == mg_uecc_arm_thumb2)
 
 #endif
 
-#if (uECC_PLATFORM == uECC_avr)
+#if (MG_UECC_PLATFORM == mg_uecc_avr)
 
 #endif
 
@@ -10767,29 +11427,30 @@ static cmpresult_t uECC_vli_cmp_unsafe(const uECC_word_t *left,
 #endif
 
 #if defined(default_RNG_defined) && default_RNG_defined
-static uECC_RNG_Function g_rng_function = &default_RNG;
+static MG_UECC_RNG_Function g_rng_function = &default_RNG;
 #else
-static uECC_RNG_Function g_rng_function = 0;
+static MG_UECC_RNG_Function g_rng_function = 0;
 #endif
 
-void uECC_set_rng(uECC_RNG_Function rng_function) {
+void mg_uecc_set_rng(MG_UECC_RNG_Function rng_function) {
   g_rng_function = rng_function;
 }
 
-uECC_RNG_Function uECC_get_rng(void) {
+MG_UECC_RNG_Function mg_uecc_get_rng(void) {
   return g_rng_function;
 }
 
-int uECC_curve_private_key_size(uECC_Curve curve) {
+int mg_uecc_curve_private_key_size(MG_UECC_Curve curve) {
   return BITS_TO_BYTES(curve->num_n_bits);
 }
 
-int uECC_curve_public_key_size(uECC_Curve curve) {
+int mg_uecc_curve_public_key_size(MG_UECC_Curve curve) {
   return 2 * curve->num_bytes;
 }
 
 #if !asm_clear
-uECC_VLI_API void uECC_vli_clear(uECC_word_t *vli, wordcount_t num_words) {
+MG_UECC_VLI_API void mg_uecc_vli_clear(mg_uecc_word_t *vli,
+                                       wordcount_t num_words) {
   wordcount_t i;
   for (i = 0; i < num_words; ++i) {
     vli[i] = 0;
@@ -10799,9 +11460,9 @@ uECC_VLI_API void uECC_vli_clear(uECC_word_t *vli, wordcount_t num_words) {
 
 /* Constant-time comparison to zero - secure way to compare long integers */
 /* Returns 1 if vli == 0, 0 otherwise. */
-uECC_VLI_API uECC_word_t uECC_vli_isZero(const uECC_word_t *vli,
-                                         wordcount_t num_words) {
-  uECC_word_t bits = 0;
+MG_UECC_VLI_API mg_uecc_word_t mg_uecc_vli_isZero(const mg_uecc_word_t *vli,
+                                                  wordcount_t num_words) {
+  mg_uecc_word_t bits = 0;
   wordcount_t i;
   for (i = 0; i < num_words; ++i) {
     bits |= vli[i];
@@ -10810,14 +11471,14 @@ uECC_VLI_API uECC_word_t uECC_vli_isZero(const uECC_word_t *vli,
 }
 
 /* Returns nonzero if bit 'bit' of vli is set. */
-uECC_VLI_API uECC_word_t uECC_vli_testBit(const uECC_word_t *vli,
-                                          bitcount_t bit) {
-  return (vli[bit >> uECC_WORD_BITS_SHIFT] &
-          ((uECC_word_t) 1 << (bit & uECC_WORD_BITS_MASK)));
+MG_UECC_VLI_API mg_uecc_word_t mg_uecc_vli_testBit(const mg_uecc_word_t *vli,
+                                                   bitcount_t bit) {
+  return (vli[bit >> MG_UECC_WORD_BITS_SHIFT] &
+          ((mg_uecc_word_t) 1 << (bit & MG_UECC_WORD_BITS_MASK)));
 }
 
 /* Counts the number of words in vli. */
-static wordcount_t vli_numDigits(const uECC_word_t *vli,
+static wordcount_t vli_numDigits(const mg_uecc_word_t *vli,
                                  const wordcount_t max_words) {
   wordcount_t i;
   /* Search from the end until we find a non-zero digit.
@@ -10829,10 +11490,10 @@ static wordcount_t vli_numDigits(const uECC_word_t *vli,
 }
 
 /* Counts the number of bits required to represent vli. */
-uECC_VLI_API bitcount_t uECC_vli_numBits(const uECC_word_t *vli,
-                                         const wordcount_t max_words) {
-  uECC_word_t i;
-  uECC_word_t digit;
+MG_UECC_VLI_API bitcount_t mg_uecc_vli_numBits(const mg_uecc_word_t *vli,
+                                               const wordcount_t max_words) {
+  mg_uecc_word_t i;
+  mg_uecc_word_t digit;
 
   wordcount_t num_digits = vli_numDigits(vli, max_words);
   if (num_digits == 0) {
@@ -10844,14 +11505,15 @@ uECC_VLI_API bitcount_t uECC_vli_numBits(const uECC_word_t *vli,
     digit >>= 1;
   }
 
-  return (((bitcount_t) ((num_digits - 1) << uECC_WORD_BITS_SHIFT)) +
+  return (((bitcount_t) ((num_digits - 1) << MG_UECC_WORD_BITS_SHIFT)) +
           (bitcount_t) i);
 }
 
 /* Sets dest = src. */
 #if !asm_set
-uECC_VLI_API void uECC_vli_set(uECC_word_t *dest, const uECC_word_t *src,
-                               wordcount_t num_words) {
+MG_UECC_VLI_API void mg_uecc_vli_set(mg_uecc_word_t *dest,
+                                     const mg_uecc_word_t *src,
+                                     wordcount_t num_words) {
   wordcount_t i;
   for (i = 0; i < num_words; ++i) {
     dest[i] = src[i];
@@ -10860,9 +11522,9 @@ uECC_VLI_API void uECC_vli_set(uECC_word_t *dest, const uECC_word_t *src,
 #endif /* !asm_set */
 
 /* Returns sign of left - right. */
-static cmpresult_t uECC_vli_cmp_unsafe(const uECC_word_t *left,
-                                       const uECC_word_t *right,
-                                       wordcount_t num_words) {
+static cmpresult_t mg_uecc_vli_cmp_unsafe(const mg_uecc_word_t *left,
+                                          const mg_uecc_word_t *right,
+                                          wordcount_t num_words) {
   wordcount_t i;
   for (i = num_words - 1; i >= 0; --i) {
     if (left[i] > right[i]) {
@@ -10876,10 +11538,10 @@ static cmpresult_t uECC_vli_cmp_unsafe(const uECC_word_t *left,
 
 /* Constant-time comparison function - secure way to compare long integers */
 /* Returns one if left == right, zero otherwise. */
-uECC_VLI_API uECC_word_t uECC_vli_equal(const uECC_word_t *left,
-                                        const uECC_word_t *right,
-                                        wordcount_t num_words) {
-  uECC_word_t diff = 0;
+MG_UECC_VLI_API mg_uecc_word_t mg_uecc_vli_equal(const mg_uecc_word_t *left,
+                                                 const mg_uecc_word_t *right,
+                                                 wordcount_t num_words) {
+  mg_uecc_word_t diff = 0;
   wordcount_t i;
   for (i = num_words - 1; i >= 0; --i) {
     diff |= (left[i] ^ right[i]);
@@ -10887,46 +11549,47 @@ uECC_VLI_API uECC_word_t uECC_vli_equal(const uECC_word_t *left,
   return (diff == 0);
 }
 
-uECC_VLI_API uECC_word_t uECC_vli_sub(uECC_word_t *result,
-                                      const uECC_word_t *left,
-                                      const uECC_word_t *right,
-                                      wordcount_t num_words);
+MG_UECC_VLI_API mg_uecc_word_t mg_uecc_vli_sub(mg_uecc_word_t *result,
+                                               const mg_uecc_word_t *left,
+                                               const mg_uecc_word_t *right,
+                                               wordcount_t num_words);
 
 /* Returns sign of left - right, in constant time. */
-uECC_VLI_API cmpresult_t uECC_vli_cmp(const uECC_word_t *left,
-                                      const uECC_word_t *right,
-                                      wordcount_t num_words) {
-  uECC_word_t tmp[uECC_MAX_WORDS];
-  uECC_word_t neg = !!uECC_vli_sub(tmp, left, right, num_words);
-  uECC_word_t equal = uECC_vli_isZero(tmp, num_words);
+MG_UECC_VLI_API cmpresult_t mg_uecc_vli_cmp(const mg_uecc_word_t *left,
+                                            const mg_uecc_word_t *right,
+                                            wordcount_t num_words) {
+  mg_uecc_word_t tmp[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t neg = !!mg_uecc_vli_sub(tmp, left, right, num_words);
+  mg_uecc_word_t equal = mg_uecc_vli_isZero(tmp, num_words);
   return (cmpresult_t) (!equal - 2 * neg);
 }
 
 /* Computes vli = vli >> 1. */
 #if !asm_rshift1
-uECC_VLI_API void uECC_vli_rshift1(uECC_word_t *vli, wordcount_t num_words) {
-  uECC_word_t *end = vli;
-  uECC_word_t carry = 0;
+MG_UECC_VLI_API void mg_uecc_vli_rshift1(mg_uecc_word_t *vli,
+                                         wordcount_t num_words) {
+  mg_uecc_word_t *end = vli;
+  mg_uecc_word_t carry = 0;
 
   vli += num_words;
   while (vli-- > end) {
-    uECC_word_t temp = *vli;
+    mg_uecc_word_t temp = *vli;
     *vli = (temp >> 1) | carry;
-    carry = temp << (uECC_WORD_BITS - 1);
+    carry = temp << (MG_UECC_WORD_BITS - 1);
   }
 }
 #endif /* !asm_rshift1 */
 
 /* Computes result = left + right, returning carry. Can modify in place. */
 #if !asm_add
-uECC_VLI_API uECC_word_t uECC_vli_add(uECC_word_t *result,
-                                      const uECC_word_t *left,
-                                      const uECC_word_t *right,
-                                      wordcount_t num_words) {
-  uECC_word_t carry = 0;
+MG_UECC_VLI_API mg_uecc_word_t mg_uecc_vli_add(mg_uecc_word_t *result,
+                                               const mg_uecc_word_t *left,
+                                               const mg_uecc_word_t *right,
+                                               wordcount_t num_words) {
+  mg_uecc_word_t carry = 0;
   wordcount_t i;
   for (i = 0; i < num_words; ++i) {
-    uECC_word_t sum = left[i] + right[i] + carry;
+    mg_uecc_word_t sum = left[i] + right[i] + carry;
     if (sum != left[i]) {
       carry = (sum < left[i]);
     }
@@ -10938,14 +11601,14 @@ uECC_VLI_API uECC_word_t uECC_vli_add(uECC_word_t *result,
 
 /* Computes result = left - right, returning borrow. Can modify in place. */
 #if !asm_sub
-uECC_VLI_API uECC_word_t uECC_vli_sub(uECC_word_t *result,
-                                      const uECC_word_t *left,
-                                      const uECC_word_t *right,
-                                      wordcount_t num_words) {
-  uECC_word_t borrow = 0;
+MG_UECC_VLI_API mg_uecc_word_t mg_uecc_vli_sub(mg_uecc_word_t *result,
+                                               const mg_uecc_word_t *left,
+                                               const mg_uecc_word_t *right,
+                                               wordcount_t num_words) {
+  mg_uecc_word_t borrow = 0;
   wordcount_t i;
   for (i = 0; i < num_words; ++i) {
-    uECC_word_t diff = left[i] - right[i] - borrow;
+    mg_uecc_word_t diff = left[i] - right[i] - borrow;
     if (diff != left[i]) {
       borrow = (diff > left[i]);
     }
@@ -10955,12 +11618,12 @@ uECC_VLI_API uECC_word_t uECC_vli_sub(uECC_word_t *result,
 }
 #endif /* !asm_sub */
 
-#if !asm_mult || (uECC_SQUARE_FUNC && !asm_square) ||            \
-    (uECC_SUPPORTS_secp256k1 && (uECC_OPTIMIZATION_LEVEL > 0) && \
-     ((uECC_WORD_SIZE == 1) || (uECC_WORD_SIZE == 8)))
-static void muladd(uECC_word_t a, uECC_word_t b, uECC_word_t *r0,
-                   uECC_word_t *r1, uECC_word_t *r2) {
-#if uECC_WORD_SIZE == 8
+#if !asm_mult || (MG_UECC_SQUARE_FUNC && !asm_square) ||               \
+    (MG_UECC_SUPPORTS_secp256k1 && (MG_UECC_OPTIMIZATION_LEVEL > 0) && \
+     ((MG_UECC_WORD_SIZE == 1) || (MG_UECC_WORD_SIZE == 8)))
+static void muladd(mg_uecc_word_t a, mg_uecc_word_t b, mg_uecc_word_t *r0,
+                   mg_uecc_word_t *r1, mg_uecc_word_t *r2) {
+#if MG_UECC_WORD_SIZE == 8
   uint64_t a0 = a & 0xffffffff;
   uint64_t a1 = a >> 32;
   uint64_t b0 = b & 0xffffffff;
@@ -10986,23 +11649,24 @@ static void muladd(uECC_word_t a, uECC_word_t b, uECC_word_t *r0,
   *r1 += (p1 + (*r0 < p0));
   *r2 += ((*r1 < p1) || (*r1 == p1 && *r0 < p0));
 #else
-  uECC_dword_t p = (uECC_dword_t) a * b;
-  uECC_dword_t r01 = ((uECC_dword_t) (*r1) << uECC_WORD_BITS) | *r0;
+  mg_uecc_dword_t p = (mg_uecc_dword_t) a * b;
+  mg_uecc_dword_t r01 = ((mg_uecc_dword_t) (*r1) << MG_UECC_WORD_BITS) | *r0;
   r01 += p;
   *r2 += (r01 < p);
-  *r1 = (uECC_word_t) (r01 >> uECC_WORD_BITS);
-  *r0 = (uECC_word_t) r01;
+  *r1 = (mg_uecc_word_t) (r01 >> MG_UECC_WORD_BITS);
+  *r0 = (mg_uecc_word_t) r01;
 #endif
 }
 #endif /* muladd needed */
 
 #if !asm_mult
-uECC_VLI_API void uECC_vli_mult(uECC_word_t *result, const uECC_word_t *left,
-                                const uECC_word_t *right,
-                                wordcount_t num_words) {
-  uECC_word_t r0 = 0;
-  uECC_word_t r1 = 0;
-  uECC_word_t r2 = 0;
+MG_UECC_VLI_API void mg_uecc_vli_mult(mg_uecc_word_t *result,
+                                      const mg_uecc_word_t *left,
+                                      const mg_uecc_word_t *right,
+                                      wordcount_t num_words) {
+  mg_uecc_word_t r0 = 0;
+  mg_uecc_word_t r1 = 0;
+  mg_uecc_word_t r2 = 0;
   wordcount_t i, k;
 
   /* Compute each digit of result in sequence, maintaining the carries. */
@@ -11028,12 +11692,12 @@ uECC_VLI_API void uECC_vli_mult(uECC_word_t *result, const uECC_word_t *left,
 }
 #endif /* !asm_mult */
 
-#if uECC_SQUARE_FUNC
+#if MG_UECC_SQUARE_FUNC
 
 #if !asm_square
-static void mul2add(uECC_word_t a, uECC_word_t b, uECC_word_t *r0,
-                    uECC_word_t *r1, uECC_word_t *r2) {
-#if uECC_WORD_SIZE == 8
+static void mul2add(mg_uecc_word_t a, mg_uecc_word_t b, mg_uecc_word_t *r0,
+                    mg_uecc_word_t *r1, mg_uecc_word_t *r2) {
+#if MG_UECC_WORD_SIZE == 8
   uint64_t a0 = a & 0xffffffffull;
   uint64_t a1 = a >> 32;
   uint64_t b0 = b & 0xffffffffull;
@@ -11063,27 +11727,28 @@ static void mul2add(uECC_word_t a, uECC_word_t b, uECC_word_t *r0,
   *r1 += (p1 + (*r0 < p0));
   *r2 += ((*r1 < p1) || (*r1 == p1 && *r0 < p0));
 #else
-  uECC_dword_t p = (uECC_dword_t) a * b;
-  uECC_dword_t r01 = ((uECC_dword_t) (*r1) << uECC_WORD_BITS) | *r0;
-  *r2 += (p >> (uECC_WORD_BITS * 2 - 1));
+  mg_uecc_dword_t p = (mg_uecc_dword_t) a * b;
+  mg_uecc_dword_t r01 = ((mg_uecc_dword_t) (*r1) << MG_UECC_WORD_BITS) | *r0;
+  *r2 += (p >> (MG_UECC_WORD_BITS * 2 - 1));
   p *= 2;
   r01 += p;
   *r2 += (r01 < p);
-  *r1 = r01 >> uECC_WORD_BITS;
-  *r0 = (uECC_word_t) r01;
+  *r1 = r01 >> MG_UECC_WORD_BITS;
+  *r0 = (mg_uecc_word_t) r01;
 #endif
 }
 
-uECC_VLI_API void uECC_vli_square(uECC_word_t *result, const uECC_word_t *left,
-                                  wordcount_t num_words) {
-  uECC_word_t r0 = 0;
-  uECC_word_t r1 = 0;
-  uECC_word_t r2 = 0;
+MG_UECC_VLI_API void mg_uecc_vli_square(mg_uecc_word_t *result,
+                                        const mg_uecc_word_t *left,
+                                        wordcount_t num_words) {
+  mg_uecc_word_t r0 = 0;
+  mg_uecc_word_t r1 = 0;
+  mg_uecc_word_t r2 = 0;
 
   wordcount_t i, k;
 
   for (k = 0; k < num_words * 2 - 1; ++k) {
-    uECC_word_t min = (k < num_words ? 0 : (k + 1) - num_words);
+    mg_uecc_word_t min = (k < num_words ? 0 : (k + 1) - num_words);
     for (i = min; i <= k && i <= k - i; ++i) {
       if (i < k - i) {
         mul2add(left[i], left[k - i], &r0, &r1, &r2);
@@ -11101,168 +11766,174 @@ uECC_VLI_API void uECC_vli_square(uECC_word_t *result, const uECC_word_t *left,
 }
 #endif /* !asm_square */
 
-#else /* uECC_SQUARE_FUNC */
+#else /* MG_UECC_SQUARE_FUNC */
 
-#if uECC_ENABLE_VLI_API
-uECC_VLI_API void uECC_vli_square(uECC_word_t *result, const uECC_word_t *left,
-                                  wordcount_t num_words) {
-  uECC_vli_mult(result, left, left, num_words);
+#if MG_UECC_ENABLE_VLI_API
+MG_UECC_VLI_API void mg_uecc_vli_square(mg_uecc_word_t *result,
+                                        const mg_uecc_word_t *left,
+                                        wordcount_t num_words) {
+  mg_uecc_vli_mult(result, left, left, num_words);
 }
-#endif /* uECC_ENABLE_VLI_API */
+#endif /* MG_UECC_ENABLE_VLI_API */
 
-#endif /* uECC_SQUARE_FUNC */
+#endif /* MG_UECC_SQUARE_FUNC */
 
 /* Computes result = (left + right) % mod.
    Assumes that left < mod and right < mod, and that result does not overlap
    mod. */
-uECC_VLI_API void uECC_vli_modAdd(uECC_word_t *result, const uECC_word_t *left,
-                                  const uECC_word_t *right,
-                                  const uECC_word_t *mod,
-                                  wordcount_t num_words) {
-  uECC_word_t carry = uECC_vli_add(result, left, right, num_words);
-  if (carry || uECC_vli_cmp_unsafe(mod, result, num_words) != 1) {
+MG_UECC_VLI_API void mg_uecc_vli_modAdd(mg_uecc_word_t *result,
+                                        const mg_uecc_word_t *left,
+                                        const mg_uecc_word_t *right,
+                                        const mg_uecc_word_t *mod,
+                                        wordcount_t num_words) {
+  mg_uecc_word_t carry = mg_uecc_vli_add(result, left, right, num_words);
+  if (carry || mg_uecc_vli_cmp_unsafe(mod, result, num_words) != 1) {
     /* result > mod (result = mod + remainder), so subtract mod to get
      * remainder. */
-    uECC_vli_sub(result, result, mod, num_words);
+    mg_uecc_vli_sub(result, result, mod, num_words);
   }
 }
 
 /* Computes result = (left - right) % mod.
    Assumes that left < mod and right < mod, and that result does not overlap
    mod. */
-uECC_VLI_API void uECC_vli_modSub(uECC_word_t *result, const uECC_word_t *left,
-                                  const uECC_word_t *right,
-                                  const uECC_word_t *mod,
-                                  wordcount_t num_words) {
-  uECC_word_t l_borrow = uECC_vli_sub(result, left, right, num_words);
+MG_UECC_VLI_API void mg_uecc_vli_modSub(mg_uecc_word_t *result,
+                                        const mg_uecc_word_t *left,
+                                        const mg_uecc_word_t *right,
+                                        const mg_uecc_word_t *mod,
+                                        wordcount_t num_words) {
+  mg_uecc_word_t l_borrow = mg_uecc_vli_sub(result, left, right, num_words);
   if (l_borrow) {
     /* In this case, result == -diff == (max int) - diff. Since -x % d == d - x,
        we can get the correct result from result + mod (with overflow). */
-    uECC_vli_add(result, result, mod, num_words);
+    mg_uecc_vli_add(result, result, mod, num_words);
   }
 }
 
 /* Computes result = product % mod, where product is 2N words long. */
 /* Currently only designed to work for curve_p or curve_n. */
-uECC_VLI_API void uECC_vli_mmod(uECC_word_t *result, uECC_word_t *product,
-                                const uECC_word_t *mod, wordcount_t num_words) {
-  uECC_word_t mod_multiple[2 * uECC_MAX_WORDS];
-  uECC_word_t tmp[2 * uECC_MAX_WORDS];
-  uECC_word_t *v[2] = {tmp, product};
-  uECC_word_t index;
+MG_UECC_VLI_API void mg_uecc_vli_mmod(mg_uecc_word_t *result,
+                                      mg_uecc_word_t *product,
+                                      const mg_uecc_word_t *mod,
+                                      wordcount_t num_words) {
+  mg_uecc_word_t mod_multiple[2 * MG_UECC_MAX_WORDS];
+  mg_uecc_word_t tmp[2 * MG_UECC_MAX_WORDS];
+  mg_uecc_word_t *v[2] = {tmp, product};
+  mg_uecc_word_t index;
 
   /* Shift mod so its highest set bit is at the maximum position. */
-  bitcount_t shift = (bitcount_t) (
-      (num_words * 2 * uECC_WORD_BITS) - uECC_vli_numBits(mod, num_words));
-  wordcount_t word_shift = (wordcount_t) (shift / uECC_WORD_BITS);
-  wordcount_t bit_shift = (wordcount_t) (shift % uECC_WORD_BITS);
-  uECC_word_t carry = 0;
-  uECC_vli_clear(mod_multiple, word_shift);
+  bitcount_t shift = (bitcount_t) ((num_words * 2 * MG_UECC_WORD_BITS) -
+                                   mg_uecc_vli_numBits(mod, num_words));
+  wordcount_t word_shift = (wordcount_t) (shift / MG_UECC_WORD_BITS);
+  wordcount_t bit_shift = (wordcount_t) (shift % MG_UECC_WORD_BITS);
+  mg_uecc_word_t carry = 0;
+  mg_uecc_vli_clear(mod_multiple, word_shift);
   if (bit_shift > 0) {
-    for (index = 0; index < (uECC_word_t) num_words; ++index) {
-      mod_multiple[(uECC_word_t) word_shift + index] =
-          (uECC_word_t) (mod[index] << bit_shift) | carry;
-      carry = mod[index] >> (uECC_WORD_BITS - bit_shift);
+    for (index = 0; index < (mg_uecc_word_t) num_words; ++index) {
+      mod_multiple[(mg_uecc_word_t) word_shift + index] =
+          (mg_uecc_word_t) (mod[index] << bit_shift) | carry;
+      carry = mod[index] >> (MG_UECC_WORD_BITS - bit_shift);
     }
   } else {
-    uECC_vli_set(mod_multiple + word_shift, mod, num_words);
+    mg_uecc_vli_set(mod_multiple + word_shift, mod, num_words);
   }
 
   for (index = 1; shift >= 0; --shift) {
-    uECC_word_t borrow = 0;
+    mg_uecc_word_t borrow = 0;
     wordcount_t i;
     for (i = 0; i < num_words * 2; ++i) {
-      uECC_word_t diff = v[index][i] - mod_multiple[i] - borrow;
+      mg_uecc_word_t diff = v[index][i] - mod_multiple[i] - borrow;
       if (diff != v[index][i]) {
         borrow = (diff > v[index][i]);
       }
       v[1 - index][i] = diff;
     }
     index = !(index ^ borrow); /* Swap the index if there was no borrow */
-    uECC_vli_rshift1(mod_multiple, num_words);
+    mg_uecc_vli_rshift1(mod_multiple, num_words);
     mod_multiple[num_words - 1] |= mod_multiple[num_words]
-                                   << (uECC_WORD_BITS - 1);
-    uECC_vli_rshift1(mod_multiple + num_words, num_words);
+                                   << (MG_UECC_WORD_BITS - 1);
+    mg_uecc_vli_rshift1(mod_multiple + num_words, num_words);
   }
-  uECC_vli_set(result, v[index], num_words);
+  mg_uecc_vli_set(result, v[index], num_words);
 }
 
 /* Computes result = (left * right) % mod. */
-uECC_VLI_API void uECC_vli_modMult(uECC_word_t *result, const uECC_word_t *left,
-                                   const uECC_word_t *right,
-                                   const uECC_word_t *mod,
-                                   wordcount_t num_words) {
-  uECC_word_t product[2 * uECC_MAX_WORDS];
-  uECC_vli_mult(product, left, right, num_words);
-  uECC_vli_mmod(result, product, mod, num_words);
+MG_UECC_VLI_API void mg_uecc_vli_modMult(mg_uecc_word_t *result,
+                                         const mg_uecc_word_t *left,
+                                         const mg_uecc_word_t *right,
+                                         const mg_uecc_word_t *mod,
+                                         wordcount_t num_words) {
+  mg_uecc_word_t product[2 * MG_UECC_MAX_WORDS];
+  mg_uecc_vli_mult(product, left, right, num_words);
+  mg_uecc_vli_mmod(result, product, mod, num_words);
 }
 
-uECC_VLI_API void uECC_vli_modMult_fast(uECC_word_t *result,
-                                        const uECC_word_t *left,
-                                        const uECC_word_t *right,
-                                        uECC_Curve curve) {
-  uECC_word_t product[2 * uECC_MAX_WORDS];
-  uECC_vli_mult(product, left, right, curve->num_words);
-#if (uECC_OPTIMIZATION_LEVEL > 0)
+MG_UECC_VLI_API void mg_uecc_vli_modMult_fast(mg_uecc_word_t *result,
+                                              const mg_uecc_word_t *left,
+                                              const mg_uecc_word_t *right,
+                                              MG_UECC_Curve curve) {
+  mg_uecc_word_t product[2 * MG_UECC_MAX_WORDS];
+  mg_uecc_vli_mult(product, left, right, curve->num_words);
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
   curve->mmod_fast(result, product);
 #else
-  uECC_vli_mmod(result, product, curve->p, curve->num_words);
+  mg_uecc_vli_mmod(result, product, curve->p, curve->num_words);
 #endif
 }
 
-#if uECC_SQUARE_FUNC
+#if MG_UECC_SQUARE_FUNC
 
-#if uECC_ENABLE_VLI_API
+#if MG_UECC_ENABLE_VLI_API
 /* Computes result = left^2 % mod. */
-uECC_VLI_API void uECC_vli_modSquare(uECC_word_t *result,
-                                     const uECC_word_t *left,
-                                     const uECC_word_t *mod,
-                                     wordcount_t num_words) {
-  uECC_word_t product[2 * uECC_MAX_WORDS];
-  uECC_vli_square(product, left, num_words);
-  uECC_vli_mmod(result, product, mod, num_words);
+MG_UECC_VLI_API void mg_uecc_vli_modSquare(mg_uecc_word_t *result,
+                                           const mg_uecc_word_t *left,
+                                           const mg_uecc_word_t *mod,
+                                           wordcount_t num_words) {
+  mg_uecc_word_t product[2 * MG_UECC_MAX_WORDS];
+  mg_uecc_vli_square(product, left, num_words);
+  mg_uecc_vli_mmod(result, product, mod, num_words);
 }
-#endif /* uECC_ENABLE_VLI_API */
+#endif /* MG_UECC_ENABLE_VLI_API */
 
-uECC_VLI_API void uECC_vli_modSquare_fast(uECC_word_t *result,
-                                          const uECC_word_t *left,
-                                          uECC_Curve curve) {
-  uECC_word_t product[2 * uECC_MAX_WORDS];
-  uECC_vli_square(product, left, curve->num_words);
-#if (uECC_OPTIMIZATION_LEVEL > 0)
+MG_UECC_VLI_API void mg_uecc_vli_modSquare_fast(mg_uecc_word_t *result,
+                                                const mg_uecc_word_t *left,
+                                                MG_UECC_Curve curve) {
+  mg_uecc_word_t product[2 * MG_UECC_MAX_WORDS];
+  mg_uecc_vli_square(product, left, curve->num_words);
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
   curve->mmod_fast(result, product);
 #else
-  uECC_vli_mmod(result, product, curve->p, curve->num_words);
+  mg_uecc_vli_mmod(result, product, curve->p, curve->num_words);
 #endif
 }
 
-#else /* uECC_SQUARE_FUNC */
+#else /* MG_UECC_SQUARE_FUNC */
 
-#if uECC_ENABLE_VLI_API
-uECC_VLI_API void uECC_vli_modSquare(uECC_word_t *result,
-                                     const uECC_word_t *left,
-                                     const uECC_word_t *mod,
-                                     wordcount_t num_words) {
-  uECC_vli_modMult(result, left, left, mod, num_words);
+#if MG_UECC_ENABLE_VLI_API
+MG_UECC_VLI_API void mg_uecc_vli_modSquare(mg_uecc_word_t *result,
+                                           const mg_uecc_word_t *left,
+                                           const mg_uecc_word_t *mod,
+                                           wordcount_t num_words) {
+  mg_uecc_vli_modMult(result, left, left, mod, num_words);
 }
-#endif /* uECC_ENABLE_VLI_API */
+#endif /* MG_UECC_ENABLE_VLI_API */
 
-uECC_VLI_API void uECC_vli_modSquare_fast(uECC_word_t *result,
-                                          const uECC_word_t *left,
-                                          uECC_Curve curve) {
-  uECC_vli_modMult_fast(result, left, left, curve);
+MG_UECC_VLI_API void mg_uecc_vli_modSquare_fast(mg_uecc_word_t *result,
+                                                const mg_uecc_word_t *left,
+                                                MG_UECC_Curve curve) {
+  mg_uecc_vli_modMult_fast(result, left, left, curve);
 }
 
-#endif /* uECC_SQUARE_FUNC */
+#endif /* MG_UECC_SQUARE_FUNC */
 
 #define EVEN(vli) (!(vli[0] & 1))
-static void vli_modInv_update(uECC_word_t *uv, const uECC_word_t *mod,
+static void vli_modInv_update(mg_uecc_word_t *uv, const mg_uecc_word_t *mod,
                               wordcount_t num_words) {
-  uECC_word_t carry = 0;
+  mg_uecc_word_t carry = 0;
   if (!EVEN(uv)) {
-    carry = uECC_vli_add(uv, uv, mod, num_words);
+    carry = mg_uecc_vli_add(uv, uv, mod, num_words);
   }
-  uECC_vli_rshift1(uv, num_words);
+  mg_uecc_vli_rshift1(uv, num_words);
   if (carry) {
     uv[num_words - 1] |= HIGH_BIT_SET;
   }
@@ -11270,49 +11941,50 @@ static void vli_modInv_update(uECC_word_t *uv, const uECC_word_t *mod,
 
 /* Computes result = (1 / input) % mod. All VLIs are the same size.
    See "From Euclid's GCD to Montgomery Multiplication to the Great Divide" */
-uECC_VLI_API void uECC_vli_modInv(uECC_word_t *result, const uECC_word_t *input,
-                                  const uECC_word_t *mod,
-                                  wordcount_t num_words) {
-  uECC_word_t a[uECC_MAX_WORDS], b[uECC_MAX_WORDS], u[uECC_MAX_WORDS],
-      v[uECC_MAX_WORDS];
+MG_UECC_VLI_API void mg_uecc_vli_modInv(mg_uecc_word_t *result,
+                                        const mg_uecc_word_t *input,
+                                        const mg_uecc_word_t *mod,
+                                        wordcount_t num_words) {
+  mg_uecc_word_t a[MG_UECC_MAX_WORDS], b[MG_UECC_MAX_WORDS],
+      u[MG_UECC_MAX_WORDS], v[MG_UECC_MAX_WORDS];
   cmpresult_t cmpResult;
 
-  if (uECC_vli_isZero(input, num_words)) {
-    uECC_vli_clear(result, num_words);
+  if (mg_uecc_vli_isZero(input, num_words)) {
+    mg_uecc_vli_clear(result, num_words);
     return;
   }
 
-  uECC_vli_set(a, input, num_words);
-  uECC_vli_set(b, mod, num_words);
-  uECC_vli_clear(u, num_words);
+  mg_uecc_vli_set(a, input, num_words);
+  mg_uecc_vli_set(b, mod, num_words);
+  mg_uecc_vli_clear(u, num_words);
   u[0] = 1;
-  uECC_vli_clear(v, num_words);
-  while ((cmpResult = uECC_vli_cmp_unsafe(a, b, num_words)) != 0) {
+  mg_uecc_vli_clear(v, num_words);
+  while ((cmpResult = mg_uecc_vli_cmp_unsafe(a, b, num_words)) != 0) {
     if (EVEN(a)) {
-      uECC_vli_rshift1(a, num_words);
+      mg_uecc_vli_rshift1(a, num_words);
       vli_modInv_update(u, mod, num_words);
     } else if (EVEN(b)) {
-      uECC_vli_rshift1(b, num_words);
+      mg_uecc_vli_rshift1(b, num_words);
       vli_modInv_update(v, mod, num_words);
     } else if (cmpResult > 0) {
-      uECC_vli_sub(a, a, b, num_words);
-      uECC_vli_rshift1(a, num_words);
-      if (uECC_vli_cmp_unsafe(u, v, num_words) < 0) {
-        uECC_vli_add(u, u, mod, num_words);
+      mg_uecc_vli_sub(a, a, b, num_words);
+      mg_uecc_vli_rshift1(a, num_words);
+      if (mg_uecc_vli_cmp_unsafe(u, v, num_words) < 0) {
+        mg_uecc_vli_add(u, u, mod, num_words);
       }
-      uECC_vli_sub(u, u, v, num_words);
+      mg_uecc_vli_sub(u, u, v, num_words);
       vli_modInv_update(u, mod, num_words);
     } else {
-      uECC_vli_sub(b, b, a, num_words);
-      uECC_vli_rshift1(b, num_words);
-      if (uECC_vli_cmp_unsafe(v, u, num_words) < 0) {
-        uECC_vli_add(v, v, mod, num_words);
+      mg_uecc_vli_sub(b, b, a, num_words);
+      mg_uecc_vli_rshift1(b, num_words);
+      if (mg_uecc_vli_cmp_unsafe(v, u, num_words) < 0) {
+        mg_uecc_vli_add(v, v, mod, num_words);
       }
-      uECC_vli_sub(v, v, u, num_words);
+      mg_uecc_vli_sub(v, v, u, num_words);
       vli_modInv_update(v, mod, num_words);
     }
   }
-  uECC_vli_set(result, u, num_words);
+  mg_uecc_vli_set(result, u, num_words);
 }
 
 /* ------ Point operations ------ */
@@ -11328,7 +12000,7 @@ uECC_VLI_API void uECC_vli_modInv(uECC_word_t *result, const uECC_word_t *input,
 #define num_bytes_secp256r1 32
 #define num_bytes_secp256k1 32
 
-#if (uECC_WORD_SIZE == 1)
+#if (MG_UECC_WORD_SIZE == 1)
 
 #define num_words_secp160r1 20
 #define num_words_secp192r1 24
@@ -11340,7 +12012,7 @@ uECC_VLI_API void uECC_vli_modInv(uECC_word_t *result, const uECC_word_t *input,
   0x##a, 0x##b, 0x##c, 0x##d, 0x##e, 0x##f, 0x##g, 0x##h
 #define BYTES_TO_WORDS_4(a, b, c, d) 0x##a, 0x##b, 0x##c, 0x##d
 
-#elif (uECC_WORD_SIZE == 4)
+#elif (MG_UECC_WORD_SIZE == 4)
 
 #define num_words_secp160r1 5
 #define num_words_secp192r1 6
@@ -11351,7 +12023,7 @@ uECC_VLI_API void uECC_vli_modInv(uECC_word_t *result, const uECC_word_t *input,
 #define BYTES_TO_WORDS_8(a, b, c, d, e, f, g, h) 0x##d##c##b##a, 0x##h##g##f##e
 #define BYTES_TO_WORDS_4(a, b, c, d) 0x##d##c##b##a
 
-#elif (uECC_WORD_SIZE == 8)
+#elif (MG_UECC_WORD_SIZE == 8)
 
 #define num_words_secp160r1 3
 #define num_words_secp192r1 3
@@ -11362,101 +12034,104 @@ uECC_VLI_API void uECC_vli_modInv(uECC_word_t *result, const uECC_word_t *input,
 #define BYTES_TO_WORDS_8(a, b, c, d, e, f, g, h) 0x##h##g##f##e##d##c##b##a##U
 #define BYTES_TO_WORDS_4(a, b, c, d) 0x##d##c##b##a##U
 
-#endif /* uECC_WORD_SIZE */
+#endif /* MG_UECC_WORD_SIZE */
 
-#if uECC_SUPPORTS_secp160r1 || uECC_SUPPORTS_secp192r1 || \
-    uECC_SUPPORTS_secp224r1 || uECC_SUPPORTS_secp256r1
-static void double_jacobian_default(uECC_word_t *X1, uECC_word_t *Y1,
-                                    uECC_word_t *Z1, uECC_Curve curve) {
+#if MG_UECC_SUPPORTS_secp160r1 || MG_UECC_SUPPORTS_secp192r1 || \
+    MG_UECC_SUPPORTS_secp224r1 || MG_UECC_SUPPORTS_secp256r1
+static void double_jacobian_default(mg_uecc_word_t *X1, mg_uecc_word_t *Y1,
+                                    mg_uecc_word_t *Z1, MG_UECC_Curve curve) {
   /* t1 = X, t2 = Y, t3 = Z */
-  uECC_word_t t4[uECC_MAX_WORDS];
-  uECC_word_t t5[uECC_MAX_WORDS];
+  mg_uecc_word_t t4[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t t5[MG_UECC_MAX_WORDS];
   wordcount_t num_words = curve->num_words;
 
-  if (uECC_vli_isZero(Z1, num_words)) {
+  if (mg_uecc_vli_isZero(Z1, num_words)) {
     return;
   }
 
-  uECC_vli_modSquare_fast(t4, Y1, curve);   /* t4 = y1^2 */
-  uECC_vli_modMult_fast(t5, X1, t4, curve); /* t5 = x1*y1^2 = A */
-  uECC_vli_modSquare_fast(t4, t4, curve);   /* t4 = y1^4 */
-  uECC_vli_modMult_fast(Y1, Y1, Z1, curve); /* t2 = y1*z1 = z3 */
-  uECC_vli_modSquare_fast(Z1, Z1, curve);   /* t3 = z1^2 */
+  mg_uecc_vli_modSquare_fast(t4, Y1, curve);   /* t4 = y1^2 */
+  mg_uecc_vli_modMult_fast(t5, X1, t4, curve); /* t5 = x1*y1^2 = A */
+  mg_uecc_vli_modSquare_fast(t4, t4, curve);   /* t4 = y1^4 */
+  mg_uecc_vli_modMult_fast(Y1, Y1, Z1, curve); /* t2 = y1*z1 = z3 */
+  mg_uecc_vli_modSquare_fast(Z1, Z1, curve);   /* t3 = z1^2 */
 
-  uECC_vli_modAdd(X1, X1, Z1, curve->p, num_words); /* t1 = x1 + z1^2 */
-  uECC_vli_modAdd(Z1, Z1, Z1, curve->p, num_words); /* t3 = 2*z1^2 */
-  uECC_vli_modSub(Z1, X1, Z1, curve->p, num_words); /* t3 = x1 - z1^2 */
-  uECC_vli_modMult_fast(X1, X1, Z1, curve);         /* t1 = x1^2 - z1^4 */
+  mg_uecc_vli_modAdd(X1, X1, Z1, curve->p, num_words); /* t1 = x1 + z1^2 */
+  mg_uecc_vli_modAdd(Z1, Z1, Z1, curve->p, num_words); /* t3 = 2*z1^2 */
+  mg_uecc_vli_modSub(Z1, X1, Z1, curve->p, num_words); /* t3 = x1 - z1^2 */
+  mg_uecc_vli_modMult_fast(X1, X1, Z1, curve);         /* t1 = x1^2 - z1^4 */
 
-  uECC_vli_modAdd(Z1, X1, X1, curve->p, num_words); /* t3 = 2*(x1^2 - z1^4) */
-  uECC_vli_modAdd(X1, X1, Z1, curve->p, num_words); /* t1 = 3*(x1^2 - z1^4) */
-  if (uECC_vli_testBit(X1, 0)) {
-    uECC_word_t l_carry = uECC_vli_add(X1, X1, curve->p, num_words);
-    uECC_vli_rshift1(X1, num_words);
-    X1[num_words - 1] |= l_carry << (uECC_WORD_BITS - 1);
+  mg_uecc_vli_modAdd(Z1, X1, X1, curve->p,
+                     num_words); /* t3 = 2*(x1^2 - z1^4) */
+  mg_uecc_vli_modAdd(X1, X1, Z1, curve->p,
+                     num_words); /* t1 = 3*(x1^2 - z1^4) */
+  if (mg_uecc_vli_testBit(X1, 0)) {
+    mg_uecc_word_t l_carry = mg_uecc_vli_add(X1, X1, curve->p, num_words);
+    mg_uecc_vli_rshift1(X1, num_words);
+    X1[num_words - 1] |= l_carry << (MG_UECC_WORD_BITS - 1);
   } else {
-    uECC_vli_rshift1(X1, num_words);
+    mg_uecc_vli_rshift1(X1, num_words);
   }
   /* t1 = 3/2*(x1^2 - z1^4) = B */
 
-  uECC_vli_modSquare_fast(Z1, X1, curve);           /* t3 = B^2 */
-  uECC_vli_modSub(Z1, Z1, t5, curve->p, num_words); /* t3 = B^2 - A */
-  uECC_vli_modSub(Z1, Z1, t5, curve->p, num_words); /* t3 = B^2 - 2A = x3 */
-  uECC_vli_modSub(t5, t5, Z1, curve->p, num_words); /* t5 = A - x3 */
-  uECC_vli_modMult_fast(X1, X1, t5, curve);         /* t1 = B * (A - x3) */
-  uECC_vli_modSub(t4, X1, t4, curve->p,
-                  num_words); /* t4 = B * (A - x3) - y1^4 = y3 */
+  mg_uecc_vli_modSquare_fast(Z1, X1, curve);           /* t3 = B^2 */
+  mg_uecc_vli_modSub(Z1, Z1, t5, curve->p, num_words); /* t3 = B^2 - A */
+  mg_uecc_vli_modSub(Z1, Z1, t5, curve->p, num_words); /* t3 = B^2 - 2A = x3 */
+  mg_uecc_vli_modSub(t5, t5, Z1, curve->p, num_words); /* t5 = A - x3 */
+  mg_uecc_vli_modMult_fast(X1, X1, t5, curve);         /* t1 = B * (A - x3) */
+  mg_uecc_vli_modSub(t4, X1, t4, curve->p,
+                     num_words); /* t4 = B * (A - x3) - y1^4 = y3 */
 
-  uECC_vli_set(X1, Z1, num_words);
-  uECC_vli_set(Z1, Y1, num_words);
-  uECC_vli_set(Y1, t4, num_words);
+  mg_uecc_vli_set(X1, Z1, num_words);
+  mg_uecc_vli_set(Z1, Y1, num_words);
+  mg_uecc_vli_set(Y1, t4, num_words);
 }
 
 /* Computes result = x^3 + ax + b. result must not overlap x. */
-static void x_side_default(uECC_word_t *result, const uECC_word_t *x,
-                           uECC_Curve curve) {
-  uECC_word_t _3[uECC_MAX_WORDS] = {3}; /* -a = 3 */
+static void x_side_default(mg_uecc_word_t *result, const mg_uecc_word_t *x,
+                           MG_UECC_Curve curve) {
+  mg_uecc_word_t _3[MG_UECC_MAX_WORDS] = {3}; /* -a = 3 */
   wordcount_t num_words = curve->num_words;
 
-  uECC_vli_modSquare_fast(result, x, curve);                /* r = x^2 */
-  uECC_vli_modSub(result, result, _3, curve->p, num_words); /* r = x^2 - 3 */
-  uECC_vli_modMult_fast(result, result, x, curve);          /* r = x^3 - 3x */
-  uECC_vli_modAdd(result, result, curve->b, curve->p,
-                  num_words); /* r = x^3 - 3x + b */
+  mg_uecc_vli_modSquare_fast(result, x, curve);                /* r = x^2 */
+  mg_uecc_vli_modSub(result, result, _3, curve->p, num_words); /* r = x^2 - 3 */
+  mg_uecc_vli_modMult_fast(result, result, x, curve); /* r = x^3 - 3x */
+  mg_uecc_vli_modAdd(result, result, curve->b, curve->p,
+                     num_words); /* r = x^3 - 3x + b */
 }
-#endif /* uECC_SUPPORTS_secp... */
+#endif /* MG_UECC_SUPPORTS_secp... */
 
-#if uECC_SUPPORT_COMPRESSED_POINT
-#if uECC_SUPPORTS_secp160r1 || uECC_SUPPORTS_secp192r1 || \
-    uECC_SUPPORTS_secp256r1 || uECC_SUPPORTS_secp256k1
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
+#if MG_UECC_SUPPORTS_secp160r1 || MG_UECC_SUPPORTS_secp192r1 || \
+    MG_UECC_SUPPORTS_secp256r1 || MG_UECC_SUPPORTS_secp256k1
 /* Compute a = sqrt(a) (mod curve_p). */
-static void mod_sqrt_default(uECC_word_t *a, uECC_Curve curve) {
+static void mod_sqrt_default(mg_uecc_word_t *a, MG_UECC_Curve curve) {
   bitcount_t i;
-  uECC_word_t p1[uECC_MAX_WORDS] = {1};
-  uECC_word_t l_result[uECC_MAX_WORDS] = {1};
+  mg_uecc_word_t p1[MG_UECC_MAX_WORDS] = {1};
+  mg_uecc_word_t l_result[MG_UECC_MAX_WORDS] = {1};
   wordcount_t num_words = curve->num_words;
 
   /* When curve->p == 3 (mod 4), we can compute
      sqrt(a) = a^((curve->p + 1) / 4) (mod curve->p). */
-  uECC_vli_add(p1, curve->p, p1, num_words); /* p1 = curve_p + 1 */
-  for (i = uECC_vli_numBits(p1, num_words) - 1; i > 1; --i) {
-    uECC_vli_modSquare_fast(l_result, l_result, curve);
-    if (uECC_vli_testBit(p1, i)) {
-      uECC_vli_modMult_fast(l_result, l_result, a, curve);
+  mg_uecc_vli_add(p1, curve->p, p1, num_words); /* p1 = curve_p + 1 */
+  for (i = mg_uecc_vli_numBits(p1, num_words) - 1; i > 1; --i) {
+    mg_uecc_vli_modSquare_fast(l_result, l_result, curve);
+    if (mg_uecc_vli_testBit(p1, i)) {
+      mg_uecc_vli_modMult_fast(l_result, l_result, a, curve);
     }
   }
-  uECC_vli_set(a, l_result, num_words);
+  mg_uecc_vli_set(a, l_result, num_words);
 }
-#endif /* uECC_SUPPORTS_secp... */
-#endif /* uECC_SUPPORT_COMPRESSED_POINT */
+#endif /* MG_UECC_SUPPORTS_secp... */
+#endif /* MG_UECC_SUPPORT_COMPRESSED_POINT */
 
-#if uECC_SUPPORTS_secp160r1
+#if MG_UECC_SUPPORTS_secp160r1
 
-#if (uECC_OPTIMIZATION_LEVEL > 0)
-static void vli_mmod_fast_secp160r1(uECC_word_t *result, uECC_word_t *product);
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
+static void vli_mmod_fast_secp160r1(mg_uecc_word_t *result,
+                                    mg_uecc_word_t *product);
 #endif
 
-static const struct uECC_Curve_t curve_secp160r1 = {
+static const struct MG_UECC_Curve_t curve_secp160r1 = {
     num_words_secp160r1,
     num_bytes_secp160r1,
     161, /* num_n_bits */
@@ -11477,32 +12152,34 @@ static const struct uECC_Curve_t curve_secp160r1 = {
      BYTES_TO_WORDS_8(9F, F8, AC, 65, 8B, 7A, BD, 54),
      BYTES_TO_WORDS_4(FC, BE, 97, 1C)},
     &double_jacobian_default,
-#if uECC_SUPPORT_COMPRESSED_POINT
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
     &mod_sqrt_default,
 #endif
     &x_side_default,
-#if (uECC_OPTIMIZATION_LEVEL > 0)
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
     &vli_mmod_fast_secp160r1
 #endif
 };
 
-uECC_Curve uECC_secp160r1(void) {
+MG_UECC_Curve mg_uecc_secp160r1(void) {
   return &curve_secp160r1;
 }
 
-#if (uECC_OPTIMIZATION_LEVEL > 0 && !asm_mmod_fast_secp160r1)
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0 && !asm_mmod_fast_secp160r1)
 /* Computes result = product % curve_p
     see http://www.isys.uni-klu.ac.at/PDF/2001-0126-MT.pdf page 354
 
     Note that this only works if log2(omega) < log2(p) / 2 */
-static void omega_mult_secp160r1(uECC_word_t *result, const uECC_word_t *right);
-#if uECC_WORD_SIZE == 8
-static void vli_mmod_fast_secp160r1(uECC_word_t *result, uECC_word_t *product) {
-  uECC_word_t tmp[2 * num_words_secp160r1];
-  uECC_word_t copy;
+static void omega_mult_secp160r1(mg_uecc_word_t *result,
+                                 const mg_uecc_word_t *right);
+#if MG_UECC_WORD_SIZE == 8
+static void vli_mmod_fast_secp160r1(mg_uecc_word_t *result,
+                                    mg_uecc_word_t *product) {
+  mg_uecc_word_t tmp[2 * num_words_secp160r1];
+  mg_uecc_word_t copy;
 
-  uECC_vli_clear(tmp, num_words_secp160r1);
-  uECC_vli_clear(tmp + num_words_secp160r1, num_words_secp160r1);
+  mg_uecc_vli_clear(tmp, num_words_secp160r1);
+  mg_uecc_vli_clear(tmp + num_words_secp160r1, num_words_secp160r1);
 
   omega_mult_secp160r1(tmp,
                        product + num_words_secp160r1 - 1); /* (Rq, q) = q * c */
@@ -11510,16 +12187,17 @@ static void vli_mmod_fast_secp160r1(uECC_word_t *result, uECC_word_t *product) {
   product[num_words_secp160r1 - 1] &= 0xffffffff;
   copy = tmp[num_words_secp160r1 - 1];
   tmp[num_words_secp160r1 - 1] &= 0xffffffff;
-  uECC_vli_add(result, product, tmp, num_words_secp160r1); /* (C, r) = r + q */
-  uECC_vli_clear(product, num_words_secp160r1);
+  mg_uecc_vli_add(result, product, tmp,
+                  num_words_secp160r1); /* (C, r) = r + q */
+  mg_uecc_vli_clear(product, num_words_secp160r1);
   tmp[num_words_secp160r1 - 1] = copy;
   omega_mult_secp160r1(product, tmp + num_words_secp160r1 - 1); /* Rq*c */
-  uECC_vli_add(result, result, product,
-               num_words_secp160r1); /* (C1, r) = r + Rq*c */
+  mg_uecc_vli_add(result, result, product,
+                  num_words_secp160r1); /* (C1, r) = r + Rq*c */
 
-  while (uECC_vli_cmp_unsafe(result, curve_secp160r1.p, num_words_secp160r1) >
-         0) {
-    uECC_vli_sub(result, result, curve_secp160r1.p, num_words_secp160r1);
+  while (mg_uecc_vli_cmp_unsafe(result, curve_secp160r1.p,
+                                num_words_secp160r1) > 0) {
+    mg_uecc_vli_sub(result, result, curve_secp160r1.p, num_words_secp160r1);
   }
 }
 
@@ -11537,81 +12215,84 @@ static void omega_mult_secp160r1(uint64_t *result, const uint64_t *right) {
   result[i] = carry;
 }
 #else
-static void vli_mmod_fast_secp160r1(uECC_word_t *result, uECC_word_t *product) {
-  uECC_word_t tmp[2 * num_words_secp160r1];
-  uECC_word_t carry;
+static void vli_mmod_fast_secp160r1(mg_uecc_word_t *result,
+                                    mg_uecc_word_t *product) {
+  mg_uecc_word_t tmp[2 * num_words_secp160r1];
+  mg_uecc_word_t carry;
 
-  uECC_vli_clear(tmp, num_words_secp160r1);
-  uECC_vli_clear(tmp + num_words_secp160r1, num_words_secp160r1);
+  mg_uecc_vli_clear(tmp, num_words_secp160r1);
+  mg_uecc_vli_clear(tmp + num_words_secp160r1, num_words_secp160r1);
 
   omega_mult_secp160r1(tmp,
                        product + num_words_secp160r1); /* (Rq, q) = q * c */
 
-  carry = uECC_vli_add(result, product, tmp,
-                       num_words_secp160r1); /* (C, r) = r + q */
-  uECC_vli_clear(product, num_words_secp160r1);
+  carry = mg_uecc_vli_add(result, product, tmp,
+                          num_words_secp160r1); /* (C, r) = r + q */
+  mg_uecc_vli_clear(product, num_words_secp160r1);
   omega_mult_secp160r1(product, tmp + num_words_secp160r1); /* Rq*c */
-  carry += uECC_vli_add(result, result, product,
-                        num_words_secp160r1); /* (C1, r) = r + Rq*c */
+  carry += mg_uecc_vli_add(result, result, product,
+                           num_words_secp160r1); /* (C1, r) = r + Rq*c */
 
   while (carry > 0) {
     --carry;
-    uECC_vli_sub(result, result, curve_secp160r1.p, num_words_secp160r1);
+    mg_uecc_vli_sub(result, result, curve_secp160r1.p, num_words_secp160r1);
   }
-  if (uECC_vli_cmp_unsafe(result, curve_secp160r1.p, num_words_secp160r1) > 0) {
-    uECC_vli_sub(result, result, curve_secp160r1.p, num_words_secp160r1);
+  if (mg_uecc_vli_cmp_unsafe(result, curve_secp160r1.p, num_words_secp160r1) >
+      0) {
+    mg_uecc_vli_sub(result, result, curve_secp160r1.p, num_words_secp160r1);
   }
 }
 #endif
 
-#if uECC_WORD_SIZE == 1
+#if MG_UECC_WORD_SIZE == 1
 static void omega_mult_secp160r1(uint8_t *result, const uint8_t *right) {
   uint8_t carry;
   uint8_t i;
 
   /* Multiply by (2^31 + 1). */
-  uECC_vli_set(result + 4, right, num_words_secp160r1); /* 2^32 */
-  uECC_vli_rshift1(result + 4, num_words_secp160r1);    /* 2^31 */
+  mg_uecc_vli_set(result + 4, right, num_words_secp160r1); /* 2^32 */
+  mg_uecc_vli_rshift1(result + 4, num_words_secp160r1);    /* 2^31 */
   result[3] = right[0] << 7; /* get last bit from shift */
 
-  carry =
-      uECC_vli_add(result, result, right, num_words_secp160r1); /* 2^31 + 1 */
+  carry = mg_uecc_vli_add(result, result, right,
+                          num_words_secp160r1); /* 2^31 + 1 */
   for (i = num_words_secp160r1; carry; ++i) {
     uint16_t sum = (uint16_t) result[i] + carry;
     result[i] = (uint8_t) sum;
     carry = sum >> 8;
   }
 }
-#elif uECC_WORD_SIZE == 4
+#elif MG_UECC_WORD_SIZE == 4
 static void omega_mult_secp160r1(uint32_t *result, const uint32_t *right) {
   uint32_t carry;
   unsigned i;
 
   /* Multiply by (2^31 + 1). */
-  uECC_vli_set(result + 1, right, num_words_secp160r1); /* 2^32 */
-  uECC_vli_rshift1(result + 1, num_words_secp160r1);    /* 2^31 */
+  mg_uecc_vli_set(result + 1, right, num_words_secp160r1); /* 2^32 */
+  mg_uecc_vli_rshift1(result + 1, num_words_secp160r1);    /* 2^31 */
   result[0] = right[0] << 31; /* get last bit from shift */
 
-  carry =
-      uECC_vli_add(result, result, right, num_words_secp160r1); /* 2^31 + 1 */
+  carry = mg_uecc_vli_add(result, result, right,
+                          num_words_secp160r1); /* 2^31 + 1 */
   for (i = num_words_secp160r1; carry; ++i) {
     uint64_t sum = (uint64_t) result[i] + carry;
     result[i] = (uint32_t) sum;
     carry = sum >> 32;
   }
 }
-#endif /* uECC_WORD_SIZE */
-#endif /* (uECC_OPTIMIZATION_LEVEL > 0 && !asm_mmod_fast_secp160r1) */
+#endif /* MG_UECC_WORD_SIZE */
+#endif /* (MG_UECC_OPTIMIZATION_LEVEL > 0 && !asm_mmod_fast_secp160r1) */
 
-#endif /* uECC_SUPPORTS_secp160r1 */
+#endif /* MG_UECC_SUPPORTS_secp160r1 */
 
-#if uECC_SUPPORTS_secp192r1
+#if MG_UECC_SUPPORTS_secp192r1
 
-#if (uECC_OPTIMIZATION_LEVEL > 0)
-static void vli_mmod_fast_secp192r1(uECC_word_t *result, uECC_word_t *product);
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
+static void vli_mmod_fast_secp192r1(mg_uecc_word_t *result,
+                                    mg_uecc_word_t *product);
 #endif
 
-static const struct uECC_Curve_t curve_secp192r1 = {
+static const struct MG_UECC_Curve_t curve_secp192r1 = {
     num_words_secp192r1,
     num_bytes_secp192r1,
     192, /* num_n_bits */
@@ -11632,32 +12313,32 @@ static const struct uECC_Curve_t curve_secp192r1 = {
      BYTES_TO_WORDS_8(49, 30, 24, 72, AB, E9, A7, 0F),
      BYTES_TO_WORDS_8(E7, 80, 9C, E5, 19, 05, 21, 64)},
     &double_jacobian_default,
-#if uECC_SUPPORT_COMPRESSED_POINT
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
     &mod_sqrt_default,
 #endif
     &x_side_default,
-#if (uECC_OPTIMIZATION_LEVEL > 0)
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
     &vli_mmod_fast_secp192r1
 #endif
 };
 
-uECC_Curve uECC_secp192r1(void) {
+MG_UECC_Curve mg_uecc_secp192r1(void) {
   return &curve_secp192r1;
 }
 
-#if (uECC_OPTIMIZATION_LEVEL > 0)
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
 /* Computes result = product % curve_p.
    See algorithm 5 and 6 from http://www.isys.uni-klu.ac.at/PDF/2001-0126-MT.pdf
  */
-#if uECC_WORD_SIZE == 1
+#if MG_UECC_WORD_SIZE == 1
 static void vli_mmod_fast_secp192r1(uint8_t *result, uint8_t *product) {
   uint8_t tmp[num_words_secp192r1];
   uint8_t carry;
 
-  uECC_vli_set(result, product, num_words_secp192r1);
+  mg_uecc_vli_set(result, product, num_words_secp192r1);
 
-  uECC_vli_set(tmp, &product[24], num_words_secp192r1);
-  carry = uECC_vli_add(result, result, tmp, num_words_secp192r1);
+  mg_uecc_vli_set(tmp, &product[24], num_words_secp192r1);
+  carry = mg_uecc_vli_add(result, result, tmp, num_words_secp192r1);
 
   tmp[0] = tmp[1] = tmp[2] = tmp[3] = tmp[4] = tmp[5] = tmp[6] = tmp[7] = 0;
   tmp[8] = product[24];
@@ -11676,7 +12357,7 @@ static void vli_mmod_fast_secp192r1(uint8_t *result, uint8_t *product) {
   tmp[21] = product[37];
   tmp[22] = product[38];
   tmp[23] = product[39];
-  carry += uECC_vli_add(result, result, tmp, num_words_secp192r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp192r1);
 
   tmp[0] = tmp[8] = product[40];
   tmp[1] = tmp[9] = product[41];
@@ -11688,40 +12369,40 @@ static void vli_mmod_fast_secp192r1(uint8_t *result, uint8_t *product) {
   tmp[7] = tmp[15] = product[47];
   tmp[16] = tmp[17] = tmp[18] = tmp[19] = tmp[20] = tmp[21] = tmp[22] =
       tmp[23] = 0;
-  carry += uECC_vli_add(result, result, tmp, num_words_secp192r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp192r1);
 
-  while (carry || uECC_vli_cmp_unsafe(curve_secp192r1.p, result,
-                                      num_words_secp192r1) != 1) {
+  while (carry || mg_uecc_vli_cmp_unsafe(curve_secp192r1.p, result,
+                                         num_words_secp192r1) != 1) {
     carry -=
-        uECC_vli_sub(result, result, curve_secp192r1.p, num_words_secp192r1);
+        mg_uecc_vli_sub(result, result, curve_secp192r1.p, num_words_secp192r1);
   }
 }
-#elif uECC_WORD_SIZE == 4
+#elif MG_UECC_WORD_SIZE == 4
 static void vli_mmod_fast_secp192r1(uint32_t *result, uint32_t *product) {
   uint32_t tmp[num_words_secp192r1];
   int carry;
 
-  uECC_vli_set(result, product, num_words_secp192r1);
+  mg_uecc_vli_set(result, product, num_words_secp192r1);
 
-  uECC_vli_set(tmp, &product[6], num_words_secp192r1);
-  carry = uECC_vli_add(result, result, tmp, num_words_secp192r1);
+  mg_uecc_vli_set(tmp, &product[6], num_words_secp192r1);
+  carry = mg_uecc_vli_add(result, result, tmp, num_words_secp192r1);
 
   tmp[0] = tmp[1] = 0;
   tmp[2] = product[6];
   tmp[3] = product[7];
   tmp[4] = product[8];
   tmp[5] = product[9];
-  carry += uECC_vli_add(result, result, tmp, num_words_secp192r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp192r1);
 
   tmp[0] = tmp[2] = product[10];
   tmp[1] = tmp[3] = product[11];
   tmp[4] = tmp[5] = 0;
-  carry += uECC_vli_add(result, result, tmp, num_words_secp192r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp192r1);
 
-  while (carry || uECC_vli_cmp_unsafe(curve_secp192r1.p, result,
-                                      num_words_secp192r1) != 1) {
+  while (carry || mg_uecc_vli_cmp_unsafe(curve_secp192r1.p, result,
+                                         num_words_secp192r1) != 1) {
     carry -=
-        uECC_vli_sub(result, result, curve_secp192r1.p, num_words_secp192r1);
+        mg_uecc_vli_sub(result, result, curve_secp192r1.p, num_words_secp192r1);
   }
 }
 #else
@@ -11729,41 +12410,42 @@ static void vli_mmod_fast_secp192r1(uint64_t *result, uint64_t *product) {
   uint64_t tmp[num_words_secp192r1];
   int carry;
 
-  uECC_vli_set(result, product, num_words_secp192r1);
+  mg_uecc_vli_set(result, product, num_words_secp192r1);
 
-  uECC_vli_set(tmp, &product[3], num_words_secp192r1);
-  carry = (int) uECC_vli_add(result, result, tmp, num_words_secp192r1);
+  mg_uecc_vli_set(tmp, &product[3], num_words_secp192r1);
+  carry = (int) mg_uecc_vli_add(result, result, tmp, num_words_secp192r1);
 
   tmp[0] = 0;
   tmp[1] = product[3];
   tmp[2] = product[4];
-  carry += uECC_vli_add(result, result, tmp, num_words_secp192r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp192r1);
 
   tmp[0] = tmp[1] = product[5];
   tmp[2] = 0;
-  carry += uECC_vli_add(result, result, tmp, num_words_secp192r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp192r1);
 
-  while (carry || uECC_vli_cmp_unsafe(curve_secp192r1.p, result,
-                                      num_words_secp192r1) != 1) {
+  while (carry || mg_uecc_vli_cmp_unsafe(curve_secp192r1.p, result,
+                                         num_words_secp192r1) != 1) {
     carry -=
-        uECC_vli_sub(result, result, curve_secp192r1.p, num_words_secp192r1);
+        mg_uecc_vli_sub(result, result, curve_secp192r1.p, num_words_secp192r1);
   }
 }
-#endif /* uECC_WORD_SIZE */
-#endif /* (uECC_OPTIMIZATION_LEVEL > 0) */
+#endif /* MG_UECC_WORD_SIZE */
+#endif /* (MG_UECC_OPTIMIZATION_LEVEL > 0) */
 
-#endif /* uECC_SUPPORTS_secp192r1 */
+#endif /* MG_UECC_SUPPORTS_secp192r1 */
 
-#if uECC_SUPPORTS_secp224r1
+#if MG_UECC_SUPPORTS_secp224r1
 
-#if uECC_SUPPORT_COMPRESSED_POINT
-static void mod_sqrt_secp224r1(uECC_word_t *a, uECC_Curve curve);
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
+static void mod_sqrt_secp224r1(mg_uecc_word_t *a, MG_UECC_Curve curve);
 #endif
-#if (uECC_OPTIMIZATION_LEVEL > 0)
-static void vli_mmod_fast_secp224r1(uECC_word_t *result, uECC_word_t *product);
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
+static void vli_mmod_fast_secp224r1(mg_uecc_word_t *result,
+                                    mg_uecc_word_t *product);
 #endif
 
-static const struct uECC_Curve_t curve_secp224r1 = {
+static const struct MG_UECC_Curve_t curve_secp224r1 = {
     num_words_secp224r1,
     num_bytes_secp224r1,
     224, /* num_n_bits */
@@ -11789,106 +12471,108 @@ static const struct uECC_Curve_t curve_secp224r1 = {
      BYTES_TO_WORDS_8(56, 32, 41, F5, AB, B3, 04, 0C),
      BYTES_TO_WORDS_4(85, 0A, 05, B4)},
     &double_jacobian_default,
-#if uECC_SUPPORT_COMPRESSED_POINT
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
     &mod_sqrt_secp224r1,
 #endif
     &x_side_default,
-#if (uECC_OPTIMIZATION_LEVEL > 0)
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
     &vli_mmod_fast_secp224r1
 #endif
 };
 
-uECC_Curve uECC_secp224r1(void) {
+MG_UECC_Curve mg_uecc_secp224r1(void) {
   return &curve_secp224r1;
 }
 
-#if uECC_SUPPORT_COMPRESSED_POINT
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
 /* Routine 3.2.4 RS;  from http://www.nsa.gov/ia/_files/nist-routines.pdf */
-static void mod_sqrt_secp224r1_rs(uECC_word_t *d1, uECC_word_t *e1,
-                                  uECC_word_t *f1, const uECC_word_t *d0,
-                                  const uECC_word_t *e0,
-                                  const uECC_word_t *f0) {
-  uECC_word_t t[num_words_secp224r1];
+static void mod_sqrt_secp224r1_rs(mg_uecc_word_t *d1, mg_uecc_word_t *e1,
+                                  mg_uecc_word_t *f1, const mg_uecc_word_t *d0,
+                                  const mg_uecc_word_t *e0,
+                                  const mg_uecc_word_t *f0) {
+  mg_uecc_word_t t[num_words_secp224r1];
 
-  uECC_vli_modSquare_fast(t, d0, &curve_secp224r1);    /* t <-- d0 ^ 2 */
-  uECC_vli_modMult_fast(e1, d0, e0, &curve_secp224r1); /* e1 <-- d0 * e0 */
-  uECC_vli_modAdd(d1, t, f0, curve_secp224r1.p,
-                  num_words_secp224r1); /* d1 <-- t  + f0 */
-  uECC_vli_modAdd(e1, e1, e1, curve_secp224r1.p,
-                  num_words_secp224r1);               /* e1 <-- e1 + e1 */
-  uECC_vli_modMult_fast(f1, t, f0, &curve_secp224r1); /* f1 <-- t  * f0 */
-  uECC_vli_modAdd(f1, f1, f1, curve_secp224r1.p,
-                  num_words_secp224r1); /* f1 <-- f1 + f1 */
-  uECC_vli_modAdd(f1, f1, f1, curve_secp224r1.p,
-                  num_words_secp224r1); /* f1 <-- f1 + f1 */
+  mg_uecc_vli_modSquare_fast(t, d0, &curve_secp224r1);    /* t <-- d0 ^ 2 */
+  mg_uecc_vli_modMult_fast(e1, d0, e0, &curve_secp224r1); /* e1 <-- d0 * e0 */
+  mg_uecc_vli_modAdd(d1, t, f0, curve_secp224r1.p,
+                     num_words_secp224r1); /* d1 <-- t  + f0 */
+  mg_uecc_vli_modAdd(e1, e1, e1, curve_secp224r1.p,
+                     num_words_secp224r1);               /* e1 <-- e1 + e1 */
+  mg_uecc_vli_modMult_fast(f1, t, f0, &curve_secp224r1); /* f1 <-- t  * f0 */
+  mg_uecc_vli_modAdd(f1, f1, f1, curve_secp224r1.p,
+                     num_words_secp224r1); /* f1 <-- f1 + f1 */
+  mg_uecc_vli_modAdd(f1, f1, f1, curve_secp224r1.p,
+                     num_words_secp224r1); /* f1 <-- f1 + f1 */
 }
 
 /* Routine 3.2.5 RSS;  from http://www.nsa.gov/ia/_files/nist-routines.pdf */
-static void mod_sqrt_secp224r1_rss(uECC_word_t *d1, uECC_word_t *e1,
-                                   uECC_word_t *f1, const uECC_word_t *d0,
-                                   const uECC_word_t *e0, const uECC_word_t *f0,
+static void mod_sqrt_secp224r1_rss(mg_uecc_word_t *d1, mg_uecc_word_t *e1,
+                                   mg_uecc_word_t *f1, const mg_uecc_word_t *d0,
+                                   const mg_uecc_word_t *e0,
+                                   const mg_uecc_word_t *f0,
                                    const bitcount_t j) {
   bitcount_t i;
 
-  uECC_vli_set(d1, d0, num_words_secp224r1); /* d1 <-- d0 */
-  uECC_vli_set(e1, e0, num_words_secp224r1); /* e1 <-- e0 */
-  uECC_vli_set(f1, f0, num_words_secp224r1); /* f1 <-- f0 */
+  mg_uecc_vli_set(d1, d0, num_words_secp224r1); /* d1 <-- d0 */
+  mg_uecc_vli_set(e1, e0, num_words_secp224r1); /* e1 <-- e0 */
+  mg_uecc_vli_set(f1, f0, num_words_secp224r1); /* f1 <-- f0 */
   for (i = 1; i <= j; i++) {
     mod_sqrt_secp224r1_rs(d1, e1, f1, d1, e1, f1); /* RS (d1,e1,f1,d1,e1,f1) */
   }
 }
 
 /* Routine 3.2.6 RM;  from http://www.nsa.gov/ia/_files/nist-routines.pdf */
-static void mod_sqrt_secp224r1_rm(uECC_word_t *d2, uECC_word_t *e2,
-                                  uECC_word_t *f2, const uECC_word_t *c,
-                                  const uECC_word_t *d0, const uECC_word_t *e0,
-                                  const uECC_word_t *d1,
-                                  const uECC_word_t *e1) {
-  uECC_word_t t1[num_words_secp224r1];
-  uECC_word_t t2[num_words_secp224r1];
+static void mod_sqrt_secp224r1_rm(mg_uecc_word_t *d2, mg_uecc_word_t *e2,
+                                  mg_uecc_word_t *f2, const mg_uecc_word_t *c,
+                                  const mg_uecc_word_t *d0,
+                                  const mg_uecc_word_t *e0,
+                                  const mg_uecc_word_t *d1,
+                                  const mg_uecc_word_t *e1) {
+  mg_uecc_word_t t1[num_words_secp224r1];
+  mg_uecc_word_t t2[num_words_secp224r1];
 
-  uECC_vli_modMult_fast(t1, e0, e1, &curve_secp224r1); /* t1 <-- e0 * e1 */
-  uECC_vli_modMult_fast(t1, t1, c, &curve_secp224r1);  /* t1 <-- t1 * c */
+  mg_uecc_vli_modMult_fast(t1, e0, e1, &curve_secp224r1); /* t1 <-- e0 * e1 */
+  mg_uecc_vli_modMult_fast(t1, t1, c, &curve_secp224r1);  /* t1 <-- t1 * c */
   /* t1 <-- p  - t1 */
-  uECC_vli_modSub(t1, curve_secp224r1.p, t1, curve_secp224r1.p,
-                  num_words_secp224r1);
-  uECC_vli_modMult_fast(t2, d0, d1, &curve_secp224r1); /* t2 <-- d0 * d1 */
-  uECC_vli_modAdd(t2, t2, t1, curve_secp224r1.p,
-                  num_words_secp224r1);                /* t2 <-- t2 + t1 */
-  uECC_vli_modMult_fast(t1, d0, e1, &curve_secp224r1); /* t1 <-- d0 * e1 */
-  uECC_vli_modMult_fast(e2, d1, e0, &curve_secp224r1); /* e2 <-- d1 * e0 */
-  uECC_vli_modAdd(e2, e2, t1, curve_secp224r1.p,
-                  num_words_secp224r1);               /* e2 <-- e2 + t1 */
-  uECC_vli_modSquare_fast(f2, e2, &curve_secp224r1);  /* f2 <-- e2^2 */
-  uECC_vli_modMult_fast(f2, f2, c, &curve_secp224r1); /* f2 <-- f2 * c */
+  mg_uecc_vli_modSub(t1, curve_secp224r1.p, t1, curve_secp224r1.p,
+                     num_words_secp224r1);
+  mg_uecc_vli_modMult_fast(t2, d0, d1, &curve_secp224r1); /* t2 <-- d0 * d1 */
+  mg_uecc_vli_modAdd(t2, t2, t1, curve_secp224r1.p,
+                     num_words_secp224r1);                /* t2 <-- t2 + t1 */
+  mg_uecc_vli_modMult_fast(t1, d0, e1, &curve_secp224r1); /* t1 <-- d0 * e1 */
+  mg_uecc_vli_modMult_fast(e2, d1, e0, &curve_secp224r1); /* e2 <-- d1 * e0 */
+  mg_uecc_vli_modAdd(e2, e2, t1, curve_secp224r1.p,
+                     num_words_secp224r1);               /* e2 <-- e2 + t1 */
+  mg_uecc_vli_modSquare_fast(f2, e2, &curve_secp224r1);  /* f2 <-- e2^2 */
+  mg_uecc_vli_modMult_fast(f2, f2, c, &curve_secp224r1); /* f2 <-- f2 * c */
   /* f2 <-- p  - f2 */
-  uECC_vli_modSub(f2, curve_secp224r1.p, f2, curve_secp224r1.p,
-                  num_words_secp224r1);
-  uECC_vli_set(d2, t2, num_words_secp224r1); /* d2 <-- t2 */
+  mg_uecc_vli_modSub(f2, curve_secp224r1.p, f2, curve_secp224r1.p,
+                     num_words_secp224r1);
+  mg_uecc_vli_set(d2, t2, num_words_secp224r1); /* d2 <-- t2 */
 }
 
 /* Routine 3.2.7 RP;  from http://www.nsa.gov/ia/_files/nist-routines.pdf */
-static void mod_sqrt_secp224r1_rp(uECC_word_t *d1, uECC_word_t *e1,
-                                  uECC_word_t *f1, const uECC_word_t *c,
-                                  const uECC_word_t *r) {
+static void mod_sqrt_secp224r1_rp(mg_uecc_word_t *d1, mg_uecc_word_t *e1,
+                                  mg_uecc_word_t *f1, const mg_uecc_word_t *c,
+                                  const mg_uecc_word_t *r) {
   wordcount_t i;
   wordcount_t pow2i = 1;
-  uECC_word_t d0[num_words_secp224r1];
-  uECC_word_t e0[num_words_secp224r1] = {1}; /* e0 <-- 1 */
-  uECC_word_t f0[num_words_secp224r1];
+  mg_uecc_word_t d0[num_words_secp224r1];
+  mg_uecc_word_t e0[num_words_secp224r1] = {1}; /* e0 <-- 1 */
+  mg_uecc_word_t f0[num_words_secp224r1];
 
-  uECC_vli_set(d0, r, num_words_secp224r1); /* d0 <-- r */
+  mg_uecc_vli_set(d0, r, num_words_secp224r1); /* d0 <-- r */
   /* f0 <-- p  - c */
-  uECC_vli_modSub(f0, curve_secp224r1.p, c, curve_secp224r1.p,
-                  num_words_secp224r1);
+  mg_uecc_vli_modSub(f0, curve_secp224r1.p, c, curve_secp224r1.p,
+                     num_words_secp224r1);
   for (i = 0; i <= 6; i++) {
     mod_sqrt_secp224r1_rss(d1, e1, f1, d0, e0, f0,
                            pow2i); /* RSS (d1,e1,f1,d0,e0,f0,2^i) */
     mod_sqrt_secp224r1_rm(d1, e1, f1, c, d1, e1, d0,
-                          e0);                 /* RM (d1,e1,f1,c,d1,e1,d0,e0) */
-    uECC_vli_set(d0, d1, num_words_secp224r1); /* d0 <-- d1 */
-    uECC_vli_set(e0, e1, num_words_secp224r1); /* e0 <-- e1 */
-    uECC_vli_set(f0, f1, num_words_secp224r1); /* f0 <-- f1 */
+                          e0); /* RM (d1,e1,f1,c,d1,e1,d0,e0) */
+    mg_uecc_vli_set(d0, d1, num_words_secp224r1); /* d0 <-- d1 */
+    mg_uecc_vli_set(e0, e1, num_words_secp224r1); /* e0 <-- e1 */
+    mg_uecc_vli_set(f0, f1, num_words_secp224r1); /* f0 <-- f1 */
     pow2i *= 2;
   }
 }
@@ -11896,46 +12580,46 @@ static void mod_sqrt_secp224r1_rp(uECC_word_t *d1, uECC_word_t *e1,
 /* Compute a = sqrt(a) (mod curve_p). */
 /* Routine 3.2.8 mp_mod_sqrt_224; from
  * http://www.nsa.gov/ia/_files/nist-routines.pdf */
-static void mod_sqrt_secp224r1(uECC_word_t *a, uECC_Curve curve) {
+static void mod_sqrt_secp224r1(mg_uecc_word_t *a, MG_UECC_Curve curve) {
   (void) curve;
   bitcount_t i;
-  uECC_word_t e1[num_words_secp224r1];
-  uECC_word_t f1[num_words_secp224r1];
-  uECC_word_t d0[num_words_secp224r1];
-  uECC_word_t e0[num_words_secp224r1];
-  uECC_word_t f0[num_words_secp224r1];
-  uECC_word_t d1[num_words_secp224r1];
+  mg_uecc_word_t e1[num_words_secp224r1];
+  mg_uecc_word_t f1[num_words_secp224r1];
+  mg_uecc_word_t d0[num_words_secp224r1];
+  mg_uecc_word_t e0[num_words_secp224r1];
+  mg_uecc_word_t f0[num_words_secp224r1];
+  mg_uecc_word_t d1[num_words_secp224r1];
 
   /* s = a; using constant instead of random value */
   mod_sqrt_secp224r1_rp(d0, e0, f0, a, a); /* RP (d0, e0, f0, c, s) */
   mod_sqrt_secp224r1_rs(d1, e1, f1, d0, e0,
                         f0); /* RS (d1, e1, f1, d0, e0, f0) */
   for (i = 1; i <= 95; i++) {
-    uECC_vli_set(d0, d1, num_words_secp224r1); /* d0 <-- d1 */
-    uECC_vli_set(e0, e1, num_words_secp224r1); /* e0 <-- e1 */
-    uECC_vli_set(f0, f1, num_words_secp224r1); /* f0 <-- f1 */
+    mg_uecc_vli_set(d0, d1, num_words_secp224r1); /* d0 <-- d1 */
+    mg_uecc_vli_set(e0, e1, num_words_secp224r1); /* e0 <-- e1 */
+    mg_uecc_vli_set(f0, f1, num_words_secp224r1); /* f0 <-- f1 */
     mod_sqrt_secp224r1_rs(d1, e1, f1, d0, e0,
                           f0); /* RS (d1, e1, f1, d0, e0, f0) */
-    if (uECC_vli_isZero(d1, num_words_secp224r1)) { /* if d1 == 0 */
+    if (mg_uecc_vli_isZero(d1, num_words_secp224r1)) { /* if d1 == 0 */
       break;
     }
   }
-  uECC_vli_modInv(f1, e0, curve_secp224r1.p,
-                  num_words_secp224r1);               /* f1 <-- 1 / e0 */
-  uECC_vli_modMult_fast(a, d0, f1, &curve_secp224r1); /* a  <-- d0 / e0 */
+  mg_uecc_vli_modInv(f1, e0, curve_secp224r1.p,
+                     num_words_secp224r1);               /* f1 <-- 1 / e0 */
+  mg_uecc_vli_modMult_fast(a, d0, f1, &curve_secp224r1); /* a  <-- d0 / e0 */
 }
-#endif /* uECC_SUPPORT_COMPRESSED_POINT */
+#endif /* MG_UECC_SUPPORT_COMPRESSED_POINT */
 
-#if (uECC_OPTIMIZATION_LEVEL > 0)
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
 /* Computes result = product % curve_p
    from http://www.nsa.gov/ia/_files/nist-routines.pdf */
-#if uECC_WORD_SIZE == 1
+#if MG_UECC_WORD_SIZE == 1
 static void vli_mmod_fast_secp224r1(uint8_t *result, uint8_t *product) {
   uint8_t tmp[num_words_secp224r1];
   int8_t carry;
 
   /* t */
-  uECC_vli_set(result, product, num_words_secp224r1);
+  mg_uecc_vli_set(result, product, num_words_secp224r1);
 
   /* s1 */
   tmp[0] = tmp[1] = tmp[2] = tmp[3] = 0;
@@ -11957,7 +12641,7 @@ static void vli_mmod_fast_secp224r1(uint8_t *result, uint8_t *product) {
   tmp[25] = product[41];
   tmp[26] = product[42];
   tmp[27] = product[43];
-  carry = uECC_vli_add(result, result, tmp, num_words_secp224r1);
+  carry = mg_uecc_vli_add(result, result, tmp, num_words_secp224r1);
 
   /* s2 */
   tmp[12] = product[44];
@@ -11973,7 +12657,7 @@ static void vli_mmod_fast_secp224r1(uint8_t *result, uint8_t *product) {
   tmp[22] = product[54];
   tmp[23] = product[55];
   tmp[24] = tmp[25] = tmp[26] = tmp[27] = 0;
-  carry += uECC_vli_add(result, result, tmp, num_words_secp224r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp224r1);
 
   /* d1 */
   tmp[0] = product[28];
@@ -12004,7 +12688,7 @@ static void vli_mmod_fast_secp224r1(uint8_t *result, uint8_t *product) {
   tmp[25] = product[53];
   tmp[26] = product[54];
   tmp[27] = product[55];
-  carry -= uECC_vli_sub(result, result, tmp, num_words_secp224r1);
+  carry -= mg_uecc_vli_sub(result, result, tmp, num_words_secp224r1);
 
   /* d2 */
   tmp[0] = product[44];
@@ -12023,28 +12707,28 @@ static void vli_mmod_fast_secp224r1(uint8_t *result, uint8_t *product) {
   tmp[16] = tmp[17] = tmp[18] = tmp[19] = 0;
   tmp[20] = tmp[21] = tmp[22] = tmp[23] = 0;
   tmp[24] = tmp[25] = tmp[26] = tmp[27] = 0;
-  carry -= uECC_vli_sub(result, result, tmp, num_words_secp224r1);
+  carry -= mg_uecc_vli_sub(result, result, tmp, num_words_secp224r1);
 
   if (carry < 0) {
     do {
-      carry +=
-          uECC_vli_add(result, result, curve_secp224r1.p, num_words_secp224r1);
+      carry += mg_uecc_vli_add(result, result, curve_secp224r1.p,
+                               num_words_secp224r1);
     } while (carry < 0);
   } else {
-    while (carry || uECC_vli_cmp_unsafe(curve_secp224r1.p, result,
-                                        num_words_secp224r1) != 1) {
-      carry -=
-          uECC_vli_sub(result, result, curve_secp224r1.p, num_words_secp224r1);
+    while (carry || mg_uecc_vli_cmp_unsafe(curve_secp224r1.p, result,
+                                           num_words_secp224r1) != 1) {
+      carry -= mg_uecc_vli_sub(result, result, curve_secp224r1.p,
+                               num_words_secp224r1);
     }
   }
 }
-#elif uECC_WORD_SIZE == 4
+#elif MG_UECC_WORD_SIZE == 4
 static void vli_mmod_fast_secp224r1(uint32_t *result, uint32_t *product) {
   uint32_t tmp[num_words_secp224r1];
   int carry;
 
   /* t */
-  uECC_vli_set(result, product, num_words_secp224r1);
+  mg_uecc_vli_set(result, product, num_words_secp224r1);
 
   /* s1 */
   tmp[0] = tmp[1] = tmp[2] = 0;
@@ -12052,14 +12736,14 @@ static void vli_mmod_fast_secp224r1(uint32_t *result, uint32_t *product) {
   tmp[4] = product[8];
   tmp[5] = product[9];
   tmp[6] = product[10];
-  carry = uECC_vli_add(result, result, tmp, num_words_secp224r1);
+  carry = mg_uecc_vli_add(result, result, tmp, num_words_secp224r1);
 
   /* s2 */
   tmp[3] = product[11];
   tmp[4] = product[12];
   tmp[5] = product[13];
   tmp[6] = 0;
-  carry += uECC_vli_add(result, result, tmp, num_words_secp224r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp224r1);
 
   /* d1 */
   tmp[0] = product[7];
@@ -12069,25 +12753,25 @@ static void vli_mmod_fast_secp224r1(uint32_t *result, uint32_t *product) {
   tmp[4] = product[11];
   tmp[5] = product[12];
   tmp[6] = product[13];
-  carry -= uECC_vli_sub(result, result, tmp, num_words_secp224r1);
+  carry -= mg_uecc_vli_sub(result, result, tmp, num_words_secp224r1);
 
   /* d2 */
   tmp[0] = product[11];
   tmp[1] = product[12];
   tmp[2] = product[13];
   tmp[3] = tmp[4] = tmp[5] = tmp[6] = 0;
-  carry -= uECC_vli_sub(result, result, tmp, num_words_secp224r1);
+  carry -= mg_uecc_vli_sub(result, result, tmp, num_words_secp224r1);
 
   if (carry < 0) {
     do {
-      carry +=
-          uECC_vli_add(result, result, curve_secp224r1.p, num_words_secp224r1);
+      carry += mg_uecc_vli_add(result, result, curve_secp224r1.p,
+                               num_words_secp224r1);
     } while (carry < 0);
   } else {
-    while (carry || uECC_vli_cmp_unsafe(curve_secp224r1.p, result,
-                                        num_words_secp224r1) != 1) {
-      carry -=
-          uECC_vli_sub(result, result, curve_secp224r1.p, num_words_secp224r1);
+    while (carry || mg_uecc_vli_cmp_unsafe(curve_secp224r1.p, result,
+                                           num_words_secp224r1) != 1) {
+      carry -= mg_uecc_vli_sub(result, result, curve_secp224r1.p,
+                               num_words_secp224r1);
     }
   }
 }
@@ -12097,7 +12781,7 @@ static void vli_mmod_fast_secp224r1(uint64_t *result, uint64_t *product) {
   int carry = 0;
 
   /* t */
-  uECC_vli_set(result, product, num_words_secp224r1);
+  mg_uecc_vli_set(result, product, num_words_secp224r1);
   result[num_words_secp224r1 - 1] &= 0xffffffff;
 
   /* s1 */
@@ -12105,51 +12789,52 @@ static void vli_mmod_fast_secp224r1(uint64_t *result, uint64_t *product) {
   tmp[1] = product[3] & 0xffffffff00000000ull;
   tmp[2] = product[4];
   tmp[3] = product[5] & 0xffffffff;
-  uECC_vli_add(result, result, tmp, num_words_secp224r1);
+  mg_uecc_vli_add(result, result, tmp, num_words_secp224r1);
 
   /* s2 */
   tmp[1] = product[5] & 0xffffffff00000000ull;
   tmp[2] = product[6];
   tmp[3] = 0;
-  uECC_vli_add(result, result, tmp, num_words_secp224r1);
+  mg_uecc_vli_add(result, result, tmp, num_words_secp224r1);
 
   /* d1 */
   tmp[0] = (product[3] >> 32) | (product[4] << 32);
   tmp[1] = (product[4] >> 32) | (product[5] << 32);
   tmp[2] = (product[5] >> 32) | (product[6] << 32);
   tmp[3] = product[6] >> 32;
-  carry -= uECC_vli_sub(result, result, tmp, num_words_secp224r1);
+  carry -= mg_uecc_vli_sub(result, result, tmp, num_words_secp224r1);
 
   /* d2 */
   tmp[0] = (product[5] >> 32) | (product[6] << 32);
   tmp[1] = product[6] >> 32;
   tmp[2] = tmp[3] = 0;
-  carry -= uECC_vli_sub(result, result, tmp, num_words_secp224r1);
+  carry -= mg_uecc_vli_sub(result, result, tmp, num_words_secp224r1);
 
   if (carry < 0) {
     do {
-      carry +=
-          uECC_vli_add(result, result, curve_secp224r1.p, num_words_secp224r1);
+      carry += mg_uecc_vli_add(result, result, curve_secp224r1.p,
+                               num_words_secp224r1);
     } while (carry < 0);
   } else {
-    while (uECC_vli_cmp_unsafe(curve_secp224r1.p, result,
-                               num_words_secp224r1) != 1) {
-      uECC_vli_sub(result, result, curve_secp224r1.p, num_words_secp224r1);
+    while (mg_uecc_vli_cmp_unsafe(curve_secp224r1.p, result,
+                                  num_words_secp224r1) != 1) {
+      mg_uecc_vli_sub(result, result, curve_secp224r1.p, num_words_secp224r1);
     }
   }
 }
-#endif /* uECC_WORD_SIZE */
-#endif /* (uECC_OPTIMIZATION_LEVEL > 0) */
+#endif /* MG_UECC_WORD_SIZE */
+#endif /* (MG_UECC_OPTIMIZATION_LEVEL > 0) */
 
-#endif /* uECC_SUPPORTS_secp224r1 */
+#endif /* MG_UECC_SUPPORTS_secp224r1 */
 
-#if uECC_SUPPORTS_secp256r1
+#if MG_UECC_SUPPORTS_secp256r1
 
-#if (uECC_OPTIMIZATION_LEVEL > 0)
-static void vli_mmod_fast_secp256r1(uECC_word_t *result, uECC_word_t *product);
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
+static void vli_mmod_fast_secp256r1(mg_uecc_word_t *result,
+                                    mg_uecc_word_t *product);
 #endif
 
-static const struct uECC_Curve_t curve_secp256r1 = {
+static const struct MG_UECC_Curve_t curve_secp256r1 = {
     num_words_secp256r1,
     num_bytes_secp256r1,
     256, /* num_n_bits */
@@ -12175,29 +12860,29 @@ static const struct uECC_Curve_t curve_secp256r1 = {
      BYTES_TO_WORDS_8(BC, 86, 98, 76, 55, BD, EB, B3),
      BYTES_TO_WORDS_8(E7, 93, 3A, AA, D8, 35, C6, 5A)},
     &double_jacobian_default,
-#if uECC_SUPPORT_COMPRESSED_POINT
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
     &mod_sqrt_default,
 #endif
     &x_side_default,
-#if (uECC_OPTIMIZATION_LEVEL > 0)
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
     &vli_mmod_fast_secp256r1
 #endif
 };
 
-uECC_Curve uECC_secp256r1(void) {
+MG_UECC_Curve mg_uecc_secp256r1(void) {
   return &curve_secp256r1;
 }
 
-#if (uECC_OPTIMIZATION_LEVEL > 0 && !asm_mmod_fast_secp256r1)
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0 && !asm_mmod_fast_secp256r1)
 /* Computes result = product % curve_p
    from http://www.nsa.gov/ia/_files/nist-routines.pdf */
-#if uECC_WORD_SIZE == 1
+#if MG_UECC_WORD_SIZE == 1
 static void vli_mmod_fast_secp256r1(uint8_t *result, uint8_t *product) {
   uint8_t tmp[num_words_secp256r1];
   int8_t carry;
 
   /* t */
-  uECC_vli_set(result, product, num_words_secp256r1);
+  mg_uecc_vli_set(result, product, num_words_secp256r1);
 
   /* s1 */
   tmp[0] = tmp[1] = tmp[2] = tmp[3] = 0;
@@ -12223,8 +12908,8 @@ static void vli_mmod_fast_secp256r1(uint8_t *result, uint8_t *product) {
   tmp[29] = product[61];
   tmp[30] = product[62];
   tmp[31] = product[63];
-  carry = uECC_vli_add(tmp, tmp, tmp, num_words_secp256r1);
-  carry += uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry = mg_uecc_vli_add(tmp, tmp, tmp, num_words_secp256r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* s2 */
   tmp[12] = product[48];
@@ -12244,8 +12929,8 @@ static void vli_mmod_fast_secp256r1(uint8_t *result, uint8_t *product) {
   tmp[26] = product[62];
   tmp[27] = product[63];
   tmp[28] = tmp[29] = tmp[30] = tmp[31] = 0;
-  carry += uECC_vli_add(tmp, tmp, tmp, num_words_secp256r1);
-  carry += uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry += mg_uecc_vli_add(tmp, tmp, tmp, num_words_secp256r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* s3 */
   tmp[0] = product[32];
@@ -12271,7 +12956,7 @@ static void vli_mmod_fast_secp256r1(uint8_t *result, uint8_t *product) {
   tmp[29] = product[61];
   tmp[30] = product[62];
   tmp[31] = product[63];
-  carry += uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* s4 */
   tmp[0] = product[36];
@@ -12306,7 +12991,7 @@ static void vli_mmod_fast_secp256r1(uint8_t *result, uint8_t *product) {
   tmp[29] = product[33];
   tmp[30] = product[34];
   tmp[31] = product[35];
-  carry += uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry += mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* d1 */
   tmp[0] = product[44];
@@ -12332,7 +13017,7 @@ static void vli_mmod_fast_secp256r1(uint8_t *result, uint8_t *product) {
   tmp[29] = product[41];
   tmp[30] = product[42];
   tmp[31] = product[43];
-  carry -= uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   /* d2 */
   tmp[0] = product[48];
@@ -12361,7 +13046,7 @@ static void vli_mmod_fast_secp256r1(uint8_t *result, uint8_t *product) {
   tmp[29] = product[45];
   tmp[30] = product[46];
   tmp[31] = product[47];
-  carry -= uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   /* d3 */
   tmp[0] = product[52];
@@ -12393,7 +13078,7 @@ static void vli_mmod_fast_secp256r1(uint8_t *result, uint8_t *product) {
   tmp[29] = product[49];
   tmp[30] = product[50];
   tmp[31] = product[51];
-  carry -= uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   /* d4 */
   tmp[0] = product[56];
@@ -12422,28 +13107,28 @@ static void vli_mmod_fast_secp256r1(uint8_t *result, uint8_t *product) {
   tmp[29] = product[53];
   tmp[30] = product[54];
   tmp[31] = product[55];
-  carry -= uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   if (carry < 0) {
     do {
-      carry +=
-          uECC_vli_add(result, result, curve_secp256r1.p, num_words_secp256r1);
+      carry += mg_uecc_vli_add(result, result, curve_secp256r1.p,
+                               num_words_secp256r1);
     } while (carry < 0);
   } else {
-    while (carry || uECC_vli_cmp_unsafe(curve_secp256r1.p, result,
-                                        num_words_secp256r1) != 1) {
-      carry -=
-          uECC_vli_sub(result, result, curve_secp256r1.p, num_words_secp256r1);
+    while (carry || mg_uecc_vli_cmp_unsafe(curve_secp256r1.p, result,
+                                           num_words_secp256r1) != 1) {
+      carry -= mg_uecc_vli_sub(result, result, curve_secp256r1.p,
+                               num_words_secp256r1);
     }
   }
 }
-#elif uECC_WORD_SIZE == 4
+#elif MG_UECC_WORD_SIZE == 4
 static void vli_mmod_fast_secp256r1(uint32_t *result, uint32_t *product) {
   uint32_t tmp[num_words_secp256r1];
   int carry;
 
   /* t */
-  uECC_vli_set(result, product, num_words_secp256r1);
+  mg_uecc_vli_set(result, product, num_words_secp256r1);
 
   /* s1 */
   tmp[0] = tmp[1] = tmp[2] = 0;
@@ -12452,8 +13137,8 @@ static void vli_mmod_fast_secp256r1(uint32_t *result, uint32_t *product) {
   tmp[5] = product[13];
   tmp[6] = product[14];
   tmp[7] = product[15];
-  carry = (int) uECC_vli_add(tmp, tmp, tmp, num_words_secp256r1);
-  carry += (int) uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry = (int) mg_uecc_vli_add(tmp, tmp, tmp, num_words_secp256r1);
+  carry += (int) mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* s2 */
   tmp[3] = product[12];
@@ -12461,8 +13146,8 @@ static void vli_mmod_fast_secp256r1(uint32_t *result, uint32_t *product) {
   tmp[5] = product[14];
   tmp[6] = product[15];
   tmp[7] = 0;
-  carry += (int) uECC_vli_add(tmp, tmp, tmp, num_words_secp256r1);
-  carry += (int) uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry += (int) mg_uecc_vli_add(tmp, tmp, tmp, num_words_secp256r1);
+  carry += (int) mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* s3 */
   tmp[0] = product[8];
@@ -12471,7 +13156,7 @@ static void vli_mmod_fast_secp256r1(uint32_t *result, uint32_t *product) {
   tmp[3] = tmp[4] = tmp[5] = 0;
   tmp[6] = product[14];
   tmp[7] = product[15];
-  carry += (int) uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry += (int) mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* s4 */
   tmp[0] = product[9];
@@ -12482,7 +13167,7 @@ static void vli_mmod_fast_secp256r1(uint32_t *result, uint32_t *product) {
   tmp[5] = product[15];
   tmp[6] = product[13];
   tmp[7] = product[8];
-  carry += (int) uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry += (int) mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* d1 */
   tmp[0] = product[11];
@@ -12491,7 +13176,7 @@ static void vli_mmod_fast_secp256r1(uint32_t *result, uint32_t *product) {
   tmp[3] = tmp[4] = tmp[5] = 0;
   tmp[6] = product[8];
   tmp[7] = product[10];
-  carry -= (int) uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= (int) mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   /* d2 */
   tmp[0] = product[12];
@@ -12501,7 +13186,7 @@ static void vli_mmod_fast_secp256r1(uint32_t *result, uint32_t *product) {
   tmp[4] = tmp[5] = 0;
   tmp[6] = product[9];
   tmp[7] = product[11];
-  carry -= (int) uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= (int) mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   /* d3 */
   tmp[0] = product[13];
@@ -12512,7 +13197,7 @@ static void vli_mmod_fast_secp256r1(uint32_t *result, uint32_t *product) {
   tmp[5] = product[10];
   tmp[6] = 0;
   tmp[7] = product[12];
-  carry -= (int) uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= (int) mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   /* d4 */
   tmp[0] = product[14];
@@ -12523,18 +13208,18 @@ static void vli_mmod_fast_secp256r1(uint32_t *result, uint32_t *product) {
   tmp[5] = product[11];
   tmp[6] = 0;
   tmp[7] = product[13];
-  carry -= (int) uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= (int) mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   if (carry < 0) {
     do {
-      carry +=
-          (int) uECC_vli_add(result, result, curve_secp256r1.p, num_words_secp256r1);
+      carry += (int) mg_uecc_vli_add(result, result, curve_secp256r1.p,
+                                     num_words_secp256r1);
     } while (carry < 0);
   } else {
-    while (carry || uECC_vli_cmp_unsafe(curve_secp256r1.p, result,
-                                        num_words_secp256r1) != 1) {
-      carry -=
-          (int) uECC_vli_sub(result, result, curve_secp256r1.p, num_words_secp256r1);
+    while (carry || mg_uecc_vli_cmp_unsafe(curve_secp256r1.p, result,
+                                           num_words_secp256r1) != 1) {
+      carry -= (int) mg_uecc_vli_sub(result, result, curve_secp256r1.p,
+                                     num_words_secp256r1);
     }
   }
 }
@@ -12544,94 +13229,95 @@ static void vli_mmod_fast_secp256r1(uint64_t *result, uint64_t *product) {
   int carry;
 
   /* t */
-  uECC_vli_set(result, product, num_words_secp256r1);
+  mg_uecc_vli_set(result, product, num_words_secp256r1);
 
   /* s1 */
   tmp[0] = 0;
   tmp[1] = product[5] & 0xffffffff00000000U;
   tmp[2] = product[6];
   tmp[3] = product[7];
-  carry = (int) uECC_vli_add(tmp, tmp, tmp, num_words_secp256r1);
-  carry += (int) uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry = (int) mg_uecc_vli_add(tmp, tmp, tmp, num_words_secp256r1);
+  carry += (int) mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* s2 */
   tmp[1] = product[6] << 32;
   tmp[2] = (product[6] >> 32) | (product[7] << 32);
   tmp[3] = product[7] >> 32;
-  carry += (int) uECC_vli_add(tmp, tmp, tmp, num_words_secp256r1);
-  carry += (int) uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry += (int) mg_uecc_vli_add(tmp, tmp, tmp, num_words_secp256r1);
+  carry += (int) mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* s3 */
   tmp[0] = product[4];
   tmp[1] = product[5] & 0xffffffff;
   tmp[2] = 0;
   tmp[3] = product[7];
-  carry += (int) uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry += (int) mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* s4 */
   tmp[0] = (product[4] >> 32) | (product[5] << 32);
   tmp[1] = (product[5] >> 32) | (product[6] & 0xffffffff00000000U);
   tmp[2] = product[7];
   tmp[3] = (product[6] >> 32) | (product[4] << 32);
-  carry += (int) uECC_vli_add(result, result, tmp, num_words_secp256r1);
+  carry += (int) mg_uecc_vli_add(result, result, tmp, num_words_secp256r1);
 
   /* d1 */
   tmp[0] = (product[5] >> 32) | (product[6] << 32);
   tmp[1] = (product[6] >> 32);
   tmp[2] = 0;
   tmp[3] = (product[4] & 0xffffffff) | (product[5] << 32);
-  carry -= (int) uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= (int) mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   /* d2 */
   tmp[0] = product[6];
   tmp[1] = product[7];
   tmp[2] = 0;
   tmp[3] = (product[4] >> 32) | (product[5] & 0xffffffff00000000);
-  carry -= (int) uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= (int) mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   /* d3 */
   tmp[0] = (product[6] >> 32) | (product[7] << 32);
   tmp[1] = (product[7] >> 32) | (product[4] << 32);
   tmp[2] = (product[4] >> 32) | (product[5] << 32);
   tmp[3] = (product[6] << 32);
-  carry -= (int) uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= (int) mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   /* d4 */
   tmp[0] = product[7];
   tmp[1] = product[4] & 0xffffffff00000000U;
   tmp[2] = product[5];
   tmp[3] = product[6] & 0xffffffff00000000U;
-  carry -= (int) uECC_vli_sub(result, result, tmp, num_words_secp256r1);
+  carry -= (int) mg_uecc_vli_sub(result, result, tmp, num_words_secp256r1);
 
   if (carry < 0) {
     do {
-      carry +=
-          (int) uECC_vli_add(result, result, curve_secp256r1.p, num_words_secp256r1);
+      carry += (int) mg_uecc_vli_add(result, result, curve_secp256r1.p,
+                                     num_words_secp256r1);
     } while (carry < 0);
   } else {
-    while (carry || uECC_vli_cmp_unsafe(curve_secp256r1.p, result,
-                                        num_words_secp256r1) != 1) {
-      carry -=
-          (int) uECC_vli_sub(result, result, curve_secp256r1.p, num_words_secp256r1);
+    while (carry || mg_uecc_vli_cmp_unsafe(curve_secp256r1.p, result,
+                                           num_words_secp256r1) != 1) {
+      carry -= (int) mg_uecc_vli_sub(result, result, curve_secp256r1.p,
+                                     num_words_secp256r1);
     }
   }
 }
-#endif /* uECC_WORD_SIZE */
-#endif /* (uECC_OPTIMIZATION_LEVEL > 0 && !asm_mmod_fast_secp256r1) */
+#endif /* MG_UECC_WORD_SIZE */
+#endif /* (MG_UECC_OPTIMIZATION_LEVEL > 0 && !asm_mmod_fast_secp256r1) */
 
-#endif /* uECC_SUPPORTS_secp256r1 */
+#endif /* MG_UECC_SUPPORTS_secp256r1 */
 
-#if uECC_SUPPORTS_secp256k1
+#if MG_UECC_SUPPORTS_secp256k1
 
-static void double_jacobian_secp256k1(uECC_word_t *X1, uECC_word_t *Y1,
-                                      uECC_word_t *Z1, uECC_Curve curve);
-static void x_side_secp256k1(uECC_word_t *result, const uECC_word_t *x,
-                             uECC_Curve curve);
-#if (uECC_OPTIMIZATION_LEVEL > 0)
-static void vli_mmod_fast_secp256k1(uECC_word_t *result, uECC_word_t *product);
+static void double_jacobian_secp256k1(mg_uecc_word_t *X1, mg_uecc_word_t *Y1,
+                                      mg_uecc_word_t *Z1, MG_UECC_Curve curve);
+static void x_side_secp256k1(mg_uecc_word_t *result, const mg_uecc_word_t *x,
+                             MG_UECC_Curve curve);
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
+static void vli_mmod_fast_secp256k1(mg_uecc_word_t *result,
+                                    mg_uecc_word_t *product);
 #endif
 
-static const struct uECC_Curve_t curve_secp256k1 = {
+static const struct MG_UECC_Curve_t curve_secp256k1 = {
     num_words_secp256k1,
     num_bytes_secp256k1,
     256, /* num_n_bits */
@@ -12657,101 +13343,109 @@ static const struct uECC_Curve_t curve_secp256k1 = {
      BYTES_TO_WORDS_8(00, 00, 00, 00, 00, 00, 00, 00),
      BYTES_TO_WORDS_8(00, 00, 00, 00, 00, 00, 00, 00)},
     &double_jacobian_secp256k1,
-#if uECC_SUPPORT_COMPRESSED_POINT
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
     &mod_sqrt_default,
 #endif
     &x_side_secp256k1,
-#if (uECC_OPTIMIZATION_LEVEL > 0)
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
     &vli_mmod_fast_secp256k1
 #endif
 };
 
-uECC_Curve uECC_secp256k1(void) {
+MG_UECC_Curve mg_uecc_secp256k1(void) {
   return &curve_secp256k1;
 }
 
 /* Double in place */
-static void double_jacobian_secp256k1(uECC_word_t *X1, uECC_word_t *Y1,
-                                      uECC_word_t *Z1, uECC_Curve curve) {
+static void double_jacobian_secp256k1(mg_uecc_word_t *X1, mg_uecc_word_t *Y1,
+                                      mg_uecc_word_t *Z1, MG_UECC_Curve curve) {
   /* t1 = X, t2 = Y, t3 = Z */
-  uECC_word_t t4[num_words_secp256k1];
-  uECC_word_t t5[num_words_secp256k1];
+  mg_uecc_word_t t4[num_words_secp256k1];
+  mg_uecc_word_t t5[num_words_secp256k1];
 
-  if (uECC_vli_isZero(Z1, num_words_secp256k1)) {
+  if (mg_uecc_vli_isZero(Z1, num_words_secp256k1)) {
     return;
   }
 
-  uECC_vli_modSquare_fast(t5, Y1, curve);   /* t5 = y1^2 */
-  uECC_vli_modMult_fast(t4, X1, t5, curve); /* t4 = x1*y1^2 = A */
-  uECC_vli_modSquare_fast(X1, X1, curve);   /* t1 = x1^2 */
-  uECC_vli_modSquare_fast(t5, t5, curve);   /* t5 = y1^4 */
-  uECC_vli_modMult_fast(Z1, Y1, Z1, curve); /* t3 = y1*z1 = z3 */
+  mg_uecc_vli_modSquare_fast(t5, Y1, curve);   /* t5 = y1^2 */
+  mg_uecc_vli_modMult_fast(t4, X1, t5, curve); /* t4 = x1*y1^2 = A */
+  mg_uecc_vli_modSquare_fast(X1, X1, curve);   /* t1 = x1^2 */
+  mg_uecc_vli_modSquare_fast(t5, t5, curve);   /* t5 = y1^4 */
+  mg_uecc_vli_modMult_fast(Z1, Y1, Z1, curve); /* t3 = y1*z1 = z3 */
 
-  uECC_vli_modAdd(Y1, X1, X1, curve->p, num_words_secp256k1); /* t2 = 2*x1^2 */
-  uECC_vli_modAdd(Y1, Y1, X1, curve->p, num_words_secp256k1); /* t2 = 3*x1^2 */
-  if (uECC_vli_testBit(Y1, 0)) {
-    uECC_word_t carry = uECC_vli_add(Y1, Y1, curve->p, num_words_secp256k1);
-    uECC_vli_rshift1(Y1, num_words_secp256k1);
-    Y1[num_words_secp256k1 - 1] |= carry << (uECC_WORD_BITS - 1);
+  mg_uecc_vli_modAdd(Y1, X1, X1, curve->p,
+                     num_words_secp256k1); /* t2 = 2*x1^2 */
+  mg_uecc_vli_modAdd(Y1, Y1, X1, curve->p,
+                     num_words_secp256k1); /* t2 = 3*x1^2 */
+  if (mg_uecc_vli_testBit(Y1, 0)) {
+    mg_uecc_word_t carry =
+        mg_uecc_vli_add(Y1, Y1, curve->p, num_words_secp256k1);
+    mg_uecc_vli_rshift1(Y1, num_words_secp256k1);
+    Y1[num_words_secp256k1 - 1] |= carry << (MG_UECC_WORD_BITS - 1);
   } else {
-    uECC_vli_rshift1(Y1, num_words_secp256k1);
+    mg_uecc_vli_rshift1(Y1, num_words_secp256k1);
   }
   /* t2 = 3/2*(x1^2) = B */
 
-  uECC_vli_modSquare_fast(X1, Y1, curve);                     /* t1 = B^2 */
-  uECC_vli_modSub(X1, X1, t4, curve->p, num_words_secp256k1); /* t1 = B^2 - A */
-  uECC_vli_modSub(X1, X1, t4, curve->p,
-                  num_words_secp256k1); /* t1 = B^2 - 2A = x3 */
+  mg_uecc_vli_modSquare_fast(X1, Y1, curve); /* t1 = B^2 */
+  mg_uecc_vli_modSub(X1, X1, t4, curve->p,
+                     num_words_secp256k1); /* t1 = B^2 - A */
+  mg_uecc_vli_modSub(X1, X1, t4, curve->p,
+                     num_words_secp256k1); /* t1 = B^2 - 2A = x3 */
 
-  uECC_vli_modSub(t4, t4, X1, curve->p, num_words_secp256k1); /* t4 = A - x3 */
-  uECC_vli_modMult_fast(Y1, Y1, t4, curve); /* t2 = B * (A - x3) */
-  uECC_vli_modSub(Y1, Y1, t5, curve->p,
-                  num_words_secp256k1); /* t2 = B * (A - x3) - y1^4 = y3 */
+  mg_uecc_vli_modSub(t4, t4, X1, curve->p,
+                     num_words_secp256k1);     /* t4 = A - x3 */
+  mg_uecc_vli_modMult_fast(Y1, Y1, t4, curve); /* t2 = B * (A - x3) */
+  mg_uecc_vli_modSub(Y1, Y1, t5, curve->p,
+                     num_words_secp256k1); /* t2 = B * (A - x3) - y1^4 = y3 */
 }
 
 /* Computes result = x^3 + b. result must not overlap x. */
-static void x_side_secp256k1(uECC_word_t *result, const uECC_word_t *x,
-                             uECC_Curve curve) {
-  uECC_vli_modSquare_fast(result, x, curve);       /* r = x^2 */
-  uECC_vli_modMult_fast(result, result, x, curve); /* r = x^3 */
-  uECC_vli_modAdd(result, result, curve->b, curve->p,
-                  num_words_secp256k1); /* r = x^3 + b */
+static void x_side_secp256k1(mg_uecc_word_t *result, const mg_uecc_word_t *x,
+                             MG_UECC_Curve curve) {
+  mg_uecc_vli_modSquare_fast(result, x, curve);       /* r = x^2 */
+  mg_uecc_vli_modMult_fast(result, result, x, curve); /* r = x^3 */
+  mg_uecc_vli_modAdd(result, result, curve->b, curve->p,
+                     num_words_secp256k1); /* r = x^3 + b */
 }
 
-#if (uECC_OPTIMIZATION_LEVEL > 0 && !asm_mmod_fast_secp256k1)
-static void omega_mult_secp256k1(uECC_word_t *result, const uECC_word_t *right);
-static void vli_mmod_fast_secp256k1(uECC_word_t *result, uECC_word_t *product) {
-  uECC_word_t tmp[2 * num_words_secp256k1];
-  uECC_word_t carry;
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0 && !asm_mmod_fast_secp256k1)
+static void omega_mult_secp256k1(mg_uecc_word_t *result,
+                                 const mg_uecc_word_t *right);
+static void vli_mmod_fast_secp256k1(mg_uecc_word_t *result,
+                                    mg_uecc_word_t *product) {
+  mg_uecc_word_t tmp[2 * num_words_secp256k1];
+  mg_uecc_word_t carry;
 
-  uECC_vli_clear(tmp, num_words_secp256k1);
-  uECC_vli_clear(tmp + num_words_secp256k1, num_words_secp256k1);
+  mg_uecc_vli_clear(tmp, num_words_secp256k1);
+  mg_uecc_vli_clear(tmp + num_words_secp256k1, num_words_secp256k1);
 
   omega_mult_secp256k1(tmp,
                        product + num_words_secp256k1); /* (Rq, q) = q * c */
 
-  carry = uECC_vli_add(result, product, tmp,
-                       num_words_secp256k1); /* (C, r) = r + q       */
-  uECC_vli_clear(product, num_words_secp256k1);
+  carry = mg_uecc_vli_add(result, product, tmp,
+                          num_words_secp256k1); /* (C, r) = r + q       */
+  mg_uecc_vli_clear(product, num_words_secp256k1);
   omega_mult_secp256k1(product, tmp + num_words_secp256k1); /* Rq*c */
-  carry += uECC_vli_add(result, result, product,
-                        num_words_secp256k1); /* (C1, r) = r + Rq*c */
+  carry += mg_uecc_vli_add(result, result, product,
+                           num_words_secp256k1); /* (C1, r) = r + Rq*c */
 
   while (carry > 0) {
     --carry;
-    uECC_vli_sub(result, result, curve_secp256k1.p, num_words_secp256k1);
+    mg_uecc_vli_sub(result, result, curve_secp256k1.p, num_words_secp256k1);
   }
-  if (uECC_vli_cmp_unsafe(result, curve_secp256k1.p, num_words_secp256k1) > 0) {
-    uECC_vli_sub(result, result, curve_secp256k1.p, num_words_secp256k1);
+  if (mg_uecc_vli_cmp_unsafe(result, curve_secp256k1.p, num_words_secp256k1) >
+      0) {
+    mg_uecc_vli_sub(result, result, curve_secp256k1.p, num_words_secp256k1);
   }
 }
 
-#if uECC_WORD_SIZE == 1
+#if MG_UECC_WORD_SIZE == 1
 static void omega_mult_secp256k1(uint8_t *result, const uint8_t *right) {
   /* Multiply by (2^32 + 2^9 + 2^8 + 2^7 + 2^6 + 2^4 + 1). */
-  uECC_word_t r0 = 0;
-  uECC_word_t r1 = 0;
-  uECC_word_t r2 = 0;
+  mg_uecc_word_t r0 = 0;
+  mg_uecc_word_t r1 = 0;
+  mg_uecc_word_t r2 = 0;
   wordcount_t k;
 
   /* Multiply by (2^9 + 2^8 + 2^7 + 2^6 + 2^4 + 1). */
@@ -12774,9 +13468,9 @@ static void omega_mult_secp256k1(uint8_t *result, const uint8_t *right) {
   result[num_words_secp256k1 + 1] = r1;
   /* add the 2^32 multiple */
   result[4 + num_words_secp256k1] =
-      uECC_vli_add(result + 4, result + 4, right, num_words_secp256k1);
+      mg_uecc_vli_add(result + 4, result + 4, right, num_words_secp256k1);
 }
-#elif uECC_WORD_SIZE == 4
+#elif MG_UECC_WORD_SIZE == 4
 static void omega_mult_secp256k1(uint32_t *result, const uint32_t *right) {
   /* Multiply by (2^9 + 2^8 + 2^7 + 2^6 + 2^4 + 1). */
   uint32_t carry = 0;
@@ -12790,13 +13484,13 @@ static void omega_mult_secp256k1(uint32_t *result, const uint32_t *right) {
   result[num_words_secp256k1] = carry;
   /* add the 2^32 multiple */
   result[1 + num_words_secp256k1] =
-      uECC_vli_add(result + 1, result + 1, right, num_words_secp256k1);
+      mg_uecc_vli_add(result + 1, result + 1, right, num_words_secp256k1);
 }
 #else
 static void omega_mult_secp256k1(uint64_t *result, const uint64_t *right) {
-  uECC_word_t r0 = 0;
-  uECC_word_t r1 = 0;
-  uECC_word_t r2 = 0;
+  mg_uecc_word_t r0 = 0;
+  mg_uecc_word_t r1 = 0;
+  mg_uecc_word_t r2 = 0;
   wordcount_t k;
 
   /* Multiply by (2^32 + 2^9 + 2^8 + 2^7 + 2^6 + 2^4 + 1). */
@@ -12809,48 +13503,48 @@ static void omega_mult_secp256k1(uint64_t *result, const uint64_t *right) {
   }
   result[num_words_secp256k1] = r0;
 }
-#endif /* uECC_WORD_SIZE */
-#endif /* (uECC_OPTIMIZATION_LEVEL > 0 &&  && !asm_mmod_fast_secp256k1) */
+#endif /* MG_UECC_WORD_SIZE */
+#endif /* (MG_UECC_OPTIMIZATION_LEVEL > 0 &&  && !asm_mmod_fast_secp256k1) */
 
-#endif /* uECC_SUPPORTS_secp256k1 */
+#endif /* MG_UECC_SUPPORTS_secp256k1 */
 
 #endif /* _UECC_CURVE_SPECIFIC_H_ */
 
 /* Returns 1 if 'point' is the point at infinity, 0 otherwise. */
 #define EccPoint_isZero(point, curve) \
-  uECC_vli_isZero((point), (wordcount_t) ((curve)->num_words * 2))
+  mg_uecc_vli_isZero((point), (wordcount_t) ((curve)->num_words * 2))
 
 /* Point multiplication algorithm using Montgomery's ladder with co-Z
 coordinates. From http://eprint.iacr.org/2011/338.pdf
 */
 
 /* Modify (x1, y1) => (x1 * z^2, y1 * z^3) */
-static void apply_z(uECC_word_t *X1, uECC_word_t *Y1,
-                    const uECC_word_t *const Z, uECC_Curve curve) {
-  uECC_word_t t1[uECC_MAX_WORDS];
+static void apply_z(mg_uecc_word_t *X1, mg_uecc_word_t *Y1,
+                    const mg_uecc_word_t *const Z, MG_UECC_Curve curve) {
+  mg_uecc_word_t t1[MG_UECC_MAX_WORDS];
 
-  uECC_vli_modSquare_fast(t1, Z, curve);    /* z^2 */
-  uECC_vli_modMult_fast(X1, X1, t1, curve); /* x1 * z^2 */
-  uECC_vli_modMult_fast(t1, t1, Z, curve);  /* z^3 */
-  uECC_vli_modMult_fast(Y1, Y1, t1, curve); /* y1 * z^3 */
+  mg_uecc_vli_modSquare_fast(t1, Z, curve);    /* z^2 */
+  mg_uecc_vli_modMult_fast(X1, X1, t1, curve); /* x1 * z^2 */
+  mg_uecc_vli_modMult_fast(t1, t1, Z, curve);  /* z^3 */
+  mg_uecc_vli_modMult_fast(Y1, Y1, t1, curve); /* y1 * z^3 */
 }
 
 /* P = (x1, y1) => 2P, (x2, y2) => P' */
-static void XYcZ_initial_double(uECC_word_t *X1, uECC_word_t *Y1,
-                                uECC_word_t *X2, uECC_word_t *Y2,
-                                const uECC_word_t *const initial_Z,
-                                uECC_Curve curve) {
-  uECC_word_t z[uECC_MAX_WORDS];
+static void XYcZ_initial_double(mg_uecc_word_t *X1, mg_uecc_word_t *Y1,
+                                mg_uecc_word_t *X2, mg_uecc_word_t *Y2,
+                                const mg_uecc_word_t *const initial_Z,
+                                MG_UECC_Curve curve) {
+  mg_uecc_word_t z[MG_UECC_MAX_WORDS];
   wordcount_t num_words = curve->num_words;
   if (initial_Z) {
-    uECC_vli_set(z, initial_Z, num_words);
+    mg_uecc_vli_set(z, initial_Z, num_words);
   } else {
-    uECC_vli_clear(z, num_words);
+    mg_uecc_vli_clear(z, num_words);
     z[0] = 1;
   }
 
-  uECC_vli_set(X2, X1, num_words);
-  uECC_vli_set(Y2, Y1, num_words);
+  mg_uecc_vli_set(X2, X1, num_words);
+  mg_uecc_vli_set(Y2, Y1, num_words);
 
   apply_z(X1, Y1, z, curve);
   curve->double_jacobian(X1, Y1, z, curve);
@@ -12861,163 +13555,167 @@ static void XYcZ_initial_double(uECC_word_t *X1, uECC_word_t *Y1,
    Output P' = (x1', y1', Z3), P + Q = (x3, y3, Z3)
    or P => P', Q => P + Q
 */
-static void XYcZ_add(uECC_word_t *X1, uECC_word_t *Y1, uECC_word_t *X2,
-                     uECC_word_t *Y2, uECC_Curve curve) {
+static void XYcZ_add(mg_uecc_word_t *X1, mg_uecc_word_t *Y1, mg_uecc_word_t *X2,
+                     mg_uecc_word_t *Y2, MG_UECC_Curve curve) {
   /* t1 = X1, t2 = Y1, t3 = X2, t4 = Y2 */
-  uECC_word_t t5[uECC_MAX_WORDS] = {0};
+  mg_uecc_word_t t5[MG_UECC_MAX_WORDS] = {0};
   wordcount_t num_words = curve->num_words;
 
-  uECC_vli_modSub(t5, X2, X1, curve->p, num_words); /* t5 = x2 - x1 */
-  uECC_vli_modSquare_fast(t5, t5, curve);           /* t5 = (x2 - x1)^2 = A */
-  uECC_vli_modMult_fast(X1, X1, t5, curve);         /* t1 = x1*A = B */
-  uECC_vli_modMult_fast(X2, X2, t5, curve);         /* t3 = x2*A = C */
-  uECC_vli_modSub(Y2, Y2, Y1, curve->p, num_words); /* t4 = y2 - y1 */
-  uECC_vli_modSquare_fast(t5, Y2, curve);           /* t5 = (y2 - y1)^2 = D */
+  mg_uecc_vli_modSub(t5, X2, X1, curve->p, num_words); /* t5 = x2 - x1 */
+  mg_uecc_vli_modSquare_fast(t5, t5, curve);   /* t5 = (x2 - x1)^2 = A */
+  mg_uecc_vli_modMult_fast(X1, X1, t5, curve); /* t1 = x1*A = B */
+  mg_uecc_vli_modMult_fast(X2, X2, t5, curve); /* t3 = x2*A = C */
+  mg_uecc_vli_modSub(Y2, Y2, Y1, curve->p, num_words); /* t4 = y2 - y1 */
+  mg_uecc_vli_modSquare_fast(t5, Y2, curve); /* t5 = (y2 - y1)^2 = D */
 
-  uECC_vli_modSub(t5, t5, X1, curve->p, num_words); /* t5 = D - B */
-  uECC_vli_modSub(t5, t5, X2, curve->p, num_words); /* t5 = D - B - C = x3 */
-  uECC_vli_modSub(X2, X2, X1, curve->p, num_words); /* t3 = C - B */
-  uECC_vli_modMult_fast(Y1, Y1, X2, curve);         /* t2 = y1*(C - B) */
-  uECC_vli_modSub(X2, X1, t5, curve->p, num_words); /* t3 = B - x3 */
-  uECC_vli_modMult_fast(Y2, Y2, X2, curve); /* t4 = (y2 - y1)*(B - x3) */
-  uECC_vli_modSub(Y2, Y2, Y1, curve->p, num_words); /* t4 = y3 */
+  mg_uecc_vli_modSub(t5, t5, X1, curve->p, num_words); /* t5 = D - B */
+  mg_uecc_vli_modSub(t5, t5, X2, curve->p, num_words); /* t5 = D - B - C = x3 */
+  mg_uecc_vli_modSub(X2, X2, X1, curve->p, num_words); /* t3 = C - B */
+  mg_uecc_vli_modMult_fast(Y1, Y1, X2, curve);         /* t2 = y1*(C - B) */
+  mg_uecc_vli_modSub(X2, X1, t5, curve->p, num_words); /* t3 = B - x3 */
+  mg_uecc_vli_modMult_fast(Y2, Y2, X2, curve); /* t4 = (y2 - y1)*(B - x3) */
+  mg_uecc_vli_modSub(Y2, Y2, Y1, curve->p, num_words); /* t4 = y3 */
 
-  uECC_vli_set(X2, t5, num_words);
+  mg_uecc_vli_set(X2, t5, num_words);
 }
 
 /* Input P = (x1, y1, Z), Q = (x2, y2, Z)
    Output P + Q = (x3, y3, Z3), P - Q = (x3', y3', Z3)
    or P => P - Q, Q => P + Q
 */
-static void XYcZ_addC(uECC_word_t *X1, uECC_word_t *Y1, uECC_word_t *X2,
-                      uECC_word_t *Y2, uECC_Curve curve) {
+static void XYcZ_addC(mg_uecc_word_t *X1, mg_uecc_word_t *Y1,
+                      mg_uecc_word_t *X2, mg_uecc_word_t *Y2,
+                      MG_UECC_Curve curve) {
   /* t1 = X1, t2 = Y1, t3 = X2, t4 = Y2 */
-  uECC_word_t t5[uECC_MAX_WORDS] = {0};
-  uECC_word_t t6[uECC_MAX_WORDS];
-  uECC_word_t t7[uECC_MAX_WORDS];
+  mg_uecc_word_t t5[MG_UECC_MAX_WORDS] = {0};
+  mg_uecc_word_t t6[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t t7[MG_UECC_MAX_WORDS];
   wordcount_t num_words = curve->num_words;
 
-  uECC_vli_modSub(t5, X2, X1, curve->p, num_words); /* t5 = x2 - x1 */
-  uECC_vli_modSquare_fast(t5, t5, curve);           /* t5 = (x2 - x1)^2 = A */
-  uECC_vli_modMult_fast(X1, X1, t5, curve);         /* t1 = x1*A = B */
-  uECC_vli_modMult_fast(X2, X2, t5, curve);         /* t3 = x2*A = C */
-  uECC_vli_modAdd(t5, Y2, Y1, curve->p, num_words); /* t5 = y2 + y1 */
-  uECC_vli_modSub(Y2, Y2, Y1, curve->p, num_words); /* t4 = y2 - y1 */
+  mg_uecc_vli_modSub(t5, X2, X1, curve->p, num_words); /* t5 = x2 - x1 */
+  mg_uecc_vli_modSquare_fast(t5, t5, curve);   /* t5 = (x2 - x1)^2 = A */
+  mg_uecc_vli_modMult_fast(X1, X1, t5, curve); /* t1 = x1*A = B */
+  mg_uecc_vli_modMult_fast(X2, X2, t5, curve); /* t3 = x2*A = C */
+  mg_uecc_vli_modAdd(t5, Y2, Y1, curve->p, num_words); /* t5 = y2 + y1 */
+  mg_uecc_vli_modSub(Y2, Y2, Y1, curve->p, num_words); /* t4 = y2 - y1 */
 
-  uECC_vli_modSub(t6, X2, X1, curve->p, num_words); /* t6 = C - B */
-  uECC_vli_modMult_fast(Y1, Y1, t6, curve);         /* t2 = y1 * (C - B) = E */
-  uECC_vli_modAdd(t6, X1, X2, curve->p, num_words); /* t6 = B + C */
-  uECC_vli_modSquare_fast(X2, Y2, curve);           /* t3 = (y2 - y1)^2 = D */
-  uECC_vli_modSub(X2, X2, t6, curve->p, num_words); /* t3 = D - (B + C) = x3 */
+  mg_uecc_vli_modSub(t6, X2, X1, curve->p, num_words); /* t6 = C - B */
+  mg_uecc_vli_modMult_fast(Y1, Y1, t6, curve); /* t2 = y1 * (C - B) = E */
+  mg_uecc_vli_modAdd(t6, X1, X2, curve->p, num_words); /* t6 = B + C */
+  mg_uecc_vli_modSquare_fast(X2, Y2, curve); /* t3 = (y2 - y1)^2 = D */
+  mg_uecc_vli_modSub(X2, X2, t6, curve->p,
+                     num_words); /* t3 = D - (B + C) = x3 */
 
-  uECC_vli_modSub(t7, X1, X2, curve->p, num_words); /* t7 = B - x3 */
-  uECC_vli_modMult_fast(Y2, Y2, t7, curve); /* t4 = (y2 - y1)*(B - x3) */
-  uECC_vli_modSub(Y2, Y2, Y1, curve->p,
-                  num_words); /* t4 = (y2 - y1)*(B - x3) - E = y3 */
+  mg_uecc_vli_modSub(t7, X1, X2, curve->p, num_words); /* t7 = B - x3 */
+  mg_uecc_vli_modMult_fast(Y2, Y2, t7, curve); /* t4 = (y2 - y1)*(B - x3) */
+  mg_uecc_vli_modSub(Y2, Y2, Y1, curve->p,
+                     num_words); /* t4 = (y2 - y1)*(B - x3) - E = y3 */
 
-  uECC_vli_modSquare_fast(t7, t5, curve);           /* t7 = (y2 + y1)^2 = F */
-  uECC_vli_modSub(t7, t7, t6, curve->p, num_words); /* t7 = F - (B + C) = x3' */
-  uECC_vli_modSub(t6, t7, X1, curve->p, num_words); /* t6 = x3' - B */
-  uECC_vli_modMult_fast(t6, t6, t5, curve);         /* t6 = (y2+y1)*(x3' - B) */
-  uECC_vli_modSub(Y1, t6, Y1, curve->p,
-                  num_words); /* t2 = (y2+y1)*(x3' - B) - E = y3' */
+  mg_uecc_vli_modSquare_fast(t7, t5, curve); /* t7 = (y2 + y1)^2 = F */
+  mg_uecc_vli_modSub(t7, t7, t6, curve->p,
+                     num_words); /* t7 = F - (B + C) = x3' */
+  mg_uecc_vli_modSub(t6, t7, X1, curve->p, num_words); /* t6 = x3' - B */
+  mg_uecc_vli_modMult_fast(t6, t6, t5, curve); /* t6 = (y2+y1)*(x3' - B) */
+  mg_uecc_vli_modSub(Y1, t6, Y1, curve->p,
+                     num_words); /* t2 = (y2+y1)*(x3' - B) - E = y3' */
 
-  uECC_vli_set(X1, t7, num_words);
+  mg_uecc_vli_set(X1, t7, num_words);
 }
 
 /* result may overlap point. */
-static void EccPoint_mult(uECC_word_t *result, const uECC_word_t *point,
-                          const uECC_word_t *scalar,
-                          const uECC_word_t *initial_Z, bitcount_t num_bits,
-                          uECC_Curve curve) {
+static void EccPoint_mult(mg_uecc_word_t *result, const mg_uecc_word_t *point,
+                          const mg_uecc_word_t *scalar,
+                          const mg_uecc_word_t *initial_Z, bitcount_t num_bits,
+                          MG_UECC_Curve curve) {
   /* R0 and R1 */
-  uECC_word_t Rx[2][uECC_MAX_WORDS];
-  uECC_word_t Ry[2][uECC_MAX_WORDS];
-  uECC_word_t z[uECC_MAX_WORDS];
+  mg_uecc_word_t Rx[2][MG_UECC_MAX_WORDS];
+  mg_uecc_word_t Ry[2][MG_UECC_MAX_WORDS];
+  mg_uecc_word_t z[MG_UECC_MAX_WORDS];
   bitcount_t i;
-  uECC_word_t nb;
+  mg_uecc_word_t nb;
   wordcount_t num_words = curve->num_words;
 
-  uECC_vli_set(Rx[1], point, num_words);
-  uECC_vli_set(Ry[1], point + num_words, num_words);
+  mg_uecc_vli_set(Rx[1], point, num_words);
+  mg_uecc_vli_set(Ry[1], point + num_words, num_words);
 
   XYcZ_initial_double(Rx[1], Ry[1], Rx[0], Ry[0], initial_Z, curve);
 
   for (i = num_bits - 2; i > 0; --i) {
-    nb = !uECC_vli_testBit(scalar, i);
+    nb = !mg_uecc_vli_testBit(scalar, i);
     XYcZ_addC(Rx[1 - nb], Ry[1 - nb], Rx[nb], Ry[nb], curve);
     XYcZ_add(Rx[nb], Ry[nb], Rx[1 - nb], Ry[1 - nb], curve);
   }
 
-  nb = !uECC_vli_testBit(scalar, 0);
+  nb = !mg_uecc_vli_testBit(scalar, 0);
   XYcZ_addC(Rx[1 - nb], Ry[1 - nb], Rx[nb], Ry[nb], curve);
 
   /* Find final 1/Z value. */
-  uECC_vli_modSub(z, Rx[1], Rx[0], curve->p, num_words); /* X1 - X0 */
-  uECC_vli_modMult_fast(z, z, Ry[1 - nb], curve);        /* Yb * (X1 - X0) */
-  uECC_vli_modMult_fast(z, z, point, curve);  /* xP * Yb * (X1 - X0) */
-  uECC_vli_modInv(z, z, curve->p, num_words); /* 1 / (xP * Yb * (X1 - X0)) */
+  mg_uecc_vli_modSub(z, Rx[1], Rx[0], curve->p, num_words); /* X1 - X0 */
+  mg_uecc_vli_modMult_fast(z, z, Ry[1 - nb], curve);        /* Yb * (X1 - X0) */
+  mg_uecc_vli_modMult_fast(z, z, point, curve);  /* xP * Yb * (X1 - X0) */
+  mg_uecc_vli_modInv(z, z, curve->p, num_words); /* 1 / (xP * Yb * (X1 - X0)) */
   /* yP / (xP * Yb * (X1 - X0)) */
-  uECC_vli_modMult_fast(z, z, point + num_words, curve);
-  uECC_vli_modMult_fast(z, z, Rx[1 - nb],
-                        curve); /* Xb * yP / (xP * Yb * (X1 - X0)) */
+  mg_uecc_vli_modMult_fast(z, z, point + num_words, curve);
+  mg_uecc_vli_modMult_fast(z, z, Rx[1 - nb],
+                           curve); /* Xb * yP / (xP * Yb * (X1 - X0)) */
   /* End 1/Z calculation */
 
   XYcZ_add(Rx[nb], Ry[nb], Rx[1 - nb], Ry[1 - nb], curve);
   apply_z(Rx[0], Ry[0], z, curve);
 
-  uECC_vli_set(result, Rx[0], num_words);
-  uECC_vli_set(result + num_words, Ry[0], num_words);
+  mg_uecc_vli_set(result, Rx[0], num_words);
+  mg_uecc_vli_set(result + num_words, Ry[0], num_words);
 }
 
-static uECC_word_t regularize_k(const uECC_word_t *const k, uECC_word_t *k0,
-                                uECC_word_t *k1, uECC_Curve curve) {
+static mg_uecc_word_t regularize_k(const mg_uecc_word_t *const k,
+                                   mg_uecc_word_t *k0, mg_uecc_word_t *k1,
+                                   MG_UECC_Curve curve) {
   wordcount_t num_n_words = BITS_TO_WORDS(curve->num_n_bits);
   bitcount_t num_n_bits = curve->num_n_bits;
-  uECC_word_t carry =
-      uECC_vli_add(k0, k, curve->n, num_n_words) ||
-      (num_n_bits < ((bitcount_t) num_n_words * uECC_WORD_SIZE * 8) &&
-       uECC_vli_testBit(k0, num_n_bits));
-  uECC_vli_add(k1, k0, curve->n, num_n_words);
+  mg_uecc_word_t carry =
+      mg_uecc_vli_add(k0, k, curve->n, num_n_words) ||
+      (num_n_bits < ((bitcount_t) num_n_words * MG_UECC_WORD_SIZE * 8) &&
+       mg_uecc_vli_testBit(k0, num_n_bits));
+  mg_uecc_vli_add(k1, k0, curve->n, num_n_words);
   return carry;
 }
 
 /* Generates a random integer in the range 0 < random < top.
    Both random and top have num_words words. */
-uECC_VLI_API int uECC_generate_random_int(uECC_word_t *random,
-                                          const uECC_word_t *top,
-                                          wordcount_t num_words) {
-  uECC_word_t mask = (uECC_word_t) -1;
-  uECC_word_t tries;
-  bitcount_t num_bits = uECC_vli_numBits(top, num_words);
+MG_UECC_VLI_API int mg_uecc_generate_random_int(mg_uecc_word_t *random,
+                                                const mg_uecc_word_t *top,
+                                                wordcount_t num_words) {
+  mg_uecc_word_t mask = (mg_uecc_word_t) -1;
+  mg_uecc_word_t tries;
+  bitcount_t num_bits = mg_uecc_vli_numBits(top, num_words);
 
   if (!g_rng_function) {
     return 0;
   }
 
-  for (tries = 0; tries < uECC_RNG_MAX_TRIES; ++tries) {
+  for (tries = 0; tries < MG_UECC_RNG_MAX_TRIES; ++tries) {
     if (!g_rng_function((uint8_t *) random,
-                        (unsigned int) (num_words * uECC_WORD_SIZE))) {
+                        (unsigned int) (num_words * MG_UECC_WORD_SIZE))) {
       return 0;
     }
     random[num_words - 1] &=
-        mask >> ((bitcount_t) (num_words * uECC_WORD_SIZE * 8 - num_bits));
-    if (!uECC_vli_isZero(random, num_words) &&
-        uECC_vli_cmp(top, random, num_words) == 1) {
+        mask >> ((bitcount_t) (num_words * MG_UECC_WORD_SIZE * 8 - num_bits));
+    if (!mg_uecc_vli_isZero(random, num_words) &&
+        mg_uecc_vli_cmp(top, random, num_words) == 1) {
       return 1;
     }
   }
   return 0;
 }
 
-static uECC_word_t EccPoint_compute_public_key(uECC_word_t *result,
-                                               uECC_word_t *private_key,
-                                               uECC_Curve curve) {
-  uECC_word_t tmp1[uECC_MAX_WORDS];
-  uECC_word_t tmp2[uECC_MAX_WORDS];
-  uECC_word_t *p2[2] = {tmp1, tmp2};
-  uECC_word_t *initial_Z = 0;
-  uECC_word_t carry;
+static mg_uecc_word_t EccPoint_compute_public_key(mg_uecc_word_t *result,
+                                                  mg_uecc_word_t *private_key,
+                                                  MG_UECC_Curve curve) {
+  mg_uecc_word_t tmp1[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t tmp2[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t *p2[2] = {tmp1, tmp2};
+  mg_uecc_word_t *initial_Z = 0;
+  mg_uecc_word_t carry;
 
   /* Regularize the bitcount for the private key so that attackers cannot use a
      side channel attack to learn the number of leading zeros. */
@@ -13026,7 +13724,7 @@ static uECC_word_t EccPoint_compute_public_key(uECC_word_t *result,
   /* If an RNG function was specified, try to get a random initial Z value to
      improve protection against side-channel attacks. */
   if (g_rng_function) {
-    if (!uECC_generate_random_int(p2[carry], curve->p, curve->num_words)) {
+    if (!mg_uecc_generate_random_int(p2[carry], curve->p, curve->num_words)) {
       return 0;
     }
     initial_Z = p2[carry];
@@ -13040,70 +13738,74 @@ static uECC_word_t EccPoint_compute_public_key(uECC_word_t *result,
   return 1;
 }
 
-#if uECC_WORD_SIZE == 1
+#if MG_UECC_WORD_SIZE == 1
 
-uECC_VLI_API void uECC_vli_nativeToBytes(uint8_t *bytes, int num_bytes,
-                                         const uint8_t *native) {
+MG_UECC_VLI_API void mg_uecc_vli_nativeToBytes(uint8_t *bytes, int num_bytes,
+                                               const uint8_t *native) {
   wordcount_t i;
   for (i = 0; i < num_bytes; ++i) {
     bytes[i] = native[(num_bytes - 1) - i];
   }
 }
 
-uECC_VLI_API void uECC_vli_bytesToNative(uint8_t *native, const uint8_t *bytes,
-                                         int num_bytes) {
-  uECC_vli_nativeToBytes(native, num_bytes, bytes);
+MG_UECC_VLI_API void mg_uecc_vli_bytesToNative(uint8_t *native,
+                                               const uint8_t *bytes,
+                                               int num_bytes) {
+  mg_uecc_vli_nativeToBytes(native, num_bytes, bytes);
 }
 
 #else
 
-uECC_VLI_API void uECC_vli_nativeToBytes(uint8_t *bytes, int num_bytes,
-                                         const uECC_word_t *native) {
+MG_UECC_VLI_API void mg_uecc_vli_nativeToBytes(uint8_t *bytes, int num_bytes,
+                                               const mg_uecc_word_t *native) {
   int i;
   for (i = 0; i < num_bytes; ++i) {
     unsigned b = (unsigned) (num_bytes - 1 - i);
-    bytes[i] =
-        (uint8_t) (native[b / uECC_WORD_SIZE] >> (8 * (b % uECC_WORD_SIZE)));
+    bytes[i] = (uint8_t) (native[b / MG_UECC_WORD_SIZE] >>
+                          (8 * (b % MG_UECC_WORD_SIZE)));
   }
 }
 
-uECC_VLI_API void uECC_vli_bytesToNative(uECC_word_t *native,
-                                         const uint8_t *bytes, int num_bytes) {
+MG_UECC_VLI_API void mg_uecc_vli_bytesToNative(mg_uecc_word_t *native,
+                                               const uint8_t *bytes,
+                                               int num_bytes) {
   int i;
-  uECC_vli_clear(native, (wordcount_t) ((num_bytes + (uECC_WORD_SIZE - 1)) /
-                                        uECC_WORD_SIZE));
+  mg_uecc_vli_clear(native,
+                    (wordcount_t) ((num_bytes + (MG_UECC_WORD_SIZE - 1)) /
+                                   MG_UECC_WORD_SIZE));
   for (i = 0; i < num_bytes; ++i) {
     unsigned b = (unsigned) (num_bytes - 1 - i);
-    native[b / uECC_WORD_SIZE] |= (uECC_word_t) bytes[i]
-                                  << (8 * (b % uECC_WORD_SIZE));
+    native[b / MG_UECC_WORD_SIZE] |= (mg_uecc_word_t) bytes[i]
+                                     << (8 * (b % MG_UECC_WORD_SIZE));
   }
 }
 
-#endif /* uECC_WORD_SIZE */
+#endif /* MG_UECC_WORD_SIZE */
 
-int uECC_make_key(uint8_t *public_key, uint8_t *private_key, uECC_Curve curve) {
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
-  uECC_word_t *_private = (uECC_word_t *) private_key;
-  uECC_word_t *_public = (uECC_word_t *) public_key;
+int mg_uecc_make_key(uint8_t *public_key, uint8_t *private_key,
+                     MG_UECC_Curve curve) {
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
+  mg_uecc_word_t *_private = (mg_uecc_word_t *) private_key;
+  mg_uecc_word_t *_public = (mg_uecc_word_t *) public_key;
 #else
-  uECC_word_t _private[uECC_MAX_WORDS];
-  uECC_word_t _public[uECC_MAX_WORDS * 2];
+  mg_uecc_word_t _private[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t _public[MG_UECC_MAX_WORDS * 2];
 #endif
-  uECC_word_t tries;
+  mg_uecc_word_t tries;
 
-  for (tries = 0; tries < uECC_RNG_MAX_TRIES; ++tries) {
-    if (!uECC_generate_random_int(_private, curve->n,
-                                  BITS_TO_WORDS(curve->num_n_bits))) {
+  for (tries = 0; tries < MG_UECC_RNG_MAX_TRIES; ++tries) {
+    if (!mg_uecc_generate_random_int(_private, curve->n,
+                                     BITS_TO_WORDS(curve->num_n_bits))) {
       return 0;
     }
 
     if (EccPoint_compute_public_key(_public, _private, curve)) {
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN == 0
-      uECC_vli_nativeToBytes(private_key, BITS_TO_BYTES(curve->num_n_bits),
-                             _private);
-      uECC_vli_nativeToBytes(public_key, curve->num_bytes, _public);
-      uECC_vli_nativeToBytes(public_key + curve->num_bytes, curve->num_bytes,
-                             _public + curve->num_words);
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN == 0
+      mg_uecc_vli_nativeToBytes(private_key, BITS_TO_BYTES(curve->num_n_bits),
+                                _private);
+      mg_uecc_vli_nativeToBytes(public_key, curve->num_bytes, _public);
+      mg_uecc_vli_nativeToBytes(public_key + curve->num_bytes, curve->num_bytes,
+                                _public + curve->num_words);
 #endif
       return 1;
     }
@@ -13111,27 +13813,27 @@ int uECC_make_key(uint8_t *public_key, uint8_t *private_key, uECC_Curve curve) {
   return 0;
 }
 
-int uECC_shared_secret(const uint8_t *public_key, const uint8_t *private_key,
-                       uint8_t *secret, uECC_Curve curve) {
-  uECC_word_t _public[uECC_MAX_WORDS * 2];
-  uECC_word_t _private[uECC_MAX_WORDS];
+int mg_uecc_shared_secret(const uint8_t *public_key, const uint8_t *private_key,
+                          uint8_t *secret, MG_UECC_Curve curve) {
+  mg_uecc_word_t _public[MG_UECC_MAX_WORDS * 2];
+  mg_uecc_word_t _private[MG_UECC_MAX_WORDS];
 
-  uECC_word_t tmp[uECC_MAX_WORDS];
-  uECC_word_t *p2[2] = {_private, tmp};
-  uECC_word_t *initial_Z = 0;
-  uECC_word_t carry;
+  mg_uecc_word_t tmp[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t *p2[2] = {_private, tmp};
+  mg_uecc_word_t *initial_Z = 0;
+  mg_uecc_word_t carry;
   wordcount_t num_words = curve->num_words;
   wordcount_t num_bytes = curve->num_bytes;
 
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
   bcopy((uint8_t *) _private, private_key, num_bytes);
   bcopy((uint8_t *) _public, public_key, num_bytes * 2);
 #else
-  uECC_vli_bytesToNative(_private, private_key,
-                         BITS_TO_BYTES(curve->num_n_bits));
-  uECC_vli_bytesToNative(_public, public_key, num_bytes);
-  uECC_vli_bytesToNative(_public + num_words, public_key + num_bytes,
-                         num_bytes);
+  mg_uecc_vli_bytesToNative(_private, private_key,
+                            BITS_TO_BYTES(curve->num_n_bits));
+  mg_uecc_vli_bytesToNative(_public, public_key, num_bytes);
+  mg_uecc_vli_bytesToNative(_public + num_words, public_key + num_bytes,
+                            num_bytes);
 #endif
 
   /* Regularize the bitcount for the private key so that attackers cannot use a
@@ -13141,7 +13843,7 @@ int uECC_shared_secret(const uint8_t *public_key, const uint8_t *private_key,
   /* If an RNG function was specified, try to get a random initial Z value to
      improve protection against side-channel attacks. */
   if (g_rng_function) {
-    if (!uECC_generate_random_int(p2[carry], curve->p, num_words)) {
+    if (!mg_uecc_generate_random_int(p2[carry], curve->p, num_words)) {
       return 0;
     }
     initial_Z = p2[carry];
@@ -13149,58 +13851,59 @@ int uECC_shared_secret(const uint8_t *public_key, const uint8_t *private_key,
 
   EccPoint_mult(_public, _public, p2[!carry], initial_Z,
                 (bitcount_t) (curve->num_n_bits + 1), curve);
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
   bcopy((uint8_t *) secret, (uint8_t *) _public, num_bytes);
 #else
-  uECC_vli_nativeToBytes(secret, num_bytes, _public);
+  mg_uecc_vli_nativeToBytes(secret, num_bytes, _public);
 #endif
   return !EccPoint_isZero(_public, curve);
 }
 
-#if uECC_SUPPORT_COMPRESSED_POINT
-void uECC_compress(const uint8_t *public_key, uint8_t *compressed,
-                   uECC_Curve curve) {
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
+void mg_uecc_compress(const uint8_t *public_key, uint8_t *compressed,
+                      MG_UECC_Curve curve) {
   wordcount_t i;
   for (i = 0; i < curve->num_bytes; ++i) {
     compressed[i + 1] = public_key[i];
   }
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
   compressed[0] = 2 + (public_key[curve->num_bytes] & 0x01);
 #else
   compressed[0] = 2 + (public_key[curve->num_bytes * 2 - 1] & 0x01);
 #endif
 }
 
-void uECC_decompress(const uint8_t *compressed, uint8_t *public_key,
-                     uECC_Curve curve) {
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
-  uECC_word_t *point = (uECC_word_t *) public_key;
+void mg_uecc_decompress(const uint8_t *compressed, uint8_t *public_key,
+                        MG_UECC_Curve curve) {
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
+  mg_uecc_word_t *point = (mg_uecc_word_t *) public_key;
 #else
-  uECC_word_t point[uECC_MAX_WORDS * 2];
+  mg_uecc_word_t point[MG_UECC_MAX_WORDS * 2];
 #endif
-  uECC_word_t *y = point + curve->num_words;
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
+  mg_uecc_word_t *y = point + curve->num_words;
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
   bcopy(public_key, compressed + 1, curve->num_bytes);
 #else
-  uECC_vli_bytesToNative(point, compressed + 1, curve->num_bytes);
+  mg_uecc_vli_bytesToNative(point, compressed + 1, curve->num_bytes);
 #endif
   curve->x_side(y, point, curve);
   curve->mod_sqrt(y, curve);
 
   if ((uint8_t) (y[0] & 0x01) != (compressed[0] & 0x01)) {
-    uECC_vli_sub(y, curve->p, y, curve->num_words);
+    mg_uecc_vli_sub(y, curve->p, y, curve->num_words);
   }
 
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN == 0
-  uECC_vli_nativeToBytes(public_key, curve->num_bytes, point);
-  uECC_vli_nativeToBytes(public_key + curve->num_bytes, curve->num_bytes, y);
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN == 0
+  mg_uecc_vli_nativeToBytes(public_key, curve->num_bytes, point);
+  mg_uecc_vli_nativeToBytes(public_key + curve->num_bytes, curve->num_bytes, y);
 #endif
 }
-#endif /* uECC_SUPPORT_COMPRESSED_POINT */
+#endif /* MG_UECC_SUPPORT_COMPRESSED_POINT */
 
-uECC_VLI_API int uECC_valid_point(const uECC_word_t *point, uECC_Curve curve) {
-  uECC_word_t tmp1[uECC_MAX_WORDS];
-  uECC_word_t tmp2[uECC_MAX_WORDS];
+MG_UECC_VLI_API int mg_uecc_valid_point(const mg_uecc_word_t *point,
+                                        MG_UECC_Curve curve) {
+  mg_uecc_word_t tmp1[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t tmp2[MG_UECC_MAX_WORDS];
   wordcount_t num_words = curve->num_words;
 
   /* The point at infinity is invalid. */
@@ -13209,54 +13912,55 @@ uECC_VLI_API int uECC_valid_point(const uECC_word_t *point, uECC_Curve curve) {
   }
 
   /* x and y must be smaller than p. */
-  if (uECC_vli_cmp_unsafe(curve->p, point, num_words) != 1 ||
-      uECC_vli_cmp_unsafe(curve->p, point + num_words, num_words) != 1) {
+  if (mg_uecc_vli_cmp_unsafe(curve->p, point, num_words) != 1 ||
+      mg_uecc_vli_cmp_unsafe(curve->p, point + num_words, num_words) != 1) {
     return 0;
   }
 
-  uECC_vli_modSquare_fast(tmp1, point + num_words, curve);
+  mg_uecc_vli_modSquare_fast(tmp1, point + num_words, curve);
   curve->x_side(tmp2, point, curve); /* tmp2 = x^3 + ax + b */
 
   /* Make sure that y^2 == x^3 + ax + b */
-  return (int) (uECC_vli_equal(tmp1, tmp2, num_words));
+  return (int) (mg_uecc_vli_equal(tmp1, tmp2, num_words));
 }
 
-int uECC_valid_public_key(const uint8_t *public_key, uECC_Curve curve) {
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
-  uECC_word_t *_public = (uECC_word_t *) public_key;
+int mg_uecc_valid_public_key(const uint8_t *public_key, MG_UECC_Curve curve) {
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
+  mg_uecc_word_t *_public = (mg_uecc_word_t *) public_key;
 #else
-  uECC_word_t _public[uECC_MAX_WORDS * 2];
+  mg_uecc_word_t _public[MG_UECC_MAX_WORDS * 2];
 #endif
 
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN == 0
-  uECC_vli_bytesToNative(_public, public_key, curve->num_bytes);
-  uECC_vli_bytesToNative(_public + curve->num_words,
-                         public_key + curve->num_bytes, curve->num_bytes);
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN == 0
+  mg_uecc_vli_bytesToNative(_public, public_key, curve->num_bytes);
+  mg_uecc_vli_bytesToNative(_public + curve->num_words,
+                            public_key + curve->num_bytes, curve->num_bytes);
 #endif
-  return uECC_valid_point(_public, curve);
+  return mg_uecc_valid_point(_public, curve);
 }
 
-int uECC_compute_public_key(const uint8_t *private_key, uint8_t *public_key,
-                            uECC_Curve curve) {
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
-  uECC_word_t *_private = (uECC_word_t *) private_key;
-  uECC_word_t *_public = (uECC_word_t *) public_key;
+int mg_uecc_compute_public_key(const uint8_t *private_key, uint8_t *public_key,
+                               MG_UECC_Curve curve) {
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
+  mg_uecc_word_t *_private = (mg_uecc_word_t *) private_key;
+  mg_uecc_word_t *_public = (mg_uecc_word_t *) public_key;
 #else
-  uECC_word_t _private[uECC_MAX_WORDS];
-  uECC_word_t _public[uECC_MAX_WORDS * 2];
+  mg_uecc_word_t _private[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t _public[MG_UECC_MAX_WORDS * 2];
 #endif
 
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN == 0
-  uECC_vli_bytesToNative(_private, private_key,
-                         BITS_TO_BYTES(curve->num_n_bits));
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN == 0
+  mg_uecc_vli_bytesToNative(_private, private_key,
+                            BITS_TO_BYTES(curve->num_n_bits));
 #endif
 
   /* Make sure the private key is in the range [1, n-1]. */
-  if (uECC_vli_isZero(_private, BITS_TO_WORDS(curve->num_n_bits))) {
+  if (mg_uecc_vli_isZero(_private, BITS_TO_WORDS(curve->num_n_bits))) {
     return 0;
   }
 
-  if (uECC_vli_cmp(curve->n, _private, BITS_TO_WORDS(curve->num_n_bits)) != 1) {
+  if (mg_uecc_vli_cmp(curve->n, _private, BITS_TO_WORDS(curve->num_n_bits)) !=
+      1) {
     return 0;
   }
 
@@ -13265,33 +13969,33 @@ int uECC_compute_public_key(const uint8_t *private_key, uint8_t *public_key,
     return 0;
   }
 
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN == 0
-  uECC_vli_nativeToBytes(public_key, curve->num_bytes, _public);
-  uECC_vli_nativeToBytes(public_key + curve->num_bytes, curve->num_bytes,
-                         _public + curve->num_words);
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN == 0
+  mg_uecc_vli_nativeToBytes(public_key, curve->num_bytes, _public);
+  mg_uecc_vli_nativeToBytes(public_key + curve->num_bytes, curve->num_bytes,
+                            _public + curve->num_words);
 #endif
   return 1;
 }
 
 /* -------- ECDSA code -------- */
 
-static void bits2int(uECC_word_t *native, const uint8_t *bits,
-                     unsigned bits_size, uECC_Curve curve) {
+static void bits2int(mg_uecc_word_t *native, const uint8_t *bits,
+                     unsigned bits_size, MG_UECC_Curve curve) {
   unsigned num_n_bytes = (unsigned) BITS_TO_BYTES(curve->num_n_bits);
   unsigned num_n_words = (unsigned) BITS_TO_WORDS(curve->num_n_bits);
   int shift;
-  uECC_word_t carry;
-  uECC_word_t *ptr;
+  mg_uecc_word_t carry;
+  mg_uecc_word_t *ptr;
 
   if (bits_size > num_n_bytes) {
     bits_size = num_n_bytes;
   }
 
-  uECC_vli_clear(native, (wordcount_t) num_n_words);
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
+  mg_uecc_vli_clear(native, (wordcount_t) num_n_words);
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
   bcopy((uint8_t *) native, bits, bits_size);
 #else
-  uECC_vli_bytesToNative(native, bits, (int) bits_size);
+  mg_uecc_vli_bytesToNative(native, bits, (int) bits_size);
 #endif
   if (bits_size * 8 <= (unsigned) curve->num_n_bits) {
     return;
@@ -13300,38 +14004,40 @@ static void bits2int(uECC_word_t *native, const uint8_t *bits,
   carry = 0;
   ptr = native + num_n_words;
   while (ptr-- > native) {
-    uECC_word_t temp = *ptr;
+    mg_uecc_word_t temp = *ptr;
     *ptr = (temp >> shift) | carry;
-    carry = temp << (uECC_WORD_BITS - shift);
+    carry = temp << (MG_UECC_WORD_BITS - shift);
   }
 
   /* Reduce mod curve_n */
-  if (uECC_vli_cmp_unsafe(curve->n, native, (wordcount_t) num_n_words) != 1) {
-    uECC_vli_sub(native, native, curve->n, (wordcount_t) num_n_words);
+  if (mg_uecc_vli_cmp_unsafe(curve->n, native, (wordcount_t) num_n_words) !=
+      1) {
+    mg_uecc_vli_sub(native, native, curve->n, (wordcount_t) num_n_words);
   }
 }
 
-static int uECC_sign_with_k_internal(const uint8_t *private_key,
-                                     const uint8_t *message_hash,
-                                     unsigned hash_size, uECC_word_t *k,
-                                     uint8_t *signature, uECC_Curve curve) {
-  uECC_word_t tmp[uECC_MAX_WORDS];
-  uECC_word_t s[uECC_MAX_WORDS];
-  uECC_word_t *k2[2] = {tmp, s};
-  uECC_word_t *initial_Z = 0;
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
-  uECC_word_t *p = (uECC_word_t *) signature;
+static int mg_uecc_sign_with_k_internal(const uint8_t *private_key,
+                                        const uint8_t *message_hash,
+                                        unsigned hash_size, mg_uecc_word_t *k,
+                                        uint8_t *signature,
+                                        MG_UECC_Curve curve) {
+  mg_uecc_word_t tmp[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t s[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t *k2[2] = {tmp, s};
+  mg_uecc_word_t *initial_Z = 0;
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
+  mg_uecc_word_t *p = (mg_uecc_word_t *) signature;
 #else
-  uECC_word_t p[uECC_MAX_WORDS * 2];
+  mg_uecc_word_t p[MG_UECC_MAX_WORDS * 2];
 #endif
-  uECC_word_t carry;
+  mg_uecc_word_t carry;
   wordcount_t num_words = curve->num_words;
   wordcount_t num_n_words = BITS_TO_WORDS(curve->num_n_bits);
   bitcount_t num_n_bits = curve->num_n_bits;
 
   /* Make sure 0 < k < curve_n */
-  if (uECC_vli_isZero(k, num_words) ||
-      uECC_vli_cmp(curve->n, k, num_n_words) != 1) {
+  if (mg_uecc_vli_isZero(k, num_words) ||
+      mg_uecc_vli_cmp(curve->n, k, num_n_words) != 1) {
     return 0;
   }
 
@@ -13339,87 +14045,87 @@ static int uECC_sign_with_k_internal(const uint8_t *private_key,
   /* If an RNG function was specified, try to get a random initial Z value to
      improve protection against side-channel attacks. */
   if (g_rng_function) {
-    if (!uECC_generate_random_int(k2[carry], curve->p, num_words)) {
+    if (!mg_uecc_generate_random_int(k2[carry], curve->p, num_words)) {
       return 0;
     }
     initial_Z = k2[carry];
   }
   EccPoint_mult(p, curve->G, k2[!carry], initial_Z,
                 (bitcount_t) (num_n_bits + 1), curve);
-  if (uECC_vli_isZero(p, num_words)) {
+  if (mg_uecc_vli_isZero(p, num_words)) {
     return 0;
   }
 
   /* If an RNG function was specified, get a random number
      to prevent side channel analysis of k. */
   if (!g_rng_function) {
-    uECC_vli_clear(tmp, num_n_words);
+    mg_uecc_vli_clear(tmp, num_n_words);
     tmp[0] = 1;
-  } else if (!uECC_generate_random_int(tmp, curve->n, num_n_words)) {
+  } else if (!mg_uecc_generate_random_int(tmp, curve->n, num_n_words)) {
     return 0;
   }
 
-  /* Prevent side channel analysis of uECC_vli_modInv() to determine
+  /* Prevent side channel analysis of mg_uecc_vli_modInv() to determine
      bits of k / the private key by premultiplying by a random number */
-  uECC_vli_modMult(k, k, tmp, curve->n, num_n_words); /* k' = rand * k */
-  uECC_vli_modInv(k, k, curve->n, num_n_words);       /* k = 1 / k' */
-  uECC_vli_modMult(k, k, tmp, curve->n, num_n_words); /* k = 1 / k */
+  mg_uecc_vli_modMult(k, k, tmp, curve->n, num_n_words); /* k' = rand * k */
+  mg_uecc_vli_modInv(k, k, curve->n, num_n_words);       /* k = 1 / k' */
+  mg_uecc_vli_modMult(k, k, tmp, curve->n, num_n_words); /* k = 1 / k */
 
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN == 0
-  uECC_vli_nativeToBytes(signature, curve->num_bytes, p); /* store r */
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN == 0
+  mg_uecc_vli_nativeToBytes(signature, curve->num_bytes, p); /* store r */
 #endif
 
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
   bcopy((uint8_t *) tmp, private_key, BITS_TO_BYTES(curve->num_n_bits));
 #else
-  uECC_vli_bytesToNative(tmp, private_key,
-                         BITS_TO_BYTES(curve->num_n_bits)); /* tmp = d */
+  mg_uecc_vli_bytesToNative(tmp, private_key,
+                            BITS_TO_BYTES(curve->num_n_bits)); /* tmp = d */
 #endif
 
   s[num_n_words - 1] = 0;
-  uECC_vli_set(s, p, num_words);
-  uECC_vli_modMult(s, tmp, s, curve->n, num_n_words); /* s = r*d */
+  mg_uecc_vli_set(s, p, num_words);
+  mg_uecc_vli_modMult(s, tmp, s, curve->n, num_n_words); /* s = r*d */
 
   bits2int(tmp, message_hash, hash_size, curve);
-  uECC_vli_modAdd(s, tmp, s, curve->n, num_n_words); /* s = e + r*d */
-  uECC_vli_modMult(s, s, k, curve->n, num_n_words);  /* s = (e + r*d) / k */
-  if (uECC_vli_numBits(s, num_n_words) > (bitcount_t) curve->num_bytes * 8) {
+  mg_uecc_vli_modAdd(s, tmp, s, curve->n, num_n_words); /* s = e + r*d */
+  mg_uecc_vli_modMult(s, s, k, curve->n, num_n_words);  /* s = (e + r*d) / k */
+  if (mg_uecc_vli_numBits(s, num_n_words) > (bitcount_t) curve->num_bytes * 8) {
     return 0;
   }
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
   bcopy((uint8_t *) signature + curve->num_bytes, (uint8_t *) s,
         curve->num_bytes);
 #else
-  uECC_vli_nativeToBytes(signature + curve->num_bytes, curve->num_bytes, s);
+  mg_uecc_vli_nativeToBytes(signature + curve->num_bytes, curve->num_bytes, s);
 #endif
   return 1;
 }
 
 #if 0
 /* For testing - sign with an explicitly specified k value */
-int uECC_sign_with_k(const uint8_t *private_key, const uint8_t *message_hash,
+int mg_uecc_sign_with_k(const uint8_t *private_key, const uint8_t *message_hash,
                      unsigned hash_size, const uint8_t *k, uint8_t *signature,
-                     uECC_Curve curve) {
-  uECC_word_t k2[uECC_MAX_WORDS];
+                     MG_UECC_Curve curve) {
+  mg_uecc_word_t k2[MG_UECC_MAX_WORDS];
   bits2int(k2, k, (unsigned) BITS_TO_BYTES(curve->num_n_bits), curve);
-  return uECC_sign_with_k_internal(private_key, message_hash, hash_size, k2,
+  return mg_uecc_sign_with_k_internal(private_key, message_hash, hash_size, k2,
                                    signature, curve);
 }
 #endif
 
-int uECC_sign(const uint8_t *private_key, const uint8_t *message_hash,
-              unsigned hash_size, uint8_t *signature, uECC_Curve curve) {
-  uECC_word_t k[uECC_MAX_WORDS];
-  uECC_word_t tries;
+int mg_uecc_sign(const uint8_t *private_key, const uint8_t *message_hash,
+                 unsigned hash_size, uint8_t *signature, MG_UECC_Curve curve) {
+  mg_uecc_word_t k[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t tries;
 
-  for (tries = 0; tries < uECC_RNG_MAX_TRIES; ++tries) {
-    if (!uECC_generate_random_int(k, curve->n,
-                                  BITS_TO_WORDS(curve->num_n_bits))) {
+  for (tries = 0; tries < MG_UECC_RNG_MAX_TRIES; ++tries) {
+    if (!mg_uecc_generate_random_int(k, curve->n,
+                                     BITS_TO_WORDS(curve->num_n_bits))) {
       return 0;
     }
 
-    if (uECC_sign_with_k_internal(private_key, message_hash, hash_size, k,
-                                  signature, curve)) {
+    if (mg_uecc_sign_with_k_internal(private_key, message_hash, hash_size, k,
+                                     signature, curve)) {
       return 1;
     }
   }
@@ -13428,7 +14134,8 @@ int uECC_sign(const uint8_t *private_key, const uint8_t *message_hash,
 
 /* Compute an HMAC using K as a key (as in RFC 6979). Note that K is always
    the same size as the hash result size. */
-static void HMAC_init(const uECC_HashContext *hash_context, const uint8_t *K) {
+static void HMAC_init(const MG_UECC_HashContext *hash_context,
+                      const uint8_t *K) {
   uint8_t *pad = hash_context->tmp + 2 * hash_context->result_size;
   unsigned i;
   for (i = 0; i < hash_context->result_size; ++i) pad[i] = K[i] ^ 0x36;
@@ -13438,13 +14145,13 @@ static void HMAC_init(const uECC_HashContext *hash_context, const uint8_t *K) {
   hash_context->update_hash(hash_context, pad, hash_context->block_size);
 }
 
-static void HMAC_update(const uECC_HashContext *hash_context,
+static void HMAC_update(const MG_UECC_HashContext *hash_context,
                         const uint8_t *message, unsigned message_size) {
   hash_context->update_hash(hash_context, message, message_size);
 }
 
-static void HMAC_finish(const uECC_HashContext *hash_context, const uint8_t *K,
-                        uint8_t *result) {
+static void HMAC_finish(const MG_UECC_HashContext *hash_context,
+                        const uint8_t *K, uint8_t *result) {
   uint8_t *pad = hash_context->tmp + 2 * hash_context->result_size;
   unsigned i;
   for (i = 0; i < hash_context->result_size; ++i) pad[i] = K[i] ^ 0x5c;
@@ -13459,7 +14166,7 @@ static void HMAC_finish(const uECC_HashContext *hash_context, const uint8_t *K,
 }
 
 /* V = HMAC_K(V) */
-static void update_V(const uECC_HashContext *hash_context, uint8_t *K,
+static void update_V(const MG_UECC_HashContext *hash_context, uint8_t *K,
                      uint8_t *V) {
   HMAC_init(hash_context, K);
   HMAC_update(hash_context, V, hash_context->result_size);
@@ -13474,16 +14181,16 @@ static void update_V(const uECC_HashContext *hash_context, uint8_t *K,
 
    Layout of hash_context->tmp: <K> | <V> | (1 byte overlapped 0x00 or 0x01) /
    <HMAC pad> */
-int uECC_sign_deterministic(const uint8_t *private_key,
-                            const uint8_t *message_hash, unsigned hash_size,
-                            const uECC_HashContext *hash_context,
-                            uint8_t *signature, uECC_Curve curve) {
+int mg_uecc_sign_deterministic(const uint8_t *private_key,
+                               const uint8_t *message_hash, unsigned hash_size,
+                               const MG_UECC_HashContext *hash_context,
+                               uint8_t *signature, MG_UECC_Curve curve) {
   uint8_t *K = hash_context->tmp;
   uint8_t *V = K + hash_context->result_size;
   wordcount_t num_bytes = curve->num_bytes;
   wordcount_t num_n_words = BITS_TO_WORDS(curve->num_n_bits);
   bitcount_t num_n_bits = curve->num_n_bits;
-  uECC_word_t tries;
+  mg_uecc_word_t tries;
   unsigned i;
   for (i = 0; i < hash_context->result_size; ++i) {
     V[i] = 0x01;
@@ -13510,29 +14217,29 @@ int uECC_sign_deterministic(const uint8_t *private_key,
 
   update_V(hash_context, K, V);
 
-  for (tries = 0; tries < uECC_RNG_MAX_TRIES; ++tries) {
-    uECC_word_t T[uECC_MAX_WORDS];
+  for (tries = 0; tries < MG_UECC_RNG_MAX_TRIES; ++tries) {
+    mg_uecc_word_t T[MG_UECC_MAX_WORDS];
     uint8_t *T_ptr = (uint8_t *) T;
     wordcount_t T_bytes = 0;
     for (;;) {
       update_V(hash_context, K, V);
       for (i = 0; i < hash_context->result_size; ++i) {
         T_ptr[T_bytes++] = V[i];
-        if (T_bytes >= num_n_words * uECC_WORD_SIZE) {
+        if (T_bytes >= num_n_words * MG_UECC_WORD_SIZE) {
           goto filled;
         }
       }
     }
   filled:
-    if ((bitcount_t) num_n_words * uECC_WORD_SIZE * 8 > num_n_bits) {
-      uECC_word_t mask = (uECC_word_t) -1;
+    if ((bitcount_t) num_n_words * MG_UECC_WORD_SIZE * 8 > num_n_bits) {
+      mg_uecc_word_t mask = (mg_uecc_word_t) -1;
       T[num_n_words - 1] &=
           mask >>
-          ((bitcount_t) (num_n_words * uECC_WORD_SIZE * 8 - num_n_bits));
+          ((bitcount_t) (num_n_words * MG_UECC_WORD_SIZE * 8 - num_n_bits));
     }
 
-    if (uECC_sign_with_k_internal(private_key, message_hash, hash_size, T,
-                                  signature, curve)) {
+    if (mg_uecc_sign_with_k_internal(private_key, message_hash, hash_size, T,
+                                     signature, curve)) {
       return 1;
     }
 
@@ -13551,27 +14258,27 @@ static bitcount_t smax(bitcount_t a, bitcount_t b) {
   return (a > b ? a : b);
 }
 
-int uECC_verify(const uint8_t *public_key, const uint8_t *message_hash,
-                unsigned hash_size, const uint8_t *signature,
-                uECC_Curve curve) {
-  uECC_word_t u1[uECC_MAX_WORDS], u2[uECC_MAX_WORDS];
-  uECC_word_t z[uECC_MAX_WORDS];
-  uECC_word_t sum[uECC_MAX_WORDS * 2];
-  uECC_word_t rx[uECC_MAX_WORDS];
-  uECC_word_t ry[uECC_MAX_WORDS];
-  uECC_word_t tx[uECC_MAX_WORDS];
-  uECC_word_t ty[uECC_MAX_WORDS];
-  uECC_word_t tz[uECC_MAX_WORDS];
-  const uECC_word_t *points[4];
-  const uECC_word_t *point;
+int mg_uecc_verify(const uint8_t *public_key, const uint8_t *message_hash,
+                   unsigned hash_size, const uint8_t *signature,
+                   MG_UECC_Curve curve) {
+  mg_uecc_word_t u1[MG_UECC_MAX_WORDS], u2[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t z[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t sum[MG_UECC_MAX_WORDS * 2];
+  mg_uecc_word_t rx[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t ry[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t tx[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t ty[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t tz[MG_UECC_MAX_WORDS];
+  const mg_uecc_word_t *points[4];
+  const mg_uecc_word_t *point;
   bitcount_t num_bits;
   bitcount_t i;
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
-  uECC_word_t *_public = (uECC_word_t *) public_key;
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
+  mg_uecc_word_t *_public = (mg_uecc_word_t *) public_key;
 #else
-  uECC_word_t _public[uECC_MAX_WORDS * 2];
+  mg_uecc_word_t _public[MG_UECC_MAX_WORDS * 2];
 #endif
-  uECC_word_t r[uECC_MAX_WORDS], s[uECC_MAX_WORDS];
+  mg_uecc_word_t r[MG_UECC_MAX_WORDS], s[MG_UECC_MAX_WORDS];
   wordcount_t num_words = curve->num_words;
   wordcount_t num_n_words = BITS_TO_WORDS(curve->num_n_bits);
 
@@ -13579,43 +14286,43 @@ int uECC_verify(const uint8_t *public_key, const uint8_t *message_hash,
   r[num_n_words - 1] = 0;
   s[num_n_words - 1] = 0;
 
-#if uECC_VLI_NATIVE_LITTLE_ENDIAN
+#if MG_UECC_VLI_NATIVE_LITTLE_ENDIAN
   bcopy((uint8_t *) r, signature, curve->num_bytes);
   bcopy((uint8_t *) s, signature + curve->num_bytes, curve->num_bytes);
 #else
-  uECC_vli_bytesToNative(_public, public_key, curve->num_bytes);
-  uECC_vli_bytesToNative(_public + num_words, public_key + curve->num_bytes,
-                         curve->num_bytes);
-  uECC_vli_bytesToNative(r, signature, curve->num_bytes);
-  uECC_vli_bytesToNative(s, signature + curve->num_bytes, curve->num_bytes);
+  mg_uecc_vli_bytesToNative(_public, public_key, curve->num_bytes);
+  mg_uecc_vli_bytesToNative(_public + num_words, public_key + curve->num_bytes,
+                            curve->num_bytes);
+  mg_uecc_vli_bytesToNative(r, signature, curve->num_bytes);
+  mg_uecc_vli_bytesToNative(s, signature + curve->num_bytes, curve->num_bytes);
 #endif
 
   /* r, s must not be 0. */
-  if (uECC_vli_isZero(r, num_words) || uECC_vli_isZero(s, num_words)) {
+  if (mg_uecc_vli_isZero(r, num_words) || mg_uecc_vli_isZero(s, num_words)) {
     return 0;
   }
 
   /* r, s must be < n. */
-  if (uECC_vli_cmp_unsafe(curve->n, r, num_n_words) != 1 ||
-      uECC_vli_cmp_unsafe(curve->n, s, num_n_words) != 1) {
+  if (mg_uecc_vli_cmp_unsafe(curve->n, r, num_n_words) != 1 ||
+      mg_uecc_vli_cmp_unsafe(curve->n, s, num_n_words) != 1) {
     return 0;
   }
 
   /* Calculate u1 and u2. */
-  uECC_vli_modInv(z, s, curve->n, num_n_words); /* z = 1/s */
+  mg_uecc_vli_modInv(z, s, curve->n, num_n_words); /* z = 1/s */
   u1[num_n_words - 1] = 0;
   bits2int(u1, message_hash, hash_size, curve);
-  uECC_vli_modMult(u1, u1, z, curve->n, num_n_words); /* u1 = e/s */
-  uECC_vli_modMult(u2, r, z, curve->n, num_n_words);  /* u2 = r/s */
+  mg_uecc_vli_modMult(u1, u1, z, curve->n, num_n_words); /* u1 = e/s */
+  mg_uecc_vli_modMult(u2, r, z, curve->n, num_n_words);  /* u2 = r/s */
 
   /* Calculate sum = G + Q. */
-  uECC_vli_set(sum, _public, num_words);
-  uECC_vli_set(sum + num_words, _public + num_words, num_words);
-  uECC_vli_set(tx, curve->G, num_words);
-  uECC_vli_set(ty, curve->G + num_words, num_words);
-  uECC_vli_modSub(z, sum, tx, curve->p, num_words); /* z = x2 - x1 */
+  mg_uecc_vli_set(sum, _public, num_words);
+  mg_uecc_vli_set(sum + num_words, _public + num_words, num_words);
+  mg_uecc_vli_set(tx, curve->G, num_words);
+  mg_uecc_vli_set(ty, curve->G + num_words, num_words);
+  mg_uecc_vli_modSub(z, sum, tx, curve->p, num_words); /* z = x2 - x1 */
   XYcZ_add(tx, ty, sum, sum + num_words, curve);
-  uECC_vli_modInv(z, z, curve->p, num_words); /* z = 1/z */
+  mg_uecc_vli_modInv(z, z, curve->p, num_words); /* z = 1/z */
   apply_z(sum, sum + num_words, z, curve);
 
   /* Use Shamir's trick to calculate u1*G + u2*Q */
@@ -13623,114 +14330,365 @@ int uECC_verify(const uint8_t *public_key, const uint8_t *message_hash,
   points[1] = curve->G;
   points[2] = _public;
   points[3] = sum;
-  num_bits = smax(uECC_vli_numBits(u1, num_n_words),
-                  uECC_vli_numBits(u2, num_n_words));
-  point = points[(!!uECC_vli_testBit(u1, (bitcount_t) (num_bits - 1))) |
-                 ((!!uECC_vli_testBit(u2, (bitcount_t) (num_bits - 1))) << 1)];
-  uECC_vli_set(rx, point, num_words);
-  uECC_vli_set(ry, point + num_words, num_words);
-  uECC_vli_clear(z, num_words);
+  num_bits = smax(mg_uecc_vli_numBits(u1, num_n_words),
+                  mg_uecc_vli_numBits(u2, num_n_words));
+  point =
+      points[(!!mg_uecc_vli_testBit(u1, (bitcount_t) (num_bits - 1))) |
+             ((!!mg_uecc_vli_testBit(u2, (bitcount_t) (num_bits - 1))) << 1)];
+  mg_uecc_vli_set(rx, point, num_words);
+  mg_uecc_vli_set(ry, point + num_words, num_words);
+  mg_uecc_vli_clear(z, num_words);
   z[0] = 1;
 
   for (i = num_bits - 2; i >= 0; --i) {
-    uECC_word_t index;
+    mg_uecc_word_t index;
     curve->double_jacobian(rx, ry, z, curve);
 
-    index = (!!uECC_vli_testBit(u1, i)) |
-            (uECC_word_t) ((!!uECC_vli_testBit(u2, i)) << 1);
+    index = (!!mg_uecc_vli_testBit(u1, i)) |
+            (mg_uecc_word_t) ((!!mg_uecc_vli_testBit(u2, i)) << 1);
     point = points[index];
     if (point) {
-      uECC_vli_set(tx, point, num_words);
-      uECC_vli_set(ty, point + num_words, num_words);
+      mg_uecc_vli_set(tx, point, num_words);
+      mg_uecc_vli_set(ty, point + num_words, num_words);
       apply_z(tx, ty, z, curve);
-      uECC_vli_modSub(tz, rx, tx, curve->p, num_words); /* Z = x2 - x1 */
+      mg_uecc_vli_modSub(tz, rx, tx, curve->p, num_words); /* Z = x2 - x1 */
       XYcZ_add(tx, ty, rx, ry, curve);
-      uECC_vli_modMult_fast(z, z, tz, curve);
+      mg_uecc_vli_modMult_fast(z, z, tz, curve);
     }
   }
 
-  uECC_vli_modInv(z, z, curve->p, num_words); /* Z = 1/Z */
+  mg_uecc_vli_modInv(z, z, curve->p, num_words); /* Z = 1/Z */
   apply_z(rx, ry, z, curve);
 
   /* v = x1 (mod n) */
-  if (uECC_vli_cmp_unsafe(curve->n, rx, num_n_words) != 1) {
-    uECC_vli_sub(rx, rx, curve->n, num_n_words);
+  if (mg_uecc_vli_cmp_unsafe(curve->n, rx, num_n_words) != 1) {
+    mg_uecc_vli_sub(rx, rx, curve->n, num_n_words);
   }
 
   /* Accept only if v == r. */
-  return (int) (uECC_vli_equal(rx, r, num_words));
+  return (int) (mg_uecc_vli_equal(rx, r, num_words));
 }
 
-#if uECC_ENABLE_VLI_API
+#if MG_UECC_ENABLE_VLI_API
 
-unsigned uECC_curve_num_words(uECC_Curve curve) {
+unsigned mg_uecc_curve_num_words(MG_UECC_Curve curve) {
   return curve->num_words;
 }
 
-unsigned uECC_curve_num_bytes(uECC_Curve curve) {
+unsigned mg_uecc_curve_num_bytes(MG_UECC_Curve curve) {
   return curve->num_bytes;
 }
 
-unsigned uECC_curve_num_bits(uECC_Curve curve) {
+unsigned mg_uecc_curve_num_bits(MG_UECC_Curve curve) {
   return curve->num_bytes * 8;
 }
 
-unsigned uECC_curve_num_n_words(uECC_Curve curve) {
+unsigned mg_uecc_curve_num_n_words(MG_UECC_Curve curve) {
   return BITS_TO_WORDS(curve->num_n_bits);
 }
 
-unsigned uECC_curve_num_n_bytes(uECC_Curve curve) {
+unsigned mg_uecc_curve_num_n_bytes(MG_UECC_Curve curve) {
   return BITS_TO_BYTES(curve->num_n_bits);
 }
 
-unsigned uECC_curve_num_n_bits(uECC_Curve curve) {
+unsigned mg_uecc_curve_num_n_bits(MG_UECC_Curve curve) {
   return curve->num_n_bits;
 }
 
-const uECC_word_t *uECC_curve_p(uECC_Curve curve) {
+const mg_uecc_word_t *mg_uecc_curve_p(MG_UECC_Curve curve) {
   return curve->p;
 }
 
-const uECC_word_t *uECC_curve_n(uECC_Curve curve) {
+const mg_uecc_word_t *mg_uecc_curve_n(MG_UECC_Curve curve) {
   return curve->n;
 }
 
-const uECC_word_t *uECC_curve_G(uECC_Curve curve) {
+const mg_uecc_word_t *mg_uecc_curve_G(MG_UECC_Curve curve) {
   return curve->G;
 }
 
-const uECC_word_t *uECC_curve_b(uECC_Curve curve) {
+const mg_uecc_word_t *mg_uecc_curve_b(MG_UECC_Curve curve) {
   return curve->b;
 }
 
-#if uECC_SUPPORT_COMPRESSED_POINT
-void uECC_vli_mod_sqrt(uECC_word_t *a, uECC_Curve curve) {
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
+void mg_uecc_vli_mod_sqrt(mg_uecc_word_t *a, MG_UECC_Curve curve) {
   curve->mod_sqrt(a, curve);
 }
 #endif
 
-void uECC_vli_mmod_fast(uECC_word_t *result, uECC_word_t *product,
-                        uECC_Curve curve) {
-#if (uECC_OPTIMIZATION_LEVEL > 0)
+void mg_uecc_vli_mmod_fast(mg_uecc_word_t *result, mg_uecc_word_t *product,
+                           MG_UECC_Curve curve) {
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
   curve->mmod_fast(result, product);
 #else
-  uECC_vli_mmod(result, product, curve->p, curve->num_words);
+  mg_uecc_vli_mmod(result, product, curve->p, curve->num_words);
 #endif
 }
 
-void uECC_point_mult(uECC_word_t *result, const uECC_word_t *point,
-                     const uECC_word_t *scalar, uECC_Curve curve) {
-  uECC_word_t tmp1[uECC_MAX_WORDS];
-  uECC_word_t tmp2[uECC_MAX_WORDS];
-  uECC_word_t *p2[2] = {tmp1, tmp2};
-  uECC_word_t carry = regularize_k(scalar, tmp1, tmp2, curve);
+void mg_uecc_point_mult(mg_uecc_word_t *result, const mg_uecc_word_t *point,
+                        const mg_uecc_word_t *scalar, MG_UECC_Curve curve) {
+  mg_uecc_word_t tmp1[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t tmp2[MG_UECC_MAX_WORDS];
+  mg_uecc_word_t *p2[2] = {tmp1, tmp2};
+  mg_uecc_word_t carry = regularize_k(scalar, tmp1, tmp2, curve);
 
   EccPoint_mult(result, point, p2[!carry], 0, curve->num_n_bits + 1, curve);
 }
 
-#endif  /* uECC_ENABLE_VLI_API */
+#endif  /* MG_UECC_ENABLE_VLI_API */
 #endif  // MG_TLS_BUILTIN
 // End of uecc BSD-2
+
+#ifdef MG_ENABLE_LINES
+#line 1 "src/tls_x25519.c"
+#endif
+/**
+ * Adapted from STROBE: https://strobe.sourceforge.io/
+ * Copyright (c) 2015-2016 Cryptography Research, Inc.
+ * Author: Mike Hamburg
+ * License: MIT License
+ */
+
+
+const uint8_t X25519_BASE_POINT[X25519_BYTES] = {9};
+
+#define X25519_WBITS 32
+
+typedef uint32_t limb_t;
+typedef uint64_t dlimb_t;
+typedef int64_t sdlimb_t;
+#define LIMB(x) (uint32_t)(x##ull), (uint32_t) ((x##ull) >> 32)
+
+#define NLIMBS (256 / X25519_WBITS)
+typedef limb_t fe[NLIMBS];
+
+static limb_t umaal(limb_t *carry, limb_t acc, limb_t mand, limb_t mier) {
+  dlimb_t tmp = (dlimb_t) mand * mier + acc + *carry;
+  *carry = (limb_t) (tmp >> X25519_WBITS);
+  return (limb_t) tmp;
+}
+
+// These functions are implemented in terms of umaal on ARM
+static limb_t adc(limb_t *carry, limb_t acc, limb_t mand) {
+  dlimb_t total = (dlimb_t) *carry + acc + mand;
+  *carry = (limb_t) (total >> X25519_WBITS);
+  return (limb_t) total;
+}
+
+static limb_t adc0(limb_t *carry, limb_t acc) {
+  dlimb_t total = (dlimb_t) *carry + acc;
+  *carry = (limb_t) (total >> X25519_WBITS);
+  return (limb_t) total;
+}
+
+// - Precondition: carry is small.
+// - Invariant: result of propagate is < 2^255 + 1 word
+// - In particular, always less than 2p.
+// - Also, output x >= min(x,19)
+static void propagate(fe x, limb_t over) {
+  unsigned i;
+  limb_t carry;
+  over = x[NLIMBS - 1] >> (X25519_WBITS - 1) | over << 1;
+  x[NLIMBS - 1] &= ~((limb_t) 1 << (X25519_WBITS - 1));
+
+  carry = over * 19;
+  for (i = 0; i < NLIMBS; i++) {
+    x[i] = adc0(&carry, x[i]);
+  }
+}
+
+static void add(fe out, const fe a, const fe b) {
+  unsigned i;
+  limb_t carry = 0;
+  for (i = 0; i < NLIMBS; i++) {
+    out[i] = adc(&carry, a[i], b[i]);
+  }
+  propagate(out, carry);
+}
+
+static void sub(fe out, const fe a, const fe b) {
+  unsigned i;
+  sdlimb_t carry = -38;
+  for (i = 0; i < NLIMBS; i++) {
+    carry = carry + a[i] - b[i];
+    out[i] = (limb_t) carry;
+    carry >>= X25519_WBITS;
+  }
+  propagate(out, (limb_t) (1 + carry));
+}
+
+// `b` can contain less than 8 limbs, thus we use `limb_t *` instead of `fe`
+// to avoid build warnings
+static void mul(fe out, const fe a, const limb_t *b, unsigned nb) {
+  limb_t accum[2 * NLIMBS] = {0};
+  unsigned i, j;
+
+  limb_t carry2;
+  for (i = 0; i < nb; i++) {
+    limb_t mand = b[i];
+    carry2 = 0;
+    for (j = 0; j < NLIMBS; j++) {
+      limb_t tmp;                        // "a" may be misaligned
+      memcpy(&tmp, &a[j], sizeof(tmp));  // So make an aligned copy
+      accum[i + j] = umaal(&carry2, accum[i + j], mand, tmp);
+    }
+    accum[i + j] = carry2;
+  }
+
+  carry2 = 0;
+  for (j = 0; j < NLIMBS; j++) {
+    out[j] = umaal(&carry2, accum[j], 38, accum[j + NLIMBS]);
+  }
+  propagate(out, carry2);
+}
+
+static void sqr(fe out, const fe a) {
+  mul(out, a, a, NLIMBS);
+}
+static void mul1(fe out, const fe a) {
+  mul(out, a, out, NLIMBS);
+}
+static void sqr1(fe a) {
+  mul1(a, a);
+}
+
+static void condswap(limb_t a[2 * NLIMBS], limb_t b[2 * NLIMBS],
+                     limb_t doswap) {
+  unsigned i;
+  for (i = 0; i < 2 * NLIMBS; i++) {
+    limb_t xor_ab = (a[i] ^ b[i]) & doswap;
+    a[i] ^= xor_ab;
+    b[i] ^= xor_ab;
+  }
+}
+
+// Canonicalize a field element x, reducing it to the least residue which is
+// congruent to it mod 2^255-19
+// - Precondition: x < 2^255 + 1 word
+static limb_t canon(fe x) {
+  // First, add 19.
+  unsigned i;
+  limb_t carry0 = 19;
+  limb_t res;
+  sdlimb_t carry;
+  for (i = 0; i < NLIMBS; i++) {
+    x[i] = adc0(&carry0, x[i]);
+  }
+  propagate(x, carry0);
+
+  // Here, 19 <= x2 < 2^255
+  // - This is because we added 19, so before propagate it can't be less
+  // than 19. After propagate, it still can't be less than 19, because if
+  // propagate does anything it adds 19.
+  // - We know that the high bit must be clear, because either the input was ~
+  // 2^255 + one word + 19 (in which case it propagates to at most 2 words) or
+  // it was < 2^255. So now, if we subtract 19, we will get back to something in
+  // [0,2^255-19).
+  carry = -19;
+  res = 0;
+  for (i = 0; i < NLIMBS; i++) {
+    carry += x[i];
+    res |= x[i] = (limb_t) carry;
+    carry >>= X25519_WBITS;
+  }
+  return (limb_t) (((dlimb_t) res - 1) >> X25519_WBITS);
+}
+
+static const limb_t a24[1] = {121665};
+
+static void ladder_part1(fe xs[5]) {
+  limb_t *x2 = xs[0], *z2 = xs[1], *x3 = xs[2], *z3 = xs[3], *t1 = xs[4];
+  add(t1, x2, z2);                                 // t1 = A
+  sub(z2, x2, z2);                                 // z2 = B
+  add(x2, x3, z3);                                 // x2 = C
+  sub(z3, x3, z3);                                 // z3 = D
+  mul1(z3, t1);                                    // z3 = DA
+  mul1(x2, z2);                                    // x3 = BC
+  add(x3, z3, x2);                                 // x3 = DA+CB
+  sub(z3, z3, x2);                                 // z3 = DA-CB
+  sqr1(t1);                                        // t1 = AA
+  sqr1(z2);                                        // z2 = BB
+  sub(x2, t1, z2);                                 // x2 = E = AA-BB
+  mul(z2, x2, a24, sizeof(a24) / sizeof(a24[0]));  // z2 = E*a24
+  add(z2, z2, t1);                                 // z2 = E*a24 + AA
+}
+
+static void ladder_part2(fe xs[5], const fe x1) {
+  limb_t *x2 = xs[0], *z2 = xs[1], *x3 = xs[2], *z3 = xs[3], *t1 = xs[4];
+  sqr1(z3);         // z3 = (DA-CB)^2
+  mul1(z3, x1);     // z3 = x1 * (DA-CB)^2
+  sqr1(x3);         // x3 = (DA+CB)^2
+  mul1(z2, x2);     // z2 = AA*(E*a24+AA)
+  sub(x2, t1, x2);  // x2 = BB again
+  mul1(x2, t1);     // x2 = AA*BB
+}
+
+static void x25519_core(fe xs[5], const uint8_t scalar[X25519_BYTES],
+                        const uint8_t *x1, int clamp) {
+  int i;
+  limb_t swap = 0;
+  limb_t *x2 = xs[0], *x3 = xs[2], *z3 = xs[3];
+  memset(xs, 0, 4 * sizeof(fe));
+  x2[0] = z3[0] = 1;
+  memcpy(x3, x1, sizeof(fe));
+
+  for (i = 255; i >= 0; i--) {
+    uint8_t bytei = scalar[i / 8];
+    limb_t doswap;
+    if (clamp) {
+      if (i / 8 == 0) {
+        bytei &= (uint8_t) ~7U;
+      } else if (i / 8 == X25519_BYTES - 1) {
+        bytei &= 0x7F;
+        bytei |= 0x40;
+      }
+    }
+    doswap = 0 - (limb_t) ((bytei >> (i % 8)) & 1);
+    condswap(x2, x3, swap ^ doswap);
+    swap = doswap;
+
+    ladder_part1(xs);
+    ladder_part2(xs, (const limb_t *) x1);
+  }
+  condswap(x2, x3, swap);
+}
+
+int mg_tls_x25519(uint8_t out[X25519_BYTES], const uint8_t scalar[X25519_BYTES],
+                  const uint8_t x1[X25519_BYTES], int clamp) {
+  int i, ret;
+  fe xs[5];
+  limb_t *x2, *z2, *z3, *prev;
+  static const struct {
+    uint8_t a, c, n;
+  } steps[13] = {{2, 1, 1},  {2, 1, 1},  {4, 2, 3},  {2, 4, 6},  {3, 1, 1},
+                 {3, 2, 12}, {4, 3, 25}, {2, 3, 25}, {2, 4, 50}, {3, 2, 125},
+                 {3, 1, 2},  {3, 1, 2},  {3, 1, 1}};
+  x25519_core(xs, scalar, x1, clamp);
+
+  // Precomputed inversion chain
+  x2 = xs[0];
+  z2 = xs[1];
+  z3 = xs[3];
+
+  prev = z2;
+  for (i = 0; i < 13; i++) {
+    int j;
+    limb_t *a = xs[steps[i].a];
+    for (j = steps[i].n; j > 0; j--) {
+      sqr(a, prev);
+      prev = a;
+    }
+    mul1(a, xs[steps[i].c]);
+  }
+
+  // Here prev = z3
+  // x2 /= z2
+  mul((limb_t *) out, x2, z3, NLIMBS);
+  ret = (int) canon((limb_t *) out);
+  if (!clamp) ret = 0;
+  return ret;
+}
 
 #ifdef MG_ENABLE_LINES
 #line 1 "src/url.c"
@@ -13924,9 +14882,9 @@ int mg_check_ip_acl(struct mg_str acl, struct mg_addr *remote_ip) {
     memcpy((void *) &remote_ip4, remote_ip->ip, sizeof(remote_ip4));
     while (mg_span(acl, &entry, &acl, ',')) {
       uint32_t net, mask;
-      if (entry.ptr[0] != '+' && entry.ptr[0] != '-') return -1;
-      if (parse_net(&entry.ptr[1], &net, &mask) == 0) return -2;
-      if ((mg_ntohl(remote_ip4) & mask) == net) allowed = entry.ptr[0];
+      if (entry.buf[0] != '+' && entry.buf[0] != '-') return -1;
+      if (parse_net(&entry.buf[1], &net, &mask) == 0) return -2;
+      if ((mg_ntohl(remote_ip4) & mask) == net) allowed = entry.buf[0];
     }
   }
   return allowed == '+';
@@ -14026,7 +14984,7 @@ static void ws_handshake(struct mg_connection *c, const struct mg_str *wskey,
 
   mg_sha1_ctx sha_ctx;
   mg_sha1_init(&sha_ctx);
-  mg_sha1_update(&sha_ctx, (unsigned char *) wskey->ptr, wskey->len);
+  mg_sha1_update(&sha_ctx, (unsigned char *) wskey->buf, wskey->len);
   mg_sha1_update(&sha_ctx, (unsigned char *) magic, 36);
   mg_sha1_final(sha, &sha_ctx);
   mg_base64_encode(sha, sizeof(sha), (char *) b64_sha, sizeof(b64_sha));
@@ -14039,7 +14997,7 @@ static void ws_handshake(struct mg_connection *c, const struct mg_str *wskey,
   if (fmt != NULL) mg_vxprintf(mg_pfn_iobuf, &c->send, fmt, ap);
   if (wsproto != NULL) {
     mg_printf(c, "Sec-WebSocket-Protocol: %.*s\r\n", (int) wsproto->len,
-              wsproto->ptr);
+              wsproto->buf);
   }
   mg_send(c, "\r\n", 2);
 }
@@ -14163,7 +15121,7 @@ static void mg_ws_cb(struct mg_connection *c, int ev, void *ev_data) {
       size_t len = msg.header_len + msg.data_len;
       uint8_t final = msg.flags & 128, op = msg.flags & 15;
       // MG_VERBOSE ("fin %d op %d len %d [%.*s]", final, op,
-      //                       (int) m.data.len, (int) m.data.len, m.data.ptr));
+      //                       (int) m.data.len, (int) m.data.len, m.data.buf));
       switch (op) {
         case WEBSOCKET_OP_CONTINUE:
           mg_call(c, MG_EV_WS_CTL, &m);
@@ -14184,7 +15142,7 @@ static void mg_ws_cb(struct mg_connection *c, int ev, void *ev_data) {
           MG_DEBUG(("%lu WS CLOSE", c->id));
           mg_call(c, MG_EV_WS_CTL, &m);
           // Echo the payload of the received CLOSE message back to the sender
-          mg_ws_send(c, m.data.ptr, m.data.len, WEBSOCKET_OP_CLOSE);
+          mg_ws_send(c, m.data.buf, m.data.len, WEBSOCKET_OP_CLOSE);
           c->is_draining = 1;
           break;
         default:
@@ -14234,7 +15192,7 @@ struct mg_connection *mg_ws_connect(struct mg_mgr *mgr, const char *url,
                "Connection: Upgrade\r\n"
                "Sec-WebSocket-Version: 13\r\n"
                "Sec-WebSocket-Key: %s\r\n",
-               mg_url_uri(url), (int) host.len, host.ptr, key);
+               mg_url_uri(url), (int) host.len, host.buf, key);
     if (fmt != NULL) {
       va_list ap;
       va_start(ap, fmt);
@@ -14431,10 +15389,15 @@ struct imxrt_enet {
 };
 
 #undef ENET
+#if defined(MG_DRIVER_IMXRT_RT11) && MG_DRIVER_IMXRT_RT11
+#define ENET ((struct imxrt_enet *) (uintptr_t) 0x40424000U)
+#define ETH_DESC_CNT 5     // Descriptors count
+#else
 #define ENET ((struct imxrt_enet *) (uintptr_t) 0x402D8000U)
+#define ETH_DESC_CNT 4     // Descriptors count
+#endif
 
 #define ETH_PKT_SIZE 1536  // Max frame size, 64-bit aligned
-#define ETH_DESC_CNT 4     // Descriptors count
 
 struct enet_desc {
   uint16_t length;   // Data length
@@ -14453,31 +15416,18 @@ static uint8_t s_rxbuf[ETH_DESC_CNT][ETH_PKT_SIZE] MG_64BYTE_ALIGNED;
 static uint8_t s_txbuf[ETH_DESC_CNT][ETH_PKT_SIZE] MG_64BYTE_ALIGNED;
 static struct mg_tcpip_if *s_ifp;  // MIP interface
 
-enum {
-  MG_PHYREG_BCR = 0,
-  MG_PHYREG_BSR = 1,
-  MG_PHYREG_ID1 = 2,
-  MG_PHYREG_ID2 = 3
-};
-
-static uint16_t enet_phy_read(uint8_t addr, uint8_t reg) {
+static uint16_t enet_read_phy(uint8_t addr, uint8_t reg) {
   ENET->EIR |= MG_BIT(23);  // MII interrupt clear
   ENET->MMFR = (1 << 30) | (2 << 28) | (addr << 23) | (reg << 18) | (2 << 16);
   while ((ENET->EIR & MG_BIT(23)) == 0) (void) 0;
   return ENET->MMFR & 0xffff;
 }
 
-static void enet_phy_write(uint8_t addr, uint8_t reg, uint16_t val) {
+static void enet_write_phy(uint8_t addr, uint8_t reg, uint16_t val) {
   ENET->EIR |= MG_BIT(23);  // MII interrupt clear
   ENET->MMFR =
       (1 << 30) | (1 << 28) | (addr << 23) | (reg << 18) | (2 << 16) | val;
   while ((ENET->EIR & MG_BIT(23)) == 0) (void) 0;
-}
-
-static uint32_t enet_phy_id(uint8_t addr) {
-  uint16_t phy_id1 = enet_phy_read(addr, MG_PHYREG_ID1);
-  uint16_t phy_id2 = enet_phy_read(addr, MG_PHYREG_ID2);
-  return (uint32_t) phy_id1 << 16 | phy_id2;
 }
 
 //  MDC clock is generated from IPS Bus clock (ipg_clk); as per 802.3,
@@ -14509,28 +15459,8 @@ static bool mg_tcpip_driver_imxrt_init(struct mg_tcpip_if *ifp) {
   // TODO(): Otherwise, guess (currently assuming max freq)
   int cr = (d == NULL || d->mdc_cr < 0) ? 24 : d->mdc_cr;
   ENET->MSCR = (1 << 8) | ((cr & 0x3f) << 1);  // HOLDTIME 2 clks
-
-  enet_phy_write(d->phy_addr, MG_PHYREG_BCR, MG_BIT(15));  // Reset PHY
-  enet_phy_write(d->phy_addr, MG_PHYREG_BCR,
-                 MG_BIT(12));  // Set autonegotiation
-
-  // PHY: Enable 50 MHz external ref clock at XI (preserve defaults)
-  uint32_t id = enet_phy_id(d->phy_addr);
-  MG_INFO(("PHY ID: %#04x %#04x", (uint16_t) (id >> 16), (uint16_t) id));
-  // 2000 a140 - TI DP83825I
-  // 0007 c0fx - LAN8720
-  // 0022 1561 - KSZ8081RNB
-
-  if ((id & 0xffff0000) == 0x220000) {  // KSZ8081RNB, like EVK-RTxxxx boards
-    enet_phy_write(d->phy_addr, 31,
-                   MG_BIT(15) | MG_BIT(8) | MG_BIT(7));  // PC2R
-  } else if ((id & 0xffff0000) == 0x20000000) {  // DP83825I, like Teensy4.1
-    enet_phy_write(d->phy_addr, 23, 0x81);       // 50MHz clock input
-    enet_phy_write(d->phy_addr, 24, 0x280);      // LED status, active high
-  } else {                                       // Default to LAN8720
-    MG_INFO(("Defaulting to LAN8720 PHY..."));   // TODO()
-  }
-
+  struct mg_phy phy = {enet_read_phy, enet_write_phy};
+  mg_phy_init(&phy, d->phy_addr, MG_PHY_LEDS_ACTIVE_HIGH); // MAC clocks PHY  
   // Select RMII mode, 100M, keep CRC, set max rx length, disable loop
   ENET->RCR = (1518 << 16) | MG_BIT(8) | MG_BIT(2);
   // ENET->RCR |= MG_BIT(3);     // Receive all
@@ -14556,10 +15486,10 @@ static size_t mg_tcpip_driver_imxrt_tx(const void *buf, size_t len,
                                        struct mg_tcpip_if *ifp) {
   static int s_txno;  // Current descriptor index
   if (len > sizeof(s_txbuf[ETH_DESC_CNT])) {
-    ifp->nerr++;
     MG_ERROR(("Frame too big, %ld", (long) len));
     len = (size_t) -1;  // fail
   } else if ((s_txdesc[s_txno].control & MG_BIT(15))) {
+    ifp->nerr++;
     MG_ERROR(("No descriptors available"));
     len = 0;  // retry later
   } else {
@@ -14578,28 +15508,18 @@ static size_t mg_tcpip_driver_imxrt_tx(const void *buf, size_t len,
 static bool mg_tcpip_driver_imxrt_up(struct mg_tcpip_if *ifp) {
   struct mg_tcpip_driver_imxrt_data *d =
       (struct mg_tcpip_driver_imxrt_data *) ifp->driver_data;
-  uint32_t bsr = enet_phy_read(d->phy_addr, MG_PHYREG_BSR);
-  bool up = bsr & MG_BIT(2) ? 1 : 0;
+  uint8_t speed = MG_PHY_SPEED_10M;
+  bool up = false, full_duplex = false;
+  struct mg_phy phy = {enet_read_phy, enet_write_phy};
+  up = mg_phy_up(&phy, d->phy_addr, &full_duplex, &speed);
   if ((ifp->state == MG_TCPIP_STATE_DOWN) && up) {  // link state just went up
     // tmp = reg with flags set to the most likely situation: 100M full-duplex
     // if(link is slow or half) set flags otherwise
     // reg = tmp
-    uint32_t tcr = ENET->TCR | MG_BIT(2);   // Full-duplex
-    uint32_t rcr = ENET->RCR & ~MG_BIT(9);  // 100M
-    uint32_t phy_id = enet_phy_id(d->phy_addr);
-    if ((phy_id & 0xffff0000) == 0x220000) {             // KSZ8081RNB
-      uint16_t pc1r = enet_phy_read(d->phy_addr, 30);    // Read PC1R
-      if ((pc1r & 3) == 1) rcr |= MG_BIT(9);             // 10M
-      if ((pc1r & MG_BIT(2)) == 0) tcr &= ~MG_BIT(2);    // Half-duplex
-    } else if ((phy_id & 0xffff0000) == 0x20000000) {    // DP83825I
-      uint16_t physts = enet_phy_read(d->phy_addr, 16);  // Read PHYSTS
-      if (physts & MG_BIT(1)) rcr |= MG_BIT(9);          // 10M
-      if ((physts & MG_BIT(2)) == 0) tcr &= ~MG_BIT(2);  // Half-duplex
-    } else {                                             // Default to LAN8720
-      uint16_t scsr = enet_phy_read(d->phy_addr, 31);    // Read CSCR
-      if ((scsr & MG_BIT(3)) == 0) rcr |= MG_BIT(9);     // 10M
-      if ((scsr & MG_BIT(4)) == 0) tcr &= ~MG_BIT(2);    // Half-duplex
-    }
+    uint32_t tcr = ENET->TCR | MG_BIT(2);             // Full-duplex
+    uint32_t rcr = ENET->RCR & ~MG_BIT(9);            // 100M
+    if (speed == MG_PHY_SPEED_10M) rcr |= MG_BIT(9);  // 10M
+    if (full_duplex == false) tcr &= ~MG_BIT(2);      // Half-duplex
     ENET->TCR = tcr;  // IRQ handler does not fiddle with these registers
     ENET->RCR = rcr;
     MG_DEBUG(("Link is %uM %s-duplex", rcr & MG_BIT(9) ? 10 : 100,
@@ -14634,6 +15554,151 @@ struct mg_tcpip_driver mg_tcpip_driver_imxrt = {mg_tcpip_driver_imxrt_init,
                                                 mg_tcpip_driver_imxrt_up};
 
 #endif
+
+#ifdef MG_ENABLE_LINES
+#line 1 "src/drivers/phy.c"
+#endif
+
+
+enum {                      // ID1  ID2
+  MG_PHY_KSZ8x = 0x22,      // 0022 1561 - KSZ8081RNB
+  MG_PHY_DP83x = 0x2000,    // 2000 a140 - TI DP83825I
+  MG_PHY_DP83867 = 0xa231,  // 2000 a231 - TI DP83867I
+  MG_PHY_LAN87x = 0x7,      // 0007 c0fx - LAN8720
+  MG_PHY_RTL8201 = 0x1C     // 001c c816 - RTL8201
+};
+
+enum {
+  MG_PHY_REG_BCR = 0,
+  MG_PHY_REG_BSR = 1,
+  MG_PHY_REG_ID1 = 2,
+  MG_PHY_REG_ID2 = 3,
+  MG_PHY_DP83x_REG_PHYSTS = 16,
+  MG_PHY_DP83867_REG_PHYSTS = 17,
+  MG_PHY_DP83x_REG_RCSR = 23,
+  MG_PHY_DP83x_REG_LEDCR = 24,
+  MG_PHY_KSZ8x_REG_PC1R = 30,
+  MG_PHY_KSZ8x_REG_PC2R = 31,
+  MG_PHY_LAN87x_REG_SCSR = 31,
+  MG_PHY_RTL8201_REG_RMSR = 16,  // in page 7
+  MG_PHY_RTL8201_REG_PAGESEL = 31
+};
+
+static const char *mg_phy_id_to_str(uint16_t id1, uint16_t id2) {
+  switch (id1) {
+    case MG_PHY_DP83x:
+      switch (id2) {
+        case MG_PHY_DP83867:
+          return "DP83867";
+        default:
+          return "DP83x";
+      }
+    case MG_PHY_KSZ8x:
+      return "KSZ8x";
+    case MG_PHY_LAN87x:
+      return "LAN87x";
+    case MG_PHY_RTL8201:
+      return "RTL8201";
+    default:
+      return "unknown";
+  }
+  (void) id2;
+}
+
+static void mg_phy_set_clk_out(struct mg_phy *phy, uint8_t phy_addr) {
+  uint16_t id1, id2;
+  id1 = phy->read_reg(phy_addr, MG_PHY_REG_ID1);
+  id2 = phy->read_reg(phy_addr, MG_PHY_REG_ID2);
+
+  if (id1 == MG_PHY_DP83x && id2 == MG_PHY_DP83867) {
+    // write 0x10d to IO_MUX_CFG (0x0170)
+    phy->write_reg(phy_addr, 0x0d, 0x1f);
+    phy->write_reg(phy_addr, 0x0e, 0x170);
+    phy->write_reg(phy_addr, 0x0d, 0x401f);
+    phy->write_reg(phy_addr, 0x0e, 0x10d);
+  }
+}
+
+void mg_phy_init(struct mg_phy *phy, uint8_t phy_addr, uint8_t config) {
+  uint16_t id1, id2;
+  phy->write_reg(phy_addr, MG_PHY_REG_BCR, MG_BIT(15));  // Reset PHY
+  phy->write_reg(phy_addr, MG_PHY_REG_BCR, MG_BIT(12));  // Autonegotiation
+
+  id1 = phy->read_reg(phy_addr, MG_PHY_REG_ID1);
+  id2 = phy->read_reg(phy_addr, MG_PHY_REG_ID2);
+  MG_INFO(("PHY ID: %#04x %#04x (%s)", id1, id2, mg_phy_id_to_str(id1, id2)));
+
+  if (id1 == MG_PHY_DP83x && id2 == MG_PHY_DP83867) {
+      mg_phy_set_clk_out(phy, phy_addr);
+  }
+
+  if (config & MG_PHY_CLOCKS_MAC) {
+    // Use PHY crystal oscillator (preserve defaults)
+    // nothing to do
+  } else {  // MAC clocks PHY, PHY has no xtal
+    // Enable 50 MHz external ref clock at XI (preserve defaults)
+    if (id1 == MG_PHY_DP83x && id2 != MG_PHY_DP83867) {
+      phy->write_reg(phy_addr, MG_PHY_DP83x_REG_RCSR, MG_BIT(7) | MG_BIT(0));
+    } else if (id1 == MG_PHY_KSZ8x) {
+      phy->write_reg(phy_addr, MG_PHY_KSZ8x_REG_PC2R,
+                     MG_BIT(15) | MG_BIT(8) | MG_BIT(7));
+    } else if (id1 == MG_PHY_LAN87x) {
+      // nothing to do
+    } else if (id1 == MG_PHY_RTL8201) {
+      // assume PHY has been hardware strapped properly
+#if 0
+      phy->write_reg(phy_addr, MG_PHY_RTL8201_REG_PAGESEL, 7);  // Select page 7
+      phy->write_reg(phy_addr, MG_PHY_RTL8201_REG_RMSR, 0x1ffa);
+      phy->write_reg(phy_addr, MG_PHY_RTL8201_REG_PAGESEL, 0);  // Select page 0
+#endif
+    }
+  }
+
+  if (config & MG_PHY_LEDS_ACTIVE_HIGH && id1 == MG_PHY_DP83x) {
+    phy->write_reg(phy_addr, MG_PHY_DP83x_REG_LEDCR,
+                   MG_BIT(9) | MG_BIT(7));  // LED status, active high
+  }  // Other PHYs do not support this feature
+}
+
+bool mg_phy_up(struct mg_phy *phy, uint8_t phy_addr, bool *full_duplex,
+               uint8_t *speed) {
+  bool up = false;
+  uint16_t bsr = phy->read_reg(phy_addr, MG_PHY_REG_BSR);
+  if ((bsr & MG_BIT(5)) && !(bsr & MG_BIT(2)))  // some PHYs latch down events
+    bsr = phy->read_reg(phy_addr, MG_PHY_REG_BSR);  // read again
+  up = bsr & MG_BIT(2);
+  if (up && full_duplex != NULL && speed != NULL) {
+    uint16_t id1 = phy->read_reg(phy_addr, MG_PHY_REG_ID1);
+    if (id1 == MG_PHY_DP83x) {
+      uint16_t id2 = phy->read_reg(phy_addr, MG_PHY_REG_ID2);
+      if (id2 == MG_PHY_DP83867) {
+        uint16_t physts = phy->read_reg(phy_addr, MG_PHY_DP83867_REG_PHYSTS);
+        *full_duplex = physts & MG_BIT(13);
+        *speed = (physts & MG_BIT(15))   ? MG_PHY_SPEED_1000M
+                 : (physts & MG_BIT(14)) ? MG_PHY_SPEED_100M
+                                         : MG_PHY_SPEED_10M;
+      } else {
+        uint16_t physts = phy->read_reg(phy_addr, MG_PHY_DP83x_REG_PHYSTS);
+        *full_duplex = physts & MG_BIT(2);
+        *speed = (physts & MG_BIT(1)) ? MG_PHY_SPEED_10M : MG_PHY_SPEED_100M;
+      }
+    } else if (id1 == MG_PHY_KSZ8x) {
+      uint16_t pc1r = phy->read_reg(phy_addr, MG_PHY_KSZ8x_REG_PC1R);
+      *full_duplex = pc1r & MG_BIT(2);
+      *speed = (pc1r & 3) == 1 ? MG_PHY_SPEED_10M : MG_PHY_SPEED_100M;
+    } else if (id1 == MG_PHY_LAN87x) {
+      uint16_t scsr = phy->read_reg(phy_addr, MG_PHY_LAN87x_REG_SCSR);
+      *full_duplex = scsr & MG_BIT(4);
+      *speed = (scsr & MG_BIT(3)) ? MG_PHY_SPEED_100M : MG_PHY_SPEED_10M;
+    } else if (id1 == MG_PHY_RTL8201) {
+      uint16_t bcr = phy->read_reg(phy_addr, MG_PHY_REG_BCR);
+      if (bcr & MG_BIT(15)) return 0;  // still resetting
+      *full_duplex = bcr & MG_BIT(8);
+      *speed = (bcr & MG_BIT(13)) ? MG_PHY_SPEED_100M : MG_PHY_SPEED_10M;
+    }
+  }
+  return up;
+}
 
 #ifdef MG_ENABLE_LINES
 #line 1 "src/drivers/ra.c"
@@ -14680,13 +15745,6 @@ static volatile uint32_t s_txdesc[ETH_DESC_CNT][4] MG_16BYTE_ALIGNED;
 static uint8_t s_rxbuf[ETH_DESC_CNT][ETH_PKT_SIZE] MG_32BYTE_ALIGNED;
 static uint8_t s_txbuf[ETH_DESC_CNT][ETH_PKT_SIZE] MG_32BYTE_ALIGNED;
 static struct mg_tcpip_if *s_ifp;  // MIP interface
-
-enum {
-  MG_PHYREG_BCR = 0,
-  MG_PHYREG_BSR = 1,
-  MG_PHYREG_ID1 = 2,
-  MG_PHYREG_ID2 = 3
-};
 
 // fastest is 3 cycles (SUB + BNE) on a 3-stage pipeline or equivalent
 static inline void raspin(volatile uint32_t count) {
@@ -14748,7 +15806,7 @@ static uint16_t smi_rd(uint16_t header) {
     pir = 0;  // read, mdc = 0
     ETHERC->PIR = pir;
     raspin(s_smispin / 2);  // 1/4 clock period, 300ns max access time
-    data |= ETHERC->PIR & MG_BIT(3) ? 1 : 0;  // read mdio
+    data |= (uint16_t)(ETHERC->PIR & MG_BIT(3) ? 1 : 0);  // read mdio
     raspin(s_smispin / 2);                    // 1/4 clock period
     pir |= MG_BIT(0);                         // mdc = 1
     ETHERC->PIR = pir;
@@ -14757,18 +15815,12 @@ static uint16_t smi_rd(uint16_t header) {
   return data;
 }
 
-static uint16_t raeth_phy_read(uint8_t addr, uint8_t reg) {
-  return smi_rd((1 << 14) | (2 << 12) | (addr << 7) | (reg << 2) | (2 << 0));
+static uint16_t raeth_read_phy(uint8_t addr, uint8_t reg) {
+  return smi_rd((uint16_t)((1 << 14) | (2 << 12) | (addr << 7) | (reg << 2) | (2 << 0)));
 }
 
-static void raeth_phy_write(uint8_t addr, uint8_t reg, uint16_t val) {
-  smi_wr((1 << 14) | (1 << 12) | (addr << 7) | (reg << 2) | (2 << 0), val);
-}
-
-static uint32_t raeth_phy_id(uint8_t addr) {
-  uint16_t phy_id1 = raeth_phy_read(addr, MG_PHYREG_ID1);
-  uint16_t phy_id2 = raeth_phy_read(addr, MG_PHYREG_ID2);
-  return (uint32_t) phy_id1 << 16 | phy_id2;
+static void raeth_write_phy(uint8_t addr, uint8_t reg, uint16_t val) {
+  smi_wr((uint16_t)((1 << 14) | (1 << 12) | (addr << 7) | (reg << 2) | (2 << 0)), val);
 }
 
 // MDC clock is generated manually; as per 802.3, it must not exceed 2.5MHz
@@ -14804,27 +15856,8 @@ static bool mg_tcpip_driver_ra_init(struct mg_tcpip_if *ifp) {
   EDMAC->EDMR = MG_BIT(6);  // Initialize, little-endian (27.2.1)
 
   MG_DEBUG(("PHY addr: %d, smispin: %d", d->phy_addr, s_smispin));
-  raeth_phy_write(d->phy_addr, MG_PHYREG_BCR, MG_BIT(15));  // Reset PHY
-  raeth_phy_write(d->phy_addr, MG_PHYREG_BCR,
-                  MG_BIT(12));  // Set autonegotiation
-
-  // PHY: Enable ref clock (preserve defaults)
-  uint32_t id = raeth_phy_id(d->phy_addr);
-  MG_INFO(("PHY ID: %#04x %#04x", (uint16_t) (id >> 16), (uint16_t) id));
-  // 2000 a140 - TI DP83825I
-  // 0007 c0fx - LAN8720
-  // 0022 156x - KSZ8081RNB/KSZ8091RNB
-
-  if ((id & 0xffff0000) == 0x220000) {  // KSZ8091RNB, like EK-RA6Mx boards
-    // 25 MHz xtal at XI/XO (default)
-    raeth_phy_write(d->phy_addr, 31, MG_BIT(15) | MG_BIT(8));  // PC2R
-  } else if ((id & 0xffff0000) == 0x20000000) {  // DP83825I, like ???
-    // 50 MHz external at XI ???
-    raeth_phy_write(d->phy_addr, 23, 0x81);     // 50MHz clock input
-    raeth_phy_write(d->phy_addr, 24, 0x280);    // LED status, active high
-  } else {                                      // Default to LAN8720
-    MG_INFO(("Defaulting to LAN8720 PHY..."));  // TODO()
-  }
+  struct mg_phy phy = {raeth_read_phy, raeth_write_phy};
+  mg_phy_init(&phy, d->phy_addr, 0); // MAC clocks PHY
 
   // Select RMII mode,
   ETHERC->ECMR = MG_BIT(2) | MG_BIT(1);  // 100M, Full-duplex, CRC
@@ -14854,10 +15887,10 @@ static size_t mg_tcpip_driver_ra_tx(const void *buf, size_t len,
                                     struct mg_tcpip_if *ifp) {
   static int s_txno;  // Current descriptor index
   if (len > sizeof(s_txbuf[ETH_DESC_CNT])) {
-    ifp->nerr++;
     MG_ERROR(("Frame too big, %ld", (long) len));
     len = (size_t) -1;  // fail
   } else if ((s_txdesc[s_txno][0] & MG_BIT(31))) {
+    ifp->nerr++;
     MG_ERROR(("No descriptors available"));
     len = 0;  // retry later
   } else {
@@ -14873,27 +15906,17 @@ static size_t mg_tcpip_driver_ra_tx(const void *buf, size_t len,
 static bool mg_tcpip_driver_ra_up(struct mg_tcpip_if *ifp) {
   struct mg_tcpip_driver_ra_data *d =
       (struct mg_tcpip_driver_ra_data *) ifp->driver_data;
-  uint32_t bsr = raeth_phy_read(d->phy_addr, MG_PHYREG_BSR);
-  bool up = bsr & MG_BIT(2) ? 1 : 0;
+  uint8_t speed = MG_PHY_SPEED_10M;
+  bool up = false, full_duplex = false;
+  struct mg_phy phy = {raeth_read_phy, raeth_write_phy};
+  up = mg_phy_up(&phy, d->phy_addr, &full_duplex, &speed);
   if ((ifp->state == MG_TCPIP_STATE_DOWN) && up) {  // link state just went up
     // tmp = reg with flags set to the most likely situation: 100M full-duplex
     // if(link is slow or half) set flags otherwise
     // reg = tmp
     uint32_t ecmr = ETHERC->ECMR | MG_BIT(2) | MG_BIT(1);  // 100M Full-duplex
-    uint32_t phy_id = raeth_phy_id(d->phy_addr);
-    if ((phy_id & 0xffff0000) == 0x220000) {              // KSZ8091RNB
-      uint16_t pc1r = raeth_phy_read(d->phy_addr, 30);    // Read PC1R
-      if ((pc1r & 3) == 1) ecmr &= ~MG_BIT(2);            // 10M
-      if ((pc1r & MG_BIT(2)) == 0) ecmr &= ~MG_BIT(1);    // Half-duplex
-    } else if ((phy_id & 0xffff0000) == 0x20000000) {     // DP83825I
-      uint16_t physts = raeth_phy_read(d->phy_addr, 16);  // Read PHYSTS
-      if (physts & MG_BIT(1)) ecmr &= ~MG_BIT(2);         // 10M
-      if ((physts & MG_BIT(2)) == 0) ecmr &= ~MG_BIT(1);  // Half-duplex
-    } else {                                              // Default to LAN8720
-      uint16_t scsr = raeth_phy_read(d->phy_addr, 31);    // Read CSCR
-      if ((scsr & MG_BIT(3)) == 0) ecmr &= ~MG_BIT(2);    // 10M
-      if ((scsr & MG_BIT(4)) == 0) ecmr &= ~MG_BIT(1);    // Half-duplex
-    }
+    if (speed == MG_PHY_SPEED_10M) ecmr &= ~MG_BIT(2);     // 10M
+    if (full_duplex == false) ecmr &= ~MG_BIT(1);          // Half-duplex
     ETHERC->ECMR = ecmr;  // IRQ handler does not fiddle with these registers
     MG_DEBUG(("Link is %uM %s-duplex", ecmr & MG_BIT(2) ? 100 : 10,
               ecmr & MG_BIT(1) ? "full" : "half"));
@@ -14936,7 +15959,8 @@ struct mg_tcpip_driver mg_tcpip_driver_ra = {mg_tcpip_driver_ra_init,
 #endif
 
 
-#if defined(MG_ENABLE_DRIVER_SAME54) && MG_ENABLE_DRIVER_SAME54
+#if MG_ENABLE_TCPIP && defined(MG_ENABLE_DRIVER_SAME54) && MG_ENABLE_DRIVER_SAME54
+
 #include <sam.h>
 
 #define ETH_PKT_SIZE 1536  // Max frame size
@@ -15184,23 +16208,16 @@ static uint8_t s_txno;                               // Current TX descriptor
 static uint8_t s_rxno;                               // Current RX descriptor
 
 static struct mg_tcpip_if *s_ifp;  // MIP interface
-enum {
-  MG_PHYREG_BCR = 0,
-  MG_PHYREG_BSR = 1,
-  MG_PHYREG_ID1 = 2,
-  MG_PHYREG_ID2 = 3,
-  MG_PHYREG_CSCR = 31
-};
 
-static uint32_t eth_read_phy(uint8_t addr, uint8_t reg) {
+static uint16_t eth_read_phy(uint8_t addr, uint8_t reg) {
   ETH->MACMIIAR &= (7 << 2);
   ETH->MACMIIAR |= ((uint32_t) addr << 11) | ((uint32_t) reg << 6);
   ETH->MACMIIAR |= MG_BIT(0);
   while (ETH->MACMIIAR & MG_BIT(0)) (void) 0;
-  return ETH->MACMIIDR;
+  return ETH->MACMIIDR & 0xffff;
 }
 
-static void eth_write_phy(uint8_t addr, uint8_t reg, uint32_t val) {
+static void eth_write_phy(uint8_t addr, uint8_t reg, uint16_t val) {
   ETH->MACMIIDR = val;
   ETH->MACMIIAR &= (7 << 2);
   ETH->MACMIIAR |= ((uint32_t) addr << 11) | ((uint32_t) reg << 6) | MG_BIT(1);
@@ -15298,18 +16315,15 @@ static bool mg_tcpip_driver_stm32f_init(struct mg_tcpip_if *ifp) {
   ETH->MACIMR = MG_BIT(3) | MG_BIT(9);  // Mask timestamp & PMT IT
   ETH->MACFCR = MG_BIT(7);              // Disable zero quarta pause
   // ETH->MACFFR = MG_BIT(31);                            // Receive all
-  eth_write_phy(phy_addr, MG_PHYREG_BCR, MG_BIT(15));  // Reset PHY
-  eth_write_phy(phy_addr, MG_PHYREG_BCR, MG_BIT(12));  // Set autonegotiation
-  ETH->DMARDLAR = (uint32_t) (uintptr_t) s_rxdesc;     // RX descriptors
-  ETH->DMATDLAR = (uint32_t) (uintptr_t) s_txdesc;     // RX descriptors
-  ETH->DMAIER = MG_BIT(6) | MG_BIT(16);                // RIE, NISE
+  struct mg_phy phy = {eth_read_phy, eth_write_phy};
+  mg_phy_init(&phy, phy_addr, MG_PHY_CLOCKS_MAC);
+  ETH->DMARDLAR = (uint32_t) (uintptr_t) s_rxdesc;  // RX descriptors
+  ETH->DMATDLAR = (uint32_t) (uintptr_t) s_txdesc;  // RX descriptors
+  ETH->DMAIER = MG_BIT(6) | MG_BIT(16);             // RIE, NISE
   ETH->MACCR =
       MG_BIT(2) | MG_BIT(3) | MG_BIT(11) | MG_BIT(14);  // RE, TE, Duplex, Fast
   ETH->DMAOMR =
       MG_BIT(1) | MG_BIT(13) | MG_BIT(21) | MG_BIT(25);  // SR, ST, TSF, RSF
-
-  MG_DEBUG(("PHY ID: %#04hx %#04hx", eth_read_phy(phy_addr, MG_PHYREG_ID1),
-            eth_read_phy(phy_addr, MG_PHYREG_ID2)));
 
   // MAC address filtering
   ETH->MACA0HR = ((uint32_t) ifp->mac[5] << 8U) | ifp->mac[4];
@@ -15346,16 +16360,17 @@ static bool mg_tcpip_driver_stm32f_up(struct mg_tcpip_if *ifp) {
   struct mg_tcpip_driver_stm32f_data *d =
       (struct mg_tcpip_driver_stm32f_data *) ifp->driver_data;
   uint8_t phy_addr = d == NULL ? 0 : d->phy_addr;
-  uint32_t bsr = eth_read_phy(phy_addr, MG_PHYREG_BSR);
-  bool up = bsr & MG_BIT(2) ? 1 : 0;
+  uint8_t speed = MG_PHY_SPEED_10M;
+  bool up = false, full_duplex = false;
+  struct mg_phy phy = {eth_read_phy, eth_write_phy};
+  up = mg_phy_up(&phy, phy_addr, &full_duplex, &speed);
   if ((ifp->state == MG_TCPIP_STATE_DOWN) && up) {  // link state just went up
-    uint32_t scsr = eth_read_phy(phy_addr, MG_PHYREG_CSCR);
     // tmp = reg with flags set to the most likely situation: 100M full-duplex
     // if(link is slow or half) set flags otherwise
     // reg = tmp
     uint32_t maccr = ETH->MACCR | MG_BIT(14) | MG_BIT(11);  // 100M, Full-duplex
-    if ((scsr & MG_BIT(3)) == 0) maccr &= ~MG_BIT(14);      // 10M
-    if ((scsr & MG_BIT(4)) == 0) maccr &= ~MG_BIT(11);      // Half-duplex
+    if (speed == MG_PHY_SPEED_10M) maccr &= ~MG_BIT(14);    // 10M
+    if (full_duplex == false) maccr &= ~MG_BIT(11);         // Half-duplex
     ETH->MACCR = maccr;  // IRQ handler does not fiddle with this register
     MG_DEBUG(("Link is %uM %s-duplex", maccr & MG_BIT(14) ? 100 : 10,
               maccr & MG_BIT(11) ? "full" : "half"));
@@ -15445,22 +16460,16 @@ static volatile uint32_t s_txdesc[ETH_DESC_CNT][ETH_DS];  // TX descriptors
 static uint8_t s_rxbuf[ETH_DESC_CNT][ETH_PKT_SIZE];       // RX ethernet buffers
 static uint8_t s_txbuf[ETH_DESC_CNT][ETH_PKT_SIZE];       // TX ethernet buffers
 static struct mg_tcpip_if *s_ifp;                         // MIP interface
-enum {
-  MG_PHY_ADDR = 0,
-  MG_PHYREG_BCR = 0,
-  MG_PHYREG_BSR = 1,
-  MG_PHYREG_CSCR = 31
-};  // PHY constants
 
-static uint32_t eth_read_phy(uint8_t addr, uint8_t reg) {
+static uint16_t eth_read_phy(uint8_t addr, uint8_t reg) {
   ETH->MACMDIOAR &= (0xF << 8);
   ETH->MACMDIOAR |= ((uint32_t) addr << 21) | ((uint32_t) reg << 16) | 3 << 2;
   ETH->MACMDIOAR |= MG_BIT(0);
   while (ETH->MACMDIOAR & MG_BIT(0)) (void) 0;
-  return ETH->MACMDIODR;
+  return (uint16_t) ETH->MACMDIODR;
 }
 
-static void eth_write_phy(uint8_t addr, uint8_t reg, uint32_t val) {
+static void eth_write_phy(uint8_t addr, uint8_t reg, uint16_t val) {
   ETH->MACMDIODR = val;
   ETH->MACMDIOAR &= (0xF << 8);
   ETH->MACMDIOAR |= ((uint32_t) addr << 21) | ((uint32_t) reg << 16) | 1 << 2;
@@ -15548,6 +16557,8 @@ static bool mg_tcpip_driver_stm32h_init(struct mg_tcpip_if *ifp) {
   struct mg_tcpip_driver_stm32h_data *d =
       (struct mg_tcpip_driver_stm32h_data *) ifp->driver_data;
   s_ifp = ifp;
+  uint8_t phy_addr = d == NULL ? 0 : d->phy_addr;
+  uint8_t phy_conf = d == NULL ? MG_PHY_CLOCKS_MAC : d->phy_conf;
 
   // Init RX descriptors
   for (int i = 0; i < ETH_DESC_CNT; i++) {
@@ -15574,9 +16585,8 @@ static bool mg_tcpip_driver_stm32h_init(struct mg_tcpip_if *ifp) {
   ETH->MACIER = 0;  // Do not enable additional irq sources (reset value)
   ETH->MACTFCR = MG_BIT(7);  // Disable zero-quanta pause
   // ETH->MACPFR = MG_BIT(31);  // Receive all
-  eth_write_phy(MG_PHY_ADDR, MG_PHYREG_BCR, MG_BIT(15));  // Reset PHY
-  eth_write_phy(MG_PHY_ADDR, MG_PHYREG_BCR,
-                MG_BIT(12));  // Set autonegotiation
+  struct mg_phy phy = {eth_read_phy, eth_write_phy};
+  mg_phy_init(&phy, phy_addr, phy_conf);
   ETH->DMACRDLAR =
       (uint32_t) (uintptr_t) s_rxdesc;  // RX descriptors start address
   ETH->DMACRDRLR = ETH_DESC_CNT - 1;    // ring length
@@ -15631,16 +16641,20 @@ static size_t mg_tcpip_driver_stm32h_tx(const void *buf, size_t len,
 }
 
 static bool mg_tcpip_driver_stm32h_up(struct mg_tcpip_if *ifp) {
-  uint32_t bsr = eth_read_phy(MG_PHY_ADDR, MG_PHYREG_BSR);
-  bool up = bsr & MG_BIT(2) ? 1 : 0;
+  struct mg_tcpip_driver_stm32h_data *d =
+      (struct mg_tcpip_driver_stm32h_data *) ifp->driver_data;
+  uint8_t phy_addr = d == NULL ? 0 : d->phy_addr;
+  uint8_t speed = MG_PHY_SPEED_10M;
+  bool up = false, full_duplex = false;
+  struct mg_phy phy = {eth_read_phy, eth_write_phy};
+  up = mg_phy_up(&phy, phy_addr, &full_duplex, &speed);
   if ((ifp->state == MG_TCPIP_STATE_DOWN) && up) {  // link state just went up
-    uint32_t scsr = eth_read_phy(MG_PHY_ADDR, MG_PHYREG_CSCR);
     // tmp = reg with flags set to the most likely situation: 100M full-duplex
     // if(link is slow or half) set flags otherwise
     // reg = tmp
     uint32_t maccr = ETH->MACCR | MG_BIT(14) | MG_BIT(13);  // 100M, Full-duplex
-    if ((scsr & MG_BIT(3)) == 0) maccr &= ~MG_BIT(14);      // 10M
-    if ((scsr & MG_BIT(4)) == 0) maccr &= ~MG_BIT(13);      // Half-duplex
+    if (speed == MG_PHY_SPEED_10M) maccr &= ~MG_BIT(14);    // 10M
+    if (full_duplex == false) maccr &= ~MG_BIT(13);         // Half-duplex
     ETH->MACCR = maccr;  // IRQ handler does not fiddle with this register
     MG_DEBUG(("Link is %uM %s-duplex", maccr & MG_BIT(14) ? 100 : 10,
               maccr & MG_BIT(13) ? "full" : "half"));
@@ -15939,7 +16953,7 @@ struct mg_tcpip_driver mg_tcpip_driver_tm4c = {mg_tcpip_driver_tm4c_init,
 #endif
 
 
-#if MG_ENABLE_TCPIP
+#if MG_ENABLE_TCPIP && defined(MG_ENABLE_DRIVER_W5500) && MG_ENABLE_DRIVER_W5500
 
 enum { W5500_CR = 0, W5500_S0 = 1, W5500_TX0 = 2, W5500_RX0 = 3 };
 
@@ -16028,4 +17042,454 @@ static bool w5500_up(struct mg_tcpip_if *ifp) {
 
 struct mg_tcpip_driver mg_tcpip_driver_w5500 = {w5500_init, w5500_tx, w5500_rx,
                                                 w5500_up};
+#endif
+
+#ifdef MG_ENABLE_LINES
+#line 1 "src/drivers/xmc.c"
+#endif
+
+
+#if MG_ENABLE_TCPIP && defined(MG_ENABLE_DRIVER_XMC) && MG_ENABLE_DRIVER_XMC
+
+struct ETH_GLOBAL_TypeDef {
+  volatile uint32_t MAC_CONFIGURATION, MAC_FRAME_FILTER, HASH_TABLE_HIGH,
+  HASH_TABLE_LOW, GMII_ADDRESS, GMII_DATA, FLOW_CONTROL, VLAN_TAG, VERSION,
+  DEBUG, REMOTE_WAKE_UP_FRAME_FILTER, PMT_CONTROL_STATUS, RESERVED[2],
+  INTERRUPT_STATUS, INTERRUPT_MASK, MAC_ADDRESS0_HIGH, MAC_ADDRESS0_LOW,
+  MAC_ADDRESS1_HIGH, MAC_ADDRESS1_LOW, MAC_ADDRESS2_HIGH, MAC_ADDRESS2_LOW,
+  MAC_ADDRESS3_HIGH, MAC_ADDRESS3_LOW, RESERVED1[40], MMC_CONTROL,
+  MMC_RECEIVE_INTERRUPT, MMC_TRANSMIT_INTERRUPT, MMC_RECEIVE_INTERRUPT_MASK,
+  MMC_TRANSMIT_INTERRUPT_MASK, TX_STATISTICS[26], RESERVED2,
+  RX_STATISTICS_1[26], RESERVED3[6], MMC_IPC_RECEIVE_INTERRUPT_MASK,
+  RESERVED4, MMC_IPC_RECEIVE_INTERRUPT, RESERVED5, RX_STATISTICS_2[30],
+  RESERVED7[286], TIMESTAMP_CONTROL, SUB_SECOND_INCREMENT,
+  SYSTEM_TIME_SECONDS, SYSTEM_TIME_NANOSECONDS,
+  SYSTEM_TIME_SECONDS_UPDATE, SYSTEM_TIME_NANOSECONDS_UPDATE,
+  TIMESTAMP_ADDEND, TARGET_TIME_SECONDS, TARGET_TIME_NANOSECONDS,
+  SYSTEM_TIME_HIGHER_WORD_SECONDS, TIMESTAMP_STATUS,
+  PPS_CONTROL, RESERVED8[564], BUS_MODE, TRANSMIT_POLL_DEMAND,
+  RECEIVE_POLL_DEMAND, RECEIVE_DESCRIPTOR_LIST_ADDRESS,
+  TRANSMIT_DESCRIPTOR_LIST_ADDRESS, STATUS, OPERATION_MODE,
+  INTERRUPT_ENABLE, MISSED_FRAME_AND_BUFFER_OVERFLOW_COUNTER,
+  RECEIVE_INTERRUPT_WATCHDOG_TIMER, RESERVED9, AHB_STATUS,
+  RESERVED10[6], CURRENT_HOST_TRANSMIT_DESCRIPTOR,
+  CURRENT_HOST_RECEIVE_DESCRIPTOR, CURRENT_HOST_TRANSMIT_BUFFER_ADDRESS,
+  CURRENT_HOST_RECEIVE_BUFFER_ADDRESS, HW_FEATURE;
+};
+
+#undef ETH0
+#define ETH0  ((struct ETH_GLOBAL_TypeDef*) 0x5000C000UL)
+
+#define ETH_PKT_SIZE 1536 // Max frame size
+#define ETH_DESC_CNT 4     // Descriptors count
+#define ETH_DS 4           // Descriptor size (words)
+
+static uint8_t s_rxbuf[ETH_DESC_CNT][ETH_PKT_SIZE];
+static uint8_t s_txbuf[ETH_DESC_CNT][ETH_PKT_SIZE];
+static uint32_t s_rxdesc[ETH_DESC_CNT][ETH_DS];  // RX descriptors
+static uint32_t s_txdesc[ETH_DESC_CNT][ETH_DS];  // TX descriptors
+static uint8_t s_txno;                           // Current TX descriptor
+static uint8_t s_rxno;                           // Current RX descriptor
+
+static struct mg_tcpip_if *s_ifp;  // MIP interface
+enum { MG_PHY_ADDR = 0, MG_PHYREG_BCR = 0, MG_PHYREG_BSR = 1 };
+
+static uint16_t eth_read_phy(uint8_t addr, uint8_t reg) {
+  ETH0->GMII_ADDRESS = (ETH0->GMII_ADDRESS & 0x3c) |
+                        ((uint32_t)addr << 11) |
+                        ((uint32_t)reg << 6) | 1;
+  while ((ETH0->GMII_ADDRESS & 1) != 0) (void) 0;
+  return (uint16_t)(ETH0->GMII_DATA & 0xffff);
+}
+
+static void eth_write_phy(uint8_t addr, uint8_t reg, uint16_t val) {
+  ETH0->GMII_DATA  = val;
+  ETH0->GMII_ADDRESS = (ETH0->GMII_ADDRESS & 0x3c) |
+                        ((uint32_t)addr << 11) |
+                        ((uint32_t)reg << 6) | 3;
+  while ((ETH0->GMII_ADDRESS & 1) != 0) (void) 0;
+}
+
+static uint32_t get_clock_rate(struct mg_tcpip_driver_xmc_data *d) {
+  if (d->mdc_cr == -1) {
+    // assume ETH clock is 60MHz by default
+    // then according to 13.2.8.1, we need to set value 3
+    return 3;
+  }
+
+  return d->mdc_cr;
+}
+
+static bool mg_tcpip_driver_xmc_init(struct mg_tcpip_if *ifp) {
+  struct mg_tcpip_driver_xmc_data *d =
+      (struct mg_tcpip_driver_xmc_data *) ifp->driver_data;
+  s_ifp = ifp;
+
+  // reset MAC
+  ETH0->BUS_MODE |= 1;
+  while (ETH0->BUS_MODE & 1) (void) 0;
+
+  // set clock rate
+  ETH0->GMII_ADDRESS = get_clock_rate(d) << 2;
+
+  // init phy
+  struct mg_phy phy = {eth_read_phy, eth_write_phy};
+  mg_phy_init(&phy, d->phy_addr, MG_PHY_CLOCKS_MAC);
+
+  // configure MAC: DO, DM, FES, TC
+  ETH0->MAC_CONFIGURATION = MG_BIT(13) | MG_BIT(11) | MG_BIT(14) | MG_BIT(24);
+
+  // set the MAC address
+  ETH0->MAC_ADDRESS0_HIGH = MG_U32(0, 0, ifp->mac[5], ifp->mac[4]);
+  ETH0->MAC_ADDRESS0_LOW = 
+        MG_U32(ifp->mac[3], ifp->mac[2], ifp->mac[1], ifp->mac[0]);
+
+  // Configure the receive filter
+  ETH0->MAC_FRAME_FILTER = MG_BIT(10) | MG_BIT(2); // HFP, HMC
+  // Disable flow control
+  ETH0->FLOW_CONTROL = 0;
+  // Enable store and forward mode
+  ETH0->OPERATION_MODE = MG_BIT(25) | MG_BIT(21); // RSF, TSF
+
+  // Configure DMA bus mode (AAL, USP, RPBL, PBL)
+  ETH0->BUS_MODE = MG_BIT(25) | MG_BIT(23) | (32 << 17) |  (32 << 8);
+
+  // init RX descriptors
+  for (int i = 0; i < ETH_DESC_CNT; i++) {
+    s_rxdesc[i][0] = MG_BIT(31); // OWN descriptor
+    s_rxdesc[i][1] = MG_BIT(14) | ETH_PKT_SIZE;
+    s_rxdesc[i][2] = (uint32_t) s_rxbuf[i];
+    if (i == ETH_DESC_CNT - 1) {
+      s_rxdesc[i][3] = (uint32_t) &s_rxdesc[0][0];
+    } else {
+      s_rxdesc[i][3] = (uint32_t) &s_rxdesc[i + 1][0];
+    }
+  }
+  ETH0->RECEIVE_DESCRIPTOR_LIST_ADDRESS = (uint32_t) &s_rxdesc[0][0];
+
+  // init TX descriptors
+  for (int i = 0; i < ETH_DESC_CNT; i++) {
+    s_txdesc[i][0] = MG_BIT(30) | MG_BIT(20);
+    s_txdesc[i][2] = (uint32_t) s_txbuf[i];
+    if (i == ETH_DESC_CNT - 1) {
+      s_txdesc[i][3] = (uint32_t) &s_txdesc[0][0];
+    } else {
+      s_txdesc[i][3] = (uint32_t) &s_txdesc[i + 1][0];
+    }
+  }
+  ETH0->TRANSMIT_DESCRIPTOR_LIST_ADDRESS = (uint32_t) &s_txdesc[0][0];
+
+  // Clear interrupts
+  ETH0->STATUS = 0xFFFFFFFF;
+
+  // Disable MAC interrupts
+  ETH0->MMC_TRANSMIT_INTERRUPT_MASK = 0xFFFFFFFF;
+  ETH0->MMC_RECEIVE_INTERRUPT_MASK = 0xFFFFFFFF;
+  ETH0->MMC_IPC_RECEIVE_INTERRUPT_MASK = 0xFFFFFFFF;
+  ETH0->INTERRUPT_MASK = MG_BIT(9) | MG_BIT(3); // TSIM, PMTIM
+
+  //Enable interrupts (NIE, RIE, TIE)
+  ETH0->INTERRUPT_ENABLE = MG_BIT(16) | MG_BIT(6) | MG_BIT(0);
+
+  // Enable MAC transmission and reception (TE, RE)
+  ETH0->MAC_CONFIGURATION |= MG_BIT(3) | MG_BIT(2);
+  // Enable DMA transmission and reception (ST, SR)
+  ETH0->OPERATION_MODE |= MG_BIT(13) | MG_BIT(1);
+  return true;
+}
+
+static size_t mg_tcpip_driver_xmc_tx(const void *buf, size_t len,
+                                        struct mg_tcpip_if *ifp) {
+  if (len > sizeof(s_txbuf[s_txno])) {
+    MG_ERROR(("Frame too big, %ld", (long) len));
+    len = 0;  // Frame is too big
+  } else if ((s_txdesc[s_txno][0] & MG_BIT(31))) {
+    ifp->nerr++;
+    MG_ERROR(("No free descriptors"));
+    len = 0;  // All descriptors are busy, fail
+  } else {
+    memcpy(s_txbuf[s_txno], buf, len);
+    s_txdesc[s_txno][1] = len;
+    // Table 13-19 Transmit Descriptor Word 0 (IC, LS, FS, TCH)
+    s_txdesc[s_txno][0] = MG_BIT(30) | MG_BIT(29) | MG_BIT(28) | MG_BIT(20);
+    s_txdesc[s_txno][0] |= MG_BIT(31);  // OWN bit: handle control to DMA
+    if (++s_txno >= ETH_DESC_CNT) s_txno = 0;
+  }
+
+  // Resume processing
+  ETH0->STATUS = MG_BIT(2); // clear Transmit unavailable
+  ETH0->TRANSMIT_POLL_DEMAND = 0;
+  return len;
+}
+
+static bool mg_tcpip_driver_xmc_up(struct mg_tcpip_if *ifp) {
+  struct mg_tcpip_driver_xmc_data *d =
+      (struct mg_tcpip_driver_xmc_data *) ifp->driver_data;
+  uint8_t speed = MG_PHY_SPEED_10M;
+  bool up = false, full_duplex = false;
+  struct mg_phy phy = {eth_read_phy, eth_write_phy};
+  up = mg_phy_up(&phy, d->phy_addr, &full_duplex, &speed);
+  if ((ifp->state == MG_TCPIP_STATE_DOWN) && up) {  // link state just went up
+    MG_DEBUG(("Link is %uM %s-duplex", speed == MG_PHY_SPEED_10M ? 10 : 100,
+              full_duplex ? "full" : "half"));
+  }
+  return up;
+}
+
+void ETH0_IRQHandler(void);
+void ETH0_IRQHandler(void) {
+  uint32_t irq_status = ETH0->STATUS;
+
+  // check if a frame was received
+  if (irq_status & MG_BIT(6)) {
+    for (uint8_t i = 0; i < ETH_DESC_CNT; i++) {
+      if ((s_rxdesc[s_rxno][0] & MG_BIT(31)) == 0) {
+        size_t len = (s_rxdesc[s_rxno][0] & 0x3fff0000) >> 16;
+        mg_tcpip_qwrite(s_rxbuf[s_rxno], len, s_ifp);
+        s_rxdesc[s_rxno][0] = MG_BIT(31);   // OWN bit: handle control to DMA
+        // Resume processing
+        ETH0->STATUS = MG_BIT(7) | MG_BIT(6); // clear RU and RI
+        ETH0->RECEIVE_POLL_DEMAND = 0;
+        if (++s_rxno >= ETH_DESC_CNT) s_rxno = 0;
+      }
+    }
+    ETH0->STATUS = MG_BIT(6);
+  }
+
+  // clear Successful transmission interrupt
+  if (irq_status & 1) {
+    ETH0->STATUS = 1;
+  }
+
+  // clear normal interrupt
+  if (irq_status & MG_BIT(16)) {
+    ETH0->STATUS = MG_BIT(16);
+  }
+}
+
+struct mg_tcpip_driver mg_tcpip_driver_xmc = {
+    mg_tcpip_driver_xmc_init, mg_tcpip_driver_xmc_tx, NULL,
+    mg_tcpip_driver_xmc_up};
+#endif
+
+#ifdef MG_ENABLE_LINES
+#line 1 "src/drivers/xmc7.c"
+#endif
+
+
+#if MG_ENABLE_TCPIP && defined(MG_ENABLE_DRIVER_XMC7) && MG_ENABLE_DRIVER_XMC7
+
+struct ETH_Type {
+  volatile uint32_t CTL, STATUS, RESERVED[1022], NETWORK_CONTROL,
+      NETWORK_CONFIG, NETWORK_STATUS, USER_IO_REGISTER, DMA_CONFIG,
+      TRANSMIT_STATUS, RECEIVE_Q_PTR, TRANSMIT_Q_PTR, RECEIVE_STATUS,
+      INT_STATUS, INT_ENABLE, INT_DISABLE, INT_MASK, PHY_MANAGEMENT, PAUSE_TIME,
+      TX_PAUSE_QUANTUM, PBUF_TXCUTTHRU, PBUF_RXCUTTHRU, JUMBO_MAX_LENGTH,
+      EXTERNAL_FIFO_INTERFACE, RESERVED1, AXI_MAX_PIPELINE, RSC_CONTROL,
+      INT_MODERATION, SYS_WAKE_TIME, RESERVED2[7], HASH_BOTTOM, HASH_TOP,
+      SPEC_ADD1_BOTTOM, SPEC_ADD1_TOP, SPEC_ADD2_BOTTOM, SPEC_ADD2_TOP,
+      SPEC_ADD3_BOTTOM, SPEC_ADD3_TOP, SPEC_ADD4_BOTTOM, SPEC_ADD4_TOP,
+      SPEC_TYPE1, SPEC_TYPE2, SPEC_TYPE3, SPEC_TYPE4, WOL_REGISTER,
+      STRETCH_RATIO, STACKED_VLAN, TX_PFC_PAUSE, MASK_ADD1_BOTTOM,
+      MASK_ADD1_TOP, DMA_ADDR_OR_MASK, RX_PTP_UNICAST, TX_PTP_UNICAST,
+      TSU_NSEC_CMP, TSU_SEC_CMP, TSU_MSB_SEC_CMP, TSU_PTP_TX_MSB_SEC,
+      TSU_PTP_RX_MSB_SEC, TSU_PEER_TX_MSB_SEC, TSU_PEER_RX_MSB_SEC,
+      DPRAM_FILL_DBG, REVISION_REG, OCTETS_TXED_BOTTOM, OCTETS_TXED_TOP,
+      FRAMES_TXED_OK, BROADCAST_TXED, MULTICAST_TXED, PAUSE_FRAMES_TXED,
+      FRAMES_TXED_64, FRAMES_TXED_65, FRAMES_TXED_128, FRAMES_TXED_256,
+      FRAMES_TXED_512, FRAMES_TXED_1024, FRAMES_TXED_1519, TX_UNDERRUNS,
+      SINGLE_COLLISIONS, MULTIPLE_COLLISIONS, EXCESSIVE_COLLISIONS,
+      LATE_COLLISIONS, DEFERRED_FRAMES, CRS_ERRORS, OCTETS_RXED_BOTTOM,
+      OCTETS_RXED_TOP, FRAMES_RXED_OK, BROADCAST_RXED, MULTICAST_RXED,
+      PAUSE_FRAMES_RXED, FRAMES_RXED_64, FRAMES_RXED_65, FRAMES_RXED_128,
+      FRAMES_RXED_256, FRAMES_RXED_512, FRAMES_RXED_1024, FRAMES_RXED_1519,
+      UNDERSIZE_FRAMES, EXCESSIVE_RX_LENGTH, RX_JABBERS, FCS_ERRORS,
+      RX_LENGTH_ERRORS, RX_SYMBOL_ERRORS, ALIGNMENT_ERRORS, RX_RESOURCE_ERRORS,
+      RX_OVERRUNS, RX_IP_CK_ERRORS, RX_TCP_CK_ERRORS, RX_UDP_CK_ERRORS,
+      AUTO_FLUSHED_PKTS, RESERVED3, TSU_TIMER_INCR_SUB_NSEC, TSU_TIMER_MSB_SEC,
+      TSU_STROBE_MSB_SEC, TSU_STROBE_SEC, TSU_STROBE_NSEC, TSU_TIMER_SEC,
+      TSU_TIMER_NSEC, TSU_TIMER_ADJUST, TSU_TIMER_INCR, TSU_PTP_TX_SEC,
+      TSU_PTP_TX_NSEC, TSU_PTP_RX_SEC, TSU_PTP_RX_NSEC, TSU_PEER_TX_SEC,
+      TSU_PEER_TX_NSEC, TSU_PEER_RX_SEC, TSU_PEER_RX_NSEC, PCS_CONTROL,
+      PCS_STATUS, RESERVED4[2], PCS_AN_ADV, PCS_AN_LP_BASE, PCS_AN_EXP,
+      PCS_AN_NP_TX, PCS_AN_LP_NP, RESERVED5[6], PCS_AN_EXT_STATUS, RESERVED6[8],
+      TX_PAUSE_QUANTUM1, TX_PAUSE_QUANTUM2, TX_PAUSE_QUANTUM3, RESERVED7,
+      RX_LPI, RX_LPI_TIME, TX_LPI, TX_LPI_TIME, DESIGNCFG_DEBUG1,
+      DESIGNCFG_DEBUG2, DESIGNCFG_DEBUG3, DESIGNCFG_DEBUG4, DESIGNCFG_DEBUG5,
+      DESIGNCFG_DEBUG6, DESIGNCFG_DEBUG7, DESIGNCFG_DEBUG8, DESIGNCFG_DEBUG9,
+      DESIGNCFG_DEBUG10, RESERVED8[22], SPEC_ADD5_BOTTOM, SPEC_ADD5_TOP,
+      RESERVED9[60], SPEC_ADD36_BOTTOM, SPEC_ADD36_TOP, INT_Q1_STATUS,
+      INT_Q2_STATUS, INT_Q3_STATUS, RESERVED10[11], INT_Q15_STATUS, RESERVED11,
+      TRANSMIT_Q1_PTR, TRANSMIT_Q2_PTR, TRANSMIT_Q3_PTR, RESERVED12[11],
+      TRANSMIT_Q15_PTR, RESERVED13, RECEIVE_Q1_PTR, RECEIVE_Q2_PTR,
+      RECEIVE_Q3_PTR, RESERVED14[3], RECEIVE_Q7_PTR, RESERVED15,
+      DMA_RXBUF_SIZE_Q1, DMA_RXBUF_SIZE_Q2, DMA_RXBUF_SIZE_Q3, RESERVED16[3],
+      DMA_RXBUF_SIZE_Q7, CBS_CONTROL, CBS_IDLESLOPE_Q_A, CBS_IDLESLOPE_Q_B,
+      UPPER_TX_Q_BASE_ADDR, TX_BD_CONTROL, RX_BD_CONTROL, UPPER_RX_Q_BASE_ADDR,
+      RESERVED17[2], HIDDEN_REG0, HIDDEN_REG1, HIDDEN_REG2, HIDDEN_REG3,
+      RESERVED18[2], HIDDEN_REG4, HIDDEN_REG5;
+};
+
+#define ETH0 ((struct ETH_Type *) 0x40490000)
+
+#define ETH_PKT_SIZE 1536  // Max frame size
+#define ETH_DESC_CNT 4     // Descriptors count
+#define ETH_DS 2           // Descriptor size (words)
+
+static uint8_t s_rxbuf[ETH_DESC_CNT][ETH_PKT_SIZE];
+static uint8_t s_txbuf[ETH_DESC_CNT][ETH_PKT_SIZE];
+static uint32_t s_rxdesc[ETH_DESC_CNT][ETH_DS];  // RX descriptors
+static uint32_t s_txdesc[ETH_DESC_CNT][ETH_DS];  // TX descriptors
+static uint8_t s_txno;                           // Current TX descriptor
+static uint8_t s_rxno;                           // Current RX descriptor
+
+static struct mg_tcpip_if *s_ifp;  // MIP interface
+enum { MG_PHY_ADDR = 0, MG_PHYREG_BCR = 0, MG_PHYREG_BSR = 1 };
+
+static uint16_t eth_read_phy(uint8_t addr, uint8_t reg) {
+  // WRITE1, READ OPERATION, PHY, REG, WRITE10
+  ETH0->PHY_MANAGEMENT = MG_BIT(30) | MG_BIT(29) | ((addr & 0xf) << 24) |
+                         ((reg & 0x1f) << 18) | MG_BIT(17);
+  while ((ETH0->NETWORK_STATUS & MG_BIT(2)) == 0) (void) 0;
+  return ETH0->PHY_MANAGEMENT & 0xffff;
+}
+
+static void eth_write_phy(uint8_t addr, uint8_t reg, uint16_t val) {
+  ETH0->PHY_MANAGEMENT = MG_BIT(30) | MG_BIT(28) | ((addr & 0xf) << 24) |
+                         ((reg & 0x1f) << 18) | MG_BIT(17) | val;
+  while ((ETH0->NETWORK_STATUS & MG_BIT(2)) == 0) (void) 0;
+}
+
+static uint32_t get_clock_rate(struct mg_tcpip_driver_xmc7_data *d) {
+  // see ETH0 -> NETWORK_CONFIG register
+  (void) d;
+  return 3;
+}
+
+static bool mg_tcpip_driver_xmc7_init(struct mg_tcpip_if *ifp) {
+  struct mg_tcpip_driver_xmc7_data *d =
+      (struct mg_tcpip_driver_xmc7_data *) ifp->driver_data;
+  s_ifp = ifp;
+
+  // enable controller, set RGMII mode
+  ETH0->CTL = MG_BIT(31) | 2;
+
+  uint32_t cr = get_clock_rate(d);
+  // set NSP change, ignore RX FCS, data bus width, clock rate, Gigabit mode,
+  // frame length 1536, full duplex, speed
+  // TODO: enable Gigabit mode (bit 10) only if PHY uses Gigabit link
+  ETH0->NETWORK_CONFIG = MG_BIT(29) | MG_BIT(26) | MG_BIT(21) |
+                         ((cr & 7) << 18) | MG_BIT(10) | MG_BIT(8) | MG_BIT(4) |
+                         MG_BIT(1) | MG_BIT(0);
+
+  // config DMA settings: Force TX burst, Discard on Error, set RX buffer size
+  // to 1536, TX_PBUF_SIZE, RX_PBUF_SIZE, AMBA_BURST_LENGTH
+  ETH0->DMA_CONFIG =
+      MG_BIT(26) | MG_BIT(24) | (0x18 << 16) | MG_BIT(10) | (3 << 8) | 4;
+
+  // initialize descriptors
+  for (int i = 0; i < ETH_DESC_CNT; i++) {
+    s_rxdesc[i][0] = (uint32_t) s_rxbuf[i];
+    if (i == ETH_DESC_CNT - 1) {
+      s_rxdesc[i][0] |= MG_BIT(1);  // mark last descriptor
+    }
+
+    s_txdesc[i][0] = (uint32_t) s_txbuf[i];
+    s_txdesc[i][1] = MG_BIT(31);  // OWN descriptor
+    if (i == ETH_DESC_CNT - 1) {
+      s_txdesc[i][1] |= MG_BIT(30);  // mark last descriptor
+    }
+  }
+  ETH0->RECEIVE_Q_PTR = (uint32_t) s_rxdesc;
+  ETH0->TRANSMIT_Q_PTR = (uint32_t) s_txdesc;
+
+  // disable other queues
+  ETH0->TRANSMIT_Q2_PTR = 1;
+  ETH0->TRANSMIT_Q1_PTR = 1;
+  ETH0->RECEIVE_Q2_PTR = 1;
+  ETH0->RECEIVE_Q1_PTR = 1;
+
+  // enable interrupts (TX and RX complete)
+  ETH0->INT_ENABLE = MG_BIT(7) | MG_BIT(1);
+
+  // set MAC address
+  ETH0->SPEC_ADD1_BOTTOM =
+      ifp->mac[3] << 24 | ifp->mac[2] << 16 | ifp->mac[1] << 8 | ifp->mac[0];
+  ETH0->SPEC_ADD1_TOP = ifp->mac[5] << 8 | ifp->mac[4];
+
+  // enable MDIO, TX, RX
+  ETH0->NETWORK_CONTROL = MG_BIT(4) | MG_BIT(3) | MG_BIT(2);
+
+  // start transmission
+  ETH0->NETWORK_CONTROL |= MG_BIT(9);
+
+  // init phy
+  struct mg_phy phy = {eth_read_phy, eth_write_phy};
+  mg_phy_init(&phy, d->phy_addr, MG_PHY_CLOCKS_MAC);
+
+  (void) d;
+  return true;
+}
+
+static size_t mg_tcpip_driver_xmc7_tx(const void *buf, size_t len,
+                                      struct mg_tcpip_if *ifp) {
+  if (len > sizeof(s_txbuf[s_txno])) {
+    MG_ERROR(("Frame too big, %ld", (long) len));
+    len = 0;  // Frame is too big
+  } else if (((s_txdesc[s_txno][1] & MG_BIT(31)) == 0)) {
+    ifp->nerr++;
+    MG_ERROR(("No free descriptors"));
+    len = 0;  // All descriptors are busy, fail
+  } else {
+    memcpy(s_txbuf[s_txno], buf, len);
+    s_txdesc[s_txno][1] = (s_txno == ETH_DESC_CNT - 1 ? MG_BIT(30) : 0) |
+                          MG_BIT(15) | len;  // Last buffer and length
+
+    ETH0->NETWORK_CONTROL |= MG_BIT(9);  // enable transmission
+    if (++s_txno >= ETH_DESC_CNT) s_txno = 0;
+  }
+
+  MG_DSB();
+  ETH0->TRANSMIT_STATUS = ETH0->TRANSMIT_STATUS;
+
+  return len;
+}
+
+static bool mg_tcpip_driver_xmc7_up(struct mg_tcpip_if *ifp) {
+  struct mg_tcpip_driver_xmc7_data *d =
+      (struct mg_tcpip_driver_xmc7_data *) ifp->driver_data;
+  uint8_t speed = MG_PHY_SPEED_10M;
+  bool up = false, full_duplex = false;
+  struct mg_phy phy = {eth_read_phy, eth_write_phy};
+  up = mg_phy_up(&phy, d->phy_addr, &full_duplex, &speed);
+  if ((ifp->state == MG_TCPIP_STATE_DOWN) && up) {  // link state just went up
+    MG_DEBUG(("Link is %uM %s-duplex",
+              speed == MG_PHY_SPEED_10M ? 10 : 
+              (speed == MG_PHY_SPEED_100M ? 100 : 1000),
+              full_duplex ? "full" : "half"));
+  }
+  (void) d;
+  return up;
+}
+
+void ETH_IRQHandler(void) {
+  uint32_t irq_status = ETH0->INT_STATUS;
+  if (irq_status & MG_BIT(1)) {
+    for (uint8_t i = 0; i < ETH_DESC_CNT; i++) {
+      if (s_rxdesc[s_rxno][0] & MG_BIT(0)) {
+        size_t len = s_rxdesc[s_rxno][1] & (MG_BIT(13) - 1);
+        //MG_INFO(("Receive complete: %ld bytes", len));
+        mg_tcpip_qwrite(s_rxbuf[s_rxno], len, s_ifp);
+        s_rxdesc[s_rxno][0] &= ~MG_BIT(0);  // OWN bit: handle control to DMA
+        if (++s_rxno >= ETH_DESC_CNT) s_rxno = 0;
+      }
+    }
+  }
+
+  ETH0->INT_STATUS = irq_status;
+}
+
+struct mg_tcpip_driver mg_tcpip_driver_xmc7 = {mg_tcpip_driver_xmc7_init,
+                                               mg_tcpip_driver_xmc7_tx, NULL,
+                                               mg_tcpip_driver_xmc7_up};
 #endif

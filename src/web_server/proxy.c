@@ -40,11 +40,11 @@ bool is_allowed_proxy_uri(const char *uri) {
     const char **p = NULL;
     for (p = allowed_proxy_hosts; *p != NULL; p++) {
         if (mg_vcmp(&host, *p) == 0) {
-            MYMPD_LOG_DEBUG(NULL, "Host \"%.*s\" is on whitelist", (int)host.len, host.ptr);
+            MYMPD_LOG_DEBUG(NULL, "Host \"%.*s\" is on whitelist", (int)host.len, host.buf);
             return true;
         }
     }
-    MYMPD_LOG_WARN(NULL, "Host \"%.*s\" is not on whitelist", (int)host.len, host.ptr);
+    MYMPD_LOG_WARN(NULL, "Host \"%.*s\" is not on whitelist", (int)host.len, host.buf);
     return false;
 }
 
@@ -88,7 +88,7 @@ void send_backend_request(struct mg_connection *nc) {
     struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)nc->fn_data;
     mg_user_data->connection_count++;
     struct mg_str host = mg_url_host(backend_nc_data->uri);
-    MYMPD_LOG_INFO(NULL, "Backend connection \"%lu\" established, host \"%.*s\"", nc->id, (int)host.len, host.ptr);
+    MYMPD_LOG_INFO(NULL, "Backend connection \"%lu\" established, host \"%.*s\"", nc->id, (int)host.len, host.buf);
     if (mg_url_is_ssl(backend_nc_data->uri)) {
         struct mg_tls_opts tls_opts = {
             .name = host
@@ -102,7 +102,7 @@ void send_backend_request(struct mg_connection *nc) {
         "Connection: close\r\n"
         "\r\n",
         mg_url_uri(backend_nc_data->uri),
-        (int)host.len, host.ptr
+        (int)host.len, host.buf
     );
     MYMPD_LOG_DEBUG(NULL, "Sending GET %s HTTP/1.1 to backend connection \"%lu\"", mg_url_uri(backend_nc_data->uri), nc->id);
 }
@@ -211,7 +211,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
             if (hm->body.len > 0 &&
                 response_code == 200)
             {
-                sds binary = sdsnewlen(hm->body.ptr, hm->body.len);
+                sds binary = sdsnewlen(hm->body.buf, hm->body.len);
                 const char *mime_type = get_mime_type_by_magic_stream(binary);
                 struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
                 struct t_config *config = mg_user_data->config;
@@ -225,7 +225,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                     "Content-Type: %s\r\n",
                     EXTRA_HEADERS_IMAGE,
                     mime_type);
-                webserver_send_data(backend_nc_data->frontend_nc, hm->body.ptr, hm->body.len, headers);
+                webserver_send_data(backend_nc_data->frontend_nc, hm->body.buf, hm->body.len, headers);
                 FREE_SDS(headers);
             }
             else {

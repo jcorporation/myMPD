@@ -594,7 +594,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 sent = mg_ws_send(nc, "ok", 2, WEBSOCKET_OP_TEXT);
             }
             else {
-                MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
+                MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.buf);
                 MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid Websocket message");
                 sent = mg_ws_send(nc, "invalid", 7, WEBSOCKET_OP_TEXT);
             }
@@ -610,12 +610,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             if (hm->query.len > 0) {
-                MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s?%.*s", nc->id, (int)hm->method.len, hm->method.ptr,
-                    (int)hm->uri.len, hm->uri.ptr, (int)hm->query.len, hm->query.ptr);
+                MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s?%.*s", nc->id, (int)hm->method.len, hm->method.buf,
+                    (int)hm->uri.len, hm->uri.buf, (int)hm->query.len, hm->query.buf);
             }
             else {
-                MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr,
-                    (int)hm->uri.len, hm->uri.ptr);
+                MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.buf,
+                    (int)hm->uri.len, hm->uri.buf);
             }
             //limit allowed http methods
             if (mg_vcmp(&hm->method, "GET") == 0) {
@@ -633,7 +633,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 return;
             }
             else {
-                MYMPD_LOG_ERROR(NULL, "Invalid http method \"%.*s\" (%lu)", (int)hm->method.len, hm->method.ptr, nc->id);
+                MYMPD_LOG_ERROR(NULL, "Invalid http method \"%.*s\" (%lu)", (int)hm->method.len, hm->method.buf, nc->id);
                 webserver_send_error(nc, 405, "Invalid http method");
                 nc->is_draining = 1;
                 return;
@@ -663,7 +663,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
             }
             //handle uris
-            if (mg_http_match_uri(hm, "/api/*") == true) {
+            if (mg_match(hm->uri, mg_str("/api/*"), NULL)) {
                 //api request
                 if (mg_user_data->mympd_api_started == false) {
                     //mympd_api thread not yet ready
@@ -678,7 +678,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     break;
                 }
                 //body
-                sds body = sdsnewlen(hm->body.ptr, hm->body.len);
+                sds body = sdsnewlen(hm->body.buf, hm->body.len);
                 /*
                  * We use the custom header X-myMPD-Session for authorization
                  * to allow other authorization methods in reverse proxy setups
@@ -694,31 +694,31 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     FREE_SDS(response);
                 }
             }
-            else if (mg_http_match_uri(hm, "/albumart-thumb/*") == true) {
+            else if (mg_match(hm->uri, mg_str("/albumart-thumb/*"), NULL)) {
                 request_handler_albumart_by_album_id(hm, nc->id, ALBUMART_THUMBNAIL);
             }
-            else if (mg_http_match_uri(hm, "/albumart/*") == true) {
+            else if (mg_match(hm->uri, mg_str("/albumart/*"), NULL)) {
                 request_handler_albumart_by_album_id(hm, nc->id, ALBUMART_FULL);
             }
-            else if (mg_http_match_uri(hm, "/albumart-thumb") == true) {
+            else if (mg_match(hm->uri, mg_str("/albumart-thumb"), NULL)) {
                 request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_THUMBNAIL);
             }
-            else if (mg_http_match_uri(hm, "/albumart") == true) {
+            else if (mg_match(hm->uri, mg_str("/albumart"), NULL)) {
                 request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_FULL);
             }
-            else if (mg_http_match_uri(hm, "/folderart") == true) {
+            else if (mg_match(hm->uri, mg_str("/folderart"), NULL)) {
                 request_handler_folderart(nc, hm, mg_user_data);
             }
-            else if (mg_http_match_uri(hm, "/tagart") == true) {
+            else if (mg_match(hm->uri, mg_str("/tagrart"), NULL)) {
                 request_handler_tagart(nc, hm, mg_user_data);
             }
-            else if (mg_http_match_uri(hm, "/playlistart") == true) {
+            else if (mg_match(hm->uri, mg_str("/playlistart"), NULL)) {
                 request_handler_playlistart(nc, hm, mg_user_data);
             }
-            else if (mg_http_match_uri(hm, "/browse/#") == true) {
+            else if (mg_match(hm->uri, mg_str("/browse/#"), NULL)) {
                 request_handler_browse(nc, hm, mg_user_data);
             }
-            else if (mg_http_match_uri(hm, "/ws/*") == true) {
+            else if (mg_match(hm->uri, mg_str("/ws/*"), NULL)) {
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
                     break;
@@ -729,7 +729,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
                 FREE_SDS(response);
             }
-            else if (mg_http_match_uri(hm, "/stream/*") == true) {
+            else if (mg_match(hm->uri, mg_str("/stream/*"), NULL)) {
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
                     break;
@@ -742,18 +742,18 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
                 create_backend_connection(nc, frontend_nc_data->backend_nc, node->value_p, forward_backend_to_frontend_stream, true);
             }
-            else if (mg_http_match_uri(hm, "/proxy") == true) {
+            else if (mg_match(hm->uri, mg_str("/proxy"), NULL)) {
                 //Makes a get request to the defined uri and returns the response
                 request_handler_proxy(nc, hm, frontend_nc_data->backend_nc);
             }
-            else if (mg_http_match_uri(hm, "/proxy-covercache") == true) {
+            else if (mg_match(hm->uri, mg_str("/proxy-covercache"), NULL)) {
                 //Makes a get request to the defined uri and caches and returns the response
                 request_handler_proxy_covercache(nc, hm, frontend_nc_data->backend_nc);
             }
-            else if (mg_http_match_uri(hm, "/serverinfo") == true) {
+            else if (mg_match(hm->uri, mg_str("/serverinfo"), NULL)) {
                 request_handler_serverinfo(nc);
             }
-            else if (mg_http_match_uri(hm, "/script-api/*") == true) {
+            else if (mg_match(hm->uri, mg_str("/script-api/*"), NULL)) {
                 //enforce script acl
                 if (enforce_acl(nc, config->scriptacl) == false) {
                     break;
@@ -762,7 +762,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
                     break;
                 }
-                sds body = sdsnewlen(hm->body.ptr, hm->body.len);
+                sds body = sdsnewlen(hm->body.buf, hm->body.len);
                 bool rc = request_handler_script_api(nc, body);
                 FREE_SDS(body);
                 if (rc == false) {
@@ -773,31 +773,31 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     FREE_SDS(response);
                 }
             }
-            else if (mg_http_match_uri(hm, "/assets/coverimage-booklet") == true) {
+            else if (mg_match(hm->uri, mg_str("/assets/coverimage-booklet"), NULL)) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_BOOKLET);
             }
-            else if (mg_http_match_uri(hm, "/assets/coverimage-mympd") == true) {
+            else if (mg_match(hm->uri, mg_str("/assets/coverimage-mympd"), NULL)) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_MYMPD);
             }
-            else if (mg_http_match_uri(hm, "/assets/coverimage-notavailable") == true) {
+            else if (mg_match(hm->uri, mg_str("/assets/coverimage-notavailable"), NULL)) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
             }
-            else if (mg_http_match_uri(hm, "/assets/coverimage-stream") == true) {
+            else if (mg_match(hm->uri, mg_str("/assets/coverimage-stream"), NULL)) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
             }
-            else if (mg_http_match_uri(hm, "/assets/coverimage-playlist") == true) {
+            else if (mg_match(hm->uri, mg_str("/assets/coverimage-playlist"), NULL)) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
             }
-            else if (mg_http_match_uri(hm, "/assets/coverimage-smartpls") == true) {
+            else if (mg_match(hm->uri, mg_str("/assets/coverimage-smartpls"), NULL)) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_SMARTPLS);
             }
-            else if (mg_http_match_uri(hm, "/index.html") == true) {
+            else if (mg_match(hm->uri, mg_str("/index.html"), NULL)) {
                 webserver_send_header_redirect(nc, "/");
             }
-            else if (mg_http_match_uri(hm, "/favicon.ico") == true) {
+            else if (mg_match(hm->uri, mg_str("/favicon.ico"), NULL)) {
                 webserver_send_header_redirect(nc, "/assets/appicon-192.png");
             }
-            else if (mg_http_match_uri(hm, "/ca.crt") == true) {
+            else if (mg_match(hm->uri, mg_str("/ca.crt"), NULL)) {
                 request_handler_ca(nc, hm, mg_user_data);
             }
             else {
@@ -806,7 +806,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     //serve all files from filesystem
                     static struct mg_http_serve_opts s_http_server_opts;
                     s_http_server_opts.root_dir = MYMPD_DOC_ROOT;
-                    if (mg_http_match_uri(hm, "/test/#") == true) {
+                    if (mg_match(hm->uri, mg_str("/test/#"), NULL)) {
                         //test suite uses innerHTML
                         s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                     }
@@ -817,7 +817,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 #else
                     //serve embedded files
-                    sds uri = sdsnewlen(hm->uri.ptr, hm->uri.len);
+                    sds uri = sdsnewlen(hm->uri.buf, hm->uri.len);
                     webserver_serve_embedded_files(nc, uri);
                     FREE_SDS(uri);
                 #endif
@@ -876,13 +876,13 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             break;
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-            if (mg_http_match_uri(hm, "/browse/webradios/*") == true) {
+            if (mg_match(hm->uri, mg_str("/browse/webradios/*"), NULL)) {
                 //we serve the webradio directory without https to avoid the required ssl configuration for the mpd curl plugin
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                 s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                 s_http_server_opts.root_dir = mg_user_data->browse_directory;
-                MYMPD_LOG_INFO(NULL, "Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.ptr);
+                MYMPD_LOG_INFO(NULL, "Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.buf);
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 break;
             }
@@ -894,7 +894,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
                 break;
             }
 
-            sds host_header = sdscatlen(sdsempty(), host_hdr->ptr, host_hdr->len);
+            sds host_header = sdscatlen(sdsempty(), host_hdr->buf, host_hdr->len);
             int count = 0;
             sds *tokens = sdssplitlen(host_header, (ssize_t)sdslen(host_header), ":", 1, &count);
             sds s_redirect = sdscatfmt(sdsempty(), "https://%S", tokens[0]);

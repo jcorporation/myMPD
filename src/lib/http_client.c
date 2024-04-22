@@ -138,7 +138,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
                 "\r\n"
                 "%s\r\n",
                 mg_url_uri(mg_client_request->uri),
-                (int) host.len, host.ptr,
+                (int) host.len, host.buf,
                 mg_client_request->extra_headers,
                 strlen(mg_client_request->post_data),
                 mg_client_request->post_data);
@@ -150,7 +150,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
                 "%s"
                 "\r\n",
                 mg_url_uri(mg_client_request->uri),
-                (int) host.len, host.ptr,
+                (int) host.len, host.buf,
                 mg_client_request->extra_headers);
         }
     }
@@ -158,15 +158,15 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         //Response is received. Return it
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
         struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) nc->fn_data;
-        mg_client_response->body = sdscatlen(mg_client_response->body, hm->body.ptr, hm->body.len);
+        mg_client_response->body = sdscatlen(mg_client_response->body, hm->body.buf, hm->body.len);
         //headers string
         for (int i = 0; i < MG_MAX_HTTP_HEADERS; i++) {
             if (hm->headers[i].name.len == 0) {
                 break;
             }
-            mg_client_response->header = sdscatlen(mg_client_response->header, hm->headers[i].name.ptr, hm->headers[i].name.len);
+            mg_client_response->header = sdscatlen(mg_client_response->header, hm->headers[i].name.buf, hm->headers[i].name.len);
             mg_client_response->header = sdscatlen(mg_client_response->header, ": ", 2);
-            mg_client_response->header = sdscatlen(mg_client_response->header, hm->headers[i].value.ptr, hm->headers[i].value.len);
+            mg_client_response->header = sdscatlen(mg_client_response->header, hm->headers[i].value.buf, hm->headers[i].value.len);
             mg_client_response->header = sdscatlen(mg_client_response->header, "\n", 1);
         }
         //http response code

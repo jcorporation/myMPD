@@ -193,11 +193,11 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data) 
             {
                 response = jsonrpc_respond_start(response, backend_nc_data->cmd_id, 0);
                 response = sdscat(response, "\"data\":");
-                response = sdscatlen(response, hm->body.ptr, hm->body.len);
+                response = sdscatlen(response, hm->body.buf, hm->body.len);
                 response = jsonrpc_end(response);
                 //cache the response
                 if (backend_nc_data->cmd_id == MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET) {
-                    webradiodb_cache_write(config->cachedir, FILENAME_WEBRADIODB, hm->body.ptr, hm->body.len);
+                    webradiodb_cache_write(config->cachedir, FILENAME_WEBRADIODB, hm->body.buf, hm->body.len);
                 }
             }
             else {

@@ -54,7 +54,7 @@ sds get_uri_param(struct mg_str *query, const char *name) {
     sds result = NULL;
     int count = 0;
     size_t name_len = strlen(name);
-    sds *params = sdssplitlen(query->ptr, (ssize_t)query->len, "&", 1, &count);
+    sds *params = sdssplitlen(query->buf, (ssize_t)query->len, "&", 1, &count);
     for (int i = 0; i < count; i++) {
         if (strncmp(params[i], name, name_len) == 0) {
             sdsrange(params[i], (ssize_t)name_len, -1);
@@ -74,7 +74,7 @@ sds get_uri_param(struct mg_str *query, const char *name) {
  * @return true on success, else false
  */
 bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data) {
-    sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
+    sds partition = sdsnewlen(hm->uri.buf, hm->uri.len);
     basename_uri(partition);
     FREE_SDS(frontend_nc_data->partition);
     frontend_nc_data->partition = partition;
