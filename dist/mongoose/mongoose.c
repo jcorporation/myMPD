@@ -2983,7 +2983,7 @@ static int uri_to_path2(struct mg_connection *c, struct mg_http_message *hm,
                   path_size - n, 0);
   }
   path[path_size - 1] = '\0';  // Double-check
-  if (!mg_path_is_sane(path)) {
+  if (!mg_path_is_sane(mg_str_n(path, path_size))) {
     mg_http_reply(c, 400, "", "Invalid path");
     return -1;
   }
@@ -3141,7 +3141,7 @@ long mg_http_upload(struct mg_connection *c, struct mg_http_message *hm,
   } else if (file[0] == '\0') {
     mg_http_reply(c, 400, "", "file required");
     res = -1;
-  } else if (mg_path_is_sane(file) == false) {
+  } else if (mg_path_is_sane(mg_str(file)) == false) {
     mg_http_reply(c, 400, "", "%s: invalid file", file);
     res = -2;
   } else if (offset < 0) {
@@ -7606,7 +7606,7 @@ static void mg_iotest(struct mg_mgr *mgr, int ms) {
   size_t max = 1;
   for (struct mg_connection *c = mgr->conns; c != NULL; c = c->next) {
     c->is_readable = c->is_writable = 0;
-    if (mg_tls_pending(c) > 0) ms = 1, c->is_readable = 1;
+    if (c->rtls.len > 0 || mg_tls_pending(c) > 0) ms = 1, c->is_readable = 1;
     if (can_write(c)) MG_EPOLL_MOD(c, 1);
     if (c->is_closing) ms = 1;
     max++;
@@ -7622,7 +7622,7 @@ static void mg_iotest(struct mg_mgr *mgr, int ms) {
       bool wr = evs[i].events & EPOLLOUT;
       c->is_readable = can_read(c) && rd ? 1U : 0;
       c->is_writable = can_write(c) && wr ? 1U : 0;
-      if (mg_tls_pending(c) > 0) c->is_readable = 1;
+      if (c->rtls.len > 0 || mg_tls_pending(c) > 0) c->is_readable = 1;
     }
   }
   (void) skip_iotest;
@@ -7636,7 +7636,7 @@ static void mg_iotest(struct mg_mgr *mgr, int ms) {
     c->is_readable = c->is_writable = 0;
     if (skip_iotest(c)) {
       // Socket not valid, ignore
-    } else if (mg_tls_pending(c) > 0) {
+    } else if (c->rtls.len > 0 || mg_tls_pending(c) > 0) {
       ms = 1;  // Don't wait if TLS is ready
     } else {
       fds[n].fd = FD(c);
@@ -7658,7 +7658,7 @@ static void mg_iotest(struct mg_mgr *mgr, int ms) {
   for (struct mg_connection *c = mgr->conns; c != NULL; c = c->next) {
     if (skip_iotest(c)) {
       // Socket not valid, ignore
-    } else if (mg_tls_pending(c) > 0) {
+    } else if (c->rtls.len > 0 || mg_tls_pending(c) > 0) {
       c->is_readable = 1;
     } else {
       if (fds[n].revents & POLLERR) {
@@ -7667,7 +7667,7 @@ static void mg_iotest(struct mg_mgr *mgr, int ms) {
         c->is_readable =
             (unsigned) (fds[n].revents & (POLLIN | POLLHUP) ? 1 : 0);
         c->is_writable = (unsigned) (fds[n].revents & POLLOUT ? 1 : 0);
-        if (mg_tls_pending(c) > 0) c->is_readable = 1;
+        if (c->rtls.len > 0 || mg_tls_pending(c) > 0) c->is_readable = 1;
       }
       n++;
     }
@@ -7689,7 +7689,7 @@ static void mg_iotest(struct mg_mgr *mgr, int ms) {
     FD_SET(FD(c), &eset);
     if (can_read(c)) FD_SET(FD(c), &rset);
     if (can_write(c)) FD_SET(FD(c), &wset);
-    if (mg_tls_pending(c) > 0) tvp = &tv_zero;
+    if (c->rtls.len > 0 || mg_tls_pending(c) > 0) tvp = &tv_zero;
     if (FD(c) > maxfd) maxfd = FD(c);
     if (c->is_closing) ms = 1;
   }
@@ -7711,7 +7711,7 @@ static void mg_iotest(struct mg_mgr *mgr, int ms) {
     } else {
       c->is_readable = FD(c) != MG_INVALID_SOCKET && FD_ISSET(FD(c), &rset);
       c->is_writable = FD(c) != MG_INVALID_SOCKET && FD_ISSET(FD(c), &wset);
-      if (mg_tls_pending(c) > 0) c->is_readable = 1;
+      if (c->rtls.len > 0 || mg_tls_pending(c) > 0) c->is_readable = 1;
     }
   }
 #endif
@@ -8123,11 +8123,12 @@ void mg_unhex(const char *buf, size_t len, unsigned char *to) {
   }
 }
 
-bool mg_path_is_sane(const char *path) {
-  const char *s = path;
-  if (path[0] == '.' && path[1] == '.') return false;  // Starts with ..
-  for (; s[0] != '\0'; s++) {
-    if (s[0] == '/' || s[0] == '\\') {               // Subdir?
+bool mg_path_is_sane(const struct mg_str path) {
+  const char *s = path.buf;
+  size_t n = path.len;
+  if (path.buf[0] == '.' && path.buf[1] == '.') return false;  // Starts with ..
+  for (; s[0] != '\0' && n > 0; s++, n--) {
+    if ((s[0] == '/' || s[0] == '\\') && n >= 2) {   // Subdir?
       if (s[1] == '.' && s[2] == '.') return false;  // Starts with ..
     }
   }
