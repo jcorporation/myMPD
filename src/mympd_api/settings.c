@@ -1088,6 +1088,11 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featStickerInt", partition_state->mpd_state->feat.sticker_int, true);
     }
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
+    #ifdef MYMPD_ENABLE_MYGPIOD
+        buffer = tojson_bool(buffer, "featMygpiod", true, true);
+    #else
+        buffer = tojson_bool(buffer, "featMygpiod", false, true);
+    #endif
     #ifdef MYMPD_ENABLE_LUA
         buffer = tojson_bool(buffer, "featScripting", true, false);
     #else

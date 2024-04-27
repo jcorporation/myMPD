@@ -212,6 +212,21 @@ function parseSettings(obj) {
         scriptsInited = true;
     }
 
+    const modalScriptsFunctionSelectEl = elGetById('modalScriptsFunctionSelect');
+    elClear(modalScriptsFunctionSelectEl);
+    modalScriptsFunctionSelectEl.appendChild(
+        elCreateTextTn('option', {"value": ""}, 'Select function')
+    );
+    for (const m in LUAfunctions) {
+        if (LUAfunctions[m].feat === '' ||
+            features[LUAfunctions[m].feat] === true)
+        {
+            modalScriptsFunctionSelectEl.appendChild(
+                elCreateText('option', {"value": m}, m)
+            );
+        }
+    }
+
     //volumebar
     elGetById('volumeBar').setAttribute('min', settings.volumeMin);
     elGetById('volumeBar').setAttribute('max', settings.volumeMax);

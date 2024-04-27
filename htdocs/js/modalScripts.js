@@ -85,16 +85,6 @@ function initModalScripts() {
     }, false);
   
     const modalScriptsFunctionSelectEl = elGetById('modalScriptsFunctionSelect');
-    elClear(modalScriptsFunctionSelectEl);
-    modalScriptsFunctionSelectEl.appendChild(
-        elCreateTextTn('option', {"value": ""}, 'Select function')
-    );
-    for (const m in LUAfunctions) {
-        modalScriptsFunctionSelectEl.appendChild(
-            elCreateText('option', {"value": m}, m)
-        );
-    }
-
     modalScriptsFunctionSelectEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
         elGetById('modalScriptsFunctionDesc').textContent = value !== '' ? LUAfunctions[value].desc : '';

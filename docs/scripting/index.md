@@ -21,13 +21,13 @@ myMPD provides custom lua functions through the `mympd` lua library.
 
 | FUNCTION | DESCRIPTION |
 | -------- | ----------- |
-| `mympd.api` | Access to the myMPD API |
-| `gpio_blink` | Connects to myGPIOd and blinks a GPIO with given timeout and interval|
-| `gpio_get` | Connects to myGPIOd and returns the active state of a GPIO |
-| `gpio_set` | Connects to myGPIOd and sets the active value of a GPIO |
-| `gpio_toggle` | Connects to myGPIOd and toggles the active value of a GPIO |
-| `mympd.http_client` | Simple HTTP client |
-| `mympd.init` | Initializes the [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state) |
+| `mympd.api` | Access to the myMPD API. |
+| `mympd.gpio_blink` | Connects to myGPIOd and blinks a GPIO with given timeout and interval. |
+| `mympd.gpio_get` | Connects to myGPIOd and returns the active state of a GPIO. |
+| `mympd.gpio_set` | Connects to myGPIOd and sets the active value of a GPIO. |
+| `mympd.gpio_toggle` | Connects to myGPIOd and toggles the active value of a GPIO. |
+| `mympd.http_client` | Simple HTTP client. |
+| `mympd.init` | Initializes the [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state). |
 | `mympd.os_capture` | Executes a system command and capture its output. |
 {: .table .table-sm }
 
