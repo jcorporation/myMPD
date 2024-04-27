@@ -56,7 +56,7 @@ static void print_usage(struct t_config *config, const char *cmd) {
  *         OPTIONS_RC_EXIT if myMPD should exit
  *         OPTIONS_RC_OK if arguments are parsed successfully
  */
-int handle_options(struct t_config *config, int argc, char **argv) {
+enum handle_options_rc handle_options(struct t_config *config, int argc, char **argv) {
     int n = 0;
     int option_index = 0;
     while ((n = getopt_long(argc, argv, "a:chpsu:vw:", long_options, &option_index)) != -1) { /* Flawfinder: ignore */

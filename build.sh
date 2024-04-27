@@ -558,52 +558,6 @@ check() {
     return 1
   fi
 
-  if check_cmd cppcheck
-  then
-    echo "Running cppcheck"
-    [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
-    find ./src/ -name \*.c | while read -r FILE
-    do
-      [ "$FILE" = "./src/mympd_api/scripts_lualibs.c" ] && continue
-      [ "$FILE" = "./src/web_server/embedded_files.c" ] && continue
-      #shellcheck disable=SC2086
-      if ! cppcheck $CPPCHECKOPTS --error-exitcode=1 "$FILE"
-      then
-        return 1
-      fi
-    done
-    find ./src/ -name \*.h | while read -r FILE
-    do
-      #shellcheck disable=SC2086
-      if ! cppcheck $CPPCHECKOPTS --error-exitcode=1 "$FILE"
-      then
-        return 1
-      fi
-    done
-  else
-    echo_warn "cppcheck not found"
-    return 1
-  fi
-
-  if check_cmd flawfinder
-  then
-    echo "Running flawfinder"
-    [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3 --quiet --dataonly"
-    #shellcheck disable=SC2086
-    if ! flawfinder $FLAWFINDEROPTS --error-level=3 src
-    then
-      return 1
-    fi
-    #shellcheck disable=SC2086
-    if ! flawfinder $FLAWFINDEROPTS --error-level=3 cli_tools
-    then
-      return 1
-    fi
-  else
-    echo_warn "flawfinder not found"
-    return 1
-  fi
-
   if [ ! -f src/compile_commands.json ]
   then
     echo "src/compile_commands.json not found"

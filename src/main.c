@@ -384,8 +384,8 @@ int main(int argc, char **argv) {
     mympd_config_defaults_initial(config);
 
     //command line option
-    int handle_options_rc = handle_options(config, argc, argv);
-    switch(handle_options_rc) {
+    enum handle_options_rc options_rc = handle_options(config, argc, argv);
+    switch(options_rc) {
         case OPTIONS_RC_INVALID:
             //invalid option or error
             loglevel = LOG_ERR;
@@ -395,6 +395,9 @@ int main(int argc, char **argv) {
             loglevel = LOG_ERR;
             rc = EXIT_SUCCESS;
             goto cleanup;
+        case OPTIONS_RC_OK:
+            //continue
+            break;
     }
 
     //get startup uid
