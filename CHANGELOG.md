@@ -21,17 +21,18 @@ This release reworks the table and grid layouts for all views. Each view can now
 - Feat: Add setting for default sort tag in library view #1207
 - Feat: Add lua library for myGPIOd support #1208
 - Feat: Support range for listplaylist and listplaylistinfo (MPD 0.24) #1214
-- Feat: support playlistlength command (MPD 0.24) #1213
+- Feat: Support playlistlength command (MPD 0.24) #1213
 - Feat: Add column for "File type" in song lists #1225
 - Feat: Add thumbnail column to views #1093
 - Feat: Add playlist art handler
 - Feat: Configurable columns for playlist view
 - Feat: Add option to disable covercache pruning #1237
-- Feat: add support for sticker find operators contains, starts_with (MPD 0.24)
+- Feat: Add support for sticker find operators contains, starts_with (MPD 0.24)
 - Feat: Provide and install a systemd user unit #1262
 - Upd: Bootstrap 5.3.3
 - Upd: Support ESLint 9
 - Fix: List and search playlists in filesystem view
+- Fix: SSL issues with iPhone clients
 
 ***
 
