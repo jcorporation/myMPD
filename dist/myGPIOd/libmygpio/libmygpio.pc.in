@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@/libmygpio
+
+Name: libmygpio
+Description: Client library for myGPIOd
+Version: @PROJECT_VERSION@
+
+Requires:
+Libs: -L${libdir} -llibmygpio
+Cflags: -I${includedir}

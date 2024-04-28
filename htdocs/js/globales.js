@@ -1569,7 +1569,7 @@ const LUAfunctions = {
     },
     "mympd.gpio_blink": {
         "desc": "Blinks a GPIO with given timeout and interval.",
-        "func": "rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms).",
+        "func": "rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)",
         "feat": "featMygpiod"
     },
     "mympd.gpio_get": {

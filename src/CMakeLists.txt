@@ -31,7 +31,11 @@ if(MYMPD_ENABLE_LUA)
   target_include_directories(mympd SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
 endif()
 if(MYMPD_ENABLE_MYGPIOD)
-  target_include_directories(mympd SYSTEM PRIVATE ${LIBMYGPIO_INCLUDE_DIRS})
+  if(MYMPD_ENABLE_MYGPIOD_STATIC)
+    target_include_directories(mympd SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/dist/myGPIOd/libmygpio/include")
+  else()
+    target_include_directories(mympd SYSTEM PRIVATE ${LIBMYGPIO_INCLUDE_DIRS})
+  endif()
 endif()
 
 target_sources(mympd
