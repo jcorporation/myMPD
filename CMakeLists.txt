@@ -417,7 +417,7 @@ add_subdirectory("cli_tools")
 
 # link all together
 target_link_libraries(mympd
-  libmympdclient
+  mympdclient
   mjson
   mpack
   mongoose
@@ -441,7 +441,7 @@ if(MYMPD_ENABLE_LUA)
 endif()
 if(MYMPD_ENABLE_MYGPIOD)
   if(MYMPD_ENABLE_MYGPIOD_STATIC)
-    target_link_libraries(mympd libmygpio)
+    target_link_libraries(mympd mygpio)
   else()
     target_link_libraries(mympd ${LIBMYGPIO_LIBRARIES})
   endif()

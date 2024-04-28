@@ -125,7 +125,7 @@ target_compile_options(unit_test
 )
 
 target_link_libraries(unit_test
-  libmympdclient
+  mympdclient
   mjson
   mpack
   mongoose

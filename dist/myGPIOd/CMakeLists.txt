@@ -4,16 +4,16 @@
 # https://github.com/jcorporation/myGPIOd
 #
 
-add_library(libmygpio "")
+add_library(mygpio "")
 
 configure_file(mygpio-common/compile_time.h.in "${PROJECT_BINARY_DIR}/dist/myGPIOd/compile_time.h")
 
-target_include_directories(libmygpio PRIVATE
+target_include_directories(mygpio PRIVATE
   "${PROJECT_SOURCE_DIR}/dist/myGPIOd"
   "${PROJECT_BINARY_DIR}/dist/myGPIOd"
 )
 
-target_sources(libmygpio
+target_sources(mygpio
   PRIVATE
     libmygpio/src/buffer.c
     libmygpio/src/connection.c
