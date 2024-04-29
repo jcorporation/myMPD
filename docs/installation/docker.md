@@ -28,33 +28,49 @@ Starts the myMPD docker container:
 - Disables SSL
 - Listen on port 8080
 
-Docker Compose:
+### Volumes
 
-```
----
-version: "3.x"
+| VOLUME | DESCRIPTION |
+| ------ | ----------- |
+| `/run/mpd/socket` | MPD listening socket. |
+| `/run/mygpiod/socket` | Optional myGPIOd socket for GPIO scripting support. |
+| `/docker/mympd/workdir` | myMPD working directory. Must exist and be writeable by uid 1000. |
+| `/docker/mympd/cachedir` | myMPD cache directory. Must exist and be writeable by uid 1000. |
+| `/var/lib/mpd/music/` | MPD music directory. Use the same path in the container to enable auto detection. |
+| `/var/lib/mpd/playlists/` | MPD playlist directory. Use the same path in the container to enable auto detection. |
+
+### Docker Compose
+
+Save this as `docker-compose.yml`:
+
+```yml
 services:
   mympd:
     image: ghcr.io/jcorporation/mympd/mympd
     container_name: mympd
-    network_mode: "host"
+    ports:
+      - 8080:8080
     user: 1000:1000
     environment:
       - UMASK_SET=022
       - MYMPD_SSL=false
       - MYMPD_HTTP_PORT=8080
     volumes:
-      - /path/to/mpd/socket:/run/mpd/socket
-      - /path/to/mympd/docker/workdir:/var/lib/mympd/
-      - /path/to/mympd/docker/cachedir:/var/cache/mympd/
-      - /path/to/music/dir/:/music/:ro
-      - /path/to/playlists/dir/:/playlists/:ro
+      - /run/mpd/socket:/run/mpd/socket
+      ## Optional for myGPIOd support
+      ## - /run/mygpiod/socket:/run/mygpiod/socket
+      - /docker/mympd/workdir:/var/lib/mympd/
+      - /docker/mympd/cachedir:/var/cache/mympd/
+      - /var/lib/mpd/music/:/var/lib/mpd/music/:ro
+      - /var/lib/mpd/playlists/:/var/lib/mpd/playlists/:ro
     restart: unless-stopped
 ```
 
-Docker CLI:
+Setup: `docker compose up -d`
 
-```
+### Docker CLI
+
+```sh
 docker run -d \
   --name=mympd \
   --net="host" \
@@ -62,13 +78,21 @@ docker run -d \
   -e UMASK_SET=022 \
   -e MYMPD_SSL=false \
   -e MYMPD_HTTP_PORT=8080 \
-  -v /path/to/mpd/socket:/run/mpd/socket \
-  -v /path/to/mympd/docker/workdir:/var/lib/mympd/ \
-  -v /path/to/mympd/docker/cachedir:/var/cache/mympd/ \
-  -v /path/to/music/dir/:/music/:ro \
-  -v /path/to/playlists/dir/:/playlists/:ro \
+  -v /run/mpd/socket:/run/mpd/socket \
+  ## Optional for myGPIOd support
+  ## -v /run/mygpiod/socket:/run/mygpiod/socket \
+  -v /docker/mympd/workdir:/var/lib/mympd/ \
+  -v /docker/mympd/cachedir:/var/cache/mympd/ \
+  -v /var/lib/mpd/music/:/var/lib/mpd/music/:ro \
+  -v /var/lib/mpd/playlists/:/var/lib/mpd/playlists/:ro \
   --restart unless-stopped \
   ghcr.io/jcorporation/mympd/mympd
+```
+
+### Logs
+
+```sh
+docker logs -f mympd
 ```
 
 ## myMPD configuration
