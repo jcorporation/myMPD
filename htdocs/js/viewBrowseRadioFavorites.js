@@ -57,8 +57,8 @@ function parseRadioFavoritesList(obj) {
         return;
     }
 
+    const rowTitle = tn(settingsWebuiFields.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
     if (settings['view' + app.id].mode === 'table') {
-        const rowTitle = tn(settingsWebuiFields.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
         updateTable(obj, app.id, function(row, data) {
             if (data.Image === '') {
                 data.Image = '/assets/coverimage-stream';
@@ -81,5 +81,6 @@ function parseRadioFavoritesList(obj) {
         setData(card, 'name', data.Name);
         setData(card, 'type', 'webradio');
         setData(card, 'image', data.Image);
+        card.setAttribute('title', rowTitle);
     });
 }

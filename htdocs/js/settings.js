@@ -231,11 +231,6 @@ function parseSettings(obj) {
     elGetById('volumeBar').setAttribute('min', settings.volumeMin);
     elGetById('volumeBar').setAttribute('max', settings.volumeMax);
 
-    //set translations for pregenerated elements
-    pEl.selectBtn.title = tn('Actions');
-    pEl.removeBtn.title = tn('Remove');
-    pEl.playBtn.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
-
     //update actions for table rows
     if (settings.webuiSettings.quickPlayButton === true &&
         settings.webuiSettings.quickRemoveButton === true)

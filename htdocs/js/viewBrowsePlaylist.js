@@ -92,10 +92,10 @@ function parsePlaylistList(obj) {
         return;
     }
 
+    const rowTitle = settingsWebuiFields.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
-        const rowTitle = settingsWebuiFields.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
         updateTable(obj, 'BrowsePlaylistList', function(row, data) {
             setData(row, 'uri', data.uri);
             setData(row, 'type', data.Type);
@@ -114,6 +114,7 @@ function parsePlaylistList(obj) {
         setData(card, 'type', data.Type);
         setData(card, 'name', data.Name);
         setData(card, 'smartpls-only', data.smartplsOnly);
+        card.setAttribute('title', tn(rowTitle));
     });
 }
 
@@ -160,10 +161,10 @@ function parsePlaylistDetail(obj) {
     elGetById('BrowsePlaylistDetailTitle').textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
 
+    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
-        const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
         updateTable(obj, app.id, function(row, data) {
             row.setAttribute('id', 'playlistSongId' + data.Pos);
             if (rw === true) {
@@ -185,6 +186,7 @@ function parsePlaylistDetail(obj) {
         setData(card, 'uri', data.uri);
         setData(card, 'name', data.Title);
         setData(card, 'pos', data.Pos);
+        card.setAttribute('title', tn(rowTitle));
     });
 }
 

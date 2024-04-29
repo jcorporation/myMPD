@@ -146,10 +146,10 @@ function viewBrowseFilesystemListClickHandler(event, target) {
         elHide(imageList);
     }
 
+    const rowTitleSong = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+    const rowTitleFolder = 'Open directory';
+    const rowTitlePlaylist = settingsWebuiFields.clickFilesystemPlaylist.validValues[settings.webuiSettings.clickFilesystemPlaylist];
     if (settings['view' + app.id].mode === 'table') {
-        const rowTitleSong = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
-        const rowTitleFolder = 'Open directory';
-        const rowTitlePlaylist = settingsWebuiFields.clickFilesystemPlaylist.validValues[settings.webuiSettings.clickFilesystemPlaylist];
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
         updateTable(obj, app.id, function(row, data) {
@@ -170,6 +170,8 @@ function viewBrowseFilesystemListClickHandler(event, target) {
         setData(card, 'uri', data.uri);
         //set Title to name if not defined - for folders and playlists
         setData(card, 'name', data.Title === undefined ? data.name : data.Title);
+        card.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong :
+                data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
     });
 }
 

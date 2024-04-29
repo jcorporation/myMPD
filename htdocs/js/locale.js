@@ -152,6 +152,7 @@ function setLocale(newLocale) {
     httpGet(subdir + '/assets/i18n/' + locale + '.json', function(obj) {
         phrases = obj;
         i18nHtml(domCache.body);
+        i18nPregenerated();
         setData(domCache.body, 'locale', locale);
     }, true);
 }
@@ -187,4 +188,18 @@ function i18nHtml(root) {
             els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]), dataObj);
         }
     }
+}
+
+/**
+ * Set translations for pregenerated elements
+ * @returns {void}
+ */
+function i18nPregenerated() {
+    pEl.selectBtn.setAttribute('title', tn('Select'));
+    pEl.selectAllBtn.setAttribute('title', tn('Select all'));
+    pEl.actionsBtn.setAttribute('title', tn('Actions'));
+    pEl.removeBtn.setAttribute('title', tn('Remove'));
+    pEl.playBtn.setAttribute('title', tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]));
+    pEl.showSongsBtn.setAttribute('title', tn('Show songs'));
+    pEl.showAlbumsBtn.setAttribute('title', tn('Show albums'));
 }

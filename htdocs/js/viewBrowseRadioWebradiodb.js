@@ -296,10 +296,10 @@ function parseSearchWebradiodb(obj) {
         return;
     }
 
+    const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
-        const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
         updateTable(obj, app.id, function(row, data) {
             setData(row, 'uri', data.StreamUri);
             setData(row, 'name', data.Name);
@@ -336,6 +336,7 @@ function parseSearchWebradiodb(obj) {
         setData(card, 'codec', data.Codec);
         setData(card, 'bitrate', data.Bitrate);
         setData(card, 'type', 'stream');
+        card.setAttribute('title', rowTitle);
     });
 }
 

@@ -83,11 +83,10 @@ function parseQueue(obj) {
         return;
     }
 
+    const rowTitle = settingsWebuiFields.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     if (settings['view' + app.id].mode === 'table') {
         const colspan = settings['viewQueueCurrent'].fields.length;
         const smallWidth = uiSmallWidthTagRows();
-
-        const rowTitle = settingsWebuiFields.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
         const actionTd = elCreateEmpty('td', {"data-col": "Action"});
@@ -152,6 +151,7 @@ function parseQueue(obj) {
     }
     updateGrid(obj, app.id, function(card, data) {
         card.setAttribute('id', 'queueSongId' + data.id);
+        card.setAttribute('title', tn(rowTitle));
         setData(card, 'songid', data.id);
         setData(card, 'pos', data.Pos);
         setData(card, 'duration', data.Duration);

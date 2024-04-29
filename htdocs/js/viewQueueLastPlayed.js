@@ -50,10 +50,10 @@ function parseLastPlayed(obj) {
         return;
     }
 
+    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
-        const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
         updateTable(obj, app.id, function(row, data) {
             setData(row, 'uri', data.uri);
             setData(row, 'name', data.Title);
@@ -66,6 +66,7 @@ function parseLastPlayed(obj) {
         return;
     }
     updateGrid(obj, app.id, function(card, data) {
+        card.setAttribute('title', tn(rowTitle));
         setData(card, 'uri', data.uri);
         setData(card, 'name', data.Title);
         setData(card, 'type', 'song');

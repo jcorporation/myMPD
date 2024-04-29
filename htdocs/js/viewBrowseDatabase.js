@@ -154,6 +154,7 @@ function parseDatabaseAlbumList(obj) {
         setData(card, 'Album', data.Album);
         setData(card, tagAlbumArtist, data[tagAlbumArtist]);
         setData(card, 'AlbumId', data.AlbumId);
+        card.setAttribute('title', tn('Show album'));
     });
 }
 
@@ -168,6 +169,7 @@ function parseDatabaseAlbumList(obj) {
         return;
     }
 
+    const rowTitle = tn(settings.tagListAlbum.includes(obj.result.tag) ? 'Show albums' : 'Show songs');
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = cardContainer.querySelector('tfoot');
         const colspan = settings['view' + app.id].fields.length;
@@ -181,7 +183,7 @@ function parseDatabaseAlbumList(obj) {
             }
             setData(row, 'tag', result.tag);
             setData(row, 'name', data.Value);
-            row.setAttribute('title', tn(settings.tagListAlbum.includes(result.tag) ? 'Show albums' : 'Show songs'));
+            row.setAttribute('title', rowTitle);
         }, function(row, data) {
             tableRow(row, data, app.id, colspan, smallWidth, actionTd);
         });
@@ -196,6 +198,7 @@ function parseDatabaseAlbumList(obj) {
         }
         setData(card, 'tag', result.tag);
         setData(card, 'name', data.Value);
+        card.setAttribute('title', rowTitle);
     }, undefined, function(footer, data, result) {
         addActionLinks(footer, result.tag);
     });

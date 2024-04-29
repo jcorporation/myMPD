@@ -94,12 +94,12 @@ function parseJukeboxList(obj) {
         return;
     }
 
+    const rowTitle = settings.partition.jukeboxMode === 'song' ?
+            settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
+            settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
-        const rowTitle = settings.partition.jukeboxMode === 'song' ?
-            settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
-            settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
         updateTable(obj, view, function(row, data) {
             setData(row, 'uri', data.uri);
             setData(row, 'name', data.Title);
@@ -119,6 +119,7 @@ function parseJukeboxList(obj) {
         setData(card, 'name', data.Title);
         setData(card, 'type', data.Type);
         setData(card, 'pos', data.Pos);
+        card.setAttribute('title', tn(rowTitle));
     });
 }
 

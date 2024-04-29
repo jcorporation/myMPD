@@ -141,8 +141,8 @@ function parseRadiobrowserList(obj) {
         return;
     }
 
+    const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
     if (settings['view' + app.id].mode === 'table') {
-        const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
         //set result keys for pagination
         obj.result.returnedEntities = obj.result.data.length;
         obj.result.totalEntities = -1;
@@ -175,5 +175,6 @@ function parseRadiobrowserList(obj) {
         setData(card, 'bitrate', data.bitrate);
         setData(card, 'RADIOBROWSERUUID', data.stationuuid);
         setData(card, 'type', 'stream');
+        card.setAttribute('title', rowTitle);
     });
 }
