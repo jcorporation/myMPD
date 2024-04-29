@@ -141,9 +141,7 @@ systemctl restart mympd
 
 ### GPIO interface
 
-The GPIO interface depends on libmygpio and requires a configured [myGPIOd](https://github.com/jcorporation/myGPIOd).
-
-The standard packages of myMPD are not compiled with libmygpio support. You can use the docker image or compile myGPIOd and myMPD yourself.
+The GPIO interface requires a configured [myGPIOd](https://github.com/jcorporation/myGPIOd).
 
 All functions are connecting to the socket `/run/mygpiod/socket`, issues the command and disconnects.
 
