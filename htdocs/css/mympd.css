@@ -1003,19 +1003,6 @@ button.select-inner-button {
   min-width: 6rem;
 }
 
-.sort-dir::before {
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-.sort-asc::before {
-  content: 'arrow_drop_down';
-}
-
-.sort-desc::before {
-  content: 'arrow_drop_up';
-}
-
 div.alert-warning::before,
 div.alert-danger::before,
 div.alert-secondary::before,
