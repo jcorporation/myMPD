@@ -18,7 +18,7 @@ The reverse proxy should be configured to:
 
 - remove the subdirectory
 - rewrite location headers
-- support websockets for the `/ws/` uri
+- support websockets for the `/ws/*` urls
 
 In this examples myMPD is proxied behind the path `/mympd`.
 
