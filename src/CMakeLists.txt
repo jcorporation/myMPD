@@ -152,6 +152,7 @@ if(MYMPD_ENABLE_LUA)
     PRIVATE
       mympd_api/scripts/interface_http_client.c
       mympd_api/scripts/interface_mympd_api.c
+      mympd_api/scripts/interface_util.c
       mympd_api/scripts/interface.c
       mympd_api/scripts/scripts.c
       mympd_api/scripts/vars.c

@@ -26,9 +26,14 @@ myMPD provides custom lua functions through the `mympd` lua library.
 | `mympd.gpio_get` | Connects to myGPIOd and returns the active state of a GPIO. |
 | `mympd.gpio_set` | Connects to myGPIOd and sets the active value of a GPIO. |
 | `mympd.gpio_toggle` | Connects to myGPIOd and toggles the active value of a GPIO. |
+| `mympd.hash_md5` | MD5 hash of string. |
+| `mympd.hash_sha1` | SHA1 hash of string. |
+| `mympd.hash_sha256` | SHA256 hash of string. |
 | `mympd.http_client` | Simple HTTP client. |
 | `mympd.init` | Initializes the [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state). |
 | `mympd.os_capture` | Executes a system command and capture its output. |
+| `mympd.urldecode` | Decodes a URL encoded string. |
+| `mympd.urlencode` | URL encodes a string. |
 {: .table .table-sm }
 
 ### Accessing the myMPD API
@@ -53,6 +58,21 @@ rc, result = mympd.api("method", params)
 | ----- | ---- | ----------- |
 | rc | integer | response code: 0 = OK, 1 = ERROR |
 | result | lua table | json result or error |
+{: .table .table-sm }
+
+### Hashing functions
+
+```lua
+md5_hash = mympd.hash_md5(string)
+sha1_hash = mympd.hash_sha1(string)
+sha256_hash = mympd.hash_sha256(string)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| string | string | String to hash |
 {: .table .table-sm }
 
 ### HTTP client
@@ -138,6 +158,22 @@ curl -s https://raw.githubusercontent.com/jcorporation/myMPD/v10.0.0/contrib/ini
 systemctl daemon-reload
 systemctl restart mympd
 ```
+
+### URL encoding and decoding
+
+```lua
+encoded = mympd.urlencode(string, form_url_encode)
+decoded = mympd.urldecode(string, form_url_decode)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| string | string | String to hash |
+| form_url_encode | boolean | Encode as form url |
+| form_url_decode | boolean | Decode as form url |
+{: .table .table-sm }
 
 ### GPIO interface
 

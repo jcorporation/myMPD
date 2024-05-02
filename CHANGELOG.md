@@ -17,6 +17,7 @@ This release adds new scripting functions.
 ### Changelog
 
 - Feat: Set custom variables for scripts
+- Feat: implement hashing and url handling functions for lua
 
 ***
 

@@ -13,6 +13,7 @@
 
 #include <ctype.h>
 #include <openssl/evp.h>
+#include <openssl/md5.h>
 #include <openssl/sha.h>
 #include <string.h>
 
@@ -94,6 +95,31 @@ sds *sds_split_comma_trim(sds s, int *count) {
         sdstrim(values[i], " ");
     }
     return values;
+}
+
+/**
+ * Hashes a string with md5
+ * @param p string to hash
+ * @return the hash as a newly allocated sds string
+ */
+sds sds_hash_md5(const char *p) {
+    sds hex_hash = sdsnew(p);
+    return sds_hash_md5_sds(hex_hash);
+}
+
+/**
+ * Hashes a sds string with md5 inplace
+ * @param s string to hash
+ * @return pointer to s
+ */
+sds sds_hash_md5_sds(sds s) {
+    unsigned char hash[MD5_DIGEST_LENGTH];
+    MD5((unsigned char *)s, sdslen(s), hash);
+    sdsclear(s);
+    for (unsigned i = 0; i < MD5_DIGEST_LENGTH; i++) {
+        s = sdscatprintf(s, "%02x", hash[i]);
+    }
+    return s;
 }
 
 /**
@@ -358,7 +384,7 @@ bool sds_json_unescape(const char *src, size_t slen, sds *dst) {
 /**
  * Checks for url safe characters
  * @param c char to check
- * @return true if string is url safe else false
+ * @return true if char is url safe else false
  */
 static bool is_url_safe(char c) {
     if (isalnum(c) ||
@@ -375,11 +401,17 @@ static bool is_url_safe(char c) {
  * @param s sds string to append the encoded string
  * @param p string to url encode
  * @param len string length to url encode
+ * @param form_url_encode true = encodes spaces
  * @return modified sds string
  */
-sds sds_urlencode(sds s, const char *p, size_t len) {
+sds sds_urlencode(sds s, const char *p, size_t len, bool form_url_encode) {
     for (size_t i = 0; i < len; i++) {
-        if (is_url_safe(p[i])) {
+        if (form_url_encode == true &&
+            p[i] == ' ')
+        {
+            s = sds_catchar(s, '+');
+        }
+        else if (is_url_safe(p[i])) {
             s = sds_catchar(s, p[i]);
         }
         else {

@@ -269,6 +269,7 @@ configure_file(contrib/initscripts/mympd.freebsdrc.in contrib/initscripts/mympd.
 # global compile options
 add_compile_options(
   "-DMPACK_HAS_CONFIG=1"
+  "-Wno-deprecated-declarations" # MD5 function from OpenSSL
 )
 # set myMPD specific debug define
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

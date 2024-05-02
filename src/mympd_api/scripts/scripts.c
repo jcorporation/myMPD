@@ -20,6 +20,7 @@
 #include "src/mympd_api/scripts/interface_http_client.h"
 #include "src/mympd_api/scripts/interface_mygpio.h"
 #include "src/mympd_api/scripts/interface_mympd_api.h"
+#include "src/mympd_api/scripts/interface_util.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -594,6 +595,9 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
 static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_api", lua_mympd_api);
     lua_register(lua_vm, "mympd_api_http_client", lua_http_client);
+    lua_register(lua_vm, "mympd_util_hash", lua_util_hash);
+    lua_register(lua_vm, "mympd_util_urlencode", lua_util_urlencode);
+    lua_register(lua_vm, "mympd_util_urldecode", lua_util_urldecode);
     #ifdef MYMPD_ENABLE_MYGPIOD
         lua_register(lua_vm, "mygpio_gpio_blink", lua_mygpio_gpio_blink);
         lua_register(lua_vm, "mygpio_gpio_get", lua_mygpio_gpio_get);

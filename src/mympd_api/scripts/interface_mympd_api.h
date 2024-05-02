@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_API_SCRIPTS_INTERFACE_MYMPD_APIH
-#define MYMPD_API_SCRIPTS_INTERFACE_MYMPD_APIH
+#ifndef MYMPD_API_SCRIPTS_INTERFACE_MYMPD_API_H
+#define MYMPD_API_SCRIPTS_INTERFACE_MYMPD_API_H
 
 #include <lauxlib.h>
 #include <lua.h>
