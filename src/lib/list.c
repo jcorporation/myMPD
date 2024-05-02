@@ -530,6 +530,25 @@ bool list_remove_node_user_data(struct t_list *l, unsigned idx, user_data_callba
 }
 
 /**
+ * Removes the node with key
+ * @param l list
+ * @param key key
+ * @return bool true on success, else false
+ */
+bool list_remove_node_by_key(struct t_list *l, const char *key) {
+    struct t_list_node *current = l->head;
+    unsigned i = 0;
+    while (current != NULL) {
+        if (strcmp(current->key, key) == 0) {
+            return list_remove_node(l, i);
+        }
+        i++;
+        current = current->next;
+    }
+    return false;
+}
+
+/**
  * Removes the first node from the list and returns it.
  * This is only a shortcut for list_node_extract.
  * @param l list

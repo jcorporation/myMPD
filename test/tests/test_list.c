@@ -108,6 +108,20 @@ UTEST(list, test_remove_node) {
     list_clear(&test_list);
 }
 
+UTEST(list, test_list_remove_nody_by_key) {
+    struct t_list test_list;
+    populate_list(&test_list);
+
+    struct t_list_node *current;
+    //remove middle item
+    list_remove_node_by_key(&test_list, "key3");
+    current = list_node_at(&test_list, 3);
+    ASSERT_STREQ("key4", current->key);
+    ASSERT_EQ(5U, test_list.length);
+
+    list_clear(&test_list);
+}
+
 UTEST(list, test_list_replace) {
     struct t_list test_list;
     populate_list(&test_list);
