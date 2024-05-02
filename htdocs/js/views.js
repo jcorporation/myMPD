@@ -255,9 +255,13 @@ function addActionLinks(container, userData) {
  */
 //eslint-disable-next-line no-unused-vars
 function saveView(viewName) {
+    const modeEl = elGetById('viewSettingsMode');
+    const mode = modeEl === null
+        ? settings["view" + viewName].mode
+        : getBtnGroupValueId('viewSettingsMode');
     const params = {
         "view": "view" + viewName,
-        "mode": getBtnGroupValueId('viewSettingsMode'),
+        "mode": mode,
         "fields": []
     };
     const fieldsForm = elGetById(viewName + 'FieldsSelect');

@@ -79,7 +79,7 @@ int lua_mygpio_gpio_set(lua_State *lua_vm) {
     }
     const char *mygpiod_socket = lua_tostring(lua_vm, 1);
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
-    int value = (int)lua_tointeger(lua_vm, 2);
+    int value = (int)lua_tointeger(lua_vm, 3);
     struct t_mygpio_connection *mygpio_conn = mygpio_connect(mygpiod_socket);
     if (mygpio_conn != NULL) {
         mygpio_gpioset(mygpio_conn, gpio, value);
@@ -103,7 +103,7 @@ int lua_mygpio_gpio_toggle(lua_State *lua_vm) {
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *mygpiod_socket = lua_tostring(lua_vm, 1);
-    unsigned gpio = (unsigned)lua_tointeger(lua_vm, 1);
+    unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
     struct t_mygpio_connection *mygpio_conn = mygpio_connect(mygpiod_socket);
     if (mygpio_conn != NULL) {
         mygpio_gpiotoggle(mygpio_conn, gpio);

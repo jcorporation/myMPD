@@ -93,9 +93,11 @@ function parseQueue(obj) {
         addActionLinks(actionTd);
 
         updateTable(obj, app.id, function(row, data) {
-            if (features.featAdvqueue === false ||   // always sorted by priority
+            if (features.featAdvqueue === false ||
                 app.current.sort.tag === 'Priority')
             {
+                // Enable drag and drop only if list is sorted by priority
+                // This is the default sorting for simple queue mode
                 row.setAttribute('draggable', 'true');
             }
             row.setAttribute('id', 'queueSongId' + data.id);

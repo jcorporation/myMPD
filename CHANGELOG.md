@@ -28,6 +28,9 @@ This is a small bugfix release.
 ### Changelog
 
 - Upd: Japanese translation
+- Fix: Save playback view #1264
+- Fix: JavaScript minification #1264
+- Fix: GPIO set and toggle functions
 
 ***
 
