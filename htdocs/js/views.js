@@ -258,8 +258,7 @@ function saveView(viewName) {
     const modeEl = elGetById('viewSettingsMode');
     const mode = modeEl === null
         ? settings["view" + viewName].mode
-        : getBtnGroupValueId('viewSettingsMode')
-
+        : getBtnGroupValueId('viewSettingsMode');
     const params = {
         "view": "view" + viewName,
         "mode": mode,
