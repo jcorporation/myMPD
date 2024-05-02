@@ -4,6 +4,14 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD 15.1.0 (not yet released)
+
+This release improves scripting.
+
+### Changelog
+
+***
+
 ## myMPD 15.0.1 (not yet released)
 
 This is a small bugfix release.
