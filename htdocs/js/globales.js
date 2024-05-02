@@ -650,14 +650,14 @@ const settingsWebuiFields = {
         "help": "helpSettingsSmallWidthTagRows"
     },
     "quickPlayButton": {
-        "defaultValue": false,
+        "defaultValue": true,
         "inputType": "checkbox",
         "title": "Quick play button",
         "form": "modalSettingsListsFrm",
         "help": "helpSettingsQuickPlay"
     },
     "quickRemoveButton": {
-        "defaultValue": false,
+        "defaultValue": true,
         "inputType": "checkbox",
         "title": "Quick remove button",
         "form": "modalSettingsListsFrm",
@@ -743,18 +743,19 @@ const settingsWebuiFields = {
         "onChange": "eventChangeTheme",
         "sort": 0
     },
-    "thumbnailSize": {
+    "gridSize": {
         "defaultValue": 175,
         "inputType": "text",
         "contentType": "number",
-        "title": "Thumbnail size",
-        "form": "modalSettingsAlbumartFrm",
+        "title": "Grid size",
+        "form": "modalSettingsListsFrm",
         "invalid": "Must be a number and greater than zero",
         "validate": {
             "cmd": "validateUintEl",
             "options": []
         },
-        "unit": "Pixel"
+        "unit": "Pixel",
+        "help": "helpSettingsGridSize"
     },
     "bgCover": {
         "defaultValue": true,
@@ -867,6 +868,14 @@ const settingsWebuiFields = {
     "feedback": {
         "defaultValue": "like",
         "inputType": "none"
+    },
+    "browseDatabaseAlbumListSort": {
+        "defaultValue": tagAlbumArtist,
+        "validValues": {},
+        "inputType": "select",
+        "title": "Album list sort",
+        "form": "modalSettingsSortFrm",
+        "help": "helpSettingsAlbumListSort"
     }
 };
 
@@ -1214,7 +1223,7 @@ app.cards = {
                 "limit": 100,
                 "filter": "any",
                 "sort": {
-                    "tag": "Pos",
+                    "tag": "Priority",
                     "desc": false
                 },
                 "tag": "",
@@ -1328,7 +1337,7 @@ app.cards = {
                         "limit": 100,
                         "filter": "any",
                         "sort": {
-                            "tag": tagAlbumArtist,
+                            "tag": "",
                             "desc": false
                         },
                         "tag": "Album",
@@ -1545,15 +1554,38 @@ uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('mo
 const LUAfunctions = {
     "mympd.http_client": {
         "desc": "HTTP client",
-        "func": "rc, code, header, body = mympd.http_client(method, uri, headers, payload)"
+        "func": "rc, code, header, body = mympd.http_client(method, uri, headers, payload)",
+        "feat": ""
     },
     "mympd.init": {
-        "desc": "Initializes the mympd_state lua table",
-        "func": "mympd.init()"
+        "desc": "Initializes the mympd_state lua table.",
+        "func": "mympd.init()",
+        "feat": ""
     },
     "mympd.os_capture": {
         "desc":	"Executes a system command and capture its output.",
-        "func": "output = mympd.os_capture(command)"
+        "func": "output = mympd.os_capture(command)",
+        "feat": ""
+    },
+    "mympd.gpio_blink": {
+        "desc": "Blinks a GPIO with given timeout and interval.",
+        "func": "rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)",
+        "feat": "featMygpiod"
+    },
+    "mympd.gpio_get": {
+        "desc": "Returns the active state of a GPIO.",
+        "func": "rc = mympd.gpio_get(gpio)",
+        "feat": "featMygpiod"
+    },
+    "mympd.gpio_set": {
+        "desc": "Sets the active state of a GPIO.",
+        "func": "rc = mygpio_gpio_set(mympd.mygpiod_socket, gpio, value)",
+        "feat": "featMygpiod"
+    },
+    "mympd.gpio_toggle": {
+        "desc": "Toggles the active state of a GPIO.",
+        "func": "rc = mygpio_gpio_toggle(mympd.mygpiod_socket, gpio)",
+        "feat": "featMygpiod"
     }
 };
 
@@ -1574,7 +1606,7 @@ const typeFriendly = {
     'view': 'View',
     'appGoto': 'View',
     'webradio': 'Webradio',
-    'cols': 'Columns',
+    'viewSettings': 'View settings',
     'disc': 'Disc'
 };
 

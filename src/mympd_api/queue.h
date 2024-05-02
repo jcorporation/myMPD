@@ -12,12 +12,12 @@
 
 bool mympd_api_queue_save(struct t_partition_state *partition_state, sds name, sds mode, sds *error);
 sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        sds buffer, unsigned request_id, unsigned offset, unsigned limit, const struct t_tags *tagcols);
+        sds buffer, unsigned request_id, unsigned offset, unsigned limit, const struct t_fields *tagcols);
 sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id,
         unsigned request_id, bool or_clear);
 sds mympd_api_queue_search(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, unsigned request_id, sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
-        const struct t_tags *tagcols);
+        const struct t_fields *tagcols);
 bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned priority, sds *error);
 bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, struct t_list *song_ids, sds *error);
 bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, struct t_list *song_ids, sds *error);

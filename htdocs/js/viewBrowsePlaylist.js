@@ -17,7 +17,7 @@ function handleBrowsePlaylistDetail() {
         "limit": app.current.limit,
         "expression": app.current.search,
         "plist": app.current.tag,
-        "cols": settings.colsBrowsePlaylistDetailFetch
+        "fields": settings.viewBrowsePlaylistDetailFetch.fields
     }, parsePlaylistDetail, true);
 }
 
@@ -41,7 +41,7 @@ function handleBrowsePlaylistList() {
  * Initializes the playlist elements
  * @returns {void}
  */
-function initViewPlaylists() {
+function initViewPlaylist() {
     elGetById('BrowsePlaylistDetailSortTagsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
@@ -52,24 +52,33 @@ function initViewPlaylists() {
     initSearchSimple('BrowsePlaylistList');
     initSearchExpression('BrowsePlaylistDetail');
 
-    elGetById('BrowsePlaylistListList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            if (getData(target, 'smartpls-only') === false) {
-                clickPlaylist(getData(target, 'uri'), event);
-            }
-            else {
-                showNotification(tn('Playlist is empty'), 'playlist', 'warn');
-            }
-        }
-    }, false);
+    setView('BrowsePlaylistList');
+    setView('BrowsePlaylistDetail');
+}
 
-    elGetById('BrowsePlaylistDetailList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            clickSong(getData(target, 'uri'), event);
-        }
-    }, false);
+/**
+ * Click event handler for playlist list
+ * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
+ * @returns {void}
+ */
+function viewPlaylistListListClickHandler(event, target) {
+    if (getData(target, 'smartpls-only') === false) {
+        clickPlaylist(getData(target, 'uri'), event);
+    }
+    else {
+        showNotification(tn('Playlist is empty'), 'playlist', 'warn');
+    }
+}
+
+/**
+ * Click event handler for playlist detail list
+ * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
+ * @returns {void}
+ */
+function viewPlaylistDetailListClickHandler(event, target) {
+    clickSong(getData(target, 'uri'), event);
 }
 
 /**
@@ -78,32 +87,34 @@ function initViewPlaylists() {
  * @returns {void}
  */
 function parsePlaylistList(obj) {
-    if (checkResultId(obj, 'BrowsePlaylistListList') === false) {
+    const table = elGetById('BrowsePlaylistListList');
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
     const rowTitle = settingsWebuiFields.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
-    updateTable(obj, 'BrowsePlaylistList', function(row, data) {
-        setData(row, 'uri', data.uri);
-        setData(row, 'type', data.Type);
-        setData(row, 'name', data.name);
-        setData(row, 'smartpls-only', data.smartplsOnly);
-        row.setAttribute('title', tn(rowTitle));
-    }, function(row, data) {
-        row.appendChild(
-            elCreateNode('td', {"data-col": "Type"},
-                elCreateText('span', {"class": ["mi"]}, (data.Type === 'smartpls' ? 'queue_music' : 'list'))
-            )
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        updateTable(obj, 'BrowsePlaylistList', function(row, data) {
+            setData(row, 'uri', data.uri);
+            setData(row, 'type', data.Type);
+            setData(row, 'name', data.Name);
+            setData(row, 'smartpls-only', data.smartplsOnly);
+            row.setAttribute('title', tn(rowTitle));
+        });
+        addTblFooter(tfoot,
+            elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
         );
-        row.appendChild(
-            elCreateText('td', {}, data.name)
-        );
-        row.appendChild(
-            elCreateText('td', {}, fmtDate(data.lastModified))
-        );
-        row.appendChild(
-            pEl.actionPlaylistTd.cloneNode(true)
-        );
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        card.setAttribute('id', 'playlistSongId' + data.Pos);
+        setData(card, 'uri', data.uri);
+        setData(card, 'type', data.Type);
+        setData(card, 'name', data.Name);
+        setData(card, 'smartpls-only', data.smartplsOnly);
+        card.setAttribute('title', tn(rowTitle));
     });
 }
 
@@ -115,11 +126,12 @@ function parsePlaylistList(obj) {
 function parsePlaylistDetail(obj) {
     const table = elGetById('BrowsePlaylistDetailList');
 
-    if (checkResultId(obj, 'BrowsePlaylistDetailList') === false) {
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
     // set toolbar
+    let rw = false;
     if (isMPDplaylist(obj.result.plist) === false) {
         // playlist in music directory
         setData(table, 'ro', true);
@@ -140,26 +152,41 @@ function parsePlaylistDetail(obj) {
         elShowId('BrowsePlaylistDetailContentBtns');
         elHideId('BrowsePlaylistDetailSmartPlaylistContentBtns');
         table.setAttribute('data-rw', 'true');
+        rw = true;
     }
 
     setData(table, 'playlistlength', obj.result.totalEntities);
     setData(table, 'uri', obj.result.plist);
     setData(table, 'type', obj.result.smartpls === true ? 'smartpls' : 'plist');
-    table.querySelector('caption').textContent =
+    elGetById('BrowsePlaylistDetailTitle').textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
+
     const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
-
-    setPlaylistDetailListFooter(obj.result.totalEntities, obj.result.totalTime);
-
-    updateTable(obj, 'BrowsePlaylistDetail', function(row, data) {
-        row.setAttribute('id', 'playlistSongId' + data.Pos);
-        row.setAttribute('draggable', (obj.result.smartpls === true ? 'false' : 'true'));
-        row.setAttribute('tabindex', 0);
-        setData(row, 'type', data.Type);
-        setData(row, 'uri', data.uri);
-        setData(row, 'name', data.Title);
-        setData(row, 'pos', data.Pos);
-        row.setAttribute('title', tn(rowTitle));
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        updateTable(obj, app.id, function(row, data) {
+            row.setAttribute('id', 'playlistSongId' + data.Pos);
+            if (rw === true) {
+                row.setAttribute('draggable', 'true');
+                row.setAttribute('tabindex', 0);
+            }
+            setData(row, 'type', data.Type);
+            setData(row, 'uri', data.uri);
+            setData(row, 'name', data.Title);
+            setData(row, 'pos', data.Pos);
+            row.setAttribute('title', tn(rowTitle));
+        });
+        setPlaylistDetailListFooter(obj.result.totalEntities, obj.result.totalTime);
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        card.setAttribute('id', 'playlistSongId' + data.Pos);
+        setData(card, 'type', data.Type);
+        setData(card, 'uri', data.uri);
+        setData(card, 'name', data.Title);
+        setData(card, 'pos', data.Pos);
+        card.setAttribute('title', tn(rowTitle));
     });
 }
 
@@ -180,7 +207,7 @@ function setPlaylistDetailListFooter(entities, playtime) {
           ]);
 
     const tfoot = elGetById('BrowsePlaylistDetailList').querySelector('tfoot');
-    const colspan = settings.colsBrowsePlaylistDetail.length + 1;
+    const colspan = settings.viewBrowsePlaylistDetail.fields.length + 1;
 
     elReplaceChild(tfoot,
         elCreateNode('tr', {"class": ["not-clickable"]},

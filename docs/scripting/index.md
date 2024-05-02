@@ -21,9 +21,13 @@ myMPD provides custom lua functions through the `mympd` lua library.
 
 | FUNCTION | DESCRIPTION |
 | -------- | ----------- |
-| `mympd.api` | Access to the myMPD API |
-| `mympd.http_client` | Simple HTTP client |
-| `mympd.init` | Initializes the [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state) |
+| `mympd.api` | Access to the myMPD API. |
+| `mympd.gpio_blink` | Connects to myGPIOd and blinks a GPIO with given timeout and interval. |
+| `mympd.gpio_get` | Connects to myGPIOd and returns the active state of a GPIO. |
+| `mympd.gpio_set` | Connects to myGPIOd and sets the active value of a GPIO. |
+| `mympd.gpio_toggle` | Connects to myGPIOd and toggles the active value of a GPIO. |
+| `mympd.http_client` | Simple HTTP client. |
+| `mympd.init` | Initializes the [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state). |
 | `mympd.os_capture` | Executes a system command and capture its output. |
 {: .table .table-sm }
 
@@ -40,7 +44,7 @@ rc, result = mympd.api("method", params)
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
 | method | string | myMPD API method |
-| params | lua table | the jsonrpc parameters | 
+| params | lua table | the jsonrpc parameters |
 {: .table .table-sm }
 
 **Returns:**
@@ -133,6 +137,31 @@ curl -s https://raw.githubusercontent.com/jcorporation/myMPD/v10.0.0/contrib/ini
 
 systemctl daemon-reload
 systemctl restart mympd
+```
+
+### GPIO interface
+
+The GPIO interface requires a configured [myGPIOd](https://github.com/jcorporation/myGPIOd).
+
+All functions are connecting to the socket `/run/mygpiod/socket`, issues the command and disconnects.
+
+```lua
+-- Set non default socket for myGPIOd connection
+mympd.mygpiod_socket = "/run/mygpiod/socket.debug"
+
+-- Blink a GPIO at given timeout and interval
+rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)
+
+-- Get the active state of a GPIO
+-- 0 = inactive, 1 = active
+state = mympd.gpio_get(gpio)
+
+-- Sets the active state of a GPIO
+-- 0 = inactive, 1 = active
+rc = mympd.gpio_set(gpio, state)
+
+-- Toggles the active state of a GPIO
+rc = mympd.gpio_toggle(gpio)
 ```
 
 ## Lua manual

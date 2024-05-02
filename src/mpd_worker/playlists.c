@@ -8,8 +8,8 @@
 #include "src/mpd_worker/playlists.h"
 
 #include "src/lib/jsonrpc.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/tags.h"
+#include "src/lib/sds_extras.h"
+#include "src/mpd_client/playlists.h"
 
 /**
  * Enumerates the playlist and returns the count and total length
@@ -21,25 +21,19 @@
  */
 sds mpd_worker_playlist_content_enumerate(struct t_partition_state *partition_state, sds buffer, unsigned request_id, sds plist) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_CONTENT_ENUMERATE;
-    unsigned entity_count = 0;
-    unsigned total_time = 0;
-    disable_all_mpd_tags(partition_state);
-    if (mpd_send_list_playlist_meta(partition_state->conn, plist)) {
+    unsigned entities = 0;
+    unsigned playtime = 0;
+    sds error = sdsempty();
+    if (mpd_client_enum_playlist(partition_state, plist, &entities, &playtime, &error) == true) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-        struct mpd_song *song;
-        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            total_time += mpd_song_get_duration(song);
-            entity_count++;
-            mpd_song_free(song);
-        }
+        buffer = tojson_uint(buffer, "entities", entities, true);
+        buffer = tojson_uint(buffer, "playtime", playtime, true);
+        buffer = tojson_sds(buffer, "plist", plist, false);
+        buffer = jsonrpc_end(buffer);
     }
-    mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlist_meta") == false) {
-        return buffer;
+    else {
+        jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
     }
-    buffer = tojson_uint(buffer, "entities", entity_count, true);
-    buffer = tojson_uint(buffer, "playtime", total_time, true);
-    buffer = tojson_sds(buffer, "plist", plist, false);
-    buffer = jsonrpc_end(buffer);
+    FREE_SDS(error);
     return buffer;
 }

@@ -34,25 +34,17 @@ function showContextMenuOffcanvas(target, contextMenuType) {
     const contextMenu = BSN.Offcanvas.getInstance(contextMenuEl);
 
     switch (contextMenuType) {
-        case 'columns':
-            //column select in table header
-            createContextMenuOffcanvas(target, contextMenuEl, 'cols', createMenuColumns, undefined);
+        case 'viewSettings':
+            //view settings
+            createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, createMenuViewSettings, undefined);
             break;
         case 'disc':
             //disc actions in album details view
-            createContextMenuOffcanvas(target, contextMenuEl, 'disc', addMenuItemsDiscActions, undefined);
+            createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, addMenuItemsDiscActions, undefined);
             break;
         case 'home':
             //home card actions
             createContextMenuOffcanvas(target, contextMenuEl, '', createMenuHome, createMenuHomeSecondary);
-            break;
-        case 'webradio':
-            //webradio favorite actions
-            createContextMenuOffcanvas(target, contextMenuEl, 'webradio', addMenuItemsWebradioFavoritesActions, undefined);
-            break;
-        case 'album':
-            //album action in album list
-            createContextMenuOffcanvas(target, contextMenuEl, 'album', addMenuItemsAlbumActions, undefined);
             break;
         default:
             createContextMenuOffcanvas(target, contextMenuEl, '', createMenuLists, createMenuListsSecondary);
@@ -71,6 +63,7 @@ function createContextMenuOffcanvasInit(contextMenuEl, type) {
     const contextMenuBody = contextMenuEl.querySelector('.offcanvas-body');
     contextMenuBody.removeAttribute('id');
     contextMenuBody.classList.remove('px-3');
+    contextMenuBody.scrollTop = 0;
     elClear(contextMenuHeader);
     elClear(contextMenuBody);
     //title

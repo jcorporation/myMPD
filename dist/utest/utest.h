@@ -321,7 +321,7 @@ static UTEST_INLINE void *utest_realloc(void *const pointer, size_t new_size) {
   void *const new_pointer = realloc(pointer, new_size);
 
   if (UTEST_NULL == new_pointer) {
-    free(new_pointer);
+    free(pointer);
   }
 
   return new_pointer;
@@ -512,6 +512,10 @@ template <> struct utest_type_deducer<unsigned long long, false> {
   static void _(const unsigned long long i) { UTEST_PRINTF("%llu", i); }
 };
 
+template <> struct utest_type_deducer<bool, false> {
+  static void _(const bool i) { UTEST_PRINTF(i ? "true" : "false"); }
+};
+
 template <typename T> struct utest_type_deducer<const T *, false> {
   static void _(const T *t) {
     UTEST_PRINTF("%p", static_cast<void *>(const_cast<T *>(t)));
@@ -525,6 +529,12 @@ template <typename T> struct utest_type_deducer<T *, false> {
 template <typename T> struct utest_type_deducer<T, true> {
   static void _(const T t) {
     UTEST_PRINTF("%llu", static_cast<unsigned long long>(t));
+  }
+};
+
+template <> struct utest_type_deducer<std::nullptr_t, false> {
+  static void _(std::nullptr_t t) {
+    UTEST_PRINTF("%p", static_cast<void *>(t));
   }
 };
 
@@ -724,10 +734,12 @@ utest_strncpy_gcc(char *const dst, const char *const src, const size_t size) {
                     UTEST_AUTO(x) xEval = (x);                                 \
     UTEST_AUTO(y) yEval = (y);                                                 \
     if (!((xEval)cond(yEval))) {                                               \
+      const char *const xAsString = #x;                                        \
+      const char *const yAsString = #y;                                        \
       _Pragma("clang diagnostic pop")                                          \
           UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                \
       UTEST_PRINTF("  Expected : (");                                          \
-      UTEST_PRINTF(#x ") " #cond " (" #y);                                     \
+      UTEST_PRINTF("%s) " #cond " (%s", xAsString, yAsString);                 \
       UTEST_PRINTF(")\n");                                                     \
       UTEST_PRINTF("    Actual : ");                                           \
       utest_type_printer(xEval);                                               \
@@ -751,9 +763,11 @@ utest_strncpy_gcc(char *const dst, const char *const src, const size_t size) {
     UTEST_AUTO(x) xEval = (x);                                                 \
     UTEST_AUTO(y) yEval = (y);                                                 \
     if (!((xEval)cond(yEval))) {                                               \
+      const char *const xAsString = #x;                                        \
+      const char *const yAsString = #y;                                        \
       UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : (");                                          \
-      UTEST_PRINTF(#x ") " #cond " (" #y);                                     \
+      UTEST_PRINTF("%s) " #cond " (%s", xAsString, yAsString);                 \
       UTEST_PRINTF(")\n");                                                     \
       UTEST_PRINTF("    Actual : ");                                           \
       utest_type_printer(xEval);                                               \
@@ -1138,13 +1152,19 @@ utest_strncpy_gcc(char *const dst, const char *const src, const size_t size) {
         utest_realloc(UTEST_PTR_CAST(void *, utest_state.tests),               \
                       sizeof(struct utest_test_state_s) *                      \
                           utest_state.tests_length));                          \
-    if (utest_state.tests) {                                                   \
+    if (utest_state.tests && name) {                                           \
       utest_state.tests[index].func = &utest_##SET##_##NAME;                   \
       utest_state.tests[index].name = name;                                    \
       utest_state.tests[index].index = 0;                                      \
       UTEST_SNPRINTF(name, name_size, "%s", name_part);                        \
-    } else if (name) {                                                         \
-      free(name);                                                              \
+    } else {                                                                   \
+      if (utest_state.tests) {                                                 \
+        free(utest_state.tests);                                               \
+        utest_state.tests = NULL;                                              \
+      }                                                                        \
+      if (name) {                                                              \
+        free(name);                                                            \
+      }                                                                        \
     }                                                                          \
   }                                                                            \
   UTEST_SURPRESS_WARNINGS_END                                                  \
@@ -1186,12 +1206,18 @@ utest_strncpy_gcc(char *const dst, const char *const src, const size_t size) {
         utest_realloc(UTEST_PTR_CAST(void *, utest_state.tests),               \
                       sizeof(struct utest_test_state_s) *                      \
                           utest_state.tests_length));                          \
-    if (utest_state.tests) {                                                   \
+    if (utest_state.tests && name) {                                           \
       utest_state.tests[index].func = &utest_f_##FIXTURE##_##NAME;             \
       utest_state.tests[index].name = name;                                    \
       UTEST_SNPRINTF(name, name_size, "%s", name_part);                        \
-    } else if (name) {                                                         \
-      free(name);                                                              \
+    } else {                                                                   \
+      if (utest_state.tests) {                                                 \
+        free(utest_state.tests);                                               \
+        utest_state.tests = NULL;                                              \
+      }                                                                        \
+      if (name) {                                                              \
+        free(name);                                                            \
+      }                                                                        \
     }                                                                          \
   }                                                                            \
   UTEST_SURPRESS_WARNINGS_END                                                  \
@@ -1234,14 +1260,20 @@ utest_strncpy_gcc(char *const dst, const char *const src, const size_t size) {
           utest_realloc(UTEST_PTR_CAST(void *, utest_state.tests),             \
                         sizeof(struct utest_test_state_s) *                    \
                             utest_state.tests_length));                        \
-      if (utest_state.tests) {                                                 \
+      if (utest_state.tests && name) {                                         \
         utest_state.tests[index].func = &utest_i_##FIXTURE##_##NAME##_##INDEX; \
         utest_state.tests[index].index = i;                                    \
         utest_state.tests[index].name = name;                                  \
         iUp = UTEST_CAST(utest_uint64_t, i);                                   \
         UTEST_SNPRINTF(name, name_size, "%s/%" UTEST_PRIu64, name_part, iUp);  \
-      } else if (name) {                                                       \
-        free(name);                                                            \
+      } else {                                                                 \
+        if (utest_state.tests) {                                               \
+          free(utest_state.tests);                                             \
+          utest_state.tests = NULL;                                            \
+        }                                                                      \
+        if (name) {                                                            \
+          free(name);                                                          \
+        }                                                                      \
       }                                                                        \
     }                                                                          \
   }                                                                            \

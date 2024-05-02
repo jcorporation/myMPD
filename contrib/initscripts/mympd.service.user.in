@@ -1,0 +1,33 @@
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+# myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
+#
+[Unit]
+Description=myMPD server daemon
+Documentation=man:mympd(1)
+After=mpd.service
+
+[Service]
+ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/mympd -w %h/.config/mympd -a %h/.cache/mympd
+Environment="MYMPD_HTTP_PORT=8080"
+Environment="MYMPD_SSL_PORT=8443"
+Restart=always
+WorkingDirectory=%h/.config/mympd
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+PrivateDevices=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectProc=invisible
+RestrictRealtime=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK AF_UNIX
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+
+[Install]
+WantedBy=default.target

@@ -44,10 +44,10 @@ const APIparams = {
         "example": false,
         "desc": "false = ascending, true = descending sort"
     },
-    "cols": {
+    "fields": {
         "type": APItypes.array,
         "example": "[\"Artist\", \"Album\", \"Title\"]",
-        "desc": "Array of columns to return"
+        "desc": "Array of fields to return"
     },
     "expression": {
         "type": APItypes.string,
@@ -209,7 +209,7 @@ const APImethods = {
             "expression": APIparams.expression,
             "sort": APIparams.sort,
             "sortdesc": APIparams.sortdesc,
-            "cols": APIparams.cols
+            "fields": APIparams.fields
         }
     },
     "MYMPD_API_DATABASE_UPDATE": {
@@ -248,14 +248,14 @@ const APImethods = {
                 "example": "dir",
                 "desc": "dir or plist"
             },
-            "cols": APIparams.cols
+            "fields": APIparams.fields
         }
     },
     "MYMPD_API_DATABASE_ALBUM_DETAIL": {
         "desc": "Displays songs of an album.",
         "params": {
             "albumid": APIparams.albumid,
-            "cols": APIparams.cols
+            "fields": APIparams.fields
         }
     },
     "MYMPD_API_DATABASE_ALBUM_LIST": {
@@ -266,7 +266,7 @@ const APImethods = {
             "expression": APIparams.expression,
             "sort": APIparams.sort,
             "sortdesc": APIparams.sortdesc,
-            "cols": APIparams.cols
+            "fields": APIparams.fields
         }
     },
     "MYMPD_API_DATABASE_TAG_LIST": {
@@ -361,7 +361,7 @@ const APImethods = {
             "sortdesc": APIparams.sortdesc,
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "cols": APIparams.cols
+            "fields": APIparams.fields
         }
     },
     "MYMPD_API_QUEUE_RM_IDS": {
@@ -550,7 +550,7 @@ const APImethods = {
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "cols": APIparams.cols,
+            "fields": APIparams.fields,
             "expression": APIparams.expression
         }
     },
@@ -781,7 +781,7 @@ const APImethods = {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
             "expression": APIparams.expression,
-            "cols": APIparams.cols
+            "fields": APIparams.fields
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_ENUMERATE": {
@@ -1481,10 +1481,10 @@ const APImethods = {
                         "example": "dark",
                         "desc": "\"dark\", \"light\" or \"auto\""
                     },
-                    "thumbnailSize": {
+                    "gridSize": {
                         "type": APItypes.int,
                         "example": 175,
-                        "desc": "Size for thumbnails"
+                        "desc": "Width for grids."
                     },
                     "bgCover": {
                         "type": APItypes.bool,
@@ -1520,6 +1520,11 @@ const APImethods = {
                         "type": APItypes.bool,
                         "example": true,
                         "desc": "Shows links to MusicBrainz website in the playback and album views."
+                    },
+                    "browseDatabaseAlbumListSort": {
+                        "type": APItypes.string,
+                        "example": "Added",
+                        "desc": "Default sort tag for the album list."
                     }
                 }
             }
@@ -1625,15 +1630,20 @@ const APImethods = {
             "name": APIparams.preset
         }
     },
-    "MYMPD_API_COLS_SAVE": {
-        "desc": "Saves columns for a table.",
+    "MYMPD_API_VIEW_SAVE": {
+        "desc": "Saves options for a view.",
         "params": {
-            "table": {
+            "view": {
                 "type": APItypes.string,
-                "example": "colsQueueCurrent",
-                "desc": "Valid values: colsQueueCurrent, colsQueueLastPlayed, colsSearch, colsBrowseDatabaseAlbumDetail, colsBrowseDatabaseAlbumList, colsBrowsePlaylistDetail, colsBrowseFilesystem, colsPlayback, colsQueueJukeboxAlbum, colsQueueJukeboxSong, colsBrowseRadioWebradiodb, colsBrowseRadioRadiobrowser"
+                "example": "fieldsQueueCurrent",
+                "desc": "Valid values: fieldsQueueCurrent, fieldsQueueLastPlayed, fieldsSearch, fieldsBrowseDatabaseAlbumDetail, fieldsBrowseDatabaseAlbumList, fieldsBrowsePlaylistDetail, fieldsBrowseFilesystem, fieldsPlayback, fieldsQueueJukeboxAlbum, fieldsQueueJukeboxSong, fieldsBrowseRadioWebradiodb, fieldsBrowseRadioRadiobrowser"
             },
-            "cols": APIparams.cols
+            "mode": {
+                "type": APItypes.string,
+                "example": "table",
+                "desc": "View mode: table or grid"
+            },
+            "fields": APIparams.fields
         }
     },
     "MYMPD_API_TIMER_SAVE": {
@@ -2014,7 +2024,7 @@ const APImethods = {
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "cols": APIparams.cols,
+            "fields": APIparams.fields,
             "expression": APIparams.expression
         }
     },

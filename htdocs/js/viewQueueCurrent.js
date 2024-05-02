@@ -11,13 +11,9 @@
  */
 function handleQueueCurrent() {
     handleSearchExpression('QueueCurrent');
+    toggleBtnChkId('QueueCurrentSortDesc', app.current.sort.desc);
+    selectTag('QueueCurrentSortTagsList', undefined, app.current.sort.tag);
     const searchMatchEl = elGetById(app.id + 'SearchMatch');
-
-    if (app.current.sort.tag === '' ||
-        app.current.sort.tag === 'Pos')
-    {
-        app.current.sort.tag = 'Priority';
-    }
 
     sendAPI("MYMPD_API_QUEUE_SEARCH", {
         "offset": app.current.offset,
@@ -25,7 +21,7 @@ function handleQueueCurrent() {
         "sort": app.current.sort.tag,
         "sortdesc": app.current.sort.desc,
         "expression": app.current.search,
-        "cols": settings.colsQueueCurrentFetch
+        "fields": settings.viewQueueCurrentFetch.fields
     }, parseQueue, true);
 
     if (app.current.filter === 'prio') {
@@ -45,14 +41,20 @@ function handleQueueCurrent() {
  * @returns {void}
  */
 function initViewQueueCurrent() {
-    elGetById('QueueCurrentList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            clickQueueSong(getData(target, 'songid'), getData(target, 'uri'), event);
-        }
-    }, false);
-
+    initSortBtns('QueueCurrent');
     initSearchExpression('QueueCurrent');
+
+    setView('QueueCurrent');
+}
+
+/**
+ * Click event handler for current queue list
+ * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
+ * @returns {void}
+ */
+function viewQueueCurrentListClickHandler(event, target) {
+    clickQueueSong(getData(target, 'songid'), getData(target, 'uri'), event);
 }
 
 /**
@@ -72,7 +74,7 @@ function parseQueue(obj) {
     }
 
     const table = elGetById('QueueCurrentList');
-    if (checkResultId(obj, 'QueueCurrentList') === false) {
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
@@ -81,73 +83,110 @@ function parseQueue(obj) {
         return;
     }
 
-    const colspan = settings['colsQueueCurrent'].length;
-    const smallWidth = uiSmallWidthTagRows();
-
     const rowTitle = settingsWebuiFields.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
-    updateTable(obj, 'QueueCurrent', function(row, data) {
-        if (features.featAdvqueue === false ||
-            app.current.sort.tag === 'Priority')
-        {
-            row.setAttribute('draggable', 'true');
+    if (settings['view' + app.id].mode === 'table') {
+        const colspan = settings['viewQueueCurrent'].fields.length;
+        const smallWidth = uiSmallWidthTagRows();
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+        addActionLinks(actionTd);
+
+        updateTable(obj, app.id, function(row, data) {
+            if (features.featAdvqueue === false ||   // always sorted by priority
+                app.current.sort.tag === 'Priority')
+            {
+                row.setAttribute('draggable', 'true');
+            }
+            row.setAttribute('id', 'queueSongId' + data.id);
+            row.setAttribute('title', tn(rowTitle));
+            setData(row, 'songid', data.id);
+            setData(row, 'pos', data.Pos);
+            setData(row, 'duration', data.Duration);
+            setData(row, 'uri', data.uri);
+            setData(row, 'type', data.Type);
+            if (data.Type === 'webradio') {
+                setData(row, 'webradioUri', data.webradio.filename);
+                setData(row, 'name', data.webradio.Name);
+            }
+            else {
+                setData(row, 'name', data.Title);
+                //set AlbumId
+                if (data.AlbumId !== undefined) {
+                    setData(row, 'AlbumId', data.AlbumId);
+                }
+                //and browse tags
+                for (const tag of settings.tagListBrowse) {
+                    if (albumFilters.includes(tag) &&
+                        isEmptyTag(data[tag]) === false)
+                    {
+                        setData(row, tag, data[tag]);
+                    }
+                }
+            }
+            //set Title to Name + Title for streams
+            data.Title = getDisplayTitle(data.Name, data.Title);
+        }, function(row, data) {
+            tableRow(row, data, app.id, colspan, smallWidth, actionTd);
+            if (currentState.currentSongId === data.id) {
+                setPlayingRow(row);
+                if (currentState.state === 'play') {
+                    setQueueCounter(row, getCounterText());
+                }
+            }
+        });
+
+        if (obj.result.totalEntities > 0) {
+            const totalTime = obj.result.totalTime > 0
+                ? elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
+                : elCreateEmpty('span', {});
+            addTblFooter(tfoot,
+                elCreateNodes('small', {}, [
+                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
+                    totalTime
+                ])
+            );
         }
-        row.setAttribute('id', 'queueSongId' + data.id);
-        row.setAttribute('title', tn(rowTitle));
-        setData(row, 'songid', data.id);
-        setData(row, 'pos', data.Pos);
-        setData(row, 'duration', data.Duration);
-        setData(row, 'uri', data.uri);
-        setData(row, 'type', data.Type);
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        card.setAttribute('id', 'queueSongId' + data.id);
+        card.setAttribute('title', tn(rowTitle));
+        setData(card, 'songid', data.id);
+        setData(card, 'pos', data.Pos);
+        setData(card, 'duration', data.Duration);
+        setData(card, 'uri', data.uri);
+        setData(card, 'type', data.Type);
         if (data.Type === 'webradio') {
-            setData(row, 'webradioUri', data.webradio.filename);
-            setData(row, 'name', data.webradio.Name);
+            setData(card, 'webradioUri', data.webradio.filename);
+            setData(card, 'name', data.webradio.Name);
         }
         else {
-            setData(row, 'name', data.Title);
+            setData(card, 'name', data.Title);
             //set AlbumId
             if (data.AlbumId !== undefined) {
-                setData(row, 'AlbumId', data.AlbumId);
+                setData(card, 'AlbumId', data.AlbumId);
             }
             //and browse tags
             for (const tag of settings.tagListBrowse) {
                 if (albumFilters.includes(tag) &&
                     isEmptyTag(data[tag]) === false)
                 {
-                    setData(row, tag, data[tag]);
+                    setData(card, tag, data[tag]);
                 }
             }
         }
         //set Title to Name + Title for streams
         data.Title = getDisplayTitle(data.Name, data.Title);
-    }, function(row, data) {
-        tableRow(row, data, app.id, colspan, smallWidth);
+    }, function(card, data) {
+        gridBody(card, data, app.id);
         if (currentState.currentSongId === data.id) {
-            setPlayingRow(row);
+            setPlayingRow();
             if (currentState.state === 'play') {
-                setQueueCounter(row, getCounterText());
+                setQueueCounter(card, getCounterText());
             }
         }
     });
-
-    const tfoot = table.querySelector('tfoot');
-    if (obj.result.totalEntities > 0) {
-        const totalTime = obj.result.totalTime > 0
-            ? elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
-            : elCreateEmpty('span', {});
-        elReplaceChild(tfoot,
-            elCreateNode('tr', {"class": ["not-clickable"]},
-                elCreateNode('td', {"colspan": (colspan + 1)},
-                    elCreateNodes('small', {}, [
-                        elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
-                        totalTime
-                    ])
-                )
-            )
-        );
-    }
-    else {
-        elClear(tfoot);
-    }
 }
 
 /**

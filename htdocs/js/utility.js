@@ -230,13 +230,17 @@ function splitFilename(filename) {
 /**
  * Returns a description of the filetype from uri
  * @param {string} uri the uri
+ * @param {boolean} long return long description?
  * @returns {string} description of filetype
  */
-function filetype(uri) {
+function filetype(uri, long) {
     if (uri === undefined) {
         return '';
     }
     const ext = uri.split('.').pop().toUpperCase();
+    if (long === false) {
+        return ext;
+    }
     switch(ext) {
         case 'MP3':  return ext + smallSpace + nDash + smallSpace + tn('MPEG-1 Audio Layer III');
         case 'FLAC': return ext + smallSpace + nDash + smallSpace + tn('Free Lossless Audio Codec');

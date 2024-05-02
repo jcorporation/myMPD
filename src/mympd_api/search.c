@@ -32,7 +32,7 @@
  */
 sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, 
         sds buffer, unsigned request_id, const char *expression, const char *sort, bool sortdesc,
-        unsigned offset, unsigned limit, const struct t_tags *tagcols, bool *result)
+        unsigned offset, unsigned limit, const struct t_fields *tagcols, bool *result)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_SEARCH;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -52,7 +52,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
 
     unsigned entities_returned = 0;
     if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers_len > 0)
+        tagcols->stickers.len > 0)
     {
         stickerdb_exit_idle(stickerdb);
     }
@@ -63,11 +63,11 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
-            buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
+            buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->tags, song);
             if (partition_state->mpd_state->feat.stickers == true &&
-                tagcols->stickers_len > 0)
+                tagcols->stickers.len > 0)
             {
-                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, mpd_song_get_uri(song), tagcols);
+                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, mpd_song_get_uri(song), &tagcols->stickers);
             }
             buffer = sdscatlen(buffer, "}", 1);
             mpd_song_free(song);
@@ -75,7 +75,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
     }
     mpd_response_finish(partition_state->conn);
     if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers_len > 0)
+        tagcols->stickers.len > 0)
     {
         stickerdb_enter_idle(stickerdb);
     }

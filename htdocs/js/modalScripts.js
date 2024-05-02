@@ -85,16 +85,6 @@ function initModalScripts() {
     }, false);
   
     const modalScriptsFunctionSelectEl = elGetById('modalScriptsFunctionSelect');
-    elClear(modalScriptsFunctionSelectEl);
-    modalScriptsFunctionSelectEl.appendChild(
-        elCreateTextTn('option', {"value": ""}, 'Select function')
-    );
-    for (const m in LUAfunctions) {
-        modalScriptsFunctionSelectEl.appendChild(
-            elCreateText('option', {"value": m}, m)
-        );
-    }
-
     modalScriptsFunctionSelectEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
         elGetById('modalScriptsFunctionDesc').textContent = value !== '' ? LUAfunctions[value].desc : '';
@@ -213,6 +203,7 @@ function getImportScript(script) {
                 }
             });
             logError('Can not parse script arguments:' + firstLine);
+            logError(error);
         }
 
         elGetById('modalScriptsContentInput').removeAttribute('disabled');
@@ -468,7 +459,7 @@ function parseScriptList(obj) {
     const triggerScripts = elGetById('modalTriggerScriptInput');
     elClear(triggerScripts);
 
-    if (checkResult(obj, tbodyScripts) === false) {
+    if (checkResult(obj, tbodyScripts, 'table') === false) {
         return;
     }
 

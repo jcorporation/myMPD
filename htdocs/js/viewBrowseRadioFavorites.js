@@ -20,14 +20,18 @@ function handleBrowseRadioFavorites() {
  */
 function initViewBrowseRadioFavorites() {
     initSearchSimple('BrowseRadioFavorites');
+    setView('BrowseRadioFavorites');
+}
 
-    elGetById('BrowseRadioFavoritesList').addEventListener('click', function(event) {
-        const target = gridClickHandler(event);
-        if (target !== null) {
-            const uri = getData(target.parentNode, 'uri');
-            clickRadioFavorites(uri, event);
-        }
-    }, false);
+/**
+ * Click event handler for radio favorites list
+ * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
+ * @returns {void}
+ */
+function viewBrowseRadioFavoritesListClickHandler(event, target) {
+    const uri = getData(target, 'uri');
+    clickRadioFavorites(uri, event);
 }
 
 /**
@@ -48,96 +52,35 @@ function getRadioFavoriteList() {
  * @returns {void}
  */
 function parseRadioFavoritesList(obj) {
-    const cardContainer = elGetById('BrowseRadioFavoritesList');
-    unsetUpdateView(cardContainer);
-
-    if (obj.error !== undefined) {
-        elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
-        );
-        setPagination(0, 0);
+    const table = elGetById('BrowseRadioFavoritesList');
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
-    const nrItems = obj.result.returnedEntities;
-    if (nrItems === 0) {
-        elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, 'Empty list')
-        );
-        setPagination(0, 0);
-        return;
-    }
-
-    if (cardContainer.querySelector('.not-clickable') !== null) {
-        elClear(cardContainer);
-    }
-    let cols = cardContainer.querySelectorAll('.col');
     const rowTitle = tn(settingsWebuiFields.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
-    for (let i = 0; i < nrItems; i++) {
-        const card = elCreateNodes('div', {"data-contextmenu": "webradio", "class": ["card", "card-grid", "clickable"], "tabindex": 0}, [
-            elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "title": rowTitle}),
-            elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, [
-                pEl.gridSelectBtn.cloneNode(true),
-                document.createTextNode(obj.result.data[i].Name),
-                elCreateEmpty('br', {}),
-                elCreateText('small', {}, obj.result.data[i].Genre),
-                elCreateEmpty('br', {}),
-                elCreateText('small', {}, obj.result.data[i].Country +
-                    smallSpace + nDash + smallSpace + obj.result.data[i].Language)
-            ])
-        ]);
-        const image = obj.result.data[i].Image === ''
-            ? '/assets/coverimage-stream'
-            : obj.result.data[i].Image;
-        setData(card, 'image', image);
-        setData(card, 'uri', obj.result.data[i].filename);
-        setData(card, 'name', obj.result.data[i].Name);
+    if (settings['view' + app.id].mode === 'table') {
+        updateTable(obj, app.id, function(row, data) {
+            if (data.Image === '') {
+                data.Image = '/assets/coverimage-stream';
+            }
+            data.Thumbnail = getCssImageUri(data.Image);
+            setData(row, 'uri', data.filename);
+            setData(row, 'name', data.Name);
+            setData(row, 'type', 'webradio');
+            setData(row, 'image', data.Image);
+            row.setAttribute('title', rowTitle);
+        });
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        if (data.Image === '') {
+            data.Image = '/assets/coverimage-stream';
+        }
+        data.Thumbnail = getCssImageUri(data.Image);
+        setData(card, 'uri', data.filename);
+        setData(card, 'name', data.Name);
         setData(card, 'type', 'webradio');
-        addRadioFavoritesPlayButton(card.firstChild);
-
-        const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
-
-        if (i < cols.length) {
-            cols[i].replaceWith(col);
-        }
-        else {
-            cardContainer.append(col);
-        }
-
-        if (userAgentData.hasIO === true) {
-            const options = {
-                root: null,
-                rootMargin: '0px',
-            };
-            const observer = new IntersectionObserver(setGridImage, options);
-            observer.observe(col);
-        }
-        else {
-            col.firstChild.firstChild.style.backgroundImage = subdir + image;
-        }
-    }
-    //remove obsolete cards
-    cols = cardContainer.querySelectorAll('.col');
-    for (let i = cols.length - 1; i >= nrItems; i--) {
-        cols[i].remove();
-    }
-
-    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
-    setScrollViewHeight(cardContainer);
-    scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
-}
-
-/**
- * Adds the quick play button to the webradio favorite icon
- * @param {ChildNode} parentEl the containing element
- * @returns {void}
- */
-function addRadioFavoritesPlayButton(parentEl) {
-    const div = pEl.coverPlayBtn.cloneNode(true);
-    parentEl.appendChild(div);
-    div.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        clickQuickPlay(event.target);
-    }, false);
+        setData(card, 'image', data.Image);
+        card.setAttribute('title', rowTitle);
+    });
 }

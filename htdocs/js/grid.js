@@ -6,178 +6,144 @@
 /** @module grid_js */
 
 /**
- * Switches the select mode of current displayed grid
- * @param {EventTarget} target triggering button
+ * Updates the table from the jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @param {string} list row name to populate
+ * @param {Function} [perCardCallback] callback per card
+ * @param {Function} [createCardBodyCallback] callback to create the footer
+ * @param {Function} [createCardActionsCallback] callback to create the footer
  * @returns {void}
  */
-//eslint-disable-next-line no-unused-vars
-function switchGridMode(target) {
-    const grid = elGetById(app.id + 'List');
-    const mode = grid.getAttribute('data-mode');
+function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCardActionsCallback) {
+    const grid = elGetById(list + 'List');
+    let cols = grid.querySelectorAll('.col');
 
-    if (mode === null) {
-        grid.setAttribute('data-mode', 'select');
-        target.classList.add('selected');
-        target.classList.remove('rounded-end');
-        target.nextElementSibling.classList.remove('d-none');
+    const footer = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-0", "d-flex", "justify-content-center"]});
+    addActionLinks(footer);
+
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        const card = elCreateEmpty('div', {"class": ["card", "card-grid", "clickable", "h-100"]});
+        if (perCardCallback !== undefined &&
+            typeof(perCardCallback) === 'function')
+        {
+            perCardCallback(card, obj.result.data[i], obj.result);
+        }
+        setEntryData(card, obj.result.data[i]);
+        if (settings['view' + app.id].fields.includes('Thumbnail') &&
+            obj.result.data[i].Thumbnail !== undefined)
+        {
+            card.appendChild(
+                elCreateEmpty('div', {"class": ["card-title", "cover-loading", "cover-grid", "d-flex"]})
+            );
+            setData(card, 'cssImageUrl', obj.result.data[i].Thumbnail);
+            if (userAgentData.hasIO === true) {
+                const observer = new IntersectionObserver(setGridImage, {root: null, rootMargin: '0px'});
+                observer.observe(card);
+            }
+            else {
+                card.firstChild.style.backgroundImage = obj.result.data[i].Thumbnail;
+            }
+        }
+        const body = elCreateEmpty('div', {"class": ["card-body", "card-body-grid", "p-2"]});
+        if (createCardBodyCallback !== undefined &&
+            typeof(createCardBodyCallback) === 'function')
+        {
+            //custom body content
+            createCardBodyCallback(body, obj.result.data[i], obj.result);
+        }
+        else {
+            //default body content
+            gridBody(body, obj.result.data[i], list);
+        }
+        card.appendChild(body);
+        if (createCardActionsCallback !== undefined &&
+            typeof(createCardActionsCallback) === 'function')
+        {
+            //custom footer content
+            const customFooter = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-2"]});
+            createCardActionsCallback(customFooter, obj.result.data[i], obj.result);
+            card.appendChild(customFooter);
+        }
+        else {
+            //default footer content
+            card.appendChild(footer.cloneNode(true));
+        }
+        const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
+        if (i < cols.length) {
+            cols[i].replaceWith(col);
+        }
+        else {
+            grid.append(col);
+        }
     }
-    else {
-        grid.removeAttribute('data-mode');
-        target.classList.remove('selected');
-        target.classList.add('rounded-end');
-        target.nextElementSibling.classList.add('d-none');
-        selectAllCards(grid, false);
+    //remove obsolete cards
+    cols = grid.querySelectorAll('.col');
+    for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
+        cols[i].remove();
+    }
+
+    unsetUpdateView(grid);
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
+    setScrollViewHeight(grid);
+    scrollToPosY(grid.parentNode, app.current.scrollPos);
+}
+
+/**
+ * Returns the friendly names for type icons
+ * @param {string} value tag value
+ * @returns {string} friendly name
+ */
+function getTypeTitle(value) {
+    switch(value) {
+        case 'queue_music': return tn('Smart playlist');
+        case 'list': return tn('Playlist');
+        case 'folder_open': return tn('Folder');
+        case 'music_note': return tn('Song');
+        default: return value;
     }
 }
 
 /**
- * Selects all cards in the grid
- * @param {HTMLElement} grid grid element
- * @param {boolean} select true = select all rows, false = clear selection
+ * Populates the grid body
+ * @param {Element} body grid footer to populate
+ * @param {object} data data to populate
+ * @param {string} list view name
  * @returns {void}
  */
-function selectAllCards(grid, select) {
-    const cardCols = grid.querySelectorAll('.col');
-    for (const col of cardCols) {
-        const card = col.firstElementChild;
-        if (card === null) {
+function gridBody(body, data, list) {
+    let i = 0;
+    for (const tag of settings['view' + list].fields) {
+        if (tag === 'Thumbnail') {
+            i++;
             continue;
         }
-        const check = card.querySelector('.card-footer > button');
-        if (check === null) {
-            continue;
-        }
-        if (select === true) {
-            card.classList.add('selected');
-            check.textContent = ligatures['checked'];
-        }
-        else {
-            card.classList.remove('selected');
-            check.textContent = ligatures['unchecked'];
-        }
+        const value = printValue(tag, data[tag]);
+        const title = tag === 'Type'
+            ? getTypeTitle(value.textContent)
+            : value.textContent;
+        body.appendChild(
+            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"], "data-col": settings['view' + list].fields[i], "title": title},
+                value
+            )
+        );
+        i++;
     }
-    showGridSelectionCount();
 }
 
 /**
- * Checks if grid is in select mode and selects the card
- * @param {Event} event triggering event
- * @returns {boolean} true if table in select mode, else false
- */
-function selectCard(event) {
-    const grid = event.target.closest('.mympd-grid');
-    const mode = grid.getAttribute('data-mode');
-    if (event.ctrlKey &&
-        mode === null)
-    {
-        //enable select mode
-        switchGridMode(elGetById(app.id + 'SelectModeBtn'));
-    }
-    else if (mode === null) {
-        return false;
-    }
-    //in grid select mode
-    const card = event.target.closest('.card');
-    if (card.classList.contains('not-clickable')) {
-        return true;
-    }
-    else if (event.shiftKey) {
-        let lastPos = getData(grid, 'last-selected');
-        if (lastPos === undefined) {
-            lastPos = 0;
-        }
-        const pos = elGetIndex(card.parentNode);
-        setData(grid, 'last-selected', pos);
-        let first;
-        let last;
-        if (lastPos < pos) {
-            first = lastPos;
-            last = pos;
-        }
-        else {
-            first = pos;
-            last = lastPos;
-        }
-        const cardCols = grid.querySelectorAll('.col');
-        for (let i = first; i <= last; i++) {
-            selectSingleCard(cardCols[i].firstElementChild, true);
-        }
-    }
-    else {
-        selectSingleCard(card, null);
-        setData(grid, 'last-selected', elGetIndex(card.parentNode));
-    }
-    showGridSelectionCount();
-    event.preventDefault();
-    event.stopPropagation();
-    return true;
-}
-
-/**
- * Selects / unselects a single card
- * @param {HTMLElement} card card to select or unselect
- * @param {boolean} [select] true = select, false = unselect, null = toggle
+ * Callback function for intersection observer to lazy load cover images
+ * @param {object} changes IntersectionObserverEntry objects
+ * @param {object} observer IntersectionObserver
  * @returns {void}
  */
-function selectSingleCard(card, select) {
-    const check = card.querySelector('.card-footer > button');
-    if (check === null) {
-        return;
-    }
-    if ((select === null && card.classList.contains('selected')) ||
-        select === false)
-    {
-        check.textContent = ligatures['unchecked'];
-        card.classList.remove('selected');
-    }
-    else {
-        check.textContent = ligatures['checked'];
-        card.classList.add('selected');
-    }
-}
-
-/**
- * Shows the number of selections in the dropdown
- * @returns {void}
- */
-function showGridSelectionCount() {
-    const grid = elGetById(app.id + 'List');
-    const dropdown = document.querySelector('#' + app.id + 'SelectionDropdown');
-    const cards = grid.querySelectorAll('div > div.selected');
-    const count = cards.length;
-    dropdown.querySelector('small').textContent = count + ' ' + tn('selected');
-    const btns = dropdown.querySelectorAll('button');
-    for (const btn of btns) {
-        if (count === 0) {
-            btn.setAttribute('disabled', 'disabled');
+function setGridImage(changes, observer) {
+    changes.forEach(change => {
+        if (change.intersectionRatio > 0) {
+            observer.unobserve(change.target);
+            const body = change.target.querySelector('.card-title');
+            if (body) {
+                body.style.backgroundImage = getData(change.target, 'cssImageUrl');
+            }
         }
-        else {
-            btn.removeAttribute('disabled');
-        }
-    }
-}
-
-/**
- * Central grid click handler.
- * Handles clicks on table header and body.
- * @param {MouseEvent} event the event to handle
- * @returns {HTMLElement} the event target (card-body) to handle or null if it was handled or should not be handled
- */
-function gridClickHandler(event) {
-    if (event.target.classList.contains('row')) {
-        return null;
-    }
-    //select mode
-    if (selectCard(event) === true) {
-        return null;
-    }
-    const target = event.target.closest('DIV');
-    if (target === null) {
-        return null;
-    }
-    if (target.classList.contains('card-footer')){
-        showContextMenu(event);
-        return null;
-    }
-    return target;
+    });
 }

@@ -10,8 +10,12 @@
  * @returns {boolean} true if websocket is connected, else false
  */
 function getWebsocketState() {
-    return socket !== null &&
-        socket.readyState === WebSocket.OPEN;
+    if (socket !== null &&
+        socket.readyState === WebSocket.OPEN)
+    {
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -20,7 +24,7 @@ function getWebsocketState() {
  */
 function webSocketConnect() {
     if (websocketKeepAliveTimer === null) {
-        websocketKeepAliveTimer = setInterval(websocketKeepAlive, 30000);
+        websocketKeepAliveTimer = setInterval(websocketKeepAlive, 5000);
     }
 
     if (getWebsocketState() === true) {
@@ -68,6 +72,7 @@ function webSocketConnect() {
         }
         catch(error) {
             logError('Invalid websocket notification received: ' + msg.data);
+            logError(error);
             return;
         }
 
@@ -154,7 +159,7 @@ function webSocketConnect() {
                         "limit": app.current.limit,
                         "expression": app.current.search,
                         "plist": app.current.tag,
-                        "cols": settings.colsBrowsePlaylistDetailFetch
+                        "fields": settings.viewBrowsePlaylistDetailFetch.fields
                     }, parsePlaylistDetail, false);
                 }
                 break;
@@ -163,7 +168,7 @@ function webSocketConnect() {
                     sendAPI('MYMPD_API_LAST_PLAYED_LIST', {
                         "offset": app.current.offset,
                         "limit": app.current.limit,
-                        "cols": settings.colsQueueLastPlayedFetch,
+                        "fields": settings.viewQueueLastPlayedFetch.fields,
                         "expression": app.current.search
                     }, parseLastPlayed, false);
                 }
@@ -192,7 +197,7 @@ function webSocketConnect() {
                         "expression": app.current.search,
                         "sort": app.current.sort.tag,
                         "sortdesc": app.current.sort.desc,
-                        "cols": settings.colsBrowseDatabaseAlbumListFetch
+                        "fields": settings.viewBrowseDatabaseAlbumListFetch.fields
                     }, parseDatabaseAlbumList, true);
                 }
                 toggleAlert('alertUpdateCacheState', false, '');
@@ -261,7 +266,7 @@ function webSocketClose() {
  * @returns {void}
  */
 function websocketKeepAlive() {
-    const awaitedTime = getTimestamp() - 32;
+    const awaitedTime = getTimestamp() - 7;
     if (websocketLastPong <  awaitedTime) {
         // stale websocket connection
         logError('Stale websocket connection, reconnecting');

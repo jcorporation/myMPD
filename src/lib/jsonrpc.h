@@ -9,8 +9,8 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/api.h"
+#include "src/lib/fields.h"
 #include "src/lib/list.h"
-#include "src/lib/tags.h"
 #include "src/lib/validate.h"
 
 #include <stdbool.h>
@@ -133,7 +133,7 @@ bool json_get_array_string(sds s, const char *path, struct t_list *l, validate_c
 bool json_get_array_int64(sds s, const char *path, struct t_list *l, int max_elements, struct t_jsonrpc_parse_error *error);
 bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error);
 bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error);
-bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_elements, struct t_jsonrpc_parse_error *error);
+bool json_get_fields(sds s, const char *path, struct t_fields *tags, int max_elements, struct t_jsonrpc_parse_error *error);
 bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error);
 
 bool json_find_key(sds s, const char *path);
@@ -141,6 +141,6 @@ sds json_get_key_as_sds(sds s, const char *path);
 
 const char *get_mjson_toktype_name(int vtype);
 sds list_to_json_array(sds s, struct t_list *l);
-sds json_get_cols_as_string(sds s, sds cols, bool *rc);
+bool json_get_fields_as_string(sds s, sds *fields, struct t_jsonrpc_parse_error *error);
 
 #endif

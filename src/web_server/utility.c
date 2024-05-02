@@ -8,6 +8,7 @@
 #include "src/web_server/utility.h"
 
 #include "src/lib/config_def.h"
+#include "src/lib/covercache.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -44,6 +45,28 @@ sds print_ip(sds s, struct mg_addr *addr) {
 }
 
 /**
+ * Gets an decodes an url parameter
+ * @param query query string to parse
+ * @param name name to get, you must append "=" to the name
+ * @return url decoded value or NULL on error
+ */
+sds get_uri_param(struct mg_str *query, const char *name) {
+    sds result = NULL;
+    int count = 0;
+    size_t name_len = strlen(name);
+    sds *params = sdssplitlen(query->buf, (ssize_t)query->len, "&", 1, &count);
+    for (int i = 0; i < count; i++) {
+        if (strncmp(params[i], name, name_len) == 0) {
+            sdsrange(params[i], (ssize_t)name_len, -1);
+            result = sds_urldecode(sdsempty(), params[i], sdslen(params[i]), false);
+            break;
+        }
+    }
+    sdsfreesplitres(params, count);
+    return result;
+}
+
+/**
  * Sets the partition from uri and handles errors
  * @param nc mongoose connection
  * @param hm http message
@@ -51,7 +74,7 @@ sds print_ip(sds s, struct mg_addr *addr) {
  * @return true on success, else false
  */
 bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data) {
-    sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
+    sds partition = sdsnewlen(hm->uri.buf, hm->uri.len);
     basename_uri(partition);
     FREE_SDS(frontend_nc_data->partition);
     frontend_nc_data->partition = partition;
@@ -76,10 +99,13 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     sdsfreesplitres(mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
     list_clear(&mg_user_data->stream_uris);
     list_clear(&mg_user_data->session_list);
-    FREE_SDS(mg_user_data->custom_booklet_image);
-    FREE_SDS(mg_user_data->custom_mympd_image);
-    FREE_SDS(mg_user_data->custom_na_image);
-    FREE_SDS(mg_user_data->custom_stream_image);
+    FREE_SDS(mg_user_data->placeholder_booklet);
+    FREE_SDS(mg_user_data->placeholder_mympd);
+    FREE_SDS(mg_user_data->placeholder_na);
+    FREE_SDS(mg_user_data->placeholder_stream);
+    FREE_SDS(mg_user_data->placeholder_playlist);
+    FREE_SDS(mg_user_data->placeholder_smartpls);
+    FREE_SDS(mg_user_data->placeholder_folder);
     FREE_SDS(mg_user_data->cert_content);
     FREE_SDS(mg_user_data->key_content);
     FREE_PTR(mg_user_data);
@@ -94,12 +120,12 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
  * @param uri_decoded image uri
  * @param offset embedded image offset
  * @return true if an image is served,
- *         false if waiting for mpd_client to handle request
+ *         false if no image was found in cache
  */
 bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset)
 {
-    if (mg_user_data->config->covercache_keep_days > 0) {
+    if (mg_user_data->config->covercache_keep_days != COVERCACHE_DISABLED) {
         sds filename = sds_hash_sha1(uri_decoded);
         sds covercachefile = sdscatfmt(sdsempty(), "%S/%s/%S-%i", mg_user_data->config->cachedir, DIR_CACHE_COVER, filename, offset);
         FREE_SDS(filename);
@@ -133,7 +159,7 @@ static const char *image_file_extensions[] = {
 /**
  * Finds the first image with basefilename by trying out extensions
  * @param basefilename basefilename to append extensions
- * @return pointer to basefilename
+ * @return pointer to extended basefilename on success, else empty
  */
 sds webserver_find_image_file(sds basefilename) {
     MYMPD_LOG_DEBUG(NULL, "Searching image file for basename \"%s\"", basefilename);
@@ -155,6 +181,32 @@ sds webserver_find_image_file(sds basefilename) {
         sdsclear(basefilename);
     }
     return basefilename;
+}
+
+/**
+ * Finds an image in a specific subdir in dir
+ * @param coverfile pointer to already allocated sds string to append the found image path
+ * @param music_directory parent directory
+ * @param path subdirectory
+ * @param names sds array of names
+ * @param names_len length of sds array
+ * @return true on success, else false
+ */
+bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *names, int names_len) {
+    for (int j = 0; j < names_len; j++) {
+        *coverfile = sdscatfmt(*coverfile, "%S/%S/%S", music_directory, path, names[j]);
+        if (strchr(names[j], '.') == NULL) {
+            //basename, try extensions
+            *coverfile = webserver_find_image_file(*coverfile);
+        }
+        if (sdslen(*coverfile) > 0 &&
+            testfile_read(*coverfile) == true)
+        {
+            return true;
+        }
+        sdsclear(*coverfile);
+    }
+    return false;
 }
 
 /**
@@ -199,6 +251,24 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
     MYMPD_LOG_DEBUG(NULL, "Sending %lu bytes to %lu", (unsigned long)len, nc->id);
     webserver_send_header_ok(nc, len, headers);
     mg_send(nc, data, len);
+    webserver_handle_connection_close(nc);
+}
+
+/**
+ * Serves a file defined by file from path
+ * @param nc mongoose connection
+ * @param hm mongoose http message
+ * @param path document root
+ * @param file file to serve
+ */
+void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm, const char *path, const char *file) {
+    const char *mime_type = get_mime_type_by_ext(file);
+    MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", file, mime_type);
+    static struct mg_http_serve_opts s_http_server_opts;
+    s_http_server_opts.root_dir = path;
+    s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
+    s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+    mg_http_serve_file(nc, hm, file, &s_http_server_opts);
     webserver_handle_connection_close(nc);
 }
 
@@ -260,66 +330,33 @@ void webserver_handle_connection_close(struct mg_connection *nc) {
 }
 
 /**
- * Redirects to the not available image
+ * Redirects to the placeholder image
  * @param nc mongoose connection
  */
-void webserver_serve_na_image(struct mg_connection *nc) {
+void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholder_types placeholder_type) {
     struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
-    if (sdslen(mg_user_data->custom_na_image) == 0) {
-        webserver_send_header_found(nc, "/assets/coverimage-notavailable.svg");
-    }
-    else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_na_image);
-        webserver_send_header_found(nc, uri);
-        FREE_SDS(uri);
-    }
-}
-
-/**
- * Redirects to the stream image
- * @param nc mongoose connection
- */
-void webserver_serve_stream_image(struct mg_connection *nc) {
-    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
-    if (sdslen(mg_user_data->custom_stream_image) == 0) {
-        webserver_send_header_found(nc, "/assets/coverimage-stream.svg");
-    }
-    else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_stream_image);
-        webserver_send_header_found(nc, uri);
-        FREE_SDS(uri);
-    }
-}
-
-/**
- * Redirects to the mympd image
- * @param nc mongoose connection
- */
-void webserver_serve_mympd_image(struct mg_connection *nc) {
-    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
-    if (sdslen(mg_user_data->custom_mympd_image) == 0) {
-        webserver_send_header_found(nc, "/assets/coverimage-mympd.svg");
-    }
-    else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_mympd_image);
-        webserver_send_header_found(nc, uri);
-        FREE_SDS(uri);
-    }
-}
-
-/**
- * Redirects to the booklet image
- * @param nc mongoose connection
- */
-void webserver_serve_booklet_image(struct mg_connection *nc) {
-    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
-    if (sdslen(mg_user_data->custom_booklet_image) == 0) {
-        webserver_send_header_found(nc, "/assets/coverimage-booklet.svg");
-    }
-    else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_booklet_image);
-        webserver_send_header_found(nc, uri);
-        FREE_SDS(uri);
+    switch (placeholder_type) {
+        case PLACEHOLDER_NA:
+            webserver_send_header_found(nc, mg_user_data->placeholder_na);
+            break;
+        case PLACEHOLDER_STREAM:
+            webserver_send_header_found(nc, mg_user_data->placeholder_stream);
+            break;
+        case PLACEHOLDER_MYMPD:
+            webserver_send_header_found(nc, mg_user_data->placeholder_mympd);
+            break;
+        case PLACEHOLDER_BOOKLET:
+            webserver_send_header_found(nc, mg_user_data->placeholder_booklet);
+            break;
+        case PLACEHOLDER_PLAYLIST:
+            webserver_send_header_found(nc, mg_user_data->placeholder_playlist);
+            break;
+        case PLACEHOLDER_SMARTPLS:
+            webserver_send_header_found(nc, mg_user_data->placeholder_smartpls);
+            break;
+        case PLACEHOLDER_FOLDER:
+            webserver_send_header_found(nc, mg_user_data->placeholder_folder);
+            break;
     }
 }
 
@@ -354,6 +391,9 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/coverimage-stream.svg", "image/svg+xml", true, true, coverimage_stream_svg_data, coverimage_stream_svg_size},
         {"/assets/coverimage-booklet.svg", "image/svg+xml", true, true, coverimage_booklet_svg_data, coverimage_booklet_svg_size},
         {"/assets/coverimage-mympd.svg", "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
+        {"/assets/coverimage-playlist.svg", "image/svg+xml", true, true, coverimage_playlist_svg_data, coverimage_playlist_svg_size},
+        {"/assets/coverimage-smartpls.svg", "image/svg+xml", true, true, coverimage_smartpls_svg_data, coverimage_smartpls_svg_size},
+        {"/assets/coverimage-folder.svg", "image/svg+xml", true, true, coverimage_folder_svg_data, coverimage_folder_svg_size},
         {"/assets/mympd-background-dark.svg", "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
         {"/assets/mympd-background-light.svg", "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},
         {"/assets/appicon-192.png", "image/png", false, true, appicon_192_png_data, appicon_192_png_size},

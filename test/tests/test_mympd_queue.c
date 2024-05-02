@@ -82,7 +82,7 @@ UTEST(mympd_queue, push_shift_id) {
 UTEST(mympd_queue, expire) {
     struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST, false);
     for (int i = 0; i < 50; i++) {
-        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_COLS_SAVE, "test", MPD_PARTITION_DEFAULT);
+        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_VIEW_SAVE, "test", MPD_PARTITION_DEFAULT);
         request->extra = malloc(10);
         mympd_queue_push(test_queue, request, 10);
     }
@@ -125,7 +125,7 @@ UTEST(mympd_queue, event) {
     struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST, true);
     bool rc = event_eventfd_write(test_queue->event_fd);
     ASSERT_TRUE(rc);
-    rc = event_pfd_read_fd(test_queue->event_fd);
+    rc = event_eventfd_read(test_queue->event_fd);
     ASSERT_TRUE(rc);
     mympd_queue_free(test_queue);
 }

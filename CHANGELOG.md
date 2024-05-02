@@ -4,6 +4,38 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v15.0.0 (2024-05-02)
+
+This release reworks the table and grid layouts for all views. Each view can now be displayed as table or grid.
+
+### API changes
+
+- The `cols` param was renamed to `fields`
+- MYMPD_API_PLAYLIST_LIST: response changed
+- MYMPD_API_VIEW_SAVE: new
+- MYMPD_API_COLS_SAVE: removed
+
+### Changelog
+
+- Feat: All views can be displayed as table or grid (with pictures) #1051
+- Feat: Add setting for default sort tag in library view #1207
+- Feat: Add lua library for myGPIOd support #1208
+- Feat: Support range for listplaylist and listplaylistinfo (MPD 0.24) #1214
+- Feat: Support playlistlength command (MPD 0.24) #1213
+- Feat: Add column for "File type" in song lists #1225
+- Feat: Add thumbnail column to views #1093
+- Feat: Add playlist art handler
+- Feat: Configurable columns for playlist view
+- Feat: Add option to disable covercache pruning #1237
+- Feat: Add support for sticker find operators contains, starts_with (MPD 0.24)
+- Feat: Provide and install a systemd user unit #1262
+- Upd: Bootstrap 5.3.3
+- Upd: Support ESLint 9
+- Fix: List and search playlists in filesystem view
+- Fix: SSL issues with iPhone clients
+
+***
+
 ## myMPD 14.1.2 (2024-04-15)
 
 This is a small bugfix release.
@@ -35,6 +67,7 @@ This release enables the support for sticker sorting and fixes a severe mongoose
 - Feat: Sort sticker search results (MPD 0.24) #1094
 - Fix: Problems with settings in 14.0.x #1221
 - Fix: Browse filesystem layout #1235
+- Fix: Re-add custom css to mongoose dir listing
 
 ***
 

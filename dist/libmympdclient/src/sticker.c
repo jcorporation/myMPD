@@ -192,13 +192,15 @@ mpd_sticker_search_begin(struct mpd_connection *connection, const char *type,
 
 static const char *get_sticker_oper_str(enum mpd_sticker_operator oper) {
 	switch(oper) {
-	case MPD_STICKER_OP_EQ:     return "=";
-	case MPD_STICKER_OP_GT:     return ">";
-	case MPD_STICKER_OP_LT:     return "<";
-	case MPD_STICKER_OP_EQ_INT: return "eq";
-	case MPD_STICKER_OP_GT_INT: return "gt";
-	case MPD_STICKER_OP_LT_INT: return "lt";
-	case MPD_STICKER_OP_UNKOWN: return NULL;
+	case MPD_STICKER_OP_EQ:          return "=";
+	case MPD_STICKER_OP_GT:          return ">";
+	case MPD_STICKER_OP_LT:          return "<";
+	case MPD_STICKER_OP_EQ_INT:      return "eq";
+	case MPD_STICKER_OP_GT_INT:      return "gt";
+	case MPD_STICKER_OP_LT_INT:      return "lt";
+	case MPD_STICKER_OP_CONTAINS:    return "contains";
+	case MPD_STICKER_OP_STARTS_WITH: return "starts_with";
+	case MPD_STICKER_OP_UNKOWN:      return NULL;
 	}
 	return NULL;
 }

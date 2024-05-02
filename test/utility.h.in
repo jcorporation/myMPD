@@ -13,6 +13,11 @@
 
 #define MYMPD_BUILD_DIR "${PROJECT_BINARY_DIR}"
 
+#define TESTFILE_CONTENT "asdfjlkasdfjklsafd\nasfdsdfawaerwer"
+#define TESTFILE_CONTENT_LEN 34
+#define TESTFILE_CONTENT_NW "asdfjlkasdfjklsafdasfdsdfawaerwer"
+#define TESTFILE_CONTENT_NW_LEN 33
+
 extern sds workdir;
 
 struct t_input_result {

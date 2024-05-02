@@ -36,6 +36,23 @@ int mympd_timer_create(int clock, int timeout, int interval) {
 }
 
 /**
+ * Reads from a timerfd
+ * @param fd read from this fd
+ * @return true on success, else false
+ */
+bool mympd_timer_read(int fd) {
+    uint64_t exp;
+    errno = 0;
+    ssize_t s = read(fd, &exp, sizeof(uint64_t));
+    if (s != sizeof(uint64_t)) {
+        MYMPD_LOG_ERROR(NULL, "Unable to read from timerfd");
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    return true;
+}
+
+/**
  * Sets the relative timeout and interval for a timer fd.
  * @param timer_fd timer fd
  * @param timeout relative timeout in seconds

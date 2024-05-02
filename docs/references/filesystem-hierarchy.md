@@ -10,6 +10,7 @@ myMPD uses GNU standard installation directories.
 | ---------- | ----------- |
 | /etc/init.d/mympd | myMPD startscript (sysVinit or open-rc) |
 | /lib/systemd/system/mympd.service | Systemd unit |
+| /lib/systemd/user/mympd.service | Systemd user unit |
 | /usr/bin/mympd | myMPD executable |
 | /usr/bin/mympd-script | Executable to trigger and post myMPD scripts |
 | /var/cache/mympd/ | myMPD cache directory |
@@ -20,7 +21,7 @@ myMPD uses GNU standard installation directories.
 | /var/lib/mympd/empty/ | Intentionally empty directory |
 | /var/lib/mympd/pics/ | Root folder for images |
 | /var/lib/mympd/pics/backgrounds/ | Backgroundimages |
-| /var/lib/mympd/pics/thumbs/ | Folder for homeicon, webradio and stream images |
+| /var/lib/mympd/pics/thumbs/ | Folder for homeicon, webradio, playlist and stream images |
 | /var/lib/mympd/pics/`<tagname>`/ | Images for <tagname> e.g. AlbumArtist, Artist, Genre, ... |
 | /var/lib/mympd/scripts/ | Directory for lua scripts |
 | /var/lib/mympd/smartpls/ | Directory for smart playlists |

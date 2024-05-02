@@ -31,6 +31,7 @@ Context menu
 country
 CSS filter
 Dark
+Date
 Default
 Default image
 Default image dark
@@ -104,6 +105,7 @@ jack
 Jukebox Queue
 Label
 language
+Languages
 lastchangetime
 lastcheckok
 Last-Modified
@@ -231,7 +233,7 @@ Synced lyrics extension
 Synced lyrics vorbis comment
 Tab
 tags
-Thumbnail size
+Thumbnail
 Title
 Too many results, list is cropped
 Track

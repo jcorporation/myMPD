@@ -71,6 +71,10 @@ Create a directory named `AlbumArtist` under `/var/lib/mympd/pics`. Add pictures
 
 Pictures for the home icons must be placed in the directory `/var/lib/mympd/pics/thumbs`.
 
+### Playlist pictures
+
+Pictures for playlists must be placed in the directory `/var/lib/mympd/pics/thumbs`.
+
 ### Background images
 
 Background images must be saved in the `/var/lib/mympd/pics/backgrounds` folder.
@@ -86,8 +90,11 @@ myMPD recognizes following file extensions:
 You can add custom placeholder images for albumart.
 
 - `/var/lib/mympd/pics/thumbs/coverimage-booklet.webp`
+- `/var/lib/mympd/pics/thumbs/coverimage-folder.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-mympd.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-notavailable.webp`
+- `/var/lib/mympd/pics/thumbs/coverimage-playlist.webp`
+- `/var/lib/mympd/pics/thumbs/coverimage-smartpls.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-stream.webp`
 
 You can use every supported file extension.

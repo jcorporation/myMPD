@@ -4,12 +4,14 @@
 # https://github.com/jcorporation/mympd
 #
 FROM alpine:latest
+
+WORKDIR /
+RUN apk add --no-cache git alpine-sdk cmake
+
 COPY . /myMPD/
 WORKDIR /myMPD
 RUN ./build.sh installdeps
 RUN ./build.sh debug
 RUN ./build.sh addmympduser
 
-ENV MPD_HOST=127.0.0.1
-ENV MPD_PORT=6600
 ENTRYPOINT ["/myMPD/debug/mympd"]

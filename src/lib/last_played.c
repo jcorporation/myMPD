@@ -8,18 +8,11 @@
 #include "src/lib/last_played.h"
 
 #include "src/lib/filehandler.h"
-#include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mpack.h"
 #include "src/lib/sds_extras.h"
 
 #include <unistd.h>
-
-/*
- * Private declarations
- */
-
-static bool old_last_played_file_read(struct t_partition_state *partition_state);
 
 /*
  * Public functions
@@ -87,11 +80,6 @@ bool last_played_file_save(struct t_partition_state *partition_state) {
 bool last_played_file_read(struct t_partition_state *partition_state) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s",
         partition_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
-    if (testfile_read(filepath) == false) {
-        FREE_SDS(filepath);
-        return old_last_played_file_read(partition_state);
-    }
-    
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);
     mpack_tree_set_error_handler(&tree, log_mpack_node_error);
@@ -112,46 +100,4 @@ bool last_played_file_read(struct t_partition_state *partition_state) {
     MYMPD_LOG_INFO(NULL, "Read %u last_played entries from disc", partition_state->last_played.length);
     FREE_SDS(filepath);
     return rc;
-}
-
-/*
- * Private functions
- */
-
-/**
- * Reads the old last_played file and removes it
- * @param partition_state pointer to partition state
- * @return true on success, else false
- */
-static bool old_last_played_file_read(struct t_partition_state *partition_state) {
-    sds lp_file = sdscatfmt(sdsempty(), "%S/%S/last_played_list",
-            partition_state->config->workdir, partition_state->state_dir);
-    errno = 0;
-    FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
-    if (fp == NULL) {
-        FREE_SDS(lp_file);
-        return false;
-    }
-
-    sds line = sdsempty();
-    int nread = 0;
-    while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
-        sds uri = NULL;
-        int64_t last_played;
-        if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true &&
-            json_get_int64_max(line, "$.LastPlayed", &last_played, NULL) == true)
-        {
-            list_push(&partition_state->last_played, uri, last_played, NULL, NULL);
-        }
-        else {
-            MYMPD_LOG_ERROR(partition_state->name, "Reading last_played line failed");
-            MYMPD_LOG_DEBUG(partition_state->name, "Erroneous line: %s", line);
-        }
-        FREE_SDS(uri);
-    }
-    (void) fclose(fp);
-    FREE_SDS(line);
-    unlink(lp_file);
-    FREE_SDS(lp_file);
-    return true;
 }

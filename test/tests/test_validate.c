@@ -174,14 +174,14 @@ UTEST(validate, test_validate_isuri) {
 UTEST(validate, test_validate_iscolumn) {
     //valid
     sds data = sdsnew("Artist");
-    ASSERT_TRUE(vcb_iscolumn(data));
+    ASSERT_TRUE(vcb_isfield(data));
     sdsclear(data);
     data = sdscat(data, "Duration");
-    ASSERT_TRUE(vcb_iscolumn(data));
+    ASSERT_TRUE(vcb_isfield(data));
     sdsclear(data);
     //invalid
     data = sdscat(data, "asdfsfdj");
-    ASSERT_FALSE(vcb_iscolumn(data));
+    ASSERT_FALSE(vcb_isfield(data));
     sdsfree(data);
 }
 

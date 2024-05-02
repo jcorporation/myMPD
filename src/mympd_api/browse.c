@@ -5,12 +5,11 @@
 */
 
 #include "compile_time.h"
-#include "mpd/tag.h"
-#include "src/lib/tags.h"
 #include "src/mympd_api/browse.h"
 
 #include "dist/utf8/utf8.h"
 #include "src/lib/album_cache.h"
+#include "src/lib/fields.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
@@ -45,11 +44,11 @@ static bool check_album_sort_tag(enum sort_by_type sort_by, enum mpd_tag_type so
  * @param buffer sds string to append response
  * @param request_id jsonrpc request id
  * @param albumid id of the album (key in the album_cache)
- * @param tagcols t_tags struct of song tags to print
+ * @param tagcols t_fields struct of song tags to print
  * @return pointer to buffer
  */
 sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
-        sds buffer, unsigned request_id, sds albumid, const struct t_tags *tagcols)
+        sds buffer, unsigned request_id, sds albumid, const struct t_fields *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_ALBUM_DETAIL;
 
@@ -95,7 +94,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
 
         struct mpd_song *song;
         if (partition_state->mpd_state->feat.stickers == true &&
-            tagcols->stickers_len > 0)
+            tagcols->stickers.len > 0)
         {
             stickerdb_exit_idle(mympd_state->stickerdb);
         }
@@ -107,13 +106,13 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
                 first_song_uri = sdscat(first_song_uri, mpd_song_get_uri(song));
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
-            buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
+            buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->tags, song);
             if (partition_state->mpd_state->feat.stickers == true &&
-                tagcols->stickers_len > 0)
+                tagcols->stickers.len > 0)
             {
                 struct t_sticker sticker;
                 stickerdb_get_all_batch(mympd_state->stickerdb, mpd_song_get_uri(song), &sticker, false);
-                buffer = mympd_api_sticker_print(buffer, &sticker, tagcols);
+                buffer = mympd_api_sticker_print(buffer, &sticker, &tagcols->stickers);
 
                 if (sticker.mympd[STICKER_LAST_PLAYED] > last_played_max) {
                     last_played_max = (time_t)sticker.mympd[STICKER_LAST_PLAYED];
@@ -133,7 +132,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
     }
     mpd_response_finish(partition_state->conn);
     if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers_len > 0)
+        tagcols->stickers.len > 0)
     {
         stickerdb_enter_idle(mympd_state->stickerdb);
     }
@@ -175,7 +174,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
  * @return pointer to buffer
  */
 sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struct t_cache *album_cache, sds buffer, unsigned request_id,
-        sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit, const struct t_tags *tagcols)
+        sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit, const struct t_fields *tagcols)
 {
     if (album_cache->cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
@@ -265,7 +264,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
             }
             struct mpd_song *album = (struct mpd_song *)iter.data;
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
-            buffer = print_album_tags(buffer, partition_state->mpd_state, tagcols, album);
+            buffer = print_album_tags(buffer, partition_state->mpd_state, &tagcols->tags, album);
             buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), false);
             buffer = sdscatlen(buffer, "}", 1);
@@ -371,7 +370,7 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatlen(buffer, "{", 1);
-            buffer = tojson_sds(buffer, "value", (sds)iter.data, false);
+            buffer = tojson_sds(buffer, "Value", (sds)iter.data, false);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;

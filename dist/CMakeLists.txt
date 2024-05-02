@@ -8,3 +8,7 @@ add_subdirectory(mpack)
 add_subdirectory(mongoose)
 add_subdirectory(rax)
 add_subdirectory(sds)
+
+if(MYMPD_ENABLE_MYGPIOD_STATIC)
+    add_subdirectory(myGPIOd)
+endif()

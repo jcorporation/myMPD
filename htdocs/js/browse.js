@@ -43,23 +43,15 @@ function navBrowseHandler(event) {
             appGoto('Browse', 'Database', app.cards.Browse.tabs.Database.active);
             return;
         }
-        if (tag !== 'Album') {
-            app.current.filter = tag;
-            app.current.sort.tag = tag;
-            app.current.sort.desc = false;
-            app.current.view = 'TagList';
+        if (tag === 'Album') {
+            elGetById('BrowseDatabaseAlbumListSearchMatch').value = 'contains';
+            appGoto('Browse', 'Database', 'AlbumList',
+                0, undefined, undefined, undefined, undefined, '');
+            return;
         }
-        else {
-            app.current.sort = {
-                "tag": tagAlbumArtist,
-                "desc": false
-            };
-            app.current.view = 'AlbumList';
-        }
-        app.current.search = '';
-        elGetById('BrowseDatabaseAlbumListSearchMatch').value = 'contains';
-        appGoto(app.current.card, app.current.tab, app.current.view,
-            0, app.current.limit, app.current.filter, app.current.sort, tag, app.current.search);
+        // other tags
+        appGoto('Browse', 'Database', 'TagList',
+            0, undefined, tag, {'tag': tag, 'desc': false}, tag, '');
     }
 }
 
@@ -154,7 +146,7 @@ function gotoAlbumList(tag, value) {
         expression += '(' + tag + ' == \'' + escapeMPD(value[i]) + '\')';
     }
     expression += ')';
-    appGoto('Browse', 'Database', 'AlbumList', 0, undefined, tag, {'tag': tagAlbumArtist, 'desc': false}, 'Album', expression);
+    appGoto('Browse', 'Database', 'AlbumList', 0, undefined, tag, {'tag': settings.webuiSettings.browseDatabaseAlbumListSort, 'desc': false}, 'Album', expression);
 }
 
 /**
@@ -186,24 +178,5 @@ function gotoSearch(tag, value) {
         }
     }
     const expression = '(' + filters.join(' AND ') + ')';
-    appGoto('Search', undefined, undefined, 0, undefined, tag, {'tag':'', 'desc': false}, tag, expression);
-}
-
-/**
- * Callback function for intersection observer to lazy load cover images
- * @param {object} changes IntersectionObserverEntry objects
- * @param {object} observer IntersectionObserver
- * @returns {void}
- */
-function setGridImage(changes, observer) {
-    changes.forEach(change => {
-        if (change.intersectionRatio > 0) {
-            observer.unobserve(change.target);
-            const uri = getData(change.target.firstChild, 'image');
-            const body = change.target.firstChild.querySelector('.card-body');
-            if (body) {
-                body.style.backgroundImage = getCssImageUri(uri);
-            }
-        }
-    });
+    appGoto('Search', undefined, undefined, 0, undefined, tag, {'tag':app.cards.Search.sort.tag, 'desc': false}, tag, expression);
 }

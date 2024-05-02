@@ -47,23 +47,6 @@ bool event_pfd_add_fd(struct mympd_pfds *pfds, int fd, enum pfd_type type, struc
 }
 
 /**
- * Reads an uint64_t value from a fd
- * @param fd read from this fd
- * @return true on success, else false
- */
-bool event_pfd_read_fd(int fd) {
-    uint64_t exp;
-    errno = 0;
-    ssize_t s = read(fd, &exp, sizeof(uint64_t));
-    if (s != sizeof(uint64_t)) {
-        MYMPD_LOG_ERROR(NULL, "Unable to read from fd");
-        MYMPD_LOG_ERRNO(NULL, errno);
-        return false;
-    }
-    return true;
-}
-
-/**
  * Creates an eventfd
  * @return the eventfd
  */
@@ -71,22 +54,37 @@ int event_eventfd_create(void) {
     errno = 0;
     int fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK | EFD_SEMAPHORE);
     if (fd == -1) {
-        MYMPD_LOG_ERROR(NULL, "Unable to create fd");
+        MYMPD_LOG_ERROR(NULL, "Unable to create eventfd");
         MYMPD_LOG_ERRNO(NULL, errno);
     }
     return fd;
 }
 
 /**
- * Writes the uint64_t value 1 to the fd
+ * Increments the eventfd by one
  * @param fd fd to write
  * @return true on success, else false
  */
 bool event_eventfd_write(int fd) {
     errno = 0;
-    uint64_t u = 1;
-    if (write(fd, &u, sizeof(u)) != sizeof(u)) {
-        MYMPD_LOG_ERROR(NULL, "Unable to write to fd");
+    if (eventfd_write(fd, 1) != 0) {
+        MYMPD_LOG_ERROR(NULL, "Unable to write to eventfd");
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Reads from an eventfd
+ * @param fd read from this fd
+ * @return true on success, else false
+ */
+bool event_eventfd_read(int fd) {
+    eventfd_t exp;
+    errno = 0;
+    if (eventfd_read(fd, &exp) != 0) {
+        MYMPD_LOG_ERROR(NULL, "Unable to read from eventfd");
         MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }

@@ -16,7 +16,7 @@
  * @return parsed integer
  */
 int mg_str_to_int(struct mg_str *str) {
-    sds s = sdsnewlen(str->ptr, str->len);
+    sds s = sdsnewlen(str->buf, str->len);
     int i;
     enum str2int_errno rc = str2int(&i, s);
     FREE_SDS(s);
@@ -31,7 +31,7 @@ int mg_str_to_int(struct mg_str *str) {
  * @return parsed integer
  */
 unsigned mg_str_to_uint(struct mg_str *str) {
-    sds s = sdsnewlen(str->ptr, str->len);
+    sds s = sdsnewlen(str->buf, str->len);
     unsigned i;
     enum str2int_errno rc = str2uint(&i, s);
     FREE_SDS(s);

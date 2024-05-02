@@ -9,7 +9,7 @@ cmake_policy(SET CMP0003 NEW)
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd
-  VERSION 14.1.2
+  VERSION 15.0.0
   LANGUAGES C
 )
 
@@ -23,6 +23,7 @@ message("Cmake build type: ${CMAKE_BUILD_TYPE}")
 message("Compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
 message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 message("CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
+message("Arch: ${CMAKE_C_LIBRARY_ARCHITECTURE}")
 
 # reset cmake default flags
 set(CMAKE_C_FLAGS_DEBUG "")
@@ -50,6 +51,7 @@ option(MYMPD_ENABLE_FLAC "Enables flac support, default ON" "ON")
 option(MYMPD_ENABLE_IPV6 "Enables IPv6, default ON" "ON")
 option(MYMPD_ENABLE_LIBID3TAG "Enables libid3tag support, default ON" "ON")
 option(MYMPD_ENABLE_LUA "Enables lua support, default ON" "ON")
+option(MYMPD_ENABLE_MYGPIOD "Enables myGPIOd support, default ON" "ON")
 option(MYMPD_MANPAGES "Creates and installs manpages" "ON")
 option(MYMPD_MINIMAL "Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags" "OFF")
 option(MYMPD_STARTUP_SCRIPT "Installs the startup script, default ON" "ON")
@@ -63,6 +65,7 @@ if(MYMPD_MINIMAL)
   set(MYMPD_ENABLE_IPV6 "OFF")
   set(MYMPD_ENABLE_LUA "OFF")
   set(MYMPD_ENABLE_LIBID3TAG "OFF")
+  set(MYMPD_ENABLE_MYGPIOD "OFF")
 endif()
 
 if(MYMPD_ENABLE_EXPERIMENTAL)
@@ -77,56 +80,6 @@ include(GNUInstallDirs)
 
 # custom cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
-
-# calculate paths
-if(CMAKE_INSTALL_PREFIX MATCHES "/usr")
-  set(SUBDIR "/${PROJECT_NAME}")
-  set(SUBDIRLIB "/lib")
-  set(SUBDIRCACHE "/cache")
-else()
-  # for install in /opt
-  set(SUBDIR "")
-  set(SUBDIRLIB "")
-  set(SUBDIRCACHE "")
-endif()
-
-message("Executables in: ${CMAKE_INSTALL_FULL_BINDIR}")
-
-if(CMAKE_INSTALL_PREFIX STREQUAL "/usr/local")
-  set(MYMPD_WORK_DIR "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
-  set(MYMPD_CACHE_DIR "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
-else()
-  set(MYMPD_WORK_DIR "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
-  set(MYMPD_CACHE_DIR "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
-endif()
-
-message("Workdir: ${MYMPD_WORK_DIR}")
-message("Cachedir: ${MYMPD_CACHE_DIR}")
-
-# create assets and set doc root
-set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
-
-if(MYMPD_EMBEDDED_ASSETS)
-  message("Embedding assets in binary")
-  set(MYMPD_DOC_ROOT "${MYMPD_WORK_DIR}/empty")
-  set(MYMPD_LUALIBS_PATH "")
-  execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets RESULT_VARIABLE RC_CREATE_ASSETS)
-  # remove object files with embedded assets
-  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/web_server/utility.c.o")
-  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/mympd_api/scripts.c.o")
-else()
-  message("Serving assets from filesystem")
-  set(MYMPD_DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")
-  set(MYMPD_LUALIBS_PATH "${PROJECT_SOURCE_DIR}/contrib/lualibs")
-  execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" copyassets RESULT_VARIABLE RC_CREATE_ASSETS)
-endif()
-
-if(RC_CREATE_ASSETS GREATER 0)
-  message(FATAL_ERROR "Creating assets failed")
-endif()
-
-message("Document root: ${MYMPD_DOC_ROOT}")
-message("Docdir: ${CMAKE_INSTALL_FULL_DOCDIR}")
 
 # required dependencies
 find_package(Threads REQUIRED)
@@ -176,10 +129,73 @@ if(MYMPD_ENABLE_LUA)
   else()
     message("Lua is disabled because it was not found")
     set(MYMPD_ENABLE_LUA "OFF")
+    set(MYMPD_ENABLE_MYGPIOD "OFF")
   endif()
 else()
   message("Lua is disabled by user")
 endif()
+
+if(MYMPD_ENABLE_MYGPIOD)
+  message("Searching for libmygpio")
+  find_package(LIBMYGPIO)
+  if(NOT LIBMYGPIO_FOUND)
+    message("Compiling static version of libmygpio")
+    set(MYMPD_ENABLE_MYGPIOD_STATIC "ON")
+  endif()
+else()
+  message("myGPIO support is disabled by user")
+endif()
+
+# calculate paths
+if(CMAKE_INSTALL_PREFIX MATCHES "/usr")
+  set(SUBDIR "/${PROJECT_NAME}")
+  set(SUBDIRLIB "/lib")
+  set(SUBDIRCACHE "/cache")
+else()
+  # for install in /opt
+  set(SUBDIR "")
+  set(SUBDIRLIB "")
+  set(SUBDIRCACHE "")
+endif()
+
+message("Executables in: ${CMAKE_INSTALL_FULL_BINDIR}")
+
+if(CMAKE_INSTALL_PREFIX STREQUAL "/usr/local")
+  set(MYMPD_WORK_DIR "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
+  set(MYMPD_CACHE_DIR "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
+else()
+  set(MYMPD_WORK_DIR "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
+  set(MYMPD_CACHE_DIR "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
+endif()
+
+message("Workdir: ${MYMPD_WORK_DIR}")
+message("Cachedir: ${MYMPD_CACHE_DIR}")
+
+# create assets and set doc root
+set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
+set(ENV{MYMPD_ENABLE_MYGPIOD} "${MYMPD_ENABLE_MYGPIOD}")
+
+if(MYMPD_EMBEDDED_ASSETS)
+  message("Embedding assets in binary")
+  set(MYMPD_DOC_ROOT "${MYMPD_WORK_DIR}/empty")
+  set(MYMPD_LUALIBS_PATH "")
+  execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets RESULT_VARIABLE RC_CREATE_ASSETS)
+  # remove object files with embedded assets
+  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/web_server/utility.c.o")
+  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/mympd_api/scripts.c.o")
+else()
+  message("Serving assets from filesystem")
+  set(MYMPD_DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")
+  set(MYMPD_LUALIBS_PATH "${CMAKE_CURRENT_BINARY_DIR}/contrib/lualibs")
+  execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" copyassets RESULT_VARIABLE RC_CREATE_ASSETS)
+endif()
+
+if(RC_CREATE_ASSETS GREATER 0)
+  message(FATAL_ERROR "Creating assets failed")
+endif()
+
+message("Document root: ${MYMPD_DOC_ROOT}")
+message("Docdir: ${CMAKE_INSTALL_FULL_DOCDIR}")
 
 # translation files
 if(MYMPD_EMBEDDED_ASSETS)
@@ -244,7 +260,8 @@ endif()
 # configure some files - version and path information
 configure_file(src/compile_time.h.in "${PROJECT_BINARY_DIR}/compile_time.h")
 configure_file(cmake/Install.cmake.in cmake/Install.cmake @ONLY)
-configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.service @ONLY)
+configure_file(contrib/initscripts/mympd.service.system.in contrib/initscripts/system/mympd.service @ONLY)
+configure_file(contrib/initscripts/mympd.service.user.in contrib/initscripts/user/mympd.service @ONLY)
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 configure_file(contrib/initscripts/mympd.freebsdrc.in contrib/initscripts/mympd.freebsdrc @ONLY)
@@ -400,7 +417,7 @@ add_subdirectory("cli_tools")
 
 # link all together
 target_link_libraries(mympd
-  libmympdclient
+  mympdclient
   mjson
   mpack
   mongoose
@@ -413,14 +430,21 @@ target_link_libraries(mympd
 )
 
 # link optional dependencies
-if(LIBID3TAG_FOUND)
+if(MYMPD_ENABLE_LIBID3TAG)
   target_link_libraries(mympd ${LIBID3TAG_LIBRARIES})
 endif()
-if(FLAC_FOUND)
+if(MYMPD_ENABLE_FLAC)
   target_link_libraries(mympd ${FLAC_LIBRARIES})
 endif()
-if(LUA_FOUND)
+if(MYMPD_ENABLE_LUA)
   target_link_libraries(mympd ${LUA_LIBRARIES})
+endif()
+if(MYMPD_ENABLE_MYGPIOD)
+  if(MYMPD_ENABLE_MYGPIOD_STATIC)
+    target_link_libraries(mympd mygpio)
+  else()
+    target_link_libraries(mympd ${LIBMYGPIO_LIBRARIES})
+  endif()
 endif()
 
 # install

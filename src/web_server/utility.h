@@ -31,10 +31,13 @@ struct t_mg_user_data {
     int connection_count;        //!< number of http connections
     struct t_list stream_uris;   //!< uri for the mpd stream reverse proxy
     struct t_list session_list;  //!< list of myMPD sessions (pin protection mode)
-    sds custom_booklet_image;    //!< name of custom booklet image
-    sds custom_mympd_image;      //!< name of custom mympd image
-    sds custom_na_image;         //!< name of custom not available image
-    sds custom_stream_image;     //!< name of custom stream image
+    sds placeholder_booklet;     //!< name of custom booklet image
+    sds placeholder_mympd;       //!< name of custom mympd image
+    sds placeholder_na;          //!< name of custom not available image
+    sds placeholder_stream;      //!< name of custom stream image
+    sds placeholder_playlist;    //!< name of custom playlist image
+    sds placeholder_smartpls;    //!< name of custom smart playlist image
+    sds placeholder_folder;      //!< name of custom folder image
     bool mympd_api_started;      //!< true if the mympd_api thread is ready, else false
     sds cert_content;            //!< the server certificate
     sds key_content;             //!< the server key
@@ -53,19 +56,29 @@ struct t_frontend_nc_data {
     time_t last_ws_ping;               //!< last websocket ping from client
 };
 
+enum placeholder_types {
+    PLACEHOLDER_NA,
+    PLACEHOLDER_STREAM,
+    PLACEHOLDER_MYMPD,
+    PLACEHOLDER_BOOKLET,
+    PLACEHOLDER_PLAYLIST,
+    PLACEHOLDER_SMARTPLS,
+    PLACEHOLDER_FOLDER
+};
+
 #ifdef MYMPD_EMBEDDED_ASSETS
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 #endif
+sds get_uri_param(struct mg_str *query, const char *name);
 sds print_ip(sds s, struct mg_addr *addr);
 bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data);
 bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset);
 sds webserver_find_image_file(sds basefilename);
+bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *names, int names_len);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
-void webserver_serve_na_image(struct mg_connection *nc);
-void webserver_serve_stream_image(struct mg_connection *nc);
-void webserver_serve_mympd_image(struct mg_connection *nc);
-void webserver_serve_booklet_image(struct mg_connection *nc);
+void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm, const char *path, const char *file);
+void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholder_types placeholder_type);
 void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *headers);
 void webserver_send_header_redirect(struct mg_connection *nc, const char *location);
 void webserver_send_header_found(struct mg_connection *nc, const char *location);

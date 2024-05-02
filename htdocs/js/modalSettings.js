@@ -132,6 +132,8 @@ function getBgImageList() {
  * @returns {void}
  */
 function populateSettingsFrm() {
+    addTagListSelect('modalSettingsBrowseDatabaseAlbumListSortInput', 'tagListAlbum');
+
     jsonToForm(settings, settingsFields, 'modalSettings');
     jsonToForm(settings.webuiSettings, settingsWebuiFields, 'modalSettings');
     jsonToForm(settings.partition, settingsPartitionFields, 'modalSettings');
@@ -453,22 +455,6 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
                 getTagMultiSelectValues(event.target.parentNode.parentNode, true);
         }
     });
-}
-
-/**
- * Filters the selected column by available tags
- * @param {string} tableName the table name
- * @returns {void}
- */
-function filterCols(tableName) {
-    //set available tags
-    const tags = setColTags(tableName);
-    //column name
-    const set = "cols" + tableName;
-    settings[set] = settings[set].filter(function(value) {
-        return tags.includes(value);
-    });
-    logDebug('Columns for ' + set + ': ' + settings[set]);
 }
 
 /**

@@ -4,12 +4,15 @@
 # https://github.com/jcorporation/mympd
 #
 FROM alpine:latest as build
+
+WORKDIR /
+RUN apk add --no-cache git alpine-sdk cmake
+
 COPY . /myMPD/
 WORKDIR /myMPD
 RUN ./build.sh installdeps
 RUN cmake -B "release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MANPAGES=OFF -DMYMPD_DOC=OFF .
 RUN make -j4 -C "release"
-RUN make -C "release" install
 
 FROM alpine:latest
 RUN apk add --no-cache openssl libid3tag flac lua5.4 pcre2 newt

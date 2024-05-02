@@ -32,7 +32,7 @@ void clean_testenv(void) {
 
 bool create_testfile(void) {
     sds file = sdsnew("/tmp/mympd-test/state/test");
-    const char *data ="asdfjlkasdfjklsafd\nasfdsdfawaerwer\n";
+    const char *data = TESTFILE_CONTENT"\n";
     size_t len = strlen(data);
     bool rc = write_data_to_file(file, data, len);
     sdsfree(file);

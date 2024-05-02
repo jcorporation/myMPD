@@ -281,10 +281,22 @@ createassets() {
   cp -v dist/material-icons/MaterialIcons-Regular.woff2 "$MYMPD_BUILDDIR/htdocs/assets/"
   $ZIPCAT dist/material-icons/ligatures.json > "$MYMPD_BUILDDIR/htdocs/assets/ligatures.json.gz"
 
+  lualibs
+
+  return 0
+}
+
+lualibs() {
+  [ -z "${MYMPD_ENABLE_MYGPIOD+x}" ] && MYMPD_ENABLE_MYGPIOD="OFF"
   echo "Copy integrated lua libraries"
   mkdir -p "$MYMPD_BUILDDIR/contrib/lualibs"
-  cp -v contrib/lualibs/*.lua "$MYMPD_BUILDDIR/contrib/lualibs/"
-  return 0
+  cp -v contrib/lualibs/json.lua "$MYMPD_BUILDDIR/contrib/lualibs/"
+  cp -v contrib/lualibs/mympd/00-start.lua "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/10-mympd.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/20-http_client.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/30-execute.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  [ "$MYMPD_ENABLE_MYGPIOD" = "ON" ] && cat contrib/lualibs/mympd/40-mygpiod.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/99-end.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
 }
 
 buildrelease() {
@@ -355,6 +367,8 @@ copyassets() {
   cp -v "$STARTPATH/dist/long-press-event/long-press-event.js" "$STARTPATH/htdocs/js/long-press-event.js"
   cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
   cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
+
+  lualibs
 
   #Create defines
   create_js_defines
@@ -544,52 +558,6 @@ check() {
     return 1
   fi
 
-  if check_cmd cppcheck
-  then
-    echo "Running cppcheck"
-    [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
-    find ./src/ -name \*.c | while read -r FILE
-    do
-      [ "$FILE" = "./src/mympd_api/scripts_lualibs.c" ] && continue
-      [ "$FILE" = "./src/web_server/embedded_files.c" ] && continue
-      #shellcheck disable=SC2086
-      if ! cppcheck $CPPCHECKOPTS --error-exitcode=1 "$FILE"
-      then
-        return 1
-      fi
-    done
-    find ./src/ -name \*.h | while read -r FILE
-    do
-      #shellcheck disable=SC2086
-      if ! cppcheck $CPPCHECKOPTS --error-exitcode=1 "$FILE"
-      then
-        return 1
-      fi
-    done
-  else
-    echo_warn "cppcheck not found"
-    return 1
-  fi
-
-  if check_cmd flawfinder
-  then
-    echo "Running flawfinder"
-    [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3 --quiet --dataonly"
-    #shellcheck disable=SC2086
-    if ! flawfinder $FLAWFINDEROPTS --error-level=3 src
-    then
-      return 1
-    fi
-    #shellcheck disable=SC2086
-    if ! flawfinder $FLAWFINDEROPTS --error-level=3 cli_tools
-    then
-      return 1
-    fi
-  else
-    echo_warn "flawfinder not found"
-    return 1
-  fi
-
   if [ ! -f src/compile_commands.json ]
   then
     echo "src/compile_commands.json not found"
@@ -771,7 +739,12 @@ pkgarch() {
 }
 
 pkgosc() {
-  check_cmd osc
+  [ -z "${OSC_BIN+x}" ] && OSC_BIN="$HOME/python-venv/bin/osc"
+  if [ ! -x "$OSC_BIN" ]
+  then
+    echo_error "Command osc not found: $HOME/python-venv/bin/osc"
+    exit 1
+  fi
   cleanup
   cleanuposc
   if [ -z "${OSC_REPO+x}" ]
@@ -786,7 +759,7 @@ pkgosc() {
 
   mkdir osc
   cd osc || exit 1
-  osc checkout "$OSC_REPO"
+  $OSC_BIN checkout "$OSC_REPO"
   rm -f "$OSC_REPO"/*
 
   cd "$STARTPATH" || exit 1
@@ -814,10 +787,10 @@ pkgosc() {
   cp ../contrib/packaging/arch/PKGBUILD "$OSC_REPO/"
 
   cd "$OSC_REPO" || exit 1
-  osc addremove
-  osc st
-  osc vc -m "Update"
-  osc commit -m "Update"
+  $OSC_BIN addremove
+  $OSC_BIN st
+  $OSC_BIN vc -m "Update"
+  $OSC_BIN commit -m "Update"
 }
 
 installdeps() {
@@ -1260,7 +1233,7 @@ run_eslint() {
   for F in release/htdocs/sw.min.js release/htdocs/js/mympd.min.js release/htdocs/js/i18n.min.js
   do
     echo "Linting $F"
-    if ! npx eslint --no-eslintrc -c .eslintrc-min.json $F
+    if ! npx eslint $F
     then
       rc=1
     fi

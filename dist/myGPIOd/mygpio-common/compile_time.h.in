@@ -1,0 +1,42 @@
+/*
+ SPDX-License-Identifier: GPL-3.0-or-later
+ myGPIOd (c) 2020-2024 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/myGPIOd
+*/
+
+#ifndef COMPILE_TIME_H
+#define COMPILE_TIME_H
+
+// Version and name from cmake
+#define MYGPIO_VERSION "${PROJECT_VERSION}"
+#define MYGPIOD_NAME "myGPIOd"
+#define MYGPIOC_NAME "myGPIOc"
+
+// Sanitizers
+#cmakedefine MYGPIOD_ENABLE_ASAN
+#cmakedefine MYGPIOD_ENABLE_TSAN
+#cmakedefine MYGPIOD_ENABLE_UBSAN
+
+// Features
+#cmakedefine MYGPIOD_ENABLE_ACTION_MPC
+#cmakedefine MYGPIOD_ENABLE_ACTION_HTTP
+#cmakedefine MYGPIOD_ENABLE_ACTION_LUA
+
+// Default configuration
+#define CFG_CHIP "/dev/gpiochip0"
+#define CFG_LOGLEVEL LOG_NOTICE
+#define CFG_SYSLOG false
+#define CFG_GPIO_DIR "/etc/mygpiod.d"
+#define CFG_SOCKET_PATH "/run/mygpiod/socket"
+#define CFG_SOCKET_TIMEOUT 60 //seconds
+
+// Other defaults
+#define CLIENT_CONNECTIONS_MAX 10
+#define GPIOS_MAX 64
+#define LINE_LENGTH_MAX 1024
+#define WAITING_EVENTS_MAX 10
+#define GPIO_EVENT_BUF_SIZE 32
+#define OPEN_FLAGS_READ "re"
+#define TIMEOUT_MS_MAX 9999
+
+#endif

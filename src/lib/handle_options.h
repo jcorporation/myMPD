@@ -17,6 +17,6 @@ enum handle_options_rc {
     OPTIONS_RC_EXIT = 1
 };
 
-int handle_options(struct t_config *config, int argc, char **argv);
+enum handle_options_rc handle_options(struct t_config *config, int argc, char **argv);
 
 #endif

@@ -18,17 +18,24 @@ function handleHome() {
  * @returns {void}
  */
 function initViewHome() {
-    elGetById('HomeList').addEventListener('click', function(event) {
-        const target = gridClickHandler(event);
-        if (target !== null) {
-            const href = getData(target.parentNode, 'href');
-            if (href !== undefined) {
-               parseCmd(event, href);
-            }
-        }
-    }, false);
-
     dragAndDropHome();
+}
+
+/**
+ * Click event handler for home icons
+ * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
+ * @returns {void}
+ */
+function viewHomeClickHandler(event, target) {
+    if (event.target.classList.contains('card-body')) {
+        showContextMenu(event);
+        return;
+    }
+    const href = getData(target, 'href');
+    if (href !== undefined) {
+        parseCmd(event, href);
+    }
 }
 
 /**
@@ -58,17 +65,11 @@ function parseHomeIcons(obj) {
     const cardContainer = elGetById('HomeList');
     unsetUpdateView(cardContainer);
     const cols = cardContainer.querySelectorAll('.col');
-
-    if (obj.error !== undefined) {
-        elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
-        );
-        return;
-    }
     if (cols.length === 0) {
+        // remove warning messages
         elClear(cardContainer);
     }
-    if (obj.result.returnedEntities === 0) {
+    if (obj.result && obj.result.returnedEntities === 0) {
         elClear(cardContainer);
         const div = elCreateNodes('div', {"class": ["px-3", "py-1"]}, [
             elCreateTextTn('h3', {}, 'Homescreen'),
@@ -82,6 +83,11 @@ function parseHomeIcons(obj) {
         cardContainer.appendChild(div);
         return;
     }
+
+    if (checkResult(obj, cardContainer, undefined) === false) {
+        return;
+    }
+
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const homeType = getHomeIconType(obj.result.data[i].cmd, obj.result.data[i].options[0]);
         const actionType = friendlyActions[obj.result.data[i].cmd];
@@ -113,21 +119,21 @@ function parseHomeIcons(obj) {
 
         setData(card, 'href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         setData(card, 'pos', i);
-        const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
+        const cardTitle = elCreateText('div', {"class": ["card-title", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
         if (obj.result.data[i].image !== '') {
-            cardBody.style.backgroundImage = getCssImageUri(obj.result.data[i].image);
+            cardTitle.style.backgroundImage = getCssImageUri(obj.result.data[i].image);
         }
         if (obj.result.data[i].bgcolor !== '') {
-            cardBody.style.backgroundColor = obj.result.data[i].bgcolor;
+            cardTitle.style.backgroundColor = obj.result.data[i].bgcolor;
         }
         if (obj.result.data[i].color !== '' &&
             obj.result.data[i].color !== undefined)
         {
-            cardBody.style.color = obj.result.data[i].color;
+            cardTitle.style.color = obj.result.data[i].color;
         }
-        card.appendChild(cardBody);
+        card.appendChild(cardTitle);
         card.appendChild(
-            elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, obj.result.data[i].name)
+            elCreateText('div', {"class": ["card-body", "card-body-grid", "p-2", "clickable"]}, obj.result.data[i].name)
         );
         col.appendChild(card);
         if (i < cols.length) {

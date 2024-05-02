@@ -16,6 +16,7 @@ set(TEST_SOURCES
   ../src/lib/datetime.c
   ../src/lib/event.c
   ../src/lib/env.c
+  ../src/lib/fields.c
   ../src/lib/filehandler.c
   ../src/lib/http_client.c
   ../src/lib/jsonrpc.c
@@ -36,7 +37,6 @@ set(TEST_SOURCES
   ../src/lib/state_files.c
   ../src/lib/sticker.c
   ../src/lib/timer.c
-  ../src/lib/tags.c
   ../src/lib/utility.c
   ../src/lib/validate.c
   ../src/mpd_client/connection.c
@@ -93,10 +93,16 @@ set(TEST_SOURCES
 )
 
 if(LIBID3TAG_FOUND)
-  set(TEST_SOURCES_LIBID3TAG "tests/test_lyrics_id3.c")
+  set(TEST_SOURCES_LIBID3TAG
+    ../src/mympd_api/lyrics_id3.c
+    tests/test_lyrics_id3.c
+  )
 endif()
 if(FLAC_FOUND)
-  set(TEST_SOURCES_FLAC "tests/test_lyrics_flac.c")
+  set(TEST_SOURCES_FLAC
+  ../src/mympd_api/lyrics_flac.c
+    tests/test_lyrics_flac.c
+  )
 endif()
 
 add_executable(unit_test
@@ -119,7 +125,7 @@ target_compile_options(unit_test
 )
 
 target_link_libraries(unit_test
-  libmympdclient
+  mympdclient
   mjson
   mpack
   mongoose

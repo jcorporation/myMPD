@@ -54,6 +54,8 @@ interface EventTarget {
     textContent: any;
     value: any;
     closest: any;
+    setAttribute: any;
+    removeAttribute: any;
 }
 
 interface HTMLElement {

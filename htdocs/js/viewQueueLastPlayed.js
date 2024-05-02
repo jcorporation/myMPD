@@ -14,7 +14,7 @@ function handleQueueLastPlayed() {
     sendAPI("MYMPD_API_LAST_PLAYED_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
-        "cols": settings.colsQueueLastPlayedFetch,
+        "fields": settings.viewQueueLastPlayedFetch.fields,
         "expression": app.current.search
     }, parseLastPlayed, true);
 }
@@ -24,14 +24,19 @@ function handleQueueLastPlayed() {
  * @returns {void}
  */
 function initViewQueueLastPlayed() {
-    elGetById('QueueLastPlayedList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            clickSong(getData(target, 'uri'), event);
-        }
-    }, false);
-
     initSearchExpression('QueueLastPlayed');
+
+    setView('QueueLastPlayed');
+}
+
+/**
+ * Click event handler for last played
+ * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
+ * @returns {void}
+ */
+function viewQueueLastPlayedListClickHandler(event, target) {
+    clickSong(getData(target, 'uri'), event);
 }
 
 /**
@@ -40,15 +45,30 @@ function initViewQueueLastPlayed() {
  * @returns {void}
  */
 function parseLastPlayed(obj) {
-    if (checkResultId(obj, 'QueueLastPlayedList') === false) {
+    const table = elGetById('QueueLastPlayedList');
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
     const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
-    updateTable(obj, 'QueueLastPlayed', function(row, data) {
-        setData(row, 'uri', data.uri);
-        setData(row, 'name', data.Title);
-        setData(row, 'type', 'song');
-        row.setAttribute('title', tn(rowTitle));
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        updateTable(obj, app.id, function(row, data) {
+            setData(row, 'uri', data.uri);
+            setData(row, 'name', data.Title);
+            setData(row, 'type', 'song');
+            row.setAttribute('title', tn(rowTitle));
+        });
+        addTblFooter(tfoot,
+            elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities)
+        );
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        card.setAttribute('title', tn(rowTitle));
+        setData(card, 'uri', data.uri);
+        setData(card, 'name', data.Title);
+        setData(card, 'type', 'song');
     });
 }

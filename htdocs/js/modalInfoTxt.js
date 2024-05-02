@@ -87,6 +87,7 @@ function parseInfoTxt(text) {
         infoTxtEl.appendChild(
             elCreateTextTn('div', {"class": ["alert", "alert-warning"]}, 'Markdown could not be parsed.')
         );
+        logError(error);
     }
     uiElements.modalInfoTxt.show();
 }

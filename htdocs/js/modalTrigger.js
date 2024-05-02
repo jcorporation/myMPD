@@ -187,7 +187,7 @@ function showListTrigger() {
  */
 function parseTriggerList(obj) {
     const tbody = elGetById('modalTriggerList');
-    if (checkResult(obj, tbody) === false) {
+    if (checkResult(obj, tbody, 'table') === false) {
         return;
     }
     elClear(tbody);

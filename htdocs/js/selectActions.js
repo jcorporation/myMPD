@@ -26,20 +26,10 @@ function initSelectActions() {
         'SearchSelectionDropdown'
     ]) {
         const el = document.querySelector('#' + dropdownId + '> div');
-        if (dropdownId === 'BrowseDatabaseAlbumListSelectionDropdown' ||
-            dropdownId === 'BrowseRadioFavoritesSelectionDropdown')
-        {
-            elGetById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
-                addSelectActionButtons(el, dropdownId);
-                showGridSelectionCount();
-            }, false);
-        }
-        else {
-            elGetById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
-                addSelectActionButtons(el, dropdownId);
-                showTableSelectionCount();
-            }, false);
-        }
+        elGetById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
+            addSelectActionButtons(el, dropdownId);
+            showSelectionCount();
+        }, false);
         el.addEventListener('click', function(event) {
             if (event.target.nodeName === 'BUTTON') {
                 parseCmd(event, getData(event.target, 'href'));

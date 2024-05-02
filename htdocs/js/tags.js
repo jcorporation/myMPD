@@ -47,12 +47,18 @@ function addTagList(elId, list) {
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
             );
         }
-        
     }
-    for (let i = 0, j = settings[list].length; i < j; i++) {
+    if (elId === 'QueueCurrentSortTagsList') {
         stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i])
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Priority"}, 'Priority')
         );
+    }
+    if (settings[list] !== undefined) {
+        for (let i = 0, j = settings[list].length; i < j; i++) {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i])
+            );
+        }
     }
     if (list === 'tagListSearch') {
         stack.appendChild(
@@ -127,28 +133,10 @@ function addTagList(elId, list) {
         }
     }
     else if (elId === 'BrowseDatabaseAlbumListSortTagsList') {
-        if (settings.albumMode === 'adv') {
-            if (settings.tagList.includes('Date') === true &&
-                settings[list].includes('Date') === false)
-            {
-                stack.appendChild(
-                    elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, 'Date')
-                );
-            }
+        const tags = setBrowseDatabaseAlbumListSortTags(list);
+        for (let i = 0, j = tags.length; i < j; i++) {
             stack.appendChild(
-                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, 'Last modified')
-            );
-            if (features.featDbAdded === true) {
-                stack.appendChild(
-                    elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Added"}, 'Added')
-                );
-            }
-        }
-        else if (settings.albumGroupTag !== '' &&
-            settings[list].includes(settings.albumGroupTag) === false)
-        {
-            stack.appendChild(
-                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings.albumGroupTag}, settings.albumGroupTag)
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": tags[i][0]}, tags[i][1])
             );
         }
     }
@@ -157,6 +145,14 @@ function addTagList(elId, list) {
         {
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "prio"}, 'Priority')
+            );
+        }
+    }
+    else if (elId === 'BrowseRadioWebradiodbSortTagsList') {
+        const tags = ["Bitrate", "Codec", "Country", "Description", "Genre", "Homepage", "Languages", "Name", "State"];
+        for (let i = 0, j = tags.length; i < j; i++) {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": tags[i]}, tags[i])
             );
         }
     }
@@ -223,6 +219,45 @@ function addTagListSelect(elId, list) {
             );
         }
     }
+    else if (elId === 'modalSettingsBrowseDatabaseAlbumListSortInput') {
+        for (let i = 0, j = settings[list].length; i < j; i++) {
+            select.appendChild(
+                elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i])
+            );
+        }
+        const tags = setBrowseDatabaseAlbumListSortTags(list);
+        for (let i = 0, j = tags.length; i < j; i++) {
+            select.appendChild(
+                elCreateTextTn('option', {"value": tags[i][0]}, tags[i][1])
+            );
+        }
+    }
+}
+
+/**
+ * Returns additional tags for the album list sort tag elements
+ * @param {string} list name of the taglist
+ * @returns {Array} array of tags and descriptions
+ */
+function setBrowseDatabaseAlbumListSortTags(list) {
+    const tags = [];
+    if (settings.albumMode === 'adv') {
+        if (settings.tagList.includes('Date') === true &&
+            settings[list].includes('Date') === false)
+        {
+            tags.push(['Date','Date']);
+        }
+        tags.push(['Last-Modified', 'Last modified']);
+        if (features.featDbAdded === true) {
+            tags.push(['Added', 'Added']);
+        }
+    }
+    else if (settings.albumGroupTag !== '' &&
+        settings[list].includes(settings.albumGroupTag) === false)
+    {
+        tags.push([settings.albumGroupTag, settings.albumGroupTag]);
+    }
+    return tags;
 }
 
 /**
@@ -393,6 +428,14 @@ function printValue(key, value) {
                 return document.createTextNode('-');
             }
             return document.createTextNode(tn('Num discs', {"smartCount": value}));
+        case 'Thumbnail': {
+            //TODO: use intersection observer
+            const img = elCreateEmpty('div', {"class": ["thumbnail"]});
+            if (value !== undefined) {
+                img.style.backgroundImage = value;
+            }
+            return img;
+        }
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);

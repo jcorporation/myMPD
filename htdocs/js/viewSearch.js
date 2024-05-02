@@ -11,6 +11,8 @@
  */
 function handleSearch() {
     handleSearchExpression('Search');
+    toggleBtnChkId('SearchSortDesc', app.current.sort.desc);
+    selectTag('SearchSortTagsList', undefined, app.current.sort.tag);
     const searchStrEl = elGetById(app.id + 'SearchStr');
     const searchCrumbEl = elGetById(app.id + 'SearchCrumb');
     if (searchStrEl.value.length >= 2 ||
@@ -27,14 +29,19 @@ function handleSearch() {
             "sort": app.current.sort.tag,
             "sortdesc": app.current.sort.desc,
             "expression": app.current.search,
-            "cols": settings.colsSearchFetch
+            "fields": settings.viewSearchFetch.fields
         }, parseSearch, true);
     }
     else {
         // clear list if no search is defined
         const SearchListEl = elGetById('SearchList');
-        elClear(SearchListEl.querySelector('tbody'));
-        elClear(SearchListEl.querySelector('tfoot'));
+        if (settings['view' + app.id].mode === 'table') {
+            elClear(SearchListEl.querySelector('tbody'));
+            elClear(SearchListEl.querySelector('tfoot'));
+        }
+        else {
+            elClear(SearchListEl);
+        }
         elDisableId('SearchAddAllSongsBtn');
         elDisableId('SearchAddAllSongsDropdownBtn');
         unsetUpdateViewId('SearchList');
@@ -47,14 +54,19 @@ function handleSearch() {
  * @returns {void}
  */
 function initViewSearch() {
-    elGetById('SearchList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            clickSong(getData(target, 'uri'), event);
-        }
-    }, false);
-
+    initSortBtns('Search');
     initSearchExpression('Search');
+    setView('Search');
+}
+
+/**
+ * Click event handler for last played
+ * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
+ * @returns {void}
+ */
+function viewSearchListClickHandler(event, target) {
+    clickSong(getData(target, 'uri'), event);
 }
 
 /**
@@ -64,10 +76,7 @@ function initViewSearch() {
  */
 function parseSearch(obj) {
     const table = elGetById('SearchList');
-    const tfoot = table.querySelector('tfoot');
-    elClear(tfoot);
-
-    if (checkResultId(obj, 'SearchList') === false) {
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
@@ -80,24 +89,29 @@ function parseSearch(obj) {
         elDisableId('SearchAddAllSongsDropdownBtn');
     }
 
-    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+        updateTable(obj, app.id, function(row, data) {
+            setData(row, 'type', data.Type);
+            setData(row, 'uri', data.uri);
+            setData(row, 'name', data.Title);
+            row.setAttribute('title', rowTitle);
+        });
 
-    updateTable(obj, 'Search', function(row, data) {
-        setData(row, 'type', data.Type);
-        setData(row, 'uri', data.uri);
-        setData(row, 'name', data.Title);
-        row.setAttribute('tabindex', 0);
-        row.setAttribute('title', rowTitle);
-    });
-
-    if (obj.result.totalEntities > 0) {
-        const colspan = settings.colsSearch.length + 1;
-        tfoot.appendChild(
-            elCreateNode('tr', {"class": ["not-clickable"]},
-                elCreateTextTnNr('td', {"colspan": colspan}, 'Num songs', obj.result.totalEntities)
-            )
-        );
+        if (obj.result.totalEntities > 0) {
+            addTblFooter(tfoot,
+                elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities)
+            );
+        }
+        return;
     }
+    updateGrid(obj, app.id, function(card, data) {
+        setData(card, 'type', data.Type);
+        setData(card, 'uri', data.uri);
+        setData(card, 'name', data.Title);
+    });
 }
 
 /**

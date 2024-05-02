@@ -37,19 +37,25 @@ function handleQueueJukebox(view) {
  * @returns {void}
  */
 function initViewQueueJukebox(view) {
-    elGetById(view + 'List').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            if (settings.partition.jukeboxMode === 'song') {
-                clickSong(getData(target, 'uri'), event);
-            }
-            else if (settings.partition.jukeboxMode === 'album') {
-                clickQuickPlay(target);
-            }
-        }
-    }, false);
-
     initSearchExpression(view);
+
+    setView('QueueJukeboxAlbum');
+    setView('QueueJukeboxSong');
+}
+
+/**
+ * Click event handler for jukebox list
+ * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
+ * @returns {void}
+ */
+function viewQueueJukeboxListClickHandler(event, target) {
+    if (settings.partition.jukeboxMode === 'song') {
+        clickSong(getData(target, 'uri'), event);
+    }
+    else if (settings.partition.jukeboxMode === 'album') {
+        clickQuickPlay(target);
+    }
 }
 
 /**
@@ -69,7 +75,7 @@ function getJukeboxList(view) {
     sendAPI("MYMPD_API_JUKEBOX_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
-        "cols": settings['cols' + view + 'Fetch'],
+        "fields": settings['view' + view + 'Fetch'].fields,
         "expression": app.current.search
     }, parseJukeboxList, true);
 }
@@ -83,20 +89,37 @@ function parseJukeboxList(obj) {
     const view = settings.partition.jukeboxMode === 'album'
         ? 'QueueJukeboxAlbum'
         : 'QueueJukeboxSong';
-    if (checkResultId(obj, view + 'List') === false) {
+    const table = elGetById(view + 'List');
+    if (checkResult(obj, table, undefined) === false) {
         return;
     }
 
     const rowTitle = settings.partition.jukeboxMode === 'song' ?
-        settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
-        settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
-    updateTable(obj, view, function(row, data) {
-        setData(row, 'uri', data.uri);
-        setData(row, 'name', data.Title);
-        setData(row, 'type', data.Type);
-        setData(row, 'pos', data.Pos);
-        row.setAttribute('title', tn(rowTitle));
-        row.setAttribute('tabindex', 0);
+            settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
+            settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
+    if (settings['view' + app.id].mode === 'table') {
+        const tfoot = table.querySelector('tfoot');
+        elClear(tfoot);
+        updateTable(obj, view, function(row, data) {
+            setData(row, 'uri', data.uri);
+            setData(row, 'name', data.Title);
+            setData(row, 'type', data.Type);
+            setData(row, 'pos', data.Pos);
+            row.setAttribute('title', tn(rowTitle));
+        });
+        if (obj.result.totalEntities > 0) {
+            addTblFooter(tfoot,
+                elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
+            );
+        }
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        setData(card, 'uri', data.uri);
+        setData(card, 'name', data.Title);
+        setData(card, 'type', data.Type);
+        setData(card, 'pos', data.Pos);
+        card.setAttribute('title', tn(rowTitle));
     });
 }
 

@@ -30,7 +30,7 @@
 static bool add_queue_search_adv_params(struct t_partition_state *partition_state,
         sds sort, bool sortdesc, unsigned offset, unsigned limit);
 sds print_queue_entry(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        sds buffer, const struct t_tags *tagcols, struct mpd_song *song);
+        sds buffer, const struct t_fields *tagcols, struct mpd_song *song);
 
 /**
  * Public functions
@@ -542,7 +542,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
  * @return pointer to buffer
  */
 sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        sds buffer, unsigned request_id, unsigned offset, unsigned limit, const struct t_tags *tagcols)
+        sds buffer, unsigned request_id, unsigned offset, unsigned limit, const struct t_fields *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
     //update the queue status
@@ -553,7 +553,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_sti
     }
     //list the queue
     if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers_len > 0)
+        tagcols->stickers.len > 0)
     {
         stickerdb_exit_idle(stickerdb);
     }
@@ -582,7 +582,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_sti
     }
     mpd_response_finish(partition_state->conn);
     if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers_len > 0)
+        tagcols->stickers.len > 0)
     {
         stickerdb_enter_idle(stickerdb);
     }
@@ -606,7 +606,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, struct t_sti
  */
 sds mympd_api_queue_search(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, unsigned request_id, sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
-        const struct t_tags *tagcols)
+        const struct t_fields *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
     //update the queue status
@@ -627,7 +627,7 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, struct t_s
     }
     FREE_SDS(real_expression);
     if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers_len > 0)
+        tagcols->stickers.len > 0)
     {
         stickerdb_exit_idle(stickerdb);
     }
@@ -674,7 +674,7 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, struct t_s
     }
     mpd_response_finish(partition_state->conn);
     if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers_len > 0)
+        tagcols->stickers.len > 0)
     {
         stickerdb_enter_idle(stickerdb);
     }
@@ -753,7 +753,7 @@ static bool add_queue_search_adv_params(struct t_partition_state *partition_stat
  * @return pointer to buffer
  */
 sds print_queue_entry(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        sds buffer, const struct t_tags *tagcols, struct mpd_song *song)
+        sds buffer, const struct t_fields *tagcols, struct mpd_song *song)
 {
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_uint(buffer, "id", mpd_song_get_id(song), true);
@@ -762,7 +762,7 @@ sds print_queue_entry(struct t_partition_state *partition_state, struct t_sticke
     const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
     buffer = printAudioFormat(buffer, audioformat);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = print_song_tags(buffer, partition_state->mpd_state, tagcols, song);
+    buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->tags, song);
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, ",", 1);
     if (is_streamuri(uri) == true) {
@@ -782,9 +782,9 @@ sds print_queue_entry(struct t_partition_state *partition_state, struct t_sticke
         buffer = tojson_char(buffer, "Type", "song", false);
     }
     if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers_len > 0)
+        tagcols->stickers.len > 0)
     {
-        buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, uri, tagcols);
+        buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, uri, &tagcols->stickers);
     }
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;

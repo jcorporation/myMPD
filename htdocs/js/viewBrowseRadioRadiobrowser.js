@@ -69,23 +69,28 @@ function initViewBrowseRadioRadiobrowser() {
         elGetById('BrowseRadioRadiobrowserFilterBtn').classList.remove('active');
     }, false);
 
-    elGetById('BrowseRadioRadiobrowserList').addEventListener('click', function(event) {
-        const target = tableClickHandler(event);
-        if (target !== null) {
-            const uri = getData(target, 'uri');
-            if (settings.webuiSettings.clickRadiobrowser === 'add') {
-                showEditRadioFavorite({
-                    "Name": getData(target, 'name'),
-                    "Genre": getData(target, 'genre'),
-                    "Image": getData(target, 'image'),
-                    "StreamUri": uri
-                });
-            }
-            else {
-                clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'), event);
-            }
-        }
-    }, false);
+    setView('BrowseRadioRadiobrowser');
+}
+
+/**
+ * Click event handler for Radiobrowser list
+ * @param {MouseEvent} event click event
+ * @param {HTMLElement} target calculated target
+ * @returns {void}
+ */
+function viewBrowseRadioRadiobrowserListClickHandler(event, target) {
+    const uri = getData(target, 'uri');
+    if (settings.webuiSettings.clickRadiobrowser === 'add') {
+        showEditRadioFavorite({
+            "Name": getData(target, 'name'),
+            "Genre": getData(target, 'genre'),
+            "Image": getData(target, 'image'),
+            "StreamUri": uri
+        });
+    }
+    else {
+        clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'), event);
+    }
 }
 
 /**
@@ -132,27 +137,44 @@ function parseRadiobrowserList(obj) {
         elGetById('BrowseRadioRadiobrowserFilterBtn').textContent = 'filter_list';
     }
 
-    if (checkResultId(obj, 'BrowseRadioRadiobrowserList') === false) {
+    if (checkResultId(obj, 'BrowseRadioRadiobrowserList', undefined) === false) {
         return;
     }
 
     const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
-    //set result keys for pagination
-    obj.result.returnedEntities = obj.result.data.length;
-    obj.result.totalEntities = -1;
+    if (settings['view' + app.id].mode === 'table') {
+        //set result keys for pagination
+        obj.result.returnedEntities = obj.result.data.length;
+        obj.result.totalEntities = -1;
 
-    updateTable(obj, 'BrowseRadioRadiobrowser', function(row, data) {
-        setData(row, 'uri', data.url_resolved);
-        setData(row, 'name', data.name);
-        setData(row, 'genre', data.tags);
-        setData(row, 'image', data.favicon);
-        setData(row, 'homepage', data.homepage);
-        setData(row, 'country', data.country);
-        setData(row, 'language', data.language);
-        setData(row, 'codec', data.codec);
-        setData(row, 'bitrate', data.bitrate);
-        setData(row, 'RADIOBROWSERUUID', data.stationuuid);
-        setData(row, 'type', 'stream');
-        row.setAttribute('title', rowTitle);
+        updateTable(obj, app.id, function(row, data) {
+            setData(row, 'uri', data.url_resolved);
+            setData(row, 'name', data.name);
+            setData(row, 'genre', data.tags);
+            setData(row, 'image', data.favicon);
+            setData(row, 'homepage', data.homepage);
+            setData(row, 'country', data.country);
+            setData(row, 'language', data.language);
+            setData(row, 'codec', data.codec);
+            setData(row, 'bitrate', data.bitrate);
+            setData(row, 'RADIOBROWSERUUID', data.stationuuid);
+            setData(row, 'type', 'stream');
+            row.setAttribute('title', rowTitle);
+        });
+        return;
+    }
+    updateGrid(obj, app.id, function(card, data) {
+        setData(card, 'uri', data.url_resolved);
+        setData(card, 'name', data.name);
+        setData(card, 'genre', data.tags);
+        setData(card, 'image', data.favicon);
+        setData(card, 'homepage', data.homepage);
+        setData(card, 'country', data.country);
+        setData(card, 'language', data.language);
+        setData(card, 'codec', data.codec);
+        setData(card, 'bitrate', data.bitrate);
+        setData(card, 'RADIOBROWSERUUID', data.stationuuid);
+        setData(card, 'type', 'stream');
+        card.setAttribute('title', rowTitle);
     });
 }

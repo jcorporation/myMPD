@@ -26,7 +26,7 @@ function initModalPartitionOutputs() {
         //get all outputs
         sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(allOutputs) {
             const outputList = elGetById('modalPartitionOutputsList');
-            if (checkResult(allOutputs, outputList) === false) {
+            if (checkResult(allOutputs, outputList, 'table') === false) {
                 return;
             }
             //get partition specific outputs
@@ -82,7 +82,7 @@ function parsePartitionOutputsList(allOutputs, partitionOutputs) {
     const outputList = elGetById('modalPartitionOutputsList');
     elClear(outputList);
     if (partitionOutputs.error) {
-        outputList.appendChild(errorRow(partitionOutputs, 1));
+        outputList.appendChild(errorMsgEl(partitionOutputs, 1, 'table'));
         return;
     }
     /** @type {object} */
@@ -109,6 +109,6 @@ function parsePartitionOutputsList(allOutputs, partitionOutputs) {
         }
     }
     if (count === 0) {
-        outputList.appendChild(emptyRow(1));
+        outputList.appendChild(emptyMsgEl(1, 'table'));
     }
 }

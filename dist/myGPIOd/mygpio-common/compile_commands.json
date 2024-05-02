@@ -1,0 +1,296 @@
+[
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpio-common",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio-common.dir/util.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpio-common/util.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpio-common/util.c",
+  "output": "mygpio-common/CMakeFiles/mygpio-common.dir/util.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/buffer.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/buffer.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/buffer.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/buffer.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/connection.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/connection.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/connection.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/connection.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/gpio_struct.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/gpio_struct.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/gpio_struct.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/gpio_struct.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/gpio.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/gpio.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/gpio.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/gpio.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/gpioinfo.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/gpioinfo.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/gpioinfo.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/gpioinfo.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/gpiolist.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/gpiolist.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/gpiolist.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/gpiolist.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/idle.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/idle.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/idle.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/idle.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/parser.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/parser.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/parser.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/parser.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/pair.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/pair.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/pair.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/pair.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/protocol.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/protocol.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/protocol.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/protocol.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/socket.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/socket.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/socket.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/socket.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio",
+  "command": "/usr/bin/cc -Dmygpio_EXPORTS -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -fPIC -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio.dir/src/util.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/util.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/src/util.c",
+  "output": "libmygpio/CMakeFiles/mygpio.dir/src/util.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/libmygpio/example",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpio-example.dir/main.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/example/main.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/libmygpio/example/main.c",
+  "output": "libmygpio/example/CMakeFiles/mygpio-example.dir/main.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpioc",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpioc.dir/main.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpioc/main.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpioc/main.c",
+  "output": "mygpioc/CMakeFiles/mygpioc.dir/main.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpioc",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpioc.dir/gpio.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpioc/gpio.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpioc/gpio.c",
+  "output": "mygpioc/CMakeFiles/mygpioc.dir/gpio.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpioc",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpioc.dir/idle.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpioc/idle.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpioc/idle.c",
+  "output": "mygpioc/CMakeFiles/mygpioc.dir/idle.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpioc",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpioc.dir/options.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpioc/options.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpioc/options.c",
+  "output": "mygpioc/CMakeFiles/mygpioc.dir/options.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpioc",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpioc.dir/util.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpioc/util.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpioc/util.c",
+  "output": "mygpioc/CMakeFiles/mygpioc.dir/util.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/main.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/main.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/main.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/main.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/actions/gpio.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/gpio.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/gpio.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/actions/gpio.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/actions/system.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/system.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/system.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/actions/system.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/event_loop/event_loop.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/event_loop/event_loop.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/event_loop/event_loop.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/event_loop/event_loop.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/event_loop/signal_handler.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/event_loop/signal_handler.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/event_loop/signal_handler.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/event_loop/signal_handler.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/gpio/action.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/action.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/action.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/gpio/action.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/gpio/chip.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/chip.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/chip.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/gpio/chip.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/gpio/event.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/event.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/event.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/gpio/event.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/gpio/gpio.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/gpio.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/gpio.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/gpio/gpio.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/gpio/input.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/input.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/input.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/gpio/input.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/gpio/output.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/output.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/output.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/gpio/output.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/gpio/timer.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/timer.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/gpio/timer.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/gpio/timer.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/lib/action.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/action.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/action.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/lib/action.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/lib/config.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/config.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/config.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/lib/config.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/lib/events.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/events.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/events.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/lib/events.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/lib/list.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/list.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/list.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/lib/list.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/lib/log.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/log.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/log.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/lib/log.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/lib/timer.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/timer.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/timer.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/lib/timer.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/lib/util.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/util.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/lib/util.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/lib/util.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/server/gpio.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/gpio.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/gpio.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/server/gpio.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/server/idle.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/idle.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/idle.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/server/idle.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/server/protocol.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/protocol.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/protocol.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/server/protocol.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/server/response.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/response.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/response.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/server/response.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/server/socket.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/socket.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/socket.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/server/socket.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/server/event.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/event.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/server/event.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/server/event.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/actions/mpc.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/mpc.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/mpc.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/actions/mpc.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/actions/http.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/http.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/http.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/actions/http.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/actions/mympd.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/mympd.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/mympd.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/actions/mympd.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/mygpiod",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd/debug -I/home/juergen/projekte/myGPIOd/myGPIOd -I/home/juergen/projekte/myGPIOd/myGPIOd/debug/include -I/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod -I/usr/include/lua5.4 -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -o CMakeFiles/mygpiod.dir/actions/lua.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/lua.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/mygpiod/actions/lua.c",
+  "output": "mygpiod/CMakeFiles/mygpiod.dir/actions/lua.c.o"
+},
+{
+  "directory": "/home/juergen/projekte/myGPIOd/myGPIOd/debug/dist/sds",
+  "command": "/usr/bin/cc  -I/home/juergen/projekte/myGPIOd/myGPIOd -DMYGPIOD_DEBUG=ON -fdata-sections -ffunction-sections -fstack-protector-strong -pedantic -Wall -Wconversion -Werror -Wextra -Wformat -Wformat=2 -Wformat-security -Winit-self -Wmissing-include-dirs -Wnested-externs -Wold-style-definition -Wredundant-decls -Wshadow -Wsign-compare -Wstrict-prototypes -Wundef -Wuninitialized -Wunused-parameter -Wvla -Wwrite-strings -std=gnu17 -fstack-clash-protection -fcf-protection -fno-plt -D_FORTIFY_SOURCE=2 -ggdb -Og -Wno-conversion -o CMakeFiles/sds.dir/sds.c.o -c /home/juergen/projekte/myGPIOd/myGPIOd/dist/sds/sds.c",
+  "file": "/home/juergen/projekte/myGPIOd/myGPIOd/dist/sds/sds.c",
+  "output": "dist/sds/CMakeFiles/sds.dir/sds.c.o"
+}
+]
