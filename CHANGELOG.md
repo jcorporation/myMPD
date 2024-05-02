@@ -12,6 +12,7 @@ This is a small bugfix release.
 
 - Upd: Japanese translation
 - Fix: Save playback view #1264
+- Fix: JavaScript minification #1264
 
 ***
 
