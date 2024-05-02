@@ -298,6 +298,7 @@ bool mympd_api_status_clear_error(struct t_partition_state *partition_state, sds
 bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_mympd_state *mympd_state,
         struct t_partition_state *partition_state)
 {
+    // MPD state
     if (mpd_command_list_begin(partition_state->conn, true)) {
         if (mpd_send_status(partition_state->conn) == false) {
             mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status");
@@ -331,20 +332,6 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
         lua_mympd_state_set_f(lua_partition_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
         lua_mympd_state_set_f(lua_partition_state, "mixrampdb", mpd_status_get_mixrampdb(status));
         lua_mympd_state_set_i(lua_partition_state, "replaygain", replay_gain_mode);
-        lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
-        lua_mympd_state_set_p(lua_partition_state, "playlist_directory", partition_state->mpd_state->playlist_directory_value);
-        lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->config->workdir);
-        lua_mympd_state_set_p(lua_partition_state, "cachedir", partition_state->config->cachedir);
-        lua_mympd_state_set_b(lua_partition_state, "auto_play", partition_state->auto_play);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox.mode);
-        lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox.playlist);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_queue_length", partition_state->jukebox.queue_length);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_last_played", partition_state->jukebox.last_played);
-        lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox.ignore_hated);
-        lua_mympd_state_set_p(lua_partition_state, "jukebox_uniq_tag", mpd_tag_name(partition_state->jukebox.uniq_tag.tags[0]));
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_min_song_duration", partition_state->jukebox.min_song_duration);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_max_song_duration", partition_state->jukebox.max_song_duration);
-        lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", mympd_state->listenbrainz_token);
         if (partition_state->mpd_state->feat.partitions == true) {
             lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));
         }
@@ -355,6 +342,31 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     if (rc == false) {
         MYMPD_LOG_ERROR(partition_state->name, "Error getting mympd state for script execution");
     }
+    // myMPD config
+    lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
+    lua_mympd_state_set_p(lua_partition_state, "playlist_directory", partition_state->mpd_state->playlist_directory_value);
+    lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->config->workdir);
+    lua_mympd_state_set_p(lua_partition_state, "cachedir", partition_state->config->cachedir);
+    lua_mympd_state_set_b(lua_partition_state, "auto_play", partition_state->auto_play);
+    lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox.mode);
+    lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox.playlist);
+    lua_mympd_state_set_i(lua_partition_state, "jukebox_queue_length", partition_state->jukebox.queue_length);
+    lua_mympd_state_set_i(lua_partition_state, "jukebox_last_played", partition_state->jukebox.last_played);
+    lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox.ignore_hated);
+    lua_mympd_state_set_p(lua_partition_state, "jukebox_uniq_tag", mpd_tag_name(partition_state->jukebox.uniq_tag.tags[0]));
+    lua_mympd_state_set_i(lua_partition_state, "jukebox_min_song_duration", partition_state->jukebox.min_song_duration);
+    lua_mympd_state_set_i(lua_partition_state, "jukebox_max_song_duration", partition_state->jukebox.max_song_duration);
+    lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", mympd_state->listenbrainz_token);
+    // User defined variables
+    struct t_list_node *current = mympd_state->script_var_list.head;
+    sds key = sdsempty();
+    while (current != NULL) {
+        key = sdscatfmt(key, "var_%S", current->key);
+        lua_mympd_state_set_p(lua_partition_state, key, current->value_p);
+        sdsclear(key);
+        current = current->next;
+    }
+    FREE_SDS(key);
     return rc;
 }
 

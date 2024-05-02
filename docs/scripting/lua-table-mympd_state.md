@@ -6,6 +6,8 @@ title: Lua table mympd_state
 
 This is the description of the lua table mympd_state. This table must be initialized with `mympd.init()`.
 
+Additionally all user defined variables are populates in this table. They are prefixed with `var_`.
+
 | KEY | TYPE | DESCRIPTION |
 | --- | ---- | ----------- |
 | auto_play | Boolean | true = enabled, false = disabled |

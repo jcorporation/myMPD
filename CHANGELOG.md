@@ -6,9 +6,17 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD 15.1.0 (not yet released)
 
-This release improves scripting.
+This release adds new scripting functions.
+
+### API changes
+
+- MYMPD_API_SCRIPT_VAR_DELETE: new
+- MYMPD_API_SCRIPT_VAR_LIST: new
+- MYMPD_API_SCRIPT_VAR_SET: new
 
 ### Changelog
+
+- Feat: Set custom variables for scripts
 
 ***
 

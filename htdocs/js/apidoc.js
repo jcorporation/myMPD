@@ -1819,6 +1819,35 @@ const APImethods = {
             "arguments": APIparams.scriptArguments
         }
     },
+    "MYMPD_API_SCRIPT_VAR_DELETE": {
+        "desc": "Deletes a script variable",
+        "params": {
+            "key": {
+                "type": APItypes.string,
+                "example": "key1",
+                "desc": "Variable name"
+            }
+        }
+    },
+    "MYMPD_API_SCRIPT_VAR_LIST": {
+        "desc": "Lists all script variables",
+        "params": {}
+    },
+    "MYMPD_API_SCRIPT_VAR_SET": {
+        "desc": "Saves a script variable",
+        "params": {
+            "key": {
+                "type": APItypes.string,
+                "example": "key1",
+                "desc": "Variable name"
+            },
+            "value": {
+                "type": APItypes.string,
+                "example": "value1",
+                "desc": "Variable value"
+            }
+        }
+    },
     "MYMPD_API_PARTITION_LIST": {
         "desc": "Lists all MPD partitions",
         "params": {}

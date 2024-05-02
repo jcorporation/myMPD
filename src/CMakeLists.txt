@@ -154,6 +154,7 @@ if(MYMPD_ENABLE_LUA)
       mympd_api/scripts/interface_mympd_api.c
       mympd_api/scripts/interface.c
       mympd_api/scripts/scripts.c
+      mympd_api/scripts/vars.c
   )
 endif()
 

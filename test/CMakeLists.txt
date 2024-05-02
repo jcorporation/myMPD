@@ -59,6 +59,7 @@ set(TEST_SOURCES
   ../src/mympd_api/jukebox.c
   ../src/mympd_api/lyrics.c
   ../src/mympd_api/requests.c
+  ../src/mympd_api/scripts/vars.c
   ../src/mympd_api/settings.c
   ../src/mympd_api/status.c
   ../src/mympd_api/sticker.c

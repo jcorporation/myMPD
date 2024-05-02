@@ -24,6 +24,9 @@
 #include "src/mpd_client/partitions.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/home.h"
+#ifdef MYMPD_ENABLE_LUA
+    #include "src/mympd_api/scripts/vars.h"
+#endif
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
@@ -70,6 +73,9 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_timer_file_read(&mympd_state->timer_list, mympd_state->config->workdir);
     // trigger
     mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
+    #ifdef MYMPD_ENABLE_LUA
+        mympd_api_script_vars_file_read(&mympd_state->script_var_list, mympd_state->config->workdir);
+    #endif
     // caches
     if (mympd_state->config->save_caches == true) {
         // album cache
@@ -133,15 +139,6 @@ void *mympd_api_loop(void *arg_config) {
     mpd_client_disconnect_all(mympd_state);
     if (mympd_state->stickerdb->conn != NULL) {
         stickerdb_disconnect(mympd_state->stickerdb);
-    }
-
-    // write album cache to disc
-    // only for simple mode to save the cached uris
-    if (mympd_state->config->save_caches == true &&
-        mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE)
-    {
-        album_cache_write(&mympd_state->album_cache, mympd_state->config->workdir,
-            &mympd_state->mpd_state->tags_album, &mympd_state->config->albums, true);
     }
 
     // save and free states

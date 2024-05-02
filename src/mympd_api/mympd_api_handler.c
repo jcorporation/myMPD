@@ -59,6 +59,7 @@
 
 #ifdef MYMPD_ENABLE_LUA
     #include "src/mympd_api/scripts/scripts.h"
+    #include "src/mympd_api/scripts/vars.h"
 #endif
 
 #include <stdbool.h>
@@ -380,6 +381,25 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             break;
         }
+        case MYMPD_API_SCRIPT_VAR_DELETE:
+            if (json_get_string(request->data, "$.params.key", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true) {
+                rc = mympd_api_script_vars_delete(&mympd_state->script_var_list, sds_buf1);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_SCRIPT, "Can't delete script variable");
+            }
+            break;
+        case MYMPD_API_SCRIPT_VAR_LIST:
+            response->data = mympd_api_script_vars_list(&mympd_state->script_var_list, response->data, request->id);
+            break;
+        case MYMPD_API_SCRIPT_VAR_SET:
+            if (json_get_string_max(request->data, "$.params.key", &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string_max(request->data, "$.params.value", &sds_buf2, vcb_isname, &parse_error) == true)
+            {
+                rc = mympd_api_script_vars_save(&mympd_state->script_var_list, sds_buf1, sds_buf2);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_SCRIPT, "Can't save script variable");
+            }
+            break;
     #endif
     // settings
         case MYMPD_API_PICTURE_LIST:

@@ -81,6 +81,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define FILENAME_TIMER "timer_list"
 #define FILENAME_TRIGGER "trigger_list"
 #define FILENAME_WEBRADIODB "webradiodb-combined.min.json"
+#define FILENAME_SCRIPTVARS "scriptvars_list"
 
 #define DIR_CACHE_COVER "covercache"
 #define DIR_CACHE_WEBRADIODB "webradiodb"
@@ -346,6 +347,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99
+#define LIST_SCRIPT_VARS_MAX 99
 #define LIST_TRIGGER_MAX 99
 #define LIST_TIMER_MAX 99
 #define USER_TIMER_ID_START 100
