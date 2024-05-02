@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v15.0.0 (not yet released)
+## myMPD v15.0.0 (2024-05-02)
 
 This release reworks the table and grid layouts for all views. Each view can now be displayed as table or grid.
 
