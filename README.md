@@ -41,6 +41,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - Progressive Web App enabled
 - Support of Media Session API
 - ListenBrainz and MusicBrainz integration
+- [myGPIOd](https://github.com/jcorporation/myGPIOd) integration
 
 To use all myMPD functions you should use the latest stable MPD version.
 
