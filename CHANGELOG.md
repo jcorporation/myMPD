@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Upd: Japanese translation
+
 ***
 
 ## myMPD v15.0.0 (2024-05-02)
