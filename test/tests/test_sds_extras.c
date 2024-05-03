@@ -74,6 +74,19 @@ UTEST(sds_extras, test_sds_split_comma_trim) {
     sdsfreesplitres(array, count);
 }
 
+UTEST(sds_extras, test_sds_hash_md5) {
+    sds hash = sds_hash_md5("abc");
+    ASSERT_STREQ("900150983cd24fb0d6963f7d28e17f72", hash);
+    sdsfree(hash);
+}
+
+UTEST(sds_extras, test_sds_hash_md5_sds) {
+    sds hash = sdsnew("abc");
+    hash = sds_hash_md5_sds(hash);
+    ASSERT_STREQ("900150983cd24fb0d6963f7d28e17f72", hash);
+    sdsfree(hash);
+}
+
 UTEST(sds_extras, test_sds_hash_sha1) {
     sds hash = sds_hash_sha1("abc");
     ASSERT_STREQ("a9993e364706816aba3e25717850c26c9cd0d89d", hash);
