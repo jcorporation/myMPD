@@ -71,7 +71,7 @@ bool mympd_api_script_vars_file_read(struct t_list *script_var_list, sds workdir
     sds value = NULL;
     while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
         if (json_get_string_max(line, "$.key", &key, vcb_isname, &parse_error) == true &&
-            json_get_string_max(line, "$.value", &key, vcb_isname, &parse_error) == true)
+            json_get_string_max(line, "$.value", &value, vcb_isname, &parse_error) == true)
         {
             list_push(script_var_list, key, 0, value, NULL);
             i++;
@@ -101,12 +101,17 @@ bool mympd_api_script_vars_file_read(struct t_list *script_var_list, sds workdir
  * Callback function for mympd_api_script_vars_file_save
  * @param buffer buffer to append the line
  * @param current list node to print
+ * @param newline append a newline char
  * @return pointer to buffer
  */
-static sds script_var_to_line_cb(sds buffer, struct t_list_node *current) {
+static sds script_var_to_line_cb(sds buffer, struct t_list_node *current, bool newline) {
     buffer = sdscatlen(buffer, "{", 1);
-    buffer = tojson_sds(buffer, current->key, current->value_p, false);
+    buffer = tojson_sds(buffer, "key", current->key, true);
+    buffer = tojson_sds(buffer, "value", current->value_p, false);
     buffer = sdscatlen(buffer, "}", 1);
+    if (newline == true) {
+        buffer = sdscatlen(buffer, "\n", 1);
+    }
     return buffer;
 }
 
@@ -141,7 +146,7 @@ sds mympd_api_script_vars_list(struct t_list *script_var_list, sds buffer, unsig
         if (returned_entities++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = script_var_to_line_cb(buffer, current);
+        buffer = script_var_to_line_cb(buffer, current, false);
         current = current->next;
     }
     buffer = sdscatlen(buffer, "],", 2);
