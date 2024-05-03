@@ -618,7 +618,7 @@ bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callba
     sds buffer = sdsempty();
     bool write_rc = true;
     while (current != NULL) {
-        buffer = node_to_line_cb(buffer, current);
+        buffer = node_to_line_cb(buffer, current, true);
         if (fputs(buffer, fp) == EOF) {
             MYMPD_LOG_ERROR(NULL, "Could not write data to file");
             write_rc = false;

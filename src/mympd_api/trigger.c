@@ -26,7 +26,7 @@
  */
 
 static void list_free_cb_trigger_data(struct t_list_node *current);
-static sds trigger_to_line_cb(sds buffer, struct t_list_node *current);
+static sds trigger_to_line_cb(sds buffer, struct t_list_node *current, bool newline);
 void trigger_execute(sds script, struct t_list *arguments, const char *partition);
 
 /**
@@ -452,9 +452,10 @@ static void list_free_cb_trigger_data(struct t_list_node *current) {
  * Prints a trigger as a json object string
  * @param buffer already allocated sds string to append the response
  * @param current trigger node to print
+ * @param newline append a newline char
  * @return pointer to buffer
  */
-static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
+static sds trigger_to_line_cb(sds buffer, struct t_list_node *current, bool newline) {
     struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_sds(buffer, "name", current->key, true);
@@ -471,7 +472,10 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
         buffer = tojson_sds(buffer, argument->key, argument->value_p, false);
         argument = argument->next;
     }
-    buffer = sdscatlen(buffer, "}}\n", 3);
+    buffer = sdscatlen(buffer, "}}", 2);
+    if (newline == true) {
+        buffer = sdscatlen(buffer, "\n", 1);
+    }
     return buffer;
 }
 

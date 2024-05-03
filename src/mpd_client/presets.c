@@ -102,10 +102,15 @@ bool preset_delete(struct t_list *preset_list, const char *preset_name) {
  * Callback function for presets_save
  * @param buffer buffer to append the line
  * @param current list node to print
+ * @param newline append a newline char
  * @return pointer to buffer
  */
-static sds preset_to_line_cb(sds buffer, struct t_list_node *current) {
-    return sdscatfmt(buffer, "%S\n", current->value_p);
+static sds preset_to_line_cb(sds buffer, struct t_list_node *current, bool newline) {
+    buffer = sdscatsds(buffer, current->value_p);
+    if (newline == true) {
+        buffer = sdscatlen(buffer, "\n", 1);
+    }
+    return buffer;
 }
 
 /**

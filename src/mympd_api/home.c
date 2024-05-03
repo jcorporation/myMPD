@@ -127,10 +127,15 @@ bool mympd_api_home_file_read(struct t_list *home_list, sds workdir) {
  * Callback function for mympd_api_home_file_save
  * @param buffer buffer to append the line
  * @param current list node to print
+ * @param newline append a newline char
  * @return pointer to buffer
  */
-static sds homeicon_to_line_cb(sds buffer, struct t_list_node *current) {
-    return sdscatfmt(buffer, "%S\n", current->key);
+static sds homeicon_to_line_cb(sds buffer, struct t_list_node *current, bool newline) {
+    buffer = sdscatsds(buffer, current->key);
+    if (newline == true) {
+        buffer = sdscatlen(buffer, "\n", 1);
+    }
+    return buffer;
 }
 
 /**

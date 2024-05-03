@@ -37,7 +37,7 @@ enum list_sort_direction {
 };
 
 typedef void (*user_data_callback) (struct t_list_node *current);
-typedef sds (*list_node_to_line_callback) (sds buffer, struct t_list_node *current);
+typedef sds (*list_node_to_line_callback) (sds buffer, struct t_list_node *current, bool newline);
 typedef bool (*list_sort_callback) (struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction);
 
 struct t_list *list_new(void);

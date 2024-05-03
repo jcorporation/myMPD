@@ -351,8 +351,11 @@ UTEST(list, test_list_move_item_pos_from_end_to_start) {
     list_clear(&test_list);
 }
 
-sds write_disk_cb(sds buffer, struct t_list_node *current) {
+sds write_disk_cb(sds buffer, struct t_list_node *current, bool newline) {
     buffer = sdscatsds(buffer, current->key);
+    if (newline == true) {
+        buffer = sdscatlen(buffer, "\n", 1);
+    }
     return buffer;
 }
 
