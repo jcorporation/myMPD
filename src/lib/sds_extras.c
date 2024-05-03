@@ -401,17 +401,11 @@ static bool is_url_safe(char c) {
  * @param s sds string to append the encoded string
  * @param p string to url encode
  * @param len string length to url encode
- * @param form_url_encode true = encodes spaces
  * @return modified sds string
  */
-sds sds_urlencode(sds s, const char *p, size_t len, bool form_url_encode) {
+sds sds_urlencode(sds s, const char *p, size_t len) {
     for (size_t i = 0; i < len; i++) {
-        if (form_url_encode == true &&
-            p[i] == ' ')
-        {
-            s = sds_catchar(s, '+');
-        }
-        else if (is_url_safe(p[i])) {
+        if (is_url_safe(p[i])) {
             s = sds_catchar(s, p[i]);
         }
         else {

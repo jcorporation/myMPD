@@ -71,7 +71,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
                 json_get_string(body, "$.params.language", 0, NAME_LEN_MAX, &language, vcb_isname, &parse_error) == true &&
                 json_get_string(body, "$.params.searchstr", 0, NAME_LEN_MAX, &searchstr, vcb_isname, &parse_error) == true)
             {
-                sds searchstr_encoded = sds_urlencode(sdsempty(), searchstr, sdslen(searchstr), false);
+                sds searchstr_encoded = sds_urlencode(sdsempty(), searchstr, sdslen(searchstr));
                 uri = sdscatfmt(uri, "/json/stations/search?hidebroken=true&offset=%l&limit=%l&name=%S&tag=%S&country=%S&language=%S",
                     offset, limit, searchstr_encoded, tags, country, language);
                 FREE_SDS(searchstr_encoded);

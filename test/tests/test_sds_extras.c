@@ -174,7 +174,7 @@ UTEST(sds_extras, test_sds_json_unescape) {
 
 UTEST(sds_extras, test_sds_urldecode) {
     sds test_input = sdsnew("/Musict/Led%20Zeppelin/1975%20-%20Physical%20Graffiti%20%5B1994%2C%20Atlantic%2C%207567-92442-2%5D/CD%201/folder.jpg");
-    sds s = sds_urldecode(sdsempty(), test_input, sdslen(test_input), 0);
+    sds s = sds_urldecode(sdsempty(), test_input, sdslen(test_input), false);
     ASSERT_STREQ("/Musict/Led Zeppelin/1975 - Physical Graffiti [1994, Atlantic, 7567-92442-2]/CD 1/folder.jpg", s);
     ASSERT_EQ(strlen(s), sdslen(s));
     sdsfree(test_input);

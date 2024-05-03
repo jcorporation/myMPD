@@ -162,7 +162,7 @@ systemctl restart mympd
 ### URL encoding and decoding
 
 ```lua
-encoded = mympd.urlencode(string, form_url_encode)
+encoded = mympd.urlencode(string)
 decoded = mympd.urldecode(string, form_url_decode)
 ```
 
@@ -171,7 +171,6 @@ decoded = mympd.urldecode(string, form_url_decode)
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
 | string | string | String to hash |
-| form_url_encode | boolean | Encode as form url |
 | form_url_decode | boolean | Decode as form url |
 {: .table .table-sm }
 

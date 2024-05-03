@@ -59,9 +59,8 @@ int lua_util_urlencode(lua_State *lua_vm) {
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *str = lua_tostring(lua_vm, 1);
-    bool form = lua_toboolean(lua_vm, 2);
 
-    sds encoded = sds_urlencode(sdsempty(), str, strlen(str), form);
+    sds encoded = sds_urlencode(sdsempty(), str, strlen(str));
     lua_pushstring(lua_vm, encoded);
     FREE_SDS(encoded);
     //return response count

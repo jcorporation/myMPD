@@ -35,5 +35,5 @@ end
 -- URL encoding
 --
 function mympd.urlencode(string, form)
-  return mympd_api_util_urlencode(string, form)
+  return mympd_api_util_urlencode(string)
 end
