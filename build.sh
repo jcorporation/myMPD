@@ -1436,7 +1436,7 @@ case "$ACTION" in
     installrelease
   ;;
   releaseinstall)
-    buildrelease
+    buildrelease "Release"
     installrelease
   ;;
   debug|asan|tsan|ubsan)

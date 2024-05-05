@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD 15.0.2 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: Missing parameter for `build.sh releaseinstall` #1271
+
+***
+
 ## myMPD 15.0.1 (2024-05-02)
 
 This is a small bugfix release.
