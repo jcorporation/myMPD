@@ -5,13 +5,10 @@
 #
 FROM alpine:latest
 
-WORKDIR /
-RUN apk add --no-cache git alpine-sdk cmake
-
 COPY . /myMPD/
 WORKDIR /myMPD
 RUN ./build.sh installdeps
 RUN ./build.sh debug
-RUN ./build.sh addmympduser
+RUN adduser -D -H -h /var/lib/mympd -s /sbin/nologin -g myMPD -u 1000 mympd
 
 ENTRYPOINT ["/myMPD/debug/mympd"]
