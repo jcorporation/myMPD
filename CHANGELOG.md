@@ -11,6 +11,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Upd: Translations
+- Upd: Improve docker documentation #1268
 - Fix: Missing parameter for `build.sh releaseinstall` #1271
 
 ***
