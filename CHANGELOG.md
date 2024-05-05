@@ -10,6 +10,7 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Upd: Translations
 - Fix: Missing parameter for `build.sh releaseinstall` #1271
 
 ***
