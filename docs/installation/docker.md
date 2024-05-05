@@ -76,7 +76,7 @@ Setup: `docker-compose up -d`
 ```sh
 docker run -d \
   --name=mympd \
-  --expose 8080 \
+  -p 8080:8080 \
   -u 1000:1000 \
   -e UMASK_SET=022 \
   -e MYMPD_SSL=false \
