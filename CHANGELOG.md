@@ -13,6 +13,7 @@ This is a small bugfix release.
 - Upd: Translations
 - Upd: Improve docker documentation #1268
 - Fix: Missing parameter for `build.sh releaseinstall` #1271
+- Fix: Alignment of footer content
 
 ***
 
