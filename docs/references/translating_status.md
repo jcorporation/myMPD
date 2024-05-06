@@ -1,5 +1,5 @@
 - bg-BG: 1010 missing phrases
-- es-AR: 7 missing phrases
+- es-AR: 2 missing phrases
 - es-ES: 874 missing phrases
 - es-VE: 872 missing phrases
 - fi-FI: 869 missing phrases
@@ -10,5 +10,5 @@
 - nl-NL: 7 missing phrases
 - pl-PL: 25 missing phrases
 - ru-RU: 99 missing phrases
-- zh-Hans: 25 missing phrases
+- zh-Hans: 2 missing phrases
 - zh-Hant: 25 missing phrases

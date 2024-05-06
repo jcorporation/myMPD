@@ -21,7 +21,20 @@ This release adds new scripting functions.
 
 ***
 
-## myMPD 15.0.1 (not yet released)
+## myMPD 15.0.2 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Upd: Translations
+- Upd: Improve docker documentation #1268
+- Fix: Missing parameter for `build.sh releaseinstall` #1271
+- Fix: Alignment of footer content
+
+***
+
+## myMPD 15.0.1 (2024-05-02)
 
 This is a small bugfix release.
 
