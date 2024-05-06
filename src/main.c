@@ -81,6 +81,7 @@ static void mympd_signal_handler(int sig_num) {
     switch(sig_num) {
         case SIGTERM:
         case SIGINT: {
+            MYMPD_LOG_NOTICE(NULL, "Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
             //Set loop end condition for threads
             s_signal_received = sig_num;
             //Wakeup queue loops
@@ -88,7 +89,6 @@ static void mympd_signal_handler(int sig_num) {
             pthread_cond_signal(&mympd_script_queue->wakeup);
             pthread_cond_signal(&web_server_queue->wakeup);
             event_eventfd_write(mympd_api_queue->event_fd);
-            MYMPD_LOG_NOTICE(NULL, "Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
             if (web_server_queue->mg_mgr != NULL) {
                 mg_wakeup(web_server_queue->mg_mgr, web_server_queue->mg_conn_id, "", 0);
             }
