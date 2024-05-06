@@ -168,5 +168,17 @@
     "OriginalDate": "Original date",
     "Value length for JSON path \"$.params.newName\" is too short": "Invalid name",
     "Value length for JSON path \"$.params.plist\" is too short": "Invalid playlist name",
-    "Sortdesc": "Sort descending"
+    "Sortdesc": "Sort descending",
+    "alsa": "Alsa",
+    "ao": "AO",
+    "httpd": "HTTPD",
+    "jack": "Jack",
+    "sles": "OpenSL ES",
+    "openal": "OpenAL",
+    "oss": "Open Sound System",
+    "osx": "Mac OS X",
+    "snapcast": "Snapcast",
+    "sndio": "SNDIO",
+    "solaris": "Solaris",
+    "wasapi": "Windows Audio Session API"
 }
