@@ -2,7 +2,7 @@
 mympd.init()
 uri = "https://api.listenbrainz.org/1/feedback/recording-feedback"
 headers = "Content-type: application/json\r\n"..
-  "Authorization: Token "..mympd_state["listenbrainz_token"].."\r\n"
+  "Authorization: Token "..mympd_state["var_listenbrainz_token"].."\r\n"
 
 if arguments["type"] == "like" then
   -- thumbs up/down

@@ -1029,7 +1029,6 @@
     "helpSettingsHelp": "Zeigt diese Art von Hilfetexten an.",
     "helpSettingsInfoTxtName": "Dateiname für Albuminformationen, die im gleichen Verzeichnis wie das Lied oder Album gespeichert sein muss.",
     "helpSettingsLastPlayedCount": "Maximale Anzahl von Einträgen in der 'Zuletzt gespielt'-Liste.",
-    "helpSettingsListenBrainzToken": "Das ListenBrainz Token wird vom Scrobbler and Feedback Skript genutzt.",
     "helpSettingsLocalPlaybackAutoplay": "Aktiviert die automatische Wiedergabe des MPD Streams.",
     "helpSettingsMaxElementsPerPage": "Maximale Anzahl von Elementen die auf einer Seite angezeigt werden.",
     "helpSettingsMediaSession": "Aktiviert die Unterstützung für die Web Media Session API.",

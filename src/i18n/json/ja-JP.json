@@ -1029,7 +1029,6 @@
     "helpSettingsHelp": "このような様式のヘルプメッセージを表示します。",
     "helpSettingsInfoTxtName": "アルバムと同じフォルダにある情報テキストファイルのファイル名。",
     "helpSettingsLastPlayedCount": "「最後に再生した項目」に残す最大楽曲数。",
-    "helpSettingsListenBrainzToken": "ListenBrainzトークンはscrobblerとfeedbackスクリプトで使用されます。",
     "helpSettingsLocalPlaybackAutoplay": "MPDストリームの自動再生を有効にします。",
     "helpSettingsMaxElementsPerPage": "1ページに表示できる最大要素数。",
     "helpSettingsMediaSession": "Web Media Session APIのサポートを有効にします。",

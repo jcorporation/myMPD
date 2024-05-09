@@ -326,13 +326,6 @@ const settingsFields = {
         "form": "modalSettingsStatisticsFrm",
         "help": "helpSettingsLastPlayedCount"
     },
-    "listenbrainzToken": {
-        "defaultValue": "",
-        "inputType": "password",
-        "title": "ListenBrainz Token",
-        "form": "modalSettingsCloudFrm",
-        "help": "helpSettingsListenBrainzToken"
-    },
     "bookletName": {
         "defaultValue": defaults["MYMPD_BOOKLET_NAME"],
         "inputType": "text",

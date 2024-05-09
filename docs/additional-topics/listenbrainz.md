@@ -6,7 +6,8 @@ title: ListenBrainz integration
 
 myMPD proudly supports MusicBrainz and ListenBrainz. MusicBrainz tags are automatically linked to the MusicBrainz website and you can use scripts for scrobbling.
 
-- Set your ListenBrainz token: Settings -> Cloud
+- Set your ListenBrainz API token: Scripts -> Variables
+  - New variable with key `var_listenbrainz_token` and your API token as value
 - Enable tags in MPD and myMPD:
   - MUSICBRAINZ_ALBUMARTISTID
   - MUSICBRAINZ_ARTISTID

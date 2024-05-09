@@ -54,7 +54,6 @@
     "helpSettingsStreamUri": "Manually setting a stream uri overrides the automatic calculation of the stream uri (MPD host + Stream port).",
     "helpSettingsQuickPlay": "Shows a play button besides the action button.",
     "helpSettingsQuickRemove": "Shows a remove button besides the action button.",
-    "helpSettingsListenBrainzToken": "The ListenBrainz token is used by the scrobbler and feedback scripts.",
     "helpSettingsMusicBrainzLinks": "Shows links to MusicBrainz website in the playback and album views.",
     "helpSettingsMediaSession": "Enables support of the Web Media Session API.",
     "helpSettingsNotifyWeb": "Enables support of the Web Notification API.",

@@ -1029,7 +1029,6 @@
     "helpSettingsHelp": "Muestra este estilo de mensajes de ayuda.",
     "helpSettingsInfoTxtName": "Nombre del archivo de texto de información que se encuentren en la misma carpeta que el álbum.",
     "helpSettingsLastPlayedCount": "Número máximo de canciones que se mantendrán en la lista 'Últimas reproducidas'.",
-    "helpSettingsListenBrainzToken": "El token ListenBrainz es utilizado por los scripts de scrobbler y feedback.",
     "helpSettingsLocalPlaybackAutoplay": "Habilita la reproducción automática del stream de MPD.",
     "helpSettingsMaxElementsPerPage": "Máximo de elementos a mostrar en una página.",
     "helpSettingsMediaSession": "Habilita el soporte del API de sesión multimedia web.",

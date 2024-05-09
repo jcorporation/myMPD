@@ -102,7 +102,6 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->lyrics.sylt_ext = sdsnew(MYMPD_LYRICS_SYLT_EXT);
     mympd_state->lyrics.vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT);
     mympd_state->lyrics.vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
-    mympd_state->listenbrainz_token = sdsempty();
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
     tags_reset(&mympd_state->smartpls_generate_tag_types);
     mympd_state->tag_disc_empty_is_first = MYMPD_TAG_DISC_EMPTY_IS_FIRST;
@@ -197,7 +196,6 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->lyrics.uslt_ext);
     FREE_SDS(mympd_state->lyrics.vorbis_uslt);
     FREE_SDS(mympd_state->lyrics.vorbis_sylt);
-    FREE_SDS(mympd_state->listenbrainz_token);
     FREE_SDS(mympd_state->booklet_name);
     FREE_SDS(mympd_state->info_txt_name);
     //struct itself

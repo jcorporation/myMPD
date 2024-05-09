@@ -1029,7 +1029,6 @@
     "helpSettingsHelp": "Hiermee wordt dit type helptekst weergegeven.",
     "helpSettingsInfoTxtName": "Bestandsnaam voor albuminformatie, die moet worden opgeslagen in dezelfde map als het nummer of album.",
     "helpSettingsLastPlayedCount": "Maximum aantal items in de lijst 'Laatst gespeeld'.",
-    "helpSettingsListenBrainzToken": "Het ListenBrainz token wordt gebruikt door het Scrobbler en Feedback script.",
     "helpSettingsLocalPlaybackAutoplay": "Activeert het automatisch afspelen van MPD stream",
     "helpSettingsMaxElementsPerPage": "Maximum aantal elementen dat op een pagina wordt weergegeven.",
     "helpSettingsMediaSession": "Activeert ondersteuning van de Web Media Session API.",

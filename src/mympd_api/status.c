@@ -356,7 +356,6 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     lua_mympd_state_set_p(lua_partition_state, "jukebox_uniq_tag", mpd_tag_name(partition_state->jukebox.uniq_tag.tags[0]));
     lua_mympd_state_set_i(lua_partition_state, "jukebox_min_song_duration", partition_state->jukebox.min_song_duration);
     lua_mympd_state_set_i(lua_partition_state, "jukebox_max_song_duration", partition_state->jukebox.max_song_duration);
-    lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", mympd_state->listenbrainz_token);
     // User defined variables
     struct t_list_node *current = mympd_state->script_var_list.head;
     sds key = sdsempty();

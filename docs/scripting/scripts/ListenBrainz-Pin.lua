@@ -3,7 +3,7 @@ mympd.init()
 pin_uri = "https://api.listenbrainz.org/1/pin"
 unpin_uri = "https://api.listenbrainz.org/1/pin/unpin"
 headers = "Content-type: application/json\r\n"..
-  "Authorization: Token "..mympd_state["listenbrainz_token"].."\r\n"
+  "Authorization: Token "..mympd_state["var_listenbrainz_token"].."\r\n"
 payload = ""
 uri = ""
 

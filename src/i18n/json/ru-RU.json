@@ -1029,7 +1029,6 @@
     "helpSettingsHelp": "Отображает этот тип текста справки.",
     "helpSettingsInfoTxtName": "",
     "helpSettingsLastPlayedCount": "Максимальное количество записей в списке «Недавно воспроизведенные».",
-    "helpSettingsListenBrainzToken": "Токен ListenBrainz используется скриптом Scrobbler и Feedback.",
     "helpSettingsLocalPlaybackAutoplay": "Включает автоматическое воспроизведение потока MPD.",
     "helpSettingsMaxElementsPerPage": "Максимальное количество элементов, отображаемых на странице.",
     "helpSettingsMediaSession": "Включает поддержку API сеанса веб-медиа.",

@@ -1029,7 +1029,6 @@
     "helpSettingsHelp": "Afficher ce style de messages d'aide.",
     "helpSettingsInfoTxtName": "Nom de fichier pour les informations sur l'album, qui doit être enregistré dans le même répertoire que la chanson ou l'album.",
     "helpSettingsLastPlayedCount": "Nombre maximum d'entrées à conserver dans l'historique de lecture.",
-    "helpSettingsListenBrainzToken": "Le jeton ListenBrainz est utilisé par le scrobbler et les scripts de notation.",
     "helpSettingsLocalPlaybackAutoplay": "Activer la lecture automatique du flux MPD.",
     "helpSettingsMaxElementsPerPage": "Nombre maximum d'éléments à afficher par page.",
     "helpSettingsMediaSession": "Active le support de l'API Web Media Session",

@@ -1029,7 +1029,6 @@
     "helpSettingsHelp": "다음 스타일의 도움말 메시지를 표시합니다",
     "helpSettingsInfoTxtName": "음반과 동일한 폴더에 있는 정보 텍스트 파일의 파일 이름",
     "helpSettingsLastPlayedCount": "'최근 연주' 목록에 보관할 수 있는 최대 곡 수입니다",
-    "helpSettingsListenBrainzToken": "ListenBrainz 토큰은 스크롤러와 피드백 스크립트에서 사용됩니다",
     "helpSettingsLocalPlaybackAutoplay": "MPD 스트림의 자동 연주를 사용합니다",
     "helpSettingsMaxElementsPerPage": "한 페이지에 표시할 수 있는 최대 항목입니다",
     "helpSettingsMediaSession": "웹 미디어 세션 API 지원 사용",

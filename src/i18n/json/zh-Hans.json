@@ -1029,7 +1029,6 @@
     "helpSettingsHelp": "显示帮助信息.",
     "helpSettingsInfoTxtName": "放在同专辑文件夹下的信息文本文件名.",
     "helpSettingsLastPlayedCount": "'最近播放' 播放列表保存的歌曲数量.",
-    "helpSettingsListenBrainzToken": "ListenBrainz token 用于音乐记录和反馈脚本.",
     "helpSettingsLocalPlaybackAutoplay": "允许自动播放 MPD 音频流.",
     "helpSettingsMaxElementsPerPage": "每页显示的项目数量.",
     "helpSettingsMediaSession": "启用网络媒体会话 API 支持.",
