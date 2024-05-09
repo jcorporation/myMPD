@@ -9,22 +9,26 @@ if rc ~= 0 then
   return
 end
 
-for k, v in pairs(result) do
-  if v == "-" or v == nil then
-    result[k] = ""
-  end
+if result.webradio then
+  return
 end
+
+if string.sub(result.uri, 1, 8) == "https://" or
+   string.sub(result.uri, 1, 7) == "http://" then
+  return
+end
+
 artist_mbids = {}
 if result["MUSICBRAINZ_ARTISTID"] ~= nil then
   for k, v in pairs(result["MUSICBRAINZ_ARTISTID"]) do
-    if v ~= "-" then
+    if v ~= "" or v == nil then
       artist_mbids[#artist_mbids + 1] = v
     end
   end
 end
 if result["MUSICBRAINZ_ALBUMARTISTID"] ~= nil then
   for k, v in pairs(result["MUSICBRAINZ_ALBUMARTISTID"]) do
-    if v ~= "-" then
+    if v ~= "" or v == nil then
       artist_mbids[#artist_mbids + 1] = v
     end
   end
