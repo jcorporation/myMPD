@@ -72,6 +72,9 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_TRIGGER_RM:
         case MYMPD_API_TRIGGER_SAVE:
         case MYMPD_API_LOGLEVEL:
+        case MYMPD_API_SCRIPT_VAR_DELETE:
+        case MYMPD_API_SCRIPT_VAR_LIST:
+        case MYMPD_API_SCRIPT_VAR_SET:
             return true;
         default:
             return false;

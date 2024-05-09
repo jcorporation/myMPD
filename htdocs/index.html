@@ -2199,7 +2199,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="mi title-icon">code</span> <span data-phrase="Scripts"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">code</span> <span id="modalScriptsTitle" data-phrase="Scripts"></span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -2291,11 +2291,49 @@
               </table>
             </div>
           </div>
+          <div class="tab-pane" id="modalScriptsVarsTab">
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="modalScriptsVarsKeyInput" data-phrase="Key"></label>
+              <div class="col-sm-8">
+                <input id="modalScriptsVarsKeyInput" class="form-control"/>
+                <div class="invalid-feedback" data-phrase="Invalid key"></div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="modalScriptsVarsValueInput" data-phrase="Value"></label>
+              <div class="col-sm-8">
+                <input id="modalScriptsVarsValueInput" class="form-control"/>
+                <div class="invalid-feedback" data-phrase="Invalid value"></div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <div class="col-sm-4"></div>
+              <div class="col-sm-8">
+                <button data-href='{"cmd":"setScriptsVar","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
+              </div>
+            </div>
+            <hr/>
+            <div class="table-responsive overflow-auto">
+              <table class="table table-hover table-sm">
+                <thead>
+                  <tr>
+                    <th data-phrase="Key"></th>
+                    <th data-phrase="Value"></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody class="clickable" id="modalScriptsVarsList"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
         </div>
         <div id="modalScriptsListFooter" class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
+          <div>
+            <button data-href='{"cmd":"showScriptsVars","options":[]}' type="button" class="btn btn-success protected me-2" data-phrase="Variables"></button>
+            <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
+          </div>
         </div>
         <div id="modalScriptsEditFooter" class="modal-footer justify-content-between d-none">
           <div>
@@ -2303,6 +2341,9 @@
             <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
           </div>
           <button data-href='{"cmd":"saveScript","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
+        </div>
+        <div id="modalScriptsVarsFooter" class="modal-footer justify-content-between d-none">
+          <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Scripts"></button>
         </div>
       </div>
     </div>
