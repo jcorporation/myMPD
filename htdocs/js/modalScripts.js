@@ -104,7 +104,7 @@ function initModalScripts() {
 
         const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
-            editScriptsVars(target);
+            showScriptsVarsEdit(target, true);
         }
     }, false);
 }
@@ -378,10 +378,12 @@ function showEditScript(script) {
     cleanupModalId('modalScripts');
     elGetById('modalScriptsContentInput').removeAttribute('disabled');
     elGetById('modalScriptsListTab').classList.remove('active');
-    elGetById('modalScriptsVarsTab').classList.remove('active');
+    elGetById('modalScriptsVarsListTab').classList.remove('active');
+    elGetById('modalScriptsVarsEditTab').classList.remove('active');
     elGetById('modalScriptsEditTab').classList.add('active');
     elHideId('modalScriptsListFooter');
-    elHideId('modalScriptsVarsFooter');
+    elHideId('modalScriptsVarsListFooter');
+    elHideId('modalScriptsVarsEditFooter');
     elShowId('modalScriptsEditFooter');
 
     if (script !== '') {
@@ -427,10 +429,12 @@ function showListScripts() {
     cleanupModalId('modalScripts');
     elGetById('modalScriptsListTab').classList.add('active');
     elGetById('modalScriptsEditTab').classList.remove('active');
-    elGetById('modalScriptsVarsTab').classList.remove('active');
+    elGetById('modalScriptsVarsEditTab').classList.remove('active');
+    elGetById('modalScriptsVarsListTab').classList.remove('active');
     elShowId('modalScriptsListFooter');
     elHideId('modalScriptsEditFooter');
-    elHideId('modalScriptsVarsFooter');
+    elHideId('modalScriptsVarsListFooter');
+    elHideId('modalScriptsVarsEditFooter');
     getScriptList(true);
 }
 
@@ -476,14 +480,15 @@ function getScriptList(all) {
  * @returns {void}
  */
 function parseScriptList(obj) {
-    const tbodyScripts = elGetById('modalScriptsList');
+    const table = elGetById('modalScriptsList');
+    const tbodyScripts = table.querySelector('tbody');
     elClear(tbodyScripts);
     const mainmenuScripts = elGetById('scripts');
     elClear(mainmenuScripts);
     const triggerScripts = elGetById('modalTriggerScriptInput');
     elClear(triggerScripts);
 
-    if (checkResult(obj, tbodyScripts, 'table') === false) {
+    if (checkResult(obj, table, 'table') === false) {
         return;
     }
 
@@ -549,13 +554,15 @@ function parseScriptList(obj) {
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function showScriptsVars() {
+function showScriptsVarsList() {
     elGetById('modalScriptsTitle').textContent = tn('Variables');
     cleanupModalId('modalScripts');
-    elGetById('modalScriptsVarsTab').classList.add('active');
+    elGetById('modalScriptsVarsListTab').classList.add('active');
+    elGetById('modalScriptsVarsEditTab').classList.remove('active');
     elGetById('modalScriptsEditTab').classList.remove('active');
     elGetById('modalScriptsListTab').classList.remove('active');
-    elShowId('modalScriptsVarsFooter');
+    elShowId('modalScriptsVarsListFooter');
+    elHideId('modalScriptsVarsEditFooter');
     elHideId('modalScriptsEditFooter');
     elHideId('modalScriptsListFooter');
     getScriptsVarsList();
@@ -564,11 +571,32 @@ function showScriptsVars() {
 /**
  * Edits a scripts variable
  * @param {EventTarget} el row with the data
+ * @param {boolean} editVar edit variable?
  * @returns {void}
  */
-function editScriptsVars(el) {
-    elGetById('modalScriptsVarsKeyInput').value = getData(el,'key');
-    elGetById('modalScriptsVarsValueInput').value = getData(el,'value');
+function showScriptsVarsEdit(el, editVar) {
+    elGetById('modalScriptsTitle').textContent = tn('Variables');
+    cleanupModalId('modalScripts');
+    elGetById('modalScriptsVarsEditTab').classList.add('active');
+    elGetById('modalScriptsVarsListTab').classList.remove('active');
+    elGetById('modalScriptsEditTab').classList.remove('active');
+    elGetById('modalScriptsListTab').classList.remove('active');
+    elShowId('modalScriptsVarsEditFooter');
+    elHideId('modalScriptsVarsListFooter');
+    elHideId('modalScriptsEditFooter');
+    elHideId('modalScriptsListFooter');
+    if (editVar === true) {
+        elGetById('modalScriptsVarsKeyInput').setAttribute('readonly', 'readonly');
+        elGetById('modalScriptsVarsKeyInput').value = getData(el,'key');
+        elGetById('modalScriptsVarsValueInput').value = getData(el,'value');
+        elGetById('modalScriptsVarsValueInput').focus();
+    }
+    else {
+        elGetById('modalScriptsVarsKeyInput').removeAttribute('readonly');
+        elGetById('modalScriptsVarsKeyInput').value = '';
+        elGetById('modalScriptsVarsValueInput').value = '';
+        elGetById('modalScriptsVarsKeyInput').focus();
+    }
 }
 
 /**
@@ -613,7 +641,7 @@ function setScriptsVar() {
  */
 function setScriptsVarsCheckError(obj) {
     if (modalApply(obj) === true) {
-        getScriptsVarsList();
+        showScriptsVarsList();
     }
 }
 
@@ -622,8 +650,6 @@ function setScriptsVarsCheckError(obj) {
  * @returns {void}
  */
 function getScriptsVarsList() {
-    elGetById('modalScriptsVarsKeyInput').value = '';
-    elGetById('modalScriptsVarsValueInput').value = '';
     sendAPI("MYMPD_API_SCRIPT_VAR_LIST", {}, parseScriptsVarsList, true);
 }
 
@@ -633,13 +659,12 @@ function getScriptsVarsList() {
  * @returns {void}
  */
 function parseScriptsVarsList(obj) {
-    const tbody = document.querySelector('#modalScriptsVarsList');
-    elClear(tbody);
-
-    if (checkResult(obj, tbody, 'table') === false) {
+    const table = document.querySelector('#modalScriptsVarsList');
+    if (checkResult(obj, table, 'table') === false) {
         return;
     }
-
+    const tbody = table.querySelector('tbody');
+    elClear(tbody);
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = elCreateNodes('tr', {"title": tn('Edit')}, [
             elCreateTextTn('td', {}, obj.result.data[i].key),

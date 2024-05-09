@@ -92,7 +92,7 @@ sds mympd_api_script_list(sds workdir, sds buffer, unsigned request_id, bool all
     }
 
     struct dirent *next_file;
-    int nr = 0;
+    unsigned returned_entities = 0;
     sds entry = sdsempty();
     sds scriptname = sdsempty();
     sds scriptfilename = sdsempty();
@@ -115,7 +115,7 @@ sds mympd_api_script_list(sds workdir, sds buffer, unsigned request_id, bool all
         if (all == true ||
             order > 0)
         {
-            if (nr++) {
+            if (returned_entities++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscat(buffer, entry);
@@ -129,7 +129,9 @@ sds mympd_api_script_list(sds workdir, sds buffer, unsigned request_id, bool all
     FREE_SDS(scriptfilename);
     FREE_SDS(entry);
     FREE_SDS(scriptdirname);
-    buffer = sdscatlen(buffer, "]", 1);
+    buffer = sdscatlen(buffer, "],", 2);
+    buffer = tojson_uint(buffer, "returnedEntities", returned_entities, true);
+    buffer = tojson_uint(buffer, "totalEntities", returned_entities, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }

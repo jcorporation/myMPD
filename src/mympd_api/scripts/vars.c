@@ -150,7 +150,8 @@ sds mympd_api_script_vars_list(struct t_list *script_var_list, sds buffer, unsig
         current = current->next;
     }
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_uint(buffer, "returnedEntities", returned_entities, false);
+    buffer = tojson_uint(buffer, "returnedEntities", returned_entities, true);
+    buffer = tojson_uint(buffer, "totalEntities", returned_entities, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }

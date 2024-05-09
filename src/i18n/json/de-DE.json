@@ -1164,9 +1164,10 @@
     "url_resolved": "URL",
     "votes": "Stimmen",
     "wasapi": "Windows Audio Session API",
-    "Can't delete script variable": "Skriptvariable konnte nicht gelöscht werden",
-    "Can't save script variable": "Skriptvariable konnte nicht gespeichert werden",
+    "Can't delete script variable": "Skript Variable konnte nicht gelöscht werden",
+    "Can't save script variable": "Skript Variable konnte nicht gespeichert werden",
     "Invalid key": "Ungültiger Key",
     "Key": "Key",
-    "Variables": "Variablen"
+    "Variables": "Variablen",
+    "New variable": "Neue Variable"
 }
