@@ -158,7 +158,8 @@ function viewClickHandler(event) {
 function viewRightClickHandler(event) {
     if (settings['view' + app.id].mode === 'table') {
         if (event.target.parentNode.classList.contains('not-clickable') ||
-            event.target.parentNode.parentNode.classList.contains('not-clickable'))
+            event.target.parentNode.parentNode.classList.contains('not-clickable') ||
+            event.target.nodeName === 'TH')
         {
             return;
         }

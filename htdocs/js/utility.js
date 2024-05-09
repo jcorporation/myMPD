@@ -41,9 +41,13 @@ function ignoreKeys(event) {
  * @returns {boolean} true if target is clickable else false
  */
 function checkTargetClick(target) {
-    return target === null || target.classList.contains('not-clickable')
-        ? false
-        : true;
+    if (target === null ||
+        target.classList.contains('not-clickable') ||
+        target.parentNode.nodeName === 'TH')
+    {
+        return false;
+    }
+    return true;
 }
 
 /**
