@@ -550,7 +550,7 @@ function initLinks(root) {
 }
 
 /**
- * Tries to convert a strint to number or bool
+ * Tries to convert a string to number or bool
  * @param {string} str string to convert
  * @returns {string|number|boolean} parsed string
  */
