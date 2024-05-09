@@ -3,13 +3,6 @@
 ---
 
 --
--- Return MD5 hash of string
---
-function mympd.hash_md5(string)
-  return mympd_api_util_hash(string, "md5")
-end
-
---
 -- Return SHA1 hash of string
 --
 function mympd.hash_sha1(string)

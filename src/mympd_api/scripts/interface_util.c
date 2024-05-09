@@ -9,7 +9,6 @@
 
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
-#include "src/mympd_api/scripts/interface.h"
 
 #include <string.h>
 
@@ -28,10 +27,7 @@ int lua_util_hash(lua_State *lua_vm) {
     const char *alg = lua_tostring(lua_vm, 2);
 
     sds hash = NULL;
-    if (strcmp(alg, "md5") == 0) {
-        hash = sds_hash_md5(str);
-    }
-    else if (strcmp(alg, "sha1") == 0) {
+    if (strcmp(alg, "sha1") == 0) {
         hash = sds_hash_sha1(str);
     }
     else if (strcmp(alg, "sha256") == 0) {

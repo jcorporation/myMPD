@@ -26,7 +26,6 @@ myMPD provides custom lua functions through the `mympd` lua library.
 | `mympd.gpio_get` | Connects to myGPIOd and returns the active state of a GPIO. |
 | `mympd.gpio_set` | Connects to myGPIOd and sets the active value of a GPIO. |
 | `mympd.gpio_toggle` | Connects to myGPIOd and toggles the active value of a GPIO. |
-| `mympd.hash_md5` | MD5 hash of string. |
 | `mympd.hash_sha1` | SHA1 hash of string. |
 | `mympd.hash_sha256` | SHA256 hash of string. |
 | `mympd.http_client` | Simple HTTP client. |
@@ -106,6 +105,8 @@ rc, code, header, body = mympd.http_client(method, uri, headers, payload)
 ### Accessing myMPD and MPD status information
 
 Populates the lua table `mympd_state` with configuration values and current status of myMPD and MPD.
+
+Additionally all user defined variables are populates in this table. They are prefixed with `var_`.
 
 ```lua
 mympd.init()
