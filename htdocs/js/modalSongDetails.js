@@ -298,9 +298,14 @@ function getComments(uri) {
     }, parseComments, true);
 }
 
+/**
+ * Gets the song comments
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseComments(obj) {
     const table = elGetById('modalSongDetailsCommentsList');
-    const tbody = table.querySelector('tbody')
+    const tbody = table.querySelector('tbody');
     elClear(tbody);
     if (checkResult(obj, table, 'table') === false) {
         return;
