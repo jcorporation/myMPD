@@ -120,11 +120,11 @@ function checkResult(obj, parent, mode) {
         obj.result.returnedEntities === 0)
     {
         if (mode === 'table') {
-            const thead = parent.parentNode.querySelector('tr');
+            const thead = parent.querySelector('tr');
             colspan = thead !== null
                 ? thead.querySelectorAll('th').length
                 : 0;
-            const tfoot = parent.parentNode.querySelector('tfoot');
+            const tfoot = parent.querySelector('tfoot');
             if (tfoot !== null) {
                 elClear(tfoot);
             }
