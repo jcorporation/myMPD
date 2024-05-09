@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 This release adds new scripting functions.
 
+The config setting for the ListenBrainz API token was removed. The token can be now configured as script variable.
+
 ### API changes
 
 - MYMPD_API_SCRIPT_VAR_DELETE: new
@@ -16,8 +18,9 @@ This release adds new scripting functions.
 
 ### Changelog
 
-- Feat: Set custom variables for scripts
+- Feat: Set custom variables for scripts #1265
 - Feat: implement hashing and url handling functions for lua
+- Fix: Error checking for results in modals
 
 ***
 
