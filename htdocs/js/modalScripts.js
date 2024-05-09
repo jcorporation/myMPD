@@ -660,11 +660,11 @@ function getScriptsVarsList() {
  */
 function parseScriptsVarsList(obj) {
     const table = document.querySelector('#modalScriptsVarsList');
+    const tbody = table.querySelector('tbody');
+    elClear(tbody);
     if (checkResult(obj, table, 'table') === false) {
         return;
     }
-    const tbody = table.querySelector('tbody');
-    elClear(tbody);
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = elCreateNodes('tr', {"title": tn('Edit')}, [
             elCreateTextTn('td', {}, obj.result.data[i].key),

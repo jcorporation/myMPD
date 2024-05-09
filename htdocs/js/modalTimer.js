@@ -362,8 +362,9 @@ function showListTimer() {
  * @returns {void}
  */
 function parseListTimer(obj) {
-    const tbody = elGetById('modalTimerList');
-    if (checkResult(obj, tbody, 'table') === false) {
+    const table = elGetById('modalTimerList');
+    const tbody = table.querySelector('tbody');
+    if (checkResult(obj, table, 'table') === false) {
         return;
     }
     elClear(tbody);

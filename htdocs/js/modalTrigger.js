@@ -186,11 +186,13 @@ function showListTrigger() {
  * @returns {void}
  */
 function parseTriggerList(obj) {
-    const tbody = elGetById('modalTriggerList');
-    if (checkResult(obj, tbody, 'table') === false) {
+    const table = elGetById('modalTriggerList');
+    const tbody = table.querySelector('tbody');
+    elClear(tbody);
+    if (checkResult(obj, table, 'table') === false) {
         return;
     }
-    elClear(tbody);
+
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const row = elCreateNodes('tr', {"title": tn('Edit')}, [
             elCreateText('td', {}, obj.result.data[i].name + 

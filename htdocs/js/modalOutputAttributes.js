@@ -23,8 +23,13 @@ function showModalOutputAttributes(outputName) {
  */
 function parseOutputAttributes(obj) {
     setDataId('modalOutputAttributes', 'outputId', obj.result.id);
-    const tbody = elGetById('modalOutputAttributesList');
+    const table = elGetById('modalOutputAttributesList');
+    const tbody = table.querySelector('tbody');
     elClear(tbody);
+    if (checkResult(obj, table, 'table') === false) {
+        return;
+    }
+
     for (const n of ['name', 'enabled', 'plugin']) {
         if (n === 'enabled') {
             obj.result[n] = obj.result[n] === true

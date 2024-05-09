@@ -20,7 +20,7 @@ function initModalNotifications() {
  * @returns {void}
  */
 function showMessages() {
-    const overview = elGetById('modalNotificationsList');
+    const overview = elGetById('modalNotificationsList').querySelector('tbody');
     elClear(overview);
     for (const message of messages) {
         overview.insertBefore(

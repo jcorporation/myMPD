@@ -1735,14 +1735,14 @@
             </div>
             <div class="tab-pane" id="modalPlaybackPresetsTab">
               <div class="table-responsive overflow-auto">
-                <table class="table table-hover table-sm">
+                <table class="table table-hover table-sm" id="modalPlaybackPresetsList">
                   <thead>
                     <tr>
                       <th data-phrase="Preset"></th>
                       <th></th>
                     </tr>
                   </thead>
-                  <tbody class="clickable" id="modalPlaybackPresetsList"></tbody>
+                  <tbody class="clickable"></tbody>
                 </table>
               </div>
             </div>
@@ -1903,7 +1903,7 @@
 <!-- Modal about end -->
 <!-- Modal song details start -->
   <div class="modal fade" id="modalSongDetails" tabindex="-1">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
@@ -1932,8 +1932,8 @@
                 </div>
                 <div class="col-12 col-md-8">
                   <div class="table-responsive">
-                    <table class="table table-sm">
-                      <tbody id="modalSongDetailsTagsList"></tbody>
+                    <table id="modalSongDetailsTagsList" class="table table-sm">
+                      <tbody></tbody>
                     </table>
                   </div>
                 </div>
@@ -1946,8 +1946,8 @@
             </div>
             <div class="tab-pane" id="modalSongDetailsTabComments">
               <div class="col table-responsive">
-                <table class="table table-sm">
-                  <tbody id="modalSongDetailsCommentsList"></tbody>
+                <table id="modalSongDetailsCommentsList" class="table table-sm">
+                  <tbody></tbody>
                 </table>
               </div>
             </div>
@@ -2068,7 +2068,7 @@
           </div>
           <div class="tab-pane active" id="modalTimerListTab">
             <div class="table-responsive overflow-auto">
-              <table class="table table-hover table-sm">
+              <table class="table table-hover table-sm" id="modalTimerList">
                 <thead>
                   <tr>
                     <th data-phrase="Name"></th>
@@ -2079,7 +2079,7 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody class="clickable" id="modalTimerList"></tbody>
+                <tbody class="clickable"></tbody>
               </table>
             </div>
           </div>
@@ -2139,7 +2139,7 @@
           </div>
           <div class="tab-pane active" id="modalMountsListTab">
             <div class="table-responsive overflow-auto">
-              <table class="table table-hover table-sm">
+              <table class="table table-hover table-sm" id="modalMountsList">
                 <thead>
                   <tr>
                     <th data-phrase="Mount point"></th>
@@ -2147,7 +2147,7 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody class="clickable" id="modalMountsList"></tbody>
+                <tbody class="clickable"></tbody>
               </table>
             </div>
           </div>
@@ -2370,14 +2370,14 @@
             </div>
             <div class="tab-pane active" id="modalPartitionsListTab">
               <div class="table-responsive overflow-auto">
-                <table class="table table-hover table-sm">
+                <table id="modalPartitionsPartitionsList" class="table table-hover table-sm">
                   <thead>
                     <tr>
                       <th data-phrase="Partition"></th>
                       <th></th>
                     </tr>
                   </thead>
-                  <tbody id="modalPartitionsPartitionsList" class="clickable"></tbody>
+                  <tbody class="clickable"></tbody>
                 </table>
               </div>
             </div>
@@ -2405,13 +2405,13 @@
         </div>
         <div class="modal-body">
           <div class="table-responsive overflow-auto">
-            <table class="table table-hover table-sm">
+            <table id="modalPartitionOutputsList" class="table table-hover table-sm">
               <thead>
                 <tr>
                   <th data-phrase="Output"></th>
                 </tr>
               </thead>
-              <tbody id="modalPartitionOutputsList" class="clickable"></tbody>
+              <tbody class="clickable"></tbody>
             </table>
           </div>
         </div>
@@ -2433,11 +2433,11 @@
         </div>
         <div class="modal-body">
           <div class="table-responsive overflow-auto">
-            <table class="table table-sm">
+            <table id="modalOutputAttributesList" class="table table-sm">
               <thead>
                 <tr><th data-phrase="Attribute"></th><th data-phrase="Value"></th></tr>
               </thead>
-              <tbody id="modalOutputAttributesList"></tbody>
+              <tbody></tbody>
             </table>
           </div>
         </div>
@@ -2527,7 +2527,7 @@
             </div>
             <div class="tab-pane active" id="modalTriggerListTab">
               <div class="table-responsive overflow-auto">
-                <table class="table table-hover table-sm">
+                <table id="modalTriggerList" class="table table-hover table-sm">
                   <thead>
                     <tr>
                       <th data-phrase="Trigger name"></th>
@@ -2536,7 +2536,7 @@
                       <th></th>
                     </tr>
                   </thead>
-                  <tbody id="modalTriggerList" class="clickable"></tbody>
+                  <tbody class="clickable"></tbody>
                 </table>
               </div>
             </div>
@@ -3015,8 +3015,8 @@
               <div class="album-cover cover-loading" id="modalRadiobrowserDetailsImage"></div>
             </div>
             <div class="col-12 col-md-8 table-responsive">
-              <table class="table table-sm">
-                <tbody id="modalRadiobrowserDetailsList"></tbody>
+              <table id="modalRadiobrowserDetailsList" class="table table-sm">
+                <tbody></tbody>
               </table>
             </div>
           </div>
@@ -3039,7 +3039,7 @@
         </div>
         <div class="modal-body">
           <div class="table-responsive">
-            <table class="table table-sm">
+            <table id="modalNotificationsList" class="table table-sm">
               <thead>
                 <tr>
                   <th data-phrase="Timestamp"></th>
@@ -3048,7 +3048,7 @@
                   <th data-phrase="Message"></th>
                 </tr>
               </thead>
-              <tbody id="modalNotificationsList"></tbody>
+              <tbody></tbody>
             </table>
           </div>
         </div>

@@ -118,7 +118,8 @@ function parseSongDetails(obj) {
     for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].textContent = obj.result.Title;
     }
-    const tbody = elGetById('modalSongDetailsTagsList');
+    const table = elGetById('modalSongDetailsTagsList');
+    const tbody = table.querySelector('tbody');
     elClear(tbody);
     for (let i = 0, j = settings.tagList.length; i < j; i++) {
         if (settings.tagList[i] === 'Title' ||
@@ -275,7 +276,7 @@ function parseSongDetails(obj) {
     if (features.featLyrics === true) {
         getLyrics(obj.result.uri, elGetById('modalSongDetailsTabPicsLyricsText'));
     }
-    getComments(obj.result.uri, elGetById('modalSongDetailsCommentsList'));
+    getComments(obj.result.uri, elGetById('modalSongDetailsCommentsList').querySelector('tbody'));
     const imgEl = elGetById('modalSongDetailsTabPics');
     createImgCarousel(imgEl, 'modalSongDetailsPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
 }

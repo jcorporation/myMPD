@@ -143,12 +143,12 @@ function switchPartition(partition) {
  * @returns {void}
  */
 function parsePartitionList(obj) {
-    const partitionList = elGetById('modalPartitionsPartitionsList');
-    if (checkResult(obj, partitionList, 'table') === false) {
+    const table = elGetById('modalPartitionsPartitionsList');
+    const tbody = table.querySelector('tbody');
+    elClear(tbody);
+    if (checkResult(obj, table, 'table') === false) {
         return;
     }
-
-    elClear(partitionList);
 
     for (let i = 0, j = obj.result.data.length; i < j; i++) {
         const tr = elCreateEmpty('tr', {});
@@ -181,6 +181,6 @@ function parsePartitionList(obj) {
             );
         }
         tr.appendChild(partitionActionTd);
-        partitionList.appendChild(tr);
+        tbody.appendChild(tr);
     }
 }

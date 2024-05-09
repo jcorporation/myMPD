@@ -79,10 +79,12 @@ function moveOutputsCheckError(obj) {
  * @returns {void}
  */
 function parsePartitionOutputsList(allOutputs, partitionOutputs) {
-    const outputList = elGetById('modalPartitionOutputsList');
-    elClear(outputList);
+    const table = elGetById('modalPartitionOutputsList');
+    const tbody = table.querySelector('tbody');
+    elClear(tbody);
+    //checkResult can not be used here because the displayed result count is determined below
     if (partitionOutputs.error) {
-        outputList.appendChild(errorMsgEl(partitionOutputs, 1, 'table'));
+        tbody.appendChild(errorMsgEl(partitionOutputs, 1, 'table'));
         return;
     }
     /** @type {object} */
@@ -104,11 +106,11 @@ function parsePartitionOutputsList(allOutputs, partitionOutputs) {
                 ])
             );
             setData(tr, 'output', allOutputs.result.data[i].name);
-            outputList.appendChild(tr);
+            tbody.appendChild(tr);
             count++;
         }
     }
     if (count === 0) {
-        outputList.appendChild(emptyMsgEl(1, 'table'));
+        tbody.appendChild(emptyMsgEl(1, 'table'));
     }
 }

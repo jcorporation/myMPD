@@ -66,7 +66,8 @@ function populateListPresets() {
     presetsEl.value = '';
     setData(presetsEl, 'value', '');
     elClear(presetsEl.filterResult);
-    const presetsList = elGetById('modalPlaybackPresetsList');
+    const table = elGetById('modalPlaybackPresetsList');
+    const presetsList = table.querySelector('tbody');
     elClear(presetsList);
     for (const preset of settings.partition.presets) {
         presetsEl.addFilterResultPlain(preset);
