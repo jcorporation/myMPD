@@ -17,4 +17,4 @@ rc, raw_result = mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLISTS", {
     play = true
 })
 -- return the playlist name
-return "Playing" .. playlist
+return "Playing " .. playlist
