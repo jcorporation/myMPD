@@ -115,7 +115,8 @@ export default [
             "no-unused-vars": "off",
             "no-useless-concat": "off",
             "no-var": "error",
-            "prefer-const": "error"
+            "prefer-const": "error",
+            "jsdoc/require-jsdoc": "off"
         }
     }
 ];
