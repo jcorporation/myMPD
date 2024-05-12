@@ -47,10 +47,14 @@ umask 0022
 VERSION=$(grep "  VERSION" CMakeLists.txt | sed 's/  VERSION //')
 COPYRIGHT="myMPD ${VERSION} | (c) 2018-2024 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
 
-MYMPD_MINIFY_JS="1"
-if [ -f .git/HEAD ] && ! grep -q "master" .git/HEAD
+# Minify JavaScript only for master branch
+if [ -z "${MYMPD_MINIFY_JS+x}" ]
 then
-  MYMPD_MINIFY_JS="0"
+  MYMPD_MINIFY_JS="1"
+  if [ -f .git/HEAD ] && ! grep -q "master" .git/HEAD
+  then
+    MYMPD_MINIFY_JS="0"
+  fi
 fi
 
 #check for command
@@ -1219,6 +1223,8 @@ run_eslint() {
   then
     return 1
   fi
+  # Enforce minification of JavaScript
+  MYMPD_MINIFY_JS=1
   createassets
   rc=0
   echo ""
@@ -1656,10 +1662,7 @@ case "$ACTION" in
     echo "  terms_export:     Exports the terms to poeditor.com"
     echo ""
     echo "Check options:"
-    echo "  check:            runs cppcheck, flawfinder and clang-tidy on source files"
-    echo "                    following environment variables are respected"
-    echo "                      - CPPCHECKOPTS=\"-q --force --enable=warning\""
-    echo "                      - FLAWFINDEROPTS=\"-m3 --quiet --dataonly\""
+    echo "  check:            runs clang-tidy on source files"
     echo "  check_file:       same as check, but for one file, second arg must be the file"
     echo "  check_docs        checks the documentation for missing API methods"
     echo "  check_includes:   checks for valid include paths"
