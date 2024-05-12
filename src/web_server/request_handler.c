@@ -93,6 +93,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
                 "Content-Length: %d\r\n\r\n",
                 (int)sdslen(response));
             mg_send(nc, response, sdslen(response));
+            webserver_handle_connection_close(nc);
             FREE_SDS(cmd);
             FREE_SDS(jsonrpc);
             FREE_SDS(session);
