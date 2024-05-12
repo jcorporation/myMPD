@@ -1821,6 +1821,7 @@ const APImethods = {
     },
     "MYMPD_API_SCRIPT_VAR_DELETE": {
         "desc": "Deletes a script variable",
+        "protected": true,
         "params": {
             "key": {
                 "type": APItypes.string,
@@ -1831,10 +1832,12 @@ const APImethods = {
     },
     "MYMPD_API_SCRIPT_VAR_LIST": {
         "desc": "Lists all script variables",
+        "protected": true,
         "params": {}
     },
     "MYMPD_API_SCRIPT_VAR_SET": {
         "desc": "Saves a script variable",
+        "protected": true,
         "params": {
             "key": {
                 "type": APItypes.string,
