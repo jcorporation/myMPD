@@ -19,7 +19,8 @@ The config setting for the ListenBrainz API token was removed. The token can be 
 ### Changelog
 
 - Feat: Set custom variables for scripts #1265
-- Feat: implement hashing and url handling functions for lua
+- Feat: Implement hashing and url handling functions for lua
+- Feat: Use EC private keys for SSL certificates
 - Fix: Error checking for results in modals
 
 ***

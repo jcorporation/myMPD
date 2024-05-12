@@ -19,10 +19,12 @@
 #include <netinet/in.h>
 #include <openssl/bn.h>
 #include <openssl/conf.h>
+#include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 #include <openssl/rand.h>
+#include <openssl/rsa.h>
 #include <openssl/x509v3.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -38,7 +40,7 @@ static bool generate_set_random_serial(X509 *cert);
 static X509_REQ *generate_request(EVP_PKEY *pkey);
 static void add_extension(X509V3_CTX *ctx, X509 *cert, int nid, const char *value);
 static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ *req, sds san);
-static EVP_PKEY *generate_keypair(int rsa_key_bits);
+static EVP_PKEY *generate_keypair(int key_type, unsigned key_bits);
 static X509 *generate_selfsigned_cert(EVP_PKEY *pkey);
 static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cert);
 static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 **cert);
@@ -305,7 +307,7 @@ static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_day
  */
 static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_file, X509 **ca_cert) {
     MYMPD_LOG_NOTICE(NULL, "Creating self signed ca certificate");
-    *ca_key = generate_keypair(CA_KEY_LENGTH);
+    *ca_key = generate_keypair(CA_KEY_TYPE, CA_KEY_LENGTH);
     if (*ca_key == NULL) {
         return false;
     }
@@ -334,7 +336,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
         X509 **ca_cert)
 {
     MYMPD_LOG_NOTICE(NULL, "Creating server certificate");
-    *server_key = generate_keypair(CERT_KEY_LENGTH);
+    *server_key = generate_keypair(CERT_KEY_TYPE, CERT_KEY_LENGTH);
     if (*server_key == NULL) {
         return false;
     }
@@ -629,31 +631,25 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
 
 /**
  * Generates a private/public key pair
- * @param rsa_key_bits number of bits for the key
+ * @param key_bits number of bits for the key
+ * @param key_type key type: EVP_PKEY_RSA or EVP_PKEY_EC
  * @return newly allocated key or NULL on error
  */
-static EVP_PKEY *generate_keypair(int rsa_key_bits) {
-    EVP_PKEY_CTX *ctx;
-    EVP_PKEY *pkey = NULL;
-
-    ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
-    if (!ctx) {
-        return NULL;
+static EVP_PKEY *generate_keypair(int key_type, unsigned int key_bits) {
+    if (key_type == EVP_PKEY_RSA) {
+        return EVP_RSA_gen(key_bits);
     }
-    if (EVP_PKEY_keygen_init(ctx) <= 0) {
-        EVP_PKEY_CTX_free(ctx);
-        return NULL;
+    if (key_type == EVP_PKEY_EC) {
+        switch (key_bits) {
+            case 256: return EVP_EC_gen("P-256");
+            case 384: return EVP_EC_gen("P-384");
+            default:
+                MYMPD_LOG_ERROR(NULL, "Invalid private key length");
+                return NULL;
+        }
     }
-    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, rsa_key_bits) <= 0) {
-        EVP_PKEY_CTX_free(ctx);
-        return NULL;
-    }
-    if (EVP_PKEY_keygen(ctx, &pkey) <= 0) {
-        EVP_PKEY_CTX_free(ctx);
-        return NULL;
-    }
-    EVP_PKEY_CTX_free(ctx);
-    return pkey;
+    MYMPD_LOG_ERROR(NULL, "Invalid private key type");
+    return NULL;
 }
 
 /**
