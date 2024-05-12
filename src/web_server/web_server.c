@@ -585,7 +585,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", (unsigned long)wm->data.len);
                 sent = mg_ws_send(nc, "too long", 8, WEBSOCKET_OP_TEXT);
             }
-            else if (mg_vcmp(&wm->data, "ping") == 0) {
+            else if (mg_strcmp(wm->data, mg_str("ping")) == 0) {
                 sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
             }
             else if (mg_match(wm->data, mg_str("id:*"), matches)) {
@@ -618,16 +618,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     (int)hm->uri.len, hm->uri.buf);
             }
             //limit allowed http methods
-            if (mg_vcmp(&hm->method, "GET") == 0) {
+            if (mg_strcmp(hm->method, mg_str("GET")) == 0) {
                 nc->data[1] = 'G';
             }
-            else if (mg_vcmp(&hm->method, "HEAD") == 0) {
+            else if (mg_strcmp(hm->method, mg_str("HEAD")) == 0) {
                 nc->data[1] = 'H';
             }
-            else if (mg_vcmp(&hm->method, "POST") == 0) {
+            else if (mg_strcmp(hm->method, mg_str("POST")) == 0) {
                 nc->data[1] = 'P';
             }
-            else if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
+            else if (mg_strcmp(hm->method, mg_str("OPTIONS")) == 0) {
                 nc->data[1] = 'O';
                 webserver_send_cors_reply(nc);
                 return;
@@ -655,7 +655,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             //respect connection close header
             struct mg_str *connection_hdr = mg_http_get_header(hm, "Connection");
             if (connection_hdr != NULL) {
-                if (mg_vcasecmp(connection_hdr, "close") == 0) {
+                if (mg_strcasecmp(*connection_hdr, mg_str("close")) == 0) {
                     nc->data[2] = 'C';
                 }
                 else {

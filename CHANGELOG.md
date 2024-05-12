@@ -21,6 +21,7 @@ The config setting for the ListenBrainz API token was removed. The token can be 
 - Feat: Set custom variables for scripts #1265
 - Feat: Implement hashing and url handling functions for lua
 - Feat: Use EC private keys for SSL certificates
+- Upd: Update mongoose to latest master
 - Fix: Error checking for results in modals
 
 ***

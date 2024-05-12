@@ -2227,6 +2227,17 @@ struct mg_fs mg_fs_posix = {p_stat,  p_list, p_open,   p_close,  p_read,
 
 
 
+static int mg_ncasecmp(const char *s1, const char *s2, size_t len) {
+  int diff = 0;
+  if (len > 0) do {
+      char c = *s1++, d = *s2++;
+      if (c >= 'A' && c <= 'Z') c += 'a' - 'A';
+      if (d >= 'A' && d <= 'Z') d += 'a' - 'A';
+      diff = c - d;
+    } while (diff == 0 && s1[-1] != '\0' && --len > 0);
+  return diff;
+}
+
 bool mg_to_size_t(struct mg_str str, size_t *val);
 bool mg_to_size_t(struct mg_str str, size_t *val) {
   size_t i = 0, max = (size_t) -1, max2 = max / 10, result = 0, ndigits = 0;
@@ -2517,15 +2528,15 @@ int mg_http_parse(const char *s, size_t len, struct mg_http_message *hm) {
   // and method is not (PUT or POST) then reset body length to zero.
   is_response = mg_ncasecmp(hm->method.buf, "HTTP/", 5) == 0;
   if (hm->body.len == (size_t) ~0 && !is_response &&
-      mg_vcasecmp(&hm->method, "PUT") != 0 &&
-      mg_vcasecmp(&hm->method, "POST") != 0) {
+      mg_strcasecmp(hm->method, mg_str("PUT")) != 0 &&
+      mg_strcasecmp(hm->method, mg_str("POST")) != 0) {
     hm->body.len = 0;
     hm->message.len = (size_t) req_len;
   }
 
   // The 204 (No content) responses also have 0 body length
   if (hm->body.len == (size_t) ~0 && is_response &&
-      mg_vcasecmp(&hm->uri, "204") == 0) {
+      mg_strcasecmp(hm->uri, mg_str("204")) == 0) {
     hm->body.len = 0;
     hm->message.len = (size_t) req_len;
   }
@@ -2776,10 +2787,14 @@ void mg_http_serve_file(struct mg_connection *c, struct mg_http_message *hm,
   if (path != NULL) {
     // If a browser sends us "Accept-Encoding: gzip", try to open .gz first
     struct mg_str *ae = mg_http_get_header(hm, "Accept-Encoding");
-    if (ae != NULL && mg_strstr(*ae, mg_str("gzip")) != NULL) {
-      mg_snprintf(tmp, sizeof(tmp), "%s.gz", path);
-      fd = mg_fs_open(fs, tmp, MG_FS_READ);
-      if (fd != NULL) gzip = true, path = tmp;
+    if (ae != NULL) {
+      char *ae_ = mg_mprintf("%.*s", ae->len, ae->buf);
+      if (ae_ != NULL && strstr(ae_, "gzip") != NULL) {
+        mg_snprintf(tmp, sizeof(tmp), "%s.gz", path);
+        fd = mg_fs_open(fs, tmp, MG_FS_READ);
+        if (fd != NULL) gzip = true, path = tmp;
+      }
+      free(ae_);
     }
     // No luck opening .gz? Open what we've told to open
     if (fd == NULL) fd = mg_fs_open(fs, path, MG_FS_READ);
@@ -2798,7 +2813,7 @@ void mg_http_serve_file(struct mg_connection *c, struct mg_http_message *hm,
     // NOTE: mg_http_etag() call should go first!
   } else if (mg_http_etag(etag, sizeof(etag), size, mtime) != NULL &&
              (inm = mg_http_get_header(hm, "If-None-Match")) != NULL &&
-             mg_vcasecmp(inm, etag) == 0) {
+             mg_strcasecmp(*inm, mg_str(etag)) == 0) {
     mg_fs_close(fd);
     mg_http_reply(c, 304, opts->extra_headers, "");
   } else {
@@ -2835,7 +2850,7 @@ void mg_http_serve_file(struct mg_connection *c, struct mg_http_message *hm,
               status, mg_http_status_code_str(status), (int) mime.len, mime.buf,
               etag, (uint64_t) cl, gzip ? "Content-Encoding: gzip\r\n" : "",
               range, opts->extra_headers ? opts->extra_headers : "");
-    if (mg_vcasecmp(&hm->method, "HEAD") == 0) {
+    if (mg_strcasecmp(hm->method, mg_str("HEAD")) == 0) {
       c->is_draining = 1;
       c->is_resp = 0;
       mg_fs_close(fd);
@@ -2989,7 +3004,8 @@ static int uri_to_path2(struct mg_connection *c, struct mg_http_message *hm,
   }
   n = strlen(path);
   while (n > 1 && path[n - 1] == '/') path[--n] = 0;  // Trim trailing slashes
-  flags = mg_vcmp(&hm->uri, "/") == 0 ? MG_FS_DIR : fs->st(path, NULL, NULL);
+  flags = mg_strcmp(hm->uri, mg_str("/")) == 0 ? MG_FS_DIR
+                                               : fs->st(path, NULL, NULL);
   MG_VERBOSE(("%lu %.*s -> %s %d", c->id, (int) hm->uri.len, hm->uri.buf, path,
               flags));
   if (flags == 0) {
@@ -3052,8 +3068,7 @@ void mg_http_serve_dir(struct mg_connection *c, struct mg_http_message *hm,
 #else
     mg_http_reply(c, 403, "", "Forbidden\n");
 #endif
-  } else if (flags && sp != NULL &&
-             mg_globmatch(sp, strlen(sp), path, strlen(path))) {
+  } else if (flags && sp != NULL && mg_match(mg_str(path), mg_str(sp), NULL)) {
     mg_http_serve_ssi(c, opts->root_dir, path);
   } else {
     mg_http_serve_file(c, hm, path, opts);
@@ -3073,9 +3088,8 @@ size_t mg_url_encode(const char *s, size_t sl, char *buf, size_t len) {
     if (mg_is_url_safe(c)) {
       buf[n++] = s[i];
     } else {
-      buf[n++] = '%';
-      mg_hex(&s[i], 1, &buf[n]);
-      n += 2;
+      mg_snprintf(&buf[n], 4, "%%%M", mg_print_hex, 1, &s[i]);
+      n += 3;
     }
   }
   if (len > 0 && n < len - 1) buf[n] = '\0';  // Null-terminate the destination
@@ -3221,7 +3235,7 @@ static void http_cb(struct mg_connection *c, int ev, void *ev_data) {
         hm.body.len = hm.message.len - (size_t) (hm.body.buf - hm.message.buf);
       }
       if ((te = mg_http_get_header(&hm, "Transfer-Encoding")) != NULL) {
-        if (mg_vcasecmp(te, "chunked") == 0) {
+        if (mg_strcasecmp(*te, mg_str("chunked")) == 0) {
           is_chunked = true;
         } else {
           mg_error(c, "Invalid Transfer-Encoding");  // See #2460
@@ -3232,8 +3246,8 @@ static void http_cb(struct mg_connection *c, int ev, void *ev_data) {
         // Content-length
         bool is_response = mg_ncasecmp(hm.method.buf, "HTTP/", 5) == 0;
         bool require_content_len = false;
-        if (!is_response && (mg_vcasecmp(&hm.method, "POST") == 0 ||
-                             mg_vcasecmp(&hm.method, "PUT") == 0)) {
+        if (!is_response && (mg_strcasecmp(hm.method, mg_str("POST")) == 0 ||
+                             mg_strcasecmp(hm.method, mg_str("PUT")) == 0)) {
           // POST and PUT should include an entity body. Therefore, they should
           // contain a Content-length header. Other requests can also contain a
           // body, but their content has no defined semantics (RFC 7231)
@@ -4305,14 +4319,13 @@ size_t mg_mqtt_next_prop(struct mg_mqtt_message *msg, struct mg_mqtt_prop *prop,
 }
 
 void mg_mqtt_login(struct mg_connection *c, const struct mg_mqtt_opts *opts) {
-  char rnd[10], client_id[21];
+  char client_id[21];
   struct mg_str cid = opts->client_id;
   size_t total_len = 7 + 1 + 2 + 2;
   uint8_t hdr[8] = {0, 4, 'M', 'Q', 'T', 'T', opts->version, 0};
 
   if (cid.len == 0) {
-    mg_random(rnd, sizeof(rnd));
-    mg_hex(rnd, sizeof(rnd), client_id);
+    mg_random_str(client_id, sizeof(client_id) - 1);
     client_id[sizeof(client_id) - 1] = '\0';
     cid = mg_str(client_id);
   }
@@ -4624,7 +4637,7 @@ size_t mg_printf(struct mg_connection *c, const char *fmt, ...) {
 
 static bool mg_atonl(struct mg_str str, struct mg_addr *addr) {
   uint32_t localhost = mg_htonl(0x7f000001);
-  if (mg_vcasecmp(&str, "localhost") != 0) return false;
+  if (mg_strcasecmp(str, mg_str("localhost")) != 0) return false;
   memcpy(addr->ip, &localhost, sizeof(uint32_t));
   addr->is_ip6 = false;
   return true;
@@ -6072,6 +6085,62 @@ MG_IRAM void mg_ota_boot(void) {
 #endif
 
 #ifdef MG_ENABLE_LINES
+#line 1 "src/ota_esp32.c"
+#endif
+
+
+#if MG_ARCH == MG_ARCH_ESP32 && MG_OTA == MG_OTA_ESP32
+
+static const esp_partition_t *s_ota_update_partition;
+static esp_ota_handle_t s_ota_update_handle;
+static bool s_ota_success;
+
+// Those empty macros do nothing, but mark places in the code which could
+// potentially trigger a watchdog reboot due to the log flash erase operation
+#define disable_wdt()
+#define enable_wdt()
+
+bool mg_ota_begin(size_t new_firmware_size) {
+  if (s_ota_update_partition != NULL) {
+    MG_ERROR(("Update in progress. Call mg_ota_end() ?"));
+    return false;
+  } else {
+    s_ota_success = false;
+    disable_wdt();
+    s_ota_update_partition = esp_ota_get_next_update_partition(NULL);
+    esp_err_t err = esp_ota_begin(s_ota_update_partition, new_firmware_size,
+                                  &s_ota_update_handle);
+    enable_wdt();
+    MG_DEBUG(("esp_ota_begin(): %d", err));
+    s_ota_success = (err == ESP_OK);
+  }
+  return s_ota_success;
+}
+
+bool mg_ota_write(const void *buf, size_t len) {
+  disable_wdt();
+  esp_err_t err = esp_ota_write(s_ota_update_handle, buf, len);
+  enable_wdt();
+  MG_INFO(("esp_ota_write(): %d", err));
+  s_ota_success = err == ESP_OK;
+  return s_ota_success;
+}
+
+bool mg_ota_end(void) {
+  esp_err_t err = esp_ota_end(s_ota_update_handle);
+  MG_DEBUG(("esp_ota_end(%p): %d", s_ota_update_handle, err));
+  if (s_ota_success && err == ESP_OK) {
+    err = esp_ota_set_boot_partition(s_ota_update_partition);
+    s_ota_success = (err == ESP_OK);
+  }
+  MG_DEBUG(("Finished ESP32 OTA, success: %d", s_ota_success));
+  s_ota_update_partition = NULL;
+  return s_ota_success;
+}
+
+#endif
+
+#ifdef MG_ENABLE_LINES
 #line 1 "src/ota_flash.c"
 #endif
 
@@ -6560,7 +6629,10 @@ void mg_rpc_add(struct mg_rpc **head, struct mg_str method,
                 void (*fn)(struct mg_rpc_req *), void *fn_data) {
   struct mg_rpc *rpc = (struct mg_rpc *) calloc(1, sizeof(*rpc));
   if (rpc != NULL) {
-    rpc->method = mg_strdup(method), rpc->fn = fn, rpc->fn_data = fn_data;
+    rpc->method.buf = mg_mprintf("%.*s", method.len, method.buf);
+    rpc->method.len = method.len;
+    rpc->fn = fn;
+    rpc->fn_data = fn_data;
     rpc->next = *head, *head = rpc;
   }
 }
@@ -6998,14 +7070,14 @@ void mg_sha256_final(unsigned char digest[32], mg_sha256_ctx *ctx) {
   mg_sha256_chunk(ctx);
 
   for (i = 0; i < 4; ++i) {
-    digest[i] = (ctx->state[0] >> (24 - i * 8)) & 0xff;
-    digest[i + 4] = (ctx->state[1] >> (24 - i * 8)) & 0xff;
-    digest[i + 8] = (ctx->state[2] >> (24 - i * 8)) & 0xff;
-    digest[i + 12] = (ctx->state[3] >> (24 - i * 8)) & 0xff;
-    digest[i + 16] = (ctx->state[4] >> (24 - i * 8)) & 0xff;
-    digest[i + 20] = (ctx->state[5] >> (24 - i * 8)) & 0xff;
-    digest[i + 24] = (ctx->state[6] >> (24 - i * 8)) & 0xff;
-    digest[i + 28] = (ctx->state[7] >> (24 - i * 8)) & 0xff;
+    digest[i] = (uint8_t) ((ctx->state[0] >> (24 - i * 8)) & 0xff);
+    digest[i + 4] = (uint8_t) ((ctx->state[1] >> (24 - i * 8)) & 0xff);
+    digest[i + 8] = (uint8_t) ((ctx->state[2] >> (24 - i * 8)) & 0xff);
+    digest[i + 12] = (uint8_t) ((ctx->state[3] >> (24 - i * 8)) & 0xff);
+    digest[i + 16] = (uint8_t) ((ctx->state[4] >> (24 - i * 8)) & 0xff);
+    digest[i + 20] = (uint8_t) ((ctx->state[5] >> (24 - i * 8)) & 0xff);
+    digest[i + 24] = (uint8_t) ((ctx->state[6] >> (24 - i * 8)) & 0xff);
+    digest[i + 28] = (uint8_t) ((ctx->state[7] >> (24 - i * 8)) & 0xff);
   }
 }
 
@@ -7960,57 +8032,24 @@ struct mg_str mg_str_n(const char *s, size_t n) {
   return str;
 }
 
-int mg_lower(const char *s) {
-  int c = *s;
-  if (c >= 'A' && c <= 'Z') c += 'a' - 'A';
-  return c;
-}
-
-int mg_ncasecmp(const char *s1, const char *s2, size_t len) {
-  int diff = 0;
-  if (len > 0) do {
-      diff = mg_lower(s1++) - mg_lower(s2++);
-    } while (diff == 0 && s1[-1] != '\0' && --len > 0);
-  return diff;
+static char tolc(char c) {
+  return (c >= 'A' && c <= 'Z') ? c + 'a' - 'A' : c;
 }
 
 int mg_casecmp(const char *s1, const char *s2) {
-  return mg_ncasecmp(s1, s2, (size_t) ~0);
-}
-
-int mg_vcmp(const struct mg_str *s1, const char *s2) {
-  size_t n2 = strlen(s2), n1 = s1->len;
-  int r = strncmp(s1->buf, s2, (n1 < n2) ? n1 : n2);
-  if (r == 0) return (int) (n1 - n2);
-  return r;
-}
-
-int mg_vcasecmp(const struct mg_str *str1, const char *str2) {
-  size_t n2 = strlen(str2), n1 = str1->len;
-  int r = mg_ncasecmp(str1->buf, str2, (n1 < n2) ? n1 : n2);
-  if (r == 0) return (int) (n1 - n2);
-  return r;
-}
-
-struct mg_str mg_strdup(const struct mg_str s) {
-  struct mg_str r = {NULL, 0};
-  if (s.len > 0 && s.buf != NULL) {
-    char *sc = (char *) calloc(1, s.len + 1);
-    if (sc != NULL) {
-      memcpy(sc, s.buf, s.len);
-      sc[s.len] = '\0';
-      r.buf = sc;
-      r.len = s.len;
-    }
-  }
-  return r;
+  int diff = 0;
+  do {
+    char c = tolc(*s1++), d = tolc(*s2++);
+    diff = c - d;
+  } while (diff == 0 && s1[-1] != '\0');
+  return diff;
 }
 
 int mg_strcmp(const struct mg_str str1, const struct mg_str str2) {
   size_t i = 0;
   while (i < str1.len && i < str2.len) {
-    int c1 = str1.buf[i];
-    int c2 = str2.buf[i];
+    char c1 = str1.buf[i];
+    char c2 = str2.buf[i];
     if (c1 < c2) return -1;
     if (c1 > c2) return 1;
     i++;
@@ -8020,27 +8059,18 @@ int mg_strcmp(const struct mg_str str1, const struct mg_str str2) {
   return 0;
 }
 
-const char *mg_strstr(const struct mg_str haystack,
-                      const struct mg_str needle) {
-  size_t i;
-  if (needle.len > haystack.len) return NULL;
-  if (needle.len == 0) return haystack.buf;
-  for (i = 0; i <= haystack.len - needle.len; i++) {
-    if (memcmp(haystack.buf + i, needle.buf, needle.len) == 0) {
-      return haystack.buf + i;
-    }
+int mg_strcasecmp(const struct mg_str str1, const struct mg_str str2) {
+  size_t i = 0;
+  while (i < str1.len && i < str2.len) {
+    char c1 = tolc(str1.buf[i]);
+    char c2 = tolc(str2.buf[i]);
+    if (c1 < c2) return -1;
+    if (c1 > c2) return 1;
+    i++;
   }
-  return NULL;
-}
-
-static bool is_space(int c) {
-  return c == ' ' || c == '\r' || c == '\n' || c == '\t';
-}
-
-struct mg_str mg_strstrip(struct mg_str s) {
-  while (s.len > 0 && is_space((int) *s.buf)) s.buf++, s.len--;
-  while (s.len > 0 && is_space((int) *(s.buf + s.len - 1))) s.len--;
-  return s;
+  if (i < str1.len) return 1;
+  if (i < str2.len) return -1;
+  return 0;
 }
 
 bool mg_match(struct mg_str s, struct mg_str p, struct mg_str *caps) {
@@ -8075,10 +8105,6 @@ bool mg_match(struct mg_str s, struct mg_str p, struct mg_str *caps) {
   return true;
 }
 
-bool mg_globmatch(const char *s1, size_t n1, const char *s2, size_t n2) {
-  return mg_match(mg_str_n(s2, n2), mg_str_n(s1, n1), NULL);
-}
-
 bool mg_span(struct mg_str s, struct mg_str *a, struct mg_str *b, char sep) {
   if (s.len == 0 || s.buf == NULL) {
     return false;  // Empty string, nothing to span - fail
@@ -8092,27 +8118,17 @@ bool mg_span(struct mg_str s, struct mg_str *a, struct mg_str *b, char sep) {
   }
 }
 
-char *mg_hex(const void *buf, size_t len, char *to) {
-  const unsigned char *p = (const unsigned char *) buf;
-  const char *hex = "0123456789abcdef";
-  size_t i = 0;
-  for (; len--; p++) {
-    to[i++] = hex[p[0] >> 4];
-    to[i++] = hex[p[0] & 0x0f];
-  }
-  to[i] = '\0';
-  return to;
-}
-
-static unsigned char mg_unhex_nimble(unsigned char c) {
-  return (c >= '0' && c <= '9')   ? (unsigned char) (c - '0')
-         : (c >= 'A' && c <= 'F') ? (unsigned char) (c - '7')
-                                  : (unsigned char) (c - 'W');
+uint8_t mg_toi(char c, int base) {
+  return (c >= '0' && c <= '9') ? (uint8_t) (c - '0')
+         : base == 16           ? (c >= 'A' && c <= 'F')   ? (uint8_t) (c - '7')
+                                  : (c >= 'a' && c <= 'f') ? (uint8_t) (c - 'W')
+                                                           : (uint8_t) ~0
+                                : (uint8_t) ~0;
 }
 
 unsigned long mg_unhexn(const char *s, size_t len) {
   unsigned long i = 0, v = 0;
-  for (i = 0; i < len; i++) v <<= 4, v |= mg_unhex_nimble(((uint8_t *) s)[i]);
+  for (i = 0; i < len; i++) v <<= 4, v |= mg_toi(((char *) s)[i], 16);
   return v;
 }
 
@@ -8121,18 +8137,6 @@ void mg_unhex(const char *buf, size_t len, unsigned char *to) {
   for (i = 0; i < len; i += 2) {
     to[i >> 1] = (unsigned char) mg_unhexn(&buf[i], 2);
   }
-}
-
-bool mg_path_is_sane(const struct mg_str path) {
-  const char *s = path.buf;
-  size_t n = path.len;
-  if (path.buf[0] == '.' && path.buf[1] == '.') return false;  // Starts with ..
-  for (; s[0] != '\0' && n > 0; s++, n--) {
-    if ((s[0] == '/' || s[0] == '\\') && n >= 2) {   // Subdir?
-      if (s[1] == '.' && s[2] == '.') return false;  // Starts with ..
-    }
-  }
-  return true;
 }
 
 #ifdef MG_ENABLE_LINES
@@ -9443,8 +9447,7 @@ static uint8_t zeros_sha256_digest[32] = {
 
 // helper to hexdump buffers inline
 static void mg_tls_hexdump(const char *msg, uint8_t *buf, size_t bufsz) {
-  char p[8 * 4096];
-  MG_VERBOSE(("%s: %s", msg, mg_hex(buf, bufsz, p)));
+  MG_VERBOSE(("%s: %M", msg, mg_print_hex, bufsz, buf));
 }
 
 // helper utilities to parse ASN.1 DER
@@ -10550,7 +10553,8 @@ static int mg_parse_pem(const struct mg_str pem, const struct mg_str label,
   const char *c;
   struct mg_str caps[5];
   if (!mg_match(pem, mg_str("#-----BEGIN #-----#-----END #-----#"), caps)) {
-    *der = mg_strdup(pem);
+    der->buf = mg_mprintf("%.*s", pem.len, pem.buf);
+    der->len = pem.len;
     return 0;
   }
   if (mg_strcmp(caps[1], label) != 0 || mg_strcmp(caps[3], label) != 0) {
@@ -10866,7 +10870,7 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
   }
   mbedtls_ssl_conf_rng(&tls->conf, mg_mbed_rng, c);
 
-  if (opts->ca.len == 0 || mg_vcmp(&opts->ca, "*") == 0) {
+  if (opts->ca.len == 0 || mg_strcmp(opts->ca, mg_str("*")) == 0) {
     mbedtls_ssl_conf_authmode(&tls->conf, MBEDTLS_SSL_VERIFY_NONE);
   } else {
     if (mg_load_cert(opts->ca, &tls->ca) == false) goto fail;
@@ -14891,6 +14895,18 @@ int mg_check_ip_acl(struct mg_str acl, struct mg_addr *remote_ip) {
   return allowed == '+';
 }
 
+bool mg_path_is_sane(const struct mg_str path) {
+  const char *s = path.buf;
+  size_t n = path.len;
+  if (path.buf[0] == '.' && path.buf[1] == '.') return false;  // Starts with ..
+  for (; s[0] != '\0' && n > 0; s++, n--) {
+    if ((s[0] == '/' || s[0] == '\\') && n >= 2) {   // Subdir?
+      if (s[1] == '.' && s[2] == '.') return false;  // Starts with ..
+    }
+  }
+  return true;
+}
+
 #if MG_ENABLE_CUSTOM_MILLIS
 #else
 uint64_t mg_millis(void) {
@@ -17376,11 +17392,10 @@ static bool mg_tcpip_driver_xmc7_init(struct mg_tcpip_if *ifp) {
   ETH0->CTL = MG_BIT(31) | 2;
 
   uint32_t cr = get_clock_rate(d);
-  // set NSP change, ignore RX FCS, data bus width, clock rate, Gigabit mode,
+  // set NSP change, ignore RX FCS, data bus width, clock rate
   // frame length 1536, full duplex, speed
-  // TODO: enable Gigabit mode (bit 10) only if PHY uses Gigabit link
   ETH0->NETWORK_CONFIG = MG_BIT(29) | MG_BIT(26) | MG_BIT(21) |
-                         ((cr & 7) << 18) | MG_BIT(10) | MG_BIT(8) | MG_BIT(4) |
+                         ((cr & 7) << 18) | MG_BIT(8) | MG_BIT(4) |
                          MG_BIT(1) | MG_BIT(0);
 
   // config DMA settings: Force TX burst, Discard on Error, set RX buffer size
@@ -17452,6 +17467,7 @@ static size_t mg_tcpip_driver_xmc7_tx(const void *buf, size_t len,
 
   MG_DSB();
   ETH0->TRANSMIT_STATUS = ETH0->TRANSMIT_STATUS;
+  ETH0->NETWORK_CONTROL |= MG_BIT(9);  // enable transmission
 
   return len;
 }
@@ -17464,6 +17480,9 @@ static bool mg_tcpip_driver_xmc7_up(struct mg_tcpip_if *ifp) {
   struct mg_phy phy = {eth_read_phy, eth_write_phy};
   up = mg_phy_up(&phy, d->phy_addr, &full_duplex, &speed);
   if ((ifp->state == MG_TCPIP_STATE_DOWN) && up) {  // link state just went up
+    if (speed == MG_PHY_SPEED_1000M) {
+		  ETH0->NETWORK_CONFIG |= MG_BIT(10);
+	  }
     MG_DEBUG(("Link is %uM %s-duplex",
               speed == MG_PHY_SPEED_10M ? 10 : 
               (speed == MG_PHY_SPEED_100M ? 100 : 1000),
