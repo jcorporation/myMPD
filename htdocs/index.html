@@ -2338,8 +2338,11 @@
           <button data-href='{"cmd":"saveScript","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
         <div id="modalScriptsVarsListFooter" class="modal-footer justify-content-between d-none">
-          <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Scripts"></button>
-          <button data-href='{"cmd":"showScriptsVarsEdit","options":["",""]}' class="btn btn-success protected" data-phrase="New variable"></button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
+          <div>
+            <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-success me-2" data-phrase="Scripts"></button>
+            <button data-href='{"cmd":"showScriptsVarsEdit","options":["",""]}' class="btn btn-success protected" data-phrase="New variable"></button>
+          </div>
         </div>
         <div id="modalScriptsVarsEditFooter" class="modal-footer justify-content-between d-none">
           <button data-href='{"cmd":"showScriptsVarsList","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
