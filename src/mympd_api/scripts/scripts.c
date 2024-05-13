@@ -478,6 +478,9 @@ static void *script_execute(void *script_thread_arg) {
         //set global lua variable partition
         lua_pushstring(lua_vm, script_arg->partition);
         lua_setglobal(lua_vm, "partition");
+        //set global lua variable scriptname
+        lua_pushstring(lua_vm, script_arg->script_name);
+        lua_setglobal(lua_vm, "scriptname");
         //set arguments lua table
         lua_newtable(lua_vm);
         if (script_arg->arguments->length > 0) {

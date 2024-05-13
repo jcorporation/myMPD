@@ -6,9 +6,19 @@ title: Scripting
 
 myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Script execution can be triggered in the main menu, with home icons, timers or triggers. Scripts are executed asynchronously, therefore scripts can not block the main threads of myMPD. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition.
 
-## Arguments
+## Global variables
 
-Script arguments are populated in the lua table `arguments`. myMPD populates automatically the global `partition` variable.
+myMPD populates automatically some global variables.
+
+| VARIABLE | DESCRIPTION |
+| -------- | ----------- |
+| `arguments` | Script arguments |
+| `partition` | MPD partition |
+| `scriptname` | Script name |
+
+### Arguments
+
+Script arguments are populated in the lua table `arguments`.
 
 ```lua
 -- return the argument named playlist
