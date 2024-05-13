@@ -12,6 +12,7 @@
  */
 //eslint-disable-next-line no-unused-vars
 function showWebradiodbDetails(uri) {
+    elShowId('modalRadiobrowserDetailsAddToFavoriteBtn');
     //reuse the radiobrowser modal
     const table = elGetById('modalRadiobrowserDetailsList');
     const tbody = table.querySelector('tbody');

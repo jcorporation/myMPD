@@ -41,6 +41,7 @@ function showRadiobrowserDetails(uuid) {
  * @returns {void}
  */
 function parseRadiobrowserDetails(obj) {
+    elShowId('modalRadiobrowserDetailsAddToFavoriteBtn');
     const table = elGetById('modalRadiobrowserDetailsList');
     const tbody = table.querySelector('tbody');
     elClear(tbody);

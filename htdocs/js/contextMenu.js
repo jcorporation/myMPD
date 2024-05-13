@@ -484,6 +484,7 @@ function addMenuItemsWebradioFavoritesActions(target, contextMenuTitle, contextM
     const name = getData(target, 'name');
     addMenuItemsPlaylistActions(target, contextMenuBody, type, uri, name);
     addDivider(contextMenuBody);
+    addMenuItem(contextMenuBody, {"cmd": "showRadioFavoriteDetails", "options": [uri]}, 'Webradio details');
     addMenuItem(contextMenuBody, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
     addMenuItem(contextMenuBody, {"cmd": "deleteRadioFavorites", "options": [[uri]]}, 'Delete webradio favorite');
 }

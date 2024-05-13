@@ -404,6 +404,7 @@ function printValue(key, value) {
             );
         case 'homepage':
         case 'Homepage':
+        case 'StreamUri':
             //webradios
             if (value === '') {
                 return document.createTextNode(value);
