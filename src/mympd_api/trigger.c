@@ -17,6 +17,7 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
+#include "src/mympd_api/scripts/scripts.h"
 
 #include <errno.h>
 #include <string.h>
@@ -488,6 +489,7 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current, bool newl
 void trigger_execute(sds script, struct t_list *arguments, const char *partition) {
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, partition);
     request->data = tojson_sds(request->data, "script", script, true);
+    request->data = tojson_char(request->data, "event", script_start_event_name(SCRIPT_START_TIMER), true);
     request->data = sdscat(request->data, "\"arguments\": {");
     struct t_list_node *argument = arguments->head;
     int i = 0;

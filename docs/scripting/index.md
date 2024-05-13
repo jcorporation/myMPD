@@ -14,6 +14,7 @@ myMPD populates automatically some global variables.
 | -------- | ----------- |
 | `arguments` | Script arguments |
 | `partition` | MPD partition |
+| `scriptevent` | Script start event: `extern`, `http`, `timer`, `trigger` or `user` |
 | `scriptname` | Script name |
 
 ### Arguments

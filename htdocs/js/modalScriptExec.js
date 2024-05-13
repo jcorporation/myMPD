@@ -28,6 +28,7 @@ function execScript(cmd) {
     if (cmd.arguments.length === 0) {
         sendAPI("MYMPD_API_SCRIPT_EXECUTE", {
             "script": cmd.script,
+            "event": "user",
             "arguments": {}
         }, null, false);
     }
@@ -64,6 +65,7 @@ function execScriptArgs(target) {
     }
     sendAPI("MYMPD_API_SCRIPT_EXECUTE", {
         "script": script,
+        "event": "user",
         "arguments": args
     }, modalClose, true);
 }

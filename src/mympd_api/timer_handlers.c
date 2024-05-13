@@ -19,6 +19,7 @@
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/volume.h"
 #include "src/mympd_api/requests.h"
+#include "src/mympd_api/scripts/scripts.h"
 
 #include <string.h>
 
@@ -79,6 +80,7 @@ void timer_handler_select(unsigned timer_id, struct t_timer_definition *definiti
     else if (strcmp(definition->action, "script") == 0) {
         struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, definition->partition);
         request->data = tojson_sds(request->data, "script", definition->subaction, true);
+        request->data = tojson_char(request->data, "event", script_start_event_name(SCRIPT_START_TIMER), true);
         request->data = sdscat(request->data, "\"arguments\":{");
         struct t_list_node *argument = definition->arguments.head;
         int i = 0;

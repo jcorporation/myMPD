@@ -1816,6 +1816,11 @@ const APImethods = {
         "desc": "Executes a script",
         "params": {
             "script": APIparams.script,
+            "event": {
+                "type": APItypes.string,
+                "example": "user",
+                "desc": "One of: extern, http, timer, trigger or user"
+            },
             "arguments": APIparams.scriptArguments
         }
     },

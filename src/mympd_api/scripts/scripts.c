@@ -45,13 +45,14 @@
  * Struct for passing values to the script thread
  */
 struct t_script_thread_arg {
-    sds lualibs;               //!< comma separated string of lua libs to load
-    bool localscript;          //!< true = read script from filesystem, false = use script_content
-    sds script_fullpath;       //!< full uri of the script
-    sds script_name;           //!< name of the script
-    sds script_content;        //!< script content if localscript = false
-    sds partition;             //!< execute the script in this partition
-    struct t_list *arguments;  //!< argumentlist
+    sds lualibs;                           //!< comma separated string of lua libs to load
+    bool localscript;                      //!< true = read script from filesystem, false = use script_content
+    sds script_fullpath;                   //!< full uri of the script
+    sds script_name;                       //!< name of the script
+    sds script_content;                    //!< script content if localscript = false
+    sds partition;                         //!< execute the script in this partition
+    struct t_list *arguments;              //!< argumentlist
+    enum script_start_events start_event;  //!< script start event
 };
 
 static lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc);
@@ -286,7 +287,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, unsigned request_id, sds scrip
  * @return true on success, else false
  */
 bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list *arguments,
-        const char *partition, bool localscript)
+        const char *partition, bool localscript, enum script_start_events start_event)
 {
     pthread_t mympd_script_thread;
     pthread_attr_t attr;
@@ -303,8 +304,9 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
     script_thread_arg->localscript = localscript;
     script_thread_arg->arguments = arguments;
     script_thread_arg->partition = sdsnew(partition);
+    script_thread_arg->start_event = start_event;
     if (localscript == true) {
-        script_thread_arg->script_name = sdsnew(script);
+        script_thread_arg->script_name = sdsdup(script);
         script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
         script_thread_arg->script_content = sdsempty();
     }
@@ -320,6 +322,37 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
     }
     mympd_queue_expire(mympd_script_queue, 120);
     return true;
+}
+
+/**
+ * Returns the name for the script start event
+ * @param start_event start event enum
+ * @return start event name or empty if unknown
+ */
+const char *script_start_event_name(enum script_start_events start_event) {
+    switch (start_event) {
+        case SCRIPT_START_EXTERN:  return "extern";
+        case SCRIPT_START_HTTP:    return "http";
+        case SCRIPT_START_TIMER:   return "timer";
+        case SCRIPT_START_TRIGGER: return "trigger";
+        case SCRIPT_START_USER:    return "user";
+        case SCRIPT_START_UNKNOWN: return "";
+    }
+    return "";
+}
+
+/**
+ * Parses the name for the script start event
+ * @param str string to parse
+ * @return script_start_event enum
+ */
+enum script_start_events script_start_event_parse(const char *str) {
+    if (strcmp(str, "http") == 0) { return SCRIPT_START_HTTP; }
+    if (strcmp(str, "timer") == 0) { return SCRIPT_START_TIMER; }
+    if (strcmp(str, "trigger") == 0) { return SCRIPT_START_TRIGGER; }
+    if (strcmp(str, "user") == 0) { return SCRIPT_START_USER; }
+    if (strcmp(str, "extern") == 0) { return SCRIPT_START_EXTERN; }
+    return SCRIPT_START_UNKNOWN;
 }
 
 /**
@@ -481,6 +514,9 @@ static void *script_execute(void *script_thread_arg) {
         //set global lua variable scriptname
         lua_pushstring(lua_vm, script_arg->script_name);
         lua_setglobal(lua_vm, "scriptname");
+        //set global lua variable scriptevent
+        lua_pushstring(lua_vm, script_start_event_name(script_arg->start_event));
+        lua_setglobal(lua_vm, "scriptevent");
         //set arguments lua table
         lua_newtable(lua_vm);
         if (script_arg->arguments->length > 0) {
