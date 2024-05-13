@@ -366,6 +366,11 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
         current = current->next;
     }
     FREE_SDS(key);
+    //myMPD uri
+    sds uri = sdsnew("mympd://");
+    uri = resolv_mympd_uri(uri, mympd_state->mpd_state->mpd_host, mympd_state->config);
+    lua_mympd_state_set_p(lua_partition_state, "mympd_uri", uri);
+    FREE_SDS(uri);
     return rc;
 }
 

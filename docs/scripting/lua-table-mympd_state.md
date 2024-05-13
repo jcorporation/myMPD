@@ -24,7 +24,8 @@ Additionally all user defined variables are populates in this table. They are pr
 | listenbrainz_token | String | ListenBrainz Token |
 | mixrampdelay | Float | Mixramp delay |
 | mixrampdb | Float | Mixramp DB |
-| music_directory | String | path to the mpd music directory |
+| music_directory | String | Path to the mpd music directory |
+| mympd_uri | String | Canonical myMPD uri |
 | next_song_id | Integer | Next song id in queue |
 | next_song_pos | Integer | Next song position in queue |
 | play_state | Integer | Player state: 0 = unknown, 1 = stop, 2 = play, 3 = pause |
