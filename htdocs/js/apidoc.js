@@ -2197,7 +2197,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_GET": {
-        "desc": "Deletes a webradio favorite.",
+        "desc": "Gets a webradio favorite.",
         "params": {
             "filename": {
                 "type": APItypes.string,
