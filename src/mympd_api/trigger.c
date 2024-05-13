@@ -17,7 +17,10 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
-#include "src/mympd_api/scripts/scripts.h"
+
+#ifdef MYMPD_ENABLE_LUA
+    #include "src/mympd_api/scripts/scripts.h"
+#endif
 
 #include <errno.h>
 #include <string.h>
@@ -487,19 +490,25 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current, bool newl
  * @param partition mpd partition
  */
 void trigger_execute(sds script, struct t_list *arguments, const char *partition) {
-    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, partition);
-    request->data = tojson_sds(request->data, "script", script, true);
-    request->data = tojson_char(request->data, "event", script_start_event_name(SCRIPT_START_TIMER), true);
-    request->data = sdscat(request->data, "\"arguments\": {");
-    struct t_list_node *argument = arguments->head;
-    int i = 0;
-    while (argument != NULL) {
-        if (i++) {
-            request->data = sdscatlen(request->data, ",", 1);
+    #ifdef MYMPD_ENABLE_LUA
+        struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, partition);
+        request->data = tojson_sds(request->data, "script", script, true);
+        request->data = tojson_char(request->data, "event", script_start_event_name(SCRIPT_START_TIMER), true);
+        request->data = sdscat(request->data, "\"arguments\": {");
+        struct t_list_node *argument = arguments->head;
+        int i = 0;
+        while (argument != NULL) {
+            if (i++) {
+                request->data = sdscatlen(request->data, ",", 1);
+            }
+            request->data = tojson_sds(request->data, argument->key, argument->value_p, false);
+            argument = argument->next;
         }
-        request->data = tojson_sds(request->data, argument->key, argument->value_p, false);
-        argument = argument->next;
-    }
-    request->data = sdscatlen(request->data, "}}}", 3);
-    mympd_queue_push(mympd_api_queue, request, 0);
+        request->data = sdscatlen(request->data, "}}}", 3);
+        mympd_queue_push(mympd_api_queue, request, 0);
+    #else
+        (void) script;
+        (void) arguments;
+        (void) partition;
+    #endif
 }

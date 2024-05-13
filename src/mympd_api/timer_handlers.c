@@ -19,7 +19,10 @@
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/volume.h"
 #include "src/mympd_api/requests.h"
-#include "src/mympd_api/scripts/scripts.h"
+
+#ifdef MYMPD_ENABLE_LUA
+    #include "src/mympd_api/scripts/scripts.h"
+#endif
 
 #include <string.h>
 
@@ -77,6 +80,7 @@ void timer_handler_select(unsigned timer_id, struct t_timer_definition *definiti
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
     }
+#ifdef MYMPD_ENABLE_LUA
     else if (strcmp(definition->action, "script") == 0) {
         struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, definition->partition);
         request->data = tojson_sds(request->data, "script", definition->subaction, true);
@@ -94,6 +98,7 @@ void timer_handler_select(unsigned timer_id, struct t_timer_definition *definiti
         request->data = sdscatlen(request->data, "}}}", 3);
         mympd_queue_push(mympd_api_queue, request, 0);
     }
+#endif
     else {
         MYMPD_LOG_ERROR(definition->partition, "Unknown timer action: %s - %s", definition->action, definition->subaction);
     }

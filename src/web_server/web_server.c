@@ -23,8 +23,11 @@
 #include "src/web_server/playlistart.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/request_handler.h"
-#include "src/web_server/scripts.h"
 #include "src/web_server/tagart.h"
+
+#ifdef MYMPD_ENABLE_LUA
+    #include "src/web_server/scripts.h"
+#endif
 
 #include <inttypes.h>
 #include <libgen.h>
@@ -754,6 +757,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/serverinfo"), NULL)) {
                 request_handler_serverinfo(nc);
             }
+        #ifdef MYMPD_ENABLE_LUA
             else if (mg_match(hm->uri, mg_str("/script-api/*"), NULL)) {
                 //enforce script acl
                 if (enforce_acl(nc, config->scriptacl) == false) {
@@ -777,6 +781,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/script/*/*"), NULL)) {
                 script_execute_http(nc, hm, config);
             }
+        #endif
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-booklet"), NULL)) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_BOOKLET);
             }

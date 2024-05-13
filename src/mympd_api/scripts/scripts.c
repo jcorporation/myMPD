@@ -18,7 +18,9 @@
 #include "src/lib/utility.h"
 #include "src/mympd_api/scripts/interface.h"
 #include "src/mympd_api/scripts/interface_http_client.h"
-#include "src/mympd_api/scripts/interface_mygpio.h"
+#ifdef MYMPD_ENABLE_MYGPIOD
+    #include "src/mympd_api/scripts/interface_mygpio.h"
+#endif
 #include "src/mympd_api/scripts/interface_mympd_api.h"
 #include "src/mympd_api/scripts/interface_util.h"
 
