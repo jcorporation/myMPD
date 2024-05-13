@@ -26,7 +26,7 @@ The config setting for the ListenBrainz API token was removed. The token can be 
 
 ***
 
-## myMPD 15.0.2 (not yet released)
+## myMPD 15.0.2 (2024-05-13)
 
 This is a small bugfix release.
 
@@ -36,6 +36,7 @@ This is a small bugfix release.
 - Upd: Improve docker documentation #1268
 - Fix: Missing parameter for `build.sh releaseinstall` #1271
 - Fix: Alignment of footer content
+- Fix: Drag and Drop in queue in playlist view #1278
 
 ***
 

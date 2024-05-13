@@ -40,9 +40,9 @@ function setView(viewName) {
     if (mode === 'table') {
         //init drag and drop
         switch(viewName) {
-            case 'QueueCurrentList':
-            case 'BrowsePlaylistDetailList':
-                dragAndDropTable(viewName);
+            case 'QueueCurrent':
+            case 'BrowsePlaylistDetail':
+                dragAndDropTable(viewName + 'List');
                 break;
             // No default
         }
