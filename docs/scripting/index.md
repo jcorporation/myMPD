@@ -4,7 +4,11 @@ permalink: /scripting/
 title: Scripting
 ---
 
-myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Script execution can be triggered in the main menu, with home icons, timers or triggers. Scripts are executed asynchronously, therefore scripts can not block the main threads of myMPD. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition.
+myMPD integrates [Lua](http://www.lua.org) for scripting purposes. There are two types of scripts.
+
+The first type of scripts are executed by triggers, timers or manual though the web ui. This scripts are executed asynchronously and can not block the main thread of myMPD. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition.
+
+The second type of script are called by http requests (`/script/<partition>/<script>`) and are executed in the context of the webserver. This scripts should return a valid http response including status code, headers and body.
 
 ## Global variables
 
@@ -40,6 +44,8 @@ myMPD provides custom lua functions through the `mympd` lua library.
 | `mympd.hash_sha1` | SHA1 hash of string. |
 | `mympd.hash_sha256` | SHA256 hash of string. |
 | `mympd.http_client` | Simple HTTP client. |
+| `mympd.http_redirect` | Returns a valid HTTP redirect message. |
+| `mympd.http_reply` | Returns a valid HTTP response message. |
 | `mympd.init` | Initializes the [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state). |
 | `mympd.os_capture` | Executes a system command and capture its output. |
 | `mympd.urldecode` | Decodes a URL encoded string. |
@@ -185,6 +191,20 @@ decoded = mympd.urldecode(string, form_url_decode)
 | string | string | String to hash |
 | form_url_decode | boolean | Decode as form url |
 {: .table .table-sm }
+
+### HTTP replies
+
+```lua
+-- Return a complete http reply
+local status = 200
+local status_text = "OK"
+local headers ="Content-type: text/plain\r\n"
+local body = "testbody"
+return mympd.http_reply(status, status_text, headers, body)
+
+-- Return a redirect response to /test
+return mympd.http_redirect("/test")
+```
 
 ### GPIO interface
 

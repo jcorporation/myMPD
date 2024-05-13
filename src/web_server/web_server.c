@@ -23,6 +23,7 @@
 #include "src/web_server/playlistart.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/request_handler.h"
+#include "src/web_server/scripts.h"
 #include "src/web_server/tagart.h"
 
 #include <inttypes.h>
@@ -772,6 +773,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
                     FREE_SDS(response);
                 }
+            }
+            else if (mg_match(hm->uri, mg_str("/script/*/*"), NULL)) {
+                script_execute_http(nc, hm, config);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-booklet"), NULL)) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_BOOKLET);

@@ -255,6 +255,18 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
 }
 
 /**
+ * Sends a raw reply
+ * @param nc mongoose connection
+ * @param data data to send
+ * @param len length of the data to send
+ * @param headers extra headers to add
+ */
+void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len) {
+    mg_send(nc, data, len);
+    webserver_handle_connection_close(nc);
+}
+
+/**
  * Serves a file defined by file from path
  * @param nc mongoose connection
  * @param hm mongoose http message

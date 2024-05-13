@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD 15.1.0 (not yet released)
 
-This release adds new scripting functions.
+This release adds new scripting functions. Scripts can now handle http requests.
 
 The config setting for the ListenBrainz API token was removed. The token can be now configured as script variable.
 
@@ -18,6 +18,7 @@ The config setting for the ListenBrainz API token was removed. The token can be 
 
 ### Changelog
 
+- Feat: Scripts can now handle http requests #1279
 - Feat: Set custom variables for scripts #1265
 - Feat: Implement hashing and url handling functions for lua
 - Feat: Use EC private keys for SSL certificates

@@ -84,6 +84,7 @@ void webserver_send_header_redirect(struct mg_connection *nc, const char *locati
 void webserver_send_header_found(struct mg_connection *nc, const char *location);
 void webserver_send_cors_reply(struct mg_connection *nc);
 void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers);
+void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len);
 void webserver_handle_connection_close(struct mg_connection *nc);
 void *mg_user_data_free(struct t_mg_user_data *mg_user_data);
 #endif
