@@ -6,7 +6,7 @@
 /** @module modalRadioWebradiodbDetail_js */
 
 /**
- * Shows the details of a webradioDB entry
+ * Shows the details of a webradio favorites entry
  * @param {string} uri webradio uri
  * @returns {void}
  */
@@ -14,9 +14,14 @@
 function showRadioFavoriteDetails(uri) {
     cleanupModalId('modalRadiobrowserDetailsList');
     elHideId('modalRadiobrowserDetailsAddToFavoriteBtn');
-    sendAPI('MYMPD_API_WEBRADIO_FAVORITE_GET', {'filename': uri}, parseShowRadioFavoriteDetails, true)
+    sendAPI('MYMPD_API_WEBRADIO_FAVORITE_GET', {'filename': uri}, parseShowRadioFavoriteDetails, true);
 }
 
+/**
+ * Parses the details of a webradio favorites entry
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseShowRadioFavoriteDetails(obj) {
     //reuse the radiobrowser modal
     const table = elGetById('modalRadiobrowserDetailsList');
