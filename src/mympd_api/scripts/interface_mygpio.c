@@ -28,6 +28,10 @@ int lua_mygpio_gpio_blink(lua_State *lua_vm) {
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *mygpiod_socket = lua_tostring(lua_vm, 1);
+    if (mygpiod_socket == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_blink: mygpiod_socket is a NULL string");
+        return luaL_error(lua_vm, "NULL string");
+    }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
     int timeout_ms = (int)lua_tointeger(lua_vm, 3);
     int interval_ms = (int)lua_tointeger(lua_vm, 4);
@@ -54,6 +58,10 @@ int lua_mygpio_gpio_get(lua_State *lua_vm) {
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *mygpiod_socket = lua_tostring(lua_vm, 1);
+    if (mygpiod_socket == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_get: mygpiod_socket is a NULL string");
+        return luaL_error(lua_vm, "NULL string");
+    }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
     struct t_mygpio_connection *mygpio_conn = mygpio_connect(mygpiod_socket);
     if (mygpio_conn != NULL) {
@@ -78,6 +86,10 @@ int lua_mygpio_gpio_set(lua_State *lua_vm) {
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *mygpiod_socket = lua_tostring(lua_vm, 1);
+    if (mygpiod_socket == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_set: mygpiod_socket is a NULL string");
+        return luaL_error(lua_vm, "NULL string");
+    }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
     int value = (int)lua_tointeger(lua_vm, 3);
     struct t_mygpio_connection *mygpio_conn = mygpio_connect(mygpiod_socket);
@@ -103,6 +115,10 @@ int lua_mygpio_gpio_toggle(lua_State *lua_vm) {
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *mygpiod_socket = lua_tostring(lua_vm, 1);
+    if (mygpiod_socket == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_toggle: mygpiod_socket is a NULL string");
+        return luaL_error(lua_vm, "NULL string");
+    }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
     struct t_mygpio_connection *mygpio_conn = mygpio_connect(mygpiod_socket);
     if (mygpio_conn != NULL) {

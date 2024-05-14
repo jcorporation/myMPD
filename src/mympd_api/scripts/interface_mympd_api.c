@@ -29,6 +29,10 @@ int lua_mympd_api(lua_State *lua_vm) {
     }
     //get method
     const char *method = lua_tostring(lua_vm, 1);
+    if (method == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: method is a NULL string");
+        return luaL_error(lua_vm, "NULL string");
+    }
     enum mympd_cmd_ids method_id = get_cmd_id(method);
     if (method_id == GENERAL_API_UNKNOWN) {
         MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: Invalid method \"%s\"", method);
@@ -46,6 +50,10 @@ int lua_mympd_api(lua_State *lua_vm) {
     //create the request
     struct t_work_request *request = create_request(REQUEST_TYPE_SCRIPT, 0, request_id, method_id, NULL, partition);
     const char *params = lua_tostring(lua_vm, 2);
+    if (params == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: params is a NULL string");
+        return luaL_error(lua_vm, "NULL string");
+    }
     if (params[0] != '{') {
         //param is invalid json, ignore it
         request->data = sdscatlen(request->data, "}", 1);

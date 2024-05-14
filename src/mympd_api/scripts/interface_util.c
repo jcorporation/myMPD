@@ -26,6 +26,11 @@ int lua_util_hash(lua_State *lua_vm) {
     const char *str = lua_tostring(lua_vm, 1);
     const char *alg = lua_tostring(lua_vm, 2);
 
+    if (str == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_hash: NULL string");
+        return luaL_error(lua_vm, "NULL string");
+    }
+
     sds hash = NULL;
     if (strcmp(alg, "sha1") == 0) {
         hash = sds_hash_sha1(str);
@@ -55,6 +60,10 @@ int lua_util_urlencode(lua_State *lua_vm) {
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *str = lua_tostring(lua_vm, 1);
+    if (str == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_urlencode: NULL string");
+        return luaL_error(lua_vm, "NULL string");
+    }
 
     sds encoded = sds_urlencode(sdsempty(), str, strlen(str));
     lua_pushstring(lua_vm, encoded);
@@ -77,6 +86,10 @@ int lua_util_urldecode(lua_State *lua_vm) {
     const char *str = lua_tostring(lua_vm, 1);
     bool form = lua_toboolean(lua_vm, 2);
 
+    if (str == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_urldecode: NULL string");
+        return luaL_error(lua_vm, "NULL string");
+    }
     sds decoded = sds_urldecode(sdsempty(), str, strlen(str), form);
     lua_pushstring(lua_vm, decoded);
     FREE_SDS(decoded);
