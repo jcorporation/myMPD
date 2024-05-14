@@ -34,6 +34,7 @@ struct t_script_thread_arg {
     sds partition;                         //!< execute the script in this partition
     struct t_list *arguments;              //!< argumentlist
     enum script_start_events start_event;  //!< script start event
+    unsigned long conn_id;                 //!< mongoose connection id
 };
 
 bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments, sds *error);
@@ -48,5 +49,6 @@ enum script_start_events script_start_event_parse(const char *str);
 lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc);
 void populate_lua_global_vars(lua_State *lua_vm, struct t_script_thread_arg *script_arg);
 void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg);
+const char *lua_err_to_str(int rc);
 
 #endif

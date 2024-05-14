@@ -29,6 +29,7 @@
     X(INTERNAL_API_JUKEBOX_ERROR) \
     X(INTERNAL_API_JUKEBOX_REFILL) \
     X(INTERNAL_API_JUKEBOX_REFILL_ADD) \
+    X(INTERNAL_API_RAW) \
     X(INTERNAL_API_SCRIPT_INIT) \
     X(INTERNAL_API_SCRIPT_POST_EXECUTE) \
     X(INTERNAL_API_STATE_SAVE) \
@@ -226,7 +227,8 @@ enum work_response_types {
     RESPONSE_TYPE_NOTIFY_PARTITION,  //!< Send message to all clients in a specific partition
     RESPONSE_TYPE_PUSH_CONFIG,       //!< Internal message from myMPD API thread to webserver thread to push the configuration
     RESPONSE_TYPE_SCRIPT,            //!< Respond is for the script thread
-    RESPONSE_TYPE_DISCARD            //!< Response will be discarded
+    RESPONSE_TYPE_DISCARD,           //!< Response will be discarded
+    RESPONSE_TYPE_RAW                //!< Raw http message
 };
 
 /**

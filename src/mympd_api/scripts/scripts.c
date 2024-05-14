@@ -46,7 +46,6 @@
 
 static void *script_execute_async(void *script_thread_arg);
 static sds script_get_result(lua_State *lua_vm, int rc);
-static const char *lua_err_to_str(int rc);
 static void register_lua_functions(lua_State *lua_vm);
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
 static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *order);
@@ -276,22 +275,13 @@ sds mympd_api_script_get(sds workdir, sds buffer, unsigned request_id, sds scrip
 bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list *arguments,
         const char *partition, bool localscript, enum script_start_events start_event)
 {
-    pthread_t mympd_script_thread;
-    pthread_attr_t attr;
-    if (pthread_attr_init(&attr) != 0) {
-        MYMPD_LOG_ERROR(NULL, "Can not init mympd_script thread attribute");
-        return false;
-    }
-    if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0) {
-        MYMPD_LOG_ERROR(NULL, "Can not set mympd_script thread to detached");
-        return false;
-    }
     struct t_script_thread_arg *script_thread_arg = malloc_assert(sizeof(struct t_script_thread_arg));
     script_thread_arg->lualibs = lualibs;
     script_thread_arg->localscript = localscript;
     script_thread_arg->arguments = arguments;
     script_thread_arg->partition = sdsnew(partition);
     script_thread_arg->start_event = start_event;
+    script_thread_arg->conn_id = 0; // not used for this type of scripts
     if (localscript == true) {
         script_thread_arg->script_name = sdsdup(script);
         script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
@@ -302,7 +292,12 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
         script_thread_arg->script_fullpath = sdsempty();
         script_thread_arg->script_content = sdsnew(script);
     }
-    if (pthread_create(&mympd_script_thread, &attr, script_execute_async, script_thread_arg) != 0) {
+    pthread_t mympd_script_thread;
+    pthread_attr_t attr;
+    if (pthread_attr_init(&attr) != 0 ||
+        pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0 ||
+        pthread_create(&mympd_script_thread, &attr, script_execute_async, script_thread_arg) != 0)
+    {
         MYMPD_LOG_ERROR(NULL, "Can not create mympd_script thread");
         free_t_script_thread_arg(script_thread_arg);
         return false;
@@ -431,6 +426,33 @@ void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg) {
     FREE_SDS(script_thread_arg->partition);
     list_free(script_thread_arg->arguments);
     FREE_PTR(script_thread_arg);
+}
+
+/**
+ * Returns a phrase for lua errors
+ * @param rc return code of the lua script
+ * @return error string literal
+ */
+const char *lua_err_to_str(int rc) {
+    switch(rc) {
+        case LUA_ERRSYNTAX:
+            return "Syntax error during precompilation";
+        case LUA_ERRMEM:
+            return "Memory allocation error";
+        #if LUA_VERSION_NUM >= 503 && LUA_VERSION_NUM < 504
+        case LUA_ERRGCMM:
+            return "Error in garbage collector";
+        #endif
+        case LUA_ERRFILE:
+            return "Can not open or read script file";
+        case LUA_ERRRUN:
+            return "Runtime error";
+        case LUA_ERRERR:
+            return "Error while running the message handler";
+            break;
+        default:
+            return "Unknown error";
+    }
 }
 
 /**
@@ -568,33 +590,6 @@ static void *script_execute_async(void *script_thread_arg) {
     free_t_script_thread_arg(script_arg);
     FREE_SDS(thread_logname);
     return NULL;
-}
-
-/**
- * Returns a phrase for lua errors
- * @param rc return code of the lua script
- * @return error string literal
- */
-static const char *lua_err_to_str(int rc) {
-    switch(rc) {
-        case LUA_ERRSYNTAX:
-            return "Syntax error during precompilation";
-        case LUA_ERRMEM:
-            return "Memory allocation error";
-        #if LUA_VERSION_NUM >= 503 && LUA_VERSION_NUM < 504
-        case LUA_ERRGCMM:
-            return "Error in garbage collector";
-        #endif
-        case LUA_ERRFILE:
-            return "Can not open or read script file";
-        case LUA_ERRRUN:
-            return "Runtime error";
-        case LUA_ERRERR:
-            return "Error while running the message handler";
-            break;
-        default:
-            return "Unknown error";
-    }
 }
 
 /**

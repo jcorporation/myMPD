@@ -43,6 +43,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
+static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
 static bool enforce_acl(struct mg_connection *nc, sds acl);
 static bool enforce_conn_limit(struct mg_connection *nc, int connection_count);
@@ -248,6 +249,11 @@ static void read_queue(struct mg_mgr *mgr) {
                 //api response
                 MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lu\"", response->conn_id);
                 send_api_response(mgr, response);
+                break;
+            case RESPONSE_TYPE_RAW:
+                MYMPD_LOG_DEBUG(response->partition, "Got raw response for id \"%lu\"", response->conn_id);
+                send_raw_response(mgr, response);
+                break;
             case RESPONSE_TYPE_SCRIPT:
             case RESPONSE_TYPE_DISCARD:
                 //ignore
@@ -431,6 +437,25 @@ static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *re
     }
     if (send_count == 0) {
         MYMPD_LOG_DEBUG(NULL, "No websocket client connected, discarding message: %s", response->data);
+    }
+    free_response(response);
+}
+
+/**
+ * Sends a raw http response message
+ * @param mgr mongoose mgr
+ * @param response jsonrpc response
+ */
+static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *response) {
+    struct mg_connection *nc = mgr->conns;
+    while (nc != NULL) {
+        if (nc->is_websocket == 0U &&
+            nc->id == response->conn_id)
+        {
+            webserver_send_raw(nc, response->data, sdslen(response->data));
+            break;
+        }
+        nc = nc->next;
     }
     free_response(response);
 }

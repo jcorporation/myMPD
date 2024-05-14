@@ -245,7 +245,8 @@ bool push_response(struct t_work_response *response) {
         case RESPONSE_TYPE_NOTIFY_CLIENT:
         case RESPONSE_TYPE_NOTIFY_PARTITION:
         case RESPONSE_TYPE_PUSH_CONFIG:
-            MYMPD_LOG_DEBUG(NULL, "Push response to queue for connection %lu: %s", response->conn_id, response->data);
+        case RESPONSE_TYPE_RAW:
+            MYMPD_LOG_DEBUG(NULL, "Push response to webserver queue for connection %lu: %s", response->conn_id, response->data);
             return mympd_queue_push(web_server_queue, response, 0);
         case RESPONSE_TYPE_DISCARD:
             // discard response

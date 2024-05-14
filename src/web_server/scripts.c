@@ -9,10 +9,13 @@
 
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
+#include "src/lib/api.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
+#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/thread.h"
 #include "src/lib/validate.h"
 #include "src/mympd_api/scripts/scripts.h"
 #include "src/web_server/utility.h"
@@ -20,6 +23,14 @@
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
+#include <pthread.h>
+
+// private definitions
+static void send_script_raw_response(unsigned long conn_id, const char *partition, const char *data);
+static void send_script_raw_error(unsigned long conn_id, const char *partition, const char *data);
+static void *script_execute_async_http(void *script_thread_arg);
+
+// public functions
 
 /**
  * Executes the script as request handler.
@@ -62,28 +73,90 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     }
     sdsfreesplitres(params, params_count);
 
-    struct t_script_thread_arg *script_arg = malloc_assert(sizeof(struct t_script_thread_arg));
-    script_arg->lualibs = config->lualibs;
-    script_arg->localscript = true;
-    script_arg->script_fullpath = script_fullpath;
-    script_arg->script_name = script;
-    script_arg->script_content = sdsempty();
-    script_arg->partition = partition;
-    script_arg->arguments = arguments;
-    script_arg->start_event = SCRIPT_START_HTTP;
+    struct t_script_thread_arg *script_thread_arg = malloc_assert(sizeof(struct t_script_thread_arg));
+    script_thread_arg->lualibs = config->lualibs;
+    script_thread_arg->localscript = true;
+    script_thread_arg->script_fullpath = script_fullpath;
+    script_thread_arg->script_name = script;
+    script_thread_arg->script_content = sdsempty();
+    script_thread_arg->partition = partition;
+    script_thread_arg->arguments = arguments;
+    script_thread_arg->start_event = SCRIPT_START_HTTP;
+    script_thread_arg->conn_id = nc->id;
 
+    pthread_t mympd_script_http_thread;
+    pthread_attr_t attr;
+    if (pthread_attr_init(&attr) != 0 ||
+        pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0 ||
+        pthread_create(&mympd_script_http_thread, &attr, script_execute_async_http, script_thread_arg) != 0)
+    {
+        MYMPD_LOG_ERROR(NULL, "Can not create mympd_http script thread");
+        free_t_script_thread_arg(script_thread_arg);
+        return false;
+    }
+    mympd_queue_expire(mympd_script_queue, 120);
+    return true;
+}
+
+// private functions
+
+/**
+ * Sends the script raw response to the webserver queue
+ * @param conn_id mongoose connection id
+ * @param partition MPD partition
+ * @param data raw http response to send
+ */
+static void send_script_raw_response(unsigned long conn_id, const char *partition, const char *data) {
+    struct t_work_response *response = create_response_new(RESPONSE_TYPE_RAW, conn_id, 0, INTERNAL_API_RAW, partition);
+    response->data = sdscat(response->data, data);
+    push_response(response);
+}
+
+/**
+ * Sends the script raw error to the webserver queue
+ * @param conn_id mongoose connection id
+ * @param partition MPD partition
+ * @param data raw http response to send
+ */
+static void send_script_raw_error(unsigned long conn_id, const char *partition, const char *data) {
+    struct t_work_response *response = create_response_new(RESPONSE_TYPE_RAW, conn_id, 0, INTERNAL_API_RAW, partition);
+    sds body = sdscatfmt(sdsempty(), "<!DOCTYPE html><html><head><title>myMPD error</title></head><body>"
+        "<h1>myMPD error</h1>"
+        "<p>%s</p>"
+        "</body></html>",
+        data);
+    response->data = sdscatfmt(response->data, "HTTP/1.1 500 Internal server error\r\n"
+        "Content-Type: text/html\r\n"
+        "Content-Length: %L\r\n"
+        "Connection: close\r\n"
+        "\r\n"
+        "%s", sdslen(body), body);
+    FREE_SDS(body);
+    push_response(response);
+}
+
+/**
+ * Executes the http script.
+ * This is the main function of the new thread.
+ * @param script_thread_arg pointer to t_script_thread_arg struct
+ */
+static void *script_execute_async_http(void *script_thread_arg) {
+    thread_logname = sds_replace(thread_logname, "http_script");
+    set_threadname(thread_logname);
+    struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
+    
     int rc;
     lua_State *lua_vm = script_load(script_arg, &rc);
     if (lua_vm == NULL) {
-        webserver_send_error(nc, 500, "Error executing script: Memory allocation error");
+        send_script_raw_error(script_arg->conn_id, script_arg->partition, "Error executing script: Memory allocation error");
         free_t_script_thread_arg(script_arg);
-        return false;
+        return NULL;
     }
     if (rc != 0) {
         lua_close(lua_vm);
-        webserver_send_error(nc, 500, "Error loading script");
+        send_script_raw_error(script_arg->conn_id, script_arg->partition, "Error loading script");
         free_t_script_thread_arg(script_arg);
-        return false;
+        return NULL;
     }
 
     populate_lua_global_vars(lua_vm, script_arg);
@@ -98,16 +171,18 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     for (int i = 1; i <= nr_return; i++) {
         MYMPD_LOG_DEBUG(NULL, "Lua script return value %d: %s", i, lua_tostring(lua_vm, i));
     }
-    if (nr_return == 1) {
+    if (nr_return == 1 && rc == 0) {
         const char *data = lua_tostring(lua_vm, 1);
-        webserver_send_raw(nc, data, strlen(data));
+        send_script_raw_response(script_arg->conn_id, script_arg->partition, data);
         lua_close(lua_vm);
         free_t_script_thread_arg(script_arg);
-        return true;
+        return NULL;
     }
     //error
-    webserver_send_error(nc, 500, "Error executing script");
+    MYMPD_LOG_ERROR(script_arg->partition, "Lua error: %s", lua_err_to_str(rc));
+    send_script_raw_error(script_arg->conn_id, script_arg->partition, "Error executing script");
     lua_close(lua_vm);
     free_t_script_thread_arg(script_arg);
-    return false;
+    FREE_SDS(thread_logname);
+    return NULL;
 }
