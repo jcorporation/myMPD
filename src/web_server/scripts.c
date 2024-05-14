@@ -146,7 +146,6 @@ static void send_script_raw_error(unsigned long conn_id, const char *partition, 
  * @param script_thread_arg pointer to t_script_thread_arg struct
  */
 static void *script_execute_async_http(void *script_thread_arg) {
-    
     thread_logname = sds_replace(thread_logname, "http_script");
     set_threadname(thread_logname);
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
@@ -157,6 +156,7 @@ static void *script_execute_async_http(void *script_thread_arg) {
         send_script_raw_error(script_arg->conn_id, script_arg->partition, "Error executing script: Memory allocation error");
         free_t_script_thread_arg(script_arg);
         http_script_threads--;
+        FREE_SDS(thread_logname);
         return NULL;
     }
     if (rc != 0) {
@@ -164,6 +164,7 @@ static void *script_execute_async_http(void *script_thread_arg) {
         send_script_raw_error(script_arg->conn_id, script_arg->partition, "Error loading script");
         free_t_script_thread_arg(script_arg);
         http_script_threads--;
+        FREE_SDS(thread_logname);
         return NULL;
     }
 
@@ -190,6 +191,7 @@ static void *script_execute_async_http(void *script_thread_arg) {
         lua_close(lua_vm);
         free_t_script_thread_arg(script_arg);
         http_script_threads--;
+        FREE_SDS(thread_logname);
         return NULL;
     }
     //error
