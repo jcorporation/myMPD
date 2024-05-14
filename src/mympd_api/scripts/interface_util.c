@@ -50,7 +50,7 @@ int lua_util_hash(lua_State *lua_vm) {
  */
 int lua_util_urlencode(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
-    if (n != 2) {
+    if (n != 1) {
         MYMPD_LOG_ERROR(NULL, "Lua - util_urlencode: invalid number of arguments");
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
