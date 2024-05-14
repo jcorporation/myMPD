@@ -79,7 +79,6 @@ rc, result = mympd.api("method", params)
 ### Hashing functions
 
 ```lua
-md5_hash = mympd.hash_md5(string)
 sha1_hash = mympd.hash_sha1(string)
 sha256_hash = mympd.hash_sha256(string)
 ```
@@ -188,23 +187,34 @@ decoded = mympd.urldecode(string, form_url_decode)
 
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
-| string | string | String to hash |
+| string | string | String to encode/decode |
 | form_url_decode | boolean | Decode as form url |
 {: .table .table-sm }
 
 ### HTTP replies
 
+This functions are creating raw http response for usage in scripts called by http requests.
+
 ```lua
 -- Return a complete http reply
 local status = 200
-local status_text = "OK"
 local headers ="Content-type: text/plain\r\n"
 local body = "testbody"
-return mympd.http_reply(status, status_text, headers, body)
+return mympd.http_reply(status, headers, body)
 
--- Return a redirect response to /test
-return mympd.http_redirect("/test")
+-- Return a 302 FOUND response (temporary redirect) to /test
+local location = "/test"
+return mympd.http_redirect(location)
 ```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| status | integer | HTTP status code, e.g. 200 |
+| headers | string | HTTP headers to append, terminate each header with `\r\n`. `Status`, `Connection` and `Content-Length` headers are added automatically. |
+| body | string | Response body |
+{: .table .table-sm }
 
 ### GPIO interface
 
