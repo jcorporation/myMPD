@@ -181,7 +181,12 @@ static void *script_execute_async_http(void *script_thread_arg) {
     }
     if (nr_return == 1 && rc == 0) {
         const char *data = lua_tostring(lua_vm, 1);
-        send_script_raw_response(script_arg->conn_id, script_arg->partition, data);
+        if (data != NULL) {
+            send_script_raw_response(script_arg->conn_id, script_arg->partition, data);
+        }
+        else {
+            send_script_raw_error(script_arg->conn_id, script_arg->partition, "Empty http response from script");
+        }
         lua_close(lua_vm);
         free_t_script_thread_arg(script_arg);
         http_script_threads--;
