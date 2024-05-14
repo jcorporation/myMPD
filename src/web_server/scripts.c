@@ -37,6 +37,10 @@ static void *script_execute_async_http(void *script_thread_arg);
  * @param nc mongoose connection
  */
 bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, struct t_config *config) {
+    if (http_script_threads > MAX_HTTP_SCRIPT_THREADS) {
+        webserver_send_error(nc, 500, "Too many http script threads already running");
+        return false;
+    }
     sds partition = sdsnewlen(hm->uri.buf, hm->uri.len);
     sds script = sdsdup(partition);
     partition = sds_dirname(partition);
@@ -94,6 +98,7 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
         free_t_script_thread_arg(script_thread_arg);
         return false;
     }
+    http_script_threads++;
     mympd_queue_expire(mympd_script_queue, 120);
     return true;
 }
@@ -141,6 +146,7 @@ static void send_script_raw_error(unsigned long conn_id, const char *partition, 
  * @param script_thread_arg pointer to t_script_thread_arg struct
  */
 static void *script_execute_async_http(void *script_thread_arg) {
+    
     thread_logname = sds_replace(thread_logname, "http_script");
     set_threadname(thread_logname);
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
@@ -150,12 +156,14 @@ static void *script_execute_async_http(void *script_thread_arg) {
     if (lua_vm == NULL) {
         send_script_raw_error(script_arg->conn_id, script_arg->partition, "Error executing script: Memory allocation error");
         free_t_script_thread_arg(script_arg);
+        http_script_threads--;
         return NULL;
     }
     if (rc != 0) {
         lua_close(lua_vm);
         send_script_raw_error(script_arg->conn_id, script_arg->partition, "Error loading script");
         free_t_script_thread_arg(script_arg);
+        http_script_threads--;
         return NULL;
     }
 
@@ -176,6 +184,7 @@ static void *script_execute_async_http(void *script_thread_arg) {
         send_script_raw_response(script_arg->conn_id, script_arg->partition, data);
         lua_close(lua_vm);
         free_t_script_thread_arg(script_arg);
+        http_script_threads--;
         return NULL;
     }
     //error
@@ -184,5 +193,6 @@ static void *script_execute_async_http(void *script_thread_arg) {
     lua_close(lua_vm);
     free_t_script_thread_arg(script_arg);
     FREE_SDS(thread_logname);
+    http_script_threads--;
     return NULL;
 }

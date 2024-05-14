@@ -69,6 +69,7 @@
 
 //global variables
 extern _Atomic int worker_threads;
+extern _Atomic int http_script_threads;
 //signal handler
 extern sig_atomic_t s_signal_received;
 //message queues
@@ -349,6 +350,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define SCROBBLE_TIME_TOTAL 480 //if the song is longer then this value, scrobble at SCROBBLE_TIME_MAX
 #define MAX_ENV_LENGTH 100 //maximum length of environment variables
 #define MAX_WORKER_THREADS 5 //maximum number of concurrent worker threads
+#define MAX_HTTP_SCRIPT_THREADS 5 //maximum number of concurrent http script threads
 #define MBID_LENGTH 36 //length of a MusicBrainz ID
 #define STICKER_LIKE_MIN 0
 #define STICKER_LIKE_MAX 2

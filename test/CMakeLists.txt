@@ -59,6 +59,11 @@ set(TEST_SOURCES
   ../src/mympd_api/jukebox.c
   ../src/mympd_api/lyrics.c
   ../src/mympd_api/requests.c
+  ../src/mympd_api/scripts/interface_http_client.c
+  ../src/mympd_api/scripts/interface_mympd_api.c
+  ../src/mympd_api/scripts/interface_util.c
+  ../src/mympd_api/scripts/interface.c
+  ../src/mympd_api/scripts/scripts.c
   ../src/mympd_api/scripts/vars.c
   ../src/mympd_api/settings.c
   ../src/mympd_api/status.c
@@ -118,6 +123,10 @@ target_include_directories(unit_test
     ${PROJECT_BINARY_DIR}/test
     ${PROJECT_SOURCE_DIR}
 )
+
+if(LUA_FOUND)
+  target_include_directories(unit_test SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
+endif()
 
 target_compile_options(unit_test
   PRIVATE
