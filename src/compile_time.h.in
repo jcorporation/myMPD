@@ -14,6 +14,7 @@
 
 #include <inttypes.h>
 #include <limits.h>
+#include <openssl/opensslv.h>
 #include <signal.h>
 
 //build options
@@ -267,15 +268,22 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define CA_LIFETIME_MIN 365 //days
 #define CA_KEY_LENGTH_RSA 4096 //bytes for RSA
 #define CA_KEY_LENGTH_EC 384 //bytes for EC: 256 or 384
-#define CA_KEY_TYPE EVP_PKEY_EC //key type: EVP_PKEY_EC or EVP_PKEY_RSA
-#define CA_KEY_LENGTH CA_KEY_LENGTH_EC // Set this according to the key type
-
 #define CERT_LIFETIME 365 //days
 #define CERT_LIFETIME_MIN 30 //days
 #define CERT_KEY_LENGTH_RSA 2048 // bytes for RSA
 #define CERT_KEY_LENGTH_EC 256 // bytes for EC: 256 or 384
-#define CERT_KEY_TYPE EVP_PKEY_EC //key type: EVP_PKEY_EC or EVP_PKEY_RSA
-#define CERT_KEY_LENGTH CERT_KEY_LENGTH_EC // Set this according to the key type
+
+#ifdef OPENSSL_VERSION_MAJOR
+    #define CA_KEY_TYPE EVP_PKEY_EC //key type: EVP_PKEY_EC or EVP_PKEY_RSA
+    #define CA_KEY_LENGTH CA_KEY_LENGTH_EC // Set this according to the key type
+    #define CERT_KEY_TYPE EVP_PKEY_EC //key type: EVP_PKEY_EC or EVP_PKEY_RSA
+    #define CERT_KEY_LENGTH CERT_KEY_LENGTH_EC // Set this according to the key type
+#else
+    #define CA_KEY_TYPE EVP_PKEY_RSA
+    #define CA_KEY_LENGTH CA_KEY_LENGTH_RSA
+    #define CERT_KEY_TYPE EVP_PKEY_RSA
+    #define CERT_KEY_LENGTH CERT_KEY_LENGTH_RSA
+#endif
 
 //http limits
 #define HTTP_CONNECTIONS_MAX 100

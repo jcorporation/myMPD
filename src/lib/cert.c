@@ -22,6 +22,7 @@
 #include <openssl/ec.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
+#include <openssl/opensslv.h>
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 #include <openssl/rsa.h>
@@ -636,18 +637,43 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
  * @return newly allocated key or NULL on error
  */
 static EVP_PKEY *generate_keypair(int key_type, unsigned int key_bits) {
-    if (key_type == EVP_PKEY_RSA) {
-        return EVP_RSA_gen(key_bits);
-    }
-    if (key_type == EVP_PKEY_EC) {
-        switch (key_bits) {
-            case 256: return EVP_EC_gen("P-256");
-            case 384: return EVP_EC_gen("P-384");
-            default:
-                MYMPD_LOG_ERROR(NULL, "Invalid private key length");
-                return NULL;
+    #ifdef OPENSSL_VERSION_MAJOR
+        if (key_type == EVP_PKEY_RSA) {
+            return EVP_RSA_gen(key_bits);
         }
-    }
+        if (key_type == EVP_PKEY_EC) {
+            switch (key_bits) {
+                case 256: return EVP_EC_gen("P-256");
+                case 384: return EVP_EC_gen("P-384");
+                default:
+                    MYMPD_LOG_ERROR(NULL, "Invalid private key length");
+                    return NULL;
+            }
+        }
+    #else
+        // Support older versions of OpenSSL.
+        // Ignore key type, always use rsa keys.
+        (void)key_type;
+        EVP_PKEY *pkey = NULL;
+        EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
+        if (!ctx) {
+            return NULL;
+        }
+        if (EVP_PKEY_keygen_init(ctx) <= 0) {
+            EVP_PKEY_CTX_free(ctx);
+            return NULL;
+        }
+        if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, key_bits) <= 0) {
+            EVP_PKEY_CTX_free(ctx);
+            return NULL;
+        }
+        if (EVP_PKEY_keygen(ctx, &pkey) <= 0) {
+            EVP_PKEY_CTX_free(ctx);
+            return NULL;
+        }
+        EVP_PKEY_CTX_free(ctx);
+        return pkey;
+    #endif
     MYMPD_LOG_ERROR(NULL, "Invalid private key type");
     return NULL;
 }
