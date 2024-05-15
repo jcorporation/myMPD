@@ -23,7 +23,6 @@ set(TEST_SOURCES
   ../src/lib/last_played.c
   ../src/lib/list.c
   ../src/lib/log.c
-  ../src/lib/lua_mympd_state.c
   ../src/lib/m3u.c
   ../src/lib/mg_str_utils.c
   ../src/lib/mimetype.c
@@ -59,12 +58,7 @@ set(TEST_SOURCES
   ../src/mympd_api/jukebox.c
   ../src/mympd_api/lyrics.c
   ../src/mympd_api/requests.c
-  ../src/mympd_api/scripts/interface_http_client.c
-  ../src/mympd_api/scripts/interface_mympd_api.c
-  ../src/mympd_api/scripts/interface_util.c
-  ../src/mympd_api/scripts/interface.c
-  ../src/mympd_api/scripts/scripts.c
-  ../src/mympd_api/scripts/vars.c
+  ../src/mympd_api/scripts_vars.c
   ../src/mympd_api/settings.c
   ../src/mympd_api/status.c
   ../src/mympd_api/sticker.c
@@ -73,6 +67,8 @@ set(TEST_SOURCES
   ../src/mympd_api/trigger.c
   ../src/mympd_api/queue.c
   ../src/mympd_api/webradios.c
+  ../src/scripts/lua_mympd_state.c
+  ../src/scripts/scripts.c
   tests/test_album_cache.c
   tests/test_api.c
   tests/test_cert.c
@@ -124,10 +120,6 @@ target_include_directories(unit_test
     ${PROJECT_SOURCE_DIR}
 )
 
-if(LUA_FOUND)
-  target_include_directories(unit_test SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
-endif()
-
 target_compile_options(unit_test
   PRIVATE
     "-Wno-unused-function"
@@ -153,9 +145,6 @@ if(LIBID3TAG_FOUND)
 endif()
 if(FLAC_FOUND)
   target_link_libraries(unit_test ${FLAC_LIBRARIES})
-endif()
-if(LUA_FOUND)
-  target_link_libraries(unit_test ${LUA_LIBRARIES})
 endif()
 
 add_custom_command(TARGET unit_test PRE_BUILD

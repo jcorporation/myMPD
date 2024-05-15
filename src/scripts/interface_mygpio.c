@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/mympd_api/scripts/interface_mygpio.h"
+#include "src/scripts/interface_mygpio.h"
 
 #include "src/lib/log.h"
 

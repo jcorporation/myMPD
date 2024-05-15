@@ -5,15 +5,15 @@
 */
 
 #include "compile_time.h"
-#include "src/mympd_api/scripts/interface_mympd_api.h"
+#include "src/scripts/interface_mympd_api.h"
 
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/lua_mympd_state.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/random.h"
-#include "src/mympd_api/scripts/interface.h"
+#include "src/scripts/interface.h"
+#include "src/scripts/lua_mympd_state.h"
 
 /**
  * Function that implements mympd_api lua function

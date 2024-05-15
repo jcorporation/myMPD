@@ -11,8 +11,11 @@
 #include "src/lib/api.h"
 #include "src/lib/event.h"
 #include "src/lib/log.h"
-#include "src/lib/lua_mympd_state.h"
 #include "src/lib/mem.h"
+
+#ifdef MYMPD_ENABLE_LUA
+    #include "src/scripts/lua_mympd_state.h"
+#endif
 
 #include <errno.h>
 
@@ -277,7 +280,9 @@ static void free_queue_node_extra(void *extra, enum mympd_cmd_ids cmd_id) {
         return;
     }
     if (cmd_id == INTERNAL_API_SCRIPT_INIT) {
-        lua_mympd_state_free(extra);
+        #ifdef MYMPD_ENABLE_LUA
+            lua_mympd_state_free(extra);
+        #endif
     }
     else {
         FREE_PTR(extra);

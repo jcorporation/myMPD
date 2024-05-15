@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/mympd_api/scripts/scripts.h"
+#include "src/mympd_api/scripts.h"
 
 #include "src/lib/api.h"
 #include "src/lib/filehandler.h"
@@ -16,13 +16,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
 #include "src/lib/utility.h"
-#include "src/mympd_api/scripts/interface.h"
-#include "src/mympd_api/scripts/interface_http_client.h"
-#ifdef MYMPD_ENABLE_MYGPIOD
-    #include "src/mympd_api/scripts/interface_mygpio.h"
-#endif
-#include "src/mympd_api/scripts/interface_mympd_api.h"
-#include "src/mympd_api/scripts/interface_util.h"
+#include "src/scripts/scripts_lua.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -34,20 +28,13 @@
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
-#ifdef MYMPD_EMBEDDED_ASSETS
-    //embedded files for release build
-    #include "src/mympd_api/scripts/lualibs.c"
-#endif
 
 /**
  * Private definitions
  */
 
-
 static void *script_execute_async(void *script_thread_arg);
 static sds script_get_result(lua_State *lua_vm, int rc);
-static void register_lua_functions(lua_State *lua_vm);
-static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
 static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *order);
 
 /**
@@ -307,155 +294,6 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
 }
 
 /**
- * Returns the name for the script start event
- * @param start_event start event enum
- * @return start event name or empty if unknown
- */
-const char *script_start_event_name(enum script_start_events start_event) {
-    switch (start_event) {
-        case SCRIPT_START_EXTERN:  return "extern";
-        case SCRIPT_START_HTTP:    return "http";
-        case SCRIPT_START_TIMER:   return "timer";
-        case SCRIPT_START_TRIGGER: return "trigger";
-        case SCRIPT_START_USER:    return "user";
-        case SCRIPT_START_UNKNOWN: return "";
-    }
-    return "";
-}
-
-/**
- * Parses the name for the script start event
- * @param str string to parse
- * @return script_start_event enum
- */
-enum script_start_events script_start_event_parse(const char *str) {
-    if (strcmp(str, "http") == 0) { return SCRIPT_START_HTTP; }
-    if (strcmp(str, "timer") == 0) { return SCRIPT_START_TIMER; }
-    if (strcmp(str, "trigger") == 0) { return SCRIPT_START_TRIGGER; }
-    if (strcmp(str, "user") == 0) { return SCRIPT_START_USER; }
-    if (strcmp(str, "extern") == 0) { return SCRIPT_START_EXTERN; }
-    return SCRIPT_START_UNKNOWN;
-}
-
-/**
- * Creates the lua instance and loads the script
- * @param script_arg pointer to t_script_thread_arg struct
- * @param rc loading script return value
- * @return lua instance or NULL on error
- */
-lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc) {
-    lua_State *lua_vm = luaL_newstate();
-    if (lua_vm == NULL) {
-        MYMPD_LOG_ERROR(script_arg->partition, "Memory allocation error in luaL_newstate");
-        return NULL;
-    }
-    if (strcmp(script_arg->lualibs, "all") == 0) {
-        MYMPD_LOG_DEBUG(NULL, "Open all standard lua libs");
-        luaL_openlibs(lua_vm);
-        mympd_luaopen(lua_vm, "json");
-        mympd_luaopen(lua_vm, "mympd");
-    }
-    else {
-        int count = 0;
-        sds *tokens = sdssplitlen(script_arg->lualibs, (ssize_t)sdslen(script_arg->lualibs), ",", 1, &count);
-        for (int i = 0; i < count; i++) {
-            sdstrim(tokens[i], " ");
-            MYMPD_LOG_DEBUG(NULL, "Open lua library %s", tokens[i]);
-            if (strcmp(tokens[i], "base") == 0)           { luaL_requiref(lua_vm, "base", luaopen_base, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "package") == 0)   { luaL_requiref(lua_vm, "package", luaopen_package, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "coroutine") == 0) { luaL_requiref(lua_vm, "coroutine", luaopen_coroutine, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "string") == 0)    { luaL_requiref(lua_vm, "string", luaopen_string, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "utf8") == 0)      { luaL_requiref(lua_vm, "utf8", luaopen_utf8, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "table") == 0)     { luaL_requiref(lua_vm, "table", luaopen_table, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "math") == 0)      { luaL_requiref(lua_vm, "math", luaopen_math, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "io") == 0)        { luaL_requiref(lua_vm, "io", luaopen_io, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "os") == 0)        { luaL_requiref(lua_vm, "os", luaopen_os, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "debug") == 0)     { luaL_requiref(lua_vm, "debug", luaopen_debug, 1); lua_pop(lua_vm, 1); }
-            //custom libs
-            else if (strcmp(tokens[i], "json") == 0 ||
-                     strcmp(tokens[i], "mympd") == 0)	  { mympd_luaopen(lua_vm, tokens[i]); }
-            else {
-                MYMPD_LOG_ERROR(NULL, "Can not open lua library %s", tokens[i]);
-                continue;
-            }
-        }
-        sdsfreesplitres(tokens,count);
-    }
-    register_lua_functions(lua_vm);
-    *rc = script_arg->localscript == true
-        ? luaL_loadfilex(lua_vm, script_arg->script_fullpath, "t")
-        : luaL_loadstring(lua_vm, script_arg->script_content);
-    return lua_vm;
-}
-
-/**
- * Populate the global vars for script execution
- * @param lua_vm lua instance
- * @param script_arg pointer to t_script_thread_arg struct
- */
-void populate_lua_global_vars(lua_State *lua_vm, struct t_script_thread_arg *script_arg) {
-    //set global lua variable partition
-    lua_pushstring(lua_vm, script_arg->partition);
-    lua_setglobal(lua_vm, "partition");
-    //set global lua variable scriptname
-    lua_pushstring(lua_vm, script_arg->script_name);
-    lua_setglobal(lua_vm, "scriptname");
-    //set global lua variable scriptevent
-    lua_pushstring(lua_vm, script_start_event_name(script_arg->start_event));
-    lua_setglobal(lua_vm, "scriptevent");
-    //set arguments lua table
-    lua_newtable(lua_vm);
-    if (script_arg->arguments->length > 0) {
-        struct t_list_node *current = script_arg->arguments->head;
-        while (current != NULL) {
-            populate_lua_table_field_p(lua_vm, current->key, current->value_p);
-            current = current->next;
-        }
-    }
-    lua_setglobal(lua_vm, "arguments");
-}
-
-/**
- * Frees the t_script_thread_arg struct
- * @param script_thread_arg pointer to the struct to free
- */
-void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg) {
-    FREE_SDS(script_thread_arg->script_name);
-    FREE_SDS(script_thread_arg->script_fullpath);
-    FREE_SDS(script_thread_arg->script_content);
-    FREE_SDS(script_thread_arg->partition);
-    list_free(script_thread_arg->arguments);
-    FREE_PTR(script_thread_arg);
-}
-
-/**
- * Returns a phrase for lua errors
- * @param rc return code of the lua script
- * @return error string literal
- */
-const char *lua_err_to_str(int rc) {
-    switch(rc) {
-        case LUA_ERRSYNTAX:
-            return "Syntax error during precompilation";
-        case LUA_ERRMEM:
-            return "Memory allocation error";
-        #if LUA_VERSION_NUM >= 503 && LUA_VERSION_NUM < 504
-        case LUA_ERRGCMM:
-            return "Error in garbage collector";
-        #endif
-        case LUA_ERRFILE:
-            return "Can not open or read script file";
-        case LUA_ERRRUN:
-            return "Runtime error";
-        case LUA_ERRERR:
-            return "Error while running the message handler";
-            break;
-        default:
-            return "Unknown error";
-    }
-}
-
-/**
  * Private functions
  */
 
@@ -590,63 +428,4 @@ static void *script_execute_async(void *script_thread_arg) {
     free_t_script_thread_arg(script_arg);
     FREE_SDS(thread_logname);
     return NULL;
-}
-
-/**
- * Loads a lue library from filesystem or embedded in release
- * @param lua_vm lua instance
- * @param lualib lua library to load
- * @return true on success, else false
- */
-static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
-    MYMPD_LOG_DEBUG(NULL, "Loading embedded lua library %s", lualib);
-    #ifdef MYMPD_EMBEDDED_ASSETS
-        sds lib_string;
-        if (strcmp(lualib, "json") == 0) {
-            lib_string = sdscatlen(sdsempty(), json_lua_data, json_lua_size);
-        }
-        else if (strcmp(lualib, "mympd") == 0) {
-            lib_string = sdscatlen(sdsempty(), mympd_lua_data, mympd_lua_size);
-        }
-        else {
-            return false;
-        }
-        int rc = luaL_dostring(lua_vm, lib_string);
-        FREE_SDS(lib_string);
-    #else
-        sds filename = sdscatfmt(sdsempty(), "%s/%s.lua", MYMPD_LUALIBS_PATH, lualib);
-        int rc = luaL_dofile(lua_vm, filename);
-        FREE_SDS(filename);
-    #endif
-    int nr_return = lua_gettop(lua_vm);
-    MYMPD_LOG_DEBUG(NULL, "Lua library returns %d values", nr_return);
-    for (int i = 1; i <= nr_return; i++) {
-        MYMPD_LOG_DEBUG(NULL, "Lua library return value \"%d\": \"%s\"", i, lua_tostring(lua_vm, i));
-        lua_pop(lua_vm, i);
-    }
-    if (rc != 0) {
-        if (lua_gettop(lua_vm) == 1) {
-            //return value on stack
-            MYMPD_LOG_ERROR(NULL, "Error loading library \"%s\": \"%s\"", lualib, lua_tostring(lua_vm, 1));
-        }
-    }
-    return rc;
-}
-
-/**
- * Registers myMPD specific lua functions
- * @param lua_vm lua instance
- */
-static void register_lua_functions(lua_State *lua_vm) {
-    lua_register(lua_vm, "mympd_api", lua_mympd_api);
-    lua_register(lua_vm, "mympd_api_http_client", lua_http_client);
-    lua_register(lua_vm, "mympd_util_hash", lua_util_hash);
-    lua_register(lua_vm, "mympd_util_urlencode", lua_util_urlencode);
-    lua_register(lua_vm, "mympd_util_urldecode", lua_util_urldecode);
-    #ifdef MYMPD_ENABLE_MYGPIOD
-        lua_register(lua_vm, "mygpio_gpio_blink", lua_mygpio_gpio_blink);
-        lua_register(lua_vm, "mygpio_gpio_get", lua_mygpio_gpio_get);
-        lua_register(lua_vm, "mygpio_gpio_set", lua_mygpio_gpio_set);
-        lua_register(lua_vm, "mygpio_gpio_toggle", lua_mygpio_gpio_toggle);
-    #endif
 }

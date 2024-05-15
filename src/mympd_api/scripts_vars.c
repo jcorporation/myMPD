@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/mympd_api/scripts/vars.h"
+#include "src/mympd_api/scripts_vars.h"
 
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"

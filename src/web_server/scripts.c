@@ -17,7 +17,8 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
 #include "src/lib/validate.h"
-#include "src/mympd_api/scripts/scripts.h"
+#include "src/scripts/scripts.h"
+#include "src/scripts/scripts_lua.h"
 #include "src/web_server/utility.h"
 
 #include <lauxlib.h>

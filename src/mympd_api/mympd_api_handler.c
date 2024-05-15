@@ -58,8 +58,9 @@
 #include "src/mympd_api/webradios.h"
 
 #ifdef MYMPD_ENABLE_LUA
-    #include "src/mympd_api/scripts/scripts.h"
-    #include "src/mympd_api/scripts/vars.h"
+    #include "src/mympd_api/scripts.h"
+    #include "src/mympd_api/scripts_vars.h"
+    #include "src/scripts/lua_mympd_state.h"
 #endif
 
 #include <stdbool.h>

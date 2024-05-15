@@ -19,7 +19,7 @@
 #include "src/lib/state_files.h"
 
 #ifdef MYMPD_ENABLE_LUA
-    #include "src/mympd_api/scripts/scripts.h"
+    #include "src/scripts/scripts.h"
 #endif
 
 #include <errno.h>

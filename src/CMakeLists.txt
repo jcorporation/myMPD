@@ -59,7 +59,6 @@ target_sources(mympd
     lib/last_played.c
     lib/list.c
     lib/log.c
-    lib/lua_mympd_state.c
     lib/m3u.c
     lib/mg_str_utils.c
     lib/mimetype.c
@@ -150,12 +149,15 @@ target_sources(mympd
 if(MYMPD_ENABLE_LUA)
   target_sources(mympd
     PRIVATE
-      mympd_api/scripts/interface_http_client.c
-      mympd_api/scripts/interface_mympd_api.c
-      mympd_api/scripts/interface_util.c
-      mympd_api/scripts/interface.c
-      mympd_api/scripts/scripts.c
-      mympd_api/scripts/vars.c
+      scripts/scripts.c
+      scripts/scripts_lua.c
+      scripts/interface_http_client.c
+      scripts/interface_mympd_api.c
+      scripts/interface_util.c
+      scripts/interface.c
+      scripts/lua_mympd_state.c
+      mympd_api/scripts.c
+      mympd_api/scripts_vars.c
       web_server/scripts.c
   )
 endif()
@@ -179,6 +181,6 @@ endif()
 if(MYMPD_ENABLE_MYGPIOD)
   target_sources(mympd
     PRIVATE
-      mympd_api/scripts/interface_mygpio.c
+      scripts/interface_mygpio.c
   )
 endif()

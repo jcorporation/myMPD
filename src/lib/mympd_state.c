@@ -17,7 +17,7 @@
 #include "src/mpd_client/presets.h"
 #include "src/mympd_api/home.h"
 #ifdef MYMPD_ENABLE_LUA
-    #include "src/mympd_api/scripts/vars.h"
+    #include "src/mympd_api/scripts_vars.h"
 #endif
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/trigger.h"

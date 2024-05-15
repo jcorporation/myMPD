@@ -8,6 +8,7 @@
 #define MYMPD_LUA_MYMPD_STATE_H
 
 #include "src/lib/list.h"
+#include "src/lib/mympd_state.h"
 
 #include <stdbool.h>
 
@@ -32,6 +33,9 @@ struct t_lua_mympd_state_value {
     bool b;       //!< lua bool
 };
 
+
+bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_mympd_state *mympd_state,
+        struct t_partition_state *partition_state);
 void lua_mympd_state_set_p(struct t_list *lua_mympd_state, const char *k, const char *v);
 void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, int64_t v);
 void lua_mympd_state_set_u(struct t_list *lua_mympd_state, const char *k, unsigned v);

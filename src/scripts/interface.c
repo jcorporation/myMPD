@@ -5,9 +5,9 @@
 */
 
 #include "compile_time.h"
-#include "src/mympd_api/scripts/interface.h"
+#include "src/scripts/interface.h"
 
-#include "src/lib/lua_mympd_state.h"
+#include "src/scripts/lua_mympd_state.h"
 
 /**
  * Populates the lua table from the lua_mympd_state struct

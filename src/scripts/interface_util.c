@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/mympd_api/scripts/interface_util.h"
+#include "src/scripts/interface_util.h"
 
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
