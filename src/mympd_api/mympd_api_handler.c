@@ -908,6 +908,42 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             list_clear(&song_ids);
             break;
         }
+        case MYMPD_API_QUEUE_APPEND_URI_TAGS:
+        case MYMPD_API_QUEUE_REPLACE_URI_TAGS: {
+            struct t_list tags;
+            list_init(&tags);
+            if (json_get_string(request->data, "$.params.uri", 1, URI_LENGTH_MAX, &sds_buf1, vcb_isstreamuri, &parse_error) &&
+                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, 20, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
+            {
+                rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_URI_TAGS
+                        ? mympd_api_queue_append_uri_tags(partition_state, sds_buf1, &tags, &error)
+                        : mympd_api_queue_replace_uri_tags(partition_state, sds_buf1, &tags, &error)) &&
+                    mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                            JSONRPC_FACILITY_QUEUE, "Queue updated", error);
+            }
+            list_clear(&tags);
+            break;
+        }
+        case MYMPD_API_QUEUE_INSERT_URI_TAGS: {
+            struct t_list tags;
+            list_init(&tags);
+            if (json_get_string(request->data, "$.params.uri", 1, URI_LENGTH_MAX, &sds_buf1, vcb_isstreamuri, &parse_error) &&
+                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, 20, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
+            {
+                rc = mympd_api_queue_insert_uri_tags(partition_state, sds_buf1, &tags, uint_buf1, uint_buf2, &error) &&
+                    mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                            JSONRPC_FACILITY_QUEUE, "Queue updated", error);
+            }
+            list_clear(&tags);
+            break;
+        }
         case MYMPD_API_QUEUE_APPEND_URIS:
         case MYMPD_API_QUEUE_REPLACE_URIS: {
             struct t_list uris;

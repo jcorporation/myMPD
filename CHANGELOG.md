@@ -15,6 +15,9 @@ The config setting for the ListenBrainz API token was removed. The token can be 
 - MYMPD_API_SCRIPT_VAR_DELETE: new
 - MYMPD_API_SCRIPT_VAR_LIST: new
 - MYMPD_API_SCRIPT_VAR_SET: new
+- MYMPD_API_QUEUE_APPEND_URI_TAGS: new
+- MYMPD_API_QUEUE_INSERT_URI_TAGS: new
+- MYMPD_API_QUEUE_REPLACE_URI_TAGS: new
 
 ### Changelog
 

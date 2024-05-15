@@ -64,6 +64,11 @@ const APIparams = {
         "example": "Alben/Einstürzende_Neubauten/Ende_Neu/01.Was_ist_ist.mp3",
         "desc": "Relativ song uri"
     },
+    "streamUri": {
+        "type": APItypes.string,
+        "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+        "desc": "Stream uri"
+    },
     "uris": {
         "type": APItypes.array,
         "example": "[\"Alben/Einstürzende_Neubauten/Ende_Neu/01.Was_ist_ist.mp3\"]",
@@ -183,6 +188,11 @@ const APIparams = {
         "type": APItypes.uint,
         "example": 200,
         "desc": "Maximum entries"
+    },
+    "tagValues": {
+        "type": APItypes.object,
+        "example": "{\"Title\": \"title\", \"Artist\": \"artist\"}",
+        "desc": "MPD tag name as key and its value."
     }
 };
 
@@ -418,6 +428,16 @@ const APImethods = {
             "play": APIparams.play
         }
     },
+    "MYMPD_API_QUEUE_INSERT_URI_TAGS": {
+        "desc": "Adds an uri to distinct position in the queue and set tags.",
+        "params": {
+            "uri": APIparams.streamUri,
+            "tags": APIparams.tagValues,
+            "to": APIparams.to,
+            "whence": APIparams.whence,
+            "play": APIparams.play
+        }
+    },
     "MYMPD_API_QUEUE_INSERT_SEARCH": {
         "desc": "Adds the search result to distinct position in the queue.",
         "params": {
@@ -462,6 +482,14 @@ const APImethods = {
             "play": APIparams.play
         }
     },
+    "MYMPD_API_QUEUE_APPEND_URI_TAGS": {
+        "desc": "Appends an uri to the queue and set tags.",
+        "params": {
+            "uri": APIparams.streamUri,
+            "tags": APIparams.tagValues,
+            "play": APIparams.play
+        }
+    },
     "MYMPD_API_QUEUE_APPEND_SEARCH": {
         "desc": "Appends the search result to the queue.",
         "params": {
@@ -497,6 +525,14 @@ const APImethods = {
         "desc": "Replaces the queue with uris.",
         "params": {
             "uris": APIparams.uris,
+            "play": APIparams.play
+        }
+    },
+    "MYMPD_API_QUEUE_REPLACE_URI_TAGS": {
+        "desc": "Replaces the queue with uri and set tags.",
+        "params": {
+            "uri": APIparams.streamUri,
+            "tags": APIparams.tagValues,
             "play": APIparams.play
         }
     },
