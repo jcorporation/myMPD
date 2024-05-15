@@ -6,9 +6,11 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD 15.1.0 (not yet released)
 
-This release adds new scripting functions. Scripts can now handle http requests.
+This release enhances the scripting functionality of myMPD a lot.
 
-The config setting for the ListenBrainz API token was removed. The token can be now configured as script variable.
+There are some new myMPD specific Lua functions and a completely new area of application for scripts. With this release you can call Lua scripts by http requests and the script itself can respond.
+
+The config setting for the ListenBrainz API token was removed in favor of a new central variable declaration for scripts.
 
 ### API changes
 
@@ -26,6 +28,7 @@ The config setting for the ListenBrainz API token was removed. The token can be 
 - Feat: Implement hashing and url handling functions for lua
 - Feat: Use EC private keys for SSL certificates
 - Upd: Update mongoose to latest master
+- Fix: Add missing NULL ptr checks to Lua interface functions
 - Fix: Error checking for results in modals
 
 ***
