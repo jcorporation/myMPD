@@ -1,31 +1,71 @@
--- {"order":1,"arguments":["uri"]}
-local cache = "--cache-dir '" ..string.gsub((os.getenv("TMPDIR") or "/tmp"), "/+$", "").. "/yt-dlp'"
-function ytdlp(uri, args)
-  local output = mympd.os_capture("sh -c \"yt-dlp " ..cache.. " " ..args.. " '" ..uri.. "' 2>/dev/null\"")
-  if not output then
-    error("No output from yt-dlp")
-  end
-  return output
+-- {"order":1,"arguments":["URI"]}
+-- yt-dlp helper function
+local yt_dlp_cache = string.format(
+  "--cache-dir '%s/yt-dlp'",
+  string.gsub((os.getenv("TMPDIR") or "/tmp"), "/+$", "")
+)
+function yt_dlp(uri, args)
+    local output = mympd.os_capture(
+      string.format(
+        "yt-dlp %s %s '%s' 2>/dev/null",
+        yt_dlp_cache, args, uri
+      )
+    )
+    if not output then
+        error("No output from yt-dlp")
+    end
+    return output
 end
+
+local yt_dlp_args_download = [[\
+  --format bestaudio \
+  --print '%(urls)s'\
+]]
+
+local yt_dlp_args_search = [[\
+  --flat-playlist \
+  --print '%(.{webpage_url, title,extractor,playlist_title,playlist_index})j,' \
+  --extractor-args 'youtube:skip=hls,dash,translated_subs'\
+]]
+
 if scriptevent == "http" then
-  -- calling from a stream play event
-  local output = ytdlp(arguments.uri, "--format bestaudio --print '%(urls)s' --extractor-args 'youtube:skip=translated_subs'")
-  -- redirect to the real stream URI
-  return mympd.http_redirect(output)
+  -- calling from a stream play event, redirect to the real stream URI
+    return mympd.http_redirect(yt_dlp(arguments.URI, yt_dlp_args_download))
 else
-  -- calling from user invocation/API
-  mympd.init()
-  local output = ytdlp(arguments.uri, "--flat-playlist --print '%(.{title,webpage_url,extractor,playlist_title,playlist_index})j' --extractor-args 'youtube:skip=hls,dash,translated_subs'")
-  local uris = {}
-  local x =json.decode(output)
-  uris[1] = mympd_state.mympd_uri .. "script/" .. partition .. "/" .. mympd.urlencode(scriptname) ..
-      "?title=" .. mympd.urlencode(x.title) ..
-      "&artist=" .. mympd.urlencode(x.extractor) ..
-      "&uri=" .. mympd.urlencode(x.webpage_url)
-  if x.playlist_title then
-      uris[1] = uris[1] ..
-      "&album=" .. mympd.urlencode(x.playlist_title) ..
-      "&track=" .. mympd.urlencode(x.playlist_index)
-  end
-  mympd.api("MYMPD_API_QUEUE_APPEND_URIS", {uris = uris, play = false})
+    -- URI argument is required
+    if arguments.URI == "" then
+      return "No URI submitted"
+    end
+
+    -- calling from user invocation/API
+    mympd.init()
+
+    -- get videos and convert to json array
+    local output = "[" ..string.gsub(yt_dlp(arguments.URI, yt_dlp_args_search), ",+$", "") .."]"
+
+    -- check result from yt-dlp
+    if string.sub(output, 1, 3) == "[NA" then
+      return "No streams found"
+    end
+
+    -- generate script URIs and collect metadata for the results
+    local uri_format = string.format(
+      "%sscript/%s/%s?URI=%%s",
+      mympd_state.mympd_uri,
+      partition,
+      mympd.urlencode(scriptname)
+    )
+    for i, x in ipairs(json.decode(output)) do
+        local uri = string.format(uri_format, mympd.urlencode(x.webpage_url))
+        local meta = {
+          title = x.title,
+          artist = x.extractor
+        }
+        if x.playlist_title then
+            meta["album"] = x.playlist_title
+            meta["track"] = x.playlist_index
+        end
+        -- append result to the queue and set tags
+        mympd.api("MYMPD_API_QUEUE_APPEND_URI_TAGS", {uri = uri, tags = meta, play = false})
+    end
 end

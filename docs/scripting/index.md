@@ -249,6 +249,8 @@ rc = mympd.gpio_toggle(gpio)
 
 Complete scripts can be found in the [repository](https://github.com/jcorporation/myMPD/tree/master/docs/scripting/scripts).
 
+- [Usage examples]({{site.baseurl}}/scripting/usage/)
+
 ### Simple
 
 ```lua
