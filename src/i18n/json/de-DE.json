@@ -432,7 +432,6 @@
     "Ligature": "Ligatur",
     "Light": "Hell",
     "Like": "Wertung",
-    "ListenBrainz Token": "ListenBrainz Token",
     "Lists": "Listen",
     "Load playlist": "Wiedergabeliste laden",
     "Load preset": "Voreinstellung laden",
@@ -539,7 +538,6 @@
     "Must be a valid filename": "Muss ein gültiger Dateiname sein",
     "Must be a valid tag name": "Muss ein gültiger Tag sein",
     "Must be a valid uri": "Muss eine gültige URI sein",
-    "Must be an alphanumeric value": "Muss alphanumerisch sein",
     "Must be none, auto or an absolute path": "Muss none, auto oder ein absoluter Pfad sein",
     "Must be off, auto, track or album": "Muss off, auto, track oder album sein",
     "Must be on, off or oneshot": "Muss on, off oder oneshot sein",
@@ -1168,5 +1166,6 @@
     "Invalid key": "Ungültiger Key",
     "Key": "Key",
     "Variables": "Variablen",
-    "New variable": "Neue Variable"
+    "New variable": "Neue Variable",
+    "Failure getting inserted song id": "Konnte eingefügte Song-ID nicht ermitteln"
 }
