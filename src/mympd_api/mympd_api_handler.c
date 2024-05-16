@@ -338,7 +338,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             struct t_list *arguments = list_new();
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.event", 0, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &parse_error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &parse_error) == true)
+                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, vcb_isname, 10, &parse_error) == true)
             {
                 enum script_start_events script_event = script_start_event_parse(sds_buf2);
                 rc = mympd_api_script_start(config->workdir, sds_buf1, config->lualibs, arguments, partition_state->name, true, script_event);
@@ -356,7 +356,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             //malloc list - it is used in another thread
             struct t_list *arguments = list_new();
             if (json_get_string(request->data, "$.params.script", 1, CONTENT_LEN_MAX, &sds_buf1, vcb_istext, &parse_error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &parse_error) == true)
+                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, vcb_isname, 10, &parse_error) == true)
             {
                 rc = mympd_api_script_start(config->workdir, sds_buf1, config->lualibs, arguments, partition_state->name, false, SCRIPT_START_EXTERN);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
@@ -423,7 +423,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         }
         case MYMPD_API_SETTINGS_SET: {
-            if (json_iterate_object(request->data, "$.params", mympd_api_settings_set, mympd_state, NULL, 1000, &parse_error) == true) {
+            if (json_iterate_object(request->data, "$.params", mympd_api_settings_set, mympd_state, NULL, NULL, 1000, &parse_error) == true) {
                 if (partition_state->conn_state == MPD_CONNECTED) {
                     //feature detection
                     mpd_client_mpd_features(mympd_state, partition_state);
@@ -445,7 +445,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't set playback options: MPD not connected");
                 break;
             }
-            if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
+            if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, partition_state, NULL, NULL, 100, &parse_error) == true) {
                 sdsclear(partition_state->jukebox.last_error);
                 if (partition_state->jukebox.mode != JUKEBOX_OFF &&
                     partition_state->queue_length == 0)
@@ -489,7 +489,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_CONNECTION_SAVE: {
             sds old_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
             sds old_stickerdb_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->stickerdb->mpd_state->mpd_host, mympd_state->stickerdb->mpd_state->mpd_port, mympd_state->stickerdb->mpd_state->mpd_pass);
-            if (json_iterate_object(request->data, "$.params", mympd_api_settings_connection_save, mympd_state, NULL, 100, &parse_error) == true) {
+            if (json_iterate_object(request->data, "$.params", mympd_api_settings_connection_save, mympd_state, NULL, NULL, 100, &parse_error) == true) {
                 // primary mpd connection
                 sds new_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
                 if (strcmp(old_mpd_settings, new_mpd_settings) != 0) {
@@ -665,7 +665,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_string(request->data, "$.params.partition", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true &&
                 json_get_int(request->data, "$.params.id", -1, LIST_TRIGGER_MAX, &int_buf1, &parse_error) == true &&
                 json_get_int_max(request->data, "$.params.event", &int_buf2, &parse_error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", &trigger_data->arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, &parse_error) == true)
+                json_get_object_string(request->data, "$.params.arguments", &trigger_data->arguments, vcb_isname, vcb_isname, SCRIPT_ARGUMENTS_MAX, &parse_error) == true)
             {
                 rc = mympd_api_trigger_save(&mympd_state->trigger_list, sds_buf1, int_buf1, int_buf2, sds_buf2, trigger_data, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
@@ -715,7 +715,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             struct t_list attributes;
             list_init(&attributes);
             if (json_get_uint(request->data, "$.params.outputId", 0, MPD_OUTPUT_ID_MAX, &uint_buf1, &parse_error) == true &&
-                json_get_object_string(request->data, "$.params.attributes", &attributes, vcb_isalnum, 10, &parse_error) == true)
+                json_get_object_string(request->data, "$.params.attributes", &attributes, vcb_isalnum, vcb_isalnum, 10, &parse_error) == true)
             {
                 rc = mympd_api_output_attributes_set(partition_state, uint_buf1, &attributes, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc, JSONRPC_FACILITY_MPD, error);
@@ -913,7 +913,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             struct t_list tags;
             list_init(&tags);
             if (json_get_string(request->data, "$.params.uri", 1, URI_LENGTH_MAX, &sds_buf1, vcb_isstreamuri, &parse_error) &&
-                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, 20, &parse_error) == true &&
+                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, vcb_isname, 20, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
             {
                 rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_URI_TAGS
@@ -931,7 +931,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             struct t_list tags;
             list_init(&tags);
             if (json_get_string(request->data, "$.params.uri", 1, URI_LENGTH_MAX, &sds_buf1, vcb_isstreamuri, &parse_error) &&
-                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, 20, &parse_error) == true &&
+                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, vcb_isname, 20, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
@@ -1567,7 +1567,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             break;
         case MYMPD_API_PARTITION_SAVE:
-            rc = json_iterate_object(request->data, "$.params", mympd_api_settings_partition_set, partition_state, NULL, 1000, &parse_error);
+            rc = json_iterate_object(request->data, "$.params", mympd_api_settings_partition_set, partition_state, NULL, NULL, 1000, &parse_error);
             if (rc == true) {
                 settings_to_webserver(mympd_state);
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);

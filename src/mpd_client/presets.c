@@ -21,7 +21,7 @@
  * Applies a preset
  * @param partition_state pointer to partition state
  * @param preset_name preset name
- * @param error pointer to alreay allocated sds string to append the error message
+ * @param error pointer to already allocated sds string to append the error message
  * @return true on success, else false
  */
 bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sds *error) {
@@ -29,7 +29,7 @@ bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sd
     if (preset != NULL) {
         struct t_jsonrpc_parse_error parse_error;
         jsonrpc_parse_error_init(&parse_error);
-        if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
+        if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, NULL, 100, &parse_error) == true) {
             if (partition_state->jukebox.mode != JUKEBOX_OFF) {
                 mympd_api_request_jukebox_restart(partition_state->name);
             }

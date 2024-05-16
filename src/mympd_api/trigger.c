@@ -368,7 +368,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
         if (json_get_string(line, "$.name", 1, FILENAME_LEN_MAX, &name, vcb_isfilename, NULL) == true &&
             json_get_string(line, "$.script", 0, FILENAME_LEN_MAX, &trigger_data->script, vcb_isfilename, NULL) == true &&
             json_get_int_max(line, "$.event", &event, NULL) == true &&
-            json_get_object_string(line, "$.arguments", &trigger_data->arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, NULL) == true)
+            json_get_object_string(line, "$.arguments", &trigger_data->arguments, vcb_isalnum, vcb_isname, SCRIPT_ARGUMENTS_MAX, NULL) == true)
         {
             if (json_get_string(line, "$.partition", 1, NAME_LEN_MAX, &partition, vcb_isname, NULL) == false) {
                 //fallback to default partition
