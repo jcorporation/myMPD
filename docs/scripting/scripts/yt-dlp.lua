@@ -63,7 +63,7 @@ else
         }
         if x.playlist_title then
             meta["album"] = x.playlist_title
-            meta["track"] = x.playlist_index
+            meta["track"] = tostring(x.playlist_index)
         end
         -- append result to the queue and set tags
         mympd.api("MYMPD_API_QUEUE_APPEND_URI_TAGS", {uri = uri, tags = meta, play = false})
