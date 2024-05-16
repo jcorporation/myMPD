@@ -226,7 +226,7 @@ bool mympd_api_queue_insert_uri_tags(struct t_partition_state *partition_state, 
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current = tags->head;
         while (current != NULL) {
-            enum mpd_tag_type tag = mpd_tag_name_parse(current->key);
+            enum mpd_tag_type tag = mpd_tag_name_iparse(current->key);
             if (mpd_send_add_tag_id(partition_state->conn, (unsigned)id, tag, current->value_p) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_add_tag_id");
                 break;
