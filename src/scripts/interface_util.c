@@ -26,7 +26,9 @@ int lua_util_hash(lua_State *lua_vm) {
     const char *str = lua_tostring(lua_vm, 1);
     const char *alg = lua_tostring(lua_vm, 2);
 
-    if (str == NULL) {
+    if (str == NULL ||
+        alg == NULL)
+    {
         MYMPD_LOG_ERROR(NULL, "Lua - util_hash: NULL string");
         return luaL_error(lua_vm, "NULL string");
     }
