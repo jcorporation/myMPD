@@ -32,7 +32,7 @@ sds mpd_worker_playlist_content_enumerate(struct t_partition_state *partition_st
         buffer = jsonrpc_end(buffer);
     }
     else {
-        jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
     }
     FREE_SDS(error);
     return buffer;
