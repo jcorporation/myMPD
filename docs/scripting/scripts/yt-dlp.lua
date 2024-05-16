@@ -24,7 +24,7 @@ local yt_dlp_args_download = [[\
 
 local yt_dlp_args_search = [[\
   --flat-playlist \
-  --print '%(.{webpage_url, title,extractor,playlist_title,playlist_index})j,' \
+  --print '%(.{webpage_url,title,extractor,playlist_title,playlist_index})j,' \
   --extractor-args 'youtube:skip=hls,dash,translated_subs'\
 ]]
 
