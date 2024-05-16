@@ -206,13 +206,13 @@ UTEST(jsonrpc, test_json_get_object_string) {
     list_init(&l);
     //valid
     sds data = sdsnew("{\"key1\": {\"k1\": \"string1\", \"k2\": \"string2\"}}");
-    ASSERT_TRUE(json_get_object_string(data, "$.key1", &l, vcb_isname, 10, NULL));
+    ASSERT_TRUE(json_get_object_string(data, "$.key1", &l, vcb_isname, vcb_isname,10, NULL));
     list_clear(&l);
     //invalid - validation error
-    ASSERT_FALSE(json_get_object_string(data, "$.key1", &l, vcb_ishexcolor, 10, NULL));
+    ASSERT_FALSE(json_get_object_string(data, "$.key1", &l, vcb_isalnum, vcb_ishexcolor, 10, NULL));
     list_clear(&l);
     //invalid - too many array elements
-    ASSERT_TRUE(json_get_object_string(data, "$.key1", &l, vcb_isname, 1, NULL));
+    ASSERT_TRUE(json_get_object_string(data, "$.key1", &l, vcb_isname, vcb_isname,1, NULL));
     ASSERT_EQ(1U, l.length);
     FREE_SDS(data);
     list_clear(&l);
