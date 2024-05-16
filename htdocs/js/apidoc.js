@@ -1330,11 +1330,6 @@ const APImethods = {
                 "example": "SYNCEDLYRICS",
                 "desc": "Vorbis tag for synced lyrics"
             },
-            "listenbrainzToken": {
-                "type": APItypes.string,
-                "example": "token",
-                "desc": "Your ListenBrainz token"
-            },
             "webuiSettings": {
                 "params": {
                     "clickSong": {
@@ -1671,8 +1666,8 @@ const APImethods = {
         "params": {
             "view": {
                 "type": APItypes.string,
-                "example": "fieldsQueueCurrent",
-                "desc": "Valid values: fieldsQueueCurrent, fieldsQueueLastPlayed, fieldsSearch, fieldsBrowseDatabaseAlbumDetail, fieldsBrowseDatabaseAlbumList, fieldsBrowsePlaylistDetail, fieldsBrowseFilesystem, fieldsPlayback, fieldsQueueJukeboxAlbum, fieldsQueueJukeboxSong, fieldsBrowseRadioWebradiodb, fieldsBrowseRadioRadiobrowser"
+                "example": "viewQueueCurrent",
+                "desc": "Valid values: viewQueueCurrent, viewQueueLastPlayed, viewSearch, viewBrowseDatabaseAlbumDetail, viewBrowseDatabaseAlbumList, viewBrowsePlaylistDetail, viewBrowseFilesystem, viewPlayback, viewQueueJukeboxAlbum, viewQueueJukeboxSong, viewBrowseRadioWebradiodb, viewBrowseRadioRadiobrowser"
             },
             "mode": {
                 "type": APItypes.string,
