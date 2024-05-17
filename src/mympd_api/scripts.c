@@ -398,6 +398,11 @@ static void *script_execute_async(void *script_thread_arg) {
         populate_lua_global_vars(lua_vm, script_arg);
         //execute script
         MYMPD_LOG_DEBUG(NULL, "Start script");
+        sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT,
+            JSONRPC_SEVERITY_INFO, "Script %{script} started",
+            2, "script", script_arg->script_name);
+        ws_notify(buffer, script_arg->partition);
+        FREE_SDS(buffer);
         rc = lua_pcall(lua_vm, 0, 1, 0);
         MYMPD_LOG_DEBUG(NULL, "End script");
     }
