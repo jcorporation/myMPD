@@ -1,4 +1,8 @@
 -- {"order":1,"arguments":["uri","vote","type"]}
+if var_listenbrainz_token == nil then
+  return "No ListenBrainz token set"
+end
+
 mympd.init()
 uri = "https://api.listenbrainz.org/1/feedback/recording-feedback"
 headers = "Content-type: application/json\r\n"..

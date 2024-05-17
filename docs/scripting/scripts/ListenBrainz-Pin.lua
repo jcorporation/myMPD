@@ -1,4 +1,8 @@
 -- {"order":1,"arguments":["uri","blurb_content","pinned_until"]}
+if var_listenbrainz_token == nil then
+  return "No ListenBrainz token set"
+end
+
 mympd.init()
 pin_uri = "https://api.listenbrainz.org/1/pin"
 unpin_uri = "https://api.listenbrainz.org/1/pin/unpin"
