@@ -194,6 +194,8 @@ decoded = mympd.urldecode(string, form_url_decode)
 
 ### Logging
 
+Logs messages to the myMPD log.
+
 ```lua
 mympd.log(loglevel, string)
 ```
