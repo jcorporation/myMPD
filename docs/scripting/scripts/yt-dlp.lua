@@ -99,21 +99,26 @@ else
             track = track.. "/" ..x.playlist_count
         end
 
+        local disc = x.disc_number or x.season_number
+        if disc then
+            disc = tostring(disc)
+        end
+
         -- build metadata table
         local meta = {
           title   = title,
           artist  = x.artist or x.album_artist or x.composer or
                     x.creator or x.channel or x.uploader or x.extractor,
           album   = album,
-          disc    = tostring(x.disc_number or x.season_number),
+          disc    = disc,
           track   = track,
           genre   = x.genre,
           date    = x.release_date,
-          comment = x.description.. ", URL: " ..uri.. ", yt-dlp extractor: " ..x.extractor
+          comment = string.gsub(x.description, "[\r\n]+", " ")..
+                    " [url: " ..uri.. " | extractor: " ..x.extractor.. "]"
         }
 
         -- append result to the queue and set tags
         mympd.api("MYMPD_API_QUEUE_APPEND_URI_TAGS", {uri = uri, tags = meta, play = false})
     end
 end
-
