@@ -108,7 +108,7 @@ else
           disc    = tostring(x.disc_number or x.season_number),
           track   = track,
           genre   = x.genre,
-          date    = x.release_date
+          date    = x.release_date,
           comment = x.description.. ", URL: " ..uri.. ", yt-dlp extractor: " ..x.extractor
         }
 
