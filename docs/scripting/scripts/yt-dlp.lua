@@ -2,7 +2,7 @@
 -- yt-dlp helper functions
 local function yt_dlp_call(uri, args, parse_json)
     local cmd = string.format("yt-dlp %s '%s' 2>/dev/null", args, uri)
-    print("[yt-dlp] running command: " ..cmd)
+    mympd.log(6, "[yt-dlp] running command: " ..cmd)
     local output = mympd.os_capture(cmd)
 
     -- return if output is nil/the empty string, or we don't have to parse json
@@ -12,7 +12,7 @@ local function yt_dlp_call(uri, args, parse_json)
 
     -- check result from yt-dlp for malformed format or bad data
     if string.sub(output, 1, 2) == "NA" then
-        print("[yt-dlp] bad format or no metadata: " ..output)
+        mympd.log(3, "[yt-dlp] bad format or no metadata: " ..output)
         error("yt-dlp failed to parse --format string, or returned no usable metadata!")
     end
 
