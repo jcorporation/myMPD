@@ -47,6 +47,7 @@ myMPD provides custom lua functions through the `mympd` lua library.
 | `mympd.http_redirect` | Returns a valid HTTP redirect message. |
 | `mympd.http_reply` | Returns a valid HTTP response message. |
 | `mympd.init` | Initializes the [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state). |
+| `mympd.log` | Logging to myMPD log. |
 | `mympd.os_capture` | Executes a system command and capture its output. |
 | `mympd.urldecode` | Decodes a URL encoded string. |
 | `mympd.urlencode` | URL encodes a string. |
@@ -189,6 +190,32 @@ decoded = mympd.urldecode(string, form_url_decode)
 | --------- | ---- | ----------- |
 | string | string | String to encode/decode |
 | form_url_decode | boolean | Decode as form url |
+{: .table .table-sm }
+
+### Logging
+
+```lua
+mympd.log(loglevel, string)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| string | string | String to log |
+| loglevel | number | Syslog log level |
+{: .table .table-sm }
+
+| LOGLEVEL | DESCRIPTION |
+| -------- | ----------- |
+| 0 | Emergency |
+| 1 | Alert |
+| 2 | Critical |
+| 3 | Error |
+| 4 | Warning |
+| 5 | Notice |
+| 6 | Info |
+| 7 | Debug |
 {: .table .table-sm }
 
 ### HTTP replies

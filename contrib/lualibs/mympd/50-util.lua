@@ -3,6 +3,13 @@
 ---
 
 --
+-- Logging
+--
+function mympd.log(loglevel, string)
+  return mympd_util_log(partition .. " - " .. scriptname, loglevel, string)
+end
+
+--
 -- Return SHA1 hash of string
 --
 function mympd.hash_sha1(string)
