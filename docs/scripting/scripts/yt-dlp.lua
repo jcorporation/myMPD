@@ -104,6 +104,11 @@ else
             disc = tostring(disc)
         end
 
+        local description = ""
+        if x.description then
+            description = string.gsub(x.description, "[\r\n]+", " ")
+        end
+
         -- build metadata table
         local meta = {
           title   = title,
@@ -114,8 +119,7 @@ else
           track   = track,
           genre   = x.genre,
           date    = x.release_date,
-          comment = string.gsub(x.description, "[\r\n]+", " ")..
-                    " [url: " ..uri.. " | extractor: " ..x.extractor.. "]"
+          comment = description.. " [url: " ..uri.. " | extractor: " ..x.extractor.. "]"
         }
 
         -- append result to the queue and set tags
