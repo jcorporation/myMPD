@@ -1545,9 +1545,29 @@ uiElements.modalHomeIconLigatureDropdown = BSN.Dropdown.getInstance(elGetById('m
 uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('modalMountsNeighborsBtn'));
 
 const LUAfunctions = {
+    "mympd.hash_sha1": {
+        "desc": "SHA1 hash of string.",
+        "func": "hash = mympd.hash_sha1(string)",
+        "feat": ""
+    },
+    "mympd.hash_sha256": {
+        "desc": "SHA256 hash of string.",
+        "func": "hash = mympd.hash_sha256(string)",
+        "feat": ""
+    },
     "mympd.http_client": {
         "desc": "HTTP client",
         "func": "rc, code, header, body = mympd.http_client(method, uri, headers, payload)",
+        "feat": ""
+    },
+    "mympd.http_redirect": {
+        "desc": "Sends a HTTP redirect",
+        "func": "return mympd.http_reply(location)",
+        "feat": ""
+    },
+    "mympd.http_reply": {
+        "desc": "Sends a HTTP reply",
+        "func": "return mympd.http_reply(status, header, body)",
         "feat": ""
     },
     "mympd.init": {
@@ -1555,8 +1575,23 @@ const LUAfunctions = {
         "func": "mympd.init()",
         "feat": ""
     },
+    "mympd.log": {
+        "desc": "Logs messages to the myMPD log.",
+        "func": "mympd.log(loglevel, message)",
+        "feat": ""
+    },
+    "mympd.urldecode": {
+        "desc": "URL decodes a string.",
+        "func": "decoded = mympd.urlencode(string, false)",
+        "feat": ""
+    },
+    "mympd.urlencode": {
+        "desc":	"URL encodes a string.",
+        "func": "encoded = mympd.urlencode(string)",
+        "feat": ""
+    },
     "mympd.os_capture": {
-        "desc":	"Executes a system command and capture its output.",
+        "desc": "Executes a system command and capture its output.",
         "func": "output = mympd.os_capture(command)",
         "feat": ""
     },
