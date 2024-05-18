@@ -12,8 +12,8 @@
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/random.h"
+#include "src/mympd_api/lua_mympd_state.h"
 #include "src/scripts/interface.h"
-#include "src/scripts/lua_mympd_state.h"
 
 /**
  * Function that implements mympd_api lua function
@@ -25,24 +25,26 @@ int lua_mympd_api(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 2) {
         MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: invalid number of arguments");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     //get method
     const char *method = lua_tostring(lua_vm, 1);
     if (method == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: method is a NULL string");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "NULL string");
     }
     enum mympd_cmd_ids method_id = get_cmd_id(method);
     if (method_id == GENERAL_API_UNKNOWN) {
         MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: Invalid method \"%s\"", method);
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid method");
     }
-    //get partition
-    lua_getglobal(lua_vm, "partition");
-    const char *partition = lua_tostring(lua_vm, -1);
+    const char *partition = get_lua_global_partition(lua_vm);
     if (partition == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: Invalid partition");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid partition");
     }
     //generate a request id
@@ -52,6 +54,7 @@ int lua_mympd_api(lua_State *lua_vm) {
     const char *params = lua_tostring(lua_vm, 2);
     if (params == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: params is a NULL string");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "NULL string");
     }
     if (params[0] != '{') {
@@ -64,7 +67,7 @@ int lua_mympd_api(lua_State *lua_vm) {
     }
     request->data = sdscatlen(request->data, "}", 1);
     mympd_queue_push(mympd_api_queue, request, request_id);
-
+    lua_pop(lua_vm, n);
     int i = 0;
     while (s_signal_received == 0 && i < 60) {
         i++;

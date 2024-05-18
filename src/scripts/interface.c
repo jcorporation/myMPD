@@ -7,7 +7,7 @@
 #include "compile_time.h"
 #include "src/scripts/interface.h"
 
-#include "src/scripts/lua_mympd_state.h"
+#include "src/mympd_api/lua_mympd_state.h"
 
 /**
  * Populates the lua table from the lua_mympd_state struct
@@ -82,4 +82,15 @@ void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value) 
     lua_pushstring(lua_vm, key);
     lua_pushboolean(lua_vm, value);
     lua_settable(lua_vm, -3);
+}
+
+
+const char *get_lua_global_partition(lua_State *lua_vm) {
+    lua_getglobal(lua_vm, "partition");
+    return lua_tostring(lua_vm, -1);
+}
+
+const char *get_lua_global_scriptname(lua_State *lua_vm) {
+    lua_getglobal(lua_vm, "scriptname");
+    return lua_tostring(lua_vm, -1);
 }

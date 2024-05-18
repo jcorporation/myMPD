@@ -6,18 +6,18 @@
 -- Notifications
 --
 function mympd.notify_client(severity, message)
-  return mympd_util_notify(partition, requestid, severity, message)
+  return mympd_util_notify(requestid, severity, message)
 end
 
 function mympd.notify_partition(severity, message)
-  return mympd_util_notify(partition, 0, severity, message)
+  return mympd_util_notify(0, severity, message)
 end
 
 --
 -- Logging
 --
 function mympd.log(loglevel, message)
-  return mympd_util_log(partition .. " - " .. scriptname, loglevel, message)
+  return mympd_util_log(loglevel, message)
 end
 
 --

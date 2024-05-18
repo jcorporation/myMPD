@@ -25,11 +25,13 @@ int lua_mygpio_gpio_blink(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 4) {
         MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_blink: invalid number of arguments");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *mygpiod_socket = lua_tostring(lua_vm, 1);
     if (mygpiod_socket == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_blink: mygpiod_socket is a NULL string");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "NULL string");
     }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
@@ -39,10 +41,12 @@ int lua_mygpio_gpio_blink(lua_State *lua_vm) {
     if (mygpio_conn != NULL) {
         mygpio_gpioblink(mygpio_conn, gpio, timeout_ms, interval_ms);
         mygpio_connection_free(mygpio_conn);
+        lua_pop(lua_vm, n);
         lua_pushinteger(lua_vm, 0);
         //return response count
         return 1;
     }
+    lua_pop(lua_vm, n);
     return luaL_error(lua_vm, "Unable to connect to myGPIOd");
 }
 
@@ -55,11 +59,13 @@ int lua_mygpio_gpio_get(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 2) {
         MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_get: invalid number of arguments");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *mygpiod_socket = lua_tostring(lua_vm, 1);
     if (mygpiod_socket == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_get: mygpiod_socket is a NULL string");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "NULL string");
     }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
@@ -67,10 +73,12 @@ int lua_mygpio_gpio_get(lua_State *lua_vm) {
     if (mygpio_conn != NULL) {
         int value = mygpio_gpioget(mygpio_conn, gpio);
         mygpio_connection_free(mygpio_conn);
+        lua_pop(lua_vm, n);
         lua_pushinteger(lua_vm, value);
         //return response count
         return 1;
     }
+    lua_pop(lua_vm, n);
     return luaL_error(lua_vm, "Unable to connect to myGPIOd");
 }
 
@@ -83,11 +91,13 @@ int lua_mygpio_gpio_set(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 3) {
         MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_set: invalid number of arguments");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *mygpiod_socket = lua_tostring(lua_vm, 1);
     if (mygpiod_socket == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_set: mygpiod_socket is a NULL string");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "NULL string");
     }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
@@ -96,10 +106,12 @@ int lua_mygpio_gpio_set(lua_State *lua_vm) {
     if (mygpio_conn != NULL) {
         mygpio_gpioset(mygpio_conn, gpio, value);
         mygpio_connection_free(mygpio_conn);
+        lua_pop(lua_vm, n);
         lua_pushinteger(lua_vm, 0);
         //return response count
         return 1;
     }
+    lua_pop(lua_vm, n);
     return luaL_error(lua_vm, "Unable to connect to myGPIOd");
 }
 
@@ -112,11 +124,13 @@ int lua_mygpio_gpio_toggle(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 2) {
         MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_toggle: invalid number of arguments");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *mygpiod_socket = lua_tostring(lua_vm, 1);
     if (mygpiod_socket == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_toggle: mygpiod_socket is a NULL string");
+        lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "NULL string");
     }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
@@ -124,10 +138,12 @@ int lua_mygpio_gpio_toggle(lua_State *lua_vm) {
     if (mygpio_conn != NULL) {
         mygpio_gpiotoggle(mygpio_conn, gpio);
         mygpio_connection_free(mygpio_conn);
+        lua_pop(lua_vm, n);
         lua_pushinteger(lua_vm, 0);
         //return response count
         return 1;
     }
+    lua_pop(lua_vm, n);
     return luaL_error(lua_vm, "Unable to connect to myGPIOd");
 }
 
