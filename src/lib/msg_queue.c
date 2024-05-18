@@ -14,7 +14,7 @@
 #include "src/lib/mem.h"
 
 #ifdef MYMPD_ENABLE_LUA
-    #include "src/scripts/lua_mympd_state.h"
+    #include "src/mympd_api/lua_mympd_state.h"
 #endif
 
 #include <errno.h>

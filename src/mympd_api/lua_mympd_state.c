@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/scripts/lua_mympd_state.h"
+#include "src/mympd_api/lua_mympd_state.h"
 
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
