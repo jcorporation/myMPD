@@ -1561,12 +1561,12 @@ const LUAfunctions = {
         "feat": ""
     },
     "mympd.http_redirect": {
-        "desc": "Sends a HTTP redirect",
+        "desc": "Sends a HTTP redirect.",
         "func": "return mympd.http_reply(location)",
         "feat": ""
     },
     "mympd.http_reply": {
-        "desc": "Sends a HTTP reply",
+        "desc": "Sends a HTTP reply.",
         "func": "return mympd.http_reply(status, header, body)",
         "feat": ""
     },

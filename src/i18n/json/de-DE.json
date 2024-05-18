@@ -724,7 +724,7 @@
     "Saving timer failed": "Timer konnte nicht gespeichert werden",
     "Scale ratio": "Skalierungsverhätnis",
     "Script": "Skript",
-    "Script %{script} executed successfully": "Skript %{script} erfolgreich gestartet",
+    "Script %{script} executed successfully": "Skript %{script} erfolgreich ausgeführt",
     "Script arguments": "Skriptparameter",
     "Script name": "Skriptname",
     "Script syntax is valid": "Syntax des Scripts ist gültig",
@@ -1167,5 +1167,12 @@
     "Key": "Key",
     "Variables": "Variablen",
     "New variable": "Neue Variable",
-    "Failure getting inserted song id": "Konnte eingefügte Song-ID nicht ermitteln"
+    "Failure getting inserted song id": "Konnte eingefügte Song-ID nicht ermitteln",
+    "Logs messages to the myMPD log.": "Log Meldungen in das myMPD Log.",
+    "SHA1 hash of string.": "SHA1 Hash",
+    "SHA256 hash of string.": "SHA256 Hash",
+    "Sends a HTTP redirect.": "Sendet einen HTTP-Redirect.",
+    "Sends a HTTP reply.": "Sendet eine HTTP-Response.",
+    "URL decodes a string.": "URL Dekodierung",
+    "URL encodes a string.": "URL Kodierung"
 }
