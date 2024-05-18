@@ -14,12 +14,13 @@ The second type of script are called by http requests (`/script/<partition>/<scr
 
 myMPD populates automatically some global variables.
 
-| VARIABLE | DESCRIPTION |
-| -------- | ----------- |
-| `arguments` | Script arguments |
-| `partition` | MPD partition |
-| `scriptevent` | Script start event: `extern`, `http`, `timer`, `trigger` or `user` |
-| `scriptname` | Script name |
+| VARIABLE | TYPE | DESCRIPTION |
+| -------- | ---- | ----------- |
+| `arguments` | table | Script arguments |
+| `partition` | string | MPD partition |
+| `requestid` | number | Jsonrpc request id |
+| `scriptevent` | string | Script start event: `extern`, `http`, `timer`, `trigger` or `user` |
+| `scriptname` | string | Script name |
 
 ### Arguments
 
@@ -48,6 +49,8 @@ myMPD provides custom lua functions through the `mympd` lua library.
 | `mympd.http_reply` | Returns a valid HTTP response message. |
 | `mympd.init` | Initializes the [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state). |
 | `mympd.log` | Logging to myMPD log. |
+| `mympd.notify_client` | Sends a notification to the client. |
+| `mympd.notify_partition` | Sends a notification to all clients in a partition. |
 | `mympd.os_capture` | Executes a system command and capture its output. |
 | `mympd.urldecode` | Decodes a URL encoded string. |
 | `mympd.urlencode` | URL encodes a string. |
@@ -77,19 +80,29 @@ rc, result = mympd.api("method", params)
 | result | lua table | json result or error |
 {: .table .table-sm }
 
-### Hashing functions
+### Accessing myMPD and MPD status information
+
+Populates the lua table `mympd_state` with configuration values and current status of myMPD and MPD.
+
+Additionally all user defined variables are populates in this table. They are prefixed with `var_`.
 
 ```lua
-sha1_hash = mympd.hash_sha1(string)
-sha256_hash = mympd.hash_sha256(string)
+mympd.init()
 ```
 
 **Parameters:**
 
-| PARAMETER | TYPE | DESCRIPTION |
-| --------- | ---- | ----------- |
-| string | string | String to hash |
+No parameters needed.
+
+**Returns:**
+
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| rc | integer | response code: 0 = success, 1 = error |
+| result | lua table | jsonrpc result or error as lua table |
 {: .table .table-sm }
+
+- [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state)
 
 ### HTTP client
 
@@ -118,30 +131,6 @@ rc, code, header, body = mympd.http_client(method, uri, headers, payload)
 | header | string | http headers |
 | body | string | http body |
 {: .table .table-sm }
-
-### Accessing myMPD and MPD status information
-
-Populates the lua table `mympd_state` with configuration values and current status of myMPD and MPD.
-
-Additionally all user defined variables are populates in this table. They are prefixed with `var_`.
-
-```lua
-mympd.init()
-```
-
-**Parameters:**
-
-No parameters needed.
-
-**Returns:**
-
-| FIELD | TYPE | DESCRIPTION |
-| ----- | ---- | ----------- |
-| rc | integer | response code: 0 = success, 1 = error |
-| result | lua table | jsonrpc result or error as lua table |
-{: .table .table-sm }
-
-- [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state)
 
 ### Execute a system command
 
@@ -177,6 +166,20 @@ systemctl daemon-reload
 systemctl restart mympd
 ```
 
+### Hashing functions
+
+```lua
+sha1_hash = mympd.hash_sha1(string)
+sha256_hash = mympd.hash_sha256(string)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| string | string | String to hash |
+{: .table .table-sm }
+
 ### URL encoding and decoding
 
 ```lua
@@ -197,14 +200,14 @@ decoded = mympd.urldecode(string, form_url_decode)
 Logs messages to the myMPD log.
 
 ```lua
-mympd.log(loglevel, string)
+mympd.log(loglevel, message)
 ```
 
 **Parameters:**
 
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
-| string | string | String to log |
+| message | string | Message to log |
 | loglevel | number | Syslog log level |
 {: .table .table-sm }
 
@@ -219,6 +222,23 @@ mympd.log(loglevel, string)
 | 6 | Info |
 | 7 | Debug |
 {: .table .table-sm }
+
+### Notifications
+
+```lua
+-- Send a notification to the client that has started the script
+mympd.notify_client(severity, message)
+
+-- Send a notification to all clients in the partition from which the client started the script
+mympd.notify_partition(severity, message)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| severity | number | 0 = info, 1 = warn, 2 = error|
+| message | string | Message to send. |
 
 ### HTTP replies
 

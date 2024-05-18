@@ -421,13 +421,13 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
-    const unsigned clientId = response->id / 1000;
-    //const unsigned requestId = response->id % 1000;
+    const unsigned client_id = response->id / 1000;
+    //const unsigned request_id = response->id % 1000;
     while (nc != NULL) {
         if (nc->is_websocket == 1U) {
             struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
-            if (clientId == frontend_nc_data->id) {
-                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id \"%lu\", jsonrpc client id %u: %s", nc->id, clientId, response->data);
+            if (client_id == frontend_nc_data->id) {
+                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id \"%lu\", jsonrpc client id %u: %s", nc->id, client_id, response->data);
                 mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
                 send_count++;
                 break;

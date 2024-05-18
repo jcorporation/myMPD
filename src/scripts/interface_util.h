@@ -11,6 +11,7 @@
 #include <lua.h>
 #include <lualib.h>
 
+int lua_util_notify(lua_State *lua_vm);
 int lua_util_log(lua_State *lua_vm);
 int lua_util_hash(lua_State *lua_vm);
 int lua_util_urlencode(lua_State *lua_vm);

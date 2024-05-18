@@ -73,7 +73,7 @@ int lua_mympd_api(lua_State *lua_vm) {
             MYMPD_LOG_DEBUG(NULL, "Got response: %s", response->data);
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                 //this populates a lua table with some MPD and myMPD states
-                MYMPD_LOG_DEBUG(NULL, "Populating lua global state table mympd");
+                MYMPD_LOG_DEBUG(NULL, "Populating global lua table mympd_state");
                 if (response->extra != NULL) {
                     struct t_list *lua_mympd_state = (struct t_list *)response->extra;
                     lua_newtable(lua_vm);

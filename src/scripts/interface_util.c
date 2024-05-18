@@ -7,10 +7,47 @@
 #include "compile_time.h"
 #include "src/scripts/interface_util.h"
 
+#include "src/lib/api.h"
+#include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 
 #include <string.h>
+
+/**
+ * Function that notifies all clients in a partition or a specific client
+ * @param lua_vm lua instance
+ * @return return code
+ */
+int lua_util_notify(lua_State *lua_vm) {
+    int n = lua_gettop(lua_vm);
+    if (n != 4) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: invalid number of arguments");
+        return luaL_error(lua_vm, "Invalid number of arguments");
+    }
+    const char *partition = lua_tostring(lua_vm, 1);
+    unsigned request_id = (unsigned)lua_tonumber(lua_vm, 2);
+    unsigned severity = (unsigned)lua_tonumber(lua_vm, 3);
+    const char *message = lua_tostring(lua_vm, 4);
+    if (partition == NULL ||
+        message == NULL)
+    {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: NULL string");
+        return luaL_error(lua_vm, "NULL string");
+    }
+    if (severity >= JSONRPC_SEVERITY_MAX) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: invalid severity");
+        return luaL_error(lua_vm, "Invalid severity");
+    }
+    sds message_sds = jsonrpc_notify(sdsempty(), JSONRPC_FACILITY_SCRIPT, severity, message);
+    if (request_id == 0) {
+        ws_notify(message_sds, partition);
+    }
+    else {
+        ws_notify_client(message_sds, request_id);
+    }
+    return 0;
+}
 
 /**
  * Function that implements logging

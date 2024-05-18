@@ -260,7 +260,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, unsigned request_id, sds scrip
  * @return true on success, else false
  */
 bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list *arguments,
-        const char *partition, bool localscript, enum script_start_events start_event)
+        const char *partition, bool localscript, enum script_start_events start_event, unsigned request_id)
 {
     struct t_script_thread_arg *script_thread_arg = malloc_assert(sizeof(struct t_script_thread_arg));
     script_thread_arg->lualibs = lualibs;
@@ -269,6 +269,7 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
     script_thread_arg->partition = sdsnew(partition);
     script_thread_arg->start_event = start_event;
     script_thread_arg->conn_id = 0; // not used for this type of scripts
+    script_thread_arg->request_id = request_id;
     if (localscript == true) {
         script_thread_arg->script_name = sdsdup(script);
         script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);

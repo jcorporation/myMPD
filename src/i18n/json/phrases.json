@@ -734,7 +734,6 @@
 {"term":"Scale ratio"},
 {"term":"Script"},
 {"term":"Script %{script} executed successfully"},
-{"term":"Script %{script} started"},
 {"term":"Script arguments"},
 {"term":"Script name"},
 {"term":"Script syntax is valid"},

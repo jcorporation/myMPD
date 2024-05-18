@@ -33,6 +33,7 @@ struct t_script_thread_arg {
     struct t_list *arguments;              //!< argumentlist
     enum script_start_events start_event;  //!< script start event
     unsigned long conn_id;                 //!< mongoose connection id
+    unsigned request_id;                   //!< jsonrpc request id
 };
 
 const char *script_start_event_name(enum script_start_events start_event);

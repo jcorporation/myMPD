@@ -23,7 +23,11 @@ The config setting for the ListenBrainz API token was removed in favor of a new 
 
 ### Changelog
 
-- Feat: Scripts can now handle http requests #1279
+- Feat: Scripts can handle http requests #1279
+- Feat: Send log messages from scripts
+- Feat: Send notifications from scripts #1280
+- Feat: Url encoding/decoding functions for scripts
+- Feat: Hashing functions for scripts
 - Feat: Set custom variables for scripts #1265
 - Feat: Implement hashing and url handling functions for lua
 - Feat: Use EC private keys for SSL certificates

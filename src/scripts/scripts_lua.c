@@ -28,7 +28,7 @@
 // Private definitions
 
 static void register_lua_functions(lua_State *lua_vm);
-static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
+static int mympd_luaopen(lua_State *lua_vm, const char *lualib);
 
 // Public functions
 
@@ -47,8 +47,12 @@ lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc) {
     if (strcmp(script_arg->lualibs, "all") == 0) {
         MYMPD_LOG_DEBUG(NULL, "Open all standard lua libs");
         luaL_openlibs(lua_vm);
-        mympd_luaopen(lua_vm, "json");
-        mympd_luaopen(lua_vm, "mympd");
+        if (mympd_luaopen(lua_vm, "json") == 1 ||
+            mympd_luaopen(lua_vm, "mympd") == 1)
+        {
+            lua_close(lua_vm);
+            return NULL;
+        }
     }
     else {
         int count = 0;
@@ -68,9 +72,15 @@ lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc) {
             else if (strcmp(tokens[i], "debug") == 0)     { luaL_requiref(lua_vm, "debug", luaopen_debug, 1); lua_pop(lua_vm, 1); }
             //custom libs
             else if (strcmp(tokens[i], "json") == 0 ||
-                     strcmp(tokens[i], "mympd") == 0)	  { mympd_luaopen(lua_vm, tokens[i]); }
+                     strcmp(tokens[i], "mympd") == 0)
+            { 
+                if (mympd_luaopen(lua_vm, tokens[i]) == 1) {
+                    lua_close(lua_vm);
+                    return NULL;
+                }
+            }
             else {
-                MYMPD_LOG_ERROR(NULL, "Can not open lua library %s", tokens[i]);
+                MYMPD_LOG_WARN(NULL, "Can not find lua library %s", tokens[i]);
                 continue;
             }
         }
@@ -98,6 +108,9 @@ void populate_lua_global_vars(lua_State *lua_vm, struct t_script_thread_arg *scr
     //set global lua variable scriptevent
     lua_pushstring(lua_vm, script_start_event_name(script_arg->start_event));
     lua_setglobal(lua_vm, "scriptevent");
+    //set global lua variable requestid
+    lua_pushinteger(lua_vm, (long long)script_arg->request_id);
+    lua_setglobal(lua_vm, "requestid");
     //set arguments lua table
     lua_newtable(lua_vm);
     if (script_arg->arguments->length > 0) {
@@ -140,12 +153,12 @@ const char *lua_err_to_str(int rc) {
 // Private functions
 
 /**
- * Loads a lue library from filesystem or embedded in release
+ * Loads a lua library from filesystem or embedded in release
  * @param lua_vm lua instance
  * @param lualib lua library to load
  * @return true on success, else false
  */
-static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
+static int mympd_luaopen(lua_State *lua_vm, const char *lualib) {
     MYMPD_LOG_DEBUG(NULL, "Loading embedded lua library %s", lualib);
     #ifdef MYMPD_EMBEDDED_ASSETS
         sds lib_string;
@@ -168,14 +181,12 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
     int nr_return = lua_gettop(lua_vm);
     MYMPD_LOG_DEBUG(NULL, "Lua library returns %d values", nr_return);
     for (int i = 1; i <= nr_return; i++) {
-        MYMPD_LOG_DEBUG(NULL, "Lua library return value \"%d\": \"%s\"", i, lua_tostring(lua_vm, i));
-        lua_pop(lua_vm, i);
-    }
-    if (rc != 0) {
-        if (lua_gettop(lua_vm) == 1) {
-            //return value on stack
+        if (lua_isnil(lua_vm, 1) == 0 &&
+            lua_istable(lua_vm, 1) == 0)
+        {
             MYMPD_LOG_ERROR(NULL, "Error loading library \"%s\": \"%s\"", lualib, lua_tostring(lua_vm, 1));
         }
+        lua_pop(lua_vm, 1);
     }
     return rc;
 }
@@ -191,6 +202,7 @@ static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_util_urlencode", lua_util_urlencode);
     lua_register(lua_vm, "mympd_util_urldecode", lua_util_urldecode);
     lua_register(lua_vm, "mympd_util_log", lua_util_log);
+    lua_register(lua_vm, "mympd_util_notify", lua_util_notify);
     #ifdef MYMPD_ENABLE_MYGPIOD
         lua_register(lua_vm, "mygpio_gpio_blink", lua_mygpio_gpio_blink);
         lua_register(lua_vm, "mygpio_gpio_get", lua_mygpio_gpio_get);
