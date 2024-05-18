@@ -8,6 +8,8 @@ List of myMPD specific Lua functions.
 
 | FUNCTION | DESCRIPTION |
 | -------- | ----------- |
+| [json.decode]({{site.baseurl}}/scripting/functions/json) | Parses a Json string to a Lua table. |
+| [json.encode]({{site.baseurl}}/scripting/functions/json) | Encodes a Lua table as Json string. |
 | [mympd.api]({{site.baseurl}}/scripting/functions/mympd_api) | Access to the myMPD API. |
 | [mympd.gpio_blink]({{site.baseurl}}/scripting/functions/gpio) | Connects to myGPIOd and blinks a GPIO with given timeout and interval. |
 | [mympd.gpio_get]({{site.baseurl}}/scripting/functions/gpio) | Connects to myGPIOd and returns the active state of a GPIO. |
