@@ -84,12 +84,21 @@ void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value) 
     lua_settable(lua_vm, -3);
 }
 
-
+/**
+ * Returns the global lua variable partition
+ * @param lua_vm lua instance
+ * @return partition or NULL on error
+ */
 const char *get_lua_global_partition(lua_State *lua_vm) {
     lua_getglobal(lua_vm, "partition");
     return lua_tostring(lua_vm, -1);
 }
 
+/**
+ * Returns the global lua variable scriptname
+ * @param lua_vm lua instance
+ * @return scriptname or NULL on error
+ */
 const char *get_lua_global_scriptname(lua_State *lua_vm) {
     lua_getglobal(lua_vm, "scriptname");
     return lua_tostring(lua_vm, -1);
