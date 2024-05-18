@@ -50,7 +50,7 @@ function showMessages() {
 //eslint-disable-next-line no-unused-vars
 function clearMessages(target) {
     btnWaiting(target, true);
-    const overview = elGetById('modalNotificationsList');
+    const overview = elGetById('modalNotificationsList').querySelector('tbody');
     elClear(overview);
     overview.appendChild(emptyMsgEl(4, 'table'));
     messages.length = 0;
