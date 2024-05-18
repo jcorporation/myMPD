@@ -43,6 +43,7 @@ if scriptevent == "http" then
     ]]))
 else
     -- calling from user invocation/API
+    mympd.notify_client(0, "Starting yt-dlp")
     mympd.init()
 
     -- look up the uri
