@@ -24,14 +24,14 @@ int lua_mympd_api(lua_State *lua_vm) {
     //check arguments
     int n = lua_gettop(lua_vm);
     if (n != 2) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: invalid number of arguments");
+        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     //get method
     const char *method = lua_tostring(lua_vm, 1);
     if (method == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: method is a NULL string");
+        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: method is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "NULL string");
     }
@@ -53,7 +53,7 @@ int lua_mympd_api(lua_State *lua_vm) {
     struct t_work_request *request = create_request(REQUEST_TYPE_SCRIPT, 0, request_id, method_id, NULL, partition);
     const char *params = lua_tostring(lua_vm, 2);
     if (params == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: params is a NULL string");
+        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: params is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "NULL string");
     }

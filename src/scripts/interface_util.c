@@ -31,12 +31,12 @@ int lua_util_notify(lua_State *lua_vm) {
     unsigned severity = (unsigned)lua_tonumber(lua_vm, 2);
     const char *message = lua_tostring(lua_vm, 3);
     if (message == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: message is a NULL string");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: message is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
+        return luaL_error(lua_vm, "message is NULL");
     }
     if (severity >= JSONRPC_SEVERITY_MAX) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: invalid severity");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: Invalid severity");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid severity");
     }
@@ -65,16 +65,16 @@ int lua_util_notify(lua_State *lua_vm) {
 int lua_util_log(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 2) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_log: invalid number of arguments");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_log: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     unsigned level = (unsigned)lua_tonumber(lua_vm, 1);
     const char *message = lua_tostring(lua_vm, 2);
     if (message == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_log: NULL string");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_log: message is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
+        return luaL_error(lua_vm, "message is NULL");
     }
     const char *partition = get_lua_global_partition(lua_vm);
     if (partition == NULL) {
@@ -100,8 +100,8 @@ int lua_util_log(lua_State *lua_vm) {
         case LOG_DEBUG:    MYMPD_LOG_DEBUG(partition, "%s: %s", scriptname, message); break;
         default:
             lua_pop(lua_vm, n);
-            MYMPD_LOG_ERROR(NULL, "Lua - util_log: invalid loglevel");
-            return luaL_error(lua_vm, "invalid loglevel");
+            MYMPD_LOG_ERROR(NULL, "Lua - util_log: Invalid loglevel");
+            return luaL_error(lua_vm, "Invalid loglevel");
     }
     return 0;
 }
@@ -114,19 +114,21 @@ int lua_util_log(lua_State *lua_vm) {
 int lua_util_hash(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 2) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_hash: invalid number of arguments");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_hash: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *str = lua_tostring(lua_vm, 1);
-    const char *alg = lua_tostring(lua_vm, 2);
-
-    if (str == NULL ||
-        alg == NULL)
-    {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_hash: NULL string");
+    if (str == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_hash: string is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
+        return luaL_error(lua_vm, "string is NULL");
+    }
+    const char *alg = lua_tostring(lua_vm, 2);
+    if (alg == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_hash: alg is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "alg is NULL");
     }
 
     sds hash = NULL;
@@ -138,7 +140,8 @@ int lua_util_hash(lua_State *lua_vm) {
     }
     else {
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "Unable to connect to myGPIOd");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_hash: Invalid hash method");
+        return luaL_error(lua_vm, "Invalid hash method");
     }
     lua_pop(lua_vm, n);
     lua_pushstring(lua_vm, hash);
@@ -155,15 +158,15 @@ int lua_util_hash(lua_State *lua_vm) {
 int lua_util_urlencode(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 1) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_urlencode: invalid number of arguments");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_urlencode: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *str = lua_tostring(lua_vm, 1);
     if (str == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_urlencode: NULL string");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_urlencode: string is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
+        return luaL_error(lua_vm, "string is NULL");
     }
 
     sds encoded = sds_urlencode(sdsempty(), str, strlen(str));
@@ -182,7 +185,7 @@ int lua_util_urlencode(lua_State *lua_vm) {
 int lua_util_urldecode(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 2) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_urldecode: invalid number of arguments");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_urldecode: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
@@ -190,9 +193,9 @@ int lua_util_urldecode(lua_State *lua_vm) {
     bool form = lua_toboolean(lua_vm, 2);
 
     if (str == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_urldecode: NULL string");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_urldecode: string is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
+        return luaL_error(lua_vm, "string is NULL");
     }
     sds decoded = sds_urldecode(sdsempty(), str, strlen(str), form);
     lua_pop(lua_vm, n);

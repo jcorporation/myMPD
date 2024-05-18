@@ -25,27 +25,27 @@ int lua_http_client(lua_State *lua_vm) {
     }
     const char *method =lua_tostring(lua_vm, 1);
     if (method == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - http_client: method is a NULL string");
+        MYMPD_LOG_ERROR(NULL, "Lua - http_client: method is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
+        return luaL_error(lua_vm, "method is NULL");
     }
     const char *uri = lua_tostring(lua_vm, 2);
     if (uri == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - http_client: uri is a NULL string");
+        MYMPD_LOG_ERROR(NULL, "Lua - http_client: uri is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
+        return luaL_error(lua_vm, "uri is NULL");
     }
     const char *extra_headers = lua_tostring(lua_vm, 3);
     if (extra_headers == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - http_client: extra_headers is a NULL string");
+        MYMPD_LOG_ERROR(NULL, "Lua - http_client: extra_headers is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
+        return luaL_error(lua_vm, "extra_headers is NULL");
     }
     const char *post_data = lua_tostring(lua_vm, 4);
     if (post_data == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - http_client: post_data is a NULL string");
+        MYMPD_LOG_ERROR(NULL, "Lua - http_client: post_data is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
+        return luaL_error(lua_vm, "post_data is NULL");
     }
 
     struct mg_client_request_t mg_client_request = {
