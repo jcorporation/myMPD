@@ -1,12 +1,30 @@
 ---
 layout: page
-permalink: /scripting/lua-table-mympd_state
-title: Lua table mympd_state
+permalink: /scripting/functions/mympd_state
+title: Accessing myMPD and MPD status information
 ---
 
-This is the description of the lua table mympd_state. This table must be initialized with `mympd.init()`.
+Populates the lua table `mympd_state` with configuration values and current status of myMPD and MPD.
 
 Additionally all user defined variables are populates in this table. They are prefixed with `var_`.
+
+```lua
+mympd.init()
+```
+
+**Parameters:**
+
+No parameters needed.
+
+**Returns:**
+
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| rc | integer | response code: 0 = success, 1 = error |
+| result | lua table | jsonrpc result or error as lua table |
+{: .table .table-sm }
+
+The lua table mympd_state is populated with following fields. Additionally all user defined variables are populates in this table. They are prefixed with `var_`.
 
 | KEY | TYPE | DESCRIPTION |
 | --- | ---- | ----------- |
