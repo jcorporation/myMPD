@@ -13,7 +13,9 @@ local function yt_dlp_call(uri, args, parse_json)
     -- check result from yt-dlp for malformed format or bad data
     if string.sub(output, 1, 2) == "NA" then
         mympd.log(3, "[yt-dlp] bad format or no metadata: " ..output)
-        error("yt-dlp failed to parse --format string, or returned no usable metadata!")
+        local err_msg = "yt-dlp failed to parse --format string, or returned no usable metadata!"
+        mympd.notify_client(2, err_msg)
+        error(err_msg)
     end
 
     -- remove any trailing commas, pack into json array, and parse
