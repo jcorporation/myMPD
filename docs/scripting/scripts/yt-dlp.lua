@@ -29,7 +29,8 @@ local yt_dlp_cache = string.format(
 )
 local function yt_dlp_build_param(s)
     -- XXX: only return first result from gsub to not set yt_dlp_call parse_json
-    return string.gsub(yt_dlp_cache .. s, "[\r\n]+%s*", "")
+    local str = string.gsub(yt_dlp_cache .. s, "[\r\n]+%s*", "")
+    return str
 end
 
 -- uri argument is required
