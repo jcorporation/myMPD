@@ -110,18 +110,17 @@ else
             disc = tostring(disc)
         end
 
-        local description = ""
+        local comment = "[" ..scriptname.. "] " ..x.extractor.. ": " ..arguments.uri,
         if x.description then
             -- replace illegal characters from the tag value with a space
-            description = string.gsub(x.description, "[\r\n\t]+", " ")
+            comment = comment.. " | " ..string.gsub(x.description, "[\r\n\t]+", " ")
         end
-        if #description > 3000 then
-            description = string.sub(description, 1, 3000 - 3).. "..."
+        if #comment > 3000 then
+            comment = string.sub(comment, 1, 3000 - 3).. "..."
         end
 
         -- build metadata table
         local meta = {
-          name    = "[" ..mympd_env.scriptname.. "] " ..x.extractor.. ": " ..mympd_arguments.uri,
           title   = title,
           artist  = x.artist or x.album_artist or x.composer or
                     x.creator or x.channel or x.uploader,
