@@ -921,10 +921,12 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 break;
             }
-            if (mg_match(hm->uri, mg_str("/script/#"), NULL)) {
-                script_execute_http(nc, hm, config);
-                break;
-            }
+            #ifdef MYMPD_ENABLE_LUA
+                if (mg_match(hm->uri, mg_str("/script/*/*"), NULL)) {
+                    script_execute_http(nc, hm, config);
+                    break;
+                }
+            #endif
             //redirect to https
             struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
             if (host_hdr == NULL) {
