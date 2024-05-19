@@ -144,6 +144,12 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
 
     MYMPD_LOG_DEBUG(NULL, "Handle albumart for uri \"%s\", offset %d", uri, offset);
 
+    //check covercache
+    if (check_covercache(nc, hm, mg_user_data, uri, offset) == true) {
+        FREE_SDS(uri);
+        return true;
+    }
+
     //check for cover in /pics/thumbs/ and webradio m3u
     if (is_streamuri(uri) == true) {
         sanitize_filename(uri);
@@ -189,12 +195,6 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         }
         FREE_SDS(uri);
         FREE_SDS(coverfile);
-        return true;
-    }
-
-    //check covercache
-    if (check_covercache(nc, hm, mg_user_data, uri, offset) == true) {
-        FREE_SDS(uri);
         return true;
     }
 
