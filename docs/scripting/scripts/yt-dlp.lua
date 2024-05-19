@@ -1,8 +1,9 @@
--- {"order":1,"arguments":["URI"]}
+-- {"order":1,"arguments":["uri"]}
 -- yt-dlp helper functions
+local yt_dlp_path = "yt-dlp"
 local function yt_dlp_call(uri, args, parse_json)
-    local cmd = string.format("yt-dlp %s '%s' 2>/dev/null", args, uri)
-    mympd.log(6, "[yt-dlp] running command: " ..cmd)
+    local cmd = string.format("%s %s '%s' 2>/dev/null", yt_dlp_path, args, uri)
+    mympd.log(6, "running command: " ..cmd)
     local output = mympd.os_capture(cmd)
 
     -- return if output is nil/the empty string, or we don't have to parse json
@@ -12,7 +13,7 @@ local function yt_dlp_call(uri, args, parse_json)
 
     -- check result from yt-dlp for malformed format or bad data
     if string.sub(output, 1, 2) == "NA" then
-        mympd.log(3, "[yt-dlp] bad format or no metadata: " ..output)
+        mympd.log(3, "bad format or no metadata: " ..output)
         local err_msg = "yt-dlp failed to parse --format string, or returned no usable metadata!"
         mympd.notify_client(2, err_msg)
         error(err_msg)
@@ -31,24 +32,28 @@ local function yt_dlp_build_param(s)
     return string.gsub(yt_dlp_cache .. s, "[\r\n]+%s*", "")
 end
 
--- URI argument is required
-if arguments.URI == "" then
+-- uri argument is required
+if arguments.uri == "" then
     return "No URI provided"
 end
 
 if scriptevent == "http" then
     -- calling from a stream play event: redirect to the real stream URI
-    return mympd.http_redirect(yt_dlp_call(arguments.URI, yt_dlp_build_param[[
+    local uri = yt_dlp_call(arguments.uri, yt_dlp_build_param[[
       --format bestaudio 
       --print '%(urls)s'
-    ]]))
+    ]])
+    if not uri or uri == "" then
+        error("yt-dlp did not return a URI for this track: " ..arguments.uri)
+    end
+    return mympd.http_redirect(uri)
 else
     -- calling from user invocation/API
     mympd.notify_client(0, "Starting yt-dlp")
     mympd.init()
 
     -- look up the uri
-    local results = yt_dlp_call(arguments.URI, yt_dlp_build_param[[
+    local results = yt_dlp_call(arguments.uri, yt_dlp_build_param[[
       --flat-playlist 
       --print '%(.{
         availability,
@@ -67,7 +72,7 @@ else
 
     -- generate script URIs and process metadata to create the streams
     local uri_format = string.format(
-      "%sscript/%s/%s?URI=%%s",
+      "%sscript/%s/%s?uri=%%s",
       mympd_state.mympd_uri,
       partition,
       mympd.urlencode(scriptname)
@@ -78,6 +83,7 @@ else
         -- special processing for some values
         local title = x.fulltitle or x.title or x.episode or uri
         if x.availability and x.availability ~= "public" then
+            -- notify if stream is not public, to signal it will probably not play
             title = "[" ..x.availability.. "] " ..title
         end
 
@@ -86,11 +92,8 @@ else
             if x.series and x.season then
                 album = x.series.. " / " ..x.season
             else
-                album = x.series or x.season
+                album = x.series or x.season or x.extractor
             end
-        end
-        if not album then
-            album = x.extractor
         end
 
         local track = x.track_number or x.playlist_index or x.episode_number
@@ -98,7 +101,7 @@ else
             track = tostring(track)
         end
         if x.playlist_count then
-            track = track.. "/" ..x.playlist_count
+            track = track.. "/" ..tostring(x.playlist_count)
         end
 
         local disc = x.disc_number or x.season_number
@@ -108,23 +111,30 @@ else
 
         local description = ""
         if x.description then
-            description = string.gsub(x.description, "[\r\n]+", " ")
+            -- replace illegal characters from the tag value with a space
+            description = string.gsub(x.description, "[\r\n\t]+", " ")
+        end
+        if #description > 3000 then
+            description = string.sub(description, 1, 3000 - 3).. "..."
         end
 
         -- build metadata table
         local meta = {
+          name    = "[" ..scriptname.. "] " ..x.extractor.. ": " ..arguments.uri,
           title   = title,
           artist  = x.artist or x.album_artist or x.composer or
-                    x.creator or x.channel or x.uploader or x.extractor,
+                    x.creator or x.channel or x.uploader,
           album   = album,
           disc    = disc,
           track   = track,
           genre   = x.genre,
           date    = x.release_date,
-          comment = description.. " [url: " ..uri.. " | extractor: " ..x.extractor.. "]"
+          comment = comment
         }
 
         -- append result to the queue and set tags
+        -- NOTE: change to MYMPD_API_QUEUE_INSERT_URI_TAGS
+        --       or MYMPD_API_QUEUE_REPLACE_URI_TAGS if you prefer
         mympd.api("MYMPD_API_QUEUE_APPEND_URI_TAGS", {uri = uri, tags = meta, play = false})
     end
 end
