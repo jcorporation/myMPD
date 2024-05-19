@@ -241,6 +241,9 @@ function filetype(uri, long) {
     if (uri === undefined) {
         return '';
     }
+    if (isStreamUri(uri) === true) {
+        return 'Stream';
+    }
     const ext = uri.split('.').pop().toUpperCase();
     if (long === false) {
         return ext;
