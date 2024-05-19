@@ -8,9 +8,12 @@ https://github.com/jcorporation/myMPD/
 
 This release enhances the scripting functionality of myMPD a lot. There are several new myMPD specific Lua functions and a completely new way to call scripts.
 
-With this release you can call Lua scripts by http requests and the script itself can respond to it. There is now also a new `yt-dlp` developed by @sevmonster that make use of this new functionality.
+With this release you can call Lua scripts by http requests and the script itself can respond to it. There is now also a new `yt-dlp` script developed by @sevmonster that make use of this new functionality.
 
-The config setting for the ListenBrainz API token was removed in favor of a new central function to declare variables for scripts.
+### Notes
+
+- The config setting for the ListenBrainz API token was removed in favor of a new central function to declare variables for scripts.
+- The global variables for Lua scripts are renamed.
 
 ### API changes
 
