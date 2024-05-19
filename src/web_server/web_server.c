@@ -910,14 +910,19 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             break;
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+            // Serve some directories without ssl
             if (mg_match(hm->uri, mg_str("/browse/webradios/*"), NULL)) {
-                //we serve the webradio directory without https to avoid the required ssl configuration for the mpd curl plugin
+                // myMPD webradio links
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                 s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                 s_http_server_opts.root_dir = mg_user_data->browse_directory;
                 MYMPD_LOG_INFO(NULL, "Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.buf);
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                break;
+            }
+            if (mg_match(hm->uri, mg_str("/script/#"), NULL)) {
+                script_execute_http(nc, hm, config);
                 break;
             }
             //redirect to https
