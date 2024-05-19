@@ -1,9 +1,9 @@
 -- {"order":1,"arguments":[]}
-if var_listenbrainz_token == nil then
+mympd.init()
+if mympd_state.var_listenbrainz_token == nil then
   return "No ListenBrainz token set"
 end
 
-mympd.init()
 uri = "https://api.listenbrainz.org/1/submit-listens"
 headers = "Content-type: application/json\r\n"..
   "Authorization: Token "..mympd_state["var_listenbrainz_token"].."\r\n"

@@ -6,4 +6,4 @@
 -- https://github.com/jcorporation/mympd
 --
 
-mympd = { _version = "0.5.0" }
+mympd = { _version = "0.6.0" }

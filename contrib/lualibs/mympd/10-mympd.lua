@@ -9,7 +9,7 @@ end
 -- Calls the myMPD jsonrpc api
 --
 function mympd.api(method, params)
-  rc, raw_result = mympd_api(method, json.encode(params))
+  rc, raw_result = mympd_api(mympd_env.partition, method, json.encode(params))
   result = json.decode(raw_result)
   if rc == 0 then
     return rc, result["result"]

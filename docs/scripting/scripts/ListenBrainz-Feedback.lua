@@ -1,19 +1,19 @@
 -- {"order":1,"arguments":["uri","vote","type"]}
-if var_listenbrainz_token == nil then
+mympd.init()
+if mympd_state.var_listenbrainz_token == nil then
   return "No ListenBrainz token set"
 end
 
-mympd.init()
 uri = "https://api.listenbrainz.org/1/feedback/recording-feedback"
 headers = "Content-type: application/json\r\n"..
   "Authorization: Token "..mympd_state["var_listenbrainz_token"].."\r\n"
 
-if arguments["type"] == "like" then
+if mympd_arguments.type == "like" then
   -- thumbs up/down
-  vote = arguments["vote"] - 1
+  vote = mympd_arguments.vote - 1
 else
   -- stars rating
-  if arguments["vote"] > 5 then
+  if mympd_arguments.vote > 5 then
     -- treat more than 5 stars as like
     vote = 1
   else
@@ -23,7 +23,7 @@ else
 end
 
 -- get song details
-rc, song = mympd.api("MYMPD_API_SONG_DETAILS", { uri = arguments["uri"] })
+rc, song = mympd.api("MYMPD_API_SONG_DETAILS", { uri = mympd_arguments.uri })
 if rc == 0 then
   mbid = song["MUSICBRAINZ_TRACKID"]
   if mbid ~= nil and mbid ~= "" then

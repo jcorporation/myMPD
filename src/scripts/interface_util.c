@@ -11,7 +11,6 @@
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
-#include "src/scripts/interface.h"
 
 #include <string.h>
 
@@ -22,14 +21,20 @@
  */
 int lua_util_notify(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
-    if (n != 3) {
+    if (n != 4) {
         MYMPD_LOG_ERROR(NULL, "Lua - util_notify: invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
-    unsigned request_id = (unsigned)lua_tonumber(lua_vm, 1);
-    unsigned severity = (unsigned)lua_tonumber(lua_vm, 2);
-    const char *message = lua_tostring(lua_vm, 3);
+    const char *partition = lua_tostring(lua_vm, 1);
+    if (partition == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: partition is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "partition is NULL");
+    }
+    unsigned request_id = (unsigned)lua_tonumber(lua_vm, 2);
+    unsigned severity = (unsigned)lua_tonumber(lua_vm, 3);
+    const char *message = lua_tostring(lua_vm, 4);
     if (message == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - util_notify: message is NULL");
         lua_pop(lua_vm, n);
@@ -39,12 +44,6 @@ int lua_util_notify(lua_State *lua_vm) {
         MYMPD_LOG_ERROR(NULL, "Lua - util_notify: Invalid severity");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid severity");
-    }
-    const char *partition = get_lua_global_partition(lua_vm);
-    if (partition == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: Invalid partition");
-        lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "Invalid partition");
     }
     sds message_sds = jsonrpc_notify(sdsempty(), JSONRPC_FACILITY_SCRIPT, severity, message);
     if (request_id == 0) {
@@ -64,29 +63,29 @@ int lua_util_notify(lua_State *lua_vm) {
  */
 int lua_util_log(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
-    if (n != 2) {
+    if (n != 4) {
         MYMPD_LOG_ERROR(NULL, "Lua - util_log: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
-    unsigned level = (unsigned)lua_tonumber(lua_vm, 1);
-    const char *message = lua_tostring(lua_vm, 2);
+    const char *partition = lua_tostring(lua_vm, 1);
+    if (partition == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_log: partition is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "partition is NULL");
+    }
+    const char *scriptname = lua_tostring(lua_vm, 2);
+    if (scriptname == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_log: scriptname is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "scriptname is NULL");
+    }
+    unsigned level = (unsigned)lua_tonumber(lua_vm, 3);
+    const char *message = lua_tostring(lua_vm, 4);
     if (message == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - util_log: message is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "message is NULL");
-    }
-    const char *partition = get_lua_global_partition(lua_vm);
-    if (partition == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_log: Invalid partition");
-        lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "Invalid partition");
-    }
-    const char *scriptname = get_lua_global_scriptname(lua_vm);
-    if (partition == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_log: Invalid scriptname");
-        lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "Invalid scriptname");
     }
 
     switch(level) {

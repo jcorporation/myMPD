@@ -20,7 +20,4 @@ void populate_lua_table_field_i(lua_State *lua_vm, const char *key, int64_t valu
 void populate_lua_table_field_f(lua_State *lua_vm, const char *key, double value);
 void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value);
 
-const char *get_lua_global_partition(lua_State *lua_vm);
-const char *get_lua_global_scriptname(lua_State *lua_vm);
-
 #endif
