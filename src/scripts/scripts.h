@@ -24,7 +24,6 @@ enum script_start_events {
  * Struct for passing values to the script execute function
  */
 struct t_script_thread_arg {
-    sds lualibs;                           //!< comma separated string of lua libs to load
     bool localscript;                      //!< true = read script from filesystem, false = use script_content
     sds script_fullpath;                   //!< full uri of the script
     sds script_name;                       //!< name of the script
@@ -34,6 +33,7 @@ struct t_script_thread_arg {
     enum script_start_events start_event;  //!< script start event
     unsigned long conn_id;                 //!< mongoose connection id
     unsigned request_id;                   //!< jsonrpc request id
+    struct t_config *config;               //!< pointer to myMPD config
 };
 
 const char *script_start_event_name(enum script_start_events start_event);

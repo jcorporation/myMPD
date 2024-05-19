@@ -165,15 +165,15 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
  * @param error already allocated sds string to hold the error message
  * @return true on success, else false
  */
-bool mympd_api_script_validate(sds name, sds content, sds lualibs, sds *error) {
+bool mympd_api_script_validate(struct t_config *config, sds name, sds content, sds *error) {
     struct t_script_thread_arg script_arg;
     script_arg.script_name = name;
     script_arg.script_content = content;
-    script_arg.lualibs = lualibs;
     script_arg.localscript = false;
     script_arg.arguments = NULL;
     script_arg.partition = NULL;
     script_arg.script_fullpath = NULL;
+    script_arg.config = config;
 
     int rc = 0;
     lua_State *lua_vm = script_load(&script_arg, &rc);
@@ -259,20 +259,20 @@ sds mympd_api_script_get(sds workdir, sds buffer, unsigned request_id, sds scrip
  * @param localscript true = load script from filesystem, false = load script from script parameter
  * @return true on success, else false
  */
-bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list *arguments,
+bool mympd_api_script_start(struct t_config *config, sds script, struct t_list *arguments,
         const char *partition, bool localscript, enum script_start_events start_event, unsigned request_id)
 {
     struct t_script_thread_arg *script_thread_arg = malloc_assert(sizeof(struct t_script_thread_arg));
-    script_thread_arg->lualibs = lualibs;
     script_thread_arg->localscript = localscript;
     script_thread_arg->arguments = arguments;
     script_thread_arg->partition = sdsnew(partition);
     script_thread_arg->start_event = start_event;
     script_thread_arg->conn_id = 0; // not used for this type of scripts
     script_thread_arg->request_id = request_id;
+    script_thread_arg->config = config;
     if (localscript == true) {
         script_thread_arg->script_name = sdsdup(script);
-        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
+        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", config->workdir, DIR_WORK_SCRIPTS, script);
         script_thread_arg->script_content = sdsempty();
     }
     else {

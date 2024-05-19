@@ -79,7 +79,6 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     sdsfreesplitres(params, params_count);
 
     struct t_script_thread_arg *script_thread_arg = malloc_assert(sizeof(struct t_script_thread_arg));
-    script_thread_arg->lualibs = config->lualibs;
     script_thread_arg->localscript = true;
     script_thread_arg->script_fullpath = script_fullpath;
     script_thread_arg->script_name = script;
@@ -88,6 +87,7 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     script_thread_arg->arguments = arguments;
     script_thread_arg->start_event = SCRIPT_START_HTTP;
     script_thread_arg->conn_id = nc->id;
+    script_thread_arg->config = config;
 
     pthread_t mympd_script_http_thread;
     pthread_attr_t attr;

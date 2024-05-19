@@ -34,18 +34,18 @@ local function yt_dlp_build_param(s)
 end
 
 -- uri argument is required
-if arguments.uri == "" then
+if mympd_arguments.uri == "" then
     return "No URI provided"
 end
 
-if scriptevent == "http" then
+if mympd_env.scriptevent == "http" then
     -- calling from a stream play event: redirect to the real stream URI
-    local uri = yt_dlp_call(arguments.uri, yt_dlp_build_param[[
+    local uri = yt_dlp_call(mympd_arguments.uri, yt_dlp_build_param[[
       --format bestaudio 
       --print '%(urls)s'
     ]])
     if not uri or uri == "" then
-        error("yt-dlp did not return a URI for this track: " ..arguments.uri)
+        error("yt-dlp did not return a URI for this track: " ..mympd_arguments.uri)
     end
     return mympd.http_redirect(uri)
 else
@@ -54,7 +54,7 @@ else
     mympd.init()
 
     -- look up the uri
-    local results = yt_dlp_call(arguments.uri, yt_dlp_build_param[[
+    local results = yt_dlp_call(mympd_arguments.uri, yt_dlp_build_param[[
       --flat-playlist 
       --print '%(.{
         availability,
@@ -76,7 +76,7 @@ else
       "%sscript/%s/%s?uri=%%s",
       mympd_state.mympd_uri,
       partition,
-      mympd.urlencode(scriptname)
+      mympd.urlencode(mympd_env.scriptname)
     )
     for i, x in ipairs(results) do
         local uri = string.format(uri_format, mympd.urlencode(x.webpage_url))

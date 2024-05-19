@@ -23,17 +23,24 @@
 int lua_mympd_api(lua_State *lua_vm) {
     //check arguments
     int n = lua_gettop(lua_vm);
-    if (n != 2) {
+    if (n != 3) {
         MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
+    //get partition
+    const char *partition = lua_tostring(lua_vm, 1);
+    if (partition == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: partition is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "partition is NULL");
+    }
     //get method
-    const char *method = lua_tostring(lua_vm, 1);
+    const char *method = lua_tostring(lua_vm, 2);
     if (method == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: method is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
+        return luaL_error(lua_vm, "method is NULL");
     }
     enum mympd_cmd_ids method_id = get_cmd_id(method);
     if (method_id == GENERAL_API_UNKNOWN) {
@@ -41,22 +48,16 @@ int lua_mympd_api(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid method");
     }
-    const char *partition = get_lua_global_partition(lua_vm);
-    if (partition == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: Invalid partition");
+    const char *params = lua_tostring(lua_vm, 3);
+    if (params == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: params is NULL");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "Invalid partition");
+        return luaL_error(lua_vm, "params is NULL");
     }
     //generate a request id
     unsigned request_id = randrange(0, UINT_MAX);
     //create the request
     struct t_work_request *request = create_request(REQUEST_TYPE_SCRIPT, 0, request_id, method_id, NULL, partition);
-    const char *params = lua_tostring(lua_vm, 2);
-    if (params == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: params is NULL");
-        lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "NULL string");
-    }
     if (params[0] != '{') {
         //param is invalid json, ignore it
         request->data = sdscatlen(request->data, "}", 1);

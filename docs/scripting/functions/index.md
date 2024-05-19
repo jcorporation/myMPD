@@ -20,7 +20,7 @@ List of myMPD specific Lua functions.
 | [mympd.http_client]({{site.baseurl}}/scripting/functions/http_client) | Simple HTTP client. |
 | [mympd.http_redirect]({{site.baseurl}}/scripting/functions/http_replies) | Returns a valid HTTP redirect message. |
 | [mympd.http_reply]({{site.baseurl}}/scripting/functions/http_replies) | Returns a valid HTTP response message. |
-| [mympd.init]({{site.baseurl}}/scripting/functions/mympd_state) | Initializes the Lua table mympd_state. |
+| [mympd.init]({{site.baseurl}}/scripting/functions/mympd_init) | Initializes the Lua table mympd_state. |
 | [mympd.log]({{site.baseurl}}/scripting/functions/util) | Logging to myMPD log. |
 | [mympd.notify_client]({{site.baseurl}}/scripting/functions/util) | Sends a notification to the client. |
 | [mympd.notify_partition]({{site.baseurl}}/scripting/functions/util) | Sends a notification to all clients in a partition. |

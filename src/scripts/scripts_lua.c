@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/scripts/scripts_lua.h"
 
+#include "src/lib/config_def.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 
@@ -44,7 +45,7 @@ lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc) {
         MYMPD_LOG_ERROR(script_arg->partition, "Memory allocation error in luaL_newstate");
         return NULL;
     }
-    if (strcmp(script_arg->lualibs, "all") == 0) {
+    if (strcmp(script_arg->config->lualibs, "all") == 0) {
         MYMPD_LOG_DEBUG(NULL, "Open all standard lua libs");
         luaL_openlibs(lua_vm);
         if (mympd_luaopen(lua_vm, "json") == 1 ||
@@ -56,7 +57,7 @@ lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc) {
     }
     else {
         int count = 0;
-        sds *tokens = sdssplitlen(script_arg->lualibs, (ssize_t)sdslen(script_arg->lualibs), ",", 1, &count);
+        sds *tokens = sdssplitlen(script_arg->config->lualibs, (ssize_t)sdslen(script_arg->config->lualibs), ",", 1, &count);
         for (int i = 0; i < count; i++) {
             sdstrim(tokens[i], " ");
             MYMPD_LOG_DEBUG(NULL, "Open lua library %s", tokens[i]);
@@ -99,19 +100,17 @@ lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc) {
  * @param script_arg pointer to t_script_thread_arg struct
  */
 void populate_lua_global_vars(lua_State *lua_vm, struct t_script_thread_arg *script_arg) {
-    //set global lua variable partition
-    lua_pushstring(lua_vm, script_arg->partition);
-    lua_setglobal(lua_vm, "partition");
-    //set global lua variable scriptname
-    lua_pushstring(lua_vm, script_arg->script_name);
-    lua_setglobal(lua_vm, "scriptname");
-    //set global lua variable scriptevent
-    lua_pushstring(lua_vm, script_start_event_name(script_arg->start_event));
-    lua_setglobal(lua_vm, "scriptevent");
-    //set global lua variable requestid
-    lua_pushinteger(lua_vm, (long long)script_arg->request_id);
-    lua_setglobal(lua_vm, "requestid");
-    //set arguments lua table
+    // Set global mympd_env lua table
+    lua_newtable(lua_vm);
+    populate_lua_table_field_p(lua_vm, "partition", script_arg->partition);
+    populate_lua_table_field_i(lua_vm, "requestid", script_arg->request_id);
+    populate_lua_table_field_p(lua_vm, "scriptevent", script_start_event_name(script_arg->start_event));
+    populate_lua_table_field_p(lua_vm, "scriptname", script_arg->script_name);
+    populate_lua_table_field_p(lua_vm, "cachedir", script_arg->config->cachedir);
+    populate_lua_table_field_p(lua_vm, "workdir", script_arg->config->workdir);
+    lua_setglobal(lua_vm, "mympd_env");
+
+    // Set global arguments lua table
     lua_newtable(lua_vm);
     if (script_arg->arguments->length > 0) {
         struct t_list_node *current = script_arg->arguments->head;
@@ -120,7 +119,7 @@ void populate_lua_global_vars(lua_State *lua_vm, struct t_script_thread_arg *scr
             current = current->next;
         }
     }
-    lua_setglobal(lua_vm, "arguments");
+    lua_setglobal(lua_vm, "mympd_arguments");
 }
 
 /**

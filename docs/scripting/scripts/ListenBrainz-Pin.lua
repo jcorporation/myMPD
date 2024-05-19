@@ -1,9 +1,9 @@
 -- {"order":1,"arguments":["uri","blurb_content","pinned_until"]}
-if var_listenbrainz_token == nil then
+mympd.init()
+if mympd_state.var_listenbrainz_token == nil then
   return "No ListenBrainz token set"
 end
 
-mympd.init()
 pin_uri = "https://api.listenbrainz.org/1/pin"
 unpin_uri = "https://api.listenbrainz.org/1/pin/unpin"
 headers = "Content-type: application/json\r\n"..
@@ -11,15 +11,15 @@ headers = "Content-type: application/json\r\n"..
 payload = ""
 uri = ""
 
-if arguments["uri"] ~= "" then
-  rc, song = mympd.api("MYMPD_API_SONG_DETAILS", {uri = arguments["uri"]})
+if mympd_arguments.uri ~= "" then
+  rc, song = mympd.api("MYMPD_API_SONG_DETAILS", {uri = mympd_arguments.uri})
   if rc == 0 then
     mbid = song["MUSICBRAINZ_TRACKID"]
     if mbid ~= nil then
       payload = json.encode({
         recording_mbid = mbid,
-        blurb_content = arguments["blurb_content"],
-        pinned_until = arguments["pinned_until"]
+        blurb_content = mympd_arguments.blurb_content,
+        pinned_until = mympd_arguments.pinned_until
       });
       uri = pin_uri
     end

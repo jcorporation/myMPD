@@ -293,7 +293,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf2, vcb_istext, &parse_error) == true)
             {
-                rc = mympd_api_script_validate(sds_buf1, sds_buf2, config->lualibs, &error);
+                rc = mympd_api_script_validate(config, sds_buf1, sds_buf2, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, error);
             }
@@ -307,7 +307,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf3, vcb_istext, &parse_error) == true &&
                 json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, SCRIPT_ARGUMENTS_MAX, &parse_error) == true)
             {
-                rc = mympd_api_script_validate(sds_buf1, sds_buf3, config->lualibs, &error) &&
+                rc = mympd_api_script_validate(config, sds_buf1, sds_buf3, &error) &&
                     mympd_api_script_save(config->workdir, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, error);
@@ -341,7 +341,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, vcb_isname, 10, &parse_error) == true)
             {
                 enum script_start_events script_event = script_start_event_parse(sds_buf2);
-                rc = mympd_api_script_start(config->workdir, sds_buf1, config->lualibs, arguments, partition_state->name,
+                rc = mympd_api_script_start(config, sds_buf1, arguments, partition_state->name,
                     true, script_event, response->id);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, "Can't create mympd_script thread");
@@ -359,7 +359,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (json_get_string(request->data, "$.params.script", 1, CONTENT_LEN_MAX, &sds_buf1, vcb_istext, &parse_error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, vcb_isname, 10, &parse_error) == true)
             {
-                rc = mympd_api_script_start(config->workdir, sds_buf1, config->lualibs, arguments, partition_state->name,
+                rc = mympd_api_script_start(config, sds_buf1, arguments, partition_state->name,
                     false, SCRIPT_START_EXTERN, 0);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, "Can't create mympd_script thread");
