@@ -58,7 +58,7 @@ else
       --flat-playlist 
       --print '%(.{
         availability,
-        webpage_url,
+        webpage_url,original_url,
         fulltitle,title,episode,
         artist,album_artist,composer,creator,channel,uploader,
         album,playlist_title,series,season,
@@ -110,7 +110,10 @@ else
             disc = tostring(disc)
         end
 
-        local comment = "[" ..scriptname.. "] " ..x.extractor.. ": " ..arguments.uri,
+        local comment = "[" ..mympd_env.scriptname.. "] " ..x.extractor.. ": " ..x.webpage_url
+        if x.original_url and x.webpage_url ~= x.original_url then
+            comment = comment.. " | from: " ..x.original_url
+        end
         if x.description then
             -- replace illegal characters from the tag value with a space
             comment = comment.. " | " ..string.gsub(x.description, "[\r\n\t]+", " ")
