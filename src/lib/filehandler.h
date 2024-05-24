@@ -39,6 +39,8 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len);
 bool rm_file(sds filepath);
 int try_rm_file(sds filepath);
 
+bool rename_file(const char *src, const char *dst);
+
 bool testfile_read(const char *filename);
 int testdir(const char *desc, const char *dir_name, bool create, bool silent);
 bool is_dir(const char *dir_name);

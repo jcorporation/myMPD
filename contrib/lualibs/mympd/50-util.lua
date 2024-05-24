@@ -3,10 +3,17 @@
 ---
 
 --
+-- Write a file for the covercache
+--
+function mympd.covercache_write(src, uri)
+  return mympd_util_covercache_write(mympd_env.cachedir, src, uri)
+end
+
+--
 -- Notifications
 --
 function mympd.notify_client(severity, message)
-  return mympd_util_notify(mympd_env.partition,mympd_env.requestid, severity, message)
+  return mympd_util_notify(mympd_env.partition, mympd_env.requestid, severity, message)
 end
 
 function mympd.notify_partition(severity, message)

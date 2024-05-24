@@ -78,11 +78,9 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     if (rc == false) {
         MYMPD_LOG_ERROR(partition_state->name, "Error getting mympd state for script execution");
     }
-    // myMPD config
+    // myMPD state
     lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
     lua_mympd_state_set_p(lua_partition_state, "playlist_directory", partition_state->mpd_state->playlist_directory_value);
-    lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->config->workdir);
-    lua_mympd_state_set_p(lua_partition_state, "cachedir", partition_state->config->cachedir);
     lua_mympd_state_set_b(lua_partition_state, "auto_play", partition_state->auto_play);
     lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox.mode);
     lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox.playlist);

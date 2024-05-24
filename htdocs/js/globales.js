@@ -1545,19 +1545,24 @@ uiElements.modalHomeIconLigatureDropdown = BSN.Dropdown.getInstance(elGetById('m
 uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('modalMountsNeighborsBtn'));
 
 const LUAfunctions = {
+    "mympd.covercache_write": {
+        "desc": "Write a file for the covercache.",
+        "func": "mympd.covercache_write(src, uri)",
+        "feat": ""
+    },
     "mympd.hash_sha1": {
         "desc": "SHA1 hash of string.",
-        "func": "hash = mympd.hash_sha1(string)",
+        "func": "local hash = mympd.hash_sha1(string)",
         "feat": ""
     },
     "mympd.hash_sha256": {
         "desc": "SHA256 hash of string.",
-        "func": "hash = mympd.hash_sha256(string)",
+        "func": "local hash = mympd.hash_sha256(string)",
         "feat": ""
     },
     "mympd.http_client": {
         "desc": "HTTP client",
-        "func": "rc, code, header, body = mympd.http_client(method, uri, headers, payload)",
+        "func": "local rc, code, header, body = mympd.http_client(method, uri, headers, payload)",
         "feat": ""
     },
     "mympd.http_redirect": {
@@ -1571,7 +1576,7 @@ const LUAfunctions = {
         "feat": ""
     },
     "mympd.init": {
-        "desc": "Initializes the mympd_state lua table.",
+        "desc": "Initializes the global lua table mympd_state.",
         "func": "mympd.init()",
         "feat": ""
     },
@@ -1582,37 +1587,37 @@ const LUAfunctions = {
     },
     "mympd.urldecode": {
         "desc": "URL decodes a string.",
-        "func": "decoded = mympd.urlencode(string, false)",
+        "func": "local decoded = mympd.urlencode(string, false)",
         "feat": ""
     },
     "mympd.urlencode": {
         "desc":	"URL encodes a string.",
-        "func": "encoded = mympd.urlencode(string)",
+        "func": "local encoded = mympd.urlencode(string)",
         "feat": ""
     },
     "mympd.os_capture": {
         "desc": "Executes a system command and capture its output.",
-        "func": "output = mympd.os_capture(command)",
+        "func": "local output = mympd.os_capture(command)",
         "feat": ""
     },
     "mympd.gpio_blink": {
         "desc": "Blinks a GPIO with given timeout and interval.",
-        "func": "rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)",
+        "func": "local rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)",
         "feat": "featMygpiod"
     },
     "mympd.gpio_get": {
         "desc": "Returns the active state of a GPIO.",
-        "func": "rc = mympd.gpio_get(gpio)",
+        "func": "local rc = mympd.gpio_get(gpio)",
         "feat": "featMygpiod"
     },
     "mympd.gpio_set": {
         "desc": "Sets the active state of a GPIO.",
-        "func": "rc = mygpio_gpio_set(mympd.mygpiod_socket, gpio, value)",
+        "func": "local rc = mygpio_gpio_set(mympd.mygpiod_socket, gpio, value)",
         "feat": "featMygpiod"
     },
     "mympd.gpio_toggle": {
         "desc": "Toggles the active state of a GPIO.",
-        "func": "rc = mygpio_gpio_toggle(mympd.mygpiod_socket, gpio)",
+        "func": "local rc = mygpio_gpio_toggle(mympd.mygpiod_socket, gpio)",
         "feat": "featMygpiod"
     }
 };

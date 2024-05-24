@@ -19,6 +19,20 @@
 #include <time.h>
 
 /**
+ * Returns the path / basename for an uri to save it in the covercache
+ * @param cachedir covercache directory
+ * @param uri uri of the song for the cover
+ * @param offset number of the coverimage
+ * @return path / basename as newly allocated sds string
+ */
+sds covercache_get_basename(const char *cachedir, const char *uri, int offset) {
+    sds filename = sds_hash_sha1(uri);
+    sds filepath = sdscatfmt(sdsempty(), "%s/%s/%S-%i", cachedir, DIR_CACHE_COVER, filename, offset);
+    FREE_SDS(filename);
+    return filepath;
+}
+
+/**
  * Writes the coverimage (as binary buffer) to the covercache,
  * filename is the hash of the full path
  * @param cachedir covercache directory
@@ -39,11 +53,10 @@ bool covercache_write_file(sds cachedir, const char *uri, const char *mime_type,
         return false;
     }
     MYMPD_LOG_DEBUG(NULL, "Writing covercache for \"%s\"", uri);
-    sds filename = sds_hash_sha1(uri);
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S-%i.%s", cachedir, DIR_CACHE_COVER, filename, offset, ext);
+    sds filepath = covercache_get_basename(cachedir, uri, offset);
+    filepath = sdscatfmt(filepath, ".%s", ext);
     MYMPD_LOG_DEBUG(NULL, "Writing covercache file \"%s\"", filepath);
     bool rc = write_data_to_file(filepath, binary, sdslen(binary));
-    FREE_SDS(filename);
     FREE_SDS(filepath);
     return rc;
 }

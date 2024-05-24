@@ -126,9 +126,7 @@ bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset)
 {
     if (mg_user_data->config->covercache_keep_days != COVERCACHE_DISABLED) {
-        sds filename = sds_hash_sha1(uri_decoded);
-        sds covercachefile = sdscatfmt(sdsempty(), "%S/%s/%S-%i", mg_user_data->config->cachedir, DIR_CACHE_COVER, filename, offset);
-        FREE_SDS(filename);
+        sds covercachefile = covercache_get_basename(mg_user_data->config->cachedir, uri_decoded, offset);
         covercachefile = webserver_find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {
             const char *mime_type = get_mime_type_by_ext(covercachefile);

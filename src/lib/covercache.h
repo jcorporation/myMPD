@@ -16,6 +16,7 @@ enum covercache_conf {
     COVERCACHE_DISABLED = 0
 };
 
+sds covercache_get_basename(const char *cachedir, const char *uri, int offset);
 bool covercache_write_file(sds cachedir, const char *uri, const char *mime_type, sds binary, int offset);
 int covercache_clear(sds cachedir, int keepdays);
 #endif

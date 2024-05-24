@@ -29,7 +29,6 @@ The lua table mympd_state is populated with following fields. Additionally all u
 | KEY | TYPE | DESCRIPTION |
 | --- | ---- | ----------- |
 | auto_play | Boolean | true = enabled, false = disabled |
-| cachedir | String | path to the myMPD cache directory (default: /var/cache/mympd) |
 | consume_state | Integer | MPD consume state: 0 = off, 1 = on, 2 = oneshot, 3 = unknown |
 | crossfade | Integer | MPD crossfade option |
 | elapsed_time | Integer | Elapsed time of current song |
@@ -58,5 +57,4 @@ The lua table mympd_state is populated with following fields. Additionally all u
 | song_pos | Integer | Current song position in queue |
 | total_time | Integer | Total time of current song |
 | volume | Integer | 0 - 100 percent |
-| workdir | String | path to the myMPD working directory (default: /var/lib/mympd) |
 {: .table .table-sm }

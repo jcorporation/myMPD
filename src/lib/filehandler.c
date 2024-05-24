@@ -327,6 +327,21 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
 }
 
 /**
+ * Renames a file. src and dst must be in the same filesystem.
+ * @param src source filename
+ * @param dst destination filename
+ * @return true on success, else false
+ */
+bool rename_file(const char *src, const char *dst) {
+    if (rename(src, dst) == -1) {
+        MYMPD_LOG_ERROR(NULL, "Rename file from \"%s\" to \"%s\" failed", src, dst);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    return true;
+}
+
+/**
  * Removes a file and reports all errors
  * @param filepath filepath to remove
  * @return true on success else false

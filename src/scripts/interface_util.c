@@ -8,9 +8,12 @@
 #include "src/scripts/interface_util.h"
 
 #include "src/lib/api.h"
+#include "src/lib/covercache.h"
+#include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 #include <string.h>
 
@@ -202,4 +205,48 @@ int lua_util_urldecode(lua_State *lua_vm) {
     FREE_SDS(decoded);
     //return response count
     return 1;
+}
+
+/**
+ * Renames a file for the covercache
+ * @param lua_vm lua instance
+ * @return 0 on success
+ */
+int lua_util_covercache_write(lua_State *lua_vm) {
+    int n = lua_gettop(lua_vm);
+    if (n != 3) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_covercache_write: Invalid number of arguments");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "Invalid number of arguments");
+    }
+    const char *cachedir = lua_tostring(lua_vm, 1);
+    if (cachedir == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_covercache_write: cachedir is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "cachedir is NULL");
+    }
+    const char *src = lua_tostring(lua_vm, 2);
+    if (src == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_covercache_write: src is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "src is NULL");
+    }
+    const char *uri = lua_tostring(lua_vm, 3);
+    if (src == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_covercache_write: uri is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "uri is NULL");
+    }
+
+    const char *ext = get_extension_from_filename(src);
+    sds dst = covercache_get_basename(cachedir, uri, 0);
+    dst = sdscatfmt(dst, ".%s", ext);
+    if (rename_file(src, dst) == false) {
+        FREE_SDS(dst);
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "");
+    }
+
+    lua_pop(lua_vm, n);
+    return 0;
 }
