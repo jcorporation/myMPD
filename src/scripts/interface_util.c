@@ -248,5 +248,6 @@ int lua_util_covercache_write(lua_State *lua_vm) {
     }
 
     lua_pop(lua_vm, n);
-    return 0;
+    lua_pushinteger(lua_vm, 0);
+    return 1;
 }
