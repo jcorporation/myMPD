@@ -107,6 +107,9 @@ void populate_lua_global_vars(lua_State *lua_vm, struct t_script_thread_arg *scr
     populate_lua_table_field_p(lua_vm, "scriptevent", script_start_event_name(script_arg->start_event));
     populate_lua_table_field_p(lua_vm, "scriptname", script_arg->script_name);
     populate_lua_table_field_p(lua_vm, "cachedir", script_arg->config->cachedir);
+    sds covercache = sdscatfmt(sdsempty(), "%s/%s", script_arg->config->cachedir,  DIR_CACHE_COVER);
+    populate_lua_table_field_p(lua_vm, "cachedir_cover", covercache);
+    FREE_SDS(covercache);
     populate_lua_table_field_p(lua_vm, "workdir", script_arg->config->workdir);
     lua_setglobal(lua_vm, "mympd_env");
 
@@ -196,7 +199,8 @@ static int mympd_luaopen(lua_State *lua_vm, const char *lualib) {
  */
 static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_api", lua_mympd_api);
-    lua_register(lua_vm, "mympd_api_http_client", lua_http_client);
+    lua_register(lua_vm, "mympd_http_client", lua_http_client);
+    lua_register(lua_vm, "mympd_http_download", lua_http_download);
     lua_register(lua_vm, "mympd_util_hash", lua_util_hash);
     lua_register(lua_vm, "mympd_util_urlencode", lua_util_urlencode);
     lua_register(lua_vm, "mympd_util_urldecode", lua_util_urldecode);

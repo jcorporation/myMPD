@@ -1565,6 +1565,11 @@ const LUAfunctions = {
         "func": "local rc, code, header, body = mympd.http_client(method, uri, headers, payload)",
         "feat": ""
     },
+    "mympd.http_download": {
+        "desc": "HTTP download",
+        "func": "local rc = mympd.http_download(uri, out)",
+        "feat": ""
+    },
     "mympd.http_redirect": {
         "desc": "Sends a HTTP redirect.",
         "func": "return mympd.http_reply(location)",

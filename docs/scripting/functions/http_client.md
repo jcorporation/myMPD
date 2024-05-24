@@ -4,10 +4,10 @@ permalink: /scripting/functions/http_client
 title: HTTP client
 ---
 
-A simple http client.
+## Simple HTTP client
 
 ```lua
-rc, code, header, body = mympd.http_client(method, uri, headers, payload)
+local rc, code, header, body = mympd.http_client(method, uri, headers, payload)
 ```
 
 **Parameters:**
@@ -29,3 +29,21 @@ rc, code, header, body = mympd.http_client(method, uri, headers, payload)
 | header | string | http headers |
 | body | string | http body |
 {: .table .table-sm }
+
+## Download a file over http
+
+```lua
+local rc = mympd.http_download(uri, out)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| uri | string | Uri to download. |
+| out | string | Filename for output. |
+{: .table .table-sm }
+
+**Returns:**
+
+0 on success.

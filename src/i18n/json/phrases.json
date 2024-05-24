@@ -352,6 +352,7 @@
 {"term":"Grid size"},
 {"term":"Grouping"},
 {"term":"HTTP client"},
+{"term":"HTTP download"},
 {"term":"Hate song"},
 {"term":"Help to improve myMPD"},
 {"term":"Highlight color"},

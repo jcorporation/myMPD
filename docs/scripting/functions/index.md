@@ -19,6 +19,7 @@ List of myMPD specific Lua functions.
 | [mympd.hash_sha1]({{site.baseurl}}/scripting/functions/util) | SHA1 hash of string. |
 | [mympd.hash_sha256]({{site.baseurl}}/scripting/functions/util) | SHA256 hash of string. |
 | [mympd.http_client]({{site.baseurl}}/scripting/functions/http_client) | Simple HTTP client. |
+| [mympd.http_download]({{site.baseurl}}/scripting/functions/http_client) | Download a file over http. |
 | [mympd.http_redirect]({{site.baseurl}}/scripting/functions/http_replies) | Returns a valid HTTP redirect message. |
 | [mympd.http_reply]({{site.baseurl}}/scripting/functions/http_replies) | Returns a valid HTTP response message. |
 | [mympd.init]({{site.baseurl}}/scripting/functions/mympd_init) | Initializes the Lua table mympd_state. |

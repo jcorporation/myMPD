@@ -384,8 +384,8 @@ int try_rm_file(sds filepath) {
  * @param data_len data length to write
  * @return true on success else false
  */
-bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%S.XXXXXX", filepath);
+bool write_data_to_file(const char *filepath, const char *data, size_t data_len) {
+    sds tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", filepath);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);

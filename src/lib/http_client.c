@@ -128,8 +128,8 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         }
 
         //Send request
-        MYMPD_LOG_DEBUG(NULL, "Sending data: \"%s\"", mg_client_request->post_data);
         if (strcmp(mg_client_request->method, "POST") == 0) {
+            MYMPD_LOG_DEBUG(NULL, "Sending data: \"%s\"", mg_client_request->post_data);
             mg_printf(nc,
                 "POST %s HTTP/1.0\r\n"
                 "Host: %.*s\r\n"
@@ -147,6 +147,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
             mg_printf(nc,
                 "GET %s HTTP/1.0\r\n"
                 "Host: %.*s\r\n"
+                "Content-Length: 0\r\n"
                 "%s"
                 "\r\n",
                 mg_url_uri(mg_client_request->uri),
@@ -177,7 +178,6 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
             : 1;
 
         MYMPD_LOG_DEBUG(NULL, "HTTP client response code \"%d\"", mg_client_response->response_code);
-        MYMPD_LOG_DEBUG(NULL, "HTTP client received body \"%s\"", mg_client_response->body);
         //Tell mongoose to close this connection
         nc->is_closing = 1;
     }
