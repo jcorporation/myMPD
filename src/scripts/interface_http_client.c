@@ -127,5 +127,5 @@ int lua_http_download(lua_State *lua_vm) {
     FREE_SDS(mg_client_response.header);
     FREE_SDS(mg_client_response.body);
     lua_pop(lua_vm, n);
-    return luaL_error(lua_vm, "uri is NULL");
+    return luaL_error(lua_vm, "Failure downloading file.");
 }
