@@ -144,14 +144,28 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
 
     MYMPD_LOG_DEBUG(NULL, "Handle albumart for uri \"%s\", offset %d", uri, offset);
 
-    //check covercache
+    //check covercache and serve image from it if found
     if (check_covercache(nc, hm, mg_user_data, uri, offset) == true) {
         FREE_SDS(uri);
         return true;
     }
 
+    //uri too long
+    if (sdslen(uri) > FILEPATH_LEN_MAX) {
+        FREE_SDS(uri);
+        MYMPD_LOG_WARN(NULL, "Uri is too long, max len is %d", FILEPATH_LEN_MAX);
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        return true;
+    }
+
     //check for cover in /pics/thumbs/ and webradio m3u
     if (is_streamuri(uri) == true) {
+        if (sdslen(uri) > FILENAME_LEN_MAX) {
+            FREE_SDS(uri);
+            MYMPD_LOG_DEBUG(NULL, "Uri is too long, max len is %d", FILENAME_LEN_MAX);
+            webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
+            return true;
+        }
         sanitize_filename(uri);
 
         sds coverfile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, uri);
