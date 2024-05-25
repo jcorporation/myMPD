@@ -14,6 +14,7 @@
 const char *get_mime_type_by_ext(const char *filename);
 const char *get_ext_by_mime_type(const char *mime_type);
 const char *get_mime_type_by_magic_stream(sds stream);
+const char *get_mime_type_by_magic_file(const char *filename);
 bool is_image(const char *filename);
 
 #endif

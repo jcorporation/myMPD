@@ -11,6 +11,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 
+#include <errno.h>
 #include <string.h>
 
 /**
@@ -108,7 +109,35 @@ const char *get_mime_type_by_magic_stream(sds stream) {
 }
 
 /**
- * List of image type extionsions
+ * Gets the mime type by magic numbers in binary file
+ * @param filename 
+ * @return the mime type or generic application/octet-stream
+ */
+const char *get_mime_type_by_magic_file(const char *filename) {
+    errno = 0;
+    FILE *fp = fopen(filename, OPEN_FLAGS_READ_BIN);
+    if (fp == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Failure opening file \"%s\"", filename);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return NULL;
+    }
+    sds bytes = sdsempty();
+    bytes = sdsMakeRoomFor(bytes, 12);
+    size_t n = fread(bytes, 1, 12, fp);
+    if (n != 12) {
+        (void)fclose(fp);
+        FREE_SDS(bytes);
+        return NULL;
+    }
+    sdssetlen(bytes, 12);
+    (void)fclose(fp);
+    const char *mime_type = get_mime_type_by_magic_stream(bytes);
+    FREE_SDS(bytes);
+    return mime_type;
+}
+
+/**
+ * List of image type extensions
  */
 const char *image_extensions[] = {
     "webp",

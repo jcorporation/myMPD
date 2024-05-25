@@ -356,12 +356,12 @@ sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, unsign
 }
 
 /**
- * Json emmiting
+ * Json emitting
  */
 
 /**
  * Appends a comma on demand.
- * Comma is ommited on start of string or end of string is already a comma.
+ * Comma is omitted on start of string or end of string is already a comma.
  * @param buffer sds string to append
  * @return pointer to buffer
  */

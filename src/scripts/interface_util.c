@@ -12,6 +12,7 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 
@@ -238,16 +239,24 @@ int lua_util_covercache_write(lua_State *lua_vm) {
         return luaL_error(lua_vm, "uri is NULL");
     }
 
-    const char *ext = get_extension_from_filename(src);
+    const char *mime_type = get_mime_type_by_magic_file(src);
+    const char *ext = get_ext_by_mime_type(mime_type);
+    if (ext == NULL) {
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "Unknown filetype");
+    }
     sds dst = covercache_get_basename(cachedir, uri, 0);
     dst = sdscatfmt(dst, ".%s", ext);
+    lua_pop(lua_vm, n);
+    if (is_image(dst) == false) {
+        FREE_SDS(dst);
+        return luaL_error(lua_vm, "File is not an image");
+    }
     if (rename_file(src, dst) == false) {
         FREE_SDS(dst);
-        lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "");
+        return luaL_error(lua_vm, "Failure renaming file");
     }
-
-    lua_pop(lua_vm, n);
+    FREE_SDS(dst);
     lua_pushinteger(lua_vm, 0);
     return 1;
 }
