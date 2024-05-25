@@ -98,7 +98,7 @@
     "helpScriptOrder": "Sort order of the script, 0 disables listing in main menu.",
     "helpTimerPlaylist": "Playlist is ignored if preset enables the jukebox.",
     "helpTimerPreset": "Presets are managed in the playback settings.",
-    "helpScriptArguments": "Names for the script arguments, accessible via the 'arguments' lua table inside the script.",
+    "helpScriptArguments": "Names for the script arguments, accessible via the 'mympd_arguments' lua table inside the script.",
     "helpJukeboxFilterInclude": "MPD search expression to include only matching songs.",
     "helpJukeboxFilterExclude": "MPD search expression to exclude matching songs.",
     "helpJukeboxMinSongDuration": "Only songs with this minimum length will be considered.",

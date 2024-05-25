@@ -1004,7 +1004,7 @@
     "helpQueueRepeat": "Wiederholt die Warteschlange.",
     "helpQueueReplaygain": "Normalisiert die Wiedergabe-Lautstärke.",
     "helpQueueSingle": "Wiedergabe hält nach aktuellem Lied an, bzw. wiederholt das aktuelle Lied, wenn 'Wiederholen' aktiv ist.",
-    "helpScriptArguments": "Namen für die Skript-Argumente, diese sind über die Lua Table 'arguments' innerhalb des Skripts verfügbar.",
+    "helpScriptArguments": "Namen für die Skript-Argumente, diese sind über die Lua Table 'mympd_arguments' innerhalb des Skripts verfügbar.",
     "helpScriptOrder": "Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü",
     "helpSetSongPriority": "Die neue Lied-Priorität zwischen 0 und 255.",
     "helpSettingsAlbumListSort": "Standardsortierreihenfolge der Album Liste.",
