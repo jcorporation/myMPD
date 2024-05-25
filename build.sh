@@ -292,7 +292,7 @@ createassets() {
 
 lualibs() {
   [ -z "${MYMPD_ENABLE_MYGPIOD+x}" ] && MYMPD_ENABLE_MYGPIOD="OFF"
-  [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="debug"
+  [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
   echo "Copy integrated lua libraries"
   mkdir -p "$MYMPD_BUILDDIR/contrib/lualibs"
   cp -v contrib/lualibs/json.lua "$MYMPD_BUILDDIR/contrib/lualibs/"
@@ -1296,8 +1296,9 @@ run_htmlhint() {
 }
 
 run_luacheck() {
+  export MYMPD_ENABLE_MYGPIOD="ON"
   lualibs
-  if ! luacheck debug/contrib/lualibs/
+  if ! luacheck release/contrib/lualibs/
   then
     return 1
   fi
@@ -1329,7 +1330,7 @@ run_luadoc() {
   fi
   echo "Running luadoc"
   lualibs
-  luadoc --noindexpage -d docs/luadoc/ debug/contrib/lualibs/mympd.lua
+  luadoc --noindexpage -d docs/luadoc/ release/contrib/lualibs/mympd.lua
 }
 
 create_doc() {
