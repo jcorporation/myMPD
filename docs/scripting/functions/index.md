@@ -30,3 +30,5 @@ List of myMPD specific Lua functions.
 | [mympd.urldecode]({{site.baseurl}}/scripting/functions/util) | Decodes a URL encoded string. |
 | [mympd.urlencode]({{site.baseurl}}/scripting/functions/util) | URL encodes a string. |
 {: .table .table-sm }
+
+- [LuaDoc]({{site.baseurl}}/luadoc/files/debug/contrib/lualibs/mympd.html)

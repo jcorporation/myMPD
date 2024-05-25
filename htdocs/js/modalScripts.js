@@ -181,7 +181,7 @@ function importScript(event) {
 function getImportScriptList() {
     const sel = elGetById('modalScriptsImportSelect');
     sel.setAttribute('disabled', 'disabled');
-    httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://jcorporation.github.io/myMPD/scripting/scripts/index.json'), function(obj) {
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://raw.githubusercontent.com/jcorporation/mympd-scripts/main/index.json'), function(obj) {
         sel.options.length = 0;
         for (const script of obj.scripts) {
             sel.appendChild(
@@ -199,7 +199,7 @@ function getImportScriptList() {
  */
 function getImportScript(script) {
     elGetById('modalScriptsContentInput').setAttribute('disabled', 'disabled');
-    httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://jcorporation.github.io/myMPD/scripting/scripts/' + script), function(text) {
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://raw.githubusercontent.com/jcorporation/mympd-scripts/main/' + script), function(text) {
         const lines = text.split('\n');
         const firstLine = lines.shift();
         let obj;

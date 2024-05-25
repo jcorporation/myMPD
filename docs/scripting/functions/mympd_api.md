@@ -7,7 +7,7 @@ title: Accessing the myMPD API
 Calls the myMPD API, look at [API]({{ site.baseurl }}/references/api/) for detailed API description.
 
 ```lua
-rc, result = mympd.api("method", params)
+local rc, result = mympd.api("method", params)
 ```
 
 **Parameters:**

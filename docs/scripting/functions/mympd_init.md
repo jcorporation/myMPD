@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /scripting/functions/mympd_state
+permalink: /scripting/functions/mympd_init
 title: Accessing myMPD and MPD status information
 ---
 

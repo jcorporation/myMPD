@@ -9,7 +9,7 @@ jobs:
     - name: install linters
       run: |
         sudo apt-get update
-        sudo apt-get install -y npm clang-tidy
+        sudo apt-get install -y npm clang-tidy lua-check
         sudo ./build.sh installdeps
         npm install eslint --save-dev
         npm install stylelint --save-dev
@@ -17,7 +17,7 @@ jobs:
         npm install htmlhint --save-dev
         npm install typescript --save-dev
         npm install eslint-plugin-jsdoc --save-dev
-    - name: lint js css html
+    - name: lint js css html lua
       run: ./build.sh lint
     - name: build debug and lint
       run: |

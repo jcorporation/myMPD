@@ -29,6 +29,7 @@ myMPD environment variables are populated in the lua table `mympd_env`.
 | `scriptevent` | string | Script start event: `extern`, `http`, `timer`, `trigger` or `user` |
 | `scriptname` | string | Script name |
 | `workdir` | string | myMPD working directory |
+{: .table .table-sm }
 
 ### Arguments
 
@@ -57,9 +58,9 @@ myMPD provides custom lua functions through the `mympd` and `json` lua library.
 
 ## Examples
 
-Complete scripts can be found in the [repository](https://github.com/jcorporation/myMPD/tree/master/docs/scripting/scripts).
+Here can you find some simple examples.
 
-- [Usage examples]({{site.baseurl}}/scripting/usage/)
+Complete scripts that can be imported are in the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts).
 
 ### Simple
 

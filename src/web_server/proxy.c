@@ -21,6 +21,7 @@
  */
 static const char *allowed_proxy_hosts[] = {
     "jcorporation.github.io",
+    "raw.githubusercontent.com",
     "musicbrainz.org",
     "listenbrainz.org",
     NULL

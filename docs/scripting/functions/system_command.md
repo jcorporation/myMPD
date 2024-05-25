@@ -7,7 +7,7 @@ title: Execute a system command
 Executes a system command and captures its output.
 
 ```lua
-output = mympd.os_capture(command)
+local output = mympd.os_capture(command)
 ```
 
 **Parameters:**

@@ -28,10 +28,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Generate api documentation
         run: |
-          sudo apt-get install -y doxygen graphviz
+          sudo apt-get install -y doxygen graphviz luadoc
           sudo npm install --location=global jsdoc
           ./build.sh api_doc
-          ./build.sh luascript_index
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Build with Jekyll

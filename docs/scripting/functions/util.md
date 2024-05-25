@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /scripting/functions/mympd_api
+permalink: /scripting/functions/util
 title: Utility Functions
 ---
 
@@ -9,8 +9,8 @@ Some useful utility functions.
 ## Hashing functions
 
 ```lua
-sha1_hash = mympd.hash_sha1(string)
-sha256_hash = mympd.hash_sha256(string)
+local sha1_hash = mympd.hash_sha1(string)
+local sha256_hash = mympd.hash_sha256(string)
 ```
 
 **Parameters:**
@@ -23,8 +23,8 @@ sha256_hash = mympd.hash_sha256(string)
 ## URL encoding and decoding
 
 ```lua
-encoded = mympd.urlencode(string)
-decoded = mympd.urldecode(string, form_url_decode)
+local encoded = mympd.urlencode(string)
+local decoded = mympd.urldecode(string, form_url_decode)
 ```
 
 **Parameters:**
@@ -77,5 +77,5 @@ mympd.notify_partition(severity, message)
 
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
-| severity | number | 0 = info, 1 = warn, 2 = error|
+| severity | number | 0 = Info, 1 = Warn, 2 = Error |
 | message | string | Message to send. |

@@ -292,6 +292,7 @@ createassets() {
 
 lualibs() {
   [ -z "${MYMPD_ENABLE_MYGPIOD+x}" ] && MYMPD_ENABLE_MYGPIOD="OFF"
+  [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="debug"
   echo "Copy integrated lua libraries"
   mkdir -p "$MYMPD_BUILDDIR/contrib/lualibs"
   cp -v contrib/lualibs/json.lua "$MYMPD_BUILDDIR/contrib/lualibs/"
@@ -1294,20 +1295,13 @@ run_htmlhint() {
   return 0
 }
 
-luascript_index() {
-  rm -f "docs/scripting/scripts/index.json"
-  exec 3<> "docs/scripting/scripts/index.json"
-  printf "{\"scripts\":[" >&3
-  I=0
-  for F in docs/scripting/scripts/*.lua
-  do
-    [ "$I" -gt 0 ] &&  printf "," >&3
-    SCRIPTNAME=$(basename "$F")
-    printf "\"%s\"" "$SCRIPTNAME" >&3
-    I=$((I+1))
-  done
-  printf "]}\n" >&3
-  exec 3>&-
+run_luacheck() {
+  lualibs
+  if ! luacheck debug/contrib/lualibs/
+  then
+    return 1
+  fi
+  return 0
 }
 
 run_doxygen() {
@@ -1326,6 +1320,16 @@ run_jsdoc() {
   fi
   echo "Running jsdoc"
   jsdoc htdocs/js/ -c jsdoc.json -d docs/jsdoc/
+}
+
+run_luadoc() {
+  if ! check_cmd luadoc
+  then
+    return 1
+  fi
+  echo "Running luadoc"
+  lualibs
+  luadoc --noindexpage -d docs/luadoc/ debug/contrib/lualibs/mympd.lua
 }
 
 create_doc() {
@@ -1591,6 +1595,10 @@ case "$ACTION" in
     then
       exit 1
     fi
+    if ! run_luacheck
+    then
+      exit 1
+    fi
   ;;
   eslint)
     run_eslint
@@ -1600,6 +1608,9 @@ case "$ACTION" in
   ;;
   htmlhint)
     run_htmlhint
+  ;;
+  luacheck)
+    run_luacheck
   ;;
   luascript_index)
     luascript_index
@@ -1613,6 +1624,11 @@ case "$ACTION" in
     if ! run_jsdoc
     then
       echo "Could not create frontend api documentation"
+      exit 1
+    fi
+    if ! run_luadoc
+    then
+      echo "Could not create lua api documentation"
       exit 1
     fi
     cp -v htdocs/js/apidoc.js docs/assets/apidoc.js
@@ -1671,6 +1687,7 @@ case "$ACTION" in
     echo "  eslint:           combines javascript files and runs eslint"
     echo "  stylelint:        runs stylelint (lints css files)"
     echo "  htmlhint:         runs htmlhint (lints html files)"
+    echo "  luacheck:         runs luacheck (lints lua libraries)"
     echo ""
     echo "Cleanup options:"
     echo "  cleanup:          cleanup source tree"

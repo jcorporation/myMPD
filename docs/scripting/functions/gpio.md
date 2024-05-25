@@ -12,16 +12,16 @@ All functions are connecting to the socket `/run/mygpiod/socket`, issues the com
 mympd.mygpiod_socket = "/run/mygpiod/socket.debug"
 
 -- Blink a GPIO at given timeout and interval
-rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)
+local rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)
 
 -- Get the active state of a GPIO
 -- 0 = inactive, 1 = active
-state = mympd.gpio_get(gpio)
+local state = mympd.gpio_get(gpio)
 
 -- Sets the active state of a GPIO
 -- 0 = inactive, 1 = active
-rc = mympd.gpio_set(gpio, state)
+local rc = mympd.gpio_set(gpio, state)
 
 -- Toggles the active state of a GPIO
-rc = mympd.gpio_toggle(gpio)
+local rc = mympd.gpio_toggle(gpio)
 ```
