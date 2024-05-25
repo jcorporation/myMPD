@@ -44,7 +44,6 @@ void *mympd_config_free(struct t_config *config) {
     FREE_SDS(config->acl);
     FREE_SDS(config->cachedir);
     FREE_SDS(config->http_host);
-    FREE_SDS(config->lualibs);
     FREE_SDS(config->mympd_uri);
     FREE_SDS(config->pin_hash);
     FREE_SDS(config->scriptacl);
@@ -75,7 +74,6 @@ void mympd_config_defaults_initial(struct t_config *config) {
     //set all other sds strings to NULL
     config->acl = NULL;
     config->http_host = NULL;
-    config->lualibs = NULL;
     config->mympd_uri = NULL;
     config->pin_hash = NULL;
     config->scriptacl = NULL;
@@ -129,11 +127,6 @@ void mympd_config_defaults(struct t_config *config) {
     }
     config->acl = startup_getenv_string("MYMPD_ACL", CFG_MYMPD_ACL, vcb_isname, config->first_startup);
     config->scriptacl = startup_getenv_string("MYMPD_SCRIPTACL", CFG_MYMPD_SCRIPTACL, vcb_isname, config->first_startup);
-    #ifdef MYMPD_ENABLE_LUA
-        config->lualibs = startup_getenv_string("MYMPD_LUALIBS", CFG_MYMPD_LUALIBS, vcb_isalnum, config->first_startup);
-    #else
-        config->lualibs = sdsempty();
-    #endif
     config->loglevel = getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX);
     config->pin_hash = sdsnew(CFG_MYMPD_PIN_HASH);
     config->covercache_keep_days = startup_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", CFG_MYMPD_COVERCACHE_KEEP_DAYS, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, config->first_startup);
@@ -207,11 +200,6 @@ bool mympd_config_rw(struct t_config *config, bool write) {
     config->pin_hash = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "pin_hash", config->pin_hash, vcb_isname, write);
     config->acl = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "acl", config->acl, vcb_isname, write);
     config->scriptacl = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "scriptacl", config->scriptacl, vcb_isname, write);
-    #ifdef MYMPD_ENABLE_LUA
-        config->lualibs = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "lualibs", config->lualibs, vcb_isname, write);
-    #else
-        MYMPD_LOG_NOTICE(NULL, "Lua is disabled, ignoring lua settings");
-    #endif
     config->covercache_keep_days = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "covercache_keep_days", config->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, write);
     config->loglevel = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "loglevel", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, write);
     config->save_caches = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "save_caches", config->save_caches, write);

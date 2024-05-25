@@ -51,7 +51,6 @@ struct t_config {
     sds acl;                        //!< IPv4 ACL string
     sds cachedir;                   //!< cache directory
     sds http_host;                  //!< ip to bind the webserver
-    sds lualibs;                    //!< enabled lua libraries
     sds mympd_uri;                  //!< uri to resolve mympd:// uris
     sds pin_hash;                   //!< hash of the pin
     sds scriptacl;                  //!< IPv4 ACL string for the /api/script endpoint

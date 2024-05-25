@@ -96,18 +96,6 @@ else
 end
 ```
 
-## Lua standard libraries
-
-myMPD loads in the default config all lua standard libraries and the myMPD custom libraries. The configuration file lualibs controls which libraries myMPD opens before script execution.
-
-**Valid values are:**
-
-- Use `all` to load all standard lua libraries and the myMPD custom libraries
-- Available standard lua libraries: base, coroutine, debug, io, math, os, package, string, table, utf8
-- Available myMPD custom libraries:
-  - [mympd](https://github.com/jcorporation/myMPD/blob/master/contrib/lualibs/mympd)
-  - [json](https://github.com/rxi/json.lua)
-
 ## Script file format
 
 Scripts are saved in the directory `/var/lib/mympd/scripts` with the extension `.lua`. The metadata (order, arguments) are saved in the first line in a lua comment as json object.

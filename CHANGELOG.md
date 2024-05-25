@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD 16.0.0 (not yet released)
 
-This release enhances the scripting functionality of myMPD a lot. There are several new myMPD specific Lua functions and a completely new way to call scripts.
+This release reworks the scripting functionality of myMPD. There are several new myMPD specific Lua functions and a completely new way to call scripts.
 
 With this release you can call Lua scripts by http requests and the script itself can respond to it. There is now also a new `yt-dlp` script developed by @sevmonster that make use of this new functionality.
 
@@ -14,6 +14,8 @@ With this release you can call Lua scripts by http requests and the script itsel
 
 - The config setting for the ListenBrainz API token was removed in favor of a new central function to declare variables for scripts.
 - The global variables for Lua scripts are renamed.
+- The `lualibs` configuration option was removed. myMPD loads always all Lua standard libraries.
+- The scripts to import are move to the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts).
 
 ### API changes
 

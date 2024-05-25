@@ -45,47 +45,13 @@ lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc) {
         MYMPD_LOG_ERROR(script_arg->partition, "Memory allocation error in luaL_newstate");
         return NULL;
     }
-    if (strcmp(script_arg->config->lualibs, "all") == 0) {
-        MYMPD_LOG_DEBUG(NULL, "Open all standard lua libs");
-        luaL_openlibs(lua_vm);
-        if (mympd_luaopen(lua_vm, "json") == 1 ||
-            mympd_luaopen(lua_vm, "mympd") == 1)
-        {
-            lua_close(lua_vm);
-            return NULL;
-        }
-    }
-    else {
-        int count = 0;
-        sds *tokens = sdssplitlen(script_arg->config->lualibs, (ssize_t)sdslen(script_arg->config->lualibs), ",", 1, &count);
-        for (int i = 0; i < count; i++) {
-            sdstrim(tokens[i], " ");
-            MYMPD_LOG_DEBUG(NULL, "Open lua library %s", tokens[i]);
-            if (strcmp(tokens[i], "base") == 0)           { luaL_requiref(lua_vm, "base", luaopen_base, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "package") == 0)   { luaL_requiref(lua_vm, "package", luaopen_package, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "coroutine") == 0) { luaL_requiref(lua_vm, "coroutine", luaopen_coroutine, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "string") == 0)    { luaL_requiref(lua_vm, "string", luaopen_string, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "utf8") == 0)      { luaL_requiref(lua_vm, "utf8", luaopen_utf8, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "table") == 0)     { luaL_requiref(lua_vm, "table", luaopen_table, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "math") == 0)      { luaL_requiref(lua_vm, "math", luaopen_math, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "io") == 0)        { luaL_requiref(lua_vm, "io", luaopen_io, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "os") == 0)        { luaL_requiref(lua_vm, "os", luaopen_os, 1); lua_pop(lua_vm, 1); }
-            else if (strcmp(tokens[i], "debug") == 0)     { luaL_requiref(lua_vm, "debug", luaopen_debug, 1); lua_pop(lua_vm, 1); }
-            //custom libs
-            else if (strcmp(tokens[i], "json") == 0 ||
-                     strcmp(tokens[i], "mympd") == 0)
-            { 
-                if (mympd_luaopen(lua_vm, tokens[i]) == 1) {
-                    lua_close(lua_vm);
-                    return NULL;
-                }
-            }
-            else {
-                MYMPD_LOG_WARN(NULL, "Can not find lua library %s", tokens[i]);
-                continue;
-            }
-        }
-        sdsfreesplitres(tokens,count);
+    MYMPD_LOG_DEBUG(NULL, "Open all standard lua libs");
+    luaL_openlibs(lua_vm);
+    if (mympd_luaopen(lua_vm, "json") == 1 ||
+        mympd_luaopen(lua_vm, "mympd") == 1)
+    {
+        lua_close(lua_vm);
+        return NULL;
     }
     register_lua_functions(lua_vm);
     *rc = script_arg->localscript == true
