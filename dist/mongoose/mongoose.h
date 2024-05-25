@@ -20,7 +20,7 @@
 #ifndef MONGOOSE_H
 #define MONGOOSE_H
 
-#define MG_VERSION "7.13"
+#define MG_VERSION "7.14"
 
 #ifdef __cplusplus
 extern "C" {
@@ -860,14 +860,11 @@ struct mg_str mg_str(const char *s);
 struct mg_str mg_str_n(const char *s, size_t n);
 int mg_casecmp(const char *s1, const char *s2);
 int mg_strcmp(const struct mg_str str1, const struct mg_str str2);
-int mg_strcasecmp(const struct mg_str str1, const struct mg_str str2);  // this one is new
+int mg_strcasecmp(const struct mg_str str1, const struct mg_str str2);
 bool mg_match(struct mg_str str, struct mg_str pattern, struct mg_str *caps);
 bool mg_span(struct mg_str s, struct mg_str *a, struct mg_str *b, char delim);
 
-void mg_unhex(const char *buf, size_t len, unsigned char *to);
-unsigned long mg_unhexn(const char *s, size_t len);
-
-uint8_t mg_toi(char c, int base); // base: 16, 10
+bool mg_str_to_num(struct mg_str, int base, void *val, size_t val_len);
 
 
 
@@ -2152,6 +2149,7 @@ void mg_http_serve_ssi(struct mg_connection *c, const char *root,
 #define MG_TLS_NONE 0     // No TLS support
 #define MG_TLS_MBED 1     // mbedTLS
 #define MG_TLS_OPENSSL 2  // OpenSSL
+#define MG_TLS_WOLFSSL 5  // WolfSSL (based on OpenSSL)
 #define MG_TLS_BUILTIN 3  // Built-in
 #define MG_TLS_CUSTOM 4   // Custom implementation
 
@@ -2219,7 +2217,7 @@ struct mg_tls {
 #endif
 
 
-#if MG_TLS == MG_TLS_OPENSSL
+#if MG_TLS == MG_TLS_OPENSSL || MG_TLS == MG_TLS_WOLFSSL
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
