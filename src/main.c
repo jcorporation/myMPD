@@ -71,7 +71,7 @@ sig_atomic_t s_signal_received;
 //message queues
 struct t_mympd_queue *web_server_queue;
 struct t_mympd_queue *mympd_api_queue;
-struct t_mympd_queue *mympd_script_queue;
+struct t_mympd_queue *mympd_script_thread_queue;
 
 /**
  * Signal handler that stops myMPD on SIGTERM and SIGINT and saves
@@ -87,7 +87,7 @@ static void mympd_signal_handler(int sig_num) {
             s_signal_received = sig_num;
             //Wakeup queue loops
             pthread_cond_signal(&mympd_api_queue->wakeup);
-            pthread_cond_signal(&mympd_script_queue->wakeup);
+            pthread_cond_signal(&mympd_script_thread_queue->wakeup);
             pthread_cond_signal(&web_server_queue->wakeup);
             event_eventfd_write(mympd_api_queue->event_fd);
             if (web_server_queue->mg_mgr != NULL) {
@@ -379,7 +379,7 @@ int main(int argc, char **argv) {
 
     mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST, true);
     web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE, false);
-    mympd_script_queue = mympd_queue_create("mympd_script_queue", QUEUE_TYPE_RESPONSE, false);
+    mympd_script_thread_queue = mympd_queue_create("mympd_script_thread_queue", QUEUE_TYPE_RESPONSE, false);
 
     //mympd config defaults
     config = malloc_assert(sizeof(struct t_config));
@@ -589,7 +589,7 @@ int main(int argc, char **argv) {
     //free queues
     mympd_queue_free(web_server_queue);
     mympd_queue_free(mympd_api_queue);
-    mympd_queue_free(mympd_script_queue);
+    mympd_queue_free(mympd_script_thread_queue);
 
     //free config
     mympd_config_free(config);

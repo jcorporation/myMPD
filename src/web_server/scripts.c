@@ -100,7 +100,7 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
         return false;
     }
     http_script_threads++;
-    mympd_queue_expire(mympd_script_queue, 120);
+    mympd_queue_expire(mympd_script_thread_queue, 120);
     return true;
 }
 

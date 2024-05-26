@@ -72,7 +72,7 @@ int lua_mympd_api(lua_State *lua_vm) {
     int i = 0;
     while (s_signal_received == 0 && i < 60) {
         i++;
-        struct t_work_response *response = mympd_queue_shift(mympd_script_queue, 1000000, request_id);
+        struct t_work_response *response = mympd_queue_shift(mympd_script_thread_queue, 1000000, request_id);
         if (response != NULL) {
             MYMPD_LOG_DEBUG(NULL, "Got response: %s", response->data);
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {

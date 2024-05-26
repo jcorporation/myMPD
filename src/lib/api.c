@@ -239,8 +239,8 @@ void free_response(struct t_work_response *response) {
 bool push_response(struct t_work_response *response) {
     switch(response->type) {
         case RESPONSE_TYPE_SCRIPT:
-            MYMPD_LOG_DEBUG(NULL, "Push response to mympd_script_queue for thread %u: %s", response->id, response->data);
-            return mympd_queue_push(mympd_script_queue, response, response->id);
+            MYMPD_LOG_DEBUG(NULL, "Push response to mympd_script_thread_queue for thread %u: %s", response->id, response->data);
+            return mympd_queue_push(mympd_script_thread_queue, response, response->id);
         case RESPONSE_TYPE_DEFAULT:
         case RESPONSE_TYPE_NOTIFY_CLIENT:
         case RESPONSE_TYPE_NOTIFY_PARTITION:

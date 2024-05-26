@@ -290,7 +290,7 @@ bool mympd_api_script_start(struct t_config *config, sds script, struct t_list *
         free_t_script_thread_arg(script_thread_arg);
         return false;
     }
-    mympd_queue_expire(mympd_script_queue, 120);
+    mympd_queue_expire(mympd_script_thread_queue, 120);
     return true;
 }
 
