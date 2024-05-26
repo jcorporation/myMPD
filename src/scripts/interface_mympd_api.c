@@ -38,26 +38,31 @@ int lua_mympd_api(lua_State *lua_vm) {
     //get method
     const char *method = lua_tostring(lua_vm, 2);
     if (method == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: method is NULL");
+        MYMPD_LOG_ERROR(partition, "Lua - mympd_api: method is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "method is NULL");
     }
-    enum mympd_cmd_ids method_id = get_cmd_id(method);
-    if (method_id == GENERAL_API_UNKNOWN) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: Invalid method \"%s\"", method);
+    enum mympd_cmd_ids cmd_id = get_cmd_id(method);
+    if (cmd_id == GENERAL_API_UNKNOWN) {
+        MYMPD_LOG_ERROR(partition, "Lua - mympd_api: Invalid method \"%s\"", method);
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid method");
     }
+    if (is_public_api_method(cmd_id) == false) {
+        MYMPD_LOG_ERROR(partition, "Lua - mympd_api: API method %s is for internal use only ", method);
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "API method is for internal use only");
+    }
     const char *params = lua_tostring(lua_vm, 3);
     if (params == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - mympd_api: params is NULL");
+        MYMPD_LOG_ERROR(partition, "Lua - mympd_api: params is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "params is NULL");
     }
     //generate a request id
     unsigned request_id = randrange(0, UINT_MAX);
     //create the request
-    struct t_work_request *request = create_request(REQUEST_TYPE_SCRIPT, 0, request_id, method_id, NULL, partition);
+    struct t_work_request *request = create_request(REQUEST_TYPE_SCRIPT, 0, request_id, cmd_id, NULL, partition);
     if (params[0] != '{') {
         //param is invalid json, ignore it
         request->data = sdscatlen(request->data, "}", 1);
@@ -77,7 +82,7 @@ int lua_mympd_api(lua_State *lua_vm) {
             MYMPD_LOG_DEBUG(NULL, "Got response: %s", response->data);
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                 //this populates a lua table with some MPD and myMPD states
-                MYMPD_LOG_DEBUG(NULL, "Populating global lua table mympd_state");
+                MYMPD_LOG_DEBUG(partition, "Populating global lua table mympd_state");
                 if (response->extra != NULL) {
                     struct t_list *lua_mympd_state = (struct t_list *)response->extra;
                     lua_newtable(lua_vm);
