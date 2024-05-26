@@ -23,6 +23,7 @@
 #include "src/lib/passwd.h"
 #include "src/lib/sds_extras.h"
 #include "src/mympd_api/mympd_api.h"
+#include "src/scripts/scripts.h"
 #include "src/web_server/web_server.h"
 
 #ifdef MYMPD_ENABLE_LUA
@@ -71,7 +72,8 @@ sig_atomic_t s_signal_received;
 //message queues
 struct t_mympd_queue *web_server_queue;
 struct t_mympd_queue *mympd_api_queue;
-struct t_mympd_queue *mympd_script_thread_queue;
+struct t_mympd_queue *script_queue;
+struct t_mympd_queue *script_worker_queue;
 
 /**
  * Signal handler that stops myMPD on SIGTERM and SIGINT and saves
@@ -87,7 +89,8 @@ static void mympd_signal_handler(int sig_num) {
             s_signal_received = sig_num;
             //Wakeup queue loops
             pthread_cond_signal(&mympd_api_queue->wakeup);
-            pthread_cond_signal(&mympd_script_thread_queue->wakeup);
+            pthread_cond_signal(&script_queue->wakeup);
+            pthread_cond_signal(&script_worker_queue->wakeup);
             pthread_cond_signal(&web_server_queue->wakeup);
             event_eventfd_write(mympd_api_queue->event_fd);
             if (web_server_queue->mg_mgr != NULL) {
@@ -97,9 +100,12 @@ static void mympd_signal_handler(int sig_num) {
         }
         case SIGHUP: {
             MYMPD_LOG_NOTICE(NULL, "Signal SIGHUP received, saving states");
-            struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
-            request->data = sdscatlen(request->data, "}}", 2);
-            mympd_queue_push(mympd_api_queue, request, 0);
+            struct t_work_request *request1 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
+            request1->data = sdscatlen(request1->data, "}}", 2);
+            mympd_queue_push(mympd_api_queue, request1, 0);
+            struct t_work_request *request2 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
+            request2->data = sdscatlen(request2->data, "}}", 2);
+            mympd_queue_push(script_queue, request2, 0);
             break;
         }
         default: {
@@ -364,6 +370,7 @@ int main(int argc, char **argv) {
     int rc = EXIT_FAILURE;
     pthread_t web_server_thread = 0;
     pthread_t mympd_api_thread = 0;
+    pthread_t script_thread = 0;
     int thread_rc = 0;
 
     //goto root directory
@@ -379,7 +386,8 @@ int main(int argc, char **argv) {
 
     mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST, true);
     web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE, false);
-    mympd_script_thread_queue = mympd_queue_create("mympd_script_thread_queue", QUEUE_TYPE_RESPONSE, false);
+    script_queue = mympd_queue_create("script_queue", QUEUE_TYPE_REQUEST, false);
+    script_worker_queue = mympd_queue_create("script_worker_queue", QUEUE_TYPE_RESPONSE, false);
 
     //mympd config defaults
     config = malloc_assert(sizeof(struct t_config));
@@ -550,6 +558,15 @@ int main(int argc, char **argv) {
         s_signal_received = SIGTERM;
     }
 
+    //scripts
+    MYMPD_LOG_NOTICE(NULL, "Starting script thread");
+    if ((thread_rc = pthread_create(&script_thread, NULL, scripts_loop, config)) != 0) {
+        MYMPD_LOG_ERROR(NULL, "Can't create script thread");
+        MYMPD_LOG_ERRNO(NULL, thread_rc);
+        web_server_thread = 0;
+        s_signal_received = SIGTERM;
+    }
+
     //webserver
     MYMPD_LOG_NOTICE(NULL, "Starting webserver thread");
     if ((thread_rc = pthread_create(&web_server_thread, NULL, web_server_loop, mgr)) != 0) {
@@ -585,11 +602,21 @@ int main(int argc, char **argv) {
             MYMPD_LOG_NOTICE(NULL, "Finished mympd api thread");
         }
     }
+    if (script_thread > (pthread_t)0) {
+        if ((thread_rc = pthread_join(script_thread, NULL)) != 0) {
+            MYMPD_LOG_ERROR(NULL, "Error stopping script thread");
+            MYMPD_LOG_ERRNO(NULL, thread_rc);
+        }
+        else {
+            MYMPD_LOG_NOTICE(NULL, "Finished script thread");
+        }
+    }
 
     //free queues
     mympd_queue_free(web_server_queue);
     mympd_queue_free(mympd_api_queue);
-    mympd_queue_free(mympd_script_thread_queue);
+    mympd_queue_free(script_queue);
+    mympd_queue_free(script_worker_queue);
 
     //free config
     mympd_config_free(config);

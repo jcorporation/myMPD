@@ -149,15 +149,19 @@ target_sources(mympd
 if(MYMPD_ENABLE_LUA)
   target_sources(mympd
     PRIVATE
-      scripts/scripts.c
-      scripts/scripts_lua.c
+      mympd_api/lua_mympd_state.c
+      scripts/api_handler.c
+      scripts/api_scripts.c
+      scripts/api_vars.c
+      scripts/events.c
       scripts/interface_http_client.c
       scripts/interface_mympd_api.c
       scripts/interface_util.c
       scripts/interface.c
-      mympd_api/lua_mympd_state.c
-      mympd_api/scripts.c
-      mympd_api/scripts_vars.c
+      scripts/scripts_lua.c
+      scripts/scripts_worker.c
+      scripts/scripts.c
+      scripts/util.c
       web_server/scripts.c
   )
 endif()

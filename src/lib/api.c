@@ -239,8 +239,8 @@ void free_response(struct t_work_response *response) {
 bool push_response(struct t_work_response *response) {
     switch(response->type) {
         case RESPONSE_TYPE_SCRIPT:
-            MYMPD_LOG_DEBUG(NULL, "Push response to mympd_script_thread_queue for thread %u: %s", response->id, response->data);
-            return mympd_queue_push(mympd_script_thread_queue, response, response->id);
+            MYMPD_LOG_DEBUG(NULL, "Push response to script_worker_queue for thread %u: %s", response->id, response->data);
+            return mympd_queue_push(script_worker_queue, response, response->id);
         case RESPONSE_TYPE_DEFAULT:
         case RESPONSE_TYPE_NOTIFY_CLIENT:
         case RESPONSE_TYPE_NOTIFY_PARTITION:
@@ -257,4 +257,32 @@ bool push_response(struct t_work_response *response) {
     MYMPD_LOG_ERROR(NULL, "Invalid response type for connection %lu: %s", response->conn_id, response->data);
     free_response(response);
     return false;
+}
+
+/**
+ * Pushes the request to a queue
+ * @param request pointer to request struct to push
+ * @param id request id
+ * @return true on success, else false
+ */
+bool push_request(struct t_work_request *request, unsigned id) {
+    switch(request->cmd_id) {
+        case INTERNAL_API_SCRIPT_EXECUTE:
+        case MYMPD_API_SCRIPT_EXECUTE:
+        case MYMPD_API_SCRIPT_GET:
+        case MYMPD_API_SCRIPT_LIST:
+        case MYMPD_API_SCRIPT_RM:
+        case MYMPD_API_SCRIPT_SAVE:
+        case MYMPD_API_SCRIPT_VALIDATE:
+        case MYMPD_API_SCRIPT_VAR_DELETE:
+        case MYMPD_API_SCRIPT_VAR_LIST:
+        case MYMPD_API_SCRIPT_VAR_SET: {
+            //forward API request to script thread
+            return mympd_queue_push(script_queue, request, id);
+        }
+        default: {
+            //forward API request to mympd_api thread
+            return mympd_queue_push(mympd_api_queue, request, id);
+        }
+    }
 }

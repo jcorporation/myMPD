@@ -76,7 +76,8 @@ extern sig_atomic_t s_signal_received;
 //message queues
 extern struct t_mympd_queue *web_server_queue;
 extern struct t_mympd_queue *mympd_api_queue;
-extern struct t_mympd_queue *mympd_script_thread_queue;
+extern struct t_mympd_queue *script_queue;
+extern struct t_mympd_queue *script_worker_queue;
 
 //standard file names and folders
 #define FILENAME_ALBUMCACHE "album_cache.mpack"

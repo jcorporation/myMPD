@@ -6,8 +6,6 @@ title: Accessing myMPD and MPD status information
 
 Populates the lua table `mympd_state` with configuration values and current status of myMPD and MPD.
 
-Additionally all user defined variables are populates in this table. They are prefixed with `var_`.
-
 ```lua
 mympd.init()
 ```

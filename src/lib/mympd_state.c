@@ -16,9 +16,6 @@
 #include "src/lib/utility.h"
 #include "src/mpd_client/presets.h"
 #include "src/mympd_api/home.h"
-#ifdef MYMPD_ENABLE_LUA
-    #include "src/mympd_api/scripts_vars.h"
-#endif
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/trigger.h"
 
@@ -46,9 +43,6 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
     }
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
-    #ifdef MYMPD_ENABLE_LUA
-        mympd_api_script_vars_file_save(&mympd_state->script_var_list, mympd_state->config->workdir);
-    #endif
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
     if (free_data == true) {
         mympd_state_free(mympd_state);
@@ -126,8 +120,6 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     list_init(&mympd_state->home_list);
     //timer
     mympd_api_timer_timerlist_init(&mympd_state->timer_list);
-    //variables for scripts
-    list_init(&mympd_state->script_var_list);
     //album cache
     cache_init(&mympd_state->album_cache);
     //init last played songs list
@@ -147,8 +139,6 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     list_clear(&mympd_state->home_list);
     //timer
     mympd_api_timer_timerlist_clear(&mympd_state->timer_list);
-    //variables for scripts
-    list_clear(&mympd_state->script_var_list);
     //mpd shared state
     mpd_state_free(mympd_state->mpd_state);
     //partition state

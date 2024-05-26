@@ -7,52 +7,40 @@
 #include "compile_time.h"
 #include "src/scripts/scripts.h"
 
-#include "src/lib/list.h"
+#include "src/lib/config_def.h"
+#include "src/lib/log.h"
 #include "src/lib/mem.h"
+#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
-
-#include <string.h>
+#include "src/lib/thread.h"
+#include "src/scripts/api_handler.h"
+#include "src/scripts/api_vars.h"
+#include "src/scripts/util.h"
 
 /**
- * Returns the name for the script start event
- * @param start_event start event enum
- * @return start event name or empty if unknown
+ * This is the main function for the scripts thread
+ * @param arg_config void pointer to t_config struct
  */
-const char *script_start_event_name(enum script_start_events start_event) {
-    switch (start_event) {
-        case SCRIPT_START_EXTERN:  return "extern";
-        case SCRIPT_START_HTTP:    return "http";
-        case SCRIPT_START_TIMER:   return "timer";
-        case SCRIPT_START_TRIGGER: return "trigger";
-        case SCRIPT_START_USER:    return "user";
-        case SCRIPT_START_UNKNOWN: return "";
+void *scripts_loop(void *arg_config) {
+    thread_logname = sds_replace(thread_logname, "scripts");
+    set_threadname(thread_logname);
+
+    // create initial scripts_state struct and set defaults
+    struct t_scripts_state *scripts_state = malloc_assert(sizeof(struct t_scripts_state));
+    scripts_state_default(scripts_state, (struct t_config *)arg_config);
+    scripts_vars_file_read(&scripts_state->var_list, scripts_state->config->workdir);
+
+    // thread loop
+    while (s_signal_received == 0) {
+        struct t_work_request *request = mympd_queue_shift(script_queue, 0, 0);
+        if (request != NULL) {
+            scripts_api_handler(scripts_state, request);
+        }
     }
-    return "";
-}
+    MYMPD_LOG_DEBUG(NULL, "Stopping scripts thread");
 
-/**
- * Parses the name for the script start event
- * @param str string to parse
- * @return script_start_event enum
- */
-enum script_start_events script_start_event_parse(const char *str) {
-    if (strcmp(str, "http") == 0) { return SCRIPT_START_HTTP; }
-    if (strcmp(str, "timer") == 0) { return SCRIPT_START_TIMER; }
-    if (strcmp(str, "trigger") == 0) { return SCRIPT_START_TRIGGER; }
-    if (strcmp(str, "user") == 0) { return SCRIPT_START_USER; }
-    if (strcmp(str, "extern") == 0) { return SCRIPT_START_EXTERN; }
-    return SCRIPT_START_UNKNOWN;
-}
-
-/**
- * Frees the t_script_thread_arg struct
- * @param script_thread_arg pointer to the struct to free
- */
-void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg) {
-    FREE_SDS(script_thread_arg->script_name);
-    FREE_SDS(script_thread_arg->script_fullpath);
-    FREE_SDS(script_thread_arg->script_content);
-    FREE_SDS(script_thread_arg->partition);
-    list_free(script_thread_arg->arguments);
-    FREE_PTR(script_thread_arg);
+    // save and free states
+    scripts_state_save(scripts_state, true);
+    FREE_SDS(thread_logname);
+    return NULL;
 }

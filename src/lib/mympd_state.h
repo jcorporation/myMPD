@@ -205,8 +205,8 @@ struct t_timer_list {
  * Lyrics settings
  */
 struct t_lyrics {
-    sds uslt_ext;     //!< fileextension for unsynced lyrics
-    sds sylt_ext;     //!< fileextension for synced lyrics
+    sds uslt_ext;     //!< file extension for unsynced lyrics
+    sds sylt_ext;     //!< file extension for synced lyrics
     sds vorbis_uslt;  //!< vorbis comment for unsynced lyrics
     sds vorbis_sylt;  //!< vorbis comment for synced lyrics
 };
@@ -223,7 +223,6 @@ struct t_mympd_state {
     struct t_timer_list timer_list;               //!< list of timers
     struct t_list home_list;                      //!< list of home icons
     struct t_list trigger_list;                   //!< list of triggers
-    struct t_list script_var_list;                //!< list of variables for scripts
     sds tag_list_search;                          //!< comma separated string of tags for search
     sds tag_list_browse;                          //!< comma separated string of tags for browse
     bool smartpls;                                //!< enable smart playlists
@@ -269,7 +268,6 @@ struct t_mympd_state {
  * Public functions
  */
 void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data);
-
 void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *config);
 void mympd_state_free(struct t_mympd_state *mympd_state);
 

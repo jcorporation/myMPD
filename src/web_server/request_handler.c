@@ -119,9 +119,9 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
             webradiodb_api(nc, backend_nc, cmd_id, request_id);
             break;
         default: {
-            //forward API request to mympd_api_handler
+            //forward API request to another thread
             struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
-            mympd_queue_push(mympd_api_queue, request, 0);
+            push_request(request, 0);
         }
     }
     FREE_SDS(session);
@@ -170,7 +170,7 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
         return false;
     }
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
-    mympd_queue_push(mympd_api_queue, request, 0);
+    mympd_queue_push(script_queue, request, 0);
 
     FREE_SDS(cmd);
     FREE_SDS(jsonrpc);

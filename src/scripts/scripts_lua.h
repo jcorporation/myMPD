@@ -4,17 +4,18 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_LIB_SCRIPTS_LUA_H
-#define MYMPD_LIB_SCRIPTS_LUA_H
+#ifndef MYMPD_SCRIPTS_LUA_H
+#define MYMPD_SCRIPTS_LUA_H
 
-#include "src/scripts/scripts.h"
+#include "src/scripts/util.h"
 
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
 
-lua_State *script_load(struct t_script_thread_arg *script_arg, int *rc);
-void populate_lua_global_vars(lua_State *lua_vm, struct t_script_thread_arg *script_arg);
-const char *lua_err_to_str(int rc);
+bool script_start(struct t_scripts_state *scripts_state, sds script, struct t_list *arguments,
+        const char *partition, bool localscript, enum script_start_events start_event,
+        unsigned request_id, unsigned long conn_id, sds *error);
+bool script_validate(struct t_config *config, sds name, sds content, sds *error);
 
 #endif

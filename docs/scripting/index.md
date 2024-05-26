@@ -4,9 +4,9 @@ permalink: /scripting/
 title: Scripting
 ---
 
-myMPD integrates [Lua](http://www.lua.org) for scripting purposes. There are two types of scripts.
+myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Scripts are executed asynchronously and can not block the main thread of myMPD. There are two types of scripts.
 
-The first type of scripts are executed by triggers, timers or manual though the web ui. This scripts are executed asynchronously and can not block the main thread of myMPD. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition.
+The first type of scripts are executed by triggers, timers or manual through the web ui. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition.
 
 The second type of script are called by http requests (`/script/<partition>/<script>`) and are executed in the context of the webserver. This scripts should return a valid http response including status code, headers and body.
 
@@ -30,6 +30,8 @@ myMPD environment variables are populated in the lua table `mympd_env`.
 | `scriptname` | string | Script name |
 | `workdir` | string | myMPD working directory |
 {: .table .table-sm }
+
+Additionally all user defined variables are populates in this table. They are prefixed with `var_`.
 
 ### Arguments
 

@@ -67,12 +67,12 @@ int lua_mympd_api(lua_State *lua_vm) {
         request->data = sdscat(request->data, params);
     }
     request->data = sdscatlen(request->data, "}", 1);
-    mympd_queue_push(mympd_api_queue, request, request_id);
+    push_request(request, request_id);
     lua_pop(lua_vm, n);
     int i = 0;
     while (s_signal_received == 0 && i < 60) {
         i++;
-        struct t_work_response *response = mympd_queue_shift(mympd_script_thread_queue, 1000000, request_id);
+        struct t_work_response *response = mympd_queue_shift(script_worker_queue, 1000000, request_id);
         if (response != NULL) {
             MYMPD_LOG_DEBUG(NULL, "Got response: %s", response->data);
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {

@@ -24,9 +24,6 @@
 #include "src/mpd_client/partitions.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/home.h"
-#ifdef MYMPD_ENABLE_LUA
-    #include "src/mympd_api/scripts_vars.h"
-#endif
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
@@ -54,7 +51,7 @@ void *mympd_api_loop(void *arg_config) {
     struct t_mympd_state *mympd_state = malloc_assert(sizeof(struct t_mympd_state));
     mympd_state_default(mympd_state, (struct t_config *)arg_config);
 
-    // start autoconfiguration, if mpd_host does not exist
+    // start auto configuration, if mpd_host does not exist
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/mpd_host", mympd_state->config->workdir, DIR_WORK_STATE);
     if (testfile_read(filepath) == false) {
         mpd_client_autoconf(mympd_state);
@@ -73,9 +70,6 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_timer_file_read(&mympd_state->timer_list, mympd_state->config->workdir);
     // trigger
     mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
-    #ifdef MYMPD_ENABLE_LUA
-        mympd_api_script_vars_file_read(&mympd_state->script_var_list, mympd_state->config->workdir);
-    #endif
     // caches
     if (mympd_state->config->save_caches == true) {
         // album cache

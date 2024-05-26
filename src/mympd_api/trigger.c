@@ -14,12 +14,11 @@
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
 
 #ifdef MYMPD_ENABLE_LUA
-    #include "src/scripts/scripts.h"
+    #include "src/scripts/events.h"
 #endif
 
 #include <errno.h>
@@ -505,7 +504,7 @@ void trigger_execute(sds script, struct t_list *arguments, const char *partition
             argument = argument->next;
         }
         request->data = sdscatlen(request->data, "}}}", 3);
-        mympd_queue_push(mympd_api_queue, request, 0);
+        push_request(request, 0);
     #else
         (void) script;
         (void) arguments;

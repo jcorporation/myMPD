@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/mympd_api/scripts_vars.h"
+#include "src/scripts/api_vars.h"
 
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
@@ -14,13 +14,18 @@
 
 #include <errno.h>
 
+// Private definitions
+static sds var_to_line_cb(sds buffer, struct t_list_node *current, bool newline);
+
+// Public functions
+
 /**
  * Deletes a variable in the list
  * @param script_var_list pointer to script var list
  * @param key key to remove
  * @return true on success, else false
  */
-bool mympd_api_script_vars_delete(struct t_list *script_var_list, sds key) {
+bool scripts_vars_delete(struct t_list *script_var_list, sds key) {
     return list_remove_node_by_key(script_var_list, key);
 }
 
@@ -31,7 +36,7 @@ bool mympd_api_script_vars_delete(struct t_list *script_var_list, sds key) {
  * @param value value of the variable
  * @return true on success, else false
  */
-bool mympd_api_script_vars_save(struct t_list *script_var_list, sds key, sds value) {
+bool scripts_vars_save(struct t_list *script_var_list, sds key, sds value) {
     struct t_list_node *node = list_get_node(script_var_list, key);
     if (node == NULL) {
         return list_push(script_var_list, key, 0, value, NULL);
@@ -48,7 +53,7 @@ bool mympd_api_script_vars_save(struct t_list *script_var_list, sds key, sds val
  * @param workdir working directory
  * @return true on success, else false
  */
-bool mympd_api_script_vars_file_read(struct t_list *script_var_list, sds workdir) {
+bool scripts_vars_file_read(struct t_list *script_var_list, sds workdir) {
     sds scripts_vars_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_SCRIPTVARS);
     errno = 0;
     FILE *fp = fopen(scripts_vars_file, OPEN_FLAGS_READ);
@@ -98,33 +103,15 @@ bool mympd_api_script_vars_file_read(struct t_list *script_var_list, sds workdir
 }
 
 /**
- * Callback function for mympd_api_script_vars_file_save
- * @param buffer buffer to append the line
- * @param current list node to print
- * @param newline append a newline char
- * @return pointer to buffer
- */
-static sds script_var_to_line_cb(sds buffer, struct t_list_node *current, bool newline) {
-    buffer = sdscatlen(buffer, "{", 1);
-    buffer = tojson_sds(buffer, "key", current->key, true);
-    buffer = tojson_sds(buffer, "value", current->value_p, false);
-    buffer = sdscatlen(buffer, "}", 1);
-    if (newline == true) {
-        buffer = sdscatlen(buffer, "\n", 1);
-    }
-    return buffer;
-}
-
-/**
  * Writes the home icons to the filesystem
  * @param script_var_list pointer to script var list
  * @param workdir working directory
  * @return true on success, else false
  */
-bool mympd_api_script_vars_file_save(struct t_list *script_var_list, sds workdir) {
+bool scripts_vars_file_save(struct t_list *script_var_list, sds workdir) {
     MYMPD_LOG_INFO(NULL, "Saving %u script variables to disc", script_var_list->length);
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_SCRIPTVARS);
-    bool rc = list_write_to_disk(filepath, script_var_list, script_var_to_line_cb);
+    bool rc = list_write_to_disk(filepath, script_var_list, var_to_line_cb);
     FREE_SDS(filepath);
     return rc;
 }
@@ -136,7 +123,7 @@ bool mympd_api_script_vars_file_save(struct t_list *script_var_list, sds workdir
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
-sds mympd_api_script_vars_list(struct t_list *script_var_list, sds buffer, unsigned request_id) {
+sds scripts_vars_list(struct t_list *script_var_list, sds buffer, unsigned request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_VAR_LIST;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -146,12 +133,32 @@ sds mympd_api_script_vars_list(struct t_list *script_var_list, sds buffer, unsig
         if (returned_entities++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = script_var_to_line_cb(buffer, current, false);
+        buffer = var_to_line_cb(buffer, current, false);
         current = current->next;
     }
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_uint(buffer, "returnedEntities", returned_entities, true);
     buffer = tojson_uint(buffer, "totalEntities", returned_entities, false);
     buffer = jsonrpc_end(buffer);
+    return buffer;
+}
+
+// private functions
+
+/**
+ * Callback function for mympd_api_script_vars_file_save
+ * @param buffer buffer to append the line
+ * @param current list node to print
+ * @param newline append a newline char
+ * @return pointer to buffer
+ */
+static sds var_to_line_cb(sds buffer, struct t_list_node *current, bool newline) {
+    buffer = sdscatlen(buffer, "{", 1);
+    buffer = tojson_sds(buffer, "key", current->key, true);
+    buffer = tojson_sds(buffer, "value", current->value_p, false);
+    buffer = sdscatlen(buffer, "}", 1);
+    if (newline == true) {
+        buffer = sdscatlen(buffer, "\n", 1);
+    }
     return buffer;
 }

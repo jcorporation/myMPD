@@ -30,6 +30,7 @@
     X(INTERNAL_API_JUKEBOX_REFILL) \
     X(INTERNAL_API_JUKEBOX_REFILL_ADD) \
     X(INTERNAL_API_RAW) \
+    X(INTERNAL_API_SCRIPT_EXECUTE) \
     X(INTERNAL_API_SCRIPT_INIT) \
     X(INTERNAL_API_SCRIPT_POST_EXECUTE) \
     X(INTERNAL_API_STATE_SAVE) \
@@ -302,5 +303,6 @@ struct t_work_request *create_request(enum work_request_types type, unsigned lon
 void free_request(struct t_work_request *request);
 void free_response(struct t_work_response *response);
 bool push_response(struct t_work_response *response);
+bool push_request(struct t_work_request *request, unsigned id);
 
 #endif
