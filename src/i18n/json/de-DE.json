@@ -117,7 +117,6 @@
     "Can not parse webradio favorite file": "Konnte die Webradio Favoriten Datei nicht einlesen",
     "Can not read smart playlist file": "Intelligente Wiedergabeliste konnte nicht eingelesen werden",
     "Can not save home icon": "Icon konnte nicht gespeichert werden",
-    "Can't create mympd_script thread": "Konnte mympd_script Thread nicht erstellen",
     "Can't save preset": "Voreinstellungen konnte nicht gespeichert werden",
     "Can't set playback options": "Wiedergabeeinstellungen konnten nicht gespeichert werden",
     "Can't set playback options: MPD not connected": "Wiedergabeeinstellungen konnten nicht gespeichert werden: keine Verbindung zum MPD Server",
@@ -369,7 +368,6 @@
     "Include expression": "Suchfilter",
     "Info": "Hinweis",
     "Info filename": "Info Dateiname",
-    "Initializes the mympd_state lua table.": "Initialisiert die mympd_state Lua Tabelle.",
     "Initializing myMPD": "Initialisiere myMPD",
     "Insert API call": "Füge API Aufruf hinzu",
     "Insert after current playing song": "Nach aktuell gespieltem Lied einfügen",
@@ -1174,5 +1172,11 @@
     "Sends a HTTP redirect.": "Sendet einen HTTP-Redirect.",
     "Sends a HTTP reply.": "Sendet eine HTTP-Response.",
     "URL decodes a string.": "URL Dekodierung",
-    "URL encodes a string.": "URL Kodierung"
+    "URL encodes a string.": "URL Kodierung",
+    "Can not create script worker thread": "Konnte Thread zur Skriptausführung nicht erstellen.",
+    "Error creating Lua instance.": "Lua Instanz konnte nicht erstellt werden.",
+    "HTTP download": "HTTP Download",
+    "Initializes the global lua table mympd_state.": "Initialisiert die globale Lua Tabelle mympd_state.",
+    "Too many script worker threads already running.": "Es sind bereits zu viele Skript-Worker-Threads gestartet",
+    "Write a file for the covercache.": "Schreibt eine Datei für den Covercache."
 }
