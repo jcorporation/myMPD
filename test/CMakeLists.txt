@@ -59,7 +59,6 @@ set(TEST_SOURCES
   ../src/mympd_api/lua_mympd_state.c
   ../src/mympd_api/lyrics.c
   ../src/mympd_api/requests.c
-  ../src/mympd_api/scripts_vars.c
   ../src/mympd_api/settings.c
   ../src/mympd_api/status.c
   ../src/mympd_api/sticker.c
@@ -68,7 +67,7 @@ set(TEST_SOURCES
   ../src/mympd_api/trigger.c
   ../src/mympd_api/queue.c
   ../src/mympd_api/webradios.c
-  ../src/scripts/scripts.c
+  ../src/scripts/events.c
   tests/test_album_cache.c
   tests/test_api.c
   tests/test_cert.c
