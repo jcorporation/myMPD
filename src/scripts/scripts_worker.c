@@ -19,6 +19,7 @@
  * @param script_thread_arg pointer to t_script_thread_arg struct
  */
 void *script_run(void *script_thread_arg) {
+    script_worker_threads++;
     thread_logname = sds_replace(thread_logname, "scripts_worker");
     set_threadname(thread_logname);
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
@@ -66,6 +67,7 @@ void *script_run(void *script_thread_arg) {
     }
     FREE_SDS(result);
     free_t_script_thread_arg(script_arg);
+    script_worker_threads--;
     FREE_SDS(thread_logname);
     return NULL;
 }

@@ -65,8 +65,8 @@ const char *__asan_default_options(void) {
 #endif
 
 //global variables
-_Atomic int worker_threads;
-_Atomic int http_script_threads;
+_Atomic int mpd_worker_threads;
+_Atomic int script_worker_threads;
 //signal handler
 sig_atomic_t s_signal_received;
 //message queues
@@ -361,8 +361,8 @@ int main(int argc, char **argv) {
     #endif
 
     //set initial states
-    worker_threads = 0;
-    http_script_threads = 0;
+    mpd_worker_threads = 0;
+    script_worker_threads = 0;
     s_signal_received = 0;
     struct t_config *config = NULL;
     struct t_mg_user_data *mg_user_data = NULL;

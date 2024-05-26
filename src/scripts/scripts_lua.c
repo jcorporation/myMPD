@@ -49,6 +49,18 @@ bool script_start(struct t_scripts_state *scripts_state, sds script, struct t_li
         const char *partition, bool localscript, enum script_start_events start_event,
         unsigned request_id, unsigned long conn_id, sds *error)
 {
+    if (script_worker_threads > MAX_SCRIPT_WORKER_THREADS) {
+        //TODO: enqueue
+        if (start_event == SCRIPT_START_HTTP) {
+            send_script_raw_error(conn_id, partition, "Too many script worker threads already running.");
+        }
+        else {
+            *error = sdscat(*error, "Too many script worker threads already running.");
+        }
+        list_free(arguments);
+        return false;
+    }
+
     struct t_script_thread_arg *script_arg = malloc_assert(sizeof(struct t_script_thread_arg));
     script_arg->partition = sdsnew(partition);
     script_arg->start_event = start_event;
@@ -58,6 +70,7 @@ bool script_start(struct t_scripts_state *scripts_state, sds script, struct t_li
     int rc;
 
     if (localscript == true) {
+        // Load script from filesystem
         script_arg->script_name = sdsdup(script);
         sds script_fullpath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", scripts_state->config->workdir, DIR_WORK_SCRIPTS, script);
         rc = script_load(script_arg, localscript, script_fullpath);
@@ -69,20 +82,20 @@ bool script_start(struct t_scripts_state *scripts_state, sds script, struct t_li
     }
 
     if (script_arg->lua_vm == NULL) {
-        if (script_arg->start_event == SCRIPT_START_HTTP) {
-            send_script_raw_error(script_arg->conn_id, script_arg->partition, "Error executing script: Memory allocation error");
+        if (start_event == SCRIPT_START_HTTP) {
+            send_script_raw_error(conn_id, partition, "Error creating Lua instance.");
         }
         else {
-            *error = sdscat(*error, "Error executing script: Memory allocation error");
+            *error = sdscat(*error, "Error creating Lua instance.");
         }
         free_t_script_thread_arg(script_arg);
         list_free(arguments);
-        return NULL;
+        return false;
     }
     if (rc != 0) {
         sds result = script_get_result(script_arg->lua_vm, rc);
-        if (script_arg->start_event == SCRIPT_START_HTTP) {
-            send_script_raw_error(script_arg->conn_id, script_arg->partition, result);
+        if (start_event == SCRIPT_START_HTTP) {
+            send_script_raw_error(conn_id, partition, result);
         }
         else {
             *error = sdscat(*error, result);
@@ -96,6 +109,7 @@ bool script_start(struct t_scripts_state *scripts_state, sds script, struct t_li
 
     populate_lua_global_vars(scripts_state, script_arg, arguments);
     list_free(arguments);
+
     //execute script
     pthread_t scripts_worker_thread;
     pthread_attr_t attr;
@@ -104,8 +118,8 @@ bool script_start(struct t_scripts_state *scripts_state, sds script, struct t_li
         pthread_create(&scripts_worker_thread, &attr, script_run, script_arg) != 0)
     {
         MYMPD_LOG_ERROR(NULL, "Can not create script worker thread");
-        if (script_arg->start_event == SCRIPT_START_HTTP) {
-            send_script_raw_error(script_arg->conn_id, script_arg->partition, "Can not create script worker thread");
+        if (start_event == SCRIPT_START_HTTP) {
+            send_script_raw_error(conn_id, partition, "Can not create script worker thread");
         }
         else {
             *error = sdscat(*error, "Can not create script worker thread");

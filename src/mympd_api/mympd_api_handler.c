@@ -134,7 +134,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_COVERCACHE_CROP:
         case MYMPD_API_COVERCACHE_CLEAR:
         case MYMPD_API_QUEUE_ADD_RANDOM:
-            if (worker_threads > MAX_WORKER_THREADS) {
+            if (mpd_worker_threads > MAX_MPD_WORKER_THREADS) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Too many worker threads are already running");
                 MYMPD_LOG_ERROR(partition_state->name, "Too many worker threads are already running");
