@@ -76,7 +76,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     mpd_response_finish(partition_state->conn);
     bool rc = mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
     if (rc == false) {
-        MYMPD_LOG_ERROR(partition_state->name, "Error getting mympd state for script execution");
+        MYMPD_LOG_ERROR(partition_state->name, "Error getting mpd state for script execution");
     }
     // myMPD state
     lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
