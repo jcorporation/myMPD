@@ -66,14 +66,18 @@ const char *__asan_default_options(void) {
 
 //global variables
 _Atomic int mpd_worker_threads;
-_Atomic int script_worker_threads;
+#ifdef MYMPD_ENABLE_LUA
+    _Atomic int script_worker_threads;
+#endif
 //signal handler
 sig_atomic_t s_signal_received;
 //message queues
 struct t_mympd_queue *web_server_queue;
 struct t_mympd_queue *mympd_api_queue;
-struct t_mympd_queue *script_queue;
-struct t_mympd_queue *script_worker_queue;
+#ifdef MYMPD_ENABLE_LUA
+    struct t_mympd_queue *script_queue;
+    struct t_mympd_queue *script_worker_queue;
+#endif
 
 /**
  * Signal handler that stops myMPD on SIGTERM and SIGINT and saves
@@ -89,8 +93,10 @@ static void mympd_signal_handler(int sig_num) {
             s_signal_received = sig_num;
             //Wakeup queue loops
             pthread_cond_signal(&mympd_api_queue->wakeup);
-            pthread_cond_signal(&script_queue->wakeup);
-            pthread_cond_signal(&script_worker_queue->wakeup);
+            #ifdef MYMPD_ENABLE_LUA
+                pthread_cond_signal(&script_queue->wakeup);
+                pthread_cond_signal(&script_worker_queue->wakeup);
+            #endif
             pthread_cond_signal(&web_server_queue->wakeup);
             event_eventfd_write(mympd_api_queue->event_fd);
             if (web_server_queue->mg_mgr != NULL) {
@@ -103,9 +109,11 @@ static void mympd_signal_handler(int sig_num) {
             struct t_work_request *request1 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
             request1->data = sdscatlen(request1->data, "}}", 2);
             mympd_queue_push(mympd_api_queue, request1, 0);
-            struct t_work_request *request2 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
-            request2->data = sdscatlen(request2->data, "}}", 2);
-            mympd_queue_push(script_queue, request2, 0);
+            #ifdef MYMPD_ENABLE_LUA
+                struct t_work_request *request2 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
+                request2->data = sdscatlen(request2->data, "}}", 2);
+                mympd_queue_push(script_queue, request2, 0);
+            #endif
             break;
         }
         default: {
@@ -362,7 +370,9 @@ int main(int argc, char **argv) {
 
     //set initial states
     mpd_worker_threads = 0;
-    script_worker_threads = 0;
+    #ifdef MYMPD_ENABLE_LUA
+        script_worker_threads = 0;
+    #endif
     s_signal_received = 0;
     struct t_config *config = NULL;
     struct t_mg_user_data *mg_user_data = NULL;
@@ -370,7 +380,9 @@ int main(int argc, char **argv) {
     int rc = EXIT_FAILURE;
     pthread_t web_server_thread = 0;
     pthread_t mympd_api_thread = 0;
-    pthread_t script_thread = 0;
+    #ifdef MYMPD_ENABLE_LUA
+        pthread_t script_thread = 0;
+    #endif
     int thread_rc = 0;
 
     //goto root directory
@@ -386,8 +398,10 @@ int main(int argc, char **argv) {
 
     mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST, true);
     web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE, false);
-    script_queue = mympd_queue_create("script_queue", QUEUE_TYPE_REQUEST, false);
-    script_worker_queue = mympd_queue_create("script_worker_queue", QUEUE_TYPE_RESPONSE, false);
+    #ifdef MYMPD_ENABLE_LUA
+        script_queue = mympd_queue_create("script_queue", QUEUE_TYPE_REQUEST, false);
+        script_worker_queue = mympd_queue_create("script_worker_queue", QUEUE_TYPE_RESPONSE, false);
+    #endif
 
     //mympd config defaults
     config = malloc_assert(sizeof(struct t_config));
@@ -558,14 +572,16 @@ int main(int argc, char **argv) {
         s_signal_received = SIGTERM;
     }
 
-    //scripts
-    MYMPD_LOG_NOTICE(NULL, "Starting script thread");
-    if ((thread_rc = pthread_create(&script_thread, NULL, scripts_loop, config)) != 0) {
-        MYMPD_LOG_ERROR(NULL, "Can't create script thread");
-        MYMPD_LOG_ERRNO(NULL, thread_rc);
-        web_server_thread = 0;
-        s_signal_received = SIGTERM;
-    }
+    #ifdef MYMPD_ENABLE_LUA
+        //scripts
+        MYMPD_LOG_NOTICE(NULL, "Starting script thread");
+        if ((thread_rc = pthread_create(&script_thread, NULL, scripts_loop, config)) != 0) {
+            MYMPD_LOG_ERROR(NULL, "Can't create script thread");
+            MYMPD_LOG_ERRNO(NULL, thread_rc);
+            web_server_thread = 0;
+            s_signal_received = SIGTERM;
+        }
+    #endif
 
     //webserver
     MYMPD_LOG_NOTICE(NULL, "Starting webserver thread");
@@ -602,21 +618,25 @@ int main(int argc, char **argv) {
             MYMPD_LOG_NOTICE(NULL, "Finished mympd api thread");
         }
     }
-    if (script_thread > (pthread_t)0) {
-        if ((thread_rc = pthread_join(script_thread, NULL)) != 0) {
-            MYMPD_LOG_ERROR(NULL, "Error stopping script thread");
-            MYMPD_LOG_ERRNO(NULL, thread_rc);
+    #ifdef MYMPD_ENABLE_LUA
+        if (script_thread > (pthread_t)0) {
+            if ((thread_rc = pthread_join(script_thread, NULL)) != 0) {
+                MYMPD_LOG_ERROR(NULL, "Error stopping script thread");
+                MYMPD_LOG_ERRNO(NULL, thread_rc);
+            }
+            else {
+                MYMPD_LOG_NOTICE(NULL, "Finished script thread");
+            }
         }
-        else {
-            MYMPD_LOG_NOTICE(NULL, "Finished script thread");
-        }
-    }
+    #endif
 
     //free queues
     mympd_queue_free(web_server_queue);
     mympd_queue_free(mympd_api_queue);
-    mympd_queue_free(script_queue);
-    mympd_queue_free(script_worker_queue);
+    #ifdef MYMPD_ENABLE_LUA
+        mympd_queue_free(script_queue);
+        mympd_queue_free(script_worker_queue);
+    #endif
 
     //free config
     mympd_config_free(config);

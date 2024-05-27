@@ -170,7 +170,7 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
         return false;
     }
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
-    mympd_queue_push(script_queue, request, 0);
+    push_request(request, 0);
 
     FREE_SDS(cmd);
     FREE_SDS(jsonrpc);

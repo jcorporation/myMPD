@@ -238,9 +238,6 @@ void free_response(struct t_work_response *response) {
  */
 bool push_response(struct t_work_response *response) {
     switch(response->type) {
-        case RESPONSE_TYPE_SCRIPT:
-            MYMPD_LOG_DEBUG(NULL, "Push response to script_worker_queue for thread %u: %s", response->id, response->data);
-            return mympd_queue_push(script_worker_queue, response, response->id);
         case RESPONSE_TYPE_DEFAULT:
         case RESPONSE_TYPE_NOTIFY_CLIENT:
         case RESPONSE_TYPE_NOTIFY_PARTITION:
@@ -248,6 +245,11 @@ bool push_response(struct t_work_response *response) {
         case RESPONSE_TYPE_RAW:
             MYMPD_LOG_DEBUG(NULL, "Push response to webserver queue for connection %lu: %s", response->conn_id, response->data);
             return mympd_queue_push(web_server_queue, response, 0);
+        case RESPONSE_TYPE_SCRIPT:
+            #ifdef MYMPD_ENABLE_LUA
+                MYMPD_LOG_DEBUG(NULL, "Push response to script_worker_queue for thread %u: %s", response->id, response->data);
+                return mympd_queue_push(script_worker_queue, response, response->id);
+            #endif
         case RESPONSE_TYPE_DISCARD:
             // discard response
             free_response(response);
@@ -268,6 +270,7 @@ bool push_response(struct t_work_response *response) {
 bool push_request(struct t_work_request *request, unsigned id) {
     switch(request->cmd_id) {
         case INTERNAL_API_SCRIPT_EXECUTE:
+        case INTERNAL_API_SCRIPT_POST_EXECUTE:
         case MYMPD_API_SCRIPT_EXECUTE:
         case MYMPD_API_SCRIPT_GET:
         case MYMPD_API_SCRIPT_LIST:
@@ -276,13 +279,13 @@ bool push_request(struct t_work_request *request, unsigned id) {
         case MYMPD_API_SCRIPT_VALIDATE:
         case MYMPD_API_SCRIPT_VAR_DELETE:
         case MYMPD_API_SCRIPT_VAR_LIST:
-        case MYMPD_API_SCRIPT_VAR_SET: {
-            //forward API request to script thread
-            return mympd_queue_push(script_queue, request, id);
-        }
-        default: {
+        case MYMPD_API_SCRIPT_VAR_SET:
+            #ifdef MYMPD_ENABLE_LUA
+                //forward API request to script thread
+                return mympd_queue_push(script_queue, request, id);
+            #endif
+        default:
             //forward API request to mympd_api thread
             return mympd_queue_push(mympd_api_queue, request, id);
-        }
     }
 }
