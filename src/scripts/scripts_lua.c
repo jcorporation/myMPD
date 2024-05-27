@@ -32,8 +32,9 @@
 
 // Private definitions
 
-static int script_load(struct t_script_thread_arg *script_arg, const char *script);
-static int script_load_bytecode(struct t_script_thread_arg *script_arg, sds bytecode);
+static bool create_lua_vm(struct t_script_thread_arg *script_arg);
+static bool script_load(struct t_script_thread_arg *script_arg, const char *script);
+static bool script_load_bytecode(struct t_script_thread_arg *script_arg, sds bytecode);
 static int save_bytecode(lua_State *lua_vm, struct t_script_list_data *data);
 static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
         struct t_script_thread_arg *script_arg, struct t_list *arguments);
@@ -69,7 +70,7 @@ bool script_start(struct t_scripts_state *scripts_state, sds scriptname, struct 
     script_arg->request_id = request_id;
     script_arg->config = scripts_state->config;
     script_arg->lua_vm = NULL;
-    int rc;
+    bool rc;
 
     if (localscript == true) {
         script_arg->script_name = sdsdup(scriptname);
@@ -103,7 +104,7 @@ bool script_start(struct t_scripts_state *scripts_state, sds scriptname, struct 
             #endif
         }
         else {
-            rc = 1;
+            rc = false;
         }
     }
     else {
@@ -122,7 +123,7 @@ bool script_start(struct t_scripts_state *scripts_state, sds scriptname, struct 
         list_free(arguments);
         return false;
     }
-    if (rc != 0) {
+    if (rc == false) {
         sds result = script_get_result(script_arg->lua_vm, rc);
         if (start_event == SCRIPT_START_HTTP) {
             send_script_raw_error(conn_id, partition, result);
@@ -176,13 +177,13 @@ bool script_validate(struct t_config *config, sds scriptname, sds script, sds *e
     script_arg.config = config;
     script_arg.request_id = 0;
 
-    int rc = script_load(&script_arg, script);
+    bool rc = script_load(&script_arg, script);
     if (script_arg.lua_vm == NULL) {
         return false;
     }
     sds result = script_get_result(script_arg.lua_vm, rc);
     lua_close(script_arg.lua_vm);
-    if (rc == 0) {
+    if (rc == true) {
         FREE_SDS(result);
         return true;
     }
@@ -196,49 +197,49 @@ bool script_validate(struct t_config *config, sds scriptname, sds script, sds *e
 // Private functions
 
 /**
- * Creates the lua instance and loads the script
+ * Creates the lua instance and opens the standard and myMPD libraries
+ * @param script_arg 
+ * @return true on success, else false
+ */
+static bool create_lua_vm(struct t_script_thread_arg *script_arg) {
+    script_arg->lua_vm = luaL_newstate();
+    if (script_arg->lua_vm == NULL) {
+        MYMPD_LOG_ERROR(script_arg->partition, "Memory allocation error in luaL_newstate");
+        return false;
+    }
+    luaL_openlibs(script_arg->lua_vm);
+    if (mympd_luaopen(script_arg->lua_vm, "json") == 1 ||
+        mympd_luaopen(script_arg->lua_vm, "mympd") == 1)
+    {
+        lua_close(script_arg->lua_vm);
+        script_arg->lua_vm = NULL;
+        return false;
+    }
+    register_lua_functions(script_arg->lua_vm);
+    return true;
+}
+
+/**
+ * Loads the script from a string
  * @param script_arg pointer to t_script_thread_arg struct
  * @param script script to load
  * @return 0 on success, else 1
  */
-static int script_load(struct t_script_thread_arg *script_arg, const char *script) {
-    script_arg->lua_vm = luaL_newstate();
-    if (script_arg->lua_vm == NULL) {
-        MYMPD_LOG_ERROR(script_arg->partition, "Memory allocation error in luaL_newstate");
-        return 1;
-    }
-    luaL_openlibs(script_arg->lua_vm);
-    if (mympd_luaopen(script_arg->lua_vm, "json") == 1 ||
-        mympd_luaopen(script_arg->lua_vm, "mympd") == 1)
-    {
-        lua_close(script_arg->lua_vm);
-        return 1;
-    }
-    register_lua_functions(script_arg->lua_vm);
-    return luaL_loadstring(script_arg->lua_vm, script);
+static bool script_load(struct t_script_thread_arg *script_arg, const char *script) {
+    return create_lua_vm(script_arg) &&
+        luaL_loadstring(script_arg->lua_vm, script) == 0;
 }
 
 /**
- * Creates the lua instance and loads the script
+ * Loads the cached bytecode
+ * This should be faster than compiling the script on each execution.
  * @param script_arg pointer to t_script_thread_arg struct
  * @param bytecode compiled lua script
  * @return 0 on success, else 1
  */
-static int script_load_bytecode(struct t_script_thread_arg *script_arg, sds bytecode) {
-    script_arg->lua_vm = luaL_newstate();
-    if (script_arg->lua_vm == NULL) {
-        MYMPD_LOG_ERROR(script_arg->partition, "Memory allocation error in luaL_newstate");
-        return 1;
-    }
-    luaL_openlibs(script_arg->lua_vm);
-    if (mympd_luaopen(script_arg->lua_vm, "json") == 1 ||
-        mympd_luaopen(script_arg->lua_vm, "mympd") == 1)
-    {
-        lua_close(script_arg->lua_vm);
-        return 1;
-    }
-    register_lua_functions(script_arg->lua_vm);
-    return luaL_loadbuffer(script_arg->lua_vm, bytecode, sdslen(bytecode), script_arg->script_name);
+static bool script_load_bytecode(struct t_script_thread_arg *script_arg, sds bytecode) {
+    return create_lua_vm(script_arg) &&
+        luaL_loadbuffer(script_arg->lua_vm, bytecode, sdslen(bytecode), script_arg->script_name) == 0;
 }
 
 /**
