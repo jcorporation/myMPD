@@ -107,8 +107,6 @@
     "Can not get lyrics for stream uri": "Impossible de récupérer les paroles pour l'URI de ce flux",
     "Can not move home icon": "Impossible de déplacer l'icone de page d'acceuil",
     "Can not open directory pics": "Impossible d'ouvrir le répertoire des images",
-    "Can not open script directory": "Impossible d'ouvrir le répertoire des scripts",
-    "Can not open scriptfile": "Impossible d'ouvrir le fichier de script",
     "Can not open webradios directory": "Impossible d'ouvrir le répertoire des webradio",
     "Can not parse response from %{uri}": "Impossible d'interpréter la réponse de %{uri}",
     "Can not parse script arguments": "Impossible d'analyser les arguments du script",

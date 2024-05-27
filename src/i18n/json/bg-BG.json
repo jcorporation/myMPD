@@ -107,8 +107,6 @@
     "Can not get lyrics for stream uri": "Извличане на текста от потока невъзможно",
     "Can not move home icon": "Преместване на начална икона невъзможно",
     "Can not open directory pics": "Отваряне на папка с изображения невъзможно",
-    "Can not open script directory": "Отваряне на папка със скриптове невъзможно",
-    "Can not open scriptfile": "Отваряне на файл със скриптове невъзможно",
     "Can not open webradios directory": "Отваряне на папка с онлайн станции невъзможно",
     "Can not parse response from %{uri}": "",
     "Can not parse script arguments": "Разбор  на аргументи на скрипта невъзможно",

@@ -28,6 +28,7 @@ With this release you can call Lua scripts by http requests and the script itsel
 
 ### Changelog
 
+- Feat: Script performance improvements
 - Feat: Scripts can handle http requests #1279
 - Feat: Send log messages from scripts
 - Feat: Send notifications from scripts #1280

@@ -107,8 +107,6 @@
     "Can not get lyrics for stream uri": "Liedtexte für Streams sind nicht unterstützt",
     "Can not move home icon": "Homeicon konnte nicht verschoben werden",
     "Can not open directory pics": "Konnte Verzeichnis pics nicht öffnen",
-    "Can not open script directory": "Skriptverzeichnis konnte nicht geöffnet werden",
-    "Can not open scriptfile": "Skript konnte nicht geöffnet werden",
     "Can not open webradios directory": "Konnte das Webradio Verzeichnis nicht öffnen",
     "Can not parse response from %{uri}": "Antwort von %{uri} konnte nicht geparsed werden",
     "Can not parse script arguments": "Skriptargumente konnten nicht eingelesen werden",
@@ -1178,5 +1176,6 @@
     "HTTP download": "HTTP Download",
     "Initializes the global lua table mympd_state.": "Initialisiert die globale Lua Tabelle mympd_state.",
     "Too many script worker threads already running.": "Es sind bereits zu viele Skript-Worker-Threads gestartet",
-    "Write a file for the covercache.": "Schreibt eine Datei für den Covercache."
+    "Write a file for the covercache.": "Schreibt eine Datei für den Covercache.",
+    "Can not open script": "Skript konnte nicht geöffnet werden."
 }

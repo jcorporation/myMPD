@@ -107,8 +107,6 @@
     "Can not get lyrics for stream uri": "未能在串流 uri 中獲取歌詞",
     "Can not move home icon": "未能移動主頁圖示",
     "Can not open directory pics": "未能開啟目錄圖片",
-    "Can not open script directory": "未能開啟指令碼目錄",
-    "Can not open scriptfile": "未能開啟指令碼檔案",
     "Can not open webradios directory": "未能開啟網路電台目錄",
     "Can not parse response from %{uri}": "未能從%{uri}解析到反應",
     "Can not parse script arguments": "未能解析指令碼參數",

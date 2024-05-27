@@ -531,16 +531,27 @@ bool list_remove_node_user_data(struct t_list *l, unsigned idx, user_data_callba
 
 /**
  * Removes the node with key
+ * Ignores user_data pointer
  * @param l list
  * @param key key
  * @return bool true on success, else false
  */
 bool list_remove_node_by_key(struct t_list *l, const char *key) {
+    return list_remove_node_by_key_user_data(l, key, NULL);
+}
+
+/**
+ * Removes the node with key
+ * @param l list
+ * @param key key
+ * @return bool true on success, else false
+ */
+bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, user_data_callback free_cb) {
     struct t_list_node *current = l->head;
     unsigned i = 0;
     while (current != NULL) {
         if (strcmp(current->key, key) == 0) {
-            return list_remove_node(l, i);
+            return list_remove_node_user_data(l, i, free_cb);
         }
         i++;
         current = current->next;

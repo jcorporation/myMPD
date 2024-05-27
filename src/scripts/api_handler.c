@@ -69,7 +69,7 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
                 json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, SCRIPT_ARGUMENTS_MAX, &parse_error) == true)
             {
                 rc = script_validate(config, sds_buf1, sds_buf3, &error) &&
-                    script_save(config->workdir, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments, &error);
+                    script_save(scripts_state, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, error);
             }
@@ -78,19 +78,19 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
         }
         case MYMPD_API_SCRIPT_RM:
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true) {
-                rc = script_delete(config->workdir, sds_buf1);
+                rc = script_delete(scripts_state, sds_buf1);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, "Could not delete script");
             }
             break;
         case MYMPD_API_SCRIPT_GET:
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true) {
-                response->data = script_get(config->workdir, response->data, request->id, sds_buf1);
+                response->data = script_get(&scripts_state->script_list, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_SCRIPT_LIST: {
             if (json_get_bool(request->data, "$.params.all", &bool_buf1, &parse_error) == true) {
-                response->data = script_list(config->workdir, response->data, request->id, bool_buf1);
+                response->data = script_list(&scripts_state->script_list, response->data, request->id, bool_buf1);
             }
             break;
         }

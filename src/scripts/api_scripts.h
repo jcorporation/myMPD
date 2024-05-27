@@ -9,12 +9,14 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/list.h"
+#include "src/scripts/util.h"
 
 #include <stdbool.h>
 
-bool script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments, sds *error);
-bool script_delete(sds workdir, sds script);
-sds script_get(sds workdir, sds buffer, unsigned request_id, sds script);
-sds script_list(sds workdir, sds buffer, unsigned request_id, bool all);
+bool scripts_file_read(struct t_scripts_state *scripts_state);
+bool script_save(struct t_scripts_state *scripts_state, sds scriptname, sds oldscript, int order, sds content, struct t_list *arguments, sds *error);
+bool script_delete(struct t_scripts_state *scripts_state, sds scriptname);
+sds script_get(struct t_list *script_list, sds buffer, unsigned request_id, sds scriptname);
+sds script_list(struct t_list *script_list, sds buffer, unsigned request_id, bool all);
 
 #endif

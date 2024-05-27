@@ -107,8 +107,6 @@
     "Can not get lyrics for stream uri": "스트림 URI의 가사를 가져올 수 없음",
     "Can not move home icon": "홈 아이콘을 옮길 수 없음",
     "Can not open directory pics": "디렉터리 그림을 열 수 없음",
-    "Can not open script directory": "스크립트 디렉터리를 열 수 없음",
-    "Can not open scriptfile": "스크립트 파일을 열 수 없음",
     "Can not open webradios directory": "웹라디오 디렉터리를 열 수 없음",
     "Can not parse response from %{uri}": "%{uri} 응답 없음",
     "Can not parse script arguments": "스크립트 인수를 분석할 수 없음",

@@ -107,8 +107,6 @@
     "Can not get lyrics for stream uri": "Songteksten voor streams niet ondersteund",
     "Can not move home icon": "Kan icoon startscherm niet verplaatsen",
     "Can not open directory pics": "Kan mapafbeeldingen niet openen",
-    "Can not open script directory": "Kan scriptmap niet openen",
-    "Can not open scriptfile": "Kan script niet openen",
     "Can not open webradios directory": "Kan de map webradio niet openen",
     "Can not parse response from %{uri}": "Kan antwoord van %{uri} niet interpreteren",
     "Can not parse script arguments": "Kan scriptargumenten niet parsen",

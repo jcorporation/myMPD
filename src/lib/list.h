@@ -84,6 +84,7 @@ struct t_list_node *list_node_extract(struct t_list *l, unsigned idx);
 bool list_remove_node(struct t_list *l, unsigned idx);
 bool list_remove_node_user_data(struct t_list *l, unsigned idx, user_data_callback free_cb);
 bool list_remove_node_by_key(struct t_list *l, const char *key);
+bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, user_data_callback free_cb);
 
 bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callback node_to_line_cb);
 

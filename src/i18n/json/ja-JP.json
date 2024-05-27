@@ -107,8 +107,6 @@
     "Can not get lyrics for stream uri": "ストリームURIからは歌詞を取得できません",
     "Can not move home icon": "ホームアイコンを移動できません",
     "Can not open directory pics": "ディレクトリの画像を開けません",
-    "Can not open script directory": "スクリプトディレクトリを開けません",
-    "Can not open scriptfile": "スクリプトファイルを開けません",
     "Can not open webradios directory": "ウェブラジオディレクトリを開けません",
     "Can not parse response from %{uri}": "%{uri} からのレスポンスをパースできません",
     "Can not parse script arguments": "スクリプトの引数をパースできません",

@@ -14,6 +14,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
 #include "src/scripts/api_handler.h"
+#include "src/scripts/api_scripts.h"
 #include "src/scripts/api_vars.h"
 #include "src/scripts/util.h"
 
@@ -29,6 +30,7 @@ void *scripts_loop(void *arg_config) {
     struct t_scripts_state *scripts_state = malloc_assert(sizeof(struct t_scripts_state));
     scripts_state_default(scripts_state, (struct t_config *)arg_config);
     scripts_vars_file_read(&scripts_state->var_list, scripts_state->config->workdir);
+    scripts_file_read(scripts_state);
 
     // thread loop
     while (s_signal_received == 0) {

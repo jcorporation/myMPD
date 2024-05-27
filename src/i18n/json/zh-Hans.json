@@ -107,8 +107,6 @@
     "Can not get lyrics for stream uri": "未能在流媒体 uri 中获取歌词",
     "Can not move home icon": "未能移动主页图标",
     "Can not open directory pics": "未能打开目录图像",
-    "Can not open script directory": "未能打开脚本目录",
-    "Can not open scriptfile": "未能打开脚本文件",
     "Can not open webradios directory": "未能打开网络电台目录",
     "Can not parse response from %{uri}": "未能从%{uri}解析到响应",
     "Can not parse script arguments": "未能解析脚本参数",

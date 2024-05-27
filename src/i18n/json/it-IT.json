@@ -107,8 +107,6 @@
     "Can not get lyrics for stream uri": "Impossibile ottenere le parole per l'uri del flusso",
     "Can not move home icon": "Impossibile spostare l'icona della pagina iniziale",
     "Can not open directory pics": "Impossibile aprire i pics della cartella",
-    "Can not open script directory": "Impossibile aprire la cartella dello script",
-    "Can not open scriptfile": "Impossibile aprire il file dello script",
     "Can not open webradios directory": "Impossibile aprire la cartella delle webradio",
     "Can not parse response from %{uri}": "Impossibile analizzare la risposta da %{uri}",
     "Can not parse script arguments": "Impossibile analizzare gli argomenti dello script",

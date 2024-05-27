@@ -12,10 +12,9 @@
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
-#include "src/scripts/scripts_lua.h"
+#include "src/scripts/util.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -32,39 +31,30 @@
  * Private definitions
  */
 
-static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *order);
+bool parse_script(sds scriptfilename, sds *metadata, sds *content, int *order);
 
 /**
  * Public functions
  */
 
 /**
- * Lists scripts
- * @param workdir working directory
- * @param buffer already allocated sds string to append the response
- * @param request_id jsonrpc request id
- * @param all true = print all scripts, false = print only scripts with order > 0
- * @return pointer to buffer
+ * Reads the scripts from the scripts directory
+ * @param scripts_state pointer to scripts_state
+ * @return true on success, else false
  */
-sds script_list(sds workdir, sds buffer, unsigned request_id, bool all) {
-    enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_LIST;
-    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = sdscat(buffer, "\"data\":[");
-    sds scriptdirname = sdscatfmt(sdsempty(), "%S/%s", workdir, DIR_WORK_SCRIPTS);
+bool scripts_file_read(struct t_scripts_state *scripts_state) {
+    sds scriptdirname = sdscatfmt(sdsempty(), "%S/%s", scripts_state->config->workdir, DIR_WORK_SCRIPTS);
     errno = 0;
     DIR *script_dir = opendir(scriptdirname);
     if (script_dir == NULL) {
         MYMPD_LOG_ERROR(NULL, "Can not open directory \"%s\"", scriptdirname);
         MYMPD_LOG_ERRNO(NULL, errno);
         FREE_SDS(scriptdirname);
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
-            JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Can not open script directory");
-        return buffer;
+        return false;
     }
 
     struct dirent *next_file;
-    unsigned returned_entities = 0;
-    sds entry = sdsempty();
+    sds metadata = sdsempty();
     sds scriptname = sdsempty();
     sds scriptfilename = sdsempty();
     while ((next_file = readdir(script_dir)) != NULL ) {
@@ -74,32 +64,58 @@ sds script_list(sds workdir, sds buffer, unsigned request_id, bool all) {
         {
             continue;
         }
-
         scriptname = sdscat(scriptname, next_file->d_name);
         strip_file_extension(scriptname);
-        entry = sdscatlen(entry, "{", 1);
-        entry = tojson_char(entry, "name", scriptname, true);
         scriptfilename = sdscatfmt(scriptfilename, "%S/%s", scriptdirname, next_file->d_name);
         int order = 0;
-        entry = parse_script_metadata(entry, scriptfilename, &order);
-        entry = sdscatlen(entry, "}", 1);
-        if (all == true ||
-            order > 0)
-        {
-            if (returned_entities++) {
-                buffer = sdscatlen(buffer, ",", 1);
-            }
-            buffer = sdscat(buffer, entry);
+        sds content = sdsempty();
+        bool rc = parse_script(scriptfilename, &metadata, &content, &order);
+        if (rc == true) {
+            struct t_script_list_data *user_data = malloc_assert(sizeof(struct t_script_list_data));
+            user_data->bytecode = NULL;
+            user_data->script = content;
+            list_push(&scripts_state->script_list, scriptname, order, metadata, user_data);
         }
-        sdsclear(entry);
+        sdsclear(metadata);
         sdsclear(scriptname);
         sdsclear(scriptfilename);
     }
     closedir(script_dir);
     FREE_SDS(scriptname);
     FREE_SDS(scriptfilename);
-    FREE_SDS(entry);
+    FREE_SDS(metadata);
     FREE_SDS(scriptdirname);
+    return true;
+}
+
+/**
+ * Lists scripts
+ * @param script_list list of scripts
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param all true = print all scripts, false = print only scripts with order > 0
+ * @return pointer to buffer
+ */
+sds script_list(struct t_list *script_list, sds buffer, unsigned request_id, bool all) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_LIST;
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
+    unsigned returned_entities = 0;
+    struct t_list_node *current = script_list->head;
+    while (current != NULL) {
+        if (all == true ||
+            current->value_i > 0)
+        {
+            if (returned_entities++) {
+                buffer = sdscatlen(buffer, ",", 1);
+            }
+            buffer = sdscatlen(buffer, "{", 1);
+            buffer = tojson_char(buffer, "name", current->key, true);
+            buffer = tojson_raw(buffer, "metadata", current->value_p, false);
+            buffer = sdscatlen(buffer, "}", 1);
+        }
+        current = current->next;
+    }
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_uint(buffer, "returnedEntities", returned_entities, true);
     buffer = tojson_uint(buffer, "totalEntities", returned_entities, false);
@@ -109,21 +125,24 @@ sds script_list(sds workdir, sds buffer, unsigned request_id, bool all) {
 
 /**
  * Deletes a script
- * @param workdir working directory
- * @param script script to delete (name without extension)
+ * @param scripts_state pointer to scripts_state
+ * @param scriptname script to delete (name without extension)
  * @return true on success, else false
  */
-bool script_delete(sds workdir, sds script) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
-    bool rc = rm_file(filepath);
-    FREE_SDS(filepath);
+bool script_delete(struct t_scripts_state *scripts_state, sds scriptname) {
+    bool rc = false;
+    if (list_remove_node_by_key_user_data(&scripts_state->script_list, scriptname, list_free_cb_script_list_user_data) == true) {
+        sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", scripts_state->config->workdir, DIR_WORK_SCRIPTS, scriptname);
+        rc = rm_file(filepath);
+        FREE_SDS(filepath);
+    }
     return rc;
 }
 
 /**
  * Saves a script
- * @param workdir working directory
- * @param script scriptname
+ * @param scripts_state pointer to scripts_state
+ * @param scriptname scriptname
  * @param oldscript old scriptname (leave empty for a new script)
  * @param order script list is order by this value
  * @param content script content
@@ -131,83 +150,62 @@ bool script_delete(sds workdir, sds script) {
  * @param error already allocated sds string to hold the error message
  * @return true on success, else false
  */
-bool script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments, sds *error) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
+bool script_save(struct t_scripts_state *scripts_state, sds scriptname, sds oldscript, int order, sds content, struct t_list *arguments, sds *error) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", scripts_state->config->workdir, DIR_WORK_SCRIPTS, scriptname);
     sds argstr = list_to_json_array(sdsempty(), arguments);
-    sds script_content = sdscatfmt(sdsempty(), "-- {\"order\":%i,\"arguments\":%S}\n%S", order, argstr, content);
-    bool rc = write_data_to_file(filepath, script_content, sdslen(script_content));
+    sds metadata = sdscatfmt(sdsempty(), "{\"order\":%i,\"arguments\":%S}", order, argstr);
+    sds scriptfile_content = sdscatfmt(sdsempty(), "-- %S\n%S", metadata, content);
+    bool rc = write_data_to_file(filepath, scriptfile_content, sdslen(scriptfile_content));
     //delete old scriptfile
     if (rc == true &&
-        sdslen(oldscript) > 0 &&
-        strcmp(script, oldscript) != 0)
+        sdslen(oldscript) > 0)
     {
-        sds old_filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, oldscript);
-        rc = rm_file(old_filepath);
-        FREE_SDS(old_filepath);
+        if (strcmp(scriptname, oldscript) != 0) {
+            sds old_filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", scripts_state->config->workdir, DIR_WORK_SCRIPTS, oldscript);
+            rc = rm_file(old_filepath);
+            FREE_SDS(old_filepath);
+        }
+        list_remove_node_by_key_user_data(&scripts_state->script_list, oldscript, list_free_cb_script_list_user_data);
     }
     FREE_SDS(argstr);
-    FREE_SDS(script_content);
+    FREE_SDS(scriptfile_content);
     FREE_SDS(filepath);
-    if (rc == false) {
+    if (rc == true) {
+        struct t_script_list_data *user_data = malloc_assert(sizeof(struct t_script_list_data));
+        user_data->bytecode = NULL;
+        user_data->script = sdsdup(content);
+        list_push(&scripts_state->script_list, scriptname, order, metadata, user_data);
+    }
+    else {
         *error = sdscat(*error, "Could not save script");
     }
+    FREE_SDS(metadata);
     return rc;
 }
 
 /**
  * Gets the script and its details
- * @param workdir working directory
+ * @param script_list list of scripts
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
- * @param script scriptname to read from filesystem
+ * @param scriptname scriptname to read from filesystem
  * @return pointer to buffer
  */
-sds script_get(sds workdir, sds buffer, unsigned request_id, sds script) {
+sds script_get(struct t_list *script_list, sds buffer, unsigned request_id, sds scriptname) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_GET;
-    sds scriptfilename = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
-    errno = 0;
-    FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
-    if (fp != NULL) {
-        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-        buffer = tojson_sds(buffer, "script", script, true);
-        int nread = 0;
-        sds line = sds_getline(sdsempty(), fp, LINE_LENGTH_MAX, &nread);
-        if (nread >= 0 &&
-            strncmp(line, "-- ", 3) == 0)
-        {
-            sdsrange(line, 3, -1);
-            if (line[0] == '{' &&
-                line[sdslen(line) - 1] == '}')
-            {
-                buffer = sdscat(buffer, "\"metadata\":");
-                buffer = sdscat(buffer, line);
-            }
-            else {
-                MYMPD_LOG_WARN(NULL, "Invalid metadata for script %s", scriptfilename);
-                buffer = sdscat(buffer, "\"metadata\":{\"order\":0, \"arguments\":[]}");
-            }
-        }
-        else {
-            MYMPD_LOG_WARN(NULL, "Invalid metadata for script %s", scriptfilename);
-            buffer = sdscat(buffer, "\"metadata\":{\"order\":0, \"arguments\":[]}");
-        }
-        FREE_SDS(line);
-        buffer = sdscat(buffer, ",\"content\":");
-        nread = 0;
-        sds content = sds_getfile_from_fp(sdsempty(), fp, SCRIPTS_SIZE_MAX, false, &nread);
-        (void) fclose(fp);
-        buffer = sds_catjson(buffer, content, sdslen(content));
-        FREE_SDS(content);
-        buffer = jsonrpc_end(buffer);
-    }
-    else {
-        MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\"", scriptfilename);
-        MYMPD_LOG_ERRNO(NULL, errno);
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
-            JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Can not open scriptfile");
-    }
-    FREE_SDS(scriptfilename);
 
+    struct t_list_node *script = list_get_node(script_list, scriptname);
+    if (script == NULL) {
+        return jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Can not open script");
+    }
+    struct t_script_list_data *data = (struct t_script_list_data *)script->user_data;
+
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+    buffer = tojson_sds(buffer, "script", scriptname, true);
+    buffer = tojson_raw(buffer, "metadata", script->value_p, true);
+    buffer = tojson_sds(buffer, "content", data->script, false);
+    buffer = jsonrpc_end(buffer);
     return buffer;
 }
 
@@ -223,13 +221,13 @@ sds script_get(sds workdir, sds buffer, unsigned request_id, sds script) {
  * @param order pointer to int to populate with order
  * @return pointer to buffer
  */
-static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *order) {
+bool parse_script(sds scriptfilename, sds *metadata, sds *content, int *order) {
     errno = 0;
     FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp == NULL) {
         MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\"", scriptfilename);
         MYMPD_LOG_ERRNO(NULL, errno);
-        return buffer;
+        return false;
     }
 
     int nread = 0;
@@ -239,21 +237,19 @@ static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *or
     {
         sdsrange(line, 3, -1);
         if (json_get_int(line, "$.order", 0, 99, order, NULL) == true) {
-            buffer = sdscat(buffer, "\"metadata\":");
-            buffer = sdscatsds(buffer, line);
+            *metadata = sdscat(*metadata, line);
         }
         else {
             MYMPD_LOG_WARN(NULL, "Invalid metadata for script %s", scriptfilename);
-            buffer = sdscat(buffer, "\"metadata\":{\"order\":0,\"arguments\":[]}");
-            *order = 0;
+            return false;
         }
     }
     else {
         MYMPD_LOG_WARN(NULL, "Invalid metadata for script %s", scriptfilename);
-        buffer = sdscat(buffer, "\"metadata\":{\"order\":0,\"arguments\":[]}");
-        *order = 0;
+        return false;
     }
     FREE_SDS(line);
+    *content = sds_getfile_from_fp(*content, fp, CONTENT_LEN_MAX, false, &nread);
     (void) fclose(fp);
-    return buffer;
+    return true;
 }

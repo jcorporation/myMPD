@@ -21,6 +21,15 @@
 struct t_scripts_state {
     struct t_config *config;     //!< pointer to static config
     struct t_list var_list;      //!< list of variables for scripts
+    struct t_list script_list;   //!< list of scripts
+};
+
+/**
+ * Userdata for script_list
+ */
+struct t_script_list_data {
+    sds script;    //!< script itself
+    sds bytecode;  //!< precompiled script byte code
 };
 
 /**
@@ -36,6 +45,7 @@ struct t_script_thread_arg {
     struct t_config *config;               //!< pointer to myMPD config
 };
 
+void list_free_cb_script_list_user_data(struct t_list_node *current);
 void scripts_state_save(struct t_scripts_state *scripts_state, bool free_data);
 void scripts_state_default(struct t_scripts_state *scripts_state, struct t_config *config);
 void scripts_state_free(struct t_scripts_state *scripts_state);

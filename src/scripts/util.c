@@ -13,6 +13,7 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
+#include "src/scripts/api_scripts.h"
 #include "src/scripts/api_vars.h"
 
 // Private definitions
@@ -38,10 +39,20 @@ void scripts_state_save(struct t_scripts_state *scripts_state, bool free_data) {
  * @param config pointer to static config
  */
 void scripts_state_default(struct t_scripts_state *scripts_state, struct t_config *config) {
-    //pointer to static config
     scripts_state->config = config;
-    //variables for scripts
     list_init(&scripts_state->var_list);
+    list_init(&scripts_state->script_list);
+}
+
+/**
+ * Callback function to free script_list user_data.
+ * @param current list node
+ */
+void list_free_cb_script_list_user_data(struct t_list_node *current) {
+    struct t_script_list_data *data = (struct t_script_list_data *)current->user_data;
+    FREE_SDS(data->script);
+    FREE_SDS(data->bytecode);
+    FREE_PTR(current->user_data);
 }
 
 /**
@@ -49,8 +60,8 @@ void scripts_state_default(struct t_scripts_state *scripts_state, struct t_confi
  * @param scripts_state pointer to central scripts state
  */
 void scripts_state_free(struct t_scripts_state *scripts_state) {
-    //variables for scripts
     list_clear(&scripts_state->var_list);
+    list_clear_user_data(&scripts_state->script_list, list_free_cb_script_list_user_data);
     //struct itself
     FREE_PTR(scripts_state);
 }
