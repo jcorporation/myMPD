@@ -39,11 +39,13 @@ bool scripts_vars_delete(struct t_list *script_var_list, sds key) {
 bool scripts_vars_save(struct t_list *script_var_list, sds key, sds value) {
     struct t_list_node *node = list_get_node(script_var_list, key);
     if (node == NULL) {
-        return list_push(script_var_list, key, 0, value, NULL);
+        list_push(script_var_list, key, 0, value, NULL);
     }
-
-    sdsclear(node->value_p);
-    node->value_p = sdscat(node->value_p, value);
+    else {
+        sdsclear(node->value_p);
+        node->value_p = sdscat(node->value_p, value);
+    }
+    list_sort_by_key(script_var_list, LIST_SORT_ASC);
     return true;
 }
 
@@ -99,6 +101,7 @@ bool scripts_vars_file_read(struct t_list *script_var_list, sds workdir) {
     (void) fclose(fp);
     FREE_SDS(scripts_vars_file);
     MYMPD_LOG_INFO(NULL, "Read %u script variable(s) from disc", script_var_list->length);
+    list_sort_by_key(script_var_list, LIST_SORT_ASC);
     return true;
 }
 

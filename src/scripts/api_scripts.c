@@ -85,6 +85,8 @@ bool scripts_file_read(struct t_scripts_state *scripts_state) {
     FREE_SDS(scriptfilename);
     FREE_SDS(metadata);
     FREE_SDS(scriptdirname);
+    list_sort_by_key(&scripts_state->script_list, LIST_SORT_ASC);
+    MYMPD_LOG_INFO(NULL, "Read %u script(s) from disc", scripts_state->script_list.length);
     return true;
 }
 
@@ -175,6 +177,7 @@ bool script_save(struct t_scripts_state *scripts_state, sds scriptname, sds olds
         user_data->bytecode = NULL;
         user_data->script = sdsdup(content);
         list_push(&scripts_state->script_list, scriptname, order, metadata, user_data);
+        list_sort_by_key(&scripts_state->script_list, LIST_SORT_ASC);
     }
     else {
         *error = sdscat(*error, "Could not save script");
