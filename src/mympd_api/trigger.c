@@ -17,9 +17,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
 
-#ifdef MYMPD_ENABLE_LUA
-    #include "src/scripts/events.h"
-#endif
+#include "src/scripts/events.h"
 
 #include <errno.h>
 #include <string.h>
@@ -546,7 +544,10 @@ void trigger_execute(sds script, enum script_start_events script_event, struct t
         push_request(request, 0);
     #else
         (void) script;
+        (void) script_event;
         (void) arguments;
         (void) partition;
+        (void) conn_id;
+        (void) request_id;
     #endif
 }

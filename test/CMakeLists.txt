@@ -12,6 +12,7 @@ set(TEST_SOURCES
   ../src/lib/api.c
   ../src/lib/cache.c
   ../src/lib/cert.c
+  ../src/lib/config.c
   ../src/lib/convert.c
   ../src/lib/datetime.c
   ../src/lib/event.c
