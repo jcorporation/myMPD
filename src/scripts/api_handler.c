@@ -104,17 +104,17 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             break;
         }
         case MYMPD_API_SCRIPT_EXECUTE: {
-            //malloc list - it is used in the script thread
-            struct t_list *arguments = list_new();
+            struct t_list arguments;
+            list_init(&arguments);
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.event", 0, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &parse_error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, vcb_isname, 10, &parse_error) == true)
+                json_get_object_string(request->data, "$.params.arguments", &arguments, vcb_isname, vcb_isname, 10, &parse_error) == true)
             {
                 enum script_start_events script_event = script_start_event_parse(sds_buf2);
                 if (script_event == SCRIPT_START_HTTP) {
                     respond = false;
                 }
-                rc = script_start(scripts_state, sds_buf1, arguments, request->partition,
+                rc = script_start(scripts_state, sds_buf1, &arguments, request->partition,
                     true, script_event, response->id, request->conn_id, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, error);
@@ -123,16 +123,16 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script name");
             }
-            list_free(arguments);
+            list_clear(&arguments);
             break;
         }
         case INTERNAL_API_SCRIPT_POST_EXECUTE: {
-            //malloc list - it is used in another thread
-            struct t_list *arguments = list_new();
+            struct t_list arguments;
+            list_init(&arguments);
             if (json_get_string(request->data, "$.params.script", 1, CONTENT_LEN_MAX, &sds_buf1, vcb_istext, &parse_error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, vcb_isname, 10, &parse_error) == true)
+                json_get_object_string(request->data, "$.params.arguments", &arguments, vcb_isname, vcb_isname, 10, &parse_error) == true)
             {
-                rc = script_start(scripts_state, sds_buf1, arguments, request->partition,
+                rc = script_start(scripts_state, sds_buf1, &arguments, request->partition,
                     false, SCRIPT_START_EXTERN, 0, 0, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, error);
@@ -141,7 +141,7 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script content");
             }
-            list_free(arguments);
+            list_clear(&arguments);
             break;
         }
         case MYMPD_API_SCRIPT_VAR_DELETE:
