@@ -4,7 +4,7 @@ permalink: /scripting/functions/http_replies
 title: HTTP Replies
 ---
 
-### HTTP replies
+## HTTP replies
 
 This functions are creating raw http response for usage in scripts called by http requests.
 
@@ -30,3 +30,21 @@ return mympd.http_redirect(location)
 | headers | string | HTTP headers to append, terminate each header with `\r\n`. `Status`, `Connection` and `Content-Length` headers are added automatically. |
 | body | string | Response body |
 {: .table .table-sm }
+
+## JSONRPC reply
+
+Sends a JSONRPC 2.0 reply.
+
+```lua
+local result = {
+  data = [{
+    synced = false,
+    lang = "",
+    desc = "",
+    text = "Script generated lyrics"
+  }],
+  totalEntities = 1,
+  returnedEntities = 1
+}
+return mympd.http_jsonrpc_response(result)
+```

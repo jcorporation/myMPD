@@ -14,6 +14,8 @@ Triggers are enabled if scripts are enabled. Triggers can call scripts with argu
 | TRIGGER_MYMPD_CONNECTED | -4 | Partition specific: MPD connection is established |
 | TRIGGER_MYMPD_DISCONNECTED | -5 | Partition specific: MPD is disconnected |
 | TRIGGER_MYMPD_FEEDBACK | -6 | Partition specific: Love, hate or rating feedback is set by user. Script is executed with arguments `uri`, `vote` and `type`. |
+| TRIGGER_MYMPD_SKIPPED | -7 | Partition specific: Song was skipped |
+| TRIGGER_MYMPD_LYRICS | -8 | Global: Triggers if MYMPD_API_LYRICS_GET has found no lyrics. Script is executed with arguments `uri`. |
 | TRIGGER_MPD_DATABASE | 1 | Only for default partition: Database has been modified |
 | TRIGGER_MPD_STORED_PLAYLIST | 2 | Only for default partition: A playlist was added, removed or changed |
 | TRIGGER_MPD_QUEUE | 4 | Partition specific: MPD queue has changed |

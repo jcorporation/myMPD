@@ -144,6 +144,7 @@ local status_text = {
 -- @param status HTTP status code
 -- @param header Additional headers terminated by "\r\n"
 -- @param body HTTP Body to send
+-- @return HTTP response
 function mympd.http_reply(status, header, body)
   return "HTTP/1.1 " .. status .. " " .. status_text["c" .. status] .. "\r\n" ..
     "Content-length: " .. #body .. "\r\n" ..
@@ -156,10 +157,23 @@ end
 --- Sends a HTTP temporary redirect (302).
 -- Can be only used in the "http" event
 -- @param location Location to redirect
+-- @return HTTP response
 function mympd.http_redirect(location)
   return "HTTP/1.1 302 Found\r\n" ..
     "Content-length: 0\r\n" ..
     "Location: " .. location .. "\r\n" ..
     "Connection: close\r\n" ..
     "\r\n"
+end
+
+--- Sends a JSONRPC 2.0 response.
+-- @param result jsonrpc result object
+-- @return HTTP response
+function mympd.http_jsonrpc_response(obj)
+  local response = json.encode({
+    jsonrpc = "2.0",
+    id = mympd_env.requestid,
+    result = obj
+  })
+  return mympd.http_reply(200, "Content-Type: application/json\r\n", response)
 end

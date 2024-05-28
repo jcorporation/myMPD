@@ -155,6 +155,7 @@ mympd_scrobble
 mympd_skipped
 mympd_start
 mympd_stop
+mympd_lyrics
 name
 newest
 null

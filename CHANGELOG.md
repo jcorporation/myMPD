@@ -37,6 +37,7 @@ With this release you can call Lua scripts by http requests and the script itsel
 - Feat: Set custom variables for scripts #1265
 - Feat: Use EC private keys for SSL certificates
 - Feat: Script to use yt-dlp from myMPD, thanks @sevmonster
+- Upd: Improve triggers #1288
 - Upd: Add length checks for albumart uris #1284
 - Upd: Update mongoose to 7.14
 - Upd: Do not use deprecated OpenSSL API functions

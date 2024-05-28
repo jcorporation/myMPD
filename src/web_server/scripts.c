@@ -13,6 +13,7 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"
+#include "src/scripts/events.h"
 #include "src/web_server/utility.h"
 
 #include <lauxlib.h>
@@ -62,8 +63,10 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     }
     sdsfreesplitres(params, params_count);
 
-    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_SCRIPT_EXECUTE, script, partition);
-    request->extra = arguments;
+    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_SCRIPT_EXECUTE, "", partition);
+    struct t_script_execute_data *extra = script_execute_data_new(script, SCRIPT_START_HTTP);
+    extra->arguments = arguments;
+    request->extra = extra;
     FREE_SDS(partition);
     FREE_SDS(script);
     return push_request(request, 0);

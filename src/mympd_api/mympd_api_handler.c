@@ -466,7 +466,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case MYMPD_API_LYRICS_GET:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
-                response->data = mympd_api_lyrics_get(&mympd_state->lyrics, mympd_state->mpd_state->music_directory_value, response->data, request->id, sds_buf1);
+                response->data = mympd_api_lyrics_get(mympd_state, response->data, sds_buf1, partition_state->name, request->conn_id, request->id);
+                if (sdslen(response->data) == 0) {
+                    // response must be send by triggered script
+                    async = true;
+                    // we do not pass the request to the script thread
+                    free_request(request);
+                }
             }
             break;
         case INTERNAL_API_TIMER_STARTPLAY:

@@ -5,6 +5,8 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/mem.h"
+#include "src/lib/sds_extras.h"
 #include "src/scripts/events.h"
 
 #include <string.h>
@@ -38,4 +40,28 @@ enum script_start_events script_start_event_parse(const char *str) {
     if (strcmp(str, "user") == 0) { return SCRIPT_START_USER; }
     if (strcmp(str, "extern") == 0) { return SCRIPT_START_EXTERN; }
     return SCRIPT_START_UNKNOWN;
+}
+
+/**
+ * Creates the script_execute_data struct
+ * @param scriptname script name
+ * @param script_event script start event
+ * @return newly allocated struct
+ */
+struct t_script_execute_data *script_execute_data_new(const char *scriptname, enum script_start_events script_event) {
+    struct t_script_execute_data *data = malloc_assert(sizeof(struct t_script_execute_data));
+    data->scriptname = sdsnew(scriptname);
+    data->script_event = script_event;
+    data->arguments = NULL;
+    return data;
+}
+
+/**
+ * Frees the script_execute_data struct
+ * @param data script_execute_data struct
+ */
+void script_execute_data_free(struct t_script_execute_data *data) {
+    list_free(data->arguments);
+    FREE_SDS(data->scriptname);
+    FREE_PTR(data);
 }

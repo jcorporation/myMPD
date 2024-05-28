@@ -41,7 +41,6 @@ static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
 static void register_lua_functions(lua_State *lua_vm);
 static int mympd_luaopen(lua_State *lua_vm, const char *lualib);
 
-
 // Public functions
 
 /**
@@ -59,7 +58,6 @@ bool script_start(struct t_scripts_state *scripts_state, sds scriptname, struct 
         else {
             *error = sdscat(*error, "Too many script worker threads already running.");
         }
-        list_free(arguments);
         return false;
     }
 
@@ -120,7 +118,6 @@ bool script_start(struct t_scripts_state *scripts_state, sds scriptname, struct 
             *error = sdscat(*error, "Error creating Lua instance.");
         }
         free_t_script_thread_arg(script_arg);
-        list_free(arguments);
         return false;
     }
     if (rc == false) {
@@ -134,12 +131,10 @@ bool script_start(struct t_scripts_state *scripts_state, sds scriptname, struct 
         MYMPD_LOG_ERROR(script_arg->partition, "Error executing script %s: %s", script_arg->script_name, result);
         FREE_SDS(result);
         free_t_script_thread_arg(script_arg);
-        list_free(arguments);
         return false;
     }
 
     populate_lua_global_vars(scripts_state, script_arg, arguments);
-    list_free(arguments);
 
     //execute script
     pthread_t scripts_worker_thread;
@@ -179,6 +174,7 @@ bool script_validate(struct t_config *config, sds scriptname, sds script, sds *e
 
     bool rc = script_load(&script_arg, script);
     if (script_arg.lua_vm == NULL) {
+        *error = sdscat(*error, "Error creating Lua instance.");
         return false;
     }
     sds result = script_get_result(script_arg.lua_vm, rc);

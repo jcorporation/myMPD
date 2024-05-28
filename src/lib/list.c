@@ -27,6 +27,22 @@ struct t_list *list_new(void) {
 }
 
 /**
+ * Duplicates a list.
+ * Leaves user_data pointer in place.
+ * @param l list to duplicate
+ * @return duplicated list
+ */
+struct t_list *list_dup(struct t_list *l) {
+    struct t_list *new = list_new();
+    struct t_list_node *current = l->head;
+    while (current != NULL) {
+        list_push(new, current->key, current->value_i, current->value_p, current->user_data);
+        current = current->next;
+    }
+    return new;
+}
+
+/**
  * Inits a already allocated list
  * @param l pointer to list
  */

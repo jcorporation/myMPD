@@ -41,6 +41,7 @@ typedef sds (*list_node_to_line_callback) (sds buffer, struct t_list_node *curre
 typedef bool (*list_sort_callback) (struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction);
 
 struct t_list *list_new(void);
+struct t_list *list_dup(struct t_list *l);
 void list_init(struct t_list *l);
 void list_clear(struct t_list *l);
 void *list_free(struct t_list *l);

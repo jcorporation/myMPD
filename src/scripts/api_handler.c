@@ -95,10 +95,12 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             break;
         }
         case INTERNAL_API_SCRIPT_EXECUTE: {
-            struct t_list *arguments = (struct t_list *)request->extra;
-            script_start(scripts_state, request->data, arguments, request->partition,
-                    true, SCRIPT_START_HTTP, response->id, request->conn_id, &error);
+            struct t_script_execute_data *extra = (struct t_script_execute_data *)request->extra;
+            script_start(scripts_state, extra->scriptname, extra->arguments, request->partition,
+                    true, extra->script_event, response->id, request->conn_id, &error);
             respond = false;
+            script_execute_data_free(extra);
+            extra = NULL;
             break;
         }
         case MYMPD_API_SCRIPT_EXECUTE: {
@@ -120,8 +122,8 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             else {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script name");
-                list_free(arguments);
             }
+            list_free(arguments);
             break;
         }
         case INTERNAL_API_SCRIPT_POST_EXECUTE: {
@@ -138,9 +140,8 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             else {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script content");
-                list_clear(arguments);
-                FREE_PTR(arguments);
             }
+            list_free(arguments);
             break;
         }
         case MYMPD_API_SCRIPT_VAR_DELETE:
