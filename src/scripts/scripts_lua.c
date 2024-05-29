@@ -281,9 +281,15 @@ static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
     populate_lua_table_field_p(script_arg->lua_vm, "scriptevent", script_start_event_name(script_arg->start_event));
     populate_lua_table_field_p(script_arg->lua_vm, "scriptname", script_arg->script_name);
     populate_lua_table_field_p(script_arg->lua_vm, "cachedir", script_arg->config->cachedir);
-    sds covercache = sdscatfmt(sdsempty(), "%s/%s", script_arg->config->cachedir,  DIR_CACHE_COVER);
-    populate_lua_table_field_p(script_arg->lua_vm, "cachedir_cover", covercache);
-    FREE_SDS(covercache);
+    sds cachedir = sdscatfmt(sdsempty(), "%s/%s", script_arg->config->cachedir,  DIR_CACHE_COVER);
+    populate_lua_table_field_p(script_arg->lua_vm, "cachedir_cover", cachedir);
+    sdsclear(cachedir);
+    cachedir = sdscatfmt(sdsempty(), "%s/%s", script_arg->config->cachedir,  DIR_CACHE_LYRICS);
+    populate_lua_table_field_p(script_arg->lua_vm, "cachedir_lyrics", cachedir);
+    sdsclear(cachedir);
+    cachedir = sdscatfmt(sdsempty(), "%s/%s", script_arg->config->cachedir,  DIR_CACHE_MISC);
+    populate_lua_table_field_p(script_arg->lua_vm, "cachedir_misc", cachedir);
+    FREE_SDS(cachedir);
     populate_lua_table_field_p(script_arg->lua_vm, "workdir", script_arg->config->workdir);
     // User defined variables
     struct t_list_node *current = scripts_state->var_list.head;

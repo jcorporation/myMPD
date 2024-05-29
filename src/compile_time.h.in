@@ -94,6 +94,8 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define FILENAME_SCRIPTVARS "scriptvars_list"
 
 #define DIR_CACHE_COVER "covercache"
+#define DIR_CACHE_LYRICS "lyrics"
+#define DIR_CACHE_MISC "misc"
 #define DIR_CACHE_WEBRADIODB "webradiodb"
 
 #define DIR_WORK_CONFIG "config"

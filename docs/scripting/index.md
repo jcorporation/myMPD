@@ -8,7 +8,7 @@ myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Scripts are e
 
 The first type of scripts are executed by triggers, timers or manual through the web ui. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition.
 
-The second type of script are called by http requests (`/script/<partition>/<script>`) and are executed in the context of the webserver. This scripts should return a valid http response including status code, headers and body.
+The second type of script are called by http requests (`/script/<partition>/<script>`) and special triggers. This scripts should return a valid http response including status code, headers and body.
 
 ## Global variables
 
@@ -21,9 +21,11 @@ myMPD uses function and variable names prefixed with `mympd`. You should avoid t
 myMPD environment variables are populated in the lua table `mympd_env`.
 
 | KEY | TYPE | DESCRIPTION |
-| -------- | ---- | ----------- |
+| --- | ---- | ----------- |
 | `cachedir` | string | myMPD cache directory |
-| `cachedir_cover` | string | myMPD covercache directory |
+| `cachedir_cover` | string | myMPD cover cache directory |
+| `cachedir_lyrics` | string | myMPD lyrics cache directory |
+| `cachedir_misc` | string | myMPD misc cache directory |
 | `partition` | string | MPD partition |
 | `requestid` | number | Jsonrpc request id |
 | `scriptevent` | string | Script start event: `extern`, `http`, `timer`, `trigger` or `user` |
