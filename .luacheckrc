@@ -15,6 +15,7 @@ read_globals = {
     "mympd_util_covercache_write",
     "mympd_util_notify",
     "mympd_util_log",
+    "mympd_util_lyricscache_write",
     "mympd_util_hash",
     "mympd_util_urlencode",
     "mympd_util_urldecode",
