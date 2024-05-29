@@ -1546,7 +1546,7 @@ uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('mo
 
 const LUAfunctions = {
     "mympd.covercache_write": {
-        "desc": "Write a file for the covercache.",
+        "desc": "Write a file for the cover cache.",
         "func": "mympd.covercache_write(src, uri)",
         "feat": ""
     },
@@ -1563,6 +1563,16 @@ const LUAfunctions = {
     "mympd.http_client": {
         "desc": "HTTP client",
         "func": "local rc, code, header, body = mympd.http_client(method, uri, headers, payload)",
+        "feat": ""
+    },
+    "mympd.http_jsonrpc_error": {
+        "desc": "Sends a JSONRPC 2.0 error.",
+        "func": "mympd.http_jsonrpc_error(method, msg)",
+        "feat": ""
+    },
+    "mympd.http_jsonrpc_response": {
+        "desc": "Sends a JSONRPC 2.0 response.",
+        "func": "mympd.http_jsonrpc_response(obj)",
         "feat": ""
     },
     "mympd.http_download": {
@@ -1588,6 +1598,11 @@ const LUAfunctions = {
     "mympd.log": {
         "desc": "Logs messages to the myMPD log.",
         "func": "mympd.log(loglevel, message)",
+        "feat": ""
+    },
+    "mympd.lyricscache_write": {
+        "desc": "Write the lyrics entry object to the lyrics cache.",
+        "func": "mympd.lyricscache_write(json.encode(entry), song_uri)",
         "feat": ""
     },
     "mympd.urldecode": {
