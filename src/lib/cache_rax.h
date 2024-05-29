@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_CACHE_H
-#define MYMPD_CACHE_H
+#ifndef MYMPD_CACHE_RAX_H
+#define MYMPD_CACHE_RAX_H
 
 #include "dist/rax/rax.h"
 

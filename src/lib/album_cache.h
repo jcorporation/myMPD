@@ -8,7 +8,7 @@
 #define MYMPD_ALBUM_CACHE_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/cache.h"
+#include "src/lib/cache_rax.h"
 #include "src/lib/config_def.h"
 #include "src/lib/fields.h"
 

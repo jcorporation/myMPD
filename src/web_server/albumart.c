@@ -8,8 +8,8 @@
 #include "src/web_server/albumart.h"
 
 #include "src/lib/api.h"
+#include "src/lib/cache_disk.h"
 #include "src/lib/convert.h"
-#include "src/lib/covercache.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
@@ -250,7 +250,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
 
         if (testfile_read(mediafile) == true) {
             //try to extract albumart from media file
-            bool covercache = mg_user_data->config->covercache_keep_days != COVERCACHE_DISABLED
+            bool covercache = mg_user_data->config->cache_cover_keep_days != CACHE_DISK_DISABLED
                 ? true
                 : false;
             bool rc = handle_coverextract(nc, config->cachedir, uri, mediafile, covercache, offset);

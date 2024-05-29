@@ -9,7 +9,8 @@
 
 #include "src/lib/album_cache.h"
 #include "src/lib/api.h"
-#include "src/lib/covercache.h"
+#include "src/lib/cache_disk.h"
+#include "src/lib/cache_disk_cover.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -161,8 +162,8 @@ sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state
         buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
         buffer = jsonrpc_end(buffer);
-        if (partition_state->config->covercache_keep_days != COVERCACHE_DISABLED) {
-            covercache_write_file(partition_state->config->cachedir, uri, mime_type, *binary, 0);
+        if (partition_state->config->cache_cover_keep_days != CACHE_DISK_DISABLED) {
+            cache_disk_cover_write_file(partition_state->config->cachedir, uri, mime_type, *binary, 0);
         }
         else {
             MYMPD_LOG_DEBUG(partition_state->name, "Covercache is disabled");

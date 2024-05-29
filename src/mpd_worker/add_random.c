@@ -8,7 +8,7 @@
 #include "src/mpd_worker/add_random.h"
 
 #include "dist/sds/sds.h"
-#include "src/lib/cache.h"
+#include "src/lib/cache_rax.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/random_select.h"

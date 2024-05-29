@@ -7,8 +7,9 @@
 #include "compile_time.h"
 #include "src/web_server/utility.h"
 
+#include "src/lib/cache_disk.h"
+#include "src/lib/cache_disk_cover.h"
 #include "src/lib/config_def.h"
-#include "src/lib/covercache.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -125,8 +126,8 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
 bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset)
 {
-    if (mg_user_data->config->covercache_keep_days != COVERCACHE_DISABLED) {
-        sds covercachefile = covercache_get_basename(mg_user_data->config->cachedir, uri_decoded, offset);
+    if (mg_user_data->config->cache_cover_keep_days != CACHE_DISK_DISABLED) {
+        sds covercachefile = cache_disk_cover_get_basename(mg_user_data->config->cachedir, uri_decoded, offset);
         covercachefile = webserver_find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {
             const char *mime_type = get_mime_type_by_ext(covercachefile);

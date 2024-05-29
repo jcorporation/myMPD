@@ -129,7 +129,9 @@ void mympd_config_defaults(struct t_config *config) {
     config->scriptacl = startup_getenv_string("MYMPD_SCRIPTACL", CFG_MYMPD_SCRIPTACL, vcb_isname, config->first_startup);
     config->loglevel = getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX);
     config->pin_hash = sdsnew(CFG_MYMPD_PIN_HASH);
-    config->covercache_keep_days = startup_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", CFG_MYMPD_COVERCACHE_KEEP_DAYS, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, config->first_startup);
+    config->cache_cover_keep_days = startup_getenv_int("MYMPD_CACHE_COVER_KEEP_DAYS", CFG_MYMPD_CACHE_COVER_KEEP_DAYS, CACHE_AGE_MIN, CACHE_AGE_MAX, config->first_startup);
+    config->cache_lyrics_keep_days = startup_getenv_int("MYMPD_CACHE_LYRICS_KEEP_DAYS", CFG_MYMPD_CACHE_LYRICS_KEEP_DAYS, CACHE_AGE_MIN, CACHE_AGE_MAX, config->first_startup);
+    config->cache_misc_keep_days = startup_getenv_int("MYMPD_CACHE_MISC_KEEP_DAYS", CFG_MYMPD_CACHE_MISC_KEEP_DAYS, CACHE_AGE_MIN, CACHE_AGE_MAX, config->first_startup);
     config->save_caches = startup_getenv_bool("MYMPD_SAVE_CACHES", CFG_MYMPD_SAVE_CACHES, config->first_startup);
     config->mympd_uri = startup_getenv_string("MYMPD_URI", CFG_MYMPD_URI, vcb_isname, config->first_startup);
     config->stickers = startup_getenv_bool("MYMPD_STICKERS", CFG_MYMPD_STICKERS, config->first_startup);
@@ -200,7 +202,9 @@ bool mympd_config_rw(struct t_config *config, bool write) {
     config->pin_hash = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "pin_hash", config->pin_hash, vcb_isname, write);
     config->acl = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "acl", config->acl, vcb_isname, write);
     config->scriptacl = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "scriptacl", config->scriptacl, vcb_isname, write);
-    config->covercache_keep_days = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "covercache_keep_days", config->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, write);
+    config->cache_cover_keep_days = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "cache_cover_keep_days", config->cache_cover_keep_days, CACHE_AGE_MIN, CACHE_AGE_MAX, write);
+    config->cache_lyrics_keep_days = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "cache_lyrics_keep_days", config->cache_lyrics_keep_days, CACHE_AGE_MIN, CACHE_AGE_MAX, write);
+    config->cache_misc_keep_days = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "cache_misc_keep_days", config->cache_misc_keep_days, 1, CACHE_AGE_MAX, write);
     config->loglevel = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "loglevel", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, write);
     config->save_caches = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "save_caches", config->save_caches, write);
     config->mympd_uri = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "mympd_uri", config->mympd_uri, vcb_isname, write);

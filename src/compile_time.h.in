@@ -132,7 +132,9 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define CFG_MYMPD_URI "auto"
 #define CFG_MYMPD_SAVE_CACHES true
 #define CFG_MYMPD_LOG_TO_SYSLOG false
-#define CFG_MYMPD_COVERCACHE_KEEP_DAYS 31
+#define CFG_MYMPD_CACHE_COVER_KEEP_DAYS 31
+#define CFG_MYMPD_CACHE_LYRICS_KEEP_DAYS 31
+#define CFG_MYMPD_CACHE_MISC_KEEP_DAYS 1
 #define CFG_MYMPD_ALBUM_MODE "adv"
 #define CFG_MYMPD_ALBUM_GROUP_TAG "Date"
 #define CFG_MYMPD_STICKERS true
@@ -341,10 +343,10 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define TIMER_INTERVAL_MIN 0 //seconds
 #define TIMER_INTERVAL_MAX 7257600 //12 weeks
 #define TIMER_SMARTPLS_UPDATE_OFFSET 30 //seconds
-#define TIMER_COVERCACHE_CLEANUP_OFFSET 60 //seconds
-#define TIMER_COVERCACHE_CLEANUP_INTERVAL 86400 //seconds
-#define COVERCACHE_AGE_MIN -1 //days
-#define COVERCACHE_AGE_MAX 365 //days
+#define TIMER_DISK_CACHE_CLEANUP_OFFSET 60 //seconds
+#define TIMER_DISK_CACHE_CLEANUP_INTERVAL 86400 //seconds
+#define CACHE_AGE_MIN -1 //days
+#define CACHE_AGE_MAX 365 //days
 #define VOLUME_MIN 0 //prct
 #define VOLUME_MAX 100 //prct
 #define VOLUME_STEP_MIN 1 //prct

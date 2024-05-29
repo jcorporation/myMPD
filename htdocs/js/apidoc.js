@@ -2140,12 +2140,12 @@ const APImethods = {
         "protected": true,
         "params": {}
     },
-    "MYMPD_API_COVERCACHE_CLEAR": {
-        "desc": "Clears the covercache.",
+    "MYMPD_API_CACHE_DISK_CLEAR": {
+        "desc": "Clears the caches on disk.",
         "params": {}
     },
-    "MYMPD_API_COVERCACHE_CROP": {
-        "desc": "Crops the covercache.",
+    "MYMPD_API_CACHE_DISK_CROP": {
+        "desc": "Crops the caches on disk.",
         "params": {}
     },
     "MYMPD_API_LOGLEVEL": {

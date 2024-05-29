@@ -51,8 +51,8 @@ const char *get_cmd_id_method_name(enum mympd_cmd_ids cmd_id) {
 bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
     switch(cmd_id) {
         case MYMPD_API_CONNECTION_SAVE:
-        case MYMPD_API_COVERCACHE_CLEAR:
-        case MYMPD_API_COVERCACHE_CROP:
+        case MYMPD_API_CACHE_DISK_CLEAR:
+        case MYMPD_API_CACHE_DISK_CROP:
         case MYMPD_API_MOUNT_MOUNT:
         case MYMPD_API_MOUNT_UNMOUNT:
         case MYMPD_API_PARTITION_NEW:
@@ -108,8 +108,8 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_HOME_ICON_LIST:
         case MYMPD_API_SCRIPT_LIST:
         case MYMPD_API_SETTINGS_GET:
-        case MYMPD_API_COVERCACHE_CLEAR:
-        case MYMPD_API_COVERCACHE_CROP:
+        case MYMPD_API_CACHE_DISK_CLEAR:
+        case MYMPD_API_CACHE_DISK_CROP:
             return true;
         default:
             return false;

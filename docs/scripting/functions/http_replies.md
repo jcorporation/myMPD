@@ -31,9 +31,9 @@ return mympd.http_redirect(location)
 | body | string | Response body |
 {: .table .table-sm }
 
-## JSONRPC reply
+## JSONRPC
 
-Sends a JSONRPC 2.0 reply.
+## Send a JSONRPC 2.0 result
 
 ```lua
 local result = {
@@ -48,3 +48,17 @@ local result = {
 }
 return mympd.http_jsonrpc_response(result)
 ```
+
+## Send a JSONRPC 2.0 error
+
+```lua
+return mympd.http_jsonrpc_error(method, msg)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| method | integer | myMPD API method |
+| msg | string | Error message |
+{: .table .table-sm }

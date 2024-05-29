@@ -2,11 +2,18 @@
 --- myMPD utility functions
 ---
 
---- Write a file for the covercache
+--- Write a file for the cover cache
 -- @param src File to rename
--- @param uri URI to create the covercache file for
+-- @param uri URI to create the cover cache file for
 function mympd.covercache_write(src, uri)
   return mympd_util_covercache_write(mympd_env.cachedir, src, uri)
+end
+
+--- Write a string to a file in the lyrics cache
+-- @param str String to save (it must be a valid lyrics json string)
+-- @param uri URI to create the lyrics cache file for
+function mympd.lyricscache_write(str, uri)
+  return mympd_util_lyricscache_write(mympd_env.cachedir, str, uri)
 end
 
 --- Sends a notification to the client that started this script.
@@ -174,6 +181,25 @@ function mympd.http_jsonrpc_response(obj)
     jsonrpc = "2.0",
     id = mympd_env.requestid,
     result = obj
+  })
+  return mympd.http_reply(200, "Content-Type: application/json\r\n", response)
+end
+
+--- Sends a JSONRPC 2.0 error.
+-- @param method API method
+-- @param msg Error message
+-- @return HTTP response
+function mympd.http_jsonrpc_error(method, msg)
+  local response = json.encode({
+    jsonrpc = "2.0",
+    id = mympd_env.requestid,
+    error = {
+      method = method,
+      facility = "script",
+      severity = "error",
+      message = msg,
+      data = {}
+    }
   })
   return mympd.http_reply(200, "Content-Type: application/json\r\n", response)
 end

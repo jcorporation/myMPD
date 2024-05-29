@@ -45,7 +45,7 @@ static void timer_handler_caches_create(void);
 void timer_handler_by_id(unsigned timer_id, struct t_timer_definition *definition) {
     (void) definition; // not used
     switch(timer_id) {
-        case TIMER_ID_COVERCACHE_CROP:
+        case TIMER_ID_DISK_CACHE_CROP:
             timer_handler_covercache_crop();
             break;
         case TIMER_ID_SMARTPLS_UPDATE:
@@ -187,7 +187,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
  */
 static void timer_handler_covercache_crop(void) {
     MYMPD_LOG_INFO(NULL, "Start timer_handler_covercache_crop");
-    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_COVERCACHE_CROP, NULL, MPD_PARTITION_DEFAULT);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_CACHE_DISK_CROP, NULL, MPD_PARTITION_DEFAULT);
     request->data = jsonrpc_end(request->data);
     push_request(request, 0);
 }

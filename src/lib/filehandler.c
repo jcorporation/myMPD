@@ -257,7 +257,7 @@ int testdir(const char *desc, const char *dir_name, bool create, bool silent) {
 }
 
 /**
- * Checks if dir_name is realy a directory entry
+ * Checks if dir_name is really a directory entry
  * @param dir_name directory path to check
  * @return true if it is a directory, else false
  */

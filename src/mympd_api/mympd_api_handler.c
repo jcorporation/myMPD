@@ -131,8 +131,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SONG_FINGERPRINT:
-        case MYMPD_API_COVERCACHE_CROP:
-        case MYMPD_API_COVERCACHE_CLEAR:
+        case MYMPD_API_CACHE_DISK_CROP:
+        case MYMPD_API_CACHE_DISK_CLEAR:
         case MYMPD_API_QUEUE_ADD_RANDOM:
             if (mpd_worker_threads > MAX_MPD_WORKER_THREADS) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,

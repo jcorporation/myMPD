@@ -10,12 +10,13 @@ This release reworks the scripting functionality of myMPD. There are several new
 
 With this release you can call Lua scripts by http requests and the script itself can respond to it. There is now also a new `yt-dlp` script developed by @sevmonster that make use of this new functionality.
 
-There are three new triggers. Scripts can now be uses to fetch album art, tag art and lyrics from other resources.
+There are three new triggers. Scripts can now be used to fetch album art, tag art and lyrics from other resources.
 
 ### Notes
 
 - The config setting for the ListenBrainz API token was removed in favor of a new central function to declare variables for scripts.
-- The global variables for Lua scripts are renamed.
+- The config setting `covercache_keep_days` was renamed to `cache_cover_keep_days`.
+- The global variables and tables for Lua scripts are renamed.
 - The `lualibs` configuration option was removed. myMPD loads always all Lua standard libraries.
 - The scripts to import are move to the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts).
 
@@ -27,6 +28,8 @@ There are three new triggers. Scripts can now be uses to fetch album art, tag ar
 - MYMPD_API_QUEUE_APPEND_URI_TAGS: new
 - MYMPD_API_QUEUE_INSERT_URI_TAGS: new
 - MYMPD_API_QUEUE_REPLACE_URI_TAGS: new
+- MYMPD_API_COVERCACHE_CLEAR renamed to MYMPD_API_CACHE_DISK_CLEAR
+- MYMPD_API_COVERCACHE_CROP renamed to MYMPD_API_CACHE_DISK_CROP
 
 ### Changelog
 

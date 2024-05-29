@@ -76,11 +76,9 @@ void *mympd_api_loop(void *arg_config) {
         album_cache_read(&mympd_state->album_cache, mympd_state->config->workdir, &mympd_state->config->albums);
     }
     // set timers
-    if (mympd_state->config->covercache_keep_days > 0) {
-        MYMPD_LOG_DEBUG(NULL, "Adding timer for \"crop covercache\" to execute periodic each day");
-        mympd_api_timer_add(&mympd_state->timer_list, TIMER_COVERCACHE_CLEANUP_OFFSET, TIMER_COVERCACHE_CLEANUP_INTERVAL,
-            timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
-    }
+    MYMPD_LOG_DEBUG(NULL, "Adding timer for cache cropping to execute periodic each day");
+    mympd_api_timer_add(&mympd_state->timer_list, TIMER_DISK_CACHE_CLEANUP_OFFSET, TIMER_DISK_CACHE_CLEANUP_INTERVAL,
+        timer_handler_by_id, TIMER_ID_DISK_CACHE_CROP, NULL);
 
     // start trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START, MPD_PARTITION_ALL);

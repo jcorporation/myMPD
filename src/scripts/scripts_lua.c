@@ -284,10 +284,10 @@ static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
     sds cachedir = sdscatfmt(sdsempty(), "%s/%s", script_arg->config->cachedir,  DIR_CACHE_COVER);
     populate_lua_table_field_p(script_arg->lua_vm, "cachedir_cover", cachedir);
     sdsclear(cachedir);
-    cachedir = sdscatfmt(sdsempty(), "%s/%s", script_arg->config->cachedir,  DIR_CACHE_LYRICS);
+    cachedir = sdscatfmt(cachedir, "%s/%s", script_arg->config->cachedir,  DIR_CACHE_LYRICS);
     populate_lua_table_field_p(script_arg->lua_vm, "cachedir_lyrics", cachedir);
     sdsclear(cachedir);
-    cachedir = sdscatfmt(sdsempty(), "%s/%s", script_arg->config->cachedir,  DIR_CACHE_MISC);
+    cachedir = sdscatfmt(cachedir, "%s/%s", script_arg->config->cachedir,  DIR_CACHE_MISC);
     populate_lua_table_field_p(script_arg->lua_vm, "cachedir_misc", cachedir);
     FREE_SDS(cachedir);
     populate_lua_table_field_p(script_arg->lua_vm, "workdir", script_arg->config->workdir);
@@ -368,6 +368,7 @@ static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_util_log", lua_util_log);
     lua_register(lua_vm, "mympd_util_notify", lua_util_notify);
     lua_register(lua_vm, "mympd_util_covercache_write", lua_util_covercache_write);
+    lua_register(lua_vm, "mympd_util_lyricscache_write", lua_util_lyricscache_write);
     #ifdef MYMPD_ENABLE_MYGPIOD
         lua_register(lua_vm, "mygpio_gpio_blink", lua_mygpio_gpio_blink);
         lua_register(lua_vm, "mygpio_gpio_get", lua_mygpio_gpio_get);

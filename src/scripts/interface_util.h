@@ -17,5 +17,6 @@ int lua_util_hash(lua_State *lua_vm);
 int lua_util_urlencode(lua_State *lua_vm);
 int lua_util_urldecode(lua_State *lua_vm);
 int lua_util_covercache_write(lua_State *lua_vm);
+int lua_util_lyricscache_write(lua_State *lua_vm);
 
 #endif

@@ -7,7 +7,7 @@
 #include "compile_time.h"
 #include "src/mpd_worker/api.h"
 
-#include "src/lib/covercache.h"
+#include "src/lib/cache_disk.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
@@ -28,7 +28,6 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     bool rc;
     bool bool_buf1;
     bool async = false;
-    int int_buf1;
     unsigned uint_buf1;
     unsigned uint_buf2;
     sds sds_buf1 = NULL;
@@ -94,19 +93,15 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 async = true;
             }
             break;
-        case MYMPD_API_COVERCACHE_CROP:
-        case MYMPD_API_COVERCACHE_CLEAR:
-            int_buf1 = request->cmd_id == MYMPD_API_COVERCACHE_CLEAR
-                ? 0
-                : mpd_worker_state->config->covercache_keep_days;
-            int_buf1 = covercache_clear(mpd_worker_state->config->cachedir, int_buf1);
-            sds_buf1 = sdsfromlonglong((long long) int_buf1);
-            response->data = int_buf1 < 0
-                ? jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Failed to clean up the covercache")
-                : jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_INFO, "Removed %{smart_count} cover |||| Removed %{smart_count} covers",
-                    2, "smartCount", sds_buf1);
+        case MYMPD_API_CACHE_DISK_CLEAR:
+            cache_disk_clear(mpd_worker_state->config);
+            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Clearing caches finished");
+            break;
+        case MYMPD_API_CACHE_DISK_CROP:
+            cache_disk_crop(mpd_worker_state->config);
+            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Cropping caches finished");
             break;
         case MYMPD_API_SONG_FINGERPRINT:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_ispathfilename, &parse_error) == true) {

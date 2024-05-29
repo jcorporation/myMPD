@@ -7,7 +7,7 @@
 #include "compile_time.h"
 #include "src/web_server/albumart_flac.h"
 
-#include "src/lib/covercache.h"
+#include "src/lib/cache_disk_cover.h"
 #include "src/lib/log.h"
 #include "src/lib/mimetype.h"
 
@@ -66,7 +66,7 @@ bool handle_coverextract_flac(sds cachedir, const char *uri, const char *media_f
         const char *mime_type = get_mime_type_by_magic_stream(*binary);
         if (mime_type != NULL) {
             if (covercache == true) {
-                covercache_write_file(cachedir, uri, mime_type, *binary, offset);
+                cache_disk_cover_write_file(cachedir, uri, mime_type, *binary, offset);
             }
             else {
                 MYMPD_LOG_DEBUG(NULL, "Covercache is disabled");

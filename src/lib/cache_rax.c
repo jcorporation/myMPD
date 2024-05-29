@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/cache.h"
+#include "src/lib/cache_rax.h"
 
 #include "src/lib/log.h"
 

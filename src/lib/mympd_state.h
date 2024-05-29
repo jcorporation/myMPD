@@ -9,7 +9,7 @@
 
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/sds/sds.h"
-#include "src/lib/cache.h"
+#include "src/lib/cache_rax.h"
 #include "src/lib/config_def.h"
 #include "src/lib/event.h"
 #include "src/lib/fields.h"

@@ -134,7 +134,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
                 "POST %s HTTP/1.0\r\n"
                 "Host: %.*s\r\n"
                 "%s"
-                "Content-length: %lu\r\n"
+                "Content-Length: %lu\r\n"
                 "\r\n"
                 "%s\r\n",
                 mg_url_uri(mg_client_request->uri),
