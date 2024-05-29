@@ -303,6 +303,10 @@ lualibs() {
   [ "$MYMPD_ENABLE_MYGPIOD" = "ON" ] && cat contrib/lualibs/mympd/40-mygpiod.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/50-util.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/99-end.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  echo "Compiling lua libraries"
+  LUAC=$(command -v luac || command -v luac5.4 || command -v luac5.3)
+  $LUAC -s -o "$MYMPD_BUILDDIR/contrib/lualibs/mympd.luac" "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  $LUAC -s -o "$MYMPD_BUILDDIR/contrib/lualibs/json.luac" "$MYMPD_BUILDDIR/contrib/lualibs/json.lua"
 }
 
 buildrelease() {
@@ -804,10 +808,10 @@ installdeps() {
   if [ -f /etc/debian_version ]
   then
     apt-get update
-    if ! apt-get install -y --no-install-recommends liblua5.4-dev
+    if ! apt-get install -y --no-install-recommends liblua5.4-dev lua5.4
     then
       #fallback to lua 5.3 for older debian versions
-      apt-get install -y --no-install-recommends liblua5.3-dev
+      apt-get install -y --no-install-recommends liblua5.3-dev lua5.3
     fi
     apt-get install -y --no-install-recommends \
       gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
@@ -819,7 +823,7 @@ installdeps() {
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev \
+    apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev lua5.4 \
       alpine-sdk linux-headers pkgconf pcre2-dev gzip jq newt
   elif [ -f /etc/SuSE-release ]
   then

@@ -324,18 +324,19 @@ static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
 static int mympd_luaopen(lua_State *lua_vm, const char *lualib) {
     MYMPD_LOG_DEBUG(NULL, "Loading embedded lua library %s", lualib);
     #ifdef MYMPD_EMBEDDED_ASSETS
-        sds lib_string;
+        int rc;
         if (strcmp(lualib, "json") == 0) {
-            lib_string = sdscatlen(sdsempty(), json_lua_data, json_lua_size);
+            rc = luaL_loadbuffer(lua_vm, (const char *)json_lua_data, json_lua_size, lualib);
         }
         else if (strcmp(lualib, "mympd") == 0) {
-            lib_string = sdscatlen(sdsempty(), mympd_lua_data, mympd_lua_size);
+            rc = luaL_loadbuffer(lua_vm, (const char *)mympd_lua_data, mympd_lua_size, lualib);
         }
         else {
             return false;
         }
-        int rc = luaL_dostring(lua_vm, lib_string);
-        FREE_SDS(lib_string);
+        if (rc == 0) {
+            rc = lua_pcall(lua_vm, 0, 1, 0);
+        }
     #else
         sds filename = sdscatfmt(sdsempty(), "%s/%s.lua", MYMPD_LUALIBS_PATH, lualib);
         int rc = luaL_dofile(lua_vm, filename);

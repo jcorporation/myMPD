@@ -32,6 +32,7 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 - Perl - to create translation files
 - gzip - to precompress assets
 - jq - json parsing
+- luac - to precompile embedded lua libraries
 - whiptail - for mympd-config
 - Devel packages:
   - pcre2 - for pcre support
