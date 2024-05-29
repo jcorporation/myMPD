@@ -93,6 +93,8 @@ sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer,
                 }
                 return buffer;
             }
+        #else
+            (void)conn_id;
         #endif
         // no trigger
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
