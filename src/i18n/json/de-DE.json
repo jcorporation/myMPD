@@ -175,7 +175,6 @@
     "Could not save trigger": "Konnte Trigger nicht speichern",
     "Could not save webradio favorite": "Konnte Webradio Favorit nicht speichern",
     "Country": "Land",
-    "Covercache": "Covercache",
     "Create new": "Neu erstellen",
     "Crop": "Abschneiden",
     "Crop queue": "Warteschlange abschneiden",
@@ -303,7 +302,6 @@
     "External link": "Externer Link",
     "Facilities": "Kategorie",
     "Facility": "Kategorie",
-    "Failed to clean up the covercache": "Fehler beim Bereinigen des Covercaches",
     "Failed to parse response from %{uri}": "Antwort konnte nicht geparsed werden: %{uri}",
     "Failed to set feedback": "Wertung konnte nicht gespeichert werden",
     "Fast forward": "Vorwärts spulen",
@@ -687,7 +685,6 @@
     "Removed %{count1} invalid and %{count2} duplicate entries from playlists": "%{count1} ungültige Einträge und %{count2} Duplikate von Wiedergabelisten entfernt",
     "Removed %{count} entries from playlist %{plist}": "%{count} Einträge von der Wiedergabeliste %{plist} entfernt",
     "Removed %{count} entries from playlists": "%{count} Einträge von Wiedergabelisten entfernt",
-    "Removed %{smart_count} cover |||| Removed %{smart_count} covers": "%{smart_count} Cover gelöscht |||| %{smart_count} Cover gelöscht",
     "Rename": "Umbenennen",
     "Rename playlist": "Wiedergabeliste umbenennen",
     "Renaming playlist failed": "Wiedergabeliste konnte nicht umbenannt werden",
@@ -1176,6 +1173,12 @@
     "HTTP download": "HTTP Download",
     "Initializes the global lua table mympd_state.": "Initialisiert die globale Lua Tabelle mympd_state.",
     "Too many script worker threads already running.": "Es sind bereits zu viele Skript-Worker-Threads gestartet",
-    "Write a file for the covercache.": "Schreibt eine Datei für den Covercache.",
-    "Can not open script": "Skript konnte nicht geöffnet werden."
+    "Can not open script": "Skript konnte nicht geöffnet werden.",
+    "Clearing caches finished": "Cache wurde geleert.",
+    "Cropping caches finished": "Cachebereinigung beendet.",
+    "Disk cache": "Disk Cache",
+    "Sends a JSONRPC 2.0 error.": "Sendet eine JSONRPC 2.0 Fehlermeldung.",
+    "Sends a JSONRPC 2.0 response.": "Sendet ein JSONRPC 2.0 Ergebnis.",
+    "Write a file for the cover cache.": "Schreibt eine Datei für den Covercache.",
+    "Write the lyrics entry object to the lyrics cache.": "Schreibt das Lyrics-Objekt in then Lyricscache."
 }
