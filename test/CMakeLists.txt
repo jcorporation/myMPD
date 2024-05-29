@@ -10,7 +10,8 @@ set(TEST_SOURCES
   utility.c
   ../src/lib/album_cache.c
   ../src/lib/api.c
-  ../src/lib/cache.c
+  ../src/lib/cache_disk_lyrics.c
+  ../src/lib/cache_rax.c
   ../src/lib/cert.c
   ../src/lib/config.c
   ../src/lib/convert.c

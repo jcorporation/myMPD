@@ -83,15 +83,17 @@ sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer,
     }
 
     if (extracted.length == 0) {
-        // no lyrics found, check if there is a trigger to fetch lyrics
-        int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_LYRICS, uri, partition, conn_id, request_id);
-        if (n > 0) {
-            // return empty buffer, response must be send by triggered script
-            if (n > 1) {
-                MYMPD_LOG_WARN(partition, "More than one script triggered for lyrics.");
+        #ifdef MYMPD_ENABLE_LUA
+            // no lyrics found, check if there is a trigger to fetch lyrics
+            int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_LYRICS, uri, partition, conn_id, request_id);
+            if (n > 0) {
+                // return empty buffer, response must be send by triggered script
+                if (n > 1) {
+                    MYMPD_LOG_WARN(partition, "More than one script triggered for lyrics.");
+                }
+                return buffer;
             }
-            return buffer;
-        }
+        #endif
         // no trigger
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_LYRICS, JSONRPC_SEVERITY_INFO, "No lyrics found");
