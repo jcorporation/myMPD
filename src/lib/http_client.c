@@ -131,10 +131,11 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         if (strcmp(mg_client_request->method, "POST") == 0) {
             MYMPD_LOG_DEBUG(NULL, "Sending data: \"%s\"", mg_client_request->post_data);
             mg_printf(nc,
-                "POST %s HTTP/1.0\r\n"
+                "POST %s HTTP/1.1\r\n"
                 "Host: %.*s\r\n"
                 "%s"
                 "Content-Length: %lu\r\n"
+                "Connection: close\r\n"
                 "\r\n"
                 "%s\r\n",
                 mg_url_uri(mg_client_request->uri),
@@ -145,10 +146,11 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         }
         else {
             mg_printf(nc,
-                "GET %s HTTP/1.0\r\n"
+                "GET %s HTTP/1.1\r\n"
                 "Host: %.*s\r\n"
-                "Content-Length: 0\r\n"
                 "%s"
+                "Content-Length: 0\r\n"
+                "Connection: close\r\n"
                 "\r\n",
                 mg_url_uri(mg_client_request->uri),
                 (int) host.len, host.buf,
