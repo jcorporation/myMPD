@@ -18,7 +18,7 @@ Get the appropriated tarball or clone the git repository and checkout the wanted
 
 **Example: Clone and use devel branch:**
 
-```
+```sh
 git clone https://github.com/jcorporation/myMPD.git
 git checkout devel
 ```
@@ -32,7 +32,7 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 - Perl - to create translation files
 - gzip - to precompress assets
 - jq - json parsing
-- luac - to precompile embedded lua libraries
+- lua - to precompile embedded lua libraries
 - whiptail - for mympd-config
 - Devel packages:
   - pcre2 - for pcre support
