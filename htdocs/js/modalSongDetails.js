@@ -279,7 +279,8 @@ function parseSongDetails(obj) {
     unsetUpdateViewId('modalSongDetailsTagsList');
     //populate other tabs
     if (features.featLyrics === true) {
-        getLyrics(obj.result.uri, elGetById('modalSongDetailsTabPicsLyricsText'));
+        elClearId('modalSongDetailsTabLyricsText');
+        getLyrics(obj.result.uri, elGetById('modalSongDetailsTabLyricsText'));
     }
     getComments(obj.result.uri);
     const imgEl = elGetById('modalSongDetailsTabPics');
