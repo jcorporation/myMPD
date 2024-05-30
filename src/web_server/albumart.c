@@ -145,7 +145,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
     MYMPD_LOG_DEBUG(NULL, "Handle albumart for uri \"%s\", offset %d", uri, offset);
 
     //check covercache and serve image from it if found
-    if (check_covercache(nc, hm, mg_user_data, uri, offset) == true) {
+    if (check_imagescache(nc, hm, mg_user_data, DIR_CACHE_COVER, uri, offset) == true) {
         FREE_SDS(uri);
         return true;
     }

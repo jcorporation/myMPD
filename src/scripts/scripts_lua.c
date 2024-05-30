@@ -280,7 +280,6 @@ static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
     populate_lua_table_field_i(script_arg->lua_vm, "requestid", script_arg->request_id);
     populate_lua_table_field_p(script_arg->lua_vm, "scriptevent", script_start_event_name(script_arg->start_event));
     populate_lua_table_field_p(script_arg->lua_vm, "scriptname", script_arg->script_name);
-    populate_lua_table_field_p(script_arg->lua_vm, "cachedir", script_arg->config->cachedir);
     sds cachedir = sdscatfmt(sdsempty(), "%s/%s", script_arg->config->cachedir,  DIR_CACHE_COVER);
     populate_lua_table_field_p(script_arg->lua_vm, "cachedir_cover", cachedir);
     sdsclear(cachedir);
@@ -289,6 +288,9 @@ static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
     sdsclear(cachedir);
     cachedir = sdscatfmt(cachedir, "%s/%s", script_arg->config->cachedir,  DIR_CACHE_MISC);
     populate_lua_table_field_p(script_arg->lua_vm, "cachedir_misc", cachedir);
+    sdsclear(cachedir);
+    cachedir = sdscatfmt(cachedir, "%s/%s", script_arg->config->cachedir,  DIR_CACHE_THUMBS);
+    populate_lua_table_field_p(script_arg->lua_vm, "cachedir_thumbs", cachedir);
     FREE_SDS(cachedir);
     populate_lua_table_field_p(script_arg->lua_vm, "workdir", script_arg->config->workdir);
     // User defined variables
@@ -368,7 +370,7 @@ static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_util_urldecode", lua_util_urldecode);
     lua_register(lua_vm, "mympd_util_log", lua_util_log);
     lua_register(lua_vm, "mympd_util_notify", lua_util_notify);
-    lua_register(lua_vm, "mympd_util_covercache_write", lua_util_covercache_write);
+    lua_register(lua_vm, "mympd_util_imagescache_write", lua_util_imagescache_write);
     lua_register(lua_vm, "mympd_util_lyricscache_write", lua_util_lyricscache_write);
     #ifdef MYMPD_ENABLE_MYGPIOD
         lua_register(lua_vm, "mygpio_gpio_blink", lua_mygpio_gpio_blink);

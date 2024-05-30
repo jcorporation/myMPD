@@ -39,10 +39,17 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
         return true;
     }
 
-    sanitize_filename2(value);
-
     MYMPD_LOG_DEBUG(NULL, "Handle tagart for \"%s\": \"%s\"", tag, value);
+
+    //check thumbs cache and serve image from it if found
+    if (check_imagescache(nc, hm, mg_user_data, DIR_CACHE_THUMBS, value, 0) == true) {
+        FREE_SDS(tag);
+        FREE_SDS(value);
+        return true;
+    }
+
     //create absolute filepath
+    sanitize_filename2(value);
     sds mediafile = sdscatfmt(sdsempty(), "%S/%s/%S/%S", config->workdir, DIR_WORK_PICS, tag, value);
     MYMPD_LOG_DEBUG(NULL, "Absolut media_file: %s", mediafile);
     mediafile = webserver_find_image_file(mediafile);

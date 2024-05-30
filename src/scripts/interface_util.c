@@ -8,7 +8,7 @@
 #include "src/scripts/interface_util.h"
 
 #include "src/lib/api.h"
-#include "src/lib/cache_disk_cover.h"
+#include "src/lib/cache_disk_images.h"
 #include "src/lib/cache_disk_lyrics.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
@@ -209,30 +209,36 @@ int lua_util_urldecode(lua_State *lua_vm) {
 }
 
 /**
- * Renames a file for the cover cache
+ * Renames a file for the images cache
  * @param lua_vm lua instance
  * @return 0 on success
  */
-int lua_util_covercache_write(lua_State *lua_vm) {
+int lua_util_imagescache_write(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
-    if (n != 3) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_covercache_write: Invalid number of arguments");
+    if (n != 4) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_imagescache_write: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *cachedir = lua_tostring(lua_vm, 1);
     if (cachedir == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_covercache_write: cachedir is NULL");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_imagescache_write: cachedir is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "cachedir is NULL");
     }
-    const char *src = lua_tostring(lua_vm, 2);
+    const char *type = lua_tostring(lua_vm, 2);
+    if (type == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_imagescache_write: type is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "type is NULL");
+    }
+    const char *src = lua_tostring(lua_vm, 3);
     if (src == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_covercache_write: src is NULL");
+        MYMPD_LOG_ERROR(NULL, "Lua - util_imagescache_write: src is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "src is NULL");
     }
-    const char *uri = lua_tostring(lua_vm, 3);
+    const char *uri = lua_tostring(lua_vm, 4);
     if (uri == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - util_covercache_write: uri is NULL");
         lua_pop(lua_vm, n);
@@ -245,7 +251,7 @@ int lua_util_covercache_write(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Unknown filetype");
     }
-    sds dst = cache_disk_cover_get_basename(cachedir, uri, 0);
+    sds dst = cache_disk_images_get_basename(cachedir, type, uri, 0);
     dst = sdscatfmt(dst, ".%s", ext);
     lua_pop(lua_vm, n);
     if (is_image(dst) == false) {

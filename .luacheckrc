@@ -12,7 +12,7 @@ read_globals = {
     "mympd_api",
     "mympd_http_client",
     "mympd_http_download",
-    "mympd_util_covercache_write",
+    "mympd_util_imagescache_write",
     "mympd_util_notify",
     "mympd_util_log",
     "mympd_util_lyricscache_write",

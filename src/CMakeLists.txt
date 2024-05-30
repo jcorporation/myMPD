@@ -43,7 +43,7 @@ target_sources(mympd
     main.c
     lib/album_cache.c
     lib/api.c
-    lib/cache_disk_cover.c
+    lib/cache_disk_images.c
     lib/cache_disk_lyrics.c
     lib/cache_disk.c
     lib/cache_rax.c

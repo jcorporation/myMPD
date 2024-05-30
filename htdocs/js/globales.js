@@ -1605,6 +1605,11 @@ const LUAfunctions = {
         "func": "mympd.lyricscache_write(json.encode(entry), song_uri)",
         "feat": ""
     },
+    "mympd.thumbscache_write": {
+        "desc": "Write a file for the thumbs cache.",
+        "func": "mympd.thumbscache_write(src, uri)",
+        "feat": ""
+    },
     "mympd.urldecode": {
         "desc": "URL decodes a string.",
         "func": "local decoded = mympd.urlencode(string, false)",

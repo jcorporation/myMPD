@@ -36,6 +36,9 @@ void cache_disk_clear(struct t_config *config) {
     if (config->cache_lyrics_keep_days > CACHE_DISK_DISABLED) {
         crop_dir(config->cachedir, DIR_CACHE_LYRICS, config->cache_lyrics_keep_days);
     }
+    if (config->cache_thumbs_keep_days > CACHE_DISK_DISABLED) {
+        crop_dir(config->cachedir, DIR_CACHE_THUMBS, config->cache_thumbs_keep_days);
+    }
     crop_dir(config->cachedir, DIR_CACHE_MISC, config->cache_misc_keep_days);
 }
 
@@ -49,6 +52,7 @@ void cache_disk_crop(struct t_config *config) {
     crop_dir(config->cachedir, DIR_CACHE_COVER, 0);
     crop_dir(config->cachedir, DIR_CACHE_LYRICS, 0);
     crop_dir(config->cachedir, DIR_CACHE_MISC, 0);
+    crop_dir(config->cachedir, DIR_CACHE_THUMBS, 0);
 }
 
 /**

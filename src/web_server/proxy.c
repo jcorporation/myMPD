@@ -8,7 +8,7 @@
 #include "src/web_server/proxy.h"
 
 #include "src/lib/cache_disk.h"
-#include "src/lib/cache_disk_cover.h"
+#include "src/lib/cache_disk_images.h"
 #include "src/lib/config_def.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -219,7 +219,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                 struct t_config *config = mg_user_data->config;
                 //cache the image
                 if (config->cache_cover_keep_days != CACHE_DISK_DISABLED) {
-                    cache_disk_cover_write_file(config->cachedir, backend_nc_data->uri, mime_type, binary, 0);
+                    cache_disk_images_write_file(config->cachedir, DIR_CACHE_COVER, backend_nc_data->uri, mime_type, binary, 0);
                 }
                 FREE_SDS(binary);
                 //send to frontend

@@ -8,7 +8,7 @@
 #include "src/web_server/utility.h"
 
 #include "src/lib/cache_disk.h"
-#include "src/lib/cache_disk_cover.h"
+#include "src/lib/cache_disk_images.h"
 #include "src/lib/config_def.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
@@ -118,32 +118,31 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
  * @param nc mongoose connection
  * @param hm http message
  * @param mg_user_data pointer to mongoose configuration
+ * @param type cache type: cover or thumbs
  * @param uri_decoded image uri
  * @param offset embedded image offset
  * @return true if an image is served,
  *         false if no image was found in cache
  */
-bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset)
+bool check_imagescache(struct mg_connection *nc, struct mg_http_message *hm,
+        struct t_mg_user_data *mg_user_data, const char *type, sds uri_decoded, int offset)
 {
-    if (mg_user_data->config->cache_cover_keep_days != CACHE_DISK_DISABLED) {
-        sds covercachefile = cache_disk_cover_get_basename(mg_user_data->config->cachedir, uri_decoded, offset);
-        covercachefile = webserver_find_image_file(covercachefile);
-        if (sdslen(covercachefile) > 0) {
-            const char *mime_type = get_mime_type_by_ext(covercachefile);
-            MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", covercachefile, mime_type);
-            static struct mg_http_serve_opts s_http_server_opts;
-            s_http_server_opts.root_dir = mg_user_data->browse_directory;
-            s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
-            s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-            mg_http_serve_file(nc, hm, covercachefile, &s_http_server_opts);
-            webserver_handle_connection_close(nc);
-            FREE_SDS(covercachefile);
-            return true;
-        }
-        MYMPD_LOG_DEBUG(NULL, "No covercache file found");
-        FREE_SDS(covercachefile);
+    sds imagescachefile = cache_disk_images_get_basename(mg_user_data->config->cachedir, type, uri_decoded, offset);
+    imagescachefile = webserver_find_image_file(imagescachefile);
+    if (sdslen(imagescachefile) > 0) {
+        const char *mime_type = get_mime_type_by_ext(imagescachefile);
+        MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", imagescachefile, mime_type);
+        static struct mg_http_serve_opts s_http_server_opts;
+        s_http_server_opts.root_dir = mg_user_data->browse_directory;
+        s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
+        s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+        mg_http_serve_file(nc, hm, imagescachefile, &s_http_server_opts);
+        webserver_handle_connection_close(nc);
+        FREE_SDS(imagescachefile);
+        return true;
     }
+    MYMPD_LOG_DEBUG(NULL, "No %s cache file found", type);
+    FREE_SDS(imagescachefile);
     return false;
 }
 

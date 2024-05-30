@@ -976,6 +976,7 @@
 {"term":"Windows Media Audio"},
 {"term":"Work"},
 {"term":"Write a file for the cover cache."},
+{"term":"Write a file for the thumbs cache."},
 {"term":"Write the lyrics entry object to the lyrics cache."},
 {"term":"Yes, clear it"},
 {"term":"Yes, delete it"},

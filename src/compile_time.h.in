@@ -93,9 +93,10 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define FILENAME_WEBRADIODB "webradiodb-combined.min.json"
 #define FILENAME_SCRIPTVARS "scriptvars_list"
 
-#define DIR_CACHE_COVER "covercache"
+#define DIR_CACHE_COVER "cover"
 #define DIR_CACHE_LYRICS "lyrics"
 #define DIR_CACHE_MISC "misc"
+#define DIR_CACHE_THUMBS "thumbs"
 #define DIR_CACHE_WEBRADIODB "webradiodb"
 
 #define DIR_WORK_CONFIG "config"
@@ -134,6 +135,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define CFG_MYMPD_LOG_TO_SYSLOG false
 #define CFG_MYMPD_CACHE_COVER_KEEP_DAYS 31
 #define CFG_MYMPD_CACHE_LYRICS_KEEP_DAYS 31
+#define CFG_MYMPD_CACHE_THUMBS_KEEP_DAYS 31
 #define CFG_MYMPD_CACHE_MISC_KEEP_DAYS 1
 #define CFG_MYMPD_ALBUM_MODE "adv"
 #define CFG_MYMPD_ALBUM_GROUP_TAG "Date"

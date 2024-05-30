@@ -280,7 +280,7 @@ void request_handler_proxy_covercache(struct mg_connection *nc, struct mg_http_m
         //decode uri
         uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
         struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)nc->mgr->userdata;
-        if (check_covercache(nc, hm, mg_user_data, uri_decoded, 0) == false) {
+        if (check_imagescache(nc, hm, mg_user_data, DIR_CACHE_COVER, uri_decoded, 0) == false) {
             create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_covercache, false);
         }
     }

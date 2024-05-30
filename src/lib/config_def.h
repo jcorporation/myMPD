@@ -46,6 +46,7 @@ struct t_config {
     struct t_albums_config albums;  //!< album specific config
     int cache_cover_keep_days;      //!< expiration time for cover cache files in days
     int cache_lyrics_keep_days;     //!< expiration time for lyrics cache files in days
+    int cache_thumbs_keep_days;     //!< expiration time for thumbs cache files in days
     int cache_misc_keep_days;       //!< expiration time for misc cache files in days
     int http_port;                  //!< http port to listen
     int loglevel;                   //!< loglevel

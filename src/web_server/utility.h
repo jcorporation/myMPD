@@ -72,8 +72,8 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 sds get_uri_param(struct mg_str *query, const char *name);
 sds print_ip(sds s, struct mg_addr *addr);
 bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data);
-bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset);
+bool check_imagescache(struct mg_connection *nc, struct mg_http_message *hm,
+        struct t_mg_user_data *mg_user_data, const char *type, sds uri_decoded, int offset);
 sds webserver_find_image_file(sds basefilename);
 bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *names, int names_len);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);

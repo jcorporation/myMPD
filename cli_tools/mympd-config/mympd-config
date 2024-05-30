@@ -51,6 +51,7 @@ set_default() {
     MYMPD_CACHE_COVER_KEEP_DAYS="31"
     MYMPD_CACHE_LYRICS_KEEP_DAYS="31"
     MYMPD_CACHE_MISC_KEEP_DAYS="1"
+    MYMPD_CACHE_THUMBS_KEEP_DAYS="31"
     MYMPD_LOGLEVEL="5"
     MYMPD_URI="auto"
     MYMPD_SAVE_CACHES="true"
@@ -75,6 +76,7 @@ read_config() {
     [ -f "${CONFIG_DIR}/cache_cover_keep_days" ] && read -r MYMPD_CACHE_COVER_KEEP_DAYS="31" < "${CONFIG_DIR}/cache_cover_keep_days"
     [ -f "${CONFIG_DIR}/cache_lyrics_keep_days" ] && read -r MYMPD_CACHE_LYRICS_KEEP_DAYS="31" < "${CONFIG_DIR}/cache_lyrics_keep_days"
     [ -f "${CONFIG_DIR}/cache_misc_keep_days" ] && read -r MYMPD_CACHE_MISC_KEEP_DAYS="31" < "${CONFIG_DIR}/cache_misc_keep_days"
+    [ -f "${CONFIG_DIR}/cache_thumbs_keep_days" ] && read -r MYMPD_CACHE_THUMBS_KEEP_DAYS="31" < "${CONFIG_DIR}/cache_thumbs_keep_days"
     [ -f "${CONFIG_DIR}/loglevel" ] && read -r MYMPD_LOGLEVEL < "${CONFIG_DIR}/loglevel"
     [ -f "${CONFIG_DIR}/mympd_uri" ] && read -r MYMPD_URI < "${CONFIG_DIR}/mympd_uri"
     [ -f "${CONFIG_DIR}/save_caches" ] && read -r MYMPD_SAVE_CACHES < "${CONFIG_DIR}/save_caches"
@@ -102,6 +104,7 @@ apply_config() {
             -E MYMPD_CACHE_COVER_KEEP_DAYS="$MYMPD_CACHE_COVER_KEEP_DAYS" \
             -E MYMPD_CACHE_LYRICS_KEEP_DAYS="$MYMPD_CACHE_LYRICS_KEEP_DAYS" \
             -E MYMPD_CACHE_MISC_KEEP_DAYS="$MYMPD_CACHE_MISC_KEEP_DAYS" \
+            -E MYMPD_CACHE_THUMBS_KEEP_DAYS="$MYMPD_CACHE_THUMBS_KEEP_DAYS" \
             -E MYMPD_LOGLEVEL="$MYMPD_LOGLEVEL" \
             -E MYMPD_URI="$MYMPD_URI" \
             -E MYMPD_SAVE_CACHES="$MYMPD_SAVE_CACHES" \
@@ -125,6 +128,7 @@ apply_config() {
         export MYMPD_CACHE_COVER_KEEP_DAYS
         export MYMPD_CACHE_LYRICS_KEEP_DAYS
         export MYMPD_CACHE_MISC_KEEP_DAYS
+        export MYMPD_CACHE_THUMBS_KEEP_DAYS
         export MYMPD_LOGLEVEL
         export MYMPD_URI
         export MYMPD_SAVE_CACHES
@@ -248,6 +252,7 @@ menu_misc() {
         "Cover cache" "$MYMPD_CACHE_COVER_KEEP_DAYS" \
         "Lyrics cache" "$MYMPD_CACHE_LYRICS_KEEP_DAYS" \
         "Misc cache" "$MYMPD_CACHE_MISC_KEEP_DAYS" \
+        "Thumbs cache" "$MYMPD_CACHE_THUMBS_KEEP_DAYS" \
         "Loglevel" "$MYMPD_LOGLEVEL" \
         "myMPD URI" "$MYMPD_URI" \
         "Save Caches" "$MYMPD_SAVE_CACHES" \
@@ -260,6 +265,7 @@ menu_misc() {
         "Cover cache") MYMPD_CACHE_COVER_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_COVER_KEEP_DAYS") ;;
         "Lyrics cache") MYMPD_CACHE_LYRICS_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_LYRICS_KEEP_DAYS") ;;
         "Misc cache") MYMPD_CACHE_MISC_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_MISC_KEEP_DAYS") ;;
+        "Thumbs cache") MYMPD_CACHE_THUMBS_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_THUMBS_KEEP_DAYS") ;;
         "Loglevel") MYMPD_LOGLEVEL=$(select_loglevel "$MYMPD_LOGLEVEL") ;;
         "myMPD URI") MYMPD_URI=$(get_input "$SELECT" "$MYMPD_URI") ;;
         "Save Caches") MYMPD_SAVE_CACHES=$(toggle_bool "$MYMPD_SAVE_CACHES") ;;
@@ -299,6 +305,7 @@ parse_options() {
             MYMPD_CACHE_COVER_KEEP_DAYS) MYMPD_CACHE_COVER_KEEP_DAYS="$2" ;;
             MYMPD_CACHE_LYRICS_KEEP_DAYS) MYMPD_CACHE_LYRICS_KEEP_DAYS="$2" ;;
             MYMPD_CACHE_MISC_KEEP_DAYS) MYMPD_CACHE_MISC_KEEP_DAYS="$2" ;;
+            MYMPD_CACHE_THUMBS_KEEP_DAYS) MYMPD_CACHE_THUMBS_KEEP_DAYS="$2" ;;
             MYMPD_LOGLEVEL) MYMPD_LOGLEVEL="$2" ;;
             MYMPD_URI) MYMPD_URI="$2" ;;
             MYMPD_SAVE_CACHES) MYMPD_SAVE_CACHES="$2" ;;

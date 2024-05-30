@@ -6,7 +6,14 @@
 -- @param src File to rename
 -- @param uri URI to create the cover cache file for
 function mympd.covercache_write(src, uri)
-  return mympd_util_covercache_write(mympd_env.cachedir, src, uri)
+  return mympd_util_imagescache_write(mympd_env.cachedir, "cover", src, uri)
+end
+
+--- Write a file for the thumbs cache
+-- @param src File to rename
+-- @param tagvalue Tag value to create the thumbs cache file for
+function mympd.thumbscache_write(src, tagvalue)
+  return mympd_util_imagescache_write(mympd_env.cachedir, "thumbs", src, tagvalue)
 end
 
 --- Write a string to a file in the lyrics cache

@@ -19,6 +19,7 @@ There are three new triggers. Scripts can now be used to fetch album art, tag ar
 - The global variables and tables for Lua scripts are renamed.
 - The `lualibs` configuration option was removed. myMPD loads always all Lua standard libraries.
 - The scripts to import are move to the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts).
+- `/var/cache/mympd/covercache` was renamed to `/var/cache/mympd/cover`
 
 ### API changes
 
