@@ -304,7 +304,7 @@ lualibs() {
   cat contrib/lualibs/mympd/50-util.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/99-end.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   echo "Compiling lua libraries"
-  LUAC=$(command -v luac || command -v luac5.4 || command -v luac5.3)
+  LUAC=$(command -v luac5.4 || command -v luac5.3 || command -v luac)
   $LUAC -s -o "$MYMPD_BUILDDIR/contrib/lualibs/mympd.luac" "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   $LUAC -s -o "$MYMPD_BUILDDIR/contrib/lualibs/json.luac" "$MYMPD_BUILDDIR/contrib/lualibs/json.lua"
 }
