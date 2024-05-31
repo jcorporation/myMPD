@@ -184,6 +184,7 @@ sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct
                 return buffer;
             }
         #else
+            (void)mympd_state;
             (void)conn_id;
         #endif
         MYMPD_LOG_INFO(partition_state->name, "No albumart found by mpd for uri \"%s\"", uri);
