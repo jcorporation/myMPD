@@ -38,7 +38,7 @@ If applicable, add screenshots to help explain your problem.
  - Browser [e.g. chrome, safari]
  - Browser version [e.g. 22]
 
-**Debug logs (please attach if it can be useful)**
+**Debug logs**
 
 Look at https://jcorporation.github.io/myMPD/debug
 
