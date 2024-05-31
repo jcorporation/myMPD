@@ -24,6 +24,9 @@ enum trigger_events {
     TRIGGER_MYMPD_FEEDBACK = -6,       //!< myMPD feedback event (love/hate)
     TRIGGER_MYMPD_SKIPPED = -7,        //!< myMPD song skipped (same event is used for skipped sticker)
     TRIGGER_MYMPD_LYRICS = -8,         //!< myMPD lyrics
+    TRIGGER_MYMPD_ALBUMART = -9,       //!< myMPD albumart
+    TRIGGER_MYMPD_TAGART = -10,        //!< myMPD tagart
+    TRIGGER_MYMPD_JUKEBOX = -11,       //!< myMPD jukebox
     TRIGGER_MPD_DATABASE = 0x1,        //!< mpd database has changed
     TRIGGER_MPD_STORED_PLAYLIST = 0x2, //!< mpd playlist idle event
     TRIGGER_MPD_QUEUE = 0x4,           //!< mpd queue idle event

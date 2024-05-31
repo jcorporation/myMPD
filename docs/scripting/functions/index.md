@@ -29,6 +29,7 @@ List of myMPD specific Lua functions.
 | [mympd.notify_client]({{site.baseurl}}/scripting/functions/util) | Sends a notification to the client. |
 | [mympd.notify_partition]({{site.baseurl}}/scripting/functions/util) | Sends a notification to all clients in a partition. |
 | [mympd.os_capture]({{site.baseurl}}/scripting/functions/system_command) | Executes a system command and capture its output. |
+| [mympd.tmp_file]({{site.baseurl}}/scripting/functions/diskcache) | Generates a random tmp filename for the misc cache. |
 | [mympd.urldecode]({{site.baseurl}}/scripting/functions/util) | Decodes a URL encoded string. |
 | [mympd.urlencode]({{site.baseurl}}/scripting/functions/util) | URL encodes a string. |
 {: .table .table-sm }

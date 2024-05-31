@@ -7,7 +7,6 @@
 #include "compile_time.h"
 #include "src/lib/api.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
@@ -242,8 +241,10 @@ bool push_response(struct t_work_response *response) {
         case RESPONSE_TYPE_NOTIFY_CLIENT:
         case RESPONSE_TYPE_NOTIFY_PARTITION:
         case RESPONSE_TYPE_PUSH_CONFIG:
-        case RESPONSE_TYPE_RAW:
             MYMPD_LOG_DEBUG(NULL, "Push response to webserver queue for connection %lu: %s", response->conn_id, response->data);
+            return mympd_queue_push(web_server_queue, response, 0);
+        case RESPONSE_TYPE_RAW:
+            MYMPD_LOG_DEBUG(NULL, "Push raw response to webserver queue for connection %lu with %lu bytes", response->conn_id, sdslen(response->data));
             return mympd_queue_push(web_server_queue, response, 0);
         case RESPONSE_TYPE_SCRIPT:
             #ifdef MYMPD_ENABLE_LUA

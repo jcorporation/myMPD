@@ -8,6 +8,8 @@ myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Scripts are e
 
 The first type of scripts are executed by triggers, timers or manual through the web ui. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition.
 
+- [Triggers]({{site.baseurl}}/references/trigger)
+
 The second type of script are called by http requests (`/script/<partition>/<script>`) and special triggers. This scripts should return a valid http response including status code, headers and body.
 
 ## Global variables

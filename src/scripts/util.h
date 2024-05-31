@@ -49,7 +49,7 @@ void list_free_cb_script_list_user_data(struct t_list_node *current);
 void scripts_state_save(struct t_scripts_state *scripts_state, bool free_data);
 void scripts_state_default(struct t_scripts_state *scripts_state, struct t_config *config);
 void scripts_state_free(struct t_scripts_state *scripts_state);
-void send_script_raw_response(unsigned long conn_id, const char *partition, const char *data);
+void send_script_raw_response(unsigned long conn_id, const char *partition, sds data);
 void send_script_raw_error(unsigned long conn_id, const char *partition, const char *data);
 sds script_get_result(lua_State *lua_vm, int rc);
 void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg);

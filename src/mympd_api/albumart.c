@@ -18,6 +18,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/search.h"
+#include "src/mympd_api/trigger.h"
 
 #include <string.h>
 
@@ -98,15 +99,17 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
 
 /**
  * Reads the albumart from mpd by song uri
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition specific states
  * @param buffer already allocated sds string for the jsonrpc response
  * @param request_id request id
- * @param uri uri to get cover from
+ * @param conn_id mongoose connection id
+ * @param uri uri to get cover for
  * @param binary pointer to an already allocated sds string for the binary response
  * @return jsonrpc response
  */
-sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
-        const char *uri, sds *binary)
+sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+    sds buffer, unsigned request_id, unsigned long conn_id, sds uri, sds *binary)
 {
     unsigned offset = 0;
     void *binary_buffer = malloc_assert(partition_state->mpd_state->mpd_binarylimit);
@@ -170,6 +173,19 @@ sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state
         }
     }
     else {
+        #ifdef MYMPD_ENABLE_LUA
+            // no albumart found, check if there is a trigger to fetch albumart
+            int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_ALBUMART, uri, partition_state->name, conn_id, request_id);
+            if (n > 0) {
+                // return empty buffer, response must be send by triggered script
+                if (n > 1) {
+                    MYMPD_LOG_WARN(partition_state->name, "More than one script triggered for albumart.");
+                }
+                return buffer;
+            }
+        #else
+            (void)conn_id;
+        #endif
         MYMPD_LOG_INFO(partition_state->name, "No albumart found by mpd for uri \"%s\"", uri);
         buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }

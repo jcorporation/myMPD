@@ -89,45 +89,47 @@ sds script_get_result(lua_State *lua_vm, int rc) {
     //it should be only one value on the stack
     int nr_return = lua_gettop(lua_vm);
     MYMPD_LOG_DEBUG(NULL, "Lua script returns %d values", nr_return);
-    #ifdef MYMPD_DEBUG
-        for (int i = 1; i <= nr_return; i++) {
-            MYMPD_LOG_DEBUG(NULL, "Lua script return value %d: %s", i, lua_tostring(lua_vm, i));
-        }
-    #endif
-    const char *script_return_text = NULL;
-    if (lua_gettop(lua_vm) == 1) {
-        //return value on stack
-        script_return_text = lua_tostring(lua_vm, 1);
-    }
-    if (rc == 0) {
+    if (rc == 0 &&
+        lua_gettop(lua_vm) == 1)
+    {
         //success
+        if (lua_type(lua_vm, 1) == LUA_TLIGHTUSERDATA) {
+            sds script_return_binary = (sds)lua_touserdata(lua_vm, 1);
+            MYMPD_LOG_DEBUG(NULL, "Got binary data from script with %lu bytes", sdslen(script_return_binary));
+            return script_return_binary == NULL
+                ? sdsempty()
+                : script_return_binary;
+        }
+        // Script has returned a string
+        const char *script_return_text = lua_tostring(lua_vm, 1);
         return script_return_text == NULL
             ? sdsempty()
             : sdsnew(script_return_text);
     }
     //error
+    const char *error_text = lua_tostring(lua_vm, 1);
     const char *err_str = lua_err_to_str(rc);
     sds result = sdsnew(err_str);
-    if (script_return_text != NULL) {
-        result = sdscatfmt(result, ": %s", script_return_text);
+    if (error_text != NULL) {
+        result = sdscatfmt(result, ": %s", error_text);
     }
     return result;
 }
 
 /**
- * Sends the script raw response to the webserver queue
+ * Sends the scripts raw response to the webserver queue
  * @param conn_id mongoose connection id
  * @param partition MPD partition
  * @param data raw http response to send
  */
-void send_script_raw_response(unsigned long conn_id, const char *partition, const char *data) {
+void send_script_raw_response(unsigned long conn_id, const char *partition, sds data) {
     struct t_work_response *response = create_response_new(RESPONSE_TYPE_RAW, conn_id, 0, INTERNAL_API_RAW, partition);
-    response->data = sdscat(response->data, data);
+    response->data = sdscatsds(response->data, data);
     push_response(response);
 }
 
 /**
- * Sends the script raw error to the webserver queue
+ * Sends the scripts raw error to the webserver queue
  * @param conn_id mongoose connection id
  * @param partition MPD partition
  * @param data raw http response to send

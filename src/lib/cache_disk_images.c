@@ -40,9 +40,9 @@ sds cache_disk_images_get_basename(const char *cachedir, const char *type, const
  * @param mime_type mime_type of binary buffer
  * @param binary binary data to save
  * @param offset number of the coverimage
- * @return true on success else false
+ * @return written filename (full path) as newly allocated sds string
  */
-bool cache_disk_images_write_file(sds cachedir, const char *type, const char *uri, const char *mime_type, sds binary, int offset) {
+sds cache_disk_images_write_file(sds cachedir, const char *type, const char *uri, const char *mime_type, sds binary, int offset) {
     if (mime_type[0] == '\0') {
         MYMPD_LOG_WARN(NULL, "Covercache file for \"%s\" not written, mime_type is empty", uri);
         return false;
@@ -57,6 +57,8 @@ bool cache_disk_images_write_file(sds cachedir, const char *type, const char *ur
     filepath = sdscatfmt(filepath, ".%s", ext);
     MYMPD_LOG_DEBUG(NULL, "Writing image cache file \"%s\"", filepath);
     bool rc = write_data_to_file(filepath, binary, sdslen(binary));
-    FREE_SDS(filepath);
-    return rc;
+    if (rc == false) {
+        FREE_SDS(filepath);
+    }
+    return filepath;
 }

@@ -56,6 +56,8 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
     if (sdslen(mediafile) > 0) {
         webserver_serve_file(nc, hm, mg_user_data->browse_directory, mediafile);
     }
+    //TODO: implement trigger for tagart retrieval
+    //      send request to mympd_api thread
     else {
         MYMPD_LOG_DEBUG(NULL, "No image for tag found");
         webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);

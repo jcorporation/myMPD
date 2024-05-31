@@ -7,7 +7,6 @@
 #include "compile_time.h"
 #include "src/web_server/utility.h"
 
-#include "src/lib/cache_disk.h"
 #include "src/lib/cache_disk_images.h"
 #include "src/lib/config_def.h"
 #include "src/lib/filehandler.h"
@@ -260,6 +259,7 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
  * @param headers extra headers to add
  */
 void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len) {
+    MYMPD_LOG_DEBUG(NULL, "Sending %lu bytes to %lu", (unsigned long)len, nc->id);
     mg_send(nc, data, len);
     webserver_handle_connection_close(nc);
 }

@@ -217,7 +217,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     // Albumart
         case INTERNAL_API_ALBUMART_BY_URI:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
-                response->data = mympd_api_albumart_getcover_by_uri(partition_state, response->data, request->id, sds_buf1, &response->binary);
+                response->data = mympd_api_albumart_getcover_by_uri(mympd_state, partition_state, response->data, request->id, request->conn_id, sds_buf1, &response->binary);
+                if (sdslen(response->data) == 0) {
+                    // response must be send by triggered script
+                    async = true;
+                    // we do not pass the request to the script thread
+                    free_request(request);
+                }
             }
             break;
         case INTERNAL_API_ALBUMART_BY_ALBUMID:

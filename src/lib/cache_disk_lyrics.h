@@ -12,6 +12,6 @@
 #include <stdbool.h>
 
 sds cache_disk_lyrics_get_name(const char *cachedir, const char *uri);
-bool cache_disk_lyrics_write_file(const char *cachedir, const char *uri, const char *str);
+sds cache_disk_lyrics_write_file(const char *cachedir, const char *uri, const char *str);
 
 #endif

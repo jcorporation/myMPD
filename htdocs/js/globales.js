@@ -1547,7 +1547,7 @@ uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('mo
 const LUAfunctions = {
     "mympd.covercache_write": {
         "desc": "Write a file for the cover cache.",
-        "func": "mympd.covercache_write(src, uri)",
+        "func": "local filename = mympd.covercache_write(src, uri)",
         "feat": ""
     },
     "mympd.hash_sha1": {
@@ -1573,6 +1573,11 @@ const LUAfunctions = {
     "mympd.http_jsonrpc_response": {
         "desc": "Sends a JSONRPC 2.0 response.",
         "func": "mympd.http_jsonrpc_response(obj)",
+        "feat": ""
+    },
+    "mympd.http_jsonrpc_warn": {
+        "desc": "Sends a JSONRPC 2.0 warning.",
+        "func": "mympd.http_jsonrpc_warn(method, msg)",
         "feat": ""
     },
     "mympd.http_download": {
@@ -1605,9 +1610,14 @@ const LUAfunctions = {
         "func": "mympd.lyricscache_write(json.encode(entry), song_uri)",
         "feat": ""
     },
+    "mympd.tmp_file": {
+        "desc": "Generates a random tmp filename for the misc cache.",
+        "func": "local tmp_file = mympd.tmp_file()",
+        "feat": ""
+    },
     "mympd.thumbscache_write": {
         "desc": "Write a file for the thumbs cache.",
-        "func": "mympd.thumbscache_write(src, uri)",
+        "func": "local filename = mympd.thumbscache_write(src, uri)",
         "feat": ""
     },
     "mympd.urldecode": {

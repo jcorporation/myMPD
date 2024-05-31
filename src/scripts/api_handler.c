@@ -10,7 +10,6 @@
 #include "src/lib/config_def.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/scripts/api_scripts.h"
 #include "src/scripts/api_vars.h"

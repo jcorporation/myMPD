@@ -10,6 +10,18 @@
 #include "src/mympd_api/lua_mympd_state.h"
 
 /**
+ * Gets the config struct from lua userdata
+ * @param lua_vm lua instance
+ * @return pointer to mympd config struct
+ */
+struct t_config *get_lua_global_config(lua_State *lua_vm) {
+    lua_getglobal(lua_vm, "mympd_config");
+    struct t_config *config = (struct t_config *)lua_touserdata(lua_vm, -1);
+    lua_pop(lua_vm, 1);
+    return config;
+}
+
+/**
  * Populates the lua table from the lua_mympd_state struct
  * @param lua_vm lua instance
  * @param lua_mympd_state 

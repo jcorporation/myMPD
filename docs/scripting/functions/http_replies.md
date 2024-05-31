@@ -49,10 +49,11 @@ local result = {
 return mympd.http_jsonrpc_response(result)
 ```
 
-## Send a JSONRPC 2.0 error
+## Send a JSONRPC 2.0 error or warning
 
 ```lua
 return mympd.http_jsonrpc_error(method, msg)
+return mympd.http_jsonrpc_warn(method, msg)
 ```
 
 **Parameters:**

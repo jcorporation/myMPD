@@ -8,6 +8,11 @@ title: HTTP client
 
 ```lua
 local rc, code, header, body = mympd.http_client(method, uri, headers, payload)
+if rc == 0 then
+  -- Success
+else
+  -- Error case
+end
 ```
 
 **Parameters:**
@@ -24,16 +29,21 @@ local rc, code, header, body = mympd.http_client(method, uri, headers, payload)
 
 | FIELD | TYPE | DESCRIPTION |
 | ----- | ---- | ----------- |
-| rc | integer | response code: 0 = success, 1 = error |
+| rc | integer | 0 = success, 1 = error |
 | code | integer | http response code, e.g. 200 |
 | header | string | http headers |
 | body | string | http body |
 {: .table .table-sm }
 
-## Download a file over http
+## Download a file over HTTP
 
 ```lua
 local rc = mympd.http_download(uri, out)
+if rc == 0 then
+  -- Do something with the downloaded file
+else
+  -- Error case
+end
 ```
 
 **Parameters:**

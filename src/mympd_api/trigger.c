@@ -81,6 +81,9 @@ static const char *const mympd_event_names[] = {
     "mympd_feedback",
     "mympd_skipped",
     "mympd_lyrics",
+    "mympd_albumart",
+    "mympd_tagart",
+    "mympd_jukebox",
     NULL
 };
 

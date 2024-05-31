@@ -35,13 +35,15 @@ sds cache_disk_lyrics_get_name(const char *cachedir, const char *uri) {
  * @param cachedir cache directory
  * @param uri uri of the song for the lyrics
  * @param str string to save
-  * @return true on success else false
+ * @return written filename (full path) as newly allocated sds string
  */
-bool cache_disk_lyrics_write_file(const char *cachedir, const char *uri, const char *str) {
+sds cache_disk_lyrics_write_file(const char *cachedir, const char *uri, const char *str) {
     MYMPD_LOG_DEBUG(NULL, "Writing lyrics cache for \"%s\"", uri);
     sds filepath = cache_disk_lyrics_get_name(cachedir, uri);
     MYMPD_LOG_DEBUG(NULL, "Writing lyrics cache file \"%s\"", filepath);
     bool rc = write_data_to_file(filepath, str, strlen(str));
-    FREE_SDS(filepath);
-    return rc;
+    if (rc == false) {
+        FREE_SDS(filepath);
+    }
+    return filepath;
 }

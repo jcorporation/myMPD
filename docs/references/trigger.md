@@ -15,7 +15,10 @@ Triggers are enabled if scripts are enabled. Triggers can call scripts with argu
 | TRIGGER_MYMPD_DISCONNECTED | -5 | Partition | MPD is disconnected. |
 | TRIGGER_MYMPD_FEEDBACK | -6 | Partition | Love, hate or rating feedback is set by user. Script is executed with arguments `uri`, `vote` and `type`. |
 | TRIGGER_MYMPD_SKIPPED | -7 | Partition | Song was skipped. |
-| TRIGGER_MYMPD_LYRICS | -8 | Global | Triggers if MYMPD_API_LYRICS_GET has found no lyrics. Script is executed with arguments `uri` and should return a JSONRPC response. |
+| TRIGGER_MYMPD_LYRICS | -8 | Global | Triggers if MYMPD_API_LYRICS_GET has found no lyrics. Script is executed with arguments `uri` and should return an JSONRPC response. |
+| TRIGGER_MYMPD_ALBUMART | -9 | Global | Triggers if no local albumart was found. Script is executed with arguments `uri` and should return an image. |
+| TRIGGER_MYMPD_TAGART | -10 | Global | Triggers if no local tagart was found. Script is executed with arguments `uri` and should return an image. |
+| TRIGGER_MYMPD_JUKEBOX | -11 | Partition | Triggers if jukebox is configured with type script, to fill the jukebox queue. |
 | TRIGGER_MPD_DATABASE | 1 | Default partition | Database has been modified. |
 | TRIGGER_MPD_STORED_PLAYLIST | 2 | Default partition | A playlist was added, removed or changed. |
 | TRIGGER_MPD_QUEUE | 4 | Partition | MPD queue has changed. |

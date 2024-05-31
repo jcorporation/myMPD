@@ -15,7 +15,8 @@
 
 #include "src/lib/utility.h"
 #include "src/scripts/interface.h"
-#include "src/scripts/interface_http_client.h"
+#include "src/scripts/interface_caches.h"
+#include "src/scripts/interface_http.h"
 #ifdef MYMPD_ENABLE_MYGPIOD
     #include "src/scripts/interface_mygpio.h"
 #endif
@@ -274,6 +275,9 @@ static int save_bytecode(lua_State *lua_vm, struct t_script_list_data *data) {
 static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
         struct t_script_thread_arg *script_arg, struct t_list *arguments)
 {
+    // Set myMPD config as a global
+    lua_pushlightuserdata(script_arg->lua_vm, script_arg->config);
+    lua_setglobal(script_arg->lua_vm, "mympd_config");
     // Set global mympd_env lua table
     lua_newtable(script_arg->lua_vm);
     populate_lua_table_field_p(script_arg->lua_vm, "partition", script_arg->partition);
@@ -365,6 +369,7 @@ static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_api", lua_mympd_api);
     lua_register(lua_vm, "mympd_http_client", lua_http_client);
     lua_register(lua_vm, "mympd_http_download", lua_http_download);
+    lua_register(lua_vm, "mympd_http_serve_file", lua_http_serve_file);
     lua_register(lua_vm, "mympd_util_hash", lua_util_hash);
     lua_register(lua_vm, "mympd_util_urlencode", lua_util_urlencode);
     lua_register(lua_vm, "mympd_util_urldecode", lua_util_urldecode);

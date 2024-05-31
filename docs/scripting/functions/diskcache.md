@@ -63,3 +63,11 @@ local rc = mympd.thumbscache_write(src, uri)
 **Returns:**
 
 0 on success.
+
+## Temporary files
+
+Generates a random tmp filename for the misc cache (default: `/var/cache/mympd/misc/XXXXXXXXXX`).
+
+```lua
+local tmp_file = mympd.tmp_file()
+```

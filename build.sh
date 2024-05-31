@@ -298,10 +298,11 @@ lualibs() {
   cp -v contrib/lualibs/json.lua "$MYMPD_BUILDDIR/contrib/lualibs/"
   cp -v contrib/lualibs/mympd/00-start.lua "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/10-mympd.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
-  cat contrib/lualibs/mympd/20-http_client.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/20-http.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/30-execute.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   [ "$MYMPD_ENABLE_MYGPIOD" = "ON" ] && cat contrib/lualibs/mympd/40-mygpiod.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/50-util.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/60-caches.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/99-end.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   echo "Compiling lua libraries"
   LUAC=$(command -v luac5.4 || command -v luac5.3 || command -v luac)

@@ -156,6 +156,9 @@ mympd_skipped
 mympd_start
 mympd_stop
 mympd_lyrics
+mympd_albumart
+mympd_tagart
+mympd_jukebox
 name
 newest
 null

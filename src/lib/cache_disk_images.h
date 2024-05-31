@@ -12,6 +12,6 @@
 #include <stdbool.h>
 
 sds cache_disk_images_get_basename(const char *cachedir, const char *type, const char *uri, int offset);
-bool cache_disk_images_write_file(sds cachedir,  const char *type, const char *uri, const char *mime_type, sds binary, int offset);
+sds cache_disk_images_write_file(sds cachedir,  const char *type, const char *uri, const char *mime_type, sds binary, int offset);
 
 #endif
