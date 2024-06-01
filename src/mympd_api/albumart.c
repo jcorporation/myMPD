@@ -166,7 +166,8 @@ sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
         buffer = jsonrpc_end(buffer);
         if (partition_state->config->cache_cover_keep_days != CACHE_DISK_DISABLED) {
-            cache_disk_images_write_file(partition_state->config->cachedir, DIR_CACHE_COVER, uri, mime_type, *binary, 0);
+            sds filename = cache_disk_images_write_file(partition_state->config->cachedir, DIR_CACHE_COVER, uri, mime_type, *binary, 0);
+            FREE_SDS(filename);
         }
         else {
             MYMPD_LOG_DEBUG(partition_state->name, "Covercache is disabled");

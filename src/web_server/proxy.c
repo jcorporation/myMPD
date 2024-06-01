@@ -219,7 +219,8 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                 struct t_config *config = mg_user_data->config;
                 //cache the image
                 if (config->cache_cover_keep_days != CACHE_DISK_DISABLED) {
-                    cache_disk_images_write_file(config->cachedir, DIR_CACHE_COVER, backend_nc_data->uri, mime_type, binary, 0);
+                    sds filename = cache_disk_images_write_file(config->cachedir, DIR_CACHE_COVER, backend_nc_data->uri, mime_type, binary, 0);
+                    FREE_SDS(filename);
                 }
                 FREE_SDS(binary);
                 //send to frontend

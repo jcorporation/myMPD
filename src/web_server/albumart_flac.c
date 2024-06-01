@@ -10,6 +10,7 @@
 #include "src/lib/cache_disk_images.h"
 #include "src/lib/log.h"
 #include "src/lib/mimetype.h"
+#include "src/lib/sds_extras.h"
 
 #include <FLAC/metadata.h>
 
@@ -66,7 +67,8 @@ bool handle_coverextract_flac(sds cachedir, const char *uri, const char *media_f
         const char *mime_type = get_mime_type_by_magic_stream(*binary);
         if (mime_type != NULL) {
             if (covercache == true) {
-                cache_disk_images_write_file(cachedir, DIR_CACHE_COVER, uri, mime_type, *binary, offset);
+                sds filename = cache_disk_images_write_file(cachedir, DIR_CACHE_COVER, uri, mime_type, *binary, offset);
+                FREE_SDS(filename);
             }
             else {
                 MYMPD_LOG_DEBUG(NULL, "Covercache is disabled");
