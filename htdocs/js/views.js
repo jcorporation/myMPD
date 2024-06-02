@@ -166,6 +166,9 @@ function viewRightClickHandler(event) {
         showContextMenu(event);
     }
     else {
+        if (event.target.closest('.card').classList.contains('no-contextmenu')) {
+            return;
+        }
         if (event.target.classList.contains('card-title') ||
             event.target.classList.contains('card-body') ||
             event.target.parentNode.classList.contains('card-body') ||

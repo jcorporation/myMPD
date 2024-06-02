@@ -199,6 +199,7 @@ function parseDatabaseAlbumList(obj) {
         setData(card, 'tag', result.tag);
         setData(card, 'name', data.Value);
         card.setAttribute('title', rowTitle);
+        card.classList.add('no-contextmenu');
     }, undefined, function(footer, data, result) {
         addActionLinks(footer, result.tag);
     });
