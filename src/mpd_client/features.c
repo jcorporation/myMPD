@@ -388,8 +388,9 @@ static sds set_directory(const char *desc, sds directory, sds value) {
     }
     strip_slash(value);
     if (sdslen(value) > 0 &&
-        testdir("Directory", value, false, true) != DIR_EXISTS)
+        testdir("Directory", value, false, false) != DIR_EXISTS)
     {
+        MYMPD_LOG_WARN(NULL, "Directory %s not accessible", value);
         sdsclear(value);
     }
     if (sdslen(value) == 0) {
