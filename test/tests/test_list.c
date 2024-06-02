@@ -477,3 +477,31 @@ UTEST(list, test_list_crop) {
     ASSERT_FALSE(test_list.head != NULL);
     ASSERT_FALSE(test_list.tail != NULL);
 }
+
+UTEST(list, test_list_append) {
+    struct t_list src;
+    list_init(&src);
+    list_push(&src, "key0", 0, NULL, NULL);
+    list_push(&src, "key1", 0, NULL, NULL);
+    list_push(&src, "key2", 0, NULL, NULL);
+
+    struct t_list dst;
+    list_init(&dst);
+    list_append(&dst, &src);
+    ASSERT_EQ(src.length, dst.length);
+    list_clear(&src);
+    list_clear(&dst);
+}
+
+UTEST(list, test_list_dup) {
+    struct t_list src;
+    list_init(&src);
+    list_push(&src, "key0", 0, NULL, NULL);
+    list_push(&src, "key1", 0, NULL, NULL);
+    list_push(&src, "key2", 0, NULL, NULL);
+
+    struct t_list *new = list_dup(&src);
+    ASSERT_EQ(src.length, new->length);
+    list_clear(&src);
+    list_free(new);
+}

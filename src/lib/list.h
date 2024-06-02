@@ -42,6 +42,7 @@ typedef bool (*list_sort_callback) (struct t_list_node *current, struct t_list_n
 
 struct t_list *list_new(void);
 struct t_list *list_dup(struct t_list *l);
+bool list_append(struct t_list *dst, struct t_list *src);
 void list_init(struct t_list *l);
 void list_clear(struct t_list *l);
 void *list_free(struct t_list *l);

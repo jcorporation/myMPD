@@ -30,16 +30,33 @@ struct t_list *list_new(void) {
  * Duplicates a list.
  * Leaves user_data pointer in place.
  * @param l list to duplicate
- * @return duplicated list
+ * @return duplicated list or NULL on error
  */
 struct t_list *list_dup(struct t_list *l) {
     struct t_list *new = list_new();
-    struct t_list_node *current = l->head;
-    while (current != NULL) {
-        list_push(new, current->key, current->value_i, current->value_p, current->user_data);
-        current = current->next;
+    if (list_append(new, l) == false) {
+        list_free(new);
+        return NULL;
     }
     return new;
+}
+
+/**
+ * Appends a list to another list
+ * Leaves user_data pointer in place.
+ * @param dst list to that was append
+ * @param src list that was append
+ * @return duplicated list or NULL on error
+ */
+bool list_append(struct t_list *dst, struct t_list *src) {
+    struct t_list_node *current = src->head;
+    while (current != NULL) {
+        if (list_push(dst, current->key, current->value_i, current->value_p, current->user_data) == false) {
+            return false;
+        }
+        current = current->next;
+    }
+    return true;
 }
 
 /**
