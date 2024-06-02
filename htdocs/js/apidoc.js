@@ -193,6 +193,11 @@ const APIparams = {
         "type": APItypes.object,
         "example": "{\"Title\": \"title\", \"Artist\": \"artist\"}",
         "desc": "MPD tag name as key and its value."
+    },
+    "channel": {
+        "type": APItypes.string,
+        "example": "mpdscribble",
+        "desc": "MPD channel name"
     }
 };
 
@@ -1767,20 +1772,36 @@ const APImethods = {
             "timerid": APIparams.timerid
         }
     },
-    "MYMPD_API_MESSAGE_SEND": {
+    "MYMPD_API_CHANNEL_LIST": {
+        "desc": "Lists all channels",
+        "params": {}
+    },
+    "MYMPD_API_CHANNEL_SUBSCRIBE": {
+        "desc": "Subscribes a channel",
+        "params": {
+            "channel": APIparams.channel
+        }
+    },
+    "MYMPD_API_CHANNEL_UNSUBSCRIBE": {
+        "desc": "Unsubscribes a channel",
+        "params": {
+            "channel": APIparams.channel
+        }
+    },
+    "MYMPD_API_CHANNEL_MESSAGE_SEND": {
         "desc": "Sends a message to a MPD channel",
         "params": {
-            "channel": {
-                "type": APItypes.string,
-                "example": "mpdscribble",
-                "desc": "MPD channel name"
-            },
+            "channel": APIparams.channel,
             "message": {
                 "type": APItypes.string,
                 "example": "love",
                 "desc": "Message to send"
             }
         }
+    },
+    "MYMPD_API_CHANNEL_MESSAGES_READ": {
+        "desc": "Receives all messages from all subscribed channels.",
+        "params": {}
     },
     "MYMPD_API_SCRIPT_VALIDATE": {
         "desc": "Validates (precompiles) a script",

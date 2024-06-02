@@ -108,6 +108,7 @@ target_sources(mympd
     mympd_api/mympd_api.c
     mympd_api/albumart.c
     mympd_api/browse.c
+    mympd_api/channel.c
     mympd_api/database.c
     mympd_api/extra_media.c
     mympd_api/filesystem.c

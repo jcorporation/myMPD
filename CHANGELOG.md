@@ -10,7 +10,13 @@ This release reworks the scripting functionality of myMPD. There are several new
 
 With this release you can call Lua scripts by http requests and the script itself can respond to it. There is now also a new `yt-dlp` script developed by @sevmonster that make use of this new functionality.
 
-There are three new triggers. Scripts can now be used to fetch album art, tag art and lyrics from other resources.
+There are also new triggers introduced:
+
+- mpd_channel
+- mpd_message
+- mympd_albumart: Triggers if no local albumart was found
+- mympd_lyrics: Triggers if no local lyrics are found
+- mympd_tagart: Triggers if no local tagart was found
 
 ### Notes
 
@@ -31,6 +37,11 @@ There are three new triggers. Scripts can now be used to fetch album art, tag ar
 - MYMPD_API_QUEUE_REPLACE_URI_TAGS: new
 - MYMPD_API_COVERCACHE_CLEAR renamed to MYMPD_API_CACHE_DISK_CLEAR
 - MYMPD_API_COVERCACHE_CROP renamed to MYMPD_API_CACHE_DISK_CROP
+- MYMPD_API_CHANNEL_SUBSCRIBE: new
+- MYMPD_API_CHANNEL_UNSUBSCRIBE: new
+- MYMPD_API_CHANNEL_LIST: new
+- MYMPD_API_MESSAGE_SEND renamed to MYMPD_API_CHANNEL_MESSAGE_SEND
+- MYMPD_API_CHANNEL_MESSAGES_READ: new
 
 ### Changelog
 
@@ -51,6 +62,8 @@ There are three new triggers. Scripts can now be used to fetch album art, tag ar
 - Upd: Improve Lua error handling
 - Fix: Add missing NULL ptr checks to Lua interface functions
 - Fix: Error checking for results in modals
+- Fix: JavaScript error on right click in tags view
+- Fix: Alignment of action icons in tag view
 
 ***
 

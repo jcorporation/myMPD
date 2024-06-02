@@ -32,6 +32,7 @@
 #include "src/mpd_worker/mpd_worker.h"
 #include "src/mympd_api/albumart.h"
 #include "src/mympd_api/browse.h"
+#include "src/mympd_api/channel.h"
 #include "src/mympd_api/database.h"
 #include "src/mympd_api/filesystem.h"
 #include "src/mympd_api/home.h"
@@ -204,13 +205,32 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             mympd_state_save(mympd_state, false);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
             break;
-        case MYMPD_API_MESSAGE_SEND:
+    // Channels
+        case MYMPD_API_CHANNEL_SUBSCRIBE:
+            if (json_get_string(request->data, "$.params.channel", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
+                mpd_run_subscribe(partition_state->conn, sds_buf1);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_subscribe", &rc);
+            }
+            break;
+        case MYMPD_API_CHANNEL_UNSUBSCRIBE:
+            if (json_get_string(request->data, "$.params.channel", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
+                mpd_run_unsubscribe(partition_state->conn, sds_buf1);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_unsubscribe", &rc);
+            }
+            break;
+        case MYMPD_API_CHANNEL_LIST:
+            response->data = mympd_api_channel_list(partition_state, response->data, request->id);
+            break;
+        case MYMPD_API_CHANNEL_MESSAGE_SEND:
             if (json_get_string(request->data, "$.params.channel", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.message", 1, CONTENT_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
             {
                 mpd_run_send_message(partition_state->conn, sds_buf1, sds_buf2);
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_send_message", &rc);
             }
+            break;
+        case MYMPD_API_CHANNEL_MESSAGES_READ:
+            response->data = mympd_api_channel_messages_read(partition_state, response->data, request->id);
             break;
         case MYMPD_API_STATS:
             response->data = mympd_api_stats_get(partition_state, response->data, request->id);

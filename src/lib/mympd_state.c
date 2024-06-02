@@ -340,7 +340,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
         partition_state->is_default = true;
         //handle all
         partition_state->idle_mask = MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS |
-            MPD_IDLE_UPDATE | MPD_IDLE_PARTITION | MPD_IDLE_DATABASE | MPD_IDLE_STORED_PLAYLIST;
+            MPD_IDLE_UPDATE | MPD_IDLE_PARTITION | MPD_IDLE_DATABASE | MPD_IDLE_STORED_PLAYLIST | MPD_IDLE_SUBSCRIPTION | MPD_IDLE_MESSAGE;
     }
     else {
         partition_state->is_default = false;

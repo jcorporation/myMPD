@@ -25,7 +25,6 @@
 #include "src/mympd_api/sticker.h"
 
 #include <dirent.h>
-#include <errno.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <string.h>
