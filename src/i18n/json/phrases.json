@@ -312,6 +312,7 @@
 {"term":"Facility"},
 {"term":"Failed to parse response from %{uri}"},
 {"term":"Failed to set feedback"},
+{"term":"Failure adding songs to jukebox queue"},
 {"term":"Failure getting inserted song id"},
 {"term":"Fast forward"},
 {"term":"Fast rewind"},

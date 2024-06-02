@@ -20,8 +20,8 @@
 #include "src/mpd_client/queue.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
+#include "src/mympd_api/trigger.h"
 
-#include <errno.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -50,6 +50,9 @@ enum jukebox_modes jukebox_mode_parse(const char *str) {
     if (strcmp(str, "album") == 0) {
         return JUKEBOX_ADD_ALBUM;
     }
+    if (strcmp(str, "script") == 0) {
+        return JUKEBOX_SCRIPT;
+    }
     return JUKEBOX_UNKNOWN;
 }
 
@@ -66,6 +69,8 @@ const char *jukebox_mode_lookup(enum jukebox_modes mode) {
             return "song";
         case JUKEBOX_ADD_ALBUM:
             return "album";
+        case JUKEBOX_SCRIPT:
+            return "script";
         case JUKEBOX_UNKNOWN:
             return NULL;
     }
@@ -103,7 +108,7 @@ void jukebox_disable(struct t_partition_state *partition_state) {
  * @param album_cache pointer to album cache
  * @return true on success, else false
  */
-bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *album_cache) {
+bool jukebox_run(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, struct t_cache *album_cache) {
     if (partition_state->jukebox.filling == true) {
         MYMPD_LOG_DEBUG(partition_state->name, "Filling the jukebox queue is already in progress");
         return true;
@@ -135,11 +140,22 @@ bool jukebox_run(struct t_partition_state *partition_state, struct t_cache *albu
 
     // check if jukebox queue is long enough
     if (add_songs > partition_state->jukebox.queue->length) {
+        if (partition_state->jukebox.mode == JUKEBOX_SCRIPT) {
+            MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: Trigger");
+            int n = mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_JUKEBOX,
+                    partition_state->name, NULL);
+            if (n > 0) {
+                if (n > 1) {
+                    MYMPD_LOG_WARN(partition_state->name, "More than one script triggered for jukebox.");
+                }
+                partition_state->jukebox.filling = true;
+            }
+            return n == 1;
+        }
         // start mpd worker thread
-        MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: Starting worker thread to fill the jukebox queue");
         partition_state->jukebox.filling = true;
+        MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: Starting worker thread to fill the jukebox queue");
         struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_REFILL_ADD, NULL, partition_state->name);
-        request->data = tojson_char(request->data, "partition", partition_state->name, true);
         request->data = tojson_uint(request->data, "addSongs", add_songs, false);
         request->data = sdscatlen(request->data, "}}", 2);
         struct t_list *queue_list = jukebox_get_last_played(partition_state, partition_state->jukebox.mode);
@@ -189,7 +205,9 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state,
     while (added < add_songs &&
            (current = list_shift_first(partition_state->jukebox.queue)) != NULL)
     {
-        if (partition_state->jukebox.mode == JUKEBOX_ADD_SONG) {
+        if (partition_state->jukebox.mode == JUKEBOX_ADD_SONG ||
+            partition_state->jukebox.mode == JUKEBOX_SCRIPT)
+        {
             mpd_run_add(partition_state->conn, current->key);
             if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_add") == true) {
                 MYMPD_LOG_NOTICE(partition_state->name, "Jukebox adding song: %s", current->key);

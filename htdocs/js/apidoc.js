@@ -2108,6 +2108,16 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_JUKEBOX_LENGTH": {
+        "desc": "Returns the length of the jukebox queue.",
+        "params": {}
+    },
+    "MYMPD_API_JUKEBOX_APPEND_URIS": {
+        "desc": "Appends songs the the jukebox queue. This is only allowed in jukebox script mode.",
+        "params": {
+            "uris": APIparams.uris
+        }
+    },
     "MYMPD_API_JUKEBOX_LIST": {
         "desc": "Lists the internal jukebox queue.",
         "params": {

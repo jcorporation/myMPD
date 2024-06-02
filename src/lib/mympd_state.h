@@ -24,6 +24,7 @@ enum jukebox_modes {
     JUKEBOX_OFF,        //!< jukebox is disabled
     JUKEBOX_ADD_SONG,   //!< jukebox adds single songs
     JUKEBOX_ADD_ALBUM,  //!< jukebox adds whole albums
+    JUKEBOX_SCRIPT,     //!< jukebox queue is filled by a script
     JUKEBOX_UNKNOWN     //!< jukebox mode is unknown
 };
 

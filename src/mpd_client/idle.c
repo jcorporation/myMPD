@@ -99,7 +99,7 @@ void mpd_client_scrobble(struct t_mympd_state *mympd_state, struct t_partition_s
             partition_state->song_uri, partition_state->song_start_time);
     }
     // scrobble event
-    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE, partition_state->name);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE, partition_state->name, NULL);
 }
 
 /**
@@ -166,7 +166,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
     }
     // run jukebox
     if (partition_state->waiting_events & PFD_TYPE_TIMER_JUKEBOX) {
-        jukebox_run(partition_state, &mympd_state->album_cache);
+        jukebox_run(mympd_state, partition_state, &mympd_state->album_cache);
     }
     // an api request is there
     if (request != NULL) {
@@ -232,7 +232,7 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                         partition_state->queue_length < partition_state->jukebox.queue_length)
                     {
                         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox mode: %s", jukebox_mode_lookup(partition_state->jukebox.mode));
-                        jukebox_run(partition_state, &mympd_state->album_cache);
+                        jukebox_run(mympd_state, partition_state, &mympd_state->album_cache);
                     }
                     //autoPlay enabled
                     if (partition_state->auto_play == true &&
@@ -284,7 +284,7 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                                 stickerdb_inc_skip_count(mympd_state->stickerdb, partition_state->last_song_uri);
                             }
                             partition_state->last_skipped_id = partition_state->last_song_id;
-                            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SKIPPED, partition_state->name);
+                            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SKIPPED, partition_state->name, NULL);
                         }
                     }
                     break;
@@ -306,7 +306,7 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                 }
             }
             //check for attached triggers
-            mympd_api_trigger_execute(&mympd_state->trigger_list, (enum trigger_events)idle_event, partition_state->name);
+            mympd_api_trigger_execute(&mympd_state->trigger_list, (enum trigger_events)idle_event, partition_state->name, NULL);
             //broadcast event to all websockets
             if (sdslen(buffer) > 0) {
                 switch(idle_event) {

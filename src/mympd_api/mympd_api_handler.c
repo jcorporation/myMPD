@@ -390,7 +390,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     partition_state->queue_length == 0)
                 {
                     // start jukebox
-                    jukebox_run(partition_state, &mympd_state->album_cache);
+                    jukebox_run(mympd_state, partition_state, &mympd_state->album_cache);
                 }
                 if (partition_state->jukebox.mode == JUKEBOX_OFF) {
                     jukebox_disable(partition_state);
@@ -532,6 +532,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
             break;
         }
+        case MYMPD_API_JUKEBOX_APPEND_URIS: {
+            struct t_list uris;
+            list_init(&uris);
+            if (json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_PLAYLIST_LENGTH_MAX, &parse_error) == true) {
+                rc = mympd_api_jukebox_append_uris(partition_state, &uris);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_TIMER, "Failure adding songs to jukebox queue");
+            }
+            list_clear(&uris);
+            break;
+        }
         case MYMPD_API_JUKEBOX_RM: {
             struct t_list positions;
             list_init(&positions);
@@ -548,6 +559,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             mympd_api_jukebox_clear(partition_state->jukebox.queue, partition_state->name);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
             break;
+        case MYMPD_API_JUKEBOX_LENGTH:
+            response->data = mympd_api_jukebox_length(partition_state, response->data, request->cmd_id, request->id);
+            break;
         case MYMPD_API_JUKEBOX_LIST: {
             struct t_fields tagcols;
             fields_reset(&tagcols);
@@ -563,7 +577,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         }
         case MYMPD_API_JUKEBOX_RESTART:
             mympd_api_jukebox_clear(partition_state->jukebox.queue, partition_state->name);
-            rc = jukebox_run(partition_state, &mympd_state->album_cache);
+            rc = jukebox_run(mympd_state, partition_state, &mympd_state->album_cache);
             response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                     JSONRPC_FACILITY_JUKEBOX, "Error starting the jukebox");
             break;
@@ -572,16 +586,18 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 sdsclear(partition_state->jukebox.last_error);
                 list_free(partition_state->jukebox.queue);
                 partition_state->jukebox.queue = (struct t_list *)request->extra;
-                send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_state->name);
             }
-            else {
+            else if (partition_state->jukebox.mode != JUKEBOX_SCRIPT) {
                 MYMPD_LOG_ERROR(partition_state->name, "Jukebox queue is NULL");
             }
+            response->type = RESPONSE_TYPE_DISCARD;
+            send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_state->name);
             partition_state->jukebox.filling = false;
             break;
         case INTERNAL_API_JUKEBOX_ERROR:
             partition_state->jukebox.filling = false;
             partition_state->jukebox.mode = JUKEBOX_OFF;
+            response->type = RESPONSE_TYPE_DISCARD;
             if (json_get_string_max(request->data, "$.params.error", &sds_buf1, vcb_isname, &parse_error) == true) {
                 send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, sds_buf1);
                 partition_state->jukebox.last_error = sds_replace(partition_state->jukebox.last_error, sds_buf1);
@@ -634,7 +650,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case INTERNAL_API_TRIGGER_EVENT_EMIT:
             if (json_get_int_max(request->data, "$.params.event", &int_buf1, &parse_error) == true) {
                 if (mympd_api_event_name(int_buf1) != NULL) {
-                    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED, partition_state->name);
+                    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED, partition_state->name, NULL);
                 }
                 response->data = jsonrpc_respond_ok(response->data, INTERNAL_API_TRIGGER_EVENT_EMIT, request->id, JSONRPC_FACILITY_TRIGGER);
             }

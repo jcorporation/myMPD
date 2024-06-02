@@ -78,7 +78,7 @@ bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_st
     if (partition_state->jukebox.mode != JUKEBOX_OFF &&
         partition_state->queue_length == 0)
     {
-        jukebox_run(partition_state, &mympd_state->album_cache);
+        jukebox_run(mympd_state, partition_state, &mympd_state->album_cache);
     }
 
     // enter idle mode
@@ -88,7 +88,7 @@ bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_st
     }
     
     send_jsonrpc_event(JSONRPC_EVENT_MPD_CONNECTED, partition_state->name);
-    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_CONNECTED, partition_state->name);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_CONNECTED, partition_state->name, NULL);
     return true;
 }
 

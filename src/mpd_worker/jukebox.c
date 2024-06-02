@@ -45,7 +45,7 @@ bool mpd_worker_jukebox_error(struct t_mpd_worker_state *mpd_worker_state, sds e
 }
 
 /**
- * 
+ * Fills the jukebox queue
  * @param mpd_worker_state pointer to mpd worker state
  * @param queue_list list to check uniq constraint against
  * @param add_songs number of songs to additionally add

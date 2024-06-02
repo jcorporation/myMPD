@@ -8,6 +8,7 @@
 #include "src/mympd_api/jukebox.h"
 
 #include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/search_local.h"
@@ -57,6 +58,45 @@ bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions,
 }
 
 /**
+ * Returns the length of the jukebox queue
+ * @param partition_state pointer to myMPD partition state
+ * @param buffer already allocated sds string to append the result
+ * @param cmd_id jsonrpc method
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
+sds mympd_api_jukebox_length(struct t_partition_state *partition_state,
+        sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id)
+{
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+    buffer = tojson_uint(buffer, "length", partition_state->jukebox.queue->length, false);
+    buffer = jsonrpc_end(buffer);
+    return buffer;
+}
+
+/**
+ * Appends songs the the jukebox queue.
+ * This is only allowed in jukebox script mode.
+ * @param partition_state pointer to myMPD partition state
+ * @param uris list of uris to add
+ * @return true on success, else false
+ */
+bool mympd_api_jukebox_append_uris(struct t_partition_state *partition_state,
+        struct t_list *uris)
+{
+    if (partition_state->jukebox.mode != JUKEBOX_SCRIPT) {
+        MYMPD_LOG_ERROR(partition_state->name, "Inserting jukebox songs is only allowed in script mode.");
+        return false;
+    }
+    struct t_list_node *current = uris->head;
+    while (current != NULL) {
+        list_push(partition_state->jukebox.queue, current->key, 0, NULL, NULL);
+        current = current->next;
+    }
+    return true;
+}
+
+/**
  * Prints the jukebox queue as an jsonrpc response
  * @param partition_state pointer to myMPD partition state
  * @param stickerdb pointer to stickerdb state
@@ -79,7 +119,9 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
     struct t_list *expr_list = parse_search_expression_to_list(expression);
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    if (partition_state->jukebox.mode == JUKEBOX_ADD_SONG) {
+    if (partition_state->jukebox.mode == JUKEBOX_ADD_SONG ||
+        partition_state->jukebox.mode == JUKEBOX_SCRIPT)
+    {
         struct t_list_node *current = partition_state->jukebox.queue->head;
         if (partition_state->mpd_state->feat.stickers == true &&
             tagcols->stickers.len > 0)

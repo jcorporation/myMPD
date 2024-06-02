@@ -81,7 +81,7 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
 }
 
 /**
- * Defines methods that are internal
+ * Defines methods that are public
  * @param cmd_id myMPD API method
  * @return true if public else false
  */
@@ -90,6 +90,26 @@ bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
         cmd_id >= TOTAL_API_COUNT)
     {
         return false;
+    }
+    return true;
+}
+
+/**
+ * Defines methods that are accessible by scripts
+ * @param cmd_id myMPD API method
+ * @return true if public else false
+ */
+bool is_script_api_method(enum mympd_cmd_ids cmd_id) {
+    switch(cmd_id) {
+        case INTERNAL_API_JUKEBOX_CREATED:
+        case INTERNAL_API_JUKEBOX_ERROR:
+            return true;
+        default:
+        if (cmd_id <= INTERNAL_API_COUNT ||
+            cmd_id >= TOTAL_API_COUNT)
+        {
+            return false;
+        }
     }
     return true;
 }

@@ -81,7 +81,7 @@ void *mympd_api_loop(void *arg_config) {
         timer_handler_by_id, TIMER_ID_DISK_CACHE_CROP, NULL);
 
     // start trigger
-    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START, MPD_PARTITION_ALL);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START, MPD_PARTITION_ALL, NULL);
 
     // push ready state to webserver
     struct t_work_response *web_server_response = create_response_new(RESPONSE_TYPE_PUSH_CONFIG, 0, 0, INTERNAL_API_WEBSERVER_READY, MPD_PARTITION_DEFAULT);
@@ -125,7 +125,7 @@ void *mympd_api_loop(void *arg_config) {
     MYMPD_LOG_DEBUG(NULL, "Stopping mympd_api thread");
 
     // stop trigger
-    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP, MPD_PARTITION_ALL);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP, MPD_PARTITION_ALL, NULL);
 
     // disconnect from mpd
     mpd_client_disconnect_all(mympd_state);

@@ -139,9 +139,12 @@ sds mympd_api_trigger_print_event_list(sds buffer) {
  * @param trigger_list trigger list
  * @param event trigger to execute scripts for
  * @param partition mpd partition
+ * @param arguments list of script arguments
  * @return number of executed triggers
  */
-int mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition) {
+int mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event,
+        const char *partition, struct t_list *arguments)
+{
     MYMPD_LOG_DEBUG(partition, "Trigger event: %s (%d)", mympd_api_event_name(event), event);
     struct t_list_node *current = trigger_list->head;
     int n = 0;
@@ -154,8 +157,11 @@ int mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events e
             struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
             MYMPD_LOG_NOTICE(partition, "Executing script \"%s\" for trigger \"%s\" (%d)",
                 trigger_data->script, mympd_api_event_name(event), event);
-            struct t_list *arguments = list_dup(&trigger_data->arguments);
-            trigger_execute(trigger_data->script, SCRIPT_START_TRIGGER, arguments, partition, 0, 0);
+            struct t_list *script_arguments = list_dup(&trigger_data->arguments);
+            if (arguments != NULL) {
+                list_append(script_arguments, arguments);
+            }
+            trigger_execute(trigger_data->script, SCRIPT_START_TRIGGER, script_arguments, partition, 0, 0);
             n++;
         }
         current = current->next;
@@ -171,6 +177,7 @@ int mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events e
  * @param partition mpd partition
  * @param conn_id mongoose connection id
  * @param request_id jsonprc id
+ * @param arguments list of script arguments
  * @return number of executed triggers
  */
 int mympd_api_trigger_execute_http(struct t_list *trigger_list, enum trigger_events event,
@@ -219,25 +226,14 @@ int mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, enu
     const char *type_str = type == FEEDBACK_LIKE
             ? "like"
             : "rating";
-    int n = 0;
-    struct t_list_node *current = trigger_list->head;
-    while (current != NULL) {
-        if (current->value_i == TRIGGER_MYMPD_FEEDBACK &&
-                (strcmp(partition, current->value_p) == 0 ||
-                 strcmp(current->value_p, MPD_PARTITION_ALL) == 0)
-           )
-        {
-            struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
-            MYMPD_LOG_NOTICE(partition, "Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
-            struct t_list *script_arguments = list_new();
-            list_push(script_arguments, "uri", 0, uri, NULL);
-            list_push(script_arguments, "vote", 0, vote_str, NULL);
-            list_push(script_arguments, "type", 0, type_str, NULL);
-            trigger_execute(trigger_data->script, SCRIPT_START_TRIGGER, script_arguments, partition, 0, 0);
-            n++;
-        }
-        current = current->next;
-    }
+
+    struct t_list arguments;
+    list_init(&arguments);
+    list_push(&arguments, "uri", 0, uri, NULL);
+    list_push(&arguments, "vote", 0, vote_str, NULL);
+    list_push(&arguments, "type", 0, type_str, NULL);
+    int n = mympd_api_trigger_execute(trigger_list, TRIGGER_MYMPD_FEEDBACK, partition, &arguments);
+    list_clear(&arguments);
     FREE_SDS(vote_str);
     return n;
 }
