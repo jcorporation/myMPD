@@ -176,7 +176,12 @@ sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct
     else {
         #ifdef MYMPD_ENABLE_LUA
             // no albumart found, check if there is a trigger to fetch albumart
-            int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_ALBUMART, uri, partition_state->name, conn_id, request_id);
+            struct t_list arguments;
+            list_init(&arguments);
+            list_push(&arguments, "uri", 0, uri, NULL);
+            int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_ALBUMART,
+                    partition_state->name, conn_id, request_id, &arguments);
+            list_clear(&arguments);
             if (n > 0) {
                 // return empty buffer, response must be send by triggered script
                 if (n > 1) {
@@ -189,7 +194,8 @@ sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct
             (void)conn_id;
         #endif
         MYMPD_LOG_INFO(partition_state->name, "No albumart found by mpd for uri \"%s\"", uri);
-        buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
+        buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id,
+                JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }
     return buffer;
 }

@@ -172,9 +172,10 @@ int mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events e
  * @return number of executed triggers
  */
 int mympd_api_trigger_execute_http(struct t_list *trigger_list, enum trigger_events event,
-        sds uri, const char *partition, unsigned long conn_id, unsigned request_id)
+        const char *partition, unsigned long conn_id, unsigned request_id,
+        struct t_list *arguments)
 {
-    MYMPD_LOG_DEBUG(partition, "Trigger event: %s (%d) for \"%s\"", mympd_api_event_name(event), event, uri);
+    MYMPD_LOG_DEBUG(partition, "HTTP trigger event: %s (%d)", mympd_api_event_name(event), event);
     int n = 0;
     struct t_list_node *current = trigger_list->head;
     while (current != NULL) {
@@ -187,7 +188,9 @@ int mympd_api_trigger_execute_http(struct t_list *trigger_list, enum trigger_eve
             MYMPD_LOG_NOTICE(partition, "Executing script \"%s\" for trigger \"%s\" (%d)",
                 trigger_data->script, mympd_api_event_name(event), event);
             struct t_list *script_arguments = list_new();
-            list_push(script_arguments, "uri", 0, uri, NULL);
+            if (arguments != NULL) {
+                list_append(script_arguments, arguments);
+            }
             trigger_execute(trigger_data->script, SCRIPT_START_HTTP, script_arguments, partition, conn_id, request_id);
             n++;
         }

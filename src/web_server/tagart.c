@@ -7,8 +7,11 @@
 #include "compile_time.h"
 #include "src/web_server/tagart.h"
 
+#include "src/lib/api.h"
 #include "src/lib/config_def.h"
+#include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
@@ -21,7 +24,7 @@
  * @return true on success, else false
  */
 bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data)
+        struct t_mg_user_data *mg_user_data, unsigned long conn_id)
 {
     struct t_config *config = mg_user_data->config;
     sds tag = get_uri_param(&hm->query, "tag=");
@@ -55,15 +58,29 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
     mediafile = webserver_find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
         webserver_serve_file(nc, hm, mg_user_data->browse_directory, mediafile);
-    }
-    //TODO: implement trigger for tagart retrieval
-    //      send request to mympd_api thread
-    else {
-        MYMPD_LOG_DEBUG(NULL, "No image for tag found");
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        FREE_SDS(mediafile);
+        FREE_SDS(tag);
+        FREE_SDS(value);
+        return true;
     }
     FREE_SDS(mediafile);
-    FREE_SDS(tag);
-    FREE_SDS(value);
-    return true;
+
+    #ifdef MYMPD_ENABLE_LUA
+        //forward request to mympd_api thread
+        MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_TAGART to mympdapi_queue");
+        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, 0, INTERNAL_API_TAGART, NULL, MPD_PARTITION_DEFAULT);
+        request->data = tojson_sds(request->data, "tag", tag, true);
+        request->data = tojson_sds(request->data, "value", value, false);
+        request->data = jsonrpc_end(request->data);
+        mympd_queue_push(mympd_api_queue, request, 0);
+        FREE_SDS(tag);
+        FREE_SDS(value);
+        return false;
+    #else
+        MYMPD_LOG_DEBUG(NULL, "No image for tag found");
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        FREE_SDS(tag);
+        FREE_SDS(value);
+        return true;
+    #endif
 }

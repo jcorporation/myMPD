@@ -85,7 +85,12 @@ sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer,
     if (extracted.length == 0) {
         #ifdef MYMPD_ENABLE_LUA
             // no lyrics found, check if there is a trigger to fetch lyrics
-            int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_LYRICS, uri, partition, conn_id, request_id);
+            struct t_list arguments;
+            list_init(&arguments);
+            list_push(&arguments, "uri", 0, uri, NULL);
+            int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_LYRICS,
+                    partition, conn_id, request_id, &arguments);
+            list_clear(&arguments);
             if (n > 0) {
                 // return empty buffer, response must be send by triggered script
                 if (n > 1) {

@@ -60,7 +60,8 @@ bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir);
 void mympd_api_trigger_list_clear(struct t_list *trigger_list);
 int mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition);
 int mympd_api_trigger_execute_http(struct t_list *trigger_list, enum trigger_events event,
-        sds uri, const char *partition, unsigned long conn_id, unsigned request_id);
+        const char *partition, unsigned long conn_id, unsigned request_id,
+        struct t_list *arguments);
 int mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri,
         enum feedback_type type, int value, const char *partition);
 bool mympd_api_trigger_delete(struct t_list *trigger_list, unsigned idx, sds *error);

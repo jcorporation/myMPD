@@ -130,6 +130,7 @@ target_sources(mympd
     mympd_api/stats.c
     mympd_api/status.c
     mympd_api/sticker.c
+    mympd_api/tagart.c
     mympd_api/timer.c
     mympd_api/timer_handlers.c
     mympd_api/trigger.c

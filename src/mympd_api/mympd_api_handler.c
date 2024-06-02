@@ -51,6 +51,7 @@
 #include "src/mympd_api/stats.h"
 #include "src/mympd_api/status.h"
 #include "src/mympd_api/sticker.h"
+#include "src/mympd_api/tagart.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
@@ -213,6 +214,20 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case MYMPD_API_STATS:
             response->data = mympd_api_stats_get(partition_state, response->data, request->id);
+            break;
+    // Tagart
+        case INTERNAL_API_TAGART:
+            if (json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf1, vcb_ismpdtag, &parse_error) == true &&
+                json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
+            {
+                response->data = mympd_api_tagart(mympd_state, partition_state, response->data, request->id, request->conn_id, sds_buf1, sds_buf2);
+                if (sdslen(response->data) == 0) {
+                    // response must be send by triggered script
+                    async = true;
+                    // we do not pass the request to the script thread
+                    free_request(request);
+                }
+            }
             break;
     // Albumart
         case INTERNAL_API_ALBUMART_BY_URI:

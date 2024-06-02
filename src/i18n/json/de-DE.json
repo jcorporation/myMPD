@@ -1183,5 +1183,9 @@
     "Sends a JSONRPC 2.0 error.": "Sendet eine JSONRPC 2.0 Fehlermeldung.",
     "Sends a JSONRPC 2.0 response.": "Sendet ein JSONRPC 2.0 Ergebnis.",
     "Write a file for the cover cache.": "Schreibt eine Datei für den Covercache.",
-    "Write the lyrics entry object to the lyrics cache.": "Schreibt das Lyrics-Objekt in then Lyricscache."
+    "Write the lyrics entry object to the lyrics cache.": "Schreibt das Lyrics-Objekt in then Lyrics Cache.",
+    "Generates a random tmp filename for the misc cache.": "Generiert einen zufälligen Dateinamen für den Misc Cache.",
+    "No tagart found.": "Kein Tagart gefunden.",
+    "Sends a JSONRPC 2.0 warning.": "Sendet eine JSONRPC 2.0 Warnung",
+    "Write a file for the thumbs cache.": "Schreibt eine Datei for den Thumbnail Cache."
 }

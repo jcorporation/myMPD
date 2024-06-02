@@ -739,7 +739,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 request_handler_folderart(nc, hm, mg_user_data);
             }
             else if (mg_match(hm->uri, mg_str("/tagart"), NULL)) {
-                request_handler_tagart(nc, hm, mg_user_data);
+                request_handler_tagart(nc, hm, mg_user_data, nc->id);
             }
             else if (mg_match(hm->uri, mg_str("/playlistart"), NULL)) {
                 request_handler_playlistart(nc, hm, mg_user_data);

@@ -582,6 +582,7 @@
 {"term":"No response for method %{method}"},
 {"term":"No script selected"},
 {"term":"No song positions provided"},
+{"term":"No tagart found."},
 {"term":"No uris provided"},
 {"term":"No webradios provided"},
 {"term":"None"},
