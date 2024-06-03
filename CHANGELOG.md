@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD 16.0.0 (not yet released)
 
-This release reworks the scripting functionality of myMPD. There are several new myMPD specific Lua functions and new usage scenarios for scripts.
+This release reworks and enhances the scripting functionality of myMPD. There are several new myMPD specific Lua functions and new usage scenarios for scripts.
 
 With this release you can call Lua scripts by http requests and the script itself can respond to it. There is now also a new `yt-dlp` script developed by @sevmonster that make use of this new functionality.
 
@@ -17,6 +17,7 @@ There are also new triggers introduced:
 - mympd_albumart: Triggers if no local albumart was found
 - mympd_lyrics: Triggers if no local lyrics are found
 - mympd_tagart: Triggers if no local tagart was found
+- mympd_jukebox: Triggers if the jukebox mode is set to `Script`
 
 ### Notes
 
@@ -47,21 +48,25 @@ There are also new triggers introduced:
 
 ### Changelog
 
-- Feat: Script performance improvements
-- Feat: Scripts can handle http requests #1279
-- Feat: Send log messages from scripts
-- Feat: Send notifications from scripts #1280
-- Feat: Url encoding/decoding functions for scripts
-- Feat: Hashing functions for scripts
+- Feat: Script improvements
+  - Performance improvements
+  - Error handling
+  - Handling of http requests #1279
+  - Send log messages from scripts
+  - Send notifications from scripts #1280
+  - Url encoding/decoding functions
+  - Hashing functions
+  - Cache functions for images and lyrics
+  - Jukebox interface
+  - HTTP client follows now redirects
+  - HTTP download function
 - Feat: Set custom variables for scripts #1265
+- Feat: New triggers #1288
 - Feat: Use EC private keys for SSL certificates
-- Feat: Script to use yt-dlp from myMPD, thanks @sevmonster
-- Upd: Improve triggers #1288
 - Upd: Add length checks for albumart uris #1284
 - Upd: Update mongoose to 7.14
 - Upd: Do not use deprecated OpenSSL API functions
 - Upd: Optimize Lua stack usage
-- Upd: Improve Lua error handling
 - Fix: Add missing NULL ptr checks to Lua interface functions
 - Fix: Error checking for results in modals
 - Fix: JavaScript error on right click in tags view
