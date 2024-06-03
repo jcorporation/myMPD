@@ -590,17 +590,21 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             else if (partition_state->jukebox.mode != JUKEBOX_SCRIPT) {
                 MYMPD_LOG_ERROR(partition_state->name, "Jukebox queue is NULL");
             }
-            response->type = RESPONSE_TYPE_DISCARD;
+            if (response->type != RESPONSE_TYPE_DISCARD) {
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
+            }
             send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_state->name);
             partition_state->jukebox.filling = false;
             break;
         case INTERNAL_API_JUKEBOX_ERROR:
             partition_state->jukebox.filling = false;
             partition_state->jukebox.mode = JUKEBOX_OFF;
-            response->type = RESPONSE_TYPE_DISCARD;
             if (json_get_string_max(request->data, "$.params.error", &sds_buf1, vcb_isname, &parse_error) == true) {
                 send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, sds_buf1);
                 partition_state->jukebox.last_error = sds_replace(partition_state->jukebox.last_error, sds_buf1);
+            }
+            if (response->type != RESPONSE_TYPE_DISCARD) {
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
             }
             break;
     // trigger
