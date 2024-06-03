@@ -20,6 +20,10 @@ return mympd.http_reply(status, headers, body)
 -- Return a 302 FOUND response (temporary redirect) to /test
 local location = "/test"
 return mympd.http_redirect(location)
+
+-- Serve a file from the cache
+local file = mympd_env.cachedir_misc .. "/test.png"
+return mympd.http_serve_file(file)
 ```
 
 **Parameters:**

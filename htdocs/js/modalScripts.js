@@ -147,7 +147,7 @@ function addScriptAPIcall(event) {
     const newText =
         'options = {}\n' +
         apiParamsToArgs(APImethods[method].params) +
-        'rc, result = mympd.api("' + method + '", options)\n' +
+        'local rc, result = mympd.api("' + method + '", options)\n' +
         'if rc == 0 then\n' +
         '\n' +
         'end\n';

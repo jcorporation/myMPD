@@ -1545,6 +1545,16 @@ uiElements.modalHomeIconLigatureDropdown = BSN.Dropdown.getInstance(elGetById('m
 uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('modalMountsNeighborsBtn'));
 
 const LUAfunctions = {
+    "json.decode": {
+        "desc": "Parses a Json string to a Lua table.",
+        "func": "local data = json.decode(str)",
+        "feat": ""
+    },
+    "json.encode": {
+        "desc": "Encodes a Lua table as Json string.",
+        "func": "local str = json.encode(data)",
+        "feat": ""
+    },
     "mympd.covercache_write": {
         "desc": "Write a file for the cover cache.",
         "func": "local filename = mympd.covercache_write(src, uri)",
@@ -1593,6 +1603,11 @@ const LUAfunctions = {
     "mympd.http_reply": {
         "desc": "Sends a HTTP reply.",
         "func": "return mympd.http_reply(status, header, body)",
+        "feat": ""
+    },
+    "mympd.http_serve_file": {
+        "desc": "Serves a file from the filesystem. Only files from the diskcache are allowed.",
+        "func": "return mympd.http_serve_file(file)",
         "feat": ""
     },
     "mympd.init": {
