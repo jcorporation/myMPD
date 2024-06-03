@@ -354,7 +354,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define VOLUME_STEP_MIN 1 //prct
 #define VOLUME_STEP_MAX 25 //prct
 #define JUKEBOX_MODE_MIN 0
-#define JUKEBOX_MODE_MAX 2
+#define JUKEBOX_MODE_MAX 3
 #define JUKEBOX_ADD_SONG_MAX 99
 #define JUKEBOX_MIN_SONG_DURATION_MAX INT_MAX
 #define JUKEBOX_MAX_SONG_DURATION_MAX INT_MAX
