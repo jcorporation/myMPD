@@ -251,7 +251,7 @@ static void read_queue(struct mg_mgr *mgr) {
                 send_api_response(mgr, response);
                 break;
             case RESPONSE_TYPE_RAW:
-                MYMPD_LOG_DEBUG(response->partition, "Got raw response for id \"%lu\" with %lu bytes", response->conn_id, sdslen(response->data));
+                MYMPD_LOG_DEBUG(response->partition, "Got raw response for id \"%lu\" with %lu bytes", response->conn_id, (unsigned long)sdslen(response->data));
                 send_raw_response(mgr, response);
                 break;
             case RESPONSE_TYPE_SCRIPT:
