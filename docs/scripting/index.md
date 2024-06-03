@@ -39,12 +39,23 @@ Additionally all user defined variables are populates in this table. They are pr
 
 ### Arguments
 
-Script arguments are populated in the lua table `mympd_arguments`.
+Script arguments are populated in the lua table `mympd_arguments`. All arguments are of type string.
 
 ```lua
 -- return the argument named playlist
 return mympd_arguments["playlist"]
 ```
+
+Arguments can be defined as simple names (text input field) or with typical html form element types.
+
+| DEFINITION | DESCRIPTION |
+| ---------- | ----------- |
+| `<argument>\|text` | Text input field. |
+| `<argument>\|password` | Password input field. |
+| `<argument>\|select;opt1;opt2;opt3` | Selectbox, options are separated by semicolon. |
+| `<argument>\|checkbox`| Simple checkbox, returns the string `true` if checked. |
+| `<argument>\|radio;r1;r2;r3` | Radioboxes, returns the selected option. Options are separated by semicolon. |
+{: .table .table-sm }
 
 ### myMPD state
 

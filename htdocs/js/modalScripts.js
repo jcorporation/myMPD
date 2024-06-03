@@ -325,12 +325,10 @@ function validateScriptCheckError(obj) {
  */
 function addScriptArgument() {
     const el = elGetById('modalScriptsAddArgumentInput');
-    if (validatePrintableEl(el)) {
-        elGetById('modalScriptsArgumentsInput').appendChild(
-            elCreateText('option', {}, el.value)
-        );
-        el.value = '';
-    }
+    elGetById('modalScriptsArgumentsInput').appendChild(
+        elCreateText('option', {}, el.value)
+    );
+    el.value = '';
 }
 
 /**

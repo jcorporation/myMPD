@@ -201,20 +201,6 @@ function validateStreamEl(el) {
 }
 
 /**
- * Checks if the value of the input element contains only printable characters
- * @param {Element} el input element
- * @returns {boolean} true = only printable characters, else false
- */
-function validatePrintableEl(el) {
-    const value = el.value.replace(/[\w-]+/g, '');
-    if (value !== '') {
-        setIsInvalid(el);
-        return false;
-    }
-    return true;
-}
-
-/**
  * Checks if the the value of the input element is a hex color
  * @param {Element} el input element
  * @returns {boolean} true = valid stream uri, else false
