@@ -79,3 +79,4 @@ mympd.notify_partition(severity, message)
 | --------- | ---- | ----------- |
 | severity | number | 0 = Info, 1 = Warn, 2 = Error |
 | message | string | Message to send. |
+{: .table .table-sm }

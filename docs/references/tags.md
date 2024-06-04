@@ -36,7 +36,7 @@ I personally use [Picard](https://picard.musicbrainz.org/) to tag my music files
 - ID3 tags with multiple values works only for ID3v2.4, older versions uses a separator for values in one tag and that is not supported by MPD.
 - MPD does not support multi-value MusicBrainz ID tags: [MPD issue](https://github.com/MusicPlayerDaemon/MPD/issues/687). myMPD implements a workaround and splits the MUSICBRAINZ_ARTISTID and MUSICBRAINZ_ALBUMARTISTID tags by semicolon.
 
-### Albums
+## Albums
 
 myMPD supports two modes for handling albums.
 
@@ -44,7 +44,7 @@ The default is the advanced album mode. It is the preferred one, except the mpd 
 
 You can configure the tag for grouping albums by replacing the tag name in `/var/lib/mympd/config/album_group_tag`, it defaults to `Date`. Set it to `Unknown` to disable the additional grouping tag.
 
-#### Advanced album mode
+### Advanced album mode
 
 The album mode queries each song to build the album cache. This can take a long time, if your mpd song database is very huge.
 
@@ -53,7 +53,7 @@ The album mode queries each song to build the album cache. This can take a long 
 - To support multiple versions of an album, you must maintain the MUSICBRAINZ_ALBUMID tag or the Date tag.
 - To support multidisc albums you must use the Disc tag (numeric or in the format `1/2`).
 
-#### Simple album mode
+### Simple album mode
 
 The simple album mode uses a simple command to get all uniq album tags from mpd. It is faster than the advanced album mode, but does not provide the same feature set.
 

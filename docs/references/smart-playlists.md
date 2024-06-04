@@ -30,13 +30,18 @@ Smart playlists are saved in the folder `/var/lib/mympd/smartpls` (one JSON file
 
 ### Sticker based
 
-- myMPDsmart-bestRated: `{"type": "sticker", "sticker": "like", "value": "2", "op": "=" "sort": "", "sortdesc": false, "maxentries": 200}`
-- myMPDsmart-mostPlayed: `{"type": "sticker", "sticker": "playCount", "value": "10", "op": "gt", "sort": "", "sortdesc": false, "maxentries": 200}`
+```
+{"type": "sticker", "sticker": "like", "value": "2", "op": "=" "sort": "", "sortdesc": false, "maxentries": 200}
+```
 
 ### Newest songs
 
-- myMPDsmart-newestSongs: `{"type": "newest", "timerange": 604800, "sort":"", "sortdesc": false, "maxentries": 0}`
+```
+{"type": "newest", "timerange": 604800, "sort":"", "sortdesc": false, "maxentries": 0}
+```
 
 ### Saved search
 
-- savedSearch: `{"type":"search", "expression":"((Artist contains 'test'))", "sort":"Album", "sortdesc": false, "maxentries": 0}`
+```
+{"type":"search", "expression":"((Artist contains 'test'))", "sort":"Album", "sortdesc": false, "maxentries": 0}
+```

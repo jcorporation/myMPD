@@ -20,7 +20,7 @@ Triggers are enabled if scripts are enabled. Triggers can call scripts with argu
 | TRIGGER_MYMPD_TAGART | -10 | Global | Triggers if no local tagart was found. Only one script is supported for this event. Script is executed with arguments `tag` and `value` and should return a raw http response. [Example](https://github.com/jcorporation/mympd-scripts/tree/main/Tagart)|
 | TRIGGER_MYMPD_JUKEBOX | -11 | Partition | Triggers if jukebox is configured with the mode `script`. Only one script is supported for this event. This script must fill the jukebox queue and add songs from this queue to the MPD queue. [Example](https://github.com/jcorporation/mympd-scripts/tree/main/Jukebox) |
 | TRIGGER_MPD_DATABASE | 1 | Default partition | Database has been modified. |
-| TRIGGER_MPD_STORED_PLAYLIST | 2 | Default partition | A playlist was added, removed or changed. |
+| TRIGGER_MPD_STORED_PLAYLIST | 2 | Global | A playlist was added, removed or changed. |
 | TRIGGER_MPD_QUEUE | 4 | Partition | MPD queue has changed. |
 | TRIGGER_MPD_PLAYER | 8 | Partition | MPD player state has changed. |
 | TRIGGER_MPD_MIXER | 16 | Partition | MPD mixer state (volume) has changed. |
@@ -28,7 +28,7 @@ Triggers are enabled if scripts are enabled. Triggers can call scripts with argu
 | TRIGGER_MPD_OPTIONS | 64 | Partition | MPD player options has changed. |
 | TRIGGER_MPD_UPDATE | 128 | Default partition | MPD Database update has started or finished. |
 | TRIGGER_MPD_STICKER | 256 | Global | MPD Sticker database has changed. |
-| TRIGGER_MPD_SUBSCRIPTION | 512 | MPD client has subscribed or unsubscribed to a channel. |
-| TRIGGER_MPD_MESSAGE | 1024 | A message was received on a channel this client is subscribed to. Only one script is supported for this event. |
+| TRIGGER_MPD_SUBSCRIPTION | 512 | Global | MPD client has subscribed or unsubscribed to a channel. |
+| TRIGGER_MPD_MESSAGE | 1024 | Global | A message was received on a channel this client is subscribed to. Only one script is supported for this event. |
 | TRIGGER_MPD_PARTITION | 2048 | Default partition | Partition was added or removed. |
 {: .table .table-sm }

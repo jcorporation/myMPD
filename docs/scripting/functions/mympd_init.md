@@ -32,9 +32,11 @@ The lua table mympd_state is populated with following fields. Additionally all u
 | elapsed_time | Integer | Elapsed time of current song |
 | jukebox_ignore_hated | Boolean | Ignore hated songs for jukebox |
 | jukebox_last_played | Integer | Don't add songs that are played in the last x hours |
-| jukebox_mode | Integer | Jukebox mode: 0 = off, 1 = song, 2 = album |
+| jukebox_max_song_duration | Integer | Only songs with this minimum length will be considered. |
+| jukebox_min_song_duration | Integer | If greater then zero: Only songs with this maximum length will be considered. |
+| jukebox_mode | Integer | Jukebox mode: 0 = off, 1 = song, 2 = album, 3 = script |
 | jukebox_playlist | String | Jukebox playlist: Database or MPD playlist name |
-| jukebox_queue_length | Integer | Length of the queue length to maintain |
+| jukebox_queue_length | Integer | Number of songs in the queue before the jukebox add's more songs. |
 | jukebox_uniq_tag | String | Build the jukebox queue with this tag as uniq constraint: Song, Album, Artist |
 | listenbrainz_token | String | ListenBrainz Token |
 | mixrampdelay | Float | Mixramp delay |
