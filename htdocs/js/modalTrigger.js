@@ -46,13 +46,7 @@ function initModalTrigger() {
 function saveTrigger(target) {
     cleanupModalId('modalTrigger');
     btnWaiting(target, true);
-
-    const args = {};
-    const argEls = document.querySelectorAll('#modalTriggerScriptArgumentsInput input');
-    for (let i = 0, j = argEls.length; i < j; i ++) {
-        args[getData(argEls[i], 'name')] = argEls[i].value;
-    }
-
+    const args = formToScriptArgs(elGetById('modalTriggerScriptArgumentsInput'));
     let partition = getBtnGroupValueId('modalTriggerPartitionInput');
     partition = partition === '!all!'
         ? partition
@@ -151,18 +145,9 @@ function showTriggerScriptArgs(option, values) {
     }
     const args = getData(option, 'arguments');
     const list = elGetById('modalTriggerScriptArgumentsInput');
-    elClear(list);
-    for (let i = 0, j = args.arguments.length; i < j; i++) {
-        const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "modalTriggerScriptArgumentsInput" + i,
-            "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
-        setData(input, 'name', args.arguments[i]);
-        const fg = elCreateNodes('div', {"class": ["form-group", "row", "mb-3"]}, [
-            elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "modalTriggerScriptArgumentsInput" + i}, args.arguments[i]),
-            elCreateNode('div', {"class": ["col-sm-8"]}, input)
-        ]);
-        list.appendChild(fg);
-    }
+    scriptArgsToForm(list, args.arguments, values);
     if (args.arguments.length === 0) {
+        elClear(list);
         list.textContent = tn('No arguments');
     }
 }
