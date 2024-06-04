@@ -8,11 +8,12 @@ title: Known issues
 
 #### Cause
 
-myMPD creates on first startup and on each database refresh the album and sticker caches. It searches through the whole MPD database and this could cause heavy cpu usage on large databases.
+myMPD creates on first startup and on each database refresh the album cache. It searches through the whole MPD database and this could cause heavy cpu usage on large databases.
 
 #### Workaround
 
-You can disable the creation of the caches, but you loose the album browse and/or the sticker features of myMPD.
+You can disable the creation of the caches, but you loose the album browse feature of myMPD
+or you can change the album cache mode to simple.
 
 - [Configuration]({{site.baseurl}}/configuration/configuration-files)
 

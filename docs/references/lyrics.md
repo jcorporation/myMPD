@@ -21,6 +21,10 @@ myMPD can parse the binary SYLT id3v2 tags and converts it to the lrc format. In
 
 As alternative myMPD tries to get the lyrics from a file in the same directory as the song with a configurable extension (default: `lrc` for synced lyrics and `.txt` for unsynced lyrics).
 
-***
-
 You can download lyrics with the lyrics download script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)
+
+## Script to fetch lyrics on demand
+
+If no local lyrics are found, myMPD emmits the `mympd_lyrics` trigger. Attach a script to fetch and deliver lyrics to it. Only one script is supported for this event.
+
+A fully working example implementation can be found in the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts/tree/main/Lyrics).
