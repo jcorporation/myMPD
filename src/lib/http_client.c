@@ -129,7 +129,25 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
             if (location == NULL) {
                 break;
             }
-            mg_client_request->connect_uri = sds_replace(mg_client_request->connect_uri, location->value_p);
+            sds last_host = sdsdup(mg_client_request->connect_uri);
+            sdsclear(mg_client_request->connect_uri);
+            if (strncmp(mg_client_request->connect_uri, "http://", 7) != 0 &&
+                strncmp(mg_client_request->connect_uri, "https://", 8) != 0)
+            {
+                // redirect uri without host, keep last host part
+                int k = 0;
+                for (size_t j = 0; j < sdslen(last_host); j++) {
+                    if (last_host[j] == '/') {
+                        k++;
+                    }
+                    if (k == 3) {
+                        break;
+                    }
+                    mg_client_request->connect_uri = sds_catchar(mg_client_request->connect_uri, last_host[j]);
+                }
+            }
+            FREE_SDS(last_host);
+            mg_client_request->connect_uri = sdscatsds(mg_client_request->connect_uri, location->value_p);
             list_clear(&mg_client_response->header);
             sdsclear(mg_client_response->body);
             mg_client_response->rc = -1;
