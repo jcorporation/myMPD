@@ -101,6 +101,7 @@ bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
  */
 bool is_script_api_method(enum mympd_cmd_ids cmd_id) {
     switch(cmd_id) {
+        case INTERNAL_API_SCRIPT_INIT:
         case INTERNAL_API_JUKEBOX_CREATED:
         case INTERNAL_API_JUKEBOX_ERROR:
             return true;
