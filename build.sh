@@ -305,7 +305,7 @@ lualibs() {
   cat contrib/lualibs/mympd/60-caches.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/99-end.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   echo "Compiling lua libraries"
-  LUAC=$(command -v luac5.4 || command -v luac5.3 || command -v luac)
+  LUAC=$(command -v luac5.4 || command -v luac5.3 || command -v luac || true)
   if [ -z "$LUAC" ]
   then
     echo_error "luac not found"
