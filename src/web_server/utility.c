@@ -286,13 +286,18 @@ void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm, 
  * Sends a 301 moved permanently header
  * @param nc mongoose connection
  * @param location destination for the redirect
+ * @param headers extra headers to add
  */
-void webserver_send_header_redirect(struct mg_connection *nc, const char *location) {
+void webserver_send_header_redirect(struct mg_connection *nc, const char *location,
+        const char *headers)
+{
     MYMPD_LOG_DEBUG(NULL, "Sending 301 Moved Permanently \"%s\" to %lu", location, nc->id);
     mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
         "Location: %s\r\n"
-        "Content-Length: 0\r\n\r\n",
-        location);
+        "Content-Length: 0\r\n"
+        "%s"
+        "\r\n",
+        location, headers);
     webserver_handle_connection_close(nc);
 }
 
@@ -300,13 +305,18 @@ void webserver_send_header_redirect(struct mg_connection *nc, const char *locati
  * Sends a 302 found header
  * @param nc mongoose connection
  * @param location destination for the redirect
+ * @param headers extra headers to add
  */
-void webserver_send_header_found(struct mg_connection *nc, const char *location) {
+void webserver_send_header_found(struct mg_connection *nc, const char *location,
+    const char *headers)
+{
     MYMPD_LOG_DEBUG(NULL, "Sending 302 Found \"%s\" to %lu", location, nc->id);
     mg_printf(nc, "HTTP/1.1 302 Found\r\n"
         "Location: %s\r\n"
-        "Content-Length: 0\r\n\r\n",
-        location);
+        "Content-Length: 0\r\n"
+        "%s"
+        "\r\n",
+        location, headers);
     webserver_handle_connection_close(nc);
 }
 
@@ -345,27 +355,28 @@ void webserver_handle_connection_close(struct mg_connection *nc) {
  */
 void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholder_types placeholder_type) {
     struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
+    const char *extra_headers = "X-myMPD-image: placeholder\r\n";
     switch (placeholder_type) {
         case PLACEHOLDER_NA:
-            webserver_send_header_found(nc, mg_user_data->placeholder_na);
+            webserver_send_header_found(nc, mg_user_data->placeholder_na, extra_headers);
             break;
         case PLACEHOLDER_STREAM:
-            webserver_send_header_found(nc, mg_user_data->placeholder_stream);
+            webserver_send_header_found(nc, mg_user_data->placeholder_stream, extra_headers);
             break;
         case PLACEHOLDER_MYMPD:
-            webserver_send_header_found(nc, mg_user_data->placeholder_mympd);
+            webserver_send_header_found(nc, mg_user_data->placeholder_mympd, extra_headers);
             break;
         case PLACEHOLDER_BOOKLET:
-            webserver_send_header_found(nc, mg_user_data->placeholder_booklet);
+            webserver_send_header_found(nc, mg_user_data->placeholder_booklet, extra_headers);
             break;
         case PLACEHOLDER_PLAYLIST:
-            webserver_send_header_found(nc, mg_user_data->placeholder_playlist);
+            webserver_send_header_found(nc, mg_user_data->placeholder_playlist, extra_headers);
             break;
         case PLACEHOLDER_SMARTPLS:
-            webserver_send_header_found(nc, mg_user_data->placeholder_smartpls);
+            webserver_send_header_found(nc, mg_user_data->placeholder_smartpls, extra_headers);
             break;
         case PLACEHOLDER_FOLDER:
-            webserver_send_header_found(nc, mg_user_data->placeholder_folder);
+            webserver_send_header_found(nc, mg_user_data->placeholder_folder, extra_headers);
             break;
     }
 }

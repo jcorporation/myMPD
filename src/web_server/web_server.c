@@ -826,10 +826,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_SMARTPLS);
             }
             else if (mg_match(hm->uri, mg_str("/index.html"), NULL)) {
-                webserver_send_header_redirect(nc, "/");
+                webserver_send_header_redirect(nc, "/", "");
             }
             else if (mg_match(hm->uri, mg_str("/favicon.ico"), NULL)) {
-                webserver_send_header_redirect(nc, "/assets/appicon-192.png");
+                webserver_send_header_redirect(nc, "/assets/appicon-192.png", "");
             }
             else if (mg_match(hm->uri, mg_str("/ca.crt"), NULL)) {
                 request_handler_ca(nc, hm, mg_user_data);
@@ -943,7 +943,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
                 s_redirect = sdscatfmt(s_redirect, ":%i", config->ssl_port);
             }
             MYMPD_LOG_INFO(NULL, "Redirecting to %s", s_redirect);
-            webserver_send_header_redirect(nc, s_redirect);
+            webserver_send_header_found(nc, s_redirect, "");
             nc->is_draining = 1;
             sdsfreesplitres(tokens, count);
             FREE_SDS(host_header);

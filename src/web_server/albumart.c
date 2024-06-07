@@ -56,7 +56,7 @@ void webserver_send_albumart_redirect(struct mg_connection *nc, sds data) {
             : sdscatfmt(sdsempty(),"/albumart?offset=0&uri=");
         redirect_uri = sds_urlencode(redirect_uri, uri, sdslen(uri));
         MYMPD_LOG_DEBUG(NULL, "Sending redirect to: %s", redirect_uri);
-        webserver_send_header_found(nc, redirect_uri);
+        webserver_send_header_found(nc, redirect_uri, "");
         FREE_SDS(redirect_uri);
     }
     else {
@@ -183,7 +183,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
                     //use relative path to support hosting myMPD behind a reverse proxy in a subdir
                     sds redirect_uri = sdsnew("proxy-covercache?uri=");
                     redirect_uri = sds_urlencode(redirect_uri, extimg, sdslen(extimg));
-                    webserver_send_header_found(nc, redirect_uri);
+                    webserver_send_header_found(nc, redirect_uri, "");
                     FREE_SDS(redirect_uri);
                     FREE_SDS(uri);
                     FREE_SDS(coverfile);
