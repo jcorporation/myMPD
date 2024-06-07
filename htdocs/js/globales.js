@@ -1545,6 +1545,21 @@ uiElements.modalHomeIconLigatureDropdown = BSN.Dropdown.getInstance(elGetById('m
 uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('modalMountsNeighborsBtn'));
 
 const LUAfunctions = {
+    "mympd.cache_cover_write": {
+        "desc": "Write a file for the cover cache.",
+        "func": "local rc, filename = mympd.cache_cover_write(src, uri)",
+        "feat": ""
+    },
+    "mympd.cache_lyrics_write": {
+        "desc": "Write the lyrics entry object to the lyrics cache.",
+        "func": "local rc, filename = mympd.cache_lyrics_write(json.encode(entry), song_uri)",
+        "feat": ""
+    },
+    "mympd.cache_thumbs_write": {
+        "desc": "Write a file for the thumbs cache.",
+        "func": "local rc, filename =  = mympd.cache_thumbs_write(src, uri)",
+        "feat": ""
+    },
     "json.decode": {
         "desc": "Parses a Json string to a Lua table.",
         "func": "local data = json.decode(str)",
@@ -1553,11 +1568,6 @@ const LUAfunctions = {
     "json.encode": {
         "desc": "Encodes a Lua table as Json string.",
         "func": "local str = json.encode(data)",
-        "feat": ""
-    },
-    "mympd.covercache_write": {
-        "desc": "Write a file for the cover cache.",
-        "func": "local rc, filename = mympd.covercache_write(src, uri)",
         "feat": ""
     },
     "mympd.hash_sha1": {
@@ -1620,24 +1630,19 @@ const LUAfunctions = {
         "func": "mympd.log(loglevel, message)",
         "feat": ""
     },
-    "mympd.lyricscache_write": {
-        "desc": "Write the lyrics entry object to the lyrics cache.",
-        "func": "local rc, filename = mympd.lyricscache_write(json.encode(entry), song_uri)",
-        "feat": ""
-    },
     "mympd.tmp_file": {
         "desc": "Generates a random tmp filename for the misc cache.",
         "func": "local tmp_file = mympd.tmp_file()",
         "feat": ""
     },
-    "mympd.thumbscache_write": {
-        "desc": "Write a file for the thumbs cache.",
-        "func": "local rc, filename =  = mympd.thumbscache_write(src, uri)",
-        "feat": ""
-    },
     "mympd.urldecode": {
         "desc": "URL decodes a string.",
         "func": "local decoded = mympd.urlencode(string, false)",
+        "feat": ""
+    },
+    "mympd.update_mtime": {
+        "desc":	"Updates the timestamp of a file.",
+        "func": "local rc = mympd.update_mtime(filename)",
         "feat": ""
     },
     "mympd.urlencode": {

@@ -19,27 +19,54 @@
 #include <string.h>
 
 /**
+ * Updates the timestamp of a file
+ * @param lua_vm lua instance
+ * @return number of elements pushed to lua stack
+ */
+int lua_caches_update_mtime(lua_State *lua_vm) {
+    int n = lua_gettop(lua_vm);
+    if (n != 2) {
+        MYMPD_LOG_ERROR(NULL, "Lua - caches_update_mtime: Invalid number of arguments");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "Invalid number of arguments");
+    }
+    const char *filename = lua_tostring(lua_vm, 1);
+    if (filename == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - caches_update_mtime: filename is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "filename is NULL");
+    }
+
+    lua_pop(lua_vm, n);
+    if (update_mtime(filename) == true) {
+        lua_pushnumber(lua_vm, 0);
+    }
+    lua_pushnumber(lua_vm, 0);
+    return 1;
+}
+
+/**
  * Renames a file for the images cache
  * @param lua_vm lua instance
  * @return number of elements pushed to lua stack
  */
-int lua_util_imagescache_write(lua_State *lua_vm) {
+int lua_caches_images_write(lua_State *lua_vm) {
     struct t_config *config = get_lua_global_config(lua_vm);
     int n = lua_gettop(lua_vm);
     if (n != 3) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_imagescache_write: Invalid number of arguments");
+        MYMPD_LOG_ERROR(NULL, "Lua - caches_images_write: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *type = lua_tostring(lua_vm, 1);
     if (type == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_imagescache_write: type is NULL");
+        MYMPD_LOG_ERROR(NULL, "Lua - caches_images_write: type is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "type is NULL");
     }
     const char *src = lua_tostring(lua_vm, 2);
     if (src == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_imagescache_write: src is NULL");
+        MYMPD_LOG_ERROR(NULL, "Lua - caches_images_write: src is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "src is NULL");
     }
@@ -84,23 +111,23 @@ int lua_util_imagescache_write(lua_State *lua_vm) {
  * @param lua_vm lua instance
  * @return number of elements pushed to lua stack
  */
-int lua_util_lyricscache_write(lua_State *lua_vm) {
+int lua_caches_lyrics_write(lua_State *lua_vm) {
     struct t_config *config = get_lua_global_config(lua_vm);
     int n = lua_gettop(lua_vm);
     if (n != 2) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_lyricscache_write: Invalid number of arguments");
+        MYMPD_LOG_ERROR(NULL, "Lua - caches_lyrics_write: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
     const char *str = lua_tostring(lua_vm, 1);
     if (str == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_lyricscache_write: str is NULL");
+        MYMPD_LOG_ERROR(NULL, "Lua - caches_lyrics_write: str is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "str is NULL");
     }
     const char *uri = lua_tostring(lua_vm, 2);
     if (uri == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_lyricscache_write: uri is NULL");
+        MYMPD_LOG_ERROR(NULL, "Lua - caches_lyrics_write: uri is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "uri is NULL");
     }

@@ -932,6 +932,7 @@
 {"term":"Update of album cache failed"},
 {"term":"Update smart playlist"},
 {"term":"Updated album cache"},
+{"term":"Updates the timestamp of a file."},
 {"term":"Updating MPD database"},
 {"term":"Updating caches"},
 {"term":"Updating smart playlist %{playlist} failed"},

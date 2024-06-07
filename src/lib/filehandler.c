@@ -17,7 +17,25 @@
 #include <pwd.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
+#include <utime.h>
+
+/**
+ * Updates the timestamp of a file
+ * @param filename file to update the timestamp
+ * @return true on success, else false
+ */
+bool update_mtime(const char *filename) {
+    time_t mtime = time(NULL);
+    struct utimbuf new_times;
+    new_times.actime = mtime;
+    new_times.modtime = mtime;
+    if (utime(filename, &new_times) == 0) {
+        return true;
+    }
+    return false;
+}
 
 /**
  * Sets the owner of a file and group to the primary group of the user

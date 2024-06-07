@@ -11,7 +11,8 @@
 #include <lua.h>
 #include <lualib.h>
 
-int lua_util_imagescache_write(lua_State *lua_vm);
-int lua_util_lyricscache_write(lua_State *lua_vm);
+int lua_caches_images_write(lua_State *lua_vm);
+int lua_caches_lyrics_write(lua_State *lua_vm);
+int lua_caches_update_mtime(lua_State *lua_vm);
 
 #endif

@@ -1191,5 +1191,6 @@
     "Failure adding songs to jukebox queue": "Fehler beim Hinzufügen von Jukebox Liedern.",
     "Encodes a Lua table as Json string.": "Konvertiert eine Lua Tabelle zu JSON.",
     "Parses a Json string to a Lua table.": "Konvertiert JSON zu einer LUA Tabelle.",
-    "Serves a file from the filesystem. Only files from the diskcache are allowed.": "Liefert eine Datei per HTTP aus. Nur Dateien aus den Diskcaches sind erlaubt."
+    "Serves a file from the filesystem. Only files from the diskcache are allowed.": "Liefert eine Datei per HTTP aus. Nur Dateien aus den Diskcaches sind erlaubt.",
+    "Updates the timestamp of a file.": "Aktualisiert den Zeitstempel einer Datei."
 }

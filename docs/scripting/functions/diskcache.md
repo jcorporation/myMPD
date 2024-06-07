@@ -9,7 +9,7 @@ title: Disk caches
 Helper function to write (rename) a file to the cover cache. The source file must be on the same filesystem as the cache directory (default: `/var/cache/mympd/cover`).
 
 ```lua
-local rc, name = mympd.covercache_write(src, uri)
+local rc, name = mympd.cache_cover_write(src, uri)
 ```
 
 **Parameters:**
@@ -33,7 +33,7 @@ local rc, name = mympd.covercache_write(src, uri)
 Helper function to write a entry (file) to the lyrics cache (default: `/var/cache/mympd/lyrics`).
 
 ```lua
-local rc, name = mympd.mympd.lyricscache_write(str, uri)
+local rc, name = mympd.mympd.cache_lyrics_write(str, uri)
 ```
 
 **Parameters:**
@@ -57,7 +57,7 @@ local rc, name = mympd.mympd.lyricscache_write(str, uri)
 Helper function to write (rename) a file to the thumbs cache. The source file must be on the same filesystem as the cache directory (default: `/var/cache/mympd/thumbs`).
 
 ```lua
-local rc, name = mympd.thumbscache_write(src, value)
+local rc, name = mympd.cache_thumbs_write(src, value)
 ```
 
 **Parameters:**
@@ -82,4 +82,15 @@ Generates a random tmp filename for the misc cache (default: `/var/cache/mympd/m
 
 ```lua
 local tmp_file = mympd.tmp_file()
+```
+
+## Modification time
+
+Updates the timestamp of a file.
+
+```lua
+local rc = mympd.mympd_caches_update_mtime(filename)
+if rc == 1 then
+    mympd.log(4, "Failure changing modification time of " .. filename)
+fi
 ```

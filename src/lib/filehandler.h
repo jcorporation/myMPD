@@ -25,7 +25,7 @@ enum try_rm_file_status {
     RM_FILE_ERROR = 2
 };
 
-
+bool update_mtime(const char *filename);
 bool do_chown(const char *file_path, const char *username);
 time_t get_mtime(const char *filepath);
 
