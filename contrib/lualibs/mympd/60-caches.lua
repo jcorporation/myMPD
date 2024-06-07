@@ -2,16 +2,18 @@
 --- myMPD functions for caches
 ---
 
+local rand_charset = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
+local rand_charset_len = #rand_charset
+math.randomseed(os.time())
+
 --- Generates a random tmp filename for the misc cache
 -- @return temp filename
 function mympd.tmp_file()
-    local charset = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
-    math.randomseed(os.time())
     local ret = {}
     local r
     for _ = 1, 10 do
-      r = math.random(1, #charset)
-      table.insert(ret, charset:sub(r, r))
+      r = math.random(1, rand_charset_len)
+      table.insert(ret, rand_charset:sub(r, r))
     end
     return mympd_env.cachedir_misc .. "/" .. table.concat(ret) .. ".tmp"
   end
