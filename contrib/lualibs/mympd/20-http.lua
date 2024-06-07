@@ -5,7 +5,7 @@
 -- @param payload Payload to send (POST only)
 -- @return rc 0 for success, else 1
 -- @return HTTP status code
--- @return HTTP Headers
+-- @return HTTP Headers as Lua table
 -- @return HTTP Body
 function mympd.http_client(method, uri, headers, payload)
   local rc, code, header, body = mympd_http_client(method, uri, headers, payload)

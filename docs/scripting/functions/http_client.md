@@ -9,7 +9,10 @@ title: HTTP client
 ```lua
 local rc, code, header, body = mympd.http_client(method, uri, headers, payload)
 if rc == 0 then
-  -- Success
+  -- Success, iterate through headers
+  for name, value in pairs(header) do
+    -- Do something
+  end
 else
   -- Error case
 end

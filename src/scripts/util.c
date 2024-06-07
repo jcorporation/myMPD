@@ -13,7 +13,6 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
-#include "src/scripts/api_scripts.h"
 #include "src/scripts/api_vars.h"
 
 // Private definitions

@@ -68,16 +68,14 @@ int lua_http_client(lua_State *lua_vm) {
     lua_pop(lua_vm, n);
     lua_pushinteger(lua_vm, mg_client_response.rc);
     lua_pushinteger(lua_vm, mg_client_response.response_code);
-    sds headers = sdsempty();
+    lua_newtable(lua_vm);
     struct t_list_node *current = mg_client_response.header.head;
     while (current != NULL) {
-        headers = sdscatfmt(headers, "%S: %S\n", current->key, current->value_p);
+        populate_lua_table_field_p(lua_vm, current->key, current->value_p);
         current = current->next;
     }
-    lua_pushlstring(lua_vm, headers, sdslen(headers));
     lua_pushlstring(lua_vm, mg_client_response.body, sdslen(mg_client_response.body));
     http_client_response_clear(&mg_client_response);
-    FREE_SDS(headers);
     //return response count
     return 4;
 }
