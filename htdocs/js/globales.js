@@ -1557,7 +1557,7 @@ const LUAfunctions = {
     },
     "mympd.covercache_write": {
         "desc": "Write a file for the cover cache.",
-        "func": "local filename = mympd.covercache_write(src, uri)",
+        "func": "local rc, filename = mympd.covercache_write(src, uri)",
         "feat": ""
     },
     "mympd.hash_sha1": {
@@ -1572,7 +1572,12 @@ const LUAfunctions = {
     },
     "mympd.http_client": {
         "desc": "HTTP client",
-        "func": "local rc, code, header, body = mympd.http_client(method, uri, headers, payload)",
+        "func": "local rc, code, headers, body = mympd.http_client(method, uri, headers, payload)",
+        "feat": ""
+    },
+    "mympd.http_download": {
+        "desc": "HTTP download",
+        "func": "local rc, code, headers = mympd.http_download(uri, out)",
         "feat": ""
     },
     "mympd.http_jsonrpc_error": {
@@ -1588,11 +1593,6 @@ const LUAfunctions = {
     "mympd.http_jsonrpc_warn": {
         "desc": "Sends a JSONRPC 2.0 warning.",
         "func": "mympd.http_jsonrpc_warn(method, msg)",
-        "feat": ""
-    },
-    "mympd.http_download": {
-        "desc": "HTTP download",
-        "func": "local rc = mympd.http_download(uri, out)",
         "feat": ""
     },
     "mympd.http_redirect": {
@@ -1622,7 +1622,7 @@ const LUAfunctions = {
     },
     "mympd.lyricscache_write": {
         "desc": "Write the lyrics entry object to the lyrics cache.",
-        "func": "mympd.lyricscache_write(json.encode(entry), song_uri)",
+        "func": "local rc, filename = mympd.lyricscache_write(json.encode(entry), song_uri)",
         "feat": ""
     },
     "mympd.tmp_file": {
@@ -1632,7 +1632,7 @@ const LUAfunctions = {
     },
     "mympd.thumbscache_write": {
         "desc": "Write a file for the thumbs cache.",
-        "func": "local filename = mympd.thumbscache_write(src, uri)",
+        "func": "local rc, filename =  = mympd.thumbscache_write(src, uri)",
         "feat": ""
     },
     "mympd.urldecode": {

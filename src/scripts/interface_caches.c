@@ -54,28 +54,35 @@ int lua_util_imagescache_write(lua_State *lua_vm) {
     const char *ext = get_ext_by_mime_type(mime_type);
     if (ext == NULL) {
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "Unknown filetype");
+        lua_pushnumber(lua_vm, 1);
+        lua_pushstring(lua_vm, "Unknown filetype");
+        return 2;
     }
     sds dst = cache_disk_images_get_basename(config->cachedir, type, uri, 0);
     dst = sdscatfmt(dst, ".%s", ext);
     lua_pop(lua_vm, n);
     if (is_image(dst) == false) {
         FREE_SDS(dst);
-        return luaL_error(lua_vm, "File is not an image");
+        lua_pushnumber(lua_vm, 1);
+        lua_pushstring(lua_vm, "File is not an image");
+        return 2;
     }
     if (rename_file(src, dst) == false) {
         FREE_SDS(dst);
-        return luaL_error(lua_vm, "Failure renaming file");
+        lua_pushnumber(lua_vm, 1);
+        lua_pushstring(lua_vm, "Failure renaming file");
+        return 2;
     }
+    lua_pushnumber(lua_vm, 0);
     lua_pushstring(lua_vm, dst);
     FREE_SDS(dst);
-    return 1;
+    return 2;
 }
 
 /**
  * Writes a file to the lyrics cache
  * @param lua_vm lua instance
- * @return number of elements pushes to lua stack
+ * @return number of elements pushed to lua stack
  */
 int lua_util_lyricscache_write(lua_State *lua_vm) {
     struct t_config *config = get_lua_global_config(lua_vm);
@@ -101,9 +108,12 @@ int lua_util_lyricscache_write(lua_State *lua_vm) {
     sds filename = cache_disk_lyrics_write_file(config->cachedir, uri, str);
     lua_pop(lua_vm, n);
     if (filename == NULL) {
-        return luaL_error(lua_vm, "Failure saving file");
+        lua_pushnumber(lua_vm, 1);
+        lua_pushstring(lua_vm, "Failure saving file");
+        return 2;
     }
+    lua_pushnumber(lua_vm, 0);
     lua_pushstring(lua_vm, filename);
     FREE_SDS(filename);
-    return 1;
+    return 2;
 }

@@ -131,10 +131,17 @@ int lua_http_download(lua_State *lua_vm) {
     {
         rc = 0;
     }
-    http_client_response_clear(&mg_client_response);
     lua_pop(lua_vm, n);
     lua_pushinteger(lua_vm, rc);
-    return 1;
+    lua_pushinteger(lua_vm, mg_client_response.response_code);
+    lua_newtable(lua_vm);
+    struct t_list_node *current = mg_client_response.header.head;
+    while (current != NULL) {
+        populate_lua_table_field_p(lua_vm, current->key, current->value_p);
+        current = current->next;
+    }
+    http_client_response_clear(&mg_client_response);
+    return 3;
 }
 
 /**

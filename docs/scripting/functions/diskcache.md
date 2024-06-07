@@ -6,10 +6,10 @@ title: Disk caches
 
 ## Cover cache
 
-Helper function to write (rename) a file to the cover cache. The source file must be on the same filesystem as the cover cache directory (default: `/var/cache/mympd/cover`).
+Helper function to write (rename) a file to the cover cache. The source file must be on the same filesystem as the cache directory (default: `/var/cache/mympd/cover`).
 
 ```lua
-local rc = mympd.covercache_write(src, uri)
+local rc, name = mympd.covercache_write(src, uri)
 ```
 
 **Parameters:**
@@ -22,14 +22,18 @@ local rc = mympd.covercache_write(src, uri)
 
 **Returns:**
 
-0 on success.
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| rc | integer | 0 = success, 1 = error |
+| name | string | written filename |
+{: .table .table-sm }
 
 ## Lyrics cache
 
 Helper function to write a entry (file) to the lyrics cache (default: `/var/cache/mympd/lyrics`).
 
 ```lua
-local rc = mympd.mympd.lyricscache_write(str, uri)
+local rc, name = mympd.mympd.lyricscache_write(str, uri)
 ```
 
 **Parameters:**
@@ -37,19 +41,23 @@ local rc = mympd.mympd.lyricscache_write(str, uri)
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
 | str | string | String to save (it must be a valid lyrics json string) |
-| tagvalue | string | Tag value to write the thumbs cache for. |
+| uri | string | Uri to write the lyrics cache for. |
 {: .table .table-sm }
 
 **Returns:**
 
-0 on success.
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| rc | integer | 0 = success, 1 = error |
+| name | string | written filename |
+{: .table .table-sm }
 
 ## Thumbs cache
 
-Helper function to write (rename) a file to the thumbs cache. The source file must be on the same filesystem as the covercache directory (default: `/var/cache/mympd/thumbs`).
+Helper function to write (rename) a file to the thumbs cache. The source file must be on the same filesystem as the cache directory (default: `/var/cache/mympd/thumbs`).
 
 ```lua
-local rc = mympd.thumbscache_write(src, uri)
+local rc, name = mympd.thumbscache_write(src, value)
 ```
 
 **Parameters:**
@@ -57,12 +65,16 @@ local rc = mympd.thumbscache_write(src, uri)
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
 | src | string | Source file to rename. |
-| tagvalue | string | Tag value to write the thumbs cache for. |
+| value | string | Tag value to write the thumbs cache for. |
 {: .table .table-sm }
 
 **Returns:**
 
-0 on success.
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| rc | integer | 0 = success, 1 = error |
+| name | string | written filename |
+{: .table .table-sm }
 
 ## Temporary files
 
