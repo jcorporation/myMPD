@@ -357,25 +357,25 @@ void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholde
     struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
     switch (placeholder_type) {
         case PLACEHOLDER_NA:
-            webserver_send_header_found(nc, mg_user_data->placeholder_na, "");
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_na, "");
             break;
         case PLACEHOLDER_STREAM:
-            webserver_send_header_found(nc, mg_user_data->placeholder_stream, "");
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_stream, "");
             break;
         case PLACEHOLDER_MYMPD:
-            webserver_send_header_found(nc, mg_user_data->placeholder_mympd, "");
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_mympd, "");
             break;
         case PLACEHOLDER_BOOKLET:
-            webserver_send_header_found(nc, mg_user_data->placeholder_booklet, "");
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_booklet, "");
             break;
         case PLACEHOLDER_PLAYLIST:
-            webserver_send_header_found(nc, mg_user_data->placeholder_playlist, "");
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_playlist, "");
             break;
         case PLACEHOLDER_SMARTPLS:
-            webserver_send_header_found(nc, mg_user_data->placeholder_smartpls, "");
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_smartpls, "");
             break;
         case PLACEHOLDER_FOLDER:
-            webserver_send_header_found(nc, mg_user_data->placeholder_folder, "");
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_folder, "");
             break;
     }
 }
