@@ -311,8 +311,14 @@ lualibs() {
     echo_error "luac not found"
     exit 1
   fi
-  $LUAC -s -o "$MYMPD_BUILDDIR/contrib/lualibs/mympd.luac" "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
-  $LUAC -s -o "$MYMPD_BUILDDIR/contrib/lualibs/json.luac" "$MYMPD_BUILDDIR/contrib/lualibs/json.lua"
+  if ! $LUAC -s -o "$MYMPD_BUILDDIR/contrib/lualibs/mympd.luac" "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  then
+    exit 1
+  fi
+  if ! $LUAC -s -o "$MYMPD_BUILDDIR/contrib/lualibs/json.luac" "$MYMPD_BUILDDIR/contrib/lualibs/json.lua"
+  then
+    exit 1
+  fi
 }
 
 buildrelease() {
