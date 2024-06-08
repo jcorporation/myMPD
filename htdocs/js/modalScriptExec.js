@@ -31,6 +31,7 @@ function parseArgument(name, value, defaultValue) {
         defaultValue = '';
     }
     switch(value) {
+        case 'hidden':
         case 'text':
         case 'password':
         case 'checkbox':
@@ -68,15 +69,21 @@ function scriptArgsToForm(container, scriptArguments, values) {
                 ? values[label]
                 : ''
             : '';
-        const input = match.length === 1
-            ? parseArgument(scriptArguments[i], 'text', value)
-            : parseArgument(match[0], match[1], value);
-        container.appendChild(
-            elCreateNodes('div', {"class": ["form-group", "row", "mb-3"]}, [
-                elCreateText('label', {"class": ["col-sm-4", "col-form-label"]}, label),
-                elCreateNode('div', {"class": ["col-sm-8"]}, input)
-            ])
-        );
+        if (match.length === 1) {
+            match.push('text');
+        }
+        const input = parseArgument(match[0], match[1], value);
+        if (match[1] === 'hidden') {
+            container.appendChild(input);
+        }
+        else {
+            container.appendChild(
+                elCreateNodes('div', {"class": ["form-group", "row", "mb-3"]}, [
+                    elCreateText('label', {"class": ["col-sm-4", "col-form-label"]}, label),
+                    elCreateNode('div', {"class": ["col-sm-8"]}, input)
+                ])
+            );
+        }
     }
 }
 
@@ -111,9 +118,9 @@ function createScriptDialogEl(data) {
     }
     switch(data.type) {
         case 'text':
-            return elCreateEmpty('input', {"name": data.name, "value": data.value, "type": "text", "class": ["form-control"]});
         case 'password':
-            return elCreateEmpty('input', {"name": data.name, "value": data.value, "type": "password", "class": ["form-control"]});
+        case 'hidden':
+            return elCreateEmpty('input', {"name": data.name, "value": data.value, "type": data.type, "class": ["form-control"]});
         case 'checkbox': {
             const btn = elCreateText('button', {"name": data.name, "type": "button", "data-value": "true",
                 "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]}, "radio_button_unchecked");
@@ -129,8 +136,11 @@ function createScriptDialogEl(data) {
         case 'select': {
             const sel = elCreateEmpty('select', {"name": data.name, "class": ["form-select"]});
             for (let i = 0; i < data.value.length; i++) {
+                const title = data.displayValue && data.displayValue[i]
+                    ? data.displayValue[i]
+                    : data.value[i];
                 sel.appendChild(
-                    elCreateText('option', {"value": data.value[i]}, data.value[i])
+                    elCreateText('option', {"value": data.value[i]}, title)
                 );
             }
             if (data.defaultValue !== '') {
@@ -141,10 +151,13 @@ function createScriptDialogEl(data) {
         case 'radio': {
             const radios = [];
             for (let i = 0; i < data.value.length; i++) {
+                const title = data.displayValue && data.displayValue[i]
+                    ? data.displayValue[i]
+                    : data.value[i];
                 radios.push(
                     elCreateNodes('div', {"class": ["form-check"]}, [
                         elCreateEmpty('input', {"name": data.name, "value": data.value[i], "type": "radio", "class": ["form-check-input", "ms-0", "me-3"]}),
-                        elCreateText('label', {"class": ["form-check-label"]}, data.value[i])
+                        elCreateText('label', {"class": ["form-check-label"]}, title)
                     ])
                 );
                 if (data.defaultValue === data.value[i]) {
@@ -156,9 +169,12 @@ function createScriptDialogEl(data) {
         case 'list': {
             const rows = [];
             for (let i = 0; i < data.value.length; i++) {
+                const title = data.displayValue && data.displayValue[i]
+                    ? data.displayValue[i]
+                    : data.value[i];
                 rows.push(
                     elCreateNodes('li', {"data-value": data.value[i], "class": ["list-group-item", "d-flex", "justify-content-between", "align-items-start", "clickable"]}, [
-                        elCreateText('span', {}, data.value[i]),
+                        elCreateText('span', {}, title),
                         pEl.selectBtn.cloneNode(true)
                     ])
                 );
@@ -196,12 +212,17 @@ function scriptDialogToForm(container, data) {
     elClear(container);
     for (let i = 0, j = data.length; i < j; i++) {
         const input = createScriptDialogEl(data[i]);
-        container.appendChild(
-            elCreateNodes('div', {"class": ["form-group", "row", "mb-3"]}, [
-                elCreateText('label', {"class": ["col-sm-4", "col-form-label"]}, data[i].name),
-                elCreateNode('div', {"class": ["col-sm-8"]}, input)
-            ])
-        );
+        if (data[i].type === 'hidden') {
+            container.appendChild(input);
+        }
+        else {
+            container.appendChild(
+                elCreateNodes('div', {"class": ["form-group", "row", "mb-3"]}, [
+                    elCreateText('label', {"class": ["col-sm-4", "col-form-label"]}, data[i].name),
+                    elCreateNode('div', {"class": ["col-sm-8"]}, input)
+                ])
+            );
+        }
     }
 }
 

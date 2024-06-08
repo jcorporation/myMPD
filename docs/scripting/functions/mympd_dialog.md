@@ -11,8 +11,9 @@ local title = "Script title"
 local data = {
   { name = "testinput", type = "text", value = "testvalue" },
   { name = "testpassword", type = "password", value = "" },
+  { name = "action", type = "hidden", value = "test" },
   { name = "testcheckbox", type = "checkbox", value = false },
-  { name = "testradio", type = "radio", value = { "radio1", "radio2" }, defaultValue = "radio2" },
+  { name = "testradio", type = "radio", value = { "radio1", "radio2" }, displayValue = { "Radio 1", "Radio 2" }, defaultValue = "radio2" },
   { name = "testselect", type = "select", value = { "option1", "option2" }, defaultValue = "option1" },
   { name = "testlist", type = "list", value = { "val1", "val2", "val3" }, defaultValue = "" }
 }
@@ -40,6 +41,7 @@ A Jsonrpc string with method `script_dialog`.
 | name | Name of the form element. |
 | type | Type of the form element. |
 | value | The value(s) of the form element. |
+| displayValue | The display values of the form element, only valid for `select`, `radio` and `list`. |
 | defaultValue | The defaultValue of the form element. |
 {: .table .table-sm }
 
@@ -51,6 +53,7 @@ A Jsonrpc string with method `script_dialog`.
 | select | Selectbox with multiple options. |
 | radio | Radios |
 | list | List of elements to select from. Selected items are separated by `;;` |
+| hidden | Hidden input field. |
 {: .table .table-sm }
 
 These are the same types as for script arguments.

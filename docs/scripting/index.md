@@ -52,6 +52,7 @@ Arguments can be defined as simple names (text input field) or with typical html
 | ---------- | ----------- |
 | `<argument>\|text` | Text input field. |
 | `<argument>\|password` | Password input field. |
+| `<argument>\|hidden` | Hidden input field. |
 | `<argument>\|select;opt1;opt2;opt3` | Selectbox, options are separated by semicolon. |
 | `<argument>\|checkbox`| Simple checkbox, returns the string `true` if checked. |
 | `<argument>\|radio;r1;r2;r3` | Radioboxes, returns the selected option. Options are separated by semicolon. |
