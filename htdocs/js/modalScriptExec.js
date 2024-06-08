@@ -103,6 +103,7 @@ function execScript(cmd) {
     else {
         scriptArgsToForm(elGetById('modalScriptExecArgumentsList'), cmd.arguments);
         elGetById('modalScriptExecScriptnameInput').value = cmd.script;
+        elGetById('modalScrtipExecTitle').textContent = tn('Execute script');
         uiElements.modalScriptExec.show();
     }
 }
@@ -234,6 +235,7 @@ function scriptDialogToForm(container, data) {
 function showScriptDialog(params) {
     scriptDialogToForm(elGetById('modalScriptExecArgumentsList'), params.data);
     elGetById('modalScriptExecScriptnameInput').value = params.callback;
+    elGetById('modalScrtipExecTitle').textContent = params.message;
     uiElements.modalScriptExec.show();
 }
 
