@@ -60,6 +60,7 @@ There are also new triggers introduced:
   - Jukebox interface
   - HTTP client follows now redirects
   - HTTP download function
+  - Dialogs
 - Feat: Set custom variables for scripts #1265
 - Feat: New triggers #1288
 - Feat: Use EC private keys for SSL certificates
