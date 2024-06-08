@@ -88,7 +88,7 @@ int lua_http_client(lua_State *lua_vm) {
 int lua_http_download(lua_State *lua_vm) {
     struct t_config *config = get_lua_global_config(lua_vm);
     int n = lua_gettop(lua_vm);
-    if (n != 2) {
+    if (n != 3) {
         MYMPD_LOG_ERROR(NULL, "Lua - http_download: invalid number of arguments: %d", n);
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
@@ -99,7 +99,13 @@ int lua_http_download(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "uri is NULL");
     }
-    const char *out = lua_tostring(lua_vm, 2);
+    const char *extra_headers = lua_tostring(lua_vm, 2);
+    if (extra_headers == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - http_client: extra_headers is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "extra_headers is NULL");
+    }
+    const char *out = lua_tostring(lua_vm, 3);
     if (out == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - http_download: out is NULL");
         lua_pop(lua_vm, n);
@@ -117,7 +123,7 @@ int lua_http_download(lua_State *lua_vm) {
     struct mg_client_request_t mg_client_request = {
         .method = "GET",
         .uri = uri,
-        .extra_headers = "",
+        .extra_headers = extra_headers,
         .post_data = ""
     };
 
