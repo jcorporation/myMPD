@@ -18,3 +18,22 @@ function mympd.api(method, params)
   end
   return rc, result["error"]
 end
+
+--- Returns an Jsonrpc response for a script dialog.
+-- @param title Dialog title
+-- @param data Dialog definition
+-- @param callback Script to call for the submit button
+-- @return Jsonrpc response
+function mympd.dialog(title, data, callback)
+  return json.encode({
+    jsonrpc = "2.0",
+    method = "script_dialog",
+    params = {
+      facility = "script",
+      severity = "info",
+      message = title,
+      data = data,
+      callback = callback
+    }
+  })
+end

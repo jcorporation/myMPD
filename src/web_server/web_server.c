@@ -224,6 +224,7 @@ static void read_queue(struct mg_mgr *mgr) {
     struct t_work_response *response;
     while ((response = mympd_queue_shift(web_server_queue, -1, 0)) != NULL) {
         switch(response->type) {
+            case RESPONSE_TYPE_SCRIPT_DIALOG:
             case RESPONSE_TYPE_NOTIFY_CLIENT:
                 //websocket notify for specific clients
                 send_ws_notify_client(mgr, response);

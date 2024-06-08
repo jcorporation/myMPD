@@ -239,7 +239,8 @@ enum work_response_types {
     RESPONSE_TYPE_PUSH_CONFIG,       //!< Internal message from myMPD API thread to webserver thread to push the configuration
     RESPONSE_TYPE_SCRIPT,            //!< Respond is for the script thread
     RESPONSE_TYPE_DISCARD,           //!< Response will be discarded
-    RESPONSE_TYPE_RAW                //!< Raw http message
+    RESPONSE_TYPE_RAW,               //!< Raw http message
+    RESPONSE_TYPE_SCRIPT_DIALOG      //!< Script dialog
 };
 
 /**
@@ -303,6 +304,7 @@ bool is_script_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
 void ws_notify(sds message, const char *partition);
 void ws_notify_client(sds message, unsigned request_id);
+void ws_script_dialog(sds message, unsigned request_id);
 struct t_work_response *create_response(struct t_work_request *request);
 struct t_work_response *create_response_new(enum work_response_types type, unsigned long conn_id,
         unsigned request_id, enum mympd_cmd_ids cmd_id, const char *partition);

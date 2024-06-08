@@ -1545,6 +1545,16 @@ uiElements.modalHomeIconLigatureDropdown = BSN.Dropdown.getInstance(elGetById('m
 uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('modalMountsNeighborsBtn'));
 
 const LUAfunctions = {
+    "json.decode": {
+        "desc": "Parses a Json string to a Lua table.",
+        "func": "local data = json.decode(str)",
+        "feat": ""
+    },
+    "json.encode": {
+        "desc": "Encodes a Lua table as Json string.",
+        "func": "local str = json.encode(data)",
+        "feat": ""
+    },
     "mympd.cache_cover_write": {
         "desc": "Write a file for the cover cache.",
         "func": "local rc, filename = mympd.cache_cover_write(src, uri)",
@@ -1560,14 +1570,9 @@ const LUAfunctions = {
         "func": "local rc, filename =  = mympd.cache_thumbs_write(src, uri)",
         "feat": ""
     },
-    "json.decode": {
-        "desc": "Parses a Json string to a Lua table.",
-        "func": "local data = json.decode(str)",
-        "feat": ""
-    },
-    "json.encode": {
-        "desc": "Encodes a Lua table as Json string.",
-        "func": "local str = json.encode(data)",
+    "mympd.dialog": {
+        "desc": "Returns an Jsonrpc response for a script dialog.",
+        "func": "return mympd.dialog(title, data, callback)",
         "feat": ""
     },
     "mympd.hash_sha1": {
@@ -1592,17 +1597,17 @@ const LUAfunctions = {
     },
     "mympd.http_jsonrpc_error": {
         "desc": "Sends a JSONRPC 2.0 error.",
-        "func": "mympd.http_jsonrpc_error(method, msg)",
+        "func": "return mympd.http_jsonrpc_error(method, msg)",
         "feat": ""
     },
     "mympd.http_jsonrpc_response": {
         "desc": "Sends a JSONRPC 2.0 response.",
-        "func": "mympd.http_jsonrpc_response(obj)",
+        "func": "return mympd.http_jsonrpc_response(obj)",
         "feat": ""
     },
     "mympd.http_jsonrpc_warn": {
         "desc": "Sends a JSONRPC 2.0 warning.",
-        "func": "mympd.http_jsonrpc_warn(method, msg)",
+        "func": "return mympd.http_jsonrpc_warn(method, msg)",
         "feat": ""
     },
     "mympd.http_redirect": {
@@ -1674,6 +1679,16 @@ const LUAfunctions = {
         "desc": "Toggles the active state of a GPIO.",
         "func": "local rc = mygpio_gpio_toggle(mympd.mygpiod_socket, gpio)",
         "feat": "featMygpiod"
+    },
+    "mympd.notify_client": {
+        "desc": "Sends a notification to the client that started this script.",
+        "func": "mympd.notify_client(severity, message)",
+        "feat": ""
+    },
+    "mympd.notify_partition": {
+        "desc": "Sends a notification to all clients in the current partition.",
+        "func": "mympd.notify_partition(severity, message)",
+        "feat": ""
     }
 };
 

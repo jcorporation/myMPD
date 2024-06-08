@@ -205,6 +205,9 @@ function webSocketConnect() {
             case 'notify':
                 showNotification(tn(obj.params.message, obj.params.data), obj.params.facility, obj.params.severity);
                 break;
+            case 'script_dialog': 
+                showScriptDialog(obj.params);
+                break;
             default:
                 logDebug('Unknown websocket notification: ' + obj.method);
                 break;

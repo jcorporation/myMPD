@@ -55,6 +55,7 @@ Arguments can be defined as simple names (text input field) or with typical html
 | `<argument>\|select;opt1;opt2;opt3` | Selectbox, options are separated by semicolon. |
 | `<argument>\|checkbox`| Simple checkbox, returns the string `true` if checked. |
 | `<argument>\|radio;r1;r2;r3` | Radioboxes, returns the selected option. Options are separated by semicolon. |
+| `<argument>\|list;r1;r2;r3` | List of values, returns the selected values separated by `;;`. Values are separated by semicolon. |
 {: .table .table-sm }
 
 ### myMPD state

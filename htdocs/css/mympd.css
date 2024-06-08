@@ -87,6 +87,7 @@ body.mobile > footer > nav {
   color: var(--mympd-highlightcolor-contrast) !important;
 }
 
+li.active > button,
 button.active,
 .btn-success,
 .btn-success:focus,

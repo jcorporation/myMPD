@@ -143,7 +143,7 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
  */
 void ws_notify(sds message, const char *partition) {
     MYMPD_LOG_DEBUG(partition, "Push websocket notify to queue: \"%s\"", message);
-    struct t_work_response *response = create_response_new(RESPONSE_TYPE_NOTIFY_PARTITION,0, 0, INTERNAL_API_WEBSERVER_NOTIFY, partition);
+    struct t_work_response *response = create_response_new(RESPONSE_TYPE_NOTIFY_PARTITION, 0, 0, INTERNAL_API_WEBSERVER_NOTIFY, partition);
     response->data = sds_replace(response->data, message);
     mympd_queue_push(web_server_queue, response, 0);
 }
@@ -156,6 +156,13 @@ void ws_notify(sds message, const char *partition) {
 void ws_notify_client(sds message, unsigned request_id) {
     MYMPD_LOG_DEBUG(NULL, "Push websocket notify to queue: \"%s\"", message);
     struct t_work_response *response = create_response_new(RESPONSE_TYPE_NOTIFY_CLIENT, 0, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);
+    response->data = sds_replace(response->data, message);
+    mympd_queue_push(web_server_queue, response, 0);
+}
+
+void ws_script_dialog(sds message, unsigned request_id) {
+    MYMPD_LOG_DEBUG(NULL, "Push websocket notify to queue: \"%s\"", message);
+    struct t_work_response *response = create_response_new(RESPONSE_TYPE_SCRIPT_DIALOG, 0, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);
     response->data = sds_replace(response->data, message);
     mympd_queue_push(web_server_queue, response, 0);
 }
@@ -262,6 +269,7 @@ bool push_response(struct t_work_response *response) {
         case RESPONSE_TYPE_NOTIFY_CLIENT:
         case RESPONSE_TYPE_NOTIFY_PARTITION:
         case RESPONSE_TYPE_PUSH_CONFIG:
+        case RESPONSE_TYPE_SCRIPT_DIALOG:
             MYMPD_LOG_DEBUG(NULL, "Push response to webserver queue for connection %lu: %s", response->conn_id, response->data);
             return mympd_queue_push(web_server_queue, response, 0);
         case RESPONSE_TYPE_RAW:
