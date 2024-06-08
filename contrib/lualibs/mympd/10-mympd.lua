@@ -1,4 +1,6 @@
 --- Populate the global mympd_state lua table
+-- @return 0 for success, else 1
+-- @return jsonrpc result for success, else error
 function mympd.init()
   return mympd.api("INTERNAL_API_SCRIPT_INIT")
 end
@@ -7,7 +9,7 @@ end
 -- @param method
 -- @param params
 -- @return 0 for success, else 1
--- @return jsonrpc result
+-- @return jsonrpc result for success, else error
 function mympd.api(method, params)
   local rc, raw_result = mympd_api(mympd_env.partition, method, json.encode(params))
   local result = json.decode(raw_result)
