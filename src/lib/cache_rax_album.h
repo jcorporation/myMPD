@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_ALBUM_CACHE_H
-#define MYMPD_ALBUM_CACHE_H
+#ifndef MYMPD_CACHE_RAX_ALBUM_H
+#define MYMPD_CACHE_RAX_ALBUM_H
 
 #include "dist/sds/sds.h"
 #include "src/lib/cache_rax.h"

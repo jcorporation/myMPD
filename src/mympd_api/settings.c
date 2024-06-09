@@ -8,8 +8,8 @@
 #include "src/mympd_api/settings.h"
 
 #include "dist/mjson/mjson.h"
-#include "src/lib/album_cache.h"
 #include "src/lib/api.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/convert.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"

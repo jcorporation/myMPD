@@ -8,7 +8,7 @@
 #include "src/mpd_client/tags.h"
 
 #include "dist/libmympdclient/src/isong.h"
-#include "src/lib/album_cache.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/convert.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"

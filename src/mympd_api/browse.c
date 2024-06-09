@@ -8,7 +8,7 @@
 #include "src/mympd_api/browse.h"
 
 #include "dist/utf8/utf8.h"
-#include "src/lib/album_cache.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/fields.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"

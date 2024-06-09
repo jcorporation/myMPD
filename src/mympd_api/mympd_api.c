@@ -7,7 +7,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/mympd_api.h"
 
-#include "src/lib/album_cache.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/event.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/last_played.h"

@@ -7,8 +7,8 @@
 #include "compile_time.h"
 #include "src/mympd_api/mympd_api_handler.h"
 
-#include "src/lib/album_cache.h"
 #include "src/lib/api.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"

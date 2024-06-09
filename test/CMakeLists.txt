@@ -8,9 +8,9 @@ configure_file(utility.h.in "${PROJECT_BINARY_DIR}/test/utility.h")
 set(TEST_SOURCES
   main.c
   utility.c
-  ../src/lib/album_cache.c
-  ../src/lib/api.c
+    ../src/lib/api.c
   ../src/lib/cache_disk_lyrics.c
+  ../src/lib/cache_rax_album.c
   ../src/lib/cache_rax.c
   ../src/lib/cert.c
   ../src/lib/config.c

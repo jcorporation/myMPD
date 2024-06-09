@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/album_cache.h"
+#include "src/lib/cache_rax_album.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/libmympdclient/src/isong.h"
