@@ -2253,7 +2253,7 @@
 <!-- Modal variables end -->
 <!-- Modal scripts start -->
   <div class="modal fade" id="modalScripts" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="mi title-icon">code</span> <span data-phrase="Scripts"></span></h5>
@@ -2320,18 +2320,7 @@
                   </div>
                 </div>
                 <div class="btn-group mt-2 me-2">
-                  <button id="modalScriptsImportBtn" data-title-phrase="Import script" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">cloud_download</button>
-                  <div class="dropdown-menu px-2" id="modalScriptsImportDropdown">
-                    <form>
-                      <div class="input-group">
-                        <select class="form-select" id="modalScriptsImportSelect"></select>
-                        <button class="btn btn-success mi" data-href='{"cmd":"importScript","options":["event"]}' data-title-phrase="Add">add</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-                <div class="btn-group mt-2 me-2">
-                  <button data-title-phrase="Validate" id="modalScriptsImportScriptBtn" data-href='{"cmd":"validateScript","options":["target"]}' type="button" class="btn btn-secondary mi">check</button>
+                  <button data-title-phrase="Validate" data-href='{"cmd":"validateScript","options":["target"]}' type="button" class="btn btn-secondary mi">check</button>
                 </div>
               </div>
             </div>
@@ -2348,11 +2337,17 @@
                 </table>
               </div>
             </div>
+            <div class="tab-pane active" id="modalScriptsImportTab">
+              <ul id="modalScriptsImportList" class="list-group clickable"></ul>
+            </div>
           </div>
         </div>
         <div id="modalScriptsListFooter" class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
+          <div>
+            <button data-href='{"cmd":"showImportScript","options":["",""]}' class="btn btn-success protected me-2" data-phrase="Import"></button>
+            <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
+          </div>
         </div>
         <div id="modalScriptsEditFooter" class="modal-footer justify-content-between d-none">
           <div>
@@ -2360,6 +2355,9 @@
             <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
           </div>
           <button data-href='{"cmd":"saveScript","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
+        </div>
+        <div id="modalScriptsImportFooter" class="modal-footer justify-content-between d-none">
+          <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
         </div>
       </div>
     </div>

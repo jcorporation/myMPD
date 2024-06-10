@@ -117,15 +117,23 @@ end
 
 ## Script file format
 
-Scripts are saved in the directory `/var/lib/mympd/scripts` with the extension `.lua`. The metadata (order, arguments) are saved in the first line in a lua comment as json object.
+Scripts are saved in the directory `/var/lib/mympd/scripts` with the extension `.lua`. The metadata is saved in the first line in a lua comment as json object.
 
 ```lua
--- {"order":1,"arguments":["testarg1", "testarg2"]}
+-- {"name": "scriptname", "file": "category/scriptname.lua", "version": 1, "desc": "short description", "order":1,"arguments":["testarg1", "testarg2"]}
 return("Arguments are: " .. mympd_arguments["testarg1"] .. mympd_arguments["testarg2"])
 ```
 
-| OPTION | DESCRIPTION |
-| ------ | ----------- |
-| order | Sort order of the script, 0 disables listing in main menu |
+### Metadata
+
+Only `order` and `arguments` are mandatory. Other metadata is used only for importing scripts from the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts).
+
+| KEY | DESCRIPTION |
+| --- | ----------- |
+| name | Name of the script (for imported scripts). |
+| file | Script filename in the mympd-scripts repository. |
+| version | Version number of the script. |
+| desc | A short description. |
+| order | Sort order of the script, 0 disables listing in main menu. |
 | arguments | Name of the keys for the script arguments, the gui asks for this arguments. Arguments are populated in a lua table called `mympd_arguments`. |
 {: .table .table-sm }

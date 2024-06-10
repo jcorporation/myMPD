@@ -62,12 +62,6 @@ function initModalScripts() {
         elGetById('modalScriptsAddFunctionDropdown').style.width = dw + 'px';
     }, false);
 
-    elGetById('modalScriptsImportBtn').parentNode.addEventListener('show.bs.dropdown', function() {
-        const dw = elGetById('modalScriptsContentInput').offsetWidth - elGetById('modalScriptsImportBtn').parentNode.offsetLeft;
-        elGetById('modalScriptsImportDropdown').style.width = dw + 'px';
-        getImportScriptList();
-    }, false);
-
     const modalScriptsAPIcallSelectEl = elGetById('modalScriptsAPIcallSelect');
     elClear(modalScriptsAPIcallSelectEl);
     modalScriptsAPIcallSelectEl.appendChild(
@@ -88,6 +82,16 @@ function initModalScripts() {
     modalScriptsFunctionSelectEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
         elGetById('modalScriptsFunctionDesc').textContent = value !== '' ? LUAfunctions[value].desc : '';
+    }, false);
+
+    elGetById('modalScriptsImportList').addEventListener('click', function(event) {
+        const target = event.target.nodeName === 'li'
+            ? event.target
+            : event.target.closest('li');
+        if (event.target.nodeName === 'A') {
+            return;
+        }
+        importScript(target);
     }, false);
 }
 
@@ -136,81 +140,6 @@ function addScriptAPIcall(event) {
     el.setRangeText(newText, start, end, 'preserve');
     BSN.Dropdown.getInstance(elGetById('modalScriptsAddAPIcallBtn')).hide();
     setFocus(el);
-}
-
-/**
- * Imports a script
- * @param {Event} event triggering event
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function importScript(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const script = getSelectValueId('modalScriptsImportSelect');
-    if (script === '') {
-        return;
-    }
-    //@ts-ignore
-    btnWaiting(event.target, true);
-    getImportScript(script);
-}
-
-/**
- * Fetches the list of available scripts to import
- * @returns {void}
- */
-function getImportScriptList() {
-    const sel = elGetById('modalScriptsImportSelect');
-    sel.setAttribute('disabled', 'disabled');
-    httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://raw.githubusercontent.com/jcorporation/mympd-scripts/main/index.json'), function(obj) {
-        sel.options.length = 0;
-        for (const script of obj.scripts) {
-            sel.appendChild(
-                elCreateText('option', {"value": script}, script)
-            );
-        }
-        sel.removeAttribute('disabled');
-    }, true);
-}
-
-/**
- * Imports a script
- * @param {string} script script to import
- * @returns {void}
- */
-function getImportScript(script) {
-    elGetById('modalScriptsContentInput').setAttribute('disabled', 'disabled');
-    httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://raw.githubusercontent.com/jcorporation/mympd-scripts/main/' + script), function(text) {
-        const lines = text.split('\n');
-        const firstLine = lines.shift();
-        let obj;
-        try {
-            obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
-            const scriptArgEl = elGetById('modalScriptsArgumentsInput');
-            scriptArgEl.options.length = 0;
-            for (let i = 0, j = obj.arguments.length; i < j; i++) {
-                scriptArgEl.appendChild(
-                    elCreateText('option', {}, obj.arguments[i])
-                );
-            }
-            elGetById('modalScriptsContentInput').value = lines.join('\n');
-        }
-        catch(error) {
-            showModalAlert({
-                "error": {
-                    "message": "Can not parse script arguments"
-                }
-            });
-            logError('Can not parse script arguments:' + firstLine);
-            logError(error);
-        }
-
-        elGetById('modalScriptsContentInput').removeAttribute('disabled');
-        BSN.Dropdown.getInstance(elGetById('modalScriptsImportBtn')).hide();
-        btnWaitingId('modalScriptsImportScriptBtn', false);
-        setFocusId('modalScriptsContentInput');
-    }, false);
 }
 
 /**
@@ -357,8 +286,10 @@ function showEditScript(script) {
     cleanupModalId('modalScripts');
     elGetById('modalScriptsContentInput').removeAttribute('disabled');
     elGetById('modalScriptsListTab').classList.remove('active');
+    elGetById('modalScriptsImportTab').classList.remove('active');
     elGetById('modalScriptsEditTab').classList.add('active');
     elHideId('modalScriptsListFooter');
+    elHideId('modalScriptsImportFooter');
     elShowId('modalScriptsEditFooter');
 
     if (script !== '') {
@@ -403,8 +334,10 @@ function showListScripts() {
     cleanupModalId('modalScripts');
     elGetById('modalScriptsListTab').classList.add('active');
     elGetById('modalScriptsEditTab').classList.remove('active');
+    elGetById('modalScriptsImportTab').classList.remove('active');
     elShowId('modalScriptsListFooter');
     elHideId('modalScriptsEditFooter');
+    elHideId('modalScriptsImportFooter');
     getScriptList(true);
 }
 
@@ -517,4 +450,84 @@ function parseScriptList(obj) {
     else {
         elGetById('modalTimerActionInput').appendChild(timerActions);
     }
+}
+
+/**
+ * Shows the import scripts tab
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showImportScript() {
+    cleanupModalId('modalScripts');
+    elGetById('modalScriptsListTab').classList.remove('active');
+    elGetById('modalScriptsEditTab').classList.remove('active');
+    elGetById('modalScriptsImportTab').classList.add('active');
+    elHideId('modalScriptsListFooter');
+    elHideId('modalScriptsEditFooter');
+    elShowId('modalScriptsImportFooter');
+    const list = elGetById('modalScriptsImportList');
+    elClear(list);
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + 'index.json'), function(obj) {
+        for (const script of obj.scripts) {
+            list.appendChild(
+                elCreateNodes('li', {"data-script": script.file, "class": ["list-group-item"],
+                    "title": tn("Import"), "data-title-phrase": "Import"}, [
+                    elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
+                        elCreateText('h5', {}, script.name),
+                        elCreateText('a', {"href": scriptsUri + dirname(script.file), "target": "_blank", "class": ["mi", "text-success"],
+                            "data-title": tn("Open"), "data-title-phrase": "Open"}, 'open_in_browser')
+                    ]),
+                    elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
+                        elCreateText('p', {"class": ["mb-1"]}, script.desc),
+                        elCreateText('small', {}, 'v' + script.version)
+                    ])
+                ])
+            );
+        }
+    }, true);
+}
+
+/**
+ * Imports a script
+ * @param target Event target
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function importScript(target) {
+    const script = target.getAttribute('data-script');
+    showEditScript('');
+    elGetById('modalScriptsContentInput').setAttribute('disabled', 'disabled');
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + script), function(text) {
+        const lines = text.split('\n');
+        const firstLine = lines.shift();
+        let obj;
+        try {
+            obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
+            const scriptArgEl = elGetById('modalScriptsArgumentsInput');
+            scriptArgEl.options.length = 0;
+            for (let i = 0, j = obj.arguments.length; i < j; i++) {
+                scriptArgEl.appendChild(
+                    elCreateText('option', {}, obj.arguments[i])
+                );
+            }
+            if (obj.name) {
+                elGetById('modalScriptsScriptInput').value = obj.name;
+            }
+            elGetById('modalScriptsContentInput').value = lines.join('\n');
+        }
+        catch(error) {
+            showModalAlert({
+                "error": {
+                    "message": "Can not parse script arguments"
+                }
+            });
+            logError('Can not parse script arguments:' + firstLine);
+            logError(error);
+        }
+
+        elGetById('modalScriptsContentInput').removeAttribute('disabled');
+        BSN.Dropdown.getInstance(elGetById('modalScriptsImportBtn')).hide();
+        btnWaitingId('modalScriptsImportScriptBtn', false);
+        setFocusId('modalScriptsContentInput');
+    }, false);
 }

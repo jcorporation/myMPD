@@ -134,8 +134,15 @@ const messagesMax = 100;
 /** @type {boolean} */
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 
+/** @type {object} */
 let webradioDb = null;
+/** @type {string} */
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
+
+/** @type {string} */
+const scriptsUri = 'https://github.com/jcorporation/mympd-scripts/tree/main/';
+/** @type {string} */
+const scriptsImportUri = 'https://raw.githubusercontent.com/jcorporation/mympd-scripts/main/';
 
 /** @type {object} */
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
@@ -157,10 +164,14 @@ const localeMap = {
     'zh-TW': 'zh-Hant'
 };
 
+/** @type {object} */
 let materialIcons = {};
+/** @type {object} */
 let phrasesDefault = {};
+/** @type {object} */
 let phrases = {};
 
+/** @type {number} */
 let lastSeekStep = 10;
 
 /**
