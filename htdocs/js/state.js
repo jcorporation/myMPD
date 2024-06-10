@@ -68,7 +68,7 @@ function setCounter() {
 
     //synced lyrics
     if (showSyncedLyrics === true &&
-        settings.colsPlayback.includes('Lyrics'))
+        settings.viewPlayback.fields.includes('Lyrics'))
     {
         const sl = elGetById('currentLyrics');
         const toHighlight = sl.querySelector('[data-sec="' + currentState.elapsedTime + '"]');
