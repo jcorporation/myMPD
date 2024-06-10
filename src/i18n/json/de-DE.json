@@ -359,7 +359,6 @@
     "IP-Address": "IP-Adresse",
     "Ignore hated songs": "Ignoriere nicht gemochte Lieder",
     "Image": "Bild",
-    "Import script": "Skript importieren",
     "Include expression": "Suchfilter",
     "Info": "Hinweis",
     "Info filename": "Info Dateiname",
@@ -1012,7 +1011,6 @@
     "helpSettingsEnablePartitions": "Aktiviert das MPD Partitionen Feature.",
     "helpSettingsEnableScripting": "Aktiviert das myMPD Skripting Feature.",
     "helpSettingsEnableTimer": "Aktiviert das myMPD Timer Feature. Timer können die Wiedergabe starten und stoppen und Skripte ausführen.",
-    "helpSettingsEnableTrigger": "Aktiviert das myMPD Trigger Feature. Trigger können Skripte ausführen.",
     "helpSettingsFeedback": "Bewerte Lieder mit gefällt mir (nicht) oder 5 Sternen.",
     "helpSettingsGeneratePlsTags": "Erstellt eine Wiedergabeliste für jeden Wert der gewählten Tags.",
     "helpSettingsGridSize": "Größe der Bilder in der Gridansicht.",
@@ -1192,5 +1190,12 @@
     "Encodes a Lua table as Json string.": "Konvertiert eine Lua Tabelle zu JSON.",
     "Parses a Json string to a Lua table.": "Konvertiert JSON zu einer LUA Tabelle.",
     "Serves a file from the filesystem. Only files from the diskcache are allowed.": "Liefert eine Datei per HTTP aus. Nur Dateien aus den Diskcaches sind erlaubt.",
-    "Updates the timestamp of a file.": "Aktualisiert den Zeitstempel einer Datei."
+    "Updates the timestamp of a file.": "Aktualisiert den Zeitstempel einer Datei.",
+    "Import": "Importieren",
+    "Open": "Öffnen",
+    "Open variables": "Öffne: Variablen",
+    "Returns an Jsonrpc response for a script dialog.": "Generiert eine Jsonrpc Nachricht für einen Skriptdialog.",
+    "Sends a notification to all clients in the current partition.": "Sendet eine Mitteilung an alle Clients in dieser Partition.",
+    "Sends a notification to the client that started this script.": "Sendet eine Mitteilung den den Client, der das Skript gestartet hat.",
+    "Shortcut: V": "Tastaturkürzel: V"
 }

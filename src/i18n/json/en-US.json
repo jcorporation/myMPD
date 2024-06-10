@@ -71,7 +71,6 @@
     "helpSettingsBackButton": "Shows a history back button in the navigation bar.",
     "helpSettingsEnableHome": "Enables the homescreen, a place to add custom shortcuts.",
     "helpSettingsEnableScripting": "Enables the myMPD scripting feature.",
-    "helpSettingsEnableTrigger": "Enables the myMPD trigger feature. Triggers can execute scripts.",
     "helpSettingsEnableTimer": "Enables the myMPD timer feature. Timers can start or stop playback and can execute scripts.",
     "helpSettingsEnableMounts": "Enables the MPD mounts and neighbors features.",
     "helpSettingsEnablePartitions": "Enables the MPD partition feature.",
