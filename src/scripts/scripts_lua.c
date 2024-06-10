@@ -376,7 +376,7 @@ static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_util_log", lua_util_log);
     lua_register(lua_vm, "mympd_util_notify", lua_util_notify);
     lua_register(lua_vm, "mympd_caches_images_write", lua_caches_images_write);
-    lua_register(lua_vm, "mympd_caches_lyrics_write", lua_caches_images_write);
+    lua_register(lua_vm, "mympd_caches_lyrics_write", lua_caches_lyrics_write);
     lua_register(lua_vm, "mympd_caches_update_mtime", lua_caches_update_mtime);
     #ifdef MYMPD_ENABLE_MYGPIOD
         lua_register(lua_vm, "mygpio_gpio_blink", lua_mygpio_gpio_blink);
