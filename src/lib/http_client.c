@@ -195,6 +195,8 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
                 "%s"
                 "Content-Length: %lu\r\n"
                 "Connection: close\r\n"
+                "Accept: */*\r\n"
+                "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
                 "\r\n"
                 "%s\r\n",
                 mg_url_uri(mg_client_request->connect_uri),
@@ -210,6 +212,8 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
                 "%s"
                 "Content-Length: 0\r\n"
                 "Connection: close\r\n"
+                "Accept: */*\r\n"
+                "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
                 "\r\n",
                 mg_url_uri(mg_client_request->connect_uri),
                 (int) host.len, host.buf,

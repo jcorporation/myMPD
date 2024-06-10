@@ -99,7 +99,7 @@ void send_backend_request(struct mg_connection *nc) {
     }
     mg_printf(nc, "GET %s HTTP/1.1\r\n"
         "Host: %.*s\r\n"
-        "User-Agent: myMPD/"MYMPD_VERSION"\r\n"
+        "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
         "Accept: */*\r\n"
         "Connection: close\r\n"
         "\r\n",
