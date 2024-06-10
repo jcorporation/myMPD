@@ -89,24 +89,6 @@ function initModalScripts() {
         const value = getSelectValue(event.target);
         elGetById('modalScriptsFunctionDesc').textContent = value !== '' ? LUAfunctions[value].desc : '';
     }, false);
-
-    elGetById('modalScriptsVarsList').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        if (event.target.nodeName === 'A') {
-            const action = getData(event.target, 'action');
-            const key = getData(event.target.parentNode.parentNode, 'key');
-            if (action === 'delete') {
-                deleteScriptsVars(key);
-            }
-            return;
-        }
-
-        const target = event.target.closest('TR');
-        if (checkTargetClick(target) === true) {
-            showScriptsVarsEdit(target, true);
-        }
-    }, false);
 }
 
 /**
@@ -372,16 +354,11 @@ function showListScriptModal() {
  */
 //eslint-disable-next-line no-unused-vars
 function showEditScript(script) {
-    elGetById('modalScriptsTitle').textContent = tn('Scripts');
     cleanupModalId('modalScripts');
     elGetById('modalScriptsContentInput').removeAttribute('disabled');
     elGetById('modalScriptsListTab').classList.remove('active');
-    elGetById('modalScriptsVarsListTab').classList.remove('active');
-    elGetById('modalScriptsVarsEditTab').classList.remove('active');
     elGetById('modalScriptsEditTab').classList.add('active');
     elHideId('modalScriptsListFooter');
-    elHideId('modalScriptsVarsListFooter');
-    elHideId('modalScriptsVarsEditFooter');
     elShowId('modalScriptsEditFooter');
 
     if (script !== '') {
@@ -423,16 +400,11 @@ function parseEditScript(obj) {
  * @returns {void}
  */
 function showListScripts() {
-    elGetById('modalScriptsTitle').textContent = tn('Scripts');
     cleanupModalId('modalScripts');
     elGetById('modalScriptsListTab').classList.add('active');
     elGetById('modalScriptsEditTab').classList.remove('active');
-    elGetById('modalScriptsVarsEditTab').classList.remove('active');
-    elGetById('modalScriptsVarsListTab').classList.remove('active');
     elShowId('modalScriptsListFooter');
     elHideId('modalScriptsEditFooter');
-    elHideId('modalScriptsVarsListFooter');
-    elHideId('modalScriptsVarsEditFooter');
     getScriptList(true);
 }
 
@@ -544,135 +516,5 @@ function parseScriptList(obj) {
     }
     else {
         elGetById('modalTimerActionInput').appendChild(timerActions);
-    }
-}
-
-/**
- * Shows the scripts variables tab
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function showScriptsVarsList() {
-    elGetById('modalScriptsTitle').textContent = tn('Variables');
-    cleanupModalId('modalScripts');
-    elGetById('modalScriptsVarsListTab').classList.add('active');
-    elGetById('modalScriptsVarsEditTab').classList.remove('active');
-    elGetById('modalScriptsEditTab').classList.remove('active');
-    elGetById('modalScriptsListTab').classList.remove('active');
-    elShowId('modalScriptsVarsListFooter');
-    elHideId('modalScriptsVarsEditFooter');
-    elHideId('modalScriptsEditFooter');
-    elHideId('modalScriptsListFooter');
-    getScriptsVarsList();
-}
-
-/**
- * Edits a scripts variable
- * @param {EventTarget} el row with the data
- * @param {boolean} editVar edit variable?
- * @returns {void}
- */
-function showScriptsVarsEdit(el, editVar) {
-    elGetById('modalScriptsTitle').textContent = tn('Variables');
-    cleanupModalId('modalScripts');
-    elGetById('modalScriptsVarsEditTab').classList.add('active');
-    elGetById('modalScriptsVarsListTab').classList.remove('active');
-    elGetById('modalScriptsEditTab').classList.remove('active');
-    elGetById('modalScriptsListTab').classList.remove('active');
-    elShowId('modalScriptsVarsEditFooter');
-    elHideId('modalScriptsVarsListFooter');
-    elHideId('modalScriptsEditFooter');
-    elHideId('modalScriptsListFooter');
-    if (editVar === true) {
-        elGetById('modalScriptsVarsKeyInput').setAttribute('readonly', 'readonly');
-        elGetById('modalScriptsVarsKeyInput').value = getData(el,'key');
-        elGetById('modalScriptsVarsValueInput').value = getData(el,'value');
-        elGetById('modalScriptsVarsValueInput').focus();
-    }
-    else {
-        elGetById('modalScriptsVarsKeyInput').removeAttribute('readonly');
-        elGetById('modalScriptsVarsKeyInput').value = '';
-        elGetById('modalScriptsVarsValueInput').value = '';
-        elGetById('modalScriptsVarsKeyInput').focus();
-    }
-}
-
-/**
- * Deletes a scripts variable
- * @param {string} key script variable to delete
- * @returns {void}
- */
-function deleteScriptsVars(key) {
-    sendAPI("MYMPD_API_SCRIPT_VAR_DELETE", {
-        "key": key
-    }, deleteScriptsVarsCheckError, true);
-}
-
-/**
- * Handler for the MYMPD_API_SCRIPT_VAR_DELETE jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function deleteScriptsVarsCheckError(obj) {
-    if (modalApply(obj) === true) {
-        getScriptsVarsList();
-    }
-}
-
-/**
- * Saves a scripts variable
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function setScriptsVar() {
-    cleanupModalId('modalScripts');
-    sendAPI("MYMPD_API_SCRIPT_VAR_SET", {
-        "key": elGetById('modalScriptsVarsKeyInput').value,
-        "value": elGetById('modalScriptsVarsValueInput').value
-    }, setScriptsVarsCheckError, true);
-}
-
-/**
- * Handler for the MYMPD_API_SCRIPT_VAR_DELETE jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function setScriptsVarsCheckError(obj) {
-    if (modalApply(obj) === true) {
-        showScriptsVarsList();
-    }
-}
-
-/**
- * Gets the list of scripts
- * @returns {void}
- */
-function getScriptsVarsList() {
-    sendAPI("MYMPD_API_SCRIPT_VAR_LIST", {}, parseScriptsVarsList, true);
-}
-
-/**
- * Parses the MYMPD_API_SCRIPT_LIST jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function parseScriptsVarsList(obj) {
-    const table = document.querySelector('#modalScriptsVarsList');
-    const tbody = table.querySelector('tbody');
-    elClear(tbody);
-    if (checkResult(obj, table, 'table') === false) {
-        return;
-    }
-    for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const row = elCreateNodes('tr', {"title": tn('Edit')}, [
-            elCreateTextTn('td', {}, obj.result.data[i].key),
-            elCreateText('td', {}, obj.result.data[i].value),
-            elCreateNode('td', {"data-col": "Action"},
-                elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["mi", "color-darkgrey"]}, 'delete')
-            )
-        ]);
-        setData(row, 'key', obj.result.data[i].key);
-        setData(row, 'value', obj.result.data[i].value);
-        tbody.append(row);
     }
 }

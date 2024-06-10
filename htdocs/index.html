@@ -70,13 +70,15 @@
       <div class="dropdown-divider"></div>
       <a class="dropdown-item py-2 alwaysEnabled" data-title-phrase="Shortcut: C" data-bs-toggle="modal" href="#modalConnection"><span class="mi me-2">settings_ethernet</span><span data-phrase="MPD connection"></span></a>
       <a class="dropdown-item py-2" data-title-phrase="Shortcut: T" data-bs-toggle="modal" href="#modalSettings"><span class="mi me-2">settings</span><span data-phrase="Settings"></span></a>
-      <a class="dropdown-item py-2 featScripting" data-title-phrase="Shortcut: S" href="#" data-href='{"cmd": "showListScriptModal", "options": []}'><span class="mi me-2">code</span><span data-phrase="Scripts"></span></a>
-      <a class="dropdown-item py-2 featTimer" data-title-phrase="Shortcut: I" data-bs-toggle="modal" href="#modalTimer"><span class="mi me-2">timer</span><span data-phrase="Timer"></span></a>
-      <a class="dropdown-item py-2 featTrigger" data-title-phrase="Shortcut: G" data-bs-toggle="modal" href="#modalTrigger"><span class="mi me-2">bolt</span><span data-phrase="Trigger"></span></a>
       <a class="dropdown-item py-2 featMounts" data-title-phrase="Shortcut: O" data-bs-toggle="modal" href="#modalMounts"><span class="mi me-2">dns</span><span data-phrase="Mounts"></span></a>
       <a class="dropdown-item py-2 featPartitions" data-title-phrase="Shortcut: P" data-bs-toggle="modal" href="#modalPartitions"><span class="mi me-2">dashboard</span><span data-phrase="Partitions"></span></a>
-      <div class="dropdown-divider"></div>
       <a class="dropdown-item py-2" data-title-phrase="Shortcut: M" data-bs-toggle="modal" href="#modalMaintenance"><span class="mi me-2">build</span><span data-phrase="Maintenance"></span></a>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item py-2 featScripting" data-title-phrase="Shortcut: S" href="#" data-href='{"cmd": "showListScriptModal", "options": []}'><span class="mi me-2">code</span><span data-phrase="Scripts"></span></a>
+      <a class="dropdown-item py-2 featScripting" data-title-phrase="Shortcut: V" href="#" data-href='{"cmd": "showListVariablesModal", "options": []}'><span class="mi me-2">data_object</span><span data-phrase="Variables"></span></a>
+      <a class="dropdown-item py-2 featScripting" data-title-phrase="Shortcut: G" data-bs-toggle="modal" href="#modalTrigger"><span class="mi me-2">bolt</span><span data-phrase="Trigger"></span></a>
+      <a class="dropdown-item py-2 featTimer" data-title-phrase="Shortcut: I" data-bs-toggle="modal" href="#modalTimer"><span class="mi me-2">timer</span><span data-phrase="Timer"></span></a>
+      <div class="dropdown-divider"></div>
       <a class="dropdown-item py-2 featLibrary" href="browse/" target="_blank"><span class="mi me-2">folder_open</span><span data-phrase="Browse directories"></span></a>
       <a class="dropdown-item py-2" data-title-phrase="Shortcut: N" data-bs-toggle="modal" href="#modalNotifications"><span class="mi me-2">chat_bubble_outline</span><span data-phrase="Notifications"></span></a>
       <a class="dropdown-item py-2" data-title-phrase="Shortcut: ?" data-bs-toggle="modal" href="#modalAbout"><span class="mi me-2">help_outline</span><span data-phrase="About"></span></a>
@@ -2195,12 +2197,66 @@
     </div>
   </div>
 <!-- Modal execute script end -->
+<!-- Modal variables start -->
+<div class="modal fade" id="modalVariables" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><span class="mi title-icon">data_object</span> <span data-phrase="Variables"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="tab-content">
+          <div class="tab-pane" id="modalVariablesEditTab">
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="modalVariablesKeyInput" data-phrase="Key"></label>
+              <div class="col-sm-8">
+                <input id="modalVariablesKeyInput" class="form-control"/>
+                <div class="invalid-feedback" data-phrase="Invalid key"></div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="modalVariablesValueInput" data-phrase="Value"></label>
+              <div class="col-sm-8">
+                <input id="modalVariablesValueInput" class="form-control"/>
+                <div class="invalid-feedback" data-phrase="Invalid value"></div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane" id="modalVariablesListTab">
+            <div class="table-responsive overflow-auto">
+              <table class="table table-hover table-sm" id="modalVariablesList">
+                <thead>
+                  <tr>
+                    <th data-phrase="Key"></th>
+                    <th data-phrase="Value"></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody class="clickable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="modalVariablesListFooter" class="modal-footer justify-content-between d-none">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
+        <button data-href='{"cmd":"showVariablesEdit","options":["",""]}' class="btn btn-success protected" data-phrase="New variable"></button>
+      </div>
+      <div id="modalVariablesEditFooter" class="modal-footer justify-content-between d-none">
+        <button data-href='{"cmd":"showVariablesList","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+        <button data-href='{"cmd":"setVariables","options":["",""]}' class="btn btn-success protected" data-phrase="Save"></button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal variables end -->
 <!-- Modal scripts start -->
   <div class="modal fade" id="modalScripts" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="mi title-icon">code</span> <span id="modalScriptsTitle" data-phrase="Scripts"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">code</span> <span data-phrase="Scripts"></span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -2292,44 +2348,11 @@
                 </table>
               </div>
             </div>
-            <div class="tab-pane" id="modalScriptsVarsEditTab">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="modalScriptsVarsKeyInput" data-phrase="Key"></label>
-                <div class="col-sm-8">
-                  <input id="modalScriptsVarsKeyInput" class="form-control"/>
-                  <div class="invalid-feedback" data-phrase="Invalid key"></div>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="modalScriptsVarsValueInput" data-phrase="Value"></label>
-                <div class="col-sm-8">
-                  <input id="modalScriptsVarsValueInput" class="form-control"/>
-                  <div class="invalid-feedback" data-phrase="Invalid value"></div>
-                </div>
-              </div>
-            </div>
-            <div class="tab-pane" id="modalScriptsVarsListTab">
-              <div class="table-responsive overflow-auto">
-                <table class="table table-hover table-sm" id="modalScriptsVarsList">
-                  <thead>
-                    <tr>
-                      <th data-phrase="Key"></th>
-                      <th data-phrase="Value"></th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody class="clickable"></tbody>
-                </table>
-              </div>
-            </div>
           </div>
         </div>
         <div id="modalScriptsListFooter" class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <div>
-            <button data-href='{"cmd":"showScriptsVarsList","options":[]}' type="button" class="btn btn-success protected me-2" data-phrase="Variables"></button>
-            <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
-          </div>
+          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
         </div>
         <div id="modalScriptsEditFooter" class="modal-footer justify-content-between d-none">
           <div>
@@ -2337,17 +2360,6 @@
             <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
           </div>
           <button data-href='{"cmd":"saveScript","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
-        </div>
-        <div id="modalScriptsVarsListFooter" class="modal-footer justify-content-between d-none">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <div>
-            <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-success me-2" data-phrase="Scripts"></button>
-            <button data-href='{"cmd":"showScriptsVarsEdit","options":["",""]}' class="btn btn-success protected" data-phrase="New variable"></button>
-          </div>
-        </div>
-        <div id="modalScriptsVarsEditFooter" class="modal-footer justify-content-between d-none">
-          <button data-href='{"cmd":"showScriptsVarsList","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"setScriptsVar","options":["",""]}' class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -3116,6 +3128,7 @@
 <!--debug-->  <script src="js/modalRadioWebradiodbDetail.js"></script>
 <!--debug-->  <script src="js/modalScriptExec.js"></script>
 <!--debug-->  <script src="js/modalScripts.js"></script>
+<!--debug-->  <script src="js/modalVariables.js"></script>
 <!--debug-->  <script src="js/modalConnection.js"></script>
 <!--debug-->  <script src="js/modalSettings.js"></script>
 <!--debug-->  <script src="js/modalPlayback.js"></script>

@@ -685,13 +685,6 @@ const settingsWebuiFields = {
         "warn": "Lua is not compiled in",
         "help": "helpSettingsEnableScripting"
     },
-    "enableTrigger": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Trigger",
-        "form": "modalSettingsFurtherFeaturesFrm",
-        "help": "helpSettingsEnableTrigger"
-    },
     "enableTimer": {
         "defaultValue": true,
         "inputType": "checkbox",
@@ -1474,8 +1467,7 @@ const features = {
     "featSmartplsAvailable": true,
     "featStickers": false,
     "featTags": true,
-    "featTimer": true,
-    "featTrigger": true
+    "featTimer": true
 };
 
 //keyboard shortcuts
@@ -1494,7 +1486,7 @@ const keymap = {
     "modals": {"order": 200, "desc": "Dialogs"},
         "A": {"order": 201, "cmd": "showAddToPlaylist", "options": ["stream", []], "desc": "Add stream"},
         "C": {"order": 202, "cmd": "openModal", "options": ["modalConnection"], "desc": "Open MPD connection"},
-        "G": {"order": 207, "cmd": "openModal", "options": ["modalTrigger"], "desc": "Open trigger", "feature": "featTrigger"},
+        "G": {"order": 207, "cmd": "openModal", "options": ["modalTrigger"], "desc": "Open trigger", "feature": "featScripting"},
         "I": {"order": 207, "cmd": "openModal", "options": ["modalTimer"], "desc": "Open timer", "feature": "featTimer"},
         "L": {"order": 207, "cmd": "loginOrLogout", "options": [], "desc": "Login or logout", "feature": "featSession"},
         "M": {"order": 205, "cmd": "openModal", "options": ["modalMaintenance"], "desc": "Open maintenance"},
@@ -1504,6 +1496,7 @@ const keymap = {
         "Q": {"order": 203, "cmd": "openModal", "options": ["modalPlayback"], "desc": "Open playback settings"},
         "S": {"order": 207, "cmd": "showListScriptModal", "options": [], "desc": "Open scripts", "feature": "featScripting"},
         "T": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
+        "V": {"order": 207, "cmd": "showListVariablesModal", "options": [], "desc": "Open variables", "feature": "featScripting"},
         "?": {"order": 207, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
         
     "navigation": {"order": 300, "desc": "Navigation"},
