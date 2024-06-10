@@ -50,7 +50,7 @@ There are also new triggers introduced:
 
 - Feat: Script improvements
   - Performance improvements
-  - Error handling
+  - Better error handling
   - Handling of http requests #1279
   - Send log messages from scripts
   - Send notifications from scripts #1280
@@ -61,6 +61,7 @@ There are also new triggers introduced:
   - HTTP client follows now redirects
   - HTTP download function
   - Dialogs
+  - Improved script import
 - Feat: Set custom variables for scripts #1265
 - Feat: New triggers #1288
 - Feat: Use EC private keys for SSL certificates
