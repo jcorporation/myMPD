@@ -1198,5 +1198,9 @@
     "Returns an Jsonrpc response for a script dialog.": "Generiert eine Jsonrpc Nachricht für einen Skriptdialog.",
     "Sends a notification to all clients in the current partition.": "Sendet eine Mitteilung an alle Clients in dieser Partition.",
     "Sends a notification to the client that started this script.": "Sendet eine Mitteilung den den Client, der das Skript gestartet hat.",
-    "Shortcut: V": "Tastaturkürzel: V"
+    "Shortcut: V": "Tastaturkürzel: V",
+    "Can not find script in repository.": "Skript konnte im Repository nicht gefunden werden.",
+    "Can not parse script metadata.": "Skript konnte nicht geparsed werden.",
+    "Script is up-to-date.": "Skript ist aktuell.",
+    "Script successfully updated.": "Skript erfolgreich aktualisiert."
 }

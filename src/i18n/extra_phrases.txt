@@ -12,6 +12,10 @@ Authentication required
 Browse
 Browser default
 Browser has no MediaSession support
+Can not parse script metadata.
+Can not find script in repository.
+Script is up-to-date.
+Script successfully updated.
 Click album play button
 clickcount
 Click filesystem playlist

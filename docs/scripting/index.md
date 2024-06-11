@@ -96,11 +96,11 @@ Script should be called with an argument named playlist.
 
 ```lua
 -- load a playlist
-mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {plist = mympd_arguments["playlist"]})
+mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {plist = mympd_arguments.playlist})
 -- start playing
 mympd.api("MYMPD_API_PLAYER_PLAY")
 -- broadcast message to all connected myMPD clients
-return("Loaded playlist: " .. mympd_arguments["playlist"])
+return("Loaded playlist: " .. mympd_arguments.playlist)
 ```
 
 ### Error handling
@@ -109,9 +109,9 @@ return("Loaded playlist: " .. mympd_arguments["playlist"])
 -- get current playing song
 rc, result = mympd.api("MYMPD_API_PLAYER_CURRENT_SONG", {})
 if rc == 0
-  return "Current song title: " .. result["Title"]
+  return "Current song title: " .. result.Title
 else
-  return "Error message: " .. result["message"]
+  return "Error message: " .. result.message
 end
 ```
 
@@ -121,16 +121,14 @@ Scripts are saved in the directory `/var/lib/mympd/scripts` with the extension `
 
 ```lua
 -- {"name": "scriptname", "file": "category/scriptname.lua", "version": 1, "desc": "short description", "order":1,"arguments":["testarg1", "testarg2"]}
-return("Arguments are: " .. mympd_arguments["testarg1"] .. mympd_arguments["testarg2"])
+return("Arguments are: " .. mympd_arguments.testarg1 .. mympd_arguments.testarg2)
 ```
 
 ### Metadata
 
-Only `order` and `arguments` are mandatory. Other metadata is used only for importing scripts from the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts).
-
 | KEY | DESCRIPTION |
 | --- | ----------- |
-| name | Name of the script (for imported scripts). |
+| name | Friendly name of the script (for importing scripts). |
 | file | Script filename in the mympd-scripts repository. |
 | version | Version number of the script. |
 | desc | A short description. |

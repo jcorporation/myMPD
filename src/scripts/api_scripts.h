@@ -14,7 +14,8 @@
 #include <stdbool.h>
 
 bool scripts_file_read(struct t_scripts_state *scripts_state);
-bool script_save(struct t_scripts_state *scripts_state, sds scriptname, sds oldscript, int order, sds content, struct t_list *arguments, sds *error);
+bool script_save(struct t_scripts_state *scripts_state, sds scriptname, sds oldscript,
+        sds file, int order, int version, sds content, struct t_list *arguments, sds *error);
 bool script_delete(struct t_scripts_state *scripts_state, sds scriptname);
 sds script_get(struct t_list *script_list, sds buffer, unsigned request_id, sds scriptname);
 sds script_list(struct t_list *script_list, sds buffer, unsigned request_id, bool all);

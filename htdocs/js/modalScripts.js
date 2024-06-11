@@ -187,6 +187,8 @@ function saveScript(target) {
     sendAPI("MYMPD_API_SCRIPT_SAVE", {
         "oldscript": getDataId('modalScriptsEditTab', 'id'),
         "script": elGetById('modalScriptsScriptInput').value,
+        "file": getDataId('modalScriptsEditTab', 'file'),
+        "version": getDataId('modalScriptsEditTab', 'version'),
         "order": Number(elGetById('modalScriptsOrderInput').value),
         "content": elGetById('modalScriptsContentInput').value,
         "arguments": args
@@ -297,11 +299,14 @@ function showEditScript(script) {
     }
     else {
         setDataId('modalScriptsEditTab', 'id', '');
+        setDataId('modalScriptsEditTab', 'file', '');
+        setDataId('modalScriptsEditTab', 'version', 0);
         elGetById('modalScriptsScriptInput').value = '';
         elGetById('modalScriptsOrderInput').value = '1';
         elGetById('modalScriptsAddArgumentInput').value = '';
         elClearId('modalScriptsArgumentsInput');
         elGetById('modalScriptsContentInput').value = '';
+        elDisableId('modalScriptsUpdateBtn');
     }
     setFocusId('modalScriptsScriptInput');
 }
@@ -313,9 +318,14 @@ function showEditScript(script) {
  */
 function parseEditScript(obj) {
     setDataId('modalScriptsEditTab', 'id', obj.result.script);
+    setDataId('modalScriptsEditTab', 'file', obj.result.metadata.file);
+    setDataId('modalScriptsEditTab', 'version', obj.result.metadata.version);
     elGetById('modalScriptsScriptInput').value = obj.result.script;
     elGetById('modalScriptsOrderInput').value = obj.result.metadata.order;
     elGetById('modalScriptsAddArgumentInput').value = '';
+    if (obj.result.metadata.file !== '' && obj.result.metadata.version > 0) {
+        elEnableId('modalScriptsUpdateBtn');
+    }
     const selSA = elGetById('modalScriptsArgumentsInput');
     selSA.options.length = 0;
     for (let i = 0, j = obj.result.metadata.arguments.length; i < j; i++) {
@@ -468,13 +478,14 @@ function showImportScript() {
     const list = elGetById('modalScriptsImportList');
     elClear(list);
     httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + 'index.json'), function(obj) {
-        for (const script of obj.scripts) {
+        for (const key in obj) {
+            const script = obj[key];
             list.appendChild(
-                elCreateNodes('li', {"data-script": script.file, "class": ["list-group-item", "list-group-item-action", "clickable"],
+                elCreateNodes('li', {"data-script": key, "class": ["list-group-item", "list-group-item-action", "clickable"],
                     "title": tn("Import"), "data-title-phrase": "Import"}, [
                     elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
                         elCreateText('h5', {}, script.name),
-                        elCreateText('a', {"href": scriptsUri + dirname(script.file), "target": "_blank", "class": ["mi", "text-success"],
+                        elCreateText('a', {"href": scriptsUri + dirname(key), "target": "_blank", "class": ["mi", "text-success"],
                             "data-title": tn("Open"), "data-title-phrase": "Open"}, 'open_in_browser')
                     ]),
                     elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
@@ -488,45 +499,90 @@ function showImportScript() {
 }
 
 /**
- * Imports a script
- * @param target Event target
+ * Shows the edit script tab and imports a script
+ * @param {EventTarget} target Event target
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function importScript(target) {
     const script = target.getAttribute('data-script');
     showEditScript('');
-    elGetById('modalScriptsContentInput').setAttribute('disabled', 'disabled');
+    elDisableId('modalScriptsContentInput');
     httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + script), function(text) {
-        const lines = text.split('\n');
-        const firstLine = lines.shift();
-        let obj;
-        try {
-            obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
-            const scriptArgEl = elGetById('modalScriptsArgumentsInput');
-            scriptArgEl.options.length = 0;
-            for (let i = 0, j = obj.arguments.length; i < j; i++) {
-                scriptArgEl.appendChild(
-                    elCreateText('option', {}, obj.arguments[i])
-                );
-            }
-            elGetById('modalScriptsScriptInput').value = obj.name;
-            elGetById('modalScriptsOrderInput').value = obj.order;
-            elGetById('modalScriptsContentInput').value = lines.join('\n');
+        doImportScript(text);
+    }, false);
+}
+
+/**
+ * Imports a script from the mympd-scripts repository
+ * @param {string} text Script to import
+ * @returns {boolean} true on success, else false
+ */
+function doImportScript(text) {
+    const lines = text.split('\n');
+    const firstLine = lines.shift();
+    let obj;
+    let rc = true;
+    try {
+        obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
+        const scriptArgEl = elGetById('modalScriptsArgumentsInput');
+        scriptArgEl.options.length = 0;
+        for (let i = 0, j = obj.arguments.length; i < j; i++) {
+            scriptArgEl.appendChild(
+                elCreateText('option', {}, obj.arguments[i])
+            );
         }
-        catch(error) {
+        elGetById('modalScriptsScriptInput').value = obj.name;
+        elGetById('modalScriptsOrderInput').value = obj.order;
+        setDataId('modalScriptsEditTab', 'file', obj.file);
+        setDataId('modalScriptsEditTab', 'version', obj.version);
+        elGetById('modalScriptsContentInput').value = lines.join('\n');
+    }
+    catch(error) {
+        showModalAlert({
+            "error": {
+                "message": "Can not parse script metadata."
+            }
+        });
+        logError('Can not parse script metadata:' + firstLine);
+        logError(error);
+        rc = false;
+    }
+    elEnableId('modalScriptsContentInput');
+    setFocusId('modalScriptsContentInput');
+    return rc;
+}
+
+/**
+ * Updates a script from the mympd-scripts repository
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function updateScript() {
+    cleanupModalId('modalScripts');
+    const importFile = getDataId('modalScriptsEditTab', 'file',);
+    const currentVersion = getDataId('modalScriptsEditTab', 'version');
+    if (importFile === '' || currentVersion === '') {
+        return;
+    }
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + 'index.json'), function(obj) {
+        if (obj[importFile] === undefined) {
             showModalAlert({
                 "error": {
-                    "message": "Can not parse script arguments"
+                    "message": "Can not find script in repository."
                 }
             });
-            logError('Can not parse script arguments:' + firstLine);
-            logError(error);
+            return;
         }
-
-        elGetById('modalScriptsContentInput').removeAttribute('disabled');
-        BSN.Dropdown.getInstance(elGetById('modalScriptsImportBtn')).hide();
-        btnWaitingId('modalScriptsImportScriptBtn', false);
-        setFocusId('modalScriptsContentInput');
-    }, false);
+        if (obj[importFile].version === currentVersion) {
+            showModalInfo("Script is up-to-date.");
+            return;
+        }
+        elDisableId('modalScriptsContentInput');
+        httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + importFile), function(text) {
+            if (doImportScript(text) === true) {
+                showModalInfo("Script successfully updated.");
+            }
+        }, false);
+    }, true);
 }

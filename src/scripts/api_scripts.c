@@ -146,16 +146,25 @@ bool script_delete(struct t_scripts_state *scripts_state, sds scriptname) {
  * @param scripts_state pointer to scripts_state
  * @param scriptname scriptname
  * @param oldscript old scriptname (leave empty for a new script)
- * @param order script list is order by this value
+ * @param file imported script filename (empty for local scripts)
+ * @param order script list is ordered by this value
+ * @param version imported script version (0 for local scripts)
  * @param content script content
  * @param arguments arguments for the script
  * @param error already allocated sds string to hold the error message
  * @return true on success, else false
  */
-bool script_save(struct t_scripts_state *scripts_state, sds scriptname, sds oldscript, int order, sds content, struct t_list *arguments, sds *error) {
+bool script_save(struct t_scripts_state *scripts_state, sds scriptname, sds oldscript,
+        sds file, int order, int version, sds content, struct t_list *arguments, sds *error)
+{
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", scripts_state->config->workdir, DIR_WORK_SCRIPTS, scriptname);
     sds argstr = list_to_json_array(sdsempty(), arguments);
-    sds metadata = sdscatfmt(sdsempty(), "{\"order\":%i,\"arguments\":%S}", order, argstr);
+    sds metadata = sdscatlen(sdsempty(), "{", 1);
+    metadata = tojson_int(metadata, "order", order, true);
+    metadata = tojson_sds(metadata, "file", file, true);
+    metadata = tojson_int(metadata, "version", version, true);
+    metadata = tojson_raw(metadata, "arguments", argstr, false);
+    metadata = sdscatlen(metadata, "}", 1);
     sds scriptfile_content = sdscatfmt(sdsempty(), "-- %S\n%S", metadata, content);
     bool rc = write_data_to_file(filepath, scriptfile_content, sdslen(scriptfile_content));
     //delete old scriptfile

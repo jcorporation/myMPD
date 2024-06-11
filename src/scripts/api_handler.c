@@ -37,7 +37,9 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
     sds sds_buf1 = NULL;
     sds sds_buf2 = NULL;
     sds sds_buf3 = NULL;
+    sds sds_buf4 = NULL;
     int int_buf1;
+    int int_buf2;
     bool bool_buf1;
     bool respond = true;
 
@@ -63,12 +65,14 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             list_init(&arguments);
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.oldscript", 0, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &parse_error) == true &&
+                json_get_string(request->data, "$.params.file", 0, FILENAME_LEN_MAX, &sds_buf3, vcb_isfilepath, &parse_error) == true &&
                 json_get_int(request->data, "$.params.order", 0, LIST_TIMER_MAX, &int_buf1, &parse_error) == true &&
-                json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf3, vcb_istext, &parse_error) == true &&
+                json_get_int(request->data, "$.params.version", 0, LIST_TIMER_MAX, &int_buf2, &parse_error) == true &&
+                json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf4, vcb_istext, &parse_error) == true &&
                 json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, &parse_error) == true)
             {
-                rc = script_validate(config, sds_buf1, sds_buf3, &error) &&
-                    script_save(scripts_state, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments, &error);
+                rc = script_validate(config, sds_buf1, sds_buf4, &error) &&
+                    script_save(scripts_state, sds_buf1, sds_buf2, sds_buf3, int_buf1, int_buf2, sds_buf4, &arguments, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, error);
             }
@@ -172,6 +176,7 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
     FREE_SDS(sds_buf1);
     FREE_SDS(sds_buf2);
     FREE_SDS(sds_buf3);
+    FREE_SDS(sds_buf4);
 
     if (respond == true) {
         if (sdslen(response->data) == 0) {
