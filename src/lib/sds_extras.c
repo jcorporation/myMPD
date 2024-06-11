@@ -7,9 +7,9 @@
 #include "compile_time.h"
 #include "src/lib/sds_extras.h"
 
+#include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
 #include "dist/utf8/utf8.h"
-#include "src/lib/convert.h"
 
 #include <ctype.h>
 #include <openssl/evp.h>
@@ -94,6 +94,24 @@ sds *sds_split_comma_trim(sds s, int *count) {
         sdstrim(values[i], " ");
     }
     return values;
+}
+
+/**
+ * Hashes a string with md5
+ * @param p string to hash
+ * @return the hash as a newly allocated sds string
+ */
+sds sds_hash_md5(const char *p) {
+    mg_md5_ctx ctx;
+    mg_md5_init(&ctx);
+    mg_md5_update(&ctx, (unsigned char *)p, strlen(p));
+    unsigned char hash[16];
+    mg_md5_final(&ctx, hash);
+    sds hex_hash = sdsempty();
+    for (unsigned i = 0; i < 16; i++) {
+        hex_hash = sdscatprintf(hex_hash, "%02x", hash[i]);
+    }
+    return hex_hash;
 }
 
 /**

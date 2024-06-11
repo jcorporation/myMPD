@@ -32,7 +32,6 @@ sds sds_replacelen(sds s, const char *p, size_t len);
 sds sds_replace(sds s, const char *p);
 sds sds_catbool(sds s, bool v);
 sds sds_hash_md5(const char *p);
-sds sds_hash_md5_sds(sds s);
 sds sds_hash_sha1(const char *p);
 sds sds_hash_sha1_sds(sds s);
 sds sds_hash_sha256(const char *p);

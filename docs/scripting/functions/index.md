@@ -19,6 +19,7 @@ List of myMPD specific Lua functions.
 | [mympd.gpio_get]({{site.baseurl}}/scripting/functions/gpio) | Connects to myGPIOd and returns the active state of a GPIO. |
 | [mympd.gpio_set]({{site.baseurl}}/scripting/functions/gpio) | Connects to myGPIOd and sets the active value of a GPIO. |
 | [mympd.gpio_toggle]({{site.baseurl}}/scripting/functions/gpio) | Connects to myGPIOd and toggles the active value of a GPIO. |
+| [mympd.hash_md5]({{site.baseurl}}/scripting/functions/util) | MD5 hash of string. |
 | [mympd.hash_sha1]({{site.baseurl}}/scripting/functions/util) | SHA1 hash of string. |
 | [mympd.hash_sha256]({{site.baseurl}}/scripting/functions/util) | SHA256 hash of string. |
 | [mympd.http_client]({{site.baseurl}}/scripting/functions/http_client) | Simple HTTP client. |

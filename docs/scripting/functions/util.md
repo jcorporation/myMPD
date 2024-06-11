@@ -9,6 +9,7 @@ Some useful utility functions.
 ## Hashing functions
 
 ```lua
+local md5_hash = mympd.hash_md5(string)
 local sha1_hash = mympd.hash_sha1(string)
 local sha256_hash = mympd.hash_sha256(string)
 ```

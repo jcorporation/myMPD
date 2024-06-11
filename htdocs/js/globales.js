@@ -1579,6 +1579,11 @@ const LUAfunctions = {
         "func": "return mympd.dialog(title, data, callback)",
         "feat": ""
     },
+    "mympd.hash_md5": {
+        "desc": "MD5 hash of string.",
+        "func": "local hash = mympd.hash_md5(string)",
+        "feat": ""
+    },
     "mympd.hash_sha1": {
         "desc": "SHA1 hash of string.",
         "func": "local hash = mympd.hash_sha1(string)",

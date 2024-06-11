@@ -466,6 +466,7 @@
 {"term":"Love, hate"},
 {"term":"Lua is not compiled in"},
 {"term":"Lyrics"},
+{"term":"MD5 hash of string."},
 {"term":"MPD"},
 {"term":"MPD connection"},
 {"term":"MPD connection error: %{error}"},

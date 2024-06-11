@@ -137,6 +137,9 @@ int lua_util_hash(lua_State *lua_vm) {
     else if (strcmp(alg, "sha256") == 0) {
         hash = sds_hash_sha256(str);
     }
+    else if (strcmp(alg, "md5") == 0) {
+        hash = sds_hash_md5(str);
+    }
     else {
         lua_pop(lua_vm, n);
         MYMPD_LOG_ERROR(NULL, "Lua - util_hash: Invalid hash method");

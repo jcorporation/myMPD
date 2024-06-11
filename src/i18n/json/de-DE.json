@@ -1165,6 +1165,7 @@
     "Logs messages to the myMPD log.": "Schreibt Meldungen in das myMPD Log.",
     "SHA1 hash of string.": "SHA1 Hash",
     "SHA256 hash of string.": "SHA256 Hash",
+    "MD5 hash of string.": "MD5 Hash",
     "Sends a HTTP redirect.": "Sendet einen HTTP-Redirect.",
     "Sends a HTTP reply.": "Sendet eine HTTP-Response.",
     "URL decodes a string.": "URL Dekodierung",

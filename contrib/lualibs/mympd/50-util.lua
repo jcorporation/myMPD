@@ -36,6 +36,13 @@ function mympd.log(loglevel, message)
   mympd_util_log(mympd_env.partition, mympd_env.scriptname, loglevel, message)
 end
 
+--- Returns the MD5 hash of string.
+-- @param string String to hash
+-- @return MD5 hash of string
+function mympd.hash_md5(string)
+  return mympd_util_hash(string, "md5")
+end
+
 --- Returns the SHA1 hash of string.
 -- @param string String to hash
 -- @return SHA1 hash of string
