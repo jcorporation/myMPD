@@ -560,6 +560,7 @@ function doImportScript(text) {
 //eslint-disable-next-line no-unused-vars
 function updateScript() {
     cleanupModalId('modalScripts');
+    btnWaitingId('modalScriptsUpdateBtn', true);
     const importFile = getDataId('modalScriptsEditTab', 'file',);
     const currentVersion = getDataId('modalScriptsEditTab', 'version');
     if (importFile === '' || currentVersion === '') {
@@ -572,10 +573,12 @@ function updateScript() {
                     "message": "Can not find script in repository."
                 }
             });
+            btnWaitingId('modalScriptsUpdateBtn', false);
             return;
         }
         if (obj[importFile].version === currentVersion) {
             showModalInfo("Script is up-to-date.");
+            btnWaitingId('modalScriptsUpdateBtn', false);
             return;
         }
         elDisableId('modalScriptsContentInput');
@@ -583,6 +586,7 @@ function updateScript() {
             if (doImportScript(text) === true) {
                 showModalInfo("Script successfully updated.");
             }
+            btnWaitingId('modalScriptsUpdateBtn', false);
         }, false);
     }, true);
 }
