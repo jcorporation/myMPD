@@ -470,7 +470,7 @@ function showImportScript() {
     httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + 'index.json'), function(obj) {
         for (const script of obj.scripts) {
             list.appendChild(
-                elCreateNodes('li', {"data-script": script.file, "class": ["list-group-item"],
+                elCreateNodes('li', {"data-script": script.file, "class": ["list-group-item", "list-group-item-action", "clickable"],
                     "title": tn("Import"), "data-title-phrase": "Import"}, [
                     elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
                         elCreateText('h5', {}, script.name),
