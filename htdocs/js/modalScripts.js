@@ -510,9 +510,8 @@ function importScript(target) {
                     elCreateText('option', {}, obj.arguments[i])
                 );
             }
-            if (obj.name) {
-                elGetById('modalScriptsScriptInput').value = obj.name;
-            }
+            elGetById('modalScriptsScriptInput').value = obj.name;
+            elGetById('modalScriptsOrderInput').value = obj.order;
             elGetById('modalScriptsContentInput').value = lines.join('\n');
         }
         catch(error) {
