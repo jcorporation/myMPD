@@ -2199,7 +2199,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_SAVE": {
-        "desc": "Lists saved webradios.",
+        "desc": "Saves a webradio favorite.",
         "params": {
             "name": {
                 "type": APItypes.string,
