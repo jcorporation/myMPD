@@ -286,6 +286,7 @@ function showListScriptModal() {
 //eslint-disable-next-line no-unused-vars
 function showEditScript(script) {
     cleanupModalId('modalScripts');
+    elGetById('modalScripts').firstElementChild.classList.remove('modal-dialog-scrollable');
     elGetById('modalScriptsContentInput').removeAttribute('disabled');
     elGetById('modalScriptsListTab').classList.remove('active');
     elGetById('modalScriptsImportTab').classList.remove('active');
@@ -342,6 +343,7 @@ function parseEditScript(obj) {
  */
 function showListScripts() {
     cleanupModalId('modalScripts');
+    elGetById('modalScripts').firstElementChild.classList.remove('modal-dialog-scrollable');
     elGetById('modalScriptsListTab').classList.add('active');
     elGetById('modalScriptsEditTab').classList.remove('active');
     elGetById('modalScriptsImportTab').classList.remove('active');
@@ -469,6 +471,7 @@ function parseScriptList(obj) {
 //eslint-disable-next-line no-unused-vars
 function showImportScript() {
     cleanupModalId('modalScripts');
+    elGetById('modalScripts').firstElementChild.classList.add('modal-dialog-scrollable');
     elGetById('modalScriptsListTab').classList.remove('active');
     elGetById('modalScriptsEditTab').classList.remove('active');
     elGetById('modalScriptsImportTab').classList.add('active');
