@@ -294,7 +294,6 @@ function showEditScript(script) {
     elHideId('modalScriptsListFooter');
     elHideId('modalScriptsImportFooter');
     elShowId('modalScriptsEditFooter');
-
     if (script !== '') {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }
@@ -308,6 +307,7 @@ function showEditScript(script) {
         elClearId('modalScriptsArgumentsInput');
         elGetById('modalScriptsContentInput').value = '';
         elDisableId('modalScriptsUpdateBtn');
+        elHideId('modalScriptsEditDescRow');
     }
     setFocusId('modalScriptsScriptInput');
 }
@@ -326,6 +326,12 @@ function parseEditScript(obj) {
     elGetById('modalScriptsAddArgumentInput').value = '';
     if (obj.result.metadata.file !== '' && obj.result.metadata.version > 0) {
         elEnableId('modalScriptsUpdateBtn');
+        elShowId('modalScriptsEditDescRow');
+        elGetById('modalScriptsEditLink').setAttribute('href', scriptsUri + dirname(obj.result.metadata.file));
+    }
+    else {
+        elDisableId('modalScriptsUpdateBtn');
+        elHideId('modalScriptsEditDescRow');
     }
     const selSA = elGetById('modalScriptsArgumentsInput');
     selSA.options.length = 0;
