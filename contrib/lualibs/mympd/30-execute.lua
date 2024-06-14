@@ -13,7 +13,7 @@ function mympd.os_capture(cmd)
         ''
     ),
     '[\n\r]+',
-    ' '
+    '\n'
   )
   return output
 end
