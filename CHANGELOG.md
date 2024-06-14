@@ -6,9 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD 16.0.0 (not yet released)
 
-This release reworks and enhances the scripting functionality of myMPD. There are several new myMPD specific Lua functions and new usage scenarios for scripts.
-
-With this release you can call Lua scripts by http requests and the script itself can respond to it. There is now also a new `yt-dlp` script developed by @sevmonster that make use of this new functionality.
+This release reworks and enhances the scripting functionality of myMPD. There are several new myMPD specific Lua functions and new usage scenarios for scripts. With this release scripts can respond to specific http requests.
 
 There are also new triggers introduced:
 
