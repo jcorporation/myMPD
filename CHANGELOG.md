@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 This release reworks and enhances the scripting functionality of myMPD. There are several new myMPD specific Lua functions and new usage scenarios for scripts. With this release scripts can respond to specific http requests.
 
+The scripts to import in myMPD are moved to a separate [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts). Check it out, there are now much more scripts that are ready to use and demonstrate all the new functionality introduced in this myMPD release.
+
 There are also new triggers introduced:
 
 - mpd_channel
@@ -19,11 +21,11 @@ There are also new triggers introduced:
 
 ### Notes
 
+- `mympd.os_capture` does not strip newlines anymore
 - The config setting for the ListenBrainz API token was removed in favor of a new central function to declare variables for scripts.
 - The config setting `covercache_keep_days` was renamed to `cache_cover_keep_days`.
 - The global variables and tables for Lua scripts are renamed.
 - The `lualibs` configuration option was removed. myMPD loads always all Lua standard libraries.
-- The scripts to import are move to the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts).
 - `/var/cache/mympd/covercache` was renamed to `/var/cache/mympd/cover`
 
 ### API changes
@@ -60,7 +62,6 @@ There are also new triggers introduced:
   - HTTP download function
   - Dialogs
   - Improved script import
-  - `mympd.os_capture` does not strip newlines anymore
 - Feat: Set custom variables for scripts #1265
 - Feat: New triggers #1288
 - Feat: Use EC private keys for SSL certificates
