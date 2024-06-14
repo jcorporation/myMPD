@@ -60,6 +60,7 @@ There are also new triggers introduced:
   - HTTP download function
   - Dialogs
   - Improved script import
+  - `mympd.os_capture` does not strip newlines anymore
 - Feat: Set custom variables for scripts #1265
 - Feat: New triggers #1288
 - Feat: Use EC private keys for SSL certificates
