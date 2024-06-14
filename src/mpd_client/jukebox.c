@@ -142,8 +142,12 @@ bool jukebox_run(struct t_mympd_state *mympd_state, struct t_partition_state *pa
     if (add_songs > partition_state->jukebox.queue->length) {
         if (partition_state->jukebox.mode == JUKEBOX_SCRIPT) {
             MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: Trigger");
+            struct t_list arguments;
+            list_init(&arguments);
+            list_push(&arguments, "addToQueue", 0, "1", NULL);
             int n = mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_JUKEBOX,
                     partition_state->name, NULL);
+            list_clear(&arguments);
             if (n > 0) {
                 if (n > 1) {
                     MYMPD_LOG_WARN(partition_state->name, "More than one script triggered for jukebox.");
@@ -185,6 +189,22 @@ bool jukebox_run(struct t_mympd_state *mympd_state, struct t_partition_state *pa
         struct t_list *queue_list = jukebox_get_last_played(partition_state, partition_state->jukebox.mode);
         request->extra = queue_list;
         return mympd_queue_push(mympd_api_queue, request, 0);
+    }
+    if (partition_state->jukebox.mode == JUKEBOX_SCRIPT && partition_state->jukebox.queue->length < JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH_MIN) {
+        MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: Trigger");
+        struct t_list arguments;
+        list_init(&arguments);
+        list_push(&arguments, "addToQueue", 0, "0", NULL);
+        int n = mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_JUKEBOX,
+                partition_state->name, NULL);
+        list_clear(&arguments);
+        if (n > 0) {
+            if (n > 1) {
+                MYMPD_LOG_WARN(partition_state->name, "More than one script triggered for jukebox.");
+            }
+            partition_state->jukebox.filling = true;
+        }
+        return n == 1;
     }
     return rc;
 }
