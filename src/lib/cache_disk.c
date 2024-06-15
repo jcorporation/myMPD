@@ -24,35 +24,31 @@ static int crop_dir(sds cache_basedir, const char *type, int keepdays);
 // public functions
 
 /**
- * Clears the caches
- * @param cachedir covercache directory
- * @param keepdays delete files older than this number of days
- * @return deleted file count on success, else -1
+ * Clears the caches unconditionally
+ * @param config pointer to static config
  */
 void cache_disk_clear(struct t_config *config) {
-    if (config->cache_cover_keep_days > CACHE_DISK_DISABLED) {
-        crop_dir(config->cachedir, DIR_CACHE_COVER, config->cache_cover_keep_days);
-    }
-    if (config->cache_lyrics_keep_days > CACHE_DISK_DISABLED) {
-        crop_dir(config->cachedir, DIR_CACHE_LYRICS, config->cache_lyrics_keep_days);
-    }
-    if (config->cache_thumbs_keep_days > CACHE_DISK_DISABLED) {
-        crop_dir(config->cachedir, DIR_CACHE_THUMBS, config->cache_thumbs_keep_days);
-    }
+    crop_dir(config->cachedir, DIR_CACHE_COVER, config->cache_cover_keep_days);
+    crop_dir(config->cachedir, DIR_CACHE_LYRICS, config->cache_lyrics_keep_days);
+    crop_dir(config->cachedir, DIR_CACHE_THUMBS, config->cache_thumbs_keep_days);
     crop_dir(config->cachedir, DIR_CACHE_MISC, config->cache_misc_keep_days);
 }
 
 /**
  * Crops the caches
- * @param cachedir covercache directory
- * @param keepdays delete files older than this number of days
- * @return deleted file count on success, else -1
+ * @param config pointer to static config
  */
 void cache_disk_crop(struct t_config *config) {
-    crop_dir(config->cachedir, DIR_CACHE_COVER, 0);
-    crop_dir(config->cachedir, DIR_CACHE_LYRICS, 0);
+    if (config->cache_cover_keep_days > CACHE_DISK_DISABLED) {
+        crop_dir(config->cachedir, DIR_CACHE_COVER, 0);
+    }
+    if (config->cache_lyrics_keep_days > CACHE_DISK_DISABLED) {
+        crop_dir(config->cachedir, DIR_CACHE_LYRICS, 0);
+    }
+    if (config->cache_thumbs_keep_days > CACHE_DISK_DISABLED) {
+        crop_dir(config->cachedir, DIR_CACHE_THUMBS, 0);
+    }
     crop_dir(config->cachedir, DIR_CACHE_MISC, 0);
-    crop_dir(config->cachedir, DIR_CACHE_THUMBS, 0);
 }
 
 /**
