@@ -1202,5 +1202,6 @@
     "Can not find script in repository.": "Skript konnte im Repository nicht gefunden werden.",
     "Can not parse script metadata.": "Skript konnte nicht geparsed werden.",
     "Script is up-to-date.": "Skript ist aktuell.",
-    "Script successfully updated.": "Skript erfolgreich aktualisiert."
+    "Script successfully updated.": "Skript erfolgreich aktualisiert.",
+    "Report a bug": "Melde einen Softwarefehler"
 }

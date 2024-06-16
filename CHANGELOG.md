@@ -27,6 +27,7 @@ There are also new triggers introduced:
 - The global variables and tables for Lua scripts are renamed.
 - The `lualibs` configuration option was removed. myMPD loads always all Lua standard libraries.
 - `/var/cache/mympd/covercache` was renamed to `/var/cache/mympd/cover`
+- The native Radiobrowser integration is now deprecated and will be removes in the next major release. Use the RadioBrowser script instead.
 
 ### API changes
 

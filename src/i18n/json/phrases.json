@@ -723,6 +723,7 @@
 {"term":"Replace queue and play"},
 {"term":"Replace queue with playlist"},
 {"term":"Replaygain"},
+{"term":"Report a bug"},
 {"term":"Rescan"},
 {"term":"Rescan database"},
 {"term":"Rescan directory"},
