@@ -6,23 +6,33 @@
 
 CONFIG_DIR="/var/lib/mympd/config"
 
-while getopts ':c:' OPTION
+while getopts ':c:s:b:' OPTION
 do
     case "$OPTION" in
+        b) MYMPD_BIN="$OPTARG" ;;
         c) CONFIG_DIR="$OPTARG" ;;
+        s) MYMPD_SYSTEMD="$OPTARG" ;;
         *)
-            echo "Usage: $(basename "$0") [-c </path/to/config/dir>] [SETTING VALUE ...]"
+            echo "Usage: $(basename "$0") [-b </usr/bin/mympd>] [-c </var/lib/mympd/config>] [-s <0|1>] [SETTING VALUE ...]"
+            echo "Options"
+            echo "  -b Path to myMPD binary"
+            echo "  -c Path to myMPD config directory, default: /var/lib/mympd/config"
+            echo "  -s 0 = myMPD runs with normal linux user account"
+            echo "     1 = myMPD ist started with systemd private user"
             exit 1
             ;;
     esac
 done
 shift "$((OPTIND - 1))"
 
-if grep "DynamicUser=yes" "/usr/lib/systemd/system/mympd.service" > /dev/null 2>&1
+if [ -z "$MYMPD_SYSTEMD" ]
 then
-    MYMPD_SYSTEMD=1
-else
-    MYMPD_SYSTEMD=0
+    if grep "DynamicUser=yes" "/usr/lib/systemd/system/mympd.service" > /dev/null 2>&1
+    then
+        MYMPD_SYSTEMD=1
+    else
+        MYMPD_SYSTEMD=0
+    fi
 fi
 
 # whiptail
@@ -120,7 +130,7 @@ apply_config() {
             -E MYMPD_CUSTOM_CERT="$MYMPD_CUSTOM_CERT" \
             -E MYMPD_SSL_CERT="$MYMPD_SSL_CERT" \
             -E MYMPD_SSL_KEY="$MYMPD_SSL_KEY" \
-            mympd -c
+            $MYMPD_BIN -c
     else
         export MYMPD_ACL
         export MYMPD_ALBUM_GROUP_TAG
@@ -144,7 +154,7 @@ apply_config() {
         export MYMPD_CUSTOM_CERT
         export MYMPD_SSL_CERT
         export MYMPD_SSL_KEY
-        mympd -c
+        $MYMPD_BIN -c
     fi
 }
 
