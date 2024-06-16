@@ -159,7 +159,7 @@ set_pin() {
 }
 
 get_input() {
-    if INPUT=$(whiptail --clear --cancel-button Cancel --backtitle "$BACKTITLE" --inputbox "$1" 0 "$MENU_WIDTH" "$2" \
+    if INPUT=$(whiptail --clear --cancel-button Cancel --backtitle "$BACKTITLE" --inputbox "$1" 0 "$MENU_WIDTH" "$2" -- \
         3>&1 1>&2 2>&3)
     then
         printf "%s" "$INPUT"
@@ -178,7 +178,7 @@ toggle_bool() {
 }
 
 menu_webserver() {
-    SELECT=$(whiptail --clear --cancel-button "Back" --backtitle "$BACKTITLE" --menu "Webserver" 0 "$MENU_WIDTH" 0 \
+    SELECT=$(whiptail --clear --cancel-button "Back" --backtitle "$BACKTITLE" --menu "Webserver" 0 "$MENU_WIDTH" 0 -- \
         "Listening IP" "$MYMPD_HTTP_HOST" \
         "HTTP" "$MYMPD_HTTP" \
         "ACL" "$MYMPD_ACL" \
@@ -228,7 +228,7 @@ select_loglevel() {
         "6") S_INFO=1 ;;
         "7") S_DEBUG=1 ;;
     esac
-    if SELECT=$(whiptail --clear --cancel-button "Cancel" --backtitle "$BACKTITLE" --radiolist "Loglevel" 0 "$MENU_WIDTH" 0 \
+    if SELECT=$(whiptail --clear --cancel-button "Cancel" --backtitle "$BACKTITLE" --radiolist "Loglevel" 0 "$MENU_WIDTH" 0 -- \
         "0" "Emerg" "$S_EMERG" \
         "1" "Alert" "$S_ALERT" \
         "2" "Critical" "$S_CRITICAL" \
@@ -246,7 +246,7 @@ select_loglevel() {
 }
 
 menu_misc() {
-    SELECT=$(whiptail --clear --cancel-button "Back" --backtitle "$BACKTITLE" --menu "Misc" 0 "$MENU_WIDTH" 0 \
+    SELECT=$(whiptail --clear --cancel-button "Back" --backtitle "$BACKTITLE" --menu "Misc" 0 "$MENU_WIDTH" 0 -- \
         "Album group tag" "$MYMPD_ALBUM_GROUP_TAG" \
         "Album mode" "$MYMPD_ALBUM_MODE" \
         "Cover cache" "$MYMPD_CACHE_COVER_KEEP_DAYS" \
@@ -277,7 +277,7 @@ menu_misc() {
 }
 
 menu_main() {
-    SELECT=$(whiptail --clear --notags --cancel-button "Exit" --backtitle "$BACKTITLE" --menu "$BACKTITLE" 0 "$MENU_WIDTH" 0 \
+    SELECT=$(whiptail --clear --notags --cancel-button "Exit" --backtitle "$BACKTITLE" --menu "$BACKTITLE" 0 "$MENU_WIDTH" 0 -- \
         "W" "Webserver" \
         "M" "Misc" \
         "P" "Set PIN" \
