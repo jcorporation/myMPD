@@ -35,24 +35,24 @@ void cache_disk_clear(struct t_config *config) {
 }
 
 /**
- * Crops the caches
+ * Crops the caches respecting the keep_days settings
  * @param config pointer to static config
  */
 void cache_disk_crop(struct t_config *config) {
     if (config->cache_cover_keep_days > CACHE_DISK_DISABLED) {
-        crop_dir(config->cachedir, DIR_CACHE_COVER, 0);
+        crop_dir(config->cachedir, DIR_CACHE_COVER, config->cache_cover_keep_days);
     }
     if (config->cache_lyrics_keep_days > CACHE_DISK_DISABLED) {
-        crop_dir(config->cachedir, DIR_CACHE_LYRICS, 0);
+        crop_dir(config->cachedir, DIR_CACHE_LYRICS, config->cache_lyrics_keep_days);
     }
     if (config->cache_thumbs_keep_days > CACHE_DISK_DISABLED) {
-        crop_dir(config->cachedir, DIR_CACHE_THUMBS, 0);
+        crop_dir(config->cachedir, DIR_CACHE_THUMBS, config->cache_thumbs_keep_days);
     }
-    crop_dir(config->cachedir, DIR_CACHE_MISC, 0);
+    crop_dir(config->cachedir, DIR_CACHE_MISC, config->cache_misc_keep_days);
 }
 
 /**
- * Clears a specific cache dir
+ * Crops a specific cache dir
  * @param cache_basedir cache basedir
  * @param type cache subdir
  * @param keepdays expiration in days
