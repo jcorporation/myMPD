@@ -176,7 +176,7 @@ set_pin() {
 }
 
 get_input() {
-    if INPUT=$(whiptail --clear --cancel-button Cancel --backtitle "$BACKTITLE" --inputbox "$1" 0 "$MENU_WIDTH" "$2" -- \
+    if INPUT=$(whiptail --clear --cancel-button Cancel --backtitle "$BACKTITLE" --inputbox "$1" 0 "$MENU_WIDTH" -- "$2" \
         3>&1 1>&2 2>&3)
     then
         printf "%s" "$INPUT"
