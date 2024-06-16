@@ -5,6 +5,7 @@
 # https://github.com/jcorporation/mympd
 
 CONFIG_DIR="/var/lib/mympd/config"
+MYMPD_BIN="$(command -v mympd)"
 
 while getopts ':c:s:b:' OPTION
 do
@@ -24,6 +25,12 @@ do
     esac
 done
 shift "$((OPTIND - 1))"
+
+if [ -z "$MYMPD_BIN" ] || [ ! -x "$MYMPD_BIN" ]
+then
+    echo "mympd not found"
+    exit 1
+fi
 
 if [ -z "$MYMPD_SYSTEMD" ]
 then
