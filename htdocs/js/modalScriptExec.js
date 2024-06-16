@@ -170,13 +170,26 @@ function createScriptDialogEl(data) {
         case 'list': {
             const rows = [];
             for (let i = 0; i < data.value.length; i++) {
-                const title = data.displayValue && data.displayValue[i]
-                    ? data.displayValue[i]
+                const title = data.displayValue && data.displayValue[i].title
+                    ? data.displayValue[i].title
                     : data.value[i];
+                const lines = [];
+                let hasDesc = false;
+                if (data.displayValue && data.displayValue[i].text) {
+                    lines.push(elCreateText('p', {"class": ["mb-1"]}, data.displayValue[i].text));
+                    hasDesc = true;
+                }
+                if (data.displayValue && data.displayValue[i].small) {
+                    lines.push(elCreateText('small', {}, data.displayValue[i].small));
+                    hasDesc = true;
+                }
                 rows.push(
-                    elCreateNodes('li', {"data-value": data.value[i], "class": ["list-group-item", "d-flex", "justify-content-between", "align-items-start", "clickable"]}, [
-                        elCreateText('span', {}, title),
-                        pEl.selectBtn.cloneNode(true)
+                    elCreateNodes('li', {"data-value": data.value[i], "class": ["list-group-item", "clickable"]}, [
+                        elCreateNodes('div', {"class": ["d-flex", "justify-content-between", "align-items-start"]}, [
+                            elCreateText((hasDesc === true ? 'h5' : 'p'), {"class": ["mb-1"]}, title),
+                            pEl.selectBtn.cloneNode(true),
+                        ]),
+                        ... lines
                     ])
                 );
             }
@@ -189,11 +202,11 @@ function createScriptDialogEl(data) {
                 const active = target.classList.contains('active');
                 if (active === false) {
                     target.classList.add('active');
-                    target.lastChild.textContent = ligatures.checked;
+                    target.querySelector('button').textContent = ligatures.checked;
                 }
                 else {
                     target.classList.remove('active');
-                    target.lastChild.textContent = ligatures.unchecked;
+                    target.querySelector('button').textContent = ligatures.unchecked;
                 }
             }, false);
             return lg;

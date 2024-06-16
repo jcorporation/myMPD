@@ -9,13 +9,73 @@ Returns an Jsonrpc response for a script dialog.
 ```lua
 local title = "Script title"
 local data = {
-  { name = "testinput", type = "text", value = "testvalue" },
-  { name = "testpassword", type = "password", value = "" },
-  { name = "action", type = "hidden", value = "test" },
-  { name = "testcheckbox", type = "checkbox", value = false },
-  { name = "testradio", type = "radio", value = { "radio1", "radio2" }, displayValue = { "Radio 1", "Radio 2" }, defaultValue = "radio2" },
-  { name = "testselect", type = "select", value = { "option1", "option2" }, defaultValue = "option1" },
-  { name = "testlist", type = "list", value = { "val1", "val2", "val3" }, defaultValue = "" }
+  {
+    name = "testinput",
+    type = "text",
+    value = "testvalue"
+  },
+  {
+    name = "testpassword",
+    type = "password",
+    value = ""
+  },
+  {
+    name = "action",
+    type = "hidden",
+    value = "test"
+  },
+  {
+    name = "testcheckbox",
+    type = "checkbox",
+    value = false
+  },
+  {
+    name = "testradio",
+    type = "radio",
+    value = {
+      "radio1",
+      "radio2"
+    },
+    displayValue = {
+      "Radio 1",
+      "Radio 2"
+    },
+    defaultValue = "radio2"
+  },
+  {
+    name = "testselect",
+    type = "select",
+    value = {
+      "option1",
+      "option2"
+    },
+    ,
+    displayValue = {
+      "Option1 1",
+      "Option 2"
+    },
+    defaultValue = "option1"
+  },
+  {
+    name = "testlist",
+    type = "list",
+    value = {
+      "val1",
+      "val2"
+    },
+    displayValue = {
+      {
+        title = "Title 1",
+        text = "Text 1",
+        small = "Hint 1"
+      },
+      {
+        title = "Title 2",
+        text = "Text 2",
+        small = "Hint 2"
+      }
+    }
+  }
 }
 local callback = "testscript"
 return mympd.dialog(title, data, callback)
@@ -41,7 +101,7 @@ A Jsonrpc string with method `script_dialog`.
 | name | Name of the form element. |
 | type | Type of the form element. |
 | value | The value(s) of the form element. |
-| displayValue | The display values of the form element, only valid for `select`, `radio` and `list`. |
+| displayValue | The display values of the form element, it is optional and only valid for `select`, `radio` and `list`. |
 | defaultValue | The defaultValue of the form element. |
 {: .table .table-sm }
 
