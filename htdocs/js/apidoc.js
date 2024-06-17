@@ -350,7 +350,8 @@ const APImethods = {
                 "type": APItypes.uint,
                 "example": 1,
                 "desc": "1 = add songs, 2 = add albums"
-            }
+            },
+            "play": APIparams.play
         }
     },
     "MYMPD_API_QUEUE_SAVE": {

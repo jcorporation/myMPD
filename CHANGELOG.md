@@ -46,6 +46,7 @@ There are also new triggers introduced:
 - MYMPD_API_CHANNEL_MESSAGES_READ: new
 - MYMPD_API_JUKEBOX_LENGTH: new
 - MYMPD_API_JUKEBOX_APPEND_URIS: new
+- MYMPD_API_QUEUE_ADD_RANDOM: parameters changed
 
 ### Changelog
 

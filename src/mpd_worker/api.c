@@ -81,12 +81,13 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
         case MYMPD_API_QUEUE_ADD_RANDOM:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 2, &uint_buf1, &parse_error) == true &&
-                json_get_uint(request->data, "$.params.quantity", 1, 1000, &uint_buf2, &parse_error) == true)
+                json_get_uint(request->data, "$.params.quantity", 1, 1000, &uint_buf2, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
             {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Task to add random songs to queue has started");
                 push_response(response);
-                rc = mpd_worker_add_random_to_queue(mpd_worker_state, uint_buf2, uint_buf1, sds_buf1, request->partition);
+                rc = mpd_worker_add_random_to_queue(mpd_worker_state, uint_buf2, uint_buf1, sds_buf1, bool_buf1, request->partition);
                 sds_buf2 = jsonrpc_respond_with_message_or_error(sdsempty(), request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, "Successfully added random songs to queue", "Adding random songs to queue failed");
                 ws_notify_client(sds_buf2, request->id);
