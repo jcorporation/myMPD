@@ -76,6 +76,7 @@ bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
         FREE_SDS(error);
         return false;
     }
+
     if (mpd_client_queue_check_start_play(mpd_worker_state->partition_state, play, &error) == false) {
         FREE_SDS(error);
         return false;
