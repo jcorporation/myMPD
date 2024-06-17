@@ -146,7 +146,7 @@ bool jukebox_run(struct t_mympd_state *mympd_state, struct t_partition_state *pa
             list_init(&arguments);
             list_push(&arguments, "addToQueue", 0, "1", NULL);
             int n = mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_JUKEBOX,
-                    partition_state->name, NULL);
+                    partition_state->name, &arguments);
             list_clear(&arguments);
             if (n > 0) {
                 if (n > 1) {
@@ -196,7 +196,7 @@ bool jukebox_run(struct t_mympd_state *mympd_state, struct t_partition_state *pa
         list_init(&arguments);
         list_push(&arguments, "addToQueue", 0, "0", NULL);
         int n = mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_JUKEBOX,
-                partition_state->name, NULL);
+                partition_state->name, &arguments);
         list_clear(&arguments);
         if (n > 0) {
             if (n > 1) {
