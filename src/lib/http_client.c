@@ -131,8 +131,8 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
             }
             sds last_host = sdsdup(mg_client_request->connect_uri);
             sdsclear(mg_client_request->connect_uri);
-            if (strncmp(mg_client_request->connect_uri, "http://", 7) != 0 &&
-                strncmp(mg_client_request->connect_uri, "https://", 8) != 0)
+            if (strncmp(location->value_p, "http://", 7) != 0 &&
+                strncmp(location->value_p, "https://", 8) != 0)
             {
                 // redirect uri without host, keep last host part
                 int k = 0;
