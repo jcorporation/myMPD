@@ -247,7 +247,7 @@ function setBrowseDatabaseAlbumListSortTags(list) {
         {
             tags.push(['Date','Date']);
         }
-        tags.push(['Last-Modified', 'Last modified']);
+        tags.push(['Last-Modified', 'Last-Modified']);
         if (features.featDbAdded === true) {
             tags.push(['Added', 'Added']);
         }
