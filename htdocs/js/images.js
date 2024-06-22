@@ -196,7 +196,7 @@ function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
     }
     const aImages = [];
     for (let i = 0; i < embeddedImageCount; i++) {
-        aImages.push(uri);
+        aImages.push(subdir + '/albumart?offset=' + i + '&uri=' + myEncodeURIComponent(uri));
     }
     //add all but coverfiles to image list
     for (let i = 0, j = images.length; i < j; i++) {

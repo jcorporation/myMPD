@@ -308,7 +308,7 @@ function setBackgroundImage(el, url) {
     const old = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
     //do not update if url is the same
     if (old[0] &&
-        getData(old[0], 'uri') === bgImageUrl)
+        getData(old[0], 'uri') === url)
     {
         logDebug('Background image already set for: ' + el.tagName);
         return;
@@ -330,7 +330,7 @@ function setBackgroundImage(el, url) {
     }
     div.style.backgroundImage = 'url("' + bgImageUrl + '")';
     div.style.opacity = 0;
-    setData(div, 'uri', bgImageUrl);
+    setData(div, 'uri', url);
     el.insertBefore(div, el.firstChild);
     //create dummy img element for preloading and fade-in
     const img = new Image();
