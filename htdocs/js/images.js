@@ -133,7 +133,9 @@ function zoomPicture(el) {
         return;
     }
 
-    if (el.classList.contains('carousel')) {
+    if (el.classList.contains('carousel') ||
+        el.parentNode.classList.contains('carousel'))
+    {
         let images;
         let embeddedImageCount;
         const dataImages = getData(el, 'images');
@@ -194,7 +196,7 @@ function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
     }
     const aImages = [];
     for (let i = 0; i < embeddedImageCount; i++) {
-        aImages.push(subdir + '/albumart?offset=' + i + '&uri=' + myEncodeURIComponent(uri));
+        aImages.push(uri);
     }
     //add all but coverfiles to image list
     for (let i = 0, j = images.length; i < j; i++) {

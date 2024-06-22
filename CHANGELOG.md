@@ -75,6 +75,7 @@ There are also new triggers introduced:
 - Fix: Error checking for results in modals
 - Fix: JavaScript error on right click in tags view
 - Fix: Alignment of action icons in tag view
+- Fix: Display image carousel for covers in playback view and footer #1316
 
 ***
 
