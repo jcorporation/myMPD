@@ -4,6 +4,12 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD 17.0.0 (not yet released)
+
+### Changelog
+
+***
+
 ## myMPD 16.0.0 (not yet released)
 
 This release reworks and enhances the scripting functionality of myMPD. There are several new myMPD specific Lua functions and new usage scenarios for scripts. With this release scripts can respond to specific http requests.
