@@ -159,11 +159,6 @@ const APIparams = {
         "example": true,
         "desc": "true = play first inserted song"
     },
-    "radiobrowserUUID": {
-        "type": APItypes.string,
-        "example": "d8f01eea-26be-4e3d-871d-7596e3ab8fb1",
-        "desc": "Station UUID from radio-browser.info"
-    },
     "preset": {
         "type": APItypes.string,
         "example": "default",
@@ -1343,11 +1338,6 @@ const APImethods = {
                         "example": "append",
                         "desc": "Action for click on song: append, appendPlay, replace, replacePlay, insertAfterCurrent, view"
                     },
-                    "clickRadiobrowser": {
-                        "type": APItypes.string,
-                        "example": "view",
-                        "desc": "Action for click on playlist: append, appendPlay, replace, replacePlay, insertAfterCurrent, add"
-                    },
                     "clickRadioFavorites": {
                         "type": APItypes.string,
                         "example": "view",
@@ -1673,7 +1663,7 @@ const APImethods = {
             "view": {
                 "type": APItypes.string,
                 "example": "viewQueueCurrent",
-                "desc": "Valid values: viewQueueCurrent, viewQueueLastPlayed, viewSearch, viewBrowseDatabaseAlbumDetail, viewBrowseDatabaseAlbumList, viewBrowsePlaylistDetail, viewBrowseFilesystem, viewPlayback, viewQueueJukeboxAlbum, viewQueueJukeboxSong, viewBrowseRadioWebradiodb, viewBrowseRadioRadiobrowser"
+                "desc": "Valid values: viewQueueCurrent, viewQueueLastPlayed, viewSearch, viewBrowseDatabaseAlbumDetail, viewBrowseDatabaseAlbumList, viewBrowsePlaylistDetail, viewBrowseFilesystem, viewPlayback, viewQueueJukeboxAlbum, viewQueueJukeboxSong, viewBrowseRadioWebradiodb"
             },
             "mode": {
                 "type": APItypes.string,
@@ -2282,52 +2272,6 @@ const APImethods = {
                 "example": "[\"https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u\"]",
                 "desc": "Filenames of the webradio favorites to delete."
             }
-        }
-    },
-    "MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT": {
-        "desc": "Returns radio-browser.info station details.",
-        "params": {
-            "uuid": APIparams.radiobrowserUUID
-        }
-    },
-    "MYMPD_API_CLOUD_RADIOBROWSER_NEWEST": {
-        "desc": "Lists the last changed/added stations.",
-        "params": {
-            "offset": APIparams.offset,
-            "limit": APIparams.limit
-        }
-    },
-    "MYMPD_API_CLOUD_RADIOBROWSER_SEARCH": {
-        "desc": "Searches radio-browser.info",
-        "params": {
-            "offset": APIparams.offset,
-            "limit": APIparams.limit,
-            "tags": {
-                "type": APItypes.string,
-                "example": "pop",
-                "desc": "Tag to filter"
-            },
-            "country": {
-                "type": APItypes.string,
-                "example": "Germany",
-                "desc": "Country to filter"
-            },
-            "language": {
-                "type": APItypes.string,
-                "example": "German",
-                "desc": "Language to filter"
-            },
-            "searchstr": APIparams.searchstr
-        }
-    },
-    "MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST": {
-        "desc": "Returns radio-browser.info endpoints.",
-        "params": {}
-    },
-    "MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL": {
-        "desc": "Returns radio-browser.info station details.",
-        "params": {
-            "uuid": APIparams.radiobrowserUUID
         }
     },
     "MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET": {

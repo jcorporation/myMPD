@@ -124,9 +124,6 @@ function viewClickHandler(event) {
         case 'BrowseRadioFavorites':
             viewBrowseRadioFavoritesListClickHandler(event, target);
             break;
-        case 'BrowseRadioRadiobrowser':
-            viewBrowseRadioRadiobrowserListClickHandler(event, target);
-            break;
         case 'BrowseRadioWebradiodb':
             viewBrowseRadioWebradiodbListClickHandler(event, target);
             break;
@@ -499,8 +496,6 @@ function setFields(tableName) {
         case 'BrowseRadioFavorites':
         case 'BrowseRadioWebradiodb':
             return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "State", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
-        case 'BrowseRadioRadiobrowser':
-            return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
         case 'BrowseDatabaseTagList':
             return ["Value", "Thumbnail"];
         case 'BrowseDatabaseAlbumList': {

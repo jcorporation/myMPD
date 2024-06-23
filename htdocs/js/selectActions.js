@@ -22,7 +22,6 @@ function initSelectActions() {
         'BrowsePlaylistDetailSelectionDropdown',
         'BrowseRadioFavoritesSelectionDropdown',
         'BrowseRadioWebradiodbSelectionDropdown',
-        'BrowseRadioRadiobrowserSelectionDropdown',
         'SearchSelectionDropdown'
     ]) {
         const el = document.querySelector('#' + dropdownId + '> div');

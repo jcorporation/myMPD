@@ -199,7 +199,6 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define MYMPD_VIEW_QUEUE_JUKEBOX_SONG "{\"mode\":\"table\",\"fields\":[\"Pos\",\"Title\",\"Artist\",\"Album\"]}"
 #define MYMPD_VIEW_QUEUE_JUKEBOX_ALBUM "{\"mode\":\"table\",\"fields\":[\"Pos\",\"Album\",\"AlbumArtist\"]}"
 #define MYMPD_VIEW_BROWSE_RADIO_WEBRADIODB "{\"mode\":\"table\",\"fields\":[\"Name\",\"Country\",\"Language\",\"Genre\"]}"
-#define MYMPD_VIEW_BROWSE_RADIO_RADIOBROWSER "{\"mode\":\"table\",\"fields\":[\"name\",\"country\",\"language\",\"tags\"]}"
 #define MYMPD_VIEW_BROWSE_RADIO_FAVORITES "{\"mode\":\"grid\",\"fields\":[\"Name\",\"Genre\",\"Country\"]}"
 #define MYMPD_VOLUME_MIN 0 //prct
 #define MYMPD_VOLUME_MAX 100 //prct
@@ -411,7 +410,6 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define PADDING_LENGTH 12
 
 //cloud api hosts
-#define RADIOBROWSER_HOST "all.api.radio-browser.info"
 #define WEBRADIODB_HOST "jcorporation.github.io"
 
 #endif

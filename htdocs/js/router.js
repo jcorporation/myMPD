@@ -22,7 +22,7 @@ function appPrepare() {
             'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed',
             'tabQueueJukebox', 'viewQueueJukeboxSong', 'viewQueueJukeboxAlbum',
             'cardBrowse', 'tabBrowseFilesystem',
-            'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioWebradiodb', 'viewBrowseRadioRadiobrowser',
+            'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioWebradiodb',
             'tabBrowsePlaylist', 'viewBrowsePlaylistDetail', 'viewBrowsePlaylistList',
             'tabBrowseDatabase', 'viewBrowseDatabaseTagList', 'viewBrowseDatabaseAlbumDetail', 'viewBrowseDatabaseAlbumList'];
         for (const card of cards) {
@@ -271,7 +271,6 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         case 'BrowseDatabaseAlbumDetail': handleBrowseDatabaseAlbumDetail(); break;
         case 'BrowseRadioFavorites':      handleBrowseRadioFavorites(); break;
         case 'BrowseRadioWebradiodb':     handleBrowseRadioWebradiodb(); break;
-        case 'BrowseRadioRadiobrowser':   handleBrowseRadioRadiobrowser(); break;
         case 'Search':                    handleSearch(); break;
         default: {
             let initialStartupView = settings.webuiSettings.startupView;

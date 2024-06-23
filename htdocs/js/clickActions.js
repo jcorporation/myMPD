@@ -81,35 +81,13 @@ function clickSong(uri, event) {
 }
 
 /**
- * Handler for radiobrowser links
- * @param {string} uri stream uri
- * @param {string} uuid radiobrowser station uuid
- * @param {event} event the event
- * @returns {void}
- */
-function clickRadiobrowser(uri, uuid, event) {
-    switch (settings.webuiSettings.clickRadiobrowser) {
-        case 'append': return appendQueue('song', [uri]);
-        case 'appendPlay': return appendPlayQueue('song', [uri]);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', [uri]);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', [uri]);
-        case 'replace': return replaceQueue('song', [uri]);
-        case 'replacePlay': return replacePlayQueue('song', [uri]);
-        case 'view': return showRadiobrowserDetails(uuid);
-        case 'context': return showContextMenu(event);
-        default: logError('Invalid action: ' + settings.webuiSettings.clickRadiobrowser);
-    }
-    countClickRadiobrowser(uuid);
-}
-
-/**
  * Handler for webradioDB links
  * @param {string} uri stream uri
  * @param {event} event the event
  * @returns {void}
  */
 function clickWebradiodb(uri, event) {
-    switch (settings.webuiSettings.clickRadiobrowser) {
+    switch (settings.webuiSettings.clickWebradiodb) {
         case 'append': return appendQueue('song', [uri]);
         case 'appendPlay': return appendPlayQueue('song', [uri]);
         case 'insertAfterCurrent': return insertAfterCurrentQueue('song', [uri]);
@@ -118,7 +96,7 @@ function clickWebradiodb(uri, event) {
         case 'replacePlay': return replacePlayQueue('song', [uri]);
         case 'view': return showWebradiodbDetails(uri);
         case 'context': return showContextMenu(event);
-        default: logError('Invalid action: ' + settings.webuiSettings.clickRadiobrowser);
+        default: logError('Invalid action: ' + settings.webuiSettings.clickWebradiodb);
     }
 }
 

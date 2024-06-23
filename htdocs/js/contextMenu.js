@@ -363,23 +363,7 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
             addMenuItem(contextMenuBody, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
         }
     }
-    if (app.id === 'BrowseRadioRadiobrowser') {
-        const uuid = getData(dataNode, 'RADIOBROWSERUUID');
-        addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showRadiobrowserDetails", "options": [uuid]}, 'Webradio details');
-        addMenuItem(contextMenuBody, {"cmd": "showEditRadioFavorite", "options": [{
-            "Name": name,
-            "Genre": getData(dataNode, 'genre').replace(/,(\S)/g, ', $1'),
-            "Image": getData(dataNode, 'image'),
-            "StreamUri": uri,
-            "Homepage": getData(dataNode, 'homepage'),
-            "Country": getData(dataNode, 'country'),
-            "Language": getData(dataNode, 'language'),
-            "Codec": getData(dataNode, 'codec'),
-            "Bitrate": getData(dataNode, 'bitrate'),
-        }]}, 'Add to favorites');
-    }
-    else if (app.id === 'BrowseRadioWebradiodb') {
+    if (app.id === 'BrowseRadioWebradiodb') {
         addDivider(contextMenuBody);
         addMenuItem(contextMenuBody, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
         addMenuItem(contextMenuBody, {"cmd": "showEditRadioFavorite", "options": [{
@@ -573,7 +557,6 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
             return true;
         case 'BrowseFilesystem':
         case 'Search':
-        case 'BrowseRadioRadiobrowser':
         case 'BrowseRadioWebradiodb':
         case 'BrowseDatabaseAlbumDetail': {
             switch(type) {

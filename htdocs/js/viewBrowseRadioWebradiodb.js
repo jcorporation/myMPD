@@ -93,7 +93,7 @@ function initViewBrowseRadioWebradiodb() {
  */
 function viewBrowseRadioWebradiodbListClickHandler(event, target) {
     const uri = getData(target, 'uri');
-    if (settings.webuiSettings.clickRadiobrowser === 'add') {
+    if (settings.webuiSettings.clickWebradiodb === 'add') {
         showEditRadioFavorite({
             "Name": getData(target, 'name'),
             "Genre": getData(target, 'genre'),
@@ -296,7 +296,7 @@ function parseSearchWebradiodb(obj) {
         return;
     }
 
-    const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
+    const rowTitle = tn(settingsWebuiFields.clickWebradiodb.validValues[settings.webuiSettings.clickWebradiodb]);
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);

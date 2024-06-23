@@ -12,8 +12,8 @@
  */
 //eslint-disable-next-line no-unused-vars
 function showRadioFavoriteDetails(uri) {
-    cleanupModalId('modalRadiobrowserDetailsList');
-    elHideId('modalRadiobrowserDetailsAddToFavoriteBtn');
+    cleanupModalId('modalWebradiodbDetailList');
+    elHideId('modalWebradiodbDetailAddToFavoriteBtn');
     sendAPI('MYMPD_API_WEBRADIO_FAVORITE_GET', {'filename': uri}, parseShowRadioFavoriteDetails, true);
 }
 
@@ -23,8 +23,7 @@ function showRadioFavoriteDetails(uri) {
  * @returns {void}
  */
 function parseShowRadioFavoriteDetails(obj) {
-    //reuse the radiobrowser modal
-    const table = elGetById('modalRadiobrowserDetailsList');
+    const table = elGetById('modalWebradiodbDetailList');
     const tbody = table.querySelector('tbody');
     elClear(tbody);
     if (checkResult(obj, table, 'table') === false) {
@@ -32,13 +31,13 @@ function parseShowRadioFavoriteDetails(obj) {
     }
 
     if (obj.result.Image !== '') {
-        elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(obj.result.Image);
+        elGetById('modalWebradiodbDetailImage').style.backgroundImage = getCssImageUri(obj.result.Image);
     }
     else {
-        elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = 'url("' + subdir + '/assets/coverimage-notavailable")';
+        elGetById('modalWebradiodbDetailImage').style.backgroundImage = 'url("' + subdir + '/assets/coverimage-notavailable")';
     }
-    elGetById('RadiobrowserDetailsTitle').textContent = obj.result.Name;
-    setDataId('RadiobrowserDetailsTitle', 'webradio', obj.result);
+    elGetById('modalWebradiodbDetailTitle').textContent = obj.result.Name;
+    setDataId('modalWebradiodbDetailTitle', 'webradio', obj.result);
     const showFields = [
         'StreamUri',
         'Homepage',
@@ -59,5 +58,5 @@ function parseShowRadioFavoriteDetails(obj) {
             ])
         );
     }
-    uiElements.modalRadiobrowserDetails.show();
+    uiElements.modalWebradiodbDetail.show();
 }

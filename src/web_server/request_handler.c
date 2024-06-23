@@ -13,7 +13,6 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/web_server/proxy.h"
-#include "src/web_server/radiobrowser.h"
 #include "src/web_server/sessions.h"
 #include "src/web_server/utility.h"
 #include "src/web_server/webradiodb.h"
@@ -107,13 +106,6 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         case MYMPD_API_SESSION_LOGOUT:
         case MYMPD_API_SESSION_VALIDATE:
             webserver_session_api(nc, cmd_id, body, request_id, session, mg_user_data);
-            break;
-        case MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT:
-        case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
-        case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
-        case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
-        case MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL:
-            radiobrowser_api(nc, backend_nc, cmd_id, body, request_id);
             break;
         case MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET:
             webradiodb_api(nc, backend_nc, cmd_id, request_id);

@@ -86,7 +86,6 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->view_queue_jukebox_song = sdsnew(MYMPD_VIEW_QUEUE_JUKEBOX_SONG);
     mympd_state->view_queue_jukebox_album = sdsnew(MYMPD_VIEW_QUEUE_JUKEBOX_ALBUM);
     mympd_state->view_browse_radio_webradiodb = sdsnew(MYMPD_VIEW_BROWSE_RADIO_WEBRADIODB);
-    mympd_state->view_browse_radio_radiobrowser = sdsnew(MYMPD_VIEW_BROWSE_RADIO_RADIOBROWSER);
     mympd_state->view_browse_radio_favorites = sdsnew(MYMPD_VIEW_BROWSE_RADIO_FAVORITES);
     mympd_state->volume_min = MYMPD_VOLUME_MIN;
     mympd_state->volume_max = MYMPD_VOLUME_MAX;
@@ -172,7 +171,6 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->view_queue_jukebox_song);
     FREE_SDS(mympd_state->view_queue_jukebox_album);
     FREE_SDS(mympd_state->view_browse_radio_webradiodb);
-    FREE_SDS(mympd_state->view_browse_radio_radiobrowser);
     FREE_SDS(mympd_state->view_browse_radio_favorites);
     FREE_SDS(mympd_state->coverimage_names);
     FREE_SDS(mympd_state->thumbnail_names);

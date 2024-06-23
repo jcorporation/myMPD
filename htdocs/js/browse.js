@@ -12,8 +12,7 @@
 function initBrowse() {
     for (const nav of ['BrowseDatabaseTagListTagDropdown', 'BrowseDatabaseAlbumListTagDropdown',
         'BrowsePlaylistListNavDropdown', 'BrowseFilesystemNavDropdown',
-        'BrowseRadioWebradiodbNavDropdown','BrowseRadioRadiobrowserNavDropdown',
-        'BrowseRadioFavoritesNavDropdown'])
+        'BrowseRadioWebradiodbNavDropdown', 'BrowseRadioFavoritesNavDropdown'])
     {
         elGetById(nav).addEventListener('click', function(event) {
             navBrowseHandler(event);

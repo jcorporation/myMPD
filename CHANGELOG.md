@@ -6,7 +6,11 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD 17.0.0 (not yet released)
 
+This release improves the WebradioDB integration and removes the radiobrowser.info integration. You can use [RadioBrowser](https://github.com/jcorporation/mympd-scripts/tree/main/Radiobrowser) script to query the radiobrowser.info API.
+
 ### Changelog
+
+Upd: Remove radiobrowser integration #1311
 
 ***
 

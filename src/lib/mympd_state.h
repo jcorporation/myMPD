@@ -246,7 +246,6 @@ struct t_mympd_state {
     sds view_queue_jukebox_song;                  //!< view settings for the jukebox queue view for songs
     sds view_queue_jukebox_album;                 //!< view settings for the jukebox queue view for albums
     sds view_browse_radio_webradiodb;             //!< view settings for the webradiodb view
-    sds view_browse_radio_radiobrowser;           //!< view settings for the radiobrowser view
     sds view_browse_radio_favorites;              //!< view settings for the radio favorites view
     sds music_directory;                          //!< mpd music directory setting (real value is in mpd_state)
     sds playlist_directory;                       //!< mpd playlist directory (real value is in mpd_state)

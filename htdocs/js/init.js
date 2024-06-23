@@ -226,7 +226,6 @@ function appInit() {
     initViewBrowseDatabase();
     initViewBrowseFilesystem();
     initViewBrowseRadioFavorites();
-    initViewBrowseRadioRadiobrowser();
     initViewBrowseRadioWebradiodb();
     initViewHome();
     initViewPlayback();

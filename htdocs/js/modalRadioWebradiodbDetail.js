@@ -6,15 +6,25 @@
 /** @module modalRadioWebradiodbDetail_js */
 
 /**
+ * Shows the add to webradio favorites modal
+ * @param {Event} event triggering event
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showAddToWebradioFavorites(event) {
+    event.preventDefault();
+    showEditRadioFavorite(getDataId('modalWebradiodbDetailTitle', 'webradio'));
+}
+
+/**
  * Shows the details of a webradioDB entry
  * @param {string} uri webradio uri
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showWebradiodbDetails(uri) {
-    elShowId('modalRadiobrowserDetailsAddToFavoriteBtn');
-    //reuse the radiobrowser modal
-    const table = elGetById('modalRadiobrowserDetailsList');
+    elShowId('modalWebradiodbDetailAddToFavoriteBtn');
+    const table = elGetById('modalWebradiodbDetailList');
     const tbody = table.querySelector('tbody');
     elClear(tbody);
     const m3u = isStreamUri(uri)
@@ -25,13 +35,13 @@ function showWebradiodbDetails(uri) {
         tbody.appendChild(errorMsgEl({'error': {'message':'Webradio not found'}}, 1, 'table'));
     }
     if (result.Image !== '') {
-        elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(webradioDbPicsUri + result.Image);
+        elGetById('modalWebradiodbDetailImage').style.backgroundImage = getCssImageUri(webradioDbPicsUri + result.Image);
     }
     else {
-        elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = 'url("' + subdir + '/assets/coverimage-notavailable")';
+        elGetById('modalWebradiodbDetailImage').style.backgroundImage = 'url("' + subdir + '/assets/coverimage-notavailable")';
     }
-    elGetById('RadiobrowserDetailsTitle').textContent = result.Name;
-    setDataId('RadiobrowserDetailsTitle', 'webradio', result);
+    elGetById('modalWebradiodbDetailTitle').textContent = result.Name;
+    setDataId('modalWebradiodbDetailTitle', 'webradio', result);
     const showFields = [
         'StreamUri',
         'Homepage',
@@ -85,5 +95,5 @@ function showWebradiodbDetails(uri) {
             ])
         );
     }
-    uiElements.modalRadiobrowserDetails.show();
+    uiElements.modalWebradiodbDetail.show();
 }

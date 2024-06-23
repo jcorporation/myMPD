@@ -420,7 +420,7 @@ const settingsWebuiFields = {
         "title": "Click song",
         "form": "modalSettingsDefaultActionsFrm"
     },
-    "clickRadiobrowser": {
+    "clickWebradiodb": {
         "defaultValue": "append",
         "validValues": {
             "append": "Append to queue",
@@ -826,15 +826,8 @@ const settingsWebuiFields = {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Show MusicBrainz links",
-        "form": "modalSettingsCloudFrm",
+        "form": "modalSettingsTagsFrm",
         "help": "helpSettingsMusicBrainzLinks"
-    },
-    "radiobrowserStationclicks": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Submit station clicks to radiobrowser.info",
-        "form": "modalSettingsCloudFrm",
-        "help": "helpSettingsRadiobrowserStationclicks"
     },
     "outputLigatures": {
         "defaultValue": {
@@ -1382,23 +1375,6 @@ app.cards = {
                         },
                         "sort": {
                             "tag": "Name",
-                            "desc": false
-                        },
-                        "tag": "",
-                        "search": "",
-                        "scrollPos": 0
-                    },
-                    "Radiobrowser": {
-                        "offset": 0,
-                        "limit": 100,
-                        "filter": {
-                            "tags": "",
-                            "genre": "",
-                            "country": "",
-                            "language": ""
-                        },
-                        "sort": {
-                            "tag": "",
                             "desc": false
                         },
                         "tag": "",

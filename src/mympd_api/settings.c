@@ -286,9 +286,6 @@ bool mympd_api_settings_view_save(struct t_mympd_state *mympd_state, sds view, s
     else if (strcmp(view, "viewBrowseRadioWebradiodb") == 0) {
         mympd_state->view_browse_radio_webradiodb = sds_replace(mympd_state->view_browse_radio_webradiodb, def);
     }
-    else if (strcmp(view, "viewBrowseRadioRadiobrowser") == 0) {
-        mympd_state->view_browse_radio_radiobrowser = sds_replace(mympd_state->view_browse_radio_radiobrowser, def);
-    }
     else if (strcmp(view, "viewBrowseRadioFavorites") == 0) {
         mympd_state->view_browse_radio_favorites = sds_replace(mympd_state->view_browse_radio_favorites, def);
     }
@@ -874,7 +871,6 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->view_queue_jukebox_song = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_queue_jukebox_song", mympd_state->view_queue_jukebox_song, vcb_isname, true);
     mympd_state->view_queue_jukebox_album = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_queue_jukebox_album", mympd_state->view_queue_jukebox_album, vcb_isname, true);
     mympd_state->view_browse_radio_webradiodb = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_radio_webradiodb", mympd_state->view_browse_radio_webradiodb, vcb_isname, true);
-    mympd_state->view_browse_radio_radiobrowser = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_radio_radiobrowser", mympd_state->view_browse_radio_radiobrowser, vcb_isname, true);
     mympd_state->view_browse_radio_favorites = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_radio_favorites", mympd_state->view_browse_radio_favorites, vcb_isname, true);
     mympd_state->coverimage_names = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "coverimage_names", mympd_state->coverimage_names, vcb_isfilename, true);
     mympd_state->thumbnail_names = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "thumbnail_names", mympd_state->thumbnail_names, vcb_isfilename, true);
@@ -987,7 +983,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_raw(buffer, "viewQueueJukeboxSong", mympd_state->view_queue_jukebox_song, true);
     buffer = tojson_raw(buffer, "viewQueueJukeboxAlbum", mympd_state->view_queue_jukebox_album, true);
     buffer = tojson_raw(buffer, "viewBrowseRadioWebradiodb", mympd_state->view_browse_radio_webradiodb, true);
-    buffer = tojson_raw(buffer, "viewBrowseRadioRadiobrowser", mympd_state->view_browse_radio_radiobrowser, true);
     buffer = tojson_raw(buffer, "viewBrowseRadioFavorites", mympd_state->view_browse_radio_favorites, true);
     buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);
     buffer = tojson_bool(buffer, "tagDiscEmptyIsFirst", mympd_state->tag_disc_empty_is_first, true);

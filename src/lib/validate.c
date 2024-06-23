@@ -36,9 +36,6 @@ static const char *mympd_fields[]={
      // Columns for webradiodb
     "Country", "State", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri",
     "Codec", "Bitrate",
-     // Columns for radiobrowser
-    "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok",
-    "tags", "url_resolved", "votes",
     // Columns for albums
     "Discs", "SongCount",
     // End
