@@ -8,6 +8,16 @@ https://github.com/jcorporation/myMPD/
 
 This release improves the WebradioDB integration and removes the radiobrowser.info integration. You can use [RadioBrowser](https://github.com/jcorporation/mympd-scripts/tree/main/Radiobrowser) script to query the radiobrowser.info API.
 
+### API changes
+
+- MYMPD_API_WEBRADIODB_UPDATE: new
+- MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET: removed
+- MYMPD_API_CLOUD_RADIOBROWSER_NEWEST: removed
+- MYMPD_API_CLOUD_RADIOBROWSER_SEARCH: removed
+- MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST: removed
+- MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL: removed
+- MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT: removed
+
 ### Changelog
 
 Upd: Remove radiobrowser integration #1311

@@ -90,14 +90,13 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define FILENAME_PRESETS "preset_list"
 #define FILENAME_TIMER "timer_list"
 #define FILENAME_TRIGGER "trigger_list"
-#define FILENAME_WEBRADIODB "webradiodb-combined.min.json"
+#define FILENAME_WEBRADIODB "webradiodb.mpack"
 #define FILENAME_SCRIPTVARS "scriptvars_list"
 
 #define DIR_CACHE_COVER "cover"
 #define DIR_CACHE_LYRICS "lyrics"
 #define DIR_CACHE_MISC "misc"
 #define DIR_CACHE_THUMBS "thumbs"
-#define DIR_CACHE_WEBRADIODB "webradiodb"
 
 #define DIR_WORK_CONFIG "config"
 #define DIR_WORK_EMPTY "empty"
@@ -340,12 +339,16 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define JSONRPC_TIME_MIN 0 // Do 1. Jan 01:00:00 CET 1970
 #define JSONRPC_TIME_MAX 253402297169 // Fr 31. Dez 23:59:29 CET 9999
 
-//some other limits
+//timer
+#define TIMER_WEBRADIODB_UPDATE_OFFSET 20 //seconds
+#define TIMER_WEBRADIODB_UPDATE_INTERVAL 86400 //seconds
+#define TIMER_DISK_CACHE_CLEANUP_OFFSET 240 //seconds
+#define TIMER_DISK_CACHE_CLEANUP_INTERVAL 86400 //seconds
+#define TIMER_SMARTPLS_UPDATE_OFFSET 30 //seconds
 #define TIMER_INTERVAL_MIN 0 //seconds
 #define TIMER_INTERVAL_MAX 7257600 //12 weeks
-#define TIMER_SMARTPLS_UPDATE_OFFSET 30 //seconds
-#define TIMER_DISK_CACHE_CLEANUP_OFFSET 60 //seconds
-#define TIMER_DISK_CACHE_CLEANUP_INTERVAL 86400 //seconds
+
+//some other limits
 #define CACHE_AGE_MIN -1 //days
 #define CACHE_AGE_MAX 365 //days
 #define VOLUME_MIN 0 //prct
@@ -400,7 +403,6 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define LINE_LENGTH_MAX 8192 // 8 kb
 #define LYRICS_SIZE_MAX 10000 //bytes
 #define SMARTPLS_SIZE_MAX 2000 //bytes
-#define WEBRADIODB_SIZE_MAX 1048576 //bytes, 1 MB
 #define SSL_FILE_MAX 8192 // 8 kb
 
 //limits for stickers
@@ -409,7 +411,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 
 #define PADDING_LENGTH 12
 
-//cloud api hosts
-#define WEBRADIODB_HOST "jcorporation.github.io"
+//WebradioDB
+#define WEBRADIODB_URI "https://jcorporation.github.io/webradiodb/db/index/webradios.min.json"
 
 #endif

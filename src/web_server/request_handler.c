@@ -10,12 +10,10 @@
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/sessions.h"
 #include "src/web_server/utility.h"
-#include "src/web_server/webradiodb.h"
 
 /**
  * Request handler for api requests /api
@@ -27,7 +25,7 @@
  * @return true on success, else false
  */
 bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth_header,
-        struct t_mg_user_data *mg_user_data, struct mg_connection *backend_nc)
+        struct t_mg_user_data *mg_user_data)
 {
     struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
     MYMPD_LOG_DEBUG(frontend_nc_data->partition, "API request (%lu): %s", nc->id, body);
@@ -106,9 +104,6 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         case MYMPD_API_SESSION_LOGOUT:
         case MYMPD_API_SESSION_VALIDATE:
             webserver_session_api(nc, cmd_id, body, request_id, session, mg_user_data);
-            break;
-        case MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET:
-            webradiodb_api(nc, backend_nc, cmd_id, request_id);
             break;
         default: {
             //forward API request to another thread

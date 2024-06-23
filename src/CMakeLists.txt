@@ -79,6 +79,7 @@ target_sources(mympd
     lib/timer.c
     lib/utility.c
     lib/validate.c
+    lib/webradio.c
     mpd_client/autoconf.c
     mpd_client/connection.c
     mpd_client/errorhandler.c
@@ -105,6 +106,7 @@ target_sources(mympd
     mpd_worker/smartpls.c
     mpd_worker/state.c
     mpd_worker/song.c
+    mpd_worker/webradiodb.c
     mympd_api/mympd_api.c
     mympd_api/albumart.c
     mympd_api/browse.c
@@ -146,7 +148,6 @@ target_sources(mympd
     web_server/playlistart.c
     web_server/tagart.c
     web_server/utility.c
-    web_server/webradiodb.c
 )
 
 if(MYMPD_ENABLE_LUA)

@@ -18,6 +18,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
 #include "src/lib/timer.h"
+#include "src/lib/webradio.h"
 #include "src/mpd_client/autoconf.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/idle.h"
@@ -75,10 +76,15 @@ void *mympd_api_loop(void *arg_config) {
         // album cache
         album_cache_read(&mympd_state->album_cache, mympd_state->config->workdir, &mympd_state->config->albums);
     }
+    //webradiodb
+    mympd_state->webradiodb = webradio_read_from_disk(mympd_state->config, FILENAME_WEBRADIODB);
     // set timers
     MYMPD_LOG_DEBUG(NULL, "Adding timer for cache cropping to execute periodic each day");
     mympd_api_timer_add(&mympd_state->timer_list, TIMER_DISK_CACHE_CLEANUP_OFFSET, TIMER_DISK_CACHE_CLEANUP_INTERVAL,
         timer_handler_by_id, TIMER_ID_DISK_CACHE_CROP, NULL);
+    MYMPD_LOG_DEBUG(NULL, "Adding timer for WebradioDB update to execute periodic each day");
+    mympd_api_timer_add(&mympd_state->timer_list, TIMER_WEBRADIODB_UPDATE_OFFSET, TIMER_WEBRADIODB_UPDATE_INTERVAL,
+        timer_handler_by_id, TIMER_ID_WEBRADIODB_UPDATE, NULL);
 
     // start trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START, MPD_PARTITION_ALL, NULL);

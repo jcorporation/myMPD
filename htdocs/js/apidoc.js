@@ -2274,8 +2274,8 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET": {
-        "desc": "Gets the full WebradioDB.",
+    "MYMPD_API_WEBRADIODB_UPDATE": {
+        "desc": "Updates the full WebradioDB.",
         "params": {}
     }
 };

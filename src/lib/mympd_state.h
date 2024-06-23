@@ -262,6 +262,7 @@ struct t_mympd_state {
     sds info_txt_name;                            //!< name of album info files
     struct t_cache album_cache;                   //!< the album cache created by the mpd_worker thread
     unsigned last_played_count;                   //!< number of songs to keep in the last played list (disk + memory)
+    rax *webradiodb;                              //!< webradioDB
 };
 
 /**

@@ -14,6 +14,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/timer.h"
 #include "src/lib/utility.h"
+#include "src/lib/webradio.h"
 #include "src/mpd_client/presets.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/timer.h"
@@ -125,6 +126,8 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
     //poll fds
     event_pfd_init(&mympd_state->pfds);
+    //webradioDB
+    mympd_state->webradiodb = NULL;
 }
 
 /**
@@ -153,6 +156,8 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     //caches
     album_cache_free(&mympd_state->album_cache);
     cache_free(&mympd_state->album_cache);
+    //webradioDB
+    webradio_free(mympd_state->webradiodb);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);

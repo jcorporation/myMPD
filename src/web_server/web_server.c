@@ -714,7 +714,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                  * to allow other authorization methods in reverse proxy setups
                  */
                 struct mg_str *auth_header = mg_http_get_header(hm, "X-myMPD-Session");
-                bool rc = request_handler_api(nc, body, auth_header, mg_user_data, frontend_nc_data->backend_nc);
+                bool rc = request_handler_api(nc, body, auth_header, mg_user_data);
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid API request");

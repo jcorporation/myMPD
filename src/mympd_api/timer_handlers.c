@@ -32,6 +32,7 @@
 static void timer_handler_cache_disk_crop(void);
 static void timer_handler_smartpls_update(void);
 static void timer_handler_caches_create(void);
+static void timer_handler_webradiodb_update(void);
 
 /**
  * Public functions
@@ -53,6 +54,9 @@ void timer_handler_by_id(unsigned timer_id, struct t_timer_definition *definitio
             break;
         case TIMER_ID_CACHES_CREATE:
             timer_handler_caches_create();
+            break;
+        case TIMER_ID_WEBRADIODB_UPDATE:
+            timer_handler_webradiodb_update();
             break;
         default:
             MYMPD_LOG_WARN(NULL, "Unhandled timer_id");
@@ -208,4 +212,14 @@ static void timer_handler_smartpls_update(void) {
 static void timer_handler_caches_create(void) {
     MYMPD_LOG_INFO(NULL, "Start timer_handler_caches_create");
     mympd_api_request_caches_create();
+}
+
+/**
+ * Timer handler for timer_id TIMER_ID_WEBRADIODB_UPDATE
+ */
+static void timer_handler_webradiodb_update(void) {
+    MYMPD_LOG_INFO(NULL, "Start timer_handler_webradiodb_update");
+    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_WEBRADIODB_UPDATE, NULL, MPD_PARTITION_DEFAULT);
+    request->data = jsonrpc_end(request->data);
+    push_request(request, 0);
 }

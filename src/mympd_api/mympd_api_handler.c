@@ -19,6 +19,7 @@
 #include "src/lib/timer.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
+#include "src/lib/webradio.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/features.h"
@@ -120,6 +121,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     // methods that are delegated to a new worker thread
         case INTERNAL_API_JUKEBOX_REFILL:
         case INTERNAL_API_JUKEBOX_REFILL_ADD:
+        case MYMPD_API_CACHE_DISK_CROP:
+        case MYMPD_API_CACHE_DISK_CLEAR:
         case MYMPD_API_CACHES_CREATE:
         case MYMPD_API_PLAYLIST_CONTENT_ENUMERATE:
         case MYMPD_API_PLAYLIST_CONTENT_DEDUP:
@@ -130,12 +133,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_ALL:
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP:
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP_ALL:
+        case MYMPD_API_QUEUE_ADD_RANDOM:
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SONG_FINGERPRINT:
-        case MYMPD_API_CACHE_DISK_CROP:
-        case MYMPD_API_CACHE_DISK_CLEAR:
-        case MYMPD_API_QUEUE_ADD_RANDOM:
+        case MYMPD_API_WEBRADIODB_UPDATE:
             if (mpd_worker_threads > MAX_MPD_WORKER_THREADS) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Too many worker threads are already running");
@@ -164,6 +166,15 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error starting worker thread");
                 mympd_state->album_cache.building = false;
+            }
+            break;
+    // WebradioDB
+        case INTERNAL_API_WEBRADIODB_CREATED:
+            if (request->extra != NULL) {
+                if (mympd_state->webradiodb != NULL) {
+                    webradio_free(mympd_state->webradiodb);
+                }
+                mympd_state->webradiodb = (rax *)request->extra;
             }
             break;
     // Album cache
