@@ -592,8 +592,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
     char *uri = mpack_node_cstr_alloc(mpack_node_map_cstr(album_node, "uri"), JSONRPC_STR_MAX);
     if (uri != NULL) {
         album = mpd_song_new(uri);
-        mpack_node_t album_id_node = mpack_node_map_cstr(album_node, "AlbumId");
-        *key = sdscatlen(*key, mpack_node_str(album_id_node), mpack_node_data_len(album_id_node));
+        *key = mpackstr_sdscat(*key, album_node, "AlbumId");
 
         album->pos = mpack_node_uint(mpack_node_map_cstr(album_node, "Discs"));
         album->prio = mpack_node_uint(mpack_node_map_cstr(album_node, "Songs"));

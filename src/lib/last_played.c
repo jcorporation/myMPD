@@ -89,8 +89,9 @@ bool last_played_file_read(struct t_partition_state *partition_state) {
     for (size_t i = 0; i < len; i++) {
         mpack_node_t entry = mpack_node_array_at(root, i);
         int64_t last_played = mpack_node_i64(mpack_node_map_cstr(entry, "Last-Played"));
-        const char *uri = mpack_node_str(mpack_node_map_cstr(entry, "uri"));
-        size_t uri_len = mpack_node_strlen(mpack_node_map_cstr(entry, "uri"));
+        mpack_node_t entry_uri = mpack_node_map_cstr(entry, "uri");
+        const char *uri = mpack_node_str(entry_uri);
+        size_t uri_len = mpack_node_strlen(entry_uri);
         list_push_len(&partition_state->last_played, uri, uri_len, last_played, NULL, 0, NULL);
     }
     // clean up and check for errors
