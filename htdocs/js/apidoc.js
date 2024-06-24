@@ -2275,7 +2275,13 @@ const APImethods = {
         }
     },
     "MYMPD_API_WEBRADIODB_UPDATE": {
-        "desc": "Updates the full WebradioDB.",
-        "params": {}
+        "desc": "Updates the WebradioDB.",
+        "params": {
+            "force": {
+                "type": APItypes.bool,
+                "example": false,
+                "desc": "true = forces an update"
+            }
+        }
     }
 };

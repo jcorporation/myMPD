@@ -220,6 +220,7 @@ static void timer_handler_caches_create(void) {
 static void timer_handler_webradiodb_update(void) {
     MYMPD_LOG_INFO(NULL, "Start timer_handler_webradiodb_update");
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_WEBRADIODB_UPDATE, NULL, MPD_PARTITION_DEFAULT);
+    request->data = sdscat(request->data, "\"force\":false}}"); //only update if webradiodb is older than one day
     request->data = jsonrpc_end(request->data);
     push_request(request, 0);
 }

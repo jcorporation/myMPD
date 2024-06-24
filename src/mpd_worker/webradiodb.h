@@ -11,6 +11,6 @@
 
 #include <stdbool.h>
 
-bool mpd_worker_webradiodb_update(struct t_mpd_worker_state *mpd_worker_state);
+bool mpd_worker_webradiodb_update(struct t_mpd_worker_state *mpd_worker_state, bool force);
 
 #endif

@@ -130,6 +130,7 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_SETTINGS_GET:
         case MYMPD_API_CACHE_DISK_CLEAR:
         case MYMPD_API_CACHE_DISK_CROP:
+        case MYMPD_API_WEBRADIODB_UPDATE:
             return true;
         default:
             return false;

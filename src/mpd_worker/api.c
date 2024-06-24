@@ -377,14 +377,16 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             }
             break;
         case MYMPD_API_WEBRADIODB_UPDATE:
-            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "WebradioDB update started");
-            push_response(response);
-            rc = mpd_worker_webradiodb_update(mpd_worker_state);
-            if (rc == false) {
-                send_jsonrpc_notify(JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "WebradioDB update failed");
+            if (json_get_bool(request->data, "$.params.force", &bool_buf1, &parse_error) == true) {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "WebradioDB update started");
+                push_response(response);
+                rc = mpd_worker_webradiodb_update(mpd_worker_state, bool_buf1);
+                if (rc == false) {
+                    send_jsonrpc_notify(JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "WebradioDB update failed");
+                }
+                async = true;
             }
-            async = true;
             break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
