@@ -9,11 +9,21 @@
 
 #include "src/lib/log.h"
 
+/**
+ * Log handler for mpack read errors
+ * @param writer mpack reader object (not used)
+ * @param error error object
+ */
 void log_mpack_node_error(mpack_tree_t *tree, mpack_error_t error) {
     (void) tree;
     MYMPD_LOG_ERROR("default", "mpack error: %s", mpack_error_to_string(error));
 }
 
+/**
+ * Log handler for mpack write errors
+ * @param writer mpack writer object (not used)
+ * @param error error object
+ */
 void log_mpack_write_error(mpack_writer_t *writer, mpack_error_t error) {
     (void) writer;
     MYMPD_LOG_ERROR("default", "mpack error: %s", mpack_error_to_string(error));
