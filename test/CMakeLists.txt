@@ -40,6 +40,7 @@ set(TEST_SOURCES
   ../src/lib/timer.c
   ../src/lib/utility.c
   ../src/lib/validate.c
+  ../src/lib/webradio.c
   ../src/mpd_client/connection.c
   ../src/mpd_client/errorhandler.c
   ../src/mpd_client/features.c
