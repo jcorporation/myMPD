@@ -377,6 +377,11 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             }
             break;
         case MYMPD_API_WEBRADIODB_UPDATE:
+            if (mpd_worker_state->config->webradiodb == false) {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "WebradioDB is disabled");
+                break;
+            }
             if (json_get_bool(request->data, "$.params.force", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "WebradioDB update started");
