@@ -54,29 +54,54 @@ void webradio_data_free(struct t_webradio_data *data) {
 }
 
 /**
- * Frees the webradios rax
+ * Initializes the webradios struct
+ * @return struct t_webradios* 
+ */
+struct t_webradios *webradios_new(void) {
+    struct t_webradios *webradios = malloc_assert(sizeof(struct t_webradios));
+    webradios->db = NULL;
+    webradios->idx_uris = NULL;
+    return webradios;
+}
+
+/**
+ * Frees the webradios struct
  * @param webradios rax tree to free
  */
-void webradio_free(rax *webradios) {
+void webradios_free(struct t_webradios *webradios) {
     raxIterator iter;
-    raxStart(&iter, webradios);
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
-        webradio_data_free((struct t_webradio_data *)iter.data);
-        iter.data = NULL;
+    if (webradios->db != NULL) {
+        raxStart(&iter, webradios->db);
+        raxSeek(&iter, "^", NULL, 0);
+        while (raxNext(&iter)) {
+            webradio_data_free((struct t_webradio_data *)iter.data);
+            iter.data = NULL;
+        }
+        raxStop(&iter);
+        raxFree(webradios->db);
+        webradios->db = NULL;
     }
-    raxStop(&iter);
-    raxFree(webradios);
+    if (webradios->idx_uris != NULL) {
+        raxStart(&iter, webradios->idx_uris);
+        raxSeek(&iter, "^", NULL, 0);
+        while (raxNext(&iter)) {
+            iter.data = NULL;
+        }
+        raxStop(&iter);
+        raxFree(webradios->idx_uris);
+        webradios->idx_uris = NULL;
+    }
+    FREE_PTR(webradios);
 }
 
 /**
  * Saves the webradios to disk
  * @param config pointer to config
- * @param webradios webradios rax to write
+ * @param webradios webradios struct to write
  * @param filename file to write
  * @return true on success, else false
  */
-bool webradio_save_to_disk(struct t_config *config, rax *webradios, const char *filename) {
+bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradios, const char *filename) {
     if (webradios == NULL) {
         MYMPD_LOG_DEBUG(NULL, "Webradio is NULL not saving anything");
         return true;
@@ -92,9 +117,9 @@ bool webradio_save_to_disk(struct t_config *config, rax *webradios, const char *
     // init mpack
     mpack_writer_init_stdfile(&writer, fp, true);
     mpack_writer_set_error_handler(&writer, log_mpack_write_error);
-    mpack_start_array(&writer, (uint32_t)webradios->numele);
+    mpack_start_array(&writer, (uint32_t)webradios->db->numele);
     raxIterator iter;
-    raxStart(&iter, webradios);
+    raxStart(&iter, webradios->db);
     raxSeek(&iter, "^", NULL, 0);
     struct t_list_node *current;
     while (raxNext(&iter)) {
@@ -167,16 +192,18 @@ bool webradio_save_to_disk(struct t_config *config, rax *webradios, const char *
 /**
  * Reads the webradios file from disk
  * @param config pointer to config
+ * @param webradios webradios struct to populate
  * @param filename file to read
- * @return newly allocated rax with webradios
+ * @return true on success, else false
  */
-rax *webradio_read_from_disk(struct t_config *config, const char *filename) {
+bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webradios, const char *filename) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", config->workdir, DIR_WORK_TAGS, filename);
     if (testfile_read(filepath) == false) {
         FREE_SDS(filepath);
         return false;
     }
-    rax *webradios = raxNew();
+    webradios->db = raxNew();
+    webradios->idx_uris = raxNew();
 
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);
@@ -221,7 +248,15 @@ rax *webradio_read_from_disk(struct t_config *config, const char *filename) {
             sdsclear(uri);
             sdsclear(codec);
         }
-        if (raxTryInsert(webradios, (unsigned char *)key, strlen(key), data, NULL) == 0) {
+        if (raxTryInsert(webradios->db, (unsigned char *)key, strlen(key), data, NULL) == 1) {
+            // write uri index
+            struct t_list_node *current = data->uris.head;
+            while (current != NULL) {
+                raxTryInsert(webradios->idx_uris, (unsigned char *)current->key, sdslen(current->key), data, NULL);
+                current = current->next;
+            }
+        }
+        else {
             // insert error
             MYMPD_LOG_ERROR(NULL, "Duplicate WebradioDB key found: %s", key);
             webradio_data_free(data);
@@ -237,10 +272,11 @@ rax *webradio_read_from_disk(struct t_config *config, const char *filename) {
         : true;
     if (rc == false) {
         MYMPD_LOG_ERROR("default", "Reading webradios %s failed.", filename);
-        webradio_free(webradios);
-        return NULL;
+        webradios_free(webradios);
+        webradios = NULL;
+        return rc;
     }
 
-    MYMPD_LOG_INFO(NULL, "Read %" PRIu64 " webradios %s from disc", webradios->numele, filename);
-    return webradios;
+    MYMPD_LOG_INFO(NULL, "Read %" PRIu64 " webradios from %s", webradios->db->numele, filename);
+    return rc;
 }

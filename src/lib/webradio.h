@@ -12,6 +12,11 @@
 #include "src/lib/config_def.h"
 #include "src/lib/list.h"
 
+struct t_webradios {
+    rax *db;
+    rax *idx_uris;
+};
+
 struct t_webradio_data {
     sds name;
     sds image;
@@ -27,8 +32,9 @@ struct t_webradio_data {
 struct t_webradio_data *webradio_data_new(void);
 void webradio_data_free(struct t_webradio_data *data);
 
-void webradio_free(rax *webradios);
-bool webradio_save_to_disk(struct t_config *config, rax *webradios, const char *filename);
-rax *webradio_read_from_disk(struct t_config *config, const char *filename);
+struct t_webradios *webradios_new(void);
+void webradios_free(struct t_webradios *webradios);
+bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradios, const char *filename);
+bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webradios, const char *filename);
 
 #endif

@@ -77,7 +77,7 @@ void *mympd_api_loop(void *arg_config) {
         album_cache_read(&mympd_state->album_cache, mympd_state->config->workdir, &mympd_state->config->albums);
     }
     //webradiodb
-    mympd_state->webradiodb = webradio_read_from_disk(mympd_state->config, FILENAME_WEBRADIODB);
+    webradios_read_from_disk(mympd_state->config, mympd_state->webradiodb, FILENAME_WEBRADIODB);
     // set timers
     MYMPD_LOG_DEBUG(NULL, "Adding timer for cache cropping to execute periodic each day");
     mympd_api_timer_add(&mympd_state->timer_list, TIMER_DISK_CACHE_CLEANUP_OFFSET, TIMER_DISK_CACHE_CLEANUP_INTERVAL,

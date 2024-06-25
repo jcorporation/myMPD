@@ -14,13 +14,14 @@
 #include "src/lib/http_client.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/webradio.h"
 
 // private definitions
 
-static rax *parse_webradiodb(sds str);
+static bool parse_webradiodb(sds str, struct t_webradios *webradiodb);
 static bool icb_webradio_alternate(const char *path, sds key, sds value, int vtype,
         validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error);
 static struct t_webradio_data *parse_webradiodb_data(sds str);
@@ -58,13 +59,15 @@ bool mpd_worker_webradiodb_update(struct t_mpd_worker_state *mpd_worker_state, b
         http_client_response_clear(&http_response);
         return false;
     }
-    rax *webradiodb = parse_webradiodb(http_response.body);
+    struct t_webradios *webradiodb = webradios_new();
+    bool rc = parse_webradiodb(http_response.body, webradiodb);
     http_client_response_clear(&http_response);
-    if (webradiodb == NULL) {
+    if (rc == false) {
+        webradios_free(webradiodb);
         return false;
     }
 
-    webradio_save_to_disk(mpd_worker_state->config, webradiodb, FILENAME_WEBRADIODB);
+    webradios_save_to_disk(mpd_worker_state->config, webradiodb, FILENAME_WEBRADIODB);
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_WEBRADIODB_CREATED, NULL, "default");
     request->data = jsonrpc_end(request->data);
     request->extra = (void *) webradiodb;
@@ -77,10 +80,10 @@ bool mpd_worker_webradiodb_update(struct t_mpd_worker_state *mpd_worker_state, b
 /**
  * Parses the downloaded webradios.min.json
  * @param str string to parse
- * @param webradiodb rax tree to populate
+ * @param webradiodb webradios struct to populate
  * @return true on success, else false
  */
-static rax *parse_webradiodb(sds str) {
+static bool parse_webradiodb(sds str, struct t_webradios *webradiodb) {
     int koff;
     int klen;
     int voff;
@@ -89,7 +92,8 @@ static rax *parse_webradiodb(sds str) {
     int off;
     sds key = sdsempty();
     sds data_str = sdsempty();
-    rax *webradiodb = raxNew();
+    webradiodb->db = raxNew();
+    webradiodb->idx_uris = raxNew();
     for (off = 0; (off = mjson_next(str, (int)sdslen(str), off,
          &koff, &klen, &voff, &vlen, &vtype)) != 0; )
     {
@@ -97,7 +101,15 @@ static rax *parse_webradiodb(sds str) {
         data_str = sdscatlen(data_str, str + voff, (size_t)vlen);
         struct t_webradio_data *data = parse_webradiodb_data(data_str);
         if (data != NULL) {
-            if (raxTryInsert(webradiodb, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+            if (raxTryInsert(webradiodb->db, (unsigned char *)key, sdslen(key), data, NULL) == 1) {
+                // write uri index
+                struct t_list_node *current = data->uris.head;
+                while (current != NULL) {
+                    raxTryInsert(webradiodb->idx_uris, (unsigned char *)current->key, sdslen(current->key), data, NULL);
+                    current = current->next;
+                }
+            }
+            else {
                 // insert error
                 MYMPD_LOG_ERROR(NULL, "Duplicate WebradioDB key found: %s", key);
                 webradio_data_free(data);
@@ -108,8 +120,8 @@ static rax *parse_webradiodb(sds str) {
     }
     FREE_SDS(key);
     FREE_SDS(data_str);
-    MYMPD_LOG_INFO(NULL, "Added %" PRIu64 " webradios", webradiodb->numele);
-    return webradiodb;
+    MYMPD_LOG_INFO(NULL, "Added %" PRIu64 " webradios", webradiodb->db->numele);
+    return true;
 }
 
 /**

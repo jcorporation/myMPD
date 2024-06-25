@@ -172,9 +172,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case INTERNAL_API_WEBRADIODB_CREATED:
             if (request->extra != NULL) {
                 if (mympd_state->webradiodb != NULL) {
-                    webradio_free(mympd_state->webradiodb);
+                    webradios_free(mympd_state->webradiodb);
                 }
-                mympd_state->webradiodb = (rax *)request->extra;
+                mympd_state->webradiodb = (struct t_webradios *)request->extra;
             }
             break;
     // Album cache

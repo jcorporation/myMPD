@@ -127,7 +127,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     //poll fds
     event_pfd_init(&mympd_state->pfds);
     //webradioDB
-    mympd_state->webradiodb = NULL;
+    mympd_state->webradiodb = webradios_new();
 }
 
 /**
@@ -157,7 +157,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     album_cache_free(&mympd_state->album_cache);
     cache_free(&mympd_state->album_cache);
     //webradioDB
-    webradio_free(mympd_state->webradiodb);
+    webradios_free(mympd_state->webradiodb);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);
