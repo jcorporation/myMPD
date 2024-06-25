@@ -32,11 +32,6 @@ myMPD is a standalone and lightweight web-based MPD client.
 It's tuned for minimal resource usage and requires only very few dependencies.
 Therefore myMPD is ideal for raspberry pis and similar devices.
 
-%if 0%{?disturl:1}
-  # build debug package in obs
-  %debug_package
-%endif
-
 %prep
 %setup -q -n %{name}-%{version}
 
