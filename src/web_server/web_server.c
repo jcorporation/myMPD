@@ -280,7 +280,6 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, "%S/%s", config->workdir, DIR_WORK_EMPTY);
         mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/pics=%S/%s", config->workdir, DIR_WORK_PICS);
         mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/smartplaylists=%S/%s", config->workdir, DIR_WORK_SMARTPLS);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/webradios=%S/%s", config->workdir, DIR_WORK_WEBRADIOS);
         if (sdslen(new_mg_user_data->playlist_directory) > 0) {
             mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/playlists=%S", new_mg_user_data->playlist_directory);
             mg_user_data->publish_playlists = true;
@@ -748,6 +747,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/browse/#"), NULL)) {
                 request_handler_browse(nc, hm, mg_user_data);
             }
+            else if (mg_match(hm->uri, mg_str("/webradio"), NULL)) {
+                //TODO: deliver extm3u for MPD
+            }
             else if (mg_match(hm->uri, mg_str("/ws/*"), NULL)) {
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
@@ -912,7 +914,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             // Serve some directories without ssl
-            if (mg_match(hm->uri, mg_str("/browse/webradios/*"), NULL)) {
+            if (mg_match(hm->uri, mg_str("/webradio"), NULL)) {
                 // myMPD webradio links
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;

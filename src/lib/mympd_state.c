@@ -45,6 +45,7 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
+    webradios_save_to_disk(mympd_state->config, mympd_state->webradio_favorites, FILENAME_WEBRADIO_FAVORITES);
     if (free_data == true) {
         mympd_state_free(mympd_state);
     }
@@ -126,8 +127,9 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
     //poll fds
     event_pfd_init(&mympd_state->pfds);
-    //webradioDB
+    //webradios
     mympd_state->webradiodb = webradios_new();
+    mympd_state->webradio_favorites = webradios_new();
 }
 
 /**
@@ -158,6 +160,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     cache_free(&mympd_state->album_cache);
     //webradioDB
     webradios_free(mympd_state->webradiodb);
+    webradios_free(mympd_state->webradio_favorites);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);

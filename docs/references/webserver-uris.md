@@ -24,5 +24,6 @@ Reference of all webserver uris.
 | `/serverinfo` | Returns the ip address of myMPD |
 | `/stream/<partition>` | Reverse proxy for mpd http stream |
 | `/tagart?tag=<tagname>&value=<tagvalue>` | Returns the tagart thumbnail. |
+| `/webradio?uri=<webradio uri>` | Webradio endpoint |
 | `/ws/<partition>` | Websocket endpoint |
 {: .table .table-sm }

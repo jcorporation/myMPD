@@ -13,7 +13,6 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/m3u.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
@@ -158,7 +157,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         return true;
     }
 
-    //check for cover in /pics/thumbs/ and webradio m3u
+    //check for cover in /pics/thumbs/ and webradios
     if (is_streamuri(uri) == true) {
         if (sdslen(uri) > FILENAME_LEN_MAX) {
             FREE_SDS(uri);
@@ -166,49 +165,23 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
             webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
             return true;
         }
-        sanitize_filename(uri);
 
-        sds coverfile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, uri);
+        sds sanitized_uri = sdsdup(uri);
+        sanitize_filename(sanitized_uri);
+        sds coverfile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, sanitized_uri);
+        FREE_SDS(sanitized_uri);
         MYMPD_LOG_DEBUG(NULL, "Check for stream cover \"%s\"", coverfile);
         coverfile = webserver_find_image_file(coverfile);
-
-        if (sdslen(coverfile) == 0) {
-            //no coverfile found, next try to find a webradio m3u
-            sds webradio_file = sdscatfmt(sdsempty(), "%S/%s/%S.m3u", config->workdir, DIR_WORK_WEBRADIOS, uri);
-            MYMPD_LOG_DEBUG(NULL, "Check for webradio playlist \"%s\"", webradio_file);
-            if (testfile_read(webradio_file) == true) {
-                sds extimg = m3u_get_field(sdsempty(), "#EXTIMG", webradio_file);
-                if (is_streamuri(extimg) == true) {
-                    //full uri, send redirect to covercache proxy
-                    //use relative path to support hosting myMPD behind a reverse proxy in a subdir
-                    sds redirect_uri = sdsnew("proxy-covercache?uri=");
-                    redirect_uri = sds_urlencode(redirect_uri, extimg, sdslen(extimg));
-                    webserver_send_header_found(nc, redirect_uri, "");
-                    FREE_SDS(redirect_uri);
-                    FREE_SDS(uri);
-                    FREE_SDS(coverfile);
-                    FREE_SDS(extimg);
-                    FREE_SDS(webradio_file);
-                    return true;
-                }
-                if (sdslen(extimg) > 0) {
-                    //local coverfile
-                    coverfile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, extimg);
-                }
-                FREE_SDS(extimg);
-            }
-            FREE_SDS(webradio_file);
-        }
         if (sdslen(coverfile) > 0) {
             //found a local coverfile
             webserver_serve_file(nc, hm, mg_user_data->browse_directory, coverfile);
+            FREE_SDS(uri);
+            FREE_SDS(coverfile);
+            return true;
         }
-        else {
-            //serve fallback image
-            webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
-        }
+        // TODO: get the webradio image
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
         FREE_SDS(uri);
-        FREE_SDS(coverfile);
         return true;
     }
 

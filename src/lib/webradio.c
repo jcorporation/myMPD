@@ -125,8 +125,6 @@ bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradi
     while (raxNext(&iter)) {
         mpack_build_map(&writer);
         struct t_webradio_data *data = (struct t_webradio_data *)iter.data;
-        mpack_write_cstr(&writer, "Key");
-        mpack_write_str(&writer, (char *)iter.key, (uint32_t)iter.key_len);
         mpack_write_kv(&writer, "Name", data->name);
         mpack_write_kv(&writer, "Image", data->image);
         mpack_write_kv(&writer, "Homepage", data->homepage);
@@ -212,13 +210,11 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
     mpack_tree_parse(&tree);
     mpack_node_t root = mpack_tree_root(&tree);
     size_t len = mpack_node_array_length(root);
-    sds key = sdsempty();
     sds uri = sdsempty();
     sds codec = sdsempty();
     for (size_t i = 0; i < len; i++) {
         mpack_node_t entry = mpack_node_array_at(root, i);
         struct t_webradio_data *data = webradio_data_new();
-        key = mpackstr_sdscat(key, entry, "Key");
         data->name = mpackstr_sds(entry, "Name");
         data->image = mpackstr_sds(entry, "Image");
         data->homepage = mpackstr_sds(entry, "Homepage");
@@ -248,7 +244,7 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
             sdsclear(uri);
             sdsclear(codec);
         }
-        if (raxTryInsert(webradios->db, (unsigned char *)key, strlen(key), data, NULL) == 1) {
+        if (raxTryInsert(webradios->db, (unsigned char *)data->name, strlen(data->name), data, NULL) == 1) {
             // write uri index
             struct t_list_node *current = data->uris.head;
             while (current != NULL) {
@@ -258,12 +254,10 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
         }
         else {
             // insert error
-            MYMPD_LOG_ERROR(NULL, "Duplicate WebradioDB key found: %s", key);
+            MYMPD_LOG_ERROR(NULL, "Duplicate WebradioDB key found: %s", data->name);
             webradio_data_free(data);
         }
-        sdsclear(key);
     }
-    FREE_SDS(key);
     FREE_SDS(uri);
     FREE_SDS(codec);
     // clean up and check for errors

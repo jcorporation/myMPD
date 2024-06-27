@@ -25,7 +25,6 @@ set(TEST_SOURCES
   ../src/lib/last_played.c
   ../src/lib/list.c
   ../src/lib/log.c
-  ../src/lib/m3u.c
   ../src/lib/mg_str_utils.c
   ../src/lib/mimetype.c
   ../src/lib/mpack.c
@@ -69,7 +68,7 @@ set(TEST_SOURCES
   ../src/mympd_api/timer_handlers.c
   ../src/mympd_api/trigger.c
   ../src/mympd_api/queue.c
-  ../src/mympd_api/webradios.c
+  ../src/mympd_api/webradio.c
   ../src/scripts/events.c
   tests/test_album_cache.c
   tests/test_api.c
@@ -81,7 +80,6 @@ set(TEST_SOURCES
   tests/test_http_client.c
   tests/test_jsonrpc.c
   tests/test_list.c
-  tests/test_m3u.c
   tests/test_mimetype.c
   tests/test_mympd_queue.c
   tests/test_mympd_state.c

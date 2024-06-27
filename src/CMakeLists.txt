@@ -61,7 +61,6 @@ target_sources(mympd
     lib/last_played.c
     lib/list.c
     lib/log.c
-    lib/m3u.c
     lib/mg_str_utils.c
     lib/mimetype.c
     lib/mpack.c
@@ -138,7 +137,9 @@ target_sources(mympd
     mympd_api/timer_handlers.c
     mympd_api/trigger.c
     mympd_api/volume.c
-    mympd_api/webradios.c
+    mympd_api/webradio.c
+    mympd_api/webradiodb.c
+    mympd_api/webradio_favorites.c
     web_server/web_server.c
     web_server/albumart.c
     web_server/folderart.c

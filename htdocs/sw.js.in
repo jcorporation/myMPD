@@ -35,6 +35,7 @@ const ignoreRequests = new RegExp(subdir + '/(' + [
     'tagart.*',
     'folderart.*',
     'playlistart.*',
+    'webradio.*',
     'proxy.*',
     'browse/.*'].join('|') + ')$');
 

@@ -229,8 +229,8 @@ struct t_mympd_uris {
 };
 
 const struct t_mympd_uris mympd_uris[] = {
-    {"mympd://webradio/", "/browse/"DIR_WORK_WEBRADIOS"/"},
-    {"mympd://", "/"},
+    {"mympd://webradio/", "/webradio?uri=" },
+    {"mympd://",          "/"},
     {NULL,                NULL}
 };
 

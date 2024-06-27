@@ -186,7 +186,6 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
             dirs = sdscat(dirs, "<tr><td><a href=\"playlists/\">playlists/</a></td><td>MPD playlists directory</td><td></td></tr>");
         }
         dirs = sdscat(dirs, "<tr><td><a href=\"smartplaylists/\">smartplaylists/</a></td><td>myMPD smart playlists directory</td><td></td></tr>");
-        dirs = sdscat(dirs, "<tr><td><a href=\"webradios/\">webradios/</a></td><td>Webradio favorites</td><td></td></tr>");
         mg_http_reply(nc, 200, "Content-Type: text/html\r\n"EXTRA_HEADERS_UNSAFE, "<!DOCTYPE html>"
             "<html><head>"
             "<meta charset=\"utf-8\">"

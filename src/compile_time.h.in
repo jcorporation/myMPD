@@ -91,6 +91,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define FILENAME_TIMER "timer_list"
 #define FILENAME_TRIGGER "trigger_list"
 #define FILENAME_WEBRADIODB "webradiodb.mpack"
+#define FILENAME_WEBRADIO_FAVORITES "webradio_favorites.mpack"
 #define FILENAME_SCRIPTVARS "scriptvars_list"
 
 #define DIR_CACHE_COVER "cover"
@@ -109,7 +110,6 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define DIR_WORK_STATE "state"
 #define DIR_WORK_STATE_DEFAULT DIR_WORK_STATE"/default"
 #define DIR_WORK_TAGS "tags"
-#define DIR_WORK_WEBRADIOS "webradios"
 
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"
