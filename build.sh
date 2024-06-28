@@ -285,7 +285,13 @@ createassets() {
   cp -v dist/material-icons/MaterialIcons-Regular.woff2 "$MYMPD_BUILDDIR/htdocs/assets/"
   $ZIPCAT dist/material-icons/ligatures.json > "$MYMPD_BUILDDIR/htdocs/assets/ligatures.json.gz"
 
-  lualibs
+  [ -z "${MYMPD_ENABLE_LUA+x}" ] && MYMPD_ENABLE_LUA="ON"
+  if [ "${MYMPD_ENABLE_LUA}" = "on" ] || [ "${MYMPD_ENABLE_LUA}" = "ON" ]
+  then
+    lualibs
+  else
+    echo "Skip creation of lua libraries"
+  fi
 
   return 0
 }
@@ -305,7 +311,7 @@ lualibs() {
   cat contrib/lualibs/mympd/60-caches.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/99-end.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   echo "Compiling lua libraries"
-  LUAC=$(command -v luac5.4 || command -v luac5.3 || command -v luac || true)
+  LUAC=$(command -v luac5.4 2> /dev/null || command -v luac5.3 2> /dev/null || command -v luac 2> /dev/null || true)
   if [ -z "$LUAC" ]
   then
     echo_error "luac not found"
