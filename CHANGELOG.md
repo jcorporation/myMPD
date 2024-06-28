@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: build with disabled lua #1317
+
 ***
 
 ## myMPD 16.0.0 (2024-06-28)
