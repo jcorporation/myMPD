@@ -87,6 +87,7 @@ body.mobile > footer > nav {
   color: var(--mympd-highlightcolor-contrast) !important;
 }
 
+li.active button,
 button.active,
 .btn-success,
 .btn-success:focus,
@@ -1030,7 +1031,7 @@ div.alert-success::before {
 }
 
 div.alert-secondary {
-  background-color: transparent;
+  background-color: transparent !important;
   border-color: transparent;
   color: inherit;
   margin-bottom: 0;

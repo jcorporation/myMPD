@@ -44,14 +44,16 @@ struct t_config {
     bool stickers;                  //!< enable sticker support
     bool stickers_pad_int;          //!< enable the padding of integer sticker values
     struct t_albums_config albums;  //!< album specific config
-    int covercache_keep_days;       //!< expiration time for covercache files
+    int cache_cover_keep_days;      //!< expiration time for cover cache files in days
+    int cache_lyrics_keep_days;     //!< expiration time for lyrics cache files in days
+    int cache_thumbs_keep_days;     //!< expiration time for thumbs cache files in days
+    int cache_misc_keep_days;       //!< expiration time for misc cache files in days
     int http_port;                  //!< http port to listen
     int loglevel;                   //!< loglevel
     int ssl_port;                   //!< https port to listen
     sds acl;                        //!< IPv4 ACL string
     sds cachedir;                   //!< cache directory
     sds http_host;                  //!< ip to bind the webserver
-    sds lualibs;                    //!< enabled lua libraries
     sds mympd_uri;                  //!< uri to resolve mympd:// uris
     sds pin_hash;                   //!< hash of the pin
     sds scriptacl;                  //!< IPv4 ACL string for the /api/script endpoint

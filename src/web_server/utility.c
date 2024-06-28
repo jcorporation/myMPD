@@ -7,8 +7,8 @@
 #include "compile_time.h"
 #include "src/web_server/utility.h"
 
+#include "src/lib/cache_disk_images.h"
 #include "src/lib/config_def.h"
-#include "src/lib/covercache.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -117,34 +117,31 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
  * @param nc mongoose connection
  * @param hm http message
  * @param mg_user_data pointer to mongoose configuration
+ * @param type cache type: cover or thumbs
  * @param uri_decoded image uri
  * @param offset embedded image offset
  * @return true if an image is served,
  *         false if no image was found in cache
  */
-bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset)
+bool check_imagescache(struct mg_connection *nc, struct mg_http_message *hm,
+        struct t_mg_user_data *mg_user_data, const char *type, sds uri_decoded, int offset)
 {
-    if (mg_user_data->config->covercache_keep_days != COVERCACHE_DISABLED) {
-        sds filename = sds_hash_sha1(uri_decoded);
-        sds covercachefile = sdscatfmt(sdsempty(), "%S/%s/%S-%i", mg_user_data->config->cachedir, DIR_CACHE_COVER, filename, offset);
-        FREE_SDS(filename);
-        covercachefile = webserver_find_image_file(covercachefile);
-        if (sdslen(covercachefile) > 0) {
-            const char *mime_type = get_mime_type_by_ext(covercachefile);
-            MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", covercachefile, mime_type);
-            static struct mg_http_serve_opts s_http_server_opts;
-            s_http_server_opts.root_dir = mg_user_data->browse_directory;
-            s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
-            s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-            mg_http_serve_file(nc, hm, covercachefile, &s_http_server_opts);
-            webserver_handle_connection_close(nc);
-            FREE_SDS(covercachefile);
-            return true;
-        }
-        MYMPD_LOG_DEBUG(NULL, "No covercache file found");
-        FREE_SDS(covercachefile);
+    sds imagescachefile = cache_disk_images_get_basename(mg_user_data->config->cachedir, type, uri_decoded, offset);
+    imagescachefile = webserver_find_image_file(imagescachefile);
+    if (sdslen(imagescachefile) > 0) {
+        const char *mime_type = get_mime_type_by_ext(imagescachefile);
+        MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", imagescachefile, mime_type);
+        static struct mg_http_serve_opts s_http_server_opts;
+        s_http_server_opts.root_dir = mg_user_data->browse_directory;
+        s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
+        s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+        mg_http_serve_file(nc, hm, imagescachefile, &s_http_server_opts);
+        webserver_handle_connection_close(nc);
+        FREE_SDS(imagescachefile);
+        return true;
     }
+    MYMPD_LOG_DEBUG(NULL, "No %s cache file found", type);
+    FREE_SDS(imagescachefile);
     return false;
 }
 
@@ -255,6 +252,19 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
 }
 
 /**
+ * Sends a raw reply
+ * @param nc mongoose connection
+ * @param data data to send
+ * @param len length of the data to send
+ * @param headers extra headers to add
+ */
+void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len) {
+    MYMPD_LOG_DEBUG(NULL, "Sending %lu bytes to %lu", (unsigned long)len, nc->id);
+    mg_send(nc, data, len);
+    webserver_handle_connection_close(nc);
+}
+
+/**
  * Serves a file defined by file from path
  * @param nc mongoose connection
  * @param hm mongoose http message
@@ -276,13 +286,18 @@ void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm, 
  * Sends a 301 moved permanently header
  * @param nc mongoose connection
  * @param location destination for the redirect
+ * @param headers extra headers to add
  */
-void webserver_send_header_redirect(struct mg_connection *nc, const char *location) {
+void webserver_send_header_redirect(struct mg_connection *nc, const char *location,
+        const char *headers)
+{
     MYMPD_LOG_DEBUG(NULL, "Sending 301 Moved Permanently \"%s\" to %lu", location, nc->id);
     mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
         "Location: %s\r\n"
-        "Content-Length: 0\r\n\r\n",
-        location);
+        "Content-Length: 0\r\n"
+        "%s"
+        "\r\n",
+        location, headers);
     webserver_handle_connection_close(nc);
 }
 
@@ -290,13 +305,18 @@ void webserver_send_header_redirect(struct mg_connection *nc, const char *locati
  * Sends a 302 found header
  * @param nc mongoose connection
  * @param location destination for the redirect
+ * @param headers extra headers to add
  */
-void webserver_send_header_found(struct mg_connection *nc, const char *location) {
+void webserver_send_header_found(struct mg_connection *nc, const char *location,
+    const char *headers)
+{
     MYMPD_LOG_DEBUG(NULL, "Sending 302 Found \"%s\" to %lu", location, nc->id);
     mg_printf(nc, "HTTP/1.1 302 Found\r\n"
         "Location: %s\r\n"
-        "Content-Length: 0\r\n\r\n",
-        location);
+        "Content-Length: 0\r\n"
+        "%s"
+        "\r\n",
+        location, headers);
     webserver_handle_connection_close(nc);
 }
 
@@ -337,25 +357,25 @@ void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholde
     struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
     switch (placeholder_type) {
         case PLACEHOLDER_NA:
-            webserver_send_header_found(nc, mg_user_data->placeholder_na);
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_na, "");
             break;
         case PLACEHOLDER_STREAM:
-            webserver_send_header_found(nc, mg_user_data->placeholder_stream);
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_stream, "");
             break;
         case PLACEHOLDER_MYMPD:
-            webserver_send_header_found(nc, mg_user_data->placeholder_mympd);
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_mympd, "");
             break;
         case PLACEHOLDER_BOOKLET:
-            webserver_send_header_found(nc, mg_user_data->placeholder_booklet);
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_booklet, "");
             break;
         case PLACEHOLDER_PLAYLIST:
-            webserver_send_header_found(nc, mg_user_data->placeholder_playlist);
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_playlist, "");
             break;
         case PLACEHOLDER_SMARTPLS:
-            webserver_send_header_found(nc, mg_user_data->placeholder_smartpls);
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_smartpls, "");
             break;
         case PLACEHOLDER_FOLDER:
-            webserver_send_header_found(nc, mg_user_data->placeholder_folder);
+            webserver_send_header_redirect(nc, mg_user_data->placeholder_folder, "");
             break;
     }
 }

@@ -61,9 +61,10 @@ function initModalSongDetails() {
  * @returns {void}
  */
 function songDetails(uri) {
+    setUpdateViewId('modalSongDetailsTagsList');
     sendAPI("MYMPD_API_SONG_DETAILS", {
         "uri": uri
-    }, parseSongDetails, false);
+    }, parseSongDetails, true);
     uiElements.modalSongDetails.show();
 }
 
@@ -118,8 +119,12 @@ function parseSongDetails(obj) {
     for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].textContent = obj.result.Title;
     }
-    const tbody = elGetById('modalSongDetailsTagsList');
+    const table = elGetById('modalSongDetailsTagsList');
+    const tbody = table.querySelector('tbody');
     elClear(tbody);
+    if (checkResult(obj, table, 'table') === false) {
+        return;
+    }
     for (let i = 0, j = settings.tagList.length; i < j; i++) {
         if (settings.tagList[i] === 'Title' ||
             isEmptyTag(obj.result[settings.tagList[i]]) === true)
@@ -271,11 +276,13 @@ function parseSongDetails(obj) {
             }
         }
     }
+    unsetUpdateViewId('modalSongDetailsTagsList');
     //populate other tabs
     if (features.featLyrics === true) {
-        getLyrics(obj.result.uri, elGetById('modalSongDetailsTabPicsLyricsText'));
+        elClearId('modalSongDetailsTabLyricsText');
+        getLyrics(obj.result.uri, elGetById('modalSongDetailsTabLyricsText'));
     }
-    getComments(obj.result.uri, elGetById('modalSongDetailsCommentsList'));
+    getComments(obj.result.uri);
     const imgEl = elGetById('modalSongDetailsTabPics');
     createImgCarousel(imgEl, 'modalSongDetailsPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
 }
@@ -283,29 +290,34 @@ function parseSongDetails(obj) {
 /**
  * Gets the song comments
  * @param {string} uri song uri
- * @param {HTMLElement} el container to add the comments
  * @returns {void}
  */
-function getComments(uri, el) {
-    setUpdateView(el);
+function getComments(uri) {
+    setUpdateViewId('modalSongDetailsCommentsList');
     sendAPI("MYMPD_API_SONG_COMMENTS", {
         "uri": uri
-    }, function(obj) {
-        elClear(el);
-        if (obj.result.returnedEntities === 0) {
-            el.appendChild(emptyMsgEl(2, 'table'));
-            unsetUpdateView(el);
-            return false;
-        }
-        for (const key in obj.result.data) {
-            el.appendChild(
-                elCreateNodes('tr', {}, [
-                    elCreateText('td', {}, key),
-                    elCreateText('td', {}, obj.result.data[key])
-                ])
-            );
-        }
-        unsetUpdateView(el);
-    }, false);
+    }, parseComments, true);
 }
 
+/**
+ * Gets the song comments
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function parseComments(obj) {
+    const table = elGetById('modalSongDetailsCommentsList');
+    const tbody = table.querySelector('tbody');
+    elClear(tbody);
+    if (checkResult(obj, table, 'table') === false) {
+        return;
+    }
+    for (const key in obj.result.data) {
+        tbody.appendChild(
+            elCreateNodes('tr', {}, [
+                elCreateText('td', {}, key),
+                elCreateText('td', {}, obj.result.data[key])
+            ])
+        );
+    }
+    unsetUpdateView(table);
+}

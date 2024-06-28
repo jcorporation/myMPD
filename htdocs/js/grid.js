@@ -60,7 +60,7 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
             typeof(createCardActionsCallback) === 'function')
         {
             //custom footer content
-            const customFooter = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-2"]});
+            const customFooter = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-0", "d-flex", "justify-content-center"]});
             createCardActionsCallback(customFooter, obj.result.data[i], obj.result);
             card.appendChild(customFooter);
         }

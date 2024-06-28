@@ -11,6 +11,7 @@
 
 sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds buffer, unsigned request_id, sds albumid, unsigned size);
-sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
-        const char *uri, sds *binary);
+sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+    sds buffer, unsigned request_id, unsigned long conn_id, sds uri, sds *binary);
+
 #endif

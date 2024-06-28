@@ -18,7 +18,7 @@
 bool mympd_api_request_caches_create(void) {
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_CACHES_CREATE, NULL, MPD_PARTITION_DEFAULT);
     request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
-    return mympd_queue_push(mympd_api_queue, request, 0);
+    return push_request(request, 0);
 }
 
 /**
@@ -29,7 +29,7 @@ bool mympd_api_request_caches_create(void) {
 bool mympd_api_request_jukebox_restart(const char *partition) {
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_JUKEBOX_RESTART, NULL, partition);
     request->data = sdscatlen(request->data, "}}", 2);
-    return mympd_queue_push(mympd_api_queue, request, 0);
+    return push_request(request, 0);
 }
 
 /**
@@ -42,7 +42,7 @@ bool mympd_api_request_trigger_event_emit(enum trigger_events event, const char 
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_TRIGGER_EVENT_EMIT, NULL, partition);
     request->data = tojson_int(request->data, "event", event, false);
     request->data = sdscatlen(request->data, "}}", 2);
-    return mympd_queue_push(mympd_api_queue, request, 0);
+    return push_request(request, 0);
 }
 
 /**
@@ -58,5 +58,5 @@ bool mympd_api_request_sticker_features(bool feat_sticker, bool feat_sticker_sor
     request->data = tojson_bool(request->data, "sticker_sort_window", feat_sticker_sort_window, true);
     request->data = tojson_bool(request->data, "sticker_int", feat_sticker_int, false);
     request->data = sdscatlen(request->data, "}}", 2);
-    return mympd_queue_push(mympd_api_queue, request, 0);
+    return push_request(request, 0);
 }

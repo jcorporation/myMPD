@@ -93,6 +93,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
                 "Content-Length: %d\r\n\r\n",
                 (int)sdslen(response));
             mg_send(nc, response, sdslen(response));
+            webserver_handle_connection_close(nc);
             FREE_SDS(cmd);
             FREE_SDS(jsonrpc);
             FREE_SDS(session);
@@ -118,9 +119,9 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
             webradiodb_api(nc, backend_nc, cmd_id, request_id);
             break;
         default: {
-            //forward API request to mympd_api_handler
+            //forward API request to another thread
             struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
-            mympd_queue_push(mympd_api_queue, request, 0);
+            push_request(request, 0);
         }
     }
     FREE_SDS(session);
@@ -169,7 +170,7 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
         return false;
     }
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
-    mympd_queue_push(mympd_api_queue, request, 0);
+    push_request(request, 0);
 
     FREE_SDS(cmd);
     FREE_SDS(jsonrpc);
@@ -279,7 +280,7 @@ void request_handler_proxy_covercache(struct mg_connection *nc, struct mg_http_m
         //decode uri
         uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
         struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)nc->mgr->userdata;
-        if (check_covercache(nc, hm, mg_user_data, uri_decoded, 0) == false) {
+        if (check_imagescache(nc, hm, mg_user_data, DIR_CACHE_COVER, uri_decoded, 0) == false) {
             create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_covercache, false);
         }
     }

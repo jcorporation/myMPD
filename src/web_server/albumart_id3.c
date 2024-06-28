@@ -7,9 +7,10 @@
 #include "compile_time.h"
 #include "src/web_server/albumart_id3.h"
 
-#include "src/lib/covercache.h"
+#include "src/lib/cache_disk_images.h"
 #include "src/lib/log.h"
 #include "src/lib/mimetype.h"
+#include "src/lib/sds_extras.h"
 
 #include <id3tag.h>
 #include <stdlib.h>
@@ -48,7 +49,8 @@ bool handle_coverextract_id3(sds cachedir, const char *uri, const char *media_fi
             const char *mime_type = get_mime_type_by_magic_stream(*binary);
             if (mime_type != NULL) {
                 if (covercache == true) {
-                    covercache_write_file(cachedir, uri, mime_type, *binary, offset);
+                    sds filename = cache_disk_images_write_file(cachedir, DIR_CACHE_COVER, uri, mime_type, *binary, offset);
+                    FREE_SDS(filename);
                 }
                 else {
                     MYMPD_LOG_DEBUG(NULL, "Covercache is disabled");

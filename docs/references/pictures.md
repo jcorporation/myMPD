@@ -8,7 +8,7 @@ myMPD supports local coverart for albums, streams and tags.
 
 ## Albumart
 
-myMPD can get albumart through through direct access to the MPD music directory or through the MPD protocol.
+myMPD can get albumart through through direct access to the MPD music directory, through the MPD protocol or with the help of scripts.
 
 ### Direct access
 
@@ -48,6 +48,12 @@ This is useful if myMPD does not run on the same host as MPD.
 
 myMPD restricts the size to 5 MB.
 
+### Scripts
+
+If myMPD does not find local albumart it emmits the `mympd_albumart` trigger. Attach a script to fetch and deliver albumart to this trigger. Only one script is supported for this event.
+
+A fully working example implementation can be found in the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts/tree/main/Albumart).
+
 ## Streams
 
 1. Images must be named as the uri of the stream, replace the characters `<>/.:?&$%!#\|;=` with `_`, e.g. `http___stream_laut_fm_nonpop.png` for uri `http://stream.laut.fm/nonpop`.
@@ -60,6 +66,10 @@ The "Browse Database" grid view can display pictures for other tags than album a
 You can download artistart with the script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)
 
 Tag values are case sensitive and are sanitized: `/` is replaced with `_` (`AC/DC` -> `AC_DC`)
+
+If the tag directory exists and myMPD can not find the tagart it emmits the `mympd_tagart` trigger. Attach a script to fetch and deliver tagart to this trigger. Only one script is supported for this event.
+
+A fully working example implementation can be found in the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts/tree/main/Tagart).
 
 ### Example
 
@@ -101,6 +111,6 @@ You can use every supported file extension.
 
 ## Covercache
 
-myMPD caches covers in the folder `/var/cache/mympd/covercache`. Files in this folder can be safely deleted. myMPD housekeeps the covercache on startup and each day.
+myMPD caches covers in the folder `/var/cache/mympd/cover`. Files in this folder can be safely deleted. myMPD housekeeps the covercache on startup and each day.
 
-You can disable the covercache by setting the `Covercache expiration` value to `0` days.
+You can disable the covercache by setting the `covercache_keep_days` configuration value to `0` or disable the cleanup of the cache by setting it to `-1`.

@@ -18,7 +18,7 @@ UTEST(timer, test_timer_add_replace_remove) {
     mympd_api_timer_timerlist_init(&l);
     ASSERT_EQ((unsigned)USER_TIMER_ID_START, l.last_id);
 
-    bool rc = mympd_api_timer_add(&l, 10, 0, timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
+    bool rc = mympd_api_timer_add(&l, 10, 0, timer_handler_by_id, TIMER_ID_DISK_CACHE_CROP, NULL);
     ASSERT_TRUE(rc);
     ASSERT_EQ(1U, l.list.length);
     ASSERT_EQ((unsigned)USER_TIMER_ID_START, l.last_id);

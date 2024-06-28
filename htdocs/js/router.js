@@ -131,7 +131,7 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
     }
     //build hash
     app.goto = true;
-    location.hash = myEncodeURIComponent(
+    const newHash = myEncodeURIComponent(
         JSON.stringify({
             "card": card,
             "tab": tab,
@@ -144,6 +144,9 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
             "search": search
         })
     );
+    if (location.hash !== '#' + newHash) {
+        location.hash = newHash;
+    }
     appRoute(card, tab, view, offset, limit, filter, sort, tag, search);
 }
 

@@ -72,18 +72,19 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 sds get_uri_param(struct mg_str *query, const char *name);
 sds print_ip(sds s, struct mg_addr *addr);
 bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data);
-bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset);
+bool check_imagescache(struct mg_connection *nc, struct mg_http_message *hm,
+        struct t_mg_user_data *mg_user_data, const char *type, sds uri_decoded, int offset);
 sds webserver_find_image_file(sds basefilename);
 bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *names, int names_len);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
 void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm, const char *path, const char *file);
 void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholder_types placeholder_type);
-void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *headers);
-void webserver_send_header_redirect(struct mg_connection *nc, const char *location);
-void webserver_send_header_found(struct mg_connection *nc, const char *location);
+void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *extra_headers);
+void webserver_send_header_redirect(struct mg_connection *nc, const char *location, const char *headers);
+void webserver_send_header_found(struct mg_connection *nc, const char *location, const char *headers);
 void webserver_send_cors_reply(struct mg_connection *nc);
 void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers);
+void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len);
 void webserver_handle_connection_close(struct mg_connection *nc);
 void *mg_user_data_free(struct t_mg_user_data *mg_user_data);
 #endif

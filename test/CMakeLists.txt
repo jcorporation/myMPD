@@ -8,10 +8,12 @@ configure_file(utility.h.in "${PROJECT_BINARY_DIR}/test/utility.h")
 set(TEST_SOURCES
   main.c
   utility.c
-  ../src/lib/album_cache.c
-  ../src/lib/api.c
-  ../src/lib/cache.c
+    ../src/lib/api.c
+  ../src/lib/cache_disk_lyrics.c
+  ../src/lib/cache_rax_album.c
+  ../src/lib/cache_rax.c
   ../src/lib/cert.c
+  ../src/lib/config.c
   ../src/lib/convert.c
   ../src/lib/datetime.c
   ../src/lib/event.c
@@ -23,7 +25,6 @@ set(TEST_SOURCES
   ../src/lib/last_played.c
   ../src/lib/list.c
   ../src/lib/log.c
-  ../src/lib/lua_mympd_state.c
   ../src/lib/m3u.c
   ../src/lib/mg_str_utils.c
   ../src/lib/mimetype.c
@@ -57,6 +58,7 @@ set(TEST_SOURCES
   ../src/mympd_api/home.c
   ../src/mympd_api/last_played.c
   ../src/mympd_api/jukebox.c
+  ../src/mympd_api/lua_mympd_state.c
   ../src/mympd_api/lyrics.c
   ../src/mympd_api/requests.c
   ../src/mympd_api/settings.c
@@ -67,6 +69,7 @@ set(TEST_SOURCES
   ../src/mympd_api/trigger.c
   ../src/mympd_api/queue.c
   ../src/mympd_api/webradios.c
+  ../src/scripts/events.c
   tests/test_album_cache.c
   tests/test_api.c
   tests/test_cert.c
@@ -143,9 +146,6 @@ if(LIBID3TAG_FOUND)
 endif()
 if(FLAC_FOUND)
   target_link_libraries(unit_test ${FLAC_LIBRARIES})
-endif()
-if(LUA_FOUND)
-  target_link_libraries(unit_test ${LUA_LIBRARIES})
 endif()
 
 add_custom_command(TARGET unit_test PRE_BUILD

@@ -134,8 +134,15 @@ const messagesMax = 100;
 /** @type {boolean} */
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 
+/** @type {object} */
 let webradioDb = null;
+/** @type {string} */
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
+
+/** @type {string} */
+const scriptsUri = 'https://github.com/jcorporation/mympd-scripts/tree/main/';
+/** @type {string} */
+const scriptsImportUri = 'https://raw.githubusercontent.com/jcorporation/mympd-scripts/main/';
 
 /** @type {object} */
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
@@ -157,10 +164,14 @@ const localeMap = {
     'zh-TW': 'zh-Hant'
 };
 
+/** @type {object} */
 let materialIcons = {};
+/** @type {object} */
 let phrasesDefault = {};
+/** @type {object} */
 let phrases = {};
 
+/** @type {number} */
 let lastSeekStep = 10;
 
 /**
@@ -325,13 +336,6 @@ const settingsFields = {
         "title": "Last played list count",
         "form": "modalSettingsStatisticsFrm",
         "help": "helpSettingsLastPlayedCount"
-    },
-    "listenbrainzToken": {
-        "defaultValue": "",
-        "inputType": "password",
-        "title": "ListenBrainz Token",
-        "form": "modalSettingsCloudFrm",
-        "help": "helpSettingsListenBrainzToken"
     },
     "bookletName": {
         "defaultValue": defaults["MYMPD_BOOKLET_NAME"],
@@ -691,13 +695,6 @@ const settingsWebuiFields = {
         "form": "modalSettingsFurtherFeaturesFrm",
         "warn": "Lua is not compiled in",
         "help": "helpSettingsEnableScripting"
-    },
-    "enableTrigger": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Trigger",
-        "form": "modalSettingsFurtherFeaturesFrm",
-        "help": "helpSettingsEnableTrigger"
     },
     "enableTimer": {
         "defaultValue": true,
@@ -1481,8 +1478,7 @@ const features = {
     "featSmartplsAvailable": true,
     "featStickers": false,
     "featTags": true,
-    "featTimer": true,
-    "featTrigger": true
+    "featTimer": true
 };
 
 //keyboard shortcuts
@@ -1501,7 +1497,7 @@ const keymap = {
     "modals": {"order": 200, "desc": "Dialogs"},
         "A": {"order": 201, "cmd": "showAddToPlaylist", "options": ["stream", []], "desc": "Add stream"},
         "C": {"order": 202, "cmd": "openModal", "options": ["modalConnection"], "desc": "Open MPD connection"},
-        "G": {"order": 207, "cmd": "openModal", "options": ["modalTrigger"], "desc": "Open trigger", "feature": "featTrigger"},
+        "G": {"order": 207, "cmd": "openModal", "options": ["modalTrigger"], "desc": "Open trigger", "feature": "featScripting"},
         "I": {"order": 207, "cmd": "openModal", "options": ["modalTimer"], "desc": "Open timer", "feature": "featTimer"},
         "L": {"order": 207, "cmd": "loginOrLogout", "options": [], "desc": "Login or logout", "feature": "featSession"},
         "M": {"order": 205, "cmd": "openModal", "options": ["modalMaintenance"], "desc": "Open maintenance"},
@@ -1511,6 +1507,7 @@ const keymap = {
         "Q": {"order": 203, "cmd": "openModal", "options": ["modalPlayback"], "desc": "Open playback settings"},
         "S": {"order": 207, "cmd": "showListScriptModal", "options": [], "desc": "Open scripts", "feature": "featScripting"},
         "T": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
+        "V": {"order": 207, "cmd": "showListVariablesModal", "options": [], "desc": "Open variables", "feature": "featScripting"},
         "?": {"order": 207, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
         
     "navigation": {"order": 300, "desc": "Navigation"},
@@ -1552,40 +1549,155 @@ uiElements.modalHomeIconLigatureDropdown = BSN.Dropdown.getInstance(elGetById('m
 uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('modalMountsNeighborsBtn'));
 
 const LUAfunctions = {
+    "json.decode": {
+        "desc": "Parses a Json string to a Lua table.",
+        "func": "local data = json.decode(str)",
+        "feat": ""
+    },
+    "json.encode": {
+        "desc": "Encodes a Lua table as Json string.",
+        "func": "local str = json.encode(data)",
+        "feat": ""
+    },
+    "mympd.cache_cover_write": {
+        "desc": "Write a file for the cover cache.",
+        "func": "local rc, filename = mympd.cache_cover_write(src, uri)",
+        "feat": ""
+    },
+    "mympd.cache_lyrics_write": {
+        "desc": "Write the lyrics entry object to the lyrics cache.",
+        "func": "local rc, filename = mympd.cache_lyrics_write(json.encode(entry), song_uri)",
+        "feat": ""
+    },
+    "mympd.cache_thumbs_write": {
+        "desc": "Write a file for the thumbs cache.",
+        "func": "local rc, filename =  = mympd.cache_thumbs_write(src, uri)",
+        "feat": ""
+    },
+    "mympd.dialog": {
+        "desc": "Returns an Jsonrpc response for a script dialog.",
+        "func": "return mympd.dialog(title, data, callback)",
+        "feat": ""
+    },
+    "mympd.hash_md5": {
+        "desc": "MD5 hash of string.",
+        "func": "local hash = mympd.hash_md5(string)",
+        "feat": ""
+    },
+    "mympd.hash_sha1": {
+        "desc": "SHA1 hash of string.",
+        "func": "local hash = mympd.hash_sha1(string)",
+        "feat": ""
+    },
+    "mympd.hash_sha256": {
+        "desc": "SHA256 hash of string.",
+        "func": "local hash = mympd.hash_sha256(string)",
+        "feat": ""
+    },
     "mympd.http_client": {
         "desc": "HTTP client",
-        "func": "rc, code, header, body = mympd.http_client(method, uri, headers, payload)",
+        "func": "local rc, code, headers, body = mympd.http_client(method, uri, extra_headers, payload)",
+        "feat": ""
+    },
+    "mympd.http_download": {
+        "desc": "HTTP download",
+        "func": "local rc, code, headers = mympd.http_download(uri, extra_headers, out)",
+        "feat": ""
+    },
+    "mympd.http_jsonrpc_error": {
+        "desc": "Sends a JSONRPC 2.0 error.",
+        "func": "return mympd.http_jsonrpc_error(method, msg)",
+        "feat": ""
+    },
+    "mympd.http_jsonrpc_response": {
+        "desc": "Sends a JSONRPC 2.0 response.",
+        "func": "return mympd.http_jsonrpc_response(obj)",
+        "feat": ""
+    },
+    "mympd.http_jsonrpc_warn": {
+        "desc": "Sends a JSONRPC 2.0 warning.",
+        "func": "return mympd.http_jsonrpc_warn(method, msg)",
+        "feat": ""
+    },
+    "mympd.http_redirect": {
+        "desc": "Sends a HTTP redirect.",
+        "func": "return mympd.http_reply(location)",
+        "feat": ""
+    },
+    "mympd.http_reply": {
+        "desc": "Sends a HTTP reply.",
+        "func": "return mympd.http_reply(status, header, body)",
+        "feat": ""
+    },
+    "mympd.http_serve_file": {
+        "desc": "Serves a file from the filesystem. Only files from the diskcache are allowed.",
+        "func": "return mympd.http_serve_file(file)",
         "feat": ""
     },
     "mympd.init": {
-        "desc": "Initializes the mympd_state lua table.",
+        "desc": "Initializes the global lua table mympd_state.",
         "func": "mympd.init()",
         "feat": ""
     },
+    "mympd.log": {
+        "desc": "Logs messages to the myMPD log.",
+        "func": "mympd.log(loglevel, message)",
+        "feat": ""
+    },
+    "mympd.tmp_file": {
+        "desc": "Generates a random tmp filename for the misc cache.",
+        "func": "local tmp_file = mympd.tmp_file()",
+        "feat": ""
+    },
+    "mympd.urldecode": {
+        "desc": "URL decodes a string.",
+        "func": "local decoded = mympd.urlencode(string, false)",
+        "feat": ""
+    },
+    "mympd.update_mtime": {
+        "desc":	"Updates the timestamp of a file.",
+        "func": "local rc = mympd.update_mtime(filename)",
+        "feat": ""
+    },
+    "mympd.urlencode": {
+        "desc":	"URL encodes a string.",
+        "func": "local encoded = mympd.urlencode(string)",
+        "feat": ""
+    },
     "mympd.os_capture": {
-        "desc":	"Executes a system command and capture its output.",
-        "func": "output = mympd.os_capture(command)",
+        "desc": "Executes a system command and capture its output.",
+        "func": "local output = mympd.os_capture(command)",
         "feat": ""
     },
     "mympd.gpio_blink": {
         "desc": "Blinks a GPIO with given timeout and interval.",
-        "func": "rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)",
+        "func": "local rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)",
         "feat": "featMygpiod"
     },
     "mympd.gpio_get": {
         "desc": "Returns the active state of a GPIO.",
-        "func": "rc = mympd.gpio_get(gpio)",
+        "func": "local rc = mympd.gpio_get(gpio)",
         "feat": "featMygpiod"
     },
     "mympd.gpio_set": {
         "desc": "Sets the active state of a GPIO.",
-        "func": "rc = mygpio_gpio_set(mympd.mygpiod_socket, gpio, value)",
+        "func": "local rc = mygpio_gpio_set(mympd.mygpiod_socket, gpio, value)",
         "feat": "featMygpiod"
     },
     "mympd.gpio_toggle": {
         "desc": "Toggles the active state of a GPIO.",
-        "func": "rc = mygpio_gpio_toggle(mympd.mygpiod_socket, gpio)",
+        "func": "local rc = mygpio_gpio_toggle(mympd.mygpiod_socket, gpio)",
         "feat": "featMygpiod"
+    },
+    "mympd.notify_client": {
+        "desc": "Sends a notification to the client that started this script.",
+        "func": "mympd.notify_client(severity, message)",
+        "feat": ""
+    },
+    "mympd.notify_partition": {
+        "desc": "Sends a notification to all clients in the current partition.",
+        "func": "mympd.notify_partition(severity, message)",
+        "feat": ""
     }
 };
 

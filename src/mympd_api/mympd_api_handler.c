@@ -7,8 +7,8 @@
 #include "compile_time.h"
 #include "src/mympd_api/mympd_api_handler.h"
 
-#include "src/lib/album_cache.h"
 #include "src/lib/api.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"
@@ -32,6 +32,7 @@
 #include "src/mpd_worker/mpd_worker.h"
 #include "src/mympd_api/albumart.h"
 #include "src/mympd_api/browse.h"
+#include "src/mympd_api/channel.h"
 #include "src/mympd_api/database.h"
 #include "src/mympd_api/filesystem.h"
 #include "src/mympd_api/home.h"
@@ -51,6 +52,7 @@
 #include "src/mympd_api/stats.h"
 #include "src/mympd_api/status.h"
 #include "src/mympd_api/sticker.h"
+#include "src/mympd_api/tagart.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
@@ -58,7 +60,7 @@
 #include "src/mympd_api/webradios.h"
 
 #ifdef MYMPD_ENABLE_LUA
-    #include "src/mympd_api/scripts/scripts.h"
+    #include "src/mympd_api/lua_mympd_state.h"
 #endif
 
 #include <stdbool.h>
@@ -131,10 +133,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SONG_FINGERPRINT:
-        case MYMPD_API_COVERCACHE_CROP:
-        case MYMPD_API_COVERCACHE_CLEAR:
+        case MYMPD_API_CACHE_DISK_CROP:
+        case MYMPD_API_CACHE_DISK_CLEAR:
         case MYMPD_API_QUEUE_ADD_RANDOM:
-            if (worker_threads > MAX_WORKER_THREADS) {
+            if (mpd_worker_threads > MAX_MPD_WORKER_THREADS) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Too many worker threads are already running");
                 MYMPD_LOG_ERROR(partition_state->name, "Too many worker threads are already running");
@@ -203,7 +205,23 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             mympd_state_save(mympd_state, false);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
             break;
-        case MYMPD_API_MESSAGE_SEND:
+    // Channels
+        case MYMPD_API_CHANNEL_SUBSCRIBE:
+            if (json_get_string(request->data, "$.params.channel", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
+                mpd_run_subscribe(partition_state->conn, sds_buf1);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_subscribe", &rc);
+            }
+            break;
+        case MYMPD_API_CHANNEL_UNSUBSCRIBE:
+            if (json_get_string(request->data, "$.params.channel", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
+                mpd_run_unsubscribe(partition_state->conn, sds_buf1);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_unsubscribe", &rc);
+            }
+            break;
+        case MYMPD_API_CHANNEL_LIST:
+            response->data = mympd_api_channel_list(partition_state, response->data, request->id);
+            break;
+        case MYMPD_API_CHANNEL_MESSAGE_SEND:
             if (json_get_string(request->data, "$.params.channel", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.message", 1, CONTENT_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
             {
@@ -211,13 +229,36 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_send_message", &rc);
             }
             break;
+        case MYMPD_API_CHANNEL_MESSAGES_READ:
+            response->data = mympd_api_channel_messages_read(partition_state, response->data, request->id);
+            break;
         case MYMPD_API_STATS:
             response->data = mympd_api_stats_get(partition_state, response->data, request->id);
+            break;
+    // Tagart
+        case INTERNAL_API_TAGART:
+            if (json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf1, vcb_ismpdtag, &parse_error) == true &&
+                json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
+            {
+                response->data = mympd_api_tagart(mympd_state, partition_state, response->data, request->id, request->conn_id, sds_buf1, sds_buf2);
+                if (sdslen(response->data) == 0) {
+                    // response must be send by triggered script
+                    async = true;
+                    // we do not pass the request to the script thread
+                    free_request(request);
+                }
+            }
             break;
     // Albumart
         case INTERNAL_API_ALBUMART_BY_URI:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
-                response->data = mympd_api_albumart_getcover_by_uri(partition_state, response->data, request->id, sds_buf1, &response->binary);
+                response->data = mympd_api_albumart_getcover_by_uri(mympd_state, partition_state, response->data, request->id, request->conn_id, sds_buf1, &response->binary);
+                if (sdslen(response->data) == 0) {
+                    // response must be send by triggered script
+                    async = true;
+                    // we do not pass the request to the script thread
+                    free_request(request);
+                }
             }
             break;
         case INTERNAL_API_ALBUMART_BY_ALBUMID:
@@ -287,85 +328,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
     // Scripting
     #ifdef MYMPD_ENABLE_LUA
-        case MYMPD_API_SCRIPT_VALIDATE:
-            if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
-                json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf2, vcb_istext, &parse_error) == true)
-            {
-                rc = mympd_api_script_validate(sds_buf1, sds_buf2, config->lualibs, &error);
-                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_SCRIPT, error);
-            }
-        break;
-        case MYMPD_API_SCRIPT_SAVE: {
-            struct t_list arguments;
-            list_init(&arguments);
-            if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
-                json_get_string(request->data, "$.params.oldscript", 0, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &parse_error) == true &&
-                json_get_int(request->data, "$.params.order", 0, LIST_TIMER_MAX, &int_buf1, &parse_error) == true &&
-                json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf3, vcb_istext, &parse_error) == true &&
-                json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, SCRIPT_ARGUMENTS_MAX, &parse_error) == true)
-            {
-                rc = mympd_api_script_validate(sds_buf1, sds_buf3, config->lualibs, &error) &&
-                    mympd_api_script_save(config->workdir, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments, &error);
-                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_SCRIPT, error);
-            }
-            list_clear(&arguments);
-            break;
-        }
-        case MYMPD_API_SCRIPT_RM:
-            if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true) {
-                rc = mympd_api_script_delete(config->workdir, sds_buf1);
-                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_SCRIPT, "Could not delete script");
-            }
-            break;
-        case MYMPD_API_SCRIPT_GET:
-            if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true) {
-                response->data = mympd_api_script_get(config->workdir, response->data, request->id, sds_buf1);
-            }
-            break;
-        case MYMPD_API_SCRIPT_LIST: {
-            if (json_get_bool(request->data, "$.params.all", &bool_buf1, &parse_error) == true) {
-                response->data = mympd_api_script_list(config->workdir, response->data, request->id, bool_buf1);
-            }
-            break;
-        }
-        case MYMPD_API_SCRIPT_EXECUTE: {
-            //malloc list - it is used in another thread
-            struct t_list *arguments = list_new();
-            if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &parse_error) == true)
-            {
-                rc = mympd_api_script_start(config->workdir, sds_buf1, config->lualibs, arguments, partition_state->name, true);
-                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_SCRIPT, "Can't create mympd_script thread");
-            }
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script name");
-                list_free(arguments);
-            }
-            break;
-        }
-        case INTERNAL_API_SCRIPT_POST_EXECUTE: {
-            //malloc list - it is used in another thread
-            struct t_list *arguments = list_new();
-            if (json_get_string(request->data, "$.params.script", 1, CONTENT_LEN_MAX, &sds_buf1, vcb_istext, &parse_error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &parse_error) == true)
-            {
-                rc = mympd_api_script_start(config->workdir, sds_buf1, config->lualibs, arguments, partition_state->name, false);
-                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_SCRIPT, "Can't create mympd_script thread");
-            }
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script content");
-                list_clear(arguments);
-                FREE_PTR(arguments);
-            }
-            break;
-        }
         case INTERNAL_API_SCRIPT_INIT: {
             struct t_list *lua_mympd_state = list_new();
             rc = mympd_api_status_lua_mympd_state_set(lua_mympd_state, mympd_state, partition_state);
@@ -400,7 +362,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         }
         case MYMPD_API_SETTINGS_SET: {
-            if (json_iterate_object(request->data, "$.params", mympd_api_settings_set, mympd_state, NULL, 1000, &parse_error) == true) {
+            if (json_iterate_object(request->data, "$.params", mympd_api_settings_set, mympd_state, NULL, NULL, 1000, &parse_error) == true) {
                 if (partition_state->conn_state == MPD_CONNECTED) {
                     //feature detection
                     mpd_client_mpd_features(mympd_state, partition_state);
@@ -422,13 +384,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't set playback options: MPD not connected");
                 break;
             }
-            if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
+            if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, partition_state, NULL, NULL, 100, &parse_error) == true) {
                 sdsclear(partition_state->jukebox.last_error);
                 if (partition_state->jukebox.mode != JUKEBOX_OFF &&
                     partition_state->queue_length == 0)
                 {
                     // start jukebox
-                    jukebox_run(partition_state, &mympd_state->album_cache);
+                    jukebox_run(mympd_state, partition_state, &mympd_state->album_cache);
                 }
                 if (partition_state->jukebox.mode == JUKEBOX_OFF) {
                     jukebox_disable(partition_state);
@@ -466,7 +428,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_CONNECTION_SAVE: {
             sds old_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
             sds old_stickerdb_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->stickerdb->mpd_state->mpd_host, mympd_state->stickerdb->mpd_state->mpd_port, mympd_state->stickerdb->mpd_state->mpd_pass);
-            if (json_iterate_object(request->data, "$.params", mympd_api_settings_connection_save, mympd_state, NULL, 100, &parse_error) == true) {
+            if (json_iterate_object(request->data, "$.params", mympd_api_settings_connection_save, mympd_state, NULL, NULL, 100, &parse_error) == true) {
                 // primary mpd connection
                 sds new_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
                 if (strcmp(old_mpd_settings, new_mpd_settings) != 0) {
@@ -545,7 +507,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case MYMPD_API_LYRICS_GET:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
-                response->data = mympd_api_lyrics_get(&mympd_state->lyrics, mympd_state->mpd_state->music_directory_value, response->data, request->id, sds_buf1);
+                response->data = mympd_api_lyrics_get(mympd_state, response->data, sds_buf1, partition_state->name, request->conn_id, request->id);
+                if (sdslen(response->data) == 0) {
+                    // response must be send by triggered script
+                    async = true;
+                    // we do not pass the request to the script thread
+                    free_request(request);
+                }
             }
             break;
         case INTERNAL_API_TIMER_STARTPLAY:
@@ -564,6 +532,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
             break;
         }
+        case MYMPD_API_JUKEBOX_APPEND_URIS: {
+            struct t_list uris;
+            list_init(&uris);
+            if (json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_PLAYLIST_LENGTH_MAX, &parse_error) == true) {
+                rc = mympd_api_jukebox_append_uris(partition_state, &uris);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_TIMER, "Failure adding songs to jukebox queue");
+            }
+            list_clear(&uris);
+            break;
+        }
         case MYMPD_API_JUKEBOX_RM: {
             struct t_list positions;
             list_init(&positions);
@@ -580,6 +559,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             mympd_api_jukebox_clear(partition_state->jukebox.queue, partition_state->name);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
             break;
+        case MYMPD_API_JUKEBOX_LENGTH:
+            response->data = mympd_api_jukebox_length(partition_state, response->data, request->cmd_id, request->id);
+            break;
         case MYMPD_API_JUKEBOX_LIST: {
             struct t_fields tagcols;
             fields_reset(&tagcols);
@@ -595,7 +577,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         }
         case MYMPD_API_JUKEBOX_RESTART:
             mympd_api_jukebox_clear(partition_state->jukebox.queue, partition_state->name);
-            rc = jukebox_run(partition_state, &mympd_state->album_cache);
+            rc = jukebox_run(mympd_state, partition_state, &mympd_state->album_cache);
             response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                     JSONRPC_FACILITY_JUKEBOX, "Error starting the jukebox");
             break;
@@ -604,11 +586,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 sdsclear(partition_state->jukebox.last_error);
                 list_free(partition_state->jukebox.queue);
                 partition_state->jukebox.queue = (struct t_list *)request->extra;
-                send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_state->name);
             }
-            else {
+            else if (partition_state->jukebox.mode != JUKEBOX_SCRIPT) {
                 MYMPD_LOG_ERROR(partition_state->name, "Jukebox queue is NULL");
             }
+            if (response->type != RESPONSE_TYPE_DISCARD) {
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
+            }
+            send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_state->name);
             partition_state->jukebox.filling = false;
             break;
         case INTERNAL_API_JUKEBOX_ERROR:
@@ -617,6 +602,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (json_get_string_max(request->data, "$.params.error", &sds_buf1, vcb_isname, &parse_error) == true) {
                 send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, sds_buf1);
                 partition_state->jukebox.last_error = sds_replace(partition_state->jukebox.last_error, sds_buf1);
+            }
+            if (response->type != RESPONSE_TYPE_DISCARD) {
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
             }
             break;
     // trigger
@@ -642,7 +630,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_string(request->data, "$.params.partition", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true &&
                 json_get_int(request->data, "$.params.id", -1, LIST_TRIGGER_MAX, &int_buf1, &parse_error) == true &&
                 json_get_int_max(request->data, "$.params.event", &int_buf2, &parse_error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", &trigger_data->arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, &parse_error) == true)
+                json_get_object_string(request->data, "$.params.arguments", &trigger_data->arguments, vcb_isname, vcb_isname, SCRIPT_ARGUMENTS_MAX, &parse_error) == true)
             {
                 rc = mympd_api_trigger_save(&mympd_state->trigger_list, sds_buf1, int_buf1, int_buf2, sds_buf2, trigger_data, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
@@ -666,7 +654,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case INTERNAL_API_TRIGGER_EVENT_EMIT:
             if (json_get_int_max(request->data, "$.params.event", &int_buf1, &parse_error) == true) {
                 if (mympd_api_event_name(int_buf1) != NULL) {
-                    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED, partition_state->name);
+                    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED, partition_state->name, NULL);
                 }
                 response->data = jsonrpc_respond_ok(response->data, INTERNAL_API_TRIGGER_EVENT_EMIT, request->id, JSONRPC_FACILITY_TRIGGER);
             }
@@ -692,7 +680,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             struct t_list attributes;
             list_init(&attributes);
             if (json_get_uint(request->data, "$.params.outputId", 0, MPD_OUTPUT_ID_MAX, &uint_buf1, &parse_error) == true &&
-                json_get_object_string(request->data, "$.params.attributes", &attributes, vcb_isalnum, 10, &parse_error) == true)
+                json_get_object_string(request->data, "$.params.attributes", &attributes, vcb_isalnum, vcb_isalnum, 10, &parse_error) == true)
             {
                 rc = mympd_api_output_attributes_set(partition_state, uint_buf1, &attributes, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc, JSONRPC_FACILITY_MPD, error);
@@ -883,6 +871,42 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                         JSONRPC_FACILITY_QUEUE, error);
             }
             list_clear(&song_ids);
+            break;
+        }
+        case MYMPD_API_QUEUE_APPEND_URI_TAGS:
+        case MYMPD_API_QUEUE_REPLACE_URI_TAGS: {
+            struct t_list tags;
+            list_init(&tags);
+            if (json_get_string(request->data, "$.params.uri", 1, URI_LENGTH_MAX, &sds_buf1, vcb_isstreamuri, &parse_error) &&
+                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, vcb_isname, 20, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
+            {
+                rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_URI_TAGS
+                        ? mympd_api_queue_append_uri_tags(partition_state, sds_buf1, &tags, &error)
+                        : mympd_api_queue_replace_uri_tags(partition_state, sds_buf1, &tags, &error)) &&
+                    mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                            JSONRPC_FACILITY_QUEUE, "Queue updated", error);
+            }
+            list_clear(&tags);
+            break;
+        }
+        case MYMPD_API_QUEUE_INSERT_URI_TAGS: {
+            struct t_list tags;
+            list_init(&tags);
+            if (json_get_string(request->data, "$.params.uri", 1, URI_LENGTH_MAX, &sds_buf1, vcb_isstreamuri, &parse_error) &&
+                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, vcb_isname, 20, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
+            {
+                rc = mympd_api_queue_insert_uri_tags(partition_state, sds_buf1, &tags, uint_buf1, uint_buf2, &error) &&
+                    mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                            JSONRPC_FACILITY_QUEUE, "Queue updated", error);
+            }
+            list_clear(&tags);
             break;
         }
         case MYMPD_API_QUEUE_APPEND_URIS:
@@ -1508,7 +1532,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             break;
         case MYMPD_API_PARTITION_SAVE:
-            rc = json_iterate_object(request->data, "$.params", mympd_api_settings_partition_set, partition_state, NULL, 1000, &parse_error);
+            rc = json_iterate_object(request->data, "$.params", mympd_api_settings_partition_set, partition_state, NULL, NULL, 1000, &parse_error);
             if (rc == true) {
                 settings_to_webserver(mympd_state);
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);

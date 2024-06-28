@@ -7,7 +7,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/queue.h"
 
-#include "src/lib/album_cache.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
@@ -200,6 +200,69 @@ bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, st
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_move_id_whence");
+}
+
+/**
+ * Inserts an uri to the queue and sets tag values for it.
+ * @param partition_state pointer to partition state
+ * @param uri uri to add to the queue
+ * @param tags list of tags with values to set
+ * @param error pointer to an already allocated sds string for the error message
+ * @return bool true on success, else false
+ */
+bool mympd_api_queue_insert_uri_tags(struct t_partition_state *partition_state, sds uri,
+        struct t_list *tags, unsigned to, unsigned whence, sds *error)
+{
+    int id = to == UINT_MAX
+        ? mpd_run_add_id(partition_state->conn, uri)
+        : mpd_run_add_id_whence(partition_state->conn, uri, to, whence);
+    if (id == -1) {
+        mympd_check_error_and_recover(partition_state, error, "mpd_run_add_id_whence");
+        if (sdslen(*error) == 0) {
+            *error = sdscat(*error, "Failure getting inserted song id");
+        }
+        return false;
+    }
+    if (mpd_command_list_begin(partition_state->conn, false)) {
+        struct t_list_node *current = tags->head;
+        while (current != NULL) {
+            enum mpd_tag_type tag = mpd_tag_name_iparse(current->key);
+            if (mpd_send_add_tag_id(partition_state->conn, (unsigned)id, tag, current->value_p) == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_add_tag_id");
+                break;
+            }
+            current = current->next;
+            to++;
+        }
+        mpd_client_command_list_end_check(partition_state);
+    }
+    mpd_response_finish(partition_state->conn);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_send_add_tag_id");
+}
+
+/**
+ * Appends an uri to the queue and sets tag values for it.
+ * @param partition_state pointer to partition state
+ * @param uri uri to add to the queue
+ * @param tags list of tags with values to set
+ * @param error pointer to an already allocated sds string for the error message
+ * @return bool true on success, else false
+ */
+bool mympd_api_queue_append_uri_tags(struct t_partition_state *partition_state, sds uri, struct t_list *tags, sds *error) {
+    return mympd_api_queue_insert_uri_tags(partition_state, uri, tags, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
+}
+
+/**
+ * Replaces the queue with the uri and sets tag values for it.
+ * @param partition_state pointer to partition state
+ * @param uri uri to add to the queue
+ * @param tags list of tags with values to set
+ * @param error pointer to an already allocated sds string for the error message
+ * @return bool true on success, else false
+ */
+bool mympd_api_queue_replace_uri_tags(struct t_partition_state *partition_state, sds uri, struct t_list *tags, sds *error) {
+    return mpd_client_queue_clear(partition_state, error) &&
+        mympd_api_queue_append_uri_tags(partition_state, uri, tags, error);
 }
 
 /**

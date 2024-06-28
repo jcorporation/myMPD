@@ -6,6 +6,8 @@ title: Websocket Notifications
 
 myMPD uses the idle protocol from mpd to detect state changes. These status changes and myMPD changes are broadcasted to all open websocket connections, respecting the partition specificity.
 
+The websocket is also used to notify the user about the status of asynchronous operations and for script dialogs.
+
 **Websocket endpoint:** `/ws/<partition>`
 
 | MPD IDLE EVENT | MYMPD NOTIFY | DESCRIPTION |
@@ -24,9 +26,10 @@ myMPD uses the idle protocol from mpd to detect state changes. These status chan
 | n/a | notify | General notification |
 | n/a | update_home | Home icons are changed |
 | n/a | update_jukebox | Jukebox queue was changed |
-| n/a | update_lastplayed | Last played list was changed |
+| n/a | update_last_played | Last played list was changed |
 | n/a | update_cache_started | myMPD cache update is started |
 | n/a | update_cache_finished | myMPD cache updates has finished |
+| n/a | script_dialog | myMPD script dialog |
 {: .table .table-sm }
 
 The websocket endpoint accepts following messages:

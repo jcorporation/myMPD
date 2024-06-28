@@ -12,7 +12,7 @@ title: Scripting
 
 It reads the script from STDIN and submits it to myMPD for execution.
 
-```
+```sh
 mympd-script https://localhost default - key1=value1 <<< 'print arguments["key1"]'
 ```
 
@@ -24,6 +24,6 @@ The API endpoint for this function is: `/script-api/<partition>`
 
 mympd-script can also call existing scripts. This API call is not restricted by the `scriptacl` option and uses the standard `/api/<partition>` API endpoint.
 
-```
+```sh
 mympd-script https://localhost default test key1=value1 
 ```

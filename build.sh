@@ -292,15 +292,33 @@ createassets() {
 
 lualibs() {
   [ -z "${MYMPD_ENABLE_MYGPIOD+x}" ] && MYMPD_ENABLE_MYGPIOD="OFF"
+  [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
   echo "Copy integrated lua libraries"
   mkdir -p "$MYMPD_BUILDDIR/contrib/lualibs"
   cp -v contrib/lualibs/json.lua "$MYMPD_BUILDDIR/contrib/lualibs/"
   cp -v contrib/lualibs/mympd/00-start.lua "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/10-mympd.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
-  cat contrib/lualibs/mympd/20-http_client.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/20-http.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/30-execute.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   [ "$MYMPD_ENABLE_MYGPIOD" = "ON" ] && cat contrib/lualibs/mympd/40-mygpiod.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/50-util.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/60-caches.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/99-end.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  echo "Compiling lua libraries"
+  LUAC=$(command -v luac5.4 || command -v luac5.3 || command -v luac || true)
+  if [ -z "$LUAC" ]
+  then
+    echo_error "luac not found"
+    exit 1
+  fi
+  if ! $LUAC -s -o "$MYMPD_BUILDDIR/contrib/lualibs/mympd.luac" "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  then
+    exit 1
+  fi
+  if ! $LUAC -s -o "$MYMPD_BUILDDIR/contrib/lualibs/json.luac" "$MYMPD_BUILDDIR/contrib/lualibs/json.lua"
+  then
+    exit 1
+  fi
 }
 
 buildrelease() {
@@ -802,10 +820,10 @@ installdeps() {
   if [ -f /etc/debian_version ]
   then
     apt-get update
-    if ! apt-get install -y --no-install-recommends liblua5.4-dev
+    if ! apt-get install -y --no-install-recommends liblua5.4-dev lua5.4
     then
       #fallback to lua 5.3 for older debian versions
-      apt-get install -y --no-install-recommends liblua5.3-dev
+      apt-get install -y --no-install-recommends liblua5.3-dev lua5.3
     fi
     apt-get install -y --no-install-recommends \
       gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
@@ -817,7 +835,7 @@ installdeps() {
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev \
+    apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev lua5.4 \
       alpine-sdk linux-headers pkgconf pcre2-dev gzip jq newt
   elif [ -f /etc/SuSE-release ]
   then
@@ -1293,20 +1311,14 @@ run_htmlhint() {
   return 0
 }
 
-luascript_index() {
-  rm -f "docs/scripting/scripts/index.json"
-  exec 3<> "docs/scripting/scripts/index.json"
-  printf "{\"scripts\":[" >&3
-  I=0
-  for F in docs/scripting/scripts/*.lua
-  do
-    [ "$I" -gt 0 ] &&  printf "," >&3
-    SCRIPTNAME=$(basename "$F")
-    printf "\"%s\"" "$SCRIPTNAME" >&3
-    I=$((I+1))
-  done
-  printf "]}\n" >&3
-  exec 3>&-
+run_luacheck() {
+  export MYMPD_ENABLE_MYGPIOD="ON"
+  lualibs
+  if ! luacheck release/contrib/lualibs/
+  then
+    return 1
+  fi
+  return 0
 }
 
 run_doxygen() {
@@ -1325,6 +1337,16 @@ run_jsdoc() {
   fi
   echo "Running jsdoc"
   jsdoc htdocs/js/ -c jsdoc.json -d docs/jsdoc/
+}
+
+run_luadoc() {
+  if ! check_cmd luadoc
+  then
+    return 1
+  fi
+  echo "Running luadoc"
+  lualibs
+  luadoc --noindexpage -d docs/luadoc/ release/contrib/lualibs/mympd.lua
 }
 
 create_doc() {
@@ -1590,6 +1612,10 @@ case "$ACTION" in
     then
       exit 1
     fi
+    if ! run_luacheck
+    then
+      exit 1
+    fi
   ;;
   eslint)
     run_eslint
@@ -1599,6 +1625,9 @@ case "$ACTION" in
   ;;
   htmlhint)
     run_htmlhint
+  ;;
+  luacheck)
+    run_luacheck
   ;;
   luascript_index)
     luascript_index
@@ -1612,6 +1641,11 @@ case "$ACTION" in
     if ! run_jsdoc
     then
       echo "Could not create frontend api documentation"
+      exit 1
+    fi
+    if ! run_luadoc
+    then
+      echo "Could not create lua api documentation"
       exit 1
     fi
     cp -v htdocs/js/apidoc.js docs/assets/apidoc.js
@@ -1670,6 +1704,7 @@ case "$ACTION" in
     echo "  eslint:           combines javascript files and runs eslint"
     echo "  stylelint:        runs stylelint (lints css files)"
     echo "  htmlhint:         runs htmlhint (lints html files)"
+    echo "  luacheck:         runs luacheck (lints lua libraries)"
     echo ""
     echo "Cleanup options:"
     echo "  cleanup:          cleanup source tree"

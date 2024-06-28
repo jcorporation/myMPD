@@ -356,12 +356,12 @@ sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, unsign
 }
 
 /**
- * Json emmiting
+ * Json emitting
  */
 
 /**
  * Appends a comma on demand.
- * Comma is ommited on start of string or end of string is already a comma.
+ * Comma is omitted on start of string or end of string is already a comma.
  * @param buffer sds string to append
  * @return pointer to buffer
  */
@@ -856,17 +856,21 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
  * @param path mjson path expression
  * @param icb iteration callback
  * @param icb_userdata custom data for iteration callback
- * @param vcb validation callback
+ * @param vcb_key validation callback for the key
+ * @param vcb_value validation callback for the value
  * @param max_elements maximum of elements
  * @param error pointer to t_jsonrpc_parse_error
  * @return true on success else false
  */
 bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata,
-        validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error)
+        validate_callback vcb_key, validate_callback vcb_value, int max_elements, struct t_jsonrpc_parse_error *error)
 {
     if (icb == NULL) {
         set_parse_error(error, path, "", "Iteration callback is NULL");
         return false;
+    }
+    if (vcb_key == NULL) {
+        vcb_key = vcb_isalnum;
     }
     const char *p;
     int n;
@@ -901,9 +905,9 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
         }
         if (klen > 2) {
             if (sds_json_unescape(p + koff + 1, (size_t)(klen - 2), &key) == false ||
-                vcb_isalnum(value) == false)
+                vcb_key(key) == false)
             {
-                set_parse_error(error, path, key, "Validation of key in path \"%s\" has failed. Key must be alphanumeric.", path);
+                set_parse_error(error, path, key, "Validation of key in path \"%s\" has failed.", path);
                 FREE_SDS(value);
                 FREE_SDS(key);
                 return false;
@@ -943,7 +947,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 key = sdscat(key, key_ptr + 1);
             }
         }
-        if (icb(path, key, value, vtype, vcb, icb_userdata, error) == false) {
+        if (icb(path, key, value, vtype, vcb_value, icb_userdata, error) == false) {
             MYMPD_LOG_WARN(NULL, "Iteration callback for path \"%s\" has failed", path);
             FREE_SDS(value);
             FREE_SDS(key);
@@ -1006,7 +1010,7 @@ static bool icb_json_get_tag_value(const char *path, sds key, sds value, int vty
  * @return true on success else false
  */
 bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error) {
-    return json_iterate_object(s, path, icb_json_get_tag_value, song, vcb, max_elements, error);
+    return json_iterate_object(s, path, icb_json_get_tag_value, song, vcb, vcb, max_elements, error);
 }
 
 /**
@@ -1045,7 +1049,7 @@ static bool icb_json_get_array_string(const char *path, sds key, sds value, int 
  * @return true on success else false
  */
 bool json_get_array_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error) {
-    return json_iterate_object(s, path, icb_json_get_array_string, l, vcb, max_elements, error);
+    return json_iterate_object(s, path, icb_json_get_array_string, l, vcb, vcb, max_elements, error);
 }
 
 /**
@@ -1087,7 +1091,7 @@ static bool icb_json_get_array_int64(const char *path, sds key, sds value, int v
  * @return true on success else false
  */
 bool json_get_array_int64(sds s, const char *path, struct t_list *l, int max_elements, struct t_jsonrpc_parse_error *error) {
-    return json_iterate_object(s, path, icb_json_get_array_int64, l, NULL, max_elements, error);
+    return json_iterate_object(s, path, icb_json_get_array_int64, l, NULL, NULL, max_elements, error);
 }
 
 /**
@@ -1125,8 +1129,10 @@ static bool icb_json_get_object_string(const char *path, sds key, sds value, int
  * @param error pointer to t_jsonrpc_parse_error
  * @return true on success else false
  */
-bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error) {
-    return json_iterate_object(s, path, icb_json_get_object_string, l, vcb, max_elements, error);
+bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_callback vcb_key,
+    validate_callback vcb_value, int max_elements, struct t_jsonrpc_parse_error *error)
+{
+    return json_iterate_object(s, path, icb_json_get_object_string, l, vcb_key, vcb_value, max_elements, error);
 }
 
 /**
@@ -1140,7 +1146,7 @@ bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_
  * @return true on success else false
  */
 bool json_get_fields(sds s, const char *path, struct t_fields *tags, int max_elements, struct t_jsonrpc_parse_error *error) {
-    return json_iterate_object(s, path, icb_json_get_field, tags, NULL, max_elements, error);
+    return json_iterate_object(s, path, icb_json_get_field, tags, NULL, NULL, max_elements, error);
 }
 
 /**

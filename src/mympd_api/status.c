@@ -10,7 +10,6 @@
 #include "src/lib/datetime.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/lua_mympd_state.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/timer.h"
@@ -284,76 +283,6 @@ bool mympd_api_status_clear_error(struct t_partition_state *partition_state, sds
         if (rc == true) {
             partition_state->player_error = false;
         }
-    }
-    return rc;
-}
-
-/**
- * Copies mpd and myMPD states to the lua_mympd_state struct
- * @param lua_partition_state pointer to struct t_list
- * @param mympd_state pointer to mympd state
- * @param partition_state pointer to partition state
- * @return true on success, else false
- */
-bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_mympd_state *mympd_state,
-        struct t_partition_state *partition_state)
-{
-    if (mpd_command_list_begin(partition_state->conn, true)) {
-        if (mpd_send_status(partition_state->conn) == false) {
-            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status");
-        }
-        if (mpd_send_replay_gain_status(partition_state->conn) == false) {
-            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_replay_gain_status");
-        }
-        mpd_client_command_list_end_check(partition_state);
-    }
-    struct mpd_status *status = mpd_recv_status(partition_state->conn);
-    enum mpd_replay_gain_mode replay_gain_mode = MPD_REPLAY_UNKNOWN;
-    if (mpd_response_next(partition_state->conn)) {
-        replay_gain_mode = mpd_recv_replay_gain_status(partition_state->conn);
-    }
-    if (status != NULL) {
-        lua_mympd_state_set_i(lua_partition_state, "play_state", mpd_status_get_state(status));
-        lua_mympd_state_set_i(lua_partition_state, "volume", mpd_status_get_volume(status));
-        lua_mympd_state_set_i(lua_partition_state, "song_pos", mpd_status_get_song_pos(status));
-        lua_mympd_state_set_u(lua_partition_state, "elapsed_time", mympd_api_get_elapsed_seconds(status));
-        lua_mympd_state_set_u(lua_partition_state, "total_time", mpd_status_get_total_time(status));
-        lua_mympd_state_set_i(lua_partition_state, "song_id", mpd_status_get_song_id(status));
-        lua_mympd_state_set_i(lua_partition_state, "next_song_id", mpd_status_get_next_song_id(status));
-        lua_mympd_state_set_i(lua_partition_state, "next_song_pos", mpd_status_get_next_song_pos(status));
-        lua_mympd_state_set_u(lua_partition_state, "queue_length", mpd_status_get_queue_length(status));
-        lua_mympd_state_set_u(lua_partition_state, "queue_version", mpd_status_get_queue_version(status));
-        lua_mympd_state_set_b(lua_partition_state, "repeat", mpd_status_get_repeat(status));
-        lua_mympd_state_set_b(lua_partition_state, "random", mpd_status_get_random(status));
-        lua_mympd_state_set_i(lua_partition_state, "single_state", mpd_status_get_single_state(status));
-        lua_mympd_state_set_i(lua_partition_state, "consume_state", mpd_status_get_consume_state(status));
-        lua_mympd_state_set_u(lua_partition_state, "crossfade", mpd_status_get_crossfade(status));
-        lua_mympd_state_set_f(lua_partition_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
-        lua_mympd_state_set_f(lua_partition_state, "mixrampdb", mpd_status_get_mixrampdb(status));
-        lua_mympd_state_set_i(lua_partition_state, "replaygain", replay_gain_mode);
-        lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
-        lua_mympd_state_set_p(lua_partition_state, "playlist_directory", partition_state->mpd_state->playlist_directory_value);
-        lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->config->workdir);
-        lua_mympd_state_set_p(lua_partition_state, "cachedir", partition_state->config->cachedir);
-        lua_mympd_state_set_b(lua_partition_state, "auto_play", partition_state->auto_play);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox.mode);
-        lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox.playlist);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_queue_length", partition_state->jukebox.queue_length);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_last_played", partition_state->jukebox.last_played);
-        lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox.ignore_hated);
-        lua_mympd_state_set_p(lua_partition_state, "jukebox_uniq_tag", mpd_tag_name(partition_state->jukebox.uniq_tag.tags[0]));
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_min_song_duration", partition_state->jukebox.min_song_duration);
-        lua_mympd_state_set_i(lua_partition_state, "jukebox_max_song_duration", partition_state->jukebox.max_song_duration);
-        lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", mympd_state->listenbrainz_token);
-        if (partition_state->mpd_state->feat.partitions == true) {
-            lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));
-        }
-        mpd_status_free(status);
-    }
-    mpd_response_finish(partition_state->conn);
-    bool rc = mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
-    if (rc == false) {
-        MYMPD_LOG_ERROR(partition_state->name, "Error getting mympd state for script execution");
     }
     return rc;
 }

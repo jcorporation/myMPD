@@ -37,10 +37,12 @@ enum list_sort_direction {
 };
 
 typedef void (*user_data_callback) (struct t_list_node *current);
-typedef sds (*list_node_to_line_callback) (sds buffer, struct t_list_node *current);
+typedef sds (*list_node_to_line_callback) (sds buffer, struct t_list_node *current, bool newline);
 typedef bool (*list_sort_callback) (struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction);
 
 struct t_list *list_new(void);
+struct t_list *list_dup(struct t_list *l);
+bool list_append(struct t_list *dst, struct t_list *src);
 void list_init(struct t_list *l);
 void list_clear(struct t_list *l);
 void *list_free(struct t_list *l);
@@ -83,6 +85,8 @@ struct t_list_node *list_node_extract(struct t_list *l, unsigned idx);
 
 bool list_remove_node(struct t_list *l, unsigned idx);
 bool list_remove_node_user_data(struct t_list *l, unsigned idx, user_data_callback free_cb);
+bool list_remove_node_by_key(struct t_list *l, const char *key);
+bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, user_data_callback free_cb);
 
 bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callback node_to_line_cb);
 

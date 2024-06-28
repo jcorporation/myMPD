@@ -20,24 +20,26 @@ function loginOrLogout() {
 }
 
 /**
- * Removes the enter pin dialog from a modal footer.
- * @param {HTMLElement} footer parent element of the enter pin dialog
+ * Removes the enter pin dialog from a modal footer and restores the original footer.
+ * @param {HTMLElement} footer pin footer to remove
  * @returns {void}
  */
  function removeEnterPinFooter(footer) {
-    if (footer !== undefined) {
-        elShow(footer.previousElementSibling);
-        footer.remove();
+    const modal = getOpenModal();
+    if (modal === null) {
         return;
     }
-    const f = document.querySelectorAll('.enterPinFooter');
-    for (let i = f.length - 1; i >= 0; i--) {
-        const prev = f[i].previousElementSibling;
-        if (prev.classList.contains('modal-footer')) {
-            elShow(prev);
-        }
-        f[i].remove();
+    if (footer === undefined) {
+        footer = modal.querySelector('.enterPinFooter');
     }
+
+    const prevId = footer.getAttribute('data-footer');
+    const prevFooter = prevId === null
+        ? footer.previousElementSibling
+        : modal.querySelector('#' + prevId);
+
+    elShow(prevFooter);
+    footer.remove();
 }
 
 /**
@@ -65,7 +67,15 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
         ])
     );
     for (const footer of footers) {
-        footer.classList.add('d-none');
+        if (footer.classList.contains('d-none') === false) {
+            footer.classList.add('d-none');
+            // remember the id of the now hidden footer
+            const footerId = footer.getAttribute('id');
+            if (footerId !== null) {
+                newFooter.setAttribute('data-footer', footerId);
+            }
+            break;
+        }
     }
     footers[0].parentNode.appendChild(newFooter);
     setFocus(input);

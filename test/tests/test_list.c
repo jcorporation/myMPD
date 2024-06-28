@@ -108,6 +108,20 @@ UTEST(list, test_remove_node) {
     list_clear(&test_list);
 }
 
+UTEST(list, test_list_remove_nody_by_key) {
+    struct t_list test_list;
+    populate_list(&test_list);
+
+    struct t_list_node *current;
+    //remove middle item
+    list_remove_node_by_key(&test_list, "key3");
+    current = list_node_at(&test_list, 3);
+    ASSERT_STREQ("key4", current->key);
+    ASSERT_EQ(5U, test_list.length);
+
+    list_clear(&test_list);
+}
+
 UTEST(list, test_list_replace) {
     struct t_list test_list;
     populate_list(&test_list);
@@ -337,8 +351,11 @@ UTEST(list, test_list_move_item_pos_from_end_to_start) {
     list_clear(&test_list);
 }
 
-sds write_disk_cb(sds buffer, struct t_list_node *current) {
+sds write_disk_cb(sds buffer, struct t_list_node *current, bool newline) {
     buffer = sdscatsds(buffer, current->key);
+    if (newline == true) {
+        buffer = sdscatlen(buffer, "\n", 1);
+    }
     return buffer;
 }
 
@@ -459,4 +476,32 @@ UTEST(list, test_list_crop) {
     list_clear(&test_list);
     ASSERT_FALSE(test_list.head != NULL);
     ASSERT_FALSE(test_list.tail != NULL);
+}
+
+UTEST(list, test_list_append) {
+    struct t_list src;
+    list_init(&src);
+    list_push(&src, "key0", 0, NULL, NULL);
+    list_push(&src, "key1", 0, NULL, NULL);
+    list_push(&src, "key2", 0, NULL, NULL);
+
+    struct t_list dst;
+    list_init(&dst);
+    list_append(&dst, &src);
+    ASSERT_EQ(src.length, dst.length);
+    list_clear(&src);
+    list_clear(&dst);
+}
+
+UTEST(list, test_list_dup) {
+    struct t_list src;
+    list_init(&src);
+    list_push(&src, "key0", 0, NULL, NULL);
+    list_push(&src, "key1", 0, NULL, NULL);
+    list_push(&src, "key2", 0, NULL, NULL);
+
+    struct t_list *new = list_dup(&src);
+    ASSERT_EQ(src.length, new->length);
+    list_clear(&src);
+    list_free(new);
 }

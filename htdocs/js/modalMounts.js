@@ -150,10 +150,11 @@ function showListMounts() {
  * @returns {void}
  */
 function parseListMounts(obj) {
-    const tbody = document.querySelector('#modalMountsList');
+    const table = document.querySelector('#modalMountsList');
+    const tbody = table.querySelector('tbody');
     elClear(tbody);
 
-    if (checkResult(obj, tbody, 'table') === false) {
+    if (checkResult(obj, table, 'table') === false) {
         return;
     }
 

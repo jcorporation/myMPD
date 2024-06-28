@@ -20,6 +20,5 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
 bool mympd_api_status_clear_error(struct t_partition_state *partition_state, sds *buffer, enum mympd_cmd_ids cmd_id, unsigned request_id);
 sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         sds buffer, unsigned request_id);
-bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_mympd_state *mympd_state,
-        struct t_partition_state *partition_state);
+
 #endif

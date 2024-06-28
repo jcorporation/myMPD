@@ -24,6 +24,7 @@ bool vcb_isname(sds data);
 bool vcb_istext(sds data);
 bool vcb_isfilename_silent(sds data);
 bool vcb_isfilename(sds data);
+bool check_dir_traversal(const char *str);
 bool vcb_isfilepath(sds data);
 bool vcb_ispathfilename(sds data);
 bool vcb_isuri(sds data);

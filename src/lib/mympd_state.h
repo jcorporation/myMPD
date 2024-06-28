@@ -9,7 +9,7 @@
 
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/sds/sds.h"
-#include "src/lib/cache.h"
+#include "src/lib/cache_rax.h"
 #include "src/lib/config_def.h"
 #include "src/lib/event.h"
 #include "src/lib/fields.h"
@@ -24,6 +24,7 @@ enum jukebox_modes {
     JUKEBOX_OFF,        //!< jukebox is disabled
     JUKEBOX_ADD_SONG,   //!< jukebox adds single songs
     JUKEBOX_ADD_ALBUM,  //!< jukebox adds whole albums
+    JUKEBOX_SCRIPT,     //!< jukebox queue is filled by a script
     JUKEBOX_UNKNOWN     //!< jukebox mode is unknown
 };
 
@@ -205,8 +206,8 @@ struct t_timer_list {
  * Lyrics settings
  */
 struct t_lyrics {
-    sds uslt_ext;     //!< fileextension for unsynced lyrics
-    sds sylt_ext;     //!< fileextension for synced lyrics
+    sds uslt_ext;     //!< file extension for unsynced lyrics
+    sds sylt_ext;     //!< file extension for synced lyrics
     sds vorbis_uslt;  //!< vorbis comment for unsynced lyrics
     sds vorbis_sylt;  //!< vorbis comment for synced lyrics
 };
@@ -256,7 +257,6 @@ struct t_mympd_state {
     unsigned volume_max;                          //!< maximum mpd volume
     unsigned volume_step;                         //!< volume step for +/- buttons
     struct t_lyrics lyrics;                       //!< lyrics settings
-    sds listenbrainz_token;                       //!< listenbrainz token
     sds webui_settings;                           //!< settings only relevant for webui, saved as string containing json
     bool tag_disc_empty_is_first;                 //!< handle empty disc tag as disc one for albums
     sds booklet_name;                             //!< name of the booklet files
@@ -269,7 +269,6 @@ struct t_mympd_state {
  * Public functions
  */
 void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data);
-
 void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *config);
 void mympd_state_free(struct t_mympd_state *mympd_state);
 

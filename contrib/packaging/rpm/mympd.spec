@@ -4,7 +4,7 @@
 # (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        15.0.2
+Version:        16.0.0
 Release:        0
 License:        GPL-3.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
@@ -31,11 +31,6 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 myMPD is a standalone and lightweight web-based MPD client.
 It's tuned for minimal resource usage and requires only very few dependencies.
 Therefore myMPD is ideal for raspberry pis and similar devices.
-
-%if 0%{?disturl:1}
-  # build debug package in obs
-  %debug_package
-%endif
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -70,5 +65,5 @@ fi
 %license LICENSE.md
 
 %changelog
-* Mon May 13 2024 Juergen Mang <mail@jcgames.de> 15.0.2-0
+* Fri Jun 28 2024 Juergen Mang <mail@jcgames.de> 16.0.0-0
 - Version from master

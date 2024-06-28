@@ -41,11 +41,14 @@ function showRadiobrowserDetails(uuid) {
  * @returns {void}
  */
 function parseRadiobrowserDetails(obj) {
-    const tbody = elGetById('modalRadiobrowserDetailsList');
-    if (checkResult(obj, tbody, 'table') === false) {
+    elShowId('modalRadiobrowserDetailsAddToFavoriteBtn');
+    const table = elGetById('modalRadiobrowserDetailsList');
+    const tbody = table.querySelector('tbody');
+    elClear(tbody);
+    if (checkResult(obj, table, 'table') === false) {
         return;
     }
-    elClearId('modalRadiobrowserDetailsList');
+
     const result = obj.result.data[0];
     if (result.favicon !== '') {
         elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(result.favicon);

@@ -27,6 +27,39 @@ struct t_list *list_new(void) {
 }
 
 /**
+ * Duplicates a list.
+ * Leaves user_data pointer in place.
+ * @param l list to duplicate
+ * @return duplicated list or NULL on error
+ */
+struct t_list *list_dup(struct t_list *l) {
+    struct t_list *new = list_new();
+    if (list_append(new, l) == false) {
+        list_free(new);
+        return NULL;
+    }
+    return new;
+}
+
+/**
+ * Appends a list to another list
+ * Leaves user_data pointer in place.
+ * @param dst list to that was append
+ * @param src list that was append
+ * @return duplicated list or NULL on error
+ */
+bool list_append(struct t_list *dst, struct t_list *src) {
+    struct t_list_node *current = src->head;
+    while (current != NULL) {
+        if (list_push(dst, current->key, current->value_i, current->value_p, current->user_data) == false) {
+            return false;
+        }
+        current = current->next;
+    }
+    return true;
+}
+
+/**
  * Inits a already allocated list
  * @param l pointer to list
  */
@@ -530,6 +563,36 @@ bool list_remove_node_user_data(struct t_list *l, unsigned idx, user_data_callba
 }
 
 /**
+ * Removes the node with key
+ * Ignores user_data pointer
+ * @param l list
+ * @param key key
+ * @return bool true on success, else false
+ */
+bool list_remove_node_by_key(struct t_list *l, const char *key) {
+    return list_remove_node_by_key_user_data(l, key, NULL);
+}
+
+/**
+ * Removes the node with key
+ * @param l list
+ * @param key key
+ * @return bool true on success, else false
+ */
+bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, user_data_callback free_cb) {
+    struct t_list_node *current = l->head;
+    unsigned i = 0;
+    while (current != NULL) {
+        if (strcmp(current->key, key) == 0) {
+            return list_remove_node_user_data(l, i, free_cb);
+        }
+        i++;
+        current = current->next;
+    }
+    return false;
+}
+
+/**
  * Removes the first node from the list and returns it.
  * This is only a shortcut for list_node_extract.
  * @param l list
@@ -599,7 +662,7 @@ bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callba
     sds buffer = sdsempty();
     bool write_rc = true;
     while (current != NULL) {
-        buffer = node_to_line_cb(buffer, current);
+        buffer = node_to_line_cb(buffer, current, true);
         if (fputs(buffer, fp) == EOF) {
             MYMPD_LOG_ERROR(NULL, "Could not write data to file");
             write_rc = false;

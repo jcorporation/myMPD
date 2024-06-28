@@ -7,9 +7,10 @@
 #include "compile_time.h"
 #include "src/mympd_api/albumart.h"
 
-#include "src/lib/album_cache.h"
 #include "src/lib/api.h"
-#include "src/lib/covercache.h"
+#include "src/lib/cache_disk.h"
+#include "src/lib/cache_disk_images.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -17,6 +18,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/search.h"
+#include "src/mympd_api/trigger.h"
 
 #include <string.h>
 
@@ -97,15 +99,17 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
 
 /**
  * Reads the albumart from mpd by song uri
+ * @param mympd_state pointer to mympd state
  * @param partition_state pointer to partition specific states
  * @param buffer already allocated sds string for the jsonrpc response
  * @param request_id request id
- * @param uri uri to get cover from
+ * @param conn_id mongoose connection id
+ * @param uri uri to get cover for
  * @param binary pointer to an already allocated sds string for the binary response
  * @return jsonrpc response
  */
-sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
-        const char *uri, sds *binary)
+sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+    sds buffer, unsigned request_id, unsigned long conn_id, sds uri, sds *binary)
 {
     unsigned offset = 0;
     void *binary_buffer = malloc_assert(partition_state->mpd_state->mpd_binarylimit);
@@ -161,16 +165,37 @@ sds mympd_api_albumart_getcover_by_uri(struct t_partition_state *partition_state
         buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
         buffer = jsonrpc_end(buffer);
-        if (partition_state->config->covercache_keep_days != COVERCACHE_DISABLED) {
-            covercache_write_file(partition_state->config->cachedir, uri, mime_type, *binary, 0);
+        if (partition_state->config->cache_cover_keep_days != CACHE_DISK_DISABLED) {
+            sds filename = cache_disk_images_write_file(partition_state->config->cachedir, DIR_CACHE_COVER, uri, mime_type, *binary, 0);
+            FREE_SDS(filename);
         }
         else {
             MYMPD_LOG_DEBUG(partition_state->name, "Covercache is disabled");
         }
     }
     else {
+        #ifdef MYMPD_ENABLE_LUA
+            // no albumart found, check if there is a trigger to fetch albumart
+            struct t_list arguments;
+            list_init(&arguments);
+            list_push(&arguments, "uri", 0, uri, NULL);
+            int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_ALBUMART,
+                    partition_state->name, conn_id, request_id, &arguments);
+            list_clear(&arguments);
+            if (n > 0) {
+                // return empty buffer, response must be send by triggered script
+                if (n > 1) {
+                    MYMPD_LOG_WARN(partition_state->name, "More than one script triggered for albumart.");
+                }
+                return buffer;
+            }
+        #else
+            (void)mympd_state;
+            (void)conn_id;
+        #endif
         MYMPD_LOG_INFO(partition_state->name, "No albumart found by mpd for uri \"%s\"", uri);
-        buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
+        buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id,
+                JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }
     return buffer;
 }

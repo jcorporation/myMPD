@@ -64,6 +64,11 @@ const APIparams = {
         "example": "Alben/Einstürzende_Neubauten/Ende_Neu/01.Was_ist_ist.mp3",
         "desc": "Relativ song uri"
     },
+    "streamUri": {
+        "type": APItypes.string,
+        "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+        "desc": "Stream uri"
+    },
     "uris": {
         "type": APItypes.array,
         "example": "[\"Alben/Einstürzende_Neubauten/Ende_Neu/01.Was_ist_ist.mp3\"]",
@@ -183,6 +188,16 @@ const APIparams = {
         "type": APItypes.uint,
         "example": 200,
         "desc": "Maximum entries"
+    },
+    "tagValues": {
+        "type": APItypes.object,
+        "example": "{\"Title\": \"title\", \"Artist\": \"artist\"}",
+        "desc": "MPD tag name as key and its value."
+    },
+    "channel": {
+        "type": APItypes.string,
+        "example": "mpdscribble",
+        "desc": "MPD channel name"
     }
 };
 
@@ -335,7 +350,8 @@ const APImethods = {
                 "type": APItypes.uint,
                 "example": 1,
                 "desc": "1 = add songs, 2 = add albums"
-            }
+            },
+            "play": APIparams.play
         }
     },
     "MYMPD_API_QUEUE_SAVE": {
@@ -418,6 +434,16 @@ const APImethods = {
             "play": APIparams.play
         }
     },
+    "MYMPD_API_QUEUE_INSERT_URI_TAGS": {
+        "desc": "Adds an uri to distinct position in the queue and set tags.",
+        "params": {
+            "uri": APIparams.streamUri,
+            "tags": APIparams.tagValues,
+            "to": APIparams.to,
+            "whence": APIparams.whence,
+            "play": APIparams.play
+        }
+    },
     "MYMPD_API_QUEUE_INSERT_SEARCH": {
         "desc": "Adds the search result to distinct position in the queue.",
         "params": {
@@ -462,6 +488,14 @@ const APImethods = {
             "play": APIparams.play
         }
     },
+    "MYMPD_API_QUEUE_APPEND_URI_TAGS": {
+        "desc": "Appends an uri to the queue and set tags.",
+        "params": {
+            "uri": APIparams.streamUri,
+            "tags": APIparams.tagValues,
+            "play": APIparams.play
+        }
+    },
     "MYMPD_API_QUEUE_APPEND_SEARCH": {
         "desc": "Appends the search result to the queue.",
         "params": {
@@ -497,6 +531,14 @@ const APImethods = {
         "desc": "Replaces the queue with uris.",
         "params": {
             "uris": APIparams.uris,
+            "play": APIparams.play
+        }
+    },
+    "MYMPD_API_QUEUE_REPLACE_URI_TAGS": {
+        "desc": "Replaces the queue with uri and set tags.",
+        "params": {
+            "uri": APIparams.streamUri,
+            "tags": APIparams.tagValues,
             "play": APIparams.play
         }
     },
@@ -1294,11 +1336,6 @@ const APImethods = {
                 "example": "SYNCEDLYRICS",
                 "desc": "Vorbis tag for synced lyrics"
             },
-            "listenbrainzToken": {
-                "type": APItypes.string,
-                "example": "token",
-                "desc": "Your ListenBrainz token"
-            },
             "webuiSettings": {
                 "params": {
                     "clickSong": {
@@ -1635,8 +1672,8 @@ const APImethods = {
         "params": {
             "view": {
                 "type": APItypes.string,
-                "example": "fieldsQueueCurrent",
-                "desc": "Valid values: fieldsQueueCurrent, fieldsQueueLastPlayed, fieldsSearch, fieldsBrowseDatabaseAlbumDetail, fieldsBrowseDatabaseAlbumList, fieldsBrowsePlaylistDetail, fieldsBrowseFilesystem, fieldsPlayback, fieldsQueueJukeboxAlbum, fieldsQueueJukeboxSong, fieldsBrowseRadioWebradiodb, fieldsBrowseRadioRadiobrowser"
+                "example": "viewQueueCurrent",
+                "desc": "Valid values: viewQueueCurrent, viewQueueLastPlayed, viewSearch, viewBrowseDatabaseAlbumDetail, viewBrowseDatabaseAlbumList, viewBrowsePlaylistDetail, viewBrowseFilesystem, viewPlayback, viewQueueJukeboxAlbum, viewQueueJukeboxSong, viewBrowseRadioWebradiodb, viewBrowseRadioRadiobrowser"
             },
             "mode": {
                 "type": APItypes.string,
@@ -1736,20 +1773,36 @@ const APImethods = {
             "timerid": APIparams.timerid
         }
     },
-    "MYMPD_API_MESSAGE_SEND": {
+    "MYMPD_API_CHANNEL_LIST": {
+        "desc": "Lists all channels",
+        "params": {}
+    },
+    "MYMPD_API_CHANNEL_SUBSCRIBE": {
+        "desc": "Subscribes a channel",
+        "params": {
+            "channel": APIparams.channel
+        }
+    },
+    "MYMPD_API_CHANNEL_UNSUBSCRIBE": {
+        "desc": "Unsubscribes a channel",
+        "params": {
+            "channel": APIparams.channel
+        }
+    },
+    "MYMPD_API_CHANNEL_MESSAGE_SEND": {
         "desc": "Sends a message to a MPD channel",
         "params": {
-            "channel": {
-                "type": APItypes.string,
-                "example": "mpdscribble",
-                "desc": "MPD channel name"
-            },
+            "channel": APIparams.channel,
             "message": {
                 "type": APItypes.string,
                 "example": "love",
                 "desc": "Message to send"
             }
         }
+    },
+    "MYMPD_API_CHANNEL_MESSAGES_READ": {
+        "desc": "Receives all messages from all subscribed channels.",
+        "params": {}
     },
     "MYMPD_API_SCRIPT_VALIDATE": {
         "desc": "Validates (precompiles) a script",
@@ -1816,7 +1869,44 @@ const APImethods = {
         "desc": "Executes a script",
         "params": {
             "script": APIparams.script,
+            "event": {
+                "type": APItypes.string,
+                "example": "user",
+                "desc": "One of: extern, http, timer, trigger or user"
+            },
             "arguments": APIparams.scriptArguments
+        }
+    },
+    "MYMPD_API_SCRIPT_VAR_DELETE": {
+        "desc": "Deletes a script variable",
+        "protected": true,
+        "params": {
+            "key": {
+                "type": APItypes.string,
+                "example": "key1",
+                "desc": "Variable name"
+            }
+        }
+    },
+    "MYMPD_API_SCRIPT_VAR_LIST": {
+        "desc": "Lists all script variables",
+        "protected": true,
+        "params": {}
+    },
+    "MYMPD_API_SCRIPT_VAR_SET": {
+        "desc": "Saves a script variable",
+        "protected": true,
+        "params": {
+            "key": {
+                "type": APItypes.string,
+                "example": "key1",
+                "desc": "Variable name"
+            },
+            "value": {
+                "type": APItypes.string,
+                "example": "value1",
+                "desc": "Variable value"
+            }
         }
     },
     "MYMPD_API_PARTITION_LIST": {
@@ -2019,6 +2109,16 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_JUKEBOX_LENGTH": {
+        "desc": "Returns the length of the jukebox queue.",
+        "params": {}
+    },
+    "MYMPD_API_JUKEBOX_APPEND_URIS": {
+        "desc": "Appends songs the the jukebox queue. This is only allowed in jukebox script mode.",
+        "params": {
+            "uris": APIparams.uris
+        }
+    },
     "MYMPD_API_JUKEBOX_LIST": {
         "desc": "Lists the internal jukebox queue.",
         "params": {
@@ -2072,12 +2172,12 @@ const APImethods = {
         "protected": true,
         "params": {}
     },
-    "MYMPD_API_COVERCACHE_CLEAR": {
-        "desc": "Clears the covercache.",
+    "MYMPD_API_CACHE_DISK_CLEAR": {
+        "desc": "Clears the caches on disk.",
         "params": {}
     },
-    "MYMPD_API_COVERCACHE_CROP": {
-        "desc": "Crops the covercache.",
+    "MYMPD_API_CACHE_DISK_CROP": {
+        "desc": "Crops the caches on disk.",
         "params": {}
     },
     "MYMPD_API_LOGLEVEL": {
@@ -2100,7 +2200,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_SAVE": {
-        "desc": "Lists saved webradios.",
+        "desc": "Saves a webradio favorite.",
         "params": {
             "name": {
                 "type": APItypes.string,
@@ -2165,7 +2265,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_GET": {
-        "desc": "Deletes a webradio favorite.",
+        "desc": "Gets a webradio favorite.",
         "params": {
             "filename": {
                 "type": APItypes.string,

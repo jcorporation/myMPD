@@ -8,9 +8,10 @@
 #include "src/mpd_worker/add_random.h"
 
 #include "dist/sds/sds.h"
-#include "src/lib/cache.h"
+#include "src/lib/cache_rax.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
+#include "src/mpd_client/queue.h"
 #include "src/mpd_client/random_select.h"
 #include "src/mpd_client/shortcuts.h"
 
@@ -27,7 +28,7 @@
  * @return true on success, else false
  */
 bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
-        unsigned add, unsigned mode, sds plist, sds partition)
+        unsigned add, unsigned mode, sds plist, bool play, sds partition)
 {
     struct t_random_add_constraints constraints = {
         .filter_include = NULL,
@@ -63,17 +64,23 @@ bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
         }
     }
     else {
-        MYMPD_LOG_WARN(partition, "Jukebox is disabled");
+        MYMPD_LOG_WARN(partition, "Invalid mode");
         FREE_SDS(error);
         list_clear(&add_list);
         return false;
     }
-    FREE_SDS(error);
     list_clear(&add_list);
 
     if (new_length < add) {
         MYMPD_LOG_WARN(partition, "Could not select %u entries", add);
+        FREE_SDS(error);
         return false;
     }
+
+    if (mpd_client_queue_check_start_play(mpd_worker_state->partition_state, play, &error) == false) {
+        FREE_SDS(error);
+        return false;
+    }
+    FREE_SDS(error);
     return true;
 }

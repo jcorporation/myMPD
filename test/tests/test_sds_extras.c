@@ -74,6 +74,12 @@ UTEST(sds_extras, test_sds_split_comma_trim) {
     sdsfreesplitres(array, count);
 }
 
+UTEST(sds_extras, test_sds_hash_md5) {
+    sds hash = sds_hash_md5("abc");
+    ASSERT_STREQ("900150983cd24fb0d6963f7d28e17f72", hash);
+    sdsfree(hash);
+}
+
 UTEST(sds_extras, test_sds_hash_sha1) {
     sds hash = sds_hash_sha1("abc");
     ASSERT_STREQ("a9993e364706816aba3e25717850c26c9cd0d89d", hash);
@@ -174,7 +180,7 @@ UTEST(sds_extras, test_sds_json_unescape) {
 
 UTEST(sds_extras, test_sds_urldecode) {
     sds test_input = sdsnew("/Musict/Led%20Zeppelin/1975%20-%20Physical%20Graffiti%20%5B1994%2C%20Atlantic%2C%207567-92442-2%5D/CD%201/folder.jpg");
-    sds s = sds_urldecode(sdsempty(), test_input, sdslen(test_input), 0);
+    sds s = sds_urldecode(sdsempty(), test_input, sdslen(test_input), false);
     ASSERT_STREQ("/Musict/Led Zeppelin/1975 - Physical Graffiti [1994, Atlantic, 7567-92442-2]/CD 1/folder.jpg", s);
     ASSERT_EQ(strlen(s), sdslen(s));
     sdsfree(test_input);

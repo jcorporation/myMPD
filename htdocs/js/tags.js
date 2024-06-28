@@ -247,7 +247,7 @@ function setBrowseDatabaseAlbumListSortTags(list) {
         {
             tags.push(['Date','Date']);
         }
-        tags.push(['Last-Modified', 'Last modified']);
+        tags.push(['Last-Modified', 'Last-Modified']);
         if (features.featDbAdded === true) {
             tags.push(['Added', 'Added']);
         }
@@ -404,6 +404,7 @@ function printValue(key, value) {
             );
         case 'homepage':
         case 'Homepage':
+        case 'StreamUri':
             //webradios
             if (value === '') {
                 return document.createTextNode(value);

@@ -78,7 +78,27 @@ sds get_dnsserver(void) {
 }
 
 /**
- * Makes a http request
+ * Initializes a http response struct for the HTTP client
+ * @param mg_client_response pointer to mg_client response struct
+ */
+void http_client_response_init(struct mg_client_response_t *mg_client_response) {
+    mg_client_response->response_code = 0;
+    mg_client_response->body = sdsempty();
+    list_init(&mg_client_response->header);
+    mg_client_response->rc = -1;
+}
+
+/**
+ * Clears a http response struct for the HTTP client
+ * @param mg_client_response pointer to mg_client response struct
+ */
+void http_client_response_clear(struct mg_client_response_t *mg_client_response) {
+    FREE_SDS(mg_client_response->body);
+    list_clear(&mg_client_response->header);
+}
+
+/**
+ * Sends a HTTP request and follows redirects.
  * @param mg_client_request pointer to mg_client_request_t struct
  * @param mg_client_response pointer to mg_client_response_t struct to populate
  */
@@ -94,12 +114,51 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
     mgr_client.dns4.url = dns_uri;
 
     mgr_client.userdata = mg_client_request;
-    MYMPD_LOG_DEBUG(NULL, "HTTP client connecting to \"%s\"", mg_client_request->uri);
-    mg_http_connect(&mgr_client, mg_client_request->uri, http_client_ev_handler, mg_client_response);
-    while (mg_client_response->rc == -1) {
-        mg_mgr_poll(&mgr_client, 1000);
+    mg_client_request->connect_uri = sdsnew(mg_client_request->uri);
+    for (int i = 0; i < 10; i++) {
+        MYMPD_LOG_DEBUG(NULL, "HTTP client connecting to \"%s\"", mg_client_request->connect_uri);
+        mg_http_connect(&mgr_client, mg_client_request->connect_uri, http_client_ev_handler, mg_client_response);
+        while (mg_client_response->rc == -1) {
+            mg_mgr_poll(&mgr_client, 1000);
+        }
+        if (mg_client_response->response_code >= 300 &&
+            mg_client_response->response_code < 400)
+        {
+            // follow redirects
+            struct t_list_node *location = list_get_node(&mg_client_response->header, "location");
+            if (location == NULL) {
+                break;
+            }
+            sds last_host = sdsdup(mg_client_request->connect_uri);
+            sdsclear(mg_client_request->connect_uri);
+            if (strncmp(location->value_p, "http://", 7) != 0 &&
+                strncmp(location->value_p, "https://", 8) != 0)
+            {
+                // redirect uri without host, keep last host part
+                int k = 0;
+                for (size_t j = 0; j < sdslen(last_host); j++) {
+                    if (last_host[j] == '/') {
+                        k++;
+                    }
+                    if (k == 3) {
+                        break;
+                    }
+                    mg_client_request->connect_uri = sds_catchar(mg_client_request->connect_uri, last_host[j]);
+                }
+            }
+            FREE_SDS(last_host);
+            mg_client_request->connect_uri = sdscatsds(mg_client_request->connect_uri, location->value_p);
+            list_clear(&mg_client_response->header);
+            sdsclear(mg_client_response->body);
+            mg_client_response->rc = -1;
+            mg_client_response->response_code = 0;
+        }
+        else {
+            break;
+        }
     }
     FREE_SDS(dns_uri);
+    FREE_SDS(mg_client_request->connect_uri);
     mg_mgr_free(&mgr_client);
 }
 
@@ -117,10 +176,10 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
     struct mg_client_request_t *mg_client_request = (struct mg_client_request_t *) nc->mgr->userdata;
     if (ev == MG_EV_CONNECT) {
         //Connected to server. Extract host name from URL
-        struct mg_str host = mg_url_host(mg_client_request->uri);
+        struct mg_str host = mg_url_host(mg_client_request->connect_uri);
 
         //If uri is https://, tell client connection to use TLS
-        if (mg_url_is_ssl(mg_client_request->uri)) {
+        if (mg_url_is_ssl(mg_client_request->connect_uri)) {
             struct mg_tls_opts tls_opts = {
                 .name = host
             };
@@ -128,16 +187,19 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         }
 
         //Send request
-        MYMPD_LOG_DEBUG(NULL, "Sending data: \"%s\"", mg_client_request->post_data);
         if (strcmp(mg_client_request->method, "POST") == 0) {
+            MYMPD_LOG_DEBUG(NULL, "Sending data: \"%s\"", mg_client_request->post_data);
             mg_printf(nc,
-                "POST %s HTTP/1.0\r\n"
+                "POST %s HTTP/1.1\r\n"
                 "Host: %.*s\r\n"
                 "%s"
-                "Content-length: %lu\r\n"
+                "Content-Length: %lu\r\n"
+                "Connection: close\r\n"
+                "Accept: */*\r\n"
+                "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
                 "\r\n"
                 "%s\r\n",
-                mg_url_uri(mg_client_request->uri),
+                mg_url_uri(mg_client_request->connect_uri),
                 (int) host.len, host.buf,
                 mg_client_request->extra_headers,
                 strlen(mg_client_request->post_data),
@@ -145,11 +207,15 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         }
         else {
             mg_printf(nc,
-                "GET %s HTTP/1.0\r\n"
+                "GET %s HTTP/1.1\r\n"
                 "Host: %.*s\r\n"
                 "%s"
+                "Content-Length: 0\r\n"
+                "Connection: close\r\n"
+                "Accept: */*\r\n"
+                "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
                 "\r\n",
-                mg_url_uri(mg_client_request->uri),
+                mg_url_uri(mg_client_request->connect_uri),
                 (int) host.len, host.buf,
                 mg_client_request->extra_headers);
         }
@@ -159,16 +225,18 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
         struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) nc->fn_data;
         mg_client_response->body = sdscatlen(mg_client_response->body, hm->body.buf, hm->body.len);
-        //headers string
+        //headers list
+        sds name = sdsempty();
         for (int i = 0; i < MG_MAX_HTTP_HEADERS; i++) {
             if (hm->headers[i].name.len == 0) {
                 break;
             }
-            mg_client_response->header = sdscatlen(mg_client_response->header, hm->headers[i].name.buf, hm->headers[i].name.len);
-            mg_client_response->header = sdscatlen(mg_client_response->header, ": ", 2);
-            mg_client_response->header = sdscatlen(mg_client_response->header, hm->headers[i].value.buf, hm->headers[i].value.len);
-            mg_client_response->header = sdscatlen(mg_client_response->header, "\n", 1);
+            name = sdscatlen(name, hm->headers[i].name.buf, hm->headers[i].name.len);
+            sdstolower(name);
+            list_push_len(&mg_client_response->header, name, sdslen(name), 0, hm->headers[i].value.buf, hm->headers[i].value.len, NULL);
+            sdsclear(name);
         }
+        FREE_SDS(name);
         //http response code
         mg_client_response->response_code = mg_str_to_int(&hm->uri);
         //set response code
@@ -177,7 +245,6 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
             : 1;
 
         MYMPD_LOG_DEBUG(NULL, "HTTP client response code \"%d\"", mg_client_response->response_code);
-        MYMPD_LOG_DEBUG(NULL, "HTTP client received body \"%s\"", mg_client_response->body);
         //Tell mongoose to close this connection
         nc->is_closing = 1;
     }
@@ -185,6 +252,6 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) nc->fn_data;
         mg_client_response->body = sdscat(mg_client_response->body, "HTTP connection failed");
         mg_client_response->rc = 2;
-        MYMPD_LOG_ERROR(NULL, "HTTP connection to \"%s\" failed", mg_client_request->uri);
+        MYMPD_LOG_ERROR(NULL, "HTTP connection to \"%s\" failed", mg_client_request->connect_uri);
     }
 }

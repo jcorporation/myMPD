@@ -43,11 +43,11 @@ function setLoglevel(target) {
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function clearCovercache(target) {
+function clearDiskcache(target) {
     if (target) {
         btnWaiting(target, true);
     }
-    sendAPI("MYMPD_API_COVERCACHE_CLEAR", {}, function() {
+    sendAPI("MYMPD_API_CACHE_DISK_CLEAR", {}, function() {
         if (target) {
             btnWaiting(target, false);
         }
@@ -60,11 +60,11 @@ function clearCovercache(target) {
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function cropCovercache(target) {
+function cropDiskcache(target) {
     if (target) {
         btnWaiting(target, true);
     }
-    sendAPI("MYMPD_API_COVERCACHE_CROP", {}, function() {
+    sendAPI("MYMPD_API_CACHE_DISK_CROP", {}, function() {
         if (target) {
             btnWaiting(target, false);
         }

@@ -101,7 +101,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_stat
         mpd_worker_state_free(mpd_worker_state);
         return false;
     }
-    worker_threads++;
+    mpd_worker_threads++;
     return true;
 }
 
@@ -144,7 +144,7 @@ static void *mpd_worker_run(void *arg) {
     }
     MYMPD_LOG_NOTICE(NULL, "Stopping mpd_worker thread");
     mpd_worker_state_free(mpd_worker_state);
-    worker_threads--;
+    mpd_worker_threads--;
     FREE_SDS(thread_logname);
     return NULL;
 }

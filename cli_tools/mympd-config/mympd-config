@@ -5,24 +5,41 @@
 # https://github.com/jcorporation/mympd
 
 CONFIG_DIR="/var/lib/mympd/config"
+MYMPD_BIN="$(command -v mympd)"
 
-while getopts ':c:' OPTION
+while getopts ':c:s:b:' OPTION
 do
     case "$OPTION" in
+        b) MYMPD_BIN="$OPTARG" ;;
         c) CONFIG_DIR="$OPTARG" ;;
+        s) MYMPD_SYSTEMD="$OPTARG" ;;
         *)
-            echo "Usage: $(basename "$0") [-c </path/to/config/dir>] [SETTING VALUE ...]"
+            echo "Usage: $(basename "$0") [-b </usr/bin/mympd>] [-c </var/lib/mympd/config>] [-s <0|1>] [SETTING VALUE ...]"
+            echo "Options"
+            echo "  -b Path to myMPD binary"
+            echo "  -c Path to myMPD config directory, default: /var/lib/mympd/config"
+            echo "  -s 0 = myMPD runs with normal linux user account"
+            echo "     1 = myMPD ist started with systemd private user"
             exit 1
             ;;
     esac
 done
 shift "$((OPTIND - 1))"
 
-if grep "DynamicUser=yes" "/usr/lib/systemd/system/mympd.service" > /dev/null 2>&1
+if [ -z "$MYMPD_BIN" ] || [ ! -x "$MYMPD_BIN" ]
 then
-    MYMPD_SYSTEMD=1
-else
-    MYMPD_SYSTEMD=0
+    echo "mympd not found"
+    exit 1
+fi
+
+if [ -z "$MYMPD_SYSTEMD" ]
+then
+    if grep "DynamicUser=yes" "/usr/lib/systemd/system/mympd.service" > /dev/null 2>&1
+    then
+        MYMPD_SYSTEMD=1
+    else
+        MYMPD_SYSTEMD=0
+    fi
 fi
 
 # whiptail
@@ -48,9 +65,11 @@ set_default() {
     MYMPD_ACL=""
     MYMPD_ALBUM_GROUP_TAG="Date"
     MYMPD_ALBUM_MODE="adv"
-    MYMPD_COVERCACHE_KEEP_DAYS="31"
+    MYMPD_CACHE_COVER_KEEP_DAYS="31"
+    MYMPD_CACHE_LYRICS_KEEP_DAYS="31"
+    MYMPD_CACHE_MISC_KEEP_DAYS="1"
+    MYMPD_CACHE_THUMBS_KEEP_DAYS="31"
     MYMPD_LOGLEVEL="5"
-    MYMPD_LUALIBS="all"
     MYMPD_URI="auto"
     MYMPD_SAVE_CACHES="true"
     MYMPD_SCRIPTACL="+127.0.0.1"
@@ -71,9 +90,11 @@ read_config() {
     [ -f "${CONFIG_DIR}/acl" ] && read -r MYMPD_ACL < "${CONFIG_DIR}/acl"
     [ -f "${CONFIG_DIR}/album_group_tag" ] && read -r MYMPD_ALBUM_GROUP_TAG < "${CONFIG_DIR}/album_group_tag"
     [ -f "${CONFIG_DIR}/album_mode" ] && read -r MYMPD_ALBUM_MODE < "${CONFIG_DIR}/album_mode"
-    [ -f "${CONFIG_DIR}/covercache_keep_days" ] && read -r MYMPD_COVERCACHE_KEEP_DAYS < "${CONFIG_DIR}/covercache_keep_days"
+    [ -f "${CONFIG_DIR}/cache_cover_keep_days" ] && read -r MYMPD_CACHE_COVER_KEEP_DAYS < "${CONFIG_DIR}/cache_cover_keep_days"
+    [ -f "${CONFIG_DIR}/cache_lyrics_keep_days" ] && read -r MYMPD_CACHE_LYRICS_KEEP_DAYS < "${CONFIG_DIR}/cache_lyrics_keep_days"
+    [ -f "${CONFIG_DIR}/cache_misc_keep_days" ] && read -r MYMPD_CACHE_MISC_KEEP_DAYS < "${CONFIG_DIR}/cache_misc_keep_days"
+    [ -f "${CONFIG_DIR}/cache_thumbs_keep_days" ] && read -r MYMPD_CACHE_THUMBS_KEEP_DAYS < "${CONFIG_DIR}/cache_thumbs_keep_days"
     [ -f "${CONFIG_DIR}/loglevel" ] && read -r MYMPD_LOGLEVEL < "${CONFIG_DIR}/loglevel"
-    [ -f "${CONFIG_DIR}/lualibs" ] && read -r MYMPD_LUALIBS < "${CONFIG_DIR}/lualibs"
     [ -f "${CONFIG_DIR}/mympd_uri" ] && read -r MYMPD_URI < "${CONFIG_DIR}/mympd_uri"
     [ -f "${CONFIG_DIR}/save_caches" ] && read -r MYMPD_SAVE_CACHES < "${CONFIG_DIR}/save_caches"
     [ -f "${CONFIG_DIR}/scriptacl" ] && read -r MYMPD_SCRIPTACL < "${CONFIG_DIR}/scriptacl"
@@ -97,9 +118,11 @@ apply_config() {
             -E MYMPD_ACL="$MYMPD_ACL" \
             -E MYMPD_ALBUM_GROUP_TAG="$MYMPD_ALBUM_GROUP_TAG" \
             -E MYMPD_ALBUM_MODE="$MYMPD_ALBUM_MODE" \
-            -E MYMPD_COVERCACHE_KEEP_DAYS="$MYMPD_COVERCACHE_KEEP_DAYS" \
+            -E MYMPD_CACHE_COVER_KEEP_DAYS="$MYMPD_CACHE_COVER_KEEP_DAYS" \
+            -E MYMPD_CACHE_LYRICS_KEEP_DAYS="$MYMPD_CACHE_LYRICS_KEEP_DAYS" \
+            -E MYMPD_CACHE_MISC_KEEP_DAYS="$MYMPD_CACHE_MISC_KEEP_DAYS" \
+            -E MYMPD_CACHE_THUMBS_KEEP_DAYS="$MYMPD_CACHE_THUMBS_KEEP_DAYS" \
             -E MYMPD_LOGLEVEL="$MYMPD_LOGLEVEL" \
-            -E MYMPD_LUALIBS="$MYMPD_LUALIBS" \
             -E MYMPD_URI="$MYMPD_URI" \
             -E MYMPD_SAVE_CACHES="$MYMPD_SAVE_CACHES" \
             -E MYMPD_SCRIPTACL="$MYMPD_SCRIPTACL" \
@@ -114,14 +137,16 @@ apply_config() {
             -E MYMPD_CUSTOM_CERT="$MYMPD_CUSTOM_CERT" \
             -E MYMPD_SSL_CERT="$MYMPD_SSL_CERT" \
             -E MYMPD_SSL_KEY="$MYMPD_SSL_KEY" \
-            mympd -c
+            $MYMPD_BIN -c
     else
         export MYMPD_ACL
         export MYMPD_ALBUM_GROUP_TAG
         export MYMPD_ALBUM_MODE
-        export MYMPD_COVERCACHE_KEEP_DAYS
+        export MYMPD_CACHE_COVER_KEEP_DAYS
+        export MYMPD_CACHE_LYRICS_KEEP_DAYS
+        export MYMPD_CACHE_MISC_KEEP_DAYS
+        export MYMPD_CACHE_THUMBS_KEEP_DAYS
         export MYMPD_LOGLEVEL
-        export MYMPD_LUALIBS
         export MYMPD_URI
         export MYMPD_SAVE_CACHES
         export MYMPD_SCRIPTACL
@@ -136,7 +161,7 @@ apply_config() {
         export MYMPD_CUSTOM_CERT
         export MYMPD_SSL_CERT
         export MYMPD_SSL_KEY
-        mympd -c
+        $MYMPD_BIN -c
     fi
 }
 
@@ -151,7 +176,7 @@ set_pin() {
 }
 
 get_input() {
-    if INPUT=$(whiptail --clear --cancel-button Cancel --backtitle "$BACKTITLE" --inputbox "$1" 0 "$MENU_WIDTH" "$2" \
+    if INPUT=$(whiptail --clear --cancel-button Cancel --backtitle "$BACKTITLE" --inputbox "$1" 0 "$MENU_WIDTH" -- "$2" \
         3>&1 1>&2 2>&3)
     then
         printf "%s" "$INPUT"
@@ -170,7 +195,7 @@ toggle_bool() {
 }
 
 menu_webserver() {
-    SELECT=$(whiptail --clear --cancel-button "Back" --backtitle "$BACKTITLE" --menu "Webserver" 0 "$MENU_WIDTH" 0 \
+    SELECT=$(whiptail --clear --cancel-button "Back" --backtitle "$BACKTITLE" --menu "Webserver" 0 "$MENU_WIDTH" 0 -- \
         "Listening IP" "$MYMPD_HTTP_HOST" \
         "HTTP" "$MYMPD_HTTP" \
         "ACL" "$MYMPD_ACL" \
@@ -220,7 +245,7 @@ select_loglevel() {
         "6") S_INFO=1 ;;
         "7") S_DEBUG=1 ;;
     esac
-    if SELECT=$(whiptail --clear --cancel-button "Cancel" --backtitle "$BACKTITLE" --radiolist "Loglevel" 0 "$MENU_WIDTH" 0 \
+    if SELECT=$(whiptail --clear --cancel-button "Cancel" --backtitle "$BACKTITLE" --radiolist "Loglevel" 0 "$MENU_WIDTH" 0 -- \
         "0" "Emerg" "$S_EMERG" \
         "1" "Alert" "$S_ALERT" \
         "2" "Critical" "$S_CRITICAL" \
@@ -237,62 +262,15 @@ select_loglevel() {
     fi
 }
 
-select_lualibs() {
-    case "$1" in
-        *all*) S_ALL=1 ;;
-        *mympd*) S_MYMPD=1 ;;
-        *json*) S_JSON=1 ;;
-        *base*) S_BASE=1 ;;
-        *coroutine*) S_COROUTINE=1 ;;
-        *debug*) S_DEBUG=1 ;;
-        *io*) S_IO=1 ;;
-        *math*) S_MATH=1 ;;
-        *os*) S_OS=1 ;;
-        *package*) S_PACKAGE=1 ;;
-        *string*) S_STRING=1 ;;
-        *table*) S_TABLE=1 ;;
-        *utf8*) S_UTF8=1 ;;
-    esac
-    if SELECT=$(whiptail --clear --cancel-button "Cancel" --backtitle "$BACKTITLE" --checklist "Lua libraries" 0 "$MENU_WIDTH" 0 \
-        "all" "all" "$S_ALL" \
-        "mympd" "mympd" "$S_MYMPD" \
-        "json" "json" "$S_JSON" \
-        "base" "base" "$S_BASE" \
-        "coroutine" "coroutine" "$S_COROUTINE" \
-        "debug" "debug" "$S_DEBUG" \
-        "io" "io" "$S_IO" \
-        "math" "math" "$S_MATH" \
-        "os" "os" "$S_OS" \
-        "package" "package" "$S_PACKAGE" \
-        "string" "string" "$S_STRING" \
-        "table" "table" "$S_TABLE" \
-        "utf8" "utf8" "$S_UTF8" \
-        3>&1 1>&2 2>&3)
-    then
-        [ -z "$SELECT" ] && SELECT="all"
-        case "$SELECT" in
-            *all*) SELECT="all"
-        esac
-        SELECT=$(printf "%s" "$SELECT" | sed 's/"//g')
-        I=0
-        for L in $SELECT
-        do
-            [ "$I" -eq 1 ] && printf ","
-            printf "%s" "$L"
-            I=1
-        done
-    else
-        printf "%s" "$1"
-    fi
-}
-
 menu_misc() {
-    SELECT=$(whiptail --clear --cancel-button "Back" --backtitle "$BACKTITLE" --menu "Misc" 0 "$MENU_WIDTH" 0 \
+    SELECT=$(whiptail --clear --cancel-button "Back" --backtitle "$BACKTITLE" --menu "Misc" 0 "$MENU_WIDTH" 0 -- \
         "Album group tag" "$MYMPD_ALBUM_GROUP_TAG" \
         "Album mode" "$MYMPD_ALBUM_MODE" \
-        "Covercache expiration (days)" "$MYMPD_COVERCACHE_KEEP_DAYS" \
+        "Cover cache" "$MYMPD_CACHE_COVER_KEEP_DAYS" \
+        "Lyrics cache" "$MYMPD_CACHE_LYRICS_KEEP_DAYS" \
+        "Misc cache" "$MYMPD_CACHE_MISC_KEEP_DAYS" \
+        "Thumbs cache" "$MYMPD_CACHE_THUMBS_KEEP_DAYS" \
         "Loglevel" "$MYMPD_LOGLEVEL" \
-        "Lua libraries" "$MYMPD_LUALIBS" \
         "myMPD URI" "$MYMPD_URI" \
         "Save Caches" "$MYMPD_SAVE_CACHES" \
         "Enable stickers" "$MYMPD_STICKERS" \
@@ -301,9 +279,11 @@ menu_misc() {
     case "$SELECT" in
         "Album group tag") MYMPD_ALBUM_GROUP_TAG=$(get_input "$SELECT" "$MYMPD_ALBUM_GROUP_TAG") ;;
         "Album mode") MYMPD_ALBUM_MODE=$(toggle_album_mode "$MYMPD_ALBUM_MODE") ;;
-        "Covercache") MYMPD_COVERCACHE_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_COVERCACHE_KEEP_DAYS") ;;
+        "Cover cache") MYMPD_CACHE_COVER_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_COVER_KEEP_DAYS") ;;
+        "Lyrics cache") MYMPD_CACHE_LYRICS_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_LYRICS_KEEP_DAYS") ;;
+        "Misc cache") MYMPD_CACHE_MISC_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_MISC_KEEP_DAYS") ;;
+        "Thumbs cache") MYMPD_CACHE_THUMBS_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_THUMBS_KEEP_DAYS") ;;
         "Loglevel") MYMPD_LOGLEVEL=$(select_loglevel "$MYMPD_LOGLEVEL") ;;
-        "Lua libraries") MYMPD_LUALIBS=$(select_lualibs "$MYMPD_LUALIBS") ;;
         "myMPD URI") MYMPD_URI=$(get_input "$SELECT" "$MYMPD_URI") ;;
         "Save Caches") MYMPD_SAVE_CACHES=$(toggle_bool "$MYMPD_SAVE_CACHES") ;;
         "Enable stickers") MYMPD_STICKERS=$(toggle_bool "$MYMPD_STICKERS") ;;
@@ -314,7 +294,7 @@ menu_misc() {
 }
 
 menu_main() {
-    SELECT=$(whiptail --clear --notags --cancel-button "Exit" --backtitle "$BACKTITLE" --menu "$BACKTITLE" 0 "$MENU_WIDTH" 0 \
+    SELECT=$(whiptail --clear --notags --cancel-button "Exit" --backtitle "$BACKTITLE" --menu "$BACKTITLE" 0 "$MENU_WIDTH" 0 -- \
         "W" "Webserver" \
         "M" "Misc" \
         "P" "Set PIN" \
@@ -339,9 +319,11 @@ parse_options() {
             MYMPD_ACL) MYMPD_ACL="$2" ;;
             MYMPD_ALBUM_GROUP_TAG) MYMPD_ALBUM_GROUP_TAG="$2" ;;
             MYMPD_ALBUM_MODE) MYMPD_ALBUM_MODE="$2" ;;
-            MYMPD_COVERCACHE_KEEP_DAYS) MYMPD_COVERCACHE_KEEP_DAYS="$2" ;;
+            MYMPD_CACHE_COVER_KEEP_DAYS) MYMPD_CACHE_COVER_KEEP_DAYS="$2" ;;
+            MYMPD_CACHE_LYRICS_KEEP_DAYS) MYMPD_CACHE_LYRICS_KEEP_DAYS="$2" ;;
+            MYMPD_CACHE_MISC_KEEP_DAYS) MYMPD_CACHE_MISC_KEEP_DAYS="$2" ;;
+            MYMPD_CACHE_THUMBS_KEEP_DAYS) MYMPD_CACHE_THUMBS_KEEP_DAYS="$2" ;;
             MYMPD_LOGLEVEL) MYMPD_LOGLEVEL="$2" ;;
-            MYMPD_LUALIBS) MYMPD_LUALIBS="$2" ;;
             MYMPD_URI) MYMPD_URI="$2" ;;
             MYMPD_SAVE_CACHES) MYMPD_SAVE_CACHES="$2" ;;
             MYMPD_SCRIPTACL) MYMPD_SCRIPTACL="$2" ;;

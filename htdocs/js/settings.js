@@ -353,6 +353,13 @@ function parseMPDSettings() {
         }
     }
 
+    //enforce name for current queue view
+    if (settings.viewQueueCurrent.fields.includes('Name') === false &&
+        settings.tagList.includes('Name') === true)
+    {
+        settings.viewQueueCurrentFetch.fields.push('Name');
+    }
+
     //enforce album and albumartist for album list view
     settings['viewBrowseDatabaseAlbumListFetch'] = {};
     settings['viewBrowseDatabaseAlbumListFetch'].mode = settings['viewBrowseDatabaseAlbumList'].mode;

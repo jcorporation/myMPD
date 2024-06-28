@@ -37,7 +37,7 @@ UTEST(mimetype, test_get_ext_by_mime_type) {
     ASSERT_TRUE(ext == NULL);
 }
 
-UTEST(mimetype, test_get_mime_type_by_magic) {
+UTEST(mimetype, test_get_mime_type_by_magic_stream) {
     FILE *fp = fopen(MYMPD_BUILD_DIR"/testfiles/back.jpg", "rb");
     ASSERT_FALSE(fp == NULL);
 
@@ -53,6 +53,11 @@ UTEST(mimetype, test_get_mime_type_by_magic) {
     mime_type = get_mime_type_by_magic_stream(stream);
     ASSERT_STREQ("application/octet-stream", mime_type);
     sdsfree(stream);
+}
+
+UTEST(mimetype, test_get_mime_type_by_magic_file) {
+    const char *mime_type = get_mime_type_by_magic_file(MYMPD_BUILD_DIR"/testfiles/back.jpg");
+    ASSERT_STREQ("image/jpeg", mime_type);
 }
 
 UTEST(mimetype, test_is_image) {

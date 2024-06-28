@@ -279,7 +279,7 @@ function setPlaybackCardTags(songObj) {
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateTextTn('small', {}, 'Country'),
                 elCreateText('p', {}, songObj.webradio.Country + 
-                    (songObj.webradio.State !== '' ? smallSpace + nDash + smallSpace + songObj.webradio.State : ''))
+                    (songObj.webradio.State !== '' && songObj.webradio.State !== undefined ? smallSpace + nDash + smallSpace + songObj.webradio.State : ''))
             ])
         );
         PlaybackListWebradio.appendChild(

@@ -17,7 +17,25 @@
 #include <pwd.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
+#include <utime.h>
+
+/**
+ * Updates the timestamp of a file
+ * @param filename file to update the timestamp
+ * @return true on success, else false
+ */
+bool update_mtime(const char *filename) {
+    time_t mtime = time(NULL);
+    struct utimbuf new_times;
+    new_times.actime = mtime;
+    new_times.modtime = mtime;
+    if (utime(filename, &new_times) == 0) {
+        return true;
+    }
+    return false;
+}
 
 /**
  * Sets the owner of a file and group to the primary group of the user
@@ -257,7 +275,7 @@ int testdir(const char *desc, const char *dir_name, bool create, bool silent) {
 }
 
 /**
- * Checks if dir_name is realy a directory entry
+ * Checks if dir_name is really a directory entry
  * @param dir_name directory path to check
  * @return true if it is a directory, else false
  */
@@ -327,6 +345,21 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
 }
 
 /**
+ * Renames a file. src and dst must be in the same filesystem.
+ * @param src source filename
+ * @param dst destination filename
+ * @return true on success, else false
+ */
+bool rename_file(const char *src, const char *dst) {
+    if (rename(src, dst) == -1) {
+        MYMPD_LOG_ERROR(NULL, "Rename file from \"%s\" to \"%s\" failed", src, dst);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    return true;
+}
+
+/**
  * Removes a file and reports all errors
  * @param filepath filepath to remove
  * @return true on success else false
@@ -369,8 +402,8 @@ int try_rm_file(sds filepath) {
  * @param data_len data length to write
  * @return true on success else false
  */
-bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%S.XXXXXX", filepath);
+bool write_data_to_file(const char *filepath, const char *data, size_t data_len) {
+    sds tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", filepath);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);

@@ -7,8 +7,9 @@
 #include "compile_time.h"
 #include "src/web_server/proxy.h"
 
+#include "src/lib/cache_disk.h"
+#include "src/lib/cache_disk_images.h"
 #include "src/lib/config_def.h"
-#include "src/lib/covercache.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/mg_str_utils.h"
@@ -21,6 +22,7 @@
  */
 static const char *allowed_proxy_hosts[] = {
     "jcorporation.github.io",
+    "raw.githubusercontent.com",
     "musicbrainz.org",
     "listenbrainz.org",
     NULL
@@ -39,7 +41,7 @@ bool is_allowed_proxy_uri(const char *uri) {
     struct mg_str host = mg_url_host(uri);
     const char **p = NULL;
     for (p = allowed_proxy_hosts; *p != NULL; p++) {
-        if (mg_vcmp(&host, *p) == 0) {
+        if (mg_strcmp(host, mg_str(*p)) == 0) {
             MYMPD_LOG_DEBUG(NULL, "Host \"%.*s\" is on whitelist", (int)host.len, host.buf);
             return true;
         }
@@ -97,7 +99,7 @@ void send_backend_request(struct mg_connection *nc) {
     }
     mg_printf(nc, "GET %s HTTP/1.1\r\n"
         "Host: %.*s\r\n"
-        "User-Agent: myMPD/"MYMPD_VERSION"\r\n"
+        "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
         "Accept: */*\r\n"
         "Connection: close\r\n"
         "\r\n",
@@ -216,8 +218,9 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                 struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
                 struct t_config *config = mg_user_data->config;
                 //cache the image
-                if (config->covercache_keep_days > 0) {
-                    covercache_write_file(config->cachedir, backend_nc_data->uri, mime_type, binary, 0);
+                if (config->cache_cover_keep_days != CACHE_DISK_DISABLED) {
+                    sds filename = cache_disk_images_write_file(config->cachedir, DIR_CACHE_COVER, backend_nc_data->uri, mime_type, binary, 0);
+                    FREE_SDS(filename);
                 }
                 FREE_SDS(binary);
                 //send to frontend

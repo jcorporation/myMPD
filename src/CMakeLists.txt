@@ -41,13 +41,15 @@ endif()
 target_sources(mympd
   PRIVATE
     main.c
-    lib/album_cache.c
     lib/api.c
-    lib/cache.c
+    lib/cache_disk_images.c
+    lib/cache_disk_lyrics.c
+    lib/cache_disk.c
+    lib/cache_rax_album.c
+    lib/cache_rax.c
     lib/cert.c
     lib/config.c
     lib/convert.c
-    lib/covercache.c
     lib/datetime.c
     lib/env.c
     lib/event.c
@@ -59,7 +61,6 @@ target_sources(mympd
     lib/last_played.c
     lib/list.c
     lib/log.c
-    lib/lua_mympd_state.c
     lib/m3u.c
     lib/mg_str_utils.c
     lib/mimetype.c
@@ -107,6 +108,7 @@ target_sources(mympd
     mympd_api/mympd_api.c
     mympd_api/albumart.c
     mympd_api/browse.c
+    mympd_api/channel.c
     mympd_api/database.c
     mympd_api/extra_media.c
     mympd_api/filesystem.c
@@ -129,6 +131,7 @@ target_sources(mympd
     mympd_api/stats.c
     mympd_api/status.c
     mympd_api/sticker.c
+    mympd_api/tagart.c
     mympd_api/timer.c
     mympd_api/timer_handlers.c
     mympd_api/trigger.c
@@ -150,10 +153,21 @@ target_sources(mympd
 if(MYMPD_ENABLE_LUA)
   target_sources(mympd
     PRIVATE
-      mympd_api/scripts/interface_http_client.c
-      mympd_api/scripts/interface_mympd_api.c
-      mympd_api/scripts/interface.c
-      mympd_api/scripts/scripts.c
+      mympd_api/lua_mympd_state.c
+      scripts/api_handler.c
+      scripts/api_scripts.c
+      scripts/api_vars.c
+      scripts/events.c
+      scripts/interface_caches.c
+      scripts/interface_http.c
+      scripts/interface_mympd_api.c
+      scripts/interface_util.c
+      scripts/interface.c
+      scripts/scripts_lua.c
+      scripts/scripts_worker.c
+      scripts/scripts.c
+      scripts/util.c
+      web_server/scripts.c
   )
 endif()
 
@@ -176,6 +190,6 @@ endif()
 if(MYMPD_ENABLE_MYGPIOD)
   target_sources(mympd
     PRIVATE
-      mympd_api/scripts/interface_mygpio.c
+      scripts/interface_mygpio.c
   )
 endif()

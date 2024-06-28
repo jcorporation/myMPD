@@ -4,10 +4,6 @@ permalink: /additional-topics/mpd-satellite-setup
 title: MPD satellite setup
 ---
 
-## Introduction
-
-*This documentation is work in progress.*
-
 The mpd satellite setup consists of following components:
 
 - A central server hosting:
@@ -81,7 +77,7 @@ Setting up the satellite involves following steps:
 
 ### 1. Mount
 
-We mount the exported directories at the os level. myMPD requires access to the music directory also.
+We mount the exported directories at the os level. myMPD requires access to the music directory also. Ths music directory path should be the same on the central server and on the satellite.
 
 **/etc/fstab**
 ```

@@ -11,8 +11,11 @@
 #include "src/lib/api.h"
 #include "src/lib/event.h"
 #include "src/lib/log.h"
-#include "src/lib/lua_mympd_state.h"
 #include "src/lib/mem.h"
+
+#ifdef MYMPD_ENABLE_LUA
+    #include "src/mympd_api/lua_mympd_state.h"
+#endif
 
 #include <errno.h>
 
@@ -112,25 +115,25 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id) {
 /**
  * Gets the first entry or the entry with specific id
  * @param queue pointer to the queue
- * @param timeout timeout in ms to wait for a queue entry,
+ * @param timeout_ms timeout in ms to wait for a queue entry,
  *                 0 to wait infinite
  *                -1 for no wait
  * @param id 0 for first entry or specific id
  * @return t_work_request or t_work_response
  */
-void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, unsigned id) {
+void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout_ms, unsigned id) {
     //lock the queue
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR(NULL, "Error in pthread_mutex_lock: %d", rc);
         assert(NULL);
     }
-    if (timeout > -1) {
+    if (timeout_ms > -1) {
         //check and wait for entries
         if (queue->length == 0) {
-            if (timeout > 0) {
+            if (timeout_ms > 0) {
                 struct timespec max_wait = {0, 0};
-                set_wait_time(timeout, &max_wait);
+                set_wait_time(timeout_ms, &max_wait);
                 errno = 0;
                 rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
             }
@@ -188,10 +191,10 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, unsigned id) {
 /**
  * Expire entries from the queue
  * @param queue pointer to the queue
- * @param max_age max age of nodes in seconds
+ * @param max_age_s max age of nodes in seconds
  * @return number of expired nodes
  */
-int mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
+int mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age_s) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR(NULL, "Error in pthread_mutex_lock: %d", rc);
@@ -203,10 +206,10 @@ int mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
         struct t_mympd_msg *current = NULL;
         struct t_mympd_msg *previous = NULL;
 
-        time_t expire_time = time(NULL) - max_age;
+        time_t expire_time = time(NULL) - max_age_s;
 
         for (current = queue->head; current != NULL;) {
-            if (max_age == 0 ||
+            if (max_age_s == 0 ||
                 current->timestamp < expire_time)
             {
                 struct t_mympd_msg *to_remove = current;
@@ -277,7 +280,9 @@ static void free_queue_node_extra(void *extra, enum mympd_cmd_ids cmd_id) {
         return;
     }
     if (cmd_id == INTERNAL_API_SCRIPT_INIT) {
-        lua_mympd_state_free(extra);
+        #ifdef MYMPD_ENABLE_LUA
+            lua_mympd_state_free(extra);
+        #endif
     }
     else {
         FREE_PTR(extra);

@@ -8,8 +8,8 @@
 #include "src/web_server/albumart.h"
 
 #include "src/lib/api.h"
+#include "src/lib/cache_disk.h"
 #include "src/lib/convert.h"
-#include "src/lib/covercache.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
@@ -56,7 +56,7 @@ void webserver_send_albumart_redirect(struct mg_connection *nc, sds data) {
             : sdscatfmt(sdsempty(),"/albumart?offset=0&uri=");
         redirect_uri = sds_urlencode(redirect_uri, uri, sdslen(uri));
         MYMPD_LOG_DEBUG(NULL, "Sending redirect to: %s", redirect_uri);
-        webserver_send_header_found(nc, redirect_uri);
+        webserver_send_header_found(nc, redirect_uri, "");
         FREE_SDS(redirect_uri);
     }
     else {
@@ -144,8 +144,28 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
 
     MYMPD_LOG_DEBUG(NULL, "Handle albumart for uri \"%s\", offset %d", uri, offset);
 
+    //check covercache and serve image from it if found
+    if (check_imagescache(nc, hm, mg_user_data, DIR_CACHE_COVER, uri, offset) == true) {
+        FREE_SDS(uri);
+        return true;
+    }
+
+    //uri too long
+    if (sdslen(uri) > FILEPATH_LEN_MAX) {
+        FREE_SDS(uri);
+        MYMPD_LOG_WARN(NULL, "Uri is too long, max len is %d", FILEPATH_LEN_MAX);
+        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        return true;
+    }
+
     //check for cover in /pics/thumbs/ and webradio m3u
     if (is_streamuri(uri) == true) {
+        if (sdslen(uri) > FILENAME_LEN_MAX) {
+            FREE_SDS(uri);
+            MYMPD_LOG_DEBUG(NULL, "Uri is too long, max len is %d", FILENAME_LEN_MAX);
+            webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
+            return true;
+        }
         sanitize_filename(uri);
 
         sds coverfile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, uri);
@@ -163,7 +183,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
                     //use relative path to support hosting myMPD behind a reverse proxy in a subdir
                     sds redirect_uri = sdsnew("proxy-covercache?uri=");
                     redirect_uri = sds_urlencode(redirect_uri, extimg, sdslen(extimg));
-                    webserver_send_header_found(nc, redirect_uri);
+                    webserver_send_header_found(nc, redirect_uri, "");
                     FREE_SDS(redirect_uri);
                     FREE_SDS(uri);
                     FREE_SDS(coverfile);
@@ -189,12 +209,6 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         }
         FREE_SDS(uri);
         FREE_SDS(coverfile);
-        return true;
-    }
-
-    //check covercache
-    if (check_covercache(nc, hm, mg_user_data, uri, offset) == true) {
-        FREE_SDS(uri);
         return true;
     }
 
@@ -236,7 +250,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
 
         if (testfile_read(mediafile) == true) {
             //try to extract albumart from media file
-            bool covercache = mg_user_data->config->covercache_keep_days != COVERCACHE_DISABLED
+            bool covercache = mg_user_data->config->cache_cover_keep_days != CACHE_DISK_DISABLED
                 ? true
                 : false;
             bool rc = handle_coverextract(nc, config->cachedir, uri, mediafile, covercache, offset);
@@ -253,7 +267,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
     if (mg_user_data->feat_albumart == true &&
         offset == 0)
     {
-        MYMPD_LOG_DEBUG(NULL, "Sending getalbumart to mpd_client_queue");
+        MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_ALBUMART_BY_URI to mympdapi_queue");
         struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, 0, INTERNAL_API_ALBUMART_BY_URI, NULL, MPD_PARTITION_DEFAULT);
         request->data = tojson_sds(request->data, "uri", uri, false);
         request->data = jsonrpc_end(request->data);

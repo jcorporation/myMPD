@@ -14,6 +14,7 @@
 
 #include <inttypes.h>
 #include <limits.h>
+#include <openssl/opensslv.h>
 #include <signal.h>
 
 //build options
@@ -53,6 +54,9 @@
 //myMPD version from cmake
 #define MYMPD_VERSION "${PROJECT_VERSION}"
 
+// Hide deprecated OpenSSL API functions
+#define OPENSSL_NO_DEPRECATED
+
 //minimum mpd version
 #define MPD_VERSION_MIN_MAJOR 0
 #define MPD_VERSION_MIN_MINOR 21
@@ -65,13 +69,19 @@
 #define MYMPD_LUALIBS_PATH "${MYMPD_LUALIBS_PATH}"
 
 //global variables
-extern _Atomic int worker_threads;
+extern _Atomic int mpd_worker_threads;
+#ifdef MYMPD_ENABLE_LUA
+    extern _Atomic int script_worker_threads;
+#endif
 //signal handler
 extern sig_atomic_t s_signal_received;
 //message queues
 extern struct t_mympd_queue *web_server_queue;
 extern struct t_mympd_queue *mympd_api_queue;
-extern struct t_mympd_queue *mympd_script_queue;
+#ifdef MYMPD_ENABLE_LUA
+    extern struct t_mympd_queue *script_queue;
+    extern struct t_mympd_queue *script_worker_queue;
+#endif
 
 //standard file names and folders
 #define FILENAME_ALBUMCACHE "album_cache.mpack"
@@ -81,8 +91,12 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define FILENAME_TIMER "timer_list"
 #define FILENAME_TRIGGER "trigger_list"
 #define FILENAME_WEBRADIODB "webradiodb-combined.min.json"
+#define FILENAME_SCRIPTVARS "scriptvars_list"
 
-#define DIR_CACHE_COVER "covercache"
+#define DIR_CACHE_COVER "cover"
+#define DIR_CACHE_LYRICS "lyrics"
+#define DIR_CACHE_MISC "misc"
+#define DIR_CACHE_THUMBS "thumbs"
 #define DIR_CACHE_WEBRADIODB "webradiodb"
 
 #define DIR_WORK_CONFIG "config"
@@ -114,13 +128,15 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define CFG_MYMPD_CUSTOM_CERT false
 #define CFG_MYMPD_ACL ""
 #define CFG_MYMPD_SCRIPTACL "+127.0.0.0/8"
-#define CFG_MYMPD_LUALIBS "all"
 #define CFG_MYMPD_LOGLEVEL 5 //notice
 #define CFG_MYMPD_PIN_HASH ""
 #define CFG_MYMPD_URI "auto"
 #define CFG_MYMPD_SAVE_CACHES true
 #define CFG_MYMPD_LOG_TO_SYSLOG false
-#define CFG_MYMPD_COVERCACHE_KEEP_DAYS 31
+#define CFG_MYMPD_CACHE_COVER_KEEP_DAYS 31
+#define CFG_MYMPD_CACHE_LYRICS_KEEP_DAYS 31
+#define CFG_MYMPD_CACHE_THUMBS_KEEP_DAYS 31
+#define CFG_MYMPD_CACHE_MISC_KEEP_DAYS 1
 #define CFG_MYMPD_ALBUM_MODE "adv"
 #define CFG_MYMPD_ALBUM_GROUP_TAG "Date"
 #define CFG_MYMPD_STICKERS true
@@ -260,14 +276,28 @@ extern struct t_mympd_queue *mympd_script_queue;
 //certificates
 #define CA_LIFETIME 3650 //days
 #define CA_LIFETIME_MIN 365 //days
-#define CA_KEY_LENGTH 4096 //bytes
+#define CA_KEY_LENGTH_RSA 4096 //bytes for RSA
+#define CA_KEY_LENGTH_EC 384 //bytes for EC: 256 or 384
 #define CERT_LIFETIME 365 //days
 #define CERT_LIFETIME_MIN 30 //days
-#define CERT_KEY_LENGTH 2048 //bytes
+#define CERT_KEY_LENGTH_RSA 2048 // bytes for RSA
+#define CERT_KEY_LENGTH_EC 256 // bytes for EC: 256 or 384
+
+#ifdef OPENSSL_VERSION_MAJOR
+    #define CA_KEY_TYPE EVP_PKEY_EC //key type: EVP_PKEY_EC or EVP_PKEY_RSA
+    #define CA_KEY_LENGTH CA_KEY_LENGTH_EC // Set this according to the key type
+    #define CERT_KEY_TYPE EVP_PKEY_EC //key type: EVP_PKEY_EC or EVP_PKEY_RSA
+    #define CERT_KEY_LENGTH CERT_KEY_LENGTH_EC // Set this according to the key type
+#else
+    #define CA_KEY_TYPE EVP_PKEY_RSA
+    #define CA_KEY_LENGTH CA_KEY_LENGTH_RSA
+    #define CERT_KEY_TYPE EVP_PKEY_RSA
+    #define CERT_KEY_LENGTH CERT_KEY_LENGTH_RSA
+#endif
 
 //http limits
 #define HTTP_CONNECTIONS_MAX 100
-#define URI_LENGTH_MAX 1000
+#define URI_LENGTH_MAX 2048
 #define BODY_SIZE_MAX 8192 //bytes
 #define WS_PING_TIMEOUT 300 // seconds
 
@@ -277,7 +307,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 //content limits
 #define NAME_LEN_MAX 200
-#define CONTENT_LEN_MAX 3000
+#define CONTENT_LEN_MAX 6000
 #define EXPRESSION_LEN_MAX 1000
 #define FIELDS_MAX 20
 
@@ -315,16 +345,16 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define TIMER_INTERVAL_MIN 0 //seconds
 #define TIMER_INTERVAL_MAX 7257600 //12 weeks
 #define TIMER_SMARTPLS_UPDATE_OFFSET 30 //seconds
-#define TIMER_COVERCACHE_CLEANUP_OFFSET 60 //seconds
-#define TIMER_COVERCACHE_CLEANUP_INTERVAL 86400 //seconds
-#define COVERCACHE_AGE_MIN -1 //days
-#define COVERCACHE_AGE_MAX 365 //days
+#define TIMER_DISK_CACHE_CLEANUP_OFFSET 60 //seconds
+#define TIMER_DISK_CACHE_CLEANUP_INTERVAL 86400 //seconds
+#define CACHE_AGE_MIN -1 //days
+#define CACHE_AGE_MAX 365 //days
 #define VOLUME_MIN 0 //prct
 #define VOLUME_MAX 100 //prct
 #define VOLUME_STEP_MIN 1 //prct
 #define VOLUME_STEP_MAX 25 //prct
 #define JUKEBOX_MODE_MIN 0
-#define JUKEBOX_MODE_MAX 2
+#define JUKEBOX_MODE_MAX 3
 #define JUKEBOX_ADD_SONG_MAX 99
 #define JUKEBOX_MIN_SONG_DURATION_MAX INT_MAX
 #define JUKEBOX_MAX_SONG_DURATION_MAX INT_MAX
@@ -337,7 +367,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define SCROBBLE_TIME_MAX 240 //maximum elapsed seconds before scrobble event occurs
 #define SCROBBLE_TIME_TOTAL 480 //if the song is longer then this value, scrobble at SCROBBLE_TIME_MAX
 #define MAX_ENV_LENGTH 100 //maximum length of environment variables
-#define MAX_WORKER_THREADS 5 //maximum number of concurrent worker threads
+#define MAX_MPD_WORKER_THREADS 10 //maximum number of concurrent worker threads
+#define MAX_SCRIPT_WORKER_THREADS 20 //maximum number of concurrent script worker threads
 #define MBID_LENGTH 36 //length of a MusicBrainz ID
 #define STICKER_LIKE_MIN 0
 #define STICKER_LIKE_MAX 2
@@ -346,6 +377,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99
+#define LIST_SCRIPT_VARS_MAX 99
 #define LIST_TRIGGER_MAX 99
 #define LIST_TIMER_MAX 99
 #define USER_TIMER_ID_START 100
@@ -368,7 +400,6 @@ extern struct t_mympd_queue *mympd_script_queue;
 //file size limits
 #define LINE_LENGTH_MAX 8192 // 8 kb
 #define LYRICS_SIZE_MAX 10000 //bytes
-#define SCRIPTS_SIZE_MAX 10000 //bytes
 #define SMARTPLS_SIZE_MAX 2000 //bytes
 #define WEBRADIODB_SIZE_MAX 1048576 //bytes, 1 MB
 #define SSL_FILE_MAX 8192 // 8 kb

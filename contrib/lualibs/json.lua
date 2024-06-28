@@ -50,7 +50,7 @@ local function escape_char(c)
   return "\\" .. (escape_char_map[c] or string.format("u%04x", c:byte()))
 end
 
-
+-- luacheck: no unused args
 local function encode_nil(val)
   return "null"
 end
@@ -78,7 +78,7 @@ local function encode_table(val, stack)
       error("invalid table: sparse array")
     end
     -- Encode
-    for i, v in ipairs(val) do
+    for _, v in ipairs(val) do
       table.insert(res, encode(v, stack))
     end
     stack[val] = nil

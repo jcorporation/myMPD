@@ -23,6 +23,10 @@ enum trigger_events {
     TRIGGER_MYMPD_DISCONNECTED = -5,   //!< myMPD disconnect from mpd event
     TRIGGER_MYMPD_FEEDBACK = -6,       //!< myMPD feedback event (love/hate)
     TRIGGER_MYMPD_SKIPPED = -7,        //!< myMPD song skipped (same event is used for skipped sticker)
+    TRIGGER_MYMPD_LYRICS = -8,         //!< myMPD lyrics
+    TRIGGER_MYMPD_ALBUMART = -9,       //!< myMPD albumart
+    TRIGGER_MYMPD_TAGART = -10,        //!< myMPD tagart
+    TRIGGER_MYMPD_JUKEBOX = -11,       //!< myMPD jukebox
     TRIGGER_MPD_DATABASE = 0x1,        //!< mpd database has changed
     TRIGGER_MPD_STORED_PLAYLIST = 0x2, //!< mpd playlist idle event
     TRIGGER_MPD_QUEUE = 0x4,           //!< mpd queue idle event
@@ -54,8 +58,13 @@ sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, unsigned requ
 bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir);
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir);
 void mympd_api_trigger_list_clear(struct t_list *trigger_list);
-void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition);
-void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, enum feedback_type type, int value, const char *partition);
+int mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event,
+        const char *partition, struct t_list *arguments);
+int mympd_api_trigger_execute_http(struct t_list *trigger_list, enum trigger_events event,
+        const char *partition, unsigned long conn_id, unsigned request_id,
+        struct t_list *arguments);
+int mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri,
+        enum feedback_type type, int value, const char *partition);
 bool mympd_api_trigger_delete(struct t_list *trigger_list, unsigned idx, sds *error);
 const char *mympd_api_event_name(int event);
 sds mympd_api_trigger_print_event_list(sds buffer);

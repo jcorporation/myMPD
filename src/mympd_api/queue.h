@@ -21,6 +21,10 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, struct t_s
 bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned priority, sds *error);
 bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, struct t_list *song_ids, sds *error);
 bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, struct t_list *song_ids, sds *error);
+bool mympd_api_queue_append_uri_tags(struct t_partition_state *partition_state, sds uri, struct t_list *tags, sds *error);
+bool mympd_api_queue_insert_uri_tags(struct t_partition_state *partition_state, sds uri,
+        struct t_list *tags, unsigned to, unsigned whence, sds *error);
+bool mympd_api_queue_replace_uri_tags(struct t_partition_state *partition_state, sds uri, struct t_list *tags, sds *error);
 bool mympd_api_queue_append(struct t_partition_state *partition_state, struct t_list *uris, sds *error);
 bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_list *uris, unsigned to, unsigned whence, sds *error);
 bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t_list *uris, sds *error);

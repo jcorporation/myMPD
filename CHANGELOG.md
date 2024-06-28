@@ -4,6 +4,81 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD 16.0.0 (2024-06-28)
+
+This release reworks and enhances the scripting functionality of myMPD. There are several new myMPD specific Lua functions and new usage scenarios for scripts. With this release scripts can respond to specific http requests.
+
+The scripts to import in myMPD are moved to a separate [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts). Check it out, there are now much more scripts that are ready to use and demonstrate all the new functionality introduced in this myMPD release.
+
+There are also new triggers introduced:
+
+- mpd_channel
+- mpd_message
+- mympd_albumart: Triggers if no local albumart was found
+- mympd_lyrics: Triggers if no local lyrics are found
+- mympd_tagart: Triggers if no local tagart was found
+- mympd_jukebox: Triggers if the jukebox mode is set to `Script`
+
+### Notes
+
+- `mympd.os_capture` does not strip newlines anymore
+- The config setting for the ListenBrainz API token was removed in favor of a new central function to declare variables for scripts.
+- The config setting `covercache_keep_days` was renamed to `cache_cover_keep_days`.
+- The global variables and tables for Lua scripts are renamed.
+- The `lualibs` configuration option was removed. myMPD loads always all Lua standard libraries.
+- `/var/cache/mympd/covercache` was renamed to `/var/cache/mympd/cover`
+- The native Radiobrowser integration is now deprecated and will be removed in the next major release. Use the RadioBrowser script instead.
+
+### API changes
+
+- MYMPD_API_SCRIPT_VAR_DELETE: new
+- MYMPD_API_SCRIPT_VAR_LIST: new
+- MYMPD_API_SCRIPT_VAR_SET: new
+- MYMPD_API_QUEUE_APPEND_URI_TAGS: new
+- MYMPD_API_QUEUE_INSERT_URI_TAGS: new
+- MYMPD_API_QUEUE_REPLACE_URI_TAGS: new
+- MYMPD_API_COVERCACHE_CLEAR renamed to MYMPD_API_CACHE_DISK_CLEAR
+- MYMPD_API_COVERCACHE_CROP renamed to MYMPD_API_CACHE_DISK_CROP
+- MYMPD_API_CHANNEL_SUBSCRIBE: new
+- MYMPD_API_CHANNEL_UNSUBSCRIBE: new
+- MYMPD_API_CHANNEL_LIST: new
+- MYMPD_API_MESSAGE_SEND renamed to MYMPD_API_CHANNEL_MESSAGE_SEND
+- MYMPD_API_CHANNEL_MESSAGES_READ: new
+- MYMPD_API_JUKEBOX_LENGTH: new
+- MYMPD_API_JUKEBOX_APPEND_URIS: new
+- MYMPD_API_QUEUE_ADD_RANDOM: parameters changed
+
+### Changelog
+
+- Feat: Script improvements
+  - Performance improvements
+  - Better error handling
+  - Handling of http requests #1279
+  - Send log messages from scripts
+  - Send notifications from scripts #1280
+  - Url encoding/decoding functions
+  - Hashing functions
+  - Cache functions for images and lyrics
+  - Jukebox interface
+  - HTTP client follows now redirects
+  - HTTP download function
+  - Dialogs
+  - Improved script import
+- Feat: Set custom variables for scripts #1265
+- Feat: New triggers #1288
+- Feat: Use EC private keys for SSL certificates
+- Upd: Add length checks for albumart uris #1284
+- Upd: Update mongoose to 7.14
+- Upd: Do not use deprecated OpenSSL API functions
+- Upd: Optimize Lua stack usage
+- Fix: Add missing NULL ptr checks to Lua interface functions
+- Fix: Error checking for results in modals
+- Fix: JavaScript error on right click in tags view
+- Fix: Alignment of action icons in tag view
+- Fix: Display image carousel for covers in playback view and footer #1316
+
+***
+
 ## myMPD 15.0.2 (2024-05-13)
 
 This is a small bugfix release.

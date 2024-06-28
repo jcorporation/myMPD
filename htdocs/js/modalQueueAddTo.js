@@ -58,6 +58,7 @@ function addRandomToQueue(target) {
     sendAPI("MYMPD_API_QUEUE_ADD_RANDOM", {
         "mode": Number(getSelectValueId('modalQueueAddToModeInput')),
         "plist": getDataId('modalQueueAddToPlaylistInput', 'value'),
-        "quantity": Number(elGetById('modalQueueAddToQuantityInput').value)
+        "quantity": Number(elGetById('modalQueueAddToQuantityInput').value),
+        "play": false
     }, modalClose, true);
 }

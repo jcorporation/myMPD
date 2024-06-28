@@ -12,13 +12,18 @@
  */
 //eslint-disable-next-line no-unused-vars
 function showWebradiodbDetails(uri) {
+    elShowId('modalRadiobrowserDetailsAddToFavoriteBtn');
     //reuse the radiobrowser modal
-    const tbody = elGetById('modalRadiobrowserDetailsList');
-    elClearId('modalRadiobrowserDetailsList');
+    const table = elGetById('modalRadiobrowserDetailsList');
+    const tbody = table.querySelector('tbody');
+    elClear(tbody);
     const m3u = isStreamUri(uri)
         ? streamUriToName(uri) + '.m3u'
         : uri;
     const result = webradioDb.webradios[m3u];
+    if (result === undefined) {
+        tbody.appendChild(errorMsgEl({'error': {'message':'Webradio not found'}}, 1, 'table'));
+    }
     if (result.Image !== '') {
         elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(webradioDbPicsUri + result.Image);
     }

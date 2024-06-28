@@ -7,7 +7,7 @@
 #include "compile_time.h"
 #include "src/lib/mympd_state.h"
 
-#include "src/lib/album_cache.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/event.h"
 #include "src/lib/last_played.h"
 #include "src/lib/mem.h"
@@ -27,6 +27,14 @@
  * @param free_data true=free the struct, else not
  */
 void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
+    // write album cache to disc
+    // only for simple mode to save the cached uris
+    if (mympd_state->config->save_caches == true &&
+        mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE)
+    {
+        album_cache_write(&mympd_state->album_cache, mympd_state->config->workdir,
+            &mympd_state->mpd_state->tags_album, &mympd_state->config->albums, true);
+    }
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
         last_played_file_save(partition_state);
@@ -88,7 +96,6 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->lyrics.sylt_ext = sdsnew(MYMPD_LYRICS_SYLT_EXT);
     mympd_state->lyrics.vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT);
     mympd_state->lyrics.vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
-    mympd_state->listenbrainz_token = sdsempty();
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
     tags_reset(&mympd_state->smartpls_generate_tag_types);
     mympd_state->tag_disc_empty_is_first = MYMPD_TAG_DISC_EMPTY_IS_FIRST;
@@ -179,7 +186,6 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->lyrics.uslt_ext);
     FREE_SDS(mympd_state->lyrics.vorbis_uslt);
     FREE_SDS(mympd_state->lyrics.vorbis_sylt);
-    FREE_SDS(mympd_state->listenbrainz_token);
     FREE_SDS(mympd_state->booklet_name);
     FREE_SDS(mympd_state->info_txt_name);
     //struct itself
@@ -334,7 +340,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
         partition_state->is_default = true;
         //handle all
         partition_state->idle_mask = MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS |
-            MPD_IDLE_UPDATE | MPD_IDLE_PARTITION | MPD_IDLE_DATABASE | MPD_IDLE_STORED_PLAYLIST;
+            MPD_IDLE_UPDATE | MPD_IDLE_PARTITION | MPD_IDLE_DATABASE | MPD_IDLE_STORED_PLAYLIST | MPD_IDLE_SUBSCRIPTION | MPD_IDLE_MESSAGE;
     }
     else {
         partition_state->is_default = false;

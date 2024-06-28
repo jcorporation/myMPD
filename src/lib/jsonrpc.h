@@ -131,8 +131,10 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result, struct t_jsonrpc_parse_error *error);
 bool json_get_array_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error);
 bool json_get_array_int64(sds s, const char *path, struct t_list *l, int max_elements, struct t_jsonrpc_parse_error *error);
-bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error);
-bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error);
+bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_callback vcb_key,
+    validate_callback vcb_value, int max_elements, struct t_jsonrpc_parse_error *error);
+bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata,
+    validate_callback vcb_key, validate_callback vcb_value, int max_elements, struct t_jsonrpc_parse_error *error);
 bool json_get_fields(sds s, const char *path, struct t_fields *tags, int max_elements, struct t_jsonrpc_parse_error *error);
 bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error);
 

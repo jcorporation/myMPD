@@ -7,14 +7,15 @@
 #include "compile_time.h"
 #include "src/mympd_api/lyrics.h"
 
+#include "src/lib/cache_disk_lyrics.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
+#include "src/mympd_api/trigger.h"
 
-#include <errno.h>
 #include <string.h>
 
 //optional includes
@@ -39,40 +40,73 @@ static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char 
 
 /**
  * Gets synced and unsynced lyrics from filesystem and embedded
- * @param lyrics pointer to lyrics configuration
- * @param music_directory music directory of mpd
+ * @param mympd_state pointer to mympd_state
  * @param buffer buffer to write the response
- * @param request_id jsonrpc id
  * @param uri song uri 
+ * @param partition mpd partition
+ * @param conn_id mongoose connection id
+ * @param request_id jsonrpc id
  * @return pointer to buffer
  */
-sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffer, unsigned request_id, sds uri) {
+sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer,
+        sds uri, sds partition, unsigned long conn_id, unsigned request_id)
+{
     enum mympd_cmd_ids cmd_id = MYMPD_API_LYRICS_GET;
-    if (is_streamuri(uri) == true) {
-        MYMPD_LOG_ERROR(NULL, "Can not get lyrics for stream uri");
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
-            JSONRPC_FACILITY_LYRICS, JSONRPC_SEVERITY_ERROR, "Can not get lyrics for stream uri");
-        return buffer;
-    }
-    if (sdslen(music_directory) == 0) {
-        MYMPD_LOG_DEBUG(NULL, "Can not get lyrics, no access to music directory");
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
-            JSONRPC_FACILITY_LYRICS, JSONRPC_SEVERITY_INFO, "No lyrics found");
-        return buffer;
-    }
-
-    sds mediafile = sdscatfmt(sdsempty(), "%S/%S", music_directory, uri);
-    const char *mime_type_mediafile = get_mime_type_by_ext(mediafile);
     struct t_list extracted;
     list_init(&extracted);
-    lyrics_get(lyrics, &extracted, mediafile, mime_type_mediafile);
-    FREE_SDS(mediafile);
+
+    // check cache
+    sds cache_file = cache_disk_lyrics_get_name(mympd_state->config->cachedir, uri);
+    int nread = 0;
+    sds content = sds_getfile(sdsempty(), cache_file, CONTENT_LEN_MAX, true, false, &nread);
+    if (nread > 0) {
+        if (validate_json_object(content) == true) {
+            MYMPD_LOG_DEBUG(partition, "Found cached lyrics");
+            list_push(&extracted, content, 0, NULL, NULL);
+        }
+        else {
+            MYMPD_LOG_WARN(partition, "Invalid cached lyrics found, removing file");
+            rm_file(cache_file);
+        }
+    }
+    FREE_SDS(cache_file);
+    FREE_SDS(content);
+
+    // get lyrics only for local uri and if we have access to the mpd music directory
+    if (is_streamuri(uri) == false &&
+        sdslen(mympd_state->mpd_state->music_directory_value) > 0)
+    {
+        sds mediafile = sdscatfmt(sdsempty(), "%S/%S", mympd_state->mpd_state->music_directory_value, uri);
+        const char *mime_type_mediafile = get_mime_type_by_ext(mediafile);
+        lyrics_get(&mympd_state->lyrics, &extracted, mediafile, mime_type_mediafile);
+        FREE_SDS(mediafile);
+    }
 
     if (extracted.length == 0) {
+        #ifdef MYMPD_ENABLE_LUA
+            // no lyrics found, check if there is a trigger to fetch lyrics
+            struct t_list arguments;
+            list_init(&arguments);
+            list_push(&arguments, "uri", 0, uri, NULL);
+            int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_LYRICS,
+                    partition, conn_id, request_id, &arguments);
+            list_clear(&arguments);
+            if (n > 0) {
+                // return empty buffer, response must be send by triggered script
+                if (n > 1) {
+                    MYMPD_LOG_WARN(partition, "More than one script triggered for lyrics.");
+                }
+                return buffer;
+            }
+        #else
+            (void)conn_id;
+        #endif
+        // no trigger
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_LYRICS, JSONRPC_SEVERITY_INFO, "No lyrics found");
     }
     else {
+        // lyrics found
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
         struct t_list_node *current = NULL;

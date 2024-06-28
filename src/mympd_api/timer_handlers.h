@@ -11,7 +11,7 @@
 
 //internal timer ids
 enum timer_ids {
-    TIMER_ID_COVERCACHE_CROP = 1,
+    TIMER_ID_DISK_CACHE_CROP = 1,
     TIMER_ID_SMARTPLS_UPDATE = 2,
     TIMER_ID_CACHES_CREATE = 3
 };

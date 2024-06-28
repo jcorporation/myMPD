@@ -25,6 +25,10 @@
 #include "src/web_server/request_handler.h"
 #include "src/web_server/tagart.h"
 
+#ifdef MYMPD_ENABLE_LUA
+    #include "src/web_server/scripts.h"
+#endif
+
 #include <inttypes.h>
 #include <libgen.h>
 
@@ -39,6 +43,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
+static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
 static bool enforce_acl(struct mg_connection *nc, sds acl);
 static bool enforce_conn_limit(struct mg_connection *nc, int connection_count);
@@ -219,6 +224,7 @@ static void read_queue(struct mg_mgr *mgr) {
     struct t_work_response *response;
     while ((response = mympd_queue_shift(web_server_queue, -1, 0)) != NULL) {
         switch(response->type) {
+            case RESPONSE_TYPE_SCRIPT_DIALOG:
             case RESPONSE_TYPE_NOTIFY_CLIENT:
                 //websocket notify for specific clients
                 send_ws_notify_client(mgr, response);
@@ -244,6 +250,11 @@ static void read_queue(struct mg_mgr *mgr) {
                 //api response
                 MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lu\"", response->conn_id);
                 send_api_response(mgr, response);
+                break;
+            case RESPONSE_TYPE_RAW:
+                MYMPD_LOG_DEBUG(response->partition, "Got raw response for id \"%lu\" with %lu bytes", response->conn_id, (unsigned long)sdslen(response->data));
+                send_raw_response(mgr, response);
+                break;
             case RESPONSE_TYPE_SCRIPT:
             case RESPONSE_TYPE_DISCARD:
                 //ignore
@@ -411,13 +422,13 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
-    const unsigned clientId = response->id / 1000;
-    //const unsigned requestId = response->id % 1000;
+    const unsigned client_id = response->id / 1000;
+    //const unsigned request_id = response->id % 1000;
     while (nc != NULL) {
         if (nc->is_websocket == 1U) {
             struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
-            if (clientId == frontend_nc_data->id) {
-                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id \"%lu\", jsonrpc client id %u: %s", nc->id, clientId, response->data);
+            if (client_id == frontend_nc_data->id) {
+                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id \"%lu\", jsonrpc client id %u: %s", nc->id, client_id, response->data);
                 mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
                 send_count++;
                 break;
@@ -427,6 +438,25 @@ static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *re
     }
     if (send_count == 0) {
         MYMPD_LOG_DEBUG(NULL, "No websocket client connected, discarding message: %s", response->data);
+    }
+    free_response(response);
+}
+
+/**
+ * Sends a raw http response message
+ * @param mgr mongoose mgr
+ * @param response jsonrpc response
+ */
+static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *response) {
+    struct mg_connection *nc = mgr->conns;
+    while (nc != NULL) {
+        if (nc->is_websocket == 0U &&
+            nc->id == response->conn_id)
+        {
+            webserver_send_raw(nc, response->data, sdslen(response->data));
+            break;
+        }
+        nc = nc->next;
     }
     free_response(response);
 }
@@ -585,7 +615,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", (unsigned long)wm->data.len);
                 sent = mg_ws_send(nc, "too long", 8, WEBSOCKET_OP_TEXT);
             }
-            else if (mg_vcmp(&wm->data, "ping") == 0) {
+            else if (mg_strcmp(wm->data, mg_str("ping")) == 0) {
                 sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
             }
             else if (mg_match(wm->data, mg_str("id:*"), matches)) {
@@ -618,16 +648,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     (int)hm->uri.len, hm->uri.buf);
             }
             //limit allowed http methods
-            if (mg_vcmp(&hm->method, "GET") == 0) {
+            if (mg_strcmp(hm->method, mg_str("GET")) == 0) {
                 nc->data[1] = 'G';
             }
-            else if (mg_vcmp(&hm->method, "HEAD") == 0) {
+            else if (mg_strcmp(hm->method, mg_str("HEAD")) == 0) {
                 nc->data[1] = 'H';
             }
-            else if (mg_vcmp(&hm->method, "POST") == 0) {
+            else if (mg_strcmp(hm->method, mg_str("POST")) == 0) {
                 nc->data[1] = 'P';
             }
-            else if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
+            else if (mg_strcmp(hm->method, mg_str("OPTIONS")) == 0) {
                 nc->data[1] = 'O';
                 webserver_send_cors_reply(nc);
                 return;
@@ -655,7 +685,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             //respect connection close header
             struct mg_str *connection_hdr = mg_http_get_header(hm, "Connection");
             if (connection_hdr != NULL) {
-                if (mg_vcasecmp(connection_hdr, "close") == 0) {
+                if (mg_strcasecmp(*connection_hdr, mg_str("close")) == 0) {
                     nc->data[2] = 'C';
                 }
                 else {
@@ -710,7 +740,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 request_handler_folderart(nc, hm, mg_user_data);
             }
             else if (mg_match(hm->uri, mg_str("/tagart"), NULL)) {
-                request_handler_tagart(nc, hm, mg_user_data);
+                request_handler_tagart(nc, hm, mg_user_data, nc->id);
             }
             else if (mg_match(hm->uri, mg_str("/playlistart"), NULL)) {
                 request_handler_playlistart(nc, hm, mg_user_data);
@@ -753,6 +783,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/serverinfo"), NULL)) {
                 request_handler_serverinfo(nc);
             }
+        #ifdef MYMPD_ENABLE_LUA
             else if (mg_match(hm->uri, mg_str("/script-api/*"), NULL)) {
                 //enforce script acl
                 if (enforce_acl(nc, config->scriptacl) == false) {
@@ -773,6 +804,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     FREE_SDS(response);
                 }
             }
+            else if (mg_match(hm->uri, mg_str("/script/*/*"), NULL)) {
+                script_execute_http(nc, hm, config);
+            }
+        #endif
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-booklet"), NULL)) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_BOOKLET);
             }
@@ -792,10 +827,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 webserver_serve_placeholder_image(nc, PLACEHOLDER_SMARTPLS);
             }
             else if (mg_match(hm->uri, mg_str("/index.html"), NULL)) {
-                webserver_send_header_redirect(nc, "/");
+                webserver_send_header_redirect(nc, "/", "");
             }
             else if (mg_match(hm->uri, mg_str("/favicon.ico"), NULL)) {
-                webserver_send_header_redirect(nc, "/assets/appicon-192.png");
+                webserver_send_header_redirect(nc, "/assets/appicon-192.png", "");
             }
             else if (mg_match(hm->uri, mg_str("/ca.crt"), NULL)) {
                 request_handler_ca(nc, hm, mg_user_data);
@@ -876,8 +911,9 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             break;
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+            // Serve some directories without ssl
             if (mg_match(hm->uri, mg_str("/browse/webradios/*"), NULL)) {
-                //we serve the webradio directory without https to avoid the required ssl configuration for the mpd curl plugin
+                // myMPD webradio links
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                 s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
@@ -886,6 +922,12 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
                 mg_http_serve_dir(nc, hm, &s_http_server_opts);
                 break;
             }
+            #ifdef MYMPD_ENABLE_LUA
+                if (mg_match(hm->uri, mg_str("/script/*/*"), NULL)) {
+                    script_execute_http(nc, hm, config);
+                    break;
+                }
+            #endif
             //redirect to https
             struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
             if (host_hdr == NULL) {
@@ -902,7 +944,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
                 s_redirect = sdscatfmt(s_redirect, ":%i", config->ssl_port);
             }
             MYMPD_LOG_INFO(NULL, "Redirecting to %s", s_redirect);
-            webserver_send_header_redirect(nc, s_redirect);
+            webserver_send_header_found(nc, s_redirect, "");
             nc->is_draining = 1;
             sdsfreesplitres(tokens, count);
             FREE_SDS(host_header);

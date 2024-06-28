@@ -8,8 +8,8 @@
 #include "src/mympd_api/settings.h"
 
 #include "dist/mjson/mjson.h"
-#include "src/lib/album_cache.h"
 #include "src/lib/api.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/convert.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"
@@ -499,13 +499,6 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         }
         mympd_state->lyrics.vorbis_sylt = sds_replacelen(mympd_state->lyrics.vorbis_sylt, value, sdslen(value));
     }
-    else if (strcmp(key, "listenbrainzToken") == 0 && vtype == MJSON_TOK_STRING) {
-        if (vcb_isalnum(value) == false) {
-            set_invalid_value(error, path, key, value, "Must be an alphanumeric value");
-            return false;
-        }
-        mympd_state->listenbrainz_token = sds_replacelen(mympd_state->listenbrainz_token, value, sdslen(value));
-    }
     else if (strcmp(key, "tagDiscEmptyIsFirst") == 0) {
         if (vtype == MJSON_TOK_TRUE) {
             mympd_state->tag_disc_empty_is_first = true;
@@ -895,7 +888,6 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->lyrics.sylt_ext = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "lyrics_sylt_ext", mympd_state->lyrics.sylt_ext, vcb_isalnum, true);
     mympd_state->lyrics.vorbis_uslt = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "lyrics_vorbis_uslt", mympd_state->lyrics.vorbis_uslt, vcb_isalnum, true);
     mympd_state->lyrics.vorbis_sylt = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "lyrics_vorbis_sylt", mympd_state->lyrics.vorbis_sylt, vcb_isalnum, true);
-    mympd_state->listenbrainz_token = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "listenbrainz_token", mympd_state->listenbrainz_token, vcb_isalnum, true);
     mympd_state->navbar_icons = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "navbar_icons", mympd_state->navbar_icons, validate_json_array, true);
     mympd_state->tag_disc_empty_is_first = state_file_rw_bool(workdir, DIR_WORK_STATE, "tag_disc_empty_is_first", mympd_state->tag_disc_empty_is_first, true);
 
@@ -998,7 +990,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_raw(buffer, "viewBrowseRadioRadiobrowser", mympd_state->view_browse_radio_radiobrowser, true);
     buffer = tojson_raw(buffer, "viewBrowseRadioFavorites", mympd_state->view_browse_radio_favorites, true);
     buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);
-    buffer = tojson_sds(buffer, "listenbrainzToken", mympd_state->listenbrainz_token, true);
     buffer = tojson_bool(buffer, "tagDiscEmptyIsFirst", mympd_state->tag_disc_empty_is_first, true);
     buffer = tojson_char(buffer, "albumMode", lookup_album_mode(mympd_state->config->albums.mode), true);
     buffer = tojson_char(buffer, "albumGroupTag", mpd_tag_name(mympd_state->config->albums.group_tag), true);

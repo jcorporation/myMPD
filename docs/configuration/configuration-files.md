@@ -29,12 +29,14 @@ systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -
 | acl | string | MYMPD_ACL | | ACL to access the myMPD webserver: [ACL]({{ site.baseurl }}/configuration/acl), allows all hosts in the default configuration |
 | album_group_tag | string | MYMPD_ALBUM_GROUP_TAG | Date | Additional tag to group albums |
 | album_mode | string | MYMPD_ALBUM_MODE | adv | Set the album mode: `adv` or `simple` |
-| covercache_keep_days | number | MYMPD_COVERCACHE_KEEP_DAYS | 31 | How long to keep images in the covercache; 0 to disable the cache; -1 to disable pruning of the cache. |
+| cache_cover_keep_days | number | MYMPD_CACHE_COVER_KEEP_DAYS | 31 | How long to keep images in the cover cache; 0 to disable the cache; -1 to disable pruning of the cache. |
+| cache_lyrics_keep_days | number | MYMPD_CACHE_LYRICS_KEEP_DAYS | 31 | How long to keep lyrics in the lyrics cache; 0 to disable the cache; -1 to disable pruning of the cache. |
+| cache_misc_keep_days | number | MYMPD_CACHE_MISC_KEEP_DAYS | 1 | How long to keep files in the misc cache. |
+| cache_thumbs_keep_days | number | MYMPD_CACHE_THUMBS_KEEP_DAYS | 31 | How long to keep images in the thumbnail cache; 0 to disable the cache; -1 to disable pruning of the cache. |
 | http | boolean | MYMPD_HTTP | true | `true` = Enable listening on http_port |
 | http_host | string | MYMPD_HTTP_HOST | `[::]` | IP address to listen on, use `[::]` to listen on IPv6 and IPv4 |
 | http_port | number | MYMPD_HTTP_PORT | 80 | Port to listen for plain http requests. Redirects to `ssl_port` if `ssl` is set to `true`. *1 |
 | loglevel | number | MYMPD_LOGLEVEL | 5 | [Logging]({{ site.baseurl }}/configuration/logging) - this environment variable is always used |
-| lualibs | string | MYMPD_LUALIBS | all | Comma separated list of lua libraries to load, look at [Scripting - LUA standard libraries]({{ site.baseurl }}/scripting#lua-standard-libraries) |
 | mympd_uri | string | MYMPD_URI | auto | `auto` or uri to myMPD listening port, e.g. `https://192.168.1.1/mympd` |
 | pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |
 | save_caches | boolean | MYMPD_SAVE_CACHES | true | `true` = saves caches between restart, `false` = create caches on startup |

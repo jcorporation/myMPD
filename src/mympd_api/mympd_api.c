@@ -7,7 +7,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/mympd_api.h"
 
-#include "src/lib/album_cache.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/event.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/last_played.h"
@@ -51,7 +51,7 @@ void *mympd_api_loop(void *arg_config) {
     struct t_mympd_state *mympd_state = malloc_assert(sizeof(struct t_mympd_state));
     mympd_state_default(mympd_state, (struct t_config *)arg_config);
 
-    // start autoconfiguration, if mpd_host does not exist
+    // start auto configuration, if mpd_host does not exist
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/mpd_host", mympd_state->config->workdir, DIR_WORK_STATE);
     if (testfile_read(filepath) == false) {
         mpd_client_autoconf(mympd_state);
@@ -76,14 +76,12 @@ void *mympd_api_loop(void *arg_config) {
         album_cache_read(&mympd_state->album_cache, mympd_state->config->workdir, &mympd_state->config->albums);
     }
     // set timers
-    if (mympd_state->config->covercache_keep_days > 0) {
-        MYMPD_LOG_DEBUG(NULL, "Adding timer for \"crop covercache\" to execute periodic each day");
-        mympd_api_timer_add(&mympd_state->timer_list, TIMER_COVERCACHE_CLEANUP_OFFSET, TIMER_COVERCACHE_CLEANUP_INTERVAL,
-            timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
-    }
+    MYMPD_LOG_DEBUG(NULL, "Adding timer for cache cropping to execute periodic each day");
+    mympd_api_timer_add(&mympd_state->timer_list, TIMER_DISK_CACHE_CLEANUP_OFFSET, TIMER_DISK_CACHE_CLEANUP_INTERVAL,
+        timer_handler_by_id, TIMER_ID_DISK_CACHE_CROP, NULL);
 
     // start trigger
-    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START, MPD_PARTITION_ALL);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START, MPD_PARTITION_ALL, NULL);
 
     // push ready state to webserver
     struct t_work_response *web_server_response = create_response_new(RESPONSE_TYPE_PUSH_CONFIG, 0, 0, INTERNAL_API_WEBSERVER_READY, MPD_PARTITION_DEFAULT);
@@ -127,21 +125,12 @@ void *mympd_api_loop(void *arg_config) {
     MYMPD_LOG_DEBUG(NULL, "Stopping mympd_api thread");
 
     // stop trigger
-    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP, MPD_PARTITION_ALL);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP, MPD_PARTITION_ALL, NULL);
 
     // disconnect from mpd
     mpd_client_disconnect_all(mympd_state);
     if (mympd_state->stickerdb->conn != NULL) {
         stickerdb_disconnect(mympd_state->stickerdb);
-    }
-
-    // write album cache to disc
-    // only for simple mode to save the cached uris
-    if (mympd_state->config->save_caches == true &&
-        mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE)
-    {
-        album_cache_write(&mympd_state->album_cache, mympd_state->config->workdir,
-            &mympd_state->mpd_state->tags_album, &mympd_state->config->albums, true);
     }
 
     // save and free states

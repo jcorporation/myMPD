@@ -10,7 +10,7 @@
 
 #include "dist/utest/utest.h"
 #include "dist/libmympdclient/src/isong.h"
-#include "src/lib/album_cache.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/mpd_client/tags.h"
 
 #include <mpd/client.h>

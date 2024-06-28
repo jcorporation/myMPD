@@ -223,6 +223,22 @@ bool vcb_isfilename(sds data) {
 }
 
 /**
+ * Checks for dir traversal attempts in string
+ * @param str string to check
+ * @return true if filepath is sane, else false
+ */
+bool check_dir_traversal(const char *str) {
+    if (strncmp(str, "../", 3) == 0 ||
+        strncmp(str, "//", 2) == 0 ||
+        strstr(str, "/../") != NULL ||
+        strstr(str, "/./") != NULL)
+    {
+        return false;
+    }
+    return true;
+}
+
+/**
  * Checks if string is a valid filename with path or path only
  * @param data sds string to check
  * @return true on success else false
@@ -235,11 +251,7 @@ bool vcb_isfilepath(sds data) {
         MYMPD_LOG_WARN(NULL, "Illegal file path, found URI notation");
         return false;
     }
-    if (strncmp(data, "../", 3) == 0 ||
-        strncmp(data, "//", 2) == 0 ||
-        strstr(data, "/../") != NULL ||
-        strstr(data, "/./") != NULL)
-    {
+    if (check_dir_traversal(data) == false) {
         //prevent dir traversal
         MYMPD_LOG_WARN(NULL, "Found dir traversal in path \"%s\"", data);
         return false;

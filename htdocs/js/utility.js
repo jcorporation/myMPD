@@ -41,9 +41,13 @@ function ignoreKeys(event) {
  * @returns {boolean} true if target is clickable else false
  */
 function checkTargetClick(target) {
-    return target === null || target.classList.contains('not-clickable')
-        ? false
-        : true;
+    if (target === null ||
+        target.classList.contains('not-clickable') ||
+        target.parentNode.nodeName === 'TH')
+    {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -236,6 +240,9 @@ function splitFilename(filename) {
 function filetype(uri, long) {
     if (uri === undefined) {
         return '';
+    }
+    if (isStreamUri(uri) === true) {
+        return 'Stream';
     }
     const ext = uri.split('.').pop().toUpperCase();
     if (long === false) {
@@ -546,7 +553,7 @@ function initLinks(root) {
 }
 
 /**
- * Tries to convert a strint to number or bool
+ * Tries to convert a string to number or bool
  * @param {string} str string to convert
  * @returns {string|number|boolean} parsed string
  */

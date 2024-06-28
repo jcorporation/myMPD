@@ -21,7 +21,7 @@
  * Applies a preset
  * @param partition_state pointer to partition state
  * @param preset_name preset name
- * @param error pointer to alreay allocated sds string to append the error message
+ * @param error pointer to already allocated sds string to append the error message
  * @return true on success, else false
  */
 bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sds *error) {
@@ -29,7 +29,7 @@ bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sd
     if (preset != NULL) {
         struct t_jsonrpc_parse_error parse_error;
         jsonrpc_parse_error_init(&parse_error);
-        if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
+        if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, NULL, 100, &parse_error) == true) {
             if (partition_state->jukebox.mode != JUKEBOX_OFF) {
                 mympd_api_request_jukebox_restart(partition_state->name);
             }
@@ -102,10 +102,15 @@ bool preset_delete(struct t_list *preset_list, const char *preset_name) {
  * Callback function for presets_save
  * @param buffer buffer to append the line
  * @param current list node to print
+ * @param newline append a newline char
  * @return pointer to buffer
  */
-static sds preset_to_line_cb(sds buffer, struct t_list_node *current) {
-    return sdscatfmt(buffer, "%S\n", current->value_p);
+static sds preset_to_line_cb(sds buffer, struct t_list_node *current, bool newline) {
+    buffer = sdscatsds(buffer, current->value_p);
+    if (newline == true) {
+        buffer = sdscatlen(buffer, "\n", 1);
+    }
+    return buffer;
 }
 
 /**

@@ -321,7 +321,7 @@ struct t_timer_definition *mympd_api_timer_parse(sds str, const char *partition,
         json_get_string_max(str, "$.params.preset", &timer_def->preset, vcb_isname, error) == true &&
         json_get_uint(str, "$.params.volume", VOLUME_MIN, VOLUME_MAX, &timer_def->volume, error) == true &&
         json_get_string_max(str, "$.params.playlist", &timer_def->playlist, vcb_isfilename, error) == true &&
-        json_get_object_string(str, "$.params.arguments", &timer_def->arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, error) == true &&
+        json_get_object_string(str, "$.params.arguments", &timer_def->arguments, vcb_isalnum, vcb_isname, SCRIPT_ARGUMENTS_MAX, error) == true &&
         json_get_bool(str, "$.params.weekdays[0]", &timer_def->weekdays[0], error) == true &&
         json_get_bool(str, "$.params.weekdays[1]", &timer_def->weekdays[1], error) == true &&
         json_get_bool(str, "$.params.weekdays[2]", &timer_def->weekdays[2], error) == true &&

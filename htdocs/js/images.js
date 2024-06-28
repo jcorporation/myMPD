@@ -133,7 +133,9 @@ function zoomPicture(el) {
         return;
     }
 
-    if (el.classList.contains('carousel')) {
+    if (el.classList.contains('carousel') ||
+        el.parentNode.classList.contains('carousel'))
+    {
         let images;
         let embeddedImageCount;
         const dataImages = getData(el, 'images');

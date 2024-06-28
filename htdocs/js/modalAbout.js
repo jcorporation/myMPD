@@ -33,7 +33,7 @@ function initModalAbout() {
         if (keymap[key].feature !== undefined) {
             col.classList.add(keymap[key].feature);
         }
-        const k = elCreateText('div', {"class": ["key", "float-start"]}, (keymap[key].key !== undefined ? keymap[key].key : key));
+        const k = elCreateText('div', {"class": ["key", "float-start", "rounded-2"]}, (keymap[key].key !== undefined ? keymap[key].key : key));
         if (keymap[key].key && keymap[key].key.length > 1) {
             k.classList.add('mi', 'mi-sm');
         }

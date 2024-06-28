@@ -158,13 +158,17 @@ function viewClickHandler(event) {
 function viewRightClickHandler(event) {
     if (settings['view' + app.id].mode === 'table') {
         if (event.target.parentNode.classList.contains('not-clickable') ||
-            event.target.parentNode.parentNode.classList.contains('not-clickable'))
+            event.target.parentNode.parentNode.classList.contains('not-clickable') ||
+            event.target.nodeName === 'TH')
         {
             return;
         }
         showContextMenu(event);
     }
     else {
+        if (event.target.closest('.card').classList.contains('no-contextmenu')) {
+            return;
+        }
         if (event.target.classList.contains('card-title') ||
             event.target.classList.contains('card-body') ||
             event.target.parentNode.classList.contains('card-body') ||

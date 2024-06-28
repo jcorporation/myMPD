@@ -38,32 +38,21 @@ You can set the log level in the Maintenance dialog to `debug` and get the outpu
 
 ### Local socket connection
 
-MPD should listen on `/run/mpd/socket`. Point myMPD to `/run/mpd/socket-debug`.
+MPD is listening on `/run/mpd/socket`. Point myMPD to `/run/mpd/socket-debug`.
 
-```
+```sh
 socat -t100 -v UNIX-LISTEN:/run/mpd/socket-debug,mode=777,reuseaddr,fork UNIX-CONNECT:/run/mpd/socket
 ```
 
 ### TCP connection
 
-MPD should listen on a tpc port.
+MPD should listen on a tcp port.
 
-```
-tcpdump -nni any -vvv -x host <mpd host> and port <mpd port>
+```sh
+tcpdump -nni any -vvv -s0 -x host <mpd host> and port <mpd port>
 ```
 
 ## myMPD debug build
 
 - Build: `./build.sh debug`
-
-### If myMPD aborts with a segmentation fault
-
-- Run: `catchsegv debug/bin/mympd`
-
-### Memory leaks
-
 - Run: `valgrind --leakcheck=full debug/bin/mympd`
-
-### Other errors - get a calltrace
-
-- Run: `valgrind --tool=callgrind debug/bin/mympd`

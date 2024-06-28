@@ -8,34 +8,31 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
+#include "src/lib/config.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/mympd_state.h"
 #include "src/mympd_api/lyrics.h"
 
 UTEST(lyrics_id3, test_mympd_api_lyrics_get) {
-    sds music_directory = sdsnew(MYMPD_BUILD_DIR"/testfiles");
-    struct t_lyrics lyrics = {
-        .sylt_ext = sdsnew(MYMPD_LYRICS_SYLT_EXT),
-        .uslt_ext = sdsnew(MYMPD_LYRICS_USLT_EXT),
-        .vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT),
-        .vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT)
-    };
-    //id3v2
-    //testfile has synced and unsynced lyrics
+    struct t_config *config = malloc(sizeof(struct t_config));
+    mympd_config_defaults_initial(config);
+    mympd_config_defaults(config);
+    struct t_mympd_state *mympd_state = malloc(sizeof(struct t_mympd_state));
+    mympd_state_default(mympd_state, config);
+    mympd_state->mpd_state->music_directory_value = sdscat(mympd_state->mpd_state->music_directory_value, MYMPD_BUILD_DIR"/testfiles");
+
+    //flac
+    //testfile has unsynced lyrics
     sds uri = sdsnew("test.mp3");
-    sds buffer = mympd_api_lyrics_get(&lyrics, music_directory, sdsempty(), 0, uri);
+    sds partition = sdsnew("default");
+    sds buffer = mympd_api_lyrics_get(mympd_state, sdsempty(), uri, partition, 0, 0);
     int result = 0;
     json_get_int(buffer, "$.result.returnedEntities", 0, 20, &result, NULL);
     ASSERT_EQ(4, result);
-
-    sdsclear(buffer);
-    sdsclear(uri);
-
+    
     sdsfree(uri);
+    sdsfree(partition);
     sdsfree(buffer);
-    sdsfree(music_directory);
-    sdsfree(lyrics.sylt_ext);
-    sdsfree(lyrics.uslt_ext);
-    sdsfree(lyrics.vorbis_sylt);
-    sdsfree(lyrics.vorbis_uslt);
+    mympd_state_free(mympd_state);
+    mympd_config_free(config);
 }
