@@ -30,6 +30,16 @@ Upd: Remove radiobrowser integration #1311
 
 ***
 
+## myMPD 16.0.1 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: build with disabled lua #1317
+
+***
+
 ## myMPD 16.0.0 (2024-06-28)
 
 This release reworks and enhances the scripting functionality of myMPD. There are several new myMPD specific Lua functions and new usage scenarios for scripts. With this release scripts can respond to specific http requests.
