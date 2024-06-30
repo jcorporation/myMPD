@@ -78,12 +78,12 @@ void *mympd_api_loop(void *arg_config) {
     }
     //webradiodb
     if (mympd_state->config->webradiodb == true) {
-        webradios_read_from_disk(mympd_state->config, mympd_state->webradiodb, FILENAME_WEBRADIODB);
+        webradios_read_from_disk(mympd_state->config, mympd_state->webradiodb, FILENAME_WEBRADIODB, WEBRADIO_WEBRADIODB);
         MYMPD_LOG_DEBUG(NULL, "Adding timer for WebradioDB update to execute periodic each day");
         mympd_api_timer_add(&mympd_state->timer_list, TIMER_WEBRADIODB_UPDATE_OFFSET, TIMER_WEBRADIODB_UPDATE_INTERVAL,
             timer_handler_by_id, TIMER_ID_WEBRADIODB_UPDATE, NULL);
     }
-    webradios_read_from_disk(mympd_state->config, mympd_state->webradio_favorites, FILENAME_WEBRADIO_FAVORITES);
+    webradios_read_from_disk(mympd_state->config, mympd_state->webradio_favorites, FILENAME_WEBRADIO_FAVORITES, WEBRADIO_FAVORITE);
     // set timers
     MYMPD_LOG_DEBUG(NULL, "Adding timer for cache cropping to execute periodic each day");
     mympd_api_timer_add(&mympd_state->timer_list, TIMER_DISK_CACHE_CLEANUP_OFFSET, TIMER_DISK_CACHE_CLEANUP_INTERVAL,

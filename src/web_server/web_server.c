@@ -44,6 +44,7 @@ static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *response);
+static void send_redirect(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
 static bool enforce_acl(struct mg_connection *nc, sds acl);
 static bool enforce_conn_limit(struct mg_connection *nc, int connection_count);
@@ -255,6 +256,10 @@ static void read_queue(struct mg_mgr *mgr) {
                 MYMPD_LOG_DEBUG(response->partition, "Got raw response for id \"%lu\" with %lu bytes", response->conn_id, (unsigned long)sdslen(response->data));
                 send_raw_response(mgr, response);
                 break;
+            case RESPONSE_TYPE_REDIRECT:
+                MYMPD_LOG_DEBUG(response->partition, "Got redirect for id \"%lu\" to %s", response->conn_id, response->data);
+                send_redirect(mgr, response);
+                break;
             case RESPONSE_TYPE_SCRIPT:
             case RESPONSE_TYPE_DISCARD:
                 //ignore
@@ -453,6 +458,25 @@ static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *respon
             nc->id == response->conn_id)
         {
             webserver_send_raw(nc, response->data, sdslen(response->data));
+            break;
+        }
+        nc = nc->next;
+    }
+    free_response(response);
+}
+
+/**
+ * Sends a redirect http response message
+ * @param mgr mongoose mgr
+ * @param response jsonrpc response
+ */
+static void send_redirect(struct mg_mgr *mgr, struct t_work_response *response) {
+    struct mg_connection *nc = mgr->conns;
+    while (nc != NULL) {
+        if (nc->is_websocket == 0U &&
+            nc->id == response->conn_id)
+        {
+            webserver_send_header_redirect(nc, response->data, NULL);
             break;
         }
         nc = nc->next;
@@ -748,7 +772,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 request_handler_browse(nc, hm, mg_user_data);
             }
             else if (mg_match(hm->uri, mg_str("/webradio"), NULL)) {
-                //TODO: deliver extm3u for MPD
+                request_handler_extm3u(nc, hm);
             }
             else if (mg_match(hm->uri, mg_str("/ws/*"), NULL)) {
                 //check partition
@@ -915,13 +939,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             // Serve some directories without ssl
             if (mg_match(hm->uri, mg_str("/webradio"), NULL)) {
-                // myMPD webradio links
-                static struct mg_http_serve_opts s_http_server_opts;
-                s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
-                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-                s_http_server_opts.root_dir = mg_user_data->browse_directory;
-                MYMPD_LOG_INFO(NULL, "Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.buf);
-                mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                request_handler_extm3u(nc, hm);
                 break;
             }
             #ifdef MYMPD_ENABLE_LUA

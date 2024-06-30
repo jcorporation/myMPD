@@ -414,5 +414,6 @@ extern struct t_mympd_queue *mympd_api_queue;
 
 //WebradioDB
 #define WEBRADIODB_URI "https://jcorporation.github.io/webradiodb/db/index/webradios.min.json"
+#define WEBRADIODB_URI_PICS "https://jcorporation.github.io/webradiodb/db/pics/"
 
 #endif

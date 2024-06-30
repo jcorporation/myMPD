@@ -830,7 +830,7 @@ sds print_queue_entry(struct t_mympd_state *mympd_state, struct t_partition_stat
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, ",", 1);
     if (is_streamuri(uri) == true) {
-        sds webradio = webradio_from_uri_tojson(mympd_state, uri);
+        sds webradio = mympd_api_webradio_from_uri_tojson(mympd_state, uri);
         if (sdslen(webradio) > 0) {
             buffer = sdscat(buffer, "\"webradio\":");
             buffer = sdscatsds(buffer, webradio);

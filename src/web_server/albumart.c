@@ -173,16 +173,20 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         MYMPD_LOG_DEBUG(NULL, "Check for stream cover \"%s\"", coverfile);
         coverfile = webserver_find_image_file(coverfile);
         if (sdslen(coverfile) > 0) {
-            //found a local coverfile
+            // Found a local coverfile
             webserver_serve_file(nc, hm, mg_user_data->browse_directory, coverfile);
             FREE_SDS(uri);
             FREE_SDS(coverfile);
             return true;
         }
-        // TODO: get the webradio image
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
+        // Get the webradio image
+        MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_ALBUMART_WEBRADIO to mympdapi_queue");
+        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, 0, INTERNAL_API_ALBUMART_WEBRADIO, NULL, MPD_PARTITION_DEFAULT);
+        request->data = tojson_sds(request->data, "uri", uri, false);
+        request->data = jsonrpc_end(request->data);
+        mympd_queue_push(mympd_api_queue, request, 0);
         FREE_SDS(uri);
-        return true;
+        return false;
     }
 
     if (sdslen(mg_user_data->music_directory) > 0) {

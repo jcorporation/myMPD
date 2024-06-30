@@ -58,6 +58,7 @@
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
 #include "src/mympd_api/volume.h"
+#include "src/mympd_api/webradio.h"
 #include "src/mympd_api/webradio_favorites.h"
 #include "src/mympd_api/webradiodb.h"
 
@@ -93,10 +94,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     sds sds_buf4 = NULL;
     sds sds_buf5 = NULL;
     sds sds_buf6 = NULL;
-    sds sds_buf7 = NULL;
-    sds sds_buf8 = NULL;
-    sds sds_buf9 = NULL;
-    sds sds_buf10 = NULL;
     sds error = sdsempty();
     bool async = false;
 
@@ -1590,16 +1587,16 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             break;
         case MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME:
-            if (json_get_string(request->data, "$.params.name", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
-                response->data = mympd_api_webradio_favorite_get_by_name(mympd_state->webradio_favorites, response->data, request->id, sds_buf1);
+            if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
+                response->data = mympd_api_webradiodb_radio_get_by_name(mympd_state->webradiodb, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI:
-            if (json_get_string(request->data, "$.params.uri", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isuri, &parse_error) == true) {
-                response->data = mympd_api_webradio_favorite_get_by_uri(mympd_state->webradio_favorites, response->data, request->id, sds_buf1);
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &parse_error) == true) {
+                response->data = mympd_api_webradiodb_radio_get_by_uri(mympd_state->webradiodb, response->data, request->id, sds_buf1);
             }
             break;
-        case MYMPD_API_WEBRADIODB_SEARCH:
+        case MYMPD_API_WEBRADIODB_SEARCH: {
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &parse_error) == true &&
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true)
@@ -1607,8 +1604,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 //TODO
             }
             break;
+        }
     // webradio favorites
-        case MYMPD_API_WEBRADIO_FAVORITE_SEARCH:
+        case MYMPD_API_WEBRADIO_FAVORITE_SEARCH: {
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &parse_error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true)
@@ -1616,18 +1614,19 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 //TODO
             }
             break;
+        }
         case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_NAME:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
                 response->data = mympd_api_webradio_favorite_get_by_name(mympd_state->webradio_favorites, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI:
-            if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isuri, &parse_error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &parse_error) == true) {
                 response->data = mympd_api_webradio_favorite_get_by_uri(mympd_state->webradio_favorites, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_SAVE: {
-            struct t_webradio_data *webradio = webradio_data_new();
+            struct t_webradio_data *webradio = webradio_data_new(WEBRADIO_FAVORITE);
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &webradio->name, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.streamUri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &parse_error) == true &&
                 json_get_string(request->data, "$.params.oldName", 0, FILEPATH_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true &&
@@ -1666,6 +1665,18 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             list_clear(&ids);
             break;
         }
+    // webradios
+        case INTERNAL_API_ALBUMART_WEBRADIO:
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
+                response->data = mympd_api_webradio_get_cover_by_uri(mympd_state, response->data, sds_buf1);
+                response->type = RESPONSE_TYPE_REDIRECT;
+            }
+            break;
+        case INTERNAL_API_WEBRADIO_EXTM3U:
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
+                response->data = mympd_api_webradio_get_extm3u(mympd_state, response->data, sds_buf1);
+            }
+            break;
     // unhandled method
         default:
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -1680,10 +1691,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     FREE_SDS(sds_buf4);
     FREE_SDS(sds_buf5);
     FREE_SDS(sds_buf6);
-    FREE_SDS(sds_buf7);
-    FREE_SDS(sds_buf8);
-    FREE_SDS(sds_buf9);
-    FREE_SDS(sds_buf10);
 
     #ifdef MYMPD_DEBUG
         MEASURE_END

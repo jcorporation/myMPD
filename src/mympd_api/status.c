@@ -354,7 +354,7 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, struct t_pa
         buffer = json_comma(buffer);
         buffer = mympd_api_get_extra_media(buffer, partition_state->mpd_state, mympd_state->booklet_name, mympd_state->info_txt_name, uri, false);
         if (is_streamuri(uri) == true) {
-            sds webradio = webradio_from_uri_tojson(mympd_state, uri);
+            sds webradio = mympd_api_webradio_from_uri_tojson(mympd_state, uri);
             if (sdslen(webradio) > 0) {
                 buffer = sdscat(buffer, ",\"webradio\":");
                 buffer = sdscatsds(buffer, webradio);

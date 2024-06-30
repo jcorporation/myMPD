@@ -2181,12 +2181,12 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_WEBRADIO_FAVORITE_LIST": {
-        "desc": "Lists webradio favorites.",
+    "MYMPD_API_WEBRADIO_FAVORITE_SEARCH": {
+        "desc": "Search webradio favorites.",
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "searchstr": APIparams.searchstr
+            "expression": APIparams.expression
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_SAVE": {
@@ -2254,13 +2254,23 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_WEBRADIO_FAVORITE_GET": {
-        "desc": "Gets a webradio favorite.",
+    "MYMPD_API_WEBRADIO_FAVORITE_GET_BY_NAME": {
+        "desc": "Gets a webradio favorite by name.",
         "params": {
-            "filename": {
+            "name": {
                 "type": APItypes.string,
-                "example": "https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u",
+                "example": "SWR1 BW",
                 "desc": "Name of the webradio favorite to get."
+            }
+        }
+    },
+    "MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI": {
+        "desc": "Gets a WebradioDB entry by uri.",
+        "params": {
+            "uri": {
+                "type": APItypes.string,
+                "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+                "desc": "Stream uri of the webradio to get."
             }
         }
     },
@@ -2269,8 +2279,8 @@ const APImethods = {
         "params": {
             "filenames": {
                 "type": APItypes.array,
-                "example": "[\"https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u\"]",
-                "desc": "Filenames of the webradio favorites to delete."
+                "example": "[\"SWR1 BW\"]",
+                "desc": "Names of the webradio favorites to delete."
             }
         }
     },
@@ -2281,6 +2291,34 @@ const APImethods = {
                 "type": APItypes.bool,
                 "example": false,
                 "desc": "true = forces an update"
+            }
+        }
+    },
+    "MYMPD_API_WEBRADIODB_SEARCH": {
+        "desc": "Search WebradioDB.",
+        "params": {
+            "offset": APIparams.offset,
+            "limit": APIparams.limit,
+            "expression": APIparams.expression
+        }
+    },
+    "MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME": {
+        "desc": "Gets a WebradioDB entry ny name.",
+        "params": {
+            "name": {
+                "type": APItypes.string,
+                "example": "SWR1 BW",
+                "desc": "Name of the webradio to get."
+            }
+        }
+    },
+    "MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI": {
+        "desc": "Gets a WebradioDB entry by uri.",
+        "params": {
+            "uri": {
+                "type": APItypes.string,
+                "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+                "desc": "Stream uri of the webradio to get."
             }
         }
     }

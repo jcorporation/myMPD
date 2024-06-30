@@ -13,12 +13,13 @@
 #include "src/lib/mem.h"
 #include "src/lib/mpack.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 /**
  * Creates a new webradio data struct
  * @return struct t_webradio_data* 
  */
-struct t_webradio_data *webradio_data_new(void) {
+struct t_webradio_data *webradio_data_new(enum webradio_type type) {
     struct t_webradio_data *data = malloc_assert(sizeof(struct t_webradio_data));
     list_init(&data->uris);
     list_init(&data->genres);
@@ -29,6 +30,7 @@ struct t_webradio_data *webradio_data_new(void) {
     data->country = NULL;
     data->state = NULL;
     data->description = NULL;
+    data->type = type;
     return data;
 }
 
@@ -51,6 +53,57 @@ void webradio_data_free(struct t_webradio_data *data) {
     FREE_SDS(data->description);
     // pointer data itself
     FREE_PTR(data);
+}
+
+/**
+ * Returns the uri for the webradio image
+ * @param webradio Webradio struct
+ * @param buffer buffer to append the uri
+ * @return pointer to buffer
+ */
+sds webradio_get_cover_uri(struct t_webradio_data *webradio, sds buffer) {
+    if (webradio->type == WEBRADIO_WEBRADIODB) {
+        buffer = sdscat(buffer, "/proxy-covercache?uri=");
+        buffer = sds_urlencode(buffer, WEBRADIODB_URI_PICS, strlen(WEBRADIODB_URI_PICS));
+        buffer = sds_urlencode(buffer, webradio->image, sdslen(webradio->image));
+    }
+    else if (is_streamuri(webradio->image) == true) {
+        buffer = sdscat(buffer, "/proxy-covercache?uri=");
+        buffer = sds_urlencode(buffer, webradio->image, sdslen(webradio->image));
+    }
+    else {
+        buffer = sdscat(buffer, "/browse/pics/thumbs/");
+        buffer = sds_urlencode(buffer, webradio->image, sdslen(webradio->image));
+    }
+    return buffer;
+}
+
+/**
+ * Returns the webradio type as string literal
+ * @param type webradio type
+ * @return Name of the webradio type
+ */
+const char *webradio_type_name(enum webradio_type type) {
+    return type == WEBRADIO_WEBRADIODB 
+        ? "webradiodb"
+        : "favorite";
+}
+
+/**
+ * Returns an extm3u for a webradio
+ * @param webradio Pointer to webradio struct
+ * @param buffer Already allocated buffer to append the extm3u
+ * @param uri Optional uri. If NULL use the first uri from the webradio entry.
+ * @return Pointer to buffer
+ */
+sds webradio_to_extm3u(struct t_webradio_data *webradio, sds buffer, const char *uri) {
+    return sdscatfmt(buffer, "#EXTM3U\n"
+        "#EXTINF:-1,%s\n"
+        "#PLAYLIST:%s\n"
+        "%s\n",
+        webradio->name,
+        webradio->name,
+        (uri == NULL ? webradio->uris.head->key : uri));
 }
 
 /**
@@ -102,8 +155,8 @@ void webradios_free(struct t_webradios *webradios) {
  * @return true on success, else false
  */
 bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradios, const char *filename) {
-    if (webradios == NULL) {
-        MYMPD_LOG_DEBUG(NULL, "Webradio is NULL not saving anything");
+    if (webradios->db == NULL) {
+        MYMPD_LOG_DEBUG(NULL, "Webradios is NULL not saving anything");
         return true;
     }
     MYMPD_LOG_INFO(NULL, "Saving webradios to disc (%s)", filename);
@@ -194,7 +247,7 @@ bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradi
  * @param filename file to read
  * @return true on success, else false
  */
-bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webradios, const char *filename) {
+bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webradios, const char *filename, enum webradio_type type) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", config->workdir, DIR_WORK_TAGS, filename);
     if (testfile_read(filepath) == false) {
         FREE_SDS(filepath);
@@ -214,7 +267,7 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
     sds codec = sdsempty();
     for (size_t i = 0; i < len; i++) {
         mpack_node_t entry = mpack_node_array_at(root, i);
-        struct t_webradio_data *data = webradio_data_new();
+        struct t_webradio_data *data = webradio_data_new(type);
         data->name = mpackstr_sds(entry, "Name");
         data->image = mpackstr_sds(entry, "Image");
         data->homepage = mpackstr_sds(entry, "Homepage");
@@ -225,7 +278,7 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
         size_t genre_len = mpack_node_array_length(genre_node);
         for (size_t j = 0; j < genre_len; j++) {
             mpack_node_t array_node = mpack_node_array_at(genre_node, j);
-            list_push_len(&data->languages, mpack_node_str(array_node), mpack_node_data_len(array_node),0, NULL, 0, NULL);
+            list_push_len(&data->genres, mpack_node_str(array_node), mpack_node_data_len(array_node),0, NULL, 0, NULL);
         }
         mpack_node_t lang_node = mpack_node_map_cstr(entry, "Languages");
         size_t lang_len = mpack_node_array_length(lang_node);

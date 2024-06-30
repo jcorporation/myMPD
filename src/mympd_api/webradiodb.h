@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_API_WEBRADIO_FAVORITES_H
-#define MYMPD_API_WEBRADIO_FAVORITES_H
+#ifndef MYMPD_API_WEBRADIODB_H
+#define MYMPD_API_WEBRADIODB_H
 
 #include "dist/sds/sds.h"
 #include "src/lib/webradio.h"

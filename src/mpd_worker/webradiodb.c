@@ -14,7 +14,6 @@
 #include "src/lib/http_client.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/webradio.h"
@@ -165,7 +164,7 @@ static bool icb_webradio_alternate(const char *path, sds key, sds value, int vty
  * @return struct t_webradio_data* 
  */
 static struct t_webradio_data *parse_webradiodb_data(sds str) {
-    struct t_webradio_data *data = webradio_data_new();
+    struct t_webradio_data *data = webradio_data_new(WEBRADIO_WEBRADIODB);
     struct t_jsonrpc_parse_error parse_error;
     jsonrpc_parse_error_init(&parse_error);
     sds uri = NULL;

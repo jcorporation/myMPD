@@ -10,6 +10,7 @@
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/sessions.h"
@@ -222,17 +223,10 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
 void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
         struct mg_connection *backend_nc)
 {
-    sds query = sdsnewlen(hm->query.buf, hm->query.len);
-    sds uri_decoded = sdsempty();
-    if (sdslen(query) > 4 &&
-        strncmp(query, "uri=", 4) == 0)
-    {
-        //remove uri=
-        sdsrange(query, 4, -1);
-        //decode uri
-        uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
-        if (is_allowed_proxy_uri(uri_decoded) == true) {
-            create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_stream, true);
+    sds uri = get_uri_param(&hm->query, "uri=");
+    if (uri != NULL) {
+        if (is_allowed_proxy_uri(uri) == true) {
+            create_backend_connection(nc, backend_nc, uri, forward_backend_to_frontend_stream, true);
         }
         else {
             webserver_send_error(nc, 403, "Host is not allowed");
@@ -243,8 +237,7 @@ void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
         webserver_send_error(nc, 400, "Invalid query parameter");
         nc->is_draining = 1;
     }
-    FREE_SDS(query);
-    FREE_SDS(uri_decoded);
+    FREE_SDS(uri);
 }
 
 /**
@@ -256,26 +249,18 @@ void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
 void request_handler_proxy_covercache(struct mg_connection *nc, struct mg_http_message *hm,
         struct mg_connection *backend_nc)
 {
-    sds query = sdsnewlen(hm->query.buf, hm->query.len);
-    sds uri_decoded = sdsempty();
-    if (sdslen(query) > 4 &&
-        strncmp(query, "uri=", 4) == 0)
-    {
-        //remove uri=
-        sdsrange(query, 4, -1);
-        //decode uri
-        uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
+    sds uri = get_uri_param(&hm->query, "uri=");
+    if (uri != NULL) {
         struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)nc->mgr->userdata;
-        if (check_imagescache(nc, hm, mg_user_data, DIR_CACHE_COVER, uri_decoded, 0) == false) {
-            create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_covercache, false);
+        if (check_imagescache(nc, hm, mg_user_data, DIR_CACHE_COVER, uri, 0) == false) {
+            create_backend_connection(nc, backend_nc, uri, forward_backend_to_frontend_covercache, false);
         }
     }
     else {
         webserver_send_error(nc, 400, "Invalid query parameter");
         nc->is_draining = 1;
     }
-    FREE_SDS(query);
-    FREE_SDS(uri_decoded);
+    FREE_SDS(uri);
 }
 
 /**
@@ -332,4 +317,26 @@ void request_handler_ca(struct mg_connection *nc, struct mg_http_message *hm,
     else {
         webserver_send_error(nc, 404, "Custom cert enabled, don't deliver myMPD ca");
     }
+}
+
+/**
+ * Request handler for /webradio to retrieve an extm3u for a webradio.
+ * Sends the request to the mympd_api thread.
+ * @param nc mongoose connection
+ * @param hm http message
+ */
+void request_handler_extm3u(struct mg_connection *nc, struct mg_http_message *hm) {
+    sds uri = get_uri_param(&hm->query, "uri=");
+    if (uri != NULL) {
+        MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_WEBRADIO_EXTM3U to mympdapi_queue");
+        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_WEBRADIO_EXTM3U, NULL, MPD_PARTITION_DEFAULT);
+        request->data = tojson_sds(request->data, "uri", uri, false);
+        request->data = jsonrpc_end(request->data);
+        mympd_queue_push(mympd_api_queue, request, 0);
+    }
+    else {
+        webserver_send_error(nc, 400, "Invalid uri");
+        nc->is_draining = 1;
+    }
+    FREE_SDS(uri);
 }
