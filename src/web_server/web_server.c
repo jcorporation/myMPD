@@ -43,6 +43,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
+static struct mg_connection *get_nc_by_id(struct mg_mgr *mgr, unsigned long id);
 static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
 static bool enforce_acl(struct mg_connection *nc, sds acl);
@@ -443,20 +444,31 @@ static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *re
 }
 
 /**
+ * Returns the mongoose connection by id
+ * @param mgr mongoose mgr
+ * @param id connection id
+ * @return struct mg_connection* or NULL if not found
+ */
+static struct mg_connection *get_nc_by_id(struct mg_mgr *mgr, unsigned long id) {
+    struct mg_connection *nc = mgr->conns;
+    while (nc != NULL) {
+        if (nc->id == id) {
+            return nc;
+        }
+        nc = nc->next;
+    }
+    return NULL;
+}
+
+/**
  * Sends a raw http response message
  * @param mgr mongoose mgr
  * @param response jsonrpc response
  */
 static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *response) {
-    struct mg_connection *nc = mgr->conns;
-    while (nc != NULL) {
-        if (nc->is_websocket == 0U &&
-            nc->id == response->conn_id)
-        {
-            webserver_send_raw(nc, response->data, sdslen(response->data));
-            break;
-        }
-        nc = nc->next;
+    struct mg_connection *nc = get_nc_by_id(mgr, response->conn_id);
+    if (nc != NULL) {
+        webserver_send_raw(nc, response->data, sdslen(response->data));
     }
     free_response(response);
 }
@@ -467,24 +479,22 @@ static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *respon
  * @param response jsonrpc response
  */
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response) {
-    struct mg_connection *nc = mgr->conns;
-    while (nc != NULL) {
-        if (nc->is_websocket == 0U &&
-            nc->id == response->conn_id)
-        {
-            if (response->cmd_id == INTERNAL_API_ALBUMART_BY_URI) {
+    struct mg_connection *nc = get_nc_by_id(mgr, response->conn_id);
+    if (nc != NULL) {
+        switch(response->cmd_id) {
+            case INTERNAL_API_ALBUMART_BY_URI:
                 webserver_send_albumart(nc, response->data, response->binary);
-            }
-            else if (response->cmd_id == INTERNAL_API_ALBUMART_BY_ALBUMID) {
+                break;
+            case INTERNAL_API_ALBUMART_BY_ALBUMID:
                 webserver_send_albumart_redirect(nc, response->data);
-            }
-            else {
+                break;
+            case INTERNAL_API_TAGART:
+                webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+                break;
+            default:
                 MYMPD_LOG_DEBUG(response->partition, "Sending response to conn_id \"%lu\" (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
                 webserver_send_data(nc, response->data, sdslen(response->data), EXTRA_HEADERS_JSON_CONTENT);
-            }
-            break;
         }
-        nc = nc->next;
     }
     free_response(response);
 }
