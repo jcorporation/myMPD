@@ -109,8 +109,8 @@ You can add custom placeholder images for albumart.
 
 You can use every supported file extension.
 
-## Covercache
+## Picture caches
 
-myMPD caches covers in the folder `/var/cache/mympd/cover`. Files in this folder can be safely deleted. myMPD housekeeps the covercache on startup and each day.
+myMPD caches covers in the folder `/var/cache/mympd/cover` and pictures for other tags in `/var/cache/mympd/thumbs`. Files in this folders can be safely deleted. myMPD housekeeps the caches on startup and each day.
 
-You can disable the covercache by setting the `covercache_keep_days` configuration value to `0` or disable the cleanup of the cache by setting it to `-1`.
+You can disable the caches by setting the `cache_cover_keep_days` or `cache_thumbs_keep_days` configuration value to `0` or disable the cleanup of the cache by setting it to `-1`.
