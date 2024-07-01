@@ -25,7 +25,7 @@
  */
 int lua_caches_update_mtime(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
-    if (n != 2) {
+    if (n != 1) {
         MYMPD_LOG_ERROR(NULL, "Lua - caches_update_mtime: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
@@ -41,7 +41,7 @@ int lua_caches_update_mtime(lua_State *lua_vm) {
     if (update_mtime(filename) == true) {
         lua_pushnumber(lua_vm, 0);
     }
-    lua_pushnumber(lua_vm, 0);
+    lua_pushnumber(lua_vm, 1);
     return 1;
 }
 

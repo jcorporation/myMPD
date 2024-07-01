@@ -101,6 +101,7 @@ void send_backend_request(struct mg_connection *nc) {
         "Host: %.*s\r\n"
         "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
         "Accept: */*\r\n"
+        "Accept-Encoding: none\r\n"
         "Connection: close\r\n"
         "\r\n",
         mg_url_uri(backend_nc_data->uri),

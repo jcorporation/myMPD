@@ -36,7 +36,10 @@ This is a small bug fix release.
 
 ### Changelog
 
-- Fix: build with disabled lua #1317
+- Fix: Build with disabled lua #1317
+- Fix: Server placeholder image if tagart was not found #1320
+- Fix: mympd.update_mtime lua function
+- Upd: Send "Accept-Encoding: none" header for http client connections
 
 ***
 
