@@ -91,7 +91,9 @@ function initModalScripts() {
         if (event.target.nodeName === 'A') {
             return;
         }
-        importScript(target);
+        if (target !== null) {
+            importScript(target);
+        }
     }, false);
 }
 
@@ -433,6 +435,7 @@ function parseScriptList(obj) {
             //script list in scripts modal
             const tr = elCreateNodes('tr', {"title": tn('Edit')}, [
                 elCreateText('td', {}, obj.result.data[i].name),
+                elCreateText('td', {}, obj.result.data[i].metadata.order),
                 elCreateNodes('td', {"data-col": "Action"}, [
                     elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
                     elCreateText('a', {"href": "#", "data-title-phrase": "Execute", "data-action": "execute", "class": ["me-2", "mi", "color-darkgrey"]}, 'play_arrow'),
@@ -440,6 +443,7 @@ function parseScriptList(obj) {
                 ])
             ]);
             setData(tr, 'script', obj.result.data[i].name);
+            tr.setAttribute('data-file', obj.result.data[i].metadata.file);
             setData(tr, 'href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
             tbodyScripts.appendChild(tr);
 
@@ -489,8 +493,11 @@ function showImportScript() {
     httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + 'index.json'), function(obj) {
         for (const key in obj) {
             const script = obj[key];
+            const clickable = elGetById('modalScriptsList').querySelector('[data-file="' + key + '"') === null
+                ? 'clickable'
+                : 'disabled';
             list.appendChild(
-                elCreateNodes('li', {"data-script": key, "class": ["list-group-item", "list-group-item-action", "clickable"],
+                elCreateNodes('li', {"data-script": key, "class": ["list-group-item", "list-group-item-action", clickable],
                     "title": tn("Import"), "data-title-phrase": "Import"}, [
                     elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
                         elCreateText('h5', {}, script.name),
