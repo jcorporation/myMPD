@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Implicit conversion creating keys on systems with OpenSSL 1.1.x #1323
+
 ***
 
 ## myMPD 16.0.1 (2024-07-03)
