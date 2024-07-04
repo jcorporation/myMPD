@@ -663,7 +663,7 @@ static EVP_PKEY *generate_keypair(int key_type, unsigned int key_bits) {
             EVP_PKEY_CTX_free(ctx);
             return NULL;
         }
-        if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, key_bits) <= 0) {
+        if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, (int)key_bits) <= 0) {
             EVP_PKEY_CTX_free(ctx);
             return NULL;
         }

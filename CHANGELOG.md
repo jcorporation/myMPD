@@ -30,6 +30,17 @@ Upd: Remove radiobrowser integration #1311
 
 ***
 
+## myMPD 16.0.2 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Implicit conversion creating keys on systems with OpenSSL 1.1.x #1323
+- Fix: Request stored playlist entries in chunks (MPD 0.24)
+
+***
+
 ## myMPD 16.0.1 (2024-07-03)
 
 This is a small bug fix release.
