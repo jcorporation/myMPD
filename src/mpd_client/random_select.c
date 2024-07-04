@@ -206,6 +206,10 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
         MYMPD_LOG_DEBUG(NULL, "Exclude expression is empty");
     }
 
+    // Request results from mpd in chunks of MPD_RESULTS_MAX
+    // Only MPD 0.24 supports this for playlists
+    bool iterate = from_database || partition_state->mpd_state->feat.listplaylist_range;
+
     do {
         MYMPD_LOG_DEBUG(partition_state->name, "Iterating through source, start: %u", start);
         if (from_database == true) {
@@ -218,6 +222,11 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
             }
             else {
                 mpd_search_commit(partition_state->conn);
+            }
+        }
+        else if (partition_state->mpd_state->feat.listplaylist_range == true) {
+            if (mpd_send_list_playlist_range_meta(partition_state->conn, playlist, start, end) == false) {
+                MYMPD_LOG_ERROR(partition_state->name, "Error in response to command: mpd_send_list_playlist_meta");
             }
         }
         else {
@@ -269,7 +278,7 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
-    } while (from_database == true && lineno + skipno > start);
+    } while (iterate == true && lineno + skipno > start);
     stickerdb_free_find_result(stickers_last_played);
     stickerdb_free_find_result(stickers_like);
     free_search_expression_list(include_expr_list);
