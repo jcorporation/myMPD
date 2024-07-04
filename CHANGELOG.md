@@ -10,6 +10,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: zh-Hans translation
 - Fix: Implicit conversion creating keys on systems with OpenSSL 1.1.x #1323
 - Fix: Request stored playlist entries in chunks (MPD 0.24)
 
