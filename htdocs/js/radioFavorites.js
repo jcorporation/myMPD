@@ -39,7 +39,7 @@ function deleteRadioFavorites(filenames) {
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_RM", {
         "filenames": filenames
     }, function() {
-        getRadioFavoriteList();
+        handleBrowseRadioFavorites();
     }, false);
 }
 

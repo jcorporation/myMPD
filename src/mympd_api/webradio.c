@@ -19,13 +19,16 @@
  * @param webradio_favorites Webradio favorites struct
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
- * @param expression string to search
+ * @param cmd_id API ID
  * @param offset offset for the list
  * @param limit maximum entries to print
+ * @param expression string to search
+ * @param sort Sort tag
+ * @param sort_desc Sort descending?
  * @return pointer to buffer
  */
 sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigned request_id,
-    enum mympd_cmd_ids cmd_id, unsigned offset, unsigned limit, sds expression)
+    enum mympd_cmd_ids cmd_id, unsigned offset, unsigned limit, sds expression, sds sort, bool sort_desc)
 {
     if (webradios->db == NULL) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
@@ -40,6 +43,9 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     raxIterator iter;
     raxStart(&iter, webradios->db);
     raxSeek(&iter, "^", NULL, 0);
+    //TODO: implement sorting
+    (void) sort;
+    (void) sort_desc;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
             buffer = sdscat(buffer,"\"data\":[");
     while (raxNext(&iter)) {
@@ -49,7 +55,9 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
                 if (entities_returned++) {
                     buffer= sdscatlen(buffer, ",", 1);
                 }
+                buffer = sdscatlen(buffer, "{", 1);
                 buffer = mympd_api_webradio_print(webradio_data, buffer);
+                buffer = sdscatlen(buffer, "}", 1);
             }
             entities_found++;
             if (entities_found == real_limit) {
@@ -85,7 +93,9 @@ sds mympd_api_webradio_from_uri_tojson(struct t_mympd_state *mympd_state, const 
     sds buffer = sdsempty();
     struct t_webradio_data *webradio = mympd_api_webradio_by_uri(mympd_state, uri, WEBRADIO_ALL);
     if (webradio != NULL) {
+        buffer = sdscatlen(buffer, "{", 1);
         buffer = mympd_api_webradio_print(webradio, buffer);
+        buffer = sdscatlen(buffer, "}", 1);
     }
     return buffer;
 }
@@ -97,14 +107,13 @@ sds mympd_api_webradio_from_uri_tojson(struct t_mympd_state *mympd_state, const 
  * @return pointer to buffer
  */
 sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
-    buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_sds(buffer, "Name", webradio->name, true);
     sds image = webradio_get_cover_uri(webradio, sdsempty());
     buffer = tojson_sds(buffer, "Image", image, true);
     FREE_SDS(image);
     buffer = tojson_sds(buffer, "Homepage", webradio->homepage, true);
     buffer = tojson_sds(buffer, "Country", webradio->country, true);
-    buffer = tojson_sds(buffer, "State", webradio->state, true);
+    buffer = tojson_sds(buffer, "Region", webradio->region, true);
     buffer = tojson_sds(buffer, "Description", webradio->description, true);
     struct t_list_node *current = webradio->uris.head;
     buffer = tojson_sds(buffer, "StreamUri", current->key, true);
@@ -133,7 +142,6 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
     buffer = list_to_json_array(buffer, &webradio->languages);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_char(buffer, "Type", webradio_type_name(webradio->type), false);
-    buffer = sdscatlen(buffer, "}", 1);
     return buffer;
 }
 
@@ -157,7 +165,6 @@ sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buff
     }
     struct t_webradio_data *webradio = (struct t_webradio_data *)data;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = sdscat(buffer, "\"data\":");
     buffer = mympd_api_webradio_print(webradio, buffer);
     buffer = jsonrpc_end(buffer);
     return buffer;
@@ -183,7 +190,6 @@ sds mympd_api_webradio_radio_get_by_uri(struct t_webradios *webradios, sds buffe
     }
     struct t_webradio_data *webradio = (struct t_webradio_data *)data;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = sdscat(buffer, "\"data\":");
     buffer = mympd_api_webradio_print(webradio, buffer);
     buffer = jsonrpc_end(buffer);
     return buffer;

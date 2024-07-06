@@ -38,7 +38,7 @@ enum webradio_tag_type {
     WEBRADIO_TAG_IMAGE,
     WEBRADIO_TAG_HOMEPAGE,
     WEBRADIO_TAG_COUNTRY,
-    WEBRADIO_TAG_STATE,
+    WEBRADIO_TAG_REGION,
     WEBRADIO_TAG_DESCRIPTION,
     WEBRADIO_TAG_URIS,
     WEBRADIO_TAG_BITRATE,
@@ -61,7 +61,7 @@ struct t_webradio_data {
     sds image;                  //!< Station image
     sds homepage;               //!< Homepage
     sds country;                //!< Country
-    sds state;                  //!< State or region
+    sds region;                  //!< State or region
     sds description;            //!< Short description
     struct t_list uris;         //!< List of Uris (uri, bitrate and codec)
     struct t_list genres;       //!< List of genres

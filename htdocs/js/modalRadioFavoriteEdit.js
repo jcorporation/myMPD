@@ -26,7 +26,7 @@ function manualAddRadioFavorite() {
         "Genre": "",
         "Homepage": "",
         "Country": "",
-        "State": "",
+        "Region": "",
         "Language": "",
         "Codec": "",
         "Bitrate": "",
@@ -46,13 +46,13 @@ function showEditRadioFavorite(obj) {
     elGetById('modalRadioFavoriteEditGenreInput').value = obj.Genre === undefined ? '' : obj.Genre;
     elGetById('modalRadioFavoriteEditHomepageInput').value = obj.Homepage === undefined ? '' : obj.Homepage;
     elGetById('modalRadioFavoriteEditCountryInput').value = obj.Country === undefined ? '' : obj.Country;
-    elGetById('modalRadioFavoriteEditStateInput').value = obj.State === undefined ? '' : obj.State;
+    elGetById('modalRadioFavoriteEditRegionInput').value = obj.Region === undefined ? '' : obj.Region;
     elGetById('modalRadioFavoriteEditLanguageInput').value = obj.Language === undefined ? '' : obj.Language;
     elGetById('modalRadioFavoriteEditCodecInput').value = obj.Codec === undefined ? '' : obj.Codec;
     elGetById('modalRadioFavoriteEditBitrateInput').value = obj.Bitrate === undefined ? '' : obj.Bitrate;
     elGetById('modalRadioFavoriteEditDescriptionInput').value = obj.Description === undefined ? '' : obj.Description;
 
-    setDataId('modalRadioFavoriteEdit', "StremUriOld", (obj.StreamUri === undefined ? '' : obj.StreamUri));
+    setDataId('modalRadioFavoriteEdit', "StreamUriOld", (obj.StreamUri === undefined ? '' : obj.StreamUri));
 
     const imageEl = elGetById('modalRadioFavoriteEditImageInput');
     getImageList(imageEl, [], 'thumbs');
@@ -85,7 +85,7 @@ function saveRadioFavorite(target) {
         "image": elGetById('modalRadioFavoriteEditImageInput').value,
         "homepage": elGetById('modalRadioFavoriteEditHomepageInput').value,
         "country": elGetById('modalRadioFavoriteEditCountryInput').value,
-        "state": elGetById('modalRadioFavoriteEditStateInput').value,
+        "region": elGetById('modalRadioFavoriteEditRegionInput').value,
         "language": elGetById('modalRadioFavoriteEditLanguageInput').value,
         "codec": elGetById('modalRadioFavoriteEditCodecInput').value,
         "bitrate": Number(elGetById('modalRadioFavoriteEditBitrateInput').value),
@@ -102,39 +102,21 @@ function saveRadioFavoriteCheckError(obj) {
     if (modalApply(obj) === true) {
         uiElements.modalRadioFavoriteEdit.hide();
         if (app.id === 'BrowseRadioFavorites') {
-            getRadioFavoriteList();
+            handleBrowseRadioFavorites();
         }
     }
 }
 
 
 /**
- * Wrapper for _checkWebradioDb that fetches the webradioDB if needed
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function checkWebradioDb() {
-    elGetById('webradiodbCheckState').textContent = tn('Checking...');
-    btnWaitingId('modalRadioFavoriteEditCheckWebradiodbBtn', true);
-    if (webradioDb === null) {
-        //fetch webradiodb database
-        sendAPI("MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET", {}, function(obj) {
-            webradioDb = obj.result.data;
-            _checkWebradioDb();
-        }, false);
-    }
-    else {
-        _checkWebradioDb();
-    }
-}
-
-/**
  * Checks the local webradio favorite against the webradioDB entry
  * @returns {void}
  */
-function _checkWebradioDb() {
+function checkWebradioDb() {
     const streamUri = elGetById('modalRadioFavoriteEditStreamUriInput').value;
     if (streamUri !== '') {
+        //TODO
+        /*
         const webradio = streamUriToName(streamUri) + '.m3u';
         if (webradioDb.webradios[webradio] === undefined) {
             //not a main streamUri - check for alternate streams
@@ -174,6 +156,7 @@ function _checkWebradioDb() {
                 elGetById('webradiodbCheckState').textContent = tn('Favorite is uptodate');
             }
         }
+        */
     }
     else {
         elHideId('modalRadioFavoriteEditAddToWebradiodbBtn');
@@ -192,8 +175,10 @@ function _checkWebradioDb() {
 function compareWebradioDb() {
     let v1 = '';
     let v2 = '';
+    //TODO
+    /*
     const webradio = streamUriToName(elGetById('modalRadioFavoriteEditStreamUriInput').value) + '.m3u';
-    for (const v of ['Name', 'StreamUri', 'Genre', 'Homepage', 'Image', 'Country', 'State', 'Language', 'Description', 'Codec', 'Bitrate']) {
+    for (const v of ['Name', 'StreamUri', 'Genre', 'Homepage', 'Image', 'Country', 'Region', 'Language', 'Description', 'Codec', 'Bitrate']) {
         if (v === 'Image') {
             v1 += basename(elGetById('modalRadioFavoriteEdit' + v + 'Input').value, false);
         }
@@ -202,6 +187,7 @@ function compareWebradioDb() {
         }
         v2 += webradioDb.webradios[webradio][v];
     }
+    */
     return v1 === v2;
 }
 
@@ -212,15 +198,13 @@ function compareWebradioDb() {
 //eslint-disable-next-line no-unused-vars
 function updateFromWebradioDb() {
     const webradio = streamUriToName(elGetById('modalRadioFavoriteEditStreamUriInput').value) + '.m3u';
-    for (const v of ['Name', 'StreamUri', 'Genre', 'Homepage', 'Image', 'Country', 'State', 'Language', 'Description', 'Codec', 'Bitrate']) {
-        if (v === 'Image') {
-            elGetById('modalRadioFavoriteEdit' + v + 'Input').value = webradioDbPicsUri + webradioDb.webradios[webradio][v];
-        }
-        else {
-            elGetById('modalRadioFavoriteEdit' + v + 'Input').value = webradioDb.webradios[webradio][v];
-        }
+    //TODO
+    /*
+    for (const v of ['Name', 'StreamUri', 'Genre', 'Homepage', 'Image', 'Country', 'Region', 'Language', 'Description', 'Codec', 'Bitrate']) {
+        elGetById('modalRadioFavoriteEdit' + v + 'Input').value = webradioDb.webradios[webradio][v];
     }
-    _checkWebradioDb();
+    */
+    checkWebradioDb();
 }
 
 /**
@@ -237,7 +221,7 @@ function addToWebradioDb() {
         '&homepage=' + encodeURIComponent(elGetById('modalRadioFavoriteEditHomepageInput').value) +
         '&image=' + encodeURIComponent(elGetById('modalRadioFavoriteEditImageInput').value) +
         '&country=' + encodeURIComponent(elGetById('modalRadioFavoriteEditCountryInput').value) +
-        '&state=' + encodeURIComponent(elGetById('modalRadioFavoriteEditStateInput').value) +
+        '&region=' + encodeURIComponent(elGetById('modalRadioFavoriteEditRegionInput').value) +
         '&language=' + encodeURIComponent(elGetById('modalRadioFavoriteEditLanguageInput').value) +
         '&codec=' + encodeURIComponent(elGetById('modalRadioFavoriteEditCodecInput').value) +
         '&bitrate=' + encodeURIComponent(elGetById('modalRadioFavoriteEditBitrateInput').value) +
@@ -260,7 +244,7 @@ function updateWebradioDb() {
         '&homepage=' + encodeURIComponent(elGetById('modalRadioFavoriteEditHomepageInput').value) +
         '&image=' + encodeURIComponent(elGetById('modalRadioFavoriteEditImageInput').value) +
         '&country=' + encodeURIComponent(elGetById('modalRadioFavoriteEditCountryInput').value) +
-        '&state=' + encodeURIComponent(elGetById('modalRadioFavoriteEditStateInput').value) +
+        '&region=' + encodeURIComponent(elGetById('modalRadioFavoriteEditRegionInput').value) +
         '&language=' + encodeURIComponent(elGetById('modalRadioFavoriteEditLanguageInput').value) +
         '&codec=' + encodeURIComponent(elGetById('modalRadioFavoriteEditCodecInput').value) +
         '&bitrate=' + encodeURIComponent(elGetById('modalRadioFavoriteEditBitrateInput').value) +

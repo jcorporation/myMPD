@@ -145,8 +145,11 @@ function addTagList(elId, list) {
             );
         }
     }
-    else if (elId === 'BrowseRadioWebradiodbSortTagsList') {
-        const tags = ["Bitrate", "Codec", "Country", "Description", "Genre", "Homepage", "Languages", "Name", "State"];
+    else if (elId === 'BrowseRadioFavoritesSearchTags' ||
+             elId === 'BrowseRadioWebradiodbSortTagsList' ||
+             elId === 'BrowseRadioWebradiodbSearchTags')
+    {
+        const tags = ["Bitrate", "Codec", "Country", "Description", "Genre", "Homepage", "Languages", "Name", "Region"];
         for (let i = 0, j = tags.length; i < j; i++) {
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": tags[i]}, tags[i])

@@ -638,7 +638,7 @@ function setEntryData(entry, data) {
             data.Thumbnail = getCssImageUri('/playlistart?playlist=' + myEncodeURIComponent(data.uri));
             break;
         case 'webradiodb':
-            data.Thumbnail = getCssImageUri(webradioDbPicsUri + data.Image);
+            data.Thumbnail = getCssImageUri(data.Image);
             break;
         // No Default
     }

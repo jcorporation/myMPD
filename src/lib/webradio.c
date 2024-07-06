@@ -28,7 +28,7 @@ struct t_webradio_data *webradio_data_new(enum webradio_type type) {
     data->image = NULL;
     data->homepage = NULL;
     data->country = NULL;
-    data->state = NULL;
+    data->region = NULL;
     data->description = NULL;
     data->type = type;
     return data;
@@ -49,7 +49,7 @@ void webradio_data_free(struct t_webradio_data *data) {
     FREE_SDS(data->image);
     FREE_SDS(data->homepage);
     FREE_SDS(data->country);
-    FREE_SDS(data->state);
+    FREE_SDS(data->region);
     FREE_SDS(data->description);
     // pointer data itself
     FREE_PTR(data);
@@ -86,7 +86,7 @@ void webradio_tags_search(struct t_webradio_tags *tags) {
     tags->len = 0;
     tags->tags[tags->len++] = WEBRADIO_TAG_NAME;
     tags->tags[tags->len++] = WEBRADIO_TAG_COUNTRY;
-    tags->tags[tags->len++] = WEBRADIO_TAG_STATE;
+    tags->tags[tags->len++] = WEBRADIO_TAG_REGION;
     tags->tags[tags->len++] = WEBRADIO_TAG_DESCRIPTION;
     tags->tags[tags->len++] = WEBRADIO_TAG_GENRES;
     tags->tags[tags->len++] = WEBRADIO_TAG_LANGUAGES;
@@ -97,7 +97,7 @@ static const char *webradio_tag_types_names[WEBRADIO_TAG_COUNT] = {
     [WEBRADIO_TAG_IMAGE] = "Image",
     [WEBRADIO_TAG_HOMEPAGE] = "Homepage",
     [WEBRADIO_TAG_COUNTRY] = "Country",
-    [WEBRADIO_TAG_STATE] = "State",
+    [WEBRADIO_TAG_REGION] = "Region",
     [WEBRADIO_TAG_DESCRIPTION] = "Description",
     [WEBRADIO_TAG_URIS] = "Uri",
     [WEBRADIO_TAG_BITRATE] = "Bitrate",
@@ -148,8 +148,8 @@ const char *webradio_get_tag(const struct t_webradio_data *webradio, enum webrad
             return idx == 0 ? webradio->homepage : NULL;
         case WEBRADIO_TAG_COUNTRY:
             return idx == 0 ? webradio->country : NULL;
-        case WEBRADIO_TAG_STATE:
-            return idx == 0 ? webradio->state : NULL;
+        case WEBRADIO_TAG_REGION:
+            return idx == 0 ? webradio->region : NULL;
         case WEBRADIO_TAG_DESCRIPTION:
             return idx == 0 ? webradio->description : NULL;
         case WEBRADIO_TAG_URIS:
@@ -277,7 +277,7 @@ bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradi
         mpack_write_kv(&writer, "Image", data->image);
         mpack_write_kv(&writer, "Homepage", data->homepage);
         mpack_write_kv(&writer, "Country", data->country);
-        mpack_write_kv(&writer, "State", data->state);
+        mpack_write_kv(&writer, "Region", data->region);
         mpack_write_kv(&writer, "Description", data->description);
         mpack_write_cstr(&writer, "Genres");
         mpack_build_array(&writer);
@@ -367,7 +367,7 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
         data->image = mpackstr_sds(entry, "Image");
         data->homepage = mpackstr_sds(entry, "Homepage");
         data->country = mpackstr_sds(entry, "Country");
-        data->state = mpackstr_sds(entry, "State");
+        data->region = mpackstr_sds(entry, "Region");
         data->description = mpackstr_sds(entry, "Description");
         mpack_node_t genre_node = mpack_node_map_cstr(entry, "Genres");
         size_t genre_len = mpack_node_array_length(genre_node);

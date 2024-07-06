@@ -1598,10 +1598,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_WEBRADIODB_SEARCH: {
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &parse_error) == true &&
-                json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true)
+                json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.sort", 1, NAME_LEN_MAX, &sds_buf2, vcb_iswebradiosort, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &parse_error) == true)
             {
                 response->data = mympd_api_webradio_search(mympd_state->webradiodb, response->data, request->id,
-                    MYMPD_API_WEBRADIODB_SEARCH, uint_buf1, uint_buf2, sds_buf1);
+                    MYMPD_API_WEBRADIODB_SEARCH, uint_buf1, uint_buf2, sds_buf1, sds_buf2, bool_buf1);
             }
             break;
         }
@@ -1609,10 +1611,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_WEBRADIO_FAVORITE_SEARCH: {
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &parse_error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true)
+                json_get_string(request->data, "$.params.expression", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.sort", 1, NAME_LEN_MAX, &sds_buf2, vcb_iswebradiosort, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &parse_error) == true)
             {
                 response->data = mympd_api_webradio_search(mympd_state->webradio_favorites, response->data, request->id,
-                    MYMPD_API_WEBRADIO_FAVORITE_SEARCH, uint_buf1, uint_buf2, sds_buf1);
+                    MYMPD_API_WEBRADIO_FAVORITE_SEARCH, uint_buf1, uint_buf2, sds_buf1, sds_buf2, bool_buf1);
             }
             break;
         }
@@ -1639,7 +1643,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_string(request->data, "$.params.codec", 0, FILEPATH_LEN_MAX, &sds_buf3, vcb_isprint, &parse_error) == true &&
                 json_get_int(request->data, "$.params.bitrate", 0, 2048, &int_buf1, &parse_error) == true &&
                 json_get_string(request->data, "$.params.description", 0, CONTENT_LEN_MAX, &webradio->description, vcb_isname, &parse_error) == true &&
-                json_get_string(request->data, "$.params.state", 0, CONTENT_LEN_MAX, &webradio->state, vcb_isname, &parse_error) == true)
+                json_get_string(request->data, "$.params.region", 0, CONTENT_LEN_MAX, &webradio->region, vcb_isname, &parse_error) == true)
             {
                 list_push(&webradio->uris, sds_buf1, int_buf1, sds_buf3, NULL);
                 rc = mympd_api_webradio_favorite_save(mympd_state->webradio_favorites, webradio, sds_buf2);

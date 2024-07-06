@@ -11,6 +11,7 @@
 #include "dist/utf8/utf8.h"
 #include "src/lib/log.h"
 #include "src/lib/sticker.h"
+#include "src/lib/webradio.h"
 
 #include <ctype.h>
 #include <limits.h>
@@ -340,7 +341,7 @@ bool vcb_ismpdtag_or_any(sds data) {
 }
 
 /**
- * Checks if string is a valid sort tag
+ * Checks if string is a valid sort tag for mpd
  * @param data sds string to check
  * @return true on success else false
  */
@@ -354,6 +355,20 @@ bool vcb_ismpdsort(sds data) {
         strcmp(data, "Date") != 0 &&
         strcmp(data, "Priority") != 0)
     {
+        MYMPD_LOG_WARN(NULL, "Unknown sort tag \"%s\"", data);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if string is a valid sort tag for webradios
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_iswebradiosort(sds data) {
+    enum webradio_tag_type tag = webradio_tag_name_parse(data);
+    if (tag == WEBRADIO_TAG_UNKNOWN) {
         MYMPD_LOG_WARN(NULL, "Unknown sort tag \"%s\"", data);
         return false;
     }

@@ -562,6 +562,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
             switch(type) {
                 case 'song':
                 case 'stream':
+                case 'webradio':
                     addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name);
                     break;
                 case 'dir':

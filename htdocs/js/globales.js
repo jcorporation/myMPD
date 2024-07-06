@@ -134,11 +134,6 @@ const messagesMax = 100;
 /** @type {boolean} */
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 
-/** @type {object} */
-let webradioDb = null;
-/** @type {string} */
-const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
-
 /** @type {string} */
 const scriptsUri = 'https://github.com/jcorporation/mympd-scripts/tree/main/';
 /** @type {string} */
@@ -1354,9 +1349,9 @@ app.cards = {
                     "Favorites": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "",
+                        "filter": "any",
                         "sort": {
-                            "tag": "",
+                            "tag": "Name",
                             "desc": false
                         },
                         "tag": "",
@@ -1366,13 +1361,7 @@ app.cards = {
                     "Webradiodb": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": {
-                            "genre": "",
-                            "country": "",
-                            "language": "",
-                            "codec": "",
-                            "bitrate": ""
-                        },
+                        "filter": "any",
                         "sort": {
                             "tag": "Name",
                             "desc": false

@@ -2186,7 +2186,9 @@ const APImethods = {
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "expression": APIparams.expression
+            "expression": APIparams.expression,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_SAVE": {
@@ -2299,7 +2301,9 @@ const APImethods = {
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "expression": APIparams.expression
+            "expression": APIparams.expression,
+            "sort": APIparams.sort,
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME": {

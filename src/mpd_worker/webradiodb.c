@@ -174,7 +174,7 @@ static struct t_webradio_data *parse_webradiodb_data(sds str) {
         json_get_string(str, "$.Image", 1, URI_LENGTH_MAX, &data->image, vcb_isname, &parse_error) == false ||
         json_get_string(str, "$.Homepage", 0, URI_LENGTH_MAX, &data->homepage, vcb_isuri, &parse_error) == false ||
         json_get_string(str, "$.Country", 0, URI_LENGTH_MAX, &data->country, vcb_isname, &parse_error) == false ||
-        json_get_string(str, "$.State", 0, URI_LENGTH_MAX, &data->state, vcb_isname, &parse_error) == false ||
+        json_get_string(str, "$.Region", 0, URI_LENGTH_MAX, &data->region, vcb_isname, &parse_error) == false ||
         json_get_string(str, "$.Description", 0, URI_LENGTH_MAX, &data->description, vcb_istext, &parse_error) == false ||
         json_get_array_string(str, "$.Genre", &data->genres, vcb_isname, 64, &parse_error) == false ||
         json_get_array_string(str, "$.Languages", &data->languages, vcb_isname, 64, &parse_error) == false ||
