@@ -1253,9 +1253,9 @@ static bool icb_json_get_field(const char *path, sds key, sds value, int vtype, 
     }
 
     struct t_fields *fields = (struct t_fields *) userdata;
-    enum mpd_tag_type tag = mpd_tag_name_iparse(value);
-    if (tag != MPD_TAG_UNKNOWN) {
-        fields->tags.tags[fields->tags.len++] = tag;
+    enum mpd_tag_type mpd_tag = mpd_tag_name_iparse(value);
+    if (mpd_tag != MPD_TAG_UNKNOWN) {
+        fields->mpd_tags.tags[fields->mpd_tags.len++] = mpd_tag;
         return true;
     }
     enum mympd_sticker_types sticker = sticker_name_parse(value);

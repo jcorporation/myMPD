@@ -169,12 +169,12 @@ static void features_commands(struct t_partition_state *partition_state) {
  */
 static void features_tags(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {
     //reset all tags
-    tags_reset(&partition_state->mpd_state->tags_mpd);
-    tags_reset(&partition_state->mpd_state->tags_mympd);
-    tags_reset(&partition_state->mpd_state->tags_search);
-    tags_reset(&partition_state->mpd_state->tags_browse);
-    tags_reset(&partition_state->mpd_state->tags_album);
-    tags_reset(&mympd_state->smartpls_generate_tag_types);
+    mpd_tags_reset(&partition_state->mpd_state->tags_mpd);
+    mpd_tags_reset(&partition_state->mpd_state->tags_mympd);
+    mpd_tags_reset(&partition_state->mpd_state->tags_search);
+    mpd_tags_reset(&partition_state->mpd_state->tags_browse);
+    mpd_tags_reset(&partition_state->mpd_state->tags_album);
+    mpd_tags_reset(&mympd_state->smartpls_generate_tag_types);
     //check for all mpd tags
     enable_all_mpd_tags(partition_state);
     features_mpd_tags(partition_state);

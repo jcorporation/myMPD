@@ -11,10 +11,10 @@
 #include "src/lib/sticker.h"
 
 /**
- * Struct for a mpd tag and sticker lists
- * libmpdclient uses a similar declaration, but for tags only
+ * Struct for a mpd tag list
+ * libmpdclient uses a similar declaration
  */
-struct t_tags {
+struct t_mpd_tags {
     size_t len;                  //!< number of tags in the array
     enum mpd_tag_type tags[64];  //!< tags array
 };
@@ -33,7 +33,7 @@ struct t_stickers {
  * libmpdclient uses a similar declaration, but for tags only
  */
 struct t_fields {
-    struct t_tags tags;          //!< tags
+    struct t_mpd_tags mpd_tags;  //!< mpd tags
     struct t_stickers stickers;  //!< stickers
 };
 
@@ -50,7 +50,7 @@ void fields_reset(struct t_fields *fields);
 void stickers_reset(struct t_stickers *stickers);
 void stickers_enable_all(struct t_stickers *stickers);
 
-void tags_clone(struct t_tags *src_tags, struct t_tags *dst_tags);
-void tags_reset(struct t_tags *tags);
+void mpd_tags_clone(struct t_mpd_tags *src_mpd_tags, struct t_mpd_tags *dst_mpd_tags);
+void mpd_tags_reset(struct t_mpd_tags *mpd_tags);
 
 #endif

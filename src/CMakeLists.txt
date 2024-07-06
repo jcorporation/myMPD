@@ -138,7 +138,6 @@ target_sources(mympd
     mympd_api/trigger.c
     mympd_api/volume.c
     mympd_api/webradio.c
-    mympd_api/webradiodb.c
     mympd_api/webradio_favorites.c
     web_server/web_server.c
     web_server/albumart.c

@@ -60,7 +60,6 @@
 #include "src/mympd_api/volume.h"
 #include "src/mympd_api/webradio.h"
 #include "src/mympd_api/webradio_favorites.h"
-#include "src/mympd_api/webradiodb.h"
 
 #ifdef MYMPD_ENABLE_LUA
     #include "src/mympd_api/lua_mympd_state.h"
@@ -1588,12 +1587,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
-                response->data = mympd_api_webradiodb_radio_get_by_name(mympd_state->webradiodb, response->data, request->id, sds_buf1);
+                response->data = mympd_api_webradio_radio_get_by_name(mympd_state->webradiodb, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &parse_error) == true) {
-                response->data = mympd_api_webradiodb_radio_get_by_uri(mympd_state->webradiodb, response->data, request->id, sds_buf1);
+                response->data = mympd_api_webradio_radio_get_by_uri(mympd_state->webradiodb, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_WEBRADIODB_SEARCH: {
@@ -1601,7 +1600,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &parse_error) == true &&
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true)
             {
-                //TODO
+                response->data = mympd_api_webradio_search(mympd_state->webradiodb, response->data, request->id,
+                    MYMPD_API_WEBRADIODB_SEARCH, uint_buf1, uint_buf2, sds_buf1);
             }
             break;
         }
@@ -1611,18 +1611,19 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &parse_error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true)
             {
-                //TODO
+                response->data = mympd_api_webradio_search(mympd_state->webradio_favorites, response->data, request->id,
+                    MYMPD_API_WEBRADIO_FAVORITE_SEARCH, uint_buf1, uint_buf2, sds_buf1);
             }
             break;
         }
         case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_NAME:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
-                response->data = mympd_api_webradio_favorite_get_by_name(mympd_state->webradio_favorites, response->data, request->id, sds_buf1);
+                response->data = mympd_api_webradio_radio_get_by_name(mympd_state->webradio_favorites, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &parse_error) == true) {
-                response->data = mympd_api_webradio_favorite_get_by_uri(mympd_state->webradio_favorites, response->data, request->id, sds_buf1);
+                response->data = mympd_api_webradio_radio_get_by_uri(mympd_state->webradio_favorites, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_SAVE: {

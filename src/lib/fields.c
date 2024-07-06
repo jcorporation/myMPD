@@ -23,7 +23,7 @@ void fields_clone(struct t_fields *src_fields, struct t_fields *dst_fields) {
  * @param fields pointer to t_fields struct
  */
 void fields_reset(struct t_fields *fields) {
-    tags_reset(&fields->tags);
+    mpd_tags_reset(&fields->mpd_tags);
     stickers_reset(&fields->stickers);
 }
 
@@ -48,19 +48,19 @@ void stickers_enable_all(struct t_stickers *stickers) {
 }
 
 /**
- * (Re-)initializes a t_tags struct
+ * (Re-)initializes a t_mpd_tags struct
  * @param fields pointer to t_fields struct
  */
-void tags_reset(struct t_tags *tags) {
-    tags->len = 0;
-    memset(tags->tags, 0, sizeof(tags->tags));
+void mpd_tags_reset(struct t_mpd_tags *mpd_tags) {
+    mpd_tags->len = 0;
+    memset(mpd_tags->tags, 0, sizeof(mpd_tags->tags));
 }
 
 /**
  * Copy a struct t_fields to another one
- * @param src_tags source
- * @param dst_tags destination
+ * @param src_mpd_tags source
+ * @param dst_mpd_tags destination
  */
-void tags_clone(struct t_tags *src_tags, struct t_tags *dst_tags) {
-    memcpy((void *)dst_tags, (void *)src_tags, sizeof(struct t_tags));
+void mpd_tags_clone(struct t_mpd_tags *src_mpd_tags, struct t_mpd_tags *dst_mpd_tags) {
+    memcpy((void *)dst_mpd_tags, (void *)src_mpd_tags, sizeof(struct t_mpd_tags));
 }

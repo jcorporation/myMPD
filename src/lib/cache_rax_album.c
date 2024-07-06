@@ -42,7 +42,7 @@
  * Private definitions
  */
 
-static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_tags *tags, sds *key);
+static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_mpd_tags *tags, sds *key);
 
 /**
  * Public functions
@@ -135,8 +135,8 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
     }
 
     // read tags array
-    struct t_tags *album_tags = malloc_assert(sizeof(struct t_tags));
-    tags_reset(album_tags);
+    struct t_mpd_tags *album_tags = malloc_assert(sizeof(struct t_mpd_tags));
+    mpd_tags_reset(album_tags);
 
     mpack_node_t tags_node = mpack_node_map_cstr(root, "tags");
     size_t len = mpack_node_array_length(tags_node);
@@ -204,7 +204,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, const struct t_albums_config *album_config, bool free_data) {
+bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_mpd_tags *album_tags, const struct t_albums_config *album_config, bool free_data) {
     if (album_cache->cache == NULL) {
         MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not saving anything");
         return true;
@@ -525,7 +525,7 @@ void album_cache_inc_song_count(struct mpd_song *album) {
  * @return true on success else false
  */
 bool album_cache_append_tags(struct mpd_song *album,
-        const struct mpd_song *song, const struct t_tags *tags)
+        const struct mpd_song *song, const struct t_mpd_tags *tags)
 {
     for (unsigned tagnr = 0; tagnr < tags->len; ++tagnr) {
         const char *value;
@@ -586,7 +586,7 @@ void album_cache_set_uri(struct mpd_song *album, const char *uri) {
  * @param key already allocated sds string to set the album key
  * @return struct mpd_song* allocated mpd_song struct
  */
-static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_tags *tags, sds *key) {
+static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_mpd_tags *tags, sds *key) {
     struct mpd_song *album = NULL;
     sdsclear(*key);
     char *uri = mpack_node_cstr_alloc(mpack_node_map_cstr(album_node, "uri"), JSONRPC_STR_MAX);

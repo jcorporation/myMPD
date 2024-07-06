@@ -98,7 +98,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->lyrics.vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT);
     mympd_state->lyrics.vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
-    tags_reset(&mympd_state->smartpls_generate_tag_types);
+    mpd_tags_reset(&mympd_state->smartpls_generate_tag_types);
     mympd_state->tag_disc_empty_is_first = MYMPD_TAG_DISC_EMPTY_IS_FIRST;
     mympd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
     mympd_state->info_txt_name = sdsnew(MYMPD_INFO_TXT_NAME);
@@ -214,11 +214,11 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config) {
     mpd_state->music_directory_value = sdsempty();
     mpd_state->playlist_directory_value = sdsempty();
     mpd_state->tag_list = sdsnew(MYMPD_MPD_TAG_LIST);
-    tags_reset(&mpd_state->tags_mympd);
-    tags_reset(&mpd_state->tags_mpd);
-    tags_reset(&mpd_state->tags_search);
-    tags_reset(&mpd_state->tags_browse);
-    tags_reset(&mpd_state->tags_album);
+    mpd_tags_reset(&mpd_state->tags_mympd);
+    mpd_tags_reset(&mpd_state->tags_mpd);
+    mpd_tags_reset(&mpd_state->tags_search);
+    mpd_tags_reset(&mpd_state->tags_browse);
+    mpd_tags_reset(&mpd_state->tags_album);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     //features
     mpd_state_features_default(&mpd_state->feat);
@@ -240,11 +240,11 @@ void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
     dst->music_directory_value = sdsdup(src->music_directory_value);
     dst->playlist_directory_value = sdsdup(src->playlist_directory_value);
     dst->tag_list = sdsdup( src->tag_list);
-    tags_clone(&src->tags_mympd, &dst->tags_mympd);
-    tags_clone(&src->tags_mpd, &dst->tags_mpd);
-    tags_clone(&src->tags_search, &dst->tags_search);
-    tags_clone(&src->tags_browse, &dst->tags_browse);
-    tags_clone(&src->tags_album, &dst->tags_album);
+    mpd_tags_clone(&src->tags_mympd, &dst->tags_mympd);
+    mpd_tags_clone(&src->tags_mpd, &dst->tags_mpd);
+    mpd_tags_clone(&src->tags_search, &dst->tags_search);
+    mpd_tags_clone(&src->tags_browse, &dst->tags_browse);
+    mpd_tags_clone(&src->tags_album, &dst->tags_album);
     dst->tag_albumartist = src->tag_albumartist;
     mpd_state_features_copy(&src->feat, &dst->feat);
 }

@@ -153,7 +153,7 @@ bool is_numeric_tag(enum mpd_tag_type tag) {
  * @param available_tags pointer to enabled tags
  * @return sort tag if exists, else the original tag
  */
-enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, const struct t_tags *available_tags) {
+enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, const struct t_mpd_tags *available_tags) {
     enum mpd_tag_type sort_tag;
     switch(tag) {
         case MPD_TAG_ARTIST:
@@ -235,7 +235,7 @@ bool enable_all_mpd_tags(struct t_partition_state *partition_state) {
  * @param tags tags to print
  * @return pointer to buffer
  */
-sds print_tags_array(sds buffer, const char *tagsname, const struct t_tags *tags) {
+sds print_tags_array(sds buffer, const char *tagsname, const struct t_mpd_tags *tags) {
     buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
     for (unsigned i = 0; i < tags->len; i++) {
         if (i > 0) {
@@ -253,7 +253,7 @@ sds print_tags_array(sds buffer, const char *tagsname, const struct t_tags *tags
  * @param partition_state pointer to partition specific states
  * @param enable_tags pointer to t_fields struct
  */
-bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_tags *enable_tags) {
+bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_mpd_tags *enable_tags) {
     if (partition_state->mpd_state->feat.tags == false) {
         return true;
     }
@@ -399,7 +399,7 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
  * @param song pointer to a mpd_song struct to retrieve tags from
  * @return new sds pointer to buffer
  */
-sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struct t_tags *tagcols,
+sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struct t_mpd_tags *tagcols,
         const struct mpd_song *song)
 {
     const char *uri = mpd_song_get_uri(song);
@@ -437,7 +437,7 @@ sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struc
  * @param album pointer to a mpd_song struct representing the album
  * @return new sds pointer to buffer
  */
-sds print_album_tags(sds buffer, const struct t_mpd_state *mpd_state, const struct t_tags *tagcols,
+sds print_album_tags(sds buffer, const struct t_mpd_state *mpd_state, const struct t_mpd_tags *tagcols,
         const struct mpd_song *album)
 {
     buffer = print_song_tags(buffer, mpd_state, tagcols, album);
@@ -469,8 +469,8 @@ sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
  * @param tagtypes pointer to t_tags struct to add tags from taglist
  * @param allowed_tag_types pointer to t_fields struct for allowed tags
  */
-void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
-                const struct t_tags *allowed_tag_types)
+void check_tags(sds taglist, const char *taglistname, struct t_mpd_tags *tagtypes,
+                const struct t_mpd_tags *allowed_tag_types)
 {
     sds logline = sdscatfmt(sdsempty(), "Enabled %s: ", taglistname);
     int tokens_count = 0;
@@ -502,7 +502,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
  * @param tag tag to check
  * @return true if tag is in tagtypes else false
  */
-bool mpd_client_tag_exists(const struct t_tags *tagtypes, enum mpd_tag_type tag) {
+bool mpd_client_tag_exists(const struct t_mpd_tags *tagtypes, enum mpd_tag_type tag) {
     for (size_t i = 0; i < tagtypes->len; i++) {
         if (tagtypes->tags[i] == tag) {
             return true;

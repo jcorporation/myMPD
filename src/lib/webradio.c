@@ -79,6 +79,48 @@ sds webradio_get_cover_uri(struct t_webradio_data *webradio, sds buffer) {
 }
 
 /**
+ * Sets the webradio tags for search
+ * @param tags Struct to set
+ */
+void webradio_tags_search(struct t_webradio_tags *tags) {
+    tags->len = 0;
+    tags->tags[tags->len++] = WEBRADIO_TAG_NAME;
+    tags->tags[tags->len++] = WEBRADIO_TAG_COUNTRY;
+    tags->tags[tags->len++] = WEBRADIO_TAG_STATE;
+    tags->tags[tags->len++] = WEBRADIO_TAG_DESCRIPTION;
+    tags->tags[tags->len++] = WEBRADIO_TAG_GENRES;
+    tags->tags[tags->len++] = WEBRADIO_TAG_LANGUAGES;
+}
+
+static const char *webradio_tag_types_names[WEBRADIO_TAG_COUNT] = {
+    [WEBRADIO_TAG_NAME] = "Name",
+    [WEBRADIO_TAG_IMAGE] = "Image",
+    [WEBRADIO_TAG_HOMEPAGE] = "Homepage",
+    [WEBRADIO_TAG_COUNTRY] = "Country",
+    [WEBRADIO_TAG_STATE] = "State",
+    [WEBRADIO_TAG_DESCRIPTION] = "Description",
+    [WEBRADIO_TAG_URIS] = "Uri",
+    [WEBRADIO_TAG_BITRATE] = "Bitrate",
+    [WEBRADIO_TAG_CODEC] = "Codec",
+    [WEBRADIO_TAG_GENRES] = "Genre",
+    [WEBRADIO_TAG_LANGUAGES] = "Language"
+};
+
+/**
+ * Parses a string to a webradio tag type
+ * @param name string to parse
+ * @return enum webradio_tag_type 
+ */
+enum webradio_tag_type webradio_tag_name_parse(const char *name) {
+    for (unsigned i = 0; i < WEBRADIO_TAG_COUNT; ++i) {
+        if (strcmp(name, webradio_tag_types_names[i]) == 0) {
+            return (enum webradio_tag_type)i;
+        }
+    }
+    return WEBRADIO_TAG_UNKNOWN;
+}
+
+/**
  * Returns the webradio type as string literal
  * @param type webradio type
  * @return Name of the webradio type
@@ -90,13 +132,66 @@ const char *webradio_type_name(enum webradio_type type) {
 }
 
 /**
+ * Returns the value of a webradio tag
+ * @param webradio Webdadio
+ * @param tag_type Webradio tag
+ * @param idx Index of tag
+ * @return Tag value or NULL if not exists
+ */
+const char *webradio_get_tag(const struct t_webradio_data *webradio, enum webradio_tag_type tag_type, unsigned int idx) {
+    switch(tag_type) {
+        case WEBRADIO_TAG_NAME:
+            return idx == 0 ? webradio->name : NULL;
+        case WEBRADIO_TAG_IMAGE:
+            return idx == 0 ? webradio->image : NULL;
+        case WEBRADIO_TAG_HOMEPAGE:
+            return idx == 0 ? webradio->homepage : NULL;
+        case WEBRADIO_TAG_COUNTRY:
+            return idx == 0 ? webradio->country : NULL;
+        case WEBRADIO_TAG_STATE:
+            return idx == 0 ? webradio->state : NULL;
+        case WEBRADIO_TAG_DESCRIPTION:
+            return idx == 0 ? webradio->description : NULL;
+        case WEBRADIO_TAG_URIS:
+        case WEBRADIO_TAG_CODEC: {
+            struct t_list_node *node = list_node_at(&webradio->uris, idx);
+            if (node == NULL) {
+                return NULL;
+            }
+            if (tag_type == WEBRADIO_TAG_URIS) { return node->key; }
+            if (tag_type == WEBRADIO_TAG_CODEC) { return node->value_p; }
+            return NULL;
+        }
+        case WEBRADIO_TAG_GENRES: {
+            struct t_list_node *node = list_node_at(&webradio->genres, idx);
+            if (node == NULL) {
+                return NULL;
+            }
+            return node->key;
+        }
+        case WEBRADIO_TAG_LANGUAGES: {
+            struct t_list_node *node = list_node_at(&webradio->languages, idx);
+            if (node == NULL) {
+                return NULL;
+            }
+            return node->key;
+        }
+        case WEBRADIO_TAG_BITRATE:
+        case WEBRADIO_TAG_UNKNOWN:
+        case WEBRADIO_TAG_COUNT:
+            return NULL;
+    }
+    return NULL;
+}
+
+/**
  * Returns an extm3u for a webradio
  * @param webradio Pointer to webradio struct
  * @param buffer Already allocated buffer to append the extm3u
  * @param uri Optional uri. If NULL use the first uri from the webradio entry.
  * @return Pointer to buffer
  */
-sds webradio_to_extm3u(struct t_webradio_data *webradio, sds buffer, const char *uri) {
+sds webradio_to_extm3u(const struct t_webradio_data *webradio, sds buffer, const char *uri) {
     return sdscatfmt(buffer, "#EXTM3U\n"
         "#EXTINF:-1,%s\n"
         "#PLAYLIST:%s\n"

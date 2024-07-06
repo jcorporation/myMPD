@@ -8,95 +8,10 @@
 #include "src/mympd_api/webradio_favorites.h"
 
 #include "dist/rax/rax.h"
-#include "src/lib/api.h"
-#include "src/lib/jsonrpc.h"
 #include "src/lib/utility.h"
-#include "src/mympd_api/webradio.h"
 
 #include <dirent.h>
 #include <string.h>
-
-/**
- * Prints a webradio favorite as jsonrpc response
- * @param workdir working directory
- * @param buffer already allocated sds string to append the response
- * @param request_id jsonrpc request id
- * @param name webradio name
- * @return pointer to buffer
- */
-sds mympd_api_webradio_favorite_get_by_name(struct t_webradios *webradio_favorites, sds buffer, unsigned request_id, sds name) {
-    enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_GET_BY_NAME;
-    void *data = raxNotFound;
-    if (webradio_favorites->db != NULL) {
-        data = raxFind(webradio_favorites->db, (unsigned char *)name, strlen(name));
-    }
-    if (data == raxNotFound) {
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
-            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Webradio favorite not found");
-        return buffer;
-    }
-    struct t_webradio_data *webradio = (struct t_webradio_data *)data;
-    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = sdscat(buffer, "\"data\":");
-    buffer = mympd_api_webradio_print(webradio, buffer);
-    buffer = jsonrpc_end(buffer);
-    return buffer;
-}
-
-/**
- * Prints a webradio favorite as jsonrpc response
- * @param workdir working directory
- * @param buffer already allocated sds string to append the response
- * @param request_id jsonrpc request id
- * @param uri webradio stream uri
- * @return pointer to buffer
- */
-sds mympd_api_webradio_favorite_get_by_uri(struct t_webradios *webradio_favorites, sds buffer, unsigned request_id, sds uri) {
-    enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI;
-    void *data = raxNotFound;
-    if (webradio_favorites->idx_uris != NULL) {
-        data = raxFind(webradio_favorites->idx_uris, (unsigned char *)uri, strlen(uri));
-    }
-    if (data == raxNotFound) {
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
-            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Webradio favorite not found");
-        return buffer;
-    }
-    struct t_webradio_data *webradio = (struct t_webradio_data *)data;
-    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = sdscat(buffer, "\"data\":");
-    buffer = mympd_api_webradio_print(webradio, buffer);
-    buffer = jsonrpc_end(buffer);
-    return buffer;
-}
-
-/**
- * Prints the webradio list as a jsonrpc response
- * @param webradio_favorites Webradio favorites struct
- * @param buffer already allocated sds string to append the response
- * @param request_id jsonrpc request id
- * @param expression string to search
- * @param offset offset for the list
- * @param limit maximum entries to print
- * @return pointer to buffer
- */
-sds mympd_api_webradio_favorites_search(struct t_webradios *webradio_favorites, sds buffer, unsigned request_id,
-        sds expression, unsigned offset, unsigned limit)
-{
-    enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_SEARCH;
-    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = sdscat(buffer, "\"data\":[");
-    //TODO
-    (void) webradio_favorites;
-    (void) expression;
-    (void) offset;
-    (void) limit;
-    buffer = sdscatlen(buffer, "],", 2);
-    //buffer = tojson_uint64(buffer, "totalEntities", webradios->numele, true);
-    //buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_end(buffer);
-    return buffer;
-}
 
 /**
  * Saves a webradio favorite
