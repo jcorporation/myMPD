@@ -17,12 +17,12 @@
 #include "src/lib/mem.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/search.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/search.h"
-#include "src/mpd_client/search_local.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
@@ -749,7 +749,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
             buffer = sdscat(buffer,"\"data\":[");
             struct t_list *expr_list = parse_search_expression_to_list(expression);
             while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-                if (search_song_expression(song, expr_list, &tagcols->tags) == true) {
+                if (search_expression(song, expr_list, &tagcols->tags) == true) {
                     total_time += mpd_song_get_duration(song);
                     if (entities_found >= offset) {
                         if (entities_returned++) {

@@ -9,9 +9,9 @@
 
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/search.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
-#include "src/mpd_client/search_local.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/sticker.h"
@@ -132,7 +132,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
             if (mpd_send_list_meta(partition_state->conn, current->key)) {
                 struct mpd_song *song;
                 if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-                    if (search_song_expression(song, expr_list, &tagcols->tags) == true) {
+                    if (search_expression(song, expr_list, &tagcols->tags) == true) {
                         if (entities_found >= offset &&
                             entities_found < real_limit)
                         {
@@ -169,7 +169,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
         struct t_list_node *current = partition_state->jukebox.queue->head;
         while (current != NULL) {
             struct mpd_song *album = (struct mpd_song *)current->user_data;
-            if (search_song_expression(album, expr_list, &tagcols->tags) == true) {
+            if (search_expression(album, expr_list, &tagcols->tags) == true) {
                 if (entities_found >= offset &&
                     entities_found < real_limit)
                 {

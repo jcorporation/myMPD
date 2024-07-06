@@ -11,8 +11,8 @@
 #include "src/lib/log.h"
 #include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/search.h"
 #include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/search_local.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 
@@ -376,7 +376,7 @@ static bool check_expression(const struct mpd_song *song, struct t_tags *tags,
 {
     // first check exclude expression
     if (exclude_expr_list != NULL &&
-        search_song_expression(song, exclude_expr_list, tags) == true)
+        search_expression(song, exclude_expr_list, tags) == true)
     {
         // exclude expression matches
         return false;
@@ -384,7 +384,7 @@ static bool check_expression(const struct mpd_song *song, struct t_tags *tags,
     // exclude expression not matched, try include expression
     if (include_expr_list != NULL) {
         // exclude overwrites include
-        return search_song_expression(song, include_expr_list, tags);
+        return search_expression(song, include_expr_list, tags);
     }
     // no include expression, include all
     return true;

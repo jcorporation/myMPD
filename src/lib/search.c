@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/mpd_client/search_local.h"
+#include "src/lib/search.h"
 
 #include "dist/utf8/utf8.h"
 #include "src/lib/datetime.h"
@@ -217,7 +217,7 @@ void *free_search_expression_list(struct t_list *expr_list) {
  * @param tag_types tags for special "any" tag in expression
  * @return expression result
  */
-bool search_song_expression(const struct mpd_song *song, const struct t_list *expr_list, const struct t_tags *tag_types) {
+bool search_expression(const struct mpd_song *song, const struct t_list *expr_list, const struct t_tags *tag_types) {
     struct t_tags one_tag;
     one_tag.len = 1;
     struct t_list_node *current = expr_list->head;

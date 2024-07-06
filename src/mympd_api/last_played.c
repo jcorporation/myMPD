@@ -10,14 +10,13 @@
 #include "dist/sds/sds.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/search.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/search_local.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/sticker.h"
 
-#include <errno.h>
 #include <string.h>
 
 /**
@@ -142,7 +141,7 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, struct
     if (mpd_send_list_meta(partition_state->conn, uri)) {
         struct mpd_song *song;
         if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            if (search_song_expression(song, expr_list, &tagcols->tags) == true) {
+            if (search_expression(song, expr_list, &tagcols->tags) == true) {
                 buffer = sdscat(buffer, "{\"Type\": \"song\",");
                 buffer = tojson_uint(buffer, "Pos", entity_count, true);
                 buffer = tojson_int64(buffer, "LastPlayed", last_played, true);

@@ -15,10 +15,10 @@
 #include "src/lib/log.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/search.h"
 #include "src/lib/sticker.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/search.h"
-#include "src/mpd_client/search_local.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/extra_media.h"
@@ -232,7 +232,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
     while (raxNext(&iter)) {
         struct mpd_song *album = (struct mpd_song *)iter.data;
         if (expr_list->length == 0 ||
-            search_song_expression(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
+            search_expression(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
             key = get_sort_key(key, sort_by, sort_tag, album);
             rax_insert_no_dup(albums, key, iter.data);

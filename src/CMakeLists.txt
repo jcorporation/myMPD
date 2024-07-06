@@ -70,6 +70,7 @@ target_sources(mympd
     lib/mympd_state.c
     lib/random.c
     lib/rax_extras.c
+    lib/search.c
     lib/sds_extras.c
     lib/smartpls.c
     lib/sticker.c
@@ -91,7 +92,6 @@ target_sources(mympd
     mpd_client/presets.c
     mpd_client/random_select.c
     mpd_client/search.c
-    mpd_client/search_local.c
     mpd_client/stickerdb.c
     mpd_client/shortcuts.c
     mpd_client/tags.c
