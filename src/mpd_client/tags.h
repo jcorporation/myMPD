@@ -32,7 +32,6 @@ sds mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_ty
 sds print_tags_array(sds buffer, const char *tagsname, const struct t_mpd_tags *tags);
 sds mpd_client_get_tag_value_padded(const struct mpd_song *song, enum mpd_tag_type tag, const char pad, size_t len, sds tag_values);
 int mpd_client_get_tag_value_int(const struct mpd_song *song, enum mpd_tag_type tag);
-sds mpd_client_get_value_padded(int64_t value, sds tag_values);
 sds get_sort_key(sds key, enum sort_by_type sort_by, enum mpd_tag_type sort_tag, const struct mpd_song *song);
 
 #endif

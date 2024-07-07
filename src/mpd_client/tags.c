@@ -189,10 +189,10 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, const struct t_mpd_tags *a
  */
 sds get_sort_key(sds key, enum sort_by_type sort_by, enum mpd_tag_type sort_tag, const struct mpd_song *song) {
     if (sort_by == SORT_BY_LAST_MODIFIED) {
-        key = mpd_client_get_value_padded((int64_t)mpd_song_get_last_modified(song), key);
+        key = sds_pad_int((int64_t)mpd_song_get_last_modified(song), key);
     }
     else if (sort_by == SORT_BY_ADDED) {
-        key = mpd_client_get_value_padded((int64_t)mpd_song_get_added(song), key);
+        key = sds_pad_int((int64_t)mpd_song_get_added(song), key);
     }
     else if (is_numeric_tag(sort_tag) == true) {
         key = mpd_client_get_tag_value_padded(song, sort_tag, '0', PADDING_LENGTH, key);
@@ -318,19 +318,6 @@ sds mpd_client_get_tag_value_padded(const struct mpd_song *song, enum mpd_tag_ty
         tag_values = sdscatlen(tag_values, value, value_len);
     }
     return tag_values;
-}
-
-/**
- * Prints a zero padded value
- * @param song mpd song struct
- * @param tag mpd tag type
- * @param pad padding char
- * @param len length to pad
- * @param tag_values already allocated sds string to append
- * @return sds new sds pointer to tag_values
- */
-sds mpd_client_get_value_padded(int64_t value, sds tag_values) {
-    return sdscatprintf(tag_values, "%020" PRId64, value);
 }
 
 /**

@@ -493,3 +493,13 @@ sds sds_replace(sds s, const char *p) {
 sds sds_catbool(sds s, bool v) {
     return v == true ? sdscatlen(s, "true", 4) : sdscatlen(s, "false", 5);
 }
+
+/**
+ * Prints a zero padded value
+ * @param value mpd song struct
+ * @param buffer already allocated sds string to append
+ * @return pointer to buffer
+ */
+sds sds_pad_int(int64_t value, sds buffer) {
+    return sdscatprintf(buffer, "%020" PRId64, value);
+}
