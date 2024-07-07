@@ -122,7 +122,6 @@
     "Can't set playback options: MPD not connected": "Wiedergabeeinstellungen konnten nicht gespeichert werden: keine Verbindung zum MPD Server",
     "Cancel": "Abbrechen",
     "Check WebradioDB": "WebradioDB prüfen",
-    "Checking...": "Überprüfe...",
     "Choose a playlist": "Wiedergabeliste wählen",
     "Choose a playlist or enter a new playlist name": "Wiedergabeliste wählen oder neuen Namen eingeben",
     "Clear": "Leeren",
@@ -1194,8 +1193,8 @@
     "votes": "Stimmen",
     "wasapi": "Windows Audio Session API",
     "No webradio favorites provided": "Kein Webradio ausgewählt.",
-    "Webradio favorite not found": "Webradio Favorit nicht gefunden.",
     "WebradioDB is disabled": "WebradioDB ist deaktiviert.",
     "WebradioDB update failed": "WebradioDB Update fehlgeschlagen.",
-    "WebradioDB update started": "WebradioDB Update gestartet."
+    "WebradioDB update started": "WebradioDB Update gestartet.",
+    "Webradio entry not found": "Webradio nicht gefunden."
 }
