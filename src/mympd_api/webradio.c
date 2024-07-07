@@ -8,6 +8,7 @@
 #include "src/mympd_api/webradio.h"
 
 #include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/search.h"
@@ -38,7 +39,11 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     webradio_tags_search(&webradio_tags);
     struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_WEBRADIO);
     enum webradio_tag_type sort_tag = webradio_tag_name_parse(sort);
-    if (sort_tag == WEBRADIO_TAG_BITRATE) {
+    if (sort_tag == WEBRADIO_TAG_UNKNOWN) {
+        sort_tag = WEBRADIO_TAG_NAME;
+        MYMPD_LOG_WARN(NULL, "Invalid sort tag: %s", sort);
+    }
+    else if (sort_tag == WEBRADIO_TAG_BITRATE) {
         sortdesc = sortdesc == true ? false : true;
     }
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
