@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Centtral myMPD configuration definitions
+ */
+
 #ifndef MYMPD_LIB_CONFIG_DEF_H
 #define MYMPD_LIB_CONFIG_DEF_H
 

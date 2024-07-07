@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Configuration handling
+ */
+
 #include "compile_time.h"
 #include "src/lib/config.h"
 
@@ -40,7 +44,7 @@ static bool startup_getenv_bool(const char *env_var, bool default_value, bool fi
  * Frees the config struct
  * @param config pointer to config struct
  */
-void *mympd_config_free(struct t_config *config) {
+void mympd_config_free(struct t_config *config) {
     FREE_SDS(config->acl);
     FREE_SDS(config->cachedir);
     FREE_SDS(config->http_host);
@@ -53,7 +57,6 @@ void *mympd_config_free(struct t_config *config) {
     FREE_SDS(config->user);
     FREE_SDS(config->workdir);
     FREE_PTR(config);
-    return NULL;
 }
 
 /**
@@ -182,6 +185,7 @@ bool mympd_config_rm(struct t_config *config) {
  * Reads or writes the config from the /var/lib/mympd/config directory
  * @param config pointer to config struct
  * @param write if true create the file if not exists
+ * @return true on success, else false
  */
 bool mympd_config_rw(struct t_config *config, bool write) {
     config->http = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "http", config->http, write);
