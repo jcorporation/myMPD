@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Album cache
+ */
+
 #include "compile_time.h"
 #include "src/lib/cache_rax_album.h"
 
@@ -582,7 +586,7 @@ void album_cache_set_uri(struct mpd_song *album, const char *uri) {
 /**
  * Creates a mpd_song struct from cache
  * @param album_node mpack node to parse
- * @param tagcols tags to read
+ * @param tags tags to read
  * @param key already allocated sds string to set the album key
  * @return struct mpd_song* allocated mpd_song struct
  */

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Album cache
+ */
+
 #ifndef MYMPD_CACHE_RAX_ALBUM_H
 #define MYMPD_CACHE_RAX_ALBUM_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD API handling
+ */
+
 #ifndef MYMPD_API_H
 #define MYMPD_API_H
 
@@ -218,9 +222,13 @@
     X(TOTAL_API_COUNT)
 
 /**
- * Helper macros
+ * Macro to generate enum for the API methods
  */
 #define GEN_ENUM(X) X,
+
+/**
+ * Macro to generate strings for the API methods
+ */
 #define GEN_STR(X) #X,
 
 /**

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Image cache handling
+ */
+
 #ifndef MYMPD_CACHE_DISK_IMAGES_H
 #define MYMPD_CACHE_DISK_IMAGES_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD API handling
+ */
+
 #include "compile_time.h"
 #include "src/lib/api.h"
 
@@ -14,6 +18,9 @@
 
 #include <string.h>
 
+/**
+ * myMPD API methods as strings
+ */
 static const char *mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };
 
 /**
@@ -161,6 +168,11 @@ void ws_notify_client(sds message, unsigned request_id) {
     mympd_queue_push(web_server_queue, response, 0);
 }
 
+/**
+ * Sends a websocket message to a client to display a dialog.
+ * @param message The message to send
+ * @param request_id the jsonrpc id of the client
+ */
 void ws_script_dialog(sds message, unsigned request_id) {
     MYMPD_LOG_DEBUG(NULL, "Push websocket notify to queue: \"%s\"", message);
     struct t_work_response *response = create_response_new(RESPONSE_TYPE_SCRIPT_DIALOG, 0, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);

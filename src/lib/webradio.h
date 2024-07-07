@@ -49,6 +49,9 @@ enum webradio_tag_type {
     WEBRADIO_TAG_COUNT
 };
 
+/**
+ * Struct holding webradio tag types
+ */
 struct t_webradio_tags {
     size_t len;                                       //!< number of tags in the array
     enum webradio_tag_type tags[WEBRADIO_TAG_COUNT];  //!< tags array
