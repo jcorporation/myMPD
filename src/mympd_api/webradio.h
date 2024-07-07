@@ -17,8 +17,5 @@ sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buff
 sds mympd_api_webradio_radio_get_by_uri(struct t_webradios *webradios, sds buffer, unsigned request_id, sds uri);
 sds mympd_api_webradio_from_uri_tojson(struct t_mympd_state *mympd_state, const char *uri);
 sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer);
-struct t_webradio_data *mympd_api_webradio_by_uri(struct t_mympd_state *mympd_state, const char *uri, enum webradio_type type);
-sds mympd_api_webradio_get_cover_by_uri(struct t_mympd_state *mympd_state, sds buffer, sds uri);
-sds mympd_api_webradio_get_extm3u(struct t_mympd_state *mympd_state, sds buffer, sds uri);
 
 #endif

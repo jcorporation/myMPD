@@ -272,7 +272,7 @@ function setPlaybackCardTags(songObj) {
         PlaybackListWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateTextTn('small', {}, 'Genre'),
-                elCreateText('p', {}, songObj.webradio.Genre)
+                elCreateText('p', {}, joinArray(songObj.webradio.Genres))
             ])
         );
         PlaybackListWebradio.appendChild(
@@ -285,7 +285,7 @@ function setPlaybackCardTags(songObj) {
         PlaybackListWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateTextTn('small', {}, 'Language'),
-                elCreateText('p', {}, songObj.webradio.Language)
+                elCreateText('p', {}, joinArray(songObj.webradio.Languages))
             ])
         );
         if (songObj.webradio.Homepage !== '') {

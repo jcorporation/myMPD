@@ -48,62 +48,60 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     }
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
             buffer = sdscat(buffer,"\"data\":[");
-    if (webradios != NULL && webradios->db != NULL) {
-        sds key = sdsempty();
-        raxIterator iter;
-        rax *sorted = raxNew();
-        raxStart(&iter, webradios->db);
-        raxSeek(&iter, "^", NULL, 0);
-        // Search and sort
-        while (raxNext(&iter)) {
-            struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
-            if (search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true) {
-                if (sort_tag == WEBRADIO_TAG_BITRATE) {
-                    key = sds_pad_int(webradio_data->uris.head->value_i, key);
-                }
-                else {
-                    const char *sort_value = webradio_get_tag(webradio_data, sort_tag, 0);
-                    key = sdscat(key, sort_value);
-                }
-                if (sort_tag != WEBRADIO_TAG_NAME) {
-                    key = sdscat(key, webradio_data->name);
-                }
-                rax_insert_no_dup(sorted, key, iter.data);
-                sdsclear(key);
+
+    sds key = sdsempty();
+    raxIterator iter;
+    rax *sorted = raxNew();
+    raxStart(&iter, webradios->db);
+    raxSeek(&iter, "^", NULL, 0);
+    // Search and sort
+    while (raxNext(&iter)) {
+        struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
+        if (search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true) {
+            if (sort_tag == WEBRADIO_TAG_BITRATE) {
+                key = sds_pad_int(webradio_data->uris.head->value_i, key);
             }
-        }
-        FREE_SDS(key);
-        raxStop(&iter);
-        // Print the result
-        raxStart(&iter, sorted);
-        int (*iterator)(struct raxIterator *iter);
-        if (sortdesc == false) {
-            raxSeek(&iter, "^", NULL, 0);
-            iterator = &raxNext;
-        }
-        else {
-            raxSeek(&iter, "$", NULL, 0);
-            iterator = &raxPrev;
-        }
-        while (iterator(&iter)) {
-            struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
-            if (search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true) {
-                if (entities_found >= offset) {
-                    if (entities_returned++) {
-                        buffer= sdscatlen(buffer, ",", 1);
-                    }
-                    buffer = sdscatlen(buffer, "{", 1);
-                    buffer = mympd_api_webradio_print(webradio_data, buffer);
-                    buffer = sdscatlen(buffer, "}", 1);
-                }
-                entities_found++;
-                if (entities_found == real_limit) {
-                    break;
-                }
+            else {
+                const char *sort_value = webradio_get_tag(webradio_data, sort_tag, 0);
+                key = sdscat(key, sort_value);
             }
+            if (sort_tag != WEBRADIO_TAG_NAME) {
+                key = sdscat(key, webradio_data->name);
+            }
+            rax_insert_no_dup(sorted, key, iter.data);
+            sdsclear(key);
         }
-        raxStop(&iter);
     }
+    FREE_SDS(key);
+    raxStop(&iter);
+    // Print the result
+    raxStart(&iter, sorted);
+    int (*iterator)(struct raxIterator *iter);
+    if (sortdesc == false) {
+        raxSeek(&iter, "^", NULL, 0);
+        iterator = &raxNext;
+    }
+    else {
+        raxSeek(&iter, "$", NULL, 0);
+        iterator = &raxPrev;
+    }
+    while (iterator(&iter)) {
+        struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
+        if (entities_found >= offset) {
+            if (entities_returned++) {
+                buffer= sdscatlen(buffer, ",", 1);
+            }
+            buffer = sdscatlen(buffer, "{", 1);
+            buffer = mympd_api_webradio_print(webradio_data, buffer);
+            buffer = sdscatlen(buffer, "}", 1);
+        }
+        entities_found++;
+        if (entities_found == real_limit) {
+            break;
+        }
+    }
+    raxStop(&iter);
+    raxFree(sorted);
     free_search_expression_list(expr_list);
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -132,7 +130,7 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
  */
 sds mympd_api_webradio_from_uri_tojson(struct t_mympd_state *mympd_state, const char *uri) {
     sds buffer = sdsempty();
-    struct t_webradio_data *webradio = mympd_api_webradio_by_uri(mympd_state, uri, WEBRADIO_ALL);
+    struct t_webradio_data *webradio = webradio_by_uri(mympd_state->webradio_favorites, mympd_state->webradiodb, uri);
     if (webradio != NULL) {
         buffer = sdscatlen(buffer, "{", 1);
         buffer = mympd_api_webradio_print(webradio, buffer);
@@ -149,9 +147,14 @@ sds mympd_api_webradio_from_uri_tojson(struct t_mympd_state *mympd_state, const 
  */
 sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
     buffer = tojson_sds(buffer, "Name", webradio->name, true);
-    sds image = webradio_get_cover_uri(webradio, sdsempty());
-    buffer = tojson_sds(buffer, "Image", image, true);
-    FREE_SDS(image);
+    if (webradio->type == WEBRADIO_WEBRADIODB) {
+        sds image = sdscatfmt(sdsempty(), "%s%s", WEBRADIODB_URI_PICS, webradio->image);
+        buffer = tojson_sds(buffer, "Image", image, true);
+        FREE_SDS(image);
+    }
+    else {
+        buffer = tojson_sds(buffer, "Image", webradio->image, true);
+    }
     buffer = tojson_sds(buffer, "Homepage", webradio->homepage, true);
     buffer = tojson_sds(buffer, "Country", webradio->country, true);
     buffer = tojson_sds(buffer, "Region", webradio->region, true);
@@ -163,13 +166,15 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
     buffer = sdscat(buffer, "\"alternativeStreams\":{");
     current = current->next;
     unsigned i = 0;
+    sds key = sdsempty();
     while (current != NULL) {
         if (i++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        sds key = sdsdup(current->key);
+        key = sdscatsds(key, current->key);
         sanitize_filename(key);
         buffer = sds_catjson(buffer, key, sdslen(key));
+        sdsclear(key);
         buffer = sdscatlen(buffer, ":{", 2);
         buffer = tojson_sds(buffer, "StreamUri", current->key, true);
         buffer = tojson_sds(buffer, "Codec", current->value_p, true);
@@ -177,6 +182,7 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
         buffer = sdscatlen(buffer, "}", 1);
         current = current->next;
     }
+    FREE_SDS(key);
     buffer = sdscat(buffer, "},\"Genres\":");
     buffer = list_to_json_array(buffer, &webradio->genres);
     buffer = sdscat(buffer, ",\"Languages\":");
@@ -197,9 +203,7 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
 sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buffer, unsigned request_id, sds name) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME;
     void *data = raxNotFound;
-    if (webradios != NULL && webradios->db != NULL) {
-        data = raxFind(webradios->db, (unsigned char *)name, strlen(name));
-    }
+    data = raxFind(webradios->db, (unsigned char *)name, strlen(name));
     if (data == raxNotFound) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Webradio entry not found");
@@ -222,9 +226,7 @@ sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buff
 sds mympd_api_webradio_radio_get_by_uri(struct t_webradios *webradios, sds buffer, unsigned request_id, sds uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI;
     void *data = raxNotFound;
-    if (webradios != NULL && webradios->db != NULL) {
-        data = raxFind(webradios->idx_uris, (unsigned char *)uri, strlen(uri));
-    }
+    data = raxFind(webradios->idx_uris, (unsigned char *)uri, strlen(uri));
     if (data == raxNotFound) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Webradio entry not found");
@@ -234,62 +236,4 @@ sds mympd_api_webradio_radio_get_by_uri(struct t_webradios *webradios, sds buffe
     buffer = mympd_api_webradio_print(webradio, buffer);
     buffer = jsonrpc_end(buffer);
     return buffer;
-}
-
-/**
- * Search webradio by uri in favorites and WebradioDB
- * @param mympd_state pointer to mympd_state
- * @param uri Uri to search for
- * @param type Webradio type to lookup
- * @return pointer to webradio data or NULL on error
- */
-struct t_webradio_data *mympd_api_webradio_by_uri(struct t_mympd_state *mympd_state, const char *uri, enum webradio_type type) {
-    void *data = raxNotFound;
-    if (type == WEBRADIO_ALL || WEBRADIO_FAVORITE) {
-        if (mympd_state->webradio_favorites->idx_uris != NULL) {
-            data = raxFind(mympd_state->webradio_favorites->idx_uris, (unsigned char *)uri, strlen(uri));
-        }
-    }
-    if (type == WEBRADIO_ALL || WEBRADIO_WEBRADIODB) {
-        if (data == raxNotFound) {
-            if (mympd_state->webradiodb->idx_uris != NULL) {
-                data = raxFind(mympd_state->webradiodb->idx_uris, (unsigned char *)uri, strlen(uri));
-            }
-        }
-    }
-    if (data == raxNotFound) {
-        return NULL;
-    }
-    return (struct t_webradio_data *)data;
-}
-
-/**
- * Returns the uri for the webradio image
- * @param mympd_state pointer to mympd_state
- * @param buffer Buffer to append the uri
- * @param uri Webradio uri
- * @return Pointer to buffer
- */
-sds mympd_api_webradio_get_cover_by_uri(struct t_mympd_state *mympd_state, sds buffer, sds uri) {
-    struct t_webradio_data *webradio = mympd_api_webradio_by_uri(mympd_state, uri, WEBRADIO_ALL);
-    if (webradio != NULL) {
-        return webradio_get_cover_uri(webradio, buffer);
-    }
-    // Not found
-    return sdscat(buffer, "/assets/coverimage-stream");
-}
-
-/**
- * Returns an extm3u for a webradio
- * @param mympd_state pointer to mympd_state
- * @param buffer Buffer to append the uri
- * @param uri Webradio uri
- * @return Pointer to buffer
- */
-sds mympd_api_webradio_get_extm3u(struct t_mympd_state *mympd_state, sds buffer, sds uri) {
-    struct t_webradio_data *webradio = mympd_api_webradio_by_uri(mympd_state, uri, WEBRADIO_ALL);
-    if (webradio != NULL) {
-        return webradio_to_extm3u(webradio, buffer, uri);
-    }
-    return sdscat(buffer, "Webradio not found");
 }

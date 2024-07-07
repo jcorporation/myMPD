@@ -14,7 +14,7 @@
 function showRadioFavoriteDetails(uri) {
     cleanupModalId('modalWebradiodbDetailList');
     elHideId('modalWebradiodbDetailAddToFavoriteBtn');
-    sendAPI('MYMPD_API_WEBRADIO_FAVORITE_GET', {'filename': uri}, parseShowRadioFavoriteDetails, true);
+    sendAPI('MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI', {'uri': uri}, parseShowRadioFavoriteDetails, true);
 }
 
 /**
@@ -38,18 +38,7 @@ function parseShowRadioFavoriteDetails(obj) {
     }
     elGetById('modalWebradiodbDetailTitle').textContent = obj.result.Name;
     setDataId('modalWebradiodbDetailTitle', 'webradio', obj.result);
-    const showFields = [
-        'StreamUri',
-        'Homepage',
-        'Genre',
-        'Country',
-        'State',
-        'Language',
-        'Codec',
-        'Bitrate',
-        'Description'
-    ];
-    for (const field of showFields) {
+    for (const field of webradioFields) {
         const value = printValue(field, obj.result[field]);
         tbody.appendChild(
             elCreateNodes('tr', {}, [

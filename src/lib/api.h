@@ -9,6 +9,7 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/list.h"
+#include "src/lib/webradio.h"
 
 #include <stdbool.h>
 
@@ -22,7 +23,6 @@
     X(GENERAL_API_NOT_READY) \
     X(INTERNAL_API_ALBUMART_BY_ALBUMID) \
     X(INTERNAL_API_ALBUMART_BY_URI) \
-    X(INTERNAL_API_ALBUMART_WEBRADIO) \
     X(INTERNAL_API_ALBUMCACHE_CREATED) \
     X(INTERNAL_API_ALBUMCACHE_ERROR) \
     X(INTERNAL_API_ALBUMCACHE_SKIPPED) \
@@ -40,7 +40,6 @@
     X(INTERNAL_API_TIMER_STARTPLAY) \
     X(INTERNAL_API_TRIGGER_EVENT_EMIT) \
     X(INTERNAL_API_WEBRADIODB_CREATED) \
-    X(INTERNAL_API_WEBRADIO_EXTM3U) \
     X(INTERNAL_API_WEBSERVER_NOTIFY) \
     X(INTERNAL_API_WEBSERVER_READY) \
     X(INTERNAL_API_WEBSERVER_SETTINGS) \
@@ -287,13 +286,15 @@ struct t_work_response {
  * Config data sent to webserver thread
  */
 struct set_mg_user_data_request {
-    sds music_directory;      //!< detected mpd music directory
-    sds playlist_directory;   //!< configured mpd playlist directory
-    sds coverimage_names;     //!< comma separated list of coverimage names
-    sds thumbnail_names;      //!< comma separated list of coverimage thumbnail names
-    bool feat_albumart;       //!< true if mpd supports the albumart protocol command
-    sds mpd_host;             //!< configured mpd host
-    struct t_list partitions; //!< partition specific settings
+    sds music_directory;                     //!< detected mpd music directory
+    sds playlist_directory;                  //!< configured mpd playlist directory
+    sds coverimage_names;                    //!< comma separated list of coverimage names
+    sds thumbnail_names;                     //!< comma separated list of coverimage thumbnail names
+    bool feat_albumart;                      //!< true if mpd supports the albumart protocol command
+    sds mpd_host;                            //!< configured mpd host
+    struct t_list partitions;                //!< partition specific settings
+    struct t_webradios *webradiodb;          //!< Pointer to webradiodb
+    struct t_webradios *webradio_favorites;  //!< Pointer to webradio favorites
 };
 
 /**

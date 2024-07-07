@@ -73,8 +73,9 @@ function parseRadioFavoritesList(obj) {
                 data.Image = '/assets/coverimage-stream';
             }
             data.Thumbnail = getCssImageUri(data.Image);
-            setData(row, 'uri', data.filename);
+            setData(row, 'uri', data.StreamUri);
             setData(row, 'name', data.Name);
+            setData(row, 'image', data.Image);
             setData(row, 'type', 'webradio');
             row.setAttribute('title', rowTitle);
         });
@@ -85,8 +86,9 @@ function parseRadioFavoritesList(obj) {
             data.Image = '/assets/coverimage-stream';
         }
         data.Thumbnail = getCssImageUri(data.Image);
-        setData(card, 'uri', data.filename);
+        setData(card, 'uri', data.StreamUri);
         setData(card, 'name', data.Name);
+        setData(card, 'image', data.Image);
         setData(card, 'type', 'webradio');
         card.setAttribute('title', rowTitle);
     });

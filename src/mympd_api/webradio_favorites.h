@@ -13,6 +13,6 @@
 #include <stdbool.h>
 
 bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, struct t_webradio_data *webradio, sds old_name);
-bool mympd_api_webradio_favorite_delete(struct t_webradios *webradio_favorites, struct t_list *ids);
+void mympd_api_webradio_favorite_delete(struct t_webradios *webradio_favorites, struct t_list *names);
 
 #endif

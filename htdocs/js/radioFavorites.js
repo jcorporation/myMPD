@@ -31,13 +31,13 @@ function getRadioFavoriteUris(uris) {
 
 /**
  * Deletes a webradio favorite
- * @param {Array} filenames filenames to delete
+ * @param {Array} names Webradio favorit names to delete
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function deleteRadioFavorites(filenames) {
+function deleteRadioFavorites(names) {
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_RM", {
-        "filenames": filenames
+        "names": names
     }, function() {
         handleBrowseRadioFavorites();
     }, false);
@@ -45,13 +45,13 @@ function deleteRadioFavorites(filenames) {
 
 /**
  * Gets the webradio favorite and opens the edit modal
- * @param {string} filename filename to get
+ * @param {string} uri Webradio favorite uri to get
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function editRadioFavorite(filename) {
-    sendAPI("MYMPD_API_WEBRADIO_FAVORITE_GET", {
-        "filename": filename
+function editRadioFavorite(uri) {
+    sendAPI("MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI", {
+        "uri": uri
     }, function(obj) {
         showEditRadioFavorite(obj.result);
     }, false);

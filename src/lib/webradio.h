@@ -25,8 +25,9 @@ enum webradio_type {
  * Wraps the indexes of webradios
  */
 struct t_webradios {
-    rax *db;         //!< Index by name
-    rax *idx_uris;   //!< Index by uri
+    rax *db;                  //!< Index by name
+    rax *idx_uris;            //!< Index by uri
+    pthread_rwlock_t rwlock;  //!< pthreads read-write lock object
 };
 
 /**
@@ -69,6 +70,9 @@ struct t_webradio_data {
     enum webradio_type type;    //!< Type of the webradio
 };
 
+struct t_webradio_data *webradio_by_uri(struct t_webradios *webradio_favorites, struct t_webradios *webradiodb,
+        const char *uri);
+sds webradio_get_extm3u(struct t_webradios *webradio_favorites, struct t_webradios *webradiodb, sds buffer, sds uri);
 struct t_webradio_data *webradio_data_new(enum webradio_type type);
 void webradio_data_free(struct t_webradio_data *data);
 sds webradio_get_cover_uri(struct t_webradio_data *webradio, sds buffer);
@@ -79,7 +83,11 @@ const char *webradio_get_tag(const struct t_webradio_data *webradio, enum webrad
 sds webradio_to_extm3u(const struct t_webradio_data *webradio, sds buffer, const char *uri);
 
 struct t_webradios *webradios_new(void);
+void webradios_clear(struct t_webradios *webradios, bool init_rax);
 void webradios_free(struct t_webradios *webradios);
+bool webradios_get_read_lock(struct t_webradios *webradios);
+bool webradios_get_write_lock(struct t_webradios *webradios);
+bool webradios_release_lock(struct t_webradios *webradios);
 bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradios, const char *filename);
 bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webradios, const char *filename, enum webradio_type type);
 

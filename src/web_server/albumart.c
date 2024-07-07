@@ -18,6 +18,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
+#include "src/web_server/webradio.h"
 
 #include <libgen.h>
 
@@ -180,13 +181,10 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
             return true;
         }
         // Get the webradio image
-        MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_ALBUMART_WEBRADIO to mympdapi_queue");
-        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, 0, INTERNAL_API_ALBUMART_WEBRADIO, NULL, MPD_PARTITION_DEFAULT);
-        request->data = tojson_sds(request->data, "uri", uri, false);
-        request->data = jsonrpc_end(request->data);
-        mympd_queue_push(mympd_api_queue, request, 0);
-        FREE_SDS(uri);
-        return false;
+        sds buffer = webserver_webradio_get_cover_uri(mg_user_data->webradio_favorites, mg_user_data->webradiodb, sdsempty(), uri);
+        webserver_send_header_redirect(nc, buffer, "");
+        FREE_SDS(buffer);
+        return true;
     }
 
     if (sdslen(mg_user_data->music_directory) > 0) {

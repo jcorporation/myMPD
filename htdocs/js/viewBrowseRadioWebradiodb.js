@@ -85,6 +85,7 @@ function parseSearchWebradiodb(obj) {
         updateTable(obj, app.id, function(row, data) {
             setData(row, 'uri', data.StreamUri);
             setData(row, 'name', data.Name);
+            setData(row, 'image', data.Image);
             setData(row, 'type', 'webradio');
             row.setAttribute('title', rowTitle);
         });
@@ -99,16 +100,8 @@ function parseSearchWebradiodb(obj) {
     updateGrid(obj, app.id, function(card, data) {
         setData(card, 'uri', data.StreamUri);
         setData(card, 'name', data.Name);
+        setData(card, 'image', data.Image);
         setData(card, 'type', 'webradio');
         card.setAttribute('title', rowTitle);
     });
-}
-
-/**
- * Converts a stream uri to the webradioDB and webradio favorites filename
- * @param {string} uri uri to convert
- * @returns {string} converted string
- */
-function streamUriToName(uri) {
-    return uri.replace(/[<>/.:?&$!#|;=]/g, '_');
 }

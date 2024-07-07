@@ -148,6 +148,7 @@ target_sources(mympd
     web_server/playlistart.c
     web_server/tagart.c
     web_server/utility.c
+    web_server/webradio.c
 )
 
 if(MYMPD_ENABLE_LUA)

@@ -14,6 +14,50 @@
 #include "src/lib/mpack.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
+#include <pthread.h>
+
+/**
+ * Search webradio by uri in favorites and WebradioDB
+ * @param mympd_state pointer to mympd_state
+ * @param uri Uri to search for
+ * @return pointer to webradio data or NULL on error
+ */
+struct t_webradio_data *webradio_by_uri(struct t_webradios *webradio_favorites, struct t_webradios *webradiodb,
+        const char *uri)
+{
+    void *data = raxNotFound;
+    if (webradio_favorites != NULL) {
+        if (webradio_favorites->idx_uris != NULL) {
+            data = raxFind(webradio_favorites->idx_uris, (unsigned char *)uri, strlen(uri));
+        }
+    }
+    if (webradiodb != NULL) {
+        if (data == raxNotFound) {
+            if (webradiodb->idx_uris != NULL) {
+                data = raxFind(webradiodb->idx_uris, (unsigned char *)uri, strlen(uri));
+            }
+        }
+    }
+    if (data == raxNotFound) {
+        return NULL;
+    }
+    return (struct t_webradio_data *)data;
+}
+
+/**
+ * Returns an extm3u for a webradio
+ * @param mympd_state pointer to mympd_state
+ * @param buffer Buffer to append the uri
+ * @param uri Webradio uri
+ * @return Pointer to buffer
+ */
+sds webradio_get_extm3u(struct t_webradios *webradio_favorites, struct t_webradios *webradiodb, sds buffer, sds uri) {
+    struct t_webradio_data *webradio = webradio_by_uri(webradio_favorites, webradiodb, uri);
+    if (webradio != NULL) {
+        return webradio_to_extm3u(webradio, buffer, uri);
+    }
+    return sdscat(buffer, "Webradio not found");
+}
 
 /**
  * Creates a new webradio data struct
@@ -207,42 +251,116 @@ sds webradio_to_extm3u(const struct t_webradio_data *webradio, sds buffer, const
  */
 struct t_webradios *webradios_new(void) {
     struct t_webradios *webradios = malloc_assert(sizeof(struct t_webradios));
-    webradios->db = NULL;
-    webradios->idx_uris = NULL;
-    return webradios;
+    int rc = pthread_rwlock_init(&webradios->rwlock, NULL);
+    if (rc == 0) {
+        webradios->db = raxNew();
+        webradios->idx_uris = raxNew();
+        return webradios;
+    }
+    MYMPD_LOG_ERROR(NULL, "Can not init lock");
+    MYMPD_LOG_ERRNO(NULL, rc);
+    FREE_PTR(webradios);
+    return NULL;
+}
+
+/**
+ * Clears the webradios struct
+ * @param webradios struct to free
+ * @param init_rax init the rax trees?
+ */
+void webradios_clear(struct t_webradios *webradios, bool init_rax) {
+    raxIterator iter;
+    raxStart(&iter, webradios->db);
+    raxSeek(&iter, "^", NULL, 0);
+    while (raxNext(&iter)) {
+        webradio_data_free((struct t_webradio_data *)iter.data);
+        iter.data = NULL;
+    }
+    raxStop(&iter);
+    raxFree(webradios->db);
+    if (init_rax == true) {
+        webradios->db = raxNew();
+    }
+    else {
+        webradios->db = NULL;
+    }
+
+    raxStart(&iter, webradios->idx_uris);
+    raxSeek(&iter, "^", NULL, 0);
+    while (raxNext(&iter)) {
+        iter.data = NULL;
+    }
+    raxStop(&iter);
+    raxFree(webradios->idx_uris);
+    if (init_rax == true) {
+        webradios->idx_uris = raxNew();
+    }
+    else {
+        webradios->db = NULL;
+    }
 }
 
 /**
  * Frees the webradios struct
- * @param webradios rax tree to free
+ * @param webradios struct to free
  */
 void webradios_free(struct t_webradios *webradios) {
-    if (webradios == NULL) {
-        return;
+    if (webradios->db->numnodes > 0 ||
+        webradios->idx_uris->numnodes > 0) 
+    {
+        webradios_clear(webradios, false);
     }
-    raxIterator iter;
-    if (webradios->db != NULL) {
-        raxStart(&iter, webradios->db);
-        raxSeek(&iter, "^", NULL, 0);
-        while (raxNext(&iter)) {
-            webradio_data_free((struct t_webradio_data *)iter.data);
-            iter.data = NULL;
-        }
-        raxStop(&iter);
-        raxFree(webradios->db);
-        webradios->db = NULL;
-    }
-    if (webradios->idx_uris != NULL) {
-        raxStart(&iter, webradios->idx_uris);
-        raxSeek(&iter, "^", NULL, 0);
-        while (raxNext(&iter)) {
-            iter.data = NULL;
-        }
-        raxStop(&iter);
-        raxFree(webradios->idx_uris);
-        webradios->idx_uris = NULL;
+    int rc = pthread_rwlock_destroy(&webradios->rwlock);
+    if (rc != 0) {
+        MYMPD_LOG_ERROR(NULL, "Can not destroy lock");
+        MYMPD_LOG_ERRNO(NULL, rc);
     }
     FREE_PTR(webradios);
+}
+
+/**
+ * Acquires a read lock
+ * @param cache pointer to cache struct
+ * @return true on success, else false
+ */
+bool webradios_get_read_lock(struct t_webradios *webradios) {
+    int rc = pthread_rwlock_rdlock(&webradios->rwlock);
+    if (rc == 0) {
+        return true;
+    }
+    MYMPD_LOG_ERROR(NULL, "Can not get read lock");
+    MYMPD_LOG_ERRNO(NULL, rc);
+    return false;
+}
+
+/**
+ * Acquires a write lock
+ * @param cache pointer to cache struct
+ * @return true on success, else false
+ */
+bool webradios_get_write_lock(struct t_webradios *webradios) {
+    int rc = pthread_rwlock_wrlock(&webradios->rwlock);
+    if (rc == 0) {
+        return true;
+    }
+    MYMPD_LOG_ERROR(NULL, "Can not get write lock");
+    MYMPD_LOG_ERRNO(NULL, rc);
+    return false;
+}
+
+/**
+ * Frees the lock
+ * @param cache pointer to cache struct
+ * @return true on success, else false
+ */
+bool webradios_release_lock(struct t_webradios *webradios) {
+    int rc = pthread_rwlock_unlock(&webradios->rwlock);
+    if (rc == 0) {
+        return true;
+    }
+    MYMPD_LOG_ERROR(NULL, "Can not free the lock");
+    MYMPD_LOG_ERRNO(NULL, rc);
+    return false;
 }
 
 /**
@@ -349,11 +467,9 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", config->workdir, DIR_WORK_TAGS, filename);
     if (testfile_read(filepath) == false) {
         FREE_SDS(filepath);
-        webradios_free(webradios);
+        webradios_clear(webradios, true);
         return false;
     }
-    webradios->db = raxNew();
-    webradios->idx_uris = raxNew();
 
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);
@@ -418,7 +534,7 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
         : true;
     if (rc == false) {
         MYMPD_LOG_ERROR("default", "Reading webradios %s failed.", filename);
-        webradios_free(webradios);
+        webradios_clear(webradios, true);
         return rc;
     }
 

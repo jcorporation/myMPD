@@ -26,7 +26,8 @@ This release improves the WebradioDB integration and removes the radiobrowser.in
 
 ### Changelog
 
-Upd: Remove radiobrowser integration #1311
+- Feat: Implement uniq backend for WebradioDB and webradio favorites #1071
+- Upd: Remove radiobrowser integration #1311
 
 ***
 

@@ -10,8 +10,8 @@
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
+#include "src/web_server/webradio.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/sessions.h"
 #include "src/web_server/utility.h"
@@ -325,14 +325,15 @@ void request_handler_ca(struct mg_connection *nc, struct mg_http_message *hm,
  * @param nc mongoose connection
  * @param hm http message
  */
-void request_handler_extm3u(struct mg_connection *nc, struct mg_http_message *hm) {
+void request_handler_extm3u(struct mg_connection *nc, struct mg_http_message *hm,
+        struct t_mg_user_data *mg_user_data)
+{
     sds uri = get_uri_param(&hm->query, "uri=");
+    MYMPD_LOG_INFO(NULL, "EXTM3U for %s requested", uri);
     if (uri != NULL) {
-        MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_WEBRADIO_EXTM3U to mympdapi_queue");
-        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_WEBRADIO_EXTM3U, NULL, MPD_PARTITION_DEFAULT);
-        request->data = tojson_sds(request->data, "uri", uri, false);
-        request->data = jsonrpc_end(request->data);
-        mympd_queue_push(mympd_api_queue, request, 0);
+        sds buffer = webserver_webradio_get_extm3u(mg_user_data->webradio_favorites, mg_user_data->webradiodb, sdsempty(), uri);
+        webserver_send_data(nc, buffer, sdslen(buffer), "Content-Type: audio/mpegurl\r\n");
+        FREE_SDS(buffer);
     }
     else {
         webserver_send_error(nc, 400, "Invalid uri");

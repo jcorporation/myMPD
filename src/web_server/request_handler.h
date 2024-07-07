@@ -22,6 +22,7 @@ void request_handler_proxy_covercache(struct mg_connection *nc, struct mg_http_m
 void request_handler_serverinfo(struct mg_connection *nc);
 void request_handler_ca(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data);
-void request_handler_extm3u(struct mg_connection *nc, struct mg_http_message *hm);
+void request_handler_extm3u(struct mg_connection *nc, struct mg_http_message *hm,
+        struct t_mg_user_data *mg_user_data);
 
 #endif

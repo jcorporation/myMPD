@@ -50,18 +50,7 @@ function parseWebradiodbDetail(obj) {
     }
     elGetById('modalWebradiodbDetailTitle').textContent = obj.result.Name;
     setDataId('modalWebradiodbDetailTitle', 'webradio', obj.result);
-    const showFields = [
-        'StreamUri',
-        'Homepage',
-        'Genres',
-        'Country',
-        'Region',
-        'Languages',
-        'Codec',
-        'Bitrate',
-        'Description'
-    ];
-    for (const field of showFields) {
+    for (const field of webradioFields) {
         const value = printValue(field, obj.result[field]);
         tbody.appendChild(
             elCreateNodes('tr', {}, [
@@ -81,19 +70,7 @@ function parseWebradiodbDetail(obj) {
             td.appendChild(p);
             btn.addEventListener('click', function(event) {
                 event.preventDefault();
-                showEditRadioFavorite({
-                    "Name": obj.result.Name,
-                    "StreamUri": obj.result.alternativeStreams[name].StreamUri,
-                    "Genre": obj.result.Genre,
-                    "Homepage": obj.result.Homepage,
-                    "Country": obj.result.Country,
-                    "State": obj.result.State,
-                    "Language": obj.result.Languages,
-                    "Codec": obj.result.alternativeStreams[name].Codec,
-                    "Bitrate": obj.result.alternativeStreams[name].Bitrate,
-                    "Description": obj.result.Description,
-                    "Image": obj.result.Image
-                });
+                saveAsRadioFavorite(obj.result.alternativeStreams[name].StreamUri);
             }, false);
         }
         tbody.appendChild(

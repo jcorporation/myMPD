@@ -55,6 +55,8 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
     extra->thumbnail_names = sdsdup(mympd_state->thumbnail_names);
     extra->feat_albumart = mympd_state->mpd_state->feat.albumart;
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
+    extra->webradiodb = mympd_state->webradiodb;
+    extra->webradio_favorites = mympd_state->webradio_favorites;
     list_init(&extra->partitions);
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {

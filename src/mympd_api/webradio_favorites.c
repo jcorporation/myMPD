@@ -8,13 +8,13 @@
 #include "src/mympd_api/webradio_favorites.h"
 
 #include "dist/rax/rax.h"
-#include "src/lib/utility.h"
+#include "src/lib/log.h"
 
 #include <dirent.h>
 #include <string.h>
 
 /**
- * Saves a webradio favorite
+ * Saves a webradio favorite. Removes the old_name and overwrites favorites with same name.
  * @param webradio_favorites Webradio favorites struct
  * @param webradio webradio struct to save
  * @param old_name old webradio name
@@ -24,22 +24,21 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
     if (webradio->uris.head == NULL) {
         return false;
     }
-    if (sdslen(old_name) > 0) {
-        struct t_list old_names;
-        list_push(&old_names, old_name, 0, NULL, NULL);
-        if (mympd_api_webradio_favorite_delete(webradio_favorites, &old_names) == false) {
-            return false;
-        }
-        list_clear(&old_names);
-    }
 
-    sds id = sdsdup(webradio->uris.head->key);
-    sanitize_filename(id);
-    if (raxTryInsert(webradio_favorites->db, (unsigned char *)id, sdslen(id), webradio, NULL) == 1) {
+    struct t_list old_names;
+    list_init(&old_names);
+    list_push(&old_names, old_name, 0, NULL, NULL);
+    list_push(&old_names, webradio->name, 0, NULL, NULL);
+    mympd_api_webradio_favorite_delete(webradio_favorites, &old_names);
+    list_clear(&old_names);
+
+    if (raxTryInsert(webradio_favorites->db, (unsigned char *)webradio->name, sdslen(webradio->name), webradio, NULL) == 1) {
         // write uri index
         raxTryInsert(webradio_favorites->idx_uris, (unsigned char *)webradio->uris.head->key, sdslen(webradio->uris.head->key), webradio, NULL);
         return true;
     }
+    MYMPD_LOG_ERROR("NULL", "Failure saving webradio favorite");
+    webradio_data_free(webradio);
     return false;
 }
 
@@ -47,10 +46,8 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
  * Deletes webradio favorite
  * @param webradio_favorites Webradio favorites struct
  * @param names webradio ids to delete
- * @return true on success, else false
  */
-bool mympd_api_webradio_favorite_delete(struct t_webradios *webradio_favorites, struct t_list *names) {
-    bool rc = true;
+void mympd_api_webradio_favorite_delete(struct t_webradios *webradio_favorites, struct t_list *names) {
     struct t_list_node *current = names->head;
     while (current != NULL) {
         void *data = NULL;
@@ -60,10 +57,6 @@ bool mympd_api_webradio_favorite_delete(struct t_webradios *webradio_favorites, 
             raxRemove(webradio_favorites->idx_uris, (unsigned char *)webradio->uris.head->key, sdslen(webradio->uris.head->key), NULL);
             webradio_data_free(webradio);
         }
-        else {
-            rc = false;
-        }
         current = current->next;
     }
-    return rc;
 }

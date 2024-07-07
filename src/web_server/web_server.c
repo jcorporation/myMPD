@@ -83,7 +83,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->publish_music = false;
     mg_user_data->publish_playlists = false;
     mg_user_data->feat_albumart = false;
-    mg_user_data->connection_count = 2; // listening + wakup
+    mg_user_data->connection_count = 2; // listening + wakeup
     list_init(&mg_user_data->stream_uris);
     list_init(&mg_user_data->session_list);
     mg_user_data->mympd_api_started = false;
@@ -91,6 +91,8 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->cert = mg_str("");
     mg_user_data->key_content = sdsempty();
     mg_user_data->key = mg_str("");
+    mg_user_data->webradiodb = NULL;
+    mg_user_data->webradio_favorites = NULL;
 
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -306,6 +308,10 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         mg_user_data->music_directory = sds_replace(mg_user_data->music_directory, new_mg_user_data->music_directory);
         FREE_SDS(new_mg_user_data->music_directory);
         MYMPD_LOG_DEBUG(NULL, "Document root: \"%s\"", mg_user_data->browse_directory);
+
+        //webradios
+        mg_user_data->webradiodb = new_mg_user_data->webradiodb;
+        mg_user_data->webradio_favorites = new_mg_user_data->webradio_favorites;
 
         //coverimage names
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
@@ -782,7 +788,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 request_handler_browse(nc, hm, mg_user_data);
             }
             else if (mg_match(hm->uri, mg_str("/webradio"), NULL)) {
-                request_handler_extm3u(nc, hm);
+                request_handler_extm3u(nc, hm, mg_user_data);
             }
             else if (mg_match(hm->uri, mg_str("/ws/*"), NULL)) {
                 //check partition
@@ -949,7 +955,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             // Serve some directories without ssl
             if (mg_match(hm->uri, mg_str("/webradio"), NULL)) {
-                request_handler_extm3u(nc, hm);
+                request_handler_extm3u(nc, hm, mg_user_data);
                 break;
             }
             #ifdef MYMPD_ENABLE_LUA

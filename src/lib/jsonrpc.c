@@ -15,7 +15,6 @@
 #include "src/lib/sticker.h"
 #include "src/mpd_client/tags.h"
 
-#include <errno.h>
 #include <string.h>
 
 /**

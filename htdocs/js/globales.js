@@ -113,6 +113,19 @@ const albumFilters = [
 ];
 
 /** @type {object} */
+const webradioFields = [
+    'StreamUri',
+    'Homepage',
+    'Genres',
+    'Country',
+    'Region',
+    'Languages',
+    'Codec',
+    'Bitrate',
+    'Description'
+];
+
+/** @type {object} */
 const session = {
     "token": "",
     "timeout": 0

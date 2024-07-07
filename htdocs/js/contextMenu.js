@@ -366,19 +366,7 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
     if (app.id === 'BrowseRadioWebradiodb') {
         addDivider(contextMenuBody);
         addMenuItem(contextMenuBody, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
-        addMenuItem(contextMenuBody, {"cmd": "showEditRadioFavorite", "options": [{
-            "Name": name,
-            "Genre": getData(dataNode, 'genre'),
-            "Image": getData(dataNode, 'image'),
-            "StreamUri": uri,
-            "Homepage": getData(dataNode, 'homepage'),
-            "Country": getData(dataNode, 'country'),
-            "State": getData(dataNode, 'state'),
-            "Language": getData(dataNode, 'language'),
-            "Codec": getData(dataNode, 'codec'),
-            "Bitrate": getData(dataNode, 'bitrate'),
-            "Description": getData(dataNode, 'description')
-        }]}, 'Add to favorites');
+        addMenuItem(contextMenuBody, {"cmd": "saveAsRadioFavorite", "options": [uri]}, 'Add to favorites');
     }
     else if (app.id === 'QueueCurrent' &&
         type === 'webradio')
@@ -470,7 +458,7 @@ function addMenuItemsWebradioFavoritesActions(target, contextMenuTitle, contextM
     addDivider(contextMenuBody);
     addMenuItem(contextMenuBody, {"cmd": "showRadioFavoriteDetails", "options": [uri]}, 'Webradio details');
     addMenuItem(contextMenuBody, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
-    addMenuItem(contextMenuBody, {"cmd": "deleteRadioFavorites", "options": [[uri]]}, 'Delete webradio favorite');
+    addMenuItem(contextMenuBody, {"cmd": "deleteRadioFavorites", "options": [[name]]}, 'Delete webradio favorite');
 }
 
 /**

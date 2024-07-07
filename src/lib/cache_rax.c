@@ -35,7 +35,7 @@ bool cache_free(struct t_cache *cache) {
     if (rc == 0) {
         return true;
     }
-    MYMPD_LOG_ERROR(NULL, "Can not get destroy lock");
+    MYMPD_LOG_ERROR(NULL, "Can not destroy lock");
     MYMPD_LOG_ERRNO(NULL, rc);
     return false;
 }
@@ -56,7 +56,7 @@ bool cache_get_read_lock(struct t_cache *cache) {
 }
 
 /**
- * Acquires a read lock
+ * Acquires a write lock
  * @param cache pointer to cache struct
  * @return true on success, else false
  */
