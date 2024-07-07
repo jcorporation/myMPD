@@ -34,6 +34,7 @@ set(TEST_SOURCES
   ../src/lib/random.c
   ../src/lib/rax_extras.c
   ../src/lib/sds_extras.c
+  ../src/lib/search.c
   ../src/lib/state_files.c
   ../src/lib/sticker.c
   ../src/lib/timer.c
@@ -48,7 +49,6 @@ set(TEST_SOURCES
   ../src/mpd_client/queue.c
   ../src/mpd_client/random_select.c
   ../src/mpd_client/search.c
-  ../src/mpd_client/search_local.c
   ../src/mpd_client/shortcuts.c
   ../src/mpd_client/stickerdb.c
   ../src/mpd_client/tags.c
@@ -86,7 +86,7 @@ set(TEST_SOURCES
   tests/test_radix_sort.c
   tests/test_random.c
   tests/test_sds_extras.c
-  tests/test_search_local.c
+  tests/test_search.c
   tests/test_state_files.c
   tests/test_tags.c
   tests/test_timer.c

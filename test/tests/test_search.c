@@ -10,7 +10,7 @@
 
 #include "dist/utest/utest.h"
 #include "dist/libmympdclient/src/isong.h"
-#include "src/mpd_client/search_local.h"
+#include "src/lib/search.h"
 #include "src/mpd_client/tags.h"
 
 #include <mpd/client.h>
@@ -18,36 +18,21 @@
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
 
-UTEST(search_local, test_search_mpd_song) {
-    struct mpd_song *song = new_song();
-    struct t_tags tags;
-    tags_reset(&tags);
-    tags.len++;
-    tags.tags[0] = MPD_TAG_ALBUM;
-    sds s = sdsnew("tabula");
-    ASSERT_TRUE(search_mpd_song(song, s, &tags));
-    sdsclear(s);
-    s = sdscat(s, "neu");
-    ASSERT_FALSE(search_mpd_song(song, s, &tags));
-    sdsfree(s);
-    mpd_song_free(song);
-}
-
 bool search_by_expression(const char *expr_string) {
     struct mpd_song *song = new_song();
     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ARTIST, "MG's");
     //browse tag types
-    struct t_tags tags;
-    tags_reset(&tags);
+    struct t_mpd_tags tags;
+    mpd_tags_reset(&tags);
     tags.len++;
     tags.tags[0] = MPD_TAG_ALBUM;
     tags.len++;
     tags.tags[1] = MPD_TAG_ARTIST;
 
     sds expression = sdsnew(expr_string);
-    struct t_list *expr_list = parse_search_expression_to_list(expression);
+    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
     sdsfree(expression);
-    bool rc = search_song_expression(song, expr_list, &tags);
+    bool rc = search_expression_song(song, expr_list, &tags);
     free_search_expression_list(expr_list);
     mpd_song_free(song);
     return rc;
@@ -86,7 +71,7 @@ UTEST(search_local, test_search_mpd_song_expression) {
 
 long try_parse(const char *expr) {
     sds expression = sdsnew(expr);
-    struct t_list *expr_list = parse_search_expression_to_list(expression);
+    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
     sdsfree(expression);
     long len = expr_list->length;
     free_search_expression_list(expr_list);

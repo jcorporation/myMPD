@@ -36,8 +36,8 @@ UTEST(tags, test_is_multivalue_tag) {
 }
 
 UTEST(tags, test_get_sort_tag) {
-    struct t_tags tags;
-    tags_reset(&tags);
+    struct t_mpd_tags tags;
+    mpd_tags_reset(&tags);
     tags.len = 4;
     tags.tags[0] = MPD_TAG_ALBUM;
     tags.tags[1] = MPD_TAG_ALBUM_SORT;
@@ -77,10 +77,10 @@ UTEST(tags, test_mpd_client_get_tag_values) {
 
 UTEST(tags, test_check_tags) {
     sds s = sdsnew("Artist, Album,Title");
-    struct t_tags tags;
-    tags_reset(&tags);
-    struct t_tags allowed;
-    tags_reset(&allowed);
+    struct t_mpd_tags tags;
+    mpd_tags_reset(&tags);
+    struct t_mpd_tags allowed;
+    mpd_tags_reset(&allowed);
     allowed.len++;
     allowed.tags[0] = MPD_TAG_ALBUM;
     allowed.len++;
@@ -93,8 +93,8 @@ UTEST(tags, test_check_tags) {
 }
 
 UTEST(tags, test_mpd_client_tag_exists) {
-    struct t_tags tags;
-    tags_reset(&tags);
+    struct t_mpd_tags tags;
+    mpd_tags_reset(&tags);
     tags.len++;
     tags.tags[0] = MPD_TAG_ALBUM;
     tags.len++;
