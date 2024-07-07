@@ -8,6 +8,7 @@
 #include "src/mympd_api/webradio.h"
 
 #include "src/lib/jsonrpc.h"
+#include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/search.h"
 #include "src/lib/utility.h"
@@ -24,48 +25,80 @@
  * @param limit maximum entries to print
  * @param expression string to search
  * @param sort Sort tag
- * @param sort_desc Sort descending?
+ * @param sortdesc Sort descending?
  * @return pointer to buffer
  */
 sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigned request_id,
-    enum mympd_cmd_ids cmd_id, unsigned offset, unsigned limit, sds expression, sds sort, bool sort_desc)
+    enum mympd_cmd_ids cmd_id, unsigned offset, unsigned limit, sds expression, sds sort, bool sortdesc)
 {
-    if (webradios->db == NULL) {
-        return jsonrpc_respond_message(buffer, cmd_id, request_id,
-            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Webradio database is empty");
-    }
     unsigned entities_returned = 0;
     unsigned entities_found = 0;
     unsigned real_limit = offset + limit;
     struct t_webradio_tags webradio_tags;
     webradio_tags_search(&webradio_tags);
     struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_WEBRADIO);
-    raxIterator iter;
-    raxStart(&iter, webradios->db);
-    raxSeek(&iter, "^", NULL, 0);
-    //TODO: implement sorting
-    (void) sort;
-    (void) sort_desc;
+    enum webradio_tag_type sort_tag = webradio_tag_name_parse(sort);
+    if (sort_tag == WEBRADIO_TAG_BITRATE) {
+        sortdesc = sortdesc == true ? false : true;
+    }
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
             buffer = sdscat(buffer,"\"data\":[");
-    while (raxNext(&iter)) {
-        struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
-        if (search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true) {
-            if (entities_found >= offset) {
-                if (entities_returned++) {
-                    buffer= sdscatlen(buffer, ",", 1);
+    if (webradios != NULL && webradios->db != NULL) {
+        sds key = sdsempty();
+        raxIterator iter;
+        rax *sorted = raxNew();
+        raxStart(&iter, webradios->db);
+        raxSeek(&iter, "^", NULL, 0);
+        // Search and sort
+        while (raxNext(&iter)) {
+            struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
+            if (search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true) {
+                if (sort_tag == WEBRADIO_TAG_BITRATE) {
+                    key = sds_pad_int(webradio_data->uris.head->value_i, key);
                 }
-                buffer = sdscatlen(buffer, "{", 1);
-                buffer = mympd_api_webradio_print(webradio_data, buffer);
-                buffer = sdscatlen(buffer, "}", 1);
-            }
-            entities_found++;
-            if (entities_found == real_limit) {
-                break;
+                else {
+                    const char *sort_value = webradio_get_tag(webradio_data, sort_tag, 0);
+                    key = sdscat(key, sort_value);
+                }
+                if (sort_tag != WEBRADIO_TAG_NAME) {
+                    key = sdscat(key, webradio_data->name);
+                }
+                rax_insert_no_dup(sorted, key, iter.data);
+                sdsclear(key);
             }
         }
+        FREE_SDS(key);
+        raxStop(&iter);
+        // Print the result
+        raxStart(&iter, sorted);
+        int (*iterator)(struct raxIterator *iter);
+        if (sortdesc == false) {
+            raxSeek(&iter, "^", NULL, 0);
+            iterator = &raxNext;
+        }
+        else {
+            raxSeek(&iter, "$", NULL, 0);
+            iterator = &raxPrev;
+        }
+        while (iterator(&iter)) {
+            struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
+            if (search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true) {
+                if (entities_found >= offset) {
+                    if (entities_returned++) {
+                        buffer= sdscatlen(buffer, ",", 1);
+                    }
+                    buffer = sdscatlen(buffer, "{", 1);
+                    buffer = mympd_api_webradio_print(webradio_data, buffer);
+                    buffer = sdscatlen(buffer, "}", 1);
+                }
+                entities_found++;
+                if (entities_found == real_limit) {
+                    break;
+                }
+            }
+        }
+        raxStop(&iter);
     }
-    raxStop(&iter);
     free_search_expression_list(expr_list);
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -77,7 +110,10 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     }
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_uint(buffer, "offset", offset, true);
-    buffer = tojson_sds(buffer, "expression", expression, false);
+    buffer = tojson_uint(buffer, "limit", limit, true);
+    buffer = tojson_sds(buffer, "expression", expression, true);
+    buffer = tojson_sds(buffer, "sort", sort, true);
+    buffer = tojson_bool(buffer, "sortdesc", sortdesc, false);
     buffer = jsonrpc_end(buffer);
 
     return buffer;
@@ -156,7 +192,7 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
 sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buffer, unsigned request_id, sds name) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME;
     void *data = raxNotFound;
-    if (webradios->db != NULL) {
+    if (webradios != NULL && webradios->db != NULL) {
         data = raxFind(webradios->db, (unsigned char *)name, strlen(name));
     }
     if (data == raxNotFound) {
@@ -181,7 +217,7 @@ sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buff
 sds mympd_api_webradio_radio_get_by_uri(struct t_webradios *webradios, sds buffer, unsigned request_id, sds uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI;
     void *data = raxNotFound;
-    if (webradios->db != NULL) {
+    if (webradios != NULL && webradios->db != NULL) {
         data = raxFind(webradios->idx_uris, (unsigned char *)uri, strlen(uri));
     }
     if (data == raxNotFound) {

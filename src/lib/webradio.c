@@ -217,6 +217,9 @@ struct t_webradios *webradios_new(void) {
  * @param webradios rax tree to free
  */
 void webradios_free(struct t_webradios *webradios) {
+    if (webradios == NULL) {
+        return;
+    }
     raxIterator iter;
     if (webradios->db != NULL) {
         raxStart(&iter, webradios->db);
@@ -250,7 +253,7 @@ void webradios_free(struct t_webradios *webradios) {
  * @return true on success, else false
  */
 bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradios, const char *filename) {
-    if (webradios->db == NULL) {
+    if (webradios == NULL || webradios->db == NULL) {
         MYMPD_LOG_DEBUG(NULL, "Webradios is NULL not saving anything");
         return true;
     }
@@ -346,6 +349,7 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", config->workdir, DIR_WORK_TAGS, filename);
     if (testfile_read(filepath) == false) {
         FREE_SDS(filepath);
+        webradios_free(webradios);
         return false;
     }
     webradios->db = raxNew();
@@ -415,7 +419,6 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
     if (rc == false) {
         MYMPD_LOG_ERROR("default", "Reading webradios %s failed.", filename);
         webradios_free(webradios);
-        webradios = NULL;
         return rc;
     }
 
