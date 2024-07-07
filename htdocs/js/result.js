@@ -139,7 +139,12 @@ function checkResult(obj, parent, mode) {
         else {
             parent.appendChild(emptyMsgEl(colspan, mode));
         }
-        unsetUpdateView(parent.parentNode);
+        if (mode === 'table') {
+            unsetUpdateView(parent.parentNode);
+        }
+        else {
+            unsetUpdateView(parent);
+        }
         setPagination(0, 0);
         return false;
     }
