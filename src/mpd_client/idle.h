@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD client idle event handling
+ */
+
 #ifndef MYMPD_MPD_CLIENT_IDLE_H
 #define MYMPD_MPD_CLIENT_IDLE_H
 

@@ -4,12 +4,18 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD timer handlers
+ */
+
 #ifndef MYMPD_API_TIMER_HANDLERS_H
 #define MYMPD_API_TIMER_HANDLERS_H
 
 #include "src/lib/mympd_state.h"
 
-//internal timer ids
+/**
+ * Internal timer ids
+ */
 enum timer_ids {
     TIMER_ID_DISK_CACHE_CROP = 1,
     TIMER_ID_SMARTPLS_UPDATE = 2,

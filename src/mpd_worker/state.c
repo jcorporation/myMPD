@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD worker state functions
+ */
+
 #include "compile_time.h"
 #include "src/mpd_worker/state.h"
 

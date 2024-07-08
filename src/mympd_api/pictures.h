@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD pictures API
+ */
+
 #ifndef MYMPD_API_PICTURES_H
 #define MYMPD_API_PICTURES_H
 

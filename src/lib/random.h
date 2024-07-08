@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Random number generator functions based on OpenSSL
+ */
+
 #ifndef MYMPD_RANDOM_H
 #define MYMPD_RANDOM_H
 

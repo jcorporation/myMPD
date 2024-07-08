@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Linux passwd helper functions
+ */
+
 #ifndef MYMPD_PASSWD_H
 #define MYMPD_PASSWD_H
 

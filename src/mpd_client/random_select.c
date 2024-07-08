@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Functions to select random songs or albums.
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/random_select.h"
 
@@ -33,6 +37,9 @@ static bool check_last_played(rax *stickers_last_played, const char *uri, time_t
 static long check_uniq_tag(const char *uri, const char *value, struct t_list *queue_list, struct t_list *add_list);
 static bool add_uri_constraint_or_expression(const char *include_expression, struct t_partition_state *partition_state);
 
+/**
+ * Uniq constraints for random select
+ */
 enum random_add_uniq_result {
     RANDOM_ADD_UNIQ_IN_QUEUE = -2,
     RANDOM_ADD_UNIQ_IS_UNIQ = -1

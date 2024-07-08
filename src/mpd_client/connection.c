@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD connection handling
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/connection.h"
 
@@ -158,7 +162,6 @@ void mpd_client_disconnect_silent(struct t_partition_state *partition_state) {
 /**
  * Disconnects all MPD partitions
  * @param mympd_state pointer to central myMPD state
- * @param new_conn_state new connection state
  */
 void mpd_client_disconnect_all(struct t_mympd_state *mympd_state) {
     struct t_partition_state *partition_state = mympd_state->partition_state;

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Search implementation
+ */
+
 #ifndef MYMPD_LIB_SEARCH_H
 #define MYMPD_LIB_SEARCH_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD trigger API
+ */
+
 #include "compile_time.h"
 #include "dist/sds/sds.h"
 #include "src/lib/sticker.h"
@@ -170,10 +174,9 @@ int mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events e
 }
 
 /**
- * Executes triggers with uri argument
+ * Executes triggers for http output
  * @param trigger_list trigger list
  * @param event trigger to execute scripts for
- * @param uri song uri
  * @param partition mpd partition
  * @param conn_id mongoose connection id
  * @param request_id jsonprc id

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Fields handling
+ */
+
 #ifndef MYMPD_FIELDS_H
 #define MYMPD_FIELDS_H
 
@@ -37,6 +41,9 @@ struct t_fields {
     struct t_stickers stickers;  //!< stickers
 };
 
+/**
+ * Sort type enums
+ */
 enum sort_by_type {
     SORT_BY_TAG,
     SORT_BY_LAST_MODIFIED,

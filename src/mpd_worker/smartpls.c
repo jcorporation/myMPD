@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Smart playlist generation
+ */
+
 #include "compile_time.h"
 #include "src/mpd_worker/smartpls.h"
 

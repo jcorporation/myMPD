@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Webserver utility functions
+ */
+
 #include "compile_time.h"
 #include "src/web_server/utility.h"
 
@@ -256,7 +260,6 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
  * @param nc mongoose connection
  * @param data data to send
  * @param len length of the data to send
- * @param headers extra headers to add
  */
 void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len) {
     MYMPD_LOG_DEBUG(NULL, "Sending %lu bytes to %lu", (unsigned long)len, nc->id);
@@ -352,6 +355,7 @@ void webserver_handle_connection_close(struct mg_connection *nc) {
 /**
  * Redirects to the placeholder image
  * @param nc mongoose connection
+ * @param placeholder_type Type of placeholder image
  */
 void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholder_types placeholder_type) {
     struct t_mg_user_data *mg_user_data = nc->mgr->userdata;

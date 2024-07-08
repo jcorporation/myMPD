@@ -4,11 +4,18 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Type conversion functions
+ */
+
 #ifndef MYMPD_CONVERT_H
 #define MYMPD_CONVERT_H
 
 #include <stdint.h>
 
+/**
+ * Return codes for conversion functions
+ */
 enum str2int_errno {
     STR2INT_SUCCESS,
     STR2INT_OVERFLOW,

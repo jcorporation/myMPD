@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief WebradioDB update functions
+ */
+
 #ifndef MPD_WORKER_WEBRADIODB_H
 #define MPD_WORKER_WEBRADIODB_H
 

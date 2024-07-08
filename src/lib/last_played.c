@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Last played implementation
+ */
+
 #include "compile_time.h"
 #include "src/lib/last_played.h"
 

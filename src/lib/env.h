@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Environment handling
+ */
+
 #ifndef MYMPD_ENV_H
 #define MYMPD_ENV_H
 

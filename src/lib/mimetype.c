@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Mime type and file extensions functions
+ */
+
 #include "compile_time.h"
 #include "src/lib/mimetype.h"
 
@@ -24,6 +28,9 @@ struct t_mime_type_entry {
     const char *mime_type;    //!< mime type
 };
 
+/**
+ * Magic bytes to extension and mime type handling
+ */
 const struct t_mime_type_entry mime_entries[] = {
     {0, "89504E470D0A1A0A", "png",  "image/png"},
     {0, "FFD8FF",           "jpg",  "image/jpeg"},
@@ -41,7 +48,7 @@ const struct t_mime_type_entry mime_entries[] = {
 
 /**
  * Gets the mime type by extension
- * @param filename 
+ * @param filename Filename to get the mime type for
  * @return the mime type
  */
 const char *get_mime_type_by_ext(const char *filename) {

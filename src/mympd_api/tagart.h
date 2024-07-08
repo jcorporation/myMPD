@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD tagart API
+ */
+
 #ifndef MYMPD_API_TAGART_H
 #define MYMPD_API_TAGART_H
 

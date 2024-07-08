@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD worker thread implementation
+ */
+
 #include "compile_time.h"
 #include "src/mpd_worker/mpd_worker.h"
 
@@ -112,6 +116,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_stat
 /**
  * This is the main function of the worker thread.
  * @param arg void pointer to the mpd_worker_state
+ * @return NULL
  */
 static void *mpd_worker_run(void *arg) {
     thread_logname = sds_replace(thread_logname, "mpdworker");

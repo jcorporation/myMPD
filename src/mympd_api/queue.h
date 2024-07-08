@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD queue API
+ */
+
 #ifndef MYMPD_API_QUEUE_H
 #define MYMPD_API_QUEUE_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD settings API
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/settings.h"
 

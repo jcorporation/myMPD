@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Synchronous HTTP client
+ */
+
 #include "compile_time.h"
 #include "src/lib/http_client.h"
 

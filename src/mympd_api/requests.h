@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Request creation helpers
+ */
+
 #ifndef MYMPD_API_REQUESTS_H
 #define MYMPD_API_REQUESTS_H
 

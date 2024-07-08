@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Albumart functions
+ */
+
 #ifndef MYMPD_WEB_SERVER_ALBUMART_H
 #define MYMPD_WEB_SERVER_ALBUMART_H
 

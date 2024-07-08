@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Smart playlist generation
+ */
+
 #ifndef MYMPD_MPD_WORKER_SMARTPLS_H
 #define MYMPD_MPD_WORKER_SMARTPLS_H
 

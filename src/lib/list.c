@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Linked list implementation
+ */
+
 #include "compile_time.h"
 #include "src/lib/list.h"
 
@@ -112,7 +116,8 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
  * Clears the list and frees all nodes and there values, calls a function to free user_data,
  * set free_cb to NULL, to free a generic pointer.
  * @param l pointer to list
- * @param free_cb
+ * @param free_cb Callback to free the user data
+ * @return NULL
  */
 void *list_free_user_data(struct t_list *l, user_data_callback free_cb) {
     list_clear_user_data(l, free_cb);
@@ -508,6 +513,7 @@ bool list_replace_len_user_data(struct t_list *l, unsigned idx, const char *key,
 /**
  * Frees a list node, ignoring its user_data pointer.
  * @param n node to free
+ * @return NULL
  */
 void *list_node_free(struct t_list_node *n) {
     list_node_free_user_data(n, list_free_cb_ignore_user_data);
@@ -518,6 +524,7 @@ void *list_node_free(struct t_list_node *n) {
  * Frees a list node and its user_data pointer
  * @param n node to free
  * @param free_cb callback function to free user_data pointer
+ * @return NULL
  */
 void *list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb) {
     FREE_SDS(n->key);
@@ -577,6 +584,7 @@ bool list_remove_node_by_key(struct t_list *l, const char *key) {
  * Removes the node with key
  * @param l list
  * @param key key
+ * @param free_cb Callback to free the user data
  * @return bool true on success, else false
  */
 bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, user_data_callback free_cb) {

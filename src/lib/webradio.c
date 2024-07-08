@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Webradio functions
+ */
+
 #include "compile_time.h"
 #include "src/lib/webradio.h"
 
@@ -18,7 +22,8 @@
 
 /**
  * Search webradio by uri in favorites and WebradioDB
- * @param mympd_state pointer to mympd_state
+ * @param webradio_favorites Pointer to webradio favorites
+ * @param webradiodb Pointer to WebradioDB
  * @param uri Uri to search for
  * @return pointer to webradio data or NULL on error
  */
@@ -46,7 +51,8 @@ struct t_webradio_data *webradio_by_uri(struct t_webradios *webradio_favorites, 
 
 /**
  * Returns an extm3u for a webradio
- * @param mympd_state pointer to mympd_state
+ * @param webradio_favorites Pointer to webradio favorites
+ * @param webradiodb Pointer to WebradioDB
  * @param buffer Buffer to append the uri
  * @param uri Webradio uri
  * @return Pointer to buffer
@@ -61,6 +67,7 @@ sds webradio_get_extm3u(struct t_webradios *webradio_favorites, struct t_webradi
 
 /**
  * Creates a new webradio data struct
+ * @param type Webradio type
  * @return struct t_webradio_data* 
  */
 struct t_webradio_data *webradio_data_new(enum webradio_type type) {
@@ -136,6 +143,9 @@ void webradio_tags_search(struct t_webradio_tags *tags) {
     tags->tags[tags->len++] = WEBRADIO_TAG_LANGUAGES;
 }
 
+/**
+ * Mapping for webradio tags to strings
+ */
 static const char *webradio_tag_types_names[WEBRADIO_TAG_COUNT] = {
     [WEBRADIO_TAG_NAME] = "Name",
     [WEBRADIO_TAG_IMAGE] = "Image",
@@ -320,7 +330,7 @@ void webradios_free(struct t_webradios *webradios) {
 
 /**
  * Acquires a read lock
- * @param cache pointer to cache struct
+ * @param webradios pointer to webradios struct
  * @return true on success, else false
  */
 bool webradios_get_read_lock(struct t_webradios *webradios) {
@@ -335,7 +345,7 @@ bool webradios_get_read_lock(struct t_webradios *webradios) {
 
 /**
  * Acquires a write lock
- * @param cache pointer to cache struct
+ * @param webradios pointer to webradios struct
  * @return true on success, else false
  */
 bool webradios_get_write_lock(struct t_webradios *webradios) {
@@ -350,7 +360,7 @@ bool webradios_get_write_lock(struct t_webradios *webradios) {
 
 /**
  * Frees the lock
- * @param cache pointer to cache struct
+ * @param webradios pointer to webradios struct
  * @return true on success, else false
  */
 bool webradios_release_lock(struct t_webradios *webradios) {
@@ -461,6 +471,7 @@ bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradi
  * @param config pointer to config
  * @param webradios webradios struct to populate
  * @param filename file to read
+ * @param type Webradio type
  * @return true on success, else false
  */
 bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webradios, const char *filename, enum webradio_type type) {

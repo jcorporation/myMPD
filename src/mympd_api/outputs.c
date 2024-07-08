@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD outputs API
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/outputs.h"
 
@@ -113,6 +117,14 @@ sds mympd_api_output_list(struct t_partition_state *partition_state, sds buffer,
     return buffer;
 }
 
+/**
+ * Sets MPD output attributes
+ * @param partition_state Pointer to partition state
+ * @param output_id Output ID
+ * @param attributes Attributes to set
+ * @param error Pointer to already allocated sds string for an error message
+ * @return true on success, else false
+ */
 bool mympd_api_output_attributes_set(struct t_partition_state *partition_state,
         unsigned output_id, struct t_list *attributes, sds *error)
 {

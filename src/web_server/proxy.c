@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief HTTP proxy functions
+ */
+
 #include "compile_time.h"
 #include "src/web_server/proxy.h"
 
@@ -83,7 +87,6 @@ void handle_backend_close(struct mg_connection *nc) {
 /**
  * Sends the request to the backend connection
  * @param nc mongoose backend connection
- * @param fn_data mongoose fn_data pointer
  */
 void send_backend_request(struct mg_connection *nc) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;

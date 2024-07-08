@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD API handler
+ */
+
 #ifndef MYMPD_API_HANDLER_H
 #define MYMPD_API_HANDLER_H
 

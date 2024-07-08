@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Some MPD shortcuts
+ */
+
 #ifndef MYMPD_MPD_CLIENT_SHORTCUTS_H
 #define MYMPD_MPD_CLIENT_SHORTCUTS_H
 

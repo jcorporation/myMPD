@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Playlist helper functions.
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/playlists.h"
 

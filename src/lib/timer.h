@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Timerfd helpers
+ */
+
 #ifndef MYMPD_LIB_TIMER_H
 #define MYMPD_LIB_TIMER_H
 

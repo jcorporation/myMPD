@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Central myMPD state for the mympd_api thread
+ */
+
 #include "compile_time.h"
 #include "src/lib/mympd_state.h"
 
@@ -289,6 +293,7 @@ void mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *
 
 /**
  * Frees the t_mpd_state struct
+ * @param mpd_state Pointer to mpd_state
  */
 void mpd_state_free(struct t_mpd_state *mpd_state) {
     FREE_SDS(mpd_state->mpd_host);

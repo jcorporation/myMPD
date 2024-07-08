@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Functions for mongoose strings
+ */
+
 #ifndef MYMPD_MG_STR_UTILS_H
 #define MYMPD_MG_STR_UTILS_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Last played implementation
+ */
+
 #ifndef MYMPD_LAST_PLAYED_H
 #define MYMPD_LAST_PLAYED_H
 

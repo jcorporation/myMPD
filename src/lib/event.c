@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Event handling
+ */
+
 #include "compile_time.h"
 #include "src/lib/event.h"
 

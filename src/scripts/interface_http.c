@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Lua interface for http
+ */
+
 #include "compile_time.h"
 #include "src/scripts/interface_http.h"
 

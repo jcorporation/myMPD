@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Script thread utility functions
+ */
+
 #ifndef MYMPD_SCRIPTS_UTIL_H
 #define MYMPD_SCRIPTS_UTIL_H
 

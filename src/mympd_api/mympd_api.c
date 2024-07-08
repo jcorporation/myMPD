@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief mympd_api thread implementation
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/mympd_api.h"
 
@@ -43,6 +47,7 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i);
 /**
  * This is the main function for the mympd_api thread
  * @param arg_config void pointer to t_config struct
+ * @return NULL
  */
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sds_replace(thread_logname, "mympdapi");

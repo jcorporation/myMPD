@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Jukebox functions
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/jukebox.h"
 
@@ -104,6 +108,7 @@ void jukebox_disable(struct t_partition_state *partition_state) {
 /**
  * The real jukebox function.
  * It determines if a song must be added or not and starts playing.
+ * @param mympd_state Pointer to myMPD state
  * @param partition_state pointer to myMPD partition state
  * @param album_cache pointer to album cache
  * @return true on success, else false

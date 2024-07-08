@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD error handling
+ */
+
 #ifndef MYMPD_MPD_CLIENT_ERRORHANDLER_H
 #define MYMPD_MPD_CLIENT_ERRORHANDLER_H
 

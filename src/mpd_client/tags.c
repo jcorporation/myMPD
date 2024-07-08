@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD tags helper functions
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/tags.h"
 
@@ -211,6 +215,7 @@ sds get_sort_key(sds key, enum sort_by_type sort_by, enum mpd_tag_type sort_tag,
 /**
  * Disables all mpd tags
  * @param partition_state pointer to partition specific states
+ * @return true on success, else false
  */
 bool disable_all_mpd_tags(struct t_partition_state *partition_state) {
     MYMPD_LOG_DEBUG(partition_state->name, "Disabling all mpd tag types");
@@ -221,6 +226,7 @@ bool disable_all_mpd_tags(struct t_partition_state *partition_state) {
 /**
  * Enables all mpd tags
  * @param partition_state pointer to partition specific states
+ * @return true on success, else false
  */
 bool enable_all_mpd_tags(struct t_partition_state *partition_state) {
     MYMPD_LOG_DEBUG(partition_state->name, "Enabling all mpd tag types");
@@ -252,6 +258,7 @@ sds print_tags_array(sds buffer, const char *tagsname, const struct t_mpd_tags *
  * Enables specific mpd tags
  * @param partition_state pointer to partition specific states
  * @param enable_tags pointer to t_fields struct
+ * @return true on success, else false
  */
 bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_mpd_tags *enable_tags) {
     if (partition_state->mpd_state->feat.tags == false) {

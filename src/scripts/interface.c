@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Lua interface helpers
+ */
+
 #include "compile_time.h"
 #include "src/scripts/interface.h"
 

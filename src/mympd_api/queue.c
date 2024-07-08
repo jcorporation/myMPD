@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD queue API
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/queue.h"
 
@@ -207,6 +211,8 @@ bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, st
  * @param partition_state pointer to partition state
  * @param uri uri to add to the queue
  * @param tags list of tags with values to set
+ * @param to where to insert the uri
+ * @param whence How to interprete the to parameter
  * @param error pointer to an already allocated sds string for the error message
  * @return bool true on success, else false
  */
@@ -810,7 +816,6 @@ static bool add_queue_search_adv_params(struct t_partition_state *partition_stat
  * Prints a queue entry as an json object string
  * @param mympd_state pointer to mympd_state
  * @param partition_state pointer to partition state
- * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the response
  * @param tagcols columns to print
  * @param song pointer to mpd song struct

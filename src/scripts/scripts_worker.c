@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Script worker
+ */
+
 #include "compile_time.h"
 #include "src/scripts/scripts_worker.h"
 
@@ -17,6 +21,7 @@
 /**
  * Main function for the scripts_worker thread.
  * @param script_thread_arg pointer to t_script_thread_arg struct
+ * @return NULL
  */
 void *script_run(void *script_thread_arg) {
     script_worker_threads++;

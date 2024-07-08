@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief String validation functions
+ */
+
 #include "compile_time.h"
 #include "src/lib/validate.h"
 
@@ -21,11 +25,29 @@
  * Private definitions
  */
 
+/**
+ * Invalid characters for json strings
+ */
 static const char *invalid_json_chars = "\a\b\f\v";
+
+/**
+ * Invalid characters for keys and names
+ */
 static const char *invalid_name_chars = "\a\b\f\n\r\t\v";
+
+/**
+ * Invalid characters for filenmes
+ */
 static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
+
+/**
+ * Invalid characters for filepaths
+ */
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
+/**
+ * Valid fields for views
+ */
 static const char *mympd_fields[]={
     // Columns for tags
     "Value",

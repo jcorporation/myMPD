@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Posix thread helpers
+ */
+
 #ifndef MYMPD_THREAD_H
 #define MYMPD_THREAD_H
 

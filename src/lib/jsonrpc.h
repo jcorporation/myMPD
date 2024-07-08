@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Jsonrpc implementation
+ */
+
 #ifndef MYMPD_JSONRPC_H
 #define MYMPD_JSONRPC_H
 
@@ -25,6 +29,9 @@ enum jsonrpc_response_types {
     RESPONSE_TYPE_NONE
 };
 
+/**
+ * Jsonrpc severities
+ */
 enum jsonrpc_severities {
     JSONRPC_SEVERITY_INFO = 0,
     JSONRPC_SEVERITY_WARN,
@@ -32,6 +39,9 @@ enum jsonrpc_severities {
     JSONRPC_SEVERITY_MAX
 };
 
+/**
+ * Jsonrpc facilities
+ */
 enum jsonrpc_facilities {
     JSONRPC_FACILITY_DATABASE = 0,
     JSONRPC_FACILITY_GENERAL,
@@ -50,6 +60,9 @@ enum jsonrpc_facilities {
     JSONRPC_FACILITY_MAX
 };
 
+/**
+ * Jsonrpc events
+ */
 enum jsonrpc_events {
     JSONRPC_EVENT_MPD_CONNECTED = 0,
     JSONRPC_EVENT_MPD_DISCONNECTED,
@@ -80,6 +93,9 @@ struct t_jsonrpc_parse_error {
     sds path;     //!< the json path of the invalid value
 };
 
+/**
+ * Iteration callback definition
+ */
 typedef bool (*iterate_callback) (const char *, sds, sds, int, validate_callback, void *, struct t_jsonrpc_parse_error *);
 
 void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *partition, const char *message);

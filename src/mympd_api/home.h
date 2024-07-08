@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD home icons API
+ */
+
 #ifndef MYMPD_API_HOME_H
 #define MYMPD_API_HOME_H
 

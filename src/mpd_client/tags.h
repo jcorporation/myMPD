@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD tags helper functions
+ */
+
 #ifndef MYMPD_MPD_CLIENT_TAGS_H
 #define MYMPD_MPD_CLIENT_TAGS_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD worker thread implementation
+ */
+
 #ifndef MYMPD_MPD_WORKER_H
 #define MYMPD_MPD_WORKER_H
 

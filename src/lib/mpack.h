@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Helper functions for mpack
+ */
+
 #ifndef MYMPD_MPACK_H
 #define MYMPD_MPACK_H
 

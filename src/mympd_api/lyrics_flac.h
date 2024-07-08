@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Read lyrics from vorbis comments
+ */
+
 #ifndef MYMPD_API_LYRICS_FLAC_H
 #define MYMPD_API_LYRICS_FLAC_H
 

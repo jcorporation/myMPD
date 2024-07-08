@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief File handling
+ */
+
 #ifndef MYMPD_FILEHANDLER_H
 #define MYMPD_FILEHANDLER_H
 
@@ -12,6 +16,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+/**
+ * Status for a directory
+ */
 enum testdir_status {
     DIR_EXISTS = 0,
     DIR_CREATED = 1,
@@ -19,6 +26,9 @@ enum testdir_status {
     DIR_NOT_EXISTS = 3
 };
 
+/**
+ * Status of file remove function
+ */
 enum try_rm_file_status {
     RM_FILE_OK = 0,
     RM_FILE_ENOENT = 1,

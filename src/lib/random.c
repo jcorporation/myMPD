@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Random number generator functions based on OpenSSL
+ */
+
 #include "compile_time.h"
 #include "src/lib/random.h"
 
@@ -30,7 +34,13 @@ unsigned randrange(unsigned lower, unsigned upper) {
     return 0;
 }
 
+/**
+ * Characterset to generate random strings from
+ */
 static const char *dict = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+/**
+ * Charaterset length
+ */
 static unsigned dict_len = 62;
 
 /**

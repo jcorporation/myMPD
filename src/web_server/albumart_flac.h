@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Embedded image functions for FLAC
+ */
+
 #ifndef MYMPD_WEB_SERVER_ALBUMART_FLAC_H
 #define MYMPD_WEB_SERVER_ALBUMART_FLAC_H
 

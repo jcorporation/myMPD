@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Extra functions for sds strings
+ */
+
 #include "compile_time.h"
 #include "src/lib/sds_extras.h"
 
@@ -16,6 +20,9 @@
 #include <openssl/sha.h>
 #include <string.h>
 
+/**
+ * Converts hex to integer
+ */
 #define HEXTOI(x) ((x) >= '0' && (x) <= '9' ? (x) - '0' : (x) - 'W')
 
 /**

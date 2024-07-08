@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Playlistart functions
+ */
+
 #include "compile_time.h"
 #include "src/web_server/playlistart.h"
 

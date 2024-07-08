@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Script thread utility functions
+ */
+
 #include "compile_time.h"
 #include "src/scripts/util.h"
 
@@ -22,7 +26,7 @@ static const char *lua_err_to_str(int rc);
 
 /**
  * Saves in-memory states to disc. This is done on shutdown and on SIGHUP.
- * @param mympd_state pointer to central scripts state
+ * @param scripts_state pointer to central scripts state
  * @param free_data true=free the struct, else not
  */
 void scripts_state_save(struct t_scripts_state *scripts_state, bool free_data) {
@@ -34,7 +38,7 @@ void scripts_state_save(struct t_scripts_state *scripts_state, bool free_data) {
 
 /**
  * Sets scripts_state defaults.
- * @param mympd_state pointer to central scripts state
+ * @param scripts_state pointer to central scripts state
  * @param config pointer to static config
  */
 void scripts_state_default(struct t_scripts_state *scripts_state, struct t_config *config) {

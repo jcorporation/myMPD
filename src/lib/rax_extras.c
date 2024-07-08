@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief RAX helper functions
+ */
+
 #include "compile_time.h"
 #include "src/lib/rax_extras.h"
 

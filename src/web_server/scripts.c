@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief HTTP lua script handler
+ */
+
 #include "compile_time.h"
 #include "src/web_server/scripts.h"
 
@@ -24,6 +28,9 @@
 /**
  * Executes the script as request handler.
  * @param nc mongoose connection
+ * @param hm http message
+ * @param config Pointer to config
+ * @return true on success, else false
  */
 bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, struct t_config *config) {
     sds partition = sdsnewlen(hm->uri.buf, hm->uri.len);

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Lua interface for myGPIOd
+ */
+
 #ifndef MYMPD_API_SCRIPTS_INTERFACE_MYGPIO_H
 #define MYMPD_API_SCRIPTS_INTERFACE_MYGPIO_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD lyrics API
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/lyrics.h"
 

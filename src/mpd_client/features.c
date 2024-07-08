@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD feature detection
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/features.h"
 

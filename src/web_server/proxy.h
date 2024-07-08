@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief HTTP proxy functions
+ */
+
 #ifndef MYMPD_WEB_SERVER_PROXY_H
 #define MYMPD_WEB_SERVER_PROXY_H
 

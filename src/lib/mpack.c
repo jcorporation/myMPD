@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Helper functions for mpack
+ */
+
 #include "compile_time.h"
 #include "src/lib/mpack.h"
 
@@ -11,7 +15,7 @@
 
 /**
  * Log handler for mpack read errors
- * @param writer mpack reader object (not used)
+ * @param tree mpack tree object (unused)
  * @param error error object
  */
 void log_mpack_node_error(mpack_tree_t *tree, mpack_error_t error) {
@@ -42,11 +46,12 @@ sds mpackstr_sds(mpack_node_t node, const char *key) {
 
 /**
  * Appends a mpack str to a sds string
+ * @param buffer sds string to append
  * @param node node to get the key from
  * @param key key to get
- * @return newly allocated sds string
+ * @return Pointer to buffer
  */
-sds mpackstr_sdscat(sds s, mpack_node_t node, const char *key) {
+sds mpackstr_sdscat(sds buffer, mpack_node_t node, const char *key) {
     mpack_node_t data = mpack_node_map_cstr(node, key);
-    return sdscatlen(s, mpack_node_str(data), mpack_node_data_len(data));
+    return sdscatlen(buffer, mpack_node_str(data), mpack_node_data_len(data));
 }

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Functions to populate the jukebox queue
+ */
+
 #ifndef MYMPD_MPD_WORKER_JUKEBOX_H
 #define MYMPD_MPD_WORKER_JUKEBOX_H
 

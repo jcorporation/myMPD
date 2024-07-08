@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Extra media files
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/extra_media.h"
 

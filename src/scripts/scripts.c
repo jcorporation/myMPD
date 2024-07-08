@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Script thread implementation
+ */
+
 #include "compile_time.h"
 #include "src/scripts/scripts.h"
 
@@ -21,6 +25,7 @@
 /**
  * This is the main function for the scripts thread
  * @param arg_config void pointer to t_config struct
+ * @return NULL
  */
 void *scripts_loop(void *arg_config) {
     thread_logname = sds_replace(thread_logname, "scripts");

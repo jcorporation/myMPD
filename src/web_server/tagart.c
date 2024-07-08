@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief tagart functions
+ */
+
 #include "compile_time.h"
 #include "src/web_server/tagart.h"
 
@@ -24,7 +28,7 @@
  * @return true on success, else false
  */
 bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, unsigned long conn_id)
+        struct t_mg_user_data *mg_user_data)
 {
     struct t_config *config = mg_user_data->config;
     sds tag = get_uri_param(&hm->query, "tag=");
@@ -68,7 +72,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
     #ifdef MYMPD_ENABLE_LUA
         //forward request to mympd_api thread
         MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_TAGART to mympdapi_queue");
-        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, 0, INTERNAL_API_TAGART, NULL, MPD_PARTITION_DEFAULT);
+        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_TAGART, NULL, MPD_PARTITION_DEFAULT);
         request->data = tojson_sds(request->data, "tag", tag, true);
         request->data = tojson_sds(request->data, "value", value, false);
         request->data = jsonrpc_end(request->data);

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Synchronous HTTP client
+ */
+
 #ifndef MYMPD_HTTP_CLIENT_H
 #define MYMPD_HTTP_CLIENT_H
 

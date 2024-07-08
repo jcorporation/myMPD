@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD queue functions.
+ */
+
 #ifndef MYMPD_MPD_CLIENT_QUEUE_H
 #define MYMPD_MPD_CLIENT_QUEUE_H
 

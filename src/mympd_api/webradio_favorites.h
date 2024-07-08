@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD webradio favorites API
+ */
+
 #ifndef MYMPD_API_WEBRADIO_FAVORITES_H
 #define MYMPD_API_WEBRADIO_FAVORITES_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD session functions
+ */
+
 #include "compile_time.h"
 #include "src/web_server/sessions.h"
 

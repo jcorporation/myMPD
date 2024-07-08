@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Search implementation
+ */
+
 #include "compile_time.h"
 #include "src/lib/search.h"
 
@@ -16,6 +20,9 @@
 
 #include <inttypes.h>
 
+/**
+ * PCRE for UTF-8
+ */
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
 #include <string.h>
@@ -228,6 +235,7 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
 /**
  * Frees the search expression list
  * @param expr_list pointer to the list
+ * @return NULL
  */
 void *free_search_expression_list(struct t_list *expr_list) {
     if (expr_list == NULL) {
@@ -327,10 +335,9 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
 
 /**
  * Implements search expressions for webradios.
- * @param song pointer to mpd song struct
+ * @param webradio pointer to webradio struct
  * @param expr_list expression list returned by parse_search_expression
  * @param any_tag_types tags for special "any" tag in expression
- * @param type type of struct for the search expression
  * @return expression result
  */
 bool search_expression_webradio(const struct t_webradio_data *webradio, const struct t_list *expr_list, const struct t_webradio_tags *any_tag_types) {
@@ -421,6 +428,7 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
 /**
  * Frees the t_search_expression struct
  * @param expr pointer to t_search_expression struct
+ * @return NULL
  */
 void *free_search_expression(struct t_search_expression *expr) {
     FREE_SDS(expr->value);

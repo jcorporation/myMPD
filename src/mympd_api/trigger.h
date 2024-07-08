@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD trigger API
+ */
+
 #ifndef MYMPD_API_TRIGGER_H
 #define MYMPD_API_TRIGGER_H
 

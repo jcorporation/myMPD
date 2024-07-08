@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD volume API
+ */
+
 #ifndef MYMPD_API_VOLUME_H
 #define MYMPD_API_VOLUME_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD API webradio functions
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/webradio.h"
 
@@ -18,7 +22,7 @@
 
 /**
  * Searches the webradio list
- * @param webradio_favorites Webradio favorites struct
+ * @param webradios Pointer to webradios struct
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param cmd_id API ID
@@ -194,7 +198,7 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
 
 /**
  * Prints a Webradio entry as jsonrpc response
- * @param workdir working directory
+ * @param webradios Pointer to webradios struct
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param name webradio name
@@ -217,7 +221,7 @@ sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buff
 
 /**
  * Prints a Webradio entry as jsonrpc response
- * @param workdir working directory
+ * @param webradios Pointer to webradios struct
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param uri webradio stream uri

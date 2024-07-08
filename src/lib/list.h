@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Linked list implementation
+ */
+
 #ifndef MYMPD_LIST_H
 #define MYMPD_LIST_H
 
@@ -31,13 +35,27 @@ struct t_list {
     struct t_list_node *tail;  //!< pointer to last node
 };
 
+/**
+ * Sort direction
+ */
 enum list_sort_direction {
     LIST_SORT_ASC = 0,
     LIST_SORT_DESC = 1
 };
 
+/**
+ * Definition of user data callback
+ */
 typedef void (*user_data_callback) (struct t_list_node *current);
+
+/**
+ * Definition of list to line callback
+ */
 typedef sds (*list_node_to_line_callback) (sds buffer, struct t_list_node *current, bool newline);
+
+/**
+ * Definition of sort callback
+ */
 typedef bool (*list_sort_callback) (struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction);
 
 struct t_list *list_new(void);

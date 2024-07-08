@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD client idle event handling
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/idle.h"
 
@@ -83,7 +87,6 @@ void mpd_client_idle(struct t_mympd_state *mympd_state, struct t_work_request *r
  * Scrobble event
  * @param mympd_state pointer to partition state
  * @param partition_state pointer to partition specific state
- * @param idle_bitmask triggered mpd idle events as bitmask
  */
 void mpd_client_scrobble(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {
     #ifdef MYMPD_DEBUG

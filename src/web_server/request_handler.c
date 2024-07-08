@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief HTTP request handler
+ */
+
 #include "compile_time.h"
 #include "src/web_server/request_handler.h"
 
@@ -22,8 +26,7 @@
  * @param body http body (jsonrpc request)
  * @param auth_header Authentication header (myMPD session)
  * @param mg_user_data webserver configuration
- * @param backend_nc backend connection
- * @return true on success, else false
+  * @return true on success, else false
  */
 bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth_header,
         struct t_mg_user_data *mg_user_data)
@@ -324,6 +327,7 @@ void request_handler_ca(struct mg_connection *nc, struct mg_http_message *hm,
  * Sends the request to the mympd_api thread.
  * @param nc mongoose connection
  * @param hm http message
+ * @param mg_user_data webserver configuration
  */
 void request_handler_extm3u(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data)

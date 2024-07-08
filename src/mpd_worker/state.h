@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD worker state functions
+ */
+
 #ifndef MYMPD_MPD_WORKER_UTILITY_H
 #define MYMPD_MPD_WORKER_UTILITY_H
 

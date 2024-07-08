@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Webserver utility functions
+ */
+
 #ifndef MYMPD_WEB_SERVER_UTILITY_H
 #define MYMPD_WEB_SERVER_UTILITY_H
 
@@ -58,6 +62,9 @@ struct t_frontend_nc_data {
     time_t last_ws_ping;               //!< last websocket ping from client
 };
 
+/**
+ * Placeholder types
+ */
 enum placeholder_types {
     PLACEHOLDER_NA,
     PLACEHOLDER_STREAM,

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Functions for mongoose strings
+ */
+
 #include "compile_time.h"
 #include "src/lib/mg_str_utils.h"
 

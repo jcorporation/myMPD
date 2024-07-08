@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Webradio functions
+ */
+
 #ifndef MYMPD_LIB_WEBRADIO_H
 #define MYMPD_LIB_WEBRADIO_H
 

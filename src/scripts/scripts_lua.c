@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Lua script functions
+ */
+
 #include "compile_time.h"
 #include "src/scripts/scripts_lua.h"
 
@@ -46,7 +50,16 @@ static int mympd_luaopen(lua_State *lua_vm, const char *lualib);
 
 /**
  * Executes the script in a new thread.
- * @param script_thread_arg pointer to t_script_thread_arg struct
+ * @param scripts_state Pointer to script_state
+ * @param scriptname Script name to execute
+ * @param arguments Script arguments
+ * @param partition MPD Partition
+ * @param localscript Script is saved locally?
+ * @param start_event Event starting the script
+ * @param request_id Jsonrpc ID
+ * @param conn_id Mongoose request id
+ * @param error Pointer to already allocated sds string for the error message
+ * @return true on success, else false
  */
 bool script_start(struct t_scripts_state *scripts_state, sds scriptname, struct t_list *arguments,
         const char *partition, bool localscript, enum script_start_events start_event,
@@ -160,9 +173,9 @@ bool script_start(struct t_scripts_state *scripts_state, sds scriptname, struct 
 
 /**
  * Validates (compiles) a lua script
+ * @param config Pointer to config
  * @param scriptname name of the script
  * @param script the script itself
- * @param lualibs lua libraries to load
  * @param error already allocated sds string to hold the error message
  * @return true on success, else false
  */

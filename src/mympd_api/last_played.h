@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD last played API
+ */
+
 #ifndef MYMPD_API_LAST_PLAYED_H
 #define MYMPD_API_LAST_PLAYED_H
 

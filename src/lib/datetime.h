@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Date and time functions
+ */
+
 #ifndef MYMPD_DATETIME_H
 #define MYMPD_DATETIME_H
 

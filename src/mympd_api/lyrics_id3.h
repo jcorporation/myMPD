@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Read lyrics from ID3 tags
+ */
+
 #ifndef MYMPD_API_LYRICS_ID3_H
 #define MYMPD_API_LYRICS_ID3_H
 

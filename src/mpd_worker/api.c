@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief API handler for mpd_worker thread
+ */
+
 #include "compile_time.h"
 #include "src/mpd_worker/api.h"
 

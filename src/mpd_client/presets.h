@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD presets functions.
+ */
+
 #ifndef MYMPD_MPD_CLIENT_PRESETS_H
 #define MYMPD_MPD_CLIENT_PRESETS_H
 

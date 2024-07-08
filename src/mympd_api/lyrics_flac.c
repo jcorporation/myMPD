@@ -4,15 +4,19 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Read lyrics from vorbis comments
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/lyrics_flac.h"
 
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 
 #include <FLAC/metadata.h>
+#include <assert.h>
 #include <string.h>
 
 /**

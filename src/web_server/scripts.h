@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief HTTP lua script handler
+ */
+
 #ifndef MYMPD_WEB_SERVER_SCRIPTS_H
 #define MYMPD_WEB_SERVER_SCRIPTS_H
 

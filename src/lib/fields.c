@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Fields handling
+ */
+
 #include "compile_time.h"
 #include "src/lib/fields.h"
 
@@ -11,8 +15,8 @@
 
 /**
  * Copy a struct t_fields to another one
- * @param src_tag_list source
- * @param dst_tag_list destination
+ * @param src_fields source
+ * @param dst_fields destination
  */
 void fields_clone(struct t_fields *src_fields, struct t_fields *dst_fields) {
     memcpy((void *)dst_fields, (void *)src_fields, sizeof(struct t_fields));
@@ -29,7 +33,7 @@ void fields_reset(struct t_fields *fields) {
 
 /**
  * (Re-)initializes a t_fields struct
- * @param fields pointer to t_fields struct
+ * @param stickers pointer to t_stickers struct
  */
 void stickers_reset(struct t_stickers *stickers) {
     stickers->len = 0;
@@ -38,7 +42,7 @@ void stickers_reset(struct t_stickers *stickers) {
 
 /**
  * Enables all stickers
- * @param fields pointer to t_fields struct
+ * @param stickers pointer to t_stickers struct
  */
 void stickers_enable_all(struct t_stickers *stickers) {
     stickers->len = STICKER_COUNT;
@@ -49,7 +53,7 @@ void stickers_enable_all(struct t_stickers *stickers) {
 
 /**
  * (Re-)initializes a t_mpd_tags struct
- * @param fields pointer to t_fields struct
+ * @param mpd_tags pointer to t_mpd_tags struct
  */
 void mpd_tags_reset(struct t_mpd_tags *mpd_tags) {
     mpd_tags->len = 0;
@@ -57,7 +61,7 @@ void mpd_tags_reset(struct t_mpd_tags *mpd_tags) {
 }
 
 /**
- * Copy a struct t_fields to another one
+ * Copy a struct t_mpd_tags to another one
  * @param src_mpd_tags source
  * @param dst_mpd_tags destination
  */

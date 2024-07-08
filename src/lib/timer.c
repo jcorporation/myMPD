@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Timerfd helpers
+ */
+
 #include "compile_time.h"
 #include "src/lib/timer.h"
 

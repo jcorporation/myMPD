@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Functions to populate the jukebox queue
+ */
+
 #include "compile_time.h"
 #include "src/mpd_worker/jukebox.h"
 
@@ -34,6 +38,7 @@ bool mpd_worker_jukebox_push(struct t_mpd_worker_state *mpd_worker_state) {
 /**
  * Pushes an jukebox creation error to the mympd api thread
  * @param mpd_worker_state pointer to mpd worker state
+ * @param error Error message to send
  * @return true on success, else false
  */
 bool mpd_worker_jukebox_error(struct t_mpd_worker_state *mpd_worker_state, sds error) {

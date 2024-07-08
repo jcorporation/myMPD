@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD partitions specific functions
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/partitions.h"
 
@@ -25,6 +29,12 @@
 
 #include <string.h>
 
+/**
+ * Connects to MPD and switches to the defined partition
+ * @param mympd_state Pointer to mympd_state
+ * @param partition_state Pointer to partition state
+ * @return true on success, else false
+ */
 bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state) {
     MYMPD_LOG_INFO(partition_state->name, "Creating mpd connection for partition \"%s\"", partition_state->name);
     if (mpd_client_connect(partition_state) == false) {
