@@ -85,7 +85,6 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
         webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
         FREE_SDS(tag);
         FREE_SDS(value);
-        (void)conn_id;
         return true;
     #endif
 }
