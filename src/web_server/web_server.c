@@ -24,6 +24,7 @@
 #include "src/lib/thread.h"
 #include "src/web_server/albumart.h"
 #include "src/web_server/folderart.h"
+#include "src/web_server/placeholder.h"
 #include "src/web_server/playlistart.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/request_handler.h"
@@ -40,7 +41,6 @@
  * Private definitions
  */
 
-static void get_placeholder_image(sds workdir, const char *name, sds *result);
 static void read_queue(struct mg_mgr *mgr);
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
@@ -368,28 +368,6 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
 }
 
 /**
- * Finds and sets the placeholder images
- * @param workdir myMPD working directory
- * @param name basename to search for
- * @param result pointer to sds result
- */
-static void get_placeholder_image(sds workdir, const char *name, sds *result) {
-    sds file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_PICS_THUMBS, name);
-    MYMPD_LOG_DEBUG(NULL, "Check for custom placeholder image \"%s\"", file);
-    file = webserver_find_image_file(file);
-    sdsclear(*result);
-    if (sdslen(file) > 0) {
-        file = sds_basename(file);
-        MYMPD_LOG_INFO(NULL, "Setting custom placeholder image for %s to \"%s\"", name, file);
-        *result = sdscatfmt(*result, "/browse/%s/%S", DIR_WORK_PICS_THUMBS, file);
-    }
-    else {
-        *result = sdscatfmt(*result, "/assets/%s.svg", name);
-    }
-    FREE_SDS(file);
-}
-
-/**
  * Broadcasts a message through all websocket connections for a specific or all partitions
  * @param mgr mongoose mgr
  * @param response jsonrpc notification
@@ -522,7 +500,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
                 webserver_send_albumart_redirect(nc, response->data);
                 break;
             case INTERNAL_API_TAGART:
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+                webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
                 break;
             default:
                 MYMPD_LOG_DEBUG(response->partition, "Sending response to conn_id \"%lu\" (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
@@ -855,22 +833,22 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
         #endif
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-booklet"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_BOOKLET);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_booklet);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-mympd"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_MYMPD);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_mympd);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-notavailable"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_na);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-stream"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_stream);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-playlist"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_playlist);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-smartpls"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_SMARTPLS);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_smartpls);
             }
             else if (mg_match(hm->uri, mg_str("/index.html"), NULL)) {
                 webserver_send_header_redirect(nc, "/", "");

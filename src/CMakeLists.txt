@@ -143,6 +143,7 @@ target_sources(mympd
     web_server/albumart.c
     web_server/folderart.c
     web_server/request_handler.c
+    web_server/placeholder.c
     web_server/proxy.c
     web_server/sessions.c
     web_server/playlistart.c

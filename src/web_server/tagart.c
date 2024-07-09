@@ -19,6 +19,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
+#include "src/web_server/placeholder.h"
 
 /**
  * Request handler for /tagart
@@ -40,7 +41,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
         vcb_ismpdtag(tag) == false)
     {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
         FREE_SDS(tag);
         FREE_SDS(value);
         return true;
@@ -82,7 +83,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
         return false;
     #else
         MYMPD_LOG_DEBUG(NULL, "No image for tag found");
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
         FREE_SDS(tag);
         FREE_SDS(value);
         return true;

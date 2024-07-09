@@ -62,19 +62,6 @@ struct t_frontend_nc_data {
     time_t last_ws_ping;               //!< last websocket ping from client
 };
 
-/**
- * Placeholder types
- */
-enum placeholder_types {
-    PLACEHOLDER_NA,
-    PLACEHOLDER_STREAM,
-    PLACEHOLDER_MYMPD,
-    PLACEHOLDER_BOOKLET,
-    PLACEHOLDER_PLAYLIST,
-    PLACEHOLDER_SMARTPLS,
-    PLACEHOLDER_FOLDER
-};
-
 #ifdef MYMPD_EMBEDDED_ASSETS
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 #endif
@@ -87,7 +74,6 @@ sds webserver_find_image_file(sds basefilename);
 bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *names, int names_len);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
 void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm, const char *path, const char *file);
-void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholder_types placeholder_type);
 void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *extra_headers);
 void webserver_send_header_redirect(struct mg_connection *nc, const char *location, const char *headers);
 void webserver_send_header_found(struct mg_connection *nc, const char *location, const char *headers);

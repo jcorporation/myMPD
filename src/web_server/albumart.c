@@ -22,6 +22,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
+#include "src/web_server/placeholder.h"
 #include "src/web_server/webradio.h"
 
 #include <libgen.h>
@@ -64,7 +65,7 @@ void webserver_send_albumart_redirect(struct mg_connection *nc, sds data) {
         FREE_SDS(redirect_uri);
     }
     else {
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
     }
     FREE_SDS(uri);
 }
@@ -89,7 +90,7 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
         FREE_SDS(headers);
     }
     else {
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
     }
     FREE_SDS(mime_type);
 }
@@ -139,7 +140,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         sdslen(uri) == 0)
     {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
         FREE_SDS(offset_s);
         FREE_SDS(uri);
         return true;
@@ -158,7 +159,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
     if (sdslen(uri) > FILEPATH_LEN_MAX) {
         FREE_SDS(uri);
         MYMPD_LOG_WARN(NULL, "Uri is too long, max len is %d", FILEPATH_LEN_MAX);
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
         return true;
     }
 
@@ -167,7 +168,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         if (sdslen(uri) > FILENAME_LEN_MAX) {
             FREE_SDS(uri);
             MYMPD_LOG_DEBUG(NULL, "Uri is too long, max len is %d", FILENAME_LEN_MAX);
-            webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
+            webserver_redirect_placeholder_image(nc, PLACEHOLDER_STREAM);
             return true;
         }
 
@@ -257,7 +258,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
 
     MYMPD_LOG_INFO(NULL, "No coverimage found for \"%s\"", uri);
     FREE_SDS(uri);
-    webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+    webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
     return true;
 }
 
