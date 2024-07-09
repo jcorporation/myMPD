@@ -276,37 +276,40 @@ struct t_webradios *webradios_new(void) {
 /**
  * Clears the webradios struct
  * @param webradios struct to free
- * @param init_rax init the rax trees?
+ * @param init_rax re-init the rax trees?
  */
 void webradios_clear(struct t_webradios *webradios, bool init_rax) {
     raxIterator iter;
-    raxStart(&iter, webradios->db);
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
-        webradio_data_free((struct t_webradio_data *)iter.data);
-        iter.data = NULL;
+    if (webradios->db != NULL) {
+        raxStart(&iter, webradios->db);
+        raxSeek(&iter, "^", NULL, 0);
+        while (raxNext(&iter)) {
+            webradio_data_free((struct t_webradio_data *)iter.data);
+            iter.data = NULL;
+        }
+        raxStop(&iter);
+        raxFree(webradios->db);
+        if (init_rax == true) {
+            webradios->db = raxNew();
+        }
+        else {
+            webradios->db = NULL;
+        }
     }
-    raxStop(&iter);
-    raxFree(webradios->db);
-    if (init_rax == true) {
-        webradios->db = raxNew();
-    }
-    else {
-        webradios->db = NULL;
-    }
-
-    raxStart(&iter, webradios->idx_uris);
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
-        iter.data = NULL;
-    }
-    raxStop(&iter);
-    raxFree(webradios->idx_uris);
-    if (init_rax == true) {
-        webradios->idx_uris = raxNew();
-    }
-    else {
-        webradios->db = NULL;
+    if (webradios->idx_uris != NULL) {
+        raxStart(&iter, webradios->idx_uris);
+        raxSeek(&iter, "^", NULL, 0);
+        while (raxNext(&iter)) {
+            iter.data = NULL;
+        }
+        raxStop(&iter);
+        raxFree(webradios->idx_uris);
+        if (init_rax == true) {
+            webradios->idx_uris = raxNew();
+        }
+        else {
+            webradios->idx_uris = NULL;
+        }
     }
 }
 
@@ -315,11 +318,7 @@ void webradios_clear(struct t_webradios *webradios, bool init_rax) {
  * @param webradios struct to free
  */
 void webradios_free(struct t_webradios *webradios) {
-    if (webradios->db->numnodes > 0 ||
-        webradios->idx_uris->numnodes > 0) 
-    {
-        webradios_clear(webradios, false);
-    }
+    webradios_clear(webradios, false);
     int rc = pthread_rwlock_destroy(&webradios->rwlock);
     if (rc != 0) {
         MYMPD_LOG_ERROR(NULL, "Can not destroy lock");

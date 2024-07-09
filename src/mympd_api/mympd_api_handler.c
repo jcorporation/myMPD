@@ -1584,21 +1584,19 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case INTERNAL_API_WEBRADIODB_CREATED:
             if (request->extra != NULL) {
                 struct t_webradios *new = (struct t_webradios *)request->extra;
-                if (webradios_get_write_lock(mympd_state->webradiodb) == true) {
-                    // switch the db pointers
-                    rax *old_db = mympd_state->webradiodb->db;
-                    rax *old_idx_uris = mympd_state->webradiodb->idx_uris;
-                    mympd_state->webradiodb->db = new->db;
-                    mympd_state->webradiodb->idx_uris = new->idx_uris;
-                    new->db = old_db;
-                    new->idx_uris = old_idx_uris;
-                    webradios_free(new);
-                    webradios_release_lock(mympd_state->webradiodb);
-                }
-                else {
+                if (webradios_get_write_lock(mympd_state->webradiodb) == false) {
                     MYMPD_LOG_ERROR(partition_state->name, "Discarding fetched WebradioDB");
                     webradios_free(new);
+                    break;
                 }
+                webradios_clear(mympd_state->webradiodb, false);
+                // switch the rax pointers
+                mympd_state->webradiodb->db = new->db;
+                mympd_state->webradiodb->idx_uris = new->idx_uris;
+                new->db = NULL;
+                new->idx_uris = NULL;
+                webradios_free(new);
+                webradios_release_lock(mympd_state->webradiodb);
             }
             break;
         case MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME:

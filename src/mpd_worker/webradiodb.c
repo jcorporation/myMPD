@@ -95,8 +95,6 @@ static bool parse_webradiodb(sds str, struct t_webradios *webradiodb) {
     int off;
     sds key = sdsempty();
     sds data_str = sdsempty();
-    webradiodb->db = raxNew();
-    webradiodb->idx_uris = raxNew();
     for (off = 0; (off = mjson_next(str, (int)sdslen(str), off,
          &koff, &klen, &voff, &vlen, &vtype)) != 0; )
     {

@@ -189,6 +189,8 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         sds buffer = webserver_webradio_get_cover_uri(mg_user_data->webradio_favorites, mg_user_data->webradiodb, sdsempty(), uri);
         webserver_send_header_redirect(nc, buffer, "");
         FREE_SDS(buffer);
+        FREE_SDS(uri);
+        FREE_SDS(coverfile);
         return true;
     }
 
