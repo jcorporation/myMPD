@@ -206,8 +206,7 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
  */
 sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buffer, unsigned request_id, sds name) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME;
-    void *data = raxNotFound;
-    data = raxFind(webradios->db, (unsigned char *)name, strlen(name));
+    void *data = raxFind(webradios->db, (unsigned char *)name, strlen(name));
     if (data == raxNotFound) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Webradio entry not found");
@@ -229,8 +228,7 @@ sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buff
  */
 sds mympd_api_webradio_radio_get_by_uri(struct t_webradios *webradios, sds buffer, unsigned request_id, sds uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI;
-    void *data = raxNotFound;
-    data = raxFind(webradios->idx_uris, (unsigned char *)uri, strlen(uri));
+    void *data = raxFind(webradios->idx_uris, (unsigned char *)uri, strlen(uri));
     if (data == raxNotFound) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Webradio entry not found");

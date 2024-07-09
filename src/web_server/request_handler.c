@@ -15,10 +15,10 @@
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
-#include "src/web_server/webradio.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/sessions.h"
 #include "src/web_server/utility.h"
+#include "src/web_server/webradio.h"
 
 /**
  * Request handler for api requests /api
