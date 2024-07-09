@@ -297,6 +297,7 @@ void webserver_send_header_redirect(struct mg_connection *nc, const char *locati
     mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
         "Location: %s\r\n"
         "Content-Length: 0\r\n"
+        EXTRA_HEADERS_CACHE
         "%s"
         "\r\n",
         location, headers);
