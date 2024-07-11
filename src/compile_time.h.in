@@ -307,7 +307,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 
 //content limits
 #define NAME_LEN_MAX 200
-#define CONTENT_LEN_MAX 6000
+#define CONTENT_LEN_MAX 102400
 #define EXPRESSION_LEN_MAX 1000
 #define FIELDS_MAX 20
 

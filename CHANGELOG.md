@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Feat: New API method MYMPD_API_SCRIPT_RELOAD to reload scripts from disk #1327
 - Upd: zh-Hans translation
+- Upd: Increase max size for scripts to 100kB
 - Fix: Implicit conversion creating keys on systems with OpenSSL 1.1.x #1323
 - Fix: Request stored playlist entries in chunks (MPD 0.24)
 - Fix: Add missing event parameter to mympd-script #1325
