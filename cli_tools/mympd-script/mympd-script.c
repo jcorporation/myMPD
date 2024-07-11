@@ -72,17 +72,16 @@ int main(int argc, char **argv) {
         post_data = sds_catjson(post_data, script_data, sdslen(script_data));
         post_data = sdscat(post_data, ",\"arguments\":{");
         post_data = parse_arguments(post_data, argv, argc);
-        post_data = sdscat(post_data, "}}}");
+        post_data = sdscat(post_data, "},\"event\":\"extern\"}");
         sdsfree(script_data);
     }
     else {
         uri = sdscatfmt(uri, "%s/api/%s", argv[1], argv[2]);
-
         post_data = sdscat(post_data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{\"script\":");
         post_data = sds_catjson(post_data, argv[3], strlen(argv[3]));
         post_data = sdscat(post_data, ",\"arguments\":{");
         post_data = parse_arguments(post_data, argv, argc);
-        post_data = sdscat(post_data, "}}}");
+        post_data = sdscat(post_data, "},\"event\":\"user\"}");
     }
 
     struct mg_client_request_t request = {
