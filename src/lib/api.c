@@ -318,6 +318,7 @@ bool push_request(struct t_work_request *request, unsigned id) {
         case MYMPD_API_SCRIPT_EXECUTE:
         case MYMPD_API_SCRIPT_GET:
         case MYMPD_API_SCRIPT_LIST:
+        case MYMPD_API_SCRIPT_RELOAD:
         case MYMPD_API_SCRIPT_RM:
         case MYMPD_API_SCRIPT_SAVE:
         case MYMPD_API_SCRIPT_VALIDATE:

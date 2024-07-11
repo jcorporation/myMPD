@@ -170,6 +170,7 @@
     "Could not delete webradio favorite": "Не може да се изтрие избрано онлайн радио",
     "Could not get local ip": "Не може да се открие локално IP",
     "Could not load preset": "",
+    "Could not reload scripts from disk": "",
     "Could not remove song from jukebox queue": "Не може да се премахне песен от опашката",
     "Could not save fields": "",
     "Could not save script": "Не може да се запази скрипт",

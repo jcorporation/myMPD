@@ -170,6 +170,7 @@
     "Could not delete webradio favorite": "Konnte Webradio Favorit nicht löschen",
     "Could not get local ip": "Lokale IP konnte nicht ermittelt werden",
     "Could not load preset": "Voreinstellung konnte nicht geladen werden",
+    "Could not reload scripts from disk": "Neu laden der Skripte fehlgeschlagen",
     "Could not remove song from jukebox queue": "Konnte Lied nicht aus der Jukebox Warteschlange entfernen",
     "Could not save fields": "Felder konnten nicht gespeichert werden",
     "Could not save script": "Skript konnte nicht gespeichert werden",

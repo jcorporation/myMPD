@@ -170,6 +170,7 @@
 {"term":"Could not delete webradio favorite"},
 {"term":"Could not get local ip"},
 {"term":"Could not load preset"},
+{"term":"Could not reload scripts from disk"},
 {"term":"Could not remove song from jukebox queue"},
 {"term":"Could not save fields"},
 {"term":"Could not save script"},

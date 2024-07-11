@@ -170,6 +170,7 @@
     "Could not delete webradio favorite": "未能刪除網路電台最愛",
     "Could not get local ip": "未能獲取本地 IP",
     "Could not load preset": "無法載入預設",
+    "Could not reload scripts from disk": "",
     "Could not remove song from jukebox queue": "未能從點唱機移除曲目",
     "Could not save fields": "",
     "Could not save script": "未能儲存指令碼",

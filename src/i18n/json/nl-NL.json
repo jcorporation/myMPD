@@ -170,6 +170,7 @@
     "Could not delete webradio favorite": "Kon favoriet webradio niet deleten",
     "Could not get local ip": "Kon geen lokaal ip uitlezen",
     "Could not load preset": "Kan voorinstelling niet laden",
+    "Could not reload scripts from disk": "",
     "Could not remove song from jukebox queue": "Kon track niet van lijst verwijderen",
     "Could not save fields": "Velden konden niet worden opgeslagen",
     "Could not save script": "Kon script niet saven",

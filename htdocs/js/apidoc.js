@@ -1848,6 +1848,10 @@ const APImethods = {
             "script": APIparams.script
         }
     },
+    "MYMPD_API_SCRIPT_RELOAD": {
+        "desc": "Reload the scripts from disk.",
+        "params": {}
+    },
     "MYMPD_API_SCRIPT_RM": {
         "desc": "Removes a script",
         "protected": true,

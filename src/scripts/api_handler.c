@@ -83,6 +83,11 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             list_clear(&arguments);
             break;
         }
+        case MYMPD_API_SCRIPT_RELOAD:
+            rc = scripts_file_reload(scripts_state);
+            response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_SCRIPT, "Could not reload scripts from disk");
+            break;
         case MYMPD_API_SCRIPT_RM:
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true) {
                 rc = script_delete(scripts_state, sds_buf1);
