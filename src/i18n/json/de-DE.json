@@ -1203,5 +1203,6 @@
     "tags": "Tags",
     "url_resolved": "URL",
     "votes": "Stimmen",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Could not reload scripts from disk": "Neu laden der Skripte fehlgeschlagen"
 }

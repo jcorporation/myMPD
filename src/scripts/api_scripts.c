@@ -38,6 +38,16 @@ bool parse_script(sds scriptfilename, sds *metadata, sds *content, int *order);
  */
 
 /**
+ * Reload the scripts from disk.
+ * @param scripts_state pointer to scripts_state
+ * @return true on success, else false
+ */
+bool scripts_file_reload(struct t_scripts_state *scripts_state) {
+    list_clear_user_data(&scripts_state->script_list, list_free_cb_script_list_user_data);
+    return scripts_file_read(scripts_state);
+}
+
+/**
  * Reads the scripts from the scripts directory
  * @param scripts_state pointer to scripts_state
  * @return true on success, else false
