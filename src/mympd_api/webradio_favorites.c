@@ -31,7 +31,9 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
 
     struct t_list old_names;
     list_init(&old_names);
-    list_push(&old_names, old_name, 0, NULL, NULL);
+    if (sdslen(old_name) > 0) {
+        list_push(&old_names, old_name, 0, NULL, NULL);
+    }
     list_push(&old_names, webradio->name, 0, NULL, NULL);
     mympd_api_webradio_favorite_delete(webradio_favorites, &old_names);
     list_clear(&old_names);
