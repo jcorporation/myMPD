@@ -16,6 +16,7 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/last_played.h"
 #include "src/lib/log.h"
+#include "src/lib/m3u.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/mympd_state.h"
@@ -89,6 +90,9 @@ void *mympd_api_loop(void *arg_config) {
             timer_handler_by_id, TIMER_ID_WEBRADIODB_UPDATE, NULL);
     }
     webradios_read_from_disk(mympd_state->config, mympd_state->webradio_favorites, FILENAME_WEBRADIO_FAVORITES, WEBRADIO_FAVORITE);
+    // Import old webradio favorites
+    webradio_favorite_import(mympd_state);
+
     // set timers
     MYMPD_LOG_DEBUG(NULL, "Adding timer for cache cropping to execute periodic each day");
     mympd_api_timer_add(&mympd_state->timer_list, TIMER_DISK_CACHE_CLEANUP_OFFSET, TIMER_DISK_CACHE_CLEANUP_INTERVAL,
