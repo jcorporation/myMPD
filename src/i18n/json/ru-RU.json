@@ -176,6 +176,7 @@
     "Could not delete webradio favorite": "Не могу удалить избранное webradio",
     "Could not get local ip": "Не могу получить локальный IP",
     "Could not load preset": "Не мог загрузить предустановку",
+    "Could not reload scripts from disk": "",
     "Could not remove song from jukebox queue": "Не могу удалить песню из очереди jukebox",
     "Could not save fields": "",
     "Could not save script": "Не могу сохранить скрипт",

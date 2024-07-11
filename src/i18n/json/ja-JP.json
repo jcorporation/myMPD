@@ -176,6 +176,7 @@
     "Could not delete webradio favorite": "ウェブラジオのお気に入りを削除できません",
     "Could not get local ip": "ローカルIPを取得できません",
     "Could not load preset": "プリセットを読み込めません",
+    "Could not reload scripts from disk": "",
     "Could not remove song from jukebox queue": "ジュークボックスの再生待ちから楽曲を削除できません",
     "Could not save fields": "フィールドを保存できません",
     "Could not save script": "スクリプトを保存できません",

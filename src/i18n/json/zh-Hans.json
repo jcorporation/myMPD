@@ -176,6 +176,7 @@
     "Could not delete webradio favorite": "未能删除网络电台收藏夹",
     "Could not get local ip": "未能获取本地 IP",
     "Could not load preset": "无法载入预设",
+    "Could not reload scripts from disk": "",
     "Could not remove song from jukebox queue": "未能从音乐盒移除曲目",
     "Could not save fields": "无法保存域值",
     "Could not save script": "未能保存脚本",

@@ -176,6 +176,7 @@
     "Could not delete webradio favorite": "웹라디오 즐겨찾기를 지울 수 없음",
     "Could not get local ip": "로컬 IP를 가져올 수 없음",
     "Could not load preset": "사전 설정을 읽을 수 없음",
+    "Could not reload scripts from disk": "",
     "Could not remove song from jukebox queue": "뮤직박스 순서의 곡을 지울 수 없음",
     "Could not save fields": "필드를 저장할 수 없음",
     "Could not save script": "스크립트를 저장할 수 없음",
