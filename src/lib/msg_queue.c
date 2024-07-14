@@ -24,6 +24,7 @@
 */
 
 //private definitions
+static bool check_for_queue_id(struct t_mympd_queue *queue, unsigned id);
 static void free_queue_node(struct t_mympd_msg *n, enum mympd_queue_types type);
 static void free_queue_node_extra(void *extra, enum mympd_cmd_ids cmd_id);
 static int unlock_mutex(pthread_mutex_t *mutex);
@@ -61,7 +62,7 @@ struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_type
  * @param queue pointer to the queue
  */
 void *mympd_queue_free(struct t_mympd_queue *queue) {
-    mympd_queue_expire(queue, 0);
+    mympd_queue_expire_age(queue, 0);
     event_fd_close(queue->event_fd);
     FREE_PTR(queue);
     return NULL;
@@ -129,8 +130,8 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout_ms, unsigned id
         assert(NULL);
     }
     if (timeout_ms > -1) {
-        //check and wait for entries
-        if (queue->length == 0) {
+        if (check_for_queue_id(queue, id) == false) {
+            //check and wait for entries
             if (timeout_ms > 0) {
                 struct timespec max_wait = {0, 0};
                 set_wait_time(timeout_ms, &max_wait);
@@ -142,7 +143,6 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout_ms, unsigned id
                 errno = 0;
                 rc = pthread_cond_wait(&queue->wakeup, &queue->mutex);
             }
-
             if (rc != 0) {
                 if (rc != ETIMEDOUT) {
                     MYMPD_LOG_ERROR(NULL, "Error in pthread_cond_timedwait: %d", rc);
@@ -189,12 +189,12 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout_ms, unsigned id
 }
 
 /**
- * Expire entries from the queue
+ * Expire entries from the queue by age
  * @param queue pointer to the queue
  * @param max_age_s max age of nodes in seconds
  * @return number of expired nodes
  */
-int mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age_s) {
+int mympd_queue_expire_age(struct t_mympd_queue *queue, time_t max_age_s) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR(NULL, "Error in pthread_mutex_lock: %d", rc);
@@ -246,6 +246,31 @@ int mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age_s) {
 }
 
 //privat functions
+
+/**
+ * Checks if queue has a entry with requested id
+ * @param queue Pointer to the queue
+ * @param id 0 for first entry or specific id
+ * @return true if there is an entry, else false
+ */
+static bool check_for_queue_id(struct t_mympd_queue *queue, unsigned id) {
+    if (queue->length == 0) {
+        MYMPD_LOG_DEBUG(NULL, "Queue %s is empty", queue->name);
+        return false;
+    }
+    if (id == 0) {
+        return true;
+    }
+    struct t_mympd_msg *current = queue->head;
+    while (current != NULL) {
+        if (current->id == id) {
+            return true;
+        }
+        current = current->next;
+    }
+    MYMPD_LOG_DEBUG(NULL, "No entry with id %u found in queue %s", id, queue->name);
+    return false;
+}
 
 /**
  * Frees a queue node, node must be detached from queue
