@@ -50,6 +50,8 @@ enum webradio_tag_type {
     WEBRADIO_TAG_CODEC,
     WEBRADIO_TAG_GENRES,
     WEBRADIO_TAG_LANGUAGES,
+    WEBRADIO_TAG_ADDED,
+    WEBRADIO_TAG_LASTMODIFIED,
     WEBRADIO_TAG_COUNT
 };
 
@@ -69,12 +71,14 @@ struct t_webradio_data {
     sds image;                  //!< Station image
     sds homepage;               //!< Homepage
     sds country;                //!< Country
-    sds region;                  //!< State or region
+    sds region;                 //!< State or region
     sds description;            //!< Short description
     struct t_list uris;         //!< List of Uris (uri, bitrate and codec)
     struct t_list genres;       //!< List of genres
     struct t_list languages;    //!< List of languages
     enum webradio_type type;    //!< Type of the webradio
+    time_t added;               //!< Added timestamp
+    time_t last_modified;       //!< Last modified timestamp
 };
 
 struct t_webradio_data *webradio_by_uri(struct t_webradios *webradio_favorites, struct t_webradios *webradiodb,

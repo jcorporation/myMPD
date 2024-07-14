@@ -138,8 +138,7 @@ function addTagList(elId, list) {
         }
     }
     else if (elId === 'QueueCurrentSearchTags') {
-        if (features.featAdvqueue === true)
-        {
+        if (features.featAdvqueue === true) {
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "prio"}, 'Priority')
             );
@@ -149,7 +148,7 @@ function addTagList(elId, list) {
              elId === 'BrowseRadioWebradiodbSortTagsList' ||
              elId === 'BrowseRadioWebradiodbSearchTags')
     {
-        const tags = ["Bitrate", "Codec", "Country", "Description", "Genre", "Homepage", "Languages", "Name", "Region"];
+        const tags = ["Added", "Bitrate", "Codec", "Country", "Description", "Genres", "Homepage", "Languages", "Last-Modified", "Name", "Region"];
         for (let i = 0, j = tags.length; i < j; i++) {
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": tags[i]}, tags[i])

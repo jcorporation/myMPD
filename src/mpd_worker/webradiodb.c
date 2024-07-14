@@ -182,7 +182,9 @@ static struct t_webradio_data *parse_webradiodb_data(sds str) {
         json_get_array_string(str, "$.Languages", &data->languages, vcb_isname, 64, &parse_error) == false ||
         json_get_string(str, "$.StreamUri", 1, URI_LENGTH_MAX, &uri, vcb_isuri, &parse_error) == false ||
         json_get_string(str, "$.Codec", 1, URI_LENGTH_MAX, &codec, vcb_isname, &parse_error) == false ||
-        json_get_uint_max(str, "$.Bitrate", &bitrate, &parse_error) == false)
+        json_get_uint_max(str, "$.Bitrate", &bitrate, &parse_error) == false ||
+        json_get_time_max(str, "$.Added", &data->added, &parse_error) == false ||
+        json_get_time_max(str, "$.Last-Modified", &data->last_modified, &parse_error) == false)
     {
         webradio_data_free(data);
         jsonrpc_parse_error_clear(&parse_error);

@@ -16,6 +16,7 @@
 
 #include <dirent.h>
 #include <string.h>
+#include <time.h>
 
 /**
  * Saves a webradio favorite. Removes the old_name and overwrites favorites with same name.
@@ -33,10 +34,20 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
     list_init(&old_names);
     if (sdslen(old_name) > 0) {
         list_push(&old_names, old_name, 0, NULL, NULL);
+        struct t_webradio_data *old_radio = raxFind(webradio_favorites->idx_uris, (unsigned char *)old_name, strlen(old_name));
+        if (old_radio != NULL) {
+            webradio->added = old_radio->added;
+        }
     }
+
     list_push(&old_names, webradio->name, 0, NULL, NULL);
     mympd_api_webradio_favorite_delete(webradio_favorites, &old_names);
     list_clear(&old_names);
+
+    webradio->last_modified = time(NULL);
+    if (webradio->added == -1) {
+        webradio->added = webradio->last_modified;
+    }
 
     if (raxTryInsert(webradio_favorites->db, (unsigned char *)webradio->name, sdslen(webradio->name), webradio, NULL) == 1) {
         // write uri index

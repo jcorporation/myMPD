@@ -122,7 +122,9 @@ const webradioFields = [
     'Languages',
     'Codec',
     'Bitrate',
-    'Description'
+    'Description',
+    'Added',
+    'Last-Modified'
 ];
 
 /** @type {object} */

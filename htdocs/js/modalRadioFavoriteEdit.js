@@ -64,7 +64,7 @@ function showEditRadioFavorite(obj) {
     elGetById('modalRadioFavoriteEditBitrateInput').value = obj.Bitrate;
     elGetById('modalRadioFavoriteEditDescriptionInput').value = obj.Description;
 
-    setDataId('modalRadioFavoriteEdit', "StreamUriOld", obj.StreamUri);
+    setDataId('modalRadioFavoriteEdit', "oldName", obj.Name);
 
     const imageEl = elGetById('modalRadioFavoriteEditImageInput');
     getImageList(imageEl, [], 'thumbs');
@@ -91,7 +91,7 @@ function saveRadioFavorite(target) {
     btnWaiting(target, true);
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_SAVE", {
         "name": elGetById('modalRadioFavoriteEditNameInput').value,
-        "oldName": elGetById('modalRadioFavoriteEditNameInput').value,
+        "oldName": getDataId('modalRadioFavoriteEdit', "oldName"),
         "streamUri": elGetById('modalRadioFavoriteEditStreamUriInput').value,
         "genres": elGetById('modalRadioFavoriteEditGenresInput').value.split("."),
         "image": elGetById('modalRadioFavoriteEditImageInput').value,
@@ -176,7 +176,10 @@ function checkWebradioDb() {
 function compareWebradioDb(obj) {
     let v1 = '';
     let v2 = '';
-    for (const v of ['Name', 'StreamUri', 'Genres', 'Homepage', 'Image', 'Country', 'Region', 'Languages', 'Description', 'Codec', 'Bitrate']) {
+    for (const v of webradioFields) {
+        if (v === 'Added' || v === 'Last-Modified') {
+            continue;
+        }
         v1 += elGetById('modalRadioFavoriteEdit' + v + 'Input').value;
         v2 += obj[v];
     }
@@ -192,7 +195,10 @@ function updateFromWebradioDb() {
     sendAPI('MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI', {
         "uri": elGetById('modalRadioFavoriteEditStreamUriInput').value
     }, function(obj) {
-        for (const v of ['Name', 'StreamUri', 'Genres', 'Homepage', 'Image', 'Country', 'Region', 'Languages', 'Description', 'Codec', 'Bitrate']) {
+        for (const v of webradioFields) {
+            if (v === 'Added' || v === 'Last-Modified') {
+                continue;
+            }
             elGetById('modalRadioFavoriteEdit' + v + 'Input').value = obj.result[v];
         }
         checkWebradioDb();

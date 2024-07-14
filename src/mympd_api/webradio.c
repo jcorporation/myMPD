@@ -42,14 +42,22 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     struct t_webradio_tags webradio_tags;
     webradio_tags_search(&webradio_tags);
     struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_WEBRADIO);
+
     enum webradio_tag_type sort_tag = webradio_tag_name_parse(sort);
-    if (sort_tag == WEBRADIO_TAG_UNKNOWN) {
-        sort_tag = WEBRADIO_TAG_NAME;
-        MYMPD_LOG_WARN(NULL, "Invalid sort tag: %s", sort);
+    switch(sort_tag) {
+        case WEBRADIO_TAG_UNKNOWN:
+            sort_tag = WEBRADIO_TAG_NAME;
+            MYMPD_LOG_WARN(NULL, "Invalid sort tag: %s", sort);
+            break;
+        case WEBRADIO_TAG_BITRATE:
+        case WEBRADIO_TAG_ADDED:
+        case WEBRADIO_TAG_LASTMODIFIED:
+            sortdesc = sortdesc == true ? false : true;
+            break;
+        default:
+            break;
     }
-    else if (sort_tag == WEBRADIO_TAG_BITRATE) {
-        sortdesc = sortdesc == true ? false : true;
-    }
+
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
             buffer = sdscat(buffer,"\"data\":[");
 
@@ -62,12 +70,20 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     while (raxNext(&iter)) {
         struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
         if (search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true) {
-            if (sort_tag == WEBRADIO_TAG_BITRATE) {
-                key = sds_pad_int(webradio_data->uris.head->value_i, key);
-            }
-            else {
-                const char *sort_value = webradio_get_tag(webradio_data, sort_tag, 0);
-                key = sdscat(key, sort_value);
+            switch(sort_tag) {
+                case WEBRADIO_TAG_BITRATE:
+                    key = sds_pad_int(webradio_data->uris.head->value_i, key);
+                    break;
+                case WEBRADIO_TAG_ADDED:
+                    key = sds_pad_int(webradio_data->added, key);
+                    break;
+                case WEBRADIO_TAG_LASTMODIFIED:
+                    key = sds_pad_int(webradio_data->last_modified, key);
+                    break;
+                default: {
+                    const char *sort_value = webradio_get_tag(webradio_data, sort_tag, 0);
+                    key = sdscat(key, sort_value);
+                }
             }
             if (sort_tag != WEBRADIO_TAG_NAME) {
                 key = sdscat(key, webradio_data->name);
@@ -163,6 +179,8 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
     buffer = tojson_sds(buffer, "Country", webradio->country, true);
     buffer = tojson_sds(buffer, "Region", webradio->region, true);
     buffer = tojson_sds(buffer, "Description", webradio->description, true);
+    buffer = tojson_time(buffer, "Added", webradio->added, true);
+    buffer = tojson_time(buffer, "Last-Modified", webradio->last_modified, true);
     struct t_list_node *current = webradio->uris.head;
     buffer = tojson_sds(buffer, "StreamUri", current->key, true);
     buffer = tojson_sds(buffer, "Codec", current->value_p, true);

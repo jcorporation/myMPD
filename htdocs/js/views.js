@@ -495,7 +495,7 @@ function setFields(tableName) {
             return ["Type", "Name", "Last-Modified", "Thumbnail"];
         case 'BrowseRadioFavorites':
         case 'BrowseRadioWebradiodb':
-            return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "State", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
+            return ["Added", "Country", "Description", "Genres", "Homepage", "Languages", "Last-Modified", "Name", "Region", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
         case 'BrowseDatabaseTagList':
             return ["Value", "Thumbnail"];
         case 'BrowseDatabaseAlbumList': {

@@ -82,6 +82,8 @@ struct t_webradio_data *webradio_data_new(enum webradio_type type) {
     data->region = NULL;
     data->description = NULL;
     data->type = type;
+    data->added = -1;
+    data->last_modified = -1;
     return data;
 }
 
@@ -156,8 +158,10 @@ static const char *webradio_tag_types_names[WEBRADIO_TAG_COUNT] = {
     [WEBRADIO_TAG_URIS] = "Uri",
     [WEBRADIO_TAG_BITRATE] = "Bitrate",
     [WEBRADIO_TAG_CODEC] = "Codec",
-    [WEBRADIO_TAG_GENRES] = "Genre",
-    [WEBRADIO_TAG_LANGUAGES] = "Language"
+    [WEBRADIO_TAG_GENRES] = "Genres",
+    [WEBRADIO_TAG_LANGUAGES] = "Languages",
+    [WEBRADIO_TAG_ADDED] = "Added",
+    [WEBRADIO_TAG_LASTMODIFIED] = "Last-Modified"
 };
 
 /**
@@ -231,6 +235,8 @@ const char *webradio_get_tag(const struct t_webradio_data *webradio, enum webrad
             return node->key;
         }
         case WEBRADIO_TAG_BITRATE:
+        case WEBRADIO_TAG_ADDED:
+        case WEBRADIO_TAG_LASTMODIFIED:
         case WEBRADIO_TAG_UNKNOWN:
         case WEBRADIO_TAG_COUNT:
             return NULL;
@@ -409,6 +415,8 @@ bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradi
         mpack_write_kv(&writer, "Country", data->country);
         mpack_write_kv(&writer, "Region", data->region);
         mpack_write_kv(&writer, "Description", data->description);
+        mpack_write_kv(&writer, "Added", (int64_t)data->added);
+        mpack_write_kv(&writer, "Last-Modified", (int64_t)data->added);
         mpack_write_cstr(&writer, "Genres");
         mpack_build_array(&writer);
         current = data->genres.head;
@@ -499,6 +507,8 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
         data->country = mpackstr_sds(entry, "Country");
         data->region = mpackstr_sds(entry, "Region");
         data->description = mpackstr_sds(entry, "Description");
+        data->added = (time_t)mpack_node_int(mpack_node_map_cstr(entry, "Added"));
+        data->last_modified = (time_t)mpack_node_int(mpack_node_map_cstr(entry, "Last-Modified"));
         mpack_node_t genre_node = mpack_node_map_cstr(entry, "Genres");
         size_t genre_len = mpack_node_array_length(genre_node);
         for (size_t j = 0; j < genre_len; j++) {
@@ -522,7 +532,11 @@ bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webra
             sdsclear(uri);
             sdsclear(codec);
         }
-        if (raxTryInsert(webradios->db, (unsigned char *)data->name, strlen(data->name), data, NULL) == 1) {
+        if (sdslen(data->name) == 0) {
+            MYMPD_LOG_ERROR(NULL, "Failure reading webradio entry");
+            webradio_data_free(data);
+        }
+        else if (raxTryInsert(webradios->db, (unsigned char *)data->name, strlen(data->name), data, NULL) == 1) {
             // write uri index
             struct t_list_node *current = data->uris.head;
             while (current != NULL) {
