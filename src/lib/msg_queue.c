@@ -27,7 +27,7 @@
 static void free_queue_node(struct t_mympd_msg *n, enum mympd_queue_types type);
 static void free_queue_node_extra(void *extra, enum mympd_cmd_ids cmd_id);
 static int unlock_mutex(pthread_mutex_t *mutex);
-static void set_wait_time(int timeout, struct timespec *max_wait);
+static void set_wait_time(int timeout_ms, struct timespec *max_wait);
 
 //public functions
 
@@ -116,8 +116,8 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id) {
  * Gets the first entry or the entry with specific id
  * @param queue pointer to the queue
  * @param timeout_ms timeout in ms to wait for a queue entry,
- *                 0 to wait infinite
- *                -1 for no wait
+ *                   0 to wait infinite
+ *                   -1 for no wait
  * @param id 0 for first entry or specific id
  * @return t_work_request or t_work_response
  */
@@ -303,11 +303,11 @@ static int unlock_mutex(pthread_mutex_t *mutex) {
 
 /**
  * Populates the timespec struct with time now + timeout
- * @param timeout timeout in ms
+ * @param timeout_ms timeout in ms
  * @param max_wait timespec struct to populate
  */
-static void set_wait_time(int timeout, struct timespec *max_wait) {
-    timeout = timeout * 1000;
+static void set_wait_time(int timeout_ms, struct timespec *max_wait) {
+    int64_t timeout_ns = (int64_t)timeout_ms * 1000000;
     errno = 0;
     if (clock_gettime(CLOCK_REALTIME, max_wait) == -1) {
         MYMPD_LOG_ERROR(NULL, "Error getting realtime");
@@ -315,11 +315,11 @@ static void set_wait_time(int timeout, struct timespec *max_wait) {
         assert(NULL);
     }
     //timeout in ms
-    if (max_wait->tv_nsec <= (999999999 - timeout)) {
-        max_wait->tv_nsec += timeout;
+    if (max_wait->tv_nsec <= (999999999 - timeout_ns)) {
+        max_wait->tv_nsec += timeout_ns;
     }
     else {
         max_wait->tv_sec += 1;
-        max_wait->tv_nsec = timeout - (999999999 - max_wait->tv_nsec);
+        max_wait->tv_nsec = timeout_ns - (999999999 - max_wait->tv_nsec);
     }
 }

@@ -61,6 +61,7 @@ int lua_mympd_api(lua_State *lua_vm) {
     }
     //generate a request id
     unsigned request_id = randrange(0, UINT_MAX);
+    MYMPD_LOG_DEBUG("NULL", "Creating API request with id %u", request_id);
     //create the request
     struct t_work_request *request = create_request(REQUEST_TYPE_SCRIPT, 0, request_id, cmd_id, NULL, partition);
     if (params[0] != '{') {
@@ -77,7 +78,7 @@ int lua_mympd_api(lua_State *lua_vm) {
     int i = 0;
     while (s_signal_received == 0 && i < 60) {
         i++;
-        struct t_work_response *response = mympd_queue_shift(script_worker_queue, 1000000, request_id);
+        struct t_work_response *response = mympd_queue_shift(script_worker_queue, 1000, request_id);
         if (response != NULL) {
             MYMPD_LOG_DEBUG(NULL, "Got response: %s", response->data);
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
