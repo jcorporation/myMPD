@@ -92,7 +92,7 @@ UTEST(mympd_queue, expire) {
     struct t_mympd_msg *current = test_queue->head;
     current->timestamp = time(NULL) - 100;
 
-    int expired = mympd_queue_expire(test_queue, 50);
+    int expired = mympd_queue_expire_age(test_queue, 50);
     ASSERT_EQ(1, expired);
     ASSERT_EQ(49U, test_queue->length);
 
@@ -106,7 +106,7 @@ UTEST(mympd_queue, expire) {
     current = current->next;
     current->timestamp = time(NULL) - 100;
 
-    expired = mympd_queue_expire(test_queue, 50);
+    expired = mympd_queue_expire_age(test_queue, 50);
     ASSERT_EQ(3, expired);
     ASSERT_EQ(46U, test_queue->length);
 
@@ -114,7 +114,7 @@ UTEST(mympd_queue, expire) {
     current = test_queue->tail;
     current->timestamp = time(NULL) - 100;
 
-    expired = mympd_queue_expire(test_queue, 50);
+    expired = mympd_queue_expire_age(test_queue, 50);
     ASSERT_EQ(1, expired);
     ASSERT_EQ(45U, test_queue->length);
 
