@@ -167,7 +167,7 @@ bool script_start(struct t_scripts_state *scripts_state, sds scriptname, struct 
         free_t_script_thread_arg(script_arg);
         return false;
     }
-    mympd_queue_expire(script_worker_queue, 120);
+    mympd_queue_expire_age(script_worker_queue, 120);
     return true;
 }
 

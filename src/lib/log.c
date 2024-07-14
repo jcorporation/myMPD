@@ -65,7 +65,7 @@ static const char *loglevel_colors[8] = {
     [LOG_WARNING] = "\033[0;33m",
     [LOG_NOTICE] = "",
     [LOG_INFO] = "",
-    [LOG_DEBUG] = "\033[0;34m"
+    [LOG_DEBUG] = "\033[0;32m"
 };
 
 /**
