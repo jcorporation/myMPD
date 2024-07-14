@@ -327,24 +327,32 @@ static int unlock_mutex(pthread_mutex_t *mutex) {
 }
 
 /**
+ * Time conversion numbers
+ */
+enum {
+    MSEC_NSEC = 1000000,
+    SEC_NSEC = 1000000000,
+    NSEC_MAX = 999999999
+};
+
+/**
  * Populates the timespec struct with time now + timeout
  * @param timeout_ms timeout in ms
  * @param max_wait timespec struct to populate
  */
 static void set_wait_time(int timeout_ms, struct timespec *max_wait) {
-    int64_t timeout_ns = (int64_t)timeout_ms * 1000000;
     errno = 0;
     if (clock_gettime(CLOCK_REALTIME, max_wait) == -1) {
         MYMPD_LOG_ERROR(NULL, "Error getting realtime");
         MYMPD_LOG_ERRNO(NULL, errno);
         assert(NULL);
     }
-    //timeout in ms
-    if (max_wait->tv_nsec <= (999999999 - timeout_ns)) {
-        max_wait->tv_nsec += timeout_ns;
+    int64_t timeout_ns = (int64_t)max_wait->tv_nsec + (int64_t)timeout_ms * MSEC_NSEC;
+    if (timeout_ns > NSEC_MAX) {
+        max_wait->tv_sec += (time_t)(timeout_ns / SEC_NSEC);
+        max_wait->tv_nsec = (long)(timeout_ns % SEC_NSEC);
     }
     else {
-        max_wait->tv_sec += 1;
-        max_wait->tv_nsec = timeout_ns - (999999999 - max_wait->tv_nsec);
+        max_wait->tv_nsec += (long)timeout_ns;
     }
 }
