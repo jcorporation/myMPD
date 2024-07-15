@@ -39,6 +39,8 @@ This is a small bug fix release.
 
 ## Changelog
 
+- Fix: Return myMPD SSL uri in mympd_state lua table
+
 ***
 
 ## myMPD 16.1.0 (2024-07-15)
