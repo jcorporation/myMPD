@@ -33,7 +33,7 @@ This release improves the WebradioDB integration and removes the radiobrowser.in
 
 ***
 
-## myMPD 16.1.0 (not yet released)
+## myMPD 16.1.0 (2024-07-15)
 
 This is a small bug fix release.
 
