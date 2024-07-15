@@ -92,7 +92,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     lua_mympd_state_set_i(lua_partition_state, "jukebox_max_song_duration", partition_state->jukebox.max_song_duration);
     //myMPD uri
     sds uri = sdsnew("mympd://");
-    uri = resolv_mympd_uri(uri, mympd_state->mpd_state->mpd_host, mympd_state->config);
+    uri = resolv_mympd_uri(uri, mympd_state->mpd_state->mpd_host, mympd_state->config, true);
     lua_mympd_state_set_p(lua_partition_state, "mympd_uri", uri);
     FREE_SDS(uri);
     return rc;

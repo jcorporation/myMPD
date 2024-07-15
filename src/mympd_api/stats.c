@@ -26,7 +26,7 @@ sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, u
         const unsigned *version = mpd_connection_get_server_version(partition_state->conn);
         sds mpd_protocol_version = sdscatfmt(sdsempty(),"%u.%u.%u", version[0], version[1], version[2]);
         sds mympd_uri = sdsnew("mympd://");
-        mympd_uri = resolv_mympd_uri(mympd_uri, partition_state->mpd_state->mpd_host, partition_state->config);
+        mympd_uri = resolv_mympd_uri(mympd_uri, partition_state->mpd_state->mpd_host, partition_state->config, true);
 
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_uint(buffer, "artists", mpd_stats_get_number_of_artists(stats), true);

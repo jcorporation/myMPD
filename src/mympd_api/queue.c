@@ -488,7 +488,7 @@ bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, str
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current = plists->head;
         while (current != NULL) {
-            current->key = resolv_mympd_uri(current->key, partition_state->mpd_state->mpd_host, partition_state->config);
+            current->key = resolv_mympd_uri(current->key, partition_state->mpd_state->mpd_host, partition_state->config, false);
             bool rc = to == UINT_MAX
                 ? mpd_send_load(partition_state->conn, current->key)
                 : mpd_send_load_range_to(partition_state->conn, current->key, 0, UINT_MAX, to, whence);

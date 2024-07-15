@@ -239,9 +239,10 @@ const struct t_mympd_uris mympd_uris[] = {
  * @param uri uri to resolv
  * @param mpd_host mpd host
  * @param config pointer to config struct
+ * @param prefer_ssl Prefer https over http
  * @return resolved uri
  */
-sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
+sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config, bool prefer_ssl) {
     const struct t_mympd_uris *p = NULL;
     for (p = mympd_uris; p->uri != NULL; p++) {
         size_t len = strlen(p->uri);
@@ -258,7 +259,9 @@ sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
             //we prefer http only to avoid the complex ssl trust configuration
             //use ssl only if there is no http listener
             sds host = get_mympd_host(mpd_host, config->http_host);
-            if (config->http == false) {
+            if (config->http == false ||
+                (prefer_ssl == true && config->ssl == true))
+            {
                 new_uri = sdscatfmt(new_uri, "https://%S:%i%s%S", host, config->ssl_port, p->resolved, uri);
             }
             else {
