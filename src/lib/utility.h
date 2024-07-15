@@ -29,7 +29,7 @@ void sanitize_filename2(sds filename);
 
 void my_msleep(int msec);
 
-sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config);
+sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config, bool prefer_ssl);
 bool get_ipv6_support(void);
 
 /**

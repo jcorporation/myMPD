@@ -1,2 +1,2 @@
 const myMPDversion = '17.0.0';
-const myMPDbuild = 'cd105109e2b4fa116dd8b34f2a5714aacd636fc9';
+const myMPDbuild = '32478e8e8e645065a352e0df6bf7feeaaa8ac6f7';
