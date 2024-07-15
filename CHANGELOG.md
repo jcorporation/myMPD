@@ -4,11 +4,13 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v15.1.1 (not yet released)
+## myMPD v16.1.1 (not yet released)
 
 This is a small bug fix release.
 
 ## Changelog
+
+- Fix: Return myMPD SSL uri in mympd_state lua table
 
 ***
 
