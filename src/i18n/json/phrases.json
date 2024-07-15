@@ -342,6 +342,7 @@
 {"term":"Generate smart playlist per"},
 {"term":"Generates a random tmp filename for the misc cache."},
 {"term":"Genre"},
+{"term":"Genres"},
 {"term":"Goto album"},
 {"term":"Goto artist"},
 {"term":"Goto playing song"},

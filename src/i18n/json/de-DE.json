@@ -1197,5 +1197,6 @@
     "WebradioDB is disabled": "WebradioDB ist deaktiviert.",
     "WebradioDB update failed": "WebradioDB Update fehlgeschlagen.",
     "WebradioDB update started": "WebradioDB Update gestartet.",
-    "Webradio entry not found": "Webradio nicht gefunden."
+    "Webradio entry not found": "Webradio nicht gefunden.",
+    "Genres": "Genres"
 }

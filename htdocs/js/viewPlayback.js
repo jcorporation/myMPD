@@ -271,7 +271,7 @@ function setPlaybackCardTags(songObj) {
         );
         PlaybackListWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                elCreateTextTn('small', {}, 'Genre'),
+                elCreateTextTn('small', {}, 'Genres'),
                 elCreateText('p', {}, joinArray(songObj.webradio.Genres))
             ])
         );
@@ -284,7 +284,7 @@ function setPlaybackCardTags(songObj) {
         );
         PlaybackListWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                elCreateTextTn('small', {}, 'Language'),
+                elCreateTextTn('small', {}, 'Languages'),
                 elCreateText('p', {}, joinArray(songObj.webradio.Languages))
             ])
         );

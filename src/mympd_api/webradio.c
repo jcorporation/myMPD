@@ -222,8 +222,9 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
  * @param name webradio name
  * @return pointer to buffer
  */
-sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buffer, unsigned request_id, sds name) {
-    enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME;
+sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buffer, unsigned request_id,
+        enum mympd_cmd_ids cmd_id, sds name)
+{
     void *data = raxFind(webradios->db, (unsigned char *)name, strlen(name));
     if (data == raxNotFound) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
@@ -244,8 +245,9 @@ sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buff
  * @param uri webradio stream uri
  * @return pointer to buffer
  */
-sds mympd_api_webradio_radio_get_by_uri(struct t_webradios *webradios, sds buffer, unsigned request_id, sds uri) {
-    enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI;
+sds mympd_api_webradio_radio_get_by_uri(struct t_webradios *webradios, sds buffer, unsigned request_id,
+        enum mympd_cmd_ids cmd_id, sds uri)
+{
     void *data = raxFind(webradios->idx_uris, (unsigned char *)uri, strlen(uri));
     if (data == raxNotFound) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
