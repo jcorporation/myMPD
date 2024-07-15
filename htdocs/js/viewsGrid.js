@@ -3,7 +3,7 @@
 // myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module grid_js */
+/** @module viewsGrid_js */
 
 /**
  * Updates the table from the jsonrpc response

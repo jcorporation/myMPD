@@ -3,7 +3,7 @@
 // myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module tables_js */
+/** @module viewsTables_js */
 
 /**
  * Initializes a table body for drag and drop of rows
