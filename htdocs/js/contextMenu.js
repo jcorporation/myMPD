@@ -374,11 +374,11 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
         addDivider(contextMenuBody);
         const webradioType = getData(dataNode, 'webradioType');
         if (webradioType === 'favorite') {
-            addMenuItem(contextMenuBody, {"cmd": "showRadioFavoriteDetails", "options": [uri]}, 'Show webradio');
+            addMenuItem(contextMenuBody, {"cmd": "showRadioFavoriteDetails", "options": [uri]}, 'Webradio details');
             addMenuItem(contextMenuBody, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
         }
         else {
-            addMenuItem(contextMenuBody, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Show webradio');
+            addMenuItem(contextMenuBody, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
         }
     }
 }
