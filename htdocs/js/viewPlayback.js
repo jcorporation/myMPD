@@ -258,8 +258,13 @@ function setPlaybackCardTags(songObj) {
         elShow(PlaybackListWebradio);
         elHideId('PlaybackListTags');
 
-        const webradioName = elCreateText('p', {"href": "#", "class": ["clickable"]}, songObj.webradio.Name);
-        setData(webradioName, 'href', {"cmd": "editRadioFavorite", "options": [songObj.webradio.filename]});
+        const webradioName = elCreateText('p', {"class": ["clickable"]}, songObj.webradio.Name);
+        if (songObj.webradio.Type === 'webradiodb') {
+            setData(webradioName, 'href', {"cmd": "showWebradiodbDetails", "options": [songObj.webradio.StreamUri]});
+        }
+        else {
+            setData(webradioName, 'href', {"cmd": "editRadioFavorite", "options": [songObj.webradio.StreamUri]});
+        }
         webradioName.addEventListener('click', function(event) {
             parseCmd(event, getData(event.target, 'href'));
         }, false);
