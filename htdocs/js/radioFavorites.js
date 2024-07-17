@@ -53,6 +53,6 @@ function editRadioFavorite(uri) {
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI", {
         "uri": uri
     }, function(obj) {
-        showEditRadioFavorite(obj.result);
+        showEditRadioFavorite(obj);
     }, false);
 }

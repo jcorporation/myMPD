@@ -53,23 +53,23 @@ function saveAsRadioFavorite(uri) {
 function showEditRadioFavorite(obj) {
     cleanupModalId('modalRadioFavoriteEdit');
 
-    elGetById('modalRadioFavoriteEditNameInput').value = obj.Name;
-    elGetById('modalRadioFavoriteEditStreamUriInput').value = obj.StreamUri;
-    elGetById('modalRadioFavoriteEditGenresInput').value = obj.Genres;
-    elGetById('modalRadioFavoriteEditHomepageInput').value = obj.Homepage;
-    elGetById('modalRadioFavoriteEditCountryInput').value = obj.Country;
-    elGetById('modalRadioFavoriteEditRegionInput').value = obj.Region;
-    elGetById('modalRadioFavoriteEditLanguagesInput').value = obj.Languages;
-    elGetById('modalRadioFavoriteEditCodecInput').value = obj.Codec;
-    elGetById('modalRadioFavoriteEditBitrateInput').value = obj.Bitrate;
-    elGetById('modalRadioFavoriteEditDescriptionInput').value = obj.Description;
+    elGetById('modalRadioFavoriteEditNameInput').value = obj.result.Name;
+    elGetById('modalRadioFavoriteEditStreamUriInput').value = obj.result.StreamUri;
+    elGetById('modalRadioFavoriteEditGenresInput').value = obj.result.Genres;
+    elGetById('modalRadioFavoriteEditHomepageInput').value = obj.result.Homepage;
+    elGetById('modalRadioFavoriteEditCountryInput').value = obj.result.Country;
+    elGetById('modalRadioFavoriteEditRegionInput').value = obj.result.Region;
+    elGetById('modalRadioFavoriteEditLanguagesInput').value = obj.result.Languages;
+    elGetById('modalRadioFavoriteEditCodecInput').value = obj.result.Codec;
+    elGetById('modalRadioFavoriteEditBitrateInput').value = obj.result.Bitrate;
+    elGetById('modalRadioFavoriteEditDescriptionInput').value = obj.result.Description;
 
-    setDataId('modalRadioFavoriteEdit', "oldName", obj.Name);
+    setDataId('modalRadioFavoriteEdit', "oldName", obj.result.Name);
 
     const imageEl = elGetById('modalRadioFavoriteEditImageInput');
     getImageList(imageEl, [], 'thumbs');
-    imageEl.value = obj.Image === undefined ? '' : obj.Image;
-    setData(imageEl, 'value', obj.Image === undefined ? '' : obj.Image);
+    imageEl.value = obj.result.Image === undefined ? '' : obj.result.Image;
+    setData(imageEl, 'value', obj.result.Image === undefined ? '' : obj.result.Image);
 
     elHideId('modalRadioFavoriteEditAddToWebradiodbBtn');
     elHideId('modalRadioFavoriteEditUpdateWebradiodbBtn');
