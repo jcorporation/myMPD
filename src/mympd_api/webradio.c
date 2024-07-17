@@ -219,6 +219,7 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
  * @param webradios Pointer to webradios struct
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
+ * @param cmd_id API method
  * @param name webradio name
  * @return pointer to buffer
  */
@@ -242,6 +243,7 @@ sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buff
  * @param webradios Pointer to webradios struct
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
+ * @param cmd_id API method
  * @param uri webradio stream uri
  * @return pointer to buffer
  */
