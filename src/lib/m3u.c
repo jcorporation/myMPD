@@ -35,12 +35,13 @@ static void populate_field(struct t_webradio_data *data, sds fields, sds value);
  */
 bool webradio_favorite_import(struct t_mympd_state *mympd_state) {
     sds dirname = sdscatfmt(sdsempty(), "%S/webradios", mympd_state->config->workdir);
-    if (testdir("Webradio favorites", dirname, false, true) != DIR_EXISTS) {
-        return true;
-    }
     errno = 0;
     DIR *webradio_dir = opendir(dirname);
     if (webradio_dir == NULL) {
+        if (errno == ENOENT) {
+            FREE_SDS(dirname);
+            return true;
+        }
         MYMPD_LOG_ERROR(NULL, "Can not open directory \"%s\"", dirname);
         MYMPD_LOG_ERRNO(NULL, errno);
         FREE_SDS(dirname);
