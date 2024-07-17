@@ -13,7 +13,7 @@
 //eslint-disable-next-line no-unused-vars
 function showAddToWebradioFavorites(event) {
     event.preventDefault();
-    showEditRadioFavorite(getDataId('modalWebradiodbDetailTitle', 'webradio'));
+    saveAsRadioFavorite(getDataId('modalWebradiodbDetailTitle', 'streamUri'));
 }
 
 /**
@@ -49,7 +49,7 @@ function parseWebradiodbDetail(obj) {
         elGetById('modalWebradiodbDetailImage').style.backgroundImage = 'url("' + subdir + '/assets/coverimage-notavailable")';
     }
     elGetById('modalWebradiodbDetailTitle').textContent = obj.result.Name;
-    setDataId('modalWebradiodbDetailTitle', 'webradio', obj.result);
+    setDataId('modalWebradiodbDetailTitle', 'streamUri', obj.result.StreamUri);
     for (const field of webradioFields) {
         const value = printValue(field, obj.result[field]);
         tbody.appendChild(
