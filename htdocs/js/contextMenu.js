@@ -379,6 +379,7 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
         }
         else {
             addMenuItem(contextMenuBody, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
+            addMenuItem(contextMenuBody, {"cmd": "saveAsRadioFavorite", "options": [uri]}, 'Add to favorites');
         }
     }
 }
