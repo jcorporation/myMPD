@@ -1815,10 +1815,20 @@ const APImethods = {
                 "example": "testscript",
                 "desc": "Name of the old script to rename"
             },
+            "file": {
+                "type": APItypes.string,
+                "example": "",
+                "desc": "Script filename (for imported scripts)"
+            },
             "order": {
                 "type": APItypes.uint,
                 "example": 1,
                 "desc": "Order for the scripts in main menu, 0 = disable listing in main menu"
+            },
+            "version": {
+                "type": APItypes.int,
+                "example": 0,
+                "desc": "Script version (for imported scripts)"
             },
             "content": {
                 "type": APItypes.string,
@@ -2191,7 +2201,11 @@ const APImethods = {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
             "expression": APIparams.expression,
-            "sort": APIparams.sort,
+            "sort": {
+                "type": APItypes.string,
+                "example": "Name",
+                "desc": "Webradio tag to sort."
+            },
             "sortdesc": APIparams.sortdesc
         }
     },
@@ -2201,27 +2215,27 @@ const APImethods = {
             "name": {
                 "type": APItypes.string,
                 "example": "swr1",
-                "desc": "Name of the webradio favorite to delete."
+                "desc": "Name of the webradio favorite to save."
             },
             "streamUri": {
                 "type": APItypes.string,
                 "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
                 "desc": "New URI of the webradio stream."
             },
-            "streamUriOld": {
+            "oldName": {
                 "type": APItypes.string,
                 "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
-                "desc": "Old URI of the webradio stream."
+                "desc": "Old name of the webradio favorite to save."
+            },
+            "genres": {
+                "type": APItypes.array,
+                "example": "[\"Pop\", \"Rock\"]",
+                "desc": "Genre or other tags."
             },
             "image": {
                 "type": APItypes.string,
                 "example": "http://www.swr.de/streampic.jpg",
                 "desc": "Picture for the webradio."
-            },
-            "genre": {
-                "type": APItypes.string,
-                "example": "Pop Rock",
-                "desc": "Genre or other tags."
             },
             "homepage": {
                 "type": APItypes.string,
@@ -2233,15 +2247,15 @@ const APImethods = {
                 "example": "Germany",
                 "desc": "Country"
             },
-            "state": {
+            "languages": {
+                "type": APItypes.array,
+                "example": "[\"German\"]",
+                "desc": "Language"
+            },
+            "region": {
                 "type": APItypes.string,
                 "example": "Bayern",
                 "desc": "State or Region"
-            },
-            "language": {
-                "type": APItypes.string,
-                "example": "German",
-                "desc": "Language"
             },
             "description": {
                 "type": APItypes.string,
@@ -2283,7 +2297,7 @@ const APImethods = {
     "MYMPD_API_WEBRADIO_FAVORITE_RM": {
         "desc": "Deletes webradio favorites.",
         "params": {
-            "filenames": {
+            "names": {
                 "type": APItypes.array,
                 "example": "[\"SWR1 BW\"]",
                 "desc": "Names of the webradio favorites to delete."
@@ -2306,7 +2320,11 @@ const APImethods = {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
             "expression": APIparams.expression,
-            "sort": APIparams.sort,
+            "sort": {
+                "type": APItypes.string,
+                "example": "Name",
+                "desc": "Webradio tag to sort."
+            },
             "sortdesc": APIparams.sortdesc
         }
     },
