@@ -165,6 +165,31 @@ function addDiscRow(disc, albumId, colspan) {
 }
 
 /**
+ * Determines whether works shoudl be shown for the current view.
+ * @param {string} view table name
+ * @returns {boolean}
+ */
+function showWorkRow(view) {
+    return view === 'BrowseDatabaseAlbumDetail';
+}
+
+/**
+ * Adds a row with the work to the table.
+ * @param {string} work The work name
+ * @param {number} colspan column count
+ * @returns  {HTMLElement} the created row
+ */
+function addWorkRow(work, colspan) {
+    const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
+        elCreateNode('td', {},
+            elCreateText('span', {"class": ["mi"]}, 'music_note')
+        ),
+        elCreateText('td', {"colspan": (colspan)}, work),
+    ]);
+    return row;
+}
+
+/**
  * Updates the table from the jsonrpc response
  * @param {object} obj jsonrpc response
  * @param {string} list table name to populate
@@ -200,6 +225,9 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined
         ? Number(obj.result.data[0].Disc)
         : 0;
+    let lastWork = obj.result.data.length > 0 && obj.result.data[0].Work !== undefined ?
+    obj.result.data[0].Work : '';
+
     if (obj.result.Discs !== undefined &&
         obj.result.Discs > 1)
     {
@@ -212,6 +240,18 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         }
         z++;
     }
+
+    if (showWorkRow(list) && lastWork !== '') {
+        const row = addWorkRow(lastWork, colspan);
+        if (z < tr.length) {
+            replaceTblRow(mode, tr[z], row);
+        }
+        else {
+            tbody.append(row);
+        }
+        z++;
+    }
+
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         //disc handling for album view
         if (obj.result.data[0].Disc !== undefined &&
@@ -227,6 +267,19 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             z++;
             lastDisc = obj.result.data[i].Disc;
         }
+
+        if (showWorkRow(list) && obj.result.data[0].Work !== undefined &&
+            lastWork !== obj.result.data[i].Work) {
+            const row = addWorkRow(obj.result.data[i].Work, colspan);
+            if (i + z < tr.length) {
+                replaceTblRow(mode, tr[i + z], row);
+            } else {
+                tbody.append(row);
+            }
+            z++;
+            lastWork = obj.result.data[i].Work;
+        }
+
         const row = elCreateEmpty('tr', {});
         if (perRowCallback !== undefined &&
             typeof(perRowCallback) === 'function')

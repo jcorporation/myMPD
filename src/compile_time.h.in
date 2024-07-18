@@ -215,6 +215,7 @@ extern struct t_mympd_queue *mympd_api_queue;
     "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"]},"\
     "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"]}]"
 #define MYMPD_TAG_DISC_EMPTY_IS_FIRST true
+#define MYMPD_SHOW_WORK_TAG_ALBUM_DETAIL false
 
 //http headers
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
