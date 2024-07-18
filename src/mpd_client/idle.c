@@ -119,14 +119,24 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
         struct t_work_request *request)
 {
     if (request != NULL) {
-        if (is_mympd_only_api_method(request->cmd_id) == true) {
-            //request that are handled without a mpd connection
+        if (request->cmd_id == MYMPD_API_SETTINGS_GET &&
+            partition_state->conn_state != MPD_CONNECTED)
+        {
+            // Handle get settings request if MPD is not connected
             MYMPD_LOG_DEBUG(partition_state->name, "Handle request \"%s\"", get_cmd_id_method_name(request->cmd_id));
             mympd_api_handler(mympd_state, partition_state, request);
             partition_state->waiting_events &= ~(unsigned)PFD_TYPE_QUEUE;
+            request = NULL;
+        }
+        else if (is_mympd_only_api_method(request->cmd_id) == true) {
+            // Request that can be handled without a MPD connection
+            MYMPD_LOG_DEBUG(partition_state->name, "Handle request \"%s\"", get_cmd_id_method_name(request->cmd_id));
+            mympd_api_handler(mympd_state, partition_state, request);
+            partition_state->waiting_events &= ~(unsigned)PFD_TYPE_QUEUE;
+            request = NULL;
         }
         else if (partition_state->conn_state != MPD_CONNECTED) {
-            //Handle api requests if mpd is not connected
+            // Respond with error if MPD is not connected
             if (request->type != REQUEST_TYPE_DISCARD) {
                 struct t_work_response *response = create_response(request);
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -143,7 +153,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
         }
     }
 
-    // check if we need to exit the idle mode
+    // Check if we need to exit the idle mode
     if (partition_state->waiting_events == 0) {
         return;
     }

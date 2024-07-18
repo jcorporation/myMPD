@@ -154,7 +154,6 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP:
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP_ALL:
         case MYMPD_API_QUEUE_ADD_RANDOM:
-        case MYMPD_API_SETTINGS_GET:
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SONG_FINGERPRINT:
