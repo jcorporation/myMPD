@@ -1668,6 +1668,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                         webradio_data_free(webradio);
                     }
                 }
+                else {
+                    webradio_data_free(webradio);
+                }
                 webradios_release_lock(mympd_state->webradio_favorites);
             }
             else {
