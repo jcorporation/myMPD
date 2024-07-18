@@ -123,18 +123,63 @@ bool is_script_api_method(enum mympd_cmd_ids cmd_id) {
 }
 
 /**
- * Defines methods that should work with no mpd connection,
- * this is necessary for correct startup and changing mpd connection settings.
- * The list is not complete.
+ * Defines methods that do not require mpd features in the mympd_api thread.
  * @param cmd_id myMPD API method
- * @return true if method works with no mpd connection else false
+ * @return true if method works with no mpd connection, else false
  */
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
     switch(cmd_id) {
+        case INTERNAL_API_ALBUMCACHE_SKIPPED:
+        case INTERNAL_API_ALBUMCACHE_ERROR:
+        case INTERNAL_API_JUKEBOX_REFILL:
+        case INTERNAL_API_JUKEBOX_REFILL_ADD:
+        case INTERNAL_API_WEBRADIODB_CREATED:
+        case MYMPD_API_CACHES_CREATE:
+        case MYMPD_API_CACHE_DISK_CLEAR:
+        case MYMPD_API_CACHE_DISK_CROP:
         case MYMPD_API_CONNECTION_SAVE:
+        case MYMPD_API_HOME_ICON_GET:
         case MYMPD_API_HOME_ICON_LIST:
-        case MYMPD_API_SCRIPT_LIST:
+        case MYMPD_API_HOME_ICON_MOVE:
+        case MYMPD_API_HOME_ICON_RM:
+        case MYMPD_API_HOME_ICON_SAVE:
+        case MYMPD_API_LOGLEVEL:
+        case MYMPD_API_PLAYLIST_CONTENT_ENUMERATE:
+        case MYMPD_API_PLAYLIST_CONTENT_DEDUP:
+        case MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL:
+        case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
+        case MYMPD_API_PLAYLIST_CONTENT_SORT:
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE:
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_ALL:
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP:
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP_ALL:
+        case MYMPD_API_QUEUE_ADD_RANDOM:
         case MYMPD_API_SETTINGS_GET:
+        case MYMPD_API_SMARTPLS_UPDATE:
+        case MYMPD_API_SMARTPLS_UPDATE_ALL:
+        case MYMPD_API_SONG_FINGERPRINT:
+        case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_NAME:
+        case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI:
+        case MYMPD_API_WEBRADIO_FAVORITE_RM:
+        case MYMPD_API_WEBRADIO_FAVORITE_SAVE:
+        case MYMPD_API_WEBRADIO_FAVORITE_SEARCH:
+        case MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME:
+        case MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI:
+        case MYMPD_API_WEBRADIODB_SEARCH:
+        case MYMPD_API_WEBRADIODB_UPDATE:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/**
+ * Defines methods that do not require mpd features in the mpdworker thread.
+ * @param cmd_id myMPD API method
+ * @return true if method works with no mpd connection, else false
+ */
+bool is_mpdworker_only_api_method(enum mympd_cmd_ids cmd_id) {
+    switch(cmd_id) {
         case MYMPD_API_CACHE_DISK_CLEAR:
         case MYMPD_API_CACHE_DISK_CROP:
         case MYMPD_API_WEBRADIODB_UPDATE:

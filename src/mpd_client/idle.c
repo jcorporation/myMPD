@@ -118,17 +118,15 @@ void mpd_client_scrobble(struct t_mympd_state *mympd_state, struct t_partition_s
 static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         struct t_work_request *request)
 {
-    //Handle api requests if mpd is not connected
-    if (partition_state->conn_state != MPD_CONNECTED &&
-        request != NULL)
-    {
+    if (request != NULL) {
         if (is_mympd_only_api_method(request->cmd_id) == true) {
             //request that are handled without a mpd connection
-            MYMPD_LOG_DEBUG(partition_state->name, "Handle request \"%s\" (mpd disconnected)", get_cmd_id_method_name(request->cmd_id));
+            MYMPD_LOG_DEBUG(partition_state->name, "Handle request \"%s\"", get_cmd_id_method_name(request->cmd_id));
             mympd_api_handler(mympd_state, partition_state, request);
+            partition_state->waiting_events &= ~(unsigned)PFD_TYPE_QUEUE;
         }
-        else {
-            //other requests are not allowed
+        else if (partition_state->conn_state != MPD_CONNECTED) {
+            //Handle api requests if mpd is not connected
             if (request->type != REQUEST_TYPE_DISCARD) {
                 struct t_work_response *response = create_response(request);
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -136,10 +134,13 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 MYMPD_LOG_DEBUG(partition_state->name, "Send http response to connection %lu: %s", request->conn_id, response->data);
                 push_response(response);
             }
+            else {
+                MYMPD_LOG_WARN(partition_state->name, "Discarding request %s, MPD disconnected.", get_cmd_id_method_name(request->cmd_id));
+            }
             free_request(request);
+            partition_state->waiting_events &= ~(unsigned)PFD_TYPE_QUEUE;
+            request = NULL;
         }
-        partition_state->waiting_events &= ~(unsigned)PFD_TYPE_QUEUE;
-        request = NULL;
     }
 
     // check if we need to exit the idle mode

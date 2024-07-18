@@ -65,10 +65,10 @@
     X(MYMPD_API_DATABASE_TAG_LIST) \
     X(MYMPD_API_DATABASE_UPDATE) \
     X(MYMPD_API_HOME_ICON_GET) \
+    X(MYMPD_API_HOME_ICON_LIST) \
     X(MYMPD_API_HOME_ICON_MOVE) \
     X(MYMPD_API_HOME_ICON_RM) \
     X(MYMPD_API_HOME_ICON_SAVE) \
-    X(MYMPD_API_HOME_ICON_LIST) \
     X(MYMPD_API_JUKEBOX_APPEND_URIS) \
     X(MYMPD_API_JUKEBOX_CLEAR) \
     X(MYMPD_API_JUKEBOX_CLEARERROR) \
@@ -315,6 +315,7 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_script_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
+bool is_mpdworker_only_api_method(enum mympd_cmd_ids cmd_id);
 void ws_notify(sds message, const char *partition);
 void ws_notify_client(sds message, unsigned request_id);
 void ws_script_dialog(sds message, unsigned request_id);
