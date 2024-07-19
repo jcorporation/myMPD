@@ -400,6 +400,13 @@ const settingsFields = {
         "title": "Enforce disc tag",
         "form": "modalSettingsTagsFrm",
         "help": "helpSettingsTagDiscEmptyIsFirst"
+    },
+    "showWorkTagAlbumDetail": {
+        "defaultValue": defaults["MYMPD_SHOW_WORK_TAG_ALBUM_DETAIL"],
+        "inputType": "checkbox",
+        "title": "Show work in album detail",
+        "form": "modalSettingsTagsFrm",
+        "help": "helpSettingsShowWorkTagAlbumDetail"
     }
 };
 

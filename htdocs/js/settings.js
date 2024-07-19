@@ -378,6 +378,12 @@ function parseMPDSettings() {
         settings.viewBrowseDatabaseAlbumDetailFetch.fields.push('Disc');
     }
 
+    if (settings.viewBrowseDatabaseAlbumDetailFetch.fields.includes('Work') === false &&
+        settings.tagList.includes('Work'))
+    {
+        settings.viewBrowseDatabaseAlbumDetailFetch.fields.push('Work');
+    }
+
     if (features.featTags === false) {
         app.cards.Search.sort.tag = 'filename';
         app.cards.Search.filter = 'filename';
