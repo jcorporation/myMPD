@@ -165,9 +165,9 @@ function addDiscRow(disc, albumId, colspan) {
 }
 
 /**
- * Determines whether works shoudl be shown for the current view.
+ * Determines whether works shoud be shown for the current view.
  * @param {string} view table name
- * @returns {boolean}
+ * @returns {boolean} true if work row should be shown, else false
  */
 function showWorkRow(view) {
     return view === 'BrowseDatabaseAlbumDetail';
@@ -177,7 +177,7 @@ function showWorkRow(view) {
  * Adds a row with the work to the table.
  * @param {string} work The work name
  * @param {number} colspan column count
- * @returns  {HTMLElement} the created row
+ * @returns {HTMLElement} the created row
  */
 function addWorkRow(work, colspan) {
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
