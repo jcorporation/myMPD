@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Embedded image functions for ID3
+ */
+
 #include "compile_time.h"
 #include "src/web_server/albumart_id3.h"
 

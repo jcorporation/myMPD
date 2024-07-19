@@ -363,45 +363,24 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
             addMenuItem(contextMenuBody, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
         }
     }
-    if (app.id === 'BrowseRadioRadiobrowser') {
-        const uuid = getData(dataNode, 'RADIOBROWSERUUID');
-        addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showRadiobrowserDetails", "options": [uuid]}, 'Webradio details');
-        addMenuItem(contextMenuBody, {"cmd": "showEditRadioFavorite", "options": [{
-            "Name": name,
-            "Genre": getData(dataNode, 'genre').replace(/,(\S)/g, ', $1'),
-            "Image": getData(dataNode, 'image'),
-            "StreamUri": uri,
-            "Homepage": getData(dataNode, 'homepage'),
-            "Country": getData(dataNode, 'country'),
-            "Language": getData(dataNode, 'language'),
-            "Codec": getData(dataNode, 'codec'),
-            "Bitrate": getData(dataNode, 'bitrate'),
-        }]}, 'Add to favorites');
-    }
-    else if (app.id === 'BrowseRadioWebradiodb') {
+    if (app.id === 'BrowseRadioWebradiodb') {
         addDivider(contextMenuBody);
         addMenuItem(contextMenuBody, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
-        addMenuItem(contextMenuBody, {"cmd": "showEditRadioFavorite", "options": [{
-            "Name": name,
-            "Genre": getData(dataNode, 'genre'),
-            "Image": getData(dataNode, 'image'),
-            "StreamUri": uri,
-            "Homepage": getData(dataNode, 'homepage'),
-            "Country": getData(dataNode, 'country'),
-            "State": getData(dataNode, 'state'),
-            "Language": getData(dataNode, 'language'),
-            "Codec": getData(dataNode, 'codec'),
-            "Bitrate": getData(dataNode, 'bitrate'),
-            "Description": getData(dataNode, 'description')
-        }]}, 'Add to favorites');
+        addMenuItem(contextMenuBody, {"cmd": "saveAsRadioFavorite", "options": [uri]}, 'Add to favorites');
     }
     else if (app.id === 'QueueCurrent' &&
         type === 'webradio')
     {
         addDivider(contextMenuBody);
-        const webradioUri = getData(dataNode, 'webradioUri');
-        addMenuItem(contextMenuBody, {"cmd": "editRadioFavorite", "options": [webradioUri]}, 'Edit webradio favorite');
+        const webradioType = getData(dataNode, 'webradioType');
+        if (webradioType === 'favorite') {
+            addMenuItem(contextMenuBody, {"cmd": "showRadioFavoriteDetails", "options": [uri]}, 'Webradio details');
+            addMenuItem(contextMenuBody, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
+        }
+        else {
+            addMenuItem(contextMenuBody, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
+            addMenuItem(contextMenuBody, {"cmd": "saveAsRadioFavorite", "options": [uri]}, 'Add to favorites');
+        }
     }
 }
 
@@ -486,7 +465,7 @@ function addMenuItemsWebradioFavoritesActions(target, contextMenuTitle, contextM
     addDivider(contextMenuBody);
     addMenuItem(contextMenuBody, {"cmd": "showRadioFavoriteDetails", "options": [uri]}, 'Webradio details');
     addMenuItem(contextMenuBody, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
-    addMenuItem(contextMenuBody, {"cmd": "deleteRadioFavorites", "options": [[uri]]}, 'Delete webradio favorite');
+    addMenuItem(contextMenuBody, {"cmd": "deleteRadioFavorites", "options": [[name]]}, 'Delete webradio favorite');
 }
 
 /**
@@ -573,12 +552,12 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
             return true;
         case 'BrowseFilesystem':
         case 'Search':
-        case 'BrowseRadioRadiobrowser':
         case 'BrowseRadioWebradiodb':
         case 'BrowseDatabaseAlbumDetail': {
             switch(type) {
                 case 'song':
                 case 'stream':
+                case 'webradio':
                     addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name);
                     break;
                 case 'dir':

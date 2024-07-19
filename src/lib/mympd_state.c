@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Central myMPD state for the mympd_api thread
+ */
+
 #include "compile_time.h"
 #include "src/lib/mympd_state.h"
 
@@ -14,6 +18,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/timer.h"
 #include "src/lib/utility.h"
+#include "src/lib/webradio.h"
 #include "src/mpd_client/presets.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/timer.h"
@@ -44,6 +49,7 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
+    webradios_save_to_disk(mympd_state->config, mympd_state->webradio_favorites, FILENAME_WEBRADIO_FAVORITES);
     if (free_data == true) {
         mympd_state_free(mympd_state);
     }
@@ -86,7 +92,6 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->view_queue_jukebox_song = sdsnew(MYMPD_VIEW_QUEUE_JUKEBOX_SONG);
     mympd_state->view_queue_jukebox_album = sdsnew(MYMPD_VIEW_QUEUE_JUKEBOX_ALBUM);
     mympd_state->view_browse_radio_webradiodb = sdsnew(MYMPD_VIEW_BROWSE_RADIO_WEBRADIODB);
-    mympd_state->view_browse_radio_radiobrowser = sdsnew(MYMPD_VIEW_BROWSE_RADIO_RADIOBROWSER);
     mympd_state->view_browse_radio_favorites = sdsnew(MYMPD_VIEW_BROWSE_RADIO_FAVORITES);
     mympd_state->volume_min = MYMPD_VOLUME_MIN;
     mympd_state->volume_max = MYMPD_VOLUME_MAX;
@@ -97,7 +102,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->lyrics.vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT);
     mympd_state->lyrics.vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
-    tags_reset(&mympd_state->smartpls_generate_tag_types);
+    mpd_tags_reset(&mympd_state->smartpls_generate_tag_types);
     mympd_state->tag_disc_empty_is_first = MYMPD_TAG_DISC_EMPTY_IS_FIRST;
     mympd_state->show_work_tag_album_detail = MYMPD_SHOW_WORK_TAG_ALBUM_DETAIL;
     mympd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
@@ -127,6 +132,9 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
     //poll fds
     event_pfd_init(&mympd_state->pfds);
+    //webradios
+    mympd_state->webradiodb = webradios_new();
+    mympd_state->webradio_favorites = webradios_new();
 }
 
 /**
@@ -155,6 +163,9 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     //caches
     album_cache_free(&mympd_state->album_cache);
     cache_free(&mympd_state->album_cache);
+    //webradioDB
+    webradios_free(mympd_state->webradiodb);
+    webradios_free(mympd_state->webradio_favorites);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);
@@ -173,7 +184,6 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->view_queue_jukebox_song);
     FREE_SDS(mympd_state->view_queue_jukebox_album);
     FREE_SDS(mympd_state->view_browse_radio_webradiodb);
-    FREE_SDS(mympd_state->view_browse_radio_radiobrowser);
     FREE_SDS(mympd_state->view_browse_radio_favorites);
     FREE_SDS(mympd_state->coverimage_names);
     FREE_SDS(mympd_state->thumbnail_names);
@@ -209,11 +219,11 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config) {
     mpd_state->music_directory_value = sdsempty();
     mpd_state->playlist_directory_value = sdsempty();
     mpd_state->tag_list = sdsnew(MYMPD_MPD_TAG_LIST);
-    tags_reset(&mpd_state->tags_mympd);
-    tags_reset(&mpd_state->tags_mpd);
-    tags_reset(&mpd_state->tags_search);
-    tags_reset(&mpd_state->tags_browse);
-    tags_reset(&mpd_state->tags_album);
+    mpd_tags_reset(&mpd_state->tags_mympd);
+    mpd_tags_reset(&mpd_state->tags_mpd);
+    mpd_tags_reset(&mpd_state->tags_search);
+    mpd_tags_reset(&mpd_state->tags_browse);
+    mpd_tags_reset(&mpd_state->tags_album);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     //features
     mpd_state_features_default(&mpd_state->feat);
@@ -235,11 +245,11 @@ void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
     dst->music_directory_value = sdsdup(src->music_directory_value);
     dst->playlist_directory_value = sdsdup(src->playlist_directory_value);
     dst->tag_list = sdsdup( src->tag_list);
-    tags_clone(&src->tags_mympd, &dst->tags_mympd);
-    tags_clone(&src->tags_mpd, &dst->tags_mpd);
-    tags_clone(&src->tags_search, &dst->tags_search);
-    tags_clone(&src->tags_browse, &dst->tags_browse);
-    tags_clone(&src->tags_album, &dst->tags_album);
+    mpd_tags_clone(&src->tags_mympd, &dst->tags_mympd);
+    mpd_tags_clone(&src->tags_mpd, &dst->tags_mpd);
+    mpd_tags_clone(&src->tags_search, &dst->tags_search);
+    mpd_tags_clone(&src->tags_browse, &dst->tags_browse);
+    mpd_tags_clone(&src->tags_album, &dst->tags_album);
     dst->tag_albumartist = src->tag_albumartist;
     mpd_state_features_copy(&src->feat, &dst->feat);
 }
@@ -284,6 +294,7 @@ void mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *
 
 /**
  * Frees the t_mpd_state struct
+ * @param mpd_state Pointer to mpd_state
  */
 void mpd_state_free(struct t_mpd_state *mpd_state) {
     FREE_SDS(mpd_state->mpd_host);

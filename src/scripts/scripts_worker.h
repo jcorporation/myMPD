@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Script worker
+ */
+
 #ifndef MYMPD_SCRIPTS_WORKER_H
 #define MYMPD_SCRIPTS_WORKER_H
 

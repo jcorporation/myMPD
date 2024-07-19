@@ -159,11 +159,6 @@ const APIparams = {
         "example": true,
         "desc": "true = play first inserted song"
     },
-    "radiobrowserUUID": {
-        "type": APItypes.string,
-        "example": "d8f01eea-26be-4e3d-871d-7596e3ab8fb1",
-        "desc": "Station UUID from radio-browser.info"
-    },
     "preset": {
         "type": APItypes.string,
         "example": "default",
@@ -1343,11 +1338,6 @@ const APImethods = {
                         "example": "append",
                         "desc": "Action for click on song: append, appendPlay, replace, replacePlay, insertAfterCurrent, view"
                     },
-                    "clickRadiobrowser": {
-                        "type": APItypes.string,
-                        "example": "view",
-                        "desc": "Action for click on playlist: append, appendPlay, replace, replacePlay, insertAfterCurrent, add"
-                    },
                     "clickRadioFavorites": {
                         "type": APItypes.string,
                         "example": "view",
@@ -1673,7 +1663,7 @@ const APImethods = {
             "view": {
                 "type": APItypes.string,
                 "example": "viewQueueCurrent",
-                "desc": "Valid values: viewQueueCurrent, viewQueueLastPlayed, viewSearch, viewBrowseDatabaseAlbumDetail, viewBrowseDatabaseAlbumList, viewBrowsePlaylistDetail, viewBrowseFilesystem, viewPlayback, viewQueueJukeboxAlbum, viewQueueJukeboxSong, viewBrowseRadioWebradiodb, viewBrowseRadioRadiobrowser"
+                "desc": "Valid values: viewQueueCurrent, viewQueueLastPlayed, viewSearch, viewBrowseDatabaseAlbumDetail, viewBrowseDatabaseAlbumList, viewBrowsePlaylistDetail, viewBrowseFilesystem, viewPlayback, viewQueueJukeboxAlbum, viewQueueJukeboxSong, viewBrowseRadioWebradiodb"
             },
             "mode": {
                 "type": APItypes.string,
@@ -1825,10 +1815,20 @@ const APImethods = {
                 "example": "testscript",
                 "desc": "Name of the old script to rename"
             },
+            "file": {
+                "type": APItypes.string,
+                "example": "",
+                "desc": "Script filename (for imported scripts)"
+            },
             "order": {
                 "type": APItypes.uint,
                 "example": 1,
                 "desc": "Order for the scripts in main menu, 0 = disable listing in main menu"
+            },
+            "version": {
+                "type": APItypes.int,
+                "example": 0,
+                "desc": "Script version (for imported scripts)"
             },
             "content": {
                 "type": APItypes.string,
@@ -2195,12 +2195,18 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_WEBRADIO_FAVORITE_LIST": {
-        "desc": "Lists webradio favorites.",
+    "MYMPD_API_WEBRADIO_FAVORITE_SEARCH": {
+        "desc": "Search webradio favorites.",
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "searchstr": APIparams.searchstr
+            "expression": APIparams.expression,
+            "sort": {
+                "type": APItypes.string,
+                "example": "Name",
+                "desc": "Webradio tag to sort."
+            },
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_SAVE": {
@@ -2209,27 +2215,27 @@ const APImethods = {
             "name": {
                 "type": APItypes.string,
                 "example": "swr1",
-                "desc": "Name of the webradio favorite to delete."
+                "desc": "Name of the webradio favorite to save."
             },
             "streamUri": {
                 "type": APItypes.string,
                 "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
                 "desc": "New URI of the webradio stream."
             },
-            "streamUriOld": {
+            "oldName": {
                 "type": APItypes.string,
                 "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
-                "desc": "Old URI of the webradio stream."
+                "desc": "Old name of the webradio favorite to save."
+            },
+            "genres": {
+                "type": APItypes.array,
+                "example": "[\"Pop\", \"Rock\"]",
+                "desc": "Genre or other tags."
             },
             "image": {
                 "type": APItypes.string,
                 "example": "http://www.swr.de/streampic.jpg",
                 "desc": "Picture for the webradio."
-            },
-            "genre": {
-                "type": APItypes.string,
-                "example": "Pop Rock",
-                "desc": "Genre or other tags."
             },
             "homepage": {
                 "type": APItypes.string,
@@ -2241,15 +2247,15 @@ const APImethods = {
                 "example": "Germany",
                 "desc": "Country"
             },
-            "state": {
+            "languages": {
+                "type": APItypes.array,
+                "example": "[\"German\"]",
+                "desc": "Language"
+            },
+            "region": {
                 "type": APItypes.string,
                 "example": "Bayern",
                 "desc": "State or Region"
-            },
-            "language": {
-                "type": APItypes.string,
-                "example": "German",
-                "desc": "Language"
             },
             "description": {
                 "type": APItypes.string,
@@ -2268,74 +2274,78 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_WEBRADIO_FAVORITE_GET": {
-        "desc": "Gets a webradio favorite.",
+    "MYMPD_API_WEBRADIO_FAVORITE_GET_BY_NAME": {
+        "desc": "Gets a webradio favorite by name.",
         "params": {
-            "filename": {
+            "name": {
                 "type": APItypes.string,
-                "example": "https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u",
+                "example": "SWR1 BW",
                 "desc": "Name of the webradio favorite to get."
+            }
+        }
+    },
+    "MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI": {
+        "desc": "Gets a WebradioDB entry by uri.",
+        "params": {
+            "uri": {
+                "type": APItypes.string,
+                "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+                "desc": "Stream uri of the webradio to get."
             }
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_RM": {
         "desc": "Deletes webradio favorites.",
         "params": {
-            "filenames": {
+            "names": {
                 "type": APItypes.array,
-                "example": "[\"https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u\"]",
-                "desc": "Filenames of the webradio favorites to delete."
+                "example": "[\"SWR1 BW\"]",
+                "desc": "Names of the webradio favorites to delete."
             }
         }
     },
-    "MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT": {
-        "desc": "Returns radio-browser.info station details.",
+    "MYMPD_API_WEBRADIODB_UPDATE": {
+        "desc": "Updates the WebradioDB.",
         "params": {
-            "uuid": APIparams.radiobrowserUUID
+            "force": {
+                "type": APItypes.bool,
+                "example": false,
+                "desc": "true = forces an update"
+            }
         }
     },
-    "MYMPD_API_CLOUD_RADIOBROWSER_NEWEST": {
-        "desc": "Lists the last changed/added stations.",
-        "params": {
-            "offset": APIparams.offset,
-            "limit": APIparams.limit
-        }
-    },
-    "MYMPD_API_CLOUD_RADIOBROWSER_SEARCH": {
-        "desc": "Searches radio-browser.info",
+    "MYMPD_API_WEBRADIODB_SEARCH": {
+        "desc": "Search WebradioDB.",
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "tags": {
+            "expression": APIparams.expression,
+            "sort": {
                 "type": APItypes.string,
-                "example": "pop",
-                "desc": "Tag to filter"
+                "example": "Name",
+                "desc": "Webradio tag to sort."
             },
-            "country": {
-                "type": APItypes.string,
-                "example": "Germany",
-                "desc": "Country to filter"
-            },
-            "language": {
-                "type": APItypes.string,
-                "example": "German",
-                "desc": "Language to filter"
-            },
-            "searchstr": APIparams.searchstr
+            "sortdesc": APIparams.sortdesc
         }
     },
-    "MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST": {
-        "desc": "Returns radio-browser.info endpoints.",
-        "params": {}
-    },
-    "MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL": {
-        "desc": "Returns radio-browser.info station details.",
+    "MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME": {
+        "desc": "Gets a WebradioDB entry ny name.",
         "params": {
-            "uuid": APIparams.radiobrowserUUID
+            "name": {
+                "type": APItypes.string,
+                "example": "SWR1 BW",
+                "desc": "Name of the webradio to get."
+            }
         }
     },
-    "MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET": {
-        "desc": "Gets the full WebradioDB.",
-        "params": {}
+    "MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI": {
+        "desc": "Gets a WebradioDB entry by uri.",
+        "params": {
+            "uri": {
+                "type": APItypes.string,
+                "example": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
+                "desc": "Stream uri of the webradio to get."
+            }
+        }
     }
 };

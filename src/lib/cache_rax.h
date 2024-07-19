@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief General rax cache handling
+ */
+
 #ifndef MYMPD_CACHE_RAX_H
 #define MYMPD_CACHE_RAX_H
 

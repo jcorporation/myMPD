@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Date and time functions
+ */
+
 #define _XOPEN_SOURCE
 
 #include "compile_time.h"

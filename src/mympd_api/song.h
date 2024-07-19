@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD song API
+ */
+
 #ifndef MYMPD_API_SONG_H
 #define MYMPD_API_SONG_H
 

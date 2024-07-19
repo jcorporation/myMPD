@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief HTTP proxy functions
+ */
+
 #include "compile_time.h"
 #include "src/web_server/proxy.h"
 
@@ -15,6 +19,7 @@
 #include "src/lib/mg_str_utils.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
+#include "src/web_server/placeholder.h"
 #include "src/web_server/utility.h"
 
 /**
@@ -83,7 +88,6 @@ void handle_backend_close(struct mg_connection *nc) {
 /**
  * Sends the request to the backend connection
  * @param nc mongoose backend connection
- * @param fn_data mongoose fn_data pointer
  */
 void send_backend_request(struct mg_connection *nc) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
@@ -201,7 +205,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
         }
         case MG_EV_ERROR: {
             MYMPD_LOG_ERROR(NULL, "HTTP connection to \"%s\", connection %lu failed", backend_nc_data->uri, nc->id);
-            webserver_serve_placeholder_image(backend_nc_data->frontend_nc, PLACEHOLDER_NA);
+            webserver_redirect_placeholder_image(backend_nc_data->frontend_nc, PLACEHOLDER_NA);
             break;
         }
         case MG_EV_HTTP_MSG: {
@@ -234,7 +238,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
             }
             else {
                 MYMPD_LOG_ERROR(NULL, "Invalid response from connection \"%lu\", response code %d", nc->id, response_code);
-                webserver_serve_placeholder_image(backend_nc_data->frontend_nc, PLACEHOLDER_NA);
+                webserver_redirect_placeholder_image(backend_nc_data->frontend_nc, PLACEHOLDER_NA);
             }
             break;
         }

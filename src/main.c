@@ -272,7 +272,6 @@ static const struct t_subdirs_entry workdir_subdirs[] = {
     {DIR_WORK_STATE,            "State dir"},
     {DIR_WORK_STATE_DEFAULT,    "Default partition dir"},
     {DIR_WORK_TAGS,             "Tags cache dir"},
-    {DIR_WORK_WEBRADIOS,        "Webradio dir"},
     {NULL, NULL}
 };
 
@@ -284,7 +283,6 @@ static const struct t_subdirs_entry cachedir_subdirs[] = {
     {DIR_CACHE_LYRICS,        "Lyrics cache dir"},
     {DIR_CACHE_MISC,          "Misc cache dir"},
     {DIR_CACHE_THUMBS, "Thumbs cache dir"},
-    {DIR_CACHE_WEBRADIODB,    "Webradiodb cache dir"},
     {NULL, NULL}
 };
 

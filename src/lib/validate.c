@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief String validation functions
+ */
+
 #include "compile_time.h"
 #include "src/lib/validate.h"
 
@@ -11,6 +15,7 @@
 #include "dist/utf8/utf8.h"
 #include "src/lib/log.h"
 #include "src/lib/sticker.h"
+#include "src/lib/webradio.h"
 
 #include <ctype.h>
 #include <limits.h>
@@ -20,11 +25,29 @@
  * Private definitions
  */
 
+/**
+ * Invalid characters for json strings
+ */
 static const char *invalid_json_chars = "\a\b\f\v";
+
+/**
+ * Invalid characters for keys and names
+ */
 static const char *invalid_name_chars = "\a\b\f\n\r\t\v";
+
+/**
+ * Invalid characters for filenmes
+ */
 static const char *invalid_filename_chars = "\a\b\f\n\r\t\v/\\";
+
+/**
+ * Invalid characters for filepaths
+ */
 static const char *invalid_filepath_chars = "\a\b\f\n\r\t\v";
 
+/**
+ * Valid fields for views
+ */
 static const char *mympd_fields[]={
     // Columns for tags
     "Value",
@@ -34,11 +57,8 @@ static const char *mympd_fields[]={
     // Columns for stickers
     "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", "rating", "elapsed",
      // Columns for webradiodb
-    "Country", "State", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri",
+    "Country", "Region", "Description", "Genres", "Homepage", "Languages", "Name", "StreamUri",
     "Codec", "Bitrate",
-     // Columns for radiobrowser
-    "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok",
-    "tags", "url_resolved", "votes",
     // Columns for albums
     "Discs", "SongCount",
     // End
@@ -343,7 +363,7 @@ bool vcb_ismpdtag_or_any(sds data) {
 }
 
 /**
- * Checks if string is a valid sort tag
+ * Checks if string is a valid sort tag for mpd
  * @param data sds string to check
  * @return true on success else false
  */
@@ -357,6 +377,20 @@ bool vcb_ismpdsort(sds data) {
         strcmp(data, "Date") != 0 &&
         strcmp(data, "Priority") != 0)
     {
+        MYMPD_LOG_WARN(NULL, "Unknown sort tag \"%s\"", data);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if string is a valid sort tag for webradios
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_iswebradiosort(sds data) {
+    enum webradio_tag_type tag = webradio_tag_name_parse(data);
+    if (tag == WEBRADIO_TAG_UNKNOWN) {
         MYMPD_LOG_WARN(NULL, "Unknown sort tag \"%s\"", data);
         return false;
     }

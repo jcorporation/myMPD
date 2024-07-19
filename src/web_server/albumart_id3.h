@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Embedded image functions for ID3
+ */
+
 #ifndef MYMPD_WEB_SERVER_ALBUMART_ID3_H
 #define MYMPD_WEB_SERVER_ALBUMART_ID3_H
 

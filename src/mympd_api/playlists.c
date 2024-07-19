@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD playlists API
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/playlists.h"
 
@@ -17,12 +21,12 @@
 #include "src/lib/mem.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/search.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/search.h"
-#include "src/mpd_client/search_local.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
@@ -678,7 +682,7 @@ static sds print_plist_entry(sds buffer, struct mpd_song *song, unsigned pos, bo
         ? tojson_char(buffer, "Type", "stream", true)
         : tojson_char(buffer, "Type", "song", true);
     buffer = tojson_uint(buffer, "Pos", pos, true);
-    buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->tags, song);
+    buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, song);
     if (stickers == true) {
         buffer = sdscatlen(buffer, ",", 1);
         struct t_sticker sticker;
@@ -747,9 +751,9 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
         if (mpd_send_list_playlist_meta(partition_state->conn, plist)) {
             buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
             buffer = sdscat(buffer,"\"data\":[");
-            struct t_list *expr_list = parse_search_expression_to_list(expression);
+            struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
             while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-                if (search_song_expression(song, expr_list, &tagcols->tags) == true) {
+                if (search_expression_song(song, expr_list, &tagcols->mpd_tags) == true) {
                     total_time += mpd_song_get_duration(song);
                     if (entities_found >= offset) {
                         if (entities_returned++) {

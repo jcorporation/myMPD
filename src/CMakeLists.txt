@@ -61,16 +61,17 @@ target_sources(mympd
     lib/last_played.c
     lib/list.c
     lib/log.c
-    lib/m3u.c
     lib/mg_str_utils.c
     lib/mimetype.c
     lib/mpack.c
     lib/passwd.c
     lib/pin.c
+    lib/m3u.c
     lib/msg_queue.c
     lib/mympd_state.c
     lib/random.c
     lib/rax_extras.c
+    lib/search.c
     lib/sds_extras.c
     lib/smartpls.c
     lib/sticker.c
@@ -79,6 +80,7 @@ target_sources(mympd
     lib/timer.c
     lib/utility.c
     lib/validate.c
+    lib/webradio.c
     mpd_client/autoconf.c
     mpd_client/connection.c
     mpd_client/errorhandler.c
@@ -91,7 +93,6 @@ target_sources(mympd
     mpd_client/presets.c
     mpd_client/random_select.c
     mpd_client/search.c
-    mpd_client/search_local.c
     mpd_client/stickerdb.c
     mpd_client/shortcuts.c
     mpd_client/tags.c
@@ -105,6 +106,7 @@ target_sources(mympd
     mpd_worker/smartpls.c
     mpd_worker/state.c
     mpd_worker/song.c
+    mpd_worker/webradiodb.c
     mympd_api/mympd_api.c
     mympd_api/albumart.c
     mympd_api/browse.c
@@ -136,18 +138,19 @@ target_sources(mympd
     mympd_api/timer_handlers.c
     mympd_api/trigger.c
     mympd_api/volume.c
-    mympd_api/webradios.c
+    mympd_api/webradio.c
+    mympd_api/webradio_favorites.c
     web_server/web_server.c
     web_server/albumart.c
     web_server/folderart.c
     web_server/request_handler.c
+    web_server/placeholder.c
     web_server/proxy.c
-    web_server/radiobrowser.c
     web_server/sessions.c
     web_server/playlistart.c
     web_server/tagart.c
     web_server/utility.c
-    web_server/webradiodb.c
+    web_server/webradio.c
 )
 
 if(MYMPD_ENABLE_LUA)

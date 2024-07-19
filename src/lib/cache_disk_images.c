@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Image cache handling
+ */
+
 #include "compile_time.h"
 #include "src/lib/cache_disk_images.h"
 

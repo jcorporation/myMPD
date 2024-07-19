@@ -4,11 +4,16 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD API handling
+ */
+
 #ifndef MYMPD_API_H
 #define MYMPD_API_H
 
 #include "dist/sds/sds.h"
 #include "src/lib/list.h"
+#include "src/lib/webradio.h"
 
 #include <stdbool.h>
 
@@ -38,6 +43,7 @@
     X(INTERNAL_API_TAGART) \
     X(INTERNAL_API_TIMER_STARTPLAY) \
     X(INTERNAL_API_TRIGGER_EVENT_EMIT) \
+    X(INTERNAL_API_WEBRADIODB_CREATED) \
     X(INTERNAL_API_WEBSERVER_NOTIFY) \
     X(INTERNAL_API_WEBSERVER_READY) \
     X(INTERNAL_API_WEBSERVER_SETTINGS) \
@@ -48,12 +54,6 @@
     X(MYMPD_API_CHANNEL_LIST) \
     X(MYMPD_API_CHANNEL_MESSAGE_SEND) \
     X(MYMPD_API_CHANNEL_MESSAGES_READ) \
-    X(MYMPD_API_CLOUD_RADIOBROWSER_NEWEST) \
-    X(MYMPD_API_CLOUD_RADIOBROWSER_SEARCH) \
-    X(MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST) \
-    X(MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL) \
-    X(MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT) \
-    X(MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET) \
     X(MYMPD_API_CONNECTION_SAVE) \
     X(MYMPD_API_CACHE_DISK_CLEAR) \
     X(MYMPD_API_CACHE_DISK_CROP) \
@@ -65,10 +65,10 @@
     X(MYMPD_API_DATABASE_TAG_LIST) \
     X(MYMPD_API_DATABASE_UPDATE) \
     X(MYMPD_API_HOME_ICON_GET) \
+    X(MYMPD_API_HOME_ICON_LIST) \
     X(MYMPD_API_HOME_ICON_MOVE) \
     X(MYMPD_API_HOME_ICON_RM) \
     X(MYMPD_API_HOME_ICON_SAVE) \
-    X(MYMPD_API_HOME_ICON_LIST) \
     X(MYMPD_API_JUKEBOX_APPEND_URIS) \
     X(MYMPD_API_JUKEBOX_CLEAR) \
     X(MYMPD_API_JUKEBOX_CLEARERROR) \
@@ -211,16 +211,25 @@
     X(MYMPD_API_TRIGGER_RM) \
     X(MYMPD_API_TRIGGER_SAVE) \
     X(MYMPD_API_VIEW_SAVE) \
-    X(MYMPD_API_WEBRADIO_FAVORITE_GET) \
-    X(MYMPD_API_WEBRADIO_FAVORITE_LIST) \
+    X(MYMPD_API_WEBRADIO_FAVORITE_GET_BY_NAME) \
+    X(MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI) \
     X(MYMPD_API_WEBRADIO_FAVORITE_RM) \
     X(MYMPD_API_WEBRADIO_FAVORITE_SAVE) \
+    X(MYMPD_API_WEBRADIO_FAVORITE_SEARCH) \
+    X(MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME) \
+    X(MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI) \
+    X(MYMPD_API_WEBRADIODB_SEARCH) \
+    X(MYMPD_API_WEBRADIODB_UPDATE) \
     X(TOTAL_API_COUNT)
 
 /**
- * Helper macros
+ * Macro to generate enum for the API methods
  */
 #define GEN_ENUM(X) X,
+
+/**
+ * Macro to generate strings for the API methods
+ */
 #define GEN_STR(X) #X,
 
 /**
@@ -241,7 +250,8 @@ enum work_response_types {
     RESPONSE_TYPE_SCRIPT,            //!< Respond is for the script thread
     RESPONSE_TYPE_DISCARD,           //!< Response will be discarded
     RESPONSE_TYPE_RAW,               //!< Raw http message
-    RESPONSE_TYPE_SCRIPT_DIALOG      //!< Script dialog
+    RESPONSE_TYPE_SCRIPT_DIALOG,     //!< Script dialog
+    RESPONSE_TYPE_REDIRECT           //!< Send a redirect
 };
 
 /**
@@ -285,13 +295,15 @@ struct t_work_response {
  * Config data sent to webserver thread
  */
 struct set_mg_user_data_request {
-    sds music_directory;      //!< detected mpd music directory
-    sds playlist_directory;   //!< configured mpd playlist directory
-    sds coverimage_names;     //!< comma separated list of coverimage names
-    sds thumbnail_names;      //!< comma separated list of coverimage thumbnail names
-    bool feat_albumart;       //!< true if mpd supports the albumart protocol command
-    sds mpd_host;             //!< configured mpd host
-    struct t_list partitions; //!< partition specific settings
+    sds music_directory;                     //!< detected mpd music directory
+    sds playlist_directory;                  //!< configured mpd playlist directory
+    sds coverimage_names;                    //!< comma separated list of coverimage names
+    sds thumbnail_names;                     //!< comma separated list of coverimage thumbnail names
+    bool feat_albumart;                      //!< true if mpd supports the albumart protocol command
+    sds mpd_host;                            //!< configured mpd host
+    struct t_list partitions;                //!< partition specific settings
+    struct t_webradios *webradiodb;          //!< Pointer to webradiodb
+    struct t_webradios *webradio_favorites;  //!< Pointer to webradio favorites
 };
 
 /**
@@ -303,6 +315,7 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_script_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
+bool is_mpdworker_only_api_method(enum mympd_cmd_ids cmd_id);
 void ws_notify(sds message, const char *partition);
 void ws_notify_client(sds message, unsigned request_id);
 void ws_script_dialog(sds message, unsigned request_id);

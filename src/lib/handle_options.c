@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Command line options handling
+ */
+
 #include "compile_time.h"
 #include "src/lib/handle_options.h"
 
@@ -14,6 +18,9 @@
 
 #include <getopt.h>
 
+/**
+ * Options definitions
+ */
 static struct option long_options[] = {
     {"cachedir",  required_argument, 0, 'a'},
     {"config",    no_argument,       0, 'c'},

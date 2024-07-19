@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD channel API
+ */
+
 #ifndef MYMPD_API_CHANNEL_H
 #define MYMPD_API_CHANNEL_H
 

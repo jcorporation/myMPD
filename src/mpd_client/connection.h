@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD connection handling
+ */
+
 #ifndef MYMPD_MPD_CLIENT_CONNECTION_H
 #define MYMPD_MPD_CLIENT_CONNECTION_H
 

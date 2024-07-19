@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Embedded image functions for FLAC
+ */
+
 #include "compile_time.h"
 #include "src/web_server/albumart_flac.h"
 

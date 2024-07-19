@@ -4,12 +4,15 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Request creation helpers
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/requests.h"
 
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
-#include "src/lib/msg_queue.h"
 
 /**
  * Pushes a MYMPD_API_CACHES_CREATE to the queue

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD session functions
+ */
+
 #ifndef MYMPD_WEB_SERVER_SESSIONS_H
 #define MYMPD_WEB_SERVER_SESSIONS_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Lyrics cache handling
+ */
+
 #ifndef MYMPD_CACHE_DISK_LYRICS_H
 #define MYMPD_CACHE_DISK_LYRICS_H
 

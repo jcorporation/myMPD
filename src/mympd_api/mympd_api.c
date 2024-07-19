@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief mympd_api thread implementation
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/mympd_api.h"
 
@@ -12,12 +16,14 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/last_played.h"
 #include "src/lib/log.h"
+#include "src/lib/m3u.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
 #include "src/lib/timer.h"
+#include "src/lib/webradio.h"
 #include "src/mpd_client/autoconf.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/idle.h"
@@ -42,6 +48,7 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i);
 /**
  * This is the main function for the mympd_api thread
  * @param arg_config void pointer to t_config struct
+ * @return NULL
  */
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sds_replace(thread_logname, "mympdapi");
@@ -75,6 +82,17 @@ void *mympd_api_loop(void *arg_config) {
         // album cache
         album_cache_read(&mympd_state->album_cache, mympd_state->config->workdir, &mympd_state->config->albums);
     }
+    //webradiodb
+    if (mympd_state->config->webradiodb == true) {
+        webradios_read_from_disk(mympd_state->config, mympd_state->webradiodb, FILENAME_WEBRADIODB, WEBRADIO_WEBRADIODB);
+        MYMPD_LOG_DEBUG(NULL, "Adding timer for WebradioDB update to execute periodic each day");
+        mympd_api_timer_add(&mympd_state->timer_list, TIMER_WEBRADIODB_UPDATE_OFFSET, TIMER_WEBRADIODB_UPDATE_INTERVAL,
+            timer_handler_by_id, TIMER_ID_WEBRADIODB_UPDATE, NULL);
+    }
+    webradios_read_from_disk(mympd_state->config, mympd_state->webradio_favorites, FILENAME_WEBRADIO_FAVORITES, WEBRADIO_FAVORITE);
+    // Import old webradio favorites
+    webradio_favorite_import(mympd_state);
+
     // set timers
     MYMPD_LOG_DEBUG(NULL, "Adding timer for cache cropping to execute periodic each day");
     mympd_api_timer_add(&mympd_state->timer_list, TIMER_DISK_CACHE_CLEANUP_OFFSET, TIMER_DISK_CACHE_CLEANUP_INTERVAL,

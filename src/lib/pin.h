@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD PIN functions
+ */
+
 #ifndef MYMPD_PIN_H
 #define MYMPD_PIN_H
 

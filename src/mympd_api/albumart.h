@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD Albumart API
+ */
+
 #ifndef MYMPD_API_COVER_H
 #define MYMPD_API_COVER_H
 

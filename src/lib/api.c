@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD API handling
+ */
+
 #include "compile_time.h"
 #include "src/lib/api.h"
 
@@ -14,6 +18,9 @@
 
 #include <string.h>
 
+/**
+ * myMPD API methods as strings
+ */
 static const char *mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };
 
 /**
@@ -116,20 +123,65 @@ bool is_script_api_method(enum mympd_cmd_ids cmd_id) {
 }
 
 /**
- * Defines methods that should work with no mpd connection,
- * this is necessary for correct startup and changing mpd connection settings.
- * The list is not complete.
+ * Defines methods that do not require mpd features in the mympd_api thread.
  * @param cmd_id myMPD API method
- * @return true if method works with no mpd connection else false
+ * @return true if method works with no mpd connection, else false
  */
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
     switch(cmd_id) {
-        case MYMPD_API_CONNECTION_SAVE:
-        case MYMPD_API_HOME_ICON_LIST:
-        case MYMPD_API_SCRIPT_LIST:
-        case MYMPD_API_SETTINGS_GET:
+        case INTERNAL_API_ALBUMCACHE_SKIPPED:
+        case INTERNAL_API_ALBUMCACHE_ERROR:
+        case INTERNAL_API_JUKEBOX_REFILL:
+        case INTERNAL_API_JUKEBOX_REFILL_ADD:
+        case INTERNAL_API_WEBRADIODB_CREATED:
+        case MYMPD_API_CACHES_CREATE:
         case MYMPD_API_CACHE_DISK_CLEAR:
         case MYMPD_API_CACHE_DISK_CROP:
+        case MYMPD_API_CONNECTION_SAVE:
+        case MYMPD_API_HOME_ICON_GET:
+        case MYMPD_API_HOME_ICON_LIST:
+        case MYMPD_API_HOME_ICON_MOVE:
+        case MYMPD_API_HOME_ICON_RM:
+        case MYMPD_API_HOME_ICON_SAVE:
+        case MYMPD_API_LOGLEVEL:
+        case MYMPD_API_PLAYLIST_CONTENT_ENUMERATE:
+        case MYMPD_API_PLAYLIST_CONTENT_DEDUP:
+        case MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL:
+        case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
+        case MYMPD_API_PLAYLIST_CONTENT_SORT:
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE:
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_ALL:
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP:
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP_ALL:
+        case MYMPD_API_QUEUE_ADD_RANDOM:
+        case MYMPD_API_SMARTPLS_UPDATE:
+        case MYMPD_API_SMARTPLS_UPDATE_ALL:
+        case MYMPD_API_SONG_FINGERPRINT:
+        case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_NAME:
+        case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI:
+        case MYMPD_API_WEBRADIO_FAVORITE_RM:
+        case MYMPD_API_WEBRADIO_FAVORITE_SAVE:
+        case MYMPD_API_WEBRADIO_FAVORITE_SEARCH:
+        case MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME:
+        case MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI:
+        case MYMPD_API_WEBRADIODB_SEARCH:
+        case MYMPD_API_WEBRADIODB_UPDATE:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/**
+ * Defines methods that do not require mpd features in the mpdworker thread.
+ * @param cmd_id myMPD API method
+ * @return true if method works with no mpd connection, else false
+ */
+bool is_mpdworker_only_api_method(enum mympd_cmd_ids cmd_id) {
+    switch(cmd_id) {
+        case MYMPD_API_CACHE_DISK_CLEAR:
+        case MYMPD_API_CACHE_DISK_CROP:
+        case MYMPD_API_WEBRADIODB_UPDATE:
             return true;
         default:
             return false;
@@ -160,6 +212,11 @@ void ws_notify_client(sds message, unsigned request_id) {
     mympd_queue_push(web_server_queue, response, 0);
 }
 
+/**
+ * Sends a websocket message to a client to display a dialog.
+ * @param message The message to send
+ * @param request_id the jsonrpc id of the client
+ */
 void ws_script_dialog(sds message, unsigned request_id) {
     MYMPD_LOG_DEBUG(NULL, "Push websocket notify to queue: \"%s\"", message);
     struct t_work_response *response = create_response_new(RESPONSE_TYPE_SCRIPT_DIALOG, 0, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);
@@ -270,6 +327,7 @@ bool push_response(struct t_work_response *response) {
         case RESPONSE_TYPE_NOTIFY_PARTITION:
         case RESPONSE_TYPE_PUSH_CONFIG:
         case RESPONSE_TYPE_SCRIPT_DIALOG:
+        case RESPONSE_TYPE_REDIRECT:
             MYMPD_LOG_DEBUG(NULL, "Push response to webserver queue for connection %lu: %s", response->conn_id, response->data);
             return mympd_queue_push(web_server_queue, response, 0);
         case RESPONSE_TYPE_RAW:

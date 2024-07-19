@@ -795,22 +795,41 @@
               <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
               <div class="dropdown-menu px-2" id="BrowseRadioFavoritesNavDropdown"></div>
             </div>
-            <div class="btn-group me-2">
+            <div class="btn-group me-2 featWebradioDB">
               <button data-title-phrase="Browse WebradioDB" class="btn btn-secondary mi" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Webradiodb"]}'>radio</button>
-              <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
-              <div class="dropdown-menu px-2 dropdownWide">
-                <div class="d-grid gap-2">
-                  <button data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Webradiodb"]}' data-phrase="Browse WebradioDB" type="button" class="btn btn-secondary btn-sm"></button>
-                  <button data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Radiobrowser"]}' data-phrase="Browse radio-browser.info" type="button" class="btn btn-secondary btn-sm"></button>
-                </div>
-              </div>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Manually add webradio favorite" data-href='{"cmd": "manualAddRadioFavorite", "options": []}' type="button" class="btn btn-secondary mi">add</button>
             </div>
-            <div class="input-group flex-grow-1 me-2">
-              <span class="input-group-text border-secondary bg-secondary mi">search</span>
+            <div class="input-group me-2 flex-grow-1">
+              <div class="btn-group">
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
+                  <span class="mi">search</span>
+                  <span data-phrase="Name" id="BrowseRadioFavoritesSearchTagsDesc"></span>
+                </button>
+                <div class="dropdown-menu px-2" id="BrowseRadioFavoritesSearchTags"></div>
+              </div>
+              <select class="form-select rounded-0 no-flex" id="BrowseRadioFavoritesSearchMatch">
+                <option data-phrase="contains" value="contains"></option>
+                <option data-phrase="starts_with" value="starts_with"></option>
+                <option value="==">==</option>
+                <option value="=~" class="featPcre">=~</option>
+                <option value="!=">!=</option>
+                <option value="!~" class="featPcre">!~</option>
+                <option id="BrowseRadioFavoritesSearchBitrateMatch" value=">=">&gt;=</option>
+              </select>
               <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseRadioFavoritesSearchStr"/>
+            </div>
+            <div class="btn-group me-2">
+              <button id="BrowseRadioFavoritesSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
+              <div class="dropdown-menu px-2" id="BrowseRadioFavoritesSortTags">
+                <div id="BrowseRadioFavoritesSortTagsList"></div>
+                <div class="dropdown-divider"></div>
+                <div class="form-check">
+                  <button class="btn btn-secondary btn-xs mi mi-sm" id="BrowseRadioFavoritesSortDesc">radio_button_unchecked</button>&nbsp;
+                  <label class="form-check-label" for="BrowseRadioFavoritesSortDesc" data-phrase="Descending"></label>
+                </div>
+              </div>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Select" id="BrowseRadioFavoritesListSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
@@ -830,6 +849,7 @@
             </div>
             <div id="BrowseRadioFavoritesPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
+          <div class="breadcrumb p-2 rounded-2 d-none" id="BrowseRadioFavoritesSearchCrumb"></div>
           <div id="BrowseRadioFavoritesContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioFavoritesButtonsBottom"></div>
         </div>
@@ -844,29 +864,24 @@
             <div class="btn-group me-2">
               <button data-title-phrase="Webradio favorites" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Favorites"]}' type="button" class="btn btn-secondary mi">favorite</button>
             </div>
-            <div class="input-group flex-grow-1 me-2">
-              <span class="input-group-text border-secondary bg-secondary mi">search</span>
+            <div class="input-group me-2 flex-grow-1">
+              <div class="btn-group">
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
+                  <span class="mi">search</span>
+                  <span data-phrase="Name" id="BrowseRadioWebradiodbSearchTagsDesc"></span>
+                </button>
+                <div class="dropdown-menu px-2" id="BrowseRadioWebradiodbSearchTags"></div>
+              </div>
+              <select class="form-select rounded-0 no-flex" id="BrowseRadioWebradiodbSearchMatch">
+                <option data-phrase="contains" value="contains"></option>
+                <option data-phrase="starts_with" value="starts_with"></option>
+                <option value="==">==</option>
+                <option value="=~" class="featPcre">=~</option>
+                <option value="!=">!=</option>
+                <option value="!~" class="featPcre">!~</option>
+                <option id="BrowseRadioWebradiodbSearchBitrateMatch" value=">=">&gt;=</option>
+              </select>
               <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseRadioWebradiodbSearchStr"/>
-            </div>
-            <div class="btn-group me-2">
-              <button id="BrowseRadioWebradiodbFilterBtn" data-title-phrase="Filter" class="btn btn-secondary rounded-end mi" type="button" data-bs-target="#BrowseRadioWebradiodbFilter" data-bs-toggle="collapse">filter_list_off</button>
-            </div>
-            <div class="collapse btn-group2" id="BrowseRadioWebradiodbFilter">
-              <div class="btn-group position-relative me-2">
-                <input readonly="readonly" data-is="mympd-select-search" id="BrowseRadioWebradiodbGenreFilter" class="form-select" data-placeholder-phrase="Genre"/>
-              </div>
-              <div class="btn-group position-relative me-2">
-                <input readonly="readonly" data-is="mympd-select-search" id="BrowseRadioWebradiodbCountryFilter" class="form-select" data-placeholder-phrase="Country"/>
-              </div>
-              <div class="btn-group position-relative me-2">
-                <input readonly="readonly" data-is="mympd-select-search" id="BrowseRadioWebradiodbLanguageFilter" class="form-select" data-placeholder-phrase="Language"/>
-              </div>
-              <div class="btn-group position-relative me-2">
-                <input readonly="readonly" data-is="mympd-select-search" id="BrowseRadioWebradiodbCodecFilter" class="form-select" data-placeholder-phrase="Codec"/>
-              </div>
-              <div class="btn-group position-relative me-2">
-                <input readonly="readonly" data-is="mympd-select-search" id="BrowseRadioWebradiodbBitrateFilter" class="form-select" data-placeholder-phrase="Bitrate"/>
-              </div>
             </div>
             <div class="btn-group me-2">
               <button id="BrowseRadioWebradiodbSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
@@ -875,7 +890,7 @@
                 <div class="dropdown-divider"></div>
                 <div class="form-check">
                   <button class="btn btn-secondary btn-xs mi mi-sm" id="BrowseRadioWebradiodbSortDesc">radio_button_unchecked</button>&nbsp;
-                  <label class="form-check-label" for="SearchSortDesc" data-phrase="Descending"></label>
+                  <label class="form-check-label" for="BrowseRadioWebradiodbSortDesc" data-phrase="Descending"></label>
                 </div>
               </div>
             </div>
@@ -897,56 +912,11 @@
             </div>
             <div id="BrowseRadioWebradiodbPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
+          <div class="breadcrumb p-2 rounded-2 d-none" id="BrowseRadioWebradiodbSearchCrumb"></div>
           <div id="BrowseRadioWebradiodbContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioWebradiodbButtonsBottom"></div>
         </div>
 <!-- WebradioDB end -->
-<!-- Radiobrowser start -->
-        <div id="viewBrowseRadioRadiobrowser">
-          <div class="btn-toolbar card-toolbar">
-            <div class="btn-group me-2">
-              <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-              <div class="dropdown-menu px-2" id="BrowseRadioRadiobrowserNavDropdown">
-              </div>
-            </div>
-            <div class="btn-group me-2">
-              <button data-title-phrase="Webradio favorites" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Favorites"]}' type="button" class="btn btn-secondary mi">favorite</button>
-            </div>
-            <div class="input-group flex-grow-1 me-2">
-              <span class="input-group-text border-secondary bg-secondary mi">search</span>
-              <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseRadioRadiobrowserSearchStr"/>
-            </div>
-            <div class="btn-group me-2">
-              <button id="BrowseRadioRadiobrowserFilterBtn" data-title-phrase="Filter" class="btn btn-secondary rounded-end mi" type="button" data-bs-target="#BrowseRadioRadiobrowserFilter" data-bs-toggle="collapse">filter_list_off</button>
-              <div class="collapse input-group ms-2" id="BrowseRadioRadiobrowserFilter">
-                <input data-placeholder-phrase="Tags" id="BrowseRadioRadiobrowserTagsInput" class="form-control me-2 rounded"/>
-                <input data-placeholder-phrase="Country" id="BrowseRadioRadiobrowserCountryInput" class="form-control me-2 rounded"/>
-                <input data-placeholder-phrase="Language" id="BrowseRadioRadiobrowserLanguageInput" class="form-control me-2 rounded"/>
-                <button class="btn btn-success rounded mi" data-href='{"cmd": "searchRadiobrowser", "options": []}'>done</button>
-              </div>
-            </div>
-            <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseRadioRadiobrowserSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
-              <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
-              <div class="dropdown-menu px-2 dropdownWide" id="BrowseRadioRadiobrowserSelectionDropdown">
-                <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
-                <div class="d-grid gap-2"></div>
-                <div class="dropdown-divider"></div>
-                <small class="mb-0 px-2"></small>
-              </div>
-            </div>
-            <div class="btn-group me-2 featTags">
-              <button data-title-phrase="View settings" data-contextmenu="viewSettings" data-href='{"cmd": "showContextMenu", "options": ["event"]}' class="btn btn-secondary mi" type="button" data-bs-toggle="dropdown">settings</button>
-            </div>
-            <div class="btn-group me-2 featHome">
-              <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
-            </div>
-            <div id="BrowseRadioRadiobrowserPaginationTop" class="btn-group me-2 pagination"></div>
-          </div>
-          <div id="BrowseRadioRadiobrowserContainer"></div>
-          <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioRadiobrowserButtonsBottom"></div>
-        </div>
-<!-- Radiobrowser end -->
       </div>
     </div>
 <!-- Search start -->
@@ -1460,9 +1430,6 @@
             <li class="nav-item">
               <a class="nav-link" href="#modalSettingsAdvancedTab" data-bs-toggle="tab" data-height="true" data-phrase="Advanced"></a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#modalSettingsCloudTab" data-bs-toggle="tab" data-height="true" data-phrase="Cloud"></a>
-            </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
@@ -1630,10 +1597,6 @@
                 <h4 data-phrase="Album info"></h4>
                 <div id="modalSettingsAlbumInfoFrm"></div>
               </div>
-            </div>
-            <div class="tab-pane" id="modalSettingsCloudTab">
-              <h4 data-phrase="Cloud"></h4>
-              <div id="modalSettingsCloudFrm"></div>
             </div>
           </div>
         </div>
@@ -2948,9 +2911,9 @@
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditGenreInput" data-phrase="Genre"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditGenresInput" data-phrase="Genre"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="modalRadioFavoriteEditGenreInput"/>
+              <input class="form-control" id="modalRadioFavoriteEditGenresInput"/>
             </div>
           </div>
           <div class="row mb-3">
@@ -2966,15 +2929,15 @@
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditStateInput" data-phrase="State"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditRegionInput" data-phrase="Region"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="modalRadioFavoriteEditStateInput"/>
+              <input class="form-control" id="modalRadioFavoriteEditRegionInput"/>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditLanguageInput" data-phrase="Language"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditLanguagesInput" data-phrase="Language"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="modalRadioFavoriteEditLanguageInput"/>
+              <input class="form-control" id="modalRadioFavoriteEditLanguagesInput"/>
             </div>
           </div>
           <div class="row mb-3">
@@ -3007,10 +2970,10 @@
             <label class="col-sm-4 col-form-label" data-phrase="WebradioDB"></label>
             <div class="col-sm-8">
               <p id="webradiodbCheckState"></p>
-              <button id="modalRadioFavoriteEditAddToWebradiodbBtn" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "addToWebradioDb", "options": []}' data-phrase="Add to WebradioDB"></button>
-              <button id="modalRadioFavoriteEditCheckWebradiodbBtn" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "checkWebradioDb", "options": []}' data-phrase="Check WebradioDB"></button>
-              <button id="modalRadioFavoriteEditUpdateFromWebradiodbBtn" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "updateFromWebradioDb", "options": []}' data-phrase="Update from WebradioDB"></button>
-              <button id="modalRadioFavoriteEditUpdateWebradiodbBtn" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "updateWebradioDb", "options": []}' data-phrase="Update WebradioDB"></button>
+              <button id="modalRadioFavoriteEditAddToWebradiodbBtn" type="button" class="btn btn-success me-2 d-none featWebradioDB" data-href='{"cmd": "addToWebradioDb", "options": []}' data-phrase="Add to WebradioDB"></button>
+              <button id="modalRadioFavoriteEditCheckWebradiodbBtn" type="button" class="btn btn-success me-2 d-none featWebradioDB" data-href='{"cmd": "checkWebradioDb", "options": []}' data-phrase="Check WebradioDB"></button>
+              <button id="modalRadioFavoriteEditUpdateFromWebradiodbBtn" type="button" class="btn btn-success me-2 d-none featWebradioDB" data-href='{"cmd": "updateFromWebradioDb", "options": []}' data-phrase="Update from WebradioDB"></button>
+              <button id="modalRadioFavoriteEditUpdateWebradiodbBtn" type="button" class="btn btn-success me-2 d-none featWebradioDB" data-href='{"cmd": "updateWebradioDb", "options": []}' data-phrase="Update WebradioDB"></button>
             </div>
           </div>
         </div>
@@ -3022,8 +2985,8 @@
     </div>
   </div>
 <!-- Modal save radio favorite end -->
-<!-- Modal radiobrowser details start -->
-  <div class="modal fade" id="modalRadiobrowserDetails" tabindex="-1">
+<!-- Modal webradio db details start -->
+  <div class="modal fade" id="modalWebradiodbDetail" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -3031,13 +2994,13 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <h1 class="text-break mb-4" id="RadiobrowserDetailsTitle"></h1>
+          <h1 class="text-break mb-4" id="modalWebradiodbDetailTitle"></h1>
           <div class="row">
             <div class="col-12 col-md-4 mb-3">
-              <div class="album-cover cover-loading" id="modalRadiobrowserDetailsImage"></div>
+              <div class="album-cover cover-loading" id="modalWebradiodbDetailImage"></div>
             </div>
             <div class="col-12 col-md-8 table-responsive">
-              <table id="modalRadiobrowserDetailsList" class="table table-sm">
+              <table id="modalWebradiodbDetailList" class="table table-sm">
                 <tbody></tbody>
               </table>
             </div>
@@ -3045,12 +3008,12 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <button type="button" class="btn btn-success" id="modalRadiobrowserDetailsAddToFavoriteBtn" data-href='{"cmd": "showAddToWebradioFavorites", "options": ["event"]}' data-phrase="Add to favorites"></button>
+          <button type="button" class="btn btn-success" id="modalWebradiodbDetailAddToFavoriteBtn" data-href='{"cmd": "showAddToWebradioFavorites", "options": ["event"]}' data-phrase="Add to favorites"></button>
         </div>
       </div>
     </div>
   </div>
-<!-- Modal radiobrowser details end -->
+<!-- Modal webradio db details end -->
 <!-- Modal notifications start -->
   <div class="modal fade" id="modalNotifications" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -3098,9 +3061,10 @@
 <!--debug-->  <script src="js/features.js"></script>
 <!--debug-->  <script src="js/feedback.js"></script>
 <!--debug-->  <script src="js/views.js"></script>
+<!--debug-->  <script src="js/viewsGrid.js"></script>
+<!--debug-->  <script src="js/viewsTables.js"></script>
 <!--debug-->  <script src="js/forms.js"></script>
 <!--debug-->  <script src="js/globales.js"></script>
-<!--debug-->  <script src="js/grid.js"></script>
 <!--debug-->  <script src="js/home.js"></script>
 <!--debug-->  <script src="js/i18n.js"></script>
 <!--debug-->  <script src="js/images.js"></script>
@@ -3130,7 +3094,6 @@
 <!--debug-->  <script src="js/modalQueueSetSongPriority.js"></script>
 <!--debug-->  <script src="js/modalRadioFavoriteDetail.js"></script>
 <!--debug-->  <script src="js/modalRadioFavoriteEdit.js"></script>
-<!--debug-->  <script src="js/modalRadioRadiobrowserDetail.js"></script>
 <!--debug-->  <script src="js/modalRadioWebradiodbDetail.js"></script>
 <!--debug-->  <script src="js/modalScriptExec.js"></script>
 <!--debug-->  <script src="js/modalScripts.js"></script>
@@ -3160,7 +3123,6 @@
 <!--debug-->  <script src="js/smartPlaylist.js"></script>
 <!--debug-->  <script src="js/sort.js"></script>
 <!--debug-->  <script src="js/state.js"></script>
-<!--debug-->  <script src="js/tables.js"></script>
 <!--debug-->  <script src="js/tags.js"></script>
 <!--debug-->  <script src="js/utility.js"></script>
 <!--debug-->  <script src="js/validate.js"></script>
@@ -3169,7 +3131,6 @@
 <!--debug-->  <script src="js/viewBrowseFilesystem.js"></script>
 <!--debug-->  <script src="js/viewBrowsePlaylist.js"></script>
 <!--debug-->  <script src="js/viewBrowseRadioFavorites.js"></script>
-<!--debug-->  <script src="js/viewBrowseRadioRadiobrowser.js"></script>
 <!--debug-->  <script src="js/viewBrowseRadioWebradiodb.js"></script>
 <!--debug-->  <script src="js/viewHome.js"></script>
 <!--debug-->  <script src="js/viewPlayback.js"></script>

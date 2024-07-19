@@ -4,12 +4,15 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_M3U_H
-#define MYMPD_M3U_H
+/*! \file
+ * \brief EXTM3U import
+ */
 
-#include "dist/sds/sds.h"
+#ifndef MYMPD_LIB_M3U_H
+#define MYMPD_LIB_M3U_H
 
-sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields);
-sds m3u_get_field(sds buffer, const char *field, const char *filename);
+#include "src/lib/mympd_state.h"
+
+bool webradio_favorite_import(struct t_mympd_state *mympd_state);
 
 #endif

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD partitions API
+ */
+
 #ifndef MYMPD_API_PARTITIONS_H
 #define MYMPD_API_PARTITIONS_H
 

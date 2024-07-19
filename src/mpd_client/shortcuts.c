@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Some MPD shortcuts
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/shortcuts.h"

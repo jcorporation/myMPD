@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Certificate handling
+ */
+
 #ifndef MYMPD_CERT_H
 #define MYMPD_CERT_H
 

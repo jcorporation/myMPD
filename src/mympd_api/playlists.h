@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD playlists API
+ */
+
 #ifndef MYMPD_API_PLAYLISTS_H
 #define MYMPD_API_PLAYLISTS_H
 
@@ -11,6 +15,9 @@
 #include "src/lib/mympd_state.h"
 #include "src/mpd_client/playlists.h"
 
+/**
+ * Playlist delete criteria
+ */
 enum plist_delete_criterias {
     PLAYLIST_DELETE_UNKNOWN = -1,
     PLAYLIST_DELETE_EMPTY,
@@ -18,6 +25,9 @@ enum plist_delete_criterias {
     PLAYLIST_DELETE_ALL
 };
 
+/**
+ * Playlist copy mode
+ */
 enum plist_copy_modes {
     PLAYLIST_COPY_APPEND = 0,
     PLAYLIST_COPY_INSERT,

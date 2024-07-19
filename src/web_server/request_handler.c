@@ -4,19 +4,21 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief HTTP request handler
+ */
+
 #include "compile_time.h"
 #include "src/web_server/request_handler.h"
 
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/web_server/proxy.h"
-#include "src/web_server/radiobrowser.h"
 #include "src/web_server/sessions.h"
 #include "src/web_server/utility.h"
-#include "src/web_server/webradiodb.h"
+#include "src/web_server/webradio.h"
 
 /**
  * Request handler for api requests /api
@@ -24,11 +26,10 @@
  * @param body http body (jsonrpc request)
  * @param auth_header Authentication header (myMPD session)
  * @param mg_user_data webserver configuration
- * @param backend_nc backend connection
- * @return true on success, else false
+  * @return true on success, else false
  */
 bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth_header,
-        struct t_mg_user_data *mg_user_data, struct mg_connection *backend_nc)
+        struct t_mg_user_data *mg_user_data)
 {
     struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
     MYMPD_LOG_DEBUG(frontend_nc_data->partition, "API request (%lu): %s", nc->id, body);
@@ -107,16 +108,6 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         case MYMPD_API_SESSION_LOGOUT:
         case MYMPD_API_SESSION_VALIDATE:
             webserver_session_api(nc, cmd_id, body, request_id, session, mg_user_data);
-            break;
-        case MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT:
-        case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
-        case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
-        case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
-        case MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL:
-            radiobrowser_api(nc, backend_nc, cmd_id, body, request_id);
-            break;
-        case MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET:
-            webradiodb_api(nc, backend_nc, cmd_id, request_id);
             break;
         default: {
             //forward API request to another thread
@@ -199,7 +190,6 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
             dirs = sdscat(dirs, "<tr><td><a href=\"playlists/\">playlists/</a></td><td>MPD playlists directory</td><td></td></tr>");
         }
         dirs = sdscat(dirs, "<tr><td><a href=\"smartplaylists/\">smartplaylists/</a></td><td>myMPD smart playlists directory</td><td></td></tr>");
-        dirs = sdscat(dirs, "<tr><td><a href=\"webradios/\">webradios/</a></td><td>Webradio favorites</td><td></td></tr>");
         mg_http_reply(nc, 200, "Content-Type: text/html\r\n"EXTRA_HEADERS_UNSAFE, "<!DOCTYPE html>"
             "<html><head>"
             "<meta charset=\"utf-8\">"
@@ -236,17 +226,10 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
 void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
         struct mg_connection *backend_nc)
 {
-    sds query = sdsnewlen(hm->query.buf, hm->query.len);
-    sds uri_decoded = sdsempty();
-    if (sdslen(query) > 4 &&
-        strncmp(query, "uri=", 4) == 0)
-    {
-        //remove uri=
-        sdsrange(query, 4, -1);
-        //decode uri
-        uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
-        if (is_allowed_proxy_uri(uri_decoded) == true) {
-            create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_stream, true);
+    sds uri = get_uri_param(&hm->query, "uri=");
+    if (uri != NULL) {
+        if (is_allowed_proxy_uri(uri) == true) {
+            create_backend_connection(nc, backend_nc, uri, forward_backend_to_frontend_stream, true);
         }
         else {
             webserver_send_error(nc, 403, "Host is not allowed");
@@ -257,8 +240,7 @@ void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
         webserver_send_error(nc, 400, "Invalid query parameter");
         nc->is_draining = 1;
     }
-    FREE_SDS(query);
-    FREE_SDS(uri_decoded);
+    FREE_SDS(uri);
 }
 
 /**
@@ -270,26 +252,18 @@ void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
 void request_handler_proxy_covercache(struct mg_connection *nc, struct mg_http_message *hm,
         struct mg_connection *backend_nc)
 {
-    sds query = sdsnewlen(hm->query.buf, hm->query.len);
-    sds uri_decoded = sdsempty();
-    if (sdslen(query) > 4 &&
-        strncmp(query, "uri=", 4) == 0)
-    {
-        //remove uri=
-        sdsrange(query, 4, -1);
-        //decode uri
-        uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
+    sds uri = get_uri_param(&hm->query, "uri=");
+    if (uri != NULL) {
         struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)nc->mgr->userdata;
-        if (check_imagescache(nc, hm, mg_user_data, DIR_CACHE_COVER, uri_decoded, 0) == false) {
-            create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_covercache, false);
+        if (check_imagescache(nc, hm, mg_user_data, DIR_CACHE_COVER, uri, 0) == false) {
+            create_backend_connection(nc, backend_nc, uri, forward_backend_to_frontend_covercache, false);
         }
     }
     else {
         webserver_send_error(nc, 400, "Invalid query parameter");
         nc->is_draining = 1;
     }
-    FREE_SDS(query);
-    FREE_SDS(uri_decoded);
+    FREE_SDS(uri);
 }
 
 /**
@@ -346,4 +320,28 @@ void request_handler_ca(struct mg_connection *nc, struct mg_http_message *hm,
     else {
         webserver_send_error(nc, 404, "Custom cert enabled, don't deliver myMPD ca");
     }
+}
+
+/**
+ * Request handler for /webradio to retrieve an extm3u for a webradio.
+ * Sends the request to the mympd_api thread.
+ * @param nc mongoose connection
+ * @param hm http message
+ * @param mg_user_data webserver configuration
+ */
+void request_handler_extm3u(struct mg_connection *nc, struct mg_http_message *hm,
+        struct t_mg_user_data *mg_user_data)
+{
+    sds uri = get_uri_param(&hm->query, "uri=");
+    MYMPD_LOG_INFO(NULL, "EXTM3U for %s requested", uri);
+    if (uri != NULL) {
+        sds buffer = webserver_webradio_get_extm3u(mg_user_data->webradio_favorites, mg_user_data->webradiodb, sdsempty(), uri);
+        webserver_send_data(nc, buffer, sdslen(buffer), "Content-Type: audio/mpegurl\r\n");
+        FREE_SDS(buffer);
+    }
+    else {
+        webserver_send_error(nc, 400, "Invalid uri");
+        nc->is_draining = 1;
+    }
+    FREE_SDS(uri);
 }

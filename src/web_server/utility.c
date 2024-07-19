@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Webserver utility functions
+ */
+
 #include "compile_time.h"
 #include "src/web_server/utility.h"
 
@@ -256,7 +260,6 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
  * @param nc mongoose connection
  * @param data data to send
  * @param len length of the data to send
- * @param headers extra headers to add
  */
 void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len) {
     MYMPD_LOG_DEBUG(NULL, "Sending %lu bytes to %lu", (unsigned long)len, nc->id);
@@ -272,8 +275,7 @@ void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len) 
  * @param file file to serve
  */
 void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm, const char *path, const char *file) {
-    const char *mime_type = get_mime_type_by_ext(file);
-    MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", file, mime_type);
+    MYMPD_LOG_DEBUG(NULL, "Serving file %s", file);
     static struct mg_http_serve_opts s_http_server_opts;
     s_http_server_opts.root_dir = path;
     s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
@@ -295,6 +297,7 @@ void webserver_send_header_redirect(struct mg_connection *nc, const char *locati
     mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
         "Location: %s\r\n"
         "Content-Length: 0\r\n"
+        EXTRA_HEADERS_CACHE
         "%s"
         "\r\n",
         location, headers);
@@ -347,37 +350,6 @@ void webserver_handle_connection_close(struct mg_connection *nc) {
         nc->is_draining = 1;
     }
     nc->is_resp = 0;
-}
-
-/**
- * Redirects to the placeholder image
- * @param nc mongoose connection
- */
-void webserver_serve_placeholder_image(struct mg_connection *nc, enum placeholder_types placeholder_type) {
-    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
-    switch (placeholder_type) {
-        case PLACEHOLDER_NA:
-            webserver_send_header_redirect(nc, mg_user_data->placeholder_na, "");
-            break;
-        case PLACEHOLDER_STREAM:
-            webserver_send_header_redirect(nc, mg_user_data->placeholder_stream, "");
-            break;
-        case PLACEHOLDER_MYMPD:
-            webserver_send_header_redirect(nc, mg_user_data->placeholder_mympd, "");
-            break;
-        case PLACEHOLDER_BOOKLET:
-            webserver_send_header_redirect(nc, mg_user_data->placeholder_booklet, "");
-            break;
-        case PLACEHOLDER_PLAYLIST:
-            webserver_send_header_redirect(nc, mg_user_data->placeholder_playlist, "");
-            break;
-        case PLACEHOLDER_SMARTPLS:
-            webserver_send_header_redirect(nc, mg_user_data->placeholder_smartpls, "");
-            break;
-        case PLACEHOLDER_FOLDER:
-            webserver_send_header_redirect(nc, mg_user_data->placeholder_folder, "");
-            break;
-    }
 }
 
 #ifdef MYMPD_EMBEDDED_ASSETS

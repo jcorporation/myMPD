@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Extra functions for sds strings
+ */
+
 #ifndef MYMPD_SDS_EXTRAS_H
 #define MYMPD_SDS_EXTRAS_H
 
@@ -12,6 +16,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+/**
+ * Frees an sds string and sets it to NULL
+ */
 #define FREE_SDS(SDS_PTR) do { \
     sdsfree(SDS_PTR); \
     SDS_PTR = NULL; \
@@ -36,5 +43,6 @@ sds sds_hash_sha1(const char *p);
 sds sds_hash_sha1_sds(sds s);
 sds sds_hash_sha256(const char *p);
 sds sds_hash_sha256_sds(sds s);
+sds sds_pad_int(int64_t value, sds buffer);
 
 #endif

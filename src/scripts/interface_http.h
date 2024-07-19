@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Lua interface for http
+ */
+
 #ifndef MYMPD_API_SCRIPTS_INTERFACE_HTTP_CLIENT_H
 #define MYMPD_API_SCRIPTS_INTERFACE_HTTP_CLIENT_H
 

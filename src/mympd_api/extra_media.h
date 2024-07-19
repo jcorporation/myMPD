@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Extra media files
+ */
+
 #ifndef MYMPD_API_EXTRA_MEDIA_H
 #define MYMPD_API_EXTRA_MEDIA_H
 

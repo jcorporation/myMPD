@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Certificate handling
+ */
+
 #include "compile_time.h"
 #include "src/lib/cert.h"
 
@@ -52,10 +56,13 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
 static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days);
 static bool certificates_cleanup(sds dir, const char *name);
 
+/**
+ * Expiration state of certificates
+ */
 enum expire_check_rcs {
-    CERT_EXPIRE_ERROR = -1,
-    CERT_EXPIRE_OK = 0,
-    CERT_EXPIRE_RENEW = 1
+    CERT_EXPIRE_ERROR = -1,  //!< Error condition
+    CERT_EXPIRE_OK = 0,      //!< Certificate is valid
+    CERT_EXPIRE_RENEW = 1    //!< Certificate should be renewed
 };
 
 /**
@@ -370,6 +377,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
  * @param key pointer to EVP_KEY struct to populate
  * @param cert_file filename for the cert
  * @param cert pointer to X509 struct to populate
+ * @return true on success, else false
  */
 static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 **cert) {
     BIO *bio = NULL;
@@ -632,11 +640,11 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
 
 /**
  * Generates a private/public key pair
- * @param key_bits number of bits for the key
  * @param key_type key type: EVP_PKEY_RSA or EVP_PKEY_EC
+ * @param key_bits number of bits for the key
  * @return newly allocated key or NULL on error
  */
-static EVP_PKEY *generate_keypair(int key_type, unsigned int key_bits) {
+static EVP_PKEY *generate_keypair(int key_type, unsigned key_bits) {
     #ifdef OPENSSL_VERSION_MAJOR
         if (key_type == EVP_PKEY_RSA) {
             return EVP_RSA_gen(key_bits);

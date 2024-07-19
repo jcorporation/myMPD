@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Jukebox functions
+ */
+
 #ifndef MYMPD_MPDCLIENT_JUKEBOX_H
 #define MYMPD_MPDCLIENT_JUKEBOX_H
 

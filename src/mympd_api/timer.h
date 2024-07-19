@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD timer API
+ */
+
 #ifndef MYMPD_API_TIMER_H
 #define MYMPD_API_TIMER_H
 
@@ -11,6 +15,9 @@
 #include "src/lib/jsonrpc.h"
 #include "src/lib/mympd_state.h"
 
+/**
+ * Timer interval types
+ */
 enum timer_intervals {
     TIMER_ONE_SHOT_REMOVE = -1,
     TIMER_ONE_SHOT_DISABLE = 0

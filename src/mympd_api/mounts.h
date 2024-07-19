@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD mounts API
+ */
+
 #ifndef MYMPD_API_MOUNTS_H
 #define MYMPD_API_MOUNTS_H
 

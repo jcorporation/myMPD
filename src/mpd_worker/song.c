@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD song functions
+ */
+
 #include "compile_time.h"
 #include "src/mpd_worker/song.h"
 

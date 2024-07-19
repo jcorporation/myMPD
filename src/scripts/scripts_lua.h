@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Lua script functions
+ */
+
 #ifndef MYMPD_SCRIPTS_LUA_H
 #define MYMPD_SCRIPTS_LUA_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD worker state functions
+ */
+
 #ifndef MYMPD_MPD_WORKER_UTILITY_H
 #define MYMPD_MPD_WORKER_UTILITY_H
 
@@ -17,7 +21,7 @@ struct t_mpd_worker_state {
     bool smartpls;                                //!< smart playlists enabled
     sds smartpls_sort;                            //!< smart playlists sort tag
     sds smartpls_prefix;                          //!< prefix for smart playlist names
-    struct t_tags smartpls_generate_tag_types;  //!< generate smart playlists for each value for this tag
+    struct t_mpd_tags smartpls_generate_tag_types;  //!< generate smart playlists for each value for this tag
     struct t_partition_state *partition_state;    //!< pointer to the partition state to work (default partition for worker threads)
     struct t_mpd_state *mpd_state;                //!< pointer to mpd shared state
     struct t_config *config;                      //!< pointer to myMPD config

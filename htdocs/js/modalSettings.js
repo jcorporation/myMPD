@@ -23,7 +23,7 @@ function initModalSettings() {
     //set featWhence feature detection for default actions
     for (const sel of ['modalSettingsClickQuickPlayInput', 'modalSettingsClickFilesystemPlaylistInput',
         'modalSettingsClickPlaylistInput', 'modalSettingsClickSongInput',
-        'modalSettingsClickRadioFavoritesInput', 'modalSettingsClickRadiobrowserInput'])
+        'modalSettingsClickRadioFavoritesInput'])
     {
         const options = document.querySelectorAll('#' + sel + ' > option');
         for (const opt of options) {

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Enumeration of MPD playlists
+ */
+
 #ifndef MYMPD_MPD_WORKER_PLAYLISTS_H
 #define MYMPD_MPD_WORKER_PLAYLISTS_H
 

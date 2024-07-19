@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD search API
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/search.h"
 
@@ -63,7 +67,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
-            buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->tags, song);
+            buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, song);
             if (partition_state->mpd_state->feat.stickers == true &&
                 tagcols->stickers.len > 0)
             {

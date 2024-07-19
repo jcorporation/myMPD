@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Event handling
+ */
+
 #ifndef MYMPD_EVENT_H
 #define MYMPD_EVENT_H
 

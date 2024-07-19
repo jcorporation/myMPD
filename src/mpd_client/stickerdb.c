@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD sticker functions
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/stickerdb.h"
 
@@ -45,6 +49,7 @@ static bool check_sticker_support(struct t_stickerdb_state *stickerdb);
  * This function connects to mpd sticker instance on demand
  * or exits the idle mode
  * @param stickerdb pointer to the stickerdb state
+ * @return true on success, else false
  */
 bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
     if (stickerdb->config->stickers == false) {
@@ -123,6 +128,7 @@ void stickerdb_disconnect(struct t_stickerdb_state *stickerdb) {
  * Discards waiting idle events for the stickerdb connection.
  * This prevents the connection to timeout.
  * @param stickerdb pointer to the stickerdb state
+ * @return true on success, else false
  */
 bool stickerdb_idle(struct t_stickerdb_state *stickerdb) {
     MYMPD_LOG_DEBUG("stickerdb", "Discarding idle events");

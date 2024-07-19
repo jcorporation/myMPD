@@ -108,7 +108,7 @@ function parseQueue(obj) {
             setData(row, 'uri', data.uri);
             setData(row, 'type', data.Type);
             if (data.Type === 'webradio') {
-                setData(row, 'webradioUri', data.webradio.filename);
+                setData(row, 'webradioType', data.webradio.Type);
                 setData(row, 'name', data.webradio.Name);
             }
             else {

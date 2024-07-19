@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Add random functions
+ */
+
 #ifndef MYMPD_MPD_WORKER_ADD_RANDOM_H
 #define MYMPD_MPD_WORKER_ADD_RANDOM_H
 

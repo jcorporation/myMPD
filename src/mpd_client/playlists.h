@@ -4,11 +4,18 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Playlist helper functions.
+ */
+
 #ifndef MYMPD_MPD_CLIENT_PLAYLISTS_H
 #define MYMPD_MPD_CLIENT_PLAYLISTS_H
 
 #include "src/lib/mympd_state.h"
 
+/**
+ * Playlist types
+ */
 enum playlist_types {
     PLTYPE_ALL = 0,
     PLTYPE_STATIC = 1,

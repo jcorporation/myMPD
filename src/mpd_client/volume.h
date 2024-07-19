@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD volume wrapper
+ */
+
 #ifndef MYMPD_MPD_CLIENT_VOLUME_H
 #define MYMPD_MPD_CLIENT_VOLUME_H
 

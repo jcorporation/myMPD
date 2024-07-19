@@ -84,6 +84,7 @@ set_default() {
     MYMPD_CUSTOM_CERT="false"
     MYMPD_SSL_CERT=""
     MYMPD_SSL_KEY=""
+    MYMPD_WEBRADIODB="true"
 }
 
 read_config() {
@@ -109,6 +110,7 @@ read_config() {
     [ -f "${CONFIG_DIR}/custom_cert" ] && read -r MYMPD_CUSTOM_CERT < "${CONFIG_DIR}/custom_cert"
     [ -f "${CONFIG_DIR}/ssl_cert" ] && read -r MYMPD_SSL_CERT < "${CONFIG_DIR}/ssl_cert"
     [ -f "${CONFIG_DIR}/ssl_key" ] && read -r MYMPD_SSL_KEY < "${CONFIG_DIR}/ssl_key"
+    [ -f "${CONFIG_DIR}/webradiodb" ] && read -r MYMPD_WEBRADIODB < "${CONFIG_DIR}/webradiodb"
 }
 
 apply_config() {
@@ -137,6 +139,7 @@ apply_config() {
             -E MYMPD_CUSTOM_CERT="$MYMPD_CUSTOM_CERT" \
             -E MYMPD_SSL_CERT="$MYMPD_SSL_CERT" \
             -E MYMPD_SSL_KEY="$MYMPD_SSL_KEY" \
+            -E MYMPD_WEBRADIODB="$MYMPD_WEBRADIODB" \
             $MYMPD_BIN -c
     else
         export MYMPD_ACL
@@ -161,6 +164,7 @@ apply_config() {
         export MYMPD_CUSTOM_CERT
         export MYMPD_SSL_CERT
         export MYMPD_SSL_KEY
+        export MYMPD_WEBRADIODB
         $MYMPD_BIN -c
     fi
 }
@@ -275,6 +279,7 @@ menu_misc() {
         "Save Caches" "$MYMPD_SAVE_CACHES" \
         "Enable stickers" "$MYMPD_STICKERS" \
         "Enable sticker padding" "$MYMPD_STICKERS_PAD_INT" \
+        "Enable WebradioDB" "$MYMPD_WEBRADIODB" \
         3>&1 1>&2 2>&3)
     case "$SELECT" in
         "Album group tag") MYMPD_ALBUM_GROUP_TAG=$(get_input "$SELECT" "$MYMPD_ALBUM_GROUP_TAG") ;;
@@ -288,6 +293,7 @@ menu_misc() {
         "Save Caches") MYMPD_SAVE_CACHES=$(toggle_bool "$MYMPD_SAVE_CACHES") ;;
         "Enable stickers") MYMPD_STICKERS=$(toggle_bool "$MYMPD_STICKERS") ;;
         "Enable sticker padding") MYMPD_STICKERS_PAD_INT=$(toggle_bool "$MYMPD_STICKERS_PAD_INT") ;;
+        "Enable WebradioDB") MYMPD_WEBRADIODB=$(toggle_bool "$MYMPD_WEBRADIODB") ;;
         "") return ;;
     esac
     menu_misc
@@ -338,6 +344,7 @@ parse_options() {
             MYMPD_CUSTOM_CERT) MYMPD_CUSTOM_CERT="$2" ;;
             MYMPD_SSL_CERT) MYMPD_SSL_CERT="$2" ;;
             MYMPD_SSL_KEY) MYMPD_SSL_KEY="$2" ;;
+            MYMPD_WEBRADIODB) MYMPD_WEBRADIODB="$2" ;;
             *)
                 echo "Invalid configuration setting"
                 exit 1

@@ -53,6 +53,6 @@ void set_loglevel(int level);
 
 void mympd_log_errno(const char *file, int line, const char *partition, int errnum);
 void mympd_log(int level, const char *file, int line, const char *partition, const char *fmt, ...)
-    __attribute__ ((format (printf, 5, 6))); /* Flawfinder: ignore */
+    __attribute__ ((format (printf, 5, 6)));
 
 #endif

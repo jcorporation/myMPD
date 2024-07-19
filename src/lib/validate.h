@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief String validation functions
+ */
+
 #ifndef MYMPD_VALIDATE_H
 #define MYMPD_VALIDATE_H
 
@@ -11,6 +15,9 @@
 
 #include <stdbool.h>
 
+/**
+ * Definition for the validation callback used by the jsonrpc functions
+ */
 typedef bool (*validate_callback) (sds);
 
 bool validate_json_object(sds data);
@@ -34,6 +41,7 @@ bool vcb_istaglist(sds data);
 bool vcb_ismpdtag(sds data);
 bool vcb_ismpdtag_or_any(sds data);
 bool vcb_ismpdsort(sds data);
+bool vcb_iswebradiosort(sds data);
 bool vcb_issearchexpression(sds data);
 
 bool vcb_isstickersort(sds data);

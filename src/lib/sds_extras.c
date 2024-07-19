@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Extra functions for sds strings
+ */
+
 #include "compile_time.h"
 #include "src/lib/sds_extras.h"
 
@@ -16,6 +20,9 @@
 #include <openssl/sha.h>
 #include <string.h>
 
+/**
+ * Converts hex to integer
+ */
 #define HEXTOI(x) ((x) >= '0' && (x) <= '9' ? (x) - '0' : (x) - 'W')
 
 /**
@@ -492,4 +499,14 @@ sds sds_replace(sds s, const char *p) {
  */
 sds sds_catbool(sds s, bool v) {
     return v == true ? sdscatlen(s, "true", 4) : sdscatlen(s, "false", 5);
+}
+
+/**
+ * Prints a zero padded value
+ * @param value mpd song struct
+ * @param buffer already allocated sds string to append
+ * @return pointer to buffer
+ */
+sds sds_pad_int(int64_t value, sds buffer) {
+    return sdscatprintf(buffer, "%020" PRId64, value);
 }

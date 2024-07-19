@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Configuration handling
+ */
+
 #include "compile_time.h"
 #include "src/lib/config.h"
 
@@ -40,7 +44,7 @@ static bool startup_getenv_bool(const char *env_var, bool default_value, bool fi
  * Frees the config struct
  * @param config pointer to config struct
  */
-void *mympd_config_free(struct t_config *config) {
+void mympd_config_free(struct t_config *config) {
     FREE_SDS(config->acl);
     FREE_SDS(config->cachedir);
     FREE_SDS(config->http_host);
@@ -53,7 +57,6 @@ void *mympd_config_free(struct t_config *config) {
     FREE_SDS(config->user);
     FREE_SDS(config->workdir);
     FREE_PTR(config);
-    return NULL;
 }
 
 /**
@@ -137,6 +140,7 @@ void mympd_config_defaults(struct t_config *config) {
     config->mympd_uri = startup_getenv_string("MYMPD_URI", CFG_MYMPD_URI, vcb_isname, config->first_startup);
     config->stickers = startup_getenv_bool("MYMPD_STICKERS", CFG_MYMPD_STICKERS, config->first_startup);
     config->stickers_pad_int = startup_getenv_bool("MYMPD_STICKERS_PAD_INT", CFG_MYMPD_STICKERS_PAD_INT, config->first_startup);
+    config->webradiodb = startup_getenv_bool("MYMPD_WEBRADIODB", CFG_MYMPD_WEBRADIODB, config->first_startup);
 
     sds album_mode_str = startup_getenv_string("MYMPD_ALBUM_MODE", CFG_MYMPD_ALBUM_MODE, vcb_isname, config->first_startup);
     config->albums.mode = parse_album_mode(album_mode_str);
@@ -181,6 +185,7 @@ bool mympd_config_rm(struct t_config *config) {
  * Reads or writes the config from the /var/lib/mympd/config directory
  * @param config pointer to config struct
  * @param write if true create the file if not exists
+ * @return true on success, else false
  */
 bool mympd_config_rw(struct t_config *config, bool write) {
     config->http = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "http", config->http, write);
@@ -212,6 +217,7 @@ bool mympd_config_rw(struct t_config *config, bool write) {
     config->mympd_uri = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "mympd_uri", config->mympd_uri, vcb_isname, write);
     config->stickers = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "stickers", config->stickers, write);
     config->stickers_pad_int = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "stickers_pad_int", config->stickers_pad_int, write);
+    config->webradiodb = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "webradiodb", config->webradiodb, write);
 
     sds album_mode_str = state_file_rw_string(config->workdir, DIR_WORK_CONFIG, "album_mode", lookup_album_mode(config->albums.mode), vcb_isname, write);
     config->albums.mode = parse_album_mode(album_mode_str);

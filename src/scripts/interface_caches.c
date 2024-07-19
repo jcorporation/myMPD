@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Lua interface for caches
+ */
+
 #include "compile_time.h"
 #include "src/scripts/interface_caches.h"
 

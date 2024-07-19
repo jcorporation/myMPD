@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Playlistart functions
+ */
+
 #include "compile_time.h"
 #include "src/web_server/playlistart.h"
 
@@ -12,6 +16,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
+#include "src/web_server/placeholder.h"
 
 /**
  * Request handler for /playlistart
@@ -31,7 +36,7 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
         vcb_isfilepath(name) == false)
     {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
         FREE_SDS(name);
         return false;
     }
@@ -48,7 +53,7 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
     }
     else {
         MYMPD_LOG_DEBUG(NULL, "No image for tag found");
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
     }
     FREE_SDS(mediafile);
     FREE_SDS(name);

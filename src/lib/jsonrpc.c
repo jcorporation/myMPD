@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Jsonrpc implementation
+ */
+
 #include "compile_time.h"
 #include "src/lib/jsonrpc.h"
 
@@ -15,7 +19,6 @@
 #include "src/lib/sticker.h"
 #include "src/mpd_client/tags.h"
 
-#include <errno.h>
 #include <string.h>
 
 /**
@@ -1124,10 +1127,11 @@ static bool icb_json_get_object_string(const char *path, sds key, sds value, int
  * @param s json object to parse
  * @param path mjson path expression
  * @param l t_list struct to populate
- * @param vcb validation callback
+ * @param vcb_key validation callback for key
+ * @param vcb_value validation callback for value
  * @param max_elements maximum of elements
  * @param error pointer to t_jsonrpc_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_callback vcb_key,
     validate_callback vcb_value, int max_elements, struct t_jsonrpc_parse_error *error)
@@ -1143,7 +1147,7 @@ bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_
  * @param tags t_tags struct to populate
  * @param max_elements maximum of elements
  * @param error pointer to t_jsonrpc_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_fields(sds s, const char *path, struct t_fields *tags, int max_elements, struct t_jsonrpc_parse_error *error) {
     return json_iterate_object(s, path, icb_json_get_field, tags, NULL, NULL, max_elements, error);
@@ -1153,6 +1157,7 @@ bool json_get_fields(sds s, const char *path, struct t_fields *tags, int max_ele
  * Searches for a key in json object
  * @param s json object to search
  * @param path mjson path expression
+ * @return true on success, else false
  */
 bool json_find_key(sds s, const char *path) {
     const char *p;
@@ -1165,6 +1170,7 @@ bool json_find_key(sds s, const char *path) {
  * Searches for a key in json object and returns its value as sds string
  * @param s json object to search
  * @param path mjson path expression
+ * @return Key value as sds
  */
 sds json_get_key_as_sds(sds s, const char *path) {
     const char *p;
@@ -1253,9 +1259,9 @@ static bool icb_json_get_field(const char *path, sds key, sds value, int vtype, 
     }
 
     struct t_fields *fields = (struct t_fields *) userdata;
-    enum mpd_tag_type tag = mpd_tag_name_iparse(value);
-    if (tag != MPD_TAG_UNKNOWN) {
-        fields->tags.tags[fields->tags.len++] = tag;
+    enum mpd_tag_type mpd_tag = mpd_tag_name_iparse(value);
+    if (mpd_tag != MPD_TAG_UNKNOWN) {
+        fields->mpd_tags.tags[fields->mpd_tags.len++] = mpd_tag;
         return true;
     }
     enum mympd_sticker_types sticker = sticker_name_parse(value);
@@ -1303,6 +1309,7 @@ static void set_parse_error(struct t_jsonrpc_parse_error *error, const char *pat
  * @param result newly allocated sds string with the result
  * @param vcb validation callback
  * @param error pointer to t_jsonrpc_parse_error
+ * @return true on success, else false
  */
 static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, struct t_jsonrpc_parse_error *error) {
     if (*result != NULL) {

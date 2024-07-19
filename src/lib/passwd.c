@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Linux passwd helper functions
+ */
+
 #include "compile_time.h"
 #include "src/lib/passwd.h"
 

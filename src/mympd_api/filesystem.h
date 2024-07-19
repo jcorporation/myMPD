@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD filesystem API
+ */
+
 #ifndef MYMPD_API_FILESYSTEM_H
 #define MYMPD_API_FILESYSTEM_H
 

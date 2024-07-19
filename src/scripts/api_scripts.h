@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Scripts API functions
+ */
+
 #ifndef MYMPD_SCRIPTS_SCRIPTS_API_H
 #define MYMPD_SCRIPTS_SCRIPTS_API_H
 

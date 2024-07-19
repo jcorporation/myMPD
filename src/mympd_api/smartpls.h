@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD smart playlist API
+ */
+
 #ifndef MYMPD_API_SMARTPLS_H
 #define MYMPD_API_SMARTPLS_H
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Album cache creation
+ */
+
 #include "compile_time.h"
 #include "src/mpd_worker/album_cache.h"
 

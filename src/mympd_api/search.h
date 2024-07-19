@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD search API
+ */
+
 #ifndef MYMPD_API_SEARCH_H
 #define MYMPD_API_SEARCH_H
 

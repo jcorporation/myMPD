@@ -4,20 +4,23 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD last played API
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/last_played.h"
 
 #include "dist/sds/sds.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/search.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/search_local.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/sticker.h"
 
-#include <errno.h>
 #include <string.h>
 
 /**
@@ -77,7 +80,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct
     sds obj = sdsempty();
 
     unsigned real_limit = offset + limit;
-    struct t_list *expr_list = parse_search_expression_to_list(expression);
+    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
     if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers.len > 0)
     {
@@ -142,11 +145,11 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, struct
     if (mpd_send_list_meta(partition_state->conn, uri)) {
         struct mpd_song *song;
         if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            if (search_song_expression(song, expr_list, &tagcols->tags) == true) {
+            if (search_expression_song(song, expr_list, &tagcols->mpd_tags) == true) {
                 buffer = sdscat(buffer, "{\"Type\": \"song\",");
                 buffer = tojson_uint(buffer, "Pos", entity_count, true);
                 buffer = tojson_int64(buffer, "LastPlayed", last_played, true);
-                buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->tags, song);
+                buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, song);
                 if (partition_state->mpd_state->feat.stickers == true &&
                     tagcols->stickers.len > 0)
                 {

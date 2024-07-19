@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief State file implementation
+ */
+
 #include "compile_time.h"
 #include "src/lib/state_files.h"
 

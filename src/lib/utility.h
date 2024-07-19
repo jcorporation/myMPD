@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Utility functions
+ */
+
 #ifndef MYMPD_LIB_UTILITY_H
 #define MYMPD_LIB_UTILITY_H
 
@@ -28,11 +32,25 @@ void my_msleep(int msec);
 sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config, bool prefer_ssl);
 bool get_ipv6_support(void);
 
-//measure time
+/**
+ * Initialize time measurement
+ */
 #define MEASURE_INIT struct timespec tic;\
     struct timespec toc;
+
+/**
+ * Start measurement
+ */
 #define MEASURE_START clock_gettime(CLOCK_MONOTONIC, &tic);
+
+/**
+ * Stop measurement
+ */
 #define MEASURE_END clock_gettime(CLOCK_MONOTONIC, &toc);
+
+/**
+ * Print measurement result
+ */
 #define MEASURE_PRINT(PART, X) MYMPD_LOG_DEBUG(PART, "Execution time for %s: %" PRId64 " ms", X, \
     (int64_t)((toc.tv_sec * 1000 + toc.tv_nsec / 1000000) - (tic.tv_sec * 1000 + tic.tv_nsec / 1000000)));
 

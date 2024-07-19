@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Fields handling
+ */
+
 #include "compile_time.h"
 #include "src/lib/fields.h"
 
@@ -11,8 +15,8 @@
 
 /**
  * Copy a struct t_fields to another one
- * @param src_tag_list source
- * @param dst_tag_list destination
+ * @param src_fields source
+ * @param dst_fields destination
  */
 void fields_clone(struct t_fields *src_fields, struct t_fields *dst_fields) {
     memcpy((void *)dst_fields, (void *)src_fields, sizeof(struct t_fields));
@@ -23,13 +27,13 @@ void fields_clone(struct t_fields *src_fields, struct t_fields *dst_fields) {
  * @param fields pointer to t_fields struct
  */
 void fields_reset(struct t_fields *fields) {
-    tags_reset(&fields->tags);
+    mpd_tags_reset(&fields->mpd_tags);
     stickers_reset(&fields->stickers);
 }
 
 /**
  * (Re-)initializes a t_fields struct
- * @param fields pointer to t_fields struct
+ * @param stickers pointer to t_stickers struct
  */
 void stickers_reset(struct t_stickers *stickers) {
     stickers->len = 0;
@@ -38,7 +42,7 @@ void stickers_reset(struct t_stickers *stickers) {
 
 /**
  * Enables all stickers
- * @param fields pointer to t_fields struct
+ * @param stickers pointer to t_stickers struct
  */
 void stickers_enable_all(struct t_stickers *stickers) {
     stickers->len = STICKER_COUNT;
@@ -48,19 +52,19 @@ void stickers_enable_all(struct t_stickers *stickers) {
 }
 
 /**
- * (Re-)initializes a t_tags struct
- * @param fields pointer to t_fields struct
+ * (Re-)initializes a t_mpd_tags struct
+ * @param mpd_tags pointer to t_mpd_tags struct
  */
-void tags_reset(struct t_tags *tags) {
-    tags->len = 0;
-    memset(tags->tags, 0, sizeof(tags->tags));
+void mpd_tags_reset(struct t_mpd_tags *mpd_tags) {
+    mpd_tags->len = 0;
+    memset(mpd_tags->tags, 0, sizeof(mpd_tags->tags));
 }
 
 /**
- * Copy a struct t_fields to another one
- * @param src_tags source
- * @param dst_tags destination
+ * Copy a struct t_mpd_tags to another one
+ * @param src_mpd_tags source
+ * @param dst_mpd_tags destination
  */
-void tags_clone(struct t_tags *src_tags, struct t_tags *dst_tags) {
-    memcpy((void *)dst_tags, (void *)src_tags, sizeof(struct t_tags));
+void mpd_tags_clone(struct t_mpd_tags *src_mpd_tags, struct t_mpd_tags *dst_mpd_tags) {
+    memcpy((void *)dst_mpd_tags, (void *)src_mpd_tags, sizeof(struct t_mpd_tags));
 }

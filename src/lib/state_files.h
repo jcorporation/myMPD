@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief State file implementation
+ */
+
 #ifndef MYMPD_STATE_FILES_H
 #define MYMPD_STATE_FILES_H
 

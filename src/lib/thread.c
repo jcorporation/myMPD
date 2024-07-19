@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Posix thread helpers
+ */
+
 #include "compile_time.h"
 #include "src/lib/thread.h"
 

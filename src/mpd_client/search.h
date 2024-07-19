@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Helper functions for MPD search
+ */
+
 #ifndef MYMPD_MPD_CLIENT_SEARCH_H
 #define MYMPD_MPD_CLIENT_SEARCH_H
 

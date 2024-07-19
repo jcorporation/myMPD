@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Centtral myMPD configuration definitions
+ */
+
 #ifndef MYMPD_LIB_CONFIG_DEF_H
 #define MYMPD_LIB_CONFIG_DEF_H
 
@@ -43,6 +47,7 @@ struct t_config {
     bool ssl;                       //!< enable listening on ssl_port
     bool stickers;                  //!< enable sticker support
     bool stickers_pad_int;          //!< enable the padding of integer sticker values
+    bool webradiodb;                //!< enable webradiodb support
     struct t_albums_config albums;  //!< album specific config
     int cache_cover_keep_days;      //!< expiration time for cover cache files in days
     int cache_lyrics_keep_days;     //!< expiration time for lyrics cache files in days

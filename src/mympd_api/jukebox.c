@@ -4,14 +4,18 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD jukebox API
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/jukebox.h"
 
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/search.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
-#include "src/mpd_client/search_local.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/sticker.h"
@@ -116,7 +120,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
     unsigned entities_returned = 0;
     unsigned entities_found = 0;
     unsigned real_limit = offset + limit;
-    struct t_list *expr_list = parse_search_expression_to_list(expression);
+    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     if (partition_state->jukebox.mode == JUKEBOX_ADD_SONG ||
@@ -132,7 +136,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
             if (mpd_send_list_meta(partition_state->conn, current->key)) {
                 struct mpd_song *song;
                 if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-                    if (search_song_expression(song, expr_list, &tagcols->tags) == true) {
+                    if (search_expression_song(song, expr_list, &tagcols->mpd_tags) == true) {
                         if (entities_found >= offset &&
                             entities_found < real_limit)
                         {
@@ -141,7 +145,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
                             }
                             buffer = sdscat(buffer, "{\"Type\": \"song\",");
                             buffer = tojson_uint(buffer, "Pos", entity_count, true);
-                            buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->tags, song);
+                            buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, song);
                             if (partition_state->mpd_state->feat.stickers == true &&
                                 tagcols->stickers.len > 0)
                             {
@@ -169,7 +173,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
         struct t_list_node *current = partition_state->jukebox.queue->head;
         while (current != NULL) {
             struct mpd_song *album = (struct mpd_song *)current->user_data;
-            if (search_song_expression(album, expr_list, &tagcols->tags) == true) {
+            if (search_expression_song(album, expr_list, &tagcols->mpd_tags) == true) {
                 if (entities_found >= offset &&
                     entities_found < real_limit)
                 {

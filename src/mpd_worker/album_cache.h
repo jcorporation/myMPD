@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Album cache creation
+ */
+
 #ifndef MYMPD_MPD_WORKER_ALBUM_CACHE_H
 #define MYMPD_MPD_WORKER_ALBUM_CACHE_H
 

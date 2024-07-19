@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD song functions
+ */
+
 #ifndef MPD_WORKER_SONG_H
 #define MPD_WORKER_SONG_H
 

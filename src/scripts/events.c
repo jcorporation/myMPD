@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Events helper functions
+ */
+
 #include "compile_time.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"

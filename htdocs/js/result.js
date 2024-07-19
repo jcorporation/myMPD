@@ -28,6 +28,7 @@ function emptyMsgEl(colspan, mode) {
  * @param {string} mode table or grid
  * @returns {HTMLElement} created row
  */
+//eslint-disable-next-line no-unused-vars
 function loadingMsgEl(colspan, mode) {
     if (mode === 'grid') {
         return elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, 'Loading...');
@@ -138,7 +139,12 @@ function checkResult(obj, parent, mode) {
         else {
             parent.appendChild(emptyMsgEl(colspan, mode));
         }
-        unsetUpdateView(parent.parentNode);
+        if (mode === 'table') {
+            unsetUpdateView(parent.parentNode);
+        }
+        else {
+            unsetUpdateView(parent);
+        }
         setPagination(0, 0);
         return false;
     }

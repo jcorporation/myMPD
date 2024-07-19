@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD sticker API
+ */
+
 #ifndef MYMPD_API_STICKER_H
 #define MYMPD_API_STICKER_H
 

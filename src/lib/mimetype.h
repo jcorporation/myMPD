@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Mime type and file extensions functions
+ */
+
 #ifndef MYMPD_MIMETYPE_H
 #define MYMPD_MIMETYPE_H
 

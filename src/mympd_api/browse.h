@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD browse database API
+ */
+
 #ifndef MYMPD_API_BROWSE_H
 #define MYMPD_API_BROWSE_H
 

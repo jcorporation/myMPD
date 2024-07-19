@@ -124,9 +124,6 @@ function viewClickHandler(event) {
         case 'BrowseRadioFavorites':
             viewBrowseRadioFavoritesListClickHandler(event, target);
             break;
-        case 'BrowseRadioRadiobrowser':
-            viewBrowseRadioRadiobrowserListClickHandler(event, target);
-            break;
         case 'BrowseRadioWebradiodb':
             viewBrowseRadioWebradiodbListClickHandler(event, target);
             break;
@@ -498,9 +495,7 @@ function setFields(tableName) {
             return ["Type", "Name", "Last-Modified", "Thumbnail"];
         case 'BrowseRadioFavorites':
         case 'BrowseRadioWebradiodb':
-            return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "State", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
-        case 'BrowseRadioRadiobrowser':
-            return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
+            return ["Added", "Country", "Description", "Genres", "Homepage", "Languages", "Last-Modified", "Name", "Region", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
         case 'BrowseDatabaseTagList':
             return ["Value", "Thumbnail"];
         case 'BrowseDatabaseAlbumList': {
@@ -643,7 +638,7 @@ function setEntryData(entry, data) {
             data.Thumbnail = getCssImageUri('/playlistart?playlist=' + myEncodeURIComponent(data.uri));
             break;
         case 'webradiodb':
-            data.Thumbnail = getCssImageUri(webradioDbPicsUri + data.Image);
+            data.Thumbnail = getCssImageUri(data.Image);
             break;
         // No Default
     }

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD timer API
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/timer.h"
 
@@ -48,6 +52,7 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
  * Checks the timer event and executes the callback function
  * @param fd fd with POLLIN event
  * @param timer_list timer list
+ * @return true on success, else false
  */
 bool mympd_api_timer_check(int fd, struct t_timer_list *timer_list) {
     struct t_list_node *current = get_timer_from_fd(timer_list, fd);

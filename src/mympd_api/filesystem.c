@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD filesystem API
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/filesystem.h"
 
@@ -144,7 +148,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                 case MPD_ENTITY_TYPE_SONG: {
                     const struct mpd_song *song = mpd_entity_get_song(entry_data->entity);
                     buffer = sdscat(buffer, "{\"Type\":\"song\",");
-                    buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->tags, song);
+                    buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, song);
                     buffer = sdscatlen(buffer, ",", 1);
                     sds filename = sdsnew(mpd_song_get_uri(song));
                     basename_uri(filename);

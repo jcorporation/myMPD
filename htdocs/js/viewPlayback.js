@@ -258,8 +258,13 @@ function setPlaybackCardTags(songObj) {
         elShow(PlaybackListWebradio);
         elHideId('PlaybackListTags');
 
-        const webradioName = elCreateText('p', {"href": "#", "class": ["clickable"]}, songObj.webradio.Name);
-        setData(webradioName, 'href', {"cmd": "editRadioFavorite", "options": [songObj.webradio.filename]});
+        const webradioName = elCreateText('p', {"class": ["clickable"]}, songObj.webradio.Name);
+        if (songObj.webradio.Type === 'webradiodb') {
+            setData(webradioName, 'href', {"cmd": "showWebradiodbDetails", "options": [songObj.webradio.StreamUri]});
+        }
+        else {
+            setData(webradioName, 'href', {"cmd": "editRadioFavorite", "options": [songObj.webradio.StreamUri]});
+        }
         webradioName.addEventListener('click', function(event) {
             parseCmd(event, getData(event.target, 'href'));
         }, false);
@@ -271,8 +276,8 @@ function setPlaybackCardTags(songObj) {
         );
         PlaybackListWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                elCreateTextTn('small', {}, 'Genre'),
-                elCreateText('p', {}, songObj.webradio.Genre)
+                elCreateTextTn('small', {}, 'Genres'),
+                elCreateText('p', {}, joinArray(songObj.webradio.Genres))
             ])
         );
         PlaybackListWebradio.appendChild(
@@ -284,8 +289,8 @@ function setPlaybackCardTags(songObj) {
         );
         PlaybackListWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                elCreateTextTn('small', {}, 'Language'),
-                elCreateText('p', {}, songObj.webradio.Language)
+                elCreateTextTn('small', {}, 'Languages'),
+                elCreateText('p', {}, joinArray(songObj.webradio.Languages))
             ])
         );
         if (songObj.webradio.Homepage !== '') {

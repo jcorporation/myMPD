@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD partitions specific functions
+ */
+
 #ifndef MYMPD_MPD_CLIENT_PARTITIONS_H
 #define MYMPD_MPD_CLIENT_PARTITIONS_H
 

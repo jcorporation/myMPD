@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Command line options handling
+ */
+
 #ifndef MYMPD_HANDLE_OPTIONS_H
 #define MYMPD_HANDLE_OPTIONS_H
 
@@ -11,6 +15,9 @@
 
 #include <stdbool.h>
 
+/**
+ * Return codes for options handler
+ */
 enum handle_options_rc {
     OPTIONS_RC_INVALID = -1,
     OPTIONS_RC_OK = 0,

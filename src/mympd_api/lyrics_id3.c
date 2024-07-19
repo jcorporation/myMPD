@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Read lyrics from ID3 tags
+ */
+
 #include "compile_time.h"
 #include "src/mympd_api/lyrics_id3.h"
 

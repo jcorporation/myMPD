@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief API handler for mpd_worker thread
+ */
+
 #include "compile_time.h"
 #include "src/mpd_worker/api.h"
 
@@ -18,6 +22,7 @@
 #include "src/mpd_worker/playlists.h"
 #include "src/mpd_worker/smartpls.h"
 #include "src/mpd_worker/song.h"
+#include "src/mpd_worker/webradiodb.h"
 
 /**
  * Handler for mpd worker api requests
@@ -371,6 +376,23 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 }
                 else {
                     send_jsonrpc_notify(JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Smart playlists update failed");
+                }
+                async = true;
+            }
+            break;
+        case MYMPD_API_WEBRADIODB_UPDATE:
+            if (mpd_worker_state->config->webradiodb == false) {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "WebradioDB is disabled");
+                break;
+            }
+            if (json_get_bool(request->data, "$.params.force", &bool_buf1, &parse_error) == true) {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "WebradioDB update started");
+                push_response(response);
+                rc = mpd_worker_webradiodb_update(mpd_worker_state, bool_buf1);
+                if (rc == false) {
+                    send_jsonrpc_notify(JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "WebradioDB update failed");
                 }
                 async = true;
             }

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD PIN functions
+ */
+
 #include "compile_time.h"
 #include "src/lib/pin.h"
 

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Message queue implementation
+ */
+
 #include "compile_time.h"
 #include "src/lib/msg_queue.h"
 
@@ -60,6 +64,7 @@ struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_type
 /**
  * Frees all queue nodes and the queue itself
  * @param queue pointer to the queue
+ * @return NULL
  */
 void *mympd_queue_free(struct t_mympd_queue *queue) {
     mympd_queue_expire_age(queue, 0);
@@ -317,6 +322,7 @@ static void free_queue_node_extra(void *extra, enum mympd_cmd_ids cmd_id) {
 /**
  * Unlocks the queue mutex
  * @param mutex the mutex to unlock
+ * @return 0 on success, else 1
  */
 static int unlock_mutex(pthread_mutex_t *mutex) {
     int rc = pthread_mutex_unlock(mutex);

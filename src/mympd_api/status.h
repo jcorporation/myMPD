@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD status API
+ */
+
 #ifndef MYMPD_API_STATUS_H
 #define MYMPD_API_STATUS_H
 

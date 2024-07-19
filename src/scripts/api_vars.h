@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Variables API functions
+ */
+
 #ifndef MYMPD_SCRIPTS_VARS_H
 #define MYMPD_SCRIPTS_VARS_H
 

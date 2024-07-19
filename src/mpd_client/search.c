@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Helper functions for MPD search
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/search.h"
 

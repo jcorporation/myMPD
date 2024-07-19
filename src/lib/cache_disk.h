@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief General disk cache handling
+ */
+
 #ifndef MYMPD_CACHE_DISK_H
 #define MYMPD_CACHE_DISK_H
 
@@ -11,9 +15,12 @@
 
 #include <stdbool.h>
 
+/**
+ * Disk cache config
+ */
 enum cache_disk_conf {
-    CACHE_DISK_NO_PRUNE = -1,
-    CACHE_DISK_DISABLED = 0
+    CACHE_DISK_NO_PRUNE = -1,   //!< Do not prune the cache
+    CACHE_DISK_DISABLED = 0     //!< Cache is disbled
 };
 
 void cache_disk_clear(struct t_config *config);

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Utility functions
+ */
+
 #include "compile_time.h"
 #include "src/lib/utility.h"
 
@@ -185,6 +189,9 @@ sds replace_file_extension(sds filename, const char *ext) {
     return newname;
 }
 
+/**
+ * Invalid and uncommen characters for filenames.
+ */
 static const char *invalid_filename_chars = "<>/.:?&$%!#=;\a\b\f\n\r\t\v\\|";
 
 /**
@@ -202,6 +209,9 @@ void sanitize_filename(sds filename) {
     }
 }
 
+/**
+ * Invalid characters for filenames.
+ */
 static const char *invalid_filename_chars2 = "\a\b\f\n\r\t\v/\\";
 
 /**
@@ -228,9 +238,12 @@ struct t_mympd_uris {
     const char *resolved;  //!< resolved path
 };
 
+/**
+ * Struct for mapping the special mympd:// uris
+ */
 const struct t_mympd_uris mympd_uris[] = {
-    {"mympd://webradio/", "/browse/"DIR_WORK_WEBRADIOS"/"},
-    {"mympd://", "/"},
+    {"mympd://webradio/", "/webradio?uri=" },
+    {"mympd://",          "/"},
     {NULL,                NULL}
 };
 

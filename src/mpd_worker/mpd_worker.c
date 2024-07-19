@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD worker thread implementation
+ */
+
 #include "compile_time.h"
 #include "src/mpd_worker/mpd_worker.h"
 
@@ -53,7 +57,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_stat
     }
     //create mpd worker state from mympd_state
     struct t_mpd_worker_state *mpd_worker_state = malloc_assert(sizeof(struct t_mpd_worker_state));
-    mpd_worker_state->mympd_only = is_mympd_only_api_method(request->cmd_id);
+    mpd_worker_state->mympd_only = is_mpdworker_only_api_method(request->cmd_id);
     mpd_worker_state->request = request;
     mpd_worker_state->config = mympd_state->config;
 
@@ -63,7 +67,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_stat
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
     mpd_worker_state->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
     mpd_worker_state->tag_disc_empty_is_first = mympd_state->tag_disc_empty_is_first;
-    tags_clone(&mympd_state->smartpls_generate_tag_types, &mpd_worker_state->smartpls_generate_tag_types);
+    mpd_tags_clone(&mympd_state->smartpls_generate_tag_types, &mpd_worker_state->smartpls_generate_tag_types);
     mpd_worker_state->album_cache = &mympd_state->album_cache;
 
     if (mpd_worker_state->mympd_only == true) {
@@ -112,6 +116,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_stat
 /**
  * This is the main function of the worker thread.
  * @param arg void pointer to the mpd_worker_state
+ * @return NULL
  */
 static void *mpd_worker_run(void *arg) {
     thread_logname = sds_replace(thread_logname, "mpdworker");

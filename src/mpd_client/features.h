@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD feature detection
+ */
+
 #ifndef MYMPD_MPD_CLIENT_FEATURES_H
 #define MYMPD_MPD_CLIENT_FEATURES_H
 

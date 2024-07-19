@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief myMPD database API
+ */
+
 #ifndef MYMPD_API_DATABASE_H
 #define MYMPD_API_DATABASE_H
 

@@ -90,14 +90,14 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define FILENAME_PRESETS "preset_list"
 #define FILENAME_TIMER "timer_list"
 #define FILENAME_TRIGGER "trigger_list"
-#define FILENAME_WEBRADIODB "webradiodb-combined.min.json"
+#define FILENAME_WEBRADIODB "webradiodb.mpack"
+#define FILENAME_WEBRADIO_FAVORITES "webradio_favorites.mpack"
 #define FILENAME_SCRIPTVARS "scriptvars_list"
 
 #define DIR_CACHE_COVER "cover"
 #define DIR_CACHE_LYRICS "lyrics"
 #define DIR_CACHE_MISC "misc"
 #define DIR_CACHE_THUMBS "thumbs"
-#define DIR_CACHE_WEBRADIODB "webradiodb"
 
 #define DIR_WORK_CONFIG "config"
 #define DIR_WORK_EMPTY "empty"
@@ -110,7 +110,6 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define DIR_WORK_STATE "state"
 #define DIR_WORK_STATE_DEFAULT DIR_WORK_STATE"/default"
 #define DIR_WORK_TAGS "tags"
-#define DIR_WORK_WEBRADIOS "webradios"
 
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"
@@ -141,6 +140,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define CFG_MYMPD_ALBUM_GROUP_TAG "Date"
 #define CFG_MYMPD_STICKERS true
 #define CFG_MYMPD_STICKERS_PAD_INT false
+#define CFG_MYMPD_WEBRADIODB true
 
 //default partition state settings
 #define PARTITION_HIGHLIGHT_COLOR "#28a745"
@@ -199,7 +199,6 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define MYMPD_VIEW_QUEUE_JUKEBOX_SONG "{\"mode\":\"table\",\"fields\":[\"Pos\",\"Title\",\"Artist\",\"Album\"]}"
 #define MYMPD_VIEW_QUEUE_JUKEBOX_ALBUM "{\"mode\":\"table\",\"fields\":[\"Pos\",\"Album\",\"AlbumArtist\"]}"
 #define MYMPD_VIEW_BROWSE_RADIO_WEBRADIODB "{\"mode\":\"table\",\"fields\":[\"Name\",\"Country\",\"Language\",\"Genre\"]}"
-#define MYMPD_VIEW_BROWSE_RADIO_RADIOBROWSER "{\"mode\":\"table\",\"fields\":[\"name\",\"country\",\"language\",\"tags\"]}"
 #define MYMPD_VIEW_BROWSE_RADIO_FAVORITES "{\"mode\":\"grid\",\"fields\":[\"Name\",\"Genre\",\"Country\"]}"
 #define MYMPD_VOLUME_MIN 0 //prct
 #define MYMPD_VOLUME_MAX 100 //prct
@@ -337,17 +336,21 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define JSONRPC_UINT_MIN 0
 #define JSONRPC_UINT_MAX UINT_MAX
 #define JSONRPC_STR_MAX 3000
-#define JSONRPC_KEY_MAX 50
+#define JSONRPC_KEY_MAX 500
 #define JSONRPC_ARRAY_MAX 1000
 #define JSONRPC_TIME_MIN 0 // Do 1. Jan 01:00:00 CET 1970
 #define JSONRPC_TIME_MAX 253402297169 // Fr 31. Dez 23:59:29 CET 9999
 
-//some other limits
+//timer
+#define TIMER_WEBRADIODB_UPDATE_OFFSET 20 //seconds
+#define TIMER_WEBRADIODB_UPDATE_INTERVAL 86400 //seconds
+#define TIMER_DISK_CACHE_CLEANUP_OFFSET 240 //seconds
+#define TIMER_DISK_CACHE_CLEANUP_INTERVAL 86400 //seconds
+#define TIMER_SMARTPLS_UPDATE_OFFSET 30 //seconds
 #define TIMER_INTERVAL_MIN 0 //seconds
 #define TIMER_INTERVAL_MAX 7257600 //12 weeks
-#define TIMER_SMARTPLS_UPDATE_OFFSET 30 //seconds
-#define TIMER_DISK_CACHE_CLEANUP_OFFSET 60 //seconds
-#define TIMER_DISK_CACHE_CLEANUP_INTERVAL 86400 //seconds
+
+//some other limits
 #define CACHE_AGE_MIN -1 //days
 #define CACHE_AGE_MAX 365 //days
 #define VOLUME_MIN 0 //prct
@@ -402,7 +405,6 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define LINE_LENGTH_MAX 8192 // 8 kb
 #define LYRICS_SIZE_MAX 10000 //bytes
 #define SMARTPLS_SIZE_MAX 2000 //bytes
-#define WEBRADIODB_SIZE_MAX 1048576 //bytes, 1 MB
 #define SSL_FILE_MAX 8192 // 8 kb
 
 //limits for stickers
@@ -411,8 +413,8 @@ extern struct t_mympd_queue *mympd_api_queue;
 
 #define PADDING_LENGTH 12
 
-//cloud api hosts
-#define RADIOBROWSER_HOST "all.api.radio-browser.info"
-#define WEBRADIODB_HOST "jcorporation.github.io"
+//WebradioDB
+#define WEBRADIODB_URI "https://jcorporation.github.io/webradiodb/db/index/webradios.min.json"
+#define WEBRADIODB_URI_PICS "https://jcorporation.github.io/webradiodb/db/pics/"
 
 #endif

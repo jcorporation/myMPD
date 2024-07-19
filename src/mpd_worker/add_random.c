@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Add random functions
+ */
+
 #include "compile_time.h"
 #include "src/mpd_worker/add_random.h"
 
@@ -24,6 +28,7 @@
  * @param add number of songs/albums to add
  * @param mode 1 = add songs, 2 = add albums
  * @param plist playlist to select songs from
+ * @param play Play the inserted songs?
  * @param partition partition to add the selection
  * @return true on success, else false
  */

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Functions to select random songs or albums.
+ */
+
 #ifndef MYMPD_RANDOM_ADD_H
 #define MYMPD_RANDOM_ADD_H
 

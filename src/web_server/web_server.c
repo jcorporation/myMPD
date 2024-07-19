@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Webserver implementation
+ */
+
 #include "compile_time.h"
 #include "src/web_server/web_server.h"
 
@@ -20,6 +24,7 @@
 #include "src/lib/thread.h"
 #include "src/web_server/albumart.h"
 #include "src/web_server/folderart.h"
+#include "src/web_server/placeholder.h"
 #include "src/web_server/playlistart.h"
 #include "src/web_server/proxy.h"
 #include "src/web_server/request_handler.h"
@@ -36,7 +41,6 @@
  * Private definitions
  */
 
-static void get_placeholder_image(sds workdir, const char *name, sds *result);
 static void read_queue(struct mg_mgr *mgr);
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
@@ -45,6 +49,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
 static struct mg_connection *get_nc_by_id(struct mg_mgr *mgr, unsigned long id);
 static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *response);
+static void send_redirect(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
 static bool enforce_acl(struct mg_connection *nc, sds acl);
 static bool enforce_conn_limit(struct mg_connection *nc, int connection_count);
@@ -82,7 +87,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->publish_music = false;
     mg_user_data->publish_playlists = false;
     mg_user_data->feat_albumart = false;
-    mg_user_data->connection_count = 2; // listening + wakup
+    mg_user_data->connection_count = 2; // listening + wakeup
     list_init(&mg_user_data->stream_uris);
     list_init(&mg_user_data->session_list);
     mg_user_data->mympd_api_started = false;
@@ -90,6 +95,8 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->cert = mg_str("");
     mg_user_data->key_content = sdsempty();
     mg_user_data->key = mg_str("");
+    mg_user_data->webradiodb = NULL;
+    mg_user_data->webradio_favorites = NULL;
 
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -256,6 +263,10 @@ static void read_queue(struct mg_mgr *mgr) {
                 MYMPD_LOG_DEBUG(response->partition, "Got raw response for id \"%lu\" with %lu bytes", response->conn_id, (unsigned long)sdslen(response->data));
                 send_raw_response(mgr, response);
                 break;
+            case RESPONSE_TYPE_REDIRECT:
+                MYMPD_LOG_DEBUG(response->partition, "Got redirect for id \"%lu\" to %s", response->conn_id, response->data);
+                send_redirect(mgr, response);
+                break;
             case RESPONSE_TYPE_SCRIPT:
             case RESPONSE_TYPE_DISCARD:
                 //ignore
@@ -281,7 +292,6 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, "%S/%s", config->workdir, DIR_WORK_EMPTY);
         mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/pics=%S/%s", config->workdir, DIR_WORK_PICS);
         mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/smartplaylists=%S/%s", config->workdir, DIR_WORK_SMARTPLS);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/webradios=%S/%s", config->workdir, DIR_WORK_WEBRADIOS);
         if (sdslen(new_mg_user_data->playlist_directory) > 0) {
             mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/playlists=%S", new_mg_user_data->playlist_directory);
             mg_user_data->publish_playlists = true;
@@ -302,6 +312,10 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         mg_user_data->music_directory = sds_replace(mg_user_data->music_directory, new_mg_user_data->music_directory);
         FREE_SDS(new_mg_user_data->music_directory);
         MYMPD_LOG_DEBUG(NULL, "Document root: \"%s\"", mg_user_data->browse_directory);
+
+        //webradios
+        mg_user_data->webradiodb = new_mg_user_data->webradiodb;
+        mg_user_data->webradio_favorites = new_mg_user_data->webradio_favorites;
 
         //coverimage names
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
@@ -351,28 +365,6 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
     }
     free_response(response);
     return rc;
-}
-
-/**
- * Finds and sets the placeholder images
- * @param workdir myMPD working directory
- * @param name basename to search for
- * @param result pointer to sds result
- */
-static void get_placeholder_image(sds workdir, const char *name, sds *result) {
-    sds file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_PICS_THUMBS, name);
-    MYMPD_LOG_DEBUG(NULL, "Check for custom placeholder image \"%s\"", file);
-    file = webserver_find_image_file(file);
-    sdsclear(*result);
-    if (sdslen(file) > 0) {
-        file = sds_basename(file);
-        MYMPD_LOG_INFO(NULL, "Setting custom placeholder image for %s to \"%s\"", name, file);
-        *result = sdscatfmt(*result, "/browse/%s/%S", DIR_WORK_PICS_THUMBS, file);
-    }
-    else {
-        *result = sdscatfmt(*result, "/assets/%s.svg", name);
-    }
-    FREE_SDS(file);
 }
 
 /**
@@ -474,6 +466,25 @@ static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *respon
 }
 
 /**
+ * Sends a redirect http response message
+ * @param mgr mongoose mgr
+ * @param response jsonrpc response
+ */
+static void send_redirect(struct mg_mgr *mgr, struct t_work_response *response) {
+    struct mg_connection *nc = mgr->conns;
+    while (nc != NULL) {
+        if (nc->is_websocket == 0U &&
+            nc->id == response->conn_id)
+        {
+            webserver_send_header_redirect(nc, response->data, NULL);
+            break;
+        }
+        nc = nc->next;
+    }
+    free_response(response);
+}
+
+/**
  * Sends an api response
  * @param mgr mongoose mgr
  * @param response jsonrpc response
@@ -489,7 +500,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
                 webserver_send_albumart_redirect(nc, response->data);
                 break;
             case INTERNAL_API_TAGART:
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+                webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
                 break;
             default:
                 MYMPD_LOG_DEBUG(response->partition, "Sending response to conn_id \"%lu\" (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
@@ -724,7 +735,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                  * to allow other authorization methods in reverse proxy setups
                  */
                 struct mg_str *auth_header = mg_http_get_header(hm, "X-myMPD-Session");
-                bool rc = request_handler_api(nc, body, auth_header, mg_user_data, frontend_nc_data->backend_nc);
+                bool rc = request_handler_api(nc, body, auth_header, mg_user_data);
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid API request");
@@ -750,13 +761,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 request_handler_folderart(nc, hm, mg_user_data);
             }
             else if (mg_match(hm->uri, mg_str("/tagart"), NULL)) {
-                request_handler_tagart(nc, hm, mg_user_data, nc->id);
+                request_handler_tagart(nc, hm, mg_user_data);
             }
             else if (mg_match(hm->uri, mg_str("/playlistart"), NULL)) {
                 request_handler_playlistart(nc, hm, mg_user_data);
             }
             else if (mg_match(hm->uri, mg_str("/browse/#"), NULL)) {
                 request_handler_browse(nc, hm, mg_user_data);
+            }
+            else if (mg_match(hm->uri, mg_str("/webradio"), NULL)) {
+                request_handler_extm3u(nc, hm, mg_user_data);
             }
             else if (mg_match(hm->uri, mg_str("/ws/*"), NULL)) {
                 //check partition
@@ -819,22 +833,22 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
         #endif
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-booklet"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_BOOKLET);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_booklet);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-mympd"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_MYMPD);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_mympd);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-notavailable"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_na);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-stream"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_STREAM);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_stream);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-playlist"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_playlist);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-smartpls"), NULL)) {
-                webserver_serve_placeholder_image(nc, PLACEHOLDER_SMARTPLS);
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_smartpls);
             }
             else if (mg_match(hm->uri, mg_str("/index.html"), NULL)) {
                 webserver_send_header_redirect(nc, "/", "");
@@ -922,14 +936,8 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             // Serve some directories without ssl
-            if (mg_match(hm->uri, mg_str("/browse/webradios/*"), NULL)) {
-                // myMPD webradio links
-                static struct mg_http_serve_opts s_http_server_opts;
-                s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
-                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-                s_http_server_opts.root_dir = mg_user_data->browse_directory;
-                MYMPD_LOG_INFO(NULL, "Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.buf);
-                mg_http_serve_dir(nc, hm, &s_http_server_opts);
+            if (mg_match(hm->uri, mg_str("/webradio"), NULL)) {
+                request_handler_extm3u(nc, hm, mg_user_data);
                 break;
             }
             #ifdef MYMPD_ENABLE_LUA

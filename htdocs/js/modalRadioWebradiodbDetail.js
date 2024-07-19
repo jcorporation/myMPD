@@ -6,45 +6,52 @@
 /** @module modalRadioWebradiodbDetail_js */
 
 /**
- * Shows the details of a webradioDB entry
+ * Shows the add to webradio favorites modal
+ * @param {Event} event triggering event
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showAddToWebradioFavorites(event) {
+    event.preventDefault();
+    saveAsRadioFavorite(getDataId('modalWebradiodbDetailTitle', 'streamUri'));
+}
+
+/**
+ * Fetches the details of a WebradioDB entry
  * @param {string} uri webradio uri
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showWebradiodbDetails(uri) {
-    elShowId('modalRadiobrowserDetailsAddToFavoriteBtn');
-    //reuse the radiobrowser modal
-    const table = elGetById('modalRadiobrowserDetailsList');
+    sendAPI("MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI", {
+        "uri": uri
+    }, parseWebradiodbDetail, true);
+}
+
+/**
+ * Parses the details of a WebradioDB entry and shows the modal
+ * @param {object} obj Jsonrpc response
+ * @returns {void}
+ */
+function parseWebradiodbDetail(obj) {
+    elShowId('modalWebradiodbDetailAddToFavoriteBtn');
+    const table = elGetById('modalWebradiodbDetailList');
     const tbody = table.querySelector('tbody');
     elClear(tbody);
-    const m3u = isStreamUri(uri)
-        ? streamUriToName(uri) + '.m3u'
-        : uri;
-    const result = webradioDb.webradios[m3u];
-    if (result === undefined) {
-        tbody.appendChild(errorMsgEl({'error': {'message':'Webradio not found'}}, 1, 'table'));
+
+    if (obj.error) {
+        tbody.appendChild(obj.error, 1, 'table');
     }
-    if (result.Image !== '') {
-        elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(webradioDbPicsUri + result.Image);
+    if (obj.result.Image !== '') {
+        elGetById('modalWebradiodbDetailImage').style.backgroundImage = getCssImageUri(obj.result.Image);
     }
     else {
-        elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = 'url("' + subdir + '/assets/coverimage-notavailable")';
+        elGetById('modalWebradiodbDetailImage').style.backgroundImage = 'url("' + subdir + '/assets/coverimage-notavailable")';
     }
-    elGetById('RadiobrowserDetailsTitle').textContent = result.Name;
-    setDataId('RadiobrowserDetailsTitle', 'webradio', result);
-    const showFields = [
-        'StreamUri',
-        'Homepage',
-        'Genre',
-        'Country',
-        'State',
-        'Language',
-        'Codec',
-        'Bitrate',
-        'Description'
-    ];
-    for (const field of showFields) {
-        const value = printValue(field, result[field]);
+    elGetById('modalWebradiodbDetailTitle').textContent = obj.result.Name;
+    setDataId('modalWebradiodbDetailTitle', 'streamUri', obj.result.StreamUri);
+    for (const field of webradioFields) {
+        const value = printValue(field, obj.result[field]);
         tbody.appendChild(
             elCreateNodes('tr', {}, [
                 elCreateTextTn('th', {}, field),
@@ -52,30 +59,18 @@ function showWebradiodbDetails(uri) {
             ])
         );
     }
-    const alternateStreams = Object.keys(result.alternativeStreams);
+    const alternateStreams = Object.keys(obj.result.alternativeStreams);
     if (alternateStreams.length > 0) {
         const td = elCreateEmpty('td', {});
         for (const name of alternateStreams) {
             const p = elCreateTextTn('p', {"class": ["pb-0"]}, 'Webradioformat',
-                {"codec": result.alternativeStreams[name].Codec, "bitrate": result.alternativeStreams[name].Bitrate});
+                {"codec": obj.result.alternativeStreams[name].Codec, "bitrate": obj.result.alternativeStreams[name].Bitrate});
             const btn = elCreateText('button', {"class": ["btn", "btn-sm", "btn-secondary", "mi", "mi-sm", "ms-2"]}, 'favorite');
             p.appendChild(btn);
             td.appendChild(p);
             btn.addEventListener('click', function(event) {
                 event.preventDefault();
-                showEditRadioFavorite({
-                    "Name": result.Name,
-                    "StreamUri": result.alternativeStreams[name].StreamUri,
-                    "Genre": result.Genre,
-                    "Homepage": result.Homepage,
-                    "Country": result.Country,
-                    "State": result.State,
-                    "Language": result.Languages,
-                    "Codec": result.alternativeStreams[name].Codec,
-                    "Bitrate": result.alternativeStreams[name].Bitrate,
-                    "Description": result.Description,
-                    "Image": result.Image
-                });
+                saveAsRadioFavorite(obj.result.alternativeStreams[name].StreamUri);
             }, false);
         }
         tbody.appendChild(
@@ -85,5 +80,5 @@ function showWebradiodbDetails(uri) {
             ])
         );
     }
-    uiElements.modalRadiobrowserDetails.show();
+    uiElements.modalWebradiodbDetail.show();
 }

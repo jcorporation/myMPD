@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD error handling
+ */
+
 #include "compile_time.h"
 #include "src/mpd_client/errorhandler.h"
 
@@ -14,7 +18,6 @@
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/tags.h"
 
-#include <errno.h>
 #include <string.h>
 
 /**
@@ -31,6 +34,8 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
 /**
  * Sets the MPD_FAILURE state for the partition.
  * myMPD disconnects and tries a reconnect.
+ * @param partition_state Pointer to partition state
+ * @param errormessage Error message to log
  */
 void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char *errormessage) {
     MYMPD_LOG_ERROR(partition_state->name, "%s", errormessage);

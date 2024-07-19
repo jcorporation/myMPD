@@ -113,6 +113,21 @@ const albumFilters = [
 ];
 
 /** @type {object} */
+const webradioFields = [
+    'StreamUri',
+    'Homepage',
+    'Genres',
+    'Country',
+    'Region',
+    'Languages',
+    'Codec',
+    'Bitrate',
+    'Description',
+    'Added',
+    'Last-Modified'
+];
+
+/** @type {object} */
 const session = {
     "token": "",
     "timeout": 0
@@ -133,11 +148,6 @@ const messagesMax = 100;
 
 /** @type {boolean} */
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
-
-/** @type {object} */
-let webradioDb = null;
-/** @type {string} */
-const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
 
 /** @type {string} */
 const scriptsUri = 'https://github.com/jcorporation/mympd-scripts/tree/main/';
@@ -427,7 +437,7 @@ const settingsWebuiFields = {
         "title": "Click song",
         "form": "modalSettingsDefaultActionsFrm"
     },
-    "clickRadiobrowser": {
+    "clickWebradiodb": {
         "defaultValue": "append",
         "validValues": {
             "append": "Append to queue",
@@ -833,15 +843,8 @@ const settingsWebuiFields = {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Show MusicBrainz links",
-        "form": "modalSettingsCloudFrm",
+        "form": "modalSettingsTagsFrm",
         "help": "helpSettingsMusicBrainzLinks"
-    },
-    "radiobrowserStationclicks": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Submit station clicks to radiobrowser.info",
-        "form": "modalSettingsCloudFrm",
-        "help": "helpSettingsRadiobrowserStationclicks"
     },
     "outputLigatures": {
         "defaultValue": {
@@ -1368,9 +1371,9 @@ app.cards = {
                     "Favorites": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "",
+                        "filter": "any",
                         "sort": {
-                            "tag": "",
+                            "tag": "Name",
                             "desc": false
                         },
                         "tag": "",
@@ -1380,32 +1383,9 @@ app.cards = {
                     "Webradiodb": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": {
-                            "genre": "",
-                            "country": "",
-                            "language": "",
-                            "codec": "",
-                            "bitrate": ""
-                        },
+                        "filter": "any",
                         "sort": {
                             "tag": "Name",
-                            "desc": false
-                        },
-                        "tag": "",
-                        "search": "",
-                        "scrollPos": 0
-                    },
-                    "Radiobrowser": {
-                        "offset": 0,
-                        "limit": 100,
-                        "filter": {
-                            "tags": "",
-                            "genre": "",
-                            "country": "",
-                            "language": ""
-                        },
-                        "sort": {
-                            "tag": "",
                             "desc": false
                         },
                         "tag": "",

@@ -4,12 +4,17 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Folderart functions
+ */
+
 #include "compile_time.h"
 #include "src/web_server/folderart.h"
 
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"
+#include "src/web_server/placeholder.h"
 
 /**
  * Serves the first image in a folder
@@ -22,7 +27,7 @@ bool request_handler_folderart(struct mg_connection *nc, struct mg_http_message 
         struct t_mg_user_data *mg_user_data)
 {
     if (sdslen(mg_user_data->music_directory) == 0) {
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_NA);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
         return false;
     }
 
@@ -33,7 +38,7 @@ bool request_handler_folderart(struct mg_connection *nc, struct mg_http_message 
         vcb_isfilepath(path) == false)
     {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
-        webserver_serve_placeholder_image(nc, PLACEHOLDER_FOLDER);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_FOLDER);
         FREE_SDS(path);
         return false;
     }
@@ -51,6 +56,6 @@ bool request_handler_folderart(struct mg_connection *nc, struct mg_http_message 
     MYMPD_LOG_INFO(NULL, "No folderimage found for \"%s\"", path);
     FREE_SDS(path);
     FREE_SDS(coverfile);
-    webserver_serve_placeholder_image(nc, PLACEHOLDER_FOLDER);
+    webserver_redirect_placeholder_image(nc, PLACEHOLDER_FOLDER);
     return false;
 }

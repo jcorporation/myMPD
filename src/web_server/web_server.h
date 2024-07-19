@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Webserver implementation
+ */
+
 #ifndef MYMPD_WEB_SERVER_H
 #define MYMPD_WEB_SERVER_H
 

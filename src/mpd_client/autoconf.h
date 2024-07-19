@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD connection autoconfiguration
+ */
+
 #ifndef MYMPD_AUTOCONF_H
 #define MYMPD_AUTOCONF_H
 

@@ -11,16 +11,16 @@
 #include "src/lib/mympd_state.h"
 
 UTEST(mympd_state, test_copy_tag_types) {
-    struct t_tags src_taglist;
-    struct t_tags dst_taglist;
-    tags_reset(&src_taglist);
-    tags_reset(&dst_taglist);
+    struct t_mpd_tags src_taglist;
+    struct t_mpd_tags dst_taglist;
+    mpd_tags_reset(&src_taglist);
+    mpd_tags_reset(&dst_taglist);
 
     src_taglist.tags[0] = MPD_TAG_ALBUM;
     src_taglist.tags[1] = MPD_TAG_ALBUM_ARTIST;
     src_taglist.len = 2;
 
-    tags_clone(&src_taglist, &dst_taglist);
+    mpd_tags_clone(&src_taglist, &dst_taglist);
 
     ASSERT_EQ(MPD_TAG_ALBUM, dst_taglist.tags[0]);
     ASSERT_EQ(MPD_TAG_ALBUM_ARTIST, dst_taglist.tags[1]);

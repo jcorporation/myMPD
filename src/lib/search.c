@@ -4,18 +4,25 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief Search implementation
+ */
+
 #include "compile_time.h"
-#include "src/mpd_client/search_local.h"
+#include "src/lib/search.h"
 
 #include "dist/utf8/utf8.h"
+#include "src/lib/convert.h"
 #include "src/lib/datetime.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/utility.h"
 
 #include <inttypes.h>
 
+/**
+ * PCRE for UTF-8
+ */
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
 #include <string.h>
@@ -44,7 +51,8 @@ enum search_filters {
     SEARCH_FILTER_ANY_TAG = -2,
     SEARCH_FILTER_MODIFIED_SINCE = -3,
     SEARCH_FILTER_ADDED_SINCE = -4,
-    SEARCH_FILTER_FILE = -5
+    SEARCH_FILTER_FILE = -5,
+    SEARCH_FILTER_BITRATE = -6
 };
 
 /**
@@ -54,7 +62,7 @@ struct t_search_expression {
     int tag;                   //!< tag to search in
     enum search_operators op;  //!< search operator
     sds value;                 //!< value to match
-    time_t value_time;         //!< time value to match
+    int64_t value_i;           //!< integer value to match
     pcre2_code *re_compiled;   //!< compiled regex if operator is a regex
 };
 
@@ -68,47 +76,12 @@ static bool cmp_regex(pcre2_code *re_compiled, const char *value);
  */
 
 /**
- * Searches for a string in mpd tag values
- * @param song pointer to mpd song struct
- * @param searchstr string to search for
- * @param tagcols tags to search
- * @return true if searchstr was found else false
- */
-bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols) {
-    if (sdslen(searchstr) == 0) {
-        return true;
-    }
-    bool rc = false;
-    if (tagcols->len == 0) {
-        //fallback to filename if no tags are enabled
-        sds filename = sdsnew(mpd_song_get_uri(song));
-        basename_uri(filename);
-        if (utf8casestr(filename, searchstr) != NULL) {
-            rc = true;
-        }
-        FREE_SDS(filename);
-        return rc;
-    }
-    for (unsigned i = 0; i < tagcols->len; i++) {
-        const char *value;
-        unsigned idx = 0;
-        while ((value = mpd_song_get_tag(song, tagcols->tags[i], idx)) != NULL) {
-            if (utf8casestr(value, searchstr) != NULL) {
-                rc = true;
-                break;
-            }
-            idx++;
-        }
-    }
-    return rc;
-}
-
-/**
  * Parses a mpd search expression
  * @param expression mpd search expression
+ * @param type type of struct for the search expression
  * @return list of the expression
  */
-struct t_list *parse_search_expression_to_list(const char *expression) {
+struct t_list *parse_search_expression_to_list(const char *expression, enum search_type type) {
     struct t_list *expr_list = list_new();
     int count = 0;
     sds *tokens = sdssplitlen(expression, (ssize_t)strlen(expression), ") AND (", 7, &count);
@@ -136,31 +109,45 @@ struct t_list *parse_search_expression_to_list(const char *expression) {
             free_search_expression(expr);
             break;
         }
-        expr->tag = mpd_tag_name_parse(tag);
-        if (expr->tag == MPD_TAG_UNKNOWN) {
-            if (strcmp(tag, "any") == 0) {
-                expr->tag = SEARCH_FILTER_ANY_TAG;
+        if (type == SEARCH_TYPE_SONG) {
+            expr->tag = mpd_tag_name_parse(tag);
+            if (expr->tag == MPD_TAG_UNKNOWN) {
+                if (strcmp(tag, "any") == 0) {
+                    expr->tag = SEARCH_FILTER_ANY_TAG;
+                }
+                else if (strcmp(tag, "modified-since") == 0) {
+                    expr->tag = SEARCH_FILTER_MODIFIED_SINCE;
+                }
+                else if (strcmp(tag, "added-since") == 0) {
+                    expr->tag = SEARCH_FILTER_ADDED_SINCE;
+                }
+                else if (strcmp(tag, "file") == 0) {
+                    expr->tag = SEARCH_FILTER_FILE;
+                }
+                else if (strcmp(tag, "bitrate") == 0) {
+                    expr->tag = SEARCH_FILTER_BITRATE;
+                }
+                else {
+                    MYMPD_LOG_ERROR(NULL, "Can not parse search expression, invalid tag");
+                    free_search_expression(expr);
+                    break;
+                }
             }
-            else if (strcmp(tag, "modified-since") == 0) {
-                expr->tag = SEARCH_FILTER_MODIFIED_SINCE;
-            }
-            else if (strcmp(tag, "added-since") == 0) {
-                expr->tag = SEARCH_FILTER_ADDED_SINCE;
-            }
-            else if (strcmp(tag, "file") == 0) {
-                expr->tag = SEARCH_FILTER_FILE;
-            }
-            else {
-                MYMPD_LOG_ERROR(NULL, "Can not parse search expression, invalid tag");
-                free_search_expression(expr);
-                break;
+        }
+        else {
+            expr->tag = webradio_tag_name_parse(tag);
+            if (expr->tag == WEBRADIO_TAG_UNKNOWN) {
+                if (strcmp(tag, "any") == 0) {
+                    expr->tag = SEARCH_FILTER_ANY_TAG;
+                }
             }
         }
         //skip space
         p++;
         //operator
         if (expr->tag == SEARCH_FILTER_MODIFIED_SINCE ||
-            expr->tag == SEARCH_FILTER_ADDED_SINCE)
+            expr->tag == SEARCH_FILTER_ADDED_SINCE ||
+            expr->tag == SEARCH_FILTER_BITRATE)
         {
             expr->op = SEARCH_OP_NEWER;
         }
@@ -214,11 +201,20 @@ struct t_list *parse_search_expression_to_list(const char *expression) {
                 expr->re_compiled = compile_regex(expr->value);
             }
             else if (expr->op == SEARCH_OP_NEWER) {
-                expr->value_time = parse_date(expr->value);
-                if (expr->value_time == 0) {
-                    MYMPD_LOG_ERROR(NULL, "Can not parse search expression, invalid date");
-                    free_search_expression(expr);
-                    break;
+                if (expr->tag == SEARCH_FILTER_BITRATE) {
+                    if (str2int64(&expr->value_i, expr->value) != STR2INT_SUCCESS) {
+                        MYMPD_LOG_ERROR(NULL, "Can not parse search expression, invalid number");
+                        free_search_expression(expr);
+                        break;
+                    }
+                }
+                else {
+                    expr->value_i = parse_date(expr->value);
+                    if (expr->value_i == 0) {
+                        MYMPD_LOG_ERROR(NULL, "Can not parse search expression, invalid date");
+                        free_search_expression(expr);
+                        break;
+                    }
                 }
             }
             list_push(expr_list, "", 0, NULL, expr);
@@ -239,6 +235,7 @@ struct t_list *parse_search_expression_to_list(const char *expression) {
 /**
  * Frees the search expression list
  * @param expr_list pointer to the list
+ * @return NULL
  */
 void *free_search_expression_list(struct t_list *expr_list) {
     if (expr_list == NULL) {
@@ -248,25 +245,25 @@ void *free_search_expression_list(struct t_list *expr_list) {
 }
 
 /**
- * Searches for a string in mpd tag values
+ * Implements search expressions for mpd songs.
  * @param song pointer to mpd song struct
  * @param expr_list expression list returned by parse_search_expression
- * @param tag_types tags for special "any" tag in expression
+ * @param any_tag_types tags for special "any" tag in expression
  * @return expression result
  */
-bool search_song_expression(const struct mpd_song *song, const struct t_list *expr_list, const struct t_tags *tag_types) {
-    struct t_tags one_tag;
+bool search_expression_song(const struct mpd_song *song, const struct t_list *expr_list, const struct t_mpd_tags *any_tag_types) {
+    struct t_mpd_tags one_tag;
     one_tag.len = 1;
     struct t_list_node *current = expr_list->head;
     while (current != NULL) {
         struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
         if (expr->tag == SEARCH_FILTER_MODIFIED_SINCE) {
-            if (expr->value_time > mpd_song_get_last_modified(song)) {
+            if (expr->value_i > mpd_song_get_last_modified(song)) {
                 return false;
             }
         }
         else if (expr->tag == SEARCH_FILTER_ADDED_SINCE) {
-            if (expr->value_time > mpd_song_get_added(song)) {
+            if (expr->value_i > mpd_song_get_added(song)) {
                 return false;
             }
         }
@@ -277,9 +274,9 @@ bool search_song_expression(const struct mpd_song *song, const struct t_list *ex
         }
         else {
             one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
-            const struct t_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
-                ? tag_types  //any - use all browse tags
-                : &one_tag;  //use only selected tag
+            const struct t_mpd_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
+                ? any_tag_types  //any - use provided tags
+                : &one_tag;      //use only selected tag
 
             bool rc = false;
             for (size_t i = 0; i < tags->len; i++) {
@@ -337,12 +334,101 @@ bool search_song_expression(const struct mpd_song *song, const struct t_list *ex
 }
 
 /**
+ * Implements search expressions for webradios.
+ * @param webradio pointer to webradio struct
+ * @param expr_list expression list returned by parse_search_expression
+ * @param any_tag_types tags for special "any" tag in expression
+ * @return expression result
+ */
+bool search_expression_webradio(const struct t_webradio_data *webradio, const struct t_list *expr_list, const struct t_webradio_tags *any_tag_types) {
+    struct t_webradio_tags one_tag;
+    one_tag.len = 1;
+    struct t_list_node *current = expr_list->head;
+    while (current != NULL) {
+        struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
+        if (expr->tag == SEARCH_FILTER_BITRATE) {
+            struct t_list_node *uris = webradio->uris.head;
+            bool rc = false;
+            while (uris != NULL) {
+                if (expr->value_i > uris->value_i) {
+                    rc = true;
+                    break;
+                }
+                uris = uris->next;
+            }
+            if (rc == false) {
+                return false;
+            }
+        }
+        else {
+            one_tag.tags[0] = (enum webradio_tag_type)expr->tag;
+            const struct t_webradio_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
+                ? any_tag_types  //any - use provided tags
+                : &one_tag;      //use only selected tag
+
+            bool rc = false;
+            for (size_t i = 0; i < tags->len; i++) {
+                rc = true;
+                unsigned j = 0;
+                const char *value = NULL;
+                while ((value = webradio_get_tag(webradio, tags->tags[i], j)) != NULL) {
+                    j++;
+                    if ((expr->op == SEARCH_OP_CONTAINS && utf8casestr(value, expr->value) == NULL) ||
+                        (expr->op == SEARCH_OP_STARTS_WITH && utf8ncasecmp(expr->value, value, sdslen(expr->value)) != 0) ||
+                        (expr->op == SEARCH_OP_EQUAL && utf8casecmp(value, expr->value) != 0) ||
+                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value) == false))
+                    {
+                        //expression does not match
+                        rc = false;
+                    }
+                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && utf8casecmp(value, expr->value) == 0) ||
+                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value) == true))
+                    {
+                        //negated match operator - exit instantly
+                        rc = false;
+                        break;
+                    }
+                    else {
+                        //tag value matched
+                        rc = true;
+                        if (expr->op != SEARCH_OP_NOT_EQUAL &&
+                            expr->op != SEARCH_OP_NOT_REGEX)
+                        {
+                            //exit only for positive match operators
+                            break;
+                        }
+                    }
+                }
+                if (j == 0) {
+                    //no tag value found
+                    rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
+                        ? true
+                        : false;
+                }
+                if (rc == true) {
+                    //exit on first tag value match
+                    break;
+                }
+            }
+            if (rc == false) {
+                //exit on first expression mismatch
+                return false;
+            }
+        }
+        current = current->next;
+    }
+    //complete expression has matched
+    return true;
+}
+
+/**
  * Private functions
  */
 
 /**
  * Frees the t_search_expression struct
  * @param expr pointer to t_search_expression struct
+ * @return NULL
  */
 void *free_search_expression(struct t_search_expression *expr) {
     FREE_SDS(expr->value);

@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+/*! \file
+ * \brief MPD sticker functions
+ */
+
 #ifndef MYMPD_MPD_CLIENT_STICKERDB_H
 #define MYMPD_MPD_CLIENT_STICKERDB_H
 
