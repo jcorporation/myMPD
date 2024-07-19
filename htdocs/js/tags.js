@@ -467,6 +467,9 @@ function getMBtagLink(tag, value) {
         case 'MUSICBRAINZ_TRACKID':
             MBentity = 'recording';
             break;
+        case 'MUSICBRAINZ_WORKID':
+            MBentity = 'work';
+            break;
         case 'MUSICBRAINZ_RELEASEGROUPID':
             MBentity = 'release-group';
             break;
