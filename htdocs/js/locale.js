@@ -43,7 +43,7 @@ function tn(phrase, data) {
 /*debug*/    }
 
     //fallback if phrase is not translated
-    if (result === undefined) {
+    if (result === undefined || result === '') {
         result = phrasesDefault[phrase] !== undefined ? phrasesDefault[phrase] : phrase;
     }
     //check for smartCount
