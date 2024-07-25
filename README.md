@@ -45,6 +45,16 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 
 To use all myMPD functions you should use the latest stable MPD version.
 
+## Scripts to add functionality
+
+The [mympd-scripts](https://github.com/jcorporation/mympd-scripts) repository provides many script to enhance and add features to myMPD.
+
+- Scrobbling to Last.fm, Maloja or ListenBrainz
+- Fetch albumart or tagart from fanart.tv and OpenOpus
+- Fetch lyrics
+- Import webradios from [RadioBrowser](https://www.radio-browser.info/)
+- and many more
+
 ## Documentation
 
 For information on installation and configuration, see the [myMPD documentation](https://jcorporation.github.io/myMPD/)
