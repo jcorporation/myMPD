@@ -311,6 +311,7 @@ struct set_mg_user_data_request {
  */
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
 const char *get_cmd_id_method_name(enum mympd_cmd_ids cmd_id);
+bool is_mpd_disconnected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_script_api_method(enum mympd_cmd_ids cmd_id);

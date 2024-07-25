@@ -119,10 +119,10 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
         struct t_work_request *request)
 {
     if (request != NULL) {
-        if (request->cmd_id == MYMPD_API_SETTINGS_GET &&
+        if (is_mpd_disconnected_api_method(request->cmd_id) == true &&
             partition_state->conn_state != MPD_CONNECTED)
         {
-            // Handle get settings request if MPD is not connected
+            // Handle request if MPD is not connected
             MYMPD_LOG_DEBUG(partition_state->name, "Handle request \"%s\"", get_cmd_id_method_name(request->cmd_id));
             mympd_api_handler(mympd_state, partition_state, request);
             partition_state->waiting_events &= ~(unsigned)PFD_TYPE_QUEUE;

@@ -123,6 +123,21 @@ bool is_script_api_method(enum mympd_cmd_ids cmd_id) {
 }
 
 /**
+ * Defines methods that should be handled if MPD is disconnected.
+ * @param cmd_id myMPD API method
+ * @return true if method works with no mpd connection, else false
+ */
+bool is_mpd_disconnected_api_method(enum mympd_cmd_ids cmd_id) {
+    switch(cmd_id) {
+        case MYMPD_API_SETTINGS_GET:
+        case MYMPD_API_CONNECTION_SAVE:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/**
  * Defines methods that do not require mpd features in the mympd_api thread.
  * @param cmd_id myMPD API method
  * @return true if method works with no mpd connection, else false
@@ -137,7 +152,6 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_CACHES_CREATE:
         case MYMPD_API_CACHE_DISK_CLEAR:
         case MYMPD_API_CACHE_DISK_CROP:
-        case MYMPD_API_CONNECTION_SAVE:
         case MYMPD_API_HOME_ICON_GET:
         case MYMPD_API_HOME_ICON_LIST:
         case MYMPD_API_HOME_ICON_MOVE:
