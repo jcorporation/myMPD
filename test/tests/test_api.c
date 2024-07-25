@@ -37,11 +37,11 @@ UTEST(api, test_is_public_api_method) {
     ASSERT_FALSE(rc);
 }
 
-UTEST(api, test_is_mympd_only_api_method) {
-    bool rc = is_mympd_only_api_method(MYMPD_API_CONNECTION_SAVE);
+UTEST(api, test_is_mpd_disconnected_api_method) {
+    bool rc = is_mpd_disconnected_api_method(MYMPD_API_CONNECTION_SAVE);
     ASSERT_TRUE(rc);
 
-    rc = is_mympd_only_api_method(MYMPD_API_SETTINGS_SET);
+    rc = is_mpd_disconnected_api_method(MYMPD_API_SETTINGS_SET);
     ASSERT_FALSE(rc);
 }
 
