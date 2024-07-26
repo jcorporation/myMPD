@@ -20,6 +20,7 @@
  *                                            #MPD_TAG_LOCATION.
  * @since libmpdclient 2.21 added support for #MPD_TAG_MOOD,
  *                                            #MPD_TAG_TITLE_SORT.
+ * @since libmpdclient 2.23 added support for #MPD_TAG_SHOWMOVEMENT.
  */
 enum mpd_tag_type
 {
@@ -69,6 +70,7 @@ enum mpd_tag_type
 	MPD_TAG_MOOD,
 	MPD_TAG_TITLE_SORT,
 	MPD_TAG_MUSICBRAINZ_RELEASEGROUPID,
+	MPD_TAG_SHOWMOVEMENT,
 
 	/* IMPORTANT: the ordering of tag types above must be
 	   retained, or else the libmpdclient ABI breaks */
