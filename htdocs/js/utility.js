@@ -148,6 +148,19 @@ function arrayToLines(a) {
 }
 
 /**
+ * Parses a comma separated string to an array
+ * @param {string} str string to parse
+ * @returns {Array}  Parsed string as array
+ */
+function stringToArray(str) {
+    const a = str.split(/,/);
+    for (let i = 0, j=a.length; i < j; i++) {
+        a[i] = a[i].trim();
+    }
+    return a;
+}
+
+/**
  * Escape a MPD filter value
  * @param {string} str value to escape
  * @returns {string} escaped value

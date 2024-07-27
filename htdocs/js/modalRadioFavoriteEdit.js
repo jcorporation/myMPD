@@ -55,11 +55,11 @@ function showEditRadioFavorite(obj) {
 
     elGetById('modalRadioFavoriteEditNameInput').value = obj.result.Name;
     elGetById('modalRadioFavoriteEditStreamUriInput').value = obj.result.StreamUri;
-    elGetById('modalRadioFavoriteEditGenresInput').value = obj.result.Genres;
+    elGetById('modalRadioFavoriteEditGenresInput').value = joinArray(obj.result.Genres);
     elGetById('modalRadioFavoriteEditHomepageInput').value = obj.result.Homepage;
     elGetById('modalRadioFavoriteEditCountryInput').value = obj.result.Country;
     elGetById('modalRadioFavoriteEditRegionInput').value = obj.result.Region;
-    elGetById('modalRadioFavoriteEditLanguagesInput').value = obj.result.Languages;
+    elGetById('modalRadioFavoriteEditLanguagesInput').value = joinArray(obj.result.Languages);
     elGetById('modalRadioFavoriteEditCodecInput').value = obj.result.Codec;
     elGetById('modalRadioFavoriteEditBitrateInput').value = obj.result.Bitrate;
     elGetById('modalRadioFavoriteEditDescriptionInput').value = obj.result.Description;
@@ -93,12 +93,12 @@ function saveRadioFavorite(target) {
         "name": elGetById('modalRadioFavoriteEditNameInput').value,
         "oldName": getDataId('modalRadioFavoriteEdit', "oldName"),
         "streamUri": elGetById('modalRadioFavoriteEditStreamUriInput').value,
-        "genres": elGetById('modalRadioFavoriteEditGenresInput').value.split("."),
+        "genres": stringToArray(elGetById('modalRadioFavoriteEditGenresInput').value),
         "image": elGetById('modalRadioFavoriteEditImageInput').value,
         "homepage": elGetById('modalRadioFavoriteEditHomepageInput').value,
         "country": elGetById('modalRadioFavoriteEditCountryInput').value,
         "region": elGetById('modalRadioFavoriteEditRegionInput').value,
-        "languages": elGetById('modalRadioFavoriteEditLanguagesInput').value.split("."),
+        "languages": stringToArray(elGetById('modalRadioFavoriteEditLanguagesInput').value),
         "codec": elGetById('modalRadioFavoriteEditCodecInput').value,
         "bitrate": Number(elGetById('modalRadioFavoriteEditBitrateInput').value),
         "description": elGetById('modalRadioFavoriteEditDescriptionInput').value,

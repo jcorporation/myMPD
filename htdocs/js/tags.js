@@ -389,14 +389,14 @@ function printValue(key, value) {
             return span;
         }
         case 'Genre':
+        case 'Genres':
             if (typeof value === 'string') {
                 return document.createTextNode(value);
             }
             //multi value tags - return comma separated
             return document.createTextNode(
-                value.join(', ')
+                joinArray(value)
             );
-        case 'homepage':
         case 'Homepage':
         case 'StreamUri':
             //webradios
@@ -407,7 +407,7 @@ function printValue(key, value) {
                 "href": value, "rel": "noreferrer", "target": "_blank"}, value);
         case 'Languages':
             return document.createTextNode(
-                value.join(', ')
+                joinArray(value)
             );
         case 'Bitrate':
             return document.createTextNode(value + ' ' + tn('kbit'));
