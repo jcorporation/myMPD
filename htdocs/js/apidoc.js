@@ -166,12 +166,12 @@ const APIparams = {
     },
     "albumids": {
         "type": APItypes.array,
-        "example": "[\"17515028-bd97-47f5-ba1c-38504141af82\"]",
+        "example": "[\"17515028-bd97-47f5-ba1c-38504141af82\",\"58d80594e8772a61f2f5cf2e96b490c9d10d4bf9\"]",
         "desc": "myMPD album ids"
     },
     "albumid": {
         "type": APItypes.string,
-        "example": "17515028-bd97-47f5-ba1c-38504141af82",
+        "example": "58d80594e8772a61f2f5cf2e96b490c9d10d4bf9",
         "desc": "myMPD album id"
     },
     "disc": {
