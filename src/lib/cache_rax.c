@@ -52,6 +52,7 @@ bool cache_free(struct t_cache *cache) {
  * @return true on success, else false
  */
 bool cache_get_read_lock(struct t_cache *cache) {
+    MYMPD_LOG_DEBUG(NULL, "Waiting for read lock");
     int rc = pthread_rwlock_rdlock(&cache->rwlock);
     if (rc == 0) {
         return true;
@@ -67,6 +68,7 @@ bool cache_get_read_lock(struct t_cache *cache) {
  * @return true on success, else false
  */
 bool cache_get_write_lock(struct t_cache *cache) {
+    MYMPD_LOG_DEBUG(NULL, "Waiting for rw lock");
     int rc = pthread_rwlock_wrlock(&cache->rwlock);
     if (rc == 0) {
         return true;
@@ -82,6 +84,7 @@ bool cache_get_write_lock(struct t_cache *cache) {
  * @return true on success, else false
  */
 bool cache_release_lock(struct t_cache *cache) {
+    MYMPD_LOG_DEBUG(NULL, "Releasing lock");
     int rc = pthread_rwlock_unlock(&cache->rwlock);
     if (rc == 0) {
         return true;

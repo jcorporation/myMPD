@@ -339,6 +339,7 @@ void webradios_free(struct t_webradios *webradios) {
  * @return true on success, else false
  */
 bool webradios_get_read_lock(struct t_webradios *webradios) {
+    MYMPD_LOG_DEBUG(NULL, "Waiting for read lock");
     int rc = pthread_rwlock_rdlock(&webradios->rwlock);
     if (rc == 0) {
         return true;
@@ -354,6 +355,7 @@ bool webradios_get_read_lock(struct t_webradios *webradios) {
  * @return true on success, else false
  */
 bool webradios_get_write_lock(struct t_webradios *webradios) {
+    MYMPD_LOG_DEBUG(NULL, "Waiting for rw lock");
     int rc = pthread_rwlock_wrlock(&webradios->rwlock);
     if (rc == 0) {
         return true;
@@ -369,6 +371,7 @@ bool webradios_get_write_lock(struct t_webradios *webradios) {
  * @return true on success, else false
  */
 bool webradios_release_lock(struct t_webradios *webradios) {
+    MYMPD_LOG_DEBUG(NULL, "Releasing lock");
     int rc = pthread_rwlock_unlock(&webradios->rwlock);
     if (rc == 0) {
         return true;
