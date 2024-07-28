@@ -126,6 +126,7 @@ function saveRadioFavoriteCheckError(obj) {
 function checkWebradioDb() {
     const streamUri = elGetById('modalRadioFavoriteEditStreamUriInput').value;
     if (streamUri !== '') {
+        btnWaitingId('modalRadioFavoriteEditCheckWebradiodbBtn', true);
         sendAPI('MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI', {
             "uri": elGetById('modalRadioFavoriteEditStreamUriInput').value
         }, function(obj) {
@@ -156,6 +157,7 @@ function checkWebradioDb() {
                 elHideId('modalRadioFavoriteEditUpdateFromWebradiodbBtn');
                 elGetById('webradiodbCheckState').textContent = tn('Uri not found in WebradioDB');
             }
+            btnWaitingId('modalRadioFavoriteEditCheckWebradiodbBtn', false);
         }, true);
     }
     else {
@@ -165,7 +167,6 @@ function checkWebradioDb() {
         elShowId('modalRadioFavoriteEditCheckWebradiodbBtn');
         elGetById('webradiodbCheckState').textContent = tn('Empty uri');
     }
-    btnWaitingId('modalRadioFavoriteEditCheckWebradiodbBtn', false);
 }
 
 /**
@@ -181,7 +182,12 @@ function compareWebradioDb(obj) {
             continue;
         }
         v1 += elGetById('modalRadioFavoriteEdit' + v + 'Input').value;
-        v2 += obj[v];
+        if (typeof obj[v] === 'object') {
+            v2 += joinArray(obj[v]);
+        }
+        else {
+            v2 += obj[v];
+        }
     }
     return v1 === v2;
 }

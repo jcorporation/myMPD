@@ -65,7 +65,8 @@ function parseWebradiodbDetail(obj) {
         for (const name of alternateStreams) {
             const p = elCreateTextTn('p', {"class": ["pb-0"]}, 'Webradioformat',
                 {"codec": obj.result.alternativeStreams[name].Codec, "bitrate": obj.result.alternativeStreams[name].Bitrate});
-            const btn = elCreateText('button', {"class": ["btn", "btn-sm", "btn-secondary", "mi", "mi-sm", "ms-2"]}, 'favorite');
+            const btn = elCreateText('button', {"class": ["btn", "btn-sm", "btn-secondary", "mi", "mi-sm", "ms-2", "float-end"],
+                "title":tn('Add to favorites'),"data-title-phrase": "Add to favorites"}, 'favorite');
             p.appendChild(btn);
             td.appendChild(p);
             btn.addEventListener('click', function(event) {
