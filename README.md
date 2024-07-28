@@ -26,7 +26,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - Jukebox mode
 - MPD mount and neighbors support
 - Customizable home screen, navigation bar and footer
-- [WebradioDB](https://jcorporation.github.io/webradiodb/) integration
+- Webradio Favorites and [WebradioDB](https://jcorporation.github.io/webradiodb/)
 - [Smart playlists and saved searches](https://jcorporation.github.io/myMPD/references/smart-playlists)
 - Centralized playback statistics and song voting through MPD stickers
 - [Albumart: embedded and image per folder](https://jcorporation.github.io/myMPD/references/pictures)
