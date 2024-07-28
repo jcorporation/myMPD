@@ -112,7 +112,7 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
                 buffer= sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatlen(buffer, "{", 1);
-            buffer = mympd_api_webradio_print(webradio_data, buffer);
+            buffer = mympd_api_webradio_print(webradio_data, buffer, NULL);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entities_found++;
@@ -153,7 +153,7 @@ sds mympd_api_webradio_from_uri_tojson(struct t_mympd_state *mympd_state, const 
     struct t_webradio_data *webradio = webradio_by_uri(mympd_state->webradio_favorites, mympd_state->webradiodb, uri);
     if (webradio != NULL) {
         buffer = sdscatlen(buffer, "{", 1);
-        buffer = mympd_api_webradio_print(webradio, buffer);
+        buffer = mympd_api_webradio_print(webradio, buffer, NULL);
         buffer = sdscatlen(buffer, "}", 1);
     }
     return buffer;
@@ -163,9 +163,10 @@ sds mympd_api_webradio_from_uri_tojson(struct t_mympd_state *mympd_state, const 
  * Prints a webradio entry
  * @param webradio webradio data struct to print
  * @param buffer already allocated buffer to append the data
+ * @param uri Main uri for the entry
  * @return pointer to buffer
  */
-sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
+sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer, const char *uri) {
     buffer = tojson_sds(buffer, "Name", webradio->name, true);
     if (webradio->type == WEBRADIO_WEBRADIODB) {
         sds image = sdscatfmt(sdsempty(), "%s%s", WEBRADIODB_URI_PICS, webradio->image);
@@ -181,27 +182,35 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer) {
     buffer = tojson_sds(buffer, "Description", webradio->description, true);
     buffer = tojson_time(buffer, "Added", webradio->added, true);
     buffer = tojson_time(buffer, "Last-Modified", webradio->last_modified, true);
-    struct t_list_node *current = webradio->uris.head;
-    buffer = tojson_sds(buffer, "StreamUri", current->key, true);
-    buffer = tojson_sds(buffer, "Codec", current->value_p, true);
-    buffer = tojson_int64(buffer, "Bitrate", current->value_i, true);
+    struct t_list_node *main_uri = NULL;
+    if (uri != NULL) {
+        main_uri= list_get_node(&webradio->uris, uri);
+    }
+    if (main_uri == NULL) {
+        main_uri = webradio->uris.head;
+    }
+    buffer = tojson_sds(buffer, "StreamUri", main_uri->key, true);
+    buffer = tojson_sds(buffer, "Codec", main_uri->value_p, true);
+    buffer = tojson_int64(buffer, "Bitrate", main_uri->value_i, true);
     buffer = sdscat(buffer, "\"alternativeStreams\":{");
-    current = current->next;
+    struct t_list_node *current = webradio->uris.head;
     unsigned i = 0;
     sds key = sdsempty();
     while (current != NULL) {
-        if (i++) {
-            buffer = sdscatlen(buffer, ",", 1);
+        if (current->key != main_uri->key) {
+            if (i++) {
+                buffer = sdscatlen(buffer, ",", 1);
+            }
+            key = sdscatsds(key, current->key);
+            sanitize_filename(key);
+            buffer = sds_catjson(buffer, key, sdslen(key));
+            sdsclear(key);
+            buffer = sdscatlen(buffer, ":{", 2);
+            buffer = tojson_sds(buffer, "StreamUri", current->key, true);
+            buffer = tojson_sds(buffer, "Codec", current->value_p, true);
+            buffer = tojson_int64(buffer, "Bitrate", current->value_i, false);
+            buffer = sdscatlen(buffer, "}", 1);
         }
-        key = sdscatsds(key, current->key);
-        sanitize_filename(key);
-        buffer = sds_catjson(buffer, key, sdslen(key));
-        sdsclear(key);
-        buffer = sdscatlen(buffer, ":{", 2);
-        buffer = tojson_sds(buffer, "StreamUri", current->key, true);
-        buffer = tojson_sds(buffer, "Codec", current->value_p, true);
-        buffer = tojson_int64(buffer, "Bitrate", current->value_i, false);
-        buffer = sdscatlen(buffer, "}", 1);
         current = current->next;
     }
     FREE_SDS(key);
@@ -233,7 +242,7 @@ sds mympd_api_webradio_radio_get_by_name(struct t_webradios *webradios, sds buff
     }
     struct t_webradio_data *webradio = (struct t_webradio_data *)data;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = mympd_api_webradio_print(webradio, buffer);
+    buffer = mympd_api_webradio_print(webradio, buffer, NULL);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }
@@ -257,7 +266,7 @@ sds mympd_api_webradio_radio_get_by_uri(struct t_webradios *webradios, sds buffe
     }
     struct t_webradio_data *webradio = (struct t_webradio_data *)data;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = mympd_api_webradio_print(webradio, buffer);
+    buffer = mympd_api_webradio_print(webradio, buffer, uri);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }
