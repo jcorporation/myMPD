@@ -419,7 +419,7 @@ bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradi
         mpack_write_kv(&writer, "Region", data->region);
         mpack_write_kv(&writer, "Description", data->description);
         mpack_write_kv(&writer, "Added", (int64_t)data->added);
-        mpack_write_kv(&writer, "Last-Modified", (int64_t)data->added);
+        mpack_write_kv(&writer, "Last-Modified", (int64_t)data->last_modified);
         mpack_write_cstr(&writer, "Genres");
         mpack_build_array(&writer);
         current = data->genres.head;
