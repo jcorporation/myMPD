@@ -62,6 +62,8 @@ bool webradio_favorite_import(struct t_mympd_state *mympd_state) {
         struct t_webradio_data *data = m3u_to_favorite(filename);
         if (data != NULL) {
             MYMPD_LOG_INFO(NULL, "Importing webradio favorite: %s", data->name);
+            data->last_modified = get_mtime(filename);
+            data->added = data->last_modified;
             if (mympd_api_webradio_favorite_save(mympd_state->webradio_favorites, data, old_name) == true) {
                 rm_file(filename);
             }
