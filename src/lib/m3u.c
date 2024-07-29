@@ -187,9 +187,9 @@ static void populate_field(struct t_webradio_data *data, sds field, sds value) {
         else {
             list_push(&data->languages, value, 0, NULL, NULL);
         }
-        sdsfreesplitres(values, count);        
+        sdsfreesplitres(values, count);
     }
-    else if (strcmp(field, "GENRE") == 0) {
+    else if (strcmp(field, "EXTGENRE") == 0) {
         int count = 0;
         sds *values = sds_split_comma_trim(value, &count);
         if (count > 0) {
