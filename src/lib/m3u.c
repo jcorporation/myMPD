@@ -177,10 +177,30 @@ static void populate_field(struct t_webradio_data *data, sds field, sds value) {
         data->description = sdscat(data->description, value);
     }
     else if (strcmp(field, "LANGUAGE") == 0) {
-        list_push(&data->languages, value, 0, NULL, NULL);
+        int count = 0;
+        sds *values = sds_split_comma_trim(value, &count);
+        if (count > 0) {
+            for (int i = 0; i < count; i++) {
+                list_push(&data->languages, values[i], 0, NULL, NULL);
+            }
+        }
+        else {
+            list_push(&data->languages, value, 0, NULL, NULL);
+        }
+        sdsfreesplitres(values, count);        
     }
     else if (strcmp(field, "GENRE") == 0) {
-        list_push(&data->genres, value, 0, NULL, NULL);
+        int count = 0;
+        sds *values = sds_split_comma_trim(value, &count);
+        if (count > 0) {
+            for (int i = 0; i < count; i++) {
+                list_push(&data->genres, values[i], 0, NULL, NULL);
+            }
+        }
+        else {
+            list_push(&data->genres, value, 0, NULL, NULL);
+        }
+        sdsfreesplitres(values, count);
     }
     else if (strcmp(field, "CODEC") == 0) {
         data->uris.head->value_p = sdscatsds(data->uris.head->value_p, value);
