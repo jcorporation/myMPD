@@ -65,6 +65,7 @@ function showEditRadioFavorite(obj) {
     elGetById('modalRadioFavoriteEditDescriptionInput').value = obj.result.Description;
 
     setDataId('modalRadioFavoriteEdit', "oldName", obj.result.Name);
+    setDataId('modalRadioFavoriteEdit', 'StreamUriOld', obj.result.StreamUri);
 
     const imageEl = elGetById('modalRadioFavoriteEditImageInput');
     getImageList(imageEl, [], 'thumbs');
@@ -198,17 +199,26 @@ function compareWebradioDb(obj) {
  */
 //eslint-disable-next-line no-unused-vars
 function updateFromWebradioDb() {
+    btnWaitingId('modalRadioFavoriteEditUpdateFromWebradiodbBtn', true);
     sendAPI('MYMPD_API_WEBRADIODB_RADIO_GET_BY_URI', {
         "uri": elGetById('modalRadioFavoriteEditStreamUriInput').value
     }, function(obj) {
         for (const v of webradioFields) {
-            if (v === 'Added' || v === 'Last-Modified') {
-                continue;
+            if (obj.result) {
+                if (v === 'Added' || v === 'Last-Modified') {
+                    continue;
+                }
+                if (typeof obj.result[v] === 'object') {
+                    elGetById('modalRadioFavoriteEdit' + v + 'Input').value = joinArray(obj.result[v]);
+                }
+                else {
+                    elGetById('modalRadioFavoriteEdit' + v + 'Input').value = obj.result[v];
+                }
             }
-            elGetById('modalRadioFavoriteEdit' + v + 'Input').value = obj.result[v];
         }
         checkWebradioDb();
-    }, false);
+        btnWaitingId('modalRadioFavoriteEditUpdateFromWebradiodbBtn', false);
+    }, true);
 }
 
 /**
