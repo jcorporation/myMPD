@@ -10,7 +10,7 @@ This is a small bug fix release.
 
 ### Changelog
 
-- Fix: Delete variables with special charaters in key name
+- Fix: Delete variables with special characters in key name
 - Fix: Show errors in modal lists
 
 ***
