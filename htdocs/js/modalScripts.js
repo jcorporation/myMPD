@@ -368,6 +368,7 @@ function showListScripts() {
  * @returns {void}
  */
 function deleteScript(el, script) {
+    cleanupModalId('modalScripts');
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the script?', {"script": script}), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_SCRIPT_RM", {
             "script": script
@@ -381,7 +382,7 @@ function deleteScript(el, script) {
  * @returns {void}
  */
 function deleteScriptCheckError(obj) {
-    if (modalApply(obj) === true) {
+    if (modalListApply(obj) === true) {
         getScriptList(true);
     }
 }

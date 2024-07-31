@@ -100,8 +100,19 @@ function deletePartition(el, partition) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the partition?', {"partition": partition}), tn('Yes, delete it'), function() {
         sendAPIpartition("default", "MYMPD_API_PARTITION_RM", {
             "name": partition
-        }, savePartitionCheckError, true);
+        }, deletePartitionCheckError, true);
     });  
+}
+
+/**
+ * Handler for the MYMPD_API_PARTITION_RM jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function deletePartitionCheckError(obj) {
+    if (modalListApply(obj) === true) {
+        showListPartitions();
+    }
 }
 
 /**

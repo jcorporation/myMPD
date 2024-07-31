@@ -204,8 +204,19 @@ function deleteTrigger(el, id) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the trigger?'), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_TRIGGER_RM", {
             "id": id
-        }, saveTriggerCheckError, true);
+        }, deleteTriggerCheckError, true);
     });
+}
+
+/**
+ * Handler for the MYMPD_API_TRIGGER_SAVE jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function deleteTriggerCheckError(obj) {
+    if (modalListApply(obj) === true) {
+        showListTrigger();
+    }
 }
 
 /**

@@ -85,6 +85,7 @@ function showVariablesEdit(el, editVar) {
  * @returns {void}
  */
 function deleteVariables(key) {
+    cleanupModalId('modalVariables');
     sendAPI("MYMPD_API_SCRIPT_VAR_DELETE", {
         "key": key
     }, deleteVariablesCheckError, true);
@@ -96,7 +97,7 @@ function deleteVariables(key) {
  * @returns {void}
  */
 function deleteVariablesCheckError(obj) {
-    if (modalApply(obj) === true) {
+    if (modalListApply(obj) === true) {
         getVariablesList();
     }
 }
@@ -107,7 +108,7 @@ function deleteVariablesCheckError(obj) {
  */
 //eslint-disable-next-line no-unused-vars
 function setVariables() {
-    cleanupModalId('modalScripts');
+    cleanupModalId('modalVariables');
     sendAPI("MYMPD_API_SCRIPT_VAR_SET", {
         "key": elGetById('modalVariablesKeyInput').value,
         "value": elGetById('modalVariablesValueInput').value
@@ -120,7 +121,7 @@ function setVariables() {
  * @returns {void}
  */
 function setVariablesCheckError(obj) {
-    if (modalApply(obj) === true) {
+    if (modalListApply(obj) === true) {
         showVariablesList();
     }
 }

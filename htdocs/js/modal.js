@@ -62,6 +62,17 @@ function populateEntities(id, entities) {
     elGetById(id).value = arrayToLines(entities);
 }
 
+
+/**
+ * Handles the apply jsonrpc response for a list modal
+ * Shows the possible error and leaves the modal open
+ * @param {object} obj jsonrpc response
+ * @returns {boolean} true on close, else false
+ */
+function modalListApply(obj) {
+    return _modalClose(obj, false, false);
+}
+
 /**
  * Handles the apply jsonrpc response for a modal
  * Shows the possible error and leaves the modal open
@@ -69,7 +80,7 @@ function populateEntities(id, entities) {
  * @returns {boolean} true on close, else false
  */
 function modalApply(obj) {
-    return _modalClose(obj, false);
+    return _modalClose(obj, false, true);
 }
 
 /**
@@ -79,16 +90,17 @@ function modalApply(obj) {
  * @returns {boolean} true on close, else false
  */
 function modalClose(obj) {
-    return _modalClose(obj, true);
+    return _modalClose(obj, true, true);
 }
 
 /**
  * Handles the save/apply jsonrpc response for a modal
  * @param {object} obj jsonrpc response
- * @param {boolean} close close the modal if there is no error?
+ * @param {boolean} close Close the modal if there is no error?
+ * @param {boolean} isForm Highlight form element on error?
  * @returns {boolean} true on close, else false
  */
-function _modalClose(obj, close) {
+function _modalClose(obj, close, isForm) {
     const modal = getOpenModal();
     const modalId = modal.getAttribute('id');
     const spinnerEl = modal.querySelector('.spinner-border');
@@ -96,7 +108,9 @@ function _modalClose(obj, close) {
         btnWaiting(spinnerEl.parentNode, false);
     }
     if (obj.error) {
-        if (highlightInvalidInput(modalId, obj) === false) {
+        if (isForm === false ||
+            highlightInvalidInput(modalId, obj) === false)
+        {
             showModalAlert(obj);
         }
         return false;

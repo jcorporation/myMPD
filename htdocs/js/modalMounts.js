@@ -70,7 +70,18 @@ function unmountMount(mountPoint, target) {
     btnWaiting(target, true);
     sendAPI("MYMPD_API_MOUNT_UNMOUNT", {
         "mountPoint": mountPoint
-    }, mountMountCheckError, true);
+    }, mountUnmountCheckError, true);
+}
+
+/**
+ * Response handler for MYMPD_API_MOUNT_UNMOUNT
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function mountUnmountCheckError(obj) {
+    if (modalListApply(obj) === true) {
+        showListMounts();
+    }
 }
 
 /**

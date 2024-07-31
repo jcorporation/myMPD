@@ -72,8 +72,19 @@ function deleteTimer(el, timerid) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the timer?'), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_TIMER_RM", {
             "timerid": timerid
-        }, saveTimerCheckError, true);
+        }, deleteTimerCheckError, true);
     });
+}
+
+/**
+ * Handler for the MYMPD_API_TIMER_RM jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function deleteTimerCheckError(obj) {
+    if (modalListApply(obj) === true) {
+        showListTimer();
+    }
 }
 
 /**
