@@ -157,7 +157,7 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             break;
         }
         case MYMPD_API_SCRIPT_VAR_DELETE:
-            if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true) {
+            if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
                 rc = scripts_vars_delete(&scripts_state->var_list, sds_buf1);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, "Can't delete script variable");

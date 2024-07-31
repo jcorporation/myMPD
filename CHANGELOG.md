@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Delete variables with special charaters in key name
+
 ***
 
 ## myMPD 17.0.0 (2024-07-30)
