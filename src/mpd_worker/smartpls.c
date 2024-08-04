@@ -414,7 +414,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
         sort_op = MPD_STICKER_SORT_URI;
     }
 
-    struct t_list *add_list = stickerdb_find_stickers_sorted(mpd_worker_state->stickerdb,
+    struct t_list *add_list = stickerdb_find_stickers_sorted(mpd_worker_state->stickerdb, MPD_STICKER_TYPE_SONG,
         sticker, oper, value, sort_op, sort_desc, 0, max_entries);
     if (add_list == NULL) {
         MYMPD_LOG_ERROR(NULL, "Could not fetch stickers for \"%s\"", sticker);

@@ -88,7 +88,7 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
     if (partition_state->config->albums.mode == ALBUM_MODE_ADV &&
         partition_state->mpd_state->feat.stickers == true)
     {
-        stickers_last_played = stickerdb_find_stickers_by_name(stickerdb, "lastPlayed");
+        stickers_last_played = stickerdb_find_stickers_by_name(stickerdb, MPD_STICKER_TYPE_SONG, "lastPlayed");
     }
 
     //parse mpd search expression
@@ -191,10 +191,10 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
     rax *stickers_like = NULL;
     if (partition_state->mpd_state->feat.stickers == true) {
         MYMPD_LOG_DEBUG(partition_state->name, "Fetching lastPlayed stickers");
-        stickers_last_played = stickerdb_find_stickers_by_name(stickerdb, "lastPlayed");
+        stickers_last_played = stickerdb_find_stickers_by_name(stickerdb, MPD_STICKER_TYPE_SONG, "lastPlayed");
         if (constraints->ignore_hated == true) {
             MYMPD_LOG_DEBUG(partition_state->name, "Fetching stickers for hated songs");
-            stickers_like = stickerdb_find_stickers_by_name_value(stickerdb, "like", MPD_STICKER_OP_EQ, "0");
+            stickers_like = stickerdb_find_stickers_by_name_value(stickerdb, MPD_STICKER_TYPE_SONG, "like", MPD_STICKER_OP_EQ, "0");
         }
     }
 

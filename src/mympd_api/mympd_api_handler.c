@@ -88,7 +88,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     int int_buf2;
     bool bool_buf1;
     bool bool_buf2;
-    bool bool_buf3;
     bool rc;
     sds sds_buf0 = NULL;
     sds sds_buf1 = NULL;
@@ -763,33 +762,77 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         }
     // sticker
         case MYMPD_API_LIKE:
-            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
                 json_get_int(request->data, "$.params.like", STICKER_LIKE_MIN, STICKER_LIKE_MAX, &int_buf1, &parse_error) == true)
             {
-                rc = mympd_api_sticker_set_feedback(mympd_state->stickerdb, &mympd_state->trigger_list, partition_state->name, sds_buf1, FEEDBACK_LIKE, int_buf1, &error);
+                enum mpd_sticker_type type = mpd_sticker_type_name_parse(sds_buf2);
+                rc = mympd_api_sticker_set_feedback(mympd_state->stickerdb, &mympd_state->trigger_list, partition_state->name, type, sds_buf1, FEEDBACK_LIKE, int_buf1, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_STICKER, error);
             }
             break;
         case MYMPD_API_RATING:
-            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true &&
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
                 json_get_int(request->data, "$.params.rating", STICKER_RATING_MIN, STICKER_RATING_MAX, &int_buf1, &parse_error) == true)
             {
-                rc = mympd_api_sticker_set_feedback(mympd_state->stickerdb, &mympd_state->trigger_list, partition_state->name, sds_buf1, FEEDBACK_STAR, int_buf1, &error);
+                enum mpd_sticker_type type = mpd_sticker_type_name_parse(sds_buf2);
+                rc = mympd_api_sticker_set_feedback(mympd_state->stickerdb, &mympd_state->trigger_list, partition_state->name, type, sds_buf1, FEEDBACK_STAR, int_buf1, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_STICKER, error);
             }
             break;
         case INTERNAL_API_STICKER_FEATURES:
             if (json_get_bool(request->data, "$.params.sticker", &bool_buf1, &parse_error) == true &&
-                json_get_bool(request->data, "$.params.sticker_sort_window", &bool_buf2, &parse_error) == true &&
-                json_get_bool(request->data, "$.params.sticker_int", &bool_buf3, &parse_error) == true)
+                json_get_bool(request->data, "$.params.advsticker", &bool_buf2, &parse_error) == true)
             {
                 mympd_state->mpd_state->feat.stickers = bool_buf1;
-                mympd_state->mpd_state->feat.sticker_sort_window = bool_buf2;
-                mympd_state->mpd_state->feat.sticker_int = bool_buf3;
+                mympd_state->mpd_state->feat.advsticker = bool_buf2;
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
                 send_jsonrpc_event(JSONRPC_EVENT_UPDATE_OPTIONS, MPD_PARTITION_ALL);
+            }
+            break;
+        case MYMPD_API_STICKER_DELETE:
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
+                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true)
+            {
+                enum mpd_sticker_type type = mpd_sticker_type_name_parse(sds_buf2);
+                rc = stickerdb_remove(mympd_state->stickerdb, type, sds_buf1, sds_buf3);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_STICKER, "Failed to delete sticker");
+            }
+            break;
+        case MYMPD_API_STICKER_GET:
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
+                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true)
+            {
+                enum mpd_sticker_type type = mpd_sticker_type_name_parse(sds_buf2);
+                response->data = mympd_api_sticker_get(mympd_state->stickerdb, response->data, request->id,
+                        sds_buf1, type, sds_buf3);
+            }
+            break;
+        case MYMPD_API_STICKER_LIST:
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true)
+            {
+                enum mpd_sticker_type type = mpd_sticker_type_name_parse(sds_buf2);
+                response->data = mympd_api_sticker_list(mympd_state->stickerdb, response->data, request->id,
+                        sds_buf1, type);
+            }
+            break;
+        case MYMPD_API_STICKER_SET:
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
+                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.value", 0, NAME_LEN_MAX, &sds_buf4, vcb_isname, &parse_error) == true)
+            {
+                enum mpd_sticker_type type = mpd_sticker_type_name_parse(sds_buf2);
+                rc = stickerdb_set(mympd_state->stickerdb, type, sds_buf1, sds_buf3, sds_buf4);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_STICKER, error);
             }
             break;
     // queue

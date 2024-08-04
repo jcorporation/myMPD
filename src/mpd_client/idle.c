@@ -98,7 +98,7 @@ void mpd_client_scrobble(struct t_mympd_state *mympd_state, struct t_partition_s
     mympd_api_last_played_add_song(partition_state, mympd_state->last_played_count);
     // set stickers
     if (partition_state->mpd_state->feat.stickers == true) {
-        stickerdb_inc_play_count(mympd_state->stickerdb,
+        stickerdb_inc_play_count(mympd_state->stickerdb, MPD_STICKER_TYPE_SONG,
             partition_state->song_uri, partition_state->song_start_time);
     }
     // scrobble event
@@ -279,7 +279,7 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                             //10 seconds inaccuracy
                             elapsed = 0;
                         }
-                        stickerdb_set_elapsed(mympd_state->stickerdb, partition_state->song_uri, elapsed);
+                        stickerdb_set_elapsed(mympd_state->stickerdb, MPD_STICKER_TYPE_SONG, partition_state->song_uri, elapsed);
                     }
                     //get and put mpd state
                     buffer = mympd_api_status_get(partition_state, &mympd_state->album_cache, buffer, 0, RESPONSE_TYPE_JSONRPC_NOTIFY);
@@ -295,7 +295,7 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                         {
                             MYMPD_LOG_DEBUG(partition_state->name, "Song \"%s\" skipped", partition_state->last_song_uri);
                             if (partition_state->mpd_state->feat.stickers == true) {
-                                stickerdb_inc_skip_count(mympd_state->stickerdb, partition_state->last_song_uri);
+                                stickerdb_inc_skip_count(mympd_state->stickerdb, MPD_STICKER_TYPE_SONG, partition_state->last_song_uri);
                             }
                             partition_state->last_skipped_id = partition_state->last_song_id;
                             mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SKIPPED, partition_state->name, NULL);

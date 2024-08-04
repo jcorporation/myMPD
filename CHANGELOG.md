@@ -8,6 +8,14 @@ https://github.com/jcorporation/myMPD/
 
 Describe release here.
 
+### API changes
+
+- MYMPD_API_STICKER_GET: new
+- MYMPD_API_STICKER_DELETE: new
+- MYMPD_API_STICKER_LIST: new
+- MYMPD_API_STICKER_NAMES: new
+- MYMPD_API_STICKER_SET: new
+
 ### Changelog
 
 ***

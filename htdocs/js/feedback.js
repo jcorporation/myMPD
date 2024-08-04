@@ -44,7 +44,8 @@ function voteSongLike(el) {
     }
     sendAPI("MYMPD_API_LIKE", {
         "uri": uri,
-        "like": vote
+        "like": vote,
+        "type": "song"
     }, null, false);
 }
 
@@ -85,7 +86,8 @@ function voteSongRating(el) {
 
     sendAPI("MYMPD_API_RATING", {
         "uri": uri,
-        "rating": rating
+        "rating": rating,
+        "type": "song"
     }, null, false);
 }
 

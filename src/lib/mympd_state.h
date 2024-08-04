@@ -46,7 +46,7 @@ enum mpd_conn_states {
  * MPD feature flags
  */
 struct t_mpd_features {
-    bool advqueue;                 //!< mpd supports the prio filter / sort for queue and the save modes
+    bool advqueue;                 //!< mpd supports the prio filter / sort for queue and the save modes (MPD 0.24)
     bool albumart;                 //!< mpd supports the albumart command
     bool binarylimit;              //!< mpd supports the binarylimit command
     bool fingerprint;              //!< mpd supports the fingerprint command
@@ -65,8 +65,7 @@ struct t_mpd_features {
     bool starts_with;              //!< mpd supports starts_with filter expression
     bool pcre;                     //!< mpd supports pcre for filter expressions
     bool db_added;                 //!< mpd supports added attribute for songs
-    bool sticker_sort_window;      //!< mpd supports sticker sort and window api
-    bool sticker_int;              //!< mpd supports sticker value handling as integer
+    bool advsticker;               //!< mpd supports new sticker commands from MPD 0.24
     bool search_add_sort_window;   //!< mpd supports search and window for findadd/searchadd/searchaddpl
     bool listplaylist_range;       //!< mpd supports the listplaylist with range parameter
 };

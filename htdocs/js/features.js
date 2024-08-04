@@ -67,8 +67,7 @@ function setFeatures() {
         features.featLike = features.featStickers && settings.webuiSettings.feedback === 'like';
         features.featRating = features.featStickers && settings.webuiSettings.feedback === 'rating';
         features.featDbAdded = settings.features.featDbAdded;
-        features.featStickerSortWindow  = features.featStickers && settings.features.featStickerSortWindow;
-        features.featStickerInt  = features.featStickers && settings.features.featStickerInt;
+        features.featStickerAdv  = features.featStickers && settings.features.featStickerAdv;
     }
 }
 

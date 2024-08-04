@@ -1077,6 +1077,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat.library, true);
         buffer = tojson_bool(buffer, "featStickers", partition_state->mpd_state->feat.stickers, true);
         buffer = tojson_bool(buffer, "featStickersEnabled", partition_state->config->stickers, true);
+        buffer = tojson_bool(buffer, "featStickerAdv", partition_state->mpd_state->feat.advsticker, true);
         buffer = tojson_bool(buffer, "featFingerprint", partition_state->mpd_state->feat.fingerprint, true);
         buffer = tojson_bool(buffer, "featPartitions", partition_state->mpd_state->feat.partitions, true);
         buffer = tojson_bool(buffer, "featMounts", partition_state->mpd_state->feat.mount, true);
@@ -1090,8 +1091,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat.starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat.pcre, true);
         buffer = tojson_bool(buffer, "featDbAdded", partition_state->mpd_state->feat.db_added, true);
-        buffer = tojson_bool(buffer, "featStickerSortWindow", partition_state->mpd_state->feat.sticker_sort_window, true);
-        buffer = tojson_bool(buffer, "featStickerInt", partition_state->mpd_state->feat.sticker_int, true);
         buffer = tojson_bool(buffer, "featWebradioDB", partition_state->config->webradiodb, true);
     }
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);

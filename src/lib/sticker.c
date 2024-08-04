@@ -14,6 +14,56 @@
 #include <string.h>
 
 /**
+ * MPD sticker types names
+ */
+static const char *const mpd_sticker_types_names[MPD_STICKER_TYPE_COUNT] = {
+    [MPD_STICKER_TYPE_SONG] = "song",
+    [MPD_STICKER_TYPE_PLAYLIST] = "playlist",
+    [MPD_STICKER_TYPE_FILTER] = "filter",
+    [MPD_STICKER_TYPE_TAG_TITLE] = "Title",
+    [MPD_STICKER_TYPE_TAG_ALBUM] = "Album",
+    [MPD_STICKER_TYPE_TAG_ARTIST] = "Artist",
+    [MPD_STICKER_TYPE_TAG_ALBUM_ARTIST] = "AlbumArtist",
+    [MPD_STICKER_TYPE_TAG_GENRE] = "Genre",
+    [MPD_STICKER_TYPE_TAG_COMPOSER] = "Composer",
+    [MPD_STICKER_TYPE_TAG_PERFORMER] = "Performer",
+    [MPD_STICKER_TYPE_TAG_CONDUCTOR] = "Conductor",
+    [MPD_STICKER_TYPE_TAG_WORK] = "Work",
+    [MPD_STICKER_TYPE_TAG_ENSEMBLE] = "Ensemble",
+    [MPD_STICKER_TYPE_TAG_LOCATION] = "Location",
+    [MPD_STICKER_TYPE_TAG_LABEL] = "Label"
+};
+
+/**
+ * Returns the sticker name as string
+ * @param sticker_type enum mpd_sticker_type
+ * @return const char* the sticker name
+ */
+const char *mpd_sticker_type_name_lookup(enum mpd_sticker_type sticker_type) {
+    if ((unsigned)sticker_type >= STICKER_COUNT) {
+        return NULL;
+    }
+    return mpd_sticker_types_names[sticker_type];
+}
+
+/**
+ * Parses the mpd sticker type string
+ * @param name sticker type string
+ * @return enum mpd_tag_type the sticker enum
+ */
+enum mpd_sticker_type mpd_sticker_type_name_parse(const char *name) {
+    if (name == NULL) {
+        return MPD_STICKER_TYPE_UNKNOWN;
+    }
+    for (unsigned i = 0; i < STICKER_COUNT; ++i) {
+        if (strcmp(name, mpd_sticker_types_names[i]) == 0) {
+            return (enum mpd_sticker_type)i;
+        }
+    }
+    return MPD_STICKER_TYPE_UNKNOWN;
+}
+
+/**
  * myMPD sticker names
  */
 static const char *const mympd_sticker_names[STICKER_COUNT] = {

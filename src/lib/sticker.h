@@ -17,6 +17,29 @@
 #include <time.h>
 
 /**
+ * MPD sticker types
+ */
+enum mpd_sticker_type {
+    MPD_STICKER_TYPE_UNKNOWN = -1,
+    MPD_STICKER_TYPE_SONG,
+    MPD_STICKER_TYPE_PLAYLIST,
+    MPD_STICKER_TYPE_FILTER,
+    MPD_STICKER_TYPE_TAG_TITLE,
+    MPD_STICKER_TYPE_TAG_ALBUM,
+    MPD_STICKER_TYPE_TAG_ARTIST,
+    MPD_STICKER_TYPE_TAG_ALBUM_ARTIST,
+    MPD_STICKER_TYPE_TAG_GENRE,
+    MPD_STICKER_TYPE_TAG_COMPOSER,
+    MPD_STICKER_TYPE_TAG_PERFORMER,
+    MPD_STICKER_TYPE_TAG_CONDUCTOR,
+    MPD_STICKER_TYPE_TAG_WORK,
+    MPD_STICKER_TYPE_TAG_ENSEMBLE,
+    MPD_STICKER_TYPE_TAG_LOCATION,
+    MPD_STICKER_TYPE_TAG_LABEL,
+    MPD_STICKER_TYPE_COUNT
+};
+
+/**
  * Valid values for like sticker
  */
 enum sticker_like {
@@ -43,7 +66,7 @@ enum mympd_sticker_types {
 /**
  * myMPD feedback types
  */
-enum feedback_type {
+enum mympd_feedback_type {
     FEEDBACK_LIKE,
     FEEDBACK_STAR
 };
@@ -55,6 +78,9 @@ struct t_sticker {
     int64_t mympd[STICKER_COUNT];  //!< array of myMPD stickers
     struct t_list user;            //!< list of user defined stickers
 };
+
+const char *mpd_sticker_type_name_lookup(enum mpd_sticker_type sticker_type);
+enum mpd_sticker_type mpd_sticker_type_name_parse(const char *name);
 
 const char *sticker_name_lookup(enum mympd_sticker_types sticker);
 enum mympd_sticker_types sticker_name_parse(const char *name);

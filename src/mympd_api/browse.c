@@ -114,7 +114,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
                 tagcols->stickers.len > 0)
             {
                 struct t_sticker sticker;
-                stickerdb_get_all_batch(mympd_state->stickerdb, mpd_song_get_uri(song), &sticker, false);
+                stickerdb_get_all_batch(mympd_state->stickerdb, MPD_STICKER_TYPE_SONG, mpd_song_get_uri(song), &sticker, false);
                 buffer = mympd_api_sticker_print(buffer, &sticker, &tagcols->stickers);
 
                 if (sticker.mympd[STICKER_LAST_PLAYED] > last_played_max) {

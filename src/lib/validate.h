@@ -40,6 +40,7 @@ bool vcb_isfield(sds data);
 bool vcb_istaglist(sds data);
 bool vcb_ismpdtag(sds data);
 bool vcb_ismpdtag_or_any(sds data);
+bool vcb_ismpdstickertype(sds data);
 bool vcb_ismpdsort(sds data);
 bool vcb_iswebradiosort(sds data);
 bool vcb_issearchexpression(sds data);

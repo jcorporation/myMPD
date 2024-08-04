@@ -686,7 +686,7 @@ static sds print_plist_entry(sds buffer, struct mpd_song *song, unsigned pos, bo
     if (stickers == true) {
         buffer = sdscatlen(buffer, ",", 1);
         struct t_sticker sticker;
-        stickerdb_get_all_batch(stickerdb, uri, &sticker, false);
+        stickerdb_get_all_batch(stickerdb, MPD_STICKER_TYPE_SONG, uri, &sticker, false);
         buffer = mympd_api_sticker_print(buffer, &sticker, &tagcols->stickers);
         if (sticker.mympd[STICKER_LAST_PLAYED] > *last_played_max) {
             *last_played_max = (time_t)sticker.mympd[STICKER_LAST_PLAYED];

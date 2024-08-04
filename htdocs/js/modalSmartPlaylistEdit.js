@@ -133,7 +133,7 @@ function addSmartpls(type) {
             obj.result.type = 'sticker';
             obj.result.sticker = 'playCount';
             obj.result.value = 10;
-            if (features.featStickerInt === true) {
+            if (features.featStickerAdv === true) {
                 obj.result.op = 'gt';
                 obj.result.sort = 'value_int';
             }
@@ -153,7 +153,7 @@ function addSmartpls(type) {
             obj.result.type = 'sticker';
             obj.result.sticker = 'rating';
             obj.result.value = 5;
-            if (features.featStickerInt === true) {
+            if (features.featStickerAdv === true) {
                 obj.result.op = 'gt';
                 obj.result.sort = 'value_int';
             }

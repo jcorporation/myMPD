@@ -38,6 +38,7 @@ void fields_reset(struct t_fields *fields) {
 void stickers_reset(struct t_stickers *stickers) {
     stickers->len = 0;
     memset(stickers->stickers, 0, sizeof(stickers->stickers));
+    stickers->user_defined = false;
 }
 
 /**
@@ -49,6 +50,7 @@ void stickers_enable_all(struct t_stickers *stickers) {
     for (int i = 0; i < STICKER_COUNT; i++) {
         stickers->stickers[i] = i;
     }
+    stickers->user_defined = true;
 }
 
 /**

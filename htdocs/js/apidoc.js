@@ -193,6 +193,16 @@ const APIparams = {
         "type": APItypes.string,
         "example": "mpdscribble",
         "desc": "MPD channel name"
+    },
+    "stickerName": {
+        "type": APItypes.string,
+        "example": "name1",
+        "desc": "Sticker name"
+    },
+    "stickerType": {
+        "type": APItypes.string,
+        "example": "song",
+        "desc": "MPD sticker type"
     }
 };
 
@@ -1098,7 +1108,8 @@ const APImethods = {
                 "type": APItypes.uint,
                 "example": 1,
                 "desc": "0 = dislike, 1 = neutral, 2 = like"
-            }
+            },
+            "type": APIparams.stickerType
         }
     },
     "MYMPD_API_RATING": {
@@ -1109,6 +1120,43 @@ const APImethods = {
                 "type": APItypes.uint,
                 "example": 5,
                 "desc": "0 - 10 stars"
+            },
+            "type": APIparams.stickerType
+        }
+    },
+    "MYMPD_API_STICKER_DELETE": {
+        "desc": "Deletes a MPD sticker.",
+        "params": {
+            "uri": APIparams.uri,
+            "type": APIparams.stickerType,
+            "name": APIparams.stickerName
+        }
+    },
+    "MYMPD_API_STICKER_GET": {
+        "desc": "Gets a MPD sticker.",
+        "params": {
+            "uri": APIparams.uri,
+            "type": APIparams.stickerType,
+            "name": APIparams.stickerName
+        }
+    },
+    "MYMPD_API_STICKER_LIST": {
+        "desc": "Gets all MPD stickers for an uri.",
+        "params": {
+            "uri": APIparams.uri,
+            "type": APIparams.stickerType
+        }
+    },
+    "MYMPD_API_STICKER_SET": {
+        "desc": "Sets a MPD sticker.",
+        "params": {
+            "uri": APIparams.uri,
+            "type": APIparams.stickerType,
+            "name": APIparams.stickerName,
+            "value": {
+                "type": APItypes.string,
+                "example": "val1",
+                "desc": "Sticker value"
             }
         }
     },

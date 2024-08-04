@@ -363,6 +363,18 @@ bool vcb_ismpdtag_or_any(sds data) {
 }
 
 /**
+ * Checks if string is a valid MPD sticker type
+ * @param data sds string to check
+ * @return true on success, else false
+ */
+bool vcb_ismpdstickertype(sds data) {
+    if (mpd_sticker_type_name_parse(data) == MPD_STICKER_TYPE_UNKNOWN) {
+        return false;
+    }
+    return true;
+}
+
+/**
  * Checks if string is a valid sort tag for mpd
  * @param data sds string to check
  * @return true on success else false
