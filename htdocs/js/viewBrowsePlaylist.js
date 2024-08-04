@@ -160,6 +160,7 @@ function parsePlaylistDetail(obj) {
     setData(table, 'type', obj.result.smartpls === true ? 'smartpls' : 'plist');
     elGetById('BrowsePlaylistDetailTitle').textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
+    setData(elGetById('BrowsePlaylistDetailFeedback').firstElementChild, 'uri', obj.result.plist);
 
     const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
     if (settings['view' + app.id].mode === 'table') {

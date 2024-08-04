@@ -122,18 +122,7 @@
     <div class="card" id="cardPlayback">
       <div class="card-body">
         <div class="btn-toolbar card-toolbar">
-          <div class="btn-group featLike me-2" data-href='{"cmd": "voteSongLike", "options": ["target"]}'>
-            <button data-vote="0" data-title-phrase="Hate song" id="PlaybackSongHateBtn" class="btn btn-secondary mi">thumb_down</button>
-            <button data-vote="2" data-title-phrase="Love song" id="PlaybackSongLoveBtn" class="btn btn-secondary mi">thumb_up</button>
-          </div>
-          <div id="PlaybackSongRating" class="btn-group featRating me-2" data-href='{"cmd": "voteSongRating", "options": ["target"]}'>
-            <button data-vote="0" title="Clear" class="btn btn-secondary mi px-1">clear</button>
-            <button data-vote="2" title="2" class="btn btn-secondary mi px-0">star_border</button>
-            <button data-vote="4" title="4" class="btn btn-secondary mi px-0">star_border</button>
-            <button data-vote="6" title="6" class="btn btn-secondary mi px-0">star_border</button>
-            <button data-vote="8" title="8" class="btn btn-secondary mi px-0">star_border</button>
-            <button data-vote="10" title="10" class="btn btn-secondary mi ps-0 pe-1">star_border</button>
-          </div>
+          <div id="PlaybackSongFeedback" class="btn-group me-2 not-clickable featStickersEnabled" data-href='{"cmd": "clickFeedback", "options": ["target"]}'></div>
           <div class="btn-group btn-group featPlaylists me-2">
             <button id="PlaybackAddToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary mi">playlist_add</button>
           </div>
@@ -585,6 +574,7 @@
             <span></span>
             <button class="btn-close" data-href='{"cmd": "hideAlert", "options": ["target"]}'></button>
           </div>
+          <div id="BrowsePlaylistDetailFeedback" class="btn-group float-end not-clickable featStickersEnabled" data-href='{"cmd": "clickFeedback", "options": ["target"]}'></div>
           <h3 id="BrowsePlaylistDetailTitle"></h3>
           <div id="BrowsePlaylistDetailContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistDetailButtonsBottom"></div>

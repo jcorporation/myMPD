@@ -138,11 +138,21 @@ function parseCurrentSong(obj) {
     }
 
     if (features.featStickers === true) {
+        const PlaybackSongFeedbackEl = elGetById('PlaybackSongFeedback').firstElementChild;
+        setData(PlaybackSongFeedbackEl, 'uri', obj.result.uri);
+        if (isValidUri(obj.result.uri) === false ||
+            isStreamUri(obj.result.uri) === true)
+        {
+            elDisableBtnGroup(PlaybackSongFeedbackEl);
+        }
+        else {
+            elEnableBtnGroup(PlaybackSongFeedbackEl);
+        }
         if (settings.webuiSettings.feedback === 'like') {
-            setVoteSongBtns(obj.result.like, obj.result.uri);
+            setLike(PlaybackSongFeedbackEl, obj.result.like);
         }
         else if (settings.webuiSettings.feedback === 'rating') {
-            setRating(elGetById('PlaybackSongRating'), obj.result.rating);
+            setRating(PlaybackSongFeedbackEl, obj.result.rating);
         }
     }
 
@@ -352,50 +362,5 @@ function showAddToPlaylistCurrentSong() {
     const uri = getDataId('PlaybackTitle', 'uri');
     if (uri !== '') {
         showAddToPlaylist('song', [uri]);
-    }
-}
-
-/**
- * Sets the state of the song vote button group
- * @param {number} vote the vote 0 = hate, 1 = neutral, 2 = love
- * @param {string} uri song uri
- * @returns {void}
- */
-function setVoteSongBtns(vote, uri) {
-    if (uri === undefined) {
-        uri = '';
-    }
-
-    const btnLove = elGetById('PlaybackSongLoveBtn');
-    const btnHate = elGetById('PlaybackSongHateBtn');
-
-    if (isValidUri(uri) === false ||
-        isStreamUri(uri) === true)
-    {
-        elDisable(btnLove);
-        elDisable(btnHate);
-        elDisable(btnLove.parentNode);
-        btnLove.classList.remove('active');
-        btnHate.classList.remove('active');
-    }
-    else {
-        elEnable(btnLove);
-        elEnable(btnHate);
-        elEnable(btnLove.parentNode);
-    }
-
-    switch(vote) {
-        case 0:
-            btnLove.classList.remove('active');
-            btnHate.classList.add('active');
-            break;
-        case 2:
-            btnLove.classList.add('active');
-            btnHate.classList.remove('active');
-            break;
-        default:
-            btnLove.classList.remove('active');
-            btnHate.classList.remove('active');
-            break;
     }
 }

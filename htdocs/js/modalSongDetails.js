@@ -245,7 +245,7 @@ function parseSongDetails(obj) {
                 if (sticker === 'like' &&
                     features.featLike === true)
                 {
-                    const grp = createLike(obj.result.like);
+                    const grp = createLike(obj.result.like, "song");
                     setData(grp, 'href', {"cmd": "voteSongLike", "options": ["target"]});
                     setData(grp, 'uri', obj.result.uri);
                     tbody.appendChild(
@@ -258,7 +258,7 @@ function parseSongDetails(obj) {
                 else if (sticker === 'rating' &&
                     features.featRating === true)
                 {
-                    const grp = createStarRating(obj.result.rating);
+                    const grp = createStarRating(obj.result.rating, "song");
                     setData(grp, 'href', {"cmd": "voteSongRating", "options": ["target"]});
                     setData(grp, 'uri', obj.result.uri);
                     tbody.appendChild(

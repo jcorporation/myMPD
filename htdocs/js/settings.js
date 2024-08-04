@@ -298,6 +298,8 @@ function parseSettings(obj) {
     //finished parse setting, set ui state
     toggleUI();
     applyFeatures();
+    setFeedbacktypeId('PlaybackSongFeedback', 'song');
+    setFeedbacktypeId('BrowsePlaylistDetailFeedback', 'playlist');
     settingsParsed = 'parsed';
     myMPDready = true;
     return true;

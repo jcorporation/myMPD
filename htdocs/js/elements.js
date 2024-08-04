@@ -787,3 +787,27 @@ function scrollToPosY(container, pos) {
         container.scrollTop = pos;
     }
 }
+
+/**
+ * Enables all button in a btn-group
+ * @param {Element} el Button group
+ * @returns {void}
+ */
+function elEnableBtnGroup(el) {
+    const btns = el.querySelectorAll('button');
+    for (const btn of btns) {
+        btn.removeAttribute('disabled');
+    }
+}
+
+/**
+ * Disables all button in a btn-group
+ * @param {Element} el Button group
+ * @returns {void}
+ */
+function elDisableBtnGroup(el) {
+    const btns = el.querySelectorAll('button');
+    for (const btn of btns) {
+        btn.setAttribute('disabled', 'disabled');
+    }
+}

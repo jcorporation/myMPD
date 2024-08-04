@@ -3,7 +3,59 @@
 // myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module song_js */
+/** @module feedback_js */
+
+/**
+ * Handler for click on feedback (like or rating)
+ * @param {EventTarget} target The target
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function clickFeedback(target) {
+    const parent = target.closest('.btn-group');
+    const feedbackType = parent.getAttribute('data-feedback');
+    if (feedbackType === 'like') {
+        voteSongLike(target);
+    }
+    else {
+        voteSongRating(target);
+    }
+}
+
+/**
+ * Sets the feedback mode buttons
+ * @param {string} id Element id
+ * @param {string} stickerType MPD sticker type
+ * @returns {void}
+ */
+function setFeedbacktypeId(id, stickerType) {
+    const el = document.getElementById(id);
+    setFeedbacktype(el, stickerType);
+}
+
+/**
+ * Sets the feedback mode buttons
+ * @param {Element} el Element
+ * @param {string} stickerType MPD sticker type
+ * @returns {void}
+ */
+function setFeedbacktype(el, stickerType) {
+    if (features.featLike === true &&
+        el.getAttribute('data-feedback') !== 'like')
+    {
+        elClear(el);
+        el.appendChild(createLike(1, stickerType));
+    }
+    else if (features.featRating === true  &&
+        el.getAttribute('data-feedback') !== 'rating')
+    {
+        elClear(el);
+        el.appendChild(createStarRating(0, stickerType));
+    }
+    else {
+        elClear(el);
+    }
+}
 
 /**
  * Song love/hate event handler
@@ -37,36 +89,59 @@ function voteSongLike(el) {
     {
         el.classList.add('active');
     }
-    let uri = getData(el.parentNode, 'uri');
-    if (uri === undefined) {
-        //fallback to current song
-        uri = getDataId('PlaybackTitle', 'uri');
-    }
+    const uri = getData(el.parentNode, 'uri');
+    const stickerType = el.parentNode.getAttribute('data-type');
     sendAPI("MYMPD_API_LIKE", {
         "uri": uri,
         "like": vote,
-        "type": "song"
+        "type": stickerType
     }, null, false);
 }
 
 /**
  * Creates the songs hate/love elements
  * @param {number} like like value 0 - 2
+ * @param {string} stickerType MPD sticker type
  * @returns {HTMLElement} div element
  */
-function createLike(like) {
-    const thDown = elCreateText('button', {"data-vote": "0", "data-title-phrase": "Hate song", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
+function createLike(like, stickerType) {
+    const thDown = elCreateText('button', {"data-vote": "0", "data-title-phrase": "Hate song", "class": ["btn", "btn-secondary", "mi"]}, 'thumb_down');
     if (like === 0) {
         thDown.classList.add('active');
     }
-    const thUp = elCreateText('button', {"data-vote": "2", "data-title-phrase": "Love song", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
+    const thUp = elCreateText('button', {"data-vote": "2", "data-title-phrase": "Love song", "class": ["btn", "btn-secondary", "mi"]}, 'thumb_up');
     if (like === 2) {
         thUp.classList.add('active');
     }
-    return elCreateNodes('div', {"class": ["btn-group", "btn-group-sm"]}, [
+    return elCreateNodes('div', {"class": ["btn-group"], "data-feedback": "like", "data-type": stickerType}, [
         thDown,
         thUp
     ]);
+}
+
+/**
+ * Sets the song vote button group
+ * @param {HTMLElement | Element} el container for the thumbs
+ * @param {number} vote The vote
+ * @returns {void}
+ */
+function setLike(el, vote) {
+    const btnHate = el.firstElementChild;
+    const btnLove = el.lastElementChild;
+    switch(vote) {
+        case 0:
+            btnLove.classList.remove('active');
+            btnHate.classList.add('active');
+            break;
+        case 2:
+            btnLove.classList.add('active');
+            btnHate.classList.remove('active');
+            break;
+        default:
+            btnLove.classList.remove('active');
+            btnHate.classList.remove('active');
+            break;
+    }
 }
 
 /**
@@ -77,23 +152,20 @@ function createLike(like) {
 //eslint-disable-next-line no-unused-vars
 function voteSongRating(el) {
     const rating = Number(el.getAttribute('data-vote'));
-    let uri = getData(el.parentNode, 'uri');
-    if (uri === undefined) {
-        //fallback to current song
-        uri = getDataId('PlaybackTitle', 'uri');
-    }
+    const stickerType = el.parentNode.getAttribute('data-type');
+    const uri = getData(el.parentNode, 'uri');
     setRating(el.parentNode, rating);
 
     sendAPI("MYMPD_API_RATING", {
         "uri": uri,
         "rating": rating,
-        "type": "song"
+        "type": stickerType
     }, null, false);
 }
 
 /**
  * Sets the star rating element
- * @param {HTMLElement} el container for the stars
+ * @param {HTMLElement | Element} el container for the stars
  * @param {number} rating the rating (0-10)
  * @returns {void}
  */
@@ -115,10 +187,11 @@ function setRating(el, rating) {
 /**
  * Creates a button group for star rating
  * @param {number} rating the rating (0-10)
+ * @param {string} stickerType MPD sticker type
  * @returns {HTMLElement} div element
  */
-function createStarRating(rating) {
-    const div = elCreateEmpty('div', {"class": ["btn-group"]});
+function createStarRating(rating, stickerType) {
+    const div = elCreateEmpty('div', {"class": ["btn-group"], "data-feedback": "rating", "data-type": stickerType});
     const clearEl = elCreateText('button', {"class": ["btn", "btn-secondary", "mi", "px-1"], "data-title-phrase": "Clear", "title": "Clear", "data-vote": "0" }, 'clear');
     if (rating === 0) {
         clearEl.setAttribute('disabled', 'disabled');
