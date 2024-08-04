@@ -262,7 +262,7 @@ function execScriptArgs(target) {
     const script = elGetById('modalScriptExecScriptnameInput').value;
     const args = formToScriptArgs(elGetById('modalScriptExecArgumentsList'));
     uiElements.modalScriptExec.hide();
-    // The hide function requires some time, wait 150 ms before executing the script.
+    // The hide function requires some time, wait before executing the script.
     // Workaround for scripts that respond with a dialog.
     setTimeout(function() {
         sendAPI("MYMPD_API_SCRIPT_EXECUTE", {
@@ -270,7 +270,7 @@ function execScriptArgs(target) {
             "event": "user",
             "arguments": args
         }, null, true);
-    }, 150);
+    }, 250);
 }
 
 /**
