@@ -164,8 +164,8 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
 
 /**
  * Lists albums from the album_cache
+ * @param mympd_state pointer to mympd_state
  * @param partition_state pointer to partition specific states
- * @param album_cache pointer to album cache
  * @param buffer sds string to append response
  * @param request_id jsonrpc request id
  * @param expression mpd search expression
@@ -176,10 +176,11 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
  * @param tagcols tags to print
  * @return pointer to buffer
  */
-sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struct t_cache *album_cache, sds buffer, unsigned request_id,
-        sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit, const struct t_fields *tagcols)
+sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+        sds buffer, unsigned request_id, sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
+        const struct t_fields *tagcols)
 {
-    if (album_cache->cache == NULL) {
+    if (mympd_state->album_cache.cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Albumcache not ready");
         return buffer;
@@ -230,7 +231,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
     unsigned real_limit = offset + limit;
     rax *albums = raxNew();
     raxIterator iter;
-    raxStart(&iter, album_cache->cache);
+    raxStart(&iter, mympd_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
     sds key = sdsempty();
     while (raxNext(&iter)) {
@@ -248,9 +249,14 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
     FREE_SDS(key);
 
     //print album list
+    bool print_stickers = partition_state->mpd_state->feat.stickers == true && tagcols->stickers.len > 0;
+    if (print_stickers == true) {
+        stickerdb_exit_idle(mympd_state->stickerdb);
+    }
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     raxStart(&iter, albums);
+    sds album_exp = sdsempty();
     int (*iterator)(struct raxIterator *iter);
     if (sortdesc == false) {
         raxSeek(&iter, "^", NULL, 0);
@@ -270,6 +276,12 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
             buffer = print_album_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, album);
             buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), false);
+            if (print_stickers == true) {
+                buffer = sdscatlen(buffer, ",", 1);
+                album_exp = get_search_expression_album(mympd_state->mpd_state->tag_albumartist, album, &mympd_state->config->albums);
+                buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, MPD_STICKER_TYPE_FILTER, album_exp, &tagcols->stickers);
+                sdsclear(album_exp);
+            }
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
@@ -278,7 +290,10 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struc
         }
     }
     raxStop(&iter);
-
+    FREE_SDS(album_exp);
+    if (print_stickers == true) {
+        stickerdb_enter_idle(mympd_state->stickerdb);
+    }
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_uint64(buffer, "totalEntities", albums->numele, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);

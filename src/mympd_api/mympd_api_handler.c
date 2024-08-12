@@ -1196,16 +1196,20 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 response->data = mympd_api_playlist_delete_all(partition_state, response->data, request->id, criteria);
             }
             break;
-        case MYMPD_API_PLAYLIST_LIST:
+        case MYMPD_API_PLAYLIST_LIST: {
+            struct t_fields tagcols;
+            fields_reset(&tagcols);
             if (json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &uint_buf2, &parse_error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
-                json_get_uint(request->data, "$.params.type", 0, 2, &uint_buf3, &parse_error) == true)
+                json_get_uint(request->data, "$.params.type", 0, 2, &uint_buf3, &parse_error) == true &&
+                json_get_fields(request->data, "$.params.fields", &tagcols, FIELDS_MAX, &parse_error) == true)
             {
-                response->data = mympd_api_playlist_list(partition_state, response->data, request->cmd_id,
-                    uint_buf1, uint_buf2, sds_buf1, uint_buf3);
+                response->data = mympd_api_playlist_list(partition_state, mympd_state->stickerdb, response->data, request->cmd_id,
+                    uint_buf1, uint_buf2, sds_buf1, uint_buf3, &tagcols);
             }
             break;
+        }
         case MYMPD_API_PLAYLIST_CONTENT_LIST: {
             struct t_fields tagcols;
             fields_reset(&tagcols);
@@ -1551,7 +1555,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &parse_error) == true &&
                 json_get_fields(request->data, "$.params.fields", &tagcols, FIELDS_MAX, &parse_error) == true)
             {
-                response->data = mympd_api_browse_album_list(partition_state, &mympd_state->album_cache, response->data, request->id,
+                response->data = mympd_api_browse_album_list(mympd_state, partition_state, response->data, request->id,
                         sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2, &tagcols);
             }
             break;

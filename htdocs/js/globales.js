@@ -1183,9 +1183,9 @@ const mpdVersion = {
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};
 
-//list of stickers
+//list of stickers for songs
 /** @type {Array} */
-const stickerList = [
+const stickerListSongs = [
     'playCount',
     'skipCount',
     'lastPlayed',
@@ -1193,6 +1193,13 @@ const stickerList = [
     'like',
     'rating',
     'elapsed'
+];
+
+//list of stickers for playlists and filters (albums)
+/** @type {Array} */
+const stickerListAll = [
+    'like',
+    'rating'
 ];
 
 //application state

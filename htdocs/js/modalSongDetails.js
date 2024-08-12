@@ -238,7 +238,7 @@ function parseSongDetails(obj) {
                 )
             )
         );
-        for (const sticker of stickerList) {
+        for (const sticker of stickerListSongs) {
             if (sticker === 'like' ||
                 sticker === 'rating')
             {

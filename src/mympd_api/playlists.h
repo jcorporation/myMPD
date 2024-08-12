@@ -38,8 +38,8 @@ enum plist_copy_modes {
 
 enum plist_delete_criterias parse_plist_delete_criteria(const char *str);
 
-sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
-        unsigned offset, unsigned limit, sds searchstr, enum playlist_types type);
+sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, 
+        sds buffer, unsigned request_id, unsigned offset, unsigned limit, sds searchstr, enum playlist_types type, const struct t_fields *tagcols);
 sds mympd_api_playlist_content_search(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, unsigned request_id, sds plist, unsigned offset, unsigned limit, sds expression, const struct t_fields *tagcols);
 sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buffer,

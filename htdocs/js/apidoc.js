@@ -818,7 +818,8 @@ const APImethods = {
                 "type": APItypes.uint,
                 "example": 0,
                 "desc": "0 = all playlists, 1 = static playlists, 2 = smart playlists"
-            }
+            },
+            "fields": APIparams.fields
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_LIST": {

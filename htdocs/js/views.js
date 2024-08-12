@@ -491,29 +491,33 @@ function dragAndDropList(list) {
  */
 function setFields(tableName) {
     switch(tableName) {
-        case 'BrowsePlaylistList':
-            return ["Type", "Name", "Last-Modified", "Thumbnail"];
+        case 'BrowsePlaylistList': {
+            const tags = ["Type", "Name", "Last-Modified", "Thumbnail"];
+            setFieldsStickers(tags, stickerListAll);
+            return tags;
+        }
         case 'BrowseRadioFavorites':
         case 'BrowseRadioWebradiodb':
             return ["Added", "Country", "Description", "Genres", "Homepage", "Languages", "Last-Modified", "Name", "Region", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
         case 'BrowseDatabaseTagList':
             return ["Value", "Thumbnail"];
-        case 'BrowseDatabaseAlbumList': {
+        case 'BrowseDatabaseAlbumList':
+        case 'QueueJukeboxAlbum': {
+            const tags = settings.tagListAlbum.slice();
+            if (tableName === 'QueueJukeboxAlbum') {
+                tags.push('Pos');
+            }
+            tags.push('Thumbnail');
             if (settings.albumMode === 'adv') {
-                const tags = settings.tagListAlbum.slice();
-                tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified', 'Thumbnail');
+                tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified');
                 if (features.featDbAdded === true) {
                     tags.push('Added');
                 }
-                return tags.filter(function(value) {
-                    return value !== 'Disc';
-                });
             }
-            else {
-                const tags = settings.tagListAlbum.slice();
-                tags.push('Thumbnail');
-                return tags;
-            }
+            setFieldsStickers(tags, stickerListAll);
+            return tags.filter(function(value) {
+                return value !== 'Disc';
+            });
         }
         case 'BrowseDatabaseAlbumDetailInfo': {
             if (settings.albumMode === 'adv') {
@@ -530,16 +534,6 @@ function setFields(tableName) {
             else {
                 return settings.tagListAlbum;
             }
-        }
-        case 'QueueJukeboxAlbum': {
-            const tags = settings.tagListAlbum.slice();
-            tags.push('Pos', 'Discs', 'SongCount', 'Duration', 'Last-Modified');
-            if (features.featDbAdded === true) {
-                tags.push('Added');
-            }
-            return tags.filter(function(value) {
-                return value !== 'Disc';
-            });
         }
         // No Default
     }
@@ -581,12 +575,29 @@ function setFields(tableName) {
     //sort tags 
     tags.sort();
     //append stickers
-    if (features.featStickers === true) {
-        for (const sticker of stickerList) {
-            tags.push(sticker);
-        }
-    }
+    setFieldsStickers(tags, stickerListSongs);
     return tags;
+}
+
+/**
+ * Adds the sticker names to the fields array for songs
+ * @param {array} tags fields array to populate
+ * @param {array} stickers stickers array to add
+ * @returns {void}
+ */
+function setFieldsStickers(tags, stickers) {
+    if (features.featStickers === false) {
+        return;
+    }
+    for (const sticker of stickerListSongs) {
+        if (sticker === 'like' && features.featLike === false) {
+            continue;
+        }
+        if (sticker === 'rating' && features.featRating === false) {
+            continue;
+        }
+        tags.push(sticker);
+    }
 }
 
 /**
