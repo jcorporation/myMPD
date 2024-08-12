@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD 17.0.1 (not yet released)
+## myMPD 17.0.1 (2024-08-12)
 
 This is a small bug fix release.
 
@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Fix: Delete variables with special characters in key name
 - Fix: Show errors in modal lists
+- Fix: Script dialogs
 
 ***
 
