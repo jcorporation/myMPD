@@ -581,15 +581,15 @@ function setFields(tableName) {
 
 /**
  * Adds the sticker names to the fields array for songs
- * @param {array} tags fields array to populate
- * @param {array} stickers stickers array to add
+ * @param {Array} tags fields array to populate
+ * @param {Array} stickers stickers array to add
  * @returns {void}
  */
 function setFieldsStickers(tags, stickers) {
     if (features.featStickers === false) {
         return;
     }
-    for (const sticker of stickerListSongs) {
+    for (const sticker of stickers) {
         if (sticker === 'like' && features.featLike === false) {
             continue;
         }
