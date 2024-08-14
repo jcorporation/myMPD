@@ -16,22 +16,22 @@
 /**
  * MPD sticker types names
  */
-static const char *const mpd_sticker_types_names[MPD_STICKER_TYPE_COUNT] = {
-    [MPD_STICKER_TYPE_SONG] = "song",
-    [MPD_STICKER_TYPE_PLAYLIST] = "playlist",
-    [MPD_STICKER_TYPE_FILTER] = "filter",
-    [MPD_STICKER_TYPE_TAG_TITLE] = "Title",
-    [MPD_STICKER_TYPE_TAG_ALBUM] = "Album",
-    [MPD_STICKER_TYPE_TAG_ARTIST] = "Artist",
-    [MPD_STICKER_TYPE_TAG_ALBUM_ARTIST] = "AlbumArtist",
-    [MPD_STICKER_TYPE_TAG_GENRE] = "Genre",
-    [MPD_STICKER_TYPE_TAG_COMPOSER] = "Composer",
-    [MPD_STICKER_TYPE_TAG_PERFORMER] = "Performer",
-    [MPD_STICKER_TYPE_TAG_CONDUCTOR] = "Conductor",
-    [MPD_STICKER_TYPE_TAG_WORK] = "Work",
-    [MPD_STICKER_TYPE_TAG_ENSEMBLE] = "Ensemble",
-    [MPD_STICKER_TYPE_TAG_LOCATION] = "Location",
-    [MPD_STICKER_TYPE_TAG_LABEL] = "Label"
+static const char *const mpd_sticker_types_names[STICKER_TYPE_COUNT] = {
+    [STICKER_TYPE_SONG] = "song",
+    [STICKER_TYPE_PLAYLIST] = "playlist",
+    [STICKER_TYPE_FILTER] = "filter",
+    [STICKER_TYPE_TAG_TITLE] = "Title",
+    [STICKER_TYPE_TAG_ALBUM] = "Album",
+    [STICKER_TYPE_TAG_ARTIST] = "Artist",
+    [STICKER_TYPE_TAG_ALBUM_ARTIST] = "AlbumArtist",
+    [STICKER_TYPE_TAG_GENRE] = "Genre",
+    [STICKER_TYPE_TAG_COMPOSER] = "Composer",
+    [STICKER_TYPE_TAG_PERFORMER] = "Performer",
+    [STICKER_TYPE_TAG_CONDUCTOR] = "Conductor",
+    [STICKER_TYPE_TAG_WORK] = "Work",
+    [STICKER_TYPE_TAG_ENSEMBLE] = "Ensemble",
+    [STICKER_TYPE_TAG_LOCATION] = "Location",
+    [STICKER_TYPE_TAG_LABEL] = "Label"
 };
 
 /**
@@ -39,7 +39,7 @@ static const char *const mpd_sticker_types_names[MPD_STICKER_TYPE_COUNT] = {
  * @param sticker_type enum mpd_sticker_type
  * @return const char* the sticker name
  */
-const char *mpd_sticker_type_name_lookup(enum mpd_sticker_type sticker_type) {
+const char *mympd_sticker_type_name_lookup(enum mympd_sticker_type sticker_type) {
     if ((unsigned)sticker_type >= STICKER_COUNT) {
         return NULL;
     }
@@ -51,16 +51,16 @@ const char *mpd_sticker_type_name_lookup(enum mpd_sticker_type sticker_type) {
  * @param name sticker type string
  * @return enum mpd_tag_type the sticker enum
  */
-enum mpd_sticker_type mpd_sticker_type_name_parse(const char *name) {
+enum mympd_sticker_type mympd_sticker_type_name_parse(const char *name) {
     if (name == NULL) {
-        return MPD_STICKER_TYPE_UNKNOWN;
+        return STICKER_TYPE_UNKNOWN;
     }
     for (unsigned i = 0; i < STICKER_COUNT; ++i) {
         if (strcmp(name, mpd_sticker_types_names[i]) == 0) {
-            return (enum mpd_sticker_type)i;
+            return (enum mympd_sticker_type)i;
         }
     }
-    return MPD_STICKER_TYPE_UNKNOWN;
+    return STICKER_TYPE_UNKNOWN;
 }
 
 /**
@@ -81,7 +81,7 @@ static const char *const mympd_sticker_names[STICKER_COUNT] = {
  * @param sticker enum mympd_sticker_types
  * @return const char* the sticker name
  */
-const char *sticker_name_lookup(enum mympd_sticker_types sticker) {
+const char *sticker_name_lookup(enum mympd_sticker_names sticker) {
     if ((unsigned)sticker >= STICKER_COUNT) {
         return NULL;
     }
@@ -93,13 +93,13 @@ const char *sticker_name_lookup(enum mympd_sticker_types sticker) {
  * @param name sticker name
  * @return enum mpd_tag_type the sticker enum
  */
-enum mympd_sticker_types sticker_name_parse(const char *name) {
+enum mympd_sticker_names sticker_name_parse(const char *name) {
     if (name == NULL) {
         return STICKER_UNKNOWN;
     }
     for (unsigned i = 0; i < STICKER_COUNT; ++i) {
         if (strcmp(name, mympd_sticker_names[i]) == 0) {
-            return (enum mympd_sticker_types)i;
+            return (enum mympd_sticker_names)i;
         }
     }
     return STICKER_UNKNOWN;

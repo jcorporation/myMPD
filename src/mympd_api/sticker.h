@@ -14,15 +14,15 @@
 #include "src/lib/mympd_state.h"
 
 sds mympd_api_sticker_get(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
-    sds uri, enum mpd_sticker_type type, sds name);
+    sds uri, enum mympd_sticker_type type, sds name);
 sds mympd_api_sticker_list(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
-    sds uri, enum mpd_sticker_type type);
+    sds uri, enum mympd_sticker_type type);
 bool mympd_api_sticker_set_feedback(struct t_stickerdb_state *stickerdb, struct t_list *trigger_list, const char *partition_name,
-    enum mpd_sticker_type sticker_type, sds uri, enum mympd_feedback_type feedback_type, int value, sds *error);
+    enum mympd_sticker_type sticker_type, sds uri, enum mympd_feedback_type feedback_type, int value, sds *error);
 sds mympd_api_sticker_get_print(sds buffer, struct t_stickerdb_state *stickerdb,
-    enum mpd_sticker_type type, const char *uri, const struct t_stickers *stickers);
+    enum mympd_sticker_type type, const char *uri, const struct t_stickers *stickers);
 sds mympd_api_sticker_get_print_batch(sds buffer, struct t_stickerdb_state *stickerdb,
-    enum mpd_sticker_type type, const char *uri, const struct t_stickers *stickers);
+    enum mympd_sticker_type type, const char *uri, const struct t_stickers *stickers);
 sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct t_stickers *stickers);
 
 #endif

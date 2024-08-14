@@ -71,7 +71,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
             if (partition_state->mpd_state->feat.stickers == true &&
                 tagcols->stickers.len > 0)
             {
-                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, MPD_STICKER_TYPE_SONG, mpd_song_get_uri(song), &tagcols->stickers);
+                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_SONG, mpd_song_get_uri(song), &tagcols->stickers);
             }
             buffer = sdscatlen(buffer, "}", 1);
             mpd_song_free(song);

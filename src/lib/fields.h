@@ -29,7 +29,7 @@ struct t_mpd_tags {
  */
 struct t_stickers {
     size_t len;                                        //!< number of stickers in the array
-    enum mympd_sticker_types stickers[STICKER_COUNT];  //!< stickers array
+    enum mympd_sticker_names stickers[STICKER_COUNT];  //!< stickers array
     bool user_defined;                                 //!< user defines stickers
 };
 

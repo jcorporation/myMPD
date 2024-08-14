@@ -80,7 +80,6 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
             JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
     }
-    FREE_SDS(expression);
     unsigned entities_returned = 0;
     time_t last_played_max = 0;
     sds first_song_uri = sdsempty();
@@ -114,7 +113,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
                 tagcols->stickers.len > 0)
             {
                 struct t_sticker sticker;
-                stickerdb_get_all_batch(mympd_state->stickerdb, MPD_STICKER_TYPE_SONG, mpd_song_get_uri(song), &sticker, false);
+                stickerdb_get_all_batch(mympd_state->stickerdb, STICKER_TYPE_SONG, mpd_song_get_uri(song), &sticker, false);
                 buffer = mympd_api_sticker_print(buffer, &sticker, &tagcols->stickers);
 
                 if (sticker.mympd[STICKER_LAST_PLAYED] > last_played_max) {
@@ -150,6 +149,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "totalEntities", entities_returned, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_sds(buffer, "expression", expression, true);
     buffer = print_album_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_album, mpd_album);
     buffer = sdscat(buffer, ",\"lastPlayedSong\":{");
     buffer = tojson_time(buffer, "time", last_played_max, true);
@@ -157,6 +157,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
     buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_end(buffer);
 
+    FREE_SDS(expression);
     FREE_SDS(first_song_uri);
     FREE_SDS(last_played_song_uri);
     return buffer;
@@ -279,7 +280,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_part
             if (print_stickers == true) {
                 buffer = sdscatlen(buffer, ",", 1);
                 album_exp = get_search_expression_album(mympd_state->mpd_state->tag_albumartist, album, &mympd_state->config->albums);
-                buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, MPD_STICKER_TYPE_FILTER, album_exp, &tagcols->stickers);
+                buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, STICKER_TYPE_FILTER, album_exp, &tagcols->stickers);
                 sdsclear(album_exp);
             }
             buffer = sdscatlen(buffer, "}", 1);

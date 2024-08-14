@@ -226,6 +226,7 @@ function parseAlbumDetails(obj) {
     setData(coverEl, 'images', obj.result.images);
     setData(coverEl, 'embeddedImageCount', obj.result.embeddedImageCount);
     setData(coverEl, 'uri', obj.result.data[0].uri);
+    setData(elGetById('BrowseDatabaseAlbumDetailFeedback').firstElementChild, 'uri', obj.result.expression);
 
     elClear(infoEl);
     infoEl.appendChild(

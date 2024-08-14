@@ -33,13 +33,13 @@ static bool sticker_search_add_value_constraint(struct t_stickerdb_state *sticke
 static bool sticker_search_add_sort(struct t_stickerdb_state *stickerdb, enum mpd_sticker_sort sort, bool desc);
 static bool sticker_search_add_window(struct t_stickerdb_state *stickerdb, unsigned start, unsigned end);
 
-static struct t_sticker *get_sticker_all(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, struct t_sticker *sticker, bool user_defined);
-static sds get_sticker_value(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name);
-static int64_t get_sticker_int64(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name);
-static bool set_sticker_value(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name, const char *value);
-static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name, int64_t value);
-static bool inc_sticker(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name);
-static bool remove_sticker(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name);
+static struct t_sticker *get_sticker_all(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, struct t_sticker *sticker, bool user_defined);
+static sds get_sticker_value(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name);
+static int64_t get_sticker_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name);
+static bool set_sticker_value(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, const char *value);
+static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, int64_t value);
+static bool inc_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name);
+static bool remove_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name);
 static bool stickerdb_connect_mpd(struct t_stickerdb_state *stickerdb);
 static bool check_sticker_support(struct t_stickerdb_state *stickerdb);
 
@@ -207,7 +207,7 @@ bool stickerdb_check_error_and_recover(struct t_stickerdb_state *stickerdb, cons
  * @param name sticker name
  * @return pointer to sticker value
  */
-sds stickerdb_get_batch(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name) {
+sds stickerdb_get_batch(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     if (is_streamuri(uri) == true) {
         return sdsempty();
     }
@@ -223,7 +223,7 @@ sds stickerdb_get_batch(struct t_stickerdb_state *stickerdb, enum mpd_sticker_ty
  * @param name sticker name
  * @return pointer to sticker value
  */
-sds stickerdb_get(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name) {
+sds stickerdb_get(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     if (is_streamuri(uri) == true) {
         return sdsempty();
     }
@@ -244,7 +244,7 @@ sds stickerdb_get(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type typ
  * @param name sticker name
  * @return pointer to sticker value
  */
-int64_t stickerdb_get_int64_batch(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name) {
+int64_t stickerdb_get_int64_batch(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     int64_t value = 0;
     if (is_streamuri(uri) == true) {
         return value;
@@ -261,7 +261,7 @@ int64_t stickerdb_get_int64_batch(struct t_stickerdb_state *stickerdb, enum mpd_
  * @param name sticker name
  * @return pointer to sticker value
  */
-int64_t stickerdb_get_int64(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name) {
+int64_t stickerdb_get_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     int64_t value = 0;
     if (is_streamuri(uri) == true) {
         return value;
@@ -284,7 +284,7 @@ int64_t stickerdb_get_int64(struct t_stickerdb_state *stickerdb, enum mpd_sticke
  * @param user_defined get user defines stickers?
  * @return Initialized and populated sticker struct or NULL on error
  */
-struct t_sticker *stickerdb_get_all_batch(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, struct t_sticker *sticker, bool user_defined) {
+struct t_sticker *stickerdb_get_all_batch(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, struct t_sticker *sticker, bool user_defined) {
     if (is_streamuri(uri) == true) {
         return NULL;
     }
@@ -300,7 +300,7 @@ struct t_sticker *stickerdb_get_all_batch(struct t_stickerdb_state *stickerdb, e
  * @param user_defined get user defines stickers?
  * @return Initialized and populated sticker struct or NULL on error
  */
-struct t_sticker *stickerdb_get_all(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, struct t_sticker *sticker, bool user_defined) {
+struct t_sticker *stickerdb_get_all(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, struct t_sticker *sticker, bool user_defined) {
     if (is_streamuri(uri) == true) {
         return NULL;
     }
@@ -319,7 +319,7 @@ struct t_sticker *stickerdb_get_all(struct t_stickerdb_state *stickerdb, enum mp
  * @param name sticker name
  * @return newly allocated radix tree or NULL on error
  */
-rax *stickerdb_find_stickers_by_name(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *name) {
+rax *stickerdb_find_stickers_by_name(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *name) {
     return stickerdb_find_stickers_by_name_value(stickerdb, type, name, MPD_STICKER_OP_UNKOWN, NULL);
 }
 
@@ -332,13 +332,13 @@ rax *stickerdb_find_stickers_by_name(struct t_stickerdb_state *stickerdb, enum m
  * @param value sticker value
  * @return newly allocated radix tree or NULL on error
  */
-rax *stickerdb_find_stickers_by_name_value(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type,
+rax *stickerdb_find_stickers_by_name_value(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type,
         const char *name, enum mpd_sticker_operator op, const char *value)
 {
     if (stickerdb_connect(stickerdb) == false) {
         return NULL;
     }
-    const char *type_name = mpd_sticker_type_name_lookup(type);
+    const char *type_name = mympd_sticker_type_name_lookup(type);
     if (type_name == NULL) {
         return NULL;
     }
@@ -393,14 +393,14 @@ rax *stickerdb_find_stickers_by_name_value(struct t_stickerdb_state *stickerdb, 
  * @param end window end (excluding), use UINT_MAX for open end
  * @return struct t_list* 
  */
-struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type,
+struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type,
         const char *name, enum mpd_sticker_operator op, const char *value,
         enum mpd_sticker_sort sort, bool sort_desc, unsigned start, unsigned end)
 {
     if (stickerdb_connect(stickerdb) == false) {
         return NULL;
     }
-    const char *type_name = mpd_sticker_type_name_lookup(type);
+    const char *type_name = mympd_sticker_type_name_lookup(type);
     if (type_name == NULL) {
         return NULL;
     }
@@ -471,7 +471,7 @@ void stickerdb_free_find_result(rax *stickers) {
  * @param value sticker value
  * @return true on success, else false
  */
-bool stickerdb_set(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name, const char *value) {
+bool stickerdb_set(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, const char *value) {
     if (is_streamuri(uri) == true) {
         return true;
     }
@@ -492,7 +492,7 @@ bool stickerdb_set(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type ty
  * @param value sticker value
  * @return true on success, else false
  */
-bool stickerdb_set_int64(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name, int64_t value) {
+bool stickerdb_set_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, int64_t value) {
     if (is_streamuri(uri) == true) {
         return true;
     }
@@ -512,7 +512,7 @@ bool stickerdb_set_int64(struct t_stickerdb_state *stickerdb, enum mpd_sticker_t
  * @param name sticker name
  * @return true on success, else false
  */
-bool stickerdb_inc(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name) {
+bool stickerdb_inc(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     if (is_streamuri(uri) == true) {
         return true;
     }
@@ -532,7 +532,7 @@ bool stickerdb_inc(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type ty
  * @param elapsed timestamp
  * @return true on success, else false
  */
-bool stickerdb_set_elapsed(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, time_t elapsed) {
+bool stickerdb_set_elapsed(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, time_t elapsed) {
     return stickerdb_set_int64(stickerdb, type, uri, sticker_name_lookup(STICKER_ELAPSED), (int64_t)elapsed);
 }
 
@@ -546,8 +546,8 @@ bool stickerdb_set_elapsed(struct t_stickerdb_state *stickerdb, enum mpd_sticker
  * @param timestamp timestamp to set
  * @return true on success, else false
  */
-bool stickerdb_inc_set(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri,
-        enum mympd_sticker_types name_inc, enum mympd_sticker_types name_timestamp, time_t timestamp)
+bool stickerdb_inc_set(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri,
+        enum mympd_sticker_names name_inc, enum mympd_sticker_names name_timestamp, time_t timestamp)
 {
     if (is_streamuri(uri) == true) {
         return true;
@@ -569,7 +569,7 @@ bool stickerdb_inc_set(struct t_stickerdb_state *stickerdb, enum mpd_sticker_typ
  * @param timestamp timestamp to set
  * @return true on success, else false
  */
-bool stickerdb_inc_play_count(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, time_t timestamp) {
+bool stickerdb_inc_play_count(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, time_t timestamp) {
     return stickerdb_inc_set(stickerdb, type, uri, STICKER_PLAY_COUNT, STICKER_LAST_PLAYED, timestamp);
 }
 
@@ -580,7 +580,7 @@ bool stickerdb_inc_play_count(struct t_stickerdb_state *stickerdb, enum mpd_stic
  * @param uri sticker uri
  * @return true on success, else false
  */
-bool stickerdb_inc_skip_count(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri) {
+bool stickerdb_inc_skip_count(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri) {
     time_t timestamp = time(NULL);
     return stickerdb_inc_set(stickerdb, type, uri, STICKER_SKIP_COUNT, STICKER_LAST_SKIPPED, timestamp);
 }
@@ -593,7 +593,7 @@ bool stickerdb_inc_skip_count(struct t_stickerdb_state *stickerdb, enum mpd_stic
  * @param value 0 = hate, 1 = neutral, 2 = like
  * @return true on success, else false
  */
-bool stickerdb_set_like(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, enum sticker_like value) {
+bool stickerdb_set_like(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, enum sticker_like value) {
     if (value < STICKER_LIKE_MIN || value > STICKER_LIKE_MAX) {
         return false;
     }
@@ -608,7 +608,7 @@ bool stickerdb_set_like(struct t_stickerdb_state *stickerdb, enum mpd_sticker_ty
  * @param value 0 - 10 stars
  * @return true on success, else false
  */
-bool stickerdb_set_rating(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, int value) {
+bool stickerdb_set_rating(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, int value) {
     if (value < STICKER_RATING_MIN || value > STICKER_RATING_MAX) {
         return false;
     }
@@ -623,7 +623,7 @@ bool stickerdb_set_rating(struct t_stickerdb_state *stickerdb, enum mpd_sticker_
  * @param name sticker name
  * @return bool true on success, else false
  */
-bool stickerdb_remove(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name) {
+bool stickerdb_remove(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     if (is_streamuri(uri) == true) {
         return true;
     }
@@ -691,22 +691,22 @@ static bool sticker_search_add_window(struct t_stickerdb_state *stickerdb, unsig
  * @param user_defined get user defines stickers?
  * @return the initialized and populated sticker struct
  */
-static struct t_sticker *get_sticker_all(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type,
+static struct t_sticker *get_sticker_all(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type,
         const char *uri, struct t_sticker *sticker, bool user_defined)
 {
     struct mpd_pair *pair;
     sticker_struct_init(sticker);
-    const char *type_name = mpd_sticker_type_name_lookup(type);
+    const char *type_name = mympd_sticker_type_name_lookup(type);
     if (type_name == NULL) {
         return sticker;
     }
     if (mpd_send_sticker_list(stickerdb->conn, type_name, uri)) {
         while ((pair = mpd_recv_sticker(stickerdb->conn)) != NULL) {
-            enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
-            if (sticker_type != STICKER_UNKNOWN) {
+            enum mympd_sticker_names sticker_name = sticker_name_parse(pair->name);
+            if (sticker_name != STICKER_UNKNOWN) {
                 int num;
                 enum str2int_errno rc = str2int(&num, pair->value);
-                sticker->mympd[sticker_type] = rc == STR2INT_SUCCESS
+                sticker->mympd[sticker_name] = rc == STR2INT_SUCCESS
                     ? num
                     : 0;
             }
@@ -729,10 +729,10 @@ static struct t_sticker *get_sticker_all(struct t_stickerdb_state *stickerdb, en
  * @param name sticker name
  * @return string
  */
-static sds get_sticker_value(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name) {
+static sds get_sticker_value(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     struct mpd_pair *pair;
     sds value = sdsempty();
-    const char *type_name = mpd_sticker_type_name_lookup(type);
+    const char *type_name = mympd_sticker_type_name_lookup(type);
     if (type_name == NULL) {
         return value;
     }
@@ -757,10 +757,10 @@ static sds get_sticker_value(struct t_stickerdb_state *stickerdb, enum mpd_stick
  * @param name sticker name
  * @return number
  */
-int64_t get_sticker_int64(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name) {
+int64_t get_sticker_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     struct mpd_pair *pair;
     int64_t value = 0;
-    const char *type_name = mpd_sticker_type_name_lookup(type);
+    const char *type_name = mympd_sticker_type_name_lookup(type);
     if (type_name == NULL) {
         return value;
     }
@@ -786,8 +786,8 @@ int64_t get_sticker_int64(struct t_stickerdb_state *stickerdb, enum mpd_sticker_
  * @param value string to set
  * @return true on success, else false
  */
-static bool set_sticker_value(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name, const char *value) {
-    const char *type_name = mpd_sticker_type_name_lookup(type);
+static bool set_sticker_value(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, const char *value) {
+    const char *type_name = mympd_sticker_type_name_lookup(type);
     if (type_name == NULL) {
         return false;
     }
@@ -805,7 +805,7 @@ static bool set_sticker_value(struct t_stickerdb_state *stickerdb, enum mpd_stic
  * @param value number to set
  * @return true on success, else false
  */
-static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name, int64_t value) {
+static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, int64_t value) {
     sds value_str = sdsfromlonglong((long long)value);
     if (stickerdb->config->stickers_pad_int == true &&
         stickerdb->mpd_state->feat.advsticker == false)
@@ -834,7 +834,7 @@ static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, enum mpd_stic
  * @param name sticker name
  * @return true on success, else false
  */
-static bool inc_sticker(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name) {
+static bool inc_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     int64_t value = get_sticker_int64(stickerdb, type, uri, name);
     if (value < INT_MAX) {
         value++;
@@ -850,8 +850,8 @@ static bool inc_sticker(struct t_stickerdb_state *stickerdb, enum mpd_sticker_ty
  * @param name sticker name
  * @return true on success, else false
  */
-static bool remove_sticker(struct t_stickerdb_state *stickerdb, enum mpd_sticker_type type, const char *uri, const char *name) {
-    const char *type_name = mpd_sticker_type_name_lookup(type);
+static bool remove_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
+    const char *type_name = mympd_sticker_type_name_lookup(type);
     if (type_name == NULL) {
         return false;
     }

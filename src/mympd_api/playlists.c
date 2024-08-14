@@ -651,7 +651,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
             buffer = tojson_bool(buffer, "smartplsOnly", data->type == PLTYPE_SMARTPLS_ONLY ? true : false, false);
             if (print_stickers == true) {
                 buffer = sdscatlen(buffer, ",", 1);
-                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, MPD_STICKER_TYPE_PLAYLIST, data->name, &tagcols->stickers);
+                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_PLAYLIST, data->name, &tagcols->stickers);
             }
             buffer = sdscatlen(buffer, "}", 1);
         }
@@ -700,7 +700,7 @@ static sds print_plist_entry(sds buffer, struct mpd_song *song, unsigned pos, bo
     if (stickers == true) {
         buffer = sdscatlen(buffer, ",", 1);
         struct t_sticker sticker;
-        stickerdb_get_all_batch(stickerdb, MPD_STICKER_TYPE_SONG, uri, &sticker, false);
+        stickerdb_get_all_batch(stickerdb, STICKER_TYPE_SONG, uri, &sticker, false);
         buffer = mympd_api_sticker_print(buffer, &sticker, &tagcols->stickers);
         if (sticker.mympd[STICKER_LAST_PLAYED] > *last_played_max) {
             *last_played_max = (time_t)sticker.mympd[STICKER_LAST_PLAYED];

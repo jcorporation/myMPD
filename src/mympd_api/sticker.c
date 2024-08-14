@@ -26,7 +26,7 @@
  * @return Pointer to buffer
  */
 sds mympd_api_sticker_get(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
-    sds uri, enum mpd_sticker_type type, sds name)
+    sds uri, enum mympd_sticker_type type, sds name)
 {
     sds value = stickerdb_get(stickerdb, type, uri, name);
     if (value == NULL) {
@@ -49,7 +49,7 @@ sds mympd_api_sticker_get(struct t_stickerdb_state *stickerdb, sds buffer, unsig
  * @return Pointer to buffer
  */
 sds mympd_api_sticker_list(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
-    sds uri, enum mpd_sticker_type type)
+    sds uri, enum mympd_sticker_type type)
 {
     struct t_stickers stickers;
     stickers_enable_all(&stickers);
@@ -72,7 +72,7 @@ sds mympd_api_sticker_list(struct t_stickerdb_state *stickerdb, sds buffer, unsi
  * @return true on success, else false
  */
 bool mympd_api_sticker_set_feedback(struct t_stickerdb_state *stickerdb, struct t_list *trigger_list, const char *partition_name,
-    enum mpd_sticker_type sticker_type, sds uri, enum mympd_feedback_type feedback_type, int value, sds *error)
+    enum mympd_sticker_type sticker_type, sds uri, enum mympd_feedback_type feedback_type, int value, sds *error)
 {
     if (stickerdb->mpd_state->feat.stickers == false) {
         *error = sdscat(*error, "MPD stickers are disabled");
@@ -105,7 +105,7 @@ bool mympd_api_sticker_set_feedback(struct t_stickerdb_state *stickerdb, struct 
  * @return pointer to the modified buffer
  */
 sds mympd_api_sticker_get_print(sds buffer, struct t_stickerdb_state *stickerdb,
-        enum mpd_sticker_type type, const char *uri, const struct t_stickers *stickers)
+        enum mympd_sticker_type type, const char *uri, const struct t_stickers *stickers)
 {
     if (stickers->len == 0) {
         return buffer;
@@ -130,7 +130,7 @@ sds mympd_api_sticker_get_print(sds buffer, struct t_stickerdb_state *stickerdb,
  * @return pointer to the modified buffer
  */
 sds mympd_api_sticker_get_print_batch(sds buffer, struct t_stickerdb_state *stickerdb,
-        enum mpd_sticker_type type, const char *uri, const struct t_stickers *stickers)
+        enum mympd_sticker_type type, const char *uri, const struct t_stickers *stickers)
 {
     if (stickers->len == 0) {
         return buffer;

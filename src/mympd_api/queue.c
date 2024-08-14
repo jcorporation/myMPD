@@ -853,7 +853,7 @@ sds print_queue_entry(struct t_mympd_state *mympd_state, struct t_partition_stat
     if (partition_state->mpd_state->feat.stickers == true &&
         tagcols->stickers.len > 0)
     {
-        buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, MPD_STICKER_TYPE_SONG, uri, &tagcols->stickers);
+        buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, STICKER_TYPE_SONG, uri, &tagcols->stickers);
     }
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;

@@ -368,7 +368,7 @@ bool vcb_ismpdtag_or_any(sds data) {
  * @return true on success, else false
  */
 bool vcb_ismpdstickertype(sds data) {
-    if (mpd_sticker_type_name_parse(data) == MPD_STICKER_TYPE_UNKNOWN) {
+    if (mympd_sticker_type_name_parse(data) == STICKER_TYPE_UNKNOWN) {
         return false;
     }
     return true;

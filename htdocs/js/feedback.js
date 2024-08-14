@@ -47,7 +47,7 @@ function setFeedbacktype(el, stickerType) {
         el.appendChild(createLike(1, stickerType));
     }
     else if (features.featRating === true  &&
-        el.getAttribute('data-feedback') !== 'rating')
+             el.getAttribute('data-feedback') !== 'rating')
     {
         elClear(el);
         el.appendChild(createStarRating(0, stickerType));

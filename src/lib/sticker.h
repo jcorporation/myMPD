@@ -14,29 +14,27 @@
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/list.h"
 
-#include <time.h>
-
 /**
  * MPD sticker types
  */
-enum mpd_sticker_type {
-    MPD_STICKER_TYPE_UNKNOWN = -1,
-    MPD_STICKER_TYPE_SONG,
-    MPD_STICKER_TYPE_PLAYLIST,
-    MPD_STICKER_TYPE_FILTER,
-    MPD_STICKER_TYPE_TAG_TITLE,
-    MPD_STICKER_TYPE_TAG_ALBUM,
-    MPD_STICKER_TYPE_TAG_ARTIST,
-    MPD_STICKER_TYPE_TAG_ALBUM_ARTIST,
-    MPD_STICKER_TYPE_TAG_GENRE,
-    MPD_STICKER_TYPE_TAG_COMPOSER,
-    MPD_STICKER_TYPE_TAG_PERFORMER,
-    MPD_STICKER_TYPE_TAG_CONDUCTOR,
-    MPD_STICKER_TYPE_TAG_WORK,
-    MPD_STICKER_TYPE_TAG_ENSEMBLE,
-    MPD_STICKER_TYPE_TAG_LOCATION,
-    MPD_STICKER_TYPE_TAG_LABEL,
-    MPD_STICKER_TYPE_COUNT
+enum mympd_sticker_type {
+    STICKER_TYPE_UNKNOWN = -1,
+    STICKER_TYPE_SONG,
+    STICKER_TYPE_PLAYLIST,
+    STICKER_TYPE_FILTER,
+    STICKER_TYPE_TAG_TITLE,
+    STICKER_TYPE_TAG_ALBUM,
+    STICKER_TYPE_TAG_ARTIST,
+    STICKER_TYPE_TAG_ALBUM_ARTIST,
+    STICKER_TYPE_TAG_GENRE,
+    STICKER_TYPE_TAG_COMPOSER,
+    STICKER_TYPE_TAG_PERFORMER,
+    STICKER_TYPE_TAG_CONDUCTOR,
+    STICKER_TYPE_TAG_WORK,
+    STICKER_TYPE_TAG_ENSEMBLE,
+    STICKER_TYPE_TAG_LOCATION,
+    STICKER_TYPE_TAG_LABEL,
+    STICKER_TYPE_COUNT
 };
 
 /**
@@ -51,7 +49,7 @@ enum sticker_like {
 /**
  * myMPD sticker types
  */
-enum mympd_sticker_types {
+enum mympd_sticker_names {
     STICKER_UNKNOWN = -1,
     STICKER_PLAY_COUNT,
     STICKER_SKIP_COUNT,
@@ -79,11 +77,11 @@ struct t_sticker {
     struct t_list user;            //!< list of user defined stickers
 };
 
-const char *mpd_sticker_type_name_lookup(enum mpd_sticker_type sticker_type);
-enum mpd_sticker_type mpd_sticker_type_name_parse(const char *name);
+const char *mympd_sticker_type_name_lookup(enum mympd_sticker_type sticker_type);
+enum mympd_sticker_type mympd_sticker_type_name_parse(const char *name);
 
-const char *sticker_name_lookup(enum mympd_sticker_types sticker);
-enum mympd_sticker_types sticker_name_parse(const char *name);
+const char *sticker_name_lookup(enum mympd_sticker_names sticker);
+enum mympd_sticker_names sticker_name_parse(const char *name);
 void sticker_struct_init(struct t_sticker *sticker);
 void sticker_struct_clear(struct t_sticker *sticker);
 
