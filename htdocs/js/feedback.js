@@ -58,6 +58,21 @@ function setFeedbacktype(el, stickerType) {
 }
 
 /**
+ * Sets the current feedback
+ * @param {Element} el Feedback element group
+ * @param {number} like Like feedback value
+ * @param {number} rating Star rating feedback value
+ */
+function setFeedback(el, like, rating) {
+    if (el.getAttribute('data-feedback') === 'like') {
+        setLike(el, like);
+    }
+    else {
+        setRating(el, rating);
+    }
+}
+
+/**
  * Song love/hate event handler
  * @param {EventTarget} el triggering element
  * @returns {void}

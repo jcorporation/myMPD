@@ -818,6 +818,12 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
     buffer = tojson_time(buffer, "time", last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
+    if (partition_state->mpd_state->feat.stickers == true) {
+        struct t_stickers sticker;
+        stickers_reset(&sticker);
+        stickers_enable_all(&sticker);
+        buffer = mympd_api_sticker_get_print(buffer, stickerdb, STICKER_TYPE_PLAYLIST, plist, &sticker);
+    }
     buffer = jsonrpc_end(buffer);
 
     FREE_SDS(last_played_song_uri);

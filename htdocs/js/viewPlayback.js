@@ -148,12 +148,7 @@ function parseCurrentSong(obj) {
         else {
             elEnableBtnGroup(PlaybackSongFeedbackEl);
         }
-        if (settings.webuiSettings.feedback === 'like') {
-            setLike(PlaybackSongFeedbackEl, obj.result.like);
-        }
-        else if (settings.webuiSettings.feedback === 'rating') {
-            setRating(PlaybackSongFeedbackEl, obj.result.rating);
-        }
+        setFeedback(PlaybackSongFeedbackEl, obj.result.like, obj.result.rating);
     }
 
     setPlaybackCardTags(obj.result);
