@@ -62,6 +62,7 @@ function setFeedbacktype(el, stickerType) {
  * @param {Element} el Feedback element group
  * @param {number} like Like feedback value
  * @param {number} rating Star rating feedback value
+ * @returns {void}
  */
 function setFeedback(el, like, rating) {
     if (el.getAttribute('data-feedback') === 'like') {
