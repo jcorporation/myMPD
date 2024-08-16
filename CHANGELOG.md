@@ -13,7 +13,6 @@ Describe release here.
 - MYMPD_API_STICKER_GET: new
 - MYMPD_API_STICKER_DELETE: new
 - MYMPD_API_STICKER_LIST: new
-- MYMPD_API_STICKER_NAMES: new
 - MYMPD_API_STICKER_SET: new
 - MYMPD_API_PLAYLIST_LIST: add parameter fields
 
