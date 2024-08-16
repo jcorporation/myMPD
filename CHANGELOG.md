@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Handling of folder placeholder images
+
 ***
 
 ## myMPD 17.0.1 (2024-08-12)
