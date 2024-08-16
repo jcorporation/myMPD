@@ -171,13 +171,13 @@
           </div>
           <div class="input-group me-2 flex-grow-1">
             <div class="btn-group">
-              <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
-                <span class="mi">search</span>
-                <span data-phrase="Any Tag" id="QueueCurrentSearchTagsDesc"></span>
+              <button class="btn btn-secondary mi" data-href='{"cmd": "toggleSearchExpr", "options": ["event"]}'>search</button>
+              <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end-0 d-none" type="button" data-bs-toggle="dropdown">
+                <span data-phrase="Any Tag" id="QueueCurrentSearchTagsDesc" class="me-2"></span>
               </button>
               <div class="dropdown-menu px-2" id="QueueCurrentSearchTags"></div>
             </div>
-            <select class="form-select rounded-0 no-flex" id="QueueCurrentSearchMatch">
+            <select class="form-select rounded-0 no-flex d-none" id="QueueCurrentSearchMatch">
               <option data-phrase="contains" value="contains"></option>
               <option data-phrase="starts_with" value="starts_with" class="featPcreOrStartsWith"></option>
               <option value="==">==</option>
@@ -267,13 +267,13 @@
           </div>
           <div class="input-group me-2 flex-grow-1">
             <div class="btn-group">
-              <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
-                <span class="mi">search</span>
-                <span data-phrase="AlbumArtist" id="QueueLastPlayedSearchTagsDesc"></span>
+              <button class="btn btn-secondary mi" data-href='{"cmd": "toggleSearchExpr", "options": ["event"]}'>search</button>
+              <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end-0 d-none" type="button" data-bs-toggle="dropdown">
+                <span data-phrase="Any Tag" id="QueueLastPlayedSearchTagsDesc" class="me-2"></span>
               </button>
               <div class="dropdown-menu px-2" id="QueueLastPlayedSearchTags"></div>
             </div>
-            <select class="form-select rounded-0 no-flex" id="QueueLastPlayedSearchMatch">
+            <select class="form-select rounded-0 no-flex d-none" id="QueueLastPlayedSearchMatch">
               <option data-phrase="contains" value="contains"></option>
               <option data-phrase="starts_with" value="starts_with"></option>
               <option value="==">==</option>
@@ -322,13 +322,13 @@
             </div>
             <div class="input-group me-2 flex-grow-1">
               <div class="btn-group">
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
-                  <span class="mi">search</span>
-                  <span data-phrase="AlbumArtist" id="QueueJukeboxSongSearchTagsDesc"></span>
+                <button class="btn btn-secondary mi" data-href='{"cmd": "toggleSearchExpr", "options": ["event"]}'>search</button>
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end-0 d-none" type="button" data-bs-toggle="dropdown">
+                  <span data-phrase="Any Tag" id="QueueJukeboxSongSearchTagsDesc" class="me-2"></span>
                 </button>
                 <div class="dropdown-menu px-2" id="QueueJukeboxSongSearchTags"></div>
               </div>
-              <select class="form-select rounded-0 no-flex" id="QueueJukeboxSongSearchMatch">
+              <select class="form-select rounded-0 no-flex d-none" id="QueueJukeboxSongSearchMatch">
                 <option data-phrase="contains" value="contains"></option>
                 <option data-phrase="starts_with" value="starts_with"></option>
                 <option value="==">==</option>
@@ -380,13 +380,13 @@
             </div>
             <div class="input-group me-2 flex-grow-1">
               <div class="btn-group">
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
-                  <span class="mi">search</span>
-                  <span data-phrase="AlbumArtist" id="QueueJukeboxAlbumSearchTagsDesc"></span>
+                <button class="btn btn-secondary mi" data-href='{"cmd": "toggleSearchExpr", "options": ["event"]}'>search</button>
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end-0 d-none" type="button" data-bs-toggle="dropdown">
+                  <span data-phrase="Any Tag" id="QueueJukeboxAlbumSearchTagsDesc" class="me-2"></span>
                 </button>
                 <div class="dropdown-menu px-2" id="QueueJukeboxAlbumSearchTags"></div>
               </div>
-              <select class="form-select rounded-0 no-flex" id="QueueJukeboxAlbumSearchMatch">
+              <select class="form-select rounded-0 no-flex d-none" id="QueueJukeboxAlbumSearchMatch">
                 <option data-phrase="contains" value="contains"></option>
                 <option data-phrase="starts_with" value="starts_with"></option>
                 <option value="==">==</option>
@@ -481,13 +481,13 @@
             </div>
             <div class="input-group me-2 flex-grow-1">
               <div class="btn-group">
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
-                  <span class="mi">search</span>
-                  <span data-phrase="AlbumArtist" id="BrowsePlaylistDetailSearchTagsDesc"></span>
+                <button class="btn btn-secondary mi" data-href='{"cmd": "toggleSearchExpr", "options": ["event"]}'>search</button>
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end-0 d-none" type="button" data-bs-toggle="dropdown">
+                  <span data-phrase="Any Tag" id="BrowsePlaylistDetailSearchTagsDesc" class="me-2"></span>
                 </button>
                 <div class="dropdown-menu px-2" id="BrowsePlaylistDetailSearchTags"></div>
               </div>
-              <select class="form-select rounded-0 no-flex" id="BrowsePlaylistDetailSearchMatch">
+              <select class="form-select rounded-0 no-flex d-none" id="BrowsePlaylistDetailSearchMatch">
                 <option data-phrase="contains" value="contains"></option>
                 <option data-phrase="starts_with" value="starts_with"></option>
                 <option value="==">==</option>
@@ -614,13 +614,13 @@
             </div>
             <div class="input-group me-2 flex-grow-1">
               <div class="btn-group">
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
-                  <span class="mi">search</span>
-                  <span data-phrase="AlbumArtist" id="BrowseDatabaseAlbumListSearchTagsDesc"></span>
+                <button class="btn btn-secondary mi" data-href='{"cmd": "toggleSearchExpr", "options": ["event"]}'>search</button>
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end-0 d-none" type="button" data-bs-toggle="dropdown">
+                  <span data-phrase="AlbumArtist" id="BrowseDatabaseAlbumListSearchTagsDesc" class="me-2"></span>
                 </button>
                 <div class="dropdown-menu px-2" id="BrowseDatabaseAlbumListSearchTags"></div>
               </div>
-              <select class="form-select rounded-0 no-flex" id="BrowseDatabaseAlbumListSearchMatch">
+              <select class="form-select rounded-0 no-flex d-none" id="BrowseDatabaseAlbumListSearchMatch">
                 <option data-phrase="contains" value="contains"></option>
                 <option data-phrase="starts_with" value="starts_with"></option>
                 <option value="==">==</option>
@@ -785,13 +785,13 @@
             </div>
             <div class="input-group me-2 flex-grow-1">
               <div class="btn-group">
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
-                  <span class="mi">search</span>
-                  <span data-phrase="Name" id="BrowseRadioFavoritesSearchTagsDesc"></span>
+                <button class="btn btn-secondary mi" data-href='{"cmd": "toggleSearchExpr", "options": ["event"]}'>search</button>
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end-0 d-none" type="button" data-bs-toggle="dropdown">
+                  <span data-phrase="Name" id="BrowseRadioFavoritesSearchTagsDesc" class="me-2"></span>
                 </button>
                 <div class="dropdown-menu px-2" id="BrowseRadioFavoritesSearchTags"></div>
               </div>
-              <select class="form-select rounded-0 no-flex" id="BrowseRadioFavoritesSearchMatch">
+              <select class="form-select rounded-0 no-flex d-none" id="BrowseRadioFavoritesSearchMatch">
                 <option data-phrase="contains" value="contains"></option>
                 <option data-phrase="starts_with" value="starts_with"></option>
                 <option value="==">==</option>
@@ -848,13 +848,13 @@
             </div>
             <div class="input-group me-2 flex-grow-1">
               <div class="btn-group">
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
-                  <span class="mi">search</span>
-                  <span data-phrase="Name" id="BrowseRadioWebradiodbSearchTagsDesc"></span>
+                <button class="btn btn-secondary mi" data-href='{"cmd": "toggleSearchExpr", "options": ["event"]}'>search</button>
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end-0 d-none" type="button" data-bs-toggle="dropdown">
+                  <span data-phrase="Name" id="BrowseRadioWebradiodbSearchTagsDesc" class="me-2"></span>
                 </button>
                 <div class="dropdown-menu px-2" id="BrowseRadioWebradiodbSearchTags"></div>
               </div>
-              <select class="form-select rounded-0 no-flex" id="BrowseRadioWebradiodbSearchMatch">
+              <select class="form-select rounded-0 no-flex d-none" id="BrowseRadioWebradiodbSearchMatch">
                 <option data-phrase="contains" value="contains"></option>
                 <option data-phrase="starts_with" value="starts_with"></option>
                 <option value="==">==</option>
@@ -907,13 +907,13 @@
         <div class="btn-toolbar card-toolbar">
           <div class="input-group me-2 flex-grow-1">
             <div class="btn-group">
-              <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
-                <span class="mi">search</span>
-                <span data-phrase="Any Tag" id="SearchSearchTagsDesc"></span>
+              <button class="btn btn-secondary mi" data-href='{"cmd": "toggleSearchExpr", "options": ["event"]}'>search</button>
+              <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end-0 d-none" type="button" data-bs-toggle="dropdown">
+                <span data-phrase="Any Tag" id="SearchSearchTagsDesc" class="me-2"></span>
               </button>
               <div class="dropdown-menu px-2" id="SearchSearchTags"></div>
             </div>
-            <select class="form-select rounded-0 no-flex" id="SearchSearchMatch">
+            <select class="form-select rounded-0 no-flex d-none" id="SearchSearchMatch">
               <option data-phrase="contains" value="contains"></option>
               <option data-phrase="starts_with" value="starts_with" class="featPcreOrStartsWith"></option>
               <option value="==">==</option>

@@ -21,6 +21,25 @@ const searchTagsTimestamp = [
 ];
 
 /**
+ * Toggles the advanced search bar
+ * @param {Event} event Click event
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function toggleSearchExpr(event) {
+    event.preventDefault();
+    const target = event.target;
+    if (target.nextElementSibling.classList.contains('d-none')) {
+        elShow(target.nextElementSibling);
+        elShow(target.parentNode.nextElementSibling);
+    }
+    else {
+        elHide(target.nextElementSibling);
+        elHide(target.parentNode.nextElementSibling);
+    }
+}
+
+/**
  * Parses search expressions and update the ui for specified appid
  * @param {string} appid the application id
  * @returns {void}

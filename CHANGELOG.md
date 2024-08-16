@@ -19,6 +19,7 @@ Describe release here.
 ### Changelog
 
 - Feat: Rating for albums and playlists
+- Upd: Hide advanced search by default
 
 ***
 
