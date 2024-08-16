@@ -350,9 +350,9 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         get_placeholder_image(config->workdir, "coverimage-folder", &mg_user_data->placeholder_folder);
         get_placeholder_image(config->workdir, "coverimage-mympd", &mg_user_data->placeholder_mympd);
         get_placeholder_image(config->workdir, "coverimage-notavailable", &mg_user_data->placeholder_na);
-        get_placeholder_image(config->workdir, "coverimage-stream", &mg_user_data->placeholder_stream);
         get_placeholder_image(config->workdir, "coverimage-playlist", &mg_user_data->placeholder_playlist);
         get_placeholder_image(config->workdir, "coverimage-smartpls", &mg_user_data->placeholder_smartpls);
+        get_placeholder_image(config->workdir, "coverimage-stream", &mg_user_data->placeholder_stream);
 
         //cleanup
         FREE_SDS(new_mg_user_data->mpd_host);
@@ -835,20 +835,23 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-booklet"), NULL)) {
                 webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_booklet);
             }
+            else if (mg_match(hm->uri, mg_str("/assets/coverimage-folder"), NULL)) {
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_folder);
+            }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-mympd"), NULL)) {
                 webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_mympd);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-notavailable"), NULL)) {
                 webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_na);
             }
+            else if (mg_match(hm->uri, mg_str("/assets/coverimage-smartpls"), NULL)) {
+                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_smartpls);
+            }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-stream"), NULL)) {
                 webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_stream);
             }
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-playlist"), NULL)) {
                 webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_playlist);
-            }
-            else if (mg_match(hm->uri, mg_str("/assets/coverimage-smartpls"), NULL)) {
-                webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_smartpls);
             }
             else if (mg_match(hm->uri, mg_str("/index.html"), NULL)) {
                 webserver_send_header_redirect(nc, "/", "");

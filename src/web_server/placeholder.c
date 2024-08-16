@@ -20,11 +20,12 @@
  */
 const char *placeholder_image_names[] = {
     [PLACEHOLDER_BOOKLET] = "coverimage-booklet",
+    [PLACEHOLDER_FOLDER] = "coverimage-folder",
     [PLACEHOLDER_MYMPD] = "coverimage-mympd",
     [PLACEHOLDER_NA] = "coverimage-notavailable",
-    [PLACEHOLDER_STREAM] = "coverimage-stream",
     [PLACEHOLDER_PLAYLIST] = "coverimage-playlist",
-    [PLACEHOLDER_SMARTPLS] = "coverimage-smartpls"
+    [PLACEHOLDER_SMARTPLS] = "coverimage-smartpls",
+    [PLACEHOLDER_STREAM] = "coverimage-stream"
 };
 
 /**
@@ -33,7 +34,7 @@ const char *placeholder_image_names[] = {
  * @return placeholder name
  */
 const char* placeholder_lookup_name(enum placeholder_types placeholder) {
-    if (placeholder > 0 && placeholder < PLACEHOLDER_COUNT) {
+    if (placeholder >= 0 && placeholder < PLACEHOLDER_COUNT) {
         return placeholder_image_names[placeholder];
     }
     return placeholder_image_names[PLACEHOLDER_NA];

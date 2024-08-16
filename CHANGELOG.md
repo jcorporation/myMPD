@@ -18,6 +18,18 @@ Describe release here.
 
 ### Changelog
 
+- Feat: Rating for albums and playlists
+
+***
+
+## myMPD 17.0.2 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Handling of folder placeholder images
+
 ***
 
 ## myMPD 17.0.1 (2024-08-12)
