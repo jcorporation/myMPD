@@ -150,7 +150,8 @@ function webSocketConnect() {
                         "offset": app.current.offset,
                         "limit": app.current.limit,
                         "searchstr": app.current.search,
-                        "type": 0
+                        "type": 0,
+                        "fields": settings.viewBrowsePlaylistList.fields
                     }, parsePlaylistList, false);
                 }
                 else if (app.id === 'BrowsePlaylistDetail') {

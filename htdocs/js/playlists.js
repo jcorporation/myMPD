@@ -116,7 +116,8 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
         "searchstr": searchstr,
         "offset": 0,
         "limit": settings.webuiSettings.maxElementsPerPage,
-        "type": type
+        "type": type,
+        "fields": settings.viewBrowsePlaylistList.fields
     }, function(obj) {
         populatePlaylistSelect(obj, elId, selectedPlaylist);
     }, false);
