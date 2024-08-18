@@ -1200,5 +1200,8 @@
     "tags": "Tags",
     "url_resolved": "URL",
     "votes": "Stimmen",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Advanced search": "Erweiterte Suche",
+    "Failed to delete sticker": "Sticker konnte nicht gelöscht werden",
+    "Sticker not found": "Sticker nicht gefunden"
 }
