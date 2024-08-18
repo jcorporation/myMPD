@@ -21,7 +21,7 @@ function handleSearchSimple(appid) {
 }
 
 /**
- * Initializes search elements for specified appid
+ * Initializes simple search elements for specified appid
  * @param {string} appid the application id
  * @returns {void}
  */
@@ -32,10 +32,7 @@ function initSearchSimple(appid) {
             return;
         }
         clearSearchTimer();
-        const value = this.value;
-        searchTimer = setTimeout(function() {
-            execSearchSimple(value);
-        }, searchTimerTimeout);
+        execSearchSimple(event.target.value);
     }, false);
 
     // Android does not support search on type
@@ -45,7 +42,7 @@ function initSearchSimple(appid) {
                 return;
             }
             clearSearchTimer();
-            const value = this.value;
+            const value = event.target.value;
             searchTimer = setTimeout(function() {
                 execSearchSimple(value);
             }, searchTimerTimeout);

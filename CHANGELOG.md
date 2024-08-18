@@ -23,13 +23,14 @@ Describe release here.
 
 ***
 
-## myMPD 17.0.2 (not yet released)
+## myMPD 17.0.2 (2024-08-18)
 
 This is a small bug fix release.
 
 ### Changelog
 
 - Fix: Handling of folder placeholder images
+- Fix: Handling of Enter key for search inputs #1336
 
 ***
 

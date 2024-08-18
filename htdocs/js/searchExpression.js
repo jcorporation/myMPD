@@ -88,7 +88,7 @@ function clearSearchTimer() {
 }
 
 /**
- * Initializes search elements for specified appid
+ * Initializes advanced search elements for specified appid
  * @param {string} appid the application id
  * @returns {void}
  */
@@ -107,22 +107,15 @@ function initSearchExpression(appid) {
             return;
         }
         clearSearchTimer();
-        let value = this.value;
+        const value = event.target.value;
         if (value !== '') {
             const op = getSelectValueId(appid + 'SearchMatch');
             const crumbEl = elGetById(appid + 'SearchCrumb');
             crumbEl.appendChild(createSearchCrumb(app.current.filter, op, value));
             elShow(crumbEl);
-            this.value = '';
+            event.target.value = '';
         }
-        if (userAgentData.isAndroid === true) {
-            value = '';
-        }
-        if (value === '') {
-            searchTimer = setTimeout(function() {
-                execSearchExpression(value);
-            }, searchTimerTimeout);
-        }
+        execSearchExpression('');
     }, false);
 
     // Android does not support search on type
@@ -131,15 +124,15 @@ function initSearchExpression(appid) {
             if (ignoreKeys(event) === true) {
                 return;
             }
+            const value = event.target.value;
             //@ts-ignore
             if (searchTagsTimestamp.includes(app.current.filter) &&
-                isNaN(parseDateFromText(this.value)) === true)
+                isNaN(parseDateFromText(value)) === true)
             {
                 // disable search on type for timestamps
                 return;
             }
             clearSearchTimer();
-            const value = this.value;
             searchTimer = setTimeout(function() {
                 execSearchExpression(value);
             }, searchTimerTimeout);
