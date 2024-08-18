@@ -66,7 +66,6 @@ target_sources(mympd
     lib/mpack.c
     lib/passwd.c
     lib/pin.c
-    lib/m3u.c
     lib/msg_queue.c
     lib/mympd_state.c
     lib/random.c
