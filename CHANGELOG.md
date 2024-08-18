@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Handling of folder placeholder images
+- Fix: Handling of Enter key for search inputs #1336
 
 ***
 
