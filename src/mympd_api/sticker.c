@@ -11,7 +11,9 @@
 #include "compile_time.h"
 #include "src/mympd_api/sticker.h"
 
+#include "dist/utf8/utf8.h"
 #include "src/lib/jsonrpc.h"
+#include "src/lib/sds_extras.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/trigger.h"
 
@@ -162,12 +164,69 @@ sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct 
         buffer = tojson_int64(buffer, sticker_name_lookup(stickers->stickers[i]), sticker->mympd[stickers->stickers[i]], false);
     }
     if (stickers->user_defined == true) {
+        buffer = sdscat(buffer, ",\"sticker\":{");
         struct t_list_node *current = sticker->user.head;
         while (current != NULL) {
-            buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_char(buffer, current->key, current->value_p, false);
             current = current->next;
+            if (current != NULL) {
+                buffer = sdscatlen(buffer, ",", 1);
+            }
         }
+        buffer = sdscatlen(buffer, "}", 1);
     }
+    return buffer;
+}
+
+/**
+ * Print the sticker types as json array
+ * @param buffer already allocated sds string to append the list
+ * @return Pointer to buffer
+ */
+sds mympd_api_sticker_print_types(sds buffer) {
+    //TODO: get sticker types from MPD
+    buffer = sdscat(buffer, "\"song\",\"filter\",\"playlist\"");
+    return buffer;
+}
+
+/**
+ * Lists user defined sticker names by type
+ * @param stickerdb Pointer to stickerdb
+ * @param buffer Already allocated sds string to append the list
+ * @param request_id jsonrpc request id
+ * @param searchstr Search string
+ * @param type MPD sticker type
+ * @return Pointer to buffer
+ */
+sds mympd_api_sticker_names(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
+        sds searchstr, enum mympd_sticker_type type)
+{
+    struct t_list sticker_names;
+    list_init(&sticker_names);
+    if (stickerdb_get_names(stickerdb, type, &sticker_names) == false) {
+        return jsonrpc_respond_message(buffer, MYMPD_API_STICKER_NAMES, request_id,
+                JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Failure listing stickernames");
+    }
+    buffer = jsonrpc_respond_start(buffer, MYMPD_API_STICKER_NAMES, request_id);
+    buffer = sdscat(buffer,"\"data\":[");
+    struct t_list_node *current = sticker_names.head;
+    unsigned entities_returned = 0;
+    while (current != NULL) {
+        if (sticker_name_parse(current->key) == STICKER_UNKNOWN &&
+            (sdslen(searchstr) == 0 ||
+             utf8casestr(current->key, searchstr) != NULL))
+        {
+            if (entities_returned++) {
+                buffer= sdscatlen(buffer, ",", 1);
+            }
+            buffer = sds_catjson(buffer, current->key, sdslen(current->key));
+        }
+        current = current->next;
+    }
+    buffer = sdscatlen(buffer, "],", 2);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "totalEntities", entities_returned, false);
+    buffer = jsonrpc_end(buffer);
+    list_clear(&sticker_names);
     return buffer;
 }

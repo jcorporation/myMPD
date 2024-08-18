@@ -275,6 +275,35 @@ int64_t stickerdb_get_int64(struct t_stickerdb_state *stickerdb, enum mympd_stic
 }
 
 /**
+ * Gets all sticker names by type
+ * @param stickerdb pointer to the stickerdb state
+ * @param type MPD sticker type
+ * @param sticker_names List to populate
+ * @return true on success, else false
+ */
+bool stickerdb_get_names(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, struct t_list *sticker_names) {
+    struct mpd_pair *pair;
+    const char *type_name = mympd_sticker_type_name_lookup(type);
+    if (type_name == NULL) {
+        return false;
+    }
+    if (stickerdb_connect(stickerdb) == false) {
+        return false;
+    }
+    //TODO: filter by sticker type
+    if (mpd_send_stickernames(stickerdb->conn)) {
+        while ((pair = mpd_recv_pair(stickerdb->conn)) != NULL) {
+            list_push(sticker_names, pair->value, 0, NULL, NULL);
+            mpd_return_pair(stickerdb->conn, pair);
+        }
+    }
+    mpd_response_finish(stickerdb->conn);
+    stickerdb_check_error_and_recover(stickerdb, "mpd_send_stickernames");
+    stickerdb_enter_idle(stickerdb);
+    return true;
+}
+
+/**
  * Gets all stickers.
  * You must manage the idle state manually.
  * @param stickerdb pointer to the stickerdb state

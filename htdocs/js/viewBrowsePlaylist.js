@@ -58,6 +58,18 @@ function initViewPlaylist() {
 }
 
 /**
+ * Shows the edit sticker modal for the current playlist
+ * @param {Event} event triggering click event
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showPlaylistSticker(event) {
+    event.preventDefault();
+    const uri = getDataId('BrowsePlaylistDetailList', 'uri');
+    showStickerModal(uri, 'playlist');
+}
+
+/**
  * Click event handler for playlist list
  * @param {MouseEvent} event click event
  * @param {HTMLElement} target calculated target

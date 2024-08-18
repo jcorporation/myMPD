@@ -6,19 +6,21 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v18.0.0 (not yet released)
 
-Describe release here.
+This release improves the support for the new MPD 0.24 sticker features. You can now rate not only songs but also albums and playlists and add custom stickers to songs, albums and playlists.
 
 ### API changes
 
 - MYMPD_API_STICKER_GET: new
 - MYMPD_API_STICKER_DELETE: new
 - MYMPD_API_STICKER_LIST: new
+- MYMPD_API_STICKER_NAMES: new
 - MYMPD_API_STICKER_SET: new
 - MYMPD_API_PLAYLIST_LIST: add parameter fields
 
 ### Changelog
 
-- Feat: Rating for albums and playlists
+- Feat: Rating for albums and playlists #1134
+- Feat: User defined stickers #1091
 - Upd: Hide advanced search by default
 
 ***

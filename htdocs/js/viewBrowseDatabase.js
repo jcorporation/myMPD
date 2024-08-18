@@ -206,6 +206,18 @@ function parseDatabaseAlbumList(obj) {
 }
 
 /**
+ * Shows the edit sticker modal for the current album
+ * @param {Event} event triggering click event
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showAlbumSticker(event) {
+    event.preventDefault();
+    const uri = getDataId('viewDatabaseAlbumDetailCover', 'expression');
+    showStickerModal(uri, 'filter');
+}
+
+/**
  * Parses the MYMPD_API_DATABASE_ALBUM_DETAIL response
  * @param {object} obj jsonrpc response object
  * @returns {void}
@@ -226,6 +238,7 @@ function parseAlbumDetails(obj) {
     setData(coverEl, 'images', obj.result.images);
     setData(coverEl, 'embeddedImageCount', obj.result.embeddedImageCount);
     setData(coverEl, 'uri', obj.result.data[0].uri);
+    setData(coverEl, 'expression', obj.result.expression);
     const feedbackGrp = elGetById('BrowseDatabaseAlbumDetailFeedback').firstElementChild;
     setData(feedbackGrp, 'uri', obj.result.expression);
     setFeedback(feedbackGrp, obj.result.like, obj.result.rating);

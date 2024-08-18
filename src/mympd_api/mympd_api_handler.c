@@ -835,6 +835,20 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                         JSONRPC_FACILITY_STICKER, error);
             }
             break;
+        case MYMPD_API_STICKER_NAMES:
+            if (mympd_state->mpd_state->feat.advsticker == false) {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Method not supported");
+                break;
+            }
+            if (json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf1, vcb_ismpdstickertype, &parse_error) == true &&
+                json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
+            {
+                enum mympd_sticker_type type = mympd_sticker_type_name_parse(sds_buf1);
+                response->data = mympd_api_sticker_names(mympd_state->stickerdb, response->data, request->id,
+                        sds_buf2, type);
+            }
+            break;
     // queue
         case MYMPD_API_QUEUE_CLEAR:
             mpd_run_clear(partition_state->conn);

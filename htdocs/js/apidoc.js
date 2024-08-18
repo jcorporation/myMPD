@@ -1148,6 +1148,13 @@ const APImethods = {
             "type": APIparams.stickerType
         }
     },
+    "MYMPD_API_STICKER_NAMES": {
+        "desc": "Lists all user defined sticker names by type",
+        "params": {
+            "type": APIparams.stickerType,
+            "searchstr": APIparams.searchstr
+        }
+    },
     "MYMPD_API_STICKER_SET": {
         "desc": "Sets a MPD sticker.",
         "params": {

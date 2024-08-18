@@ -1203,5 +1203,10 @@
     "wasapi": "Windows Audio Session API",
     "Advanced search": "Erweiterte Suche",
     "Failed to delete sticker": "Sticker konnte nicht gelöscht werden",
-    "Sticker not found": "Sticker nicht gefunden"
+    "Sticker not found": "Sticker nicht gefunden",
+    "Choose or enter a new sticker name": "Sticker auswählen oder neuen Namen eingeben",
+    "Do you really want to delete the sticker?": "Soll der Sticker wirklich gelöscht werden?",
+    "Failure listing stickernames": "Stickernamen konnten nicht gelistet werden.",
+    "Invalid sticker value": "Ungültiger Stickerwert",
+    "New sticker": "Neuer Sticker"
 }

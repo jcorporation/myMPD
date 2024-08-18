@@ -139,14 +139,17 @@ function parseCurrentSong(obj) {
 
     if (features.featStickers === true) {
         const PlaybackSongFeedbackEl = elGetById('PlaybackSongFeedback').firstElementChild;
+        const PlaybackSongStickerEl = elGetById('PlaybackSongSticker');
         setData(PlaybackSongFeedbackEl, 'uri', obj.result.uri);
         if (isValidUri(obj.result.uri) === false ||
             isStreamUri(obj.result.uri) === true)
         {
             elDisableBtnGroup(PlaybackSongFeedbackEl);
+            elDisableBtnGroup(PlaybackSongStickerEl);
         }
         else {
             elEnableBtnGroup(PlaybackSongFeedbackEl);
+            elEnableBtnGroup(PlaybackSongStickerEl);
         }
         setFeedback(PlaybackSongFeedbackEl, obj.result.like, obj.result.rating);
     }
@@ -358,4 +361,15 @@ function showAddToPlaylistCurrentSong() {
     if (uri !== '') {
         showAddToPlaylist('song', [uri]);
     }
+}
+
+/**
+ * Shows the edit sticker modal for the current song
+ * @param {Event} event triggering click event
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showCurrentSongSticker(event) {
+    event.preventDefault();
+    showStickerModal(currentSongObj.uri, 'song');
 }

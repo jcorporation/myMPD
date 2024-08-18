@@ -30,6 +30,7 @@
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/jukebox.h"
+#include "src/mympd_api/sticker.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
@@ -1125,6 +1126,10 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = sdscat(buffer, ",\"triggerEvents\":{");
         buffer = mympd_api_trigger_print_event_list(buffer);
         buffer = sdscatlen(buffer, "}", 1);
+        //sticker types
+        buffer = sdscat(buffer, ",\"stickerTypes\":[");
+        buffer = mympd_api_sticker_print_types(buffer);
+        buffer = sdscatlen(buffer, "]", 1);
     }
     buffer = jsonrpc_end(buffer);
     return buffer;

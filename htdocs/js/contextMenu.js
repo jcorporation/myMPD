@@ -350,6 +350,9 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
     if (type === 'song') {
         addDivider(contextMenuBody);
         addMenuItem(contextMenuBody, {"cmd": "songDetails", "options": [uri]}, 'Song details');
+        if (features.featStickerAdv === true) {
+            addMenuItem(contextMenuBody, {"cmd": "showStickerModal", "options": [uri, type]}, 'Sticker');
+        }
     }
     if (features.featHome === true &&
         app.id !== 'Home')
@@ -601,6 +604,10 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 addDivider(contextMenuBody);
                 addMenuItem(contextMenuBody, {"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist');
                 addMenuItem(contextMenuBody, {"cmd": "updateSmartPlaylist", "options": [uri]}, 'Update smart playlist');
+            }
+            if (features.featStickerAdv === true) {
+                addDivider(contextMenuBody);
+                addMenuItem(contextMenuBody, {"cmd": "showStickerModal", "options": [uri, 'playlist']}, 'Sticker');
             }
             return true;
         }

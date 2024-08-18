@@ -59,7 +59,7 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     }
 
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-            buffer = sdscat(buffer,"\"data\":[");
+    buffer = sdscat(buffer,"\"data\":[");
 
     sds key = sdsempty();
     raxIterator iter;
