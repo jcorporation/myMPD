@@ -236,6 +236,7 @@ function parseSettings(obj) {
         settings.webuiSettings.quickRemoveButton === true)
     {
         pEl.actionIcons = pEl.actionMenuPlay;
+        pEl.actionDiscIcons = pEl.actionMenuDiscPlay;
         pEl.actionQueueIcons = pEl.actionMenuRemove;
         pEl.actionJukeboxIcons = pEl.actionMenuPlayRemove;
         pEl.actionPlaylistDetailIcons = pEl.actionMenuPlayRemove;
@@ -243,6 +244,7 @@ function parseSettings(obj) {
     }
     else if (settings.webuiSettings.quickPlayButton === true) {
         pEl.actionIcons = pEl.actionMenuPlay;
+        pEl.actionDiscIcons = pEl.actionMenuDiscPlay;
         pEl.actionQueueIcons = pEl.actionMenu;
         pEl.actionJukeboxIcons = pEl.actionMenuPlay;
         pEl.actionPlaylistDetailIcons = pEl.actionMenuPlay;
@@ -250,6 +252,7 @@ function parseSettings(obj) {
     }
     else if (settings.webuiSettings.quickRemoveButton === true) {
         pEl.actionIcons = pEl.actionMenu;
+        pEl.actionDiscIcons = pEl.actionMenuDisc;
         pEl.actionQueueIcons = pEl.actionMenuRemove;
         pEl.actionJukeboxIcons = pEl.actionMenuRemove;
         pEl.actionPlaylistDetailIcons = pEl.actionMenuRemove;
@@ -257,6 +260,7 @@ function parseSettings(obj) {
     }
     else {
         pEl.actionIcons = pEl.actionMenu;
+        pEl.actionDiscIcons = pEl.actionMenuDisc;
         pEl.actionQueueIcons = pEl.actionMenu;
         pEl.actionJukeboxIcons = pEl.actionMenu;
         pEl.actionPlaylistDetailIcons = pEl.actionMenu;

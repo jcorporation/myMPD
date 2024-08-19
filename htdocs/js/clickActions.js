@@ -45,17 +45,26 @@ function clickQuickRemove(target) {
  * @returns {void}
  */
 function clickQuickPlay(target) {
-    const type = getData(target.parentNode.parentNode, 'type');
-    const uri = type === 'album'
-        ? getData(target.parentNode.parentNode, 'AlbumId')
-        : getData(target.parentNode.parentNode, 'uri');
+    const dataNode = target.parentNode.parentNode;
+    const type = getData(dataNode, 'type');
+    const uri = [];
+    switch(type) {
+        case 'album':
+            uri.push(getData(dataNode, 'AlbumId'));
+            break;
+        case 'disc':
+            uri.push(getData(dataNode, 'AlbumId'), getData(dataNode, 'Disc'));
+            break;
+        default:
+            uri.push(getData(dataNode, 'uri'));
+    }
     switch (settings.webuiSettings.clickQuickPlay) {
-        case 'append': return appendQueue(type, [uri]);
-        case 'appendPlay': return appendPlayQueue(type, [uri]);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, [uri]);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, [uri]);
-        case 'replace': return replaceQueue(type, [uri]);
-        case 'replacePlay': return replacePlayQueue(type, [uri]);
+        case 'append': return appendQueue(type, uri);
+        case 'appendPlay': return appendPlayQueue(type, uri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, uri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, uri);
+        case 'replace': return replaceQueue(type, uri);
+        case 'replacePlay': return replacePlayQueue(type, uri);
         default: logError('Invalid action: ' + settings.webuiSettings.clickQuickPlay);
     }
 }

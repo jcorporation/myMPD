@@ -231,6 +231,8 @@ function getActionLinks(userData) {
                 return pEl.actionMenuBrowseDatabaseTagSongAlbums;
             }
             return pEl.actionMenuBrowseDatabaseTagSongs;
+        case 'BrowseDatabaseAlbumDetail':
+            return userData === 'disc' ? pEl.actionDiscIcons : pEl.actionIcons;
         default:
             return pEl.actionIcons;
     }

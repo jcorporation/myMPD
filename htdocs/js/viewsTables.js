@@ -149,18 +149,18 @@ function replaceTblRow(mode, row, el) {
  * @returns {HTMLElement} the created row
  */
 function addDiscRow(disc, albumId, colspan) {
+    const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+    addActionLinks(actionTd, 'disc');
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
         elCreateNode('td', {},
             elCreateText('span', {"class": ["mi"]}, 'album')
         ),
         elCreateTextTnNr('td', {"colspan": (colspan - 1)}, 'Discnum', disc),
-        elCreateNode('td', {"data-col": "Action"},
-            elCreateText('a', {"data-action": "popover", "data-contextmenu": "disc", "href": "#", "class": ["mi", "color-darkgrey"],
-                "data-title-phrase":"Actions"}, ligatures['more'])
-        )
+        actionTd
     ]);
     setData(row, 'Disc', disc);
     setData(row, 'AlbumId', albumId);
+    setData(row, 'type', 'disc');
     return row;
 }
 
