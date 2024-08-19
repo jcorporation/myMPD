@@ -28,6 +28,12 @@ bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, stru
 bool mympd_api_queue_append_uri_tags(struct t_partition_state *partition_state, sds uri, struct t_list *tags, sds *error);
 bool mympd_api_queue_insert_uri_tags(struct t_partition_state *partition_state, sds uri,
         struct t_list *tags, unsigned to, unsigned whence, sds *error);
+bool mympd_api_queue_insert_uri_resume(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        sds uri, unsigned to, unsigned whence, sds *error);
+bool mympd_api_queue_append_uri_resume(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        sds uri, sds *error);
+bool mympd_api_queue_replace_uri_resume(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        sds uri, sds *error);
 bool mympd_api_queue_replace_uri_tags(struct t_partition_state *partition_state, sds uri, struct t_list *tags, sds *error);
 bool mympd_api_queue_append(struct t_partition_state *partition_state, struct t_list *uris, sds *error);
 bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_list *uris, unsigned to, unsigned whence, sds *error);

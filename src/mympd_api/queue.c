@@ -272,6 +272,65 @@ bool mympd_api_queue_replace_uri_tags(struct t_partition_state *partition_state,
 }
 
 /**
+ * Inserts an uri to the queue and resumes playback.
+ * @param partition_state pointer to partition state
+ * @param uri uri to add to the queue
+ * @param to where to insert the uri
+ * @param whence How to interprete the to parameter
+ * @param error pointer to an already allocated sds string for the error message
+ * @return bool true on success, else false
+ */
+bool mympd_api_queue_insert_uri_resume(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        sds uri, unsigned to, unsigned whence, sds *error)
+{
+    int64_t elapsed = stickerdb_get_int64(stickerdb, STICKER_TYPE_SONG, uri, "elapsed");
+    int id = to == UINT_MAX
+        ? mpd_run_add_id(partition_state->conn, uri)
+        : mpd_run_add_id_whence(partition_state->conn, uri, to, whence);
+    if (id == -1) {
+        mympd_check_error_and_recover(partition_state, error, "mpd_run_add_id_whence");
+        if (sdslen(*error) == 0) {
+            *error = sdscat(*error, "Failure getting inserted song id");
+        }
+        return false;
+    }
+    if (mpd_command_list_begin(partition_state->conn, false)) {
+        mpd_send_seek_id(partition_state->conn, (unsigned)id, (unsigned)elapsed);
+        mpd_send_play_id(partition_state->conn, (unsigned)id);
+        mpd_client_command_list_end_check(partition_state);
+    }
+    mpd_response_finish(partition_state->conn);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_send_seek_id");
+}
+
+/**
+ * Appends an uri to the queue and resumes playback.
+ * @param partition_state pointer to partition state
+ * @param uri uri to add to the queue
+ * @param error pointer to an already allocated sds string for the error message
+ * @return bool true on success, else false
+ */
+bool mympd_api_queue_append_uri_resume(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        sds uri, sds *error)
+{
+    return mympd_api_queue_insert_uri_resume(partition_state, stickerdb, uri, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
+}
+
+/**
+ * Replaces the queue with the uri and resumes playback.
+ * @param partition_state pointer to partition state
+ * @param uri uri to add to the queue
+ * @param error pointer to an already allocated sds string for the error message
+ * @return bool true on success, else false
+ */
+bool mympd_api_queue_replace_uri_resume(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
+        sds uri, sds *error)
+{
+    return mpd_client_queue_clear(partition_state, error) &&
+        mympd_api_queue_append_uri_resume(partition_state, stickerdb, uri, error);
+}
+
+/**
  * Insert uris into the queue
  * @param partition_state pointer to partition state
  * @param uris uris to insert

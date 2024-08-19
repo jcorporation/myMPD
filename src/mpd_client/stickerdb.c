@@ -242,7 +242,7 @@ sds stickerdb_get(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type t
  * @param type MPD sticker type
  * @param uri sticker uri
  * @param name sticker name
- * @return pointer to sticker value
+ * @return sticker value or 0 on error
  */
 int64_t stickerdb_get_int64_batch(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     int64_t value = 0;
@@ -259,7 +259,7 @@ int64_t stickerdb_get_int64_batch(struct t_stickerdb_state *stickerdb, enum mymp
  * @param type MPD sticker type
  * @param uri sticker uri
  * @param name sticker name
- * @return pointer to sticker value
+ * @return sticker value or 0 on error
  */
 int64_t stickerdb_get_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
     int64_t value = 0;

@@ -440,13 +440,21 @@ const APImethods = {
         }
     },
     "MYMPD_API_QUEUE_INSERT_URI_TAGS": {
-        "desc": "Adds an uri to distinct position in the queue and set tags.",
+        "desc": "Adds a stream uri to distinct position in the queue and set tags.",
         "params": {
             "uri": APIparams.streamUri,
             "tags": APIparams.tagValues,
             "to": APIparams.to,
             "whence": APIparams.whence,
             "play": APIparams.play
+        }
+    },
+    "MYMPD_API_QUEUE_INSERT_URI_RESUME": {
+        "desc": "Adds an uri to distinct position in the queue and resumes playback.",
+        "params": {
+            "uri": APIparams.uri,
+            "to": APIparams.to,
+            "whence": APIparams.whence
         }
     },
     "MYMPD_API_QUEUE_INSERT_SEARCH": {
@@ -494,11 +502,17 @@ const APImethods = {
         }
     },
     "MYMPD_API_QUEUE_APPEND_URI_TAGS": {
-        "desc": "Appends an uri to the queue and set tags.",
+        "desc": "Appends a stream uri to the queue and set tags.",
         "params": {
             "uri": APIparams.streamUri,
             "tags": APIparams.tagValues,
             "play": APIparams.play
+        }
+    },
+    "MYMPD_API_QUEUE_APPEND_URI_RESUME": {
+        "desc": "Appends an uri to the queue and resumes playback.",
+        "params": {
+            "uri": APIparams.uri
         }
     },
     "MYMPD_API_QUEUE_APPEND_SEARCH": {
@@ -540,11 +554,17 @@ const APImethods = {
         }
     },
     "MYMPD_API_QUEUE_REPLACE_URI_TAGS": {
-        "desc": "Replaces the queue with uri and set tags.",
+        "desc": "Replaces the queue with stream uri and set tags.",
         "params": {
             "uri": APIparams.streamUri,
             "tags": APIparams.tagValues,
             "play": APIparams.play
+        }
+    },
+    "MYMPD_API_QUEUE_REPLACE_URI_RESUME": {
+        "desc": "Replaces the queue with uri and resumes playback.",
+        "params": {
+            "uri": APIparams.uri
         }
     },
     "MYMPD_API_QUEUE_REPLACE_SEARCH": {
