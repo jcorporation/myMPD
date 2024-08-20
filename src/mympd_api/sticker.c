@@ -12,8 +12,10 @@
 #include "src/mympd_api/sticker.h"
 
 #include "dist/utf8/utf8.h"
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/sds_extras.h"
+#include "src/mpd_client/search.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/trigger.h"
 
@@ -229,4 +231,39 @@ sds mympd_api_sticker_names(struct t_stickerdb_state *stickerdb, sds buffer, uns
     buffer = jsonrpc_end(buffer);
     list_clear(&sticker_names);
     return buffer;
+}
+
+/**
+ * Translates myMPD specific sticker types to MPD sticker types
+ * @param mympd_state Pointer to mympd_state
+ * @param uri Sticker URI
+ * @param type Pointer to mympd_sticker_type
+ * @return Pointer to uri
+ */
+sds mympd_api_get_sticker_uri(struct t_mympd_state *mympd_state, sds uri, enum mympd_sticker_type *type) {
+    if (*type != STICKER_TYPE_MYMPD_ALBUM) {
+        return uri;
+    }
+
+    struct mpd_song *album = album_cache_get_album(&mympd_state->album_cache, uri);
+    if (album != NULL) {
+        *type = STICKER_TYPE_FILTER;
+        FREE_SDS(uri);
+        return get_search_expression_album(mympd_state->mpd_state->tag_albumartist, album, &mympd_state->config->albums);
+    }
+    return uri;
+}
+
+/**
+ * Translates myMPD sticker types to MPD sticker types
+ * @param type myMPD sticker type
+ * @return MPD sticker type
+ */
+enum mympd_sticker_type mympd_api_get_mpd_sticker_type(enum mympd_sticker_type type) {
+    switch(type) {
+        case STICKER_TYPE_MYMPD_ALBUM:
+            return STICKER_TYPE_FILTER;
+        default:
+            return type;
+    }
 }

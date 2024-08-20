@@ -238,9 +238,9 @@ function parseAlbumDetails(obj) {
     setData(coverEl, 'images', obj.result.images);
     setData(coverEl, 'embeddedImageCount', obj.result.embeddedImageCount);
     setData(coverEl, 'uri', obj.result.data[0].uri);
-    setData(coverEl, 'expression', obj.result.expression);
+    setData(coverEl, 'AlbumId', obj.result.AlbumId);
     const feedbackGrp = elGetById('BrowseDatabaseAlbumDetailFeedback').firstElementChild;
-    setData(feedbackGrp, 'uri', obj.result.expression);
+    setData(feedbackGrp, 'uri', obj.result.AlbumId);
     setFeedback(feedbackGrp, obj.result.like, obj.result.rating);
 
     elClear(infoEl);

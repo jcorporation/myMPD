@@ -304,7 +304,7 @@ function parseSettings(obj) {
     applyFeatures();
     setFeedbacktypeId('PlaybackSongFeedback', 'song');
     setFeedbacktypeId('BrowsePlaylistDetailFeedback', 'playlist');
-    setFeedbacktypeId('BrowseDatabaseAlbumDetailFeedback', 'filter');
+    setFeedbacktypeId('BrowseDatabaseAlbumDetailFeedback', 'mympd_album');
     settingsParsed = 'parsed';
     myMPDready = true;
     return true;

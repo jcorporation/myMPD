@@ -28,5 +28,7 @@ sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct 
 sds mympd_api_sticker_print_types(sds buffer);
 sds mympd_api_sticker_names(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
         sds searchstr, enum mympd_sticker_type type);
+sds mympd_api_get_sticker_uri(struct t_mympd_state *mympd_state, sds uri, enum mympd_sticker_type *type);
+enum mympd_sticker_type mympd_api_get_mpd_sticker_type(enum mympd_sticker_type type);
 
 #endif

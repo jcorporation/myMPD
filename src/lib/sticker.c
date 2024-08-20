@@ -20,6 +20,7 @@ static const char *const mpd_sticker_types_names[STICKER_TYPE_COUNT] = {
     [STICKER_TYPE_SONG] = "song",
     [STICKER_TYPE_PLAYLIST] = "playlist",
     [STICKER_TYPE_FILTER] = "filter",
+    [STICKER_TYPE_MYMPD_ALBUM] = "mympd_album",
     [STICKER_TYPE_TAG_TITLE] = "Title",
     [STICKER_TYPE_TAG_ALBUM] = "Album",
     [STICKER_TYPE_TAG_ARTIST] = "Artist",

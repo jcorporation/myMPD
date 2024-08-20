@@ -289,6 +289,9 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
     if (app.id !== 'BrowseDatabaseAlbumDetail') {
         addMenuItem(contextMenuBody, {"cmd": "gotoAlbum", "options": [albumId]}, 'Album details');
     }
+    if (features.featStickerAdv === true) {
+        addMenuItem(contextMenuBody, {"cmd": "showStickerModal", "options": [albumId, 'mympd_album']}, 'Sticker');
+    }
     for (const tag of settings.tagListBrowse) {
         if (dataNode !== null &&
             albumFilters.includes(tag))
