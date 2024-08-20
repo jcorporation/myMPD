@@ -154,13 +154,14 @@ function parseState(obj) {
     //clear playback card if no current song
     if (obj.result.songPos === -1) {
         document.title = 'myMPD';
-        elGetById('PlaybackTitle').textContent = tn('Not playing');
+        const playbackTitleEl = elGetById('PlaybackTitle');
         const footerTitleEl = elGetById('footerTitle');
+        playbackTitleEl.textContent = tn('Not playing');
         footerTitleEl.textContent = tn('Not playing');
         footerTitleEl.removeAttribute('title');
         footerTitleEl.classList.remove('clickable');
+        playbackTitleEl.classList.remove('clickable');
         elGetById('footerCover').classList.remove('clickable');
-        elGetById('PlaybackTitle').classList.remove('clickable');
         elGetById('PlaybackCover').classList.remove('clickable');
         clearCurrentCover();
         const pb = document.querySelectorAll('#PlaybackListTags p');
