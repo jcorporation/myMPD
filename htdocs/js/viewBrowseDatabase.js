@@ -213,8 +213,8 @@ function parseDatabaseAlbumList(obj) {
 //eslint-disable-next-line no-unused-vars
 function showAlbumSticker(event) {
     event.preventDefault();
-    const uri = getDataId('viewDatabaseAlbumDetailCover', 'expression');
-    showStickerModal(uri, 'filter');
+    const uri = getDataId('viewDatabaseAlbumDetailCover', 'AlbumId');
+    showStickerModal(uri, 'mympd_album');
 }
 
 /**
