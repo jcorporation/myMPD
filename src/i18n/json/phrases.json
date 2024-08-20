@@ -383,6 +383,7 @@
 {"term":"Insert API call"},
 {"term":"Insert after current playing song"},
 {"term":"Insert at start of playlist"},
+{"term":"Insert at start of queue"},
 {"term":"Insert function"},
 {"term":"Insert mode"},
 {"term":"Interval"},

@@ -379,6 +379,7 @@
     "Insert after current playing song": "Nach aktuell gespieltem Lied einfügen",
     "Insert at start of playlist": "Am Anfang der Wiedergabeliste einfügen",
     "Insert function": "Füge Funktion hinzu",
+    "Insert at start of queue": "Am Anfang der Warteschlange einfügen",
     "Insert mode": "Einfügemodus",
     "Interval": "Interval",
     "Invalid API request": "Ungültiger API Befehl",

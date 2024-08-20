@@ -88,7 +88,7 @@ function parseFingerprint(obj) {
 /**
  * Adds a row to the song details modal
  * @param {string} thContent text for th
- * @param {HTMLElement | Node | string} tdContent content element fot td
+ * @param {HTMLElement | Node | string} tdContent content element for td
  * @returns {HTMLElement} created row
  */
 function songDetailsRow(thContent, tdContent) {
@@ -268,6 +268,22 @@ function parseSongDetails(obj) {
                         ])
                     );
                 }
+            }
+            else if (sticker === 'elapsed') {
+                const div = elCreateNode('div', {}, printValue(sticker, obj.result[sticker]));
+                if (obj.result[sticker] > 0) {
+                    const resumeBtn = pEl.songResumeBtn.cloneNode(true);
+                    resumeBtn.classList.add('float-end');
+                    div.appendChild(resumeBtn);
+                    setData(resumeBtn, 'uri', obj.result.uri);
+                    new BSN.Dropdown(resumeBtn.firstElementChild);
+                    resumeBtn.lastElementChild.firstElementChild.addEventListener('click', function(event) {
+                        clickResumeSong(event);
+                    }, false);
+                }
+                tbody.appendChild(
+                    songDetailsRow(sticker, div)
+                );
             }
             else {
                 tbody.appendChild(

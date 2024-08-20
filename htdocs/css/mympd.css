@@ -377,7 +377,7 @@ th,
   }
 }
 
-@media (min-width: 992px) {
+@media only screen and (width >= 992px) {
   .modal-lg, .modal-xl {
     --bs-modal-width: 920px;
   }

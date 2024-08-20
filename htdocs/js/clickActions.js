@@ -409,3 +409,38 @@ function clickConsume(mode) {
         "consume": mode
     }, null, false);
 }
+
+/**
+ * Handler for resume dropdown actions
+ * @param {Event} event Click event
+ * @returns {void}
+ */
+function clickResumeSong(event) {
+    event.preventDefault();
+    if (event.target.nodeName !== 'BUTTON') {
+        return;
+    }
+    const dataNode = event.target.closest('.btn-group');
+    const uri = getData(dataNode, 'uri');
+    const action = event.target.getAttribute('data-action');
+    switch(action) {
+        case 'append':
+            sendAPI("MYMPD_API_QUEUE_APPEND_URI_RESUME", {
+                'uri': uri
+            }, null, false);
+            break;
+        case 'insert':
+            sendAPI('MYMPD_API_QUEUE_INSERT_URI_RESUME', {
+                'uri': uri,
+                'to': 0,
+                'whence': 0
+            }, null, false);
+            break;
+        case 'replace':
+            sendAPI("MYMPD_API_QUEUE_APPEND_URI_RESUME", {
+                'uri': uri
+            }, null, false);
+            break;
+        // No default
+    }
+}
