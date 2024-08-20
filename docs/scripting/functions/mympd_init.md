@@ -43,6 +43,7 @@ The lua table mympd_state is populated with following fields. Additionally all u
 | mixrampdb | Float | Mixramp DB |
 | music_directory | String | Path to the mpd music directory |
 | mympd_uri | String | Canonical myMPD uri |
+| mympd_uri_plain | String | Canonical myMPD uri (http://) |
 | next_song_id | Integer | Next song id in queue |
 | next_song_pos | Integer | Next song position in queue |
 | play_state | Integer | Player state: 0 = unknown, 1 = stop, 2 = play, 3 = pause |

@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Add variable mympd_uri_plain to mympd_env for Lua scripts
+
 ***
 
 ## myMPD 17.0.2 (2024-08-18)
