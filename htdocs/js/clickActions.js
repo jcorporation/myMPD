@@ -11,26 +11,30 @@
  * @returns {void}
  */
 function clickQuickRemove(target) {
+    let dataNode = target.parentNode.parentNode;
+    if (dataNode.classList.contains('row')) {
+        dataNode = dataNode.parentNode;
+    }
     switch(app.id) {
         case 'QueueCurrent': {
-            const songId = getData(target.parentNode.parentNode, 'songid');
+            const songId = getData(dataNode, 'songid');
             removeFromQueueIDs([songId]);
             break;
         }
         case 'BrowsePlaylistList': {
-            const plist = getData(target.parentNode.parentNode, 'uri');
+            const plist = getData(dataNode, 'uri');
             showDelPlaylist([plist]);
             break;
         }
         case 'BrowsePlaylistDetail': {
-            const pos = getData(target.parentNode.parentNode, 'pos');
+            const pos = getData(dataNode, 'pos');
             const plist = getDataId('BrowsePlaylistDetailList', 'uri');
             removeFromPlaylistPositions(plist, [pos]);
             break;
         }
         case 'QueueJukeboxSong':
         case 'QueueJukeboxAlbum': {
-            const pos = getData(target.parentNode.parentNode, 'pos');
+            const pos = getData(dataNode, 'pos');
             delQueueJukeboxEntries([pos]);
             break;
         }
@@ -45,7 +49,10 @@ function clickQuickRemove(target) {
  * @returns {void}
  */
 function clickQuickPlay(target) {
-    const dataNode = target.parentNode.parentNode;
+    let dataNode = target.parentNode.parentNode;
+    if (dataNode.classList.contains('row')) {
+        dataNode = dataNode.parentNode;
+    }
     const type = getData(dataNode, 'type');
     const uri = [];
     switch(type) {

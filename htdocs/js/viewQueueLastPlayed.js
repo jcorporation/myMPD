@@ -50,25 +50,38 @@ function parseLastPlayed(obj) {
         return;
     }
 
-    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
         updateTable(obj, app.id, function(row, data) {
-            setData(row, 'uri', data.uri);
-            setData(row, 'name', data.Title);
-            setData(row, 'type', 'song');
-            row.setAttribute('title', tn(rowTitle));
+            parseLastPlayedUpdate(row, data);
         });
         addTblFooter(tfoot,
             elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities)
         );
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        card.setAttribute('title', tn(rowTitle));
-        setData(card, 'uri', data.uri);
-        setData(card, 'name', data.Title);
-        setData(card, 'type', 'song');
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            parseLastPlayedUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parseLastPlayedUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parseLastPlayedUpdate(card, data) {
+    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+    card.setAttribute('title', tn(rowTitle));
+    setData(card, 'uri', data.uri);
+    setData(card, 'name', data.Title);
+    setData(card, 'type', 'song');
 }

@@ -146,33 +146,44 @@ function viewBrowseFilesystemListClickHandler(event, target) {
         elHide(imageList);
     }
 
-    const rowTitleSong = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
-    const rowTitleFolder = 'Open directory';
-    const rowTitlePlaylist = settingsWebuiFields.clickFilesystemPlaylist.validValues[settings.webuiSettings.clickFilesystemPlaylist];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
         updateTable(obj, app.id, function(row, data) {
-            setData(row, 'type', data.Type);
-            setData(row, 'uri', data.uri);
-            //set Title to name if not defined - for folders and playlists
-            setData(row, 'name', data.Title === undefined ? data.name : data.Title);
-            row.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong :
-                data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
+            parseFilesystemUpdate(row, data);
         });
         addTblFooter(tfoot,
             elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
         );
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        setData(card, 'type', data.Type);
-        setData(card, 'uri', data.uri);
-        //set Title to name if not defined - for folders and playlists
-        setData(card, 'name', data.Title === undefined ? data.name : data.Title);
-        card.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong :
-                data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
+    if (settings['view' + app.id].mode === 'table') {
+        updateGrid(obj, app.id, function(card, data) {
+            parseFilesystemUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parseFilesystemUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parseFilesystemUpdate(card, data) {
+    const rowTitleSong = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+    const rowTitleFolder = 'Open directory';
+    const rowTitlePlaylist = settingsWebuiFields.clickFilesystemPlaylist.validValues[settings.webuiSettings.clickFilesystemPlaylist];
+    setData(card, 'type', data.Type);
+    setData(card, 'uri', data.uri);
+    //set Title to name if not defined - for folders and playlists
+    setData(card, 'name', data.Title === undefined ? data.name : data.Title);
+    card.setAttribute('title', tn(data.Type === 'song' ? rowTitleSong :
+            data.Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
 }
 
 /**

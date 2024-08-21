@@ -1209,5 +1209,6 @@
     "Do you really want to delete the sticker?": "Soll der Sticker wirklich gelöscht werden?",
     "Failure listing stickernames": "Stickernamen konnten nicht gelistet werden.",
     "Invalid sticker value": "Ungültiger Stickerwert",
-    "New sticker": "Neuer Sticker"
+    "New sticker": "Neuer Sticker",
+    "List": "Liste"
 }

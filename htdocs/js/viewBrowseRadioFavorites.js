@@ -66,30 +66,38 @@ function parseRadioFavoritesList(obj) {
         return;
     }
 
-    const rowTitle = tn(settingsWebuiFields.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
     if (settings['view' + app.id].mode === 'table') {
         updateTable(obj, app.id, function(row, data) {
-            if (data.Image === '') {
-                data.Image = '/assets/coverimage-stream';
-            }
-            data.Thumbnail = getCssImageUri(data.Image);
-            setData(row, 'uri', data.StreamUri);
-            setData(row, 'name', data.Name);
-            setData(row, 'image', data.Image);
-            setData(row, 'type', 'webradio');
-            row.setAttribute('title', rowTitle);
+            parseRadioFavoritesListUpdate(row, data);
         });
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        if (data.Image === '') {
-            data.Image = '/assets/coverimage-stream';
-        }
-        data.Thumbnail = getCssImageUri(data.Image);
-        setData(card, 'uri', data.StreamUri);
-        setData(card, 'name', data.Name);
-        setData(card, 'image', data.Image);
-        setData(card, 'type', 'webradio');
-        card.setAttribute('title', rowTitle);
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            parseRadioFavoritesListUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parseRadioFavoritesListUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parseRadioFavoritesListUpdate(card, data) {
+    const rowTitle = tn(settingsWebuiFields.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
+    if (data.Image === '') {
+        data.Image = '/assets/coverimage-stream';
+    }
+    data.Thumbnail = getCssImageUri(data.Image);
+    setData(card, 'uri', data.StreamUri);
+    setData(card, 'name', data.Name);
+    setData(card, 'image', data.Image);
+    setData(card, 'type', 'webradio');
+    card.setAttribute('title', rowTitle);
 }

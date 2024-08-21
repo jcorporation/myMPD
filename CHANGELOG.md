@@ -24,6 +24,7 @@ This release improves the support for the new MPD 0.24 sticker features. You can
 
 - Feat: Rating for albums and playlists #1134
 - Feat: User defined stickers #1091
+- Feat: Add list view
 - Upd: Hide advanced search by default
 
 ***

@@ -78,16 +78,11 @@ function parseSearchWebradiodb(obj) {
         return;
     }
 
-    const rowTitle = tn(settingsWebuiFields.clickWebradiodb.validValues[settings.webuiSettings.clickWebradiodb]);
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
         updateTable(obj, app.id, function(row, data) {
-            setData(row, 'uri', data.StreamUri);
-            setData(row, 'name', data.Name);
-            setData(row, 'image', data.Image);
-            setData(row, 'type', 'webradio');
-            row.setAttribute('title', rowTitle);
+            parseSearchWebradiodbUpdate(row, data);
         });
 
         if (obj.result.totalEntities > 0) {
@@ -97,11 +92,28 @@ function parseSearchWebradiodb(obj) {
         }
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        setData(card, 'uri', data.StreamUri);
-        setData(card, 'name', data.Name);
-        setData(card, 'image', data.Image);
-        setData(card, 'type', 'webradio');
-        card.setAttribute('title', rowTitle);
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            parseSearchWebradiodbUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parseSearchWebradiodbUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parseSearchWebradiodbUpdate(card, data) {
+    const rowTitle = tn(settingsWebuiFields.clickWebradiodb.validValues[settings.webuiSettings.clickWebradiodb]);
+    setData(card, 'uri', data.StreamUri);
+    setData(card, 'name', data.Name);
+    setData(card, 'image', data.Image);
+    setData(card, 'type', 'webradio');
+    card.setAttribute('title', rowTitle);
 }

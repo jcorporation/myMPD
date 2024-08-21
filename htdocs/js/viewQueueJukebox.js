@@ -94,18 +94,11 @@ function parseJukeboxList(obj) {
         return;
     }
 
-    const rowTitle = settings.partition.jukeboxMode === 'song' ?
-            settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
-            settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
         updateTable(obj, view, function(row, data) {
-            setData(row, 'uri', data.uri);
-            setData(row, 'name', data.Title);
-            setData(row, 'type', data.Type);
-            setData(row, 'pos', data.Pos);
-            row.setAttribute('title', tn(rowTitle));
+            parseJukeboxListUpdate(row, data);
         });
         if (obj.result.totalEntities > 0) {
             addTblFooter(tfoot,
@@ -114,13 +107,32 @@ function parseJukeboxList(obj) {
         }
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        setData(card, 'uri', data.uri);
-        setData(card, 'name', data.Title);
-        setData(card, 'type', data.Type);
-        setData(card, 'pos', data.Pos);
-        card.setAttribute('title', tn(rowTitle));
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            parseJukeboxListUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parseJukeboxListUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parseJukeboxListUpdate(card, data) {
+    const rowTitle = settings.partition.jukeboxMode === 'song' ?
+        settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
+        settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
+    setData(card, 'uri', data.uri);
+    setData(card, 'name', data.Title);
+    setData(card, 'type', data.Type);
+    setData(card, 'pos', data.Pos);
+    card.setAttribute('title', tn(rowTitle));
 }
 
 /**

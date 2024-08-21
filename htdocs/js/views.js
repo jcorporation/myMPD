@@ -19,7 +19,9 @@ function setView(viewName) {
     }
     const newContainer = mode === 'table'
         ? pEl.viewTable.cloneNode(true)
-        : pEl.viewGrid.cloneNode(true);
+        : mode === 'grid' 
+            ? pEl.viewGrid.cloneNode(true)
+            : pEl.viewList.cloneNode(true);
     if (curContainer.parentNode.classList.contains('scrollContainer')) {
         // do not insert a scrolling container in an already scrolling parent
         newContainer.classList.remove('scrollContainer', 'table-responsive');
@@ -47,6 +49,7 @@ function setView(viewName) {
             // No default
         }
     }
+    //TODO: drag and drop for grid and list views
 }
 
 /**
@@ -66,7 +69,8 @@ function viewClickHandler(event) {
         return;
     }
     let target = null;
-    if (settings['view' + app.id].mode === 'table') {
+    const mode = settings['view' + app.id].mode;
+    if (mode === 'table') {
         // Links
         if (event.target.nodeName === 'A') {
             if (event.target.parentNode.getAttribute('data-col') === 'Action') {
@@ -88,7 +92,7 @@ function viewClickHandler(event) {
             return;
         }
     }
-    else {
+    else if (mode === 'grid') {
         if (event.target.nodeName === 'A') {
             if (event.target.getAttribute('href') !== '#') {
                 // allow default link action
@@ -99,6 +103,18 @@ function viewClickHandler(event) {
         }
         // set target to card
         target = event.target.closest('.card');
+    }
+    else {
+        if (event.target.nodeName === 'A') {
+            if (event.target.getAttribute('href') !== '#') {
+                // allow default link action
+                return;
+            }
+            handleViewActionClick(event);
+            return;
+        }
+        // set target to list-group-item
+        target = event.target.closest('.list-group-item');
     }
     event.preventDefault();
     event.stopPropagation();
@@ -153,7 +169,8 @@ function viewClickHandler(event) {
  * @returns {void}
  */
 function viewRightClickHandler(event) {
-    if (settings['view' + app.id].mode === 'table') {
+    const mode = settings['view' + app.id].mode;
+    if (mode === 'table') {
         if (event.target.parentNode.classList.contains('not-clickable') ||
             event.target.parentNode.parentNode.classList.contains('not-clickable') ||
             event.target.nodeName === 'TH')
@@ -162,7 +179,7 @@ function viewRightClickHandler(event) {
         }
         showContextMenu(event);
     }
-    else {
+    else if (mode === 'grid') {
         if (event.target.closest('.card').classList.contains('no-contextmenu')) {
             return;
         }
@@ -173,6 +190,12 @@ function viewRightClickHandler(event) {
         {
             showContextMenu(event);
         }
+    }
+    else {
+        if (event.target.closest('.list-group-item').classList.contains('no-contextmenu')) {
+            return;
+        }
+        showContextMenu(event);
     }
 }
 
@@ -371,7 +394,7 @@ function setViewOptions(tableName, menu) {
     enabledList.addEventListener('click', function(event) {
         fieldClick(event);
     }, false);
-    dragAndDropList(enabledList);
+    dragAndDropFieldList(enabledList);
     menu.appendChild(
         elCreateTextTn('h6', {"class": ["dropdown-header","mt-2"]}, 'Available')
     );
@@ -389,7 +412,7 @@ function setViewOptions(tableName, menu) {
     availableList.addEventListener('click', function(event) {
         fieldClick(event);
     }, false);
-    dragList(availableList);
+    dragFieldList(availableList);
 }
 
 /**
@@ -397,7 +420,7 @@ function setViewOptions(tableName, menu) {
  * @param {object} list list to enable drag and drop
  * @returns {void}
  */
-function dragList(list) {
+function dragFieldList(list) {
     list.addEventListener('dragstart', function(event) {
         const target = event.target.nodeName === 'LI'
             ? event.target
@@ -417,8 +440,8 @@ function dragList(list) {
  * @param {object} list list to enable drag and drop
  * @returns {void}
  */
-function dragAndDropList(list) {
-    dragList(list);
+function dragAndDropFieldList(list) {
+    dragFieldList(list);
 
     list.addEventListener('dragenter', function(event) {
         if (event.target.closest('form') !== dragEl.closest('form')) {

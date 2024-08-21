@@ -29,7 +29,16 @@ function showContextMenu(event) {
     else if (target.parentNode.parentNode.classList.contains('card')) {
         target = target.parentNode.parentNode;
     }
-    
+    else if (target.parentNode.classList.contains('list-group-item')) {
+        target = target.parentNode;
+    }
+    else if (target.parentNode.parentNode.classList.contains('list-group-item')) {
+        target = target.parentNode.parentNode;
+    }
+    else if (target.parentNode.parentNode.parentNode.classList.contains('list-group-item')) {
+        target = target.parentNode.parentNode.parentNode;
+    }
+
     const contextMenuType = target.getAttribute('data-contextmenu');
     logDebug('Create new context menu of type ' + contextMenuType);
     switch (contextMenuType) {
@@ -66,7 +75,8 @@ function createMenuViewSettings(target, contextMenuTitle, contextMenuBody) {
                 elCreateNode('div', {'class': ['col-8']},
                     elCreateNodes('div', {'class': ['btn-group', 'w-100'], "id": "viewSettingsMode"}, [
                         elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'table'}, 'Table'),
-                        elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'grid'}, 'Grid')
+                        elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'grid'}, 'Grid'),
+                        elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'list'}, 'List')
                     ])
                 )
             ])

@@ -239,6 +239,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
  */
 bool mympd_api_settings_view_save(struct t_mympd_state *mympd_state, sds view, sds mode, sds fields) {
     if (strcmp(mode, "table") != 0 &&
+        strcmp(mode, "list") != 0 &&
         strcmp(mode, "grid") != 0)
     {
         MYMPD_LOG_ERROR(NULL, "MYMPD_API_VIEW_SAVE: Unknown mode \"%s\"", mode);

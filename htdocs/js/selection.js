@@ -31,13 +31,7 @@ function switchListMode(target) {
 }
 
 /**
- * Selects all rows in table body
- * @param {HTMLElement} list view element
- * @param {boolean} select true = select all rows, false = clear selection
- * @returns {void}
- */
-/**
- * Selects all rows in table body
+ * Select or unselect all entries
  * @param {HTMLElement} list table element
  * @param {boolean} select true = select all rows, false = clear selection
  * @returns {void}
@@ -45,7 +39,9 @@ function switchListMode(target) {
 function selectAllEntries(list, select) {
     const entries = settings['view' + app.id].mode === 'table'
         ? list.querySelectorAll('tbody > tr')
-        : list.querySelectorAll('.col');
+        : settings['view' + app.id].mode === 'grid'
+            ? list.querySelectorAll('.col')
+            : list.querySelectorAll('.list-group-item');
     let firstType = undefined;
     for (const entry of entries) {
         if (entry.lastElementChild.lastElementChild !== null) {
@@ -93,7 +89,9 @@ function selectAllEntries(list, select) {
 function selectEntry(event) {
     const list = settings['view' + app.id].mode === 'table'
         ? event.target.closest('TABLE')
-        : event.target.closest('.mympd-grid');
+        : settings['view' + app.id].mode === 'grid'
+            ? event.target.closest('.mympd-grid')
+            : event.target.closest('.list-group');
     const mode = list.getAttribute('data-mode');
     if (event.ctrlKey &&
         mode === null)
@@ -107,7 +105,9 @@ function selectEntry(event) {
     //in list select mode
     const entry = settings['view' + app.id].mode === 'table'
         ? event.target.closest('TR')
-        : event.target.closest('.card');
+        : settings['view' + app.id].mode === 'grid'
+            ? event.target.closest('.card')
+            : event.target.closest('.list-group-item');
     if (entry.classList.contains('not-clickable') &&
         event.target.parentNode.nodeName !== 'TH') {
         return true;
@@ -180,7 +180,9 @@ function selectEntry(event) {
 function selectSingleEntry(entry, select) {
     const check = settings['view' + app.id].mode === 'table'
         ? entry.lastElementChild.lastElementChild
-        : entry.querySelector('.card-footer > button');
+        : settings['view' + app.id].mode === 'grid'
+            ? entry.querySelector('.card-footer > button')
+            : entry.querySelector('.list-actions > button');
     if (check === null) {
         return;
     }

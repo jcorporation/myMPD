@@ -1126,13 +1126,15 @@ button.weekday {
 
 table[data-mode="select"] > thead > tr > th[data-col="Action"] > a,
 table[data-mode="select"] > tbody > tr > td[data-col="Action"] > a,
-div[data-mode="select"] .card-footer > a {
+div[data-mode="select"] .card-footer > a,
+div[data-mode="select"] .list-actions > a {
   display: none;
 }
 
 :not(table[data-mode="select"]) > thead > tr > th[data-col="Action"] > button,
 :not(table[data-mode="select"]) > tbody > tr > td[data-col="Action"] > button,
-:not(div[data-mode="select"]) > div > div > .card-footer > button {
+:not(div[data-mode="select"]) > div > div > .card-footer > button,
+:not(div[data-mode="select"]) > div > div > .list-actions > button {
   display: none;
 }
 
@@ -1142,7 +1144,8 @@ td[data-col="Action"] > button {
 }
 
 tr.selected > td,
-.mympd-grid > div > .selected {
+.mympd-grid > div > .selected,
+.listContainer > div > .selected {
   background-color: var(--mympd-highlightcolor);
 }
 
@@ -1278,4 +1281,11 @@ h4.offcanvas-title-stream::before {
 table div.alert {
   color: var(--bs-alert-color);
   background-color: var(--bs-alert-bg);
+}
+
+.list-image {
+  background-size: cover;
+  width: 6rem;
+  max-width: 6rem;
+  height: 6rem;
 }

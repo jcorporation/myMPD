@@ -73,6 +73,9 @@ function createPreGeneratedElements() {
     pEl.viewGrid = elCreateNode('div', {'class': ['container-fluid', 'cardsContainer', 'scrollContainer']},
         elCreateEmpty('div', {'class': ['row', 'mympd-grid']})
     );
+    pEl.viewList = elCreateNode('div', {'class': ['scrollContainer', 'listContainer']},
+        elCreateEmpty('div', {'class': ['list-group']})
+    );
     pEl.songResumeBtn = elCreateNodes('div', {'class': ['btn-group', 'dropup']}, [
         elCreateText('button', {'type': 'button', 'data-title-phrase': 'Resume', 'data-bs-toggle': 'dropdown', 'class': ['btn', 'btn-secondary', 'dropdown-toggle', 'mi']}, 'replay'),
         elCreateNode('div', {'class': ['dropdown-menu', 'px-2']}, 

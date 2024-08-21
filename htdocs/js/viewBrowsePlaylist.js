@@ -105,30 +105,41 @@ function parsePlaylistList(obj) {
         return;
     }
 
-    const rowTitle = settingsWebuiFields.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
         updateTable(obj, 'BrowsePlaylistList', function(row, data) {
-            setData(row, 'uri', data.uri);
-            setData(row, 'type', data.Type);
-            setData(row, 'name', data.Name);
-            setData(row, 'smartpls-only', data.smartplsOnly);
-            row.setAttribute('title', tn(rowTitle));
+            parsePlaylistListUpdate(row, data);
         });
         addTblFooter(tfoot,
             elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
         );
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        card.setAttribute('id', 'playlistSongId' + data.Pos);
-        setData(card, 'uri', data.uri);
-        setData(card, 'type', data.Type);
-        setData(card, 'name', data.Name);
-        setData(card, 'smartpls-only', data.smartplsOnly);
-        card.setAttribute('title', tn(rowTitle));
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            parsePlaylistListUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parsePlaylistListUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parsePlaylistListUpdate(card, data) {
+    const rowTitle = settingsWebuiFields.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
+    setData(card, 'uri', data.uri);
+    setData(card, 'type', data.Type);
+    setData(card, 'name', data.Name);
+    setData(card, 'smartpls-only', data.smartplsOnly);
+    card.setAttribute('title', tn(rowTitle));
 }
 
 /**
@@ -177,33 +188,44 @@ function parsePlaylistDetail(obj) {
     setData(feedbackGrp, 'uri', obj.result.plist);
     setFeedback(feedbackGrp, obj.result.like, obj.result.rating);
 
-    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
         updateTable(obj, app.id, function(row, data) {
-            row.setAttribute('id', 'playlistSongId' + data.Pos);
             if (rw === true) {
                 row.setAttribute('draggable', 'true');
                 row.setAttribute('tabindex', 0);
             }
-            setData(row, 'type', data.Type);
-            setData(row, 'uri', data.uri);
-            setData(row, 'name', data.Title);
-            setData(row, 'pos', data.Pos);
-            row.setAttribute('title', tn(rowTitle));
+            parsePlaylistDetailUpdate(row, data);
         });
         setPlaylistDetailListFooter(obj.result.totalEntities, obj.result.totalTime);
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        card.setAttribute('id', 'playlistSongId' + data.Pos);
-        setData(card, 'type', data.Type);
-        setData(card, 'uri', data.uri);
-        setData(card, 'name', data.Title);
-        setData(card, 'pos', data.Pos);
-        card.setAttribute('title', tn(rowTitle));
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            parsePlaylistDetailUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parsePlaylistDetailUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parsePlaylistDetailUpdate(card, data) {
+    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+    card.setAttribute('id', 'playlistSongId' + data.Pos);
+    setData(card, 'type', data.Type);
+    setData(card, 'uri', data.uri);
+    setData(card, 'name', data.Title);
+    setData(card, 'pos', data.Pos);
+    card.setAttribute('title', tn(rowTitle));
 }
 
 /**
