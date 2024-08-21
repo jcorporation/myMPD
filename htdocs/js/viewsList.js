@@ -6,7 +6,7 @@
 /** @module viewsList_js */
 
 /**
- * Updates the table from the jsonrpc response
+ * Updates the list from the jsonrpc response
  * @param {object} obj jsonrpc response
  * @param {string} list row name to populate
  * @param {Function} [perCardCallback] callback per card
@@ -90,7 +90,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
 }
 
 /**
- * Populates the grid body
+ * Populates the list body
  * @param {Element} body grid footer to populate
  * @param {object} data data to populate
  * @param {string} list view name
@@ -104,14 +104,22 @@ function listBody(body, data, list) {
             continue;
         }
         const value = printValue(tag, data[tag]);
-        const title = tag === 'Type'
-            ? getTypeTitle(value.textContent)
-            : value.textContent;
-        body.appendChild(
-            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"], "data-col": settings['view' + list].fields[i], "title": title},
-                value
-            )
-        );
+        if (i === 0) {
+            body.appendChild(
+                elCreateNode('h5', {"class": ["d-block"], "data-col": settings['view' + list].fields[i]},
+                    value
+                )
+            );
+        }
+        else {
+            body.appendChild(
+                elCreateNodes('span', {"class": ["d-block"], "data-col": settings['view' + list].fields[i]}, [
+                    elCreateTextTn('small', {}, settings['view' + list].fields[i]),
+                    elCreateText('small', {'class': ['me-2']}, ':'),
+                    value
+                ])
+            );
+        }
         i++;
     }
 }
