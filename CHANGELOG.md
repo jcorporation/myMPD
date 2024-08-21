@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Add variable mympd_uri_plain to mympd_env for Lua scripts
+- Upd: ja-JP and zh-Hans translations
 
 ***
 
