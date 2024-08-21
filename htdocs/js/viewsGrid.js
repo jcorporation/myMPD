@@ -6,9 +6,9 @@
 /** @module viewsGrid_js */
 
 /**
- * Updates the table from the jsonrpc response
+ * Updates the grid from the jsonrpc response
  * @param {object} obj jsonrpc response
- * @param {string} list row name to populate
+ * @param {string} list grid name to populate
  * @param {Function} [perCardCallback] callback per card
  * @param {Function} [createCardBodyCallback] callback to create the footer
  * @param {Function} [createCardActionsCallback] callback to create the footer

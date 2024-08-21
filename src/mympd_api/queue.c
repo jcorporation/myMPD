@@ -274,6 +274,7 @@ bool mympd_api_queue_replace_uri_tags(struct t_partition_state *partition_state,
 /**
  * Inserts an uri to the queue and resumes playback.
  * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb
  * @param uri uri to add to the queue
  * @param to where to insert the uri
  * @param whence How to interprete the to parameter
@@ -306,6 +307,7 @@ bool mympd_api_queue_insert_uri_resume(struct t_partition_state *partition_state
 /**
  * Appends an uri to the queue and resumes playback.
  * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb
  * @param uri uri to add to the queue
  * @param error pointer to an already allocated sds string for the error message
  * @return bool true on success, else false
@@ -319,6 +321,7 @@ bool mympd_api_queue_append_uri_resume(struct t_partition_state *partition_state
 /**
  * Replaces the queue with the uri and resumes playback.
  * @param partition_state pointer to partition state
+ * @param stickerdb pointer to stickerdb
  * @param uri uri to add to the queue
  * @param error pointer to an already allocated sds string for the error message
  * @return bool true on success, else false
