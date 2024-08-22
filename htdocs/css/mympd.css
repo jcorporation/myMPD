@@ -480,14 +480,6 @@ div#homeActions {
   background-color: transparent;
 }
 
-.dragover-icon-left {
-  border-left: 1px solid var(--mympd-highlightcolor);
-}
-
-.dragover-icon-right {
-  border-right: 1px solid var(--mympd-highlightcolor);
-}
-
 .card-grid {
   width: var(--grid-thumbnail-size);
   min-height: 0 !important;
@@ -681,6 +673,11 @@ tfoot td {
 .dragover,
 .dragover > td {
   border-top: 2px solid var(--mympd-highlightcolor) !important;
+}
+
+.dragover-left {
+  border-left: 1px solid var(--mympd-highlightcolor) !important;
+  padding-left: 1rem !important;
 }
 
 [draggable] {

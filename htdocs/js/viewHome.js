@@ -18,7 +18,20 @@ function handleHome() {
  * @returns {void}
  */
 function initViewHome() {
-    dragAndDropHome();
+    dragAndDropGrid('HomeList');
+}
+
+/**
+ * Moves a home icon
+ * @param {number} oldPos Old icon pos
+ * @param {number} newPos New icon pos
+ * @returns {void}
+ */
+function homeMoveIcon(oldPos, newPos) {
+    sendAPI("MYMPD_API_HOME_ICON_MOVE", {
+        "from": oldPos,
+        "to": newPos
+    }, null, false);
 }
 
 /**
@@ -147,98 +160,6 @@ function parseHomeIcons(obj) {
         cols[i].remove();
     }
     setScrollViewHeight(cardContainer);
-}
-
-/**
- * Shows the dragover tip
- * @param {EventTarget} from from element
- * @param {EventTarget} to to element
- * @returns {void}
- */
-function showDropoverIcon(from, to) {
-    const fromPos = getData(from, 'pos');
-    const toPos = getData(to, 'pos');
-    if (toPos > fromPos) {
-        to.classList.add('dragover-icon-right');
-    }
-    else {
-        to.classList.add('dragover-icon-left');
-    }
-    to.classList.add('dragover-icon');
-}
-
-/**
- * Hides the dragover tip
- * @param {EventTarget} el element
- * @returns {void}
- */
-function hideDropoverIcon(el) {
-    el.classList.remove('dragover-icon-left', 'dragover-icon-right');
-}
-
-/**
- * Drag and drop event handler
- * @returns {void}
- */
-function dragAndDropHome() {
-    const HomeList = elGetById('HomeList');
-
-    HomeList.addEventListener('dragstart', function(event) {
-        if (event.target.classList.contains('home-icons')) {
-            event.target.classList.add('opacity05');
-            // @ts-ignore
-            event.dataTransfer.setDragImage(event.target, 0, 0);
-            event.dataTransfer.effectAllowed = 'move';
-            dragEl = event.target;
-        }
-    }, false);
-
-    HomeList.addEventListener('dragenter', function(event) {
-        if (dragEl !== undefined &&
-            event.target.classList.contains('home-icons'))
-        {
-            showDropoverIcon(dragEl, event.target);
-        }
-    }, false);
-
-    HomeList.addEventListener('dragleave', function(event) {
-        if (dragEl !== undefined &&
-            event.target.classList.contains('home-icons'))
-        {
-            hideDropoverIcon(event.target);
-        }
-    }, false);
-
-    HomeList.addEventListener('dragover', function(event) {
-        // prevent default to allow drop
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
-    }, false);
-
-    HomeList.addEventListener('drop', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        
-        const target = event.target.classList.contains('card-body')
-            ? event.target.parentNode
-            : event.target;
-        if (target.classList.contains('home-icons')) {
-            hideDropoverIcon(target);
-            const to = getData(target, 'pos');
-            const from = getData(dragEl, 'pos');
-            if (isNaN(to) === false &&
-                isNaN(from) === false &&
-                from !== to)
-            {
-                sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, null, false);
-            }
-        }
-    }, false);
-
-    HomeList.addEventListener('dragend', function() {
-        dragEl.classList.remove('opacity05');
-        dragEl = undefined;
-    }, false);
 }
 
 /**

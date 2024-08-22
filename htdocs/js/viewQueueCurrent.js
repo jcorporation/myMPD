@@ -92,13 +92,6 @@ function parseQueue(obj) {
         addActionLinks(actionTd);
 
         updateTable(obj, app.id, function(row, data) {
-            if (features.featAdvqueue === false ||
-                app.current.sort.tag === 'Priority')
-            {
-                // Enable drag and drop only if list is sorted by priority
-                // This is the default sorting for simple queue mode
-                row.setAttribute('draggable', 'true');
-            }
             parseQueueUpdate(row, data);
         }, function(row, data) {
             tableRow(row, data, app.id, colspan, smallWidth, actionTd);
@@ -127,7 +120,7 @@ function parseQueue(obj) {
         updateGrid(obj, app.id, function(card, data) {
             parseQueueUpdate(card, data);
         }, function(card, data) {
-            gridBody(card, data, app.id);
+            createGridBody(card, data, app.id);
             parseQueueBody(card, data);
         });
         return;
@@ -135,7 +128,7 @@ function parseQueue(obj) {
     updateList(obj, app.id, function(card, data) {
         parseQueueUpdate(card, data);
     }, function(card, data) {
-        listBody(card, data, app.id);
+        createListBody(card, data, app.id);
         parseQueueBody(card, data);
     });
 }
@@ -191,6 +184,15 @@ function parseQueueUpdate(card, data) {
     }
     //set Title to Name + Title for streams
     data.Title = getDisplayTitle(data.Name, data.Title);
+
+    if (features.featAdvqueue === false ||
+        app.current.sort.tag === 'Priority')
+    {
+        // Enable drag and drop only if list is sorted by priority
+        // This is the default sorting for simple queue mode
+        card.setAttribute('draggable', 'true');
+        card.setAttribute('tabindex', '0');
+    }
 }
 
 /**

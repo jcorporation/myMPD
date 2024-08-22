@@ -6,6 +6,121 @@
 /** @module viewsGrid_js */
 
 /**
+ * Initializes a grid for drag and drop
+ * @param {string} gridId grid id
+ * @returns {void}
+ */
+function dragAndDropGrid(gridId) {
+    const gridBody = elGetById(gridId);
+
+    gridBody.addEventListener('dragstart', function(event) {
+        const target = event.target.classList.contains('col')
+            ? event.target
+            : event.target.closest('.col');
+        if (target === null) {
+            return false;
+        }
+        event.target.classList.add('opacity05');
+        // @ts-ignore
+        event.dataTransfer.setDragImage(event.target, 0, 0);
+        event.dataTransfer.effectAllowed = 'move';
+        dragEl = target;
+    }, false);
+
+    gridBody.addEventListener('dragenter', function(event) {
+        const target = event.target.classList.contains('col')
+            ? event.target
+            : event.target.closest('.col');
+        if (target === null) {
+            return false;
+        }
+        if (dragEl !== undefined &&
+            dragEl.nodeName === target.nodeName)
+        {
+            target.classList.add('dragover-left');
+        }
+    }, false);
+
+    gridBody.addEventListener('dragleave', function(event) {
+        const target = event.target.classList.contains('col')
+            ? event.target
+            : event.target.closest('.col');
+        if (target === null) {
+            return false;
+        }
+        if (dragEl !== undefined &&
+            dragEl.nodeName === target.nodeName)
+        {
+            target.classList.remove('dragover-left');
+        }
+    }, false);
+
+    gridBody.addEventListener('dragover', function(event) {
+        // prevent default to allow drop
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        const target = event.target.classList.contains('col')
+            ? event.target
+            : event.target.closest('.col');
+        if (target === null) {
+            return false;
+        }
+        if (dragEl !== undefined &&
+            dragEl.nodeName === target.nodeName)
+        {
+            target.classList.add('dragover-left');
+        }
+    }, false);
+
+    gridBody.addEventListener('drop', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (dragEl === undefined ||
+            dragEl.classList.contains('col') === false)
+        {
+            return;
+        }
+        const target = event.target.classList.contains('col')
+            ? event.target
+            : event.target.closest('.col');
+        if (target === null) {
+            return false;
+        }
+        target.classList.remove('dragover');
+        const newPos = getData(target.firstElementChild, 'pos');
+        const oldPos = getData(dragEl.firstElementChild, 'pos');
+        if (oldPos === newPos) {
+            return;
+        }
+        // set dragged element uri to undefined to force table row replacement
+        setData(dragEl, 'uri', undefined);
+        elHide(dragEl);
+        // apply new order
+        setUpdateViewId(gridId);
+        switch(app.id) {
+            case 'Home': {
+                homeMoveIcon(oldPos, newPos);
+                break;
+            }
+            case 'QueueCurrent': {
+                queueMoveSong(oldPos, newPos);
+                break;
+            }
+            case 'BrowsePlaylistDetail': {
+                currentPlaylistMoveSong(oldPos, newPos);
+                break;
+            }
+            // No Default
+        }
+    }, false);
+
+    gridBody.addEventListener('dragend', function() {
+        dragEl.classList.remove('opacity05');
+        dragEl = undefined;
+    }, false);
+}
+
+/**
  * Updates the grid from the jsonrpc response
  * @param {object} obj jsonrpc response
  * @param {string} list grid name to populate
@@ -53,7 +168,7 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
         }
         else {
             //default body content
-            gridBody(body, obj.result.data[i], list);
+            createGridBody(body, obj.result.data[i], list);
         }
         card.appendChild(body);
         if (createCardActionsCallback !== undefined &&
@@ -110,7 +225,7 @@ function getTypeTitle(value) {
  * @param {string} list view name
  * @returns {void}
  */
-function gridBody(body, data, list) {
+function createGridBody(body, data, list) {
     let i = 0;
     for (const tag of settings['view' + list].fields) {
         if (tag === 'Thumbnail') {

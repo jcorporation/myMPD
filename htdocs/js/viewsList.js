@@ -6,6 +6,99 @@
 /** @module viewsList_js */
 
 /**
+ * Initializes a list for drag and drop of list-group-items
+ * @param {string} listId table id
+ * @returns {void}
+ */
+function dragAndDropList(listId) {
+    const listBody = document.querySelector('#' + listId);
+    listBody.addEventListener('dragstart', function(event) {
+        if (event.target.classList.contains('list-group-item')) {
+            event.target.classList.add('opacity05');
+            // @ts-ignore
+            event.dataTransfer.setDragImage(event.target, 0, 0);
+            event.dataTransfer.effectAllowed = 'move';
+            dragEl = event.target;
+        }
+    }, false);
+
+    listBody.addEventListener('dragenter', function(event) {
+        const target = event.target.classList.contains('list-group-item')
+            ? event.target
+            : event.target.closest('.list-group-item');
+        if (dragEl !== undefined &&
+            dragEl.nodeName === target.nodeName)
+        {
+            target.classList.add('dragover');
+        }
+    }, false);
+
+    listBody.addEventListener('dragleave', function(event) {
+        const target = event.target.classList.contains('list-group-item')
+            ? event.target
+            : event.target.closest('.list-group-item');
+        if (dragEl !== undefined &&
+            dragEl.nodeName === target.nodeName)
+        {
+            target.classList.remove('dragover');
+        }
+    }, false);
+
+    listBody.addEventListener('dragover', function(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        const target = event.target.classList.contains('list-group-item')
+            ? event.target
+            : event.target.closest('.list-group-item');
+        if (dragEl !== undefined &&
+            dragEl.nodeName === target.nodeName)
+        {
+            target.classList.add('dragover');
+        }
+    }, false);
+
+    listBody.addEventListener('drop', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (dragEl === undefined ||
+            dragEl.classList.contains('list-group-item') === false)
+        {
+            return;
+        }
+        const target = event.target.classList.contains('list-group-item')
+            ? event.target
+            : event.target.closest('.list-group-item');
+        target.classList.remove('dragover');
+        const newPos = getData(target, 'pos');
+        const oldPos = getData(dragEl, 'pos');
+        if (oldPos === newPos) {
+            return;
+        }
+        // set dragged element uri to undefined to force table row replacement
+        setData(dragEl, 'uri', undefined);
+        elHide(dragEl);
+        // apply new order
+        setUpdateViewId(listId);
+        switch(app.id) {
+            case 'QueueCurrent': {
+                queueMoveSong(oldPos, newPos);
+                break;
+            }
+            case 'BrowsePlaylistDetail': {
+                currentPlaylistMoveSong(oldPos, newPos);
+                break;
+            }
+            // No Default
+        }
+    }, false);
+
+    listBody.addEventListener('dragend', function() {
+        dragEl.classList.remove('opacity05');
+        dragEl = undefined;
+    }, false);
+}
+
+/**
  * Updates the list from the jsonrpc response
  * @param {object} obj jsonrpc response
  * @param {string} list list name to populate
@@ -54,7 +147,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
         }
         else {
             //default body content
-            listBody(body, obj.result.data[i], list);
+            createListBody(body, obj.result.data[i], list);
         }
         row.appendChild(body);
         if (createCardActionsCallback !== undefined &&
@@ -96,7 +189,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
  * @param {string} list view name
  * @returns {void}
  */
-function listBody(body, data, list) {
+function createListBody(body, data, list) {
     let i = 0;
     for (const tag of settings['view' + list].fields) {
         if (tag === 'Thumbnail') {

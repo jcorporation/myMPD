@@ -39,17 +39,23 @@ function setView(viewName) {
     newContainer.firstElementChild.addEventListener('long-press', function(event) {
         viewRightClickHandler(event);
     }, false);
-    if (mode === 'table') {
-        //init drag and drop
-        switch(viewName) {
-            case 'QueueCurrent':
-            case 'BrowsePlaylistDetail':
+    
+    //init drag and drop
+    switch(viewName) {
+        case 'QueueCurrent':
+        case 'BrowsePlaylistDetail':
+            if (mode === 'table') {
                 dragAndDropTable(viewName + 'List');
-                break;
-            // No default
-        }
+            }
+            else if (mode === 'grid') {
+                dragAndDropGrid(viewName + 'List');
+            }
+            else {
+                dragAndDropList(viewName + 'List');
+            }
+            break;
+        // No default
     }
-    //TODO: drag and drop for grid and list views
 }
 
 /**

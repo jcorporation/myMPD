@@ -203,11 +203,19 @@ function parsePlaylistDetail(obj) {
     }
     if (settings['view' + app.id].mode === 'grid') {
         updateGrid(obj, app.id, function(card, data) {
+            if (rw === true) {
+                card.setAttribute('draggable', 'true');
+                card.setAttribute('tabindex', '0');
+            }
             parsePlaylistDetailUpdate(card, data);
         });
         return;
     }
     updateList(obj, app.id, function(card, data) {
+        if (rw === true) {
+            card.setAttribute('draggable', 'true');
+            card.setAttribute('tabindex', '0');
+        }
         parsePlaylistDetailUpdate(card, data);
     });
 }

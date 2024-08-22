@@ -56,6 +56,7 @@ interface EventTarget {
     closest: any;
     setAttribute: any;
     removeAttribute: any;
+    firstElementChild: any;
 }
 
 interface HTMLElement {
