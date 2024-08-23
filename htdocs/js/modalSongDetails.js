@@ -291,6 +291,32 @@ function parseSongDetails(obj) {
                 );
             }
         }
+        const stickerEditBtn = elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm", "float-end"]}, 'Edit');
+        stickerEditBtn.addEventListener('click', function() {
+            showStickerModal(obj.result.uri, 'song');
+        }, false);
+        tbody.appendChild(
+            elCreateNode('tr', {},
+                elCreateNodes('th', {"colspan": "2", "class": ["pt-3"]}, [
+                    stickerEditBtn,
+                    elCreateTextTn('h5', {}, 'Sticker')
+                ])
+            )
+        );
+        let i = 0;
+        for (const key in obj.result.sticker) {
+            tbody.appendChild(
+                songDetailsRow(key, obj.result.sticker[key])
+            );
+            i++;
+        }
+        if (i === 0) {
+            tbody.appendChild(
+                elCreateNode('tr', {},
+                    elCreateTextTn('td', {"colspan": "2",}, 'No user defined stickers')
+                )
+            );
+        }
     }
     unsetUpdateViewId('modalSongDetailsTagsList');
     //populate other tabs

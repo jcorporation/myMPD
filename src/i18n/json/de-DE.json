@@ -1210,5 +1210,6 @@
     "Failure listing stickernames": "Stickernamen konnten nicht gelistet werden.",
     "Invalid sticker value": "Ungültiger Stickerwert",
     "New sticker": "Neuer Sticker",
-    "List": "Liste"
+    "List": "Liste",
+    "No user defined stickers": "Keine benutzerdefinierte Sticker."
 }
