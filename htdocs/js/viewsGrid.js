@@ -220,7 +220,7 @@ function getTypeTitle(value) {
 
 /**
  * Populates the grid body
- * @param {Element} body grid footer to populate
+ * @param {Element} body grid body to populate
  * @param {object} data data to populate
  * @param {string} list view name
  * @returns {void}
@@ -237,7 +237,7 @@ function createGridBody(body, data, list) {
             ? getTypeTitle(value.textContent)
             : value.textContent;
         body.appendChild(
-            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"], "data-col": settings['view' + list].fields[i], "title": title},
+            elCreateNode((i === 0 ? 'span' : 'small'), {"class": ["d-block"], "data-col": tag, "title": title},
                 value
             )
         );

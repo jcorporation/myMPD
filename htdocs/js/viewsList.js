@@ -184,7 +184,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
 
 /**
  * Populates the list body
- * @param {Element} body grid footer to populate
+ * @param {Element} body list element body to populate
  * @param {object} data data to populate
  * @param {string} list view name
  * @returns {void}
@@ -196,20 +196,20 @@ function createListBody(body, data, list) {
             i++;
             continue;
         }
-        const value = printValue(tag, data[tag]);
         if (i === 0) {
             body.appendChild(
-                elCreateNode('h5', {"class": ["d-block"], "data-col": settings['view' + list].fields[i]},
-                    value
+                elCreateNode('h5', {"class": ["d-block"], "data-col": tag},
+                    printValue(tag, data[tag])
                 )
             );
         }
         else {
             body.appendChild(
-                elCreateNodes('span', {"class": ["d-block"], "data-col": settings['view' + list].fields[i]}, [
-                    elCreateTextTn('small', {}, settings['view' + list].fields[i]),
-                    elCreateText('small', {'class': ['me-2']}, ':'),
-                    value
+                elCreateNodes('div', {"class": ["row"]}, [
+                    elCreateTextTn('small', {"class": ["col-3"]}, tag),
+                    elCreateNode('span', {"data-col": tag, "class": ["col-9"]},
+                        printValue(tag, data[tag])
+                    )
                 ])
             );
         }
