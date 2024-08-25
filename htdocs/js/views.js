@@ -22,6 +22,9 @@ function setView(viewName) {
         : mode === 'grid' 
             ? pEl.viewGrid.cloneNode(true)
             : pEl.viewList.cloneNode(true);
+    if (viewName === 'Home') {
+        newContainer.firstElementChild.classList.remove('row');
+    }
     if (curContainer.parentNode.classList.contains('scrollContainer')) {
         // do not insert a scrolling container in an already scrolling parent
         newContainer.classList.remove('scrollContainer', 'table-responsive');
@@ -42,6 +45,7 @@ function setView(viewName) {
     
     //init drag and drop
     switch(viewName) {
+        case 'Home':
         case 'QueueCurrent':
         case 'BrowsePlaylistDetail':
             if (mode === 'table') {

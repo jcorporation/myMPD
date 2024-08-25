@@ -14,14 +14,6 @@ function handleHome() {
 }
 
 /**
- * Initializes the home feature elements
- * @returns {void}
- */
-function initViewHome() {
-    dragAndDropGrid('HomeList');
-}
-
-/**
  * Moves a home icon
  * @param {number} oldPos Old icon pos
  * @param {number} newPos New icon pos
@@ -162,7 +154,7 @@ function updateHomeWidget(card) {
  * @returns {HTMLElement} Created widget wrapped in col
  */
 function createHomeWidget(data, pos) {
-    const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
+    const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0", "float-start"]});
     const card = elCreateNodes('div', {"data-contextmenu": "homeWidget", "class": ["card", "home-widgets", "bg-secondary", "rounded-2", "home-widget-" + data.size], "draggable": "true"},
         [
             elCreateText('div', {'class': ['card-title', 'py-2', 'px-3', 'mb-0']}, data.name),
@@ -198,7 +190,7 @@ function createHomeIcon(data, pos) {
         data.options = [opt0, opt1];
     }
 
-    const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
+    const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0", "float-start"]});
     const card = elCreateEmpty('div', {"data-contextmenu": "homeIcon", "class": ["card", "home-icons"], "draggable": "true",
         "title": tn(homeType) + ':' + smallSpace + data.name +
         '\n' + tn(actionType)});

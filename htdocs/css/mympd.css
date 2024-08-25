@@ -451,59 +451,65 @@ div#homeActions {
   top: 0.5rem;
 }
 
+#HomeContainer {
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+
 .home-widgets {
-  margin-bottom: 1.25rem;
   max-width: 100%;
   font-size: 90%;
+  margin-bottom: 1rem !important;
 }
 
 .home-widget-1x1 {
   width: 8rem;
-  height: 8rem;
+  height: 7rem;
 }
 
 .home-widget-1x2 {
   width: 8rem;
-  height: 16rem;
+  height: 15rem;
 }
 
 .home-widget-1x3 {
   width: 8rem;
-  height: 24rem;
+  height: 23rem;
 }
 
 .home-widget-2x1 {
-  width: 16rem;
-  height: 8rem;
+  width: 17rem;
+  height: 7rem;
 }
 
 .home-widget-2x2 {
-  width: 16rem;
-  height: 16rem;
+  width: 17rem;
+  height: 15rem;
 }
 
 .home-widget-2x3 {
-  width: 16rem;
-  height: 24rem;
+  width: 17rem;
+  height: 23rem;
 }
 
 .home-widget-3x1 {
-  width: 24rem;
-  height: 8rem;
+  width: 26rem;
+  height: 7rem;
 }
 
 .home-widget-3x2 {
-  width: 24rem;
-  height: 16rem;
+  width: 26rem;
+  height: 15rem;
 }
 
 .home-widget-3x3 {
-  width: 24rem;
-  height: 24rem;
+  width: 26rem;
+  height: 23rem;
 }
 
 .home-icons {
   width: 8rem;
+  height: 8rem;
   min-height: 0 !important;
   margin-bottom: 1.25rem;
   overflow: hidden;
