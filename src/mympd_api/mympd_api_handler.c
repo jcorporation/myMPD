@@ -269,7 +269,32 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 response->data = mympd_api_albumart_getcover_by_album_id(partition_state, &mympd_state->album_cache, response->data, request->id, sds_buf1, uint_buf1);
             }
             break;
-    // Home icons
+    // Home screen
+        case MYMPD_API_HOME_WIDGET_SAVE: {
+            if (mympd_state->home_list.length > LIST_HOME_ICONS_MAX) {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_HOME, JSONRPC_SEVERITY_ERROR, "Too many home icons");
+                break;
+            }
+            struct t_list options;
+            list_init(&options);
+            if (json_get_bool(request->data, "$.params.replace", &bool_buf1, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.oldpos", 0, LIST_HOME_ICONS_MAX, &uint_buf1, &parse_error) == true &&
+                json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.script", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.size", 1, NAME_LEN_MAX, &sds_buf3, vcb_isalnum, &parse_error) == true &&
+                json_get_object_string(request->data, "$.params.arguments", &options, vcb_isname, vcb_isname, 10, &parse_error) == true)
+            {
+                rc = mympd_api_home_widget_save(&mympd_state->home_list, bool_buf1, uint_buf1, sds_buf1, sds_buf3, sds_buf2, &options);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_HOME, "Can not save widget");
+                if (rc == true) {
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME, MPD_PARTITION_ALL);
+                }
+            }
+            list_clear(&options);
+            break;
+        }
         case MYMPD_API_HOME_ICON_SAVE: {
             if (mympd_state->home_list.length > LIST_HOME_ICONS_MAX) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,

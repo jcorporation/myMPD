@@ -1212,5 +1212,10 @@
     "New sticker": "Neuer Sticker",
     "List": "Liste",
     "No user defined stickers": "Keine benutzerdefinierte Sticker.",
-    "More actions": "Weitere Aktionen"
+    "More actions": "Weitere Aktionen",
+    "Can not save widget": "Widget konnte nicht gespeichert werden.",
+    "Duplicate widget": "Widget kopieren",
+    "Edit widget": "Widget editieren",
+    "Size": "Größe",
+    "Widget": "Widget"
 }

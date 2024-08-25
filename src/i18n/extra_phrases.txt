@@ -52,6 +52,7 @@ Disc
 Discs
 Display tags in rows for small displays
 Duplicate home icon
+Duplicate widget
 Each 1
 Each 3600
 Each 60

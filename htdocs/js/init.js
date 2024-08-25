@@ -204,6 +204,7 @@ function appInit() {
     initModalAbout();
     initModalEnterPin();
     initModalHomeIcon();
+    initModalHomeWidget();
     initModalMaintenance();
     initModalMounts();
     initModalNotifications();

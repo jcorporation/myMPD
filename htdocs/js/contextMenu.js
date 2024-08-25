@@ -757,7 +757,7 @@ function createMenuListsSecondary(target, contextMenuTitle, contextMenuBody) {
  * @param {HTMLElement} contextMenuBody content element
  * @returns {boolean} true on success, else false
  */
-function createMenuHome(target, contextMenuTitle, contextMenuBody) {
+function createMenuHomeIcon(target, contextMenuTitle, contextMenuBody) {
     const pos = getData(target, 'pos');
     const href = getData(target, 'href');
     if (href === undefined) {
@@ -832,12 +832,30 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
  * @param {HTMLElement} contextMenuBody content element
  * @returns {boolean} true on success, else false
  */
-function createMenuHomeSecondary(target, contextMenuTitle, contextMenuBody) {
+function createMenuHomeIconSecondary(target, contextMenuTitle, contextMenuBody) {
     const pos = getData(target, 'pos');
     contextMenuTitle.textContent = tn('Home icon');
     contextMenuTitle.classList.add('offcanvas-title-homeicon');
     addMenuItem(contextMenuBody, {"cmd": "editHomeIcon", "options": [pos]}, 'Edit home icon');
     addMenuItem(contextMenuBody, {"cmd": "duplicateHomeIcon", "options": [pos]}, 'Duplicate home icon');
     addMenuItem(contextMenuBody, {"cmd": "deleteHomeIcon", "options": [pos]}, 'Delete home icon');
+    return true;
+}
+
+/**
+ * Creates the contents of the home widget actions for the context menu
+ * @param {EventTarget} target triggering element
+ * @param {HTMLElement} contextMenuTitle title element
+ * @param {HTMLElement} contextMenuBody content element
+ * @returns {boolean} true on success, else false
+ */
+function createMenuHomeWidget(target, contextMenuTitle, contextMenuBody) {
+    const pos = getData(target, 'pos');
+    contextMenuTitle.textContent = tn('Widget');
+    contextMenuTitle.classList.add('offcanvas-title-homewidget');
+    addMenuItem(contextMenuBody, {"cmd": "refreshHomeWidget", "options": [pos]}, 'Refresh widget');
+    addMenuItem(contextMenuBody, {"cmd": "editHomeWidget", "options": [pos, true]}, 'Edit widget');
+    addMenuItem(contextMenuBody, {"cmd": "editHomeWidget", "options": [pos, false]}, 'Duplicate widget');
+    addMenuItem(contextMenuBody, {"cmd": "deleteHomeIcon", "options": [pos]}, 'Delete widget');
     return true;
 }

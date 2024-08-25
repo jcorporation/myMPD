@@ -57,6 +57,7 @@ bool mympd_api_home_icon_save(struct t_list *home_list, bool replace, unsigned o
     sds name, sds ligature, sds bgcolor, sds color, sds image, sds cmd, struct t_list *option_list)
 {
     sds key = sdsnewlen("{", 1);
+    key = tojson_char(key, "type", "icon", true);
     key = tojson_sds(key, "name", name, true);
     key = tojson_sds(key, "ligature", ligature, true);
     key = tojson_sds(key, "bgcolor", bgcolor, true);
@@ -74,6 +75,47 @@ bool mympd_api_home_icon_save(struct t_list *home_list, bool replace, unsigned o
         current = current->next;
     }
     key = sdscatlen(key, "]}", 2);
+    bool rc = false;
+    if (replace == true) {
+        rc = list_replace(home_list, oldpos, key, 0, NULL, NULL);
+    }
+    else {
+        rc = list_push(home_list, key, 0, NULL, NULL);
+    }
+    FREE_SDS(key);
+    return rc;
+}
+
+/**
+ * Adds/replaces a home widget in the list
+ * @param home_list pointer to home list
+ * @param replace true to replace the icon at oldpos
+ * @param oldpos original pos of the icon
+ * @param name name
+ * @param size widget size
+ * @param script script
+ * @param arguments options for the command
+ * @return true on success, else false
+ */
+bool mympd_api_home_widget_save(struct t_list *home_list, bool replace, unsigned oldpos,
+    sds name, sds size, sds script, struct t_list *arguments)
+{
+    sds key = sdsnewlen("{", 1);
+    key = tojson_char(key, "type", "widget", true);
+    key = tojson_sds(key, "name", name, true);
+    key = tojson_sds(key, "size", size, true);
+    key = tojson_sds(key, "script", script, true);
+    key = sdscat(key, "\"arguments\":{");
+    struct t_list_node *current = arguments->head;
+    int i = 0;
+    while (current != NULL) {
+        if (i++) {
+            key = sdscatlen(key, ",", 1);
+        }
+        key = tojson_char(key, current->key, current->value_p, false);
+        current = current->next;
+    }
+    key = sdscatlen(key, "}}", 2);
     bool rc = false;
     if (replace == true) {
         rc = list_replace(home_list, oldpos, key, 0, NULL, NULL);

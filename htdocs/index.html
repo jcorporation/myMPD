@@ -109,7 +109,8 @@
           <div class="dropdown-menu px-2">
             <h2 class="dropdown-header" data-phrase="Add to homescreen"></h2>
             <button data-phrase="External link" data-href='{"cmd": "addExternalLinkToHome", "options": []}' class="btn btn-secondary w-100 btn-sm mb-2"></button>
-            <button data-phrase="Modal shortcut" data-href='{"cmd": "addOpenModalToHome", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
+            <button data-phrase="Modal shortcut" data-href='{"cmd": "addOpenModalToHome", "options": []}' class="btn btn-secondary w-100 btn-sm mb-2"></button>
+            <button data-phrase="Widget" data-href='{"cmd": "addHomeWidget", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
           </div>
         </div>
         <div id="HomeContainer" class="container-fluid cardsContainer scrollContainer">
@@ -2621,6 +2622,57 @@
     </div>
   </div>
 <!-- Modal home icon end -->
+<!-- Modal home widget start -->
+ <div class="modal fade" id="modalHomeWidget" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><span class="mi title-icon">home</span> <span id="modalHomeWidgetTitle" data-phrase="Edit widget"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3 row">
+          <label class="col-sm-4 col-form-label" for="modalHomeWidgetNameInput" data-phrase="Name"></label>
+          <div class="col-sm-8">
+            <input id="modalHomeWidgetNameInput" class="form-control"/>
+            <div class="invalid-feedback" data-phrase="Invalid name"></div>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-4 col-form-label" for="modalHomeWidgetSizeInput" data-phrase="Size"></label>
+          <div class="col-sm-8">
+            <select id="modalHomeWidgetSizeInput" class="form-select">
+              <option value="1x1">1x1</option>
+              <option value="1x2">1x2</option>
+              <option value="1x3">1x3</option>
+              <option value="2x1">2x1</option>
+              <option value="2x2">2x2</option>
+              <option value="2x3">2x3</option>
+              <option value="3x1">3x1</option>
+              <option value="3x2">3x2</option>
+              <option value="3x3">3x3</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-4 col-form-label" for="modalHomeWidgetScriptInput" data-phrase="Script"></label>
+          <div class="col-sm-8">
+            <select id="modalHomeWidgetScriptInput" class="form-select"></select>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label class="col-sm-4 col-form-label" data-phrase="Arguments"></label>
+          <div class="col-sm-8" id="modalHomeWidgetArgumentsInput"></div>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+        <button type="button" class="btn btn-success" data-href='{"cmd":"saveHomeWidget","options":["target"]}' data-phrase="Save"></button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal home widget end -->
 <!-- Modal confirm start -->
   <div class="modal fade" id="modalConfirm" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -3126,11 +3178,12 @@
 <!--debug-->  <script src="js/log.js"></script>
 <!--debug-->  <script src="js/long-press-event.js"></script>
 <!--debug-->  <script src="js/lyrics.js"></script>
-<!--debug-->  <script src="js/modalHomeIcon.js"></script>
 <!--debug-->  <script src="js/modal.js"></script>
 <!--debug-->  <script src="js/modalAbout.js"></script>
 <!--debug-->  <script src="js/modalSticker.js"></script>
 <!--debug-->  <script src="js/modalEnterPin.js"></script>
+<!--debug-->  <script src="js/modalHomeIcon.js"></script>
+<!--debug-->  <script src="js/modalHomeWidget.js"></script>
 <!--debug-->  <script src="js/modalInfoTxt.js"></script>
 <!--debug-->  <script src="js/modalMaintenance.js"></script>
 <!--debug-->  <script src="js/modalMounts.js"></script>

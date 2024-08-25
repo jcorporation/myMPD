@@ -10,6 +10,7 @@ This release improves the support for the new MPD 0.24 sticker features. You can
 
 ### API changes
 
+- MYMPD_API_HOME_WIDGET_SAVE: new
 - MYMPD_API_STICKER_GET: new
 - MYMPD_API_STICKER_DELETE: new
 - MYMPD_API_STICKER_LIST: new
@@ -25,6 +26,7 @@ This release improves the support for the new MPD 0.24 sticker features. You can
 - Feat: Rating for albums and playlists #1134
 - Feat: User defined stickers #1091
 - Feat: Add list view
+- Feat: Add widgets for home screen
 - Upd: Hide advanced search by default
 - Upd: Mongoose 7.15
 
