@@ -30,13 +30,14 @@ This release improves the support for the new MPD 0.24 sticker features. You can
 
 ***
 
-## myMPD 17.0.3 (not yet released)
+## myMPD 17.0.3 (2024-08-25)
 
 This is a small bug fix release.
 
 ### Changelog
 
 - Upd: Add variable mympd_uri_plain to mympd_env for Lua scripts
+- Upd: ja-JP and zh-Hans translations
 
 ***
 
