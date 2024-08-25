@@ -119,9 +119,13 @@ function parseSettings(obj) {
 
     if (settings.webuiSettings.footerSettingsPlayback === true) {
         elShowId('footerSettingsPlayback');
+        elHideId('PlaybackSettingsPlayback');
+        elHideId('QueueCurrentSettingsPlayback');
     }
     else {
         elHideId('footerSettingsPlayback');
+        elShowId('PlaybackSettingsPlayback');
+        elShowId('QueueCurrentSettingsPlayback');
     }
 
     if (settings.webuiSettings.footerPlaybackControls === 'both') {
