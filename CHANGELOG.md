@@ -10,6 +10,7 @@ This release improves the support for the new MPD 0.24 sticker features. You can
 
 ### API changes
 
+- MYMPD_API_DATABASE_LIST_RANDOM: new
 - MYMPD_API_HOME_WIDGET_SAVE: new
 - MYMPD_API_STICKER_GET: new
 - MYMPD_API_STICKER_DELETE: new

@@ -97,11 +97,11 @@ target_sources(mympd
     mpd_client/tags.c
     mpd_client/volume.c
     mpd_worker/mpd_worker.c
-    mpd_worker/add_random.c
     mpd_worker/album_cache.c
     mpd_worker/api.c
     mpd_worker/jukebox.c
     mpd_worker/playlists.c
+    mpd_worker/random_select.c
     mpd_worker/smartpls.c
     mpd_worker/state.c
     mpd_worker/song.c

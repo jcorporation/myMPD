@@ -359,6 +359,26 @@ const APImethods = {
             "play": APIparams.play
         }
     },
+    "MYMPD_API_DATABASE_LIST_RANDOM": {
+        "desc": "Lists random songs or albums.",
+        "params": {
+            "plist": {
+                "type": APItypes.string,
+                "example": "Database",
+                "desc": "Name of mpd playlist or \"Database\""
+            },
+            "quantity": {
+                "type": APItypes.uint,
+                "example": 10,
+                "desc": "Number of songs or albums to list"
+            },
+            "mode": {
+                "type": APItypes.uint,
+                "example": 1,
+                "desc": "1 = add songs, 2 = add albums"
+            }
+        }
+    },
     "MYMPD_API_QUEUE_SAVE": {
         "desc": "Saves the queue as playlist.",
         "params": {
