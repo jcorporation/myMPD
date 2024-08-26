@@ -157,6 +157,7 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_HOME_ICON_MOVE:
         case MYMPD_API_HOME_ICON_RM:
         case MYMPD_API_HOME_ICON_SAVE:
+        case MYMPD_API_HOME_WIDGET_SAVE:
         case MYMPD_API_LIKE:
         case MYMPD_API_LOGLEVEL:
         case MYMPD_API_PLAYLIST_CONTENT_ENUMERATE:

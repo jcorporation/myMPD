@@ -119,6 +119,7 @@ function parseHomeIcons(obj) {
  * @returns {void}
  */
 function updateHomeWidget(card) {
+    card.querySelector('.card-title a').textContent = 'autorenew';
     const data = getData(card, 'data');
     const query = [];
     for (const key in data.arguments) {
@@ -126,6 +127,9 @@ function updateHomeWidget(card) {
     }
     httpGet(getMyMPDuri('http') + subdir + '/script/' +  localSettings.partition + '/' + data.script + '?' + query.join('&'),
     function(response) {
+        setTimeout(function() {
+            card.querySelector('.card-title a').textContent = 'refresh';
+        }, 200);
         const body = card.querySelector('.card-body');
         elClear(body);
         if (response === null) {
@@ -157,8 +161,11 @@ function createHomeWidget(data, pos) {
     const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0", "float-start"]});
     const card = elCreateNodes('div', {"data-contextmenu": "homeWidget", "class": ["card", "home-widgets", "bg-secondary", "rounded-2", "home-widget-" + data.size], "draggable": "true"},
         [
-            elCreateText('div', {'class': ['card-title', 'py-2', 'px-3', 'mb-0']}, data.name),
-            elCreateEmpty('div', {'class': ['card-body', 'overflow-scroll', 'p-0']})
+            elCreateNodes('div', {'class': ['card-title', 'py-2', 'px-3', 'mb-0']}, [
+                elCreateText('span', {}, data.name),
+                elCreateText('a', {'href':'#', 'data-title-phrase': 'Reload', 'title': tn('Reload'), 'data-action': 'refreshWidget', 'class': ['mi', 'float-end']}, 'refresh')
+            ]),
+            elCreateEmpty('div', {'class': ['card-body', 'overflow-scroll', 'p-0', 'bg-dark', 'rounded-bottom']})
         ]
     );
     setData(card, 'type', 'widget');

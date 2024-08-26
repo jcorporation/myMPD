@@ -22,7 +22,7 @@ function initModalHomeWidget() {
 //eslint-disable-next-line no-unused-vars
 function addHomeWidget() {
     const modal = elGetById('modalHomeWidget');
-    elGetById('modalHomeWidgetTitle').textContent = tn('Add to homescreen');
+    elGetById('modalHomeWidgetTitle').textContent = tn('Add widget');
     setData(modal, 'replace', false);
     setData(modal, 'oldpos', 0);
     elGetById('modalHomeWidgetNameInput').value = '';

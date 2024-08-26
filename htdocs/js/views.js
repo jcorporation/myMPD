@@ -240,6 +240,9 @@ function handleViewActionClick(event) {
             elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
             gotoBrowse(event);
             break;
+        case 'refreshWidget':
+            updateHomeWidget(event.target.closest('.card'));
+            break;
         default:
             logError('Invalid action: ' + action);
     }
