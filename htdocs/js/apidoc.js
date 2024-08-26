@@ -2179,6 +2179,37 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_HOME_WIDGET_SAVE": {
+        "desc": "Saves a home icon",
+        "params": {
+            "replace": {
+                "type": APItypes.bool,
+                "example": false,
+                "desc": "Replace icon at pos oldpos"
+            },
+            "oldpos": {
+                "type": APItypes.uint,
+                "example": 0,
+                "desc": "Position of home icon to replace"
+            },
+            "name": {
+                "type": APItypes.string,
+                "example": "test home icon",
+                "desc": "Name of the home icon"
+            },
+            "size": {
+                "type": APItypes.string,
+                "example": "2x2",
+                "desc": "Size of the widget"
+            },
+            "script": APIparams.script,
+            "arguments": {
+                "type": APItypes.object,
+                "example": "{\"arg1\":\"value1\"}",
+                "desc": "Script arguments"
+            }
+        }
+    },
     "MYMPD_API_PICTURE_LIST": {
         "desc": "Lists all pictures in the /pics/<type> directory.",
         "params": {
