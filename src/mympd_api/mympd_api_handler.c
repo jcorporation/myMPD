@@ -815,10 +815,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (json_get_bool(request->data, "$.params.sticker", &bool_buf1, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.advsticker", &bool_buf2, &parse_error) == true)
             {
-                mympd_state->mpd_state->feat.stickers = bool_buf1;
-                mympd_state->mpd_state->feat.advsticker = bool_buf2;
+                if (mympd_state->mpd_state->feat.stickers != bool_buf1 ||
+                    mympd_state->mpd_state->feat.advsticker != bool_buf2)
+                {
+                    mympd_state->mpd_state->feat.stickers = bool_buf1;
+                    mympd_state->mpd_state->feat.advsticker = bool_buf2;
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_OPTIONS, MPD_PARTITION_ALL);
+                }
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
-                send_jsonrpc_event(JSONRPC_EVENT_UPDATE_OPTIONS, MPD_PARTITION_ALL);
             }
             break;
         case MYMPD_API_STICKER_DELETE:
