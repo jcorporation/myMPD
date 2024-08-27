@@ -375,7 +375,7 @@ const APImethods = {
             "mode": {
                 "type": APItypes.uint,
                 "example": 1,
-                "desc": "1 = add songs, 2 = add albums"
+                "desc": "1 = songs, 2 = albums"
             }
         }
     },
