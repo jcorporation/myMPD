@@ -90,6 +90,9 @@ const ligatures = {
     'star': 'star_border'
 };
 
+/** @type {Array} */
+const widgetRefresh = [];
+
 // pre-generated elements
 /** @type {object} */
 const pEl = {};

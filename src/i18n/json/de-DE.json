@@ -1220,5 +1220,7 @@
     "Delete widget": "Widget entfernen",
     "Size": "Größe",
     "Widget": "Widget",
-    "Error executing script": "Skript konnte nicht ausgeführt werden."
+    "Error executing script": "Skript konnte nicht ausgeführt werden.",
+    "Invalid refresh interval": "Ungültiger Aktualisierungsintervall",
+    "Refresh interval": "Aktualisierungsintervall"
 }

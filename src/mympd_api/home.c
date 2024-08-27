@@ -92,17 +92,19 @@ bool mympd_api_home_icon_save(struct t_list *home_list, bool replace, unsigned o
  * @param replace true to replace the icon at oldpos
  * @param oldpos original pos of the icon
  * @param name name
+ * @param refresh Refresh interval
  * @param size widget size
  * @param script script
  * @param arguments options for the command
  * @return true on success, else false
  */
 bool mympd_api_home_widget_save(struct t_list *home_list, bool replace, unsigned oldpos,
-    sds name, sds size, sds script, struct t_list *arguments)
+    sds name, unsigned refresh, sds size, sds script, struct t_list *arguments)
 {
     sds key = sdsnewlen("{", 1);
     key = tojson_char(key, "type", "widget", true);
     key = tojson_sds(key, "name", name, true);
+    key = tojson_uint(key, "refresh", refresh, true);
     key = tojson_sds(key, "size", size, true);
     key = tojson_sds(key, "script", script, true);
     key = sdscat(key, "\"arguments\":{");

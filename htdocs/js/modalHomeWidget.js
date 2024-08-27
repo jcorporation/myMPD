@@ -26,6 +26,7 @@ function addHomeWidget() {
     setData(modal, 'replace', false);
     setData(modal, 'oldpos', 0);
     elGetById('modalHomeWidgetNameInput').value = '';
+    elGetById('modalHomeWidgetRefreshInput').value = '0';
     elGetById('modalHomeWidgetSizeInput').value = '2x2';
     elGetById('modalHomeWidgetScriptInput').value = '';
     selectWidgetScriptChange();
@@ -48,6 +49,7 @@ function editHomeWidget(pos, replace) {
         setData(modal, 'replace', replace);
         setData(modal, 'oldpos', pos);
         elGetById('modalHomeWidgetNameInput').value = obj.result.data.name;
+        elGetById('modalHomeWidgetRefreshInput').value = obj.result.data.refresh;
         elGetById('modalHomeWidgetSizeInput').value = obj.result.data.size;
         elGetById('modalHomeWidgetScriptInput').value = obj.result.data.script;
         selectWidgetScriptChange(obj.result.data.arguments);
@@ -104,6 +106,7 @@ function saveHomeWidget(target) {
         "replace": getData(modal, 'replace'),
         "oldpos": getData(modal, 'oldpos'),
         "name": elGetById('modalHomeWidgetNameInput').value,
+        "refresh": Number(elGetById('modalHomeWidgetRefreshInput').value),
         "size": getSelectValueId('modalHomeWidgetSizeInput'),
         "script": getSelectValueId('modalHomeWidgetScriptInput'),
         "arguments": args

@@ -67,6 +67,7 @@ function getHomeIconType(cmd, action) {
  * @returns {void}
  */
 function parseHomeIcons(obj) {
+    widgetRefresh.length = 0;
     const cardContainer = elGetById('HomeList');
     unsetUpdateView(cardContainer);
     const cols = cardContainer.querySelectorAll('.col');
@@ -105,6 +106,9 @@ function parseHomeIcons(obj) {
         }
         if (obj.result.data[i].type === 'widget') {
             updateHomeWidget(col.firstElementChild);
+            if (obj.result.data[i].refresh > 0) {
+                widgetRefresh.push(col.firstElementChild);
+            }
         }
     }
     for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
@@ -148,6 +152,7 @@ function updateHomeWidget(card) {
                 }
                 parseCmd(event, JSON.parse(href));
             }, false);
+            setData(card, 'lastUpdate', getTimestamp());
         },
         false);
 }
@@ -232,4 +237,20 @@ function createHomeIcon(data, pos) {
     );
     col.appendChild(card);
     return col;
+}
+
+/**
+ * Refreshes the home widgets. This function is called by the websocket
+ * keepalive timer if the websocket is connected.
+ * @returns {void}
+ */
+function homeWidgetsRefresh() {
+    const ts = getTimestamp();
+    for (const widget of widgetRefresh) {
+        const data = getData(widget, 'data');
+        const lastUpdate = getData(widget, 'lastUpdate');
+        if (lastUpdate + data.refresh < ts) {
+            updateHomeWidget(widget);
+        }
+    }
 }
