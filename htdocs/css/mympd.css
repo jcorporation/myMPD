@@ -453,11 +453,11 @@ div#homeActions {
 
 #HomeContainer {
   margin-left: -1rem;
-  margin-right: -1rem;
+  width: calc(100% + 1rem);
 }
 
 .home-widgets {
-  max-width: 100%;
+  max-width: calc(100% - 2rem);
   font-size: 90%;
   margin-bottom: 1rem !important;
 }
