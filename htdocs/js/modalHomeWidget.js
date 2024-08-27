@@ -63,6 +63,7 @@ function editHomeWidget(pos, replace) {
  * @returns {void}
  */
 function selectWidgetScriptChange(values) {
+    elClearId('modalHomeWidgetArgumentsInput');
     const el = elGetById('modalHomeWidgetScriptInput');
     if (el.selectedIndex > -1) {
         showWidgetScriptArgs(el.options[el.selectedIndex], values);

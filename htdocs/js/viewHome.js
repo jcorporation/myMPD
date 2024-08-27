@@ -133,7 +133,7 @@ function updateHomeWidget(card) {
             const body = card.querySelector('.card-body');
             elClear(body);
             if (response === null) {
-                body.appendChild(elCreateTextTn('span',{'class': ['alert', 'alert-danger']}, 'Error executing script'));
+                body.appendChild(elCreateTextTn('div', {'class': ['alert', 'alert-danger', 'm-3']}, 'Error executing script'));
                 return;
             }
             const parser = new DOMParser();
