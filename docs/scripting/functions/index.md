@@ -22,6 +22,7 @@ List of myMPD specific Lua functions.
 | [mympd.hash_md5]({{site.baseurl}}/scripting/functions/util) | MD5 hash of string. |
 | [mympd.hash_sha1]({{site.baseurl}}/scripting/functions/util) | SHA1 hash of string. |
 | [mympd.hash_sha256]({{site.baseurl}}/scripting/functions/util) | SHA256 hash of string. |
+| [mympd.htmlencode]({{site.baseurl}}/scripting/functions/util) | Simple HTML encoding. |
 | [mympd.http_client]({{site.baseurl}}/scripting/functions/http_client) | Simple HTTP client. |
 | [mympd.http_download]({{site.baseurl}}/scripting/functions/http_client) | Download a file over http. |
 | [mympd.http_jsonrpc_error]({{site.baseurl}}/scripting/functions/http_replies) | Sends a JSONRPC 2.0 error. |

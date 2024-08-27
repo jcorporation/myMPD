@@ -37,37 +37,48 @@ function mympd.log(loglevel, message)
 end
 
 --- Returns the MD5 hash of string.
--- @param string String to hash
+-- @param str String to hash
 -- @return MD5 hash of string
-function mympd.hash_md5(string)
-  return mympd_util_hash(string, "md5")
+function mympd.hash_md5(str)
+  return mympd_util_hash(str, "md5")
 end
 
 --- Returns the SHA1 hash of string.
--- @param string String to hash
+-- @param str String to hash
 -- @return SHA1 hash of string
-function mympd.hash_sha1(string)
-  return mympd_util_hash(string, "sha1")
+function mympd.hash_sha1(str)
+  return mympd_util_hash(str, "sha1")
 end
 
 --- Returns the SHA256 hash of string.
--- @param string String to hash
+-- @param str String to hash
 -- @return SHA256 hash of string
-function mympd.hash_sha256(string)
-  return mympd_util_hash(string, "sha256")
+function mympd.hash_sha256(str)
+  return mympd_util_hash(str, "sha256")
 end
 
 --- URL decoding
--- @param string String to URL decode
+-- @param str String to URL decode
 -- @param form true = decode a url form encoded string
 -- @return Decoded string
-function mympd.urldecode(string, form)
-  return mympd_util_urldecode(string, form)
+function mympd.urldecode(str, form)
+  return mympd_util_urldecode(str, form)
 end
 
 --- URL encoding
--- @param string String to URL encode
+-- @param str String to URL encode
 -- @return Encoded string
-function mympd.urlencode(string)
-  return mympd_util_urlencode(string)
+function mympd.urlencode(str)
+  return mympd_util_urlencode(str)
+end
+
+--- Simple HTML encoding
+-- @param str String to HTML encode
+-- @return Encoded string
+function mympd.htmlencode(str)
+  str = string.gsub(str, "<", "&lt;")
+  str = string.gsub(str, "&", "&amp;")
+  str = string.gsub(str, "\"", "&quot;")
+  str = string.gsub(str, "'", "&#39;")
+  return str
 end

@@ -21,6 +21,19 @@ local sha256_hash = mympd.hash_sha256(string)
 | string | string | String to hash |
 {: .table .table-sm }
 
+## HTML encoding
+
+```lua
+local encoded = mympd.htmlencode(string)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| string | string | String to encode |
+{: .table .table-sm }
+
 ## URL encoding and decoding
 
 ```lua
