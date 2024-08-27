@@ -163,7 +163,7 @@ function createHomeWidget(data, pos) {
     const card = elCreateNodes('div', {"data-contextmenu": "homeWidget", "class": ["card", "home-widgets", "bg-secondary", "rounded-2", "home-widget-" + data.size], "draggable": "true"},
         [
             elCreateNodes('div', {'class': ['card-title', 'py-2', 'px-3', 'mb-0']}, [
-                elCreateText('span', {}, data.name),
+                document.createTextNode(data.name),
                 elCreateText('a', {'href':'#', 'data-title-phrase': 'Reload', 'title': tn('Reload'), 'data-action': 'refreshWidget', 'class': ['mi', 'float-end']}, 'refresh')
             ]),
             elCreateEmpty('div', {'class': ['card-body', 'overflow-scroll', 'p-0', 'bg-dark', 'rounded-bottom']})
