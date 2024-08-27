@@ -113,6 +113,7 @@ function songDetailsRow(thContent, tdContent) {
  */
 function parseSongDetails(obj) {
     const modal = elGetById('modalSongDetails');
+    setData(modal, 'uri', obj.result.uri);
     modal.querySelector('.album-cover').style.backgroundImage = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.uri));
 
     const elH1s = modal.querySelectorAll('h1');
@@ -362,4 +363,39 @@ function parseComments(obj) {
         );
     }
     unsetUpdateView(table);
+}
+
+/**
+ * Adds the song in current song detail modal to the queue
+ * @param {string} action one of appendQueue, appendPlayQueue,
+ *                               insertAfterCurrentQueue, replaceQueue,
+ *                               replacePlayQueue, addToHome
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function songDetailAddTo(action) {
+    const uri = getDataId('modalSongDetails', 'uri');
+    const type = 'song';
+    switch(action) {
+        case 'appendQueue':
+            appendQueue(type, [uri]);
+            break;
+        case 'appendPlayQueue':
+            appendPlayQueue(type, [uri]);
+            break;
+        case 'insertAfterCurrentQueue':
+            insertAfterCurrentQueue(type, [uri], null);
+            break;
+        case 'replaceQueue':
+            replaceQueue(type, [uri]);
+            break;
+        case 'replacePlayQueue':
+            replacePlayQueue(type, [uri]);
+            break;
+        case 'addToHome':
+            addPlistToHome(uri, type, uri);
+            break;
+        default:
+            logError('Invalid action: ' + action);
+    }
 }

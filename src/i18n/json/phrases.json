@@ -291,6 +291,7 @@
 {"term":"Error creating Lua instance."},
 {"term":"Error creating MPD search command"},
 {"term":"Error creating MPD search queue command"},
+{"term":"Error executing script"},
 {"term":"Error executing script %{script}"},
 {"term":"Error executing script %{script}: %{msg}"},
 {"term":"Error executing script %{script}: Can not open or read script file"},

@@ -1890,6 +1890,20 @@
               <div class="row">
                 <div class="col-12 col-md-4 mb-3">
                   <div class="album-cover cover-loading"></div>
+                  <div class="btn-group mt-2">
+                    <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "songDetailAddTo", "options": ["appendQueue"]}'>library_add</button>
+                    <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
+                    <div class="dropdown-menu px-2 dropdownWide">
+                      <div class="d-grid gap-2">
+                        <button data-phrase="Append to queue" data-href='{"cmd": "songDetailAddTo", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                        <button data-phrase="Append to queue and play" data-href='{"cmd": "songDetailAddTo", "options": ["appendPlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                        <button data-phrase="Insert after current playing song" data-href='{"cmd": "songDetailAddTo", "options": ["insertAfterCurrentQueue"]}' type="button" class="featWhence btn btn-secondary btn-sm"></button>
+                        <button data-phrase="Replace queue" data-href='{"cmd": "songDetailAddTo", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                        <button data-phrase="Replace queue and play" data-href='{"cmd": "songDetailAddTo", "options": ["replacePlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                        <button data-phrase="Add to homescreen" data-href='{"cmd": "songDetailAddTo", "options": ["addToHome"]}' type="button" class="btn btn-secondary btn-sm featHome"></button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div class="col-12 col-md-8">
                   <div class="table-responsive">

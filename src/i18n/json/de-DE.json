@@ -1218,5 +1218,6 @@
     "Duplicate widget": "Widget kopieren",
     "Edit widget": "Widget editieren",
     "Size": "Größe",
-    "Widget": "Widget"
+    "Widget": "Widget",
+    "Error executing script": "Skript konnte nicht ausgeführt werden."
 }
