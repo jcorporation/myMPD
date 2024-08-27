@@ -126,29 +126,30 @@ function updateHomeWidget(card) {
         query.push(myEncodeURIComponent(key) + '=' + myEncodeURIComponent(data.arguments[key]));
     }
     httpGet(getMyMPDuri('http') + subdir + '/script/' +  localSettings.partition + '/' + data.script + '?' + query.join('&'),
-    function(response) {
-        setTimeout(function() {
-            card.querySelector('.card-title a').textContent = 'refresh';
-        }, 200);
-        const body = card.querySelector('.card-body');
-        elClear(body);
-        if (response === null) {
-            body.appendChild(elCreateTextTn('span',{'class': ['alert', 'alert-danger']}, 'Error executing script'));
-            return;
-        }
-        const parser = new DOMParser();
-        const html = parser.parseFromString(response, "text/html");
-        body.appendChild(... html.body.childNodes);
-        body.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            const href = getData(event.target, 'href');
-            if (href === undefined) {
+        function(response) {
+            setTimeout(function() {
+                card.querySelector('.card-title a').textContent = 'refresh';
+            }, 200);
+            const body = card.querySelector('.card-body');
+            elClear(body);
+            if (response === null) {
+                body.appendChild(elCreateTextTn('span',{'class': ['alert', 'alert-danger']}, 'Error executing script'));
                 return;
             }
-            parseCmd(event, JSON.parse(href));
-        }, false);
-    }, false);
+            const parser = new DOMParser();
+            const html = parser.parseFromString(response, "text/html");
+            body.appendChild(... html.body.childNodes);
+            body.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                const href = getData(event.target, 'href');
+                if (href === undefined) {
+                    return;
+                }
+                parseCmd(event, JSON.parse(href));
+            }, false);
+        },
+        false);
 }
 
 /**
