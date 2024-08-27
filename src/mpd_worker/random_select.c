@@ -97,6 +97,7 @@ bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
  * Lists randoms songs or albums
  * @param mpd_worker_state pointer to mpd_worker_state
  * @param buffer Already allocated sds string to append the response
+ * @param request_id Jsonrpc id
  * @param quantity number of songs/albums to add
  * @param mode 1 = add songs, 2 = add albums
  * @param plist playlist to select songs from
