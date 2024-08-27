@@ -97,11 +97,7 @@ function showWidgetScriptArgs(option, values) {
 function saveHomeWidget(target) {
     cleanupModalId('modalHomeIcon');
     btnWaiting(target, true);
-    const args = {};
-    const argEls = document.querySelectorAll('#modalHomeWidgetArgumentsInput input');
-    for (const argEl of argEls) {
-        args[argEl.getAttribute('name')] = argEl.value;
-    }
+    const args = formToScriptArgs(elGetById('modalHomeWidgetArgumentsInput'));
     const modal = elGetById('modalHomeWidget');
     sendAPI("MYMPD_API_HOME_WIDGET_SAVE", {
         "replace": getData(modal, 'replace'),
