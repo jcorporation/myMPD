@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 This release improves the support for the new MPD 0.24 sticker features. You can now rate not only songs but also albums and playlists and add custom stickers to songs, albums and playlists.
 
+This version also introduces scriptable widgets for the home screen.
+
 ### API changes
 
 - MYMPD_API_DATABASE_LIST_RANDOM: new
@@ -30,6 +32,7 @@ This release improves the support for the new MPD 0.24 sticker features. You can
 - Feat: Add widgets for home screen
 - Upd: Hide advanced search by default
 - Upd: Mongoose 7.15
+- Fix: Send JSONRPC_EVENT_UPDATE_OPTIONS only on feature change
 
 ***
 

@@ -10,7 +10,9 @@ The first type of scripts are executed by triggers, timers or manual through the
 
 - [Triggers]({{site.baseurl}}/references/trigger)
 
-The second type of script are called by http requests (`/script/<partition>/<script>`) and special triggers. This scripts should return a valid http response including status code, headers and body.
+The second type of script are called by http requests (`/script/<partition>/<script>`), special triggers and home screen widgets. This scripts should return a valid http response including status code, headers and body.
+
+- [Widgets]({{site.baseurl}}/scripting/widges)
 
 ## Global variables
 
