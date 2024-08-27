@@ -43,6 +43,7 @@ Default image light
 Delete home icon
 Delete playlist
 Delete webradio favorite
+Delete widget
 Disable consume mode
 Disable random
 Disable repeat
