@@ -292,16 +292,9 @@ function parseSongDetails(obj) {
                 );
             }
         }
-        const stickerEditBtn = elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm", "float-end"]}, 'Edit');
-        stickerEditBtn.addEventListener('click', function() {
-            showStickerModal(obj.result.uri, 'song');
-        }, false);
         tbody.appendChild(
             elCreateNode('tr', {},
-                elCreateNodes('th', {"colspan": "2", "class": ["pt-3"]}, [
-                    stickerEditBtn,
-                    elCreateTextTn('h5', {}, 'Sticker')
-                ])
+                elCreateText('th', {"colspan": "2", "class": ["pt-3"]}, 'Sticker')
             )
         );
         let i = 0;
@@ -398,4 +391,14 @@ function songDetailAddTo(action) {
         default:
             logError('Invalid action: ' + action);
     }
+}
+
+/**
+ * Shows the sticker edit dialog from song details modal
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function songDetailStickerEdit() {
+    const uri = getDataId('modalSongDetails', 'uri');
+    showStickerModal(uri, 'song');
 }
