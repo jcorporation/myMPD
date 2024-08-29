@@ -45,14 +45,14 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
 
     MYMPD_LOG_DEBUG(NULL, "Handle playlistart for \"%s\"", name);
     //create absolute filepath
-    sds mediafile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, name);
+    sds mediafile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_PLAYLISTS, name);
     MYMPD_LOG_DEBUG(NULL, "Absolut media_file: %s", mediafile);
     mediafile = webserver_find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
         webserver_serve_file(nc, hm, mg_user_data->browse_directory, mediafile);
     }
     else {
-        MYMPD_LOG_DEBUG(NULL, "No image for tag found");
+        MYMPD_LOG_DEBUG(NULL, "No image for playlist found");
         webserver_redirect_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
     }
     FREE_SDS(mediafile);

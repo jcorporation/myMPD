@@ -941,7 +941,13 @@ div#BrowseFilesystemImages {
   white-space: nowrap;
 }
 
-div#BrowseFilesystemImages > div {
+div#BrowsePlaylistDetailImage {
+  height: calc(var(--grid-thumbnail-size, 175px) + 1rem);
+  margin-bottom: 1rem;
+}
+
+div#BrowseFilesystemImages > div,
+div#BrowsePlaylistDetailImage > div {
   height: var(--grid-thumbnail-size, 175px);
   width: var(--grid-thumbnail-size, 175px);
   background-position: center center;
@@ -949,6 +955,10 @@ div#BrowseFilesystemImages > div {
   display: inline-block;
   margin-right: 1rem;
   cursor: pointer;
+}
+
+div#BrowsePlaylistDetailSticker > table {
+  width: unset;
 }
 
 div.homeIconPreview {

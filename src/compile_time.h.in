@@ -104,6 +104,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define DIR_WORK_PICS "pics"
 #define DIR_WORK_PICS_BACKGROUNDS DIR_WORK_PICS"/backgrounds"
 #define DIR_WORK_PICS_THUMBS DIR_WORK_PICS"/thumbs"
+#define DIR_WORK_PICS_PLAYLISTS DIR_WORK_PICS"/playlists"
 #define DIR_WORK_SCRIPTS "scripts"
 #define DIR_WORK_SMARTPLS "smartpls"
 #define DIR_WORK_SSL "ssl"

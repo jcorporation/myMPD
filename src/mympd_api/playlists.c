@@ -663,11 +663,17 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
     if (print_stickers == true) {
         stickerdb_enter_idle(stickerdb);
     }
+    sds pic_path = sdscatfmt(sdsempty(), "%S/%s", partition_state->config->workdir, DIR_WORK_PICS_PLAYLISTS);
+    bool pic =  testdir("Playlists pics folder", pic_path, false, true) == DIR_EXISTS
+        ? true
+        : false;
+    FREE_SDS(pic_path);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_sds(buffer, "searchstr", searchstr, true);
     buffer = tojson_uint64(buffer, "totalEntities", entity_list->numele, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_uint(buffer, "offset", offset, false);
+    buffer = tojson_uint(buffer, "offset", offset, true);
+    buffer = tojson_bool(buffer, "pics", pic, false);
     buffer = jsonrpc_end(buffer);
     raxFree(entity_list);
     return buffer;
@@ -814,6 +820,12 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
     buffer = tojson_sds(buffer, "expression", expression, true);
     buffer = tojson_sds(buffer, "plist", plist, true);
     buffer = tojson_bool(buffer, "smartpls", smartpls, true);
+    sds pic_path = sdscatfmt(sdsempty(), "%S/%s", partition_state->config->workdir, DIR_WORK_PICS_PLAYLISTS);
+    bool pic =  testdir("Playlists pics folder", pic_path, false, true) == DIR_EXISTS
+        ? true
+        : false;
+    FREE_SDS(pic_path);
+    buffer = tojson_bool(buffer, "pics", pic, true);
     buffer = sdscat(buffer, "\"lastPlayedSong\":{");
     buffer = tojson_time(buffer, "time", last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);

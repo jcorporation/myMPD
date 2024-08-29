@@ -149,6 +149,10 @@ function parsePlaylistListUpdate(card, data) {
  */
 function parsePlaylistDetail(obj) {
     const table = elGetById('BrowsePlaylistDetailList');
+    const imageEl = elGetById('BrowsePlaylistDetailImage');
+    const stickerEl = elGetById('BrowsePlaylistDetailSticker');
+    elClear(imageEl);
+    elClear(stickerEl);
 
     if (checkResult(obj, table, undefined) === false) {
         return;
@@ -178,6 +182,28 @@ function parsePlaylistDetail(obj) {
         table.setAttribute('data-rw', 'true');
         rw = true;
     }
+
+    if (obj.result.pics === true) {
+        const img = elCreateEmpty('div', {});
+        img.style.backgroundImage = getCssImageUri('/playlistart?playlist=' + myEncodeURIComponent(obj.result.uri));
+        imageEl.appendChild(img);
+        elShow(imageEl);
+    }
+    else {
+        elHide(imageEl);
+    }
+
+    stickerEl.appendChild(elCreateTextTn('h4', {}, 'Sticker'));
+    const tbl = elCreateEmpty('table', {'class':['table', 'table-sm']});
+    for (const key in obj.result.sticker) {
+        tbl.appendChild(
+            elCreateNodes('tr', {}, [
+                elCreateText('th', {'class': ['pe-2']}, key + ':'),
+                elCreateText('td', {}, obj.result.sticker[key])
+            ])
+        );
+    }
+    stickerEl.appendChild(tbl);
 
     setData(table, 'playlistlength', obj.result.totalEntities);
     setData(table, 'uri', obj.result.plist);
