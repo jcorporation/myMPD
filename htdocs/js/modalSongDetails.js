@@ -272,7 +272,9 @@ function parseSongDetails(obj) {
             }
             else if (sticker === 'elapsed') {
                 const div = elCreateNode('div', {}, printValue(sticker, obj.result[sticker]));
-                if (obj.result[sticker] > 0) {
+                if (obj.result[sticker] > 0 &&
+                    obj.result[sticker] < obj.result.Duration)
+                {
                     const resumeBtn = pEl.songResumeBtn.cloneNode(true);
                     resumeBtn.classList.add('float-end');
                     div.appendChild(resumeBtn);

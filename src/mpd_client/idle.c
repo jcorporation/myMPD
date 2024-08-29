@@ -272,13 +272,6 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                         //set song elapsed sticker
                         time_t now = time(NULL);
                         time_t elapsed = now - partition_state->song_start_time;
-                        time_t total_time = partition_state->song_end_time - partition_state->song_start_time - elapsed;
-                        if (elapsed < SCROBBLE_TIME_MIN ||
-                            total_time < SCROBBLE_TIME_MIN)
-                        {
-                            //10 seconds inaccuracy
-                            elapsed = 0;
-                        }
                         stickerdb_set_elapsed(mympd_state->stickerdb, STICKER_TYPE_SONG, partition_state->song_uri, elapsed);
                     }
                     //get and put mpd state
