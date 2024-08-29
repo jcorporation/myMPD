@@ -152,6 +152,7 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_CACHES_CREATE:
         case MYMPD_API_CACHE_DISK_CLEAR:
         case MYMPD_API_CACHE_DISK_CROP:
+        case MYMPD_API_DATABASE_ALBUM_LIST:
         case MYMPD_API_DATABASE_LIST_RANDOM:
         case MYMPD_API_HOME_ICON_GET:
         case MYMPD_API_HOME_ICON_LIST:
