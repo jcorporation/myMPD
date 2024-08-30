@@ -1129,7 +1129,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = sdscatlen(buffer, "}", 1);
         //sticker types
         buffer = sdscat(buffer, ",\"stickerTypes\":[");
-        buffer = mympd_api_sticker_print_types(mympd_state->stickerdb, buffer, partition_state->mpd_state->feat.advsticker);
+        buffer = mympd_api_sticker_print_types(mympd_state->stickerdb, buffer);
         buffer = sdscatlen(buffer, "]", 1);
     }
     buffer = jsonrpc_end(buffer);

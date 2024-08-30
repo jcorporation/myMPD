@@ -310,11 +310,14 @@ bool stickerdb_get_names(struct t_stickerdb_state *stickerdb, enum mympd_sticker
  * @return true on success, else false
  */
 bool stickerdb_get_types(struct t_stickerdb_state *stickerdb, struct t_list *sticker_types) {
-    struct mpd_pair *pair;
+    if (stickerdb->mpd_state->feat.advsticker == false) {
+        list_push(sticker_types, "song", 0, NULL, NULL);
+        return true;
+    }
     if (stickerdb_connect(stickerdb) == false) {
         return false;
     }
-    //TODO: filter by sticker type
+    struct mpd_pair *pair;
     if (mpd_send_stickertypes(stickerdb->conn)) {
         while ((pair = mpd_recv_pair(stickerdb->conn)) != NULL) {
             list_push(sticker_types, pair->value, 0, NULL, NULL);

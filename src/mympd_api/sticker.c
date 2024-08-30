@@ -183,13 +183,9 @@ sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct 
 /**
  * Print the sticker types as json array
  * @param buffer already allocated sds string to append the list
- * @param feat_adv_sticker Advanced sticker support?
  * @return Pointer to buffer
  */
-sds mympd_api_sticker_print_types(struct t_stickerdb_state *stickerdb, sds buffer, bool feat_adv_sticker) {
-    if (feat_adv_sticker == false) {
-        return sdscat(buffer,"\"song\"");
-    }
+sds mympd_api_sticker_print_types(struct t_stickerdb_state *stickerdb, sds buffer) {
     struct t_list sticker_types;
     list_init(&sticker_types);
     if (stickerdb_get_types(stickerdb, &sticker_types) == false) {
