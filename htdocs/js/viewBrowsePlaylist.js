@@ -193,7 +193,7 @@ function parsePlaylistDetail(obj) {
         elHide(imageEl);
     }
 
-    stickerEl.appendChild(elCreateTextTn('h4', {}, 'Sticker'));
+    let stickerCount = 0;
     const tbl = elCreateEmpty('table', {'class':['table', 'table-sm']});
     for (const key in obj.result.sticker) {
         tbl.appendChild(
@@ -202,8 +202,12 @@ function parsePlaylistDetail(obj) {
                 elCreateText('td', {}, obj.result.sticker[key])
             ])
         );
+        stickerCount++;
     }
-    stickerEl.appendChild(tbl);
+    if (stickerCount > 0) {
+        stickerEl.appendChild(elCreateTextTn('h4', {}, 'Sticker'));
+        stickerEl.appendChild(tbl);
+    }
 
     setData(table, 'playlistlength', obj.result.totalEntities);
     setData(table, 'uri', obj.result.plist);
