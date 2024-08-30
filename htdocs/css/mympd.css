@@ -457,7 +457,7 @@ div#homeActions {
 }
 
 .home-widgets {
-  max-width: calc(100% - 2rem);
+  max-width: calc(100vW - 2rem);
   font-size: 90%;
   margin-bottom: 1rem !important;
 }
