@@ -32,7 +32,7 @@
 
 #define LIBMYMPDCLIENT_MAJOR_VERSION 1
 #define LIBMYMPDCLIENT_MINOR_VERSION 0
-#define LIBMYMPDCLIENT_PATCH_VERSION 29
+#define LIBMYMPDCLIENT_PATCH_VERSION 30
 
 /**
  * Preprocessor macro which allows you to check which version of
