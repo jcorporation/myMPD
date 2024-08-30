@@ -182,6 +182,7 @@ sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct 
 
 /**
  * Print the sticker types as json array
+ * @param stickerdb Pointer to stickerdb
  * @param buffer already allocated sds string to append the list
  * @return Pointer to buffer
  */
