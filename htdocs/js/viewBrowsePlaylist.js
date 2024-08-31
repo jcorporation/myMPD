@@ -185,7 +185,10 @@ function parsePlaylistDetail(obj) {
 
     if (obj.result.pics === true) {
         const img = elCreateEmpty('div', {});
-        img.style.backgroundImage = getCssImageUri('/playlistart?playlist=' + myEncodeURIComponent(obj.result.uri));
+        img.style.backgroundImage = getCssImageUri('/playlistart?playlist=' + myEncodeURIComponent(obj.result.plist));
+        img.addEventListener('click', function(event) {
+            zoomPicture(event.target);
+        }, false);
         imageEl.appendChild(img);
         elShow(imageEl);
     }

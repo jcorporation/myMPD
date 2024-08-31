@@ -61,6 +61,7 @@ interface EventTarget {
     setAttribute: any;
     removeAttribute: any;
     firstElementChild: any;
+    style: any;
 }
 
 interface HTMLElement {
