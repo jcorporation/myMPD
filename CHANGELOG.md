@@ -8,7 +8,9 @@ https://github.com/jcorporation/myMPD/
 
 This release improves the support for the new MPD 0.24 sticker features. You can now rate not only songs but also albums and playlists and add custom stickers to songs, albums and playlists.
 
-This version also introduces scriptable widgets for the home screen.
+This version also introduces scriptable widgets for the home screen. This widgets using myMPD scripts as the backend and can therefore be fully customized.
+
+An another notable feature is the new list view that supplements the table and grid views.
 
 ### API changes
 
@@ -23,9 +25,11 @@ This version also introduces scriptable widgets for the home screen.
 - MYMPD_API_QUEUE_APPEND_URI_RESUME: new
 - MYMPD_API_QUEUE_INSERT_URI_RESUME: new
 - MYMPD_API_QUEUE_REPLACE_URI_RESUME: new
+- MYMPD_API_SETTINGS_GET: returns now available sticker types
 
 ### Changelog
 
+- Feat: Resume for songs
 - Feat: Rating for albums and playlists #1134
 - Feat: User defined stickers #1091
 - Feat: Add list view
