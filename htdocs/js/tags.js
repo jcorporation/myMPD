@@ -305,9 +305,10 @@ function getDisplayTitle(name, title) {
  * Returns a tag value as dom element
  * @param {string} key the tag type
  * @param {string | number | object} value the tag value
+ * @param {any} [userData] custom data
  * @returns {Node} the created node
  */
-function printValue(key, value) {
+function printValue(key, value, userData) {
     if (isEmptyTag(value) === true) {
         return document.createTextNode('');
     }
@@ -354,8 +355,22 @@ function printValue(key, value) {
         case 'rating': {
             return showStarRating(value);
         }
-        case 'elapsed':
-            return document.createTextNode(fmtSongDuration(value));
+        case 'elapsed': {
+            let progressEl;
+            if (userData !== undefined &&
+                userData.Duration !== undefined)
+            {
+                const prct = Math.floor((100 / userData.Duration) * value);
+                progressEl = elCreateNode('div', {'class': ['progress']},
+                    elCreateText('div', {'class': ['progress-bar', 'overflow-visible']}, fmtSongDuration(value) + ' / ' + fmtSongDuration(userData.Duration))
+                );
+                progressEl.firstElementChild.style.width = prct + '%';
+            }
+            else {
+                progressEl = document.createTextNode(fmtSongDuration(value));
+            }
+            return progressEl;
+        }
         case 'Artist':
         case 'ArtistSort':
         case 'AlbumArtist':

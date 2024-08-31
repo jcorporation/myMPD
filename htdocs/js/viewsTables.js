@@ -339,7 +339,7 @@ function tableRow(row, data, list, colspan, smallWidth, actionTd) {
                 elCreateNodes('div', {"class": ["row"]}, [
                     elCreateTextTn('small', {"class": ["col-3"]}, settings['view' + list].fields[c]),
                     elCreateNode('span', {"data-col": settings['view' + list].fields[c], "class": ["col-9"]},
-                        printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]])
+                        printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]], data)
                     )
                 ])
             );
@@ -350,7 +350,7 @@ function tableRow(row, data, list, colspan, smallWidth, actionTd) {
         for (let c = 0, d = settings['view' + list].fields.length; c < d; c++) {
             row.appendChild(
                 elCreateNode('td', {"data-col": settings['view' + list].fields[c]},
-                    printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]])
+                    printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]], data)
                 )
             );
         }

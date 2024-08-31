@@ -331,6 +331,8 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->play_state = MPD_STATE_UNKNOWN;
     partition_state->song_id = -1;
     partition_state->song_uri = sdsempty();
+    partition_state->song_pos = -1;
+    partition_state->song_duration = 0;
     partition_state->next_song_id = -1;
     partition_state->last_song_id = -1;
     partition_state->last_song_uri = sdsempty();

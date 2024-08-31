@@ -132,6 +132,7 @@ struct t_partition_state {
     int next_song_id;                      //!< next song id from queue
     int last_song_id;                      //!< previous song id from queue
     int song_pos;                          //!< current song pos in queue
+    time_t song_duration;                  //!< current song length
     sds song_uri;                          //!< current song uri
     sds last_song_uri;                     //!< previous song uri
     unsigned queue_version;                //!< queue version number (increments on queue change)

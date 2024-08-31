@@ -232,7 +232,7 @@ function createGridBody(body, data, list) {
             i++;
             continue;
         }
-        const value = printValue(tag, data[tag]);
+        const value = printValue(tag, data[tag], data);
         const title = tag === 'Type'
             ? getTypeTitle(value.textContent)
             : value.textContent;

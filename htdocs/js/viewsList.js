@@ -199,7 +199,7 @@ function createListBody(body, data, list) {
         if (i === 0) {
             body.appendChild(
                 elCreateNode('h5', {"class": ["d-block"], "data-col": tag},
-                    printValue(tag, data[tag])
+                    printValue(tag, data[tag], data)
                 )
             );
         }
@@ -208,7 +208,7 @@ function createListBody(body, data, list) {
                 elCreateNodes('div', {"class": ["row"]}, [
                     elCreateTextTn('small', {"class": ["col-3"]}, tag),
                     elCreateNode('span', {"data-col": tag, "class": ["col-9"]},
-                        printValue(tag, data[tag])
+                        printValue(tag, data[tag], data)
                     )
                 ])
             );

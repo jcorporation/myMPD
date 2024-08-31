@@ -170,23 +170,23 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
         partition_state->play_state = mpd_status_get_state(status);
         partition_state->song_id = song_id;
         partition_state->song_pos = mpd_status_get_song_pos(status);
+        partition_state->song_duration = (time_t)mpd_status_get_total_time(status);
         partition_state->next_song_id = mpd_status_get_next_song_id(status);
         partition_state->queue_version = mpd_status_get_queue_version(status);
         partition_state->queue_length = mpd_status_get_queue_length(status);
         partition_state->crossfade = (time_t)mpd_status_get_crossfade(status);
 
-        time_t total_time = (time_t)mpd_status_get_total_time(status);
         time_t elapsed_time = (time_t)mympd_api_get_elapsed_seconds(status);
         partition_state->song_start_time = now - elapsed_time;
-        partition_state->song_end_time = total_time == 0
+        partition_state->song_end_time = partition_state->song_duration == 0
             ? 0
-            : now + total_time - elapsed_time;
+            : now + partition_state->song_duration - elapsed_time;
 
         if (partition_state->play_state == MPD_STATE_PLAY) {
             //scrobble time is half length of song or SCROBBLE_TIME_MAX (4 minutes) whatever is shorter
-            time_t scrobble_offset = total_time > SCROBBLE_TIME_TOTAL
+            time_t scrobble_offset = partition_state->song_duration > SCROBBLE_TIME_TOTAL
                 ? SCROBBLE_TIME_MAX - elapsed_time
-                : total_time / 2 - elapsed_time;
+                : partition_state->song_duration / 2 - elapsed_time;
             if (scrobble_offset > 0) {
                 MYMPD_LOG_DEBUG(partition_state->name, "Setting scrobble timer");
                 mympd_timer_set(partition_state->timer_fd_scrobble, (int)scrobble_offset, 0);
@@ -208,7 +208,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
         }
         else {
             //jukebox add time is crossfade + 10s before song end time
-            time_t add_offset = total_time - (elapsed_time + partition_state->crossfade + JUKEBOX_ADD_SONG_OFFSET);
+            time_t add_offset = partition_state->song_duration - (elapsed_time + partition_state->crossfade + JUKEBOX_ADD_SONG_OFFSET);
             if (add_offset > 0) {
                 MYMPD_LOG_DEBUG(partition_state->name, "Setting jukebox timer");
                 mympd_timer_set(partition_state->timer_fd_jukebox, (int)add_offset, 0);
