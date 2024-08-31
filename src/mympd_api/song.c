@@ -49,7 +49,7 @@ sds mympd_api_song_details(struct t_mympd_state *mympd_state, struct t_partition
     if (partition_state->mpd_state->feat.stickers == true) {
         struct t_stickers sticker;
         stickers_reset(&sticker);
-        stickers_enable_all(&sticker);
+        stickers_enable_all(&sticker, STICKER_TYPE_SONG);
         buffer = mympd_api_sticker_get_print(buffer, mympd_state->stickerdb, STICKER_TYPE_SONG, uri, &sticker);
     }
 

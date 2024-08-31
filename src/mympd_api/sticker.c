@@ -56,7 +56,7 @@ sds mympd_api_sticker_list(struct t_stickerdb_state *stickerdb, sds buffer, unsi
     sds uri, enum mympd_sticker_type type)
 {
     struct t_stickers stickers;
-    stickers_enable_all(&stickers);
+    stickers_enable_all(&stickers, type);
     buffer = jsonrpc_respond_start(buffer, MYMPD_API_STICKER_LIST, request_id);
     buffer = mympd_api_sticker_get_print(buffer, stickerdb, type, uri, &stickers);
     buffer = jsonrpc_end(buffer);
@@ -105,7 +105,7 @@ bool mympd_api_sticker_set_feedback(struct t_stickerdb_state *stickerdb, struct 
  * @param stickerdb pointer to stickerdb
  * @param type MPD sticker type
  * @param uri song uri
- * @param stickers array of stickers to print
+ * @param stickers list of stickers to print
  * @return pointer to the modified buffer
  */
 sds mympd_api_sticker_get_print(sds buffer, struct t_stickerdb_state *stickerdb,
