@@ -29,6 +29,7 @@
 
 // Private definitions
 
+static bool get_sticker_types(struct t_stickerdb_state *stickerdb);
 static bool sticker_search_add_value_constraint(struct t_stickerdb_state *stickerdb, enum mpd_sticker_operator op, const char *value);
 static bool sticker_search_add_sort(struct t_stickerdb_state *stickerdb, enum mpd_sticker_sort sort, bool desc);
 static bool sticker_search_add_window(struct t_stickerdb_state *stickerdb, unsigned start, unsigned end);
@@ -101,6 +102,7 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
         MYMPD_LOG_INFO(stickerdb->name, "Disabling advanced sticker commands");
         stickerdb->mpd_state->feat.advsticker = false;
     }
+    get_sticker_types(stickerdb);
     mympd_api_request_sticker_features(stickerdb->mpd_state->feat.stickers,
         stickerdb->mpd_state->feat.advsticker);
     MYMPD_LOG_DEBUG("stickerdb", "MPD connected and waiting for commands");
@@ -299,33 +301,6 @@ bool stickerdb_get_names(struct t_stickerdb_state *stickerdb, enum mympd_sticker
     }
     mpd_response_finish(stickerdb->conn);
     stickerdb_check_error_and_recover(stickerdb, "mpd_send_stickernames");
-    stickerdb_enter_idle(stickerdb);
-    return true;
-}
-
-/**
- * Gets all sticker types
- * @param stickerdb pointer to the stickerdb state
- * @param sticker_types List to populate
- * @return true on success, else false
- */
-bool stickerdb_get_types(struct t_stickerdb_state *stickerdb, struct t_list *sticker_types) {
-    if (stickerdb->mpd_state->feat.advsticker == false) {
-        list_push(sticker_types, "song", 0, NULL, NULL);
-        return true;
-    }
-    if (stickerdb_connect(stickerdb) == false) {
-        return false;
-    }
-    struct mpd_pair *pair;
-    if (mpd_send_stickertypes(stickerdb->conn)) {
-        while ((pair = mpd_recv_pair(stickerdb->conn)) != NULL) {
-            list_push(sticker_types, pair->value, 0, NULL, NULL);
-            mpd_return_pair(stickerdb->conn, pair);
-        }
-    }
-    mpd_response_finish(stickerdb->conn);
-    stickerdb_check_error_and_recover(stickerdb, "mpd_send_stickertypes");
     stickerdb_enter_idle(stickerdb);
     return true;
 }
@@ -692,6 +667,30 @@ bool stickerdb_remove(struct t_stickerdb_state *stickerdb, enum mympd_sticker_ty
 }
 
 // Private functions
+
+/**
+ * Populates the sticker_types list
+ * @param stickerdb pointer to the stickerdb state
+ * @param sticker_types List to populate
+ * @return true on success, else false
+ */
+static bool get_sticker_types(struct t_stickerdb_state *stickerdb) {
+    list_clear(&stickerdb->mpd_state->sticker_types);
+    if (stickerdb->mpd_state->feat.advsticker == false) {
+        list_push(&stickerdb->mpd_state->sticker_types, "song", 0, NULL, NULL);
+        return true;
+    }
+    struct mpd_pair *pair;
+    if (mpd_send_stickertypes(stickerdb->conn)) {
+        while ((pair = mpd_recv_pair(stickerdb->conn)) != NULL) {
+            list_push(&stickerdb->mpd_state->sticker_types, pair->value, 0, NULL, NULL);
+            mpd_return_pair(stickerdb->conn, pair);
+        }
+    }
+    mpd_response_finish(stickerdb->conn);
+    stickerdb_check_error_and_recover(stickerdb, "mpd_send_stickertypes");
+    return true;
+}
 
 /**
  * Adds a mpd sticker search value constraint if value is not NULL

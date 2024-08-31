@@ -86,15 +86,16 @@ struct t_mpd_state {
     sds playlist_directory_value;       //!< real playlist directory set by feature detection
     //tags
     sds tag_list;                       //!< comma separated string of mpd tags to enable
-    struct t_mpd_tags tags_mympd;           //!< tags enabled by myMPD and mpd
-    struct t_mpd_tags tags_mpd;             //!< all available mpd tags
-    struct t_mpd_tags tags_search;          //!< tags enabled for search
-    struct t_mpd_tags tags_browse;          //!< tags enabled for browse
-    struct t_mpd_tags tags_album;           //!< tags enabled for albums
+    struct t_mpd_tags tags_mympd;       //!< tags enabled by myMPD and mpd
+    struct t_mpd_tags tags_mpd;         //!< all available mpd tags
+    struct t_mpd_tags tags_search;      //!< tags enabled for search
+    struct t_mpd_tags tags_browse;      //!< tags enabled for browse
+    struct t_mpd_tags tags_album;       //!< tags enabled for albums
     enum mpd_tag_type tag_albumartist;  //!< tag to use for AlbumArtist
     //Feature flags
     const unsigned *protocol;           //!< mpd protocol version
     struct t_mpd_features feat;         //!< feature flags
+    struct t_list sticker_types;        //!< mpd sticker types
 };
 
 /**

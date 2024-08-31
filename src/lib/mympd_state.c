@@ -227,6 +227,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config) {
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     //features
     mpd_state_features_default(&mpd_state->feat);
+    list_init(&mpd_state->sticker_types);
 }
 
 /**
@@ -252,6 +253,8 @@ void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
     mpd_tags_clone(&src->tags_album, &dst->tags_album);
     dst->tag_albumartist = src->tag_albumartist;
     mpd_state_features_copy(&src->feat, &dst->feat);
+    list_init(&dst->sticker_types);
+    list_append(&dst->sticker_types, &src->sticker_types);
 }
 
 /**
@@ -301,6 +304,7 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
     FREE_SDS(mpd_state->tag_list);
     FREE_SDS(mpd_state->music_directory_value);
     FREE_SDS(mpd_state->playlist_directory_value);
+    list_clear(&mpd_state->sticker_types);
     //struct itself
     FREE_PTR(mpd_state);
 }
