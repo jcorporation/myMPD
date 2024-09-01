@@ -361,10 +361,10 @@ function printValue(key, value, userData) {
                 userData.Duration !== undefined)
             {
                 const prct = Math.ceil((100 / userData.Duration) * value);
-                progressEl = elCreateText('div', {'class': ['progress', 'justify-content-center', 'align-items-center'], 'data-title-phrase': 'Resume', 'title': tn('Resume')},
+                progressEl = elCreateText('div', {'class': ['my-1', 'progress', 'justify-content-center', 'align-items-center'], 'data-title-phrase': 'Resume', 'title': tn('Resume')},
                     fmtSongDuration(value) + ' / ' + fmtSongDuration(userData.Duration));
                 progressEl.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
-                    prct + '%, var(--bs-progress-bg) ' + prct + '%, var(--bs-progress-bg) 100%)';
+                    prct + '%, var(--bs-gray) ' + prct + '%, var(--bs-gray) 100%)';
                 if (prct === 100) {
                     progressEl.setAttribute('disabled', 'disabled');
                     progressEl.removeAttribute('data-title-phrase');
