@@ -195,11 +195,16 @@ function i18nHtml(root) {
  * @returns {void}
  */
 function i18nPregenerated() {
-    pEl.selectBtn.setAttribute('title', tn('Select'));
-    pEl.selectAllBtn.setAttribute('title', tn('Select all'));
-    pEl.actionsBtn.setAttribute('title', tn('Actions'));
-    pEl.removeBtn.setAttribute('title', tn('Remove'));
-    pEl.playBtn.setAttribute('title', tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]));
-    pEl.showSongsBtn.setAttribute('title', tn('Show songs'));
-    pEl.showAlbumsBtn.setAttribute('title', tn('Show albums'));
+    for (const el in pEl) {
+        if (pEl[el] instanceof Node) {
+            const titles = pEl[el].querySelectorAll('[data-title-phrase]');
+            for (const title of titles) {
+                title.setAttribute('title', tn(title.getAttribute('data-title-phrase')));
+            }
+            const tcs =  pEl[el].querySelectorAll('[data-phrase]');
+            for (const tc of tcs) {
+                tc.textContent = tn(tc.getAttribute('data-phrase'));
+            }
+        }
+    }
 }
