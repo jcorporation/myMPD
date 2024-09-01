@@ -76,8 +76,8 @@ function createPreGeneratedElements() {
     pEl.viewList = elCreateNode('div', {'class': ['scrollContainer', 'listContainer']},
         elCreateEmpty('div', {'class': ['list-group']})
     );
-    pEl.songResumeBtn = elCreateNodes('div', {'class': ['btn-group', 'dropup']}, [
-        elCreateText('button', {'type': 'button', 'data-title-phrase': 'Resume', 'data-bs-toggle': 'dropdown', 'class': ['btn', 'btn-secondary', 'dropdown-toggle', 'mi']}, 'replay'),
+    pEl.resumeBtn = elCreateNodes('div', {'class': ['btn-group', 'dropup']}, [
+        elCreateText('button', {'type': 'button', 'data-title-phrase': 'Resume', 'data-bs-toggle': 'dropdown', 'class': ['btn', 'btn-sm', 'btn-secondary', 'dropdown-toggle', 'mi', 'mi-sm']}, 'replay'),
         elCreateNode('div', {'class': ['dropdown-menu', 'px-2']}, 
             elCreateNodes('div', {'class': ['d-grid', 'gap-2']}, [
                 elCreateTextTn('button', {'class': ['btn', 'btn-sm', 'btn-secondary'], 'data-action': 'append'}, 'Append to queue'),

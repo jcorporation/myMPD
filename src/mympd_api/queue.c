@@ -558,7 +558,12 @@ bool mympd_api_queue_insert_plist_range(struct t_partition_state *partition_stat
     unsigned end_uint = end == -1
         ? UINT_MAX
         : (unsigned)end;
-    mpd_send_load_range_to(partition_state->conn, plist, start, end_uint, to, whence);
+    if (to == UINT_MAX) {
+        mpd_send_load_range(partition_state->conn, plist, start, end_uint);
+    }
+    else {
+        mpd_send_load_range_to(partition_state->conn, plist, start, end_uint, to, whence);
+    }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_load_range_to");
 }

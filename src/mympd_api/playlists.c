@@ -689,12 +689,15 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
  * @param stickerdb pointer to stickerdb state
  * @param tagcols columns to print
  * @param last_played_max played time from last played song
- * @param last_played_song_uri last played song
+ * @param last_played_song_uri last played song uri
+ * @param last_played_song_pos last played song position in playlist
+ * @param last_played_song_title last played song title tag
  * @return pointer to buffer
  */
 static sds print_plist_entry(sds buffer, struct mpd_song *song, unsigned pos, bool stickers,
         struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        const struct t_fields *tagcols, time_t *last_played_max, sds *last_played_song_uri)
+        const struct t_fields *tagcols, time_t *last_played_max, sds *last_played_song_uri,
+        unsigned *last_played_pos, sds *last_played_song_title)
 {
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, "{", 1);
@@ -710,7 +713,9 @@ static sds print_plist_entry(sds buffer, struct mpd_song *song, unsigned pos, bo
         buffer = mympd_api_sticker_print(buffer, &sticker, &tagcols->stickers);
         if (sticker.mympd[STICKER_LAST_PLAYED] > *last_played_max) {
             *last_played_max = (time_t)sticker.mympd[STICKER_LAST_PLAYED];
+            *last_played_pos = pos;
             *last_played_song_uri = sds_replace(*last_played_song_uri, uri);
+            *last_played_song_title = sds_replace(*last_played_song_title, mpd_song_get_tag(song, MPD_TAG_TITLE, 0));
         }
         sticker_struct_clear(&sticker);
     }
@@ -743,6 +748,8 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
     time_t last_played_max = 0;
     struct mpd_song *song;
     sds last_played_song_uri = sdsempty();
+    sds last_played_song_title = sdsempty();
+    unsigned last_played_pos = 0;
     bool print_stickers = partition_state->mpd_state->feat.stickers == true && tagcols->stickers.len > 0;
     if (print_stickers == true) {
         stickerdb_exit_idle(stickerdb);
@@ -760,7 +767,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
                     buffer= sdscatlen(buffer, ",", 1);
                 }
                 buffer = print_plist_entry(buffer, song, entity_count, print_stickers, partition_state, stickerdb, tagcols,
-                    &last_played_max, &last_played_song_uri);
+                    &last_played_max, &last_played_song_uri, &last_played_pos, &last_played_song_title);
                 mpd_song_free(song);
                 entity_count++;
             }
@@ -780,7 +787,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
                             buffer= sdscatlen(buffer, ",", 1);
                         }
                         buffer = print_plist_entry(buffer, song, entity_count, print_stickers, partition_state, stickerdb, tagcols,
-                            &last_played_max, &last_played_song_uri);
+                            &last_played_max, &last_played_song_uri, &last_played_pos, &last_played_song_title);
                     }
                     entities_found++;
                     if (entities_found == real_limit) {
@@ -827,8 +834,10 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
     FREE_SDS(pic_path);
     buffer = tojson_bool(buffer, "pics", pic, true);
     buffer = sdscat(buffer, "\"lastPlayedSong\":{");
-    buffer = tojson_time(buffer, "time", last_played_max, true);
-    buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
+    buffer = tojson_sds(buffer, "uri", last_played_song_uri, true);
+    buffer = tojson_sds(buffer, "title", last_played_song_title, true);
+    buffer = tojson_uint(buffer, "pos", last_played_pos, true);
+    buffer = tojson_time(buffer, "time", last_played_max, false);
     buffer = sdscatlen(buffer, "}", 1);
     if (partition_state->mpd_state->feat.advsticker == true) {
         struct t_stickers sticker;
@@ -839,6 +848,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
     buffer = jsonrpc_end(buffer);
 
     FREE_SDS(last_played_song_uri);
+    FREE_SDS(last_played_song_title);
     return buffer;
 }
 

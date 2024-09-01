@@ -367,3 +367,56 @@ function isMPDplaylist(uri) {
     }
     return true;
 }
+
+/**
+ * Resume playlist API implementation.
+ * Load the playlist from last played song and start playing.
+ * @param {string} plist Playlist to resume
+ * @param {number} pos Position of first song to resume
+ * @param {string} action Action
+ * @returns {void}
+ */
+function resumePlist(plist, pos, action) {
+    switch(action) {
+        case 'append':
+        case 'appendPlay':
+            sendAPI("MYMPD_API_QUEUE_APPEND_PLAYLIST_RANGE", {
+                'plist': plist,
+                'start': pos,
+                'end': -1,
+                'play': true
+            }, null, false);
+            break;
+        case 'insert':
+            sendAPI('MYMPD_API_QUEUE_INSERT_PLAYLIST_RANGE', {
+                'plist': plist,
+                'start': pos,
+                'end': -1,
+                'play': true,
+                'to': 0,
+                'whence': 0
+            }, null, false);
+            break;
+        case 'insertAfterCurrent':
+        case 'insertPlayAfterCurrent':
+            sendAPI('MYMPD_API_QUEUE_INSERT_PLAYLIST_RANGE', {
+                'plist': plist,
+                'start': pos,
+                'end': -1,
+                'play': true,
+                'to': 0,
+                'whence': 1
+            }, null, false);
+            break;
+        case 'replace':
+        case 'replacePlay':
+            sendAPI("MYMPD_API_QUEUE_REPLACE_PLAYLIST_RANGE", {
+                'plist': plist,
+                'start': pos,
+                'end': -1,
+                'play': true
+            }, null, false);
+            break;
+        // No default
+    }
+}

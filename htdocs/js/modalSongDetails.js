@@ -278,7 +278,7 @@ function parseSongDetails(obj) {
                 if (obj.result[sticker] > 0 &&
                     obj.result[sticker] < obj.result.Duration)
                 {
-                    const resumeBtn = pEl.songResumeBtn.cloneNode(true);
+                    const resumeBtn = pEl.resumeBtn.cloneNode(true);
                     resumeBtn.classList.add("me-3");
                     div.firstElementChild.appendChild(resumeBtn);
                     setData(resumeBtn, 'uri', obj.result.uri);

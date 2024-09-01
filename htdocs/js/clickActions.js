@@ -418,7 +418,7 @@ function clickConsume(mode) {
 }
 
 /**
- * Handler for resume dropdown actions
+ * Handler for resume song dropdown actions
  * @param {Event} event Click event
  * @returns {void}
  */
@@ -441,4 +441,21 @@ function clickResumeSong(event) {
 function clickQuickResumeSong(target) {
     const uri = getData(target, 'uri');
     resumeSong(uri, settings.webuiSettings.clickQuickPlay);
+}
+
+/**
+ * Handler for resume playlist dropdown actions
+ * @param {Event} event Click event
+ * @returns {void}
+ */
+function clickResumePlist(event) {
+    event.preventDefault();
+    if (event.target.nodeName !== 'BUTTON') {
+        return;
+    }
+    const dataNode = event.target.closest('.btn-group');
+    const pos = getData(dataNode, 'pos');
+    const uri = getDataId('BrowsePlaylistDetailList', 'uri');
+    const action = event.target.getAttribute('data-action');
+    resumePlist(uri, pos, action);
 }

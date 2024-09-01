@@ -385,7 +385,7 @@ function resumeSong(uri, action) {
             break;
         case 'replace':
         case 'replacePlay':
-            sendAPI("MYMPD_API_QUEUE_APPEND_URI_RESUME", {
+            sendAPI("MYMPD_API_QUEUE_REPLACE_URI_RESUME", {
                 'uri': uri
             }, null, false);
             break;

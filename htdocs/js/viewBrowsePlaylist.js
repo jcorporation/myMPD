@@ -207,6 +207,26 @@ function parsePlaylistDetail(obj) {
         );
         stickerCount++;
     }
+    if (obj.result.lastPlayedSong.uri !== '') {
+        stickerCount++;
+        const resumeBtn = pEl.resumeBtn.cloneNode(true);
+        resumeBtn.classList.add('ms-3', 'dropdown');
+        resumeBtn.classList.remove('dropup');
+        setData(resumeBtn, 'pos', obj.result.lastPlayedSong.pos);
+        new BSN.Dropdown(resumeBtn.firstElementChild);
+        resumeBtn.lastElementChild.firstElementChild.addEventListener('click', function(event) {
+            clickResumePlist(event);
+        }, false);
+        tbl.appendChild(
+            elCreateNodes('tr', {}, [
+                elCreateTextTn('th', {'class': ['pe-2']}, 'Last played:'),
+                elCreateNodes('td', {}, [
+                    document.createTextNode(obj.result.lastPlayedSong.title),
+                    resumeBtn
+                ])
+            ])
+        );
+    }
     if (stickerCount > 0) {
         stickerEl.appendChild(elCreateTextTn('h4', {}, 'Sticker'));
         stickerEl.appendChild(tbl);
