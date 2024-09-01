@@ -111,7 +111,10 @@ function setCols(tableName) {
     elClear(thead);
 
     for (let i = 0, j = settings['view' + tableName].fields.length; i < j; i++) {
-        const hname = settings['view' + tableName].fields[i];
+        let hname = settings['view' + tableName].fields[i];
+        if (hname === 'Track') {
+            hname = '#';
+        }
         const th = elCreateTextTn('th', {"data-col": settings['view' + tableName].fields[i]}, hname);
         thead.appendChild(th);
     }
