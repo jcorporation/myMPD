@@ -171,7 +171,7 @@ function gotoSearch(tag, value) {
     if (typeof(value) === 'string') {
         filters.push(createSearchExpressionComponent(tag, '==', value));
     }
-    else {
+    else if (value !== undefined) {
         for (const v of value) {
             filters.push(createSearchExpressionComponent(tag, '==', v));
         }
