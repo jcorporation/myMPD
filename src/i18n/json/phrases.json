@@ -622,6 +622,7 @@
 {"term":"Open"},
 {"term":"Open MPD connection"},
 {"term":"Open about"},
+{"term":"Open current song details"},
 {"term":"Open directory"},
 {"term":"Open documentation"},
 {"term":"Open external link"},

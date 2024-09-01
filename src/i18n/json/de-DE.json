@@ -603,6 +603,7 @@
     "Only filenames allowed": "Es sind nur Dateinamen erlaubt",
     "Only sort tags allowed": "Es sind nur Sort-Tags erlaubt",
     "Open": "Öffnen",
+    "Open current song details": "Öffne: Details des aktuellen Lieds",
     "Open MPD connection": "Öffne: MPD Verbindung",
     "Open about": "Öffne: Über myMPD",
     "Open directory": "Zeige Verzeichnis an",
