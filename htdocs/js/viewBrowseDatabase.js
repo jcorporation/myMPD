@@ -308,6 +308,28 @@ function parseAlbumDetails(obj) {
         infoEl.appendChild(mbField);
     }
 
+    if (obj.result.lastPlayedSong.uri !== '' &&
+        obj.result.lastPlayedSong.pos < obj.result.totalEntities - 1)
+    {
+        const resumeBtn = pEl.resumeBtn.cloneNode(true);
+        resumeBtn.classList.add('ms-3', 'dropdown');
+        resumeBtn.classList.remove('dropup');
+        setData(resumeBtn, 'pos', obj.result.lastPlayedSong.pos);
+        new BSN.Dropdown(resumeBtn.firstElementChild);
+        resumeBtn.lastElementChild.firstElementChild.addEventListener('click', function(event) {
+            clickResumeAlbum(event);
+        }, false);
+        infoEl.appendChild(
+            elCreateNodes('div', {"class": ["col-xl-6"]}, [
+                elCreateTextTn('small', {}, 'Last played'),
+                elCreateNodes('p', {}, [
+                    document.createTextNode(obj.result.lastPlayedSong.title),
+                    resumeBtn
+                ])
+            ])
+        );
+    }
+
     const rowTitle = tn(settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong]);
     updateTable(obj, 'BrowseDatabaseAlbumDetail', function(row, data) {
         setData(row, 'type', 'song');

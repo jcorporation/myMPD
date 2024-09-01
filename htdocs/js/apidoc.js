@@ -502,7 +502,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_QUEUE_INSERT_ALBUMS": {
-        "desc": "Adds the albums to distinct position in the queue.",
+        "desc": "Inserts the albums to distinct position in the queue.",
         "params": {
             "albumids": APIparams.albumids,
             "to": APIparams.to,
@@ -511,10 +511,21 @@ const APImethods = {
         }
     },
     "MYMPD_API_QUEUE_INSERT_ALBUM_DISC": {
-        "desc": "Adds one discs from an album to distinct position in the queue.",
+        "desc": "Inserts one discs from an album to distinct position in the queue.",
         "params": {
             "albumid": APIparams.albumid,
             "disc": APIparams.disc,
+            "to": APIparams.to,
+            "whence": APIparams.whence,
+            "play": APIparams.play
+        }
+    },
+    "MYMPD_API_QUEUE_INSERT_ALBUM_RANGE": {
+        "desc": "Inserts a range of song from an album into the queue",
+        "params": {
+            "albumid": APIparams.albumid,
+            "start": APIparams.start,
+            "end": APIparams.end,
             "to": APIparams.to,
             "whence": APIparams.whence,
             "play": APIparams.play
@@ -581,6 +592,15 @@ const APImethods = {
             "play": APIparams.play
         }
     },
+    "MYMPD_API_QUEUE_APPEND_ALBUM_RANGE": {
+        "desc": "Appends one disc of an album to the queue",
+        "params": {
+            "albumid": APIparams.albumid,
+            "start": APIparams.start,
+            "end": APIparams.end,
+            "play": APIparams.play
+        }
+    },
     "MYMPD_API_QUEUE_REPLACE_PLAYLISTS": {
         "desc": "Replaces the queue with the playlists.",
         "params": {
@@ -639,6 +659,15 @@ const APImethods = {
         "params": {
             "albumid": APIparams.albumid,
             "disc": APIparams.disc,
+            "play": APIparams.play
+        }
+    },
+    "MYMPD_API_QUEUE_REPLACE_ALBUM_RANGE": {
+        "desc": "Replaces the queue with a range of song from an album",
+        "params": {
+            "albumid": APIparams.albumid,
+            "start": APIparams.start,
+            "end": APIparams.end,
             "play": APIparams.play
         }
     },

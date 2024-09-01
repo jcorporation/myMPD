@@ -66,4 +66,11 @@ bool mympd_api_queue_insert_album_disc(struct t_partition_state *partition_state
         sds albumid, sds disc, unsigned to, unsigned whence, sds *error);
 bool mympd_api_queue_replace_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds albumid, sds disc, sds *error);
+bool mympd_api_queue_insert_album_range(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds albumid, unsigned start, int end, unsigned to, unsigned whence, sds *error);
+bool mympd_api_queue_append_album_range(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds albumid, unsigned start, int end, sds *error);
+bool mympd_api_queue_replace_album_range(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds albumid, unsigned start, int end, sds *error);
+
 #endif

@@ -459,3 +459,20 @@ function clickResumePlist(event) {
     const action = event.target.getAttribute('data-action');
     resumePlist(uri, pos, action);
 }
+
+/**
+ * Handler for resume album dropdown actions
+ * @param {Event} event Click event
+ * @returns {void}
+ */
+function clickResumeAlbum(event) {
+    event.preventDefault();
+    if (event.target.nodeName !== 'BUTTON') {
+        return;
+    }
+    const dataNode = event.target.closest('.btn-group');
+    const pos = getData(dataNode, 'pos');
+    const albumId = getDataId('viewDatabaseAlbumDetailCover', 'AlbumId');
+    const action = event.target.getAttribute('data-action');
+    resumeAlbum(albumId, pos, action);
+}

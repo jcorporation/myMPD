@@ -377,6 +377,7 @@ function isMPDplaylist(uri) {
  * @returns {void}
  */
 function resumePlist(plist, pos, action) {
+    pos++;
     switch(action) {
         case 'append':
         case 'appendPlay':

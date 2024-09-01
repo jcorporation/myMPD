@@ -109,6 +109,42 @@ bool mpd_client_search_add_to_queue(struct t_partition_state *partition_state, c
 }
 
 /**
+ * Searches the mpd database for songs by expression and adds the result window to the queue
+ * @param partition_state pointer to partition specific states
+ * @param expression mpd search expression
+ * @param to position to insert the songs, UINT_MAX to append
+ * @param whence enum mpd_position_whence:
+ *               0 = MPD_POSITION_ABSOLUTE
+ *               1 = MPD_POSITION_AFTER_CURRENT
+ *               2 = MPD_POSITION_BEFORE_CURRENT
+ * @param sort tag to sort
+ * @param sortdesc false = ascending, true = descending
+ * @param start Start of the range (including)
+ * @param end End of the range (excluding), use UINT_MAX for open end
+ * @param error pointer to already allocated sds string for the error message
+ *              or NULL to return no response
+ * @return true on success else false
+ */
+bool mpd_client_search_add_to_queue_window(struct t_partition_state *partition_state, const char *expression,
+        unsigned to, enum mpd_position_whence whence, const char *sort, bool sortdesc,
+        unsigned start, unsigned end, sds *error)
+{
+    if (mpd_search_add_db_songs(partition_state->conn, false) == false ||
+        mpd_search_add_expression(partition_state->conn, expression) == false ||
+        mpd_client_add_search_sort_param(partition_state, sort, sortdesc, true) == false ||
+        mpd_search_add_window(partition_state->conn, start, end) == false ||
+        add_search_whence_param(partition_state, to, whence) == false)
+    {
+        mpd_search_cancel(partition_state->conn);
+        *error = sdscat(*error, "Error creating MPD search command");
+        return false;
+    }
+    mpd_search_commit(partition_state->conn);
+    mpd_response_finish(partition_state->conn);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_search_add_db_songs");
+}
+
+/**
  * Creates a mpd search expression to find all songs in an album
  * @param tag_albumartist albumartist tag
  * @param album mpd_song struct representing the album
