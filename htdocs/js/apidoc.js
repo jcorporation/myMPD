@@ -203,6 +203,16 @@ const APIparams = {
         "type": APItypes.string,
         "example": "song",
         "desc": "MPD sticker type"
+    },
+    "start": {
+        "type": APItypes.uint,
+        "example": 0,
+        "desc": "Start position (included)",
+    },
+    "end": {
+        "type": APItypes.int,
+        "example": 1,
+        "desc": "End position (excluding), use -1 for open end"
     }
 };
 
@@ -414,16 +424,8 @@ const APImethods = {
     "MYMPD_API_QUEUE_RM_RANGE": {
         "desc": "Removes a range from the queue.",
         "params": {
-            "start": {
-                "type": APItypes.uint,
-                "example": 0,
-                "desc": "Start queue position",
-            },
-            "end": {
-                "type": APItypes.uint,
-                "example": 1,
-                "desc": "End queue position, use -1 for open end"
-            }
+            "start": APItypes.start,
+            "end": APItypes.end
         }
     },
     "MYMPD_API_QUEUE_MOVE_POSITION": {
@@ -442,9 +444,20 @@ const APImethods = {
         }
     },
     "MYMPD_API_QUEUE_INSERT_PLAYLISTS": {
-        "desc": "Adds the playlist to distinct position in the queue.",
+        "desc": "Adds the playlists to distinct position in the queue.",
         "params": {
             "plists": APIparams.plists,
+            "to": APIparams.to,
+            "whence": APIparams.whence,
+            "play": APIparams.play
+        }
+    },
+    "MYMPD_API_QUEUE_INSERT_PLAYLIST_RANGE": {
+        "desc": "Adds the playlist range to distinct position in the queue.",
+        "params": {
+            "plists": APIparams.plists,
+            "start": APIparams.start,
+            "end": APIparams.end,
             "to": APIparams.to,
             "whence": APIparams.whence,
             "play": APIparams.play
@@ -514,6 +527,15 @@ const APImethods = {
             "play": APIparams.play
         }
     },
+    "MYMPD_API_QUEUE_APPEND_PLAYLIST_RANGE": {
+        "desc": "Appends the playlist range to the queue.",
+        "params": {
+            "plist": APIparams.plist,
+            "start": APIparams.start,
+            "end": APIparams.end,
+            "play": APIparams.play
+        }
+    },
     "MYMPD_API_QUEUE_APPEND_URIS": {
         "desc": "Appends uris to the queue.",
         "params": {
@@ -563,6 +585,15 @@ const APImethods = {
         "desc": "Replaces the queue with the playlists.",
         "params": {
             "plists": APIparams.plists,
+            "play": APIparams.play
+        }
+    },
+    "MYMPD_API_QUEUE_REPLACE_PLAYLIST_RANGE": {
+        "desc": "Replaces the queue with the playlist range.",
+        "params": {
+            "plists": APIparams.plists,
+            "start": APIparams.start,
+            "end": APIparams.end,
             "play": APIparams.play
         }
     },
@@ -825,16 +856,8 @@ const APImethods = {
         "desc": "Removes a range from the playlist.",
         "params": {
             "plist": APIparams.plist,
-            "start": {
-                "type": APItypes.uint,
-                "example": 0,
-                "desc": "Start playlist position",
-            },
-            "end": {
-                "type": APItypes.uint,
-                "example": 1,
-                "desc": "End playlist position, use -1 for open end"
-            }
+            "start": APItypes.start,
+            "end": APItypes.end
         }
     },
     "MYMPD_API_PLAYLIST_RM_ALL": {

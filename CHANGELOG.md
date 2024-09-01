@@ -25,6 +25,9 @@ An another notable feature is the new list view that supplements the table and g
 - MYMPD_API_QUEUE_APPEND_URI_RESUME: new
 - MYMPD_API_QUEUE_INSERT_URI_RESUME: new
 - MYMPD_API_QUEUE_REPLACE_URI_RESUME: new
+- MYMPD_API_QUEUE_APPEND_PLAYLIST_RANGE: new
+- MYMPD_API_QUEUE_INSERT_PLAYLIST_RANGE: new
+- MYMPD_API_QUEUE_REPLACE_PLAYLIST_RANGE: new
 - MYMPD_API_SETTINGS_GET: returns now available sticker types
 
 ### Changelog

@@ -44,9 +44,15 @@ bool mympd_api_queue_append_search(struct t_partition_state *partition_state, sd
         const char *sort, bool sort_desc, sds *error);
 bool mympd_api_queue_replace_search(struct t_partition_state *partition_state, sds expression,
         const char *sort, bool sort_desc, sds *error);
-bool mympd_api_queue_append_plist(struct t_partition_state *partition_state, struct t_list *plists, sds *error);
-bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, struct t_list *plists, unsigned to, unsigned whence, sds *error);
-bool mympd_api_queue_replace_plist(struct t_partition_state *partition_state, struct t_list *plists, sds *error);
+bool mympd_api_queue_insert_plist_range(struct t_partition_state *partition_state, sds plist,
+        unsigned to, unsigned whence, unsigned start, int end, sds *error);
+bool mympd_api_queue_append_plist_range(struct t_partition_state *partition_state, sds plist,
+        unsigned start, int end, sds *error);
+bool mympd_api_queue_replace_plist_range(struct t_partition_state *partition_state, sds plist,
+        unsigned start, int end, sds *error);
+bool mympd_api_queue_append_plists(struct t_partition_state *partition_state, struct t_list *plists, sds *error);
+bool mympd_api_queue_insert_plists(struct t_partition_state *partition_state, struct t_list *plists, unsigned to, unsigned whence, sds *error);
+bool mympd_api_queue_replace_plists(struct t_partition_state *partition_state, struct t_list *plists, sds *error);
 bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned to, unsigned whence, sds *error);
 bool mympd_api_queue_append_albums(struct t_partition_state *partition_state, struct t_cache *album_cache,
         struct t_list *albumids, sds *error);

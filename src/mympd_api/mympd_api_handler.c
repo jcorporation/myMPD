@@ -1064,6 +1064,37 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             list_clear(&uris);
             break;
         }
+        case MYMPD_API_QUEUE_APPEND_PLAYLIST_RANGE:
+        case MYMPD_API_QUEUE_REPLACE_PLAYLIST_RANGE: {
+            if (json_get_string(request->data, "$.params.plist", 1, URI_LENGTH_MAX, &sds_buf1, vcb_isuri, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.start", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
+                json_get_int(request->data, "$.params.end", -1, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &parse_error) == true)
+            {
+                rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_PLAYLISTS
+                        ? mympd_api_queue_append_plist_range(partition_state, sds_buf1, uint_buf1, int_buf1, &error)
+                        : mympd_api_queue_replace_plist_range(partition_state, sds_buf1, uint_buf1, int_buf1,  &error)) &&
+                    mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_QUEUE, "Queue updated", error);
+            }
+            break;
+        }
+        case MYMPD_API_QUEUE_INSERT_PLAYLIST_RANGE: {
+            if (json_get_string(request->data, "$.params.plist", 1, URI_LENGTH_MAX, &sds_buf1, vcb_isuri, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.start", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf3, &parse_error) == true &&
+                json_get_int(request->data, "$.params.end", -1, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &parse_error) == true)
+            {
+                rc = mympd_api_queue_insert_plist_range(partition_state, sds_buf1, uint_buf1, uint_buf2, uint_buf3, int_buf1, &error) &&
+                    mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_QUEUE, "Queue updated", error);
+            }
+            break;
+        }
         case MYMPD_API_QUEUE_APPEND_PLAYLISTS:
         case MYMPD_API_QUEUE_REPLACE_PLAYLISTS: {
             struct t_list plists;
@@ -1072,8 +1103,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
             {
                 rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_PLAYLISTS
-                        ? mympd_api_queue_append_plist(partition_state, &plists, &error)
-                        : mympd_api_queue_replace_plist(partition_state, &plists, &error)) &&
+                        ? mympd_api_queue_append_plists(partition_state, &plists, &error)
+                        : mympd_api_queue_replace_plists(partition_state, &plists, &error)) &&
                     mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, "Queue updated", error);
@@ -1089,7 +1120,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
             {
-                rc = mympd_api_queue_insert_plist(partition_state, &plists, uint_buf1, uint_buf2, &error) &&
+                rc = mympd_api_queue_insert_plists(partition_state, &plists, uint_buf1, uint_buf2, &error) &&
                     mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, "Queue updated", error);
