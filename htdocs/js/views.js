@@ -115,6 +115,7 @@ function viewClickHandler(event) {
         target = event.target.closest('.card');
     }
     else {
+        //list view
         if (event.target.nodeName === 'A') {
             if (event.target.getAttribute('href') !== '#') {
                 // allow default link action
@@ -125,6 +126,13 @@ function viewClickHandler(event) {
         }
         // set target to list-group-item
         target = event.target.closest('.list-group-item');
+    }
+    if (event.target.classList.contains('progress')) {
+        if (event.target.getAttribute('disabled') === 'disabled') {
+            return;
+        }
+        clickQuickResumeSong(target);
+        return;
     }
     event.preventDefault();
     event.stopPropagation();

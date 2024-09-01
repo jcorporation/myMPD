@@ -296,8 +296,10 @@ bool mympd_api_queue_insert_uri_resume(struct t_partition_state *partition_state
         return false;
     }
     if (mpd_command_list_begin(partition_state->conn, false)) {
-        mpd_send_seek_id(partition_state->conn, (unsigned)id, (unsigned)elapsed);
         mpd_send_play_id(partition_state->conn, (unsigned)id);
+        if (elapsed > 0) {
+            mpd_send_seek_id(partition_state->conn, (unsigned)id, (unsigned)elapsed);
+        }
         mpd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);

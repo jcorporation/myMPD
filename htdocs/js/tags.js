@@ -360,11 +360,16 @@ function printValue(key, value, userData) {
             if (userData !== undefined &&
                 userData.Duration !== undefined)
             {
-                const prct = Math.floor((100 / userData.Duration) * value);
-                progressEl = elCreateNode('div', {'class': ['progress']},
-                    elCreateText('div', {'class': ['progress-bar', 'overflow-visible']}, fmtSongDuration(value) + ' / ' + fmtSongDuration(userData.Duration))
-                );
-                progressEl.firstElementChild.style.width = prct + '%';
+                const prct = Math.ceil((100 / userData.Duration) * value);
+                progressEl = elCreateText('div', {'class': ['progress', 'justify-content-center', 'align-items-center'], 'data-title-phrase': 'Resume', 'title': tn('Resume')},
+                    fmtSongDuration(value) + ' / ' + fmtSongDuration(userData.Duration));
+                progressEl.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
+                    prct + '%, var(--bs-progress-bg) ' + prct + '%, var(--bs-progress-bg) 100%)';
+                if (prct === 100) {
+                    progressEl.setAttribute('disabled', 'disabled');
+                    progressEl.removeAttribute('data-title-phrase');
+                    progressEl.removeAttribute('title');
+                }
             }
             else {
                 progressEl = document.createTextNode(fmtSongDuration(value));

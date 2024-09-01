@@ -430,24 +430,15 @@ function clickResumeSong(event) {
     const dataNode = event.target.closest('.btn-group');
     const uri = getData(dataNode, 'uri');
     const action = event.target.getAttribute('data-action');
-    switch(action) {
-        case 'append':
-            sendAPI("MYMPD_API_QUEUE_APPEND_URI_RESUME", {
-                'uri': uri
-            }, null, false);
-            break;
-        case 'insert':
-            sendAPI('MYMPD_API_QUEUE_INSERT_URI_RESUME', {
-                'uri': uri,
-                'to': 0,
-                'whence': 0
-            }, null, false);
-            break;
-        case 'replace':
-            sendAPI("MYMPD_API_QUEUE_APPEND_URI_RESUME", {
-                'uri': uri
-            }, null, false);
-            break;
-        // No default
-    }
+    resumeSong(uri, action);
+}
+
+/**
+ * Handler for song resume - click on resume indicator
+ * @param {EventTarget} target event target
+ * @returns {void}
+ */
+function clickQuickResumeSong(target) {
+    const uri = getData(target, 'uri');
+    resumeSong(uri, settings.webuiSettings.clickQuickPlay);
 }

@@ -353,3 +353,42 @@ function _replaceQueue(type, uris, play, callback) {
             logError('Invalid type: ' + type);
     }
 }
+
+/**
+ * Resume song API
+ * @param {string} uri Song uri
+ * @param {string} action Action
+ * @returns {void}
+ */
+function resumeSong(uri, action) {
+    switch(action) {
+        case 'append':
+        case 'appendPlay':
+            sendAPI("MYMPD_API_QUEUE_APPEND_URI_RESUME", {
+                'uri': uri
+            }, null, false);
+            break;
+        case 'insert':
+            sendAPI('MYMPD_API_QUEUE_INSERT_URI_RESUME', {
+                'uri': uri,
+                'to': 0,
+                'whence': 0
+            }, null, false);
+            break;
+        case 'insertAfterCurrent':
+        case 'insertPlayAfterCurrent':
+            sendAPI('MYMPD_API_QUEUE_INSERT_URI_RESUME', {
+                'uri': uri,
+                'to': 0,
+                'whence': 1
+            }, null, false);
+            break;
+        case 'replace':
+        case 'replacePlay':
+            sendAPI("MYMPD_API_QUEUE_APPEND_URI_RESUME", {
+                'uri': uri
+            }, null, false);
+            break;
+        // No default
+    }
+}

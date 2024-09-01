@@ -1222,5 +1222,6 @@
     "Widget": "Widget",
     "Error executing script": "Skript konnte nicht ausgeführt werden.",
     "Invalid refresh interval": "Ungültiger Aktualisierungsintervall",
-    "Refresh interval": "Aktualisierungsintervall"
+    "Refresh interval": "Aktualisierungsintervall",
+    "Resume": "Wiederaufnehmen"
 }

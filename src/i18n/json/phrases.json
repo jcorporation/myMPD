@@ -744,6 +744,7 @@
 {"term":"Reset to default"},
 {"term":"Resize"},
 {"term":"Response code: %{code}"},
+{"term":"Resume"},
 {"term":"Returns an Jsonrpc response for a script dialog."},
 {"term":"Returns the active state of a GPIO."},
 {"term":"SHA1 hash of string."},
