@@ -196,40 +196,42 @@ function parsePlaylistDetail(obj) {
         elHide(imageEl);
     }
 
-    let stickerCount = 0;
-    const tbl = elCreateEmpty('table', {'class':['table', 'table-sm']});
-    for (const key in obj.result.sticker) {
-        tbl.appendChild(
-            elCreateNodes('tr', {}, [
-                elCreateText('th', {'class': ['pe-2']}, key + ':'),
-                elCreateText('td', {}, obj.result.sticker[key])
-            ])
-        );
-        stickerCount++;
-    }
-    if (obj.result.lastPlayedSong.uri !== '') {
-        stickerCount++;
-        const resumeBtn = pEl.resumeBtn.cloneNode(true);
-        resumeBtn.classList.add('ms-3', 'dropdown');
-        resumeBtn.classList.remove('dropup');
-        setData(resumeBtn, 'pos', obj.result.lastPlayedSong.pos);
-        new BSN.Dropdown(resumeBtn.firstElementChild);
-        resumeBtn.lastElementChild.firstElementChild.addEventListener('click', function(event) {
-            clickResumePlist(event);
-        }, false);
-        tbl.appendChild(
-            elCreateNodes('tr', {}, [
-                elCreateTextTn('th', {'class': ['pe-2']}, 'Last played:'),
-                elCreateNodes('td', {}, [
-                    document.createTextNode(obj.result.lastPlayedSong.title),
-                    resumeBtn
+    if (features.featStickers === true) {
+        let stickerCount = 0;
+        const tbl = elCreateEmpty('table', {'class':['table', 'table-sm']});
+        for (const key in obj.result.sticker) {
+            tbl.appendChild(
+                elCreateNodes('tr', {}, [
+                    elCreateText('th', {'class': ['pe-2']}, key ),
+                    elCreateText('td', {}, obj.result.sticker[key])
                 ])
-            ])
-        );
-    }
-    if (stickerCount > 0) {
-        stickerEl.appendChild(elCreateTextTn('h4', {}, 'Sticker'));
-        stickerEl.appendChild(tbl);
+            );
+            stickerCount++;
+        }
+        if (obj.result.lastPlayedSong.uri !== '') {
+            stickerCount++;
+            const resumeBtn = pEl.resumeBtn.cloneNode(true);
+            resumeBtn.classList.add('ms-3', 'dropdown');
+            resumeBtn.classList.remove('dropup');
+            setData(resumeBtn, 'pos', obj.result.lastPlayedSong.pos);
+            new BSN.Dropdown(resumeBtn.firstElementChild);
+            resumeBtn.lastElementChild.firstElementChild.addEventListener('click', function(event) {
+                clickResumePlist(event);
+            }, false);
+            tbl.appendChild(
+                elCreateNodes('tr', {}, [
+                    elCreateTextTn('th', {'class': ['pe-2']}, 'Last played'),
+                    elCreateNodes('td', {}, [
+                        document.createTextNode(obj.result.lastPlayedSong.title),
+                        resumeBtn
+                    ])
+                ])
+            );
+        }
+        if (stickerCount > 0) {
+            stickerEl.appendChild(elCreateTextTn('h4', {}, 'Sticker'));
+            stickerEl.appendChild(tbl);
+        }
     }
 
     setData(table, 'playlistlength', obj.result.totalEntities);
