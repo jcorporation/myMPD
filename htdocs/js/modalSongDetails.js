@@ -271,13 +271,16 @@ function parseSongDetails(obj) {
                 }
             }
             else if (sticker === 'elapsed') {
-                const div = elCreateNode('div', {}, printValue(sticker, obj.result[sticker], obj.result));
+                const div = elCreateNodes('div', {'class': ['row']}, [
+                    elCreateEmpty('div', {'class': ['col', 'colMaxContent']}),
+                    elCreateNode('div', {'class': ['col']}, printValue(sticker, obj.result[sticker], obj.result))
+                ]);
                 if (obj.result[sticker] > 0 &&
                     obj.result[sticker] < obj.result.Duration)
                 {
                     const resumeBtn = pEl.songResumeBtn.cloneNode(true);
-                    resumeBtn.classList.add('float-end', "ms-3");
-                    div.insertBefore(resumeBtn, div.firstElementChild);
+                    resumeBtn.classList.add("me-3");
+                    div.firstElementChild.appendChild(resumeBtn);
                     setData(resumeBtn, 'uri', obj.result.uri);
                     new BSN.Dropdown(resumeBtn.firstElementChild);
                     resumeBtn.lastElementChild.firstElementChild.addEventListener('click', function(event) {
