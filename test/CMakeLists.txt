@@ -35,6 +35,7 @@ set(TEST_SOURCES
   ../src/lib/rax_extras.c
   ../src/lib/sds_extras.c
   ../src/lib/search.c
+  ../src/lib/smartpls.c
   ../src/lib/state_files.c
   ../src/lib/sticker.c
   ../src/lib/timer.c
@@ -47,6 +48,7 @@ set(TEST_SOURCES
   ../src/mpd_client/jukebox.c
   ../src/mpd_client/presets.c
   ../src/mpd_client/queue.c
+  ../src/mpd_client/playlists.c
   ../src/mpd_client/random_select.c
   ../src/mpd_client/search.c
   ../src/mpd_client/shortcuts.c
