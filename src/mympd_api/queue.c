@@ -570,7 +570,7 @@ bool mympd_api_queue_insert_album_range(struct t_partition_state *partition_stat
         : (unsigned)end;
     sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist,
         mpd_album, &partition_state->config->albums);
-    const char *sort = NULL;
+    const char *sort = "Disc";
     bool sortdesc = false;
     bool rc = mpd_client_search_add_to_queue_window(partition_state, expression, to, whence,
         sort, sortdesc, start, end_uint, error);
