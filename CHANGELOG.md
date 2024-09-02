@@ -21,7 +21,7 @@ An another notable feature is the new list view that supplements the table and g
 - MYMPD_API_STICKER_LIST: new
 - MYMPD_API_STICKER_NAMES: new
 - MYMPD_API_STICKER_SET: new
-- MYMPD_API_PLAYLIST_LIST: add parameter fields
+- MYMPD_API_PLAYLIST_LIST: add parameter fields, sort, sortdesc
 - MYMPD_API_QUEUE_APPEND_URI_RESUME: new
 - MYMPD_API_QUEUE_INSERT_URI_RESUME: new
 - MYMPD_API_QUEUE_REPLACE_URI_RESUME: new
@@ -40,6 +40,7 @@ An another notable feature is the new list view that supplements the table and g
 - Feat: User defined stickers #1091
 - Feat: Add list view
 - Feat: Add widgets for home screen
+- Feat: Sort list of playlists by name or last-modified
 - Upd: Hide advanced search by default
 - Upd: Mongoose 7.15
 - Fix: Send JSONRPC_EVENT_UPDATE_OPTIONS only on feature change

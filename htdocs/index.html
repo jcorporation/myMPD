@@ -447,6 +447,20 @@
               <span class="input-group-text bg-secondary mi">search</span>
               <input data-is="mympd-input-clear" data-clear-event="keydown" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowsePlaylistListSearchStr"/>
             </div>
+            <div class="btn-group me-2">
+              <button id="btnBrowsePlaylistListSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
+              <div class="dropdown-menu px-2" id="BrowsePlaylistListSortTags">
+                <div id="BrowsePlaylistListSortTagsList" class="d-grid gap-2">
+                  <button class="btn btn-secondary btn-sm" data-tag="Name" data-phrase="Name"></button>
+                  <button class="btn btn-secondary btn-sm" data-tag="Last-Modified" data-phrase="Last-Modified"></button>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="form-check">
+                  <button class="btn btn-secondary btn-xs mi mi-sm" id="BrowsePlaylistListSortDesc">radio_button_unchecked</button>&nbsp;
+                  <label class="form-check-label" for="BrowsePlaylistListSortDesc" data-phrase="Descending"></label>
+                </div>
+              </div>
+            </div>
             <div class="btn-group me-2 featSmartpls">
               <button data-title-phrase="Add smart playlist" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">playlist_add</button>
               <div class="dropdown-menu px-2">

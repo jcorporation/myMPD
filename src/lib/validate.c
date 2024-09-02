@@ -16,6 +16,7 @@
 #include "src/lib/log.h"
 #include "src/lib/sticker.h"
 #include "src/lib/webradio.h"
+#include "src/mpd_client/playlists.h"
 
 #include <ctype.h>
 #include <limits.h>
@@ -390,6 +391,18 @@ bool vcb_ismpdsort(sds data) {
         strcmp(data, "Priority") != 0)
     {
         MYMPD_LOG_WARN(NULL, "Unknown sort tag \"%s\"", data);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if string is a valid sort tag for mpd
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_isplaylistsort(sds data) {
+    if (playlist_parse_sort(data) == PLSORT_UNKNOWN) {
         return false;
     }
     return true;

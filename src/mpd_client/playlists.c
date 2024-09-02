@@ -446,6 +446,16 @@ bool mpd_client_get_all_playlists(struct t_partition_state *partition_state, str
     return true;
 }
 
+/**
+ * Parses the provided string to the playlist_sort_type
+ * @param str String to parse
+ * @return enum playlist_sort_types or PLSORT_UNKNOWN on error
+ */
+enum playlist_sort_types playlist_parse_sort(const char *str) {
+    if (strcmp(str, "Name") == 0) { return PLSORT_NAME; }
+    if (strcmp(str, "Last-Modified") == 0) { return PLSORT_LAST_MODIFIED; }
+    return PLSORT_UNKNOWN;
+}
 
 /**
  * Private functions

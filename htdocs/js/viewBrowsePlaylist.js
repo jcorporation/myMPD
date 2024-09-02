@@ -27,12 +27,16 @@ function handleBrowsePlaylistDetail() {
  */
 function handleBrowsePlaylistList() {
     handleSearchSimple('BrowsePlaylistList');
+    toggleBtnChkId('BrowsePlaylistListSortDesc', app.current.sort.desc);
+    selectTag('BrowsePlaylistListSortTagsList', undefined, app.current.sort.tag);
 
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
         "searchstr": app.current.search,
         "type": 0,
+        "sort": app.current.sort.tag,
+        "sortdesc": app.current.sort.desc,
         "fields": settings.viewBrowsePlaylistList.fields
     }, parsePlaylistList, true);
     elHideId('playlistDetailAlert');
@@ -52,6 +56,7 @@ function initViewPlaylist() {
 
     initSearchSimple('BrowsePlaylistList');
     initSearchExpression('BrowsePlaylistDetail');
+    initSortBtns('BrowsePlaylistList');
 
     setView('BrowsePlaylistList');
     setView('BrowsePlaylistDetail');

@@ -545,18 +545,26 @@ bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition
  * @param limit maximum number of entries to print
  * @param searchstr string to search in the playlist name
  * @param type playlist type to list
+ * @param sort Sort playlists by name or Last-Modified
+ * @param sortdesc Sort descending?
  * @param tagcols columns to print
  * @return pointer to buffer
  */
 sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, unsigned request_id, unsigned offset, unsigned limit, sds searchstr, enum playlist_types type,
-        const struct t_fields *tagcols)
+        enum playlist_sort_types sort, bool sortdesc, const struct t_fields *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_LIST;
     rax *entity_list = raxNew();
     size_t search_len = sdslen(searchstr);
     unsigned real_limit = offset + limit;
     sds key = sdsempty();
+
+    if (sort == PLSORT_LAST_MODIFIED) {
+        sortdesc = sortdesc == false
+            ? true
+            : false;
+    }
 
     if (mpd_send_list_playlists(partition_state->conn)) {
         struct mpd_playlist *pl;
@@ -573,6 +581,9 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                     : PLTYPE_STATIC;
                 data->name = sdsnew(plpath);
                 sdsclear(key);
+                if (sort == PLSORT_LAST_MODIFIED) {
+                    key = sds_pad_int(data->last_modified, key);
+                }
                 key = sdscatsds(key, data->name);
                 sds_utf8_tolower(key);
                 rax_insert_no_dup(entity_list, key, data);
@@ -605,6 +616,9 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                     data->type = PLTYPE_SMARTPLS_ONLY;
                     data->name = sdsnew(next_file->d_name);
                     sdsclear(key);
+                    if (sort == PLSORT_LAST_MODIFIED) {
+                        key = sds_pad_int(data->last_modified, key);
+                    }
                     key = sdscat(key, next_file->d_name);
                     sds_utf8_tolower(key);
                     if (raxTryInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
@@ -634,8 +648,16 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
     unsigned entities_returned = 0;
     raxIterator iter;
     raxStart(&iter, entity_list);
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
+    int (*iterator)(struct raxIterator *iter);
+    if (sortdesc == false) {
+        raxSeek(&iter, "^", NULL, 0);
+        iterator = &raxNext;
+    }
+    else {
+        raxSeek(&iter, "$", NULL, 0);
+        iterator = &raxPrev;
+    }
+    while (iterator(&iter)) {
         struct t_pl_data *data = (struct t_pl_data *)iter.data;
         if (entity_count >= offset &&
             entity_count < real_limit)

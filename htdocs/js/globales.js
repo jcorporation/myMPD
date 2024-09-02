@@ -1313,7 +1313,7 @@ app.cards = {
                         "limit": 100,
                         "filter": "",
                         "sort": {
-                            "tag": "",
+                            "tag": "Name",
                             "desc": false
                         },
                         "tag": "",

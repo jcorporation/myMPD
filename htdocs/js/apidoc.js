@@ -911,6 +911,12 @@ const APImethods = {
                 "example": 0,
                 "desc": "0 = all playlists, 1 = static playlists, 2 = smart playlists"
             },
+            "sort": {
+                "type": APItypes.string,
+                "example": "Name",
+                "desc": "One of: Name, Last-Modified"
+            },
+            "sortdesc": APIparams.sortdesc,
             "fields": APIparams.fields
         }
     },

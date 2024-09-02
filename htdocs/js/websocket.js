@@ -151,6 +151,8 @@ function webSocketConnect() {
                         "limit": app.current.limit,
                         "searchstr": app.current.search,
                         "type": 0,
+                        "sort": app.current.sort.tag,
+                        "sortdesc": app.current.sort.desc,
                         "fields": settings.viewBrowsePlaylistList.fields
                     }, parsePlaylistList, false);
                 }
