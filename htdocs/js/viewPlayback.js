@@ -236,7 +236,7 @@ function setPlaybackCardTags(songObj) {
                 default: {
                     const value = songObj[col];
                     const valueEl = c.querySelector('p');
-                    elReplaceChild(valueEl, printValue(col, value));
+                    elReplaceChild(valueEl, printValue(col, value, songObj));
                     if (isEmptyTag(value) === true ||
                         settings.tagListBrowse.includes(col) === false)
                     {
