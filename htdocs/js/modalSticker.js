@@ -206,28 +206,72 @@ function getStickerList() {
  */
 function parseStickerList(obj) {
     const table = elGetById('modalStickerList');
+    table.classList.add('stickerMympdHide');
+    elGetById('modalStickerToggleInternal').classList.remove('active');
     const tbodySticker = table.querySelector('tbody');
     elClear(tbodySticker);
     if (checkResult(obj, table, 'table') === false) {
         return;
     }
 
+    for (const key of stickerListSongs) {
+        if (obj.result[key] !== undefined) {
+            const tr = printStickerRow(key, obj.result[key]);
+            tr.classList.add('stickerMympd');
+            tbodySticker.appendChild(tr);
+        }
+    }
     let i = 0;
     for (const key in obj.result.sticker) {
-        const tr = elCreateNodes('tr', {"title": tn('Edit')}, [
-            elCreateText('td', {}, key),
-            elCreateText('td', {}, obj.result.sticker[key]),
-            elCreateNodes('td', {"data-col": "Action"}, [
-                elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
-            ])
-        ]);
-        setData(tr, 'name', key);
-        setData(tr, 'value', obj.result.sticker[key]);
-        tbodySticker.appendChild(tr);
+        tbodySticker.appendChild(
+            printStickerRow(key, obj.result.sticker[key])
+        );
         i++;
     }
 
     if (i === 0) {
-        tbodySticker.appendChild(emptyMsgEl(3, 'table'));
+        tbodySticker.appendChild(
+            elCreateNode('tr', {"class": ["not-clickable"]},
+                elCreateNode('td', {"colspan": '2'},
+                    elCreateTextTn('div', {"class": ["alert", "alert-secondary"]}, 'No user defined stickers.')
+                )
+            )
+        );
+    }
+}
+
+/**
+ * Prints a sticker table row
+ * @param {string} name Sticker name
+ * @param {string} value Sticker value
+ * @returns {HTMLElement} Table row
+ */
+function printStickerRow(name, value) {
+    const tr = elCreateNodes('tr', {"title": tn('Edit')}, [
+        elCreateText('td', {}, name),
+        elCreateText('td', {}, value),
+        elCreateNodes('td', {"data-col": "Action"}, [
+            elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
+        ])
+    ]);
+    setData(tr, 'name', name);
+    setData(tr, 'value', value);
+    return tr;
+}
+
+/**
+ * Shows/hides the interal stickers
+ * @param {EventTarget} target Toggle button
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showInternalStickers(target) {
+    if (target.classList.contains('active')) {
+        target.classList.remove('active');
+        elGetById('modalStickerList').classList.add('stickerMympdHide');
+    }
+    else {
+        target.classList.add('active');
+        elGetById('modalStickerList').classList.remove('stickerMympdHide');
     }
 }

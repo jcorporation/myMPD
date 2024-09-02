@@ -1224,5 +1224,7 @@
     "Error executing script": "Skript konnte nicht ausgeführt werden.",
     "Invalid refresh interval": "Ungültiger Aktualisierungsintervall",
     "Refresh interval": "Aktualisierungsintervall",
-    "Resume": "Wiederaufnehmen"
+    "Resume": "Wiederaufnehmen",
+    "No user defined stickers.": "Keine benutzerdefinierten Sticker.",
+    "Show internal stickers": "Zeige interne Sticker"
 }
