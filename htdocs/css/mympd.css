@@ -1356,6 +1356,7 @@ table div.alert {
   width: 6rem;
   max-width: 6rem;
   height: 6rem;
+  border-radius: 0.375rem
 }
 
 .colMaxContent {
