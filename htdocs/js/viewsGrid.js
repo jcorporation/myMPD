@@ -121,6 +121,31 @@ function dragAndDropGrid(gridId) {
 }
 
 /**
+ * Replaces a grid col and tries to keep the selection state
+ * @param {boolean} mode the selection mode
+ * @param {HTMLElement} col col to replace
+ * @param {HTMLElement} el replacement col
+ * @returns {void}
+ */
+function replaceGridCol(mode, col, el) {
+    const colCard = col.firstElementChild;
+    const elCard = el.firstElementChild;
+    if (getData(colCard, 'uri') === getData(elCard, 'uri')) {
+        if (mode === true &&
+            colCard.lastElementChild.lastElementChild.textContent === ligatures.checked)
+        {
+            elCard.lastElementChild.lastElementChild.textContent = ligatures.checked;
+            elCard.classList.add('selected');
+        }
+        if (colCard.classList.contains('queue-playing')) {
+            elCard.classList.add('queue-playing');
+            elCard.style.background = colCard.style.background;
+        }
+    }
+    col.replaceWith(el);
+}
+
+/**
  * Updates the grid from the jsonrpc response
  * @param {object} obj jsonrpc response
  * @param {string} list grid name to populate
@@ -132,6 +157,9 @@ function dragAndDropGrid(gridId) {
 function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCardActionsCallback) {
     const grid = elGetById(list + 'List');
     let cols = grid.querySelectorAll('.col');
+    const mode = grid.getAttribute('data-mode') === 'select'
+        ? true
+        : false;
 
     const footer = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-0", "d-flex", "justify-content-center"]});
     addActionLinks(footer);
@@ -185,7 +213,7 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
         }
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
         if (i < cols.length) {
-            cols[i].replaceWith(col);
+            replaceGridCol(mode, cols[i], col);
         }
         else {
             grid.append(col);

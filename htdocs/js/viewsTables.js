@@ -112,7 +112,9 @@ function setCols(tableName) {
 
     for (let i = 0, j = settings['view' + tableName].fields.length; i < j; i++) {
         let hname = settings['view' + tableName].fields[i];
-        if (hname === 'Track') {
+        if (hname === 'Track' ||
+            hname === 'Pos')
+        {
             hname = '#';
         }
         const th = elCreateTextTn('th', {"data-col": settings['view' + tableName].fields[i]}, hname);
@@ -134,12 +136,17 @@ function setCols(tableName) {
  * @returns {void}
  */
 function replaceTblRow(mode, row, el) {
-    if (getData(row, 'uri') === getData(el, 'uri') &&
-        mode === true &&
-        row.lastElementChild.lastElementChild.textContent === ligatures.checked)
-    {
-        el.lastElementChild.lastElementChild.textContent = ligatures.checked;
-        el.classList.add('selected');
+    if (getData(row, 'uri') === getData(el, 'uri')) {
+        if (mode === true &&
+            row.lastElementChild.lastElementChild.textContent === ligatures.checked)
+        {
+            el.lastElementChild.lastElementChild.textContent = ligatures.checked;
+            el.classList.add('selected');
+        }
+        if (row.classList.contains('queue-playing')) {
+            el.classList.add('queue-playing');
+            el.style.background = row.style.background;
+        }
     }
     row.replaceWith(el);
 }

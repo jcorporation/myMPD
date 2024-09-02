@@ -99,6 +99,29 @@ function dragAndDropList(listId) {
 }
 
 /**
+ * Replaces a list item and tries to keep the selection state
+ * @param {boolean} mode the selection mode
+ * @param {HTMLElement} item item to replace
+ * @param {HTMLElement} el replacement col
+ * @returns {void}
+ */
+function replaceListItem(mode, item, el) {
+    if (getData(item, 'uri') === getData(el, 'uri')) {
+        if (mode === true &&
+            item.firstElementChild.lastElementChild.lastElementChild.textContent === ligatures.checked)
+        {
+            el.firstElementChild.lastElementChild.lastElementChild.textContent = ligatures.checked;
+            el.classList.add('selected');
+        }
+        if (item.classList.contains('queue-playing')) {
+            el.classList.add('queue-playing');
+            el.style.background = item.style.background;
+        }
+    }
+    item.replaceWith(el);
+}
+
+/**
  * Updates the list from the jsonrpc response
  * @param {object} obj jsonrpc response
  * @param {string} list list name to populate
@@ -110,6 +133,9 @@ function dragAndDropList(listId) {
 function updateList(obj, list, perCardCallback, createCardBodyCallback, createCardActionsCallback) {
     const grid = elGetById(list + 'List');
     let cols = grid.querySelectorAll('.list-group-item');
+    const mode = grid.getAttribute('data-mode') === 'select'
+        ? true
+        : false;
 
     const footer = elCreateEmpty('div', {"class": ["list-actions", "col", "text-end"]});
     addActionLinks(footer);
@@ -164,7 +190,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
         }
         card.appendChild(row);
         if (i < cols.length) {
-            cols[i].replaceWith(card);
+            replaceListItem(mode, cols[i], card);
         }
         else {
             grid.append(card);
@@ -203,7 +229,7 @@ function createListBody(body, data, list) {
                 )
             );
         }
-        else {
+        else if (isEmptyTag(data[tag]) === false) {
             body.appendChild(
                 elCreateNodes('div', {"class": ["row"]}, [
                     elCreateTextTn('small', {"class": ["col-3"]}, tag),
