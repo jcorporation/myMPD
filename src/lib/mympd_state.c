@@ -330,12 +330,12 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->conn_state = MPD_DISCONNECTED;
     partition_state->play_state = MPD_STATE_UNKNOWN;
     partition_state->song_id = -1;
-    partition_state->song_uri = sdsempty();
+    partition_state->song = NULL;
     partition_state->song_pos = -1;
     partition_state->song_duration = 0;
     partition_state->next_song_id = -1;
     partition_state->last_song_id = -1;
-    partition_state->last_song_uri = sdsempty();
+    partition_state->last_song = NULL;
     partition_state->queue_version = 0;
     partition_state->queue_length = 0;
     partition_state->song_start_time = 0;
@@ -389,8 +389,12 @@ void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->highlight_color);
     FREE_SDS(partition_state->highlight_color_contrast);
     FREE_SDS(partition_state->state_dir);
-    FREE_SDS(partition_state->song_uri);
-    FREE_SDS(partition_state->last_song_uri);
+    if (partition_state->song != NULL) {
+        mpd_song_free(partition_state->song);
+    }
+    if (partition_state->last_song != NULL) {
+        mpd_song_free(partition_state->last_song);
+    }
     //jukebox
     jukebox_state_free(&partition_state->jukebox);
     //lists

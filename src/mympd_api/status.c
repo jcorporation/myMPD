@@ -251,12 +251,17 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
     if (song_changed == true) {
         struct mpd_song *song = mpd_run_current_song(partition_state->conn);
         if (song != NULL) {
-            partition_state->last_song_uri = sds_replace(partition_state->last_song_uri, partition_state->song_uri);
-            partition_state->song_uri = sds_replace(partition_state->song_uri, mpd_song_get_uri(song));
-            mpd_song_free(song);
+            if (partition_state->last_song != NULL) {
+                mpd_song_free(partition_state->last_song);
+            }
+            partition_state->last_song = partition_state->song;
+            partition_state->song = song;
         }
         else {
-            sdsclear(partition_state->song_uri);
+            if (partition_state->song != NULL) {
+                mpd_song_free(partition_state->song);
+            }
+            song = NULL;
         }
         mpd_response_finish(partition_state->conn);
     }

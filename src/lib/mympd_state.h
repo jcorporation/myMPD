@@ -133,8 +133,8 @@ struct t_partition_state {
     int last_song_id;                      //!< previous song id from queue
     int song_pos;                          //!< current song pos in queue
     time_t song_duration;                  //!< current song length
-    sds song_uri;                          //!< current song uri
-    sds last_song_uri;                     //!< previous song uri
+    struct mpd_song *song;                 //!< current song
+    struct mpd_song *last_song;            //!< previous song
     unsigned queue_version;                //!< queue version number (increments on queue change)
     unsigned queue_length;                 //!< length of the queue
     int last_skipped_id;                   //!< last skipped event was fired for this song id

@@ -593,7 +593,7 @@ bool stickerdb_inc_set(struct t_stickerdb_state *stickerdb, enum mympd_sticker_t
 }
 
 /**
- * Increments the myMPD play count
+ * Increments the myMPD play count and sets the last played time
  * @param stickerdb pointer to the stickerdb state
  * @param type MPD sticker type
  * @param uri sticker uri
@@ -605,7 +605,7 @@ bool stickerdb_inc_play_count(struct t_stickerdb_state *stickerdb, enum mympd_st
 }
 
 /**
- * Increments the myMPD skip count and sets the
+ * Increments the myMPD skip count and sets the last skipped time
  * @param stickerdb pointer to the stickerdb state
  * @param type MPD sticker type
  * @param uri sticker uri
