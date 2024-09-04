@@ -89,10 +89,6 @@ function viewPlaylistListListClickHandler(event, target) {
     }
 }
 
-function gotoPlaylist(uri) {
-
-}
-
 /**
  * Click event handler for playlist detail list
  * @param {MouseEvent} event click event
