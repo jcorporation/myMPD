@@ -535,7 +535,7 @@ function addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name)
         {
             if (isMPDplaylist(uri) === true) {
                 addDivider(contextMenuBody);
-                addMenuItem(contextMenuBody, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
+                addMenuItem(contextMenuBody, {"cmd": "gotoPlaylist", "options": [uri]}, 'View playlist');
             }
             else {
                 addMenuItem(contextMenuBody, {"cmd": "gotoFilesystem", "options": [uri, "plist"]}, 'View playlist');
@@ -599,10 +599,10 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name);
                 addDivider(contextMenuBody);
                 if (type === 'smartpls') {
-                    addMenuItem(contextMenuBody, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
+                    addMenuItem(contextMenuBody, {"cmd": "gotoPlaylist", "options": [uri]}, 'View playlist');
                 }
                 else {
-                    addMenuItem(contextMenuBody, {"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist');
+                    addMenuItem(contextMenuBody, {"cmd": "gotoPlaylist", "options": [uri]}, 'Edit playlist');
                 }
                 addMenuItem(contextMenuBody, {"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist');
                 addMenuItem(contextMenuBody, {"cmd": "showCopyPlaylist", "options": [[uri]]}, 'Copy playlist');

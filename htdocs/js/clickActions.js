@@ -180,7 +180,7 @@ function clickPlaylist(uri, event) {
         case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', [uri]);
         case 'replace': return replaceQueue('plist', [uri]);
         case 'replacePlay': return replacePlayQueue('plist', [uri]);
-        case 'view': return playlistDetails(uri);
+        case 'view': return gotoPlaylist(uri);
         case 'context': return showContextMenu(event);
         default: logError('Invalid action: ' + settings.webuiSettings.clickPlaylist);
     }

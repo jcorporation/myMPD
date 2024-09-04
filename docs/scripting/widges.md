@@ -33,4 +33,5 @@ Add the `data-href` attribute to the html element. The content must be a valid s
 | FUNCTION | OPTIONS | DESCRIPTION |
 | -------- | ------- | ----------- |
 | `gotoAlbum` | AlbumId | Shows the album with given id. |
+| `gotoPlaylist` | uri | Playlist name. |
 | `songDetails` | uri | Song URI |

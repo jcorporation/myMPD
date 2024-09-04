@@ -252,7 +252,7 @@ function homeIconGoto(type, options) {
             break;
         case 'plist':
         case 'smartpls':
-            playlistDetails(options[0]);
+            gotoPlaylist(options[0]);
             break;
         default:
             logError('Invalid type: ' + type);

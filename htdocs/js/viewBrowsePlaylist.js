@@ -89,6 +89,10 @@ function viewPlaylistListListClickHandler(event, target) {
     }
 }
 
+function gotoPlaylist(uri) {
+
+}
+
 /**
  * Click event handler for playlist detail list
  * @param {MouseEvent} event click event
@@ -352,8 +356,8 @@ function currentPlaylistEnumerate() {
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function playlistDetails(uri) {
-    setUpdateViewId('BrowsePlaylistListList');
+function gotoPlaylist(uri) {
+    setUpdateViewId('BrowsePlaylistDetailList');
     appGoto('Browse', 'Playlist', 'Detail', 0, undefined, undefined, {'tag': '', 'desc': false}, uri, '');
 }
 
