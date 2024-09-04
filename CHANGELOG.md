@@ -21,6 +21,7 @@ An another notable feature is the new list view that supplements the table and g
 - MYMPD_API_STICKER_LIST: new
 - MYMPD_API_STICKER_NAMES: new
 - MYMPD_API_STICKER_SET: new
+- MYMPD_API_STICKER_INC: new
 - MYMPD_API_PLAYLIST_LIST: add parameter fields, sort, sortdesc
 - MYMPD_API_QUEUE_APPEND_URI_RESUME: new
 - MYMPD_API_QUEUE_INSERT_URI_RESUME: new

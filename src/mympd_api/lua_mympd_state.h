@@ -31,10 +31,10 @@ enum lua_mympd_state_type {
  * Which member is used is defined by lua_mympd_state_type
  */
 struct t_lua_mympd_state_value {
-    sds p;        //!< lua string
+    sds p;      //!< lua string
     int64_t i;  //!< lua number
-    double f;     //!< lua float
-    bool b;       //!< lua bool
+    double f;   //!< lua float
+    bool b;     //!< lua bool
 };
 
 

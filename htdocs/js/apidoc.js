@@ -1266,6 +1266,14 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_STICKER_INC": {
+        "desc": "Increments a MPD sticker by one.",
+        "params": {
+            "uri": APIparams.uri,
+            "type": APIparams.stickerType,
+            "name": APIparams.stickerName
+        }
+    },
     "MYMPD_API_MOUNT_LIST": {
         "desc": "Lists the MPD mounts.",
         "params": {}
