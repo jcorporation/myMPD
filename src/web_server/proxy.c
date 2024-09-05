@@ -219,6 +219,16 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                 response_code == 200)
             {
                 MYMPD_LOG_DEBUG(NULL, "Got %lu bytes from connection \"%lu\", response code %d", (unsigned long)hm->body.len, nc->id, response_code);
+                #ifdef MYMPD_DEBUG
+                    const struct mg_str *content_length = mg_http_get_header(hm, "Content-Length");
+                    const struct mg_str *content_type = mg_http_get_header(hm, "Content-Type");
+                    if (content_length != NULL) {
+                        MYMPD_LOG_DEBUG(NULL, "Connection \"%lu\": Content-Length: %.*s", nc->id, (int)content_length->len, content_length->buf);
+                    }
+                    if (content_type != NULL) {
+                        MYMPD_LOG_DEBUG(NULL, "Connection \"%lu\": Content-Type: %.*s", nc->id, (int)content_type->len, content_type->buf);
+                    }
+                #endif
                 sds binary = sdsnewlen(hm->body.buf, hm->body.len);
                 const char *mime_type = get_mime_type_by_magic_stream(binary);
                 struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
