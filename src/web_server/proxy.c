@@ -218,6 +218,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
             if (hm->body.len > 0 &&
                 response_code == 200)
             {
+                MYMPD_LOG_DEBUG(NULL, "Got %lu bytes from connection \"%lu\", response code %d", (unsigned long)hm->body.len, nc->id, response_code);
                 sds binary = sdsnewlen(hm->body.buf, hm->body.len);
                 const char *mime_type = get_mime_type_by_magic_stream(binary);
                 struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
