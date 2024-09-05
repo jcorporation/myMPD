@@ -82,6 +82,10 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     if (rc == false) {
         MYMPD_LOG_ERROR(partition_state->name, "Error getting mpd state for script execution");
     }
+    // current song
+    if (partition_state->song != NULL) {
+        lua_mympd_state_set_mpd_song(lua_partition_state, "current_song", partition_state->song);
+    }
     // myMPD state
     lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
     lua_mympd_state_set_p(lua_partition_state, "playlist_directory", partition_state->mpd_state->playlist_directory_value);
@@ -105,6 +109,16 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     lua_mympd_state_set_p(lua_partition_state, "mympd_uri_plain", uri);
     FREE_SDS(uri);
     return rc;
+}
+
+/**
+ * Pushes a copy of a MPD song to the lua_mympd_state list
+ * @param lua_mympd_state pointer to a t_list struct
+ * @param k variable name
+ * @param v variable value
+ */
+void lua_mympd_state_set_mpd_song(struct t_list *lua_mympd_state, const char *k, const struct mpd_song *song) {
+    list_push(lua_mympd_state, k, LUA_TYPE_MPD_SONG, NULL, mpd_song_dup(song));
 }
 
 /**
@@ -188,6 +202,14 @@ static void lua_mympd_state_free_user_data(struct t_list_node *current) {
     if (current->value_i == LUA_TYPE_STRING) {
         struct t_lua_mympd_state_value *user_data = (struct t_lua_mympd_state_value *)current->user_data;
         FREE_SDS(user_data->p);
+        FREE_PTR(current->user_data);
     }
-    FREE_PTR(current->user_data);
+    else if (current->value_i == LUA_TYPE_MPD_SONG &&
+             current->user_data != NULL)
+    {
+        mpd_song_free(current->user_data);
+    }
+    else {
+        FREE_PTR(current->user_data);
+    }
 }

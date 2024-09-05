@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/scripts/interface.h"
 
+#include "src/mpd_client/tags.h"
 #include "src/mympd_api/lua_mympd_state.h"
 
 /**
@@ -47,9 +48,47 @@ void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state) {
             case LUA_TYPE_BOOLEAN:
                 populate_lua_table_field_b(lua_vm, current->key, value->b);
                 break;
+            case LUA_TYPE_MPD_SONG:
+                populate_lua_table_field_mpd_song(lua_vm, current->key, current->user_data);
+                break;
         }
         current = current->next;
     }
+}
+
+/**
+ * Creates a lua sub table from a mpd song
+ * @param lua_vm lua instance
+ * @param key the key
+ * @param song MPD song
+ */
+void populate_lua_table_field_mpd_song(lua_State *lua_vm, const char *key, const struct mpd_song *song) {
+    lua_pushstring(lua_vm, key);
+    lua_newtable(lua_vm);
+    populate_lua_table_field_p(lua_vm, "uri", mpd_song_get_uri(song));
+    populate_lua_table_field_i(lua_vm, "Duration", mpd_song_get_duration(song));
+    for (int tag = 0; tag < MPD_TAG_COUNT; tag++) {
+        unsigned i = 0;
+        const char *value = mpd_song_get_tag(song, tag, i);
+        if (value != NULL) {
+            if (is_multivalue_tag(tag) == true) {
+                lua_pushstring(lua_vm, mpd_tag_name(tag));
+                lua_newtable(lua_vm);
+                while (value != NULL) {
+                    lua_pushnumber(lua_vm, i + 1);
+                    lua_pushstring(lua_vm, value);
+                    lua_settable(lua_vm, -3);
+                    i++;
+                    value = mpd_song_get_tag(song, tag, i);
+                }
+                lua_settable(lua_vm, -3);
+            }
+            else {
+                populate_lua_table_field_p(lua_vm, mpd_tag_name(tag), value);
+            }
+        }
+    }
+    lua_settable(lua_vm, -3);
 }
 
 /**

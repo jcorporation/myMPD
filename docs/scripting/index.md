@@ -34,6 +34,7 @@ myMPD environment variables are populated in the lua table `mympd_env`.
 | `requestid` | number | Jsonrpc request id |
 | `scriptevent` | string | Script start event: `extern`, `http`, `timer`, `trigger` or `user` |
 | `scriptname` | string | Script name |
+| `var` | table | Subtable with user defined variables |
 | `workdir` | string | myMPD working directory |
 {: .table .table-sm }
 

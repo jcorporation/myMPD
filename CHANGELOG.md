@@ -12,6 +12,13 @@ This version also introduces scriptable widgets for the home screen. This widget
 
 An another notable feature is the new list view that supplements the table and grid views.
 
+### Script API
+
+- `mympd_state` includes now a subtable `current_song`. You do not need to call `MYMPD_API_CURRENT_SONG` manually.
+- `mympd_env` includes now a subtable `var` with the user defined variables. The entries with `var_` prefix are deprecated.
+
+All scripts in the mympd-scripts repository are updated accordingly, do not forget to update your imported scripts.
+
 ### API changes
 
 - MYMPD_API_DATABASE_LIST_RANDOM: new
@@ -36,12 +43,16 @@ An another notable feature is the new list view that supplements the table and g
 
 ### Changelog
 
-- Feat: Resume for songs, playlists and albums #1338
-- Feat: Rating for albums and playlists #1134
+- Feat: Resume for songs #1338
+- Feat: Resume for playlists and albums  (MPD 0.24) #1338
+- Feat: Rating for albums and playlists (MPD 0.24) #1134
 - Feat: User defined stickers #1091
+- Feat: Support stickers for playlists, filters and tag types (MPD 0.24).
 - Feat: Add list view
 - Feat: Add widgets for home screen
 - Feat: Sort list of playlists by name or last-modified
+- Upd: Playlist pictures are moved in a separate folder `/var/lib/mympd/pics/playlists`
+- Upd: Latest libmympdclient based on libmpdclient master
 - Upd: Hide advanced search by default
 - Upd: Mongoose 7.15
 - Fix: Send JSONRPC_EVENT_UPDATE_OPTIONS only on feature change

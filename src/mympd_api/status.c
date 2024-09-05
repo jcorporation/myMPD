@@ -260,8 +260,8 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
         else {
             if (partition_state->song != NULL) {
                 mpd_song_free(partition_state->song);
+                partition_state->song = NULL;
             }
-            song = NULL;
         }
         mpd_response_finish(partition_state->conn);
     }
