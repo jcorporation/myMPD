@@ -1362,7 +1362,3 @@ table div.alert {
 .colMaxContent {
   max-width:fit-content;
 }
-
-.stickerMympdHide .stickerMympd {
-  display: none;
-}

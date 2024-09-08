@@ -58,6 +58,8 @@ sds mympd_api_sticker_list(struct t_stickerdb_state *stickerdb, sds buffer, unsi
     struct t_stickers stickers;
     stickers_enable_all(&stickers, type);
     buffer = jsonrpc_respond_start(buffer, MYMPD_API_STICKER_LIST, request_id);
+    buffer = tojson_char(buffer, "type", mympd_sticker_type_name_lookup(type), true);
+    buffer = tojson_char(buffer, "uri", uri, true);
     buffer = mympd_api_sticker_get_print(buffer, stickerdb, type, uri, &stickers);
     buffer = jsonrpc_end(buffer);
     return buffer;

@@ -15,10 +15,10 @@ function clickFeedback(target) {
     const parent = target.closest('.btn-group');
     const feedbackType = parent.getAttribute('data-feedback');
     if (feedbackType === 'like') {
-        voteSongLike(target);
+        voteLike(target);
     }
     else {
-        voteSongRating(target);
+        voteRating(target);
     }
 }
 
@@ -74,12 +74,12 @@ function setFeedback(el, like, rating) {
 }
 
 /**
- * Song love/hate event handler
+ * Love/hate event handler
  * @param {EventTarget} el triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function voteSongLike(el) {
+function voteLike(el) {
     if (el.nodeName === 'DIV') {
         return;
     }
@@ -115,17 +115,17 @@ function voteSongLike(el) {
 }
 
 /**
- * Creates the songs hate/love elements
+ * Creates the hate/love elements
  * @param {number} like like value 0 - 2
  * @param {string} stickerType MPD sticker type
  * @returns {HTMLElement} div element
  */
 function createLike(like, stickerType) {
-    const thDown = elCreateText('button', {"data-vote": "0", "data-title-phrase": "Hate song", "class": ["btn", "btn-secondary", "mi"]}, 'thumb_down');
+    const thDown = elCreateText('button', {"data-vote": "0", "data-title-phrase": "Hate", "class": ["btn", "btn-secondary", "mi"]}, 'thumb_down');
     if (like === 0) {
         thDown.classList.add('active');
     }
-    const thUp = elCreateText('button', {"data-vote": "2", "data-title-phrase": "Love song", "class": ["btn", "btn-secondary", "mi"]}, 'thumb_up');
+    const thUp = elCreateText('button', {"data-vote": "2", "data-title-phrase": "Love", "class": ["btn", "btn-secondary", "mi"]}, 'thumb_up');
     if (like === 2) {
         thUp.classList.add('active');
     }
@@ -136,7 +136,7 @@ function createLike(like, stickerType) {
 }
 
 /**
- * Sets the song vote button group
+ * Sets the vote button group
  * @param {HTMLElement | Element} el container for the thumbs
  * @param {number} vote The vote
  * @returns {void}
@@ -161,12 +161,12 @@ function setLike(el, vote) {
 }
 
 /**
- * Song rating event handler
+ * Rating event handler
  * @param {EventTarget} el triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function voteSongRating(el) {
+function voteRating(el) {
     const rating = Number(el.getAttribute('data-vote'));
     const stickerType = el.parentNode.getAttribute('data-type');
     const uri = getData(el.parentNode, 'uri');

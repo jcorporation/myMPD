@@ -41,7 +41,7 @@ static const char *const mpd_sticker_types_names[STICKER_TYPE_COUNT] = {
  * @return const char* the sticker name
  */
 const char *mympd_sticker_type_name_lookup(enum mympd_sticker_type sticker_type) {
-    if ((unsigned)sticker_type >= STICKER_COUNT) {
+    if ((unsigned)sticker_type >= STICKER_TYPE_COUNT) {
         return NULL;
     }
     return mpd_sticker_types_names[sticker_type];

@@ -846,7 +846,7 @@ static bool set_sticker_value(struct t_stickerdb_state *stickerdb, enum mympd_st
     if (type_name == NULL) {
         return false;
     }
-    MYMPD_LOG_INFO(stickerdb->name, "Setting sticker: \"%s\" -> %s: %s", uri, name, value);
+    MYMPD_LOG_INFO(stickerdb->name, "Setting sticker %s: \"%s\" -> %s: %s", type_name, uri, name, value);
     mpd_run_sticker_set(stickerdb->conn, type_name, uri, name, value);
     return stickerdb_check_error_and_recover(stickerdb, "mpd_run_sticker_set");
 }

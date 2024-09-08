@@ -26,6 +26,13 @@ function initModalSticker() {
             }
             return;
         }
+        if (event.target.nodeName === 'BUTTON') {
+            const cmd = getData(event.target.parentNode, 'href');
+            if (cmd !== null) {
+                parseCmd(event, cmd);
+                return;
+            }
+        }
         if (checkTargetClick(target) === true) {
             showEditSticker(getData(target, 'name'), getData(target, 'value'));
         }
@@ -206,8 +213,6 @@ function getStickerList() {
  */
 function parseStickerList(obj) {
     const table = elGetById('modalStickerList');
-    table.classList.add('stickerMympdHide');
-    elGetById('modalStickerToggleInternal').classList.remove('active');
     const tbodySticker = table.querySelector('tbody');
     elClear(tbodySticker);
     if (checkResult(obj, table, 'table') === false) {
@@ -216,15 +221,34 @@ function parseStickerList(obj) {
 
     for (const key of stickerListSongs) {
         if (obj.result[key] !== undefined) {
-            const tr = printStickerRow(key, obj.result[key]);
-            tr.classList.add('stickerMympd');
+            let valueEl;
+            if (key === 'like') {
+                if (features.featLike === false) {
+                    continue;
+                }
+                valueEl = createLike(obj.result.like, obj.result.type);
+                setData(valueEl, 'href', {"cmd": "voteLike", "options": ["target"]});
+                setData(valueEl, 'uri', obj.result.uri);
+            }
+            else if (key === 'rating') {
+                if (features.featRating === false) {
+                    continue;
+                }
+                valueEl = createStarRating(obj.result.rating, obj.result.type);
+                setData(valueEl, 'href', {"cmd": "voteRating", "options": ["target"]});
+                setData(valueEl, 'uri', obj.result.uri);
+            }
+            else {
+                valueEl = printValue(key, obj.result[key]);
+            }
+            const tr = printStickerRow(tn(key), obj.result[key], valueEl);
             tbodySticker.appendChild(tr);
         }
     }
     let i = 0;
     for (const key in obj.result.sticker) {
         tbodySticker.appendChild(
-            printStickerRow(key, obj.result.sticker[key])
+            printStickerRow(key, obj.result.sticker[key], document.createTextNode(obj.result.sticker[key]))
         );
         i++;
     }
@@ -244,12 +268,13 @@ function parseStickerList(obj) {
  * Prints a sticker table row
  * @param {string} name Sticker name
  * @param {string} value Sticker value
+ * @param {Node} valueEl Sticker value element
  * @returns {HTMLElement} Table row
  */
-function printStickerRow(name, value) {
+function printStickerRow(name, value, valueEl) {
     const tr = elCreateNodes('tr', {"title": tn('Edit')}, [
         elCreateText('td', {}, name),
-        elCreateText('td', {}, value),
+        elCreateNode('td', {}, valueEl),
         elCreateNodes('td', {"data-col": "Action"}, [
             elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
         ])
@@ -257,21 +282,4 @@ function printStickerRow(name, value) {
     setData(tr, 'name', name);
     setData(tr, 'value', value);
     return tr;
-}
-
-/**
- * Shows/hides the interal stickers
- * @param {EventTarget} target Toggle button
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function showInternalStickers(target) {
-    if (target.classList.contains('active')) {
-        target.classList.remove('active');
-        elGetById('modalStickerList').classList.add('stickerMympdHide');
-    }
-    else {
-        target.classList.add('active');
-        elGetById('modalStickerList').classList.remove('stickerMympdHide');
-    }
 }

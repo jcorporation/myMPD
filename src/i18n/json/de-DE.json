@@ -353,7 +353,7 @@
     "Grouping": "Gruppierung",
     "HTTP client": "HTTP Client",
     "HTTP download": "HTTP Download",
-    "Hate song": "Gefällt mir nicht",
+    "Hate": "Gefällt mir nicht",
     "Help to improve myMPD": "Hilf mit myMPD zu verbessern",
     "Highlight color": "Highlight Farbe",
     "Highlight contrast color": "Highlight Kontrast-Farbe",
@@ -458,7 +458,7 @@
     "Logout": "Logout",
     "Logs messages to the myMPD log.": "Schreibt Meldungen in das myMPD Log.",
     "Lookup at musicbrainz": "Bei MusicBrainz nachschlagen",
-    "Love song": "Gefällt mir",
+    "Love": "Gefällt mir",
     "Love, hate": "Gefällt mir / nicht",
     "Lua is not compiled in": "Lua ist nicht verfügbar",
     "Lyrics": "Liedtext",
@@ -1225,6 +1225,5 @@
     "Invalid refresh interval": "Ungültiger Aktualisierungsintervall",
     "Refresh interval": "Aktualisierungsintervall",
     "Resume": "Wiederaufnehmen",
-    "No user defined stickers.": "Keine benutzerdefinierten Sticker.",
-    "Show internal stickers": "Zeige interne Sticker"
+    "No user defined stickers.": "Keine benutzerdefinierten Sticker."
 }
