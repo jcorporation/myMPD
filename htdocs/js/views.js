@@ -278,9 +278,13 @@ function getActionLinks(userData) {
             return pEl.actionJukeboxIcons;
         case 'BrowseDatabaseTagList':
             if (settings.tagListAlbum.includes(userData)) {
-                return pEl.actionMenuBrowseDatabaseTagSongAlbums;
+                return features.featStickerAdv === true
+                    ? pEl.actionMenuBrowseDatabaseTagSongsAlbumsStickers
+                    : pEl.actionMenuBrowseDatabaseTagSongsAlbums;
             }
-            return pEl.actionMenuBrowseDatabaseTagSongs;
+            return features.featStickerAdv === true
+                ? pEl.actionMenuBrowseDatabaseTagSongsStickers
+                : pEl.actionMenuBrowseDatabaseTagSongs;
         case 'BrowseDatabaseAlbumDetail':
             return userData === 'disc' ? pEl.actionDiscIcons : pEl.actionIcons;
         default:

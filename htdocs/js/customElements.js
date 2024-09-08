@@ -41,10 +41,17 @@ function createPreGeneratedElements() {
         pEl.selectBtn
     ];
     pEl.actionMenuBrowseDatabaseTagSongs = [
+        pEl.showSongsBtn
+    ];
+    pEl.actionMenuBrowseDatabaseTagSongsStickers = [
         pEl.showSongsBtn,
         pEl.showStickersBtn
     ];
-    pEl.actionMenuBrowseDatabaseTagSongAlbums = [
+    pEl.actionMenuBrowseDatabaseTagSongsAlbums = [
+        pEl.showSongsBtn,
+        pEl.showAlbumsBtn
+    ];
+    pEl.actionMenuBrowseDatabaseTagSongsAlbumsStickers = [
         pEl.showSongsBtn,
         pEl.showAlbumsBtn,
         pEl.showStickersBtn
