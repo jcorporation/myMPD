@@ -248,6 +248,12 @@ function handleViewActionClick(event) {
             elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
             gotoBrowse(event);
             break;
+        case 'showStickersByTag': {
+            const tag = getData(event.target.parentNode.parentNode, 'tag');
+            const value = getData(event.target.parentNode.parentNode, 'name');
+            showStickerModal(value, tag);
+            break;
+        }
         case 'refreshWidget':
             updateHomeWidget(event.target.closest('.card'));
             break;

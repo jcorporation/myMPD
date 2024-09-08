@@ -18,6 +18,7 @@ function createPreGeneratedElements() {
     pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Quick play"}, 'play_arrow');
     pEl.showSongsBtn = elCreateText('a', {"data-action": "showSongsByTag", "class": ["mi", "color-darkgrey", "me-1"], "href": "#", "data-title-phrase": "Show songs"}, 'music_note');
     pEl.showAlbumsBtn = elCreateText('a', {"data-action": "showAlbumsByTag", "class": ["mi", "color-darkgrey", "me-1"], "href": "#", "data-title-phrase": "Show albums"}, 'album');
+    pEl.showStickersBtn = elCreateText('a', {"data-action": "showStickersByTag", "class": ["mi", "color-darkgrey", "me-1", "featStickerAdv"], "href": "#", "data-title-phrase": "Sticker"}, 'discount');
 
     pEl.actionMenu = [
         pEl.actionsBtn,
@@ -40,11 +41,13 @@ function createPreGeneratedElements() {
         pEl.selectBtn
     ];
     pEl.actionMenuBrowseDatabaseTagSongs = [
-        pEl.showSongsBtn
+        pEl.showSongsBtn,
+        pEl.showStickersBtn
     ];
     pEl.actionMenuBrowseDatabaseTagSongAlbums = [
         pEl.showSongsBtn,
-        pEl.showAlbumsBtn
+        pEl.showAlbumsBtn,
+        pEl.showStickersBtn
     ];
     pEl.actionMenuDisc = [
         pEl.actionsDiscBtn
