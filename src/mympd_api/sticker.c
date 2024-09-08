@@ -38,8 +38,9 @@ sds mympd_api_sticker_get(struct t_stickerdb_state *stickerdb, sds buffer, unsig
             JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Sticker not found");
     }
     buffer = jsonrpc_respond_start(buffer, MYMPD_API_STICKER_GET, request_id);
-    buffer = tojson_char(buffer, "value", value, false);
+    buffer = tojson_sds(buffer, "value", value, false);
     buffer = jsonrpc_end(buffer);
+    FREE_SDS(value);
     return buffer;
 }
 
@@ -59,7 +60,7 @@ sds mympd_api_sticker_list(struct t_stickerdb_state *stickerdb, sds buffer, unsi
     stickers_enable_all(&stickers, type);
     buffer = jsonrpc_respond_start(buffer, MYMPD_API_STICKER_LIST, request_id);
     buffer = tojson_char(buffer, "type", mympd_sticker_type_name_lookup(type), true);
-    buffer = tojson_char(buffer, "uri", uri, true);
+    buffer = tojson_sds(buffer, "uri", uri, true);
     buffer = mympd_api_sticker_get_print(buffer, stickerdb, type, uri, &stickers);
     buffer = jsonrpc_end(buffer);
     return buffer;
