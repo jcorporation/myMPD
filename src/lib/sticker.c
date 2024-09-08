@@ -56,7 +56,7 @@ enum mympd_sticker_type mympd_sticker_type_name_parse(const char *name) {
     if (name == NULL) {
         return STICKER_TYPE_UNKNOWN;
     }
-    for (unsigned i = 0; i < STICKER_COUNT; ++i) {
+    for (unsigned i = 0; i < STICKER_TYPE_COUNT; ++i) {
         if (strcmp(name, mpd_sticker_types_names[i]) == 0) {
             return (enum mympd_sticker_type)i;
         }
