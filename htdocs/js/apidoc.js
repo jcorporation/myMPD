@@ -424,8 +424,8 @@ const APImethods = {
     "MYMPD_API_QUEUE_RM_RANGE": {
         "desc": "Removes a range from the queue.",
         "params": {
-            "start": APItypes.start,
-            "end": APItypes.end
+            "start": APIparams.start,
+            "end": APIparams.end
         }
     },
     "MYMPD_API_QUEUE_MOVE_POSITION": {
@@ -885,8 +885,8 @@ const APImethods = {
         "desc": "Removes a range from the playlist.",
         "params": {
             "plist": APIparams.plist,
-            "start": APItypes.start,
-            "end": APItypes.end
+            "start": APIparams.start,
+            "end": APIparams.end
         }
     },
     "MYMPD_API_PLAYLIST_RM_ALL": {
