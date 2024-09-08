@@ -196,14 +196,20 @@ function i18nHtml(root) {
  */
 function i18nPregenerated() {
     for (const el in pEl) {
-        if (pEl[el] instanceof Node) {
+        if (pEl[el].nodeName !== undefined) {
             const titles = pEl[el].querySelectorAll('[data-title-phrase]');
-            for (const title of titles) {
-                title.setAttribute('title', tn(title.getAttribute('data-title-phrase')));
+            for (const tit of titles) {
+                tit.setAttribute('title', tn(tit.getAttribute('data-title-phrase')));
+            }
+            if (pEl[el].getAttribute('data-title-phrase') !== null) {
+                pEl[el].setAttribute('title', tn(pEl[el].getAttribute('data-title-phrase')));
             }
             const tcs =  pEl[el].querySelectorAll('[data-phrase]');
             for (const tc of tcs) {
                 tc.textContent = tn(tc.getAttribute('data-phrase'));
+            }
+            if (pEl[el].getAttribute('data-phrase') !== null) {
+                pEl[el].textContent = tn(pEl[el].getAttribute('data-phrase'));
             }
         }
     }
