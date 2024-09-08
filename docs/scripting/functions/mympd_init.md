@@ -59,6 +59,7 @@ The lua table mympd_state is populated with following fields.
 | `single_state` | Integer | MPD single state: 0 = off, 1 = on, 2 = oneshot, 3 = unknown |
 | `song_id` | Integer | Song id of current song |
 | `song_pos` | Integer | Current song position in queue |
+| `start_time` | Integer | Current song start playing timestamp |
 | `total_time` | Integer | Total time of current song |
 | `volume` | Integer | 0 - 100 percent |
 {: .table .table-sm }

@@ -86,6 +86,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     if (partition_state->song != NULL) {
         lua_mympd_state_set_mpd_song(lua_partition_state, "current_song", partition_state->song);
     }
+    lua_mympd_state_set_i(lua_partition_state, "start_time", partition_state->song_start_time);
     // myMPD state
     lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
     lua_mympd_state_set_p(lua_partition_state, "playlist_directory", partition_state->mpd_state->playlist_directory_value);
