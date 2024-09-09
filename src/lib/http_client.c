@@ -191,10 +191,12 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         }
 
         //Send request
-        if (strcmp(mg_client_request->method, "POST") == 0) {
+        if (mg_client_request->post_data != NULL &&
+            strlen(mg_client_request->post_data) > 0)
+        {
             MYMPD_LOG_DEBUG(NULL, "Sending data: \"%s\"", mg_client_request->post_data);
             mg_printf(nc,
-                "POST %s HTTP/1.1\r\n"
+                "%s %s HTTP/1.1\r\n"
                 "Host: %.*s\r\n"
                 "%s"
                 "Content-Length: %lu\r\n"
@@ -204,6 +206,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
                 "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
                 "\r\n"
                 "%s\r\n",
+                mg_client_request->method,
                 mg_url_uri(mg_client_request->connect_uri),
                 (int) host.len, host.buf,
                 mg_client_request->extra_headers,
@@ -212,15 +215,15 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         }
         else {
             mg_printf(nc,
-                "GET %s HTTP/1.1\r\n"
+                "%s %s HTTP/1.1\r\n"
                 "Host: %.*s\r\n"
                 "%s"
-                "Content-Length: 0\r\n"
                 "Connection: close\r\n"
                 "Accept: */*\r\n"
                 "Accept-Encoding: none\r\n"
                 "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
                 "\r\n",
+                mg_client_request->method,
                 mg_url_uri(mg_client_request->connect_uri),
                 (int) host.len, host.buf,
                 mg_client_request->extra_headers);
@@ -230,6 +233,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         //Response is received. Return it
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
         struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) nc->fn_data;
+        unsigned content_length = 0;
         mg_client_response->body = sdscatlen(mg_client_response->body, hm->body.buf, hm->body.len);
         //headers list
         sds name = sdsempty();
@@ -239,6 +243,9 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
             }
             name = sdscatlen(name, hm->headers[i].name.buf, hm->headers[i].name.len);
             sdstolower(name);
+            if (strcmp(name, "content-length") == 0) {
+                content_length = mg_str_to_uint(&hm->headers[i].value);
+            }
             list_push_len(&mg_client_response->header, name, sdslen(name), 0, hm->headers[i].value.buf, hm->headers[i].value.len, NULL);
             sdsclear(name);
         }
@@ -246,10 +253,14 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         //http response code
         mg_client_response->response_code = mg_str_to_int(&hm->uri);
         //set response code
-        mg_client_response->rc = mg_client_response->response_code == 200
-            ? 0
-            : 1;
-
+        if ((content_length > 0 && content_length != hm->body.len) ||
+            mg_client_response->response_code > 399)
+        {
+            mg_client_response->rc = 1;
+        }
+        else {
+            mg_client_response->rc = 0;
+        }
         MYMPD_LOG_DEBUG(NULL, "HTTP client response code \"%d\"", mg_client_response->response_code);
         //Tell mongoose to close this connection
         nc->is_closing = 1;

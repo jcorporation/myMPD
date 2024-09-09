@@ -16,6 +16,7 @@ An another notable feature is the new list view that supplements the table and g
 
 - `mympd_state` includes now a subtable `current_song`. You do not need to call `MYMPD_API_CURRENT_SONG` manually.
 - `mympd_env` includes now a subtable `var` with the user defined variables. The entries with `var_` prefix are deprecated.
+- `mympd.http_client` supports now all HTTP methods
 
 All scripts in the mympd-scripts repository are updated accordingly, do not forget to update your imported scripts.
 
