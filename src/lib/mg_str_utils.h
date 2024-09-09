@@ -13,7 +13,7 @@
 
 #include "dist/mongoose/mongoose.h"
 
-int mg_str_to_int(struct mg_str *str);
-unsigned mg_str_to_uint(struct mg_str *str);
+int mg_str_to_int(const struct mg_str *str);
+unsigned mg_str_to_uint(const struct mg_str *str);
 
 #endif
