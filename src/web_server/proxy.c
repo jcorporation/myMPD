@@ -235,7 +235,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                     content_length != hm->body.len)
                 {
                     MYMPD_LOG_ERROR(NULL, "Invalid response size from connection \"%lu\", received %lu bytes, expected %u bytes",
-                        nc->id, hm->body.len, content_length);
+                        nc->id, (unsigned long)hm->body.len, content_length);
                     webserver_redirect_placeholder_image(backend_nc_data->frontend_nc, PLACEHOLDER_NA);
                     break;
                 }

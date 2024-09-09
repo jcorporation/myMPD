@@ -259,7 +259,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
             mg_client_response->rc = 1;
             MYMPD_LOG_ERROR(NULL, "HTTP client response code \"%d\"", mg_client_response->response_code);
             MYMPD_LOG_ERROR(NULL, "HTTP client invalid response size, received %lu bytes, expected %u bytes",
-                    hm->body.len, content_length);
+                    (unsigned long)hm->body.len, content_length);
         }
         else if (mg_client_response->response_code > 399) {
             mg_client_response->rc = 1;
