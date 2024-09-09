@@ -51,10 +51,14 @@ local decoded = mympd.urldecode(string, form_url_decode)
 
 ## Logging
 
-Logs messages to the myMPD log.
+Logs messages to the myMPD log. You can use the number or the loglevel name.
 
 ```lua
 mympd.log(loglevel, message)
+
+-- This is the same
+mympd.log(5, message)
+mympd.log("LOG_NOTICE", message)
 ```
 
 **Parameters:**
@@ -62,19 +66,19 @@ mympd.log(loglevel, message)
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
 | message | string | Message to log |
-| loglevel | number | Syslog log level |
+| loglevel | number or string | Syslog log level |
 {: .table .table-sm }
 
-| LOGLEVEL | DESCRIPTION |
-| -------- | ----------- |
-| 0 | Emergency |
-| 1 | Alert |
-| 2 | Critical |
-| 3 | Error |
-| 4 | Warning |
-| 5 | Notice |
-| 6 | Info |
-| 7 | Debug |
+| LOGLEVEL | NUMBER | DESCRIPTION |
+| -------- | ------ | ----------- |
+| LOG_EMERG | 0 | Emergency |
+| LOG_ALERT | 1 | Alert |
+| LOG_CRIT | 2 | Critical |
+| LOG_ERR | 3 | Error |
+| LOG_WARNING | 4 | Warning |
+| LOG_NOTICE | 5 | Notice |
+| LOG_INFO | 6 | Informational |
+| LOG_DEBUG | 7 | Debug |
 {: .table .table-sm }
 
 ## Notifications
@@ -91,6 +95,13 @@ mympd.notify_partition(severity, message)
 
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
-| severity | number | 0 = Info, 1 = Warn, 2 = Error |
+| severity | number or string | Severity |
 | message | string | Message to send. |
+{: .table .table-sm }
+
+| SEVERITY | NUMBER | DESCRIPTION |
+| -------- | ------ | ----------- |
+| SEVERITY_INFO | 0 | Informational |
+| SEVERITY_WARNING | 1 | Warning |
+| SEVERITY_ERR | 2 | Error |
 {: .table .table-sm }

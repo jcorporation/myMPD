@@ -2,37 +2,65 @@
 --- myMPD utility functions
 ---
 
+-- Jsonrpc severities
+local jsonrpc_severities = {
+  SEVERITY_INFO = 0,
+  SEVERITY_WARNING = 1,
+  SEVERITY_ERR = 2
+}
+
 --- Sends a notification to the client that started this script.
 -- @param severity Severity
---                 0 = Info
---                 1 = Warning
---                 2 = Error
+--                 0 = SEVERITY_INFO = Info
+--                 1 = SEVERITY_WARNING = Warning
+--                 2 = SEVERITY_ERR = Error
 -- @param message Jsonrpc message to send
 function mympd.notify_client(severity, message)
+  if type(severity) == "string" then
+    severity = jsonrpc_severities[severity]
+  end
   mympd_util_notify(mympd_env.partition, mympd_env.requestid, severity, message)
 end
 
 --- Sends a notification to all clients in the current partition.
 -- @param severity Severity
---                 0 = Info
---                 1 = Warning
---                 2 = Error
+--                 0 = SEVERITY_INFO = Info
+--                 1 = SEVERITY_WARNING = Warning
+--                 2 = SEVERITY_ERR = Error
 -- @param message Jsonrpc message to send
 function mympd.notify_partition(severity, message)
+  if type(severity) == "string" then
+    severity = jsonrpc_severities[severity]
+  end
   mympd_util_notify(mympd_env.partition, 0, severity, message)
 end
 
+-- Posix loglevel names
+local loglevel_names = {
+  LOG_EMERG = 0,
+  LOG_ALERT = 1,
+  LOG_CRIT = 2,
+  LOG_ERR = 3,
+  LOG_WARNING = 4,
+  LOG_NOTICE = 5,
+  LOG_INFO = 6,
+  LOG_DEBUG = 7
+}
+
 --- Logs to the myMPD log.
 -- @param loglevel Syslog loglevel
---                 0 = Emergency
---                 1 = Alert
---                 2 = Critical
---                 3 = Error
---                 4 = Warning
---                 5 = Notice
---                 6 = Info
---                 7 = Debug
+--                 0 = LOG_EMERG = Emergency
+--                 1 = LOG_ALERT = Alert
+--                 2 = LOG_CRIT = Critical
+--                 3 = LOG_ERR = Error
+--                 4 = LOG_WARNING = Warning
+--                 5 = LOG_NOTICE = Notice
+--                 6 = LOG_INFO = Info
+--                 7 = LOG_DEBUG = Debug
 function mympd.log(loglevel, message)
+  if type(loglevel) == "string" then
+    loglevel = loglevel_names[loglevel]
+  end
   mympd_util_log(mympd_env.partition, mympd_env.scriptname, loglevel, message)
 end
 
