@@ -237,7 +237,9 @@ function resetDuration(playingRow) {
  * @returns {void}
  */
 function resetSongPos(playingRow) {
-    if (playingRow === undefined) {
+    if (playingRow === undefined ||
+        playingRow.getAttribute('id') === null)
+    {
         playingRow = elGetById('queueSongId' + currentState.currentSongId);
     }
     const posTd = playingRow.querySelector('[data-col=Pos]');
@@ -260,8 +262,14 @@ function setQueueCounter(playingRow, counterText) {
         const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0
             ? 100
             : Math.ceil((100 / currentState.totalTime) * currentState.elapsedTime * 100) / 100;
-        playingRow.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
-            progressPrct + '%, transparent ' + progressPrct + '%, transparent 100%)';
+        let targetRow = playingRow;
+        if (targetRow.getAttribute('id') === null) {
+            targetRow = elGetById('queueSongId' + currentState.currentSongId);
+        }
+        if (targetRow !== null) {
+            targetRow.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
+                progressPrct + '%, transparent ' + progressPrct + '%, transparent 100%)';
+        }
     }
     //counter in queue card
     const durationTd = playingRow.querySelector('[data-col=Duration]');
@@ -276,7 +284,9 @@ function setQueueCounter(playingRow, counterText) {
  * @returns {void}
  */
 function setPlayingRow(playingRow) {
-    if (playingRow === undefined) {
+    if (playingRow === undefined ||
+        playingRow.getAttribute('id') === null)
+    {
         playingRow = elGetById('queueSongId' + currentState.currentSongId);
     }
     if (playingRow !== null) {
