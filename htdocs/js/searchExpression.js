@@ -74,6 +74,18 @@ function selectSearchMatch(appid) {
             searchMatchEl.value = 'contains';
         }
     }
+    setSearchExpressionPlaceholder(appid);
+}
+
+/**
+ * Sets the placeholder string for the search expression input
+ * @param {string} appid the application id
+ * @returns {void}
+ */
+function setSearchExpressionPlaceholder(appid) {
+    const searchMatchEl = elGetById(appid + 'SearchMatch');
+    const searchTagEl = elGetById(appid + 'SearchTagsDesc');
+    elGetById(appid + 'SearchStr').setAttribute('placeholder', tn(searchTagEl.textContent) + ' ' + tn(searchMatchEl.value));
 }
 
 /**
@@ -169,6 +181,7 @@ function initSearchExpression(appid) {
     elGetById(appid + 'SearchMatch').addEventListener('change', function() {
         execSearchExpression(elGetById(appid + 'SearchStr').value);
     }, false);
+    setSearchExpressionPlaceholder(appid);
 }
 
 /**
