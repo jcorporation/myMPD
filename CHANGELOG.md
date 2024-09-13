@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Russian translation
+
 ***
 
 ## myMPD 17.0.3 (2024-08-25)
