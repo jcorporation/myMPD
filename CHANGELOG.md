@@ -60,6 +60,17 @@ All scripts in the mympd-scripts repository are updated accordingly, do not forg
 
 ***
 
+## myMPD 17.0.4 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Upd: Russian translation
+- Fix: Delete webradio favorite
+
+***
+
 ## myMPD 17.0.3 (2024-08-25)
 
 This is a small bug fix release.
