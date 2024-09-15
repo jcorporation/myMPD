@@ -178,6 +178,7 @@ function parseDatabaseAlbumListUpdate(card, data) {
     if (checkResult(obj, cardContainer, undefined) === false) {
         return;
     }
+    elGetById('BrowseDatabaseTagListTitle').textContent = tn(obj.result.tag);
 
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = cardContainer.querySelector('tfoot');
