@@ -30,14 +30,18 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
 {
     struct t_config *config = mg_user_data->config;
     sds name = get_uri_param(&hm->query, "playlist=");
+    sds type = get_uri_param(&hm->query, "type=");
 
     if (name == NULL ||
+        type == NULL ||
         sdslen(name) == 0 ||
+        sdslen(type) == 0 ||
         vcb_isfilepath(name) == false)
     {
         MYMPD_LOG_ERROR(NULL, "Failed to decode query");
         webserver_redirect_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
         FREE_SDS(name);
+        FREE_SDS(type);
         return false;
     }
     strip_file_extension(name);
@@ -53,9 +57,15 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
     }
     else {
         MYMPD_LOG_DEBUG(NULL, "No image for playlist found");
-        webserver_redirect_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
+        if (strcmp(type, "smartpls") == 0) {
+            webserver_redirect_placeholder_image(nc, PLACEHOLDER_SMARTPLS);
+        }
+        else {
+            webserver_redirect_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
+        }
     }
     FREE_SDS(mediafile);
     FREE_SDS(name);
+    FREE_SDS(type);
     return true;
 }

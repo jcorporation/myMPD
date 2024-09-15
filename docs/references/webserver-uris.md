@@ -17,7 +17,7 @@ Reference of all webserver uris.
 | `/browse/` | Prints the list of [published directories]({{ site.baseurl }}/references/published-directories) |
 | `/ca.crt` | Returns the myMPD CA certificate |
 | `/folderart?path=<path>` | Returns the folderart thumbnail. |
-| `/playlistart?playlist=<playlist name>` | Returns the playlistart thumbnail. |
+| `/playlistart?type=<plist,smartpls>&playlist=<playlist name>` | Returns the playlistart thumbnail or a redirect to the placeholder image if not found. |
 | `/proxy?uri=<uri>` | Fetches the response from the uri (GET), allowed hosts: `jcorporation.github.io`, `musicbrainz.org`, `listenbrainz.org` |
 | `/script/<partition>/<script>` | Executes a script (Script should return a valid http response) |
 | `/script-api/<partition>` | Jsonrpc api endpoint for mympd-script |

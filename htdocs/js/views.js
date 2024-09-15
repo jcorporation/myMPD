@@ -702,7 +702,7 @@ function setEntryData(entry, data) {
             break;
         case 'plist':
         case 'smartpls':
-            data.Thumbnail = getCssImageUri('/playlistart?playlist=' + myEncodeURIComponent(data.uri));
+            data.Thumbnail = getCssImageUri('/playlistart?type=' + data.Type + '&playlist=' + myEncodeURIComponent(data.uri));
             break;
         case 'webradiodb':
             data.Thumbnail = getCssImageUri(data.Image);
