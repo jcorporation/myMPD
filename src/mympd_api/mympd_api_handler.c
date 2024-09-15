@@ -1681,17 +1681,18 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         }
         case MYMPD_API_WEBRADIO_FAVORITE_RM:
             if (webradios_get_write_lock(mympd_state->webradio_favorites) == true) {
-                struct t_list ids;
-                list_init(&ids);
-                if (json_get_array_string(request->data, "$.params.names", &ids, vcb_isname, MPD_COMMANDS_MAX, &parse_error) == true) {
-                    if (ids.length == 0) {
+                struct t_list names;
+                list_init(&names);
+                if (json_get_array_string(request->data, "$.params.names", &names, vcb_isname, MPD_COMMANDS_MAX, &parse_error) == true) {
+                    if (names.length == 0) {
                         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No webradio favorites provided");
                     }
-                    mympd_api_webradio_favorite_delete(mympd_state->webradio_favorites, &ids);
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
+                    int_buf1 = mympd_api_webradio_favorite_delete(mympd_state->webradio_favorites, &names);
+                    response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, (int_buf1 > 0 ? true : false),
+                            JSONRPC_FACILITY_DATABASE, "Could not delete webradio favorite");
                 }
-                list_clear(&ids);
+                list_clear(&names);
                 webradios_release_lock(mympd_state->webradio_favorites);
             }
             else {

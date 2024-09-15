@@ -126,6 +126,37 @@ function getSelectionData(parent, attribute) {
 }
 
 /**
+ * Returns the attribute for the select action type
+ * @param {string} type Action type
+ * @param {string} action action to handle
+ * @returns {string} Attribute name
+ */
+function getExecSelectActionAttribute(type, action) {
+    if (type === 'album') {
+        switch(action) {
+            case 'delQueueJukeboxEntry':
+                return 'pos';
+            default:
+                return 'AlbumId';
+        }
+    }
+
+    switch(action) {
+        case 'playAfterCurrent':
+        case 'removeFromQueueIDs':
+            return'songid';
+        case 'showMoveToPlaylist':
+        case 'removeFromPlaylistPositions':
+        case 'delQueueJukeboxEntry':
+            return'pos';
+        case'delRadioFavorites':
+            return 'name';
+        default:
+            return 'uri';
+    }
+}
+
+/**
  * Handles the selection actions
  * @param {string} type entity type
  * @param {string} action action to handle
@@ -134,88 +165,55 @@ function getSelectionData(parent, attribute) {
 //eslint-disable-next-line no-unused-vars
 function execSelectAction(type, action) {
     const parent = elGetById(app.id + 'List');
-    const attribute = type === 'album'
-        ? action === 'delQueueJukeboxEntry'
-            ? 'pos'
-            : 'AlbumId'
-        : action === 'playAfterCurrent' || action === 'removeFromQueueIDs'
-            ? 'songid' 
-            : action === 'showMoveToPlaylist' || action === 'removeFromPlaylistPositions' || action === 'delQueueJukeboxEntry'
-                ? 'pos'
-                : 'uri';
+    const attribute = getExecSelectActionAttribute(type, action);
+    const data = getSelectionData(parent, attribute);
     switch(action) {
-        case 'appendQueue': {
-            const uris = getSelectionData(parent, attribute);
-            appendQueue(type, uris);
+        case 'appendQueue':
+            appendQueue(type, data);
             break;
-        }
-        case 'appendPlayQueue': {
-            const uris = getSelectionData(parent, attribute);
-            appendPlayQueue(type, uris);
+        case 'appendPlayQueue':
+            appendPlayQueue(type, data);
             break;
-        }
-        case 'playAfterCurrent': {
-            const songIds = getSelectionData(parent, attribute);
-            playAfterCurrent(songIds);
+        case 'playAfterCurrent':
+            playAfterCurrent(data);
             break;
-        }
-        case 'insertAfterCurrentQueue': {
-            const uris = getSelectionData(parent, attribute);
-            insertAfterCurrentQueue(type, uris);
+        case 'insertAfterCurrentQueue':
+            insertAfterCurrentQueue(type, data);
             break;
-        }
-        case 'replaceQueue': {
-            const uris = getSelectionData(parent, attribute);
-            replaceQueue(type, uris);
+        case 'replaceQueue':
+            replaceQueue(type, data);
             break;
-        }
-        case 'replacePlayQueue': {
-            const uris = getSelectionData(parent, attribute);
-            replacePlayQueue(type, uris);
+        case 'replacePlayQueue':
+            replacePlayQueue(type, data);
             break;
-        }
-        case 'removeFromQueueIDs': {
-            const songIds = getSelectionData(parent, attribute);
-            removeFromQueueIDs(songIds);
+        case 'removeFromQueueIDs':
+            removeFromQueueIDs(data);
             break;
-        }
-        case 'showAddToPlaylist': {
-            const uris = getSelectionData(parent, attribute);
-            showAddToPlaylist(type, uris);
+        case 'showAddToPlaylist':
+            showAddToPlaylist(type, data);
             break;
-        }
         case 'showMoveToPlaylist': {
-            const positions = getSelectionData(parent, attribute);
             const plist = getData(parent, 'uri');
-            showMoveToPlaylist(plist, positions);
+            showMoveToPlaylist(plist, data);
             break;
         }
         case 'removeFromPlaylistPositions': {
-            const positions = getSelectionData(parent, attribute);
             const plist = getData(parent, 'uri');
-            removeFromPlaylistPositions(plist, positions);
+            removeFromPlaylistPositions(plist, data);
             break;
         }
-        case 'showDelPlaylist': {
-            const uris = getSelectionData(parent, attribute);
-            showDelPlaylist(uris);
+        case 'showDelPlaylist':
+            showDelPlaylist(data);
             break;
-        }
-        case 'showCopyPlaylist': {
-            const plists = getSelectionData(parent, attribute);
-            showCopyPlaylist(plists);
+        case 'showCopyPlaylist':
+            showCopyPlaylist(data);
             break;
-        }
-        case 'delRadioFavorites': {
-            const uris = getSelectionData(parent, attribute);
-            deleteRadioFavorites(uris);
+        case 'delRadioFavorites':
+            deleteRadioFavorites(data);
             break;
-        }
-        case 'delQueueJukeboxEntry': {
-            const positions = getSelectionData(parent, attribute);
-            delQueueJukeboxEntries(positions);
+        case 'delQueueJukeboxEntry':
+            delQueueJukeboxEntries(data);
             break;
-        }
         default:
             logError('Invalid select action: ' + action);
     }

@@ -64,11 +64,13 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
  * @param webradio_favorites Webradio favorites struct
  * @param names webradio ids to delete
  */
-void mympd_api_webradio_favorite_delete(struct t_webradios *webradio_favorites, struct t_list *names) {
+int mympd_api_webradio_favorite_delete(struct t_webradios *webradio_favorites, struct t_list *names) {
     struct t_list_node *current = names->head;
+    int deleted = 0;
     while (current != NULL) {
         void *data = NULL;
         if (raxRemove(webradio_favorites->db, (unsigned char *)current->key, sdslen(current->key), &data) == 1) {
+            deleted++;
             struct t_webradio_data *webradio = (struct t_webradio_data *)data;
             // remove uri index
             raxRemove(webradio_favorites->idx_uris, (unsigned char *)webradio->uris.head->key, sdslen(webradio->uris.head->key), NULL);
@@ -76,4 +78,5 @@ void mympd_api_webradio_favorite_delete(struct t_webradios *webradio_favorites, 
         }
         current = current->next;
     }
+    return deleted;
 }
