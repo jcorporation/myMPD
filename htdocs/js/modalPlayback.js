@@ -46,12 +46,11 @@ function initModalSettingsPlayback() {
         }
     }, false);
 
-    elGetById('modalPlayback').addEventListener('show.bs.modal', function () {
+    elGetById('modalPlayback').addEventListener('show.bs.modal', function() {
         getSettings(function(obj) {
             if (parseSettings(obj) === true) {
                 cleanupModalId('modalPlayback');
                 populatePlaybackFrm();
-                uiElements.modalPlayback.show();
             }
         });
     });
