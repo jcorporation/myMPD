@@ -352,14 +352,9 @@
     "Grid size": "Размер сетки",
     "Grouping": "Группировка",
     "HTTP client": "HTTP клиент",
-<<<<<<< HEAD
-    "HTTP download": "",
-    "Help to improve myMPD": "Помогите улучшить myMPD",
-=======
     "HTTP download": "Загрузка по HTTP",
     "Hate song": "Не нравится",
     "Help to improve myMPD": "Помогите улучшить MyMPD",
->>>>>>> devel
     "Highlight color": "Основной цвет",
     "Highlight contrast color": "Главный контрастный цвет",
     "History back": "Назад",
@@ -460,18 +455,11 @@
     "Loglevel set to NOTICE": "Уровень журнала установлен на Примечание.",
     "Loglevel set to WARN": "Уровень журнала установлен на предупреждение",
     "Logout": "Выйти",
-<<<<<<< HEAD
-    "Logs messages to the myMPD log.": "",
-    "Lookup at musicbrainz": "Поиск musicbrainz",
-    "Love, hate": "",
-    "Lua is not compiled in": "Lua не доступен",
-=======
     "Logs messages to the myMPD log.": "Запись сообщения в журнал MyMPD.",
     "Lookup at musicbrainz": "Поиск MusicBrainz",
     "Love song": "Понравившиеся",
     "Love, hate": "Любимое, нелюбимое",
     "Lua is not compiled in": "Lua не включен в компиляцию",
->>>>>>> devel
     "Lyrics": "Текст песни",
     "MD5 hash of string.": "MD5-хэш строки.",
     "MPD": "MPD",
