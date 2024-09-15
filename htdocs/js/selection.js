@@ -37,9 +37,10 @@ function switchListMode(target) {
  * @returns {void}
  */
 function selectAllEntries(list, select) {
-    const entries = settings['view' + app.id].mode === 'table'
+    const viewMode = settings['view' + app.id].mode;
+    const entries = viewMode === 'table'
         ? list.querySelectorAll('tbody > tr')
-        : settings['view' + app.id].mode === 'grid'
+        : viewMode === 'grid'
             ? list.querySelectorAll('.col')
             : list.querySelectorAll('.list-group-item');
     let firstType = undefined;
@@ -50,17 +51,22 @@ function selectAllEntries(list, select) {
         }
     }
     for (const entry of entries) {
-        const check = settings['view' + app.id].mode === 'table'
+        const check = viewMode === 'table'
             ? entry.lastElementChild.lastElementChild
-            : entry.querySelector('.card-footer > button');
+            : viewMode === 'grid'
+                ? entry.querySelector('.card-footer > button')
+                : entry.querySelector('.list-actions > button');
         if (check === null ||
             entry.classList.contains('not-clickable') ||
             (getData(entry, 'type') !== firstType && select === true))
         {
+            // Skip entries with no select button and entries with different types
             continue;
         }
         if (select === true) {
-            if (settings['view' + app.id].mode === 'table') {
+            if (viewMode === 'table' ||
+                viewMode === 'list')
+            {
                 entry.classList.add('selected');
             }
             else {
@@ -69,7 +75,9 @@ function selectAllEntries(list, select) {
             check.textContent = ligatures['checked'];
         }
         else {
-            if (settings['view' + app.id].mode === 'table') {
+            if (viewMode === 'table' ||
+                viewMode === 'list')
+            {
                 entry.classList.remove('selected');
             }
             else {
