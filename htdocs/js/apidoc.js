@@ -455,7 +455,7 @@ const APImethods = {
     "MYMPD_API_QUEUE_INSERT_PLAYLIST_RANGE": {
         "desc": "Adds the playlist range to distinct position in the queue.",
         "params": {
-            "plists": APIparams.plists,
+            "plist": APIparams.plist,
             "start": APIparams.start,
             "end": APIparams.end,
             "to": APIparams.to,
@@ -611,7 +611,7 @@ const APImethods = {
     "MYMPD_API_QUEUE_REPLACE_PLAYLIST_RANGE": {
         "desc": "Replaces the queue with the playlist range.",
         "params": {
-            "plists": APIparams.plists,
+            "plist": APIparams.plist,
             "start": APIparams.start,
             "end": APIparams.end,
             "play": APIparams.play
@@ -2282,6 +2282,11 @@ const APImethods = {
                 "type": APItypes.string,
                 "example": "test home icon",
                 "desc": "Name of the home icon"
+            },
+            "refresh": {
+                "type": APItypes.uint,
+                "example": 10,
+                "desc": "Refresh interval"
             },
             "size": {
                 "type": APItypes.string,
