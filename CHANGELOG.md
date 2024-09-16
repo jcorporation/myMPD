@@ -60,7 +60,7 @@ All scripts in the mympd-scripts repository are updated accordingly, do not forg
 
 ***
 
-## myMPD 17.0.4 (not yet released)
+## myMPD 17.0.4 (2024-09-16)
 
 This is a small bug fix release.
 
