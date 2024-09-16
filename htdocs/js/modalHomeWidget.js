@@ -98,7 +98,7 @@ function showWidgetScriptArgs(option, values) {
  */
 //eslint-disable-next-line no-unused-vars
 function saveHomeWidget(target) {
-    cleanupModalId('modalHomeIcon');
+    cleanupModalId('modalHomeWidget');
     btnWaiting(target, true);
     const args = formToScriptArgs(elGetById('modalHomeWidgetArgumentsInput'));
     const modal = elGetById('modalHomeWidget');

@@ -1046,6 +1046,7 @@
 {"term":"helpConnectionMusicDirectory"},
 {"term":"helpConnectionPlaylistDirectory"},
 {"term":"helpConnectionTimeout"},
+{"term":"helpHomeWidgetRefresh"},
 {"term":"helpJukeboxFilterExclude"},
 {"term":"helpJukeboxFilterInclude"},
 {"term":"helpJukeboxIgnoreHated"},

@@ -394,6 +394,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define JUKEBOX_LAST_PLAYED_MAX 5000
 #define JUKEBOX_UNIQ_RANGE 50
 #define SCRIPT_ARGUMENTS_MAX 20
+#define HOME_WIDGET_REFRESH_MAX 360
 
 // timer + mpd connections + stickerdb + eventfd (mympd api queue)
 #define POLL_FDS_MAX LIST_TIMER_MAX + MPD_CONNECTION_MAX * 4 + 1 + 1
