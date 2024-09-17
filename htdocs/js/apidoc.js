@@ -1410,7 +1410,7 @@ const APImethods = {
             },
             "lastPlayedCount": {
                 "type": APItypes.uint,
-                "example": 200,
+                "example": 2000,
                 "desc": "Length of the last played list"
             },
             "smartpls": {
@@ -1440,7 +1440,7 @@ const APImethods = {
             },
             "tagList": {
                 "type": APItypes.string,
-                "example": "Artist,Album,AlbumArtist,Title,Track,Genre,Disc",
+                "example": "Artist,Album,AlbumArtist,Title,Track,Genre,Disc,Date",
                 "desc": "Comma separated list of MPD tags to use"
             },
             "tagListSearch": {
@@ -1497,7 +1497,7 @@ const APImethods = {
                 "params": {
                     "clickSong": {
                         "type": APItypes.string,
-                        "example": "append",
+                        "example": "appendPlay",
                         "desc": "Action for click on song: append, appendPlay, replace, replacePlay, insertAfterCurrent, view"
                     },
                     "clickRadioFavorites": {
@@ -1522,7 +1522,7 @@ const APImethods = {
                     },
                     "clickQuickPlay": {
                         "type": APItypes.string,
-                        "example": "replace",
+                        "example": "appendPlay",
                         "desc": "Action for click on quick play button: append, appendPlay, replace, replacePlay, insertAfterCurrent"
                     },
                     "notificationPlayer": {
@@ -1572,7 +1572,7 @@ const APImethods = {
                     },
                     "footerPlaybackControls": {
                         "type": APItypes.string,
-                        "example": "both",
+                        "example": "pause",
                         "desc": "\"pause\", \"stop\" or \"both\" for pause and stop"
                     },
                     "footerSettingsPlayback": {
@@ -1597,7 +1597,7 @@ const APImethods = {
                     },
                     "maxElementsPerPage": {
                         "type": APItypes.uint,
-                        "example": 50,
+                        "example": 200,
                         "desc": "Max. elements for lists: 25, 50, 100, 200 or 0 for unlimited"
                     },
                     "smallWidthTagRows": {
@@ -1607,17 +1607,17 @@ const APImethods = {
                     },
                     "quickPlayButton": {
                         "type": APItypes.bool,
-                        "example": false,
+                        "example": true,
                         "desc": "Show quick play button"
                     },
                     "quickRemoveButton": {
                         "type": APItypes.bool,
-                        "example": false,
+                        "example": true,
                         "desc": "Show quick remove button"
                     },
                     "compactGrids": {
                         "type": APItypes.bool,
-                        "example": true,
+                        "example": false,
                         "desc": "Disables line-breaks in descriptions."
                     },
                     "showBackButton": {
@@ -1657,7 +1657,7 @@ const APImethods = {
                     },
                     "enablePartitions": {
                         "type": APItypes.bool,
-                        "example": false,
+                        "example": true,
                         "desc": "Enables partitions"
                     },
                     "enableLyrics": {
