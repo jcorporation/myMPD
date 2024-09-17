@@ -62,7 +62,6 @@ All scripts in the mympd-scripts repository are updated accordingly, do not forg
 - Upd: Playlist pictures are moved in a separate folder `/var/lib/mympd/pics/playlists`
 - Upd: Latest libmympdclient based on libmpdclient master
 - Upd: Hide advanced search by default
-- Upd: Mongoose 7.15
 - Fix: Send JSONRPC_EVENT_UPDATE_OPTIONS only on feature change
 
 ***
