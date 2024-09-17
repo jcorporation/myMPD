@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v18.0.0 (not yet released)
 
-This release improves the support for the new MPD 0.24 sticker features. You can now rate not only songs but also albums and playlists and add custom stickers to songs, albums and playlists.
+This release improves the support for the new MPD 0.24 sticker features. You can now rate not only songs but also albums and playlists and add custom stickers to songs, albums and playlists. On the basis of stickers a new resume feature for songs, playlists and albums is available.
 
 This version also introduces scriptable widgets for the home screen. This widgets using myMPD scripts as the backend and can therefore be fully customized.
 
