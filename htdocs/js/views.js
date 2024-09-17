@@ -374,6 +374,7 @@ function createFieldItem(field) {
  */
 function fieldClick(event) {
     event.stopPropagation();
+    event.preventDefault();
     const target = event.target;
     const ul = target.closest('ul');
     const li = target.closest('li');
