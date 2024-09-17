@@ -671,7 +671,6 @@ bool stickerdb_remove(struct t_stickerdb_state *stickerdb, enum mympd_sticker_ty
 /**
  * Populates the sticker_types list
  * @param stickerdb pointer to the stickerdb state
- * @param sticker_types List to populate
  * @return true on success, else false
  */
 static bool get_sticker_types(struct t_stickerdb_state *stickerdb) {

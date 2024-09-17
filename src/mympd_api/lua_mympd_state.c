@@ -116,7 +116,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
  * Pushes a copy of a MPD song to the lua_mympd_state list
  * @param lua_mympd_state pointer to a t_list struct
  * @param k variable name
- * @param v variable value
+ * @param song Pointer to MPD song struct
  */
 void lua_mympd_state_set_mpd_song(struct t_list *lua_mympd_state, const char *k, const struct mpd_song *song) {
     list_push(lua_mympd_state, k, LUA_TYPE_MPD_SONG, NULL, mpd_song_dup(song));

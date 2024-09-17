@@ -60,9 +60,10 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
 }
 
 /**
- * Deletes webradio favorite
+ * Deletes webradio favorites
  * @param webradio_favorites Webradio favorites struct
  * @param names webradio ids to delete
+ * @returns Number of removed favorites
  */
 int mympd_api_webradio_favorite_delete(struct t_webradios *webradio_favorites, struct t_list *names) {
     struct t_list_node *current = names->head;

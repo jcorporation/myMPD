@@ -718,7 +718,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
  * @param tagcols columns to print
  * @param last_played_max played time from last played song
  * @param last_played_song_uri last played song uri
- * @param last_played_song_pos last played song position in playlist
+ * @param last_played_pos last played position in playlist
  * @param last_played_song_title last played song title tag
  * @return pointer to buffer
  */

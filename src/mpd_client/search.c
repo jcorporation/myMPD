@@ -146,10 +146,11 @@ bool mpd_client_search_add_to_queue_window(struct t_partition_state *partition_s
 
 /**
  * Creates a mpd search expression to find all songs in an album
+ * @param buffer Buffer to set the search expression
  * @param tag_albumartist albumartist tag
  * @param album mpd_song struct representing the album
  * @param album_config album configuration
- * @return newly allocated sds string
+ * @return Pointer to buffer
  */
 sds get_search_expression_album(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
         const struct t_albums_config *album_config)
@@ -163,12 +164,13 @@ sds get_search_expression_album(sds buffer, enum mpd_tag_type tag_albumartist, s
 
 /**
  * Creates a mpd search expression to find all songs of specified disc of an album
+ * @param buffer Buffer to set the search expression
  * @param tag_albumartist albumartist tag
  * @param album mpd_song struct representing the album
  * @param tag MPD tag
  * @param tag_value MPD tag value
  * @param album_config album configuration
- * @return newly allocated sds string
+ * @return Pointer to buffer
  */
 sds get_search_expression_album_tag(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
         enum mpd_tag_type tag, const char *tag_value, const struct t_albums_config *album_config)
