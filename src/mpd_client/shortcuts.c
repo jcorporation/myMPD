@@ -94,7 +94,7 @@ bool mpd_client_add_album_to_queue(struct t_partition_state *partition_state, st
         *error = sdscat(*error, "Album not found");
         return false;
     }
-    sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist,
+    sds expression = get_search_expression_album(sdsempty(), partition_state->mpd_state->tag_albumartist,
         mpd_album, &partition_state->config->albums);
     const char *sort = NULL;
     bool sortdesc = false;

@@ -356,6 +356,7 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
     }
     struct t_list_node *current = albumids->head;
     bool rc = true;
+    sds expression = sdsempty();
     while (current != NULL) {
         struct mpd_song *mpd_album = album_cache_get_album(album_cache, current->key);
         if (mpd_album == NULL) {
@@ -363,17 +364,17 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
             *error = sdscat(*error, "Album not found");
             break;
         }
-        sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, mpd_album,
+        expression = get_search_expression_album(expression, partition_state->mpd_state->tag_albumartist, mpd_album,
             &partition_state->config->albums);
         const char *sort = NULL;
         bool sortdesc = false;
         rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
-        FREE_SDS(expression);
         if (rc == false) {
             break;
         }
         current = current->next;
     }
+    FREE_SDS(expression);
     return rc;
 }
 
@@ -427,7 +428,7 @@ bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *part
         *error = sdscat(*error, "Album not found");
         return false;
     }
-    sds expression = get_search_expression_album_disc(partition_state->mpd_state->tag_albumartist, mpd_album,
+    sds expression = get_search_expression_album_disc(sdsempty(), partition_state->mpd_state->tag_albumartist, mpd_album,
         disc, &partition_state->config->albums);
     const char *sort = NULL;
     bool sortdesc = false;

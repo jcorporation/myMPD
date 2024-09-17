@@ -67,7 +67,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album not found");
     }
 
-    sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, mpd_album,
+    sds expression = get_search_expression_album(sdsempty(), partition_state->mpd_state->tag_albumartist, mpd_album,
         &partition_state->config->albums);
 
     if (mpd_search_db_songs(partition_state->conn, true) == false ||
@@ -279,6 +279,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_part
         raxSeek(&iter, "$", NULL, 0);
         iterator = &raxPrev;
     }
+    sds album_exp = sdsempty();
     while (iterator(&iter)) {
         if (entity_count >= offset) {
             if (entities_returned++) {
@@ -291,9 +292,9 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_part
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), false);
             if (print_stickers == true) {
                 buffer = sdscatlen(buffer, ",", 1);
-                sds album_exp = get_search_expression_album(mympd_state->mpd_state->tag_albumartist, album, &mympd_state->config->albums);
+                album_exp = get_search_expression_album(album_exp, mympd_state->mpd_state->tag_albumartist, album, &mympd_state->config->albums);
                 buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, STICKER_TYPE_FILTER, album_exp, &tagcols->stickers);
-                FREE_SDS(album_exp);
+                
             }
             buffer = sdscatlen(buffer, "}", 1);
         }
@@ -303,6 +304,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_part
         }
     }
     raxStop(&iter);
+    FREE_SDS(album_exp);
     if (print_stickers == true) {
         stickerdb_enter_idle(mympd_state->stickerdb);
     }

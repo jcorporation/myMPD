@@ -495,7 +495,7 @@ bool mympd_api_queue_insert_album_disc(struct t_partition_state *partition_state
         *error = sdscat(*error, "Album not found");
         return false;
     }
-    sds expression = get_search_expression_album_disc(partition_state->mpd_state->tag_albumartist,
+    sds expression = get_search_expression_album_disc(sdsempty(), partition_state->mpd_state->tag_albumartist,
         mpd_album, disc, &partition_state->config->albums);
     const char *sort = NULL;
     bool sortdesc = false;
@@ -568,7 +568,7 @@ bool mympd_api_queue_insert_album_range(struct t_partition_state *partition_stat
     unsigned end_uint = end == -1
         ? UINT_MAX
         : (unsigned)end;
-    sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist,
+    sds expression = get_search_expression_album(sdsempty(), partition_state->mpd_state->tag_albumartist,
         mpd_album, &partition_state->config->albums);
     const char *sort = "Disc";
     bool sortdesc = false;

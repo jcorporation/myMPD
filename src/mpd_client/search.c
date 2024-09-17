@@ -151,13 +151,14 @@ bool mpd_client_search_add_to_queue_window(struct t_partition_state *partition_s
  * @param album_config album configuration
  * @return newly allocated sds string
  */
-sds get_search_expression_album(enum mpd_tag_type tag_albumartist, struct mpd_song *album,
+sds get_search_expression_album(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
         const struct t_albums_config *album_config)
 {
-    sds expression = sdsnewlen("(", 1);
-    expression = append_search_expression_album(tag_albumartist, album, album_config, expression);
-    expression = sdscatlen(expression, ")", 1);
-    return expression;
+    sdsclear(buffer);
+    buffer = sdscatlen(buffer, "(", 1);
+    buffer = append_search_expression_album(tag_albumartist, album, album_config, buffer);
+    buffer = sdscatlen(buffer, ")", 1);
+    return buffer;
 }
 
 /**
@@ -168,16 +169,17 @@ sds get_search_expression_album(enum mpd_tag_type tag_albumartist, struct mpd_so
  * @param album_config album configuration
  * @return newly allocated sds string
  */
-sds get_search_expression_album_disc(enum mpd_tag_type tag_albumartist, struct mpd_song *album,
+sds get_search_expression_album_disc(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
         const char *disc, const struct t_albums_config *album_config)
 {
-    sds expression = sdsnewlen("(", 1);
-    expression = append_search_expression_album(tag_albumartist, album, album_config, expression);
+    sdsclear(buffer);
+    buffer = sdscatlen(buffer, "(", 1);
+    buffer = append_search_expression_album(tag_albumartist, album, album_config, buffer);
     //and for cd
-    expression = sdscat(expression, " AND ");
-    expression = escape_mpd_search_expression(expression, "Disc", "==", disc);
-    expression = sdscatlen(expression, ")", 1);
-    return expression;
+    buffer = sdscat(buffer, " AND ");
+    buffer = escape_mpd_search_expression(buffer, "Disc", "==", disc);
+    buffer = sdscatlen(buffer, ")", 1);
+    return buffer;
 }
 
 /**
