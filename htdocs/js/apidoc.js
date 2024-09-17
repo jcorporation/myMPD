@@ -213,6 +213,16 @@ const APIparams = {
         "type": APItypes.int,
         "example": 1,
         "desc": "End position (excluding), use -1 for open end"
+    },
+    "tag": {
+        "type": APItypes.string,
+        "example": "Disc",
+        "desc": "MPD tag"
+    },
+    "tagValue": {
+        "type": APItypes.string,
+        "example": "1",
+        "desc": "MPD tag value"
     }
 };
 
@@ -510,11 +520,12 @@ const APImethods = {
             "play": APIparams.play
         }
     },
-    "MYMPD_API_QUEUE_INSERT_ALBUM_DISC": {
-        "desc": "Inserts one discs from an album to distinct position in the queue.",
+    "MYMPD_API_QUEUE_INSERT_ALBUM_TAG": {
+        "desc": "Inserts songs from an album with specified tag value to distinct position in the queue.",
         "params": {
             "albumid": APIparams.albumid,
-            "disc": APIparams.disc,
+            "tag": APIparams.tag,
+            "value": APIparams.tagValue,
             "to": APIparams.to,
             "whence": APIparams.whence,
             "play": APIparams.play
@@ -584,11 +595,12 @@ const APImethods = {
             "play": APIparams.play
         }
     },
-    "MYMPD_API_QUEUE_APPEND_ALBUM_DISC": {
-        "desc": "Appends on disc from an album to the queue.",
+    "MYMPD_API_QUEUE_APPEND_ALBUM_TAG": {
+        "desc": "Appends songs from an album to the queue with specified tag value.",
         "params": {
             "albumid": APIparams.albumid,
-            "disc": APIparams.disc,
+            "tag": APIparams.tag,
+            "value": APIparams.tagValue,
             "play": APIparams.play
         }
     },
@@ -654,11 +666,12 @@ const APImethods = {
             "play": APIparams.play
         }
     },
-    "MYMPD_API_QUEUE_REPLACE_ALBUM_DISC": {
-        "desc": "Replaces the queue with one disc from an album.",
+    "MYMPD_API_QUEUE_REPLACE_ALBUM_TAG": {
+        "desc": "Replaces the queue with songs from an album with specified tag value.",
         "params": {
             "albumid": APIparams.albumid,
-            "disc": APIparams.disc,
+            "tag": APIparams.tag,
+            "value": APIparams.tagValue,
             "play": APIparams.play
         }
     },
@@ -791,12 +804,13 @@ const APImethods = {
             "albumids": APIparams.albumids
         }
     },
-    "MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC": {
+    "MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_TAG": {
         "desc": "Appends one disc from an album to the playlist.",
         "params": {
             "plist": APIparams.plist,
             "albumid": APIparams.albumid,
-            "disc": APIparams.disc
+            "tag": APIparams.tag,
+            "value": APIparams.tagValue
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_INSERT_URIS": {
@@ -815,12 +829,13 @@ const APImethods = {
             "to": APIparams.to
         }
     },
-    "MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_DISC": {
+    "MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_TAG": {
         "desc": "Inserts one disc from an album to the playlist.",
         "params": {
             "plist": APIparams.plist,
             "albumid": APIparams.albumid,
-            "disc": APIparams.disc,
+            "tag": APIparams.tag,
+            "value": APIparams.tagValue,
             "to": APIparams.to
         }
     },
@@ -838,12 +853,13 @@ const APImethods = {
             "albumids": APIparams.albumids
         }
     },
-    "MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_DISC": {
+    "MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_TAG": {
         "desc": "Replaces the playlist content with one disc from an album.",
         "params": {
             "plist": APIparams.plist,
             "albumid": APIparams.albumid,
-            "disc": APIparams.disc
+            "tag": APIparams.tag,
+            "value": APIparams.tagValue
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH": {

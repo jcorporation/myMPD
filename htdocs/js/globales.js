@@ -413,13 +413,6 @@ const settingsFields = {
         "title": "Enforce disc tag",
         "form": "modalSettingsTagsFrm",
         "help": "helpSettingsTagDiscEmptyIsFirst"
-    },
-    "showWorkTagAlbumDetail": {
-        "defaultValue": defaults["MYMPD_SHOW_WORK_TAG_ALBUM_DETAIL"],
-        "inputType": "checkbox",
-        "title": "Show work in album detail",
-        "form": "modalSettingsTagsFrm",
-        "help": "helpSettingsShowWorkTagAlbumDetail"
     }
 };
 
@@ -893,6 +886,13 @@ const settingsWebuiFields = {
         "title": "Album list sort",
         "form": "modalSettingsSortFrm",
         "help": "helpSettingsAlbumListSort"
+    },
+    "showWorkTagAlbumDetail": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Show work in album detail",
+        "form": "modalSettingsTagsFrm",
+        "help": "helpSettingsShowWorkTagAlbumDetail"
     }
 };
 
@@ -1724,7 +1724,8 @@ const typeFriendly = {
     'appGoto': 'View',
     'webradio': 'Webradio',
     'viewSettings': 'View settings',
-    'disc': 'Disc'
+    'disc': 'Disc',
+    'work': 'Work'
 };
 
 const friendlyActions = {

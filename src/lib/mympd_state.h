@@ -264,7 +264,6 @@ struct t_mympd_state {
     struct t_lyrics lyrics;                         //!< lyrics settings
     sds webui_settings;                             //!< settings only relevant for webui, saved as string containing json
     bool tag_disc_empty_is_first;                   //!< handle empty disc tag as disc one for albums
-    bool show_work_tag_album_detail;                //!< show work tag in album detail view
     sds booklet_name;                               //!< name of the booklet files
     sds info_txt_name;                              //!< name of album info files
     struct t_cache album_cache;                     //!< the album cache created by the mpd_worker thread

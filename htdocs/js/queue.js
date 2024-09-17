@@ -154,10 +154,12 @@ function _appendQueue(type, uris, play, callback) {
             }, callback, true);
             break;
         case 'disc':
+        case 'work':
             //disc is limited to one at a time
-            sendAPI("MYMPD_API_QUEUE_APPEND_ALBUM_DISC", {
+            sendAPI("MYMPD_API_QUEUE_APPEND_ALBUM_TAG", {
                 "albumid": uris[0],
-                "disc": uris[1].toString(),
+                "tag": type,
+                "value": uris[1].toString(),
                 "play": play
             }, callback, true);
             break;
@@ -255,9 +257,11 @@ function insertQueue(type, uris, to, whence, play, callback) {
             }, callback, true);
             break;
         case 'disc':
-            sendAPI("MYMPD_API_QUEUE_INSERT_ALBUM_DISC", {
+        case 'work':
+            sendAPI("MYMPD_API_QUEUE_INSERT_ALBUM_TAG", {
                 "albumid": uris[0],
-                "disc": uris[1].toString(),
+                "tag": type,
+                "value": uris[1].toString(),
                 "to": to,
                 "whence": whence,
                 "play": play
@@ -343,9 +347,11 @@ function _replaceQueue(type, uris, play, callback) {
             }, callback, true);
             break;
         case 'disc':
-            sendAPI("MYMPD_API_QUEUE_REPLACE_ALBUM_DISC", {
+        case 'work':
+            sendAPI("MYMPD_API_QUEUE_REPLACE_ALBUM_TAG", {
                 "albumid": uris[0],
-                "disc": uris[1].toString(),
+                "tag": type,
+                "value": uris[1].toString(),
                 "play": play
             }, callback, true);
             break;

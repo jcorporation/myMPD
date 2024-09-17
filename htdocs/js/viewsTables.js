@@ -180,22 +180,30 @@ function addDiscRow(disc, albumId, colspan) {
  * @returns {boolean} true if work row should be shown, else false
  */
 function showWorkRow(view) {
-    return view === 'BrowseDatabaseAlbumDetail';
+    return view === 'BrowseDatabaseAlbumDetail' &&
+        settings.webuiSettings.showWorkTagAlbumDetail;
 }
 
 /**
  * Adds a row with the work to the table.
  * @param {string} work The work name
+ * @param {string} albumId the albumid
  * @param {number} colspan column count
  * @returns {HTMLElement} the created row
  */
-function addWorkRow(work, colspan) {
+function addWorkRow(work, albumId, colspan) {
+    const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+    addActionLinks(actionTd, 'work');
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
         elCreateNode('td', {},
             elCreateText('span', {"class": ["mi"]}, 'music_note')
         ),
-        elCreateText('td', {"colspan": (colspan)}, work),
+        elCreateText('td', {"colspan": (colspan - 1)}, work),
+        actionTd
     ]);
+    setData(row, 'Work', work);
+    setData(row, 'AlbumId', albumId);
+    setData(row, 'type', 'work');
     return row;
 }
 
@@ -252,7 +260,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     }
 
     if (showWorkRow(list) && lastWork !== '') {
-        const row = addWorkRow(lastWork, colspan);
+        const row = addWorkRow(lastWork, obj.result.AlbumId, colspan);
         if (z < tr.length) {
             replaceTblRow(mode, tr[z], row);
         }
@@ -280,7 +288,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
         if (showWorkRow(list) && obj.result.data[0].Work !== undefined &&
             lastWork !== obj.result.data[i].Work) {
-            const row = addWorkRow(obj.result.data[i].Work, colspan);
+            const row = addWorkRow(obj.result.data[i].Work, obj.result.AlbumId, colspan);
             if (i + z < tr.length) {
                 replaceTblRow(mode, tr[i + z], row);
             } else {

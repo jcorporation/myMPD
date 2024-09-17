@@ -499,7 +499,9 @@ sds sds_replace(sds s, const char *p) {
  * @return modified sds string
  */
 sds sds_catbool(sds s, bool v) {
-    return v == true ? sdscatlen(s, "true", 4) : sdscatlen(s, "false", 5);
+    return v == true
+        ? sdscatlen(s, "true", 4)
+        : sdscatlen(s, "false", 5);
 }
 
 /**

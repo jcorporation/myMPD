@@ -1202,29 +1202,33 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             list_clear(&albumids);
             break;
         }
-        case MYMPD_API_QUEUE_APPEND_ALBUM_DISC:
-        case MYMPD_API_QUEUE_REPLACE_ALBUM_DISC: {
+        case MYMPD_API_QUEUE_APPEND_ALBUM_TAG:
+        case MYMPD_API_QUEUE_REPLACE_ALBUM_TAG: {
             if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true &&
-                json_get_string(request->data, "$.params.disc", 1, NAME_LEN_MAX, &sds_buf2, vcb_isdigit, &parse_error) == true &&
+                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag, &parse_error) == true &&
+                json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
             {
-                rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_ALBUM_DISC
-                        ? mympd_api_queue_append_album_disc(partition_state, &mympd_state->album_cache, sds_buf1, sds_buf2, &error)
-                        : mympd_api_queue_replace_album_disc(partition_state, &mympd_state->album_cache, sds_buf1, sds_buf2, &error)) &&
+                enum mpd_tag_type tag = mpd_tag_name_iparse(sds_buf2);
+                rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_ALBUM_TAG
+                        ? mympd_api_queue_append_album_tag(partition_state, &mympd_state->album_cache, sds_buf1, tag, sds_buf3, &error)
+                        : mympd_api_queue_replace_album_tag(partition_state, &mympd_state->album_cache, sds_buf1, tag, sds_buf3, &error)) &&
                     mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, "Queue updated", error);
             }
             break;
         }
-        case MYMPD_API_QUEUE_INSERT_ALBUM_DISC: {
+        case MYMPD_API_QUEUE_INSERT_ALBUM_TAG: {
             if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true &&
-                json_get_string(request->data, "$.params.disc", 1, NAME_LEN_MAX, &sds_buf2, vcb_isdigit, &parse_error) == true &&
+                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag, &parse_error) == true &&
+                json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
             {
-                rc = mympd_api_queue_insert_album_disc(partition_state, &mympd_state->album_cache, sds_buf1, sds_buf2, uint_buf1, uint_buf2, &error) &&
+                enum mpd_tag_type tag = mpd_tag_name_iparse(sds_buf2);
+                rc = mympd_api_queue_insert_album_tag(partition_state, &mympd_state->album_cache, sds_buf1, tag, sds_buf3, uint_buf1, uint_buf2, &error) &&
                     mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, "Queue updated", error);
@@ -1238,7 +1242,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_int(request->data, "$.params.end", -1, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
             {
-                rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_ALBUM_DISC
+                rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_ALBUM_RANGE
                         ? mympd_api_queue_append_album_range(partition_state, &mympd_state->album_cache, sds_buf1, uint_buf1, int_buf1, &error)
                         : mympd_api_queue_replace_album_range(partition_state, &mympd_state->album_cache, sds_buf1, uint_buf1, int_buf1, &error)) &&
                     mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
@@ -1473,26 +1477,30 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             list_clear(&albumids);
             break;
         }
-        case MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC:
-        case MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_DISC:
+        case MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_TAG:
+        case MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_TAG:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.albumid", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isalnum, &parse_error) == true &&
-                json_get_string(request->data, "$.params.disc", 1, FILENAME_LEN_MAX, &sds_buf3, vcb_isdigit, &parse_error) == true)
+                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf3, vcb_ismpdtag, &parse_error) == true &&
+                json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf4, vcb_isname, &parse_error) == true)
             {
-                rc = request->cmd_id == MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC
-                    ? mympd_api_playlist_content_append_album_disc(partition_state, &mympd_state->album_cache, sds_buf1, sds_buf2, sds_buf3, &error)
-                    : mympd_api_playlist_content_replace_album_disc(partition_state, &mympd_state->album_cache, sds_buf1, sds_buf2, sds_buf3, &error);
+                enum mpd_tag_type tag = mpd_tag_name_iparse(sds_buf3);
+                rc = request->cmd_id == MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_TAG
+                    ? mympd_api_playlist_content_append_album_tag(partition_state, &mympd_state->album_cache, sds_buf1, sds_buf2, tag, sds_buf4, &error)
+                    : mympd_api_playlist_content_replace_album_tag(partition_state, &mympd_state->album_cache, sds_buf1, sds_buf2, tag, sds_buf4, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
             }
             break;
-        case MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_DISC:
+        case MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_TAG:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.albumid", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isalnum, &parse_error) == true &&
-                json_get_string(request->data, "$.params.disc", 1, FILENAME_LEN_MAX, &sds_buf3, vcb_isdigit, &parse_error) == true &&
+                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf3, vcb_ismpdtag, &parse_error) == true &&
+                json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf4, vcb_isname, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true)
             {
-                rc = mympd_api_playlist_content_insert_album_disc(partition_state, &mympd_state->album_cache, sds_buf1, sds_buf2, sds_buf3, uint_buf1, &error);
+                enum mpd_tag_type tag = mpd_tag_name_iparse(sds_buf3);
+                rc = mympd_api_playlist_content_insert_album_tag(partition_state, &mympd_state->album_cache, sds_buf1, sds_buf2, tag, sds_buf4, uint_buf1, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
             }

@@ -14,6 +14,7 @@ function createPreGeneratedElements() {
     pEl.selectAllBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "border-0"], "data-title-phrase": "Select all"}, 'radio_button_unchecked');
     pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatures['more']);
     pEl.actionsDiscBtn = elCreateText('a', {"data-action": "popover", "data-contextmenu": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatures['more']);
+    pEl.actionsWorkBtn = elCreateText('a', {"data-action": "popover", "data-contextmenu": "work", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatures['more']);
     pEl.removeBtn = elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Remove"}, 'clear');
     pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Quick play"}, 'play_arrow');
     pEl.showSongsBtn = elCreateText('a', {"data-action": "showSongsByTag", "class": ["mi", "color-darkgrey", "me-1"], "href": "#", "data-title-phrase": "Show songs"}, 'music_note');
@@ -59,13 +60,21 @@ function createPreGeneratedElements() {
     pEl.actionMenuDisc = [
         pEl.actionsDiscBtn
     ];
+    pEl.actionMenuWork = [
+        pEl.actionsWorkBtn
+    ];
     pEl.actionMenuDiscPlay = [
         pEl.playBtn,
         pEl.actionsDiscBtn
     ];
+    pEl.actionMenuWorkPlay = [
+        pEl.playBtn,
+        pEl.actionsWorkBtn
+    ];
 
     pEl.actionIcons = pEl.actionMenu;
     pEl.actionDiscIcons = pEl.actionMenuDisc;
+    pEl.actionWorkIcons = pEl.actionMenuWork;
     pEl.actionQueueIcons = pEl.actionMenu;
     pEl.actionJukeboxIcons = pEl.actionMenu;
     pEl.actionPlaylistDetailIcons = pEl.actionMenu;

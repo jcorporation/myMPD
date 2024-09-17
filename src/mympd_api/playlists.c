@@ -406,17 +406,20 @@ bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partiti
 }
 
 /**
- * Insert one disc of an album into a playlist
+ * Insert songs of an album filtered by tag into a playlist
  * @param partition_state pointer to partition state
  * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumid album id to insert
- * @param disc disc to insert
+ * @param tag MPD tag
+ * @param value MPD tag value
  * @param to position to insert
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache, sds plist, sds albumid, sds disc, unsigned to, sds *error) {
+bool mympd_api_playlist_content_insert_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds plist, sds albumid, enum mpd_tag_type tag, sds value, unsigned to, sds *error)
+{
     if (to != UINT_MAX &&
         partition_state->mpd_state->feat.whence == false)
     {
@@ -428,8 +431,8 @@ bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *part
         *error = sdscat(*error, "Album not found");
         return false;
     }
-    sds expression = get_search_expression_album_disc(sdsempty(), partition_state->mpd_state->tag_albumartist, mpd_album,
-        disc, &partition_state->config->albums);
+    sds expression = get_search_expression_album_tag(sdsempty(), partition_state->mpd_state->tag_albumartist, mpd_album,
+        tag, value, &partition_state->config->albums);
     const char *sort = NULL;
     bool sortdesc = false;
     bool rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
@@ -438,36 +441,38 @@ bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *part
 }
 
 /**
- * Appends one disc of an album to a playlist
+ * Appends songs of an album filted by tag to a playlist
  * @param partition_state pointer to partition state
  * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumid album id to append
- * @param disc disc to append
+ * @param tag MPD tag
+ * @param value MPD tag value
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_append_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
-        sds plist, sds albumid, sds disc, sds *error)
+bool mympd_api_playlist_content_append_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds plist, sds albumid, enum mpd_tag_type tag, sds value, sds *error)
 {
-    return mympd_api_playlist_content_insert_album_disc(partition_state, album_cache, plist, albumid, disc, UINT_MAX, error);
+    return mympd_api_playlist_content_insert_album_tag(partition_state, album_cache, plist, albumid, tag, value, UINT_MAX, error);
 }
 
 /**
- * Replaces the playlist with on disc of an album
+ * Replaces the playlist with songs of an album filtered by tag
  * @param partition_state pointer to partition state
  * @param album_cache pointer to album cache
  * @param plist stored playlist name
  * @param albumid album id to insert
- * @param disc disc to insert
+ * @param tag MPD tag
+ * @param value MPD tag value
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_content_replace_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
-        sds plist, sds albumid, sds disc, sds *error)
+bool mympd_api_playlist_content_replace_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds plist, sds albumid, enum mpd_tag_type tag, sds value, sds *error)
 {
     return mpd_client_playlist_clear(partition_state, plist, error) &&
-        mympd_api_playlist_content_append_album_disc(partition_state, album_cache, plist, albumid, disc, error);
+        mympd_api_playlist_content_append_album_tag(partition_state, album_cache, plist, albumid, tag, value, error);
 }
 
 /**

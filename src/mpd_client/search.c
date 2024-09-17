@@ -162,22 +162,23 @@ sds get_search_expression_album(sds buffer, enum mpd_tag_type tag_albumartist, s
 }
 
 /**
- * Creates a mpd search expression to find all songs in one cd of an album
+ * Creates a mpd search expression to find all songs of specified disc of an album
  * @param tag_albumartist albumartist tag
  * @param album mpd_song struct representing the album
- * @param disc disc number
+ * @param tag MPD tag
+ * @param tag_value MPD tag value
  * @param album_config album configuration
  * @return newly allocated sds string
  */
-sds get_search_expression_album_disc(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
-        const char *disc, const struct t_albums_config *album_config)
+sds get_search_expression_album_tag(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
+        enum mpd_tag_type tag, const char *tag_value, const struct t_albums_config *album_config)
 {
     sdsclear(buffer);
     buffer = sdscatlen(buffer, "(", 1);
     buffer = append_search_expression_album(tag_albumartist, album, album_config, buffer);
     //and for cd
     buffer = sdscat(buffer, " AND ");
-    buffer = escape_mpd_search_expression(buffer, "Disc", "==", disc);
+    buffer = escape_mpd_search_expression(buffer, mpd_tag_name(tag), "==", tag_value);
     buffer = sdscatlen(buffer, ")", 1);
     return buffer;
 }

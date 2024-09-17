@@ -241,6 +241,7 @@ function parseSettings(obj) {
     {
         pEl.actionIcons = pEl.actionMenuPlay;
         pEl.actionDiscIcons = pEl.actionMenuDiscPlay;
+        pEl.actionWorkIcons = pEl.actionMenuWorkPlay;
         pEl.actionQueueIcons = pEl.actionMenuRemove;
         pEl.actionJukeboxIcons = pEl.actionMenuPlayRemove;
         pEl.actionPlaylistDetailIcons = pEl.actionMenuPlayRemove;
@@ -249,6 +250,7 @@ function parseSettings(obj) {
     else if (settings.webuiSettings.quickPlayButton === true) {
         pEl.actionIcons = pEl.actionMenuPlay;
         pEl.actionDiscIcons = pEl.actionMenuDiscPlay;
+        pEl.actionWorkIcons = pEl.actionMenuWorkPlay;
         pEl.actionQueueIcons = pEl.actionMenu;
         pEl.actionJukeboxIcons = pEl.actionMenuPlay;
         pEl.actionPlaylistDetailIcons = pEl.actionMenuPlay;
@@ -257,6 +259,7 @@ function parseSettings(obj) {
     else if (settings.webuiSettings.quickRemoveButton === true) {
         pEl.actionIcons = pEl.actionMenu;
         pEl.actionDiscIcons = pEl.actionMenuDisc;
+        pEl.actionWorkIcons = pEl.actionMenuWork;
         pEl.actionQueueIcons = pEl.actionMenuRemove;
         pEl.actionJukeboxIcons = pEl.actionMenuRemove;
         pEl.actionPlaylistDetailIcons = pEl.actionMenuRemove;
@@ -265,6 +268,7 @@ function parseSettings(obj) {
     else {
         pEl.actionIcons = pEl.actionMenu;
         pEl.actionDiscIcons = pEl.actionMenuDisc;
+        pEl.actionWorkIcons = pEl.actionMenuWork;
         pEl.actionQueueIcons = pEl.actionMenu;
         pEl.actionJukeboxIcons = pEl.actionMenu;
         pEl.actionPlaylistDetailIcons = pEl.actionMenu;

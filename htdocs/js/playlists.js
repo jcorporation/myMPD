@@ -207,9 +207,11 @@ function appendPlaylist(type, uris, plist, callback) {
             }, callback, true);
             break;
         case 'disc':
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC", {
+        case 'work':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_TAG", {
                 "albumid": uris[0],
-                "disc": uris[1].toString(),
+                "tag": type,
+                "value": uris[1].toString(),
                 "plist": plist
             }, callback, true);
             break;
@@ -263,9 +265,11 @@ function insertPlaylist(type, uris, plist, to, callback) {
             }, callback, true);
             break;
         case 'disc':
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_DISC", {
+        case 'work':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_TAG", {
                 "albumid": uris[0],
-                "disc": uris[1].toString(),
+                "tag": type,
+                "value": uris[1].toString(),
                 "plist": plist,
                 "to": to
             }, callback, true);
@@ -316,9 +320,11 @@ function replacePlaylist(type, uris, plist, callback) {
             }, callback, true);
             break;
         case 'disc':
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_DISC", {
+        case 'work':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_TAG", {
                 "albumid": uris[0],
-                "disc": uris[1].toString(),
+                "tag": type,
+                "value": uris[1].toString(),
                 "plist": plist
             }, callback, true);
             break;

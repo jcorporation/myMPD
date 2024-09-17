@@ -286,7 +286,15 @@ function getActionLinks(userData) {
                 ? pEl.actionMenuBrowseDatabaseTagSongsStickers
                 : pEl.actionMenuBrowseDatabaseTagSongs;
         case 'BrowseDatabaseAlbumDetail':
-            return userData === 'disc' ? pEl.actionDiscIcons : pEl.actionIcons;
+            if (userData === 'disc') {
+                return pEl.actionDiscIcons;
+            }
+            else if (userData === 'work') {
+                return pEl.actionWorkIcons;
+            }
+            else {
+                return pEl.actionIcons;
+            }
         default:
             return pEl.actionIcons;
     }

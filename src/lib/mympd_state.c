@@ -104,7 +104,6 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
     mpd_tags_reset(&mympd_state->smartpls_generate_tag_types);
     mympd_state->tag_disc_empty_is_first = MYMPD_TAG_DISC_EMPTY_IS_FIRST;
-    mympd_state->show_work_tag_album_detail = MYMPD_SHOW_WORK_TAG_ALBUM_DETAIL;
     mympd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
     mympd_state->info_txt_name = sdsnew(MYMPD_INFO_TXT_NAME);
     //mpd shared state

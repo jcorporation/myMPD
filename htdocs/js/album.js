@@ -6,32 +6,33 @@
 /** @module album_js */
 
 /**
- * Handles single disc actions
+ * Handles album filtered by tag
  * @param {string} action action to perform
  * @param {string} albumId the album id
- * @param {string} disc disc number as string
+ * @param {string} tag MPD tag
+ * @param {string} value MPD tag value
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function addAlbumDisc(action, albumId, disc) {
+function addAlbumTag(action, albumId, tag, value) {
     switch(action) {
         case 'appendQueue':
-            appendQueue('disc', [albumId, disc]);
+            appendQueue(tag, [albumId, value]);
             break;
         case 'appendPlayQueue':
-            appendPlayQueue('disc', [albumId, disc]);
+            appendPlayQueue(tag, [albumId, value]);
             break;
         case 'insertAfterCurrentQueue':
-            insertAfterCurrentQueue('disc', [albumId, disc]);
+            insertAfterCurrentQueue(tag, [albumId, value]);
             break;
         case 'replaceQueue':
-            replaceQueue('disc', [albumId, disc]);
+            replaceQueue(tag, [albumId, value]);
             break;
         case 'replacePlayQueue':
-            replacePlayQueue('disc', [albumId, disc]);
+            replacePlayQueue(tag, [albumId, value]);
             break;
         case 'addPlaylist':
-            showAddToPlaylist('disc', [albumId, disc]);
+            showAddToPlaylist(tag, [albumId, value]);
             break;
         default:
             logError('Invalid action: ' + action);

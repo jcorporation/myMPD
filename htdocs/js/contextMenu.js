@@ -203,23 +203,24 @@ function addMenuItemsNavbarActions(target, popoverBody) {
  * @param {HTMLElement} contextMenuBody element to append the menu items
  * @returns {void}
  */
-function addMenuItemsDiscActions(target, contextMenuTitle, contextMenuBody) {
+function addMenuItemsAlbumTagActions(target, contextMenuTitle, contextMenuBody) {
     const dataNode = target.parentNode.parentNode;
-    const disc = getData(dataNode, 'Disc');
+    const type = getData(dataNode, 'type');
+    const value = getData(dataNode, ucFirst(type));
     const albumId = getData(dataNode, 'AlbumId');
 
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["appendQueue", albumId, disc]}, 'Append to queue');
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["appendPlayQueue", albumId, disc]}, 'Append to queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "addAlbumTag", "options": ["appendQueue", albumId, type, value]}, 'Append to queue');
+    addMenuItem(contextMenuBody, {"cmd": "addAlbumTag", "options": ["appendPlayQueue", albumId, type, value]}, 'Append to queue and play');
     if (features.featWhence === true &&
         currentState.currentSongId !== -1)
     {
-        addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["insertAfterCurrentQueue", albumId, disc]}, 'Insert after current playing song');
+        addMenuItem(contextMenuBody, {"cmd": "addAlbumTag", "options": ["insertAfterCurrentQueue", albumId, type, value]}, 'Insert after current playing song');
     }
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["replaceQueue", albumId, disc]}, 'Replace queue');
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["replacePlayQueue", albumId, disc]}, 'Replace queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "addAlbumTag", "options": ["replaceQueue", albumId, type, value]}, 'Replace queue');
+    addMenuItem(contextMenuBody, {"cmd": "addAlbumTag", "options": ["replacePlayQueue", albumId, type, value]}, 'Replace queue and play');
     if (features.featPlaylists === true) {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["addPlaylist", albumId, disc]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "addAlbumTag", "options": ["addPlaylist", albumId, type, value]}, 'Add to playlist');
     }
 }
 

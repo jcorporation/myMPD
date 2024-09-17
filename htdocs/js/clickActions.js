@@ -62,6 +62,9 @@ function clickQuickPlay(target) {
         case 'disc':
             uri.push(getData(dataNode, 'AlbumId'), getData(dataNode, 'Disc'));
             break;
+        case 'work':
+            uri.push(getData(dataNode, 'AlbumId'), getData(dataNode, 'Work'));
+            break;
         default:
             uri.push(getData(dataNode, 'uri'));
     }

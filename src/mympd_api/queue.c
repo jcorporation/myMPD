@@ -471,18 +471,19 @@ bool mympd_api_queue_replace_albums(struct t_partition_state *partition_state, s
 }
 
 /**
- * Inserts one disc of an album into the queue
+ * Inserts songs of an album filtered by tag into the queue
  * @param partition_state pointer to partition state
  * @param album_cache pointer to album cache
  * @param albumid album id to insert
- * @param disc disc to insert
+ * @param tag MPD tag
+ * @param value MPD tag value
  * @param to position to insert
  * @param whence how to interpret the to parameter
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_queue_insert_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
-        sds albumid, sds disc, unsigned to, unsigned whence, sds *error)
+bool mympd_api_queue_insert_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds albumid, enum mpd_tag_type tag, sds value, unsigned to, unsigned whence, sds *error)
 {
     if (whence != MPD_POSITION_ABSOLUTE &&
         partition_state->mpd_state->feat.whence == false)
@@ -495,8 +496,8 @@ bool mympd_api_queue_insert_album_disc(struct t_partition_state *partition_state
         *error = sdscat(*error, "Album not found");
         return false;
     }
-    sds expression = get_search_expression_album_disc(sdsempty(), partition_state->mpd_state->tag_albumartist,
-        mpd_album, disc, &partition_state->config->albums);
+    sds expression = get_search_expression_album_tag(sdsempty(), partition_state->mpd_state->tag_albumartist,
+        mpd_album, tag, value, &partition_state->config->albums);
     const char *sort = NULL;
     bool sortdesc = false;
     bool rc = mpd_client_search_add_to_queue(partition_state, expression, to, whence, sort, sortdesc, error);
@@ -505,34 +506,36 @@ bool mympd_api_queue_insert_album_disc(struct t_partition_state *partition_state
 }
 
 /**
- * Appends one disc of an album to the queue
+ * Appends songs of an album filtered by tag to the queue
  * @param partition_state pointer to partition state
  * @param album_cache pointer to album cache
  * @param albumid album id to append
- * @param disc disc to append
+ * @param tag MPD tag
+ * @param value MPD tag value
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_queue_append_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
-        sds albumid, sds disc, sds *error)
+bool mympd_api_queue_append_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds albumid, enum mpd_tag_type tag, sds value, sds *error)
 {
-    return mympd_api_queue_insert_album_disc(partition_state, album_cache, albumid, disc, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
+    return mympd_api_queue_insert_album_tag(partition_state, album_cache, albumid, tag, value, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
 }
 
 /**
- * Replaces the queue with one disc of an album
+ * Replaces the queue with an album filted by tag
  * @param partition_state pointer to partition state
  * @param album_cache pointer to album cache
  * @param albumid album id to insert
- * @param disc disc to insert
+ * @param tag MPD tag
+ * @param value MPD tag value
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_queue_replace_album_disc(struct t_partition_state *partition_state,struct t_cache *album_cache,
-        sds albumid, sds disc, sds *error)
+bool mympd_api_queue_replace_album_tag(struct t_partition_state *partition_state,struct t_cache *album_cache,
+        sds albumid, enum mpd_tag_type tag, sds value, sds *error)
 {
     return mpd_client_queue_clear(partition_state, error) &&
-        mympd_api_queue_append_album_disc(partition_state, album_cache, albumid, disc, error);
+        mympd_api_queue_append_album_tag(partition_state, album_cache, albumid, tag, value, error);
 }
 
 /**

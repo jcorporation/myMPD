@@ -27,7 +27,8 @@ bool mpd_client_add_search_sort_param(struct t_partition_state *partition_state,
 bool mpd_client_add_search_group_param(struct mpd_connection *conn, enum mpd_tag_type tag);
 sds get_search_expression_album(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
         const struct t_albums_config *album_config);
-sds get_search_expression_album_disc(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
-        const char *disc, const struct t_albums_config *album_config);
+sds get_search_expression_album_tag(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
+        enum mpd_tag_type tag, const char *tag_value, const struct t_albums_config *album_config);
 sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, const char *value);
+
 #endif

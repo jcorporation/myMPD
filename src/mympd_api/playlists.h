@@ -59,12 +59,12 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
         sds plist, struct t_list *albumids, unsigned to, sds *error);
 bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds plist, struct t_list *albumids, sds *error);
-bool mympd_api_playlist_content_append_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache, 
-        sds plist, sds albumid, sds disc, sds *error);
-bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
-        sds plist, sds albumid, sds disc, unsigned to, sds *error);
-bool mympd_api_playlist_content_replace_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
-        sds plist, sds albumid, sds disc, sds *error);
+bool mympd_api_playlist_content_append_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache, 
+        sds plist, sds albumid, enum mpd_tag_type tag, sds value, sds *error);
+bool mympd_api_playlist_content_insert_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds plist, sds albumid, enum mpd_tag_type tag, sds value, unsigned to, sds *error);
+bool mympd_api_playlist_content_replace_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds plist, sds albumid, enum mpd_tag_type tag, sds value, sds *error);
 bool mympd_api_playlist_content_insert_search(struct t_partition_state *partition_state, sds expression, sds plist, unsigned to,
         const char *sort, bool sort_desc, sds *error);
 bool mympd_api_playlist_content_append_search(struct t_partition_state *partition_state, sds expression, sds plist,

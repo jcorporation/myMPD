@@ -60,12 +60,12 @@ bool mympd_api_queue_insert_albums(struct t_partition_state *partition_state, st
         struct t_list *albumids, unsigned to, unsigned whence, sds *error);
 bool mympd_api_queue_replace_albums(struct t_partition_state *partition_state, struct t_cache *album_cache,
         struct t_list *albumids, sds *error);
-bool mympd_api_queue_append_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
-        sds albumid, sds disc, sds *error);
-bool mympd_api_queue_insert_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
-        sds albumid, sds disc, unsigned to, unsigned whence, sds *error);
-bool mympd_api_queue_replace_album_disc(struct t_partition_state *partition_state, struct t_cache *album_cache,
-        sds albumid, sds disc, sds *error);
+bool mympd_api_queue_append_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds albumid, enum mpd_tag_type tag, sds tag_value, sds *error);
+bool mympd_api_queue_insert_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds albumid, enum mpd_tag_type tag, sds tag_value, unsigned to, unsigned whence, sds *error);
+bool mympd_api_queue_replace_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
+        sds albumid, enum mpd_tag_type tag, sds tag_value, sds *error);
 bool mympd_api_queue_insert_album_range(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds albumid, unsigned start, int end, unsigned to, unsigned whence, sds *error);
 bool mympd_api_queue_append_album_range(struct t_partition_state *partition_state, struct t_cache *album_cache,

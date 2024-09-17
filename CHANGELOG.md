@@ -41,6 +41,12 @@ All scripts in the mympd-scripts repository are updated accordingly, do not forg
 - MYMPD_API_QUEUE_INSERT_ALBUM_RANGE: new
 - MYMPD_API_QUEUE_REPLACE_ALBUM_RANGE: new
 - MYMPD_API_SETTINGS_GET: returns now available sticker types
+- MYMPD_API_QUEUE_APPEND_ALBUM_DISC renamed to MYMPD_API_QUEUE_APPEND_ALBUM_TAG
+- MYMPD_API_QUEUE_INSERT_ALBUM_DISC renamed to MYMPD_API_QUEUE_INSERT_ALBUM_TAG
+- MYMPD_API_QUEUE_REPLACE_ALBUM_DISC renamed to MYMPD_API_QUEUE_REPLACE_ALBUM_TAG
+- MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC renamed to MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_TAG
+- MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_DISC renamed to MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_TAG
+- MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_DISC renamed to MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_TAG
 
 ### Changelog
 
@@ -52,6 +58,7 @@ All scripts in the mympd-scripts repository are updated accordingly, do not forg
 - Feat: Add list view
 - Feat: Add widgets for home screen
 - Feat: Sort list of playlists by name or last-modified
+- Feat: Work actions in album detail view
 - Upd: Playlist pictures are moved in a separate folder `/var/lib/mympd/pics/playlists`
 - Upd: Latest libmympdclient based on libmpdclient master
 - Upd: Hide advanced search by default
