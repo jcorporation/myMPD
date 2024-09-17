@@ -145,7 +145,7 @@ function gotoAlbumList(tag, value) {
         expression += '(' + tag + ' == \'' + escapeMPD(value[i]) + '\')';
     }
     expression += ')';
-    appGoto('Browse', 'Database', 'AlbumList', 0, undefined, tag, {'tag': settings.webuiSettings.browseDatabaseAlbumListSort, 'desc': false}, 'Album', expression);
+    appGoto('Browse', 'Database', 'AlbumList', 0, undefined, 'any', {'tag': settings.webuiSettings.browseDatabaseAlbumListSort, 'desc': false}, 'Album', expression);
 }
 
 /**
