@@ -31,6 +31,7 @@ function setFeatures() {
     features.featFooterAudioFormat = settings.webuiSettings.footerAudioFormat;
     features.featMygpiod = settings.features.featMygpiod;
     features.featWebradioDB = settings.features.featWebradioDB;
+    features.viewTitle = settings.webuiSettings.viewTitles;
 
     //mpd features
     if (settings.partition.mpdConnected === true) {

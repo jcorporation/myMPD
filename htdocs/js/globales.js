@@ -694,6 +694,13 @@ const settingsWebuiFields = {
         "form": "modalSettingsListsFrm",
         "help": "helpSettingsCompactGrids"
     },
+    "viewTitles": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Show view titles",
+        "form": "modalSettingsListsFrm",
+        "help": "helpSettingsViewTitles"
+    },
     "showBackButton": {
         "defaultValue": false,
         "inputType": "checkbox",

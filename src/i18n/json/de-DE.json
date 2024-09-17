@@ -1098,6 +1098,7 @@
     "helpTimerPlaylist": "Wiedergabeliste wird ignoriert, wenn die Voreinstellung die Jukebox aktiviert",
     "helpTimerPreset": "Voreinstellungen werden in den Wiedergabeeinstellungen verwaltet.",
     "helpHomeWidgetRefresh": "Auf 0 setzen, um die Aktualisierung zu deaktivieren.",
+    "helpSettingsViewTitles": "Zeigt eine Überschrift in allen Ansichten.",
     "homepage": "Homepage",
     "http://uri.to/stream.mp3": "http://url.zum/stream.mp3",
     "httpd": "HTTPD",
@@ -1227,5 +1228,6 @@
     "Refresh interval": "Aktualisierungsintervall",
     "Resume": "Wiederaufnehmen",
     "No user defined stickers.": "Keine benutzerdefinierten Sticker.",
-    "Search songs": "Suche nach Lieder"
+    "Search songs": "Suche nach Lieder",
+    "Show view titles": "Überschriften anzeigen"
 }
