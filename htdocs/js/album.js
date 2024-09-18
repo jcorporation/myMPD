@@ -6,40 +6,6 @@
 /** @module album_js */
 
 /**
- * Handles album filtered by tag
- * @param {string} action action to perform
- * @param {string} albumId the album id
- * @param {string} tag MPD tag
- * @param {string} value MPD tag value
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function addAlbumTag(action, albumId, tag, value) {
-    switch(action) {
-        case 'appendQueue':
-            appendQueue(tag, [albumId, value]);
-            break;
-        case 'appendPlayQueue':
-            appendPlayQueue(tag, [albumId, value]);
-            break;
-        case 'insertAfterCurrentQueue':
-            insertAfterCurrentQueue(tag, [albumId, value]);
-            break;
-        case 'replaceQueue':
-            replaceQueue(tag, [albumId, value]);
-            break;
-        case 'replacePlayQueue':
-            replacePlayQueue(tag, [albumId, value]);
-            break;
-        case 'addPlaylist':
-            showAddToPlaylist(tag, [albumId, value]);
-            break;
-        default:
-            logError('Invalid action: ' + action);
-    }
-}
-
-/**
  * Resume album API implementation.
  * Load the album from last played song and start playing.
  * @param {string} albumId Album ID

@@ -217,6 +217,7 @@ function createHomeIcon(data, pos) {
     }
 
     setData(card, 'type', 'icon');
+    setData(card, 'name', data.name);
     setData(card, 'href', {"cmd": data.cmd, "options": data.options});
     setData(card, 'pos', pos);
     const cardTitle = elCreateText('div', {"class": ["card-title", "mi", "rounded", "clickable"]}, data.ligature);

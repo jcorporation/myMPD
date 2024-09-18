@@ -167,6 +167,7 @@ function execSelectAction(type, action) {
     const parent = elGetById(app.id + 'List');
     const attribute = getExecSelectActionAttribute(type, action);
     const data = getSelectionData(parent, attribute);
+    const names = getSelectionData(parent, 'name');
     switch(action) {
         case 'appendQueue':
             appendQueue(type, data);
@@ -190,7 +191,7 @@ function execSelectAction(type, action) {
             removeFromQueueIDs(data);
             break;
         case 'showAddToPlaylist':
-            showAddToPlaylist(type, data);
+            showAddToPlaylist(type, data, names);
             break;
         case 'showMoveToPlaylist': {
             const plist = getData(parent, 'uri');

@@ -155,10 +155,11 @@ function replaceTblRow(mode, row, el) {
  * Adds a row with discnumber to the table
  * @param {number} disc discnumber
  * @param {string} albumId the albumid
+ * @param {string} albumName the album name
  * @param {number} colspan column count
  * @returns {HTMLElement} the created row
  */
-function addDiscRow(disc, albumId, colspan) {
+function addDiscRow(disc, albumId, albumName, colspan) {
     const actionTd = elCreateEmpty('td', {"data-col": "Action"});
     addActionLinks(actionTd, 'disc');
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
@@ -171,6 +172,7 @@ function addDiscRow(disc, albumId, colspan) {
     setData(row, 'Disc', disc);
     setData(row, 'AlbumId', albumId);
     setData(row, 'type', 'disc');
+    setData(row, 'name', albumName + ' (' + tn('Disc') + ' ' + disc + ')');
     return row;
 }
 
@@ -188,10 +190,11 @@ function showWorkRow(view) {
  * Adds a row with the work to the table.
  * @param {string} work The work name
  * @param {string} albumId the albumid
+ * @param {string} albumName the album name
  * @param {number} colspan column count
  * @returns {HTMLElement} the created row
  */
-function addWorkRow(work, albumId, colspan) {
+function addWorkRow(work, albumId, albumName, colspan) {
     const actionTd = elCreateEmpty('td', {"data-col": "Action"});
     addActionLinks(actionTd, 'work');
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
@@ -204,6 +207,7 @@ function addWorkRow(work, albumId, colspan) {
     setData(row, 'Work', work);
     setData(row, 'AlbumId', albumId);
     setData(row, 'type', 'work');
+    setData(row, 'name', albumName + ' (' + work + ')');
     return row;
 }
 
@@ -249,7 +253,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     if (obj.result.Discs !== undefined &&
         obj.result.Discs > 1)
     {
-        const row = addDiscRow(1, obj.result.AlbumId, colspan);
+        const row = addDiscRow(1, obj.result.AlbumId, obj.result.Album, colspan);
         if (z < tr.length) {
             replaceTblRow(mode, tr[z], row);
         }
@@ -260,7 +264,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     }
 
     if (showWorkRow(list) && lastWork !== '') {
-        const row = addWorkRow(lastWork, obj.result.AlbumId, colspan);
+        const row = addWorkRow(lastWork, obj.result.AlbumId, obj.result.Album, colspan);
         if (z < tr.length) {
             replaceTblRow(mode, tr[z], row);
         }
@@ -275,7 +279,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         if (obj.result.data[0].Disc !== undefined &&
             lastDisc < Number(obj.result.data[i].Disc))
         {
-            const row = addDiscRow(obj.result.data[i].Disc, obj.result.AlbumId, colspan);
+            const row = addDiscRow(obj.result.data[i].Disc, obj.result.AlbumId, obj.result.Album, colspan);
             if (i + z < tr.length) {
                 replaceTblRow(mode, tr[i + z], row);
             }
@@ -288,7 +292,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
         if (showWorkRow(list) && obj.result.data[0].Work !== undefined &&
             lastWork !== obj.result.data[i].Work) {
-            const row = addWorkRow(obj.result.data[i].Work, obj.result.AlbumId, colspan);
+            const row = addWorkRow(obj.result.data[i].Work, obj.result.AlbumId, obj.result.Album, colspan);
             if (i + z < tr.length) {
                 replaceTblRow(mode, tr[i + z], row);
             } else {
