@@ -123,7 +123,7 @@ function isThumbnailfile(uri) {
 
 /**
  * Opens the picture modal
- * @param {HTMLElement} el image element
+ * @param {HTMLElement | EventTarget} el image element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars

@@ -320,8 +320,9 @@ sds sds_catjsonchar(sds s, const char c) {
  */
 sds sds_catchar(sds s, const char c) {
     // Make sure there is always space for at least 1 char.
-    if (sdsavail(s) == 0) {
-        s = sdsMakeRoomFor(s, 1);
+    s = sdsMakeRoomFor(s, 1);
+    if (s == NULL) {
+        return NULL;
     }
     size_t i = sdslen(s);
     s[i++] = c;
@@ -498,7 +499,9 @@ sds sds_replace(sds s, const char *p) {
  * @return modified sds string
  */
 sds sds_catbool(sds s, bool v) {
-    return v == true ? sdscatlen(s, "true", 4) : sdscatlen(s, "false", 5);
+    return v == true
+        ? sdscatlen(s, "true", 4)
+        : sdscatlen(s, "false", 5);
 }
 
 /**

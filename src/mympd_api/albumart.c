@@ -61,7 +61,7 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
     }
 
     // search for one song in the album
-    sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist,
+    sds expression = get_search_expression_album(sdsempty(), partition_state->mpd_state->tag_albumartist,
         album, &partition_state->config->albums);
 
     if (mpd_search_db_songs(partition_state->conn, false) == false ||

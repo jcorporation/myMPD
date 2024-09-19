@@ -204,6 +204,7 @@ function appInit() {
     initModalAbout();
     initModalEnterPin();
     initModalHomeIcon();
+    initModalHomeWidget();
     initModalMaintenance();
     initModalMounts();
     initModalNotifications();
@@ -217,6 +218,7 @@ function appInit() {
     initModalSettingsConnection();
     initModalSettingsPlayback();
     initModalScripts();
+    initModalSticker();
     initModalVariables();
     initModalSongDetails();
     initModalTimer();
@@ -227,7 +229,6 @@ function appInit() {
     initViewBrowseFilesystem();
     initViewBrowseRadioFavorites();
     initViewBrowseRadioWebradiodb();
-    initViewHome();
     initViewPlayback();
     initViewPlaylist();
     initPresets();

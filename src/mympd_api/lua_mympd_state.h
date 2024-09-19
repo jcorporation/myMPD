@@ -23,7 +23,8 @@ enum lua_mympd_state_type {
     LUA_TYPE_STRING,
     LUA_TYPE_INTEGER,
     LUA_TYPE_NUMBER,
-    LUA_TYPE_BOOLEAN
+    LUA_TYPE_BOOLEAN,
+    LUA_TYPE_MPD_SONG
 };
 
 /**
@@ -31,12 +32,11 @@ enum lua_mympd_state_type {
  * Which member is used is defined by lua_mympd_state_type
  */
 struct t_lua_mympd_state_value {
-    sds p;        //!< lua string
+    sds p;      //!< lua string
     int64_t i;  //!< lua number
-    double f;     //!< lua float
-    bool b;       //!< lua bool
+    double f;   //!< lua float
+    bool b;     //!< lua bool
 };
-
 
 bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_mympd_state *mympd_state,
         struct t_partition_state *partition_state);
@@ -45,6 +45,7 @@ void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, int64_
 void lua_mympd_state_set_u(struct t_list *lua_mympd_state, const char *k, unsigned v);
 void lua_mympd_state_set_b(struct t_list *lua_mympd_state, const char *k, bool v);
 void lua_mympd_state_set_f(struct t_list *lua_mympd_state, const char *k, double v);
+void lua_mympd_state_set_mpd_song(struct t_list *lua_mympd_state, const char *k, const struct mpd_song *song);
 void *lua_mympd_state_free(struct t_list *lua_mympd_state);
 
 #endif

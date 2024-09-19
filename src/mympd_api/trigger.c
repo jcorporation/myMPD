@@ -220,7 +220,7 @@ int mympd_api_trigger_execute_http(struct t_list *trigger_list, enum trigger_eve
  * @param partition mpd partition
  * @return number of executed triggers
  */
-int mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, enum feedback_type type,
+int mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, enum mympd_feedback_type type,
         int value, const char *partition)
 {
     MYMPD_LOG_DEBUG(partition, "Trigger event: mympd_feedback (-6) for \"%s\", type %d, value %d", uri, type, value);

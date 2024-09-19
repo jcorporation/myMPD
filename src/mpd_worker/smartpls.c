@@ -102,8 +102,15 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
             db_mtime > playlist_mtime ||
             smartpls_mtime > playlist_mtime)
         {
-            mpd_worker_smartpls_update(mpd_worker_state, next_file->d_name);
-            updated++;
+            if (mpd_worker_smartpls_update(mpd_worker_state, next_file->d_name) == true) {
+                updated++;
+            }
+            else {
+                MYMPD_LOG_WARN(NULL, "Removing invalid smart playlist %s", next_file->d_name);
+                sds filename = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
+                rm_file(filename);
+                FREE_SDS(filename);
+            }
         }
         else {
             MYMPD_LOG_INFO(NULL, "Update of smart playlist %s skipped, already up to date", next_file->d_name);
@@ -414,7 +421,7 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
         sort_op = MPD_STICKER_SORT_URI;
     }
 
-    struct t_list *add_list = stickerdb_find_stickers_sorted(mpd_worker_state->stickerdb,
+    struct t_list *add_list = stickerdb_find_stickers_sorted(mpd_worker_state->stickerdb, STICKER_TYPE_SONG,
         sticker, oper, value, sort_op, sort_desc, 0, max_entries);
     if (add_list == NULL) {
         MYMPD_LOG_ERROR(NULL, "Could not fetch stickers for \"%s\"", sticker);

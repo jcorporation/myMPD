@@ -133,7 +133,7 @@ function addScriptAPIcall(event) {
     const el = elGetById('modalScriptsContentInput');
     const [start, end] = [el.selectionStart, el.selectionEnd];
     const newText =
-        'options = {}\n' +
+        'local options = {}\n' +
         apiParamsToArgs(APImethods[method].params) +
         'local rc, result = mympd.api("' + method + '", options)\n' +
         'if rc == 0 then\n' +
@@ -369,7 +369,7 @@ function showListScripts() {
  */
 function deleteScript(el, script) {
     cleanupModalId('modalScripts');
-    showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the script?', {"script": script}), tn('Yes, delete it'), function() {
+    showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the script?'), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_SCRIPT_RM", {
             "script": script
         }, deleteScriptCheckError, true);
@@ -411,6 +411,8 @@ function parseScriptList(obj) {
     elClear(mainmenuScripts);
     const triggerScripts = elGetById('modalTriggerScriptInput');
     elClear(triggerScripts);
+    const widgetScripts = elGetById('modalHomeWidgetScriptInput');
+    elClear(widgetScripts);
 
     if (checkResult(obj, table, 'table') === false) {
         return;
@@ -448,14 +450,11 @@ function parseScriptList(obj) {
             setData(tr, 'href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
             tbodyScripts.appendChild(tr);
 
-            //script list select for timers
+            //script list select for timers, triggers and home widgets
             const option = elCreateText('option', {"value": obj.result.data[i].name}, obj.result.data[i].name);
-            setData(option, 'arguments', {"arguments": obj.result.data[i].metadata.arguments});
-            timerActions.appendChild(option);
-            //script list select for trigger
-            const option2 = option.cloneNode(true);
-            setData(option2, 'arguments', {"arguments": obj.result.data[i].metadata.arguments});
-            triggerScripts.appendChild(option2);
+            addOptionToScriptSelect(timerActions, option, obj.result.data[i].metadata.arguments);
+            addOptionToScriptSelect(triggerScripts, option, obj.result.data[i].metadata.arguments);
+            addOptionToScriptSelect(widgetScripts, option, obj.result.data[i].metadata.arguments);
         }
     }
 
@@ -473,6 +472,19 @@ function parseScriptList(obj) {
     else {
         elGetById('modalTimerActionInput').appendChild(timerActions);
     }
+}
+
+/**
+ * Add's an option to the script select
+ * @param {HTMLElement} sel Select element to populate
+ * @param {HTMLElement} opt Option element to add
+ * @param {object} args Script arguments object
+ * @returns {void}
+ */
+function addOptionToScriptSelect(sel, opt, args) {
+    const optEl = opt.cloneNode(true);
+    setData(optEl, 'arguments', {"arguments": args});
+    sel.appendChild(optEl);
 }
 
 /**

@@ -10,7 +10,9 @@ The first type of scripts are executed by triggers, timers or manual through the
 
 - [Triggers]({{site.baseurl}}/references/trigger)
 
-The second type of script are called by http requests (`/script/<partition>/<script>`) and special triggers. This scripts should return a valid http response including status code, headers and body.
+The second type of script are called by http requests (`/script/<partition>/<script>`), special triggers and home screen widgets. This scripts should return a valid http response including status code, headers and body.
+
+- [Widgets]({{site.baseurl}}/scripting/widges)
 
 ## Global variables
 
@@ -32,6 +34,7 @@ myMPD environment variables are populated in the lua table `mympd_env`.
 | `requestid` | number | Jsonrpc request id |
 | `scriptevent` | string | Script start event: `extern`, `http`, `timer`, `trigger` or `user` |
 | `scriptname` | string | Script name |
+| `var` | table | Subtable with user defined variables |
 | `workdir` | string | myMPD working directory |
 {: .table .table-sm }
 

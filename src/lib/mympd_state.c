@@ -104,7 +104,6 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
     mpd_tags_reset(&mympd_state->smartpls_generate_tag_types);
     mympd_state->tag_disc_empty_is_first = MYMPD_TAG_DISC_EMPTY_IS_FIRST;
-    mympd_state->show_work_tag_album_detail = MYMPD_SHOW_WORK_TAG_ALBUM_DETAIL;
     mympd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
     mympd_state->info_txt_name = sdsnew(MYMPD_INFO_TXT_NAME);
     //mpd shared state
@@ -227,6 +226,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config) {
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     //features
     mpd_state_features_default(&mpd_state->feat);
+    list_init(&mpd_state->sticker_types);
 }
 
 /**
@@ -252,6 +252,8 @@ void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
     mpd_tags_clone(&src->tags_album, &dst->tags_album);
     dst->tag_albumartist = src->tag_albumartist;
     mpd_state_features_copy(&src->feat, &dst->feat);
+    list_init(&dst->sticker_types);
+    list_append(&dst->sticker_types, &src->sticker_types);
 }
 
 /**
@@ -277,8 +279,7 @@ void mpd_state_features_default(struct t_mpd_features *feat) {
     feat->starts_with = false;
     feat->pcre = true;
     feat->db_added = false;
-    feat->sticker_sort_window = false;
-    feat->sticker_int = false;
+    feat->advsticker = false;
     feat->search_add_sort_window = false;
     feat->listplaylist_range = false;
 }
@@ -302,6 +303,7 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
     FREE_SDS(mpd_state->tag_list);
     FREE_SDS(mpd_state->music_directory_value);
     FREE_SDS(mpd_state->playlist_directory_value);
+    list_clear(&mpd_state->sticker_types);
     //struct itself
     FREE_PTR(mpd_state);
 }
@@ -327,10 +329,12 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->conn_state = MPD_DISCONNECTED;
     partition_state->play_state = MPD_STATE_UNKNOWN;
     partition_state->song_id = -1;
-    partition_state->song_uri = sdsempty();
+    partition_state->song = NULL;
+    partition_state->song_pos = -1;
+    partition_state->song_duration = 0;
     partition_state->next_song_id = -1;
     partition_state->last_song_id = -1;
-    partition_state->last_song_uri = sdsempty();
+    partition_state->last_song = NULL;
     partition_state->queue_version = 0;
     partition_state->queue_length = 0;
     partition_state->song_start_time = 0;
@@ -384,8 +388,12 @@ void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->highlight_color);
     FREE_SDS(partition_state->highlight_color_contrast);
     FREE_SDS(partition_state->state_dir);
-    FREE_SDS(partition_state->song_uri);
-    FREE_SDS(partition_state->last_song_uri);
+    if (partition_state->song != NULL) {
+        mpd_song_free(partition_state->song);
+    }
+    if (partition_state->last_song != NULL) {
+        mpd_song_free(partition_state->last_song);
+    }
     //jukebox
     jukebox_state_free(&partition_state->jukebox);
     //lists

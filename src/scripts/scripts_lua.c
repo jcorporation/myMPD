@@ -310,7 +310,7 @@ static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
     populate_lua_table_field_p(script_arg->lua_vm, "cachedir_thumbs", cachedir);
     FREE_SDS(cachedir);
     populate_lua_table_field_p(script_arg->lua_vm, "workdir", script_arg->config->workdir);
-    // User defined variables
+    // User defined variables - deprecated will be remove in 19.0.0
     struct t_list_node *current = scripts_state->var_list.head;
     sds key = sdsempty();
     while (current != NULL) {
@@ -320,6 +320,16 @@ static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
         current = current->next;
     }
     FREE_SDS(key);
+    // User defined variables - new interface since 18.0.0
+    lua_pushstring(script_arg->lua_vm, "var");
+    lua_newtable(script_arg->lua_vm);
+    current = scripts_state->var_list.head;
+    while (current != NULL) {
+        populate_lua_table_field_p(script_arg->lua_vm, current->key, current->value_p);
+        current = current->next;
+    }
+    lua_settable(script_arg->lua_vm, -3);
+    // Set the global variable
     lua_setglobal(script_arg->lua_vm, "mympd_env");
 
     // Set global arguments lua table

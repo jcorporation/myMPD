@@ -1,8 +1,8 @@
 --- Simple HTTP client
--- @param method HTTP method, only GET or POST is supported
+-- @param method HTTP method, e.g. GET, POST
 -- @param uri The uri to access
 -- @param extra_headers Additional headers terminated by "\r\n"
--- @param payload Payload to send (POST only)
+-- @param payload Payload to send
 -- @return rc 0 for success, else 1
 -- @return HTTP status code
 -- @return HTTP Headers as Lua table

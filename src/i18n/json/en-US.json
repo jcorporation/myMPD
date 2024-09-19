@@ -108,6 +108,8 @@
     "helpSettingsFeedback": "Rate songs by love/hate or with 5 stars.",
     "helpSettingsGridSize": "Size of the images in grid view.",
     "helpSettingsAlbumListSort": "Default sort tag for the album list.",
+    "helpHomeWidgetRefresh": "Set to 0 to disable widegt refresh.",
+    "helpSettingsViewTitles": "Shows a title on top of all views.",
     "icon-all": "All",
     "icon-action": "Action",
     "icon-alert": "Alert",

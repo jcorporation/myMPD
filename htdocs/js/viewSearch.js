@@ -92,12 +92,8 @@ function parseSearch(obj) {
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
-        const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
         updateTable(obj, app.id, function(row, data) {
-            setData(row, 'type', data.Type);
-            setData(row, 'uri', data.uri);
-            setData(row, 'name', data.Title);
-            row.setAttribute('title', rowTitle);
+            parseSearchUpdate(row, data);
         });
 
         if (obj.result.totalEntities > 0) {
@@ -107,11 +103,29 @@ function parseSearch(obj) {
         }
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        setData(card, 'type', data.Type);
-        setData(card, 'uri', data.uri);
-        setData(card, 'name', data.Title);
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            parseSearchUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parseSearchUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parseSearchUpdate(card, data) {
+    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+    setData(card, 'type', data.Type);
+    setData(card, 'uri', data.uri);
+    setData(card, 'name', data.Title);
+    card.setAttribute('title', rowTitle);
 }
 
 /**

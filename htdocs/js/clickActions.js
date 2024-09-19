@@ -11,26 +11,30 @@
  * @returns {void}
  */
 function clickQuickRemove(target) {
+    let dataNode = target.parentNode.parentNode;
+    if (dataNode.classList.contains('row')) {
+        dataNode = dataNode.parentNode;
+    }
     switch(app.id) {
         case 'QueueCurrent': {
-            const songId = getData(target.parentNode.parentNode, 'songid');
+            const songId = getData(dataNode, 'songid');
             removeFromQueueIDs([songId]);
             break;
         }
         case 'BrowsePlaylistList': {
-            const plist = getData(target.parentNode.parentNode, 'uri');
+            const plist = getData(dataNode, 'uri');
             showDelPlaylist([plist]);
             break;
         }
         case 'BrowsePlaylistDetail': {
-            const pos = getData(target.parentNode.parentNode, 'pos');
+            const pos = getData(dataNode, 'pos');
             const plist = getDataId('BrowsePlaylistDetailList', 'uri');
             removeFromPlaylistPositions(plist, [pos]);
             break;
         }
         case 'QueueJukeboxSong':
         case 'QueueJukeboxAlbum': {
-            const pos = getData(target.parentNode.parentNode, 'pos');
+            const pos = getData(dataNode, 'pos');
             delQueueJukeboxEntries([pos]);
             break;
         }
@@ -45,17 +49,32 @@ function clickQuickRemove(target) {
  * @returns {void}
  */
 function clickQuickPlay(target) {
-    const type = getData(target.parentNode.parentNode, 'type');
-    const uri = type === 'album'
-        ? getData(target.parentNode.parentNode, 'AlbumId')
-        : getData(target.parentNode.parentNode, 'uri');
+    let dataNode = target.parentNode.parentNode;
+    if (dataNode.classList.contains('row')) {
+        dataNode = dataNode.parentNode;
+    }
+    const type = getData(dataNode, 'type');
+    const uri = [];
+    switch(type) {
+        case 'album':
+            uri.push(getData(dataNode, 'AlbumId'));
+            break;
+        case 'disc':
+            uri.push(getData(dataNode, 'AlbumId'), getData(dataNode, 'Disc'));
+            break;
+        case 'work':
+            uri.push(getData(dataNode, 'AlbumId'), getData(dataNode, 'Work'));
+            break;
+        default:
+            uri.push(getData(dataNode, 'uri'));
+    }
     switch (settings.webuiSettings.clickQuickPlay) {
-        case 'append': return appendQueue(type, [uri]);
-        case 'appendPlay': return appendPlayQueue(type, [uri]);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, [uri]);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, [uri]);
-        case 'replace': return replaceQueue(type, [uri]);
-        case 'replacePlay': return replacePlayQueue(type, [uri]);
+        case 'append': return appendQueue(type, uri);
+        case 'appendPlay': return appendPlayQueue(type, uri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, uri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, uri);
+        case 'replace': return replaceQueue(type, uri);
+        case 'replacePlay': return replacePlayQueue(type, uri);
         default: logError('Invalid action: ' + settings.webuiSettings.clickQuickPlay);
     }
 }
@@ -164,7 +183,7 @@ function clickPlaylist(uri, event) {
         case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', [uri]);
         case 'replace': return replaceQueue('plist', [uri]);
         case 'replacePlay': return replacePlayQueue('plist', [uri]);
-        case 'view': return playlistDetails(uri);
+        case 'view': return gotoPlaylist(uri);
         case 'context': return showContextMenu(event);
         default: logError('Invalid action: ' + settings.webuiSettings.clickPlaylist);
     }
@@ -399,4 +418,64 @@ function clickConsume(mode) {
     sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
         "consume": mode
     }, null, false);
+}
+
+/**
+ * Handler for resume song dropdown actions
+ * @param {Event} event Click event
+ * @returns {void}
+ */
+function clickResumeSong(event) {
+    event.preventDefault();
+    if (event.target.nodeName !== 'BUTTON') {
+        return;
+    }
+    const dataNode = event.target.closest('.btn-group');
+    const uri = getData(dataNode, 'uri');
+    const action = event.target.getAttribute('data-action');
+    resumeSong(uri, action);
+}
+
+/**
+ * Handler for song resume - click on resume indicator
+ * @param {EventTarget} target event target
+ * @returns {void}
+ */
+function clickQuickResumeSong(target) {
+    const uri = getData(target, 'uri');
+    resumeSong(uri, settings.webuiSettings.clickQuickPlay);
+}
+
+/**
+ * Handler for resume playlist dropdown actions
+ * @param {Event} event Click event
+ * @returns {void}
+ */
+function clickResumePlist(event) {
+    event.preventDefault();
+    if (event.target.nodeName !== 'BUTTON') {
+        return;
+    }
+    const dataNode = event.target.closest('.btn-group');
+    const pos = getData(dataNode, 'pos');
+    const uri = getDataId('BrowsePlaylistDetailList', 'uri');
+    const action = event.target.getAttribute('data-action');
+    resumePlist(uri, pos, action);
+}
+
+/**
+ * Handler for resume album dropdown actions
+ * @param {Event} event Click event
+ * @returns {void}
+ */
+function clickResumeAlbum(event) {
+    event.preventDefault();
+    if (event.target.nodeName !== 'BUTTON') {
+        return;
+    }
+    const dataNode = event.target.closest('.btn-group');
+    const pos = getData(dataNode, 'pos');
+    const albumId = getDataId('viewDatabaseAlbumDetailCover', 'AlbumId');
+    const action = event.target.getAttribute('data-action');
+    resumeAlbum(albumId, pos, action);
 }

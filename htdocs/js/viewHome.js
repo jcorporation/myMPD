@@ -14,11 +14,16 @@ function handleHome() {
 }
 
 /**
- * Initializes the home feature elements
+ * Moves a home icon
+ * @param {number} oldPos Old icon pos
+ * @param {number} newPos New icon pos
  * @returns {void}
  */
-function initViewHome() {
-    dragAndDropHome();
+function homeMoveIcon(oldPos, newPos) {
+    sendAPI("MYMPD_API_HOME_ICON_MOVE", {
+        "from": oldPos,
+        "to": newPos
+    }, null, false);
 }
 
 /**
@@ -62,6 +67,7 @@ function getHomeIconType(cmd, action) {
  * @returns {void}
  */
 function parseHomeIcons(obj) {
+    widgetRefresh.length = 0;
     const cardContainer = elGetById('HomeList');
     unsetUpdateView(cardContainer);
     const cols = cardContainer.querySelectorAll('.col');
@@ -89,58 +95,20 @@ function parseHomeIcons(obj) {
     }
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const homeType = getHomeIconType(obj.result.data[i].cmd, obj.result.data[i].options[0]);
-        const actionType = friendlyActions[obj.result.data[i].cmd];
-
-        if (obj.result.data[i].cmd !== 'appGoto') {
-            const opt0 = obj.result.data[i].options[0];
-            const opt1 = [];
-            // convert array to [opt0, [opt1,...]] and parse 
-            if (obj.result.data[i].options[1] !== undefined) {
-                for (let j = 1; j < obj.result.data[i].options.length; j++) {
-                    opt1.push(convertType(obj.result.data[i].options[j]));
-                }
-            }
-            obj.result.data[i].options = [opt0, opt1];
-        }
-
-        const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
-        const card = elCreateEmpty('div', {"data-contextmenu": "home", "class": ["card", "home-icons"], "draggable": "true",
-            "title": tn(homeType) + ':' + smallSpace + obj.result.data[i].name +
-            '\n' + tn(actionType)});
-        //decode json options
-        for (let j = 0, k = obj.result.data[i].options.length; j < k; j++) {
-            if (obj.result.data[i].options[j].indexOf('{"') === 0 ||
-                obj.result.data[i].options[j].indexOf('["') === 0)
-            {
-                obj.result.data[i].options[j] = JSON.parse(obj.result.data[i].options[j]);
-            }
-        }
-
-        setData(card, 'href', {"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
-        setData(card, 'pos', i);
-        const cardTitle = elCreateText('div', {"class": ["card-title", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
-        if (obj.result.data[i].image !== '') {
-            cardTitle.style.backgroundImage = getCssImageUri(obj.result.data[i].image);
-        }
-        if (obj.result.data[i].bgcolor !== '') {
-            cardTitle.style.backgroundColor = obj.result.data[i].bgcolor;
-        }
-        if (obj.result.data[i].color !== '' &&
-            obj.result.data[i].color !== undefined)
-        {
-            cardTitle.style.color = obj.result.data[i].color;
-        }
-        card.appendChild(cardTitle);
-        card.appendChild(
-            elCreateText('div', {"class": ["card-body", "card-body-grid", "p-2", "clickable"]}, obj.result.data[i].name)
-        );
-        col.appendChild(card);
+        const col = obj.result.data[i].type === 'widget'
+            ? createHomeWidget(obj.result.data[i], i)
+            : createHomeIcon(obj.result.data[i], i);
         if (i < cols.length) {
             cols[i].replaceWith(col);
         }
         else {
             cardContainer.append(col);
+        }
+        if (obj.result.data[i].type === 'widget') {
+            updateHomeWidget(col.firstElementChild);
+            if (obj.result.data[i].refresh > 0) {
+                widgetRefresh.push(col.firstElementChild);
+            }
         }
     }
     for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
@@ -150,104 +118,140 @@ function parseHomeIcons(obj) {
 }
 
 /**
- * Shows the dragover tip
- * @param {EventTarget} from from element
- * @param {EventTarget} to to element
+ * Updates the widget by calling the script
+ * @param {HTMLElement | ChildNode} card Widget to populate
  * @returns {void}
  */
-function showDropoverIcon(from, to) {
-    const fromPos = getData(from, 'pos');
-    const toPos = getData(to, 'pos');
-    if (toPos > fromPos) {
-        to.classList.add('dragover-icon-right');
+function updateHomeWidget(card) {
+    card.querySelector('.card-title a').textContent = 'autorenew';
+    const data = getData(card, 'data');
+    const query = [];
+    for (const key in data.arguments) {
+        query.push(myEncodeURIComponent(key) + '=' + myEncodeURIComponent(data.arguments[key]));
     }
-    else {
-        to.classList.add('dragover-icon-left');
-    }
-    to.classList.add('dragover-icon');
+    httpGet(getMyMPDuri('http') + subdir + '/script/' +  localSettings.partition + '/' + data.script + '?' + query.join('&'),
+        function(response) {
+            setTimeout(function() {
+                card.querySelector('.card-title a').textContent = 'refresh';
+            }, 200);
+            const body = card.querySelector('.card-body');
+            elClear(body);
+            if (response === null) {
+                body.appendChild(elCreateTextTn('div', {'class': ['alert', 'alert-danger', 'm-3']}, 'Error executing script'));
+                return;
+            }
+            const parser = new DOMParser();
+            const html = parser.parseFromString(response, "text/html");
+            body.appendChild(... html.body.childNodes);
+            body.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                const href = getData(event.target, 'href');
+                if (href === undefined) {
+                    return;
+                }
+                parseCmd(event, JSON.parse(href));
+            }, false);
+            setData(card, 'lastUpdate', getTimestamp());
+        },
+        false);
 }
 
 /**
- * Hides the dragover tip
- * @param {EventTarget} el element
- * @returns {void}
+ * Creates a home widget
+ * @param {object} data Widegt data
+ * @param {number} pos Widget position
+ * @returns {HTMLElement} Created widget wrapped in col
  */
-function hideDropoverIcon(el) {
-    el.classList.remove('dragover-icon-left', 'dragover-icon-right');
+function createHomeWidget(data, pos) {
+    const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0", "float-start"]});
+    const card = elCreateNodes('div', {"data-contextmenu": "homeWidget", "class": ["card", "home-widgets", "bg-secondary", "rounded-2", "home-widget-" + data.size], "draggable": "true"},
+        [
+            elCreateNodes('div', {'class': ['card-title', 'py-2', 'px-3', 'mb-0']}, [
+                document.createTextNode(data.name),
+                elCreateText('a', {'href':'#', 'data-title-phrase': 'Reload', 'title': tn('Reload'), 'data-action': 'refreshWidget', 'class': ['mi', 'float-end']}, 'refresh')
+            ]),
+            elCreateEmpty('div', {'class': ['card-body', 'overflow-scroll', 'p-0', 'bg-dark', 'rounded-bottom']})
+        ]
+    );
+    setData(card, 'type', 'widget');
+    setData(card, 'pos', pos);
+    setData(card, 'data', data);
+    col.appendChild(card);
+    return col;
 }
 
 /**
- * Drag and drop event handler
- * @returns {void}
+ * Creates a home icon
+ * @param {object} data Icon data
+ * @param {number} pos Icon position
+ * @returns {HTMLElement} Created icon wrapped in col
  */
-function dragAndDropHome() {
-    const HomeList = elGetById('HomeList');
+function createHomeIcon(data, pos) {
+    const homeType = getHomeIconType(data.cmd, data.options[0]);
+    const actionType = friendlyActions[data.cmd];
 
-    HomeList.addEventListener('dragstart', function(event) {
-        if (event.target.classList.contains('home-icons')) {
-            event.target.classList.add('opacity05');
-            // @ts-ignore
-            event.dataTransfer.setDragImage(event.target, 0, 0);
-            event.dataTransfer.effectAllowed = 'move';
-            dragEl = event.target;
-        }
-    }, false);
-
-    HomeList.addEventListener('dragenter', function(event) {
-        if (dragEl !== undefined &&
-            event.target.classList.contains('home-icons'))
-        {
-            showDropoverIcon(dragEl, event.target);
-        }
-    }, false);
-
-    HomeList.addEventListener('dragleave', function(event) {
-        if (dragEl !== undefined &&
-            event.target.classList.contains('home-icons'))
-        {
-            hideDropoverIcon(event.target);
-        }
-    }, false);
-
-    HomeList.addEventListener('dragover', function(event) {
-        // prevent default to allow drop
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
-    }, false);
-
-    HomeList.addEventListener('drop', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        
-        const target = event.target.classList.contains('card-body')
-            ? event.target.parentNode
-            : event.target;
-        if (target.classList.contains('home-icons')) {
-            hideDropoverIcon(target);
-            const to = getData(target, 'pos');
-            const from = getData(dragEl, 'pos');
-            if (isNaN(to) === false &&
-                isNaN(from) === false &&
-                from !== to)
-            {
-                sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, null, false);
+    if (data.cmd !== 'appGoto') {
+        const opt0 = data.options[0];
+        const opt1 = [];
+        // convert array to [opt0, [opt1,...]] and parse 
+        if (data.options[1] !== undefined) {
+            for (let j = 1; j < data.options.length; j++) {
+                opt1.push(convertType(data.options[j]));
             }
         }
-    }, false);
+        data.options = [opt0, opt1];
+    }
 
-    HomeList.addEventListener('dragend', function() {
-        dragEl.classList.remove('opacity05');
-        dragEl = undefined;
-    }, false);
+    const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0", "float-start"]});
+    const card = elCreateEmpty('div', {"data-contextmenu": "homeIcon", "class": ["card", "home-icons"], "draggable": "true",
+        "title": tn(homeType) + ':' + smallSpace + data.name +
+        '\n' + tn(actionType)});
+    //decode json options
+    for (let j = 0, k = data.options.length; j < k; j++) {
+        if (data.options[j].indexOf('{"') === 0 ||
+            data.options[j].indexOf('["') === 0)
+        {
+            data.options[j] = JSON.parse(data.options[j]);
+        }
+    }
+
+    setData(card, 'type', 'icon');
+    setData(card, 'name', data.name);
+    setData(card, 'href', {"cmd": data.cmd, "options": data.options});
+    setData(card, 'pos', pos);
+    const cardTitle = elCreateText('div', {"class": ["card-title", "mi", "rounded", "clickable"]}, data.ligature);
+    if (data.image !== '') {
+        cardTitle.style.backgroundImage = getCssImageUri(data.image);
+    }
+    if (data.bgcolor !== '') {
+        cardTitle.style.backgroundColor = data.bgcolor;
+    }
+    if (data.color !== '' &&
+        data.color !== undefined)
+    {
+        cardTitle.style.color = data.color;
+    }
+    card.appendChild(cardTitle);
+    card.appendChild(
+        elCreateText('div', {"class": ["card-body", "card-body-grid", "p-2", "clickable"]}, data.name)
+    );
+    col.appendChild(card);
+    return col;
 }
 
 /**
- * Executes the home icon action
- * @param {number} pos home icon position
+ * Refreshes the home widgets. This function is called by the websocket
+ * keepalive timer if the websocket is connected.
  * @returns {void}
  */
-//eslint-disable-next-line no-unused-vars
-function executeHomeIcon(pos) {
-    const el = elGetById('HomeList').children[pos].firstChild;
-    parseCmd(null, getData(el, 'href'));
+function homeWidgetsRefresh() {
+    const ts = getTimestamp();
+    for (const widget of widgetRefresh) {
+        const data = getData(widget, 'data');
+        const lastUpdate = getData(widget, 'lastUpdate');
+        if (lastUpdate + data.refresh < ts) {
+            updateHomeWidget(widget);
+        }
+    }
 }

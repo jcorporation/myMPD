@@ -1264,7 +1264,7 @@ static bool icb_json_get_field(const char *path, sds key, sds value, int vtype, 
         fields->mpd_tags.tags[fields->mpd_tags.len++] = mpd_tag;
         return true;
     }
-    enum mympd_sticker_types sticker = sticker_name_parse(value);
+    enum mympd_sticker_names sticker = sticker_name_parse(value);
     if (sticker != STICKER_UNKNOWN) {
         fields->stickers.stickers[fields->stickers.len++] = sticker;
     }

@@ -197,6 +197,28 @@ function deleteHomeIcon(pos) {
 }
 
 /**
+ * Executes the home icon action
+ * @param {number} pos home icon position
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function executeHomeIcon(pos) {
+    const el = elGetById('HomeList').children[pos].firstChild;
+    parseCmd(null, getData(el, 'href'));
+}
+
+/**
+ * Executes the home icon action
+ * @param {number} pos home icon position
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function refreshHomeWidget(pos) {
+    const el = elGetById('HomeList').children[pos].firstChild;
+    updateHomeWidget(el);
+}
+
+/**
  * Opens the link in a new window
  * @param {string} link uri to open
  * @returns {void}
@@ -230,7 +252,7 @@ function homeIconGoto(type, options) {
             break;
         case 'plist':
         case 'smartpls':
-            playlistDetails(options[0]);
+            gotoPlaylist(options[0]);
             break;
         default:
             logError('Invalid type: ' + type);

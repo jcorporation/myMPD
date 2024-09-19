@@ -23,6 +23,15 @@ enum playlist_types {
     PLTYPE_SMARTPLS_ONLY = 3
 };
 
+/**
+ * Playlist sort types
+ */
+enum playlist_sort_types {
+    PLSORT_UNKNOWN = -1,
+    PLSORT_NAME,
+    PLSORT_LAST_MODIFIED
+};
+
 time_t mpd_client_get_playlist_mtime(struct t_partition_state *partition_state, const char *playlist);
 bool mpd_client_playlist_clear(struct t_partition_state *partition_state, const char *plist, sds *error);
 bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, const char *uri, sds *error);
@@ -34,4 +43,6 @@ int mpd_client_playlist_validate_all(struct t_partition_state *partition_state, 
 int64_t mpd_client_playlist_dedup(struct t_partition_state *partition_state, const char *playlist, bool remove, sds *error);
 int64_t mpd_client_playlist_dedup_all(struct t_partition_state *partition_state, bool remove, sds *error);
 bool mpd_client_get_all_playlists(struct t_partition_state *partition_state, struct t_list *l, bool smartpls, sds *error);
+enum playlist_sort_types playlist_parse_sort(const char *str);
+
 #endif

@@ -30,6 +30,7 @@
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/jukebox.h"
+#include "src/mympd_api/sticker.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
@@ -238,6 +239,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
  */
 bool mympd_api_settings_view_save(struct t_mympd_state *mympd_state, sds view, sds mode, sds fields) {
     if (strcmp(mode, "table") != 0 &&
+        strcmp(mode, "list") != 0 &&
         strcmp(mode, "grid") != 0)
     {
         MYMPD_LOG_ERROR(NULL, "MYMPD_API_VIEW_SAVE: Unknown mode \"%s\"", mode);
@@ -508,18 +510,6 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         }
         else if (vtype == MJSON_TOK_FALSE) {
             mympd_state->tag_disc_empty_is_first = false;
-        }
-        else {
-            set_invalid_value(error, path, key, value, "Must be a boolean value");
-            return false;
-        }
-    }
-    else if (strcmp(key, "showWorkTagAlbumDetail") == 0) {
-        if (vtype == MJSON_TOK_TRUE) {
-            mympd_state->show_work_tag_album_detail = true;
-        }
-        else if (vtype == MJSON_TOK_FALSE) {
-            mympd_state->show_work_tag_album_detail = false;
         }
         else {
             set_invalid_value(error, path, key, value, "Must be a boolean value");
@@ -904,7 +894,6 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->lyrics.vorbis_sylt = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "lyrics_vorbis_sylt", mympd_state->lyrics.vorbis_sylt, vcb_isalnum, true);
     mympd_state->navbar_icons = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "navbar_icons", mympd_state->navbar_icons, validate_json_array, true);
     mympd_state->tag_disc_empty_is_first = state_file_rw_bool(workdir, DIR_WORK_STATE, "tag_disc_empty_is_first", mympd_state->tag_disc_empty_is_first, true);
-    mympd_state->show_work_tag_album_detail = state_file_rw_bool(workdir, DIR_WORK_STATE, "show_work_tag_album_detail", mympd_state->show_work_tag_album_detail, true);
 
     strip_slash(mympd_state->music_directory);
     strip_slash(mympd_state->playlist_directory);
@@ -1005,7 +994,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_raw(buffer, "viewBrowseRadioFavorites", mympd_state->view_browse_radio_favorites, true);
     buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);
     buffer = tojson_bool(buffer, "tagDiscEmptyIsFirst", mympd_state->tag_disc_empty_is_first, true);
-    buffer = tojson_bool(buffer, "showWorkTagAlbumDetail", mympd_state->show_work_tag_album_detail, true);
     buffer = tojson_char(buffer, "albumMode", lookup_album_mode(mympd_state->config->albums.mode), true);
     buffer = tojson_char(buffer, "albumGroupTag", mpd_tag_name(mympd_state->config->albums.group_tag), true);
     buffer = tojson_raw(buffer, "webuiSettings", mympd_state->webui_settings, true);
@@ -1075,8 +1063,9 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featPlaylists", partition_state->mpd_state->feat.playlists, true);
         buffer = tojson_bool(buffer, "featTags", partition_state->mpd_state->feat.tags, true);
         buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat.library, true);
-        buffer = tojson_bool(buffer, "featStickers", partition_state->mpd_state->feat.stickers, true);
         buffer = tojson_bool(buffer, "featStickersEnabled", partition_state->config->stickers, true);
+        buffer = tojson_bool(buffer, "featStickers", mympd_state->stickerdb->mpd_state->feat.stickers, true);
+        buffer = tojson_bool(buffer, "featStickerAdv", mympd_state->stickerdb->mpd_state->feat.advsticker, true);
         buffer = tojson_bool(buffer, "featFingerprint", partition_state->mpd_state->feat.fingerprint, true);
         buffer = tojson_bool(buffer, "featPartitions", partition_state->mpd_state->feat.partitions, true);
         buffer = tojson_bool(buffer, "featMounts", partition_state->mpd_state->feat.mount, true);
@@ -1090,8 +1079,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat.starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat.pcre, true);
         buffer = tojson_bool(buffer, "featDbAdded", partition_state->mpd_state->feat.db_added, true);
-        buffer = tojson_bool(buffer, "featStickerSortWindow", partition_state->mpd_state->feat.sticker_sort_window, true);
-        buffer = tojson_bool(buffer, "featStickerInt", partition_state->mpd_state->feat.sticker_int, true);
         buffer = tojson_bool(buffer, "featWebradioDB", partition_state->config->webradiodb, true);
     }
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
@@ -1126,6 +1113,10 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = sdscat(buffer, ",\"triggerEvents\":{");
         buffer = mympd_api_trigger_print_event_list(buffer);
         buffer = sdscatlen(buffer, "}", 1);
+        //sticker types
+        buffer = sdscat(buffer, ",\"stickerTypes\":[");
+        buffer = mympd_api_sticker_print_types(mympd_state->stickerdb, buffer);
+        buffer = sdscatlen(buffer, "]", 1);
     }
     buffer = jsonrpc_end(buffer);
     return buffer;

@@ -57,8 +57,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
 
     // copy sticker feature flags from stickerdb connection
     partition_state->mpd_state->feat.stickers = mympd_state->stickerdb->mpd_state->feat.stickers;
-    partition_state->mpd_state->feat.sticker_sort_window = mympd_state->stickerdb->mpd_state->feat.sticker_sort_window;
-    partition_state->mpd_state->feat.sticker_int = mympd_state->stickerdb->mpd_state->feat.sticker_int;
+    partition_state->mpd_state->feat.advsticker = mympd_state->stickerdb->mpd_state->feat.advsticker;
 
     //get features
     features_commands(partition_state);

@@ -142,6 +142,12 @@ UTEST(sds_extras, test_sds_catchar) {
     s = sds_catchar(s, 'a');
     ASSERT_STREQ("a", s);
     ASSERT_EQ(strlen(s), sdslen(s));
+
+    s = sdscat(s, "bcdefghijklmnopqrstuvwxy");
+    s = sds_catchar(s, 'z');
+    ASSERT_STREQ("abcdefghijklmnopqrstuvwxyz", s);
+    ASSERT_EQ(strlen(s), sdslen(s));
+
     sdsfree(s);
 }
 

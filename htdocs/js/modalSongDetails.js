@@ -88,7 +88,7 @@ function parseFingerprint(obj) {
 /**
  * Adds a row to the song details modal
  * @param {string} thContent text for th
- * @param {HTMLElement | Node | string} tdContent content element fot td
+ * @param {HTMLElement | Node | string} tdContent content element for td
  * @returns {HTMLElement} created row
  */
 function songDetailsRow(thContent, tdContent) {
@@ -113,6 +113,7 @@ function songDetailsRow(thContent, tdContent) {
  */
 function parseSongDetails(obj) {
     const modal = elGetById('modalSongDetails');
+    setData(modal, 'uri', obj.result.uri);
     modal.querySelector('.album-cover').style.backgroundImage = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.uri));
 
     const elH1s = modal.querySelectorAll('h1');
@@ -238,15 +239,15 @@ function parseSongDetails(obj) {
                 )
             )
         );
-        for (const sticker of stickerList) {
+        for (const sticker of stickerListSongs) {
             if (sticker === 'like' ||
                 sticker === 'rating')
             {
                 if (sticker === 'like' &&
                     features.featLike === true)
                 {
-                    const grp = createLike(obj.result.like);
-                    setData(grp, 'href', {"cmd": "voteSongLike", "options": ["target"]});
+                    const grp = createLike(obj.result.like, "song");
+                    setData(grp, 'href', {"cmd": "voteLike", "options": ["target"]});
                     setData(grp, 'uri', obj.result.uri);
                     tbody.appendChild(
                         elCreateNodes('tr', {}, [
@@ -258,8 +259,8 @@ function parseSongDetails(obj) {
                 else if (sticker === 'rating' &&
                     features.featRating === true)
                 {
-                    const grp = createStarRating(obj.result.rating);
-                    setData(grp, 'href', {"cmd": "voteSongRating", "options": ["target"]});
+                    const grp = createStarRating(obj.result.rating, "song");
+                    setData(grp, 'href', {"cmd": "voteRating", "options": ["target"]});
                     setData(grp, 'uri', obj.result.uri);
                     tbody.appendChild(
                         elCreateNodes('tr', {}, [
@@ -269,11 +270,51 @@ function parseSongDetails(obj) {
                     );
                 }
             }
+            else if (sticker === 'elapsed') {
+                const div = elCreateNodes('div', {'class': ['row']}, [
+                    elCreateEmpty('div', {'class': ['col', 'colMaxContent']}),
+                    elCreateNode('div', {'class': ['col']}, printValue(sticker, obj.result[sticker], obj.result))
+                ]);
+                if (obj.result[sticker] > 0 &&
+                    obj.result[sticker] < obj.result.Duration)
+                {
+                    const resumeBtn = pEl.resumeBtn.cloneNode(true);
+                    resumeBtn.classList.add("me-3");
+                    div.firstElementChild.appendChild(resumeBtn);
+                    setData(resumeBtn, 'uri', obj.result.uri);
+                    new BSN.Dropdown(resumeBtn.firstElementChild);
+                    resumeBtn.lastElementChild.firstElementChild.addEventListener('click', function(event) {
+                        clickResumeSong(event);
+                    }, false);
+                }
+                tbody.appendChild(
+                    songDetailsRow(sticker, div)
+                );
+            }
             else {
                 tbody.appendChild(
                     songDetailsRow(sticker, printValue(sticker, obj.result[sticker]))
                 );
             }
+        }
+        tbody.appendChild(
+            elCreateNode('tr', {},
+                elCreateText('th', {"colspan": "2", "class": ["pt-3"]}, 'Sticker')
+            )
+        );
+        let i = 0;
+        for (const key in obj.result.sticker) {
+            tbody.appendChild(
+                songDetailsRow(key, obj.result.sticker[key])
+            );
+            i++;
+        }
+        if (i === 0) {
+            tbody.appendChild(
+                elCreateNode('tr', {},
+                    elCreateTextTn('td', {"colspan": "2",}, 'No user defined stickers')
+                )
+            );
         }
     }
     unsetUpdateViewId('modalSongDetailsTagsList');
@@ -320,4 +361,49 @@ function parseComments(obj) {
         );
     }
     unsetUpdateView(table);
+}
+
+/**
+ * Adds the song in current song detail modal to the queue
+ * @param {string} action one of appendQueue, appendPlayQueue,
+ *                               insertAfterCurrentQueue, replaceQueue,
+ *                               replacePlayQueue, addToHome
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function songDetailAddTo(action) {
+    const uri = getDataId('modalSongDetails', 'uri');
+    const type = 'song';
+    switch(action) {
+        case 'appendQueue':
+            appendQueue(type, [uri]);
+            break;
+        case 'appendPlayQueue':
+            appendPlayQueue(type, [uri]);
+            break;
+        case 'insertAfterCurrentQueue':
+            insertAfterCurrentQueue(type, [uri], null);
+            break;
+        case 'replaceQueue':
+            replaceQueue(type, [uri]);
+            break;
+        case 'replacePlayQueue':
+            replacePlayQueue(type, [uri]);
+            break;
+        case 'addToHome':
+            addPlistToHome(uri, type, uri);
+            break;
+        default:
+            logError('Invalid action: ' + action);
+    }
+}
+
+/**
+ * Shows the sticker edit dialog from song details modal
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function songDetailStickerEdit() {
+    const uri = getDataId('modalSongDetails', 'uri');
+    showStickerModal(uri, 'song');
 }

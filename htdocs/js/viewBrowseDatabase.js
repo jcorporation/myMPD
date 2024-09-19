@@ -121,7 +121,7 @@ function viewBrowseDatabaseAlbumDetailListClickHandler(event, target) {
 }
 
 /**
- * Parsed the MYMPD_API_DATABASE_ALBUM_LIST response
+ * Parses the MYMPD_API_DATABASE_ALBUM_LIST response
  * @param {object} obj jsonrpc response object
  * @returns {void}
  */
@@ -134,28 +134,38 @@ function parseDatabaseAlbumList(obj) {
         const tfoot = cardContainer.querySelector('tfoot');
         elClear(tfoot);
         updateTable(obj, app.id, function(row, data) {
-            setData(row, 'uri', data.FirstSongUri.replace(/\/[^/]+$/, ''));
-            setData(row, 'type', 'album');
-            setData(row, 'name', data.Album);
-            setData(row, 'Album', data.Album);
-            setData(row, tagAlbumArtist, data[tagAlbumArtist]);
-            setData(row, 'AlbumId', data.AlbumId);
-            row.setAttribute('title', tn('Show album'));
+            parseDatabaseAlbumListUpdate(row, data);
         });
         addTblFooter(tfoot,
             elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
         );
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        setData(card, 'uri', data.FirstSongUri.replace(/\/[^/]+$/, ''));
-        setData(card, 'type', 'album');
-        setData(card, 'name', data.Album);
-        setData(card, 'Album', data.Album);
-        setData(card, tagAlbumArtist, data[tagAlbumArtist]);
-        setData(card, 'AlbumId', data.AlbumId);
-        card.setAttribute('title', tn('Show album'));
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            parseDatabaseAlbumListUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parseDatabaseAlbumListUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parseDatabaseAlbumListUpdate(card, data) {
+    setData(card, 'uri', data.FirstSongUri.replace(/\/[^/]+$/, ''));
+    setData(card, 'type', 'album');
+    setData(card, 'name', data.Album);
+    setData(card, 'Album', data.Album);
+    setData(card, tagAlbumArtist, data[tagAlbumArtist]);
+    setData(card, 'AlbumId', data.AlbumId);
+    card.setAttribute('title', tn('Show album'));
 }
 
 /**
@@ -168,8 +178,8 @@ function parseDatabaseAlbumList(obj) {
     if (checkResult(obj, cardContainer, undefined) === false) {
         return;
     }
+    elGetById('BrowseDatabaseTagListTitle').textContent = tn(obj.result.tag);
 
-    const rowTitle = tn(settings.tagListAlbum.includes(obj.result.tag) ? 'Show albums' : 'Show songs');
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = cardContainer.querySelector('tfoot');
         const colspan = settings['view' + app.id].fields.length;
@@ -178,12 +188,7 @@ function parseDatabaseAlbumList(obj) {
         addActionLinks(actionTd, obj.result.tag);
         elClear(tfoot);
         updateTable(obj, app.id, function(row, data, result) {
-            if (result.pics === true) {
-                data.Thumbnail = getCssImageUri('/tagart?tag=' + myEncodeURIComponent(result.tag) + '&value=' + myEncodeURIComponent(data.value));
-            }
-            setData(row, 'tag', result.tag);
-            setData(row, 'name', data.Value);
-            row.setAttribute('title', rowTitle);
+            parseDatabaseTagListUpdate(row, data, result);
         }, function(row, data) {
             tableRow(row, data, app.id, colspan, smallWidth, actionTd);
         });
@@ -192,17 +197,49 @@ function parseDatabaseAlbumList(obj) {
         );
         return;
     }
-    updateGrid(obj, app.id, function(card, data, result) {
-        if (result.pics === true) {
-            data.Thumbnail = getCssImageUri('/tagart?tag=' + myEncodeURIComponent(result.tag) + '&value=' + myEncodeURIComponent(data.Value));
-        }
-        setData(card, 'tag', result.tag);
-        setData(card, 'name', data.Value);
-        card.setAttribute('title', rowTitle);
-        card.classList.add('no-contextmenu');
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data, result) {
+            parseDatabaseTagListUpdate(card, data, result);
+        }, undefined, function(footer, data, result) {
+            addActionLinks(footer, result.tag);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data, result) {
+        parseDatabaseTagListUpdate(card, data, result);
     }, undefined, function(footer, data, result) {
         addActionLinks(footer, result.tag);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @param {object} result Jsonrpc result
+ * @returns {void}
+ */
+function parseDatabaseTagListUpdate(card, data, result) {
+    if (result.pics === true) {
+        data.Thumbnail = getCssImageUri('/tagart?tag=' + myEncodeURIComponent(result.tag) + '&value=' + myEncodeURIComponent(data.Value));
+    }
+    setData(card, 'tag', result.tag);
+    setData(card, 'name', data.Value);
+    const rowTitle = tn(settings.tagListAlbum.includes(result.tag) ? 'Show albums' : 'Show songs');
+    card.setAttribute('title', rowTitle);
+    card.classList.add('no-contextmenu');
+}
+
+/**
+ * Shows the edit sticker modal for the current album
+ * @param {Event} event triggering click event
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showAlbumSticker(event) {
+    event.preventDefault();
+    const uri = getDataId('viewDatabaseAlbumDetailCover', 'AlbumId');
+    showStickerModal(uri, 'mympd_album');
 }
 
 /**
@@ -226,6 +263,10 @@ function parseAlbumDetails(obj) {
     setData(coverEl, 'images', obj.result.images);
     setData(coverEl, 'embeddedImageCount', obj.result.embeddedImageCount);
     setData(coverEl, 'uri', obj.result.data[0].uri);
+    setData(coverEl, 'AlbumId', obj.result.AlbumId);
+    const feedbackGrp = elGetById('BrowseDatabaseAlbumDetailFeedback').firstElementChild;
+    setData(feedbackGrp, 'uri', obj.result.AlbumId);
+    setFeedback(feedbackGrp, obj.result.like, obj.result.rating);
 
     elClear(infoEl);
     infoEl.appendChild(
@@ -266,6 +307,28 @@ function parseAlbumDetails(obj) {
     const mbField = addMusicbrainzFields(obj.result, false);
     if (mbField !== null) {
         infoEl.appendChild(mbField);
+    }
+
+    if (obj.result.lastPlayedSong.uri !== '' &&
+        obj.result.lastPlayedSong.pos < obj.result.totalEntities - 1)
+    {
+        const resumeBtn = pEl.resumeBtn.cloneNode(true);
+        resumeBtn.classList.add('ms-3', 'dropdown');
+        resumeBtn.classList.remove('dropup');
+        setData(resumeBtn, 'pos', obj.result.lastPlayedSong.pos);
+        new BSN.Dropdown(resumeBtn.firstElementChild);
+        resumeBtn.lastElementChild.firstElementChild.addEventListener('click', function(event) {
+            clickResumeAlbum(event);
+        }, false);
+        infoEl.appendChild(
+            elCreateNodes('div', {"class": ["col-xl-6"]}, [
+                elCreateTextTn('small', {}, 'Last played'),
+                elCreateNodes('p', {}, [
+                    document.createTextNode(obj.result.lastPlayedSong.title),
+                    resumeBtn
+                ])
+            ])
+        );
     }
 
     const rowTitle = tn(settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong]);

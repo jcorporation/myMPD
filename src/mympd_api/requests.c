@@ -51,15 +51,13 @@ bool mympd_api_request_trigger_event_emit(enum trigger_events event, const char 
 /**
  * Pushes a INTERNAL_API_STICKER_FEATURES to the queue
  * @param feat_sticker stickers enabled?
- * @param feat_sticker_sort_window sticker sort window supported?
- * @param feat_sticker_int sticker int value supported?
+ * @param feat_advsticker advanced sticker support?
  * @return true on success, else false
  */
-bool mympd_api_request_sticker_features(bool feat_sticker, bool feat_sticker_sort_window, bool feat_sticker_int) {
+bool mympd_api_request_sticker_features(bool feat_sticker, bool feat_advsticker) {
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STICKER_FEATURES, NULL, "default");
     request->data = tojson_bool(request->data, "sticker", feat_sticker, true);
-    request->data = tojson_bool(request->data, "sticker_sort_window", feat_sticker_sort_window, true);
-    request->data = tojson_bool(request->data, "sticker_int", feat_sticker_int, false);
+    request->data = tojson_bool(request->data, "advsticker", feat_advsticker, false);
     request->data = sdscatlen(request->data, "}}", 2);
     return push_request(request, 0);
 }

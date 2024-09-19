@@ -15,7 +15,7 @@
 
 sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         sds buffer, unsigned request_id, sds albumid, const struct t_fields *tagcols);
-sds mympd_api_browse_album_list(struct t_partition_state *partition_state, struct t_cache *album_cache,
+sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         sds buffer, unsigned request_id, sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
         const struct t_fields *tagcols);
 sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buffer,

@@ -195,11 +195,22 @@ function i18nHtml(root) {
  * @returns {void}
  */
 function i18nPregenerated() {
-    pEl.selectBtn.setAttribute('title', tn('Select'));
-    pEl.selectAllBtn.setAttribute('title', tn('Select all'));
-    pEl.actionsBtn.setAttribute('title', tn('Actions'));
-    pEl.removeBtn.setAttribute('title', tn('Remove'));
-    pEl.playBtn.setAttribute('title', tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]));
-    pEl.showSongsBtn.setAttribute('title', tn('Show songs'));
-    pEl.showAlbumsBtn.setAttribute('title', tn('Show albums'));
+    for (const el in pEl) {
+        if (pEl[el].nodeName !== undefined) {
+            const titles = pEl[el].querySelectorAll('[data-title-phrase]');
+            for (const tit of titles) {
+                tit.setAttribute('title', tn(tit.getAttribute('data-title-phrase')));
+            }
+            if (pEl[el].getAttribute('data-title-phrase') !== null) {
+                pEl[el].setAttribute('title', tn(pEl[el].getAttribute('data-title-phrase')));
+            }
+            const tcs =  pEl[el].querySelectorAll('[data-phrase]');
+            for (const tc of tcs) {
+                tc.textContent = tn(tc.getAttribute('data-phrase'));
+            }
+            if (pEl[el].getAttribute('data-phrase') !== null) {
+                pEl[el].textContent = tn(pEl[el].getAttribute('data-phrase'));
+            }
+        }
+    }
 }

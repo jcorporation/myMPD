@@ -138,12 +138,20 @@ function parseCurrentSong(obj) {
     }
 
     if (features.featStickers === true) {
-        if (settings.webuiSettings.feedback === 'like') {
-            setVoteSongBtns(obj.result.like, obj.result.uri);
+        const PlaybackSongFeedbackEl = elGetById('PlaybackSongFeedback').firstElementChild;
+        const PlaybackSongStickerEl = elGetById('PlaybackSongSticker');
+        setData(PlaybackSongFeedbackEl, 'uri', obj.result.uri);
+        if (isValidUri(obj.result.uri) === false ||
+            isStreamUri(obj.result.uri) === true)
+        {
+            elDisableBtnGroup(PlaybackSongFeedbackEl);
+            elDisableBtnGroup(PlaybackSongStickerEl);
         }
-        else if (settings.webuiSettings.feedback === 'rating') {
-            setRating(elGetById('PlaybackSongRating'), obj.result.rating);
+        else {
+            elEnableBtnGroup(PlaybackSongFeedbackEl);
+            elEnableBtnGroup(PlaybackSongStickerEl);
         }
+        setFeedback(PlaybackSongFeedbackEl, obj.result.like, obj.result.rating);
     }
 
     setPlaybackCardTags(obj.result);
@@ -228,7 +236,7 @@ function setPlaybackCardTags(songObj) {
                 default: {
                     const value = songObj[col];
                     const valueEl = c.querySelector('p');
-                    elReplaceChild(valueEl, printValue(col, value));
+                    elReplaceChild(valueEl, printValue(col, value, songObj));
                     if (isEmptyTag(value) === true ||
                         settings.tagListBrowse.includes(col) === false)
                     {
@@ -356,46 +364,12 @@ function showAddToPlaylistCurrentSong() {
 }
 
 /**
- * Sets the state of the song vote button group
- * @param {number} vote the vote 0 = hate, 1 = neutral, 2 = love
- * @param {string} uri song uri
+ * Shows the edit sticker modal for the current song
+ * @param {Event} event triggering click event
  * @returns {void}
  */
-function setVoteSongBtns(vote, uri) {
-    if (uri === undefined) {
-        uri = '';
-    }
-
-    const btnLove = elGetById('PlaybackSongLoveBtn');
-    const btnHate = elGetById('PlaybackSongHateBtn');
-
-    if (isValidUri(uri) === false ||
-        isStreamUri(uri) === true)
-    {
-        elDisable(btnLove);
-        elDisable(btnHate);
-        elDisable(btnLove.parentNode);
-        btnLove.classList.remove('active');
-        btnHate.classList.remove('active');
-    }
-    else {
-        elEnable(btnLove);
-        elEnable(btnHate);
-        elEnable(btnLove.parentNode);
-    }
-
-    switch(vote) {
-        case 0:
-            btnLove.classList.remove('active');
-            btnHate.classList.add('active');
-            break;
-        case 2:
-            btnLove.classList.add('active');
-            btnHate.classList.remove('active');
-            break;
-        default:
-            btnLove.classList.remove('active');
-            btnHate.classList.remove('active');
-            break;
-    }
+//eslint-disable-next-line no-unused-vars
+function showCurrentSongSticker(event) {
+    event.preventDefault();
+    showStickerModal(currentSongObj.uri, 'song');
 }

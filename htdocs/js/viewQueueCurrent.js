@@ -83,7 +83,6 @@ function parseQueue(obj) {
         return;
     }
 
-    const rowTitle = settingsWebuiFields.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     if (settings['view' + app.id].mode === 'table') {
         const colspan = settings['viewQueueCurrent'].fields.length;
         const smallWidth = uiSmallWidthTagRows();
@@ -93,41 +92,7 @@ function parseQueue(obj) {
         addActionLinks(actionTd);
 
         updateTable(obj, app.id, function(row, data) {
-            if (features.featAdvqueue === false ||
-                app.current.sort.tag === 'Priority')
-            {
-                // Enable drag and drop only if list is sorted by priority
-                // This is the default sorting for simple queue mode
-                row.setAttribute('draggable', 'true');
-            }
-            row.setAttribute('id', 'queueSongId' + data.id);
-            row.setAttribute('title', tn(rowTitle));
-            setData(row, 'songid', data.id);
-            setData(row, 'pos', data.Pos);
-            setData(row, 'duration', data.Duration);
-            setData(row, 'uri', data.uri);
-            setData(row, 'type', data.Type);
-            if (data.Type === 'webradio') {
-                setData(row, 'webradioType', data.webradio.Type);
-                setData(row, 'name', data.webradio.Name);
-            }
-            else {
-                setData(row, 'name', data.Title);
-                //set AlbumId
-                if (data.AlbumId !== undefined) {
-                    setData(row, 'AlbumId', data.AlbumId);
-                }
-                //and browse tags
-                for (const tag of settings.tagListBrowse) {
-                    if (albumFilters.includes(tag) &&
-                        isEmptyTag(data[tag]) === false)
-                    {
-                        setData(row, tag, data[tag]);
-                    }
-                }
-            }
-            //set Title to Name + Title for streams
-            data.Title = getDisplayTitle(data.Name, data.Title);
+            parseQueueUpdate(row, data);
         }, function(row, data) {
             tableRow(row, data, app.id, colspan, smallWidth, actionTd);
             if (currentState.currentSongId === data.id) {
@@ -151,44 +116,83 @@ function parseQueue(obj) {
         }
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        card.setAttribute('id', 'queueSongId' + data.id);
-        card.setAttribute('title', tn(rowTitle));
-        setData(card, 'songid', data.id);
-        setData(card, 'pos', data.Pos);
-        setData(card, 'duration', data.Duration);
-        setData(card, 'uri', data.uri);
-        setData(card, 'type', data.Type);
-        if (data.Type === 'webradio') {
-            setData(card, 'webradioUri', data.webradio.filename);
-            setData(card, 'name', data.webradio.Name);
-        }
-        else {
-            setData(card, 'name', data.Title);
-            //set AlbumId
-            if (data.AlbumId !== undefined) {
-                setData(card, 'AlbumId', data.AlbumId);
-            }
-            //and browse tags
-            for (const tag of settings.tagListBrowse) {
-                if (albumFilters.includes(tag) &&
-                    isEmptyTag(data[tag]) === false)
-                {
-                    setData(card, tag, data[tag]);
-                }
-            }
-        }
-        //set Title to Name + Title for streams
-        data.Title = getDisplayTitle(data.Name, data.Title);
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            parseQueueUpdate(card, data);
+        }, function(card, data) {
+            createGridBody(card, data, app.id);
+            parseQueueBody(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parseQueueUpdate(card, data);
     }, function(card, data) {
-        gridBody(card, data, app.id);
-        if (currentState.currentSongId === data.id) {
-            setPlayingRow();
-            if (currentState.state === 'play') {
-                setQueueCounter(card, getCounterText());
+        createListBody(card, data, app.id);
+        parseQueueBody(card, data);
+    });
+}
+
+/**
+ * Callback function for row or card body
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parseQueueBody(card, data) {
+    if (currentState.currentSongId === data.id) {
+        setPlayingRow();
+        if (currentState.state === 'play') {
+            setQueueCounter(card, getCounterText());
+        }
+    }
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parseQueueUpdate(card, data) {
+    const rowTitle = settingsWebuiFields.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
+    card.setAttribute('id', 'queueSongId' + data.id);
+    card.setAttribute('title', tn(rowTitle));
+    setData(card, 'songid', data.id);
+    setData(card, 'pos', data.Pos);
+    setData(card, 'duration', data.Duration);
+    setData(card, 'uri', data.uri);
+    setData(card, 'type', data.Type);
+    if (data.Type === 'webradio') {
+        setData(card, 'webradioType', data.webradio.Type);
+        setData(card, 'name', data.webradio.Name);
+    }
+    else {
+        setData(card, 'name', data.Title);
+        //set AlbumId
+        if (data.AlbumId !== undefined) {
+            setData(card, 'AlbumId', data.AlbumId);
+        }
+        //and browse tags
+        for (const tag of settings.tagListBrowse) {
+            if (albumFilters.includes(tag) &&
+                isEmptyTag(data[tag]) === false)
+            {
+                setData(card, tag, data[tag]);
             }
         }
-    });
+    }
+    //set Title to Name + Title for streams
+    data.Title = getDisplayTitle(data.Name, data.Title);
+
+    if (features.featAdvqueue === false ||
+        app.current.sort.tag === 'Priority')
+    {
+        // Enable drag and drop only if list is sorted by priority
+        // This is the default sorting for simple queue mode
+        card.setAttribute('draggable', 'true');
+        card.setAttribute('tabindex', '0');
+    }
 }
 
 /**
@@ -233,7 +237,9 @@ function resetDuration(playingRow) {
  * @returns {void}
  */
 function resetSongPos(playingRow) {
-    if (playingRow === undefined) {
+    if (playingRow === undefined ||
+        playingRow.getAttribute('id') === null)
+    {
         playingRow = elGetById('queueSongId' + currentState.currentSongId);
     }
     const posTd = playingRow.querySelector('[data-col=Pos]');
@@ -256,8 +262,14 @@ function setQueueCounter(playingRow, counterText) {
         const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0
             ? 100
             : Math.ceil((100 / currentState.totalTime) * currentState.elapsedTime * 100) / 100;
-        playingRow.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
-            progressPrct + '%, transparent ' + progressPrct + '%, transparent 100%)';
+        let targetRow = playingRow;
+        if (targetRow.getAttribute('id') === null) {
+            targetRow = elGetById('queueSongId' + currentState.currentSongId);
+        }
+        if (targetRow !== null) {
+            targetRow.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
+                progressPrct + '%, transparent ' + progressPrct + '%, transparent 100%)';
+        }
     }
     //counter in queue card
     const durationTd = playingRow.querySelector('[data-col=Duration]');
@@ -272,7 +284,9 @@ function setQueueCounter(playingRow, counterText) {
  * @returns {void}
  */
 function setPlayingRow(playingRow) {
-    if (playingRow === undefined) {
+    if (playingRow === undefined ||
+        playingRow.getAttribute('id') === null)
+    {
         playingRow = elGetById('queueSongId' + currentState.currentSongId);
     }
     if (playingRow !== null) {

@@ -29,7 +29,16 @@ function showContextMenu(event) {
     else if (target.parentNode.parentNode.classList.contains('card')) {
         target = target.parentNode.parentNode;
     }
-    
+    else if (target.parentNode.classList.contains('list-group-item')) {
+        target = target.parentNode;
+    }
+    else if (target.parentNode.parentNode.classList.contains('list-group-item')) {
+        target = target.parentNode.parentNode;
+    }
+    else if (target.parentNode.parentNode.parentNode.classList.contains('list-group-item')) {
+        target = target.parentNode.parentNode.parentNode;
+    }
+
     const contextMenuType = target.getAttribute('data-contextmenu');
     logDebug('Create new context menu of type ' + contextMenuType);
     switch (contextMenuType) {
@@ -66,7 +75,8 @@ function createMenuViewSettings(target, contextMenuTitle, contextMenuBody) {
                 elCreateNode('div', {'class': ['col-8']},
                     elCreateNodes('div', {'class': ['btn-group', 'w-100'], "id": "viewSettingsMode"}, [
                         elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'table'}, 'Table'),
-                        elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'grid'}, 'Grid')
+                        elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'grid'}, 'Grid'),
+                        elCreateTextTn('button', {"class": ["btn", "btn-secondary"], 'data-value': 'list'}, 'List')
                     ])
                 )
             ])
@@ -193,23 +203,25 @@ function addMenuItemsNavbarActions(target, popoverBody) {
  * @param {HTMLElement} contextMenuBody element to append the menu items
  * @returns {void}
  */
-function addMenuItemsDiscActions(target, contextMenuTitle, contextMenuBody) {
+function addMenuItemsAlbumTagActions(target, contextMenuTitle, contextMenuBody) {
     const dataNode = target.parentNode.parentNode;
-    const disc = getData(dataNode, 'Disc');
+    const type = getData(dataNode, 'type');
+    const value = getData(dataNode, ucFirst(type));
     const albumId = getData(dataNode, 'AlbumId');
+    const albumName = getData(dataNode, 'name');
 
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["appendQueue", albumId, disc]}, 'Append to queue');
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["appendPlayQueue", albumId, disc]}, 'Append to queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": [type, [albumId, value]]}, 'Append to queue');
+    addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": [type, [albumId, value]]}, 'Append to queue and play');
     if (features.featWhence === true &&
         currentState.currentSongId !== -1)
     {
-        addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["insertAfterCurrentQueue", albumId, disc]}, 'Insert after current playing song');
+        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": [type, [albumId, value]]}, 'Insert after current playing song');
     }
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["replaceQueue", albumId, disc]}, 'Replace queue');
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["replacePlayQueue", albumId, disc]}, 'Replace queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": [type, [albumId, value]]}, 'Replace queue');
+    addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": [type, [albumId, value]]}, 'Replace queue and play');
     if (features.featPlaylists === true) {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["addPlaylist", albumId, disc]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [type, [albumId, value], [albumName]]}, 'Add to playlist');
     }
 }
 
@@ -264,8 +276,15 @@ function addMenuItemsConsumeActions(contextMenuBody) {
  * @returns {void}
  */
 function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, albumId) {
+    const albumName = [];
     if (dataNode !== null) {
-        albumId = getData(dataNode, 'AlbumId');
+        if (albumId === undefined) {
+            albumId = getData(dataNode, 'AlbumId');
+        }
+        const name = getData(dataNode, 'name');
+        if (name !== null) {
+            albumName.push(name);
+        }
     }
     if (contextMenuTitle !== null) {
         contextMenuTitle.textContent = tn('Album');
@@ -283,11 +302,14 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
     }
     if (features.featPlaylists === true) {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": ["album", [albumId]]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": ["album", [albumId], albumName]}, 'Add to playlist');
     }
     addDivider(contextMenuBody);
     if (app.id !== 'BrowseDatabaseAlbumDetail') {
         addMenuItem(contextMenuBody, {"cmd": "gotoAlbum", "options": [albumId]}, 'Album details');
+    }
+    if (features.featStickerAdv === true) {
+        addMenuItem(contextMenuBody, {"cmd": "showStickerModal", "options": [albumId, 'mympd_album']}, 'Sticker');
     }
     for (const tag of settings.tagListBrowse) {
         if (dataNode !== null &&
@@ -308,10 +330,10 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
             ? getData(dataNode, 'name')
             : '';
         const image = dataNode !== null
-            ? getData(dataNode, 'image')
+            ? getData(dataNode, 'cssImageUrl')
             : '';
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "addAlbumToHome", "options": [albumId, name, image]}, 'Add to homescreen');
+        addMenuItem(contextMenuBody, {"cmd": "addAlbumToHome", "options": [albumId, name, image.substr(5,image.length-7)]}, 'Add to homescreen');
     }
 }
 
@@ -350,6 +372,9 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
     if (type === 'song') {
         addDivider(contextMenuBody);
         addMenuItem(contextMenuBody, {"cmd": "songDetails", "options": [uri]}, 'Song details');
+        if (features.featStickerAdv === true) {
+            addMenuItem(contextMenuBody, {"cmd": "showStickerModal", "options": [uri, type]}, 'Sticker');
+        }
     }
     if (features.featHome === true &&
         app.id !== 'Home')
@@ -519,7 +544,7 @@ function addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name)
         {
             if (isMPDplaylist(uri) === true) {
                 addDivider(contextMenuBody);
-                addMenuItem(contextMenuBody, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
+                addMenuItem(contextMenuBody, {"cmd": "gotoPlaylist", "options": [uri]}, 'View playlist');
             }
             else {
                 addMenuItem(contextMenuBody, {"cmd": "gotoFilesystem", "options": [uri, "plist"]}, 'View playlist');
@@ -583,10 +608,10 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name);
                 addDivider(contextMenuBody);
                 if (type === 'smartpls') {
-                    addMenuItem(contextMenuBody, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
+                    addMenuItem(contextMenuBody, {"cmd": "gotoPlaylist", "options": [uri]}, 'View playlist');
                 }
                 else {
-                    addMenuItem(contextMenuBody, {"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist');
+                    addMenuItem(contextMenuBody, {"cmd": "gotoPlaylist", "options": [uri]}, 'Edit playlist');
                 }
                 addMenuItem(contextMenuBody, {"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist');
                 addMenuItem(contextMenuBody, {"cmd": "showCopyPlaylist", "options": [[uri]]}, 'Copy playlist');
@@ -601,6 +626,10 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 addDivider(contextMenuBody);
                 addMenuItem(contextMenuBody, {"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist');
                 addMenuItem(contextMenuBody, {"cmd": "updateSmartPlaylist", "options": [uri]}, 'Update smart playlist');
+            }
+            if (features.featStickerAdv === true) {
+                addDivider(contextMenuBody);
+                addMenuItem(contextMenuBody, {"cmd": "showStickerModal", "options": [uri, 'playlist']}, 'Sticker');
             }
             return true;
         }
@@ -737,7 +766,7 @@ function createMenuListsSecondary(target, contextMenuTitle, contextMenuBody) {
  * @param {HTMLElement} contextMenuBody content element
  * @returns {boolean} true on success, else false
  */
-function createMenuHome(target, contextMenuTitle, contextMenuBody) {
+function createMenuHomeIcon(target, contextMenuTitle, contextMenuBody) {
     const pos = getData(target, 'pos');
     const href = getData(target, 'href');
     if (href === undefined) {
@@ -788,7 +817,7 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
             addMenuItemsSearchActions(contextMenuBody, href.options[1][0], href.options[1][1], href.options[1][2]);
             break;
         case 'album':
-            addMenuItemsAlbumActions(null, null, contextMenuBody, href.options[1][0]);
+            addMenuItemsAlbumActions(target, null, contextMenuBody, href.options[1][0]);
             break;
         case 'view':
         case 'externalLink':
@@ -812,12 +841,30 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
  * @param {HTMLElement} contextMenuBody content element
  * @returns {boolean} true on success, else false
  */
-function createMenuHomeSecondary(target, contextMenuTitle, contextMenuBody) {
+function createMenuHomeIconSecondary(target, contextMenuTitle, contextMenuBody) {
     const pos = getData(target, 'pos');
     contextMenuTitle.textContent = tn('Home icon');
     contextMenuTitle.classList.add('offcanvas-title-homeicon');
     addMenuItem(contextMenuBody, {"cmd": "editHomeIcon", "options": [pos]}, 'Edit home icon');
     addMenuItem(contextMenuBody, {"cmd": "duplicateHomeIcon", "options": [pos]}, 'Duplicate home icon');
     addMenuItem(contextMenuBody, {"cmd": "deleteHomeIcon", "options": [pos]}, 'Delete home icon');
+    return true;
+}
+
+/**
+ * Creates the contents of the home widget actions for the context menu
+ * @param {EventTarget} target triggering element
+ * @param {HTMLElement} contextMenuTitle title element
+ * @param {HTMLElement} contextMenuBody content element
+ * @returns {boolean} true on success, else false
+ */
+function createMenuHomeWidget(target, contextMenuTitle, contextMenuBody) {
+    const pos = getData(target, 'pos');
+    contextMenuTitle.textContent = tn('Widget');
+    contextMenuTitle.classList.add('offcanvas-title-homewidget');
+    addMenuItem(contextMenuBody, {"cmd": "refreshHomeWidget", "options": [pos]}, 'Refresh widget');
+    addMenuItem(contextMenuBody, {"cmd": "editHomeWidget", "options": [pos, true]}, 'Edit widget');
+    addMenuItem(contextMenuBody, {"cmd": "editHomeWidget", "options": [pos, false]}, 'Duplicate widget');
+    addMenuItem(contextMenuBody, {"cmd": "deleteHomeIcon", "options": [pos]}, 'Delete widget');
     return true;
 }

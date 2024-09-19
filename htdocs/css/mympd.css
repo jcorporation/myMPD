@@ -377,6 +377,12 @@ th,
   }
 }
 
+@media only screen and (width >= 992px) {
+  .modal-lg, .modal-xl {
+    --bs-modal-width: 920px;
+  }
+}
+
 .clickable {
   cursor: pointer;
 }
@@ -445,8 +451,65 @@ div#homeActions {
   top: 0.5rem;
 }
 
+#HomeContainer {
+  margin-left: -1rem;
+  width: calc(100% + 1rem);
+}
+
+.home-widgets {
+  max-width: calc(100vW - 2rem);
+  font-size: 90%;
+  margin-bottom: 1rem !important;
+}
+
+.home-widget-1x1 {
+  width: 8rem;
+  height: 7rem;
+}
+
+.home-widget-1x2 {
+  width: 8rem;
+  height: 15rem;
+}
+
+.home-widget-1x3 {
+  width: 8rem;
+  height: 23rem;
+}
+
+.home-widget-2x1 {
+  width: 17rem;
+  height: 7rem;
+}
+
+.home-widget-2x2 {
+  width: 17rem;
+  height: 15rem;
+}
+
+.home-widget-2x3 {
+  width: 17rem;
+  height: 23rem;
+}
+
+.home-widget-3x1 {
+  width: 26rem;
+  height: 7rem;
+}
+
+.home-widget-3x2 {
+  width: 26rem;
+  height: 15rem;
+}
+
+.home-widget-3x3 {
+  width: 26rem;
+  height: 23rem;
+}
+
 .home-icons {
   width: 8rem;
+  height: 8rem;
   min-height: 0 !important;
   margin-bottom: 1.25rem;
   overflow: hidden;
@@ -472,14 +535,6 @@ div#homeActions {
 .home-icons .card-body {
   border-top: none;
   background-color: transparent;
-}
-
-.dragover-icon-left {
-  border-left: 1px solid var(--mympd-highlightcolor);
-}
-
-.dragover-icon-right {
-  border-right: 1px solid var(--mympd-highlightcolor);
 }
 
 .card-grid {
@@ -675,6 +730,11 @@ tfoot td {
 .dragover,
 .dragover > td {
   border-top: 2px solid var(--mympd-highlightcolor) !important;
+}
+
+.dragover-left {
+  border-left: 1px solid var(--mympd-highlightcolor) !important;
+  padding-left: 1rem !important;
 }
 
 [draggable] {
@@ -881,7 +941,13 @@ div#BrowseFilesystemImages {
   white-space: nowrap;
 }
 
-div#BrowseFilesystemImages > div {
+div#BrowsePlaylistDetailImage {
+  height: calc(var(--grid-thumbnail-size, 175px) + 1rem);
+  margin-bottom: 1rem;
+}
+
+div#BrowseFilesystemImages > div,
+div#BrowsePlaylistDetailImage > div {
   height: var(--grid-thumbnail-size, 175px);
   width: var(--grid-thumbnail-size, 175px);
   background-position: center center;
@@ -889,6 +955,10 @@ div#BrowseFilesystemImages > div {
   display: inline-block;
   margin-right: 1rem;
   cursor: pointer;
+}
+
+div#BrowsePlaylistDetailSticker > table {
+  width: unset;
 }
 
 div.homeIconPreview {
@@ -1120,13 +1190,15 @@ button.weekday {
 
 table[data-mode="select"] > thead > tr > th[data-col="Action"] > a,
 table[data-mode="select"] > tbody > tr > td[data-col="Action"] > a,
-div[data-mode="select"] .card-footer > a {
+div[data-mode="select"] .card-footer > a,
+div[data-mode="select"] .list-actions > a {
   display: none;
 }
 
 :not(table[data-mode="select"]) > thead > tr > th[data-col="Action"] > button,
 :not(table[data-mode="select"]) > tbody > tr > td[data-col="Action"] > button,
-:not(div[data-mode="select"]) > div > div > .card-footer > button {
+:not(div[data-mode="select"]) > div > div > .card-footer > button,
+:not(div[data-mode="select"]) > div > div > .list-actions > button {
   display: none;
 }
 
@@ -1136,7 +1208,8 @@ td[data-col="Action"] > button {
 }
 
 tr.selected > td,
-.mympd-grid > div > .selected {
+.mympd-grid > div > .selected,
+.listContainer > div > .selected {
   background-color: var(--mympd-highlightcolor);
 }
 
@@ -1188,6 +1261,10 @@ h4.offcanvas-title-webradio::before {
 
 h4.offcanvas-title-homeicon::before {
   content: "home";
+}
+
+h4.offcanvas-title-homewidget::before {
+  content: "widgets";
 }
 
 h4.offcanvas-title-search::before {
@@ -1272,4 +1349,16 @@ h4.offcanvas-title-stream::before {
 table div.alert {
   color: var(--bs-alert-color);
   background-color: var(--bs-alert-bg);
+}
+
+.list-image {
+  background-size: cover;
+  width: 6rem;
+  max-width: 6rem;
+  height: 6rem;
+  border-radius: 0.375rem
+}
+
+.colMaxContent {
+  max-width:fit-content;
 }

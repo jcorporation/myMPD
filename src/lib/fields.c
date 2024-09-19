@@ -38,17 +38,28 @@ void fields_reset(struct t_fields *fields) {
 void stickers_reset(struct t_stickers *stickers) {
     stickers->len = 0;
     memset(stickers->stickers, 0, sizeof(stickers->stickers));
+    stickers->user_defined = false;
 }
 
 /**
  * Enables all stickers
  * @param stickers pointer to t_stickers struct
+ * @param sticker_type myMPD sticker type
  */
-void stickers_enable_all(struct t_stickers *stickers) {
-    stickers->len = STICKER_COUNT;
-    for (int i = 0; i < STICKER_COUNT; i++) {
-        stickers->stickers[i] = i;
+void stickers_enable_all(struct t_stickers *stickers, enum mympd_sticker_type sticker_type) {
+    switch(sticker_type) {
+        case STICKER_TYPE_SONG:
+            stickers->len = STICKER_COUNT;
+            for (int i = 0; i < STICKER_COUNT; i++) {
+                stickers->stickers[i] = i;
+            }
+            break;
+        default:
+            stickers->len = 2;
+            stickers->stickers[0] = STICKER_LIKE;
+            stickers->stickers[1] = STICKER_RATING;
     }
+    stickers->user_defined = true;
 }
 
 /**

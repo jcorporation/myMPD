@@ -43,6 +43,7 @@ Default image light
 Delete home icon
 Delete playlist
 Delete webradio favorite
+Delete widget
 Disable consume mode
 Disable random
 Disable repeat
@@ -52,6 +53,7 @@ Disc
 Discs
 Display tags in rows for small displays
 Duplicate home icon
+Duplicate widget
 Each 1
 Each 3600
 Each 60

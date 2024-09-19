@@ -21,6 +21,25 @@ const searchTagsTimestamp = [
 ];
 
 /**
+ * Toggles the advanced search bar
+ * @param {Event} event Click event
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function toggleSearchExpr(event) {
+    event.preventDefault();
+    const target = event.target;
+    if (target.nextElementSibling.classList.contains('d-none')) {
+        elShow(target.nextElementSibling);
+        elShow(target.parentNode.nextElementSibling);
+    }
+    else {
+        elHide(target.nextElementSibling);
+        elHide(target.parentNode.nextElementSibling);
+    }
+}
+
+/**
  * Parses search expressions and update the ui for specified appid
  * @param {string} appid the application id
  * @returns {void}
@@ -55,6 +74,18 @@ function selectSearchMatch(appid) {
             searchMatchEl.value = 'contains';
         }
     }
+    setSearchExpressionPlaceholder(appid);
+}
+
+/**
+ * Sets the placeholder string for the search expression input
+ * @param {string} appid the application id
+ * @returns {void}
+ */
+function setSearchExpressionPlaceholder(appid) {
+    const searchMatchEl = elGetById(appid + 'SearchMatch');
+    const searchTagEl = elGetById(appid + 'SearchTagsDesc');
+    elGetById(appid + 'SearchStr').setAttribute('placeholder', tn(searchTagEl.textContent) + ' ' + tn(searchMatchEl.value));
 }
 
 /**
@@ -150,6 +181,7 @@ function initSearchExpression(appid) {
     elGetById(appid + 'SearchMatch').addEventListener('change', function() {
         execSearchExpression(elGetById(appid + 'SearchStr').value);
     }, false);
+    setSearchExpressionPlaceholder(appid);
 }
 
 /**

@@ -29,7 +29,8 @@ struct t_mpd_tags {
  */
 struct t_stickers {
     size_t len;                                        //!< number of stickers in the array
-    enum mympd_sticker_types stickers[STICKER_COUNT];  //!< stickers array
+    enum mympd_sticker_names stickers[STICKER_COUNT];  //!< stickers array
+    bool user_defined;                                 //!< user defines stickers
 };
 
 /**
@@ -55,7 +56,7 @@ void fields_clone(struct t_fields *src_fields, struct t_fields *dst_fields);
 void fields_reset(struct t_fields *fields);
 
 void stickers_reset(struct t_stickers *stickers);
-void stickers_enable_all(struct t_stickers *stickers);
+void stickers_enable_all(struct t_stickers *stickers, enum mympd_sticker_type sticker_type);
 
 void mpd_tags_clone(struct t_mpd_tags *src_mpd_tags, struct t_mpd_tags *dst_mpd_tags);
 void mpd_tags_reset(struct t_mpd_tags *mpd_tags);

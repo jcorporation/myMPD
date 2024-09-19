@@ -15,5 +15,7 @@
 
 bool mpd_worker_add_random_to_queue(struct t_mpd_worker_state *mpd_worker_state,
         unsigned add, unsigned mode, sds plist, bool play, sds partition);
+sds mpd_worker_list_random(struct t_mpd_worker_state *mpd_worker_state, sds buffer, unsigned request_id,
+        unsigned quantity, unsigned mode, sds plist);
 
 #endif

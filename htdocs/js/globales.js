@@ -90,6 +90,9 @@ const ligatures = {
     'star': 'star_border'
 };
 
+/** @type {Array} */
+const widgetRefresh = [];
+
 // pre-generated elements
 /** @type {object} */
 const pEl = {};
@@ -410,13 +413,6 @@ const settingsFields = {
         "title": "Enforce disc tag",
         "form": "modalSettingsTagsFrm",
         "help": "helpSettingsTagDiscEmptyIsFirst"
-    },
-    "showWorkTagAlbumDetail": {
-        "defaultValue": defaults["MYMPD_SHOW_WORK_TAG_ALBUM_DETAIL"],
-        "inputType": "checkbox",
-        "title": "Show work in album detail",
-        "form": "modalSettingsTagsFrm",
-        "help": "helpSettingsShowWorkTagAlbumDetail"
     }
 };
 
@@ -691,6 +687,13 @@ const settingsWebuiFields = {
         "form": "modalSettingsListsFrm",
         "help": "helpSettingsCompactGrids"
     },
+    "viewTitles": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Show view titles",
+        "form": "modalSettingsListsFrm",
+        "help": "helpSettingsViewTitles"
+    },
     "showBackButton": {
         "defaultValue": false,
         "inputType": "checkbox",
@@ -883,6 +886,13 @@ const settingsWebuiFields = {
         "title": "Album list sort",
         "form": "modalSettingsSortFrm",
         "help": "helpSettingsAlbumListSort"
+    },
+    "showWorkTagAlbumDetail": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Show work in album detail",
+        "form": "modalSettingsTagsFrm",
+        "help": "helpSettingsShowWorkTagAlbumDetail"
     }
 };
 
@@ -1183,9 +1193,9 @@ const mpdVersion = {
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};
 
-//list of stickers
+//list of stickers for songs
 /** @type {Array} */
-const stickerList = [
+const stickerListSongs = [
     'playCount',
     'skipCount',
     'lastPlayed',
@@ -1193,6 +1203,13 @@ const stickerList = [
     'like',
     'rating',
     'elapsed'
+];
+
+//list of stickers for playlists and filters (albums)
+/** @type {Array} */
+const stickerListAll = [
+    'like',
+    'rating'
 ];
 
 //application state
@@ -1303,7 +1320,7 @@ app.cards = {
                         "limit": 100,
                         "filter": "",
                         "sort": {
-                            "tag": "",
+                            "tag": "Name",
                             "desc": false
                         },
                         "tag": "",
@@ -1482,18 +1499,19 @@ const keymap = {
         "p": {"order": 9, "cmd": "togglePlaymode", "options": ["repeat"], "desc": "Toggle repeat"},
         "i": {"order": 9, "cmd": "togglePlaymode", "options": ["single"], "desc": "Toggle single mode"},
     "modals": {"order": 200, "desc": "Dialogs"},
-        "A": {"order": 201, "cmd": "showAddToPlaylist", "options": ["stream", []], "desc": "Add stream"},
-        "C": {"order": 202, "cmd": "openModal", "options": ["modalConnection"], "desc": "Open MPD connection"},
+        "A": {"order": 207, "cmd": "showAddToPlaylist", "options": ["stream", []], "desc": "Add stream"},
+        "C": {"order": 207, "cmd": "openModal", "options": ["modalConnection"], "desc": "Open MPD connection"},
+        "D": {"order": 207, "cmd": "clickTitle", "options": [], "desc": "Open current song details"},
         "G": {"order": 207, "cmd": "openModal", "options": ["modalTrigger"], "desc": "Open trigger", "feature": "featScripting"},
         "I": {"order": 207, "cmd": "openModal", "options": ["modalTimer"], "desc": "Open timer", "feature": "featTimer"},
         "L": {"order": 207, "cmd": "loginOrLogout", "options": [], "desc": "Login or logout", "feature": "featSession"},
-        "M": {"order": 205, "cmd": "openModal", "options": ["modalMaintenance"], "desc": "Open maintenance"},
-        "N": {"order": 206, "cmd": "openModal", "options": ["modalNotifications"], "desc": "Open notifications"},
+        "M": {"order": 207, "cmd": "openModal", "options": ["modalMaintenance"], "desc": "Open maintenance"},
+        "N": {"order": 207, "cmd": "openModal", "options": ["modalNotifications"], "desc": "Open notifications"},
         "O": {"order": 207, "cmd": "openModal", "options": ["modalMounts"], "desc": "Open mounts", "feature": "featMounts"},
         "P": {"order": 207, "cmd": "openModal", "options": ["modalPartitions"], "desc": "Open partitions", "feature": "featPartitions"},
-        "Q": {"order": 203, "cmd": "openModal", "options": ["modalPlayback"], "desc": "Open playback settings"},
+        "Q": {"order": 207, "cmd": "openModal", "options": ["modalPlayback"], "desc": "Open playback settings"},
         "S": {"order": 207, "cmd": "showListScriptModal", "options": [], "desc": "Open scripts", "feature": "featScripting"},
-        "T": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
+        "T": {"order": 207, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
         "V": {"order": 207, "cmd": "showListVariablesModal", "options": [], "desc": "Open variables", "feature": "featScripting"},
         "?": {"order": 207, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
         
@@ -1706,7 +1724,8 @@ const typeFriendly = {
     'appGoto': 'View',
     'webradio': 'Webradio',
     'viewSettings': 'View settings',
-    'disc': 'Disc'
+    'disc': 'Disc',
+    'work': 'Work'
 };
 
 const friendlyActions = {

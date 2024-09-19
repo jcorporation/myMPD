@@ -27,12 +27,17 @@ function handleBrowsePlaylistDetail() {
  */
 function handleBrowsePlaylistList() {
     handleSearchSimple('BrowsePlaylistList');
+    toggleBtnChkId('BrowsePlaylistListSortDesc', app.current.sort.desc);
+    selectTag('BrowsePlaylistListSortTagsList', undefined, app.current.sort.tag);
 
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
         "searchstr": app.current.search,
-        "type": 0
+        "type": 0,
+        "sort": app.current.sort.tag,
+        "sortdesc": app.current.sort.desc,
+        "fields": settings.viewBrowsePlaylistList.fields
     }, parsePlaylistList, true);
     elHideId('playlistDetailAlert');
 }
@@ -51,9 +56,22 @@ function initViewPlaylist() {
 
     initSearchSimple('BrowsePlaylistList');
     initSearchExpression('BrowsePlaylistDetail');
+    initSortBtns('BrowsePlaylistList');
 
     setView('BrowsePlaylistList');
     setView('BrowsePlaylistDetail');
+}
+
+/**
+ * Shows the edit sticker modal for the current playlist
+ * @param {Event} event triggering click event
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showPlaylistSticker(event) {
+    event.preventDefault();
+    const uri = getDataId('BrowsePlaylistDetailList', 'uri');
+    showStickerModal(uri, 'playlist');
 }
 
 /**
@@ -92,30 +110,41 @@ function parsePlaylistList(obj) {
         return;
     }
 
-    const rowTitle = settingsWebuiFields.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
         updateTable(obj, 'BrowsePlaylistList', function(row, data) {
-            setData(row, 'uri', data.uri);
-            setData(row, 'type', data.Type);
-            setData(row, 'name', data.Name);
-            setData(row, 'smartpls-only', data.smartplsOnly);
-            row.setAttribute('title', tn(rowTitle));
+            parsePlaylistListUpdate(row, data);
         });
         addTblFooter(tfoot,
             elCreateTextTnNr('span', {}, 'Num entries', obj.result.totalEntities)
         );
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        card.setAttribute('id', 'playlistSongId' + data.Pos);
-        setData(card, 'uri', data.uri);
-        setData(card, 'type', data.Type);
-        setData(card, 'name', data.Name);
-        setData(card, 'smartpls-only', data.smartplsOnly);
-        card.setAttribute('title', tn(rowTitle));
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            parsePlaylistListUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        parsePlaylistListUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parsePlaylistListUpdate(card, data) {
+    const rowTitle = settingsWebuiFields.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
+    setData(card, 'uri', data.uri);
+    setData(card, 'type', data.Type);
+    setData(card, 'name', data.Name);
+    setData(card, 'smartpls-only', data.smartplsOnly);
+    card.setAttribute('title', tn(rowTitle));
 }
 
 /**
@@ -125,6 +154,10 @@ function parsePlaylistList(obj) {
  */
 function parsePlaylistDetail(obj) {
     const table = elGetById('BrowsePlaylistDetailList');
+    const imageEl = elGetById('BrowsePlaylistDetailImage');
+    const stickerEl = elGetById('BrowsePlaylistDetailSticker');
+    elClear(imageEl);
+    elClear(stickerEl);
 
     if (checkResult(obj, table, undefined) === false) {
         return;
@@ -155,39 +188,113 @@ function parsePlaylistDetail(obj) {
         rw = true;
     }
 
+    if (obj.result.pics === true) {
+        const img = elCreateEmpty('div', {});
+        img.style.backgroundImage = getCssImageUri('/playlistart?type=' +
+            (obj.result.smartpls === false ? 'plist' : 'smartpls') + '&playlist=' + myEncodeURIComponent(obj.result.plist));
+        img.addEventListener('click', function(event) {
+            zoomPicture(event.target);
+        }, false);
+        imageEl.appendChild(img);
+        elShow(imageEl);
+    }
+    else {
+        elHide(imageEl);
+    }
+
+    if (features.featStickers === true) {
+        let stickerCount = 0;
+        const tbl = elCreateEmpty('table', {'class':['table', 'table-sm']});
+        for (const key in obj.result.sticker) {
+            tbl.appendChild(
+                elCreateNodes('tr', {}, [
+                    elCreateText('th', {'class': ['pe-2']}, key ),
+                    elCreateText('td', {}, obj.result.sticker[key])
+                ])
+            );
+            stickerCount++;
+        }
+        if (obj.result.lastPlayedSong.uri !== '') {
+            stickerCount++;
+            const resumeBtn = pEl.resumeBtn.cloneNode(true);
+            resumeBtn.classList.add('ms-3', 'dropdown');
+            resumeBtn.classList.remove('dropup');
+            setData(resumeBtn, 'pos', obj.result.lastPlayedSong.pos);
+            new BSN.Dropdown(resumeBtn.firstElementChild);
+            resumeBtn.lastElementChild.firstElementChild.addEventListener('click', function(event) {
+                clickResumePlist(event);
+            }, false);
+            tbl.appendChild(
+                elCreateNodes('tr', {}, [
+                    elCreateTextTn('th', {'class': ['pe-2']}, 'Last played'),
+                    elCreateNodes('td', {}, [
+                        document.createTextNode(obj.result.lastPlayedSong.title),
+                        resumeBtn
+                    ])
+                ])
+            );
+        }
+        if (stickerCount > 0) {
+            stickerEl.appendChild(elCreateTextTn('h4', {}, 'Sticker'));
+            stickerEl.appendChild(tbl);
+        }
+    }
+
     setData(table, 'playlistlength', obj.result.totalEntities);
     setData(table, 'uri', obj.result.plist);
     setData(table, 'type', obj.result.smartpls === true ? 'smartpls' : 'plist');
     elGetById('BrowsePlaylistDetailTitle').textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
+    const feedbackGrp = elGetById('BrowsePlaylistDetailFeedback').firstElementChild;
+    setData(feedbackGrp, 'uri', obj.result.plist);
+    setFeedback(feedbackGrp, obj.result.like, obj.result.rating);
 
-    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
         updateTable(obj, app.id, function(row, data) {
-            row.setAttribute('id', 'playlistSongId' + data.Pos);
             if (rw === true) {
                 row.setAttribute('draggable', 'true');
                 row.setAttribute('tabindex', 0);
             }
-            setData(row, 'type', data.Type);
-            setData(row, 'uri', data.uri);
-            setData(row, 'name', data.Title);
-            setData(row, 'pos', data.Pos);
-            row.setAttribute('title', tn(rowTitle));
+            parsePlaylistDetailUpdate(row, data);
         });
         setPlaylistDetailListFooter(obj.result.totalEntities, obj.result.totalTime);
         return;
     }
-    updateGrid(obj, app.id, function(card, data) {
-        card.setAttribute('id', 'playlistSongId' + data.Pos);
-        setData(card, 'type', data.Type);
-        setData(card, 'uri', data.uri);
-        setData(card, 'name', data.Title);
-        setData(card, 'pos', data.Pos);
-        card.setAttribute('title', tn(rowTitle));
+    if (settings['view' + app.id].mode === 'grid') {
+        updateGrid(obj, app.id, function(card, data) {
+            if (rw === true) {
+                card.setAttribute('draggable', 'true');
+                card.setAttribute('tabindex', '0');
+            }
+            parsePlaylistDetailUpdate(card, data);
+        });
+        return;
+    }
+    updateList(obj, app.id, function(card, data) {
+        if (rw === true) {
+            card.setAttribute('draggable', 'true');
+            card.setAttribute('tabindex', '0');
+        }
+        parsePlaylistDetailUpdate(card, data);
     });
+}
+
+/**
+ * Callback function for row or card
+ * @param {HTMLElement} card Row or card
+ * @param {object} data Data object
+ * @returns {void}
+ */
+function parsePlaylistDetailUpdate(card, data) {
+    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
+    card.setAttribute('id', 'playlistSongId' + data.Pos);
+    setData(card, 'type', data.Type);
+    setData(card, 'uri', data.uri);
+    setData(card, 'name', data.Title);
+    setData(card, 'pos', data.Pos);
+    card.setAttribute('title', tn(rowTitle));
 }
 
 /**
@@ -246,8 +353,8 @@ function currentPlaylistEnumerate() {
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function playlistDetails(uri) {
-    setUpdateViewId('BrowsePlaylistListList');
+function gotoPlaylist(uri) {
+    setUpdateViewId('BrowsePlaylistDetailList');
     appGoto('Browse', 'Playlist', 'Detail', 0, undefined, undefined, {'tag': '', 'desc': false}, uri, '');
 }
 

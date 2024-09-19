@@ -150,7 +150,10 @@ function webSocketConnect() {
                         "offset": app.current.offset,
                         "limit": app.current.limit,
                         "searchstr": app.current.search,
-                        "type": 0
+                        "type": 0,
+                        "sort": app.current.sort.tag,
+                        "sortdesc": app.current.sort.desc,
+                        "fields": settings.viewBrowsePlaylistList.fields
                     }, parsePlaylistList, false);
                 }
                 else if (app.id === 'BrowsePlaylistDetail') {
@@ -266,6 +269,7 @@ function webSocketClose() {
 /**
  * Sends a ping keepalive message to the websocket endpoint
  * or reconnects the socket if the socket is disconnected or stale.
+ * Refreshes the home widgets if the socket is connected.
  * @returns {void}
  */
 function websocketKeepAlive() {
@@ -287,6 +291,13 @@ function websocketKeepAlive() {
             logError(error);
             webSocketClose();
             webSocketConnect();
+            return;
+        }
+        // Check if home widgets should be refreshed
+        if (widgetRefresh.length > 0 &&
+            app.current.card === 'Home')
+        {
+            homeWidgetsRefresh();
         }
     }
     else {

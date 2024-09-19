@@ -152,11 +152,15 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_CACHES_CREATE:
         case MYMPD_API_CACHE_DISK_CLEAR:
         case MYMPD_API_CACHE_DISK_CROP:
+        case MYMPD_API_DATABASE_ALBUM_LIST:
+        case MYMPD_API_DATABASE_LIST_RANDOM:
         case MYMPD_API_HOME_ICON_GET:
         case MYMPD_API_HOME_ICON_LIST:
         case MYMPD_API_HOME_ICON_MOVE:
         case MYMPD_API_HOME_ICON_RM:
         case MYMPD_API_HOME_ICON_SAVE:
+        case MYMPD_API_HOME_WIDGET_SAVE:
+        case MYMPD_API_LIKE:
         case MYMPD_API_LOGLEVEL:
         case MYMPD_API_PLAYLIST_CONTENT_ENUMERATE:
         case MYMPD_API_PLAYLIST_CONTENT_DEDUP:
@@ -168,9 +172,14 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP:
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP_ALL:
         case MYMPD_API_QUEUE_ADD_RANDOM:
+        case MYMPD_API_RATING:
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SONG_FINGERPRINT:
+        case MYMPD_API_STICKER_DELETE:
+        case MYMPD_API_STICKER_GET:
+        case MYMPD_API_STICKER_LIST:
+        case MYMPD_API_STICKER_SET:
         case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_NAME:
         case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI:
         case MYMPD_API_WEBRADIO_FAVORITE_RM:

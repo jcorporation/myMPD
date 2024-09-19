@@ -83,7 +83,7 @@ Pictures for the home icons must be placed in the directory `/var/lib/mympd/pics
 
 ### Playlist pictures
 
-Pictures for playlists must be placed in the directory `/var/lib/mympd/pics/thumbs`.
+Pictures for playlists must be placed in the directory `/var/lib/mympd/pics/playlists`. This directory does not exists in the default installation. Create it to enable the playlists picture feature.
 
 ### Background images
 

@@ -157,7 +157,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     if (partition_state->mpd_state->feat.stickers == true &&
                         tagcols->stickers.len > 0)
                     {
-                        buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, mpd_song_get_uri(song), &tagcols->stickers);
+                        buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, STICKER_TYPE_SONG, mpd_song_get_uri(song), &tagcols->stickers);
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                     break;

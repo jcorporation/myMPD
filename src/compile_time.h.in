@@ -104,6 +104,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define DIR_WORK_PICS "pics"
 #define DIR_WORK_PICS_BACKGROUNDS DIR_WORK_PICS"/backgrounds"
 #define DIR_WORK_PICS_THUMBS DIR_WORK_PICS"/thumbs"
+#define DIR_WORK_PICS_PLAYLISTS DIR_WORK_PICS"/playlists"
 #define DIR_WORK_SCRIPTS "scripts"
 #define DIR_WORK_SMARTPLS "smartpls"
 #define DIR_WORK_SSL "ssl"
@@ -214,7 +215,6 @@ extern struct t_mympd_queue *mympd_api_queue;
     "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"]},"\
     "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"]}]"
 #define MYMPD_TAG_DISC_EMPTY_IS_FIRST true
-#define MYMPD_SHOW_WORK_TAG_ALBUM_DETAIL false
 
 //http headers
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
@@ -393,6 +393,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define JUKEBOX_LAST_PLAYED_MAX 5000
 #define JUKEBOX_UNIQ_RANGE 50
 #define SCRIPT_ARGUMENTS_MAX 20
+#define HOME_WIDGET_REFRESH_MAX 360
 
 // timer + mpd connections + stickerdb + eventfd (mympd api queue)
 #define POLL_FDS_MAX LIST_TIMER_MAX + MPD_CONNECTION_MAX * 4 + 1 + 1

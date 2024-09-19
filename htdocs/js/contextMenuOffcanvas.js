@@ -39,12 +39,17 @@ function showContextMenuOffcanvas(target, contextMenuType) {
             createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, createMenuViewSettings, undefined);
             break;
         case 'disc':
-            //disc actions in album details view
-            createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, addMenuItemsDiscActions, undefined);
+        case 'work':
+            //disc and work actions in album details view
+            createContextMenuOffcanvas(target, contextMenuEl, contextMenuType, addMenuItemsAlbumTagActions, undefined);
             break;
-        case 'home':
-            //home card actions
-            createContextMenuOffcanvas(target, contextMenuEl, '', createMenuHome, createMenuHomeSecondary);
+        case 'homeIcon':
+            //home card icon actions
+            createContextMenuOffcanvas(target, contextMenuEl, '', createMenuHomeIcon, createMenuHomeIconSecondary);
+            break;
+        case 'homeWidget':
+            //home card widgets actions
+            createContextMenuOffcanvas(target, contextMenuEl, '', createMenuHomeWidget, undefined);
             break;
         default:
             createContextMenuOffcanvas(target, contextMenuEl, '', createMenuLists, createMenuListsSecondary);

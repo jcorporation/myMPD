@@ -201,7 +201,7 @@ function addTagListSelect(elId, list) {
             const optGroup = elCreateEmpty('optgroup', {"id": "modalSmartPlaylistEditSortInputSticker", "label": tn('Sort by sticker'), "data-label-phrase": "Sort by sticker"});
             optGroup.appendChild(elCreateTextTn('option', {"value": "uri"}, "URI"));
             optGroup.appendChild(elCreateTextTn('option', {"value": "value"}, "Value"));
-            optGroup.appendChild(elCreateTextTn('option', {"value": "value_int", "class": ["featStickerInt"]}, "Value (Number)"));
+            optGroup.appendChild(elCreateTextTn('option', {"value": "value_int", "class": ["featStickerAdv"]}, "Value (Number)"));
             select.appendChild(optGroup);
         }
     }
@@ -305,9 +305,10 @@ function getDisplayTitle(name, title) {
  * Returns a tag value as dom element
  * @param {string} key the tag type
  * @param {string | number | object} value the tag value
+ * @param {any} [userData] custom data
  * @returns {Node} the created node
  */
-function printValue(key, value) {
+function printValue(key, value, userData) {
     if (isEmptyTag(value) === true) {
         return document.createTextNode('');
     }
@@ -354,8 +355,27 @@ function printValue(key, value) {
         case 'rating': {
             return showStarRating(value);
         }
-        case 'elapsed':
-            return document.createTextNode(fmtSongDuration(value));
+        case 'elapsed': {
+            let progressEl;
+            if (userData !== undefined &&
+                userData.Duration !== undefined)
+            {
+                const prct = Math.ceil((100 / userData.Duration) * value);
+                progressEl = elCreateText('div', {'class': ['my-1', 'progress', 'justify-content-center', 'align-items-center'], 'data-title-phrase': 'Resume', 'title': tn('Resume')},
+                    fmtSongDuration(value) + ' / ' + fmtSongDuration(userData.Duration));
+                progressEl.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
+                    prct + '%, var(--bs-gray) ' + prct + '%, var(--bs-gray) 100%)';
+                if (prct === 100) {
+                    progressEl.setAttribute('disabled', 'disabled');
+                    progressEl.removeAttribute('data-title-phrase');
+                    progressEl.removeAttribute('title');
+                }
+            }
+            else {
+                progressEl = document.createTextNode(fmtSongDuration(value));
+            }
+            return progressEl;
+        }
         case 'Artist':
         case 'ArtistSort':
         case 'AlbumArtist':

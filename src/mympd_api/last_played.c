@@ -41,13 +41,14 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, struct
  * @return true on success, else false
  */
 bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, unsigned last_played_count) {
+    const char *song_uri = mpd_song_get_uri(partition_state->song);
     if (last_played_count == 0 || // Last played list is disabled
-        is_streamuri(partition_state->song_uri) == true) // Don't add streams to last played list
+        is_streamuri(song_uri) == true) // Don't add streams to last played list
     {
         return true;
     }
 
-    list_insert(&partition_state->last_played, partition_state->song_uri, (int64_t)time(NULL), NULL, NULL);
+    list_insert(&partition_state->last_played, song_uri, (int64_t)time(NULL), NULL, NULL);
     list_crop(&partition_state->last_played, last_played_count, NULL);
 
     //notify clients
@@ -153,7 +154,7 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, struct
                 if (partition_state->mpd_state->feat.stickers == true &&
                     tagcols->stickers.len > 0)
                 {
-                    buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, mpd_song_get_uri(song), &tagcols->stickers);
+                    buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_SONG, mpd_song_get_uri(song), &tagcols->stickers);
                 }
                 buffer = sdscatlen(buffer, "}", 1);
             }

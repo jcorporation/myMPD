@@ -59,9 +59,9 @@ function dragAndDropTable(tableId) {
         }
         const target = event.target.closest('TR');
         target.classList.remove('dragover');
-        const newSongPos = getData(target, 'pos');
-        const oldSongPos = getData(dragEl, 'pos');
-        if (oldSongPos === newSongPos) {
+        const newPos = getData(target, 'pos');
+        const oldPos = getData(dragEl, 'pos');
+        if (oldPos === newPos) {
             return;
         }
         // set dragged element uri to undefined to force table row replacement
@@ -71,11 +71,11 @@ function dragAndDropTable(tableId) {
         setUpdateViewId(tableId);
         switch(app.id) {
             case 'QueueCurrent': {
-                queueMoveSong(oldSongPos, newSongPos);
+                queueMoveSong(oldPos, newPos);
                 break;
             }
             case 'BrowsePlaylistDetail': {
-                currentPlaylistMoveSong(oldSongPos, newSongPos);
+                currentPlaylistMoveSong(oldPos, newPos);
                 break;
             }
             // No Default
@@ -111,7 +111,12 @@ function setCols(tableName) {
     elClear(thead);
 
     for (let i = 0, j = settings['view' + tableName].fields.length; i < j; i++) {
-        const hname = settings['view' + tableName].fields[i];
+        let hname = settings['view' + tableName].fields[i];
+        if (hname === 'Track' ||
+            hname === 'Pos')
+        {
+            hname = '#';
+        }
         const th = elCreateTextTn('th', {"data-col": settings['view' + tableName].fields[i]}, hname);
         thead.appendChild(th);
     }
@@ -131,12 +136,17 @@ function setCols(tableName) {
  * @returns {void}
  */
 function replaceTblRow(mode, row, el) {
-    if (getData(row, 'uri') === getData(el, 'uri') &&
-        mode === true &&
-        row.lastElementChild.lastElementChild.textContent === ligatures.checked)
-    {
-        el.lastElementChild.lastElementChild.textContent = ligatures.checked;
-        el.classList.add('selected');
+    if (getData(row, 'uri') === getData(el, 'uri')) {
+        if (mode === true &&
+            row.lastElementChild.lastElementChild.textContent === ligatures.checked)
+        {
+            el.lastElementChild.lastElementChild.textContent = ligatures.checked;
+            el.classList.add('selected');
+        }
+        if (row.classList.contains('queue-playing')) {
+            el.classList.add('queue-playing');
+            el.style.background = row.style.background;
+        }
     }
     row.replaceWith(el);
 }
@@ -145,22 +155,24 @@ function replaceTblRow(mode, row, el) {
  * Adds a row with discnumber to the table
  * @param {number} disc discnumber
  * @param {string} albumId the albumid
+ * @param {string} albumName the album name
  * @param {number} colspan column count
  * @returns {HTMLElement} the created row
  */
-function addDiscRow(disc, albumId, colspan) {
+function addDiscRow(disc, albumId, albumName, colspan) {
+    const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+    addActionLinks(actionTd, 'disc');
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
         elCreateNode('td', {},
             elCreateText('span', {"class": ["mi"]}, 'album')
         ),
         elCreateTextTnNr('td', {"colspan": (colspan - 1)}, 'Discnum', disc),
-        elCreateNode('td', {"data-col": "Action"},
-            elCreateText('a', {"data-action": "popover", "data-contextmenu": "disc", "href": "#", "class": ["mi", "color-darkgrey"],
-                "data-title-phrase":"Actions"}, ligatures['more'])
-        )
+        actionTd
     ]);
     setData(row, 'Disc', disc);
     setData(row, 'AlbumId', albumId);
+    setData(row, 'type', 'disc');
+    setData(row, 'name', albumName + ' (' + tn('Disc') + ' ' + disc + ')');
     return row;
 }
 
@@ -170,22 +182,32 @@ function addDiscRow(disc, albumId, colspan) {
  * @returns {boolean} true if work row should be shown, else false
  */
 function showWorkRow(view) {
-    return view === 'BrowseDatabaseAlbumDetail';
+    return view === 'BrowseDatabaseAlbumDetail' &&
+        settings.webuiSettings.showWorkTagAlbumDetail;
 }
 
 /**
  * Adds a row with the work to the table.
  * @param {string} work The work name
+ * @param {string} albumId the albumid
+ * @param {string} albumName the album name
  * @param {number} colspan column count
  * @returns {HTMLElement} the created row
  */
-function addWorkRow(work, colspan) {
+function addWorkRow(work, albumId, albumName, colspan) {
+    const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+    addActionLinks(actionTd, 'work');
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
         elCreateNode('td', {},
             elCreateText('span', {"class": ["mi"]}, 'music_note')
         ),
-        elCreateText('td', {"colspan": (colspan)}, work),
+        elCreateText('td', {"colspan": (colspan - 1)}, work),
+        actionTd
     ]);
+    setData(row, 'Work', work);
+    setData(row, 'AlbumId', albumId);
+    setData(row, 'type', 'work');
+    setData(row, 'name', albumName + ' (' + work + ')');
     return row;
 }
 
@@ -231,7 +253,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     if (obj.result.Discs !== undefined &&
         obj.result.Discs > 1)
     {
-        const row = addDiscRow(1, obj.result.AlbumId, colspan);
+        const row = addDiscRow(1, obj.result.AlbumId, obj.result.Album, colspan);
         if (z < tr.length) {
             replaceTblRow(mode, tr[z], row);
         }
@@ -242,7 +264,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     }
 
     if (showWorkRow(list) && lastWork !== '') {
-        const row = addWorkRow(lastWork, colspan);
+        const row = addWorkRow(lastWork, obj.result.AlbumId, obj.result.Album, colspan);
         if (z < tr.length) {
             replaceTblRow(mode, tr[z], row);
         }
@@ -257,7 +279,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         if (obj.result.data[0].Disc !== undefined &&
             lastDisc < Number(obj.result.data[i].Disc))
         {
-            const row = addDiscRow(obj.result.data[i].Disc, obj.result.AlbumId, colspan);
+            const row = addDiscRow(obj.result.data[i].Disc, obj.result.AlbumId, obj.result.Album, colspan);
             if (i + z < tr.length) {
                 replaceTblRow(mode, tr[i + z], row);
             }
@@ -270,7 +292,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
         if (showWorkRow(list) && obj.result.data[0].Work !== undefined &&
             lastWork !== obj.result.data[i].Work) {
-            const row = addWorkRow(obj.result.data[i].Work, colspan);
+            const row = addWorkRow(obj.result.data[i].Work, obj.result.AlbumId, obj.result.Album, colspan);
             if (i + z < tr.length) {
                 replaceTblRow(mode, tr[i + z], row);
             } else {
@@ -339,7 +361,7 @@ function tableRow(row, data, list, colspan, smallWidth, actionTd) {
                 elCreateNodes('div', {"class": ["row"]}, [
                     elCreateTextTn('small', {"class": ["col-3"]}, settings['view' + list].fields[c]),
                     elCreateNode('span', {"data-col": settings['view' + list].fields[c], "class": ["col-9"]},
-                        printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]])
+                        printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]], data)
                     )
                 ])
             );
@@ -350,7 +372,7 @@ function tableRow(row, data, list, colspan, smallWidth, actionTd) {
         for (let c = 0, d = settings['view' + list].fields.length; c < d; c++) {
             row.appendChild(
                 elCreateNode('td', {"data-col": settings['view' + list].fields[c]},
-                    printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]])
+                    printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]], data)
                 )
             );
         }

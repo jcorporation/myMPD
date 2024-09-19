@@ -6,34 +6,55 @@
 /** @module album_js */
 
 /**
- * Handles single disc actions
- * @param {string} action action to perform
- * @param {string} albumId the album id
- * @param {string} disc disc number as string
+ * Resume album API implementation.
+ * Load the album from last played song and start playing.
+ * @param {string} albumId Album ID
+ * @param {number} pos Position of first song to resume
+ * @param {string} action Action
  * @returns {void}
  */
-//eslint-disable-next-line no-unused-vars
-function addAlbumDisc(action, albumId, disc) {
+function resumeAlbum(albumId, pos, action) {
+    pos++;
     switch(action) {
-        case 'appendQueue':
-            appendQueue('disc', [albumId, disc]);
+        case 'append':
+        case 'appendPlay':
+            sendAPI("MYMPD_API_QUEUE_APPEND_ALBUM_RANGE", {
+                'albumid': albumId,
+                'start': pos,
+                'end': -1,
+                'play': true
+            }, null, false);
             break;
-        case 'appendPlayQueue':
-            appendPlayQueue('disc', [albumId, disc]);
+        case 'insert':
+            sendAPI('MYMPD_API_QUEUE_INSERT_ALBUM_RANGE', {
+                'albumid': albumId,
+                'start': pos,
+                'end': -1,
+                'play': true,
+                'to': 0,
+                'whence': 0
+            }, null, false);
             break;
-        case 'insertAfterCurrentQueue':
-            insertAfterCurrentQueue('disc', [albumId, disc]);
+        case 'insertAfterCurrent':
+        case 'insertPlayAfterCurrent':
+            sendAPI('MYMPD_API_QUEUE_INSERT_ALBUM_RANGE', {
+                'albumid': albumId,
+                'start': pos,
+                'end': -1,
+                'play': true,
+                'to': 0,
+                'whence': 1
+            }, null, false);
             break;
-        case 'replaceQueue':
-            replaceQueue('disc', [albumId, disc]);
+        case 'replace':
+        case 'replacePlay':
+            sendAPI("MYMPD_API_QUEUE_REPLACE_ALBUM_RANGE", {
+                'albumid': albumId,
+                'start': pos,
+                'end': -1,
+                'play': true
+            }, null, false);
             break;
-        case 'replacePlayQueue':
-            replacePlayQueue('disc', [albumId, disc]);
-            break;
-        case 'addPlaylist':
-            showAddToPlaylist('disc', [albumId, disc]);
-            break;
-        default:
-            logError('Invalid action: ' + action);
+        // No default
     }
 }

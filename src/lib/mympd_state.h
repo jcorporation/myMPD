@@ -46,7 +46,7 @@ enum mpd_conn_states {
  * MPD feature flags
  */
 struct t_mpd_features {
-    bool advqueue;                 //!< mpd supports the prio filter / sort for queue and the save modes
+    bool advqueue;                 //!< mpd supports the prio filter / sort for queue and the save modes (MPD 0.24)
     bool albumart;                 //!< mpd supports the albumart command
     bool binarylimit;              //!< mpd supports the binarylimit command
     bool fingerprint;              //!< mpd supports the fingerprint command
@@ -65,8 +65,7 @@ struct t_mpd_features {
     bool starts_with;              //!< mpd supports starts_with filter expression
     bool pcre;                     //!< mpd supports pcre for filter expressions
     bool db_added;                 //!< mpd supports added attribute for songs
-    bool sticker_sort_window;      //!< mpd supports sticker sort and window api
-    bool sticker_int;              //!< mpd supports sticker value handling as integer
+    bool advsticker;               //!< mpd supports new sticker commands from MPD 0.24
     bool search_add_sort_window;   //!< mpd supports search and window for findadd/searchadd/searchaddpl
     bool listplaylist_range;       //!< mpd supports the listplaylist with range parameter
 };
@@ -87,15 +86,16 @@ struct t_mpd_state {
     sds playlist_directory_value;       //!< real playlist directory set by feature detection
     //tags
     sds tag_list;                       //!< comma separated string of mpd tags to enable
-    struct t_mpd_tags tags_mympd;           //!< tags enabled by myMPD and mpd
-    struct t_mpd_tags tags_mpd;             //!< all available mpd tags
-    struct t_mpd_tags tags_search;          //!< tags enabled for search
-    struct t_mpd_tags tags_browse;          //!< tags enabled for browse
-    struct t_mpd_tags tags_album;           //!< tags enabled for albums
+    struct t_mpd_tags tags_mympd;       //!< tags enabled by myMPD and mpd
+    struct t_mpd_tags tags_mpd;         //!< all available mpd tags
+    struct t_mpd_tags tags_search;      //!< tags enabled for search
+    struct t_mpd_tags tags_browse;      //!< tags enabled for browse
+    struct t_mpd_tags tags_album;       //!< tags enabled for albums
     enum mpd_tag_type tag_albumartist;  //!< tag to use for AlbumArtist
     //Feature flags
     const unsigned *protocol;           //!< mpd protocol version
     struct t_mpd_features feat;         //!< feature flags
+    struct t_list sticker_types;        //!< mpd sticker types
 };
 
 /**
@@ -132,8 +132,9 @@ struct t_partition_state {
     int next_song_id;                      //!< next song id from queue
     int last_song_id;                      //!< previous song id from queue
     int song_pos;                          //!< current song pos in queue
-    sds song_uri;                          //!< current song uri
-    sds last_song_uri;                     //!< previous song uri
+    time_t song_duration;                  //!< current song length
+    struct mpd_song *song;                 //!< current song
+    struct mpd_song *last_song;            //!< previous song
     unsigned queue_version;                //!< queue version number (increments on queue change)
     unsigned queue_length;                 //!< length of the queue
     int last_skipped_id;                   //!< last skipped event was fired for this song id
@@ -263,7 +264,6 @@ struct t_mympd_state {
     struct t_lyrics lyrics;                         //!< lyrics settings
     sds webui_settings;                             //!< settings only relevant for webui, saved as string containing json
     bool tag_disc_empty_is_first;                   //!< handle empty disc tag as disc one for albums
-    bool show_work_tag_album_detail;                //!< show work tag in album detail view
     sds booklet_name;                               //!< name of the booklet files
     sds info_txt_name;                              //!< name of album info files
     struct t_cache album_cache;                     //!< the album cache created by the mpd_worker thread

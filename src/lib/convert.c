@@ -76,7 +76,7 @@ enum str2int_errno str2uint(unsigned *out, const char *s) {
         return STR2INT_INCONVERTIBLE;
     }
     if (s[0] == '-') {
-        MYMPD_LOG_ERROR(NULL, "Integer underflow: %s", s);
+        MYMPD_LOG_ERROR(NULL, "Unsigned integer underflow: %s", s);
         return STR2INT_UNDERFLOW;
     }
     errno = 0;
@@ -86,11 +86,11 @@ enum str2int_errno str2uint(unsigned *out, const char *s) {
     if (l > UINT_MAX ||
         (errno == ERANGE && l == ULONG_MAX))
     {
-        MYMPD_LOG_ERROR(NULL, "Integer overflow");
+        MYMPD_LOG_ERROR(NULL, "Unsigned integer overflow");
         return STR2INT_OVERFLOW;
     }
     if (errno == ERANGE) {
-        MYMPD_LOG_ERROR(NULL, "Integer underflow: %s", s);
+        MYMPD_LOG_ERROR(NULL, "Unsigned integer underflow: %s", s);
         return STR2INT_UNDERFLOW;
     }
     if (*end != '\0') {

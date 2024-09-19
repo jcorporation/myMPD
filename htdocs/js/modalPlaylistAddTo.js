@@ -18,9 +18,10 @@ function initModalPlaylistAddTo() {
  * Shows the add to playlist modal
  * @param {string} type one off album, disc, search, song, stream, searchdir
  * @param {Array} entities entities to add
+ * @param {Array} [entityNames] entity names to add (only for display)
  * @returns {void}
  */
-function showAddToPlaylist(type, entities) {
+function showAddToPlaylist(type, entities, entityNames) {
     cleanupModalId('modalPlaylistAddTo');
     setDataId('modalPlaylistAddToUrisInput', 'type', type);
     setDataId('modalPlaylistAddToUrisInput', 'entities', entities);
@@ -41,7 +42,12 @@ function showAddToPlaylist(type, entities) {
         elHideId('modalPlaylistAddToAddStreamFrm');
         elShowId('modalPlaylistAddToSrcRow');
         const names = [];
-        if (type === 'searchdir') {
+        if (entityNames !== undefined &&
+            entityNames.length > 0)
+        {
+            names.push(... entityNames);
+        }
+        else if (type === 'searchdir') {
             names.push(tn('Path') + ': ' + entities[0]);
             if (entities[1] !== '') {
                 names.push(tn('Search') + ': ' + entities[1]);
