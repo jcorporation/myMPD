@@ -1,6 +1,4 @@
 ---
-layout: page
-permalink: /installation/compiling/freebsd
 title: FreeBSD
 ---
 

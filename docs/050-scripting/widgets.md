@@ -1,7 +1,5 @@
 ---
-layout: page
-permalink: /scripting/widges
-title: Home screen widges
+title: Home screen widgets
 ---
 
 Scripts for home screen widges must return a valid http response. The response body will be inserted in the widget body.

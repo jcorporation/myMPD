@@ -1,7 +1,7 @@
 ---
 layout: page
 permalink: /
-title: myMPD documentation
+title: myMPD Documentation
 ---
 
 myMPD is a standalone and mobile friendly web-based MPD client with a tiny footprint and advanced features.
@@ -12,12 +12,5 @@ myMPD is a standalone and mobile friendly web-based MPD client with a tiny footp
 
 To use all myMPD functions you should use the latest stable MPD version.
 
-This documentation is for myMPD version {% include version %}.
+This documentation is for myMPD version {% include-markdown "_includes/version" %}.
 
-<div id="toc" class="d-none">
-    {% include nav.html %}
-</div>
-
-***
-
-<a href="https://github.com/jcorporation">&copy; 2018-2024 Jürgen Mang</a>

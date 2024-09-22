@@ -1,6 +1,4 @@
 ---
-layout: page
-permalink: /installation/compiling/build-sh
 title: Compiling with build.sh
 ---
 

@@ -473,8 +473,7 @@ cleanup() {
   rm -rf htdocs/assets/i18n
 
   #generated documentation
-  rm -rf docs/_site
-  rm -rf docs/.jekyll-cache
+  rm -rf _site
   rm -rf docs/doxygen
   rm -rf docs/jsdoc
 
@@ -1357,21 +1356,17 @@ run_luadoc() {
 
 create_doc() {
   DOC_DEST=$1
-  if ! check_cmd jekyll
+  install -d "$DOC_DEST" || return 1
+  if ! check_cmd python3
   then
-    echo "Jekyll not installed, can not create documentation"
+    echo "Python3 not installed, can not create documentation"
     return 1
   fi
-  if ! run_doxygen
-  then
-    echo "Skipped generation of c api documentation"
-  fi
-  if ! run_jsdoc
-  then
-    echo "Skipped generation of js api documentation"
-  fi
-  install -d "$DOC_DEST" || return 1
-  jekyll build -s "$STARTPATH/docs" -d "$DOC_DEST"
+  ./build.sh api_doc
+  python3 -m venv ~/python-venv/
+  ~/python-venv/bin/pip install mkdocs mkdocs-material \
+      mkdocs-include-markdown-plugin mkdocs-awesome-pages-plugin
+  ~/python-venv/bin/mkdocs build -d "$DOC_DEST"
 }
 
 translation_import() {

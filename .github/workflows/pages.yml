@@ -30,14 +30,7 @@ jobs:
         run: |
           sudo apt-get install -y doxygen graphviz luadoc
           sudo npm install --location=global jsdoc
-          ./build.sh api_doc
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./docs
-          destination: ./_site
+          ./build.sh doc _site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 

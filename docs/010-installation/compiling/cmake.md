@@ -1,6 +1,4 @@
 ---
-layout: page
-permalink: /installation/compiling/cmake
 title: Compiling with cmake
 ---
 
@@ -37,7 +35,6 @@ sudo make -C build install
 | MYMPD_MANPAGES | ON | Creates and installs manpages |
 | MYMPD_MINIMAL | OFF | Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags |
 | MYMPD_STARTUP_SCRIPT | ON | Installs the startup script, valid values: ON, OFF, SYSTEMD, OPENRC, SYSVINIT, FREEBSD |
-{: .table .table-sm}
 
 ## cmake build types
 

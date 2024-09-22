@@ -1,0 +1,25 @@
+site_name: myMPD Documentation
+site_url: https://jcorporation.github.io/myMPD
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+  font: false
+  logo: assets/mympd-logo.svg
+  favicon: assets/favicon.ico
+  palette:
+    primary: custom
+    accent: custom
+copyright: "&copy; 2018-2024 Jürgen Mang"
+extra_css:
+  - assets/css/mympd.css
+extra:
+  social:
+    - icon: fontawesome/brands/github 
+      link: https://github.com/jcorporation/myMPD
+plugins:
+  - awesome-pages:
+      collapse_single_pages: true
+  - include-markdown
+  - search

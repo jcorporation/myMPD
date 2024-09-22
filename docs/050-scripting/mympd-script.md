@@ -1,7 +1,5 @@
 ---
-layout: page
-permalink: /scripting/mympd-script
-title: Scripting
+title: mympd-script
 ---
 
 `mympd-script` is a small command line tool to execute myMPD scripts.
