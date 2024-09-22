@@ -1326,6 +1326,19 @@ run_luacheck() {
   return 0
 }
 
+run_markdownlint() {
+  if ! check_cmd npx
+  then
+    return 1
+  fi
+  echo "Linting docs markdown"
+  if ! npx markdownlint-cli -i "./docs/_includes/*" ./docs/**
+  then
+    return 1
+  fi
+  return 0
+}
+
 run_doxygen() {
   if ! check_cmd doxygen
   then
@@ -1593,30 +1606,13 @@ case "$ACTION" in
     sbuild_cleanup
   ;;
   lint)
-    if ! run_htmlhint
-    then
-      exit 1
-    fi
-    if ! run_eslint
-    then
-      exit 1
-    fi
-    if ! run_stylelint
-    then
-      exit 1
-    fi
-    if ! run_tsc
-    then
-      exit 1
-    fi
-    if ! run_checkjs
-    then
-      exit 1
-    fi
-    if ! run_luacheck
-    then
-      exit 1
-    fi
+    run_htmlhint
+    run_eslint
+    run_stylelint
+    run_tsc
+    run_checkjs
+    run_luacheck
+    run_markdownlint
   ;;
   eslint)
     run_eslint
@@ -1626,6 +1622,9 @@ case "$ACTION" in
   ;;
   htmlhint)
     run_htmlhint
+  ;;
+  markdownlint)
+    run_markdownlint
   ;;
   luacheck)
     run_luacheck
@@ -1701,7 +1700,8 @@ case "$ACTION" in
     echo "  check_file:       same as check, but for one file, second arg must be the file"
     echo "  check_docs        checks the documentation for missing API methods"
     echo "  check_includes:   checks for valid include paths"
-    echo "  lint:             runs eslint, stylelint and htmlhint"
+    echo "  lint:             runs linters for javascript, css, html and markdown"
+    echo "  markdownlint:     check for valid markdown in the docs folder"
     echo "  eslint:           combines javascript files and runs eslint"
     echo "  stylelint:        runs stylelint (lints css files)"
     echo "  htmlhint:         runs htmlhint (lints html files)"
