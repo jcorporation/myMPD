@@ -149,7 +149,7 @@ while (my $line = <$descfile>) {
 close $descfile;
 
 #Write i18n.json
-open my $docfile, ">docs/references/translating_status.md" or die "Can not open \"docs/references/translating_status.md\": $!";
+open my $docfile, ">docs/_includes/translating_status.md" or die "Can not open \"docs/_includes/translating_status.md\": $!";
 open my $i18nfile, ">src/i18n/json/i18n.json" or die "Can not open \"src/i18n/json/i18n.json\": $!";
 print $i18nfile "{\n";
 print $i18nfile "    \"default\": {\"desc\":\"Browser default\", \"missingPhrases\": 0},\n";
