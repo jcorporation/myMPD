@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /additional-topics/
+
 title: Additional topics
 ---
 

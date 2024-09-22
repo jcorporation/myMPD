@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/api/methods
+
 title: API Methods
 ---
 
@@ -20,5 +19,5 @@ title: API Methods
   <tbody>
   </tbody>
 </table>
-<script src="{{ site.baseurl }}/assets/apidoc.js"></script>
-<script src="{{ site.baseurl }}/assets/create-apidoc.js"></script>
+<script src="assets/apidoc.js"></script>
+<script src="assets/create-apidoc.js"></script>

@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /
+
 title: myMPD Documentation
 ---
 

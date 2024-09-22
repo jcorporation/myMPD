@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /additional-topics/recommended-mpd-configuration
+
 title: Recommended MPD configuration
 ---
 

@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/smart-playlists
+
 title: Smart playlists
 ---
 
@@ -17,7 +16,7 @@ Smart playlists are saved in the folder `/var/lib/mympd/smartpls` (one JSON file
 | KEY | TYPE | DESCRIPTION |
 | --- | ---- | ----------- |
 | type | all | Type of smart playlist: `sticker`, `newest` or `search` |
-| sticker | sticker | Stickername, see [Sticker]({{ site.baseurl }}/references/sticker) |
+| sticker | sticker | Stickername, see [Sticker](references/sticker) |
 | value | sticker | Sticker value |
 | op | sticker | Sticker compare operator: `=`, `<`, `>`, `gt` (MPD 0.24), `lt` (MPD 0.24) |
 | timerange | newest | Timerange since last database update in seconds |
@@ -26,7 +25,6 @@ Smart playlists are saved in the folder `/var/lib/mympd/smartpls` (one JSON file
 | sort | sticker | Tag to sort `uri`, `value`, `value_int` (MPD 0.24) |
 | sortdesc | all | `false` = sort ascending, `true` = sort descending |
 | maxentries | all | Maximum entries for the playlist |
-{: .table .table-sm }
 
 ### Sticker based
 

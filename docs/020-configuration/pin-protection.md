@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /configuration/pin-protection
+
 title: Pin protection
 ---
 
@@ -14,4 +13,4 @@ You can goto the main menu and login to create a session, press `L` or simply ta
 
 The session is valid until restart of myMPD, closing the browser, refreshing the site or you logout.
 
-The <a href="{{site.baseurl}}/references/api/methods">API documentation</a> shows whether a method is protected or not.
+The <a href="references/api/methods">API documentation</a> shows whether a method is protected or not.

@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/tags
+
 title: Tags
 ---
 

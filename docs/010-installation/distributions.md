@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /installation/distributions
+
 title: Distributions
 ---
 

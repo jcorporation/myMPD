@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /scripting/functions/http_client
+
 title: HTTP client
 ---
 
@@ -26,7 +25,6 @@ end
 | uri | string | Full uri to call, e. g. `https://api.listenbrainz.org/1/submit-listens` |
 | extra_headers | string | Additional headers, must be terminated by `\r\n` |
 | payload | string | body of a post request |
-{: .table .table-sm }
 
 **Returns:**
 
@@ -36,7 +34,6 @@ end
 | code | integer | http response code, e.g. 200 |
 | headers | table | http headers |
 | body | string | http body |
-{: .table .table-sm }
 
 ## Download a file over HTTP
 
@@ -56,7 +53,6 @@ end
 | uri | string | Uri to download. |
 | extra_headers | string | Additional headers, must be terminated by `\r\n` |
 | out | string | Filename for output. |
-{: .table .table-sm }
 
 **Returns:**
 
@@ -65,4 +61,4 @@ end
 | rc | integer | 0 = success, 1 = error |
 | code | integer | http response code, e.g. 200 |
 | headers | table | http headers |
-{: .table .table-sm }
+

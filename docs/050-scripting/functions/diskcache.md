@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /scripting/functions/diskcache
+
 title: Disk caches
 ---
 
@@ -18,7 +17,6 @@ local rc, name = mympd.cache_cover_write(src, uri)
 | --------- | ---- | ----------- |
 | src | string | Source file to rename. |
 | uri | string | Uri to write the cover cache for. |
-{: .table .table-sm }
 
 **Returns:**
 
@@ -26,7 +24,6 @@ local rc, name = mympd.cache_cover_write(src, uri)
 | ----- | ---- | ----------- |
 | rc | integer | 0 = success, 1 = error |
 | name | string | written filename |
-{: .table .table-sm }
 
 ## Lyrics cache
 
@@ -42,7 +39,6 @@ local rc, name = mympd.mympd.cache_lyrics_write(str, uri)
 | --------- | ---- | ----------- |
 | str | string | String to save (it must be a valid lyrics json string) |
 | uri | string | Uri to write the lyrics cache for. |
-{: .table .table-sm }
 
 **Returns:**
 
@@ -50,7 +46,6 @@ local rc, name = mympd.mympd.cache_lyrics_write(str, uri)
 | ----- | ---- | ----------- |
 | rc | integer | 0 = success, 1 = error |
 | name | string | written filename |
-{: .table .table-sm }
 
 ## Thumbs cache
 
@@ -66,7 +61,6 @@ local rc, name = mympd.cache_thumbs_write(src, value)
 | --------- | ---- | ----------- |
 | src | string | Source file to rename. |
 | value | string | Tag value to write the thumbs cache for. |
-{: .table .table-sm }
 
 **Returns:**
 
@@ -74,7 +68,6 @@ local rc, name = mympd.cache_thumbs_write(src, value)
 | ----- | ---- | ----------- |
 | rc | integer | 0 = success, 1 = error |
 | name | string | written filename |
-{: .table .table-sm }
 
 ## Temporary files
 

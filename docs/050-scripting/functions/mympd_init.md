@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /scripting/functions/mympd_init
+
 title: Accessing myMPD and MPD status information
 ---
 
@@ -20,7 +19,6 @@ No parameters needed.
 | ----- | ---- | ----------- |
 | rc | integer | response code: 0 = success, 1 = error |
 | result | lua table | jsonrpc result or error as lua table |
-{: .table .table-sm }
 
 The lua table mympd_state is populated with following fields.
 
@@ -62,7 +60,6 @@ The lua table mympd_state is populated with following fields.
 | `start_time` | Integer | Current song start playing timestamp |
 | `total_time` | Integer | Total time of current song |
 | `volume` | Integer | 0 - 100 percent |
-{: .table .table-sm }
 
 ### mympd_state.current_song
 
@@ -71,4 +68,4 @@ The lua table mympd_state is populated with following fields.
 | `uri` | String | Song uri |
 | `Duration` | Integer | Song duration in seconds |
 | Tag | Tag value(s) | MPD tag name with values. |
-{: .table .table-sm }
+

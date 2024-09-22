@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /scripting/functions/util
+
 title: Utility Functions
 ---
 
@@ -19,7 +18,6 @@ local sha256_hash = mympd.hash_sha256(string)
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
 | string | string | String to hash |
-{: .table .table-sm }
 
 ## HTML encoding
 
@@ -32,7 +30,6 @@ local encoded = mympd.htmlencode(string)
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
 | string | string | String to encode |
-{: .table .table-sm }
 
 ## URL encoding and decoding
 
@@ -47,7 +44,6 @@ local decoded = mympd.urldecode(string, form_url_decode)
 | --------- | ---- | ----------- |
 | string | string | String to encode/decode |
 | form_url_decode | boolean | Decode as form url |
-{: .table .table-sm }
 
 ## Logging
 
@@ -67,7 +63,6 @@ mympd.log("LOG_NOTICE", message)
 | --------- | ---- | ----------- |
 | message | string | Message to log |
 | loglevel | number or string | Syslog log level |
-{: .table .table-sm }
 
 | LOGLEVEL | NUMBER | DESCRIPTION |
 | -------- | ------ | ----------- |
@@ -79,7 +74,6 @@ mympd.log("LOG_NOTICE", message)
 | LOG_NOTICE | 5 | Notice |
 | LOG_INFO | 6 | Informational |
 | LOG_DEBUG | 7 | Debug |
-{: .table .table-sm }
 
 ## Notifications
 
@@ -97,11 +91,9 @@ mympd.notify_partition(severity, message)
 | --------- | ---- | ----------- |
 | severity | number or string | Severity |
 | message | string | Message to send. |
-{: .table .table-sm }
 
 | SEVERITY | NUMBER | DESCRIPTION |
 | -------- | ------ | ----------- |
 | SEVERITY_INFO | 0 | Informational |
 | SEVERITY_WARNING | 1 | Warning |
 | SEVERITY_ERR | 2 | Error |
-{: .table .table-sm }

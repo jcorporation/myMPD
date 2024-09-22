@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /additional-topics/mpd-satellite-setup
+
 title: MPD satellite setup
 ---
 

@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /additional-topics/multiple-myMPD-instances-on-same-host
+
 title: Multiple myMPD instances on same host
 ---
 

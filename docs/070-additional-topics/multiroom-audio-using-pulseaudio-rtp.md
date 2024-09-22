@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /additional-topics/multiroom-audio-using-pulseaudio-rtp
+
 title: Multiroom audio system using MPD/myMPD and pulseaudio
 ---
 
@@ -287,7 +286,6 @@ F1 Output  F2 Input  F3 Cards                                             ? - he
 
  RTP BathRoom                                         100  ┌ ████████████     ┐
                                                            └ ████████████     ┘
-
 
 ## PulseMixer Output on the receivers
 # pulsemixer

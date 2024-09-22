@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /installation/prebuild-packages-debian
+
 title: Debian Installation
 ---
 

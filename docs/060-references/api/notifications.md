@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/api/notifications
+
 title: Websocket Notifications
 ---
 
@@ -30,7 +29,6 @@ The websocket is also used to notify the user about the status of asynchronous o
 | n/a | update_cache_started | myMPD cache update is started |
 | n/a | update_cache_finished | myMPD cache updates has finished |
 | n/a | script_dialog | myMPD script dialog |
-{: .table .table-sm }
 
 The websocket endpoint accepts following messages:
 
@@ -38,4 +36,4 @@ The websocket endpoint accepts following messages:
 | ------- | -------- | ----------- |
 | ping | pong | Keepalive |
 | id:`<number>` | ok | Used to send the jsonrpc Client ID generated for this session |
-{: .table .table-sm }
+

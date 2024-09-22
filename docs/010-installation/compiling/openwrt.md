@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /installation/compiling/openwrt
+
 title: OpenWrt
 ---
 

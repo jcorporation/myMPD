@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /installation/docker
+
 title: Docker
 ---
 
@@ -38,7 +37,7 @@ Starts the myMPD docker container:
 | `/docker/mympd/cachedir` | myMPD cache directory. Must exist and be writeable by uid 1000. |
 | `/var/lib/mpd/music/` | MPD music directory. Use the same path in the container to enable auto detection. |
 | `/var/lib/mpd/playlists/` | MPD playlist directory. Use the same path in the container to enable auto detection. |
-{: .table .table-sm}
+
 
 You must create the `cachedir` and `workdir` before starting the container.
 
@@ -102,4 +101,4 @@ docker logs -f mympd
 
 You can configure some basic options of myMPD via startup options or environment variables.
 
-- [Configuration]({{ site.baseurl }}/configuration/)
+- [Configuration](configuration/)

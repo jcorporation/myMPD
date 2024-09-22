@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/pictures
+
 title: Pictures
 ---
 

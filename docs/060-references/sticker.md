@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/sticker
+
 title: Sticker
 ---
 
@@ -15,7 +14,6 @@ myMPD uses the MPD stickers to save song states, playback statistics and votes o
 | playCount | How often the song was played |
 | rating | 0 - 10 stars rating |
 | skipCount | How often the song was skipped |
-{: .table .table-sm }
 
 **playCount is updated:**
 
@@ -36,4 +34,4 @@ Run `mympd-config MYMPD_STICKERS_PAD_INT true` and restart myMPD.
 
 myMPD uses a distinct mpd connection to read and write stickers. You can configure this connection to use an other mpd server to maintain song statistics across several myMPD instances.
 
-- [MPD satellite setup]({{site.baseurl}}/additional-topics/mpd-satellite-setup.md)
+- [MPD satellite setup](additional-topics/mpd-satellite-setup.md)

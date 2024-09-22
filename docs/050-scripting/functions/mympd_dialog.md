@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /scripting/functions/mympd_dialog
+
 title: Accessing the myMPD API
 ---
 
@@ -88,7 +87,6 @@ return mympd.dialog(title, data, callback)
 | title | string | Dialog title |
 | data | table | The dialog definition. |
 | callback | string | Script to call for the submit button |
-{: .table .table-sm }
 
 **Returns:**
 
@@ -103,7 +101,6 @@ A Jsonrpc string with method `script_dialog`.
 | value | The value(s) of the form element. |
 | displayValue | The display values of the form element, it is optional and only valid for `select`, `radio` and `list`. |
 | defaultValue | The defaultValue of the form element. |
-{: .table .table-sm }
 
 | TYPE | DESCRIPTION |
 | ---- | ----------- |
@@ -114,6 +111,5 @@ A Jsonrpc string with method `script_dialog`.
 | radio | Radios |
 | list | List of elements to select from. Selected items are separated by `;;` |
 | hidden | Hidden input field. |
-{: .table .table-sm }
 
 These are the same types as for script arguments.

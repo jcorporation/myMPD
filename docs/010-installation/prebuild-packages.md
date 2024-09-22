@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /installation/prebuild-packages
+
 title: Prebuild packages
 ---
 
@@ -14,7 +13,7 @@ Download the appropriated package for your distribution and install it with the 
 Following distributions are supported:
 
 - Arch
-- [Debian]({{ site.baseurl }}/installation/prebuild-packages-debian)
+- [Debian](installation/prebuild-packages-debian)
 - Fedora
 - Raspian
 - openSUSE

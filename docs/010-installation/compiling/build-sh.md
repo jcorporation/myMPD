@@ -2,7 +2,7 @@
 title: Compiling with build.sh
 ---
 
-With the `build.sh` script you can easily build myMPD and create your own packages. Downstream packagers should use [cmake]({{ site.baseurl }}/installation/compiling/cmake) directly.
+With the `build.sh` script you can easily build myMPD and create your own packages. Downstream packagers should use [cmake](installation/compiling/cmake) directly.
 
 ## Compiling and installing
 
@@ -53,7 +53,7 @@ You can self create packages for your distribution:
 - `./build.sh pkgrpm` for RPM based distributions (e.g. openSUSE, Fedora)
 - `./build.sh pkgdocker` to create a Docker image based on Alpine Linux
 - For gentoo you have to create a local overlay: https://wiki.gentoo.org/wiki/Custom_repository, the ebuild file is in the directory `contrib/packaging/gentoo`
-- Build a [OpenWrt package]({{ site.baseurl }}/installation/openwrt)
+- Build a [OpenWrt package](installation/openwrt)
 
 ### Cross compiling debian packages
 

@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/api/
+
 title: API Documentation
 ---
 
@@ -19,13 +18,13 @@ The websocket connection registers the Client ID on the webserver. This registra
 
 **API endpoint:** `/api/<partition>`
 
-- [API reference]({{ site.baseurl }}/references/api/methods)
+- [API reference](references/api/methods)
 
 Notifications from the backend to the frontend are sent over a websocket connection.
 
 **Websocket endpoint:** `/ws/<partition>`
 
-- [Notification reference]({{ site.baseurl }}/references/api/notifications)
+- [Notification reference](references/api/notifications)
 
 ## Example API calls
 

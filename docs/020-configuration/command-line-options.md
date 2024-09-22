@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /configuration/command-line-options
+
 title: Command line options
 ---
 
@@ -18,4 +17,4 @@ The `workdir` and `cachedir` options are useful if you want to run more then one
 | `-w`, `--workdir <path>` | working directory (default: `/var/lib/mympd`). This folder must exist, if not started as root. |
 | `-a`, `--cachedir <path>` | cache directory (default: `/var/cache/mympd`). This folder must exist, if not started as root. |
 | `-p`, `--pin` | sets a pin for myMPD settings |
-{: .table .table-sm }
+

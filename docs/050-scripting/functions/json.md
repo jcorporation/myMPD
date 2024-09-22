@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /scripting/functions/json
+
 title: Json
 ---
 

@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /known-issues
+
 title: Known issues
 ---
 
@@ -15,7 +14,7 @@ myMPD creates on first startup and on each database refresh the album cache. It 
 You can disable the creation of the caches, but you loose the album browse feature of myMPD
 or you can change the album cache mode to simple.
 
-- [Configuration]({{site.baseurl}}/configuration/configuration-files)
+- [Configuration](configuration/configuration-files)
 
 ### Accept-Encoding not honored
 

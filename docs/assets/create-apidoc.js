@@ -40,15 +40,15 @@ function init() {
 }
 
 function paramsToString(p) {
-    let html = '<table class="table table-sm ">';
+    let html = '<table>';
     for (const param in p) {
         if (p[param].params !== undefined) {
-            html += '<tr class="table-secondary"><td colspan="2">' + param + '</td></tr>' +
+            html += '<tr><td colspan="2">' + param + '</td></tr>' +
                 '<tr><td></td><td>' + paramsToString(p[param].params) +
                 '</td></tr>';
         }
         else {
-            html += '<tr class="table-secondary"><td colspan="2">' + param + '</td></tr>' +
+            html += '<tr><td colspan="2">' + param + '</td></tr>' +
                 '<tr><th>Type</th><td>' + p[param].type + '</td></tr>' +
                 '<tr><th>Desc</th><td>' + p[param].desc + '</td></tr>' +
                 '<tr><th>Example</th><td>' + p[param].example + '</td></tr>';

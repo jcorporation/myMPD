@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/feature-matrix
+
 title: Feature matrix
 ---
 
@@ -23,4 +22,4 @@ myMPD support only MPD 0.21.0 and above.
 | Remove range in playlist (range arg for playlistdelete) | 0.23.3 | Removes a range of songs in a playlist |
 | Partitions | 0.22.0 | Concurrent partition support |
 | Embedded albumart (readpicture) | 0.22.0 | myMPD can read pictures tags directly if it has access to the musicdirectory |
-{: .table .table-sm }
+

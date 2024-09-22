@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/trigger
+
 title: Trigger
 ---
 
@@ -31,4 +30,4 @@ Triggers are enabled if scripts are enabled. Triggers can call scripts with argu
 | TRIGGER_MPD_SUBSCRIPTION | 512 | Global | MPD client has subscribed or unsubscribed to a channel. |
 | TRIGGER_MPD_MESSAGE | 1024 | Global | A message was received on a channel this client is subscribed to. Only one script is supported for this event. |
 | TRIGGER_MPD_PARTITION | 2048 | Default partition | Partition was added or removed. |
-{: .table .table-sm }
+

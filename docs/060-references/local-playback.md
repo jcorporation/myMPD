@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/local-playback
+
 title: Local playback
 ---
 

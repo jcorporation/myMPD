@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /references/webradios
+
 title: Webradios
 ---
 

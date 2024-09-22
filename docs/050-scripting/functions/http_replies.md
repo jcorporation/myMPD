@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /scripting/functions/http_replies
+
 title: HTTP Replies
 ---
 
@@ -33,7 +32,6 @@ return mympd.http_serve_file(file)
 | status | integer | HTTP status code, e.g. 200 |
 | headers | string | HTTP headers to append, terminate each header with `\r\n`. `Status`, `Connection` and `Content-Length` headers are added automatically. |
 | body | string | Response body |
-{: .table .table-sm }
 
 ## JSONRPC
 
@@ -66,4 +64,4 @@ return mympd.http_jsonrpc_warn(method, msg)
 | --------- | ---- | ----------- |
 | method | integer | myMPD API method |
 | msg | string | Error message |
-{: .table .table-sm }
+

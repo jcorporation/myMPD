@@ -1,5 +1,4 @@
-layout: page
-permalink: /scripting/functions/gpio
+
 title: GPIO
 ---
 

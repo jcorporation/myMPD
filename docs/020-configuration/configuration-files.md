@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /configuration/configuration-files
+
 title: Configuration files
 ---
 
@@ -16,7 +15,7 @@ You can use `mympd -c` to create the initial configuration in the `/var/lib/mymp
 
 **Note:**
 
-Use [systemd-run]({{ site.baseurl }}/running#manual-startup), if you use a distribution with systemd, e.g.:
+Use [systemd-run](running#manual-startup), if you use a distribution with systemd, e.g.:
 
 ```sh
 systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -E MYMPD_LOGLEVEL=4 -E MYMPD_HTTP=false -E MYMPD_SSL_PORT=1333 mympd -c
@@ -26,7 +25,7 @@ systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -
 
 | FILE | TYPE | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ---- | ---- | ----------- | ------- | ----------- |
-| acl | string | MYMPD_ACL | | ACL to access the myMPD webserver: [ACL]({{ site.baseurl }}/configuration/acl), allows all hosts in the default configuration |
+| acl | string | MYMPD_ACL | | ACL to access the myMPD webserver: [ACL](configuration/acl), allows all hosts in the default configuration |
 | album_group_tag | string | MYMPD_ALBUM_GROUP_TAG | Date | Additional tag to group albums |
 | album_mode | string | MYMPD_ALBUM_MODE | adv | Set the album mode: `adv` or `simple` |
 | cache_cover_keep_days | number | MYMPD_CACHE_COVER_KEEP_DAYS | 31 | How long to keep images in the cover cache; 0 to disable the cache; -1 to disable pruning of the cache. |
@@ -36,15 +35,14 @@ systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -
 | http | boolean | MYMPD_HTTP | true | `true` = Enable listening on http_port |
 | http_host | string | MYMPD_HTTP_HOST | `[::]` | IP address to listen on, use `[::]` to listen on IPv6 and IPv4 |
 | http_port | number | MYMPD_HTTP_PORT | 80 | Port to listen for plain http requests. Redirects to `ssl_port` if `ssl` is set to `true`. *1 |
-| loglevel | number | MYMPD_LOGLEVEL | 5 | [Logging]({{ site.baseurl }}/configuration/logging) - this environment variable is always used |
+| loglevel | number | MYMPD_LOGLEVEL | 5 | [Logging](configuration/logging) - this environment variable is always used |
 | mympd_uri | string | MYMPD_URI | auto | `auto` or uri to myMPD listening port, e.g. `https://192.168.1.1/mympd` |
 | pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |
 | save_caches | boolean | MYMPD_SAVE_CACHES | true | `true` = saves caches between restart, `false` = create caches on startup |
-| scriptacl | string | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL]({{ site.baseurl }}/configuration/acl), allows only local connections in the default configuration. The acl above must also grant access. |
+| scriptacl | string | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL](configuration/acl), allows only local connections in the default configuration. The acl above must also grant access. |
 | stickers | boolean | MYMPD_STICKERS | true | Enables the support for MPD stickers. |
 | stickers_pad_int | boolean | MYMPD_STICKERS_PAD_INT | false | Enables the padding of integer sticker values (12 digits). |
 | webradiodb | boolean | MYMPD_WEBRADIODB | true | Enables the WebradioDB integration. |
-{: .table .table-sm }
 
 1. If http_port is disabled: The MPD curl plugin must trust the myMPD CA or certificate checking must be disabled. MPD fetches webradio playlists with http(s) from myMPD webserver.
 
@@ -58,6 +56,5 @@ systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -
 | custom_cert | boolean | MYMPD_CUSTOM_CERT | false | `true` = use custom ssl key and certificate |
 | ssl_cert | string | MYMPD_SSL_CERT | | Path to custom ssl certificate file |
 | ssl_key | string | MYMPD_SSL_KEY | | Path to custom ssl key file |
-{: .table .table-sm }
 
-- More details on [SSL]({{ site.baseurl }}/configuration/ssl)
+- More details on [SSL](configuration/ssl)

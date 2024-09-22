@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /installation/compiling/
+
 title: Compiling
 ---
 
@@ -12,7 +11,6 @@ title: Compiling
 | [master](https://github.com/jcorporation/myMPD/tree/master) | stable | the latest releas is created from the master branch |
 | [devel](https://github.com/jcorporation/myMPD/tree/devel) | unstable | this branch is for the next bugfix release |
 | other branches | unstable | development branches for new major and minor releases |
-{: .table .table-sm }
 
 Get the appropriated tarball or clone the git repository and checkout the wanted branch.
 
@@ -47,8 +45,8 @@ You can type `./build.sh installdeps` as root to install the dependencies (works
 
 ## Building myMPD
 
-- [Easy build with the build.sh script]({{ site.baseurl }}/installation/compiling/build-sh)
-- [Advanced build with cmake]({{ site.baseurl }}/installation/compiling/cmake)
-- [Build it in Termux]({{ site.baseurl }}/installation/compiling/termux)
-- [Build it for OpenWrt]({{ site.baseurl }}/installation/compiling/openwrt)
-- [Build it for FreeBSD]({{ site.baseurl }}/installation/compiling/freebsd)
+- [Easy build with the build.sh script](installation/compiling/build-sh)
+- [Advanced build with cmake](installation/compiling/cmake)
+- [Build it in Termux](installation/compiling/termux)
+- [Build it for OpenWrt](installation/compiling/openwrt)
+- [Build it for FreeBSD](installation/compiling/freebsd)

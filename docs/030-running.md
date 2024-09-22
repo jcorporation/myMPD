@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /running
+
 title: Running
 ---
 
@@ -26,7 +25,7 @@ The installation process installs a LSB compatible startup script / systemd unit
 | open-rc | `/etc/init.d/mympd` |
 | systemd | `/usr/lib/systemd/system/mympd` or `/lib/systemd/system/mympd` |
 | sysVinit | `/etc/init.d/mympd` |
-{: .table .table-sm}
+
 
 ### Systemd usage
 
@@ -61,14 +60,14 @@ If you use a distribution with systemd (without a static mympd user):
 systemd-run -t -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd /usr/bin/mympd
 ```
 
-Description of [Commandline-Options]({{ site.baseurl }}/configuration/).
+Description of [Commandline-Options](configuration/).
 
 ## Docker
 
-Goto [Docker]({{ site.baseurl }}/installation/docker)
+Goto [Docker](installation/docker)
 
 ## myMPD configuration
 
 You can configure some basic options of myMPD via startup options or environment variables.
 
-- [Configuration]({{ site.baseurl }}/configuration/)
+- [Configuration](configuration/)

@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /configuration/acl
+
 title: ACL
 ---
 
@@ -21,4 +20,4 @@ ACLs for IPv6 are currently not supported.
 | `+0.0.0.0/0`| Allow all |
 | `+127.0.0.0/8`| Allow localhost |
 | `+127.0.0.0/8,+192.168.0.0/24` | Allow localhost and all hosts in the net 192.168.0.x |
-{: .table .table-sm}
+

@@ -1,6 +1,5 @@
 ---
-layout: page
-permalink: /additional-topics/behind-a-reverse-proxy
+
 title: Behind a reverse proxy
 ---
 
