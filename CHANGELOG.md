@@ -64,6 +64,7 @@ All scripts in the mympd-scripts repository are updated accordingly, do not forg
 - Upd: Latest libmympdclient based on libmpdclient master
 - Upd: Hide advanced search by default
 - Fix: Send JSONRPC_EVENT_UPDATE_OPTIONS only on feature change
+- Fix: Outdated documentation
 
 ***
 
