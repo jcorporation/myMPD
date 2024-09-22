@@ -6,7 +6,6 @@ theme:
     - navigation.instant
     - navigation.tracking
     - content.code.copy
-  font: false
   logo: assets/mympd-logo.svg
   favicon: assets/favicon.ico
   palette:
@@ -23,6 +22,7 @@ plugins:
   - awesome-pages:
       collapse_single_pages: true
   - include-markdown
+  - privacy
   - search
 markdown_extensions:
   - tables
