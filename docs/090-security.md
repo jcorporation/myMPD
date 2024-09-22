@@ -14,12 +14,12 @@ Some notes on myMPD security.
 
 myMPD should not be directly accessible from the internet. It is designed to run inside a relatively secure intranet.
 
-- myMPD publishes several [directories](references/published-directories)
-- the pin setting only secures some [api calls](references/api/methods)
+- myMPD publishes several [directories](060-references/published-directories.md)
+- the pin setting only secures some [api calls](060-references/api/methods.md)
 
 If you want to access myMPD from the internet, you should add a reverse proxy with authentication and ssl encryption in front of it.
 
-- [Behind a reverse proxy](additional-topics/behind-a-reverse-proxy)
+- [Behind a reverse proxy](070-additional-topics/behind-a-reverse-proxy.md)
 
 ## Security measures
 

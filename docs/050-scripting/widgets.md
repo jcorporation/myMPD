@@ -6,7 +6,7 @@ Scripts for home screen widges must return a valid http response. The response b
 
 You can style the widget with all [Bootstrap classes](https://getbootstrap.com/), inline css is forbidden.
 
-Inline JavaScript is also forbidden, but you can call all available [functions](jsdoc/index.html).
+Inline JavaScript is also forbidden, but you can call all available [functions](../jsdoc/index.html).
 
 ## Skeleton for a widget script
 

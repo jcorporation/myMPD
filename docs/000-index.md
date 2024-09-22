@@ -12,4 +12,3 @@ myMPD is a standalone and mobile friendly web-based MPD client with a tiny footp
 To use all myMPD functions you should use the latest stable MPD version.
 
 This documentation is for myMPD version {% include-markdown "_includes/version" %}.
-

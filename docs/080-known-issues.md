@@ -14,7 +14,7 @@ myMPD creates on first startup and on each database refresh the album cache. It 
 You can disable the creation of the caches, but you loose the album browse feature of myMPD
 or you can change the album cache mode to simple.
 
-- [Configuration](configuration/configuration-files)
+- [Configuration](020-configuration/configuration-files.md)
 
 ### Accept-Encoding not honored
 

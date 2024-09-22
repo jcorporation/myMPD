@@ -3,7 +3,7 @@
 title: Accessing the myMPD API
 ---
 
-Calls the myMPD API, look at [API](references/api/) for detailed API description.
+Calls the myMPD API, look at [API](../../060-references/api/index.md) for detailed API description.
 
 ```lua
 local rc, result = mympd.api("method", params)

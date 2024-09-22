@@ -101,4 +101,4 @@ docker logs -f mympd
 
 You can configure some basic options of myMPD via startup options or environment variables.
 
-- [Configuration](configuration/)
+- [Configuration](../020-configuration/index.md)

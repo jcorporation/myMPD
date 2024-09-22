@@ -12,7 +12,7 @@ Following translations are available and maintained:
 
 User contributed translations:
 
-{% include_relative translating_status.md %}
+{% include-markdown "../_includes/translating_status.md" %}
 
 Translations with more than 100 missing phrases are not included in the build.
 

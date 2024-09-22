@@ -18,13 +18,13 @@ The websocket connection registers the Client ID on the webserver. This registra
 
 **API endpoint:** `/api/<partition>`
 
-- [API reference](references/api/methods)
+- [API reference](methods.md)
 
 Notifications from the backend to the frontend are sent over a websocket connection.
 
 **Websocket endpoint:** `/ws/<partition>`
 
-- [Notification reference](references/api/notifications)
+- [Notification reference](notifications.md)
 
 ## Example API calls
 

@@ -13,7 +13,7 @@ Download the appropriated package for your distribution and install it with the 
 Following distributions are supported:
 
 - Arch
-- [Debian](installation/prebuild-packages-debian)
+- [Debian](prebuild-packages-debian.md)
 - Fedora
 - Raspian
 - openSUSE

@@ -45,8 +45,8 @@ You can type `./build.sh installdeps` as root to install the dependencies (works
 
 ## Building myMPD
 
-- [Easy build with the build.sh script](installation/compiling/build-sh)
-- [Advanced build with cmake](installation/compiling/cmake)
-- [Build it in Termux](installation/compiling/termux)
-- [Build it for OpenWrt](installation/compiling/openwrt)
-- [Build it for FreeBSD](installation/compiling/freebsd)
+- [Easy build with the build.sh script](build-sh.md)
+- [Advanced build with cmake](cmake.md)
+- [Build it in Termux](termux.md)
+- [Build it for OpenWrt](openwrt.md)
+- [Build it for FreeBSD](freebsd.md)

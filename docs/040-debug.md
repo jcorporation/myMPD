@@ -16,7 +16,7 @@ Tips to debug problems with myMPD. Try these steps and reproduce the error.
 - Press Ctrl + C to abort
 - Reset loglevel: `unset MYMPD_LOGLEVEL`
 
-- **Note:** Use [systemd-run](running#manual-startup), if you use a distribution with systemd
+- **Note:** Use [systemd-run](030-running.md#manual-startup), if you use a distribution with systemd
 
 ### Get logs from running myMPD
 

@@ -13,7 +13,7 @@ Reference of all webserver uris.
 | `/albumart?offset=<nr>&uri=<songuri>` | Returns the albumart, offset should be 0 and is only relevant to retrieve more than the first embedded image. |
 | `/albumart-thumb?offset=<nr>&uri=<songuri>` | Returns the albumart thumbnail, offset should be 0 |
 | `/api/<partition>` | jsonrpc api endpoint |
-| `/browse/` | Prints the list of [published directories](references/published-directories) |
+| `/browse/` | Prints the list of [published directories](published-directories.md) |
 | `/ca.crt` | Returns the myMPD CA certificate |
 | `/folderart?path=<path>` | Returns the folderart thumbnail. |
 | `/playlistart?type=<plist,smartpls>&playlist=<playlist name>` | Returns the playlistart thumbnail or a redirect to the placeholder image if not found. |

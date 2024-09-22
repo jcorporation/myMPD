@@ -7,11 +7,11 @@ myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Scripts are e
 
 The first type of scripts are executed by triggers, timers or manual through the web ui. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition.
 
-- [Triggers](references/trigger)
+- [Triggers](../060-references/trigger.md)
 
 The second type of script are called by http requests (`/script/<partition>/<script>`), special triggers and home screen widgets. This scripts should return a valid http response including status code, headers and body.
 
-- [Widgets](scripting/widges)
+- [Widgets](widgets.md)
 
 ## Global variables
 
@@ -63,13 +63,13 @@ Arguments can be defined as simple names (text input field) or with typical html
 
 The mympd_state global lua table is NOT populates automatically. You must call `mympd.init()` to populate it.
 
-- [mympd.init](scripting/functions/mympd_init)
+- [mympd.init](functions/mympd_init.md)
 
 ## Custom myMPD lua functions
 
 myMPD provides custom lua functions through the `mympd` and `json` lua library.
 
-- [List of all functions](scripting/functions/)
+- [List of all functions](functions/index.md)
 
 ## Lua manual
 
@@ -134,4 +134,3 @@ return("Arguments are: " .. mympd_arguments.testarg1 .. mympd_arguments.testarg2
 | desc | A short description. |
 | order | Sort order of the script, 0 disables listing in main menu. |
 | arguments | Name of the keys for the script arguments, the gui asks for this arguments. Arguments are populated in a lua table called `mympd_arguments`. |
-
