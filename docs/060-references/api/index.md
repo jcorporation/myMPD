@@ -6,10 +6,10 @@ myMPD uses a JSON-RPC 2 for the communication between frontend and backend.
 
 ## JSON-RPC Id
 
-The json rpc is the combination of two numeric ids.
+The json-rpc Id is the combination of two numeric ids.
 
-1. Client ID: Generated on initial loading of the client, 6 digits
-2. Request ID: Incremented on each request, 3 digits, wraps around
+1. Client ID: Generated on initial loading of the client, first 6 digits
+2. Request ID: Incremented on each request, last 3 digits, wraps around
 
 The websocket connection registers the Client ID on the webserver. This registration is used to send async responses from the webserver to a specific client.
 

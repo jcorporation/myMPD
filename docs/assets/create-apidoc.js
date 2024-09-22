@@ -17,15 +17,15 @@ function init() {
         tbody.appendChild(tr);
     }
 
-    let options = '<option></option>';
+    let options = '<option value="">Show method</option>';
     for (const method of methods) {
         options += '<option value="' + method + '">' + method + '</option>';
     }
 
     let select = document.getElementById('selectMethod');
     select.innerHTML = options;
-    select.addEventListener('change', function() {
-        const m = this.options[this.selectedIndex].value;
+    select.addEventListener('change', function(event) {
+        const m = event.target.options[this.selectedIndex].value;
         if (m !== '') {
             for (const row of tbody.rows) {
                 if (row.getAttribute('id') === m) {
@@ -34,6 +34,11 @@ function init() {
                 else {
                     row.classList.add('d-none');
                 }
+            }
+        }
+        else {
+            for (const row of tbody.rows) {
+                row.classList.remove('d-none');
             }
         }
     }, false);

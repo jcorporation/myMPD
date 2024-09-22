@@ -16,11 +16,14 @@ Tips to debug problems with myMPD. Try these steps and reproduce the error.
 - Reset loglevel: `unset MYMPD_LOGLEVEL`
 
 !!! note
-    Use [systemd-run](030-running.md#manual-startup), if you use a distribution with systemd
+    Use [systemd-run](030-running.md#manual-startup), if you use a distribution with systemd.
 
 ### Get logs from running myMPD
 
-You can set the log level in the Maintenance dialog to `debug` and get the output from your logging service, for systemd it is: `journalctl -fu mympd`.
+You can set the log level in the Maintenance dialog to `debug` and get the output from your logging service.
+
+- Systemd: `journalctl -fu mympd`
+- Syslog: `tail -f /var/log/messages` (or the logfile for facility `daemon`)
 
 ## Webbrowser logging
 

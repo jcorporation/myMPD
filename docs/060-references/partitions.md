@@ -17,7 +17,6 @@ Following items are partition specific:
 
 You can select and manage partitions in the web interface. The selected partition for the web interface is saved in the browsers localStorage.
 
-## Notes
-
-- The `default` partition can not be deleted.
-- Do not use a partition with the name `!all!`. It is used internally by myMPD.
+!!! note
+    - The `default` partition can not be deleted.
+    - Do not use a partition with the name `!all!`. It is used internally by myMPD.

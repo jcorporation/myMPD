@@ -7,7 +7,7 @@ title: Running
 On startup myMPD does the following:
 
 - Check and create `cachedir` and `workdir` directories.
-    - `cachedir` and `workdir` must exist, if not started as root.
+    - `cachedir` and `workdir` must exist and be writeable for the user, if not started as root.
 - Reads environment at first startup.
 - Binds to the configured http and ssl port.
 - Dropping privileges, if started as root.

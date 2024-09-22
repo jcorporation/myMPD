@@ -5,3 +5,7 @@
     --md-accent-fg-color: #28a745;
     --md-accent-fg-color--transparent: #28a745;
 }
+
+.d-none {
+    display: none;
+}
