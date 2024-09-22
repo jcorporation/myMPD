@@ -59,6 +59,7 @@ All scripts in the mympd-scripts repository are updated accordingly, do not forg
 - Feat: Add widgets for home screen
 - Feat: Sort list of playlists by name or last-modified
 - Feat: Work actions in album detail view
+- Feat: New documentation site with search made with Material for MkDocs
 - Upd: Playlist pictures are moved in a separate folder `/var/lib/mympd/pics/playlists`
 - Upd: Latest libmympdclient based on libmpdclient master
 - Upd: Hide advanced search by default
