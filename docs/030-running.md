@@ -7,7 +7,7 @@ title: Running
 On startup myMPD does the following:
 
 - Check and create `cachedir` and `workdir` directories.
-  - `cachedir` and `workdir` must exist, if not started as root.
+    - `cachedir` and `workdir` must exist, if not started as root.
 - Reads environment at first startup.
 - Binds to the configured http and ssl port.
 - Dropping privileges, if started as root.
@@ -34,9 +34,8 @@ myMPD logs to STDERR, you can see the live logs with `journalctl -fu mympd`.
 
 The default myMPD service unit uses the `DynamicUser=` directive, therefore no static mympd user is created. If you want to change the group membership of this dynamic user, you must add an override.
 
-**Example: add the mympd user to the music group**
-
 ```sh
+# Add the mympd user to the music group
 mkdir /etc/systemd/system/mympd.service.d
 echo -e '[Service]\nSupplementaryGroups=music' > /etc/systemd/system/mympd.service.d/music-group.conf
 ```
@@ -56,7 +55,7 @@ To start myMPD in the actual console session: `mympd` (myMPD keeps in foreground
 
 If you use a distribution with systemd (without a static mympd user):
 
-```sh
+``` sh
 systemd-run -t -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd /usr/bin/mympd
 ```
 

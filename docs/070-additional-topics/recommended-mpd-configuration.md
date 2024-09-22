@@ -4,7 +4,7 @@ title: Recommended MPD configuration
 
 myMPD needs the following mpd settings for all features. If a feature is not enabled in mpd, myMPD disables the associated features.
 
-```
+```text
 # Enable stickers - myMPD uses stickers for play statistics
 sticker_file            "/var/lib/mpd/sticker.sql"
 

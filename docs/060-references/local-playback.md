@@ -13,7 +13,7 @@ Alternatively you can specify an uri, if the mpd stream is published through an 
 
 MPD configuration:
 
-```
+```text
 audio_output {
     type        "httpd"
     name        "HTTP Stream"

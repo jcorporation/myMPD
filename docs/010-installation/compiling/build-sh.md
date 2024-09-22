@@ -13,11 +13,11 @@ _If compilation fails and you are building on top of an old version, try to run 
 ### Release
 
 - `./build.sh release`
-  - Builds release binaries
-  - Directory: release
-  - Assets embedded in binary
-  - Binary is stripped
-  - Install prefix is `/usr`
+    - Builds release binaries
+    - Directory: release
+    - Assets embedded in binary
+    - Binary is stripped
+    - Install prefix is `/usr`
 - `./build.sh install` installs the release binaries (run as root)
 
 You can use `./build.sh releaseinstall` to compile and install in one step.
@@ -25,18 +25,18 @@ You can use `./build.sh releaseinstall` to compile and install in one step.
 ### Debug
 
 - `./build.sh debug`
-  - Builds debug binaries
-  - Directory: debug
-  - Plain assets in htdocs directory
-  - Use this to debug mympd with valgrind or gdb
+    - Builds debug binaries
+    - Directory: debug
+    - Plain assets in htdocs directory
+    - Use this to debug mympd with valgrind or gdb
 
 ### Sanitizers
 
 - `./build.sh <asan|tsan|ubsan>`
-  - Builds debug binaries linked with address sanitizers
-  - Directory: debug
-  - Plain assets in htdocs directory
-  - You must eventually preload the sanitizer library, e.g. `LD_PRELOAD=libasan.so.6 debug/bin/mympd`
+    - Builds debug binaries linked with address sanitizers
+    - Directory: debug
+    - Plain assets in htdocs directory
+    - You must eventually preload the sanitizer library, e.g. `LD_PRELOAD=libasan.so.6 debug/bin/mympd`
 
 ## Removing
 

@@ -1,5 +1,4 @@
 ---
-
 title: Configuration files
 ---
 

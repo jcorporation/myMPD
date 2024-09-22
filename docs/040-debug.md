@@ -45,7 +45,7 @@ socat -t100 -v UNIX-LISTEN:/run/mpd/socket-debug,mode=777,reuseaddr,fork UNIX-CO
 
 ### TCP connection
 
-MPD should listen on a tcp port.
+MPD is listening on a tcp port, default is 6600.
 
 ```sh
 tcpdump -nni any -vvv -s0 -x host <mpd host> and port <mpd port>

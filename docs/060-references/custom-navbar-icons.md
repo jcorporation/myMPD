@@ -6,9 +6,9 @@ The navbar icons can be customized. You must edit the file `/var/lib/mympd/state
 
 | FIELD | DESCRIPTION |
 | ----- | ----------- |
-| ligature | the same as for home icons from [Material Icons](https://fonts.google.com/icons?selected=Material+Icons&icon.style=Filled) |
-| title | title of the icon (would be translated) |
-| options | array of the view to open (take the part before the exclamation mark and split it by the `/` character), ending hyphens can be omitted |
+| ligature | The same as for home icons from [Material Icons](https://fonts.google.com/icons?selected=Material+Icons&icon.style=Filled) |
+| title | Title of the icon (will be translated) |
+| options | Array of the view to open. |
 
 Default navbar definition:
 
@@ -42,14 +42,33 @@ Default navbar definition:
 ]
 ```
 
-### Other Example
+## Available views
 
-URI: /Browse/Filesystem!0/-/-/-/
+- Playback
+- Queue
+    - Current
+    - LastPlayed
+    - Jukebox
+- Browse
+    - Database
+    - Filesystem
+    - Playlist
+    - Radio
+        - Favorites
+        - Webradiodb
+- Search
+
+### Some examples
 
 ```json
-  {
-    "ligature": "library_music",
-    "title":"Browse",
-    "options": ["Browse", "Filesystem"]
-  },
+{
+  "ligature": "library_music",
+  "title":"Browse",
+  "options": ["Browse", "Filesystem"]
+},
+{
+  "ligature": "radio",
+  "title":"Radio Favorites",
+  "options": ["Browse", "Radio", "Favorites"]
+}
 ```

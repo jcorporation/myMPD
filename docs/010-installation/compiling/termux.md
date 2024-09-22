@@ -7,22 +7,26 @@ This page describes how to compile and run myMPD with Termux.
 ## Compile myMPD
 
 1. Update the packages and install dependencies
-```
-pkg upgrade
-pkg install build-essential cmake perl pcre2 openssl libid3tag libflac lua54 git
-```
 
-3. Clone the git repo (depth makes it download only the last commit making it much smaller and faster to download)
-```
-git clone https://github.com/jcorporation/myMPD.git --depth=1
-```
-4. Change directory to the git repo and run build
-```
-cd myMPD
-cmake -B release -DCMAKE_BUILD_TYPE=Release -DLUA_MATH_LIBRARY=/system/lib64/libm.so .
-# substitute 'lib64' with 'lib' if you are on 32bit arch
-make -C release
-```
+    ```sh
+    pkg upgrade
+    pkg install build-essential cmake perl pcre2 openssl libid3tag libflac lua54 git
+    ```
+
+2. Clone the git repo (depth makes it download only the last commit making it much smaller and faster to download)
+
+    ```sh
+    git clone https://github.com/jcorporation/myMPD.git --depth=1
+    ```
+
+3. Change directory to the git repo and run build
+
+    ```sh
+    cd myMPD
+    cmake -B release -DCMAKE_BUILD_TYPE=Release -DLUA_MATH_LIBRARY=/system/lib64/libm.so .
+    # substitute 'lib64' with 'lib' if you are on 32bit arch
+    make -C release
+    ```
 
 ## Initial config
 
@@ -57,6 +61,7 @@ I made this little script which should run mympd as root with little trouble **(
 #!/bin/bash
 su root -c "$HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd -u $(whoami)"
 ```
+
 You can also prepend `nohup` before `su` to make it start in background and not stop even after closing the terminal
 
 ***

@@ -22,7 +22,7 @@ In this examples myMPD is proxied behind the path `/mympd`.
 
 ## Nginx
 
-```
+``` text
 location /mympd/ {
   proxy_pass http://127.0.0.1:8080/;
   proxy_redirect / /mympd/;
@@ -40,7 +40,7 @@ To access mympd behind apache2 enable following modules, e.g. with `a2enmod`:
 
 Add the following to a existing or a new virtual host:
 
-```
+``` text
 ProxyRequests Off 
 ProxyPreserveHost on
 ProxyVia On
@@ -54,18 +54,21 @@ ProxyPassReverse /mympd/ http://127.0.0.1:8080/
 
 ### Basic Password Authentication
 
-To add basic password authentication create a new htpasswd file 
+To add basic password authentication create a new htpasswd file:
+
 `sudo htpasswd -c <path/to/htpasswd/file> <username to access mympd>`
 
-Or append an existing htpasswd file
+Or append an existing htpasswd file:
+
 `sudo htpasswd <path/to/htpasswd/file> <username to access mympd>`
 
 for example:
+
 `sudo htpasswd -c /etc/apache2/.htpasswds mympd`
 
 Then add the following to your mympd Location in your apache virtualhost configuration file
 
-```
+``` text
 AuthType Basic
 AuthName "Authentication Required" # or add any type of identifier you prefer
 AuthUserFile <path/to/htpasswd/file> # for example /etc/apache2/.htpasswds
@@ -74,7 +77,7 @@ Require valid-user
 
 for example:
 
-```
+``` text
 <Location "/mympd/">
   AuthType Basic
   AuthName "Authentication Required" # or add any type of identifier you prefer
@@ -82,23 +85,24 @@ for example:
   Require valid-user
 </Location>
 ```
-See https://wiki.apache.org/httpd/PasswordBasicAuth for more information
+
+See [https://wiki.apache.org/httpd/PasswordBasicAuth](https://wiki.apache.org/httpd/PasswordBasicAuth) for more information.
 
 ### Simple Access Control
 
 To limit acces to mympd to the local network, add the following to the location directive adjusting for your own network:
 
-```
+``` text
 Require host localhost 
 Require ip <ipaddress>
 Require ip <ip range/netmask> # ex 192.168.1.0/24
 ```
 
-See https://httpd.apache.org/docs/2.4/howto/access.html for more information
+See [https://httpd.apache.org/docs/2.4/howto/access.html](https://httpd.apache.org/docs/2.4/howto/access.html) for more information
 
 ### Full Example Config
 
-```
+``` text
 MergeSlashes OFF
 
 <VirtualHost *:80>

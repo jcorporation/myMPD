@@ -6,13 +6,13 @@ title: Known issues
 
 #### Cause
 
-myMPD creates on first startup and on each database refresh the album cache. It searches through the whole MPD database and this could cause heavy cpu usage on large databases.
+myMPD creates on first startup and on each database refresh the album cache. It searches through the whole MPD database and this could cause heavy cpu usage on very huge databases.
 
 #### Workaround
 
-You can disable the creation of the caches, but you loose the album browse feature of myMPD
-or you can change the album cache mode to simple.
+You can switch to simple album mode, but you lose some album browsing functionality.
 
+- [Albums](060-references/tags.md#albums)
 - [Configuration](020-configuration/configuration-files.md)
 
 ### Accept-Encoding not honored
@@ -36,12 +36,9 @@ None
 
 #### Cause
 
-The mpd client library libmpclient uses a fixed buffer of 4096 bytes to get
-response lines from MPD. If a response line is larger than this limit, this
-error occurs. Most of the time the response line is to large, because of a tag
-that length exceeds this limit.
+The mpd client library libmpclient uses a fixed buffer of 4096 bytes to get response lines from MPD. If a response line is larger than this limit, this error occurs. Most of the time the response line is to large, because of a tag that length exceeds this limit.
 
-libmympdclient uses a fixed buffer size of 8192 bytes.
+myMPD uses a fork of libmpdclient (libmympdclient) that uses a fixed buffer size of 8192 bytes.
 
 #### Workaround
 
@@ -54,14 +51,13 @@ libmympdclient uses a fixed buffer size of 8192 bytes.
 
 - myMPD issue: [#528](https://github.com/jcorporation/myMPD/issues/528)
 
-### Cause
+#### Cause
 
-MPD has an output buffer with a default max size of 8 MB. If a response is
-larger than this limit, this error occurs.
+MPD has an output buffer with a default max size of 8 MB. If a response is larger than this limit, this error occurs.
 
 #### Workaround
 
-- Increase the output buffer size in mpd.conf - can cause further issues
+- Increase the output buffer size in `mpd.conf` - can cause further issues
 - Limit the response size - the better workaround
-  - Decrease the number of enabled tags to use
-  - Decrease the number of elements per page
+    - Decrease the number of enabled tags to use
+    - Decrease the number of elements per page

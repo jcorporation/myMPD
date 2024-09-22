@@ -17,7 +17,7 @@ Smart playlists are saved in the folder `/var/lib/mympd/smartpls` (one JSON file
 | type | all | Type of smart playlist: `sticker`, `newest` or `search` |
 | sticker | sticker | Stickername, see [Sticker](sticker.md) |
 | value | sticker | Sticker value |
-| op | sticker | Sticker compare operator: `=`, `<`, `>`, `gt` (MPD 0.24), `lt` (MPD 0.24) |
+| op | sticker | Sticker compare operator: `=`, `<`, `>`, MPD 0.24: `gt`, `lt`, `contains`, `starts_with` |
 | timerange | newest | Timerange since last database update in seconds |
 | expression | search | MPD filter expression |
 | sort | newest, expression | Tag to sort (e.g. `Artist`), `shuffle` or empty string |

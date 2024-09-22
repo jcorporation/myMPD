@@ -14,7 +14,7 @@ MPD loads this webradio favorites with the curl plugin, myMPD calculates the cor
 
 ### File format
 
-```
+```text
 #EXTM3U
 #EXTINF:-1,<name of the webradio>
 #EXTGENRE:<comma separated list of genres>
@@ -31,7 +31,7 @@ MPD loads this webradio favorites with the curl plugin, myMPD calculates the cor
 
 ### Example
 
-```
+```text
 #EXTM3U
 #EXTINF:-1,SWR 1 BW
 #EXTGENRE:Pop,Rock

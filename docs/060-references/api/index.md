@@ -51,13 +51,13 @@ Use the session string in the response for authenticated requests. The session i
 
 To send a request with authentication data add a `X-myMPD-Session` header to it.
 
-```
+```text
 X-myMPD-Session: <token>
 ```
 
 ### Validate the token
 
-```
+```text
 Content-Type: application/json
 X-myMPD-Session: <token>
 
@@ -66,7 +66,7 @@ X-myMPD-Session: <token>
 
 ### Logout
 
-```
+```text
 Content-Type: application/json
 X-myMPD-Session: <token>
 

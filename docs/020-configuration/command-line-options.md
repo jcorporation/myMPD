@@ -1,5 +1,4 @@
 ---
-
 title: Command line options
 ---
 

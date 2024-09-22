@@ -17,11 +17,14 @@ It is expected you have /usr/ports populated.
 
 1. Copy the contents of `contrib/packaging/freebsd` to `/usr/ports`
 2. Generate the checksums:
+
     ``` sh
     cd /usr/ports/multimedia/mympd/
     make makesum
-    ``` sh
+    ```
+
 3. Install myMPD:
+
     ``` sh
     make install
     make clean
@@ -36,20 +39,27 @@ I would use the poudriere's ports tree installed in `/usr/local/poudriere/ports/
 
 1. Copy the contents of `contrib/packaging/freebsd` to `/usr/local/poudriere/ports/local`
 2. Generate the checksums:
+
     ``` sh
     cd /usr/local/poudriere/ports/local/multimedia/mympd
     make makesum
     ```
+
 3. If the previous step fails, you may need to create temporary symlink from `/usr/ports` to this local tree (revert it back afterwards):
+
     ``` sh
     mv /usr/ports /usr/ports.bu
     ln -s /usr/local/poudriere/ports/local /usr/ports
     ```
+
 4. Build the myMPD package (consult the options with the handbook):
+
     ``` sh
     poudriere bulk -j 13amd64 -p local multimedia/mympd
     ```
+
 5. Install the package. You may need to add poudriere's repository if you haven't done that earlier.
+
     ``` sh
     pkg install myMPD
     ```

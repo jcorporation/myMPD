@@ -78,12 +78,11 @@ EOF
 
 systemctl daemon-reload
 systemctl enable pulseaudio
-
 ```
 
 #### Configure Pulseaudio Group Permissions correctly
 
-```
+```sh
 ## Allow Pulseaudio to access audio devices
 # usermod -a -G audio pulse
 # usermod -a -G pulse-access root
@@ -95,7 +94,7 @@ pulse:x:110:
 pulse-access:x:111:root
 ```
 
-### On the Central System:
+### On the Central System
 
 #### Allow MPD to output to PulseAudio
 
@@ -189,7 +188,6 @@ audio_output {
     format          "44100:16:1"
     max_clients     "0"
 }
-
 ```
 
 ### On the satellite systems
@@ -295,7 +293,6 @@ F1 Output  F2 Input  F3 Cards                                             ? - he
  │                                                         └ ████████████     ┘
  └─Rtp Stream (PulseAudio RTP Stream on 192.168.0.1   100  ┌ ████████████     ┐
                                                            └ ████████████     ┘
-
 ```
 
 #### CPU consumption on satellite devices

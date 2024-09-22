@@ -32,18 +32,18 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 - lua - to precompile embedded lua libraries
 - whiptail - for mympd-config
 - Devel packages:
-  - pcre2 - for pcre support
-  - OpenSSL >= 1.1.0 - for https support
-  - Optional:
-    - libid3tag - to extract embedded coverimages
-    - flac - to extract embedded coverimages
-    - liblua >= 5.3.0 - for myMPD scripting
-    - libmygpio - for GPIO scripting functions
+    - pcre2 - for pcre support
+    - OpenSSL >= 1.1.0 - for https support
+    - Optional:
+        - libid3tag - to extract embedded coverimages
+        - flac - to extract embedded coverimages
+        - liblua >= 5.3.0 - for myMPD scripting
+        - libmygpio - for GPIO scripting functions
 - Documentation:
-  - Doxygen
-  - JSDoc
-  - LuaDoc
-  - mkdocs
+    - Doxygen
+    - JSDoc
+    - LuaDoc
+    - mkdocs
 
 You can type `./build.sh installdeps` as root to install the dependencies (works only for supported distributions). For all other distributions you must install the packages manually.
 

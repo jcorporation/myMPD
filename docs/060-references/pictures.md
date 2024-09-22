@@ -26,23 +26,22 @@ This offers:
 **Enable albumart support:**
 
 1. Albumart in folders per album
-  - Put the pictures and thumbnails in the album folders, name it always the same, e.g. cover-sm.webp (thumbnail) and cover.webp (full image)
-  - Configure the name in the settings (albumart filenames and thumbnail names), a comma separated list of filenames and only basenames (filenames without extensions) are also supported
+    - Put the pictures and thumbnails in the album folders, name it always the same, e.g. cover-sm.webp (thumbnail) and cover.webp (full image)
+    - Configure the name in the settings (albumart filenames and thumbnail names), a comma separated list of filenames and only basenames (filenames without extensions) are also supported
 2. Embedded albumart in the music files
-  - myMPD must be compiled with flac/libid3tag support (default in prebuild packages)
-  - Supported formats are id3v2 for MP3 and Vorbis Comments for FLAC and OGG
-  - myMPD reads all embedded images, not only the first one as MPD.
+    - myMPD must be compiled with flac/libid3tag support (default in prebuild packages)
+    - Supported formats are id3v2 for MP3 and Vorbis Comments for FLAC and OGG
+    - myMPD reads all embedded images, not only the first one as MPD.
 
 ### Through MPD protocol
 
 This is useful if myMPD does not run on the same host as MPD.
 
 1. Albumart in folders per album
-  - Only MPD >= 0.21 supports the albumart command
-  - Put the albumart in the album folders, the basename must be cover (e.g. cover.jpg), this is not configurable
+    - Put the albumart in the album folders, the basename must be cover (e.g. cover.jpg), this is not configurable
 2. Embedded albumart in the music files
-  - Only MPD >= 0.22 supports the readpicture command
-  - Only first image is read
+    - Only MPD >= 0.22 supports the readpicture command
+    - Only first image is read
 
 myMPD restricts the size to 5 MB.
 
@@ -63,7 +62,7 @@ The "Browse Database" grid view can display pictures for other tags than album a
 
 You can download artistart with the script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)
 
-Tag values are case sensitive and are sanitized: `/` is replaced with `_` (`AC/DC` -> `AC_DC`)
+Tag values are case sensitive and are sanitized: `/` and `\` are replaced with `_` (`AC/DC` -> `AC_DC`)
 
 If the tag directory exists and myMPD can not find the tagart it emmits the `mympd_tagart` trigger. Attach a script to fetch and deliver tagart to this trigger. Only one script is supported for this event.
 

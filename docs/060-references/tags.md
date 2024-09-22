@@ -56,4 +56,4 @@ The album mode queries each song to build the album cache. This can take a long 
 The simple album mode uses a simple command to get all uniq album tags from mpd. It is faster than the advanced album mode, but does not provide the same feature set.
 
 - myMPD uses the combination of Album + AlbumArtist + Date to identify uniq albums.
-- All the advanced properties as genre, song count, album duration, etc. are not available.
+- All the advanced properties like genre, song count, album duration, etc. are not available.

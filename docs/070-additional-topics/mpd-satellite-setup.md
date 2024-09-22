@@ -5,12 +5,12 @@ title: MPD satellite setup
 The mpd satellite setup consists of following components:
 
 - A central server hosting:
-  - music collection
-  - playlists
-  - MPD database
-  - MPD sticker database
-  - myMPD images
-  - myMPD webradio favorites
+    - music collection
+    - playlists
+    - MPD database
+    - MPD sticker database
+    - myMPD images
+    - myMPD webradio favorites
 - A few embedded devices running mpd and myMPD to play and control the music locally
 
 - [Discussion](https://github.com/jcorporation/myMPD/discussions/932)
@@ -37,9 +37,9 @@ Setting up the central server involves following steps:
 
 ### Configure MPD
 
-**/etc/mpd.conf**
+#### /etc/mpd.conf
 
-```
+``` text
 music_directory "/srv/mpd/music"
 playlist_directory "/srv/mpd/playlists"
 database {
@@ -51,13 +51,13 @@ sticker_file "/var/lib/mpd/sticker.sql"
 bind_to_address "0.0.0.0"
 ```
 
-## Export
+### Export
 
 We use NFS, but CIFS is also possible.
 
-**/etc/exports**
+#### /etc/exports
 
-```
+``` text
 /srv/mpd  *(ro,sync,no_subtree_check)
 ```
 
@@ -79,17 +79,17 @@ Setting up the satellite involves following steps:
 
 We mount the exported directories at the os level. myMPD requires access to the music directory also. Ths music directory path should be the same on the central server and on the satellite.
 
-**/etc/fstab**
+#### /etc/fstab
 
-```
+``` text
 central.lan:/srv/mpd /srv/mpd nfs soft,_netdev 0 0
 ```
 
 ### 2. Configure MPD
 
-**/etc/mpd.conf**
+#### /etc/mpd.conf
 
-```
+``` text
 music_directory "/srv/mpd/music"
 playlist_directory "/srv/mpd/playlists"
 database {
@@ -131,4 +131,4 @@ ln -s /srv/mpd/webradios /var/lib/mympd/webradios
 Following functions are currently not supported with the satellite setup.
 
 - Shared smart playlists across all myMPD instances
-  - At the moment each myMPD instance creates it's MPD playlists and could overwrite MPD playlists from other instances. To prevent this set a different smart playlist prefix on each myMPD instance.
+    - At the moment each myMPD instance creates it's MPD playlists and could overwrite MPD playlists from other instances. To prevent this set a different smart playlist prefix on each myMPD instance.

@@ -18,10 +18,10 @@ myMPD tries to autodetect the mpd connection only at first start (if no mpd_host
 
 1. Uses the default MPD environment variables
 2. Searches for a mpd socket
-  - `$XDG_RUNTIME_DIR/mpd/socket`
-  - `/run/mpd/socket`
-  - `/var/run/mpd/socket`
-  - `/var/lib/mpd/socket`
+    - `$XDG_RUNTIME_DIR/mpd/socket`
+    - `/run/mpd/socket`
+    - `/var/run/mpd/socket`
+    - `/var/lib/mpd/socket`
 3. Falls back to `localhost:6600`
 
 | ENVIRONMENT | DESCRIPTION |
