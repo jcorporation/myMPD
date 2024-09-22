@@ -1,5 +1,4 @@
 ---
-
 title: SSL
 ---
 
@@ -23,8 +22,7 @@ The default certificates are saved in the directory `/var/lib/mympd/ssl/`.
 | server.pem | Server certificate |
 | server.key | Server private key |
 
-
-The server certificates SAN is:
+The server certificate SAN is:
 
 - DNS: localhost
 - DNS: ip6-localhost
@@ -54,4 +52,3 @@ You can of course use your own certificate, e.g. from [Let's Encrypt](https://le
 | custom_cert | true |
 | ssl_key | path to custom ssl key |
 | ssl_cert | path to custom ssl certificate |
-

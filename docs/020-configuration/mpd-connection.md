@@ -1,5 +1,4 @@
 ---
-
 title: MPD connection
 ---
 
@@ -12,7 +11,6 @@ The mpd connection settings can be configured in the web-ui (Main menu -> MPD co
 | MPD host | `/run/mpd/socket` |
 | MPD port | 6600 |
 | MPD timeout | 30 |
-
 
 ### MPD autodetection
 
@@ -31,6 +29,5 @@ myMPD tries to autodetect the mpd connection only at first start (if no mpd_host
 | MPD_HOST | MPD host or path to mpd socket |
 | MPD_PORT | MPD port |
 | MPD_TIMEOUT | MPD timeout in seconds |
-
 
 This is done after dropping privileges to the mympd user.

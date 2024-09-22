@@ -1,5 +1,4 @@
 ---
-
 title: Multiroom audio system using MPD/myMPD and pulseaudio
 ---
 
@@ -56,13 +55,13 @@ MPD and myMPD will only run on the NAS.
 
 #### Install PulseAudio (if not already installed)
 
-```
+```sh
 apt install pulseaudio,pulseaudio-utils,pulsemixer
 ```
 
 #### Have Pulse audio start as system service with the following pulseaudio systemd unit file
 
-```
+```sh
 # cat <<EOF > /lib/systemd/system/pulseaudio.service
 [Unit]
 Description=PulseAudio Daemon
@@ -100,7 +99,7 @@ pulse-access:x:111:root
 
 #### Allow MPD to output to PulseAudio
 
-```
+```sh
 # usermod -a -G pulse-access mpd
 
 ## Verify
@@ -114,13 +113,13 @@ pulse-access:x:111:root,mpd
 
 Notice that a distinct sink is configured for each destination device, plus another one for synchronised multiroom audio.
 
-```
+```sh
 # cat <<EOF >> /etc/pulse/system.pa
 .include /etc/pulse/rtp_server.pa
 EOF
 ```
 
-```
+```sh
 # cat <<EOF > /etc/pulse/rtp_server.pa
 load-module module-null-sink sink_name=rtp format=s32be channels=2 rate=48000 sink_properties="device.description='MPD RTP Multicast Sink'"
 load-module module-rtp-send source=rtp.monitor destination_ip=239.0.0.100
@@ -142,7 +141,7 @@ EOF
 
 #### Configure MPD to send audio output to the different possible RTP sinks
 
-```
+```sh
 # cat /etc/mpd.conf
 
 # Only the Audio Output part from mpd.conf is shown here
@@ -199,7 +198,7 @@ No need to install mpd/mympd; only pulseaudio is required.
 
 #### Configure PulseAudio to receive audio over the Network by RTP (RealTime Transport Protocol)
 
-```
+```sh
 # cat <<EOF >> /etc/pulse/system.pa
 .include /etc/pulse/rtp.pa
 EOF
@@ -207,7 +206,7 @@ EOF
 
 ##### Specific config file in Multimedia Room Embedded device
 
-```
+```sh
 # cat << EOF > /etc/pulse/rtp.pa
 ### Load the RTP receiver module
 load-module module-rtp-recv sap_address=239.0.0.100
@@ -216,7 +215,7 @@ load-module module-rtp-recv sap_address=192.168.0.11
 
 ##### Specific config file in Saloon Embedded device
 
-```
+```sh
 # cat << EOF > /etc/pulse/rtp.pa
 ### Load the RTP receiver module
 load-module module-rtp-recv sap_address=239.0.0.100
@@ -225,7 +224,7 @@ load-module module-rtp-recv sap_address=192.168.0.12
 
 ##### Specific config file in Attic Embedded device
 
-```
+```sh
 # cat << EOF > /etc/pulse/rtp.pa
 ### Load the RTP receiver module
 load-module module-rtp-recv sap_address=239.0.0.100
@@ -234,7 +233,7 @@ load-module module-rtp-recv sap_address=192.168.0.13
 
 ##### Specific config file in Bathroom Embedded device
 
-```
+```sh
 # cat << EOF > /etc/pulse/rtp.pa
 ### Load the RTP receiver module
 load-module module-rtp-recv sap_address=239.0.0.100
@@ -245,10 +244,9 @@ load-module module-rtp-recv sap_address=192.168.0.14
 
 The service must be started.
 
-On the NAS, the 
 On the receivers, the incoming RTP flows (unicast and multicast) should appear under the audio interface that's outputting them.
 
-```
+```sh
 # systemctl restart pulseaudio
 # systemctl status pulseaudio
 

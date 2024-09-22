@@ -1,13 +1,11 @@
 ---
-
 title: Feature matrix
 ---
 
 Certain myMPD features are only available with new MPD versions. To use all myMPD functions you should use the latest stable MPD version.
 
-<div class="alert alert-warning">
-myMPD support only MPD 0.21.0 and above.
-</div>
+!!! note
+    myMPD support only MPD 0.21.0 and above.
 
 | MYMPD FEATURE | MPD VERSION | DESCRIPTION |
 | ------------- | ----------- | ----------- |
@@ -22,4 +20,3 @@ myMPD support only MPD 0.21.0 and above.
 | Remove range in playlist (range arg for playlistdelete) | 0.23.3 | Removes a range of songs in a playlist |
 | Partitions | 0.22.0 | Concurrent partition support |
 | Embedded albumart (readpicture) | 0.22.0 | myMPD can read pictures tags directly if it has access to the musicdirectory |
-

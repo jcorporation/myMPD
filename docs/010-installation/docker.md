@@ -1,5 +1,4 @@
 ---
-
 title: Docker
 ---
 
@@ -7,8 +6,8 @@ The Docker images are based on [Alpine Linux](https://alpinelinux.org). They are
 
 There are two images:
 
-- mympd/mympd: the latest stable release
-- mympd/mympd-devel: development version
+- [mympd/mympd](https://github.com/users/jcorporation/packages/container/package/mympd%2Fmympd): the latest stable release
+- [mympd/mympd-devel](https://github.com/users/jcorporation/packages/container/package/mympd%2Fmympd-devel): development version
 
 Available architectures:
 
@@ -38,14 +37,13 @@ Starts the myMPD docker container:
 | `/var/lib/mpd/music/` | MPD music directory. Use the same path in the container to enable auto detection. |
 | `/var/lib/mpd/playlists/` | MPD playlist directory. Use the same path in the container to enable auto detection. |
 
-
 You must create the `cachedir` and `workdir` before starting the container.
 
 ### Docker Compose
 
 Save this as `docker-compose.yml`:
 
-```yml
+```yaml
 services:
   mympd:
     image: ghcr.io/jcorporation/mympd/mympd

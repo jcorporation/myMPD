@@ -1,5 +1,4 @@
 ---
-
 title: Termux
 ---
 
@@ -29,7 +28,7 @@ make -C release
 
 Create the config directory for myMPD and run it to create the config files from the environment variables
 
-```
+```sh
 mkdir -p $HOME/.config/mympd
 
 export MYMPD_HTTP_PORT=8080 # you can use '80' if using root
@@ -46,7 +45,7 @@ $HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd # run it
 
 After this run myMPD with just this, the rest is necessary for the first start only
 
-```
+```sh
 $HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd
 ```
 
@@ -54,7 +53,7 @@ $HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd
 
 I made this little script which should run mympd as root with little trouble **(run it as the user!)**
 
-```
+```sh
 #!/bin/bash
 su root -c "$HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd -u $(whoami)"
 ```

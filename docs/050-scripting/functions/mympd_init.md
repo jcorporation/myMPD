@@ -1,5 +1,4 @@
 ---
-
 title: Accessing myMPD and MPD status information
 ---
 
@@ -68,4 +67,3 @@ The lua table mympd_state is populated with following fields.
 | `uri` | String | Song uri |
 | `Duration` | Integer | Song duration in seconds |
 | Tag | Tag value(s) | MPD tag name with values. |
-

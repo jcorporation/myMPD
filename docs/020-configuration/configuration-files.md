@@ -5,21 +5,19 @@ title: Configuration files
 
 At the first start (if there is no config folder in the working folder) myMPD reads some environment variables and writes the configuration files.
 
-<div class="alert alert-warning">
-After the first start all environment variables are ignored, except loglevel.
-</div>
+!!! tip
+    After the first start all environment variables are ignored, except loglevel.
 
 To change these settings afterwards, you can use the `mympd-config` utility and restart myMPD. As an alternative you can edit the files in the folder `/var/lib/mympd/config/`.
 
 You can use `mympd -c` to create the initial configuration in the `/var/lib/mympd/config/` directory.
 
-**Note:**
+!!! note
+    Use [systemd-run](../030-running.md#manual-startup), if you use a distribution with systemd, e.g.:
 
-Use [systemd-run](../030-running.md#manual-startup), if you use a distribution with systemd, e.g.:
-
-```sh
-systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -E MYMPD_LOGLEVEL=4 -E MYMPD_HTTP=false -E MYMPD_SSL_PORT=1333 mympd -c
-```
+    ```sh
+    systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -E MYMPD_LOGLEVEL=4 -E MYMPD_HTTP=false -E MYMPD_SSL_PORT=1333 mympd -c
+    ```
 
 ## General options
 

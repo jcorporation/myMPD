@@ -1,5 +1,4 @@
 ---
-
 title: HTTP Replies
 ---
 
@@ -64,4 +63,3 @@ return mympd.http_jsonrpc_warn(method, msg)
 | --------- | ---- | ----------- |
 | method | integer | myMPD API method |
 | msg | string | Error message |
-

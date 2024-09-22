@@ -1,5 +1,4 @@
 ---
-
 title: Functions
 ---
 
@@ -40,4 +39,4 @@ List of myMPD specific Lua functions.
 | [mympd.urldecode](util.md) | Decodes a URL encoded string. |
 | [mympd.urlencode](util.md) | URL encodes a string. |
 
-- [LuaDoc](../../luadoc/files/debug/contrib/lualibs/mympd.html)
+- [LuaDoc](../../luadoc/files/release/contrib/lualibs/mympd.html)

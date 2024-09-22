@@ -1,5 +1,4 @@
 ---
-
 title: Recommended MPD configuration
 ---
 
@@ -13,7 +12,7 @@ sticker_file            "/var/lib/mpd/sticker.sql"
 playlist_directory      "/var/lib/mpd/playlists"
 
 # Enable metadata. If set to none, you can only browse the filesystem
-metadata_to_use         "AlbumArtist,Artist,Album,Title,Track,Disc,Genre,Name"
+metadata_to_use         "AlbumArtist,Artist,Album,Title,Track,Disc,Genre,Name,Date"
 # Enable also the musicbrainz_* tags if you want integration with MusicBrainz and ListenBrainz
 # musicbrainz_albumid is the fallback for musicbrainz_releasegroupid (MPD 0.24)
 #metadata_to_use         "AlbumArtist,Artist,Album,Title,Track,Disc,Genre,Name,musicbrainz_artistid, musicbrainz_albumid, musicbrainz_albumartistid, musicbrainz_trackid, musicbrainz_releasetrackid"

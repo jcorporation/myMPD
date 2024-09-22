@@ -13,7 +13,8 @@ On startup myMPD does the following:
 - Dropping privileges, if started as root.
 - Check and create the directories inside `cachedir` and `workdir`.
 
-- **Note:** It is not supported to run myMPD as root. If started as root, myMPD drops privileges to the configured user (default mympd).
+!!! note
+    It is not supported to run myMPD as root. If started as root, myMPD drops privileges to the configured user (default mympd).
 
 ## Startup script
 
@@ -22,7 +23,7 @@ The installation process installs a LSB compatible startup script / systemd unit
 | INIT SYSTEM | SCRIPT |
 | ----------- | ------ |
 | open-rc | `/etc/init.d/mympd` |
-| systemd | `/usr/lib/systemd/system/mympd` or `/lib/systemd/system/mympd` |
+| systemd | `/usr/lib/systemd/system/mympd` and`/usr/lib/systemd/user/mympd` |
 | sysVinit | `/etc/init.d/mympd` |
 
 ### Systemd usage
@@ -35,12 +36,13 @@ The default myMPD service unit uses the `DynamicUser=` directive, therefore no s
 
 **Example: add the mympd user to the music group**
 
-```
+```sh
 mkdir /etc/systemd/system/mympd.service.d
 echo -e '[Service]\nSupplementaryGroups=music' > /etc/systemd/system/mympd.service.d/music-group.conf
 ```
 
-- **Note:** The default systemd service unit supports only systemd v235 and above.
+!!! note
+    The default systemd service unit supports only systemd v235 and above.
 
 ### Openrc usage
 
@@ -50,11 +52,11 @@ myMPD logs to syslog to facility `daemon`, you can see the live logs with `tail 
 
 ## Manual startup
 
-To start myMPD in the actual console session: `mympd` (myMPD keeps in foreground and logs to the console, press CTRL+C to stop myMPD)
+To start myMPD in the actual console session: `mympd` (myMPD keeps in foreground and logs to the console, press `CTRL+C` to stop myMPD)
 
 If you use a distribution with systemd (without a static mympd user):
 
-```
+```sh
 systemd-run -t -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd /usr/bin/mympd
 ```
 

@@ -1,5 +1,4 @@
 ---
-
 title: HTTP client
 ---
 
@@ -61,4 +60,3 @@ end
 | rc | integer | 0 = success, 1 = error |
 | code | integer | http response code, e.g. 200 |
 | headers | table | http headers |
-

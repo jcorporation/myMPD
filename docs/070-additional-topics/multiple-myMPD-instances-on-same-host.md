@@ -1,11 +1,11 @@
 ---
-
 title: Multiple myMPD instances on same host
 ---
 
 You can run multiple myMPD instances on the same host connecting to different MPD instances.
 
 You must define for each myMPD instance:
+
 - different working directory
 - different cache directory
 - different ports to listen on
@@ -14,11 +14,12 @@ You must define for each myMPD instance:
 If the working directory is not present, you can create it:
 
 First myMPD instance:
+
 - connect to mpd listening on socket `/run/mpd1/socket`
 - myMPD will listen on port 8001
 - myMPD will not use ssl
 
-```
+```sh
 export MPD_HOST=/run/mpd1/socket
 export MYMPD_HTTP_PORT=8001
 export MYMPD_SSL=false
@@ -26,11 +27,12 @@ mympd -w /var/lib/mympd1 -a /var/cache/mympd1
 ```
 
 Second myMPD instance:
+
 - connect to mpd listening on socket `/run/mpd2/socket`
 - myMPD will listen on port 8002 for http
 - myMPD will listen on port 4432 for ssl traffic
 
-```
+```sh
 export MPD_HOST=/run/mpd2/socket
 export MYMPD_HTTP_PORT=8002
 export MYMPD_SSL_PORT=4432

@@ -1,5 +1,4 @@
 ---
-
 title: Websocket Notifications
 ---
 
@@ -36,4 +35,3 @@ The websocket endpoint accepts following messages:
 | ------- | -------- | ----------- |
 | ping | pong | Keepalive |
 | id:`<number>` | ok | Used to send the jsonrpc Client ID generated for this session |
-

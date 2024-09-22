@@ -1,5 +1,4 @@
 ---
-
 title: API Methods
 ---
 

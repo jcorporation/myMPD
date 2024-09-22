@@ -1,5 +1,4 @@
 ---
-
 title: Smart playlists
 ---
 
@@ -28,18 +27,18 @@ Smart playlists are saved in the folder `/var/lib/mympd/smartpls` (one JSON file
 
 ### Sticker based
 
-```
+``` json
 {"type": "sticker", "sticker": "like", "value": "2", "op": "=" "sort": "", "sortdesc": false, "maxentries": 200}
 ```
 
 ### Newest songs
 
-```
+``` json
 {"type": "newest", "timerange": 604800, "sort":"", "sortdesc": false, "maxentries": 0}
 ```
 
 ### Saved search
 
-```
+``` json
 {"type":"search", "expression":"((Artist contains 'test'))", "sort":"Album", "sortdesc": false, "maxentries": 0}
 ```

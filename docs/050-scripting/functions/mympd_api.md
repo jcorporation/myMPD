@@ -1,5 +1,4 @@
 ---
-
 title: Accessing the myMPD API
 ---
 

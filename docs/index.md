@@ -1,5 +1,4 @@
 ---
-
 title: myMPD Documentation
 ---
 

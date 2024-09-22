@@ -1,6 +1,5 @@
 ---
-
-title: Webserver uris
+title: Webserver URIs
 ---
 
 Reference of all webserver uris.
@@ -25,4 +24,3 @@ Reference of all webserver uris.
 | `/tagart?tag=<tagname>&value=<tagvalue>` | Returns the tagart thumbnail. |
 | `/webradio?uri=<webradio uri>` | Webradio endpoint |
 | `/ws/<partition>` | Websocket endpoint |
-

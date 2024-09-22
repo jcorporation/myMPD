@@ -1,5 +1,4 @@
 ---
-
 title: Custom navbar icons
 ---
 
@@ -13,7 +12,7 @@ The navbar icons can be customized. You must edit the file `/var/lib/mympd/state
 
 Default navbar definition:
 
-```
+```json
 [
   {
     "ligature": "home",
@@ -43,10 +42,11 @@ Default navbar definition:
 ]
 ```
 
-### Other Example:
+### Other Example
 
 URI: /Browse/Filesystem!0/-/-/-/
-```
+
+```json
   {
     "ligature": "library_music",
     "title":"Browse",

@@ -52,7 +52,7 @@ You can self create packages for your distribution:
 - `./build.sh pkgdebian` for Debian based distributions (e.g. Ubuntu. Raspbian)
 - `./build.sh pkgrpm` for RPM based distributions (e.g. openSUSE, Fedora)
 - `./build.sh pkgdocker` to create a Docker image based on Alpine Linux
-- For gentoo you have to create a local overlay: https://wiki.gentoo.org/wiki/Custom_repository, the ebuild file is in the directory `contrib/packaging/gentoo`
+- For gentoo you have to create a [local overlay](https://wiki.gentoo.org/wiki/Custom_repository), the ebuild file is in the directory `contrib/packaging/gentoo`
 - Build a [OpenWrt package](openwrt.md)
 
 ### Cross compiling debian packages

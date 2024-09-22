@@ -1,5 +1,4 @@
 ---
-
 title: API Documentation
 ---
 
@@ -28,11 +27,11 @@ Notifications from the backend to the frontend are sent over a websocket connect
 
 ## Example API calls
 
-```
+``` json
 {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_PLAYER_STATE","params":{}}
 ```
 
-```
+``` json
 {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_PLAYER_VOLUME_SET","params":{"volume":60}}
 ```
 
@@ -42,7 +41,7 @@ If myMPD is protected with a pin some methods require authentication with a spec
 
 ### Authenticate
 
-```
+``` json
 {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SESSION_LOGIN","params":{"pin": "<pin>"}}
 ```
 

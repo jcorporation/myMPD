@@ -5,6 +5,7 @@ theme:
   features:
     - navigation.instant
     - navigation.tracking
+    - content.code.copy
   font: false
   logo: assets/mympd-logo.svg
   favicon: assets/favicon.ico
@@ -23,3 +24,20 @@ plugins:
       collapse_single_pages: true
   - include-markdown
   - search
+markdown_extensions:
+  - tables
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde

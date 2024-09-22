@@ -1,5 +1,4 @@
 ---
-
 title: Execute a system command
 ---
 

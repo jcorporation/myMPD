@@ -1,5 +1,4 @@
 ---
-
 title: MPD satellite setup
 ---
 
@@ -39,6 +38,7 @@ Setting up the central server involves following steps:
 ### Configure MPD
 
 **/etc/mpd.conf**
+
 ```
 music_directory "/srv/mpd/music"
 playlist_directory "/srv/mpd/playlists"
@@ -56,6 +56,7 @@ bind_to_address "0.0.0.0"
 We use NFS, but CIFS is also possible.
 
 **/etc/exports**
+
 ```
 /srv/mpd  *(ro,sync,no_subtree_check)
 ```
@@ -79,6 +80,7 @@ Setting up the satellite involves following steps:
 We mount the exported directories at the os level. myMPD requires access to the music directory also. Ths music directory path should be the same on the central server and on the satellite.
 
 **/etc/fstab**
+
 ```
 central.lan:/srv/mpd /srv/mpd nfs soft,_netdev 0 0
 ```
@@ -86,6 +88,7 @@ central.lan:/srv/mpd /srv/mpd nfs soft,_netdev 0 0
 ### 2. Configure MPD
 
 **/etc/mpd.conf**
+
 ```
 music_directory "/srv/mpd/music"
 playlist_directory "/srv/mpd/playlists"

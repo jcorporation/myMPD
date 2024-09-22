@@ -1,5 +1,4 @@
 ---
-
 title: Translating
 ---
 
@@ -22,7 +21,8 @@ The translation files are imported to a public POEditor project. You can [join t
 
 [GitHub discussion](https://github.com/jcorporation/myMPD/discussions/803)
 
-**Note:** There are some phrases that are only shortcuts for the full text. You can lookup the english phrase [here](https://github.com/jcorporation/myMPD/blob/master/src/i18n/json/en-US.json).
+!!! note
+    There are some phrases that are only shortcuts for the full text. You can lookup the english phrase [here](https://github.com/jcorporation/myMPD/blob/master/src/i18n/json/en-US.json).
 
 ## Translation files
 
@@ -63,7 +63,7 @@ This example is for the german translation (de-DE).
 
 You can check the translation files manually. The build process shows all missing or obsolete translations.
 
-```
+```sh
 ./build.sh translate
 ```
 
@@ -72,6 +72,7 @@ Debug builds should use the new translation after a successful build.
 **To include it in a release build**
 
 Add it to:
+
 - `src/web_server/embedded_files.c`
 - the struct `embedded_files` in `src/web_server/utility.c`
 - `CMakeLists.txt`

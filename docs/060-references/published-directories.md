@@ -1,5 +1,4 @@
 ---
-
 title: Published directories
 ---
 
@@ -12,4 +11,3 @@ myMPD publishes mpd and myMPD directories via the embedded webserver.
 | /browse/smartplaylists | `/var/lib/mympd/smartpls` | smart playlists |
 | /browse/pics | `/var/lib/mympd/pics` | myMPD pictures (pictures from here are accessible through the picture selects) |
 | /browse/webradios | `/var/lib/mympd/webradios` | webradio favorites m3u files |
-
