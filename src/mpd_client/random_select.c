@@ -410,12 +410,13 @@ static bool check_not_hated(rax *stickers_like, const char *uri, bool ignore_hat
     {
         return true;
     }
-    void *sticker_value_hated = raxFind(stickers_like, (unsigned char *)uri, strlen(uri));
-    return sticker_value_hated == raxNotFound
-        ? true
-        : ((sds)sticker_value_hated)[0] == '0'
-            ? false
-            : true;
+    void *sticker_value_hated;
+    if (raxFind(stickers_like, (unsigned char *)uri, strlen(uri), &sticker_value_hated) == 0) {
+        return true;
+    }
+    return ((sds)sticker_value_hated)[0] == '0'
+        ? false
+        : true;
 }
 
 /**
@@ -429,8 +430,8 @@ static bool check_last_played(rax *stickers_last_played, const char *uri, time_t
     if (stickers_last_played == NULL) {
         return true;
     }
-    void *sticker_value_last_played = raxFind(stickers_last_played, (unsigned char *)uri, strlen(uri));
-    if (sticker_value_last_played == raxNotFound) {
+    void *sticker_value_last_played;
+    if (raxFind(stickers_last_played, (unsigned char *)uri, strlen(uri), &sticker_value_last_played) == 0) {
         return true;
     }
     int64_t sticker_last_played;

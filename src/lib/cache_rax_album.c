@@ -371,8 +371,8 @@ struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key) {
         return NULL;
     }
     //try to get album
-    void *data = raxFind(album_cache->cache, (unsigned char*)key, sdslen(key));
-    if (data == raxNotFound) {
+    void *data;
+    if (raxFind(album_cache->cache, (unsigned char*)key, sdslen(key), &data) == 0) {
         MYMPD_LOG_ERROR(NULL, "Album for key \"%s\" not found in cache", key);
         return NULL;
     }

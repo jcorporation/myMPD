@@ -30,23 +30,20 @@
 struct t_webradio_data *webradio_by_uri(struct t_webradios *webradio_favorites, struct t_webradios *webradiodb,
         const char *uri)
 {
-    void *data = raxNotFound;
-    if (webradio_favorites != NULL) {
-        if (webradio_favorites->idx_uris != NULL) {
-            data = raxFind(webradio_favorites->idx_uris, (unsigned char *)uri, strlen(uri));
-        }
+    void *data;
+    if (webradio_favorites != NULL &&
+        webradio_favorites->idx_uris != NULL &&
+        raxFind(webradio_favorites->idx_uris, (unsigned char *)uri, strlen(uri), &data) == 1)
+    {
+        return (struct t_webradio_data *)data;
     }
-    if (webradiodb != NULL) {
-        if (data == raxNotFound) {
-            if (webradiodb->idx_uris != NULL) {
-                data = raxFind(webradiodb->idx_uris, (unsigned char *)uri, strlen(uri));
-            }
-        }
+    if (webradiodb != NULL &&
+        webradiodb->idx_uris != NULL &&
+        raxFind(webradiodb->idx_uris, (unsigned char *)uri, strlen(uri), &data) == 1)
+    {
+        return (struct t_webradio_data *)data;
     }
-    if (data == raxNotFound) {
-        return NULL;
-    }
-    return (struct t_webradio_data *)data;
+    return NULL;
 }
 
 /**

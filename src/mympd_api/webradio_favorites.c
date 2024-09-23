@@ -34,8 +34,10 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
     list_init(&old_names);
     if (sdslen(old_name) > 0) {
         list_push(&old_names, old_name, 0, NULL, NULL);
-        struct t_webradio_data *old_radio = raxFind(webradio_favorites->idx_uris, (unsigned char *)old_name, strlen(old_name));
-        if (old_radio != raxNotFound) {
+        void *data;
+        if (raxFind(webradio_favorites->idx_uris, (unsigned char *)old_name, strlen(old_name), &data) == 1) {
+            // preserve added timestamp
+            struct t_webradio_data *old_radio = (struct t_webradio_data *)data;
             webradio->added = old_radio->added;
         }
     }
