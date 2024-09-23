@@ -64,7 +64,7 @@ function apiParamsToObject(p) {
 
 function setTest(cmd, response) {
     var tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + e(JSON.stringify(cmd)) + '</td><td>' + response + '</td>';
+    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + e(JSON.stringify(cmd)) + '</td><td>' + e(response) + '</td>';
     const tbody = document.getElementsByTagName('tbody')[0];
     tbody.appendChild(tr);
     t++;
