@@ -51,7 +51,7 @@ All scripts in the mympd-scripts repository are updated accordingly, do not forg
 ### Changelog
 
 - Feat: Resume for songs #1338
-- Feat: Resume for playlists and albums  (MPD 0.24) #1338
+- Feat: Resume for playlists and albums (MPD 0.24) #1338
 - Feat: Rating for albums and playlists (MPD 0.24) #1134
 - Feat: User defined stickers #1091
 - Feat: Support stickers for playlists, filters and tag types (MPD 0.24).
@@ -63,6 +63,7 @@ All scripts in the mympd-scripts repository are updated accordingly, do not forg
 - Upd: Playlist pictures are moved in a separate folder `/var/lib/mympd/pics/playlists`
 - Upd: Latest libmympdclient based on libmpdclient master
 - Upd: Hide advanced search by default
+- Upd: Dependency sds and rax
 - Fix: Send JSONRPC_EVENT_UPDATE_OPTIONS only on feature change
 - Fix: Outdated documentation
 
