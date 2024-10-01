@@ -1085,7 +1085,7 @@
     "helpSettingsEnablePartitions": "Activeert de functie MPD-partities.",
     "helpSettingsEnableScripting": "Activeert de myMPD scriptfunctie.",
     "helpSettingsEnableTimer": "Activeert de myMPD-timerfunctie. Timers kunnen het afspelen starten en stoppen en scripts uitvoeren.",
-    "helpSettingsFeedback": "Beoordeel nummers met like (niet) of 5 sterren.",
+    "helpSettingsFeedback": "Beoordeel nummers met like (niet) of 1 tot 5 sterren.",
     "helpSettingsGeneratePlsTags": "Maakt een afspeellijst voor elke waarde van de geselecteerde tags.",
     "helpSettingsGridSize": "Grootte van de afbeeldingen in de grid.",
     "helpSettingsHelp": "Hiermee wordt dit type helptekst weergegeven.",
