@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: translations
+- Upd: Mongoose to current master
 
 ***
 
