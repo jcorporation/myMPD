@@ -1,4 +1,4 @@
-![image](https://jcorporation.github.io/assets/mympd-logo-schriftzug.svg)
+![image](https://jcorporation.github.io/myMPD/assets/mympd-logo-schriftzug.svg)
 
 [![release](https://github.com/jcorporation/myMPD/actions/workflows/build_release.yml/badge.svg)](https://github.com/jcorporation/myMPD/actions/workflows/build_release.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
