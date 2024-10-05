@@ -23,6 +23,7 @@ read_globals = {
     "mympd_util_hash",
     "mympd_util_urlencode",
     "mympd_util_urldecode",
+    "mympd_util_sleep",
     "mygpio_gpio_blink",
     "mygpio_gpio_get",
     "mygpio_gpio_set",
