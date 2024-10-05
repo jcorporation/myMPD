@@ -15,6 +15,7 @@
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 #include <string.h>
 
@@ -207,4 +208,21 @@ int lua_util_urldecode(lua_State *lua_vm) {
     FREE_SDS(decoded);
     //return response count
     return 1;
+}
+
+/**
+ * Interuptable sleep function
+ * @param lua_vm lua instance
+ * @return number of elements pushed to lua stack
+ */
+int lua_util_sleep(lua_State *lua_vm) {
+    int n = lua_gettop(lua_vm);
+    if (n != 1) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_sleep: Invalid number of arguments");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "Invalid number of arguments");
+    }
+    int ms = (int)lua_tonumber(lua_vm, 1);
+    my_msleep(ms);
+    return 0;
 }

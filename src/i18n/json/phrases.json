@@ -850,6 +850,7 @@
 {"term":"Single"},
 {"term":"Size"},
 {"term":"Skip count"},
+{"term":"Sleeps number of milliseconds."},
 {"term":"Smart playlist"},
 {"term":"Smart playlist %{playlist} updated"},
 {"term":"Smart playlist saved successfully"},

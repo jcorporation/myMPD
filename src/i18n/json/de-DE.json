@@ -1231,5 +1231,6 @@
     "votes": "Stimmen",
     "wasapi": "Windows Audio Session API",
     "Split a multiline string in lines.": "Teilt einen mehrzeiligen String in einzelne Zeilen.",
-    "Trims a string.": "Trimt einen String."
+    "Trims a string.": "Trimt einen String.",
+    "Sleeps number of milliseconds.": "Wartet die Spanne von Millisekunden."
 }

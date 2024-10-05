@@ -1713,6 +1713,11 @@ const LUAfunctions = {
         "desc": "Trims a string.",
         "func": "local trimed = mympd.trim(str)",
         "feat": ""
+    },
+    "mympd.sleep": {
+        "desc": "Sleeps number of milliseconds.",
+        "func": "sleep(ms)",
+        "feat": ""
     }
 };
 

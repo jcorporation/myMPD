@@ -96,3 +96,15 @@ mympd.notify_partition(severity, message)
 | SEVERITY_INFO | 0 | Informational |
 | SEVERITY_WARNING | 1 | Warning |
 | SEVERITY_ERR | 2 | Error |
+
+## Sleep
+
+```lua
+mympd.sleep(ms)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| ms | positive number | Milliseconds |

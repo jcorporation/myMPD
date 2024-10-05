@@ -110,3 +110,9 @@ function mympd.htmlencode(str)
   str = string.gsub(str, "'", "&#39;")
   return str
 end
+
+--- Sleep ms
+-- @param ms Milliseconds to sleep
+function mympd.sleep(ms)
+  mympd_util_sleep(ms)
+end
