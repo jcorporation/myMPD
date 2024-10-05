@@ -1229,5 +1229,7 @@
     "tags": "Tags",
     "url_resolved": "URL",
     "votes": "Stimmen",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Split a multiline string in lines.": "Teilt einen mehrzeiligen String in einzelne Zeilen.",
+    "Trims a string.": "Trimt einen String."
 }

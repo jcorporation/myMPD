@@ -34,7 +34,9 @@ List of myMPD specific Lua functions.
 | [mympd.notify_client](util.md) | Sends a notification to the client. |
 | [mympd.notify_partition](util.md) | Sends a notification to all clients in a partition. |
 | [mympd.os_capture](system_command.md) | Executes a system command and capture its output. |
+| [mympd.splitlines](string.md) | Split string by newline characters and trims the lines. |
 | [mympd.tmp_file](diskcache.md) | Generates a random tmp filename for the misc cache. |
+| [mympd.trim](string.md) | Removes beginning and ending whitespaces from a string. |
 | [mympd.update_mtime](diskcache.md) | Updates the timestamp of a file. |
 | [mympd.urldecode](util.md) | Decodes a URL encoded string. |
 | [mympd.urlencode](util.md) | URL encodes a string. |

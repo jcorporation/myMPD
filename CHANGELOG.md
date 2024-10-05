@@ -10,7 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
-- Upd: translations
+- Feat: New custom Lua function: mympd.splitlines(), mympd.trim()
+- Upd: Translations
 - Upd: Mongoose to current master
 
 ***

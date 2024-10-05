@@ -1703,6 +1703,16 @@ const LUAfunctions = {
         "desc": "Sends a notification to all clients in the current partition.",
         "func": "mympd.notify_partition(severity, message)",
         "feat": ""
+    },
+    "mympd.splitlines": {
+        "desc": "Split a multiline string in lines.",
+        "func": "local lines = mympd.splitlines(str)",
+        "feat": ""
+    },
+    "mympd.trim": {
+        "desc": "Trims a string.",
+        "func": "local trimed = mympd.trim(str)",
+        "feat": ""
     }
 };
 
