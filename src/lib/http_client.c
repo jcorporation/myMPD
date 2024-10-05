@@ -205,7 +205,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
                 "Accept-Encoding: none\r\n"
                 "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
                 "\r\n"
-                "%s\r\n",
+                "%s",
                 mg_client_request->method,
                 mg_url_uri(mg_client_request->connect_uri),
                 (int) host.len, host.buf,
