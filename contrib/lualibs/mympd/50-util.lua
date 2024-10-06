@@ -119,6 +119,7 @@ end
 
 --- Read an ascii file
 -- @param path Filename
+-- @return File content or nil on error
 function mympd.read_file(path)
   local file = io.open(path, "r")
   if not file then
