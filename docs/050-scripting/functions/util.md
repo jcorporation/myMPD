@@ -97,6 +97,18 @@ mympd.notify_partition(severity, message)
 | SEVERITY_WARNING | 1 | Warning |
 | SEVERITY_ERR | 2 | Error |
 
+## Read an ascii file
+
+```lua
+local content = mympd.read_file(path)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| path | string | Filepath to open and read. |
+
 ## Sleep
 
 ```lua

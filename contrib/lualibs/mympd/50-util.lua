@@ -116,3 +116,15 @@ end
 function mympd.sleep(ms)
   mympd_util_sleep(ms)
 end
+
+--- Read an ascii file
+-- @param path Filename
+function mympd.read_file(path)
+  local file = io.open(path, "r")
+  if not file then
+      return nil
+  end
+  local content = file:read "*a"
+  file:close()
+  return content
+end

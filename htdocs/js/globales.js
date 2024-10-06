@@ -1718,6 +1718,11 @@ const LUAfunctions = {
         "desc": "Sleeps number of milliseconds.",
         "func": "sleep(ms)",
         "feat": ""
+    },
+    "mympd.read_file": {
+        "desc": "Read an ascii file.",
+        "func": "local content = mympd.read_file(path)",
+        "feat": ""
     }
 };
 
