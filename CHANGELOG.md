@@ -10,7 +10,7 @@ This is a small maintenance release.
 
 ### Changelog
 
-- Feat: New custom Lua function: mympd.splitlines(), mympd.trim(), mympd.read_file()
+- Feat: New Lua function: `mympd.read_file()`, `mympd.sleep`, `mympd.splitlines()`, `mympd.trim()`
 - Upd: Translations
 - Upd: Mongoose to current master
 - Fix: Contextmenu for songs #1356
