@@ -178,7 +178,6 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
             card.appendChild(
                 elCreateEmpty('div', {"class": ["card-title", "cover-loading", "cover-grid", "d-flex"]})
             );
-            setData(card, 'cssImageUrl', obj.result.data[i].Thumbnail);
             if (userAgentData.hasIO === true) {
                 const observer = new IntersectionObserver(setGridImage, {root: null, rootMargin: '0px'});
                 observer.observe(card);

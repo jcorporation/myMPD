@@ -155,7 +155,6 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
             row.appendChild(
                 elCreateEmpty('div', {"class": ["col", "list-image"]})
             );
-            setData(card, 'cssImageUrl', obj.result.data[i].Thumbnail);
             if (userAgentData.hasIO === true) {
                 const observer = new IntersectionObserver(setListImage, {root: null, rootMargin: '0px'});
                 observer.observe(card);

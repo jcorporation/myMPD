@@ -718,4 +718,10 @@ function setEntryData(entry, data) {
             break;
         // No Default
     }
+    if (data.Thumbnail !== undefined) {
+        setData(entry, 'cssImageUrl', data.Thumbnail);
+    }
+    else {
+        setData(entry, 'cssImageUrl', getCssImageUri('/assets/coverimage-notavailable'));
+    }
 }
