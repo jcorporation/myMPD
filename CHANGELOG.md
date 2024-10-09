@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v18.1.1 (2024-10-09)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Revert to mongoose 7.14 #1358
+
+***
+
 ## myMPD v18.1.0 (2024-10-09)
 
 This is a small maintenance release.
