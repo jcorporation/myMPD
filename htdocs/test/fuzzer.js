@@ -11,6 +11,8 @@ let t = 0;
 const blns_len = blns.length;
 let cmds;
 
+const subdir = window.location.pathname.replace('/test/fuzzer.html', '').replace(/\/$/, '');
+
 function defineCmds() {
     let newCmds = [];
     for (const method in APImethods) {
@@ -99,7 +101,7 @@ async function sendAPI(id) {
     }
     const request = cmds[id];
     let sleep = 0;
-    const uri = '/api/default';
+    const uri = subdir + '/api/default';
     const response = await fetch(uri, {
         method: 'POST',
         mode: 'same-origin',

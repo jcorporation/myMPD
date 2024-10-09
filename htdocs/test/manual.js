@@ -7,6 +7,8 @@
 
 /* global cmds */
 
+const subdir = window.location.pathname.replace('/test/manual.html', '').replace(/\/$/, '');
+
 //escapes html characters to avoid xss
 function e(x) {
     if (x!== undefined && isNaN(x)) {
@@ -119,7 +121,7 @@ async function sendAPI() {
     if (APImethods[method].params !== undefined) {
         request.params = formToParams(APImethods[method].params, '');
     }
-    const uri = '/api/' + partition;
+    const uri = subdir + '/api/' + partition;
     document.getElementById('requestText').textContent = JSON.stringify(request);
     const time_start = new Date().getTime();
     const response = await fetch(uri, {
