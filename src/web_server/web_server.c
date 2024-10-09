@@ -726,6 +726,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
+                    MYMPD_LOG_ERROR(NULL, "API request without partition");
                     break;
                 }
                 //body
@@ -775,6 +776,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/ws/*"), NULL)) {
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
+                    MYMPD_LOG_ERROR(NULL, "Websocket request without partition");
                     break;
                 }
                 mg_ws_upgrade(nc, hm, NULL);
