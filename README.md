@@ -68,6 +68,8 @@ For information on installation and configuration, see the [myMPD documentation]
 
 Please read the [documentation](https://jcorporation.github.io/myMPD/) before asking for help. Bugs should be reported through [issues](https://github.com/jcorporation/myMPD/issues). For all other question and general feedback use the [discussions](https://github.com/jcorporation/myMPD/discussions).
 
+You can follow me at [mastodon](https://mastodon.social/@jcorporation) to get news about myMPD.
+
 ## Contribution
 
 myMPD is in active development. If you like myMPD, you can help to improve it (no programming skills are required).
