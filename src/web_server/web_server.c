@@ -430,7 +430,7 @@ static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *re
         nc = nc->next;
     }
     if (send_count == 0) {
-        MYMPD_LOG_DEBUG(NULL, "No websocket client connected, discarding message: %s", response->data);
+        MYMPD_LOG_DEBUG(NULL, "No websocket client with id %u connected, discarding message: %s", client_id, response->data);
     }
     free_response(response);
 }
@@ -471,15 +471,12 @@ static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *respon
  * @param response jsonrpc response
  */
 static void send_redirect(struct mg_mgr *mgr, struct t_work_response *response) {
-    struct mg_connection *nc = mgr->conns;
-    while (nc != NULL) {
-        if (nc->is_websocket == 0U &&
-            nc->id == response->conn_id)
-        {
-            webserver_send_header_redirect(nc, response->data, NULL);
-            break;
-        }
-        nc = nc->next;
+    struct mg_connection *nc = get_nc_by_id(mgr, response->conn_id);
+    if (nc != NULL) {
+        webserver_send_header_redirect(nc, response->data, NULL);
+    }
+    else {
+        MYMPD_LOG_ERROR(NULL, "Connection for id \"%lu\" not found", response->conn_id);
     }
     free_response(response);
 }
@@ -506,6 +503,9 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
                 MYMPD_LOG_DEBUG(response->partition, "Sending response to conn_id \"%lu\" (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
                 webserver_send_data(nc, response->data, sdslen(response->data), EXTRA_HEADERS_JSON_CONTENT);
         }
+    }
+    else {
+        MYMPD_LOG_ERROR(NULL, "Connection for id \"%lu\" not found", response->conn_id);
     }
     free_response(response);
 }
