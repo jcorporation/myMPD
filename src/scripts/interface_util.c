@@ -37,18 +37,28 @@ int lua_util_notify(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "partition is NULL");
     }
-    unsigned request_id = (unsigned)lua_tonumber(lua_vm, 2);
-    unsigned severity = (unsigned)lua_tonumber(lua_vm, 3);
+    if (lua_isinteger(lua_vm, 2) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: request_id is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "request_id is not a number");
+    }
+    unsigned request_id = (unsigned)lua_tointeger(lua_vm, 2);
+    if (lua_isinteger(lua_vm, 3) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: severity is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "severity is not a number");
+    }
+    unsigned severity = (unsigned)lua_tointeger(lua_vm, 3);
+    if (severity >= JSONRPC_SEVERITY_MAX) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: Invalid severity");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "Invalid severity");
+    }
     const char *message = lua_tostring(lua_vm, 4);
     if (message == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - util_notify: message is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "message is NULL");
-    }
-    if (severity >= JSONRPC_SEVERITY_MAX) {
-        MYMPD_LOG_ERROR(NULL, "Lua - util_notify: Invalid severity");
-        lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "Invalid severity");
     }
     sds message_sds = jsonrpc_notify(sdsempty(), JSONRPC_FACILITY_SCRIPT, severity, message);
     if (request_id == 0) {
@@ -85,7 +95,12 @@ int lua_util_log(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "scriptname is NULL");
     }
-    unsigned level = (unsigned)lua_tonumber(lua_vm, 3);
+    if (lua_isinteger(lua_vm, 3) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_log: loglevel is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "loglevel is not a number");
+    }
+    unsigned level = (unsigned)lua_tointeger(lua_vm, 3);
     const char *message = lua_tostring(lua_vm, 4);
     if (message == NULL) {
         MYMPD_LOG_ERROR(NULL, "Lua - util_log: message is NULL");
@@ -222,7 +237,17 @@ int lua_util_sleep(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
-    int ms = (int)lua_tonumber(lua_vm, 1);
+    if (lua_isinteger(lua_vm, 1) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_sleep: ms is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "ms is not a number");
+    }
+    int ms = (int)lua_tointeger(lua_vm, 1);
+    if (ms <= 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - util_sleep: ms must be gt 0");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "ms must be gt 0");
+    }
     my_msleep(ms);
     return 0;
 }

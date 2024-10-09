@@ -38,8 +38,23 @@ int lua_mygpio_gpio_blink(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "mygpiod_socket is NULL");
     }
+    if (lua_isinteger(lua_vm, 2) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_blink: gpio is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "gpio is not a number");
+    }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
+    if (lua_isinteger(lua_vm, 3) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_blink: timeout_ms is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "timeout_ms is not a number");
+    }
     int timeout_ms = (int)lua_tointeger(lua_vm, 3);
+    if (lua_isinteger(lua_vm, 4) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_blink: interval_ms is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "interval_ms is not a number");
+    }
     int interval_ms = (int)lua_tointeger(lua_vm, 4);
     struct t_mygpio_connection *mygpio_conn = mygpio_connect(mygpiod_socket);
     if (mygpio_conn != NULL) {
@@ -71,6 +86,11 @@ int lua_mygpio_gpio_get(lua_State *lua_vm) {
         MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_get: mygpiod_socket is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "mygpiod_socket is NULL");
+    }
+    if (lua_isinteger(lua_vm, 2) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_get: gpio is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "gpio is not a number");
     }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
     struct t_mygpio_connection *mygpio_conn = mygpio_connect(mygpiod_socket);
@@ -104,7 +124,17 @@ int lua_mygpio_gpio_set(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "mygpiod_socket is NULL");
     }
+    if (lua_isinteger(lua_vm, 2) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_set: gpio is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "gpio is not a number");
+    }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
+    if (lua_isinteger(lua_vm, 3) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_set: value is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "value is not a number");
+    }
     int value = (int)lua_tointeger(lua_vm, 3);
     struct t_mygpio_connection *mygpio_conn = mygpio_connect(mygpiod_socket);
     if (mygpio_conn != NULL) {
@@ -136,6 +166,11 @@ int lua_mygpio_gpio_toggle(lua_State *lua_vm) {
         MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_toggle: mygpiod_socket is NULL");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "mygpiod_socket is NULL");
+    }
+    if (lua_isinteger(lua_vm, 2) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - mygpio_gpio_toggle: gpio is not a number");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "gpio is not a number");
     }
     unsigned gpio = (unsigned)lua_tointeger(lua_vm, 2);
     struct t_mygpio_connection *mygpio_conn = mygpio_connect(mygpiod_socket);
