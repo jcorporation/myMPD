@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v18.1.0 (not yet released)
+## myMPD v18.1.0 (2024-10-09)
 
 This is a small maintenance release.
 
@@ -12,6 +12,7 @@ This is a small maintenance release.
 
 - Feat: New Lua function: `mympd.read_file()`, `mympd.sleep`, `mympd.splitlines()`, `mympd.trim()`
 - Upd: Translations
+- Upd: Add Lua integer sanity checks
 - Upd: Mongoose to current master
 - Fix: Contextmenu for songs #1356
 
