@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Improve webserver error logging
+
 ***
 
 ## myMPD v18.1.1 (2024-10-09)

@@ -788,6 +788,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/stream/*"), NULL)) {
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
+                    MYMPD_LOG_ERROR(NULL, "Stream request without partition");
                     break;
                 }
                 struct t_list_node *node = list_get_node(&mg_user_data->stream_uris, frontend_nc_data->partition);
@@ -817,6 +818,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
+                    MYMPD_LOG_ERROR(NULL, "script-api request without partition");
                     break;
                 }
                 sds body = sdsnewlen(hm->body.buf, hm->body.len);
