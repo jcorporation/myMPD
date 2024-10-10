@@ -39,7 +39,8 @@ time_t parse_date(const char *str) {
  */
 void readable_time(char *buf, time_t timestamp) {
     if (timestamp == 0) {
-        snprintf(buf, 2, "0");
+        buf[0] = '0';
+        buf[1] = '\0';
     }
     else {
         struct tm *tmp = localtime(&timestamp);

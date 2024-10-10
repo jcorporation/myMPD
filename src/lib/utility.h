@@ -41,12 +41,12 @@ bool get_ipv6_support(void);
 /**
  * Start measurement
  */
-#define MEASURE_START clock_gettime(CLOCK_MONOTONIC, &tic);
+#define MEASURE_START (void)clock_gettime(CLOCK_MONOTONIC, &tic);
 
 /**
  * Stop measurement
  */
-#define MEASURE_END clock_gettime(CLOCK_MONOTONIC, &toc);
+#define MEASURE_END (void)clock_gettime(CLOCK_MONOTONIC, &toc);
 
 /**
  * Print measurement result

@@ -353,7 +353,7 @@ static void set_wait_time(int timeout_ms, struct timespec *max_wait) {
         MYMPD_LOG_ERRNO(NULL, errno);
         assert(NULL);
     }
-    int64_t timeout_ns = (int64_t)max_wait->tv_nsec + (int64_t)timeout_ms * MSEC_NSEC;
+    int64_t timeout_ns = (int64_t)max_wait->tv_nsec + ((int64_t)timeout_ms * MSEC_NSEC);
     if (timeout_ns > NSEC_MAX) {
         max_wait->tv_sec += (time_t)(timeout_ns / SEC_NSEC);
         max_wait->tv_nsec = (long)(timeout_ns % SEC_NSEC);

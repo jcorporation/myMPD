@@ -186,7 +186,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
             //scrobble time is half length of song or SCROBBLE_TIME_MAX (4 minutes) whatever is shorter
             time_t scrobble_offset = partition_state->song_duration > SCROBBLE_TIME_TOTAL
                 ? SCROBBLE_TIME_MAX - elapsed_time
-                : partition_state->song_duration / 2 - elapsed_time;
+                : (partition_state->song_duration / 2) - elapsed_time;
             if (scrobble_offset > 0) {
                 MYMPD_LOG_DEBUG(partition_state->name, "Setting scrobble timer");
                 mympd_timer_set(partition_state->timer_fd_scrobble, (int)scrobble_offset, 0);

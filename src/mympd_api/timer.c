@@ -356,7 +356,7 @@ struct t_timer_definition *mympd_api_timer_parse(sds str, const char *partition,
 int mympd_api_timer_calc_starttime(int start_hour, int start_minute, int interval) {
     time_t now = time(NULL);
     struct tm tms;
-    localtime_r(&now, &tms);
+    (void)localtime_r(&now, &tms);
     tms.tm_hour = start_hour;
     tms.tm_min = start_minute;
     tms.tm_sec = 0;

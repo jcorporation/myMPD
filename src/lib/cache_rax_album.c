@@ -576,7 +576,7 @@ void album_cache_set_uri(struct mpd_song *album, const char *uri) {
     free(album->uri);
     size_t len = strlen(uri);
     album->uri = malloc_assert(len + 1);
-    snprintf(album->uri, len, "%s", uri);
+    (void)snprintf(album->uri, len, "%s", uri);
 }
 
 /**
