@@ -633,7 +633,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             struct mg_str matches[1];
             size_t sent = 0;
             if (wm->data.len > 9) {
-                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", (unsigned long)wm->data.len);
+                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket (%lu) message too long: %lu", nc->id, (unsigned long)wm->data.len);
                 sent = mg_ws_send(nc, "too long", 8, WEBSOCKET_OP_TEXT);
             }
             else if (mg_strcmp(wm->data, mg_str("ping")) == 0) {
@@ -641,16 +641,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             else if (mg_match(wm->data, mg_str("id:*"), matches)) {
                 frontend_nc_data->id = mg_str_to_uint(&matches[0]);
-                MYMPD_LOG_INFO(frontend_nc_data->partition, "Setting websocket id to \"%u\"", frontend_nc_data->id);
+                MYMPD_LOG_INFO(frontend_nc_data->partition, "Setting websocket (%lu) id to \"%u\"", nc->id, frontend_nc_data->id);
                 sent = mg_ws_send(nc, "ok", 2, WEBSOCKET_OP_TEXT);
             }
             else {
-                MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.buf);
-                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid Websocket message");
+                MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket (%lu) message: %.*s", nc->id, (int)wm->data.len, wm->data.buf);
+                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket (%lu): Invalid message", nc->id);
                 sent = mg_ws_send(nc, "invalid", 7, WEBSOCKET_OP_TEXT);
             }
             if (sent == 0) {
-                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket: Could not reply, closing connection");
+                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket (%lu): Could not reply, closing connection", nc->id);
                 nc->is_closing = 1;
             }
             else {
