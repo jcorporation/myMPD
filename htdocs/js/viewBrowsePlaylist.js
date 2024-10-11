@@ -245,9 +245,11 @@ function parsePlaylistDetail(obj) {
     setData(table, 'type', obj.result.smartpls === true ? 'smartpls' : 'plist');
     elGetById('BrowsePlaylistDetailTitle').textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
-    const feedbackGrp = elGetById('BrowsePlaylistDetailFeedback').firstElementChild;
-    setData(feedbackGrp, 'uri', obj.result.plist);
-    setFeedback(feedbackGrp, obj.result.like, obj.result.rating);
+    if (features.featStickers === true) {
+        const feedbackGrp = elGetById('BrowsePlaylistDetailFeedback').firstElementChild;
+        setData(feedbackGrp, 'uri', obj.result.plist);
+        setFeedback(feedbackGrp, obj.result.like, obj.result.rating);
+    }
 
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');

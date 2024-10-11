@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Improve webserver error logging
+- Fix: Add check featStickers before setting feedback #1359
 
 ***
 

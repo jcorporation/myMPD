@@ -264,9 +264,11 @@ function parseAlbumDetails(obj) {
     setData(coverEl, 'embeddedImageCount', obj.result.embeddedImageCount);
     setData(coverEl, 'uri', obj.result.data[0].uri);
     setData(coverEl, 'AlbumId', obj.result.AlbumId);
-    const feedbackGrp = elGetById('BrowseDatabaseAlbumDetailFeedback').firstElementChild;
-    setData(feedbackGrp, 'uri', obj.result.AlbumId);
-    setFeedback(feedbackGrp, obj.result.like, obj.result.rating);
+    if (features.featStickers === true) {
+        const feedbackGrp = elGetById('BrowseDatabaseAlbumDetailFeedback').firstElementChild;
+        setData(feedbackGrp, 'uri', obj.result.AlbumId);
+        setFeedback(feedbackGrp, obj.result.like, obj.result.rating);
+    }
 
     elClear(infoEl);
     infoEl.appendChild(
