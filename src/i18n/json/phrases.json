@@ -394,6 +394,7 @@
 {"term":"Insert mode"},
 {"term":"Interval"},
 {"term":"Invalid API request"},
+{"term":"Invalid API uri, partition not found"},
 {"term":"Invalid MPD search expression"},
 {"term":"Invalid URI"},
 {"term":"Invalid backend uri"},
