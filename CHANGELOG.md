@@ -10,8 +10,9 @@ This is a small bug fix release.
 
 ### Changelog
 
-- Upd: Improve webserver error logging
+- Upd: Improve webserver error logging and responses
 - Fix: Add check featStickers before setting feedback #1359
+- Upd: mongoose to latest master with fix for #1358
 
 ***
 
