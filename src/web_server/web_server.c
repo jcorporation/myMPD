@@ -628,6 +628,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 break;
             }
             break;
+        case MG_EV_WS_OPEN: {
+            nc->is_resp = 1;
+            break;
+        }
         case MG_EV_WS_MSG: {
             struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
             struct mg_str matches[1];
@@ -659,6 +663,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_HTTP_MSG: {
+            nc->is_resp = 1;
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             if (hm->query.len > 0) {
                 MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s?%.*s", nc->id, (int)hm->method.len, hm->method.buf,
