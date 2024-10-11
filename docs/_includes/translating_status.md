@@ -9,6 +9,6 @@
 - ko-KR: 5 missing phrases
 - nl-NL: 5 missing phrases
 - pl-PL: 88 missing phrases
-- ru-RU: 36 missing phrases
+- ru-RU: 5 missing phrases
 - zh-Hans: 5 missing phrases
 - zh-Hant: 122 missing phrases

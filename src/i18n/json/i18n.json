@@ -9,6 +9,6 @@
     "ko-KR": {"desc":"한국어 (ko-KR)", "missingPhrases": 5},
     "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 5},
     "pl-PL": {"desc":"Polish (pl-PL)", "missingPhrases": 88},
-    "ru-RU": {"desc":"Russian (ru-RU)", "missingPhrases": 36},
+    "ru-RU": {"desc":"Russian (ru-RU)", "missingPhrases": 5},
     "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 5}
 }
