@@ -123,7 +123,7 @@
     <div class="card" id="cardPlayback">
       <div class="card-body">
         <div class="btn-toolbar card-toolbar">
-          <div id="PlaybackSongFeedback" class="btn-group me-2 not-clickable featStickersEnabled" data-href='{"cmd": "clickFeedback", "options": ["target"]}'></div>
+          <div id="PlaybackSongFeedback" class="btn-group me-2 not-clickable featStickers" data-href='{"cmd": "clickFeedback", "options": ["target"]}'></div>
           <div id="PlaybackSongSticker" class="input-group me-2 featStickerAdv">
             <button class="btn btn-secondary mi" data-title-phrase="Sticker" data-href='{"cmd": "showCurrentSongSticker", "options": ["event"]}'>discount</button>
           </div>
@@ -1801,14 +1801,14 @@
             <div id="modalConnectionPlaylistDirectoryWarn" class="alert alert-warning d-none" data-phrase="Playlist directory not found"></div>
             <div id="modalConnectionAdvFrm2"></div>
           </div>
-          <hr class="featStickersEnabled"/>
-          <div class="mb-3 row featStickersEnabled">
+          <hr class="featStickers"/>
+          <div class="mb-3 row featStickers">
             <div class="col-sm-4" data-phrase="Use different MPD host for sticker database"></div>
             <div class="col-sm-8">
               <button data-href='{"cmd":"toggleBtnChk", "options": ["target"]}' id="modalConnectionStickerdbToggleBtn" data-bs-toggle="collapse" data-bs-target="#modalConnectionStickerdbCollapse" type="button" class="btn btn-secondary btn-sm mi alwaysEnabled">radio_button_unchecked</button>
             </div>
           </div>
-          <div id="modalConnectionStickerdbCollapse" class="collapse featStickersEnabled">
+          <div id="modalConnectionStickerdbCollapse" class="collapse featStickers">
             <div id="modalConnectionStickerdbFrm"></div>
           </div>
         </div>
