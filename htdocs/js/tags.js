@@ -155,6 +155,14 @@ function addTagList(elId, list) {
             );
         }
     }
+    else if (elId === 'SearchSortTagsList') {
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Added"}, 'Added')
+        );
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, 'Last-Modified')
+        );
+    }
     const el = elGetById(elId);
     elReplaceChild(el, stack);
 }

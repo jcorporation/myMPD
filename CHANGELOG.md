@@ -10,6 +10,8 @@ This is a small maintenance release.
 
 ### Changelog
 
+- Feat: Add Last-Modified and Added to sort tags in search view
+
 ***
 
 ## myMPD v18.1.2 (2024-10-13)
