@@ -11,6 +11,7 @@ This is a small maintenance release.
 ### Changelog
 
 - Feat: Add Last-Modified and Added to sort tags in Search and Current Queue view
+- Upd: translations
 - Fix: Populate sort tags for Radio Favorites
 
 ***
