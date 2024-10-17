@@ -145,8 +145,9 @@ function addTagList(elId, list) {
         }
     }
     else if (elId === 'BrowseRadioFavoritesSearchTags' ||
-             elId === 'BrowseRadioWebradiodbSortTagsList' ||
-             elId === 'BrowseRadioWebradiodbSearchTags')
+             elId === 'BrowseRadioFavoritesSortTagsList' ||
+             elId === 'BrowseRadioWebradiodbSearchTags' ||
+             elId === 'BrowseRadioWebradiodbSortTagsList')
     {
         const tags = ["Added", "Bitrate", "Codec", "Country", "Description", "Genres", "Homepage", "Languages", "Last-Modified", "Name", "Region"];
         for (let i = 0, j = tags.length; i < j; i++) {
@@ -155,7 +156,9 @@ function addTagList(elId, list) {
             );
         }
     }
-    else if (elId === 'SearchSortTagsList') {
+    else if (elId === 'SearchSortTagsList' ||
+             elId === 'QueueCurrentSortTagsList')
+    {
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Added"}, 'Added')
         );

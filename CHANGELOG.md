@@ -10,7 +10,8 @@ This is a small maintenance release.
 
 ### Changelog
 
-- Feat: Add Last-Modified and Added to sort tags in search view
+- Feat: Add Last-Modified and Added to sort tags in Search and Current Queue view
+- Fix: Populate sort tags for Radio Favorites
 
 ***
 
