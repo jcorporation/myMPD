@@ -22,8 +22,8 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Improve webserver error logging and responses
-- Fix: Add check featStickers before setting feedback #1359
 - Upd: mongoose to latest master with fix for #1358
+- Fix: Add check featStickers before setting feedback #1359
 
 ***
 
@@ -47,8 +47,8 @@ This is a small maintenance release.
 - Upd: Translations
 - Upd: Add Lua integer sanity checks
 - Upd: Mongoose to current master
-- Fix: Contextmenu for songs #1356
 - Upd: translations
+- Fix: Contextmenu for songs #1356
 
 ***
 
