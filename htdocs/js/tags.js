@@ -159,9 +159,11 @@ function addTagList(elId, list) {
     else if (elId === 'SearchSortTagsList' ||
              elId === 'QueueCurrentSortTagsList')
     {
-        stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Added"}, 'Added')
-        );
+        if (features.featDbAdded === true) {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Added"}, 'Added')
+            );
+        }
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Last-Modified"}, 'Last-Modified')
         );
