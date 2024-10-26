@@ -444,7 +444,8 @@ if (window.trustedTypes &&
                 return 'sw.js';
             }
             throw new Error('Script not allowed: ' + dirty);
-       }
+       },
+       createHTML: string => string
     });
 }
 

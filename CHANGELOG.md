@@ -18,6 +18,7 @@ This is a small maintenance release.
 - Upd: libmympdclient 1.0.31
 - Upd: bootstrap.native
 - Fix: Populate sort tags for Radio Favorites
+- Fix: Home Widgets in Chrome
 
 ***
 
