@@ -1234,5 +1234,6 @@
     "tags": "Tags",
     "url_resolved": "URL",
     "votes": "Stimmen",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Error creating MPD playlist search command": "MPD Playlist Suchkommando konnte nicht erstellt werden"
 }

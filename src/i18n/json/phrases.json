@@ -290,6 +290,7 @@
 {"term":"Error"},
 {"term":"Error accessing %{uri}"},
 {"term":"Error creating Lua instance."},
+{"term":"Error creating MPD playlist search command"},
 {"term":"Error creating MPD search command"},
 {"term":"Error creating MPD search queue command"},
 {"term":"Error executing script"},

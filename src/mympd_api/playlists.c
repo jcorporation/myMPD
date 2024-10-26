@@ -782,30 +782,52 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
     if (print_stickers == true) {
         stickerdb_exit_idle(stickerdb);
     }
-    if (sdslen(expression) == 0 &&
-        partition_state->mpd_state->feat.listplaylist_range == true)
-    {
-        entity_count = offset;
-        if (mpd_send_list_playlist_range_meta(partition_state->conn, plist, offset, real_limit)) {
-            buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-            buffer = sdscat(buffer,"\"data\":[");
-            while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-                total_time += mpd_song_get_duration(song);
-                if (entities_returned++) {
-                    buffer= sdscatlen(buffer, ",", 1);
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+    buffer = sdscat(buffer,"\"data\":[");
+    if (partition_state->mpd_state->feat.listplaylist_range == true) {
+        // MPD 0.24
+        if (sdslen(expression) == 0) {
+            entity_count = offset;
+            if (mpd_send_list_playlist_range_meta(partition_state->conn, plist, offset, real_limit)) {
+                
+                while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+                    total_time += mpd_song_get_duration(song);
+                    if (entities_returned++) {
+                        buffer= sdscatlen(buffer, ",", 1);
+                    }
+                    buffer = print_plist_entry(buffer, song, entity_count, print_stickers, partition_state, stickerdb, tagcols,
+                        &last_played_max, &last_played_song_uri, &last_played_pos, &last_played_song_title);
+                    mpd_song_free(song);
+                    entity_count++;
                 }
-                buffer = print_plist_entry(buffer, song, entity_count, print_stickers, partition_state, stickerdb, tagcols,
-                    &last_played_max, &last_played_song_uri, &last_played_pos, &last_played_song_title);
-                mpd_song_free(song);
-                entity_count++;
             }
+            entities_found = entity_count;
         }
-        entities_found = entity_count;
+        else {
+            if (mpd_playlist_search_begin(partition_state->conn, plist, expression) == false ||
+                mpd_search_add_window(partition_state->conn, offset, real_limit) == false)
+            {
+                mpd_search_cancel(partition_state->conn);
+                sdsclear(buffer);
+                buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+                        JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD playlist search command");
+                return buffer;
+            }
+            if (mpd_search_commit(partition_state->conn) == true) {
+                while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+                    total_time += mpd_song_get_duration(song);
+                    if (entities_returned++) {
+                        buffer= sdscatlen(buffer, ",", 1);
+                    }
+                    buffer = print_plist_entry(buffer, song, mpd_song_get_pos(song), print_stickers, partition_state, stickerdb, tagcols,
+                        &last_played_max, &last_played_song_uri, &last_played_pos, &last_played_song_title);
+                }
+            }
+            entities_found = entities_returned;
+        }
     }
     else {
         if (mpd_send_list_playlist_meta(partition_state->conn, plist)) {
-            buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-            buffer = sdscat(buffer,"\"data\":[");
             struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
             while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                 if (search_expression_song(song, expr_list, &tagcols->mpd_tags) == true) {

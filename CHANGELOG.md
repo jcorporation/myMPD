@@ -10,9 +10,10 @@ This is a small maintenance release.
 
 ### Changelog
 
-- Feat: Add Last-Modified and Added to sort tags in Search and Current Queue view
+- Feat: Add Last-Modified and Added (MPD 0.24) to sort tags in Search and Current Queue view
 - Feat: Support new "tagtypes available" command (MPD 0.24) #1352
 - Feat: Support new "protocol" command (MPD 0.24) #1353
+- Feat: Support mpd playlist search command (MPD 0.24) #1351
 - Upd: Translations
 - Upd: libmympdclient 1.0.31
 - Upd: bootstrap.native
