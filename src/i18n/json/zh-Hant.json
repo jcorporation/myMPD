@@ -290,6 +290,7 @@
     "Error": "錯誤",
     "Error accessing %{uri}": "連線%{uri} 出錯",
     "Error creating Lua instance.": "",
+    "Error creating MPD playlist search command": "",
     "Error creating MPD search command": "建立 MPD 搜尋命令出錯",
     "Error creating MPD search queue command": "建立 MPD 搜尋隊列命令出錯",
     "Error executing script": "",

@@ -290,6 +290,7 @@
     "Error": "Ошибка",
     "Error accessing %{uri}": "Ошибка доступа к %{uri}",
     "Error creating Lua instance.": "Ошибка при создании экземпляра Lua.",
+    "Error creating MPD playlist search command": "",
     "Error creating MPD search command": "Не удалось создать команду поиска MPD.",
     "Error creating MPD search queue command": "Не удалось создать команду поиска очереди MPD.",
     "Error executing script": "Ошибка при выполнении скрипта",

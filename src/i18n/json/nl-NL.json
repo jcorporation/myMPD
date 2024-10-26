@@ -290,6 +290,7 @@
     "Error": "Fout",
     "Error accessing %{uri}": "Fout bij toegang tot %{uri}",
     "Error creating Lua instance.": "Fout bij het aanmaken van Lua-instantie.",
+    "Error creating MPD playlist search command": "",
     "Error creating MPD search command": "Fout bij het opmaken van de MPD wachtrij zoekopdracht",
     "Error creating MPD search queue command": "Fout bij het opmaken van de MPD zoekopdracht",
     "Error executing script": "Script kon niet uitgevoerd worden",

@@ -290,6 +290,7 @@
     "Error": "오류",
     "Error accessing %{uri}": "%{uri} 접근 오류",
     "Error creating Lua instance.": "Lua 인스턴스 생성에 오류가 발생함",
+    "Error creating MPD playlist search command": "",
     "Error creating MPD search command": "MPD 검색 명령을 만들 수 없음",
     "Error creating MPD search queue command": "MPD 검색 순서를 만들 수 없음",
     "Error executing script": "스크립트 실행 오류",

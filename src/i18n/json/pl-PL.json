@@ -290,6 +290,7 @@
     "Error": "Błąd",
     "Error accessing %{uri}": "Błąd dostępu do %{uri}",
     "Error creating Lua instance.": "",
+    "Error creating MPD playlist search command": "",
     "Error creating MPD search command": "Błąd tworzenia polecenia wyszukiwania MPD",
     "Error creating MPD search queue command": "Błąd tworzenia polecenia wyszukiwania kolejki MPD",
     "Error executing script": "",

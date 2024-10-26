@@ -290,6 +290,7 @@
     "Error": "エラー",
     "Error accessing %{uri}": "%{uri} へのアクセス中にエラーが発生しました",
     "Error creating Lua instance.": "Luaインスタンスの作成中にエラーが発生しました。",
+    "Error creating MPD playlist search command": "",
     "Error creating MPD search command": "MPD検索コマンドの作成中にエラーが発生しました",
     "Error creating MPD search queue command": "MPD再生待ち検索コマンドの作成中にエラーが発生しました",
     "Error executing script": "スクリプトの実行中にエラーが発生しました",
