@@ -90,14 +90,17 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                 case MPD_ENTITY_TYPE_PLAYLIST: {
                     const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
                     const char *pl_path = mpd_playlist_get_path(pl);
-                    if (path[0] == '/') {
-                        //do not show mpd playlists in root directory
-                        const char *ext = get_extension_from_filename(pl_path);
-                        if (ext == NULL ||
-                            (strcasecmp(ext, "m3u") != 0 && strcasecmp(ext, "pls") != 0))
-                        {
-                            mpd_entity_free(entity);
-                            break;
+                    if (partition_state->mpd_state->feat.mpd_0_24_0 == false) {
+                        // Workaround for older clients
+                        if (path[0] == '/') {
+                            //do not show mpd playlists in root directory
+                            const char *ext = get_extension_from_filename(pl_path);
+                            if (ext == NULL ||
+                                (strcasecmp(ext, "m3u") != 0 && strcasecmp(ext, "pls") != 0))
+                            {
+                                mpd_entity_free(entity);
+                                break;
+                            }
                         }
                     }
                     sds entity_name = sdsnew(pl_path);

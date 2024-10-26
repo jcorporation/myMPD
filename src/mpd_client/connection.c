@@ -17,6 +17,7 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/requests.h"
 
@@ -83,7 +84,7 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
  * @param partition_state pointer to partition state
  * @return true on success, else false
  */
-bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
+static bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
     if (partition_state->mpd_state->mpd_keepalive == true) {
         MYMPD_LOG_INFO(partition_state->name, "Enabling keepalive");
     }
@@ -98,41 +99,50 @@ bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
  * @param partition_state pointer to partition state
  * @return true on success, else false
  */
-bool mpd_client_set_timeout(struct t_partition_state *partition_state) {
+static bool mpd_client_set_timeout(struct t_partition_state *partition_state) {
     MYMPD_LOG_INFO(partition_state->name, "Setting timeout to %u ms", partition_state->mpd_state->mpd_timeout);
     mpd_connection_set_timeout(partition_state->conn, partition_state->mpd_state->mpd_timeout);
     return true;
 }
 
 /**
- * Sets the binary limit
+ * Sets mpd connection options binarylimit and protocol features
  * @param partition_state pointer to partition state
  * @return true on success, else false
  */
-bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
-    bool rc = true;
-    if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 4) >= 0 ) {
-        MYMPD_LOG_INFO(partition_state->name, "Setting binarylimit to %u kB", partition_state->mpd_state->mpd_binarylimit);
-        mpd_run_binarylimit(partition_state->conn, partition_state->mpd_state->mpd_binarylimit);
-        sds message = sdsempty();
-        if (mympd_check_error_and_recover_notify(partition_state, &message, "mpd_run_binarylimit") == false) {
-            ws_notify(message, partition_state->name);
-            rc = false;
+static bool mpd_client_set_protocol_options(struct t_partition_state *partition_state) {
+    if (mpd_command_list_begin(partition_state->conn, false)) {
+        if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 4) >= 0 ) {
+            MYMPD_LOG_INFO(partition_state->name, "Setting binarylimit to %u kB", partition_state->mpd_state->mpd_binarylimit);
+            if (mpd_send_binarylimit(partition_state->conn, partition_state->mpd_state->mpd_binarylimit) == false) {
+                mympd_set_mpd_failure(partition_state, "Failure adding command to command list mpd_send_binarylimit");
+            }
         }
-        FREE_SDS(message);
+        if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0 ) {
+            MYMPD_LOG_INFO(partition_state->name, "Enabling all protocol features");
+            if (mpd_send_all_protocol_features(partition_state->conn) == false) {
+                mympd_set_mpd_failure(partition_state, "Failure adding command to command list mpd_send_all_protocol_features");
+            }
+        }
+        if (mpd_client_command_list_end_check(partition_state) == false) {
+            sds message = sdsnew("Failure setting protocol options");
+            ws_notify(message, partition_state->name);
+            FREE_SDS(message);
+        }
     }
-    return rc;
+    mpd_response_finish(partition_state->conn);
+    return mympd_check_error_and_recover(partition_state, NULL, "protocol options");
 }
 
 /**
- * Sets mpd connection options binarylimit, keepalive and timeout
+ * Sets mpd connection settings and features
  * @param partition_state pointer to partition state
  * @return true on success, else false
  */
 bool mpd_client_set_connection_options(struct t_partition_state *partition_state) {
-    return mpd_client_set_binarylimit(partition_state) &&
-        mpd_client_set_keepalive(partition_state) &&
+    return mpd_client_set_keepalive(partition_state) &&
         mpd_client_set_timeout(partition_state) &&
+        mpd_client_set_protocol_options(partition_state) &&
         enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
 }
 

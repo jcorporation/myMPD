@@ -12,6 +12,7 @@ This is a small maintenance release.
 
 - Feat: Add Last-Modified and Added to sort tags in Search and Current Queue view
 - Feat: Support new "tagtypes available" command (MPD 0.24) #1352
+- Feat: Support new "protocol" command (MPD 0.24) #1353
 - Upd: Translations
 - Upd: libmympdclient 1.0.31
 - Upd: bootstrap.native
