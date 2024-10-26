@@ -912,7 +912,7 @@ updatebootstrapnative() {
   npm run build-vite
   grep -v "^//" dist/bootstrap-native.js > "$STARTPATH/dist/bootstrap-native/bootstrap-native.min.js"
   #normal build
-  sed -i 's/sourcemap: true,/sourcemap: true,\nminify: false/' vite.config.ts
+  sed -i 's/sourcemap: true,/sourcemap: true,\nminify: false/' vite.config.mts
   npm run build-vite
   grep -v "^//" dist/bootstrap-native.js > "$STARTPATH/dist/bootstrap-native/bootstrap-native.js"
   #cleanup
