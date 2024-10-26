@@ -261,6 +261,7 @@ void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
  * @param feat pointer to mpd feature struct
  */
 void mpd_state_features_default(struct t_mpd_features *feat) {
+    feat->mpd_0_24_0 = false;
     feat->stickers = false;
     feat->playlists = false;
     feat->tags = false;

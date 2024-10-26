@@ -46,6 +46,7 @@ enum mpd_conn_states {
  * MPD feature flags
  */
 struct t_mpd_features {
+    bool mpd_0_24_0;               //!< MPD version is ge 0.24.0
     bool advqueue;                 //!< mpd supports the prio filter / sort for queue and the save modes (MPD 0.24)
     bool albumart;                 //!< mpd supports the albumart command
     bool binarylimit;              //!< mpd supports the binarylimit command

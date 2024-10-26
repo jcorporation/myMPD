@@ -59,11 +59,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
     partition_state->mpd_state->feat.stickers = mympd_state->stickerdb->mpd_state->feat.stickers;
     partition_state->mpd_state->feat.advsticker = mympd_state->stickerdb->mpd_state->feat.advsticker;
 
-    //get features
-    features_commands(partition_state);
-    features_config(mympd_state, partition_state);
-    features_tags(mympd_state, partition_state);
-
+    // Set features by MPD protocol version
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 0) >= 0) {
         partition_state->mpd_state->feat.partitions = true;
         MYMPD_LOG_INFO(partition_state->name, "Enabling partitions feature");
@@ -99,6 +95,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
     }
 
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0 ) {
+        partition_state->mpd_state->feat.mpd_0_24_0 = true;
         partition_state->mpd_state->feat.advqueue = true;
         MYMPD_LOG_INFO(partition_state->name, "Enabling advanced queue feature");
         partition_state->mpd_state->feat.consume_oneshot = true;
@@ -119,6 +116,12 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_partiti
         MYMPD_LOG_WARN(partition_state->name, "Disabling starts_with filter expression feature, depends on mpd >= 0.24.0");
         MYMPD_LOG_WARN(partition_state->name, "Disabling db added feature, depends on mpd >= 0.24.0");
     }
+
+    // Get features from MPD
+    features_commands(partition_state);
+    features_config(mympd_state, partition_state);
+    features_tags(mympd_state, partition_state);
+
     settings_to_webserver(mympd_state);
 }
 
@@ -179,7 +182,6 @@ static void features_tags(struct t_mympd_state *mympd_state, struct t_partition_
     mpd_tags_reset(&partition_state->mpd_state->tags_album);
     mpd_tags_reset(&mympd_state->smartpls_generate_tag_types);
     //check for all mpd tags
-    enable_all_mpd_tags(partition_state);
     features_mpd_tags(partition_state);
     //parse the webui taglists and set the tag structs
     if (partition_state->mpd_state->feat.tags == true) {
@@ -259,7 +261,11 @@ static void set_simple_album_tags(struct t_partition_state *partition_state) {
  */
 static void features_mpd_tags(struct t_partition_state *partition_state) {
     sds logline = sdsnew("MPD supported tags: ");
-    if (mpd_send_list_tag_types(partition_state->conn)) {
+    bool rc = partition_state->mpd_state->feat.mpd_0_24_0 == true
+        ? mpd_send_list_tag_types_available(partition_state->conn)
+        : enable_all_mpd_tags(partition_state) &&
+            mpd_send_list_tag_types(partition_state->conn);
+    if (rc == true) {
         struct mpd_pair *pair;
         while ((pair = mpd_recv_tag_type_pair(partition_state->conn)) != NULL) {
             enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
@@ -313,7 +319,7 @@ static void features_config(struct t_mympd_state *mympd_state, struct t_partitio
 
     //config command is only supported for socket connections
     if (partition_state->mpd_state->mpd_host[0] == '/') {
-        if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) == -1 ) {
+        if (partition_state->mpd_state->feat.mpd_0_24_0 == true) {
             //assume true for older MPD versions
             partition_state->mpd_state->feat.pcre = true;
             MYMPD_LOG_INFO(partition_state->name, "Enabling pcre feature");

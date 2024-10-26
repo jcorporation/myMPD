@@ -11,7 +11,8 @@ This is a small maintenance release.
 ### Changelog
 
 - Feat: Add Last-Modified and Added to sort tags in Search and Current Queue view
-- Upd: translations
+- Feat: Support new "tagtypes available" command (MPD 0.24) #1352
+- Upd: Translations
 - Upd: libmympdclient 1.0.31
 - Upd: bootstrap.native
 - Fix: Populate sort tags for Radio Favorites
