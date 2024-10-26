@@ -340,7 +340,7 @@ bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const c
 bool mpd_client_enum_playlist(struct t_partition_state *partition_state, const char *plist,
         unsigned *count, unsigned *duration, sds *error)
 {
-    return mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0
+    return partition_state->mpd_state->feat.mpd_0_24_0 == true
         ? mpd_worker_playlist_content_enumerate_mpd(partition_state, plist, count, duration, error)
         : mpd_worker_playlist_content_enumerate_manual(partition_state, plist, count, duration, error);
 }
