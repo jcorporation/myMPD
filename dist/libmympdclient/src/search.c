@@ -6,7 +6,7 @@
 #include <mpd/pair.h>
 #include <mpd/recv.h>
 #include "internal.h"
-#include "isearch.h"
+#include "request.h"
 #include "iso8601.h"
 
 #include <assert.h>

@@ -13,6 +13,7 @@
 #include "recv.h"
 #include "compiler.h"
 #include "tag.h"
+#include "feature.h"
 
 #include <stdbool.h>
 
@@ -96,6 +97,19 @@ mpd_recv_url_scheme_pair(struct mpd_connection *connection)
  */
 bool
 mpd_send_list_tag_types(struct mpd_connection *connection);
+
+/**
+ * Requests a list of available tag types. This are the tags enabled in
+ * the configuration. Use mpd_recv_tag_type_pair() to obtain the list
+ * of "tagtype" pairs.
+ *
+ * @param connection the connection to MPD
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_list_tag_types_available(struct mpd_connection *connection);
 
 /**
  * Receives the next tag type name.  Call this in a loop after
@@ -203,6 +217,136 @@ mpd_send_all_tag_types(struct mpd_connection *connection);
  */
 bool
 mpd_run_all_tag_types(struct mpd_connection *connection);
+
+/**
+ * Requests a list of enabled protocol features.
+ * Use mpd_recv_protocol_feature_pair() to obtain the list of
+ * "protocol feature" pairs.
+ *
+ * @param connection the connection to MPD
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_list_protocol_features(struct mpd_connection *connection);
+
+/**
+ * Requests a list of available protocol features.
+ * Use mpd_recv_protocol_feature_pair() to obtain the list of
+ * "protocol feature" pairs.
+ *
+ * @param connection the connection to MPD
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_list_protocol_features_available(struct mpd_connection *connection);
+
+/**
+ * Receives the next protocol feature name.  Call this in a loop after
+ * mpd_send_list_protocol().
+ *
+ * Free the return value with mpd_return_pair().
+ *
+ * @param connection a #mpd_connection
+ * @returns a "protocol feature" pair, or NULL on error or if the end of the
+ * response is reached
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+mpd_malloc
+static inline struct mpd_pair *
+mpd_recv_protocol_feature_pair(struct mpd_connection *connection)
+{
+	return mpd_recv_pair_named(connection, "feature");
+}
+
+/**
+ * Disables one or more features from the list of protocol features.
+ *
+ * @param connection the connection to MPD
+ * @param features an array of protocol features to disable
+ * @param n the number of protocol features in the array
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_disable_protocol_features(struct mpd_connection *connection,
+				   const enum mpd_protocol_feature *features, unsigned n);
+
+/**
+ * Shortcut for mpd_send_disable_protocol_features() and mpd_response_finish().
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_run_disable_protocol_features(struct mpd_connection *connection,
+				  const enum mpd_protocol_feature *features, unsigned n);
+
+/**
+ * Re-enable one or more features from the list of protocol features
+ * for this client.
+ *
+ * @param connection the connection to MPD
+ * @param features an array of protocol features to enable
+ * @param n the number of protocol features in the array
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_enable_protocol_features(struct mpd_connection *connection,
+				  const enum mpd_protocol_feature *features, unsigned n);
+
+/**
+ * Shortcut for mpd_send_enable_protocol_features() and mpd_response_finish().
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_run_enable_protocol_features(struct mpd_connection *connection,
+				 const enum mpd_protocol_feature *features, unsigned n);
+
+/**
+ * Clear the list of enabled protocol features for this client.
+ *
+ * @param connection the connection to MPD
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_clear_protocol_features(struct mpd_connection *connection);
+
+/**
+ * Shortcut for mpd_send_clear_protocol_features() and mpd_response_finish().
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_run_clear_protocol_features(struct mpd_connection *connection);
+
+/**
+ * Enable all available features for this client.
+ *
+ * @param connection the connection to MPD
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_all_protocol_features(struct mpd_connection *connection);
+
+/**
+ * Shortcut for mpd_send_all_protocol_features() and mpd_response_finish().
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_run_all_protocol_features(struct mpd_connection *connection);
 
 #ifdef __cplusplus
 }

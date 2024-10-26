@@ -31,6 +31,7 @@
 #include "database.h"
 #include "directory.h"
 #include "entity.h"
+#include "feature.h"
 #include "fingerprint.h"
 #include "idle.h"
 #include "list.h"

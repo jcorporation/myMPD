@@ -599,6 +599,63 @@ mpd_run_rm(struct mpd_connection *connection, const char *name);
 bool
 mpd_send_playlistlength(struct mpd_connection *connection, const char *name);
 
+
+/**
+ * Search for songs in the stored playlist.
+ * A window may be specified with mpd_playlist_search_add_window().
+ * Send the search command with mpd_playlist_search_commit(), and read the
+ * response items with mpd_recv_song().
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the stored playlist
+ * @param expression the expression string; must be enclosed in
+ * parentheses
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_playlist_search_begin(struct mpd_connection *connection, const char *name,
+			  const char *expression);
+
+/**
+ * Request only a portion of the result set.
+ *
+ * @param connection a #mpd_connection
+ * @param start the start offset (including)
+ * @param end the end offset (not including)
+ * value "UINT_MAX" makes the end of the range open
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_playlist_search_add_window(struct mpd_connection *connection,
+			       unsigned start, unsigned end);
+
+/**
+ * Starts the real search.
+ *
+ * @param connection the connection to MPD
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_playlist_search_commit(struct mpd_connection *connection);
+
+/**
+ * Cancels the search request before you have called
+ * mpd_playlist_search_commit(). Call this to clear the current search
+ * request.
+ *
+ * @param connection the connection to MPD
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+void
+mpd_playlist_search_cancel(struct mpd_connection *connection);
+
 #ifdef __cplusplus
 }
 #endif

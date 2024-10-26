@@ -2,12 +2,16 @@
 // Copyright The Music Player Daemon Project
 
 #include <mpd/playlist.h>
+#include <mpd/connection.h>
 #include <mpd/position.h>
 #include <mpd/send.h>
 #include <mpd/response.h>
+#include "internal.h"
 #include "isend.h"
+#include "request.h"
 #include "run.h"
 
+#include <assert.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
@@ -318,4 +322,63 @@ bool
 mpd_send_playlistlength(struct mpd_connection *connection, const char *name)
 {
 	return mpd_send_command(connection, "playlistlength", name, NULL);
+}
+
+bool
+mpd_playlist_search_begin(struct mpd_connection *connection, const char *name,
+			  const char *expression)
+{
+	assert(name != NULL);
+	assert(expression != NULL);
+
+	if (!mpd_request_begin(connection))
+		return false;
+
+	char *arg_name = mpd_sanitize_arg(name);
+	if (arg_name == NULL) {
+		mpd_error_code(&connection->error, MPD_ERROR_OOM);
+		return false;
+	}
+
+	char *arg_expression = mpd_sanitize_arg(expression);
+	if (arg_expression == NULL) {
+		mpd_error_code(&connection->error, MPD_ERROR_OOM);
+		free(arg_name);
+		return false;
+	}
+
+	const size_t size = 17 + strlen(arg_name) + 3 + strlen(arg_expression) + 2;
+	connection->request = malloc(size);
+	if (connection->request == NULL) {
+		mpd_error_code(&connection->error, MPD_ERROR_OOM);
+		free(arg_name);
+		free(arg_expression);
+		return false;
+	}
+
+	snprintf(connection->request, size, "searchplaylist \"%s\" \"%s\"",
+		arg_name, arg_expression);
+
+	free(arg_name);
+	free(arg_expression);
+	return true;
+}
+
+bool
+mpd_playlist_search_add_window(struct mpd_connection *connection,
+			       unsigned start, unsigned end)
+{
+	return mpd_request_add_window(connection, start, end);
+}
+
+bool
+mpd_playlist_search_commit(struct mpd_connection *connection)
+{
+	return mpd_request_commit(connection);
+}
+
+void
+mpd_playlist_search_cancel(struct mpd_connection *connection)
+{
+	mpd_request_cancel(connection);
 }

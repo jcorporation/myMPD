@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright The Music Player Daemon Project
 
-#include "isearch.h"
+#include "request.h"
 
 #include <mpd/send.h>
 

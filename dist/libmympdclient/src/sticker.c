@@ -8,7 +8,7 @@
 #include <mpd/pair.h>
 #include <mpd/response.h>
 #include "internal.h"
-#include "isearch.h"
+#include "request.h"
 #include "run.h"
 
 #include <assert.h>
@@ -154,6 +154,14 @@ mpd_send_stickertypes(struct mpd_connection *connection)
 	assert(connection != NULL);
 
 	return mpd_send_command(connection, "stickertypes", NULL);
+}
+
+bool
+mpd_send_stickernamestypes(struct mpd_connection *connection, const char *type)
+{
+	assert(connection != NULL);
+
+	return mpd_send_command(connection, "stickernamestypes", type, NULL);
 }
 
 bool

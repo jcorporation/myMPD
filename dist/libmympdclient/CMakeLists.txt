@@ -27,6 +27,7 @@ target_sources(mympdclient
     src/entity.c
     src/error.c
     src/fd_util.c
+    src/feature.c
     src/fingerprint.c
     src/idle.c
     src/ierror.c
@@ -55,7 +56,7 @@ target_sources(mympdclient
     src/response.c
     src/rplaylist.c
     src/run.c
-    src/isearch.c
+    src/request.c
     src/search.c
     src/send.c
     src/settings.c
