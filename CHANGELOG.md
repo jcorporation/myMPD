@@ -19,6 +19,7 @@ This is a small maintenance release.
 - Upd: bootstrap.native
 - Fix: Populate sort tags for Radio Favorites
 - Fix: Home Widgets in Chrome
+- Fix: Home Widgets behind Reverse Proxy
 
 ***
 
