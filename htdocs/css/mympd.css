@@ -764,6 +764,10 @@ div.key {
   }
 }
 
+.colCover {
+    max-width: 27rem;
+}
+
 .dropdown-item:focus {
   background-color: inherit;
 }
