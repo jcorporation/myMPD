@@ -187,6 +187,9 @@ let phrases = {};
 /** @type {number} */
 let lastSeekStep = 10;
 
+/** @type {number} */
+const maxElementsPerPage = 1000;
+
 /**
  * This settings are saved in the browsers localStorage
  */
@@ -651,7 +654,8 @@ const settingsWebuiFields = {
             "50": 50,
             "100": 100,
             "250": 250,
-            "500": 500
+            "500": 500,
+            "1000": 1000
         },
         "inputType": "select",
         "contentType": "number",

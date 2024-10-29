@@ -39,7 +39,7 @@ function gotoPage(offset, limit) {
     app.current.offset = offset;
     if (limit !== undefined) {
         if (limit === 0) {
-            limit = 500;
+            limit = maxElementsPerPage;
         }
         app.current.limit = limit;
         if (app.current.offset % app.current.limit > 0) {
@@ -63,7 +63,7 @@ function setPagination(total, returned) {
     }
 
     if (app.current.limit === 0) {
-        app.current.limit = 500;
+        app.current.limit = maxElementsPerPage;
     }
 
     let totalPages = total < app.current.limit

@@ -177,7 +177,7 @@ function parseSettings(obj) {
     //default limit for all cards
     let limit = settings.webuiSettings.maxElementsPerPage;
     if (limit === 0) {
-        limit = 500;
+        limit = maxElementsPerPage;
     }
     app.cards.Home.limit = limit;
     app.cards.Playback.limit = limit;
