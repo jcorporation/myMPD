@@ -292,10 +292,14 @@ bool stickerdb_get_names(struct t_stickerdb_state *stickerdb, enum mympd_sticker
     if (stickerdb_connect(stickerdb) == false) {
         return false;
     }
-    //TODO: filter by sticker type
-    if (mpd_send_stickernames(stickerdb->conn)) {
+    if (mpd_send_stickernamestypes(stickerdb->conn, mympd_sticker_type_name_lookup(type))) {
         while ((pair = mpd_recv_pair(stickerdb->conn)) != NULL) {
-            list_push(sticker_names, pair->value, 0, NULL, NULL);
+            if (strcmp(pair->name, "name") == 0) {
+                list_push(sticker_names, pair->value, 0, NULL, NULL);
+            }
+            else {
+                // ignore type
+            }
             mpd_return_pair(stickerdb->conn, pair);
         }
     }

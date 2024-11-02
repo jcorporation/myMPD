@@ -202,7 +202,7 @@ const APIparams = {
     "stickerType": {
         "type": APItypes.string,
         "example": "song",
-        "desc": "MPD sticker type"
+        "desc": "MPD sticker type, one of: song, playlist, filter, Title, Album, Artist, AlbumArtist, Genre, Composer, Performer, Conductor, Work, Ensemble, Location, Label"
     },
     "start": {
         "type": APItypes.uint,
