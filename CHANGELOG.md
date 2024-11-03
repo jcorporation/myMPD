@@ -10,6 +10,8 @@ This is a small maintenance release.
 
 ### Changelog
 
+- Fix: Remove duplicate depends in Debian Control file
+
 ***
 
 ## myMPD v18.2.0 (2024-11-01)
