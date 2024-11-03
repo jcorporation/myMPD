@@ -11,6 +11,7 @@ This is a small maintenance release.
 ### Changelog
 
 - Feat: Support stickernamestypes command (MPD 0.24) #1092
+- Upd: libmympdclient 1.0.32
 
 ***
 

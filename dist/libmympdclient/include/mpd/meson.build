@@ -19,6 +19,7 @@ install_headers(
   'directory.h',
   'entity.h',
   'error.h',
+  'feature.h',
   'fingerprint.h',
   'idle.h',
   'list.h',
