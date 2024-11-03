@@ -493,7 +493,9 @@ function printValue(key, value, userData) {
  * @returns {boolean} true if tag matches value, else false
  */
 function isEmptyTag(tagValue) {
-    return tagValue === undefined || tagValue === null || tagValue.length === 0;
+    return tagValue === undefined ||
+           tagValue === null ||
+           tagValue.length === 0;
 }
 
 /**
