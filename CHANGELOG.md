@@ -10,7 +10,8 @@ This is a small maintenance release.
 
 ### Changelog
 
-- Feat: Support stickernamestypes command (MPD 0.24) #1092
+- Feat: Support "stickernamestypes" command (MPD 0.24) #1092
+- Feat: Support "tagtypes reset" command (MPD 0.24) #1367
 - Upd: libmympdclient 1.0.32
 
 ***

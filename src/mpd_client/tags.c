@@ -255,7 +255,7 @@ sds print_tags_array(sds buffer, const char *tagsname, const struct t_mpd_tags *
 }
 
 /**
- * Enables specific mpd tags
+ * Enables only specified mpd tag types
  * @param partition_state pointer to partition specific states
  * @param enable_tags pointer to t_fields struct
  * @return true on success, else false
@@ -265,21 +265,26 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_m
         return true;
     }
     MYMPD_LOG_INFO(partition_state->name, "Setting interesting mpd tag types");
-    if (mpd_command_list_begin(partition_state->conn, false)) {
-        if (mpd_send_clear_tag_types(partition_state->conn) == false) {
-            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_clear_tag_types");
-        }
-        if (enable_tags->len > 0) {
-            if (mpd_send_enable_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->len) == false) {
-                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_enable_tag_types");
-            }
-        }
-        else {
-            MYMPD_LOG_WARN(partition_state->name, "No mpd tags are enabled");
-        }
-        mpd_client_command_list_end_check(partition_state);
+    if (partition_state->mpd_state->feat.mpd_0_24_0 == true) {
+        mpd_run_reset_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->len);
     }
-    mpd_response_finish(partition_state->conn);
+    else {
+        if (mpd_command_list_begin(partition_state->conn, false)) {
+            if (mpd_send_clear_tag_types(partition_state->conn) == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_clear_tag_types");
+            }
+            if (enable_tags->len > 0) {
+                if (mpd_send_enable_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->len) == false) {
+                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_enable_tag_types");
+                }
+            }
+            else {
+                MYMPD_LOG_WARN(partition_state->name, "No mpd tags are enabled");
+            }
+            mpd_client_command_list_end_check(partition_state);
+        }
+        mpd_response_finish(partition_state->conn);
+    }
     return mympd_check_error_and_recover(partition_state, NULL, "mpd_send_enable_tag_types");
 }
 
