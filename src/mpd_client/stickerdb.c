@@ -670,6 +670,21 @@ bool stickerdb_remove(struct t_stickerdb_state *stickerdb, enum mympd_sticker_ty
     return rc;
 }
 
+/**
+ * Checks if stickers should be fetched
+ * @param featSticker Flag indicating enabled sticker support
+ * @param stickers Pointer to t_stickers struct
+ * @return bool true if stickers should be fetched, else false
+ */
+bool check_get_sticker(bool featSticker, const struct t_stickers *stickers) {
+    if (featSticker == false || 
+        (stickers->len == 0 && stickers->user_defined == false))
+    {
+        return false;
+    }
+    return true;
+}
+
 // Private functions
 
 /**

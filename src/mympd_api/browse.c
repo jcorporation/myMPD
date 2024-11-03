@@ -92,16 +92,15 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
         album_cache_set_disc_count(mpd_album, 0);
         album_cache_set_song_count(mpd_album, 0);
     }
+    bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
+    if (print_stickers == true) {
+        stickerdb_exit_idle(mympd_state->stickerdb);
+    }
     if (mpd_search_commit(partition_state->conn)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
 
         struct mpd_song *song;
-        if (partition_state->mpd_state->feat.stickers == true &&
-            tagcols->stickers.len > 0)
-        {
-            stickerdb_exit_idle(mympd_state->stickerdb);
-        }
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
@@ -111,9 +110,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
             buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, song);
-            if (partition_state->mpd_state->feat.stickers == true &&
-                tagcols->stickers.len > 0)
-            {
+            if (print_stickers == true) {
                 struct t_sticker sticker;
                 stickerdb_get_all_batch(mympd_state->stickerdb, STICKER_TYPE_SONG, mpd_song_get_uri(song), &sticker, false);
                 buffer = mympd_api_sticker_print(buffer, &sticker, &tagcols->stickers);
@@ -137,9 +134,7 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers.len > 0)
-    {
+    if (print_stickers == true) {
         stickerdb_enter_idle(mympd_state->stickerdb);
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
@@ -263,7 +258,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_part
     FREE_SDS(key);
 
     //print album list
-    bool print_stickers = partition_state->mpd_state->feat.stickers == true && tagcols->stickers.len > 0;
+    bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
     if (print_stickers == true) {
         stickerdb_exit_idle(mympd_state->stickerdb);
     }

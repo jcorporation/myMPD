@@ -228,7 +228,9 @@ function createListBody(body, data, list) {
                 )
             );
         }
-        else if (isEmptyTag(data[tag]) === false) {
+        else if (isEmptyTag(data[tag]) === false ||
+                 tag === 'userDefinedSticker')
+        {
             body.appendChild(
                 elCreateNodes('div', {"class": ["row"]}, [
                     elCreateTextTn('small', {"class": ["col-3"]}, tag),

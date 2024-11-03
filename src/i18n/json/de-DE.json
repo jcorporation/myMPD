@@ -1235,5 +1235,6 @@
     "tags": "Tags",
     "url_resolved": "URL",
     "votes": "Stimmen",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "userDefinedSticker": "Benutzerdefinierte Sticker"
 }

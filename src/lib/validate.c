@@ -56,7 +56,7 @@ static const char *mympd_fields[]={
     "Name", "Pos", "Duration", "Type", "Priority", "LastPlayed", "Filename", "Filetype",
     "AudioFormat", "Last-Modified", "Lyrics", "Added", "Thumbnail",
     // Columns for stickers
-    "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", "rating", "elapsed",
+    "playCount", "skipCount", "lastPlayed", "lastSkipped", "like", "rating", "elapsed", "userDefinedSticker",
      // Columns for webradiodb
     "Country", "Region", "Description", "Genres", "Homepage", "Languages", "Name", "StreamUri",
     "Codec", "Bitrate",

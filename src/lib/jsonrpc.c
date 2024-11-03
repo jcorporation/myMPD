@@ -1240,13 +1240,13 @@ static const char *jsonrpc_event_name(enum jsonrpc_events event) {
 }
 
 /**
- * Iteration callback to populate a t_tags struct
+ * Iteration callback to populate a t_fields struct
  * @param path json path
  * @param key not used
  * @param value value to parse as mpd tag
  * @param vtype mjson value type
  * @param vcb not used - we validate directly
- * @param userdata void pointer to t_tags struct
+ * @param userdata void pointer to t_fields struct
  * @param error pointer to t_jsonrpc_parse_error
  * @return true on success else false
  */
@@ -1267,6 +1267,10 @@ static bool icb_json_get_field(const char *path, sds key, sds value, int vtype, 
     enum mympd_sticker_names sticker = sticker_name_parse(value);
     if (sticker != STICKER_UNKNOWN) {
         fields->stickers.stickers[fields->stickers.len++] = sticker;
+        return true;
+    }
+    if (strcmp(value, "userDefinedSticker") == 0) {
+        fields->stickers.user_defined = true;
     }
     return true;
 }

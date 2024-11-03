@@ -1234,6 +1234,7 @@
 {"term":"stop only"},
 {"term":"tags"},
 {"term":"url_resolved"},
+{"term":"userDefinedSticker"},
 {"term":"votes"},
 {"term":"wasapi"}
 ]

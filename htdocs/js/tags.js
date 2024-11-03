@@ -322,7 +322,9 @@ function getDisplayTitle(name, title) {
  * @returns {Node} the created node
  */
 function printValue(key, value, userData) {
-    if (isEmptyTag(value) === true) {
+    if (isEmptyTag(value) === true &&
+        key !== 'userDefinedSticker')
+    {
         return document.createTextNode('');
     }
     switch(key) {
@@ -388,6 +390,22 @@ function printValue(key, value, userData) {
                 progressEl = document.createTextNode(fmtSongDuration(value));
             }
             return progressEl;
+        }
+        case "userDefinedSticker": {
+            if (userData.sticker === undefined) {
+                return document.createTextNode('no');
+            }
+            const div = elCreateEmpty('div', {});
+            for (const sticker in userData.sticker) {
+                div.appendChild(
+                    elCreateNodes('span', {}, [
+                        elCreateText('small', {}, sticker + ': '),
+                        document.createTextNode(userData.sticker[sticker]),
+                        elCreateEmpty('br', {})
+                    ])
+                );
+            }
+            return div;
         }
         case 'Artist':
         case 'ArtistSort':

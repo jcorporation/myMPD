@@ -646,7 +646,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
-    bool print_stickers = partition_state->mpd_state->feat.stickers == true && tagcols->stickers.len > 0;
+    bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
     if (print_stickers == true) {
         stickerdb_exit_idle(stickerdb);
     }
@@ -778,7 +778,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
     sds last_played_song_uri = sdsempty();
     sds last_played_song_title = sdsempty();
     unsigned last_played_pos = 0;
-    bool print_stickers = partition_state->mpd_state->feat.stickers == true && tagcols->stickers.len > 0;
+    bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
     if (print_stickers == true) {
         stickerdb_exit_idle(stickerdb);
     }

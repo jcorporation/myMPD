@@ -284,3 +284,4 @@ Last skipped
 Play count
 Rating
 Skip count
+userDefinedSticker

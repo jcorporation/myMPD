@@ -663,6 +663,9 @@ function setFieldsStickers(tags, stickers) {
         }
         tags.push(sticker);
     }
+    if (features.featStickerAdv === true) {
+        tags.push('userDefinedSticker');
+    }
 }
 
 /**

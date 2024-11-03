@@ -17,6 +17,7 @@ This is a small maintenance release.
 - Feat: Support "stickernamestypes" command (MPD 0.24) #1092
 - Feat: Support "tagtypes reset" command (MPD 0.24) #1367
 - Feat: Generate smart playlists by user defined song stickers #1345
+- Feat: Show user defined stickers in lists #1368
 - Upd: libmympdclient 1.0.32
 - Fix: Support "contains" and "starts_with" sticker operators
 

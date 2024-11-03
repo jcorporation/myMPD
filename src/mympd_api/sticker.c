@@ -114,7 +114,9 @@ bool mympd_api_sticker_set_feedback(struct t_stickerdb_state *stickerdb, struct 
 sds mympd_api_sticker_get_print(sds buffer, struct t_stickerdb_state *stickerdb,
         enum mympd_sticker_type type, const char *uri, const struct t_stickers *stickers)
 {
-    if (stickers->len == 0) {
+    if (stickers->len == 0 &&
+        stickers->user_defined == false)
+    {
         return buffer;
     }
     struct t_sticker sticker;
@@ -133,17 +135,19 @@ sds mympd_api_sticker_get_print(sds buffer, struct t_stickerdb_state *stickerdb,
  * @param stickerdb pointer to stickerdb
  * @param type MPD sticker type
  * @param uri song uri
- * @param stickers array of stickers to print
+ * @param stickers stickers to print
  * @return pointer to the modified buffer
  */
 sds mympd_api_sticker_get_print_batch(sds buffer, struct t_stickerdb_state *stickerdb,
         enum mympd_sticker_type type, const char *uri, const struct t_stickers *stickers)
 {
-    if (stickers->len == 0) {
+    if (stickers->len == 0 &&
+        stickers->user_defined == false)
+    {
         return buffer;
     }
     struct t_sticker sticker;
-    if (stickerdb_get_all_batch(stickerdb, type, uri, &sticker, stickers->user_defined) != NULL) {
+    if ((stickerdb_get_all_batch(stickerdb, type, uri, &sticker, stickers->user_defined)) != NULL) {
         buffer = mympd_api_sticker_print(buffer, &sticker, stickers);
         sticker_struct_clear(&sticker);
     }
@@ -169,7 +173,8 @@ sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker, const struct 
         buffer = tojson_int64(buffer, sticker_name_lookup(stickers->stickers[i]), sticker->mympd[stickers->stickers[i]], false);
     }
     if (stickers->user_defined == true) {
-        buffer = sdscat(buffer, ",\"sticker\":{");
+        buffer = json_comma(buffer);
+        buffer = sdscat(buffer, "\"sticker\":{");
         struct t_list_node *current = sticker->user.head;
         while (current != NULL) {
             buffer = tojson_char(buffer, current->key, current->value_p, false);
