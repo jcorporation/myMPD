@@ -233,8 +233,8 @@ function createListBody(body, data, list) {
         {
             body.appendChild(
                 elCreateNodes('div', {"class": ["row"]}, [
-                    elCreateTextTn('small', {"class": ["col-3"]}, tag),
-                    elCreateNode('span', {"data-col": tag, "class": ["col-9"]},
+                    elCreateTextTn('small', {"class": ["col-4"]}, tag),
+                    elCreateNode('span', {"data-col": tag, "class": ["col-8"]},
                         printValue(tag, data[tag], data)
                     )
                 ])
