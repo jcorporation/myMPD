@@ -22,7 +22,7 @@ bool smartpls_save_newest(sds workdir, const char *playlist, unsigned timerange,
 bool smartpls_save_search(sds workdir, const char *playlist, const char *expression,
         const char *sort, bool sortdesc, int max_entries);
 
-bool smartpls_update(const char *playlist);
+bool smartpls_update(const char *playlist, unsigned long conn_id, unsigned int request_id);
 bool smartpls_update_all(void);
 
 bool is_smartpls(sds workdir, const char *playlist);

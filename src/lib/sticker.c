@@ -137,6 +137,8 @@ enum mpd_sticker_operator sticker_oper_parse(const char *str) {
     if (strcmp(str, "eq") == 0) { return MPD_STICKER_OP_EQ_INT; }
     if (strcmp(str, "gt") == 0) { return MPD_STICKER_OP_GT_INT; }
     if (strcmp(str, "lt") == 0) { return MPD_STICKER_OP_LT_INT; }
+    if (strcmp(str, "contains") == 0) { return MPD_STICKER_OP_CONTAINS; }
+    if (strcmp(str, "starts_with") == 0) { return MPD_STICKER_OP_STARTS_WITH; }
     return MPD_STICKER_OP_UNKOWN;
 }
 

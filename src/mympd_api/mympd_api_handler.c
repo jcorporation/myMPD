@@ -1604,10 +1604,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             rc = false;
             if (request->cmd_id == MYMPD_API_SMARTPLS_STICKER_SAVE) {
                 if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
-                    json_get_string(request->data, "$.params.sticker", 1, NAME_LEN_MAX, &sds_buf2, vcb_isalnum, &parse_error) == true &&
+                    json_get_string(request->data, "$.params.sticker", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true &&
                     json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf5, vcb_isname, &parse_error) == true &&
-                    json_get_string(request->data, "$.params.op", 1, 2, &sds_buf4, vcb_isstickerop, &parse_error) == true &&
-                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpd_sticker_sort, &parse_error) == true &&
+                    json_get_string(request->data, "$.params.op", 1, STICKER_OP_LEN_MAX, &sds_buf4, vcb_isstickerop, &parse_error) == true &&
+                    json_get_string(request->data, "$.params.sort", 0, SORT_LEN_MAX, &sds_buf3, vcb_ismpd_sticker_sort, &parse_error) == true &&
                     json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true &&
                     json_get_int(request->data, "$.params.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &parse_error) == true)
                 {
@@ -1617,7 +1617,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             else if (request->cmd_id == MYMPD_API_SMARTPLS_NEWEST_SAVE) {
                 if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                     json_get_uint(request->data, "$.params.timerange", 0, JSONRPC_UINT_MAX, &uint_buf1, &parse_error) == true &&
-                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf2, vcb_ismpdsort, &parse_error) == true &&
+                    json_get_string(request->data, "$.params.sort", 0, SORT_LEN_MAX, &sds_buf2, vcb_ismpdsort, &parse_error) == true &&
                     json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true &&
                     json_get_int(request->data, "$.params.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf2, &parse_error) == true)
                 {
@@ -1627,7 +1627,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             else if (request->cmd_id == MYMPD_API_SMARTPLS_SEARCH_SAVE) {
                 if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                     json_get_string(request->data, "$.params.expression", 1, EXPRESSION_LEN_MAX, &sds_buf2, vcb_issearchexpression, &parse_error) == true &&
-                    json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &parse_error) == true &&
+                    json_get_string(request->data, "$.params.sort", 0, SORT_LEN_MAX, &sds_buf3, vcb_ismpdsort, &parse_error) == true &&
                     json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, NULL) == true &&
                     json_get_int(request->data, "$.params.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &parse_error) == true)
                 {
@@ -1640,7 +1640,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             if (rc == true) {
                 //update currently saved smart playlist
-                smartpls_update(sds_buf1);
+                smartpls_update(sds_buf1, request->conn_id, request->id);
             }
             break;
         case MYMPD_API_SMARTPLS_GET:
