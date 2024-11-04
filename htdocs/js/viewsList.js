@@ -137,7 +137,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
         ? true
         : false;
 
-    const footer = elCreateEmpty('div', {"class": ["list-actions", "col", "text-end"]});
+    const footer = elCreateEmpty('div', {"class": ["list-actions", "col", "col-auto", "text-end", "px-0"]});
     addActionLinks(footer);
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -163,7 +163,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
                 card.firstChild.style.backgroundImage = obj.result.data[i].Thumbnail;
             }
         }
-        const body = elCreateEmpty('div', {"class": ["col", "ps-4"]});
+        const body = elCreateEmpty('div', {"class": ["col", "ps-3"]});
         if (createCardBodyCallback !== undefined &&
             typeof(createCardBodyCallback) === 'function')
         {
@@ -179,7 +179,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
             typeof(createCardActionsCallback) === 'function')
         {
             //custom footer content
-            const customFooter = elCreateEmpty('div', {"class": ["list-actions", "col", "text-end"]});
+            const customFooter = elCreateEmpty('div', {"class": ["list-actions", "col", "col-auto", "text-end", "px-0"]});
             createCardActionsCallback(customFooter, obj.result.data[i], obj.result);
             row.appendChild(customFooter);
         }
@@ -231,14 +231,29 @@ function createListBody(body, data, list) {
         else if (isEmptyTag(data[tag]) === false ||
                  tag === 'userDefinedSticker')
         {
-            body.appendChild(
-                elCreateNodes('div', {"class": ["row"]}, [
-                    elCreateTextTn('small', {"class": ["col-4"]}, tag),
-                    elCreateNode('span', {"data-col": tag, "class": ["col-8"]},
-                        printValue(tag, data[tag], data)
+            if (uiSmallWidthTagRows() === true) {
+                body.appendChild(
+                    elCreateNode('div', {"class": ["row"]},
+                        elCreateNodes('div', {"class": ["col"]},[
+                            elCreateTextTn('small', {}, tag),
+                            elCreateEmpty('br', {}),
+                            elCreateNode('span', {"data-col": tag, "class": ["col-8"]},
+                                printValue(tag, data[tag], data)
+                            )
+                        ])
                     )
-                ])
-            );
+                );
+            }
+            else {
+                body.appendChild(
+                    elCreateNodes('div', {"class": ["row"]}, [
+                        elCreateTextTn('small', {"class": ["col-4"]}, tag),
+                        elCreateNode('span', {"data-col": tag, "class": ["col-8"]},
+                            printValue(tag, data[tag], data)
+                        )
+                    ])
+                );
+            }
         }
         i++;
     }
