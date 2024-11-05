@@ -10,6 +10,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Translations
 - Fix: Remove duplicate depends in Debian Control file
 
 ***
