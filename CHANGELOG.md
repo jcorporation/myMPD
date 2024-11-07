@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Translations
+- Fix: Add correct number of songs to sticker based smart playlist #1369
 - Fix: Remove duplicate depends in Debian Control file
 
 ***
