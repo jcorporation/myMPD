@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Upd: Translations
 - Fix: Add correct number of songs to sticker based smart playlist #1369
+- Fix: Do not crop playlists on shuffle #1369
 - Fix: Remove duplicate depends in Debian Control file
 
 ***
