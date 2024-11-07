@@ -1,98 +1,35 @@
 var BSN = function(exports) {
-  "use strict";var __defProp = Object.defineProperty;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-
-  const e = {}, f = (t) => {
-    const { type: c, currentTarget: i2 } = t;
-    [...e[c]].forEach(([n, s]) => {
-      /* istanbul ignore else @preserve */
-      i2 === n && [...s].forEach(([o, a]) => {
-        o.apply(n, [t]), typeof a == "object" && a.once && r(n, c, o, a);
-      });
-    });
-  }, E$1 = (t, c, i2, n) => {
-    /* istanbul ignore else @preserve */
-    e[c] || (e[c] = /* @__PURE__ */ new Map());
-    const s = e[c];
-    /* istanbul ignore else @preserve */
-    s.has(t) || s.set(t, /* @__PURE__ */ new Map());
-    const o = s.get(t), { size: a } = o;
-    o.set(i2, n);
-    /* istanbul ignore else @preserve */
-    a || t.addEventListener(c, f, n);
-  }, r = (t, c, i2, n) => {
-    const s = e[c], o = s && s.get(t), a = o && o.get(i2), d2 = a !== void 0 ? a : n;
-    /* istanbul ignore else @preserve */
-    o && o.has(i2) && o.delete(i2);
-    /* istanbul ignore else @preserve */
-    s && (!o || !o.size) && s.delete(t);
-    /* istanbul ignore else @preserve */
-    (!s || !s.size) && delete e[c];
-    /* istanbul ignore else @preserve */
-    (!o || !o.size) && t.removeEventListener(
-      c,
-      f,
-      d2
-    );
-  }, g$1 = E$1, M$1 = r;
-  const eventListener = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-    __proto__: null,
-    addListener: E$1,
-    globalListener: f,
-    off: M$1,
-    on: g$1,
-    registry: e,
-    removeListener: r
-  }, Symbol.toStringTag, { value: "Module" }));
-  const we = "aria-describedby", Ae = "aria-expanded", X = "aria-hidden", Te = "aria-modal", ke = "aria-pressed", De = "aria-selected", P = "DOMContentLoaded", ot = "focus", st = "focusin", ct = "focusout", ut = "keydown", dt = "keyup", ft = "click", gt = "mousedown", Et = "hover", bt = "mouseenter", ht = "mouseleave", Dt = "pointerdown", Ot = "pointermove", Lt = "pointerup", zt = "resize", Ht = "scroll", Ut = "touchstart", Ve = "dragstart", qt = 'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"]', Je = "ArrowDown", Xe = "ArrowUp", Ye = "ArrowLeft", Ze = "ArrowRight", sn = "Escape", Jt = "transitionDuration", Xt = "transitionDelay", C = "transitionend", W = "transitionProperty", Yt = navigator.userAgentData, A = Yt, { userAgent: Zt } = navigator, S = Zt, z = /iPhone|iPad|iPod|Android/i;
-  // istanbul ignore else @preserve
-  A ? A.brands.some((t) => z.test(t.brand)) : z.test(S);
-  const V = /(iPhone|iPod|iPad)/, An = A ? A.brands.some((t) => V.test(t.brand)) : (
-    /* istanbul ignore next @preserve */
-    V.test(S)
-  );
-  S ? S.includes("Firefox") : (
-    /* istanbul ignore next @preserve */
-    false
-  );
-  const { head: N } = document;
-  ["webkitPerspective", "perspective"].some((t) => t in N.style);
-  const R = (t, e2, n, o) => {
+  "use strict";
+  const De = "aria-describedby", Oe = "aria-expanded", $ = "aria-hidden", Pe = "aria-modal", Be = "aria-pressed", Fe = "aria-selected", rt = "focus", ct = "focusin", at = "focusout", dt = "keydown", pt = "keyup", mt = "click", bt = "mousedown", ht = "hover", yt = "mouseenter", wt = "mouseleave", Dt = "pointerdown", xt = "pointermove", zt = "pointerup", Rt = "touchstart", je = "dragstart", qt = 'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"]', on = "ArrowDown", sn = "ArrowUp", rn = "ArrowLeft", cn = "ArrowRight", gn = "Escape", _t = "transitionDuration", $t = "transitionDelay", M = "transitionend", W = "transitionProperty", zn = () => {
+    const t = /(iPhone|iPod|iPad)/;
+    return navigator?.userAgentData?.brands.some(
+      (e2) => t.test(e2.brand)
+    ) || t.test(
+      navigator?.userAgent
+    ) || false;
+  }, te = () => {
+  }, R = (t, e2, n, o) => {
     const s = o || false;
-    t.addEventListener(e2, n, s);
+    t.addEventListener(
+      e2,
+      n,
+      s
+    );
   }, Q = (t, e2, n, o) => {
     const s = o || false;
-    t.removeEventListener(e2, n, s);
-  }, $t = (t, e2, n, o) => {
-    const s = (c) => {
-      /* istanbul ignore else @preserve */
-      (c.target === t || c.currentTarget === t) && (n.apply(t, [c]), Q(t, e2, s, o));
-    };
-    R(t, e2, s, o);
-  }, _t = () => {
-  };
-  (() => {
-    let t = false;
-    try {
-      const e2 = Object.defineProperty({}, "passive", {
-        get: () => (t = true, t)
-      });
-      // istanbul ignore next @preserve
-      $t(document, P, _t, e2);
-    } catch {
-    }
-    return t;
-  })();
-  ["webkitTransform", "transform"].some((t) => t in N.style);
-  ["webkitAnimation", "animation"].some((t) => t in N.style);
-  ["webkitTransition", "transition"].some((t) => t in N.style);
-  const j = (t, e2) => t.getAttribute(e2), te = (t, e2) => t.hasAttribute(e2), In = (t, e2, n) => t.setAttribute(e2, n), zn = (t, e2) => t.removeAttribute(e2), Bn = (t, ...e2) => {
+    t.removeEventListener(
+      e2,
+      n,
+      s
+    );
+  }, j = (t, e2) => t.getAttribute(e2), ne = (t, e2) => t.hasAttribute(e2), Qn = (t, e2, n) => t.setAttribute(e2, n), Gn = (t, e2) => t.removeAttribute(e2), qn = (t, ...e2) => {
     t.classList.add(...e2);
-  }, Fn = (t, ...e2) => {
+  }, Zn = (t, ...e2) => {
     t.classList.remove(...e2);
-  }, Hn = (t, e2) => t.classList.contains(e2), v = (t) => t != null && typeof t == "object" || false, i = (t) => v(t) && typeof t.nodeType == "number" && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].some((e2) => t.nodeType === e2) || false, l = (t) => i(t) && t.nodeType === 1 || false, E = /* @__PURE__ */ new Map(), L = {
-    data: E,
+  }, Yn = (t, e2) => t.classList.contains(e2), b$1 = (t) => t != null && typeof t == "object" || false, l = (t) => b$1(t) && typeof t.nodeType == "number" && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].some(
+    (e2) => t.nodeType === e2
+  ) || false, u = (t) => l(t) && t.nodeType === 1 || false, h = /* @__PURE__ */ new Map(), O = {
+    data: h,
     /**
      * Sets web components data.
      *
@@ -101,9 +38,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param instance the component instance
      */
     set: (t, e2, n) => {
-      if (!l(t)) return;
-      // istanbul ignore else @preserve
-      E.has(e2) || E.set(e2, /* @__PURE__ */ new Map()), E.get(e2).set(t, n);
+      if (!u(t)) return;
+      h.has(e2) || h.set(e2, /* @__PURE__ */ new Map()), h.get(e2).set(t, n);
     },
     /**
      * Returns all instances for specified component.
@@ -111,7 +47,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param component the component's name or a unique key
      * @returns all the component instances
      */
-    getAllFor: (t) => E.get(t) || null,
+    getAllFor: (t) => h.get(t) || null,
     /**
      * Returns the instance associated with the target.
      *
@@ -120,8 +56,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns the instance
      */
     get: (t, e2) => {
-      if (!l(t) || !e2) return null;
-      const n = L.getAllFor(e2);
+      if (!u(t) || !e2) return null;
+      const n = O.getAllFor(e2);
       return t && n && n.get(t) || null;
     },
     /**
@@ -131,92 +67,68 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param component the component's name or a unique key
      */
     remove: (t, e2) => {
-      const n = L.getAllFor(e2);
-      if (!n || !l(t)) return;
-      n.delete(t);
-      // istanbul ignore else @preserve
-      n.size === 0 && E.delete(e2);
+      const n = O.getAllFor(e2);
+      !n || !u(t) || (n.delete(t), n.size === 0 && h.delete(e2));
     }
-  }, Rn = (t, e2) => L.get(t, e2), M = (t) => typeof t == "string" || false, q = (t) => v(t) && t.constructor.name === "Window" || false, G = (t) => i(t) && t.nodeType === 9 || false, d = (t) => q(t) ? t.document : G(t) ? t : i(t) ? t.ownerDocument : window.document, T = (t, ...e2) => Object.assign(t, ...e2), ee = (t) => {
+  }, to = (t, e2) => O.get(t, e2), k$1 = (t) => typeof t == "string" || false, G = (t) => b$1(t) && t.constructor.name === "Window" || false, K = (t) => l(t) && t.nodeType === 9 || false, d = (t) => K(t) ? t : l(t) ? t.ownerDocument : G(t) ? t.document : globalThis.document, N = (t, ...e2) => Object.assign(t, ...e2), oe = (t) => {
     if (!t) return;
-    if (M(t))
+    if (k$1(t))
       return d().createElement(t);
-    const { tagName: e2 } = t, n = ee(e2);
+    const { tagName: e2 } = t, n = oe(e2);
     if (!n) return;
     const o = { ...t };
-    return delete o.tagName, T(n, o);
-  }, K = (t, e2) => t.dispatchEvent(e2), g = (t, e2) => {
-    const n = getComputedStyle(t), o = e2.replace("webkit", "Webkit").replace(/([A-Z])/g, "-$1").toLowerCase();
-    return n.getPropertyValue(o);
-  }, ce = (t) => {
-    const e2 = g(t, W), n = g(t, Xt), o = n.includes("ms") ? (
-      /* istanbul ignore next */
-      1
-    ) : 1e3, s = e2 && e2 !== "none" ? parseFloat(n) * o : (
-      /* istanbul ignore next */
-      0
-    );
-    return Number.isNaN(s) ? (
-      /* istanbul ignore next */
-      0
-    ) : s;
-  }, re = (t) => {
-    const e2 = g(t, W), n = g(t, Jt), o = n.includes("ms") ? (
-      /* istanbul ignore next */
-      1
-    ) : 1e3, s = e2 && e2 !== "none" ? parseFloat(n) * o : (
-      /* istanbul ignore next */
-      0
-    );
-    return Number.isNaN(s) ? (
-      /* istanbul ignore next */
-      0
-    ) : s;
-  }, qn = (t, e2) => {
+    return delete o.tagName, N(n, o);
+  }, q = (t, e2) => t.dispatchEvent(e2), g = (t, e2, n) => {
+    const o = getComputedStyle(t, n), s = e2.replace("webkit", "Webkit").replace(/([A-Z])/g, "-$1").toLowerCase();
+    return o.getPropertyValue(s);
+  }, ae = (t) => {
+    const e2 = g(t, W), n = g(t, $t), o = n.includes("ms") ? 1 : 1e3, s = e2 && e2 !== "none" ? parseFloat(n) * o : 0;
+    return Number.isNaN(s) ? 0 : s;
+  }, ie = (t) => {
+    const e2 = g(t, W), n = g(t, _t), o = n.includes("ms") ? 1 : 1e3, s = e2 && e2 !== "none" ? parseFloat(n) * o : 0;
+    return Number.isNaN(s) ? 0 : s;
+  }, ro = (t, e2) => {
     let n = 0;
-    const o = new Event(C), s = re(t), c = ce(t);
+    const o = new Event(M), s = ie(t), r2 = ae(t);
     if (s) {
-      const a = (u) => {
-        // istanbul ignore else @preserve
-        u.target === t && (e2.apply(t, [u]), t.removeEventListener(C, a), n = 1);
+      const a = (i) => {
+        i.target === t && (e2.apply(t, [i]), t.removeEventListener(M, a), n = 1);
       };
-      t.addEventListener(C, a), setTimeout(() => {
-        // istanbul ignore next @preserve
-        n || K(t, o);
-      }, s + c + 17);
+      t.addEventListener(M, a), setTimeout(() => {
+        n || q(t, o);
+      }, s + r2 + 17);
     } else
       e2.apply(t, [o]);
-  }, Jn = (t, e2) => t.focus(e2), B = (t) => ["true", true].includes(t) ? true : ["false", false].includes(t) ? false : ["null", "", null, void 0].includes(t) ? null : t !== "" && !Number.isNaN(+t) ? +t : t, w = (t) => Object.entries(t), ae = (t) => t.toLowerCase(), Xn = (t, e2, n, o) => {
-    const s = { ...n }, c = { ...t.dataset }, a = { ...e2 }, u = {}, p = "title";
-    return w(c).forEach(([r2, f2]) => {
-      const y = typeof r2 == "string" && r2.includes(o) ? r2.replace(o, "").replace(/[A-Z]/g, (J) => ae(J)) : (
-        /* istanbul ignore next @preserve */
-        r2
-      );
-      u[y] = B(f2);
-    }), w(s).forEach(([r2, f2]) => {
-      s[r2] = B(f2);
-    }), w(e2).forEach(([r2, f2]) => {
-      // istanbul ignore else @preserve
-      r2 in s ? a[r2] = s[r2] : r2 in u ? a[r2] = u[r2] : a[r2] = r2 === p ? j(t, p) : f2;
+  }, io = (t, e2) => t.focus(e2), P = (t) => ["true", true].includes(t) ? true : ["false", false].includes(t) ? false : ["null", "", null, void 0].includes(t) ? null : t !== "" && !Number.isNaN(+t) ? +t : t, T = (t) => Object.entries(t), ue = (t) => t.toLowerCase(), lo = (t, e2, n, o) => {
+    if (!u(t)) return e2;
+    const s = { ...n }, r2 = { ...t.dataset }, a = { ...e2 }, i = {}, f2 = "title";
+    return T(r2).forEach(([c, p2]) => {
+      const E2 = typeof c == "string" && c.includes(o) ? c.replace(o, "").replace(
+        /[A-Z]/g,
+        (C) => ue(C)
+      ) : c;
+      i[E2] = P(p2);
+    }), T(s).forEach(([c, p2]) => {
+      s[c] = P(p2);
+    }), T(e2).forEach(([c, p2]) => {
+      c in s ? a[c] = s[c] : c in i ? a[c] = i[c] : a[c] = c === f2 ? j(t, f2) : p2;
     }), a;
-  }, Zn = (t) => Object.keys(t), $n = (t) => Object.values(t), to = (t, e2) => {
+  }, po = (t) => Object.keys(t), vo = (t, e2) => {
     const n = new CustomEvent(t, {
       cancelable: true,
       bubbles: true
     });
-    // istanbul ignore else @preserve
-    return v(e2) && T(n, e2), n;
-  }, eo = { passive: true }, no = (t) => t.offsetHeight, oo = (t, e2) => {
-    w(e2).forEach(([n, o]) => {
-      if (o && M(n) && n.includes("--"))
+    return b$1(e2) && N(n, e2), n;
+  }, bo = { passive: true }, Eo = (t) => t.offsetHeight, ho = (t, e2) => {
+    T(e2).forEach(([n, o]) => {
+      if (o && k$1(n) && n.includes("--"))
         t.style.setProperty(n, o);
       else {
         const s = {};
-        s[n] = o, T(t.style, s);
+        s[n] = o, N(t.style, s);
       }
     });
-  }, I = (t) => v(t) && t.constructor.name === "Map" || false, ie = (t) => typeof t == "number" || false, m = /* @__PURE__ */ new Map(), so = {
+  }, x = (t) => b$1(t) && t.constructor.name === "Map" || false, le = (t) => typeof t == "number" || false, v$1 = /* @__PURE__ */ new Map(), yo = {
     /**
      * Sets a new timeout timer for an element, or element -> key association.
      *
@@ -226,13 +138,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param key a unique key
      */
     set: (t, e2, n, o) => {
-      if (!l(t)) return;
-      // istanbul ignore else @preserve
-      if (o && o.length) {
-        // istanbul ignore else @preserve
-        m.has(t) || m.set(t, /* @__PURE__ */ new Map()), m.get(t).set(o, setTimeout(e2, n));
-      } else
-        m.set(t, setTimeout(e2, n));
+      u(t) && (o && o.length ? (v$1.has(t) || v$1.set(t, /* @__PURE__ */ new Map()), v$1.get(t).set(o, setTimeout(e2, n))) : v$1.set(t, setTimeout(e2, n)));
     },
     /**
      * Returns the timer associated with the target.
@@ -242,10 +148,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns the timer
      */
     get: (t, e2) => {
-      if (!l(t)) return null;
-      const n = m.get(t);
-      return e2 && n && I(n) ? n.get(e2) || /* istanbul ignore next */
-      null : ie(n) ? n : null;
+      if (!u(t)) return null;
+      const n = v$1.get(t);
+      return e2 && n && x(n) ? n.get(e2) || null : le(n) ? n : null;
     },
     /**
      * Clears the element's timer.
@@ -254,99 +159,130 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param key a unique key
      */
     clear: (t, e2) => {
-      if (!l(t)) return;
-      const n = m.get(t);
-      if (e2 && e2.length && I(n)) {
-        clearTimeout(n.get(e2)), n.delete(e2);
-        // istanbul ignore else @preserve
-        n.size === 0 && m.delete(t);
-      } else
-        clearTimeout(n), m.delete(t);
+      if (!u(t)) return;
+      const n = v$1.get(t);
+      e2 && e2.length && x(n) ? (clearTimeout(n.get(e2)), n.delete(e2), n.size === 0 && v$1.delete(t)) : (clearTimeout(n), v$1.delete(t));
     }
-  }, ue = (t, e2) => (i(e2) ? e2 : d()).querySelectorAll(t), x = /* @__PURE__ */ new Map();
-  function le(t) {
-    const { shiftKey: e2, code: n } = t, o = d(this), s = [...ue(qt, this)].filter(
-      (u) => !te(u, "disabled") && !j(u, X)
+  }, de = (t, e2) => (l(e2) ? e2 : d()).querySelectorAll(t), z = /* @__PURE__ */ new Map();
+  function fe(t) {
+    const { shiftKey: e2, code: n } = t, o = d(this), s = [
+      ...de(qt, this)
+    ].filter(
+      (i) => !ne(i, "disabled") && !j(i, $)
     );
     if (!s.length) return;
-    const c = s[0], a = s[s.length - 1];
-    // istanbul ignore else @preserve
-    n === "Tab" && (e2 && o.activeElement === c ? (a.focus(), t.preventDefault()) : !e2 && o.activeElement === a && (c.focus(), t.preventDefault()));
+    const r2 = s[0], a = s[s.length - 1];
+    n === "Tab" && (e2 && o.activeElement === r2 ? (a.focus(), t.preventDefault()) : !e2 && o.activeElement === a && (r2.focus(), t.preventDefault()));
   }
-  const de = (t) => x.has(t) === true, ro = (t) => {
-    const e2 = de(t);
-    (e2 ? Q : R)(t, "keydown", le), e2 ? x.delete(t) : x.set(t, true);
-  }, h = (t, e2) => {
-    const { width: n, height: o, top: s, right: c, bottom: a, left: u } = t.getBoundingClientRect();
-    let p = 1, r2 = 1;
-    if (e2 && l(t)) {
-      const { offsetWidth: f2, offsetHeight: y } = t;
-      p = f2 > 0 ? Math.round(n) / f2 : (
-        /* istanbul ignore next */
-        1
-      ), r2 = y > 0 ? Math.round(o) / y : (
-        /* istanbul ignore next */
-        1
-      );
+  const pe = (t) => z.has(t) === true, Ao = (t) => {
+    const e2 = pe(t);
+    (e2 ? Q : R)(t, "keydown", fe), e2 ? z.delete(t) : z.set(t, true);
+  }, m$1 = (t) => u(t) && "offsetWidth" in t || false, w = (t, e2) => {
+    const { width: n, height: o, top: s, right: r2, bottom: a, left: i } = t.getBoundingClientRect();
+    let f2 = 1, c = 1;
+    if (e2 && m$1(t)) {
+      const { offsetWidth: p2, offsetHeight: E2 } = t;
+      f2 = p2 > 0 ? Math.round(n) / p2 : 1, c = E2 > 0 ? Math.round(o) / E2 : 1;
     }
     return {
-      width: n / p,
-      height: o / r2,
-      top: s / r2,
-      right: c / p,
-      bottom: a / r2,
-      left: u / p,
-      x: u / p,
-      y: s / r2
+      width: n / f2,
+      height: o / c,
+      top: s / c,
+      right: r2 / f2,
+      bottom: a / c,
+      left: i / f2,
+      x: i / f2,
+      y: s / c
     };
-  }, ao = (t) => d(t).body, k = (t) => d(t).documentElement, pe = (t) => i(t) && t.constructor.name === "ShadowRoot" || false, lo = (t) => t.nodeName === "HTML" ? t : l(t) && t.assignedSlot || // step into the shadow DOM of the parent of a slotted node
-  i(t) && t.parentNode || // DOM Element detected
-  pe(t) && t.host || // ShadowRoot detected
-  k(t);
+  }, So = (t) => d(t).body, S = (t) => d(t).documentElement, ko = (t) => {
+    const e2 = G(t), n = e2 ? t.scrollX : t.scrollLeft, o = e2 ? t.scrollY : t.scrollTop;
+    return { x: n, y: o };
+  }, me = (t) => l(t) && t.constructor.name === "ShadowRoot" || false, A = (t) => t.nodeName === "HTML" ? t : u(t) && t.assignedSlot || l(t) && t.parentNode || me(t) && t.host || S(t), ve = (t) => t ? K(t) ? t.defaultView : l(t) ? t?.ownerDocument?.defaultView : t : window, be = (t) => l(t) && ["TABLE", "TD", "TH"].includes(t.nodeName) || false, Ee = (t, e2) => t.matches(e2), we = (t) => {
+    if (!m$1(t)) return false;
+    const { width: e2, height: n } = w(t), { offsetWidth: o, offsetHeight: s } = t;
+    return Math.round(e2) !== o || Math.round(n) !== s;
+  }, Co = (t, e2, n) => {
+    const o = m$1(e2), s = w(
+      t,
+      o && we(e2)
+    ), r2 = { x: 0, y: 0 };
+    if (o) {
+      const a = w(e2, true);
+      r2.x = a.x + e2.clientLeft, r2.y = a.y + e2.clientTop;
+    }
+    return {
+      x: s.left + n.x - r2.x,
+      y: s.top + n.y - r2.y,
+      width: s.width,
+      height: s.height
+    };
+  };
   let F = 0, H = 0;
-  const b = /* @__PURE__ */ new Map(), me = (t, e2) => {
+  const y$1 = /* @__PURE__ */ new Map(), Ae = (t, e2) => {
     let n = e2 ? F : H;
     if (e2) {
-      const o = me(t), s = b.get(o) || /* @__PURE__ */ new Map();
-      b.has(o) || b.set(o, s), I(s) && !s.has(e2) ? (s.set(e2, n), F += 1) : n = s.get(e2);
+      const o = Ae(t), s = y$1.get(o) || /* @__PURE__ */ new Map();
+      y$1.has(o) || y$1.set(o, s), x(s) && !s.has(e2) ? (s.set(e2, n), F += 1) : n = s.get(e2);
     } else {
       const o = t.id || t;
-      b.has(o) ? n = b.get(o) : (b.set(o, n), H += 1);
+      y$1.has(o) ? n = y$1.get(o) : (y$1.set(o, n), H += 1);
     }
     return n;
-  }, fo = (t) => {
-    var e2;
-    return t ? G(t) ? t.defaultView : i(t) ? (e2 = t == null ? void 0 : t.ownerDocument) == null ? void 0 : e2.defaultView : t : window;
-  }, ge = (t) => Array.isArray(t) || false, vo = (t) => {
-    if (!i(t)) return false;
-    const { top: e2, bottom: n } = h(t), { clientHeight: o } = k(t);
+  }, Se = (t) => Array.isArray(t) || false, Do = (t) => {
+    if (!l(t)) return false;
+    const { top: e2, bottom: n } = w(t), { clientHeight: o } = S(t);
     return e2 <= o && n >= 0;
-  }, ho = (t) => typeof t == "function" || false, Mo = (t) => v(t) && t.constructor.name === "NodeList" || false, To = (t) => k(t).dir === "rtl", Do = (t) => i(t) && ["TABLE", "TD", "TH"].includes(t.nodeName) || false, Ee = (t, e2) => t ? t.closest(e2) || // break out of `ShadowRoot`
-  Ee(t.getRootNode().host, e2) : null, Co = (t, e2) => l(t) ? t : (i(e2) ? e2 : d()).querySelector(t), be = (t, e2) => (i(e2) ? e2 : d()).getElementsByTagName(t), Io = (t, e2) => (e2 && i(e2) ? e2 : d()).getElementsByClassName(t), xo = (t, e2) => t.matches(e2);
+  }, zo = (t) => typeof t == "function" || false, Vo = (t) => b$1(t) && t.constructor.name === "NodeList" || false, Uo = (t) => S(t).dir === "rtl", ke = (t, e2) => !t || !e2 ? null : t.closest(e2) || ke(t.getRootNode().host, e2) || null, Ro = (t, e2) => u(t) ? t : (u(e2) ? e2 : d()).querySelector(t), Ne = (t, e2) => (l(e2) ? e2 : d()).getElementsByTagName(
+    t
+  ), Go = (t, e2) => (e2 && l(e2) ? e2 : d()).getElementsByClassName(
+    t
+  );
+  const e = {}, f = (t) => {
+    const { type: n, currentTarget: c } = t;
+    e[n].forEach((a, s) => {
+      c === s && a.forEach((o, i) => {
+        i.apply(s, [t]), typeof o == "object" && o.once && r(s, n, i, o);
+      });
+    });
+  }, E$1 = (t, n, c, a) => {
+    e[n] || (e[n] = /* @__PURE__ */ new Map());
+    const s = e[n];
+    s.has(t) || s.set(t, /* @__PURE__ */ new Map());
+    const o = s.get(
+      t
+    ), { size: i } = o;
+    o.set(c, a), i || t.addEventListener(
+      n,
+      f,
+      a
+    );
+  }, r = (t, n, c, a) => {
+    const s = e[n], o = s && s.get(t), i = o && o.get(c), d2 = i !== void 0 ? i : a;
+    o && o.has(c) && o.delete(c), s && (!o || !o.size) && s.delete(t), (!s || !s.size) && delete e[n], (!o || !o.size) && t.removeEventListener(
+      n,
+      f,
+      d2
+    );
+  };
   const fadeClass = "fade";
   const showClass = "show";
   const dataBsDismiss = "data-bs-dismiss";
   const alertString = "alert";
   const alertComponent = "Alert";
-  const version = "5.0.15";
+  const version = "5.1.0";
   const Version = version;
   class BaseComponent {
     /**
-     * @param target `HTMLElement` or selector string
+     * @param target `Element` or selector string
      * @param config component instance options
      */
     constructor(target, config) {
-      /** just to have something to extend from */
-      // istanbul ignore next @preserve coverage wise this isn't important
-      __publicField(this, "_toggleEventListeners", () => {
-      });
       let element;
       try {
-        if (l(target)) {
+        if (u(target)) {
           element = target;
-        } else if (M(target)) {
-          element = Co(target);
-          // istanbul ignore else @preserve
+        } else if (k$1(target)) {
+          element = Ro(target);
           if (!element) throw Error(`"${target}" is not a valid selector.`);
         } else {
           throw Error(`your target is not an instance of HTMLElement.`);
@@ -354,148 +290,116 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       } catch (e2) {
         throw Error(`${this.name} Error: ${e2.message}`);
       }
-      const prevInstance = L.get(element, this.name);
-      // istanbul ignore else @preserve
+      const prevInstance = O.get(element, this.name);
       if (prevInstance) {
         prevInstance._toggleEventListeners();
       }
       this.element = element;
-      this.options = this.defaults && Zn(this.defaults).length ? Xn(element, this.defaults, config || {}, "bs") : {};
-      L.set(element, this.name, this);
+      this.options = this.defaults && po(this.defaults).length ? lo(element, this.defaults, config || {}, "bs") : {};
+      O.set(element, this.name, this);
     }
-    // istanbul ignore next @preserve
     get version() {
       return Version;
     }
-    // istanbul ignore next @preserve
     get name() {
       return "BaseComponent";
     }
-    // istanbul ignore next @preserve
     get defaults() {
       return {};
     }
-    /** Removes component from target element. */
+    _toggleEventListeners = () => {
+    };
     dispose() {
-      L.remove(this.element, this.name);
-      Zn(this).forEach((prop) => {
+      O.remove(this.element, this.name);
+      po(this).forEach((prop) => {
         delete this[prop];
       });
     }
   }
   const alertSelector = `.${alertString}`;
   const alertDismissSelector = `[${dataBsDismiss}="${alertString}"]`;
-  const getAlertInstance = (element) => Rn(element, alertComponent);
+  const getAlertInstance = (element) => to(element, alertComponent);
   const alertInitCallback = (element) => new Alert(element);
-  const closeAlertEvent = to(
+  const closeAlertEvent = vo(
     `close.bs.${alertString}`
   );
-  const closedAlertEvent = to(
+  const closedAlertEvent = vo(
     `closed.bs.${alertString}`
   );
   const alertTransitionEnd = (self) => {
     const { element } = self;
-    K(element, closedAlertEvent);
+    q(element, closedAlertEvent);
     self._toggleEventListeners();
     self.dispose();
     element.remove();
   };
   class Alert extends BaseComponent {
+    static selector = alertSelector;
+    static init = alertInitCallback;
+    static getInstance = getAlertInstance;
+    dismiss;
     constructor(target) {
       super(target);
-      __publicField(this, "dismiss");
-      // ALERT PUBLIC METHODS
-      // ====================
-      /**
-       * Public method that hides the `.alert` element from the user,
-       * disposes the instance once animation is complete, then
-       * removes the element from the DOM.
-       */
-      __publicField(this, "close", () => {
-        const { element } = this;
-        // istanbul ignore else @preserve
-        if (element && Hn(element, showClass)) {
-          K(element, closeAlertEvent);
-          if (!closeAlertEvent.defaultPrevented) {
-            Fn(element, showClass);
-            if (Hn(element, fadeClass)) {
-              qn(element, () => alertTransitionEnd(this));
-            } else alertTransitionEnd(this);
-          }
-        }
-      });
-      /**
-       * Toggle on / off the `click` event listener.
-       *
-       * @param add when `true`, event listener is added
-       */
-      __publicField(this, "_toggleEventListeners", (add) => {
-        const action = add ? E$1 : r;
-        const { dismiss, close } = this;
-        // istanbul ignore else @preserve
-        if (dismiss) action(dismiss, ft, close);
-      });
-      this.dismiss = Co(alertDismissSelector, this.element);
+      this.dismiss = Ro(
+        alertDismissSelector,
+        this.element
+      );
       this._toggleEventListeners(true);
     }
-    /** Returns component name string. */
     get name() {
       return alertComponent;
     }
-    /** Remove the component from target element. */
+    /**
+     * Public method that hides the `.alert` element from the user,
+     * disposes the instance once animation is complete, then
+     * removes the element from the DOM.
+     */
+    close = () => {
+      const { element } = this;
+      if (element && Yn(element, showClass)) {
+        q(element, closeAlertEvent);
+        if (!closeAlertEvent.defaultPrevented) {
+          Zn(element, showClass);
+          if (Yn(element, fadeClass)) {
+            ro(element, () => alertTransitionEnd(this));
+          } else alertTransitionEnd(this);
+        }
+      }
+    };
+    /**
+     * Toggle on / off the `click` event listener.
+     *
+     * @param add when `true`, event listener is added
+     */
+    _toggleEventListeners = (add) => {
+      const action = add ? E$1 : r;
+      const { dismiss, close } = this;
+      if (dismiss) action(dismiss, mt, close);
+    };
     dispose() {
       this._toggleEventListeners();
       super.dispose();
     }
   }
-  __publicField(Alert, "selector", alertSelector);
-  __publicField(Alert, "init", alertInitCallback);
-  __publicField(Alert, "getInstance", getAlertInstance);
   const activeClass = "active";
   const dataBsToggle = "data-bs-toggle";
   const buttonString = "button";
   const buttonComponent = "Button";
   const buttonSelector = `[${dataBsToggle}="${buttonString}"]`;
-  const getButtonInstance = (element) => Rn(element, buttonComponent);
+  const getButtonInstance = (element) => to(element, buttonComponent);
   const buttonInitCallback = (element) => new Button(element);
   class Button extends BaseComponent {
+    static selector = buttonSelector;
+    static init = buttonInitCallback;
+    static getInstance = getButtonInstance;
     /**
      * @param target usually a `.btn` element
      */
     constructor(target) {
       super(target);
-      __publicField(this, "isActive", false);
-      // BUTTON PUBLIC METHODS
-      // =====================
-      /**
-       * Toggles the state of the target button.
-       *
-       * @param e usually `click` Event object
-       */
-      __publicField(this, "toggle", (e2) => {
-        if (e2) e2.preventDefault();
-        const { element, isActive } = this;
-        if (!Hn(element, "disabled") && !j(element, "disabled")) {
-          const action = isActive ? Fn : Bn;
-          action(element, activeClass);
-          In(element, ke, isActive ? "false" : "true");
-          this.isActive = Hn(element, activeClass);
-        }
-      });
-      // BUTTON PRIVATE METHOD
-      // =====================
-      /**
-       * Toggles on/off the `click` event listener.
-       *
-       * @param add when `true`, event listener is added
-       */
-      __publicField(this, "_toggleEventListeners", (add) => {
-        const action = add ? E$1 : r;
-        action(this.element, ft, this.toggle);
-      });
       const { element } = this;
-      this.isActive = Hn(element, activeClass);
-      In(element, ke, String(!!this.isActive));
+      this.isActive = Yn(element, activeClass);
+      Qn(element, Be, String(!!this.isActive));
       this._toggleEventListeners(true);
     }
     /**
@@ -504,15 +408,35 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     get name() {
       return buttonComponent;
     }
-    /** Removes the `Button` component from the target element. */
+    /**
+     * Toggles the state of the target button.
+     *
+     * @param e usually `click` Event object
+     */
+    toggle = (e2) => {
+      if (e2) e2.preventDefault();
+      const { element, isActive } = this;
+      if (!Yn(element, "disabled") && !j(element, "disabled")) {
+        const action = isActive ? Zn : qn;
+        action(element, activeClass);
+        Qn(element, Be, isActive ? "false" : "true");
+        this.isActive = Yn(element, activeClass);
+      }
+    };
+    /**
+     * Toggles on/off the `click` event listener.
+     *
+     * @param add when `true`, event listener is added
+     */
+    _toggleEventListeners = (add) => {
+      const action = add ? E$1 : r;
+      action(this.element, mt, this.toggle);
+    };
     dispose() {
       this._toggleEventListeners();
       super.dispose();
     }
   }
-  __publicField(Button, "selector", buttonSelector);
-  __publicField(Button, "init", buttonInitCallback);
-  __publicField(Button, "getInstance", getButtonInstance);
   const dataBsTarget = "data-bs-target";
   const carouselString = "carousel";
   const carouselComponent = "Carousel";
@@ -524,7 +448,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     return targetAttr.map((att) => {
       const attValue = j(element, att);
       if (attValue) {
-        return att === dataBsParent ? Ee(element, attValue) : Co(attValue, doc);
+        return att === dataBsParent ? ke(element, attValue) : Ro(attValue, doc);
       }
       return null;
     }).filter((x2) => x2)[0];
@@ -540,27 +464,26 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     touch: true,
     interval: 5e3
   };
-  const getCarouselInstance = (element) => Rn(element, carouselComponent);
+  const getCarouselInstance = (element) => to(element, carouselComponent);
   const carouselInitCallback = (element) => new Carousel(element);
   let startX = 0;
   let currentX = 0;
   let endX = 0;
-  const carouselSlideEvent = to(`slide.bs.${carouselString}`);
-  const carouselSlidEvent = to(`slid.bs.${carouselString}`);
+  const carouselSlideEvent = vo(`slide.bs.${carouselString}`);
+  const carouselSlidEvent = vo(`slid.bs.${carouselString}`);
   const carouselTransitionEndHandler = (self) => {
     const { index, direction, element, slides, options } = self;
-    // istanbul ignore else @preserve
     if (self.isAnimating) {
       const activeItem = getActiveIndex(self);
       const orientation = direction === "left" ? "next" : "prev";
       const directionClass = direction === "left" ? "start" : "end";
-      Bn(slides[index], activeClass);
-      Fn(slides[index], `${carouselItem}-${orientation}`);
-      Fn(slides[index], `${carouselItem}-${directionClass}`);
-      Fn(slides[activeItem], activeClass);
-      Fn(slides[activeItem], `${carouselItem}-${directionClass}`);
-      K(element, carouselSlidEvent);
-      so.clear(element, dataBsSlide);
+      qn(slides[index], activeClass);
+      Zn(slides[index], `${carouselItem}-${orientation}`);
+      Zn(slides[index], `${carouselItem}-${directionClass}`);
+      Zn(slides[activeItem], activeClass);
+      Zn(slides[activeItem], `${carouselItem}-${directionClass}`);
+      q(element, carouselSlidEvent);
+      yo.clear(element, dataBsSlide);
       if (self.cycle && !d(element).hidden && options.interval && !self.isPaused) {
         self.cycle();
       }
@@ -568,41 +491,33 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   function carouselPauseHandler() {
     const self = getCarouselInstance(this);
-    // istanbul ignore else @preserve
-    if (self && !self.isPaused && !so.get(this, pausedClass)) {
-      Bn(this, pausedClass);
+    if (self && !self.isPaused && !yo.get(this, pausedClass)) {
+      qn(this, pausedClass);
     }
   }
   function carouselResumeHandler() {
     const self = getCarouselInstance(this);
-    // istanbul ignore else @preserve
-    if (self && self.isPaused && !so.get(this, pausedClass)) {
+    if (self && self.isPaused && !yo.get(this, pausedClass)) {
       self.cycle();
     }
   }
   function carouselIndicatorHandler(e2) {
     e2.preventDefault();
-    const element = Ee(this, carouselSelector) || getTargetElement(this);
+    const element = ke(this, carouselSelector) || getTargetElement(this);
     const self = getCarouselInstance(element);
-    // istanbul ignore else @preserve
     if (self && !self.isAnimating) {
-      const newIndex = +(j(this, dataBsSlideTo) || // istanbul ignore next @preserve
-      0);
-      // istanbul ignore else @preserve
-      if (this && !Hn(this, activeClass) && // event target is not active
-      !Number.isNaN(newIndex)) {
+      const newIndex = +(j(this, dataBsSlideTo) || 0);
+      if (this && !Yn(this, activeClass) && !Number.isNaN(newIndex)) {
         self.to(newIndex);
       }
     }
   }
   function carouselControlsHandler(e2) {
     e2.preventDefault();
-    const element = Ee(this, carouselSelector) || getTargetElement(this);
+    const element = ke(this, carouselSelector) || getTargetElement(this);
     const self = getCarouselInstance(element);
-    // istanbul ignore else @preserve
     if (self && !self.isAnimating) {
       const orientation = j(this, dataBsSlide);
-      // istanbul ignore else @preserve
       if (orientation === "next") {
         self.next();
       } else if (orientation === "prev") {
@@ -612,16 +527,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   }
   const carouselKeyHandler = ({ code, target }) => {
     const doc = d(target);
-    const [element] = [...ue(carouselSelector, doc)].filter(
-      (x2) => vo(x2)
-    );
+    const [element] = [...de(carouselSelector, doc)].filter((x2) => Do(x2));
     const self = getCarouselInstance(element);
-    // istanbul ignore next @preserve
     if (self && !self.isAnimating && !/textarea|input/i.test(target.nodeName)) {
-      const RTL = To(element);
-      const arrowKeyNext = !RTL ? Ze : Ye;
-      const arrowKeyPrev = !RTL ? Ye : Ze;
-      // istanbul ignore else @preserve
+      const RTL = Uo(element);
+      const arrowKeyNext = !RTL ? cn : rn;
+      const arrowKeyPrev = !RTL ? rn : cn;
       if (code === arrowKeyPrev) self.prev();
       else if (code === arrowKeyNext) self.next();
     }
@@ -629,7 +540,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function carouselDragHandler(e2) {
     const { target } = e2;
     const self = getCarouselInstance(this);
-    // istanbul ignore next @preserve
     if (self && self.isTouch && (self.indicator && !self.indicator.contains(target) || !self.controls.includes(target))) {
       e2.stopImmediatePropagation();
       e2.stopPropagation();
@@ -639,15 +549,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function carouselPointerDownHandler(e2) {
     const { target } = e2;
     const self = getCarouselInstance(this);
-    // istanbul ignore else @preserve
     if (self && !self.isAnimating && !self.isTouch) {
       const { controls, indicators } = self;
-      // istanbul ignore else @preserve
       if (![...controls, ...indicators].every(
         (el) => el === target || el.contains(target)
       )) {
         startX = e2.pageX;
-        // istanbul ignore else @preserve
         if (this.contains(target)) {
           self.isTouch = true;
           toggleCarouselTouchHandlers(self, true);
@@ -659,19 +566,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     currentX = e2.pageX;
   };
   const carouselPointerUpHandler = (e2) => {
-    var _a;
     const { target } = e2;
     const doc = d(target);
-    const self = [...ue(carouselSelector, doc)].map((c) => getCarouselInstance(c)).find((i2) => i2.isTouch);
-    // istanbul ignore else @preserve
+    const self = [...de(carouselSelector, doc)].map((c) => getCarouselInstance(c)).find((i) => i.isTouch);
     if (self) {
       const { element, index } = self;
-      const RTL = To(element);
+      const RTL = Uo(element);
       endX = e2.pageX;
       self.isTouch = false;
       toggleCarouselTouchHandlers(self);
-      if (!((_a = doc.getSelection()) == null ? void 0 : _a.toString().length) && element.contains(target) && Math.abs(startX - endX) > 120) {
-        // istanbul ignore else @preserve
+      if (!doc.getSelection()?.toString().length && element.contains(target) && Math.abs(startX - endX) > 120) {
         if (currentX < startX) {
           self.to(index + (RTL ? -1 : 1));
         } else if (currentX > startX) {
@@ -685,116 +589,79 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   const activateCarouselIndicator = (self, index) => {
     const { indicators } = self;
-    [...indicators].forEach((x2) => Fn(x2, activeClass));
-    // istanbul ignore else @preserve
-    if (self.indicators[index]) Bn(indicators[index], activeClass);
+    [...indicators].forEach((x2) => Zn(x2, activeClass));
+    if (self.indicators[index]) qn(indicators[index], activeClass);
   };
   const toggleCarouselTouchHandlers = (self, add) => {
     const { element } = self;
     const action = add ? E$1 : r;
     action(
       d(element),
-      Ot,
+      xt,
       carouselPointerMoveHandler,
-      eo
+      bo
     );
     action(
       d(element),
-      Lt,
+      zt,
       carouselPointerUpHandler,
-      eo
+      bo
     );
   };
   const getActiveIndex = (self) => {
     const { slides, element } = self;
-    const activeItem = Co(`.${carouselItem}.${activeClass}`, element);
-    return l(activeItem) ? [...slides].indexOf(activeItem) : -1;
+    const activeItem = Ro(`.${carouselItem}.${activeClass}`, element);
+    return m$1(activeItem) ? [...slides].indexOf(activeItem) : -1;
   };
   class Carousel extends BaseComponent {
+    static selector = carouselSelector;
+    static init = carouselInitCallback;
+    static getInstance = getCarouselInstance;
     /**
      * @param target mostly a `.carousel` element
      * @param config instance options
      */
     constructor(target, config) {
       super(target, config);
-      /**
-       * Toggles all event listeners for the `Carousel` instance.
-       *
-       * @param add when `TRUE` event listeners are added
-       */
-      __publicField(this, "_toggleEventListeners", (add) => {
-        const { element, options, slides, controls, indicators } = this;
-        const { touch, pause, interval, keyboard } = options;
-        const action = add ? E$1 : r;
-        if (pause && interval) {
-          action(element, bt, carouselPauseHandler);
-          action(element, ht, carouselResumeHandler);
-        }
-        if (touch && slides.length > 2) {
-          action(
-            element,
-            Dt,
-            carouselPointerDownHandler,
-            eo
-          );
-          action(element, Ut, carouselDragHandler, { passive: false });
-          action(element, Ve, carouselDragHandler, { passive: false });
-        }
-        // istanbul ignore else @preserve
-        if (controls.length) {
-          controls.forEach((arrow) => {
-            // istanbul ignore else @preserve
-            if (arrow) action(arrow, ft, carouselControlsHandler);
-          });
-        }
-        // istanbul ignore else @preserve
-        if (indicators.length) {
-          indicators.forEach((indicator) => {
-            action(indicator, ft, carouselIndicatorHandler);
-          });
-        }
-        if (keyboard) {
-          action(d(element), ut, carouselKeyHandler);
-        }
-      });
       const { element } = this;
-      this.direction = To(element) ? "right" : "left";
+      this.direction = Uo(element) ? "right" : "left";
       this.isTouch = false;
-      this.slides = Io(carouselItem, element);
+      this.slides = Go(carouselItem, element);
       const { slides } = this;
       if (slides.length >= 2) {
         const activeIndex = getActiveIndex(this);
         const transitionItem = [...slides].find(
-          (s) => xo(s, `.${carouselItem}-next,.${carouselItem}-next`)
+          (s) => Ee(s, `.${carouselItem}-next,.${carouselItem}-next`)
         );
         this.index = activeIndex;
         const doc = d(element);
         this.controls = [
-          ...ue(`[${dataBsSlide}]`, element),
-          ...ue(
+          ...de(`[${dataBsSlide}]`, element),
+          ...de(
             `[${dataBsSlide}][${dataBsTarget}="#${element.id}"]`,
             doc
           )
-        ].filter((c, i2, ar) => i2 === ar.indexOf(c));
-        this.indicator = Co(`.${carouselString}-indicators`, element);
+        ].filter((c, i, ar) => i === ar.indexOf(c));
+        this.indicator = Ro(
+          `.${carouselString}-indicators`,
+          element
+        );
         this.indicators = [
-          ...this.indicator ? ue(`[${dataBsSlideTo}]`, this.indicator) : [],
-          ...ue(
+          ...this.indicator ? de(`[${dataBsSlideTo}]`, this.indicator) : [],
+          ...de(
             `[${dataBsSlideTo}][${dataBsTarget}="#${element.id}"]`,
             doc
           )
-        ].filter((c, i2, ar) => i2 === ar.indexOf(c));
+        ].filter((c, i, ar) => i === ar.indexOf(c));
         const { options } = this;
         this.options.interval = options.interval === true ? carouselDefaults.interval : options.interval;
-        // istanbul ignore next @preserve - impossible to test
         if (transitionItem) {
           this.index = [...slides].indexOf(transitionItem);
         } else if (activeIndex < 0) {
           this.index = 0;
-          Bn(slides[0], activeClass);
+          qn(slides[0], activeClass);
           if (this.indicators.length) activateCarouselIndicator(this, 0);
         }
-        // istanbul ignore else @preserve
         if (this.indicators.length) activateCarouselIndicator(this, this.index);
         this._toggleEventListeners(true);
         if (options.interval) this.cycle();
@@ -816,32 +683,28 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * Check if instance is paused.
      */
     get isPaused() {
-      return Hn(this.element, pausedClass);
+      return Yn(this.element, pausedClass);
     }
     /**
      * Check if instance is animating.
      */
     get isAnimating() {
-      return Co(
+      return Ro(
         `.${carouselItem}-next,.${carouselItem}-prev`,
         this.element
       ) !== null;
     }
-    // CAROUSEL PUBLIC METHODS
-    // =======================
-    /** Slide automatically through items. */
     cycle() {
       const { element, options, isPaused, index } = this;
-      so.clear(element, carouselString);
+      yo.clear(element, carouselString);
       if (isPaused) {
-        so.clear(element, pausedClass);
-        Fn(element, pausedClass);
+        yo.clear(element, pausedClass);
+        Zn(element, pausedClass);
       }
-      so.set(
+      yo.set(
         element,
         () => {
-          // istanbul ignore else @preserve
-          if (this.element && !this.isPaused && !this.isTouch && vo(element)) {
+          if (this.element && !this.isPaused && !this.isTouch && Do(element)) {
             this.to(index + 1);
           }
         },
@@ -849,13 +712,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         carouselString
       );
     }
-    /** Pause the automatic cycle. */
     pause() {
       const { element, options } = this;
-      // istanbul ignore else @preserve
       if (!this.isPaused && options.interval) {
-        Bn(element, pausedClass);
-        so.set(
+        qn(element, pausedClass);
+        yo.set(
           element,
           () => {
           },
@@ -864,16 +725,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         );
       }
     }
-    /** Slide to the next item. */
     next() {
-      // istanbul ignore else @preserve
       if (!this.isAnimating) {
         this.to(this.index + 1);
       }
     }
-    /** Slide to the previous item. */
     prev() {
-      // istanbul ignore else @preserve
       if (!this.isAnimating) {
         this.to(this.index - 1);
       }
@@ -886,10 +743,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     to(idx) {
       const { element, slides, options } = this;
       const activeItem = getActiveIndex(this);
-      const RTL = To(element);
+      const RTL = Uo(element);
       let next = idx;
-      if (!this.isAnimating && activeItem !== next && !so.get(element, dataBsSlide)) {
-        // istanbul ignore else @preserve
+      if (!this.isAnimating && activeItem !== next && !yo.get(element, dataBsSlide)) {
         if (activeItem < next || activeItem === 0 && next === slides.length - 1) {
           this.direction = RTL ? "right" : "left";
         } else if (activeItem > next || activeItem === slides.length - 1 && next === 0) {
@@ -909,21 +765,21 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           to: next,
           direction
         };
-        T(carouselSlideEvent, eventProperties);
-        T(carouselSlidEvent, eventProperties);
-        K(element, carouselSlideEvent);
+        N(carouselSlideEvent, eventProperties);
+        N(carouselSlidEvent, eventProperties);
+        q(element, carouselSlideEvent);
         if (!carouselSlideEvent.defaultPrevented) {
           this.index = next;
           activateCarouselIndicator(this, next);
-          if (re(slides[next]) && Hn(element, "slide")) {
-            so.set(
+          if (ie(slides[next]) && Yn(element, "slide")) {
+            yo.set(
               element,
               () => {
-                Bn(slides[next], `${carouselItem}-${orientation}`);
-                no(slides[next]);
-                Bn(slides[next], `${carouselItem}-${directionClass}`);
-                Bn(slides[activeItem], `${carouselItem}-${directionClass}`);
-                qn(
+                qn(slides[next], `${carouselItem}-${orientation}`);
+                Eo(slides[next]);
+                qn(slides[next], `${carouselItem}-${directionClass}`);
+                qn(slides[activeItem], `${carouselItem}-${directionClass}`);
+                ro(
                   slides[next],
                   () => this.slides && this.slides.length && carouselTransitionEndHandler(this)
                 );
@@ -932,17 +788,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
               dataBsSlide
             );
           } else {
-            Bn(slides[next], activeClass);
-            Fn(slides[activeItem], activeClass);
-            so.set(
+            qn(slides[next], activeClass);
+            Zn(slides[activeItem], activeClass);
+            yo.set(
               element,
               () => {
-                so.clear(element, dataBsSlide);
-                // istanbul ignore else @preserve
+                yo.clear(element, dataBsSlide);
                 if (element && options.interval && !this.isPaused) {
                   this.cycle();
                 }
-                K(element, carouselSlidEvent);
+                q(element, carouselSlidEvent);
               },
               0,
               dataBsSlide
@@ -951,7 +806,43 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         }
       }
     }
-    /** Remove `Carousel` component from target. */
+    /**
+     * Toggles all event listeners for the `Carousel` instance.
+     *
+     * @param add when `TRUE` event listeners are added
+     */
+    _toggleEventListeners = (add) => {
+      const { element, options, slides, controls, indicators } = this;
+      const { touch, pause, interval, keyboard } = options;
+      const action = add ? E$1 : r;
+      if (pause && interval) {
+        action(element, yt, carouselPauseHandler);
+        action(element, wt, carouselResumeHandler);
+      }
+      if (touch && slides.length > 2) {
+        action(
+          element,
+          Dt,
+          carouselPointerDownHandler,
+          bo
+        );
+        action(element, Rt, carouselDragHandler, { passive: false });
+        action(element, je, carouselDragHandler, { passive: false });
+      }
+      if (controls.length) {
+        controls.forEach((arrow) => {
+          if (arrow) action(arrow, mt, carouselControlsHandler);
+        });
+      }
+      if (indicators.length) {
+        indicators.forEach((indicator) => {
+          action(indicator, mt, carouselIndicatorHandler);
+        });
+      }
+      if (keyboard) {
+        action(d(element), dt, carouselKeyHandler);
+      }
+    };
     dispose() {
       const { isAnimating } = this;
       const clone = {
@@ -960,111 +851,93 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       };
       this._toggleEventListeners();
       super.dispose();
-      // istanbul ignore next @preserve - impossible to test
       if (clone.isAnimating) {
-        qn(clone.slides[clone.index], () => {
+        ro(clone.slides[clone.index], () => {
           carouselTransitionEndHandler(clone);
         });
       }
     }
   }
-  __publicField(Carousel, "selector", carouselSelector);
-  __publicField(Carousel, "init", carouselInitCallback);
-  __publicField(Carousel, "getInstance", getCarouselInstance);
   const collapsingClass = "collapsing";
   const collapseString = "collapse";
   const collapseComponent = "Collapse";
   const collapseSelector = `.${collapseString}`;
   const collapseToggleSelector = `[${dataBsToggle}="${collapseString}"]`;
   const collapseDefaults = { parent: null };
-  const getCollapseInstance = (element) => Rn(element, collapseComponent);
+  const getCollapseInstance = (element) => to(element, collapseComponent);
   const collapseInitCallback = (element) => new Collapse(element);
-  const showCollapseEvent = to(`show.bs.${collapseString}`);
-  const shownCollapseEvent = to(`shown.bs.${collapseString}`);
-  const hideCollapseEvent = to(`hide.bs.${collapseString}`);
-  const hiddenCollapseEvent = to(`hidden.bs.${collapseString}`);
+  const showCollapseEvent = vo(`show.bs.${collapseString}`);
+  const shownCollapseEvent = vo(`shown.bs.${collapseString}`);
+  const hideCollapseEvent = vo(`hide.bs.${collapseString}`);
+  const hiddenCollapseEvent = vo(`hidden.bs.${collapseString}`);
   const expandCollapse = (self) => {
     const { element, parent, triggers } = self;
-    K(element, showCollapseEvent);
+    q(element, showCollapseEvent);
     if (!showCollapseEvent.defaultPrevented) {
-      so.set(element, _t, 17);
-      if (parent) so.set(parent, _t, 17);
-      Bn(element, collapsingClass);
-      Fn(element, collapseString);
-      oo(element, { height: `${element.scrollHeight}px` });
-      qn(element, () => {
-        so.clear(element);
-        if (parent) so.clear(parent);
-        triggers.forEach((btn) => In(btn, Ae, "true"));
-        Fn(element, collapsingClass);
-        Bn(element, collapseString);
-        Bn(element, showClass);
-        oo(element, { height: "" });
-        K(element, shownCollapseEvent);
+      yo.set(element, te, 17);
+      if (parent) yo.set(parent, te, 17);
+      qn(element, collapsingClass);
+      Zn(element, collapseString);
+      ho(element, { height: `${element.scrollHeight}px` });
+      ro(element, () => {
+        yo.clear(element);
+        if (parent) yo.clear(parent);
+        triggers.forEach((btn) => Qn(btn, Oe, "true"));
+        Zn(element, collapsingClass);
+        qn(element, collapseString);
+        qn(element, showClass);
+        ho(element, { height: "" });
+        q(element, shownCollapseEvent);
       });
     }
   };
   const collapseContent = (self) => {
     const { element, parent, triggers } = self;
-    K(element, hideCollapseEvent);
+    q(element, hideCollapseEvent);
     if (!hideCollapseEvent.defaultPrevented) {
-      so.set(element, _t, 17);
-      if (parent) so.set(parent, _t, 17);
-      oo(element, { height: `${element.scrollHeight}px` });
-      Fn(element, collapseString);
-      Fn(element, showClass);
-      Bn(element, collapsingClass);
-      no(element);
-      oo(element, { height: "0px" });
-      qn(element, () => {
-        so.clear(element);
-        // istanbul ignore else @preserve
-        if (parent) so.clear(parent);
-        triggers.forEach((btn) => In(btn, Ae, "false"));
-        Fn(element, collapsingClass);
-        Bn(element, collapseString);
-        oo(element, { height: "" });
-        K(element, hiddenCollapseEvent);
+      yo.set(element, te, 17);
+      if (parent) yo.set(parent, te, 17);
+      ho(element, { height: `${element.scrollHeight}px` });
+      Zn(element, collapseString);
+      Zn(element, showClass);
+      qn(element, collapsingClass);
+      Eo(element);
+      ho(element, { height: "0px" });
+      ro(element, () => {
+        yo.clear(element);
+        if (parent) yo.clear(parent);
+        triggers.forEach((btn) => Qn(btn, Oe, "false"));
+        Zn(element, collapsingClass);
+        qn(element, collapseString);
+        ho(element, { height: "" });
+        q(element, hiddenCollapseEvent);
       });
     }
   };
   const collapseClickHandler = (e2) => {
     const { target } = e2;
-    const trigger = target && Ee(target, collapseToggleSelector);
+    const trigger = target && ke(target, collapseToggleSelector);
     const element = trigger && getTargetElement(trigger);
     const self = element && getCollapseInstance(element);
-    // istanbul ignore else @preserve
     if (self) self.toggle();
     if (trigger && trigger.tagName === "A") e2.preventDefault();
   };
   class Collapse extends BaseComponent {
+    static selector = collapseSelector;
+    static init = collapseInitCallback;
+    static getInstance = getCollapseInstance;
     /**
      * @param target and `Element` that matches the selector
      * @param config instance options
      */
     constructor(target, config) {
       super(target, config);
-      /**
-       * Toggles on/off the event listener(s) of the `Collapse` instance.
-       *
-       * @param add when `true`, the event listener is added
-       */
-      __publicField(this, "_toggleEventListeners", (add) => {
-        const action = add ? E$1 : r;
-        const { triggers } = this;
-        // istanbul ignore else @preserve
-        if (triggers.length) {
-          triggers.forEach(
-            (btn) => action(btn, ft, collapseClickHandler)
-          );
-        }
-      });
       const { element, options } = this;
       const doc = d(element);
-      this.triggers = [...ue(collapseToggleSelector, doc)].filter(
+      this.triggers = [...de(collapseToggleSelector, doc)].filter(
         (btn) => getTargetElement(btn) === element
       );
-      this.parent = l(options.parent) ? options.parent : M(options.parent) ? getTargetElement(element) || Co(options.parent, doc) : null;
+      this.parent = m$1(options.parent) ? options.parent : k$1(options.parent) ? getTargetElement(element) || Ro(options.parent, doc) : null;
       this._toggleEventListeners(true);
     }
     /**
@@ -1079,71 +952,71 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     get defaults() {
       return collapseDefaults;
     }
-    // COLLAPSE PUBLIC METHODS
-    // =======================
-    /** Hides the collapse. */
     hide() {
       const { triggers, element } = this;
-      // istanbul ignore else @preserve
-      if (!so.get(element)) {
+      if (!yo.get(element)) {
         collapseContent(this);
-        // istanbul ignore else @preserve
         if (triggers.length) {
-          triggers.forEach((btn) => Bn(btn, `${collapseString}d`));
+          triggers.forEach((btn) => qn(btn, `${collapseString}d`));
         }
       }
     }
-    /** Shows the collapse. */
     show() {
       const { element, parent, triggers } = this;
       let activeCollapse;
       let activeCollapseInstance;
       if (parent) {
         activeCollapse = [
-          ...ue(`.${collapseString}.${showClass}`, parent)
-        ].find((i2) => getCollapseInstance(i2));
+          ...de(`.${collapseString}.${showClass}`, parent)
+        ].find((i) => getCollapseInstance(i));
         activeCollapseInstance = activeCollapse && getCollapseInstance(activeCollapse);
       }
-      if ((!parent || !so.get(parent)) && !so.get(element)) {
+      if ((!parent || !yo.get(parent)) && !yo.get(element)) {
         if (activeCollapseInstance && activeCollapse !== element) {
           collapseContent(activeCollapseInstance);
           activeCollapseInstance.triggers.forEach((btn) => {
-            Bn(btn, `${collapseString}d`);
+            qn(btn, `${collapseString}d`);
           });
         }
         expandCollapse(this);
-        // istanbul ignore else @preserve
         if (triggers.length) {
-          triggers.forEach((btn) => Fn(btn, `${collapseString}d`));
+          triggers.forEach((btn) => Zn(btn, `${collapseString}d`));
         }
       }
     }
-    /** Toggles the visibility of the collapse. */
     toggle() {
-      if (!Hn(this.element, showClass)) this.show();
+      if (!Yn(this.element, showClass)) this.show();
       else this.hide();
     }
-    /** Remove the `Collapse` component from the target `Element`. */
+    /**
+     * Toggles on/off the event listener(s) of the `Collapse` instance.
+     *
+     * @param add when `true`, the event listener is added
+     */
+    _toggleEventListeners = (add) => {
+      const action = add ? E$1 : r;
+      const { triggers } = this;
+      if (triggers.length) {
+        triggers.forEach(
+          (btn) => action(btn, mt, collapseClickHandler)
+        );
+      }
+    };
     dispose() {
       this._toggleEventListeners();
       super.dispose();
     }
   }
-  __publicField(Collapse, "selector", collapseSelector);
-  __publicField(Collapse, "init", collapseInitCallback);
-  __publicField(Collapse, "getInstance", getCollapseInstance);
   const dropdownMenuClasses = ["dropdown", "dropup", "dropstart", "dropend"];
   const dropdownComponent = "Dropdown";
   const dropdownMenuClass = "dropdown-menu";
   const isEmptyAnchor = (element) => {
-    const parentAnchor = Ee(element, "A");
-    return element.tagName === "A" && // anchor href starts with #
-    te(element, "href") && j(element, "href").slice(-1) === "#" || // OR a child of an anchor with href starts with #
-    parentAnchor && te(parentAnchor, "href") && j(parentAnchor, "href").slice(-1) === "#";
+    const parentAnchor = ke(element, "A");
+    return element.tagName === "A" && ne(element, "href") && j(element, "href").slice(-1) === "#" || parentAnchor && ne(parentAnchor, "href") && j(parentAnchor, "href").slice(-1) === "#";
   };
   const [dropdownString, dropupString, dropstartString, dropendString] = dropdownMenuClasses;
   const dropdownSelector = `[${dataBsToggle}="${dropdownString}"]`;
-  const getDropdownInstance = (element) => Rn(element, dropdownComponent);
+  const getDropdownInstance = (element) => to(element, dropdownComponent);
   const dropdownInitCallback = (element) => new Dropdown(element);
   const dropdownMenuEndClass = `${dropdownMenuClass}-end`;
   const verticalClass = [dropdownString, dropupString];
@@ -1151,38 +1024,34 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   const menuFocusTags = ["A", "BUTTON"];
   const dropdownDefaults = {
     offset: 5,
-    // [number] 5(px)
     display: "dynamic"
-    // [dynamic|static]
   };
-  const showDropdownEvent = to(
+  const showDropdownEvent = vo(
     `show.bs.${dropdownString}`
   );
-  const shownDropdownEvent = to(
+  const shownDropdownEvent = vo(
     `shown.bs.${dropdownString}`
   );
-  const hideDropdownEvent = to(
+  const hideDropdownEvent = vo(
     `hide.bs.${dropdownString}`
   );
-  const hiddenDropdownEvent = to(`hidden.bs.${dropdownString}`);
-  const updatedDropdownEvent = to(`updated.bs.${dropdownString}`);
+  const hiddenDropdownEvent = vo(`hidden.bs.${dropdownString}`);
+  const updatedDropdownEvent = vo(`updated.bs.${dropdownString}`);
   const styleDropdown = (self) => {
     const { element, menu, parentElement, options } = self;
     const { offset } = options;
-    // istanbul ignore else @preserve: this test requires a navbar
     if (g(menu, "position") !== "static") {
-      const RTL = To(element);
-      const menuEnd = Hn(menu, dropdownMenuEndClass);
+      const RTL = Uo(element);
+      const menuEnd = Yn(menu, dropdownMenuEndClass);
       const resetProps = ["margin", "top", "bottom", "left", "right"];
-      resetProps.forEach((p) => {
+      resetProps.forEach((p2) => {
         const style = {};
-        style[p] = "";
-        oo(menu, style);
+        style[p2] = "";
+        ho(menu, style);
       });
       let positionClass = dropdownMenuClasses.find(
-        (c) => Hn(parentElement, c)
-      ) || // istanbul ignore next @preserve: fallback position
-      dropdownString;
+        (c) => Yn(parentElement, c)
+      ) || dropdownString;
       const dropdownMargin = {
         dropdown: [offset, 0, 0],
         dropup: [0, 0, offset],
@@ -1198,13 +1067,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         menuEnd: RTL ? { right: "auto", left: "0" } : { right: "0", left: "auto" }
       };
       const { offsetWidth: menuWidth, offsetHeight: menuHeight } = menu;
-      const { clientWidth, clientHeight } = k(element);
+      const { clientWidth, clientHeight } = S(element);
       const {
         left: targetLeft,
         top: targetTop,
         width: targetWidth,
         height: targetHeight
-      } = h(element);
+      } = w(element);
       const leftFullExceed = targetLeft - menuWidth - offset < 0;
       const rightFullExceed = targetLeft + menuWidth + targetWidth + offset >= clientWidth;
       const bottomExceed = targetTop + menuHeight + offset >= clientHeight;
@@ -1228,43 +1097,39 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         positionClass = dropupString;
       }
       if (horizontalClass.includes(positionClass) && bottomExceed) {
-        T(dropdownPosition[positionClass], {
+        N(dropdownPosition[positionClass], {
           top: "auto",
           bottom: 0
         });
       }
       if (verticalClass.includes(positionClass) && (leftExceed || rightExceed)) {
         let posAjust = { left: "auto", right: "auto" };
-        // istanbul ignore else @preserve
         if (!leftExceed && rightExceed && !RTL) {
           posAjust = { left: "auto", right: 0 };
         }
-        // istanbul ignore else @preserve
         if (leftExceed && !rightExceed && RTL) {
           posAjust = { left: 0, right: "auto" };
         }
-        // istanbul ignore else @preserve
         if (posAjust) {
-          T(dropdownPosition[positionClass], posAjust);
+          N(dropdownPosition[positionClass], posAjust);
         }
       }
       const margins = dropdownMargin[positionClass];
-      oo(menu, {
+      ho(menu, {
         ...dropdownPosition[positionClass],
         margin: `${margins.map((x2) => x2 ? `${x2}px` : x2).join(" ")}`
       });
       if (verticalClass.includes(positionClass) && menuEnd) {
-        // istanbul ignore else @preserve
         if (menuEnd) {
           const endAdjust = !RTL && leftExceed || RTL && rightExceed ? "menuStart" : "menuEnd";
-          oo(menu, dropdownPosition[endAdjust]);
+          ho(menu, dropdownPosition[endAdjust]);
         }
       }
-      K(parentElement, updatedDropdownEvent);
+      q(parentElement, updatedDropdownEvent);
     }
   };
   const getMenuItems = (menu) => {
-    return [...menu.children].map((c) => {
+    return Array.from(menu.children).map((c) => {
       if (c && menuFocusTags.includes(c.tagName)) return c;
       const { firstElementChild } = c;
       if (firstElementChild && menuFocusTags.includes(firstElementChild.tagName)) {
@@ -1274,23 +1139,21 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }).filter((c) => c);
   };
   const toggleDropdownDismiss = (self) => {
-    const { element, options } = self;
+    const { element, options, menu } = self;
     const action = self.open ? E$1 : r;
     const doc = d(element);
-    action(doc, ft, dropdownDismissHandler);
-    action(doc, ot, dropdownDismissHandler);
-    action(doc, ut, dropdownPreventScroll);
-    action(doc, dt, dropdownKeyHandler);
-    // istanbul ignore else @preserve
+    action(doc, mt, dropdownDismissHandler);
+    action(doc, rt, dropdownDismissHandler);
+    action(doc, dt, dropdownPreventScroll);
+    action(doc, pt, dropdownKeyHandler);
     if (options.display === "dynamic") {
-      [Ht, zt].forEach((ev) => {
-        action(fo(element), ev, dropdownLayoutHandler, eo);
-      });
+      if (self.open) self._observer.observe(menu);
+      else self._observer.disconnect();
     }
   };
   const getCurrentOpenDropdown = (element) => {
     const currentParent = [...dropdownMenuClasses, "btn-group", "input-group"].map(
-      (c) => Io(`${c} ${showClass}`, d(element))
+      (c) => Go(`${c} ${showClass}`, d(element))
     ).find((x2) => x2.length);
     if (currentParent && currentParent.length) {
       return [...currentParent[0].children].find(
@@ -1301,100 +1164,84 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   const dropdownDismissHandler = (e2) => {
     const { target, type } = e2;
-    // istanbul ignore else @preserve
-    if (target && l(target)) {
-      const element = getCurrentOpenDropdown(target);
-      const self = element && getDropdownInstance(element);
-      // istanbul ignore else @preserve
-      if (self) {
-        const { parentElement, menu } = self;
-        const isForm = parentElement && parentElement.contains(target) && (target.tagName === "form" || Ee(target, "form") !== null);
-        if ([ft, gt].includes(type) && isEmptyAnchor(target)) {
-          e2.preventDefault();
-        }
-        // istanbul ignore else @preserve
-        if (!isForm && type !== ot && target !== element && target !== menu) {
-          self.hide();
-        }
-      }
+    if (!m$1(target)) return;
+    const element = getCurrentOpenDropdown(target);
+    const self = element && getDropdownInstance(element);
+    if (!self) return;
+    const { parentElement, menu } = self;
+    const isForm = parentElement && parentElement.contains(target) && (target.tagName === "form" || ke(target, "form") !== null);
+    if ([mt, bt].includes(type) && isEmptyAnchor(target)) {
+      e2.preventDefault();
+    }
+    if (!isForm && type !== rt && target !== element && target !== menu) {
+      self.hide();
     }
   };
   const dropdownClickHandler = (e2) => {
     const { target } = e2;
-    const element = target && Ee(target, dropdownSelector);
+    const element = target && ke(target, dropdownSelector);
     const self = element && getDropdownInstance(element);
-    // istanbul ignore else @preserve
-    if (self) {
-      e2.stopPropagation();
-      self.toggle();
-      // istanbul ignore else @preserve
-      if (element && isEmptyAnchor(element)) e2.preventDefault();
-    }
+    if (!self) return;
+    e2.stopPropagation();
+    self.toggle();
+    if (element && isEmptyAnchor(element)) e2.preventDefault();
   };
   const dropdownPreventScroll = (e2) => {
-    // istanbul ignore else @preserve
-    if ([Je, Xe].includes(e2.code)) e2.preventDefault();
+    if ([on, sn].includes(e2.code)) e2.preventDefault();
   };
   function dropdownKeyHandler(e2) {
     const { code } = e2;
     const element = getCurrentOpenDropdown(this);
-    const self = element && getDropdownInstance(element);
-    const { activeElement } = element && d(element);
-    // istanbul ignore else @preserve
-    if (self && activeElement) {
-      const { menu, open } = self;
-      const menuItems = getMenuItems(menu);
-      if (menuItems && menuItems.length && [Je, Xe].includes(code)) {
-        let idx = menuItems.indexOf(activeElement);
-        // istanbul ignore else @preserve
-        if (activeElement === element) {
-          idx = 0;
-        } else if (code === Xe) {
-          idx = idx > 1 ? idx - 1 : 0;
-        } else if (code === Je) {
-          idx = idx < menuItems.length - 1 ? idx + 1 : idx;
-        }
-        // istanbul ignore else @preserve
-        if (menuItems[idx]) Jn(menuItems[idx]);
+    if (!element) return;
+    const self = getDropdownInstance(element);
+    const { activeElement } = d(element);
+    if (!self || !activeElement) return;
+    const { menu, open } = self;
+    const menuItems = getMenuItems(menu);
+    if (menuItems && menuItems.length && [on, sn].includes(code)) {
+      let idx = menuItems.indexOf(activeElement);
+      if (activeElement === element) {
+        idx = 0;
+      } else if (code === sn) {
+        idx = idx > 1 ? idx - 1 : 0;
+      } else if (code === on) {
+        idx = idx < menuItems.length - 1 ? idx + 1 : idx;
       }
-      if (sn === code && open) {
-        self.toggle();
-        Jn(element);
-      }
+      if (menuItems[idx]) io(menuItems[idx]);
+    }
+    if (gn === code && open) {
+      self.toggle();
+      io(element);
     }
   }
-  function dropdownLayoutHandler() {
-    const element = getCurrentOpenDropdown(this);
+  function dropdownIntersectionHandler(target) {
+    const element = getCurrentOpenDropdown(target);
     const self = element && getDropdownInstance(element);
-    // istanbul ignore else @preserve
     if (self && self.open) styleDropdown(self);
   }
   class Dropdown extends BaseComponent {
+    static selector = dropdownSelector;
+    static init = dropdownInitCallback;
+    static getInstance = getDropdownInstance;
     /**
      * @param target Element or string selector
      * @param config the instance options
      */
     constructor(target, config) {
       super(target, config);
-      /**
-       * Toggles on/off the `click` event listener of the `Dropdown`.
-       *
-       * @param add when `true`, it will add the event listener
-       */
-      __publicField(this, "_toggleEventListeners", (add) => {
-        const action = add ? E$1 : r;
-        action(this.element, ft, dropdownClickHandler);
-      });
       const { parentElement } = this.element;
-      const [menu] = Io(
+      const [menu] = Go(
         dropdownMenuClass,
         parentElement
       );
-      if (menu) {
-        this.parentElement = parentElement;
-        this.menu = menu;
-        this._toggleEventListeners(true);
-      }
+      if (!menu) return;
+      this.parentElement = parentElement;
+      this.menu = menu;
+      this._observer = new IntersectionObserver(
+        ([entry]) => dropdownIntersectionHandler(entry.target),
+        { threshold: 1 }
+      );
+      this._toggleEventListeners(true);
     }
     /**
      * Returns component name string.
@@ -1408,68 +1255,62 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     get defaults() {
       return dropdownDefaults;
     }
-    // DROPDOWN PUBLIC METHODS
-    // =======================
-    /** Shows/hides the dropdown menu to the user. */
     toggle() {
       if (this.open) this.hide();
       else this.show();
     }
-    /** Shows the dropdown menu to the user. */
     show() {
       const { element, open, menu, parentElement } = this;
-      // istanbul ignore else @preserve
-      if (!open) {
-        const currentElement = getCurrentOpenDropdown(element);
-        const currentInstance = currentElement && getDropdownInstance(currentElement);
-        if (currentInstance) currentInstance.hide();
-        [showDropdownEvent, shownDropdownEvent, updatedDropdownEvent].forEach(
-          (e2) => {
-            e2.relatedTarget = element;
-          }
-        );
-        K(parentElement, showDropdownEvent);
-        if (!showDropdownEvent.defaultPrevented) {
-          Bn(menu, showClass);
-          Bn(parentElement, showClass);
-          In(element, Ae, "true");
-          styleDropdown(this);
-          this.open = !open;
-          Jn(element);
-          toggleDropdownDismiss(this);
-          K(parentElement, shownDropdownEvent);
+      if (open) return;
+      const currentElement = getCurrentOpenDropdown(element);
+      const currentInstance = currentElement && getDropdownInstance(currentElement);
+      if (currentInstance) currentInstance.hide();
+      [showDropdownEvent, shownDropdownEvent, updatedDropdownEvent].forEach(
+        (e2) => {
+          e2.relatedTarget = element;
         }
-      }
+      );
+      q(parentElement, showDropdownEvent);
+      if (showDropdownEvent.defaultPrevented) return;
+      qn(menu, showClass);
+      qn(parentElement, showClass);
+      Qn(element, Oe, "true");
+      styleDropdown(this);
+      this.open = !open;
+      io(element);
+      toggleDropdownDismiss(this);
+      q(parentElement, shownDropdownEvent);
     }
-    /** Hides the dropdown menu from the user. */
     hide() {
       const { element, open, menu, parentElement } = this;
-      // istanbul ignore else @preserve
-      if (open) {
-        [hideDropdownEvent, hiddenDropdownEvent].forEach((e2) => {
-          e2.relatedTarget = element;
-        });
-        K(parentElement, hideDropdownEvent);
-        if (!hideDropdownEvent.defaultPrevented) {
-          Fn(menu, showClass);
-          Fn(parentElement, showClass);
-          In(element, Ae, "false");
-          this.open = !open;
-          toggleDropdownDismiss(this);
-          K(parentElement, hiddenDropdownEvent);
-        }
-      }
+      if (!open) return;
+      [hideDropdownEvent, hiddenDropdownEvent].forEach((e2) => {
+        e2.relatedTarget = element;
+      });
+      q(parentElement, hideDropdownEvent);
+      if (hideDropdownEvent.defaultPrevented) return;
+      Zn(menu, showClass);
+      Zn(parentElement, showClass);
+      Qn(element, Oe, "false");
+      this.open = !open;
+      toggleDropdownDismiss(this);
+      q(parentElement, hiddenDropdownEvent);
     }
-    /** Removes the `Dropdown` component from the target element. */
+    /**
+     * Toggles on/off the `click` event listener of the `Dropdown`.
+     *
+     * @param add when `true`, it will add the event listener
+     */
+    _toggleEventListeners = (add) => {
+      const action = add ? E$1 : r;
+      action(this.element, mt, dropdownClickHandler);
+    };
     dispose() {
       if (this.open) this.hide();
       this._toggleEventListeners();
       super.dispose();
     }
   }
-  __publicField(Dropdown, "selector", dropdownSelector);
-  __publicField(Dropdown, "init", dropdownInitCallback);
-  __publicField(Dropdown, "getInstance", getDropdownInstance);
   const modalString = "modal";
   const modalComponent = "Modal";
   const offcanvasComponent = "Offcanvas";
@@ -1478,23 +1319,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   const stickyTopClass = "sticky-top";
   const positionStickyClass = "position-sticky";
   const getFixedItems = (parent) => [
-    ...Io(fixedTopClass, parent),
-    ...Io(fixedBottomClass, parent),
-    ...Io(stickyTopClass, parent),
-    ...Io(positionStickyClass, parent),
-    ...Io("is-fixed", parent)
+    ...Go(fixedTopClass, parent),
+    ...Go(fixedBottomClass, parent),
+    ...Go(stickyTopClass, parent),
+    ...Go(positionStickyClass, parent),
+    ...Go("is-fixed", parent)
   ];
   const resetScrollbar = (element) => {
-    const bd = ao(element);
-    oo(bd, {
+    const bd = So(element);
+    ho(bd, {
       paddingRight: "",
       overflow: ""
     });
     const fixedItems = getFixedItems(bd);
-    // istanbul ignore else @preserve
     if (fixedItems.length) {
       fixedItems.forEach((fixed) => {
-        oo(fixed, {
+        ho(fixed, {
           paddingRight: "",
           marginRight: ""
         });
@@ -1502,47 +1342,41 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
   };
   const measureScrollbar = (element) => {
-    const { clientWidth } = k(element);
-    const { innerWidth } = fo(element);
+    const { clientWidth } = S(element);
+    const { innerWidth } = ve(element);
     return Math.abs(innerWidth - clientWidth);
   };
   const setScrollbar = (element, overflow) => {
-    const bd = ao(element);
+    const bd = So(element);
     const bodyPad = parseInt(g(bd, "paddingRight"), 10);
     const isOpen = g(bd, "overflow") === "hidden";
     const sbWidth = isOpen && bodyPad ? 0 : measureScrollbar(element);
     const fixedItems = getFixedItems(bd);
-    // istanbul ignore else @preserve
-    if (overflow) {
-      oo(bd, {
-        overflow: "hidden",
-        paddingRight: `${bodyPad + sbWidth}px`
-      });
-      // istanbul ignore else @preserve
-      if (fixedItems.length) {
-        fixedItems.forEach((fixed) => {
-          const itemPadValue = g(fixed, "paddingRight");
-          fixed.style.paddingRight = `${parseInt(itemPadValue, 10) + sbWidth}px`;
-          // istanbul ignore else @preserve
-          if ([stickyTopClass, positionStickyClass].some((c) => Hn(fixed, c))) {
-            const itemMValue = g(fixed, "marginRight");
-            fixed.style.marginRight = `${parseInt(itemMValue, 10) - sbWidth}px`;
-          }
-        });
+    if (!overflow) return;
+    ho(bd, {
+      overflow: "hidden",
+      paddingRight: `${bodyPad + sbWidth}px`
+    });
+    if (!fixedItems.length) return;
+    fixedItems.forEach((fixed) => {
+      const itemPadValue = g(fixed, "paddingRight");
+      fixed.style.paddingRight = `${parseInt(itemPadValue, 10) + sbWidth}px`;
+      if ([stickyTopClass, positionStickyClass].some((c) => Yn(fixed, c))) {
+        const itemMValue = g(fixed, "marginRight");
+        fixed.style.marginRight = `${parseInt(itemMValue, 10) - sbWidth}px`;
       }
-    }
+    });
   };
   const offcanvasString = "offcanvas";
-  const popupContainer = ee({
+  const popupContainer = oe({
     tagName: "div",
     className: "popup-container"
   });
   const appendPopup = (target, customContainer) => {
-    const containerIsBody = i(customContainer) && customContainer.nodeName === "BODY";
-    const lookup = i(customContainer) && !containerIsBody ? customContainer : popupContainer;
-    const BODY = containerIsBody ? customContainer : ao(target);
-    // istanbul ignore else @preserve
-    if (i(target)) {
+    const containerIsBody = l(customContainer) && customContainer.nodeName === "BODY";
+    const lookup = l(customContainer) && !containerIsBody ? customContainer : popupContainer;
+    const BODY = containerIsBody ? customContainer : So(target);
+    if (l(target)) {
       if (lookup === popupContainer) {
         BODY.append(popupContainer);
       }
@@ -1550,10 +1384,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
   };
   const removePopup = (target, customContainer) => {
-    const containerIsBody = i(customContainer) && customContainer.nodeName === "BODY";
-    const lookup = i(customContainer) && !containerIsBody ? customContainer : popupContainer;
-    // istanbul ignore else @preserve
-    if (i(target)) {
+    const containerIsBody = l(customContainer) && customContainer.nodeName === "BODY";
+    const lookup = l(customContainer) && !containerIsBody ? customContainer : popupContainer;
+    if (l(target)) {
       target.remove();
       if (lookup === popupContainer && !popupContainer.children.length) {
         popupContainer.remove();
@@ -1561,17 +1394,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
   };
   const hasPopup = (target, customContainer) => {
-    const lookup = i(customContainer) && customContainer.nodeName !== "BODY" ? customContainer : popupContainer;
-    return i(target) && lookup.contains(target);
+    const lookup = l(customContainer) && customContainer.nodeName !== "BODY" ? customContainer : popupContainer;
+    return l(target) && lookup.contains(target);
   };
   const backdropString = "backdrop";
   const modalBackdropClass = `${modalString}-${backdropString}`;
   const offcanvasBackdropClass = `${offcanvasString}-${backdropString}`;
   const modalActiveSelector = `.${modalString}.${showClass}`;
   const offcanvasActiveSelector = `.${offcanvasString}.${showClass}`;
-  const overlay = ee("div");
+  const overlay = oe("div");
   const getCurrentOpen = (element) => {
-    return Co(
+    return Ro(
       `${modalActiveSelector},${offcanvasActiveSelector}`,
       d(element)
     );
@@ -1579,33 +1412,33 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   const toggleOverlayType = (isModal) => {
     const targetClass = isModal ? modalBackdropClass : offcanvasBackdropClass;
     [modalBackdropClass, offcanvasBackdropClass].forEach((c) => {
-      Fn(overlay, c);
+      Zn(overlay, c);
     });
-    Bn(overlay, targetClass);
+    qn(overlay, targetClass);
   };
   const appendOverlay = (element, hasFade, isModal) => {
     toggleOverlayType(isModal);
-    appendPopup(overlay, ao(element));
-    if (hasFade) Bn(overlay, fadeClass);
+    appendPopup(overlay, So(element));
+    if (hasFade) qn(overlay, fadeClass);
   };
   const showOverlay = () => {
-    if (!Hn(overlay, showClass)) {
-      Bn(overlay, showClass);
-      no(overlay);
+    if (!Yn(overlay, showClass)) {
+      qn(overlay, showClass);
+      Eo(overlay);
     }
   };
   const hideOverlay = () => {
-    Fn(overlay, showClass);
+    Zn(overlay, showClass);
   };
   const removeOverlay = (element) => {
     if (!getCurrentOpen(element)) {
-      Fn(overlay, fadeClass);
-      removePopup(overlay, ao(element));
+      Zn(overlay, fadeClass);
+      removePopup(overlay, So(element));
       resetScrollbar(element);
     }
   };
   const isVisible = (element) => {
-    return l(element) && g(element, "visibility") !== "hidden" && element.offsetParent !== null;
+    return m$1(element) && g(element, "visibility") !== "hidden" && element.offsetParent !== null;
   };
   const modalSelector = `.${modalString}`;
   const modalToggleSelector = `[${dataBsToggle}="${modalString}"]`;
@@ -1615,190 +1448,163 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     backdrop: true,
     keyboard: true
   };
-  const getModalInstance = (element) => Rn(element, modalComponent);
+  const getModalInstance = (element) => to(element, modalComponent);
   const modalInitCallback = (element) => new Modal(element);
-  const showModalEvent = to(
+  const showModalEvent = vo(
     `show.bs.${modalString}`
   );
-  const shownModalEvent = to(
+  const shownModalEvent = vo(
     `shown.bs.${modalString}`
   );
-  const hideModalEvent = to(
+  const hideModalEvent = vo(
     `hide.bs.${modalString}`
   );
-  const hiddenModalEvent = to(
+  const hiddenModalEvent = vo(
     `hidden.bs.${modalString}`
   );
   const setModalScrollbar = (self) => {
     const { element } = self;
     const scrollbarWidth = measureScrollbar(element);
-    const { clientHeight, scrollHeight } = k(element);
+    const { clientHeight, scrollHeight } = S(element);
     const { clientHeight: modalHeight, scrollHeight: modalScrollHeight } = element;
     const modalOverflow = modalHeight !== modalScrollHeight;
-    // istanbul ignore next @preserve: impossible to test?
     if (!modalOverflow && scrollbarWidth) {
-      const pad = !To(element) ? "paddingRight" : "paddingLeft";
+      const pad = !Uo(element) ? "paddingRight" : "paddingLeft";
       const padStyle = { [pad]: `${scrollbarWidth}px` };
-      oo(element, padStyle);
+      ho(element, padStyle);
     }
     setScrollbar(element, modalOverflow || clientHeight !== scrollHeight);
   };
   const toggleModalDismiss = (self, add) => {
     const action = add ? E$1 : r;
-    const { element, update } = self;
-    action(element, ft, modalDismissHandler);
-    action(fo(element), zt, update, eo);
-    action(d(element), ut, modalKeyHandler);
+    const { element } = self;
+    action(element, mt, modalDismissHandler);
+    action(d(element), dt, modalKeyHandler);
+    if (add) self._observer.observe(element);
+    else self._observer.disconnect();
   };
   const afterModalHide = (self) => {
     const { triggers, element, relatedTarget } = self;
     removeOverlay(element);
-    oo(element, { paddingRight: "", display: "" });
+    ho(element, { paddingRight: "", display: "" });
     toggleModalDismiss(self);
     const focusElement = showModalEvent.relatedTarget || triggers.find(isVisible);
-    // istanbul ignore else @preserve
-    if (focusElement) Jn(focusElement);
-    hiddenModalEvent.relatedTarget = relatedTarget;
-    K(element, hiddenModalEvent);
-    ro(element);
+    if (focusElement) io(focusElement);
+    hiddenModalEvent.relatedTarget = relatedTarget || void 0;
+    q(element, hiddenModalEvent);
+    Ao(element);
   };
   const afterModalShow = (self) => {
     const { element, relatedTarget } = self;
-    Jn(element);
+    io(element);
     toggleModalDismiss(self, true);
-    shownModalEvent.relatedTarget = relatedTarget;
-    K(element, shownModalEvent);
-    ro(element);
+    shownModalEvent.relatedTarget = relatedTarget || void 0;
+    q(element, shownModalEvent);
+    Ao(element);
   };
   const beforeModalShow = (self) => {
     const { element, hasFade } = self;
-    oo(element, { display: "block" });
+    ho(element, { display: "block" });
     setModalScrollbar(self);
-    // istanbul ignore else @preserve
     if (!getCurrentOpen(element)) {
-      oo(ao(element), { overflow: "hidden" });
+      ho(So(element), { overflow: "hidden" });
     }
-    Bn(element, showClass);
-    zn(element, X);
-    In(element, Te, "true");
-    if (hasFade) qn(element, () => afterModalShow(self));
+    qn(element, showClass);
+    Gn(element, $);
+    Qn(element, Pe, "true");
+    if (hasFade) ro(element, () => afterModalShow(self));
     else afterModalShow(self);
   };
   const beforeModalHide = (self) => {
     const { element, options, hasFade } = self;
-    if (options.backdrop && hasFade && Hn(overlay, showClass) && !getCurrentOpen(element)) {
+    if (options.backdrop && hasFade && Yn(overlay, showClass) && !getCurrentOpen(element)) {
       hideOverlay();
-      qn(overlay, () => afterModalHide(self));
+      ro(overlay, () => afterModalHide(self));
     } else {
       afterModalHide(self);
     }
   };
   const modalClickHandler = (e2) => {
     const { target } = e2;
-    const trigger = target && Ee(target, modalToggleSelector);
+    const trigger = target && ke(target, modalToggleSelector);
     const element = trigger && getTargetElement(trigger);
     const self = element && getModalInstance(element);
-    // istanbul ignore else @preserve
-    if (self) {
-      // istanbul ignore else @preserve
-      if (trigger && trigger.tagName === "A") e2.preventDefault();
-      self.relatedTarget = trigger;
-      self.toggle();
-    }
+    if (!self) return;
+    if (trigger && trigger.tagName === "A") e2.preventDefault();
+    self.relatedTarget = trigger;
+    self.toggle();
   };
   const modalKeyHandler = ({ code, target }) => {
-    const element = Co(modalActiveSelector, d(target));
+    const element = Ro(modalActiveSelector, d(target));
     const self = element && getModalInstance(element);
-    // istanbul ignore else @preserve
-    if (self) {
-      const { options } = self;
-      // istanbul ignore else @preserve
-      if (options.keyboard && code === sn && // the keyboard option is enabled and the key is 27
-      Hn(element, showClass)) {
-        self.relatedTarget = null;
-        self.hide();
-      }
+    if (!self) return;
+    const { options } = self;
+    if (options.keyboard && code === gn && Yn(element, showClass)) {
+      self.relatedTarget = null;
+      self.hide();
     }
   };
   const modalDismissHandler = (e2) => {
-    var _a, _b;
     const { currentTarget } = e2;
     const self = currentTarget && getModalInstance(currentTarget);
-    // istanbul ignore else @preserve
-    if (self && currentTarget && !so.get(currentTarget)) {
-      const { options, isStatic, modalDialog } = self;
-      const { backdrop } = options;
-      const { target } = e2;
-      const selectedText = (_b = (_a = d(currentTarget)) == null ? void 0 : _a.getSelection()) == null ? void 0 : _b.toString().length;
-      const targetInsideDialog = modalDialog.contains(target);
-      const dismiss = target && Ee(target, modalDismissSelector);
-      // istanbul ignore else @preserve
-      if (isStatic && !targetInsideDialog) {
-        so.set(
-          currentTarget,
-          () => {
-            Bn(currentTarget, modalStaticClass);
-            qn(modalDialog, () => staticTransitionEnd(self));
-          },
-          17
-        );
-      } else if (dismiss || !selectedText && !isStatic && !targetInsideDialog && backdrop) {
-        self.relatedTarget = dismiss || null;
-        self.hide();
-        e2.preventDefault();
-      }
+    if (!self || !currentTarget || yo.get(currentTarget)) return;
+    const { options, isStatic, modalDialog } = self;
+    const { backdrop } = options;
+    const { target } = e2;
+    const selectedText = d(currentTarget)?.getSelection()?.toString().length;
+    const targetInsideDialog = modalDialog.contains(target);
+    const dismiss = target && ke(target, modalDismissSelector);
+    if (isStatic && !targetInsideDialog) {
+      yo.set(
+        currentTarget,
+        () => {
+          qn(currentTarget, modalStaticClass);
+          ro(modalDialog, () => staticTransitionEnd(self));
+        },
+        17
+      );
+    } else if (dismiss || !selectedText && !isStatic && !targetInsideDialog && backdrop) {
+      self.relatedTarget = dismiss || null;
+      self.hide();
+      e2.preventDefault();
     }
   };
   const staticTransitionEnd = (self) => {
     const { element, modalDialog } = self;
-    const duration = (re(modalDialog) || 0) + 17;
-    Fn(element, modalStaticClass);
-    so.set(element, () => so.clear(element), duration);
+    const duration = (ie(modalDialog) || 0) + 17;
+    Zn(element, modalStaticClass);
+    yo.set(element, () => yo.clear(element), duration);
   };
   class Modal extends BaseComponent {
+    static selector = modalSelector;
+    static init = modalInitCallback;
+    static getInstance = getModalInstance;
     /**
      * @param target usually the `.modal` element
      * @param config instance options
      */
     constructor(target, config) {
       super(target, config);
-      /**
-       * Updates the modal layout.
-       */
-      __publicField(this, "update", () => {
-        // istanbul ignore else @preserve
-        if (Hn(this.element, showClass)) setModalScrollbar(this);
-      });
-      /**
-       * Toggles on/off the `click` event listener of the `Modal` instance.
-       *
-       * @param add when `true`, event listener(s) is/are added
-       */
-      __publicField(this, "_toggleEventListeners", (add) => {
-        const action = add ? E$1 : r;
-        const { triggers } = this;
-        // istanbul ignore else @preserve
-        if (triggers.length) {
-          triggers.forEach(
-            (btn) => action(btn, ft, modalClickHandler)
-          );
-        }
-      });
       const { element } = this;
-      const modalDialog = Co(`.${modalString}-dialog`, element);
-      // istanbul ignore else @preserve
-      if (modalDialog) {
-        this.modalDialog = modalDialog;
-        this.triggers = [
-          ...ue(modalToggleSelector, d(element))
-        ].filter(
-          (btn) => getTargetElement(btn) === element
-        );
-        this.isStatic = this.options.backdrop === "static";
-        this.hasFade = Hn(element, fadeClass);
-        this.relatedTarget = null;
-        this._toggleEventListeners(true);
-      }
+      const modalDialog = Ro(
+        `.${modalString}-dialog`,
+        element
+      );
+      if (!modalDialog) return;
+      this.modalDialog = modalDialog;
+      this.triggers = [
+        ...de(
+          modalToggleSelector,
+          d(element)
+        )
+      ].filter(
+        (btn) => getTargetElement(btn) === element
+      );
+      this.isStatic = this.options.backdrop === "static";
+      this.hasFade = Yn(element, fadeClass);
+      this.relatedTarget = null;
+      this._observer = new ResizeObserver(() => this.update());
+      this._toggleEventListeners(true);
     }
     /**
      * Returns component name string.
@@ -1812,74 +1618,71 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     get defaults() {
       return modalDefaults;
     }
-    // MODAL PUBLIC METHODS
-    // ====================
-    /** Toggles the visibility of the modal. */
     toggle() {
-      if (Hn(this.element, showClass)) this.hide();
+      if (Yn(this.element, showClass)) this.hide();
       else this.show();
     }
-    /** Shows the modal to the user. */
     show() {
       const { element, options, hasFade, relatedTarget } = this;
       const { backdrop } = options;
       let overlayDelay = 0;
-      // istanbul ignore else @preserve
-      if (!Hn(element, showClass)) {
-        showModalEvent.relatedTarget = relatedTarget || void 0;
-        K(element, showModalEvent);
-        if (!showModalEvent.defaultPrevented) {
-          const currentOpen = getCurrentOpen(element);
-          // istanbul ignore else @preserve
-          if (currentOpen && currentOpen !== element) {
-            const that = getModalInstance(currentOpen) || // istanbul ignore next @preserve
-            Rn(
-              currentOpen,
-              offcanvasComponent
-            );
-            // istanbul ignore else @preserve
-            if (that) that.hide();
-          }
-          if (backdrop) {
-            if (!hasPopup(overlay)) {
-              appendOverlay(element, hasFade, true);
-            } else {
-              toggleOverlayType(true);
-            }
-            overlayDelay = re(overlay);
-            showOverlay();
-            setTimeout(() => beforeModalShow(this), overlayDelay);
-          } else {
-            beforeModalShow(this);
-            // istanbul ignore else @preserve
-            if (currentOpen && Hn(overlay, showClass)) {
-              hideOverlay();
-            }
-          }
+      if (Yn(element, showClass)) return;
+      showModalEvent.relatedTarget = relatedTarget || void 0;
+      q(element, showModalEvent);
+      if (showModalEvent.defaultPrevented) return;
+      const currentOpen = getCurrentOpen(element);
+      if (currentOpen && currentOpen !== element) {
+        const that = getModalInstance(currentOpen) || to(
+          currentOpen,
+          offcanvasComponent
+        );
+        if (that) that.hide();
+      }
+      if (backdrop) {
+        if (!hasPopup(overlay)) {
+          appendOverlay(element, hasFade, true);
+        } else {
+          toggleOverlayType(true);
+        }
+        overlayDelay = ie(overlay);
+        showOverlay();
+        setTimeout(() => beforeModalShow(this), overlayDelay);
+      } else {
+        beforeModalShow(this);
+        if (currentOpen && Yn(overlay, showClass)) {
+          hideOverlay();
         }
       }
     }
-    /** Hide the modal from the user. */
     hide() {
       const { element, hasFade, relatedTarget } = this;
-      // istanbul ignore else @preserve
-      if (Hn(element, showClass)) {
-        hideModalEvent.relatedTarget = relatedTarget || void 0;
-        K(element, hideModalEvent);
-        // istanbul ignore else @preserve
-        if (!hideModalEvent.defaultPrevented) {
-          Fn(element, showClass);
-          In(element, X, "true");
-          zn(element, Te);
-          if (hasFade) {
-            qn(element, () => beforeModalHide(this));
-          } else {
-            beforeModalHide(this);
-          }
-        }
-      }
+      if (!Yn(element, showClass)) return;
+      hideModalEvent.relatedTarget = relatedTarget || void 0;
+      q(element, hideModalEvent);
+      if (hideModalEvent.defaultPrevented) return;
+      Zn(element, showClass);
+      Qn(element, $, "true");
+      Gn(element, Pe);
+      if (hasFade) ro(element, () => beforeModalHide(this));
+      else beforeModalHide(this);
     }
-    /** Removes the `Modal` component from target element. */
+    /**
+     * Updates the modal layout.
+     */
+    update = () => {
+      if (Yn(this.element, showClass)) setModalScrollbar(this);
+    };
+    /**
+     * Toggles on/off the `click` event listener of the `Modal` instance.
+     *
+     * @param add when `true`, event listener(s) is/are added
+     */
+    _toggleEventListeners = (add) => {
+      const action = add ? E$1 : r;
+      const { triggers } = this;
+      if (!triggers.length) return;
+      triggers.forEach((btn) => action(btn, mt, modalClickHandler));
+    };
     dispose() {
       const clone = { ...this };
       const { modalDialog, hasFade } = clone;
@@ -1887,178 +1690,150 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this.hide();
       this._toggleEventListeners();
       if (hasFade) {
-        qn(modalDialog, callback);
+        ro(modalDialog, callback);
       } else {
         callback();
       }
     }
   }
-  __publicField(Modal, "selector", modalSelector);
-  __publicField(Modal, "init", modalInitCallback);
-  __publicField(Modal, "getInstance", getModalInstance);
   const offcanvasSelector = `.${offcanvasString}`;
   const offcanvasToggleSelector = `[${dataBsToggle}="${offcanvasString}"]`;
   const offcanvasDismissSelector = `[${dataBsDismiss}="${offcanvasString}"]`;
   const offcanvasTogglingClass = `${offcanvasString}-toggling`;
   const offcanvasDefaults = {
     backdrop: true,
-    // boolean
     keyboard: true,
-    // boolean
     scroll: false
-    // boolean
   };
-  const getOffcanvasInstance = (element) => Rn(element, offcanvasComponent);
+  const getOffcanvasInstance = (element) => to(element, offcanvasComponent);
   const offcanvasInitCallback = (element) => new Offcanvas(element);
-  const showOffcanvasEvent = to(`show.bs.${offcanvasString}`);
-  const shownOffcanvasEvent = to(`shown.bs.${offcanvasString}`);
-  const hideOffcanvasEvent = to(`hide.bs.${offcanvasString}`);
-  const hiddenOffcanvasEvent = to(`hidden.bs.${offcanvasString}`);
+  const showOffcanvasEvent = vo(`show.bs.${offcanvasString}`);
+  const shownOffcanvasEvent = vo(`shown.bs.${offcanvasString}`);
+  const hideOffcanvasEvent = vo(`hide.bs.${offcanvasString}`);
+  const hiddenOffcanvasEvent = vo(`hidden.bs.${offcanvasString}`);
   const setOffCanvasScrollbar = (self) => {
     const { element } = self;
-    const { clientHeight, scrollHeight } = k(element);
+    const { clientHeight, scrollHeight } = S(element);
     setScrollbar(element, clientHeight !== scrollHeight);
   };
   const toggleOffCanvasDismiss = (self, add) => {
     const action = add ? E$1 : r;
     const doc = d(self.element);
-    action(doc, ut, offcanvasKeyDismissHandler);
-    action(doc, ft, offcanvasDismissHandler);
+    action(doc, dt, offcanvasKeyDismissHandler);
+    action(doc, mt, offcanvasDismissHandler);
   };
   const beforeOffcanvasShow = (self) => {
     const { element, options } = self;
-    // istanbul ignore else @preserve
     if (!options.scroll) {
       setOffCanvasScrollbar(self);
-      oo(ao(element), { overflow: "hidden" });
+      ho(So(element), { overflow: "hidden" });
     }
-    Bn(element, offcanvasTogglingClass);
-    Bn(element, showClass);
-    oo(element, { visibility: "visible" });
-    qn(element, () => showOffcanvasComplete(self));
+    qn(element, offcanvasTogglingClass);
+    qn(element, showClass);
+    ho(element, { visibility: "visible" });
+    ro(element, () => showOffcanvasComplete(self));
   };
   const beforeOffcanvasHide = (self) => {
     const { element, options } = self;
     const currentOpen = getCurrentOpen(element);
     element.blur();
-    if (!currentOpen && options.backdrop && Hn(overlay, showClass)) {
+    if (!currentOpen && options.backdrop && Yn(overlay, showClass)) {
       hideOverlay();
     }
-    qn(element, () => hideOffcanvasComplete(self));
+    ro(element, () => hideOffcanvasComplete(self));
   };
   const offcanvasTriggerHandler = (e2) => {
-    const trigger = Ee(e2.target, offcanvasToggleSelector);
+    const trigger = ke(e2.target, offcanvasToggleSelector);
     const element = trigger && getTargetElement(trigger);
     const self = element && getOffcanvasInstance(element);
-    // istanbul ignore else @preserve
-    if (self) {
-      self.relatedTarget = trigger;
-      self.toggle();
-      // istanbul ignore else @preserve
-      if (trigger && trigger.tagName === "A") {
-        e2.preventDefault();
-      }
-    }
+    if (!self) return;
+    self.relatedTarget = trigger;
+    self.toggle();
+    if (trigger?.tagName === "A") e2.preventDefault();
   };
   const offcanvasDismissHandler = (e2) => {
     const { target } = e2;
-    const element = Co(
+    const element = Ro(
       offcanvasActiveSelector,
       d(target)
     );
-    const offCanvasDismiss = Co(
+    if (!element) return;
+    const offCanvasDismiss = Ro(
       offcanvasDismissSelector,
       element
     );
-    const self = element && getOffcanvasInstance(element);
-    // istanbul ignore else @preserve
-    if (self) {
-      const { options, triggers } = self;
-      const { backdrop } = options;
-      const trigger = Ee(target, offcanvasToggleSelector);
-      const selection = d(element).getSelection();
-      // istanbul ignore else: a filter is required here @preserve
-      if (!overlay.contains(target) || backdrop !== "static") {
-        // istanbul ignore else @preserve
-        if (!(selection && selection.toString().length) && (!element.contains(target) && backdrop && // istanbul ignore next @preserve
-        (!trigger || triggers.includes(target)) || offCanvasDismiss && offCanvasDismiss.contains(target))) {
-          self.relatedTarget = offCanvasDismiss && offCanvasDismiss.contains(target) ? offCanvasDismiss : null;
-          self.hide();
-        }
-        // istanbul ignore next @preserve
-        if (trigger && trigger.tagName === "A") e2.preventDefault();
-      }
+    const self = getOffcanvasInstance(element);
+    if (!self) return;
+    const { options, triggers } = self;
+    const { backdrop } = options;
+    const trigger = ke(target, offcanvasToggleSelector);
+    const selection = d(element).getSelection();
+    if (overlay.contains(target) && backdrop === "static") return;
+    if (!(selection && selection.toString().length) && (!element.contains(target) && backdrop && (!trigger || triggers.includes(target)) || offCanvasDismiss && offCanvasDismiss.contains(target))) {
+      self.relatedTarget = offCanvasDismiss && offCanvasDismiss.contains(target) ? offCanvasDismiss : void 0;
+      self.hide();
     }
+    if (trigger && trigger.tagName === "A") e2.preventDefault();
   };
   const offcanvasKeyDismissHandler = ({ code, target }) => {
-    const element = Co(
+    const element = Ro(
       offcanvasActiveSelector,
       d(target)
     );
     const self = element && getOffcanvasInstance(element);
-    // istanbul ignore else @preserve
-    if (self) {
-      // istanbul ignore else @preserve
-      if (self.options.keyboard && code === sn) {
-        self.relatedTarget = null;
-        self.hide();
-      }
+    if (!self) return;
+    if (self.options.keyboard && code === gn) {
+      self.relatedTarget = void 0;
+      self.hide();
     }
   };
   const showOffcanvasComplete = (self) => {
     const { element } = self;
-    Fn(element, offcanvasTogglingClass);
-    zn(element, X);
-    In(element, Te, "true");
-    In(element, "role", "dialog");
-    K(element, shownOffcanvasEvent);
+    Zn(element, offcanvasTogglingClass);
+    Gn(element, $);
+    Qn(element, Pe, "true");
+    Qn(element, "role", "dialog");
+    q(element, shownOffcanvasEvent);
     toggleOffCanvasDismiss(self, true);
-    Jn(element);
-    ro(element);
+    io(element);
+    Ao(element);
   };
   const hideOffcanvasComplete = (self) => {
     const { element, triggers } = self;
-    In(element, X, "true");
-    zn(element, Te);
-    zn(element, "role");
-    oo(element, { visibility: "" });
+    Qn(element, $, "true");
+    Gn(element, Pe);
+    Gn(element, "role");
+    ho(element, { visibility: "" });
     const visibleTrigger = showOffcanvasEvent.relatedTarget || triggers.find(isVisible);
-    // istanbul ignore else @preserve
-    if (visibleTrigger) Jn(visibleTrigger);
+    if (visibleTrigger) io(visibleTrigger);
     removeOverlay(element);
-    K(element, hiddenOffcanvasEvent);
-    Fn(element, offcanvasTogglingClass);
-    ro(element);
+    q(element, hiddenOffcanvasEvent);
+    Zn(element, offcanvasTogglingClass);
+    Ao(element);
     if (!getCurrentOpen(element)) {
       toggleOffCanvasDismiss(self);
     }
   };
   class Offcanvas extends BaseComponent {
+    static selector = offcanvasSelector;
+    static init = offcanvasInitCallback;
+    static getInstance = getOffcanvasInstance;
     /**
      * @param target usually an `.offcanvas` element
      * @param config instance options
      */
     constructor(target, config) {
       super(target, config);
-      /**
-       * Toggles on/off the `click` event listeners.
-       *
-       * @param self the `Offcanvas` instance
-       * @param add when *true*, listeners are added
-       */
-      __publicField(this, "_toggleEventListeners", (add) => {
-        const action = add ? E$1 : r;
-        this.triggers.forEach(
-          (btn) => action(btn, ft, offcanvasTriggerHandler)
-        );
-      });
       const { element } = this;
       this.triggers = [
-        ...ue(offcanvasToggleSelector, d(element))
+        ...de(
+          offcanvasToggleSelector,
+          d(element)
+        )
       ].filter(
         (btn) => getTargetElement(btn) === element
       );
-      this.relatedTarget = null;
+      this.relatedTarget = void 0;
       this._toggleEventListeners(true);
     }
     /**
@@ -2073,83 +1848,70 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     get defaults() {
       return offcanvasDefaults;
     }
-    // OFFCANVAS PUBLIC METHODS
-    // ========================
-    /** Shows or hides the offcanvas from the user. */
     toggle() {
-      if (Hn(this.element, showClass)) this.hide();
+      if (Yn(this.element, showClass)) this.hide();
       else this.show();
     }
-    /** Shows the offcanvas to the user. */
     show() {
       const { element, options, relatedTarget } = this;
       let overlayDelay = 0;
-      if (!Hn(element, showClass)) {
-        showOffcanvasEvent.relatedTarget = relatedTarget || void 0;
-        shownOffcanvasEvent.relatedTarget = relatedTarget || void 0;
-        K(element, showOffcanvasEvent);
-        if (!showOffcanvasEvent.defaultPrevented) {
-          const currentOpen = getCurrentOpen(element);
-          if (currentOpen && currentOpen !== element) {
-            const that = getOffcanvasInstance(currentOpen) || // istanbul ignore next @preserve
-            Rn(
-              currentOpen,
-              modalComponent
-            );
-            // istanbul ignore else @preserve
-            if (that) that.hide();
-          }
-          if (options.backdrop) {
-            if (!hasPopup(overlay)) {
-              appendOverlay(element, true);
-            } else {
-              toggleOverlayType();
-            }
-            overlayDelay = re(overlay);
-            showOverlay();
-            setTimeout(() => beforeOffcanvasShow(this), overlayDelay);
-          } else {
-            beforeOffcanvasShow(this);
-            // istanbul ignore next @preserve - this test was done on Modal
-            if (currentOpen && Hn(overlay, showClass)) {
-              hideOverlay();
-            }
-          }
-        }
+      if (Yn(element, showClass)) return;
+      showOffcanvasEvent.relatedTarget = relatedTarget || void 0;
+      shownOffcanvasEvent.relatedTarget = relatedTarget || void 0;
+      q(element, showOffcanvasEvent);
+      if (showOffcanvasEvent.defaultPrevented) return;
+      const currentOpen = getCurrentOpen(element);
+      if (currentOpen && currentOpen !== element) {
+        const that = getOffcanvasInstance(currentOpen) || to(
+          currentOpen,
+          modalComponent
+        );
+        if (that) that.hide();
+      }
+      if (options.backdrop) {
+        if (!hasPopup(overlay)) appendOverlay(element, true);
+        else toggleOverlayType();
+        overlayDelay = ie(overlay);
+        showOverlay();
+        setTimeout(() => beforeOffcanvasShow(this), overlayDelay);
+      } else {
+        beforeOffcanvasShow(this);
+        if (currentOpen && Yn(overlay, showClass)) hideOverlay();
       }
     }
-    /** Hides the offcanvas from the user. */
     hide() {
       const { element, relatedTarget } = this;
-      if (Hn(element, showClass)) {
-        hideOffcanvasEvent.relatedTarget = relatedTarget || void 0;
-        hiddenOffcanvasEvent.relatedTarget = relatedTarget || void 0;
-        K(element, hideOffcanvasEvent);
-        if (!hideOffcanvasEvent.defaultPrevented) {
-          Bn(element, offcanvasTogglingClass);
-          Fn(element, showClass);
-          beforeOffcanvasHide(this);
-        }
-      }
+      if (!Yn(element, showClass)) return;
+      hideOffcanvasEvent.relatedTarget = relatedTarget || void 0;
+      hiddenOffcanvasEvent.relatedTarget = relatedTarget || void 0;
+      q(element, hideOffcanvasEvent);
+      if (hideOffcanvasEvent.defaultPrevented) return;
+      qn(element, offcanvasTogglingClass);
+      Zn(element, showClass);
+      beforeOffcanvasHide(this);
     }
-    /** Removes the `Offcanvas` from the target element. */
+    /**
+     * Toggles on/off the `click` event listeners.
+     *
+     * @param self the `Offcanvas` instance
+     * @param add when *true*, listeners are added
+     */
+    _toggleEventListeners = (add) => {
+      const action = add ? E$1 : r;
+      this.triggers.forEach(
+        (btn) => action(btn, mt, offcanvasTriggerHandler)
+      );
+    };
     dispose() {
       const { element } = this;
-      const isOpen = Hn(element, showClass);
+      const isOpen = Yn(element, showClass);
       const callback = () => setTimeout(() => super.dispose(), 1);
       this.hide();
       this._toggleEventListeners();
-      if (isOpen) {
-        qn(element, callback);
-        // istanbul ignore next @preserve
-      } else {
-        callback();
-      }
+      if (isOpen) ro(element, callback);
+      else callback();
     }
   }
-  __publicField(Offcanvas, "selector", offcanvasSelector);
-  __publicField(Offcanvas, "init", offcanvasInitCallback);
-  __publicField(Offcanvas, "getInstance", getOffcanvasInstance);
   const popoverString = "popover";
   const popoverComponent = "Popover";
   const tooltipString = "tooltip";
@@ -2168,22 +1930,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     right: "end"
   };
   const styleTip = (self) => {
-    const tipClasses = /\b(top|bottom|start|end)+/;
-    const { element, tooltip, container, options, arrow } = self;
-    // istanbul ignore else @preserve
-    if (tooltip) {
-      const tipPositions = { ...tipClassPositions };
-      const RTL = To(element);
-      oo(tooltip, {
-        // top: '0px', left: '0px', right: '', bottom: '',
+    requestAnimationFrame(() => {
+      const tipClasses = /\b(top|bottom|start|end)+/;
+      const { element, tooltip, container, offsetParent, options, arrow } = self;
+      if (!tooltip) return;
+      const RTL = Uo(element);
+      const { x: scrollLeft, y: scrollTop } = ko(offsetParent);
+      ho(tooltip, {
         top: "",
         left: "",
         right: "",
         bottom: ""
       });
-      const isPopover = self.name === popoverComponent;
       const { offsetWidth: tipWidth, offsetHeight: tipHeight } = tooltip;
-      const { clientWidth: htmlcw, clientHeight: htmlch, offsetWidth: htmlow } = k(element);
+      const { clientWidth: htmlcw, clientHeight: htmlch, offsetWidth: htmlow } = S(element);
       let { placement } = options;
       const { clientWidth: parentCWidth, offsetWidth: parentOWidth } = container;
       const parentPosition = g(
@@ -2194,18 +1954,23 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       const scrollbarWidth = fixedParent ? Math.abs(parentCWidth - parentOWidth) : Math.abs(htmlcw - htmlow);
       const leftBoundry = RTL && fixedParent ? scrollbarWidth : 0;
       const rightBoundry = htmlcw - (!RTL ? scrollbarWidth : 0) - 1;
+      const observerEntry = self._observer.getEntry(element);
       const {
         width: elemWidth,
         height: elemHeight,
         left: elemRectLeft,
         right: elemRectRight,
         top: elemRectTop
-      } = h(element, true);
-      const { x: x2, y } = {
-        x: elemRectLeft,
-        y: elemRectTop
-      };
-      oo(arrow, {
+      } = observerEntry?.boundingClientRect || w(element, true);
+      const {
+        x: elemOffsetLeft,
+        y: elemOffsetTop
+      } = Co(
+        element,
+        offsetParent,
+        { x: scrollLeft, y: scrollTop }
+      );
+      ho(arrow, {
         top: "",
         left: "",
         right: "",
@@ -2239,58 +2004,56 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       if (!tooltip.className.includes(placement)) {
         tooltip.className = tooltip.className.replace(
           tipClasses,
-          tipPositions[placement]
+          tipClassPositions[placement]
         );
       }
-      // istanbul ignore else @preserve
       if (horizontals.includes(placement)) {
         if (placement === "left") {
-          leftPosition = x2 - tipWidth - (isPopover ? arrowWidth : 0);
+          leftPosition = elemOffsetLeft - tipWidth - arrowWidth;
         } else {
-          leftPosition = x2 + elemWidth + (isPopover ? arrowWidth : 0);
+          leftPosition = elemOffsetLeft + elemWidth + arrowWidth;
         }
         if (topExceed && bottomExceed) {
           topPosition = 0;
           bottomPosition = 0;
-          arrowTop = elemRectTop + elemHeight / 2 - arrowHeight / 2;
+          arrowTop = elemOffsetTop + elemHeight / 2 - arrowHeight / 2;
         } else if (topExceed) {
-          topPosition = y;
+          topPosition = elemOffsetTop;
           bottomPosition = "";
           arrowTop = elemHeight / 2 - arrowWidth;
         } else if (bottomExceed) {
-          topPosition = y - tipHeight + elemHeight;
+          topPosition = elemOffsetTop - tipHeight + elemHeight;
           bottomPosition = "";
           arrowTop = tipHeight - elemHeight / 2 - arrowWidth;
         } else {
-          topPosition = y - tipHeight / 2 + elemHeight / 2;
+          topPosition = elemOffsetTop - tipHeight / 2 + elemHeight / 2;
           arrowTop = tipHeight / 2 - arrowHeight / 2;
         }
       } else if (verticals.includes(placement)) {
         if (placement === "top") {
-          topPosition = y - tipHeight - (isPopover ? arrowHeight : 0);
+          topPosition = elemOffsetTop - tipHeight - arrowHeight;
         } else {
-          topPosition = y + elemHeight + (isPopover ? arrowHeight : 0);
+          topPosition = elemOffsetTop + elemHeight + arrowHeight;
         }
         if (leftExceed) {
           leftPosition = 0;
-          arrowLeft = x2 + elemWidth / 2 - arrowAdjust;
+          arrowLeft = elemOffsetLeft + elemWidth / 2 - arrowAdjust;
         } else if (rightExceed) {
           leftPosition = "auto";
           rightPosition = 0;
           arrowRight = elemWidth / 2 + rightBoundry - elemRectRight - arrowAdjust;
         } else {
-          leftPosition = x2 - tipWidth / 2 + elemWidth / 2;
+          leftPosition = elemOffsetLeft - tipWidth / 2 + elemWidth / 2;
           arrowLeft = tipWidth / 2 - arrowAdjust;
         }
       }
-      oo(tooltip, {
+      ho(tooltip, {
         top: `${topPosition}px`,
         bottom: bottomPosition === "" ? "" : `${bottomPosition}px`,
         left: leftPosition === "auto" ? leftPosition : `${leftPosition}px`,
         right: rightPosition !== "" ? `${rightPosition}px` : ""
       });
-      // istanbul ignore else @preserve
-      if (l(arrow)) {
+      if (m$1(arrow)) {
         if (arrowTop !== "") {
           arrow.style.top = `${arrowTop}px`;
         }
@@ -2300,11 +2063,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           arrow.style.right = `${arrowRight}px`;
         }
       }
-      const updatedTooltipEvent = to(
-        `updated.bs.${ae(self.name)}`
+      const updatedTooltipEvent = vo(
+        `updated.bs.${ue(self.name)}`
       );
-      K(element, updatedTooltipEvent);
-    }
+      q(element, updatedTooltipEvent);
+    });
   };
   const tooltipDefaults = {
     template: getTipTemplate(tooltipString),
@@ -2320,19 +2083,125 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     dismissible: false,
     btnClose: ""
   };
+  const p = (e2) => e2 != null && typeof e2 == "object" || false, k = (e2) => p(e2) && typeof e2.nodeType == "number" && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].some(
+    (t) => e2.nodeType === t
+  ) || false, b = (e2) => k(e2) && e2.nodeType === 1 || false, v = (e2) => typeof e2 == "function" || false, y = "1.0.2", m = "PositionObserver Error";
+  class E {
+    entries;
+    static version = y;
+    _tick;
+    _root;
+    _callback;
+    /**
+     * The constructor takes two arguments, a `callback`, which is called
+     * whenever the position of an observed element changes and an `options` object.
+     * The callback function should take an array of `PositionObserverEntry` objects
+     * as its only argument, but it's not required.
+     *
+     * @param callback the callback that applies to all targets of this observer
+     * @param options the options of this observer
+     */
+    constructor(t, i) {
+      if (!v(t))
+        throw new Error(`${m}: ${t} is not a function.`);
+      this.entries = /* @__PURE__ */ new Map(), this._callback = t, this._root = b(i?.root) ? i.root : document?.documentElement, this._tick = 0;
+    }
+    /**
+     * Start observing the position of the specified element.
+     * If the element is not currently attached to the DOM,
+     * it will NOT be added to the entries.
+     *
+     * @param target an `Element` target
+     */
+    observe = (t) => {
+      if (!b(t))
+        throw new Error(
+          `${m}: ${t} is not an instance of Element.`
+        );
+      this._root.contains(t) && this._new(t).then((i) => {
+        this.getEntry(t) || this.entries.set(t, i), this._tick || (this._tick = requestAnimationFrame(this._runCallback));
+      });
+    };
+    /**
+     * Stop observing the position of the specified element.
+     *
+     * @param target an `HTMLElement` target
+     */
+    unobserve = (t) => {
+      this.entries.has(t) && this.entries.delete(t);
+    };
+    /**
+     * Private method responsible for all the heavy duty,
+     * the observer's runtime.
+     */
+    _runCallback = () => {
+      if (!this.entries.size) return;
+      const t = new Promise((i) => {
+        const c = [];
+        this.entries.forEach(
+          ({ target: s, boundingClientRect: n }) => {
+            this._root.contains(s) && this._new(s).then(({ boundingClientRect: o, isVisible: h2 }) => {
+              const { left: a, top: f2, bottom: _, right: l2 } = o;
+              if (n.top !== f2 || n.left !== a || n.right !== l2 || n.bottom !== _) {
+                const r2 = { target: s, boundingClientRect: o, isVisible: h2 };
+                this.entries.set(s, r2), c.push(r2);
+              }
+            });
+          }
+        ), i(c);
+      });
+      this._tick = requestAnimationFrame(async () => {
+        const i = await t;
+        i.length && this._callback(i, this), this._runCallback();
+      });
+    };
+    /**
+     * Calculate the target bounding box and determine
+     * the value of `isVisible`.
+     *
+     * @param target an `Element` target
+     */
+    _new = (t) => {
+      const { clientWidth: i, clientHeight: c } = this._root;
+      return new Promise((s) => {
+        new IntersectionObserver(
+          ([{ boundingClientRect: o }], h2) => {
+            h2.disconnect();
+            const { left: a, top: f2, bottom: _, right: l2, width: r2, height: u2 } = o, w2 = f2 > 1 - u2 && a > 1 - r2 && _ <= c + u2 - 1 && l2 <= i + r2 - 1;
+            s({
+              target: t,
+              isVisible: w2,
+              boundingClientRect: o
+            });
+          }
+        ).observe(t);
+      });
+    };
+    /**
+     * Find the entry for a given target.
+     *
+     * @param target an `HTMLElement` target
+     */
+    getEntry = (t) => this.entries.get(t);
+    /**
+     * Immediately stop observing all elements.
+     */
+    disconnect = () => {
+      cancelAnimationFrame(this._tick), this.entries.clear(), this._tick = 0;
+    };
+  }
   const dataOriginalTitle = "data-original-title";
   const tooltipComponent = "Tooltip";
   const setHtml = (element, content, sanitizeFn) => {
-    // istanbul ignore else @preserve
-    if (M(content) && content.length) {
+    if (k$1(content) && content.length) {
       let dirty = content.trim();
-      if (ho(sanitizeFn)) dirty = sanitizeFn(dirty);
+      if (zo(sanitizeFn)) dirty = sanitizeFn(dirty);
       const domParser = new DOMParser();
       const tempDocument = domParser.parseFromString(dirty, "text/html");
       element.append(...[...tempDocument.body.childNodes]);
-    } else if (l(content)) {
+    } else if (m$1(content)) {
       element.append(content);
-    } else if (Mo(content) || ge(content) && content.every(i)) {
+    } else if (Vo(content) || Se(content) && content.every(l)) {
       element.append(...[...content]);
     }
   };
@@ -2354,136 +2223,125 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const tipPositions = { ...tipClassPositions };
     let titleParts = [];
     let contentParts = [];
-    if (To(element)) {
+    if (Uo(element)) {
       tipPositions.left = "end";
       tipPositions.right = "start";
     }
     const placementClass = `bs-${tipString}-${tipPositions[placement]}`;
     let tooltipTemplate;
-    if (l(template)) {
+    if (m$1(template)) {
       tooltipTemplate = template;
     } else {
-      const htmlMarkup = ee("div");
+      const htmlMarkup = oe("div");
       setHtml(htmlMarkup, template, sanitizeFn);
       tooltipTemplate = htmlMarkup.firstChild;
     }
-    self.tooltip = l(tooltipTemplate) ? tooltipTemplate.cloneNode(true) : void 0;
+    if (!m$1(tooltipTemplate)) return;
+    self.tooltip = tooltipTemplate.cloneNode(true);
     const { tooltip } = self;
-    // istanbul ignore else @preserve
-    if (tooltip) {
-      In(tooltip, "id", id);
-      In(tooltip, "role", tooltipString);
-      const bodyClass = isTooltip ? `${tooltipString}-inner` : `${popoverString}-body`;
-      const tooltipHeader = isTooltip ? null : Co(`.${popoverString}-header`, tooltip);
-      const tooltipBody = Co(`.${bodyClass}`, tooltip);
-      self.arrow = Co(`.${tipString}-arrow`, tooltip);
-      const { arrow } = self;
-      if (l(title)) titleParts = [title.cloneNode(true)];
-      else {
-        const tempTitle = ee("div");
-        setHtml(tempTitle, title, sanitizeFn);
-        titleParts = [...[...tempTitle.childNodes]];
-      }
-      if (l(content)) contentParts = [content.cloneNode(true)];
-      else {
-        const tempContent = ee("div");
-        setHtml(tempContent, content, sanitizeFn);
-        contentParts = [...[...tempContent.childNodes]];
-      }
-      if (dismissible) {
-        if (title) {
-          if (l(btnClose)) {
-            titleParts = [...titleParts, btnClose.cloneNode(true)];
-          } else {
-            const tempBtn = ee("div");
-            setHtml(tempBtn, btnClose, sanitizeFn);
-            titleParts = [...titleParts, tempBtn.firstChild];
-          }
-        } else {
-          // istanbul ignore else @preserve
-          if (tooltipHeader) tooltipHeader.remove();
-          if (l(btnClose)) {
-            contentParts = [...contentParts, btnClose.cloneNode(true)];
-          } else {
-            const tempBtn = ee("div");
-            setHtml(tempBtn, btnClose, sanitizeFn);
-            contentParts = [...contentParts, tempBtn.firstChild];
-          }
-        }
-      }
-      // istanbul ignore else @preserve
-      if (!isTooltip) {
-        // istanbul ignore else @preserve
-        if (title && tooltipHeader) {
-          setHtml(tooltipHeader, titleParts, sanitizeFn);
-        }
-        // istanbul ignore else @preserve
-        if (content && tooltipBody) {
-          setHtml(tooltipBody, contentParts, sanitizeFn);
-        }
-        self.btn = Co(".btn-close", tooltip) || void 0;
-      } else if (title && tooltipBody) setHtml(tooltipBody, title, sanitizeFn);
-      Bn(tooltip, "position-fixed");
-      Bn(arrow, "position-absolute");
-      // istanbul ignore else @preserve
-      if (!Hn(tooltip, tipString)) Bn(tooltip, tipString);
-      // istanbul ignore else @preserve
-      if (animation && !Hn(tooltip, fadeClass)) {
-        Bn(tooltip, fadeClass);
-      }
-      // istanbul ignore else @preserve
-      if (customClass && !Hn(tooltip, customClass)) {
-        Bn(tooltip, customClass);
-      }
-      // istanbul ignore else @preserve
-      if (!Hn(tooltip, placementClass)) Bn(tooltip, placementClass);
+    Qn(tooltip, "id", id);
+    Qn(tooltip, "role", tooltipString);
+    const bodyClass = isTooltip ? `${tooltipString}-inner` : `${popoverString}-body`;
+    const tooltipHeader = isTooltip ? null : Ro(`.${popoverString}-header`, tooltip);
+    const tooltipBody = Ro(`.${bodyClass}`, tooltip);
+    self.arrow = Ro(
+      `.${tipString}-arrow`,
+      tooltip
+    );
+    const { arrow } = self;
+    if (m$1(title)) titleParts = [title.cloneNode(true)];
+    else {
+      const tempTitle = oe("div");
+      setHtml(tempTitle, title, sanitizeFn);
+      titleParts = [...[...tempTitle.childNodes]];
     }
+    if (m$1(content)) contentParts = [content.cloneNode(true)];
+    else {
+      const tempContent = oe("div");
+      setHtml(tempContent, content, sanitizeFn);
+      contentParts = [...[...tempContent.childNodes]];
+    }
+    if (dismissible) {
+      if (title) {
+        if (m$1(btnClose)) {
+          titleParts = [...titleParts, btnClose.cloneNode(true)];
+        } else {
+          const tempBtn = oe("div");
+          setHtml(tempBtn, btnClose, sanitizeFn);
+          titleParts = [...titleParts, tempBtn.firstChild];
+        }
+      } else {
+        if (tooltipHeader) tooltipHeader.remove();
+        if (m$1(btnClose)) {
+          contentParts = [...contentParts, btnClose.cloneNode(true)];
+        } else {
+          const tempBtn = oe("div");
+          setHtml(tempBtn, btnClose, sanitizeFn);
+          contentParts = [...contentParts, tempBtn.firstChild];
+        }
+      }
+    }
+    if (!isTooltip) {
+      if (title && tooltipHeader) {
+        setHtml(tooltipHeader, titleParts, sanitizeFn);
+      }
+      if (content && tooltipBody) {
+        setHtml(tooltipBody, contentParts, sanitizeFn);
+      }
+      self.btn = Ro(".btn-close", tooltip) || void 0;
+    } else if (title && tooltipBody) setHtml(tooltipBody, title, sanitizeFn);
+    qn(tooltip, "position-absolute");
+    qn(arrow, "position-absolute");
+    if (!Yn(tooltip, tipString)) qn(tooltip, tipString);
+    if (animation && !Yn(tooltip, fadeClass)) {
+      qn(tooltip, fadeClass);
+    }
+    if (customClass && !Yn(tooltip, customClass)) {
+      qn(tooltip, customClass);
+    }
+    if (!Yn(tooltip, placementClass)) qn(tooltip, placementClass);
   };
   const getElementContainer = (element) => {
     const majorBlockTags = ["HTML", "BODY"];
     const containers = [];
     let { parentNode } = element;
     while (parentNode && !majorBlockTags.includes(parentNode.nodeName)) {
-      parentNode = lo(parentNode);
-      // istanbul ignore else @preserve
-      if (!(pe(parentNode) || Do(parentNode))) {
+      parentNode = A(parentNode);
+      if (!(me(parentNode) || be(parentNode))) {
         containers.push(parentNode);
       }
     }
-    return containers.find((c, i2) => {
-      if (g(c, "position") !== "relative" && containers.slice(i2 + 1).every(
+    return containers.find((c, i) => {
+      if ((g(c, "position") !== "relative" || g(c, "position") === "relative" && c.offsetHeight !== c.scrollHeight) && containers.slice(i + 1).every(
         (r2) => g(r2, "position") === "static"
       )) {
         return c;
       }
       return null;
-    }) || // istanbul ignore next: optional guard
-    d(element).body;
+    }) || d(element).body;
   };
   const tooltipSelector = `[${dataBsToggle}="${tooltipString}"],[data-tip="${tooltipString}"]`;
   const titleAttr = "title";
-  let getTooltipInstance = (element) => Rn(element, tooltipComponent);
+  let getTooltipInstance = (element) => to(element, tooltipComponent);
   const tooltipInitCallback = (element) => new Tooltip(element);
   const removeTooltip = (self) => {
-    const { element, tooltip, container, offsetParent } = self;
-    zn(element, we);
+    const { element, tooltip, container } = self;
+    Gn(element, De);
     removePopup(
       tooltip,
-      container === offsetParent ? container : offsetParent
+      container
     );
   };
   const hasTip = (self) => {
-    const { tooltip, container, offsetParent } = self;
-    return tooltip && hasPopup(tooltip, container === offsetParent ? container : offsetParent);
+    const { tooltip, container } = self;
+    return tooltip && hasPopup(tooltip, container);
   };
   const disposeTooltipComplete = (self, callback) => {
     const { element } = self;
     self._toggleEventListeners();
-    // istanbul ignore else @preserve
-    if (te(element, dataOriginalTitle) && self.name === tooltipComponent) {
+    if (ne(element, dataOriginalTitle) && self.name === tooltipComponent) {
       toggleTooltipTitle(self);
     }
-    // istanbul ignore else @preserve
     if (callback) callback();
   };
   const toggleTooltipAction = (self, add) => {
@@ -2491,45 +2349,38 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const { element } = self;
     action(
       d(element),
-      Ut,
+      Rt,
       self.handleTouch,
-      eo
+      bo
     );
-    [Ht, zt].forEach((ev) => {
-      action(fo(element), ev, self.update, eo);
-    });
   };
   const tooltipShownAction = (self) => {
     const { element } = self;
-    const shownTooltipEvent = to(
-      `shown.bs.${ae(self.name)}`
+    const shownTooltipEvent = vo(
+      `shown.bs.${ue(self.name)}`
     );
     toggleTooltipAction(self, true);
-    K(element, shownTooltipEvent);
-    so.clear(element, "in");
+    q(element, shownTooltipEvent);
+    yo.clear(element, "in");
   };
   const tooltipHiddenAction = (self) => {
     const { element } = self;
-    const hiddenTooltipEvent = to(
-      `hidden.bs.${ae(self.name)}`
+    const hiddenTooltipEvent = vo(
+      `hidden.bs.${ue(self.name)}`
     );
     toggleTooltipAction(self);
     removeTooltip(self);
-    K(element, hiddenTooltipEvent);
-    so.clear(element, "out");
+    q(element, hiddenTooltipEvent);
+    yo.clear(element, "out");
   };
   const toggleTooltipOpenHandlers = (self, add) => {
     const action = add ? E$1 : r;
-    const { element, container, offsetParent } = self;
-    const { offsetHeight, scrollHeight } = container;
-    const parentModal = Ee(element, `.${modalString}`);
-    const parentOffcanvas = Ee(element, `.${offcanvasString}`);
-    // istanbul ignore else @preserve
-    const win = fo(element);
-    const overflow = offsetHeight !== scrollHeight;
-    const scrollTarget = container === offsetParent && overflow ? container : win;
-    action(scrollTarget, zt, self.update, eo);
-    action(scrollTarget, Ht, self.update, eo);
+    const { element, tooltip } = self;
+    const parentModal = ke(element, `.${modalString}`);
+    const parentOffcanvas = ke(element, `.${offcanvasString}`);
+    if (add) {
+      [element, tooltip].forEach((target) => self._observer.observe(target));
+    } else self._observer.disconnect();
     if (parentModal) {
       action(parentModal, `hide.bs.${modalString}`, self.handleHide);
     }
@@ -2540,124 +2391,52 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   const toggleTooltipTitle = (self, content) => {
     const titleAtt = [dataOriginalTitle, titleAttr];
     const { element } = self;
-    In(
+    Qn(
       element,
       titleAtt[content ? 0 : 1],
-      content || j(element, titleAtt[0]) || // istanbul ignore next @preserve
-      ""
+      content || j(element, titleAtt[0]) || ""
     );
-    zn(element, titleAtt[content ? 1 : 0]);
+    Gn(element, titleAtt[content ? 1 : 0]);
   };
   class Tooltip extends BaseComponent {
+    static selector = tooltipSelector;
+    static init = tooltipInitCallback;
+    static getInstance = getTooltipInstance;
+    static styleTip = styleTip;
     /**
      * @param target the target element
      * @param config the instance options
      */
     constructor(target, config) {
       super(target, config);
-      // TOOLTIP PUBLIC METHODS
-      // ======================
-      /** Handles the focus event on iOS. */
-      // istanbul ignore next @preserve - impossible to test without Apple device
-      __publicField(this, "handleFocus", () => Jn(this.element));
-      /** Shows the tooltip. */
-      __publicField(this, "handleShow", () => this.show());
-      /** Hides the tooltip. */
-      __publicField(this, "handleHide", () => this.hide());
-      /** Updates the tooltip position. */
-      __publicField(this, "update", () => {
-        styleTip(this);
-      });
-      /** Toggles the tooltip visibility. */
-      __publicField(this, "toggle", () => {
-        const { tooltip } = this;
-        if (tooltip && !hasTip(this)) this.show();
-        else this.hide();
-      });
-      /**
-       * Handles the `touchstart` event listener for `Tooltip`
-       *
-       * @this {Tooltip}
-       * @param {TouchEvent} e the `Event` object
-       */
-      __publicField(this, "handleTouch", ({ target }) => {
-        const { tooltip, element } = this;
-        // istanbul ignore if @preserve
-        if (tooltip && tooltip.contains(target) || target === element || target && element.contains(target)) ;
-        else {
-          this.hide();
-        }
-      });
-      /**
-       * Toggles on/off the `Tooltip` event listeners.
-       *
-       * @param add when `true`, event listeners are added
-       */
-      __publicField(this, "_toggleEventListeners", (add) => {
-        const action = add ? E$1 : r;
-        const { element, options, btn } = this;
-        const { trigger } = options;
-        const isPopover = this.name !== tooltipComponent;
-        const dismissible = isPopover && options.dismissible ? true : false;
-        // istanbul ignore else @preserve
-        if (!trigger.includes("manual")) {
-          this.enabled = !!add;
-          const triggerOptions = trigger.split(" ");
-          triggerOptions.forEach((tr) => {
-            // istanbul ignore else @preserve
-            if (tr === Et) {
-              action(element, gt, this.handleShow);
-              action(element, bt, this.handleShow);
-              // istanbul ignore else @preserve
-              if (!dismissible) {
-                action(element, ht, this.handleHide);
-                action(
-                  d(element),
-                  Ut,
-                  this.handleTouch,
-                  eo
-                );
-              }
-            } else if (tr === ft) {
-              action(element, tr, !dismissible ? this.toggle : this.handleShow);
-            } else if (tr === ot) {
-              action(element, st, this.handleShow);
-              // istanbul ignore else @preserve
-              if (!dismissible) action(element, ct, this.handleHide);
-              // istanbul ignore else @preserve
-              if (An) {
-                action(element, ft, this.handleFocus);
-              }
-            }
-            // istanbul ignore else @preserve
-            if (dismissible && btn) {
-              action(btn, ft, this.handleHide);
-            }
-          });
-        }
-      });
       const { element } = this;
       const isTooltip = this.name === tooltipComponent;
       const tipString = isTooltip ? tooltipString : popoverString;
       const tipComponent = isTooltip ? tooltipComponent : popoverComponent;
-      // istanbul ignore next @preserve: this is to set Popover too
-      getTooltipInstance = (elem) => Rn(elem, tipComponent);
+      getTooltipInstance = (elem) => to(elem, tipComponent);
       this.enabled = true;
-      this.id = `${tipString}-${me(element, tipString)}`;
+      this.id = `${tipString}-${Ae(element, tipString)}`;
       const { options } = this;
-      if (!(!options.title && isTooltip || !isTooltip && !options.content)) {
-        T(tooltipDefaults, { titleAttr: "" });
-        // istanbul ignore else @preserve
-        if (te(element, titleAttr) && isTooltip && typeof options.title === "string") {
-          toggleTooltipTitle(this, options.title);
-        }
-        this.container = getElementContainer(element);
-        this.offsetParent = ["sticky", "fixed"].some(
-          (position) => g(this.container, "position") === position
-        ) ? this.container : d(this.element).body;
-        createTip(this);
-        this._toggleEventListeners(true);
+      if (!options.title && isTooltip || !isTooltip && !options.content) {
+        return;
       }
+      N(tooltipDefaults, { titleAttr: "" });
+      if (ne(element, titleAttr) && isTooltip && typeof options.title === "string") {
+        toggleTooltipTitle(this, options.title);
+      }
+      const container = getElementContainer(element);
+      const offsetParent = ["sticky", "fixed", "relative"].some(
+        (position) => g(container, "position") === position
+      ) ? container : ve(element);
+      this.container = container;
+      this.offsetParent = offsetParent;
+      createTip(this);
+      if (!this.tooltip) return;
+      this._observer = new E((entries) => {
+        if (!entries.some((entry) => entry.isVisible)) return;
+        this.update();
+      });
+      this._toggleEventListeners(true);
     }
     /**
      * Returns component name string.
@@ -2671,31 +2450,29 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     get defaults() {
       return tooltipDefaults;
     }
+    handleFocus = () => io(this.element);
+    handleShow = () => this.show();
     show() {
-      const { options, tooltip, element, container, offsetParent, id } = this;
+      const { options, tooltip, element, container, id } = this;
       const { animation } = options;
-      const outTimer = so.get(element, "out");
-      const tipContainer = container === offsetParent ? container : offsetParent;
-      so.clear(element, "out");
+      const outTimer = yo.get(element, "out");
+      yo.clear(element, "out");
       if (tooltip && !outTimer && !hasTip(this)) {
-        so.set(
+        yo.set(
           element,
           () => {
-            const showTooltipEvent = to(
-              `show.bs.${ae(this.name)}`
+            const showTooltipEvent = vo(
+              `show.bs.${ue(this.name)}`
             );
-            K(element, showTooltipEvent);
-            // istanbul ignore else @preserve
+            q(element, showTooltipEvent);
             if (!showTooltipEvent.defaultPrevented) {
-              appendPopup(tooltip, tipContainer);
-              In(element, we, `#${id}`);
+              appendPopup(tooltip, container);
+              Qn(element, De, `#${id}`);
               this.update();
               toggleTooltipOpenHandlers(this, true);
-              // istanbul ignore else @preserve
-              if (!Hn(tooltip, showClass)) Bn(tooltip, showClass);
-              // istanbul ignore else @preserve
+              if (!Yn(tooltip, showClass)) qn(tooltip, showClass);
               if (animation) {
-                qn(tooltip, () => tooltipShownAction(this));
+                ro(tooltip, () => tooltipShownAction(this));
               } else tooltipShownAction(this);
             }
           },
@@ -2704,27 +2481,25 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         );
       }
     }
+    handleHide = () => this.hide();
     hide() {
       const { options, tooltip, element } = this;
       const { animation, delay } = options;
-      so.clear(element, "in");
-      // istanbul ignore else @preserve
+      yo.clear(element, "in");
       if (tooltip && hasTip(this)) {
-        so.set(
+        yo.set(
           element,
           () => {
-            const hideTooltipEvent = to(
-              `hide.bs.${ae(this.name)}`
+            const hideTooltipEvent = vo(
+              `hide.bs.${ue(this.name)}`
             );
-            K(element, hideTooltipEvent);
-            // istanbul ignore else @preserve
+            q(element, hideTooltipEvent);
             if (!hideTooltipEvent.defaultPrevented) {
               this.update();
-              Fn(tooltip, showClass);
+              Zn(tooltip, showClass);
               toggleTooltipOpenHandlers(this);
-              // istanbul ignore else @preserve
               if (animation) {
-                qn(tooltip, () => tooltipHiddenAction(this));
+                ro(tooltip, () => tooltipHiddenAction(this));
               } else tooltipHiddenAction(this);
             }
           },
@@ -2733,31 +2508,88 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         );
       }
     }
-    /** Enables the tooltip. */
+    update = () => {
+      styleTip(this);
+    };
+    toggle = () => {
+      const { tooltip } = this;
+      if (tooltip && !hasTip(this)) this.show();
+      else this.hide();
+    };
     enable() {
       const { enabled } = this;
-      // istanbul ignore else @preserve
       if (!enabled) {
         this._toggleEventListeners(true);
         this.enabled = !enabled;
       }
     }
-    /** Disables the tooltip. */
     disable() {
       const { tooltip, enabled } = this;
-      // istanbul ignore else @preserve
       if (enabled) {
         if (tooltip && hasTip(this)) this.hide();
         this._toggleEventListeners();
         this.enabled = !enabled;
       }
     }
-    /** Toggles the `disabled` property. */
     toggleEnabled() {
       if (!this.enabled) this.enable();
       else this.disable();
     }
-    /** Removes the `Tooltip` from the target element. */
+    /**
+     * Handles the `touchstart` event listener for `Tooltip`
+     *
+     * @this {Tooltip}
+     * @param {TouchEvent} e the `Event` object
+     */
+    handleTouch = ({ target }) => {
+      const { tooltip, element } = this;
+      if (tooltip && tooltip.contains(target) || target === element || target && element.contains(target)) ;
+      else {
+        this.hide();
+      }
+    };
+    /**
+     * Toggles on/off the `Tooltip` event listeners.
+     *
+     * @param add when `true`, event listeners are added
+     */
+    _toggleEventListeners = (add) => {
+      const action = add ? E$1 : r;
+      const { element, options, btn } = this;
+      const { trigger } = options;
+      const isPopover = this.name !== tooltipComponent;
+      const dismissible = isPopover && options.dismissible ? true : false;
+      if (!trigger.includes("manual")) {
+        this.enabled = !!add;
+        const triggerOptions = trigger.split(" ");
+        triggerOptions.forEach((tr) => {
+          if (tr === ht) {
+            action(element, bt, this.handleShow);
+            action(element, yt, this.handleShow);
+            if (!dismissible) {
+              action(element, wt, this.handleHide);
+              action(
+                d(element),
+                Rt,
+                this.handleTouch,
+                bo
+              );
+            }
+          } else if (tr === mt) {
+            action(element, tr, !dismissible ? this.toggle : this.handleShow);
+          } else if (tr === rt) {
+            action(element, ct, this.handleShow);
+            if (!dismissible) action(element, at, this.handleHide);
+            if (zn()) {
+              action(element, mt, this.handleFocus);
+            }
+          }
+          if (dismissible && btn) {
+            action(btn, mt, this.handleHide);
+          }
+        });
+      }
+    };
     dispose() {
       const { tooltip, options } = this;
       const clone = { ...this, name: this.name };
@@ -2768,39 +2600,32 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       if (options.animation && hasTip(clone)) {
         this.options.delay = 0;
         this.hide();
-        qn(tooltip, callback);
+        ro(tooltip, callback);
       } else {
         callback();
       }
     }
   }
-  __publicField(Tooltip, "selector", tooltipSelector);
-  __publicField(Tooltip, "init", tooltipInitCallback);
-  __publicField(Tooltip, "getInstance", getTooltipInstance);
-  __publicField(Tooltip, "styleTip", styleTip);
   const popoverSelector = `[${dataBsToggle}="${popoverString}"],[data-tip="${popoverString}"]`;
-  const popoverDefaults = T({}, tooltipDefaults, {
+  const popoverDefaults = N({}, tooltipDefaults, {
     template: getTipTemplate(popoverString),
     content: "",
     dismissible: false,
     btnClose: '<button class="btn-close" aria-label="Close"></button>'
   });
-  const getPopoverInstance = (element) => Rn(element, popoverComponent);
+  const getPopoverInstance = (element) => to(element, popoverComponent);
   const popoverInitCallback = (element) => new Popover(element);
   class Popover extends Tooltip {
+    static selector = popoverSelector;
+    static init = popoverInitCallback;
+    static getInstance = getPopoverInstance;
+    static styleTip = styleTip;
     /**
      * @param target the target element
      * @param config the instance options
      */
     constructor(target, config) {
       super(target, config);
-      /* extend original `show()` */
-      __publicField(this, "show", () => {
-        super.show();
-        const { options, btn } = this;
-        // istanbul ignore else @preserve
-        if (options.dismissible && btn) setTimeout(() => Jn(btn), 17);
-      });
     }
     /**
      * Returns component name string.
@@ -2814,186 +2639,160 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     get defaults() {
       return popoverDefaults;
     }
+    show = () => {
+      super.show();
+      const { options, btn } = this;
+      if (options.dismissible && btn) setTimeout(() => io(btn), 17);
+    };
   }
-  __publicField(Popover, "selector", popoverSelector);
-  __publicField(Popover, "init", popoverInitCallback);
-  __publicField(Popover, "getInstance", getPopoverInstance);
-  __publicField(Popover, "styleTip", styleTip);
   const tabString = "tab";
   const tabComponent = "Tab";
   const tabSelector = `[${dataBsToggle}="${tabString}"]`;
-  const getTabInstance = (element) => Rn(element, tabComponent);
+  const getTabInstance = (element) => to(element, tabComponent);
   const tabInitCallback = (element) => new Tab(element);
-  const showTabEvent = to(
+  const showTabEvent = vo(
     `show.bs.${tabString}`
   );
-  const shownTabEvent = to(
+  const shownTabEvent = vo(
     `shown.bs.${tabString}`
   );
-  const hideTabEvent = to(
+  const hideTabEvent = vo(
     `hide.bs.${tabString}`
   );
-  const hiddenTabEvent = to(
+  const hiddenTabEvent = vo(
     `hidden.bs.${tabString}`
   );
   const tabPrivate = /* @__PURE__ */ new Map();
   const triggerTabEnd = (self) => {
     const { tabContent, nav } = self;
-    // istanbul ignore else @preserve
-    if (tabContent && Hn(tabContent, collapsingClass)) {
+    if (tabContent && Yn(tabContent, collapsingClass)) {
       tabContent.style.height = "";
-      Fn(tabContent, collapsingClass);
+      Zn(tabContent, collapsingClass);
     }
-    // istanbul ignore else @preserve
-    if (nav) so.clear(nav);
+    if (nav) yo.clear(nav);
   };
   const triggerTabShow = (self) => {
     const { element, tabContent, content: nextContent, nav } = self;
-    const { tab } = l(nav) && tabPrivate.get(nav) || // istanbul ignore next @preserve
-    { tab: null };
-    // istanbul ignore else @preserve
-    if (tabContent && nextContent && Hn(nextContent, fadeClass)) {
-      const { currentHeight, nextHeight } = tabPrivate.get(element) || // istanbul ignore next @preserve
-      { currentHeight: 0, nextHeight: 0 };
-      // istanbul ignore else @preserve: vitest won't validate this branch
+    const { tab } = m$1(nav) && tabPrivate.get(nav) || { tab: null };
+    if (tabContent && nextContent && Yn(nextContent, fadeClass)) {
+      const { currentHeight, nextHeight } = tabPrivate.get(element) || { currentHeight: 0, nextHeight: 0 };
       if (currentHeight !== nextHeight) {
         setTimeout(() => {
           tabContent.style.height = `${nextHeight}px`;
-          no(tabContent);
-          qn(tabContent, () => triggerTabEnd(self));
+          Eo(tabContent);
+          ro(tabContent, () => triggerTabEnd(self));
         }, 50);
       } else {
         triggerTabEnd(self);
       }
-    } else if (nav) so.clear(nav);
+    } else if (nav) yo.clear(nav);
     shownTabEvent.relatedTarget = tab;
-    K(element, shownTabEvent);
+    q(element, shownTabEvent);
   };
   const triggerTabHide = (self) => {
     const { element, content: nextContent, tabContent, nav } = self;
-    const { tab, content } = nav && tabPrivate.get(nav) || // istanbul ignore next @preserve
-    { tab: null, content: null };
+    const { tab, content } = nav && tabPrivate.get(nav) || { tab: null, content: null };
     let currentHeight = 0;
-    // istanbul ignore else @preserve
-    if (tabContent && nextContent && Hn(nextContent, fadeClass)) {
+    if (tabContent && nextContent && Yn(nextContent, fadeClass)) {
       [content, nextContent].forEach((c) => {
-        // istanbul ignore else @preserve
-        if (l(c)) Bn(c, "overflow-hidden");
+        if (c) qn(c, "overflow-hidden");
       });
-      currentHeight = l(content) ? content.scrollHeight : 0;
+      currentHeight = content ? content.scrollHeight : 0;
     }
     showTabEvent.relatedTarget = tab;
     hiddenTabEvent.relatedTarget = element;
-    K(element, showTabEvent);
-    // istanbul ignore else @preserve
-    if (!showTabEvent.defaultPrevented) {
-      // istanbul ignore else @preserve
-      if (nextContent) Bn(nextContent, activeClass);
-      // istanbul ignore else @preserve
-      if (content) Fn(content, activeClass);
-      // istanbul ignore else @preserve
-      if (tabContent && nextContent && Hn(nextContent, fadeClass)) {
-        const nextHeight = nextContent.scrollHeight;
-        tabPrivate.set(element, {
-          currentHeight,
-          nextHeight,
-          tab: null,
-          content: null
-        });
-        Bn(tabContent, collapsingClass);
-        tabContent.style.height = `${currentHeight}px`;
-        no(tabContent);
-        [content, nextContent].forEach((c) => {
-          // istanbul ignore else @preserve
-          if (c) Fn(c, "overflow-hidden");
-        });
-      }
-      if (nextContent && nextContent && Hn(nextContent, fadeClass)) {
-        setTimeout(() => {
-          Bn(nextContent, showClass);
-          qn(nextContent, () => {
-            triggerTabShow(self);
-          });
-        }, 1);
-      } else {
-        // istanbul ignore else @preserve
-        if (nextContent) Bn(nextContent, showClass);
-        triggerTabShow(self);
-      }
-      // istanbul ignore else @preserve
-      if (tab) K(tab, hiddenTabEvent);
+    q(element, showTabEvent);
+    if (showTabEvent.defaultPrevented) return;
+    if (nextContent) qn(nextContent, activeClass);
+    if (content) Zn(content, activeClass);
+    if (tabContent && nextContent && Yn(nextContent, fadeClass)) {
+      const nextHeight = nextContent.scrollHeight;
+      tabPrivate.set(element, {
+        currentHeight,
+        nextHeight,
+        tab: null,
+        content: null
+      });
+      qn(tabContent, collapsingClass);
+      tabContent.style.height = `${currentHeight}px`;
+      Eo(tabContent);
+      [content, nextContent].forEach((c) => {
+        if (c) Zn(c, "overflow-hidden");
+      });
     }
+    if (nextContent && nextContent && Yn(nextContent, fadeClass)) {
+      setTimeout(() => {
+        qn(nextContent, showClass);
+        ro(nextContent, () => {
+          triggerTabShow(self);
+        });
+      }, 1);
+    } else {
+      if (nextContent) qn(nextContent, showClass);
+      triggerTabShow(self);
+    }
+    if (tab) q(tab, hiddenTabEvent);
   };
   const getActiveTab = (self) => {
     const { nav } = self;
-    // istanbul ignore next @preserve
-    if (!l(nav)) {
+    if (!m$1(nav)) {
       return { tab: null, content: null };
     }
-    const activeTabs = Io(activeClass, nav);
+    const activeTabs = Go(
+      activeClass,
+      nav
+    );
     let tab = null;
-    // istanbul ignore else @preserve
     if (activeTabs.length === 1 && !dropdownMenuClasses.some(
-      (c) => Hn(activeTabs[0].parentElement, c)
+      (c) => Yn(activeTabs[0].parentElement, c)
     )) {
       [tab] = activeTabs;
     } else if (activeTabs.length > 1) {
       tab = activeTabs[activeTabs.length - 1];
     }
-    const content = l(tab) ? getTargetElement(tab) : null;
+    const content = m$1(tab) ? getTargetElement(tab) : null;
     return { tab, content };
   };
   const getParentDropdown = (element) => {
-    // istanbul ignore next @preserve
-    if (!l(element)) return null;
-    const dropdown = Ee(element, `.${dropdownMenuClasses.join(",.")}`);
-    return dropdown ? Co(`.${dropdownMenuClasses[0]}-toggle`, dropdown) : null;
+    if (!m$1(element)) return null;
+    const dropdown = ke(element, `.${dropdownMenuClasses.join(",.")}`);
+    return dropdown ? Ro(`.${dropdownMenuClasses[0]}-toggle`, dropdown) : null;
   };
   const tabClickHandler = (e2) => {
     const self = getTabInstance(e2.target);
-    // istanbul ignore else @preserve
-    if (self) {
-      e2.preventDefault();
-      self.show();
-    }
+    e2.preventDefault();
+    if (self) self.show();
   };
   class Tab extends BaseComponent {
-    /** @param target the target element */
+    static selector = tabSelector;
+    static init = tabInitCallback;
+    static getInstance = getTabInstance;
     constructor(target) {
       super(target);
-      /**
-       * Toggles on/off the `click` event listener.
-       *
-       * @param add when `true`, event listener is added
-       */
-      __publicField(this, "_toggleEventListeners", (add) => {
-        const action = add ? E$1 : r;
-        action(this.element, ft, tabClickHandler);
-      });
       const { element } = this;
       const content = getTargetElement(element);
-      // istanbul ignore else @preserve
-      if (content) {
-        const nav = Ee(element, ".nav");
-        const container = Ee(content, ".tab-content");
-        this.nav = nav;
-        this.content = content;
-        this.tabContent = container;
-        this.dropdown = getParentDropdown(element);
-        const { tab } = getActiveTab(this);
-        if (nav && !tab) {
-          const firstTab = Co(tabSelector, nav);
-          const firstTabContent = firstTab && getTargetElement(firstTab);
-          // istanbul ignore else @preserve
-          if (firstTabContent) {
-            Bn(firstTab, activeClass);
-            Bn(firstTabContent, showClass);
-            Bn(firstTabContent, activeClass);
-            In(element, De, "true");
-          }
+      if (!content) return;
+      const nav = ke(element, ".nav");
+      const container = ke(
+        content,
+        ".tab-content"
+      );
+      this.nav = nav;
+      this.content = content;
+      this.tabContent = container;
+      this.dropdown = getParentDropdown(element);
+      const { tab } = getActiveTab(this);
+      if (nav && !tab) {
+        const firstTab = Ro(tabSelector, nav);
+        const firstTabContent = firstTab && getTargetElement(firstTab);
+        if (firstTabContent) {
+          qn(firstTab, activeClass);
+          qn(firstTabContent, showClass);
+          qn(firstTabContent, activeClass);
+          Qn(element, Fe, "true");
         }
-        this._toggleEventListeners(true);
       }
+      this._toggleEventListeners(true);
     }
     /**
      * Returns component name string.
@@ -3001,68 +2800,60 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     get name() {
       return tabComponent;
     }
-    // TAB PUBLIC METHODS
-    // ==================
-    /** Shows the tab to the user. */
     show() {
       const { element, content: nextContent, nav, dropdown } = this;
-      // istanbul ignore else @preserve
-      if (!(nav && so.get(nav)) && !Hn(element, activeClass)) {
-        const { tab, content } = getActiveTab(this);
-        // istanbul ignore else @preserve
-        if (nav) {
-          tabPrivate.set(nav, { tab, content, currentHeight: 0, nextHeight: 0 });
-        }
-        hideTabEvent.relatedTarget = element;
-        // istanbul ignore else @preserve
-        if (l(tab)) {
-          K(tab, hideTabEvent);
-          // istanbul ignore else @preserve
-          if (!hideTabEvent.defaultPrevented) {
-            Bn(element, activeClass);
-            In(element, De, "true");
-            const activeDropdown = l(tab) && getParentDropdown(tab);
-            if (activeDropdown && Hn(activeDropdown, activeClass)) {
-              Fn(activeDropdown, activeClass);
-            }
-            // istanbul ignore else @preserve
-            if (nav) {
-              const toggleTab = () => {
-                // istanbul ignore else @preserve
-                if (tab) {
-                  Fn(tab, activeClass);
-                  In(tab, De, "false");
-                }
-                if (dropdown && !Hn(dropdown, activeClass)) {
-                  Bn(dropdown, activeClass);
-                }
-              };
-              if (content && (Hn(content, fadeClass) || nextContent && Hn(nextContent, fadeClass))) {
-                so.set(nav, toggleTab, 1);
-              } else toggleTab();
-            }
-            // istanbul ignore else @preserve
-            if (content) {
-              Fn(content, showClass);
-              if (Hn(content, fadeClass)) {
-                qn(content, () => triggerTabHide(this));
-              } else {
-                triggerTabHide(this);
-              }
-            }
+      if (nav && yo.get(nav) || Yn(element, activeClass)) return;
+      const { tab, content } = getActiveTab(this);
+      if (nav && tab) {
+        tabPrivate.set(nav, { tab, content, currentHeight: 0, nextHeight: 0 });
+      }
+      hideTabEvent.relatedTarget = element;
+      if (!m$1(tab)) return;
+      q(tab, hideTabEvent);
+      if (hideTabEvent.defaultPrevented) return;
+      qn(element, activeClass);
+      Qn(element, Fe, "true");
+      const activeDropdown = m$1(tab) && getParentDropdown(tab);
+      if (activeDropdown && Yn(activeDropdown, activeClass)) {
+        Zn(activeDropdown, activeClass);
+      }
+      if (nav) {
+        const toggleTab = () => {
+          if (tab) {
+            Zn(tab, activeClass);
+            Qn(tab, Fe, "false");
           }
+          if (dropdown && !Yn(dropdown, activeClass)) {
+            qn(dropdown, activeClass);
+          }
+        };
+        if (content && (Yn(content, fadeClass) || nextContent && Yn(nextContent, fadeClass))) {
+          yo.set(nav, toggleTab, 1);
+        } else toggleTab();
+      }
+      if (content) {
+        Zn(content, showClass);
+        if (Yn(content, fadeClass)) {
+          ro(content, () => triggerTabHide(this));
+        } else {
+          triggerTabHide(this);
         }
       }
     }
-    /** Removes the `Tab` component from the target element. */
+    /**
+     * Toggles on/off the `click` event listener.
+     *
+     * @param add when `true`, event listener is added
+     */
+    _toggleEventListeners = (add) => {
+      const action = add ? E$1 : r;
+      action(this.element, mt, tabClickHandler);
+    };
     dispose() {
       this._toggleEventListeners();
       super.dispose();
     }
   }
-  __publicField(Tab, "selector", tabSelector);
-  __publicField(Tab, "init", tabInitCallback);
-  __publicField(Tab, "getInstance", getTabInstance);
   const toastString = "toast";
   const toastComponent = "Toast";
   const toastSelector = `.${toastString}`;
@@ -3075,59 +2866,58 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     autohide: true,
     delay: 5e3
   };
-  const getToastInstance = (element) => Rn(element, toastComponent);
+  const getToastInstance = (element) => to(element, toastComponent);
   const toastInitCallback = (element) => new Toast(element);
-  const showToastEvent = to(
+  const showToastEvent = vo(
     `show.bs.${toastString}`
   );
-  const shownToastEvent = to(
+  const shownToastEvent = vo(
     `shown.bs.${toastString}`
   );
-  const hideToastEvent = to(
+  const hideToastEvent = vo(
     `hide.bs.${toastString}`
   );
-  const hiddenToastEvent = to(
+  const hiddenToastEvent = vo(
     `hidden.bs.${toastString}`
   );
   const showToastComplete = (self) => {
     const { element, options } = self;
-    Fn(element, showingClass);
-    so.clear(element, showingClass);
-    K(element, shownToastEvent);
-    // istanbul ignore else @preserve
+    Zn(element, showingClass);
+    yo.clear(element, showingClass);
+    q(element, shownToastEvent);
     if (options.autohide) {
-      so.set(element, () => self.hide(), options.delay, toastString);
+      yo.set(element, () => self.hide(), options.delay, toastString);
     }
   };
   const hideToastComplete = (self) => {
     const { element } = self;
-    Fn(element, showingClass);
-    Fn(element, showClass);
-    Bn(element, hideClass);
-    so.clear(element, toastString);
-    K(element, hiddenToastEvent);
+    Zn(element, showingClass);
+    Zn(element, showClass);
+    qn(element, hideClass);
+    yo.clear(element, toastString);
+    q(element, hiddenToastEvent);
   };
   const hideToast = (self) => {
     const { element, options } = self;
-    Bn(element, showingClass);
+    qn(element, showingClass);
     if (options.animation) {
-      no(element);
-      qn(element, () => hideToastComplete(self));
+      Eo(element);
+      ro(element, () => hideToastComplete(self));
     } else {
       hideToastComplete(self);
     }
   };
   const showToast = (self) => {
     const { element, options } = self;
-    so.set(
+    yo.set(
       element,
       () => {
-        Fn(element, hideClass);
-        no(element);
-        Bn(element, showClass);
-        Bn(element, showingClass);
+        Zn(element, hideClass);
+        Eo(element);
+        qn(element, showClass);
+        qn(element, showingClass);
         if (options.animation) {
-          qn(element, () => showToastComplete(self));
+          ro(element, () => showToastComplete(self));
         } else {
           showToastComplete(self);
         }
@@ -3138,95 +2928,47 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   const toastClickHandler = (e2) => {
     const { target } = e2;
-    const trigger = target && Ee(target, toastToggleSelector);
+    const trigger = target && ke(target, toastToggleSelector);
     const element = trigger && getTargetElement(trigger);
     const self = element && getToastInstance(element);
-    // istanbul ignore else @preserve
-    if (self) {
-      // istanbul ignore else @preserve
-      if (trigger && trigger.tagName === "A") e2.preventDefault();
-      self.relatedTarget = trigger;
-      self.show();
-    }
+    if (!self) return;
+    if (trigger && trigger.tagName === "A") e2.preventDefault();
+    self.relatedTarget = trigger;
+    self.show();
   };
   const interactiveToastHandler = (e2) => {
     const element = e2.target;
     const self = getToastInstance(element);
     const { type, relatedTarget } = e2;
-    // istanbul ignore else @preserve: a solid filter is required
-    if (self && element !== relatedTarget && !element.contains(relatedTarget)) {
-      if ([bt, st].includes(type)) {
-        so.clear(element, toastString);
-      } else {
-        so.set(element, () => self.hide(), self.options.delay, toastString);
-      }
+    if (!self || element === relatedTarget || element.contains(relatedTarget)) return;
+    if ([yt, ct].includes(type)) {
+      yo.clear(element, toastString);
+    } else {
+      yo.set(element, () => self.hide(), self.options.delay, toastString);
     }
   };
   class Toast extends BaseComponent {
+    static selector = toastSelector;
+    static init = toastInitCallback;
+    static getInstance = getToastInstance;
     /**
      * @param target the target `.toast` element
      * @param config the instance options
      */
     constructor(target, config) {
       super(target, config);
-      // TOAST PUBLIC METHODS
-      // ====================
-      /** Shows the toast. */
-      __publicField(this, "show", () => {
-        const { element, isShown } = this;
-        // istanbul ignore else @preserve
-        if (element && !isShown) {
-          K(element, showToastEvent);
-          if (!showToastEvent.defaultPrevented) {
-            showToast(this);
-          }
-        }
-      });
-      /** Hides the toast. */
-      __publicField(this, "hide", () => {
-        const { element, isShown } = this;
-        // istanbul ignore else @preserve
-        if (element && isShown) {
-          K(element, hideToastEvent);
-          if (!hideToastEvent.defaultPrevented) {
-            hideToast(this);
-          }
-        }
-      });
-      /**
-       * Toggles on/off the `click` event listener.
-       *
-       * @param add when `true`, it will add the listener
-       */
-      __publicField(this, "_toggleEventListeners", (add) => {
-        const action = add ? E$1 : r;
-        const { element, triggers, dismiss, options, hide } = this;
-        // istanbul ignore else @preserve
-        if (dismiss) {
-          action(dismiss, ft, hide);
-        }
-        // istanbul ignore else @preserve
-        if (options.autohide) {
-          [st, ct, bt, ht].forEach(
-            (e2) => action(element, e2, interactiveToastHandler)
-          );
-        }
-        // istanbul ignore else @preserve
-        if (triggers.length) {
-          triggers.forEach(
-            (btn) => action(btn, ft, toastClickHandler)
-          );
-        }
-      });
       const { element, options } = this;
-      if (options.animation && !Hn(element, fadeClass)) {
-        Bn(element, fadeClass);
-      } else if (!options.animation && Hn(element, fadeClass)) {
-        Fn(element, fadeClass);
+      if (options.animation && !Yn(element, fadeClass)) {
+        qn(element, fadeClass);
+      } else if (!options.animation && Yn(element, fadeClass)) {
+        Zn(element, fadeClass);
       }
-      this.dismiss = Co(toastDismissSelector, element);
+      this.dismiss = Ro(toastDismissSelector, element);
       this.triggers = [
-        ...ue(toastToggleSelector, d(element))
+        ...de(
+          toastToggleSelector,
+          d(element)
+        )
       ].filter(
         (btn) => getTargetElement(btn) === element
       );
@@ -3248,23 +2990,52 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * Returns *true* when toast is visible.
      */
     get isShown() {
-      return Hn(this.element, showClass);
+      return Yn(this.element, showClass);
     }
-    /** Removes the `Toast` component from the target element. */
+    show = () => {
+      const { element, isShown } = this;
+      if (!element || isShown) return;
+      q(element, showToastEvent);
+      if (!showToastEvent.defaultPrevented) showToast(this);
+    };
+    hide = () => {
+      const { element, isShown } = this;
+      if (!element || !isShown) return;
+      q(element, hideToastEvent);
+      if (!hideToastEvent.defaultPrevented) hideToast(this);
+    };
+    /**
+     * Toggles on/off the `click` event listener.
+     *
+     * @param add when `true`, it will add the listener
+     */
+    _toggleEventListeners = (add) => {
+      const action = add ? E$1 : r;
+      const { element, triggers, dismiss, options, hide } = this;
+      if (dismiss) {
+        action(dismiss, mt, hide);
+      }
+      if (options.autohide) {
+        [ct, at, yt, wt].forEach(
+          (e2) => action(element, e2, interactiveToastHandler)
+        );
+      }
+      if (triggers.length) {
+        triggers.forEach(
+          (btn) => action(btn, mt, toastClickHandler)
+        );
+      }
+    };
     dispose() {
       const { element, isShown } = this;
       this._toggleEventListeners();
-      so.clear(element, toastString);
-      if (isShown) {
-        Fn(element, showClass);
-      }
+      yo.clear(element, toastString);
+      if (isShown) Zn(element, showClass);
       super.dispose();
     }
   }
-  __publicField(Toast, "selector", toastSelector);
-  __publicField(Toast, "init", toastInitCallback);
-  __publicField(Toast, "getInstance", getToastInstance);
-  const componentsList = {
+  const componentsList = /* @__PURE__ */ new Map();
+  [
     Alert,
     Button,
     Carousel,
@@ -3275,45 +3046,48 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     Popover,
     Tab,
     Toast
-  };
+  ].forEach((c) => componentsList.set(c.prototype.name, c));
   const initComponentDataAPI = (callback, collection) => {
     [...collection].forEach((x2) => callback(x2));
   };
   const removeComponentDataAPI = (component, context) => {
-    const compData = L.getAllFor(component);
+    const compData = O.getAllFor(component);
     if (compData) {
       [...compData].forEach(([element, instance]) => {
-        if (context.contains(element)) instance.dispose();
+        if (context.contains(element)) {
+          instance.dispose();
+        }
       });
     }
   };
   const initCallback = (context) => {
     const lookUp = context && context.nodeName ? context : document;
-    const elemCollection = [...be("*", lookUp)];
-    $n(componentsList).forEach((cs) => {
+    const elemCollection = [...Ne("*", lookUp)];
+    componentsList.forEach((cs) => {
       const { init, selector } = cs;
       initComponentDataAPI(
         init,
-        elemCollection.filter((item) => xo(item, selector))
+        elemCollection.filter((item) => Ee(item, selector))
       );
     });
   };
   const removeDataAPI = (context) => {
     const lookUp = context && context.nodeName ? context : document;
-    Zn(componentsList).forEach((comp) => {
-      removeComponentDataAPI(comp, lookUp);
+    componentsList.forEach((comp) => {
+      removeComponentDataAPI(comp.prototype.name, lookUp);
     });
   };
   if (document.body) initCallback();
   else {
-    E$1(document, "DOMContentLoaded", () => initCallback(), { once: true });
+    E$1(document, "DOMContentLoaded", () => initCallback(), {
+      once: true
+    });
   }
   exports.Alert = Alert;
   exports.Button = Button;
   exports.Carousel = Carousel;
   exports.Collapse = Collapse;
   exports.Dropdown = Dropdown;
-  exports.Listener = eventListener;
   exports.Modal = Modal;
   exports.Offcanvas = Offcanvas;
   exports.Popover = Popover;

@@ -1,5 +1,3 @@
-import * as Listener from '@thednp/event-listener';
-
 import Alert from './components/alert';
 import Button from './components/button';
 import Carousel from './components/carousel';
@@ -20,13 +18,13 @@ export {
   Carousel,
   Collapse,
   Dropdown,
+  initCallback,
   Modal,
   Offcanvas,
   Popover,
+  removeDataAPI,
   Tab,
   Toast,
-  initCallback,
-  removeDataAPI,
-  // Version,
-  Listener,
 };
+
+export {};

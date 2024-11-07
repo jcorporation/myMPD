@@ -1,19 +1,45 @@
-import { Data, ObjectKeys, ObjectValues, getElementsByTagName, matches } from '@thednp/shorty';
+import { Data, getElementsByTagName, matches } from "@thednp/shorty";
 
-import { addListener } from '@thednp/event-listener';
+import { addListener } from "@thednp/event-listener";
 
-import Alert from '../components/alert';
-import Button from '../components/button';
-import Carousel from '../components/carousel';
-import Collapse from '../components/collapse';
-import Dropdown from '../components/dropdown';
-import Modal from '../components/modal';
-import Offcanvas from '../components/offcanvas';
-import Popover from '../components/popover';
-import Tab from '../components/tab';
-import Toast from '../components/toast';
+import Alert from "../components/alert";
+import Button from "../components/button";
+import Carousel from "../components/carousel";
+import Collapse from "../components/collapse";
+import Dropdown from "../components/dropdown";
+import Modal from "../components/modal";
+import Offcanvas from "../components/offcanvas";
+import Popover from "../components/popover";
+import Tab from "../components/tab";
+import Toast from "../components/toast";
 
-const componentsList = {
+const componentsList = new Map<
+  string,
+  | typeof Alert
+  | typeof Button
+  | typeof Carousel
+  | typeof Collapse
+  | typeof Dropdown
+  | typeof Modal
+  | typeof Offcanvas
+  | typeof Popover
+  | typeof Tab
+  | typeof Toast
+>();
+
+type Component =
+  | Alert
+  | Button
+  | Carousel
+  | Collapse
+  | Dropdown
+  | Modal
+  | Offcanvas
+  | Popover
+  | Tab
+  | Toast;
+
+[
   Alert,
   Button,
   Carousel,
@@ -24,7 +50,7 @@ const componentsList = {
   Popover,
   Tab,
   Toast,
-};
+].forEach((c) => componentsList.set(c.prototype.name, c));
 
 /**
  * Initialize all matched `Element`s for one component.
@@ -32,11 +58,11 @@ const componentsList = {
  * @param callback
  * @param collection
  */
-const initComponentDataAPI = <T>(
-  callback: (el: HTMLElement, ops?: Record<string, unknown>) => T,
-  collection: HTMLCollectionOf<HTMLElement> | HTMLElement[],
+const initComponentDataAPI = (
+  callback: (el: Element) => Component,
+  collection: HTMLCollectionOf<Element> | Element[],
 ) => {
-  [...collection].forEach(x => callback(x));
+  [...collection].forEach((x) => callback(x));
 };
 
 /**
@@ -46,11 +72,13 @@ const initComponentDataAPI = <T>(
  * @param context parent `Node`
  */
 const removeComponentDataAPI = <T>(component: string, context: ParentNode) => {
-  const compData = Data.getAllFor(component) as Map<HTMLElement, T>;
+  const compData = Data.getAllFor(component) as Map<Element, T>;
 
   if (compData) {
     [...compData].forEach(([element, instance]) => {
-      if (context.contains(element)) (instance as T & { dispose: () => void }).dispose();
+      if (context.contains(element)) {
+        (instance as T & { dispose: () => void }).dispose();
+      }
     });
   }
 };
@@ -62,13 +90,13 @@ const removeComponentDataAPI = <T>(component: string, context: ParentNode) => {
  */
 export const initCallback = (context?: ParentNode) => {
   const lookUp = context && context.nodeName ? context : document;
-  const elemCollection = [...getElementsByTagName('*', lookUp)];
+  const elemCollection = [...getElementsByTagName<Element>("*", lookUp)];
 
-  ObjectValues(componentsList).forEach(cs => {
+  componentsList.forEach((cs) => {
     const { init, selector } = cs;
     initComponentDataAPI(
       init,
-      elemCollection.filter(item => matches(item, selector)),
+      elemCollection.filter((item) => matches(item, selector)),
     );
   });
 };
@@ -81,13 +109,15 @@ export const initCallback = (context?: ParentNode) => {
 export const removeDataAPI = (context?: ParentNode) => {
   const lookUp = context && context.nodeName ? context : document;
 
-  ObjectKeys(componentsList).forEach(comp => {
-    removeComponentDataAPI(comp, lookUp);
+  componentsList.forEach((comp) => {
+    removeComponentDataAPI(comp.prototype.name, lookUp);
   });
 };
 
-// bulk initialize all components
+// Bulk initialize all components
 if (document.body) initCallback();
 else {
-  addListener(document, 'DOMContentLoaded', () => initCallback(), { once: true });
+  addListener(document, "DOMContentLoaded", () => initCallback(), {
+    once: true,
+  });
 }
