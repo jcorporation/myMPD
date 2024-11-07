@@ -437,12 +437,12 @@ static bool mpd_worker_smartpls_update_sticker(struct t_mpd_worker_state *mpd_wo
             while ((current = list_shift_first(add_list)) != NULL) {
                 i++;
                 j++;
-                if (mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, current->key) == false) {
-                    list_node_free(current);
+                rc = mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, current->key);
+                list_node_free(current);
+                if (rc == false) {
                     mympd_set_mpd_failure(mpd_worker_state->partition_state, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
-                list_node_free(current);
                 if (j == MPD_COMMANDS_MAX) {
                     break;
                 }
