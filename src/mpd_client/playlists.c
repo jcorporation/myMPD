@@ -274,14 +274,12 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
 
     //add shuffled songs to tmp playlist
     //uses command list to add MPD_COMMANDS_MAX songs at once
-    unsigned i = 0;
     bool rc = true;
-    while (i < plist.length) {
+    while (plist.length > 0) {
         if (mpd_command_list_begin(partition_state->conn, false) == true) {
             unsigned j = 0;
             struct t_list_node *current;
             while ((current = list_shift_first(&plist)) != NULL) {
-                i++;
                 j++;
                 rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, current->key);
                 list_node_free(current);
