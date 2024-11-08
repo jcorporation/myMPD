@@ -58,7 +58,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, u
 }
 
 /**
- * Prints a jsonrpc response with the last played songs (memory and disc)
+ * Prints a jsonrpc response with the last played songs
  * @param partition_state pointer to partition state
  * @param stickerdb pointer to stickerdb state
  * @param buffer already allocated sds string to append the response
