@@ -136,6 +136,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct
  * @param uri uri of the song
  * @param expr_list list of search expressions
  * @param tagcols columns to print
+ * @param print_stickers Print stickers?
  * @return pointer to buffer
  */
 static sds get_last_played_obj(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,

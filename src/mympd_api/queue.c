@@ -1019,6 +1019,7 @@ static bool add_queue_search_adv_params(struct t_partition_state *partition_stat
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param tagcols columns to print
+ * @param print_stickers Print stickers?
  * @param song pointer to mpd song struct
  * @return pointer to buffer
  */
