@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Parse hh:mm:ss timestamps #1370
+- Fix: Pause streams with known duration #1371
 
 ***
 
