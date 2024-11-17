@@ -106,7 +106,6 @@ void send_backend_request(struct mg_connection *nc) {
         "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
         "Accept: */*\r\n"
         "Accept-Encoding: none\r\n"
-        "Connection: close\r\n"
         "\r\n",
         mg_url_uri(backend_nc_data->uri),
         (int)host.len, host.buf
@@ -261,6 +260,8 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                 MYMPD_LOG_ERROR(NULL, "Invalid response from connection \"%lu\", response code %d", nc->id, response_code);
                 webserver_redirect_placeholder_image(backend_nc_data->frontend_nc, PLACEHOLDER_NA);
             }
+            //Tell mongoose to close this connection
+            nc->is_draining = 1;
             break;
         }
         case MG_EV_CLOSE: {

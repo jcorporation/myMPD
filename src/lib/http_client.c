@@ -200,7 +200,6 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
                 "Host: %.*s\r\n"
                 "%s"
                 "Content-Length: %lu\r\n"
-                "Connection: close\r\n"
                 "Accept: */*\r\n"
                 "Accept-Encoding: none\r\n"
                 "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
@@ -218,7 +217,6 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
                 "%s %s HTTP/1.1\r\n"
                 "Host: %.*s\r\n"
                 "%s"
-                "Connection: close\r\n"
                 "Accept: */*\r\n"
                 "Accept-Encoding: none\r\n"
                 "User-Agent: myMPD/"MYMPD_VERSION" (https://github.com/jcorporation/myMPD)\r\n"
@@ -270,7 +268,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
             MYMPD_LOG_INFO(NULL, "HTTP client response code \"%d\"", mg_client_response->response_code);
         }
         //Tell mongoose to close this connection
-        nc->is_closing = 1;
+        nc->is_draining = 1;
     }
     else if (ev == MG_EV_ERROR) {
         struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) nc->fn_data;
