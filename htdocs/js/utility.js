@@ -521,15 +521,15 @@ function getMyMPDuri(proto) {
 
 /**
  * Parses a string to seconds
- * @param {string} value [hh:]mm:ss value to parse
+ * @param {string} value [hh:][mm:]ss value to parse
  * @returns {number} value in seconds
  */
 function parseToSeconds(value) {
     let match = value.match(/(\d+):(\d+):(\d+)/);
     if (match) {
         return Number(match[1]) * 60 * 60 +
-            Number(match[1]) * 60 +
-            Number(match[2]);
+            Number(match[2]) * 60 +
+            Number(match[3]);
     }
     match = value.match(/(\d+):(\d+)/);
     if (match) {

@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Parse hh:mm:ss timestamps #1370
+
 ***
 
 ## myMPD v18.2.1 (2024-11-15)
