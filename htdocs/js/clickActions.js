@@ -270,10 +270,7 @@ function seekRelative(offset) {
 function clickPlay() {
     switch(currentState.state) {
         case 'play':
-            if (settings.webuiSettings.footerPlaybackControls === 'stop' ||
-                isStreamUri(currentSongObj.uri) === true)
-            {
-                //always stop streams
+            if (settings.webuiSettings.footerPlaybackControls === 'stop') {
                 sendAPI("MYMPD_API_PLAYER_STOP", {}, null, false);
             }
             else {

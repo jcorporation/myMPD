@@ -739,9 +739,26 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             mpd_run_clearerror(partition_state->conn);
             response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_clearerror", &rc);
             break;
+        case MYMPD_API_PLAYER_PLAY:
+            if (mympd_api_status_clear_error(partition_state, &response->data, request->cmd_id, request->id) == false) {
+                break;
+            }
+            mpd_run_play(partition_state->conn);
+            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_play", &rc);
+            break;
         case MYMPD_API_PLAYER_PAUSE:
-            mpd_run_pause(partition_state->conn, true);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_pause", &rc);
+        case MYMPD_API_PLAYER_STOP:
+            if (request->cmd_id == MYMPD_API_PLAYER_STOP ||
+                partition_state->song_duration <= 0)
+            {
+                // do not pause streams with unknown duration
+                mpd_run_stop(partition_state->conn);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_stop", &rc);
+            }
+            else {
+                mpd_run_pause(partition_state->conn, true);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_pause", &rc);
+            }
             break;
         case MYMPD_API_PLAYER_RESUME:
             if (mympd_api_status_clear_error(partition_state, &response->data, request->cmd_id, request->id) == false) {
@@ -757,17 +774,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_PLAYER_NEXT:
             mpd_run_next(partition_state->conn);
             response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_next", &rc);
-            break;
-        case MYMPD_API_PLAYER_PLAY:
-            if (mympd_api_status_clear_error(partition_state, &response->data, request->cmd_id, request->id) == false) {
-                break;
-            }
-            mpd_run_play(partition_state->conn);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_play", &rc);
-            break;
-        case MYMPD_API_PLAYER_STOP:
-            mpd_run_stop(partition_state->conn);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_stop", &rc);
             break;
         case MYMPD_API_PLAYER_PLAY_SONG:
             if (json_get_uint_max(request->data, "$.params.songId", &uint_buf1, &parse_error) == true) {
