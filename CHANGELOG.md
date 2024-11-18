@@ -21,6 +21,7 @@ This is a small maintenance release.
 - Upd: Improve lists layout for small screens
 - Upd: libmympdclient 1.0.32
 - Upd: bootstrap.native 5.1 #1372
+- Upd: Improve local playback
 - Fix: Support "contains" and "starts_with" sticker operators
 
 ***
