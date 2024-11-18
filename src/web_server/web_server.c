@@ -603,6 +603,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_WAKEUP: {
             struct mg_str *data = (struct mg_str *) ev_data;
+            assert(data->len == 1);
             switch(data->buf[0]) {
                 case 'Q':
                     read_queue(nc->mgr);
