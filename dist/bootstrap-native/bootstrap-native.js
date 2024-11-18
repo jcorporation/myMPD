@@ -269,6 +269,9 @@ var BSN = function(exports) {
   const dataBsDismiss = "data-bs-dismiss";
   const alertString = "alert";
   const alertComponent = "Alert";
+  const isDisabled = (target) => {
+    return Zn(target, "disabled") || j(target, "disabled") === "true";
+  };
   const version = "5.1.0";
   const Version = version;
   class BaseComponent {
@@ -316,9 +319,6 @@ var BSN = function(exports) {
       });
     }
   }
-  const isDisabled = (target) => {
-    return Zn(target, "disabled") || j(target, "disabled") === "true";
-  };
   const alertSelector = `.${alertString}`;
   const alertDismissSelector = `[${dataBsDismiss}="${alertString}"]`;
   const getAlertInstance = (element) => to(element, alertComponent);
@@ -357,9 +357,10 @@ var BSN = function(exports) {
      * disposes the instance once animation is complete, then
      * removes the element from the DOM.
      */
-    close = () => {
-      const { element } = this;
+    close = (e2) => {
+      const { element, dismiss } = this;
       if (!element || !Zn(element, showClass)) return;
+      if (e2 && dismiss && isDisabled(dismiss)) return;
       q(element, closeAlertEvent);
       if (closeAlertEvent.defaultPrevented) return;
       Yn(element, showClass);
@@ -375,7 +376,7 @@ var BSN = function(exports) {
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
       const { dismiss, close } = this;
-      if (dismiss && !isDisabled(dismiss)) {
+      if (dismiss) {
         action(dismiss, vt, close);
       }
     };
@@ -419,12 +420,11 @@ var BSN = function(exports) {
     toggle = (e2) => {
       if (e2) e2.preventDefault();
       const { element, isActive } = this;
-      if (!isDisabled(element)) {
-        const action = isActive ? Yn : qn;
-        action(element, activeClass);
-        Qn(element, Be, isActive ? "false" : "true");
-        this.isActive = Zn(element, activeClass);
-      }
+      if (isDisabled(element)) return;
+      const action = isActive ? Yn : qn;
+      action(element, activeClass);
+      Qn(element, Be, isActive ? "false" : "true");
+      this.isActive = Zn(element, activeClass);
     };
     /**
      * Toggles on/off the `click` event listener.
@@ -508,6 +508,7 @@ var BSN = function(exports) {
     e2.preventDefault();
     const element = ke(this, carouselSelector) || getTargetElement(this);
     const self = element && getCarouselInstance(element);
+    if (isDisabled(this)) return;
     if (!self || self.isAnimating) return;
     const newIndex = +(j(this, dataBsSlideTo) || 0);
     if (this && !Zn(this, activeClass) && !Number.isNaN(newIndex)) {
@@ -518,6 +519,7 @@ var BSN = function(exports) {
     e2.preventDefault();
     const element = ke(this, carouselSelector) || getTargetElement(this);
     const self = element && getCarouselInstance(element);
+    if (isDisabled(this)) return;
     if (!self || self.isAnimating) return;
     const orientation = j(this, dataBsSlide);
     if (orientation === "next") {
@@ -828,16 +830,12 @@ var BSN = function(exports) {
       }
       if (controls.length) {
         controls.forEach((arrow) => {
-          if (!isDisabled(arrow)) {
-            action(arrow, vt, carouselControlsHandler);
-          }
+          action(arrow, vt, carouselControlsHandler);
         });
       }
       if (indicators.length) {
         indicators.forEach((indicator) => {
-          if (!isDisabled(indicator)) {
-            action(indicator, vt, carouselIndicatorHandler);
-          }
+          action(indicator, vt, carouselIndicatorHandler);
         });
       }
       if (keyboard) {
@@ -920,6 +918,7 @@ var BSN = function(exports) {
     const trigger = target && ke(target, collapseToggleSelector);
     const element = trigger && getTargetElement(trigger);
     const self = element && getCollapseInstance(element);
+    if (trigger && isDisabled(trigger)) return;
     if (!self) return;
     self.toggle();
     if (trigger?.tagName === "A") e2.preventDefault();
@@ -1000,9 +999,7 @@ var BSN = function(exports) {
       const { triggers } = this;
       if (triggers.length) {
         triggers.forEach((btn) => {
-          if (!isDisabled(btn)) {
-            action(btn, vt, collapseClickHandler);
-          }
+          action(btn, vt, collapseClickHandler);
         });
       }
     };
@@ -1010,6 +1007,105 @@ var BSN = function(exports) {
       this._toggleEventListeners();
       super.dispose();
     }
+  }
+  const m = (e2) => e2 != null && typeof e2 == "object" || false, p = (e2) => m(e2) && typeof e2.nodeType == "number" && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].some(
+    (t) => e2.nodeType === t
+  ) || false, h = (e2) => p(e2) && e2.nodeType === 1 || false, w = (e2) => typeof e2 == "function" || false, k = "1.0.2", a = "PositionObserver Error";
+  class v {
+    entries;
+    static version = k;
+    _tick;
+    _root;
+    _callback;
+    /**
+     * The constructor takes two arguments, a `callback`, which is called
+     * whenever the position of an observed element changes and an `options` object.
+     * The callback function should take an array of `PositionObserverEntry` objects
+     * as its only argument, but it's not required.
+     *
+     * @param callback the callback that applies to all targets of this observer
+     * @param options the options of this observer
+     */
+    constructor(t, s) {
+      if (!w(t))
+        throw new Error(`${a}: ${t} is not a function.`);
+      this.entries = /* @__PURE__ */ new Map(), this._callback = t, this._root = h(s?.root) ? s.root : document?.documentElement, this._tick = 0;
+    }
+    /**
+     * Start observing the position of the specified element.
+     * If the element is not currently attached to the DOM,
+     * it will NOT be added to the entries.
+     *
+     * @param target an `Element` target
+     */
+    observe = (t) => {
+      if (!h(t))
+        throw new Error(
+          `${a}: ${t} is not an instance of Element.`
+        );
+      this._root.contains(t) && this._new(t).then((s) => {
+        s && !this.getEntry(t) && this.entries.set(t, s), this._tick || (this._tick = requestAnimationFrame(this._runCallback));
+      });
+    };
+    /**
+     * Stop observing the position of the specified element.
+     *
+     * @param target an `HTMLElement` target
+     */
+    unobserve = (t) => {
+      this.entries.has(t) && this.entries.delete(t);
+    };
+    /**
+     * Private method responsible for all the heavy duty,
+     * the observer's runtime.
+     */
+    _runCallback = () => {
+      if (!this.entries.size) return;
+      const t = new Promise((s) => {
+        const r2 = [];
+        this.entries.forEach(
+          ({ target: i, boundingClientRect: n }) => {
+            this._root.contains(i) && this._new(i).then(({ boundingClientRect: o, isIntersecting: u2 }) => {
+              if (!u2) return;
+              const { left: f2, top: _, bottom: l2, right: b2 } = o;
+              if (n.top !== _ || n.left !== f2 || n.right !== b2 || n.bottom !== l2) {
+                const c = { target: i, boundingClientRect: o };
+                this.entries.set(i, c), r2.push(c);
+              }
+            });
+          }
+        ), s(r2);
+      });
+      this._tick = requestAnimationFrame(async () => {
+        const s = await t;
+        s.length && this._callback(s, this), this._runCallback();
+      });
+    };
+    /**
+     * Calculate the target bounding box and determine
+     * the value of `isVisible`.
+     *
+     * @param target an `Element` target
+     */
+    _new = (t) => new Promise((s) => {
+      new IntersectionObserver(
+        ([i], n) => {
+          n.disconnect(), s(i);
+        }
+      ).observe(t);
+    });
+    /**
+     * Find the entry for a given target.
+     *
+     * @param target an `HTMLElement` target
+     */
+    getEntry = (t) => this.entries.get(t);
+    /**
+     * Immediately stop observing all elements.
+     */
+    disconnect = () => {
+      cancelAnimationFrame(this._tick), this.entries.clear(), this._tick = 0;
+    };
   }
   const dropdownMenuClasses = ["dropdown", "dropup", "dropstart", "dropend"];
   const dropdownComponent = "Dropdown";
@@ -1181,15 +1277,14 @@ var BSN = function(exports) {
       self.hide();
     }
   };
-  const dropdownClickHandler = (e2) => {
-    const { target } = e2;
-    const element = target && ke(target, dropdownSelector);
-    const self = element && getDropdownInstance(element);
+  function dropdownClickHandler(e2) {
+    const self = getDropdownInstance(this);
+    if (isDisabled(this)) return;
     if (!self) return;
     e2.stopPropagation();
     self.toggle();
-    if (element && isEmptyAnchor(element)) e2.preventDefault();
-  };
+    if (isEmptyAnchor(this)) e2.preventDefault();
+  }
   const dropdownPreventScroll = (e2) => {
     if ([on, sn].includes(e2.code)) e2.preventDefault();
   };
@@ -1218,11 +1313,6 @@ var BSN = function(exports) {
       ao(element);
     }
   }
-  function dropdownIntersectionHandler(target) {
-    const element = getCurrentOpenDropdown(target);
-    const self = element && getDropdownInstance(element);
-    if (self && self.open) styleDropdown(self);
-  }
   class Dropdown extends BaseComponent {
     static selector = dropdownSelector;
     static init = dropdownInitCallback;
@@ -1241,9 +1331,8 @@ var BSN = function(exports) {
       if (!menu) return;
       this.parentElement = parentElement;
       this.menu = menu;
-      this._observer = new IntersectionObserver(
-        ([entry]) => dropdownIntersectionHandler(entry.target),
-        { threshold: 1 }
+      this._observer = new v(
+        () => styleDropdown(this)
       );
       this._toggleEventListeners(true);
     }
@@ -1307,9 +1396,7 @@ var BSN = function(exports) {
      */
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
-      if (!isDisabled(this.element)) {
-        action(this.element, vt, dropdownClickHandler);
-      }
+      action(this.element, vt, dropdownClickHandler);
     };
     dispose() {
       if (this.open) this.hide();
@@ -1530,16 +1617,15 @@ var BSN = function(exports) {
       afterModalHide(self);
     }
   };
-  const modalClickHandler = (e2) => {
-    const { target } = e2;
-    const trigger = target && ke(target, modalToggleSelector);
-    const element = trigger && getTargetElement(trigger);
+  function modalClickHandler(e2) {
+    const element = getTargetElement(this);
     const self = element && getModalInstance(element);
+    if (isDisabled(this)) return;
     if (!self) return;
-    if (trigger && trigger.tagName === "A") e2.preventDefault();
-    self.relatedTarget = trigger;
+    if (this.tagName === "A") e2.preventDefault();
+    self.relatedTarget = this;
     self.toggle();
-  };
+  }
   const modalKeyHandler = ({ code, target }) => {
     const element = Ro(modalActiveSelector, d(target));
     const self = element && getModalInstance(element);
@@ -1688,7 +1774,7 @@ var BSN = function(exports) {
       const { triggers } = this;
       if (!triggers.length) return;
       triggers.forEach((btn) => {
-        if (!isDisabled(btn)) action(btn, vt, modalClickHandler);
+        action(btn, vt, modalClickHandler);
       });
     };
     dispose() {
@@ -1750,15 +1836,15 @@ var BSN = function(exports) {
     }
     so(element, () => hideOffcanvasComplete(self));
   };
-  const offcanvasTriggerHandler = (e2) => {
-    const trigger = ke(e2.target, offcanvasToggleSelector);
-    const element = trigger && getTargetElement(trigger);
+  function offcanvasTriggerHandler(e2) {
+    const element = getTargetElement(this);
     const self = element && getOffcanvasInstance(element);
+    if (isDisabled(this)) return;
     if (!self) return;
-    self.relatedTarget = trigger;
+    self.relatedTarget = this;
     self.toggle();
-    if (trigger?.tagName === "A") e2.preventDefault();
-  };
+    if (this.tagName === "A") e2.preventDefault();
+  }
   const offcanvasDismissHandler = (e2) => {
     const { target } = e2;
     const element = Ro(
@@ -1907,9 +1993,7 @@ var BSN = function(exports) {
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
       this.triggers.forEach((btn) => {
-        if (!isDisabled(btn)) {
-          action(btn, vt, offcanvasTriggerHandler);
-        }
+        action(btn, vt, offcanvasTriggerHandler);
       });
     };
     dispose() {
@@ -2093,105 +2177,6 @@ var BSN = function(exports) {
     dismissible: false,
     btnClose: ""
   };
-  const m = (e2) => e2 != null && typeof e2 == "object" || false, p = (e2) => m(e2) && typeof e2.nodeType == "number" && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].some(
-    (t) => e2.nodeType === t
-  ) || false, h = (e2) => p(e2) && e2.nodeType === 1 || false, w = (e2) => typeof e2 == "function" || false, k = "1.0.2", a = "PositionObserver Error";
-  class v {
-    entries;
-    static version = k;
-    _tick;
-    _root;
-    _callback;
-    /**
-     * The constructor takes two arguments, a `callback`, which is called
-     * whenever the position of an observed element changes and an `options` object.
-     * The callback function should take an array of `PositionObserverEntry` objects
-     * as its only argument, but it's not required.
-     *
-     * @param callback the callback that applies to all targets of this observer
-     * @param options the options of this observer
-     */
-    constructor(t, s) {
-      if (!w(t))
-        throw new Error(`${a}: ${t} is not a function.`);
-      this.entries = /* @__PURE__ */ new Map(), this._callback = t, this._root = h(s?.root) ? s.root : document?.documentElement, this._tick = 0;
-    }
-    /**
-     * Start observing the position of the specified element.
-     * If the element is not currently attached to the DOM,
-     * it will NOT be added to the entries.
-     *
-     * @param target an `Element` target
-     */
-    observe = (t) => {
-      if (!h(t))
-        throw new Error(
-          `${a}: ${t} is not an instance of Element.`
-        );
-      this._root.contains(t) && this._new(t).then((s) => {
-        s && !this.getEntry(t) && this.entries.set(t, s), this._tick || (this._tick = requestAnimationFrame(this._runCallback));
-      });
-    };
-    /**
-     * Stop observing the position of the specified element.
-     *
-     * @param target an `HTMLElement` target
-     */
-    unobserve = (t) => {
-      this.entries.has(t) && this.entries.delete(t);
-    };
-    /**
-     * Private method responsible for all the heavy duty,
-     * the observer's runtime.
-     */
-    _runCallback = () => {
-      if (!this.entries.size) return;
-      const t = new Promise((s) => {
-        const r2 = [];
-        this.entries.forEach(
-          ({ target: i, boundingClientRect: n }) => {
-            this._root.contains(i) && this._new(i).then(({ boundingClientRect: o, isIntersecting: u2 }) => {
-              if (!u2) return;
-              const { left: f2, top: _, bottom: l2, right: b2 } = o;
-              if (n.top !== _ || n.left !== f2 || n.right !== b2 || n.bottom !== l2) {
-                const c = { target: i, boundingClientRect: o };
-                this.entries.set(i, c), r2.push(c);
-              }
-            });
-          }
-        ), s(r2);
-      });
-      this._tick = requestAnimationFrame(async () => {
-        const s = await t;
-        s.length && this._callback(s, this), this._runCallback();
-      });
-    };
-    /**
-     * Calculate the target bounding box and determine
-     * the value of `isVisible`.
-     *
-     * @param target an `Element` target
-     */
-    _new = (t) => new Promise((s) => {
-      new IntersectionObserver(
-        ([i], n) => {
-          n.disconnect(), s(i);
-        }
-      ).observe(t);
-    });
-    /**
-     * Find the entry for a given target.
-     *
-     * @param target an `HTMLElement` target
-     */
-    getEntry = (t) => this.entries.get(t);
-    /**
-     * Immediately stop observing all elements.
-     */
-    disconnect = () => {
-      cancelAnimationFrame(this._tick), this.entries.clear(), this._tick = 0;
-    };
-  }
   const dataOriginalTitle = "data-original-title";
   const tooltipComponent = "Tooltip";
   const setHtml = (element, content, sanitizeFn) => {
@@ -2610,7 +2595,7 @@ var BSN = function(exports) {
     template: getTipTemplate(popoverString),
     content: "",
     dismissible: false,
-    btnClose: '<button class="btn-close" aria-label="Close"></button>'
+    btnClose: '<button class="btn-close position-absolute top-0 end-0 m-1" aria-label="Close"></button>'
   });
   const getPopoverInstance = (element) => to(element, popoverComponent);
   const popoverInitCallback = (element) => new Popover(element);
@@ -2927,16 +2912,15 @@ var BSN = function(exports) {
       showingClass
     );
   };
-  const toastClickHandler = (e2) => {
-    const { target } = e2;
-    const trigger = target && ke(target, toastToggleSelector);
-    const element = trigger && getTargetElement(trigger);
+  function toastClickHandler(e2) {
+    const element = getTargetElement(this);
     const self = element && getToastInstance(element);
+    if (isDisabled(this)) return;
     if (!self) return;
-    if (trigger && trigger.tagName === "A") e2.preventDefault();
-    self.relatedTarget = trigger;
+    if (this.tagName === "A") e2.preventDefault();
+    self.relatedTarget = this;
     self.show();
-  };
+  }
   const interactiveToastHandler = (e2) => {
     const element = e2.target;
     const self = getToastInstance(element);
@@ -3023,7 +3007,7 @@ var BSN = function(exports) {
       }
       if (triggers.length) {
         triggers.forEach((btn) => {
-          if (!isDisabled(btn)) action(btn, vt, toastClickHandler);
+          action(btn, vt, toastClickHandler);
         });
       }
     };
