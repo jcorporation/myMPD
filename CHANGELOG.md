@@ -8,6 +8,10 @@ https://github.com/jcorporation/myMPD/
 
 This is a small maintenance release.
 
+### Scripting
+
+- The deprecated `var_` entries are remove from `mympd_env`, use the subtable `var`.
+
 ### API changes
 
 - MYMPD_API_STICKER_NAMES: respect type parameter

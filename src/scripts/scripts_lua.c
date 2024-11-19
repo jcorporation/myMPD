@@ -310,20 +310,10 @@ static void populate_lua_global_vars(struct t_scripts_state *scripts_state,
     populate_lua_table_field_p(script_arg->lua_vm, "cachedir_thumbs", cachedir);
     FREE_SDS(cachedir);
     populate_lua_table_field_p(script_arg->lua_vm, "workdir", script_arg->config->workdir);
-    // User defined variables - deprecated will be remove in 19.0.0
-    struct t_list_node *current = scripts_state->var_list.head;
-    sds key = sdsempty();
-    while (current != NULL) {
-        key = sdscatfmt(key, "var_%S", current->key);
-        populate_lua_table_field_p(script_arg->lua_vm, key, current->value_p);
-        sdsclear(key);
-        current = current->next;
-    }
-    FREE_SDS(key);
-    // User defined variables - new interface since 18.0.0
+    // User defined variables
     lua_pushstring(script_arg->lua_vm, "var");
     lua_newtable(script_arg->lua_vm);
-    current = scripts_state->var_list.head;
+    struct t_list_node *current = scripts_state->var_list.head;
     while (current != NULL) {
         populate_lua_table_field_p(script_arg->lua_vm, current->key, current->value_p);
         current = current->next;
