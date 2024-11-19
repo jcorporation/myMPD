@@ -23,6 +23,7 @@ This is a small maintenance release.
 - Upd: bootstrap.native 5.1 #1372
 - Upd: Improve local playback
 - Fix: Support "contains" and "starts_with" sticker operators
+- Fix: Increase max header count from 30 to 50
 
 ***
 

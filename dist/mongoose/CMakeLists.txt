@@ -16,6 +16,7 @@ target_compile_options(mongoose
     "-DMG_ENABLE_DIRLIST=1"
     "-DMG_ENABLE_SSI=0"
     "-DMG_TLS=MG_TLS_OPENSSL"
+    "-DMG_MAX_HTTP_HEADERS=50"
 )
 
 if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
