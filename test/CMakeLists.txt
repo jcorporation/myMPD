@@ -8,7 +8,7 @@ configure_file(utility.h.in "${PROJECT_BINARY_DIR}/test/utility.h")
 set(TEST_SOURCES
   main.c
   utility.c
-    ../src/lib/api.c
+  ../src/lib/api.c
   ../src/lib/cache_disk_lyrics.c
   ../src/lib/cache_rax_album.c
   ../src/lib/cache_rax.c
@@ -126,6 +126,7 @@ target_compile_options(unit_test
   PRIVATE
     "-Wno-unused-function"
     "-Wno-redundant-decls"
+    "-DMG_MAX_HTTP_HEADERS=50"
 )
 
 target_link_libraries(unit_test
