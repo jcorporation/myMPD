@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v19.0.0 (not yet released)
 
-This is a small maintenance release.
+This is a small maintenance release. It ships support for the newest MPD 0.24 protocol commands and enhancements for user defined stickers.
 
 ### Scripting
 
