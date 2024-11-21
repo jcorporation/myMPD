@@ -1140,93 +1140,90 @@ var BSN = function(exports) {
   const styleDropdown = (self) => {
     const { element, menu, parentElement, options } = self;
     const { offset } = options;
-    if (g(menu, "position") !== "static") {
-      const RTL = Uo(element);
-      const menuEnd = Zn(menu, dropdownMenuEndClass);
-      const resetProps = ["margin", "top", "bottom", "left", "right"];
-      resetProps.forEach((p2) => {
-        const style = {};
-        style[p2] = "";
-        Eo(menu, style);
-      });
-      let positionClass = dropdownMenuClasses.find(
-        (c) => Zn(parentElement, c)
-      ) || dropdownString;
-      const dropdownMargin = {
-        dropdown: [offset, 0, 0],
-        dropup: [0, 0, offset],
-        dropstart: RTL ? [-1, 0, 0, offset] : [-1, offset, 0],
-        dropend: RTL ? [-1, offset, 0] : [-1, 0, 0, offset]
-      };
-      const dropdownPosition = {
-        dropdown: { top: "100%" },
-        dropup: { top: "auto", bottom: "100%" },
-        dropstart: RTL ? { left: "100%", right: "auto" } : { left: "auto", right: "100%" },
-        dropend: RTL ? { left: "auto", right: "100%" } : { left: "100%", right: "auto" },
-        menuStart: RTL ? { right: "0", left: "auto" } : { right: "auto", left: "0" },
-        menuEnd: RTL ? { right: "auto", left: "0" } : { right: "0", left: "auto" }
-      };
-      const { offsetWidth: menuWidth, offsetHeight: menuHeight } = menu;
-      const { clientWidth, clientHeight } = S(element);
-      const {
-        left: targetLeft,
-        top: targetTop,
-        width: targetWidth,
-        height: targetHeight
-      } = w$1(element);
-      const leftFullExceed = targetLeft - menuWidth - offset < 0;
-      const rightFullExceed = targetLeft + menuWidth + targetWidth + offset >= clientWidth;
-      const bottomExceed = targetTop + menuHeight + offset >= clientHeight;
-      const bottomFullExceed = targetTop + menuHeight + targetHeight + offset >= clientHeight;
-      const topExceed = targetTop - menuHeight - offset < 0;
-      const leftExceed = (!RTL && menuEnd || RTL && !menuEnd) && targetLeft + targetWidth - menuWidth < 0;
-      const rightExceed = (RTL && menuEnd || !RTL && !menuEnd) && targetLeft + menuWidth >= clientWidth;
-      if (horizontalClass.includes(positionClass) && leftFullExceed && rightFullExceed) {
-        positionClass = dropdownString;
-      }
-      if (positionClass === dropstartString && (!RTL ? leftFullExceed : rightFullExceed)) {
-        positionClass = dropendString;
-      }
-      if (positionClass === dropendString && (RTL ? leftFullExceed : rightFullExceed)) {
-        positionClass = dropstartString;
-      }
-      if (positionClass === dropupString && topExceed && !bottomFullExceed) {
-        positionClass = dropdownString;
-      }
-      if (positionClass === dropdownString && bottomFullExceed && !topExceed) {
-        positionClass = dropupString;
-      }
-      if (horizontalClass.includes(positionClass) && bottomExceed) {
-        N(dropdownPosition[positionClass], {
-          top: "auto",
-          bottom: 0
-        });
-      }
-      if (verticalClass.includes(positionClass) && (leftExceed || rightExceed)) {
-        let posAjust = { left: "auto", right: "auto" };
-        if (!leftExceed && rightExceed && !RTL) {
-          posAjust = { left: "auto", right: 0 };
-        }
-        if (leftExceed && !rightExceed && RTL) {
-          posAjust = { left: 0, right: "auto" };
-        }
-        if (posAjust) {
-          N(dropdownPosition[positionClass], posAjust);
-        }
-      }
-      const margins = dropdownMargin[positionClass];
-      Eo(menu, {
-        ...dropdownPosition[positionClass],
-        margin: `${margins.map((x2) => x2 ? `${x2}px` : x2).join(" ")}`
-      });
-      if (verticalClass.includes(positionClass) && menuEnd) {
-        if (menuEnd) {
-          const endAdjust = !RTL && leftExceed || RTL && rightExceed ? "menuStart" : "menuEnd";
-          Eo(menu, dropdownPosition[endAdjust]);
-        }
-      }
-      q(parentElement, updatedDropdownEvent);
+    if (g(menu, "position") === "static") return;
+    const RTL = Uo(element);
+    const menuEnd = Zn(menu, dropdownMenuEndClass);
+    const resetProps = ["margin", "top", "bottom", "left", "right"];
+    resetProps.forEach((p2) => {
+      const style = {};
+      style[p2] = "";
+      Eo(menu, style);
+    });
+    let positionClass = dropdownMenuClasses.find((c) => Zn(parentElement, c)) || dropdownString;
+    const dropdownMargin = {
+      dropdown: [offset, 0, 0],
+      dropup: [0, 0, offset],
+      dropstart: RTL ? [-1, 0, 0, offset] : [-1, offset, 0],
+      dropend: RTL ? [-1, offset, 0] : [-1, 0, 0, offset]
+    };
+    const dropdownPosition = {
+      dropdown: { top: "100%" },
+      dropup: { top: "auto", bottom: "100%" },
+      dropstart: RTL ? { left: "100%", right: "auto" } : { left: "auto", right: "100%" },
+      dropend: RTL ? { left: "auto", right: "100%" } : { left: "100%", right: "auto" },
+      menuStart: RTL ? { right: "0", left: "auto" } : { right: "auto", left: "0" },
+      menuEnd: RTL ? { right: "auto", left: "0" } : { right: "0", left: "auto" }
+    };
+    const { offsetWidth: menuWidth, offsetHeight: menuHeight } = menu;
+    const { clientWidth, clientHeight } = S(element);
+    const {
+      left: targetLeft,
+      top: targetTop,
+      width: targetWidth,
+      height: targetHeight
+    } = w$1(element);
+    const leftFullExceed = targetLeft - menuWidth - offset < 0;
+    const rightFullExceed = targetLeft + menuWidth + targetWidth + offset >= clientWidth;
+    const bottomExceed = targetTop + menuHeight + offset >= clientHeight;
+    const bottomFullExceed = targetTop + menuHeight + targetHeight + offset >= clientHeight;
+    const topExceed = targetTop - menuHeight - offset < 0;
+    const leftExceed = (!RTL && menuEnd || RTL && !menuEnd) && targetLeft + targetWidth - menuWidth < 0;
+    const rightExceed = (RTL && menuEnd || !RTL && !menuEnd) && targetLeft + menuWidth >= clientWidth;
+    if (horizontalClass.includes(positionClass) && leftFullExceed && rightFullExceed) {
+      positionClass = dropdownString;
     }
+    if (positionClass === dropstartString && (!RTL ? leftFullExceed : rightFullExceed)) {
+      positionClass = dropendString;
+    }
+    if (positionClass === dropendString && (RTL ? leftFullExceed : rightFullExceed)) {
+      positionClass = dropstartString;
+    }
+    if (positionClass === dropupString && topExceed && !bottomFullExceed) {
+      positionClass = dropdownString;
+    }
+    if (positionClass === dropdownString && bottomFullExceed && !topExceed) {
+      positionClass = dropupString;
+    }
+    if (horizontalClass.includes(positionClass) && bottomExceed) {
+      N(dropdownPosition[positionClass], {
+        top: "auto",
+        bottom: 0
+      });
+    }
+    if (verticalClass.includes(positionClass) && (leftExceed || rightExceed)) {
+      let posAjust = { left: "auto", right: "auto" };
+      if (!leftExceed && rightExceed && !RTL) {
+        posAjust = { left: "auto", right: 0 };
+      }
+      if (leftExceed && !rightExceed && RTL) {
+        posAjust = { left: 0, right: "auto" };
+      }
+      if (posAjust) {
+        N(dropdownPosition[positionClass], posAjust);
+      }
+    }
+    const margins = dropdownMargin[positionClass];
+    Eo(menu, {
+      ...dropdownPosition[positionClass],
+      margin: `${margins.map((x2) => x2 ? `${x2}px` : x2).join(" ")}`
+    });
+    if (verticalClass.includes(positionClass) && menuEnd) {
+      if (menuEnd) {
+        const endAdjust = !RTL && leftExceed || RTL && rightExceed ? "menuStart" : "menuEnd";
+        Eo(menu, dropdownPosition[endAdjust]);
+      }
+    }
+    q(parentElement, updatedDropdownEvent);
   };
   const getMenuItems = (menu) => {
     return Array.from(menu.children).map((c) => {
