@@ -31,7 +31,7 @@ This is a small maintenance release.
 
 ***
 
-## myMPD v18.2.2 (not yet released)
+## myMPD v18.2.2 (2024-11-21)
 
 This is a small bug fix release.
 
