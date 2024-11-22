@@ -1,13 +1,13 @@
 var BSN = function(exports) {
   "use strict";
-  const De = "aria-describedby", Oe = "aria-expanded", J = "aria-hidden", Pe = "aria-modal", Be = "aria-pressed", Fe = "aria-selected", ct = "focus", at = "focusin", it = "focusout", ft = "keydown", gt = "keyup", vt = "click", Et = "mousedown", yt = "hover", wt = "mouseenter", At = "mouseleave", Ot = "pointerdown", zt = "pointermove", It = "pointerup", Qt = "touchstart", je = "dragstart", Yt = 'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"]', on = "ArrowDown", sn = "ArrowUp", rn = "ArrowLeft", cn = "ArrowRight", gn = "Escape", $t = "transitionDuration", Jt = "transitionDelay", L = "transitionend", W = "transitionProperty", zn = () => {
+  const Me = "aria-describedby", De = "aria-expanded", $ = "aria-hidden", ze = "aria-modal", Ie = "aria-pressed", Pe = "aria-selected", st = "focus", rt = "focusin", ct = "focusout", lt = "keydown", ft = "keyup", gt = "click", vt = "mousedown", Et = "hover", ht = "mouseenter", yt = "mouseleave", Dt = "pointerdown", Ot = "pointermove", xt = "pointerup", Wt = "touchstart", Re = "dragstart", qt = 'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"]', en = "ArrowDown", nn = "ArrowUp", on = "ArrowLeft", sn = "ArrowRight", fn = "Escape", _t = "transitionDuration", $t = "transitionDelay", M = "transitionend", W = "transitionProperty", On = () => {
     const t = /(iPhone|iPod|iPad)/;
     return navigator?.userAgentData?.brands.some(
       (e2) => t.test(e2.brand)
     ) || t.test(
       navigator?.userAgent
     ) || false;
-  }, ee = () => {
+  }, Yt = () => {
   }, R = (t, e2, n, o) => {
     const s = o || false;
     t.addEventListener(
@@ -22,192 +22,145 @@ var BSN = function(exports) {
       n,
       s
     );
-  }, j = (t, e2) => t.getAttribute(e2), oe = (t, e2) => t.hasAttribute(e2), Qn = (t, e2, n) => t.setAttribute(e2, n), Gn = (t, e2) => t.removeAttribute(e2), qn = (t, ...e2) => {
+  }, j = (t, e2) => t.getAttribute(e2), ee = (t, e2) => t.hasAttribute(e2), Wn = (t, e2, n) => t.setAttribute(e2, n), Qn = (t, e2) => t.removeAttribute(e2), Kn = (t, ...e2) => {
     t.classList.add(...e2);
-  }, Yn = (t, ...e2) => {
+  }, qn = (t, ...e2) => {
     t.classList.remove(...e2);
-  }, Zn = (t, e2) => t.classList.contains(e2), b = (t) => t != null && typeof t == "object" || false, l = (t) => b(t) && typeof t.nodeType == "number" && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].some(
+  }, Gn = (t, e2) => t.classList.contains(e2), v$1 = (t) => t != null && typeof t == "object" || false, u = (t) => v$1(t) && typeof t.nodeType == "number" && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].some(
     (e2) => t.nodeType === e2
-  ) || false, u = (t) => l(t) && t.nodeType === 1 || false, h$1 = /* @__PURE__ */ new Map(), D = {
-    data: h$1,
-    /**
-     * Sets web components data.
-     *
-     * @param element target element
-     * @param component the component's name or a unique key
-     * @param instance the component instance
-     */
+  ) || false, i = (t) => u(t) && t.nodeType === 1 || false, E$1 = /* @__PURE__ */ new Map(), L = {
+    data: E$1,
     set: (t, e2, n) => {
-      if (!u(t)) return;
-      h$1.has(e2) || h$1.set(e2, /* @__PURE__ */ new Map()), h$1.get(e2).set(t, n);
+      if (!i(t)) return;
+      E$1.has(e2) || E$1.set(e2, /* @__PURE__ */ new Map()), E$1.get(e2).set(t, n);
     },
-    /**
-     * Returns all instances for specified component.
-     *
-     * @param component the component's name or a unique key
-     * @returns all the component instances
-     */
-    getAllFor: (t) => h$1.get(t) || null,
-    /**
-     * Returns the instance associated with the target.
-     *
-     * @param element target element
-     * @param component the component's name or a unique key
-     * @returns the instance
-     */
+    getAllFor: (t) => E$1.get(t) || null,
     get: (t, e2) => {
-      if (!u(t) || !e2) return null;
-      const n = D.getAllFor(e2);
+      if (!i(t) || !e2) return null;
+      const n = L.getAllFor(e2);
       return t && n && n.get(t) || null;
     },
-    /**
-     * Removes web components data.
-     *
-     * @param element target element
-     * @param component the component's name or a unique key
-     */
     remove: (t, e2) => {
-      const n = D.getAllFor(e2);
-      !n || !u(t) || (n.delete(t), n.size === 0 && h$1.delete(e2));
+      const n = L.getAllFor(e2);
+      !n || !i(t) || (n.delete(t), n.size === 0 && E$1.delete(e2));
     }
-  }, to = (t, e2) => D.get(t, e2), I = (t) => t?.trim().replace(
+  }, Xn = (t, e2) => L.get(t, e2), I = (t) => t?.trim().replace(
     /(?:^\w|[A-Z]|\b\w)/g,
     (e2, n) => n === 0 ? e2.toLowerCase() : e2.toUpperCase()
-  ).replace(/\s+/g, ""), k$1 = (t) => typeof t == "string" || false, G = (t) => b(t) && t.constructor.name === "Window" || false, K = (t) => l(t) && t.nodeType === 9 || false, d = (t) => K(t) ? t : l(t) ? t.ownerDocument : G(t) ? t.document : globalThis.document, N = (t, ...e2) => Object.assign(t, ...e2), se = (t) => {
+  ).replace(/\s+/g, ""), N = (t) => typeof t == "string" || false, K = (t) => v$1(t) && t.constructor.name === "Window" || false, q = (t) => u(t) && t.nodeType === 9 || false, d = (t) => q(t) ? t : u(t) ? t.ownerDocument : K(t) ? t.document : globalThis.document, C = (t, ...e2) => Object.assign(t, ...e2), ne = (t) => {
     if (!t) return;
-    if (k$1(t))
+    if (N(t))
       return d().createElement(t);
-    const { tagName: e2 } = t, n = se(e2);
+    const { tagName: e2 } = t, n = ne(e2);
     if (!n) return;
     const o = { ...t };
-    return delete o.tagName, N(n, o);
-  }, q = (t, e2) => t.dispatchEvent(e2), g = (t, e2, n) => {
+    return delete o.tagName, C(n, o);
+  }, G = (t, e2) => t.dispatchEvent(e2), f$1 = (t, e2, n) => {
     const o = getComputedStyle(t, n), s = e2.replace("webkit", "Webkit").replace(/([A-Z])/g, "-$1").toLowerCase();
     return o.getPropertyValue(s);
-  }, ie = (t) => {
-    const e2 = g(t, W), n = g(t, Jt), o = n.includes("ms") ? 1 : 1e3, s = e2 && e2 !== "none" ? parseFloat(n) * o : 0;
+  }, ce = (t) => {
+    const e2 = f$1(t, W), n = f$1(t, $t), o = n.includes("ms") ? 1 : 1e3, s = e2 && e2 !== "none" ? parseFloat(n) * o : 0;
     return Number.isNaN(s) ? 0 : s;
-  }, ue = (t) => {
-    const e2 = g(t, W), n = g(t, $t), o = n.includes("ms") ? 1 : 1e3, s = e2 && e2 !== "none" ? parseFloat(n) * o : 0;
+  }, ae = (t) => {
+    const e2 = f$1(t, W), n = f$1(t, _t), o = n.includes("ms") ? 1 : 1e3, s = e2 && e2 !== "none" ? parseFloat(n) * o : 0;
     return Number.isNaN(s) ? 0 : s;
-  }, so = (t, e2) => {
+  }, no = (t, e2) => {
     let n = 0;
-    const o = new Event(L), s = ue(t), r2 = ie(t);
+    const o = new Event(M), s = ae(t), r2 = ce(t);
     if (s) {
-      const a2 = (i) => {
-        i.target === t && (e2.apply(t, [i]), t.removeEventListener(L, a2), n = 1);
+      const a2 = (l) => {
+        l.target === t && (e2.apply(t, [l]), t.removeEventListener(M, a2), n = 1);
       };
-      t.addEventListener(L, a2), setTimeout(() => {
-        n || q(t, o);
+      t.addEventListener(M, a2), setTimeout(() => {
+        n || G(t, o);
       }, s + r2 + 17);
     } else
       e2.apply(t, [o]);
-  }, ao = (t, e2) => t.focus(e2), P = (t) => ["true", true].includes(t) ? true : ["false", false].includes(t) ? false : ["null", "", null, void 0].includes(t) ? null : t !== "" && !Number.isNaN(+t) ? +t : t, T = (t) => Object.entries(t), uo = (t, e2, n, o) => {
-    if (!u(t)) return e2;
-    const s = { ...n }, r2 = { ...t.dataset }, a2 = { ...e2 }, i = {}, f2 = "title";
-    return T(r2).forEach(([c, p2]) => {
-      const E2 = typeof c == "string" && c.includes(o) ? I(c.replace(o, "")) : I(c);
-      i[E2] = P(p2);
-    }), T(s).forEach(([c, p2]) => {
-      s[c] = P(p2);
-    }), T(e2).forEach(([c, p2]) => {
-      c in s ? a2[c] = s[c] : c in i ? a2[c] = i[c] : a2[c] = c === f2 ? j(t, f2) : p2;
+  }, ro = (t, e2) => t.focus(e2), P = (t) => ["true", true].includes(t) ? true : ["false", false].includes(t) ? false : ["null", "", null, void 0].includes(t) ? null : t !== "" && !Number.isNaN(+t) ? +t : t, S = (t) => Object.entries(t), ao = (t, e2, n, o) => {
+    if (!i(t)) return e2;
+    const s = { ...n }, r2 = { ...t.dataset }, a2 = { ...e2 }, l = {}, p2 = "title";
+    return S(r2).forEach(([c, g]) => {
+      const A = typeof c == "string" && c.includes(o) ? I(c.replace(o, "")) : I(c);
+      l[A] = P(g);
+    }), S(s).forEach(([c, g]) => {
+      s[c] = P(g);
+    }), S(e2).forEach(([c, g]) => {
+      c in s ? a2[c] = s[c] : c in l ? a2[c] = l[c] : a2[c] = c === p2 ? j(t, p2) : g;
     }), a2;
-  }, fo = (t) => Object.keys(t), mo = (t, e2) => {
+  }, uo = (t) => Object.keys(t), po = (t, e2) => {
     const n = new CustomEvent(t, {
       cancelable: true,
       bubbles: true
     });
-    return b(e2) && N(n, e2), n;
-  }, vo = { passive: true }, bo = (t) => t.offsetHeight, Eo = (t, e2) => {
-    T(e2).forEach(([n, o]) => {
-      if (o && k$1(n) && n.includes("--"))
+    return v$1(e2) && C(n, e2), n;
+  }, go = { passive: true }, mo = (t) => t.offsetHeight, vo = (t, e2) => {
+    S(e2).forEach(([n, o]) => {
+      if (o && N(n) && n.includes("--"))
         t.style.setProperty(n, o);
       else {
         const s = {};
-        s[n] = o, N(t.style, s);
+        s[n] = o, C(t.style, s);
       }
     });
-  }, O = (t) => b(t) && t.constructor.name === "Map" || false, le = (t) => typeof t == "number" || false, v$1 = /* @__PURE__ */ new Map(), ho = {
-    /**
-     * Sets a new timeout timer for an element, or element -> key association.
-     *
-     * @param element target element
-     * @param callback the callback
-     * @param delay the execution delay
-     * @param key a unique key
-     */
+  }, O = (t) => v$1(t) && t.constructor.name === "Map" || false, ie = (t) => typeof t == "number" || false, m$1 = /* @__PURE__ */ new Map(), bo = {
     set: (t, e2, n, o) => {
-      u(t) && (o && o.length ? (v$1.has(t) || v$1.set(t, /* @__PURE__ */ new Map()), v$1.get(t).set(o, setTimeout(e2, n))) : v$1.set(t, setTimeout(e2, n)));
+      i(t) && (o && o.length ? (m$1.has(t) || m$1.set(t, /* @__PURE__ */ new Map()), m$1.get(t).set(o, setTimeout(e2, n))) : m$1.set(t, setTimeout(e2, n)));
     },
-    /**
-     * Returns the timer associated with the target.
-     *
-     * @param element target element
-     * @param key a unique
-     * @returns the timer
-     */
     get: (t, e2) => {
-      if (!u(t)) return null;
-      const n = v$1.get(t);
-      return e2 && n && O(n) ? n.get(e2) || null : le(n) ? n : null;
+      if (!i(t)) return null;
+      const n = m$1.get(t);
+      return e2 && n && O(n) ? n.get(e2) || null : ie(n) ? n : null;
     },
-    /**
-     * Clears the element's timer.
-     *
-     * @param element target element
-     * @param key a unique key
-     */
     clear: (t, e2) => {
-      if (!u(t)) return;
-      const n = v$1.get(t);
-      e2 && e2.length && O(n) ? (clearTimeout(n.get(e2)), n.delete(e2), n.size === 0 && v$1.delete(t)) : (clearTimeout(n), v$1.delete(t));
+      if (!i(t)) return;
+      const n = m$1.get(t);
+      e2 && e2.length && O(n) ? (clearTimeout(n.get(e2)), n.delete(e2), n.size === 0 && m$1.delete(t)) : (clearTimeout(n), m$1.delete(t));
     }
-  }, yo = (t) => t.toLowerCase(), de = (t, e2) => (l(e2) ? e2 : d()).querySelectorAll(t), x = /* @__PURE__ */ new Map();
-  function fe(t) {
+  }, Eo = (t) => t.toLowerCase(), ue = (t, e2) => (u(e2) ? e2 : d()).querySelectorAll(t), x = /* @__PURE__ */ new Map();
+  function le(t) {
     const { shiftKey: e2, code: n } = t, o = d(this), s = [
-      ...de(Yt, this)
+      ...ue(qt, this)
     ].filter(
-      (i) => !oe(i, "disabled") && !j(i, J)
+      (l) => !ee(l, "disabled") && !j(l, $)
     );
     if (!s.length) return;
     const r2 = s[0], a2 = s[s.length - 1];
     n === "Tab" && (e2 && o.activeElement === r2 ? (a2.focus(), t.preventDefault()) : !e2 && o.activeElement === a2 && (r2.focus(), t.preventDefault()));
   }
-  const pe = (t) => x.has(t) === true, Ao = (t) => {
-    const e2 = pe(t);
-    (e2 ? Q : R)(t, "keydown", fe), e2 ? x.delete(t) : x.set(t, true);
-  }, m$1 = (t) => u(t) && "offsetWidth" in t || false, w$1 = (t, e2) => {
-    const { width: n, height: o, top: s, right: r2, bottom: a2, left: i } = t.getBoundingClientRect();
-    let f2 = 1, c = 1;
-    if (e2 && m$1(t)) {
-      const { offsetWidth: p2, offsetHeight: E2 } = t;
-      f2 = p2 > 0 ? Math.round(n) / p2 : 1, c = E2 > 0 ? Math.round(o) / E2 : 1;
+  const de = (t) => x.has(t) === true, yo = (t) => {
+    const e2 = de(t);
+    (e2 ? Q : R)(t, "keydown", le), e2 ? x.delete(t) : x.set(t, true);
+  }, b = (t) => i(t) && "offsetWidth" in t || false, y = (t, e2) => {
+    const { width: n, height: o, top: s, right: r2, bottom: a2, left: l } = t.getBoundingClientRect();
+    let p2 = 1, c = 1;
+    if (e2 && b(t)) {
+      const { offsetWidth: g, offsetHeight: A } = t;
+      p2 = g > 0 ? Math.round(n) / g : 1, c = A > 0 ? Math.round(o) / A : 1;
     }
     return {
-      width: n / f2,
+      width: n / p2,
       height: o / c,
       top: s / c,
-      right: r2 / f2,
+      right: r2 / p2,
       bottom: a2 / c,
-      left: i / f2,
-      x: i / f2,
+      left: l / p2,
+      x: l / p2,
       y: s / c
     };
-  }, So = (t) => d(t).body, S = (t) => d(t).documentElement, ko = (t) => {
-    const e2 = G(t), n = e2 ? t.scrollX : t.scrollLeft, o = e2 ? t.scrollY : t.scrollTop;
+  }, wo = (t) => d(t).body, w$1 = (t) => d(t).documentElement, So = (t) => {
+    const e2 = K(t), n = e2 ? t.scrollX : t.scrollLeft, o = e2 ? t.scrollY : t.scrollTop;
     return { x: n, y: o };
-  }, me = (t) => l(t) && t.constructor.name === "ShadowRoot" || false, A = (t) => t.nodeName === "HTML" ? t : u(t) && t.assignedSlot || l(t) && t.parentNode || me(t) && t.host || S(t), ve = (t) => t ? K(t) ? t.defaultView : l(t) ? t?.ownerDocument?.defaultView : t : window, be = (t) => l(t) && ["TABLE", "TD", "TH"].includes(t.nodeName) || false, Ee = (t, e2) => t.matches(e2), we = (t) => {
-    if (!m$1(t)) return false;
-    const { width: e2, height: n } = w$1(t), { offsetWidth: o, offsetHeight: s } = t;
+  }, pe = (t) => u(t) && t.constructor.name === "ShadowRoot" || false, k$1 = (t) => t.nodeName === "HTML" ? t : i(t) && t.assignedSlot || u(t) && t.parentNode || pe(t) && t.host || w$1(t), ge = (t) => t ? q(t) ? t.defaultView : u(t) ? t?.ownerDocument?.defaultView : t : window, me = (t) => u(t) && ["TABLE", "TD", "TH"].includes(t.nodeName) || false, ve = (t, e2) => t.matches(e2), he = (t) => {
+    if (!b(t)) return false;
+    const { width: e2, height: n } = y(t), { offsetWidth: o, offsetHeight: s } = t;
     return Math.round(e2) !== o || Math.round(n) !== s;
-  }, Co = (t, e2, n) => {
-    const o = m$1(e2), s = w$1(
+  }, No = (t, e2, n) => {
+    const o = b(e2), s = y(
       t,
-      o && we(e2)
+      o && he(e2)
     ), r2 = { x: 0, y: 0 };
     if (o) {
-      const a2 = w$1(e2, true);
+      const a2 = y(e2, true);
       r2.x = a2.x + e2.clientLeft, r2.y = a2.y + e2.clientTop;
     }
     return {
@@ -217,31 +170,31 @@ var BSN = function(exports) {
       height: s.height
     };
   };
-  let F = 0, H = 0;
-  const y = /* @__PURE__ */ new Map(), Ae = (t, e2) => {
-    let n = e2 ? F : H;
+  let B = 0, V = 0;
+  const h$1 = /* @__PURE__ */ new Map(), ye = (t, e2) => {
+    let n = e2 ? B : V;
     if (e2) {
-      const o = Ae(t), s = y.get(o) || /* @__PURE__ */ new Map();
-      y.has(o) || y.set(o, s), O(s) && !s.has(e2) ? (s.set(e2, n), F += 1) : n = s.get(e2);
+      const o = ye(t), s = h$1.get(o) || /* @__PURE__ */ new Map();
+      h$1.has(o) || h$1.set(o, s), O(s) && !s.has(e2) ? (s.set(e2, n), B += 1) : n = s.get(e2);
     } else {
       const o = t.id || t;
-      y.has(o) ? n = y.get(o) : (y.set(o, n), H += 1);
+      h$1.has(o) ? n = h$1.get(o) : (h$1.set(o, n), V += 1);
     }
     return n;
-  }, Se = (t) => Array.isArray(t) || false, Do = (t) => {
-    if (!l(t)) return false;
-    const { top: e2, bottom: n } = w$1(t), { clientHeight: o } = S(t);
+  }, we = (t) => Array.isArray(t) || false, To = (t) => {
+    if (!u(t)) return false;
+    const { top: e2, bottom: n } = y(t), { clientHeight: o } = w$1(t);
     return e2 <= o && n >= 0;
-  }, zo = (t) => typeof t == "function" || false, Vo = (t) => b(t) && t.constructor.name === "NodeList" || false, Uo = (t) => S(t).dir === "rtl", ke = (t, e2) => !t || !e2 ? null : t.closest(e2) || ke(t.getRootNode().host, e2) || null, Ro = (t, e2) => u(t) ? t : (u(e2) ? e2 : d()).querySelector(t), Ne = (t, e2) => (l(e2) ? e2 : d()).getElementsByTagName(
+  }, Lo = (t) => typeof t == "function" || false, Fo = (t) => v$1(t) && t.constructor.name === "NodeList" || false, Bo = (t) => w$1(t).dir === "rtl", Se = (t, e2) => !t || !e2 ? null : t.closest(e2) || Se(t.getRootNode().host, e2) || null, Ho = (t, e2) => i(t) ? t : (i(e2) ? e2 : d()).querySelector(t), ke = (t, e2) => (u(e2) ? e2 : d()).getElementsByTagName(
     t
-  ), Go = (t, e2) => (e2 && l(e2) ? e2 : d()).getElementsByClassName(
+  ), Ro = (t, e2) => (e2 && u(e2) ? e2 : d()).getElementsByClassName(
     t
   );
   const e = {}, f = (t) => {
     const { type: n, currentTarget: c } = t;
     e[n].forEach((a2, s) => {
-      c === s && a2.forEach((o, i) => {
-        i.apply(s, [t]), typeof o == "object" && o.once && r(s, n, i, o);
+      c === s && a2.forEach((o, i2) => {
+        i2.apply(s, [t]), typeof o == "object" && o.once && r(s, n, i2, o);
       });
     });
   }, E = (t, n, c, a2) => {
@@ -250,14 +203,14 @@ var BSN = function(exports) {
     s.has(t) || s.set(t, /* @__PURE__ */ new Map());
     const o = s.get(
       t
-    ), { size: i } = o;
-    o.set(c, a2), i || t.addEventListener(
+    ), { size: i2 } = o;
+    o.set(c, a2), i2 || t.addEventListener(
       n,
       f,
       a2
     );
   }, r = (t, n, c, a2) => {
-    const s = e[n], o = s && s.get(t), i = o && o.get(c), d2 = i !== void 0 ? i : a2;
+    const s = e[n], o = s && s.get(t), i2 = o && o.get(c), d2 = i2 !== void 0 ? i2 : a2;
     o && o.has(c) && o.delete(c), s && (!o || !o.size) && s.delete(t), (!s || !s.size) && delete e[n], (!o || !o.size) && t.removeEventListener(
       n,
       f,
@@ -270,22 +223,18 @@ var BSN = function(exports) {
   const alertString = "alert";
   const alertComponent = "Alert";
   const isDisabled = (target) => {
-    return Zn(target, "disabled") || j(target, "disabled") === "true";
+    return Gn(target, "disabled") || j(target, "disabled") === "true";
   };
   const version = "5.1.0";
   const Version = version;
   class BaseComponent {
-    /**
-     * @param target `Element` or selector string
-     * @param config component instance options
-     */
     constructor(target, config) {
       let element;
       try {
-        if (u(target)) {
+        if (i(target)) {
           element = target;
-        } else if (k$1(target)) {
-          element = Ro(target);
+        } else if (N(target)) {
+          element = Ho(target);
           if (!element) throw Error(`"${target}" is not a valid selector.`);
         } else {
           throw Error(`your target is not an instance of HTMLElement.`);
@@ -293,13 +242,13 @@ var BSN = function(exports) {
       } catch (e2) {
         throw Error(`${this.name} Error: ${e2.message}`);
       }
-      const prevInstance = D.get(element, this.name);
+      const prevInstance = L.get(element, this.name);
       if (prevInstance) {
         prevInstance._toggleEventListeners();
       }
       this.element = element;
-      this.options = this.defaults && fo(this.defaults).length ? uo(element, this.defaults, config || {}, "bs") : {};
-      D.set(element, this.name, this);
+      this.options = this.defaults && uo(this.defaults).length ? ao(element, this.defaults, config || {}, "bs") : {};
+      L.set(element, this.name, this);
     }
     get version() {
       return Version;
@@ -313,25 +262,25 @@ var BSN = function(exports) {
     _toggleEventListeners = () => {
     };
     dispose() {
-      D.remove(this.element, this.name);
-      fo(this).forEach((prop) => {
+      L.remove(this.element, this.name);
+      uo(this).forEach((prop) => {
         delete this[prop];
       });
     }
   }
   const alertSelector = `.${alertString}`;
   const alertDismissSelector = `[${dataBsDismiss}="${alertString}"]`;
-  const getAlertInstance = (element) => to(element, alertComponent);
+  const getAlertInstance = (element) => Xn(element, alertComponent);
   const alertInitCallback = (element) => new Alert(element);
-  const closeAlertEvent = mo(
+  const closeAlertEvent = po(
     `close.bs.${alertString}`
   );
-  const closedAlertEvent = mo(
+  const closedAlertEvent = po(
     `closed.bs.${alertString}`
   );
   const alertTransitionEnd = (self) => {
     const { element } = self;
-    q(element, closedAlertEvent);
+    G(element, closedAlertEvent);
     self._toggleEventListeners();
     self.dispose();
     element.remove();
@@ -343,7 +292,7 @@ var BSN = function(exports) {
     dismiss;
     constructor(target) {
       super(target);
-      this.dismiss = Ro(
+      this.dismiss = Ho(
         alertDismissSelector,
         this.element
       );
@@ -352,32 +301,22 @@ var BSN = function(exports) {
     get name() {
       return alertComponent;
     }
-    /**
-     * Public method that hides the `.alert` element from the user,
-     * disposes the instance once animation is complete, then
-     * removes the element from the DOM.
-     */
     close = (e2) => {
       const { element, dismiss } = this;
-      if (!element || !Zn(element, showClass)) return;
+      if (!element || !Gn(element, showClass)) return;
       if (e2 && dismiss && isDisabled(dismiss)) return;
-      q(element, closeAlertEvent);
+      G(element, closeAlertEvent);
       if (closeAlertEvent.defaultPrevented) return;
-      Yn(element, showClass);
-      if (Zn(element, fadeClass)) {
-        so(element, () => alertTransitionEnd(this));
+      qn(element, showClass);
+      if (Gn(element, fadeClass)) {
+        no(element, () => alertTransitionEnd(this));
       } else alertTransitionEnd(this);
     };
-    /**
-     * Toggle on / off the `click` event listener.
-     *
-     * @param add when `true`, event listener is added
-     */
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
       const { dismiss, close } = this;
       if (dismiss) {
-        action(dismiss, vt, close);
+        action(dismiss, gt, close);
       }
     };
     dispose() {
@@ -390,50 +329,34 @@ var BSN = function(exports) {
   const buttonString = "button";
   const buttonComponent = "Button";
   const buttonSelector = `[${dataBsToggle}="${buttonString}"]`;
-  const getButtonInstance = (element) => to(element, buttonComponent);
+  const getButtonInstance = (element) => Xn(element, buttonComponent);
   const buttonInitCallback = (element) => new Button(element);
   class Button extends BaseComponent {
     static selector = buttonSelector;
     static init = buttonInitCallback;
     static getInstance = getButtonInstance;
-    /**
-     * @param target usually a `.btn` element
-     */
     constructor(target) {
       super(target);
       const { element } = this;
-      this.isActive = Zn(element, activeClass);
-      Qn(element, Be, String(!!this.isActive));
+      this.isActive = Gn(element, activeClass);
+      Wn(element, Ie, String(!!this.isActive));
       this._toggleEventListeners(true);
     }
-    /**
-     * Returns component name string.
-     */
     get name() {
       return buttonComponent;
     }
-    /**
-     * Toggles the state of the target button.
-     *
-     * @param e usually `click` Event object
-     */
     toggle = (e2) => {
       if (e2) e2.preventDefault();
       const { element, isActive } = this;
       if (isDisabled(element)) return;
-      const action = isActive ? Yn : qn;
+      const action = isActive ? qn : Kn;
       action(element, activeClass);
-      Qn(element, Be, isActive ? "false" : "true");
-      this.isActive = Zn(element, activeClass);
+      Wn(element, Ie, isActive ? "false" : "true");
+      this.isActive = Gn(element, activeClass);
     };
-    /**
-     * Toggles on/off the `click` event listener.
-     *
-     * @param add when `true`, event listener is added
-     */
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
-      action(this.element, vt, this.toggle);
+      action(this.element, gt, this.toggle);
     };
     dispose() {
       this._toggleEventListeners();
@@ -451,7 +374,7 @@ var BSN = function(exports) {
     return targetAttr.map((att) => {
       const attValue = j(element, att);
       if (attValue) {
-        return att === dataBsParent ? ke(element, attValue) : Ro(attValue, doc);
+        return att === dataBsParent ? Se(element, attValue) : Ho(attValue, doc);
       }
       return null;
     }).filter((x2) => x2)[0];
@@ -467,26 +390,26 @@ var BSN = function(exports) {
     touch: true,
     interval: 5e3
   };
-  const getCarouselInstance = (element) => to(element, carouselComponent);
+  const getCarouselInstance = (element) => Xn(element, carouselComponent);
   const carouselInitCallback = (element) => new Carousel(element);
   let startX = 0;
   let currentX = 0;
   let endX = 0;
-  const carouselSlideEvent = mo(`slide.bs.${carouselString}`);
-  const carouselSlidEvent = mo(`slid.bs.${carouselString}`);
+  const carouselSlideEvent = po(`slide.bs.${carouselString}`);
+  const carouselSlidEvent = po(`slid.bs.${carouselString}`);
   const carouselTransitionEndHandler = (self) => {
     const { index, direction, element, slides, options } = self;
     if (self.isAnimating) {
       const activeItem = getActiveIndex(self);
       const orientation = direction === "left" ? "next" : "prev";
       const directionClass = direction === "left" ? "start" : "end";
-      qn(slides[index], activeClass);
-      Yn(slides[index], `${carouselItem}-${orientation}`);
-      Yn(slides[index], `${carouselItem}-${directionClass}`);
-      Yn(slides[activeItem], activeClass);
-      Yn(slides[activeItem], `${carouselItem}-${directionClass}`);
-      q(element, carouselSlidEvent);
-      ho.clear(element, dataBsSlide);
+      Kn(slides[index], activeClass);
+      qn(slides[index], `${carouselItem}-${orientation}`);
+      qn(slides[index], `${carouselItem}-${directionClass}`);
+      qn(slides[activeItem], activeClass);
+      qn(slides[activeItem], `${carouselItem}-${directionClass}`);
+      G(element, carouselSlidEvent);
+      bo.clear(element, dataBsSlide);
       if (self.cycle && !d(element).hidden && options.interval && !self.isPaused) {
         self.cycle();
       }
@@ -494,30 +417,30 @@ var BSN = function(exports) {
   };
   function carouselPauseHandler() {
     const self = getCarouselInstance(this);
-    if (self && !self.isPaused && !ho.get(this, pausedClass)) {
-      qn(this, pausedClass);
+    if (self && !self.isPaused && !bo.get(this, pausedClass)) {
+      Kn(this, pausedClass);
     }
   }
   function carouselResumeHandler() {
     const self = getCarouselInstance(this);
-    if (self && self.isPaused && !ho.get(this, pausedClass)) {
+    if (self && self.isPaused && !bo.get(this, pausedClass)) {
       self.cycle();
     }
   }
   function carouselIndicatorHandler(e2) {
     e2.preventDefault();
-    const element = ke(this, carouselSelector) || getTargetElement(this);
+    const element = Se(this, carouselSelector) || getTargetElement(this);
     const self = element && getCarouselInstance(element);
     if (isDisabled(this)) return;
     if (!self || self.isAnimating) return;
     const newIndex = +(j(this, dataBsSlideTo) || 0);
-    if (this && !Zn(this, activeClass) && !Number.isNaN(newIndex)) {
+    if (this && !Gn(this, activeClass) && !Number.isNaN(newIndex)) {
       self.to(newIndex);
     }
   }
   function carouselControlsHandler(e2) {
     e2.preventDefault();
-    const element = ke(this, carouselSelector) || getTargetElement(this);
+    const element = Se(this, carouselSelector) || getTargetElement(this);
     const self = element && getCarouselInstance(element);
     if (isDisabled(this)) return;
     if (!self || self.isAnimating) return;
@@ -530,12 +453,12 @@ var BSN = function(exports) {
   }
   const carouselKeyHandler = ({ code, target }) => {
     const doc = d(target);
-    const [element] = [...de(carouselSelector, doc)].filter((x2) => Do(x2));
+    const [element] = [...ue(carouselSelector, doc)].filter((x2) => To(x2));
     const self = getCarouselInstance(element);
     if (!self || self.isAnimating || /textarea|input|select/i.test(target.nodeName)) return;
-    const RTL = Uo(element);
-    const arrowKeyNext = !RTL ? cn : rn;
-    const arrowKeyPrev = !RTL ? rn : cn;
+    const RTL = Bo(element);
+    const arrowKeyNext = !RTL ? sn : on;
+    const arrowKeyPrev = !RTL ? on : sn;
     if (code === arrowKeyPrev) self.prev();
     else if (code === arrowKeyNext) self.next();
   };
@@ -569,10 +492,10 @@ var BSN = function(exports) {
   const carouselPointerUpHandler = (e2) => {
     const { target } = e2;
     const doc = d(target);
-    const self = [...de(carouselSelector, doc)].map((c) => getCarouselInstance(c)).find((i) => i.isTouch);
+    const self = [...ue(carouselSelector, doc)].map((c) => getCarouselInstance(c)).find((i2) => i2.isTouch);
     if (!self) return;
     const { element, index } = self;
-    const RTL = Uo(element);
+    const RTL = Bo(element);
     endX = e2.pageX;
     self.isTouch = false;
     toggleCarouselTouchHandlers(self);
@@ -589,28 +512,28 @@ var BSN = function(exports) {
   };
   const activateCarouselIndicator = (self, index) => {
     const { indicators } = self;
-    [...indicators].forEach((x2) => Yn(x2, activeClass));
-    if (self.indicators[index]) qn(indicators[index], activeClass);
+    [...indicators].forEach((x2) => qn(x2, activeClass));
+    if (self.indicators[index]) Kn(indicators[index], activeClass);
   };
   const toggleCarouselTouchHandlers = (self, add) => {
     const { element } = self;
     const action = add ? E : r;
     action(
       d(element),
-      zt,
+      Ot,
       carouselPointerMoveHandler,
-      vo
+      go
     );
     action(
       d(element),
-      It,
+      xt,
       carouselPointerUpHandler,
-      vo
+      go
     );
   };
   const getActiveIndex = (self) => {
     const { slides, element } = self;
-    const activeItem = Ro(
+    const activeItem = Ho(
       `.${carouselItem}.${activeClass}`,
       element
     );
@@ -620,93 +543,77 @@ var BSN = function(exports) {
     static selector = carouselSelector;
     static init = carouselInitCallback;
     static getInstance = getCarouselInstance;
-    /**
-     * @param target mostly a `.carousel` element
-     * @param config instance options
-     */
     constructor(target, config) {
       super(target, config);
       const { element } = this;
-      this.direction = Uo(element) ? "right" : "left";
+      this.direction = Bo(element) ? "right" : "left";
       this.isTouch = false;
-      this.slides = Go(carouselItem, element);
+      this.slides = Ro(carouselItem, element);
       const { slides } = this;
       if (slides.length < 2) return;
       const activeIndex = getActiveIndex(this);
       const transitionItem = [...slides].find(
-        (s) => Ee(s, `.${carouselItem}-next`)
+        (s) => ve(s, `.${carouselItem}-next`)
       );
       this.index = activeIndex;
       const doc = d(element);
       this.controls = [
-        ...de(`[${dataBsSlide}]`, element),
-        ...de(
+        ...ue(`[${dataBsSlide}]`, element),
+        ...ue(
           `[${dataBsSlide}][${dataBsTarget}="#${element.id}"]`,
           doc
         )
-      ].filter((c, i, ar) => i === ar.indexOf(c));
-      this.indicator = Ro(
+      ].filter((c, i2, ar) => i2 === ar.indexOf(c));
+      this.indicator = Ho(
         `.${carouselString}-indicators`,
         element
       );
       this.indicators = [
-        ...this.indicator ? de(`[${dataBsSlideTo}]`, this.indicator) : [],
-        ...de(
+        ...this.indicator ? ue(`[${dataBsSlideTo}]`, this.indicator) : [],
+        ...ue(
           `[${dataBsSlideTo}][${dataBsTarget}="#${element.id}"]`,
           doc
         )
-      ].filter((c, i, ar) => i === ar.indexOf(c));
+      ].filter((c, i2, ar) => i2 === ar.indexOf(c));
       const { options } = this;
       this.options.interval = options.interval === true ? carouselDefaults.interval : options.interval;
       if (transitionItem) {
         this.index = [...slides].indexOf(transitionItem);
       } else if (activeIndex < 0) {
         this.index = 0;
-        qn(slides[0], activeClass);
+        Kn(slides[0], activeClass);
         if (this.indicators.length) activateCarouselIndicator(this, 0);
       }
       if (this.indicators.length) activateCarouselIndicator(this, this.index);
       this._toggleEventListeners(true);
       if (options.interval) this.cycle();
     }
-    /**
-     * Returns component name string.
-     */
     get name() {
       return carouselComponent;
     }
-    /**
-     * Returns component default options.
-     */
     get defaults() {
       return carouselDefaults;
     }
-    /**
-     * Check if instance is paused.
-     */
     get isPaused() {
-      return Zn(this.element, pausedClass);
+      return Gn(this.element, pausedClass);
     }
-    /**
-     * Check if instance is animating.
-     */
     get isAnimating() {
-      return Ro(
+      return Ho(
         `.${carouselItem}-next,.${carouselItem}-prev`,
         this.element
       ) !== null;
     }
     cycle() {
       const { element, options, isPaused, index } = this;
-      ho.clear(element, carouselString);
+      bo.clear(element, carouselString);
       if (isPaused) {
-        ho.clear(element, pausedClass);
-        Yn(element, pausedClass);
+        bo.clear(element, pausedClass);
+        qn(element, pausedClass);
       }
-      ho.set(
+      bo.set(
         element,
         () => {
-          if (this.element && !this.isPaused && !this.isTouch && Do(element)) {
+          if (this.element && !this.isPaused && !this.isTouch && To(element)) {
             this.to(index + 1);
           }
         },
@@ -717,8 +624,8 @@ var BSN = function(exports) {
     pause() {
       const { element, options } = this;
       if (this.isPaused || !options.interval) return;
-      qn(element, pausedClass);
-      ho.set(
+      Kn(element, pausedClass);
+      bo.set(
         element,
         () => {
         },
@@ -736,17 +643,12 @@ var BSN = function(exports) {
         this.to(this.index - 1);
       }
     }
-    /**
-     * Jump to the item with the `idx` index.
-     *
-     * @param idx the index of the item to jump to
-     */
     to(idx) {
       const { element, slides, options } = this;
       const activeItem = getActiveIndex(this);
-      const RTL = Uo(element);
+      const RTL = Bo(element);
       let next = idx;
-      if (this.isAnimating || activeItem === next || ho.get(element, dataBsSlide)) return;
+      if (this.isAnimating || activeItem === next || bo.get(element, dataBsSlide)) return;
       if (activeItem < next || activeItem === 0 && next === slides.length - 1) {
         this.direction = RTL ? "right" : "left";
       } else if (activeItem > next || activeItem === slides.length - 1 && next === 0) {
@@ -766,21 +668,21 @@ var BSN = function(exports) {
         to: next,
         direction
       };
-      N(carouselSlideEvent, eventProperties);
-      N(carouselSlidEvent, eventProperties);
-      q(element, carouselSlideEvent);
+      C(carouselSlideEvent, eventProperties);
+      C(carouselSlidEvent, eventProperties);
+      G(element, carouselSlideEvent);
       if (carouselSlideEvent.defaultPrevented) return;
       this.index = next;
       activateCarouselIndicator(this, next);
-      if (ue(slides[next]) && Zn(element, "slide")) {
-        ho.set(
+      if (ae(slides[next]) && Gn(element, "slide")) {
+        bo.set(
           element,
           () => {
-            qn(slides[next], `${carouselItem}-${orientation}`);
-            bo(slides[next]);
-            qn(slides[next], `${carouselItem}-${directionClass}`);
-            qn(slides[activeItem], `${carouselItem}-${directionClass}`);
-            so(
+            Kn(slides[next], `${carouselItem}-${orientation}`);
+            mo(slides[next]);
+            Kn(slides[next], `${carouselItem}-${directionClass}`);
+            Kn(slides[activeItem], `${carouselItem}-${directionClass}`);
+            no(
               slides[next],
               () => this.slides && this.slides.length && carouselTransitionEndHandler(this)
             );
@@ -789,57 +691,52 @@ var BSN = function(exports) {
           dataBsSlide
         );
       } else {
-        qn(slides[next], activeClass);
-        Yn(slides[activeItem], activeClass);
-        ho.set(
+        Kn(slides[next], activeClass);
+        qn(slides[activeItem], activeClass);
+        bo.set(
           element,
           () => {
-            ho.clear(element, dataBsSlide);
+            bo.clear(element, dataBsSlide);
             if (element && options.interval && !this.isPaused) {
               this.cycle();
             }
-            q(element, carouselSlidEvent);
+            G(element, carouselSlidEvent);
           },
           0,
           dataBsSlide
         );
       }
     }
-    /**
-     * Toggles all event listeners for the `Carousel` instance.
-     *
-     * @param add when `TRUE` event listeners are added
-     */
     _toggleEventListeners = (add) => {
       const { element, options, slides, controls, indicators } = this;
       const { touch, pause, interval, keyboard } = options;
       const action = add ? E : r;
       if (pause && interval) {
-        action(element, wt, carouselPauseHandler);
-        action(element, At, carouselResumeHandler);
+        action(element, ht, carouselPauseHandler);
+        action(element, yt, carouselResumeHandler);
       }
       if (touch && slides.length > 2) {
         action(
           element,
-          Ot,
+          Dt,
           carouselPointerDownHandler,
-          vo
+          go
         );
-        action(element, Qt, carouselDragHandler, { passive: false });
-        action(element, je, carouselDragHandler, { passive: false });
+        action(element, Wt, carouselDragHandler, { passive: false });
+        action(element, Re, carouselDragHandler, { passive: false });
       }
       if (controls.length) {
         controls.forEach((arrow) => {
-          action(arrow, vt, carouselControlsHandler);
+          action(arrow, gt, carouselControlsHandler);
         });
       }
       if (indicators.length) {
         indicators.forEach((indicator) => {
-          action(indicator, vt, carouselIndicatorHandler);
+          action(indicator, gt, carouselIndicatorHandler);
         });
       }
       if (keyboard) {
-        action(d(element), ft, carouselKeyHandler);
+        action(d(element), lt, carouselKeyHandler);
       }
     };
     dispose() {
@@ -851,7 +748,7 @@ var BSN = function(exports) {
       this._toggleEventListeners();
       super.dispose();
       if (clone.isAnimating) {
-        so(clone.slides[clone.index], () => {
+        no(clone.slides[clone.index], () => {
           carouselTransitionEndHandler(clone);
         });
       }
@@ -863,59 +760,59 @@ var BSN = function(exports) {
   const collapseSelector = `.${collapseString}`;
   const collapseToggleSelector = `[${dataBsToggle}="${collapseString}"]`;
   const collapseDefaults = { parent: null };
-  const getCollapseInstance = (element) => to(element, collapseComponent);
+  const getCollapseInstance = (element) => Xn(element, collapseComponent);
   const collapseInitCallback = (element) => new Collapse(element);
-  const showCollapseEvent = mo(`show.bs.${collapseString}`);
-  const shownCollapseEvent = mo(`shown.bs.${collapseString}`);
-  const hideCollapseEvent = mo(`hide.bs.${collapseString}`);
-  const hiddenCollapseEvent = mo(`hidden.bs.${collapseString}`);
+  const showCollapseEvent = po(`show.bs.${collapseString}`);
+  const shownCollapseEvent = po(`shown.bs.${collapseString}`);
+  const hideCollapseEvent = po(`hide.bs.${collapseString}`);
+  const hiddenCollapseEvent = po(`hidden.bs.${collapseString}`);
   const expandCollapse = (self) => {
     const { element, parent, triggers } = self;
-    q(element, showCollapseEvent);
+    G(element, showCollapseEvent);
     if (!showCollapseEvent.defaultPrevented) {
-      ho.set(element, ee, 17);
-      if (parent) ho.set(parent, ee, 17);
-      qn(element, collapsingClass);
-      Yn(element, collapseString);
-      Eo(element, { height: `${element.scrollHeight}px` });
-      so(element, () => {
-        ho.clear(element);
-        if (parent) ho.clear(parent);
-        triggers.forEach((btn) => Qn(btn, Oe, "true"));
-        Yn(element, collapsingClass);
-        qn(element, collapseString);
-        qn(element, showClass);
-        Eo(element, { height: "" });
-        q(element, shownCollapseEvent);
+      bo.set(element, Yt, 17);
+      if (parent) bo.set(parent, Yt, 17);
+      Kn(element, collapsingClass);
+      qn(element, collapseString);
+      vo(element, { height: `${element.scrollHeight}px` });
+      no(element, () => {
+        bo.clear(element);
+        if (parent) bo.clear(parent);
+        triggers.forEach((btn) => Wn(btn, De, "true"));
+        qn(element, collapsingClass);
+        Kn(element, collapseString);
+        Kn(element, showClass);
+        vo(element, { height: "" });
+        G(element, shownCollapseEvent);
       });
     }
   };
   const collapseContent = (self) => {
     const { element, parent, triggers } = self;
-    q(element, hideCollapseEvent);
+    G(element, hideCollapseEvent);
     if (!hideCollapseEvent.defaultPrevented) {
-      ho.set(element, ee, 17);
-      if (parent) ho.set(parent, ee, 17);
-      Eo(element, { height: `${element.scrollHeight}px` });
-      Yn(element, collapseString);
-      Yn(element, showClass);
-      qn(element, collapsingClass);
-      bo(element);
-      Eo(element, { height: "0px" });
-      so(element, () => {
-        ho.clear(element);
-        if (parent) ho.clear(parent);
-        triggers.forEach((btn) => Qn(btn, Oe, "false"));
-        Yn(element, collapsingClass);
-        qn(element, collapseString);
-        Eo(element, { height: "" });
-        q(element, hiddenCollapseEvent);
+      bo.set(element, Yt, 17);
+      if (parent) bo.set(parent, Yt, 17);
+      vo(element, { height: `${element.scrollHeight}px` });
+      qn(element, collapseString);
+      qn(element, showClass);
+      Kn(element, collapsingClass);
+      mo(element);
+      vo(element, { height: "0px" });
+      no(element, () => {
+        bo.clear(element);
+        if (parent) bo.clear(parent);
+        triggers.forEach((btn) => Wn(btn, De, "false"));
+        qn(element, collapsingClass);
+        Kn(element, collapseString);
+        vo(element, { height: "" });
+        G(element, hiddenCollapseEvent);
       });
     }
   };
   const collapseClickHandler = (e2) => {
     const { target } = e2;
-    const trigger = target && ke(target, collapseToggleSelector);
+    const trigger = target && Se(target, collapseToggleSelector);
     const element = trigger && getTargetElement(trigger);
     const self = element && getCollapseInstance(element);
     if (trigger && isDisabled(trigger)) return;
@@ -927,38 +824,28 @@ var BSN = function(exports) {
     static selector = collapseSelector;
     static init = collapseInitCallback;
     static getInstance = getCollapseInstance;
-    /**
-     * @param target and `Element` that matches the selector
-     * @param config instance options
-     */
     constructor(target, config) {
       super(target, config);
       const { element, options } = this;
       const doc = d(element);
-      this.triggers = [...de(collapseToggleSelector, doc)].filter(
+      this.triggers = [...ue(collapseToggleSelector, doc)].filter(
         (btn) => getTargetElement(btn) === element
       );
-      this.parent = m$1(options.parent) ? options.parent : k$1(options.parent) ? getTargetElement(element) || Ro(options.parent, doc) : null;
+      this.parent = b(options.parent) ? options.parent : N(options.parent) ? getTargetElement(element) || Ho(options.parent, doc) : null;
       this._toggleEventListeners(true);
     }
-    /**
-     * Returns component name string.
-     */
     get name() {
       return collapseComponent;
     }
-    /**
-     * Returns component default options.
-     */
     get defaults() {
       return collapseDefaults;
     }
     hide() {
       const { triggers, element } = this;
-      if (!ho.get(element)) {
+      if (!bo.get(element)) {
         collapseContent(this);
         if (triggers.length) {
-          triggers.forEach((btn) => qn(btn, `${collapseString}d`));
+          triggers.forEach((btn) => Kn(btn, `${collapseString}d`));
         }
       }
     }
@@ -968,38 +855,33 @@ var BSN = function(exports) {
       let activeCollapseInstance;
       if (parent) {
         activeCollapse = [
-          ...de(`.${collapseString}.${showClass}`, parent)
-        ].find((i) => getCollapseInstance(i));
+          ...ue(`.${collapseString}.${showClass}`, parent)
+        ].find((i2) => getCollapseInstance(i2));
         activeCollapseInstance = activeCollapse && getCollapseInstance(activeCollapse);
       }
-      if ((!parent || !ho.get(parent)) && !ho.get(element)) {
+      if ((!parent || !bo.get(parent)) && !bo.get(element)) {
         if (activeCollapseInstance && activeCollapse !== element) {
           collapseContent(activeCollapseInstance);
           activeCollapseInstance.triggers.forEach((btn) => {
-            qn(btn, `${collapseString}d`);
+            Kn(btn, `${collapseString}d`);
           });
         }
         expandCollapse(this);
         if (triggers.length) {
-          triggers.forEach((btn) => Yn(btn, `${collapseString}d`));
+          triggers.forEach((btn) => qn(btn, `${collapseString}d`));
         }
       }
     }
     toggle() {
-      if (!Zn(this.element, showClass)) this.show();
+      if (!Gn(this.element, showClass)) this.show();
       else this.hide();
     }
-    /**
-     * Toggles on/off the event listener(s) of the `Collapse` instance.
-     *
-     * @param add when `true`, the event listener is added
-     */
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
       const { triggers } = this;
       if (triggers.length) {
         triggers.forEach((btn) => {
-          action(btn, vt, collapseClickHandler);
+          action(btn, gt, collapseClickHandler);
         });
       }
     };
@@ -1026,10 +908,10 @@ var BSN = function(exports) {
      * @param callback the callback that applies to all targets of this observer
      * @param options the options of this observer
      */
-    constructor(t, s) {
+    constructor(t, i2) {
       if (!w(t))
         throw new Error(`${a}: ${t} is not a function.`);
-      this.entries = /* @__PURE__ */ new Map(), this._callback = t, this._root = h(s?.root) ? s.root : document?.documentElement, this._tick = 0;
+      this.entries = /* @__PURE__ */ new Map(), this._callback = t, this._root = h(i2?.root) ? i2.root : document?.documentElement, this._tick = 0;
     }
     /**
      * Start observing the position of the specified element.
@@ -1043,8 +925,8 @@ var BSN = function(exports) {
         throw new Error(
           `${a}: ${t} is not an instance of Element.`
         );
-      this._root.contains(t) && this._new(t).then((s) => {
-        s && !this.getEntry(t) && this.entries.set(t, s), this._tick || (this._tick = requestAnimationFrame(this._runCallback));
+      this._root.contains(t) && this._new(t).then((i2) => {
+        i2 && !this.getEntry(t) && this.entries.set(t, i2), this._tick || (this._tick = requestAnimationFrame(this._runCallback));
       });
     };
     /**
@@ -1061,24 +943,24 @@ var BSN = function(exports) {
      */
     _runCallback = () => {
       if (!this.entries.size) return;
-      const t = new Promise((s) => {
+      const t = new Promise((i2) => {
         const r2 = [];
         this.entries.forEach(
-          ({ target: i, boundingClientRect: n }) => {
-            this._root.contains(i) && this._new(i).then(({ boundingClientRect: o, isIntersecting: u2 }) => {
+          ({ target: s, boundingClientRect: n }) => {
+            this._root.contains(s) && this._new(s).then(({ boundingClientRect: o, isIntersecting: u2 }) => {
               if (!u2) return;
-              const { left: f2, top: _, bottom: l2, right: b2 } = o;
-              if (n.top !== _ || n.left !== f2 || n.right !== b2 || n.bottom !== l2) {
-                const c = { target: i, boundingClientRect: o };
-                this.entries.set(i, c), r2.push(c);
+              const { left: f2, top: _, bottom: l, right: b2 } = o;
+              if (n.top !== _ || n.left !== f2 || n.right !== b2 || n.bottom !== l) {
+                const c = { target: s, boundingClientRect: o };
+                this.entries.set(s, c), r2.push(c);
               }
             });
           }
-        ), s(r2);
+        ), i2(r2);
       });
       this._tick = requestAnimationFrame(async () => {
-        const s = await t;
-        s.length && this._callback(s, this), this._runCallback();
+        const i2 = await t;
+        i2.length && this._callback(i2, this), this._runCallback();
       });
     };
     /**
@@ -1087,10 +969,10 @@ var BSN = function(exports) {
      *
      * @param target an `Element` target
      */
-    _new = (t) => new Promise((s) => {
+    _new = (t) => new Promise((i2) => {
       new IntersectionObserver(
-        ([i], n) => {
-          n.disconnect(), s(i);
+        ([s], n) => {
+          n.disconnect(), i2(s);
         }
       ).observe(t);
     });
@@ -1111,12 +993,12 @@ var BSN = function(exports) {
   const dropdownComponent = "Dropdown";
   const dropdownMenuClass = "dropdown-menu";
   const isEmptyAnchor = (element) => {
-    const parentAnchor = ke(element, "A");
-    return element.tagName === "A" && oe(element, "href") && j(element, "href")?.slice(-1) === "#" || parentAnchor && oe(parentAnchor, "href") && j(parentAnchor, "href")?.slice(-1) === "#";
+    const parentAnchor = Se(element, "A");
+    return element.tagName === "A" && ee(element, "href") && j(element, "href")?.slice(-1) === "#" || parentAnchor && ee(parentAnchor, "href") && j(parentAnchor, "href")?.slice(-1) === "#";
   };
   const [dropdownString, dropupString, dropstartString, dropendString] = dropdownMenuClasses;
   const dropdownSelector = `[${dataBsToggle}="${dropdownString}"]`;
-  const getDropdownInstance = (element) => to(element, dropdownComponent);
+  const getDropdownInstance = (element) => Xn(element, dropdownComponent);
   const dropdownInitCallback = (element) => new Dropdown(element);
   const dropdownMenuEndClass = `${dropdownMenuClass}-end`;
   const verticalClass = [dropdownString, dropupString];
@@ -1126,30 +1008,30 @@ var BSN = function(exports) {
     offset: 5,
     display: "dynamic"
   };
-  const showDropdownEvent = mo(
+  const showDropdownEvent = po(
     `show.bs.${dropdownString}`
   );
-  const shownDropdownEvent = mo(
+  const shownDropdownEvent = po(
     `shown.bs.${dropdownString}`
   );
-  const hideDropdownEvent = mo(
+  const hideDropdownEvent = po(
     `hide.bs.${dropdownString}`
   );
-  const hiddenDropdownEvent = mo(`hidden.bs.${dropdownString}`);
-  const updatedDropdownEvent = mo(`updated.bs.${dropdownString}`);
+  const hiddenDropdownEvent = po(`hidden.bs.${dropdownString}`);
+  const updatedDropdownEvent = po(`updated.bs.${dropdownString}`);
   const styleDropdown = (self) => {
     const { element, menu, parentElement, options } = self;
     const { offset } = options;
-    if (g(menu, "position") === "static") return;
-    const RTL = Uo(element);
-    const menuEnd = Zn(menu, dropdownMenuEndClass);
+    if (f$1(menu, "position") === "static") return;
+    const RTL = Bo(element);
+    const menuEnd = Gn(menu, dropdownMenuEndClass);
     const resetProps = ["margin", "top", "bottom", "left", "right"];
     resetProps.forEach((p2) => {
       const style = {};
       style[p2] = "";
-      Eo(menu, style);
+      vo(menu, style);
     });
-    let positionClass = dropdownMenuClasses.find((c) => Zn(parentElement, c)) || dropdownString;
+    let positionClass = dropdownMenuClasses.find((c) => Gn(parentElement, c)) || dropdownString;
     const dropdownMargin = {
       dropdown: [offset, 0, 0],
       dropup: [0, 0, offset],
@@ -1165,13 +1047,13 @@ var BSN = function(exports) {
       menuEnd: RTL ? { right: "auto", left: "0" } : { right: "0", left: "auto" }
     };
     const { offsetWidth: menuWidth, offsetHeight: menuHeight } = menu;
-    const { clientWidth, clientHeight } = S(element);
+    const { clientWidth, clientHeight } = w$1(element);
     const {
       left: targetLeft,
       top: targetTop,
       width: targetWidth,
       height: targetHeight
-    } = w$1(element);
+    } = y(element);
     const leftFullExceed = targetLeft - menuWidth - offset < 0;
     const rightFullExceed = targetLeft + menuWidth + targetWidth + offset >= clientWidth;
     const bottomExceed = targetTop + menuHeight + offset >= clientHeight;
@@ -1195,7 +1077,7 @@ var BSN = function(exports) {
       positionClass = dropupString;
     }
     if (horizontalClass.includes(positionClass) && bottomExceed) {
-      N(dropdownPosition[positionClass], {
+      C(dropdownPosition[positionClass], {
         top: "auto",
         bottom: 0
       });
@@ -1209,21 +1091,21 @@ var BSN = function(exports) {
         posAjust = { left: 0, right: "auto" };
       }
       if (posAjust) {
-        N(dropdownPosition[positionClass], posAjust);
+        C(dropdownPosition[positionClass], posAjust);
       }
     }
     const margins = dropdownMargin[positionClass];
-    Eo(menu, {
+    vo(menu, {
       ...dropdownPosition[positionClass],
       margin: `${margins.map((x2) => x2 ? `${x2}px` : x2).join(" ")}`
     });
     if (verticalClass.includes(positionClass) && menuEnd) {
       if (menuEnd) {
         const endAdjust = !RTL && leftExceed || RTL && rightExceed ? "menuStart" : "menuEnd";
-        Eo(menu, dropdownPosition[endAdjust]);
+        vo(menu, dropdownPosition[endAdjust]);
       }
     }
-    q(parentElement, updatedDropdownEvent);
+    G(parentElement, updatedDropdownEvent);
   };
   const getMenuItems = (menu) => {
     return Array.from(menu.children).map((c) => {
@@ -1239,10 +1121,10 @@ var BSN = function(exports) {
     const { element, options, menu } = self;
     const action = self.open ? E : r;
     const doc = d(element);
-    action(doc, vt, dropdownDismissHandler);
-    action(doc, ct, dropdownDismissHandler);
-    action(doc, ft, dropdownPreventScroll);
-    action(doc, gt, dropdownKeyHandler);
+    action(doc, gt, dropdownDismissHandler);
+    action(doc, st, dropdownDismissHandler);
+    action(doc, lt, dropdownPreventScroll);
+    action(doc, ft, dropdownKeyHandler);
     if (options.display === "dynamic") {
       if (self.open) self._observer.observe(menu);
       else self._observer.disconnect();
@@ -1250,7 +1132,7 @@ var BSN = function(exports) {
   };
   const getCurrentOpenDropdown = (element) => {
     const currentParent = [...dropdownMenuClasses, "btn-group", "input-group"].map(
-      (c) => Go(`${c} ${showClass}`, d(element))
+      (c) => Ro(`${c} ${showClass}`, d(element))
     ).find((x2) => x2.length);
     if (currentParent && currentParent.length) {
       return [...currentParent[0].children].find(
@@ -1261,16 +1143,16 @@ var BSN = function(exports) {
   };
   const dropdownDismissHandler = (e2) => {
     const { target, type } = e2;
-    if (!m$1(target)) return;
+    if (!b(target)) return;
     const element = getCurrentOpenDropdown(target);
     const self = element && getDropdownInstance(element);
     if (!self) return;
     const { parentElement, menu } = self;
-    const isForm = parentElement && parentElement.contains(target) && (target.tagName === "form" || ke(target, "form") !== null);
-    if ([vt, Et].includes(type) && isEmptyAnchor(target)) {
+    const isForm = parentElement && parentElement.contains(target) && (target.tagName === "form" || Se(target, "form") !== null);
+    if ([gt, vt].includes(type) && isEmptyAnchor(target)) {
       e2.preventDefault();
     }
-    if (!isForm && type !== ct && target !== element && target !== menu) {
+    if (!isForm && type !== st && target !== element && target !== menu) {
       self.hide();
     }
   };
@@ -1283,7 +1165,7 @@ var BSN = function(exports) {
     if (isEmptyAnchor(this)) e2.preventDefault();
   }
   const dropdownPreventScroll = (e2) => {
-    if ([on, sn].includes(e2.code)) e2.preventDefault();
+    if ([en, nn].includes(e2.code)) e2.preventDefault();
   };
   function dropdownKeyHandler(e2) {
     const { code } = e2;
@@ -1294,34 +1176,30 @@ var BSN = function(exports) {
     if (!self || !activeElement) return;
     const { menu, open } = self;
     const menuItems = getMenuItems(menu);
-    if (menuItems && menuItems.length && [on, sn].includes(code)) {
+    if (menuItems && menuItems.length && [en, nn].includes(code)) {
       let idx = menuItems.indexOf(activeElement);
       if (activeElement === element) {
         idx = 0;
-      } else if (code === sn) {
+      } else if (code === nn) {
         idx = idx > 1 ? idx - 1 : 0;
-      } else if (code === on) {
+      } else if (code === en) {
         idx = idx < menuItems.length - 1 ? idx + 1 : idx;
       }
-      if (menuItems[idx]) ao(menuItems[idx]);
+      if (menuItems[idx]) ro(menuItems[idx]);
     }
-    if (gn === code && open) {
+    if (fn === code && open) {
       self.toggle();
-      ao(element);
+      ro(element);
     }
   }
   class Dropdown extends BaseComponent {
     static selector = dropdownSelector;
     static init = dropdownInitCallback;
     static getInstance = getDropdownInstance;
-    /**
-     * @param target Element or string selector
-     * @param config the instance options
-     */
     constructor(target, config) {
       super(target, config);
       const { parentElement } = this.element;
-      const [menu] = Go(
+      const [menu] = Ro(
         dropdownMenuClass,
         parentElement
       );
@@ -1333,15 +1211,9 @@ var BSN = function(exports) {
       );
       this._toggleEventListeners(true);
     }
-    /**
-     * Returns component name string.
-     */
     get name() {
       return dropdownComponent;
     }
-    /**
-     * Returns component default options.
-     */
     get defaults() {
       return dropdownDefaults;
     }
@@ -1360,16 +1232,16 @@ var BSN = function(exports) {
           e2.relatedTarget = element;
         }
       );
-      q(parentElement, showDropdownEvent);
+      G(parentElement, showDropdownEvent);
       if (showDropdownEvent.defaultPrevented) return;
-      qn(menu, showClass);
-      qn(parentElement, showClass);
-      Qn(element, Oe, "true");
+      Kn(menu, showClass);
+      Kn(parentElement, showClass);
+      Wn(element, De, "true");
       styleDropdown(this);
       this.open = !open;
-      ao(element);
+      ro(element);
       toggleDropdownDismiss(this);
-      q(parentElement, shownDropdownEvent);
+      G(parentElement, shownDropdownEvent);
     }
     hide() {
       const { element, open, menu, parentElement } = this;
@@ -1377,23 +1249,18 @@ var BSN = function(exports) {
       [hideDropdownEvent, hiddenDropdownEvent].forEach((e2) => {
         e2.relatedTarget = element;
       });
-      q(parentElement, hideDropdownEvent);
+      G(parentElement, hideDropdownEvent);
       if (hideDropdownEvent.defaultPrevented) return;
-      Yn(menu, showClass);
-      Yn(parentElement, showClass);
-      Qn(element, Oe, "false");
+      qn(menu, showClass);
+      qn(parentElement, showClass);
+      Wn(element, De, "false");
       this.open = !open;
       toggleDropdownDismiss(this);
-      q(parentElement, hiddenDropdownEvent);
+      G(parentElement, hiddenDropdownEvent);
     }
-    /**
-     * Toggles on/off the `click` event listener of the `Dropdown`.
-     *
-     * @param add when `true`, it will add the event listener
-     */
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
-      action(this.element, vt, dropdownClickHandler);
+      action(this.element, gt, dropdownClickHandler);
     };
     dispose() {
       if (this.open) this.hide();
@@ -1409,22 +1276,22 @@ var BSN = function(exports) {
   const stickyTopClass = "sticky-top";
   const positionStickyClass = "position-sticky";
   const getFixedItems = (parent) => [
-    ...Go(fixedTopClass, parent),
-    ...Go(fixedBottomClass, parent),
-    ...Go(stickyTopClass, parent),
-    ...Go(positionStickyClass, parent),
-    ...Go("is-fixed", parent)
+    ...Ro(fixedTopClass, parent),
+    ...Ro(fixedBottomClass, parent),
+    ...Ro(stickyTopClass, parent),
+    ...Ro(positionStickyClass, parent),
+    ...Ro("is-fixed", parent)
   ];
   const resetScrollbar = (element) => {
-    const bd = So(element);
-    Eo(bd, {
+    const bd = wo(element);
+    vo(bd, {
       paddingRight: "",
       overflow: ""
     });
     const fixedItems = getFixedItems(bd);
     if (fixedItems.length) {
       fixedItems.forEach((fixed) => {
-        Eo(fixed, {
+        vo(fixed, {
           paddingRight: "",
           marginRight: ""
         });
@@ -1432,41 +1299,41 @@ var BSN = function(exports) {
     }
   };
   const measureScrollbar = (element) => {
-    const { clientWidth } = S(element);
-    const { innerWidth } = ve(element);
+    const { clientWidth } = w$1(element);
+    const { innerWidth } = ge(element);
     return Math.abs(innerWidth - clientWidth);
   };
   const setScrollbar = (element, overflow) => {
-    const bd = So(element);
-    const bodyPad = parseInt(g(bd, "paddingRight"), 10);
-    const isOpen = g(bd, "overflow") === "hidden";
+    const bd = wo(element);
+    const bodyPad = parseInt(f$1(bd, "paddingRight"), 10);
+    const isOpen = f$1(bd, "overflow") === "hidden";
     const sbWidth = isOpen && bodyPad ? 0 : measureScrollbar(element);
     const fixedItems = getFixedItems(bd);
     if (!overflow) return;
-    Eo(bd, {
+    vo(bd, {
       overflow: "hidden",
       paddingRight: `${bodyPad + sbWidth}px`
     });
     if (!fixedItems.length) return;
     fixedItems.forEach((fixed) => {
-      const itemPadValue = g(fixed, "paddingRight");
+      const itemPadValue = f$1(fixed, "paddingRight");
       fixed.style.paddingRight = `${parseInt(itemPadValue, 10) + sbWidth}px`;
-      if ([stickyTopClass, positionStickyClass].some((c) => Zn(fixed, c))) {
-        const itemMValue = g(fixed, "marginRight");
+      if ([stickyTopClass, positionStickyClass].some((c) => Gn(fixed, c))) {
+        const itemMValue = f$1(fixed, "marginRight");
         fixed.style.marginRight = `${parseInt(itemMValue, 10) - sbWidth}px`;
       }
     });
   };
   const offcanvasString = "offcanvas";
-  const popupContainer = se({
+  const popupContainer = ne({
     tagName: "div",
     className: "popup-container"
   });
   const appendPopup = (target, customContainer) => {
-    const containerIsBody = l(customContainer) && customContainer.nodeName === "BODY";
-    const lookup = l(customContainer) && !containerIsBody ? customContainer : popupContainer;
-    const BODY = containerIsBody ? customContainer : So(target);
-    if (l(target)) {
+    const containerIsBody = u(customContainer) && customContainer.nodeName === "BODY";
+    const lookup = u(customContainer) && !containerIsBody ? customContainer : popupContainer;
+    const BODY = containerIsBody ? customContainer : wo(target);
+    if (u(target)) {
       if (lookup === popupContainer) {
         BODY.append(popupContainer);
       }
@@ -1474,9 +1341,9 @@ var BSN = function(exports) {
     }
   };
   const removePopup = (target, customContainer) => {
-    const containerIsBody = l(customContainer) && customContainer.nodeName === "BODY";
-    const lookup = l(customContainer) && !containerIsBody ? customContainer : popupContainer;
-    if (l(target)) {
+    const containerIsBody = u(customContainer) && customContainer.nodeName === "BODY";
+    const lookup = u(customContainer) && !containerIsBody ? customContainer : popupContainer;
+    if (u(target)) {
       target.remove();
       if (lookup === popupContainer && !popupContainer.children.length) {
         popupContainer.remove();
@@ -1484,17 +1351,17 @@ var BSN = function(exports) {
     }
   };
   const hasPopup = (target, customContainer) => {
-    const lookup = l(customContainer) && customContainer.nodeName !== "BODY" ? customContainer : popupContainer;
-    return l(target) && lookup.contains(target);
+    const lookup = u(customContainer) && customContainer.nodeName !== "BODY" ? customContainer : popupContainer;
+    return u(target) && lookup.contains(target);
   };
   const backdropString = "backdrop";
   const modalBackdropClass = `${modalString}-${backdropString}`;
   const offcanvasBackdropClass = `${offcanvasString}-${backdropString}`;
   const modalActiveSelector = `.${modalString}.${showClass}`;
   const offcanvasActiveSelector = `.${offcanvasString}.${showClass}`;
-  const overlay = se("div");
+  const overlay = ne("div");
   const getCurrentOpen = (element) => {
-    return Ro(
+    return Ho(
       `${modalActiveSelector},${offcanvasActiveSelector}`,
       d(element)
     );
@@ -1502,33 +1369,33 @@ var BSN = function(exports) {
   const toggleOverlayType = (isModal) => {
     const targetClass = isModal ? modalBackdropClass : offcanvasBackdropClass;
     [modalBackdropClass, offcanvasBackdropClass].forEach((c) => {
-      Yn(overlay, c);
+      qn(overlay, c);
     });
-    qn(overlay, targetClass);
+    Kn(overlay, targetClass);
   };
   const appendOverlay = (element, hasFade, isModal) => {
     toggleOverlayType(isModal);
-    appendPopup(overlay, So(element));
-    if (hasFade) qn(overlay, fadeClass);
+    appendPopup(overlay, wo(element));
+    if (hasFade) Kn(overlay, fadeClass);
   };
   const showOverlay = () => {
-    if (!Zn(overlay, showClass)) {
-      qn(overlay, showClass);
-      bo(overlay);
+    if (!Gn(overlay, showClass)) {
+      Kn(overlay, showClass);
+      mo(overlay);
     }
   };
   const hideOverlay = () => {
-    Yn(overlay, showClass);
+    qn(overlay, showClass);
   };
   const removeOverlay = (element) => {
     if (!getCurrentOpen(element)) {
-      Yn(overlay, fadeClass);
-      removePopup(overlay, So(element));
+      qn(overlay, fadeClass);
+      removePopup(overlay, wo(element));
       resetScrollbar(element);
     }
   };
   const isVisible = (element) => {
-    return m$1(element) && g(element, "visibility") !== "hidden" && element.offsetParent !== null;
+    return b(element) && f$1(element, "visibility") !== "hidden" && element.offsetParent !== null;
   };
   const modalSelector = `.${modalString}`;
   const modalToggleSelector = `[${dataBsToggle}="${modalString}"]`;
@@ -1538,78 +1405,78 @@ var BSN = function(exports) {
     backdrop: true,
     keyboard: true
   };
-  const getModalInstance = (element) => to(element, modalComponent);
+  const getModalInstance = (element) => Xn(element, modalComponent);
   const modalInitCallback = (element) => new Modal(element);
-  const showModalEvent = mo(
+  const showModalEvent = po(
     `show.bs.${modalString}`
   );
-  const shownModalEvent = mo(
+  const shownModalEvent = po(
     `shown.bs.${modalString}`
   );
-  const hideModalEvent = mo(
+  const hideModalEvent = po(
     `hide.bs.${modalString}`
   );
-  const hiddenModalEvent = mo(
+  const hiddenModalEvent = po(
     `hidden.bs.${modalString}`
   );
   const setModalScrollbar = (self) => {
     const { element } = self;
     const scrollbarWidth = measureScrollbar(element);
-    const { clientHeight, scrollHeight } = S(element);
+    const { clientHeight, scrollHeight } = w$1(element);
     const { clientHeight: modalHeight, scrollHeight: modalScrollHeight } = element;
     const modalOverflow = modalHeight !== modalScrollHeight;
     if (!modalOverflow && scrollbarWidth) {
-      const pad = !Uo(element) ? "paddingRight" : "paddingLeft";
+      const pad = !Bo(element) ? "paddingRight" : "paddingLeft";
       const padStyle = { [pad]: `${scrollbarWidth}px` };
-      Eo(element, padStyle);
+      vo(element, padStyle);
     }
     setScrollbar(element, modalOverflow || clientHeight !== scrollHeight);
   };
   const toggleModalDismiss = (self, add) => {
     const action = add ? E : r;
     const { element } = self;
-    action(element, vt, modalDismissHandler);
-    action(d(element), ft, modalKeyHandler);
+    action(element, gt, modalDismissHandler);
+    action(d(element), lt, modalKeyHandler);
     if (add) self._observer.observe(element);
     else self._observer.disconnect();
   };
   const afterModalHide = (self) => {
     const { triggers, element, relatedTarget } = self;
     removeOverlay(element);
-    Eo(element, { paddingRight: "", display: "" });
+    vo(element, { paddingRight: "", display: "" });
     toggleModalDismiss(self);
     const focusElement = showModalEvent.relatedTarget || triggers.find(isVisible);
-    if (focusElement) ao(focusElement);
+    if (focusElement) ro(focusElement);
     hiddenModalEvent.relatedTarget = relatedTarget || void 0;
-    q(element, hiddenModalEvent);
-    Ao(element);
+    G(element, hiddenModalEvent);
+    yo(element);
   };
   const afterModalShow = (self) => {
     const { element, relatedTarget } = self;
-    ao(element);
+    ro(element);
     toggleModalDismiss(self, true);
     shownModalEvent.relatedTarget = relatedTarget || void 0;
-    q(element, shownModalEvent);
-    Ao(element);
+    G(element, shownModalEvent);
+    yo(element);
   };
   const beforeModalShow = (self) => {
     const { element, hasFade } = self;
-    Eo(element, { display: "block" });
+    vo(element, { display: "block" });
     setModalScrollbar(self);
     if (!getCurrentOpen(element)) {
-      Eo(So(element), { overflow: "hidden" });
+      vo(wo(element), { overflow: "hidden" });
     }
-    qn(element, showClass);
-    Gn(element, J);
-    Qn(element, Pe, "true");
-    if (hasFade) so(element, () => afterModalShow(self));
+    Kn(element, showClass);
+    Qn(element, $);
+    Wn(element, ze, "true");
+    if (hasFade) no(element, () => afterModalShow(self));
     else afterModalShow(self);
   };
   const beforeModalHide = (self) => {
     const { element, options, hasFade } = self;
-    if (options.backdrop && hasFade && Zn(overlay, showClass) && !getCurrentOpen(element)) {
+    if (options.backdrop && hasFade && Gn(overlay, showClass) && !getCurrentOpen(element)) {
       hideOverlay();
-      so(overlay, () => afterModalHide(self));
+      no(overlay, () => afterModalHide(self));
     } else {
       afterModalHide(self);
     }
@@ -1624,11 +1491,11 @@ var BSN = function(exports) {
     self.toggle();
   }
   const modalKeyHandler = ({ code, target }) => {
-    const element = Ro(modalActiveSelector, d(target));
+    const element = Ho(modalActiveSelector, d(target));
     const self = element && getModalInstance(element);
     if (!self) return;
     const { options } = self;
-    if (options.keyboard && code === gn && Zn(element, showClass)) {
+    if (options.keyboard && code === fn && Gn(element, showClass)) {
       self.relatedTarget = null;
       self.hide();
     }
@@ -1636,19 +1503,19 @@ var BSN = function(exports) {
   const modalDismissHandler = (e2) => {
     const { currentTarget } = e2;
     const self = currentTarget && getModalInstance(currentTarget);
-    if (!self || !currentTarget || ho.get(currentTarget)) return;
+    if (!self || !currentTarget || bo.get(currentTarget)) return;
     const { options, isStatic, modalDialog } = self;
     const { backdrop } = options;
     const { target } = e2;
     const selectedText = d(currentTarget)?.getSelection()?.toString().length;
     const targetInsideDialog = modalDialog.contains(target);
-    const dismiss = target && ke(target, modalDismissSelector);
+    const dismiss = target && Se(target, modalDismissSelector);
     if (isStatic && !targetInsideDialog) {
-      ho.set(
+      bo.set(
         currentTarget,
         () => {
-          qn(currentTarget, modalStaticClass);
-          so(modalDialog, () => staticTransitionEnd(self));
+          Kn(currentTarget, modalStaticClass);
+          no(modalDialog, () => staticTransitionEnd(self));
         },
         17
       );
@@ -1660,29 +1527,25 @@ var BSN = function(exports) {
   };
   const staticTransitionEnd = (self) => {
     const { element, modalDialog } = self;
-    const duration = (ue(modalDialog) || 0) + 17;
-    Yn(element, modalStaticClass);
-    ho.set(element, () => ho.clear(element), duration);
+    const duration = (ae(modalDialog) || 0) + 17;
+    qn(element, modalStaticClass);
+    bo.set(element, () => bo.clear(element), duration);
   };
   class Modal extends BaseComponent {
     static selector = modalSelector;
     static init = modalInitCallback;
     static getInstance = getModalInstance;
-    /**
-     * @param target usually the `.modal` element
-     * @param config instance options
-     */
     constructor(target, config) {
       super(target, config);
       const { element } = this;
-      const modalDialog = Ro(
+      const modalDialog = Ho(
         `.${modalString}-dialog`,
         element
       );
       if (!modalDialog) return;
       this.modalDialog = modalDialog;
       this.triggers = [
-        ...de(
+        ...ue(
           modalToggleSelector,
           d(element)
         )
@@ -1690,38 +1553,32 @@ var BSN = function(exports) {
         (btn) => getTargetElement(btn) === element
       );
       this.isStatic = this.options.backdrop === "static";
-      this.hasFade = Zn(element, fadeClass);
+      this.hasFade = Gn(element, fadeClass);
       this.relatedTarget = null;
       this._observer = new ResizeObserver(() => this.update());
       this._toggleEventListeners(true);
     }
-    /**
-     * Returns component name string.
-     */
     get name() {
       return modalComponent;
     }
-    /**
-     * Returns component default options.
-     */
     get defaults() {
       return modalDefaults;
     }
     toggle() {
-      if (Zn(this.element, showClass)) this.hide();
+      if (Gn(this.element, showClass)) this.hide();
       else this.show();
     }
     show() {
       const { element, options, hasFade, relatedTarget } = this;
       const { backdrop } = options;
       let overlayDelay = 0;
-      if (Zn(element, showClass)) return;
+      if (Gn(element, showClass)) return;
       showModalEvent.relatedTarget = relatedTarget || void 0;
-      q(element, showModalEvent);
+      G(element, showModalEvent);
       if (showModalEvent.defaultPrevented) return;
       const currentOpen = getCurrentOpen(element);
       if (currentOpen && currentOpen !== element) {
-        const that = getModalInstance(currentOpen) || to(
+        const that = getModalInstance(currentOpen) || Xn(
           currentOpen,
           offcanvasComponent
         );
@@ -1733,45 +1590,37 @@ var BSN = function(exports) {
         } else {
           toggleOverlayType(true);
         }
-        overlayDelay = ue(overlay);
+        overlayDelay = ae(overlay);
         showOverlay();
         setTimeout(() => beforeModalShow(this), overlayDelay);
       } else {
         beforeModalShow(this);
-        if (currentOpen && Zn(overlay, showClass)) {
+        if (currentOpen && Gn(overlay, showClass)) {
           hideOverlay();
         }
       }
     }
     hide() {
       const { element, hasFade, relatedTarget } = this;
-      if (!Zn(element, showClass)) return;
+      if (!Gn(element, showClass)) return;
       hideModalEvent.relatedTarget = relatedTarget || void 0;
-      q(element, hideModalEvent);
+      G(element, hideModalEvent);
       if (hideModalEvent.defaultPrevented) return;
-      Yn(element, showClass);
-      Qn(element, J, "true");
-      Gn(element, Pe);
-      if (hasFade) so(element, () => beforeModalHide(this));
+      qn(element, showClass);
+      Wn(element, $, "true");
+      Qn(element, ze);
+      if (hasFade) no(element, () => beforeModalHide(this));
       else beforeModalHide(this);
     }
-    /**
-     * Updates the modal layout.
-     */
     update = () => {
-      if (Zn(this.element, showClass)) setModalScrollbar(this);
+      if (Gn(this.element, showClass)) setModalScrollbar(this);
     };
-    /**
-     * Toggles on/off the `click` event listener of the `Modal` instance.
-     *
-     * @param add when `true`, event listener(s) is/are added
-     */
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
       const { triggers } = this;
       if (!triggers.length) return;
       triggers.forEach((btn) => {
-        action(btn, vt, modalClickHandler);
+        action(btn, gt, modalClickHandler);
       });
     };
     dispose() {
@@ -1781,7 +1630,7 @@ var BSN = function(exports) {
       this.hide();
       this._toggleEventListeners();
       if (hasFade) {
-        so(modalDialog, callback);
+        no(modalDialog, callback);
       } else {
         callback();
       }
@@ -1796,42 +1645,42 @@ var BSN = function(exports) {
     keyboard: true,
     scroll: false
   };
-  const getOffcanvasInstance = (element) => to(element, offcanvasComponent);
+  const getOffcanvasInstance = (element) => Xn(element, offcanvasComponent);
   const offcanvasInitCallback = (element) => new Offcanvas(element);
-  const showOffcanvasEvent = mo(`show.bs.${offcanvasString}`);
-  const shownOffcanvasEvent = mo(`shown.bs.${offcanvasString}`);
-  const hideOffcanvasEvent = mo(`hide.bs.${offcanvasString}`);
-  const hiddenOffcanvasEvent = mo(`hidden.bs.${offcanvasString}`);
+  const showOffcanvasEvent = po(`show.bs.${offcanvasString}`);
+  const shownOffcanvasEvent = po(`shown.bs.${offcanvasString}`);
+  const hideOffcanvasEvent = po(`hide.bs.${offcanvasString}`);
+  const hiddenOffcanvasEvent = po(`hidden.bs.${offcanvasString}`);
   const setOffCanvasScrollbar = (self) => {
     const { element } = self;
-    const { clientHeight, scrollHeight } = S(element);
+    const { clientHeight, scrollHeight } = w$1(element);
     setScrollbar(element, clientHeight !== scrollHeight);
   };
   const toggleOffCanvasDismiss = (self, add) => {
     const action = add ? E : r;
     const doc = d(self.element);
-    action(doc, ft, offcanvasKeyDismissHandler);
-    action(doc, vt, offcanvasDismissHandler);
+    action(doc, lt, offcanvasKeyDismissHandler);
+    action(doc, gt, offcanvasDismissHandler);
   };
   const beforeOffcanvasShow = (self) => {
     const { element, options } = self;
     if (!options.scroll) {
       setOffCanvasScrollbar(self);
-      Eo(So(element), { overflow: "hidden" });
+      vo(wo(element), { overflow: "hidden" });
     }
-    qn(element, offcanvasTogglingClass);
-    qn(element, showClass);
-    Eo(element, { visibility: "visible" });
-    so(element, () => showOffcanvasComplete(self));
+    Kn(element, offcanvasTogglingClass);
+    Kn(element, showClass);
+    vo(element, { visibility: "visible" });
+    no(element, () => showOffcanvasComplete(self));
   };
   const beforeOffcanvasHide = (self) => {
     const { element, options } = self;
     const currentOpen = getCurrentOpen(element);
     element.blur();
-    if (!currentOpen && options.backdrop && Zn(overlay, showClass)) {
+    if (!currentOpen && options.backdrop && Gn(overlay, showClass)) {
       hideOverlay();
     }
-    so(element, () => hideOffcanvasComplete(self));
+    no(element, () => hideOffcanvasComplete(self));
   };
   function offcanvasTriggerHandler(e2) {
     const element = getTargetElement(this);
@@ -1844,12 +1693,12 @@ var BSN = function(exports) {
   }
   const offcanvasDismissHandler = (e2) => {
     const { target } = e2;
-    const element = Ro(
+    const element = Ho(
       offcanvasActiveSelector,
       d(target)
     );
     if (!element) return;
-    const offCanvasDismiss = Ro(
+    const offCanvasDismiss = Ho(
       offcanvasDismissSelector,
       element
     );
@@ -1857,7 +1706,7 @@ var BSN = function(exports) {
     if (!self) return;
     const { options, triggers } = self;
     const { backdrop } = options;
-    const trigger = ke(target, offcanvasToggleSelector);
+    const trigger = Se(target, offcanvasToggleSelector);
     const selection = d(element).getSelection();
     if (overlay.contains(target) && backdrop === "static") return;
     if (!(selection && selection.toString().length) && (!element.contains(target) && backdrop && (!trigger || triggers.includes(target)) || offCanvasDismiss && offCanvasDismiss.contains(target))) {
@@ -1867,40 +1716,40 @@ var BSN = function(exports) {
     if (trigger && trigger.tagName === "A") e2.preventDefault();
   };
   const offcanvasKeyDismissHandler = ({ code, target }) => {
-    const element = Ro(
+    const element = Ho(
       offcanvasActiveSelector,
       d(target)
     );
     const self = element && getOffcanvasInstance(element);
     if (!self) return;
-    if (self.options.keyboard && code === gn) {
+    if (self.options.keyboard && code === fn) {
       self.relatedTarget = void 0;
       self.hide();
     }
   };
   const showOffcanvasComplete = (self) => {
     const { element } = self;
-    Yn(element, offcanvasTogglingClass);
-    Gn(element, J);
-    Qn(element, Pe, "true");
-    Qn(element, "role", "dialog");
-    q(element, shownOffcanvasEvent);
+    qn(element, offcanvasTogglingClass);
+    Qn(element, $);
+    Wn(element, ze, "true");
+    Wn(element, "role", "dialog");
+    G(element, shownOffcanvasEvent);
     toggleOffCanvasDismiss(self, true);
-    ao(element);
-    Ao(element);
+    ro(element);
+    yo(element);
   };
   const hideOffcanvasComplete = (self) => {
     const { element, triggers } = self;
-    Qn(element, J, "true");
-    Gn(element, Pe);
-    Gn(element, "role");
-    Eo(element, { visibility: "" });
+    Wn(element, $, "true");
+    Qn(element, ze);
+    Qn(element, "role");
+    vo(element, { visibility: "" });
     const visibleTrigger = showOffcanvasEvent.relatedTarget || triggers.find(isVisible);
-    if (visibleTrigger) ao(visibleTrigger);
+    if (visibleTrigger) ro(visibleTrigger);
     removeOverlay(element);
-    q(element, hiddenOffcanvasEvent);
-    Yn(element, offcanvasTogglingClass);
-    Ao(element);
+    G(element, hiddenOffcanvasEvent);
+    qn(element, offcanvasTogglingClass);
+    yo(element);
     if (!getCurrentOpen(element)) {
       toggleOffCanvasDismiss(self);
     }
@@ -1909,15 +1758,11 @@ var BSN = function(exports) {
     static selector = offcanvasSelector;
     static init = offcanvasInitCallback;
     static getInstance = getOffcanvasInstance;
-    /**
-     * @param target usually an `.offcanvas` element
-     * @param config instance options
-     */
     constructor(target, config) {
       super(target, config);
       const { element } = this;
       this.triggers = [
-        ...de(
+        ...ue(
           offcanvasToggleSelector,
           d(element)
         )
@@ -1927,33 +1772,27 @@ var BSN = function(exports) {
       this.relatedTarget = void 0;
       this._toggleEventListeners(true);
     }
-    /**
-     * Returns component name string.
-     */
     get name() {
       return offcanvasComponent;
     }
-    /**
-     * Returns component default options.
-     */
     get defaults() {
       return offcanvasDefaults;
     }
     toggle() {
-      if (Zn(this.element, showClass)) this.hide();
+      if (Gn(this.element, showClass)) this.hide();
       else this.show();
     }
     show() {
       const { element, options, relatedTarget } = this;
       let overlayDelay = 0;
-      if (Zn(element, showClass)) return;
+      if (Gn(element, showClass)) return;
       showOffcanvasEvent.relatedTarget = relatedTarget || void 0;
       shownOffcanvasEvent.relatedTarget = relatedTarget || void 0;
-      q(element, showOffcanvasEvent);
+      G(element, showOffcanvasEvent);
       if (showOffcanvasEvent.defaultPrevented) return;
       const currentOpen = getCurrentOpen(element);
       if (currentOpen && currentOpen !== element) {
-        const that = getOffcanvasInstance(currentOpen) || to(
+        const that = getOffcanvasInstance(currentOpen) || Xn(
           currentOpen,
           modalComponent
         );
@@ -1962,44 +1801,38 @@ var BSN = function(exports) {
       if (options.backdrop) {
         if (!hasPopup(overlay)) appendOverlay(element, true);
         else toggleOverlayType();
-        overlayDelay = ue(overlay);
+        overlayDelay = ae(overlay);
         showOverlay();
         setTimeout(() => beforeOffcanvasShow(this), overlayDelay);
       } else {
         beforeOffcanvasShow(this);
-        if (currentOpen && Zn(overlay, showClass)) hideOverlay();
+        if (currentOpen && Gn(overlay, showClass)) hideOverlay();
       }
     }
     hide() {
       const { element, relatedTarget } = this;
-      if (!Zn(element, showClass)) return;
+      if (!Gn(element, showClass)) return;
       hideOffcanvasEvent.relatedTarget = relatedTarget || void 0;
       hiddenOffcanvasEvent.relatedTarget = relatedTarget || void 0;
-      q(element, hideOffcanvasEvent);
+      G(element, hideOffcanvasEvent);
       if (hideOffcanvasEvent.defaultPrevented) return;
-      qn(element, offcanvasTogglingClass);
-      Yn(element, showClass);
+      Kn(element, offcanvasTogglingClass);
+      qn(element, showClass);
       beforeOffcanvasHide(this);
     }
-    /**
-     * Toggles on/off the `click` event listeners.
-     *
-     * @param self the `Offcanvas` instance
-     * @param add when *true*, listeners are added
-     */
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
       this.triggers.forEach((btn) => {
-        action(btn, vt, offcanvasTriggerHandler);
+        action(btn, gt, offcanvasTriggerHandler);
       });
     };
     dispose() {
       const { element } = this;
-      const isOpen = Zn(element, showClass);
+      const isOpen = Gn(element, showClass);
       const callback = () => setTimeout(() => super.dispose(), 1);
       this.hide();
       this._toggleEventListeners();
-      if (isOpen) so(element, callback);
+      if (isOpen) no(element, callback);
       else callback();
     }
   }
@@ -2025,19 +1858,19 @@ var BSN = function(exports) {
       const tipClasses = /\b(top|bottom|start|end)+/;
       const { element, tooltip, container, offsetParent, options, arrow } = self;
       if (!tooltip) return;
-      const RTL = Uo(element);
-      const { x: scrollLeft, y: scrollTop } = ko(offsetParent);
-      Eo(tooltip, {
+      const RTL = Bo(element);
+      const { x: scrollLeft, y: scrollTop } = So(offsetParent);
+      vo(tooltip, {
         top: "",
         left: "",
         right: "",
         bottom: ""
       });
       const { offsetWidth: tipWidth, offsetHeight: tipHeight } = tooltip;
-      const { clientWidth: htmlcw, clientHeight: htmlch, offsetWidth: htmlow } = S(element);
+      const { clientWidth: htmlcw, clientHeight: htmlch, offsetWidth: htmlow } = w$1(element);
       let { placement } = options;
       const { clientWidth: parentCWidth, offsetWidth: parentOWidth } = container;
-      const parentPosition = g(
+      const parentPosition = f$1(
         container,
         "position"
       );
@@ -2052,16 +1885,16 @@ var BSN = function(exports) {
         left: elemRectLeft,
         right: elemRectRight,
         top: elemRectTop
-      } = observerEntry?.boundingClientRect || w$1(element, true);
+      } = observerEntry?.boundingClientRect || y(element, true);
       const {
         x: elemOffsetLeft,
         y: elemOffsetTop
-      } = Co(
+      } = No(
         element,
         offsetParent,
         { x: scrollLeft, y: scrollTop }
       );
-      Eo(arrow, {
+      vo(arrow, {
         top: "",
         left: "",
         right: "",
@@ -2138,13 +1971,13 @@ var BSN = function(exports) {
           arrowLeft = tipWidth / 2 - arrowAdjust;
         }
       }
-      Eo(tooltip, {
+      vo(tooltip, {
         top: `${topPosition}px`,
         bottom: bottomPosition === "" ? "" : `${bottomPosition}px`,
         left: leftPosition === "auto" ? leftPosition : `${leftPosition}px`,
         right: rightPosition !== "" ? `${rightPosition}px` : ""
       });
-      if (m$1(arrow)) {
+      if (b(arrow)) {
         if (arrowTop !== "") {
           arrow.style.top = `${arrowTop}px`;
         }
@@ -2154,10 +1987,10 @@ var BSN = function(exports) {
           arrow.style.right = `${arrowRight}px`;
         }
       }
-      const updatedTooltipEvent = mo(
-        `updated.bs.${yo(self.name)}`
+      const updatedTooltipEvent = po(
+        `updated.bs.${Eo(self.name)}`
       );
-      q(element, updatedTooltipEvent);
+      G(element, updatedTooltipEvent);
     });
   };
   const tooltipDefaults = {
@@ -2177,15 +2010,15 @@ var BSN = function(exports) {
   const dataOriginalTitle = "data-original-title";
   const tooltipComponent = "Tooltip";
   const setHtml = (element, content, sanitizeFn) => {
-    if (k$1(content) && content.length) {
+    if (N(content) && content.length) {
       let dirty = content.trim();
-      if (zo(sanitizeFn)) dirty = sanitizeFn(dirty);
+      if (Lo(sanitizeFn)) dirty = sanitizeFn(dirty);
       const domParser = new DOMParser();
       const tempDocument = domParser.parseFromString(dirty, "text/html");
       element.append(...[...tempDocument.body.childNodes]);
-    } else if (m$1(content)) {
+    } else if (b(content)) {
       element.append(content);
-    } else if (Vo(content) || Se(content) && content.every(l)) {
+    } else if (Fo(content) || we(content) && content.every(u)) {
       element.append(...[...content]);
     }
   };
@@ -2207,59 +2040,59 @@ var BSN = function(exports) {
     const tipPositions = { ...tipClassPositions };
     let titleParts = [];
     let contentParts = [];
-    if (Uo(element)) {
+    if (Bo(element)) {
       tipPositions.left = "end";
       tipPositions.right = "start";
     }
     const placementClass = `bs-${tipString}-${tipPositions[placement]}`;
     let tooltipTemplate;
-    if (m$1(template)) {
+    if (b(template)) {
       tooltipTemplate = template;
     } else {
-      const htmlMarkup = se("div");
+      const htmlMarkup = ne("div");
       setHtml(htmlMarkup, template, sanitizeFn);
       tooltipTemplate = htmlMarkup.firstChild;
     }
-    if (!m$1(tooltipTemplate)) return;
+    if (!b(tooltipTemplate)) return;
     self.tooltip = tooltipTemplate.cloneNode(true);
     const { tooltip } = self;
-    Qn(tooltip, "id", id);
-    Qn(tooltip, "role", tooltipString);
+    Wn(tooltip, "id", id);
+    Wn(tooltip, "role", tooltipString);
     const bodyClass = isTooltip ? `${tooltipString}-inner` : `${popoverString}-body`;
-    const tooltipHeader = isTooltip ? null : Ro(`.${popoverString}-header`, tooltip);
-    const tooltipBody = Ro(`.${bodyClass}`, tooltip);
-    self.arrow = Ro(
+    const tooltipHeader = isTooltip ? null : Ho(`.${popoverString}-header`, tooltip);
+    const tooltipBody = Ho(`.${bodyClass}`, tooltip);
+    self.arrow = Ho(
       `.${tipString}-arrow`,
       tooltip
     );
     const { arrow } = self;
-    if (m$1(title)) titleParts = [title.cloneNode(true)];
+    if (b(title)) titleParts = [title.cloneNode(true)];
     else {
-      const tempTitle = se("div");
+      const tempTitle = ne("div");
       setHtml(tempTitle, title, sanitizeFn);
       titleParts = [...[...tempTitle.childNodes]];
     }
-    if (m$1(content)) contentParts = [content.cloneNode(true)];
+    if (b(content)) contentParts = [content.cloneNode(true)];
     else {
-      const tempContent = se("div");
+      const tempContent = ne("div");
       setHtml(tempContent, content, sanitizeFn);
       contentParts = [...[...tempContent.childNodes]];
     }
     if (dismissible) {
       if (title) {
-        if (m$1(btnClose)) {
+        if (b(btnClose)) {
           titleParts = [...titleParts, btnClose.cloneNode(true)];
         } else {
-          const tempBtn = se("div");
+          const tempBtn = ne("div");
           setHtml(tempBtn, btnClose, sanitizeFn);
           titleParts = [...titleParts, tempBtn.firstChild];
         }
       } else {
         if (tooltipHeader) tooltipHeader.remove();
-        if (m$1(btnClose)) {
+        if (b(btnClose)) {
           contentParts = [...contentParts, btnClose.cloneNode(true)];
         } else {
-          const tempBtn = se("div");
+          const tempBtn = ne("div");
           setHtml(tempBtn, btnClose, sanitizeFn);
           contentParts = [...contentParts, tempBtn.firstChild];
         }
@@ -2272,32 +2105,32 @@ var BSN = function(exports) {
       if (content && tooltipBody) {
         setHtml(tooltipBody, contentParts, sanitizeFn);
       }
-      self.btn = Ro(".btn-close", tooltip) || void 0;
+      self.btn = Ho(".btn-close", tooltip) || void 0;
     } else if (title && tooltipBody) setHtml(tooltipBody, title, sanitizeFn);
-    qn(tooltip, "position-absolute");
-    qn(arrow, "position-absolute");
-    if (!Zn(tooltip, tipString)) qn(tooltip, tipString);
-    if (animation && !Zn(tooltip, fadeClass)) {
-      qn(tooltip, fadeClass);
+    Kn(tooltip, "position-absolute");
+    Kn(arrow, "position-absolute");
+    if (!Gn(tooltip, tipString)) Kn(tooltip, tipString);
+    if (animation && !Gn(tooltip, fadeClass)) {
+      Kn(tooltip, fadeClass);
     }
-    if (customClass && !Zn(tooltip, customClass)) {
-      qn(tooltip, customClass);
+    if (customClass && !Gn(tooltip, customClass)) {
+      Kn(tooltip, customClass);
     }
-    if (!Zn(tooltip, placementClass)) qn(tooltip, placementClass);
+    if (!Gn(tooltip, placementClass)) Kn(tooltip, placementClass);
   };
   const getElementContainer = (element) => {
     const majorBlockTags = ["HTML", "BODY"];
     const containers = [];
     let { parentNode } = element;
     while (parentNode && !majorBlockTags.includes(parentNode.nodeName)) {
-      parentNode = A(parentNode);
-      if (!(me(parentNode) || be(parentNode))) {
+      parentNode = k$1(parentNode);
+      if (!(pe(parentNode) || me(parentNode))) {
         containers.push(parentNode);
       }
     }
-    return containers.find((c, i) => {
-      if ((g(c, "position") !== "relative" || g(c, "position") === "relative" && c.offsetHeight !== c.scrollHeight) && containers.slice(i + 1).every(
-        (r2) => g(r2, "position") === "static"
+    return containers.find((c, i2) => {
+      if ((f$1(c, "position") !== "relative" || f$1(c, "position") === "relative" && c.offsetHeight !== c.scrollHeight) && containers.slice(i2 + 1).every(
+        (r2) => f$1(r2, "position") === "static"
       )) {
         return c;
       }
@@ -2306,11 +2139,11 @@ var BSN = function(exports) {
   };
   const tooltipSelector = `[${dataBsToggle}="${tooltipString}"],[data-tip="${tooltipString}"]`;
   const titleAttr = "title";
-  let getTooltipInstance = (element) => to(element, tooltipComponent);
+  let getTooltipInstance = (element) => Xn(element, tooltipComponent);
   const tooltipInitCallback = (element) => new Tooltip(element);
   const removeTooltip = (self) => {
     const { element, tooltip, container } = self;
-    Gn(element, De);
+    Qn(element, Me);
     removePopup(
       tooltip,
       container
@@ -2323,7 +2156,7 @@ var BSN = function(exports) {
   const disposeTooltipComplete = (self, callback) => {
     const { element } = self;
     self._toggleEventListeners();
-    if (oe(element, dataOriginalTitle) && self.name === tooltipComponent) {
+    if (ee(element, dataOriginalTitle) && self.name === tooltipComponent) {
       toggleTooltipTitle(self);
     }
     if (callback) callback();
@@ -2333,35 +2166,35 @@ var BSN = function(exports) {
     const { element } = self;
     action(
       d(element),
-      Qt,
+      Wt,
       self.handleTouch,
-      vo
+      go
     );
   };
   const tooltipShownAction = (self) => {
     const { element } = self;
-    const shownTooltipEvent = mo(
-      `shown.bs.${yo(self.name)}`
+    const shownTooltipEvent = po(
+      `shown.bs.${Eo(self.name)}`
     );
     toggleTooltipAction(self, true);
-    q(element, shownTooltipEvent);
-    ho.clear(element, "in");
+    G(element, shownTooltipEvent);
+    bo.clear(element, "in");
   };
   const tooltipHiddenAction = (self) => {
     const { element } = self;
-    const hiddenTooltipEvent = mo(
-      `hidden.bs.${yo(self.name)}`
+    const hiddenTooltipEvent = po(
+      `hidden.bs.${Eo(self.name)}`
     );
     toggleTooltipAction(self);
     removeTooltip(self);
-    q(element, hiddenTooltipEvent);
-    ho.clear(element, "out");
+    G(element, hiddenTooltipEvent);
+    bo.clear(element, "out");
   };
   const toggleTooltipOpenHandlers = (self, add) => {
     const action = add ? E : r;
     const { element, tooltip } = self;
-    const parentModal = ke(element, `.${modalString}`);
-    const parentOffcanvas = ke(element, `.${offcanvasString}`);
+    const parentModal = Se(element, `.${modalString}`);
+    const parentOffcanvas = Se(element, `.${offcanvasString}`);
     if (add) {
       [element, tooltip].forEach((target) => self._observer.observe(target));
     } else self._observer.disconnect();
@@ -2375,43 +2208,39 @@ var BSN = function(exports) {
   const toggleTooltipTitle = (self, content) => {
     const titleAtt = [dataOriginalTitle, titleAttr];
     const { element } = self;
-    Qn(
+    Wn(
       element,
       titleAtt[content ? 0 : 1],
       content || j(element, titleAtt[0]) || ""
     );
-    Gn(element, titleAtt[content ? 1 : 0]);
+    Qn(element, titleAtt[content ? 1 : 0]);
   };
   class Tooltip extends BaseComponent {
     static selector = tooltipSelector;
     static init = tooltipInitCallback;
     static getInstance = getTooltipInstance;
     static styleTip = styleTip;
-    /**
-     * @param target the target element
-     * @param config the instance options
-     */
     constructor(target, config) {
       super(target, config);
       const { element } = this;
       const isTooltip = this.name === tooltipComponent;
       const tipString = isTooltip ? tooltipString : popoverString;
       const tipComponent = isTooltip ? tooltipComponent : popoverComponent;
-      getTooltipInstance = (elem) => to(elem, tipComponent);
+      getTooltipInstance = (elem) => Xn(elem, tipComponent);
       this.enabled = true;
-      this.id = `${tipString}-${Ae(element, tipString)}`;
+      this.id = `${tipString}-${ye(element, tipString)}`;
       const { options } = this;
       if (!options.title && isTooltip || !isTooltip && !options.content) {
         return;
       }
-      N(tooltipDefaults, { titleAttr: "" });
-      if (oe(element, titleAttr) && isTooltip && typeof options.title === "string") {
+      C(tooltipDefaults, { titleAttr: "" });
+      if (ee(element, titleAttr) && isTooltip && typeof options.title === "string") {
         toggleTooltipTitle(this, options.title);
       }
       const container = getElementContainer(element);
       const offsetParent = ["sticky", "fixed", "relative"].some(
-        (position) => g(container, "position") === position
-      ) ? container : ve(element);
+        (position) => f$1(container, "position") === position
+      ) ? container : ge(element);
       this.container = container;
       this.offsetParent = offsetParent;
       createTip(this);
@@ -2419,41 +2248,35 @@ var BSN = function(exports) {
       this._observer = new v(() => this.update());
       this._toggleEventListeners(true);
     }
-    /**
-     * Returns component name string.
-     */
     get name() {
       return tooltipComponent;
     }
-    /**
-     * Returns component default options.
-     */
     get defaults() {
       return tooltipDefaults;
     }
-    handleFocus = () => ao(this.element);
+    handleFocus = () => ro(this.element);
     handleShow = () => this.show();
     show() {
       const { options, tooltip, element, container, id } = this;
       const { animation } = options;
-      const outTimer = ho.get(element, "out");
-      ho.clear(element, "out");
+      const outTimer = bo.get(element, "out");
+      bo.clear(element, "out");
       if (tooltip && !outTimer && !hasTip(this)) {
-        ho.set(
+        bo.set(
           element,
           () => {
-            const showTooltipEvent = mo(
-              `show.bs.${yo(this.name)}`
+            const showTooltipEvent = po(
+              `show.bs.${Eo(this.name)}`
             );
-            q(element, showTooltipEvent);
+            G(element, showTooltipEvent);
             if (!showTooltipEvent.defaultPrevented) {
               appendPopup(tooltip, container);
-              Qn(element, De, `#${id}`);
+              Wn(element, Me, `#${id}`);
               this.update();
               toggleTooltipOpenHandlers(this, true);
-              if (!Zn(tooltip, showClass)) qn(tooltip, showClass);
+              if (!Gn(tooltip, showClass)) Kn(tooltip, showClass);
               if (animation) {
-                so(tooltip, () => tooltipShownAction(this));
+                no(tooltip, () => tooltipShownAction(this));
               } else tooltipShownAction(this);
             }
           },
@@ -2466,21 +2289,21 @@ var BSN = function(exports) {
     hide() {
       const { options, tooltip, element } = this;
       const { animation, delay } = options;
-      ho.clear(element, "in");
+      bo.clear(element, "in");
       if (tooltip && hasTip(this)) {
-        ho.set(
+        bo.set(
           element,
           () => {
-            const hideTooltipEvent = mo(
-              `hide.bs.${yo(this.name)}`
+            const hideTooltipEvent = po(
+              `hide.bs.${Eo(this.name)}`
             );
-            q(element, hideTooltipEvent);
+            G(element, hideTooltipEvent);
             if (!hideTooltipEvent.defaultPrevented) {
               this.update();
-              Yn(tooltip, showClass);
+              qn(tooltip, showClass);
               toggleTooltipOpenHandlers(this);
               if (animation) {
-                so(tooltip, () => tooltipHiddenAction(this));
+                no(tooltip, () => tooltipHiddenAction(this));
               } else tooltipHiddenAction(this);
             }
           },
@@ -2516,12 +2339,6 @@ var BSN = function(exports) {
       if (!this.enabled) this.enable();
       else this.disable();
     }
-    /**
-     * Handles the `touchstart` event listener for `Tooltip`
-     *
-     * @this {Tooltip}
-     * @param {TouchEvent} e the `Event` object
-     */
     handleTouch = ({ target }) => {
       const { tooltip, element } = this;
       if (tooltip && tooltip.contains(target) || target === element || target && element.contains(target)) ;
@@ -2529,11 +2346,6 @@ var BSN = function(exports) {
         this.hide();
       }
     };
-    /**
-     * Toggles on/off the `Tooltip` event listeners.
-     *
-     * @param add when `true`, event listeners are added
-     */
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
       const { element, options, btn } = this;
@@ -2544,29 +2356,29 @@ var BSN = function(exports) {
         this.enabled = !!add;
         const triggerOptions = trigger.split(" ");
         triggerOptions.forEach((tr) => {
-          if (tr === yt) {
-            action(element, Et, this.handleShow);
-            action(element, wt, this.handleShow);
+          if (tr === Et) {
+            action(element, vt, this.handleShow);
+            action(element, ht, this.handleShow);
             if (!dismissible) {
-              action(element, At, this.handleHide);
+              action(element, yt, this.handleHide);
               action(
                 d(element),
-                Qt,
+                Wt,
                 this.handleTouch,
-                vo
+                go
               );
             }
-          } else if (tr === vt) {
+          } else if (tr === gt) {
             action(element, tr, !dismissible ? this.toggle : this.handleShow);
-          } else if (tr === ct) {
-            action(element, at, this.handleShow);
-            if (!dismissible) action(element, it, this.handleHide);
-            if (zn()) {
-              action(element, vt, this.handleFocus);
+          } else if (tr === st) {
+            action(element, rt, this.handleShow);
+            if (!dismissible) action(element, ct, this.handleHide);
+            if (On()) {
+              action(element, gt, this.handleFocus);
             }
           }
           if (dismissible && btn) {
-            action(btn, vt, this.handleHide);
+            action(btn, gt, this.handleHide);
           }
         });
       }
@@ -2581,112 +2393,102 @@ var BSN = function(exports) {
       if (options.animation && hasTip(clone)) {
         this.options.delay = 0;
         this.hide();
-        so(tooltip, callback);
+        no(tooltip, callback);
       } else {
         callback();
       }
     }
   }
   const popoverSelector = `[${dataBsToggle}="${popoverString}"],[data-tip="${popoverString}"]`;
-  const popoverDefaults = N({}, tooltipDefaults, {
+  const popoverDefaults = C({}, tooltipDefaults, {
     template: getTipTemplate(popoverString),
     content: "",
     dismissible: false,
     btnClose: '<button class="btn-close position-absolute top-0 end-0 m-1" aria-label="Close"></button>'
   });
-  const getPopoverInstance = (element) => to(element, popoverComponent);
+  const getPopoverInstance = (element) => Xn(element, popoverComponent);
   const popoverInitCallback = (element) => new Popover(element);
   class Popover extends Tooltip {
     static selector = popoverSelector;
     static init = popoverInitCallback;
     static getInstance = getPopoverInstance;
     static styleTip = styleTip;
-    /**
-     * @param target the target element
-     * @param config the instance options
-     */
     constructor(target, config) {
       super(target, config);
     }
-    /**
-     * Returns component name string.
-     */
     get name() {
       return popoverComponent;
     }
-    /**
-     * Returns component default options.
-     */
     get defaults() {
       return popoverDefaults;
     }
     show = () => {
       super.show();
       const { options, btn } = this;
-      if (options.dismissible && btn) setTimeout(() => ao(btn), 17);
+      if (options.dismissible && btn) setTimeout(() => ro(btn), 17);
     };
   }
   const tabString = "tab";
   const tabComponent = "Tab";
   const tabSelector = `[${dataBsToggle}="${tabString}"]`;
-  const getTabInstance = (element) => to(element, tabComponent);
+  const getTabInstance = (element) => Xn(element, tabComponent);
   const tabInitCallback = (element) => new Tab(element);
-  const showTabEvent = mo(
+  const showTabEvent = po(
     `show.bs.${tabString}`
   );
-  const shownTabEvent = mo(
+  const shownTabEvent = po(
     `shown.bs.${tabString}`
   );
-  const hideTabEvent = mo(
+  const hideTabEvent = po(
     `hide.bs.${tabString}`
   );
-  const hiddenTabEvent = mo(
+  const hiddenTabEvent = po(
     `hidden.bs.${tabString}`
   );
   const tabPrivate = /* @__PURE__ */ new Map();
   const triggerTabEnd = (self) => {
     const { tabContent, nav } = self;
-    if (tabContent && Zn(tabContent, collapsingClass)) {
+    if (tabContent && Gn(tabContent, collapsingClass)) {
       tabContent.style.height = "";
-      Yn(tabContent, collapsingClass);
+      qn(tabContent, collapsingClass);
     }
-    if (nav) ho.clear(nav);
+    if (nav) bo.clear(nav);
   };
   const triggerTabShow = (self) => {
     const { element, tabContent, content: nextContent, nav } = self;
-    const { tab } = m$1(nav) && tabPrivate.get(nav) || { tab: null };
-    if (tabContent && nextContent && Zn(nextContent, fadeClass)) {
+    const { tab } = b(nav) && tabPrivate.get(nav) || { tab: null };
+    if (tabContent && nextContent && Gn(nextContent, fadeClass)) {
       const { currentHeight, nextHeight } = tabPrivate.get(element) || { currentHeight: 0, nextHeight: 0 };
       if (currentHeight !== nextHeight) {
         setTimeout(() => {
           tabContent.style.height = `${nextHeight}px`;
-          bo(tabContent);
-          so(tabContent, () => triggerTabEnd(self));
+          mo(tabContent);
+          no(tabContent, () => triggerTabEnd(self));
         }, 50);
       } else {
         triggerTabEnd(self);
       }
-    } else if (nav) ho.clear(nav);
+    } else if (nav) bo.clear(nav);
     shownTabEvent.relatedTarget = tab;
-    q(element, shownTabEvent);
+    G(element, shownTabEvent);
   };
   const triggerTabHide = (self) => {
     const { element, content: nextContent, tabContent, nav } = self;
     const { tab, content } = nav && tabPrivate.get(nav) || { tab: null, content: null };
     let currentHeight = 0;
-    if (tabContent && nextContent && Zn(nextContent, fadeClass)) {
+    if (tabContent && nextContent && Gn(nextContent, fadeClass)) {
       [content, nextContent].forEach((c) => {
-        if (c) qn(c, "overflow-hidden");
+        if (c) Kn(c, "overflow-hidden");
       });
       currentHeight = content ? content.scrollHeight : 0;
     }
     showTabEvent.relatedTarget = tab;
     hiddenTabEvent.relatedTarget = element;
-    q(element, showTabEvent);
+    G(element, showTabEvent);
     if (showTabEvent.defaultPrevented) return;
-    if (nextContent) qn(nextContent, activeClass);
-    if (content) Yn(content, activeClass);
-    if (tabContent && nextContent && Zn(nextContent, fadeClass)) {
+    if (nextContent) Kn(nextContent, activeClass);
+    if (content) qn(content, activeClass);
+    if (tabContent && nextContent && Gn(nextContent, fadeClass)) {
       const nextHeight = nextContent.scrollHeight;
       tabPrivate.set(element, {
         currentHeight,
@@ -2694,53 +2496,53 @@ var BSN = function(exports) {
         tab: null,
         content: null
       });
-      qn(tabContent, collapsingClass);
+      Kn(tabContent, collapsingClass);
       tabContent.style.height = `${currentHeight}px`;
-      bo(tabContent);
+      mo(tabContent);
       [content, nextContent].forEach((c) => {
-        if (c) Yn(c, "overflow-hidden");
+        if (c) qn(c, "overflow-hidden");
       });
     }
-    if (nextContent && nextContent && Zn(nextContent, fadeClass)) {
+    if (nextContent && nextContent && Gn(nextContent, fadeClass)) {
       setTimeout(() => {
-        qn(nextContent, showClass);
-        so(nextContent, () => {
+        Kn(nextContent, showClass);
+        no(nextContent, () => {
           triggerTabShow(self);
         });
       }, 1);
     } else {
-      if (nextContent) qn(nextContent, showClass);
+      if (nextContent) Kn(nextContent, showClass);
       triggerTabShow(self);
     }
-    if (tab) q(tab, hiddenTabEvent);
+    if (tab) G(tab, hiddenTabEvent);
   };
   const getActiveTab = (self) => {
     const { nav } = self;
-    if (!m$1(nav)) {
+    if (!b(nav)) {
       return { tab: null, content: null };
     }
-    const activeTabs = Go(
+    const activeTabs = Ro(
       activeClass,
       nav
     );
     let tab = null;
     if (activeTabs.length === 1 && !dropdownMenuClasses.some(
-      (c) => Zn(activeTabs[0].parentElement, c)
+      (c) => Gn(activeTabs[0].parentElement, c)
     )) {
       [tab] = activeTabs;
     } else if (activeTabs.length > 1) {
       tab = activeTabs[activeTabs.length - 1];
     }
-    const content = m$1(tab) ? getTargetElement(tab) : null;
+    const content = b(tab) ? getTargetElement(tab) : null;
     return { tab, content };
   };
   const getParentDropdown = (element) => {
-    if (!m$1(element)) return null;
-    const dropdown = ke(element, `.${dropdownMenuClasses.join(",.")}`);
-    return dropdown ? Ro(`.${dropdownMenuClasses[0]}-toggle`, dropdown) : null;
+    if (!b(element)) return null;
+    const dropdown = Se(element, `.${dropdownMenuClasses.join(",.")}`);
+    return dropdown ? Ho(`.${dropdownMenuClasses[0]}-toggle`, dropdown) : null;
   };
   const tabClickHandler = (e2) => {
-    const element = ke(e2.target, tabSelector);
+    const element = Se(e2.target, tabSelector);
     const self = element && getTabInstance(element);
     if (!self) return;
     e2.preventDefault();
@@ -2755,8 +2557,8 @@ var BSN = function(exports) {
       const { element } = this;
       const content = getTargetElement(element);
       if (!content) return;
-      const nav = ke(element, ".nav");
-      const container = ke(
+      const nav = Se(element, ".nav");
+      const container = Se(
         content,
         ".tab-content"
       );
@@ -2766,71 +2568,63 @@ var BSN = function(exports) {
       this.dropdown = getParentDropdown(element);
       const { tab } = getActiveTab(this);
       if (nav && !tab) {
-        const firstTab = Ro(tabSelector, nav);
+        const firstTab = Ho(tabSelector, nav);
         const firstTabContent = firstTab && getTargetElement(firstTab);
         if (firstTabContent) {
-          qn(firstTab, activeClass);
-          qn(firstTabContent, showClass);
-          qn(firstTabContent, activeClass);
-          Qn(element, Fe, "true");
+          Kn(firstTab, activeClass);
+          Kn(firstTabContent, showClass);
+          Kn(firstTabContent, activeClass);
+          Wn(element, Pe, "true");
         }
       }
       this._toggleEventListeners(true);
     }
-    /**
-     * Returns component name string.
-     */
     get name() {
       return tabComponent;
     }
     show() {
       const { element, content: nextContent, nav, dropdown } = this;
-      if (nav && ho.get(nav) || Zn(element, activeClass)) return;
+      if (nav && bo.get(nav) || Gn(element, activeClass)) return;
       const { tab, content } = getActiveTab(this);
       if (nav && tab) {
         tabPrivate.set(nav, { tab, content, currentHeight: 0, nextHeight: 0 });
       }
       hideTabEvent.relatedTarget = element;
-      if (!m$1(tab)) return;
-      q(tab, hideTabEvent);
+      if (!b(tab)) return;
+      G(tab, hideTabEvent);
       if (hideTabEvent.defaultPrevented) return;
-      qn(element, activeClass);
-      Qn(element, Fe, "true");
-      const activeDropdown = m$1(tab) && getParentDropdown(tab);
-      if (activeDropdown && Zn(activeDropdown, activeClass)) {
-        Yn(activeDropdown, activeClass);
+      Kn(element, activeClass);
+      Wn(element, Pe, "true");
+      const activeDropdown = b(tab) && getParentDropdown(tab);
+      if (activeDropdown && Gn(activeDropdown, activeClass)) {
+        qn(activeDropdown, activeClass);
       }
       if (nav) {
         const toggleTab = () => {
           if (tab) {
-            Yn(tab, activeClass);
-            Qn(tab, Fe, "false");
+            qn(tab, activeClass);
+            Wn(tab, Pe, "false");
           }
-          if (dropdown && !Zn(dropdown, activeClass)) {
-            qn(dropdown, activeClass);
+          if (dropdown && !Gn(dropdown, activeClass)) {
+            Kn(dropdown, activeClass);
           }
         };
-        if (content && (Zn(content, fadeClass) || nextContent && Zn(nextContent, fadeClass))) {
-          ho.set(nav, toggleTab, 1);
+        if (content && (Gn(content, fadeClass) || nextContent && Gn(nextContent, fadeClass))) {
+          bo.set(nav, toggleTab, 1);
         } else toggleTab();
       }
       if (content) {
-        Yn(content, showClass);
-        if (Zn(content, fadeClass)) {
-          so(content, () => triggerTabHide(this));
+        qn(content, showClass);
+        if (Gn(content, fadeClass)) {
+          no(content, () => triggerTabHide(this));
         } else {
           triggerTabHide(this);
         }
       }
     }
-    /**
-     * Toggles on/off the `click` event listener.
-     *
-     * @param add when `true`, event listener is added
-     */
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
-      action(this.element, vt, tabClickHandler);
+      action(this.element, gt, tabClickHandler);
     };
     dispose() {
       this._toggleEventListeners();
@@ -2849,58 +2643,58 @@ var BSN = function(exports) {
     autohide: true,
     delay: 5e3
   };
-  const getToastInstance = (element) => to(element, toastComponent);
+  const getToastInstance = (element) => Xn(element, toastComponent);
   const toastInitCallback = (element) => new Toast(element);
-  const showToastEvent = mo(
+  const showToastEvent = po(
     `show.bs.${toastString}`
   );
-  const shownToastEvent = mo(
+  const shownToastEvent = po(
     `shown.bs.${toastString}`
   );
-  const hideToastEvent = mo(
+  const hideToastEvent = po(
     `hide.bs.${toastString}`
   );
-  const hiddenToastEvent = mo(
+  const hiddenToastEvent = po(
     `hidden.bs.${toastString}`
   );
   const showToastComplete = (self) => {
     const { element, options } = self;
-    Yn(element, showingClass);
-    ho.clear(element, showingClass);
-    q(element, shownToastEvent);
+    qn(element, showingClass);
+    bo.clear(element, showingClass);
+    G(element, shownToastEvent);
     if (options.autohide) {
-      ho.set(element, () => self.hide(), options.delay, toastString);
+      bo.set(element, () => self.hide(), options.delay, toastString);
     }
   };
   const hideToastComplete = (self) => {
     const { element } = self;
-    Yn(element, showingClass);
-    Yn(element, showClass);
-    qn(element, hideClass);
-    ho.clear(element, toastString);
-    q(element, hiddenToastEvent);
+    qn(element, showingClass);
+    qn(element, showClass);
+    Kn(element, hideClass);
+    bo.clear(element, toastString);
+    G(element, hiddenToastEvent);
   };
   const hideToast = (self) => {
     const { element, options } = self;
-    qn(element, showingClass);
+    Kn(element, showingClass);
     if (options.animation) {
-      bo(element);
-      so(element, () => hideToastComplete(self));
+      mo(element);
+      no(element, () => hideToastComplete(self));
     } else {
       hideToastComplete(self);
     }
   };
   const showToast = (self) => {
     const { element, options } = self;
-    ho.set(
+    bo.set(
       element,
       () => {
-        Yn(element, hideClass);
-        bo(element);
-        qn(element, showClass);
-        qn(element, showingClass);
+        qn(element, hideClass);
+        mo(element);
+        Kn(element, showClass);
+        Kn(element, showingClass);
         if (options.animation) {
-          so(element, () => showToastComplete(self));
+          no(element, () => showToastComplete(self));
         } else {
           showToastComplete(self);
         }
@@ -2923,31 +2717,27 @@ var BSN = function(exports) {
     const self = getToastInstance(element);
     const { type, relatedTarget } = e2;
     if (!self || element === relatedTarget || element.contains(relatedTarget)) return;
-    if ([wt, at].includes(type)) {
-      ho.clear(element, toastString);
+    if ([ht, rt].includes(type)) {
+      bo.clear(element, toastString);
     } else {
-      ho.set(element, () => self.hide(), self.options.delay, toastString);
+      bo.set(element, () => self.hide(), self.options.delay, toastString);
     }
   };
   class Toast extends BaseComponent {
     static selector = toastSelector;
     static init = toastInitCallback;
     static getInstance = getToastInstance;
-    /**
-     * @param target the target `.toast` element
-     * @param config the instance options
-     */
     constructor(target, config) {
       super(target, config);
       const { element, options } = this;
-      if (options.animation && !Zn(element, fadeClass)) {
+      if (options.animation && !Gn(element, fadeClass)) {
+        Kn(element, fadeClass);
+      } else if (!options.animation && Gn(element, fadeClass)) {
         qn(element, fadeClass);
-      } else if (!options.animation && Zn(element, fadeClass)) {
-        Yn(element, fadeClass);
       }
-      this.dismiss = Ro(toastDismissSelector, element);
+      this.dismiss = Ho(toastDismissSelector, element);
       this.triggers = [
-        ...de(
+        ...ue(
           toastToggleSelector,
           d(element)
         )
@@ -2956,63 +2746,49 @@ var BSN = function(exports) {
       );
       this._toggleEventListeners(true);
     }
-    /**
-     * Returns component name string.
-     */
     get name() {
       return toastComponent;
     }
-    /**
-     * Returns component default options.
-     */
     get defaults() {
       return toastDefaults;
     }
-    /**
-     * Returns *true* when toast is visible.
-     */
     get isShown() {
-      return Zn(this.element, showClass);
+      return Gn(this.element, showClass);
     }
     show = () => {
       const { element, isShown } = this;
       if (!element || isShown) return;
-      q(element, showToastEvent);
+      G(element, showToastEvent);
       if (!showToastEvent.defaultPrevented) showToast(this);
     };
     hide = () => {
       const { element, isShown } = this;
       if (!element || !isShown) return;
-      q(element, hideToastEvent);
+      G(element, hideToastEvent);
       if (!hideToastEvent.defaultPrevented) hideToast(this);
     };
-    /**
-     * Toggles on/off the `click` event listener.
-     *
-     * @param add when `true`, it will add the listener
-     */
     _toggleEventListeners = (add) => {
       const action = add ? E : r;
       const { element, triggers, dismiss, options, hide } = this;
       if (dismiss) {
-        action(dismiss, vt, hide);
+        action(dismiss, gt, hide);
       }
       if (options.autohide) {
-        [at, it, wt, At].forEach(
+        [rt, ct, ht, yt].forEach(
           (e2) => action(element, e2, interactiveToastHandler)
         );
       }
       if (triggers.length) {
         triggers.forEach((btn) => {
-          action(btn, vt, toastClickHandler);
+          action(btn, gt, toastClickHandler);
         });
       }
     };
     dispose() {
       const { element, isShown } = this;
       this._toggleEventListeners();
-      ho.clear(element, toastString);
-      if (isShown) Yn(element, showClass);
+      bo.clear(element, toastString);
+      if (isShown) qn(element, showClass);
       super.dispose();
     }
   }
@@ -3033,7 +2809,7 @@ var BSN = function(exports) {
     [...collection].forEach((x2) => callback(x2));
   };
   const removeComponentDataAPI = (component, context) => {
-    const compData = D.getAllFor(component);
+    const compData = L.getAllFor(component);
     if (compData) {
       [...compData].forEach(([element, instance]) => {
         if (context.contains(element)) {
@@ -3044,12 +2820,12 @@ var BSN = function(exports) {
   };
   const initCallback = (context) => {
     const lookUp = context && context.nodeName ? context : document;
-    const elemCollection = [...Ne("*", lookUp)];
+    const elemCollection = [...ke("*", lookUp)];
     componentsList.forEach((cs) => {
       const { init, selector } = cs;
       initComponentDataAPI(
         init,
-        elemCollection.filter((item) => Ee(item, selector))
+        elemCollection.filter((item) => ve(item, selector))
       );
     });
   };
