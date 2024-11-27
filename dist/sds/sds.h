@@ -40,38 +40,55 @@ extern const char *SDS_NOINIT;
 #include <stdarg.h>
 #include <stdint.h>
 
+#ifdef _MSC_VER
+#include <BaseTsd.h>
+#define ssize_t SSIZE_T
+
+#define SDS_PACKED_PRE __pragma(pack(push, 1))
+#define SDS_PACKED_ATTR
+#define SDS_PACKED_POST __pragma( pack(pop))
+#else // _MSC_VER
+#define SDS_PACKED_PRE
+#define SDS_PACKED_ATTR __attribute__((__packed__))
+#define SDS_PACKED_POST
+#endif // _MSC_VER
+
 typedef char *sds;
+
+SDS_PACKED_PRE
 
 /* Note: sdshdr5 is never used, we just access the flags byte directly.
  * However is here to document the layout of type 5 SDS strings. */
-struct __attribute__ ((__packed__)) sdshdr5 {
-    unsigned char flags; /* 3 lsb of type, and 5 msb of string length */
-    char buf[];
+struct SDS_PACKED_ATTR sdshdr5 {
+  unsigned char flags; /* 3 lsb of type, and 5 msb of string length */
+  char buf[];
 };
-struct __attribute__ ((__packed__)) sdshdr8 {
-    uint8_t len; /* used */
-    uint8_t alloc; /* excluding the header and null terminator */
-    unsigned char flags; /* 3 lsb of type, 5 unused bits */
-    char buf[];
+struct SDS_PACKED_ATTR sdshdr8 {
+  uint8_t len; /* used */
+  uint8_t alloc; /* excluding the header and null terminator */
+  unsigned char flags; /* 3 lsb of type, 5 unused bits */
+  char buf[];
 };
-struct __attribute__ ((__packed__)) sdshdr16 {
-    uint16_t len; /* used */
-    uint16_t alloc; /* excluding the header and null terminator */
-    unsigned char flags; /* 3 lsb of type, 5 unused bits */
-    char buf[];
+struct SDS_PACKED_ATTR sdshdr16 {
+  uint16_t len; /* used */
+  uint16_t alloc; /* excluding the header and null terminator */
+  unsigned char flags; /* 3 lsb of type, 5 unused bits */
+  char buf[];
 };
-struct __attribute__ ((__packed__)) sdshdr32 {
-    uint32_t len; /* used */
-    uint32_t alloc; /* excluding the header and null terminator */
-    unsigned char flags; /* 3 lsb of type, 5 unused bits */
-    char buf[];
+struct SDS_PACKED_ATTR sdshdr32 {
+  uint32_t len; /* used */
+  uint32_t alloc; /* excluding the header and null terminator */
+  unsigned char flags; /* 3 lsb of type, 5 unused bits */
+  char buf[];
 };
-struct __attribute__ ((__packed__)) sdshdr64 {
-    uint64_t len; /* used */
-    uint64_t alloc; /* excluding the header and null terminator */
-    unsigned char flags; /* 3 lsb of type, 5 unused bits */
-    char buf[];
+struct SDS_PACKED_ATTR sdshdr64 {
+  uint64_t len; /* used */
+  uint64_t alloc; /* excluding the header and null terminator */
+  unsigned char flags; /* 3 lsb of type, 5 unused bits */
+  char buf[];
 };
+
+SDS_PACKED_POST
 
 #define SDS_TYPE_5  0
 #define SDS_TYPE_8  1

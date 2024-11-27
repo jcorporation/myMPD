@@ -28,6 +28,7 @@ This is a small maintenance release. It ships support for the newest MPD 0.24 pr
 - Upd: Improve local playback
 - Upd: Mongoose 7.16 #1375
 - Upd: Improve http client
+- Upd: sds to current master
 - Fix: Support "contains" and "starts_with" sticker operators
 - Fix: Increase max header count from 30 to 50
 

@@ -1290,8 +1290,9 @@ sds *sdssplitargs(const char *line, int *argc) {
                 if (*p) p++;
             }
             /* add the token to the vector */
-            vector = s_realloc(vector,((*argc)+1)*sizeof(char*));
-            if (vector == NULL) goto err;
+            char **tmpvector = s_realloc(vector,((*argc)+1)*sizeof(char*));
+            if (tmpvector == NULL) goto err;
+            vector = tmpvector;
             vector[*argc] = current;
             (*argc)++;
             current = NULL;
@@ -1373,6 +1374,16 @@ void sds_free(void *ptr) { s_free(ptr); }
 #include "testhelp.h"
 #include "limits.h"
 
+#if defined(WIN32) || defined(WIN64) || defined(_MSC_VER) || defined(_WIN32)
+// On Windows the default stack size is 1MB, so tests need
+// to be run with reduced stack space requirements.
+#define STACK_BUF_SIZE (256*1024)
+#define STACK_BUF_SIZE_TEXT "256kB"
+#else
+#define STACK_BUF_SIZE (1024*1024)
+#define STACK_BUF_SIZE_TEXT "1MB"
+#endif
+
 #define UNUSED(x) (void)(x)
 int sdsTest(void) {
     {
@@ -1411,12 +1422,12 @@ int sdsTest(void) {
 
         {
             sdsfree(x);
-            char etalon[1024*1024];
+            char etalon[STACK_BUF_SIZE];
             for (size_t i = 0; i < sizeof(etalon); i++) {
                 etalon[i] = '0';
             }
             x = sdscatprintf(sdsempty(),"%0*d",(int)sizeof(etalon),0);
-            test_cond("sdscatprintf() can print 1MB",
+            test_cond("sdscatprintf() can print " STACK_BUF_SIZE_TEXT,
                 sdslen(x) == sizeof(etalon) && memcmp(x,etalon,sizeof(etalon)) == 0)
         }
 
