@@ -221,7 +221,7 @@ function parseDatabaseAlbumListUpdate(card, data) {
  */
 function parseDatabaseTagListUpdate(card, data, result) {
     if (result.pics === true) {
-        data.Thumbnail = getCssImageUri('/tagart?tag=' + myEncodeURIComponent(result.tag) + '&value=' + myEncodeURIComponent(data.Value));
+        data.Thumbnail = getImageUri('/tagart?tag=' + myEncodeURIComponent(result.tag) + '&value=' + myEncodeURIComponent(data.Value));
     }
     setData(card, 'tag', result.tag);
     setData(card, 'name', data.Value);

@@ -470,12 +470,7 @@ function printValue(key, value, userData) {
             }
             return document.createTextNode(tn('Num discs', {"smartCount": value}));
         case 'Thumbnail': {
-            //TODO: use intersection observer
-            const img = elCreateEmpty('div', {"class": ["thumbnail"]});
-            if (value !== undefined) {
-                img.style.backgroundImage = value;
-            }
-            return img;
+            return elCreateEmpty('img', {"loading": "lazy", "class": ["thumbnail"], "src": value});
         }
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {

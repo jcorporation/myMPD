@@ -153,15 +153,10 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
             obj.result.data[i].Thumbnail !== undefined)
         {
             row.appendChild(
-                elCreateEmpty('div', {"class": ["col", "list-image"]})
+                elCreateNode('div', {"class": ["col", "list-image"]},
+                    elCreateEmpty('img', {"loading": "lazy", "src": obj.result.data[i].Thumbnail})
+                )
             );
-            if (userAgentData.hasIO === true) {
-                const observer = new IntersectionObserver(setListImage, {root: null, rootMargin: '0px'});
-                observer.observe(card);
-            }
-            else {
-                card.firstChild.style.backgroundImage = obj.result.data[i].Thumbnail;
-            }
         }
         const body = elCreateEmpty('div', {"class": ["col", "ps-3"]});
         if (createCardBodyCallback !== undefined &&
@@ -257,22 +252,4 @@ function createListBody(body, data, list) {
         }
         i++;
     }
-}
-
-/**
- * Callback function for intersection observer to lazy load cover images
- * @param {object} changes IntersectionObserverEntry objects
- * @param {object} observer IntersectionObserver
- * @returns {void}
- */
-function setListImage(changes, observer) {
-    changes.forEach(change => {
-        if (change.intersectionRatio > 0) {
-            observer.unobserve(change.target);
-            const body = change.target.querySelector('.list-image');
-            if (body) {
-                body.style.backgroundImage = getData(change.target, 'cssImageUrl');
-            }
-        }
-    });
 }

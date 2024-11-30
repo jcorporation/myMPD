@@ -94,7 +94,7 @@ function parseRadioFavoritesListUpdate(card, data) {
     if (data.Image === '') {
         data.Image = '/assets/coverimage-stream';
     }
-    data.Thumbnail = getCssImageUri(data.Image);
+    data.Thumbnail = getImageUri(data.Image);
     setData(card, 'uri', data.StreamUri);
     setData(card, 'name', data.Name);
     setData(card, 'image', data.Image);

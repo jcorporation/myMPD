@@ -566,22 +566,29 @@ div#homeActions {
   padding: 0.5rem 0;
 }
 
-.cover-grid {
-  background-size: cover;
-  background-position: center center;
-  overflow: hidden;
-  width: var(--grid-thumbnail-size);
-  height: var(--grid-thumbnail-size);
-  max-width: 100%;
-  padding: 0.5rem;
+.cover-grid > img {
+  object-fit: cover;
+}
+
+.list-image {
+  width: 6rem;
+  max-width: 6rem;
+  height: 6rem;
+  margin-right: 1rem;
+}
+
+.list-image > img {
+  object-fit: cover;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 0.375rem;
 }
 
 .thumbnail {
-  background-size: cover;
-  background-position: center center;
-  overflow: hidden;
+  object-fit: cover;
   width: 2rem;
   height: 2rem;
+  border-radius: 0.2rem;
 }
 
 @media only screen and (300px <= width <= 400px) {
@@ -1353,14 +1360,6 @@ h4.offcanvas-title-stream::before {
 table div.alert {
   color: var(--bs-alert-color);
   background-color: var(--bs-alert-bg);
-}
-
-.list-image {
-  background-size: cover;
-  width: 6rem;
-  max-width: 6rem;
-  height: 6rem;
-  border-radius: 0.375rem
 }
 
 .colMaxContent {
