@@ -1148,7 +1148,6 @@ for (const key in localSettings) {
 }
 
 const userAgentData = {};
-userAgentData.hasIO = 'IntersectionObserver' in window ? true : false;
 
 /**
  * Sets the useragentData object
