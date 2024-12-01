@@ -407,6 +407,10 @@ th,
   word-break: keep-all;
 }
 
+.viewListItem [data-col="Duration"] {
+  max-width: none;
+}
+
 [data-col="Type"] {
   width: 3rem;
   word-break: keep-all;
@@ -1364,4 +1368,14 @@ table div.alert {
 
 .colMaxContent {
   max-width:fit-content;
+}
+
+.listThumbnailBadge {
+  position: relative;
+  top: -1.4rem;
+  font-size: 80%;
+}
+
+.viewListItem {
+  background-color: transparent;
 }

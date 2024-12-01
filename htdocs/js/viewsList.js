@@ -122,6 +122,27 @@ function replaceListItem(mode, item, el) {
 }
 
 /**
+ * Returns the text and tag name for the badge
+ * @param {object} data Song data
+ * @returns {object} [Tag value, Tag name]
+ */
+function getBadgeText(data) {
+    // A badge is only displayed if a thumbnail is shown
+    if (settings['view' + app.id].fields.includes('Thumbnail') === false ||
+        data.Thumbnail === undefined)
+    {
+        return [null, null];
+    }
+    if (settings['view' + app.id].fields.includes('Pos')) {
+        return [data.Pos + 1, 'Pos'];
+    }
+    if (settings['view' + app.id].fields.includes('Track')) {
+        return [data.Track, 'Track'];
+    }
+    return [null, null];
+}
+
+/**
  * Updates the list from the jsonrpc response
  * @param {object} obj jsonrpc response
  * @param {string} list list name to populate
@@ -141,7 +162,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
     addActionLinks(footer);
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const card = elCreateEmpty('div', {"class": ["list-group-item", "list-group-item-action", "clickable"]});
+        const card = elCreateEmpty('div', {"class": ["list-group-item", "list-group-item-action", "clickable", "viewListItem"]});
         const row = elCreateEmpty('div', {'class': ['row', 'p-1']});
         if (perCardCallback !== undefined &&
             typeof(perCardCallback) === 'function')
@@ -152,10 +173,14 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
         if (settings['view' + app.id].fields.includes('Thumbnail') &&
             obj.result.data[i].Thumbnail !== undefined)
         {
+            const badgeText = getBadgeText(obj.result.data[i])[0];
+            const els = [];
+            els.push(elCreateEmpty('img', {"loading": "lazy", "src": obj.result.data[i].Thumbnail}));
+            if (badgeText !== null) {
+                els.push(elCreateText('span', {"class": ["badge", "text-bg-secondary", "listThumbnailBadge"]}, badgeText));
+            }
             row.appendChild(
-                elCreateNode('div', {"class": ["col", "list-image"]},
-                    elCreateEmpty('img', {"loading": "lazy", "src": obj.result.data[i].Thumbnail})
-                )
+                elCreateNodes('div', {"class": ["col", "list-image"]}, els)
             );
         }
         const body = elCreateEmpty('div', {"class": ["col", "ps-3"]});
@@ -212,8 +237,9 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
 function createListBody(body, data, list) {
     let i = 0;
     for (const tag of settings['view' + list].fields) {
-        if (tag === 'Thumbnail') {
-            i++;
+        if (tag === 'Thumbnail' ||
+            getBadgeText(data)[1] === tag)
+        {
             continue;
         }
         if (i === 0) {
