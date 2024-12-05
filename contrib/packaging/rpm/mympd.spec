@@ -24,7 +24,7 @@ BuildRequires:  pkgconfig
 BuildRequires:  unzip
 BuildRequires:  gzip
 BuildRequires:  jq
-Requires: whiptail
+Requires: newt
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
