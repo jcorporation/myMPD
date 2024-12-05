@@ -24,7 +24,7 @@ function getImageUri(uri) {
  * @returns {string} absolute image uri
  */
 function getCssImageUri(uri) {
-    return 'url("' + getImageUri(uri) + ')';
+    return 'url("' + getImageUri(uri) + '")';
 }
 
 /**
