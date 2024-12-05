@@ -222,12 +222,13 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     }
 
     // sort or shuffle
-    if (rc == true) {
+    if (rc == true &&
+        sdslen(sort) > 0)
+    {
         if (strcmp(sort, "shuffle") == 0) {
             rc = mpd_client_playlist_shuffle(mpd_worker_state->partition_state, playlist, NULL);
         }
         else if (strcmp(smartpltype, "sticker") == 0 &&
-                 sdslen(sort) > 0 &&
                  sticker_sort_parse(sort) == MPD_STICKER_SORT_UNKOWN)
         {
             // resort sticker based smart playlists by sort tag
