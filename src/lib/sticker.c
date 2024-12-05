@@ -143,7 +143,7 @@ enum mpd_sticker_operator sticker_oper_parse(const char *str) {
 }
 
 /**
- * Converts a string to a mpd sticker operator
+ * Converts a string to a mpd sticker sort enum
  * @param str string to parse
  * @return mpd sticker sort type
  */
