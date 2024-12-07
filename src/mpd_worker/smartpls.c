@@ -241,7 +241,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         max_entries > 0 &&
         mpd_worker_state->mpd_state->feat.playlist_rm_range == true)
     {
-        mpd_run_playlist_delete_range(mpd_worker_state->partition_state->conn, playlist, max_entries, UINT_MAX);
+        mpd_client_playlist_crop(mpd_worker_state->partition_state, playlist, max_entries);
     }
 
     FREE_SDS(smartpltype);

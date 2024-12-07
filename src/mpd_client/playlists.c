@@ -406,6 +406,25 @@ static bool mpd_worker_playlist_content_enumerate_manual(struct t_partition_stat
 }
 
 /**
+ * Crops a playlist
+ * @param partition_state Pointer to partition specific states
+ * @param plist Playlist name
+ * @param num_entries May number of songs
+ * @return true on success, else false
+ */
+bool mpd_client_playlist_crop(struct t_partition_state *partition_state, const char *plist, unsigned num_entries) {
+    unsigned duration;
+    unsigned count;
+    if (mpd_client_enum_playlist(partition_state, plist, &count, &duration, NULL) == true) {
+        if (count > num_entries) {
+            return mpd_run_playlist_delete_range(partition_state->conn, plist, num_entries, UINT_MAX);
+        }
+        return true;
+    }
+    return false;
+}
+
+/**
  * Clears a playlist
  * @param partition_state pointer to partition specific states
  * @param plist playlist name

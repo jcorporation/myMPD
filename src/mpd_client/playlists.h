@@ -33,6 +33,7 @@ enum playlist_sort_types {
 };
 
 time_t mpd_client_get_playlist_mtime(struct t_partition_state *partition_state, const char *playlist);
+bool mpd_client_playlist_crop(struct t_partition_state *partition_state, const char *plist, unsigned num_entries);
 bool mpd_client_playlist_clear(struct t_partition_state *partition_state, const char *plist, sds *error);
 bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, const char *uri, sds *error);
 bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const char *uri, const char *tagstr, bool sortdesc, sds *error);
