@@ -5,15 +5,20 @@ title: Accessing the myMPD API
 Calls the myMPD API, look at [API](../../060-references/api/index.md) for detailed API description.
 
 ```lua
+-- Call myMPD API for current partition
 local rc, result = mympd.api("method", params)
+
+-- Call myMPD API for another partition
+local rc, result = mympd.api_partition("default", "method", params)
 ```
 
 **Parameters:**
 
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
+| partition | string | MPD partition |
 | method | string | myMPD API method |
-| params | lua table | the jsonrpc parameters |
+| params | lua table | The jsonrpc parameters as Lua table |
 
 **Returns:**
 

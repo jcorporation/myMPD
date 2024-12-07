@@ -22,6 +22,7 @@ This is a small maintenance release. It ships support for the newest MPD 0.24 pr
 - Feat: Support "tagtypes reset" command (MPD 0.24) #1367
 - Feat: Generate smart playlists by user defined song stickers #1345
 - Feat: Show user defined stickers in lists #1368
+- Feat: New Lua method `mympd.api_partition` #1387
 - Upd: Improve lists layout
 - Upd: libmympdclient 1.0.32
 - Upd: bootstrap.native 5.1 #1372
