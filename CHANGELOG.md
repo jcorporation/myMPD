@@ -113,7 +113,6 @@ This is a small maintenance release.
 - Upd: Translations
 - Upd: Add Lua integer sanity checks
 - Upd: Mongoose to current master
-- Upd: translations
 - Fix: Contextmenu for songs #1356
 
 ***
