@@ -384,7 +384,7 @@
     "Import": "Importar",
     "Include expression": "Expresión para incluir",
     "Info": "Info",
-    "Info filename": "Información del nombre de archivo",
+    "Info filename": "Nombre de archivo de información",
     "Initializes the global lua table mympd_state.": "Inicializa la tabla Lua global mympd_state.",
     "Initializing myMPD": "Inicializando myMPD",
     "Insert API call": "Insertar llamada API",
@@ -1234,6 +1234,7 @@
     "stop only": "solo parar",
     "tags": "etiquetas",
     "url_resolved": "url_resuelto",
+    "userDefinedSticker": "",
     "votes": "votos",
     "wasapi": "Windows Audio Session API"
 }
