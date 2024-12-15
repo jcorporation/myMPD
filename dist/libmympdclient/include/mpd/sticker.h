@@ -99,6 +99,70 @@ mpd_run_sticker_set(struct mpd_connection *connection, const char *type,
 		    const char *uri, const char *name, const char *value);
 
 /**
+ * Adds or increments a sticker value.
+ *
+ * @param connection the connection to MPD
+ * @param type the object type, e.g. "song"
+ * @param uri the URI of the object
+ * @param name the name of the sticker
+ * @param value the unsigned value to set or increment
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_sticker_inc(struct mpd_connection *connection, const char *type,
+		     const char *uri, const char *name, unsigned value);
+
+/**
+ * Shortcut for mpd_send_sticker_inc() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param type the object type, e.g. "song"
+ * @param uri the URI of the object
+ * @param name the name of the sticker
+ * @param value the unsigned value to set or increment
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_run_sticker_inc(struct mpd_connection *connection, const char *type,
+		    const char *uri, const char *name, unsigned value);
+
+/**
+ * Adds or decrements a sticker value.
+ *
+ * @param connection the connection to MPD
+ * @param type the object type, e.g. "song"
+ * @param uri the URI of the object
+ * @param name the name of the sticker
+ * @param value the unsigned value to set or increment
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_sticker_dec(struct mpd_connection *connection, const char *type,
+		     const char *uri, const char *name, unsigned value);
+
+/**
+ * Shortcut for mpd_send_sticker_dec() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param type the object type, e.g. "song"
+ * @param uri the URI of the object
+ * @param name the name of the sticker
+ * @param value the unsigned value to set or increment
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_run_sticker_dec(struct mpd_connection *connection, const char *type,
+		    const char *uri, const char *name, unsigned value);
+
+/**
  * Deletes a sticker value.
  *
  * @param connection the connection to MPD

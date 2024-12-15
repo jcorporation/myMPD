@@ -10,6 +10,8 @@ This is a small maintenance release.
 
 ### Changelog
 
+- Upd: libmympdclient 1.0.33
+
 ***
 
 ## myMPD v19.0.0 (2024-12-15)

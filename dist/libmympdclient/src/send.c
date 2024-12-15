@@ -248,6 +248,18 @@ mpd_send_s_s_u_command(struct mpd_connection *connection, const char *command,
 }
 
 bool
+mpd_send_s_s_s_s_u_command(struct mpd_connection *connection, const char *command,
+		           const char *arg1, const char *arg2, const char *arg3,
+			   const char *arg4, unsigned arg5)
+{
+	char arg5_string[INTLEN];
+
+	snprintf(arg5_string, sizeof(arg5_string), "%u", arg5);
+	return mpd_send_command(connection, command,
+				arg1, arg2, arg3, arg4, arg5_string, NULL);
+}
+
+bool
 mpd_send_range_command(struct mpd_connection *connection, const char *command,
                        unsigned arg1, unsigned arg2)
 {

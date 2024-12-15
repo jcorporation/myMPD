@@ -8,6 +8,7 @@
 #include <mpd/pair.h>
 #include <mpd/response.h>
 #include "internal.h"
+#include "isend.h"
 #include "request.h"
 #include "run.h"
 
@@ -30,6 +31,40 @@ mpd_run_sticker_set(struct mpd_connection *connection, const char *type,
 {
 	return mpd_run_check(connection) &&
 		mpd_send_sticker_set(connection, type, uri, name, value) &&
+		mpd_response_finish(connection);
+}
+
+bool
+mpd_send_sticker_inc(struct mpd_connection *connection, const char *type,
+		     const char *uri, const char *name, unsigned value)
+{
+	return mpd_send_s_s_s_s_u_command(connection, "sticker", "inc",
+					type, uri, name, value);
+}
+
+bool
+mpd_run_sticker_inc(struct mpd_connection *connection, const char *type,
+		    const char *uri, const char *name, unsigned value)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_sticker_inc(connection, type, uri, name, value) &&
+		mpd_response_finish(connection);
+}
+
+bool
+mpd_send_sticker_dec(struct mpd_connection *connection, const char *type,
+		     const char *uri, const char *name, unsigned value)
+{
+	return mpd_send_s_s_s_s_u_command(connection, "sticker", "inc",
+					type, uri, name, value);
+}
+
+bool
+mpd_run_sticker_dec(struct mpd_connection *connection, const char *type,
+		    const char *uri, const char *name, unsigned value)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_sticker_dec(connection, type, uri, name, value) &&
 		mpd_response_finish(connection);
 }
 
