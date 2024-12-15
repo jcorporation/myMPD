@@ -10,5 +10,5 @@
 #include "compile_time.h"
 #include "dist/incbin/incbin.h"
 
-INCBIN(json_lua, "../contrib/lualibs/json.luac");
-INCBIN(mympd_lua, "../contrib/lualibs/mympd.luac");
+INCBIN(json_lua, "${CMAKE_BINARY_DIR}/contrib/lualibs/json.luac");
+INCBIN(mympd_lua, "${CMAKE_BINARY_DIR}/contrib/lualibs/mympd.luac");

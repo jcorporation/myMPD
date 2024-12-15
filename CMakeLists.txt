@@ -263,6 +263,8 @@ endif()
 
 # configure some files - version and path information
 configure_file(src/compile_time.h.in "${PROJECT_BINARY_DIR}/compile_time.h")
+configure_file(src/web_server/embedded_files.c.in "${PROJECT_BINARY_DIR}/embedded_files.c")
+configure_file(src/scripts/lualibs.c.in "${PROJECT_BINARY_DIR}/lualibs.c")
 configure_file(cmake/Install.cmake.in cmake/Install.cmake @ONLY)
 configure_file(contrib/initscripts/mympd.service.system.in contrib/initscripts/system/mympd.service @ONLY)
 configure_file(contrib/initscripts/mympd.service.user.in contrib/initscripts/user/mympd.service @ONLY)

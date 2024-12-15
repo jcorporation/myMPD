@@ -32,7 +32,7 @@
 
 #ifdef MYMPD_EMBEDDED_ASSETS
     //embedded files for release build
-    #include "src/scripts/lualibs.c"
+    #include "lualibs.c"
 #endif
 
 // Private definitions
