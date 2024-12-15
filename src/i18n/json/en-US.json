@@ -161,6 +161,7 @@
     "mympd_albumart": "Albumart (mympd_albumart)",
     "mympd_tagart": "Tagart (mympd_tagart)",
     "mympd_jukebox": "Jukebox (mympd_jukebox)",
+    "mympd_smartpls": "Smart playlists (mympd_smartpls)",
     "MUSICBRAINZ_ALBUMARTISTID": "MusicBrainz AlbumArtist ID",
     "MUSICBRAINZ_ALBUMID": "MusicBrainz Album ID",
     "MUSICBRAINZ_ARTISTID": "MusicBrainz Artist ID",

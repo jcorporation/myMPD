@@ -1203,6 +1203,7 @@
     "mympd_start": "Start (mympd_start)",
     "mympd_stop": "Stop (mympd_stop)",
     "mympd_tagart": "Tag Bild (mympd_tagart)",
+    "mympd_smartpls": "Intelligente Wiedergabelisten (mympd_smartpls)",
     "name": "Name",
     "never": "noch nie",
     "newest": "Neueste Lieder",

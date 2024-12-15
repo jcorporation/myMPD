@@ -50,6 +50,7 @@
 #include "src/mympd_api/pictures.h"
 #include "src/mympd_api/playlists.h"
 #include "src/mympd_api/queue.h"
+#include "src/mympd_api/requests.h"
 #include "src/mympd_api/search.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/smartpls.h"
@@ -161,6 +162,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     break;
                 }
                 mympd_state->album_cache.building = mympd_state->mpd_state->feat.tags;
+            }
+            if (request->cmd_id == MYMPD_API_SMARTPLS_UPDATE_ALL) {
+                // Trigger for smart playlist scripts
+                mympd_api_request_trigger_event_emit(TRIGGER_MYMPD_SMARTPLS, partition_state->name);
             }
             async = mpd_worker_start(mympd_state, partition_state, request);
             if (async == false) {
@@ -683,7 +688,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case INTERNAL_API_TRIGGER_EVENT_EMIT:
             if (json_get_int_max(request->data, "$.params.event", &int_buf1, &parse_error) == true) {
                 if (mympd_api_event_name(int_buf1) != NULL) {
-                    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED, partition_state->name, NULL);
+                    mympd_api_trigger_execute(&mympd_state->trigger_list, int_buf1, partition_state->name, NULL);
                 }
                 response->data = jsonrpc_respond_ok(response->data, INTERNAL_API_TRIGGER_EVENT_EMIT, request->id, JSONRPC_FACILITY_TRIGGER);
             }

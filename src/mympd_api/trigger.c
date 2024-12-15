@@ -90,6 +90,7 @@ static const char *const mympd_event_names[] = {
     "mympd_albumart",
     "mympd_tagart",
     "mympd_jukebox",
+    "mympd_smartpls",
     NULL
 };
 

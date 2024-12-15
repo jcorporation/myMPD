@@ -31,6 +31,7 @@ enum trigger_events {
     TRIGGER_MYMPD_ALBUMART = -9,       //!< myMPD albumart
     TRIGGER_MYMPD_TAGART = -10,        //!< myMPD tagart
     TRIGGER_MYMPD_JUKEBOX = -11,       //!< myMPD jukebox
+    TRIGGER_MYMPD_SMARTPLS = - 12,     //!< myMPD smart playlist creation
     TRIGGER_MPD_DATABASE = 0x1,        //!< mpd database has changed
     TRIGGER_MPD_STORED_PLAYLIST = 0x2, //!< mpd playlist idle event
     TRIGGER_MPD_QUEUE = 0x4,           //!< mpd queue idle event

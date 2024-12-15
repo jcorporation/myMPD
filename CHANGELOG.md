@@ -16,7 +16,9 @@ This is a small maintenance release.
 ### Changelog
 
 - Feat: Support new MPD 0.24 "sticker (inc|dec)" sub-commands #1390
+- Feat: New trigger event for smart playlist update #1389
 - Upd: libmympdclient 1.0.33
+- Fix: Emmit correct trigger event for INTERNAL_API_TRIGGER_EVENT_EMIT
 
 ***
 
