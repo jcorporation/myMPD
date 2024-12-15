@@ -39,7 +39,8 @@ static sds get_sticker_value(struct t_stickerdb_state *stickerdb, enum mympd_sti
 static int64_t get_sticker_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name);
 static bool set_sticker_value(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, const char *value);
 static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, int64_t value);
-static bool inc_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name);
+static bool dec_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, unsigned value);
+static bool inc_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, unsigned value);
 static bool remove_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name);
 static bool stickerdb_connect_mpd(struct t_stickerdb_state *stickerdb);
 static bool check_sticker_support(struct t_stickerdb_state *stickerdb);
@@ -540,21 +541,43 @@ bool stickerdb_set_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker
 }
 
 /**
- * Increments a sticker
+ * Decrements a sticker
  * @param stickerdb pointer to the stickerdb state
  * @param type MPD sticker type
  * @param uri sticker uri
  * @param name sticker name
+ * @param value value to decrement
  * @return true on success, else false
  */
-bool stickerdb_inc(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
+bool stickerdb_dec(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, unsigned value) {
     if (is_streamuri(uri) == true) {
         return true;
     }
     if (stickerdb_connect(stickerdb) == false) {
         return false;
     }
-    bool rc = inc_sticker(stickerdb, type, uri, name);
+    bool rc = dec_sticker(stickerdb, type, uri, name, value);
+    stickerdb_enter_idle(stickerdb);
+    return rc;
+}
+
+/**
+ * Increments a sticker
+ * @param stickerdb pointer to the stickerdb state
+ * @param type MPD sticker type
+ * @param uri sticker uri
+ * @param name sticker name
+ * @param value value to increment
+ * @return true on success, else false
+ */
+bool stickerdb_inc(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, unsigned value) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
+    if (stickerdb_connect(stickerdb) == false) {
+        return false;
+    }
+    bool rc = inc_sticker(stickerdb, type, uri, name, value);
     stickerdb_enter_idle(stickerdb);
     return rc;
 }
@@ -591,7 +614,7 @@ bool stickerdb_inc_set(struct t_stickerdb_state *stickerdb, enum mympd_sticker_t
         return false;
     }
     bool rc = set_sticker_int64(stickerdb, type, uri, sticker_name_lookup(name_timestamp), (int64_t)timestamp) &&
-        inc_sticker(stickerdb, type, uri, sticker_name_lookup(name_inc));
+        inc_sticker(stickerdb, type, uri, sticker_name_lookup(name_inc), 1);
     stickerdb_enter_idle(stickerdb);
     return rc;
 }
@@ -900,19 +923,49 @@ static bool set_sticker_int64(struct t_stickerdb_state *stickerdb, enum mympd_st
 }
 
 /**
+ * Decrements a sticker
+ * @param stickerdb pointer to the stickerdb state
+ * @param type MPD sticker type
+ * @param uri sticker uri
+ * @param name sticker name
+ * @param value valute to decrement
+ * @return true on success, else false
+ */
+static bool dec_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, unsigned value) {
+    if (stickerdb->mpd_state->feat.advsticker == true) {
+        const char *type_name = mympd_sticker_type_name_lookup(type);
+        if (type_name == NULL) {
+            return false;
+        }
+        mpd_run_sticker_dec(stickerdb->conn, type_name, uri, name, value);
+        return stickerdb_check_error_and_recover(stickerdb, "mpd_run_sticker_dec");
+    }
+    // MPD < 0.24
+    int64_t new_value = get_sticker_int64(stickerdb, type, uri, name) - value;
+    return set_sticker_int64(stickerdb, type, uri, name, new_value);
+}
+
+/**
  * Increments a sticker
  * @param stickerdb pointer to the stickerdb state
  * @param type MPD sticker type
  * @param uri sticker uri
  * @param name sticker name
+ * @param value valute to increment
  * @return true on success, else false
  */
-static bool inc_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name) {
-    int64_t value = get_sticker_int64(stickerdb, type, uri, name);
-    if (value < INT_MAX) {
-        value++;
+static bool inc_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, unsigned value) {
+    if (stickerdb->mpd_state->feat.advsticker == true) {
+        const char *type_name = mympd_sticker_type_name_lookup(type);
+        if (type_name == NULL) {
+            return false;
+        }
+        mpd_run_sticker_inc(stickerdb->conn, type_name, uri, name, value);
+        return stickerdb_check_error_and_recover(stickerdb, "mpd_run_sticker_inc");
     }
-    return set_sticker_int64(stickerdb, type, uri, name, value);
+    // MPD < 0.24
+    int64_t new_value = get_sticker_int64(stickerdb, type, uri, name) + value;
+    return set_sticker_int64(stickerdb, type, uri, name, new_value);
 }
 
 /**

@@ -55,7 +55,7 @@ bool
 mpd_send_sticker_dec(struct mpd_connection *connection, const char *type,
 		     const char *uri, const char *name, unsigned value)
 {
-	return mpd_send_s_s_s_s_u_command(connection, "sticker", "inc",
+	return mpd_send_s_s_s_s_u_command(connection, "sticker", "dec",
 					type, uri, name, value);
 }
 

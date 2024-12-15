@@ -8,8 +8,14 @@ https://github.com/jcorporation/myMPD/
 
 This is a small maintenance release.
 
+### API changes
+
+- MYMPD_API_STICKER_INC: add value parameter
+- MYMPD_API_STICKER_DEC: new
+
 ### Changelog
 
+- Feat: Support new MPD 0.24 "sticker (inc|dec)" sub-commands #1390
 - Upd: libmympdclient 1.0.33
 
 ***

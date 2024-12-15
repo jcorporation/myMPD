@@ -1287,7 +1287,25 @@ const APImethods = {
         "params": {
             "uri": APIparams.uri,
             "type": APIparams.stickerType,
-            "name": APIparams.stickerName
+            "name": APIparams.stickerName,
+            "value": {
+                "type": APItypes.uint,
+                "example": 1,
+                "desc": "Increment sticker by this value"
+            }
+        }
+    },
+    "MYMPD_API_STICKER_DEC": {
+        "desc": "DEcrements a MPD sticker by one.",
+        "params": {
+            "uri": APIparams.uri,
+            "type": APIparams.stickerType,
+            "name": APIparams.stickerName,
+            "value": {
+                "type": APItypes.uint,
+                "example": 1,
+                "desc": "Decrement sticker by this value"
+            }
         }
     },
     "MYMPD_API_MOUNT_LIST": {

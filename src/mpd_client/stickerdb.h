@@ -39,7 +39,8 @@ struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerd
 
 bool stickerdb_set(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, const char *value);
 bool stickerdb_set_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, int64_t value);
-bool stickerdb_inc(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name);
+bool stickerdb_inc(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, unsigned value);
+bool stickerdb_dec(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, unsigned value);
 bool stickerdb_inc_set(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri,
         enum mympd_sticker_names name_inc, enum mympd_sticker_names name_timestamp, time_t timestamp);
 
