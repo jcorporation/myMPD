@@ -683,7 +683,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case INTERNAL_API_TRIGGER_EVENT_EMIT:
             if (json_get_int_max(request->data, "$.params.event", &int_buf1, &parse_error) == true) {
                 if (mympd_api_event_name(int_buf1) != NULL) {
-                    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED, partition_state->name, NULL);
+                    mympd_api_trigger_execute(&mympd_state->trigger_list, int_buf1, partition_state->name, NULL);
                 }
                 response->data = jsonrpc_respond_ok(response->data, INTERNAL_API_TRIGGER_EVENT_EMIT, request->id, JSONRPC_FACILITY_TRIGGER);
             }
