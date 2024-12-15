@@ -21,7 +21,7 @@ This is a small maintenance release.
 
 ***
 
-## myMPD v19.0.1 (not yet released)
+## myMPD v19.0.1 (2024-12-15)
 
 This is a small bug fix release.
 
