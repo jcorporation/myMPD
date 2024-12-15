@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME := mympd
-PKG_VERSION := 19.0.0
+PKG_VERSION := 19.0.1
 PKG_RELEASE := 1
 
 PKG_SOURCE := $(PKG_NAME)-$(PKG_VERSION).tar.gz
@@ -75,7 +75,7 @@ CMAKE_OPTIONS += \
 define Package/mympd/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mympd $(1)/usr/bin/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mympd-config $(1)/usr/bin/
+    $(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mympd-config $(1)/usr/bin/
 	$(if $(CONFIG_MYMPD_LUA),$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mympd-script $(1)/usr/bin/)
 
 	$(INSTALL_DIR) $(1)/etc/config
