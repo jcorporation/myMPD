@@ -122,6 +122,27 @@ function replaceListItem(mode, item, el) {
 }
 
 /**
+ * Returns the text and tag name for the badge
+ * @param {object} data Song data
+ * @returns {object} [Tag value, Tag name]
+ */
+function getBadgeText(data) {
+    // A badge is only displayed if a thumbnail is shown
+    if (settings['view' + app.id].fields.includes('Thumbnail') === false ||
+        data.Thumbnail === undefined)
+    {
+        return [null, null];
+    }
+    if (settings['view' + app.id].fields.includes('Pos')) {
+        return [data.Pos + 1, 'Pos'];
+    }
+    if (settings['view' + app.id].fields.includes('Track')) {
+        return [data.Track, 'Track'];
+    }
+    return [null, null];
+}
+
+/**
  * Updates the list from the jsonrpc response
  * @param {object} obj jsonrpc response
  * @param {string} list list name to populate
@@ -137,11 +158,11 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
         ? true
         : false;
 
-    const footer = elCreateEmpty('div', {"class": ["list-actions", "col", "text-end"]});
+    const footer = elCreateEmpty('div', {"class": ["list-actions", "col", "col-auto", "text-end", "px-0"]});
     addActionLinks(footer);
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const card = elCreateEmpty('div', {"class": ["list-group-item", "list-group-item-action", "clickable"]});
+        const card = elCreateEmpty('div', {"class": ["list-group-item", "list-group-item-action", "clickable", "viewListItem"]});
         const row = elCreateEmpty('div', {'class': ['row', 'p-1']});
         if (perCardCallback !== undefined &&
             typeof(perCardCallback) === 'function')
@@ -152,18 +173,17 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
         if (settings['view' + app.id].fields.includes('Thumbnail') &&
             obj.result.data[i].Thumbnail !== undefined)
         {
+            const badgeText = getBadgeText(obj.result.data[i])[0];
+            const els = [];
+            els.push(elCreateEmpty('img', {"loading": "lazy", "src": obj.result.data[i].Thumbnail}));
+            if (badgeText !== null) {
+                els.push(elCreateText('span', {"class": ["badge", "text-bg-secondary", "listThumbnailBadge"]}, badgeText));
+            }
             row.appendChild(
-                elCreateEmpty('div', {"class": ["col", "list-image"]})
+                elCreateNodes('div', {"class": ["col", "list-image"]}, els)
             );
-            if (userAgentData.hasIO === true) {
-                const observer = new IntersectionObserver(setListImage, {root: null, rootMargin: '0px'});
-                observer.observe(card);
-            }
-            else {
-                card.firstChild.style.backgroundImage = obj.result.data[i].Thumbnail;
-            }
         }
-        const body = elCreateEmpty('div', {"class": ["col", "ps-4"]});
+        const body = elCreateEmpty('div', {"class": ["col", "ps-3"]});
         if (createCardBodyCallback !== undefined &&
             typeof(createCardBodyCallback) === 'function')
         {
@@ -179,7 +199,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
             typeof(createCardActionsCallback) === 'function')
         {
             //custom footer content
-            const customFooter = elCreateEmpty('div', {"class": ["list-actions", "col", "text-end"]});
+            const customFooter = elCreateEmpty('div', {"class": ["list-actions", "col", "col-auto", "text-end", "px-0"]});
             createCardActionsCallback(customFooter, obj.result.data[i], obj.result);
             row.appendChild(customFooter);
         }
@@ -217,8 +237,9 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
 function createListBody(body, data, list) {
     let i = 0;
     for (const tag of settings['view' + list].fields) {
-        if (tag === 'Thumbnail') {
-            i++;
+        if (tag === 'Thumbnail' ||
+            getBadgeText(data)[1] === tag)
+        {
             continue;
         }
         if (i === 0) {
@@ -228,34 +249,33 @@ function createListBody(body, data, list) {
                 )
             );
         }
-        else if (isEmptyTag(data[tag]) === false) {
-            body.appendChild(
-                elCreateNodes('div', {"class": ["row"]}, [
-                    elCreateTextTn('small', {"class": ["col-3"]}, tag),
-                    elCreateNode('span', {"data-col": tag, "class": ["col-9"]},
-                        printValue(tag, data[tag], data)
+        else if (isEmptyTag(data[tag]) === false ||
+                 tag === 'userDefinedSticker')
+        {
+            if (uiSmallWidthTagRows() === true) {
+                body.appendChild(
+                    elCreateNode('div', {"class": ["row"]},
+                        elCreateNodes('div', {"class": ["col"]},[
+                            elCreateTextTn('small', {}, tag),
+                            elCreateEmpty('br', {}),
+                            elCreateNode('span', {"data-col": tag, "class": ["col-8"]},
+                                printValue(tag, data[tag], data)
+                            )
+                        ])
                     )
-                ])
-            );
+                );
+            }
+            else {
+                body.appendChild(
+                    elCreateNodes('div', {"class": ["row"]}, [
+                        elCreateTextTn('small', {"class": ["col-4"]}, tag),
+                        elCreateNode('span', {"data-col": tag, "class": ["col-8"]},
+                            printValue(tag, data[tag], data)
+                        )
+                    ])
+                );
+            }
         }
         i++;
     }
-}
-
-/**
- * Callback function for intersection observer to lazy load cover images
- * @param {object} changes IntersectionObserverEntry objects
- * @param {object} observer IntersectionObserver
- * @returns {void}
- */
-function setListImage(changes, observer) {
-    changes.forEach(change => {
-        if (change.intersectionRatio > 0) {
-            observer.unobserve(change.target);
-            const body = change.target.querySelector('.list-image');
-            if (body) {
-                body.style.backgroundImage = getData(change.target, 'cssImageUrl');
-            }
-        }
-    });
 }

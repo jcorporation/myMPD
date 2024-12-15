@@ -184,5 +184,6 @@
     "snapcast": "Snapcast",
     "sndio": "SNDIO",
     "solaris": "Solaris",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "userDefinedSticker": "User defined stickers"
 }

@@ -219,6 +219,31 @@ bool
 mpd_run_all_tag_types(struct mpd_connection *connection);
 
 /**
+ * Clear the list of tag types and re-enable one or more tags from
+ * the list of tag types for this client. These will no longer be
+ * hidden from responses to this client.
+ *
+ * @param connection the connection to MPD
+ * @param types an array of tag types to enable
+ * @param n the number of tag types in the array
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_send_reset_tag_types(struct mpd_connection *connection,
+			  const enum mpd_tag_type *types, unsigned n);
+
+/**
+ * Shortcut for mpd_send_reset_tag_types() and mpd_response_finish().
+ *
+ * @since libmpdclient 2.23, MPD 0.24
+ */
+bool
+mpd_run_reset_tag_types(struct mpd_connection *connection,
+			 const enum mpd_tag_type *types, unsigned n);
+
+/**
  * Requests a list of enabled protocol features.
  * Use mpd_recv_protocol_feature_pair() to obtain the list of
  * "protocol feature" pairs.

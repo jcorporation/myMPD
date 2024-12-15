@@ -18,6 +18,39 @@ function showSmartPlaylist(plist) {
 }
 
 /**
+ * Populates a select element with available song sticker names.
+ * @param {string} selected Name to mark as selected
+ * @param {string} selectElId Id of the select element to populate
+ * @returns {void}
+ */
+function updateSongStickerNames(selected, selectElId) {
+    const selectEl = elGetById(selectElId);
+    elClear(selectEl);
+    for (const name of stickerListSongs) {
+        const opt = elCreateTextTn('option', {'value': name}, name);
+        if (selected === name) {
+            opt.setAttribute('selected', 'selected');
+        }
+        selectEl.appendChild(opt);
+    }
+    if (features.featStickerAdv === true) {
+        sendAPI("MYMPD_API_STICKER_NAMES", {
+            "type": "song",
+            "searchstr": ""
+        }, function(obj) {
+            selectEl.appendChild(elCreateEmpty('hr', {}));
+            for (const name of obj.result.data) {
+                const opt = elCreateText('option', {'value': name}, name);
+                if (selected === name) {
+                    opt.setAttribute('selected', 'selected');
+                }
+                selectEl.appendChild(opt);
+            }
+        }, false);
+    }
+}
+
+/**
  * Parses the MYMPD_API_SMARTPLS_GET jsonrpc response
  * @param {object} obj jsonrpc response
  * @returns {void}
@@ -41,8 +74,8 @@ function parseSmartPlaylist(obj) {
             elHideId('modalSmartPlaylistEditSortInputSticker');
             break;
         case 'sticker':
+            updateSongStickerNames(obj.result.sticker, 'modalSmartPlaylistEditStickerInput');
             elShowId('modalSmartPlaylistEditTypeSticker');
-            elGetById('modalSmartPlaylistEditStickerInput').value = obj.result.sticker;
             elGetById('modalSmartPlaylistEditValueInput').value = obj.result.value;
             elGetById('modalSmartPlaylistEditOpInput').value = obj.result.op;
             elShowId('modalSmartPlaylistEditSortInputSticker');

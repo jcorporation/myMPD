@@ -4,6 +4,39 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v19.0.0 (2024-12-15)
+
+This is a small maintenance release. It ships support for the newest MPD 0.24 protocol commands and enhancements for user defined stickers.
+
+### Scripting
+
+- The deprecated `var_` entries are remove from `mympd_env`, use the subtable `var`.
+
+### API changes
+
+- MYMPD_API_STICKER_NAMES: respect type parameter
+
+### Changelog
+
+- Feat: Support "stickernamestypes" command (MPD 0.24) #1092
+- Feat: Support "tagtypes reset" command (MPD 0.24) #1367
+- Feat: Generate smart playlists by user defined song stickers #1345
+- Feat: Show user defined stickers in lists #1368
+- Feat: New Lua method `mympd.api_partition` #1387
+- Upd: Improve lists layout
+- Upd: libmympdclient 1.0.32
+- Upd: bootstrap.native 5.1 #1372
+- Upd: Improve local playback
+- Upd: Mongoose 7.16 #1375
+- Upd: Improve http client
+- Upd: sds to current master
+- Upd: Remove IntersectionObserver, use image tag with lazy loading
+- Fix: Support "contains" and "starts_with" sticker operators
+- Fix: Increase max header count from 30 to 50
+- Fix: rpm dependency - whiptail is in package newt #1381
+
+***
+
 ## myMPD v18.2.2 (2024-11-21)
 
 This is a small bug fix release.
@@ -80,7 +113,6 @@ This is a small maintenance release.
 - Upd: Translations
 - Upd: Add Lua integer sanity checks
 - Upd: Mongoose to current master
-- Upd: translations
 - Fix: Contextmenu for songs #1356
 
 ***

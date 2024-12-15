@@ -113,7 +113,7 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id) {
         event_eventfd_write(queue->event_fd);
     }
     else if (queue->mg_mgr != NULL) {
-        mg_wakeup(queue->mg_mgr, queue->mg_conn_id, "", 0);
+        mg_wakeup(queue->mg_mgr, queue->mg_conn_id, "Q", 1);
     }
     return true;
 }

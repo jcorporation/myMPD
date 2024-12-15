@@ -136,6 +136,21 @@ mpd_run_all_tag_types(struct mpd_connection *connection)
 }
 
 bool
+mpd_send_reset_tag_types(struct mpd_connection *connection,
+			  const enum mpd_tag_type *types, unsigned n)
+{
+	return mpd_send_tag_types_v(connection, "reset", types, n);
+}
+
+bool
+mpd_run_reset_tag_types(struct mpd_connection *connection,
+			 const enum mpd_tag_type *types, unsigned n)
+{
+	return mpd_send_reset_tag_types(connection, types, n) &&
+		mpd_response_finish(connection);
+}
+
+bool
 mpd_send_list_protocol_features(struct mpd_connection *connection)
 {
 	return mpd_send_command(connection, "protocol", NULL);

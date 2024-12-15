@@ -60,9 +60,9 @@ The [mympd-scripts](https://github.com/jcorporation/mympd-scripts) repository pr
 
 For information on installation and configuration, see the [myMPD documentation](https://jcorporation.github.io/myMPD/)
 
-- [Installation](https://jcorporation.github.io/myMPD/installation/)
-- [Configuration](https://jcorporation.github.io/myMPD/configuration/)
-- [Running](https://jcorporation.github.io/myMPD/running)
+- [Installation](https://jcorporation.github.io/myMPD/010-installation/)
+- [Configuration](https://jcorporation.github.io/myMPD/020-configuration/)
+- [Running](https://jcorporation.github.io/myMPD/030-running/)
 
 ## Support
 

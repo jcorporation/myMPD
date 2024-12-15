@@ -1148,7 +1148,6 @@ for (const key in localSettings) {
 }
 
 const userAgentData = {};
-userAgentData.hasIO = 'IntersectionObserver' in window ? true : false;
 
 /**
  * Sets the useragentData object
@@ -1543,6 +1542,7 @@ domCache.progress = elGetById('footerProgress');
 domCache.progressBar = elGetById('footerProgressBar');
 domCache.progressPos = elGetById('footerProgressPos');
 domCache.volumeBar = elGetById('volumeBar');
+domCache.localPlayerProgress = elGetById('localPlayerProgress');
 
 //Get BSN object references for fast access
 const uiElements = {};

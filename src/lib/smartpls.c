@@ -121,10 +121,12 @@ time_t smartpls_get_mtime(sds workdir, const char *playlist) {
 /**
  * Sends a request to the mympd_api_queue to update a smart playlist
  * @param playlist smart playlist to update
+ * @param conn_id mongoose connection id
+ * @param request_id jsonrpc request id
  * @return true on success else false
  */
-bool smartpls_update(const char *playlist) {
-    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_SMARTPLS_UPDATE, NULL, MPD_PARTITION_DEFAULT);
+bool smartpls_update(const char *playlist, unsigned long conn_id, unsigned int request_id) {
+    struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, request_id, MYMPD_API_SMARTPLS_UPDATE, NULL, MPD_PARTITION_DEFAULT);
     request->data = tojson_char(request->data, "plist", playlist, false);
     request->data = jsonrpc_end(request->data);
     return mympd_queue_push(mympd_api_queue, request, 0);

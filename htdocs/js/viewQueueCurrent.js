@@ -226,7 +226,7 @@ function resetDuration(playingRow) {
     if (durationTd) {
         durationTd.textContent = fmtSongDuration(getData(playingRow, 'duration'));
     }
-    
+
     playingRow.classList.remove('queue-playing');
     playingRow.style.removeProperty('background');
 }

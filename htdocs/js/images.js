@@ -10,12 +10,21 @@
  * @param {string} uri image uri
  * @returns {string} absolute image uri
  */
+function getImageUri(uri) {
+    return isHttpUri(uri) === true
+        ? subdir + '/proxy-covercache?uri=' + myEncodeURIComponent(uri)
+        : uri.charAt(0) === '/'
+            ? subdir + uri
+            : subdir + '/browse/pics/thumbs/' + myEncodeURI(uri);
+}
+
+/**
+ * Constructs an absolute image uri for css
+ * @param {string} uri image uri
+ * @returns {string} absolute image uri
+ */
 function getCssImageUri(uri) {
-    return (isHttpUri(uri) === true
-            ? 'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURIComponent(uri) +'")'
-            : uri.charAt(0) === '/'
-                ? 'url("' + subdir + uri + '")'
-                : 'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(uri) + '")');
+    return 'url("' + getImageUri(uri) + '")';
 }
 
 /**

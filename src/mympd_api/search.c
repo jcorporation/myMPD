@@ -55,9 +55,8 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
     }
 
     unsigned entities_returned = 0;
-    if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers.len > 0)
-    {
+    bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
+    if (print_stickers == true) {
         stickerdb_exit_idle(stickerdb);
     }
     if (mpd_search_commit(partition_state->conn) == true) {
@@ -68,9 +67,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
             buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, song);
-            if (partition_state->mpd_state->feat.stickers == true &&
-                tagcols->stickers.len > 0)
-            {
+            if (print_stickers == true) {
                 buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_SONG, mpd_song_get_uri(song), &tagcols->stickers);
             }
             buffer = sdscatlen(buffer, "}", 1);
@@ -78,9 +75,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (partition_state->mpd_state->feat.stickers == true &&
-        tagcols->stickers.len > 0)
-    {
+    if (print_stickers == true) {
         stickerdb_enter_idle(stickerdb);
     }
     *result = mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_songs");

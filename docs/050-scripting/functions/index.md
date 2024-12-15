@@ -9,6 +9,7 @@ List of myMPD specific Lua functions.
 | [json.decode](json.md) | Parses a Json string to a Lua table. |
 | [json.encode](json.md) | Encodes a Lua table as Json string. |
 | [mympd.api](mympd_api.md) | Access to the myMPD API. |
+| [mympd.api_partition](mympd_api.md) | Access to the myMPD API. |
 | [mympd.cache_cover_write](diskcache.md) | Writes a cover cache file. |
 | [mympd.cache_lyrics_write](diskcache.md) | Writes a lyrics cache file. |
 | [mympd.cache_thumbs_write](diskcache.md) | Writes a thumbs cache file. |

@@ -601,9 +601,19 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             break;
         }
-        case MG_EV_WAKEUP:
-            read_queue(nc->mgr);
+        case MG_EV_WAKEUP: {
+            struct mg_str *data = (struct mg_str *) ev_data;
+            assert(data->len == 1);
+            switch(data->buf[0]) {
+                case 'Q':
+                    read_queue(nc->mgr);
+                    break;
+                case 'X':
+                    MYMPD_LOG_DEBUG(NULL, "Wakeup mongoose polling");
+                    break;
+            }
             break;
+        }
         case MG_EV_ACCEPT:
             if (loglevel == LOG_DEBUG) {
                 sds ip = print_ip(sdsempty(), &nc->rem);

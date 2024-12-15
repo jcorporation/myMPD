@@ -292,10 +292,14 @@ bool stickerdb_get_names(struct t_stickerdb_state *stickerdb, enum mympd_sticker
     if (stickerdb_connect(stickerdb) == false) {
         return false;
     }
-    //TODO: filter by sticker type
-    if (mpd_send_stickernames(stickerdb->conn)) {
+    if (mpd_send_stickernamestypes(stickerdb->conn, mympd_sticker_type_name_lookup(type))) {
         while ((pair = mpd_recv_pair(stickerdb->conn)) != NULL) {
-            list_push(sticker_names, pair->value, 0, NULL, NULL);
+            if (strcmp(pair->name, "name") == 0) {
+                list_push(sticker_names, pair->value, 0, NULL, NULL);
+            }
+            else {
+                // ignore type
+            }
             mpd_return_pair(stickerdb->conn, pair);
         }
     }
@@ -664,6 +668,21 @@ bool stickerdb_remove(struct t_stickerdb_state *stickerdb, enum mympd_sticker_ty
     bool rc = remove_sticker(stickerdb, type, uri, name);
     stickerdb_enter_idle(stickerdb);
     return rc;
+}
+
+/**
+ * Checks if stickers should be fetched
+ * @param featSticker Flag indicating enabled sticker support
+ * @param stickers Pointer to t_stickers struct
+ * @return bool true if stickers should be fetched, else false
+ */
+bool check_get_sticker(bool featSticker, const struct t_stickers *stickers) {
+    if (featSticker == false || 
+        (stickers->len == 0 && stickers->user_defined == false))
+    {
+        return false;
+    }
+    return true;
 }
 
 // Private functions

@@ -5,13 +5,23 @@ function mympd.init()
   return mympd.api("INTERNAL_API_SCRIPT_INIT")
 end
 
---- Calls the myMPD jsonrpc api
--- @param method
--- @param params
+--- Calls the myMPD jsonrpc api for current partition
+-- @param method myMPD API method
+-- @param params API parameters as lua table
 -- @return 0 for success, else 1
 -- @return jsonrpc result for success, else error
 function mympd.api(method, params)
-  local rc, raw_result = mympd_api(mympd_env.partition, method, json.encode(params))
+  return mympd.api_partition(method, params, mympd_env.partition)
+end
+
+--- Calls the myMPD jsonrpc api
+-- @param partition MPD Partition
+-- @param method myMPD API method
+-- @param params API parameters as lua table
+-- @return 0 for success, else 1
+-- @return jsonrpc result for success, else error
+function mympd.api_partition(partition, method, params)
+  local rc, raw_result = mympd_api(partition, method, json.encode(params))
   local result = json.decode(raw_result)
   if rc == 0 then
     return rc, result["result"]

@@ -9,7 +9,7 @@ cmake_policy(SET CMP0003 NEW)
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd
-  VERSION 18.2.2
+  VERSION 19.0.0
   LANGUAGES C
 )
 
@@ -20,6 +20,7 @@ message("Cmake version: ${CMAKE_VERSION}")
 message("Cmake src dir: ${PROJECT_SOURCE_DIR}")
 message("Cmake build dir: ${CMAKE_CURRENT_BINARY_DIR}")
 message("Cmake build type: ${CMAKE_BUILD_TYPE}")
+message("Cmake generator: ${CMAKE_GENERATOR}")
 message("Compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
 message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 message("CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
@@ -262,6 +263,8 @@ endif()
 
 # configure some files - version and path information
 configure_file(src/compile_time.h.in "${PROJECT_BINARY_DIR}/compile_time.h")
+configure_file(src/web_server/embedded_files.c.in "${PROJECT_BINARY_DIR}/embedded_files.c")
+configure_file(src/scripts/lualibs.c.in "${PROJECT_BINARY_DIR}/lualibs.c")
 configure_file(cmake/Install.cmake.in cmake/Install.cmake @ONLY)
 configure_file(contrib/initscripts/mympd.service.system.in contrib/initscripts/system/mympd.service @ONLY)
 configure_file(contrib/initscripts/mympd.service.user.in contrib/initscripts/user/mympd.service @ONLY)
@@ -272,6 +275,7 @@ configure_file(contrib/initscripts/mympd.freebsdrc.in contrib/initscripts/mympd.
 # global compile options
 add_compile_options(
   "-DMPACK_HAS_CONFIG=1"
+  "-DMG_MAX_HTTP_HEADERS=50"
 )
 # set myMPD specific debug define
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

@@ -1234,6 +1234,7 @@
     "stop only": "停止のみ",
     "tags": "タグ",
     "url_resolved": "URL",
+    "userDefinedSticker": "ユーザー定義のステッカー",
     "votes": "票数",
     "wasapi": "Windows Audio Session API"
 }

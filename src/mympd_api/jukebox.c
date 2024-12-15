@@ -13,9 +13,11 @@
 
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
 #include "src/lib/search.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
+#include "src/mpd_client/search.h"
 #include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/sticker.h"
@@ -123,15 +125,14 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
     struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
+    bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
+    if (print_stickers == true) {
+        stickerdb_exit_idle(stickerdb);
+    }
     if (partition_state->jukebox.mode == JUKEBOX_ADD_SONG ||
         partition_state->jukebox.mode == JUKEBOX_SCRIPT)
     {
         struct t_list_node *current = partition_state->jukebox.queue->head;
-        if (partition_state->mpd_state->feat.stickers == true &&
-            tagcols->stickers.len > 0)
-        {
-            stickerdb_exit_idle(stickerdb);
-        }
         while (current != NULL) {
             if (mpd_send_list_meta(partition_state->conn, current->key)) {
                 struct mpd_song *song;
@@ -146,9 +147,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
                             buffer = sdscat(buffer, "{\"Type\": \"song\",");
                             buffer = tojson_uint(buffer, "Pos", entity_count, true);
                             buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, song);
-                            if (partition_state->mpd_state->feat.stickers == true &&
-                                tagcols->stickers.len > 0)
-                            {
+                            if (print_stickers == true) {
                                 buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_SONG, mpd_song_get_uri(song), &tagcols->stickers);
                             }
                             buffer = sdscatlen(buffer, "}", 1);
@@ -163,14 +162,10 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
             mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
             current = current->next;
         }
-        if (partition_state->mpd_state->feat.stickers == true &&
-            tagcols->stickers.len > 0)
-        {
-            stickerdb_enter_idle(stickerdb);
-        }
     }
     else if (partition_state->jukebox.mode == JUKEBOX_ADD_ALBUM) {
         struct t_list_node *current = partition_state->jukebox.queue->head;
+        sds album_exp = sdsempty();
         while (current != NULL) {
             struct mpd_song *album = (struct mpd_song *)current->user_data;
             if (search_expression_song(album, expr_list, &tagcols->mpd_tags) == true) {
@@ -183,6 +178,11 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
                     buffer = sdscat(buffer, "{\"Type\": \"album\",");
                     buffer = tojson_uint(buffer, "Pos", entity_count, true);
                     buffer = print_album_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_album, album);
+                    if (print_stickers == true) {
+                        buffer = sdscatlen(buffer, ",", 1);
+                        album_exp = get_search_expression_album(album_exp, partition_state->mpd_state->tag_albumartist, album, &partition_state->config->albums);
+                        buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_FILTER, album_exp, &tagcols->stickers);
+                    }
                     buffer = sdscatlen(buffer, "}", 1);
                 }
                 entities_found++;
@@ -190,6 +190,10 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
             entity_count++;
             current = current->next;
         }
+        FREE_SDS(album_exp);
+    }
+    if (print_stickers == true) {
+        stickerdb_enter_idle(stickerdb);
     }
     free_search_expression_list(expr_list);
     buffer = sdscatlen(buffer, "],", 2);

@@ -51,5 +51,6 @@ bool stickerdb_set_rating(struct t_stickerdb_state *stickerdb, enum mympd_sticke
 bool stickerdb_remove(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name);
 
 bool stickerdb_get_names(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, struct t_list *sticker_names);
+bool check_get_sticker(bool featSticker, const struct t_stickers *stickers);
 
 #endif

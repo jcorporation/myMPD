@@ -322,7 +322,9 @@ function getDisplayTitle(name, title) {
  * @returns {Node} the created node
  */
 function printValue(key, value, userData) {
-    if (isEmptyTag(value) === true) {
+    if (isEmptyTag(value) === true &&
+        key !== 'userDefinedSticker')
+    {
         return document.createTextNode('');
     }
     switch(key) {
@@ -389,6 +391,22 @@ function printValue(key, value, userData) {
             }
             return progressEl;
         }
+        case "userDefinedSticker": {
+            if (userData.sticker === undefined) {
+                return document.createTextNode('no');
+            }
+            const div = elCreateEmpty('div', {});
+            for (const sticker in userData.sticker) {
+                div.appendChild(
+                    elCreateNodes('span', {}, [
+                        elCreateText('small', {}, sticker + ': '),
+                        document.createTextNode(userData.sticker[sticker]),
+                        elCreateEmpty('br', {})
+                    ])
+                );
+            }
+            return div;
+        }
         case 'Artist':
         case 'ArtistSort':
         case 'AlbumArtist':
@@ -452,12 +470,7 @@ function printValue(key, value, userData) {
             }
             return document.createTextNode(tn('Num discs', {"smartCount": value}));
         case 'Thumbnail': {
-            //TODO: use intersection observer
-            const img = elCreateEmpty('div', {"class": ["thumbnail"]});
-            if (value !== undefined) {
-                img.style.backgroundImage = value;
-            }
-            return img;
+            return elCreateEmpty('img', {"loading": "lazy", "class": ["thumbnail"], "src": value});
         }
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
@@ -475,7 +488,9 @@ function printValue(key, value, userData) {
  * @returns {boolean} true if tag matches value, else false
  */
 function isEmptyTag(tagValue) {
-    return tagValue === undefined || tagValue === null || tagValue.length === 0;
+    return tagValue === undefined ||
+           tagValue === null ||
+           tagValue.length === 0;
 }
 
 /**

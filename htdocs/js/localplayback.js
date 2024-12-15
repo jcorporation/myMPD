@@ -117,7 +117,7 @@ function createLocalPlaybackEl(createEvent) {
     localPlayer.volume = oldVolume;
     parent.appendChild(localPlayer);
     //add eventhandlers
-    elGetById('localPlayer').addEventListener('canplay', function() {
+    localPlayer.addEventListener('canplay', function() {
         logDebug('localPlayer event: canplay');
         elHideId('errorLocalPlayback');
         setData(el, 'state', 'play');
@@ -126,15 +126,15 @@ function createLocalPlaybackEl(createEvent) {
             elCreateText('span', {"class": ["mi"]}, 'stop')
         );
     });
-    elGetById('localPlayer').addEventListener('progress', function(event) {
+    localPlayer.addEventListener('timeupdate', function(event) {
         // @ts-ignore
-        if (isNaN(event.target.duration)) {
+        if (isNaN(event.target.currentTime)) {
             return;
         }
         // @ts-ignore
-        elGetById('localPlayerProgress').textContent = fmtSongDuration(event.target.currentTime);
+        domCache.localPlayerProgress.textContent = fmtSongDuration(event.target.currentTime);
     });
-    elGetById('localPlayer').addEventListener('volumechange', function(event) {
+    localPlayer.addEventListener('volumechange', function(event) {
         // @ts-ignore
         elGetById('localPlaybackVolumeBar').value = elGetById('localPlayer').volume;
         elGetById('localPlaybackVolume').textContent = Math.floor(
@@ -142,9 +142,17 @@ function createLocalPlaybackEl(createEvent) {
             event.target.volume * 100) + ' %';
     });
     for (const ev of ['error', 'abort', 'stalled']) {
-        elGetById('localPlayer').addEventListener(ev, function(event) {
+        localPlayer.addEventListener(ev, function(event) {
             if (event.target.getAttribute('disabled') === 'disabled') {
-                //show now error while removing audio element
+                //ignore error while removing audio element
+                return;
+            }
+            // @ts-ignore
+            if (event.target.error &&
+                // @ts-ignore
+                event.target.error.code === 3)
+            {
+                //ignore NS_ERROR_DOM_MEDIA_MEDIASINK_ERR
                 return;
             }
             logError('localPlayer event: ' + ev);
@@ -154,19 +162,16 @@ function createLocalPlaybackEl(createEvent) {
             elReplaceChild(el,
                 elCreateText('span', {"class": ["mi"]}, 'play_arrow')
             );
-            elClear(elGetById('localPlayerProgress'));
+            elClear(domCache.localPlayerProgress);
         });
     }
     if (curState === undefined ||
         curState === 'stop')
     {
         //load and play
-        if (settings.partition.streamUri === '') {
-            localPlayer.src = getMyMPDuri() + '/stream/' + localSettings.partition;
-        }
-        else {
-            localPlayer.src = settings.partition.streamUri;
-        }
+        localPlayer.src = settings.partition.streamUri === ''
+            ? getMyMPDuri() + '/stream/' + localSettings.partition
+            : localPlayer.src = settings.partition.streamUri;
         localPlayer.load();
         localPlayer.play();
         elClear(el);
@@ -176,6 +181,6 @@ function createLocalPlaybackEl(createEvent) {
     }
     else {
         setData(el, 'state', 'stop');
-        elClear(elGetById('localPlayerProgress'));
+        elClear(domCache.localPlayerProgress);
     }
 }

@@ -279,3 +279,9 @@ Number is out of valid range
 Can not parse script arguments
 Sortdesc
 Value (Number)
+Elapsed
+Last skipped
+Play count
+Rating
+Skip count
+userDefinedSticker

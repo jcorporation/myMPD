@@ -6,14 +6,26 @@
 # Maintainer: Juergen Mang <mail@jcgames.de>
 #
 pkgname=mympd
-pkgver=18.2.2
+pkgver=19.0.0
 pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web-based MPD client."
 url="https://jcorporation.github.io/myMPD/"
 arch="all"
 license="GPL-3.0-or-later"
-depends="libid3tag flac openssl lua5.4 pcre2 newt"
-makedepends="cmake perl gzip jq libid3tag-dev flac-dev openssl-dev linux-headers lua5.4-dev pcre2-dev"
+depends="newt"
+makedepends="
+	cmake
+	flac-dev
+	gzip
+	jq
+	lua5.4
+	lua5.4-dev
+	libid3tag-dev
+	linux-headers
+	openssl-dev
+	pcre2-dev
+	perl
+	"
 install="$pkgname.pre-install"
 subpackages="$pkgname-dbg $pkgname-doc"
 source="mympd_$pkgver.orig.tar.gz"
@@ -22,10 +34,10 @@ options="!check"
 #no test suite
 
 build() {
-    cmake -B "$builddir/release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo "$builddir"
-    make -C "$builddir/release"
+	cmake -B "$builddir/release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo "$builddir"
+	make -C "$builddir/release"
 }
 
 package() {
-    make -C "$builddir/release" DESTDIR="$pkgdir" install
+	make -C "$builddir/release" DESTDIR="$pkgdir" install
 }

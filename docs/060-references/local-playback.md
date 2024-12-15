@@ -25,3 +25,6 @@ audio_output {
     tags        "yes"
 }
 ```
+
+!!! note
+    Playback does not start instantinously, buffering can take up to 30 seconds.

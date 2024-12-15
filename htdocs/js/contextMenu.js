@@ -330,10 +330,10 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
             ? getData(dataNode, 'name')
             : '';
         const image = dataNode !== null
-            ? getData(dataNode, 'cssImageUrl')
+            ? getData(dataNode, 'imageUrl')
             : '';
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "addAlbumToHome", "options": [albumId, name, image.substr(5,image.length-7)]}, 'Add to homescreen');
+        addMenuItem(contextMenuBody, {"cmd": "addAlbumToHome", "options": [albumId, name, image]}, 'Add to homescreen');
     }
 }
 

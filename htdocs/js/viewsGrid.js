@@ -176,15 +176,11 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
             obj.result.data[i].Thumbnail !== undefined)
         {
             card.appendChild(
-                elCreateEmpty('div', {"class": ["card-title", "cover-loading", "cover-grid", "d-flex"]})
+                elCreateNode('div', {"class": ["card-title", "cover-grid", "d-flex"]},
+                    elCreateEmpty('img', {"width": settings.webuiSettings.gridSize, "height": settings.webuiSettings.gridSize,
+                        "loading": "lazy", "src": obj.result.data[i].Thumbnail})
+                )
             );
-            if (userAgentData.hasIO === true) {
-                const observer = new IntersectionObserver(setGridImage, {root: null, rootMargin: '0px'});
-                observer.observe(card);
-            }
-            else {
-                card.firstChild.style.backgroundImage = obj.result.data[i].Thumbnail;
-            }
         }
         const body = elCreateEmpty('div', {"class": ["card-body", "card-body-grid", "p-2"]});
         if (createCardBodyCallback !== undefined &&
@@ -270,22 +266,4 @@ function createGridBody(body, data, list) {
         );
         i++;
     }
-}
-
-/**
- * Callback function for intersection observer to lazy load cover images
- * @param {object} changes IntersectionObserverEntry objects
- * @param {object} observer IntersectionObserver
- * @returns {void}
- */
-function setGridImage(changes, observer) {
-    changes.forEach(change => {
-        if (change.intersectionRatio > 0) {
-            observer.unobserve(change.target);
-            const body = change.target.querySelector('.card-title');
-            if (body) {
-                body.style.backgroundImage = getData(change.target, 'cssImageUrl');
-            }
-        }
-    });
 }

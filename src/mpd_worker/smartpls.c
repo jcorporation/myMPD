@@ -163,7 +163,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     }
 
     // get sort options
-    if (json_get_string(content, "$.sort", 0, 100, &sort, vcb_ismpd_sticker_sort, NULL) == true &&
+    if (json_get_string(content, "$.sort", 0, SORT_LEN_MAX, &sort, vcb_ismpd_sticker_sort, NULL) == true &&
         strcmp(sort, "shuffle") != 0)
     {
         json_get_bool(content, "$.sortdesc", &sortdesc, NULL);
@@ -182,9 +182,9 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     if (strcmp(smartpltype, "sticker") == 0 &&
         mpd_worker_state->mpd_state->feat.stickers == true)
     {
-        if (json_get_string(content, "$.sticker", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, NULL) == true &&
+        if (json_get_string(content, "$.sticker", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, NULL) == true &&
             json_get_string(content, "$.value", 0, NAME_LEN_MAX, &sds_buf2, vcb_isname, NULL) == true &&
-            json_get_string(content, "$.op", 1, 2, &sds_buf3, vcb_isstickerop, NULL) == true)
+            json_get_string(content, "$.op", 1, STICKER_OP_LEN_MAX, &sds_buf3, vcb_isstickerop, NULL) == true)
         {
             rc = mpd_worker_smartpls_update_sticker(mpd_worker_state, playlist, sds_buf1, sds_buf2, sds_buf3, sort, sortdesc, max_entries);
             if (rc == false) {
@@ -222,7 +222,9 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     }
 
     // sort or shuffle
-    if (rc == true) {
+    if (rc == true &&
+        sdslen(sort) > 0)
+    {
         if (strcmp(sort, "shuffle") == 0) {
             rc = mpd_client_playlist_shuffle(mpd_worker_state->partition_state, playlist, NULL);
         }
@@ -239,7 +241,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         max_entries > 0 &&
         mpd_worker_state->mpd_state->feat.playlist_rm_range == true)
     {
-        mpd_run_playlist_delete_range(mpd_worker_state->partition_state->conn, playlist, max_entries, UINT_MAX);
+        mpd_client_playlist_crop(mpd_worker_state->partition_state, playlist, max_entries);
     }
 
     FREE_SDS(smartpltype);

@@ -663,6 +663,9 @@ function setFieldsStickers(tags, stickers) {
         }
         tags.push(sticker);
     }
+    if (features.featStickerAdv === true) {
+        tags.push('userDefinedSticker');
+    }
 }
 
 /**
@@ -697,31 +700,31 @@ function setEntryData(entry, data) {
     //set Thumbnail
     switch(data.Type) {
         case 'album':
-            data.Thumbnail = getCssImageUri(data.FirstSongUri !== 'albumid'
+            data.Thumbnail = getImageUri(data.FirstSongUri !== 'albumid'
                 ? '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(data.FirstSongUri)
                 : '/albumart-thumb/' + data.AlbumId);
             break;
         case 'song':
         case 'stream':
         case 'webradio':
-            data.Thumbnail = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(data.uri));
+            data.Thumbnail = getImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(data.uri));
             break;
         case 'dir': 
-            data.Thumbnail = getCssImageUri('/folderart?path=' + myEncodeURIComponent(data.uri));
+            data.Thumbnail = getImageUri('/folderart?path=' + myEncodeURIComponent(data.uri));
             break;
         case 'plist':
         case 'smartpls':
-            data.Thumbnail = getCssImageUri('/playlistart?type=' + data.Type + '&playlist=' + myEncodeURIComponent(data.uri));
+            data.Thumbnail = getImageUri('/playlistart?type=' + data.Type + '&playlist=' + myEncodeURIComponent(data.uri));
             break;
         case 'webradiodb':
-            data.Thumbnail = getCssImageUri(data.Image);
+            data.Thumbnail = getImageUri(data.Image);
             break;
         // No Default
     }
     if (data.Thumbnail !== undefined) {
-        setData(entry, 'cssImageUrl', data.Thumbnail);
+        setData(entry, 'imageUrl', data.Thumbnail);
     }
     else {
-        setData(entry, 'cssImageUrl', getCssImageUri('/assets/coverimage-notavailable'));
+        setData(entry, 'imageUrl', getImageUri('/assets/coverimage-notavailable'));
     }
 }
