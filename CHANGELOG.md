@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+Fix: Lua wrapper for `mympd.api`
+
 ***
 
 ## myMPD v19.0.0 (2024-12-15)

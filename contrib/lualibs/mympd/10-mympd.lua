@@ -11,7 +11,7 @@ end
 -- @return 0 for success, else 1
 -- @return jsonrpc result for success, else error
 function mympd.api(method, params)
-  return mympd.api_partition(method, params, mympd_env.partition)
+  return mympd.api_partition(mympd_env.partition, method, params)
 end
 
 --- Calls the myMPD jsonrpc api
