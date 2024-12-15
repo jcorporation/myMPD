@@ -27,7 +27,9 @@ This is a small bug fix release.
 
 ### Changelog
 
-Fix: Lua wrapper for `mympd.api`
+- Fix: Import of scripts
+- Fix: Lua wrapper for `mympd.api`
+- Fix: Emmit correct trigger event for INTERNAL_API_TRIGGER_EVENT_EMIT
 
 ***
 
