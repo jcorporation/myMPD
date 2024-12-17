@@ -131,6 +131,14 @@ const webradioFields = [
 ];
 
 /** @type {object} */
+const albumFields = [
+    'Discs',
+    'SongCount',
+    'Duration',
+    'Last-Modified'
+];
+
+/** @type {object} */
 const session = {
     "token": "",
     "timeout": 0

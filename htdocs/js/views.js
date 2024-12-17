@@ -563,7 +563,10 @@ function setFields(tableName) {
         }
         case 'BrowseRadioFavorites':
         case 'BrowseRadioWebradiodb':
-            return ["Added", "Country", "Description", "Genres", "Homepage", "Languages", "Last-Modified", "Name", "Region", "StreamUri", "Codec", "Bitrate", "Thumbnail"];
+            return webradioFields.concat([
+                "Name",
+                "Thumbnail"
+            ]);
         case 'BrowseDatabaseTagList':
             return ["Value", "Thumbnail"];
         case 'BrowseDatabaseAlbumList':
@@ -574,7 +577,7 @@ function setFields(tableName) {
             }
             tags.push('Thumbnail');
             if (settings.albumMode === 'adv') {
-                tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified');
+                tags.push(...albumFields);
                 if (features.featDbAdded === true) {
                     tags.push('Added');
                 }
@@ -587,7 +590,7 @@ function setFields(tableName) {
         case 'BrowseDatabaseAlbumDetailInfo': {
             if (settings.albumMode === 'adv') {
                 const tags = settings.tagListAlbum.slice();
-                tags.push('Discs', 'SongCount', 'Duration', 'Last-Modified');
+                tags.push(...albumFields);
                 if (features.featDbAdded === true) {
                     tags.push('Added');
                 }
