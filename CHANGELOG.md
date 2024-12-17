@@ -12,11 +12,13 @@ This is a small maintenance release.
 
 - MYMPD_API_STICKER_INC: add value parameter
 - MYMPD_API_STICKER_DEC: new
+- MYMPD_API_STICKER_PLAYCOUNT: new
 
 ### Changelog
 
 - Feat: Support new MPD 0.24 "sticker (inc|dec)" sub-commands #1390
 - Feat: New trigger event for smart playlist update #1389
+- Feat: Add `current_album` to `mympd_state` Lua table
 - Upd: libmympdclient 1.0.33
 
 ***

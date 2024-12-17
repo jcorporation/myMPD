@@ -27,6 +27,7 @@ The lua table mympd_state is populated with following fields.
 | --- | ---- | ----------- |
 | `auto_play` | Boolean | true = enabled, false = disabled |
 | `consume_state` | Integer | MPD consume state: 0 = off, 1 = on, 2 = oneshot, 3 = unknown |
+| `current_album` | String | myMPD AlbumId |
 | `crossfade` | Integer | MPD crossfade option |
 | `current_song` | Table | Current MPD song |
 | `elapsed_time` | Integer | Elapsed time of current song |

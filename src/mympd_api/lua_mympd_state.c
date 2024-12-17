@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/lua_mympd_state.h"
 
+#include "src/lib/cache_rax_album.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
@@ -85,6 +86,9 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     // current song
     if (partition_state->song != NULL) {
         lua_mympd_state_set_mpd_song(lua_partition_state, "current_song", partition_state->song);
+        sds album_id = album_cache_get_key(sdsempty(), partition_state->song, &partition_state->config->albums);
+        lua_mympd_state_set_p(lua_partition_state, "current_album", album_id);
+        FREE_SDS(album_id);
     }
     lua_mympd_state_set_i(lua_partition_state, "start_time", partition_state->song_start_time);
     // myMPD state

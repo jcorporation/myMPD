@@ -1296,7 +1296,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_STICKER_DEC": {
-        "desc": "DEcrements a MPD sticker by one.",
+        "desc": "Decrements a MPD sticker by one.",
         "params": {
             "uri": APIparams.uri,
             "type": APIparams.stickerType,
@@ -1306,6 +1306,13 @@ const APImethods = {
                 "example": 1,
                 "desc": "Decrement sticker by this value"
             }
+        }
+    },
+    "MYMPD_API_STICKER_PLAYCOUNT": {
+        "desc": "Increments playCount and sets lastPlayed.",
+        "params": {
+            "uri": APIparams.uri,
+            "type": APIparams.stickerType
         }
     },
     "MYMPD_API_MOUNT_LIST": {
