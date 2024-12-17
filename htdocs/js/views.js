@@ -591,13 +591,16 @@ function setFields(tableName) {
                 if (features.featDbAdded === true) {
                     tags.push('Added');
                 }
+                setFieldsStickers(tags, stickerListAll);
                 return tags.filter(function(value) {
                     return value !== 'Disc' &&
                         value !== 'Album';
                 });
             }
             else {
-                return settings.tagListAlbum;
+                const tags = settings.tagListAlbum.slice();
+                setFieldsStickers(tags, stickerListAll);
+                return tags;
             }
         }
         // No Default

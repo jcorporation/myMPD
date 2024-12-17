@@ -1196,24 +1196,22 @@ const mpdVersion = {
 //remember offset for filesystem browsing uris
 const browseFilesystemHistory = {};
 
-//list of stickers for songs
-/** @type {Array} */
-const stickerListSongs = [
-    'playCount',
-    'skipCount',
-    'lastPlayed',
-    'lastSkipped',
-    'like',
-    'rating',
-    'elapsed'
-];
-
-//list of stickers for playlists and filters (albums)
+//list of stickers for tags, playlists and filters (albums)
 /** @type {Array} */
 const stickerListAll = [
     'like',
-    'rating'
+    'rating',
+    'playCount',
+    'lastPlayed'
 ];
+
+//list of stickers for songs
+/** @type {Array} */
+const stickerListSongs = stickerListAll.concat([
+    'skipCount',
+    'lastSkipped',
+    'elapsed'
+]);
 
 //application state
 const app = {};
