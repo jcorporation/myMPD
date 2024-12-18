@@ -23,6 +23,17 @@ This is a small maintenance release.
 
 ***
 
+## myMPD v19.0.2 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Show MPD Sticker Connection settings
+- Fix: Link to API documentation
+
+***
+
 ## myMPD v19.0.1 (2024-12-15)
 
 This is a small bug fix release.

@@ -31,6 +31,8 @@ function setFeatures() {
     features.featMygpiod = settings.features.featMygpiod;
     features.featWebradioDB = settings.features.featWebradioDB;
     features.viewTitle = settings.webuiSettings.viewTitles;
+    //stickers config value
+    features.featStickersEnabled = settings.features.featStickersEnabled;
 
     //mpd features
     if (settings.partition.mpdConnected === true) {
