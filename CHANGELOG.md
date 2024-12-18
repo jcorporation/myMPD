@@ -30,7 +30,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Show MPD Sticker Connection settings
-- Fix: Link to API documentation
+- Fix: Link to API documentation #1395
 
 ***
 
