@@ -19,6 +19,9 @@ function handlePlayback() {
  */
  function initViewPlayback() {
     elGetById('PlaybackListTags').addEventListener('click', function(event) {
+        if (event.target.classList.contains('clickable') === false) {
+            return;
+        }
         if (event.target.nodeName === 'P' ||
             event.target.nodeName === 'SPAN')
         {

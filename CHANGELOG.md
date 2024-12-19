@@ -31,6 +31,7 @@ This is a small bug fix release.
 
 - Fix: Show MPD Sticker Connection settings
 - Fix: Link to API documentation #1395
+- Fix: Link only "Tags to browse" in playback view #1396
 
 ***
 
