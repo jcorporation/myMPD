@@ -1059,11 +1059,15 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     }
     //features
     buffer = sdscat(buffer, "},\"features\":{");
+    // config settings
+    buffer = tojson_bool(buffer, "featStickersEnabled", mympd_state->config->stickers, true);
+    buffer = tojson_bool(buffer, "featWebradioDB", partition_state->config->webradiodb, true);
+    buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
     if (partition_state->conn_state == MPD_CONNECTED) {
+        // feature detection
         buffer = tojson_bool(buffer, "featPlaylists", partition_state->mpd_state->feat.playlists, true);
         buffer = tojson_bool(buffer, "featTags", partition_state->mpd_state->feat.tags, true);
         buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat.library, true);
-        buffer = tojson_bool(buffer, "featStickersEnabled", mympd_state->config->stickers, true);
         buffer = tojson_bool(buffer, "featStickers", mympd_state->stickerdb->mpd_state->feat.stickers, true);
         buffer = tojson_bool(buffer, "featStickerAdv", mympd_state->stickerdb->mpd_state->feat.advsticker, true);
         buffer = tojson_bool(buffer, "featFingerprint", partition_state->mpd_state->feat.fingerprint, true);
@@ -1079,9 +1083,8 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat.starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat.pcre, true);
         buffer = tojson_bool(buffer, "featDbAdded", partition_state->mpd_state->feat.db_added, true);
-        buffer = tojson_bool(buffer, "featWebradioDB", partition_state->config->webradiodb, true);
     }
-    buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
+    // compile time options
     #ifdef MYMPD_ENABLE_MYGPIOD
         buffer = tojson_bool(buffer, "featMygpiod", true, true);
     #else
