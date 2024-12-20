@@ -96,18 +96,15 @@ function appInitStart() {
     }
 
     //update table height on window resize
-    window.addEventListener('resize', function() {
-        if (resizeTimer !== null) {
-            clearTimeout(resizeTimer);
-        }
-        resizeTimer = setTimeout(function() {
+    const resizeObserver = new ResizeObserver(function() {
+        requestAnimationFrame(() => {
             const list = elGetById(app.id + 'List');
             if (list) {
                 setScrollViewHeight(list);
             }
-            resizeTimer = null;
-        }, 100);
-    }, false);
+        });
+    });
+    resizeObserver.observe(document.querySelector('body'));
 
     setMobileView();
 

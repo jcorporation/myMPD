@@ -32,7 +32,6 @@ let socket = null;
 let websocketKeepAliveTimer = null;
 let websocketLastPong = null;
 let searchTimer = null;
-let resizeTimer = null;
 let progressTimer = null;
 
 /** @type {number} */
