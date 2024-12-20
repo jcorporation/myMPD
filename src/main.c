@@ -157,7 +157,7 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
             return false;
         }
         errno = 0;
-        if (setgroups(0, NULL) == -1 ||                 //purge supplementary groups
+        if (setgroups(0, NULL) == -1 ||                //purge supplementary groups
             initgroups(username, pwd.pw_gid) == -1 ||  //set new supplementary groups from target user
             setgid(pwd.pw_gid) == -1 ||                //change primary group to group of target user
             setuid(pwd.pw_uid) == -1)                  //change user
