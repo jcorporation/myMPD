@@ -129,7 +129,7 @@ function updateHomeWidget(card) {
     for (const key in data.arguments) {
         query.push(myEncodeURIComponent(key) + '=' + myEncodeURIComponent(data.arguments[key]));
     }
-    httpGet(getMyMPDuri('http') + '/script/' +  localSettings.partition + '/' + data.script + '?' + query.join('&'),
+    httpGet(getMyMPDuri('http') + '/script/' +  localSettings.partition + '/' + myEncodeURIComponent(data.script) + '?' + query.join('&'),
         function(response) {
             setTimeout(function() {
                 card.querySelector('.card-title a').textContent = 'refresh';

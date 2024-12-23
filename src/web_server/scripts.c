@@ -33,7 +33,7 @@
  * @return true on success, else false
  */
 bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, struct t_config *config) {
-    sds partition = sdsnewlen(hm->uri.buf, hm->uri.len);
+    sds partition = sds_urldecode(sdsempty(), hm->uri.buf, hm->uri.len, false);
     sds script = sdsdup(partition);
     partition = sds_dirname(partition);
     partition = sds_basename(partition);
