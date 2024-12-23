@@ -37,7 +37,8 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     sds script = sdsdup(partition);
     partition = sds_dirname(partition);
     partition = sds_basename(partition);
-    script = sds_basename(script);
+    sds script_encoded = sds_basename(script);
+    script = sds_urldecode(sdsempty(), script_encoded, strlen(script_encoded), false);
     if (vcb_isfilepath(script) == false) {
         FREE_SDS(script);
         FREE_SDS(partition);
@@ -76,5 +77,6 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     request->extra = extra;
     FREE_SDS(partition);
     FREE_SDS(script);
+    FREE_SDS(script_encoded);
     return push_request(request, 0);
 }
