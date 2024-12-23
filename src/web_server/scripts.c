@@ -33,12 +33,11 @@
  * @return true on success, else false
  */
 bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, struct t_config *config) {
-    sds partition = sdsnewlen(hm->uri.buf, hm->uri.len);
+    sds partition = sds_urldecode(sdsempty(), hm->uri.buf, hm->uri.len, false);
     sds script = sdsdup(partition);
     partition = sds_dirname(partition);
     partition = sds_basename(partition);
-    sds script_encoded = sds_basename(script);
-    script = sds_urldecode(sdsempty(), script_encoded, strlen(script_encoded), false);
+    script = sds_basename(script);
     if (vcb_isfilepath(script) == false) {
         FREE_SDS(script);
         FREE_SDS(partition);
@@ -77,6 +76,5 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     request->extra = extra;
     FREE_SDS(partition);
     FREE_SDS(script);
-    FREE_SDS(script_encoded);
     return push_request(request, 0);
 }
