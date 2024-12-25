@@ -12,10 +12,9 @@ Authentication required
 Browse
 Browser default
 Browser has no MediaSession support
-Can not parse script metadata.
 Can not find script in repository.
-Script is up-to-date.
-Script successfully updated.
+Can not parse script arguments
+Can not parse script metadata.
 Click album play button
 clickcount
 Click filesystem playlist
@@ -61,6 +60,8 @@ Each 604800
 Each 86400
 Edit playlist
 Edit script
+elapsed
+Elapsed
 Enable consume mode
 Enable consume oneshot
 Enable random
@@ -83,6 +84,7 @@ Filetype
 Fingerprint
 Goto artist
 Grouping
+History back button
 Home
 homepage
 httpd
@@ -106,6 +108,9 @@ icon-social
 icon-toggle
 Image
 Info
+Invalid json value type: MJSON_TOK_INVALID
+Invalid json value type: MJSON_TOK_NULL
+Invalid json value type: MJSON_TOK_UNKNOWN
 Invalid response
 jack
 Jukebox Queue
@@ -115,9 +120,21 @@ Languages
 lastchangetime
 lastcheckok
 Last-Modified
+lastPlayed
 Last played list count
+lastSkipped
+Last skipped
 Light
+like
 Location
+Loglevel set to ALERT
+Loglevel set to CRITICAL
+Loglevel set to DEBUG
+Loglevel set to EMERG
+Loglevel set to ERROR
+Loglevel set to INFO
+Loglevel set to NOTICE
+Loglevel set to WARN
 Lua is not compiled in
 Media session
 Modal
@@ -154,21 +171,23 @@ MUSICBRAINZ_RELEASEGROUPID
 MUSICBRAINZ_RELEASETRACKID
 MUSICBRAINZ_TRACKID
 MUSICBRAINZ_WORKID
+mympd_albumart
 mympd_connected
 mympd_disconnected
 mympd_feedback
+mympd_jukebox
+mympd_lyrics
 mympd_scrobble
 mympd_skipped
+mympd_smartpls
 mympd_start
 mympd_stop
-mympd_lyrics
-mympd_albumart
 mympd_tagart
-mympd_jukebox
-mympd_smartpls
 name
 newest
+Notification icon
 null
+Number is out of valid range
 Offset
 On page notifications
 openal
@@ -184,6 +203,9 @@ pipewire
 Play
 Play after current playing song
 Playback controls
+Playback settings
+playCount
+Play count
 Player
 Playlist successfully copied
 Playlist successfully moved
@@ -193,6 +215,8 @@ Pos
 pulse
 Quick play button
 Quick remove button
+rating
+Rating
 recorder
 Remove all downwards
 Remove all upwards
@@ -202,6 +226,8 @@ Replace queue with playlist
 Rescan database
 Rescan directory
 Scripting
+Script is up-to-date.
+Script successfully updated.
 Script syntax is valid
 search
 Session
@@ -215,28 +241,20 @@ Show all albums from Conductor
 Show all albums from Ensemble
 Show all albums from Performer
 Show attributes
-History back button
 Show help
 Show MusicBrainz links
-Notification icon
-Playback settings
-Volume level
+skipCount
+Skip count
 sles
 snapcast
 sndio
 solaris
 Song change
 SongCount
+Sortdesc
 Startup view
 state
 sticker
-elapsed
-lastPlayed
-lastSkipped
-like
-rating
-playCount
-skipCount
 stop only
 Stop playback after current song
 Stream
@@ -253,8 +271,13 @@ Unsynced lyrics vorbis comment
 Update database
 Update directory
 url_resolved
+userDefinedSticker
+Value length for JSON path \"$.params.newName\" is too short
+Value length for JSON path \"$.params.plist\" is too short
+Value (Number)
 View
 View playlist
+Volume level
 Volume max.
 Volume min.
 Volume step
@@ -263,26 +286,3 @@ Warning
 wasapi
 Web notifications
 Work
-Invalid json value type: MJSON_TOK_NULL
-Invalid json value type: MJSON_TOK_INVALID
-Invalid json value type: MJSON_TOK_UNKNOWN
-Loglevel set to EMERG
-Loglevel set to ALERT
-Loglevel set to CRITICAL
-Loglevel set to ERROR
-Loglevel set to WARN
-Loglevel set to NOTICE
-Loglevel set to INFO
-Loglevel set to DEBUG
-Value length for JSON path \"$.params.newName\" is too short
-Value length for JSON path \"$.params.plist\" is too short
-Number is out of valid range
-Can not parse script arguments
-Sortdesc
-Value (Number)
-Elapsed
-Last skipped
-Play count
-Rating
-Skip count
-userDefinedSticker
