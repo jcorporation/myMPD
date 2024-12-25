@@ -395,7 +395,6 @@
     "Insert mode": "추가 모드",
     "Interval": "간격",
     "Invalid API request": "잘못된 API 요구",
-    "Invalid API uri, partition not found": "잘못된 API uri, 찾을 수 없는 파티션",
     "Invalid MPD search expression": "잘못된 MPD 검색 표현식",
     "Invalid URI": "잘못된 URI",
     "Invalid backend uri": "잘못된 백엔드 URL",

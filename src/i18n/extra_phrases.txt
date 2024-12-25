@@ -165,6 +165,7 @@ mympd_lyrics
 mympd_albumart
 mympd_tagart
 mympd_jukebox
+mympd_smartpls
 name
 newest
 null

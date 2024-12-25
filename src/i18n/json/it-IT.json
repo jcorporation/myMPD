@@ -395,7 +395,6 @@
     "Insert mode": "Modo d'inserimento",
     "Interval": "Intervallo",
     "Invalid API request": "Richiesta API non valida",
-    "Invalid API uri, partition not found": "API uri non valido, partizione non trovata",
     "Invalid MPD search expression": "Espressione di ricerca MPD non valida",
     "Invalid URI": "URI non valido",
     "Invalid backend uri": "URI del backend non valido",

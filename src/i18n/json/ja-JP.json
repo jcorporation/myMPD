@@ -395,7 +395,6 @@
     "Insert mode": "挿入モード",
     "Interval": "間隔",
     "Invalid API request": "無効なAPIリクエストです",
-    "Invalid API uri, partition not found": "無効なAPI URIです。パーティションが見つかりません",
     "Invalid MPD search expression": "無効なMPD検索式です",
     "Invalid URI": "無効なURIです",
     "Invalid backend uri": "無効なバックエンドURIです",

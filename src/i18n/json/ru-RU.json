@@ -395,7 +395,6 @@
     "Insert mode": "Режим вставки",
     "Interval": "Интервал",
     "Invalid API request": "Недействительный запрос API",
-    "Invalid API uri, partition not found": "",
     "Invalid MPD search expression": "Неверное выражение для поиска в MPD",
     "Invalid URI": "Неверный URL",
     "Invalid backend uri": "Неверный URL бэкэнда",
