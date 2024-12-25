@@ -78,7 +78,7 @@ sds get_uri_param(struct mg_str *query, const char *name) {
  * @return true on success, else false
  */
 bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data) {
-    sds partition = sdsnewlen(hm->uri.buf, hm->uri.len);
+    sds partition = sds_urldecode(sdsempty(), hm->uri.buf, hm->uri.len, false);
     basename_uri(partition);
     FREE_SDS(frontend_nc_data->partition);
     frontend_nc_data->partition = partition;
