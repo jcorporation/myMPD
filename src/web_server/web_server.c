@@ -741,11 +741,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
-                    MYMPD_LOG_ERROR(NULL, "API request without partition");
-                    sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
-                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Invalid API uri, partition not found");
-                    webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
-                    FREE_SDS(response);
                     break;
                 }
                 //body
@@ -795,8 +790,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/ws/*"), NULL)) {
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
-                    MYMPD_LOG_ERROR(NULL, "Websocket request without partition");
-                    webserver_send_error(nc, 404, "Invalid websocket uri, partition not found");
                     break;
                 }
                 mg_ws_upgrade(nc, hm, NULL);
@@ -808,8 +801,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/stream/*"), NULL)) {
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
-                    MYMPD_LOG_ERROR(NULL, "Stream request without partition");
-                    webserver_send_error(nc, 404, "Invalid stream uri, partition not found");
                     break;
                 }
                 struct t_list_node *node = list_get_node(&mg_user_data->stream_uris, frontend_nc_data->partition);
@@ -839,11 +830,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
-                    MYMPD_LOG_ERROR(NULL, "script-api request without partition");
-                    sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
-                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Invalid API uri, partition not found");
-                    webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
-                    FREE_SDS(response);
                     break;
                 }
                 sds body = sdsnewlen(hm->body.buf, hm->body.len);
