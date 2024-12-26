@@ -23,7 +23,7 @@ This is a small maintenance release.
 
 ***
 
-## myMPD v19.0.2 (not yet released)
+## myMPD v19.0.2 (2024-12-26)
 
 This is a small bug fix release.
 
@@ -33,6 +33,7 @@ This is a small bug fix release.
 - Fix: Link to API documentation #1395
 - Fix: Link only "Tags to browse" in playback view #1396
 - Fix: Urldecode script names
+- Fix: startupview for playlists #1399
 
 ***
 
