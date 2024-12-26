@@ -40,7 +40,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Debug logs**
 
-Look at https://jcorporation.github.io/myMPD/debug
+Look at [https://jcorporation.github.io/myMPD/debug](https://jcorporation.github.io/myMPD/040-debug/)
 
  - myMPD debug log
  - MPD verbose log
