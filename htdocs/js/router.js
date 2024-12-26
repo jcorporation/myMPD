@@ -163,6 +163,41 @@ function isArrayOrString(obj) {
 }
 
 /**
+ * Checks and sets the startup view of myMPD
+ * @returns {Array} Startup path (card/tab/view)
+ */
+function startupView() {
+    if (settings.webuiSettings.startupView === undefined) {
+        // Set default startup view
+        settings.webuiSettings.startupView = features.featHome === true
+            ? 'Home'
+            : 'Playback';
+    }
+    else if (settings.webuiSettings.startupView === 'Home' &&
+        features.featHome === false)
+    {
+        // Home feature is disabled
+        settings.webuiSettings.startupView = 'Playback';
+    }
+    else {
+        // Check for valid startup view
+        const path = settings.webuiSettings.startupView.split('/');
+        if ((path.length === 1 && app.cards[path[0]] === undefined) ||
+            (path.length === 2 && app.cards[path[0]].tabs[path[1]] === undefined) ||
+            (path.length === 3 && app.cards[path[0]].tabs[path[1]].views[path[2]] === undefined) ||
+             path.length === 0 ||
+             path.length > 3)
+        {
+            settings.webuiSettings.startupView = features.featHome === true
+                ? 'Home'
+                : 'Playback';
+        }
+    }
+
+    return settings.webuiSettings.startupView.split('/');
+}
+
+/**
  * Executes the actions after the view is shown
  * @param {string} [card] card element name
  * @param {string} [tab] tab element name
@@ -203,15 +238,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         if (jsonHash === null) {
             appPrepare();
-            const initialStartupView = settings.webuiSettings.startupView === undefined || settings.webuiSettings.startupView === null
-                ? features.featHome === true
-                    ? 'Home'
-                    : 'Playback'
-                : features.featHome === false && settings.webuiSettings.startupView === 'Home'
-                    ? 'Playback'
-                    : settings.webuiSettings.startupView;
-            settings.webuiSettings.startupView = initialStartupView;
-            const path = initialStartupView.split('/');
+            const path = startupView();
             // @ts-ignore
             appGoto(...path);
             return;
@@ -273,13 +300,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         case 'BrowseRadioWebradiodb':     handleBrowseRadioWebradiodb(); break;
         case 'Search':                    handleSearch(); break;
         default: {
-            let initialStartupView = settings.webuiSettings.startupView;
-            if (initialStartupView === undefined ||
-                initialStartupView === null)
-            {
-                initialStartupView = features.featHome === true ? 'Home' : 'Playback';
-            }
-            const path = initialStartupView.split('/');
+            const path = startupView();
             // @ts-ignore
             appGoto(...path);
         }
