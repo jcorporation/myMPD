@@ -18,14 +18,7 @@ function appPrepare() {
         for (let i = 0; i < domCache.navbarBtnsLen; i++) {
             domCache.navbarBtns[i].classList.remove('active');
         }
-        const cards = ['cardHome', 'cardPlayback', 'cardSearch',
-            'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed',
-            'tabQueueJukebox', 'viewQueueJukeboxSong', 'viewQueueJukeboxAlbum',
-            'cardBrowse', 'tabBrowseFilesystem',
-            'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioWebradiodb',
-            'tabBrowsePlaylist', 'viewBrowsePlaylistDetail', 'viewBrowsePlaylistList',
-            'tabBrowseDatabase', 'viewBrowseDatabaseTagList', 'viewBrowseDatabaseAlbumDetail', 'viewBrowseDatabaseAlbumList'];
-        for (const card of cards) {
+        for (const card of allCards) {
             elHideId(card);
         }
         //show active card

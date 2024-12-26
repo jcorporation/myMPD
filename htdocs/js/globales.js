@@ -1220,6 +1220,15 @@ const stickerListSongs = stickerListAll.concat([
     'elapsed'
 ]);
 
+//ID's of cards/tabs/views
+const allCards = ['cardHome', 'cardPlayback', 'cardSearch',
+    'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed',
+    'tabQueueJukebox', 'viewQueueJukeboxSong', 'viewQueueJukeboxAlbum',
+    'cardBrowse', 'tabBrowseFilesystem',
+    'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioWebradiodb',
+    'tabBrowsePlaylist', 'viewBrowsePlaylistDetail', 'viewBrowsePlaylistList',
+    'tabBrowseDatabase', 'viewBrowseDatabaseTagList', 'viewBrowseDatabaseAlbumDetail', 'viewBrowseDatabaseAlbumList'];
+
 //application state
 const app = {};
 app.cards = {
