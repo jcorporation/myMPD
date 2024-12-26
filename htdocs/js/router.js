@@ -156,15 +156,23 @@ function isArrayOrString(obj) {
 }
 
 /**
+ * Returns the default startup view
+ * @returns {string} Default startup view
+ */
+function defaultStartupView() {
+    return features.featHome === true
+        ? 'Home'
+        : 'Playback';
+}
+
+/**
  * Checks and sets the startup view of myMPD
  * @returns {Array} Startup path (card/tab/view)
  */
 function startupView() {
     if (settings.webuiSettings.startupView === undefined) {
         // Set default startup view
-        settings.webuiSettings.startupView = features.featHome === true
-            ? 'Home'
-            : 'Playback';
+        settings.webuiSettings.startupView = defaultStartupView();
     }
     else if (settings.webuiSettings.startupView === 'Home' &&
         features.featHome === false)
@@ -175,15 +183,20 @@ function startupView() {
     else {
         // Check for valid startup view
         const path = settings.webuiSettings.startupView.split('/');
-        if ((path.length === 1 && app.cards[path[0]] === undefined) ||
-            (path.length === 2 && app.cards[path[0]].tabs[path[1]] === undefined) ||
-            (path.length === 3 && app.cards[path[0]].tabs[path[1]].views[path[2]] === undefined) ||
-             path.length === 0 ||
-             path.length > 3)
-        {
-            settings.webuiSettings.startupView = features.featHome === true
-                ? 'Home'
-                : 'Playback';
+        try {
+            if ((path.length === 1 && app.cards[path[0]] === undefined) ||
+                (path.length === 2 && app.cards[path[0]].tabs[path[1]] === undefined) ||
+                (path.length === 3 && app.cards[path[0]].tabs[path[1]].views[path[2]] === undefined) ||
+                path.length === 0 ||
+                path.length > 3)
+            {
+                settings.webuiSettings.startupView = defaultStartupView();
+            }
+        }
+        catch(error) {
+            logError("Invalid startupview");
+            logError(error);
+            settings.webuiSettings.startupView = defaultStartupView();
         }
     }
 
