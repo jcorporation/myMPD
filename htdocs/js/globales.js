@@ -836,7 +836,7 @@ const settingsWebuiFields = {
             "Queue/LastPlayed": "LastPlayed",
             "Queue/Jukebox": "Jukebox Queue",
             "Browse/Database": "Database",
-            "Browse/Playlists": "Playlists",
+            "Browse/Playlist": "Playlists",
             "Browse/Filesystem": "Filesystem",
             "Browse/Radio": "Webradios",
             "Search": "Search"
