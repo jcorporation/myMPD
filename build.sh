@@ -47,11 +47,11 @@ umask 0022
 VERSION=$(grep "  VERSION" CMakeLists.txt | sed 's/  VERSION //')
 COPYRIGHT="myMPD ${VERSION} | (c) 2018-2024 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
 
-# Minify JavaScript only for master branch
+# Minify JavaScript not for devel
 if [ -z "${MYMPD_MINIFY_JS+x}" ]
 then
   MYMPD_MINIFY_JS="1"
-  if [ -f .git/HEAD ] && ! grep -q "master" .git/HEAD
+  if [ -f .git/HEAD ] && grep -q "devel" .git/HEAD
   then
     MYMPD_MINIFY_JS="0"
   fi
