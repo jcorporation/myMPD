@@ -14,6 +14,7 @@ This is a small bug fix release.
 - Fix: Link to API documentation #1395
 - Fix: Link only "Tags to browse" in playback view #1396
 - Fix: Urldecode script names
+- Fix: startupview for playlists #1399
 
 ***
 
