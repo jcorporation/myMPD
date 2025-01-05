@@ -50,10 +50,11 @@ To use all myMPD functions you should use the latest stable MPD version.
 
 The [mympd-scripts](https://github.com/jcorporation/mympd-scripts) repository provides many script to enhance and add features to myMPD.
 
-- Scrobbling to Last.fm, Maloja or ListenBrainz
-- Fetch albumart or tagart from fanart.tv and OpenOpus
-- Fetch lyrics
+- Scrobbling to [Last.fm](https://www.last.fm/), [Maloja](https://github.com/krateng/maloja) or [ListenBrainz](https://listenbrainz.org/)
+- Fetch albumart or tagart from [fanart.tv](https://fanart.tv/) and [OpenOpus](https://openopus.org/)
+- Fetch lyrics with [LRCLIB](https://lrclib.net/)
 - Import webradios from [RadioBrowser](https://www.radio-browser.info/)
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) integration
 - and many more
 
 ## Documentation
