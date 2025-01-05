@@ -135,12 +135,7 @@ bool check_imagescache(struct mg_connection *nc, struct mg_http_message *hm,
     if (sdslen(imagescachefile) > 0) {
         const char *mime_type = get_mime_type_by_ext(imagescachefile);
         MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", imagescachefile, mime_type);
-        static struct mg_http_serve_opts s_http_server_opts;
-        s_http_server_opts.root_dir = mg_user_data->browse_directory;
-        s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
-        s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-        mg_http_serve_file(nc, hm, imagescachefile, &s_http_server_opts);
-        webserver_handle_connection_close(nc);
+        webserver_serve_file(nc, hm, EXTRA_HEADERS_IMAGE, imagescachefile);
         FREE_SDS(imagescachefile);
         return true;
     }

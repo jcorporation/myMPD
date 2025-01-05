@@ -310,11 +310,7 @@ void request_handler_ca(struct mg_connection *nc, struct mg_http_message *hm,
     if (mg_user_data->config->custom_cert == false) {
         //deliver ca certificate
         sds ca_file = sdscatfmt(sdsempty(), "%S/ssl/ca.pem", mg_user_data->config->workdir);
-        static struct mg_http_serve_opts s_http_server_opts;
-        s_http_server_opts.root_dir = mg_user_data->browse_directory;
-        s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
-        s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-        mg_http_serve_file(nc, hm, ca_file, &s_http_server_opts);
+        webserver_serve_file(nc, hm, EXTRA_HEADERS_SAFE_CACHE, ca_file);
         FREE_SDS(ca_file);
     }
     else {
