@@ -276,14 +276,10 @@ function parseSettings(obj) {
     }
 
     //goto view
-    if (app.id === 'QueueJukeboxSong' ||
-        app.id === 'QueueJukeboxAlbum')
-    {
-        gotoJukebox();
-    }
-    else {
-        appRoute();
-    }
+    //overwrite hash to reflect current settings
+    appRoute(app.current.card, app.current.tab, app.current.view,
+        app.current.offset, app.current.limit, app.current.filter,
+        app.current.sort, app.current.tag, app.current.search);
 
     //mediaSession support
     if (features.featMediaSession === true) {

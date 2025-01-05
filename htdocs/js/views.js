@@ -334,6 +334,7 @@ function saveView(viewName) {
     for (let i = 0, j = fields.length; i < j; i++) {
         params.fields.push(fields[i].getAttribute('data-field'));
     }
+    app.current.offset = 0;
     sendAPI("MYMPD_API_VIEW_SAVE", params, function() {
         // refresh the settings
         getSettings(parseSettings);

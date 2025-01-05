@@ -147,7 +147,7 @@ function getBadgeText(data) {
  * @param {object} obj jsonrpc response
  * @param {string} list list name to populate
  * @param {Function} [perCardCallback] callback per card
- * @param {Function} [createCardBodyCallback] callback to create the footer
+ * @param {Function} [createCardBodyCallback] callback to create the body
  * @param {Function} [createCardActionsCallback] callback to create the footer
  * @returns {void}
  */
@@ -208,23 +208,38 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
             row.appendChild(footer.cloneNode(true));
         }
         card.appendChild(row);
-        if (i < cols.length) {
-            replaceListItem(mode, cols[i], card);
+        if (features.featPagination === true ||
+            obj.result.offset === 0)
+        {
+            if (i < cols.length) {
+                replaceListItem(mode, cols[i], card);
+            }
+            else {
+                grid.append(card);
+            }
         }
         else {
             grid.append(card);
         }
     }
-    //remove obsolete cards
-    cols = grid.querySelectorAll('.list-group-item');
-    for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
-        cols[i].remove();
+    //remove obsolete list items
+    if (features.featPagination === true ||
+        obj.result.offset === 0)
+    {
+        cols = grid.querySelectorAll('.list-group-item');
+        for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
+            cols[i].remove();
+        }
     }
 
     unsetUpdateView(grid);
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     setScrollViewHeight(grid);
-    scrollToPosY(grid.parentNode, app.current.scrollPos);
+    if (features.featPagination === true ||
+        obj.result.offset === 0)
+    {
+        scrollToPosY(grid.parentNode, app.current.scrollPos);
+    }
 }
 
 /**

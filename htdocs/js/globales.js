@@ -670,6 +670,13 @@ const settingsWebuiFields = {
         "form": "modalSettingsListsFrm",
         "help": "helpSettingsMaxElementsPerPage"
     },
+    "endlessScroll": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Endless scrolling",
+        "form": "modalSettingsListsFrm",
+        "help": "helpEndlessScroll"
+    },
     "smallWidthTagRows": {
         "defaultValue": true,
         "inputType": "checkbox",

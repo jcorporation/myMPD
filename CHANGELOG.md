@@ -19,6 +19,7 @@ This is a small maintenance release.
 - Feat: Support new MPD 0.24 "sticker (inc|dec)" sub-commands #1390
 - Feat: New trigger event for smart playlist update #1389
 - Feat: Add `current_album` to `mympd_state` Lua table
+- Feat: Add option for "Endless scrolling"
 - Upd: libmympdclient 1.0.33
 
 ***

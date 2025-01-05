@@ -1236,5 +1236,7 @@
     "url_resolved": "URL",
     "userDefinedSticker": "Benutzerdefinierte Sticker",
     "votes": "Stimmen",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Endless scrolling": "Endlos Scrollen",
+    "helpEndlessScroll": "Schaltet von seitenweiser Anzeige auf endloses Scrollen um."
 }

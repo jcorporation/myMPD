@@ -825,8 +825,17 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, struct t_partition_s
     mpd_client_queue_status_update(partition_state);
     //Check offset
     if (offset >= partition_state->queue_length) {
-        offset = 0;
+        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+        buffer = sdscat(buffer, "\"data\":[");
+        buffer = sdscatlen(buffer, "],", 2);
+        buffer = tojson_uint(buffer, "totalTime", 0, true);
+        buffer = tojson_uint(buffer, "totalEntities", partition_state->queue_length, true);
+        buffer = tojson_uint(buffer, "offset", offset, true);
+        buffer = tojson_uint(buffer, "returnedEntities", 0, false);
+        buffer = jsonrpc_end(buffer);
+        return buffer;
     }
+
     //list the queue
     bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
     if (print_stickers == true) {

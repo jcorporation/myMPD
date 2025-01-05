@@ -131,12 +131,15 @@ function checkResult(obj, parent, mode) {
             }
             parent = parent.querySelector('tbody');
         }
-        elClear(parent);
-        
+
         if (obj.error) {
+            elClear(parent);
             parent.appendChild(errorMsgEl(obj, colspan, mode));
         }
-        else {
+        else if (features.featPagination === true ||
+                 obj.result.offset === 0)
+        {
+            elClear(parent);
             parent.appendChild(emptyMsgEl(colspan, mode));
         }
         if (mode === 'table') {

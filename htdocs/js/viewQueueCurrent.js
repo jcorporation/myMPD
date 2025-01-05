@@ -78,9 +78,11 @@ function parseQueue(obj) {
         return;
     }
 
-    if (obj.result.offset < app.current.offset) {
-        gotoPage(obj.result.offset, undefined);
-        return;
+    if (features.featPagination === true) {
+        if (obj.result.offset < app.current.offset) {
+            gotoPage(obj.result.offset, undefined);
+            return;
+        }
     }
 
     if (settings['view' + app.id].mode === 'table') {
@@ -313,16 +315,17 @@ function gotoPlayingSong() {
         elDisableId('QueueCurrentGotoPlayingSongBtn');
         return;
     }
-    if (currentState.songPos >= app.current.offset &&
-        currentState.songPos < app.current.offset + app.current.limit)
-    {
-        //playing song is in this page
-        const playingRow = document.querySelector('.queue-playing');
-        if (playingRow !== null) {
-            playingRow.scrollIntoView(true);
-        }
+
+    const playingRow = document.querySelector('.queue-playing');
+    if (playingRow !== null) {
+        playingRow.scrollIntoView(true);
+    }
+    else if (features.featPagination === true) {
+        gotoPage(Math.floor(currentState.songPos / app.current.limit) * app.current.limit, undefined);
     }
     else {
-        gotoPage(Math.floor(currentState.songPos / app.current.limit) * app.current.limit, undefined);
+        const limit = Math.ceil(currentState.songPos / app.current.limit) * app.current.limit;
+        appGoto(app.current.card, app.current.tab, app.current.view,
+            0, limit, app.current.filter, app.current.sort, app.current.tag, app.current.search, undefined);
     }
 }

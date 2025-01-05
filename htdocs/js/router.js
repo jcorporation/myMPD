@@ -65,9 +65,10 @@ function appPrepare() {
  * @param {string} [tag] tag name
  * @param {string | object} [search] search object or string
  * @param {number} [newScrollPos] new scrolling position
+ * @param {boolean} [append] Append the result to current result
  * @returns {void}
  */
-function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
+function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos, append) {
     //old app
     const oldptr = app.cards[app.current.card].offset !== undefined
         ? app.cards[app.current.card]
@@ -140,7 +141,7 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
     if (location.hash !== '#' + newHash) {
         location.hash = newHash;
     }
-    appRoute(card, tab, view, offset, limit, filter, sort, tag, search);
+    appRoute(card, tab, view, offset, limit, filter, sort, tag, search, append);
 }
 
 /**
@@ -214,9 +215,10 @@ function startupView() {
  * @param {object} [sort] sort object
  * @param {string} [tag] tag name
  * @param {string | object} [search] search object or string
+ * @param {boolean} [append] Append the result to current result
  * @returns {void}
  */
-function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
+function appRoute(card, tab, view, offset, limit, filter, sort, tag, search, append) {
     if (settingsParsed === 'false') {
         appInitStart();
         return;
@@ -254,8 +256,16 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         app.current.card = card;
         app.current.tab = tab;
         app.current.view = view;
-        app.current.offset = offset;
-        app.current.limit = limit;
+        if (append === true) {
+            // In append mode (endless scrolling) the limit is the offset we get results for.
+            // This will be switch back below, after fetching the results.
+            app.current.offset = limit;
+            app.current.limit = settings.webuiSettings.maxElementsPerPage;
+        }
+        else {
+            app.current.offset = offset;
+            app.current.limit = limit;
+        }
         app.current.filter = filter;
         app.current.sort = sort;
         app.current.tag = tag;
@@ -280,12 +290,10 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         app.cards[app.current.card].tabs[app.current.tab].active = app.current.view;
     }
     //set app options
-    ptr.offset = app.current.offset;
-    ptr.limit = app.current.limit;
-    ptr.filter = app.current.filter;
-    ptr.sort = app.current.sort;
-    ptr.tag = app.current.tag;
-    ptr.search = app.current.search;
+    //ptr.offset = app.current.offset;
+    //ptr.limit = app.current.limit;
+    
+    //get last scrolling position
     app.current.scrollPos = ptr.scrollPos;
     appPrepare();
 
@@ -312,6 +320,19 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
     }
 
+    //Save app options
+    if (append === true) {
+        app.current.offset = offset;
+        app.current.limit = limit;
+    }
+    ptr.filter = app.current.filter;
+    ptr.sort = app.current.sort;
+    ptr.tag = app.current.tag;
+    ptr.search = app.current.search;
+    ptr.offset = app.current.offset;
+    ptr.limit = app.current.limit;
+
+    // Set last active view
     app.last.card = app.current.card;
     app.last.tab = app.current.tab;
     app.last.view = app.current.view;

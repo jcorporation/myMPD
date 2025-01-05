@@ -51,12 +51,45 @@ function gotoPage(offset, limit) {
 }
 
 /**
+ * Endless scrolling function
+ * @returns {void}
+ */
+function setEndlessScroll() {
+    const obEl = elGetById(app.id + 'List').lastElementChild;
+    if (obEl) {
+        const options = {
+            root: elGetById(app.id + 'Container'),
+            rootMargin: "0px",
+            threshold: 0.25,
+        };
+        const io = new IntersectionObserver(function(entries, observer) {
+            if (entries[0].isIntersecting === true) {
+                observer.unobserve(entries[0].target);
+                const limit =  app.current.limit + settings.webuiSettings.maxElementsPerPage;
+                appGoto(app.current.card, app.current.tab, app.current.view,
+                    0, limit, app.current.filter, app.current.sort,
+                    app.current.tag, app.current.search, undefined, true);
+            }
+        }, options);
+        io.observe(obEl);
+    }
+}
+
+/**
  * Pagination function
  * @param {number} total number of total entries
  * @param {number} returned number of returned entries
  * @returns {void}
  */
 function setPagination(total, returned) {
+    if (features.featPagination === false) {
+        if (returned === app.current.limit ||
+            returned === settings.webuiSettings.maxElementsPerPage)
+        {
+            setEndlessScroll();
+        }
+        return;
+    }
     const curPaginationTop = elGetById(app.id + 'PaginationTop');
     if (curPaginationTop === null) {
         return;

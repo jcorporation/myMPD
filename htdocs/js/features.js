@@ -34,6 +34,10 @@ function setFeatures() {
     //stickers config value
     features.featStickersEnabled = settings.features.featStickersEnabled;
 
+    features.featPagination = settings.webuiSettings.endlessScroll === false
+        ? true
+        : false;
+
     //mpd features
     if (settings.partition.mpdConnected === true) {
         features.featLibrary = settings.features.featLibrary;
