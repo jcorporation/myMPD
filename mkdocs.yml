@@ -11,7 +11,7 @@ theme:
   palette:
     primary: custom
     accent: custom
-copyright: "&copy; 2018-2024 Jürgen Mang"
+copyright: "&copy; 2018-2025 Jürgen Mang"
 extra_css:
   - assets/css/mympd.css
 extra:

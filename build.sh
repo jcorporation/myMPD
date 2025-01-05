@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 #SPDX-License-Identifier: GPL-3.0-or-later
-#myMPD (c) 2018-2024 Juergen Mang <mail@jcgames.de>
+#myMPD (c) 2018-2025 Juergen Mang <mail@jcgames.de>
 #https://github.com/jcorporation/mympd
 
 #exit on error
@@ -45,7 +45,7 @@ umask 0022
 
 #get myMPD version
 VERSION=$(grep "  VERSION" CMakeLists.txt | sed 's/  VERSION //')
-COPYRIGHT="myMPD ${VERSION} | (c) 2018-2024 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
+COPYRIGHT="myMPD ${VERSION} | (c) 2018-2025 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
 
 # Minify JavaScript not for devel
 if [ -z "${MYMPD_MINIFY_JS+x}" ]
@@ -483,6 +483,7 @@ cleanup() {
 
   #caches
   rm -fr src/.cache
+  rm -fr test/.cache
   rm -fr .cache
 
   #node modules

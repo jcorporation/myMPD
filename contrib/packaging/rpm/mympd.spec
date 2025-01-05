@@ -1,7 +1,7 @@
 #
 # spec file for package myMPD
 #
-# (c) 2018-2024 Juergen Mang <mail@jcgames.de>
+# (c) 2018-2025 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
 Version:        19.1.0
