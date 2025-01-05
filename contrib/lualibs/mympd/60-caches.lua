@@ -21,19 +21,21 @@ function mympd.tmp_file()
 --- Write a file for the cover cache
 -- @param src File to rename
 -- @param uri URI to create the cover cache file for
+-- @param mimetype Mime Type or nil to sniff by magic bytes
 -- @return 0 on success, else 1
 -- @return written name or error message on error
-function mympd.cache_cover_write(src, uri)
-  return mympd_caches_images_write("cover", src, uri)
+function mympd.cache_cover_write(src, uri, mimetype)
+  return mympd_caches_images_write("cover", src, uri, mimetype)
 end
 
 --- Write a file for the thumbs cache
 -- @param src File to rename
 -- @param tagvalue Tag value to create the thumbs cache file for
+-- @param mimetype Mime Type or nil to sniff by magic bytes
 -- @return 0 on success, else 1
 -- @return written name or error message on error
-function mympd.cache_thumbs_write(src, tagvalue)
-  return mympd_caches_images_write("thumbs", src, tagvalue)
+function mympd.cache_thumbs_write(src, tagvalue, mimetype)
+  return mympd_caches_images_write("thumbs", src, tagvalue, mimetype)
 end
 
 --- Write a string to a file in the lyrics cache

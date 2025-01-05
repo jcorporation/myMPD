@@ -42,8 +42,10 @@ const struct t_mime_type_entry mime_entries[] = {
     {0, "4F676753",         "oga",  "audio/ogg"},
     {0, "4F676753",         "ogg",  "audio/ogg"},
     {0, "4F676753",         "opus", "audio/ogg"},
-    {0, "4F676753",         "spx",  "audio/ogg"},
-    {0, NULL,               NULL,   "application/octet-stream"}
+    {0, "4F676753",        "spx",  "audio/ogg"},
+    {0, "",                "svg",  "image/svg+xml"},
+    // must be last entry
+    {0, NULL,              NULL,   "application/octet-stream"}
 };
 
 /**
@@ -96,6 +98,9 @@ const char *get_mime_type_by_magic_stream(sds stream) {
     }
     const struct t_mime_type_entry *p = NULL;
     for (p = mime_entries; p->magic_bytes != NULL; p++) {
+        if (p->magic_bytes[0] == '\0') {
+            continue;
+        }
         char *tmp_buffer = hex_buffer;
         if (p->skip > 0 && sdslen(hex_buffer) > p->skip) {
             tmp_buffer += p->skip;

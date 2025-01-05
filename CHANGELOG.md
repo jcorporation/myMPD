@@ -14,6 +14,12 @@ This is a small maintenance release.
 - MYMPD_API_STICKER_DEC: new
 - MYMPD_API_STICKER_PLAYCOUNT: new
 
+### Scripting changes
+
+- `mympd.cache_cover_write`: add mimetype parameter
+- `mympd.cache_thumbs_write`: add mimetype parameter
+- `mympd.http_header_get`: new function
+
 ### Changelog
 
 - Feat: Support new MPD 0.24 "sticker (inc|dec)" sub-commands #1390

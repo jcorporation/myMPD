@@ -57,7 +57,7 @@ int lua_caches_update_mtime(lua_State *lua_vm) {
 int lua_caches_images_write(lua_State *lua_vm) {
     struct t_config *config = get_lua_global_config(lua_vm);
     int n = lua_gettop(lua_vm);
-    if (n != 3) {
+    if (n != 4) {
         MYMPD_LOG_ERROR(NULL, "Lua - caches_images_write: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
@@ -80,8 +80,9 @@ int lua_caches_images_write(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "uri is NULL");
     }
-
-    const char *mime_type = get_mime_type_by_magic_file(src);
+    const char *mime_type = lua_isstring(lua_vm, 4) == 1
+        ? lua_tostring(lua_vm, 4)
+        : get_mime_type_by_magic_file(src);
     const char *ext = get_ext_by_mime_type(mime_type);
     if (ext == NULL) {
         lua_pop(lua_vm, n);
