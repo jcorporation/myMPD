@@ -1238,5 +1238,6 @@
     "votes": "Stimmen",
     "wasapi": "Windows Audio Session API",
     "Endless scrolling": "Endlos Scrollen",
-    "helpEndlessScroll": "Schaltet von seitenweiser Anzeige auf endloses Scrollen um."
+    "helpEndlessScroll": "Schaltet von seitenweiser Anzeige auf endloses Scrollen um.",
+    "Lookup HTTP header": "HTTP-Header abrufen."
 }

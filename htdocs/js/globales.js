@@ -1635,7 +1635,7 @@ const LUAfunctions = {
         "feat": ""
     },
     "mympd.http_header_get": {
-        "desc": "Get HTTP header",
+        "desc": "Lookup HTTP header",
         "func": "local value = mympd.http_header_get(headers, name)",
         "feat": ""
     },

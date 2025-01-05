@@ -473,6 +473,7 @@
 {"term":"Loglevel set to WARN"},
 {"term":"Logout"},
 {"term":"Logs messages to the myMPD log."},
+{"term":"Lookup HTTP header"},
 {"term":"Lookup at musicbrainz"},
 {"term":"Love"},
 {"term":"Love, hate"},
