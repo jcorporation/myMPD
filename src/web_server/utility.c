@@ -217,10 +217,18 @@ bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *na
  * @param msg the error message
  */
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
-    mg_http_reply(nc, code, "Content-Type: text/html\r\n", "<!DOCTYPE html><html><head><title>myMPD error</title></head><body>"
-        "<h1>myMPD error</h1>"
-        "<p>%s</p>"
-        "</body></html>",
+    mg_http_reply(nc, code, "Content-Type: text/html\r\n",
+        "<!DOCTYPE html>"
+        "<html lang=\"en\">"
+          "<head>"
+            "<meta charset=\"utf-8\">"
+            "<title>myMPD error</title>"
+          "</head>"
+          "<body>"
+            "<h1>myMPD error</h1>"
+            "<p>%s</p>"
+          "</body>"
+        "</html>",
         msg);
     if (code >= 400) {
         MYMPD_LOG_ERROR(NULL, "HTTP %d: %s", code, msg);
