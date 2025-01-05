@@ -274,14 +274,15 @@ void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len) 
  * Serves a file defined by file from path
  * @param nc mongoose connection
  * @param hm mongoose http message
+ * @param headers extra headers to add
  * @param file absolute filepath to serve
  */
 void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm,
-        const char *extra_headers, const char *file)
+        const char *headers, const char *file)
 {
     MYMPD_LOG_DEBUG(NULL, "Serving file %s", file);
     static struct mg_http_serve_opts s_http_server_opts;
-    s_http_server_opts.extra_headers = extra_headers;
+    s_http_server_opts.extra_headers = headers;
     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
     mg_http_serve_file(nc, hm, file, &s_http_server_opts);
     webserver_handle_connection_close(nc);
