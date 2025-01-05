@@ -89,6 +89,20 @@ local status_text = {
   c599 = "Network Connect Timeout Error"
 }
 
+--- Gets the named header value from a header lua table
+-- @param header Lua table of http headers and its values
+-- @param name Name of the header to return (case insensitive)
+-- @return HTTP header value or nil
+function mympd.http_header_get(header, name)
+  local uc_name = string.upper(name)
+  for k, v in pairs(header) do
+    if string.upper(k) == uc_name then
+      return v
+    end
+  end
+  return nil
+end
+
 --- Sends a HTTP reply.
 -- Can be only used in the "http" event
 -- @param status HTTP status code

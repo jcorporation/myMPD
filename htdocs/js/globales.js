@@ -1634,6 +1634,11 @@ const LUAfunctions = {
         "func": "local rc, code, headers = mympd.http_download(uri, extra_headers, out)",
         "feat": ""
     },
+    "mympd.http_header_get": {
+        "desc": "Get HTTP header",
+        "func": "local value = mympd.http_header_get(headers, name)",
+        "feat": ""
+    },
     "mympd.http_jsonrpc_error": {
         "desc": "Sends a JSONRPC 2.0 error.",
         "func": "return mympd.http_jsonrpc_error(method, msg)",

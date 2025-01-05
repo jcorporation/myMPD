@@ -24,6 +24,7 @@ List of myMPD specific Lua functions.
 | [mympd.htmlencode](util.md) | Simple HTML encoding. |
 | [mympd.http_client](http_client.md) | Simple HTTP client. |
 | [mympd.http_download](http_client.md) | Download a file over http. |
+| [mympd.http_header_get](http_client.md) | Get a http header. |
 | [mympd.http_jsonrpc_error](http_replies.md) | Sends a JSONRPC 2.0 error. |
 | [mympd.http_jsonrpc_response](http_replies.md) | Sends a JSONRPC 2.0 response. |
 | [mympd.http_jsonrpc_warn](http_replies.md) | Sends a JSONRPC 2.0 warning. |

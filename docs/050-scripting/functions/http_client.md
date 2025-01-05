@@ -60,3 +60,16 @@ end
 | rc | integer | 0 = success, 1 = error |
 | code | integer | http response code, e.g. 200 |
 | headers | table | http headers |
+
+## Get a http header from the response
+
+Gets the value of a http header. Name of the header is matched case insensitive as per rfc.
+
+```lua
+local value = mympd.http_header_get(headers, name)
+if value ~= nil then
+  -- Header found
+else
+  -- Header not found
+end
+```
