@@ -246,6 +246,8 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define EXTRA_HEADERS_IMAGE EXTRA_HEADERS_MISC\
     EXTRA_HEADERS_CACHE
 
+#define EXTRA_HEADERS_PLACEHOLDER EXTRA_HEADERS_IMAGE "X-myMPD-Placeholder: 1\r\n"
+
 #define EXTRA_HEADER_CONTENT_ENCODING "Content-Encoding: gzip\r\n"
 #define EXTRA_HEADERS_JSON_CONTENT "Content-Type: application/json\r\n"\
     EXTRA_HEADERS_SAFE

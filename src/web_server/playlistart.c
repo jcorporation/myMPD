@@ -53,7 +53,7 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
     MYMPD_LOG_DEBUG(NULL, "Absolut media_file: %s", mediafile);
     mediafile = webserver_find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
-        webserver_serve_file(nc, hm, mg_user_data->browse_directory, mediafile);
+        webserver_serve_file(nc, hm, mg_user_data->browse_directory, EXTRA_HEADERS_IMAGE, mediafile);
     }
     else {
         MYMPD_LOG_DEBUG(NULL, "No image for playlist found");

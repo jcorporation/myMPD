@@ -65,13 +65,13 @@ void webserver_serve_placeholder_image(struct mg_connection *nc, struct mg_http_
             webserver_serve_embedded_files(nc, uri);
         #else
             sds abs_uri = sdscatfmt(sdsempty(), "%s%S", MYMPD_DOC_ROOT, uri);
-            webserver_serve_file(nc, hm, MYMPD_DOC_ROOT, abs_uri);
+            webserver_serve_file(nc, hm, MYMPD_DOC_ROOT, EXTRA_HEADERS_PLACEHOLDER, abs_uri);
             FREE_SDS(abs_uri);
         #endif
     }
     else {
         // Custom placeholders
-        webserver_serve_file(nc, hm, mg_user_data->config->workdir, uri);
+        webserver_serve_file(nc, hm, mg_user_data->config->workdir, EXTRA_HEADERS_PLACEHOLDER, uri);
     }
 }
 
