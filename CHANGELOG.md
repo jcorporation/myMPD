@@ -6,19 +6,21 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v20.0.0 (not yet released)
 
-This is a small maintenance release.
+This release improves the Lua scripting interface, supports the newest MPD 0.24 sticker commands and add's a trigger for smart playlist creation.
+
+With endless scrolling, a long-delayed feature is now also available. It can be switched on in the settings, the page-by-page display remains the standard.
 
 ### API changes
 
-- MYMPD_API_STICKER_INC: add value parameter
-- MYMPD_API_STICKER_DEC: new
-- MYMPD_API_STICKER_PLAYCOUNT: new
+- MYMPD_API_STICKER_INC: Add value parameter
+- MYMPD_API_STICKER_DEC: New
+- MYMPD_API_STICKER_PLAYCOUNT: New
 
 ### Scripting changes
 
-- `mympd.cache_cover_write`: add mimetype parameter
-- `mympd.cache_thumbs_write`: add mimetype parameter
-- `mympd.http_header_get`: new function
+- `mympd.cache_cover_write`: Add mimetype parameter
+- `mympd.cache_thumbs_write`: Add mimetype parameter
+- `mympd.http_header_get`: New function
 
 ### Changelog
 
