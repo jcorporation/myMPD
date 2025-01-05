@@ -148,6 +148,8 @@ sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_pa
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "totalEntities", entities_returned, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "offset", 0, true);
+    buffer = tojson_uint(buffer, "limit", MPD_RESULTS_MAX, true);
     buffer = tojson_sds(buffer, "AlbumId", albumid, true);
     buffer = print_album_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_album, mpd_album);
     buffer = sdscat(buffer, ",\"lastPlayedSong\":{");
