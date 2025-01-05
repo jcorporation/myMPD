@@ -58,20 +58,19 @@ void webserver_redirect_placeholder_image(struct mg_connection *nc, enum placeho
  * @param uri placeholder uri
  */
 void webserver_serve_placeholder_image(struct mg_connection *nc, struct mg_http_message *hm, sds uri) {
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     if (uri[1] == 'a') {
         // Default placeholders
         #ifdef MYMPD_EMBEDDED_ASSETS
             webserver_serve_embedded_files(nc, uri);
         #else
             sds abs_uri = sdscatfmt(sdsempty(), "%s%S", MYMPD_DOC_ROOT, uri);
-            webserver_serve_file(nc, hm, MYMPD_DOC_ROOT, EXTRA_HEADERS_PLACEHOLDER, abs_uri);
+            webserver_serve_file(nc, hm, EXTRA_HEADERS_PLACEHOLDER, abs_uri);
             FREE_SDS(abs_uri);
         #endif
     }
     else {
         // Custom placeholders
-        webserver_serve_file(nc, hm, mg_user_data->config->workdir, EXTRA_HEADERS_PLACEHOLDER, uri);
+        webserver_serve_file(nc, hm, EXTRA_HEADERS_PLACEHOLDER, uri);
     }
 }
 

@@ -180,7 +180,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         coverfile = webserver_find_image_file(coverfile);
         if (sdslen(coverfile) > 0) {
             // Found a local coverfile
-            webserver_serve_file(nc, hm, mg_user_data->browse_directory, EXTRA_HEADERS_IMAGE, coverfile);
+            webserver_serve_file(nc, hm, EXTRA_HEADERS_IMAGE, coverfile);
             FREE_SDS(uri);
             FREE_SDS(coverfile);
             return true;
@@ -217,7 +217,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
                 found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
             }
             if (found == true) {
-                webserver_serve_file(nc, hm, mg_user_data->browse_directory, EXTRA_HEADERS_IMAGE, coverfile);
+                webserver_serve_file(nc, hm, EXTRA_HEADERS_IMAGE, coverfile);
                 FREE_SDS(uri);
                 FREE_SDS(coverfile);
                 FREE_SDS(mediafile);

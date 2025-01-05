@@ -62,7 +62,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
     MYMPD_LOG_DEBUG(NULL, "Absolut media_file: %s", mediafile);
     mediafile = webserver_find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
-        webserver_serve_file(nc, hm, mg_user_data->browse_directory, EXTRA_HEADERS_IMAGE, mediafile);
+        webserver_serve_file(nc, hm, EXTRA_HEADERS_IMAGE, mediafile);
         FREE_SDS(mediafile);
         FREE_SDS(tag);
         FREE_SDS(value);
