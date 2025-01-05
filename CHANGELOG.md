@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v19.1.0 (not yet released)
+## myMPD v20.0.0 (not yet released)
 
 This is a small maintenance release.
 
