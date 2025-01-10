@@ -33,6 +33,16 @@ With endless scrolling, a long-delayed feature is now also available. It can be 
 
 ***
 
+## myMPD v19.0.3 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Memory leak in playlist search
+
+***
+
 ## myMPD v19.0.2 (2024-12-26)
 
 This is a small bug fix release.
