@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Memory leak in playlist search
+
 ***
 
 ## myMPD v19.0.2 (2024-12-26)

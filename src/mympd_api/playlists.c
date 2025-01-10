@@ -821,6 +821,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
                     }
                     buffer = print_plist_entry(buffer, song, mpd_song_get_pos(song), print_stickers, partition_state, stickerdb, tagcols,
                         &last_played_max, &last_played_song_uri, &last_played_pos, &last_played_song_title);
+                    mpd_song_free(song);
                 }
             }
             entities_found = entities_returned;
