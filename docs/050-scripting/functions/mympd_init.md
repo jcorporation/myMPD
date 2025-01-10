@@ -10,7 +10,7 @@ mympd.init()
 
 **Parameters:**
 
-No parameters needed.
+No parameters required.
 
 **Returns:**
 
