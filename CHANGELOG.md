@@ -21,6 +21,7 @@ With endless scrolling, a long-delayed feature is now also available. It can be 
 - `mympd.cache_cover_write`: Add mimetype parameter
 - `mympd.cache_thumbs_write`: Add mimetype parameter
 - `mympd.http_header_get`: New function
+- `mympd.tmp_file`: Creates an empty file only if it is a new file
 
 ### Changelog
 

@@ -6,17 +6,22 @@ local rand_charset = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM123456
 local rand_charset_len = #rand_charset
 math.randomseed(os.time())
 
---- Generates a random tmp filename for the misc cache
--- @return temp filename
+--- Generates a temporary file for the misc cache
+-- @return filename or nil on error
 function mympd.tmp_file()
-    local ret = {}
-    local r
-    for _ = 1, 10 do
-      r = math.random(1, rand_charset_len)
-      table.insert(ret, rand_charset:sub(r, r))
-    end
-    return mympd_env.cachedir_misc .. "/" .. table.concat(ret) .. ".tmp"
+  local ret = {}
+  local r
+  for _ = 1, 10 do
+    r = math.random(1, rand_charset_len)
+    table.insert(ret, rand_charset:sub(r, r))
   end
+  local filename = mympd_env.cachedir_misc .. "/" .. table.concat(ret) .. ".tmp"
+  if mympd_caches_tmp_file(filename) == 0 then
+    return filename
+  else
+    return nil
+  end
+end
 
 --- Write a file for the cover cache
 -- @param src File to rename

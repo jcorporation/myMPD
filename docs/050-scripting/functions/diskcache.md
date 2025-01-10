@@ -72,22 +72,47 @@ local rc, name = mympd.cache_thumbs_write(src, value, mimetype)
 
 ## Temporary files
 
-Generates a random tmp filename for the misc cache (default: `/var/cache/mympd/misc/XXXXXXXXXX`).
+Creates a temporary file for the misc cache (default: `/var/cache/mympd/misc/XXXXXXXXXX`).
 
 ```lua
 local tmp_file = mympd.tmp_file()
+if tmp_file ~= nil then
+  -- do something
+end
 ```
+
+**Parameters:**
+
+No parameters required.
+
+**Returns:**
+
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| filename | string | Filename or `nil` on error. |
 
 ## Modification time
 
-Updates the timestamp of a file.
+Updates the modification timestamp of a file.
 
 ```lua
 local rc = mympd.mympd_caches_update_mtime(filename)
 if rc == 1 then
-    mympd.log(4, "Failure changing modification time of " .. filename)
-fi
+  mympd.log(4, "Failure changing modification time of " .. filename)
+end
 ```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| filename | string | Filename for update. |
+
+**Returns:**
+
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| rc | integer | 0 = success, 1 = error |
 
 ***
 

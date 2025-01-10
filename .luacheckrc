@@ -13,6 +13,7 @@ read_globals = {
     "mympd_caches_lyrics_write",
     "mympd_caches_images_write",
     "mympd_caches_update_mtime",
+    "mympd_caches_tmp_file",
     "mympd_http_client",
     "mympd_http_download",
     "mympd_http_serve_file",

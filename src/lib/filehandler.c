@@ -295,6 +295,23 @@ bool is_dir(const char *dir_name) {
 }
 
 /**
+ * Creates a file in specified path if it does not exists.
+ * @param filepath filepath to create
+ * @return bool true on success, else false
+ */
+bool create_tmp_file(const char *filepath) {
+    errno = 0;
+    int fd = open(filepath, O_CREAT | O_EXCL | O_CLOEXEC, S_IRWXU);
+    if (fd < 0) {
+        MYMPD_LOG_ERROR(NULL, "Can not open file descriptor \"%s\" for write", filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    close(fd);
+    return true;
+}
+
+/**
  * Opens a temporary file for write using mkstemp
  * @param filepath filepath to open, e.g. /tmp/test.XXXXXX
  *                 XXXXXX is replaced with a random string
@@ -304,7 +321,7 @@ FILE *open_tmp_file(sds filepath) {
     errno = 0;
     int fd = mkstemp(filepath);
     if (fd < 0) {
-        MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\" for write", filepath);
+        MYMPD_LOG_ERROR(NULL, "Can not open file file descriptor \"%s\" for write", filepath);
         MYMPD_LOG_ERRNO(NULL, errno);
         return NULL;
     }
