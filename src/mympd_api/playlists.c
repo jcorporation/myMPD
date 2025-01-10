@@ -789,7 +789,6 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
         if (sdslen(expression) == 0) {
             entity_count = offset;
             if (mpd_send_list_playlist_range_meta(partition_state->conn, plist, offset, real_limit)) {
-                
                 while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                     total_time += mpd_song_get_duration(song);
                     if (entities_returned++) {
