@@ -4,6 +4,7 @@ title: Distributions
 
 myMPD is available in the following distributions:
 
+- [Alpine Linux](https://pkgs.alpinelinux.org/packages?name=mympd)
 - [Arch Linux](https://archlinux.org/packages/?q=mympd)
 - [DietPi](https://dietpi.com/)
 - [GentooPlayer](http://gentooplayer.com/)
