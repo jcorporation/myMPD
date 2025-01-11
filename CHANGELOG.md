@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Memory leak in playlist search
+- Fix: Grid layout for filesystem view
 
 ***
 

@@ -157,7 +157,7 @@ function viewBrowseFilesystemListClickHandler(event, target) {
         );
         return;
     }
-    if (settings['view' + app.id].mode === 'table') {
+    if (settings['view' + app.id].mode === 'grid') {
         updateGrid(obj, app.id, function(card, data) {
             parseFilesystemUpdate(card, data);
         });
