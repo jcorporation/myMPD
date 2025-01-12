@@ -33,7 +33,7 @@ With endless scrolling, a long-delayed feature is now also available. It can be 
 
 ***
 
-## myMPD v19.0.3 (not yet released)
+## myMPD v19.0.3 (2025-01-12)
 
 This is a small bug fix release.
 
