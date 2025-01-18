@@ -301,7 +301,7 @@ function showListScriptModal() {
 /**
  * Shows the edit script tab
  * @param {string} script script name
- * @param {string} [obj] script object
+ * @param {object} [obj] script object
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars

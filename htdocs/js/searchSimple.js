@@ -31,8 +31,8 @@ function initSearchSimple(appid) {
 
 /**
  * Initializes simple search element
- * @param {Object} el Element to initialize
- * @param {function} cb Callback
+ * @param {HTMLElement} el Element to initialize
+ * @param {Function} cb Callback
  * @returns {void}
  */
 function initSearchSimpleInput(el, cb) {
