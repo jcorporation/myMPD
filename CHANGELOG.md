@@ -29,6 +29,7 @@ With endless scrolling, a long-delayed feature is now also available. It can be 
 - Feat: New trigger event for smart playlist update #1389
 - Feat: Add `current_album` to `mympd_state` Lua table
 - Feat: Add option for "Endless scrolling"
+- Feat: Add search to list of scripts to import
 - Upd: libmympdclient 1.0.33
 
 ***

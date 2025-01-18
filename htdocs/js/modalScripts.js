@@ -95,6 +95,19 @@ function initModalScripts() {
             importScript(target);
         }
     }, false);
+
+    initSearchSimpleInput(elGetById('modalScriptsImportSearchStr'), function(value) {
+        const valueLwr = value.toLowerCase();
+        const items = document.querySelectorAll('#modalScriptsImportList > li');
+        for (const item of items) {
+            if (item.textContent.toLowerCase().indexOf(valueLwr) > -1) {
+                item.classList.remove('d-none');
+            }
+            else {
+                item.classList.add('d-none');
+            }
+        }
+    });
 }
 
 /**
@@ -510,9 +523,24 @@ function showImportScript() {
     elHideId('modalScriptsListFooter');
     elHideId('modalScriptsEditFooter');
     elShowId('modalScriptsImportFooter');
+    if (userAgentData.isMobile === false) {
+        setFocusId('modalScriptsImportSearchStr');
+    }
     const list = elGetById('modalScriptsImportList');
     elClear(list);
+    list.appendChild(
+        elCreateTextTn('li', {"class": ["list-group-item", "not-clickable"]}, 'Loading...')
+    );
     httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + 'index.json'), function(obj) {
+        elClear(list);
+        if (obj === null) {
+            list.appendChild(
+                elCreateNode('li', {"class": ["list-group-item", "not-clickable"]},
+                    elCreateTextTn('div', {"class": ["alert", "alert-danger"]}, 'Failure loading script list.')
+                )
+            );
+            return;
+        }
         for (const key in obj) {
             const script = obj[key];
             const clickable = elGetById('modalScriptsList').querySelector('[data-file="' + key + '"') === null

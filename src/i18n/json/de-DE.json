@@ -1239,5 +1239,6 @@
     "wasapi": "Windows Audio Session API",
     "Endless scrolling": "Endlos Scrollen",
     "helpEndlessScroll": "Schaltet von seitenweiser Anzeige auf endloses Scrollen um.",
-    "Lookup HTTP header": "HTTP-Header abrufen."
+    "Lookup HTTP header": "HTTP-Header abrufen.",
+    "Failure loading script list.": "Skriptliste konnte nicht geladen werden."
 }

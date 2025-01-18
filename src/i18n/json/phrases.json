@@ -324,6 +324,7 @@
 {"term":"Failure adding songs to jukebox queue"},
 {"term":"Failure getting inserted song id"},
 {"term":"Failure listing stickernames"},
+{"term":"Failure loading script list."},
 {"term":"Fast forward"},
 {"term":"Fast rewind"},
 {"term":"Favorite and WebradioDb entry are different"},

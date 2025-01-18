@@ -26,25 +26,35 @@ function handleSearchSimple(appid) {
  * @returns {void}
  */
 function initSearchSimple(appid) {
-    elGetById(appid + 'SearchStr').addEventListener('keydown', function(event) {
+    initSearchSimpleInput(elGetById(appid + 'SearchStr'), execSearchSimple);
+}
+
+/**
+ * Initializes simple search element
+ * @param {Object} el Element to initialize
+ * @param {function} cb Callback
+ * @returns {void}
+ */
+function initSearchSimpleInput(el, cb) {
+    el.addEventListener('keydown', function(event) {
         //handle Enter key on keydown for IME composing compatibility
         if (event.key !== 'Enter') {
             return;
         }
         clearSearchTimer();
-        execSearchSimple(event.target.value);
+        cb(event.target.value);
     }, false);
 
     // Android does not support search on type
     if (userAgentData.isAndroid === false) {
-        elGetById(appid + 'SearchStr').addEventListener('keyup', function(event) {
+        el.addEventListener('keyup', function(event) {
             if (ignoreKeys(event) === true) {
                 return;
             }
             clearSearchTimer();
             const value = event.target.value;
             searchTimer = setTimeout(function() {
-                execSearchSimple(value);
+                cb(value);
             }, searchTimerTimeout);
         }, false);
     }
