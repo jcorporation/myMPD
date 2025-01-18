@@ -111,19 +111,6 @@ function getHeaderName(header) {
  * @returns {void}
  */
 function setCols(tableName) {
-    if (tableName === 'Search' &&
-        app.cards.Search.sort.tag === 'Title')
-    {
-        if (settings.tagList.includes('Title')) {
-            app.cards.Search.sort.tag = 'Title';
-        }
-        else if (features.featTags === false) {
-            app.cards.Search.sort.tag = 'Filename';
-        }
-        else {
-            app.cards.Search.sort.tag = '';
-        }
-    }
     const thead = document.querySelector('#' + tableName + 'List > thead > tr');
     elClear(thead);
 
