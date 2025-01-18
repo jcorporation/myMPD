@@ -266,8 +266,13 @@ function removeScriptArgument(ev) {
  */
 //eslint-disable-next-line no-unused-vars
 function showEditScriptModal(script) {
-    uiElements.modalScripts.show();
-    showEditScript(script);
+    // Open modal only if script can be opened
+    sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, function(obj) {
+        if (obj.result) {
+            showEditScript(script, obj);
+            uiElements.modalScripts.show();
+        }
+    }, true);
 }
 
 /**
@@ -283,10 +288,16 @@ function showListScriptModal() {
 /**
  * Shows the edit script tab
  * @param {string} script script name
+ * @param {string} [obj] script object
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function showEditScript(script) {
+function showEditScript(script, obj) {
+    elGetById('modalScriptsScriptInput').value = '';
+    elGetById('modalScriptsOrderInput').value = '1';
+    elGetById('modalScriptsAddArgumentInput').value = '';
+    elClearId('modalScriptsArgumentsInput');
+    elGetById('modalScriptsContentInput').value = '';
     cleanupModalId('modalScripts');
     elGetById('modalScripts').firstElementChild.classList.remove('modal-dialog-scrollable');
     elGetById('modalScriptsContentInput').removeAttribute('disabled');
@@ -296,18 +307,16 @@ function showEditScript(script) {
     elHideId('modalScriptsListFooter');
     elHideId('modalScriptsImportFooter');
     elShowId('modalScriptsEditFooter');
-    if (script !== '') {
+    if (obj !== undefined) {
+        parseEditScript(obj);
+    }
+    else if (script !== '') {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }
     else {
         setDataId('modalScriptsEditTab', 'id', '');
         setDataId('modalScriptsEditTab', 'file', '');
         setDataId('modalScriptsEditTab', 'version', 0);
-        elGetById('modalScriptsScriptInput').value = '';
-        elGetById('modalScriptsOrderInput').value = '1';
-        elGetById('modalScriptsAddArgumentInput').value = '';
-        elClearId('modalScriptsArgumentsInput');
-        elGetById('modalScriptsContentInput').value = '';
         elDisableId('modalScriptsUpdateBtn');
         elHideId('modalScriptsEditDescRow');
     }
