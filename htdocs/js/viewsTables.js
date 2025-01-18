@@ -89,6 +89,23 @@ function dragAndDropTable(tableId) {
 }
 
 /**
+ * Return the displayname of a header
+ * @param {string} header Header fieldname
+ * @returns {string} Header displayname
+ */
+function getHeaderName(header) {
+    switch (header) {
+        case 'Track':
+        case 'Pos':
+            return '#';
+        case 'Thumbnail':
+            return '';
+        default:
+            return header;
+    }
+}
+
+/**
  * Sets the table header columns
  * @param {string} tableName table name
  * @returns {void}
@@ -110,15 +127,10 @@ function setCols(tableName) {
     const thead = document.querySelector('#' + tableName + 'List > thead > tr');
     elClear(thead);
 
-    for (let i = 0, j = settings['view' + tableName].fields.length; i < j; i++) {
-        let hname = settings['view' + tableName].fields[i];
-        if (hname === 'Track' ||
-            hname === 'Pos')
-        {
-            hname = '#';
-        }
-        const th = elCreateTextTn('th', {"data-col": settings['view' + tableName].fields[i]}, hname);
-        thead.appendChild(th);
+    for (const field of settings['view' + tableName].fields) {
+        thead.appendChild(
+            elCreateTextTn('th', {"data-col": field}, getHeaderName(field))
+        );
     }
     //append action column
     const th = elCreateEmpty('th', {"data-col": "Action"});
