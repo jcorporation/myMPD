@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v20.0.0 (not yet released)
+## myMPD v20.0.0 (2025-02-01)
 
 This release improves the Lua scripting interface, supports the newest MPD 0.24 sticker commands and add's a trigger for smart playlist creation.
 
