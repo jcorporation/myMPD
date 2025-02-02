@@ -40,7 +40,7 @@ if("@MYMPD_STARTUP_SCRIPT@" STREQUAL "ON")
   # Try to detect installes init system
   if(EXISTS "/lib/systemd/system" OR EXISTS "/usr/lib/systemd/system")
     install_systemd()
-  elseif(EXISTS "/sbin/openrc-run")
+  elseif(EXISTS "/sbin/openrc-run" OR EXISTS "/usr/sbin/openrc-run")
     install_openrc()
   elseif(EXISTS "/etc/init.d")
     install_sysvinit()

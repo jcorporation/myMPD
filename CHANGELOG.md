@@ -9,6 +9,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+Fix: Check for openrc-run also in /usr/sbin (Alpine Linux /usr merge project) #1407
+
 ***
 
 ## myMPD v20.0.0 (2025-02-01)
