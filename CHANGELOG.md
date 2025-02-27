@@ -10,8 +10,9 @@ This is a small bug fix release.
 
 ### Changelog
 
-Upd: Mongoose 7.17
-Fix: Check for openrc-run also in /usr/sbin (Alpine Linux /usr merge project) #1407
+- Upd: Mongoose 7.17
+- Fix: Check for openrc-run also in /usr/sbin (Alpine Linux /usr merge project) #1407
+- Fix: Simplify Debian packaging
 
 ***
 

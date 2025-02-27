@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Juergen Mang <mail@jcgames.de>
 Build-Depends: debhelper (>= 10),
                cmake,
+               debhelper-compat (= 13),
                perl,
                gzip,
                jq,

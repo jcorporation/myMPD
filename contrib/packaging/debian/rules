@@ -1,35 +1,5 @@
 #!/usr/bin/make -f
 export DH_VERBOSE = 1
 
-BUILDDIR = release
-
-build-arch: build
-
-build-indep: build
-
-build:
-	cmake -B $(BUILDDIR) -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo .
-	make -C $(BUILDDIR)
-
-binary: binary-indep binary-arch
-
-binary-indep:
-
-binary-arch:
-	make -C $(BUILDDIR) install DESTDIR=../debian/mympd
-	mkdir -p debian/mympd/DEBIAN
-	cp debian/postinst debian/mympd/DEBIAN
-	echo 10 > debian/compat
-	dh_installdocs
-	dh_installchangelogs
-	dh_compress
-	dh_makeshlibs
-	dh_shlibdeps
-	dh_strip
-	dh_gencontrol
-	dh_builddeb
-
-clean:
-	rm -rf $(BUILDDIR)
-
-.PHONY: binary binary-arch binary-indep clean
+%:
+	dh $@
