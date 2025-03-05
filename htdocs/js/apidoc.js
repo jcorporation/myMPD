@@ -1255,6 +1255,32 @@ const APImethods = {
             "name": APIparams.stickerName
         }
     },
+    "MYMPD_API_STICKER_FIND": {
+        "desc": "Finds uris by sticker values.",
+        "params": {
+            "uri": APIparams.uri,
+            "type": APIparams.stickerType,
+            "name": APIparams.stickerName,
+            "op": {
+                "type": APItypes.string,
+                "example": "contains",
+                "desc": "Compare operator: =, <, >, eq, gt, lt, contains, starts_with"
+            },
+            "value": {
+                "type": APItypes.string,
+                "example": "val1",
+                "desc": "Sticker value"
+            },
+            "sort": {
+                "type": APItypes.string,
+                "example": "uri",
+                "desc": "Sticker sort: uri, value, value_int"
+            },
+            "sortdesc": APIparams.sortdesc,
+            "offset": APIparams.offset,
+            "limit": APIparams.limit
+        }
+    },
     "MYMPD_API_STICKER_LIST": {
         "desc": "Gets all MPD stickers for an uri.",
         "params": {

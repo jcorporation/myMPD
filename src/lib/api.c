@@ -178,8 +178,13 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_SONG_FINGERPRINT:
         case MYMPD_API_STICKER_DELETE:
         case MYMPD_API_STICKER_GET:
+        case MYMPD_API_STICKER_FIND:
         case MYMPD_API_STICKER_LIST:
+        case MYMPD_API_STICKER_NAMES:
         case MYMPD_API_STICKER_SET:
+        case MYMPD_API_STICKER_INC:
+        case MYMPD_API_STICKER_DEC:
+        case MYMPD_API_STICKER_PLAYCOUNT:
         case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_NAME:
         case MYMPD_API_WEBRADIO_FAVORITE_GET_BY_URI:
         case MYMPD_API_WEBRADIO_FAVORITE_RM:

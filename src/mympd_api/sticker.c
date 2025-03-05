@@ -45,6 +45,50 @@ sds mympd_api_sticker_get(struct t_stickerdb_state *stickerdb, sds buffer, unsig
 }
 
 /**
+ * Gets a sorted list of stickers by name and value
+ * @param stickerdb pointer to the stickerdb state
+ * @param type MPD sticker type
+ * @param uri baseuri for search
+ * @param name sticker name
+ * @param op mpd sticker compare operator
+ * @param value sticker value or NULL to get all stickers with this name
+ * @param sort sticker sort type
+ * @param sort_desc sort descending?
+ * @param start window start (including)
+ * @param end window end (excluding), use UINT_MAX for open end
+ * @return new allocated struct t_list
+ */
+sds mympd_api_sticker_find(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
+        sds uri, enum mympd_sticker_type type, sds name, enum mpd_sticker_operator op, sds value,
+        enum mpd_sticker_sort sort, bool sort_desc, unsigned offset, unsigned limit)
+{
+    struct t_list *result = stickerdb_find_stickers_sorted(stickerdb, type, uri, name, op, value, sort, sort_desc, offset, limit);
+    buffer = jsonrpc_respond_start(buffer, MYMPD_API_STICKER_FIND, request_id);
+    buffer = sdscat(buffer,"\"data\":[");
+    unsigned entities_returned = 0;
+    struct t_list_node *current;
+    while ((current = list_shift_first(result)) != NULL) {
+        if (entities_returned++) {
+            buffer= sdscatlen(buffer, ",", 1);
+        }
+        buffer = sdscatlen(buffer, "{", 1);
+        buffer = tojson_char(buffer, "uri", current->key, true);
+        buffer = tojson_char(buffer, "name", name, true);
+        buffer = tojson_char(buffer, "value", current->value_p, false);
+        buffer = sdscatlen(buffer, "}", 1);
+        list_node_free(current);
+    }
+    list_free(result);
+    buffer = sdscatlen(buffer, "],", 2);
+    buffer = tojson_uint(buffer, "offset", offset, true);
+    buffer = tojson_uint(buffer, "limit", limit, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_int(buffer, "totalEntities", -1, false);
+    buffer = jsonrpc_end(buffer);
+    return buffer;
+}
+
+/**
  * Gets all MPD stickers for an uri.
  * @param stickerdb pointer to stickerdb
  * @param buffer already allocated sds string to append the list

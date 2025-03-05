@@ -420,6 +420,7 @@ rax *stickerdb_find_stickers_by_name_value(struct t_stickerdb_state *stickerdb, 
  * Gets a sorted list of stickers by name and value
  * @param stickerdb pointer to the stickerdb state
  * @param type MPD sticker type
+ * @param baseuri baseuri for search
  * @param name sticker name
  * @param op mpd sticker compare operator
  * @param value sticker value or NULL to get all stickers with this name
@@ -427,10 +428,10 @@ rax *stickerdb_find_stickers_by_name_value(struct t_stickerdb_state *stickerdb, 
  * @param sort_desc sort descending?
  * @param start window start (including)
  * @param end window end (excluding), use UINT_MAX for open end
- * @return struct t_list* 
+ * @return new allocated struct t_list
  */
 struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type,
-        const char *name, enum mpd_sticker_operator op, const char *value,
+        const char *baseuri, const char *name, enum mpd_sticker_operator op, const char *value,
         enum mpd_sticker_sort sort, bool sort_desc, unsigned start, unsigned end)
 {
     if (stickerdb_connect(stickerdb) == false) {
@@ -444,7 +445,7 @@ struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerd
     struct mpd_pair *pair;
     ssize_t name_len = (ssize_t)strlen(name) + 1;
     sds file = sdsempty();
-    if (mpd_sticker_search_begin(stickerdb->conn, type_name, NULL, name) == false ||
+    if (mpd_sticker_search_begin(stickerdb->conn, type_name, baseuri, name) == false ||
         sticker_search_add_value_constraint(stickerdb, op, value) == false ||
         sticker_search_add_sort(stickerdb, sort, sort_desc) == false ||
         sticker_search_add_window(stickerdb, start, end) == false)

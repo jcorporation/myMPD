@@ -34,7 +34,7 @@ rax *stickerdb_find_stickers_by_name_value(struct t_stickerdb_state *stickerdb, 
 void stickerdb_free_find_result(rax *stickers);
 
 struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type,
-        const char *name, enum mpd_sticker_operator op, const char *value,
+        const char *baseuri, const char *name, enum mpd_sticker_operator op, const char *value,
         enum mpd_sticker_sort sort, bool sort_desc, unsigned start, unsigned end);
 
 bool stickerdb_set(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, const char *name, const char *value);

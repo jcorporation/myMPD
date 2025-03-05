@@ -860,6 +860,28 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                         sds_buf1, type, sds_buf3);
             }
             break;
+        case MYMPD_API_STICKER_FIND:
+            if (json_get_string(request->data, "$.params.uri", 0, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
+                json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.op", 1, NAME_LEN_MAX, &sds_buf4, vcb_isstickerop, &parse_error) == true &&
+                json_get_string(request->data, "$.params.value", 0, NAME_LEN_MAX, &sds_buf5, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.sort", 1, NAME_LEN_MAX, &sds_buf6, vcb_isstickersort, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
+                json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &parse_error) == true)
+            {
+                enum mympd_sticker_type type = mympd_sticker_type_name_parse(sds_buf2);
+                sds_buf1 = mympd_api_get_sticker_uri(mympd_state, sds_buf1, &type);
+                if (sdslen(sds_buf1) == 0) {
+                    FREE_SDS(sds_buf1);
+                }
+                enum mpd_sticker_operator op = sticker_oper_parse(sds_buf4);
+                enum mpd_sticker_sort sort = sticker_sort_parse(sds_buf6);
+                response->data = mympd_api_sticker_find(mympd_state->stickerdb, response->data, request->id,
+                        sds_buf1, type, sds_buf3, op, sds_buf5, sort, bool_buf1, uint_buf1, uint_buf2);
+            }
+            break;
         case MYMPD_API_STICKER_LIST:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true)
