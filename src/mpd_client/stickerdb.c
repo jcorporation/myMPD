@@ -444,7 +444,7 @@ struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerd
     struct t_list *stickers = list_new();
     struct mpd_pair *pair;
     ssize_t name_len = (ssize_t)strlen(name) + 1;
-    sds file = sdsempty();
+    sds key = sdsempty();
     if (mpd_sticker_search_begin(stickerdb->conn, type_name, baseuri, name) == false ||
         sticker_search_add_value_constraint(stickerdb, op, value) == false ||
         sticker_search_add_sort(stickerdb, sort, sort_desc) == false ||
@@ -456,20 +456,20 @@ struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerd
     }
     if (mpd_sticker_search_commit(stickerdb->conn) == true) {
         while ((pair = mpd_recv_pair(stickerdb->conn)) != NULL) {
-            if (strcmp(pair->name, "file") == 0) {
-                file = sds_replace(file, pair->value);
-            }
-            else if (strcmp(pair->name, "sticker") == 0) {
+            if (strcmp(pair->name, "sticker") == 0) {
                 sds sticker_value = sdsnew(pair->value);
                 sdsrange(sticker_value, name_len, -1);
-                list_push(stickers, file, 0, sticker_value, NULL);
+                list_push(stickers, key, 0, sticker_value, NULL);
                 FREE_SDS(sticker_value);
+            }
+            else {
+                key = sds_replace(key, pair->value);
             }
             mpd_return_sticker(stickerdb->conn, pair);
         }
     }
     mpd_response_finish(stickerdb->conn);
-    FREE_SDS(file);
+    FREE_SDS(key);
     if (stickerdb_check_error_and_recover(stickerdb, "mpd_send_sticker_list") == true) {
         stickerdb_enter_idle(stickerdb);
     }
