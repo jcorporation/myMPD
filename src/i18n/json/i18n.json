@@ -10,5 +10,5 @@
     "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 0},
     "pl-PL": {"desc":"Polish (pl-PL)", "missingPhrases": 0},
     "ru-RU": {"desc":"Russian (ru-RU)", "missingPhrases": 11},
-    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 5}
+    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 0}
 }
