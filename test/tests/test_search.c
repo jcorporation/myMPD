@@ -51,6 +51,9 @@ UTEST(search_local, test_search_mpd_song_expression) {
     ASSERT_FALSE(search_by_expression("((Album != 'Tabula Rasa'))"));    //not exact match
     ASSERT_FALSE(search_by_expression("((Album !~ 'Tabula.*'))"));       //regex mismatch
 
+    //double quote
+    ASSERT_TRUE(search_by_expression("((Artist contains \"XA\"))"));       //containing string
+
     //tag with multiple values
     ASSERT_TRUE(search_by_expression("((Artist contains 'XA'))"));       //containing string
     ASSERT_TRUE(search_by_expression("((Artist starts_with 'bl'))"));    //starting string
