@@ -92,6 +92,7 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
     }
 
     //parse mpd search expression
+    //invalid search expressions are ignored
     struct t_list *include_expr_list = constraints->filter_include != NULL && constraints->filter_include[0] != '\0'
         ? parse_search_expression_to_list(constraints->filter_include, SEARCH_TYPE_SONG)
         : NULL;
@@ -199,6 +200,7 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
     }
 
     //parse mpd search expression
+    //invalid search expressions are ignored
     struct t_list *include_expr_list = constraints->filter_include != NULL && constraints->filter_include[0] != '\0'
         ? parse_search_expression_to_list(constraints->filter_include, SEARCH_TYPE_SONG)
         : NULL;

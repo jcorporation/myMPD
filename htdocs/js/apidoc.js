@@ -49,6 +49,11 @@ const APIparams = {
         "example": "[\"Artist\", \"Album\", \"Title\"]",
         "desc": "Array of fields to return"
     },
+    "fieldsAlbum": {
+        "type": APItypes.array,
+        "example": "[\"AlbumArtist\", \"Album\"]",
+        "desc": "Array of fields to return"
+    },
     "expression": {
         "type": APItypes.string,
         "example": "((any contains 'ende'))",
@@ -295,7 +300,7 @@ const APImethods = {
         "desc": "Displays songs of an album.",
         "params": {
             "albumid": APIparams.albumid,
-            "fields": APIparams.fields
+            "fields": APIparams.fieldsAlbum
         }
     },
     "MYMPD_API_DATABASE_ALBUM_LIST": {
@@ -306,7 +311,7 @@ const APImethods = {
             "expression": APIparams.expression,
             "sort": APIparams.sort,
             "sortdesc": APIparams.sortdesc,
-            "fields": APIparams.fields
+            "fields": APIparams.fieldsAlbum
         }
     },
     "MYMPD_API_DATABASE_TAG_LIST": {

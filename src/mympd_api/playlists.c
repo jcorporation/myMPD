@@ -807,6 +807,8 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
                 mpd_search_add_window(partition_state->conn, offset, real_limit) == false)
             {
                 mpd_search_cancel(partition_state->conn);
+                FREE_SDS(last_played_song_uri);
+                FREE_SDS(last_played_song_title);
                 sdsclear(buffer);
                 buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
                         JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD playlist search command");
@@ -827,8 +829,16 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
         }
     }
     else {
+        struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
+        if (expr_list == NULL) {
+            FREE_SDS(last_played_song_uri);
+            FREE_SDS(last_played_song_title);
+            sdsclear(buffer);
+            buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+                JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Invalid search expression");
+            return buffer;
+        }
         if (mpd_send_list_playlist_meta(partition_state->conn, plist)) {
-            struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
             while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                 if (search_expression_song(song, expr_list, &tagcols->mpd_tags) == true) {
                     total_time += mpd_song_get_duration(song);
@@ -858,6 +868,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
 
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlist_meta") == false) {
         FREE_SDS(last_played_song_uri);
+        FREE_SDS(last_played_song_title);
         return buffer;
     }
 

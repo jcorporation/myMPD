@@ -42,6 +42,12 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     struct t_webradio_tags webradio_tags;
     webradio_tags_search(&webradio_tags);
     struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_WEBRADIO);
+    if (expr_list == NULL) {
+        sdsclear(buffer);
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Invalid search expression");
+        return buffer;
+    }
 
     enum webradio_tag_type sort_tag = webradio_tag_name_parse(sort);
     switch(sort_tag) {

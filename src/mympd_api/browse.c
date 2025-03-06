@@ -237,6 +237,11 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_part
 
     //parse mpd search expression
     struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
+    if (expr_list == NULL) {
+        buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Invalid search expression");
+        return buffer;
+    }
     
     //search and sort albumlist
     unsigned real_limit = offset + limit;

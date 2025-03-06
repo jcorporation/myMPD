@@ -63,6 +63,11 @@ sds mympd_api_sticker_find(struct t_stickerdb_state *stickerdb, sds buffer, unsi
         enum mpd_sticker_sort sort, bool sort_desc, unsigned offset, unsigned limit)
 {
     struct t_list *result = stickerdb_find_stickers_sorted(stickerdb, type, uri, name, op, value, sort, sort_desc, offset, limit);
+    if (result == NULL) {
+        buffer = jsonrpc_respond_message(buffer, MYMPD_API_STICKER_FIND, request_id,
+            JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Failure searching for stickers");
+        return buffer;
+    }
     buffer = jsonrpc_respond_start(buffer, MYMPD_API_STICKER_FIND, request_id);
     buffer = sdscat(buffer,"\"data\":[");
     unsigned entities_returned = 0;

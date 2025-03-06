@@ -1240,5 +1240,7 @@
     "url_resolved": "URL",
     "userDefinedSticker": "Benutzerdefinierte Sticker",
     "votes": "Stimmen",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Failure searching for stickers": "Fehler beim Suchen nach Sticker",
+    "Invalid search expression": "Ungültiger Suchausdruck"
 }
