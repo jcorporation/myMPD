@@ -181,7 +181,13 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
             }
             p++;
         }
-        //skip apostrophe
+        //skip starting quote of value
+        if (*p != '\'' && *p != '"') {
+            MYMPD_LOG_ERROR(NULL, "Can not parse search expression, invalid number");
+            free_search_expression(expr);
+            expr_list = free_search_expression_list(expr_list);
+            break;
+        }
         p++;
         //value
         while (p < end) {
@@ -197,7 +203,7 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
             p++;
         }
         //push to list
-        if (*end == '\'') {
+        if (*end == '\'' || *end == '\"') {
             if (expr->op == SEARCH_OP_REGEX ||
                 expr->op == SEARCH_OP_NOT_REGEX)
             {
