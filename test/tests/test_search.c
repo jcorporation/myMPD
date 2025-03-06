@@ -32,6 +32,9 @@ bool search_by_expression(const char *expr_string) {
     sds expression = sdsnew(expr_string);
     struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
     sdsfree(expression);
+    if (expr_list == NULL) {
+        return false;
+    }
     bool rc = search_expression_song(song, expr_list, &tags);
     free_search_expression_list(expr_list);
     mpd_song_free(song);
@@ -73,6 +76,9 @@ long try_parse(const char *expr) {
     sds expression = sdsnew(expr);
     struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
     sdsfree(expression);
+    if (expr_list == NULL) {
+        return 0;
+    }
     long len = expr_list->length;
     free_search_expression_list(expr_list);
     return len;
