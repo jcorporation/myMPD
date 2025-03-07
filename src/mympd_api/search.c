@@ -13,11 +13,11 @@
 
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
+#include "src/mympd_api/sticker.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/search.h"
 #include "src/mympd_client/stickerdb.h"
 #include "src/mympd_client/tags.h"
-#include "src/mympd_api/sticker.h"
 
 /**
  * Searches the mpd database for songs by expression and returns an jsonrpc result

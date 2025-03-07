@@ -19,10 +19,10 @@
 #include "src/lib/timer.h"
 #include "src/lib/utility.h"
 #include "src/lib/webradio.h"
-#include "src/mympd_client/presets.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/trigger.h"
+#include "src/mympd_client/presets.h"
 
 #include <string.h>
 

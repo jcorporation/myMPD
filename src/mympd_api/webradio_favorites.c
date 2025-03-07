@@ -14,8 +14,6 @@
 #include "dist/rax/rax.h"
 #include "src/lib/log.h"
 
-#include <dirent.h>
-#include <string.h>
 #include <time.h>
 
 /**
@@ -35,7 +33,7 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
     if (sdslen(old_name) > 0) {
         list_push(&old_names, old_name, 0, NULL, NULL);
         void *data;
-        if (raxFind(webradio_favorites->idx_uris, (unsigned char *)old_name, strlen(old_name), &data) == 1) {
+        if (raxFind(webradio_favorites->idx_uris, (unsigned char *)old_name, sdslen(old_name), &data) == 1) {
             // preserve added timestamp
             struct t_webradio_data *old_radio = (struct t_webradio_data *)data;
             webradio->added = old_radio->added;

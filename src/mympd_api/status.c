@@ -18,14 +18,14 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/timer.h"
 #include "src/lib/utility.h"
+#include "src/mympd_api/extra_media.h"
+#include "src/mympd_api/sticker.h"
+#include "src/mympd_api/webradio.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/jukebox.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/tags.h"
 #include "src/mympd_client/volume.h"
-#include "src/mympd_api/extra_media.h"
-#include "src/mympd_api/sticker.h"
-#include "src/mympd_api/webradio.h"
 
 /**
  * Private definitions

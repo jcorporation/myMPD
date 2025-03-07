@@ -24,13 +24,13 @@
 #include "src/lib/search.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/utility.h"
+#include "src/mympd_api/sticker.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/playlists.h"
 #include "src/mympd_client/search.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/stickerdb.h"
 #include "src/mympd_client/tags.h"
-#include "src/mympd_api/sticker.h"
 
 #include <dirent.h>
 #include <errno.h>

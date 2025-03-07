@@ -16,9 +16,9 @@
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
+#include "src/mympd_api/status.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/shortcuts.h"
-#include "src/mympd_api/status.h"
 
 /**
  * Private definitions

@@ -24,16 +24,16 @@
 #include "src/lib/state_files.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
-#include "src/mympd_client/errorhandler.h"
-#include "src/mympd_client/jukebox.h"
-#include "src/mympd_client/presets.h"
-#include "src/mympd_client/shortcuts.h"
-#include "src/mympd_client/tags.h"
 #include "src/mympd_api/jukebox.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/jukebox.h"
+#include "src/mympd_client/presets.h"
+#include "src/mympd_client/shortcuts.h"
+#include "src/mympd_client/tags.h"
 
 #include <inttypes.h>
 #include <stdio.h>

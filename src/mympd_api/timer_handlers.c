@@ -17,11 +17,11 @@
 #include "src/lib/log.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
+#include "src/mympd_api/requests.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/jukebox.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/volume.h"
-#include "src/mympd_api/requests.h"
 
 #ifdef MYMPD_ENABLE_LUA
     #include "src/scripts/events.h"

@@ -16,14 +16,14 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
+#include "src/mympd_api/sticker.h"
+#include "src/mympd_api/webradio.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/queue.h"
 #include "src/mympd_client/search.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/stickerdb.h"
 #include "src/mympd_client/tags.h"
-#include "src/mympd_api/sticker.h"
-#include "src/mympd_api/webradio.h"
 
 #include <limits.h>
 #include <string.h>

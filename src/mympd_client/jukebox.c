@@ -20,11 +20,11 @@
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/timer.h"
+#include "src/mympd_api/trigger.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/queue.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/tags.h"
-#include "src/mympd_api/trigger.h"
 
 #include <stdbool.h>
 #include <string.h>

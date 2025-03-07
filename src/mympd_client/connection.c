@@ -16,10 +16,10 @@
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
+#include "src/mympd_api/requests.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/tags.h"
-#include "src/mympd_api/requests.h"
 
 /**
  * Connects to mpd and sets initial connection settings

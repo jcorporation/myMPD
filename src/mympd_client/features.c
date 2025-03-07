@@ -16,9 +16,9 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
+#include "src/mympd_api/settings.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/tags.h"
-#include "src/mympd_api/settings.h"
 
 #include <stdbool.h>
 #include <string.h>

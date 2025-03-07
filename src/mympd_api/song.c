@@ -12,10 +12,10 @@
 #include "src/mympd_api/song.h"
 
 #include "src/lib/jsonrpc.h"
-#include "src/mympd_client/errorhandler.h"
-#include "src/mympd_client/tags.h"
 #include "src/mympd_api/extra_media.h"
 #include "src/mympd_api/sticker.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/tags.h"
 
 /**
  * Gets the song details, tags and stickers

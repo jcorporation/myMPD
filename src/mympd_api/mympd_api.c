@@ -23,16 +23,16 @@
 #include "src/lib/thread.h"
 #include "src/lib/timer.h"
 #include "src/lib/webradio.h"
-#include "src/mympd_client/autoconf.h"
-#include "src/mympd_client/connection.h"
-#include "src/mympd_client/idle.h"
-#include "src/mympd_client/partitions.h"
-#include "src/mympd_client/stickerdb.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
+#include "src/mympd_client/autoconf.h"
+#include "src/mympd_client/connection.h"
+#include "src/mympd_client/idle.h"
+#include "src/mympd_client/partitions.h"
+#include "src/mympd_client/stickerdb.h"
 
 #include <errno.h>
 

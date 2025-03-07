@@ -11,8 +11,8 @@
 #include "compile_time.h"
 #include "src/scripts/interface.h"
 
-#include "src/mympd_client/tags.h"
 #include "src/mympd_api/lua_mympd_state.h"
+#include "src/mympd_client/tags.h"
 
 /**
  * Gets the config struct from lua userdata

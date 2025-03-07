@@ -17,15 +17,15 @@
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/timer.h"
-#include "src/mympd_client/connection.h"
-#include "src/mympd_client/errorhandler.h"
-#include "src/mympd_client/features.h"
-#include "src/mympd_client/jukebox.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/status.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
+#include "src/mympd_client/connection.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/features.h"
+#include "src/mympd_client/jukebox.h"
 
 #include <string.h>
 

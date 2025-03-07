@@ -13,8 +13,8 @@
 
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/jsonrpc.h"
-#include "src/mympd_client/errorhandler.h"
 #include "src/mympd_api/status.h"
+#include "src/mympd_client/errorhandler.h"
 
 /**
  * Starts mpd database update or rescan.

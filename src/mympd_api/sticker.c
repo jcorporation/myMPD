@@ -15,9 +15,9 @@
 #include "src/lib/cache_rax_album.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/sds_extras.h"
+#include "src/mympd_api/trigger.h"
 #include "src/mympd_client/search.h"
 #include "src/mympd_client/stickerdb.h"
-#include "src/mympd_api/trigger.h"
 
 /**
  * Gets a sticker value
