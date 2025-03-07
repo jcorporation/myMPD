@@ -685,7 +685,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
         }
     }
     else if (strcmp(key, "jukeboxFilterInclude") == 0 && vtype == MJSON_TOK_STRING) {
-        if (vcb_issearchexpression(value) == false) {
+        if (vcb_issearchexpression_song(value) == false) {
             set_invalid_value(error, path, key, value, "Invalid MPD search expression");
             return false;
         }
@@ -695,7 +695,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
         }
     }
     else if (strcmp(key, "jukeboxFilterExclude") == 0 && vtype == MJSON_TOK_STRING) {
-        if (vcb_issearchexpression(value) == false) {
+        if (vcb_issearchexpression_song(value) == false) {
             set_invalid_value(error, path, key, value, "Invalid MPD search expression");
             return false;
         }
@@ -914,8 +914,8 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
     partition_state->jukebox.last_played = state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_last_played", partition_state->jukebox.last_played, JUKEBOX_LAST_PLAYED_MIN, JUKEBOX_LAST_PLAYED_MAX, true);
     partition_state->jukebox.uniq_tag.tags[0] = state_file_rw_tag(workdir, partition_state->state_dir, "jukebox_uniq_tag", partition_state->jukebox.uniq_tag.tags[0], true);
     partition_state->jukebox.ignore_hated = state_file_rw_bool(workdir, partition_state->state_dir, "jukebox_ignore_hated", MYMPD_JUKEBOX_IGNORE_HATED, true);
-    partition_state->jukebox.filter_include = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_include", partition_state->jukebox.filter_include, vcb_issearchexpression, true);
-    partition_state->jukebox.filter_exclude = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_exclude", partition_state->jukebox.filter_exclude, vcb_issearchexpression, true);
+    partition_state->jukebox.filter_include = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_include", partition_state->jukebox.filter_include, vcb_issearchexpression_song, true);
+    partition_state->jukebox.filter_exclude = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_exclude", partition_state->jukebox.filter_exclude, vcb_issearchexpression_song, true);
     partition_state->jukebox.min_song_duration= state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_min_song_duration", partition_state->jukebox.min_song_duration, 0, JUKEBOX_MIN_SONG_DURATION_MAX, true);
     partition_state->jukebox.max_song_duration= state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_max_song_duration", partition_state->jukebox.max_song_duration, 0, JUKEBOX_MAX_SONG_DURATION_MAX, true);
     partition_state->highlight_color = state_file_rw_string_sds(workdir, partition_state->state_dir, "highlight_color", partition_state->highlight_color, vcb_ishexcolor, true);
