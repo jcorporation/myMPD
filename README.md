@@ -7,7 +7,7 @@ myMPD is a standalone and lightweight web-based MPD client. It's tuned for minim
 
 The backend is written in C and has no dependencies to external databases or webservers. The configuration is stored in plain text files and all the data is pulled on demand from MPD. The MPD database is the only source of truth for myMPD.
 
-The frontend is mobile friendly, written as a PWA and offers on all devices the same functionality.
+The frontend is mobile friendly, written as a PWA in plain JavaScript and offers on all devices the same functionality.
 
 myMPD also integrates extended features like an advanced jukebox mode, timers, triggers and smart playlists. With the integrated lua interpreter myMPD functions can also be scripted.
 
@@ -18,10 +18,10 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 ## Features
 
 - Concurrent MPD partition support
-- Control mpd functions and options
+- Control MPD functions and options
 - MPD option presets
 - Queue and playlist management
-- Browse mpd database by tags or filesystem
+- Browse MPD database by tags or filesystem
 - Advanced search
 - Jukebox mode
 - MPD mount and neighbors support
@@ -55,6 +55,7 @@ The [mympd-scripts](https://github.com/jcorporation/mympd-scripts) repository pr
 - Fetch lyrics with [LRCLIB](https://lrclib.net/)
 - Import webradios from [RadioBrowser](https://www.radio-browser.info/)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) integration
+- Home screen widgets
 - and many more
 
 ## Documentation
