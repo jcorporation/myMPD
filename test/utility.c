@@ -8,7 +8,7 @@
 
 #include "dist/libmympdclient/src/isong.h"
 #include "src/lib/filehandler.h"
-#include "src/mpd_client/tags.h"
+#include "src/mympd_client/tags.h"
 
 #include <stdio.h>
 #include <stdlib.h>

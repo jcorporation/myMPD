@@ -27,7 +27,7 @@ enum search_type {
 
 struct t_list *parse_search_expression_to_list(const char *expression, enum search_type type);
 void *free_search_expression_list(struct t_list *expr_list);
-bool search_expression_song(const struct mpd_song *song, const struct t_list *expr_list, const struct t_mpd_tags *any_tag_types);
+bool search_expression_song(const struct mpd_song *song, const struct t_list *expr_list, const struct t_mympd_mpd_tags *any_tag_types);
 bool search_expression_webradio(const struct t_webradio_data *webradio, const struct t_list *expr_list, const struct t_webradio_tags *any_tag_types);
 
 #endif

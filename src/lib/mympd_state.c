@@ -19,7 +19,7 @@
 #include "src/lib/timer.h"
 #include "src/lib/utility.h"
 #include "src/lib/webradio.h"
-#include "src/mpd_client/presets.h"
+#include "src/mympd_client/presets.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/trigger.h"
@@ -102,13 +102,13 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->lyrics.vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT);
     mympd_state->lyrics.vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
-    mpd_tags_reset(&mympd_state->smartpls_generate_tag_types);
+    mympd_mpd_tags_reset(&mympd_state->smartpls_generate_tag_types);
     mympd_state->tag_disc_empty_is_first = MYMPD_TAG_DISC_EMPTY_IS_FIRST;
     mympd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
     mympd_state->info_txt_name = sdsnew(MYMPD_INFO_TXT_NAME);
     //mpd shared state
     mympd_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
-    mpd_state_default(mympd_state->mpd_state, config);
+    mympd_mpd_state_default(mympd_state->mpd_state, config);
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mympd_state->partition_state, MPD_PARTITION_DEFAULT, mympd_state->mpd_state, config);
@@ -118,7 +118,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     stickerdb_state_default(mympd_state->stickerdb, config);
     // do not use the shared mpd_state - we can connect to another mpd server for stickers
     mympd_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
-    mpd_state_default(mympd_state->stickerdb->mpd_state, config);
+    mympd_mpd_state_default(mympd_state->stickerdb->mpd_state, config);
     //triggers;
     list_init(&mympd_state->trigger_list);
     //home icons
@@ -148,7 +148,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     //timer
     mympd_api_timer_timerlist_clear(&mympd_state->timer_list);
     //mpd shared state
-    mpd_state_free(mympd_state->mpd_state);
+    mympd_mpd_state_free(mympd_state->mpd_state);
     //partition state
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
@@ -157,7 +157,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
         partition_state = next;
     }
     //stickerdb
-    mpd_state_free(mympd_state->stickerdb->mpd_state);
+    mympd_mpd_state_free(mympd_state->stickerdb->mpd_state);
     stickerdb_state_free(mympd_state->stickerdb);
     //caches
     album_cache_free(&mympd_state->album_cache);
@@ -207,7 +207,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
  * @param mpd_state pointer to mpd_state
  * @param config pointer to static config
  */
-void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config) {
+void mympd_mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config) {
     mpd_state->config = config;
     mpd_state->mpd_keepalive = MYMPD_MPD_KEEPALIVE;
     mpd_state->mpd_timeout = MYMPD_MPD_TIMEOUT;
@@ -218,14 +218,14 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config) {
     mpd_state->music_directory_value = sdsempty();
     mpd_state->playlist_directory_value = sdsempty();
     mpd_state->tag_list = sdsnew(MYMPD_MPD_TAG_LIST);
-    mpd_tags_reset(&mpd_state->tags_mympd);
-    mpd_tags_reset(&mpd_state->tags_mpd);
-    mpd_tags_reset(&mpd_state->tags_search);
-    mpd_tags_reset(&mpd_state->tags_browse);
-    mpd_tags_reset(&mpd_state->tags_album);
+    mympd_mpd_tags_reset(&mpd_state->tags_mympd);
+    mympd_mpd_tags_reset(&mpd_state->tags_mpd);
+    mympd_mpd_tags_reset(&mpd_state->tags_search);
+    mympd_mpd_tags_reset(&mpd_state->tags_browse);
+    mympd_mpd_tags_reset(&mpd_state->tags_album);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     //features
-    mpd_state_features_default(&mpd_state->feat);
+    mympd_mpd_state_features_default(&mpd_state->feat);
     list_init(&mpd_state->sticker_types);
 }
 
@@ -234,7 +234,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config) {
  * @param src source
  * @param dst destination
  */
-void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
+void mympd_mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
     dst->config = src->config;
     dst->mpd_keepalive = src->mpd_keepalive;
     dst->mpd_timeout = src->mpd_timeout;
@@ -245,13 +245,13 @@ void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
     dst->music_directory_value = sdsdup(src->music_directory_value);
     dst->playlist_directory_value = sdsdup(src->playlist_directory_value);
     dst->tag_list = sdsdup( src->tag_list);
-    mpd_tags_clone(&src->tags_mympd, &dst->tags_mympd);
-    mpd_tags_clone(&src->tags_mpd, &dst->tags_mpd);
-    mpd_tags_clone(&src->tags_search, &dst->tags_search);
-    mpd_tags_clone(&src->tags_browse, &dst->tags_browse);
-    mpd_tags_clone(&src->tags_album, &dst->tags_album);
+    mympd_mpd_tags_clone(&src->tags_mympd, &dst->tags_mympd);
+    mympd_mpd_tags_clone(&src->tags_mpd, &dst->tags_mpd);
+    mympd_mpd_tags_clone(&src->tags_search, &dst->tags_search);
+    mympd_mpd_tags_clone(&src->tags_browse, &dst->tags_browse);
+    mympd_mpd_tags_clone(&src->tags_album, &dst->tags_album);
     dst->tag_albumartist = src->tag_albumartist;
-    mpd_state_features_copy(&src->feat, &dst->feat);
+    mympd_mpd_state_features_copy(&src->feat, &dst->feat);
     list_init(&dst->sticker_types);
     list_append(&dst->sticker_types, &src->sticker_types);
 }
@@ -260,7 +260,7 @@ void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
  * Sets all feature states to default
  * @param feat pointer to mpd feature struct
  */
-void mpd_state_features_default(struct t_mpd_features *feat) {
+void mympd_mpd_state_features_default(struct t_mpd_features *feat) {
     feat->mpd_0_24_0 = false;
     feat->stickers = false;
     feat->playlists = false;
@@ -290,7 +290,7 @@ void mpd_state_features_default(struct t_mpd_features *feat) {
  * @param src source
  * @param dst destination
  */
-void mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *dst) {
+void mympd_mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *dst) {
     memcpy((void *)dst, (void *)src, sizeof(struct t_mpd_features));
 }
 
@@ -298,7 +298,7 @@ void mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *
  * Frees the t_mpd_state struct
  * @param mpd_state Pointer to mpd_state
  */
-void mpd_state_free(struct t_mpd_state *mpd_state) {
+void mympd_mpd_state_free(struct t_mpd_state *mpd_state) {
     FREE_SDS(mpd_state->mpd_host);
     FREE_SDS(mpd_state->mpd_pass);
     FREE_SDS(mpd_state->tag_list);

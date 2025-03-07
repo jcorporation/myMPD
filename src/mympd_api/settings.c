@@ -24,11 +24,11 @@
 #include "src/lib/state_files.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/jukebox.h"
-#include "src/mpd_client/presets.h"
-#include "src/mpd_client/shortcuts.h"
-#include "src/mpd_client/tags.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/jukebox.h"
+#include "src/mympd_client/presets.h"
+#include "src/mympd_client/shortcuts.h"
+#include "src/mympd_client/tags.h"
 #include "src/mympd_api/jukebox.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_api/timer.h"
@@ -1028,7 +1028,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
             if (mpd_send_replay_gain_status(partition_state->conn) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_replay_gain_status");
             }
-            mpd_client_command_list_end_check(partition_state);
+            mympd_client_command_list_end_check(partition_state);
         }
         struct mpd_status *status = mpd_recv_status(partition_state->conn);
         enum mpd_replay_gain_mode replay_gain_mode = MPD_REPLAY_UNKNOWN;

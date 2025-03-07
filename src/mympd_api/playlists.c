@@ -24,12 +24,12 @@
 #include "src/lib/search.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/utility.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/playlists.h"
-#include "src/mpd_client/search.h"
-#include "src/mpd_client/shortcuts.h"
-#include "src/mpd_client/stickerdb.h"
-#include "src/mpd_client/tags.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/playlists.h"
+#include "src/mympd_client/search.h"
+#include "src/mympd_client/shortcuts.h"
+#include "src/mympd_client/stickerdb.h"
+#include "src/mympd_client/tags.h"
 #include "src/mympd_api/sticker.h"
 
 #include <dirent.h>
@@ -116,7 +116,7 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
             i++;
             list_node_free(current);
         }
-        mpd_client_command_list_end_check(partition_state);
+        mympd_client_command_list_end_check(partition_state);
     }
     list_clear(&src);
     mpd_response_finish(partition_state->conn);
@@ -192,7 +192,7 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
                     break;
                 }
             }
-            mpd_client_command_list_end_check(partition_state);
+            mympd_client_command_list_end_check(partition_state);
         }
         mpd_response_finish(partition_state->conn);
         rc = mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
@@ -245,7 +245,7 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
                 to++;
             }
         }
-        mpd_client_command_list_end_check(partition_state);
+        mympd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add_to");
@@ -272,7 +272,7 @@ bool mympd_api_playlist_content_append(struct t_partition_state *partition_state
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_replace(struct t_partition_state *partition_state, sds plist, struct t_list *uris, sds *error) {
-    return mpd_client_playlist_clear(partition_state, plist, error) &&
+    return mympd_client_playlist_clear(partition_state, plist, error) &&
         mympd_api_playlist_content_append(partition_state, plist, uris, error);
 }
 
@@ -296,7 +296,7 @@ bool mympd_api_playlist_content_insert_search(struct t_partition_state *partitio
         *error = sdscat(*error, "Method not supported");
         return false;
     }
-    return mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sort_desc, error);
+    return mympd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sort_desc, error);
 }
 
 /**
@@ -328,7 +328,7 @@ bool mympd_api_playlist_content_append_search(struct t_partition_state *partitio
 bool mympd_api_playlist_content_replace_search(struct t_partition_state *partition_state, sds expression, sds plist,
         const char *sort, bool sort_desc, sds *error)
 {
-    return mpd_client_playlist_clear(partition_state, plist, error) &&
+    return mympd_client_playlist_clear(partition_state, plist, error) &&
         mympd_api_playlist_content_append_search(partition_state, expression, plist, sort, sort_desc, error);
 }
 
@@ -368,7 +368,7 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
             &partition_state->config->albums);
         const char *sort = NULL;
         bool sortdesc = false;
-        rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
+        rc = mympd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
         if (rc == false) {
             break;
         }
@@ -401,7 +401,7 @@ bool mympd_api_playlist_content_append_albums(struct t_partition_state *partitio
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partition_state, struct t_cache *album_cache, sds plist, struct t_list *albumids, sds *error) {
-    return mpd_client_playlist_clear(partition_state, plist, error) &&
+    return mympd_client_playlist_clear(partition_state, plist, error) &&
         mympd_api_playlist_content_append_albums(partition_state, album_cache, plist, albumids, error);
 }
 
@@ -435,7 +435,7 @@ bool mympd_api_playlist_content_insert_album_tag(struct t_partition_state *parti
         tag, value, &partition_state->config->albums);
     const char *sort = NULL;
     bool sortdesc = false;
-    bool rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
+    bool rc = mympd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
     FREE_SDS(expression);
     return rc;
 }
@@ -471,7 +471,7 @@ bool mympd_api_playlist_content_append_album_tag(struct t_partition_state *parti
 bool mympd_api_playlist_content_replace_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds plist, sds albumid, enum mpd_tag_type tag, sds value, sds *error)
 {
-    return mpd_client_playlist_clear(partition_state, plist, error) &&
+    return mympd_client_playlist_clear(partition_state, plist, error) &&
         mympd_api_playlist_content_append_album_tag(partition_state, album_cache, plist, albumid, tag, value, error);
 }
 
@@ -535,7 +535,7 @@ bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition
                 break;
             }
         }
-        mpd_client_command_list_end_check(partition_state);
+        mympd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_delete");
@@ -994,7 +994,7 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
     }
     struct t_list all_plists;
     list_init(&all_plists);
-    bool rc = mpd_client_get_all_playlists(partition_state, &all_plists, true, error);
+    bool rc = mympd_client_get_all_playlists(partition_state, &all_plists, true, error);
     if (rc == false) {
         list_clear(&all_plists);
         return false;
@@ -1025,7 +1025,7 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
             }
             current = current->next;
         }
-        mpd_client_command_list_end_check(partition_state);
+        mympd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     FREE_SDS(pl_file);
@@ -1123,7 +1123,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         while (current != NULL) {
             unsigned count = 0;
             unsigned duration = 0;
-            current->value_i = mpd_client_enum_playlist(partition_state, current->key, &count, &duration, NULL) == true
+            current->value_i = mympd_client_enum_playlist(partition_state, current->key, &count, &duration, NULL) == true
                  ? count
                  : 1; // set it to not empty on error
             current = current->next;
@@ -1156,7 +1156,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
             }
             list_node_free(current);
         }
-        mpd_client_command_list_end_check(partition_state);
+        mympd_client_command_list_end_check(partition_state);
     }
     list_clear(&playlists);
     mpd_response_finish(partition_state->conn);

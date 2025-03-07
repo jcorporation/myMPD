@@ -17,7 +17,7 @@
 #include "src/lib/search.h"
 #include "src/lib/sticker.h"
 #include "src/lib/webradio.h"
-#include "src/mpd_client/playlists.h"
+#include "src/mympd_client/playlists.h"
 
 #include <ctype.h>
 #include <limits.h>

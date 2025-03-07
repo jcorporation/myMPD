@@ -20,8 +20,8 @@
 #include "src/lib/mem.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/search.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/search.h"
 #include "src/mympd_api/trigger.h"
 
 #include <string.h>

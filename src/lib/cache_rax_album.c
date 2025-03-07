@@ -23,7 +23,7 @@
 #include "src/lib/mpack.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
-#include "src/mpd_client/tags.h"
+#include "src/mympd_client/tags.h"
 
 #include <errno.h>
 #include <inttypes.h>
@@ -46,7 +46,7 @@
  * Private definitions
  */
 
-static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_mpd_tags *tags, sds *key);
+static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_mympd_mpd_tags *tags, sds *key);
 
 /**
  * Public functions
@@ -139,8 +139,8 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
     }
 
     // read tags array
-    struct t_mpd_tags *album_tags = malloc_assert(sizeof(struct t_mpd_tags));
-    mpd_tags_reset(album_tags);
+    struct t_mympd_mpd_tags *album_tags = malloc_assert(sizeof(struct t_mympd_mpd_tags));
+    mympd_mpd_tags_reset(album_tags);
 
     mpack_node_t tags_node = mpack_node_map_cstr(root, "tags");
     size_t len = mpack_node_array_length(tags_node);
@@ -208,7 +208,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_mpd_tags *album_tags, const struct t_albums_config *album_config, bool free_data) {
+bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_mympd_mpd_tags *album_tags, const struct t_albums_config *album_config, bool free_data) {
     if (album_cache->cache == NULL) {
         MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not saving anything");
         return true;
@@ -327,13 +327,13 @@ sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct 
 
     // fallback to hashed AlbumArtist::Album::<group tag>
     // first try AlbumArtist tag
-    albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, albumkey);
+    albumkey = mympd_client_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, albumkey);
     if (sdslen(albumkey) == 0) {
         // AlbumArtist tag is empty, fallback to Artist tag
         #ifdef MYMPD_DEBUG
             MYMPD_LOG_DEBUG(NULL, "AlbumArtist for uri \"%s\" is empty, falling back to Artist", mpd_song_get_uri(song));
         #endif
-        albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ARTIST, albumkey);
+        albumkey = mympd_client_get_tag_value_string(song, MPD_TAG_ARTIST, albumkey);
     }
     if (sdslen(albumkey) == 0) {
         MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tags AlbumArtist and Artist are empty", mpd_song_get_uri(song));
@@ -529,7 +529,7 @@ void album_cache_inc_song_count(struct mpd_song *album) {
  * @return true on success else false
  */
 bool album_cache_append_tags(struct mpd_song *album,
-        const struct mpd_song *song, const struct t_mpd_tags *tags)
+        const struct mpd_song *song, const struct t_mympd_mpd_tags *tags)
 {
     for (unsigned tagnr = 0; tagnr < tags->len; ++tagnr) {
         const char *value;
@@ -590,7 +590,7 @@ void album_cache_set_uri(struct mpd_song *album, const char *uri) {
  * @param key already allocated sds string to set the album key
  * @return struct mpd_song* allocated mpd_song struct
  */
-static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_mpd_tags *tags, sds *key) {
+static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_mympd_mpd_tags *tags, sds *key) {
     struct mpd_song *album = NULL;
     sdsclear(*key);
     char *uri = mpack_node_cstr_alloc(mpack_node_map_cstr(album_node, "uri"), JSONRPC_STR_MAX);

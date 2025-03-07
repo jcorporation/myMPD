@@ -80,32 +80,32 @@ target_sources(mympd
     lib/utility.c
     lib/validate.c
     lib/webradio.c
-    mpd_client/autoconf.c
-    mpd_client/connection.c
-    mpd_client/errorhandler.c
-    mpd_client/features.c
-    mpd_client/idle.c
-    mpd_client/jukebox.c
-    mpd_client/partitions.c
-    mpd_client/playlists.c
-    mpd_client/queue.c
-    mpd_client/presets.c
-    mpd_client/random_select.c
-    mpd_client/search.c
-    mpd_client/stickerdb.c
-    mpd_client/shortcuts.c
-    mpd_client/tags.c
-    mpd_client/volume.c
-    mpd_worker/mpd_worker.c
-    mpd_worker/album_cache.c
-    mpd_worker/api.c
-    mpd_worker/jukebox.c
-    mpd_worker/playlists.c
-    mpd_worker/random_select.c
-    mpd_worker/smartpls.c
-    mpd_worker/state.c
-    mpd_worker/song.c
-    mpd_worker/webradiodb.c
+    mympd_client/autoconf.c
+    mympd_client/connection.c
+    mympd_client/errorhandler.c
+    mympd_client/features.c
+    mympd_client/idle.c
+    mympd_client/jukebox.c
+    mympd_client/partitions.c
+    mympd_client/playlists.c
+    mympd_client/queue.c
+    mympd_client/presets.c
+    mympd_client/random_select.c
+    mympd_client/search.c
+    mympd_client/stickerdb.c
+    mympd_client/shortcuts.c
+    mympd_client/tags.c
+    mympd_client/volume.c
+    mympd_worker/mympd_worker.c
+    mympd_worker/album_cache.c
+    mympd_worker/api.c
+    mympd_worker/jukebox.c
+    mympd_worker/playlists.c
+    mympd_worker/random_select.c
+    mympd_worker/smartpls.c
+    mympd_worker/state.c
+    mympd_worker/song.c
+    mympd_worker/webradiodb.c
     mympd_api/mympd_api.c
     mympd_api/albumart.c
     mympd_api/browse.c

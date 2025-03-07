@@ -264,8 +264,8 @@ void *free_search_expression_list(struct t_list *expr_list) {
  * @param any_tag_types tags for special "any" tag in expression
  * @return expression result
  */
-bool search_expression_song(const struct mpd_song *song, const struct t_list *expr_list, const struct t_mpd_tags *any_tag_types) {
-    struct t_mpd_tags one_tag;
+bool search_expression_song(const struct mpd_song *song, const struct t_list *expr_list, const struct t_mympd_mpd_tags *any_tag_types) {
+    struct t_mympd_mpd_tags one_tag;
     one_tag.len = 1;
     struct t_list_node *current = expr_list->head;
     while (current != NULL) {
@@ -287,7 +287,7 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
         }
         else {
             one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
-            const struct t_mpd_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
+            const struct t_mympd_mpd_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
                 ? any_tag_types  //any - use provided tags
                 : &one_tag;      //use only selected tag
 

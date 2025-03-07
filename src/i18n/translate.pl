@@ -38,7 +38,7 @@ while (my $line = <$file>) {
 close $file;
 
 #phrases from src
-my @dirs = ("src/", "src/mpd_client/", "src/mpd_worker/", "src/mympd_api/", "src/scripts/", "src/web_server/", "htdocs/js/");
+my @dirs = ("src/", "src/mympd_client/", "src/mympd_worker/", "src/mympd_api/", "src/scripts/", "src/web_server/", "htdocs/js/");
 my @files = ("htdocs/index.html");
 for my $dirname (@dirs) {
     opendir my $dir, $dirname or die "Can't open directory \"$dirname\": $!";

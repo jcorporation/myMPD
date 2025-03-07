@@ -13,7 +13,7 @@
 
 #include "src/lib/jsonrpc.h"
 #include "src/lib/sds_extras.h"
-#include "src/mpd_client/errorhandler.h"
+#include "src/mympd_client/errorhandler.h"
 
 #include <string.h>
 

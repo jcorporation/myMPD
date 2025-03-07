@@ -17,10 +17,10 @@
 #include "src/lib/log.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/jukebox.h"
-#include "src/mpd_client/shortcuts.h"
-#include "src/mpd_client/volume.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/jukebox.h"
+#include "src/mympd_client/shortcuts.h"
+#include "src/mympd_client/volume.h"
 #include "src/mympd_api/requests.h"
 
 #ifdef MYMPD_ENABLE_LUA
@@ -126,7 +126,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
     enum jukebox_modes old_jukebox_mode = partition_state->jukebox.mode;
     partition_state->jukebox.mode = JUKEBOX_OFF;
 
-    int old_volume = mpd_client_get_volume(partition_state);
+    int old_volume = mympd_client_get_volume(partition_state);
 
     enum jukebox_modes jukebox_mode = JUKEBOX_OFF;
     if (sdslen(preset) > 0) {
@@ -169,7 +169,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_clear");
             }
         }
-        mpd_client_command_list_end_check(partition_state);
+        mympd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     //restore old jukebox mode

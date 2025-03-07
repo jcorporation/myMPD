@@ -20,7 +20,7 @@
  * Holds cache information
  */
 struct t_cache {
-    bool building;             //!< true if the mpd_worker thread is creating the cache
+    bool building;             //!< true if the mympd_worker thread is creating the cache
     rax *cache;                //!< pointer to the cache
     pthread_rwlock_t rwlock;   //!< pthreads read-write lock object
 };

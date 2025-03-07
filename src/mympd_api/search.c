@@ -13,10 +13,10 @@
 
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/search.h"
-#include "src/mpd_client/stickerdb.h"
-#include "src/mpd_client/tags.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/search.h"
+#include "src/mympd_client/stickerdb.h"
+#include "src/mympd_client/tags.h"
 #include "src/mympd_api/sticker.h"
 
 /**
@@ -45,7 +45,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
     unsigned real_limit = limit == 0 ? offset + MPD_PLAYLIST_LENGTH_MAX : offset + limit;
     if (mpd_search_db_songs(partition_state->conn, false) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
-        mpd_client_add_search_sort_param(partition_state, sort, sortdesc, false) == false ||
+        mympd_client_add_search_sort_param(partition_state, sort, sortdesc, false) == false ||
         mpd_search_add_window(partition_state->conn, offset, real_limit) == false)
     {
         mpd_search_cancel(partition_state->conn);

@@ -69,7 +69,7 @@
 #define MYMPD_LUALIBS_PATH "${MYMPD_LUALIBS_PATH}"
 
 //global variables
-extern _Atomic int mpd_worker_threads;
+extern _Atomic int mympd_worker_threads;
 #ifdef MYMPD_ENABLE_LUA
     extern _Atomic int script_worker_threads;
 #endif

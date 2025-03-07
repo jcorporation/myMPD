@@ -13,7 +13,7 @@
 
 #include "src/lib/list.h"
 #include "src/lib/mympd_state.h"
-#include "src/mpd_client/playlists.h"
+#include "src/mympd_client/playlists.h"
 
 /**
  * Playlist delete criteria

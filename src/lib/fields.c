@@ -27,7 +27,7 @@ void fields_clone(struct t_fields *src_fields, struct t_fields *dst_fields) {
  * @param fields pointer to t_fields struct
  */
 void fields_reset(struct t_fields *fields) {
-    mpd_tags_reset(&fields->mpd_tags);
+    mympd_mpd_tags_reset(&fields->mpd_tags);
     stickers_reset(&fields->stickers);
 }
 
@@ -63,19 +63,19 @@ void stickers_enable_all(struct t_stickers *stickers, enum mympd_sticker_type st
 }
 
 /**
- * (Re-)initializes a t_mpd_tags struct
- * @param mpd_tags pointer to t_mpd_tags struct
+ * (Re-)initializes a t_mympd_mpd_tags struct
+ * @param mpd_tags pointer to t_mympd_mpd_tags struct
  */
-void mpd_tags_reset(struct t_mpd_tags *mpd_tags) {
+void mympd_mpd_tags_reset(struct t_mympd_mpd_tags *mpd_tags) {
     mpd_tags->len = 0;
     memset(mpd_tags->tags, 0, sizeof(mpd_tags->tags));
 }
 
 /**
- * Copy a struct t_mpd_tags to another one
+ * Copy a struct t_mympd_mpd_tags to another one
  * @param src_mpd_tags source
- * @param dst_mpd_tags destination
+ * @param dst_mympd_mpd_tags destination
  */
-void mpd_tags_clone(struct t_mpd_tags *src_mpd_tags, struct t_mpd_tags *dst_mpd_tags) {
-    memcpy((void *)dst_mpd_tags, (void *)src_mpd_tags, sizeof(struct t_mpd_tags));
+void mympd_mpd_tags_clone(struct t_mympd_mpd_tags *src_mpd_tags, struct t_mympd_mpd_tags *dst_mympd_mpd_tags) {
+    memcpy((void *)dst_mympd_mpd_tags, (void *)src_mpd_tags, sizeof(struct t_mympd_mpd_tags));
 }

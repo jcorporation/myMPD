@@ -18,9 +18,9 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/utility.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/stickerdb.h"
-#include "src/mpd_client/tags.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/stickerdb.h"
+#include "src/mympd_client/tags.h"
 #include "src/mympd_api/extra_media.h"
 #include "src/mympd_api/sticker.h"
 
@@ -74,7 +74,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
             switch (mpd_entity_get_type(entity)) {
                 case MPD_ENTITY_TYPE_SONG: {
                     const struct mpd_song *song = mpd_entity_get_song(entity);
-                    sds entity_name =  mpd_client_get_tag_value_string(song, MPD_TAG_TITLE, sdsempty());
+                    sds entity_name =  mympd_client_get_tag_value_string(song, MPD_TAG_TITLE, sdsempty());
                     key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
                     search_dir_entry(entity_list, key, entity_name, entity, searchstr);
                     break;

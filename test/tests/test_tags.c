@@ -10,7 +10,7 @@
 
 #include "dist/utest/utest.h"
 #include "dist/libmympdclient/src/isong.h"
-#include "src/mpd_client/tags.h"
+#include "src/mympd_client/tags.h"
 
 #include <mpd/client.h>
 
@@ -36,8 +36,8 @@ UTEST(tags, test_is_multivalue_tag) {
 }
 
 UTEST(tags, test_get_sort_tag) {
-    struct t_mpd_tags tags;
-    mpd_tags_reset(&tags);
+    struct t_mympd_mpd_tags tags;
+    mympd_mpd_tags_reset(&tags);
     tags.len = 4;
     tags.tags[0] = MPD_TAG_ALBUM;
     tags.tags[1] = MPD_TAG_ALBUM_SORT;
@@ -47,29 +47,29 @@ UTEST(tags, test_get_sort_tag) {
     ASSERT_EQ(MPD_TAG_PERFORMER, get_sort_tag(MPD_TAG_PERFORMER, &tags));
 }
 
-UTEST(tags, test_mpd_client_get_tag_value_string) {
+UTEST(tags, test_mympd_client_get_tag_value_string) {
     struct mpd_song *song = new_song();
-    sds s = mpd_client_get_tag_value_string(song, MPD_TAG_ARTIST, sdsempty());
+    sds s = mympd_client_get_tag_value_string(song, MPD_TAG_ARTIST, sdsempty());
     ASSERT_STREQ("Einstürzende Neubauten, Blixa Bargeld", s);
     sdsclear(s);
-    s = mpd_client_get_tag_value_string(song, MPD_TAG_PERFORMER, s);
+    s = mympd_client_get_tag_value_string(song, MPD_TAG_PERFORMER, s);
     ASSERT_STREQ("", s);
     sdsfree(s);
     mpd_song_free(song);
 }
 
-UTEST(tags, test_mpd_client_get_tag_values) {
+UTEST(tags, test_mympd_client_get_tag_values) {
     struct mpd_song *song = new_song();
-    sds s = mpd_client_get_tag_values(song, MPD_TAG_ARTIST, sdsempty());
+    sds s = mympd_client_get_tag_values(song, MPD_TAG_ARTIST, sdsempty());
     ASSERT_STREQ("[\"Einstürzende Neubauten\",\"Blixa Bargeld\"]", s);
     sdsclear(s);
-    s = mpd_client_get_tag_values(song, MPD_TAG_TITLE, s);
+    s = mympd_client_get_tag_values(song, MPD_TAG_TITLE, s);
     ASSERT_STREQ("\"Tabula Rasa\"", s);
     sdsclear(s);
-    s = mpd_client_get_tag_values(song, MPD_TAG_PERFORMER, s);
+    s = mympd_client_get_tag_values(song, MPD_TAG_PERFORMER, s);
     ASSERT_STREQ("[]", s);
     sdsclear(s);
-    s = mpd_client_get_tag_values(song, MPD_TAG_DATE, s);
+    s = mympd_client_get_tag_values(song, MPD_TAG_DATE, s);
     ASSERT_STREQ("\"\"", s);
     sdsfree(s);
     mpd_song_free(song);
@@ -77,10 +77,10 @@ UTEST(tags, test_mpd_client_get_tag_values) {
 
 UTEST(tags, test_check_tags) {
     sds s = sdsnew("Artist, Album,Title");
-    struct t_mpd_tags tags;
-    mpd_tags_reset(&tags);
-    struct t_mpd_tags allowed;
-    mpd_tags_reset(&allowed);
+    struct t_mympd_mpd_tags tags;
+    mympd_mpd_tags_reset(&tags);
+    struct t_mympd_mpd_tags allowed;
+    mympd_mpd_tags_reset(&allowed);
     allowed.len++;
     allowed.tags[0] = MPD_TAG_ALBUM;
     allowed.len++;
@@ -92,13 +92,13 @@ UTEST(tags, test_check_tags) {
     sdsfree(s);
 }
 
-UTEST(tags, test_mpd_client_tag_exists) {
-    struct t_mpd_tags tags;
-    mpd_tags_reset(&tags);
+UTEST(tags, test_mympd_client_tag_exists) {
+    struct t_mympd_mpd_tags tags;
+    mympd_mpd_tags_reset(&tags);
     tags.len++;
     tags.tags[0] = MPD_TAG_ALBUM;
     tags.len++;
     tags.tags[1] = MPD_TAG_ARTIST;
-    ASSERT_TRUE(mpd_client_tag_exists(&tags, MPD_TAG_ALBUM));
-    ASSERT_FALSE(mpd_client_tag_exists(&tags, MPD_TAG_ALBUM_ARTIST));
+    ASSERT_TRUE(mympd_client_tag_exists(&tags, MPD_TAG_ALBUM));
+    ASSERT_FALSE(mympd_client_tag_exists(&tags, MPD_TAG_ALBUM_ARTIST));
 }

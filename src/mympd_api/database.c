@@ -13,7 +13,7 @@
 
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/jsonrpc.h"
-#include "src/mpd_client/errorhandler.h"
+#include "src/mympd_client/errorhandler.h"
 #include "src/mympd_api/status.h"
 
 /**

@@ -16,9 +16,9 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/search.h"
 #include "src/lib/utility.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/stickerdb.h"
-#include "src/mpd_client/tags.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/stickerdb.h"
+#include "src/mympd_client/tags.h"
 #include "src/mympd_api/sticker.h"
 
 #include <string.h>

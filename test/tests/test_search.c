@@ -11,7 +11,7 @@
 #include "dist/utest/utest.h"
 #include "dist/libmympdclient/src/isong.h"
 #include "src/lib/search.h"
-#include "src/mpd_client/tags.h"
+#include "src/mympd_client/tags.h"
 
 #include <mpd/client.h>
 
@@ -22,8 +22,8 @@ bool search_by_expression(const char *expr_string) {
     struct mpd_song *song = new_song();
     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ARTIST, "MG's");
     //browse tag types
-    struct t_mpd_tags tags;
-    mpd_tags_reset(&tags);
+    struct t_mympd_mpd_tags tags;
+    mympd_mpd_tags_reset(&tags);
     tags.len++;
     tags.tags[0] = MPD_TAG_ALBUM;
     tags.len++;

@@ -23,11 +23,11 @@
 #include "src/lib/thread.h"
 #include "src/lib/timer.h"
 #include "src/lib/webradio.h"
-#include "src/mpd_client/autoconf.h"
-#include "src/mpd_client/connection.h"
-#include "src/mpd_client/idle.h"
-#include "src/mpd_client/partitions.h"
-#include "src/mpd_client/stickerdb.h"
+#include "src/mympd_client/autoconf.h"
+#include "src/mympd_client/connection.h"
+#include "src/mympd_client/idle.h"
+#include "src/mympd_client/partitions.h"
+#include "src/mympd_client/stickerdb.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/timer.h"
@@ -60,7 +60,7 @@ void *mympd_api_loop(void *arg_config) {
     // start auto configuration, if mpd_host does not exist
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/mpd_host", mympd_state->config->workdir, DIR_WORK_STATE);
     if (testfile_read(filepath) == false) {
-        mpd_client_autoconf(mympd_state);
+        mympd_client_autoconf(mympd_state);
     }
     FREE_SDS(filepath);
 
@@ -135,7 +135,7 @@ void *mympd_api_loop(void *arg_config) {
             }
         }
         // Iterate through mpd partitions and handle the events
-        mpd_client_idle(mympd_state, request);
+        mympd_client_idle(mympd_state, request);
     }
     MYMPD_LOG_DEBUG(NULL, "Stopping mympd_api thread");
 
@@ -143,7 +143,7 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP, MPD_PARTITION_ALL, NULL);
 
     // disconnect from mpd
-    mpd_client_disconnect_all(mympd_state);
+    mympd_client_disconnect_all(mympd_state);
     if (mympd_state->stickerdb->conn != NULL) {
         stickerdb_disconnect(mympd_state->stickerdb);
     }
@@ -209,7 +209,7 @@ static void handle_socket_pollin(struct t_mympd_state *mympd_state, nfds_t i, st
             // scrobble event
             MYMPD_LOG_DEBUG(mympd_state->pfds.partition_states[i]->name, "Scrobble event");
             if (mympd_timer_read(mympd_state->pfds.fds[i].fd) == true) {
-                mpd_client_scrobble(mympd_state, mympd_state->pfds.partition_states[i]);
+                mympd_client_scrobble(mympd_state, mympd_state->pfds.partition_states[i]);
             }
             break;
         case PFD_TYPE_TIMER_MPD_CONNECT:
@@ -232,7 +232,7 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i) {
         mympd_state->pfds.fds[i].fd, lookup_pfd_type(mympd_state->pfds.fd_types[i]));
     switch (mympd_state->pfds.fd_types[i]) {
         case PFD_TYPE_PARTITION:
-            mpd_client_disconnect(mympd_state->pfds.partition_states[i]);
+            mympd_client_disconnect(mympd_state->pfds.partition_states[i]);
             break;
         case PFD_TYPE_STICKERDB:
             stickerdb_disconnect(mympd_state->stickerdb);

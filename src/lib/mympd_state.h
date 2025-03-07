@@ -87,11 +87,11 @@ struct t_mpd_state {
     sds playlist_directory_value;       //!< real playlist directory set by feature detection
     //tags
     sds tag_list;                       //!< comma separated string of mpd tags to enable
-    struct t_mpd_tags tags_mympd;       //!< tags enabled by myMPD and mpd
-    struct t_mpd_tags tags_mpd;         //!< all available mpd tags
-    struct t_mpd_tags tags_search;      //!< tags enabled for search
-    struct t_mpd_tags tags_browse;      //!< tags enabled for browse
-    struct t_mpd_tags tags_album;       //!< tags enabled for albums
+    struct t_mympd_mpd_tags tags_mympd;       //!< tags enabled by myMPD and mpd
+    struct t_mympd_mpd_tags tags_mpd;         //!< all available mpd tags
+    struct t_mympd_mpd_tags tags_search;      //!< tags enabled for search
+    struct t_mympd_mpd_tags tags_browse;      //!< tags enabled for browse
+    struct t_mympd_mpd_tags tags_album;       //!< tags enabled for albums
     enum mpd_tag_type tag_albumartist;  //!< tag to use for AlbumArtist
     //Feature flags
     const unsigned *protocol;           //!< mpd protocol version
@@ -107,7 +107,7 @@ struct t_jukebox_state {
     sds playlist;                  //!< playlist from which the jukebox queue is generated
     unsigned queue_length;         //!< how many songs should the mpd queue have
     unsigned last_played;          //!< only add songs with last_played state older than seconds from now
-    struct t_mpd_tags uniq_tag;      //!< single tag for the jukebox uniq constraint
+    struct t_mympd_mpd_tags uniq_tag;      //!< single tag for the jukebox uniq constraint
     struct t_list *queue;          //!< the jukebox queue itself
     bool ignore_hated;             //!< ignores hated songs for the jukebox mode
     sds filter_include;            //!< mpd search filter to include songs / albums
@@ -237,7 +237,7 @@ struct t_mympd_state {
     sds smartpls_sort;                              //!< sort smart playlists by this tag
     sds smartpls_prefix;                            //!< name prefix for smart playlists
     int smartpls_interval;                          //!< interval to refresh smart playlists in seconds
-    struct t_mpd_tags smartpls_generate_tag_types;  //!< generate smart playlists for each value for this tag
+    struct t_mympd_mpd_tags smartpls_generate_tag_types;  //!< generate smart playlists for each value for this tag
     sds smartpls_generate_tag_list;                 //!< generate smart playlists for each value for this tag (string representation)
     sds view_queue_current;                         //!< view settings for the queue view
     sds view_search;                                //!< view settings for the search view
@@ -267,7 +267,7 @@ struct t_mympd_state {
     bool tag_disc_empty_is_first;                   //!< handle empty disc tag as disc one for albums
     sds booklet_name;                               //!< name of the booklet files
     sds info_txt_name;                              //!< name of album info files
-    struct t_cache album_cache;                     //!< the album cache created by the mpd_worker thread
+    struct t_cache album_cache;                     //!< the album cache created by the mympd_worker thread
     unsigned last_played_count;                     //!< number of songs to keep in the last played list (disk + memory)
     struct t_webradios *webradiodb;                 //!< WebradioDB
     struct t_webradios *webradio_favorites;         //!< webradio favorites
@@ -280,12 +280,12 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data);
 void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *config);
 void mympd_state_free(struct t_mympd_state *mympd_state);
 
-void mpd_state_features_default(struct t_mpd_features *feat);
-void mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *dst);
+void mympd_mpd_state_features_default(struct t_mpd_features *feat);
+void mympd_mpd_state_features_copy(struct t_mpd_features *src, struct t_mpd_features *dst);
 
-void mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config);
-void mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst);
-void mpd_state_free(struct t_mpd_state *mpd_state);
+void mympd_mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *config);
+void mympd_mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst);
+void mympd_mpd_state_free(struct t_mpd_state *mpd_state);
 
 void partition_state_default(struct t_partition_state *partition_state, const char *name,
         struct t_mpd_state *mpd_state, struct t_config *config);

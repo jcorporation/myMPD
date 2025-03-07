@@ -42,20 +42,20 @@ set(TEST_SOURCES
   ../src/lib/utility.c
   ../src/lib/validate.c
   ../src/lib/webradio.c
-  ../src/mpd_client/connection.c
-  ../src/mpd_client/errorhandler.c
-  ../src/mpd_client/features.c
-  ../src/mpd_client/jukebox.c
-  ../src/mpd_client/presets.c
-  ../src/mpd_client/queue.c
-  ../src/mpd_client/playlists.c
-  ../src/mpd_client/random_select.c
-  ../src/mpd_client/search.c
-  ../src/mpd_client/shortcuts.c
-  ../src/mpd_client/stickerdb.c
-  ../src/mpd_client/tags.c
-  ../src/mpd_client/jukebox.c
-  ../src/mpd_client/volume.c
+  ../src/mympd_client/connection.c
+  ../src/mympd_client/errorhandler.c
+  ../src/mympd_client/features.c
+  ../src/mympd_client/jukebox.c
+  ../src/mympd_client/presets.c
+  ../src/mympd_client/queue.c
+  ../src/mympd_client/playlists.c
+  ../src/mympd_client/random_select.c
+  ../src/mympd_client/search.c
+  ../src/mympd_client/shortcuts.c
+  ../src/mympd_client/stickerdb.c
+  ../src/mympd_client/tags.c
+  ../src/mympd_client/jukebox.c
+  ../src/mympd_client/volume.c
   ../src/mympd_api/extra_media.c
   ../src/mympd_api/home.c
   ../src/mympd_api/last_played.c

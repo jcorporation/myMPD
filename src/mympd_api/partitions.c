@@ -17,10 +17,10 @@
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
-#include "src/mpd_client/connection.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/partitions.h"
-#include "src/mpd_client/shortcuts.h"
+#include "src/mympd_client/connection.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/partitions.h"
+#include "src/mympd_client/shortcuts.h"
 
 #include <string.h>
 
@@ -142,7 +142,7 @@ sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition
         return buffer;
     }
     //disconnect partition
-    mpd_client_disconnect(partition_to_remove);
+    mympd_client_disconnect(partition_to_remove);
     //move outputs
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
@@ -154,7 +154,7 @@ sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition
                 break;
             }
         }
-        mpd_client_command_list_end_check(partition_state);
+        mympd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     list_clear(&outputs);

@@ -12,8 +12,8 @@
 #include "src/mympd_api/outputs.h"
 
 #include "src/lib/jsonrpc.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/shortcuts.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/shortcuts.h"
 
 #include <string.h>
 
@@ -138,7 +138,7 @@ bool mympd_api_output_attributes_set(struct t_partition_state *partition_state,
                 break;
             }
         }
-        mpd_client_command_list_end_check(partition_state);
+        mympd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_output_set");

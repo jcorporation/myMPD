@@ -18,14 +18,13 @@
  * Struct for a mpd tag list
  * libmpdclient uses a similar declaration
  */
-struct t_mpd_tags {
+struct t_mympd_mpd_tags {
     size_t len;                  //!< number of tags in the array
     enum mpd_tag_type tags[64];  //!< tags array
 };
 
 /**
  * Struct for a mpd tag and sticker lists
- * libmpdclient uses a similar declaration, but for tags only
  */
 struct t_stickers {
     size_t len;                                        //!< number of stickers in the array
@@ -35,10 +34,9 @@ struct t_stickers {
 
 /**
  * Struct for a mpd tag and sticker lists
- * libmpdclient uses a similar declaration, but for tags only
  */
 struct t_fields {
-    struct t_mpd_tags mpd_tags;  //!< mpd tags
+    struct t_mympd_mpd_tags mpd_tags;  //!< mpd tags
     struct t_stickers stickers;  //!< stickers
 };
 
@@ -58,7 +56,7 @@ void fields_reset(struct t_fields *fields);
 void stickers_reset(struct t_stickers *stickers);
 void stickers_enable_all(struct t_stickers *stickers, enum mympd_sticker_type sticker_type);
 
-void mpd_tags_clone(struct t_mpd_tags *src_mpd_tags, struct t_mpd_tags *dst_mpd_tags);
-void mpd_tags_reset(struct t_mpd_tags *mpd_tags);
+void mympd_mpd_tags_clone(struct t_mympd_mpd_tags *src_mpd_tags, struct t_mympd_mpd_tags *dst_mympd_mpd_tags);
+void mympd_mpd_tags_reset(struct t_mympd_mpd_tags *mpd_tags);
 
 #endif

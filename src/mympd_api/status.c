@@ -18,11 +18,11 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/timer.h"
 #include "src/lib/utility.h"
-#include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/jukebox.h"
-#include "src/mpd_client/shortcuts.h"
-#include "src/mpd_client/tags.h"
-#include "src/mpd_client/volume.h"
+#include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/jukebox.h"
+#include "src/mympd_client/shortcuts.h"
+#include "src/mympd_client/tags.h"
+#include "src/mympd_client/volume.h"
 #include "src/mympd_api/extra_media.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_api/webradio.h"
@@ -306,7 +306,7 @@ bool mympd_api_status_clear_error(struct t_partition_state *partition_state, sds
  */
 sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds buffer, unsigned request_id, enum jsonrpc_response_types response_type) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_VOLUME_GET;
-    int volume = mpd_client_get_volume(partition_state);
+    int volume = mympd_client_get_volume(partition_state);
     if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
         buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_VOLUME);
     }
@@ -337,7 +337,7 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, struct t_pa
         if (mpd_send_current_song(partition_state->conn) == false) {
             mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_current_song");
         }
-        mpd_client_command_list_end_check(partition_state);
+        mympd_client_command_list_end_check(partition_state);
     }
 
     struct mpd_status *status = mpd_recv_status(partition_state->conn);
