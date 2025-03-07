@@ -16,6 +16,7 @@ This is a small maintenance release.
 
 - Upd: Mongoose 7.17
 - Upd: Enforce search expression parsing errors
+- Upd: utf8.h
 - Fix: Check for openrc-run also in /usr/sbin (Alpine Linux /usr merge project) #1407
 - Fix: Simplify Debian packaging
 - Fix: Create new script

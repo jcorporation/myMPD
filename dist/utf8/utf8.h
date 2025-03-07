@@ -43,6 +43,14 @@
 #pragma warning(disable : 4820)
 #endif
 
+#if defined(__cplusplus)
+#if defined(_MSC_VER)
+#define utf8_cplusplus _MSVC_LANG
+#else
+#define utf8_cplusplus __cplusplus
+#endif
+#endif
+
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -67,8 +75,14 @@ typedef int32_t utf8_int32_t;
 #endif
 #endif
 
-#ifdef __cplusplus
+#ifdef utf8_cplusplus
 extern "C" {
+#endif
+
+#if defined(__TINYC__)
+#define UTF8_ATTRIBUTE(a) __attribute((a))
+#else
+#define UTF8_ATTRIBUTE(a) __attribute__((a))
 #endif
 
 #if defined(_MSC_VER)
@@ -77,21 +91,31 @@ extern "C" {
 #define utf8_restrict __restrict
 #define utf8_weak __inline
 #elif defined(__clang__) || defined(__GNUC__)
-#define utf8_nonnull __attribute__((nonnull))
-#define utf8_pure __attribute__((pure))
+#define utf8_nonnull UTF8_ATTRIBUTE(nonnull)
+#define utf8_pure UTF8_ATTRIBUTE(pure)
 #define utf8_restrict __restrict__
-#define utf8_weak __attribute__((weak))
+#define utf8_weak UTF8_ATTRIBUTE(weak)
+#elif defined(__TINYC__)
+#define utf8_nonnull UTF8_ATTRIBUTE(nonnull)
+#define utf8_pure UTF8_ATTRIBUTE(pure)
+#define utf8_restrict
+#define utf8_weak UTF8_ATTRIBUTE(weak)
+#elif defined(__IAR_SYSTEMS_ICC__)
+#define utf8_nonnull
+#define utf8_pure UTF8_ATTRIBUTE(pure)
+#define utf8_restrict __restrict
+#define utf8_weak UTF8_ATTRIBUTE(weak)
 #else
-#error Non clang, non gcc, non MSVC compiler found!
+#error Non clang, non gcc, non MSVC, non tcc, non iar compiler found!
 #endif
 
-#ifdef __cplusplus
+#ifdef utf8_cplusplus
 #define utf8_null NULL
 #else
 #define utf8_null 0
 #endif
 
-#if (defined(__cplusplus) && __cplusplus >= 201402L)
+#if defined(utf8_cplusplus) && utf8_cplusplus >= 201402L && (!defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER >= 1910))
 #define utf8_constexpr14 constexpr
 #define utf8_constexpr14_impl constexpr
 #else
@@ -100,7 +124,7 @@ extern "C" {
 #define utf8_constexpr14_impl
 #endif
 
-#if defined(__cplusplus) && __cplusplus >= 202002L
+#if defined(utf8_cplusplus) && utf8_cplusplus >= 202002L && defined(__cpp_char8_t)
 using utf8_int8_t = char8_t; /* Introduced in C++20 */
 #else
 typedef char utf8_int8_t;
@@ -1682,7 +1706,7 @@ utf8rcodepoint(const utf8_int8_t *utf8_restrict str,
 #undef utf8_constexpr14
 #undef utf8_null
 
-#ifdef __cplusplus
+#ifdef utf8_cplusplus
 } /* extern "C" */
 #endif
 
