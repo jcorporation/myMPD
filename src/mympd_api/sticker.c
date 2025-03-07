@@ -58,7 +58,7 @@ sds mympd_api_sticker_get(struct t_stickerdb_state *stickerdb, sds buffer, unsig
  * @param sort_desc sort descending?
  * @param offset window start (including)
  * @param limit window end (excluding), use UINT_MAX for open end
- * @return new allocated struct t_list
+ * @return pointer to buffer
  */
 sds mympd_api_sticker_find(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
         sds uri, enum mympd_sticker_type type, sds name, enum mpd_sticker_operator op, sds value,
