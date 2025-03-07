@@ -22,7 +22,7 @@
 /**
  * Gets a sticker value
  * @param stickerdb pointer to stickerdb
- * @param buffer already allocated sds string to append the list
+ * @param buffer already allocated sds string to append the result
  * @param request_id jsonrpc request id
  * @param uri Sticker uri
  * @param type MPD sticker type
@@ -47,15 +47,17 @@ sds mympd_api_sticker_get(struct t_stickerdb_state *stickerdb, sds buffer, unsig
 /**
  * Gets a sorted list of stickers by name and value
  * @param stickerdb pointer to the stickerdb state
- * @param type MPD sticker type
+ * @param buffer already allocated sds string to append the list
+ * @param request_id jsonrpc request id
  * @param uri baseuri for search
+ * @param type MPD sticker type
  * @param name sticker name
  * @param op mpd sticker compare operator
  * @param value sticker value or NULL to get all stickers with this name
  * @param sort sticker sort type
  * @param sort_desc sort descending?
- * @param start window start (including)
- * @param end window end (excluding), use UINT_MAX for open end
+ * @param offset window start (including)
+ * @param limit window end (excluding), use UINT_MAX for open end
  * @return new allocated struct t_list
  */
 sds mympd_api_sticker_find(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
