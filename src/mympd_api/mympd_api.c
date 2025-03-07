@@ -50,7 +50,7 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i);
  * @return NULL
  */
 void *mympd_api_loop(void *arg_config) {
-    thread_logname = sds_replace(thread_logname, "mympdapi");
+    thread_logname = sds_replace(thread_logname, "api");
     set_threadname(thread_logname);
 
     // create initial mympd_state struct and set defaults

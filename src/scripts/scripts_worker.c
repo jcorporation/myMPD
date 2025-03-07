@@ -25,7 +25,7 @@
  */
 void *script_run(void *script_thread_arg) {
     script_worker_threads++;
-    thread_logname = sds_replace(thread_logname, "scripts_worker");
+    thread_logname = sds_replace(thread_logname, "runscript");
     set_threadname(thread_logname);
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
 

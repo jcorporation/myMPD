@@ -119,7 +119,7 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
  * @return NULL
  */
 static void *mympd_worker_run(void *arg) {
-    thread_logname = sds_replace(thread_logname, "mpdworker");
+    thread_logname = sds_replace(thread_logname, "worker");
     set_threadname(thread_logname);
     struct t_mympd_worker_state *mympd_worker_state = (struct t_mympd_worker_state *) arg;
     if (mympd_worker_state->mympd_only == true) {
