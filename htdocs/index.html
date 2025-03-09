@@ -2259,6 +2259,26 @@
         </div>
         <div class="modal-body">
           <div class="tab-content">
+            <div id="modalScriptAPItab" class="tab-pane">
+              <form class="mb-3">
+                <div class="form-group row mb-3">
+                  <label class="col-sm-4 col-form-label" for="modalScriptAPIcmdsInput" data-phrase="Method"></label>
+                  <div class="col-sm-6">
+                    <select id="modalScriptAPIcmdsInput" class="form-select"></select>
+                  </div>
+                  <div class="col-sm-2">
+                    <button class="btn btn-success w-100" id="modalScriptAPISubmitBtn" data-phrase="Send"></button>
+                  </div>
+                </div>
+                <small id="modalScriptAPIdesc"></small>
+                <hr/>
+                <div id="modalScriptAPIparams"></div>
+              </form>
+              <div class="card border d-none" id="modalScriptAPIresult">
+                <div class="card-header" id="modalScriptAPIresultState" data-phrase="Result"></div>
+                <textarea rows="10" class="font-monospace form-control" id="modalScriptAPIresultText"></textarea>
+              </div>
+            </div>
             <div id="modalScriptsEditTab" class="tab-pane">
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="modalScriptsScriptInput" data-phrase="Script name"></label>
@@ -2353,16 +2373,21 @@
             </div>
           </div>
         </div>
+        <div id="modalScriptAPIfooter" class="modal-footer justify-content-between">
+          <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+        </div>
         <div id="modalScriptsListFooter" class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <div>
             <button data-href='{"cmd":"showImportScript","options":["",""]}' class="btn btn-success protected me-2" data-phrase="Import"></button>
-            <button data-href='{"cmd":"showEditScript","options":["","undefined"]}' class="btn btn-success protected" data-phrase="New script"></button>
+            <button data-href='{"cmd":"showModalScriptAPItab","options":["",""]}' class="btn btn-success protected me-2" data-phrase="API"></button>
+            <button data-href='{"cmd":"showEditScript","options":["","undefined"]}' class="btn btn-success protected" data-phrase="New"></button>
           </div>
         </div>
         <div id="modalScriptsEditFooter" class="modal-footer justify-content-between d-none">
           <div>
-            <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+            <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary me-2" data-phrase="Cancel"></button>
+            <button data-href='{"cmd":"showModalScriptAPItab","options":["",""]}' class="btn btn-success protected me-2" data-phrase="API"></button>
             <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
           </div>
           <button data-href='{"cmd":"saveScript","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>

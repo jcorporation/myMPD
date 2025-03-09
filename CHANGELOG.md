@@ -14,6 +14,7 @@ This is a small maintenance release.
 
 ### Changelog
 
+- Feat: API explorer
 - Upd: Mongoose 7.17
 - Upd: Enforce search expression parsing errors
 - Upd: utf8.h

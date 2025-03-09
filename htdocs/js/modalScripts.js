@@ -108,6 +108,133 @@ function initModalScripts() {
             }
         }
     });
+
+    initModalScriptAPItab();
+}
+
+/**
+ * Initialization functions for the script api tab elements
+ * @returns {void}
+ */
+function initModalScriptAPItab() {
+    const modalScriptAPIcmdsInput = elGetById('modalScriptAPIcmdsInput');
+    modalScriptAPIcmdsInput.appendChild(elCreateEmpty('option',{}));
+    const methods = Object.keys(APImethods).sort();
+    for (const method of methods) {
+        modalScriptAPIcmdsInput.appendChild(elCreateText('option',{'value': method}, method));
+    }
+    modalScriptAPIcmdsInput.addEventListener('change', function() {
+        document.getElementById('modalScriptAPIparams').textContent = '';
+        const method = this.options[this.selectedIndex].value;
+        if (method !== '' && APImethods[method].params !== undefined) {
+            elGetById('modalScriptAPIparams').appendChild(exploreAPIparamsToForm(APImethods[method].params, ''));
+            document.getElementById('modalScriptAPIdesc').textContent = APImethods[method].desc;
+        }
+        else {
+            document.getElementById('modalScriptAPIdesc').textContent = '';
+        }
+        document.getElementById('modalScriptAPIresultState').textContent = tn('Result');
+        document.getElementById('modalScriptAPIresultText').textContent = '';
+        elHideId('modalScriptAPIresult');
+    }, false);
+    document.getElementById('modalScriptAPISubmitBtn').addEventListener('click', function(event) {
+        event.preventDefault();
+        exploreAPIsendRequest();
+    }, false);
+}
+
+/**
+ * Creates a HTML form from an jsonrpc param object
+ * @param {object} p Jsonrpc params object
+ * @param {string} k Parent key
+ * @returns {HTMLElement} HTML form
+ */
+function exploreAPIparamsToForm(p, k) {
+    const form = elCreateEmpty('div', {});
+    for (const param in p) {
+        if (p[param].params !== undefined) {
+            form.appendChild(
+                elCreateNodes('div', {'class': ['form-group', 'row']}, [
+                    elCreateText('label', {'class': ['col-sm-4', 'col-form-label']}, param),
+                    elCreateNode('col', {'class': ['col-sm-8']}, exploreAPIparamsToForm(p[param].params, param))
+                ])
+            );
+        }
+        else {
+            form.appendChild(
+                elCreateNodes('div', {'class': ['form-group', 'row']}, [
+                    elCreateNodes('label', {'class': ['col-sm-4', 'col-form-label']}, [
+                        document.createTextNode(param),
+                        elCreateText('small', {}, ' (' + p[param].type + ')')
+                    ]),
+                    elCreateNodes('col', {'class': ['col-sm-8']}, [
+                        elCreateEmpty('input', {'class': ['form-control'], 'id': 'exploreAPIparam' + k + param, 'value': p[param].example}),
+                        elCreateText('small', {}, p[param].desc)
+                    ])
+                ])
+            );
+        }
+    }
+    return form;
+}
+
+/**
+ * Creates an json object with values from a HTML form created by exploreAPIparamsToForm()
+ * @param {object} p Jsonrpc params object
+ * @param {string} k Parent key
+ * @returns {object} JSON object
+ */
+function exploreAPIFormToParams(p, k) {
+    const request = {};
+    for (const param in p) {
+        if (p[param].params !== undefined) {
+            request[param] = exploreAPIFormToParams(p[param].params, param);
+        }
+        else {
+            let value = document.getElementById('exploreAPIparam' + k + param).value;
+            if (value.charAt(0) === '{' ||
+                value.charAt(0) === '[')
+            {
+                request[param] = JSON.parse(value);
+            }
+            else {
+                if (value === '') {
+                    //do nothing
+                }
+                else if (value === 'true') {
+                    value = true;
+                }
+                else if (value === 'false') {
+                    value = false;
+                }
+                else if (!isNaN(value)) {
+                    value = Number(value);
+                }
+                request[param] = value;
+            }
+        }
+    }
+    return request;
+}
+
+/**
+ * Sends the API request and populates the result fields
+ * @returns {void}
+ */
+function exploreAPIsendRequest() {
+    document.getElementById('modalScriptAPIresultState').textContent = tn('Sending');
+    document.getElementById('modalScriptAPIresultText').textContent = '';
+    const method = getSelectValueId('modalScriptAPIcmdsInput');
+    const params = APImethods[method].params !== undefined
+        ? exploreAPIFormToParams(APImethods[method].params, '')
+        : {};
+    elShowId('modalScriptAPIresult');
+    sendAPI(method, params, function(obj) {
+        elGetById('modalScriptAPIresultState').textContent = obj.error
+            ? tn('Error')
+            : tn('OK');
+        elGetById('modalScriptAPIresultText').textContent = JSON.stringify(obj);
+    }, true);
 }
 
 /**
@@ -314,12 +441,14 @@ function showEditScript(script, obj) {
     cleanupModalId('modalScripts');
     elGetById('modalScripts').firstElementChild.classList.remove('modal-dialog-scrollable');
     elGetById('modalScriptsContentInput').removeAttribute('disabled');
+    elGetById('modalScriptsEditTab').classList.add('active');
+    elGetById('modalScriptAPItab').classList.remove('active');
     elGetById('modalScriptsListTab').classList.remove('active');
     elGetById('modalScriptsImportTab').classList.remove('active');
-    elGetById('modalScriptsEditTab').classList.add('active');
+    elShowId('modalScriptsEditFooter');
+    elHideId('modalScriptAPIfooter');
     elHideId('modalScriptsListFooter');
     elHideId('modalScriptsImportFooter');
-    elShowId('modalScriptsEditFooter');
     if (obj !== undefined) {
         parseEditScript(obj);
     }
@@ -371,13 +500,34 @@ function parseEditScript(obj) {
  * Shows the list scripts tab
  * @returns {void}
  */
+//eslint-disable-next-line no-unused-vars
+function showModalScriptAPItab() {
+    cleanupModalId('modalScripts');
+    elGetById('modalScripts').firstElementChild.classList.remove('modal-dialog-scrollable');
+    elGetById('modalScriptAPItab').classList.add('active');
+    elGetById('modalScriptsListTab').classList.remove('active');
+    elGetById('modalScriptsEditTab').classList.remove('active');
+    elGetById('modalScriptsImportTab').classList.remove('active');
+    elShowId('modalScriptAPIfooter');
+    elHideId('modalScriptsListFooter');
+    elHideId('modalScriptsEditFooter');
+    elHideId('modalScriptsImportFooter');
+    getScriptList(true);
+}
+
+/**
+ * Shows the list scripts tab
+ * @returns {void}
+ */
 function showListScripts() {
     cleanupModalId('modalScripts');
     elGetById('modalScripts').firstElementChild.classList.remove('modal-dialog-scrollable');
     elGetById('modalScriptsListTab').classList.add('active');
+    elGetById('modalScriptAPItab').classList.remove('active');
     elGetById('modalScriptsEditTab').classList.remove('active');
     elGetById('modalScriptsImportTab').classList.remove('active');
     elShowId('modalScriptsListFooter');
+    elHideId('modalScriptAPIfooter');
     elHideId('modalScriptsEditFooter');
     elHideId('modalScriptsImportFooter');
     getScriptList(true);
@@ -517,12 +667,14 @@ function addOptionToScriptSelect(sel, opt, args) {
 function showImportScript() {
     cleanupModalId('modalScripts');
     elGetById('modalScripts').firstElementChild.classList.add('modal-dialog-scrollable');
+    elGetById('modalScriptsImportTab').classList.add('active');
+    elGetById('modalScriptAPItab').classList.remove('active');
     elGetById('modalScriptsListTab').classList.remove('active');
     elGetById('modalScriptsEditTab').classList.remove('active');
-    elGetById('modalScriptsImportTab').classList.add('active');
+    elShowId('modalScriptsImportFooter');
+    elHideId('modalScriptAPIfooter');
     elHideId('modalScriptsListFooter');
     elHideId('modalScriptsEditFooter');
-    elShowId('modalScriptsImportFooter');
     if (userAgentData.isMobile === false) {
         setFocusId('modalScriptsImportSearchStr');
     }
