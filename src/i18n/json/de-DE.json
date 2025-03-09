@@ -325,6 +325,7 @@
     "Failure getting inserted song id": "Konnte eingefügte Song-ID nicht ermitteln",
     "Failure listing stickernames": "Stickernamen konnten nicht gelistet werden.",
     "Failure loading script list.": "Skriptliste konnte nicht geladen werden.",
+    "Failure searching for stickers": "Fehler beim Suchen nach Sticker",
     "Fast forward": "Vorwärts spulen",
     "Fast rewind": "Zurück spulen",
     "Favorite and WebradioDb entry are different": "Favorit und WebradioDB Eintrag unterscheiden sich",
@@ -422,6 +423,7 @@
     "Invalid script content": "Ungültige Zeichen im Skript",
     "Invalid script name": "Ungültiger Skriptname",
     "Invalid script order": "Ungültige Skriptreihenfolge",
+    "Invalid search expression": "Ungültiger Suchausdruck",
     "Invalid selection": "Ungültige Auswahl",
     "Invalid session": "Ungültige Session",
     "Invalid sort tag": "Ungültier Sortier-Tag",
@@ -1240,7 +1242,5 @@
     "url_resolved": "URL",
     "userDefinedSticker": "Benutzerdefinierte Sticker",
     "votes": "Stimmen",
-    "wasapi": "Windows Audio Session API",
-    "Failure searching for stickers": "Fehler beim Suchen nach Sticker",
-    "Invalid search expression": "Ungültiger Suchausdruck"
+    "wasapi": "Windows Audio Session API"
 }
