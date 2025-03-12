@@ -1055,7 +1055,7 @@
     "fifo": "FIFO",
     "greater": "groter",
     "greater (numeric)": "groter (numeriek)",
-    "helpConnectionBinaryLimit": "Maximale chunk-grootte voor binaire gegevens. De limiet moet tussen 4 en 256 kB liggen.",
+    "helpConnectionBinaryLimit": "Maximale chunk-grootte voor binaire gegevens. De limiet moet tussen 4 en 5120 kB liggen.",
     "helpConnectionKeepalive": "Activeert TCP Keepalive.",
     "helpConnectionMPDHost": "Unix socket, IP-adres of naam waarop MPD luistert",
     "helpConnectionMPDPassword": "Het MPD-wachtwoord, indien ingesteld in de MPD-configuratie.",

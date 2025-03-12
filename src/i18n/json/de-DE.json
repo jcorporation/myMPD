@@ -1055,7 +1055,7 @@
     "fifo": "FIFO",
     "greater": "größer",
     "greater (numeric)": "größer (numerisch)",
-    "helpConnectionBinaryLimit": "Maximale Chunk-Größe für binäre Daten. Das Limit muss zwischen 4 kB und 256 kB liegen.",
+    "helpConnectionBinaryLimit": "Maximale Chunk-Größe für binäre Daten. Das Limit muss zwischen 4 kB und 5120 kB liegen.",
     "helpConnectionKeepalive": "Aktiviert TCP Keepalive.",
     "helpConnectionMPDHost": "Unix-Socket, IP-Adresse oder Name auf dem MPD horcht.",
     "helpConnectionMPDPassword": "Das MPD Passwort, falls eines in der MPD Konfiguration gesetzt ist.",

@@ -1055,7 +1055,7 @@
     "fifo": "fifo",
     "greater": "większy",
     "greater (numeric)": "większy (liczba)",
-    "helpConnectionBinaryLimit": "Maksymalny rozmiar fragmentu dla danych binarnych. Limit musi wynosić od 4 kB do 1024 kB.",
+    "helpConnectionBinaryLimit": "Maksymalny rozmiar fragmentu dla danych binarnych. Limit musi wynosić od 4 kB do 5120 kB.",
     "helpConnectionKeepalive": "Włącza funkcję TCP keepalive.",
     "helpConnectionMPDHost": "Gniazdo uniksowe, adres IP lub nazwa, na którym pracuje MPD.",
     "helpConnectionMPDPassword": "Hasło, o ile zostało ustawione w konfiguracji MPD.",

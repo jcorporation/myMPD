@@ -1055,7 +1055,7 @@
     "fifo": "FIFO",
     "greater": "より大きい",
     "greater (numeric)": "より大きい (数値)",
-    "helpConnectionBinaryLimit": "バイナリデータの最大チャンクサイズ。4kBから256kBの間で指定してください。",
+    "helpConnectionBinaryLimit": "バイナリデータの最大チャンクサイズ。4kBから5120kBの間で指定してください。",
     "helpConnectionKeepalive": "TCP keepaliveを有効にします。",
     "helpConnectionMPDHost": "MPDが接続を受け入れるUnixソケット、IPアドレス、またはホスト名。",
     "helpConnectionMPDPassword": "MPDのパスワード(MPD側で設定している場合)。",

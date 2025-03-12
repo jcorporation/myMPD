@@ -1055,7 +1055,7 @@
     "fifo": "fifo",
     "greater": "maggiore",
     "greater (numeric)": "maggiore (numerico)",
-    "helpConnectionBinaryLimit": "Massima dimensione del blocco per dati binar. Il limite deve essere tra 4 kB e 256 kB.",
+    "helpConnectionBinaryLimit": "Massima dimensione del blocco per dati binar. Il limite deve essere tra 4 kB e 5120 kB.",
     "helpConnectionKeepalive": "Abilita il TCP keepalive.",
     "helpConnectionMPDHost": "Socket unix, indirizzo IP o nome su cui MPD è in ascolto.",
     "helpConnectionMPDPassword": "Password MPD, se impostata nella configurazione MPD.",

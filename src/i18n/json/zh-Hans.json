@@ -1055,7 +1055,7 @@
     "fifo": "fifo",
     "greater": "大于",
     "greater (numeric)": "大于 (数字)",
-    "helpConnectionBinaryLimit": "最大二进制数据块大小. 必须限制在 4 kB 到 256 kB 之间.",
+    "helpConnectionBinaryLimit": "最大二进制数据块大小. 必须限制在 4 kB 到 5120 kB 之间.",
     "helpConnectionKeepalive": "始终保持 TCP 连接处于活动状态.",
     "helpConnectionMPDHost": "MPD所监听的 Unix socket, ip 地址或名称.",
     "helpConnectionMPDPassword": "MPD 密码, 若在 mpd 配置里设置了密码.",

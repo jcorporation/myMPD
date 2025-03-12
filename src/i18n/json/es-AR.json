@@ -1055,7 +1055,7 @@
     "fifo": "fifo",
     "greater": "mayor",
     "greater (numeric)": "mayor (numérico)",
-    "helpConnectionBinaryLimit": "Tamaño máximo del segmento para datos binarios. El límite debe estar entre 4kB y 256kB.",
+    "helpConnectionBinaryLimit": "Tamaño máximo del segmento para datos binarios. El límite debe estar entre 4kB y 5120kB.",
     "helpConnectionKeepalive": "Habilita 'TCP KA' para mantener la conexión activa.",
     "helpConnectionMPDHost": "Socket unix, dirección IP o nombre de host donde escucha MPD.",
     "helpConnectionMPDPassword": "La contraseña de MPD, si se estableció en la configuración de MPD.",
