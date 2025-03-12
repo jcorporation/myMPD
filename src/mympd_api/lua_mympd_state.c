@@ -73,9 +73,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
         lua_mympd_state_set_f(lua_partition_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
         lua_mympd_state_set_f(lua_partition_state, "mixrampdb", mpd_status_get_mixrampdb(status));
         lua_mympd_state_set_i(lua_partition_state, "replaygain", replay_gain_mode);
-        if (partition_state->mpd_state->feat.partitions == true) {
-            lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));
-        }
+        lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));
         mpd_status_free(status);
     }
     mpd_response_finish(partition_state->conn);

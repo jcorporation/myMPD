@@ -5,7 +5,7 @@ title: Feature matrix
 Certain myMPD features are only available with new MPD versions. To use all myMPD functions you should use the latest stable MPD version.
 
 !!! note
-    myMPD support only MPD 0.21.0 and above.
+    myMPD support only MPD 0.22.6 and above.
 
 | MYMPD FEATURE | MPD VERSION | DESCRIPTION |
 | ------------- | ----------- | ----------- |
@@ -19,5 +19,3 @@ Certain myMPD features are only available with new MPD versions. To use all myMP
 | Add after current song (position/whence arg for load/searchadd) | 0.23.5 | Adds items to the queue after current playing song. |
 | Insert into playlist (position arg for playlistadd) | 0.23.5 | Inserts songs into a playlist. |
 | Remove range in playlist (range arg for playlistdelete) | 0.23.3 | Removes a range of songs in a playlist. |
-| Partitions | 0.22.0 | Concurrent partition support. |
-| Embedded albumart (readpicture) | 0.22.0 | myMPD can read pictures tags directly if it has access to the music directory. |

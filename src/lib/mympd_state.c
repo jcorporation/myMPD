@@ -266,12 +266,8 @@ void mympd_mpd_state_features_default(struct t_mpd_features *feat) {
     feat->playlists = false;
     feat->tags = false;
     feat->fingerprint = false;
-    feat->albumart = false;
-    feat->readpicture = false;
     feat->mount = false;
     feat->neighbor = false;
-    feat->partitions = false;
-    feat->binarylimit = false;
     feat->playlist_rm_range = false;
     feat->whence = false;
     feat->advqueue = false;
@@ -281,7 +277,6 @@ void mympd_mpd_state_features_default(struct t_mpd_features *feat) {
     feat->pcre = true;
     feat->db_added = false;
     feat->advsticker = false;
-    feat->search_add_sort_window = false;
     feat->listplaylist_range = false;
 }
 

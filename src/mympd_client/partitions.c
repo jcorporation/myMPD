@@ -61,9 +61,7 @@ bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_st
                 timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
         }
         // populate the partition list
-        if (partition_state->mpd_state->feat.partitions == true) {
-            partitions_populate(mympd_state);
-        }
+        partitions_populate(mympd_state);
     }
     else {
         // change partition

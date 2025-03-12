@@ -46,29 +46,24 @@ enum mpd_conn_states {
  * MPD feature flags
  */
 struct t_mpd_features {
+    bool advsticker;               //!< mpd supports new sticker commands from MPD 0.24
+    bool db_added;                 //!< mpd supports added attribute for songs (MPD 0.24)
     bool mpd_0_24_0;               //!< MPD version is ge 0.24.0
     bool advqueue;                 //!< mpd supports the prio filter / sort for queue and the save modes (MPD 0.24)
-    bool albumart;                 //!< mpd supports the albumart command
-    bool binarylimit;              //!< mpd supports the binarylimit command
+    bool consume_oneshot;          //!< mpd supports consume oneshot mode (MPD 0.24)
     bool fingerprint;              //!< mpd supports the fingerprint command
     bool library;                  //!< myMPD has access to the mpd music directory
+    bool listplaylist_range;       //!< mpd supports the listplaylist with range parameter (MPD 0.24)
     bool mount;                    //!< mpd supports mounts
     bool neighbor;                 //!< mpd supports neighbors command
-    bool partitions;               //!< mpd supports partitions
+    bool pcre;                     //!< mpd supports pcre for filter expressions
+    bool playlist_dir_auto;        //!< mpd supports autodetection of playlist directory (MPD 0.24)
     bool playlists;                //!< mpd supports playlists
-    bool playlist_rm_range;        //!< mpd supports the playlist rm range command
-    bool readpicture;              //!< mpd supports the readpicture command
+    bool playlist_rm_range;        //!< mpd supports the playlist rm range command (MPD 0.23.3)
+    bool starts_with;              //!< mpd supports starts_with filter expression (MPD 0.24)
     bool stickers;                 //!< mpd supports stickers
     bool tags;                     //!< mpd tags are enabled
-    bool whence;                   //!< mpd supports the whence feature (relative position in queue)
-    bool consume_oneshot;          //!< mpd supports consume oneshot mode
-    bool playlist_dir_auto;        //!< mpd supports autodetection of playlist directory
-    bool starts_with;              //!< mpd supports starts_with filter expression
-    bool pcre;                     //!< mpd supports pcre for filter expressions
-    bool db_added;                 //!< mpd supports added attribute for songs
-    bool advsticker;               //!< mpd supports new sticker commands from MPD 0.24
-    bool search_add_sort_window;   //!< mpd supports search and window for findadd/searchadd/searchaddpl
-    bool listplaylist_range;       //!< mpd supports the listplaylist with range parameter
+    bool whence;                   //!< mpd supports the whence feature (relative position in queue) (MPD 0.23.5)
 };
 
 /**

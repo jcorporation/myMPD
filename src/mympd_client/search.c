@@ -22,7 +22,6 @@
 static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, struct mpd_song *album,
         const struct t_albums_config *album_config, sds expression);
 static bool add_search_whence_param(struct t_partition_state *partition_state, unsigned to, unsigned whence);
-static bool add_search_window_param(struct t_partition_state *partition_state, unsigned start, unsigned end);
 
 //public functions
 
@@ -45,8 +44,8 @@ bool mympd_client_search_add_to_plist_window(struct t_partition_state *partition
 {
     if (mpd_search_add_db_songs_to_playlist(partition_state->conn, plist) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
-        mympd_client_add_search_sort_param(partition_state, sort, sortdesc, true) == false ||
-        add_search_window_param(partition_state, start, end) == false ||
+        mympd_client_add_search_sort_param(partition_state, sort, sortdesc) == false ||
+        mpd_search_add_window(partition_state->conn, start, end) == false ||
         add_search_whence_param(partition_state, to, MPD_POSITION_ABSOLUTE) == false)
     {
         mpd_search_cancel(partition_state->conn);
@@ -96,7 +95,7 @@ bool mympd_client_search_add_to_queue(struct t_partition_state *partition_state,
 {
     if (mpd_search_add_db_songs(partition_state->conn, false) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
-        mympd_client_add_search_sort_param(partition_state, sort, sortdesc, true) == false ||
+        mympd_client_add_search_sort_param(partition_state, sort, sortdesc) == false ||
         add_search_whence_param(partition_state, to, whence) == false)
     {
         mpd_search_cancel(partition_state->conn);
@@ -131,7 +130,7 @@ bool mympd_client_search_add_to_queue_window(struct t_partition_state *partition
 {
     if (mpd_search_add_db_songs(partition_state->conn, false) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
-        mympd_client_add_search_sort_param(partition_state, sort, sortdesc, true) == false ||
+        mympd_client_add_search_sort_param(partition_state, sort, sortdesc) == false ||
         mpd_search_add_window(partition_state->conn, start, end) == false ||
         add_search_whence_param(partition_state, to, whence) == false)
     {
@@ -210,16 +209,9 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
  * @param partition_state pointer to partition state
  * @param sort tag to sort
  * @param sortdesc descending sort in reverse order?
- * @param check_version checks if sort is supported (checks for mpd version >= 0.22.0)
  * @return true on success, else false
  */
-bool mympd_client_add_search_sort_param(struct t_partition_state *partition_state, const char *sort, bool sortdesc, bool check_version) {
-    if (check_version == true &&
-        partition_state->mpd_state->feat.search_add_sort_window == false)
-    {
-        //silently ignore sort, MPD is too old
-        return true;
-    }
+bool mympd_client_add_search_sort_param(struct t_partition_state *partition_state, const char *sort, bool sortdesc) {
     if (sort != NULL &&
         sort[0] != '\0' &&
         partition_state->mpd_state->feat.tags == true)
@@ -311,20 +303,6 @@ static bool add_search_whence_param(struct t_partition_state *partition_state, u
         to < UINT_MAX) //to = UINT_MAX is append
     {
         return mpd_search_add_position(partition_state->conn, to, whence);
-    }
-    return true;
-}
-
-/**
- * Adds the window parameter to the search command
- * @param partition_state pointer to partition state
- * @param start start of the window (including)
- * @param end end of the window (excluding)
- * @return true on success, else false
- */
-static bool add_search_window_param(struct t_partition_state *partition_state, unsigned start, unsigned end) {
-    if (partition_state->mpd_state->feat.search_add_sort_window == true) {
-        return mpd_search_add_window(partition_state->conn, start, end);
     }
     return true;
 }

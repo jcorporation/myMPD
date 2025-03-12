@@ -60,24 +60,6 @@ void mympd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_parti
     partition_state->mpd_state->feat.advsticker = mympd_state->stickerdb->mpd_state->feat.advsticker;
 
     // Set features by MPD protocol version
-    if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 0) >= 0) {
-        partition_state->mpd_state->feat.partitions = true;
-        MYMPD_LOG_INFO(partition_state->name, "Enabling partitions feature");
-        partition_state->mpd_state->feat.search_add_sort_window = true;
-        MYMPD_LOG_INFO(partition_state->name, "Enabling searchadd sort and window feature");
-    }
-    else {
-        MYMPD_LOG_WARN(partition_state->name, "Disabling partitions feature, depends on mpd >= 0.22.0");
-    }
-
-    if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 4) >= 0 ) {
-        partition_state->mpd_state->feat.binarylimit = true;
-        MYMPD_LOG_INFO(partition_state->name, "Enabling binarylimit feature");
-    }
-    else {
-        MYMPD_LOG_WARN(partition_state->name, "Disabling binarylimit feature, depends on mpd >= 0.22.4");
-    }
-
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 23, 3) >= 0 ) {
         partition_state->mpd_state->feat.playlist_rm_range = true;
         MYMPD_LOG_INFO(partition_state->name, "Enabling delete playlist range feature");
@@ -144,14 +126,6 @@ static void features_commands(struct t_partition_state *partition_state) {
             else if (strcmp(pair->value, "getfingerprint") == 0) {
                 MYMPD_LOG_INFO(partition_state->name, "MPD supports fingerprint");
                 partition_state->mpd_state->feat.fingerprint = true;
-            }
-            else if (strcmp(pair->value, "albumart") == 0) {
-                MYMPD_LOG_INFO(partition_state->name, "MPD supports albumart");
-                partition_state->mpd_state->feat.albumart = true;
-            }
-            else if (strcmp(pair->value, "readpicture") == 0) {
-                MYMPD_LOG_INFO(partition_state->name, "MPD supports readpicture");
-                partition_state->mpd_state->feat.readpicture = true;
             }
             else if (strcmp(pair->value, "mount") == 0) {
                 MYMPD_LOG_INFO(partition_state->name, "MPD supports mounts");
@@ -319,12 +293,6 @@ static void features_config(struct t_mympd_state *mympd_state, struct t_partitio
 
     //config command is only supported for socket connections
     if (partition_state->mpd_state->mpd_host[0] == '/') {
-        if (partition_state->mpd_state->feat.mpd_0_24_0 == true) {
-            //assume true for older MPD versions
-            partition_state->mpd_state->feat.pcre = true;
-            MYMPD_LOG_INFO(partition_state->name, "Enabling pcre feature");
-        }
-        //get directories from mpd
         if (mpd_send_command(partition_state->conn, "config", NULL)) {
             struct mpd_pair *pair;
             while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
@@ -341,7 +309,7 @@ static void features_config(struct t_mympd_state *mympd_state, struct t_partitio
                     partition_state->mpd_state->playlist_directory_value = sds_replace(partition_state->mpd_state->playlist_directory_value, pair->value);
                 }
                 else if (strcmp(pair->name, "pcre") == 0) {
-                    //supported since MPD 0.24
+                    // Detection of pcre suported is available since MPD 0.24
                     if (pair->value[0] == '1') {
                         partition_state->mpd_state->feat.pcre = true;
                         MYMPD_LOG_INFO(partition_state->name, "Enabling pcre feature");

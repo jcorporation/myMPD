@@ -59,8 +59,8 @@
 
 //minimum mpd version
 #define MPD_VERSION_MIN_MAJOR 0
-#define MPD_VERSION_MIN_MINOR 21
-#define MPD_VERSION_MIN_PATCH 0
+#define MPD_VERSION_MIN_MINOR 22
+#define MPD_VERSION_MIN_PATCH 6
 
 //default paths from cmake
 #define MYMPD_DOC_ROOT "${MYMPD_DOC_ROOT}"

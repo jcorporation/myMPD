@@ -50,9 +50,7 @@ function setFeatures() {
         features.featNeighbors = settings.webuiSettings.enableMounts
             ? settings.features.featNeighbors
             : false;
-        features.featPartitions = settings.webuiSettings.enablePartitions
-            ? settings.features.featPartitions
-            : false;
+        features.featPartitions = settings.webuiSettings.enablePartitions;
         features.featPlaylists = settings.features.featPlaylists;
         features.featSmartplsAvailable = settings.features.featPlaylists && settings.features.featTags;
         features.featSmartpls = settings.features.featPlaylists && settings.features.featTags
@@ -60,7 +58,6 @@ function setFeatures() {
             : false;
         features.featStickers = settings.features.featStickers;
         features.featTags = settings.features.featTags;
-        features.featBinarylimit = settings.features.featBinarylimit;
         features.featFingerprint = settings.features.featFingerprint;
         features.featPlaylistRmRange = settings.features.featPlaylistRmRange;
         features.featWhence = settings.features.featWhence;

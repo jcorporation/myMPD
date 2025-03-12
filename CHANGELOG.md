@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v20.1.0 (not yet released)
 
-This is a small maintenance release.
+This is the first release that supports only MPD 0.22.6 and above.
 
 ### API changes
 

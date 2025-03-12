@@ -1487,7 +1487,6 @@ app.goto = false;
 
 //features
 const features = {
-    "featBinarylimit": true,
     "featCacert": false,
     "featConsumeOneshot": false,
     "featFingerprint": false,

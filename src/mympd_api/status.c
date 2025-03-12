@@ -80,9 +80,7 @@ sds mympd_api_status_print(struct t_partition_state *partition_state, struct t_c
     buffer = tojson_int(buffer, "nextSongId", mpd_status_get_next_song_id(status), true);
     buffer = tojson_int(buffer, "lastSongId", (partition_state->last_song_id ?
         partition_state->last_song_id : -1), true);
-    if (partition_state->mpd_state->feat.partitions == true) {
-        buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
-    }
+    buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
     const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
     buffer = printAudioFormat(buffer, audioformat);
     buffer = sdscatlen(buffer, ",", 1);
