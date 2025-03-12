@@ -39,16 +39,16 @@ UTEST(mympd_state, test_mpd_state_copy) {
     mympd_mpd_state_free(dst);
 }
 
-UTEST(mympd_state, test_mpd_state_features_copy) {
+UTEST(mympd_state, test_mympd_mpd_state_features_copy) {
     struct t_mpd_features src;
     mympd_mpd_state_features_default(&src);
-    src.albumart = true;
+    src.fingerprint = true;
 
     struct t_mpd_features dst;
     mympd_mpd_state_features_copy(&src, &dst);
-    ASSERT_TRUE(dst.albumart);
+    ASSERT_TRUE(dst.fingerprint);
     ASSERT_FALSE(dst.advqueue);
 
     mympd_mpd_state_features_default(&src);
-    ASSERT_FALSE(src.albumart);
+    ASSERT_FALSE(src.fingerprint);
 }
