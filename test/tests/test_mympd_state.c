@@ -39,7 +39,7 @@ UTEST(mympd_state, test_mpd_state_copy) {
     mympd_mpd_state_free(dst);
 }
 
-UTEST(mympd_state, test_mpd_state_features_copy) {
+UTEST(mympd_state, test_mympd_mpd_state_features_copy) {
     struct t_mpd_features src;
     mympd_mpd_state_features_default(&src);
     src.fingerprint = true;
