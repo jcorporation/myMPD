@@ -31,6 +31,6 @@ target_sources(mygpio
 if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
   target_compile_options(mygpio
     PRIVATE
-      "-Wformat"
+      "-Wno-format-nonliteral"
   )
 endif()
