@@ -1,8 +1,6 @@
-#
 # SPDX-License-Identifier: GPL-3.0-or-later
-# myGPIOd (c) 2020-2024 Juergen Mang <mail@jcgames.de>
+# myMPD (c) 2018-2025 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/myGPIOd
-#
 
 add_library(mygpio "")
 
@@ -29,3 +27,10 @@ target_sources(mygpio
     libmygpio/src/util.c
     mygpio-common/util.c
 )
+
+if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
+  target_compile_options(rax
+    PRIVATE
+      "-Wformat"
+  )
+endif()
