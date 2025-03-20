@@ -16,3 +16,10 @@ target_include_directories(sds
   PRIVATE
     ${PROJECT_SOURCE_DIR}
 )
+
+if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
+  target_compile_options(sds
+    PRIVATE
+      "-Wformat"
+  )
+endif()
