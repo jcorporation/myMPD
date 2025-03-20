@@ -285,16 +285,30 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
-  # set strict global compile flags
-  add_compile_options(
+  set(C_OPTS
+    "-D_GLIBCXX_ASSERTIONS"
+    "-D_LIBCXX_ENABLE_ASSERTIONS"
+    "-fcf-protection=full"
     "-fdata-sections"
     "-ffunction-sections"
+    "-fno-delete-null-pointer-checks"
+    "-fno-omit-frame-pointer"
+    "-fno-plt"
+    "-fno-strict-aliasing"
+    "-fno-strict-overflow"
+    "-fstack-clash-protection"
     "-fstack-protector-strong"
+    "-fstrict-flex-arrays=3"
+    "-ftrivial-auto-var-init=zero"
+    "-mbranch-protection=standard"
+    "-mno-omit-leaf-frame-pointer"
+    "-mshstk"
     "-pedantic"
+    "-std=gnu17"
     "-Wall"
     "-Werror"
     "-Wextra"
-    "-Wformat"
+    "-Wformat=2"
     "-Wformat-security"
     "-Winit-self"
     "-Wmissing-include-dirs"
@@ -310,9 +324,8 @@ if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
     "-Wvla"
     "-Wwrite-strings"
   )
-
-  # check for supported compiler flags
-  foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" "-fno-plt")
+  # check and set strict global compile flags
+  foreach(FLAG IN ITEMS ${C_OPTS})
     message("Checking for compiler flag ${FLAG}")
     unset(COMPILER_SUPPORTS_FLAG CACHE)
     unset(COMPILER_SUPPORTS_FLAG)
@@ -325,7 +338,10 @@ if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
   if(NOT MYMPD_ENABLE_ASAN AND NOT MYMPD_ENABLE_UBSAN)
     # incompatible with address sanitizers
     if(NOT CMAKE_C_FLAGS MATCHES "_FORTIFY_SOURCE")
-      add_compile_options("-D_FORTIFY_SOURCE=2")
+      add_compile_options(
+        "-U_FORTIFY_SOURCE"
+        "-D_FORTIFY_SOURCE=3"
+      )
     endif()
   endif()
 else()
@@ -402,7 +418,13 @@ endif()
 if(CMAKE_BUILD_TYPE MATCHES "(Release|RelWithDebInfo|MinSizeRel)")
   add_link_options(
     "-pie"
-    "-Wl,-z,relro,-z,now,--gc-sections,--as-needed"
+    "-Wl,-z,nodlopen"
+    "-Wl,-z,noexecstack"
+    "-Wl,-z,relro"
+    "-Wl,-z,now"
+    "-Wl,--as-needed"
+    "-Wl,--no-copy-dt-needed-entries"
+    "-Wl,--gc-sections"
   )
   if(CMAKE_BUILD_TYPE MATCHES "(Release|MinSizeRel)")
     message("Generating stripped binary")

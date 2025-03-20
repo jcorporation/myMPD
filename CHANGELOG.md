@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Translations
+- Upd: Rework compiler options
 
 ***
 

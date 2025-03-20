@@ -22,6 +22,7 @@ if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
     PRIVATE
       "-Wno-shadow"
       "-Wno-incompatible-pointer-types-discards-qualifiers"
+      "-Wformat"
   )
 
   if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
