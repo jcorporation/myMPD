@@ -20,6 +20,6 @@ target_include_directories(sds
 if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
   target_compile_options(sds
     PRIVATE
-      "-Wformat"
+      "-Wno-format-nonliteral"
   )
 endif()
