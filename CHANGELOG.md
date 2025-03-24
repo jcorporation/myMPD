@@ -10,6 +10,8 @@ This release supports new MPD 0.25 features.
 
 ### Changelog
 
+- Feat: Support window parameter for tag list (MPD 0.25)
+
 ***
 
 ## myMPD v20.1.1 (not yet released)
