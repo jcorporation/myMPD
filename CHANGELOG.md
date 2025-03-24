@@ -4,6 +4,14 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v20.2.0 (not yet released)
+
+This release supports new MPD 0.25 features.
+
+### Changelog
+
+***
+
 ## myMPD v20.1.1 (not yet released)
 
 This is a small bug fix release.
