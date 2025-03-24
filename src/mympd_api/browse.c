@@ -35,6 +35,10 @@
 
 // private definitions
 
+static sds mympd_api_browse_tag_list_legacy(struct t_partition_state *partition_state, sds buffer,
+    unsigned request_id, sds searchstr, sds tag, unsigned offset, unsigned limit, bool sortdesc);
+static sds mympd_api_browse_tag_list_mpd025(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
+    sds searchstr, sds tag, unsigned offset, unsigned limit, bool sortdesc);
 static bool check_album_sort_tag(enum sort_by_type sort_by, enum mpd_tag_type sort_tag,
         struct t_albums_config *album_config);
 
@@ -324,7 +328,8 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_part
 }
 
 /**
- * Lists tags from the mpd database
+ * Lists tags from the mpd database.
+ * Wrapper that chooses the right method by MPD version.
  * @param partition_state pointer to partition specific states
  * @param buffer sds string to append response
  * @param request_id jsonrpc request id
@@ -336,6 +341,27 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_part
  * @return pointer to buffer
  */
 sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
+        sds searchstr, sds tag, unsigned offset, unsigned limit, bool sortdesc)
+{
+    return partition_state->mpd_state->feat.mpd_0_25_0 == true && sortdesc == false
+        ? mympd_api_browse_tag_list_mpd025(partition_state, buffer, request_id, searchstr, tag, offset, limit, sortdesc)
+        : mympd_api_browse_tag_list_legacy(partition_state, buffer, request_id, searchstr, tag, offset, limit, sortdesc);
+}
+
+/**
+ * Lists tags from the mpd database.
+ * Searches and sorts the result on client side.
+ * @param partition_state pointer to partition specific states
+ * @param buffer sds string to append response
+ * @param request_id jsonrpc request id
+ * @param searchstr string to search
+ * @param tag tag type to list
+ * @param offset offset of results to print
+ * @param limit max number of results to print
+ * @param sortdesc true to sort descending, false to sort ascending
+ * @return pointer to buffer
+ */
+static sds mympd_api_browse_tag_list_legacy(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
         sds searchstr, sds tag, unsigned offset, unsigned limit, bool sortdesc)
 {
     size_t searchstr_len = sdslen(searchstr);
@@ -428,6 +454,79 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
     buffer = tojson_bool(buffer, "pics", pic, false);
     buffer = jsonrpc_end(buffer);
     raxFree(taglist);
+    return buffer;
+}
+
+/**
+ * Lists tags from the mpd database.
+ * Uses window parameter and does filtering and sorting on MPD side.
+ * Supported since MPD 0.25.
+ * @param partition_state pointer to partition specific states
+ * @param buffer sds string to append response
+ * @param request_id jsonrpc request id
+ * @param searchstr string to search
+ * @param tag tag type to list
+ * @param offset offset of results to print
+ * @param limit max number of results to print
+ * @param sortdesc true to sort descending, false to sort ascending
+ * @return pointer to buffer
+ */
+static sds mympd_api_browse_tag_list_mpd025(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
+    sds searchstr, sds tag, unsigned offset, unsigned limit, bool sortdesc)
+{
+    enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_TAG_LIST;
+    unsigned real_limit = limit + offset;
+    sds expr = escape_mpd_search_expression(sdsempty(), tag, "contains_ci", searchstr);
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
+    unsigned entities_returned = 0;
+    enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
+    (void) sortdesc; // not implemented in MPD
+
+    if (mpd_search_db_tags(partition_state->conn, mpd_tag_name_parse(tag)) == false ||
+        mpd_search_add_expression(partition_state->conn, expr) == false ||
+        mpd_search_add_window(partition_state->conn, offset, real_limit) == false)
+    {
+        mpd_search_cancel(partition_state->conn);
+        FREE_SDS(expr);
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
+            JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
+    }
+
+    if (mpd_search_commit(partition_state->conn)) {
+        struct mpd_pair *pair;
+        while ((pair = mpd_recv_pair_tag(partition_state->conn, mpdtag)) != NULL) {
+            if (entities_returned++) {
+                buffer = sdscatlen(buffer, ",", 1);
+            }
+            buffer = sdscatlen(buffer, "{", 1);
+            buffer = tojson_char(buffer, "Value", pair->value, false);
+            buffer = sdscatlen(buffer, "}", 1);
+            mpd_return_pair(partition_state->conn, pair);
+        }
+    }
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
+        FREE_SDS(expr);
+        return buffer;
+    }
+
+    //checks if this tag has a directory with pictures in /src/lib/mympd/pics
+    sds pic_path = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->config->workdir, DIR_WORK_PICS, tag);
+    bool pic =  testdir("Tag pics folder", pic_path, false, true) == DIR_EXISTS
+        ? true
+        : false;
+    FREE_SDS(pic_path);
+    FREE_SDS(expr);
+
+    buffer = sdscatlen(buffer, "],", 2);
+    buffer = tojson_int(buffer, "totalEntities", -1, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "offset", offset, true);
+    buffer = tojson_sds(buffer, "searchstr", searchstr, true);
+    buffer = tojson_sds(buffer, "tag", tag, true);
+    buffer = tojson_bool(buffer, "pics", pic, false);
+    buffer = jsonrpc_end(buffer);
     return buffer;
 }
 

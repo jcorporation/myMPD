@@ -10,7 +10,7 @@ This release supports new MPD 0.25 features.
 
 ### Changelog
 
-- Feat: Support window parameter for tag list (MPD 0.25)
+- Feat: Use MPD side filter and window for listing tags (MPD 0.25)
 
 ***
 

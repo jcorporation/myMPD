@@ -20,4 +20,5 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_part
         const struct t_fields *tagcols);
 sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buffer,
         unsigned request_id, sds searchstr, sds tag, unsigned offset, unsigned limit, bool sortdesc);
+
 #endif

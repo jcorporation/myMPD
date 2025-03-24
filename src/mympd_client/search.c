@@ -251,6 +251,8 @@ bool mympd_client_add_search_group_param(struct mpd_connection *conn, enum mpd_t
  * Adds the window parameter to the search command.
  * Ignores the parameter if MPD < 0.25.0.
  * @param partition_state pointer to partition state
+ * @param start Start of the range (including)
+ * @param end End of the range (excluding), use UINT_MAX for open end
  * @return true on success or on MPD < 0.25.0, else false
  */
 bool mympd_client_add_search_window_param_mpd_025(struct t_partition_state *partition_state, unsigned start, unsigned end) {
