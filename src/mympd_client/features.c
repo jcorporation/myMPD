@@ -76,6 +76,9 @@ void mympd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_parti
         MYMPD_LOG_WARN(partition_state->name, "Disabling position whence feature, depends on mpd >= 0.23.5");
     }
 
+    if (mpd_connection_cmp_server_version(partition_state->conn, 0, 25, 0) >= 0 ) {
+        partition_state->mpd_state->feat.mpd_0_25_0 = true;
+    }
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0 ) {
         partition_state->mpd_state->feat.mpd_0_24_0 = true;
         partition_state->mpd_state->feat.advqueue = true;

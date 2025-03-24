@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Upd: Translations
 - Upd: Rework compiler options
+- Upd: Initial support for MPD 0.25
 
 ***
 
