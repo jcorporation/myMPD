@@ -239,11 +239,23 @@ bool mympd_client_add_search_sort_param(struct t_partition_state *partition_stat
  * Ignores MPD_TAG_UNKNOWN.
  * @param conn mpd connection
  * @param tag group tag to add
- * @return true on success or MPD_TAG_UNKNOWN, else false
+ * @return true on success or on MPD_TAG_UNKNOWN, else false
  */
 bool mympd_client_add_search_group_param(struct mpd_connection *conn, enum mpd_tag_type tag) {
     return tag != MPD_TAG_UNKNOWN
         ? mpd_search_add_group_tag(conn, tag)
+        : true;
+}
+
+/**
+ * Adds the window parameter to the search command.
+ * Ignores the parameter if MPD < 0.25.0.
+ * @param partition_state pointer to partition state
+ * @return true on success or on MPD < 0.25.0, else false
+ */
+bool mympd_client_add_search_window_param_mpd_025(struct t_partition_state *partition_state, unsigned start, unsigned end) {
+    return partition_state->mpd_state->feat.mpd_0_25_0 == true
+        ? mpd_search_add_window(partition_state->conn, start, end)
         : true;
 }
 

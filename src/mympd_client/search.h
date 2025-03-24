@@ -25,6 +25,7 @@ bool mympd_client_search_add_to_queue_window(struct t_partition_state *partition
 
 bool mympd_client_add_search_sort_param(struct t_partition_state *partition_state, const char *sort, bool sortdesc);
 bool mympd_client_add_search_group_param(struct mpd_connection *conn, enum mpd_tag_type tag);
+bool mympd_client_add_search_window_param_mpd_025(struct t_partition_state *partition_state, unsigned start, unsigned end);
 sds get_search_expression_album(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
         const struct t_albums_config *album_config);
 sds get_search_expression_album_tag(sds buffer, enum mpd_tag_type tag_albumartist, struct mpd_song *album,
