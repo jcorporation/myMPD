@@ -264,30 +264,40 @@ bool mympd_worker_smartpls_update(struct t_mympd_worker_state *mympd_worker_stat
  * @return true on success, else false
  */
 static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_worker_state) {
-    for (unsigned i = 0; i < mympd_worker_state->smartpls_generate_tag_types.len; i++) {
-        enum mpd_tag_type tag = mympd_worker_state->smartpls_generate_tag_types.tags[i];
-
-        if (mpd_search_db_tags(mympd_worker_state->partition_state->conn, tag) == false) {
-            mpd_search_cancel(mympd_worker_state->partition_state->conn);
-            MYMPD_LOG_ERROR(NULL, "Error creating MPD search command");
-            return false;
-        }
+    for (unsigned k = 0; k < mympd_worker_state->smartpls_generate_tag_types.len; k++) {
+        enum mpd_tag_type tag = mympd_worker_state->smartpls_generate_tag_types.tags[k];
         struct t_list tag_list;
         list_init(&tag_list);
-        if (mpd_search_commit(mympd_worker_state->partition_state->conn)) {
-            struct mpd_pair *pair;
-            while ((pair = mpd_recv_pair_tag(mympd_worker_state->partition_state->conn, tag)) != NULL) {
-                if (strlen(pair->value) > 0) {
-                    list_push(&tag_list, pair->value, 0, NULL, NULL);
-                }
-                mpd_return_pair(mympd_worker_state->partition_state->conn, pair);
+        unsigned start = 0;
+        unsigned end = start + MPD_RESULTS_MAX;
+        unsigned i = 0;
+        do {
+            if (mpd_search_db_tags(mympd_worker_state->partition_state->conn, tag) == false ||
+                mympd_client_add_search_window_param_mpd_025(mympd_worker_state->partition_state, start, end) == false)
+            {
+                mpd_search_cancel(mympd_worker_state->partition_state->conn);
+                MYMPD_LOG_ERROR(NULL, "Error creating MPD search command");
+                return false;
             }
-        }
-        mpd_response_finish(mympd_worker_state->partition_state->conn);
-        if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_db_tags") == false) {
-            list_clear(&tag_list);
-            return false;
-        }
+            if (mpd_search_commit(mympd_worker_state->partition_state->conn)) {
+                struct mpd_pair *pair;
+                while ((pair = mpd_recv_pair_tag(mympd_worker_state->partition_state->conn, tag)) != NULL) {
+                    if (strlen(pair->value) > 0) {
+                        list_push(&tag_list, pair->value, 0, NULL, NULL);
+                    }
+                    mpd_return_pair(mympd_worker_state->partition_state->conn, pair);
+                    i++;
+                }
+            }
+            mpd_response_finish(mympd_worker_state->partition_state->conn);
+            if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_db_tags") == false) {
+                list_clear(&tag_list);
+                return false;
+            }
+            start = end;
+            end = end + MPD_RESULTS_MAX;
+        } while (i >= start);
+
         struct t_list_node *current;
         while ((current = list_shift_first(&tag_list)) != NULL) {
             const char *tagstr = mpd_tag_name(tag);
