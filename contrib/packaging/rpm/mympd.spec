@@ -65,5 +65,5 @@ fi
 %license LICENSE.md
 
 %changelog
-* Mon Mar 24 2025 Juergen Mang <mail@jcgames.de> 20.2.0-0
+* Tue Mar 25 2025 Juergen Mang <mail@jcgames.de> 20.2.0-0
 - Version from master
