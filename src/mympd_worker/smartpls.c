@@ -284,7 +284,7 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
             }
         }
         mpd_response_finish(mympd_worker_state->partition_state->conn);
-        if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_commit") == false) {
+        if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_db_tags") == false) {
             list_clear(&tag_list);
             return false;
         }

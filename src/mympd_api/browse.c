@@ -400,7 +400,7 @@ static sds mympd_api_browse_tag_list_legacy(struct t_partition_state *partition_
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_tags") == false) {
         rax_free_sds_data(taglist);
         return buffer;
     }
@@ -506,7 +506,7 @@ static sds mympd_api_browse_tag_list_mpd025(struct t_partition_state *partition_
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_tags") == false) {
         FREE_SDS(expr);
         return buffer;
     }

@@ -333,7 +333,7 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
             }
         }
         mpd_response_finish(mympd_worker_state->partition_state->conn);
-        if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_commit") == false) {
+        if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_db_tags") == false) {
             MYMPD_LOG_ERROR("default", "Cache update failed");
             return false;
         }
