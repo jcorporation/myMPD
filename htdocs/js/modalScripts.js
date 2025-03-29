@@ -234,6 +234,8 @@ function exploreAPIsendRequest() {
             ? tn('Error')
             : tn('OK');
         elGetById('modalScriptAPIresultText').textContent = JSON.stringify(obj, null, 2);
+        const id = obj.id;
+        elGetById('modalScriptAPIrequestText').textContent = JSON.stringify({"jsonrpc": "2.0", "id": id, "method": method, "params": params}, null, 2);
     }, true);
 }
 

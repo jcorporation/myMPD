@@ -2275,8 +2275,27 @@
                 <div id="modalScriptAPIparams"></div>
               </form>
               <div class="card border d-none" id="modalScriptAPIresult">
-                <div class="card-header" id="modalScriptAPIresultState" data-phrase="Result"></div>
-                <textarea rows="10" class="font-monospace form-control" id="modalScriptAPIresultText"></textarea>
+                <div class="card-header pb-0">
+                  <ul class="nav nav-tabs border-bottom-0">
+                    <li class="nav-item">
+                      <a class="nav-link active" href="#modalScriptAPIresultTab" data-bs-toggle="tab" data-height="true" data-phrase="Response"></a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#modalScriptAPIrequestTab" data-bs-toggle="tab" data-height="true" data-phrase="Request"></a>
+                    </li>
+                  </ul>
+                </div>
+                <div class="card-body">
+                  <div class="tab-content">
+                    <div class="tab-pane active" id="modalScriptAPIresultTab">
+                      <textarea rows="10" class="font-monospace form-control" id="modalScriptAPIresultText"></textarea>
+                    </div>
+                    <div class="tab-pane" id="modalScriptAPIrequestTab">
+                      <textarea rows="10" class="font-monospace form-control" id="modalScriptAPIrequestText"></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer" id="modalScriptAPIresultState" data-phrase="Result"></div>
               </div>
             </div>
             <div id="modalScriptsEditTab" class="tab-pane">
