@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Enable partition feature #1415
+
 ***
 
 ## myMPD v20.1.1 (2025-03-25)
