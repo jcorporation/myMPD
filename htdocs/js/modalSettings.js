@@ -236,7 +236,6 @@ function populateSettingsFrm() {
     setFeatureBtnId('modalSettingsEnableLyricsInput', settings.features.featLibrary);
     setFeatureBtnId('modalSettingsEnableScriptingInput', settings.features.featScripting);
     setFeatureBtnId('modalSettingsEnableMountsInput', settings.features.featMounts);
-    setFeatureBtnId('modalSettingsEnablePartitionsInput', settings.features.featPartitions);
 }
 
 /**
