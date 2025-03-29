@@ -14,6 +14,16 @@ This release supports new MPD 0.25 features.
 
 ***
 
+## myMPD v20.1.2 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Enable partition feature #1415
+
+***
+
 ## myMPD v20.1.1 (2025-03-25)
 
 This is a small bug fix release.

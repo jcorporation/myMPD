@@ -758,7 +758,6 @@ const settingsWebuiFields = {
         "inputType": "checkbox",
         "title": "Partitions",
         "form": "modalSettingsFurtherFeaturesFrm",
-        "warn": "MPD does not support partitions",
         "help": "helpSettingsEnablePartitions"
     },
     "enableLyrics": {
