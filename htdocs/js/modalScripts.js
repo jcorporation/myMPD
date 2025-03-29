@@ -233,7 +233,7 @@ function exploreAPIsendRequest() {
         elGetById('modalScriptAPIresultState').textContent = obj.error
             ? tn('Error')
             : tn('OK');
-        elGetById('modalScriptAPIresultText').textContent = JSON.stringify(obj);
+        elGetById('modalScriptAPIresultText').textContent = JSON.stringify(obj, null, 2);
     }, true);
 }
 
