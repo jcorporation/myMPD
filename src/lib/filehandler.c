@@ -321,14 +321,14 @@ FILE *open_tmp_file(sds filepath) {
     errno = 0;
     int fd = mkstemp(filepath);
     if (fd < 0) {
-        MYMPD_LOG_ERROR(NULL, "Can not open file file descriptor \"%s\" for write", filepath);
+        MYMPD_LOG_ERROR(NULL, "Can not open tmp file descriptor \"%s\" for write", filepath);
         MYMPD_LOG_ERRNO(NULL, errno);
         return NULL;
     }
     errno = 0;
     FILE *fp = fdopen(fd, "w");
     if (fp == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\" for write", filepath);
+        MYMPD_LOG_ERROR(NULL, "Can not open tmp file \"%s\" for write", filepath);
         MYMPD_LOG_ERRNO(NULL, errno);
     }
     return fp;
