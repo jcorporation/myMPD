@@ -160,7 +160,7 @@ function populateConnectionFrm() {
         elGetById('modalConnectionMusicDirectoryInput').setAttribute('readonly', 'readonly');
     }
     else if (settings.musicDirectory === 'none') {
-        elGetById('modalConnectiontMusicDirectorySelect').value = settings.musicDirectory;
+        elGetById('modalConnectionMusicDirectorySelect').value = settings.musicDirectory;
         elGetById('modalConnectionMusicDirectoryInput').value = '';
         elGetById('modalConnectionMusicDirectoryInput').setAttribute('readonly', 'readonly');
     }
