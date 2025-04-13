@@ -12,6 +12,7 @@ This release supports new MPD 0.25 features.
 
 - Feat: Use MPD side filter and window for listing tags (MPD 0.25)
 - Upd: Improve API explorer - show request
+- Upd: Bootstrap v5.3.4 #1418
 
 ***
 
