@@ -183,6 +183,7 @@ mympd_smartpls
 mympd_start
 mympd_stop
 mympd_tagart
+mympd_bgimage
 name
 newest
 Notification icon

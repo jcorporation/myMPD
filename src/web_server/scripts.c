@@ -17,6 +17,7 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"
+#include "src/mympd_api/requests.h"
 #include "src/scripts/events.h"
 #include "src/web_server/utility.h"
 
@@ -54,21 +55,7 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
         return false;
     }
 
-    //Extract arguments from query parameters
-    struct t_list *arguments = list_new();
-    int params_count;
-    sds *params = sdssplitlen(hm->query.buf, (ssize_t)hm->query.len, "&", 1, &params_count);
-    for (int i = 0; i < params_count; i++) {
-        int kv_count;
-        sds *kv = sdssplitlen(params[i], (ssize_t)sdslen(params[i]), "=", 1, &kv_count);
-        if (kv_count == 2) {
-            sds decoded = sds_urldecode(sdsempty(), kv[1], sdslen(kv[1]), false);
-            list_push(arguments, kv[0], 0, decoded, NULL);
-            FREE_SDS(decoded);
-        }
-        sdsfreesplitres(kv, kv_count);
-    }
-    sdsfreesplitres(params, params_count);
+    struct t_list *arguments = webserver_parse_arguments(hm);
 
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_SCRIPT_EXECUTE, "", partition);
     struct t_script_execute_data *extra = script_execute_data_new(script, SCRIPT_START_HTTP);
@@ -77,4 +64,19 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     FREE_SDS(partition);
     FREE_SDS(script);
     return push_request(request, 0);
+}
+
+/**
+ * Emits the MYMPD_BGIMAGE trigger.
+ * @param nc mongoose connection
+ * @param hm http message
+ * @return true on success, else false
+ */
+bool script_execute_bgimage(struct mg_connection *nc, struct mg_http_message *hm) {
+    sds partition = sds_urldecode(sdsempty(), hm->uri.buf, hm->uri.len, false);
+    partition = sds_basename(partition);
+    struct t_list *arguments = webserver_parse_arguments(hm);
+    bool rc = mympd_api_request_trigger_event_emit(TRIGGER_MYMPD_BGIMAGE, partition, arguments, nc->id);
+    FREE_SDS(partition);
+    return rc;
 }

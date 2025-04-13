@@ -134,10 +134,18 @@ end
 
 --- Serves a file from the filesystem.
 -- Only files from the diskcache are allowed.
--- @param file file to serve
+-- @param file File to serve
 -- @return HTTP response
 function mympd.http_serve_file(file)
-  return mympd_http_serve_file(file)
+  return mympd_http_serve_file(file, 0)
+end
+
+--- Serves a file from the filesystem and removes it afterwards.
+-- Only files from the diskcache are allowed.
+-- @param file File to serve
+-- @return HTTP response
+function mympd.http_serve_file_rm(file)
+  return mympd_http_serve_file(file, 1)
 end
 
 --- Sends a JSONRPC 2.0 response.

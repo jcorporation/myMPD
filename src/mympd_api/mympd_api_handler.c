@@ -165,7 +165,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             if (request->cmd_id == MYMPD_API_SMARTPLS_UPDATE_ALL) {
                 // Trigger for smart playlist scripts
-                mympd_api_request_trigger_event_emit(TRIGGER_MYMPD_SMARTPLS, partition_state->name);
+                mympd_api_request_trigger_event_emit(TRIGGER_MYMPD_SMARTPLS, partition_state->name, NULL, 0);
             }
             async = mympd_worker_start(mympd_state, partition_state, request);
             if (async == false) {
@@ -657,7 +657,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 break;
             }
             //malloc trigger_data - it is used in trigger list
-            struct t_trigger_data *trigger_data = trigger_data_new();
+            struct t_trigger_data *trigger_data = mympd_api_trigger_data_new();
 
             if (json_get_string(request->data, "$.params.name", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.script", 0, FILENAME_LEN_MAX, &trigger_data->script, vcb_isfilename, &parse_error) == true &&
@@ -686,12 +686,22 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             break;
         case INTERNAL_API_TRIGGER_EVENT_EMIT:
-            if (json_get_int_max(request->data, "$.params.event", &int_buf1, &parse_error) == true) {
-                if (mympd_api_event_name(int_buf1) != NULL) {
-                    mympd_api_trigger_execute(&mympd_state->trigger_list, int_buf1, partition_state->name, NULL);
+            assert(request->extra);
+            struct t_event_data *data = (struct t_event_data *)request->extra;
+            if (data->event == TRIGGER_MYMPD_BGIMAGE) {
+                int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_BGIMAGE,
+                            partition_state->name, request->conn_id, request->id, data->arguments);
+                if (n > 0) {
+                    if (n > 1) {
+                        MYMPD_LOG_WARN(partition_state->name, "More than one script triggered for bgimage.");
+                    }
                 }
-                response->data = jsonrpc_respond_ok(response->data, INTERNAL_API_TRIGGER_EVENT_EMIT, request->id, JSONRPC_FACILITY_TRIGGER);
             }
+            else if (mympd_api_event_name(data->event) != NULL) {
+                mympd_api_trigger_execute(&mympd_state->trigger_list, data->event, partition_state->name, NULL);
+            }
+            mympd_api_event_data_free(data);
+            response->data = jsonrpc_respond_ok(response->data, INTERNAL_API_TRIGGER_EVENT_EMIT, request->id, JSONRPC_FACILITY_TRIGGER);
             break;
     // outputs
     case MYMPD_API_PLAYER_OUTPUT_GET:

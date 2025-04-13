@@ -162,7 +162,7 @@ int lua_http_download(lua_State *lua_vm) {
 int lua_http_serve_file(lua_State *lua_vm) {
     struct t_config *config = get_lua_global_config(lua_vm);
     int n = lua_gettop(lua_vm);
-    if (n != 1) {
+    if (n != 2) {
         MYMPD_LOG_ERROR(NULL, "Lua - http_serve_file: Invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
@@ -181,6 +181,12 @@ int lua_http_serve_file(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "invalid filename");
     }
+    if (lua_isinteger(lua_vm, 2) == 0) {
+        MYMPD_LOG_ERROR(NULL, "Lua - http_serve_file: Invalid argument");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "Invalid argument");
+    }
+    unsigned remove = (unsigned)lua_tointeger(lua_vm, 2);
 
     int nread;
     sds file = sds_getfile(sdsempty(), filename, MPD_BINARY_SIZE_MAX, false, true, &nread);
@@ -201,6 +207,9 @@ int lua_http_serve_file(lua_State *lua_vm) {
     FREE_SDS(file);
     lua_pop(lua_vm, n);
     lua_pushlightuserdata(lua_vm, reply);
+    if (remove == 1) {
+        rm_file(filename);
+    }
     //return response count
     return 1;
 }

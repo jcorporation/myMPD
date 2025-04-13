@@ -32,6 +32,7 @@ enum trigger_events {
     TRIGGER_MYMPD_TAGART = -10,        //!< myMPD tagart
     TRIGGER_MYMPD_JUKEBOX = -11,       //!< myMPD jukebox
     TRIGGER_MYMPD_SMARTPLS = - 12,     //!< myMPD smart playlist creation
+    TRIGGER_MYMPD_BGIMAGE = -13,       //!< myMPD background image
     TRIGGER_MPD_DATABASE = 0x1,        //!< mpd database has changed
     TRIGGER_MPD_STORED_PLAYLIST = 0x2, //!< mpd playlist idle event
     TRIGGER_MPD_QUEUE = 0x4,           //!< mpd queue idle event
@@ -46,6 +47,14 @@ enum trigger_events {
     TRIGGER_MPD_PARTITION = 0x800,     //!< mpd partition idle event
     TRIGGER_MPD_NEIGHBOR = 0x1000,     //!< mpd neighbor idle event
     TRIGGER_MPD_MOUNT = 0x2000         //!< mpd mount idle event
+};
+
+/**
+ * Holds the event and its arguments for a trigger
+ */
+struct t_event_data {
+    int event;                //!< event id
+    struct t_list *arguments;  //!< arguments for the event
 };
 
 /**
@@ -73,7 +82,11 @@ int mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri,
 bool mympd_api_trigger_delete(struct t_list *trigger_list, unsigned idx, sds *error);
 const char *mympd_api_event_name(int event);
 sds mympd_api_trigger_print_event_list(sds buffer);
-struct t_trigger_data *trigger_data_new(void);
+
+struct t_trigger_data *mympd_api_trigger_data_new(void);
 void mympd_api_trigger_data_free(struct t_trigger_data *trigger_data);
+
+struct t_event_data *mympd_api_event_data_new(int event, struct t_list *arguments);
+void mympd_api_event_data_free(struct t_event_data *event_data);
 
 #endif

@@ -806,6 +806,7 @@
     "Sends a notification to all clients in the current partition.": "Sendet eine Mitteilung an alle Clients in dieser Partition.",
     "Sends a notification to the client that started this script.": "Sendet eine Mitteilung den den Client, der das Skript gestartet hat.",
     "Serves a file from the filesystem. Only files from the diskcache are allowed.": "Liefert eine Datei per HTTP aus. Nur Dateien aus den Diskcaches sind erlaubt.",
+    "Serves a file from the filesystem and removes it afterwards. Only files from the diskcache are allowed.": "Liefert eine Datei per HTTP aus und löscht sie danach. Nur Dateien aus den Diskcaches sind erlaubt.",
     "Session": "Sitzung",
     "Session removed": "Session wurde gelöscht",
     "Session successfully created": "Session wurde erfolgreich erstellt",
@@ -1036,7 +1037,8 @@
     "Windows Media Audio": "Windows Media Audio",
     "Work": "Werk",
     "Write a file for the cover cache.": "Schreibt eine Datei für den Covercache.",
-    "Write a file for the thumbs cache.": "Schreibt eine Datei for den Thumbnail Cache.",
+    "Write a file for the thumbs cache.": "Schreibt eine Datei für den Thumbnail Cache.",
+    "Write a file for the misc cache.": "Schreibt eine Datei für den Misc Cache.",
     "Write the lyrics entry object to the lyrics cache.": "Schreibt das Lyrics-Objekt in then Lyrics Cache.",
     "Yes, clear it": "Ja, leeren",
     "Yes, delete it": "Ja, löschen",
@@ -1250,5 +1252,7 @@
     "votes": "Stimmen",
     "wasapi": "Windows Audio Session API",
     "Request": "Request",
-    "Response": "Response"
+    "Response": "Response",
+    "helpSettingsDynamicBackground": "Typ des dynamischen Hintergrunds.",
+    "mympd_bgimage": "Hintrgrundbild (mympd_bgimage)"
 }

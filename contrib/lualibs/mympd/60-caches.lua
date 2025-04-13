@@ -43,6 +43,16 @@ function mympd.cache_thumbs_write(src, tagvalue, mimetype)
   return mympd_caches_images_write("thumbs", src, tagvalue, mimetype)
 end
 
+--- Write a file for the misc cache
+-- @param src File to rename
+-- @param name Value to create the misc cache file for
+-- @param mimetype Mime Type or nil to sniff by magic bytes
+-- @return 0 on success, else 1
+-- @return written name or error message on error
+function mympd.cache_misc_write(src, name, mimetype)
+  return mympd_caches_images_write("misc", src, name, mimetype)
+end
+
 --- Write a string to a file in the lyrics cache
 -- @param str String to save (it must be a valid lyrics json string)
 -- @param uri URI to create the lyrics cache file for

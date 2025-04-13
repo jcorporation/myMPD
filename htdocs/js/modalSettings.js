@@ -142,6 +142,9 @@ function populateSettingsFrm() {
     // feedback
     toggleBtnGroupValueId('modalSettingsFeedbackGroup', settings.webuiSettings.feedback);
 
+    // Dynamic background
+    toggleBtnGroupValueId('modalSettingsBackgroundGroup', settings.webuiSettings.dynamicBackground);
+
     // background image select
     getBgImageList();
     const bgImageInput = elGetById('modalSettingsBgImageInput');
@@ -302,6 +305,7 @@ function saveSettings(target, closeModal) {
         settingsParams.tagListSearch = getTagMultiSelectValues(elGetById('modalSettingsSearchTagsList'), false);
         settingsParams.tagListBrowse = getTagMultiSelectValues(elGetById('modalSettingsBrowseTagsList'), false);
         settingsParams.webuiSettings.feedback = getBtnGroupValueId('modalSettingsFeedbackGroup');
+        settingsParams.webuiSettings.dynamicBackground = getBtnGroupValueId('modalSettingsBackgroundGroup');
 
         btnWaiting(target, true);
         if (closeModal === true) {

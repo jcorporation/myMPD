@@ -22,6 +22,10 @@ return mympd.http_redirect(location)
 -- Serve a file from the cache
 local file = mympd_env.cachedir_misc .. "/test.png"
 return mympd.http_serve_file(file)
+
+-- Serve a file from the cache and remove it afterwards
+local file = mympd_env.cachedir_misc .. "/test.png"
+return mympd.http_serve_file_rm(file)
 ```
 
 **Parameters:**

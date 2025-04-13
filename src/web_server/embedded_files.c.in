@@ -14,6 +14,7 @@
 INCBIN(sw_js, "${CMAKE_BINARY_DIR}/htdocs/sw.js.gz");
 INCBIN(mympd_webmanifest, "${CMAKE_BINARY_DIR}/htdocs/mympd.webmanifest.gz");
 INCBIN(index_html, "${CMAKE_BINARY_DIR}/htdocs/index.html.gz");
+INCBIN(coverimage_transparent_svg, "${CMAKE_BINARY_DIR}/htdocs/assets/coverimage-transparent.svg.gz");
 INCBIN(coverimage_notavailable_svg, "${CMAKE_BINARY_DIR}/htdocs/assets/coverimage-notavailable.svg.gz");
 INCBIN(coverimage_stream_svg, "${CMAKE_BINARY_DIR}/htdocs/assets/coverimage-stream.svg.gz");
 INCBIN(coverimage_booklet_svg, "${CMAKE_BINARY_DIR}/htdocs/assets/coverimage-booklet.svg.gz");

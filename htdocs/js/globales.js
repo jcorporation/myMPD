@@ -791,12 +791,9 @@ const settingsWebuiFields = {
         "unit": "Pixel",
         "help": "helpSettingsGridSize"
     },
-    "bgCover": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Albumart",
-        "form": "modalSettingsBgFrm",
-        "sort": 0
+    "dynamicBackground": {
+        "defaultValue": "albumart",
+        "inputType": "none"
     },
     "bgCssFilter": {
         "defaultValue": "grayscale(100%) opacity(20%)",
@@ -1597,9 +1594,14 @@ const LUAfunctions = {
         "func": "local rc, filename = mympd.cache_lyrics_write(json.encode(entry), song_uri)",
         "feat": ""
     },
+    "mympd.cache_misc_write": {
+        "desc": "Write a file for the misc cache.",
+        "func": "local rc, filename =  = mympd.cache_thumbs_write(src, name)",
+        "feat": ""
+    },
     "mympd.cache_thumbs_write": {
         "desc": "Write a file for the thumbs cache.",
-        "func": "local rc, filename =  = mympd.cache_thumbs_write(src, uri)",
+        "func": "local rc, filename =  = mympd.cache_thumbs_write(src, tagvalue)",
         "feat": ""
     },
     "mympd.dialog": {
@@ -1665,6 +1667,11 @@ const LUAfunctions = {
     "mympd.http_serve_file": {
         "desc": "Serves a file from the filesystem. Only files from the diskcache are allowed.",
         "func": "return mympd.http_serve_file(file)",
+        "feat": ""
+    },
+    "mympd.http_serve_file_rm": {
+        "desc": "Serves a file from the filesystem and removes it afterwards. Only files from the diskcache are allowed.",
+        "func": "return mympd.http_serve_file_rm(file)",
         "feat": ""
     },
     "mympd.init": {

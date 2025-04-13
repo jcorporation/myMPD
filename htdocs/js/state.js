@@ -305,7 +305,9 @@ function setBackgroundImage(el, url) {
         clearBackgroundImage(el);
         return;
     }
-    const bgImageUrl = subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url);
+    const bgImageUrl = el.tagName === 'BODY' && settings.webuiSettings.dynamicBackground === 'trigger'
+        ? subdir + '/bgimage/' + localSettings.partition + '?uri=' + myEncodeURIComponent(url) + '&hash=' + window.location.hash.substring(1)
+        : subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url);
     const old = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
     //do not update if url is the same
     if (old[0] &&
@@ -379,7 +381,7 @@ function clearBackgroundImage(el) {
 function setCurrentCover(url) {
     setBackgroundImage(elGetById('PlaybackCover'), url);
     setBackgroundImage(elGetById('footerCover'), url);
-    if (settings.webuiSettings.bgCover === true) {
+    if (settings.webuiSettings.dynamicBackground !== 'off') {
         setBackgroundImage(domCache.body, url);
     }
 }
@@ -391,7 +393,7 @@ function setCurrentCover(url) {
 function clearCurrentCover() {
     clearBackgroundImage(elGetById('PlaybackCover'));
     clearBackgroundImage(elGetById('footerCover'));
-    if (settings.webuiSettings.bgCover === true) {
+    if (settings.webuiSettings.dynamicBackground !== 'off') {
         clearBackgroundImage(domCache.body);
     }
 }

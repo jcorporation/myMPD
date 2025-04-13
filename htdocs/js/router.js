@@ -336,6 +336,11 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search, app
     app.last.card = app.current.card;
     app.last.tab = app.current.tab;
     app.last.view = app.current.view;
+
+    // Trigger background change
+    if (settings.webuiSettings.dynamicBackground !== 'trigger') {
+        setBackgroundImage(domCache.body, currentSongObj.uri);
+    }
 }
 
 /**

@@ -17,5 +17,6 @@
 #include <stdbool.h>
 
 bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, struct t_config *config);
+bool script_execute_bgimage(struct mg_connection *nc, struct mg_http_message *hm);
 
 #endif

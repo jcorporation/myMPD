@@ -321,7 +321,7 @@ function parseSettings(obj) {
 function parseMPDSettings() {
     elGetById('partitionName').textContent = localSettings.partition;
 
-    if (settings.webuiSettings.bgCover === true) {
+    if (settings.webuiSettings.dynamicBackground !== 'off') {
         setBackgroundImage(domCache.body, currentSongObj.uri);
     }
     else {

@@ -131,7 +131,7 @@ void stickerdb_disconnect(struct t_stickerdb_state *stickerdb) {
  */
 bool stickerdb_idle(struct t_stickerdb_state *stickerdb) {
     MYMPD_LOG_DEBUG("stickerdb", "Discarding idle events");
-    mympd_api_request_trigger_event_emit(TRIGGER_MPD_STICKER, MPD_PARTITION_DEFAULT);
+    mympd_api_request_trigger_event_emit(TRIGGER_MPD_STICKER, MPD_PARTITION_DEFAULT, NULL, 0);
     return stickerdb_exit_idle(stickerdb) &&
         stickerdb_enter_idle(stickerdb);
 }

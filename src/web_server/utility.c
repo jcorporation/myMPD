@@ -30,6 +30,29 @@
  */
 
 /**
+ * Extract arguments from query parameters
+ * @param hm Http message
+ * @return Parsed arguments as t_list struct.
+ */
+struct t_list *webserver_parse_arguments(struct mg_http_message *hm) {
+    struct t_list *arguments = list_new();
+    int params_count;
+    sds *params = sdssplitlen(hm->query.buf, (ssize_t)hm->query.len, "&", 1, &params_count);
+    for (int i = 0; i < params_count; i++) {
+        int kv_count;
+        sds *kv = sdssplitlen(params[i], (ssize_t)sdslen(params[i]), "=", 1, &kv_count);
+        if (kv_count == 2) {
+            sds decoded = sds_urldecode(sdsempty(), kv[1], sdslen(kv[1]), false);
+            list_push(arguments, kv[0], 0, decoded, NULL);
+            FREE_SDS(decoded);
+        }
+        sdsfreesplitres(kv, kv_count);
+    }
+    sdsfreesplitres(params, params_count);
+    return arguments;
+}
+
+/**
  * Prints the ip address from a mg_addr struct
  * @param s already allocated sds string to append the ip
  * @param addr pointer to struct mg_addr
@@ -110,6 +133,7 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->placeholder_playlist);
     FREE_SDS(mg_user_data->placeholder_smartpls);
     FREE_SDS(mg_user_data->placeholder_folder);
+    FREE_SDS(mg_user_data->placeholder_transparent);
     FREE_SDS(mg_user_data->cert_content);
     FREE_SDS(mg_user_data->key_content);
     FREE_PTR(mg_user_data);
@@ -389,6 +413,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/coverimage-mympd.svg", "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
         {"/assets/coverimage-playlist.svg", "image/svg+xml", true, true, coverimage_playlist_svg_data, coverimage_playlist_svg_size},
         {"/assets/coverimage-smartpls.svg", "image/svg+xml", true, true, coverimage_smartpls_svg_data, coverimage_smartpls_svg_size},
+        {"/assets/coverimage-transparent.svg", "image/svg+xml", true, true, coverimage_transparent_svg_data, coverimage_transparent_svg_size},
         {"/assets/coverimage-folder.svg", "image/svg+xml", true, true, coverimage_folder_svg_data, coverimage_folder_svg_size},
         {"/assets/mympd-background-dark.svg", "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
         {"/assets/mympd-background-light.svg", "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},

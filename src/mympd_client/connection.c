@@ -153,7 +153,7 @@ bool mympd_client_set_connection_options(struct t_partition_state *partition_sta
 void mympd_client_disconnect(struct t_partition_state *partition_state) {
     mympd_client_disconnect_silent(partition_state);
     send_jsonrpc_event(JSONRPC_EVENT_MPD_DISCONNECTED, partition_state->name);
-    mympd_api_request_trigger_event_emit(TRIGGER_MYMPD_DISCONNECTED, partition_state->name);
+    mympd_api_request_trigger_event_emit(TRIGGER_MYMPD_DISCONNECTED, partition_state->name, NULL, 0);
 }
 
 /**

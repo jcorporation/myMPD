@@ -385,7 +385,7 @@ bool rename_file(const char *src, const char *dst) {
  * @param filepath filepath to remove
  * @return true on success else false
  */
-bool rm_file(sds filepath) {
+bool rm_file(const char *filepath) {
     errno = 0;
     if (unlink(filepath) != 0) {
         MYMPD_LOG_ERROR(NULL, "Error removing file \"%s\"", filepath);
@@ -402,7 +402,7 @@ bool rm_file(sds filepath) {
  *         RM_FILE_ERROR error from unlink call
  *         RM_FILE_OK file was removed
  */
-int try_rm_file(sds filepath) {
+int try_rm_file(const char *filepath) {
     errno = 0;
     if (unlink(filepath) != 0) {
         if (errno == ENOENT) {

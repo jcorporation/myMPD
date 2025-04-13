@@ -17,7 +17,8 @@
 
 bool mympd_api_request_caches_create(void);
 bool mympd_api_request_jukebox_restart(const char *partition);
-bool mympd_api_request_trigger_event_emit(enum trigger_events event, const char *partition);
+bool mympd_api_request_trigger_event_emit(enum trigger_events event,
+        const char *partition, struct t_list *arguments, unsigned long conn_id);
 bool mympd_api_request_sticker_features(bool feat_sticker, bool feat_advsticker);
 
 #endif

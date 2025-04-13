@@ -1752,10 +1752,10 @@ const APImethods = {
                         "example": 175,
                         "desc": "Width for grids."
                     },
-                    "bgCover": {
-                        "type": APItypes.bool,
-                        "example": true,
-                        "desc": "Display the coverimage as background."
+                    "dynamicBackground": {
+                        "type": APItypes.string,
+                        "example": "albumart",
+                        "desc": "Background mode: \"albumart\", \"trigger\" or \"off\""
                     },
                     "bgCssFilter": {
                         "type": APItypes.string,

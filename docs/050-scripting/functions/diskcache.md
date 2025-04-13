@@ -47,6 +47,29 @@ local rc, name = mympd.mympd.cache_lyrics_write(str, uri)
 | rc | integer | 0 = success, 1 = error |
 | name | string | written filename |
 
+## Misc cache
+
+Helper function to write (rename) a file to the misc cache. The source file must be on the same filesystem as the cache directory (default: `/var/cache/mympd/misc`).
+
+```lua
+local rc, name = mympd.cache_misc_write(src, name, mimetype)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| src | string | Source file to rename. |
+| name | string | Basename of the destination file. |
+| mimetype [1] | string | Mime Type, e.g. `image/png`, `nil` to sniff the mime type by magic bytes. |
+
+**Returns:**
+
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| rc | integer | 0 = success, 1 = error |
+| name | string | written filename |
+
 ## Thumbs cache
 
 Helper function to write (rename) a file to the thumbs cache. The source file must be on the same filesystem as the cache directory (default: `/var/cache/mympd/thumbs`).
@@ -72,7 +95,7 @@ local rc, name = mympd.cache_thumbs_write(src, value, mimetype)
 
 ## Temporary files
 
-Creates a temporary file for the misc cache (default: `/var/cache/mympd/misc/XXXXXXXXXX`).
+Creates a temporary file in the misc cache folder (default: `/var/cache/mympd/misc/XXXXXXXXXX`).
 
 ```lua
 local tmp_file = mympd.tmp_file()

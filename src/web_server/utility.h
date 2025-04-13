@@ -41,6 +41,7 @@ struct t_mg_user_data {
     sds placeholder_playlist;                //!< name of custom playlist image
     sds placeholder_smartpls;                //!< name of custom smart playlist image
     sds placeholder_folder;                  //!< name of custom folder image
+    sds placeholder_transparent;             //!< name of custom transparent image
     bool mympd_api_started;                  //!< true if the mympd_api thread is ready, else false
     sds cert_content;                        //!< the server certificate
     sds key_content;                         //!< the server key
@@ -82,4 +83,6 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
 void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len);
 void webserver_handle_connection_close(struct mg_connection *nc);
 void *mg_user_data_free(struct t_mg_user_data *mg_user_data);
+struct t_list *webserver_parse_arguments(struct mg_http_message *hm);
+
 #endif

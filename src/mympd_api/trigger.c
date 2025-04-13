@@ -91,6 +91,7 @@ static const char *const mympd_event_names[] = {
     "mympd_tagart",
     "mympd_jukebox",
     "mympd_smartpls",
+    "mympd_bgimage",
     NULL
 };
 
@@ -181,7 +182,7 @@ int mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events e
  * @param partition mpd partition
  * @param conn_id mongoose connection id
  * @param request_id jsonprc id
- * @param arguments list of script arguments
+ * @param arguments list of script arguments or NULL for no arguments
  * @return number of executed triggers
  */
 int mympd_api_trigger_execute_http(struct t_list *trigger_list, enum trigger_events event,
@@ -413,7 +414,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
         sds name = NULL;
         sds partition = NULL;
         int event;
-        struct t_trigger_data *trigger_data = trigger_data_new();
+        struct t_trigger_data *trigger_data = mympd_api_trigger_data_new();
         if (json_get_string(line, "$.name", 1, FILENAME_LEN_MAX, &name, vcb_isfilename, NULL) == true &&
             json_get_string(line, "$.script", 0, FILENAME_LEN_MAX, &trigger_data->script, vcb_isfilename, NULL) == true &&
             json_get_int_max(line, "$.event", &event, NULL) == true &&
@@ -472,7 +473,7 @@ void mympd_api_trigger_list_clear(struct t_list *trigger_list) {
  * Creates and initializes the t_trigger_data struct
  * @return pointer to allocated t_trigger_data struct
  */
-struct t_trigger_data *trigger_data_new(void) {
+struct t_trigger_data *mympd_api_trigger_data_new(void) {
     struct t_trigger_data *trigger_data = malloc_assert(sizeof(struct t_trigger_data));
     trigger_data->script = NULL;
     list_init(&trigger_data->arguments);
@@ -487,6 +488,28 @@ void mympd_api_trigger_data_free(struct t_trigger_data *trigger_data) {
     FREE_SDS(trigger_data->script);
     list_clear(&trigger_data->arguments);
     FREE_PTR(trigger_data);
+}
+
+/**
+ * Creates and initializes the t_event_data struct
+ * @param event Event id
+ * @param arguments Arguments list, can be null
+ * @return Pointer to allocated t_event_data struct
+ */
+struct t_event_data *mympd_api_event_data_new(int event, struct t_list *arguments) {
+    struct t_event_data *event_data = malloc_assert(sizeof(struct t_event_data));
+    event_data->event = event;
+    event_data->arguments = arguments;
+    return event_data;
+}
+
+/**
+ * Frees the t_event_data struct and arguments list
+ * @param event_data pointer to event data
+ */
+void mympd_api_event_data_free(struct t_event_data *event_data) {
+    list_free(event_data->arguments);
+    FREE_PTR(event_data);
 }
 
 /**

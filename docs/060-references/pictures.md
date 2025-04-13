@@ -86,6 +86,8 @@ Pictures for playlists must be placed in the directory `/var/lib/mympd/pics/play
 
 Background images must be saved in the `/var/lib/mympd/pics/backgrounds` folder.
 
+Background images can also be provided by a script. Set the background setting to `Trigger` and add a `mympd_bgimage` trigger. An example script is provided in the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts/Background).
+
 ## Supported file extensions
 
 myMPD recognizes following file extensions:
