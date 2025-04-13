@@ -1248,5 +1248,7 @@
     "url_resolved": "URL",
     "userDefinedSticker": "Benutzerdefinierte Sticker",
     "votes": "Stimmen",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Request": "Request",
+    "Response": "Response"
 }
