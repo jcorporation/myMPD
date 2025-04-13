@@ -44,7 +44,7 @@ bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_st
     if (partition_state->is_default == true) {
         // check version
         if (mpd_connection_cmp_server_version(partition_state->conn, MPD_VERSION_MIN_MAJOR, MPD_VERSION_MIN_MINOR, MPD_VERSION_MIN_PATCH) < 0) {
-            MYMPD_LOG_EMERG(partition_state->name, "MPD version too old, myMPD supports only MPD version >= 0.21");
+            MYMPD_LOG_EMERG(partition_state->name, MPD_TOO_OLD_MSG);
             s_signal_received = 1;
             return false;
         }
