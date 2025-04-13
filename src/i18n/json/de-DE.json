@@ -1125,7 +1125,7 @@
     "helpSettingsSearchTags": "Nach diesen Tags kann gesucht werden. Voreinstellung: Artist, Album, Albumartist, Title, Genre",
     "helpSettingsShowWorkTagAlbumDetail": "Zeigt den Work Tag in der Albumdetail Anzeige an.",
     "helpSettingsSmallWidthTagRows": "Zeigt für schmale Displays jeden Tag in einer eigenen Zeile an, anstatt in Spalten.",
-    "helpSettingsSmartplsInterval": "Die intelligenten Wiedergabelisten werden in diesem Interval aktualisiert.",
+    "helpSettingsSmartplsInterval": "Die intelligenten Wiedergabelisten werden in diesem Intervall aktualisiert.",
     "helpSettingsSmartplsPrefix": "Prefix für die Namen von intelligenten Wiedergabelisten.",
     "helpSettingsSmartplsSort": "Sortiere die intelligenten Wiedergabelisten.",
     "helpSettingsStreamPort": "Port des MPD HTTP-Outputs.",
