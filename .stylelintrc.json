@@ -11,6 +11,7 @@
     "property-no-vendor-prefix": null,
     "shorthand-property-no-redundant-values": null,
     "selector-not-notation": null,
-    "color-function-notation": null
+    "color-function-notation": null,
+    "color-function-alias-notation": null
   }
 }
