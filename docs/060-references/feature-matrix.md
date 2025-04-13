@@ -5,7 +5,7 @@ title: Feature matrix
 Certain myMPD features are only available with new MPD versions. To use all myMPD functions you should use the latest stable MPD version.
 
 !!! note
-    myMPD support only MPD 0.22.6 and above.
+    myMPD support only MPD 0.22.4 and above.
 
 | MYMPD FEATURE | MPD VERSION | DESCRIPTION |
 | ------------- | ----------- | ----------- |
