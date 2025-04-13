@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Set minimum MPD version to 0.22.4 #1419
+
 ***
 
 ## myMPD v20.1.2 (2025-03-30)
