@@ -4,7 +4,6 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-<<<<<<< HEAD
 ## myMPD v20.2.0 (not yet released)
 
 This release supports new MPD 0.25 features.
@@ -13,7 +12,9 @@ This release supports new MPD 0.25 features.
 
 - Feat: Use MPD side filter and window for listing tags (MPD 0.25)
 - Upd: Improve API explorer - show request
-=======
+
+***
+
 ## myMPD v20.1.3 (not yet released)
 
 This is a small bug fix release.
@@ -21,7 +22,6 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Set minimum MPD version to 0.22.4 #1419
->>>>>>> devel
 
 ***
 
