@@ -11,10 +11,13 @@
 #include "compile_time.h"
 #include "src/scripts/interface_http.h"
 
+#include "src/lib/cache_disk.h"
 #include "src/lib/config_def.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/http_client.h"
+#include "src/lib/http_client_cache.h"
 #include "src/lib/log.h"
+#include "src/lib/mem.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"
@@ -27,8 +30,9 @@
  * @return number of variables on the stack with the response
  */
 int lua_http_client(lua_State *lua_vm) {
+    struct t_config *config = get_lua_global_config(lua_vm);
     int n = lua_gettop(lua_vm);
-    if (n != 4) {
+    if (n != 5) {
         MYMPD_LOG_ERROR(NULL, "Lua - mympd_api_http_client: invalid number of arguments");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
@@ -57,29 +61,46 @@ int lua_http_client(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "post_data is NULL");
     }
+    bool cache = false;
+    if (config->cache_http_keep_days != CACHE_DISK_DISABLED &&
+        strcmp(method, "GET") == 0)
+    {
+        cache = lua_toboolean(lua_vm, 5);
+    }
 
-    struct mg_client_request_t mg_client_request = {
-        .method = method,
-        .uri = uri,
-        .extra_headers = extra_headers,
-        .post_data = post_data
-    };
+    struct mg_client_response_t *mg_client_response = cache == true
+        ? http_client_cache_check(config, uri)
+        : NULL;
 
-    struct mg_client_response_t mg_client_response;
-    http_client_response_init(&mg_client_response);
+    if (mg_client_response == NULL) {
+        struct mg_client_request_t mg_client_request = {
+            .method = method,
+            .uri = uri,
+            .extra_headers = extra_headers,
+            .post_data = post_data
+        };
+        mg_client_response = malloc_assert(sizeof(struct mg_client_response_t));
+        http_client_response_init(mg_client_response);
+        http_client_request(&mg_client_request, mg_client_response);
+        if (mg_client_response->rc == 0 &&
+            cache == true)
+        {
+            http_client_cache_write(config, uri, mg_client_response);
+        }
+    }
 
-    http_client_request(&mg_client_request, &mg_client_response);
     lua_pop(lua_vm, n);
-    lua_pushinteger(lua_vm, mg_client_response.rc);
-    lua_pushinteger(lua_vm, mg_client_response.response_code);
+    lua_pushinteger(lua_vm, mg_client_response->rc);
+    lua_pushinteger(lua_vm, mg_client_response->response_code);
     lua_newtable(lua_vm);
-    struct t_list_node *current = mg_client_response.header.head;
+    struct t_list_node *current = mg_client_response->header.head;
     while (current != NULL) {
         populate_lua_table_field_p(lua_vm, current->key, current->value_p);
         current = current->next;
     }
-    lua_pushlstring(lua_vm, mg_client_response.body, sdslen(mg_client_response.body));
-    http_client_response_clear(&mg_client_response);
+    lua_pushlstring(lua_vm, mg_client_response->body, sdslen(mg_client_response->body));
+    http_client_response_clear(mg_client_response);
+    FREE_PTR(mg_client_response);
     //return response count
     return 4;
 }
@@ -92,7 +113,7 @@ int lua_http_client(lua_State *lua_vm) {
 int lua_http_download(lua_State *lua_vm) {
     struct t_config *config = get_lua_global_config(lua_vm);
     int n = lua_gettop(lua_vm);
-    if (n != 3) {
+    if (n != 4) {
         MYMPD_LOG_ERROR(NULL, "Lua - http_download: invalid number of arguments: %d", n);
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid number of arguments");
@@ -115,7 +136,6 @@ int lua_http_download(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "out is NULL");
     }
-
     if (strncmp(out, config->cachedir, sdslen(config->cachedir)) != 0 ||
         check_dir_traversal(out) == false)
     {
@@ -123,34 +143,57 @@ int lua_http_download(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "invalid filename");
     }
+    bool cache = false;
+    if (config->cache_http_keep_days != CACHE_DISK_DISABLED) {
+        cache = lua_toboolean(lua_vm, 4);
+    }
 
-    struct mg_client_request_t mg_client_request = {
-        .method = "GET",
-        .uri = uri,
-        .extra_headers = extra_headers,
-        .post_data = ""
-    };
+    struct mg_client_response_t *mg_client_response = cache == true
+        ? http_client_cache_check(config, uri)
+        : NULL;
+    int rc;
+    if (mg_client_response == NULL) {
+        mg_client_response = malloc_assert(sizeof(struct mg_client_response_t));
+        http_client_response_init(mg_client_response);
 
-    struct mg_client_response_t mg_client_response;
-    http_client_response_init(&mg_client_response);
-
-    http_client_request(&mg_client_request, &mg_client_response);
-    int rc = 1;
-    if (mg_client_response.rc == 0 &&
-        write_data_to_file(out, mg_client_response.body, sdslen(mg_client_response.body)) == true)
-    {
-        rc = 0;
+        struct mg_client_request_t mg_client_request = {
+            .method = "GET",
+            .uri = uri,
+            .extra_headers = extra_headers,
+            .post_data = ""
+        };
+        http_client_request(&mg_client_request, mg_client_response);
+        rc = 1;
+        if (mg_client_response->rc == 0 &&
+            write_data_to_file(out, mg_client_response->body, sdslen(mg_client_response->body)) == true)
+        {
+            rc = 0;
+        }
+        if (mg_client_response->rc == 0 &&
+            cache == true)
+        {
+            http_client_cache_write(config, uri, mg_client_response);
+        }
+    }
+    else {
+        if (write_data_to_file(out, mg_client_response->body, sdslen(mg_client_response->body)) == true) {
+            rc = 0;
+        }
+        else {
+            rc = 1;
+        }
     }
     lua_pop(lua_vm, n);
     lua_pushinteger(lua_vm, rc);
-    lua_pushinteger(lua_vm, mg_client_response.response_code);
+    lua_pushinteger(lua_vm, mg_client_response->response_code);
     lua_newtable(lua_vm);
-    struct t_list_node *current = mg_client_response.header.head;
+    struct t_list_node *current = mg_client_response->header.head;
     while (current != NULL) {
         populate_lua_table_field_p(lua_vm, current->key, current->value_p);
         current = current->next;
     }
-    http_client_response_clear(&mg_client_response);
+    http_client_response_clear(mg_client_response);
+    FREE_PTR(mg_client_response);
     return 3;
 }
 

@@ -5,7 +5,7 @@ title: HTTP client
 ## Simple HTTP client
 
 ```lua
-local rc, code, headers, body = mympd.http_client(method, uri, extra_headers, payload)
+local rc, code, headers, body = mympd.http_client(method, uri, extra_headers, payload, cache)
 if rc == 0 then
   -- Success, iterate through headers
   for name, value in pairs(header) do
@@ -20,10 +20,11 @@ end
 
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
-| method | string | HTTP method, `GET` or `POST` |
+| method | string | HTTP method, e.g. `GET` or `POST` |
 | uri | string | Full uri to call, e. g. `https://api.listenbrainz.org/1/submit-listens` |
 | extra_headers | string | Additional headers, must be terminated by `\r\n` |
-| payload | string | body of a post request |
+| payload | string | Body of a post request |
+| cache | boolean | Optional, cache the response? |
 
 **Returns:**
 
@@ -37,7 +38,7 @@ end
 ## Download a file over HTTP
 
 ```lua
-local rc, code, headers = mympd.http_download(uri, extra_headers, out)
+local rc, code, headers = mympd.http_download(uri, extra_headers, out, cache)
 if rc == 0 then
   -- Do something with the downloaded file
 else
@@ -52,6 +53,7 @@ end
 | uri | string | Uri to download. |
 | extra_headers | string | Additional headers, must be terminated by `\r\n` |
 | out | string | Filename for output. |
+| cache | boolean | Optional, cache the response? |
 
 **Returns:**
 

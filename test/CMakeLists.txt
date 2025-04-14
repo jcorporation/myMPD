@@ -21,6 +21,7 @@ set(TEST_SOURCES
   ../src/lib/fields.c
   ../src/lib/filehandler.c
   ../src/lib/http_client.c
+  ../src/lib/http_client_cache.c
   ../src/lib/jsonrpc.c
   ../src/lib/last_played.c
   ../src/lib/list.c
@@ -80,6 +81,7 @@ set(TEST_SOURCES
   tests/test_env.c
   tests/test_filehandler.c
   tests/test_http_client.c
+  tests/test_http_client_cache.c
   tests/test_jsonrpc.c
   tests/test_list.c
   tests/test_mimetype.c

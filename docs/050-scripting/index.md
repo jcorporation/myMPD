@@ -25,9 +25,9 @@ myMPD environment variables are populated in the lua table `mympd_env`.
 | KEY | TYPE | DESCRIPTION |
 | --- | ---- | ----------- |
 | `cachedir_cover` | string | myMPD cover cache directory |
-| `cachedir_thumbs` | string | myMPD thumbs cache directory |
 | `cachedir_lyrics` | string | myMPD lyrics cache directory |
 | `cachedir_misc` | string | myMPD misc cache directory |
+| `cachedir_thumbs` | string | myMPD thumbs cache directory |
 | `partition` | string | MPD partition |
 | `requestid` | number | Jsonrpc request id |
 | `scriptevent` | string | Script start event: `extern`, `http`, `timer`, `trigger` or `user` |

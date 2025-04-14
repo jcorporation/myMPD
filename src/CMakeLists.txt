@@ -57,6 +57,7 @@ target_sources(mympd
     lib/filehandler.c
     lib/handle_options.c
     lib/http_client.c
+    lib/http_client_cache.c
     lib/jsonrpc.c
     lib/last_played.c
     lib/list.c

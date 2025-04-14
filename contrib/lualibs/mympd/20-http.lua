@@ -3,23 +3,25 @@
 -- @param uri The uri to access
 -- @param extra_headers Additional headers terminated by "\r\n"
 -- @param payload Payload to send
+-- @param cache Cache the response
 -- @return rc 0 for success, else 1
 -- @return HTTP status code
 -- @return HTTP Headers as Lua table
 -- @return HTTP Body
-function mympd.http_client(method, uri, extra_headers, payload)
-  return mympd_http_client(method, uri, extra_headers, payload)
+function mympd.http_client(method, uri, extra_headers, payload, cache)
+  return mympd_http_client(method, uri, extra_headers, payload, cache)
 end
 
 --- Download a file over http
 -- @param uri The uri to access
 -- @param extra_headers Additional headers terminated by "\r\n"
 -- @param out Filename to write the response body
+-- @param cache Cache the response
 -- @return 0 for success, else 1
 -- @return HTTP status code
 -- @return HTTP Headers as Lua table
-function mympd.http_download(uri, extra_headers, out)
-  return mympd_http_download(uri, extra_headers, out)
+function mympd.http_download(uri, extra_headers, out, cache)
+  return mympd_http_download(uri, extra_headers, out, cache)
 end
 
 -- Map http status code to status text

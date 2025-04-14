@@ -17,6 +17,7 @@
 
 void init_testenv(void) {
     mkdir("/tmp/mympd-test", 0770);
+    mkdir("/tmp/mympd-test/http", 0770);
     mkdir("/tmp/mympd-test/state", 0770);
     mkdir("/tmp/mympd-test/state/default", 0770);
     mkdir("/tmp/mympd-test/webradios", 0770);

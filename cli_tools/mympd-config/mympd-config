@@ -66,6 +66,7 @@ set_default() {
     MYMPD_ALBUM_GROUP_TAG="Date"
     MYMPD_ALBUM_MODE="adv"
     MYMPD_CACHE_COVER_KEEP_DAYS="31"
+    MYMPD_CACHE_HTTP_KEEP_DAYS="31"
     MYMPD_CACHE_LYRICS_KEEP_DAYS="31"
     MYMPD_CACHE_MISC_KEEP_DAYS="1"
     MYMPD_CACHE_THUMBS_KEEP_DAYS="31"
@@ -92,6 +93,7 @@ read_config() {
     [ -f "${CONFIG_DIR}/album_group_tag" ] && read -r MYMPD_ALBUM_GROUP_TAG < "${CONFIG_DIR}/album_group_tag"
     [ -f "${CONFIG_DIR}/album_mode" ] && read -r MYMPD_ALBUM_MODE < "${CONFIG_DIR}/album_mode"
     [ -f "${CONFIG_DIR}/cache_cover_keep_days" ] && read -r MYMPD_CACHE_COVER_KEEP_DAYS < "${CONFIG_DIR}/cache_cover_keep_days"
+    [ -f "${CONFIG_DIR}/cache_http_keep_days" ] && read -r MYMPD_CACHE_HTTP_KEEP_DAYS < "${CONFIG_DIR}/cache_http_keep_days"
     [ -f "${CONFIG_DIR}/cache_lyrics_keep_days" ] && read -r MYMPD_CACHE_LYRICS_KEEP_DAYS < "${CONFIG_DIR}/cache_lyrics_keep_days"
     [ -f "${CONFIG_DIR}/cache_misc_keep_days" ] && read -r MYMPD_CACHE_MISC_KEEP_DAYS < "${CONFIG_DIR}/cache_misc_keep_days"
     [ -f "${CONFIG_DIR}/cache_thumbs_keep_days" ] && read -r MYMPD_CACHE_THUMBS_KEEP_DAYS < "${CONFIG_DIR}/cache_thumbs_keep_days"
@@ -121,6 +123,7 @@ apply_config() {
             -E MYMPD_ALBUM_GROUP_TAG="$MYMPD_ALBUM_GROUP_TAG" \
             -E MYMPD_ALBUM_MODE="$MYMPD_ALBUM_MODE" \
             -E MYMPD_CACHE_COVER_KEEP_DAYS="$MYMPD_CACHE_COVER_KEEP_DAYS" \
+            -E MYMPD_CACHE_HTTP_KEEP_DAYS="$MYMPD_CACHE_HTTP_KEEP_DAYS" \
             -E MYMPD_CACHE_LYRICS_KEEP_DAYS="$MYMPD_CACHE_LYRICS_KEEP_DAYS" \
             -E MYMPD_CACHE_MISC_KEEP_DAYS="$MYMPD_CACHE_MISC_KEEP_DAYS" \
             -E MYMPD_CACHE_THUMBS_KEEP_DAYS="$MYMPD_CACHE_THUMBS_KEEP_DAYS" \
@@ -146,6 +149,7 @@ apply_config() {
         export MYMPD_ALBUM_GROUP_TAG
         export MYMPD_ALBUM_MODE
         export MYMPD_CACHE_COVER_KEEP_DAYS
+        export MYMPD_CACHE_HTTP_KEEP_DAYS
         export MYMPD_CACHE_LYRICS_KEEP_DAYS
         export MYMPD_CACHE_MISC_KEEP_DAYS
         export MYMPD_CACHE_THUMBS_KEEP_DAYS
@@ -271,6 +275,7 @@ menu_misc() {
         "Album group tag" "$MYMPD_ALBUM_GROUP_TAG" \
         "Album mode" "$MYMPD_ALBUM_MODE" \
         "Cover cache" "$MYMPD_CACHE_COVER_KEEP_DAYS" \
+        "HTTP cache" "$MYMPD_CACHE_HTTP_KEEP_DAYS" \
         "Lyrics cache" "$MYMPD_CACHE_LYRICS_KEEP_DAYS" \
         "Misc cache" "$MYMPD_CACHE_MISC_KEEP_DAYS" \
         "Thumbs cache" "$MYMPD_CACHE_THUMBS_KEEP_DAYS" \
@@ -285,6 +290,7 @@ menu_misc() {
         "Album group tag") MYMPD_ALBUM_GROUP_TAG=$(get_input "$SELECT" "$MYMPD_ALBUM_GROUP_TAG") ;;
         "Album mode") MYMPD_ALBUM_MODE=$(toggle_album_mode "$MYMPD_ALBUM_MODE") ;;
         "Cover cache") MYMPD_CACHE_COVER_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_COVER_KEEP_DAYS") ;;
+        "HTTP cache") MYMPD_CACHE_HTTP_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_HTTP_KEEP_DAYS") ;;
         "Lyrics cache") MYMPD_CACHE_LYRICS_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_LYRICS_KEEP_DAYS") ;;
         "Misc cache") MYMPD_CACHE_MISC_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_MISC_KEEP_DAYS") ;;
         "Thumbs cache") MYMPD_CACHE_THUMBS_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_THUMBS_KEEP_DAYS") ;;
@@ -326,6 +332,7 @@ parse_options() {
             MYMPD_ALBUM_GROUP_TAG) MYMPD_ALBUM_GROUP_TAG="$2" ;;
             MYMPD_ALBUM_MODE) MYMPD_ALBUM_MODE="$2" ;;
             MYMPD_CACHE_COVER_KEEP_DAYS) MYMPD_CACHE_COVER_KEEP_DAYS="$2" ;;
+            MYMPD_CACHE_HTTP_KEEP_DAYS) MYMPD_CACHE_HTTP_KEEP_DAYS="$2" ;;
             MYMPD_CACHE_LYRICS_KEEP_DAYS) MYMPD_CACHE_LYRICS_KEEP_DAYS="$2" ;;
             MYMPD_CACHE_MISC_KEEP_DAYS) MYMPD_CACHE_MISC_KEEP_DAYS="$2" ;;
             MYMPD_CACHE_THUMBS_KEEP_DAYS) MYMPD_CACHE_THUMBS_KEEP_DAYS="$2" ;;

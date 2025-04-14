@@ -1626,7 +1626,7 @@ const LUAfunctions = {
     },
     "mympd.http_client": {
         "desc": "HTTP client",
-        "func": "local rc, code, headers, body = mympd.http_client(method, uri, extra_headers, payload)",
+        "func": "local rc, code, headers, body = mympd.http_client(method, uri, extra_headers, payload, cache)",
         "feat": ""
     },
     "mympd.http_download": {
