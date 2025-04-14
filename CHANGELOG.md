@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v20.2.0 (not yet released)
 
-This release supports new MPD 0.25 features.
+This release supports new MPD 0.25 features and add's a new trigger to provide a background image by a script.
 
 ### Changelog
 
