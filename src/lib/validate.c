@@ -141,7 +141,7 @@ bool vcb_isprint(sds data) {
 }
 
 /**
- * Checks if string is a hexcaolor starting with #
+ * Checks if string is a hexcolor starting with #
  * @param data sds string to check
  * @return true on success else false
  */

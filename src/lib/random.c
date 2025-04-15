@@ -39,7 +39,7 @@ unsigned randrange(unsigned lower, unsigned upper) {
  */
 static const char *dict = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 /**
- * Charaterset length
+ * Characterset length
  */
 static unsigned dict_len = 62;
 
