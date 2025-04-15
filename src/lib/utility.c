@@ -190,7 +190,7 @@ sds replace_file_extension(sds filename, const char *ext) {
 }
 
 /**
- * Invalid and uncommen characters for filenames.
+ * Invalid and uncommon characters for filenames.
  */
 static const char *invalid_filename_chars = "<>/.:?&$%!#=;\a\b\f\n\r\t\v\\|";
 
@@ -290,7 +290,7 @@ sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config, bool prefer
 }
 
 /**
- * Checks for IPv6 support by searching for an IPv6 adress on all interfaces
+ * Checks for IPv6 support by searching for an IPv6 address on all interfaces
  * @return true on IPv6 support, else false
  */
 bool get_ipv6_support(void) {
