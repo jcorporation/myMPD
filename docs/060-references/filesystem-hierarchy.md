@@ -13,6 +13,7 @@ myMPD uses GNU standard installation directories.
 | /usr/bin/mympd-script | Executable to trigger and post myMPD scripts |
 | /var/cache/mympd/ | myMPD cache directory |
 | /var/cache/mympd/cover/ | Directory for caching embedded coverart |
+| /var/cache/mympd/http/ | Directory for http client cache |
 | /var/cache/mympd/lyrics/ | Directory for caching lyrics |
 | /var/cache/mympd/misc/ | Directory for misc caching or tmp files |
 | /var/cache/mympd/webradiodb/ | Directory for caching the webradiodb json file |

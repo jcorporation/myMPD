@@ -26,6 +26,7 @@ You can use `mympd -c` to create the initial configuration in the `/var/lib/mymp
 | album_group_tag | string | MYMPD_ALBUM_GROUP_TAG | Date | Additional tag to group albums |
 | album_mode | string | MYMPD_ALBUM_MODE | adv | Set the album mode: `adv` or `simple` |
 | cache_cover_keep_days | number | MYMPD_CACHE_COVER_KEEP_DAYS | 31 | How long to keep images in the cover cache; 0 to disable the cache; -1 to disable pruning of the cache. |
+| cache_http_keep_days | number | MYMPD_CACHE_HTTP_KEEP_DAYS | 31 | How long to keep successful responses in the http client cache; 0 to disable the cache; -1 to disable pruning of the cache. |
 | cache_lyrics_keep_days | number | MYMPD_CACHE_LYRICS_KEEP_DAYS | 31 | How long to keep lyrics in the lyrics cache; 0 to disable the cache; -1 to disable pruning of the cache. |
 | cache_misc_keep_days | number | MYMPD_CACHE_MISC_KEEP_DAYS | 1 | How long to keep files in the misc cache. |
 | cache_thumbs_keep_days | number | MYMPD_CACHE_THUMBS_KEEP_DAYS | 31 | How long to keep images in the thumbnail cache; 0 to disable the cache; -1 to disable pruning of the cache. |
