@@ -48,6 +48,7 @@ struct mg_client_response_t *http_client_cache_check(struct t_config *config, co
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);
     mpack_tree_set_error_handler(&tree, log_mpack_node_error);
+    update_mtime(filepath);
     FREE_SDS(filepath);
     mpack_tree_parse(&tree);
     mpack_node_t root = mpack_tree_root(&tree);
@@ -67,8 +68,9 @@ struct mg_client_response_t *http_client_cache_check(struct t_config *config, co
         list_push_len(&mg_client_response->header, key, key_len, 0, value, value_len, NULL);
     }
     // Read body
-    const char *body = mpack_node_bin_data(mpack_node_map_cstr(root, "body"));
-    size_t body_len = mpack_node_bin_size(mpack_node_map_cstr(root, "body"));
+    mpack_node_t body_node = mpack_node_map_cstr(root, "body");
+    const char *body = mpack_node_bin_data(body_node);
+    size_t body_len = mpack_node_bin_size(body_node);
     mg_client_response->body = sdscatlen(mg_client_response->body, body, body_len);
     // Clean up and check for errors
     if (mpack_tree_destroy(&tree) == mpack_ok) {
