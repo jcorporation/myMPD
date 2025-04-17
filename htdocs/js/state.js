@@ -87,9 +87,6 @@ function setCounter() {
             }
         }
 
-        if (progressTimer) {
-            clearTimeout(progressTimer);
-        }
         if (currentState.state === 'play') {
             if (currentState.totalTime > 0 &&
                 currentState.totalTime < currentState.elapsedTime)
@@ -98,10 +95,16 @@ function setCounter() {
                 getState();
                 return;
             }
-            progressTimer = setTimeout(function() {
-                currentState.elapsedTime += 1;
-                setCounter();
-            }, 1000);
+            if (progressTimer === null) {
+                progressTimer = setInterval(function() {
+                    currentState.elapsedTime += 1;
+                    setCounter();
+                }, 1000);
+            }
+        }
+        else if (progressTimer !== null) {
+            clearInterval(progressTimer);
+            progressTimer = null;
         }
     });
 }

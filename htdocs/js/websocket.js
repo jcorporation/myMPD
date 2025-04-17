@@ -112,7 +112,8 @@ function webSocketConnect() {
                 break;
             case 'mpd_disconnected':
                 if (progressTimer) {
-                    clearTimeout(progressTimer);
+                    clearInterval(progressTimer);
+                    progressTimer = null;
                 }
                 settings.partition.mpdConnected = false;
                 toggleUI();
@@ -222,7 +223,8 @@ function webSocketConnect() {
         if (appInited === true) {
             toggleUI();
             if (progressTimer) {
-                clearTimeout(progressTimer);
+                clearInterval(progressTimer);
+                progressTimer = null;
             }
         }
         else {
