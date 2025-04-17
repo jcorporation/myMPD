@@ -199,6 +199,7 @@ int lua_http_download(lua_State *lua_vm) {
     if (out[0] == '\0') {
         sds hash = sds_hash_sha256(uri);
         sds filepath = sdscatfmt(sdsempty(), "%s/%s/%s", config->cachedir, DIR_CACHE_HTTP, hash);
+        FREE_SDS(hash);
         lua_pushstring(lua_vm, filepath);
         FREE_SDS(filepath);
     }
