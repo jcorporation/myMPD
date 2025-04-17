@@ -164,23 +164,25 @@ int lua_http_download(lua_State *lua_vm) {
         };
         http_client_request(&mg_client_request, mg_client_response);
         rc = 1;
-        if (mg_client_response->rc == 0 &&
-            write_data_to_file(out, mg_client_response->body, sdslen(mg_client_response->body)) == true)
-        {
-            rc = 0;
-        }
-        if (mg_client_response->rc == 0 &&
-            cache == true)
-        {
-            http_client_cache_write(config, uri, mg_client_response);
+        if (mg_client_response->rc == 0) {
+            if (out[0] == '\0' ||
+                write_data_to_file(out, mg_client_response->body, sdslen(mg_client_response->body)) == true)
+            {
+                rc = 0;
+            }
+            if (out[0] == '\0' ||
+                cache == true)
+            {
+                http_client_cache_write(config, uri, mg_client_response);
+            }
         }
     }
     else {
-        if (write_data_to_file(out, mg_client_response->body, sdslen(mg_client_response->body)) == true) {
+        rc = 1;
+        if (out[0] == '\0' ||
+            write_data_to_file(out, mg_client_response->body, sdslen(mg_client_response->body)) == true)
+        {
             rc = 0;
-        }
-        else {
-            rc = 1;
         }
     }
     lua_pop(lua_vm, n);
@@ -192,9 +194,18 @@ int lua_http_download(lua_State *lua_vm) {
         populate_lua_table_field_p(lua_vm, current->key, current->value_p);
         current = current->next;
     }
+    if (out[0] == '\0') {
+        sds hash = sds_hash_sha256(uri);
+        sds filepath = sdscatfmt(sdsempty(), "%s/%s/%s", config->cachedir, DIR_CACHE_HTTP, hash);
+        lua_pushstring(lua_vm, filepath);
+        FREE_SDS(filepath);
+    }
+    else {
+        lua_pushstring(lua_vm, out);
+    }
     http_client_response_clear(mg_client_response);
     FREE_PTR(mg_client_response);
-    return 3;
+    return 4;
 }
 
 /**
@@ -237,7 +248,7 @@ int lua_http_serve_file(lua_State *lua_vm) {
         FREE_SDS(file);
         MYMPD_LOG_ERROR(NULL, "Lua - http_serve_file: error reading file");
         lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "error reading file");
+        return luaL_error(lua_vm, "Error reading file");
     }
     const char *mime_type = get_mime_type_by_magic_stream(file);
     sds reply = sdscatfmt(sdsempty(), "HTTP/1.1 200 OK\r\n"
@@ -248,11 +259,64 @@ int lua_http_serve_file(lua_State *lua_vm) {
         "%S",
         sdslen(file), mime_type, file);
     FREE_SDS(file);
-    lua_pop(lua_vm, n);
-    lua_pushlightuserdata(lua_vm, reply);
     if (remove == 1) {
         rm_file(filename);
     }
+    lua_pop(lua_vm, n);
+    lua_pushlightuserdata(lua_vm, reply);
+    //return response count
+    return 1;
+}
+
+/**
+ * Function that creates a http reply from the http client cache
+ * @param lua_vm lua instance
+ * @return number of elements pushed to lua stack
+ */
+int lua_http_serve_http_cache_file(lua_State *lua_vm) {
+    struct t_config *config = get_lua_global_config(lua_vm);
+    int n = lua_gettop(lua_vm);
+    if (n != 1) {
+        MYMPD_LOG_ERROR(NULL, "Lua - http_serve_cache_file: Invalid number of arguments");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "Invalid number of arguments");
+    }
+    const char *filename = lua_tostring(lua_vm, 1);
+    if (filename == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - http_serve_cache_file: filename is NULL");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "filename is NULL");
+    }
+
+    if (strncmp(filename, config->cachedir, sdslen(config->cachedir)) != 0 ||
+        check_dir_traversal(filename) == false)
+    {
+        MYMPD_LOG_ERROR(NULL, "Lua - http_serve_cache_file: invalid filename");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "invalid filename");
+    }
+
+    struct mg_client_response_t *response = http_client_cache_read(filename);
+    if (response == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Lua - http_serve_file: error reading file");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "Error reading file");
+    }
+    sds mime_type = http_client_get_content_type(response);
+    sds reply;
+    reply = sdscatfmt(sdsempty(), "HTTP/1.1 200 OK\r\n"
+        "Content-Length: %L\r\n"
+        "Content-Type: %s\r\n"
+        "Connection: close\r\n"
+        "\r\n"
+        "%S",
+        sdslen(response->body),
+        (mime_type == NULL ? "application/octet-stream" : mime_type), 
+        response->body);
+    http_client_response_clear(response);
+    FREE_PTR(response);
+    lua_pop(lua_vm, n);
+    lua_pushlightuserdata(lua_vm, reply);
     //return response count
     return 1;
 }

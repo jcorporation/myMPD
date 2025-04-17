@@ -37,8 +37,10 @@ end
 
 ## Download a file over HTTP
 
+If you set the `out` argument to an empty string, the file will be kept in the http client cache. You can serve the file directly from the cache with the `mympd.http_serve_file_from_cache` function.
+
 ```lua
-local rc, code, headers = mympd.http_download(uri, extra_headers, out, cache)
+local rc, code, headers, filename = mympd.http_download(uri, extra_headers, out, cache)
 if rc == 0 then
   -- Do something with the downloaded file
 else
@@ -62,6 +64,9 @@ end
 | rc | integer | 0 = success, 1 = error |
 | code | integer | http response code, e.g. 200 |
 | headers | table | http headers |
+| filename [1] | string | Filepath of downloaded file |
+
+1. The `filename` is set to the `out` argument if it was not empty, else the `filename` is populated with the http client cache filepath.
 
 ## Get a http header from the response
 

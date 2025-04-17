@@ -807,6 +807,7 @@
     "Sends a notification to the client that started this script.": "Sendet eine Mitteilung den den Client, der das Skript gestartet hat.",
     "Serves a file from the filesystem. Only files from the diskcache are allowed.": "Liefert eine Datei per HTTP aus. Nur Dateien aus den Diskcaches sind erlaubt.",
     "Serves a file from the filesystem and removes it afterwards. Only files from the diskcache are allowed.": "Liefert eine Datei per HTTP aus und löscht sie danach. Nur Dateien aus den Diskcaches sind erlaubt.",
+    "Serves a file from the http client cache.": "Liefert eine Datei aus dem HTTP Clientcache per HTTP aus.",
     "Session": "Sitzung",
     "Session removed": "Session wurde gelöscht",
     "Session successfully created": "Session wurde erfolgreich erstellt",

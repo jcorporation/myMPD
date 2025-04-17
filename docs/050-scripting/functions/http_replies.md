@@ -26,6 +26,12 @@ return mympd.http_serve_file(file)
 -- Serve a file from the cache and remove it afterwards
 local file = mympd_env.cachedir_misc .. "/test.png"
 return mympd.http_serve_file_rm(file)
+
+-- Download a file and serve it from the http client cache
+local rc, code, headers, filename = mympd.http_download(uri, extra_headers, "", true)
+if rc == 0 then
+  return mympd.http_serve_file_from_cache(filename)
+end
 ```
 
 **Parameters:**

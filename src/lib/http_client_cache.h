@@ -14,6 +14,7 @@
 #include "src/lib/config_def.h"
 
 struct mg_client_response_t *http_client_cache_check(struct t_config *config, const char *uri);
+struct mg_client_response_t *http_client_cache_read(const char *filepath);
 bool http_client_cache_write(struct t_config *config, const char *uri, struct mg_client_response_t *mg_client_response);
 
 #endif

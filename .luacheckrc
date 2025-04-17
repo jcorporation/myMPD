@@ -17,6 +17,7 @@ read_globals = {
     "mympd_http_client",
     "mympd_http_download",
     "mympd_http_serve_file",
+    "mympd_http_serve_file_from_cache",
     "mympd_util_imagescache_write",
     "mympd_util_notify",
     "mympd_util_log",

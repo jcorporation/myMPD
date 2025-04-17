@@ -41,7 +41,21 @@ struct mg_client_response_t *http_client_cache_check(struct t_config *config, co
         FREE_SDS(filepath);
         return NULL;
     }
+    struct mg_client_response_t *response = http_client_cache_read(filepath);
+    FREE_SDS(filepath);
+    if (response != NULL) {
+        MYMPD_LOG_INFO(NULL, "Found cached response for %s", uri);
+        return response;
+    }
+    return NULL;
+}
 
+/**
+ * Reads a response from the http client cache
+ * @param filepath Cache filename
+ * @return struct mg_client_response_t* or NULL on error
+ */
+struct mg_client_response_t *http_client_cache_read(const char *filepath) {
     struct mg_client_response_t *mg_client_response = malloc_assert(sizeof(struct mg_client_response_t));
     http_client_response_init(mg_client_response);
     mg_client_response->rc = 0;
@@ -49,7 +63,6 @@ struct mg_client_response_t *http_client_cache_check(struct t_config *config, co
     mpack_tree_init_filename(&tree, filepath, 0);
     mpack_tree_set_error_handler(&tree, log_mpack_node_error);
     update_mtime(filepath);
-    FREE_SDS(filepath);
     mpack_tree_parse(&tree);
     mpack_node_t root = mpack_tree_root(&tree);
     mg_client_response->response_code = mpack_node_int(mpack_node_map_cstr(root, "code"));
@@ -74,7 +87,6 @@ struct mg_client_response_t *http_client_cache_check(struct t_config *config, co
     mg_client_response->body = sdscatlen(mg_client_response->body, body, body_len);
     // Clean up and check for errors
     if (mpack_tree_destroy(&tree) == mpack_ok) {
-        MYMPD_LOG_INFO(NULL, "Found cached response for %s", uri);
         return mg_client_response;
     }
     // Return NULL on error

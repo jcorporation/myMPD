@@ -40,5 +40,6 @@ void http_client_response_init(struct mg_client_response_t *mg_client_response);
 void http_client_response_clear(struct mg_client_response_t *mg_client_response);
 void http_client_request(struct mg_client_request_t *mg_client_request,
     struct mg_client_response_t *mg_client_response);
+sds http_client_get_content_type(struct mg_client_response_t *response);
 
 #endif

@@ -383,6 +383,7 @@ static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_http_client", lua_http_client);
     lua_register(lua_vm, "mympd_http_download", lua_http_download);
     lua_register(lua_vm, "mympd_http_serve_file", lua_http_serve_file);
+    lua_register(lua_vm, "mympd_http_serve_file_from_cache", lua_http_serve_http_cache_file);
     lua_register(lua_vm, "mympd_util_hash", lua_util_hash);
     lua_register(lua_vm, "mympd_util_urlencode", lua_util_urlencode);
     lua_register(lua_vm, "mympd_util_urldecode", lua_util_urldecode);

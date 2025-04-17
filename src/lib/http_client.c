@@ -167,6 +167,22 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
 }
 
 /**
+ * Returns a sds pointer to the content-type header from response
+ * @param response http response
+ * @return sds or NULL if not found
+ */
+sds http_client_get_content_type(struct mg_client_response_t *response) {
+    struct t_list_node *current = response->header.tail;
+    while (current != NULL) {
+        if (strcasecmp(current->key, "content-type") == 0) {
+            return current->value_p;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+/**
  * Private functions
  */
 

@@ -18,5 +18,6 @@
 int lua_http_client(lua_State *lua_vm);
 int lua_http_download(lua_State *lua_vm);
 int lua_http_serve_file(lua_State *lua_vm);
+int lua_http_serve_http_cache_file(lua_State *lua_vm);
 
 #endif

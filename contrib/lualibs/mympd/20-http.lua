@@ -20,6 +20,7 @@ end
 -- @return 0 for success, else 1
 -- @return HTTP status code
 -- @return HTTP Headers as Lua table
+-- @return Output filepath
 function mympd.http_download(uri, extra_headers, out, cache)
   return mympd_http_download(uri, extra_headers, out, cache)
 end
@@ -148,6 +149,13 @@ end
 -- @return HTTP response
 function mympd.http_serve_file_rm(file)
   return mympd_http_serve_file(file, 1)
+end
+
+--- Serves a file from the http client cache.
+-- @param file File to serve
+-- @return HTTP response
+function mympd.http_serve_file_from_cache(file)
+  return mympd_http_serve_file_from_cache(file)
 end
 
 --- Sends a JSONRPC 2.0 response.

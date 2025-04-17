@@ -1631,7 +1631,7 @@ const LUAfunctions = {
     },
     "mympd.http_download": {
         "desc": "HTTP download",
-        "func": "local rc, code, headers = mympd.http_download(uri, extra_headers, out)",
+        "func": "local rc, code, headers, filename = mympd.http_download(uri, extra_headers, out)",
         "feat": ""
     },
     "mympd.http_header_get": {
@@ -1672,6 +1672,11 @@ const LUAfunctions = {
     "mympd.http_serve_file_rm": {
         "desc": "Serves a file from the filesystem and removes it afterwards. Only files from the diskcache are allowed.",
         "func": "return mympd.http_serve_file_rm(file)",
+        "feat": ""
+    },
+    "mympd.http_serve_file_from_cache": {
+        "desc": "Serves a file from the http client cache.",
+        "func": "return mympd.http_serve_file_from_cache(file)",
         "feat": ""
     },
     "mympd.init": {

@@ -809,6 +809,7 @@
 {"term":"Sends a notification to the client that started this script."},
 {"term":"Serves a file from the filesystem and removes it afterwards. Only files from the diskcache are allowed."},
 {"term":"Serves a file from the filesystem. Only files from the diskcache are allowed."},
+{"term":"Serves a file from the http client cache."},
 {"term":"Session"},
 {"term":"Session removed"},
 {"term":"Session successfully created"},
