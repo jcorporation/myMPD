@@ -321,6 +321,10 @@ div.footerCounter {
   border-bottom: 0.4rem solid var(--mympd-highlightcolor);
 }
 
+#footerProgress:hover {
+  background-image: linear-gradient(transparent 0rem, transparent 0.45rem, var(--mympd-highlightcolor-contrast) 0.45rem, var(--mympd-highlightcolor-contrast) 1.8rem);
+}
+
 #footerProgressBar {
   height: 0.4rem;
   width: 0;
