@@ -136,12 +136,14 @@ int lua_http_download(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "out is NULL");
     }
-    if (strncmp(out, config->cachedir, sdslen(config->cachedir)) != 0 ||
-        check_dir_traversal(out) == false)
-    {
-        MYMPD_LOG_ERROR(NULL, "Lua - http_download: invalid filename");
-        lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "invalid filename");
+    if (out[0] != '\0') {
+        if (strncmp(out, config->cachedir, sdslen(config->cachedir)) != 0 ||
+            check_dir_traversal(out) == false)
+        {
+            MYMPD_LOG_ERROR(NULL, "Lua - http_download: invalid filename");
+            lua_pop(lua_vm, n);
+            return luaL_error(lua_vm, "invalid filename");
+        }
     }
     bool cache = false;
     if (config->cache_http_keep_days != CACHE_DISK_DISABLED) {
