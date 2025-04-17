@@ -6,10 +6,22 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v20.2.0 (not yet released)
 
-This release supports new MPD 0.25 features and add's a new trigger to provide a background image by a script.
+This release supports the first new MPD 0.25 feature and improves the scripting feature.
+
+There is now a new trigger to provide a background image by a script. An example implementation is available in the [mympd-scripts repository](https://github.com/jcorporation/mympd-scripts/tree/main/Background).
+
+Scripts can now set temporary variables which are kept in memory only and have an expiration time. They are useful to save some state between script executions.
+
+### API changes
+
+- MYMPD_API_SCRIPT_TMP_DELETE: new
+- MYMPD_API_SCRIPT_TMP_GET: new
+- MYMPD_API_SCRIPT_TMP_LIST: new
+- MYMPD_API_SCRIPT_TMP_SET: new
 
 ### Changelog
 
+- Feat: Add temporary variables for scripts
 - Feat: Add cache for Lua http client #1421
 - Feat: Add trigger for background image selection #1420
 - Feat: Use MPD side filter and window for listing tags (MPD 0.25)

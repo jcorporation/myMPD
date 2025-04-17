@@ -17,7 +17,9 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
+#include "src/scripts/api_tmp.h"
 #include "src/scripts/api_vars.h"
+#include <time.h>
 
 // Private definitions
 static const char *lua_err_to_str(int rc);
@@ -45,6 +47,8 @@ void scripts_state_default(struct t_scripts_state *scripts_state, struct t_confi
     scripts_state->config = config;
     list_init(&scripts_state->var_list);
     list_init(&scripts_state->script_list);
+    scripts_state->tmp_list = raxNew();
+    scripts_state->tmp_list_next_exp = time(NULL) + 60;
 }
 
 /**
@@ -63,6 +67,7 @@ void list_free_cb_script_list_user_data(struct t_list_node *current) {
  * @param scripts_state pointer to central scripts state
  */
 void scripts_state_free(struct t_scripts_state *scripts_state) {
+    scripts_tmp_list_expire(scripts_state->tmp_list, true);
     list_clear(&scripts_state->var_list);
     list_clear_user_data(&scripts_state->script_list, list_free_cb_script_list_user_data);
     //struct itself

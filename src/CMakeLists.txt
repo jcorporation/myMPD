@@ -159,6 +159,7 @@ if(MYMPD_ENABLE_LUA)
       mympd_api/lua_mympd_state.c
       scripts/api_handler.c
       scripts/api_scripts.c
+      scripts/api_tmp.c
       scripts/api_vars.c
       scripts/events.c
       scripts/interface_caches.c

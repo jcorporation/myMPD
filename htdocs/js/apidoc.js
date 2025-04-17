@@ -2152,6 +2152,50 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_SCRIPT_TMP_DELETE": {
+        "desc": "Deletes a temporary variable.",
+        "params": {
+            "key": {
+                "type": APItypes.string,
+                "example": "tmp-var",
+                "desc": "Variable name"
+            }
+        }
+    },
+    "MYMPD_API_SCRIPT_TMP_GET": {
+        "desc": "Gets a temporary variable.",
+        "params": {
+            "key": {
+                "type": APItypes.string,
+                "example": "tmp-var",
+                "desc": "Variable name"
+            }
+        }
+    },
+    "MYMPD_API_SCRIPT_TMP_LIST": {
+        "desc": "Lists all temporary variables.",
+        "params": {}
+    },
+    "MYMPD_API_SCRIPT_TMP_SET": {
+        "desc": "Sets a temporary variable.",
+        "params": {
+            "key": {
+                "type": APItypes.string,
+                "example": "tmp-var",
+                "desc": "Variable name"
+            },
+            "value": {
+                "type": APItypes.string,
+                "example": "tmp-value",
+                "desc": "Variable value"
+            },
+            "lifetime": {
+                "type": APItypes.int,
+                "example": 300,
+                "desc": "Lifetime of variable in seconds."
+            }
+        }
+    },
     "MYMPD_API_PARTITION_LIST": {
         "desc": "Lists all MPD partitions.",
         "params": {}

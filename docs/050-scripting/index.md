@@ -35,8 +35,6 @@ myMPD environment variables are populated in the lua table `mympd_env`.
 | `var` | table | Subtable with user defined variables |
 | `workdir` | string | myMPD working directory |
 
-Additionally all user defined variables are populates in this table. They are prefixed with `var_`.
-
 ### Arguments
 
 Script arguments are populated in the lua table `mympd_arguments`. All arguments are of type string.

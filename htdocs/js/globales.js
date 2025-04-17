@@ -1763,6 +1763,26 @@ const LUAfunctions = {
         "desc": "Read an ascii file.",
         "func": "local content = mympd.read_file(path)",
         "feat": ""
+    },
+    "mympd.tmpvar_set": {
+        "desc": "Set a tmp variable.",
+        "func": "local rc, result = mympd.tmpvar_set(key, value, lifetime)",
+        "feat": ""
+    },
+    "mympd.tmpvar_get": {
+        "desc": "Get a tmp variable.",
+        "func": "local value, expiration = mympd.tmpvar_get(key)",
+        "feat": ""
+    },
+    "mympd.tmpvar_list": {
+        "desc": "List all tmp variables.",
+        "func": "local vars = mympd.tmpvar_list()",
+        "feat": ""
+    },
+    "mympd.tmpvar_delete": {
+        "desc": "Delete a tmp variable.",
+        "func": "local rc, result = mympd.tmpvar_delete(key)",
+        "feat": ""
     }
 };
 

@@ -1255,5 +1255,10 @@
     "Request": "Request",
     "Response": "Response",
     "helpSettingsDynamicBackground": "Typ des dynamischen Hintergrunds.",
-    "mympd_bgimage": "Hintrgrundbild (mympd_bgimage)"
+    "mympd_bgimage": "Hintergrundbild (mympd_bgimage)",
+    "Can't save script tmp variable": "Temporäre Variable konnte nicht gespeichert werden.",
+    "Delete a tmp variable.": "Löscht eine temporäre Variable.",
+    "Get a tmp variable.": "Holt eine temporäre Variable.",
+    "List all tmp variables.": "Listet alle temporäre Variablen auf.",
+    "Set a tmp variable.": "Setzt eine temporäre Variable."
 }

@@ -16,6 +16,7 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/scripts/api_scripts.h"
+#include "src/scripts/api_tmp.h"
 #include "src/scripts/api_vars.h"
 #include "src/scripts/scripts_lua.h"
 #include "src/scripts/util.h"
@@ -167,12 +168,38 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             response->data = scripts_vars_list(&scripts_state->var_list, response->data, request->id);
             break;
         case MYMPD_API_SCRIPT_VAR_SET:
-            if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+            if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true &&
                 json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
             {
                 rc = scripts_vars_save(&scripts_state->var_list, sds_buf1, sds_buf2);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, "Can't save script variable");
+            }
+            break;
+        case MYMPD_API_SCRIPT_TMP_DELETE:
+            if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
+                scripts_tmp_delete(scripts_state->tmp_list, sds_buf1);
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
+            }
+            break;
+        case MYMPD_API_SCRIPT_TMP_GET:
+            script_tmp_list_should_expire(scripts_state);
+            if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
+                response->data = scripts_tmp_get(scripts_state->tmp_list, response->data, request->id, sds_buf1);
+            }
+            break;
+        case MYMPD_API_SCRIPT_TMP_LIST:
+            script_tmp_list_should_expire(scripts_state);
+            response->data = scripts_tmp_list(scripts_state->tmp_list, response->data, request->id);
+            break;
+        case MYMPD_API_SCRIPT_TMP_SET:
+            if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true &&
+                json_get_int_max(request->data, "$.params.lifetime", &int_buf1, &parse_error) == true)
+            {
+                rc = scripts_tmp_set(scripts_state->tmp_list, sds_buf1, sds_buf2, int_buf1);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                    JSONRPC_FACILITY_SCRIPT, "Can't save script tmp variable");
             }
             break;
         // unhandled method

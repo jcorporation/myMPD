@@ -40,6 +40,10 @@ List of myMPD specific Lua functions.
 | [mympd.sleep](util.md) | Sleep ms. |
 | [mympd.splitlines](string.md) | Split string by newline characters and trims the lines. |
 | [mympd.tmp_file](diskcache.md) | Generates a random tmp filename for the misc cache. |
+| [mympd.tmpvar_delete](tmpvar.md) | Deletes a temporary variable. |
+| [mympd.tmpvar_get](tmpvar.md) | Gets a temporary variable. |
+| [mympd.tmpvar_list](tmpvar.md) | Lists all temporary variables. |
+| [mympd.tmpvar_set](tmpvar.md) | Sets a temporary variable. |
 | [mympd.trim](string.md) | Removes beginning and ending whitespaces from a string. |
 | [mympd.update_mtime](diskcache.md) | Updates the timestamp of a file. |
 | [mympd.urldecode](util.md) | Decodes a URL encoded string. |

@@ -397,6 +397,10 @@ bool push_request(struct t_work_request *request, unsigned id) {
         case MYMPD_API_SCRIPT_VAR_DELETE:
         case MYMPD_API_SCRIPT_VAR_LIST:
         case MYMPD_API_SCRIPT_VAR_SET:
+        case MYMPD_API_SCRIPT_TMP_DELETE:
+        case MYMPD_API_SCRIPT_TMP_GET:
+        case MYMPD_API_SCRIPT_TMP_LIST:
+        case MYMPD_API_SCRIPT_TMP_SET:
             #ifdef MYMPD_ENABLE_LUA
                 //forward API request to script thread
                 return mympd_queue_push(script_queue, request, id);
