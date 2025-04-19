@@ -287,7 +287,7 @@ function clickNext() {
 
 /**
  * Seek handler
- * @param {number} value seek by/to value
+ * @param {number} value seek by/to seconds
  * @param {boolean} relative true = number is relative
  * @returns {void}
  */
