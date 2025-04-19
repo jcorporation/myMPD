@@ -168,7 +168,7 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             response->data = scripts_vars_list(&scripts_state->var_list, response->data, request->id);
             break;
         case MYMPD_API_SCRIPT_VAR_SET:
-            if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true &&
+            if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
             {
                 rc = scripts_vars_save(&scripts_state->var_list, sds_buf1, sds_buf2);
