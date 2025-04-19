@@ -235,34 +235,6 @@ function clickFolder(uri) {
 }
 
 /**
- * Seeks the current song forward by 5s
- * @returns {void}
- */
-function seekRelativeForward() {
-    seekRelative(5);
-}
-
-/**
- * Seeks the current song backward by 5s
- * @returns {void}
- */
-function seekRelativeBackward() {
-    seekRelative(-5);
-}
-
-/**
- * Seeks the current song by offset seconds
- * @param {number} offset relative seek offset
- * @returns {void}
- */
-function seekRelative(offset) {
-    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
-        "seek": offset,
-        "relative": true
-    }, null, false);
-}
-
-/**
  * Handler for click on play button
  * @returns {void}
  */
@@ -311,6 +283,19 @@ function clickPrev() {
 //eslint-disable-next-line no-unused-vars
 function clickNext() {
     sendAPI("MYMPD_API_PLAYER_NEXT", {}, null, false);
+}
+
+/**
+ * Seek handler
+ * @param {number} value seek by/to value
+ * @param {boolean} relative true = number is relative
+ * @returns {void}
+ */
+function clickSeek(value, relative) {
+    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
+        "seek": value,
+        "relative": relative
+    }, null, false);
 }
 
 /**
@@ -378,19 +363,6 @@ function toggleAdvPlaycontrolsPopover(event) {
     else {
         hidePopover();
     }
-}
-
-/**
- * Seek handler
- * @param {number} value seek by/to value
- * @param {boolean} relative true = number is relative
- * @returns {void}
- */
-function clickSeek(value, relative) {
-    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
-        "seek": value,
-        "relative": relative
-    }, null, false);
 }
 
 /**

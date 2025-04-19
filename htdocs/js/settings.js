@@ -287,8 +287,8 @@ function parseSettings(obj) {
             navigator.mediaSession.setActionHandler('play', clickPlay);
             navigator.mediaSession.setActionHandler('pause', clickPlay);
             navigator.mediaSession.setActionHandler('stop', clickStop);
-            navigator.mediaSession.setActionHandler('seekbackward', seekRelativeBackward);
-            navigator.mediaSession.setActionHandler('seekforward', seekRelativeForward);
+            navigator.mediaSession.setActionHandler('seekbackward', clickFastRewind);
+            navigator.mediaSession.setActionHandler('seekforward', clickFastForward);
             navigator.mediaSession.setActionHandler('previoustrack', clickPrev);
             navigator.mediaSession.setActionHandler('nexttrack', clickNext);
         }
