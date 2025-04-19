@@ -169,7 +169,7 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             break;
         case MYMPD_API_SCRIPT_VAR_SET:
             if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
-                json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
+                json_get_string(request->data, "$.params.value", 1, CONTENT_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
             {
                 rc = scripts_vars_save(&scripts_state->var_list, sds_buf1, sds_buf2);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
@@ -194,7 +194,7 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
             break;
         case MYMPD_API_SCRIPT_TMP_SET:
             if (json_get_string(request->data, "$.params.key", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
-                json_get_string(request->data, "$.params.value", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.value", 1, CONTENT_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true &&
                 json_get_int_max(request->data, "$.params.lifetime", &int_buf1, &parse_error) == true)
             {
                 rc = scripts_tmp_set(scripts_state->tmp_list, sds_buf1, sds_buf2, int_buf1);
