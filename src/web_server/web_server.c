@@ -278,7 +278,7 @@ static void read_queue(struct mg_mgr *mgr) {
 /**
  * Sets the mg_user_data values from set_mg_user_data_request.
  * Message is sent from the mympd_api thread.
- * @param response 
+ * @param response Response with the data to set
  * @param mg_user_data t_mg_user_data to configure
  * @return true on success, else false
  */
@@ -907,7 +907,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_CLOSE: {
-            MYMPD_LOG_INFO(NULL, "HTTP connection \"%lu\" closed", nc->id);
+            if (nc->is_websocket == 1) {
+                MYMPD_LOG_INFO(NULL, "Websocket connection \"%lu\" closed", nc->id);
+            }
+            else {
+                MYMPD_LOG_INFO(NULL, "HTTP connection \"%lu\" closed", nc->id);
+            }
             mg_user_data->connection_count--;
             if (frontend_nc_data == NULL) {
                 if (nc->is_listening == 0) {
@@ -1002,7 +1007,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 /**
  * Mongoose logging function
  * @param ch character to log
- * @param param 
+ * @param param
  */
 static void mongoose_log(char ch, void *param) {
     static char buf[256];
