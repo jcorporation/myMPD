@@ -9,9 +9,9 @@ set(TEST_SOURCES
   main.c
   utility.c
   ../src/lib/api.c
-  ../src/lib/cache_disk_lyrics.c
-  ../src/lib/cache_rax_album.c
-  ../src/lib/cache_rax.c
+  ../src/lib/cache/cache_disk_lyrics.c
+  ../src/lib/cache/cache_rax_album.c
+  ../src/lib/cache/cache_rax.c
   ../src/lib/cert.c
   ../src/lib/config.c
   ../src/lib/convert.c

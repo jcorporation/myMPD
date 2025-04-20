@@ -13,7 +13,7 @@
 
 #include "dist/mjson/mjson.h"
 #include "src/lib/api.h"
-#include "src/lib/cache_rax_album.h"
+#include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/convert.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_query.h"

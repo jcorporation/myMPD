@@ -12,7 +12,7 @@
 #include "src/mympd_api/mympd_api_handler.h"
 
 #include "src/lib/api.h"
-#include "src/lib/cache_rax_album.h"
+#include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"

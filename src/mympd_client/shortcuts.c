@@ -13,7 +13,7 @@
 #include "src/mympd_client/shortcuts.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
-#include "src/lib/cache_rax_album.h"
+#include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/mympd_client/search.h"

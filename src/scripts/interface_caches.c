@@ -11,8 +11,8 @@
 #include "compile_time.h"
 #include "src/scripts/interface_caches.h"
 
-#include "src/lib/cache_disk_images.h"
-#include "src/lib/cache_disk_lyrics.h"
+#include "src/lib/cache/cache_disk_images.h"
+#include "src/lib/cache/cache_disk_lyrics.h"
 #include "src/lib/config_def.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"

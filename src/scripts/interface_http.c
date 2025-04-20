@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/scripts/interface_http.h"
 
-#include "src/lib/cache_disk.h"
+#include "src/lib/cache/cache_disk.h"
 #include "src/lib/config_def.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/http_client.h"

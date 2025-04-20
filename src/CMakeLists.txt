@@ -42,11 +42,11 @@ target_sources(mympd
   PRIVATE
     main.c
     lib/api.c
-    lib/cache_disk_images.c
-    lib/cache_disk_lyrics.c
-    lib/cache_disk.c
-    lib/cache_rax_album.c
-    lib/cache_rax.c
+    lib/cache/cache_disk_images.c
+    lib/cache/cache_disk_lyrics.c
+    lib/cache/cache_disk.c
+    lib/cache/cache_rax_album.c
+    lib/cache/cache_rax.c
     lib/cert.c
     lib/config.c
     lib/convert.c

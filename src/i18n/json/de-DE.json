@@ -619,6 +619,7 @@
     "Num songs": "%{smart_count} Lied |||| %{smart_count} Lieder",
     "Number is out of valid range": "Zahl ist außerhalb der erlaubten Range",
     "OK": "OK",
+    "ok": "OK",
     "Off": "Deaktiviert",
     "Offset": "Start",
     "Ogg Vorbis": "Ogg Vorbis",

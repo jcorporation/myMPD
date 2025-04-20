@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/lib/cache_rax.h"
+#include "src/lib/cache/cache_rax.h"
 
 #include "src/lib/log.h"
 

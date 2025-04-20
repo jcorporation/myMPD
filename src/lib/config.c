@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/lib/config.h"
 
-#include "src/lib/cache_rax_album.h"
+#include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/env.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"

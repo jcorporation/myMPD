@@ -12,7 +12,7 @@
 #include "src/mympd_client/jukebox.h"
 
 #include "dist/sds/sds.h"
-#include "src/lib/cache_rax_album.h"
+#include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"

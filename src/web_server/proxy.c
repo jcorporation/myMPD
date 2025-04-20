@@ -11,8 +11,8 @@
 #include "compile_time.h"
 #include "src/web_server/proxy.h"
 
-#include "src/lib/cache_disk.h"
-#include "src/lib/cache_disk_images.h"
+#include "src/lib/cache/cache_disk.h"
+#include "src/lib/cache/cache_disk_images.h"
 #include "src/lib/config_def.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"

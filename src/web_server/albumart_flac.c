@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/web_server/albumart_flac.h"
 
-#include "src/lib/cache_disk_images.h"
+#include "src/lib/cache/cache_disk_images.h"
 #include "src/lib/log.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"

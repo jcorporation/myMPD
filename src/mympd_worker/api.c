@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_worker/api.h"
 
-#include "src/lib/cache_disk.h"
+#include "src/lib/cache/cache_disk.h"
 #include "src/lib/json/json_query.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
