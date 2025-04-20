@@ -991,13 +991,11 @@ static bool icb_json_get_tag_value(const char *path, sds key, sds value, int vty
         set_parse_error(error, path, "", "Invalid type for tag \"%s\": %s", key, get_mjson_toktype_name(vtype));
         return false;
     }
-    if (vcb(value) == false) {
+    if (vcb != NULL && vcb(value) == false) {
         set_parse_error(error, path, "", "Validation of value \"%s\" has failed", value);
+        return false;
     }
-    else {
-        mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, value);
-    }
-    
+    mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, value);
     return true;
 }
 
