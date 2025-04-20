@@ -33,9 +33,14 @@ static const char *jsonrpc_event_name(enum jsonrpc_events event);
  * Names for enum jsonrpc_events
  */
 static const char *jsonrpc_severity_names[JSONRPC_SEVERITY_MAX] = {
-    [JSONRPC_SEVERITY_INFO] = "info",
+    [JSONRPC_SEVERITY_EMERG] = "emerg",
+    [JSONRPC_SEVERITY_ALERT] = "alert",
+    [JSONRPC_SEVERITY_CRIT] = "crit",
+    [JSONRPC_SEVERITY_ERROR] = "error",
     [JSONRPC_SEVERITY_WARN] = "warn",
-    [JSONRPC_SEVERITY_ERROR] = "error"
+    [JSONRPC_SEVERITY_NOTICE] = "notice",
+    [JSONRPC_SEVERITY_INFO] = "info",
+    [JSONRPC_SEVERITY_DEBUG] = "debug"
 };
 
 /**
@@ -324,7 +329,7 @@ sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, unsign
     const char *severity_name = jsonrpc_severity_name(severity);
     sdsclear(buffer);
     buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%u,\"%s\":{",
-        request_id, (severity == JSONRPC_SEVERITY_INFO ? "result" : "error"));
+        request_id, (severity > JSONRPC_SEVERITY_WARN ? "result" : "error"));
     buffer = tojson_char(buffer, "method", method, true);
     buffer = tojson_char(buffer, "facility", facility_name, true);
     buffer = tojson_char(buffer, "severity", severity_name, true);

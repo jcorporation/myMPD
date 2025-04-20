@@ -50,6 +50,15 @@ function toggleAlert(alertBoxId, state, msg) {
             elCreateText('span', {}, msg)
         );
         switch(alertBoxId) {
+            case 'alertCrit': {
+                alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
+                const clBtn = elCreateEmpty('button', {"class": ["btn-close"]});
+                alertBoxEl.appendChild(clBtn);
+                clBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                }, false);
+                break;
+            }
             case 'alertMpdStatusError': {
                 alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
                 const clBtn = elCreateEmpty('button', {"class": ["btn-close"]});
@@ -111,20 +120,53 @@ function toggleAlert(alertBoxId, state, msg) {
  * @type {object}
  */
 const severities = {
-    "info": {
-        "text": "Info",
-        "icon": "info",
-        "class": "text-success"
+    "emerg": {
+        "text": "Emerg",
+        "icon": "error",
+        "class": "text-danger",
+        "loglevel": 0
     },
-    "warn": {
-        "text": "Warning",
-        "icon": "warning",
-        "class": "text-warning"
+    "alert": {
+        "text": "Alert",
+        "icon": "error",
+        "class": "text-danger",
+        "loglevel": 1
+    },
+    "crit": {
+        "text": "Crit",
+        "icon": "error",
+        "class": "text-danger",
+        "loglevel": 2
     },
     "error": {
         "text": "Error",
         "icon": "error",
-        "class": "text-danger"
+        "class": "text-danger",
+        "loglevel": 3
+    },
+    "warn": {
+        "text": "Warning",
+        "icon": "warning",
+        "class": "text-warning",
+        "loglevel": 4
+    },
+    "notice": {
+        "text": "Notice",
+        "icon": "info",
+        "class": "text-success",
+        "loglevel": 5
+    },
+    "info": {
+        "text": "Info",
+        "icon": "info",
+        "class": "text-success",
+        "loglevel": 6
+    },
+    "debug": {
+        "text": "Debug",
+        "icon": "info",
+        "class": "text-info",
+        "loglevel": 7
     }
 };
 
@@ -172,18 +214,23 @@ function showNotification(message, facility, severity) {
         return;
     }
     logMessage(message, facility, severity);
-    if (severity === 'info') {
-        //notifications with severity info can be hidden
+    const loglevel = severities[severity].loglevel;
+    if (loglevel === 7) {
+        // Debug notifications are only logged
+        return;
+    }
+    if (loglevel > 4) {
+        // Notifications with severity info and notice can be hidden
         if (settings.webuiSettings.notifyPage === false &&
             settings.webuiSettings.notifyWeb === false)
         {
             return;
         }
-        //disabled notification for facility in advanced setting
+        // Disabled notification for facility in advanced setting
         let show = settings.webuiSettings['notification' + facilities[facility]];
         if (show === null ) {
             logDebug('Unknown facility: ' + facility);
-            //fallback to general
+            // Fallback to general
             show = settings.webuiSettings['notificationGeneral'];
         }
         if (show === false) {
@@ -192,7 +239,7 @@ function showNotification(message, facility, severity) {
     }
 
     if (facility === 'jukebox' &&
-        severity === 'error')
+        loglevel < 5)
     {
         toggleAlert('alertJukeboxStatusError', true, message);
         return;
@@ -216,6 +263,10 @@ function showNotification(message, facility, severity) {
             this.remove();
         }, false);
         toastInit.show();
+    }
+    if (loglevel < 3) {
+        // Display critical notifications also on the top of the page
+        toggleAlert('alertCrit', true, message);
     }
 }
 

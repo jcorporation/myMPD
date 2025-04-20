@@ -7,23 +7,35 @@
 
 /**
  * Central logging function
- * @param {number} loglevel the numeric loglevel: 0 = error, 1 = warn, 2 = info, 3 = verbose, 4 = debug
- * @param {string} prefix prefix for log message
+ * It logs to the browser console and to the log buffer
+ * @param {number} loglevel the numeric syslog loglevel
  * @param {string} message message to log
  * @returns {void}
  */
-function logLog(loglevel, prefix, message) {
+function logLog(loglevel, message) {
     if (settings.loglevel >= loglevel) {
         switch(loglevel) {
-            case 0:  console.error(prefix + ': ' + message); break;
-            case 1:  console.warn(prefix + ': ' + message); break;
-            case 4:  console.debug(prefix + ': ' + message); break;
-            default: console.log(prefix + ': ' + message);
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                console.error(logLevelNames[loglevel] + ': ' + message);
+                break;
+            case 4:
+                console.warn(logLevelNames[loglevel] + ': ' + message);
+                break;
+            case 5:
+            case 6:
+                console.log(logLevelNames[loglevel] + ': ' + message);
+                break;
+            case 7:
+                console.debug(logLevelNames[loglevel] + ': ' + message);
+                break;
+            // no default
         }
         logs.push({
             "timestamp": getTimestamp(),
             "loglevel": loglevel,
-            "prefix": prefix,
             "message": message
         });
         if (logs.length > logsMax) {
@@ -33,17 +45,50 @@ function logLog(loglevel, prefix, message) {
 }
 
 /**
- * Logs a message by jsonrpc severity
- * @param {string} severity jsonrpc severity, on off error, warn, info
+ * Logs a message by severity name
+ * @param {string} severity jsonrpc severity, one off: emerg, alert, crit, error, warn, notice, info, debug
  * @param {string} message message to log
  * @returns {void}
  */
 function logSeverity(severity, message) {
     switch (severity) {
-        case 'error': logError(message); break;
-        case 'warn':  logWarn(message); break;
-        default:      logInfo(message);
+        case 'emerg':  logEmerg(message); break;
+        case 'alert':  logAlert(message); break;
+        case 'crit':   logCrit(message); break;
+        case 'error':  logError(message); break;
+        case 'warn':   logWarn(message); break;
+        case 'notice': logNotice(message); break;
+        case 'info':   logInfo(message); break;
+        case 'debug':  logDebug(message); break;
+        // no default
     }
+}
+
+/**
+ * Logs an emergency message
+ * @param {string} message message to log
+ * @returns {void}
+ */
+function logEmerg(message) {
+    logLog(0, message);
+}
+
+/**
+ * Logs an alert message
+ * @param {string} message message to log
+ * @returns {void}
+ */
+function logAlert(message) {
+    logLog(1, message);
+}
+
+/**
+ * Logs a critical message
+ * @param {string} message message to log
+ * @returns {void}
+ */
+function logCrit(message) {
+    logLog(2, message);
 }
 
 /**
@@ -51,9 +96,8 @@ function logSeverity(severity, message) {
  * @param {string} message message to log
  * @returns {void}
  */
-//eslint-disable-next-line no-unused-vars
 function logError(message) {
-    logLog(0, 'ERROR', message);
+    logLog(3, message);
 }
 
 /**
@@ -61,9 +105,17 @@ function logError(message) {
  * @param {string} message message to log
  * @returns {void}
  */
-//eslint-disable-next-line no-unused-vars
 function logWarn(message) {
-    logLog(1, 'WARN', message);
+    logLog(4, message);
+}
+
+/**
+ * Logs a notice message
+ * @param {string} message message to log
+ * @returns {void}
+ */
+function logNotice(message) {
+    logLog(5, message);
 }
 
 /**
@@ -71,19 +123,8 @@ function logWarn(message) {
  * @param {string} message message to log
  * @returns {void}
  */
-//eslint-disable-next-line no-unused-vars
 function logInfo(message) {
-    logLog(2, 'INFO', message);
-}
-
-/**
- * Logs a verbose message
- * @param {string} message message to log
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function logVerbose(message) {
-    logLog(3, 'VERBOSE', message);
+    logLog(6, message);
 }
 
 /**
@@ -91,7 +132,6 @@ function logVerbose(message) {
  * @param {string} message message to log
  * @returns {void}
  */
-//eslint-disable-next-line no-unused-vars
 function logDebug(message) {
-    logLog(4, 'DEBUG', message);
+    logLog(7, message);
 }

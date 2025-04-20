@@ -93,7 +93,7 @@ function showLogs() {
         overview.insertBefore(
             elCreateNodes('tr', {}, [
                 elCreateText('td', {}, fmtTime(log.timestamp)),
-                elCreateText('td', {}, log.prefix),
+                elCreateText('td', {}, logLevelNames[log.loglevel]),
                 elCreateText('td', {}, log.message)
             ]),
             overview.firstElementChild);

@@ -80,9 +80,9 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
     // check version
     if (mpd_connection_cmp_server_version(stickerdb->conn, MPD_VERSION_MIN_MAJOR, MPD_VERSION_MIN_MINOR, MPD_VERSION_MIN_PATCH) < 0) {
         MYMPD_LOG_DEBUG("stickerdb", "Checking version");
-        MYMPD_LOG_ERROR(stickerdb->name, MPD_TOO_OLD_MSG);
+        MYMPD_LOG_EMERG(stickerdb->name, MPD_TOO_OLD_MSG);
+        send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_CRIT, MPD_PARTITION_ALL, "MPD version is too old");
         stickerdb_disconnect(stickerdb);
-        send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "MPD version is too old");
         mympd_api_request_sticker_features(false, false);
         return false;
     }
@@ -91,7 +91,7 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
     if (stickerdb->mpd_state->feat.stickers == false) {
         MYMPD_LOG_ERROR("stickerdb", "MPD does not support stickers");
         stickerdb_disconnect(stickerdb);
-        send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "MPD does not support stickers");
+        send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_CRIT, MPD_PARTITION_ALL, "MPD does not support stickers");
         mympd_api_request_sticker_features(false, false);
         return false;
     }

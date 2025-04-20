@@ -51,6 +51,18 @@ let settings = {
     "partition": {}
 };
 
+/** @type {Array} */
+const logLevelNames = [
+    "EMERG",
+    "ALERT",
+    "CRIT",
+    "ERROR",
+    "WARN",
+    "NOTICE",
+    "INFO",
+    "DEBUG"
+];
+
 /** @type {boolean} */
 let myMPDready = false;
 
