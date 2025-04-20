@@ -81,7 +81,7 @@ function toggleAlert(alertBoxId, state, msg) {
                 alertBoxEl.appendChild(clBtn);
                 clBtn.addEventListener('click', function(event) {
                     event.preventDefault();
-                    onShow();
+                    onShow('reconnect');
                 }, false);
                 break;
             }

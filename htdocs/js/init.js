@@ -271,10 +271,13 @@ function appInit() {
     }
     //update state on window focus - browser pauses javascript
     window.addEventListener('focus', function() {
-        onShow();
+        onShow('focus');
     }, false);
     window.addEventListener('pageshow', function() {
-        onShow();
+        onShow('pageshow');
+    }, false);
+    window.addEventListener('visibilitychange', function() {
+        onShow('visibilitychange');
     }, false);
     //global keymap
     document.addEventListener('keydown', function(event) {
@@ -308,15 +311,18 @@ function appInit() {
 
 /**
  * Checks the connection state and reconnects the websocket on demand
+ * @param {string} eventName Name of triggering event
  * @returns {void}
  */
-function onShow() {
-    logDebug('Browser focused, update player state');
-    getState();
-    if (app.id === 'QueueCurrent') {
-        execSearchExpression(elGetById('QueueCurrentSearchStr').value);
+function onShow(eventName) {
+    if (document.visibilityState === 'visible') {
+        logDebug(eventName + ': update player state');
+        getState();
+        if (app.id === 'QueueCurrent') {
+            execSearchExpression(elGetById('QueueCurrentSearchStr').value);
+        }
+        websocketKeepAlive();
     }
-    websocketKeepAlive();
 }
 
 /**
