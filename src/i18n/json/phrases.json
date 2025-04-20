@@ -480,6 +480,7 @@
 {"term":"Loglevel set to NOTICE"},
 {"term":"Loglevel set to WARN"},
 {"term":"Logout"},
+{"term":"Logs"},
 {"term":"Logs messages to the myMPD log."},
 {"term":"Lookup HTTP header"},
 {"term":"Lookup at musicbrainz"},

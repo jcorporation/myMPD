@@ -8,16 +8,26 @@
 /**
  * Central logging function
  * @param {number} loglevel the numeric loglevel: 0 = error, 1 = warn, 2 = info, 3 = verbose, 4 = debug
+ * @param {string} prefix prefix for log message
  * @param {string} message message to log
  * @returns {void}
  */
-function logLog(loglevel, message) {
+function logLog(loglevel, prefix, message) {
     if (settings.loglevel >= loglevel) {
         switch(loglevel) {
-            case 0:  console.error(message); break;
-            case 1:  console.warn(message); break;
-            case 4:  console.debug(message); break;
-            default: console.log(message);
+            case 0:  console.error(prefix + ': ' + message); break;
+            case 1:  console.warn(prefix + ': ' + message); break;
+            case 4:  console.debug(prefix + ': ' + message); break;
+            default: console.log(prefix + ': ' + message);
+        }
+        logs.push({
+            "timestamp": getTimestamp(),
+            "loglevel": loglevel,
+            "prefix": prefix,
+            "message": message
+        });
+        if (logs.length > logsMax) {
+            logs.shift();
         }
     }
 }
@@ -43,7 +53,7 @@ function logSeverity(severity, message) {
  */
 //eslint-disable-next-line no-unused-vars
 function logError(message) {
-    logLog(0, 'ERROR: ' + message);
+    logLog(0, 'ERROR', message);
 }
 
 /**
@@ -53,7 +63,7 @@ function logError(message) {
  */
 //eslint-disable-next-line no-unused-vars
 function logWarn(message) {
-    logLog(1, 'WARN: ' + message);
+    logLog(1, 'WARN', message);
 }
 
 /**
@@ -63,7 +73,7 @@ function logWarn(message) {
  */
 //eslint-disable-next-line no-unused-vars
 function logInfo(message) {
-    logLog(2, 'INFO: ' + message);
+    logLog(2, 'INFO', message);
 }
 
 /**
@@ -73,7 +83,7 @@ function logInfo(message) {
  */
 //eslint-disable-next-line no-unused-vars
 function logVerbose(message) {
-    logLog(3, 'VERBOSE: ' + message);
+    logLog(3, 'VERBOSE', message);
 }
 
 /**
@@ -83,5 +93,5 @@ function logVerbose(message) {
  */
 //eslint-disable-next-line no-unused-vars
 function logDebug(message) {
-    logLog(4, 'DEBUG: ' + message);
+    logLog(4, 'DEBUG', message);
 }

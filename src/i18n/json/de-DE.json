@@ -1261,5 +1261,6 @@
     "Delete a tmp variable.": "Löscht eine temporäre Variable.",
     "Get a tmp variable.": "Holt eine temporäre Variable.",
     "List all tmp variables.": "Listet alle temporäre Variablen auf.",
-    "Set a tmp variable.": "Setzt eine temporäre Variable."
+    "Set a tmp variable.": "Setzt eine temporäre Variable.",
+    "Logs": "Logs"
 }

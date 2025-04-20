@@ -317,11 +317,11 @@ function appInit() {
 function onShow(eventName) {
     if (document.visibilityState === 'visible') {
         logDebug(eventName + ': update player state');
+        websocketKeepAlive();
         getState();
         if (app.id === 'QueueCurrent') {
             execSearchExpression(elGetById('QueueCurrentSearchStr').value);
         }
-        websocketKeepAlive();
     }
 }
 

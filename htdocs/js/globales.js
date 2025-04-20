@@ -29,6 +29,7 @@ const jsonRpcError = {
 
 let socket = null;
 
+let websocketReconnectTimer = null;
 let websocketKeepAliveTimer = null;
 let websocketLastPong = null;
 let searchTimer = null;
@@ -150,6 +151,11 @@ const sessionLifetime = 1780;
 const sessionRenewInterval = sessionLifetime * 500;
 
 let sessionTimer = null;
+
+/** log buffer */
+const logs = [];
+/** @type {number} */
+const logsMax = 1000;
 
 /** log message buffer */
 const messages = [];

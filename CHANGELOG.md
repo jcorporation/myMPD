@@ -25,6 +25,7 @@ Scripts can now set temporary variables which are kept in memory only and have a
 - Feat: Add cache for Lua http client #1421
 - Feat: Add trigger for background image selection #1420
 - Feat: Use MPD side filter and window for listing tags (MPD 0.25)
+- Feat: Add logviewer for gui logs
 - Upd: Improve API explorer - show request
 - Upd: Bootstrap v5.3.4 #1418
 
