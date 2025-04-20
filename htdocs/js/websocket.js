@@ -219,7 +219,7 @@ function webSocketConnect() {
     };
 
     socket.onclose = function(event) {
-        logError('Websocket connection closed: ' + event.code);
+        logError('Websocket connection closed: ' + event.reason);
         if (appInited === true) {
             toggleUI();
             if (progressTimer) {
@@ -234,7 +234,7 @@ function webSocketConnect() {
     };
 
     socket.onerror = function() {
-        logError('Websocket error occurred');
+        logError('Websocket error occurred, closing connection');
         if (socket !== null) {
             try {
                 socket.close();
