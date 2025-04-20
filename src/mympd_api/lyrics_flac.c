@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/lyrics_flac.h"
 
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 

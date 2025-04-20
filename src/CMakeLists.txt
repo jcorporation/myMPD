@@ -58,7 +58,9 @@ target_sources(mympd
     lib/handle_options.c
     lib/http_client.c
     lib/http_client_cache.c
-    lib/jsonrpc.c
+    lib/json/json_print.c
+    lib/json/json_query.c
+    lib/json/json_rpc.c
     lib/last_played.c
     lib/list.c
     lib/log.c

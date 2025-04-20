@@ -13,7 +13,8 @@
 
 #include "src/lib/api.h"
 #include "src/lib/config_def.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
@@ -73,6 +74,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
     #ifdef MYMPD_ENABLE_LUA
         //forward request to mympd_api thread
         MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_TAGART to mympdapi_queue");
+        //TODO: use extra_data
         struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_TAGART, NULL, MPD_PARTITION_DEFAULT);
         request->data = tojson_sds(request->data, "tag", tag, true);
         request->data = tojson_sds(request->data, "value", value, false);

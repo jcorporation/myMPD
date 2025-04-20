@@ -12,7 +12,9 @@
 #include "src/scripts/api_vars.h"
 
 #include "src/lib/filehandler.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_query.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 
@@ -76,8 +78,8 @@ bool scripts_vars_file_read(struct t_list *script_var_list, sds workdir) {
 
     sds line = sdsempty();
     int nread = 0;
-    struct t_jsonrpc_parse_error parse_error;
-    jsonrpc_parse_error_init(&parse_error);
+    struct t_json_parse_error parse_error;
+    json_parse_error_init(&parse_error);
     sds key = NULL;
     sds value = NULL;
     while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
@@ -101,7 +103,7 @@ bool scripts_vars_file_read(struct t_list *script_var_list, sds workdir) {
     FREE_SDS(line);
     FREE_SDS(key);
     FREE_SDS(value);
-    jsonrpc_parse_error_clear(&parse_error);
+    json_parse_error_clear(&parse_error);
     (void) fclose(fp);
     FREE_SDS(scripts_vars_file);
     MYMPD_LOG_INFO(NULL, "Read %u script variable(s) from disc", script_var_list->length);

@@ -11,7 +11,8 @@
 #include "compile_time.h"
 #include "src/mympd_api/song.h"
 
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/mympd_api/extra_media.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_client/errorhandler.h"

@@ -15,7 +15,9 @@
 #include "src/lib/cache_disk.h"
 #include "src/lib/convert.h"
 #include "src/lib/filehandler.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_query.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/msg_queue.h"
@@ -106,6 +108,7 @@ void request_handler_albumart_by_album_id(struct mg_http_message *hm, unsigned l
     sds albumid = sdsnewlen(hm->uri.buf, hm->uri.len);
     basename_uri(albumid);
     MYMPD_LOG_DEBUG(NULL, "Sending getalbumart to mympd_client_queue");
+    //TODO: use extra_data
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, 0, INTERNAL_API_ALBUMART_BY_ALBUMID, NULL, MPD_PARTITION_DEFAULT);
     request->data = tojson_sds(request->data, "albumid", albumid, true);
     request->data = tojson_uint(request->data, "size", size, false);

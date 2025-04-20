@@ -12,7 +12,7 @@
 #include "src/mympd_api/requests.h"
 
 #include "src/lib/api.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
 
 /**
  * Pushes a MYMPD_API_CACHES_CREATE event to the queue

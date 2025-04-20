@@ -12,7 +12,8 @@
 #include "src/mympd_api/last_played.h"
 
 #include "dist/sds/sds.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/search.h"
 #include "src/lib/utility.h"

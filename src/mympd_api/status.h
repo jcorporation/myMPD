@@ -11,7 +11,7 @@
 #ifndef MYMPD_API_STATUS_H
 #define MYMPD_API_STATUS_H
 
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/mympd_state.h"
 
 unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status);

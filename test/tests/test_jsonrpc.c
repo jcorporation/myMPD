@@ -8,7 +8,7 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_query.h"
 #include "src/lib/list.h"
 #include "src/lib/sds_extras.h"
 
@@ -247,7 +247,7 @@ UTEST(jsonrpc, test_list_to_json_array) {
 UTEST(jsonrpc, test_json_get_fields_as_string) {
     struct t_list l;
     list_init(&l);
-    struct t_jsonrpc_parse_error error;
+    struct t_json_parse_error error;
     sds data = sdsnew("{\"params\": {\"fields\": [\"Artist\", \"Duration\"]}}");
     sds cols = sdsempty();
     bool rc = json_get_fields_as_string(data, &cols, &error);

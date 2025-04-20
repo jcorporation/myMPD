@@ -13,7 +13,7 @@
 
 #include "src/lib/datetime.h"
 #include "src/lib/event.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/mympd_state.h"

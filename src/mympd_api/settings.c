@@ -15,7 +15,9 @@
 #include "src/lib/api.h"
 #include "src/lib/cache_rax_album.h"
 #include "src/lib/convert.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_query.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -43,8 +45,8 @@
  * Private declarations
  */
 
-static void set_invalid_value(struct t_jsonrpc_parse_error *error, const char *path, sds key, sds value, const char *message);
-static void set_invalid_field(struct t_jsonrpc_parse_error *error, const char *path, sds key);
+static void set_invalid_value(struct t_json_parse_error *error, const char *path, sds key, sds value, const char *message);
+static void set_invalid_field(struct t_json_parse_error *error, const char *path, sds key);
 static void enable_set_conn_options(struct t_mympd_state *mympd_state);
 
 /**
@@ -83,10 +85,10 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
  * @param vtype value type
  * @param vcb validation callback (unused)
  * @param userdata pointer to the t_mympd_state struct
- * @param error pointer to t_jsonrpc_parse_error
+ * @param error pointer to t_json_parse_error
  * @return true on success, else false
  */
-bool mympd_api_settings_connection_save(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error) {
+bool mympd_api_settings_connection_save(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
 
@@ -315,10 +317,10 @@ bool mympd_api_settings_view_save(struct t_mympd_state *mympd_state, sds view, s
  * @param vtype value type
  * @param vcb validation callback (unused)
  * @param userdata pointer to central myMPD state
- * @param error pointer to t_jsonrpc_parse_error
+ * @param error pointer to t_json_parse_error
  * @return true on success, else false
  */
-bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error) {
+bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
 
@@ -533,10 +535,10 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
  * @param vtype value type
  * @param vcb validation callback (unused)
  * @param userdata pointer to partition state
- * @param error pointer to t_jsonrpc_parse_error
+ * @param error pointer to t_json_parse_error
  * @return true on success, else false
  */
-bool mympd_api_settings_partition_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error) {
+bool mympd_api_settings_partition_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void) vcb;
     struct t_partition_state *partition_state = (struct t_partition_state *)userdata;
 
@@ -592,10 +594,10 @@ bool mympd_api_settings_partition_set(const char *path, sds key, sds value, int 
  * @param vtype value type
  * @param vcb validation callback (unused)
  * @param userdata pointer to the t_partition_state struct
- * @param error pointer to t_jsonrpc_parse_error
+ * @param error pointer to t_json_parse_error
  * @return true on success, else false
  */
-bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error) {
+bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void) vcb;
     struct t_partition_state *partition_state = (struct t_partition_state *)userdata;
 
@@ -1128,13 +1130,13 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
 
 /**
  * Helper function to set an error message
- * @param error pointer to t_jsonrpc_parse_error
+ * @param error pointer to t_json_parse_error
  * @param path jsonrpc path
  * @param key setting key
  * @param value setting value
  * @param message the message to print, leave empty for generic invalid message
  */
-static void set_invalid_value(struct t_jsonrpc_parse_error *error, const char *path, sds key, sds value, const char *message) {
+static void set_invalid_value(struct t_json_parse_error *error, const char *path, sds key, sds value, const char *message) {
     error->message = message[0] == '\0'
         ? sdscatfmt(sdsempty(), "Invalid value for \"%S\"", key)
         : sdsnew(message);
@@ -1144,11 +1146,11 @@ static void set_invalid_value(struct t_jsonrpc_parse_error *error, const char *p
 
 /**
  * Helper function to set an error message
- * @param error pointer to t_jsonrpc_parse_error
+ * @param error pointer to t_json_parse_error
  * @param path jsonrpc path
  * @param key setting key
  */
-static void set_invalid_field(struct t_jsonrpc_parse_error *error, const char *path, sds key) {
+static void set_invalid_field(struct t_json_parse_error *error, const char *path, sds key) {
     error->message = sdscatfmt(sdsempty(), "Invalid field: \"%s\"", key);
     error->path = sdscatfmt(sdsempty(), "%s.%S", path, key);
     MYMPD_LOG_WARN(NULL, "%s", error->message);

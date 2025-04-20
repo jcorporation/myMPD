@@ -12,7 +12,7 @@
 #include "src/mympd_api/tagart.h"
 
 #include "src/lib/api.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/mympd_api/trigger.h"
 

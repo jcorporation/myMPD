@@ -11,7 +11,8 @@
 #include "compile_time.h"
 #include "src/mympd_worker/playlists.h"
 
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/sds_extras.h"
 #include "src/mympd_client/playlists.h"
 

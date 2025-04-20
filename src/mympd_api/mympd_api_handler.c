@@ -13,7 +13,7 @@
 
 #include "src/lib/api.h"
 #include "src/lib/cache_rax_album.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -100,8 +100,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     sds error = sdsempty();
     bool async = false;
 
-    struct t_jsonrpc_parse_error parse_error;
-    jsonrpc_parse_error_init(&parse_error);
+    struct t_json_parse_error parse_error;
+    json_parse_error_init(&parse_error);
 
     #ifdef MYMPD_DEBUG
         MEASURE_INIT
@@ -2001,7 +2001,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     if (async == true) {
         free_response(response);
         FREE_SDS(error);
-        jsonrpc_parse_error_clear(&parse_error);
+        json_parse_error_clear(&parse_error);
         return;
     }
 
@@ -2029,5 +2029,5 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     push_response(response);
     free_request(request);
     FREE_SDS(error);
-    jsonrpc_parse_error_clear(&parse_error);
+    json_parse_error_clear(&parse_error);
 }

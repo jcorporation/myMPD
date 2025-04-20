@@ -16,7 +16,8 @@
 #include "src/lib/api.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/http_client.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_query.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
@@ -26,7 +27,7 @@
 
 static bool parse_webradiodb(sds str, struct t_webradios *webradiodb);
 static bool icb_webradio_alternate(const char *path, sds key, sds value, int vtype,
-        validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error);
+        validate_callback vcb, void *userdata, struct t_json_parse_error *error);
 static struct t_webradio_data *parse_webradiodb_data(sds str);
 
 // public functions
@@ -133,11 +134,11 @@ static bool parse_webradiodb(sds str, struct t_webradios *webradiodb) {
  * @param vtype mjson value type
  * @param vcb not used - we validate directly
  * @param userdata void pointer to t_tags struct
- * @param error pointer to t_jsonrpc_parse_error
+ * @param error pointer to t_json_parse_error
  * @return true on success else false
  */
 static bool icb_webradio_alternate(const char *path, sds key, sds value, int vtype,
-        validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error)
+        validate_callback vcb, void *userdata, struct t_json_parse_error *error)
 {
     (void)vcb;
     (void)key;
@@ -167,8 +168,8 @@ static bool icb_webradio_alternate(const char *path, sds key, sds value, int vty
  */
 static struct t_webradio_data *parse_webradiodb_data(sds str) {
     struct t_webradio_data *data = webradio_data_new(WEBRADIO_WEBRADIODB);
-    struct t_jsonrpc_parse_error parse_error;
-    jsonrpc_parse_error_init(&parse_error);
+    struct t_json_parse_error parse_error;
+    json_parse_error_init(&parse_error);
     sds uri = NULL;
     sds codec = NULL;
     uint bitrate;
@@ -187,13 +188,13 @@ static struct t_webradio_data *parse_webradiodb_data(sds str) {
         json_get_time_max(str, "$.Last-Modified", &data->last_modified, &parse_error) == false)
     {
         webradio_data_free(data);
-        jsonrpc_parse_error_clear(&parse_error);
+        json_parse_error_clear(&parse_error);
         return NULL;
     }
     list_push(&data->uris, uri, bitrate, codec, NULL);
     json_iterate_object(str, "$.alternativeStreams", icb_webradio_alternate, data, NULL, NULL, 64, &parse_error);
     FREE_SDS(uri);
     FREE_SDS(codec);
-    jsonrpc_parse_error_clear(&parse_error);
+    json_parse_error_clear(&parse_error);
     return data;
 }

@@ -12,7 +12,7 @@
 #include "src/mympd_client/errorhandler.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/timer.h"
 #include "src/mympd_client/connection.h"

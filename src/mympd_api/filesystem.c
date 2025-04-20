@@ -12,7 +12,8 @@
 #include "src/mympd_api/filesystem.h"
 
 #include "dist/utf8/utf8.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/mem.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"

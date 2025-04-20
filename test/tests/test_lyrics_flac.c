@@ -9,7 +9,7 @@
 
 #include "dist/utest/utest.h"
 #include "src/lib/config.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_query.h"
 #include "src/lib/mympd_state.h"
 #include "src/mympd_api/lyrics.h"
 

@@ -16,7 +16,7 @@
 #include "src/lib/cache_rax_album.h"
 #include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"

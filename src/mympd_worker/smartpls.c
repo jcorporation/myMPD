@@ -13,7 +13,7 @@
 
 #include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_query.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"

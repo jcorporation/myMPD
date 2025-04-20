@@ -12,7 +12,8 @@
 #include "src/scripts/api_handler.h"
 
 #include "src/lib/config_def.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_query.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/scripts/api_scripts.h"
@@ -27,8 +28,8 @@
  * @param request pointer to the jsonrpc request struct
  */
 void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_request *request) {
-    struct t_jsonrpc_parse_error parse_error;
-    jsonrpc_parse_error_init(&parse_error);
+    struct t_json_parse_error parse_error;
+    json_parse_error_init(&parse_error);
     const char *method = get_cmd_id_method_name(request->cmd_id);
     MYMPD_LOG_DEBUG(request->partition, "MYMPD API request (%lu)(%u) %s: %s",
         request->conn_id, request->id, method, request->data);
@@ -243,5 +244,5 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
     }
     free_request(request);
     FREE_SDS(error);
-    jsonrpc_parse_error_clear(&parse_error);
+    json_parse_error_clear(&parse_error);
 }

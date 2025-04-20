@@ -20,7 +20,6 @@
 #include "src/mympd_client/stickerdb.h"
 #include "src/mympd_client/tags.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 /*

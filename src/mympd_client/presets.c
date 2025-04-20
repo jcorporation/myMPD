@@ -12,7 +12,7 @@
 #include "src/mympd_client/presets.h"
 
 #include "src/lib/filehandler.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_query.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
@@ -31,17 +31,17 @@
 bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sds *error) {
     struct t_list_node *preset = list_get_node(&partition_state->preset_list, preset_name);
     if (preset != NULL) {
-        struct t_jsonrpc_parse_error parse_error;
-        jsonrpc_parse_error_init(&parse_error);
+        struct t_json_parse_error parse_error;
+        json_parse_error_init(&parse_error);
         if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, NULL, 100, &parse_error) == true) {
             if (partition_state->jukebox.mode != JUKEBOX_OFF) {
                 mympd_api_request_jukebox_restart(partition_state->name);
             }
-            jsonrpc_parse_error_clear(&parse_error);
+            json_parse_error_clear(&parse_error);
             return true;
         }
         *error = sdscat(*error, "Can't set playback options");
-        jsonrpc_parse_error_clear(&parse_error);
+        json_parse_error_clear(&parse_error);
     }
     else {
         *error = sdscat(*error,  "Could not load preset");

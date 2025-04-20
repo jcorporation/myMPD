@@ -13,7 +13,9 @@
 
 #include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_query.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -308,7 +310,7 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
  * @param error pointer to sds string to populate an error string
  * @return pointer to timer_def or NULL on error
  */
-struct t_timer_definition *mympd_api_timer_parse(sds str, const char *partition, struct t_jsonrpc_parse_error *error) {
+struct t_timer_definition *mympd_api_timer_parse(sds str, const char *partition, struct t_json_parse_error *error) {
     struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
     timer_def->name = NULL;
     timer_def->partition = NULL;

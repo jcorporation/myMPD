@@ -11,12 +11,14 @@
 #include "compile_time.h"
 #include "src/scripts/api_tmp.h"
 
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/scripts/util.h"
 
 #include <errno.h>
+#include <time.h>
 
 /**
  * Deletes a tmp variable in the tree, ignores not existing keys

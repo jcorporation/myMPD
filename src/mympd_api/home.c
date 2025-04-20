@@ -12,9 +12,11 @@
 #include "src/mympd_api/home.h"
 
 #include "src/lib/filehandler.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/validate.h"
 
 #include <errno.h>
 

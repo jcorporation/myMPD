@@ -22,7 +22,9 @@ set(TEST_SOURCES
   ../src/lib/filehandler.c
   ../src/lib/http_client.c
   ../src/lib/http_client_cache.c
-  ../src/lib/jsonrpc.c
+  ../src/lib/json/json_print.c
+  ../src/lib/json/json_query.c
+  ../src/lib/json/json_rpc.c
   ../src/lib/last_played.c
   ../src/lib/list.c
   ../src/lib/log.c

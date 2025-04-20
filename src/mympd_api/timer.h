@@ -12,7 +12,7 @@
 #define MYMPD_API_TIMER_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_query.h"
 #include "src/lib/mympd_state.h"
 
 /**
@@ -51,7 +51,7 @@ bool mympd_api_timer_replace(struct t_timer_list *l, int timeout, int interval,
 bool mympd_api_timer_remove(struct t_timer_list *l, unsigned timer_id);
 bool mympd_api_timer_toggle(struct t_timer_list *l, unsigned timer_id, sds *error);
 void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def);
-struct t_timer_definition *mympd_api_timer_parse(sds str, const char *partition, struct t_jsonrpc_parse_error *error);
+struct t_timer_definition *mympd_api_timer_parse(sds str, const char *partition, struct t_json_parse_error *error);
 int mympd_api_timer_calc_starttime(int start_hour, int start_minute, int interval);
 sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, unsigned request_id, const char *partition);
 sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, unsigned request_id, unsigned timer_id);

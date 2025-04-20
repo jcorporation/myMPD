@@ -12,7 +12,8 @@
 #include "src/mympd_worker/api.h"
 
 #include "src/lib/cache_disk.h"
-#include "src/lib/jsonrpc.h"
+#include "src/lib/json/json_query.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/mympd_client/playlists.h"
@@ -40,8 +41,8 @@ void mympd_worker_api(struct t_mympd_worker_state *mympd_worker_state) {
     sds sds_buf3 = NULL;
     sds error = sdsempty();
 
-    struct t_jsonrpc_parse_error parse_error;
-    jsonrpc_parse_error_init(&parse_error);
+    struct t_json_parse_error parse_error;
+    json_parse_error_init(&parse_error);
 
     const char *method = get_cmd_id_method_name(request->cmd_id);
     MYMPD_LOG_INFO(NULL, "MPD WORKER API request (%lu)(%u) %s: %s", request->conn_id, request->id, method, request->data);
@@ -418,7 +419,7 @@ void mympd_worker_api(struct t_mympd_worker_state *mympd_worker_state) {
         //already responded
         free_request(request);
         FREE_SDS(error);
-        jsonrpc_parse_error_clear(&parse_error);
+        json_parse_error_clear(&parse_error);
         return;
     }
 
@@ -446,5 +447,5 @@ void mympd_worker_api(struct t_mympd_worker_state *mympd_worker_state) {
     push_response(response);
     free_request(request);
     FREE_SDS(error);
-    jsonrpc_parse_error_clear(&parse_error);
+    json_parse_error_clear(&parse_error);
 }
