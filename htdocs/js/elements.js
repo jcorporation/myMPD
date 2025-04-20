@@ -342,7 +342,6 @@ function getData(el, attribute) {
             value = undefined;
         }
     }
-    logDebug('getData: "' + attribute + '":"' + value + '"');
     return value;
 }
 
