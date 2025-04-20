@@ -218,8 +218,8 @@ function webSocketConnect() {
         }
     };
 
-    socket.onclose = function(event) {
-        logError('Websocket connection closed: ' + event.reason);
+    socket.onclose = function() {
+        logError('Websocket connection closed');
         if (appInited === true) {
             toggleUI();
             if (progressTimer) {
@@ -251,6 +251,7 @@ function webSocketConnect() {
  * @returns {void}
  */
 function webSocketClose() {
+    logDebug('Closing websocket');
     if (websocketKeepAliveTimer !== null) {
         clearInterval(websocketKeepAliveTimer);
         websocketKeepAliveTimer = null;
@@ -269,6 +270,23 @@ function webSocketClose() {
 }
 
 /**
+ * Reconnects to the websocket.
+ * We use a timer with 100 ms delay to prevent concurrent connections attempts.
+ * @returns {void}
+ */
+function websocketReconnect() {
+    if (websocketReconnectTimer !== null) {
+        logDebug('Websocket reconnect already started');
+        return;
+    }
+    webSocketClose();
+    websocketReconnectTimer = setTimeout(function() {
+        webSocketConnect();
+        websocketReconnectTimer = null;
+    }, 100);
+}
+
+/**
  * Sends a ping keepalive message to the websocket endpoint
  * or reconnects the socket if the socket is disconnected or stale.
  * Refreshes the home widgets if the socket is connected.
@@ -280,8 +298,7 @@ function websocketKeepAlive() {
         // stale websocket connection
         logError('Stale websocket connection, reconnecting');
         toggleAlert('alertMympdState', true, tn('myMPD connection failed, trying to reconnect'));
-        webSocketClose();
-        webSocketConnect();
+        websocketReconnect();
     }
     else if (getWebsocketState() === true) {
         // websocket is connected
@@ -291,8 +308,7 @@ function websocketKeepAlive() {
         catch(error) {
             toggleAlert('alertMympdState', true, tn('myMPD connection failed, trying to reconnect'));
             logError(error);
-            webSocketClose();
-            webSocketConnect();
+            websocketReconnect();
             return;
         }
         // Check if home widgets should be refreshed
@@ -306,7 +322,6 @@ function websocketKeepAlive() {
         // websocket is not connected
         logDebug('Reconnecting websocket');
         toggleAlert('alertMympdState', true, tn('myMPD connection failed, trying to reconnect'));
-        webSocketClose();
-        webSocketConnect();
+        websocketReconnect();
     }
 }
