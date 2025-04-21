@@ -26,7 +26,7 @@ function initModalNotifications() {
     });
     const modalNotificationsSeveritySelectEl = elGetById('modalNotificationsSeveritySelect');
     for (const severity in severities) {
-        const opt = elCreateTextTn('option', {'value': severities[severity].loglevel}, severity);
+        const opt = elCreateTextTn('option', {'value': severities[severity].severity}, severity);
         if (severities[severity].severity === settings.loglevel) {
             opt.setAttribute('selected', 'selected');
         }
