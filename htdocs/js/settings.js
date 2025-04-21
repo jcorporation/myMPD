@@ -158,6 +158,9 @@ function parseSettings(obj) {
     //presets
     populatePresetDropdowns();
 
+    // Set severity for filtering notifications and logs
+    elGetById('modalNotificationsSeveritySelect').value = settings.loglevel;
+
     //parse mpd settings if connected
     if (settings.partition.mpdConnected === true) {
         parseMPDSettings();

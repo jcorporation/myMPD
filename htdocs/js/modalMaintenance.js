@@ -31,6 +31,8 @@ function setLoglevel(target) {
         "loglevel": loglevel
     }, function() {
         settings.loglevel = loglevel;
+        // Set severity for filtering notifications and logs
+        elGetById('modalNotificationsSeveritySelect').value = settings.loglevel;
         if (target) {
             btnWaiting(target, false);
         }
