@@ -6,36 +6,36 @@
 /** @module log_js */
 
 /**
- * Central logging function
- * It logs to the browser console and to the log buffer
- * @param {number} loglevel the numeric syslog loglevel
- * @param {string} message message to log
+ * Central logging function.
+ * It logs to the browser console and to the log buffer.
+ * @param {number} severity Syslog severity number
+ * @param {string} message Message to log
  * @returns {void}
  */
-function logLog(loglevel, message) {
-    if (settings.loglevel >= loglevel) {
-        switch(loglevel) {
+function logLog(severity, message) {
+    if (settings.loglevel >= severity) {
+        switch(severity) {
             case 0:
             case 1:
             case 2:
             case 3:
-                console.error(logLevelNames[loglevel] + ': ' + message);
+                console.error(severityNames[severity] + ': ' + message);
                 break;
             case 4:
-                console.warn(logLevelNames[loglevel] + ': ' + message);
+                console.warn(severityNames[severity] + ': ' + message);
                 break;
             case 5:
             case 6:
-                console.log(logLevelNames[loglevel] + ': ' + message);
+                console.log(severityNames[severity] + ': ' + message);
                 break;
             case 7:
-                console.debug(logLevelNames[loglevel] + ': ' + message);
+                console.debug(severityNames[severity] + ': ' + message);
                 break;
             // no default
         }
         logs.push({
             "timestamp": getTimestamp(),
-            "loglevel": loglevel,
+            "severity": severity,
             "message": message
         });
         if (logs.length > logsMax) {
@@ -46,12 +46,12 @@ function logLog(loglevel, message) {
 
 /**
  * Logs a message by severity name
- * @param {string} severity jsonrpc severity, one off: emerg, alert, crit, error, warn, notice, info, debug
- * @param {string} message message to log
+ * @param {string} severityName Syslog severity name
+ * @param {string} message Message to log
  * @returns {void}
  */
-function logSeverity(severity, message) {
-    switch (severity) {
+function logSeverity(severityName, message) {
+    switch (severityName) {
         case 'emerg':  logEmerg(message); break;
         case 'alert':  logAlert(message); break;
         case 'crit':   logCrit(message); break;

@@ -189,5 +189,13 @@
     "sndio": "SNDIO",
     "solaris": "Solaris",
     "wasapi": "Windows Audio Session API",
-    "userDefinedSticker": "User defined stickers"
+    "userDefinedSticker": "User defined stickers",
+    "emerg": "Emergency",
+    "alert": "Alert",
+    "crit": "Critical",
+    "error": "Error",
+    "warn": "Warning",
+    "notice": "Notice",
+    "info": "Informational",
+    "debug": "Debug"
 }

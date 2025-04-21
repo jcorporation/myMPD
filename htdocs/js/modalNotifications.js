@@ -24,6 +24,22 @@ function initModalNotifications() {
     elGetById('modalNotificationsLogsTab').addEventListener('show.bs.tab', function() {
         showLogs();
     });
+    const modalNotificationsSeveritySelectEl = elGetById('modalNotificationsSeveritySelect');
+    for (const severity in severities) {
+        const opt = elCreateTextTn('option', {'value': severities[severity].loglevel}, severity);
+        if (severities[severity].severity === settings.loglevel) {
+            opt.setAttribute('selected', 'selected');
+        }
+        modalNotificationsSeveritySelectEl.appendChild(opt);
+    }
+    elGetById('modalNotificationsSeveritySelect').addEventListener('change', function() {
+        if (elGetById('modalNotificationsMessagesTab').classList.contains('active')) {
+            showMessages();
+        }
+        else {
+            showLogs();
+        }
+    }, false);
 }
 
 /**
@@ -33,7 +49,11 @@ function initModalNotifications() {
 function showMessages() {
     const overview = elGetById('modalNotificationsMessagesList').querySelector('tbody');
     elClear(overview);
+    const loglevel = getSelectValueId('modalNotificationsSeveritySelect');
     for (const message of messages) {
+        if (message.severity > loglevel) {
+            continue;
+        }
         overview.insertBefore(
             elCreateNodes('tr', {}, [
                 elCreateText('td', {}, fmtTime(message.timestamp)),
@@ -60,11 +80,15 @@ function showMessages() {
 function showLogs() {
     const overview = elGetById('modalNotificationsLogsList').querySelector('tbody');
     elClear(overview);
+    const loglevel = getSelectValueId('modalNotificationsSeveritySelect');
     for (const log of logs) {
+        if (log.severity > loglevel) {
+            continue;
+        }
         overview.insertBefore(
             elCreateNodes('tr', {}, [
                 elCreateText('td', {}, fmtTime(log.timestamp)),
-                elCreateText('td', {}, logLevelNames[log.loglevel]),
+                elCreateText('td', {}, tn(severityNames[log.severity])),
                 elCreateText('td', {}, log.message)
             ]),
             overview.firstElementChild);
@@ -75,7 +99,7 @@ function showLogs() {
 }
 
 /**
- * Clears the notification buffer
+ * Clears the notification or log buffer
  * @param {Node} target triggering element
  * @returns {void}
  */
@@ -88,6 +112,23 @@ function clearMessages(target) {
     }
     else {
         logs.length = 0;
+        showLogs();
+    }
+    btnWaiting(target, false);
+}
+
+/**
+ * Refreshes the notification or log overview
+ * @param {Node} target triggering element
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function refreshMessages(target) {
+    btnWaiting(target, true);
+    if (elGetById('modalNotificationsMessagesTab').classList.contains('active')) {
+        showMessages();
+    }
+    else {
         showLogs();
     }
     btnWaiting(target, false);

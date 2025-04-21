@@ -3221,7 +3221,13 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <button type="button" class="btn btn-secondary" data-href='{"cmd": "clearMessages", "options": ["target"]}' data-phrase="Clear"></button>
+          <div>
+            <select class="form-select" id="modalNotificationsSeveritySelect"></select>
+          </div>
+          <div>
+            <button type="button" class="btn btn-secondary me-2" data-href='{"cmd": "refreshMessages", "options": ["target"]}' data-phrase="Refresh"></button>
+            <button type="button" class="btn btn-secondary" data-href='{"cmd": "clearMessages", "options": ["target"]}' data-phrase="Clear"></button>
+          </div>
         </div>
       </div>
     </div>

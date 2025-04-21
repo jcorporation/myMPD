@@ -287,3 +287,11 @@ Warning
 wasapi
 Web notifications
 Work
+emerg
+alert
+crit
+error
+warn
+notice
+info
+debug

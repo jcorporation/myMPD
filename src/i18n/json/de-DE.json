@@ -1262,5 +1262,14 @@
     "Get a tmp variable.": "Holt eine temporäre Variable.",
     "List all tmp variables.": "Listet alle temporäre Variablen auf.",
     "Set a tmp variable.": "Setzt eine temporäre Variable.",
-    "Logs": "Logs"
+    "Logs": "Logs",
+    "emerg": "Notfall",
+    "alert": "Alarmierend",
+    "crit": "Kritisch",
+    "error": "Fehler",
+    "warn": "Warnung",
+    "notice": "Hinweis",
+    "info": "Info",
+    "debug": "Debug",
+    "Refresh": "Aktualisieren"
 }

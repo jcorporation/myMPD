@@ -51,17 +51,55 @@ let settings = {
     "partition": {}
 };
 
+/**
+ * Severities
+ * @type {object}
+ */
+const severities = {
+    "emerg": {
+        "icon": "error",
+        "class": "text-danger",
+        "severity": 0
+    },
+    "alert": {
+        "icon": "error",
+        "class": "text-danger",
+        "severity": 1
+    },
+    "crit": {
+        "icon": "error",
+        "class": "text-danger",
+        "severity": 2
+    },
+    "error": {
+        "icon": "error",
+        "class": "text-danger",
+        "severity": 3
+    },
+    "warn": {
+        "icon": "warning",
+        "class": "text-warning",
+        "severity": 4
+    },
+    "notice": {
+        "icon": "info",
+        "class": "text-success",
+        "severity": 5
+    },
+    "info": {
+        "icon": "info",
+        "class": "text-success",
+        "severity": 6
+    },
+    "debug": {
+        "icon": "info",
+        "class": "text-info",
+        "severity": 7
+    }
+};
+
 /** @type {Array} */
-const logLevelNames = [
-    "EMERG",
-    "ALERT",
-    "CRIT",
-    "ERROR",
-    "WARN",
-    "NOTICE",
-    "INFO",
-    "DEBUG"
-];
+const severityNames = Object.keys(severities);
 
 /** @type {boolean} */
 let myMPDready = false;

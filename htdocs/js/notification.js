@@ -116,62 +116,7 @@ function toggleAlert(alertBoxId, state, msg) {
 }
 
 /**
- * Notification severities
- * @type {object}
- */
-const severities = {
-    "emerg": {
-        "text": "Emerg",
-        "icon": "error",
-        "class": "text-danger",
-        "loglevel": 0
-    },
-    "alert": {
-        "text": "Alert",
-        "icon": "error",
-        "class": "text-danger",
-        "loglevel": 1
-    },
-    "crit": {
-        "text": "Crit",
-        "icon": "error",
-        "class": "text-danger",
-        "loglevel": 2
-    },
-    "error": {
-        "text": "Error",
-        "icon": "error",
-        "class": "text-danger",
-        "loglevel": 3
-    },
-    "warn": {
-        "text": "Warning",
-        "icon": "warning",
-        "class": "text-warning",
-        "loglevel": 4
-    },
-    "notice": {
-        "text": "Notice",
-        "icon": "info",
-        "class": "text-success",
-        "loglevel": 5
-    },
-    "info": {
-        "text": "Info",
-        "icon": "info",
-        "class": "text-success",
-        "loglevel": 6
-    },
-    "debug": {
-        "text": "Debug",
-        "icon": "info",
-        "class": "text-info",
-        "loglevel": 7
-    }
-};
-
-/**
- * Notification facilities
+ * Jsonrpc notification facilities
  * @type {object}
  */
 const facilities = {
@@ -193,33 +138,34 @@ const facilities = {
 
 /**
  * Creates a severity icon
- * @param {string} severity severity
- * @returns {HTMLElement} severity icon
+ * @param {number} severity Syslog severity number
+ * @returns {HTMLElement} Severity icon
  */
 function createSeverityIcon(severity) {
-    return elCreateText('span', {"data-title-phrase": severities[severity].text,
-        "class": ["mi", severities[severity].class, "me-2"]}, severities[severity].icon);
+    const severityName = severityNames[severity];
+    return elCreateText('span', {"data-title-phrase": tn(severityName),
+        "class": ["mi", severities[severityName].class, "me-2"]}, severities[severityName].icon);
 }
 
 /**
  * Shows a toast notification or an appinit alert
- * @param {string} message message
- * @param {string} facility facility
- * @param {string} severity one off info, warn, error
+ * @param {string} message Message
+ * @param {string} facility Facility
+ * @param {string} severityName Syslog severity name
  * @returns {void}
  */
-function showNotification(message, facility, severity) {
+function showNotification(message, facility, severityName) {
     if (appInited === false) {
         showAppInitAlert(message);
         return;
     }
+    const severity = severities[severityName].severity;
     logNotification(message, facility, severity);
-    const loglevel = severities[severity].loglevel;
-    if (loglevel === 7) {
+    if (severity === 7) {
         // Debug notifications are only logged
         return;
     }
-    if (loglevel > 4) {
+    if (severity > 4) {
         // Notifications with severity info and notice can be hidden
         if (settings.webuiSettings.notifyPage === false &&
             settings.webuiSettings.notifyWeb === false)
@@ -239,7 +185,7 @@ function showNotification(message, facility, severity) {
     }
 
     if (facility === 'jukebox' &&
-        loglevel < 5)
+        severity < 5)
     {
         toggleAlert('alertJukeboxStatusError', true, message);
         return;
@@ -264,22 +210,24 @@ function showNotification(message, facility, severity) {
         }, false);
         toastInit.show();
     }
-    if (loglevel < 3) {
+    if (severity < 3) {
         // Display critical notifications also on the top of the page
         toggleAlert('alertCrit', true, message);
     }
 }
 
 /**
- * Appends a notification message to the notification buffer
- * @param {string} message message
- * @param {string} facility facility
- * @param {string} severity one off info, warn, error
+ * Appends a message to the notification buffer
+ * @param {string} message Message to log
+ * @param {string} facility Jsonrpc facility
+ * @param {number} severity Syslog severity number
  * @returns {void}
  */
 function logNotification(message, facility, severity) {
-    let messagesLen = messages.length;
-    const lastMessage = messagesLen > 0 ? messages[messagesLen - 1] : null;
+    const messagesLen = messages.length;
+    const lastMessage = messagesLen > 0
+        ? messages[messagesLen - 1]
+        : null;
     if (lastMessage !== null &&
         lastMessage.message === message)
     {
@@ -294,11 +242,8 @@ function logNotification(message, facility, severity) {
             "occurrence": 1,
             "timestamp": getTimestamp()
         });
-        if (messagesLen >= messagesMax) {
+        if (messagesLen > messagesMax) {
             messages.shift();
-        }
-        else {
-            messagesLen++;
         }
     }
     //update notification messages overview if shown
@@ -327,7 +272,9 @@ function toggleUI() {
             ? 'enabled'
             : 'disabled';
     /** @type {boolean} */
-    const enabled = state === 'disabled' ? false : true;
+    const enabled = state === 'disabled'
+        ? false
+        : true;
     if (enabled !== uiEnabled) {
         logDebug('Setting ui state to ' + state);
         domCache.body.setAttribute('data-uiState', state);
@@ -347,7 +294,7 @@ function toggleUI() {
     }
     else {
         toggleAlert('alertMpdState', true, tn('MPD disconnected'));
-        logNotification(tn('MPD disconnected'), 'mpd', 'error');
+        logNotification(tn('MPD disconnected'), 'mpd', 3);
     }
 
     if (getWebsocketState() === true) {
@@ -355,7 +302,7 @@ function toggleUI() {
     }
     else if (appInited === true) {
         toggleAlert('alertMympdState', true, tn('Disconnected from myMPD'));
-        logNotification(tn('Websocket is disconnected'), 'general', 'error');
+        logNotification(tn('Websocket is disconnected'), 'general', 3);
     }
 
     setStateIcon();
