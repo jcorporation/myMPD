@@ -271,7 +271,7 @@ function showNotification(message, facility, severity) {
 }
 
 /**
- * Appends a log message to the log buffer
+ * Appends a notification message to the notification buffer
  * @param {string} message message
  * @param {string} facility facility
  * @param {string} severity one off info, warn, error
@@ -301,7 +301,7 @@ function logMessage(message, facility, severity) {
             messagesLen++;
         }
     }
-    //update log overview if shown
+    //update notification messages overview if shown
     if (elGetById('modalNotifications').classList.contains('show')) {
         showMessages();
     }

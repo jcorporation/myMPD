@@ -11,10 +11,18 @@
  */
 function initModalNotifications() {
     elGetById('modalNotifications').addEventListener('show.bs.modal', function() {
-        elShowId('modalNotificationsList');
-        elHideId('modalNotificationsLogs');
-        elGetById('modalNotificationsLogsBtn').classList.remove('active');
+        if (elGetById('modalNotificationsMessagesTab').classList.contains('active')) {
+            showMessages();
+        }
+        else {
+            showLogs();
+        }
+    });
+    elGetById('modalNotificationsMessagesTab').addEventListener('show.bs.tab', function() {
         showMessages();
+    });
+    elGetById('modalNotificationsLogsTab').addEventListener('show.bs.tab', function() {
+        showLogs();
     });
 }
 
@@ -23,7 +31,7 @@ function initModalNotifications() {
  * @returns {void}
  */
 function showMessages() {
-    const overview = elGetById('modalNotificationsList').querySelector('tbody');
+    const overview = elGetById('modalNotificationsMessagesList').querySelector('tbody');
     elClear(overview);
     for (const message of messages) {
         overview.insertBefore(
@@ -38,7 +46,28 @@ function showMessages() {
                     elCreateText('p', {"class": ["mb-0"]}, message.message)
                 ])
             ]),
-        overview.firstElementChild);
+            overview.firstElementChild);
+    }
+    if (overview.querySelector('tr') === null) {
+        overview.appendChild(emptyMsgEl(4, 'table'));
+    }
+}
+
+/**
+ * Lists the logs in the modalNotificationsLogs element
+ * @returns {void}
+ */
+function showLogs() {
+    const overview = elGetById('modalNotificationsLogsList').querySelector('tbody');
+    elClear(overview);
+    for (const log of logs) {
+        overview.insertBefore(
+            elCreateNodes('tr', {}, [
+                elCreateText('td', {}, fmtTime(log.timestamp)),
+                elCreateText('td', {}, logLevelNames[log.loglevel]),
+                elCreateText('td', {}, log.message)
+            ]),
+            overview.firstElementChild);
     }
     if (overview.querySelector('tr') === null) {
         overview.appendChild(emptyMsgEl(4, 'table'));
@@ -53,52 +82,13 @@ function showMessages() {
 //eslint-disable-next-line no-unused-vars
 function clearMessages(target) {
     btnWaiting(target, true);
-    messages.length = 0;
-    logs.length = 0;
-    showMessages();
-    showLogs();
-    btnWaiting(target, false);
-}
-
-/**
- * Shows or hides the logbuffer
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function toggleLogs() {
-    const modalNotificationsListEl = elGetById('modalNotificationsList');
-    const modalNotificationsLogsEl = elGetById('modalNotificationsLogs');
-    if (modalNotificationsListEl.classList.contains('d-none')) {
-        elShow(modalNotificationsListEl);
-        elHide(modalNotificationsLogsEl);
-        elGetById('modalNotificationsLogsBtn').classList.remove('active');
+    if (elGetById('modalNotificationsMessagesTab').classList.contains('active')) {
+        messages.length = 0;
         showMessages();
     }
     else {
-        elHide(modalNotificationsListEl);
-        elShow(modalNotificationsLogsEl);
-        elGetById('modalNotificationsLogsBtn').classList.add('active');
+        logs.length = 0;
         showLogs();
     }
-}
-
-/**
- * Lists the logs in the modalNotificationsLogs element
- * @returns {void}
- */
-function showLogs() {
-    const overview = elGetById('modalNotificationsLogs').querySelector('tbody');
-    elClear(overview);
-    for (const log of logs) {
-        overview.insertBefore(
-            elCreateNodes('tr', {}, [
-                elCreateText('td', {}, fmtTime(log.timestamp)),
-                elCreateText('td', {}, logLevelNames[log.loglevel]),
-                elCreateText('td', {}, log.message)
-            ]),
-            overview.firstElementChild);
-    }
-    if (overview.querySelector('tr') === null) {
-        overview.appendChild(emptyMsgEl(4, 'table'));
-    }
+    btnWaiting(target, false);
 }

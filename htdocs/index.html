@@ -3175,41 +3175,53 @@
   <div class="modal fade" id="modalNotifications" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><span class="mi title-icon">chat_bubble_outline</span> <span data-phrase="Notifications"></span></h5>
+        <div class="modal-header pb-0">
+          <ul class="nav nav-tabs border-bottom-0">
+            <li class="nav-item">
+              <a id="modalNotificationsMessagesTab" class="nav-link active" href="#modalNotificationsMessagesTabPane" data-bs-toggle="tab" data-height="true" data-phrase="Notifications"></a>
+            </li>
+            <li class="nav-item">
+              <a id="modalNotificationsLogsTab" class="nav-link" href="#modalNotificationsLogsTabPane" data-bs-toggle="tab" data-height="true" data-phrase="Logs"></a>
+            </li>
+          </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="table-responsive">
-            <table id="modalNotificationsList" class="table table-sm">
-              <thead>
-                <tr>
-                  <th data-phrase="Timestamp"></th>
-                  <th data-phrase="Facility"></th>
-                  <th>#</th>
-                  <th data-phrase="Message"></th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-            <table id="modalNotificationsLogs" class="table table-sm d-none">
-              <thead>
-                <tr>
-                  <th data-phrase="Timestamp"></th>
-                  <th data-phrase="Loglevel"></th>
-                  <th data-phrase="Message"></th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div class="tab-content">
+            <div class="tab-pane active" id="modalNotificationsMessagesTabPane">
+              <div class="table-responsive">
+                <table id="modalNotificationsMessagesList" class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th data-phrase="Timestamp"></th>
+                      <th data-phrase="Facility"></th>
+                      <th>#</th>
+                      <th data-phrase="Message"></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="tab-pane" id="modalNotificationsLogsTabPane">
+              <div class="table-responsive">
+                <table id="modalNotificationsLogsList" class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th data-phrase="Timestamp"></th>
+                      <th data-phrase="Loglevel"></th>
+                      <th data-phrase="Message"></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <div>
-            <button type="button" class="btn btn-secondary me-2" id="modalNotificationsLogsBtn" data-href='{"cmd": "toggleLogs", "options": ["target"]}' data-phrase="Logs"></button>
-            <button type="button" class="btn btn-secondary" data-href='{"cmd": "clearMessages", "options": ["target"]}' data-phrase="Clear"></button>
-          </div>
+          <button type="button" class="btn btn-secondary" data-href='{"cmd": "clearMessages", "options": ["target"]}' data-phrase="Clear"></button>
         </div>
       </div>
     </div>
