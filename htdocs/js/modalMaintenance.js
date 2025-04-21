@@ -14,6 +14,15 @@ function initModalMaintenance() {
         elGetById('modalMaintenanceLoglevelInput').value = settings.loglevel;
         cleanupModalId('modalMaintenance');
     });
+
+    const modalMaintenanceLoglevelInputEl = elGetById('modalMaintenanceLoglevelInput');
+    for (const severity in severities) {
+        const opt = elCreateTextTn('option', {'value': severities[severity].severity}, severity);
+        if (severities[severity].severity === settings.loglevel) {
+            opt.setAttribute('selected', 'selected');
+        }
+        modalMaintenanceLoglevelInputEl.appendChild(opt);
+    }
 }
 
 /**
