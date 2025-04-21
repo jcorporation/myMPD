@@ -203,10 +203,12 @@ function parseQueueUpdate(card, data) {
  */
 function queueSetCurrentSong() {
     //remove old playing row
-    const old = elGetById('queueSongId' + currentState.lastSongId);
-    if (old !== null) {
-        resetDuration(old);
-        resetSongPos(old);
+    const old = document.querySelectorAll('.queue-playing');
+    for (const o of old) {
+        if (o.id !== 'queueSongId' + currentState.currentSongId) {
+            resetDuration(o);
+            resetSongPos(o);
+        }
     }
     //set playing row
     setPlayingRow();
