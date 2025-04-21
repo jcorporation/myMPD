@@ -213,7 +213,7 @@ function showNotification(message, facility, severity) {
         showAppInitAlert(message);
         return;
     }
-    logMessage(message, facility, severity);
+    logNotification(message, facility, severity);
     const loglevel = severities[severity].loglevel;
     if (loglevel === 7) {
         // Debug notifications are only logged
@@ -277,7 +277,7 @@ function showNotification(message, facility, severity) {
  * @param {string} severity one off info, warn, error
  * @returns {void}
  */
-function logMessage(message, facility, severity) {
+function logNotification(message, facility, severity) {
     let messagesLen = messages.length;
     const lastMessage = messagesLen > 0 ? messages[messagesLen - 1] : null;
     if (lastMessage !== null &&
@@ -347,7 +347,7 @@ function toggleUI() {
     }
     else {
         toggleAlert('alertMpdState', true, tn('MPD disconnected'));
-        logMessage(tn('MPD disconnected'), 'mpd', 'error');
+        logNotification(tn('MPD disconnected'), 'mpd', 'error');
     }
 
     if (getWebsocketState() === true) {
@@ -355,7 +355,7 @@ function toggleUI() {
     }
     else if (appInited === true) {
         toggleAlert('alertMympdState', true, tn('Disconnected from myMPD'));
-        logMessage(tn('Websocket is disconnected'), 'general', 'error');
+        logNotification(tn('Websocket is disconnected'), 'general', 'error');
     }
 
     setStateIcon();
