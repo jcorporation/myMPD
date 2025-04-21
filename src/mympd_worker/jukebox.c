@@ -30,8 +30,7 @@ bool mympd_worker_jukebox_push(struct t_mympd_worker_state *mympd_worker_state) 
     struct t_list *jukebox_queue = mympd_worker_state->partition_state->jukebox.queue;
     mympd_worker_state->partition_state->jukebox.queue = NULL;
     // push it to the mympd api thread
-    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_CREATED, NULL, mympd_worker_state->partition_state->name);
-    request->data = jsonrpc_end(request->data);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_CREATED, "", mympd_worker_state->partition_state->name);
     request->extra = (void *)jukebox_queue;
     return mympd_queue_push(mympd_api_queue, request, 0);
 }

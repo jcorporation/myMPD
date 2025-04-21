@@ -278,7 +278,9 @@ struct t_work_response *create_response(struct t_work_request *request) {
  * @param partition mpd partition
  * @return the initialized t_work_response struct
  */
-struct t_work_response *create_response_new(enum work_response_types type, unsigned long conn_id, unsigned request_id, enum mympd_cmd_ids cmd_id, const char *partition) {
+struct t_work_response *create_response_new(enum work_response_types type, unsigned long conn_id,
+        unsigned request_id, enum mympd_cmd_ids cmd_id, const char *partition)
+{
     struct t_work_response *response = malloc_assert(sizeof(struct t_work_response));
     response->type = type;
     response->conn_id = conn_id;
@@ -297,11 +299,14 @@ struct t_work_response *create_response_new(enum work_response_types type, unsig
  * @param conn_id connection id (from webserver)
  * @param request_id id for the request
  * @param cmd_id myMPD API method
- * @param data jsonrpc request, if NULL the start of the request is added
+ * @param data jsonrpc request, if NULL the start of a jsonrpc request is added,
+ *             use a empty string to assign NULL, else a sds string is malloced from data
  * @param partition mpd partition
  * @return the initialized t_work_request struct
  */
-struct t_work_request *create_request(enum work_request_types type, unsigned long conn_id, unsigned request_id, enum mympd_cmd_ids cmd_id, const char *data, const char *partition) {
+struct t_work_request *create_request(enum work_request_types type, unsigned long conn_id,
+        unsigned request_id, enum mympd_cmd_ids cmd_id, const char *data, const char *partition)
+{
     struct t_work_request *request = malloc_assert(sizeof(struct t_work_request));
     request->type = type;
     request->conn_id = conn_id;
@@ -309,6 +314,9 @@ struct t_work_request *create_request(enum work_request_types type, unsigned lon
     request->id = request_id;
     if (data == NULL) {
         request->data = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"%s\",\"params\":{", get_cmd_id_method_name(cmd_id));
+    }
+    else if (data[0] == '\0') {
+        request->data = NULL;
     }
     else {
         request->data = sdsnew(data);

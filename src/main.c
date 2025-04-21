@@ -106,12 +106,10 @@ static void mympd_signal_handler(int sig_num) {
         }
         case SIGHUP: {
             MYMPD_LOG_NOTICE(NULL, "Signal SIGHUP received, saving states");
-            struct t_work_request *request1 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
-            request1->data = sdscatlen(request1->data, "}}", 2);
+            struct t_work_request *request1 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, "", MPD_PARTITION_DEFAULT);
             mympd_queue_push(mympd_api_queue, request1, 0);
             #ifdef MYMPD_ENABLE_LUA
-                struct t_work_request *request2 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
-                request2->data = sdscatlen(request2->data, "}}", 2);
+                struct t_work_request *request2 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, "", MPD_PARTITION_DEFAULT);
                 mympd_queue_push(script_queue, request2, 0);
             #endif
             break;

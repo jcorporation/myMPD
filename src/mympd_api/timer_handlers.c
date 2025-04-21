@@ -77,8 +77,7 @@ void timer_handler_by_id(unsigned timer_id, struct t_timer_definition *definitio
 void timer_handler_select(unsigned timer_id, struct t_timer_definition *definition) {
     MYMPD_LOG_INFO(definition->partition, "Start timer_handler_select for timer \"%s\" (%u)", definition->name, timer_id);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
-        struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_PLAYER_STOP, NULL, definition->partition);
-        request->data = jsonrpc_end(request->data);
+        struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_PLAYER_STOP, "", definition->partition);
         push_request(request, 0);
     }
     else if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "startplay") == 0) {
@@ -197,8 +196,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
  */
 static void timer_handler_cache_disk_crop(void) {
     MYMPD_LOG_INFO(NULL, "Start timer_handler_cache_disk_crop");
-    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_CACHE_DISK_CROP, NULL, MPD_PARTITION_DEFAULT);
-    request->data = jsonrpc_end(request->data);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_CACHE_DISK_CROP, "", MPD_PARTITION_DEFAULT);
     push_request(request, 0);
 }
 

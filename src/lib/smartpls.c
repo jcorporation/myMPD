@@ -136,8 +136,9 @@ bool smartpls_update(const char *playlist, unsigned long conn_id, unsigned int r
  * Sends a request to the mympd_api_queue to update all smart playlists
  * @return true on success else false
  */
-bool smartpls_update_all(void) {
+bool smartpls_update_all(bool force) {
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL, MPD_PARTITION_DEFAULT);
+    request->data = tojson_bool(request->data, "force", force, false);
     request->data = jsonrpc_end(request->data);
     return mympd_queue_push(mympd_api_queue, request, 0);
 }

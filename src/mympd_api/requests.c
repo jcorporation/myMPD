@@ -13,6 +13,7 @@
 
 #include "src/lib/api.h"
 #include "src/lib/json/json_print.h"
+#include "src/lib/json/json_rpc.h"
 
 /**
  * Pushes a MYMPD_API_CACHES_CREATE event to the queue
@@ -30,8 +31,7 @@ bool mympd_api_request_caches_create(void) {
  * @return true on success, else false
  */
 bool mympd_api_request_jukebox_restart(const char *partition) {
-    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_JUKEBOX_RESTART, NULL, partition);
-    request->data = sdscatlen(request->data, "}}", 2);
+    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_JUKEBOX_RESTART, "", partition);
     return push_request(request, 0);
 }
 
@@ -44,8 +44,9 @@ bool mympd_api_request_jukebox_restart(const char *partition) {
  * @return true on success, else false
  */
 bool mympd_api_request_trigger_event_emit(enum trigger_events event, const char *partition,
-        struct t_list *arguments, unsigned long conn_id) {
-    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, conn_id, 0, INTERNAL_API_TRIGGER_EVENT_EMIT, NULL, partition);
+        struct t_list *arguments, unsigned long conn_id)
+{
+    struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, conn_id, 0, INTERNAL_API_TRIGGER_EVENT_EMIT, "", partition);
     struct t_event_data *data = mympd_api_event_data_new(event, arguments);
     request->extra = data;
     return push_request(request, 0);
@@ -61,6 +62,6 @@ bool mympd_api_request_sticker_features(bool feat_sticker, bool feat_advsticker)
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STICKER_FEATURES, NULL, "default");
     request->data = tojson_bool(request->data, "sticker", feat_sticker, true);
     request->data = tojson_bool(request->data, "advsticker", feat_advsticker, false);
-    request->data = sdscatlen(request->data, "}}", 2);
+    request->data = jsonrpc_end(request->data);
     return push_request(request, 0);
 }

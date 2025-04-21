@@ -167,7 +167,8 @@ bool jukebox_run(struct t_mympd_state *mympd_state, struct t_partition_state *pa
         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: Starting worker thread to fill the jukebox queue");
         struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_REFILL_ADD, NULL, partition_state->name);
         request->data = tojson_uint(request->data, "addSongs", add_songs, false);
-        request->data = sdscatlen(request->data, "}}", 2);
+        request->data = jsonrpc_end(request->data);
+
         struct t_list *queue_list = jukebox_get_last_played(partition_state, partition_state->jukebox.mode);
         request->extra = queue_list;
         return mympd_queue_push(mympd_api_queue, request, 0);
