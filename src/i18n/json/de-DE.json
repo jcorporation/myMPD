@@ -1264,5 +1264,6 @@
     "debug": "Debug",
     "Refresh": "Aktualisieren",
     "Checks for empty string or nil.": "Prüft ob der String leer oder nil ist.",
-    "32 bit floating": "32 Bit Floating"
+    "32 bit floating": "32 Bit Floating",
+    "Deletes a file or empty directory.": "Löscht eine Datei oder leeres Verzeichnis."
 }
