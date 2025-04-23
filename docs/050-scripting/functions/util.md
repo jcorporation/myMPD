@@ -109,6 +109,20 @@ local content = mympd.read_file(path)
 | --------- | ---- | ----------- |
 | path | string | Filepath to open and read. |
 
+## Remove a file
+
+Deletes a file or empty directory. It is a wrapper for `os.remove` that logs the error on failure.
+
+```lua
+local rc, errorstr = mympd.remove_file(path)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| path | string | Filepath to delete. |
+
 ## Sleep
 
 ```lua

@@ -12,12 +12,20 @@ There is now a new trigger to provide a background image by a script. An example
 
 Scripts can now set temporary variables which are kept in memory only and have an expiration time. They are useful to save some state between script executions.
 
+Thanks to @cbrenberg that ironed out a severe bug in the `mympd.tmp_file()` function.
+
 ### API changes
 
 - MYMPD_API_SCRIPT_TMP_DELETE: new
 - MYMPD_API_SCRIPT_TMP_GET: new
 - MYMPD_API_SCRIPT_TMP_LIST: new
 - MYMPD_API_SCRIPT_TMP_SET: new
+
+### Scripting changes
+
+- Feat: `isnilorempty()` - checks for nil and empty string
+- Feat: `mympd.remove_file()` - wrapper for `os.remove` that logs errors
+- Fix: `mympd.tmp_file()` function does not return always uniq names #1422
 
 ### Changelog
 
@@ -26,11 +34,9 @@ Scripts can now set temporary variables which are kept in memory only and have a
 - Feat: Add trigger for background image selection #1420
 - Feat: Use MPD side filter and window for listing tags (MPD 0.25)
 - Feat: Add logviewer for gui logs
-- Feat: Add Lua function `isnilorempty()`
 - Upd: Improve websocket reconnection
 - Upd: Improve API explorer - show request
 - Upd: Bootstrap v5.3.4 #1418
-- Fix: mympd.tmp_file() function does not return always uniq names #1422
 
 ***
 

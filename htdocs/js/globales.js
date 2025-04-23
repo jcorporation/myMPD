@@ -1825,6 +1825,11 @@ const LUAfunctions = {
         "func": "local content = mympd.read_file(path)",
         "feat": ""
     },
+    "mympd.remove_file": {
+        "desc": "Deletes a file or empty directory.",
+        "func": "local rc, errorstr = mympd.remove_file(path)",
+        "feat": ""
+    },
     "mympd.tmpvar_set": {
         "desc": "Set a tmp variable.",
         "func": "local rc, result = mympd.tmpvar_set(key, value, lifetime)",

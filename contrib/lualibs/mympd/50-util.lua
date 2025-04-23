@@ -129,3 +129,15 @@ function mympd.read_file(path)
   file:close()
   return content
 end
+
+--- Wrapper for os.remove that logs the error on failure
+-- @param path File to remove
+-- @return true on success, else nil
+-- @return Error message on failure
+function mympd.remove_file(path)
+  local rc, errorstr = os.remove(path)
+  if rc == nil then
+    mympd.log(3, "Failure removing ".. path .. ": " .. errorstr)
+  end
+  return rc, errorstr
+end

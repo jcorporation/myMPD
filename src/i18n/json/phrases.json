@@ -218,6 +218,7 @@
 {"term":"Delete playlists"},
 {"term":"Delete webradio favorite"},
 {"term":"Delete widget"},
+{"term":"Deletes a file or empty directory."},
 {"term":"Deleting smart playlist failed"},
 {"term":"Descending"},
 {"term":"Description"},
