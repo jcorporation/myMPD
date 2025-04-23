@@ -20,3 +20,10 @@ function mympd.splitlines(str)
   end
   return lines
 end
+
+--- Checks for empty string and nil
+-- @param str String to check
+-- @return true if string is empty or nil, else false
+function mympd.isnilorempty(str)
+  return str == nil or str == ''
+end

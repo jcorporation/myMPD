@@ -1746,7 +1746,7 @@ const LUAfunctions = {
         "feat": ""
     },
     "mympd.tmp_file": {
-        "desc": "Generates a random tmp filename for the misc cache.",
+        "desc": "Creates a tmp file for the misc cache.",
         "func": "local tmp_file = mympd.tmp_file()",
         "feat": ""
     },
@@ -1808,6 +1808,11 @@ const LUAfunctions = {
     "mympd.trim": {
         "desc": "Trims a string.",
         "func": "local trimed = mympd.trim(str)",
+        "feat": ""
+    },
+    "mympd.isnilorempty": {
+        "desc": "Checks for empty string or nil.",
+        "func": "if mympd.isnilorempty(str) then\n\nend\n",
         "feat": ""
     },
     "mympd.sleep": {

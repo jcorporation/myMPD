@@ -32,6 +32,7 @@ List of myMPD specific Lua functions.
 | [mympd.http_reply](http_replies.md) | Returns a valid HTTP response message. |
 | [mympd.http_serve_file](http_replies.md) | Serves a file from the filesystem. Only files from the diskcache are allowed. |
 | [mympd.init](mympd_init.md) | Initializes the Lua table mympd_state. |
+| [mympd.isnilorempty](string.md) | Checks for empty string or nil. |
 | [mympd.log](util.md) | Logging to myMPD log. |
 | [mympd.notify_client](util.md) | Sends a notification to the client. |
 | [mympd.notify_partition](util.md) | Sends a notification to all clients in a partition. |

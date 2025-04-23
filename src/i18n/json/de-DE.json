@@ -347,7 +347,7 @@
     "Further Features": "Weitere Features",
     "General": "Allgemein",
     "Generate smart playlist per": "Erstelle intelligente Wiedergabelisten für",
-    "Generates a random tmp filename for the misc cache.": "Generiert einen zufälligen Dateinamen für den Misc Cache.",
+    "Creates a tmp file for the misc cache.": "Erstellt eine temporäre Datei für den Misc Cache.",
     "Genre": "Genre",
     "Genres": "Genres",
     "Goto album": "Gehe zum Album",
@@ -1262,5 +1262,7 @@
     "notice": "Hinweis",
     "info": "Info",
     "debug": "Debug",
-    "Refresh": "Aktualisieren"
+    "Refresh": "Aktualisieren",
+    "Checks for empty string or nil.": "Prüft ob der String leer oder nil ist.",
+    "32 bit floating": "32 Bit Floating"
 }
