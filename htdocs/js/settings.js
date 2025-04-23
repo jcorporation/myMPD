@@ -224,7 +224,7 @@ function parseSettings(obj) {
     modalScriptsFunctionSelectEl.appendChild(
         elCreateTextTn('option', {"value": ""}, 'Select function')
     );
-    for (const m in LUAfunctions) {
+    for (const m of Object.keys(LUAfunctions).sort()) {
         if (LUAfunctions[m].feat === '' ||
             features[LUAfunctions[m].feat] === true)
         {
