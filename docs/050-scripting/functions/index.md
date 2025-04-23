@@ -38,7 +38,7 @@ List of myMPD specific Lua functions.
 | [mympd.notify_partition](util.md) | Sends a notification to all clients in a partition. |
 | [mympd.os_capture](system_command.md) | Executes a system command and capture its output. |
 | [mympd.read_file](util.md) | Read an ascii file. |
-| [remove_file](util.md) | Deletes a file or empty directory. |
+| [mympd.remove_file](util.md) | Deletes a file or empty directory. |
 | [mympd.sleep](util.md) | Sleep ms. |
 | [mympd.splitlines](string.md) | Split string by newline characters and trims the lines. |
 | [mympd.tmp_file](diskcache.md) | Generates a random tmp filename for the misc cache. |
