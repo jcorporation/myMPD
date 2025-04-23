@@ -32,7 +32,7 @@ int lua_caches_tmp_file(lua_State *lua_vm) {
     struct t_config *config = get_lua_global_config(lua_vm);
     char filename[21];
     randstring(filename, 21);
-    sds filepath = sdscatfmt(sdsempty(), "%S/misc/%s", config->cachedir, filename);
+    sds filepath = sdscatfmt(sdsempty(), "%S/misc/%s.tmp", config->cachedir, filename);
     if (create_tmp_file(filepath) == true) {
         lua_pushstring(lua_vm, filepath);
     }
