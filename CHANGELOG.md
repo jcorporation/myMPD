@@ -29,6 +29,7 @@ Scripts can now set temporary variables which are kept in memory only and have a
 - Upd: Improve websocket reconnection
 - Upd: Improve API explorer - show request
 - Upd: Bootstrap v5.3.4 #1418
+- Fix: mympd.tmp_file() function does not return always uniq names #1422
 
 ***
 

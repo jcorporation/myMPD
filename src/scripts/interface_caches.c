@@ -17,37 +17,29 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mimetype.h"
+#include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
 #include "src/scripts/interface.h"
 
 #include <string.h>
 
 /**
- * Creates a temporary file
+ * Creates a temporary file in the misc cache folder
  * @param lua_vm lua instance
  * @return number of elements pushed to lua stack
  */
 int lua_caches_tmp_file(lua_State *lua_vm) {
-    int n = lua_gettop(lua_vm);
-    if (n != 1) {
-        MYMPD_LOG_ERROR(NULL, "Lua - caches_tmp_file: Invalid number of arguments");
-        lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "Invalid number of arguments");
-    }
-    const char *filename = lua_tostring(lua_vm, 1);
-    if (filename == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - caches_tmp_file: filename is NULL");
-        lua_pop(lua_vm, n);
-        return luaL_error(lua_vm, "filename is NULL");
-    }
-    lua_pop(lua_vm, n);
-
-    if (create_tmp_file(filename) == true) {
-        lua_pushnumber(lua_vm, 0);
+    struct t_config *config = get_lua_global_config(lua_vm);
+    char filename[21];
+    randstring(filename, 21);
+    sds filepath = sdscatfmt(sdsempty(), "%S/misc/%s", config->cachedir, filename);
+    if (create_tmp_file(filepath) == true) {
+        lua_pushstring(lua_vm, filepath);
     }
     else {
-        lua_pushnumber(lua_vm, 1);
+        lua_pushnil(lua_vm);
     }
+    FREE_SDS(filepath);
     return 1;
 }
 
