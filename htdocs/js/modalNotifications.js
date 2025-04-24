@@ -58,7 +58,7 @@ function showMessages() {
             elCreateNodes('tr', {}, [
                 elCreateText('td', {}, fmtTime(message.timestamp)),
                 elCreateNodes('td', {}, [
-                    createSeverityIcon(message.severity),
+                    createSeverityIconList(message.severity),
                     document.createTextNode(tn(facilities[message.facility]))
                 ]),
                 elCreateText('td', {}, message.occurrence),

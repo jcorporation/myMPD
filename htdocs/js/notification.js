@@ -144,6 +144,17 @@ const facilities = {
 function createSeverityIcon(severity) {
     const severityName = severityNames[severity];
     return elCreateText('span', {"data-title-phrase": tn(severityName),
+        "class": ["mi", "text-light", "px-3"]}, severities[severityName].icon);
+}
+
+/**
+ * Creates a severity icon
+ * @param {number} severity Syslog severity number
+ * @returns {HTMLElement} Severity icon
+ */
+function createSeverityIconList(severity) {
+    const severityName = severityNames[severity];
+    return elCreateText('span', {"data-title-phrase": tn(severityName),
         "class": ["mi", severities[severityName].class, "me-2"]}, severities[severityName].icon);
 }
 
@@ -197,10 +208,9 @@ function showNotification(message, facility, severityName) {
     }
     if (settings.webuiSettings.notifyPage === true) {
         const toast = elCreateNodes('div', {"class": ["toast", "mt-2"]}, [
-            elCreateNodes('div', {"class": ["toast-header"]}, [
+            elCreateNodes('div', {"class": ["toast-header", "p-0", severities[severityName].bgclass, "rounded"]}, [
                 createSeverityIcon(severity),
-                elCreateText('span', {"class": ["me-auto"]}, message),
-                elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"}),
+                elCreateTextTn('span', {"class": ["p-2", "ps-3", "bg-dark", "w-100"]}, message)
             ])
         ]);
         elGetById('alertBox').prepend(toast);

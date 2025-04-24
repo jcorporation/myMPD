@@ -57,43 +57,51 @@ let settings = {
  */
 const severities = {
     "emerg": {
-        "icon": "error",
+        "icon": "bolt",
         "class": "text-danger",
+        "bgclass": "bg-danger",
         "severity": 0
     },
     "alert": {
-        "icon": "error",
+        "icon": "bolt",
         "class": "text-danger",
+        "bgclass": "bg-danger",
         "severity": 1
     },
     "crit": {
         "icon": "error",
         "class": "text-danger",
+        "bgclass": "bg-danger",
         "severity": 2
     },
     "error": {
         "icon": "error",
         "class": "text-danger",
+        "bgclass": "bg-danger",
         "severity": 3
     },
     "warn": {
         "icon": "warning",
         "class": "text-warning",
+        "bgclass": "bg-warning",
         "severity": 4
     },
     "notice": {
         "icon": "info",
         "class": "text-success",
+        "bgclass": "bg-success",
         "severity": 5
     },
     "info": {
         "icon": "info",
         "class": "text-success",
+        "bgclass": "bg-success",
         "severity": 6
     },
     "debug": {
-        "icon": "info",
+        "icon": "bug_report",
         "class": "text-info",
+        "bgclass": "bg-secondary",
         "severity": 7
     }
 };
