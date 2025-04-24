@@ -1263,8 +1263,8 @@ setUserAgentData();
 //minimum stable mpd version to support all myMPD features
 const mpdVersion = {
     "major": 0,
-    "minor": 23,
-    "patch": 5
+    "minor": 24,
+    "patch": 0
 };
 
 //remember offset for filesystem browsing uris
