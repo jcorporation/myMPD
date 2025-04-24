@@ -2417,10 +2417,12 @@
         <div id="modalScriptsEditFooter" class="modal-footer justify-content-between d-none">
           <div>
             <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary me-2" data-phrase="Cancel"></button>
-            <button data-href='{"cmd":"showModalScriptAPItab","options":["",""]}' class="btn btn-success protected me-2" data-phrase="API"></button>
             <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
           </div>
-          <button data-href='{"cmd":"saveScript","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
+          <div>
+            <button data-href='{"cmd":"showModalScriptAPItab","options":["",""]}' class="btn btn-success protected me-2" data-phrase="API"></button>
+            <button data-href='{"cmd":"saveScript","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
+          </div>
         </div>
         <div id="modalScriptsImportFooter" class="modal-footer justify-content-between d-none">
           <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
