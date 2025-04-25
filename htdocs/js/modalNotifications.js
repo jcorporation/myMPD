@@ -94,7 +94,7 @@ function showLogs() {
             overview.firstElementChild);
     }
     if (overview.querySelector('tr') === null) {
-        overview.appendChild(emptyMsgEl(4, 'table'));
+        overview.appendChild(emptyMsgEl(3, 'table'));
     }
 }
 
