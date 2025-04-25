@@ -283,7 +283,7 @@ enum work_response_types {
  */
 enum work_request_types {
     REQUEST_TYPE_DEFAULT = 0,       //!< Request is from a mongoose connection
-    REQUEST_TYPE_SCRIPT,            //!< Request is from th script thread
+    REQUEST_TYPE_SCRIPT,            //!< Request is from the script thread
     REQUEST_TYPE_NOTIFY_PARTITION,  //!< Send message to all clients in a specific partition
     REQUEST_TYPE_DISCARD            //!< Response will be discarded
 };
