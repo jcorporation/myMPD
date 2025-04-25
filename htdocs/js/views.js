@@ -354,7 +354,6 @@ function filterFields(tableName) {
     settings[set].fields = settings[set].fields.filter(function(value) {
         return fields.includes(value);
     });
-    logDebug('Columns for ' + set + ': ' + settings[set]);
 }
 
 /**
