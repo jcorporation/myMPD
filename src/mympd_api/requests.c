@@ -47,8 +47,7 @@ bool mympd_api_request_trigger_event_emit(enum trigger_events event, const char 
         struct t_list *arguments, unsigned long conn_id)
 {
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, conn_id, 0, INTERNAL_API_TRIGGER_EVENT_EMIT, "", partition);
-    struct t_event_data *data = mympd_api_event_data_new(event, arguments);
-    request->extra = data;
+    request->extra = mympd_api_event_data_new(event, arguments);
     return push_request(request, 0);
 }
 

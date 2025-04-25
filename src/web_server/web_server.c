@@ -357,6 +357,7 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         FREE_SDS(new_mg_user_data->mpd_host);
         list_clear(&new_mg_user_data->partitions);
         FREE_PTR(response->extra);
+        response->extra = NULL;
         rc = true;
     }
     else {

@@ -71,7 +71,6 @@
 #endif
 
 #include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -188,12 +187,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 //free the old album cache and replace it with the freshly generated one
                 if (cache_get_write_lock(&mympd_state->album_cache) == false) {
                     album_cache_free_rt(request->extra);
+                    request->extra = NULL;
                     send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Album cache could not be replaced");
                     break;
                 }
                 album_cache_free(&mympd_state->album_cache);
                 mympd_state->album_cache.cache = (rax *) request->extra;
                 cache_release_lock(&mympd_state->album_cache);
+                request->extra = NULL;
                 MYMPD_LOG_INFO(partition_state->name, "Album cache was replaced");
             }
             else {
@@ -620,6 +621,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 sdsclear(partition_state->jukebox.last_error);
                 list_free(partition_state->jukebox.queue);
                 partition_state->jukebox.queue = (struct t_list *)request->extra;
+                request->extra = NULL;
             }
             else if (partition_state->jukebox.mode != JUKEBOX_SCRIPT) {
                 MYMPD_LOG_ERROR(partition_state->name, "Jukebox queue is NULL");
@@ -701,6 +703,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 mympd_api_trigger_execute(&mympd_state->trigger_list, data->event, partition_state->name, NULL);
             }
             mympd_api_event_data_free(data);
+            request->extra = NULL;
             response->data = jsonrpc_respond_ok(response->data, INTERNAL_API_TRIGGER_EVENT_EMIT, request->id, JSONRPC_FACILITY_TRIGGER);
             break;
     // outputs
@@ -1860,6 +1863,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case INTERNAL_API_WEBRADIODB_CREATED:
             if (request->extra != NULL) {
                 struct t_webradios *new = (struct t_webradios *)request->extra;
+                request->extra = NULL;
                 if (webradios_get_write_lock(mympd_state->webradiodb) == false) {
                     MYMPD_LOG_ERROR(partition_state->name, "Discarding fetched WebradioDB");
                     webradios_free(new);

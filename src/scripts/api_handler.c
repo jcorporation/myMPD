@@ -114,7 +114,7 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
                     true, extra->script_event, response->id, request->conn_id, &error);
             respond = false;
             script_execute_data_free(extra);
-            extra = NULL;
+            request->extra = NULL;
             break;
         }
         case MYMPD_API_SCRIPT_EXECUTE: {
