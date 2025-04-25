@@ -16,10 +16,13 @@
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
-#include "src/mympd_api/lua_mympd_state.h"
 #include "src/mympd_api/trigger.h"
 #include "src/scripts/events.h"
 #include "src/web_server/utility.h"
+
+#ifdef MYMPD_ENABLE_LUA
+    #include "src/mympd_api/lua_mympd_state.h"
+#endif
 
 #include <string.h>
 
