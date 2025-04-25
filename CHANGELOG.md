@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v20.2.0 (not yet released)
+## myMPD v21.0.0 (not yet released)
 
 This release supports the first new MPD 0.25 feature and improves the scripting feature.
 
