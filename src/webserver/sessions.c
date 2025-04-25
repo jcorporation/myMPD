@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/sessions.h"
+#include "src/webserver/sessions.h"
 
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_query.h"
@@ -18,7 +18,7 @@
 #include "src/lib/pin.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"
-#include "src/web_server/utility.h"
+#include "src/webserver/utility.h"
 
 #include <openssl/rand.h>
 #include <string.h>

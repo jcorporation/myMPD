@@ -9,14 +9,14 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/playlistart.h"
+#include "src/webserver/playlistart.h"
 
 #include "src/lib/config_def.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
-#include "src/web_server/placeholder.h"
+#include "src/webserver/placeholder.h"
 
 /**
  * Request handler for /playlistart

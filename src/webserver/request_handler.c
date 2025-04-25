@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/request_handler.h"
+#include "src/webserver/request_handler.h"
 
 #include "src/lib/api.h"
 #include "src/lib/json/json_print.h"
@@ -17,10 +17,10 @@
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
-#include "src/web_server/proxy.h"
-#include "src/web_server/sessions.h"
-#include "src/web_server/utility.h"
-#include "src/web_server/webradio.h"
+#include "src/webserver/proxy.h"
+#include "src/webserver/sessions.h"
+#include "src/webserver/utility.h"
+#include "src/webserver/webradio.h"
 
 /**
  * Request handler for api requests /api

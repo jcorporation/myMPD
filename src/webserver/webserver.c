@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/web_server.h"
+#include "src/webserver/webserver.h"
 
 #include "src/lib/api.h"
 #include "src/lib/cert.h"
@@ -22,16 +22,16 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
-#include "src/web_server/albumart.h"
-#include "src/web_server/folderart.h"
-#include "src/web_server/placeholder.h"
-#include "src/web_server/playlistart.h"
-#include "src/web_server/proxy.h"
-#include "src/web_server/request_handler.h"
-#include "src/web_server/tagart.h"
+#include "src/webserver/albumart.h"
+#include "src/webserver/folderart.h"
+#include "src/webserver/placeholder.h"
+#include "src/webserver/playlistart.h"
+#include "src/webserver/proxy.h"
+#include "src/webserver/request_handler.h"
+#include "src/webserver/tagart.h"
 
 #ifdef MYMPD_ENABLE_LUA
-    #include "src/web_server/scripts.h"
+    #include "src/webserver/scripts.h"
 #endif
 
 #include <inttypes.h>
@@ -66,7 +66,7 @@ static void mongoose_log(char ch, void *param);
  * @param mg_user_data already allocated t_mg_user_data to populate
  * @return true on success, else false
  */
-bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
+bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
     mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_EMPTY);
@@ -180,7 +180,7 @@ bool webserver_read_certs(struct t_mg_user_data *mg_user_data, struct t_config *
  * @param mgr mongoose mgr to free
  * @return NULL
  */
-void *web_server_free(struct mg_mgr *mgr) {
+void *webserver_free(struct mg_mgr *mgr) {
     sds dns4_url = (sds)mgr->dns4.url;
     FREE_SDS(dns4_url);
     mg_mgr_free(mgr);
@@ -193,7 +193,7 @@ void *web_server_free(struct mg_mgr *mgr) {
  * @param arg_mgr void pointer to mongoose mgr
  * @return NULL
  */
-void *web_server_loop(void *arg_mgr) {
+void *webserver_loop(void *arg_mgr) {
     thread_logname = sds_replace(thread_logname, "webserver");
     set_threadname(thread_logname);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
@@ -214,7 +214,7 @@ void *web_server_loop(void *arg_mgr) {
         //webserver polling
         mg_mgr_poll(mgr, -1);
     }
-    MYMPD_LOG_DEBUG(NULL, "Stopping web_server thread");
+    MYMPD_LOG_DEBUG(NULL, "Stopping webserver thread");
     FREE_SDS(thread_logname);
     return NULL;
 }
@@ -230,7 +230,7 @@ void *web_server_loop(void *arg_mgr) {
 static void read_queue(struct mg_mgr *mgr) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
     struct t_work_response *response;
-    while ((response = mympd_queue_shift(web_server_queue, -1, 0)) != NULL) {
+    while ((response = mympd_queue_shift(webserver_queue, -1, 0)) != NULL) {
         switch(response->type) {
             case RESPONSE_TYPE_SCRIPT_DIALOG:
             case RESPONSE_TYPE_NOTIFY_CLIENT:
@@ -582,8 +582,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_OPEN: {
             if (nc->is_listening) {
                 nc->fn_data = NULL;
-                web_server_queue->mg_conn_id = nc->id;
-                web_server_queue->mg_mgr = nc->mgr;
+                webserver_queue->mg_conn_id = nc->id;
+                webserver_queue->mg_mgr = nc->mgr;
             }
             else {
                 mg_user_data->connection_count++;

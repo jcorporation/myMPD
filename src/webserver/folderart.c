@@ -9,12 +9,12 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/folderart.h"
+#include "src/webserver/folderart.h"
 
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"
-#include "src/web_server/placeholder.h"
+#include "src/webserver/placeholder.h"
 
 /**
  * Serves the first image in a folder

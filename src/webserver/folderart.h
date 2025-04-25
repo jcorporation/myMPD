@@ -12,7 +12,7 @@
 #define MYMPD_WEB_SERVER_FOLDERART_H
 
 #include "dist/mongoose/mongoose.h"
-#include "src/web_server/utility.h"
+#include "src/webserver/utility.h"
 
 #include <stdbool.h>
 

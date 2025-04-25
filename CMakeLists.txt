@@ -185,7 +185,7 @@ if(MYMPD_EMBEDDED_ASSETS)
   set(MYMPD_LUALIBS_PATH "")
   execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets RESULT_VARIABLE RC_CREATE_ASSETS)
   # remove object files with embedded assets
-  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/web_server/utility.c.o")
+  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/webserver/utility.c.o")
   file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/mympd_api/scripts.c.o")
 else()
   message("Serving assets from filesystem")
@@ -263,7 +263,7 @@ endif()
 
 # configure some files - version and path information
 configure_file(src/compile_time.h.in "${PROJECT_BINARY_DIR}/compile_time.h")
-configure_file(src/web_server/embedded_files.c.in "${PROJECT_BINARY_DIR}/embedded_files.c")
+configure_file(src/webserver/embedded_files.c.in "${PROJECT_BINARY_DIR}/embedded_files.c")
 configure_file(src/scripts/lualibs.c.in "${PROJECT_BINARY_DIR}/lualibs.c")
 configure_file(cmake/Install.cmake.in cmake/Install.cmake @ONLY)
 configure_file(contrib/initscripts/mympd.service.system.in contrib/initscripts/system/mympd.service @ONLY)

@@ -77,7 +77,7 @@ extern _Atomic int mympd_worker_threads;
 //signal handler
 extern sig_atomic_t s_signal_received;
 //message queues
-extern struct t_mympd_queue *web_server_queue;
+extern struct t_mympd_queue *webserver_queue;
 extern struct t_mympd_queue *mympd_api_queue;
 #ifdef MYMPD_ENABLE_LUA
     extern struct t_mympd_queue *script_queue;

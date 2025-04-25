@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/proxy.h"
+#include "src/webserver/proxy.h"
 
 #include "src/lib/cache/cache_disk.h"
 #include "src/lib/cache/cache_disk_images.h"
@@ -19,8 +19,8 @@
 #include "src/lib/mg_str_utils.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
-#include "src/web_server/placeholder.h"
-#include "src/web_server/utility.h"
+#include "src/webserver/placeholder.h"
+#include "src/webserver/utility.h"
 
 /**
  * Private definitions

@@ -18,7 +18,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/mympd_api/trigger.h"
 #include "src/scripts/events.h"
-#include "src/web_server/utility.h"
+#include "src/webserver/mg_user_data.h"
 
 #ifdef MYMPD_ENABLE_LUA
     #include "src/mympd_api/lua_mympd_state.h"
@@ -234,7 +234,7 @@ void ws_notify(sds message, const char *partition) {
     MYMPD_LOG_DEBUG(partition, "Push websocket notify to queue: \"%s\"", message);
     struct t_work_response *response = create_response_new(RESPONSE_TYPE_NOTIFY_PARTITION, 0, 0, INTERNAL_API_WEBSERVER_NOTIFY, partition);
     response->data = sds_replace(response->data, message);
-    mympd_queue_push(web_server_queue, response, 0);
+    mympd_queue_push(webserver_queue, response, 0);
 }
 
 /**
@@ -246,7 +246,7 @@ void ws_notify_client(sds message, unsigned request_id) {
     MYMPD_LOG_DEBUG(NULL, "Push websocket notify to queue: \"%s\"", message);
     struct t_work_response *response = create_response_new(RESPONSE_TYPE_NOTIFY_CLIENT, 0, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);
     response->data = sds_replace(response->data, message);
-    mympd_queue_push(web_server_queue, response, 0);
+    mympd_queue_push(webserver_queue, response, 0);
 }
 
 /**
@@ -258,7 +258,7 @@ void ws_script_dialog(sds message, unsigned request_id) {
     MYMPD_LOG_DEBUG(NULL, "Push websocket notify to queue: \"%s\"", message);
     struct t_work_response *response = create_response_new(RESPONSE_TYPE_SCRIPT_DIALOG, 0, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);
     response->data = sds_replace(response->data, message);
-    mympd_queue_push(web_server_queue, response, 0);
+    mympd_queue_push(webserver_queue, response, 0);
 }
 
 /**
@@ -425,10 +425,10 @@ bool push_response(struct t_work_response *response) {
         case RESPONSE_TYPE_SCRIPT_DIALOG:
         case RESPONSE_TYPE_REDIRECT:
             MYMPD_LOG_DEBUG(NULL, "Push response to webserver queue for connection %lu: %s", response->conn_id, response->data);
-            return mympd_queue_push(web_server_queue, response, 0);
+            return mympd_queue_push(webserver_queue, response, 0);
         case RESPONSE_TYPE_RAW:
             MYMPD_LOG_DEBUG(NULL, "Push raw response to webserver queue for connection %lu with %lu bytes", response->conn_id, (unsigned long)sdslen(response->data));
-            return mympd_queue_push(web_server_queue, response, 0);
+            return mympd_queue_push(webserver_queue, response, 0);
         case RESPONSE_TYPE_SCRIPT:
             #ifdef MYMPD_ENABLE_LUA
                 MYMPD_LOG_DEBUG(NULL, "Push response to script_worker_queue for thread %u: %s", response->id, response->data);

@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/webradio.h"
+#include "src/webserver/webradio.h"
 
 /**
  * Searches webradio favorites and WebradioDB by uri and returns the cover image uri

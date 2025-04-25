@@ -218,6 +218,6 @@ void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
     last_played_file_read(partition_state->next);
     //set connect timer
     mympd_timer_set(partition_state->next->timer_fd_mpd_connect, 0, 5);
-    //push settings to web_server_queue
+    //push settings to webserver_queue
     settings_to_webserver(mympd_state);
 }

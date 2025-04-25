@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 //message queues
-struct t_mympd_queue *web_server_queue;
+struct t_mympd_queue *webserver_queue;
 struct t_mympd_queue *mympd_api_queue;
 struct t_mympd_queue *script_queue;
 struct t_mympd_queue *script_worker_queue;

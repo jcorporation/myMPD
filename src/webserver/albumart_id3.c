@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/albumart_id3.h"
+#include "src/webserver/albumart_id3.h"
 
 #include "src/lib/cache/cache_disk_images.h"
 #include "src/lib/log.h"

@@ -9,11 +9,11 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/placeholder.h"
+#include "src/webserver/placeholder.h"
 
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
-#include "src/web_server/utility.h"
+#include "src/webserver/utility.h"
 
 /**
  * Placeholder image names

@@ -13,7 +13,7 @@
 
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
-#include "src/web_server/utility.h"
+#include "src/webserver/utility.h"
 
 /**
  * Albumart types

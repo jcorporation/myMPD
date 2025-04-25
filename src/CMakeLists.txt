@@ -142,17 +142,18 @@ target_sources(mympd
     mympd_api/volume.c
     mympd_api/webradio.c
     mympd_api/webradio_favorites.c
-    web_server/web_server.c
-    web_server/albumart.c
-    web_server/folderart.c
-    web_server/request_handler.c
-    web_server/placeholder.c
-    web_server/proxy.c
-    web_server/sessions.c
-    web_server/playlistart.c
-    web_server/tagart.c
-    web_server/utility.c
-    web_server/webradio.c
+    webserver/webserver.c
+    webserver/albumart.c
+    webserver/folderart.c
+    webserver/mg_user_data.c
+    webserver/request_handler.c
+    webserver/placeholder.c
+    webserver/proxy.c
+    webserver/sessions.c
+    webserver/playlistart.c
+    webserver/tagart.c
+    webserver/utility.c
+    webserver/webradio.c
 )
 
 if(MYMPD_ENABLE_LUA)
@@ -173,7 +174,7 @@ if(MYMPD_ENABLE_LUA)
       scripts/scripts_worker.c
       scripts/scripts.c
       scripts/util.c
-      web_server/scripts.c
+      webserver/scripts.c
   )
 endif()
 
@@ -181,7 +182,7 @@ if(MYMPD_ENABLE_FLAC)
   target_sources(mympd
     PRIVATE
       mympd_api/lyrics_flac.c
-      web_server/albumart_flac.c
+      webserver/albumart_flac.c
   )
 endif()
 
@@ -189,7 +190,7 @@ if(MYMPD_ENABLE_LIBID3TAG)
   target_sources(mympd
     PRIVATE
       mympd_api/lyrics_id3.c
-      web_server/albumart_id3.c
+      webserver/albumart_id3.c
   )
 endif()
 

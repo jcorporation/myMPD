@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/albumart.h"
+#include "src/webserver/albumart.h"
 
 #include "src/lib/api.h"
 #include "src/lib/cache/cache_disk.h"
@@ -24,18 +24,18 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
-#include "src/web_server/placeholder.h"
-#include "src/web_server/webradio.h"
+#include "src/webserver/placeholder.h"
+#include "src/webserver/webradio.h"
 
 #include <libgen.h>
 
 //optional includes
 #ifdef MYMPD_ENABLE_LIBID3TAG
-    #include "src/web_server/albumart_id3.h"
+    #include "src/webserver/albumart_id3.h"
 #endif
 
 #ifdef MYMPD_ENABLE_FLAC
-    #include "src/web_server/albumart_flac.h"
+    #include "src/webserver/albumart_flac.h"
 #endif
 
 /**

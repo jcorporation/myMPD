@@ -75,6 +75,7 @@ set(TEST_SOURCES
   ../src/mympd_api/queue.c
   ../src/mympd_api/webradio.c
   ../src/scripts/events.c
+  ../src/webserver/mg_user_data.c
   tests/test_album_cache.c
   tests/test_api.c
   tests/test_cert.c

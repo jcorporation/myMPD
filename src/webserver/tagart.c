@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/tagart.h"
+#include "src/webserver/tagart.h"
 
 #include "src/lib/api.h"
 #include "src/lib/config_def.h"
@@ -20,7 +20,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
-#include "src/web_server/placeholder.h"
+#include "src/webserver/placeholder.h"
 
 /**
  * Request handler for /tagart

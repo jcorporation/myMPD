@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/web_server/scripts.h"
+#include "src/webserver/scripts.h"
 
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
@@ -19,7 +19,7 @@
 #include "src/lib/validate.h"
 #include "src/mympd_api/requests.h"
 #include "src/scripts/events.h"
-#include "src/web_server/utility.h"
+#include "src/webserver/utility.h"
 
 #include <lauxlib.h>
 #include <lua.h>

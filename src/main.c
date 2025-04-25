@@ -24,7 +24,8 @@
 #include "src/lib/sds_extras.h"
 #include "src/mympd_api/mympd_api.h"
 #include "src/scripts/scripts.h"
-#include "src/web_server/web_server.h"
+#include "src/webserver/mg_user_data.h"
+#include "src/webserver/webserver.h"
 
 #ifdef MYMPD_ENABLE_LUA
     #include <lua.h>
@@ -72,7 +73,7 @@ _Atomic int mympd_worker_threads;
 //signal handler
 sig_atomic_t s_signal_received;
 //message queues
-struct t_mympd_queue *web_server_queue;
+struct t_mympd_queue *webserver_queue;
 struct t_mympd_queue *mympd_api_queue;
 #ifdef MYMPD_ENABLE_LUA
     struct t_mympd_queue *script_queue;
@@ -97,10 +98,10 @@ static void mympd_signal_handler(int sig_num) {
                 pthread_cond_signal(&script_queue->wakeup);
                 pthread_cond_signal(&script_worker_queue->wakeup);
             #endif
-            pthread_cond_signal(&web_server_queue->wakeup);
+            pthread_cond_signal(&webserver_queue->wakeup);
             event_eventfd_write(mympd_api_queue->event_fd);
-            if (web_server_queue->mg_mgr != NULL) {
-                mg_wakeup(web_server_queue->mg_mgr, web_server_queue->mg_conn_id, "X", 1);
+            if (webserver_queue->mg_mgr != NULL) {
+                mg_wakeup(webserver_queue->mg_mgr, webserver_queue->mg_conn_id, "X", 1);
             }
             break;
         }
@@ -378,7 +379,7 @@ int main(int argc, char **argv) {
     struct t_mg_user_data *mg_user_data = NULL;
     struct mg_mgr *mgr = NULL;
     int rc = EXIT_FAILURE;
-    pthread_t web_server_thread = 0;
+    pthread_t webserver_thread = 0;
     pthread_t mympd_api_thread = 0;
     #ifdef MYMPD_ENABLE_LUA
         pthread_t script_thread = 0;
@@ -397,7 +398,7 @@ int main(int argc, char **argv) {
     umask(0077);
 
     mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST, true);
-    web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE, false);
+    webserver_queue = mympd_queue_create("webserver_queue", QUEUE_TYPE_RESPONSE, false);
     #ifdef MYMPD_ENABLE_LUA
         script_queue = mympd_queue_create("script_queue", QUEUE_TYPE_REQUEST, false);
         script_worker_queue = mympd_queue_create("script_worker_queue", QUEUE_TYPE_RESPONSE, false);
@@ -530,7 +531,7 @@ int main(int argc, char **argv) {
     //init webserver
     mgr = malloc_assert(sizeof(struct mg_mgr));
     mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
-    if (web_server_init(mgr, config, mg_user_data) == false) {
+    if (webserver_init(mgr, config, mg_user_data) == false) {
         goto cleanup;
     }
 
@@ -578,17 +579,17 @@ int main(int argc, char **argv) {
         if ((thread_rc = pthread_create(&script_thread, NULL, scripts_loop, config)) != 0) {
             MYMPD_LOG_ERROR(NULL, "Can't create script thread");
             MYMPD_LOG_ERRNO(NULL, thread_rc);
-            web_server_thread = 0;
+            webserver_thread = 0;
             s_signal_received = SIGTERM;
         }
     #endif
 
     //webserver
     MYMPD_LOG_NOTICE(NULL, "Starting webserver thread");
-    if ((thread_rc = pthread_create(&web_server_thread, NULL, web_server_loop, mgr)) != 0) {
+    if ((thread_rc = pthread_create(&webserver_thread, NULL, webserver_loop, mgr)) != 0) {
         MYMPD_LOG_ERROR(NULL, "Can't create webserver thread");
         MYMPD_LOG_ERRNO(NULL, thread_rc);
-        web_server_thread = 0;
+        webserver_thread = 0;
         s_signal_received = SIGTERM;
     }
 
@@ -600,8 +601,8 @@ int main(int argc, char **argv) {
     cleanup:
 
     //wait for threads
-    if (web_server_thread > (pthread_t)0) {
-        if ((thread_rc = pthread_join(web_server_thread, NULL)) != 0) {
+    if (webserver_thread > (pthread_t)0) {
+        if ((thread_rc = pthread_join(webserver_thread, NULL)) != 0) {
             MYMPD_LOG_ERROR(NULL, "Error stopping webserver thread");
             MYMPD_LOG_ERRNO(NULL, thread_rc);
         }
@@ -631,7 +632,7 @@ int main(int argc, char **argv) {
     #endif
 
     //free queues
-    mympd_queue_free(web_server_queue);
+    mympd_queue_free(webserver_queue);
     mympd_queue_free(mympd_api_queue);
     #ifdef MYMPD_ENABLE_LUA
         mympd_queue_free(script_queue);
@@ -642,7 +643,7 @@ int main(int argc, char **argv) {
     mympd_config_free(config);
 
     if (mgr != NULL) {
-        web_server_free(mgr);
+        webserver_free(mgr);
     }
     if (mg_user_data != NULL) {
         mg_user_data_free(mg_user_data);
