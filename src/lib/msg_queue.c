@@ -17,10 +17,6 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 
-#ifdef MYMPD_ENABLE_LUA
-    #include "src/mympd_api/lua_mympd_state.h"
-#endif
-
 #include <errno.h>
 
 /*
@@ -285,13 +281,11 @@ static void free_queue_node(struct t_mympd_msg *node, enum mympd_queue_types typ
     //free data
     if (type == QUEUE_TYPE_REQUEST) {
         struct t_work_request *request = node->data;
-        free_extra_data(type, request->cmd_id, request->extra);
         free_request(request);
     }
     else {
         //QUEUE_TYPE_RESPONSE
         struct t_work_response *response = node->data;
-        free_extra_data(type, response->cmd_id, response->extra);
         free_response(response);
     }
     //free the node itself
