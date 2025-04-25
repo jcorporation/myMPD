@@ -1,4 +1,5 @@
 {
+    "#": "",
     "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "",
     "%{count1} invalid and %{count2} duplicate entries in playlists": "",
     "%{count} duplicate entries in playlist %{plist}": "",
@@ -965,6 +966,7 @@
     "Tue": "Ti",
     "Type": "Tyyppi",
     "Type or select picture": "",
+    "URI": "",
     "URL decodes a string.": "",
     "URL encodes a string.": "",
     "Unknown partition": "",

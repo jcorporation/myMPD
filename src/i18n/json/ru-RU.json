@@ -1,4 +1,5 @@
 {
+    "#": "",
     "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "%{count1} недопустимых записей и %{count2} дубликатов в плейлисте %{plist}",
     "%{count1} invalid and %{count2} duplicate entries in playlists": "%{count1} недействительных записей и %{count2} дубликатов в плейлистах",
     "%{count} duplicate entries in playlist %{plist}": "%{count} дубликатов в плейлисте %{plist}",
@@ -965,6 +966,7 @@
     "Tue": "Вт",
     "Type": "Тип",
     "Type or select picture": "Выберите изображение или введите URL",
+    "URI": "",
     "URL decodes a string.": "URL-адрес расшифровывает строку.",
     "URL encodes a string.": "URL-адрес кодирует строку.",
     "Unknown partition": "Неизвестный раздел",

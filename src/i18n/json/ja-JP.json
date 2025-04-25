@@ -1,4 +1,5 @@
 {
+    "#": "",
     "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "プレイリスト %{plist} に %{count1} 件の無効な項目と %{count2} 件の重複項目があります",
     "%{count1} invalid and %{count2} duplicate entries in playlists": "プレイリストに %{count1} 件の無効な項目と %{count2} 件の重複項目があります",
     "%{count} duplicate entries in playlist %{plist}": "プレイリスト %{plist} に %{count} 件の重複項目があります",
@@ -965,6 +966,7 @@
     "Tue": "火",
     "Type": "タイプ",
     "Type or select picture": "入力するか写真を選択",
+    "URI": "",
     "URL decodes a string.": "文字列をURLデコードします。",
     "URL encodes a string.": "文字列をURLエンコードします。",
     "Unknown partition": "不明なパーティション",

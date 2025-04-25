@@ -1,4 +1,5 @@
 {
+    "#": "",
     "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "%{count1} ongeldig(e) item(s) en %{count2} dubbele item(s) in %{plist} afspeellijst",
     "%{count1} invalid and %{count2} duplicate entries in playlists": "%{count1} ongeldig(e) item(s) en %{count2} dubbele item(s) in afspeellijsten",
     "%{count} duplicate entries in playlist %{plist}": "%{count} dubbele items in %{plist} afspeellijst",
@@ -965,6 +966,7 @@
     "Tue": "Di",
     "Type": "Type",
     "Type or select picture": "Afbeelding of URL selecteren",
+    "URI": "",
     "URL decodes a string.": "URL decoderen",
     "URL encodes a string.": "URL-codering",
     "Unknown partition": "Onbekende partitie",

@@ -1,4 +1,5 @@
 {
+    "#": "",
     "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "연주목록 %{plist}의 %{count1} 무효와 %{count2} 중복 항목",
     "%{count1} invalid and %{count2} duplicate entries in playlists": "연주목록의 %{count1} 무효와 %{count2} 중복 항목",
     "%{count} duplicate entries in playlist %{plist}": "연주목록 %{plist}의 %{count} 중복 항목",
@@ -965,6 +966,7 @@
     "Tue": "화",
     "Type": "형식",
     "Type or select picture": "사진 입력 또는 선택",
+    "URI": "",
     "URL decodes a string.": "URL은 문자열을 디코딩합니다.",
     "URL encodes a string.": "URL은 문자열을 인코딩합니다.",
     "Unknown partition": "알 수 없는 파티션",

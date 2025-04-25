@@ -1,4 +1,5 @@
 {
+    "#": "",
     "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "播放列表%{plist}中的%{count1}无效数据以及%{count2}重复数据",
     "%{count1} invalid and %{count2} duplicate entries in playlists": "播放列表中的%{count1}无效以及%{count2}重复",
     "%{count} duplicate entries in playlist %{plist}": "%{count}在播放列表%{plist}中数据重复",
@@ -965,6 +966,7 @@
     "Tue": "二",
     "Type": "类型",
     "Type or select picture": "类型或选择图像",
+    "URI": "",
     "URL decodes a string.": "以 URL 格式解码字符串.",
     "URL encodes a string.": "以 URL 格式编码字符串.",
     "Unknown partition": "未知分区",

@@ -1,4 +1,5 @@
 {
+    "#": "",
     "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "Nieprawidłowe (%{count1}) i zduplikowane (%{count2}) wpisy na playliście %{plist}",
     "%{count1} invalid and %{count2} duplicate entries in playlists": "Nieprawidłowe (%{count1}) i zduplikowane (%{count2}) wpisy na playlistach",
     "%{count} duplicate entries in playlist %{plist}": "%{count} duplikatów na playliście %{plist}",
@@ -965,6 +966,7 @@
     "Tue": "Wt",
     "Type": "Typ",
     "Type or select picture": "Wpisz lub wybierz zdjęcie",
+    "URI": "",
     "URL decodes a string.": "Dekodowanie adresu URL",
     "URL encodes a string.": "Kodowanie URL",
     "Unknown partition": "Nieznany profil",

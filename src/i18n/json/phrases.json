@@ -1,4 +1,5 @@
 [
+{"term":"#"},
 {"term":"%{count1} invalid and %{count2} duplicate entries in playlist %{plist}"},
 {"term":"%{count1} invalid and %{count2} duplicate entries in playlists"},
 {"term":"%{count} duplicate entries in playlist %{plist}"},
@@ -965,6 +966,7 @@
 {"term":"Tue"},
 {"term":"Type"},
 {"term":"Type or select picture"},
+{"term":"URI"},
 {"term":"URL decodes a string."},
 {"term":"URL encodes a string."},
 {"term":"Unknown partition"},

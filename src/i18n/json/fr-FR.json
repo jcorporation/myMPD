@@ -1,4 +1,5 @@
 {
+    "#": "",
     "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "%{count1} entrée(s) invalide(s) et %{count2} entrée(s) en doublon dans la liste de lecture %{plist}",
     "%{count1} invalid and %{count2} duplicate entries in playlists": "%{count1} entrée(s) invalide(s) et %{count2} entrée(s) en doublon dans les listes de lecture",
     "%{count} duplicate entries in playlist %{plist}": "%{count} entrées en doublon dans la liste de lecture %{plist}",
@@ -965,6 +966,7 @@
     "Tue": "Mar",
     "Type": "Type",
     "Type or select picture": "Tapez ou choisissez une image",
+    "URI": "",
     "URL decodes a string.": "Décodage URL",
     "URL encodes a string.": "Encodage URL",
     "Unknown partition": "Partition inconnue",

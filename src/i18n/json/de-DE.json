@@ -1,4 +1,5 @@
 {
+    "#": "#",
     "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "%{count1} ungültige Einträge und %{count2} Duplikate in der Wiedergabeliste %{plist}",
     "%{count1} invalid and %{count2} duplicate entries in playlists": "%{count1} ungültige Einträge und %{count2} Duplikate in Wiedergabelisten",
     "%{count} duplicate entries in playlist %{plist}": "%{count} Duplikate in der Wiedergabeliste %{plist}",
@@ -965,6 +966,7 @@
     "Tue": "Di",
     "Type": "Typ",
     "Type or select picture": "Bild wählen oder URL eingeben",
+    "URI": "URI",
     "URL decodes a string.": "URL Dekodierung",
     "URL encodes a string.": "URL Kodierung",
     "Unknown partition": "Ungültige Partition",
