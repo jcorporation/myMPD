@@ -11,7 +11,6 @@
 #ifndef MYMPD_FIELDS_H
 #define MYMPD_FIELDS_H
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/sticker.h"
 
 /**
