@@ -35,16 +35,23 @@ function tn(phrase, data) {
         return 'undefinedPhrase';
     }
     //translate
-    let result = phrases[phrase];
-/*debug*/    if (result === undefined &&
+    let result = phrases === null
+        ? undefined
+        : phrases[phrase];
+/*debug*/    if (phrases !== null &&
+/*debug*/        result === undefined &&
 /*debug*/        locale !== 'en-US')
 /*debug*/    {
 /*debug*/        logDebug('Phrase "' + phrase + '" for locale ' + locale + ' not found');
 /*debug*/    }
 
     //fallback if phrase is not translated
-    if (result === undefined || result === '') {
-        result = phrasesDefault[phrase] !== undefined ? phrasesDefault[phrase] : phrase;
+    if (result === undefined ||
+        result === '')
+    {
+        result = phrasesDefault !== null && phrasesDefault[phrase] !== undefined
+            ? phrasesDefault[phrase]
+            : phrase;
     }
     //check for smartCount
     if (data !== undefined &&

@@ -251,9 +251,9 @@ const localeMap = {
 /** @type {object} */
 let materialIcons = {};
 /** @type {object} */
-let phrasesDefault = {};
+let phrasesDefault = null;
 /** @type {object} */
-let phrases = {};
+let phrases = null;
 
 /** @type {number} */
 let lastSeekStep = 10;
