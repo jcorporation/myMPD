@@ -69,13 +69,13 @@ const severities = {
         "severity": 1
     },
     "crit": {
-        "icon": "error",
+        "icon": "dangerous",
         "class": "text-danger",
         "bgclass": "bg-danger",
         "severity": 2
     },
     "error": {
-        "icon": "error",
+        "icon": "dangerous",
         "class": "text-danger",
         "bgclass": "bg-danger",
         "severity": 3
