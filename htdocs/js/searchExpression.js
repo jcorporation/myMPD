@@ -85,7 +85,7 @@ function selectSearchMatch(appid) {
 function setSearchExpressionPlaceholder(appid) {
     const searchMatchEl = elGetById(appid + 'SearchMatch');
     const searchTagEl = elGetById(appid + 'SearchTagsDesc');
-    elGetById(appid + 'SearchStr').setAttribute('placeholder', tn(searchTagEl.textContent) + ' ' + tn(searchMatchEl.value));
+    elGetById(appid + 'SearchStr').setAttribute('placeholder', searchTagEl.textContent + ' ' + tn(searchMatchEl.value));
 }
 
 /**
