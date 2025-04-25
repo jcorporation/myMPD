@@ -693,10 +693,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (data->event == TRIGGER_MYMPD_BGIMAGE) {
                 int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_BGIMAGE,
                             partition_state->name, request->conn_id, request->id, data->arguments);
-                if (n > 0) {
-                    if (n > 1) {
-                        MYMPD_LOG_WARN(partition_state->name, "More than one script triggered for bgimage.");
-                    }
+                if (n > 1) {
+                    MYMPD_LOG_WARN(partition_state->name, "More than one script triggered for bgimage.");
                 }
             }
             else if (mympd_api_event_name(data->event) != NULL) {
