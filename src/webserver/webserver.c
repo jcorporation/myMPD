@@ -375,7 +375,6 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
-    int conn_count = 0;
     time_t last_ping = time(NULL) - WS_PING_TIMEOUT;
     while (nc != NULL) {
         if (nc->is_websocket == 1U) {
@@ -393,17 +392,11 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
             }
         }
         nc = nc->next;
-        conn_count++;
     }
     if (send_count == 0) {
         MYMPD_LOG_DEBUG(NULL, "No websocket client connected, discarding message: %s", response->data);
     }
     free_response(response);
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
-    if (conn_count != mg_user_data->connection_count) {
-        MYMPD_LOG_DEBUG(NULL, "Correcting connection count from %d to %d", mg_user_data->connection_count, conn_count);
-        mg_user_data->connection_count = conn_count;
-    }
 }
 
 /**
