@@ -36,19 +36,25 @@
  */
 struct t_list *webserver_parse_arguments(struct mg_http_message *hm) {
     struct t_list *arguments = list_new();
+    sds decoded_key = sdsempty();
+    sds decoded_value = sdsempty();
     int params_count;
     sds *params = sdssplitlen(hm->query.buf, (ssize_t)hm->query.len, "&", 1, &params_count);
     for (int i = 0; i < params_count; i++) {
         int kv_count;
         sds *kv = sdssplitlen(params[i], (ssize_t)sdslen(params[i]), "=", 1, &kv_count);
         if (kv_count == 2) {
-            sds decoded = sds_urldecode(sdsempty(), kv[1], sdslen(kv[1]), false);
-            list_push(arguments, kv[0], 0, decoded, NULL);
-            FREE_SDS(decoded);
+            decoded_key = sds_urldecode(decoded_key, kv[0], sdslen(kv[0]), false);
+            decoded_value = sds_urldecode(decoded_value, kv[1], sdslen(kv[1]), false);
+            list_push(arguments, decoded_key, 0, decoded_value, NULL);
+            sdsclear(decoded_key);
+            sdsclear(decoded_value);
         }
         sdsfreesplitres(kv, kv_count);
     }
     sdsfreesplitres(params, params_count);
+    FREE_SDS(decoded_key);
+    FREE_SDS(decoded_value);
     return arguments;
 }
 
