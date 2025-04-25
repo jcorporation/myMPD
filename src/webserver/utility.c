@@ -78,7 +78,8 @@ sds print_ip(sds s, struct mg_addr *addr) {
 }
 
 /**
- * Gets an decodes an url parameter
+ * Gets and decodes an url parameter.
+ * The key will not be url decoded before matching.
  * @param query query string to parse
  * @param name name to get, you must append "=" to the name
  * @return url decoded value or NULL on error
