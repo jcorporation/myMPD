@@ -143,7 +143,7 @@ const facilities = {
  */
 function createSeverityIcon(severity) {
     const severityName = severityNames[severity];
-    return elCreateText('span', {"data-title-phrase": tn(severityName),
+    return elCreateText('span', {"data-title-phrase": severityName,
         "class": ["mi", "text-light", "px-3"]}, severities[severityName].icon);
 }
 
@@ -154,13 +154,13 @@ function createSeverityIcon(severity) {
  */
 function createSeverityIconList(severity) {
     const severityName = severityNames[severity];
-    return elCreateText('span', {"data-title-phrase": tn(severityName),
+    return elCreateText('span', {"data-title-phrase": severityName,
         "class": ["mi", severities[severityName].class, "me-2"]}, severities[severityName].icon);
 }
 
 /**
  * Shows a toast notification or an appinit alert
- * @param {string} message Message
+ * @param {string} message Message - already translated
  * @param {string} facility Facility
  * @param {string} severityName Syslog severity name
  * @returns {void}
@@ -210,7 +210,7 @@ function showNotification(message, facility, severityName) {
         const toast = elCreateNodes('div', {"class": ["toast", "mt-2"]}, [
             elCreateNodes('div', {"class": ["toast-header", "p-0", severities[severityName].bgclass, "rounded"]}, [
                 createSeverityIcon(severity),
-                elCreateTextTn('span', {"class": ["p-2", "ps-3", "bg-dark", "w-100"]}, message)
+                elCreateText('span', {"class": ["p-2", "ps-3", "bg-dark", "w-100"]}, message)
             ])
         ]);
         elGetById('alertBox').prepend(toast);
@@ -228,7 +228,7 @@ function showNotification(message, facility, severityName) {
 
 /**
  * Appends a message to the notification buffer
- * @param {string} message Message to log
+ * @param {string} message Message to log - already translated
  * @param {string} facility Jsonrpc facility
  * @param {number} severity Syslog severity number
  * @returns {void}
