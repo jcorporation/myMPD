@@ -148,6 +148,7 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         case INTERNAL_API_ALBUMCACHE_ERROR:
         case INTERNAL_API_JUKEBOX_REFILL:
         case INTERNAL_API_JUKEBOX_REFILL_ADD:
+        case INTERNAL_API_TRIGGER_EVENT_EMIT:
         case INTERNAL_API_WEBRADIODB_CREATED:
         case MYMPD_API_CACHES_CREATE:
         case MYMPD_API_CACHE_DISK_CLEAR:
