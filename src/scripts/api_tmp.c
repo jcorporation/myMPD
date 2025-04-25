@@ -22,9 +22,8 @@
 
 /**
  * Deletes a tmp variable in the tree, ignores not existing keys
- * @param script_var_list pointer to script tmp list
+ * @param scripts_tmp_list pointer to script tmp list
  * @param key key to remove
- * @return true on success, else false
  */
 void scripts_tmp_delete(rax *scripts_tmp_list, sds key) {
     void *value;
@@ -37,7 +36,7 @@ void scripts_tmp_delete(rax *scripts_tmp_list, sds key) {
 
 /**
  * Adds/modifies a tmp variable in the tree
- * @param script_var_list pointer to script tmp list
+ * @param scripts_tmp_list pointer to script tmp list
  * @param key name of the variable
  * @param value value of the variable
  * @param lifetime lifetime of the tmp variable
@@ -66,9 +65,10 @@ bool scripts_tmp_set(rax *scripts_tmp_list, sds key, sds value, int lifetime) {
 
 /**
  * Returns a jsonrpc response with the value of a tmp variable or an empty string if not found
- * @param script_var_list pointer to script tmp list
+ * @param scripts_tmp_list pointer to script tmp list
  * @param buffer buffer to append the response
  * @param request_id jsonrpc request id
+ * @param key Key to get
  * @return pointer to buffer
  */
 sds scripts_tmp_get(rax *scripts_tmp_list, sds buffer, unsigned request_id, sds key) {
@@ -93,7 +93,7 @@ sds scripts_tmp_get(rax *scripts_tmp_list, sds buffer, unsigned request_id, sds 
 
 /**
  * Returns a jsonrpc response with all script tmp variables
- * @param script_var_list pointer to script tmp list
+ * @param scripts_tmp_list pointer to script tmp list
  * @param buffer buffer to append the response
  * @param request_id jsonrpc request id
  * @return pointer to buffer

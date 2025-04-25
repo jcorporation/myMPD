@@ -134,6 +134,7 @@ bool smartpls_update(const char *playlist, unsigned long conn_id, unsigned int r
 
 /**
  * Sends a request to the mympd_api_queue to update all smart playlists
+ * @param force Force smart playlist update?
  * @return true on success else false
  */
 bool smartpls_update_all(bool force) {

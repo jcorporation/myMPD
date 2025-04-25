@@ -364,6 +364,7 @@ void free_response(struct t_work_response *response) {
 
 /**
  * Frees the extra data by cmd_id
+ * @param type mympd queue type
  * @param cmd_id Json rpc method
  * @param extra extra data from request or response
  */
