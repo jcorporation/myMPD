@@ -39,5 +39,6 @@ enum script_start_events script_start_event_parse(const char *str);
 
 struct t_script_execute_data *script_execute_data_new(const char *scriptname, enum script_start_events script_event);
 void script_execute_data_free(struct t_script_execute_data *data);
+void script_execute_data_free_void(void *data);
 
 #endif

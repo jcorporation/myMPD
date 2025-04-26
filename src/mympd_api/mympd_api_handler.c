@@ -369,6 +369,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (rc == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
                 response->extra = lua_mympd_state;
+                response->extra_free = lua_mympd_state_free_void;
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,

@@ -11,18 +11,10 @@
 #include "compile_time.h"
 #include "src/lib/api.h"
 
-#include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
-#include "src/mympd_api/trigger.h"
-#include "src/scripts/events.h"
-#include "src/webserver/mg_user_data.h"
-
-#ifdef MYMPD_ENABLE_LUA
-    #include "src/mympd_api/lua_mympd_state.h"
-#endif
 
 #include <string.h>
 
@@ -297,8 +289,9 @@ struct t_work_response *create_response_new(enum work_response_types type, unsig
     response->cmd_id = cmd_id;
     response->data = sdsempty();
     response->binary = sdsempty();
-    response->extra = NULL;
     response->partition = sdsnew(partition);
+    response->extra = NULL;
+    response->extra_free = NULL;
     return response;
 }
 
@@ -330,8 +323,9 @@ struct t_work_request *create_request(enum work_request_types type, unsigned lon
     else {
         request->data = sdsnew(data);
     }
-    request->extra = NULL;
     request->partition = sdsnew(partition);
+    request->extra = NULL;
+    request->extra_free = NULL;
     return request;
 }
 
@@ -343,7 +337,11 @@ void free_request(struct t_work_request *request) {
     if (request != NULL) {
         FREE_SDS(request->data);
         FREE_SDS(request->partition);
-        free_extra_data(QUEUE_TYPE_REQUEST, request->cmd_id, request->extra);
+        if (request->extra_free != NULL &&
+            request->extra != NULL)
+        {
+            request->extra_free(request->extra);
+        }
         FREE_PTR(request);
     }
 }
@@ -357,58 +355,12 @@ void free_response(struct t_work_response *response) {
         FREE_SDS(response->data);
         FREE_SDS(response->binary);
         FREE_SDS(response->partition);
-        free_extra_data(QUEUE_TYPE_RESPONSE, response->cmd_id, response->extra);
+        if (response->extra_free != NULL &&
+            response->extra != NULL)
+        {
+            response->extra_free(response->data);
+        }
         FREE_PTR(response);
-    }
-}
-
-/**
- * Frees the extra data by cmd_id
- * @param type mympd queue type
- * @param cmd_id Json rpc method
- * @param extra extra data from request or response
- */
-
-void free_extra_data(enum mympd_queue_types type, enum mympd_cmd_ids cmd_id, void *extra) {
-    if (extra == NULL) {
-        return;
-    }
-    if (type == QUEUE_TYPE_REQUEST) {
-        switch(cmd_id) {
-            #ifdef MYMPD_ENABLE_LUA
-                case INTERNAL_API_SCRIPT_EXECUTE:
-                    script_execute_data_free(extra);
-                    break;
-                case INTERNAL_API_SCRIPT_INIT:
-                        lua_mympd_state_free(extra);
-                    break;
-            #endif
-            case INTERNAL_API_ALBUMCACHE_CREATED:
-                album_cache_free_rt(extra);
-                break;
-            case INTERNAL_API_JUKEBOX_CREATED:
-                list_free(extra);
-                break;
-            case INTERNAL_API_TRIGGER_EVENT_EMIT:
-                mympd_api_event_data_free(extra);
-                break;
-            case INTERNAL_API_WEBRADIODB_CREATED:
-                webradios_clear(extra, false);
-                break;
-            default:
-                MYMPD_LOG_WARN(NULL, "Freeing generic extra data for %s", get_cmd_id_method_name(cmd_id));
-                FREE_PTR(extra);
-        }
-    }
-    else {
-        switch(cmd_id) {
-            case INTERNAL_API_WEBSERVER_SETTINGS:
-                mg_user_data_free(extra);
-                break;
-            default:
-                MYMPD_LOG_WARN(NULL, "Freeing generic extra data for %s", get_cmd_id_method_name(cmd_id));
-                FREE_PTR(extra);
-        }
     }
 }
 

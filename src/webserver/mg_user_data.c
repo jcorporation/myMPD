@@ -17,9 +17,8 @@
 /**
  * Frees the members of mg_user_data struct and the struct itself
  * @param mg_user_data pointer to mg_user_data struct
- * @return NULL
  */
-void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
+void mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->browse_directory);
     FREE_SDS(mg_user_data->music_directory);
     sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
@@ -37,5 +36,12 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->cert_content);
     FREE_SDS(mg_user_data->key_content);
     FREE_PTR(mg_user_data);
-    return NULL;
+}
+
+/**
+ * Frees the members of mg_user_data struct and the struct itself
+ * @param mg_user_data pointer to mg_user_data struct
+ */
+void mg_user_data_free_void(void *mg_user_data) {
+    mg_user_data_free((struct t_mg_user_data *)mg_user_data);
 }

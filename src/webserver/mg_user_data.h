@@ -51,6 +51,7 @@ struct t_mg_user_data {
     struct t_webradios *webradio_favorites;  //!< Pointer to webradio favorits in mympd_api thread
 };
 
-void *mg_user_data_free(struct t_mg_user_data *mg_user_data);
+void mg_user_data_free(struct t_mg_user_data *mg_user_data);
+void mg_user_data_free_void(void *mg_user_data);
 
 #endif

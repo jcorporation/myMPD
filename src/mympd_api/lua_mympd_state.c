@@ -187,10 +187,17 @@ void lua_mympd_state_set_b(struct t_list *lua_mympd_state, const char *k, bool v
 /**
  * Frees the lua_mympd_state list
  * @param lua_mympd_state pointer to the list
- * @return NULL
  */
-void *lua_mympd_state_free(struct t_list *lua_mympd_state) {
-    return list_free_user_data(lua_mympd_state, lua_mympd_state_free_user_data);
+void lua_mympd_state_free(struct t_list *lua_mympd_state) {
+    list_free_user_data(lua_mympd_state, lua_mympd_state_free_user_data);
+}
+
+/**
+ * Frees the lua_mympd_state list
+ * @param lua_mympd_state void pointer to lua_mympd_state
+ */
+void lua_mympd_state_free_void(void *lua_mympd_state) {
+    lua_mympd_state_free((struct t_list *)lua_mympd_state);
 }
 
 /**

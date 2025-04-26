@@ -515,6 +515,14 @@ void mympd_api_event_data_free(struct t_event_data *event_data) {
 }
 
 /**
+ * Frees the t_event_data struct and arguments list
+ * @param event_data pointer to event data
+ */
+void mympd_api_event_data_free_void(void *event_data) {
+    mympd_api_event_data_free((struct t_event_data *)event_data);
+}
+
+/**
  * Private functions
  */
 
@@ -574,6 +582,7 @@ void trigger_execute(sds script, enum script_start_events script_event, struct t
         struct t_script_execute_data *extra = script_execute_data_new(script, script_event);
         extra->arguments = arguments;
         request->extra = extra;
+        request->extra_free = script_execute_data_free_void;
         push_request(request, 0);
     #else
         (void) script;

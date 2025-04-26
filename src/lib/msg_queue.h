@@ -28,6 +28,14 @@ struct t_mympd_msg {
 };
 
 /**
+ * Queue types
+ */
+enum mympd_queue_types {
+    QUEUE_TYPE_REQUEST,  //!< queue holds only t_work_request entries
+    QUEUE_TYPE_RESPONSE  //!< queue holds only t_work_response entries
+};
+
+/**
  * Struct for the thread save message queue
  */
 struct t_mympd_queue {

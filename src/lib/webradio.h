@@ -96,6 +96,7 @@ sds webradio_to_extm3u(const struct t_webradio_data *webradio, sds buffer, const
 struct t_webradios *webradios_new(void);
 void webradios_clear(struct t_webradios *webradios, bool init_rax);
 void webradios_free(struct t_webradios *webradios);
+void webradios_free_void(void *webradios);
 bool webradios_get_read_lock(struct t_webradios *webradios);
 bool webradios_get_write_lock(struct t_webradios *webradios);
 bool webradios_release_lock(struct t_webradios *webradios);

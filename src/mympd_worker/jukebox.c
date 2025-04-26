@@ -32,6 +32,7 @@ bool mympd_worker_jukebox_push(struct t_mympd_worker_state *mympd_worker_state) 
     // push it to the mympd api thread
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_CREATED, "", mympd_worker_state->partition_state->name);
     request->extra = (void *)jukebox_queue;
+    request->extra_free = list_free_void;
     return mympd_queue_push(mympd_api_queue, request, 0);
 }
 

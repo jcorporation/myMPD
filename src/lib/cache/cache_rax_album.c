@@ -393,7 +393,7 @@ void album_cache_free(struct t_cache *album_cache) {
 
 /**
  * Frees the album cache radix tree
- * @param album_cache_rt 
+ * @param album_cache_rt Pointer to album cache radix tree
  */
 void album_cache_free_rt(rax *album_cache_rt) {
     MYMPD_LOG_DEBUG(NULL, "Freeing album cache");
@@ -405,6 +405,14 @@ void album_cache_free_rt(rax *album_cache_rt) {
     }
     raxStop(&iter);
     raxFree(album_cache_rt);
+}
+
+/**
+ * Frees the album cache radix tree
+ * @param album_cache_rt Pointer to album cache radix tree
+ */
+void album_cache_free_rt_void(void *album_cache_rt) {
+    album_cache_free_rt((rax *)album_cache_rt);
 }
 
 /**

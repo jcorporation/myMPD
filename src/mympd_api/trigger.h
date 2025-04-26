@@ -88,5 +88,6 @@ void mympd_api_trigger_data_free(struct t_trigger_data *trigger_data);
 
 struct t_event_data *mympd_api_event_data_new(int event, struct t_list *arguments);
 void mympd_api_event_data_free(struct t_event_data *event_data);
+void mympd_api_event_data_free_void(void *event_data);
 
 #endif

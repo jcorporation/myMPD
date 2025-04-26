@@ -69,3 +69,11 @@ void script_execute_data_free(struct t_script_execute_data *data) {
     FREE_SDS(data->scriptname);
     FREE_PTR(data);
 }
+
+/**
+ * Frees the script_execute_data struct
+ * @param data script_execute_data struct
+ */
+void script_execute_data_free_void(void *data) {
+    script_execute_data_free((struct t_script_execute_data *)data);
+}

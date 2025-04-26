@@ -36,9 +36,9 @@
 #include "src/mympd_client/presets.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/tags.h"
+#include "src/webserver/mg_user_data.h"
 
 #include <inttypes.h>
-#include <stdio.h>
 #include <string.h>
 
 /**
@@ -74,6 +74,7 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
     }
     struct t_work_response *webserver_response = create_response_new(RESPONSE_TYPE_PUSH_CONFIG, 0, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
     webserver_response->extra = extra;
+    webserver_response->extra_free = mg_user_data_free_void;
     return mympd_queue_push(webserver_queue, webserver_response, 0);
 }
 

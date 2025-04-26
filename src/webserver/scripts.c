@@ -61,6 +61,7 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     struct t_script_execute_data *extra = script_execute_data_new(script, SCRIPT_START_HTTP);
     extra->arguments = arguments;
     request->extra = extra;
+    request->extra_free = script_execute_data_free_void;
     FREE_SDS(partition);
     FREE_SDS(script);
     return push_request(request, 0);

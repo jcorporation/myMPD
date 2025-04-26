@@ -331,6 +331,14 @@ void webradios_free(struct t_webradios *webradios) {
 }
 
 /**
+ * Frees the webradios struct
+ * @param webradios struct to free
+ */
+void webradios_free_void(void *webradios) {
+    webradios_free((struct t_webradios *)webradios);
+}
+
+/**
  * Acquires a read lock
  * @param webradios pointer to webradios struct
  * @return true on success, else false

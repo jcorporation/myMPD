@@ -289,14 +289,6 @@ enum work_request_types {
 };
 
 /**
- * Queue types
- */
-enum mympd_queue_types {
-    QUEUE_TYPE_REQUEST,  //!< queue holds only t_work_request entries
-    QUEUE_TYPE_RESPONSE  //!< queue holds only t_work_response entries
-};
-
-/**
  * Struct for work request in the queue
  */
 struct t_work_request {
@@ -305,8 +297,9 @@ struct t_work_request {
     unsigned id;                   //!< the jsonrpc id
     enum mympd_cmd_ids cmd_id;     //!< the jsonrpc method as enum
     sds data;                      //!< full jsonrpc request
-    void *extra;                   //!< extra data for the request
     sds partition;                 //!< mpd partition
+    void *extra;                   //!< extra data for the request
+    void (*extra_free)(void *);    //!< Function pointer to free extra data
 };
 
 /**
@@ -319,8 +312,9 @@ struct t_work_response {
     enum mympd_cmd_ids cmd_id;      //!< the jsonrpc method as enum
     sds data;                       //!< full jsonrpc response
     sds binary;                     //!< binary data for the response
-    void *extra;                    //!< extra data for the response
     sds partition;                  //!< mpd partition
+    void *extra;                    //!< extra data for the response
+    void (*extra_free)(void *);     //!< Function pointer to free extra data
 };
 
 /**
@@ -358,7 +352,6 @@ struct t_work_request *create_request(enum work_request_types type, unsigned lon
         unsigned request_id, enum mympd_cmd_ids cmd_id, const char *data, const char *partition);
 void free_request(struct t_work_request *request);
 void free_response(struct t_work_response *response);
-void free_extra_data(enum mympd_queue_types type, enum mympd_cmd_ids cmd_id, void *extra);
 bool push_response(struct t_work_response *response);
 bool push_request(struct t_work_request *request, unsigned id);
 

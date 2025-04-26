@@ -82,6 +82,7 @@ bool mympd_worker_album_cache_create(struct t_mympd_worker_state *mympd_worker_s
         if (rc == true) {
             struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_CREATED, "", mympd_worker_state->partition_state->name);
             request->extra = (void *) album_cache.cache;
+            request->extra_free = album_cache_free_rt_void;
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
             if (mympd_worker_state->config->save_caches == true) {
