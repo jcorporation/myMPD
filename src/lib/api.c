@@ -333,19 +333,20 @@ struct t_work_request *create_request(enum work_request_types type, unsigned lon
  * @param request request struct to free
  */
 void free_request(struct t_work_request *request) {
-    if (request != NULL) {
-        FREE_SDS(request->data);
-        FREE_SDS(request->partition);
-        if (request->extra_free != NULL &&
-            request->extra != NULL)
-        {
+    if (request == NULL) {
+        return;
+    }
+    FREE_SDS(request->data);
+    FREE_SDS(request->partition);
+    if (request->extra != NULL) {
+        if (request->extra_free != NULL) {
             request->extra_free(request->extra);
         }
-        else if (request->extra != NULL) {
+        else {
             MYMPD_LOG_WARN(NULL, "Extra data for request %s not freed", get_cmd_id_method_name(request->cmd_id));
         }
-        FREE_PTR(request);
     }
+    FREE_PTR(request);
 }
 
 /**
@@ -353,19 +354,20 @@ void free_request(struct t_work_request *request) {
  * @param response response struct to free
  */
 void free_response(struct t_work_response *response) {
-    if (response != NULL) {
-        FREE_SDS(response->data);
-        FREE_SDS(response->partition);
-        if (response->extra_free != NULL &&
-            response->extra != NULL)
-        {
+    if (response == NULL) {
+        return;
+    }
+    FREE_SDS(response->data);
+    FREE_SDS(response->partition);
+    if (response->extra != NULL) {
+        if (response->extra_free != NULL) {
             response->extra_free(response->extra);
         }
-        else if (response->extra != NULL) {
+        else {
             MYMPD_LOG_WARN(NULL, "Extra data for response %s not freed", get_cmd_id_method_name(response->cmd_id));
         }
-        FREE_PTR(response);
     }
+    FREE_PTR(response);
 }
 
 /**
