@@ -204,13 +204,12 @@ int mympd_client_playlist_validate(struct t_partition_state *partition_state, co
         return -1;
     }
 
-    disable_all_mpd_tags(partition_state);
     //check each entry
     struct t_list_node *current = plist.head;
     int rc = 0;
     while (current != NULL) {
         if (is_streamuri(current->key) == false) {
-            if (mpd_send_list_meta(partition_state->conn, current->key) == false ||
+            if (mpd_send_list_all(partition_state->conn, current->key) == false ||
                 mpd_response_finish(partition_state->conn) == false)
             {
                 //entry not found
@@ -238,7 +237,6 @@ int mympd_client_playlist_validate(struct t_partition_state *partition_state, co
         current = current -> next;
     }
     list_clear(&plist);
-    enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
     return rc;
 }
 
