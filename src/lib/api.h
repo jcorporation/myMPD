@@ -311,7 +311,6 @@ struct t_work_response {
     unsigned id;                    //!< the jsonrpc id
     enum mympd_cmd_ids cmd_id;      //!< the jsonrpc method as enum
     sds data;                       //!< full jsonrpc response
-    sds binary;                     //!< binary data for the response
     sds partition;                  //!< mpd partition
     void *extra;                    //!< extra data for the response
     void (*extra_free)(void *);     //!< Function pointer to free extra data

@@ -288,7 +288,6 @@ struct t_work_response *create_response_new(enum work_response_types type, unsig
     response->id = request_id;
     response->cmd_id = cmd_id;
     response->data = sdsempty();
-    response->binary = sdsempty();
     response->partition = sdsnew(partition);
     response->extra = NULL;
     response->extra_free = NULL;
@@ -342,6 +341,9 @@ void free_request(struct t_work_request *request) {
         {
             request->extra_free(request->extra);
         }
+        else if (request->extra != NULL) {
+            MYMPD_LOG_WARN(NULL, "Extra data for request %s not freed", get_cmd_id_method_name(request->cmd_id));
+        }
         FREE_PTR(request);
     }
 }
@@ -353,12 +355,14 @@ void free_request(struct t_work_request *request) {
 void free_response(struct t_work_response *response) {
     if (response != NULL) {
         FREE_SDS(response->data);
-        FREE_SDS(response->binary);
         FREE_SDS(response->partition);
         if (response->extra_free != NULL &&
             response->extra != NULL)
         {
-            response->extra_free(response->data);
+            response->extra_free(response->extra);
+        }
+        else if (response->extra != NULL) {
+            MYMPD_LOG_WARN(NULL, "Extra data for response %s not freed", get_cmd_id_method_name(response->cmd_id));
         }
         FREE_PTR(response);
     }
