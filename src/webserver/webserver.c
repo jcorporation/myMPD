@@ -484,7 +484,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
     if (nc != NULL) {
         switch(response->cmd_id) {
             case INTERNAL_API_ALBUMART_BY_URI:
-                webserver_send_albumart(nc, response->data, response->binary);
+                webserver_send_albumart(nc, response->data, response->extra);
                 break;
             case INTERNAL_API_ALBUMART_BY_ALBUMID:
                 webserver_send_albumart_redirect(nc, response->data);

@@ -513,3 +513,11 @@ sds sds_catbool(sds s, bool v) {
 sds sds_pad_int(int64_t value, sds buffer) {
     return sdscatprintf(buffer, "%020" PRId64, value);
 }
+
+/**
+ * Frees an sds string pointed by void pointer
+ * @param s Void pointer to sds string
+ */
+void sds_free_void(void *p) {
+    sdsfree(p);
+}

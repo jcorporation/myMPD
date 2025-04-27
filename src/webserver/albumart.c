@@ -95,6 +95,7 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
         webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
     }
     FREE_SDS(mime_type);
+    //FREE_SDS(binary);
 }
 
 /**

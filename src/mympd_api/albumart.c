@@ -114,7 +114,7 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
  * @return jsonrpc response
  */
 sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
-    sds buffer, unsigned request_id, unsigned long conn_id, sds uri, sds *binary)
+    sds buffer, unsigned request_id, unsigned long conn_id, sds uri, void **binary)
 {
     unsigned offset = 0;
     void *binary_buffer = malloc_assert(partition_state->mpd_state->mpd_binarylimit);
