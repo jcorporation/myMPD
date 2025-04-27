@@ -65,7 +65,7 @@ bool mympd_timer_read(int fd) {
  */
 bool mympd_timer_set(int timer_fd, int timeout, int interval) {
     if (timer_fd == -1) {
-        MYMPD_LOG_DEBUG(NULL, "Unable to set timeout, timerfd is closed");
+        MYMPD_LOG_ERROR(NULL, "Unable to set timeout, timerfd is closed");
         return false;
     }
     struct itimerspec its;
@@ -92,7 +92,7 @@ void mympd_timer_log_next_expire(int timer_fd) {
     struct itimerspec its;
     errno = 0;
     if (timerfd_gettime(timer_fd, &its) == -1) {
-        MYMPD_LOG_DEBUG(NULL, "Can not get expiration for timer");
+        MYMPD_LOG_ERROR(NULL, "Can not get expiration for timer");
         MYMPD_LOG_ERRNO(NULL, errno);
         return;
     }
