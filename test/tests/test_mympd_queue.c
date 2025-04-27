@@ -84,6 +84,7 @@ UTEST(mympd_queue, expire) {
     for (int i = 0; i < 50; i++) {
         struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_VIEW_SAVE, "test", MPD_PARTITION_DEFAULT);
         request->extra = malloc(10);
+        request->extra_free = free;
         mympd_queue_push(test_queue, request, 10);
     }
     ASSERT_EQ(50U, test_queue->length);
