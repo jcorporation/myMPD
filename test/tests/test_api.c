@@ -12,8 +12,12 @@
 
 UTEST(api, test_get_cmd_id) {
     enum mympd_cmd_ids cmd_id = get_cmd_id("MYMPD_API_VIEW_SAVE");
-    const bool rc = cmd_id == MYMPD_API_VIEW_SAVE ? true : false;
-    ASSERT_TRUE(rc);
+    ASSERT_TRUE(cmd_id == MYMPD_API_VIEW_SAVE);
+}
+
+UTEST(api, test_get_cmd_id_invalid) {
+    enum mympd_cmd_ids cmd_id = get_cmd_id("INVALID");
+    ASSERT_TRUE(cmd_id == GENERAL_API_UNKNOWN);
 }
 
 UTEST(api, test_get_cmd_id_method_name) {
@@ -21,27 +25,85 @@ UTEST(api, test_get_cmd_id_method_name) {
     ASSERT_STREQ(name, "MYMPD_API_VIEW_SAVE");
 }
 
-UTEST(api, test_is_protected_api_method) {
-    bool rc = is_protected_api_method(MYMPD_API_VIEW_SAVE);
+UTEST(api, test_get_cmd_id_method_name_invalid) {
+    const char *name = get_cmd_id_method_name(TOTAL_API_COUNT + 1);
+    ASSERT_TRUE(name == NULL);
+}
+
+UTEST(api, test_get_cmd_id_method_name_invalid2) {
+    const char *name = get_cmd_id_method_name(-1);
+    ASSERT_TRUE(name == NULL);
+}
+
+UTEST(api, test_acl_internal) {
+    bool rc = check_cmd_acl(MYMPD_API_VIEW_SAVE, API_INTERNAL);
     ASSERT_FALSE(rc);
 
-    rc = is_protected_api_method(MYMPD_API_SETTINGS_SET);
+    rc = check_cmd_acl(INTERNAL_API_ALBUMART_BY_ALBUMID, API_INTERNAL);
     ASSERT_TRUE(rc);
 }
 
-UTEST(api, test_is_public_api_method) {
-    bool rc = is_public_api_method(MYMPD_API_SETTINGS_SET);
+UTEST(api, test_acl_public) {
+    bool rc = check_cmd_acl(GENERAL_API_NOT_READY, API_PUBLIC);
+    ASSERT_FALSE(rc);
+
+    rc = check_cmd_acl(MYMPD_API_VIEW_SAVE, API_PUBLIC);
+    ASSERT_TRUE(rc);
+}
+
+UTEST(api, test_acl_protected) {
+    bool rc = check_cmd_acl(MYMPD_API_VIEW_SAVE, API_PROTECTED);
+    ASSERT_FALSE(rc);
+
+    rc = check_cmd_acl(MYMPD_API_SETTINGS_SET, API_PROTECTED);
+    ASSERT_TRUE(rc);
+}
+
+UTEST(api, test_acl_script) {
+    bool rc = check_cmd_acl(INTERNAL_API_SCRIPT_INIT, API_SCRIPT);
     ASSERT_TRUE(rc);
 
-    rc = is_public_api_method(INTERNAL_API_STATE_SAVE);
+    rc = check_cmd_acl(MYMPD_API_SETTINGS_SET, API_SCRIPT);
     ASSERT_FALSE(rc);
 }
 
-UTEST(api, test_is_mpd_disconnected_api_method) {
-    bool rc = is_mpd_disconnected_api_method(MYMPD_API_CONNECTION_SAVE);
+UTEST(api, test_acl_mpd_disconnecte) {
+    bool rc = check_cmd_acl(MYMPD_API_CONNECTION_SAVE, API_MPD_DISCONNECTED);
     ASSERT_TRUE(rc);
 
-    rc = is_mpd_disconnected_api_method(MYMPD_API_SETTINGS_SET);
+    rc = check_cmd_acl(MYMPD_API_SETTINGS_SET, API_MPD_DISCONNECTED);
+    ASSERT_FALSE(rc);
+}
+
+UTEST(api, test_acl_mympd_only) {
+    bool rc = check_cmd_acl(MYMPD_API_CONNECTION_SAVE, API_MYMPD_ONLY);
+    ASSERT_FALSE(rc);
+
+    rc = check_cmd_acl(MYMPD_API_SMARTPLS_UPDATE_ALL, API_MYMPD_ONLY);
+    ASSERT_TRUE(rc);
+}
+
+UTEST(api, test_acl_mympd_worker_only) {
+    bool rc = check_cmd_acl(MYMPD_API_CONNECTION_SAVE, API_MYMPD_WORKER_ONLY);
+    ASSERT_FALSE(rc);
+
+    rc = check_cmd_acl(MYMPD_API_WEBRADIODB_UPDATE, API_MYMPD_WORKER_ONLY);
+    ASSERT_TRUE(rc);
+}
+
+UTEST(api, test_acl_invalid) {
+    bool rc = check_cmd_acl(MYMPD_API_CONNECTION_SAVE, API_INVALID);
+    ASSERT_FALSE(rc);
+
+    rc = check_cmd_acl(TOTAL_API_COUNT, API_INVALID);
+    ASSERT_TRUE(rc);
+}
+
+UTEST(api, test_acl_invalid_cmd_id) {
+    bool rc = check_cmd_acl(TOTAL_API_COUNT + 1, API_INVALID);
+    ASSERT_FALSE(rc);
+
+    rc = check_cmd_acl(-1, API_INVALID);
     ASSERT_FALSE(rc);
 }
 

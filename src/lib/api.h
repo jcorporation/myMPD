@@ -19,7 +19,7 @@
 
 /**
  * myMPD api methods
- * all above INTERNAL_API_COUNT are internal
+ * Must be added to mympd_cmd_acl_entity also!
  * TOTAL_API_COUNT must be the last
  */
 #define MYMPD_CMDS(X) \
@@ -48,7 +48,6 @@
     X(INTERNAL_API_WEBSERVER_READY) \
     X(INTERNAL_API_WEBSERVER_SETTINGS) \
     X(INTERNAL_API_COUNT) \
-    X(MYMPD_API_CACHES_CREATE) \
     X(MYMPD_API_CHANNEL_SUBSCRIBE) \
     X(MYMPD_API_CHANNEL_UNSUBSCRIBE) \
     X(MYMPD_API_CHANNEL_LIST) \
@@ -57,6 +56,7 @@
     X(MYMPD_API_CONNECTION_SAVE) \
     X(MYMPD_API_CACHE_DISK_CLEAR) \
     X(MYMPD_API_CACHE_DISK_CROP) \
+    X(MYMPD_API_CACHES_CREATE) \
     X(MYMPD_API_DATABASE_ALBUM_DETAIL) \
     X(MYMPD_API_DATABASE_ALBUM_LIST) \
     X(MYMPD_API_DATABASE_LIST_RANDOM) \
@@ -264,6 +264,21 @@ enum mympd_cmd_ids {
 };
 
 /**
+ * myMPD ACL values
+ */
+enum mympd_cmd_acl_entity {
+    API_INTERNAL = 0x1,            //!< Defines internal methods.
+    API_PUBLIC = 0x2,              //!< Defines methods that are public.
+    API_PROTECTED = 0x4,           //!< Defines methods that need authentication if a pin is set.
+    API_SCRIPT = 0x8,              //!< Defines internal methods that are accessible by scripts.
+    API_MPD_DISCONNECTED = 0x10,   //!< Defines methods that should be handled if MPD is disconnected.
+    API_MYMPD_ONLY = 0x20,         //!< Defines methods that do not require to leave the mpd idle mode in the mympd_api thread.
+    API_MYMPD_WORKER_ONLY = 0x40,  //!< Defines methods that do not require to create a mpd connection in the mympd_worker thread.
+    API_INVALID = 0x80,            //!< API methods that should not be called.
+    API_SCRIPT_THREAD = 0x100,     //!< API methods that are handled by the script thread.
+};
+
+/**
  * Response types
  */
 enum work_response_types {
@@ -335,12 +350,7 @@ struct set_mg_user_data_request {
  */
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
 const char *get_cmd_id_method_name(enum mympd_cmd_ids cmd_id);
-bool is_mpd_disconnected_api_method(enum mympd_cmd_ids cmd_id);
-bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
-bool is_public_api_method(enum mympd_cmd_ids cmd_id);
-bool is_script_api_method(enum mympd_cmd_ids cmd_id);
-bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
-bool is_mpdworker_only_api_method(enum mympd_cmd_ids cmd_id);
+bool check_cmd_acl(enum mympd_cmd_ids cmd_id, enum mympd_cmd_acl_entity ace);
 void ws_notify(sds message, const char *partition);
 void ws_notify_client(sds message, unsigned request_id);
 void ws_script_dialog(sds message, unsigned request_id);

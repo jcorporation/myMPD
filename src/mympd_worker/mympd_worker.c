@@ -57,7 +57,7 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
     }
     //create mpd worker state from mympd_state
     struct t_mympd_worker_state *mympd_worker_state = malloc_assert(sizeof(struct t_mympd_worker_state));
-    mympd_worker_state->mympd_only = is_mpdworker_only_api_method(request->cmd_id);
+    mympd_worker_state->mympd_only = check_cmd_acl(request->cmd_id, API_MYMPD_WORKER_ONLY);
     mympd_worker_state->request = request;
     mympd_worker_state->config = mympd_state->config;
 

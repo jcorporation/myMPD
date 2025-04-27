@@ -52,7 +52,9 @@ int lua_mympd_api(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Invalid method");
     }
-    if (is_script_api_method(cmd_id) == false) {
+    if (check_cmd_acl(cmd_id, API_PUBLIC) == false &&
+        check_cmd_acl(cmd_id, API_SCRIPT) == false)
+    {
         MYMPD_LOG_ERROR(partition, "Lua - mympd_api: API method %s is for internal use only ", method);
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "API method is for internal use only");

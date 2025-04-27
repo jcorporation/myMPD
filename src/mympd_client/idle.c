@@ -120,7 +120,7 @@ static void mympd_client_idle_partition(struct t_mympd_state *mympd_state, struc
         struct t_work_request *request)
 {
     if (request != NULL) {
-        if (is_mpd_disconnected_api_method(request->cmd_id) == true &&
+        if (check_cmd_acl(request->cmd_id, API_MPD_DISCONNECTED) == true &&
             partition_state->conn_state != MPD_CONNECTED)
         {
             // Handle request if MPD is not connected
@@ -129,7 +129,7 @@ static void mympd_client_idle_partition(struct t_mympd_state *mympd_state, struc
             partition_state->waiting_events &= ~(unsigned)PFD_TYPE_QUEUE;
             request = NULL;
         }
-        else if (is_mympd_only_api_method(request->cmd_id) == true) {
+        else if (check_cmd_acl(request->cmd_id, API_MYMPD_ONLY) == true) {
             // Request that can be handled without a MPD connection
             MYMPD_LOG_DEBUG(partition_state->name, "Handle request \"%s\"", get_cmd_id_method_name(request->cmd_id));
             mympd_api_handler(mympd_state, partition_state, request);

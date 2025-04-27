@@ -65,7 +65,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         return false;
     }
 
-    if (is_public_api_method(cmd_id) == false) {
+    if (check_cmd_acl(cmd_id, API_INTERNAL) == true) {
         MYMPD_LOG_ERROR(frontend_nc_data->partition, "API method %s is for internal use only", cmd);
         FREE_SDS(cmd);
         FREE_SDS(jsonrpc);
@@ -74,7 +74,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
 
     sds session = sdsempty();
     if (sdslen(mg_user_data->config->pin_hash) > 0 &&
-        is_protected_api_method(cmd_id) == true)
+        check_cmd_acl(cmd_id, API_PROTECTED) == true)
     {
         bool rc = false;
         if (auth_header != NULL &&
@@ -114,7 +114,14 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         default: {
             //forward API request to another thread
             struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
-            push_request(request, 0);
+            if (push_request(request, 0) == false) {
+                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Failure pushing request to api handler for %s", cmd);
+                FREE_SDS(session);
+                FREE_SDS(cmd);
+                FREE_SDS(jsonrpc);
+                free_request(request);
+                return false;
+            }
         }
     }
     FREE_SDS(session);
@@ -163,7 +170,13 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
         return false;
     }
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
-    push_request(request, 0);
+    if (push_request(request, 0) == false) {
+        MYMPD_LOG_ERROR(frontend_nc_data->partition, "Failure pushing request to script api handler for %s", cmd);
+        FREE_SDS(cmd);
+        FREE_SDS(jsonrpc);
+        free_request(request);
+        return false;
+    }
 
     FREE_SDS(cmd);
     FREE_SDS(jsonrpc);
