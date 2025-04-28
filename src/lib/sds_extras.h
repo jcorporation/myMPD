@@ -44,6 +44,6 @@ sds sds_hash_sha1_sds(sds s);
 sds sds_hash_sha256(const char *p);
 sds sds_hash_sha256_sds(sds s);
 sds sds_pad_int(int64_t value, sds buffer);
-void sds_free_void(void *);
+void sds_free_void(void *p);
 
 #endif
