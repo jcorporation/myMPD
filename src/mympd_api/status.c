@@ -333,53 +333,53 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, struct t_pa
         if (mpd_send_current_song(partition_state->conn) == false) {
             mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_current_song");
         }
-        mympd_client_command_list_end_check(partition_state);
-    }
-
-    struct mpd_status *status = mpd_recv_status(partition_state->conn);
-    struct mpd_song *song = NULL;
-    if (mpd_response_next(partition_state->conn)) {
-        song = mpd_recv_song(partition_state->conn);
-    }
-    if (status != NULL &&
-        song != NULL)
-    {
-        const char *uri = mpd_song_get_uri(song);
-        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-        buffer = tojson_uint(buffer, "pos", mpd_song_get_pos(song), true);
-        buffer = tojson_int(buffer, "currentSongId", partition_state->song_id, true);
-        buffer = print_song_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_mympd, song);
-        buffer = sdscatlen(buffer, ",", 1);
-        if (partition_state->mpd_state->feat.stickers == true) {
-            struct t_stickers sticker;
-            stickers_reset(&sticker);
-            stickers_enable_all(&sticker, STICKER_TYPE_SONG);
-            buffer = mympd_api_sticker_get_print(buffer, mympd_state->stickerdb, STICKER_TYPE_SONG, uri, &sticker);
-        }
-        buffer = json_comma(buffer);
-        buffer = mympd_api_get_extra_media(buffer, partition_state->mpd_state, mympd_state->booklet_name, mympd_state->info_txt_name, uri, false);
-        if (is_streamuri(uri) == true) {
-            sds webradio = mympd_api_webradio_from_uri_tojson(mympd_state, uri);
-            if (sdslen(webradio) > 0) {
-                buffer = sdscat(buffer, ",\"webradio\":");
-                buffer = sdscatsds(buffer, webradio);
+        if (mympd_client_command_list_end_check(partition_state) == true) {
+            struct mpd_status *status = mpd_recv_status(partition_state->conn);
+            struct mpd_song *song = NULL;
+            if (mpd_response_next(partition_state->conn)) {
+                song = mpd_recv_song(partition_state->conn);
             }
-            FREE_SDS(webradio);
+            if (status != NULL &&
+                song != NULL)
+            {
+                const char *uri = mpd_song_get_uri(song);
+                buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+                buffer = tojson_uint(buffer, "pos", mpd_song_get_pos(song), true);
+                buffer = tojson_int(buffer, "currentSongId", partition_state->song_id, true);
+                buffer = print_song_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_mympd, song);
+                buffer = sdscatlen(buffer, ",", 1);
+                if (partition_state->mpd_state->feat.stickers == true) {
+                    struct t_stickers sticker;
+                    stickers_reset(&sticker);
+                    stickers_enable_all(&sticker, STICKER_TYPE_SONG);
+                    buffer = mympd_api_sticker_get_print(buffer, mympd_state->stickerdb, STICKER_TYPE_SONG, uri, &sticker);
+                }
+                buffer = json_comma(buffer);
+                buffer = mympd_api_get_extra_media(buffer, partition_state->mpd_state, mympd_state->booklet_name, mympd_state->info_txt_name, uri, false);
+                if (is_streamuri(uri) == true) {
+                    sds webradio = mympd_api_webradio_from_uri_tojson(mympd_state, uri);
+                    if (sdslen(webradio) > 0) {
+                        buffer = sdscat(buffer, ",\"webradio\":");
+                        buffer = sdscatsds(buffer, webradio);
+                    }
+                    FREE_SDS(webradio);
+                }
+                time_t start_time = time(NULL) - (time_t)mympd_api_get_elapsed_seconds(status);
+                buffer = sdscatlen(buffer, ",", 1);
+                buffer = tojson_time(buffer, "startTime", start_time, false);
+                buffer = jsonrpc_end(buffer);
+                mpd_status_free(status);
+                mpd_song_free(song);
+                mympd_check_error_and_recover(partition_state, NULL, "mpd_run_current_song");
+                return buffer;
+            }
+            if (status != NULL) {
+                mpd_status_free(status);
+            }
+            if (song != NULL) {
+                mpd_song_free(song);
+            }
         }
-        time_t start_time = time(NULL) - (time_t)mympd_api_get_elapsed_seconds(status);
-        buffer = sdscatlen(buffer, ",", 1);
-        buffer = tojson_time(buffer, "startTime", start_time, false);
-        buffer = jsonrpc_end(buffer);
-        mpd_status_free(status);
-        mpd_song_free(song);
-        return buffer;
-    }
-    // cleanup and check for error
-    if (status != NULL) {
-        mpd_status_free(status);
-    }
-    if (song != NULL) {
-        mpd_song_free(song);
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_current_song") == false) {
         return buffer;
