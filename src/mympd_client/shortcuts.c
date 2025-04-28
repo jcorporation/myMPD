@@ -72,7 +72,6 @@ bool mympd_client_add_uris_to_queue(struct t_partition_state *partition_state, s
         }
         mympd_client_command_list_end_check(partition_state);
     }
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_add_whence");
 }
 

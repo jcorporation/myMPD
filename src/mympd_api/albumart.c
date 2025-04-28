@@ -76,8 +76,7 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
 
     struct mpd_song *song = NULL;
     if (mpd_search_commit(partition_state->conn) == true &&
-        (song = mpd_recv_song(partition_state->conn)) != NULL &&
-        mpd_response_finish(partition_state->conn) == true)
+        (song = mpd_recv_song(partition_state->conn)) != NULL)
     {
         // found a song - send redirect to albumart by uri
         buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id);
@@ -87,14 +86,12 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
         // update album cache with uri
         album_cache_set_uri(album, mpd_song_get_uri(song));
         mpd_song_free(song);
+        mympd_check_error_and_recover(partition_state, NULL, "mpd_search_db_songs");
         FREE_SDS(expression);
         return buffer;
     }
 
     // no song found
-    if (song != NULL) {
-        mpd_song_free(song);
-    }
     FREE_SDS(expression);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, "mpd_search_db_songs") == false) {
         return buffer;
@@ -138,8 +135,7 @@ sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct
 
     if (offset == 0) {
         //silently clear the error if no albumart is found
-        mpd_connection_clear_error(partition_state->conn);
-        mpd_response_finish(partition_state->conn);
+        mympd_clear_finish(partition_state);
         MYMPD_LOG_DEBUG(partition_state->name, "Try mpd command readpicture for \"%s\"", uri);
         while ((recv_len = mpd_run_readpicture(partition_state->conn, uri, offset, binary_buffer, partition_state->mpd_state->mpd_binarylimit)) > 0) {
             MYMPD_LOG_DEBUG(partition_state->name, "Received %d bytes from mpd readpicture command", recv_len);
@@ -159,8 +155,7 @@ sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct
 
     if (offset == 0) {
         //silently clear the error if no albumart is found
-        mpd_connection_clear_error(partition_state->conn);
-        mpd_response_finish(partition_state->conn);
+        mympd_clear_finish(partition_state);
     }
     FREE_PTR(binary_buffer);
 

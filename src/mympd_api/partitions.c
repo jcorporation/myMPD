@@ -127,7 +127,6 @@ sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition
     struct t_list outputs;
     list_init(&outputs);
     mpd_send_noidle(partition_to_remove->conn);
-    mpd_response_finish(partition_to_remove->conn);
     if (mympd_check_error_and_recover_respond(partition_to_remove, &buffer, cmd_id, request_id, "mpd_send_noidle") == false) {
         return buffer;
     }
@@ -138,7 +137,6 @@ sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition
             mpd_output_free(output);
         }
     }
-    mpd_response_finish(partition_to_remove->conn);
     if (mympd_check_error_and_recover_respond(partition_to_remove, &buffer, cmd_id, request_id, "mpd_send_outputs") == false) {
         return buffer;
     }
@@ -157,7 +155,6 @@ sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition
         }
         mympd_client_command_list_end_check(partition_state);
     }
-    mpd_response_finish(partition_state->conn);
     list_clear(&outputs);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_move_output") == false) {
         return buffer;

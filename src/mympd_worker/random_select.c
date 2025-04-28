@@ -163,7 +163,6 @@ sds mympd_worker_list_random(struct t_mympd_worker_state *mympd_worker_state, sd
                     mpd_song_free(song);
                 }
             }
-            mpd_response_finish(mympd_worker_state->partition_state->conn);
             mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_send_list_meta");
             current = current->next;
             if (current != NULL) {

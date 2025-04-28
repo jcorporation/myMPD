@@ -167,7 +167,6 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, struct
             mpd_song_free(song);
         }
     }
-    mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
     return buffer;
 }

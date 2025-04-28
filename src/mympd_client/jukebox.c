@@ -338,7 +338,6 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
             jukebox_get_last_played_add(partition_state, song, queue_list, jukebox_mode);
         }
     }
-    mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_queue_meta") == false) {
         FREE_PTR(queue_list);
         return NULL;
@@ -360,7 +359,6 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
                     MYMPD_LOG_WARN(partition_state->name, "Failure fetching song information for uri \"%s\"", current->key);
                 }
             }
-            mpd_response_finish(partition_state->conn);
             mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
             current = current->next;
         }

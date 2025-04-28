@@ -53,7 +53,6 @@ bool mympd_client_search_add_to_plist_window(struct t_partition_state *partition
         return false;
     }
     mpd_search_commit(partition_state->conn);
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_search_add_db_songs_to_playlist");
 }
 
@@ -103,7 +102,6 @@ bool mympd_client_search_add_to_queue(struct t_partition_state *partition_state,
         return false;
     }
     mpd_search_commit(partition_state->conn);
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_search_add_db_songs");
 }
 
@@ -139,7 +137,6 @@ bool mympd_client_search_add_to_queue_window(struct t_partition_state *partition
         return false;
     }
     mpd_search_commit(partition_state->conn);
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_search_add_db_songs");
 }
 

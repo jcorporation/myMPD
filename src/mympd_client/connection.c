@@ -130,7 +130,6 @@ static bool mympd_client_set_protocol_options(struct t_partition_state *partitio
             FREE_SDS(message);
         }
     }
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, NULL, "protocol options");
 }
 

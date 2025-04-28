@@ -51,7 +51,6 @@ sds mympd_api_mounts_list(struct t_partition_state *partition_state, sds buffer,
         buffer = tojson_uint(buffer, "returnedEntities", entity_count, false);
         buffer = jsonrpc_end(buffer);
     }
-    mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_mounts");
 
     return buffer;
@@ -83,7 +82,6 @@ sds mympd_api_mounts_urlhandler_list(struct t_partition_state *partition_state, 
         buffer = tojson_uint(buffer, "returnedEntities", entity_count, false);
         buffer = jsonrpc_end(buffer);
     }
-    mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_command");
     return buffer;
 }
@@ -121,7 +119,6 @@ sds mympd_api_mounts_neighbor_list(struct t_partition_state *partition_state, sd
         buffer = tojson_uint(buffer, "returnedEntities", entity_count, false);
         buffer = jsonrpc_end(buffer);
     }
-    mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_neighbors");
     return buffer;
 }

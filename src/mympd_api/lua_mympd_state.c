@@ -76,7 +76,6 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
         lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));
         mpd_status_free(status);
     }
-    mpd_response_finish(partition_state->conn);
     bool rc = mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
     if (rc == false) {
         MYMPD_LOG_ERROR(partition_state->name, "Error getting mpd state for script execution");

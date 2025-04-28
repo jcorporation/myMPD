@@ -40,7 +40,6 @@ bool mympd_client_queue_play_newly_inserted(struct t_partition_state *partition_
     if (mpd_send_queue_changes_brief(partition_state->conn, partition_state->queue_version)) {
         mpd_recv_queue_change_brief(partition_state->conn, &song_pos, &song_id);
     }
-    mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover(partition_state, error, "mpd_send_queue_changes_brief") == false) {
         return false;
     }
@@ -76,7 +75,6 @@ void mympd_client_queue_status_update(struct t_partition_state *partition_state)
         partition_state->play_state = mpd_status_get_state(status);
         mpd_status_free(status);
     }
-    mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
 }
 
@@ -100,7 +98,6 @@ sds mympd_client_queue_status_print(struct t_partition_state *partition_state, s
         buffer = jsonrpc_end(buffer);
         mpd_status_free(status);
     }
-    mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
     return buffer;
 }
