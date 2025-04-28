@@ -38,6 +38,7 @@ static bool mympd_worker_playlist_content_enumerate_mpd(struct t_partition_state
         unsigned *count, unsigned *duration, sds *error);
 static bool mympd_worker_playlist_content_enumerate_manual(struct t_partition_state *partition_state, const char *plist,
         unsigned *count, unsigned *duration, sds *error);
+static bool song_exists(struct t_partition_state *partition_state, const char *uri);
 
 /**
  * Public functions
@@ -228,30 +229,19 @@ int mympd_client_playlist_validate(struct t_partition_state *partition_state, co
     struct t_list_node *current = plist->head;
     int rc = 0;
     while (current != NULL) {
-        if (is_streamuri(current->key) == false) {
-            if (mpd_send_list_all(partition_state->conn, current->key) == false ||
-                mpd_response_finish(partition_state->conn) == false)
-            {
-                //entry not found
-                //silently clear the error if song is not found
-                if (mympd_clear_finish(partition_state) == false) {
+        if (song_exists(partition_state, current->key) == false) {
+            if (remove == true) {
+                mpd_send_playlist_delete(partition_state->conn, playlist, (unsigned)current->value_i);
+                if (mympd_check_error_and_recover(partition_state, error, "mpd_run_playlist_delete") == false) {
                     rc = -1;
                     break;
                 }
-                if (remove == true) {
-                    mpd_run_playlist_delete(partition_state->conn, playlist, (unsigned)current->value_i);
-                    if (mympd_check_error_and_recover(partition_state, error, "mpd_run_playlist_delete") == false) {
-                        rc = -1;
-                        break;
-                    }
-                    MYMPD_LOG_WARN(MPD_PARTITION_DEFAULT, "Playlist \"%s\": %s removed", playlist, current->key);
-                }
-                else {
-                    MYMPD_LOG_WARN(MPD_PARTITION_DEFAULT, "Playlist \"%s\": %s not found", playlist, current->key);
-                }
-                rc++;
+                MYMPD_LOG_WARN(MPD_PARTITION_DEFAULT, "Playlist \"%s\": %s removed", playlist, current->key);
             }
-            mpd_response_finish(partition_state->conn);
+            else {
+                MYMPD_LOG_WARN(MPD_PARTITION_DEFAULT, "Playlist \"%s\": %s not found", playlist, current->key);
+            }
+            rc++;
         }
         current = current -> next;
     }
@@ -691,4 +681,24 @@ static bool replace_playlist(struct t_partition_state *partition_state, const ch
     mpd_run_rm(partition_state->conn, backup_pl);
     FREE_SDS(backup_pl);
     return mympd_check_error_and_recover(partition_state, error, "mpd_run_rename");
+}
+
+/**
+ * Checks for a song in the database
+ * @param partition_state Pointer to partition state
+ * @param uri Song uri to check
+ * @return true on success or uri is a stream, else false
+ */
+static bool song_exists(struct t_partition_state *partition_state, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
+    if (mpd_send_list_all(partition_state->conn, uri) == true &&
+        mpd_response_finish(partition_state->conn) == true)
+    {
+        return true;
+    }
+    // Song does not exist
+    mympd_clear_finish(partition_state);
+    return false;
 }
