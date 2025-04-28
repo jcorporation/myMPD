@@ -79,19 +79,10 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         *error = sdscat(*error, "Source and destination playlists are the same");
         return false;
     }
-    struct t_list src;
-    list_init(&src);
     //get source playlist
-    if (mpd_send_list_playlist(partition_state->conn, src_plist)) {
-        struct mpd_song *song;
-        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            list_push(&src, mpd_song_get_uri(song), 0, NULL, NULL);
-            mpd_song_free(song);
-        }
-    }
-    mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover(partition_state, error, "mpd_send_list_playlist") == false) {
-        list_clear(&src);
+    struct t_list *src = list_new();
+    if (mympd_client_playlist_get(partition_state, src_plist, false, src, error) == false) {
+        list_free(src);
         return false;
     }
     list_sort_by_value_i(positions, LIST_SORT_DESC);
@@ -100,7 +91,7 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         unsigned i = 0;
         bool rc = true;
         while ((current = list_shift_first(positions)) != NULL) {
-            struct t_list_node *n = list_node_at(&src, (unsigned)current->value_i);
+            struct t_list_node *n = list_node_at(src, (unsigned)current->value_i);
             rc = mode == 0 
                 ? mpd_send_playlist_add(partition_state->conn, dst_plist, n->key)
                 : mpd_send_playlist_add_to(partition_state->conn, dst_plist, n->key, i);
@@ -119,7 +110,7 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         }
         mympd_client_command_list_end_check(partition_state);
     }
-    list_clear(&src);
+    list_free(src);
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
 }
@@ -141,20 +132,11 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
         return false;
     }
     //copy sources in temporary list
-    struct t_list src;
-    list_init(&src);
+    struct t_list *src = list_new();
     struct t_list_node *current = src_plists->head;
     while (current != NULL) {
-        if (mpd_send_list_playlist(partition_state->conn, current->key)) {
-            struct mpd_song *song;
-            while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-                list_push(&src, mpd_song_get_uri(song), 0, NULL, NULL);
-                mpd_song_free(song);
-            }
-        }
-        mpd_response_finish(partition_state->conn);
-        if (mympd_check_error_and_recover(partition_state, error, "mpd_send_list_playlist") == false) {
-            list_clear(&src);
+        if (mympd_client_playlist_get(partition_state, current->key, false, src, error) == false) {
+            list_free(src);
             return false;
         }
         current = current->next;
@@ -164,7 +146,7 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
         //clear dst playlist
         mpd_run_playlist_clear(partition_state->conn, dst_plist);
         if (mympd_check_error_and_recover(partition_state, error, "mpd_run_playlist_clear") == false) {
-            list_clear(&src);
+            list_free(src);
             return false;
         }
     }
@@ -172,9 +154,9 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
     //insert or append to dst playlist
     bool rc = true;
     unsigned j = 0;
-    while (src.head != NULL) {
+    while (src->head != NULL) {
         if (mpd_command_list_begin(partition_state->conn, false)) {
-            while ((current = list_shift_first(&src)) != NULL) {
+            while ((current = list_shift_first(src)) != NULL) {
                 j++;
                 switch(mode) {
                     case PLAYLIST_COPY_INSERT:
@@ -201,7 +183,7 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
             break;
         }
     }
-    list_clear(&src);
+    list_free(src);
 
     if (rc == true &&
         (mode == PLAYLIST_MOVE_APPEND || mode == PLAYLIST_MOVE_INSERT))
@@ -830,6 +812,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
         }
     }
     else {
+        // Manual window and search implementation for MPD < 0.24
         struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
         if (expr_list == NULL) {
             FREE_SDS(last_played_song_uri);

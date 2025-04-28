@@ -17,6 +17,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/search.h"
 #include "src/mympd_client/errorhandler.h"
+#include "src/mympd_client/playlists.h"
 #include "src/mympd_client/stickerdb.h"
 #include "src/mympd_client/tags.h"
 
@@ -232,16 +233,12 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
                 mpd_search_commit(partition_state->conn);
             }
         }
-        else if (partition_state->mpd_state->feat.listplaylist_range == true) {
-            if (mpd_send_list_playlist_range_meta(partition_state->conn, playlist, start, end) == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error in response to command: mpd_send_list_playlist_meta");
-            }
-        }
         else {
-            if (mpd_send_list_playlist_meta(partition_state->conn, playlist) == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error in response to command: mpd_send_list_playlist_meta");
+            if (mympd_send_list_playlist_range_meta(partition_state, playlist, start, end) == false) {
+                MYMPD_LOG_ERROR(partition_state->name, "Error in response to command: mympd_send_list_playlist_range_meta");
             }
         }
+
         struct mpd_song *song;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             sdsclear(tag_value);

@@ -34,6 +34,7 @@ Thanks to @cbrenberg that ironed out a severe bug in the `mympd.tmp_file()` func
 - Feat: Add trigger for background image selection #1420
 - Feat: Use MPD side filter and window for listing tags (MPD 0.25)
 - Feat: Add logviewer for gui logs
+- Feat: Use range for retrieving playlist contents (MPD 0.24) #1424
 - Upd: Improve websocket reconnection
 - Upd: Improve API explorer - show request
 - Upd: Bootstrap v5.3.4 #1418
