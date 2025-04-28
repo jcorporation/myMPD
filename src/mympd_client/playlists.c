@@ -63,7 +63,6 @@ bool mympd_client_get_all_playlists(struct t_partition_state *partition_state, s
             mpd_playlist_free(pl);
         }
     }
-    mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover(partition_state, error, "mpd_send_list_playlists") == false) {
         return false;
     }
@@ -90,7 +89,6 @@ time_t mympd_client_get_playlist_mtime(struct t_partition_state *partition_state
             mpd_playlist_free(pl);
         }
     }
-    mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlists") == false) {
         return 0;
     }
@@ -155,7 +153,6 @@ int64_t mympd_client_playlist_dedup(struct t_partition_state *partition_state, c
                 pos++;
             }
         }
-        mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, error, "mympd_send_list_playlist_range") == false) {
             list_clear(&duplicates);
             raxFree(plist);
@@ -232,14 +229,10 @@ int mympd_client_playlist_validate(struct t_partition_state *partition_state, co
     int rc = 0;
     while (current != NULL) {
         if (is_streamuri(current->key) == false) {
-            if (mpd_send_list_all(partition_state->conn, current->key) == false ||
-                mpd_response_finish(partition_state->conn) == false)
-            {
+            if (mpd_send_list_all(partition_state->conn, current->key) == false) {
                 //entry not found
                 //silently clear the error if song is not found
-                if (mpd_connection_clear_error(partition_state->conn) == false ||
-                    mpd_response_finish(partition_state->conn) == false)
-                {
+                if (mympd_clear_finish(partition_state) == false) {
                     rc = -1;
                     break;
                 }
@@ -304,7 +297,6 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
             }
             mympd_client_command_list_end_check(partition_state);
         }
-        mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add") == false) {
             //error adding songs to tmp playlist - delete it
             mpd_run_rm(partition_state->conn, playlist_tmp);
@@ -381,7 +373,6 @@ static bool mympd_worker_playlist_content_enumerate_mpd(struct t_partition_state
             mpd_return_pair(partition_state->conn, pair);
         }
     }
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlistlength");
 }
 
@@ -411,7 +402,6 @@ static bool mympd_worker_playlist_content_enumerate_manual(struct t_partition_st
             mpd_song_free(song);
         }
     }
-    mpd_response_finish(partition_state->conn);
     *count = entity_count;
     *duration = total_time;
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_list_playlist_meta") &&
@@ -516,7 +506,6 @@ bool mympd_client_playlist_get(struct t_partition_state *partition_state,
                 pos++;
             }
         }
-        mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, error, "mympd_send_list_playlist_range") == false) {
             return false;
         }
@@ -607,7 +596,6 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
             }
             FREE_SDS(key);
         }
-        mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, error, "mpd_send_list_playlist") == false) {
             //free data
             rax_free_sds_data(plist);
@@ -652,7 +640,6 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
             }
             mympd_client_command_list_end_check(partition_state);
         }
-        mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add") == false) {
             //error adding songs to tmp playlist - delete it
             mpd_run_rm(partition_state->conn, playlist_tmp);

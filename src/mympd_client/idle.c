@@ -171,7 +171,7 @@ static void mympd_client_idle_partition(struct t_mympd_state *mympd_state, struc
         mympd_client_parse_idle(mympd_state, partition_state, idle_bitmask);
     }
     else {
-        mpd_response_finish(partition_state->conn);
+        mympd_check_error_and_recover(partition_state, NULL, "mpd_send_noidle");
     }
     // set mpd connection options
     if (partition_state->set_conn_options == true &&

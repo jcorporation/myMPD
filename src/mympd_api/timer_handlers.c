@@ -172,7 +172,6 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         }
         mympd_client_command_list_end_check(partition_state);
     }
-    mpd_response_finish(partition_state->conn);
     //restore old jukebox mode
     partition_state->jukebox.mode = old_jukebox_mode;
 

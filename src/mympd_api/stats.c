@@ -51,7 +51,6 @@ sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, u
         FREE_SDS(mpd_protocol_version);
         mpd_stats_free(stats);
     }
-    mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_stats");
     return buffer;
 }

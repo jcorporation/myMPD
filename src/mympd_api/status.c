@@ -130,7 +130,6 @@ unsigned mympd_api_status_updatedb_id(struct t_partition_state *partition_state)
     else {
         MYMPD_LOG_ERROR(partition_state->name, "Failure getting database update id");
     }
-    mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
     return update_id;
 }
@@ -239,7 +238,6 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
 
         mpd_status_free(status);
     }
-    mpd_response_finish(partition_state->conn);
     if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
         mympd_check_error_and_recover_notify(partition_state, &buffer, "mpd_run_status");
     }
@@ -262,7 +260,6 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, struct t_cac
                 partition_state->song = NULL;
             }
         }
-        mpd_response_finish(partition_state->conn);
     }
     if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
         mympd_check_error_and_recover_notify(partition_state, &buffer, "mpd_run_status");
@@ -373,21 +370,22 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, struct t_pa
         buffer = sdscatlen(buffer, ",", 1);
         buffer = tojson_time(buffer, "startTime", start_time, false);
         buffer = jsonrpc_end(buffer);
+        mpd_status_free(status);
+        mpd_song_free(song);
+        return buffer;
     }
+    // cleanup and check for error
     if (status != NULL) {
         mpd_status_free(status);
     }
     if (song != NULL) {
         mpd_song_free(song);
     }
-    mpd_response_finish(partition_state->conn);
-    if (song == NULL &&
-        mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_current_song") == true)
-    {
-        return jsonrpc_respond_message(buffer, cmd_id, request_id,
-            JSONRPC_FACILITY_PLAYER, JSONRPC_SEVERITY_INFO, "No current song");
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_current_song") == false) {
+        return buffer;
     }
-    return buffer;
+    return jsonrpc_respond_message(buffer, cmd_id, request_id,
+        JSONRPC_FACILITY_PLAYER, JSONRPC_SEVERITY_INFO, "No current song");
 }
 
 /**

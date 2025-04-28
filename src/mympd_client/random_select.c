@@ -277,7 +277,6 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
             }
             mpd_song_free(song);
         }
-        mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, NULL, "mpd_search_db_songs") == false) {
             break;
         }

@@ -88,7 +88,6 @@ bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, stru
         }
         mympd_client_command_list_end_check(partition_state);
     }
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_delete_id");
 }
 
@@ -118,7 +117,6 @@ bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct 
         }
         mympd_client_command_list_end_check(partition_state);
     }
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_prio_id");
 }
 
@@ -144,7 +142,6 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
         next_song_id = mpd_status_get_next_song_id(status);
         mpd_status_free(status);
     }
-    mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover(partition_state, error, "mpd_run_status") == false) {
         return false;
     }
@@ -159,7 +156,6 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
                 mpd_song_free(song);
             }
         }
-        mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, error, "mpd_send_get_queue_song_id") == false) {
             return false;
         }
@@ -203,7 +199,6 @@ bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, st
         }
         mympd_client_command_list_end_check(partition_state);
     }
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_move_id_whence");
 }
 
@@ -243,7 +238,6 @@ bool mympd_api_queue_insert_uri_tags(struct t_partition_state *partition_state, 
         }
         mympd_client_command_list_end_check(partition_state);
     }
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_add_tag_id");
 }
 
@@ -303,7 +297,6 @@ bool mympd_api_queue_insert_uri_resume(struct t_partition_state *partition_state
         }
         mympd_client_command_list_end_check(partition_state);
     }
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_seek_id");
 }
 
@@ -640,7 +633,6 @@ bool mympd_api_queue_insert_plist_range(struct t_partition_state *partition_stat
     else {
         mpd_send_load_range_to(partition_state->conn, plist, start, end_uint, to, whence);
     }
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_load_range_to");
 }
 
@@ -710,7 +702,6 @@ bool mympd_api_queue_insert_plists(struct t_partition_state *partition_state, st
         }
         mympd_client_command_list_end_check(partition_state);
     }
-    mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_load_range_to");
 }
 
@@ -755,7 +746,6 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
         playing_song_pos = mpd_status_get_song_pos(status);
         mpd_status_free(status);
     }
-    mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
         return buffer;
     }
@@ -780,7 +770,6 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
             }
             mympd_client_command_list_end_check(partition_state);
         }
-        mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_delete_range") == false) {
             return buffer;
         }
@@ -861,7 +850,6 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, struct t_partition_s
         buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
         buffer = jsonrpc_end(buffer);
     }
-    mpd_response_finish(partition_state->conn);
     if (print_stickers == true) {
         stickerdb_enter_idle(mympd_state->stickerdb);
     }
@@ -950,7 +938,6 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
         buffer = jsonrpc_end(buffer);
     }
-    mpd_response_finish(partition_state->conn);
     if (print_stickers == true) {
         stickerdb_enter_idle(mympd_state->stickerdb);
     }

@@ -289,7 +289,6 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
                     i++;
                 }
             }
-            mpd_response_finish(mympd_worker_state->partition_state->conn);
             if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_db_tags") == false) {
                 list_clear(&tag_list);
                 return false;
@@ -351,7 +350,6 @@ static bool mympd_worker_smartpls_delete(struct t_mympd_worker_state *mympd_work
             }
         }
     }
-    mpd_response_finish(mympd_worker_state->partition_state->conn);
     if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_send_list_playlists") == false) {
         return false;
     }
@@ -461,7 +459,6 @@ static bool mympd_worker_smartpls_update_sticker(struct t_mympd_worker_state *my
             }
             mympd_client_command_list_end_check(mympd_worker_state->partition_state);
         }
-        mpd_response_finish(mympd_worker_state->partition_state->conn);
         if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_send_playlist_add") == false) {
             rc = false;
             break;
@@ -493,7 +490,6 @@ static bool mympd_worker_smartpls_update_newest(struct t_mympd_worker_state *mym
         value_max = mpd_stats_get_db_update_time(stats);
         mpd_stats_free(stats);
     }
-    mpd_response_finish(mympd_worker_state->partition_state->conn);
     if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_run_stats") == false) {
         return false;
     }

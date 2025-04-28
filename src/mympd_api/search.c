@@ -75,7 +75,6 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
             mpd_song_free(song);
         }
     }
-    mpd_response_finish(partition_state->conn);
     if (print_stickers == true) {
         stickerdb_enter_idle(stickerdb);
     }

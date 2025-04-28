@@ -117,11 +117,21 @@ sds mympd_respond_with_error_or_ok(struct t_partition_state *partition_state, sd
 }
 
 /**
+ * Silently clears a recoverable MPD error
+ * @param partition_state Pointer to partition state
+ * @return true on success, else false
+ */
+bool mympd_clear_finish(struct t_partition_state *partition_state) {
+    return mpd_connection_clear_error(partition_state->conn) &&
+        mpd_response_finish(partition_state->conn);
+}
+
+/**
  * Private functions
  */
 
 /**
- * Checks for an mpd error and tries to recover.
+ * Calls mpd_response_finish and checks for an mpd error and tries to recover.
  * @param partition_state pointer to partition specific states
  * @param buffer already allocated sds string for the jsonrpc response
  * @param cmd_id enum mympd_cmd_ids
@@ -137,6 +147,7 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
         mympd_set_mpd_failure(partition_state, "Unrecoverable MPD error");
         return false;
     }
+    mpd_response_finish(partition_state->conn);
     enum mpd_error error = mpd_connection_get_error(partition_state->conn);
     if (error == MPD_ERROR_SUCCESS) {
         return true;

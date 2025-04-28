@@ -1050,7 +1050,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
             buffer = tojson_char(buffer, "replaygain", mpd_lookup_replay_gain_mode(replay_gain_mode), false);
             mpd_status_free(status);
         }
-        mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
             return buffer;
         }

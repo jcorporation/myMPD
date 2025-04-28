@@ -162,12 +162,11 @@ bool stickerdb_exit_idle(struct t_stickerdb_state *stickerdb) {
     if (mpd_send_noidle(stickerdb->conn) == false) {
         MYMPD_LOG_ERROR("stickerdb", "Error exiting idle mode");
     }
-    mpd_response_finish(stickerdb->conn);
     return stickerdb_check_error_and_recover(stickerdb, "mpd_run_noidle");
 }
 
 /**
- * Checks for an mpd error and tries to recover.
+ * Calls mpd_response_finish and checks for an mpd error and tries to recover.
  * @param stickerdb pointer to the stickerdb state
  * @param command command to check for the error
  * @return true on success, else false
@@ -177,6 +176,7 @@ bool stickerdb_check_error_and_recover(struct t_stickerdb_state *stickerdb, cons
         stickerdb->conn_state = MPD_FAILURE;
         return false;
     }
+    mpd_response_finish(stickerdb->conn);
     enum mpd_error error = mpd_connection_get_error(stickerdb->conn);
     if (error == MPD_ERROR_SUCCESS) {
         return true;
@@ -304,7 +304,6 @@ bool stickerdb_get_names(struct t_stickerdb_state *stickerdb, enum mympd_sticker
             mpd_return_pair(stickerdb->conn, pair);
         }
     }
-    mpd_response_finish(stickerdb->conn);
     stickerdb_check_error_and_recover(stickerdb, "mpd_send_stickernames");
     stickerdb_enter_idle(stickerdb);
     return true;
@@ -402,7 +401,6 @@ rax *stickerdb_find_stickers_by_name_value(struct t_stickerdb_state *stickerdb, 
             mpd_return_sticker(stickerdb->conn, pair);
         }
     }
-    mpd_response_finish(stickerdb->conn);
     FREE_SDS(file);
     if (stickerdb_check_error_and_recover(stickerdb, "mpd_send_sticker_list") == true) {
         stickerdb_enter_idle(stickerdb);
@@ -468,7 +466,6 @@ struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerd
             mpd_return_sticker(stickerdb->conn, pair);
         }
     }
-    mpd_response_finish(stickerdb->conn);
     FREE_SDS(key);
     if (stickerdb_check_error_and_recover(stickerdb, "mpd_send_sticker_list") == true) {
         stickerdb_enter_idle(stickerdb);
@@ -729,7 +726,6 @@ static bool get_sticker_types(struct t_stickerdb_state *stickerdb) {
             mpd_return_pair(stickerdb->conn, pair);
         }
     }
-    mpd_response_finish(stickerdb->conn);
     stickerdb_check_error_and_recover(stickerdb, "mpd_send_stickertypes");
     return true;
 }
@@ -813,7 +809,6 @@ static struct t_sticker *get_sticker_all(struct t_stickerdb_state *stickerdb, en
             mpd_return_sticker(stickerdb->conn, pair);
         }
     }
-    mpd_response_finish(stickerdb->conn);
     stickerdb_check_error_and_recover(stickerdb, "mpd_send_sticker_list");
     return sticker;
 }
@@ -841,7 +836,6 @@ static sds get_sticker_value(struct t_stickerdb_state *stickerdb, enum mympd_sti
             mpd_return_sticker(stickerdb->conn, pair);
         }
     }
-    mpd_response_finish(stickerdb->conn);
     stickerdb_check_error_and_recover(stickerdb, "mpd_send_sticker_list");
     return value;
 }
@@ -869,7 +863,6 @@ int64_t get_sticker_int64(struct t_stickerdb_state *stickerdb, enum mympd_sticke
             mpd_return_sticker(stickerdb->conn, pair);
         }
     }
-    mpd_response_finish(stickerdb->conn);
     stickerdb_check_error_and_recover(stickerdb, "mpd_send_sticker_list");
     return value;
 }
@@ -1061,7 +1054,6 @@ static bool check_sticker_support(struct t_stickerdb_state *stickerdb) {
             mpd_return_pair(stickerdb->conn, pair);
         }
     }
-    mpd_response_finish(stickerdb->conn);
     if (stickerdb_check_error_and_recover(stickerdb, "mpd_send_allowed_commands") == false) {
         return false;
     }
