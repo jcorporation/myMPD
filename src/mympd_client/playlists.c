@@ -229,7 +229,9 @@ int mympd_client_playlist_validate(struct t_partition_state *partition_state, co
     int rc = 0;
     while (current != NULL) {
         if (is_streamuri(current->key) == false) {
-            if (mpd_send_list_all(partition_state->conn, current->key) == false) {
+            if (mpd_send_list_all(partition_state->conn, current->key) == false ||
+                mpd_response_finish(partition_state->conn) == false)
+            {
                 //entry not found
                 //silently clear the error if song is not found
                 if (mympd_clear_finish(partition_state) == false) {
@@ -249,6 +251,7 @@ int mympd_client_playlist_validate(struct t_partition_state *partition_state, co
                 }
                 rc++;
             }
+            mpd_response_finish(partition_state->conn);
         }
         current = current -> next;
     }
