@@ -516,7 +516,7 @@ sds sds_pad_int(int64_t value, sds buffer) {
 
 /**
  * Frees an sds string pointed by void pointer
- * @param s Void pointer to sds string
+ * @param p Void pointer to sds string
  */
 void sds_free_void(void *p) {
     sdsfree(p);
