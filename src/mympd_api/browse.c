@@ -495,12 +495,17 @@ static sds mympd_api_browse_tag_list_mpd025(struct t_partition_state *partition_
     if (mpd_search_commit(partition_state->conn)) {
         struct mpd_pair *pair;
         while ((pair = mpd_recv_pair_tag(partition_state->conn, mpdtag)) != NULL) {
-            if (entities_returned++) {
-                buffer = sdscatlen(buffer, ",", 1);
+            if (pair->value[0] == '\0') {
+                MYMPD_LOG_DEBUG(partition_state->name, "Value is empty, skipping");
             }
-            buffer = sdscatlen(buffer, "{", 1);
-            buffer = tojson_char(buffer, "Value", pair->value, false);
-            buffer = sdscatlen(buffer, "}", 1);
+            else {
+                if (entities_returned++) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                }
+                buffer = sdscatlen(buffer, "{", 1);
+                buffer = tojson_char(buffer, "Value", pair->value, false);
+                buffer = sdscatlen(buffer, "}", 1);
+            }
             mpd_return_pair(partition_state->conn, pair);
         }
     }
