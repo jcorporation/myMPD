@@ -26,7 +26,7 @@ function parseOutputAttributes(obj) {
     const table = elGetById('modalOutputAttributesList');
     const tbody = table.querySelector('tbody');
     elClear(tbody);
-    if (checkResult(obj, table, 'table') === false) {
+    if (checkResult(obj, table, 'modalTable') === false) {
         return;
     }
 

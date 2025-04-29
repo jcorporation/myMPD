@@ -588,7 +588,7 @@ function parseScriptList(obj) {
     const widgetScripts = elGetById('modalHomeWidgetScriptInput');
     elClear(widgetScripts);
 
-    if (checkResult(obj, table, 'table') === false) {
+    if (checkResult(obj, table, 'modalTable') === false) {
         return;
     }
 

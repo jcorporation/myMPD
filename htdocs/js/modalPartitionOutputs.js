@@ -26,7 +26,7 @@ function initModalPartitionOutputs() {
         //get all outputs
         sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(allOutputs) {
             const outputList = elGetById('modalPartitionOutputsList');
-            if (checkResult(allOutputs, outputList, 'table') === false) {
+            if (checkResult(allOutputs, outputList, 'modalTable') === false) {
                 return;
             }
             //get partition specific outputs

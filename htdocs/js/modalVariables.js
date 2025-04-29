@@ -143,7 +143,7 @@ function parseVariablesList(obj) {
     const table = document.querySelector('#modalVariablesList');
     const tbody = table.querySelector('tbody');
     elClear(tbody);
-    if (checkResult(obj, table, 'table') === false) {
+    if (checkResult(obj, table, 'modalTable') === false) {
         return;
     }
     for (let i = 0; i < obj.result.returnedEntities; i++) {
