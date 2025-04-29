@@ -226,16 +226,29 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
                 add_uri_constraint_or_expression(constraints->filter_include, partition_state) == false ||
                 mpd_search_add_window(partition_state->conn, start, end) == false)
             {
-                MYMPD_LOG_ERROR(partition_state->name, "Error creating MPD search command");
+                MYMPD_LOG_ERROR(partition_state->name, "Error creating MPD db search command");
                 mpd_search_cancel(partition_state->conn);
+                break;
             }
-            else {
-                mpd_search_commit(partition_state->conn);
+            mpd_search_commit(partition_state->conn);
+        }
+        else if (iterate == true &&
+                 constraints->filter_include != NULL &&
+                 constraints->filter_include[0] != '\0')
+        {
+            if (mpd_playlist_search_begin(partition_state->conn, playlist, constraints->filter_include) == false ||
+                mpd_search_add_window(partition_state->conn, start, end) == false)
+            {
+                MYMPD_LOG_ERROR(partition_state->name, "Error creating MPD playlist search command");
+                mpd_search_cancel(partition_state->conn);
+                break;
             }
+            mpd_search_commit(partition_state->conn);
         }
         else {
             if (mympd_send_list_playlist_range_meta(partition_state, playlist, start, end) == false) {
                 MYMPD_LOG_ERROR(partition_state->name, "Error in response to command: mympd_send_list_playlist_range_meta");
+                break;
             }
         }
 
@@ -463,7 +476,7 @@ static bool check_last_played_album(rax *stickers_last_played, const char *uri, 
  */
 static bool add_uri_constraint_or_expression(const char *expression, struct t_partition_state *partition_state) {
     if (expression == NULL ||
-        strlen(expression) == 0)
+        expression[0] == '\0')
     {
         return mpd_search_add_uri_constraint(partition_state->conn, MPD_OPERATOR_DEFAULT, "");
     }
