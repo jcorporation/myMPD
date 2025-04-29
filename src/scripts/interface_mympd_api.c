@@ -67,7 +67,7 @@ int lua_mympd_api(lua_State *lua_vm) {
     }
     //generate a request id
     unsigned request_id = randrange(0, UINT_MAX);
-    MYMPD_LOG_DEBUG(NULL, "Creating API request with id %u", request_id);
+    MYMPD_LOG_DEBUG(NULL, "Creating API request with id %u for %s", request_id, method);
     //create the request
     struct t_work_request *request = create_request(REQUEST_TYPE_SCRIPT, 0, request_id, cmd_id, NULL, partition);
     if (params[0] != '{') {
@@ -96,6 +96,7 @@ int lua_mympd_api(lua_State *lua_vm) {
                     populate_lua_table(lua_vm, lua_mympd_state);
                     lua_setglobal(lua_vm, "mympd_state");
                     lua_mympd_state_free(lua_mympd_state);
+                    response->extra = NULL;
                 }
             }
             //push return code and jsonrpc response
