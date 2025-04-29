@@ -99,7 +99,7 @@ function checkResultId(obj, parentid, mode) {
  * and displays the error in the table body.
  * @param {object} obj jsonrpc object to check
  * @param {HTMLElement} parent element to add the result message
- * @param {string} mode: table, grid, list or modalTable
+ * @param {string} mode One off table, grid, list or modalTable
  * @returns {boolean} false = result is  empty or an error, else true
  */
 function checkResult(obj, parent, mode) {
