@@ -1115,25 +1115,28 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(&playlists)) != NULL) {
-            bool smartpls = false;
+            sds smartpls_file = sdscatfmt(sdsempty(), "%S/%s/%S", partition_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
+            bool is_smartpls = testfile_read(smartpls_file);
+
             if (criteria == PLAYLIST_DELETE_ALL ||
-                (criteria == PLAYLIST_DELETE_SMARTPLS && smartpls == true) ||
+                (criteria == PLAYLIST_DELETE_SMARTPLS && is_smartpls == true) ||
                 (criteria == PLAYLIST_DELETE_EMPTY && current->value_i == 0))
             {
+                MYMPD_LOG_INFO(partition_state->name, "Deleting mpd playlist %s", current->key);
                 if (mpd_send_rm(partition_state->conn, current->key) == false) {
                     mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_rm");
+                    FREE_SDS(smartpls_file);
                     list_node_free(current);
                     break;
                 }
-                MYMPD_LOG_INFO(partition_state->name, "Deleting mpd playlist %s", current->key);
-                sds smartpls_file = sdscatfmt(sdsempty(), "%S/%s/%S", partition_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
-                if (try_rm_file(smartpls_file) == RM_FILE_OK) {
+                if (is_smartpls == true &&
+                    rm_file(smartpls_file) == true)
+                {
                     MYMPD_LOG_INFO(partition_state->name, "Smartpls file %s removed", smartpls_file);
-                    smartpls = true;
                 }
-                FREE_SDS(smartpls_file);
                 delete_count++;
             }
+            FREE_SDS(smartpls_file);
             list_node_free(current);
         }
         mympd_client_command_list_end_check(partition_state);
