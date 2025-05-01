@@ -120,6 +120,7 @@
     "Can't set playback options: MPD not connected": "Настройки воспроизведения не могут быть сохранены: нет подключения к серверу MPD",
     "Cancel": "Отмена",
     "Check WebradioDB": "Проверить БД Webradio",
+    "Checks arguments from the mympd_arguments global variable.": "",
     "Checks for empty string or nil.": "",
     "Choose a playlist": "Выберите плейлист",
     "Choose a playlist or enter a new playlist name": "Выберите плейлист или введите новое имя плейлиста",

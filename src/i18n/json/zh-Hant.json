@@ -120,6 +120,7 @@
     "Can't set playback options: MPD not connected": "未能設定播放選項: MPD 未連線",
     "Cancel": "取消",
     "Check WebradioDB": "檢查網絡電台資料庫",
+    "Checks arguments from the mympd_arguments global variable.": "",
     "Checks for empty string or nil.": "",
     "Choose a playlist": "選擇一個播放列表",
     "Choose a playlist or enter a new playlist name": "選擇一個播放列表或輸入一個新的播放列表名稱",

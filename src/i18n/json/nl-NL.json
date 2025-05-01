@@ -120,6 +120,7 @@
     "Can't set playback options: MPD not connected": "Kan afspeelopties niet opslaan: geen verbinding met MPD-server",
     "Cancel": "Annuleren",
     "Check WebradioDB": "WebradioDB controleren",
+    "Checks arguments from the mympd_arguments global variable.": "",
     "Checks for empty string or nil.": "",
     "Choose a playlist": "Kies een afspeellijst",
     "Choose a playlist or enter a new playlist name": "Kies afspeellijst of geef deze een nieuwe naam",
