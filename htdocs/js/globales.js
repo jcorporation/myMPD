@@ -60,49 +60,57 @@ const severities = {
         "icon": "bolt",
         "class": "text-danger",
         "bgclass": "bg-danger",
-        "severity": 0
+        "severity": 0,
+        "delay": 5000
     },
     "alert": {
         "icon": "bolt",
         "class": "text-danger",
         "bgclass": "bg-danger",
-        "severity": 1
+        "severity": 1,
+        "delay": 5000
     },
     "crit": {
         "icon": "dangerous",
         "class": "text-danger",
         "bgclass": "bg-danger",
-        "severity": 2
+        "severity": 2,
+        "delay": 5000
     },
     "error": {
         "icon": "dangerous",
         "class": "text-danger",
         "bgclass": "bg-danger",
-        "severity": 3
+        "severity": 3,
+        "delay": 5000
     },
     "warn": {
         "icon": "warning",
         "class": "text-warning",
         "bgclass": "bg-warning",
-        "severity": 4
+        "severity": 4,
+        "delay": 5000
     },
     "notice": {
         "icon": "info",
         "class": "text-success",
         "bgclass": "bg-success",
-        "severity": 5
+        "severity": 5,
+        "delay": 2500
     },
     "info": {
         "icon": "info",
         "class": "text-success",
         "bgclass": "bg-success",
-        "severity": 6
+        "severity": 6,
+        "delay": 2500
     },
     "debug": {
         "icon": "bug_report",
         "class": "text-info",
         "bgclass": "bg-secondary",
-        "severity": 7
+        "severity": 7,
+        "delay": 2500
     }
 };
 

@@ -210,11 +210,11 @@ function showNotification(message, facility, severityName) {
         const toast = elCreateNodes('div', {"class": ["toast", "mt-2"]}, [
             elCreateNodes('div', {"class": ["toast-header", "p-0", severities[severityName].bgclass, "rounded"]}, [
                 createSeverityIcon(severity),
-                elCreateText('span', {"class": ["p-2", "ps-3", "bg-dark", "w-100"]}, message)
+                elCreateText('span', {"class": ["p-2", "ps-3", "bg-dark", "w-100", "rounded-end"]}, message)
             ])
         ]);
         elGetById('alertBox').prepend(toast);
-        const toastInit = new BSN.Toast(toast, {delay: 2500});
+        const toastInit = new BSN.Toast(toast, {delay: severities[severityName].delay});
         toast.addEventListener('hidden.bs.toast', function() {
             this.remove();
         }, false);
