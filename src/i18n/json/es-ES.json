@@ -120,6 +120,7 @@
     "Can't set playback options: MPD not connected": "No se pueden establecer las opciones de reproducción: no conectado a MPD\n",
     "Cancel": "Cancelar",
     "Check WebradioDB": "Comprobar WebradioDB",
+    "Checks arguments from the mympd_arguments global variable.": "",
     "Checks for empty string or nil.": "",
     "Choose a playlist": "",
     "Choose a playlist or enter a new playlist name": "Elige una lista de reproducción o introduce un nuevo nombre de lista de reproducción",

@@ -120,6 +120,7 @@
     "Can't set playback options: MPD not connected": "Wiedergabeeinstellungen konnten nicht gespeichert werden: keine Verbindung zum MPD Server",
     "Cancel": "Abbrechen",
     "Check WebradioDB": "WebradioDB prüfen",
+    "Checks arguments from the mympd_arguments global variable.": "Prüft Argumente der mympd_arguments Lua Table.",
     "Checks for empty string or nil.": "Prüft ob der String leer oder nil ist.",
     "Choose a playlist": "Wiedergabeliste wählen",
     "Choose a playlist or enter a new playlist name": "Wiedergabeliste wählen oder neuen Namen eingeben",

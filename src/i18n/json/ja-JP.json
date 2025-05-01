@@ -120,6 +120,7 @@
     "Can't set playback options: MPD not connected": "再生オプションを設定できません: MPD未接続",
     "Cancel": "キャンセル",
     "Check WebradioDB": "WebradioDBをチェック",
+    "Checks arguments from the mympd_arguments global variable.": "",
     "Checks for empty string or nil.": "",
     "Choose a playlist": "プレイリストを選択",
     "Choose a playlist or enter a new playlist name": "プレイリストを選択するか新規プレイリスト名を入力してください",

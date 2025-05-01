@@ -120,6 +120,7 @@
     "Can't set playback options: MPD not connected": "",
     "Cancel": "Peruuta",
     "Check WebradioDB": "",
+    "Checks arguments from the mympd_arguments global variable.": "",
     "Checks for empty string or nil.": "",
     "Choose a playlist": "",
     "Choose a playlist or enter a new playlist name": "",
