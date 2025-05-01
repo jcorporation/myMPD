@@ -1857,6 +1857,11 @@ const LUAfunctions = {
         "desc": "Delete a tmp variable.",
         "func": "local rc, result = mympd.tmpvar_delete(key)",
         "feat": ""
+    },
+    "mympd.check_arguments": {
+        "desc": "Checks arguments from the mympd_arguments global variable.",
+        "func": "local rc, msg = mympd.check_arguments({uri = \"notempty\"})\nif rc == false then\n  return msg\nend",
+        "feat": ""
     }
 };
 

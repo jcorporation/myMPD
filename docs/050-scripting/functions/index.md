@@ -13,6 +13,7 @@ List of myMPD specific Lua functions.
 | [mympd.cache_cover_write](diskcache.md) | Writes a cover cache file. |
 | [mympd.cache_lyrics_write](diskcache.md) | Writes a lyrics cache file. |
 | [mympd.cache_thumbs_write](diskcache.md) | Writes a thumbs cache file. |
+| [mympd.check_arguments](util.md) | Checks arguments from the mympd_arguments global variable. |
 | [mympd.dialog](mympd_dialog.md) | Returns an Jsonrpc response for a script dialog. |
 | [mympd.gpio_blink](gpio.md) | Connects to myGPIOd and blinks a GPIO with given timeout and interval. |
 | [mympd.gpio_get](gpio.md) | Connects to myGPIOd and returns the active state of a GPIO. |

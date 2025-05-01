@@ -23,9 +23,10 @@ Thanks to @cbrenberg that ironed out a severe bug in the `mympd.tmp_file()` func
 
 ### Scripting changes
 
-- Feat: `isnilorempty()` - checks for nil and empty string
-- Feat: `mympd.remove_file()` - wrapper for `os.remove` that logs errors
-- Fix: `mympd.tmp_file()` function does not return always uniq names #1422
+- Feat: `mympd.check_arguments()` - Argument checking function
+- Feat: `mympd.isnilorempty()` - Checks for nil and empty string
+- Feat: `mympd.remove_file()` - Wrapper for `os.remove` that logs errors
+- Fix: `mympd.tmp_file()` - Function does not return always uniq names #1422
 
 ### Changelog
 
