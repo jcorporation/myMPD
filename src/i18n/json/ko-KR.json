@@ -120,7 +120,7 @@
     "Can't set playback options: MPD not connected": "연주 옵션을 설정할 수 없음: MPD 연결 안 됨",
     "Cancel": "취소",
     "Check WebradioDB": "웹라디오 DB 확인",
-    "Checks arguments from the mympd_arguments global variable.": "",
+    "Checks arguments from the mympd_arguments global variable.": "mympd_arguments 전역 변수의 인수를 확인합니다.",
     "Checks for empty string or nil.": "빈 문자열이나 없음을 확인합니다.",
     "Choose a playlist": "연주목록 선택",
     "Choose a playlist or enter a new playlist name": "연주목록을 선택하거나 새로운 연주목록 입력",
