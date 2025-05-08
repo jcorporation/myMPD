@@ -1060,7 +1060,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             struct t_list tags;
             list_init(&tags);
             if (json_get_string(request->data, "$.params.uri", 1, URI_LENGTH_MAX, &sds_buf1, vcb_isstreamuri, &parse_error) &&
-                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, vcb_isname, 20, &parse_error) == true &&
+                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, vcb_isname, FIELDS_MAX, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
             {
                 rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_URI_TAGS
@@ -1078,7 +1078,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             struct t_list tags;
             list_init(&tags);
             if (json_get_string(request->data, "$.params.uri", 1, URI_LENGTH_MAX, &sds_buf1, vcb_isstreamuri, &parse_error) &&
-                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, vcb_isname, 20, &parse_error) == true &&
+                json_get_object_string(request->data, "$.params.tags", &tags, vcb_ismpdtag, vcb_isname, FIELDS_MAX, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &parse_error) == true)
