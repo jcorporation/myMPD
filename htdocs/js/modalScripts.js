@@ -704,6 +704,7 @@ function showImportScript() {
     if (userAgentData.isMobile === false) {
         setFocusId('modalScriptsImportSearchStr');
     }
+    elGetById('modalScriptsImportSearchStr').value = '';
     const list = elGetById('modalScriptsImportList');
     elClear(list);
     list.appendChild(
