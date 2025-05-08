@@ -56,6 +56,7 @@ function toggleAlert(alertBoxId, state, msg) {
                 alertBoxEl.appendChild(clBtn);
                 clBtn.addEventListener('click', function(event) {
                     event.preventDefault();
+                    toggleAlert('alertCrit', false, '');
                 }, false);
                 break;
             }
