@@ -27,6 +27,7 @@ Thanks to @cbrenberg that ironed out a severe bug in the `mympd.tmp_file()` func
 - Feat: `mympd.isnilorempty()` - Checks for nil and empty string
 - Feat: `mympd.remove_file()` - Wrapper for `os.remove` that logs errors
 - Fix: `mympd.tmp_file()` - Function does not return always uniq names #1422
+- Feat: Add functions `mympd.jsonrpc_notification`, `mympd.jsonrpc_error` and `mympd.jsonrpc_warn` to return a jsonrpc response from scripts
 
 ### Changelog
 
@@ -39,6 +40,7 @@ Thanks to @cbrenberg that ironed out a severe bug in the `mympd.tmp_file()` func
 - Upd: Improve websocket reconnection
 - Upd: Improve API explorer - show request
 - Upd: Bootstrap v5.3.4 #1418
+- Upd: Jsonrpc severities are now the same as the syslog severities
 
 ***
 

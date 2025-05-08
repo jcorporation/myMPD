@@ -1761,6 +1761,21 @@ const LUAfunctions = {
         "func": "mympd.log(loglevel, message)",
         "feat": ""
     },
+    "mympd.jsonrpc_error": {
+        "desc": "Creates a JSONRPC 2.0 error.",
+        "func": "return mympd.jsonrpc_error(msg)",
+        "feat": ""
+    },
+    "mympd.jsonrpc_notification": {
+        "desc": "Creates a JSONRPC 2.0 notification.",
+        "func": "return mympd.jsonrpc_error(severity, msg)",
+        "feat": ""
+    },
+    "mympd.jsonrpc_warn": {
+        "desc": "Creates a JSONRPC 2.0 warning.",
+        "func": "return mympd.jsonrpc_warn(msg)",
+        "feat": ""
+    },
     "mympd.tmp_file": {
         "desc": "Creates a tmp file for the misc cache.",
         "func": "local tmp_file = mympd.tmp_file()",

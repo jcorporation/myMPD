@@ -102,6 +102,36 @@ mympd.log("LOG_NOTICE", message)
 | LOG_INFO | 6 | Informational |
 | LOG_DEBUG | 7 | Debug |
 
+## Return message from script
+
+```lua
+local msg = "test"
+
+-- Debug
+return mympd.jsonrpc_notification(7, msg)
+
+-- Info
+return msg
+
+-- Notice
+return mympd.jsonrpc_notification(5, msg)
+
+-- Warning
+return mympd.jsonrpc_warn(msg)
+
+-- Error
+return mympd.jsonrpc_error(msg)
+
+-- Critical
+return mympd.jsonrpc_notification(2, msg)
+
+-- Alert
+return mympd.jsonrpc_notification(1, msg)
+
+-- Emergency
+return mympd.jsonrpc_notification(0, msg)
+```
+
 ## Notifications
 
 ```lua
@@ -121,9 +151,14 @@ mympd.notify_partition(severity, message)
 
 | SEVERITY | NUMBER | DESCRIPTION |
 | -------- | ------ | ----------- |
-| SEVERITY_INFO | 0 | Informational |
-| SEVERITY_WARNING | 1 | Warning |
-| SEVERITY_ERR | 2 | Error |
+| SEVERITY_EMERG | 0 | Emergency |
+| SEVERITY_ALERT | 1 | Alert |
+| SEVERITY_CRIT | 2 | Critical |
+| SEVERITY_ERR | 3 | Error |
+| SEVERITY_WARNING | 4 | Warning |
+| SEVERITY_NOTICE | 5 | Notice |
+| SEVERITY_INFO | 6 | Informational |
+| SEVERITY_DEBUG | 7 | Debug |
 
 ## Read an ascii file
 
