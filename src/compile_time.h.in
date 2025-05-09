@@ -340,7 +340,7 @@ extern struct t_mympd_queue *mympd_api_queue;
 #define JSONRPC_INT64_MAX INT64_MAX
 #define JSONRPC_UINT_MIN 0
 #define JSONRPC_UINT_MAX UINT_MAX
-#define JSONRPC_STR_MAX 3000
+#define JSONRPC_STR_MAX 3002  // 3000 bytes for the value + 2 bytes for escapes
 #define JSONRPC_KEY_MAX 500
 #define JSONRPC_ARRAY_MAX 1000
 #define JSONRPC_TIME_MIN 0 // Do 1. Jan 01:00:00 CET 1970
