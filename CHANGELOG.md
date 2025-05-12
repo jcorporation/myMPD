@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Upd: Improve "Edit Script"-Layout
+
 ***
 
 ## myMPD v21.0.0 (2025-05-11)

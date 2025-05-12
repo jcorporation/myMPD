@@ -109,6 +109,10 @@ function initModalScripts() {
         }
     });
 
+    if (window.innerHeight > 900) {
+        elGetById('modalScriptsContentInput').setAttribute('rows', '20');
+    }
+
     initModalScriptAPItab();
 }
 
