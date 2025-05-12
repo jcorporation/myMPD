@@ -447,14 +447,7 @@ function showEditScript(script, obj) {
     cleanupModalId('modalScripts');
     elGetById('modalScripts').firstElementChild.classList.remove('modal-dialog-scrollable');
     elGetById('modalScriptsContentInput').removeAttribute('disabled');
-    elGetById('modalScriptsEditTab').classList.add('active');
-    elGetById('modalScriptAPItab').classList.remove('active');
-    elGetById('modalScriptsListTab').classList.remove('active');
-    elGetById('modalScriptsImportTab').classList.remove('active');
-    elShowId('modalScriptsEditFooter');
-    elHideId('modalScriptAPIfooter');
-    elHideId('modalScriptsListFooter');
-    elHideId('modalScriptsImportFooter');
+    showModalTab('modalScriptsEditTab', 'modalScriptsEditFooter');
     if (obj !== undefined) {
         parseEditScript(obj);
     }
@@ -512,14 +505,7 @@ function showModalScriptAPItab() {
     setDataId('modalScripts', 'lastActiveTab', lastActiveTab);
     cleanupModalId('modalScripts');
     elGetById('modalScripts').firstElementChild.classList.remove('modal-dialog-scrollable');
-    elGetById('modalScriptAPItab').classList.add('active');
-    elGetById('modalScriptsListTab').classList.remove('active');
-    elGetById('modalScriptsEditTab').classList.remove('active');
-    elGetById('modalScriptsImportTab').classList.remove('active');
-    elShowId('modalScriptAPIfooter');
-    elHideId('modalScriptsListFooter');
-    elHideId('modalScriptsEditFooter');
-    elHideId('modalScriptsImportFooter');
+    showModalTab('modalScriptAPItab', 'modalScriptAPIfooter');
 }
 
 /**
@@ -552,14 +538,7 @@ function hideModalScriptAPItab() {
 function showListScripts() {
     cleanupModalId('modalScripts');
     elGetById('modalScripts').firstElementChild.classList.remove('modal-dialog-scrollable');
-    elGetById('modalScriptsListTab').classList.add('active');
-    elGetById('modalScriptAPItab').classList.remove('active');
-    elGetById('modalScriptsEditTab').classList.remove('active');
-    elGetById('modalScriptsImportTab').classList.remove('active');
-    elShowId('modalScriptsListFooter');
-    elHideId('modalScriptAPIfooter');
-    elHideId('modalScriptsEditFooter');
-    elHideId('modalScriptsImportFooter');
+    showModalTab('modalScriptsListTab', 'modalScriptsListFooter');
     getScriptList(true);
 }
 
@@ -697,14 +676,7 @@ function addOptionToScriptSelect(sel, opt, args) {
 function showImportScript() {
     cleanupModalId('modalScripts');
     elGetById('modalScripts').firstElementChild.classList.add('modal-dialog-scrollable');
-    elGetById('modalScriptsImportTab').classList.add('active');
-    elGetById('modalScriptAPItab').classList.remove('active');
-    elGetById('modalScriptsListTab').classList.remove('active');
-    elGetById('modalScriptsEditTab').classList.remove('active');
-    elShowId('modalScriptsImportFooter');
-    elHideId('modalScriptAPIfooter');
-    elHideId('modalScriptsListFooter');
-    elHideId('modalScriptsEditFooter');
+    showModalTab('modalScriptsImportTab', 'modalScriptsImportFooter');
     if (userAgentData.isMobile === false) {
         setFocusId('modalScriptsImportSearchStr');
     }

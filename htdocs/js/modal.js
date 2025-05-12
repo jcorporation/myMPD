@@ -212,3 +212,23 @@ function showConfirmInline(el, text, btnText, callback) {
     confirm.appendChild(yesBtn);
     el.appendChild(confirm);
 }
+
+/**
+ * Shows a tab in a modal
+ * @param {string} tabId Tab ID to show
+ * @param {string} footerId Footer ID to show
+ * @returns {void}
+ */
+function showModalTab(tabId, footerId) {
+    const showTab = elGetById(tabId);
+    showTab.parentNode.querySelectorAll('.tab-pane').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    showTab.classList.add('active');
+    if (footerId !== undefined) {
+        elGetById(footerId).parentNode.querySelectorAll('.modal-footer').forEach(tab => {
+            elHide(tab);
+        });
+        elShowId(footerId);
+    }
+}

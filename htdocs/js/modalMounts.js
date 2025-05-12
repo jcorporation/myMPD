@@ -133,10 +133,7 @@ function updateMount(el, uri) {
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
     cleanupModalId('modalMounts');
-    elGetById('modalMountsListTab').classList.remove('active');
-    elGetById('modalMountsEditTab').classList.add('active');
-    elHideId('modalMountsListFooter');
-    elShowId('modalMountsEditFooter');
+    showModalTab('modalMountsEditTab', 'modalMountsEditFooter');
     elGetById('modalMountsMountUrlInput').value = uri;
     elGetById('modalMountsMountPointInput').value = storage;
     setFocusId('modalMountsMountPointInput');
@@ -148,10 +145,7 @@ function showEditMount(uri, storage) {
  */
 function showListMounts() {
     cleanupModalId('modalMounts');
-    elGetById('modalMountsListTab').classList.add('active');
-    elGetById('modalMountsEditTab').classList.remove('active');
-    elShowId('modalMountsListFooter');
-    elHideId('modalMountsEditFooter');
+    showModalTab('modalMountsListTab', 'modalMountsListFooter');
     sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts, true);
 }
 

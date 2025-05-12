@@ -194,12 +194,8 @@ function showEditTimer(timerid) {
     cleanupModalId('modalTimer');
     elHideId('timerActionPlay');
     elHideId('modalTimerScriptActionGroup');
-    elGetById('modalTimerListTab').classList.remove('active');
-    elGetById('modalTimerEditTab').classList.add('active');
-    elHideId('modalTimerListFooter');
-    elShowId('modalTimerEditFooter');
     elGetById('modalTimerPlaylistInput').filterInput.value = '';
-
+    showModalTab('modalTimerEditTab', 'modalTimerEditFooter');
     if (timerid !== 0) {
         sendAPI("MYMPD_API_TIMER_GET", {
             "timerid": timerid
@@ -360,10 +356,7 @@ function showTimerScriptArgs(optionEl, values) {
  */
 function showListTimer() {
     cleanupModalId('modalTimer');
-    elGetById('modalTimerListTab').classList.add('active');
-    elGetById('modalTimerEditTab').classList.remove('active');
-    elShowId('modalTimerListFooter');
-    elHideId('modalTimerEditFooter');
+    showModalTab('modalTimerListTab', 'modalTimerListFooter');
     sendAPI("MYMPD_API_TIMER_LIST", {}, parseListTimer, true);
 }
 

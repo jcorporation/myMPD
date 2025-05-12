@@ -81,11 +81,7 @@ function saveTriggerCheckError(obj) {
 //eslint-disable-next-line no-unused-vars
 function showEditTrigger(id) {
     cleanupModalId('modalTrigger');
-    elGetById('modalTriggerListTab').classList.remove('active');
-    elGetById('modalTriggerEditTab').classList.add('active');
-    elHideId('modalTriggerListFooter');
-    elShowId('modalTriggerEditFooter');
-
+    showModalTab('modalTriggerEditTab', 'modalTriggerEditFooter');
     const nameEl = elGetById('modalTriggerNameInput');
     setFocus(nameEl);
 
@@ -158,10 +154,7 @@ function showTriggerScriptArgs(option, values) {
  */
 function showListTrigger() {
     cleanupModalId('modalTrigger');
-    elGetById('modalTriggerListTab').classList.add('active');
-    elGetById('modalTriggerEditTab').classList.remove('active');
-    elShowId('modalTriggerListFooter');
-    elHideId('modalTriggerEditFooter');
+    showModalTab('modalTriggerListTab', 'modalTriggerListFooter');
     sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, true);
 }
 

@@ -46,10 +46,7 @@ function showListVariablesModal() {
 //eslint-disable-next-line no-unused-vars
 function showVariablesList() {
     cleanupModalId('modalScripts');
-    elGetById('modalVariablesListTab').classList.add('active');
-    elGetById('modalVariablesEditTab').classList.remove('active');
-    elShowId('modalVariablesListFooter');
-    elHideId('modalVariablesEditFooter');
+    showModalTab('modalVariablesListTab', 'modalVariablesListFooter');
     getVariablesList();
 }
 
@@ -61,10 +58,7 @@ function showVariablesList() {
  */
 function showVariablesEdit(el, editVar) {
     cleanupModalId('modalVariables');
-    elGetById('modalVariablesEditTab').classList.add('active');
-    elGetById('modalVariablesListTab').classList.remove('active');
-    elShowId('modalVariablesEditFooter');
-    elHideId('modalVariablesListFooter');
+    showModalTab('modalVariablesEditTab', 'modalVariablesEditFooter');
     if (editVar === true) {
         elGetById('modalVariablesKeyInput').setAttribute('readonly', 'readonly');
         elGetById('modalVariablesKeyInput').value = getData(el,'key');
