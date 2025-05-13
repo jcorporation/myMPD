@@ -517,14 +517,7 @@ function hideModalScriptAPItab() {
     const lastActiveTab = getDataId('modalScripts', 'lastActiveTab');
     switch(lastActiveTab) {
         case 'modalScriptsEditTab':
-            elGetById('modalScriptsEditTab').classList.add('active');
-            elGetById('modalScriptAPItab').classList.remove('active');
-            elGetById('modalScriptsListTab').classList.remove('active');
-            elGetById('modalScriptsImportTab').classList.remove('active');
-            elShowId('modalScriptsEditFooter');
-            elHideId('modalScriptAPIfooter');
-            elHideId('modalScriptsListFooter');
-            elHideId('modalScriptsImportFooter');
+            showModalTab('modalScriptsEditTab', 'modalScriptsEditFooter');
             break;
         default:
             showListScripts();

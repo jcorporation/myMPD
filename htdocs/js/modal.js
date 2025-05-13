@@ -221,7 +221,7 @@ function showConfirmInline(el, text, btnText, callback) {
  */
 function showModalTab(tabId, footerId) {
     const showTab = elGetById(tabId);
-    showTab.parentNode.querySelectorAll('.tab-pane').forEach(tab => {
+    showTab.parentNode.querySelectorAll('.modal-body > .tab-content > .tab-pane').forEach(tab => {
         tab.classList.remove('active');
     });
     showTab.classList.add('active');
