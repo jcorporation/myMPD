@@ -1229,6 +1229,7 @@
 {"term":"mympd_feedback"},
 {"term":"mympd_jukebox"},
 {"term":"mympd_lyrics"},
+{"term":"mympd_playlistart"},
 {"term":"mympd_scrobble"},
 {"term":"mympd_skipped"},
 {"term":"mympd_smartpls"},

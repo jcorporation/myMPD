@@ -94,6 +94,7 @@ static const char *const mympd_event_names[] = {
     "mympd_jukebox",
     "mympd_smartpls",
     "mympd_bgimage",
+    "mympd_playlistart",
     NULL
 };
 

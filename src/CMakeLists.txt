@@ -125,6 +125,7 @@ target_sources(mympd
     mympd_api/outputs.c
     mympd_api/partitions.c
     mympd_api/pictures.c
+    mympd_api/playlistart.c
     mympd_api/playlists.c
     mympd_api/queue.c
     mympd_api/requests.c

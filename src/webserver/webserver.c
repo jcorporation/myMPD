@@ -492,6 +492,14 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
             case INTERNAL_API_TAGART:
                 webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
                 break;
+            case INTERNAL_API_PLAYLISTART:
+                if (strcmp(response->data, "smartpls") == 0) {
+                    webserver_redirect_placeholder_image(nc, PLACEHOLDER_SMARTPLS);
+                }
+                else {
+                    webserver_redirect_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
+                }
+                break;
             default:
                 MYMPD_LOG_DEBUG(response->partition, "Sending response to conn_id \"%lu\" (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
                 webserver_send_data(nc, response->data, sdslen(response->data), EXTRA_HEADERS_JSON_CONTENT);

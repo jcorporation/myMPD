@@ -11,8 +11,12 @@
 #include "compile_time.h"
 #include "src/webserver/playlistart.h"
 
+#include "src/lib/api.h"
 #include "src/lib/config_def.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
+#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
@@ -54,8 +58,25 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
     mediafile = webserver_find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
         webserver_serve_file(nc, hm, EXTRA_HEADERS_IMAGE, mediafile);
+        FREE_SDS(mediafile);
+        FREE_SDS(name);
+        FREE_SDS(type);
+        return true;
     }
-    else {
+    FREE_SDS(mediafile);
+
+    #ifdef MYMPD_ENABLE_LUA
+        //forward request to mympd_api thread
+        MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_TAGART to mympdapi_queue");
+        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_PLAYLISTART, NULL, MPD_PARTITION_DEFAULT);
+        request->data = tojson_sds(request->data, "name", name, true);
+        request->data = tojson_sds(request->data, "type", type, false);
+        request->data = jsonrpc_end(request->data);
+        mympd_queue_push(mympd_api_queue, request, 0);
+        FREE_SDS(name);
+        FREE_SDS(type);
+        return false;
+    #else
         MYMPD_LOG_DEBUG(NULL, "No image for playlist found");
         if (strcmp(type, "smartpls") == 0) {
             webserver_redirect_placeholder_image(nc, PLACEHOLDER_SMARTPLS);
@@ -63,9 +84,8 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
         else {
             webserver_redirect_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
         }
-    }
-    FREE_SDS(mediafile);
-    FREE_SDS(name);
-    FREE_SDS(type);
-    return true;
+        FREE_SDS(name);
+        FREE_SDS(type);
+        return true;
+    #endif
 }
