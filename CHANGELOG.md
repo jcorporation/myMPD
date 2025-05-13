@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Memory Leak - Free request struct on mympd_worker failure
+- Fix: Timer name can not be empty
 
 ***
 
