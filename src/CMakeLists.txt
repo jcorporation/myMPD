@@ -111,7 +111,7 @@ target_sources(mympd
     mympd_worker/webradiodb.c
     mympd_api/mympd_api.c
     mympd_api/albumart.c
-    mympd_api/browse.c
+    mympd_api/albums.c
     mympd_api/channel.c
     mympd_api/database.c
     mympd_api/extra_media.c
@@ -136,6 +136,7 @@ target_sources(mympd
     mympd_api/status.c
     mympd_api/sticker.c
     mympd_api/tagart.c
+    mympd_api/tags.c
     mympd_api/timer.c
     mympd_api/timer_handlers.c
     mympd_api/trigger.c

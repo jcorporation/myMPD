@@ -25,7 +25,7 @@
 #include "src/lib/validate.h"
 #include "src/lib/webradio.h"
 #include "src/mympd_api/albumart.h"
-#include "src/mympd_api/browse.h"
+#include "src/mympd_api/albums.h"
 #include "src/mympd_api/channel.h"
 #include "src/mympd_api/database.h"
 #include "src/mympd_api/filesystem.h"
@@ -48,6 +48,7 @@
 #include "src/mympd_api/status.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_api/tagart.h"
+#include "src/mympd_api/tags.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
@@ -1774,7 +1775,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag_or_any, &parse_error) == true &&
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &parse_error) == true)
             {
-                response->data = mympd_api_browse_tag_list(partition_state, response->data, request->id,
+                response->data = mympd_api_tag_list(partition_state, response->data, request->id,
                         sds_buf1, sds_buf2, uint_buf1, uint_buf2, bool_buf1);
             }
             break;
@@ -1788,7 +1789,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &parse_error) == true &&
                 json_get_fields(request->data, "$.params.fields", &tagcols, FIELDS_MAX, &parse_error) == true)
             {
-                response->data = mympd_api_browse_album_list(mympd_state, partition_state, response->data, request->id,
+                response->data = mympd_api_album_list(mympd_state, partition_state, response->data, request->id,
                         sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2, &tagcols);
             }
             break;
@@ -1799,7 +1800,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true &&
                 json_get_fields(request->data, "$.params.fields", &tagcols, FIELDS_MAX, &parse_error) == true)
             {
-                response->data = mympd_api_browse_album_detail(mympd_state, partition_state, response->data, request->id, sds_buf1, &tagcols);
+                response->data = mympd_api_album_detail(mympd_state, partition_state, response->data, request->id, sds_buf1, &tagcols);
             }
             break;
         }

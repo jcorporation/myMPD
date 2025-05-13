@@ -8,17 +8,15 @@
  * \brief myMPD browse database API
  */
 
-#ifndef MYMPD_API_BROWSE_H
-#define MYMPD_API_BROWSE_H
+#ifndef MYMPD_API_ALBUMS_H
+#define MYMPD_API_ALBUMS_H
 
 #include "src/lib/mympd_state.h"
 
-sds mympd_api_browse_album_detail(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         sds buffer, unsigned request_id, sds albumid, const struct t_fields *tagcols);
-sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         sds buffer, unsigned request_id, sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
         const struct t_fields *tagcols);
-sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buffer,
-        unsigned request_id, sds searchstr, sds tag, unsigned offset, unsigned limit, bool sortdesc);
 
 #endif
