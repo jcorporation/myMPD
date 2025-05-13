@@ -163,6 +163,7 @@
     "mympd_albumart": "Albumart (mympd_albumart)",
     "mympd_tagart": "Tagart (mympd_tagart)",
     "mympd_playlistart": "Playlistart (mympd_playlistart)",
+    "mympd_folderart": "Folderart (mympd_folderart)",
     "mympd_jukebox": "Jukebox (mympd_jukebox)",
     "mympd_smartpls": "Smart playlists (mympd_smartpls)",
     "mympd_bgimage": "Background image (mympd_bgimage)",

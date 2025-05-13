@@ -19,7 +19,8 @@ Triggers are enabled if scripts are enabled. Triggers can call scripts with argu
 | TRIGGER_MYMPD_JUKEBOX | -11 | Partition | Triggers if jukebox is configured with the mode `script`. Only one script is supported for this event. This script must fill the jukebox queue and add songs from this queue to the MPD queue. [Example](https://github.com/jcorporation/mympd-scripts/tree/main/Jukebox) |
 | TRIGGER_MYMPD_SMARTPLS | -12 | Global | Triggers for the `MYMPD_API_SMARTPLS_UPDATE_ALL` events. |
 | TRIGGER_MYMPD_BGIMAGE | -13 | Global | Triggers if background is configured as `Trigger`. Script is executed with arguments `uri` (current song) and `hash` (application hash) and should return a raw http response. [Example](https://github.com/jcorporation/mympd-scripts/tree/main/Background) |
-| TRIGGER_MYMPD_PLAYLISTART | -14 | Global | Triggers if no local playlistart was found. Only one script is supported for this event. Script is executed with arguments `name` and `type` and should return a raw http response.|
+| TRIGGER_MYMPD_PLAYLISTART | -14 | Global | Triggers if no local playlistart was found. Only one script is supported for this event. Script is executed with arguments `name` and `type` and should return a raw http response. [Example](https://github.com/jcorporation/mympd-scripts/tree/main/Playlistart) |
+| TRIGGER_MYMPD_FOLDERART | -15 | Global | Triggers if no local folderart was found. Only one script is supported for this event. Script is executed with arguments `path` and should return a raw http response. [Example](https://github.com/jcorporation/mympd-scripts/tree/main/Folderart) |
 | TRIGGER_MPD_DATABASE | 1 | Default partition | Database has been modified. |
 | TRIGGER_MPD_STORED_PLAYLIST | 2 | Global | A playlist was added, removed or changed. |
 | TRIGGER_MPD_QUEUE | 4 | Partition | MPD queue has changed. |

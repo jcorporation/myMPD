@@ -185,6 +185,7 @@ mympd_stop
 mympd_tagart
 mympd_bgimage
 mympd_playlistart
+mympd_folderart
 name
 newest
 Notification icon

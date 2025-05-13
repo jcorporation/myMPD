@@ -11,7 +11,11 @@
 #include "compile_time.h"
 #include "src/webserver/folderart.h"
 
+#include "src/lib/api.h"
+#include "src/lib/json/json_print.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
+#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"
 #include "src/webserver/placeholder.h"
@@ -52,10 +56,21 @@ bool request_handler_folderart(struct mg_connection *nc, struct mg_http_message 
         FREE_SDS(coverfile);
         return true;
     }
-
-    MYMPD_LOG_INFO(NULL, "No folderimage found for \"%s\"", path);
-    FREE_SDS(path);
     FREE_SDS(coverfile);
-    webserver_redirect_placeholder_image(nc, PLACEHOLDER_FOLDER);
-    return false;
+
+    #ifdef MYMPD_ENABLE_LUA
+        //forward request to mympd_api thread
+        MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_FOLDERART to mympdapi_queue");
+        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_FOLDERART, NULL, MPD_PARTITION_DEFAULT);
+        request->data = tojson_sds(request->data, "path", path, true);
+        request->data = jsonrpc_end(request->data);
+        mympd_queue_push(mympd_api_queue, request, 0);
+        FREE_SDS(path);
+        return false;
+    #else
+        MYMPD_LOG_INFO(NULL, "No folderimage found for \"%s\"", path);
+        FREE_SDS(path);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_FOLDER);
+        return true;
+    #endif
 }

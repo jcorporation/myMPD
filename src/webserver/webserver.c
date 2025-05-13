@@ -489,6 +489,9 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
             case INTERNAL_API_ALBUMART_BY_ALBUMID:
                 webserver_send_albumart_redirect(nc, response->data);
                 break;
+            case INTERNAL_API_FOLDERART:
+                webserver_redirect_placeholder_image(nc, PLACEHOLDER_FOLDER);
+                break;
             case INTERNAL_API_TAGART:
                 webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
                 break;

@@ -29,6 +29,7 @@
 #include "src/mympd_api/channel.h"
 #include "src/mympd_api/database.h"
 #include "src/mympd_api/filesystem.h"
+#include "src/mympd_api/folderart.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/jukebox.h"
 #include "src/mympd_api/last_played.h"
@@ -246,12 +247,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_STATS:
             response->data = mympd_api_stats_get(partition_state, response->data, request->id);
             break;
-    // Playlistart
-        case INTERNAL_API_PLAYLISTART:
-            if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
-                json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
+    // Folderart
+        case INTERNAL_API_FOLDERART:
+            if (json_get_string(request->data, "$.params.path", 1, NAME_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true)
             {
-                response->data = mympd_api_playlistart(mympd_state, partition_state, response->data, request->id, request->conn_id, sds_buf1, sds_buf2);
+                response->data = mympd_api_folderart(mympd_state, partition_state, response->data, request->id, request->conn_id, sds_buf1);
                 if (sdslen(response->data) == 0) {
                     // response must be send by triggered script
                     async = true;
@@ -260,6 +260,20 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 }
             }
             break;
+    // Playlistart
+    case INTERNAL_API_PLAYLISTART:
+    if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
+        json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
+    {
+        response->data = mympd_api_playlistart(mympd_state, partition_state, response->data, request->id, request->conn_id, sds_buf1, sds_buf2);
+        if (sdslen(response->data) == 0) {
+            // response must be send by triggered script
+            async = true;
+            // we do not pass the request to the script thread
+            free_request(request);
+        }
+    }
+    break;
     // Tagart
     case INTERNAL_API_TAGART:
     if (json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf1, vcb_ismpdtag, &parse_error) == true &&

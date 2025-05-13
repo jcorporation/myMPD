@@ -116,6 +116,7 @@ target_sources(mympd
     mympd_api/database.c
     mympd_api/extra_media.c
     mympd_api/filesystem.c
+    mympd_api/folderart.c
     mympd_api/home.c
     mympd_api/jukebox.c
     mympd_api/last_played.c
