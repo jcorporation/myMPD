@@ -939,7 +939,8 @@ updatebootstrap() {
   then
     cp -v compiled/custom.css "$STARTPATH/htdocs/css/bootstrap.css"
   fi
-  rm -fr  dist/bootstrap/node_modules
+  rm -fr "$STARTPATH/dist/bootstrap/node_modules"
+  rm -fr "$STARTPATH/dist/bootstrap/dist"
 }
 
 #Also deletes stale installations in other locations.
