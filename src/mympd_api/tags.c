@@ -21,11 +21,6 @@
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/search.h"
 
-#include <dirent.h>
-#include <inttypes.h>
-#include <stdbool.h>
-#include <string.h>
-
 // private definitions
 
 static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer,

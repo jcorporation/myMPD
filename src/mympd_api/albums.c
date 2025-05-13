@@ -27,9 +27,6 @@
 #include "src/mympd_client/stickerdb.h"
 #include "src/mympd_client/tags.h"
 
-#include <dirent.h>
-#include <inttypes.h>
-#include <stdbool.h>
 #include <string.h>
 
 // private definitions
