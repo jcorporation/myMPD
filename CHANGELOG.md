@@ -9,6 +9,7 @@ https://github.com/jcorporation/myMPD/
 ### Changelog
 
 - Upd: Improve "Edit Script"-Layout
+- Fix: Timer name can not be empty
 
 ***
 

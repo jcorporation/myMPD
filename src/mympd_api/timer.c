@@ -320,7 +320,7 @@ struct t_timer_definition *mympd_api_timer_parse(sds str, const char *partition,
     timer_def->preset = NULL;
     list_init(&timer_def->arguments);
 
-    if (json_get_string_max(str, "$.params.name", &timer_def->name, vcb_isname, error) == true &&
+    if (json_get_string(str, "$.params.name", 1, NAME_LEN_MAX, &timer_def->name, vcb_isname, error) == true &&
         json_get_bool(str, "$.params.enabled", &timer_def->enabled, error) == true &&
         json_get_int(str, "$.params.startHour", 0, 23, &timer_def->start_hour, error) == true &&
         json_get_int(str, "$.params.startMinute", 0, 59, &timer_def->start_minute, error) == true &&
