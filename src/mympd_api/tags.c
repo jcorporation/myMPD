@@ -71,8 +71,9 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
 {
     size_t searchstr_len = sdslen(searchstr);
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_TAG_LIST;
+    enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
 
-    if (mpd_search_db_tags(partition_state->conn, mpd_tag_name_parse(tag)) == false) {
+    if (mpd_search_db_tags(partition_state->conn, mpdtag) == false) {
         mpd_search_cancel(partition_state->conn);
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
             JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
@@ -84,7 +85,6 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
 
     if (mpd_search_commit(partition_state->conn)) {
         struct mpd_pair *pair;
-        enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
         //filter and sort
         while ((pair = mpd_recv_pair_tag(partition_state->conn, mpdtag)) != NULL) {
             if (pair->value[0] == '\0') {
@@ -142,7 +142,7 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
     }
     raxStop(&iter);
 
-    //checks if this tag has a directory with pictures in /src/lib/mympd/pics
+    //checks if this tag has a directory with pictures in /var/lib/mympd/pics
     sds pic_path = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->config->workdir, DIR_WORK_PICS, tag);
     bool pic =  testdir("Tag pics folder", pic_path, false, true) == DIR_EXISTS
         ? true
@@ -153,8 +153,10 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_uint64(buffer, "totalEntities", taglist->numele, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_uint(buffer, "offset", offset, true);
+    buffer = tojson_uint(buffer, "limit", limit, true);
     buffer = tojson_sds(buffer, "searchstr", searchstr, true);
     buffer = tojson_sds(buffer, "tag", tag, true);
+    buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
     buffer = tojson_bool(buffer, "pics", pic, false);
     buffer = jsonrpc_end(buffer);
     raxFree(taglist);
@@ -187,7 +189,7 @@ static sds tag_list_mpd025(struct t_partition_state *partition_state, sds buffer
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
     (void) sortdesc; // not implemented in MPD
 
-    if (mpd_search_db_tags(partition_state->conn, mpd_tag_name_parse(tag)) == false ||
+    if (mpd_search_db_tags(partition_state->conn, mpdtag) == false ||
         mpd_search_add_expression(partition_state->conn, expr) == false ||
         mpd_search_add_window(partition_state->conn, offset, real_limit) == false)
     {
@@ -231,8 +233,10 @@ static sds tag_list_mpd025(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_int(buffer, "totalEntities", -1, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_uint(buffer, "offset", offset, true);
+    buffer = tojson_uint(buffer, "limit", limit, true);
     buffer = tojson_sds(buffer, "searchstr", searchstr, true);
     buffer = tojson_sds(buffer, "tag", tag, true);
+    buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
     buffer = tojson_bool(buffer, "pics", pic, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
