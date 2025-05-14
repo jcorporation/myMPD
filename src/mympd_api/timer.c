@@ -208,6 +208,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, int timeout, int interval, time
     else {
         new_node->fd = -1;
     }
+    //Use timer name as key for sorting
     list_push(&l->list, (definition != NULL ? definition->name : ""), timer_id, NULL, new_node);
     if (definition == NULL ||
         definition->enabled == true)
