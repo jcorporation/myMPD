@@ -9,6 +9,7 @@ https://github.com/jcorporation/myMPD/
 ### Changelog
 
 - Feat: Add trigger `mympd_playlistart`, `mympd_folderart`
+- Feat: Sort list of timers and triggers #1425
 - Upd: Improve "Edit Script"-Layout
 - Upd: Bootstrap v5.3.6
 - Fix: Timer name can not be empty

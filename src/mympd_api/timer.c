@@ -170,7 +170,8 @@ bool mympd_api_timer_replace(struct t_timer_list *l, int timeout, int interval, 
 {
     //ignore return code for remove
     mympd_api_timer_remove(l, timer_id);
-    return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition);
+    return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition) &&
+        list_sort_by_key(&l->list, LIST_SORT_ASC);
 }
 
 /**
@@ -207,7 +208,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, int timeout, int interval, time
     else {
         new_node->fd = -1;
     }
-    list_push(&l->list, "", timer_id, NULL, new_node);
+    list_push(&l->list, (definition != NULL ? definition->name : ""), timer_id, NULL, new_node);
     if (definition == NULL ||
         definition->enabled == true)
     {
@@ -511,6 +512,7 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
     (void) fclose(fp);
     FREE_SDS(timer_file);
     MYMPD_LOG_INFO(NULL, "Read %u timer(s) from disc", timer_list->list.length);
+    list_sort_by_key(&timer_list->list, LIST_SORT_ASC);
     return true;
 }
 
