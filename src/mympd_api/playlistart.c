@@ -50,6 +50,7 @@ sds mympd_api_playlistart(struct t_mympd_state *mympd_state, struct t_partition_
             return buffer;
         }
     #else
+        (void)request_id;
         (void)mympd_state;
         (void)conn_id;
     #endif
