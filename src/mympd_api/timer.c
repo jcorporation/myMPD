@@ -306,7 +306,6 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
 
 /**
  * Parses a json object string to a timer definition.
- * Frees the timer and sets the pointer to NULL if there is a parsing error.
  * @param str string to parse
  * @param partition mpd partition
  * @param error pointer to sds string to populate an error string

@@ -5,7 +5,7 @@
 */
 
 /*! \file
- * \brief Centtral myMPD configuration definitions
+ * \brief Central myMPD configuration definitions
  */
 
 #ifndef MYMPD_LIB_CONFIG_DEF_H
