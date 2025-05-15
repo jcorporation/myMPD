@@ -75,6 +75,7 @@ target_sources(mympd
     lib/rax_extras.c
     lib/search.c
     lib/sds_extras.c
+    lib/signal.c
     lib/smartpls.c
     lib/sticker.c
     lib/state_files.c
