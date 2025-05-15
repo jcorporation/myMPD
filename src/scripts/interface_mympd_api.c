@@ -16,6 +16,7 @@
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/random.h"
+#include "src/lib/signal.h"
 #include "src/mympd_api/lua_mympd_state.h"
 #include "src/scripts/interface.h"
 

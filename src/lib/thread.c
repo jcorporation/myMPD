@@ -13,6 +13,11 @@
 
 #include "src/lib/log.h"
 
+_Atomic int mympd_worker_threads;
+#ifdef MYMPD_ENABLE_LUA
+    _Atomic int script_worker_threads;
+#endif
+
 #ifdef __linux__
 
 #include <sys/prctl.h>

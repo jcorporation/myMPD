@@ -20,6 +20,7 @@
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"
+#include "src/lib/thread.h"
 #include "src/lib/timer.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"

@@ -21,6 +21,7 @@
 #include "src/lib/mg_str_utils.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/signal.h"
 #include "src/lib/thread.h"
 #include "src/webserver/albumart.h"
 #include "src/webserver/folderart.h"

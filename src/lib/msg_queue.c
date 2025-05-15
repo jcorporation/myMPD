@@ -23,6 +23,14 @@
  Message queue implementation to transfer messages between threads asynchronously
 */
 
+//message queues
+struct t_mympd_queue *webserver_queue;
+struct t_mympd_queue *mympd_api_queue;
+#ifdef MYMPD_ENABLE_LUA
+    struct t_mympd_queue *script_queue;
+    struct t_mympd_queue *script_worker_queue;
+#endif
+
 //private definitions
 static bool check_for_queue_id(struct t_mympd_queue *queue, unsigned id);
 static void free_queue_node(struct t_mympd_msg *n, enum mympd_queue_types type);

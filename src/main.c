@@ -22,6 +22,7 @@
 #include "src/lib/passwd.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/signal.h"
+#include "src/lib/thread.h"
 #include "src/mympd_api/mympd_api.h"
 #include "src/scripts/scripts.h"
 #include "src/webserver/mg_user_data.h"
@@ -62,21 +63,6 @@ const char *__asan_default_options(void) {
 const char *__asan_default_options(void) {
     return "abort_on_error=1:print_stacktrace=1";
 }
-#endif
-
-//global variables
-_Atomic int mympd_worker_threads;
-#ifdef MYMPD_ENABLE_LUA
-    _Atomic int script_worker_threads;
-#endif
-//signal handler
-sig_atomic_t s_signal_received;
-//message queues
-struct t_mympd_queue *webserver_queue;
-struct t_mympd_queue *mympd_api_queue;
-#ifdef MYMPD_ENABLE_LUA
-    struct t_mympd_queue *script_queue;
-    struct t_mympd_queue *script_worker_queue;
 #endif
 
 /**

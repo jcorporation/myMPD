@@ -16,7 +16,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
-
+#include "src/lib/thread.h"
 #include "src/lib/utility.h"
 #include "src/scripts/interface.h"
 #include "src/scripts/interface_caches.h"

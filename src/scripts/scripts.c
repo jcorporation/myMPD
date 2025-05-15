@@ -16,6 +16,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/signal.h"
 #include "src/lib/thread.h"
 #include "src/scripts/api_handler.h"
 #include "src/scripts/api_scripts.h"

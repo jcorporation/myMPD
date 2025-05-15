@@ -16,6 +16,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/signal.h"
 #include "src/lib/timer.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/status.h"

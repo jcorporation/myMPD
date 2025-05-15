@@ -11,11 +11,16 @@
 #ifndef MYMPD_QUEUE_H
 #define MYMPD_QUEUE_H
 
-#include "src/lib/api.h"
-
 #include <pthread.h>
 #include <stdbool.h>
 #include <time.h>
+
+extern struct t_mympd_queue *webserver_queue;
+extern struct t_mympd_queue *mympd_api_queue;
+#ifdef MYMPD_ENABLE_LUA
+    extern struct t_mympd_queue *script_queue;
+    extern struct t_mympd_queue *script_worker_queue;
+#endif
 
 /**
  * A message in the queue

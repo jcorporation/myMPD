@@ -20,9 +20,10 @@
 #include <pthread.h>
 #include <signal.h>
 
+sig_atomic_t s_signal_received;
+
 // Private definitions
 static void mympd_signal_handler(int sig_num);
-
 
 // Public functions
 
