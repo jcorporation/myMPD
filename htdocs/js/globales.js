@@ -231,11 +231,6 @@ const messagesMax = 100;
 /** @type {boolean} */
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 
-/** @type {string} */
-const scriptsUri = 'https://github.com/jcorporation/mympd-scripts/tree/main/';
-/** @type {string} */
-const scriptsImportUri = 'https://raw.githubusercontent.com/jcorporation/mympd-scripts/main/';
-
 /** @type {object} */
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
 

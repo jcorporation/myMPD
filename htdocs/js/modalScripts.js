@@ -479,7 +479,7 @@ function parseEditScript(obj) {
     if (obj.result.metadata.file !== '' && obj.result.metadata.version > 0) {
         elEnableId('modalScriptsUpdateBtn');
         elShowId('modalScriptsEditDescRow');
-        elGetById('modalScriptsEditLink').setAttribute('href', scriptsUri + dirname(obj.result.metadata.file));
+        elGetById('modalScriptsEditLink').setAttribute('href', settings.scriptsUri + dirname(obj.result.metadata.file));
     }
     else {
         elDisableId('modalScriptsUpdateBtn');
@@ -679,7 +679,7 @@ function showImportScript() {
     list.appendChild(
         elCreateTextTn('li', {"class": ["list-group-item", "not-clickable"]}, 'Loading...')
     );
-    httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + 'index.json'), function(obj) {
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI(settings.scriptsImportUri + 'index.json'), function(obj) {
         elClear(list);
         if (obj === null) {
             list.appendChild(
@@ -699,7 +699,7 @@ function showImportScript() {
                     "title": tn("Import"), "data-title-phrase": "Import"}, [
                     elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
                         elCreateText('h5', {}, script.name),
-                        elCreateText('a', {"href": scriptsUri + dirname(key), "target": "_blank", "class": ["mi", "text-success"],
+                        elCreateText('a', {"href": settings.scriptsUri + dirname(key), "target": "_blank", "class": ["mi", "text-success"],
                             "data-title": tn("Open"), "data-title-phrase": "Open"}, 'open_in_browser')
                     ]),
                     elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
@@ -722,7 +722,7 @@ function importScript(target) {
     const script = target.getAttribute('data-script');
     showEditScript('');
     elDisableId('modalScriptsContentInput');
-    httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + script), function(text) {
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI(settings.scriptsImportUri + script), function(text) {
         doImportScript(text);
     }, false);
 }
@@ -780,7 +780,7 @@ function updateScript() {
     if (importFile === '' || currentVersion === '') {
         return;
     }
-    httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + 'index.json'), function(obj) {
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI(settings.scriptsImportUri + 'index.json'), function(obj) {
         if (obj[importFile] === undefined) {
             showModalAlert({
                 "error": {
@@ -796,7 +796,7 @@ function updateScript() {
             return;
         }
         elDisableId('modalScriptsContentInput');
-        httpGet(subdir + '/proxy?uri=' + myEncodeURI(scriptsImportUri + importFile), function(text) {
+        httpGet(subdir + '/proxy?uri=' + myEncodeURI(settings.scriptsImportUri + importFile), function(text) {
             if (doImportScript(text) === true) {
                 showModalInfo("Script successfully updated.");
             }

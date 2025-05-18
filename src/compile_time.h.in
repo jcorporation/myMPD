@@ -410,4 +410,11 @@
 #define WEBRADIODB_URI "https://jcorporation.github.io/webradiodb/db/index/webradios.min.json"
 #define WEBRADIODB_URI_PICS "https://jcorporation.github.io/webradiodb/db/pics/"
 
+// Script import
+#define SCRIPTS_URI_RELEASE "https://github.com/jcorporation/mympd-scripts/tree/main/"
+#define SCRIPTS_IMPORT_URI_RELEASE "https://raw.githubusercontent.com/jcorporation/mympd-scripts/main/"
+
+#define SCRIPTS_URI_DEBUG "https://github.com/jcorporation/mympd-scripts/tree/devel/"
+#define SCRIPTS_IMPORT_URI_DEBUG "https://raw.githubusercontent.com/jcorporation/mympd-scripts/devel/"
+
 #endif

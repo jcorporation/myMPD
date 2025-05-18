@@ -956,8 +956,12 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_bool(buffer, "pin", (sdslen(mympd_state->config->pin_hash) == 0 ? false : true), true);
     #ifdef MYMPD_DEBUG
         buffer = tojson_bool(buffer, "debugMode", true, true);
+        buffer = tojson_char(buffer, "scriptsUri", SCRIPTS_URI_DEBUG, true);
+        buffer = tojson_char(buffer, "scriptsImportUri", SCRIPTS_IMPORT_URI_DEBUG, true);
     #else
         buffer = tojson_bool(buffer, "debugMode", false, true);
+        buffer = tojson_char(buffer, "scriptsUri", SCRIPTS_URI_RELEASE, true);
+        buffer = tojson_char(buffer, "scriptsImportUri", SCRIPTS_IMPORT_URI_RELEASE, true);
     #endif
     buffer = tojson_sds(buffer, "coverimageNames", mympd_state->coverimage_names, true);
     buffer = tojson_sds(buffer, "thumbnailNames", mympd_state->thumbnail_names, true);
