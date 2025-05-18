@@ -206,6 +206,7 @@ static enum mympd_cmd_acl_entity mympd_cmd_acl[] = {
     [MYMPD_API_SCRIPT_VAR_DELETE] = API_PUBLIC | API_PROTECTED | API_SCRIPT_THREAD,  // This method is handled in the scripts thread
     [MYMPD_API_SCRIPT_VAR_LIST] = API_PUBLIC | API_PROTECTED | API_SCRIPT_THREAD,  // This method is handled in the scripts thread
     [MYMPD_API_SCRIPT_VAR_SET] = API_PUBLIC | API_PROTECTED | API_SCRIPT_THREAD,  // This method is handled in the scripts thread
+    [MYMPD_API_SCRIPT_VERIFY_SIG] = API_PUBLIC | API_SCRIPT_THREAD,  // This method is handled in the scripts thread
     [MYMPD_API_SESSION_LOGIN] = API_PUBLIC,  // This method is handled in the webserver thread
     [MYMPD_API_SESSION_LOGOUT] = API_PUBLIC | API_PROTECTED,  // This method is handled in the webserver thread
     [MYMPD_API_SESSION_VALIDATE] = API_PUBLIC | API_PROTECTED,  // This method is handled in the webserver thread

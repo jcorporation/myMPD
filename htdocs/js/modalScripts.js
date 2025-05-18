@@ -723,7 +723,26 @@ function importScript(target) {
     showEditScript('');
     elDisableId('modalScriptsContentInput');
     httpGet(subdir + '/proxy?uri=' + myEncodeURI(settings.scriptsImportUri + script), function(text) {
-        doImportScript(text);
+        getScriptSignature(script, text);
+    }, false);
+}
+
+function getScriptSignature(script, text) {
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI(settings.scriptsImportUri + script + '.sig'), function(signature) {
+        sendAPI('MYMPD_API_SCRIPT_VERIFY_SIG', {
+            "script": text,
+            "signature": signature
+        }, function(obj) {
+                if (obj.error) {
+                    //Signature validation failed
+                    showModalAlert(obj);
+                    elEnableId('modalScriptsContentInput');
+                }
+                else {
+                    doImportScript(text);
+                }
+            },
+            true);
     }, false);
 }
 

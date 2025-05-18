@@ -178,6 +178,7 @@ if(MYMPD_ENABLE_LUA)
       scripts/scripts_worker.c
       scripts/scripts.c
       scripts/util.c
+      scripts/verify.c
       webserver/scripts.c
   )
 endif()

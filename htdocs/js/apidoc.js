@@ -2152,6 +2152,21 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_SCRIPT_VERIFY_SIG": {
+        "desc": "Verifies the signature of a script.",
+        "params": {
+            "script": {
+                "type": APItypes.string,
+                "example": "return \"test\"",
+                "desc": "Script content"
+            },
+            "signature": {
+                "type": APItypes.string,
+                "example": "",
+                "desc": "Base64 encoded signature"
+            }
+        }
+    },
     "MYMPD_API_SCRIPT_TMP_DELETE": {
         "desc": "Deletes a temporary variable.",
         "params": {

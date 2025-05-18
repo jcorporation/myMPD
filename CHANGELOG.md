@@ -8,6 +8,7 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Feat: Sign and verify scripts from mympd-scripts repository #1426
 - Feat: Add trigger `mympd_playlistart`, `mympd_folderart`
 - Feat: Sort list of timers and triggers #1425
 - Upd: Improve "Edit Script"-Layout

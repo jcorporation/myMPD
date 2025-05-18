@@ -429,6 +429,7 @@
 {"term":"Invalid search expression"},
 {"term":"Invalid selection"},
 {"term":"Invalid session"},
+{"term":"Invalid signature"},
 {"term":"Invalid sort tag"},
 {"term":"Invalid sticker value"},
 {"term":"Invalid timer id"},

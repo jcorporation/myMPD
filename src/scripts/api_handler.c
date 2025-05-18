@@ -21,6 +21,7 @@
 #include "src/scripts/api_vars.h"
 #include "src/scripts/scripts_lua.h"
 #include "src/scripts/util.h"
+#include "src/scripts/verify.h"
 
 /**
  * Central scripts api handler function
@@ -175,6 +176,15 @@ void scripts_api_handler(struct t_scripts_state *scripts_state, struct t_work_re
                 rc = scripts_vars_save(&scripts_state->var_list, sds_buf1, sds_buf2);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, "Can't save script variable");
+            }
+            break;
+        case MYMPD_API_SCRIPT_VERIFY_SIG:
+            if (json_get_string(request->data, "$.params.script", 1, CONTENT_LEN_MAX, &sds_buf1, vcb_istext, &parse_error) == true &&
+                json_get_string(request->data, "$.params.signature", 1, CONTENT_LEN_MAX, &sds_buf2, vcb_istext, &parse_error) == true)
+            {
+                rc = script_sig_verify(sds_buf1, sds_buf2);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_SCRIPT, "Invalid signature");
             }
             break;
         case MYMPD_API_SCRIPT_TMP_DELETE:

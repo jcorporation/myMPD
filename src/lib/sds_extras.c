@@ -16,6 +16,7 @@
 #include "dist/utf8/utf8.h"
 
 #include <ctype.h>
+#include <openssl/buffer.h>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <string.h>

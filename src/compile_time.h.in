@@ -417,4 +417,6 @@
 #define SCRIPTS_URI_DEBUG "https://github.com/jcorporation/mympd-scripts/tree/devel/"
 #define SCRIPTS_IMPORT_URI_DEBUG "https://raw.githubusercontent.com/jcorporation/mympd-scripts/devel/"
 
+#define SCRIPTS_SIGN_KEY_PUB "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2iMis8RxMQCR49BFqH/i\nvoc+XBjYySAvG55PDKnp7RlDShSYIe/M27UZNYaOJDUAw7SWvJwDvu+TtK+p+Caq\nwuhIKiWfRib7H3/Sk07pV1h2Q5bVzH2501s8umnpMrhZfsUhV46/QjnT6fA8/ui4\nsxQm57hDnO360OVybz7NM/8FNoclfZvJWzaxmICOcpToUDPD+e4FpuG8Dtw/F7uH\nUomQdW6kDCTAnxXMfIfTuy149x/6b5khheZW7pE3hTSBgR9VXQoRA7WUu8Vr6+0k\ntdEgX49rhteCgX2NssI1ddclI+lFrKGO3qn+90YHdWOCE3urMZ0uuLJMAtK3pQqH\na7JXCt9HRuwqWEJBedXNyJDYm2rBPaax67ItwTCaNShpcM9V75PQcWvurN6+PRSq\nR9/Maapm4Ub+GJCzLCKk1lwvxKYZBP9Zj/jYJMQ/krV0F8OoC42VyEjlheLKu3ij\nuSVcrnW0+9uVj/6naQAUHbXsINjgsk4ZFwBSp6ohPsF7L7CFH3gvi6XCxCchTCWg\nEbdYerCIxlkIqZRmQ8X8fE+YzSo/jyMvK9ptIKdd6GMj0owSpIk71iWQhw6p76tF\n1COeLBNOF+pLlJLghpONtUr/zaLMUoY21EUx1JftTMTLHupsvxDVY8t23jTfAILS\nIIxZ6n/xG1lfUI0ywKWenoMCAwEAAQ==\n-----END PUBLIC KEY-----\n"
+
 #endif
