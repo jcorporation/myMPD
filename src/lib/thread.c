@@ -11,9 +11,9 @@
 #include "compile_time.h"
 #include "src/lib/thread.h"
 
-_Atomic int mympd_worker_threads;
+_Atomic int mympd_worker_threads;  //!< Count of running worker threads
 #ifdef MYMPD_ENABLE_LUA
-    _Atomic int script_worker_threads;
+    _Atomic int script_worker_threads;  //!< Count of running runscript threads
 #endif
 
 #ifdef __linux__

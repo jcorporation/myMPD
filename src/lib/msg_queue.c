@@ -24,11 +24,11 @@
 */
 
 //message queues
-struct t_mympd_queue *webserver_queue;
-struct t_mympd_queue *mympd_api_queue;
+struct t_mympd_queue *webserver_queue;  //!< Message queue read by webserver thread
+struct t_mympd_queue *mympd_api_queue;  //!< Message queue read by mympd_api thread
 #ifdef MYMPD_ENABLE_LUA
-    struct t_mympd_queue *script_queue;
-    struct t_mympd_queue *script_worker_queue;
+    struct t_mympd_queue *script_queue;  //!< Message queue read by script thread
+    struct t_mympd_queue *script_worker_queue;  //!< Message queue read by runscript thread
 #endif
 
 //private definitions

@@ -282,6 +282,10 @@ bool mympd_version_check(sds workdir) {
  * Private functions
  */
 
+/**
+ * Reads the ca certificates
+ * @param config Pointer to central config
+ */
 static void read_ca_certificates(struct t_config *config) {
     if (config->cert_check == false) {
         return;

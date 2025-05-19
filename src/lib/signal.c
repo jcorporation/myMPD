@@ -20,7 +20,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-sig_atomic_t s_signal_received;
+sig_atomic_t s_signal_received;  //!< Signal received indicator
 
 // Private definitions
 static void mympd_signal_handler(int sig_num);
