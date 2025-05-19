@@ -26,6 +26,16 @@ This release enables certificate checking for outgoing https connections. The de
 - Feat: Sort list of timers and triggers #1425
 - Upd: Improve "Edit Script"-Layout
 - Upd: Bootstrap v5.3.6
+
+***
+
+## myMPD v21.0.1 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Memory Leak - Free request struct on mympd_worker failure
 - Fix: Timer name can not be empty
 
 ***
