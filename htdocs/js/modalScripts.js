@@ -727,6 +727,12 @@ function importScript(target) {
     }, false);
 }
 
+/**
+ * Fetches the script signature and validates it.
+ * @param {string} script Script name
+ * @param {string} text Script content
+ * @returns {void}
+ */
 function getScriptSignature(script, text) {
     httpGet(subdir + '/proxy?uri=' + myEncodeURI(settings.scriptsImportUri + script + '.sig'), function(signature) {
         sendAPI('MYMPD_API_SCRIPT_VERIFY_SIG', {
