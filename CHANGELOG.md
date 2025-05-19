@@ -6,6 +6,18 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v22.0.0 (not yet released)
 
+This release improves security by enabling certificate checking and verifying the signature of scripts that are imported from the mympd-scripts repository.
+
+Two new triggers enables scripting for playlist and folder art.
+
+### Notes
+
+This release enables certificate checking for outgoing https connections. The default CA store file is `/etc/ssl/certs/ca-certificates.crt`.
+
+### API changes
+
+- MYMPD_API_SCRIPT_VERIFY_SIG: new
+
 ### Changelog
 
 - Feat: Use system provided ca store for ssl certificate checking #1427
