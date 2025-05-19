@@ -80,19 +80,17 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
         mympd_worker_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
         mympd_mpd_state_copy(mympd_state->mpd_state, mympd_worker_state->mpd_state);
 
-        //partition state
+        // partition state
         mympd_worker_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
-        //set defaults
         partition_state_default(mympd_worker_state->partition_state, partition_state->name,
                 mympd_worker_state->mpd_state, mympd_worker_state->config);
-        //copy jukebox settings
+        // copy jukebox settings
         jukebox_state_copy(&partition_state->jukebox, &mympd_worker_state->partition_state->jukebox);
-        //use mpd state from worker
+        // use mpd state from worker
         mympd_worker_state->partition_state->mpd_state = mympd_worker_state->mpd_state;
 
-        //stickerdb
+        // stickerdb
         mympd_worker_state->stickerdb = malloc_assert(sizeof(struct t_partition_state));
-        //worker runs always in default partition
         stickerdb_state_default(mympd_worker_state->stickerdb, mympd_worker_state->config);
         // do not use the shared mpd_state - we can connect to another mpd server for stickers
         mympd_worker_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
