@@ -844,7 +844,7 @@ installdeps() {
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev lua5.4 \
-      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq newt
+      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq newt ca-certificates
   elif [ -f /etc/SuSE-release ]
   then
     #suse

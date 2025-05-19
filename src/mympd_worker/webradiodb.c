@@ -17,7 +17,6 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/http_client.h"
 #include "src/lib/json/json_query.h"
-#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
@@ -54,7 +53,9 @@ bool mympd_worker_webradiodb_update(struct t_mympd_worker_state *mympd_worker_st
         .method = "GET",
         .uri = WEBRADIODB_URI,
         .extra_headers = NULL,
-        .post_data = NULL
+        .post_data = NULL,
+        .cert_check = mympd_worker_state->config->cert_check,
+        .ca_certs = mympd_worker_state->config->ca_certs
     };
     struct mg_client_response_t http_response;
     http_client_response_init(&http_response);

@@ -30,6 +30,8 @@ You can use `mympd -c` to create the initial configuration in the `/var/lib/mymp
 | cache_lyrics_keep_days | number | MYMPD_CACHE_LYRICS_KEEP_DAYS | 31 | How long to keep lyrics in the lyrics cache; 0 to disable the cache; -1 to disable pruning of the cache. |
 | cache_misc_keep_days | number | MYMPD_CACHE_MISC_KEEP_DAYS | 1 | How long to keep files in the misc cache. |
 | cache_thumbs_keep_days | number | MYMPD_CACHE_THUMBS_KEEP_DAYS | 31 | How long to keep images in the thumbnail cache; 0 to disable the cache; -1 to disable pruning of the cache. |
+| ca_cert_store | string | MYMPD_CA_CERT_STORE | `/etc/ssl/certs/ca-certificates.crt` | Path to system CA certificate store. |
+| cert_check | boolean | MYMPD_CERT_CHECK | true | Enable certificate checking for outgoing https connections. |
 | http | boolean | MYMPD_HTTP | true | `true` = Enable listening on http_port |
 | http_host | string | MYMPD_HTTP_HOST | `[::]` | IP address to listen on, use `[::]` to listen on IPv6 and IPv4 |
 | http_port | number | MYMPD_HTTP_PORT | 80 | Port to listen for plain http requests. Redirects to `ssl_port` if `ssl` is set to `true`. *1 |

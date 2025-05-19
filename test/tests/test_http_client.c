@@ -16,7 +16,8 @@ UTEST(http_client, test_http_client) {
         .method = "GET",
         .uri = "https://raw.githubusercontent.com/jcorporation/myMPD/master/README.md",
         .extra_headers = "",
-        .post_data = ""
+        .post_data = "",
+        .cert_check = false
     };
 
     struct mg_client_response_t response;

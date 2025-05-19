@@ -3,7 +3,7 @@
 # myMPD (c) 2018-2025 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 #
-FROM alpine:latest as build
+FROM alpine:latest AS build
 
 COPY . /myMPD/
 WORKDIR /myMPD
@@ -12,7 +12,7 @@ RUN cmake -B "release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Relea
 RUN make -j4 -C "release"
 
 FROM alpine:latest
-RUN apk add --no-cache openssl libid3tag flac lua5.4 pcre2 newt
+RUN apk add --no-cache openssl libid3tag flac lua5.4 pcre2 newt ca-certificates
 RUN adduser -D -H -h /var/lib/mympd -s /sbin/nologin -g myMPD -u 1000 mympd
 COPY --from=build /myMPD/release/bin/mympd /usr/bin/
 COPY --from=build /myMPD/release/bin/mympd-script /usr/bin/

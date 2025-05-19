@@ -285,6 +285,9 @@
     #define CERT_KEY_LENGTH CERT_KEY_LENGTH_RSA
 #endif
 
+#define CFG_MYMPD_CERT_CHECK true
+#define CFG_MYMPD_CA_CERT_STORE "/etc/ssl/certs/ca-certificates.crt"
+
 //http limits
 #define HTTP_CONNECTIONS_MAX 100
 #define URI_LENGTH_MAX 2048

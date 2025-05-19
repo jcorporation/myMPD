@@ -77,7 +77,9 @@ int lua_http_client(lua_State *lua_vm) {
             .method = method,
             .uri = uri,
             .extra_headers = extra_headers,
-            .post_data = post_data
+            .post_data = post_data,
+            .cert_check = config->cert_check,
+            .ca_certs = config->ca_certs
         };
         mg_client_response = malloc_assert(sizeof(struct mg_client_response_t));
         http_client_response_init(mg_client_response);

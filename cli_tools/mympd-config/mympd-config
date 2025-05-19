@@ -86,6 +86,8 @@ set_default() {
     MYMPD_SSL_CERT=""
     MYMPD_SSL_KEY=""
     MYMPD_WEBRADIODB="true"
+    MYMPD_CERT_CHECK="true"
+    MYMPD_CA_CERT_STORE="/etc/ssl/certs/ca-certificates.crt"
 }
 
 read_config() {
@@ -113,6 +115,8 @@ read_config() {
     [ -f "${CONFIG_DIR}/ssl_cert" ] && read -r MYMPD_SSL_CERT < "${CONFIG_DIR}/ssl_cert"
     [ -f "${CONFIG_DIR}/ssl_key" ] && read -r MYMPD_SSL_KEY < "${CONFIG_DIR}/ssl_key"
     [ -f "${CONFIG_DIR}/webradiodb" ] && read -r MYMPD_WEBRADIODB < "${CONFIG_DIR}/webradiodb"
+    [ -f "${CONFIG_DIR}/cert_check" ] && read -r MYMPD_CERT_CHECK < "${CONFIG_DIR}/cert_check"
+    [ -f "${CONFIG_DIR}/ca_cert_store" ] && read -r MYMPD_CA_CERT_STORE < "${CONFIG_DIR}/ca_cert_store"
 }
 
 apply_config() {
@@ -143,6 +147,8 @@ apply_config() {
             -E MYMPD_SSL_CERT="$MYMPD_SSL_CERT" \
             -E MYMPD_SSL_KEY="$MYMPD_SSL_KEY" \
             -E MYMPD_WEBRADIODB="$MYMPD_WEBRADIODB" \
+            -E MYMPD_CERT_CHECK="$MYMPD_CERT_CHECK" \
+            -E MYMPD_CA_CERT_STORE="$MYMPD_CA_CERT_STORE" \
             $MYMPD_BIN -c
     else
         export MYMPD_ACL
@@ -169,6 +175,8 @@ apply_config() {
         export MYMPD_SSL_CERT
         export MYMPD_SSL_KEY
         export MYMPD_WEBRADIODB
+        export MYMPD_CERT_CHECK
+        export MYMPD_CA_CERT_STORE
         $MYMPD_BIN -c
     fi
 }
@@ -285,6 +293,8 @@ menu_misc() {
         "Enable stickers" "$MYMPD_STICKERS" \
         "Enable sticker padding" "$MYMPD_STICKERS_PAD_INT" \
         "Enable WebradioDB" "$MYMPD_WEBRADIODB" \
+        "Enable cert check" "$MYMPD_CERT_CHECK" \
+        "CA certificate store" "$MYMPD_CA_CERT_STORE" \
         3>&1 1>&2 2>&3)
     case "$SELECT" in
         "Album group tag") MYMPD_ALBUM_GROUP_TAG=$(get_input "$SELECT" "$MYMPD_ALBUM_GROUP_TAG") ;;
@@ -300,6 +310,8 @@ menu_misc() {
         "Enable stickers") MYMPD_STICKERS=$(toggle_bool "$MYMPD_STICKERS") ;;
         "Enable sticker padding") MYMPD_STICKERS_PAD_INT=$(toggle_bool "$MYMPD_STICKERS_PAD_INT") ;;
         "Enable WebradioDB") MYMPD_WEBRADIODB=$(toggle_bool "$MYMPD_WEBRADIODB") ;;
+        "Enable cert check") MYMPD_CERT_CHECK=$(toggle_bool "$MYMPD_CERT_CHECK") ;;
+        "CA certificate store") MYMPD_CA_CERT_STORE=$(get_input "$SELECT" "$MYMPD_CA_CERT_STORE") ;;
         "") return ;;
     esac
     menu_misc
@@ -352,6 +364,8 @@ parse_options() {
             MYMPD_SSL_CERT) MYMPD_SSL_CERT="$2" ;;
             MYMPD_SSL_KEY) MYMPD_SSL_KEY="$2" ;;
             MYMPD_WEBRADIODB) MYMPD_WEBRADIODB="$2" ;;
+            MYMPD_CERT_CHECK) MYMPD_CERT_CHECK="$2" ;;
+            MYMPD_CA_CERT_STORE) MYMPD_CA_CERT_STORE="$2" ;;
             *)
                 echo "Invalid configuration setting"
                 exit 1

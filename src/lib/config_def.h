@@ -48,6 +48,7 @@ struct t_config {
     bool stickers;                  //!< enable sticker support
     bool stickers_pad_int;          //!< enable the padding of integer sticker values
     bool webradiodb;                //!< enable webradiodb support
+    bool cert_check;                //!< enable certificate checking for outbound http connections
     struct t_albums_config albums;  //!< album specific config
     int cache_cover_keep_days;      //!< expiration time for cover cache files in days
     int cache_lyrics_keep_days;     //!< expiration time for lyrics cache files in days
@@ -68,6 +69,8 @@ struct t_config {
     sds ssl_san;                    //!< additional names for SAN of the self generated certificate
     sds user;                       //!< username to drop privileges
     sds workdir;                    //!< working directory
+    sds ca_cert_store;              //!< System CA certificate store file
+    sds ca_certs;                   //!< System CA certificates
     time_t startup_time;            //!< unix timestamp of startup (not configurable)
 };
 

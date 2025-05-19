@@ -32,6 +32,7 @@
  * Private declarations
  */
 
+static void read_ca_certificates(struct t_config *config);
 static sds startup_getenv_string(const char *env_var, const char *default_value, validate_callback vcb, bool first_startup);
 static int startup_getenv_int(const char *env_var, int default_value, int min, int max, bool first_startup);
 static bool startup_getenv_bool(const char *env_var, bool default_value, bool first_startup);
@@ -56,6 +57,8 @@ void mympd_config_free(struct t_config *config) {
     FREE_SDS(config->ssl_san);
     FREE_SDS(config->user);
     FREE_SDS(config->workdir);
+    FREE_SDS(config->ca_cert_store);
+    FREE_SDS(config->ca_certs);
     FREE_PTR(config);
 }
 
@@ -83,6 +86,8 @@ void mympd_config_defaults_initial(struct t_config *config) {
     config->ssl_cert = NULL;
     config->ssl_key = NULL;
     config->ssl_san = NULL;
+    config->ca_cert_store = NULL;
+    config->ca_certs = NULL;
 }
 
 /**
@@ -142,6 +147,9 @@ void mympd_config_defaults(struct t_config *config) {
     config->stickers = startup_getenv_bool("MYMPD_STICKERS", CFG_MYMPD_STICKERS, config->first_startup);
     config->stickers_pad_int = startup_getenv_bool("MYMPD_STICKERS_PAD_INT", CFG_MYMPD_STICKERS_PAD_INT, config->first_startup);
     config->webradiodb = startup_getenv_bool("MYMPD_WEBRADIODB", CFG_MYMPD_WEBRADIODB, config->first_startup);
+
+    config->cert_check = startup_getenv_bool("MYMPD_CERT_CHECK", CFG_MYMPD_CERT_CHECK, config->first_startup);
+    config->ca_cert_store = startup_getenv_string("MYMPD_CA_CERT_STORE", CFG_MYMPD_CA_CERT_STORE, vcb_isfilepath, config->first_startup);
 
     sds album_mode_str = startup_getenv_string("MYMPD_ALBUM_MODE", CFG_MYMPD_ALBUM_MODE, vcb_isname, config->first_startup);
     config->albums.mode = parse_album_mode(album_mode_str);
@@ -221,6 +229,9 @@ bool mympd_config_rw(struct t_config *config, bool write) {
     config->stickers_pad_int = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "stickers_pad_int", config->stickers_pad_int, write);
     config->webradiodb = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "webradiodb", config->webradiodb, write);
 
+    config->cert_check = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "cert_check", config->cert_check, write);
+    config->ca_cert_store = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "ca_cert_store", config->ca_cert_store, vcb_isfilepath, write);
+
     sds album_mode_str = state_file_rw_string(config->workdir, DIR_WORK_CONFIG, "album_mode", lookup_album_mode(config->albums.mode), vcb_isname, write);
     config->albums.mode = parse_album_mode(album_mode_str);
     FREE_SDS(album_mode_str);
@@ -231,6 +242,8 @@ bool mympd_config_rw(struct t_config *config, bool write) {
 
     //overwrite configured loglevel
     config->loglevel = getenv_int("MYMPD_LOGLEVEL", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX);
+
+    read_ca_certificates(config);
     return true;
 }
 
@@ -268,6 +281,20 @@ bool mympd_version_check(sds workdir) {
 /**
  * Private functions
  */
+
+static void read_ca_certificates(struct t_config *config) {
+    if (config->cert_check == false) {
+        return;
+    }
+    MYMPD_LOG_INFO(NULL, "Reading ca certificates from %s", config->ca_cert_store);
+    config->ca_certs = sdsempty();
+    int nread;
+    config->ca_certs = sds_getfile(config->ca_certs, config->ca_cert_store, 1048576, false, true, &nread);
+    if (nread < 0) {
+        MYMPD_LOG_ERROR(NULL, "System certificate store not found.");
+        config->ca_certs = sdscat(config->ca_certs, "invalid");
+    }
+}
 
 /**
  * Gets an environment variable as sds string

@@ -23,6 +23,8 @@ struct mg_client_request_t {
     const char *extra_headers; //!< headers for the request
     const char *post_data;     //!< optional already encoded post data
     sds connect_uri;           //!< redirect uri (only internal)
+    bool cert_check;           //!< check server certificate
+    sds ca_certs;              //!< CA certificates
 };
 
 /**

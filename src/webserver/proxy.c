@@ -99,6 +99,9 @@ void send_backend_request(struct mg_connection *nc) {
         struct mg_tls_opts tls_opts = {
             .name = host
         };
+        if (mg_user_data->config->cert_check == true) {
+            tls_opts.ca = mg_str(mg_user_data->config->ca_certs);
+        }
         mg_tls_init(nc, &tls_opts);
     }
     mg_printf(nc, "GET %s HTTP/1.1\r\n"
