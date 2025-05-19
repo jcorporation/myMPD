@@ -137,17 +137,17 @@ static void *mympd_worker_run(void *arg) {
         if (rc == true) {
             //call api handler
             mympd_worker_api(mympd_worker_state);
-            //disconnect
-            mympd_client_disconnect_silent(mympd_worker_state->partition_state);
         }
+        //disconnect
+        mympd_client_disconnect_silent(mympd_worker_state->partition_state);
         if (mympd_worker_state->stickerdb->conn != NULL) {
             stickerdb_disconnect(mympd_worker_state->stickerdb);
         }
     }
     else {
-        MYMPD_LOG_ERROR(NULL, "Running mympd_worker failed");
+        MYMPD_LOG_ERROR(mympd_worker_state->partition_state->name, "Running mympd_worker failed");
     }
-    MYMPD_LOG_NOTICE(NULL, "Stopping mympd_worker thread");
+    MYMPD_LOG_NOTICE(mympd_worker_state->partition_state->name, "Stopping mympd_worker thread");
     mympd_worker_state_free(mympd_worker_state);
     mympd_worker_threads--;
     FREE_SDS(thread_logname);

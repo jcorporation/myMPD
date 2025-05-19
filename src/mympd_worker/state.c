@@ -31,5 +31,8 @@ void mympd_worker_state_free(struct t_mympd_worker_state *mympd_worker_state) {
         mympd_mpd_state_free(mympd_worker_state->stickerdb->mpd_state);
         stickerdb_state_free(mympd_worker_state->stickerdb);
     }
+    if (mympd_worker_state->request != NULL) {
+        free_request(mympd_worker_state->request);
+    }
     FREE_PTR(mympd_worker_state);
 }
