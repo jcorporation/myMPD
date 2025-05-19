@@ -22,5 +22,6 @@ bool mympd_config_rm(struct t_config *config);
 bool mympd_config_rw(struct t_config *config, bool write);
 bool mympd_version_set(sds workdir);
 bool mympd_version_check(sds workdir);
+bool read_ca_certificates(struct t_config *config);
 
 #endif

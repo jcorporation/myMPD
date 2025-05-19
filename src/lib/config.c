@@ -32,7 +32,6 @@
  * Private declarations
  */
 
-static void read_ca_certificates(struct t_config *config);
 static sds startup_getenv_string(const char *env_var, const char *default_value, validate_callback vcb, bool first_startup);
 static int startup_getenv_int(const char *env_var, int default_value, int min, int max, bool first_startup);
 static bool startup_getenv_bool(const char *env_var, bool default_value, bool first_startup);
@@ -243,7 +242,6 @@ bool mympd_config_rw(struct t_config *config, bool write) {
     //overwrite configured loglevel
     config->loglevel = getenv_int("MYMPD_LOGLEVEL", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX);
 
-    read_ca_certificates(config);
     return true;
 }
 
@@ -279,26 +277,28 @@ bool mympd_version_check(sds workdir) {
 }
 
 /**
- * Private functions
- */
-
-/**
  * Reads the ca certificates
  * @param config Pointer to central config
+ * @return true on success or disabled certificate checking, else false
  */
-static void read_ca_certificates(struct t_config *config) {
+bool read_ca_certificates(struct t_config *config) {
     if (config->cert_check == false) {
-        return;
+        return true;
     }
     MYMPD_LOG_INFO(NULL, "Reading ca certificates from %s", config->ca_cert_store);
     config->ca_certs = sdsempty();
     int nread;
     config->ca_certs = sds_getfile(config->ca_certs, config->ca_cert_store, 1048576, false, true, &nread);
-    if (nread < 0) {
-        MYMPD_LOG_ERROR(NULL, "System certificate store not found.");
-        config->ca_certs = sdscat(config->ca_certs, "invalid");
+    if (nread <= 0) {
+        MYMPD_LOG_EMERG(NULL, "System certificate store not found or empty.");
+        return false;
     }
+    return true;
 }
+
+/**
+ * Private functions
+ */
 
 /**
  * Gets an environment variable as sds string
