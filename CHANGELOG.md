@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Memory Leak - Free request struct on mympd_worker failure
+
 ***
 
 ## myMPD v21.0.0 (2025-05-11)

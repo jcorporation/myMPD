@@ -445,7 +445,6 @@ void mympd_worker_api(struct t_mympd_worker_state *mympd_worker_state) {
         }
     }
     push_response(response);
-    free_request(request);
     FREE_SDS(error);
     json_parse_error_clear(&parse_error);
 }
