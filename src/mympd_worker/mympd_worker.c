@@ -143,9 +143,9 @@ static void *mympd_worker_run(void *arg) {
         }
     }
     else {
-        MYMPD_LOG_ERROR(mympd_worker_state->partition_state->name, "Running mympd_worker failed");
+        MYMPD_LOG_ERROR(NULL, "Running mympd_worker failed");
     }
-    MYMPD_LOG_NOTICE(mympd_worker_state->partition_state->name, "Stopping mympd_worker thread");
+    MYMPD_LOG_NOTICE(NULL, "Stopping mympd_worker thread");
     mympd_worker_state_free(mympd_worker_state);
     mympd_worker_threads--;
     FREE_SDS(thread_logname);
