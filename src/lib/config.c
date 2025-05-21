@@ -58,6 +58,8 @@ void mympd_config_free(struct t_config *config) {
     FREE_SDS(config->workdir);
     FREE_SDS(config->ca_cert_store);
     FREE_SDS(config->ca_certs);
+    FREE_SDS(config->custom_css);
+    FREE_SDS(config->custom_js);
     FREE_PTR(config);
 }
 
@@ -87,6 +89,8 @@ void mympd_config_defaults_initial(struct t_config *config) {
     config->ssl_san = NULL;
     config->ca_cert_store = NULL;
     config->ca_certs = NULL;
+    config->custom_css = NULL;
+    config->custom_js = NULL;
 }
 
 /**
@@ -294,6 +298,20 @@ bool read_ca_certificates(struct t_config *config) {
         return false;
     }
     return true;
+}
+
+/**
+ * Reads the user defines css and js
+ * @param config Pointer to config
+ */
+void read_custom_css_js(struct t_config *config) {
+    sds filename = sdscatfmt(sdsempty(), "%s/config/%s", config->workdir, FILENAME_CUSTOM_CSS);
+    int nread;
+    config->custom_css  = sds_getfile(sdsempty(), filename, 1048576, false, false, &nread);
+    sdsclear(filename);
+    filename = sdscatfmt(sdsempty(), "%s/config/%s", config->workdir, FILENAME_CUSTOM_JS);
+    config->custom_js  = sds_getfile(sdsempty(), filename, 1048576, false, false, &nread);
+    FREE_SDS(filename);
 }
 
 /**

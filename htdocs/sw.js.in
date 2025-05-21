@@ -6,6 +6,8 @@ const CACHE = 'myMPD-cache-v__VERSION__';
 const subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 const urlsToCache = [
     subdir + '/',
+    subdir + '/custom.css',
+    subdir + '/custom.js',
     subdir + '/css/combined.css',
     subdir + '/js/combined.js',
     subdir + '/assets/appicon-192.png',

@@ -80,6 +80,9 @@
 #define FILENAME_WEBRADIO_FAVORITES "webradio_favorites.mpack"
 #define FILENAME_SCRIPTVARS "scriptvars_list"
 
+#define FILENAME_CUSTOM_CSS "custom.css"
+#define FILENAME_CUSTOM_JS "custom.js"
+
 #define DIR_CACHE_COVER "cover"
 #define DIR_CACHE_HTTP "http"
 #define DIR_CACHE_LYRICS "lyrics"
@@ -233,6 +236,14 @@
 
 #define EXTRA_HEADERS_IMAGE EXTRA_HEADERS_MISC\
     EXTRA_HEADERS_CACHE
+
+#define EXTRA_HEADERS_CSS EXTRA_HEADERS_MISC\
+    EXTRA_HEADERS_CACHE\
+    "Content-Type: text/css; charset=utf-8\r\n"
+
+#define EXTRA_HEADERS_JS EXTRA_HEADERS_MISC\
+    EXTRA_HEADERS_CACHE\
+    "Content-Type: text/javascript; charset=utf-8\r\n"
 
 #define EXTRA_HEADERS_PLACEHOLDER EXTRA_HEADERS_IMAGE "X-myMPD-Placeholder: 1\r\n"
 

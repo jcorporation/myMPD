@@ -71,6 +71,8 @@ struct t_config {
     sds workdir;                    //!< working directory
     sds ca_cert_store;              //!< System CA certificate store file
     sds ca_certs;                   //!< System CA certificates
+    sds custom_css;                 //!< User defined CSS
+    sds custom_js;                  //!< User defined JavaScript
     time_t startup_time;            //!< unix timestamp of startup (not configurable)
 };
 

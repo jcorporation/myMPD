@@ -879,6 +879,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-transparent"), NULL)) {
                 webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_transparent);
             }
+            else if (mg_match(hm->uri, mg_str("/custom.css"), NULL)) {
+                webserver_send_data(nc, config->custom_css, sdslen(config->custom_css), EXTRA_HEADERS_CSS);
+            }
+            else if (mg_match(hm->uri, mg_str("/custom.js"), NULL)) {
+                webserver_send_data(nc, config->custom_js, sdslen(config->custom_js), EXTRA_HEADERS_JS);
+            }
             else if (mg_match(hm->uri, mg_str("/index.html"), NULL)) {
                 webserver_send_header_redirect(nc, "/", "");
             }

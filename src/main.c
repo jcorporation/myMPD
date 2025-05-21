@@ -494,6 +494,9 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
+    // Read user defined CSS and JavaScript
+    read_custom_css_js(config);
+
     //Create working threads
     //mympd api
     MYMPD_LOG_NOTICE(NULL, "Starting mympd api thread");

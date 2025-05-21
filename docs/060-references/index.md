@@ -5,6 +5,7 @@ title: References
 - [API Documentation](api/index.md)
 - [Components](components.md)
 - [Custom navbar icons](custom-navbar-icons.md)
+- [Customization](customization.md)
 - [Feature matrix](feature-matrix.md)
 - [Filesystem hierarchy](filesystem-hierarchy.md)
 - [Local playback](local-playback.md)

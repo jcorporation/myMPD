@@ -23,5 +23,6 @@ bool mympd_config_rw(struct t_config *config, bool write);
 bool mympd_version_set(sds workdir);
 bool mympd_version_check(sds workdir);
 bool read_ca_certificates(struct t_config *config);
+void read_custom_css_js(struct t_config *config);
 
 #endif
