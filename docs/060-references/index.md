@@ -4,8 +4,6 @@ title: References
 
 - [API Documentation](api/index.md)
 - [Components](components.md)
-- [Custom navbar icons](custom-navbar-icons.md)
-- [Customization](customization.md)
 - [Feature matrix](feature-matrix.md)
 - [Filesystem hierarchy](filesystem-hierarchy.md)
 - [Local playback](local-playback.md)
@@ -18,6 +16,7 @@ title: References
 - [Tags](tags.md)
 - [Translating](translating.md)
 - [Trigger](trigger.md)
+- [UI Customization](customization.md)
 - [Webserver uris](webserver-uris.md)
 
 ## Source documentation
