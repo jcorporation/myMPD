@@ -120,6 +120,7 @@
 {"term":"Can't set playback options: MPD not connected"},
 {"term":"Cancel"},
 {"term":"Check WebradioDB"},
+{"term":"Checks a Lua table of tags against a comma separated list."},
 {"term":"Checks arguments from the mympd_arguments global variable."},
 {"term":"Checks for empty string or nil."},
 {"term":"Choose a playlist"},

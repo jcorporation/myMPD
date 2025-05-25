@@ -21,6 +21,10 @@ This release enables certificate checking for outgoing https connections. The de
 - MYMPD_API_HOME_WIDGET_SCRIPT_SAVE: new
 - MYMPD_API_HOME_WIDGET_SAVE: removed
 
+### Scripting changes
+
+- Feat: `mympd.tblvalue_in_list(()` - Checks a Lua table of tags against a comma separated list.
+
 ### Changelog
 
 - Feat: iFrames for home screen #1429

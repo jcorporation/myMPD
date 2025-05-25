@@ -27,3 +27,26 @@ end
 function mympd.isnilorempty(str)
   return str == nil or str == ''
 end
+
+--- Checks a Lua table of tags against a comma separated list
+-- @param list_str Comma separated list values
+-- @param tbl Lua table of values to check against the list
+-- @return true if
+function mympd.tblvalue_in_list(list_str, tbl)
+  if mympd.isnilorempty(list_str) or
+     mympd.isnilorempty(tbl)
+  then
+    return false
+  end
+  local list = {}
+  for v in string.gmatch(list_str, '([^,]+)') do
+    list[string.lower(mympd.trim(v))] = true
+  end
+  for _, v in pairs(tbl) do
+    if list[string.lower(v)] == true then
+      mympd.log(7, "List matched")
+      return true
+    end
+  end
+  return false
+end

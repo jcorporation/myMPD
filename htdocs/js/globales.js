@@ -1880,6 +1880,11 @@ const LUAfunctions = {
         "desc": "Checks arguments from the mympd_arguments global variable.",
         "func": "local rc, msg = mympd.check_arguments({uri = \"notempty\"})\nif rc == false then\n  return msg\nend",
         "feat": ""
+    },
+    "mympd.tblvalue_in_list": {
+        "desc": "Checks a Lua table of tags against a comma separated list.",
+        "func": "if mympd.tblvalue_in_list(list_str, tbl) == true then\n  -- Handle match\n\nend",
+        "feat": ""
     }
 };
 

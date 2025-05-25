@@ -47,3 +47,23 @@ local trimed = mympd.trim(str)
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
 | str | string | String to trim. |
+
+## Match table values against a comma separated list
+
+Checks a Lua table of tags against a comma separated list.
+
+local list_str = "Speech, Podcast, Audio Book"
+local tbl = { "Speech", "Soundtrack" }
+
+```lua
+if mympd.tblvalue_in_list(list_str, tbl) == true then
+    -- Handle match
+end
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| list_str | string | Comma separated list values |
+| tbl | table | Lua table of values to check against the list |
