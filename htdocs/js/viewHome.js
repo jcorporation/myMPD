@@ -225,7 +225,7 @@ function createHomeWidget(data, pos) {
                 document.createTextNode(data.name),
                 elCreateText('a', {'href':'#', 'data-title-phrase': 'Reload', 'title': tn('Reload'), 'data-action': 'refreshWidget', 'class': ['mi', 'float-end']}, 'refresh')
             ]),
-            elCreateEmpty('div', {'class': ['card-body', 'overflow-auto', 'p-0', 'bg-dark', 'rounded-bottom']})
+            elCreateEmpty('div', {'class': ['card-body', 'overflow-auto', (data.type === 'widget_iframe' ? 'p-2' : 'p-0'), 'bg-dark', 'rounded-bottom']})
         ]
     );
     setData(card, 'type', 'widget');
