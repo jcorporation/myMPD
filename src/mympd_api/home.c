@@ -77,13 +77,9 @@ bool mympd_api_home_icon_save(struct t_list *home_list, bool replace, unsigned o
         current = current->next;
     }
     key = sdscatlen(key, "]}", 2);
-    bool rc = false;
-    if (replace == true) {
-        rc = list_replace(home_list, oldpos, key, 0, NULL, NULL);
-    }
-    else {
-        rc = list_push(home_list, key, 0, NULL, NULL);
-    }
+    bool rc = replace == true
+        ? list_replace(home_list, oldpos, key, 0, NULL, NULL)
+        : list_push(home_list, key, 0, NULL, NULL);
     FREE_SDS(key);
     return rc;
 }
@@ -120,13 +116,9 @@ bool mympd_api_home_widget_save(struct t_list *home_list, bool replace, unsigned
         current = current->next;
     }
     key = sdscatlen(key, "}}", 2);
-    bool rc = false;
-    if (replace == true) {
-        rc = list_replace(home_list, oldpos, key, 0, NULL, NULL);
-    }
-    else {
-        rc = list_push(home_list, key, 0, NULL, NULL);
-    }
+    bool rc = replace == true
+        ? list_replace(home_list, oldpos, key, 0, NULL, NULL)
+        : list_push(home_list, key, 0, NULL, NULL);
     FREE_SDS(key);
     return rc;
 }
