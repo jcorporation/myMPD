@@ -17,9 +17,13 @@ This release enables certificate checking for outgoing https connections. The de
 ### API changes
 
 - MYMPD_API_SCRIPT_VERIFY_SIG: new
+- MYMPD_API_HOME_WIDGET_IFRAME_SAVE: new
+- MYMPD_API_HOME_WIDGET_SCRIPT_SAVE: new
+- MYMPD_API_HOME_WIDGET_SAVE: removed
 
 ### Changelog
 
+- Feat: iFrames for home screen #1429
 - Feat: Feat: Add custom css and js #1428
 - Feat: Use system provided ca store for ssl certificate checking #1427
 - Feat: Sign and verify scripts from mympd-scripts repository #1426

@@ -20,6 +20,12 @@
 
 #include <errno.h>
 
+// Private definitions
+
+static const char *home_type_name(enum home_type type);
+
+// Public functions
+
 /**
  * Moves a home icon in the list
  * @param home_list pointer to home list
@@ -59,7 +65,7 @@ bool mympd_api_home_icon_save(struct t_list *home_list, bool replace, unsigned o
     sds name, sds ligature, sds bgcolor, sds color, sds image, sds cmd, struct t_list *option_list)
 {
     sds key = sdsnewlen("{", 1);
-    key = tojson_char(key, "type", "icon", true);
+    key = tojson_char(key, "type", home_type_name(HOME_ICON), true);
     key = tojson_sds(key, "name", name, true);
     key = tojson_sds(key, "ligature", ligature, true);
     key = tojson_sds(key, "bgcolor", bgcolor, true);
@@ -86,36 +92,43 @@ bool mympd_api_home_icon_save(struct t_list *home_list, bool replace, unsigned o
 
 /**
  * Adds/replaces a home widget in the list
- * @param home_list pointer to home list
- * @param replace true to replace the icon at oldpos
- * @param oldpos original pos of the icon
- * @param name name
+ * @param home_list Pointer to home list
+ * @param replace Replace the icon at oldpos?
+ * @param oldpos Original pos of the widget
+ * @param type Type of the home widget
+ * @param name Widget name
  * @param refresh Refresh interval
- * @param size widget size
- * @param script script
- * @param arguments options for the command
+ * @param size Widget size
+ * @param ref Name of script or link for iframe
+ * @param arguments Script arguments
  * @return true on success, else false
  */
 bool mympd_api_home_widget_save(struct t_list *home_list, bool replace, unsigned oldpos,
-    sds name, unsigned refresh, sds size, sds script, struct t_list *arguments)
+    enum home_type type, sds name, unsigned refresh, sds size, sds ref, struct t_list *arguments)
 {
     sds key = sdsnewlen("{", 1);
-    key = tojson_char(key, "type", "widget", true);
+    key = tojson_char(key, "type", home_type_name(type), true);
     key = tojson_sds(key, "name", name, true);
     key = tojson_uint(key, "refresh", refresh, true);
     key = tojson_sds(key, "size", size, true);
-    key = tojson_sds(key, "script", script, true);
-    key = sdscat(key, "\"arguments\":{");
-    struct t_list_node *current = arguments->head;
-    int i = 0;
-    while (current != NULL) {
-        if (i++) {
-            key = sdscatlen(key, ",", 1);
+    if (type == HOME_WIDGET_SCRIPT) {
+        key = tojson_sds(key, "script", ref, true);
+        key = sdscat(key, "\"arguments\":{");
+        struct t_list_node *current = arguments->head;
+        int i = 0;
+        while (current != NULL) {
+            if (i++) {
+                key = sdscatlen(key, ",", 1);
+            }
+            key = tojson_char(key, current->key, current->value_p, false);
+            current = current->next;
         }
-        key = tojson_char(key, current->key, current->value_p, false);
-        current = current->next;
+        key = sdscatlen(key, "}", 1);
     }
-    key = sdscatlen(key, "}}", 2);
+    else if (type == HOME_WIDGET_IFRAME) {
+        key = tojson_sds(key, "uri", ref, false);
+    }
+    key = sdscatlen(key, "}", 1);
     bool rc = replace == true
         ? list_replace(home_list, oldpos, key, 0, NULL, NULL)
         : list_push(home_list, key, 0, NULL, NULL);
@@ -245,4 +258,20 @@ sds mympd_api_home_icon_get(struct t_list *home_list, sds buffer, unsigned reque
     buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
         JSONRPC_FACILITY_HOME, JSONRPC_SEVERITY_ERROR, "Can not get home icon");
     return buffer;
+}
+
+// Private functions
+
+/**
+ * Returns the string representation for the home element type
+ * @param type Home element type
+ * @return const char* 
+ */
+static const char *home_type_name(enum home_type type) {
+    switch(type) {
+        case HOME_ICON:          return "icon";
+        case HOME_WIDGET_SCRIPT: return "widget_script";
+        case HOME_WIDGET_IFRAME: return "widget_iframe";
+    }
+    return NULL;
 }

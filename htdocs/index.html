@@ -111,7 +111,8 @@
             <h2 class="dropdown-header" data-phrase="Add to homescreen"></h2>
             <button data-phrase="External link" data-href='{"cmd": "addExternalLinkToHome", "options": []}' class="btn btn-secondary w-100 btn-sm mb-2"></button>
             <button data-phrase="Modal shortcut" data-href='{"cmd": "addOpenModalToHome", "options": []}' class="btn btn-secondary w-100 btn-sm mb-2"></button>
-            <button data-phrase="Widget" data-href='{"cmd": "addHomeWidget", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
+            <button data-phrase="Script widget" data-href='{"cmd": "addHomeWidget", "options": ["widget_script"]}' class="btn btn-secondary w-100 btn-sm mb-2"></button>
+            <button data-phrase="iFrame widget" data-href='{"cmd": "addHomeWidget", "options": ["widget_iframe"]}' class="btn btn-secondary w-100 btn-sm"></button>
           </div>
         </div>
         <div id="HomeContainer" class="container-fluid cardsContainer scrollContainer">
@@ -2774,15 +2775,25 @@
             <div class="invalid-feedback" data-phrase="Invalid refresh interval"></div>
           </div>
         </div>
-        <div class="mb-3 row">
-          <label class="col-sm-4 col-form-label" for="modalHomeWidgetScriptInput" data-phrase="Script"></label>
-          <div class="col-sm-8">
-            <select id="modalHomeWidgetScriptInput" class="form-select"></select>
+        <div id="modalHomeWidgetIframe">
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="modalHomeWidgetUriInput" data-phrase="URI"></label>
+            <div class="col-sm-8">
+              <input id="modalHomeWidgetUriInput" class="form-control"/>
+            </div>
           </div>
         </div>
-        <div class="mb-3 row">
-          <label class="col-sm-4 col-form-label" data-phrase="Arguments"></label>
-          <div class="col-sm-8" id="modalHomeWidgetArgumentsInput"></div>
+        <div id="modalHomeWidgetScript">
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="modalHomeWidgetScriptInput" data-phrase="Script"></label>
+            <div class="col-sm-8">
+              <select id="modalHomeWidgetScriptInput" class="form-select"></select>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" data-phrase="Arguments"></label>
+            <div class="col-sm-8" id="modalHomeWidgetArgumentsInput"></div>
+          </div>
         </div>
       </div>
       <div class="modal-footer justify-content-between">

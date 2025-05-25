@@ -17,19 +17,31 @@ function initModalHomeWidget() {
 
 /**
  * Opens the add to homescreen modal for widgets
+ * @param {string} type Type of the widget
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function addHomeWidget() {
+function addHomeWidget(type) {
     const modal = elGetById('modalHomeWidget');
     elGetById('modalHomeWidgetTitle').textContent = tn('Add widget');
     setData(modal, 'replace', false);
     setData(modal, 'oldpos', 0);
+    setData(modal, 'type', type);
     elGetById('modalHomeWidgetNameInput').value = '';
     elGetById('modalHomeWidgetRefreshInput').value = '0';
     elGetById('modalHomeWidgetSizeInput').value = '2x2';
-    elGetById('modalHomeWidgetScriptInput').value = '';
-    selectWidgetScriptChange();
+    if (type === 'widget_iframe') {
+        elGetById('modalHomeWidgetUriInput').value = '';
+        elClearId('modalHomeWidgetArgumentsInput');
+        elShowId('modalHomeWidgetIframe');
+        elHideId('modalHomeWidgetScript');
+    }
+    else {
+        elGetById('modalHomeWidgetScriptInput').value = '';
+        selectWidgetScriptChange();
+        elHideId('modalHomeWidgetIframe');
+        elShowId('modalHomeWidgetScript');
+    }
     //show modal
     cleanupModalId('modalHomeWidget');
     uiElements.modalHomeWidget.show();
@@ -48,11 +60,22 @@ function editHomeWidget(pos, replace) {
         const modal = elGetById('modalHomeWidget');
         setData(modal, 'replace', replace);
         setData(modal, 'oldpos', pos);
+        setData(modal, 'type', obj.result.data.type);
         elGetById('modalHomeWidgetNameInput').value = obj.result.data.name;
         elGetById('modalHomeWidgetRefreshInput').value = obj.result.data.refresh;
         elGetById('modalHomeWidgetSizeInput').value = obj.result.data.size;
-        elGetById('modalHomeWidgetScriptInput').value = obj.result.data.script;
-        selectWidgetScriptChange(obj.result.data.arguments);
+        if ( obj.result.data.type === 'widget_iframe') {
+            elGetById('modalHomeWidgetUriInput').value = obj.result.data.uri;
+            elClearId('modalHomeWidgetArgumentsInput');
+            elShowId('modalHomeWidgetIframe');
+            elHideId('modalHomeWidgetScript');
+        }
+        else {
+            elGetById('modalHomeWidgetScriptInput').value = obj.result.data.script;
+            selectWidgetScriptChange(obj.result.data.arguments);
+            elHideId('modalHomeWidgetIframe');
+            elShowId('modalHomeWidgetScript');
+        }
         //show modal
         cleanupModalId('modalHomeWidget');
         uiElements.modalHomeWidget.show();
@@ -100,15 +123,28 @@ function showWidgetScriptArgs(option, values) {
 function saveHomeWidget(target) {
     cleanupModalId('modalHomeWidget');
     btnWaiting(target, true);
-    const args = formToScriptArgs(elGetById('modalHomeWidgetArgumentsInput'));
     const modal = elGetById('modalHomeWidget');
-    sendAPI("MYMPD_API_HOME_WIDGET_SAVE", {
-        "replace": getData(modal, 'replace'),
-        "oldpos": getData(modal, 'oldpos'),
-        "name": elGetById('modalHomeWidgetNameInput').value,
-        "refresh": Number(elGetById('modalHomeWidgetRefreshInput').value),
-        "size": getSelectValueId('modalHomeWidgetSizeInput'),
-        "script": getSelectValueId('modalHomeWidgetScriptInput'),
-        "arguments": args
-    }, modalClose, true);
+    const type = getData(modal, 'type');
+    if (type === 'widget_iframe') {
+        sendAPI("MYMPD_API_HOME_WIDGET_IFRAME_SAVE", {
+            "replace": getData(modal, 'replace'),
+            "oldpos": getData(modal, 'oldpos'),
+            "name": elGetById('modalHomeWidgetNameInput').value,
+            "refresh": Number(elGetById('modalHomeWidgetRefreshInput').value),
+            "size": getSelectValueId('modalHomeWidgetSizeInput'),
+            "uri": elGetById('modalHomeWidgetUriInput').value
+        }, modalClose, true);
+    }
+    else {
+        const args = formToScriptArgs(elGetById('modalHomeWidgetArgumentsInput'));
+        sendAPI("MYMPD_API_HOME_WIDGET_SCRIPT_SAVE", {
+            "replace": getData(modal, 'replace'),
+            "oldpos": getData(modal, 'oldpos'),
+            "name": elGetById('modalHomeWidgetNameInput').value,
+            "refresh": Number(elGetById('modalHomeWidgetRefreshInput').value),
+            "size": getSelectValueId('modalHomeWidgetSizeInput'),
+            "script": getSelectValueId('modalHomeWidgetScriptInput'),
+            "arguments": args
+        }, modalClose, true);
+    }
 }

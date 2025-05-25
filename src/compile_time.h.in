@@ -226,7 +226,7 @@
 #define EXTRA_HEADERS_SAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
     "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-    "media-src *; frame-ancestors *; base-uri 'none'; "\
+    "media-src *; frame-src *; frame-ancestors *; base-uri 'none'; "\
     "require-trusted-types-for 'script'\r\n"\
     EXTRA_HEADERS_PERMISSIONS_POLICY\
     EXTRA_HEADERS_MISC

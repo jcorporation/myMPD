@@ -62,6 +62,22 @@ function getHomeIconType(cmd, action) {
 }
 
 /**
+ * Checks the type of a home screen element
+ * @param {string} type Home widget type
+ * @returns {boolean} true if it is a home widget type, else false
+ */
+function isHomeWidget(type) {
+    switch(type) {
+        case 'widget':
+        case 'widget_script':
+        case 'widget_iframe':
+            return true;
+        default:
+            return false;
+    }
+}
+
+/**
  * Parses the MYMPD_API_HOME_ICON_LIST response
  * @param {object} obj jsonrpc response object
  * @returns {void}
@@ -95,7 +111,7 @@ function parseHomeIcons(obj) {
     }
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const col = obj.result.data[i].type === 'widget'
+        const col = isHomeWidget(obj.result.data[i].type) === true
             ? createHomeWidget(obj.result.data[i], i)
             : createHomeIcon(obj.result.data[i], i);
         if (i < cols.length) {
@@ -104,7 +120,7 @@ function parseHomeIcons(obj) {
         else {
             cardContainer.append(col);
         }
-        if (obj.result.data[i].type === 'widget') {
+        if (isHomeWidget(obj.result.data[i].type) === true) {
             updateHomeWidget(col.firstElementChild);
             if (obj.result.data[i].refresh > 0) {
                 widgetRefresh.push(col.firstElementChild);
@@ -125,10 +141,49 @@ function parseHomeIcons(obj) {
 function updateHomeWidget(card) {
     card.querySelector('.card-title a').textContent = 'autorenew';
     const data = getData(card, 'data');
+    switch(data.type) {
+        case 'widget':
+        case 'widget_script':
+            return updateHomeWidgetScript(card, data);
+        case 'widget_iframe':
+            return updateHomeWidgetIframe(card, data);
+        // no default
+    }
+}
+
+/**
+ * Updates the iFrame widget
+ * @param {HTMLElement | ChildNode} card Widget to refresh
+ * @param {object} data Widget data
+ * @returns {void}
+ */
+function updateHomeWidgetIframe(card, data) {
+    const body = card.querySelector('.card-body');
+    const iframe = body.firstElementChild;
+    setData(card, 'lastUpdate', getTimestamp());
+    setTimeout(function() {
+        card.querySelector('.card-title a').textContent = 'refresh';
+    }, 200);
+    if (iframe) {
+        iframe.src = data.uri;
+    }
+    else {
+        body.appendChild(elCreateEmpty('iframe', {'src': data.uri, 'class': ['widgetIframe']}));
+    }
+}
+
+/**
+ * Updates the script widget
+ * @param {HTMLElement | ChildNode} card Widget to refresh
+ * @param {object} data Widget data
+ * @returns {void}
+ */
+function updateHomeWidgetScript(card, data) {
     const query = [];
     for (const key in data.arguments) {
         query.push(myEncodeURIComponent(key) + '=' + myEncodeURIComponent(data.arguments[key]));
     }
+    setData(card, 'lastUpdate', getTimestamp());
     httpGet(getMyMPDuri('http') + '/script/' +  localSettings.partition + '/' + myEncodeURIComponent(data.script) + '?' + query.join('&'),
         function(response) {
             setTimeout(function() {
@@ -152,14 +207,13 @@ function updateHomeWidget(card) {
                 }
                 parseCmd(event, JSON.parse(href));
             }, false);
-            setData(card, 'lastUpdate', getTimestamp());
         },
         false);
 }
 
 /**
  * Creates a home widget
- * @param {object} data Widegt data
+ * @param {object} data Widget data
  * @param {number} pos Widget position
  * @returns {HTMLElement} Created widget wrapped in col
  */
