@@ -33,7 +33,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - [Albumart: embedded and image per folder](https://jcorporation.github.io/myMPD/references/pictures)
 - [Unsynchronized and synchronized Lyrics](https://jcorporation.github.io/myMPD/references/lyrics)
 - Local PDF booklet and info.txt support (per album folder)
-- [Local playback of mpd http stream](https://jcorporation.github.io/myMPD/references/local-playback)
+- [Local playback of mpd http stream](./docs/060-references/local-playback.md)
 - Timers and Triggers
 - [Lua scripting](https://jcorporation.github.io/myMPD/scripting/)
 - [Localized user interface](https://jcorporation.github.io/myMPD/references/translating)
