@@ -28,7 +28,6 @@ set(TEST_SOURCES
   ../src/lib/last_played.c
   ../src/lib/list.c
   ../src/lib/log.c
-  ../src/lib/mg_str_utils.c
   ../src/lib/mimetype.c
   ../src/lib/mpack.c
   ../src/lib/msg_queue.c

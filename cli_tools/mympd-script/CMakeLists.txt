@@ -18,7 +18,6 @@ target_sources(mympd-script
     ../../src/lib/filehandler.c
     ../../src/lib/http_client.c
     ../../src/lib/list.c
-    ../../src/lib/mg_str_utils.c
     ../../src/lib/sds_extras.c
     ../../src/lib/passwd.c
     ../../src/lib/random.c

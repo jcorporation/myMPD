@@ -16,7 +16,6 @@
 #include "src/lib/config_def.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/mg_str_utils.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
 #include "src/webserver/placeholder.h"
@@ -222,7 +221,10 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                 break;
             }
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-            int response_code = mg_str_to_int(&hm->uri);
+            int response_code = 0;
+            if (mg_str_to_num(hm->uri, 10, &response_code, sizeof(response_code)) == false) {
+                MYMPD_LOG_ERROR(NULL, "Connection \"%lu\": invalid response code", nc->id);
+            }
             if (hm->body.len > 0 &&
                 response_code == 200)
             {
@@ -230,15 +232,17 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                 const struct mg_str *content_length_str = mg_http_get_header(hm, "Content-Length");
                 unsigned content_length = 0;
                 if (content_length_str != NULL) {
-                    content_length = mg_str_to_uint(content_length_str);
-                    MYMPD_LOG_DEBUG(NULL, "Connection \"%lu\": Content-Length: %d", nc->id, content_length);
-                }
-                #ifdef MYMPD_DEBUG
-                    const struct mg_str *content_type = mg_http_get_header(hm, "Content-Type");
-                    if (content_type != NULL) {
-                        MYMPD_LOG_DEBUG(NULL, "Connection \"%lu\": Content-Type: %.*s", nc->id, (int)content_type->len, content_type->buf);
+                    if (mg_str_to_num(*content_length_str, 10, &content_length, sizeof(content_length)) == true) {
+                        MYMPD_LOG_DEBUG(NULL, "Connection \"%lu\": Content-Length: %d", nc->id, content_length);
                     }
-                #endif
+                    else {
+                        MYMPD_LOG_ERROR(NULL, "Connection \"%lu\": Invalid content length", nc->id);
+                    }
+                }
+                const struct mg_str *content_type = mg_http_get_header(hm, "Content-Type");
+                if (content_type != NULL) {
+                    MYMPD_LOG_DEBUG(NULL, "Connection \"%lu\": Content-Type: %.*s", nc->id, (int)content_type->len, content_type->buf);
+                }
                 if (content_length > 0 &&
                     content_length != hm->body.len)
                 {

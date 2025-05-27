@@ -14,7 +14,6 @@
 #include "dist/mongoose/mongoose.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
-#include "src/lib/mg_str_utils.h"
 #include "src/lib/sds_extras.h"
 
 #include <errno.h>
@@ -261,14 +260,19 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
             name = sdscatlen(name, hm->headers[i].name.buf, hm->headers[i].name.len);
             sdstolower(name);
             if (strcmp(name, "content-length") == 0) {
-                content_length = mg_str_to_uint(&hm->headers[i].value);
+                if (mg_str_to_num(hm->headers[i].value, 10, &content_length, sizeof(content_length)) == false) {
+                    MYMPD_LOG_ERROR(NULL, "HTTP client invalid content-length");
+                }
             }
             list_push_len(&mg_client_response->header, name, sdslen(name), 0, hm->headers[i].value.buf, hm->headers[i].value.len, NULL);
             sdsclear(name);
         }
         FREE_SDS(name);
         //http response code
-        mg_client_response->response_code = mg_str_to_int(&hm->uri);
+        if (mg_str_to_num(hm->uri, 10, &mg_client_response->response_code, sizeof(mg_client_response->response_code)) == false) {
+            MYMPD_LOG_ERROR(NULL, "HTTP client invalid response code");
+            mg_client_response->response_code = 0;
+        }
         //set response code
         if (content_length > 0 &&
             content_length != hm->body.len)

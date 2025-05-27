@@ -64,7 +64,6 @@ target_sources(mympd
     lib/last_played.c
     lib/list.c
     lib/log.c
-    lib/mg_str_utils.c
     lib/mimetype.c
     lib/mpack.c
     lib/passwd.c
