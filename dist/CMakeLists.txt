@@ -3,7 +3,6 @@
 # https://github.com/jcorporation/mympd
 
 add_subdirectory(libmympdclient)
-add_subdirectory(mjson)
 add_subdirectory(mpack)
 add_subdirectory(mongoose)
 add_subdirectory(rax)

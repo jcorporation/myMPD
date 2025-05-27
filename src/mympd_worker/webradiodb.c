@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_worker/webradiodb.h"
 
-#include "dist/mjson/mjson.h"
+#include "dist/mongoose/mongoose.h"
 #include "dist/rax/rax.h"
 #include "src/lib/api.h"
 #include "src/lib/filehandler.h"
@@ -25,7 +25,7 @@
 // private definitions
 
 static bool parse_webradiodb(sds str, struct t_webradios *webradiodb);
-static bool icb_webradio_alternate(const char *path, sds key, sds value, int vtype,
+static bool icb_webradio_alternate(const char *path, sds key, sds value, enum json_vtype vtype,
         validate_callback vcb, void *userdata, struct t_json_parse_error *error);
 static struct t_webradio_data *parse_webradiodb_data(sds str);
 
@@ -89,22 +89,15 @@ bool mympd_worker_webradiodb_update(struct t_mympd_worker_state *mympd_worker_st
  * @return true on success, else false
  */
 static bool parse_webradiodb(sds str, struct t_webradios *webradiodb) {
-    int koff;
-    int klen;
-    int voff;
-    int vlen;
-    int vtype;
-    int off;
-    sds key = sdsempty();
+    struct mg_str j_key;
+    struct mg_str j_value;
+    size_t off = 0;
     sds data_str = sdsempty();
-    for (off = 0; (off = mjson_next(str, (int)sdslen(str), off,
-         &koff, &klen, &voff, &vlen, &vtype)) != 0; )
-    {
-        key = sdscatlen(key, str + koff, (size_t)klen);
-        data_str = sdscatlen(data_str, str + voff, (size_t)vlen);
+    while ((off = mg_json_next(mg_str_n(str, sdslen(str)), off, &j_key, &j_value)) != 0) {
+        data_str = sdscatlen(data_str, j_value.buf, j_value.len);
         struct t_webradio_data *data = parse_webradiodb_data(data_str);
         if (data != NULL) {
-            if (raxTryInsert(webradiodb->db, (unsigned char *)key, sdslen(key), data, NULL) == 1) {
+            if (raxTryInsert(webradiodb->db, (unsigned char *)j_key.buf, j_key.len, data, NULL) == 1) {
                 // write uri index
                 struct t_list_node *current = data->uris.head;
                 while (current != NULL) {
@@ -114,14 +107,12 @@ static bool parse_webradiodb(sds str, struct t_webradios *webradiodb) {
             }
             else {
                 // insert error
-                MYMPD_LOG_ERROR(NULL, "Duplicate WebradioDB key found: %s", key);
+                MYMPD_LOG_ERROR(NULL, "Duplicate WebradioDB key found: %.*s", (int)j_key.len, j_key.buf);
                 webradio_data_free(data);
             }
         }
-        sdsclear(key);
         sdsclear(data_str);
     }
-    FREE_SDS(key);
     FREE_SDS(data_str);
     MYMPD_LOG_INFO(NULL, "Added %" PRIu64 " webradios", webradiodb->db->numele);
     return true;
@@ -138,7 +129,7 @@ static bool parse_webradiodb(sds str, struct t_webradios *webradiodb) {
  * @param error pointer to t_json_parse_error
  * @return true on success else false
  */
-static bool icb_webradio_alternate(const char *path, sds key, sds value, int vtype,
+static bool icb_webradio_alternate(const char *path, sds key, sds value, enum json_vtype vtype,
         validate_callback vcb, void *userdata, struct t_json_parse_error *error)
 {
     (void)vcb;
@@ -147,7 +138,7 @@ static bool icb_webradio_alternate(const char *path, sds key, sds value, int vty
     sds uri = NULL;
     sds codec = NULL;
     uint bitrate;
-    if (vtype != MJSON_TOK_OBJECT) {
+    if (vtype != JSON_TOK_OBJECT) {
         MYMPD_LOG_ERROR(NULL, "Invalid value for path %s", path);
         return false;
     }

@@ -11,7 +11,6 @@
 #include "compile_time.h"
 #include "src/mympd_api/settings.h"
 
-#include "dist/mjson/mjson.h"
 #include "src/lib/api.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/convert.h"
@@ -89,14 +88,14 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
  * @param error pointer to t_json_parse_error
  * @return true on success, else false
  */
-bool mympd_api_settings_connection_save(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
+bool mympd_api_settings_connection_save(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
 
     MYMPD_LOG_DEBUG(NULL, "Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
 
     if ((strcmp(key, "mpdHost") == 0 || strcmp(key, "stickerdbMpdHost") == 0) && 
-        vtype == MJSON_TOK_STRING)
+        vtype == JSON_TOK_STRING)
     {
         if (vcb_isfilepath(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a socket, ip-address or dns-name");
@@ -111,7 +110,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
         }
     }
     else if ((strcmp(key, "mpdPort") == 0 || strcmp(key, "stickerdbMpdPort") == 0) &&
-        vtype == MJSON_TOK_NUMBER)
+        vtype == JSON_TOK_NUMBER)
     {
         unsigned mpd_port;
         enum str2int_errno rc = str2uint(&mpd_port, value);
@@ -128,7 +127,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
         }
     }
     else if ((strcmp(key, "mpdPass") == 0 || strcmp(key, "stickerdbMpdPass") == 0) &&
-        vtype == MJSON_TOK_STRING)
+        vtype == JSON_TOK_STRING)
     {
         if (strcmp(value, "dontsetpassword") != 0) {
             if (vcb_isname(value) == false) {
@@ -149,7 +148,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
         }
     }
     else if ((strcmp(key, "mpdTimeout") == 0 || strcmp(key, "stickerdbMpdTimeout") == 0) &&
-        vtype == MJSON_TOK_NUMBER)
+        vtype == JSON_TOK_NUMBER)
     {
         unsigned mpd_timeout;
         enum str2int_errno rc = str2uint(&mpd_timeout, value);
@@ -171,11 +170,11 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
         }
     }
     else if (strcmp(key, "mpdKeepalive") == 0 || strcmp(key, "stickerdbMpdKeepalive") == 0) {
-        if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
+        if (vtype != JSON_TOK_TRUE && vtype != JSON_TOK_FALSE) {
             set_invalid_value(error, path, key, value, "Must be a boolean value");
             return false;
         }
-        bool keepalive = vtype == MJSON_TOK_TRUE
+        bool keepalive = vtype == JSON_TOK_TRUE
             ? true
             : false;
         if (strcmp(key, "mpdKeepalive") == 0) {
@@ -191,7 +190,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
             mympd_state->stickerdb->conn_state = MPD_FAILURE;
         }
     }
-    else if (strcmp(key, "mpdBinarylimit") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "mpdBinarylimit") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned binarylimit;
         enum str2int_errno rc = str2uint(&binarylimit, value);
         if (rc != STR2INT_SUCCESS || binarylimit < MPD_BINARY_CHUNK_SIZE_MIN || binarylimit > MPD_BINARY_CHUNK_SIZE_MAX) {
@@ -203,7 +202,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
             enable_set_conn_options(mympd_state);
         }
     }
-    else if (strcmp(key, "musicDirectory") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "musicDirectory") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilepath(value) == false) {
             set_invalid_value(error, path, key, value, "Must be none, auto or an absolute path");
             return false;
@@ -211,7 +210,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
         mympd_state->music_directory = sds_replace(mympd_state->music_directory, value);
         strip_slash(mympd_state->music_directory);
     }
-    else if (strcmp(key, "playlistDirectory") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "playlistDirectory") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilepath(value) == false) {
             set_invalid_value(error, path, key, value, "Must be none, auto or an absolute path");
             return false;
@@ -321,13 +320,13 @@ bool mympd_api_settings_view_save(struct t_mympd_state *mympd_state, sds view, s
  * @param error pointer to t_json_parse_error
  * @return true on success, else false
  */
-bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
+bool mympd_api_settings_set(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
 
     MYMPD_LOG_DEBUG(NULL, "Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
 
-    if (strcmp(key, "coverimageNames") == 0 && vtype == MJSON_TOK_STRING) {
+    if (strcmp(key, "coverimageNames") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilename(value) == true) {
             mympd_state->coverimage_names = sds_replace(mympd_state->coverimage_names, value);
         }
@@ -336,7 +335,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
             return false;
         }
     }
-    else if (strcmp(key, "thumbnailNames") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "thumbnailNames") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilename(value) == true) {
             mympd_state->thumbnail_names = sds_replace(mympd_state->thumbnail_names, value);
         }
@@ -345,7 +344,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
             return false;
         }
     }
-    else if (strcmp(key, "bookletName") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "bookletName") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilename(value) == true) {
             mympd_state->booklet_name = sds_replace(mympd_state->booklet_name, value);
         }
@@ -354,7 +353,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
             return false;
         }
     }
-    else if (strcmp(key, "infoTxtName") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "infoTxtName") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilename(value) == true) {
             mympd_state->info_txt_name = sds_replace(mympd_state->info_txt_name, value);
         }
@@ -363,7 +362,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
             return false;
         }
     }
-    else if (strcmp(key, "lastPlayedCount") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "lastPlayedCount") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned last_played_count;
         enum str2int_errno rc = str2uint(&last_played_count, value);
         if (rc != STR2INT_SUCCESS || last_played_count > MPD_PLAYLIST_LENGTH_MAX) {
@@ -372,7 +371,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         }
         mympd_state->last_played_count = last_played_count;
     }
-    else if (strcmp(key, "volumeMin") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "volumeMin") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned volume_min;
         enum str2int_errno rc = str2uint(&volume_min, value);
         if (rc != STR2INT_SUCCESS || volume_min > VOLUME_MAX) {
@@ -381,7 +380,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         }
         mympd_state->volume_min = volume_min;
     }
-    else if (strcmp(key, "volumeMax") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "volumeMax") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned volume_max;
         enum str2int_errno rc = str2uint(&volume_max, value);
         if (rc != STR2INT_SUCCESS || volume_max > VOLUME_MAX) {
@@ -390,7 +389,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         }
         mympd_state->volume_max = volume_max;
     }
-    else if (strcmp(key, "volumeStep") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "volumeStep") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned volume_step;
         enum str2int_errno rc = str2uint(&volume_step, value);
         if (rc != STR2INT_SUCCESS || volume_step < VOLUME_STEP_MIN || volume_step > VOLUME_STEP_MAX) {
@@ -399,7 +398,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         }
         mympd_state->volume_step = volume_step;
     }
-    else if (strcmp(key, "tagList") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "tagList") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_istaglist(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a list of MPD tags");
             return false;
@@ -408,14 +407,14 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         //set enabled tags for all connections
         enable_set_conn_options(mympd_state);
     }
-    else if (strcmp(key, "tagListSearch") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "tagListSearch") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_istaglist(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a list of MPD tags");
             return false;
         }
         mympd_state->tag_list_search = sds_replace(mympd_state->tag_list_search, value);
     }
-    else if (strcmp(key, "tagListBrowse") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "tagListBrowse") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_istaglist(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a list of MPD tags");
             return false;
@@ -423,10 +422,10 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         mympd_state->tag_list_browse = sds_replace(mympd_state->tag_list_browse, value);
     }
     else if (strcmp(key, "smartpls") == 0) {
-        if (vtype == MJSON_TOK_TRUE) {
+        if (vtype == JSON_TOK_TRUE) {
             mympd_state->smartpls = true;
         }
-        else if (vtype == MJSON_TOK_FALSE) {
+        else if (vtype == JSON_TOK_FALSE) {
             mympd_state->smartpls = false;
         }
         else {
@@ -434,14 +433,14 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
             return false;
         }
     }
-    else if (strcmp(key, "smartplsSort") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "smartplsSort") == 0 && vtype == JSON_TOK_STRING) {
         if (sdslen(value) > 0 && vcb_ismpdsort(value) == false) {
             set_invalid_value(error, path, key, value, "Only sort tags allowed");
             return false;
         }
         mympd_state->smartpls_sort = sds_replace(mympd_state->smartpls_sort, value);
     }
-    else if (strcmp(key, "smartplsPrefix") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "smartplsPrefix") == 0 && vtype == JSON_TOK_STRING) {
         if (sdslen(value) > 0 &&
             vcb_isfilename(value) == false)
         {
@@ -450,7 +449,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         }
         mympd_state->smartpls_prefix = sds_replacelen(mympd_state->smartpls_prefix, value, sdslen(value));
     }
-    else if (strcmp(key, "smartplsInterval") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "smartplsInterval") == 0 && vtype == JSON_TOK_NUMBER) {
         int interval;
         enum str2int_errno rc = str2int(&interval, value);
         if (rc != STR2INT_SUCCESS || interval < TIMER_INTERVAL_MIN || interval > TIMER_INTERVAL_MAX) {
@@ -467,39 +466,39 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
             }
         }
     }
-    else if (strcmp(key, "smartplsGenerateTagList") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "smartplsGenerateTagList") == 0 && vtype == JSON_TOK_STRING) {
         if (sdslen(value) > 0 && vcb_istaglist(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a list of MPD tags");
             return false;
         }
         mympd_state->smartpls_generate_tag_list = sds_replacelen(mympd_state->smartpls_generate_tag_list, value, sdslen(value));
     }
-    else if (strcmp(key, "webuiSettings") == 0 && vtype == MJSON_TOK_OBJECT) {
+    else if (strcmp(key, "webuiSettings") == 0 && vtype == JSON_TOK_OBJECT) {
         // we save the webui settings without validation, validation is done on client-side
         mympd_state->webui_settings = sds_replacelen(mympd_state->webui_settings, value, sdslen(value));
     }
-    else if (strcmp(key, "lyricsUsltExt") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "lyricsUsltExt") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isalnum(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a valid file extension");
             return false;
         }
         mympd_state->lyrics.uslt_ext = sds_replacelen(mympd_state->lyrics.uslt_ext, value, sdslen(value));
     }
-    else if (strcmp(key, "lyricsSyltExt") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "lyricsSyltExt") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isalnum(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a valid file extension");
             return false;
         }
         mympd_state->lyrics.sylt_ext = sds_replacelen(mympd_state->lyrics.sylt_ext, value, sdslen(value));
     }
-    else if (strcmp(key, "lyricsVorbisUslt") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "lyricsVorbisUslt") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isalnum(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a valid tag name");
             return false;
         }
         mympd_state->lyrics.vorbis_uslt = sds_replacelen(mympd_state->lyrics.vorbis_uslt, value, sdslen(value));
     }
-    else if (strcmp(key, "lyricsVorbisSylt") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "lyricsVorbisSylt") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isalnum(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a valid tag name");
             return false;
@@ -507,10 +506,10 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         mympd_state->lyrics.vorbis_sylt = sds_replacelen(mympd_state->lyrics.vorbis_sylt, value, sdslen(value));
     }
     else if (strcmp(key, "tagDiscEmptyIsFirst") == 0) {
-        if (vtype == MJSON_TOK_TRUE) {
+        if (vtype == JSON_TOK_TRUE) {
             mympd_state->tag_disc_empty_is_first = true;
         }
-        else if (vtype == MJSON_TOK_FALSE) {
+        else if (vtype == JSON_TOK_FALSE) {
             mympd_state->tag_disc_empty_is_first = false;
         }
         else {
@@ -539,27 +538,27 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
  * @param error pointer to t_json_parse_error
  * @return true on success, else false
  */
-bool mympd_api_settings_partition_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
+bool mympd_api_settings_partition_set(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void) vcb;
     struct t_partition_state *partition_state = (struct t_partition_state *)userdata;
 
     MYMPD_LOG_DEBUG(partition_state->name, "Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
 
-    if (strcmp(key, "highlightColor") == 0 && vtype == MJSON_TOK_STRING) {
+    if (strcmp(key, "highlightColor") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_ishexcolor(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a hex color value");
             return false;
         }
         partition_state->highlight_color = sds_replace(partition_state->highlight_color, value);
     }
-    else if (strcmp(key, "highlightColorContrast") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "highlightColorContrast") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_ishexcolor(value) == false) {
             set_invalid_value(error, path, key, value, "Must be a hex color value");
             return false;
         }
         partition_state->highlight_color_contrast = sds_replace(partition_state->highlight_color_contrast, value);
     }
-    else if (strcmp(key, "mpdStreamPort") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "mpdStreamPort") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned mpd_stream_port;
         enum str2int_errno rc = str2uint(&mpd_stream_port, value);
         if (rc != STR2INT_SUCCESS || mpd_stream_port < MPD_PORT_MIN || mpd_stream_port > MPD_PORT_MAX) {
@@ -568,7 +567,7 @@ bool mympd_api_settings_partition_set(const char *path, sds key, sds value, int 
         }
         partition_state->mpd_stream_port = mpd_stream_port;
     }
-    else if (strcmp(key, "streamUri") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "streamUri") == 0 && vtype == JSON_TOK_STRING) {
         if (sdslen(value) > 0 &&
             vcb_isstreamuri(value) == false)
         {
@@ -598,7 +597,7 @@ bool mympd_api_settings_partition_set(const char *path, sds key, sds value, int 
  * @param error pointer to t_json_parse_error
  * @return true on success, else false
  */
-bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
+bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void) vcb;
     struct t_partition_state *partition_state = (struct t_partition_state *)userdata;
 
@@ -608,10 +607,10 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
 
     MYMPD_LOG_DEBUG(partition_state->name, "Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
     if (strcmp(key, "autoPlay") == 0) {
-        if (vtype == MJSON_TOK_TRUE) {
+        if (vtype == JSON_TOK_TRUE) {
             partition_state->auto_play = true;
         }
-        else if (vtype == MJSON_TOK_FALSE) {
+        else if (vtype == JSON_TOK_FALSE) {
             partition_state->auto_play = false;
         }
         else {
@@ -619,7 +618,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             return false;
         }
     }
-    else if (strcmp(key, "jukeboxMode") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "jukeboxMode") == 0 && vtype == JSON_TOK_STRING) {
         enum jukebox_modes jukebox_mode = jukebox_mode_parse(value);
 
         if (jukebox_mode == JUKEBOX_UNKNOWN) {
@@ -633,7 +632,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
         sdsclear(value);
         value = sdscatfmt(value, "%i", jukebox_mode);
     }
-    else if (strcmp(key, "jukeboxPlaylist") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "jukeboxPlaylist") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilename(value) == false) {
             set_invalid_value(error, path, key, value, "Must be valid MPD playlist");
             return false;
@@ -643,7 +642,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             jukebox_changed = true;
         }
     }
-    else if (strcmp(key, "jukeboxQueueLength") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "jukeboxQueueLength") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned jukebox_queue_length;
         enum str2int_errno crc = str2uint(&jukebox_queue_length, value);
         if (crc != STR2INT_SUCCESS || jukebox_queue_length <= JUKEBOX_QUEUE_MIN || jukebox_queue_length > JUKEBOX_QUEUE_MAX) {
@@ -652,7 +651,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
         }
         partition_state->jukebox.queue_length = jukebox_queue_length;
     }
-    else if (strcmp(key, "jukeboxUniqTag") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "jukeboxUniqTag") == 0 && vtype == JSON_TOK_STRING) {
         enum mpd_tag_type uniq_tag = mpd_tag_name_parse(value);
         if (uniq_tag == MPD_TAG_UNKNOWN) {
             set_invalid_value(error, path, key, value, "Must be a valid tag name");
@@ -663,7 +662,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             jukebox_changed = true;
         }
     }
-    else if (strcmp(key, "jukeboxLastPlayed") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "jukeboxLastPlayed") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned jukebox_last_played;
         enum str2int_errno crc = str2uint(&jukebox_last_played, value);
         if (crc != STR2INT_SUCCESS || jukebox_last_played > JUKEBOX_LAST_PLAYED_MAX) {
@@ -676,17 +675,17 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
         }
     }
     else if (strcmp(key, "jukeboxIgnoreHated") == 0) {
-        if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
+        if (vtype != JSON_TOK_TRUE && vtype != JSON_TOK_FALSE) {
             set_invalid_value(error, path, key, value, "Must be a boolean value");
             return false;
         }
-        bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
+        bool bool_buf = vtype == JSON_TOK_TRUE ? true : false;
         if (bool_buf != partition_state->jukebox.ignore_hated) {
             partition_state->jukebox.ignore_hated = bool_buf;
             jukebox_changed = true;
         }
     }
-    else if (strcmp(key, "jukeboxFilterInclude") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "jukeboxFilterInclude") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_issearchexpression_song(value) == false) {
             set_invalid_value(error, path, key, value, "Invalid MPD search expression");
             return false;
@@ -696,7 +695,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             jukebox_changed = true;
         }
     }
-    else if (strcmp(key, "jukeboxFilterExclude") == 0 && vtype == MJSON_TOK_STRING) {
+    else if (strcmp(key, "jukeboxFilterExclude") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_issearchexpression_song(value) == false) {
             set_invalid_value(error, path, key, value, "Invalid MPD search expression");
             return false;
@@ -706,7 +705,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             jukebox_changed = true;
         }
     }
-    else if (strcmp(key, "jukeboxMinSongDuration") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "jukeboxMinSongDuration") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned min_song_duration;
         enum str2int_errno crc = str2uint(&min_song_duration, value);
         if (crc != STR2INT_SUCCESS || min_song_duration > JUKEBOX_MIN_SONG_DURATION_MAX) {
@@ -718,7 +717,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             jukebox_changed = true;
         }
     }
-    else if (strcmp(key, "jukeboxMaxSongDuration") == 0 && vtype == MJSON_TOK_NUMBER) {
+    else if (strcmp(key, "jukeboxMaxSongDuration") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned max_song_duration;
         enum str2int_errno crc = str2uint(&max_song_duration, value);
         if (crc != STR2INT_SUCCESS || max_song_duration > JUKEBOX_MAX_SONG_DURATION_MAX) {
@@ -736,19 +735,19 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
     }
     else if (partition_state->conn_state == MPD_CONNECTED) {
         if (strcmp(key, "random") == 0) {
-            if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
+            if (vtype != JSON_TOK_TRUE && vtype != JSON_TOK_FALSE) {
                 set_invalid_value(error, path, key, value, "Must be a boolean value");
                 return false;
             }
-            bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
+            bool bool_buf = vtype == JSON_TOK_TRUE ? true : false;
             mpd_run_random(partition_state->conn, bool_buf);
         }
         else if (strcmp(key, "repeat") == 0) {
-            if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
+            if (vtype != JSON_TOK_TRUE && vtype != JSON_TOK_FALSE) {
                 set_invalid_value(error, path, key, value, "Must be a boolean value");
                 return false;
             }
-            bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
+            bool bool_buf = vtype == JSON_TOK_TRUE ? true : false;
              mpd_run_repeat(partition_state->conn, bool_buf);
         }
         else if (strcmp(key, "consume") == 0) {
@@ -767,7 +766,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             }
             mpd_run_single_state(partition_state->conn, state);
         }
-        else if (strcmp(key, "crossfade") == 0 && vtype == MJSON_TOK_NUMBER) {
+        else if (strcmp(key, "crossfade") == 0 && vtype == JSON_TOK_NUMBER) {
             unsigned uint_buf;
             enum str2int_errno crc = str2uint(&uint_buf, value);
             if (crc != STR2INT_SUCCESS || uint_buf > MPD_CROSSFADE_MAX) {
@@ -776,7 +775,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             }
             mpd_run_crossfade(partition_state->conn, uint_buf);
         }
-        else if (strcmp(key, "replaygain") == 0 && vtype == MJSON_TOK_STRING) {
+        else if (strcmp(key, "replaygain") == 0 && vtype == JSON_TOK_STRING) {
             enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(value);
             if (mode == MPD_REPLAY_UNKNOWN) {
                 set_invalid_value(error, path, key, value, "Must be off, auto, track or album");
@@ -784,7 +783,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             }
             mpd_run_replay_gain_mode(partition_state->conn, mode);
         }
-        else if (strcmp(key, "mixrampDb") == 0 && vtype == MJSON_TOK_NUMBER) {
+        else if (strcmp(key, "mixrampDb") == 0 && vtype == JSON_TOK_NUMBER) {
             float db;
             enum str2int_errno crc = str2float(&db, value);
             if (crc != STR2INT_SUCCESS || db < -100 || db > 0) {
@@ -795,7 +794,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, in
             }
             mpd_run_mixrampdb(partition_state->conn, db);
         }
-        else if (strcmp(key, "mixrampDelay") == 0 && vtype == MJSON_TOK_NUMBER) {
+        else if (strcmp(key, "mixrampDelay") == 0 && vtype == JSON_TOK_NUMBER) {
             float delay;
             enum str2int_errno crc = str2float(&delay, value);
             if (crc != STR2INT_SUCCESS || delay < -1.0 || delay > 100) {

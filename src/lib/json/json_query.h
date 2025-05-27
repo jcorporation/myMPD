@@ -19,6 +19,20 @@
 #include <stdbool.h>
 
 /**
+ * JSON value types
+ */
+enum json_vtype {
+    JSON_TOK_INVALID,
+    JSON_TOK_STRING,
+    JSON_TOK_NUMBER,
+    JSON_TOK_TRUE,
+    JSON_TOK_FALSE,
+    JSON_TOK_NULL,
+    JSON_TOK_ARRAY,
+    JSON_TOK_OBJECT
+};
+
+/**
  * Struct that holds the validation errors for the json_get_* functions
  */
 struct t_json_parse_error {
@@ -29,7 +43,7 @@ struct t_json_parse_error {
 /**
  * Iteration callback definition
  */
-typedef bool (*iterate_callback) (const char *, sds, sds, int, validate_callback, void *, struct t_json_parse_error *);
+typedef bool (*iterate_callback) (const char *, sds, sds, enum json_vtype, validate_callback, void *, struct t_json_parse_error *);
 
 void json_parse_error_init(struct t_json_parse_error *parse_error);
 void json_parse_error_clear(struct t_json_parse_error *parse_error);
@@ -57,7 +71,7 @@ bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validat
 bool json_find_key(sds s, const char *path);
 sds json_get_key_as_sds(sds s, const char *path);
 
-const char *get_mjson_toktype_name(int vtype);
+const char *get_mjson_toktype_name(enum json_vtype vtype);
 sds list_to_json_array(sds s, struct t_list *l);
 bool json_get_fields_as_string(sds s, sds *fields, struct t_json_parse_error *error);
 
