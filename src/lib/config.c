@@ -307,10 +307,16 @@ bool read_ca_certificates(struct t_config *config) {
 void read_custom_css_js(struct t_config *config) {
     sds filename = sdscatfmt(sdsempty(), "%s/config/%s", config->workdir, FILENAME_CUSTOM_CSS);
     int nread;
-    config->custom_css  = sds_getfile(sdsempty(), filename, 1048576, false, false, &nread);
+    config->custom_css  = sds_getfile(sdsempty(), filename, CUSTOM_CSS_JS_SIZE_MAX, false, false, &nread);
     sdsclear(filename);
+    if (nread == FILE_TO_BIG) {
+        sdsclear(config->custom_css);
+    }
     filename = sdscatfmt(filename, "%s/config/%s", config->workdir, FILENAME_CUSTOM_JS);
-    config->custom_js  = sds_getfile(sdsempty(), filename, 1048576, false, false, &nread);
+    config->custom_js  = sds_getfile(sdsempty(), filename, CUSTOM_CSS_JS_SIZE_MAX, false, false, &nread);
+    if (nread == FILE_TO_BIG) {
+        sdsclear(config->custom_css);
+    }
     FREE_SDS(filename);
 }
 

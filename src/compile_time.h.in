@@ -299,6 +299,8 @@
 #define CFG_MYMPD_CERT_CHECK true
 #define CFG_MYMPD_CA_CERT_STORE "/etc/ssl/certs/ca-certificates.crt"
 
+#define CUSTOM_CSS_JS_SIZE_MAX 1048576
+
 //http limits
 #define HTTP_CONNECTIONS_MAX 100
 #define URI_LENGTH_MAX 2048
