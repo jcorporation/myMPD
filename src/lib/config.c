@@ -309,7 +309,7 @@ void read_custom_css_js(struct t_config *config) {
     int nread;
     config->custom_css  = sds_getfile(sdsempty(), filename, 1048576, false, false, &nread);
     sdsclear(filename);
-    filename = sdscatfmt(sdsempty(), "%s/config/%s", config->workdir, FILENAME_CUSTOM_JS);
+    filename = sdscatfmt(filename, "%s/config/%s", config->workdir, FILENAME_CUSTOM_JS);
     config->custom_js  = sds_getfile(sdsempty(), filename, 1048576, false, false, &nread);
     FREE_SDS(filename);
 }
