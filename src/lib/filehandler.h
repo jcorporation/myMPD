@@ -39,6 +39,7 @@ enum try_rm_file_status {
  * Status of sds_getfile functions
  */
 enum getfile_status {
+    FILE_IS_EMPTY = 0,
     FILE_NOT_EXISTS = -1,
     FILE_TO_BIG = -2
 };
