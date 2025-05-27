@@ -292,8 +292,12 @@ bool read_ca_certificates(struct t_config *config) {
     MYMPD_LOG_INFO(NULL, "Reading ca certificates from %s", config->ca_cert_store);
     config->ca_certs = sdsempty();
     int nread;
-    config->ca_certs = sds_getfile(config->ca_certs, config->ca_cert_store, 1048576, false, true, &nread);
-    if (nread <= 0) {
+    config->ca_certs = sds_getfile(config->ca_certs, config->ca_cert_store, CACERT_STORE_SIZE_MAX, false, true, &nread);
+    if (nread == FILE_TO_BIG) {
+        MYMPD_LOG_EMERG(NULL, "System certificate store too big.");
+        return false;
+    }
+    if (nread <= FILE_IS_EMPTY) {
         MYMPD_LOG_EMERG(NULL, "System certificate store not found or empty.");
         return false;
     }
@@ -315,7 +319,7 @@ void read_custom_css_js(struct t_config *config) {
     filename = sdscatfmt(filename, "%s/config/%s", config->workdir, FILENAME_CUSTOM_JS);
     config->custom_js  = sds_getfile(sdsempty(), filename, CUSTOM_CSS_JS_SIZE_MAX, false, false, &nread);
     if (nread == FILE_TO_BIG) {
-        sdsclear(config->custom_css);
+        sdsclear(config->custom_js);
     }
     FREE_SDS(filename);
 }
