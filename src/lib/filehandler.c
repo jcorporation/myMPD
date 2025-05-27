@@ -172,7 +172,7 @@ sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, b
             MYMPD_LOG_ERROR(NULL, "Error opening file \"%s\"", file_path);
             MYMPD_LOG_ERRNO(NULL, errno);
         }
-        *nread = -1;
+        *nread = FILE_NOT_EXISTS;
         return s;
     }
     s = sds_getfile_from_fp(s, fp, max, remove_newline, nread);
@@ -201,7 +201,7 @@ sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *n
             s[max] = '\0';
             sdstrim(s, "\r \t\n");
             MYMPD_LOG_ERROR(NULL, "File is too big, max size is %lu", (unsigned long)max);
-            *nread = -2;
+            *nread = FILE_TO_BIG;
             return s;
         }
         if (remove_newline == true &&
