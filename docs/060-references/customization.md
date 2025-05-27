@@ -1,6 +1,8 @@
 ---
-title: Custom navbar icons
+title: Customization
 ---
+
+## Custom navbar icons
 
 The navbar icons can be customized. You must edit the file `/var/lib/mympd/state/navbar_icons` and restart myMPD. It must be a valid JSON array.
 
