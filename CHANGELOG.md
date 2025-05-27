@@ -39,7 +39,7 @@ This release enables certificate checking for outgoing https connections. The de
 
 ***
 
-## myMPD v21.0.1 (not yet released)
+## myMPD v21.0.1 (2025-05-27)
 
 This is a small bug fix release.
 
