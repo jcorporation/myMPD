@@ -25,20 +25,20 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - Advanced search
 - Jukebox mode
 - MPD mount and neighbors support
-- Customizable navigation bar and footer
+- [Customizable UI](https://jcorporation.github.io/myMPD/060-references/customization)
 - Home screen with shortcuts and widgets
 - Webradio Favorites and [WebradioDB](https://jcorporation.github.io/webradiodb/)
-- [Smart playlists and saved searches](https://jcorporation.github.io/myMPD/references/smart-playlists)
+- [Smart playlists and saved searches](https://jcorporation.github.io/myMPD/060-references/smart-playlists)
 - MPD sticker support: playback statistics, voting and user defined stickers
-- [Albumart: embedded and image per folder](https://jcorporation.github.io/myMPD/references/pictures)
-- [Unsynchronized and synchronized Lyrics](https://jcorporation.github.io/myMPD/references/lyrics)
+- [Albumart: embedded and image per folder](https://jcorporation.github.io/myMPD/060-references/pictures)
+- [Unsynchronized and synchronized Lyrics](https://jcorporation.github.io/myMPD/060-references/lyrics)
 - Local PDF booklet and info.txt support (per album folder)
-- [Local playback of mpd http stream](https://jcorporation.github.io/myMPD/references/local-playback)
+- [Local playback of mpd http stream](https://jcorporation.github.io/myMPD/060-references/local-playback)
 - Timers and Triggers
-- [Lua scripting](https://jcorporation.github.io/myMPD/scripting/)
-- [Localized user interface](https://jcorporation.github.io/myMPD/references/translating)
+- [Lua scripting](https://jcorporation.github.io/myMPD/050-scripting/)
+- [Localized user interface](https://jcorporation.github.io/myMPD/060-references/translating)
 - Dark and Light theme
-- [Publishing of mpd and myMPD directories via http](https://jcorporation.github.io/myMPD/references/published-directories)
+- [Publishing of mpd and myMPD directories via http](https://jcorporation.github.io/myMPD/060-references/published-directories)
 - Progressive Web App enabled
 - Support of Media Session API
 - ListenBrainz and MusicBrainz integration
