@@ -658,7 +658,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
             }
             else if (mg_match(wm->data, mg_str("id:*"), matches)) {
-                if (mg_str_to_num(wm->data, 10, &frontend_nc_data->id, sizeof(frontend_nc_data->id)) == true) {
+                if (mg_str_to_num(matches[0], 10, &frontend_nc_data->id, sizeof(frontend_nc_data->id)) == true) {
                     MYMPD_LOG_INFO(frontend_nc_data->partition, "Setting websocket (%lu) id to \"%u\"", nc->id, frontend_nc_data->id);
                     sent = mg_ws_send(nc, "ok", 2, WEBSOCKET_OP_TEXT);
                 }
