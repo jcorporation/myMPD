@@ -15,7 +15,6 @@ myMPD is opensource and build on top off other great opensource software.
 
 - [incbin](https://github.com/graphitemaster/incbin) (embedding assets)
 - [libmympdclient](https://github.com/jcorporation/libmympdclient) (mpd communication)
-- [mjson](https://github.com/cesanta/mjson) (json parsing)
 - [Mongoose](https://github.com/cesanta/mongoose) (web server)
 - [mpack](https://github.com/ludocode/mpack) (MessagePack serialization)
 - [rax](https://github.com/jcorporation/rax) (radix tree implementation)
