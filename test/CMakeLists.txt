@@ -135,7 +135,6 @@ target_compile_options(unit_test
 
 target_link_libraries(unit_test
   mympdclient
-  mjson
   mpack
   mongoose
   rax
