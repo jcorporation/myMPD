@@ -746,7 +746,7 @@ static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t
     char *str = mg_json_get_str(mg_str_n(s, sdslen(s)), path);
     if (str == NULL) {
         *result = NULL;
-        set_parse_error(error, path, "", "JSON path \"%s\" not found or value is not string");
+        set_parse_error(error, path, "", "JSON path \"%s\" not found or value is not string", path);
         return false;
     }
 
