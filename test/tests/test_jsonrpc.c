@@ -129,14 +129,17 @@ UTEST(jsonrpc, test_json_get_string) {
     ASSERT_FALSE(json_get_string(data, "$.key1", 0, 20, &result, vcb_isname, NULL));
     sdsclear(data);
     FREE_SDS(result);
+    //too long
     data = sdscat(data, "{\"key1\": \"asdfawerwerwq3e3243sf\"}");
     ASSERT_FALSE(json_get_string(data, "$.key1", 0, 10, &result, vcb_isname, NULL));
     sdsclear(data);
     FREE_SDS(result);
+    //too short
     data = sdscat(data, "{\"key1\": \"\"}");
     ASSERT_FALSE(json_get_string(data, "$.key1", 1, 10, &result, vcb_isname, NULL));
     sdsclear(data);
     FREE_SDS(result);
+    //key not exists
     data = sdscat(data, "{\"key2\": \"asdfawerwerwq3e3243sf\"}");
     ASSERT_FALSE(json_get_string(data, "$.key1", 0, 10, &result, vcb_isname, NULL));
     FREE_SDS(result);

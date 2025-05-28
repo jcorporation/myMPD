@@ -11,9 +11,10 @@
 #include "compile_time.h"
 #include "src/lib/json/json_query.h"
 
-#include "dist/mjson/mjson.h"
+#include "dist/mongoose/mongoose.h"
 #include "src/lib/convert.h"
 #include "src/lib/log.h"
+#include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker.h"
 #include "src/mympd_client/tags.h"
@@ -28,8 +29,9 @@
 /**
  * private definitions
  */
-static bool icb_json_get_field(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error);
-static bool icb_json_get_tag_value(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error);
+static enum json_vtype get_vtype(char p);
+static bool icb_json_get_field(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error);
+static bool icb_json_get_tag_value(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error);
 static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, struct t_json_parse_error *error);
 static void set_parse_error(struct t_json_parse_error *error, const char *path, const char *key, const char *fmt, ...);
 
@@ -80,14 +82,12 @@ bool json_get_fields_as_string(sds s, sds *fields, struct t_json_parse_error *er
  * @param path mjson path expression
  * @param result pointer to bool with the result
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_bool(sds s, const char *path, bool *result, struct t_json_parse_error *error) {
-    int v = 0;
-    if (mjson_get_bool(s, (int)sdslen(s), path, &v) != 0) {
-        *result = v == 1
-            ? true
-            : false;
+    bool v = false;
+    if (mg_json_get_bool(mg_str_n(s, sdslen(s)), path, &v) == true) {
+        *result = v;
         return true;
     }
     set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
@@ -100,7 +100,7 @@ bool json_get_bool(sds s, const char *path, bool *result, struct t_json_parse_er
  * @param path mjson path expression
  * @param result pointer to int with the result
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_int_max(sds s, const char *path, int *result, struct t_json_parse_error *error) {
     return json_get_int(s, path, JSONRPC_INT_MIN, JSONRPC_INT_MAX, result, error);
@@ -114,11 +114,11 @@ bool json_get_int_max(sds s, const char *path, int *result, struct t_json_parse_
  * @param max maximum value (including)
  * @param result pointer to int with the result
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_int(sds s, const char *path, int min, int max, int *result, struct t_json_parse_error *error) {
     double value;
-    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+    if (mg_json_get_num(mg_str_n(s, sdslen(s)), path, &value) == true) {
         if (value >= JSONRPC_INT_MIN &&
             value <= JSONRPC_INT_MAX)
         {
@@ -144,11 +144,11 @@ bool json_get_int(sds s, const char *path, int min, int max, int *result, struct
  * @param path mjson path expression
  * @param result pointer to time_t with the result
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_time_max(sds s, const char *path, time_t *result, struct t_json_parse_error *error) {
     double value;
-    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+    if (mg_json_get_num(mg_str_n(s, sdslen(s)), path, &value) == true) {
         if (value >= JSONRPC_TIME_MIN &&
             value <= JSONRPC_TIME_MAX)
         {
@@ -170,7 +170,7 @@ bool json_get_time_max(sds s, const char *path, time_t *result, struct t_json_pa
  * @param path mjson path expression
  * @param result pointer to int64_t with the result
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_int64_max(sds s, const char *path, int64_t *result, struct t_json_parse_error *error) {
     return json_get_int64(s, path, JSONRPC_INT64_MIN, JSONRPC_INT64_MAX, result, error);
@@ -184,11 +184,11 @@ bool json_get_int64_max(sds s, const char *path, int64_t *result, struct t_json_
  * @param max maximum value (including)
  * @param result pointer to int64_t with the result
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_int64(sds s, const char *path, int64_t min, int64_t max, int64_t *result, struct t_json_parse_error *error) {
     double value;
-    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+    if (mg_json_get_num(mg_str_n(s, sdslen(s)), path, &value) == true) {
         if (value >= (double)JSONRPC_INT64_MIN &&
             value <= (double)JSONRPC_INT64_MAX)
         {
@@ -212,7 +212,7 @@ bool json_get_int64(sds s, const char *path, int64_t min, int64_t max, int64_t *
  * @param path mjson path expression
  * @param result pointer to unsigned int with the result
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_uint_max(sds s, const char *path, unsigned *result, struct t_json_parse_error *error) {
     return json_get_uint(s, path, 0, JSONRPC_INT_MAX, result, error);
@@ -226,11 +226,11 @@ bool json_get_uint_max(sds s, const char *path, unsigned *result, struct t_json_
  * @param max maximum value (including)
  * @param result pointer to unsigned int with the result
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result, struct t_json_parse_error *error) {
     double value;
-    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+    if (mg_json_get_num(mg_str_n(s, sdslen(s)), path, &value) == true) {
         if (value >= JSONRPC_UINT_MIN &&
             value <= JSONRPC_UINT_MAX)
         {
@@ -256,7 +256,7 @@ bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned
  * @param result pointer to sds with the result
  * @param vcb validation callback
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb, struct t_json_parse_error *error) {
     if (vcb == NULL) {
@@ -275,7 +275,7 @@ bool json_get_string_max(sds s, const char *path, sds *result, validate_callback
  * @param max maximum length (inclusive)
  * @param cmp compare result against this string
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const char *cmp, sds *result, struct t_json_parse_error *error) {
     if (json_get_string_unescape(s, path, min, max, result, NULL, error) == false) {
@@ -298,7 +298,7 @@ bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const 
  * @param max maximum length (inclusive)
  * @param vcb validation callback
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, struct t_json_parse_error *error) {
     if (vcb == NULL) {
@@ -318,7 +318,7 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
  * @param vcb_value validation callback for the value
  * @param max_elements maximum of elements
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata,
         validate_callback vcb_key, validate_callback vcb_value, int max_elements, struct t_json_parse_error *error)
@@ -330,39 +330,36 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     if (vcb_key == NULL) {
         vcb_key = vcb_isalnum;
     }
-    const char *p;
-    int n;
-    int otype = mjson_find(s, (int)sdslen(s), path, &p, &n);
-    if (otype != MJSON_TOK_OBJECT &&
-        otype != MJSON_TOK_ARRAY)
-    {
-        set_parse_error(error, path, "", "Invalid json object type for JSON path \"%s\": %s", path, get_mjson_toktype_name(otype));
+    struct mg_str obj = mg_json_get_tok(mg_str_n(s, sdslen(s)), path);
+    if (obj.buf == NULL) {
+        set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
         return false;
     }
-    if (n <= 2)
-    {
-        //empty object/array
-        return true;
+    if (obj.buf[0] != '{' && obj.buf[0] != '[') {
+        set_parse_error(error, path, "", "Invalid json object type for JSON path \"%s\"", path);
+        return false;
     }
     //iterable object/array
     sds value = sdsempty();
     sds key = sdsempty();
     int i = 0;
-    int koff = 0;
-    int klen = 0;
-    int voff = 0;
-    int vlen = 0;
-    int vtype = 0;
-    int off = 0;
-    for (off = 0; (off = mjson_next(p, n, off, &koff, &klen, &voff, &vlen, &vtype)) != 0;) {
-        if (klen > JSONRPC_KEY_MAX) {
-            set_parse_error(error, path, key, "Key in JSON path \"%s\" is too long", path);
-            FREE_SDS(value);
-            FREE_SDS(key);
-            return false;
-        }
-        if (klen > 2) {
-            if (sds_json_unescape(p + koff + 1, (size_t)(klen - 2), &key) == false ||
+    struct mg_str j_key;
+    struct mg_str j_value;
+    enum json_vtype vtype = JSON_TOK_INVALID;
+    size_t off = 0;
+    while ((off = mg_json_next(obj, off, &j_key, &j_value)) != 0) {
+        if (j_key.buf != NULL &&
+            j_key.len > 2)
+        {
+            key = sdscatlen(key, j_key.buf, j_key.len);
+            if (j_key.len > JSONRPC_KEY_MAX) {
+                set_parse_error(error, path, key, "Key in JSON path \"%s\" is too long", path);
+                FREE_SDS(value);
+                FREE_SDS(key);
+                return false;
+            }
+            sdsclear(key);
+            if (sds_json_unescape(j_key.buf +  1, j_key.len - 2, &key) == false ||
                 vcb_key(key) == false)
             {
                 set_parse_error(error, path, key, "Validation of key in path \"%s\" has failed.", path);
@@ -371,16 +368,25 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 return false;
             }
         }
-        if (vlen > JSONRPC_STR_MAX) {
+        if (j_value.buf == NULL ||
+            j_value.len == 0)
+        {
+            set_parse_error(error, path, key, "Value for key \"%s\" in JSON path \"%s\" is not set", key, path);
+            FREE_SDS(value);
+            FREE_SDS(key);
+            return false;
+        }
+        if (j_value.len > JSONRPC_STR_MAX) {
             set_parse_error(error, path, key, "Value for key \"%s\" in JSON path \"%s\" is too long", key, path);
             FREE_SDS(value);
             FREE_SDS(key);
             return false;
         }
+        vtype = get_vtype(j_value.buf[0]);
         switch(vtype) {
-            case MJSON_TOK_STRING:
-                if (vlen > 2) {
-                    if (sds_json_unescape(p + voff + 1, (size_t)(vlen - 2), &value) == false) {
+            case JSON_TOK_STRING:
+                if (j_value.len > 2) {
+                    if (sds_json_unescape(j_value.buf + 1, j_value.len - 2, &value) == false) {
                         set_parse_error(error, path, key, "JSON unescape error for value for key \"%s\" in JSON path \"%s\" has failed", key, path);
                         FREE_SDS(value);
                         FREE_SDS(key);
@@ -388,14 +394,15 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                     }
                 }
                 break;
-            case MJSON_TOK_INVALID:
-            case MJSON_TOK_NULL:
+            case JSON_TOK_INVALID:
+            case JSON_TOK_NULL:
                 set_parse_error(error, path, key, "Invalid json value type: %s", get_mjson_toktype_name(vtype));
                 FREE_SDS(value);
                 FREE_SDS(key);
                 return false;
+
             default:
-                value = sdscatlen(value, p + voff, (size_t)vlen);
+                value = sdscatlen(value, j_value.buf, j_value.len);
                 break;
         }
         if (sdslen(key) == 0) {
@@ -434,15 +441,15 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
  * @param vcb validation callback
  * @param userdata pointer to a t_list struct to populate
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
-static bool icb_json_get_tag_value(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
+static bool icb_json_get_tag_value(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     enum mpd_tag_type tag = mpd_tag_name_parse(key);
     if (tag == MPD_TAG_UNKNOWN) {
         set_parse_error(error, path, "", "Unknown mpd tag type \"%s\"", key);
         return false;
     }
-    if (vtype != MJSON_TOK_STRING) {
+    if (vtype != JSON_TOK_STRING) {
         set_parse_error(error, path, "", "Invalid type for tag \"%s\": %s", key, get_mjson_toktype_name(vtype));
         return false;
     }
@@ -463,7 +470,7 @@ static bool icb_json_get_tag_value(const char *path, sds key, sds value, int vty
  * @param vcb validation callback
  * @param max_elements maximum of elements
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validate_callback vcb, int max_elements, struct t_json_parse_error *error) {
     return json_iterate_object(s, path, icb_json_get_tag_value, song, vcb, vcb, max_elements, error);
@@ -478,11 +485,11 @@ bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validat
  * @param vcb validation callback
  * @param userdata pointer to a t_list struct to populate
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
-static bool icb_json_get_array_string(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
+static bool icb_json_get_array_string(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void)key;
-    if (vtype != MJSON_TOK_STRING ||
+    if (vtype != JSON_TOK_STRING ||
         vcb(value) == false)
     {
         set_parse_error(error, path, "", "Validation of value \"%s\" has failed", value);
@@ -502,7 +509,7 @@ static bool icb_json_get_array_string(const char *path, sds key, sds value, int 
  * @param vcb validation callback
  * @param max_elements maximum of elements
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_array_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, struct t_json_parse_error *error) {
     return json_iterate_object(s, path, icb_json_get_array_string, l, vcb, vcb, max_elements, error);
@@ -517,12 +524,12 @@ bool json_get_array_string(sds s, const char *path, struct t_list *l, validate_c
  * @param vcb validation callback - not used
  * @param userdata pointer to a t_list struct to populate
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
-static bool icb_json_get_array_int64(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
+static bool icb_json_get_array_int64(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void)key;
     (void)vcb;
-    if (vtype != MJSON_TOK_NUMBER) {
+    if (vtype != JSON_TOK_NUMBER) {
         set_parse_error(error, path, "", "Validation of value \"%s\" has failed", value);
         return false;
     }
@@ -544,7 +551,7 @@ static bool icb_json_get_array_int64(const char *path, sds key, sds value, int v
  * @param l t_list struct to populate
  * @param max_elements maximum of elements
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
 bool json_get_array_int64(sds s, const char *path, struct t_list *l, int max_elements, struct t_json_parse_error *error) {
     return json_iterate_object(s, path, icb_json_get_array_int64, l, NULL, NULL, max_elements, error);
@@ -559,11 +566,11 @@ bool json_get_array_int64(sds s, const char *path, struct t_list *l, int max_ele
  * @param vcb validation callback
  * @param userdata pointer to a t_list struct to populate
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
-static bool icb_json_get_object_string(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
+static bool icb_json_get_object_string(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     if (sdslen(key) == 0 ||
-        vtype != MJSON_TOK_STRING ||
+        vtype != JSON_TOK_STRING ||
         vcb(value) == false)
     {
         set_parse_error(error, path, key, "Validation of key \"%s\" with value \"%s\" has failed", key, value);
@@ -613,25 +620,24 @@ bool json_get_fields(sds s, const char *path, struct t_fields *tags, int max_ele
  * @return true on success, else false
  */
 bool json_find_key(sds s, const char *path) {
-    const char *p;
-    int n;
-    int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
-    return vtype == MJSON_TOK_INVALID ? false : true;
+    int off = mg_json_get(mg_str_n(s, sdslen(s)), path, NULL);
+    return off < 0
+        ? false
+        : true;
 }
 
 /**
  * Searches for a key in json object and returns its value as sds string
  * @param s json object to search
  * @param path mjson path expression
- * @return Key value as sds
+ * @return Key value as sds or NULL on error
  */
 sds json_get_key_as_sds(sds s, const char *path) {
-    const char *p;
-    int n;
-    if (mjson_find(s, (int)sdslen(s), path, &p, &n) == MJSON_TOK_INVALID) {
-        return false;
+    struct mg_str val = mg_json_get_tok(mg_str_n(s, sdslen(s)), path);
+    if (val.buf == NULL) {
+        return NULL;
     }
-    return sdsnewlen(p, (size_t)n);
+    return sdsnewlen(val.buf, val.len);
 }
 
 /**
@@ -639,18 +645,17 @@ sds json_get_key_as_sds(sds s, const char *path) {
  * @param vtype token type
  * @return token type as string
  */
-const char *get_mjson_toktype_name(int vtype) {
+const char *get_mjson_toktype_name(enum json_vtype vtype) {
     switch(vtype) {
-        case MJSON_TOK_INVALID: return "MJSON_TOK_INVALID";
-        case MJSON_TOK_KEY:     return "MJSON_TOK_KEY";
-        case MJSON_TOK_STRING:  return "MJSON_TOK_STRING";
-        case MJSON_TOK_NUMBER:  return "MJSON_TOK_NUMBER";
-        case MJSON_TOK_TRUE:    return "MJSON_TOK_TRUE";
-        case MJSON_TOK_FALSE:   return "MJSON_TOK_FALSE";
-        case MJSON_TOK_NULL:    return "MJSON_TOK_NULL";
-        case MJSON_TOK_ARRAY:   return "MJSON_TOK_ARRAY";
-        case MJSON_TOK_OBJECT:  return "MJSON_TOK_OBJECT";
-        default:                return "MJSON_TOK_UNKNOWN";
+        case JSON_TOK_INVALID: return "JSON_TOK_INVALID";
+        case JSON_TOK_STRING:  return "JSON_TOK_STRING";
+        case JSON_TOK_NUMBER:  return "JSON_TOK_NUMBER";
+        case JSON_TOK_TRUE:    return "JSON_TOK_TRUE";
+        case JSON_TOK_FALSE:   return "JSON_TOK_FALSE";
+        case JSON_TOK_NULL:    return "JSON_TOK_NULL";
+        case JSON_TOK_ARRAY:   return "JSON_TOK_ARRAY";
+        case JSON_TOK_OBJECT:  return "JSON_TOK_OBJECT";
+        default:               return "JSON_TOK_UNKNOWN";
     }
 }
 
@@ -665,12 +670,12 @@ const char *get_mjson_toktype_name(int vtype) {
  * @param vcb not used - we validate directly
  * @param userdata void pointer to t_fields struct
  * @param error pointer to t_json_parse_error
- * @return true on success else false
+ * @return true on success, else false
  */
-static bool icb_json_get_field(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
+static bool icb_json_get_field(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
     (void) key;
     (void) vcb;
-    if (vtype != MJSON_TOK_STRING) {
+    if (vtype != JSON_TOK_STRING) {
         set_parse_error(error, path, key, "Value is not a string \"%s\"", value);
         return false;
     }
@@ -737,17 +742,18 @@ static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t
         MYMPD_LOG_ERROR(NULL, "Result parameter must be NULL, path: \"%s\"", path);
         return false;
     }
-    const char *p;
-    int n;
-    int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
-    if (vtype != MJSON_TOK_STRING) {
+
+    char *str = mg_json_get_str(mg_str_n(s, sdslen(s)), path);
+    if (str == NULL) {
         *result = NULL;
-        set_parse_error(error, path, "", "JSON path \"%s\" not found or value is not string type, found type is \"%s\"",
-            path, get_mjson_toktype_name(vtype));
+        set_parse_error(error, path, "", "JSON path \"%s\" not found or value is not string", path);
         return false;
     }
-    *result = sdsempty();
-    if (n <= 2) {
+
+    *result = sdsnew(str);
+    size_t n = sdslen(*result);
+    FREE_PTR(str);
+    if (n == 0) {
         //empty string
         if (min == 0) {
             return true;
@@ -756,15 +762,8 @@ static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t
         FREE_SDS(*result);
         return false;
     }
-
-    //strip quotes
-    n = n - 2;
-    p++;
-
-    if ((sds_json_unescape(p, (size_t)n, result) == false) ||
-        (sdslen(*result) < min || sdslen(*result) > max))
-    {
-        set_parse_error(error, path, "", "Value length %lu for JSON path \"%s\" is out of bounds", (unsigned long)sdslen(*result), path);
+    if (n > max) {
+        set_parse_error(error, path, "", "Value length for JSON path \"%s\" is too long", path);
         FREE_SDS(*result);
         return false;
     }
@@ -778,4 +777,31 @@ static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t
     }
 
     return true;
+}
+
+/**
+ * Detects the json value type by first char of value
+ * @param p First char of value
+ * @return bool 
+ */
+static enum json_vtype get_vtype(char p) {
+    switch(p) {
+        case '{': return JSON_TOK_OBJECT;
+        case '[': return JSON_TOK_ARRAY;
+        case '"': return JSON_TOK_STRING;
+        case 'f':
+        case 'F':
+            return JSON_TOK_FALSE;
+        case 't':
+        case 'T':
+            return JSON_TOK_TRUE;
+        case 'n':
+        case 'N':
+            return JSON_TOK_NULL;
+        default:
+            if (p == '-' || ((p >= '0' && p <= '9'))) {
+                return JSON_TOK_NUMBER;
+            }
+    }
+    return JSON_TOK_INVALID;
 }

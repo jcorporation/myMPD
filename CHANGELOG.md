@@ -37,6 +37,7 @@ This release enables certificate checking for outgoing https connections. The de
 - Upd: Bootstrap v5.3.6
 - Upd: Mongoose 7.18
 - Upd: Incbin
+- Upd: Replaced mjson with mongoose implementation
 
 ***
 
