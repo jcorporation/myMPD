@@ -12,7 +12,7 @@ Two new triggers enables scripting for playlist and folder art.
 
 ### Notes
 
-This release enables certificate checking for outgoing https connections. The default CA store file is `/etc/ssl/certs/ca-certificates.crt`.
+This release enables certificate checking for outgoing https connections. The system CA cert store should be autodetected, open an issue if it fails.
 
 ### API changes
 
