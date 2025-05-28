@@ -42,6 +42,7 @@ target_sources(mympd
   PRIVATE
     main.c
     lib/api.c
+    lib/cacertstore.c
     lib/cache/cache_disk_images.c
     lib/cache/cache_disk_lyrics.c
     lib/cache/cache_disk.c

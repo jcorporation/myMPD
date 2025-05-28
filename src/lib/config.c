@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/lib/config.h"
 
+#include "src/lib/cacertstore.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/env.h"
 #include "src/lib/filehandler.h"
@@ -152,7 +153,7 @@ void mympd_config_defaults(struct t_config *config) {
     config->webradiodb = startup_getenv_bool("MYMPD_WEBRADIODB", CFG_MYMPD_WEBRADIODB, config->first_startup);
 
     config->cert_check = startup_getenv_bool("MYMPD_CERT_CHECK", CFG_MYMPD_CERT_CHECK, config->first_startup);
-    config->ca_cert_store = startup_getenv_string("MYMPD_CA_CERT_STORE", CFG_MYMPD_CA_CERT_STORE, vcb_isfilepath, config->first_startup);
+    config->ca_cert_store = startup_getenv_string("MYMPD_CA_CERT_STORE", "", vcb_isfilepath, config->first_startup);
 
     sds album_mode_str = startup_getenv_string("MYMPD_ALBUM_MODE", CFG_MYMPD_ALBUM_MODE, vcb_isname, config->first_startup);
     config->albums.mode = parse_album_mode(album_mode_str);
@@ -234,6 +235,13 @@ bool mympd_config_rw(struct t_config *config, bool write) {
 
     config->cert_check = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "cert_check", config->cert_check, write);
     config->ca_cert_store = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "ca_cert_store", config->ca_cert_store, vcb_isfilepath, write);
+    if (sdslen(config->ca_cert_store) == 0) {
+        const char *ca_cert_store = find_ca_cert_store();
+        if (ca_cert_store != NULL) {
+            config->ca_cert_store = sds_replace(config->ca_cert_store, ca_cert_store);
+            config->ca_cert_store = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "ca_cert_store", config->ca_cert_store, vcb_isfilepath, true);
+        }
+    }
 
     sds album_mode_str = state_file_rw_string(config->workdir, DIR_WORK_CONFIG, "album_mode", lookup_album_mode(config->albums.mode), vcb_isname, write);
     config->albums.mode = parse_album_mode(album_mode_str);
@@ -288,6 +296,10 @@ bool mympd_version_check(sds workdir) {
 bool read_ca_certificates(struct t_config *config) {
     if (config->cert_check == false) {
         return true;
+    }
+    if (sdslen(config->ca_cert_store) == 0) {
+        MYMPD_LOG_EMERG(NULL, "System certificate store not found.");
+        return false;
     }
     MYMPD_LOG_INFO(NULL, "Reading ca certificates from %s", config->ca_cert_store);
     config->ca_certs = sdsempty();

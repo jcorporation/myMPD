@@ -7,6 +7,7 @@
 #include "compile_time.h"
 
 #include "dist/sds/sds.h"
+#include "src/lib/cacertstore.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/http_client.h"
 #include "src/lib/list.h"
@@ -106,11 +107,19 @@ int main(int argc, char **argv) {
     };
 
     if (cert_check == true) {
-        int nread;
-        sds ca_certs = sds_getfile(sdsempty(), CFG_MYMPD_CA_CERT_STORE, 1048576, false, true, &nread);
-        if (nread < 0) {
+        const char *ca_cert_store = find_ca_cert_store();
+        sds ca_certs;
+        if (ca_cert_store != NULL) {
+            int nread;
+            ca_certs = sds_getfile(sdsempty(), ca_cert_store, CACERT_STORE_SIZE_MAX, false, true, &nread);
+            if (nread < 0) {
+                printf("ERROR: System certificate store not found.");
+                ca_certs = sdscat(ca_certs, "invalid");
+            }
+        }
+        else {
             printf("ERROR: System certificate store not found.");
-            ca_certs = sdscat(ca_certs, "invalid");
+            ca_certs = sdscat(sdsempty(), "invalid");
         }
         request.ca_certs = ca_certs;
     }
