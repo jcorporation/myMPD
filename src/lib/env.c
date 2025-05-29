@@ -20,13 +20,27 @@
 #include <string.h>
 
 /**
- * Private declarations
+ * Gets an environment variable and checks its length
+ * @param env_var environment variable name
+ * @return environment variable value or NULL if it is not set or too long
  */
-static const char *getenv_check(const char *env_var);
-
-/**
- * Public functions
- */
+const char *getenv_check(const char *env_var) {
+    const char *env_value = getenv(env_var); /* Flawfinder: ignore */
+    if (env_value == NULL) {
+        MYMPD_LOG_DEBUG(NULL, "Environment variable \"%s\" not set", env_var);
+        return NULL;
+    }
+    if (env_value[0] == '\0') {
+        MYMPD_LOG_DEBUG(NULL, "Environment variable \"%s\" is empty", env_var);
+        return NULL;
+    }
+    if (strlen(env_value) > MAX_ENV_LENGTH) {
+        MYMPD_LOG_WARN(NULL, "Environment variable \"%s\" is too long", env_var);
+        return NULL;
+    }
+    MYMPD_LOG_INFO(NULL, "Got environment variable \"%s\" with value \"%s\"", env_var, env_value);
+    return env_value;
+}
 
 /**
  * Gets an environment variable as sds string
@@ -111,31 +125,3 @@ bool getenv_bool(const char *env_var, bool default_value) {
     return env_value != NULL ? strcmp(env_value, "true") == 0 ? true : false
                              : default_value;
 }
-
-/**
- * Private functions
- */
-
-/**
- * Gets an environment variable and checks its length
- * @param env_var environment variable name
- * @return environment variable value or NULL if it is not set or too long
- */
-static const char *getenv_check(const char *env_var) {
-    const char *env_value = getenv(env_var); /* Flawfinder: ignore */
-    if (env_value == NULL) {
-        MYMPD_LOG_DEBUG(NULL, "Environment variable \"%s\" not set", env_var);
-        return NULL;
-    }
-    if (env_value[0] == '\0') {
-        MYMPD_LOG_DEBUG(NULL, "Environment variable \"%s\" is empty", env_var);
-        return NULL;
-    }
-    if (strlen(env_value) > MAX_ENV_LENGTH) {
-        MYMPD_LOG_WARN(NULL, "Environment variable \"%s\" is too long", env_var);
-        return NULL;
-    }
-    MYMPD_LOG_INFO(NULL, "Got environment variable \"%s\" with value \"%s\"", env_var, env_value);
-    return env_value;
-}
-

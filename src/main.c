@@ -19,7 +19,6 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
-#include "src/lib/passwd.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/signal.h"
 #include "src/lib/thread.h"
@@ -40,10 +39,8 @@
     #include <FLAC/export.h>
 #endif
 
-#include <grp.h>
 #include <openssl/opensslv.h>
 #include <pthread.h>
-#include <pwd.h>
 
 // sanitizers
 
@@ -66,75 +63,16 @@ const char *__asan_default_options(void) {
 #endif
 
 /**
- * Drops the privileges and sets the new groups.
- * Ensures that myMPD does not run as root.
- * @param username drop privileges to this username
- * @param startup_uid initial uid of myMPD process
- * @return true on success else false
- */
-static bool drop_privileges(sds username, uid_t startup_uid) {
-    if (startup_uid == 0 &&
-        sdslen(username) > 0)
-    {
-        MYMPD_LOG_NOTICE(NULL, "Dropping privileges to user \"%s\"", username);
-        //get passwd entry
-        struct passwd pwd;
-        if (get_passwd_entry(&pwd, username) == NULL) {
-            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", username);
-            return false;
-        }
-        errno = 0;
-        if (setgroups(0, NULL) == -1 ||                //purge supplementary groups
-            initgroups(username, pwd.pw_gid) == -1 ||  //set new supplementary groups from target user
-            setgid(pwd.pw_gid) == -1 ||                //change primary group to group of target user
-            setuid(pwd.pw_uid) == -1)                  //change user
-        {
-            MYMPD_LOG_ERROR(NULL, "Dropping privileges failed");
-            MYMPD_LOG_ERRNO(NULL, errno);
-            return false;
-        }
-    }
-    //check if not root
-    if (getuid() == 0) {
-        MYMPD_LOG_ERROR(NULL, "myMPD should not be run with root privileges");
-        return false;
-    }
-    return true;
-}
-
-/**
  * Creates the working, cache and config directories.
- * Sets first_startup to true if the config directory is created.
  * This function is run before dropping privileges.
  * @param config pointer to config struct
- * @param startup_uid initial uid of myMPD process
  * @return true on success else false
  */
-static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
-    bool chown_dirs = false;
-    if (startup_uid == 0) {
-        //check for user
-        struct passwd pwd;
-        if (get_passwd_entry(&pwd, config->user) == NULL) {
-            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", config->user);
-            return false;
-        }
-        chown_dirs = true;
-    }
-
+static bool check_dirs_initial(struct t_config *config) {
     //create the cache directory
     int testdir_rc = testdir("Cache dir", config->cachedir, true, false);
     if (testdir_rc == DIR_CREATE_FAILED) {
         return false;
-    }
-    //directory exists or was created; set user and group
-    if (chown_dirs == true &&
-        is_dir(config->cachedir) == true)
-    {
-        MYMPD_LOG_DEBUG(NULL, "Checking ownership of \"%s\"", config->cachedir);
-        if (do_chown(config->cachedir, config->user) == false) {
-            return false;
-        }
     }
 
     //create the working directory
@@ -143,15 +81,6 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         //workdir is not accessible
         return false;
     }
-    //directory exists or was created; set user and group
-    if (chown_dirs == true &&
-        is_dir(config->workdir) == true)
-    {
-        MYMPD_LOG_DEBUG(NULL, "Checking ownership of \"%s\"", config->workdir);
-        if (do_chown(config->workdir, config->user) == false) {
-            return false;
-        }
-    }
 
     //create the config directory
     sds testdirname = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_CONFIG);
@@ -159,17 +88,6 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     if (testdir_rc == DIR_CREATE_FAILED) {
         FREE_SDS(testdirname);
         return false;
-    }
-    //directory exists or was created; set user and group
-    if (chown_dirs == true) {
-        MYMPD_LOG_DEBUG(NULL, "Checking ownership of \"%s\"", testdirname);
-        if (do_chown(testdirname, config->user) == false) {
-            return false;
-        }
-    }
-    if (testdir_rc == DIR_CREATED) {
-        MYMPD_LOG_INFO(NULL, "First startup of myMPD");
-        config->first_startup = true;
     }
     FREE_SDS(testdirname);
 
@@ -353,12 +271,8 @@ int main(int argc, char **argv) {
             break;
     }
 
-    //get startup uid
-    uid_t startup_uid = getuid();
-    MYMPD_LOG_DEBUG(NULL, "myMPD started as user id %u", startup_uid);
-
     //check initial directories
-    if (check_dirs_initial(config, startup_uid) == false) {
+    if (check_dirs_initial(config) == false) {
         goto cleanup;
     }
 
@@ -370,15 +284,10 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //read the configuration from environment or set default values
-    //environment values are only respected at first startup
-    mympd_config_defaults(config);
-
     //bootstrap - write config files and exit
     if (config->bootstrap == true) {
-        if (drop_privileges(config->user, startup_uid) == true &&
-            mympd_config_rm(config) == true &&
-            mympd_config_rw(config, true) == true &&
+        if (mympd_config_rm(config) == true &&
+            mympd_config_read(config) == true &&
             create_certificates(config) == true)
         {
             printf("Created myMPD config\n");
@@ -387,12 +296,7 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //tries to read the config from /var/lib/mympd/config folder
-    //if this is not the first startup of myMPD
-    //initial files are written later, after dropping privileges
-    if (config->first_startup == false) {
-        mympd_config_rw(config, false);
-    }
+    mympd_config_read(config);
 
     #ifdef MYMPD_ENABLE_IPV6
         if (sdslen(config->acl) > 0) {
@@ -457,7 +361,7 @@ int main(int argc, char **argv) {
     }
 
     //init webserver
-    if (read_ca_certificates(config) == false) {
+    if (mympd_read_ca_certificates(config) == false) {
         goto cleanup;
     }
     mgr = malloc_assert(sizeof(struct mg_mgr));
@@ -466,18 +370,8 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //drop privileges
-    if (drop_privileges(config->user, startup_uid) == false) {
-        goto cleanup;
-    }
-
-    //saves the config to /var/lib/mympd/config folder
-    //at first startup of myMPD or if version has changed
-    if (config->first_startup == true ||
-        mympd_version_check(config->workdir) == false)
-    {
-        MYMPD_LOG_INFO(NULL, "Writing configuration files");
-        mympd_config_rw(config, true);
+    //write myMPD version to config folder
+    if (mympd_version_check(config->workdir) == false) {
         MYMPD_LOG_INFO(NULL, "Setting myMPD version to %s", MYMPD_VERSION);
         mympd_version_set(config->workdir);
     }
@@ -493,9 +387,6 @@ int main(int argc, char **argv) {
     if (check_dirs(config) == false) {
         goto cleanup;
     }
-
-    // Read user defined CSS and JavaScript
-    read_custom_css_js(config);
 
     //Create working threads
     //mympd api

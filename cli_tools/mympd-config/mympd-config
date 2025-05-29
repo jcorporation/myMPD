@@ -87,7 +87,18 @@ set_default() {
     MYMPD_SSL_KEY=""
     MYMPD_WEBRADIODB="true"
     MYMPD_CERT_CHECK="true"
-    MYMPD_CA_CERT_STORE="/etc/ssl/certs/ca-certificates.crt"
+    MYMPD_CA_CERT_STORE=""
+    if ! MYMPD_CA_CERT_STORE=$(curl-config --ca)
+    then
+        MYMPD_CA_CERT_STORE_PATHS="/etc/ssl/certs/ca-certificates.crt \
+            /etc/ssl/certs/ca-bundle.crt \
+            /etc/pki/tls/certs/ca-bundle.crt \
+            /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"
+        for P in $MYMPD_CA_CERT_STORE_PATHS
+        do
+            [ -f "$P" ] && MYMPD_CA_CERT_STORE="$P"
+        done
+    fi
 }
 
 read_config() {

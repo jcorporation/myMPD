@@ -33,7 +33,6 @@ const char *find_ca_cert_store(void) {
     const char **p = check_ca_cert_paths;
     while (*p != NULL) {
         if (testfile_read(*p) == true) {
-            MYMPD_LOG_INFO(NULL, "Setting ca cert store to \"%s\"", *p);
             return *p;
         }
         p++;
