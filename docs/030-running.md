@@ -7,14 +7,13 @@ title: Running
 On startup myMPD does the following:
 
 - Check and create `cachedir` and `workdir` directories.
-    - `cachedir` and `workdir` must exist and be writeable for the user, if not started as root.
-- Reads environment at first startup.
-- Binds to the configured http and ssl port.
-- Dropping privileges, if started as root.
+    - `cachedir` and `workdir` must exist and be writeable.
+- Reads environment and configuration files. Environment variables are overriding configuration settings.
+- Binds to the configured http (8080) and ssl port (8443).
 - Check and create the directories inside `cachedir` and `workdir`.
 
 !!! note
-    It is not supported to run myMPD as root. If started as root, myMPD drops privileges to the configured user (default mympd).
+    Do not run myMPD as root.
 
 ## Startup script
 
@@ -30,7 +29,7 @@ The installation process installs a LSB compatible startup script / systemd unit
 
 You must enable and start the service manually. Use `systemctl enable mympd` to enable myMPD at startup and `systemctl start mympd` to start myMPD now.
 
-myMPD logs to STDERR, you can see the live logs with `journalctl -fu mympd`.
+myMPD logs to STDOUT, you can see the live logs with `journalctl -fu mympd`.
 
 The default myMPD service unit uses the `DynamicUser=` directive, therefore no static mympd user is created. If you want to change the group membership of this dynamic user, you must add an override.
 

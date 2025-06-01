@@ -18,4 +18,5 @@ COPY --from=build /myMPD/release/bin/mympd /usr/bin/
 COPY --from=build /myMPD/release/bin/mympd-script /usr/bin/
 COPY --from=build /myMPD/cli_tools/mympd-config/mympd-config /usr/bin/
 
+USER mympd
 ENTRYPOINT ["/usr/bin/mympd"]

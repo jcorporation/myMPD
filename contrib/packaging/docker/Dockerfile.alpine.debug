@@ -11,4 +11,5 @@ RUN ./build.sh installdeps
 RUN ./build.sh debug
 RUN adduser -D -H -h /var/lib/mympd -s /sbin/nologin -g myMPD -u 1000 mympd
 
+USER mympd
 ENTRYPOINT ["/myMPD/debug/mympd"]

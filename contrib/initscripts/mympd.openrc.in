@@ -8,6 +8,7 @@ name=myMPD
 command="@CMAKE_INSTALL_FULL_BINDIR@/mympd"
 command_args="-s"
 command_background="yes"
+command_user="mympd"
 
 start_stop_daemon_args=""
 pidfile="/run/$name.pid"

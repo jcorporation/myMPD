@@ -12,7 +12,9 @@ Two new triggers enables scripting for playlist and folder art.
 
 ### Notes
 
-This release enables certificate checking for outgoing https connections. The system CA cert store should be autodetected, open an issue if it fails.
+- This release enables certificate checking for outgoing https connections. The system CA cert store should be autodetected, open an issue if it fails.
+- The startup process of myMPD was reworked. myMPD no longer drops privileges, the included startup scripts are using now the init system to do this.
+- The default listening ports are now 8080 for HTTP and 8443 for HTTPS.
 
 ### API changes
 

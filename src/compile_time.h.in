@@ -111,6 +111,7 @@
 #define CFG_MYMPD_HTTP_HOST_IPV4 "0.0.0.0"
 #define CFG_MYMPD_HTTP_HOST_IPV6 "[::]"
 #define CFG_MYMPD_LOG_TO_SYSLOG false
+#define CFG_MYMPD_LOGLEVEL 5
 
 //default partition state settings
 #define PARTITION_HIGHLIGHT_COLOR "#28a745"
