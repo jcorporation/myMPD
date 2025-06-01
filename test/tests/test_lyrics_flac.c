@@ -16,7 +16,7 @@
 UTEST(lyrics_flac, test_mympd_api_lyrics_get) {
     struct t_config *config = malloc(sizeof(struct t_config));
     mympd_config_defaults_initial(config);
-    mympd_config_defaults(config);
+    mympd_config_read(config);
     struct t_mympd_state *mympd_state = malloc(sizeof(struct t_mympd_state));
     mympd_state_default(mympd_state, config);
     mympd_state->mpd_state->music_directory_value = sdscat(mympd_state->mpd_state->music_directory_value, MYMPD_BUILD_DIR"/testfiles");
