@@ -15,16 +15,16 @@ Source:         mympd-%{version}.tar.gz
 BuildRequires:  cmake
 BuildRequires:	flac-devel
 BuildRequires:  gcc
+BuildRequires:  gzip
+BuildRequires:  jq
 BuildRequires:  libid3tag-devel
-BuildRequires:  libsystemd-devel
 BuildRequires:  lua-devel
 BuildRequires:  openssl-devel
 BuildRequires:  pcre2-devel
 BuildRequires:  perl
 BuildRequires:  pkgconfig
+BuildRequires:  systemd-devel
 BuildRequires:  unzip
-BuildRequires:  gzip
-BuildRequires:  jq
 Requires: newt
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
