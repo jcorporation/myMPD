@@ -115,9 +115,8 @@ setversion() {
 
   printf "%s" "${VERSION}" > docs/_includes/version
 
-  BUILD=$(git log --format="%H" -n 1)
   echo "const myMPDversion = '${VERSION}';" > htdocs/js/version.js
-  echo "const myMPDbuild = '${BUILD}';" >> htdocs/js/version.js
+  echo "const myMPDbuild = '';" >> htdocs/js/version.js
 }
 
 minify() {
@@ -170,7 +169,7 @@ minify() {
     fi
   fi
 
-  #successfull minified file
+  #successful minified file
   echo "" >> "${DST}.tmp"
   mv "${DST}.tmp" "$DST"
   return 0
@@ -196,14 +195,27 @@ createassets() {
   #Create defines
   create_js_defines
 
-  echo "Minifying javascript"
   JSSRCFILES=""
+
+  echo "Creating version file"
+  if [ -d "$STARTPATH/.git" ]
+  then
+    BUILD=$(git log --format="%H" -n 1)
+    echo "const myMPDversion = '${VERSION}';" > "$MYMPD_BUILDDIR/htdocs/js/version.js"
+    echo "const myMPDbuild = '$BUILD';" >> "$MYMPD_BUILDDIR/htdocs/js/version.js"
+    JSSRCFILES="$JSSRCFILES $MYMPD_BUILDDIR/htdocs/js/version.js"
+  else
+    JSSRCFILES="$JSSRCFILES htdocs/version.js"
+  fi
+
+  echo "Minifying javascript"
   #shellcheck disable=SC2013
   for F in $(grep -E '<!--debug-->\s+<script' htdocs/index.html | cut -d\" -f2)
   do
     [ "$F" = "js/bootstrap-native.js" ] && continue
     [ "$F" = "js/i18n.js" ] && continue
     [ "$F" = "js/long-press-event.js" ] && continue
+    [ "$F" = "js/version.js" ] && continue
     JSSRCFILES="$JSSRCFILES htdocs/$F"
     if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
