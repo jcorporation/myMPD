@@ -12,6 +12,13 @@
 #include <stdbool.h>
 #include <syslog.h>
 
+enum log_types {
+    LOG_TO_SYSLOG,
+    LOG_TO_TTY,
+    LOG_TO_SYSTEMD,
+    LOG_TO_STDOUT
+};
+
 /**
  * Macros for logging
  */
@@ -44,8 +51,8 @@
  * Global log variables
  */
 extern _Atomic int loglevel;
-extern bool log_on_tty;
-extern bool log_to_syslog;
+extern enum log_types log_type;
+
 _Thread_local extern sds thread_logname;
 
 const char *get_loglevel_name(int level);

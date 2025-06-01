@@ -12,7 +12,6 @@
 #include "src/lib/filehandler.h"
 
 #include "src/lib/log.h"
-#include "src/lib/passwd.h"
 #include "src/lib/sds_extras.h"
 
 #include <dirent.h>
@@ -39,55 +38,6 @@ bool update_mtime(const char *filename) {
         return true;
     }
     return false;
-}
-
-/**
- * Sets the owner of a file and group to the primary group of the user
- * @param file_path file to change ownership
- * @param username new owner username
- * @return true on success else false
- */
-bool do_chown(const char *file_path, const char *username) {
-    errno = 0;
-    int fd = open(file_path, O_RDONLY | O_CLOEXEC);
-    if (fd == -1) {
-        MYMPD_LOG_ERROR(NULL, "Can't open \"%s\"", file_path);
-        MYMPD_LOG_ERRNO(NULL, errno);
-        return false;
-    }
-
-    errno = 0;
-    struct stat status;
-    if (lstat(file_path, &status) != 0) {
-        MYMPD_LOG_ERROR(NULL, "Can't get status for \"%s\"", file_path);
-        MYMPD_LOG_ERRNO(NULL, errno);
-        return false;
-    }
-
-    struct passwd pwd;
-    if (get_passwd_entry(&pwd, username) == NULL) {
-        MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", username);
-        return false;
-    }
-
-    if (status.st_uid == pwd.pw_uid &&
-        status.st_gid == pwd.pw_gid)
-    {
-        //owner and group already set
-        close(fd);
-        return true;
-    }
-
-    errno = 0;
-    int rc = fchown(fd, pwd.pw_uid, pwd.pw_gid); /* Flawfinder: ignore */
-    close(fd);
-    if (rc == -1) {
-        MYMPD_LOG_ERROR(NULL, "Can't chown \"%s\" to \"%s\"", file_path, username);
-        MYMPD_LOG_ERRNO(NULL, errno);
-        return false;
-    }
-    MYMPD_LOG_INFO(NULL, "Changed ownership of \"%s\" to \"%s\"", file_path, username);
-    return true;
 }
 
 /**

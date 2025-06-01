@@ -45,7 +45,6 @@ enum getfile_status {
 };
 
 bool update_mtime(const char *filename);
-bool do_chown(const char *file_path, const char *username);
 time_t get_mtime(const char *filepath);
 
 sds sds_getline(sds s, FILE *fp, size_t max, int *nread);

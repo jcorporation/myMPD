@@ -37,6 +37,9 @@ if(MYMPD_ENABLE_MYGPIOD)
     target_include_directories(mympd SYSTEM PRIVATE ${LIBMYGPIO_INCLUDE_DIRS})
   endif()
 endif()
+if(MYMPD_ENABLE_SYSTEMD)
+  target_include_directories(mympd SYSTEM PRIVATE ${SYSTEMD_INCLUDE_DIRS})
+endif()
 
 target_sources(mympd
   PRIVATE
@@ -203,5 +206,12 @@ if(MYMPD_ENABLE_MYGPIOD)
   target_sources(mympd
     PRIVATE
       scripts/interface_mygpio.c
+  )
+endif()
+
+if(MYMPD_ENABLE_SYSTEMD)
+  target_sources(mympd
+    PRIVATE
+      lib/systemd.c
   )
 endif()

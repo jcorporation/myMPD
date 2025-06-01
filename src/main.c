@@ -21,6 +21,9 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/signal.h"
+#ifdef MYMPD_ENABLE_SYSTEMD
+    #include "src/lib/systemd.h"
+#endif
 #include "src/lib/thread.h"
 #include "src/mympd_api/mympd_api.h"
 #include "src/scripts/scripts.h"
@@ -204,8 +207,15 @@ static bool create_certificates(struct t_config *config) {
 int main(int argc, char **argv) {
     //set logging states
     thread_logname = sdsnew("mympd");
-    log_on_tty = isatty(fileno(stdout));
-    log_to_syslog = false;
+    log_type = LOG_TO_STDOUT;
+    if (isatty(fileno(stdout)) == true) {
+        log_type = LOG_TO_TTY;
+    }
+    else if (getenv_check("INVOCATION_ID") != NULL) {
+        #ifdef MYMPD_ENABLE_SYSTEMD
+            log_type = LOG_TO_SYSTEMD;
+        #endif
+    }
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
         MYMPD_LOG_NOTICE(NULL, "Debug build is running");
@@ -311,7 +321,7 @@ int main(int argc, char **argv) {
 
     if (config->log_to_syslog == true) {
         openlog("mympd", LOG_CONS, LOG_DAEMON);
-        log_to_syslog = true;
+        log_type = LOG_TO_SYSLOG;
     }
 
     #ifdef MYMPD_ENABLE_ASAN
@@ -421,6 +431,9 @@ int main(int argc, char **argv) {
     //Outsourced all work to separate threads, do nothing...
     MYMPD_LOG_NOTICE(NULL, "myMPD is ready");
     rc = EXIT_SUCCESS;
+    #ifdef MYMPD_ENABLE_SYSTEMD
+        systemd_notify_ready();
+    #endif
 
     //Try to cleanup all
     cleanup:
