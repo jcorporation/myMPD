@@ -16,6 +16,7 @@ BuildRequires:  cmake
 BuildRequires:	flac-devel
 BuildRequires:  gcc
 BuildRequires:  libid3tag-devel
+BuildRequires:  libsystemd-devel
 BuildRequires:  lua-devel
 BuildRequires:  openssl-devel
 BuildRequires:  pcre2-devel
