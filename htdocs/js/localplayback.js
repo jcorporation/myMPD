@@ -17,7 +17,7 @@ function initLocalPlayback() {
     elGetById('localPlayer').volume = 0.5;
 
     const localPlayerDeviceSelectEl = elGetById('localPlayerDeviceSelect');
-    localPlayerDeviceSelectEl.addEventListener('focus', async() => {
+    localPlayerDeviceSelectEl.addEventListener('focus', async () => {
         await navigator.mediaDevices.getUserMedia({
             audio: true,
         });
