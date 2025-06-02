@@ -24,12 +24,12 @@ function initLocalPlayback() {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const audioOutputs = devices.filter(
             (device) =>
-                device.kind === "audiooutput" && device.deviceId !== "default",
+                device.kind === 'audiooutput' && device.deviceId !== 'default',
         );
         
         elClear(localPlayerDeviceSelectEl);
         localPlayerDeviceSelectEl.appendChild(
-            elCreateTextTn('option', {'value': ''}, "Default output device")
+            elCreateTextTn('option', {'value': ''}, 'Default output device')
         );
         audioOutputs.forEach((device) => {
             localPlayerDeviceSelectEl.appendChild(
@@ -38,7 +38,7 @@ function initLocalPlayback() {
         });
     }, false);
 
-    localPlayerDeviceSelectEl.addEventListener("change", async () => {
+    localPlayerDeviceSelectEl.addEventListener('change', async () => {
         const value = getSelectValue(localPlayerDeviceSelectEl);
         await elGetById('localPlayer').setSinkId(value);
     });
