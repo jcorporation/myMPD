@@ -307,7 +307,7 @@ bool mympd_config_read(struct t_config *config) {
                 const char *def;
                 switch (i) {
                     case CI_HTTP_HOST: def = http_host; break;
-                    case CI_CA_CERT_STORE: def = find_ca_cert_store(); break;
+                    case CI_CA_CERT_STORE: def = find_ca_cert_store(false); break;
                     default: def = config_default[i].value.s;
                 }
                 if (getenv_check(env_var) != NULL) {
@@ -448,7 +448,16 @@ void mympd_config_dump_default(void) {
                 printf("    %s: %d\n", config_default[i].file, config_default[i].value.i);
                 break;
             case CIT_S:
-                printf("    %s: %s\n", config_default[i].file, config_default[i].value.s);
+                if (i == CI_CA_CERT_STORE) {
+                    const char *ca_cert_store = find_ca_cert_store(true);
+                    if (ca_cert_store == NULL) {
+                        ca_cert_store = "";
+                    }
+                    printf("    %s: %s\n", config_default[i].file, ca_cert_store);
+                }
+                else {
+                    printf("    %s: %s\n", config_default[i].file, config_default[i].value.s);
+                }
                 break;
         }
     }

@@ -218,7 +218,6 @@ int main(int argc, char **argv) {
     }
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
-        MYMPD_LOG_NOTICE(NULL, "Debug build is running");
     #else
         set_loglevel(
             getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX)
@@ -241,14 +240,6 @@ int main(int argc, char **argv) {
         pthread_t script_thread = 0;
     #endif
     int thread_rc = 0;
-
-    //goto root directory
-    errno = 0;
-    if (chdir("/") != 0) {
-        MYMPD_LOG_ERROR(NULL, "Can not change directory to /");
-        MYMPD_LOG_ERRNO(NULL, errno);
-        goto cleanup;
-    }
 
     //only owner should have rw access
     umask(0077);
@@ -335,6 +326,9 @@ int main(int argc, char **argv) {
     #endif
 
     MYMPD_LOG_NOTICE(NULL, "Starting myMPD %s", MYMPD_VERSION);
+    #ifdef MYMPD_DEBUG
+        MYMPD_LOG_NOTICE(NULL, "Debug build is running");
+    #endif
     MYMPD_LOG_INFO(NULL, "Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i",
             LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
             LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
@@ -486,11 +480,13 @@ int main(int argc, char **argv) {
     if (mg_user_data != NULL) {
         mg_user_data_free(mg_user_data);
     }
-    if (rc == EXIT_SUCCESS) {
-        printf("Exiting gracefully, thank you for using myMPD\n");
-    }
-    else {
-        printf("Exiting erroneous, thank you for using myMPD\n");
+    if (options_rc == OPTIONS_RC_OK) {
+        if (rc == EXIT_SUCCESS) {
+            printf("Exiting gracefully, thank you for using myMPD\n");
+        }
+        else {
+            printf("Exiting erroneous, thank you for using myMPD\n");
+        }
     }
 
     FREE_SDS(thread_logname);

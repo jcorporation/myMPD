@@ -29,7 +29,7 @@ const char *check_ca_cert_paths[] = {
  * Try to find the system ca cert store
  * @return const char* or NULL if not found
  */
-const char *find_ca_cert_store(void) {
+const char *find_ca_cert_store(bool silent) {
     const char **p = check_ca_cert_paths;
     while (*p != NULL) {
         if (testfile_read(*p) == true) {
@@ -37,6 +37,8 @@ const char *find_ca_cert_store(void) {
         }
         p++;
     }
-    MYMPD_LOG_ERROR(NULL, "CA cert store not found.");
+    if (silent == false) {
+        MYMPD_LOG_ERROR(NULL, "CA cert store not found.");
+    }
     return NULL;
 }

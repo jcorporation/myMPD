@@ -11,6 +11,8 @@
 #ifndef MYMPD_CACERTSTORE_H
 #define MYMPD_CACERTSTORE_H
 
-const char *find_ca_cert_store(void);
+#include <stdbool.h>
+
+const char *find_ca_cert_store(bool silent);
 
 #endif
