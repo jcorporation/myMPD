@@ -80,6 +80,8 @@ interface HTMLElement {
     setRangeText: any;
     value: any;
     closest: any;
+    setSinkId: any;
+    getSinkId: any;
 }
 
 interface Navigator {

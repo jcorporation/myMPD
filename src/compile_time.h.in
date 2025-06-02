@@ -192,7 +192,7 @@
 #define EXTRA_HEADERS_MISC "X-Content-Type-Options: nosniff\r\n"\
     "Access-Control-Allow-Origin: *\r\n"
 
-#define EXTRA_HEADERS_PERMISSIONS_POLICY "Permissions-Policy: autoplay=(self), fullscreen=(self)\r\n"
+#define EXTRA_HEADERS_PERMISSIONS_POLICY "Permissions-Policy: autoplay=(self), fullscreen=(self), microphone=(self)\r\n"
 
 #define EXTRA_HEADERS_UNSAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src * data:; "\

@@ -35,6 +35,7 @@ Two new triggers enables scripting for playlist and folder art.
 - Feat: Sign and verify scripts from mympd-scripts repository #1426
 - Feat: Add trigger `mympd_playlistart`, `mympd_folderart`
 - Feat: Sort list of timers and triggers #1425
+- Feat: Allow changing output device with local playback #1434
 - Upd: Improve "Edit Script"-Layout
 - Upd: Bootstrap v5.3.6
 - Upd: Mongoose 7.18

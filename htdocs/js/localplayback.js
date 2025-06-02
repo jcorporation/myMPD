@@ -15,6 +15,33 @@ function initLocalPlayback() {
     }, false);
     // @ts-ignore
     elGetById('localPlayer').volume = 0.5;
+
+    const localPlayerDeviceSelectEl = elGetById('localPlayerDeviceSelect');
+    localPlayerDeviceSelectEl.addEventListener('focus', async() => {
+        await navigator.mediaDevices.getUserMedia({
+            audio: true,
+        });
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioOutputs = devices.filter(
+            (device) =>
+                device.kind === "audiooutput" && device.deviceId !== "default",
+        );
+        
+        elClear(localPlayerDeviceSelectEl);
+        localPlayerDeviceSelectEl.appendChild(
+            elCreateTextTn('option', {'value': ''}, "Default output device")
+        );
+        audioOutputs.forEach((device) => {
+            localPlayerDeviceSelectEl.appendChild(
+                elCreateText('option', {'value': device.deviceId}, device.label)
+            );
+        });
+    }, false);
+
+    localPlayerDeviceSelectEl.addEventListener("change", async () => {
+        const value = getSelectValue(localPlayerDeviceSelectEl);
+        await elGetById('localPlayer').setSinkId(value);
+    });
 }
 
 /**
@@ -105,18 +132,21 @@ function createLocalPlaybackEl(createEvent) {
     curAudioEl.pause();
     // @ts-ignore
     curAudioEl.src = '';
+    // remember current settings
+    const oldSinkId = curAudioEl.getSinkId();
+    // @ts-ignore
+    const oldVolume = curAudioEl.volume;
 
     //replace old audio element
     const parent = curAudioEl.parentNode;
-    // @ts-ignore
-    const oldVolume = curAudioEl.volume;
     curAudioEl.remove();
     /** @type {HTMLAudioElement} */
     // @ts-ignore
     const localPlayer = elCreateEmpty('audio', {"class": ["mx-4"], "preload": "none", "id": "localPlayer"});
     localPlayer.volume = oldVolume;
+    localPlayer.setSinkId(oldSinkId);
     parent.appendChild(localPlayer);
-    //add eventhandlers
+    //add event handlers
     localPlayer.addEventListener('canplay', function() {
         logDebug('localPlayer event: canplay');
         elHideId('errorLocalPlayback');

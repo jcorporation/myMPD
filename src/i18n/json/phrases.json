@@ -212,6 +212,7 @@
 {"term":"Default image"},
 {"term":"Default image dark"},
 {"term":"Default image light"},
+{"term":"Default output device"},
 {"term":"Default partition can not be deleted"},
 {"term":"Definition"},
 {"term":"Delete"},
