@@ -81,7 +81,7 @@ interface HTMLElement {
     value: any;
     closest: any;
     setSinkId: any;
-    getSinkId: any;
+    sinkId: any;
 }
 
 interface Navigator {

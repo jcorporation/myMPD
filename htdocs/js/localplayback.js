@@ -133,7 +133,7 @@ function createLocalPlaybackEl(createEvent) {
     // @ts-ignore
     curAudioEl.src = '';
     // remember current settings
-    const oldSinkId = curAudioEl.getSinkId();
+    const oldSinkId = curAudioEl.sinkId;
     // @ts-ignore
     const oldVolume = curAudioEl.volume;
 
