@@ -45,7 +45,7 @@
 #include <openssl/opensslv.h>
 #include <pthread.h>
 
-// sanitizers
+// Sanitizers
 
 #ifdef MYMPD_ENABLE_ASAN
 const char *__asan_default_options(void) {
@@ -67,7 +67,6 @@ const char *__asan_default_options(void) {
 
 /**
  * Creates the working, cache and config directories.
- * This function is run before dropping privileges.
  * @param config pointer to config struct
  * @return true on success else false
  */
@@ -205,7 +204,7 @@ static bool create_certificates(struct t_config *config) {
  * @return 0 on success
  */
 int main(int argc, char **argv) {
-    //set logging states
+    // Set initial states
     thread_logname = sdsnew("mympd");
     log_type = LOG_TO_STDOUT;
     if (isatty(fileno(stdout)) == true) {
@@ -225,7 +224,6 @@ int main(int argc, char **argv) {
         );
     #endif
 
-    //set initial states
     mympd_worker_threads = 0;
     #ifdef MYMPD_ENABLE_LUA
         script_worker_threads = 0;
@@ -242,9 +240,10 @@ int main(int argc, char **argv) {
     #endif
     int thread_rc = 0;
 
-    //only owner should have rw access
+    // Only owner should have rw access
     umask(0077);
 
+    // Message queues
     mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST, true);
     webserver_queue = mympd_queue_create("webserver_queue", QUEUE_TYPE_RESPONSE, false);
     #ifdef MYMPD_ENABLE_LUA
@@ -252,11 +251,11 @@ int main(int argc, char **argv) {
         script_worker_queue = mympd_queue_create("script_worker_queue", QUEUE_TYPE_RESPONSE, false);
     #endif
 
-    //mympd config defaults
+    // myMPD configuration defaults
     config = malloc_assert(sizeof(struct t_config));
     mympd_config_defaults_initial(config);
 
-    //command line option
+    // Parse command line options
     enum handle_options_rc options_rc = handle_options(config, argc, argv);
     switch(options_rc) {
         case OPTIONS_RC_INVALID:
@@ -273,12 +272,12 @@ int main(int argc, char **argv) {
             break;
     }
 
-    //check initial directories
+    // Check initial directories
     if (check_dirs_initial(config) == false) {
         goto cleanup;
     }
 
-    //go into workdir
+    // Go into workdir
     errno = 0;
     if (chdir(config->workdir) != 0) {
         MYMPD_LOG_ERROR(NULL, "Can not change directory to \"%s\"", config->workdir);
@@ -286,7 +285,7 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //bootstrap - write config files and exit
+    // Bootstrap option: Write config files and exit
     if (config->bootstrap == true) {
         if (mympd_config_rm(config) == true &&
             mympd_config_read(config) == true &&
@@ -306,7 +305,7 @@ int main(int argc, char **argv) {
         }
     #endif
 
-    //set loglevel
+    // Set loglevel
     #ifndef MYMPD_DEBUG
         set_loglevel(config->loglevel);
     #endif
@@ -316,6 +315,11 @@ int main(int argc, char **argv) {
         log_type = LOG_TO_SYSLOG;
     }
 
+    // Startup notifications
+    MYMPD_LOG_NOTICE(NULL, "Starting myMPD %s", MYMPD_VERSION);
+    #ifdef MYMPD_DEBUG
+        MYMPD_LOG_NOTICE(NULL, "Debug build is running");
+    #endif
     #ifdef MYMPD_ENABLE_ASAN
         MYMPD_LOG_NOTICE(NULL, "Running with address sanitizer");
     #endif
@@ -324,11 +328,6 @@ int main(int argc, char **argv) {
     #endif
     #ifdef MYMPD_ENABLE_TSAN
         MYMPD_LOG_NOTICE(NULL, "Running with thread sanitizer");
-    #endif
-
-    MYMPD_LOG_NOTICE(NULL, "Starting myMPD %s", MYMPD_VERSION);
-    #ifdef MYMPD_DEBUG
-        MYMPD_LOG_NOTICE(NULL, "Debug build is running");
     #endif
     MYMPD_LOG_INFO(NULL, "Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i",
             LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
@@ -348,7 +347,7 @@ int main(int argc, char **argv) {
         MYMPD_LOG_INFO(NULL, "Experimental features are enabled");
     #endif
 
-    //set signal handler
+    // Set signal handler
     if (set_signal_handler(SIGTERM) == false ||
         set_signal_handler(SIGINT) == false ||
         set_signal_handler(SIGHUP) == false)
@@ -357,7 +356,7 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //set output buffers
+    // Set output buffers
     if (setvbuf(stdout, NULL, _IOLBF, 0) != 0 ||
         setvbuf(stderr, NULL, _IOLBF, 0) != 0)
     {
@@ -365,7 +364,7 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //init webserver
+    // Init webserver
     if (mympd_read_ca_certificates(config) == false) {
         goto cleanup;
     }
@@ -375,26 +374,20 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //write myMPD version to config folder
-    if (mympd_version_check(config->workdir) == false) {
-        MYMPD_LOG_INFO(NULL, "Setting myMPD version to %s", MYMPD_VERSION);
-        mympd_version_set(config->workdir);
-    }
-
-    //check ssl certificates
+    // Check ssl certificates
     if (create_certificates(config) == false ||
         webserver_read_certs(mg_user_data, config) == false)
     {
         goto cleanup;
     }
 
-    //check for required directories
+    // Check for required directories
     if (check_dirs(config) == false) {
         goto cleanup;
     }
 
-    //Create working threads
-    //mympd api
+    // Create working threads
+    // mympd api
     MYMPD_LOG_NOTICE(NULL, "Starting mympd api thread");
     if ((thread_rc = pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config)) != 0) {
         MYMPD_LOG_ERROR(NULL, "Can't create mympd api thread");
@@ -404,7 +397,7 @@ int main(int argc, char **argv) {
     }
 
     #ifdef MYMPD_ENABLE_LUA
-        //scripts
+        // scripts
         MYMPD_LOG_NOTICE(NULL, "Starting script thread");
         if ((thread_rc = pthread_create(&script_thread, NULL, scripts_loop, config)) != 0) {
             MYMPD_LOG_ERROR(NULL, "Can't create script thread");
@@ -414,7 +407,7 @@ int main(int argc, char **argv) {
         }
     #endif
 
-    //webserver
+    // webserver
     MYMPD_LOG_NOTICE(NULL, "Starting webserver thread");
     if ((thread_rc = pthread_create(&webserver_thread, NULL, webserver_loop, mgr)) != 0) {
         MYMPD_LOG_ERROR(NULL, "Can't create webserver thread");
@@ -423,17 +416,17 @@ int main(int argc, char **argv) {
         s_signal_received = SIGTERM;
     }
 
-    //Outsourced all work to separate threads, do nothing...
+    // Outsourced all work to separate threads, do nothing...
     MYMPD_LOG_NOTICE(NULL, "myMPD is ready");
     rc = EXIT_SUCCESS;
     #ifdef MYMPD_ENABLE_SYSTEMD
         systemd_notify_ready();
     #endif
 
-    //Try to cleanup all
+    // Try to cleanup all
     cleanup:
 
-    //wait for threads
+    // Wait for threads
     if (webserver_thread > (pthread_t)0) {
         if ((thread_rc = pthread_join(webserver_thread, NULL)) != 0) {
             MYMPD_LOG_ERROR(NULL, "Error stopping webserver thread");
@@ -464,7 +457,7 @@ int main(int argc, char **argv) {
         }
     #endif
 
-    //free queues
+    // Free queues
     mympd_queue_free(webserver_queue);
     mympd_queue_free(mympd_api_queue);
     #ifdef MYMPD_ENABLE_LUA
@@ -472,7 +465,7 @@ int main(int argc, char **argv) {
         mympd_queue_free(script_worker_queue);
     #endif
 
-    //free config
+    // Free config
     mympd_config_free(config);
 
     if (mgr != NULL) {

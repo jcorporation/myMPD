@@ -382,37 +382,6 @@ bool mympd_config_rm(struct t_config *config) {
 }
 
 /**
- * Writes the current version to the version file
- * @param workdir working directory
- * @return true if file was written, else false
- */
-bool mympd_version_set(sds workdir) {
-    sds version = sdsnew(MYMPD_VERSION);
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/version", workdir, DIR_WORK_CONFIG);
-    bool rc = write_data_to_file(filepath, version, sdslen(version));
-    FREE_SDS(version);
-    FREE_SDS(filepath);
-    return rc;
-}
-
-/**
- * Checks the version of the configuration against current version
- * @param workdir working directory
- * @return true if version has not changed, else false
- */
-bool mympd_version_check(sds workdir) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/version", workdir, DIR_WORK_CONFIG);
-    int nread = 0;
-    sds version = sds_getfile(sdsempty(), filepath, 10, true, false, &nread);
-    bool rc = strcmp(version, MYMPD_VERSION) == 0
-        ? true
-        : false;
-    FREE_SDS(version);
-    FREE_SDS(filepath);
-    return rc;
-}
-
-/**
  * Reads the ca certificates
  * @param config Pointer to central config
  * @return true on success or disabled certificate checking, else false
