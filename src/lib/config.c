@@ -260,6 +260,7 @@ static void set_config(struct t_config *config, enum config_item ci, struct t_co
  * Reads the myMPD configuration from environment or files
  * This function is used after reading command line arguments.
  * @param config pointer to config struct
+ * @return true on success, else false
  */
 bool mympd_config_read(struct t_config *config) {
     const char *http_host;
@@ -282,10 +283,11 @@ bool mympd_config_read(struct t_config *config) {
         cfg_file = sdscatfmt(cfg_file, "%s/%s/%s", config->workdir, DIR_WORK_CONFIG, config_default[i].file);
         struct t_config_value value;
         value.t = config_default[i].value.t;
+        bool rc;
         switch (config_default[i].value.t) {
             case CIT_B:
-                if (getenv_check(env_var) != NULL) {
-                    value.b = getenv_bool(env_var, config_default[i].value.b);
+                value.b = getenv_bool(env_var, config_default[i].value.b, &rc);
+                if (rc == true) {
                     // Overwrite config file
                     try_rm_file(cfg_file);
                     value.b = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, config_default[i].file, value.b, true);
@@ -295,8 +297,8 @@ bool mympd_config_read(struct t_config *config) {
                 }
                 break;
             case CIT_I:
-                if (getenv_check(env_var) != NULL) {
-                    value.i = getenv_int(env_var, config_default[i].value.i, config_default[i].min, config_default[i].max);
+                value.i = getenv_int(env_var, config_default[i].value.i, config_default[i].min, config_default[i].max, &rc);
+                if (rc == true) {
                     // Overwrite config file
                     try_rm_file(cfg_file);
                     value.i = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, config_default[i].file, value.i, config_default[i].min, config_default[i].max, true);
@@ -312,13 +314,14 @@ bool mympd_config_read(struct t_config *config) {
                     case CI_CA_CERT_STORE: def = find_ca_cert_store(false); break;
                     default: def = config_default[i].value.s;
                 }
-                if (getenv_check(env_var) != NULL) {
-                    value.s = getenv_string(env_var, def, config_default[i].vcb);
+                value.s = getenv_string(env_var, def, config_default[i].vcb, &rc);
+                if (rc == true) {
                     // Overwrite config file
                     try_rm_file(cfg_file);
                     value.s = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, config_default[i].file, value.s, config_default[i].vcb, true);
                 }
                 else {
+                    FREE_SDS(value.s);
                     value.s = state_file_rw_string(config->workdir, DIR_WORK_CONFIG, config_default[i].file, def, config_default[i].vcb, true);
                 }
                 break;

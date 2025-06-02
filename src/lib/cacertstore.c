@@ -27,6 +27,7 @@ const char *check_ca_cert_paths[] = {
 
 /**
  * Try to find the system ca cert store
+ * @param silent Print no error messages?
  * @return const char* or NULL if not found
  */
 const char *find_ca_cert_store(bool silent) {

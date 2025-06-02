@@ -17,9 +17,9 @@
 #include <stdbool.h>
 
 const char *getenv_check(const char *env_var);
-sds getenv_string(const char *env_var, const char *default_value, validate_callback vcb);
-int getenv_int(const char *env_var, int default_value, int min, int max);
-unsigned getenv_uint(const char *env_var, unsigned default_value, unsigned min, unsigned max);
-bool getenv_bool(const char *env_var, bool default_value);
+sds getenv_string(const char *env_var, const char *default_value, validate_callback vcb, bool *rc);
+int getenv_int(const char *env_var, int default_value, int min, int max, bool *rc);
+unsigned getenv_uint(const char *env_var, unsigned default_value, unsigned min, unsigned max, bool *rc);
+bool getenv_bool(const char *env_var, bool default_value, bool *rc);
 
 #endif

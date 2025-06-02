@@ -49,8 +49,9 @@ void mympd_client_autoconf(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_NOTICE(NULL, "Starting myMPD autoconfiguration");
     MYMPD_LOG_NOTICE(NULL, "Reading environment");
     bool mpd_configured = false;
+    bool rc;
 
-    sds mpd_host = getenv_string("MPD_HOST", MYMPD_MPD_HOST, vcb_isname);
+    sds mpd_host = getenv_string("MPD_HOST", MYMPD_MPD_HOST, vcb_isname, &rc);
     if (strcmp(mpd_host, mympd_state->mpd_state->mpd_host) != 0) {
         if (mpd_host[0] != '@' &&
             strstr(mpd_host, "@") != NULL)
@@ -70,13 +71,13 @@ void mympd_client_autoconf(struct t_mympd_state *mympd_state) {
     }
     FREE_SDS(mpd_host);
 
-    unsigned mpd_port = getenv_uint("MPD_PORT", MYMPD_MPD_PORT, MPD_PORT_MIN, MPD_PORT_MAX);
+    unsigned mpd_port = getenv_uint("MPD_PORT", MYMPD_MPD_PORT, MPD_PORT_MIN, MPD_PORT_MAX, &rc);
     if (mpd_port != mympd_state->mpd_state->mpd_port) {
         mympd_state->mpd_state->mpd_port = mpd_port;
         MYMPD_LOG_NOTICE(NULL, "Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
     }
 
-    unsigned timeout = getenv_uint("MPD_TIMEOUT", MYMPD_MPD_TIMEOUT_SEC, MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX);
+    unsigned timeout = getenv_uint("MPD_TIMEOUT", MYMPD_MPD_TIMEOUT_SEC, MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX, &rc);
     timeout = timeout * 1000; //convert to ms
     if (timeout != mympd_state->mpd_state->mpd_timeout) {
         mympd_state->mpd_state->mpd_timeout = timeout;
@@ -88,7 +89,7 @@ void mympd_client_autoconf(struct t_mympd_state *mympd_state) {
     }
 
     //check for socket
-    sds xdg_runtime_dir = getenv_string("XDG_RUNTIME_DIR", "", vcb_isfilepath);
+    sds xdg_runtime_dir = getenv_string("XDG_RUNTIME_DIR", "", vcb_isfilepath, &rc);
     if (sdslen(xdg_runtime_dir) > 0) {
         sds socket = sdscatfmt(sdsempty(), "%s/mpd/socket", xdg_runtime_dir);
         if (test_mpd_conn(socket) == true) {
