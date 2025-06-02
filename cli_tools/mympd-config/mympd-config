@@ -62,32 +62,12 @@ disabledentry=gray,
 entry=white,gray'
 
 set_default() {
-    MYMPD_ACL=""
-    MYMPD_ALBUM_GROUP_TAG="Date"
-    MYMPD_ALBUM_MODE="adv"
-    MYMPD_CACHE_COVER_KEEP_DAYS="31"
-    MYMPD_CACHE_HTTP_KEEP_DAYS="31"
-    MYMPD_CACHE_LYRICS_KEEP_DAYS="31"
-    MYMPD_CACHE_MISC_KEEP_DAYS="1"
-    MYMPD_CACHE_THUMBS_KEEP_DAYS="31"
-    MYMPD_LOGLEVEL="5"
-    MYMPD_URI="auto"
-    MYMPD_SAVE_CACHES="true"
-    MYMPD_SCRIPTACL="+127.0.0.1"
-    MYMPD_STICKERS="true"
-    MYMPD_STICKERS_PAD_INT="false"
-    MYMPD_HTTP_HOST="[::]"
-    MYMPD_HTTP="true"
-    MYMPD_HTTP_PORT="8080"
-    MYMPD_SSL="true"
-    MYMPD_SSL_PORT="8443"
-    MYMPD_SSL_SAN=""
-    MYMPD_CUSTOM_CERT="false"
-    MYMPD_SSL_CERT=""
-    MYMPD_SSL_KEY=""
-    MYMPD_WEBRADIODB="true"
-    MYMPD_CERT_CHECK="true"
-    MYMPD_CA_CERT_STORE=""
+    $MYMPD_BIN -d | $MYMPD_BIN -d | awk -F: '/^    /{print toupper($1) $2}' > /tmp/mympd_defaults
+    while read -r KEY VALUE
+    do
+        eval "MYMPD_$KEY=$VALUE"
+    done < /tmp/mympd_defaults
+    rm /tmp/mympd_defaults
     if ! MYMPD_CA_CERT_STORE=$(curl-config --ca)
     then
         MYMPD_CA_CERT_STORE_PATHS="/etc/ssl/certs/ca-certificates.crt \
@@ -96,7 +76,11 @@ set_default() {
             /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"
         for P in $MYMPD_CA_CERT_STORE_PATHS
         do
-            [ -f "$P" ] && MYMPD_CA_CERT_STORE="$P"
+            if [ -f "$P" ]
+            then
+                MYMPD_CA_CERT_STORE="$P"
+                break
+            fi
         done
     fi
 }
