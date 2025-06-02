@@ -219,8 +219,9 @@ int main(int argc, char **argv) {
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
     #else
+        bool getenv_rc;
         set_loglevel(
-            getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX)
+            getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX, &getenv_rc)
         );
     #endif
 
