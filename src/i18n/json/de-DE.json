@@ -1278,5 +1278,6 @@
     "Checks a Lua table of tags against a comma separated list.": "Prüft eine Lua Tabelle gegen eine kommaseparierte Liste.",
     "Invalid signature": "Ungültige Signatur",
     "Script widget": "Skript Widget",
-    "iFrame widget": "iFrame Widget"
+    "iFrame widget": "iFrame Widget",
+    "Default output device": "Standard Ausgabegerät"
 }
