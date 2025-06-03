@@ -272,6 +272,11 @@ int main(int argc, char **argv) {
             break;
     }
 
+    if (config->log_to_syslog == true) {
+        openlog("mympd", LOG_CONS, LOG_DAEMON);
+        log_type = LOG_TO_SYSLOG;
+    }
+
     // Check initial directories
     if (check_dirs_initial(config) == false) {
         goto cleanup;
@@ -291,7 +296,7 @@ int main(int argc, char **argv) {
             mympd_config_read(config) == true &&
             create_certificates(config) == true)
         {
-            printf("Created myMPD config\n");
+            MYMPD_LOG_NOTICE(NULL, "Created myMPD config\n");
             rc = EXIT_SUCCESS;
         }
         goto cleanup;
@@ -299,21 +304,16 @@ int main(int argc, char **argv) {
 
     mympd_config_read(config);
 
-    #ifdef MYMPD_ENABLE_IPV6
-        if (sdslen(config->acl) > 0) {
-            MYMPD_LOG_WARN(NULL, "No acl support for IPv6");
-        }
-    #endif
-
     // Set loglevel
     #ifndef MYMPD_DEBUG
         set_loglevel(config->loglevel);
     #endif
 
-    if (config->log_to_syslog == true) {
-        openlog("mympd", LOG_CONS, LOG_DAEMON);
-        log_type = LOG_TO_SYSLOG;
-    }
+    #ifdef MYMPD_ENABLE_IPV6
+        if (sdslen(config->acl) > 0) {
+            MYMPD_LOG_WARN(NULL, "No acl support for IPv6");
+        }
+    #endif
 
     // Startup notifications
     MYMPD_LOG_NOTICE(NULL, "Starting myMPD %s", MYMPD_VERSION);
@@ -476,10 +476,10 @@ int main(int argc, char **argv) {
     }
     if (options_rc == OPTIONS_RC_OK) {
         if (rc == EXIT_SUCCESS) {
-            printf("Exiting gracefully, thank you for using myMPD\n");
+            MYMPD_LOG_NOTICE(NULL, "Exiting gracefully, thank you for using myMPD");
         }
         else {
-            printf("Exiting erroneous, thank you for using myMPD\n");
+            MYMPD_LOG_NOTICE(NULL, "Exiting erroneous, thank you for using myMPD");
         }
     }
 
