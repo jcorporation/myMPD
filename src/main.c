@@ -25,6 +25,7 @@
     #include "src/lib/systemd.h"
 #endif
 #include "src/lib/thread.h"
+#include "src/lib/utility.h"
 #include "src/mympd_api/mympd_api.h"
 #include "src/scripts/scripts.h"
 #include "src/webserver/mg_user_data.h"
@@ -272,7 +273,9 @@ int main(int argc, char **argv) {
             break;
     }
 
-    if (config->log_to_syslog == true) {
+    if (config->log_to_syslog == true &&
+        log_type != LOG_TO_SYSTEMD)
+    {
         openlog("mympd", LOG_CONS, LOG_DAEMON);
         log_type = LOG_TO_SYSLOG;
     }
@@ -318,7 +321,7 @@ int main(int argc, char **argv) {
     // Startup notifications
     MYMPD_LOG_NOTICE(NULL, "Starting myMPD %s", MYMPD_VERSION);
     #ifdef MYMPD_DEBUG
-        MYMPD_LOG_NOTICE(NULL, "Debug build is running");
+        MYMPD_LOG_WARN(NULL, "Debug build is running");
     #endif
     #ifdef MYMPD_ENABLE_ASAN
         MYMPD_LOG_NOTICE(NULL, "Running with address sanitizer");
@@ -421,6 +424,20 @@ int main(int argc, char **argv) {
     rc = EXIT_SUCCESS;
     #ifdef MYMPD_ENABLE_SYSTEMD
         systemd_notify_ready();
+    #endif
+
+    // Systemd watchdog support
+    #ifdef MYMPD_ENABLE_SYSTEMD
+        if (log_type == LOG_TO_SYSTEMD) {
+            int msec = systemd_watchdog();
+            if (msec > 0) {
+                MYMPD_LOG_NOTICE(NULL, "Enabling systemd watchdog: %d msec", msec);
+                while (s_signal_received == 0) {
+                    my_msleep(msec);
+                    systemd_notify_watchdog();
+                }
+            }
+        }
     #endif
 
     // Try to cleanup all

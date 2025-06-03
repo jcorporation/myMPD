@@ -35,3 +35,23 @@ void systemd_notify_stopping(void) {
     }
     sd_notify(0, "STOPPING=1");
 }
+
+/**
+ * Checks for systemd watchdog
+ * @return 0 if disabled, else half of the watchdog interval in ms
+ */
+int systemd_watchdog(void) {
+    uint64_t usec;
+    if (sd_watchdog_enabled(true, &usec) <= 0) {
+        return 0;
+    }
+    return (int)(usec / 2000);
+}
+
+/**
+ * Systemd watchdog
+ */
+void systemd_notify_watchdog(void) {
+    sd_notify(0, "WATCHDOG=1");
+}
+

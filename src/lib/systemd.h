@@ -15,5 +15,7 @@
 
 void systemd_notify_ready(void);
 void systemd_notify_stopping(void);
+void systemd_notify_watchdog(void);
+int systemd_watchdog(void);
 
 #endif
