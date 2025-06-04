@@ -564,7 +564,7 @@ static bool expr_parse_value(struct t_search_expression *expr) {
         }
     }
     else if (expr->tag == SEARCH_FILTER_BITRATE ||
-        expr->tag == SEARCH_FILTER_PRIO)
+             expr->tag == SEARCH_FILTER_PRIO)
     {
         // Convert to number
         if (str2int64(&expr->value_i, expr->value) != STR2INT_SUCCESS) {
@@ -573,7 +573,7 @@ static bool expr_parse_value(struct t_search_expression *expr) {
         }
     }
     else if (expr->tag == SEARCH_FILTER_ADDED_SINCE ||
-                expr->tag == SEARCH_FILTER_MODIFIED_SINCE)
+             expr->tag == SEARCH_FILTER_MODIFIED_SINCE)
     {
         // Parse date
         expr->value_i = parse_date(expr->value);
