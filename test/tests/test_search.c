@@ -33,6 +33,7 @@ bool search_by_expression(const char *expr_string) {
     struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
     sdsfree(expression);
     if (expr_list == NULL) {
+        mpd_song_free(song);
         return false;
     }
     bool rc = search_expression_song(song, expr_list, &tags);
@@ -59,9 +60,19 @@ UTEST(search_local, test_search_mpd_song_expression) {
     ASSERT_TRUE(search_by_expression("((Artist starts_with 'bl'))"));    //starting string
     ASSERT_TRUE(search_by_expression("((Artist == 'Blixa Bargeld'))"));  //exact match
     ASSERT_TRUE(search_by_expression("((Artist =~ 'Blixa.*'))"));        //regex match
-
     ASSERT_FALSE(search_by_expression("((Artist != 'Blixa Bargeld'))")); //not exact match
     ASSERT_FALSE(search_by_expression("((Artist !~ 'Blixa.*'))"));       //regex mismatch
+
+    //special any tag
+    ASSERT_TRUE(search_by_expression("((any contains 'XA'))"));       //containing string
+    ASSERT_TRUE(search_by_expression("((any starts_with 'bl'))"));    //starting string
+    ASSERT_TRUE(search_by_expression("((any == 'Blixa Bargeld'))"));  //exact match
+    ASSERT_TRUE(search_by_expression("((any =~ 'Blixa.*'))"));        //regex match
+
+    //prio
+    ASSERT_TRUE(search_by_expression("((prio >= 5))"));
+    ASSERT_TRUE(search_by_expression("((prio >= 10))"));
+    ASSERT_FALSE(search_by_expression("((prio >= 20))"));
 
     //escaping
     ASSERT_TRUE(search_by_expression("((Artist contains 'MG\\'s'))"));
@@ -73,6 +84,12 @@ UTEST(search_local, test_search_mpd_song_expression) {
 
     ASSERT_TRUE(search_by_expression("((added-since '2023-10-10'))"));
     ASSERT_FALSE(search_by_expression("((added-since '2023-11-17'))"));
+
+    ASSERT_TRUE(search_by_expression("((base 'music/'))"));
+    ASSERT_FALSE(search_by_expression("((base 'abc/'))"));
+
+    ASSERT_TRUE(search_by_expression("((file 'music/test.mp3'))"));
+    ASSERT_FALSE(search_by_expression("((file 'abc/abc.mp3'))"));
 }
 
 long try_parse(const char *expr) {

@@ -42,7 +42,7 @@ bool create_testfile(void) {
 
 struct mpd_song *new_song(void) {
     struct mpd_song *song = malloc(sizeof(struct mpd_song));
-    song->uri = strdup("/music/test.mp3");
+    song->uri = strdup("music/test.mp3");
 
     for (unsigned i = 0; i < MPD_TAG_COUNT; ++i) {
         song->tags[i].value = NULL;
@@ -64,7 +64,7 @@ struct mpd_song *new_song(void) {
     song->added = 1699304451;
     song->pos = 0;
     song->id = 0;
-    song->prio = 0;
+    song->prio = 10;
 
     memset(&song->audio_format, 0, sizeof(song->audio_format));
     song->audio_format.channels = 2;
