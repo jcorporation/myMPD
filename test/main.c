@@ -20,6 +20,7 @@ sds workdir;
 int main(int argc, const char *const argv[]) {
     thread_logname = sdsempty();
     set_loglevel(7);
+    log_type = LOG_TO_STDOUT;
     workdir = sdsnew("/tmp/mympd-test");
 
     //utest main
