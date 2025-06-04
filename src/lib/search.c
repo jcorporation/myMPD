@@ -113,7 +113,7 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
         if (expr->tag == MPD_TAG_UNKNOWN ||
             p > end)
         {
-            MYMPD_LOG_ERROR(NULL, "Can not parse search expression, tag: %d, skip: %lu", expr->tag, skip);
+            MYMPD_LOG_ERROR(NULL, "Can not parse search expression, tag: %d, skip: %lu", expr->tag, (unsigned long)skip);
             free_search_expression(expr);
             free_search_expression_list(expr_list);
             expr_list = NULL;
@@ -126,7 +126,7 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
         if (expr->op == SEARCH_OP_UNKNOWN ||
             p > end)
         {
-            MYMPD_LOG_ERROR(NULL, "Can not parse search expression, tag: %d, op: %d, skip: %lu", expr->tag, expr->op, skip);
+            MYMPD_LOG_ERROR(NULL, "Can not parse search expression, tag: %d, op: %d, skip: %lu", expr->tag, expr->op, (unsigned long)skip);
             free_search_expression(expr);
             free_search_expression_list(expr_list);
             expr_list = NULL;
