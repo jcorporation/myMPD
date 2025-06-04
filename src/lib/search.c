@@ -374,7 +374,7 @@ static int expr_get_tag_song(const char *p, size_t *len) {
     sds tag_str = sdsnewlen(p - tag_len, tag_len);
     int tag = mpd_tag_name_iparse(tag_str);
     if (tag == MPD_TAG_UNKNOWN) {
-        if (strcmp(tag_str, "any") == 0) {
+        if (strcasecmp(tag_str, "any") == 0) {
             tag = SEARCH_FILTER_ANY_TAG;
         }
         else if (strcasecmp(tag_str, "modified-since") == 0) {
