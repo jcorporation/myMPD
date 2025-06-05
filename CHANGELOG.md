@@ -42,6 +42,7 @@ Two new triggers enables scripting for playlist and folder art.
 - Upd: Mongoose 7.18
 - Upd: Incbin
 - Upd: Replaced mjson with mongoose implementation
+- Fix: Improve MPD search expression validation #1435
 
 ***
 
