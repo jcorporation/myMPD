@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/lib/search.h"
 
+#include "dist/libmympdclient/src/iaf.h"
 #include "dist/utf8/utf8.h"
 #include "src/lib/convert.h"
 #include "src/lib/datetime.h"
@@ -65,11 +66,11 @@ enum search_filters {
  * Struct to hold a parsed search expression triple
  */
 struct t_search_expression {
-    int tag;                   //!< tag to search in
-    enum search_operators op;  //!< search operator
-    sds value;                 //!< value to match
-    int64_t value_i;           //!< integer value to match
-    pcre2_code *re_compiled;   //!< compiled regex if operator is a regex
+    int tag;                               //!< Tag to search in
+    enum search_operators op;              //!< Search operator
+    sds value;                             //!< Value to match
+    int64_t value_i;                       //!< Integer value to match
+    pcre2_code *re_compiled;               //!< Compiled regex if operator is a regex
 };
 
 static int expr_get_tag_song(const char *p, size_t *len);
@@ -201,6 +202,9 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
             if (expr->value_i > mpd_song_get_prio(song)) {
                 return false;
             }
+        }
+        else if (expr->tag == SEARCH_FILTER_AUDIO_FORMAT) {
+            // Not implemented
         }
         else {
             one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
@@ -554,17 +558,8 @@ static sds expr_get_value(const char *p, const char *end, int tag, sds buf, bool
  * @return true on success, else false
  */
 static bool expr_parse_value(struct t_search_expression *expr) {
-    if (expr->op == SEARCH_OP_REGEX ||
-        expr->op == SEARCH_OP_NOT_REGEX)
-    {
-        // Compile regex
-        expr->re_compiled = compile_regex(expr->value);
-        if (expr->re_compiled == NULL) {
-            return false;
-        }
-    }
-    else if (expr->tag == SEARCH_FILTER_BITRATE ||
-             expr->tag == SEARCH_FILTER_PRIO)
+    if (expr->tag == SEARCH_FILTER_BITRATE ||
+        expr->tag == SEARCH_FILTER_PRIO)
     {
         // Convert to number
         if (str2int64(&expr->value_i, expr->value) != STR2INT_SUCCESS) {
@@ -581,6 +576,19 @@ static bool expr_parse_value(struct t_search_expression *expr) {
             return false;
         }
     }
+    else if (expr->tag == SEARCH_FILTER_AUDIO_FORMAT) {
+        // Not implemented
+        return true;
+    }
+    else if (expr->op == SEARCH_OP_REGEX ||
+             expr->op == SEARCH_OP_NOT_REGEX)
+    {
+        // Compile regex
+        expr->re_compiled = compile_regex(expr->value);
+        if (expr->re_compiled == NULL) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -589,7 +597,7 @@ static bool expr_parse_value(struct t_search_expression *expr) {
  * @param expr pointer to t_search_expression struct
  * @return NULL
  */
-void *free_search_expression(struct t_search_expression *expr) {
+static void *free_search_expression(struct t_search_expression *expr) {
     FREE_SDS(expr->value);
     FREE_PTR(expr->re_compiled);
     FREE_PTR(expr);

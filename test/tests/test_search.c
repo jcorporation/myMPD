@@ -74,6 +74,10 @@ UTEST(search_local, test_search_mpd_song_expression) {
     ASSERT_TRUE(search_by_expression("((prio >= 10))"));
     ASSERT_FALSE(search_by_expression("((prio >= 20))"));
 
+    //audioformat
+    ASSERT_TRUE(search_by_expression("((AudioFormat == '44100:24:2'))"));
+    ASSERT_TRUE(search_by_expression("((AudioFormat =~ '*:24:2'))"));
+
     //escaping
     ASSERT_TRUE(search_by_expression("((Artist contains 'MG\\'s'))"));
     ASSERT_FALSE(search_by_expression("((Artist contains 'MGs\\'))"));

@@ -66,10 +66,9 @@ struct mpd_song *new_song(void) {
     song->id = 0;
     song->prio = 10;
 
-    memset(&song->audio_format, 0, sizeof(song->audio_format));
-    song->audio_format.channels = 2;
     song->audio_format.sample_rate = 44100;
     song->audio_format.bits = 24;
+    song->audio_format.channels = 2;
 
 #ifndef NDEBUG
     song->finished = false;
