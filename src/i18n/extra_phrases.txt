@@ -299,3 +299,4 @@ info
 debug
 URI
 #
+newWindow

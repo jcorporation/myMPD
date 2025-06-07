@@ -1279,5 +1279,6 @@
     "userDefinedSticker": "Benutzerdefinierte Sticker",
     "votes": "Stimmen",
     "warn": "Warnung",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "newWindow": "Neues Fenster"
 }

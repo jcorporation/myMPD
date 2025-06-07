@@ -206,11 +206,14 @@ function saveHomeIcon(target) {
     cleanupModalId('modalHomeIcon');
     btnWaiting(target, true);
     const options = [];
-    const optionEls = document.querySelectorAll('#modalHomeIconCmdOptions input, #modalHomeIconCmdOptions select');
+    const optionEls = document.querySelectorAll('#modalHomeIconCmdOptions input, #modalHomeIconCmdOptions select, #modalHomeIconCmdOptions button');
     for (const optionEl of optionEls) {
         switch(optionEl.nodeName) {
             case 'SELECT':
                 options.push(getSelectValue(optionEl));
+                break;
+            case 'BUTTON':
+                options.push(boolToStr(getBtnChkValue(optionEl)));
                 break;
             default:
                 options.push(optionEl.value);
@@ -449,6 +452,12 @@ function createHomeIconCmdOptionEl(name, value) {
             }
             sel.value = value;
             return sel;
+        }
+        case 'newWindow': {
+            if (value === 'false') {
+                return elCreateChkBtn(false);
+            }
+            return elCreateChkBtn(true);
         }
         default:
             return elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": name, "value": value});

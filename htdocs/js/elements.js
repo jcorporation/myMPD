@@ -122,6 +122,23 @@ function elCreateEmpty(tagName, attributes) {
 }
 
 /**
+ * Creates a Check Button
+ * @param {boolean} value Checked?
+ * @returns {HTMLElement} created dom node
+ */
+function elCreateChkBtn(value) {
+    const classes = ['btn', 'btn-sm', 'btn-secondary', 'mi', 'chkBtn'];
+    if (value === true) {
+        classes.push('active');
+    }
+    const chkBtn = elCreateText('button', {'class': classes, 'type': 'button'}, (value === true ? 'check' : 'radio_button_unchecked'));
+    chkBtn.addEventListener('click', function(event) {
+        toggleBtnChk(event.target, undefined);
+    });
+    return chkBtn;
+}
+
+/**
  * Clears the element with given id and appends the new child
  * @param {string} id id of the parent element
  * @param {Element | Node} child element to add

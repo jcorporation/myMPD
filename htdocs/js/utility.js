@@ -587,6 +587,17 @@ function convertType(str) {
 }
 
 /**
+ * Converts a boolean value to string
+ * @param {boolean} b Value to convert
+ * @returns {string} Value as string
+ */
+function boolToStr(b) {
+    return b === true
+        ? 'true'
+        : 'false';
+}
+
+/**
  * Gets a unix timestamp
  * @returns {number} the unix timestamp
  */

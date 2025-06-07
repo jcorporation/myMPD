@@ -1245,6 +1245,7 @@
 {"term":"mympd_tagart"},
 {"term":"name"},
 {"term":"never"},
+{"term":"newWindow"},
 {"term":"newest"},
 {"term":"notice"},
 {"term":"null"},

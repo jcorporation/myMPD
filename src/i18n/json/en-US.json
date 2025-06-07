@@ -199,5 +199,6 @@
     "warn": "Warning",
     "notice": "Notice",
     "info": "Informational",
-    "debug": "Debug"
+    "debug": "Debug",
+    "newWindow": "New window"
 }
