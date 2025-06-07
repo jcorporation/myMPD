@@ -319,7 +319,7 @@ function populateHomeIconCmdSelect(cmd, type) {
             modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "openExternalLink"}, 'Open external link')
             );
-            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Uri"]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Uri", "newWindow"]});
             break;
         }
         case 'openModal': {

@@ -30,7 +30,7 @@ function addOpenModalToHome() {
  */
 //eslint-disable-next-line no-unused-vars
 function addExternalLinkToHome() {
-    _addHomeIcon('openExternalLink', '', 'link', '', []);
+    _addHomeIcon('openExternalLink', '', 'link', '', ['', true]);
 }
 
 /**
@@ -208,7 +208,7 @@ function executeHomeIcon(pos) {
 }
 
 /**
- * Executes the home icon action
+ * Refreshes the home widget
  * @param {number} pos home icon position
  * @returns {void}
  */
@@ -219,13 +219,20 @@ function refreshHomeWidget(pos) {
 }
 
 /**
- * Opens the link in a new window
- * @param {string} link uri to open
+ * Opens the external link
+ * @param {string} link Uri to open
+ * @param {Array} options newWindow
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function openExternalLink(link) {
-    window.open(link);
+function openExternalLink(link, options) {
+    console.log(options[0]);
+    if (options[0] === false) {
+        window.location.href = link;
+    }
+    else {
+        window.open(link);
+    }
 }
 
 /**
