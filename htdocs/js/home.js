@@ -30,7 +30,7 @@ function addOpenModalToHome() {
  */
 //eslint-disable-next-line no-unused-vars
 function addExternalLinkToHome() {
-    _addHomeIcon('openExternalLink', '', 'link', '', ['', true]);
+    _addHomeIcon('openExternalLink', '', 'link', '', ['', 'true']);
 }
 
 /**
