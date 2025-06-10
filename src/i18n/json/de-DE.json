@@ -1245,6 +1245,7 @@
     "mympd_tagart": "Tag Bild (mympd_tagart)",
     "name": "Name",
     "never": "noch nie",
+    "newWindow": "Neues Fenster",
     "newest": "Neueste Lieder",
     "notice": "Hinweis",
     "null": "Null",
@@ -1279,6 +1280,5 @@
     "userDefinedSticker": "Benutzerdefinierte Sticker",
     "votes": "Stimmen",
     "warn": "Warnung",
-    "wasapi": "Windows Audio Session API",
-    "newWindow": "Neues Fenster"
+    "wasapi": "Windows Audio Session API"
 }
