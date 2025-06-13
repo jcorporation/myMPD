@@ -10,7 +10,7 @@ You can configure myMPD in different ways:
 
 2. Use `mymmpd-config`
     1. Type `mympd-config` to configure myMPD with a ncurses based interface.
-    2. Start myMPD. As an alternative you can edit the files in the folder `/var/lib/mympd/config/`.
+    2. Start myMPD.
 
 3. Use `mympd -c`
     1. Type `mympd -c` to create the initial configuration in the `/var/lib/mympd/config/` directory.
