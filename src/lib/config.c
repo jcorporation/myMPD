@@ -33,7 +33,7 @@
 /**
  * Default config definition
  */
-const struct t_config_default config_default[] = {
+static const struct t_config_default config_default[] = {
     [CI_ACL]                    = {"acl",                    {.t = CIT_S, .s = ""},             0, 0, vcb_isname},
     [CI_ALBUM_MODE]             = {"album_mode",             {.t = CIT_S, .s = "adv"},          0, 0, vcb_isalnum},
     [CI_ALBUM_GROUP_TAG]        = {"album_group_tag",        {.t = CIT_S, .s = "Date"},         0, 0, vcb_isalnum},
