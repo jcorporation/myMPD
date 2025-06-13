@@ -847,12 +847,11 @@ installdeps() {
     fi
     apt-get install -y --no-install-recommends \
       gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-      build-essential pkg-config libpcre2-dev gzip jq whiptail \
-      libsystemd-dev
+      build-essential pkg-config libpcre2-dev gzip jq whiptail
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq libnewt libsystemd
+    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq libnewt
   elif [ -f /etc/alpine-release ]
   then
     #alpine
@@ -862,12 +861,12 @@ installdeps() {
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-      lua-devel unzip pcre2-devel gzip jq whiptail libsystemd-devel
+      lua-devel unzip pcre2-devel gzip jq whiptail
   elif [ -f /etc/redhat-release ]
   then
     #fedora
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-      lua-devel unzip pcre2-devel gzip jq whiptail libsystemd-devel
+      lua-devel unzip pcre2-devel gzip jq whiptail
   else
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
@@ -881,7 +880,6 @@ installdeps() {
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
     echo "  - liblua5.4 or liblua5.3 (devel)"
-    echo "  - libsystemd (devel)"
     echo "  - libpcre2 (devel)"
   fi
 }

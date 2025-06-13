@@ -23,7 +23,6 @@ BuildRequires:  openssl-devel
 BuildRequires:  pcre2-devel
 BuildRequires:  perl
 BuildRequires:  pkgconfig
-BuildRequires:  systemd-devel
 BuildRequires:  unzip
 Requires: newt
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build

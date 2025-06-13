@@ -21,9 +21,6 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/signal.h"
-#ifdef MYMPD_ENABLE_SYSTEMD
-    #include "src/lib/systemd.h"
-#endif
 #include "src/lib/thread.h"
 #include "src/lib/utility.h"
 #include "src/mympd_api/mympd_api.h"
@@ -422,23 +419,6 @@ int main(int argc, char **argv) {
     // Outsourced all work to separate threads, do nothing...
     MYMPD_LOG_NOTICE(NULL, "myMPD is ready");
     rc = EXIT_SUCCESS;
-    #ifdef MYMPD_ENABLE_SYSTEMD
-        systemd_notify_ready();
-    #endif
-
-    // Systemd watchdog support
-    #ifdef MYMPD_ENABLE_SYSTEMD
-        if (log_type == LOG_TO_SYSTEMD) {
-            int msec = systemd_watchdog();
-            if (msec > 0) {
-                MYMPD_LOG_NOTICE(NULL, "Enabling systemd watchdog: %d msec", msec);
-                while (s_signal_received == 0) {
-                    my_msleep(msec);
-                    systemd_notify_watchdog();
-                }
-            }
-        }
-    #endif
 
     // Try to cleanup all
     cleanup:

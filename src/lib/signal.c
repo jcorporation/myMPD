@@ -17,10 +17,6 @@
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 
-#ifdef MYMPD_ENABLE_SYSTEMD
-    #include "src/lib/systemd.h"
-#endif
-
 #include <pthread.h>
 #include <signal.h>
 
@@ -59,9 +55,6 @@ static void mympd_signal_handler(int sig_num) {
         case SIGTERM:
         case SIGINT: {
             MYMPD_LOG_NOTICE(NULL, "Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
-            #ifdef MYMPD_ENABLE_SYSTEMD
-                systemd_notify_stopping();
-            #endif
             //Set loop end condition for threads
             s_signal_received = sig_num;
             //Wakeup queue loops

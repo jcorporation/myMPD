@@ -41,4 +41,5 @@ build() {
 
 package() {
 	make -C "$builddir/release" DESTDIR="$pkgdir" install
+	setcap cap_net_bind_service+ep "$pkgdir"/usr/bin/mympd
 }
