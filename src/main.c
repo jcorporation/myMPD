@@ -22,7 +22,6 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/signal.h"
 #include "src/lib/thread.h"
-#include "src/lib/utility.h"
 #include "src/mympd_api/mympd_api.h"
 #include "src/scripts/scripts.h"
 #include "src/webserver/mg_user_data.h"
@@ -64,37 +63,6 @@ const char *__asan_default_options(void) {
 #endif
 
 /**
- * Creates the working, cache and config directories.
- * @param config pointer to config struct
- * @return true on success else false
- */
-static bool check_dirs_initial(struct t_config *config) {
-    //create the cache directory
-    int testdir_rc = testdir("Cache dir", config->cachedir, true, false);
-    if (testdir_rc == DIR_CREATE_FAILED) {
-        return false;
-    }
-
-    //create the working directory
-    testdir_rc = testdir("Work dir", config->workdir, true, false);
-    if (testdir_rc == DIR_CREATE_FAILED) {
-        //workdir is not accessible
-        return false;
-    }
-
-    //create the config directory
-    sds testdirname = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_CONFIG);
-    testdir_rc = testdir("Config dir", testdirname, true, false);
-    if (testdir_rc == DIR_CREATE_FAILED) {
-        FREE_SDS(testdirname);
-        return false;
-    }
-    FREE_SDS(testdirname);
-
-    return true;
-}
-
-/**
  * Struct holding directory entry and description
  */
 struct t_subdirs_entry {
@@ -106,6 +74,7 @@ struct t_subdirs_entry {
  * Subdirs in the working directory to check
  */
 static const struct t_subdirs_entry workdir_subdirs[] = {
+    {DIR_WORK_CONFIG,           "Working dir"},
     {DIR_WORK_EMPTY,            "Empty dir"},
     {DIR_WORK_PICS,             "Pics dir"},
     {DIR_WORK_PICS_BACKGROUNDS, "Backgrounds dir"},
@@ -152,7 +121,19 @@ static bool check_dir(const char *parent, const char *subdir, const char *descri
  * @return true on success, else error
  */
 static bool check_dirs(struct t_config *config) {
-    int testdir_rc;
+    //create the cache directory
+    int testdir_rc = testdir("Cache dir", config->cachedir, true, false);
+    if (testdir_rc == DIR_CREATE_FAILED) {
+        return false;
+    }
+
+    //create the working directory
+    testdir_rc = testdir("Work dir", config->workdir, true, false);
+    if (testdir_rc == DIR_CREATE_FAILED) {
+        //workdir is not accessible
+        return false;
+    }
+
     #ifndef MYMPD_EMBEDDED_ASSETS
         //release uses empty document root and delivers embedded files
         testdir_rc = testdir("Document root", MYMPD_DOC_ROOT, false, false);
@@ -278,7 +259,7 @@ int main(int argc, char **argv) {
     }
 
     // Check initial directories
-    if (check_dirs_initial(config) == false) {
+    if (check_dirs(config) == false) {
         goto cleanup;
     }
 
@@ -365,24 +346,13 @@ int main(int argc, char **argv) {
     }
 
     // Init webserver
-    if (mympd_read_ca_certificates(config) == false) {
-        goto cleanup;
-    }
     mgr = malloc_assert(sizeof(struct mg_mgr));
     mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
-    if (webserver_init(mgr, config, mg_user_data) == false) {
-        goto cleanup;
-    }
-
-    // Check ssl certificates
-    if (create_certificates(config) == false ||
+    if (mympd_read_ca_certificates(config) == false ||
+        webserver_init(mgr, config, mg_user_data) == false ||
+        create_certificates(config) == false ||
         webserver_read_certs(mg_user_data, config) == false)
     {
-        goto cleanup;
-    }
-
-    // Check for required directories
-    if (check_dirs(config) == false) {
         goto cleanup;
     }
 
