@@ -89,7 +89,7 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
     // check for sticker support
     stickerdb->mpd_state->feat.stickers = check_sticker_support(stickerdb);
     if (stickerdb->mpd_state->feat.stickers == false) {
-        MYMPD_LOG_ERROR("stickerdb", "MPD does not support stickers");
+        MYMPD_LOG_WARN("stickerdb", "MPD does not support stickers");
         stickerdb_disconnect(stickerdb);
         send_jsonrpc_notify(JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_CRIT, MPD_PARTITION_ALL, "MPD does not support stickers");
         mympd_api_request_sticker_features(false, false);

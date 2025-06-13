@@ -41,6 +41,7 @@
  * Private definitions
  */
 
+static bool read_certs(struct t_mg_user_data *mg_user_data, struct t_config *config);
 static void read_queue(struct mg_mgr *mgr);
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
@@ -91,12 +92,16 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
     list_init(&mg_user_data->stream_uris);
     list_init(&mg_user_data->session_list);
     mg_user_data->mympd_api_started = false;
+    mg_user_data->webradiodb = NULL;
+    mg_user_data->webradio_favorites = NULL;
+
     mg_user_data->cert_content = sdsempty();
     mg_user_data->cert = mg_str("");
     mg_user_data->key_content = sdsempty();
     mg_user_data->key = mg_str("");
-    mg_user_data->webradiodb = NULL;
-    mg_user_data->webradio_favorites = NULL;
+    if (read_certs(mg_user_data, config) == false) {
+        return false;
+    }
 
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -140,38 +145,6 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
         return false;
     }
     MYMPD_LOG_NOTICE(NULL, "Serving files from \"%s\"", MYMPD_DOC_ROOT);
-    return true;
-}
-
-/**
- * Reads the ssl key and certificate from disc
- * @param mg_user_data pointer to mongoose user data
- * @param config pointer to myMPD config
- * @return true on success, else false
- */
-bool webserver_read_certs(struct t_mg_user_data *mg_user_data, struct t_config *config) {
-    if (config->ssl == false) {
-        return true;
-    }
-    int nread = 0;
-    mg_user_data->cert_content = sds_getfile(mg_user_data->cert_content, config->ssl_cert, SSL_FILE_MAX, false, true, &nread);
-    if (nread <= 0) {
-        MYMPD_LOG_ERROR(NULL, "Failure reading ssl certificate from disc");
-        return false;
-    }
-    nread = 0;
-    mg_user_data->key_content = sds_getfile(mg_user_data->key_content, config->ssl_key, SSL_FILE_MAX, false, true, &nread);
-    if (nread <= 0) {
-        MYMPD_LOG_ERROR(NULL, "Failure reading ssl key from disc");
-        return false;
-    }
-    sds cert_details = certificate_get_detail(mg_user_data->cert_content);
-    if (sdslen(cert_details) > 0) {
-        MYMPD_LOG_INFO(NULL, "Certificate: %s", cert_details);
-    }
-    FREE_SDS(cert_details);
-    mg_user_data->cert = mg_str(mg_user_data->cert_content);
-    mg_user_data->key = mg_str(mg_user_data->key_content);
     return true;
 }
 
@@ -222,6 +195,35 @@ void *webserver_loop(void *arg_mgr) {
 /**
  * Private functions
  */
+
+/**
+ * Reads the ssl key and certificate from disc
+ * @param mg_user_data pointer to mongoose user data
+ * @param config pointer to myMPD config
+ * @return true on success, else false
+ */
+static bool read_certs(struct t_mg_user_data *mg_user_data, struct t_config *config) {
+    int nread = 0;
+    mg_user_data->cert_content = sds_getfile(mg_user_data->cert_content, config->ssl_cert, SSL_FILE_MAX, false, true, &nread);
+    if (nread <= 0) {
+        MYMPD_LOG_ERROR(NULL, "Failure reading ssl certificate from disc");
+        return false;
+    }
+    nread = 0;
+    mg_user_data->key_content = sds_getfile(mg_user_data->key_content, config->ssl_key, SSL_FILE_MAX, false, true, &nread);
+    if (nread <= 0) {
+        MYMPD_LOG_ERROR(NULL, "Failure reading ssl key from disc");
+        return false;
+    }
+    sds cert_details = certificate_get_detail(mg_user_data->cert_content);
+    if (sdslen(cert_details) > 0) {
+        MYMPD_LOG_INFO(NULL, "Certificate: %s", cert_details);
+    }
+    FREE_SDS(cert_details);
+    mg_user_data->cert = mg_str(mg_user_data->cert_content);
+    mg_user_data->key = mg_str(mg_user_data->key_content);
+    return true;
+}
 
 /**
  * Reads and processes all messages from the queue

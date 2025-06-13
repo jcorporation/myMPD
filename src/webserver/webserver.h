@@ -18,6 +18,5 @@
 
 void *webserver_loop(void *arg_mgr);
 bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data);
-bool webserver_read_certs(struct t_mg_user_data *mg_user_data, struct t_config *config);
 void *webserver_free(struct mg_mgr *mgr);
 #endif

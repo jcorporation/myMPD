@@ -349,9 +349,8 @@ int main(int argc, char **argv) {
     mgr = malloc_assert(sizeof(struct mg_mgr));
     mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
     if (mympd_read_ca_certificates(config) == false ||
-        webserver_init(mgr, config, mg_user_data) == false ||
         create_certificates(config) == false ||
-        webserver_read_certs(mg_user_data, config) == false)
+        webserver_init(mgr, config, mg_user_data) == false)
     {
         goto cleanup;
     }
