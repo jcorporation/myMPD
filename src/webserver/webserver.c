@@ -151,14 +151,12 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
 /**
  * Frees the mongoose mgr
  * @param mgr mongoose mgr to free
- * @return NULL
  */
-void *webserver_free(struct mg_mgr *mgr) {
+void webserver_free(struct mg_mgr *mgr) {
     sds dns4_url = (sds)mgr->dns4.url;
     FREE_SDS(dns4_url);
     mg_mgr_free(mgr);
     FREE_PTR(mgr);
-    return NULL;
 }
 
 /**
