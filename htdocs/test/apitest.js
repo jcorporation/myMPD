@@ -91,7 +91,6 @@ async function sendAPI(method) {
             }
         }
         catch(error) {
-            //const text = await response.text();
             setTest(request, 'error', 'JSON parse error: ' + error);
         }
     }
