@@ -331,8 +331,7 @@ sds mympd_api_get_sticker_uri(struct t_mympd_state *mympd_state, sds uri, enum m
     struct mpd_song *album = album_cache_get_album(&mympd_state->album_cache, uri);
     if (album != NULL) {
         *type = STICKER_TYPE_FILTER;
-        FREE_SDS(uri);
-        return get_search_expression_album(sdsempty(), mympd_state->mpd_state->tag_albumartist, album, &mympd_state->config->albums);
+        return get_search_expression_album(uri, mympd_state->mpd_state->tag_albumartist, album, &mympd_state->config->albums);
     }
     return uri;
 }
