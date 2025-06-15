@@ -33,6 +33,11 @@
 sds mympd_api_sticker_get(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
     sds uri, enum mympd_sticker_type type, sds name)
 {
+    if (stickerdb->mpd_state->feat.stickers == false) {
+        buffer = jsonrpc_respond_message(buffer, MYMPD_API_STICKER_GET, request_id,
+            JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "MPD stickers are disabled");
+        return buffer;
+    }
     sds value = stickerdb_get(stickerdb, type, uri, name);
     if (value == NULL) {
         return jsonrpc_respond_message(buffer, MYMPD_API_STICKER_GET, request_id,
@@ -65,6 +70,11 @@ sds mympd_api_sticker_find(struct t_stickerdb_state *stickerdb, sds buffer, unsi
         sds uri, enum mympd_sticker_type type, sds name, enum mpd_sticker_operator op, sds value,
         enum mpd_sticker_sort sort, bool sort_desc, unsigned offset, unsigned limit)
 {
+    if (stickerdb->mpd_state->feat.stickers == false) {
+        buffer = jsonrpc_respond_message(buffer, MYMPD_API_STICKER_FIND, request_id,
+            JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "MPD stickers are disabled");
+        return buffer;
+    }
     struct t_list *result = stickerdb_find_stickers_sorted(stickerdb, type, uri, name, op, value, sort, sort_desc, offset, limit);
     if (result == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_STICKER_FIND, request_id,
@@ -108,6 +118,11 @@ sds mympd_api_sticker_find(struct t_stickerdb_state *stickerdb, sds buffer, unsi
 sds mympd_api_sticker_list(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
     sds uri, enum mympd_sticker_type type)
 {
+    if (stickerdb->mpd_state->feat.stickers == false) {
+        buffer = jsonrpc_respond_message(buffer, MYMPD_API_STICKER_LIST, request_id,
+            JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "MPD stickers are disabled");
+        return buffer;
+    }
     struct t_stickers stickers;
     stickers_enable_all(&stickers, type);
     buffer = jsonrpc_respond_start(buffer, MYMPD_API_STICKER_LIST, request_id);
@@ -133,6 +148,9 @@ sds mympd_api_sticker_list(struct t_stickerdb_state *stickerdb, sds buffer, unsi
 bool mympd_api_sticker_set_feedback(struct t_stickerdb_state *stickerdb, struct t_list *trigger_list, const char *partition_name,
     enum mympd_sticker_type sticker_type, sds uri, enum mympd_feedback_type feedback_type, int value, sds *error)
 {
+    //mympd_feedback trigger
+    mympd_api_trigger_execute_feedback(trigger_list, uri, feedback_type, value, partition_name);
+
     if (stickerdb->mpd_state->feat.stickers == false) {
         *error = sdscat(*error, "MPD stickers are disabled");
         return false;
@@ -148,8 +166,6 @@ bool mympd_api_sticker_set_feedback(struct t_stickerdb_state *stickerdb, struct 
         *error = sdscat(*error, "Failed to set feedback");
         return false;
     }
-    //mympd_feedback trigger
-    mympd_api_trigger_execute_feedback(trigger_list, uri, feedback_type, value, partition_name);
     return true;
 }
 
