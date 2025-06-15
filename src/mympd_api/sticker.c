@@ -317,7 +317,7 @@ sds mympd_api_sticker_names(struct t_stickerdb_state *stickerdb, sds buffer, uns
 }
 
 /**
- * Translates myMPD specific sticker types to MPD sticker types
+ * Translates the uri and type for myMPD specific sticker type
  * @param mympd_state Pointer to mympd_state
  * @param uri Sticker URI
  * @param type Pointer to mympd_sticker_type
@@ -338,7 +338,7 @@ sds mympd_api_get_sticker_uri(struct t_mympd_state *mympd_state, sds uri, enum m
 }
 
 /**
- * Translates myMPD sticker types to MPD sticker types
+ * Translates myMPD specific sticker type to MPD sticker type
  * @param type myMPD sticker type
  * @return MPD sticker type
  */
