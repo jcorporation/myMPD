@@ -13,7 +13,6 @@
 #include "src/lib/cert.h"
 #include "src/lib/config.h"
 #include "src/lib/config_def.h"
-#include "src/lib/env.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/handle_options.h"
 #include "src/lib/log.h"
@@ -185,23 +184,7 @@ static bool create_certificates(struct t_config *config) {
 int main(int argc, char **argv) {
     // Set initial states
     thread_logname = sdsnew("mympd");
-    log_type = LOG_TO_STDOUT;
-    if (isatty(fileno(stdout)) == true) {
-        log_type = LOG_TO_TTY;
-    }
-    else if (getenv_check("INVOCATION_ID") != NULL) {
-        #ifdef MYMPD_ENABLE_SYSTEMD
-            log_type = LOG_TO_SYSTEMD;
-        #endif
-    }
-    #ifdef MYMPD_DEBUG
-        set_loglevel(LOG_DEBUG);
-    #else
-        bool getenv_rc;
-        set_loglevel(
-            getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX, &getenv_rc)
-        );
-    #endif
+    log_init();
 
     mympd_worker_threads = 0;
     #ifdef MYMPD_ENABLE_LUA

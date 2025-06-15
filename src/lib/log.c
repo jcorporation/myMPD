@@ -11,10 +11,12 @@
 #include "compile_time.h"
 #include "src/lib/log.h"
 
+#include "src/lib/env.h"
 #include "src/lib/sds_extras.h"
 
 #include <pthread.h>
 #include <string.h>
+#include <unistd.h>
 
 /**
  * Global variables
@@ -90,6 +92,26 @@ void set_loglevel(int level) {
     }
     MYMPD_LOG_NOTICE(NULL, "Setting loglevel to %s", loglevel_names[level]);
     loglevel = level;
+}
+
+void log_init(void) {
+    log_type = LOG_TO_STDOUT;
+    if (isatty(fileno(stdout)) == true) {
+        log_type = LOG_TO_TTY;
+    }
+    else if (getenv_check("INVOCATION_ID") != NULL) {
+        #ifdef MYMPD_ENABLE_SYSTEMD
+            log_type = LOG_TO_SYSTEMD;
+        #endif
+    }
+    #ifdef MYMPD_DEBUG
+        set_loglevel(LOG_DEBUG);
+    #else
+        bool getenv_rc;
+        set_loglevel(
+            getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX, &getenv_rc)
+        );
+    #endif
 }
 
 /**

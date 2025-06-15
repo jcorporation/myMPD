@@ -57,6 +57,7 @@ _Thread_local extern sds thread_logname;
 
 const char *get_loglevel_name(int level);
 void set_loglevel(int level);
+void log_init(void);
 
 void mympd_log_errno(const char *file, int line, const char *partition, int errnum);
 void mympd_log(int level, const char *file, int line, const char *partition, const char *fmt, ...)
