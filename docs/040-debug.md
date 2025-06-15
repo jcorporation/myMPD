@@ -57,4 +57,4 @@ tcpdump -nni any -vvv -s0 -x host <mpd host> and port <mpd port>
 ## myMPD debug build
 
 - Build: `./build.sh debug`
-- Run: `valgrind --leakcheck=full debug/bin/mympd`
+- Run: `valgrind --leak-check=full debug/bin/mympd`
