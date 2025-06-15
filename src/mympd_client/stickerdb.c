@@ -176,12 +176,10 @@ bool stickerdb_check_error_and_recover(struct t_stickerdb_state *stickerdb, cons
         stickerdb->conn_state = MPD_FAILURE;
         return false;
     }
-    mpd_response_finish(stickerdb->conn);
-    enum mpd_error error = mpd_connection_get_error(stickerdb->conn);
-    if (error == MPD_ERROR_SUCCESS) {
+    if (mpd_response_finish(stickerdb->conn) == true) {
         return true;
     }
-
+    enum mpd_error error = mpd_connection_get_error(stickerdb->conn);
     const char *error_msg = mpd_connection_get_error_message(stickerdb->conn);
     if (error == MPD_ERROR_SERVER) {
         enum mpd_server_error server_error = mpd_connection_get_server_error(stickerdb->conn);
@@ -191,12 +189,14 @@ bool stickerdb_check_error_and_recover(struct t_stickerdb_state *stickerdb, cons
         MYMPD_LOG_ERROR(stickerdb->name, "MPD error for command %s: %s (%d)", command, error_msg , error);
     }
     //try to recover from error
-    if (mpd_connection_clear_error(stickerdb->conn) == false) {
-        MYMPD_LOG_ERROR(stickerdb->name, "%s", "Unrecoverable MPD error");
+    if (mpd_connection_clear_error(stickerdb->conn) == false ||
+        mpd_response_finish(stickerdb->conn) == false)
+    {
+        MYMPD_LOG_ERROR(stickerdb->name, "Unrecoverable MPD error");
         stickerdb->conn_state = MPD_FAILURE;
     }
     else {
-        mpd_response_finish(stickerdb->conn);
+        MYMPD_LOG_WARN(stickerdb->name, "Recovered from MPD error");
     }
     return false;
 }

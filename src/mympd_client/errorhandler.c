@@ -147,12 +147,11 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
         mympd_set_mpd_failure(partition_state, "Unrecoverable MPD error");
         return false;
     }
-    mpd_response_finish(partition_state->conn);
-    enum mpd_error error = mpd_connection_get_error(partition_state->conn);
-    if (error == MPD_ERROR_SUCCESS) {
+    if (mpd_response_finish(partition_state->conn) == true) {
         return true;
     }
-
+    // Get error type and message
+    enum mpd_error error = mpd_connection_get_error(partition_state->conn);
     const char *error_msg = mpd_connection_get_error_message(partition_state->conn);
     if (error == MPD_ERROR_SERVER) {
         enum mpd_server_error server_error = mpd_connection_get_server_error(partition_state->conn);
@@ -178,14 +177,15 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
                 *buffer = sdscat(*buffer, error_msg);
         }
     }
-    //try to recover from error
-    if (mpd_connection_clear_error(partition_state->conn) == false) {
+    // Try to recover from error
+    if (mpd_connection_clear_error(partition_state->conn) == false ||
+        mpd_response_finish(partition_state->conn) == false ||
+        enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd) == false)
+    {
         mympd_set_mpd_failure(partition_state, "Unrecoverable MPD error");
     }
     else {
-        mpd_response_finish(partition_state->conn);
-        //enable default mpd tags after recovering from error
-        enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
+        MYMPD_LOG_WARN(partition_state->name, "Recovered from MPD error");
     }
     return false;
 }
