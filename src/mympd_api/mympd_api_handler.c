@@ -74,6 +74,7 @@
     #include "src/mympd_api/lua_mympd_state.h"
 #endif
 
+#include <assert.h>
 #include <stdbool.h>
 #include <string.h>
 

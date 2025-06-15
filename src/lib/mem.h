@@ -7,32 +7,38 @@
 #ifndef MYMPD_MEM_H
 #define MYMPD_MEM_H
 
-#undef NDEBUG
-#include <assert.h>
+#include "src/lib/log.h"
+
 #include <stdlib.h>
 
 /**
- * Mallocs and asserts if it fails
+ * Calls malloc and abort if it fails
  * @param size bytes to malloc
  * @return malloced pointer
  */
 __attribute__((malloc))
 static inline void *malloc_assert(size_t size) {
     void *p = malloc(size);
-    assert(p);
+    if (p == NULL) {
+        MYMPD_LOG_EMERG(NULL, "Failure allocating %lu bytes of memory", (unsigned long) size);
+        abort();
+    }
     return p;
 }
 
 /**
- * Reallocs and asserts if it fails
+ * Calls realloc and aborts if it fails
  * @param ptr pointer to resize
  * @param size bytes to realloc
- * @return realloced pointer
+ * @return reallocated pointer
  */
 __attribute__((malloc))
 static inline void *realloc_assert(void *ptr, size_t size) {
     void *p = realloc(ptr, size);
-    assert(p);
+    if (p == NULL) {
+        MYMPD_LOG_EMERG(NULL, "Failure allocating %lu bytes of memory", (unsigned long) size);
+        abort();
+    }
     return p;
 }
 

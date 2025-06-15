@@ -16,6 +16,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 
+#include <assert.h>
 #include <id3tag.h>
 
 // private definitions

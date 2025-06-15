@@ -23,6 +23,7 @@
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 
+#include <assert.h>
 #include <dirent.h>
 #include <errno.h>
 #include <inttypes.h>
