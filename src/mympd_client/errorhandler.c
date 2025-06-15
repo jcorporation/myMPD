@@ -18,6 +18,7 @@
 #include "src/mympd_client/connection.h"
 #include "src/mympd_client/tags.h"
 
+#include <assert.h>
 #include <string.h>
 
 /**
@@ -38,6 +39,7 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
  * @param errormessage Error message to log
  */
 void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char *errormessage) {
+    assert(errormessage);
     MYMPD_LOG_ERROR(partition_state->name, "%s", errormessage);
     mympd_client_disconnect(partition_state);
     mympd_timer_set(partition_state->timer_fd_mpd_connect, 0, 5);
@@ -46,7 +48,7 @@ void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char
 /**
  * Checks for mpd protocol error and tries to recover it
  * @param partition_state pointer to partition specific states
- * @param error pointer to an already allocated sds string for the error message
+ * @param error pointer to an already allocated sds string for the error message or NULL
  * @param command last mpd command
  * @return true on success, else false
  */
@@ -58,7 +60,7 @@ bool mympd_check_error_and_recover(struct t_partition_state *partition_state, sd
  * Checks for mpd protocol error and tries to recover it.
  * Creates a jsonrpc response on error.
  * @param partition_state pointer to partition specific states
- * @param buffer pointer to an already allocated sds string for the jsonrpc response
+ * @param buffer pointer to an already allocated sds string for the jsonrpc response or NULL
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id jsonrpc request id to respond
  * @param command last mpd command
@@ -74,7 +76,7 @@ bool mympd_check_error_and_recover_respond(struct t_partition_state *partition_s
  * Checks for mpd protocol error and tries to recover it.
  * Creates a jsonrpc notification on error.
  * @param partition_state pointer to partition specific states
- * @param buffer already allocated sds string for the jsonrpc response
+ * @param buffer already allocated sds string for the jsonrpc response or NULL
  * @param command last mpd command
  * @return true on success, else false
  */
@@ -86,7 +88,7 @@ bool mympd_check_error_and_recover_notify(struct t_partition_state *partition_st
  * Checks for mpd protocol error and tries to recover it.
  * Returns the plain mpd error message.
  * @param partition_state pointer to partition specific states
- * @param buffer already allocated sds string for the mpd error message
+ * @param buffer already allocated sds string for the mpd error message or NULL
  * @param command last mpd command
  * @return true on success, else false
  */
@@ -99,7 +101,7 @@ bool mympd_check_error_and_recover_plain(struct t_partition_state *partition_sta
  * Creates always a jsonrpc response.
  * Shortcut for mympd_check_rc_error_and_recover and jsonrpc_respond_ok
  * @param partition_state pointer to partition specific states
- * @param buffer already allocated sds string for the jsonrpc response
+ * @param buffer already allocated sds string for the jsonrpc response or NULL
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id jsonrpc request id to respond
  * @param command last mpd command
@@ -133,7 +135,7 @@ bool mympd_clear_finish(struct t_partition_state *partition_state) {
 /**
  * Calls mpd_response_finish and checks for an mpd error and tries to recover.
  * @param partition_state pointer to partition specific states
- * @param buffer already allocated sds string for the jsonrpc response
+ * @param buffer already allocated sds string for the jsonrpc response or NULL
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id jsonrpc request id to respond
  * @param response_type response message type
@@ -143,6 +145,7 @@ bool mympd_clear_finish(struct t_partition_state *partition_state) {
 static bool check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, enum mympd_cmd_ids cmd_id,
         unsigned request_id, enum jsonrpc_response_types response_type, const char *command)
 {
+    assert(command);
     if (partition_state->conn == NULL) {
         mympd_set_mpd_failure(partition_state, "Unrecoverable MPD error");
         return false;
