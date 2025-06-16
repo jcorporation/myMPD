@@ -99,7 +99,9 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
     mg_user_data->cert = mg_str("");
     mg_user_data->key_content = sdsempty();
     mg_user_data->key = mg_str("");
-    if (read_certs(mg_user_data, config) == false) {
+    if (config->ssl == true &&
+        read_certs(mg_user_data, config) == false)
+    {
         return false;
     }
 
