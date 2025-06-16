@@ -162,7 +162,7 @@ bool stickerdb_exit_idle(struct t_stickerdb_state *stickerdb) {
     if (mpd_send_noidle(stickerdb->conn) == false) {
         MYMPD_LOG_ERROR("stickerdb", "Error exiting idle mode");
     }
-    return stickerdb_check_error_and_recover(stickerdb, "mpd_run_noidle");
+    return stickerdb_check_error_and_recover(stickerdb, "mpd_send_noidle");
 }
 
 /**
