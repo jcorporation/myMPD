@@ -6,8 +6,7 @@ add_library(mympdclient "")
 
 target_include_directories(mympdclient PUBLIC include)
 
-if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
-  # Never create a libmympdclient debug build
+if(CMAKE_BUILD_TYPE MATCHES "(Release|RelWithDebInfo|MinSizeRel)")
   target_compile_options(mympdclient
     PRIVATE
       "-DNDEBUG"
