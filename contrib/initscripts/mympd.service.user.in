@@ -12,21 +12,13 @@ After=mpd.service
 ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/mympd -w %h/.config/mympd -a %h/.cache/mympd
 Restart=always
 WorkingDirectory=%h/.config/mympd
-LockPersonality=yes
 MemoryDenyWriteExecute=yes
-PrivateDevices=yes
-ProtectClock=yes
-ProtectControlGroups=yes
-ProtectKernelLogs=yes
-ProtectKernelModules=yes
-ProtectKernelTunables=yes
 ProtectProc=invisible
 RestrictRealtime=yes
 RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK AF_UNIX
 RestrictNamespaces=yes
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
-#WatchdogSec=120
 
 [Install]
 WantedBy=default.target
