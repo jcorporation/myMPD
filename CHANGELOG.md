@@ -37,7 +37,7 @@ Two new triggers enables scripting for playlist and folder art.
 - Feat: Sort list of timers and triggers #1425
 - Feat: Allow changing output device with local playback #1434
 - Upd: Improve "Edit Script"-Layout
-- Upd: Bootstrap v5.3.6
+- Upd: Bootstrap v5.3.7
 - Upd: Mongoose 7.18
 - Upd: Incbin
 - Upd: Replaced mjson with mongoose implementation
