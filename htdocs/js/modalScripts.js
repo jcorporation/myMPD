@@ -679,9 +679,9 @@ function showImportScript() {
     list.appendChild(
         elCreateTextTn('li', {"class": ["list-group-item", "not-clickable"]}, 'Loading...')
     );
-    httpGet(subdir + '/proxy?uri=' + myEncodeURI(settings.scriptsImportUri + 'index.json'), function(obj) {
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI(settings.scriptsImportUri + 'index.json'), function(text) {
         elClear(list);
-        if (obj === null) {
+        if (text === '') {
             list.appendChild(
                 elCreateNode('li', {"class": ["list-group-item", "not-clickable"]},
                     elCreateTextTn('div', {"class": ["alert", "alert-danger"]}, 'Failure loading script list.')
@@ -689,27 +689,73 @@ function showImportScript() {
             );
             return;
         }
-        for (const key in obj) {
-            const script = obj[key];
-            const clickable = elGetById('modalScriptsList').querySelector('[data-file="' + key + '"') === null
-                ? 'clickable'
-                : 'disabled';
-            list.appendChild(
-                elCreateNodes('li', {"data-script": key, "class": ["list-group-item", "list-group-item-action", clickable],
-                    "title": tn("Import"), "data-title-phrase": "Import"}, [
-                    elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
-                        elCreateText('h5', {}, script.name),
-                        elCreateText('a', {"href": settings.scriptsUri + dirname(key), "target": "_blank", "class": ["mi", "text-success"],
-                            "data-title": tn("Open"), "data-title-phrase": "Open"}, 'open_in_browser')
-                    ]),
-                    elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
-                        elCreateText('p', {"class": ["mb-1"]}, script.desc),
-                        elCreateText('small', {}, 'v' + script.version)
-                    ])
+        getIndexSignature(text);
+    }, false);
+}
+
+/**
+ * Fetches the index signature and validates it
+ * @param {string} text Script index as text
+ * @returns {void}
+ */
+function getIndexSignature(text) {
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI(settings.scriptsImportUri + 'index.json.sig'), function(signature) {
+        sendAPI('MYMPD_API_SCRIPT_VERIFY_SIG', {
+            "script": text,
+            "signature": signature
+        }, function(obj) {
+            if (obj.error) {
+                //Signature validation failed
+                showModalAlert(obj);
+            }
+            else {
+                populateScriptImportList(text);
+            }
+        },
+        true);
+    }, false);
+}
+
+/**
+ * Parses the script index into json and populate the list of scripts to import
+ * @param {string} text Script index as text
+ * @returns {void}
+ */
+function populateScriptImportList(text) {
+    const list = elGetById('modalScriptsImportList');
+    let obj;
+    try {
+        obj = JSON.parse(text);
+    }
+    catch(e) {
+        list.appendChild(
+            elCreateNode('li', {"class": ["list-group-item", "not-clickable"]},
+                elCreateTextTn('div', {"class": ["alert", "alert-danger"]}, 'Failure loading script list.')
+            )
+        );
+        logError(e);
+        return;
+    }
+    for (const key in obj) {
+        const script = obj[key];
+        const clickable = elGetById('modalScriptsList').querySelector('[data-file="' + key + '"') === null
+            ? 'clickable'
+            : 'disabled';
+        list.appendChild(
+            elCreateNodes('li', {"data-script": key, "class": ["list-group-item", "list-group-item-action", clickable],
+                "title": tn("Import"), "data-title-phrase": "Import"}, [
+                elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
+                    elCreateText('h5', {}, script.name),
+                    elCreateText('a', {"href": settings.scriptsUri + dirname(key), "target": "_blank", "class": ["mi", "text-success"],
+                        "data-title": tn("Open"), "data-title-phrase": "Open"}, 'open_in_browser')
+                ]),
+                elCreateNodes('div', {"class": ["d-flex", "w-100", "justify-content-between"]}, [
+                    elCreateText('p', {"class": ["mb-1"]}, script.desc),
+                    elCreateText('small', {}, 'v' + script.version)
                 ])
-            );
-        }
-    }, true);
+            ])
+        );
+    }
 }
 
 /**
@@ -739,16 +785,16 @@ function getScriptSignature(script, text) {
             "script": text,
             "signature": signature
         }, function(obj) {
-                if (obj.error) {
-                    //Signature validation failed
-                    showModalAlert(obj);
-                    elEnableId('modalScriptsContentInput');
-                }
-                else {
-                    doImportScript(text);
-                }
-            },
-            true);
+            if (obj.error) {
+                //Signature validation failed
+                showModalAlert(obj);
+                elEnableId('modalScriptsContentInput');
+            }
+            else {
+                doImportScript(text);
+            }
+        },
+        true);
     }, false);
 }
 
