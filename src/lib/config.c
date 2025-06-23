@@ -56,6 +56,7 @@ static const struct t_config_default config_default[] = {
     [CI_PIN_HASH]               = {"pin_hash",               {.t = CIT_S, .s = ""},             0, 0, vcb_isalnum},
     [CI_SAVE_CACHES]            = {"save_caches",            {.t = CIT_B, .b = true},           0, 0, NULL},
     [CI_SCRIPTACL]              = {"scriptacl",              {.t = CIT_S, .s = "+127.0.0.0/8"}, 0, 0, vcb_isname},
+    [CI_SCRIPTS_EXTERNAL]       = {"scripts_external",       {.t = CIT_B, .b = false},          0, 0, NULL},
     [CI_SSL]                    = {"ssl",                    {.t = CIT_B, .b = true},           0, 0, NULL},
     [CI_SSL_CERT]               = {"ssl_cert",               {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
     [CI_SSL_KEY]                = {"ssl_key",                {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
@@ -226,6 +227,10 @@ static void set_config(struct t_config *config, enum config_item ci, struct t_co
         case CI_SCRIPTACL:
             assert(value->t == CIT_S);
             config->scriptacl = value->s;
+            break;
+        case CI_SCRIPTS_EXTERNAL:
+            assert(value->t == CIT_B);
+            config->scripts_external = value->b;
             break;
         case CI_SSL_CERT:
             assert(value->t == CIT_S);

@@ -45,6 +45,7 @@ You can configure myMPD in different ways:
 | pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |
 | save_caches | boolean | MYMPD_SAVE_CACHES | `true` | `true` = saves caches between restart, `false` = create caches on startup |
 | scriptacl | string | MYMPD_SCRIPTACL | `+127.0.0.1` | ACL to access the myMPD script backend: [ACL](acl.md), allows only local connections in the default configuration. The acl above must also grant access. |
+| scripts_external | boolean | MYMPD_SCRIPTS_EXTERNAL | `false` | Allow myMPD to execute external scripts vie the `/script-api`-Endpoint. |
 | stickers | boolean | MYMPD_STICKERS | `true` | Enables the support for MPD stickers. |
 | stickers_pad_int | boolean | MYMPD_STICKERS_PAD_INT | `false` | Enables the padding of integer sticker values (12 digits). |
 | webradiodb | boolean | MYMPD_WEBRADIODB | `true` | Enables the WebradioDB integration. |

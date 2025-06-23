@@ -274,7 +274,9 @@ int main(int argc, char **argv) {
     #endif
 
     #ifdef MYMPD_ENABLE_IPV6
-        if (sdslen(config->acl) > 0) {
+        if (sdslen(config->acl) > 0 &&
+            config->scripts_external == true)
+        {
             MYMPD_LOG_WARN(NULL, "No acl support for IPv6");
         }
     #endif

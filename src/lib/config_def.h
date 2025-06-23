@@ -60,6 +60,7 @@ enum config_item {
     CI_PIN_HASH,
     CI_SAVE_CACHES,
     CI_SCRIPTACL,
+    CI_SCRIPTS_EXTERNAL,
     CI_SSL,
     CI_SSL_CERT,
     CI_SSL_KEY,
@@ -135,6 +136,7 @@ struct t_config {
     bool stickers;                  //!< enable sticker support
     bool stickers_pad_int;          //!< enable the padding of integer sticker values
     bool webradiodb;                //!< enable webradiodb support
+    bool scripts_external;          //!< allow execution of external scripts
     int cache_cover_keep_days;      //!< expiration time for cover cache files in days
     int cache_http_keep_days;       //!< expiration time for HTTP cache files in days
     int cache_lyrics_keep_days;     //!< expiration time for lyrics cache files in days

@@ -321,6 +321,7 @@
 {"term":"Executes a system command and capture its output."},
 {"term":"Expression"},
 {"term":"External link"},
+{"term":"External scripts are disabled"},
 {"term":"Facilities"},
 {"term":"Facility"},
 {"term":"Failed to delete sticker"},

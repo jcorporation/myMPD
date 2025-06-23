@@ -26,6 +26,7 @@ Two new triggers enables scripting for playlist and folder art.
 ### Scripting changes
 
 - Feat: `mympd.tblvalue_in_list(()` - Checks a Lua table of tags against a comma separated list.
+- Upd: Executing external scripts is now disabled by default.
 
 ### Changelog
 
