@@ -19,7 +19,7 @@ mympd-script https://localhost default test key1=value1
 It reads the script from STDIN and submits it to myMPD for execution.
 
 ```sh
-mympd-script https://localhost:4430 default - key1=value1 <<< 'print arguments["key1"]'
+mympd-script https://localhost:8443 default - key1=value1 <<< 'print arguments["key1"]'
 ```
 
 For security reasons this function is disabled by default. You can enable it by setting the configuration file `scripts_external` to `true`. The API-Endpoint is restricted to localhost. This can be configured with the `scriptacl` option in the config folder.

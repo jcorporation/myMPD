@@ -23,7 +23,7 @@ static void print_usage(char **argv) {
     fprintf(stderr, "\nmyMPD script utility %s\n\n"
         "Usage: %s [-k] <uri> <partition> <scriptname> [<arguments>]\n"
         "  -k:           Disable certificate checking\n"
-        "  <uri>:        myMPD listening uri, e.g. \"https://localhost:4430\"\n"
+        "  <uri>:        myMPD listening uri, e.g. \"https://localhost:8443\"\n"
         "  <partition>:  MPD partition, e.g. \"default\"\n"
         "  <scriptname>: script to execute, use \"-\" to read the script from stdin.\n"
         "  <arguments>:  optional space separated key=value pairs for script arguments.\n"
