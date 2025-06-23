@@ -22,6 +22,12 @@ start_service() {
     config_get main http_port > ${configdir}/http_port
     config_get main loglevel > ${configdir}/loglevel
 
+    config_get main cache_cover_keep_days > ${configdir}/cache_cover_keep_days
+    config_get main cache_http_keep_days > ${configdir}/cache_http_keep_days
+    config_get main cache_lyrics_keep_days > ${configdir}/cache_lyrics_keep_days
+    config_get main cache_misc_keep_days > ${configdir}/cache_misc_keep_days
+    config_get main cache_thumbs_keep_days > ${configdir}/cache_thumbs_keep_days
+
     config_get main lualibs > ${configdir}/lualibs
     config_get main scriptacl > ${configdir}/scriptacl
 
