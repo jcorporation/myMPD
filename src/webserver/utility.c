@@ -279,6 +279,7 @@ void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len) 
  * Creates and sends a jsonrpc response
  * @param nc mongoose connection
  * @param cmd_id myMPD API method
+ * @param request_id jsonrpc request id
  * @param facility jsonrpc facility
  * @param severity jsonrpc severity
  * @param message message to send

@@ -94,6 +94,9 @@ void set_loglevel(int level) {
     loglevel = level;
 }
 
+/**
+ * Initializes the logging sub-system
+ */
 void log_init(void) {
     log_type = LOG_TO_STDOUT;
     if (isatty(fileno(stdout)) == true) {

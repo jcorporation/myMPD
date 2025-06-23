@@ -254,7 +254,9 @@ static enum mympd_cmd_acl_entity mympd_cmd_acl[] = {
     [TOTAL_API_COUNT] = API_INTERNAL | API_INVALID,
 };
 
-// Compile time initialization check
+/**
+ * Compile time initialization check
+ */
 #define IFV_N (sizeof mympd_cmd_acl/sizeof mympd_cmd_acl[0])
 _Static_assert(IFV_N == TOTAL_API_COUNT + 1, "Unexpected size");
 

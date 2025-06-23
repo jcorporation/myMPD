@@ -67,7 +67,9 @@ static const struct t_config_default config_default[] = {
     [CI_WEBRADIODB]             = {"webradiodb",             {.t = CIT_B, .b = true},           0, 0, NULL}
 };
 
-// Compile time initialization check
+/**
+ * Compile time initialization check
+ */
 #define IFV_N (sizeof config_default/sizeof config_default[0])
 _Static_assert(IFV_N == CI_COUNT, "Unexpected size");
 
