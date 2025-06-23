@@ -14,6 +14,7 @@
 #include "src/lib/cache/cache_disk_images.h"
 #include "src/lib/config_def.h"
 #include "src/lib/filehandler.h"
+#include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
@@ -272,6 +273,25 @@ void webserver_send_raw(struct mg_connection *nc, const char *data, size_t len) 
     MYMPD_LOG_DEBUG(NULL, "Sending %lu bytes to %lu", (unsigned long)len, nc->id);
     mg_send(nc, data, len);
     webserver_handle_connection_close(nc);
+}
+
+/**
+ * Creates and sends a jsonrpc response
+ * @param nc mongoose connection
+ * @param cmd_id myMPD API method
+ * @param facility jsonrpc facility
+ * @param severity jsonrpc severity
+ * @param message message to send
+ */
+void webserver_send_jsonrpc_response(struct mg_connection *nc,
+        enum mympd_cmd_ids cmd_id, unsigned request_id,
+        enum jsonrpc_facilities facility, enum jsonrpc_severities severity,
+        const char *message)
+{
+    sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
+        facility, severity, message);
+    webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
+    FREE_SDS(response);
 }
 
 /**

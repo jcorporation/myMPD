@@ -306,10 +306,7 @@ void request_handler_serverinfo(struct mg_connection *nc) {
         FREE_SDS(response);
     }
     else {
-        sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
-            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Could not get local ip");
-        webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
-        FREE_SDS(response);
+        webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Could not get local ip");
     }
 }
 

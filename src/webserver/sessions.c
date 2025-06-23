@@ -86,16 +86,11 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
         }
         case MYMPD_API_SESSION_VALIDATE: {
             //session is already validated
-            sds response = jsonrpc_respond_ok(sdsempty(), cmd_id, request_id, JSONRPC_FACILITY_SESSION);
-            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
-            FREE_SDS(response);
+            webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_INFO, "ok");
             break;
         }
         default: {
-            sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
-                JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid API request");
-            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
-            FREE_SDS(response);
+            webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid API request");
         }
     }
 }
