@@ -9,11 +9,11 @@ Tips to debug problems with myMPD. Try these steps and reproduce the error.
 ### Start myMPD manually
 
 - Stop myMPD
-- Set loglevel to debug: `export MYMPD_LOGLEVEL=7`
-- Start it in the console `mympd` (same user as the service runs or as root)
+- Set loglevel to debug: `mympd-config MYMPD_LOGLEVEL 7`
+- Start it in the console `mympd` (same user as the service runs)
 - Debug output is printed to the console
 - Press Ctrl + C to abort
-- Reset loglevel: `unset MYMPD_LOGLEVEL`
+- Reset loglevel: `mympd-config MYMPD_LOGLEVEL 5`
 
 !!! note
     Use [systemd-run](030-running.md#manual-startup), if you use a distribution with systemd.
