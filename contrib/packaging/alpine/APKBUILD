@@ -42,4 +42,7 @@ build() {
 package() {
 	make -C "$builddir/release" DESTDIR="$pkgdir" install
 	setcap cap_net_bind_service+ep "$pkgdir"/usr/bin/mympd
+	install -d -g mympd -o mympd -m770 \
+		"$pkgdir"/var/lib/mympd \
+		"$pkgdir"/var/cache/mympd
 }
