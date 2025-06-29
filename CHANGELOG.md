@@ -40,6 +40,7 @@ Two new triggers enables scripting for playlist and folder art.
 - Upd: Improve "Edit Script"-Layout
 - Upd: Bootstrap v5.3.7
 - Upd: Mongoose 7.18
+- Upd: libmympdclient 1.0.34 (libmpdclient 2.24.0)
 - Upd: Incbin
 - Upd: Replaced mjson with mongoose implementation
 - Fix: Improve MPD search expression validation #1435

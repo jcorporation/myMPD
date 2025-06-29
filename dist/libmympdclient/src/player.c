@@ -7,9 +7,14 @@
 #include <mpd/response.h>
 #include "isend.h"
 #include "run.h"
+#include "config.h" // for HAVE_USELOCALE
 
 #include <limits.h>
 #include <stdio.h>
+
+#ifdef HAVE_USELOCALE
+#include <locale.h>
+#endif
 
 bool
 mpd_send_current_song(struct mpd_connection *connection)
@@ -196,11 +201,22 @@ bool
 mpd_send_seek_current(struct mpd_connection *connection,
 		      float t, bool relative)
 {
+#ifdef HAVE_USELOCALE
+	// use the POSIX locale to format floating point numbers
+	const locale_t my_locale = newlocale(LC_NUMERIC_MASK, "C", NULL);
+	const locale_t old_locale = uselocale(my_locale);
+#endif
+
 	char ts[32];
 	if (relative)
 		snprintf(ts, sizeof(ts), "%+.3f", (double)t);
 	else
 		snprintf(ts, sizeof(ts), "%.3f", (double)t);
+
+#ifdef HAVE_USELOCALE
+	uselocale(old_locale);
+	freelocale(my_locale);
+#endif
 
 	return mpd_send_command(connection, "seekcur", ts, NULL);
 }

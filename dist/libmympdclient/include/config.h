@@ -19,9 +19,13 @@
 
 #define HAVE_GETADDRINFO
 
+#define HAVE_SETLOCALE
+
 #define HAVE_STRNDUP
+
+#define HAVE_USELOCALE
 
 #define PACKAGE "libmpdclient"
 
-#define VERSION "2.23"
+#define VERSION "2.24"
 

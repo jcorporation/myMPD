@@ -6,10 +6,15 @@
 #include "isend.h"
 #include "internal.h"
 #include "sync.h"
+#include "config.h" // for HAVE_USELOCALE
 
 #include <stdarg.h>
 #include <limits.h>
 #include <stdio.h>
+
+#ifdef HAVE_USELOCALE
+#include <locale.h>
+#endif
 
 /* (bits+1)/3 (plus the sign character) */
 enum {
@@ -31,11 +36,22 @@ format_range(char *buffer, size_t size, unsigned start, unsigned end)
 static void
 format_frange(char *buffer, size_t size, float start, float end)
 {
+#ifdef HAVE_USELOCALE
+	// use the POSIX locale to format floating point numbers
+	const locale_t my_locale = newlocale(LC_NUMERIC_MASK, "C", NULL);
+	const locale_t old_locale = uselocale(my_locale);
+#endif
+
 	/* the special value 0.0 means "open range" */
 	if (end >= 0)
 		snprintf(buffer, size, "%1.3f:%1.3f", (double)start, (double)end);
 	else
 		snprintf(buffer, size, "%1.3f:", (double)start);
+
+#ifdef HAVE_USELOCALE
+	uselocale(old_locale);
+	freelocale(my_locale);
+#endif
 }
 
 /**
@@ -153,9 +169,20 @@ bool
 mpd_send_float_command(struct mpd_connection *connection, const char *command,
 		       float arg)
 {
-	char arg_string[FLOATLEN];
+#ifdef HAVE_USELOCALE
+	// use the POSIX locale to format floating point numbers
+	const locale_t my_locale = newlocale(LC_NUMERIC_MASK, "C", NULL);
+	const locale_t old_locale = uselocale(my_locale);
+#endif
 
+	char arg_string[FLOATLEN];
 	snprintf(arg_string, sizeof(arg_string), "%f", (double)arg);
+
+#ifdef HAVE_USELOCALE
+	uselocale(old_locale);
+	freelocale(my_locale);
+#endif
+
 	return mpd_send_command(connection, command, arg_string, NULL);
 }
 
@@ -187,10 +214,22 @@ bool
 mpd_send_u_f_command(struct mpd_connection *connection, const char *command,
 		     unsigned arg1, float arg2)
 {
+#ifdef HAVE_USELOCALE
+	// use the POSIX locale to format floating point numbers
+	const locale_t my_locale = newlocale(LC_NUMERIC_MASK, "C", NULL);
+	const locale_t old_locale = uselocale(my_locale);
+#endif
+
 	char arg1_string[INTLEN], arg2_string[FLOATLEN];
 
 	snprintf(arg1_string, sizeof(arg1_string), "%u", arg1);
 	snprintf(arg2_string, sizeof(arg2_string), "%.3f", (double)arg2);
+
+#ifdef HAVE_USELOCALE
+	uselocale(old_locale);
+	freelocale(my_locale);
+#endif
+
 	return mpd_send_command(connection, command,
 				arg1_string, arg2_string, NULL);
 }
