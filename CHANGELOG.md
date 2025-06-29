@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v22.0.1 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Alpine packaging
+
+***
+
 ## myMPD v22.0.0 (2025-06-29)
 
 This release improves security by enabling certificate checking and verifying the signature of scripts that are imported from the mympd-scripts repository.
