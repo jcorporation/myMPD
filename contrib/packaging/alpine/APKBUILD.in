@@ -10,6 +10,8 @@ pkgver=__VERSION__
 pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web-based MPD client."
 url="https://jcorporation.github.io/myMPD/"
+pkgusers="mympd"
+pkggroups="mympd"
 arch="all"
 license="GPL-3.0-or-later"
 depends="newt"
@@ -20,7 +22,6 @@ makedepends="
 	jq
 	lua5.4
 	lua5.4-dev
-	libcap
 	libid3tag-dev
 	linux-headers
 	openssl-dev
@@ -41,7 +42,6 @@ build() {
 
 package() {
 	make -C "$builddir/release" DESTDIR="$pkgdir" install
-	setcap cap_net_bind_service+ep "$pkgdir"/usr/bin/mympd
 	install -d -g mympd -o mympd -m770 \
 		"$pkgdir"/var/lib/mympd \
 		"$pkgdir"/var/cache/mympd
