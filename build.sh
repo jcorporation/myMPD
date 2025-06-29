@@ -205,7 +205,7 @@ createassets() {
     echo "const myMPDbuild = '$BUILD';" >> "$MYMPD_BUILDDIR/htdocs/js/version.js"
     JSSRCFILES="$JSSRCFILES $MYMPD_BUILDDIR/htdocs/js/version.js"
   else
-    JSSRCFILES="$JSSRCFILES htdocs/version.js"
+    JSSRCFILES="$JSSRCFILES htdocs/js/version.js"
   fi
 
   echo "Minifying javascript"
