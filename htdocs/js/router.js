@@ -338,7 +338,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search, app
     app.last.view = app.current.view;
 
     // Trigger background change
-    if (settings.webuiSettings.dynamicBackground !== 'trigger') {
+    if (settings.webuiSettings.dynamicBackground === 'trigger') {
         setBackgroundImage(domCache.body, currentSongObj.uri);
     }
 }

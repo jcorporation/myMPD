@@ -10,6 +10,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Respect backgroundImage setting #1446
 - Fix: Alpine packaging
 
 ***
