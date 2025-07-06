@@ -321,6 +321,7 @@
     "Executes a system command and capture its output.": "시스템 명령어를 실행하고 그 결과를 보여줍니다.",
     "Expression": "표시",
     "External link": "외부 링크",
+    "External scripts are disabled": "",
     "Facilities": "기능",
     "Facility": "시설",
     "Failed to delete sticker": "스티커 삭제 실패함",
