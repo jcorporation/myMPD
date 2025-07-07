@@ -581,10 +581,10 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
  * @param uri new uri to set
  */
 void album_cache_set_uri(struct mpd_song *album, const char *uri) {
-    free(album->uri);
     size_t len = strlen(uri);
-    album->uri = malloc_assert(len + 1);
-    (void)snprintf(album->uri, len, "%s", uri);
+    album->uri = realloc_assert(album->uri, len + 1);
+    memcpy(album->uri, uri, len);
+    album->uri[len] = '\0';
 }
 
 /**
