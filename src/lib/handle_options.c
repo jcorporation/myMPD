@@ -39,7 +39,7 @@ static struct option long_options[] = {
  * @param cmd argv[0] from main function
  */
 static void print_usage(struct t_config *config, const char *cmd) {
-    (void)fprintf(stderr, "\nUsage: %s [OPTION]...\n\n"
+    printf("\nUsage: %s [OPTION]...\n\n"
                     "myMPD %s\n"
                     "(c) 2018-2025 Juergen Mang <mail@jcgames.de>\n"
                     "https://github.com/jcorporation/myMPD\n\n"

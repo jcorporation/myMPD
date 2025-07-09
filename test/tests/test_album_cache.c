@@ -129,3 +129,10 @@ UTEST(album_cache, test_album_cache_inc_song_count) {
 
     mpd_song_free(album);
 }
+
+UTEST(album_cache, test_album_cache_set_uri) {
+    struct mpd_song *album = new_song();
+    album_cache_set_uri(album, "/newuri");
+    ASSERT_STREQ("/newuri", album->uri);
+    mpd_song_free(album);
+}
