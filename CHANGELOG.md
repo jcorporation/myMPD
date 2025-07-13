@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v22.0.2 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: MYMPD_API_JUKEBOX_RESTART requires MPD connection #1448
+
+***
+
 ## myMPD v22.0.1 (2025-07-09)
 
 This is a small bug fix release.
@@ -36,7 +46,7 @@ Two new triggers enables scripting for playlist and folder art.
 
 ### Scripting changes
 
-- Feat: `mympd.tblvalue_in_list(()` - Checks a Lua table of tags against a comma separated list.
+- Feat: `mympd.tblvalue_in_list()` - Checks a Lua table of tags against a comma separated list.
 - Upd: Executing external scripts is now disabled by default.
 
 ### Changelog
@@ -92,7 +102,7 @@ Thanks to @cbrenberg that ironed out a severe bug in the `mympd.tmp_file()` func
 - Feat: `mympd.isnilorempty()` - Checks for nil and empty string
 - Feat: `mympd.remove_file()` - Wrapper for `os.remove` that logs errors
 - Fix: `mympd.tmp_file()` - Function does not return always uniq names #1422
-- Feat: Add functions `mympd.jsonrpc_notification`, `mympd.jsonrpc_error` and `mympd.jsonrpc_warn` to return a jsonrpc response from scripts
+- Feat: Add functions `mympd.jsonrpc_notification()`, `mympd.jsonrpc_error()` and `mympd.jsonrpc_warn()` to return a jsonrpc response from scripts
 
 ### Changelog
 
