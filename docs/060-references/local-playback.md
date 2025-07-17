@@ -27,4 +27,4 @@ audio_output {
 ```
 
 !!! note
-    Playback does not start instantinously, buffering can take up to 30 seconds.
+    Playback does not start instantaneously, buffering can take up to 30 seconds.
