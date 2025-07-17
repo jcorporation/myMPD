@@ -6,8 +6,7 @@ title: Running
 
 On startup myMPD does the following:
 
-- Check and create `cachedir` and `workdir` directories.
-    - `cachedir` and `workdir` must exist and be writeable.
+- Check for writeable `cachedir` (`/var/cache/mympd`) and `workdir` (`/var/lib/mympd`) directories.
 - Reads environment and configuration files. Environment variables are overriding configuration settings.
 - Binds to the configured http (8080) and ssl port (8443).
 - Check and create the directories inside `cachedir` and `workdir`.
