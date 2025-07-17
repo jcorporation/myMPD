@@ -16,4 +16,4 @@ Following distributions are supported:
 - Fedora
 - Raspian
 - openSUSE
-- Ubuntu
+- [Ubuntu](prebuild-packages-debian.md)
