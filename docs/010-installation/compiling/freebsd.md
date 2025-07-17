@@ -10,8 +10,7 @@ FreeBSD 14 is fully supported. For FreeBSD 13 support the [https://github.com/ji
 
 ## Building directly from the ports tree
 
-This is the basic way to install myMPD on FreeBSD system and it is only advised
-for those using ports tree to install software directly.
+This is the basic way to install myMPD on FreeBSD system and it is only advised for those using ports tree to install software directly.
 
 It is expected you have /usr/ports populated.
 
