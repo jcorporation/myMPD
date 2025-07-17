@@ -29,5 +29,3 @@ myMPD tries to autodetect the mpd connection only at first start (if no mpd_host
 | MPD_HOST | MPD host or path to mpd socket |
 | MPD_PORT | MPD port |
 | MPD_TIMEOUT | MPD timeout in seconds |
-
-This is done after dropping privileges to the mympd user.
