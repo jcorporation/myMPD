@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Create cache und workdir in init script
+
 ***
 
 ## myMPD v22.0.2 (2025-07-17)

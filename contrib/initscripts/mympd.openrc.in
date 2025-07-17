@@ -18,3 +18,8 @@ depend() {
     need net
     after firewall
 }
+
+start_pre() {
+    checkpath -d -m 770 -o mympd:mympd /var/lib/mympd
+    checkpath -d -m 770 -o mympd:mympd /var/cache/mympd
+}

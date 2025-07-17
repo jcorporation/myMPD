@@ -42,7 +42,4 @@ build() {
 
 package() {
 	make -C "$builddir/release" DESTDIR="$pkgdir" install
-	install -d -g mympd -o mympd -m770 \
-		"$pkgdir"/var/lib/mympd \
-		"$pkgdir"/var/cache/mympd
 }

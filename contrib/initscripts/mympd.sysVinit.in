@@ -37,6 +37,10 @@ case $1 in
     exit # Exit
    fi
   fi
+  install -d -g mympd -o mympd -m770 \
+    /var/lib/mympd \
+    /var/cache/mympd
+
   # Start the daemon.
   log_daemon_msg "Starting the process" "$NAME"
   # Start the daemon with the help of start-stop-daemon
