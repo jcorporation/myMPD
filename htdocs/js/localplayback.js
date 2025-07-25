@@ -16,32 +16,34 @@ function initLocalPlayback() {
     // @ts-ignore
     elGetById('localPlayer').volume = 0.5;
 
-    const localPlayerDeviceSelectEl = elGetById('localPlayerDeviceSelect');
-    localPlayerDeviceSelectEl.addEventListener('focus', async () => {
-        await navigator.mediaDevices.getUserMedia({
-            audio: true,
-        });
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const audioOutputs = devices.filter(
-            (device) =>
-                device.kind === 'audiooutput' && device.deviceId !== 'default',
-        );
-        
-        elClear(localPlayerDeviceSelectEl);
-        localPlayerDeviceSelectEl.appendChild(
-            elCreateTextTn('option', {'value': ''}, 'Default output device')
-        );
-        audioOutputs.forEach((device) => {
-            localPlayerDeviceSelectEl.appendChild(
-                elCreateText('option', {'value': device.deviceId}, device.label)
+    if (features.featLocalPlaybackOutput === true) {
+        const localPlayerDeviceSelectEl = elGetById('localPlayerDeviceSelect');
+        localPlayerDeviceSelectEl.addEventListener('focus', async () => {
+            await navigator.mediaDevices.getUserMedia({
+                audio: true,
+            });
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const audioOutputs = devices.filter(
+                (device) =>
+                    device.kind === 'audiooutput' && device.deviceId !== 'default',
             );
-        });
-    }, false);
+            
+            elClear(localPlayerDeviceSelectEl);
+            localPlayerDeviceSelectEl.appendChild(
+                elCreateTextTn('option', {'value': ''}, 'Default output device')
+            );
+            audioOutputs.forEach((device) => {
+                localPlayerDeviceSelectEl.appendChild(
+                    elCreateText('option', {'value': device.deviceId}, device.label)
+                );
+            });
+        }, false);
 
-    localPlayerDeviceSelectEl.addEventListener('change', async () => {
-        const value = getSelectValue(localPlayerDeviceSelectEl);
-        await elGetById('localPlayer').setSinkId(value);
-    });
+        localPlayerDeviceSelectEl.addEventListener('change', async () => {
+            const value = getSelectValue(localPlayerDeviceSelectEl);
+            await elGetById('localPlayer').setSinkId(value);
+        });
+    }
 }
 
 /**
@@ -133,7 +135,9 @@ function createLocalPlaybackEl(createEvent) {
     // @ts-ignore
     curAudioEl.src = '';
     // remember current settings
-    const oldSinkId = curAudioEl.sinkId;
+    const oldSinkId = features.featLocalPlaybackOutput === true
+        ? curAudioEl.sinkId
+        : 0;
     // @ts-ignore
     const oldVolume = curAudioEl.volume;
 
@@ -144,7 +148,9 @@ function createLocalPlaybackEl(createEvent) {
     // @ts-ignore
     const localPlayer = elCreateEmpty('audio', {"class": ["mx-4"], "preload": "none", "id": "localPlayer"});
     localPlayer.volume = oldVolume;
-    localPlayer.setSinkId(oldSinkId);
+    if (features.featLocalPlaybackOutput === true) {
+        localPlayer.setSinkId(oldSinkId);
+    }
     parent.appendChild(localPlayer);
     //add event handlers
     localPlayer.addEventListener('canplay', function() {

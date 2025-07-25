@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Create cache und workdir in init script
+- Upd: Feature detection for local playback output selection
 
 ***
 

@@ -38,6 +38,9 @@ function setFeatures() {
         ? true
         : false;
 
+    //Local playback output selection
+    features.featLocalPlaybackOutput = detectFeatureLocalPlaybackOutput();
+
     //mpd features
     if (settings.partition.mpdConnected === true) {
         features.featLibrary = settings.features.featLibrary;
@@ -96,4 +99,17 @@ function applyFeatures() {
             el.style.display = displayValue;
         }
     }
+}
+
+/**
+ * Detects support for local playback device selection
+ * @returns {boolean} true if supported, else false
+ */
+function detectFeatureLocalPlaybackOutput() {
+    if (window.location.protocol === 'https:' &&
+        "setSinkId" in AudioContext.prototype)
+    {
+        return true;
+    }
+    return false;
 }

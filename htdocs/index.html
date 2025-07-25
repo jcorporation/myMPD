@@ -1093,8 +1093,8 @@
             <audio id="localPlayer" preload="none"></audio>
             <form class="d-grid mx-3 mb-3">
               <div class="mb-3"><span data-phrase="Duration"></span>: <span id="localPlayerProgress"></span></div>
-              <button class="btn btn-success mi mb-3" id="localPlaybackBtn" data-href='{"cmd": "createLocalPlaybackEl", "options": ["event"]}'>play_arrow</button>
-              <select class="form-select mb-3" id="localPlayerDeviceSelect">
+              <button id="localPlaybackBtn" class="btn btn-success mi mb-3" data-href='{"cmd": "createLocalPlaybackEl", "options": ["event"]}'>play_arrow</button>
+              <select id="localPlayerDeviceSelect" class="form-select mb-3 featLocalPlaybackOutput">
                 <option value="" data-phrase="Default output device"></option>
               </select>
               <div class="mb-3">
