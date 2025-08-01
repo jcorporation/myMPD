@@ -42,7 +42,7 @@ body.mobile > footer > nav {
   --mympd-highlightcolor: var(--bs-green);
   --mympd-highlightcolor-contrast: var(--bs-light);
   --mympd-backgroundcolor: var(--bs-black);
-  --mympd-card-footer-word-wrap: nowrap;
+  --mympd-card-footer-white-space: nowrap;
   --mympd-show-help: block;
   --mympd-show-help-btn: unset;
   --bs-dropdown-divider-margin-y: 0.5rem;
@@ -562,7 +562,7 @@ div#homeActions {
 }
 
 .card-body-grid {
-  white-space: var(--mympd-card-footer-word-wrap);
+  white-space: var(--mympd-card-footer-white-space);
   font-size: 0.9rem;
 }
 
@@ -653,7 +653,7 @@ h4.offcanvas-title::before {
   font-style: normal;
   text-transform: none;
   letter-spacing: normal;
-  word-wrap: normal;
+  overflow-wrap: normal;
   white-space: nowrap;
   direction: ltr;
   text-rendering: optimizelegibility;
