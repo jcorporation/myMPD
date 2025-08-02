@@ -4,6 +4,17 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v22.0.4 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Alpine packaging
+- Fix: Detection of local playback features #1452
+
+***
+
 ## myMPD v22.0.3 (2025-08-01)
 
 This is a small bug fix release.
@@ -11,7 +22,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Create cache und workdir in init script
-- Upd: Feature detection for local playback output selection
+- Upd: Feature detection for local playback output selection #1452
 
 ***
 
