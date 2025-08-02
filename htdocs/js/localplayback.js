@@ -27,7 +27,7 @@ function initLocalPlayback() {
                 (device) =>
                     device.kind === 'audiooutput' && device.deviceId !== 'default',
             );
-            
+
             elClear(localPlayerDeviceSelectEl);
             localPlayerDeviceSelectEl.appendChild(
                 elCreateTextTn('option', {'value': ''}, 'Default output device')
