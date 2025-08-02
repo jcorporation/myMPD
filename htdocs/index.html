@@ -1097,10 +1097,10 @@
               <select id="localPlayerDeviceSelect" class="form-select mb-3 featLocalPlaybackOutput">
                 <option value="" data-phrase="Default output device"></option>
               </select>
-              <div class="mb-3">
+              <div class="mb-3 featLocalPlaybackVolume">
                 <span data-phrase="Volume"></span>: <span id="localPlaybackVolume"></span>
               </div>
-              <div class="btn-group">
+              <div class="btn-group featLocalPlaybackVolume">
                 <button data-href='{"cmd": "localPlaybackVolumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
                 <div class="bg-secondary volumeRangeDiv">
                   <input type="range" min="0" max="1" step="0.01" class="form-range" id="localPlaybackVolumeBar"/>

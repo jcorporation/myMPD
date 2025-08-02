@@ -15,11 +15,6 @@ function setFeatures() {
     features.featCacert = settings.features.featCacert;
     features.featHome = settings.webuiSettings.enableHome;
     features.featVolumeLevel = settings.webuiSettings.footerVolumeLevel;
-    features.featLocalPlayback = settings.webuiSettings.enableLocalPlayback
-        ? settings.partition.mpdStreamPort > 0 || settings.partition.streamUri.length > 0
-            ? true
-            : false
-        : false;
     features.featScripting = settings.webuiSettings.enableScripting
         ? settings.features.featScripting
         : false;
@@ -38,8 +33,16 @@ function setFeatures() {
         ? true
         : false;
 
-    //Local playback output selection
+    //Local playback features
+    features.featLocalPlayback = settings.webuiSettings.enableLocalPlayback
+        ? settings.partition.mpdStreamPort > 0 || settings.partition.streamUri.length > 0
+            ? true
+            : false
+        : false;
     features.featLocalPlaybackOutput = detectFeatureLocalPlaybackOutput();
+    features.featLocalPlaybackVolume = userAgentData.isSafari === true && userAgentData.isMobile === true
+        ? false
+        : true;
 
     //mpd features
     if (settings.partition.mpdConnected === true) {
