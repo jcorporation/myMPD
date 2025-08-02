@@ -106,10 +106,12 @@ function applyFeatures() {
  * @returns {boolean} true if supported, else false
  */
 function detectFeatureLocalPlaybackOutput() {
-    if (window.location.protocol === 'https:' &&
-        "setSinkId" in AudioContext.prototype)
+    if (navigator.mediaDevices !== undefined &&
+        'setSinkId' in AudioContext.prototype)
     {
+        logDebug('Enabling local playback output selection');
         return true;
     }
+    logDebug('Disabling local playback output selection');
     return false;
 }
