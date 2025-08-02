@@ -336,7 +336,7 @@ const settingsPartitionFields = {
         "hintText": "Partition specific setting"
     },
     "streamUri": {
-        "defaultValue": defaults["PARTITION_MPD_STREAM_URI"],
+        "defaultValue": "",
         "placeholder": "auto",
         "inputType": "text",
         "title": "Stream URI",
