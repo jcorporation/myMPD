@@ -170,13 +170,15 @@ function createLocalPlaybackEl(createEvent) {
         // @ts-ignore
         domCache.localPlayerProgress.textContent = fmtSongDuration(event.target.currentTime);
     });
-    localPlayer.addEventListener('volumechange', function(event) {
-        // @ts-ignore
-        elGetById('localPlaybackVolumeBar').value = elGetById('localPlayer').volume;
-        elGetById('localPlaybackVolume').textContent = Math.floor(
+    if (features.featLocalPlaybackVolume === true) {
+        localPlayer.addEventListener('volumechange', function(event) {
             // @ts-ignore
-            event.target.volume * 100) + ' %';
-    });
+            elGetById('localPlaybackVolumeBar').value = elGetById('localPlayer').volume;
+            elGetById('localPlaybackVolume').textContent = Math.floor(
+                // @ts-ignore
+                event.target.volume * 100) + ' %';
+        });
+    }
     for (const ev of ['error', 'abort', 'stalled']) {
         localPlayer.addEventListener(ev, function(event) {
             if (event.target.getAttribute('disabled') === 'disabled') {
