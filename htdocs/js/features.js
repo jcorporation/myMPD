@@ -110,7 +110,7 @@ function applyFeatures() {
  */
 function detectFeatureLocalPlaybackOutput() {
     if (navigator.mediaDevices !== undefined &&
-        'setSinkId' in AudioContext.prototype)
+        'setSinkId' in HTMLAudioElement.prototype)
     {
         logDebug('Enabling local playback output selection');
         return true;
