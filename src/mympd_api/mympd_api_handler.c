@@ -910,7 +910,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_STICKER_DELETE:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
-                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true)
+                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isstickername, &parse_error) == true)
             {
                 enum mympd_sticker_type type = mympd_sticker_type_name_parse(sds_buf2);
                 sds_buf1 = mympd_api_get_sticker_uri(mympd_state, sds_buf1, &type);
@@ -922,7 +922,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_STICKER_GET:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
-                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true)
+                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isstickername, &parse_error) == true)
             {
                 enum mympd_sticker_type type = mympd_sticker_type_name_parse(sds_buf2);
                 sds_buf1 = mympd_api_get_sticker_uri(mympd_state, sds_buf1, &type);
@@ -933,7 +933,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_STICKER_FIND:
             if (json_get_string(request->data, "$.params.uri", 0, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
-                json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf3, vcb_isstickername, &parse_error) == true &&
                 json_get_string(request->data, "$.params.op", 1, NAME_LEN_MAX, &sds_buf4, vcb_isstickerop, &parse_error) == true &&
                 json_get_string(request->data, "$.params.value", 0, NAME_LEN_MAX, &sds_buf5, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.sort", 1, NAME_LEN_MAX, &sds_buf6, vcb_isstickersort, &parse_error) == true &&
@@ -978,7 +978,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_STICKER_DEC:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
-                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isstickername, &parse_error) == true &&
                 json_get_uint_max(request->data, "$.params.value", &uint_buf1, &parse_error) == true)
             {
                 enum mympd_sticker_type type = mympd_sticker_type_name_parse(sds_buf2);
@@ -991,7 +991,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_STICKER_INC:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
-                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isstickername, &parse_error) == true &&
                 json_get_uint_max(request->data, "$.params.value", &uint_buf1, &parse_error) == true)
             {
                 enum mympd_sticker_type type = mympd_sticker_type_name_parse(sds_buf2);
@@ -1019,7 +1019,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 break;
             }
             if (json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf1, vcb_ismpdstickertype, &parse_error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf2, vcb_isname, &parse_error) == true)
+                json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf2, vcb_issearchexpression_song, &parse_error) == true)
             {
                 enum mympd_sticker_type type = mympd_sticker_type_name_parse(sds_buf1);
                 type = mympd_api_get_mpd_sticker_type(type);
