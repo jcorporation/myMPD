@@ -258,19 +258,19 @@ int mympd_client_playlist_validate(struct t_partition_state *partition_state, co
  */
 bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, const char *playlist, sds *error) {
     MYMPD_LOG_INFO(partition_state->name, "Shuffling playlist %s", playlist);
-    //get the whole playlist
+    //get the whole playlist and shuffle it
     struct t_list *plist = list_new();
     if (mympd_client_playlist_get(partition_state, playlist, true, plist, error) == false) {
         list_free(plist);
         return false;
     }
-
-    char rand_str[10];
-    randstring(rand_str, 10);
-    sds playlist_tmp = sdscatfmt(sdsempty(), "%s-tmp-%s", rand_str, playlist);
+    list_shuffle(plist);
 
     //add shuffled songs to tmp playlist
     //uses command list to add MPD_COMMANDS_MAX songs at once
+    char rand_str[10];
+    randstring(rand_str, 10);
+    sds playlist_tmp = sdscatfmt(sdsempty(), "%s-tmp-%s", rand_str, playlist);
     bool rc = true;
     while (plist->length > 0) {
         if (mpd_command_list_begin(partition_state->conn, false) == true) {

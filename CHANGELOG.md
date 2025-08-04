@@ -10,6 +10,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Really shuffle the playlist #1455
 - Fix: Relax search expression validation #1455
 - Fix: Alpine packaging
 - Fix: Detection of local playback features #1452
