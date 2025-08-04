@@ -481,12 +481,14 @@ bool vcb_issearchexpression_song(sds data) {
     if (check_for_invalid_chars(data, invalid_name_chars) == false) {
         return false;
     }
-
-    struct t_list *expr = parse_search_expression_to_list(data, SEARCH_TYPE_SONG);
-    if (expr == NULL) {
+    //only some basic checks, we do not support the complete MPD search expression syntax
+    if (len < 2 ||
+        data[0] != '(' ||
+        data[len - 1] != ')')
+    {
+        MYMPD_LOG_ERROR(NULL, "String is not a valid search expression");
         return false;
     }
-    free_search_expression_list(expr);
     return true;
 }
 
