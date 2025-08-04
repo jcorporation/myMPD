@@ -209,7 +209,7 @@ bool mympd_worker_smartpls_update(struct t_mympd_worker_state *mympd_worker_stat
         }
     }
     else if (strcmp(smartpltype, "search") == 0) {
-        if (json_get_string(content, "$.expression", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
+        if (json_get_string(content, "$.expression", 2, EXPRESSION_LEN_MAX, &sds_buf1, vcb_issearchexpression_song, NULL) == true) {
             rc = mympd_worker_smartpls_update_search(mympd_worker_state, playlist, sds_buf1, sort, sortdesc, max_entries);
             if (rc == false) {
                 MYMPD_LOG_ERROR(NULL, "Update of smart playlist \"%s\" (search) failed", playlist);
