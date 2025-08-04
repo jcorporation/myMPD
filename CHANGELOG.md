@@ -10,6 +10,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Restrict sticker names (forbid equal sign)
 - Fix: Really shuffle the playlist #1455
 - Fix: Relax search expression validation #1455
 - Fix: Alpine packaging

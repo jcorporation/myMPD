@@ -28,6 +28,7 @@ bool vcb_isdigit(sds data);
 bool vcb_isprint(sds data);
 bool vcb_ishexcolor(sds data);
 bool vcb_isname(sds data);
+bool vcb_isstickername(sds data);
 bool vcb_istext(sds data);
 bool vcb_isfilename_silent(sds data);
 bool vcb_isfilename(sds data);

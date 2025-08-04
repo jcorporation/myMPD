@@ -173,6 +173,20 @@ bool vcb_isname(sds data) {
 }
 
 /**
+ * Checks if string is a valid sticker name
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_isstickername(sds data) {
+    bool rc = vcb_isname(data) &&
+        strchr(data, '=') == NULL;
+    if (rc == false) {
+        MYMPD_LOG_WARN(NULL, "Invalid sticker name");
+    }
+    return rc;
+}
+
+/**
  * Checks if string contains invalid chars
  * Invalid chars are "\a\b\f\r\v"
  * @param data sds string to check

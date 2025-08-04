@@ -965,7 +965,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_STICKER_SET:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdstickertype, &parse_error) == true &&
-                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf3, vcb_isstickername, &parse_error) == true &&
                 json_get_string(request->data, "$.params.value", 0, NAME_LEN_MAX, &sds_buf4, vcb_isname, &parse_error) == true)
             {
                 enum mympd_sticker_type type = mympd_sticker_type_name_parse(sds_buf2);
