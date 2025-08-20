@@ -82,6 +82,7 @@ struct t_mpd_state {
     unsigned mpd_binarylimit;           //!< mpd binary limit to set
     unsigned mpd_timeout;               //!< mpd connection timeout
     bool mpd_keepalive;                 //!< mpd tcp keepalive flag
+    bool mpd_stringnormalization;       //!< mpd stringnormalization
     sds music_directory_value;          //!< real music directory set by feature detection
     sds playlist_directory_value;       //!< real playlist directory set by feature detection
     //tags

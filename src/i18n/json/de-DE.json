@@ -1086,6 +1086,7 @@
     "helpConnectionMusicDirectory": "Das MPD Musikverzeichnis. Der Wert 'Automatisch' funktioniert nur für lokale Unix-Socket Verbindungen.",
     "helpConnectionPlaylistDirectory": "Das MPD Wiedergabelistenverzeichnis. Der Wert 'Automatisch' funktioniert nur für lokale Unix-Socket Verbindungen.",
     "helpConnectionTimeout": "Timeout für die MPD-Verbindung.",
+    "helpConnectionStringnormalization": "Aktiviert alle String Normalization Optionen.",
     "helpEndlessScroll": "Schaltet von seitenweiser Anzeige auf endloses Scrollen um.",
     "helpHomeWidgetRefresh": "Auf 0 setzen, um die Aktualisierung zu deaktivieren.",
     "helpJukeboxFilterExclude": "MPD Suchfilter, der Lieder exkludiert.",
@@ -1281,5 +1282,6 @@
     "userDefinedSticker": "Benutzerdefinierte Sticker",
     "votes": "Stimmen",
     "warn": "Warnung",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "String normalization": "String Normalization"
 }

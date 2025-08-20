@@ -8,6 +8,7 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Feat: Support string normalization option (MPD 0.25)
 - Upd: libmympdclient 1.0.35
 
 ***

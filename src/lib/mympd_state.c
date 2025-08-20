@@ -215,6 +215,7 @@ void mympd_mpd_state_default(struct t_mpd_state *mpd_state, struct t_config *con
     mpd_state->mpd_port = MYMPD_MPD_PORT;
     mpd_state->mpd_pass = sdsnew(MYMPD_MPD_PASS);
     mpd_state->mpd_binarylimit = MYMPD_MPD_BINARYLIMIT;
+    mpd_state->mpd_stringnormalization = MYMPD_MPD_STRINGNORMALIZATION;
     mpd_state->music_directory_value = sdsempty();
     mpd_state->playlist_directory_value = sdsempty();
     mpd_state->tag_list = sdsnew(MYMPD_MPD_TAG_LIST);

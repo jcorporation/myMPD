@@ -127,6 +127,7 @@
 #define MYMPD_MPD_PORT 6600
 #define MYMPD_MPD_PASS ""
 #define MYMPD_MPD_BINARYLIMIT 524288 // 512 kB
+#define MYMPD_MPD_STRINGNORMALIZATION true
 
 //default mympd state settings
 #define MYMPD_MUSIC_DIRECTORY "auto"

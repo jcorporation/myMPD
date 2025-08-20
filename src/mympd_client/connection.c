@@ -112,16 +112,30 @@ static bool mympd_client_set_timeout(struct t_partition_state *partition_state) 
  */
 static bool mympd_client_set_protocol_options(struct t_partition_state *partition_state) {
     if (mpd_command_list_begin(partition_state->conn, false)) {
-        if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 4) >= 0 ) {
+        if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 4) >= 0) {
             MYMPD_LOG_INFO(partition_state->name, "Setting binarylimit to %u kB", partition_state->mpd_state->mpd_binarylimit);
             if (mpd_send_binarylimit(partition_state->conn, partition_state->mpd_state->mpd_binarylimit) == false) {
                 mympd_set_mpd_failure(partition_state, "Failure adding command to command list mpd_send_binarylimit");
             }
         }
-        if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0 ) {
+        if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0) {
             MYMPD_LOG_INFO(partition_state->name, "Enabling all protocol features");
             if (mpd_send_all_protocol_features(partition_state->conn) == false) {
                 mympd_set_mpd_failure(partition_state, "Failure adding command to command list mpd_send_all_protocol_features");
+            }
+        }
+        if (mpd_connection_cmp_server_version(partition_state->conn, 0, 25, 0) >= 0) {
+            if (partition_state->mpd_state->mpd_stringnormalization == true) {
+                MYMPD_LOG_INFO(partition_state->name, "Enabling all stringnormalization options");
+                if (mpd_send_all_stringnormalization(partition_state->conn) == false) {
+                    mympd_set_mpd_failure(partition_state, "Failure adding command to command list mpd_send_all_stringnormalization");
+                }
+            }
+            else {
+                MYMPD_LOG_INFO(partition_state->name, "Disabling all stringnormalization options");
+                if (mpd_send_clear_stringnormalization(partition_state->conn) == false) {
+                    mympd_set_mpd_failure(partition_state, "Failure adding command to command list mpd_send_clear_stringnormalization");
+                }
             }
         }
         if (mympd_client_command_list_end_check(partition_state) == false) {
