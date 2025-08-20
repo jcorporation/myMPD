@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Upd: libmympdclient 1.0.35
+
 ***
 
 ## myMPD v22.0.4 (2025-08-09)

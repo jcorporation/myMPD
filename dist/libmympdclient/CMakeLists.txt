@@ -74,4 +74,5 @@ target_sources(mympdclient
     src/sticker.c
     src/sync.c
     src/tag.c
+    src/stringnormalization.c
 )
