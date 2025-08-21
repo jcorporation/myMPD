@@ -11,8 +11,6 @@
 #include "compile_time.h"
 #include "src/mympd_worker/album_cache.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
-#include "dist/libmympdclient/src/isong.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
@@ -299,12 +297,12 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
                     {
                         // we do not fetch the uri for performance reasons.
                         // the real song uri will be set after first call of mympd_api_albumart_getcover_by_album_id.
-                        struct mpd_song *song = mpd_song_new("albumid");
-                        mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ARTIST, artist);
-                        mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM_ARTIST, artist);
-                        mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM, album);
+                        struct mpd_song *song = album_new();
+                        album_cache_append_tag(song, MPD_TAG_ARTIST, artist);
+                        album_cache_append_tag(song, MPD_TAG_ALBUM_ARTIST, artist);
+                        album_cache_append_tag(song, MPD_TAG_ALBUM, album);
                         if (sdslen(group_tag) > 0) {
-                            mympd_mpd_song_add_tag_dedup(song, mympd_worker_state->config->albums.group_tag, group_tag);
+                            album_cache_append_tag(song, mympd_worker_state->config->albums.group_tag, group_tag);
                         }
                         // insert album into cache
                         key = album_cache_get_key(key, song, &mympd_worker_state->config->albums);

@@ -416,6 +416,14 @@ void album_cache_free_rt_void(void *album_cache_rt) {
 }
 
 /**
+ * Creates and initializes a new struct for an album.
+ * @return struct mpd_song* or NULL on error
+ */
+struct mpd_song *album_new(void) {
+    return mpd_song_new("albumid");
+}
+
+/**
  * Gets the number of songs
  * @param album mpd_song struct representing the album
  * @return number of songs
@@ -546,13 +554,67 @@ bool album_cache_append_tags(struct mpd_song *album,
         if (is_multivalue_tag(tag) == true) {
             unsigned value_nr = 0;
             while ((value = mpd_song_get_tag(song, tag, value_nr)) != NULL) {
-                if (mympd_mpd_song_add_tag_dedup(album, tag, value) == false) {
+                if (album_cache_append_tag(album, tag, value) == false) {
                     return false;
                 }
                 value_nr++;
             }
         }
     }
+    return true;
+}
+
+/**
+ * Adds a tag value to the album if value does not already exists
+ * @param song pointer to a mpd_song struct
+ * @param type mpd tag type
+ * @param value tag value to add
+ * @return true if tag is added or already there,
+ *         false if the tag could not be added
+ */
+bool album_cache_append_tag(struct mpd_song *song,
+        enum mpd_tag_type type, const char *value)
+{
+    struct mpd_tag_value *tag = &song->tags[type];
+
+    if ((int)type < 0 ||
+        type >= MPD_TAG_COUNT)
+    {
+        return false;
+    }
+
+    if (tag->value == NULL) {
+        tag->next = NULL;
+        tag->value = strdup(value);
+        if (tag->value == NULL) {
+            return false;
+        }
+    }
+    else {
+        while (tag->next != NULL) {
+            if (strcmp(tag->value, value) == 0) {
+                //do not add duplicate values
+                return true;
+            }
+            tag = tag->next;
+        }
+        if (strcmp(tag->value, value) == 0) {
+            //do not add duplicate values
+            return true;
+        }
+        struct mpd_tag_value *prev = tag;
+        tag = malloc_assert(sizeof(*tag));
+
+        tag->value = strdup(value);
+        if (tag->value == NULL) {
+            FREE_PTR(tag);
+            return false;
+        }
+
+        tag->next = NULL;
+        prev->next = tag;
+    }
+
     return true;
 }
 
@@ -567,7 +629,7 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
     const char *value;
     unsigned value_nr = 0;
     while ((value = mpd_song_get_tag(song, src, value_nr)) != NULL) {
-        if (mympd_mpd_song_add_tag_dedup(song, dst, value) == false) {
+        if (album_cache_append_tag(song, dst, value) == false) {
             return false;
         }
         value_nr++;
@@ -622,7 +684,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
                     for (size_t j = 0; j < len; j++) {
                         char *value = mpack_node_cstr_alloc(mpack_node_array_at(value_node, j), JSONRPC_STR_MAX);
                         if (value != NULL) {
-                            mympd_mpd_song_add_tag_dedup(album, tags->tags[i], value);
+                            album_cache_append_tag(album, tags->tags[i], value);
                             MPACK_FREE(value);
                         }
                     }
@@ -630,7 +692,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
                 else {
                     char *value = mpack_node_cstr_alloc(value_node, JSONRPC_STR_MAX);
                     if (value != NULL) {
-                        mympd_mpd_song_add_tag_dedup(album, tags->tags[i], value);
+                        album_cache_append_tag(album, tags->tags[i], value);
                         MPACK_FREE(value);
                     }
                 }

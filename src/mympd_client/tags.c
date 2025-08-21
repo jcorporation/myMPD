@@ -11,12 +11,10 @@
 #include "compile_time.h"
 #include "src/mympd_client/tags.h"
 
-#include "dist/libmympdclient/src/isong.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/convert.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mympd_client/errorhandler.h"
@@ -54,60 +52,6 @@ time_t mympd_client_get_db_mtime(struct t_partition_state *partition_state) {
         mtime = 0;
     }
     return mtime;
-}
-
-/**
- * Adds a tag value to the album if value does not already exists
- * @param song pointer to a mpd_song struct
- * @param type mpd tag type
- * @param value tag value to add
- * @return true if tag is added or already there,
- *         false if the tag could not be added
- */
-bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
-        enum mpd_tag_type type, const char *value)
-{
-    struct mpd_tag_value *tag = &song->tags[type];
-
-    if ((int)type < 0 ||
-        type >= MPD_TAG_COUNT)
-    {
-        return false;
-    }
-
-    if (tag->value == NULL) {
-        tag->next = NULL;
-        tag->value = strdup(value);
-        if (tag->value == NULL) {
-            return false;
-        }
-    }
-    else {
-        while (tag->next != NULL) {
-            if (strcmp(tag->value, value) == 0) {
-                //do not add duplicate values
-                return true;
-            }
-            tag = tag->next;
-        }
-        if (strcmp(tag->value, value) == 0) {
-            //do not add duplicate values
-            return true;
-        }
-        struct mpd_tag_value *prev = tag;
-        tag = malloc_assert(sizeof(*tag));
-
-        tag->value = strdup(value);
-        if (tag->value == NULL) {
-            FREE_PTR(tag);
-            return false;
-        }
-
-        tag->next = NULL;
-        prev->next = tag;
-    }
-
-    return true;
 }
 
 /**

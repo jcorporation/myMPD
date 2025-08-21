@@ -11,7 +11,6 @@
 #include "compile_time.h"
 #include "src/lib/search.h"
 
-#include "dist/libmympdclient/src/iaf.h"
 #include "dist/utf8/utf8.h"
 #include "src/lib/convert.h"
 #include "src/lib/datetime.h"

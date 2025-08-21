@@ -31,6 +31,8 @@ void album_cache_free(struct t_cache *album_cache);
 void album_cache_free_rt(rax *album_cache_rt);
 void album_cache_free_rt_void(void *album_cache_rt);
 
+struct mpd_song *album_new(void);
+
 unsigned album_get_discs(const struct mpd_song *album);
 unsigned album_get_total_time(const struct mpd_song *album);
 unsigned album_get_song_count(const struct mpd_song *album);
@@ -43,6 +45,7 @@ void album_cache_set_total_time(struct mpd_song *album, unsigned duration);
 void album_cache_inc_total_time(struct mpd_song *album, const struct mpd_song *song);
 void album_cache_set_song_count(struct mpd_song *album, unsigned count);
 void album_cache_inc_song_count(struct mpd_song *album);
+bool album_cache_append_tag(struct mpd_song *song, enum mpd_tag_type type, const char *value);
 bool album_cache_append_tags(struct mpd_song *album, const struct mpd_song *song, const struct t_mympd_mpd_tags *tags);
 bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mpd_tag_type dst);
 void album_cache_set_uri(struct mpd_song *album, const char *uri);

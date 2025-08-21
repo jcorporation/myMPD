@@ -15,8 +15,6 @@
 #include "src/lib/mympd_state.h"
 
 time_t mympd_client_get_db_mtime(struct t_partition_state *partition_state);
-bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
-        enum mpd_tag_type type, const char *value);
 bool is_multivalue_tag(enum mpd_tag_type tag);
 bool is_numeric_tag(enum mpd_tag_type tag);
 sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat);
