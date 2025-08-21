@@ -30,7 +30,7 @@ void init_testenv(void);
 void clean_testenv(void);
 bool create_testfile(void);
 bool song_append_tag(struct mpd_song *song, enum mpd_tag_type type, const char *value);
-struct mpd_song *new_test_album(void);
+struct t_album *new_test_album(void);
 struct mpd_song *new_test_song(void);
 
 #endif

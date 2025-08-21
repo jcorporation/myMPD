@@ -198,7 +198,7 @@ const webradioFields = [
 
 /** @type {object} */
 const albumFields = [
-    'Discs',
+    'DiscCount',
     'SongCount',
     'Duration',
     'Last-Modified'

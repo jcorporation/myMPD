@@ -29,7 +29,9 @@
 
 static bool check_min_duration(const struct mpd_song *song, unsigned min_duration);
 static bool check_max_duration(const struct mpd_song *song, unsigned max_duration);
-static bool check_expression(const struct mpd_song *song, struct t_mympd_mpd_tags *tags,
+static bool check_expression_song(const struct mpd_song *song, struct t_mympd_mpd_tags *tags,
+        struct t_list *include_expr_list, struct t_list *exclude_expr_list);
+static bool check_expression_album(const struct t_album *album, struct t_mympd_mpd_tags *tags,
         struct t_list *include_expr_list, struct t_list *exclude_expr_list);
 static bool check_not_hated(rax *stickers_like, const char *uri, bool ignore_hated);
 static bool check_last_played_album(rax *stickers_last_played, const char *uri, time_t since, enum album_modes album_mode);
@@ -105,16 +107,16 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
     raxStart(&iter, album_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
-        struct mpd_song *album= (struct mpd_song *)iter.data;
+        struct t_album *album= (struct t_album *)iter.data;
         sdsclear(albumid);
         albumid = sdscatlen(albumid, (char *)iter.key, iter.key_len);
         sdsclear(tag_value);
-        tag_value = mympd_client_get_tag_value_string(album, constraints->uniq_tag, tag_value);
+        tag_value = album_get_tag_value_string(album, constraints->uniq_tag, tag_value);
 
         // we use the song uri in the album cache for enforcing last_played constraint,
         // because we do not know when an album was last played fully
-        if (check_last_played_album(stickers_last_played, mpd_song_get_uri(album), since, partition_state->config->albums.mode) == true &&
-            check_expression(album, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
+        if (check_last_played_album(stickers_last_played, album_get_uri(album), since, partition_state->config->albums.mode) == true &&
+            check_expression_album(album, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
             check_uniq_tag(albumid, tag_value, queue_list, add_list) == RANDOM_ADD_UNIQ_IS_UNIQ)
         {
             if (randrange(0, lineno) < add_albums) {
@@ -262,7 +264,7 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
                 check_max_duration(song, constraints->max_song_duration) == true &&
                 check_last_played(stickers_last_played, uri, since) == true &&
                 check_not_hated(stickers_like, uri, constraints->ignore_hated) == true &&
-                check_expression(song, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
+                check_expression_song(song, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
                 check_uniq_tag(uri, tag_value, queue_list, add_list) == RANDOM_ADD_UNIQ_IS_UNIQ)
             {
                 if (randrange(0, lineno) < add_songs) {
@@ -388,7 +390,7 @@ static long check_uniq_tag(const char *uri, const char *value, struct t_list *qu
  * @param exclude_expr_list exclude expression list
  * @return true if song should be included, else false
  */
-static bool check_expression(const struct mpd_song *song, struct t_mympd_mpd_tags *tags,
+static bool check_expression_song(const struct mpd_song *song, struct t_mympd_mpd_tags *tags,
         struct t_list *include_expr_list, struct t_list *exclude_expr_list)
 {
     // first check exclude expression
@@ -402,6 +404,33 @@ static bool check_expression(const struct mpd_song *song, struct t_mympd_mpd_tag
     if (include_expr_list != NULL) {
         // exclude overwrites include
         return search_expression_song(song, include_expr_list, tags);
+    }
+    // no include expression, include all
+    return true;
+}
+
+/**
+ * Checks if the song matches the expression lists
+ * @param song song to apply the expressions
+ * @param tags tags to search
+ * @param include_expr_list include expression list
+ * @param exclude_expr_list exclude expression list
+ * @return true if song should be included, else false
+ */
+static bool check_expression_album(const struct t_album *album, struct t_mympd_mpd_tags *tags,
+        struct t_list *include_expr_list, struct t_list *exclude_expr_list)
+{
+    // first check exclude expression
+    if (exclude_expr_list != NULL &&
+        search_expression_album(album, exclude_expr_list, tags) == true)
+    {
+        // exclude expression matches
+        return false;
+    }
+    // exclude expression not matched, try include expression
+    if (include_expr_list != NULL) {
+        // exclude overwrites include
+        return search_expression_album(album, include_expr_list, tags);
     }
     // no include expression, include all
     return true;

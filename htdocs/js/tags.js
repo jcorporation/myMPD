@@ -464,7 +464,7 @@ function printValue(key, value, userData) {
             return document.createTextNode(value + ' ' + tn('kbit'));
         case 'SongCount':
             return document.createTextNode(tn('Num songs', {"smartCount": value}));
-        case 'Discs':
+        case 'DiscCount':
             if (value === 0) {
                 return document.createTextNode('-');
             }

@@ -33,7 +33,7 @@
  * Private definitions
  */
 
-static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_mympd_mpd_tags *tags, sds *key);
+static struct t_album *album_from_mpack_node(mpack_node_t album_node, const struct t_mympd_mpd_tags *tags, sds *key);
 
 /**
  * Public functions
@@ -99,7 +99,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         FREE_SDS(filepath);
         return false;
     }
-    
+
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);
     mpack_tree_set_error_handler(&tree, log_mpack_node_error);
@@ -156,7 +156,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
 
     for (size_t i = 0; i < len; i++) {
         mpack_node_t album_node = mpack_node_array_at(albums_node, i);
-        struct mpd_song *album = album_from_mpack_node(album_node, album_tags, &key);
+        struct t_album *album = album_from_mpack_node(album_node, album_tags, &key);
         if (album != NULL) {
             if (raxTryInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL) == 0) {
                 MYMPD_LOG_ERROR(NULL, "Duplicate key in album cache file found: %s", key);
@@ -226,12 +226,12 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
     raxStart(&iter, album_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
-        const struct mpd_song *album = (struct mpd_song *)iter.data;
+        const struct t_album *album = (struct t_album *)iter.data;
         mpack_build_map(&writer);
         mpack_write_kv(&writer, "uri", album_get_uri(album));
-        mpack_write_kv(&writer, "Discs", album_get_discs(album));
+        mpack_write_kv(&writer, "Discs", album_get_disc_count(album));
         mpack_write_kv(&writer, "Songs", album_get_song_count(album));
-        mpack_write_kv(&writer, "Duration", album_get_duration(album));
+        mpack_write_kv(&writer, "Duration", album_get_total_time(album));
         mpack_write_kv(&writer, "Last-Modified", (uint64_t)album_get_last_modified(album));
         mpack_write_kv(&writer, "Added", (uint64_t)album_get_added(album));
         mpack_write_cstr(&writer, "AlbumId");
@@ -259,7 +259,7 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
         }
         mpack_complete_map(&writer);
         if (free_data == true) {
-            album_free((struct mpd_song *)iter.data);
+            album_free((struct t_album *)iter.data);
         }
     }
     raxStop(&iter);
@@ -348,12 +348,66 @@ sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct 
 }
 
 /**
+ * Constructs the albumkey from song info
+ * @param albumkey already allocated sds string to set the key
+ * @param song mpd song struct
+ * @param album_config album configuration
+ * @return pointer to changed albumkey
+ */
+sds album_cache_get_key_from_album(sds albumkey, const struct t_album *album, const struct t_albums_config *album_config) {
+    sdsclear(albumkey);
+    if (album_config->mode == ALBUM_MODE_ADV) {
+        // use MusicBrainz album id
+        const char *mb_album_id = album_get_tag(album, MPD_TAG_MUSICBRAINZ_ALBUMID, 0);
+        if (mb_album_id != NULL &&
+            strlen(mb_album_id) == MBID_LENGTH) // MBID must be exactly 36 characters long
+        {
+            return sdscatlen(albumkey, mb_album_id, MBID_LENGTH);
+        }
+    }
+
+    // fallback to hashed AlbumArtist::Album::<group tag>
+    // first try AlbumArtist tag
+    albumkey = album_get_tag_value_string(album, MPD_TAG_ALBUM_ARTIST, albumkey);
+    if (sdslen(albumkey) == 0) {
+        // AlbumArtist tag is empty, fallback to Artist tag
+        #ifdef MYMPD_DEBUG
+            MYMPD_LOG_DEBUG(NULL, "AlbumArtist for uri \"%s\" is empty, falling back to Artist", album_get_uri(album));
+        #endif
+        albumkey = album_get_tag_value_string(album, MPD_TAG_ARTIST, albumkey);
+    }
+    if (sdslen(albumkey) == 0) {
+        MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tags AlbumArtist and Artist are empty", album_get_uri(album));
+        return albumkey;
+    }
+
+    const char *album_name = album_get_tag(album, MPD_TAG_ALBUM, 0);
+    if (album_name == NULL) {
+        // album tag is empty
+        MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tag Album is empty", album_get_uri(album));
+        sdsclear(albumkey);
+        return albumkey;
+    }
+    // append album
+    albumkey = sdscatfmt(albumkey, "::%s", album_name);
+    // optionally append group tag
+    if (album_config->group_tag != MPD_TAG_UNKNOWN) {
+        const char *group_tag_value = album_get_tag(album, album_config->group_tag, 0);
+        if (group_tag_value != NULL) {
+            albumkey = sdscatfmt(albumkey, "::%s", group_tag_value);
+        }
+    }
+    // return the hash
+    return sds_hash_sha1_sds(albumkey);
+}
+
+/**
  * Gets the album from the album cache
  * @param album_cache pointer to t_cache struct
  * @param key the album
  * @return mpd_song struct representing the album or NULL on error
  */
-struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key) {
+struct t_album *album_cache_get_album(struct t_cache *album_cache, sds key) {
     if (album_cache->cache == NULL) {
         return NULL;
     }
@@ -363,7 +417,7 @@ struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key) {
         MYMPD_LOG_ERROR(NULL, "Album for key \"%s\" not found in cache", key);
         return NULL;
     }
-    return (struct mpd_song *) data;
+    return (struct t_album *) data;
 }
 
 /**
@@ -388,7 +442,7 @@ void album_cache_free_rt(rax *album_cache_rt) {
     raxStart(&iter, album_cache_rt);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
-        album_free((struct mpd_song *)iter.data);
+        album_free((struct t_album *)iter.data);
     }
     raxStop(&iter);
     raxFree(album_cache_rt);
@@ -413,8 +467,8 @@ void album_cache_free_rt_void(void *album_cache_rt) {
  * @param key already allocated sds string to set the album key
  * @return struct mpd_song* allocated mpd_song struct
  */
-static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const struct t_mympd_mpd_tags *tags, sds *key) {
-    struct mpd_song *album = NULL;
+static struct t_album *album_from_mpack_node(mpack_node_t album_node, const struct t_mympd_mpd_tags *tags, sds *key) {
+    struct t_album *album = NULL;
     sdsclear(*key);
     char *uri = mpack_node_cstr_alloc(mpack_node_map_cstr(album_node, "uri"), JSONRPC_STR_MAX);
     if (uri != NULL) {

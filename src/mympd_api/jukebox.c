@@ -173,8 +173,8 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
         struct t_list_node *current = partition_state->jukebox.queue->head;
         sds album_exp = sdsempty();
         while (current != NULL) {
-            struct mpd_song *album = (struct mpd_song *)current->user_data;
-            if (search_expression_song(album, expr_list, &tagcols->mpd_tags) == true) {
+            struct t_album *album = (struct t_album *)current->user_data;
+            if (search_expression_album(album, expr_list, &tagcols->mpd_tags) == true) {
                 if (entities_found >= offset &&
                     entities_found < real_limit)
                 {

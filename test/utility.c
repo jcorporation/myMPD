@@ -6,6 +6,7 @@
 
 #include "utility.h"
 
+#include "src/lib/album.h"
 #include "src/lib/filehandler.h"
 
 #include <stdio.h>
@@ -85,8 +86,15 @@ bool song_append_tag(struct mpd_song *song, enum mpd_tag_type type, const char *
     return true;
 }
 
-struct mpd_song *new_test_album(void) {
-    return new_test_song();
+struct t_album *new_test_album(void) {
+    struct mpd_song *song = new_test_song();
+    const struct t_mympd_mpd_tags album_tags = {
+        .len = 3,
+        .tags = {MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST, MPD_TAG_ALBUM }
+    };
+    struct t_album *album = album_new_from_song(song, &album_tags);
+    mpd_song_free(song);
+    return album;
 }
 
 struct mpd_song *new_test_song(void) {

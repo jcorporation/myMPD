@@ -52,6 +52,7 @@ install_headers(
   'binary.h',
   'albumart.h',
   'readpicture.h',
+  'stringnormalization.h',
   version_h,
   subdir: 'mpd',
 )

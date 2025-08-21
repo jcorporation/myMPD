@@ -58,7 +58,7 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
         return buffer;
     }
 
-    struct mpd_song *mpd_album = album_cache_get_album(&mympd_state->album_cache, albumid);
+    struct t_album *mpd_album = album_cache_get_album(&mympd_state->album_cache, albumid);
     if (mpd_album == NULL) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album not found");
@@ -283,11 +283,11 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
-            struct mpd_song *album = (struct mpd_song *)iter.data;
+            struct t_album *album = (struct t_album *)iter.data;
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
             buffer = print_album_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, album);
             buffer = sdscatlen(buffer, ",", 1);
-            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), false);
+            buffer = tojson_char(buffer, "FirstSongUri", album_get_uri(album), false);
             if (print_stickers == true) {
                 buffer = sdscatlen(buffer, ",", 1);
                 album_exp = get_search_expression_album(album_exp, mympd_state->mpd_state->tag_albumartist, album, &mympd_state->config->albums);

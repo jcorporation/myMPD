@@ -62,7 +62,7 @@ static const char *mympd_fields[]={
     "Country", "Region", "Description", "Genres", "Homepage", "Languages", "Name", "StreamUri",
     "Codec", "Bitrate",
     // Columns for albums
-    "Discs", "SongCount",
+    "DiscCount", "SongCount",
     // End
     0};
 

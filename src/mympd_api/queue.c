@@ -485,7 +485,7 @@ bool mympd_api_queue_insert_album_tag(struct t_partition_state *partition_state,
         *error = sdscat(*error, "Method not supported");
         return false;
     }
-    struct mpd_song *mpd_album = album_cache_get_album(album_cache, albumid);
+    struct t_album *mpd_album = album_cache_get_album(album_cache, albumid);
     if (mpd_album == NULL) {
         *error = sdscat(*error, "Album not found");
         return false;
@@ -553,7 +553,7 @@ bool mympd_api_queue_insert_album_range(struct t_partition_state *partition_stat
         *error = sdscat(*error, "Method not supported");
         return false;
     }
-    struct mpd_song *mpd_album = album_cache_get_album(album_cache, albumid);
+    struct t_album *mpd_album = album_cache_get_album(album_cache, albumid);
     if (mpd_album == NULL) {
         *error = sdscat(*error, "Album not found");
         return false;

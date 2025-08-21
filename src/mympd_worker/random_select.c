@@ -130,7 +130,7 @@ sds mympd_worker_list_random(struct t_mympd_worker_state *mympd_worker_state, sd
             struct t_list_node *current = add_list.head;
             while (current != NULL) {
                 buffer = sdscat(buffer, "{\"Type\":\"album\",");
-                struct mpd_song *album = (struct mpd_song *)current->user_data;
+                struct t_album *album = (struct t_album *)current->user_data;
                 buffer = print_album_tags(buffer, mympd_worker_state->partition_state->mpd_state,
                     &mympd_worker_state->partition_state->mpd_state->tags_album, album);
                 buffer = sdscatlen(buffer, "}", 1);
