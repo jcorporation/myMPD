@@ -17,6 +17,7 @@
 
 struct mpd_song *album_new(void);
 struct mpd_song *album_new_uri(const char *uri);
+void album_free(struct mpd_song *album);
 
 const char *album_get_uri(const struct mpd_song *album);
 unsigned album_get_duration(const struct mpd_song *album);

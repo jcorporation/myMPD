@@ -160,7 +160,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         if (album != NULL) {
             if (raxTryInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL) == 0) {
                 MYMPD_LOG_ERROR(NULL, "Duplicate key in album cache file found: %s", key);
-                mpd_song_free(album);
+                album_free(album);
             }
         }
     }
@@ -259,7 +259,7 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
         }
         mpack_complete_map(&writer);
         if (free_data == true) {
-            mpd_song_free((struct mpd_song *)iter.data);
+            album_free((struct mpd_song *)iter.data);
         }
     }
     raxStop(&iter);
@@ -388,7 +388,7 @@ void album_cache_free_rt(rax *album_cache_rt) {
     raxStart(&iter, album_cache_rt);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
-        mpd_song_free((struct mpd_song *)iter.data);
+        album_free((struct mpd_song *)iter.data);
     }
     raxStop(&iter);
     raxFree(album_cache_rt);

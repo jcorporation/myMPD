@@ -17,6 +17,7 @@
 #include "src/lib/mem.h"
 #include "src/mympd_client/tags.h"
 
+#include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
@@ -47,6 +48,33 @@ struct mpd_song *album_new(void) {
  */
 struct mpd_song *album_new_uri(const char *uri) {
     return mpd_song_new(uri);
+}
+
+/**
+ * Frees an album struct
+ * @param album Pointer to album struct
+ */
+void album_free(struct mpd_song *album) {
+    assert(album != NULL);
+    free(album->uri);
+    for (unsigned i = 0; i < MPD_TAG_COUNT; ++i) {
+        struct mpd_tag_value *tag = &album->tags[i];
+        struct mpd_tag_value *next;
+        if (tag->value == NULL) {
+            continue;
+        }
+        free(tag->value);
+        tag = tag->next;
+        while (tag != NULL) {
+            assert(tag->value != NULL);
+            free(tag->value);
+
+            next = tag->next;
+            free(tag);
+            tag = next;
+        }
+    }
+    free(album);
 }
 
 /**
