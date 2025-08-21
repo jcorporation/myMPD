@@ -17,7 +17,6 @@
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker.h"
-#include "src/mympd_client/tags.h"
 
 #include <string.h>
 
@@ -31,7 +30,6 @@
  */
 static enum json_vtype get_vtype(char p);
 static bool icb_json_get_field(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error);
-static bool icb_json_get_tag_value(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error);
 static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, struct t_json_parse_error *error);
 static void set_parse_error(struct t_json_parse_error *error, const char *path, const char *key, const char *fmt, ...);
 
@@ -430,50 +428,6 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     FREE_SDS(value);
     FREE_SDS(key);
     return true;
-}
-
-/**
- * Iteration callback to populate mpd_song tag values
- * @param path json path
- * @param key json key
- * @param value json value
- * @param vtype mjson value type
- * @param vcb validation callback
- * @param userdata pointer to a t_list struct to populate
- * @param error pointer to t_json_parse_error
- * @return true on success, else false
- */
-static bool icb_json_get_tag_value(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
-    enum mpd_tag_type tag = mpd_tag_name_parse(key);
-    if (tag == MPD_TAG_UNKNOWN) {
-        set_parse_error(error, path, "", "Unknown mpd tag type \"%s\"", key);
-        return false;
-    }
-    if (vtype != JSON_TOK_STRING) {
-        set_parse_error(error, path, "", "Invalid type for tag \"%s\": %s", key, get_mjson_toktype_name(vtype));
-        return false;
-    }
-    if (vcb != NULL && vcb(value) == false) {
-        set_parse_error(error, path, "", "Validation of value \"%s\" has failed", value);
-        return false;
-    }
-    mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, value);
-    return true;
-}
-
-/**
- * Converts a json array to a mpd song tag value(s)
- * Shortcut for json_iterate_object with icb_json_get_tag_value
- * @param s json object to parse
- * @param path mjson path expression
- * @param song mpd_song struct
- * @param vcb validation callback
- * @param max_elements maximum of elements
- * @param error pointer to t_json_parse_error
- * @return true on success, else false
- */
-bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validate_callback vcb, int max_elements, struct t_json_parse_error *error) {
-    return json_iterate_object(s, path, icb_json_get_tag_value, song, vcb, vcb, max_elements, error);
 }
 
 /**
