@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_client/tags.h"
 
+#include "src/lib/album.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/convert.h"
 #include "src/lib/json/json_print.h"

@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_worker/album_cache.h"
 
+#include "src/lib/album.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
@@ -170,10 +171,10 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
             struct mpd_song *song;
             while ((song = mpd_recv_song(mympd_worker_state->partition_state->conn)) != NULL) {
                 // set initial song and disc count to 1
-                album_cache_set_song_count(song, 1);
+                album_set_song_count(song, 1);
                 if (mympd_worker_state->tag_disc_empty_is_first == true) {
                     // handle empty disc tag as disc one
-                    album_cache_set_disc_count(song, 1);
+                    album_set_disc_count(song, 1);
                 }
                 // construct the key
                 key = album_cache_get_key(key, song, &mympd_worker_state->config->albums);
@@ -183,19 +184,20 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
                     {
                         // Copy Artist tag to AlbumArtist tag
                         // for filters mpd falls back from AlbumArtist to Artist if AlbumArtist does not exist
-                        album_cache_copy_tags(song, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
+                        album_copy_tags(song, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
                     }
                     void *old_data;
                     if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
                         // existing album: append song data
                         struct mpd_song *album = (struct mpd_song *) old_data;
                         // append tags
-                        album_cache_append_tags(album, song, &mympd_worker_state->partition_state->mpd_state->tags_mympd);
+                        album_append_tags(album, song, &mympd_worker_state->partition_state->mpd_state->tags_mympd);
                         // set album data
-                        album_cache_set_last_modified(album, song); // use latest last_modified
-                        album_cache_inc_total_time(album, song);    // sum duration
-                        album_cache_set_discs(album, song);         // use max disc value
-                        album_cache_inc_song_count(album);          // inc song count by one
+                        album_set_last_modified(album, mpd_song_get_last_modified(song)); // use latest last_modified
+                        album_set_added(album, mpd_song_get_added(song)); // use oldest added
+                        album_inc_total_time(album, mpd_song_get_duration(song));    // sum duration
+                        album_set_discs(album, mpd_song_get_tag(song, MPD_TAG_DISC, 0));         // use max disc value
+                        album_inc_song_count(album);          // inc song count by one
                         // free song data
                         mpd_song_free(song);
                     }
@@ -298,11 +300,11 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
                         // we do not fetch the uri for performance reasons.
                         // the real song uri will be set after first call of mympd_api_albumart_getcover_by_album_id.
                         struct mpd_song *song = album_new();
-                        album_cache_append_tag(song, MPD_TAG_ARTIST, artist);
-                        album_cache_append_tag(song, MPD_TAG_ALBUM_ARTIST, artist);
-                        album_cache_append_tag(song, MPD_TAG_ALBUM, album);
+                        album_append_tag(song, MPD_TAG_ARTIST, artist);
+                        album_append_tag(song, MPD_TAG_ALBUM_ARTIST, artist);
+                        album_append_tag(song, MPD_TAG_ALBUM, album);
                         if (sdslen(group_tag) > 0) {
-                            album_cache_append_tag(song, mympd_worker_state->config->albums.group_tag, group_tag);
+                            album_append_tag(song, mympd_worker_state->config->albums.group_tag, group_tag);
                         }
                         // insert album into cache
                         key = album_cache_get_key(key, song, &mympd_worker_state->config->albums);

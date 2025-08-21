@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/albums.h"
 
+#include "src/lib/album.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/fields.h"
 #include "src/lib/json/json_print.h"
@@ -84,9 +85,9 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
     unsigned last_played_song_pos = 0;
     if (partition_state->config->albums.mode == ALBUM_MODE_SIMPLE) {
         // reset album values for simple album mode
-        album_cache_set_total_time(mpd_album, 0);
-        album_cache_set_disc_count(mpd_album, 0);
-        album_cache_set_song_count(mpd_album, 0);
+        album_set_total_time(mpd_album, 0);
+        album_set_disc_count(mpd_album, 0);
+        album_set_song_count(mpd_album, 0);
     }
     bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
     if (print_stickers == true) {
@@ -122,9 +123,9 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
             buffer = sdscatlen(buffer, "}", 1);
             if (partition_state->config->albums.mode == ALBUM_MODE_SIMPLE) {
                 // calculate some album values for simple album mode
-                album_cache_inc_total_time(mpd_album, song);
-                album_cache_set_discs(mpd_album, song);
-                album_cache_inc_song_count(mpd_album);
+                album_inc_total_time(mpd_album, mpd_song_get_duration(song));
+                album_set_discs(mpd_album, mpd_song_get_tag(song, MPD_TAG_DISC, 0));
+                album_inc_song_count(mpd_album);
             }
             mpd_song_free(song);
         }

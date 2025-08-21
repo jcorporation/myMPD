@@ -12,11 +12,10 @@
 #include "src/lib/cache/cache_rax_album.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
-#include "dist/libmympdclient/src/isong.h"
 #include "dist/mpack/mpack.h"
 #include "dist/rax/rax.h"
+#include "src/lib/album.h"
 #include "src/lib/config_def.h"
-#include "src/lib/convert.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -29,18 +28,6 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
-
-/**
- * myMPD saves album information in the album cache as a mpd_song struct.
- * Used fields:
- *   tags: tags from all songs of the album
- *   last_modified: last_modified from newest song
- *   added: added from oldest song
- *   duration: the album total time in seconds
- *   duration_ms: the album total time in milliseconds
- *   pos: number of discs
- *   prio: number of songs
- */
 
 /**
  * Private definitions
@@ -241,17 +228,17 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
     while (raxNext(&iter)) {
         const struct mpd_song *album = (struct mpd_song *)iter.data;
         mpack_build_map(&writer);
-        mpack_write_kv(&writer, "uri", mpd_song_get_uri(album));
+        mpack_write_kv(&writer, "uri", album_get_uri(album));
         mpack_write_kv(&writer, "Discs", album_get_discs(album));
         mpack_write_kv(&writer, "Songs", album_get_song_count(album));
-        mpack_write_kv(&writer, "Duration", mpd_song_get_duration(album));
-        mpack_write_kv(&writer, "Last-Modified", (uint64_t)mpd_song_get_last_modified(album));
-        mpack_write_kv(&writer, "Added", (uint64_t)mpd_song_get_added(album));
+        mpack_write_kv(&writer, "Duration", album_get_duration(album));
+        mpack_write_kv(&writer, "Last-Modified", (uint64_t)album_get_last_modified(album));
+        mpack_write_kv(&writer, "Added", (uint64_t)album_get_added(album));
         mpack_write_cstr(&writer, "AlbumId");
         mpack_write_str(&writer, (char *)iter.key, (uint32_t)iter.key_len);
         for (unsigned tagnr = 0; tagnr < album_tags->len; ++tagnr) {
             enum mpd_tag_type tag = album_tags->tags[tagnr];
-            if (mpd_song_get_tag(album, tag, 0) == NULL) {
+            if (album_get_tag(album, tag, 0) == NULL) {
                 // do not write empty tags
                 continue;
             }
@@ -260,14 +247,14 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
                 unsigned count = 0;
                 mpack_write_cstr(&writer, mpd_tag_name(tag));
                 mpack_build_array(&writer);
-                while ((value = mpd_song_get_tag(album, tag, count)) != NULL) {
+                while ((value = album_get_tag(album, tag, count)) != NULL) {
                     mpack_write_cstr(&writer, value);
                     count++;
                 }
                 mpack_complete_array(&writer);
             }
             else {
-                mpack_write_kv(&writer, mpd_tag_name(tag), mpd_song_get_tag(album, tag, 0));
+                mpack_write_kv(&writer, mpd_tag_name(tag), album_get_tag(album, tag, 0));
             }
         }
         mpack_complete_map(&writer);
@@ -416,240 +403,6 @@ void album_cache_free_rt_void(void *album_cache_rt) {
 }
 
 /**
- * Creates and initializes a new struct for an album.
- * @return struct mpd_song* or NULL on error
- */
-struct mpd_song *album_new(void) {
-    return mpd_song_new("albumid");
-}
-
-/**
- * Gets the number of songs
- * @param album mpd_song struct representing the album
- * @return number of songs
- */
-unsigned album_get_song_count(const struct mpd_song *album) {
-    return album->prio;
-}
-
-/**
- * Gets the number of discs
- * @param album mpd_song struct representing the album
- * @return number of discs
- */
-unsigned album_get_discs(const struct mpd_song *album) {
-    return album->pos;
-}
-
-/**
- * Gets the total play time
- * @param album mpd_song struct representing the album
- * @return total play time
- */
-unsigned album_get_total_time(const struct mpd_song *album) {
-    return album->duration;
-}
-
-/**
- * Sets the albums disc count from disc song tag
- * @param album mpd_song struct representing the album
- * @param song mpd song to set discs from
- */
-void album_cache_set_discs(struct mpd_song *album, const struct mpd_song *song) {
-    const char *disc = mpd_song_get_tag(song, MPD_TAG_DISC, 0);
-    if (disc == NULL) {
-        return;
-    }
-    unsigned d;
-    enum str2int_errno rc = str2uint(&d, disc);
-    if (rc == STR2INT_SUCCESS && 
-        d > album->pos)
-    {
-        album->pos = d;
-    }
-}
-
-/**
- * Sets a fixed disc count
- * @param album mpd_song struct representing the album
- * @param count disc count
- */
-void album_cache_set_disc_count(struct mpd_song *album, unsigned count) {
-    album->pos = count;
-}
-
-/**
- * Sets the albums last modified timestamp
- * @param album mpd_song struct representing the album
- * @param song mpd song to set last_modified from
- */
-void album_cache_set_last_modified(struct mpd_song *album, const struct mpd_song *song) {
-    if (album->last_modified < song->last_modified) {
-        album->last_modified = song->last_modified;
-    }
-}
-
-/**
- * Sets the albums added timestamp
- * @param album mpd_song struct representing the album
- * @param song mpd song to set added from
- */
-void album_cache_set_added(struct mpd_song *album, const struct mpd_song *song) {
-    if (album->added > song->added) {
-        album->added = song->added;
-    }
-}
-
-/**
- * Sets the albums duration
- * @param album mpd_song struct representing the album
- * @param duration total time to set
- */
-void album_cache_set_total_time(struct mpd_song *album, unsigned duration) {
-    album->duration = duration;
-    album->duration_ms = duration * 1000;
-}
-
-/**
- * Increments the albums duration
- * @param album mpd_song struct representing the album
- * @param song pointer to a mpd_song struct
- */
-void album_cache_inc_total_time(struct mpd_song *album, const struct mpd_song *song) {
-    album->duration += song->duration;
-    album->duration_ms += song->duration_ms;
-}
-
-/**
- * Set the song count
- * @param album mpd_song struct representing the album
- * @param count song count
- */
-void album_cache_set_song_count(struct mpd_song *album, unsigned count) {
-    album->prio = count;
-}
-
-/**
- * Increments the song count
- * @param album pointer to a mpd_song struct
- */
-void album_cache_inc_song_count(struct mpd_song *album) {
-    album->prio++;
-}
-
-/**
- * Appends tag values to the album
- * @param album pointer to a mpd_song struct representing the album
- * @param song song to add tag values from
- * @param tags tags to append
- * @return true on success else false
- */
-bool album_cache_append_tags(struct mpd_song *album,
-        const struct mpd_song *song, const struct t_mympd_mpd_tags *tags)
-{
-    for (unsigned tagnr = 0; tagnr < tags->len; ++tagnr) {
-        const char *value;
-        enum mpd_tag_type tag = tags->tags[tagnr];
-        //append only multivalue tags
-        if (is_multivalue_tag(tag) == true) {
-            unsigned value_nr = 0;
-            while ((value = mpd_song_get_tag(song, tag, value_nr)) != NULL) {
-                if (album_cache_append_tag(album, tag, value) == false) {
-                    return false;
-                }
-                value_nr++;
-            }
-        }
-    }
-    return true;
-}
-
-/**
- * Adds a tag value to the album if value does not already exists
- * @param song pointer to a mpd_song struct
- * @param type mpd tag type
- * @param value tag value to add
- * @return true if tag is added or already there,
- *         false if the tag could not be added
- */
-bool album_cache_append_tag(struct mpd_song *song,
-        enum mpd_tag_type type, const char *value)
-{
-    struct mpd_tag_value *tag = &song->tags[type];
-
-    if ((int)type < 0 ||
-        type >= MPD_TAG_COUNT)
-    {
-        return false;
-    }
-
-    if (tag->value == NULL) {
-        tag->next = NULL;
-        tag->value = strdup(value);
-        if (tag->value == NULL) {
-            return false;
-        }
-    }
-    else {
-        while (tag->next != NULL) {
-            if (strcmp(tag->value, value) == 0) {
-                //do not add duplicate values
-                return true;
-            }
-            tag = tag->next;
-        }
-        if (strcmp(tag->value, value) == 0) {
-            //do not add duplicate values
-            return true;
-        }
-        struct mpd_tag_value *prev = tag;
-        tag = malloc_assert(sizeof(*tag));
-
-        tag->value = strdup(value);
-        if (tag->value == NULL) {
-            FREE_PTR(tag);
-            return false;
-        }
-
-        tag->next = NULL;
-        prev->next = tag;
-    }
-
-    return true;
-}
-
-/**
- * Copies all values from a tag to another tag
- * @param song pointer to a mpd_song struct
- * @param src source tag
- * @param dst destination tag
- * @return true on success, else false
- */
-bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mpd_tag_type dst) {
-    const char *value;
-    unsigned value_nr = 0;
-    while ((value = mpd_song_get_tag(song, src, value_nr)) != NULL) {
-        if (album_cache_append_tag(song, dst, value) == false) {
-            return false;
-        }
-        value_nr++;
-    }
-    return true;
-}
-
-/**
- * Replaces the uri
- * @param album pointer to a mpd_song struct
- * @param uri new uri to set
- */
-void album_cache_set_uri(struct mpd_song *album, const char *uri) {
-    size_t len = strlen(uri);
-    album->uri = realloc_assert(album->uri, len + 1);
-    memcpy(album->uri, uri, len);
-    album->uri[len] = '\0';
-}
-
-/**
  * Private functions
  */
 
@@ -665,15 +418,14 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
     sdsclear(*key);
     char *uri = mpack_node_cstr_alloc(mpack_node_map_cstr(album_node, "uri"), JSONRPC_STR_MAX);
     if (uri != NULL) {
-        album = mpd_song_new(uri);
+        album = album_new_uri(uri);
         *key = mpackstr_sdscat(*key, album_node, "AlbumId");
 
-        album->pos = mpack_node_uint(mpack_node_map_cstr(album_node, "Discs"));
-        album->prio = mpack_node_uint(mpack_node_map_cstr(album_node, "Songs"));
-        album->duration = mpack_node_uint(mpack_node_map_cstr(album_node, "Duration"));
-        album->last_modified = mpack_node_int(mpack_node_map_cstr(album_node, "Last-Modified"));
-        album->added = mpack_node_int(mpack_node_map_cstr(album_node, "Added"));
-        album->duration_ms = album->duration * 1000;
+        album_set_disc_count(album, mpack_node_uint(mpack_node_map_cstr(album_node, "Discs")));
+        album_set_song_count(album, mpack_node_uint(mpack_node_map_cstr(album_node, "Songs")));
+        album_set_total_time(album, mpack_node_uint(mpack_node_map_cstr(album_node, "Duration")));
+        album_set_last_modified(album, mpack_node_int(mpack_node_map_cstr(album_node, "Last-Modified")));
+        album_set_added(album, mpack_node_int(mpack_node_map_cstr(album_node, "Added")));
         for (size_t i = 0; i < tags->len; i++) {
             enum mpd_tag_type tag = tags->tags[i];
             const char *tag_name = mpd_tag_name(tag);
@@ -684,7 +436,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
                     for (size_t j = 0; j < len; j++) {
                         char *value = mpack_node_cstr_alloc(mpack_node_array_at(value_node, j), JSONRPC_STR_MAX);
                         if (value != NULL) {
-                            album_cache_append_tag(album, tags->tags[i], value);
+                            album_append_tag(album, tags->tags[i], value);
                             MPACK_FREE(value);
                         }
                     }
@@ -692,7 +444,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
                 else {
                     char *value = mpack_node_cstr_alloc(value_node, JSONRPC_STR_MAX);
                     if (value != NULL) {
-                        album_cache_append_tag(album, tags->tags[i], value);
+                        album_append_tag(album, tags->tags[i], value);
                         MPACK_FREE(value);
                     }
                 }

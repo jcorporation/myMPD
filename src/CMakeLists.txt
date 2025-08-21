@@ -41,6 +41,7 @@ endif()
 target_sources(mympd
   PRIVATE
     main.c
+    lib/album.c
     lib/api.c
     lib/cacertstore.c
     lib/cache/cache_disk_images.c
