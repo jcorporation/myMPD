@@ -1240,7 +1240,7 @@ run_tsc() {
   then
     return 1
   fi
-  echo "Running typscript compiler for validation"
+  echo "Running typescript compiler for validation"
   if ! npx tsc -p htdocs/js/jsconfig.json
   then
     return 1
