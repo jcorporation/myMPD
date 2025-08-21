@@ -9,9 +9,7 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
-#include "dist/libmympdclient/src/isong.h"
 #include "src/lib/search.h"
-#include "src/mympd_client/tags.h"
 
 #include <mpd/client.h>
 
@@ -19,8 +17,8 @@
 #include <pcre2.h>
 
 bool search_by_expression(const char *expr_string) {
-    struct mpd_song *song = new_song();
-    mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ARTIST, "MG's");
+    struct mpd_song *song = new_test_song();
+    song_append_tag(song, MPD_TAG_ARTIST, "MG's");
     //browse tag types
     struct t_mympd_mpd_tags tags;
     mympd_mpd_tags_reset(&tags);

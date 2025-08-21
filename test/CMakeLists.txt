@@ -8,6 +8,7 @@ configure_file(utility.h.in "${PROJECT_BINARY_DIR}/test/utility.h")
 set(TEST_SOURCES
   main.c
   utility.c
+  ../src/lib/album.c
   ../src/lib/api.c
   ../src/lib/cacertstore.c
   ../src/lib/cache/cache_disk_lyrics.c
@@ -125,6 +126,7 @@ target_include_directories(unit_test
     ${PROJECT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/test
     ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/test
 )
 
 target_compile_options(unit_test
