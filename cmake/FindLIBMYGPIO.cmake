@@ -9,7 +9,7 @@
 # LIBMYGPIO_LIBRARIES
 
 find_package(PkgConfig)
-pkg_check_modules(PC_LIBMYGPIO QUIET libmygpio)
+pkg_check_modules(PC_LIBMYGPIO libmygpio)
 
 # Look for the header file
 find_path(LIBMYGPIO_INCLUDE_DIR

@@ -9,7 +9,7 @@
 # FLAC_LIBRARIES
 
 find_package(PkgConfig)
-pkg_check_modules(PC_FLAC QUIET FLAC)
+pkg_check_modules(PC_FLAC flac)
 
 # Look for the header file
 find_path(FLAC_INCLUDE_DIR
