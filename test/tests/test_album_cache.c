@@ -12,7 +12,7 @@
 #include "dist/utest/utest.h"
 #include "src/lib/cache/cache_rax_album.h"
 
-#include <mpd/client.h>
+#include "dist/libmympdclient/include/mpd/client.h"
 
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
@@ -53,7 +53,7 @@ UTEST(album_cache, test_album_cache_set_discs) {
     ASSERT_EQ((unsigned) 4, album_get_disc_count(album));
 
     album_set_disc_count(album, 2);
-    ASSERT_EQ((unsigned) 4, album_get_disc_count(album));
+    ASSERT_EQ((unsigned) 2, album_get_disc_count(album));
 
     album_free(album);
 }
