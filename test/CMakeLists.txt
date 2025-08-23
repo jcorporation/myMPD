@@ -46,6 +46,7 @@ set(TEST_SOURCES
   ../src/lib/utility.c
   ../src/lib/validate.c
   ../src/lib/webradio.c
+  ../src/mympd_client/compat.c
   ../src/mympd_client/connection.c
   ../src/mympd_client/errorhandler.c
   ../src/mympd_client/features.c
