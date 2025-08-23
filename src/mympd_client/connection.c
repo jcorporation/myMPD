@@ -127,13 +127,13 @@ static bool mympd_client_set_protocol_options(struct t_partition_state *partitio
         if (mpd_connection_cmp_server_version(partition_state->conn, 0, 25, 0) >= 0) {
             if (partition_state->mpd_state->mpd_stringnormalization == true) {
                 MYMPD_LOG_INFO(partition_state->name, "Enabling all stringnormalization options");
-                if (mympd_client_stringnormalization_all(partition_state) == false) {
+                if (mpd_send_all_stringnormalization(partition_state->conn) == false) {
                     mympd_set_mpd_failure(partition_state, "Failure adding command to command list mpd_send_all_stringnormalization");
                 }
             }
             else {
                 MYMPD_LOG_INFO(partition_state->name, "Disabling all stringnormalization options");
-                if (mympd_client_stringnormalization_clear(partition_state) == false) {
+                if (mpd_send_clear_stringnormalization(partition_state->conn) == false) {
                     mympd_set_mpd_failure(partition_state, "Failure adding command to command list mpd_send_clear_stringnormalization");
                 }
             }

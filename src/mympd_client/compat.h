@@ -13,7 +13,5 @@
 
 #include "src/lib/mympd_state.h"
 
-bool mympd_client_stringnormalization_all(struct t_partition_state *partition_state);
-bool mympd_client_stringnormalization_clear(struct t_partition_state *partition_state);
 
 #endif
