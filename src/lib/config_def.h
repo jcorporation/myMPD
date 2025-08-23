@@ -11,8 +11,6 @@
 #ifndef MYMPD_LIB_CONFIG_DEF_H
 #define MYMPD_LIB_CONFIG_DEF_H
 
-#include "compile_time.h"
-
 #include "dist/sds/sds.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/validate.h"
