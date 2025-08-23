@@ -14,10 +14,25 @@
 #include "dist/sds/sds.h"
 #include "src/lib/album.h"
 #include "src/lib/cache/cache_rax.h"
-#include "src/lib/config_def.h"
 #include "src/lib/fields.h"
 
 #include <stdbool.h>
+
+/**
+ * Modes for the album cache
+ */
+enum album_modes {
+    ALBUM_MODE_SIMPLE = 0,
+    ALBUM_MODE_ADV
+};
+
+/**
+ * Holds config for the album cache
+ */
+struct t_albums_config {
+    enum album_modes mode;        //!< enable advanced albums
+    enum mpd_tag_type group_tag;  //!< additional group tag for albums
+};
 
 enum album_modes parse_album_mode(const char *mode_str);
 const char *lookup_album_mode(enum album_modes mode);
