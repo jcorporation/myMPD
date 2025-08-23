@@ -9,7 +9,7 @@
 #  LIBID3TAG_LIBRARIES
 
 find_package(PkgConfig)
-pkg_check_modules(PC_LIBID3TAG id3tag)
+pkg_check_modules(PC_LIBID3TAG QUIET id3tag)
 
 # Look for the header file
 find_path(LIBID3TAG_INCLUDE_DIR

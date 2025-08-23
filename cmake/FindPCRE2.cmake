@@ -9,7 +9,7 @@
 # PCRE2_LIBRARIES
 
 find_package(PkgConfig)
-pkg_check_modules(PC_PCRE2 pcre2)
+pkg_check_modules(PC_PCRE2 QUIET pcre2)
 
 # Look for the header file
 find_path(PCRE2_INCLUDE_DIR
