@@ -1,4 +1,4 @@
-name: release
+name: release_libmpdclient
 on: [push]
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
       run: sudo ./build.sh installdeps
     - name: libmpdclient
       run: |
-        sudo apt-get install -y meson ninja
+        sudo apt-get install -y meson ninja-build
         git clone https://github.com/MusicPlayerDaemon/libmpdclient
         cd libmpdclient || exit 1
         meson setup output
