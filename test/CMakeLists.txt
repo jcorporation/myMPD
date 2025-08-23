@@ -137,7 +137,6 @@ target_compile_options(unit_test
 )
 
 target_link_libraries(unit_test
-  mympdclient
   mpack
   mongoose
   rax
@@ -147,6 +146,12 @@ target_link_libraries(unit_test
   ${OPENSSL_LIBRARIES}
   ${PCRE2_LIBRARIES}
 )
+
+if(MYMPD_EMBEDDED_LIBMPDCLIENT)
+  target_link_libraries(unit_test mympdclient)
+else()
+  target_link_libraries(unit_test ${LIBMPDCLIENT_LIBRARIES})
+endif()
 
 # link optional dependencies
 if(LIBID3TAG_FOUND)

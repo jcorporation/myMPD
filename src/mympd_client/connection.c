@@ -11,12 +11,12 @@
 #include "compile_time.h"
 #include "src/mympd_client/connection.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/api.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/mympd_api/requests.h"
+#include "src/mympd_client/compat.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/tags.h"
@@ -127,13 +127,13 @@ static bool mympd_client_set_protocol_options(struct t_partition_state *partitio
         if (mpd_connection_cmp_server_version(partition_state->conn, 0, 25, 0) >= 0) {
             if (partition_state->mpd_state->mpd_stringnormalization == true) {
                 MYMPD_LOG_INFO(partition_state->name, "Enabling all stringnormalization options");
-                if (mpd_send_all_stringnormalization(partition_state->conn) == false) {
+                if (mympd_client_stringnormalization_all(partition_state) == false) {
                     mympd_set_mpd_failure(partition_state, "Failure adding command to command list mpd_send_all_stringnormalization");
                 }
             }
             else {
                 MYMPD_LOG_INFO(partition_state->name, "Disabling all stringnormalization options");
-                if (mpd_send_clear_stringnormalization(partition_state->conn) == false) {
+                if (mympd_client_stringnormalization_clear(partition_state) == false) {
                     mympd_set_mpd_failure(partition_state, "Failure adding command to command list mpd_send_clear_stringnormalization");
                 }
             }

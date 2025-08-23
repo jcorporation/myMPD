@@ -7,7 +7,7 @@
 #ifndef TEST_MPD_SONG_H
 #define TEST_MPD_SONG_H
 
-#include "dist/libmympdclient/include/mpd/client.h"
+#include "src/lib/mpdclient.h"
 
 struct mpd_tag_value {
     struct mpd_tag_value *next;

@@ -11,8 +11,8 @@
 #ifndef MYMPD_API_SCRIPTS_INTERFACE_H
 #define MYMPD_API_SCRIPTS_INTERFACE_H
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/list.h"
+#include "src/lib/mpdclient.h"
 
 #include <lauxlib.h>
 #include <lua.h>

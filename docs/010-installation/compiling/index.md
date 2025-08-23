@@ -35,10 +35,11 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
     - pcre2 - for pcre support
     - OpenSSL >= 1.1.0 - for https support
     - Optional:
-        - libid3tag - to extract embedded coverimages
-        - flac - to extract embedded coverimages
+        - libid3tag - to extract embedded coverimages and lyrics
+        - flac - to extract embedded coverimages and lyrics
         - liblua >= 5.3.0 - for myMPD scripting
         - libmygpio - for GPIO scripting functions
+        - libmpdclient - embedded libmpdclient is used if it was not found or is too old.
 - Documentation:
     - Doxygen
     - JSDoc
@@ -46,6 +47,10 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
     - mkdocs
 
 You can type `./build.sh installdeps` as root to install the dependencies (works only for supported distributions). For all other distributions you must install the packages manually.
+
+### libmpdclient
+
+myMPD requires a very recent [libmpdclient](https://github.com/MusicPlayerDaemon/libmpdclient) version. This version is distributed in the myMPD source tree and used if no libmpdclient was found or the found library is too old.
 
 ## Building myMPD
 

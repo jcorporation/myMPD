@@ -6,7 +6,6 @@
 
 #include "compile_time.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
 
@@ -17,6 +16,7 @@
 #include "src/lib/handle_options.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
+#include "src/lib/mpdclient.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/signal.h"

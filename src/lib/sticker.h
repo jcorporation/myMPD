@@ -11,7 +11,7 @@
 #ifndef MYMPD_STICKER_H
 #define MYMPD_STICKER_H
 
-#include "dist/libmympdclient/include/mpd/client.h"
+#include "src/lib/mpdclient.h"
 #include "src/lib/list.h"
 
 /**

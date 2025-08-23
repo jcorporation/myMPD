@@ -11,9 +11,9 @@
 #include "compile_time.h"
 #include "src/lib/validate.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/utf8/utf8.h"
 #include "src/lib/log.h"
+#include "src/lib/mpdclient.h"
 #include "src/lib/search.h"
 #include "src/lib/sticker.h"
 #include "src/lib/webradio.h"

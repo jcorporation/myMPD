@@ -11,7 +11,6 @@
 #include "compile_time.h"
 #include "src/mympd_client/features.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"

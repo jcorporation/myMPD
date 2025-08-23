@@ -11,11 +11,9 @@
 #include "compile_time.h"
 #include "src/lib/cache/cache_rax_album.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/mpack/mpack.h"
 #include "dist/rax/rax.h"
 #include "src/lib/album.h"
-#include "src/lib/config_def.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"

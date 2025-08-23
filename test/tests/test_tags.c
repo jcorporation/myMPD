@@ -9,9 +9,10 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
+#include "src/lib/mpdclient.h"
 #include "src/mympd_client/tags.h"
 
-#include <mpd/client.h>
+
 
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>

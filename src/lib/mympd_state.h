@@ -11,7 +11,6 @@
 #ifndef MYMPD_STATE_H
 #define MYMPD_STATE_H
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/sds/sds.h"
 #include "src/lib/cache/cache_rax.h"
 #include "src/lib/config_def.h"

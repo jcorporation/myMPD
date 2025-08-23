@@ -9,6 +9,7 @@ https://github.com/jcorporation/myMPD/
 ### Changelog
 
 - Feat: Support string normalization option (MPD 0.25)
+- Feat: Support shared libmpdclient (v2.23.0)
 - Upd: libmympdclient 1.0.35
 - Upd: Rework album implementation to work with upstream libmpdclient
 - Upd: Mongoose 7.19

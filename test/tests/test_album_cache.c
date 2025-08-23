@@ -5,14 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/album.h"
-#include "src/lib/config_def.h"
-#include "utility.h"
-
 #include "dist/utest/utest.h"
-#include "src/lib/cache/cache_rax_album.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
+#include "src/lib/album.h"
+#include "src/lib/cache/cache_rax_album.h"
+#include "src/lib/config_def.h"
+#include "src/lib/mpdclient.h"
+#include "utility.h"
 
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>

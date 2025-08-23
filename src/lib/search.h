@@ -11,9 +11,9 @@
 #ifndef MYMPD_LIB_SEARCH_H
 #define MYMPD_LIB_SEARCH_H
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/album.h"
 #include "src/lib/fields.h"
+#include "src/lib/mpdclient.h"
 #include "src/lib/webradio.h"
 
 #include <stdbool.h>
