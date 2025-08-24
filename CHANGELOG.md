@@ -6,10 +6,12 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v22.1.0 (not yet released)
 
+This is the first release that supports a system-wide installed libmpdclient library. If the library was not found or is too old, the build process falls back to the embedded libmpdclient.
+
 ### Changelog
 
 - Feat: Support string normalization option (MPD 0.25)
-- Feat: Support shared libmpdclient (v2.24.0)
+- Feat: Support shared libmpdclient (v2.24.0) #874
 - Upd: Rework album implementation to work with upstream libmpdclient
 - Upd: Mongoose 7.19
 
