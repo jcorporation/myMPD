@@ -12,7 +12,7 @@
 #define MYMPD_MPDCLIENT_H
 
 #ifdef MYMPD_EMBEDDED_LIBMPDCLIENT
-    #include "dist/libmympdclient/include/mpd/client.h"
+    #include "dist/libmpdclient/include/mpd/client.h"
 #else
     #include <mpd/client.h>
 #endif
