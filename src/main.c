@@ -295,8 +295,13 @@ int main(int argc, char **argv) {
     #ifdef MYMPD_ENABLE_TSAN
         MYMPD_LOG_NOTICE(NULL, "Running with thread sanitizer");
     #endif
-    MYMPD_LOG_INFO(NULL, "Libmpdclient %i.%i.%i",
-            LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    #ifdef MYMPD_EMBEDDED_LIBMPDCLIENT
+        MYMPD_LOG_INFO(NULL, "Libmpdclient %i.%i.%i (embedded)",
+                LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    #else
+        MYMPD_LOG_INFO(NULL, "Libmpdclient %i.%i.%i",
+                LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    #endif
     MYMPD_LOG_INFO(NULL, "Mongoose %s", MG_VERSION);
     MYMPD_LOG_INFO(NULL, "%s", OPENSSL_VERSION_TEXT);
     #ifdef MYMPD_ENABLE_LUA
