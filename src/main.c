@@ -254,19 +254,20 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
+    // Read configuration
+    if (mympd_config_read(config) == false) {
+        MYMPD_LOG_EMERG(NULL, "Failure reading configuration");
+        goto cleanup;
+    }
+
     // Bootstrap option: Write config files and exit
     if (config->bootstrap == true) {
-        if (mympd_config_rm(config) == true &&
-            mympd_config_read(config) == true &&
-            create_certificates(config) == true)
-        {
-            MYMPD_LOG_NOTICE(NULL, "Created myMPD config\n");
+        if (create_certificates(config) == true) {
+            MYMPD_LOG_NOTICE(NULL, "Created myMPD config and certificate");
             rc = EXIT_SUCCESS;
         }
         goto cleanup;
     }
-
-    mympd_config_read(config);
 
     // Set loglevel
     #ifndef MYMPD_DEBUG

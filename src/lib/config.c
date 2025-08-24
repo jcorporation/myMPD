@@ -360,36 +360,6 @@ bool mympd_config_read(struct t_config *config) {
 }
 
 /**
- * Removes all files from the config directory
- * @param config pointer to config struct
- * @return bool true on success, else false
- */
-bool mympd_config_rm(struct t_config *config) {
-    errno = 0;
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_CONFIG);
-    DIR *config_dir = opendir(filepath);
-    if (config_dir == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Error opening directory \"%s\"", filepath);
-        MYMPD_LOG_ERRNO(NULL, errno);
-        FREE_SDS(filepath);
-        return false;
-    }
-
-    struct dirent *next_file;
-    while ((next_file = readdir(config_dir)) != NULL ) {
-        if (next_file->d_type != DT_REG) {
-            continue;
-        }
-        sdsclear(filepath);
-        filepath = sdscatfmt(filepath, "%S/%s/%s", config->workdir, DIR_WORK_CONFIG, next_file->d_name);
-        rm_file(filepath);
-    }
-    closedir(config_dir);
-    FREE_SDS(filepath);
-    return true;
-}
-
-/**
  * Reads the ca certificates
  * @param config Pointer to central config
  * @return true on success or disabled certificate checking, else false
