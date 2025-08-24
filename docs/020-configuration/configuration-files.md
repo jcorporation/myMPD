@@ -8,7 +8,7 @@ You can configure myMPD in different ways:
     1. Set environment variables as described below
     2. Start myMPD. myMPD grabs the environment variables and writes it's configuration files accordingly.
 
-2. Use `mymmpd-config`
+2. Use `mympd-config`
     1. Type `mympd-config` to configure myMPD with a ncurses based interface.
     2. Start myMPD.
 
