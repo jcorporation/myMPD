@@ -32,7 +32,7 @@ jobs:
           sudo npm install --location=global jsdoc
           ./build.sh doc _site
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
 
   # Deployment job
   deploy:
