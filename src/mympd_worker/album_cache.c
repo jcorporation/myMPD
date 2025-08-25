@@ -200,7 +200,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
                             album_copy_tags(album, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
                         }
                         if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)album, NULL) == 0) {
-                            MYMPD_LOG_ERROR(NULL, "Duplicate album id");
+                            MYMPD_LOG_ERROR(NULL, "Duplicate album id for Artist: \"%s\", album: \"%s\"", album_get_tag(album, MPD_TAG_ARTIST, 0), album_get_tag(album, MPD_TAG_ALBUM, 0));
                             album_free(album);
                         }
                         else {
@@ -310,8 +310,13 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
                         }
                         // insert album into cache
                         key = album_cache_get_key_from_album(key, album, &mympd_worker_state->config->albums);
-                        raxInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)album, NULL);
-                        album_count++;
+                        if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)album, NULL) == 0) {
+                            MYMPD_LOG_ERROR(NULL, "Duplicate album id for Artist: \"%s\", album: \"%s\"", artist, album_name);
+                            album_free(album);
+                        }
+                        else {
+                            album_count++;
+                        }
                         sdsclear(artist);
                         sdsclear(album_name);
                         sdsclear(group_tag);
