@@ -410,8 +410,8 @@ static bool check_expression_song(const struct mpd_song *song, struct t_mympd_mp
 }
 
 /**
- * Checks if the song matches the expression lists
- * @param song song to apply the expressions
+ * Checks if the album matches the expression lists
+ * @param album album to apply the expressions
  * @param tags tags to search
  * @param include_expr_list include expression list
  * @param exclude_expr_list exclude expression list

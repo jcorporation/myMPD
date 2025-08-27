@@ -72,8 +72,6 @@ static void print_usage(struct t_config *config, const char *cmd) {
 
 /**
  * Prints the command line usage information
- * @param config pointer to config struct
- * @param cmd argv[0] from main function
  */
 static void print_version(void) {
     printf("myMPD %s\n"

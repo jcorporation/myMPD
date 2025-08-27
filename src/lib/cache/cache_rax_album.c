@@ -346,9 +346,9 @@ sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct 
 }
 
 /**
- * Constructs the albumkey from song info
+ * Constructs the albumkey from album struct
  * @param albumkey already allocated sds string to set the key
- * @param song mpd song struct
+ * @param album t_album struct
  * @param album_config album configuration
  * @return pointer to changed albumkey
  */

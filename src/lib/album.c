@@ -29,19 +29,26 @@ static sds get_tag_value_string(const struct t_album *album, enum mpd_tag_type t
 static sds get_tag_values(const struct t_album *album, enum mpd_tag_type tag,
         sds tag_values, bool multi, unsigned *value_count);
 
+/**
+ * Structure representing an album tag value
+ */
 struct t_album_tag_value {
-    struct t_album_tag_value *next;
-    char *value;
+    struct t_album_tag_value *next;  //!< Next value
+    char *value;                     //!< The value
 };
 
+/**
+ * Structure representing an album.
+ * The values are inherited / copied from mpd songs.
+ */
 struct t_album {
-    char *uri;
-    struct t_album_tag_value tags[MPD_TAG_COUNT];
-    unsigned total_time;
-    unsigned disc_count;
-    unsigned song_count;
-    time_t last_modified;
-    time_t added;
+    char *uri;                                      //!< First song uri, used to fetch AlbumArt
+    struct t_album_tag_value tags[MPD_TAG_COUNT];   //!< Tag values (same struct as it is for mpd_song)
+    unsigned total_time;                            //!< Total disc playtime
+    unsigned disc_count;                            //!< Number of discs
+    unsigned song_count;                            //!< Number of songs
+    time_t last_modified;                           //!< Latest last-modified time of all songs in this album
+    time_t added;                                   //!< Earliest added time of all songs in this album
 };
 
 // Public functions
@@ -56,9 +63,11 @@ struct t_album *album_new(void) {
 
 /**
  * Creates and initializes a new struct for an album with defined first song uri
+ * @param uri First song uri
  * @return struct t_album* or NULL on error
  */
 struct t_album *album_new_uri(const char *uri) {
+    assert(uri);
     struct t_album *album = malloc(sizeof(struct t_album));
     album->uri = strdup(uri);
 
@@ -76,6 +85,8 @@ struct t_album *album_new_uri(const char *uri) {
 
 /**
  * Creates and initializes a new struct for an album with values copied from song
+ * @param song Song to create album from
+ * @param album_tags Tags to use
  * @return struct t_album* or NULL on error
  */
 struct t_album *album_new_from_song(const struct mpd_song *song, const struct t_mympd_mpd_tags *album_tags) {
@@ -397,7 +408,7 @@ bool album_copy_tags(struct t_album *album, enum mpd_tag_type src, enum mpd_tag_
 
 /**
  * Replaces the uri
- * @param album pointer to a mpd_song struct
+ * @param album pointer to album struct
  * @param uri new uri to set
  */
 void album_set_uri(struct t_album *album, const char *uri) {
@@ -409,7 +420,7 @@ void album_set_uri(struct t_album *album, const char *uri) {
 
 /**
  * Appends a comma separated list of tag values
- * @param song pointer to mpd song struct
+ * @param album pointer to album struct
  * @param tag mpd tag type to get values for
  * @param tag_values already allocated sds string to append the values
  * @return new sds pointer to tag_values
@@ -433,7 +444,7 @@ sds album_get_tag_value_string(const struct t_album *album, enum mpd_tag_type ta
 
 /**
  * Appends a a json string/array of tag values
- * @param song pointer to mpd song struct
+ * @param album pointer to album struct
  * @param tag mpd tag type to get values for
  * @param tag_values already allocated sds string to append the values
  * @return new sds pointer to tag_values
@@ -455,7 +466,7 @@ sds album_get_tag_values(const struct t_album *album, enum mpd_tag_type tag, sds
 
 /**
  * Appends a comma separated list of tag values
- * @param song pointer to mpd song struct
+ * @param album pointer to album struct
  * @param tag mpd tag type to get values for
  * @param tag_values already allocated sds string to append the values
  * @param value_count the number of values retrieved
@@ -480,7 +491,7 @@ static sds get_tag_value_string(const struct t_album *album, enum mpd_tag_type t
 /**
  * Appends a json string or array to tag_values.
  * Nothing is append if value is empty.
- * @param song pointer to mpd song struct
+ * @param album pointer to album struct
  * @param tag mpd tag type to get values for
  * @param tag_values already allocated sds string to append the values
  * @param value_count the number of values retrieved
