@@ -22,12 +22,12 @@ UTEST(album_cache, test_album_cache_get_key) {
         .mode = ALBUM_MODE_ADV
     };
     struct mpd_song *song = new_test_song();
-    sds key = album_cache_get_key(sdsempty(), song, &album_config);
+    sds key = album_cache_get_key_from_song(sdsempty(), song, &album_config);
     ASSERT_STREQ("3efe3b6f830dbcf2a14cd563be79ce37605ef493", key);
     sdsfree(key);
 
     song_append_tag(song, MPD_TAG_MUSICBRAINZ_ALBUMID, "0c50c04e-994b-4e63-b969-ea82e6b36d3b");
-    key = album_cache_get_key(sdsempty(), song, &album_config);
+    key = album_cache_get_key_from_song(sdsempty(), song, &album_config);
     ASSERT_STREQ("0c50c04e-994b-4e63-b969-ea82e6b36d3b", key);
     sdsfree(key);
 

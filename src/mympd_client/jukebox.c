@@ -313,7 +313,7 @@ static void jukebox_get_last_played_add(struct t_partition_state *partition_stat
     }
     else {
         // JUKEBOX_ADD_ALBUM
-        sds albumid = album_cache_get_key(sdsempty(), song, &partition_state->config->albums);
+        sds albumid = album_cache_get_key_from_song(sdsempty(), song, &partition_state->config->albums);
         list_push(queue_list, albumid, 0, tag_value, NULL);
         FREE_SDS(albumid);
     }

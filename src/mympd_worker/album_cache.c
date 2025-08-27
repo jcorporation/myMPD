@@ -171,7 +171,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
             struct mpd_song *song;
             while ((song = mpd_recv_song(mympd_worker_state->partition_state->conn)) != NULL) {
                 // construct the key
-                key = album_cache_get_key(key, song, &mympd_worker_state->config->albums);
+                key = album_cache_get_key_from_song(key, song, &mympd_worker_state->config->albums);
                 if (sdslen(key) > 0) {
                     void *data;
                     if (raxFind(album_cache, (unsigned char *)key, sdslen(key), &data) == 1) {

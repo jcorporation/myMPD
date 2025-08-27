@@ -298,7 +298,7 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
  * @param album_config album configuration
  * @return pointer to changed albumkey
  */
-sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct t_albums_config *album_config) {
+sds album_cache_get_key_from_song(sds albumkey, const struct mpd_song *song, const struct t_albums_config *album_config) {
     sdsclear(albumkey);
     if (album_config->mode == ALBUM_MODE_ADV) {
         // use MusicBrainz album id

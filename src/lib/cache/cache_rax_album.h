@@ -41,7 +41,7 @@ bool album_cache_remove(sds workdir);
 bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_albums_config *album_config);
 bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_mympd_mpd_tags *album_tags, const struct t_albums_config *album_config, bool free_data);
 
-sds album_cache_get_key(sds albumkey, const struct mpd_song *song, const struct t_albums_config *album_config);
+sds album_cache_get_key_from_song(sds albumkey, const struct mpd_song *song, const struct t_albums_config *album_config);
 sds album_cache_get_key_from_album(sds albumkey, const struct t_album *album, const struct t_albums_config *album_config);
 struct t_album *album_cache_get_album(struct t_cache *album_cache, sds key);
 void album_cache_free(struct t_cache *album_cache);
