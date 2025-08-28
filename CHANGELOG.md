@@ -14,6 +14,7 @@ This is the first release that supports a system-wide installed libmpdclient lib
 - Feat: Support shared libmpdclient (v2.24.0) #874
 - Upd: Rework album implementation to work with upstream libmpdclient
 - Upd: Mongoose 7.19
+- Upd: Bootstrap 5.3.8
 
 ***
 
