@@ -283,6 +283,10 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
     sds album_name = sdsempty();
     sds artist = sdsempty();
     sds group_tag = sdsempty();
+
+    const char *tag_name_album = mpd_tag_name(MPD_TAG_ALBUM);
+    const char *tag_name_albumartist = mpd_tag_name(tag_albumartist);
+    const char *tag_name_group = mpd_tag_name(mympd_worker_state->config->albums.group_tag);
     do {
         if (mpd_search_db_tags(mympd_worker_state->partition_state->conn, MPD_TAG_ALBUM) == false ||
             mpd_search_add_group_tag(mympd_worker_state->partition_state->conn, tag_albumartist) == false ||
@@ -296,7 +300,7 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
         if (mpd_search_commit(mympd_worker_state->partition_state->conn)) {
             struct mpd_pair *pair;
             while ((pair = mpd_recv_pair(mympd_worker_state->partition_state->conn)) != NULL) {
-                if (strcmp(pair->name, mpd_tag_name(MPD_TAG_ALBUM)) == 0) {
+                if (strcmp(pair->name, tag_name_album) == 0) {
                     album_name = sds_replace(album_name, pair->value);
                     if (sdslen(album_name) > 0 &&
                         sdslen(artist) > 0)
@@ -328,10 +332,10 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
                         skip_count++;
                     }
                 }
-                else if (strcmp(pair->name, mpd_tag_name(tag_albumartist)) == 0) {
+                else if (strcmp(pair->name, tag_name_albumartist) == 0) {
                     artist = sds_replace(artist, pair->value);
                 }
-                else if (strcmp(pair->name, mpd_tag_name(mympd_worker_state->config->albums.group_tag)) == 0) {
+                else if (strcmp(pair->name, tag_name_group) == 0) {
                     group_tag = sds_replace(group_tag, pair->value);
                 }
                 mpd_return_pair(mympd_worker_state->partition_state->conn, pair);
