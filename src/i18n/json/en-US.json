@@ -201,5 +201,7 @@
     "notice": "Notice",
     "info": "Informational",
     "debug": "Debug",
-    "newWindow": "New window"
+    "newWindow": "New window",
+    "DiscCount": "Number of discs",
+    "SongCount": "Number of songs"
 }

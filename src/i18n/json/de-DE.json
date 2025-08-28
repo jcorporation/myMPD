@@ -239,9 +239,9 @@
     "Disable single oneshot": "Beende Single Modus Oneshot",
     "Disabled": "Deaktiviert",
     "Disc": "CD",
+    "DiscCount": "Anzahl von Discs",
     "Discnum": "CD %{smart_count}",
     "Disconnected from myMPD": "Nicht mit myMPD verbunden",
-    "Discs": "Discs",
     "Disk cache": "Disk Cache",
     "Display tags in rows for small displays": "Zeige Tags in Zeilen für kleine Displays",
     "Do you really want to clear the playlist?": "Willst du wirklich die Wiedergabeliste \"%{playlist}\" leeren?",
@@ -925,6 +925,7 @@
     "Stream": "Stream",
     "Stream URI": "Stream URL",
     "Stream port": "Stream Port",
+    "String normalization": "String Normalization",
     "Successfully added random songs to queue": "Zufällige Lieder wurden zur Warteschlange hinzugefügt",
     "Successfully renamed playlist": "Wiedergabeliste erfolgreich umbenannt",
     "Sun": "So",
@@ -1085,8 +1086,8 @@
     "helpConnectionMPDPort": "TCP-Port auf dem MPD horcht.",
     "helpConnectionMusicDirectory": "Das MPD Musikverzeichnis. Der Wert 'Automatisch' funktioniert nur für lokale Unix-Socket Verbindungen.",
     "helpConnectionPlaylistDirectory": "Das MPD Wiedergabelistenverzeichnis. Der Wert 'Automatisch' funktioniert nur für lokale Unix-Socket Verbindungen.",
-    "helpConnectionTimeout": "Timeout für die MPD-Verbindung.",
     "helpConnectionStringnormalization": "Aktiviert alle String Normalization Optionen.",
+    "helpConnectionTimeout": "Timeout für die MPD-Verbindung.",
     "helpEndlessScroll": "Schaltet von seitenweiser Anzeige auf endloses Scrollen um.",
     "helpHomeWidgetRefresh": "Auf 0 setzen, um die Aktualisierung zu deaktivieren.",
     "helpJukeboxFilterExclude": "MPD Suchfilter, der Lieder exkludiert.",
@@ -1282,6 +1283,5 @@
     "userDefinedSticker": "Benutzerdefinierte Sticker",
     "votes": "Stimmen",
     "warn": "Warnung",
-    "wasapi": "Windows Audio Session API",
-    "String normalization": "String Normalization"
+    "wasapi": "Windows Audio Session API"
 }

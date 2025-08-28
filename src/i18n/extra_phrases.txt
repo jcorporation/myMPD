@@ -49,7 +49,6 @@ Disable repeat
 Disable single mode
 Disable single oneshot
 Disc
-Discs
 Display tags in rows for small displays
 Duplicate home icon
 Duplicate widget
@@ -254,6 +253,7 @@ sndio
 solaris
 Song change
 SongCount
+DiscCount
 Sortdesc
 Startup view
 state
