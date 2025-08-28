@@ -258,10 +258,11 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
     unsigned i = 0;
     int album_count = 0;
     int skip_count = 0;
+    enum mpd_tag_type tag_albumartist = mympd_worker_state->partition_state->mpd_state->tag_albumartist;
 
     //check for required tags
-    if (mympd_client_tag_exists(&mympd_worker_state->mpd_state->tags_mympd, MPD_TAG_ALBUM_ARTIST) == false ||
-        mympd_client_tag_exists(&mympd_worker_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) == false)
+    if (mympd_client_tag_exists(&mympd_worker_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) == false ||
+        mympd_client_tag_exists(&mympd_worker_state->mpd_state->tags_mympd, tag_albumartist) == false)
     {
         MYMPD_LOG_ERROR("default", "Required tags for album cache creation are not enabled: AlbumArtist, Album");
         return false;
@@ -284,7 +285,7 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
     sds group_tag = sdsempty();
     do {
         if (mpd_search_db_tags(mympd_worker_state->partition_state->conn, MPD_TAG_ALBUM) == false ||
-            mpd_search_add_group_tag(mympd_worker_state->partition_state->conn, MPD_TAG_ALBUM_ARTIST) == false ||
+            mpd_search_add_group_tag(mympd_worker_state->partition_state->conn, tag_albumartist) == false ||
             mympd_client_add_search_group_param(mympd_worker_state->partition_state->conn, mympd_worker_state->config->albums.group_tag) == false ||
             mympd_client_add_search_window_param_mpd_025(mympd_worker_state->partition_state, start, end) == false)
         {
@@ -327,7 +328,7 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
                         skip_count++;
                     }
                 }
-                else if (strcmp(pair->name, mpd_tag_name(MPD_TAG_ALBUM_ARTIST)) == 0) {
+                else if (strcmp(pair->name, mpd_tag_name(tag_albumartist)) == 0) {
                     artist = sds_replace(artist, pair->value);
                 }
                 else if (strcmp(pair->name, mpd_tag_name(mympd_worker_state->config->albums.group_tag)) == 0) {
