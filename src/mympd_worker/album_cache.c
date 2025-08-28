@@ -178,7 +178,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
                         // existing album: append song data
                         struct t_album *album = (struct t_album*) data;
                         // append tags
-                        album_append_tags(album, song, &mympd_worker_state->partition_state->mpd_state->tags_mympd);
+                        album_append_tags(album, song, &mympd_worker_state->mpd_state->tags_album);
                         // set album data
                         album_set_last_modified(album, mpd_song_get_last_modified(song));  // use latest last_modified
                         album_set_added(album, mpd_song_get_added(song));                  // use oldest added
