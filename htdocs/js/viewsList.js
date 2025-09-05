@@ -177,7 +177,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
             const els = [];
             els.push(elCreateEmpty('img', {"loading": "lazy", "src": obj.result.data[i].Thumbnail}));
             if (badgeText !== null) {
-                els.push(elCreateText('span', {"class": ["badge", "text-bg-secondary", "listThumbnailBadge"]}, badgeText));
+                els.push(elCreateText('span', {"class": ["badge", "text-bg-secondary", "listThumbnailBadge"], 'data-col': 'Pos'}, badgeText));
             }
             row.appendChild(
                 elCreateNodes('div', {"class": ["col", "list-image"]}, els)
