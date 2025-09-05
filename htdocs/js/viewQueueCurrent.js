@@ -95,14 +95,9 @@ function parseQueue(obj) {
 
         updateTable(obj, app.id, function(row, data) {
             parseQueueUpdate(row, data);
+            parseQueueBody(row, data);
         }, function(row, data) {
             tableRow(row, data, app.id, colspan, smallWidth, actionTd);
-            if (currentState.currentSongId === data.id) {
-                setPlayingRow(row);
-                if (currentState.state === 'play') {
-                    setQueueCounter(row, getCounterText());
-                }
-            }
         });
 
         if (obj.result.totalEntities > 0) {
@@ -121,17 +116,17 @@ function parseQueue(obj) {
     if (settings['view' + app.id].mode === 'grid') {
         updateGrid(obj, app.id, function(card, data) {
             parseQueueUpdate(card, data);
+            parseQueueBody(card, data);
         }, function(card, data) {
             createGridBody(card, data, app.id);
-            parseQueueBody(card, data);
         });
         return;
     }
     updateList(obj, app.id, function(card, data) {
         parseQueueUpdate(card, data);
+        parseQueueBody(card, data);
     }, function(card, data) {
         createListBody(card, data, app.id);
-        parseQueueBody(card, data);
     });
 }
 
@@ -143,7 +138,7 @@ function parseQueue(obj) {
  */
 function parseQueueBody(card, data) {
     if (currentState.currentSongId === data.id) {
-        setPlayingRow();
+        setPlayingRow(card);
         if (currentState.state === 'play') {
             setQueueCounter(card, getCounterText());
         }
