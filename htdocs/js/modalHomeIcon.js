@@ -78,24 +78,8 @@ function initModalHomeIcon() {
     }, false);
 
     const modalHomeIconLigatureSearch = elGetById('modalHomeIconLigatureSearch');
-    modalHomeIconLigatureSearch.addEventListener('keydown', function(event) {
-        event.stopPropagation();
-        if (event.key === 'Enter') {
-            event.preventDefault();
-        }
-    }, false);
-
-    modalHomeIconLigatureSearch.addEventListener('keyup', function(event) {
-        if (event.key === 'Enter') {
-            const sel = document.querySelector('#modalHomeIconLigatureList .active');
-            if (sel !== null) {
-                selectHomeIconLigature(sel);
-                uiElements.modalHomeIconLigatureDropdown.hide();
-            }
-        }
-        else {
-            filterHomeIconLigatures();
-        }
+    modalHomeIconLigatureSearch.addEventListener('keyup', function() {
+        filterHomeIconLigatures();
     }, false);
 }
 
