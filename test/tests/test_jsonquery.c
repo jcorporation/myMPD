@@ -12,7 +12,7 @@
 #include "src/lib/list.h"
 #include "src/lib/sds_extras.h"
 
-UTEST(jsonrpc, test_json_get_bool) {
+UTEST(jsonquery, test_json_get_bool) {
     bool result;
     //valid
     sds data = sdsnew("{\"key1\": true}");
@@ -24,7 +24,7 @@ UTEST(jsonrpc, test_json_get_bool) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_int) {
+UTEST(jsonquery, test_json_get_int) {
     int result;
     //valid
     sds data = sdsnew("{\"key1\": 10}");
@@ -42,7 +42,7 @@ UTEST(jsonrpc, test_json_get_int) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_int_max) {
+UTEST(jsonquery, test_json_get_int_max) {
     int result;
     //valid
     sds data = sdsnew("{\"key1\": 10}");
@@ -54,7 +54,7 @@ UTEST(jsonrpc, test_json_get_int_max) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_int64) {
+UTEST(jsonquery, test_json_get_int64) {
     int64_t result;
     //valid
     sds data = sdsnew("{\"key1\": 10}");
@@ -72,7 +72,7 @@ UTEST(jsonrpc, test_json_get_int64) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_int64_max) {
+UTEST(jsonquery, test_json_get_int64_max) {
     int64_t result;
     //valid
     sds data = sdsnew("{\"key1\": 10}");
@@ -84,7 +84,7 @@ UTEST(jsonrpc, test_json_get_int64_max) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_uint) {
+UTEST(jsonquery, test_json_get_uint) {
     unsigned result;
     //valid
     sds data = sdsnew("{\"key1\": 10}");
@@ -102,7 +102,7 @@ UTEST(jsonrpc, test_json_get_uint) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_uint_max) {
+UTEST(jsonquery, test_json_get_uint_max) {
     unsigned result;
     //valid
     sds data = sdsnew("{\"key1\": 10}");
@@ -117,7 +117,7 @@ UTEST(jsonrpc, test_json_get_uint_max) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_string) {
+UTEST(jsonquery, test_json_get_string) {
     sds result = NULL;
     //valid
     sds data = sdsnew("{\"key1\": \"blafblasdf\"}");
@@ -146,7 +146,7 @@ UTEST(jsonrpc, test_json_get_string) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_string_max) {
+UTEST(jsonquery, test_json_get_string_max) {
     sds result = NULL;
     //valid
     sds data = sdsnew("{\"key1\": \"blafblasdf\"}");
@@ -155,7 +155,7 @@ UTEST(jsonrpc, test_json_get_string_max) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_string_cmp) {
+UTEST(jsonquery, test_json_get_string_cmp) {
     sds result = NULL;
     //valid
     sds data = sdsnew("{\"key1\": \"tocompare\"}");
@@ -169,7 +169,7 @@ UTEST(jsonrpc, test_json_get_string_cmp) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_json_get_array_string) {
+UTEST(jsonquery, test_json_get_array_string) {
     struct t_list l;
     list_init(&l);
     sds data = sdsnew("{\"key1\": [\"string1\", \"string2\"]}");
@@ -186,7 +186,7 @@ UTEST(jsonrpc, test_json_get_array_string) {
     list_clear(&l);
 }
 
-UTEST(jsonrpc, test_json_get_array_llong) {
+UTEST(jsonquery, test_json_get_array_llong) {
     struct t_list l;
     list_init(&l);
     sds data = sdsnew("{\"key1\": [123, 789]}");
@@ -204,7 +204,7 @@ UTEST(jsonrpc, test_json_get_array_llong) {
     list_clear(&l);
 }
 
-UTEST(jsonrpc, test_json_get_object_string) {
+UTEST(jsonquery, test_json_get_object_string) {
     struct t_list l;
     list_init(&l);
     //valid
@@ -221,7 +221,7 @@ UTEST(jsonrpc, test_json_get_object_string) {
     list_clear(&l);
 }
 
-UTEST(jsonrpc, test_json_get_tags) {
+UTEST(jsonquery, test_json_get_tags) {
     struct t_fields tagcols;
     fields_reset(&tagcols);
     sds data = sdsnew("{\"params\": {\"fields\": [\"Artist\", \"Duration\"]}}");
@@ -235,7 +235,7 @@ UTEST(jsonrpc, test_json_get_tags) {
     FREE_SDS(data);
 }
 
-UTEST(jsonrpc, test_list_to_json_array) {
+UTEST(jsonquery, test_list_to_json_array) {
     struct t_list l;
     list_init(&l);
     list_push(&l, "key1", 0, NULL, NULL);
@@ -247,7 +247,7 @@ UTEST(jsonrpc, test_list_to_json_array) {
     FREE_SDS(s);
 }
 
-UTEST(jsonrpc, test_json_get_fields_as_string) {
+UTEST(jsonquery, test_json_get_fields_as_string) {
     struct t_list l;
     list_init(&l);
     struct t_json_parse_error error;

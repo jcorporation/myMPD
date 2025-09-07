@@ -87,7 +87,8 @@ set(TEST_SOURCES
   tests/test_filehandler.c
   tests/test_http_client.c
   tests/test_http_client_cache.c
-  tests/test_jsonrpc.c
+  tests/test_jsonprint.c
+  tests/test_jsonquery.c
   tests/test_list.c
   tests/test_mimetype.c
   tests/test_mympd_queue.c
@@ -176,7 +177,8 @@ list(APPEND test_categories
   "env"
   "filehandler"
   "http_client"
-  "jsonrpc"
+  "jsonprint"
+  "jsonquery"
   "list"
   "m3u"
   "mimetype"
