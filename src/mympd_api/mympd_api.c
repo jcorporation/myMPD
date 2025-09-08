@@ -117,6 +117,7 @@ void *mympd_api_loop(void *arg_config) {
     mympd_timer_set(mympd_state->partition_state->timer_fd_mpd_connect, 0, 5);
 
     // thread loop
+    MYMPD_LOG_DEBUG(NULL, "mympd_api thread is ready");
     while (s_signal_received == 0) {
         populate_pfds(mympd_state);
         errno = 0;

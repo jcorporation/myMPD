@@ -183,11 +183,12 @@ void *webserver_loop(void *arg_mgr) {
         MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
         MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
     }
+    MYMPD_LOG_DEBUG(NULL, "Webserver thread is ready");
     while (s_signal_received == 0) {
         //webserver polling
         mg_mgr_poll(mgr, -1);
     }
-    MYMPD_LOG_DEBUG(NULL, "Stopping webserver thread");
+    MYMPD_LOG_DEBUG(NULL, "Webserver thread stopped");
     FREE_SDS(thread_logname);
     return NULL;
 }
