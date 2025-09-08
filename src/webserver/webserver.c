@@ -178,7 +178,12 @@ void *webserver_loop(void *arg_mgr) {
     //mg_log_set(4);
     mg_log_set_fn(mongoose_log, NULL);
     // Initialize the wakeup scheme
-    mg_wakeup_init(mgr);
+    if (mg_wakeup_init(mgr) == false) {
+        MYMPD_LOG_EMERG(NULL, "Failure initializing webserver wakeup scheme");
+        s_signal_received = 1;
+        FREE_SDS(thread_logname);
+        return NULL;
+    }
     if (mg_user_data->config->ssl == true) {
         MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
         MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
