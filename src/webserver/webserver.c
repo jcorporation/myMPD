@@ -177,7 +177,7 @@ void *webserver_loop(void *arg_mgr) {
     //debug logging
     //mg_log_set(4);
     mg_log_set_fn(mongoose_log, NULL);
-    // Initialise wakeup socket pair
+    // Initialize the wakeup scheme
     mg_wakeup_init(mgr);
     if (mg_user_data->config->ssl == true) {
         MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
