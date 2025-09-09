@@ -12,11 +12,24 @@
 
 UTEST(jsonprint, test_tojson_float) {
     // nan handling
-    float f = strtof("abc", NULL);
+    float f = strtof("nan", NULL);
     sds s = sdsempty();
     s = tojson_float(s, "float", f, false);
     ASSERT_STREQ("\"float\":0.00", s);
 
+    // inf handling
+    f = strtof("inf", NULL);
+    sdsclear(s);
+    s = tojson_float(s, "float", f, false);
+    ASSERT_STREQ("\"float\":0.00", s);
+
+    // string
+    f = strtof("abc", NULL);
+    sdsclear(s);
+    s = tojson_float(s, "float", f, false);
+    ASSERT_STREQ("\"float\":0.00", s);
+
+    // floating point number
     f = strtof("1.234", NULL);
     sdsclear(s);
     s = tojson_float(s, "float", f, false);

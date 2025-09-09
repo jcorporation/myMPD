@@ -175,10 +175,14 @@ sds tojson_time(sds buffer, const char *key, time_t value, bool comma) {
  * @return pointer to buffer
  */
 sds tojson_float(sds buffer, const char *key, float value, bool comma) {
-    if (isnan(value)) {
-        value = 0.0F;
+    if (isfinite(value) == false ||
+        isnan(value) == true)
+    {
+        buffer = sdscatprintf(buffer, "\"%s\":null", key);
     }
-    buffer = sdscatprintf(buffer, "\"%s\":%.2f", key, value);
+    else {
+        buffer = sdscatprintf(buffer, "\"%s\":%.2f", key, value);
+    }
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
