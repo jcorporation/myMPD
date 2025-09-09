@@ -15,13 +15,13 @@ UTEST(jsonprint, test_tojson_float) {
     float f = strtof("nan", NULL);
     sds s = sdsempty();
     s = tojson_float(s, "float", f, false);
-    ASSERT_STREQ("\"float\":0.00", s);
+    ASSERT_STREQ("\"float\":null", s);
 
     // inf handling
     f = strtof("inf", NULL);
     sdsclear(s);
     s = tojson_float(s, "float", f, false);
-    ASSERT_STREQ("\"float\":0.00", s);
+    ASSERT_STREQ("\"float\":null", s);
 
     // string
     f = strtof("abc", NULL);
