@@ -593,6 +593,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_OPEN: {
             if (nc->is_listening) {
+                MYMPD_LOG_DEBUG(NULL, "Listening connection opened");
                 nc->fn_data = NULL;
                 webserver_queue->mg_conn_id = nc->id;
                 webserver_queue->mg_mgr = nc->mgr;
