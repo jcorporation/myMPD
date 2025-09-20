@@ -366,22 +366,34 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
  * @returns {void}
  */
 function tableRow(row, data, list, colspan, smallWidth, actionTd) {
+    const fieldCount = settings['view' + list].fields.length;
     if (smallWidth === true) {
         const td = elCreateEmpty('td', {"colspan": colspan});
-        for (let c = 0, d = settings['view' + list].fields.length; c < d; c++) {
+        if (fieldCount === 1) {
             td.appendChild(
                 elCreateNodes('div', {"class": ["row"]}, [
-                    elCreateTextTn('small', {"class": ["col-3"]}, settings['view' + list].fields[c]),
-                    elCreateNode('span', {"data-col": settings['view' + list].fields[c], "class": ["col-9"]},
-                        printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]], data)
+                    elCreateNode('span', {"data-col": settings['view' + list].fields[0], "class": ["col-12"]},
+                        printValue(settings['view' + list].fields[0], data[settings['view' + list].fields[0]], data)
                     )
                 ])
             );
         }
+        else {
+            for (let c = 0; c < fieldCount; c++) {
+                td.appendChild(
+                    elCreateNodes('div', {"class": ["row"]}, [
+                        elCreateTextTn('small', {"class": ["col-3"]}, settings['view' + list].fields[c]),
+                        elCreateNode('span', {"data-col": settings['view' + list].fields[c], "class": ["col-9"]},
+                            printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]], data)
+                        )
+                    ])
+                );
+            }
+        }
         row.appendChild(td);
     }
     else {
-        for (let c = 0, d = settings['view' + list].fields.length; c < d; c++) {
+        for (let c = 0; c < fieldCount; c++) {
             row.appendChild(
                 elCreateNode('td', {"data-col": settings['view' + list].fields[c]},
                     printValue(settings['view' + list].fields[c], data[settings['view' + list].fields[c]], data)
