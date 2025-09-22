@@ -31,7 +31,8 @@
 #include <string.h>
 
 // private definitions
-
+static sds get_sort_key_album(sds key, enum sort_by_type sort_by,
+        enum mpd_tag_type sort_tag, const struct t_album *album);
 static bool check_album_sort_tag(enum sort_by_type sort_by, enum mpd_tag_type sort_tag,
         struct t_albums_config *album_config);
 
@@ -247,11 +248,11 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
     raxSeek(&iter, "^", NULL, 0);
     sds key = sdsempty();
     while (raxNext(&iter)) {
-        struct mpd_song *album = (struct mpd_song *)iter.data;
+        struct t_album *album = (struct t_album *)iter.data;
         if (expr_list->length == 0 ||
-            search_expression_song(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
+            search_expression_album(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
-            key = get_sort_key(key, sort_by, sort_tag, album);
+            key = get_sort_key_album(key, sort_by, sort_tag, album);
             rax_insert_no_dup(albums, key, iter.data);
             sdsclear(key);
         }
@@ -320,6 +321,36 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
 }
 
 // private functions
+
+/**
+ * Gets an alphanumeric string for sorting
+ * @param key already allocated sds string to append
+ * @param sort_by enum sort_by
+ * @param sort_tag mpd tag to sort by
+ * @param album pointer to t_album
+ * @return pointer to key
+ */
+static sds get_sort_key_album(sds key, enum sort_by_type sort_by, enum mpd_tag_type sort_tag, const struct t_album *album) {
+    if (sort_by == SORT_BY_LAST_MODIFIED) {
+        key = sds_pad_int((int64_t)album_get_last_modified(album), key);
+    }
+    else if (sort_by == SORT_BY_ADDED) {
+        key = sds_pad_int((int64_t)album_get_added(album), key);
+    }
+    else if (is_numeric_tag(sort_tag) == true) {
+        key = album_get_tag_value_padded(album, sort_tag, '0', PADDING_LENGTH, key);
+    }
+    else if (sort_tag > MPD_TAG_UNKNOWN) {
+        key = album_get_tag_value_string(album, sort_tag, key);
+        if (sdslen(key) == 0) {
+            key = sdscatlen(key, "zzzzzzzzzz", 10);
+        }
+    }
+    key = sdscatfmt(key, "::%s", album_get_uri(album));
+    sds_utf8_tolower(key);
+    return key;
+}
+
 
 /**
  * Validates the album sort tag

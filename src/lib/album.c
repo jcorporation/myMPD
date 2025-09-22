@@ -268,7 +268,9 @@ void album_set_last_modified(struct t_album *album, time_t last_modified) {
  * @param added added timestamp to set
  */
 void album_set_added(struct t_album *album, time_t added) {
-    if (album->added > added) {
+    if (album->added > added ||
+        album->added == 0)
+    {
         album->added = added;
     }
 }
@@ -458,6 +460,32 @@ sds album_get_tag_values(const struct t_album *album, enum mpd_tag_type tag, sds
         tag_values = multi == true
             ? sdscatlen(tag_values, "[]", 2)
             : sdscatlen(tag_values, "\"\"", 2);
+    }
+    return tag_values;
+}
+
+/**
+ * Get's a tag value from mpd song and pads it
+ * @param album Album struct
+ * @param tag mpd tag type
+ * @param pad padding char
+ * @param len length to pad
+ * @param tag_values already allocated sds string to append
+ * @return sds new sds pointer to tag_values
+ */
+sds album_get_tag_value_padded(const struct t_album *album, enum mpd_tag_type tag, const char pad, size_t len, sds tag_values) {
+    const char *value = album_get_tag(album, tag, 0);
+    size_t value_len = value == NULL
+        ? 0
+        : strlen(value);
+    if (value_len < len) {
+        len = len - value_len;
+        for (size_t i = 0; i < len; i++) {
+            tag_values = sdscatfmt(tag_values, "%c", pad);
+        }
+    }
+    if (value != NULL) {
+        tag_values = sdscatlen(tag_values, value, value_len);
     }
     return tag_values;
 }
