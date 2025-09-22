@@ -5,7 +5,7 @@
 */
 
 /*! \file
- * \brief Album cache
+ * \brief Album implementation
  */
 
 #include "compile_time.h"
