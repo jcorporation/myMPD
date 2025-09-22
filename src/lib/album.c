@@ -465,7 +465,7 @@ sds album_get_tag_values(const struct t_album *album, enum mpd_tag_type tag, sds
 }
 
 /**
- * Get's a tag value from mpd song and pads it
+ * Get's a tag value from an album and pads it
  * @param album Album struct
  * @param tag mpd tag type
  * @param pad padding char
