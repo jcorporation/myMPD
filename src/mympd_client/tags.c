@@ -376,7 +376,7 @@ sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struc
  * @param buffer already allocated sds string to append the values
  * @param mpd_state pointer to mpd_state
  * @param tagcols pointer to t_tags struct (tags to retrieve)
- * @param album pointer to a mpd_song struct representing the album
+ * @param album pointer to album
  * @return new sds pointer to buffer
  */
 sds print_album_tags(sds buffer, const struct t_mpd_state *mpd_state, const struct t_mympd_mpd_tags *tagcols,
