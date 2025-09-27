@@ -131,7 +131,7 @@ sds mympd_worker_list_random(struct t_mympd_worker_state *mympd_worker_state, sd
             while (current != NULL) {
                 buffer = sdscat(buffer, "{\"Type\":\"album\",");
                 struct t_album *album = (struct t_album *)current->user_data;
-                buffer = print_album_tags(buffer, mympd_worker_state->partition_state->mpd_state,
+                buffer = print_album_tags(buffer, &mympd_worker_state->partition_state->mpd_state->config->albums,
                     &mympd_worker_state->partition_state->mpd_state->tags_album, album);
                 buffer = sdscatlen(buffer, "}", 1);
                 current = current->next;

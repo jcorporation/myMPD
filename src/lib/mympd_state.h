@@ -16,21 +16,11 @@
 #include "src/lib/config_def.h"
 #include "src/lib/event.h"
 #include "src/lib/fields.h"
+#include "src/lib/jukebox.h"
 #include "src/lib/list.h"
 #include "src/lib/webradio.h"
 
 #include <time.h>
-
-/**
- * Jukebox state
- */
-enum jukebox_modes {
-    JUKEBOX_OFF,        //!< jukebox is disabled
-    JUKEBOX_ADD_SONG,   //!< jukebox adds single songs
-    JUKEBOX_ADD_ALBUM,  //!< jukebox adds whole albums
-    JUKEBOX_SCRIPT,     //!< jukebox queue is filled by a script
-    JUKEBOX_UNKNOWN     //!< jukebox mode is unknown
-};
 
 /**
  * MPD connection states

@@ -66,6 +66,7 @@ target_sources(mympd
     lib/json/json_print.c
     lib/json/json_query.c
     lib/json/json_rpc.c
+    lib/jukebox.c
     lib/last_played.c
     lib/list.c
     lib/log.c

@@ -15,7 +15,28 @@
 
 #include <stdbool.h>
 
+/**
+ * An opaque representation for an album in myMPD's album cache.
+ * Use the functions provided by this header to access the object's
+ * attributes.
+ */
 struct t_album;
+
+/**
+ * Modes for the album cache
+ */
+enum album_modes {
+    ALBUM_MODE_SIMPLE = 0,
+    ALBUM_MODE_ADV
+};
+
+/**
+ * Holds config for the album cache
+ */
+struct t_albums_config {
+    enum album_modes mode;        //!< enable advanced albums
+    enum mpd_tag_type group_tag;  //!< additional group tag for albums
+};
 
 struct t_album *album_new(void);
 struct t_album *album_new_uri(const char *uri);
@@ -44,6 +65,8 @@ bool album_copy_tags(struct t_album *song, enum mpd_tag_type src, enum mpd_tag_t
 void album_set_uri(struct t_album *album, const char *uri);
 sds album_get_tag_value_string(const struct t_album *album, enum mpd_tag_type tag, sds tag_values);
 sds album_get_tag_values(const struct t_album *album, enum mpd_tag_type tag, sds tag_values);
-sds album_get_tag_value_padded(const struct t_album *album, enum mpd_tag_type tag, const char pad, size_t len, sds tag_values);
+sds album_get_tag_value_padded(const struct t_album *album, enum mpd_tag_type tag, char pad, size_t len, sds tag_values);
+sds print_album_tags(sds buffer, const struct t_albums_config *album_config, const struct t_mympd_mpd_tags *tagcols,
+        const struct t_album *album);
 
 #endif

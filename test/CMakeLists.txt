@@ -27,6 +27,7 @@ set(TEST_SOURCES
   ../src/lib/json/json_print.c
   ../src/lib/json/json_query.c
   ../src/lib/json/json_rpc.c
+  ../src/lib/jukebox.c
   ../src/lib/last_played.c
   ../src/lib/list.c
   ../src/lib/log.c

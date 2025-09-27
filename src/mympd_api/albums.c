@@ -148,7 +148,7 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_uint(buffer, "offset", 0, true);
     buffer = tojson_uint(buffer, "limit", MPD_RESULTS_MAX, true);
     buffer = tojson_sds(buffer, "AlbumId", albumid, true);
-    buffer = print_album_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_album, mpd_album);
+    buffer = print_album_tags(buffer, &partition_state->mpd_state->config->albums, &partition_state->mpd_state->tags_album, mpd_album);
     buffer = sdscat(buffer, ",\"lastPlayedSong\":{");
     buffer = tojson_time(buffer, "time", last_played_max, true);
     buffer = tojson_uint(buffer, "pos", last_played_song_pos, true);
@@ -286,7 +286,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
             }
             struct t_album *album = (struct t_album *)iter.data;
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
-            buffer = print_album_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, album);
+            buffer = print_album_tags(buffer, &partition_state->mpd_state->config->albums, &tagcols->mpd_tags, album);
             buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_char(buffer, "FirstSongUri", album_get_uri(album), false);
             if (print_stickers == true) {

@@ -12,6 +12,7 @@
 #include "src/lib/album.h"
 
 #include "src/lib/convert.h"
+#include "src/lib/json/json_print.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
@@ -473,7 +474,7 @@ sds album_get_tag_values(const struct t_album *album, enum mpd_tag_type tag, sds
  * @param tag_values already allocated sds string to append
  * @return sds new sds pointer to tag_values
  */
-sds album_get_tag_value_padded(const struct t_album *album, enum mpd_tag_type tag, const char pad, size_t len, sds tag_values) {
+sds album_get_tag_value_padded(const struct t_album *album, enum mpd_tag_type tag, char pad, size_t len, sds tag_values) {
     const char *value = album_get_tag(album, tag, 0);
     size_t value_len = value == NULL
         ? 0
@@ -488,6 +489,34 @@ sds album_get_tag_value_padded(const struct t_album *album, enum mpd_tag_type ta
         tag_values = sdscatlen(tag_values, value, value_len);
     }
     return tag_values;
+}
+
+/**
+ * Prints the tag values for an album as json string
+ * @param buffer already allocated sds string to append the values
+ * @param album_config Album configuration
+ * @param tagcols pointer to t_tags struct (tags to retrieve)
+ * @param album pointer to album
+ * @return new sds pointer to buffer
+ */
+sds print_album_tags(sds buffer, const struct t_albums_config *album_config, const struct t_mympd_mpd_tags *tagcols,
+        const struct t_album *album)
+{
+    sds albumid = album_cache_get_key_from_album(sdsempty(), album, album_config);
+    buffer = tojson_sds(buffer, "AlbumId", albumid, true);
+    FREE_SDS(albumid);
+    for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
+        buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
+        buffer = album_get_tag_values(album, tagcols->tags[tagnr], buffer);
+        buffer = sdscatlen(buffer, ",", 1);
+    }
+    buffer = tojson_time(buffer, "Last-Modified", album_get_last_modified(album), true);
+    buffer = tojson_time(buffer, "Added", album_get_added(album), true);
+    buffer = tojson_char(buffer, "uri", album_get_uri(album), true);
+    buffer = tojson_uint(buffer, "DiscCount", album_get_disc_count(album), true);
+    buffer = tojson_uint(buffer, "TotalTime", album_get_total_time(album), true);
+    buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), false);
+    return buffer;
 }
 
 // Private functions
