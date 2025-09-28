@@ -14,7 +14,7 @@ Some notes on myMPD security.
 myMPD should not be directly accessible from the internet. It is designed to run inside a relatively secure intranet.
 
 - myMPD publishes several [directories](060-references/published-directories.md)
-- the pin setting only secures some [api calls](060-references/api/methods.md)
+- The pin setting only secures some [api calls](060-references/api/methods.md)
 
 If you want to access myMPD from the internet, you should add a reverse proxy with authentication and ssl encryption in front of it.
 
@@ -28,9 +28,9 @@ Nevertheless myMPD is designed with security in mind.
 - The webserver limits the number of connections and request sizes.
 - The C backend is compiled with hardening flags and is regularly checked with static code analyzers.
 - The debug and development builds are linked with libasan to detect memory errors.
-- myMPD uses a fork of [Simple Dynamic Strings](https://github.com/jcorporation/sds) to avoid error prone c string handling functions.
+- myMPD uses a fork of [Simple Dynamic Strings](https://github.com/jcorporation/sds) to avoid error prone C string handling functions.
 - Files are served with a strict [Content Security](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) and [Trusted Types](https://developer.mozilla.org/en-US/docs/Web/API/Trusted_Types_API) Policy to prevent XSS attacks.
-- The javascript frontend avoids parsing of strings to dom nodes.
+- The JavaScript frontend avoids parsing of strings to DOM nodes.
 - All included dependencies are updated regularly.
 
 ## Reporting
