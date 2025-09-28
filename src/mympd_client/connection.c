@@ -12,6 +12,7 @@
 #include "src/mympd_client/connection.h"
 
 #include "src/lib/api.h"
+#include "src/lib/event.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
@@ -180,6 +181,10 @@ void mympd_client_disconnect_silent(struct t_partition_state *partition_state) {
     }
     partition_state->conn = NULL;
     partition_state->conn_state = MPD_DISCONNECTED;
+    if (partition_state->waiting_events & PFD_TYPE_PARTITION) {
+        MYMPD_LOG_WARN(partition_state->name, "Clear pending mpd idle events");
+        partition_state->waiting_events &= ~(enum pfd_type)PFD_TYPE_PARTITION;
+    }
 }
 
 /**
