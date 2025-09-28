@@ -243,6 +243,7 @@ void mympd_mpd_state_copy(struct t_mpd_state *src, struct t_mpd_state *dst) {
     dst->mpd_port = src->mpd_port;
     dst->mpd_pass = sdsdup(src->mpd_pass);
     dst->mpd_binarylimit = src->mpd_binarylimit;
+    dst->mpd_stringnormalization = src->mpd_stringnormalization;
     dst->music_directory_value = sdsdup(src->music_directory_value);
     dst->playlist_directory_value = sdsdup(src->playlist_directory_value);
     dst->tag_list = sdsdup( src->tag_list);
