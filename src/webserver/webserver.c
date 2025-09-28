@@ -181,8 +181,10 @@ void *webserver_loop(void *arg_mgr) {
     set_threadname(thread_logname);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     MYMPD_LOG_DEBUG(NULL, "Webserver thread is ready");
+    // Initially read the queue
+    read_queue(mgr);
+    // Webserver polling
     while (s_signal_received == 0) {
-        //webserver polling
         mg_mgr_poll(mgr, -1);
     }
     MYMPD_LOG_DEBUG(NULL, "Webserver thread stopped");
@@ -224,7 +226,8 @@ static bool read_certs(struct t_mg_user_data *mg_user_data, struct t_config *con
 }
 
 /**
- * Reads and processes all messages from the queue
+ * Reads and processes all messages from the webserver queue.
+ * This function does not block and returns immediately if the queue is empty.
  * @param mgr pointer to mongoose mgr
  */
 static void read_queue(struct mg_mgr *mgr) {
