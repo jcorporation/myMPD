@@ -151,7 +151,7 @@ target_link_libraries(unit_test
 )
 
 if(MYMPD_EMBEDDED_LIBMPDCLIENT)
-  target_link_libraries(unit_test mympdclient)
+  target_link_libraries(unit_test mpdclient)
 else()
   target_link_libraries(unit_test ${LIBMPDCLIENT_LIBRARIES})
 endif()
