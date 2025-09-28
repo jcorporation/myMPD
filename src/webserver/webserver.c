@@ -105,7 +105,10 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
         return false;
     }
 
-    //init monogoose mgr
+    //init mongoose mgr
+    mg_log_set(1);    //set mongoose loglevel to error
+    //mg_log_set(4);  //set mongoose loglevel to debug
+    mg_log_set_fn(mongoose_log, NULL);
     mg_mgr_init(mgr);
     mgr->userdata = mg_user_data;
     mgr->product_name = "myMPD "MYMPD_VERSION;
@@ -141,12 +144,19 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
             return false;
         }
         MYMPD_LOG_NOTICE(NULL, "Listening on https://%s:%d", config->http_host, config->ssl_port);
+        MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
+        MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
     }
     else if (config->http == false) {
         MYMPD_LOG_ERROR(NULL, "Not listening on any port.");
         return false;
     }
     MYMPD_LOG_NOTICE(NULL, "Serving files from \"%s\"", MYMPD_DOC_ROOT);
+    // Initialize the wakeup scheme
+    if (mg_wakeup_init(mgr) == false) {
+        MYMPD_LOG_EMERG(NULL, "Failure initializing webserver wakeup scheme");
+        return false;
+    }
     return true;
 }
 
@@ -170,24 +180,6 @@ void *webserver_loop(void *arg_mgr) {
     thread_logname = sds_replace(thread_logname, "webserver");
     set_threadname(thread_logname);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
-
-    //set mongoose loglevel to error
-    mg_log_set(1);
-    //debug logging
-    //mg_log_set(4);
-    mg_log_set_fn(mongoose_log, NULL);
-    // Initialize the wakeup scheme
-    if (mg_wakeup_init(mgr) == false) {
-        MYMPD_LOG_EMERG(NULL, "Failure initializing webserver wakeup scheme");
-        s_signal_received = 1;
-        FREE_SDS(thread_logname);
-        return NULL;
-    }
-    if (mg_user_data->config->ssl == true) {
-        MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
-        MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
-    }
     MYMPD_LOG_DEBUG(NULL, "Webserver thread is ready");
     while (s_signal_received == 0) {
         //webserver polling
