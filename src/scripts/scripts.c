@@ -29,7 +29,7 @@
  * @return NULL
  */
 void *scripts_loop(void *arg_config) {
-    thread_logname = sds_replace(thread_logname, "scripts");
+    thread_logname = sdsnew("scripts");
     set_threadname(thread_logname);
 
     // create initial scripts_state struct and set defaults

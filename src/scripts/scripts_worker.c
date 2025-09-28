@@ -25,8 +25,9 @@
  */
 void *script_run(void *script_thread_arg) {
     script_worker_threads++;
-    thread_logname = sds_replace(thread_logname, "runscript");
+    thread_logname = sdscatprintf(sdsempty(), "runscript%02d", mympd_worker_threads);
     set_threadname(thread_logname);
+
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
 
     MYMPD_LOG_DEBUG(NULL, "Start script");

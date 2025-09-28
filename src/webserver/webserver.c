@@ -177,7 +177,7 @@ void webserver_free(struct mg_mgr *mgr) {
  * @return NULL
  */
 void *webserver_loop(void *arg_mgr) {
-    thread_logname = sds_replace(thread_logname, "webserver");
+    thread_logname = sdsnew("webserver");
     set_threadname(thread_logname);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     MYMPD_LOG_DEBUG(NULL, "Webserver thread is ready");
