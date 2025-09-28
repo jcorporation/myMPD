@@ -119,7 +119,7 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
 
     //bind to http_port
     if (config->http == true) {
-        struct mg_connection *nc_http = NULL;
+        struct mg_connection *nc_http;
         sds http_url = sdscatfmt(sdsempty(), "http://%S:%i", config->http_host, config->http_port);
         if (config->ssl == true) {
             nc_http = mg_http_listen(mgr, http_url, ev_handler_redirect, NULL);
