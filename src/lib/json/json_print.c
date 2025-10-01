@@ -14,6 +14,7 @@
 #include "src/lib/list.h"
 #include "src/lib/sds_extras.h"
 
+#include <math.h>
 #include <string.h>
 
 /**
@@ -174,7 +175,14 @@ sds tojson_time(sds buffer, const char *key, time_t value, bool comma) {
  * @return pointer to buffer
  */
 sds tojson_float(sds buffer, const char *key, float value, bool comma) {
-    buffer = sdscatprintf(buffer, "\"%s\":%.2f", key, value);
+    if (isfinite(value) == false ||
+        isnan(value) == true)
+    {
+        buffer = sdscatprintf(buffer, "\"%s\":null", key);
+    }
+    else {
+        buffer = sdscatprintf(buffer, "\"%s\":%.2f", key, value);
+    }
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }

@@ -8,7 +8,7 @@ You can configure myMPD in different ways:
     1. Set environment variables as described below
     2. Start myMPD. myMPD grabs the environment variables and writes it's configuration files accordingly.
 
-2. Use `mymmpd-config`
+2. Use `mympd-config`
     1. Type `mympd-config` to configure myMPD with a ncurses based interface.
     2. Start myMPD.
 
@@ -41,7 +41,7 @@ You can configure myMPD in different ways:
 | http_host | string | MYMPD_HTTP_HOST | `[::]` | IP address to listen on, use `[::]` to listen on IPv6 and IPv4 |
 | http_port | number | MYMPD_HTTP_PORT | `8080` | Port to listen for plain http requests. Redirects to `ssl_port` if `ssl` is set to `true`. [1] |
 | loglevel | number | MYMPD_LOGLEVEL | `5` | [Logging](logging.md) - this environment variable is always used |
-| mympd_uri | string | MYMPD_URI | `auto` | `auto` or uri to myMPD listening port, e.g. `https://192.168.1.1/mympd` |
+| mympd_uri | string | MYMPD_MYMPD_URI | `auto` | `auto` or uri to myMPD listening port, e.g. `https://192.168.1.1/mympd` |
 | pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |
 | save_caches | boolean | MYMPD_SAVE_CACHES | `true` | `true` = saves caches between restart, `false` = create caches on startup |
 | scriptacl | string | MYMPD_SCRIPTACL | `+127.0.0.1` | ACL to access the myMPD script backend: [ACL](acl.md), allows only local connections in the default configuration. The acl above must also grant access. |

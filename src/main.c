@@ -6,7 +6,6 @@
 
 #include "compile_time.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
 
@@ -17,6 +16,7 @@
 #include "src/lib/handle_options.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
+#include "src/lib/mpdclient.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/signal.h"
@@ -254,19 +254,20 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
+    // Read configuration
+    if (mympd_config_read(config) == false) {
+        MYMPD_LOG_EMERG(NULL, "Failure reading configuration");
+        goto cleanup;
+    }
+
     // Bootstrap option: Write config files and exit
     if (config->bootstrap == true) {
-        if (mympd_config_rm(config) == true &&
-            mympd_config_read(config) == true &&
-            create_certificates(config) == true)
-        {
-            MYMPD_LOG_NOTICE(NULL, "Created myMPD config\n");
+        if (create_certificates(config) == true) {
+            MYMPD_LOG_NOTICE(NULL, "Created myMPD config and certificate");
             rc = EXIT_SUCCESS;
         }
         goto cleanup;
     }
-
-    mympd_config_read(config);
 
     // Set loglevel
     #ifndef MYMPD_DEBUG
@@ -295,9 +296,13 @@ int main(int argc, char **argv) {
     #ifdef MYMPD_ENABLE_TSAN
         MYMPD_LOG_NOTICE(NULL, "Running with thread sanitizer");
     #endif
-    MYMPD_LOG_INFO(NULL, "Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i",
-            LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
-            LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    #ifdef MYMPD_EMBEDDED_LIBMPDCLIENT
+        MYMPD_LOG_INFO(NULL, "Libmpdclient %i.%i.%i (embedded)",
+                LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    #else
+        MYMPD_LOG_INFO(NULL, "Libmpdclient %i.%i.%i",
+                LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    #endif
     MYMPD_LOG_INFO(NULL, "Mongoose %s", MG_VERSION);
     MYMPD_LOG_INFO(NULL, "%s", OPENSSL_VERSION_TEXT);
     #ifdef MYMPD_ENABLE_LUA

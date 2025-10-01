@@ -11,8 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_worker/album_cache.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
-#include "dist/libmympdclient/src/isong.h"
+#include "src/lib/album.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
@@ -161,7 +160,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
     sds key = sdsempty();
     do {
         if (mpd_search_db_songs(mympd_worker_state->partition_state->conn, false) == false ||
-            mpd_search_add_expression(mympd_worker_state->partition_state->conn, "((Album != '') AND (AlbumArtist !=''))") == false ||
+            mpd_search_add_expression(mympd_worker_state->partition_state->conn, "((Album != '') AND (AlbumArtist != ''))") == false ||
             mpd_search_add_window(mympd_worker_state->partition_state->conn, start, end) == false)
         {
             MYMPD_LOG_ERROR("default", "Cache update failed");
@@ -171,45 +170,49 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
         if (mpd_search_commit(mympd_worker_state->partition_state->conn)) {
             struct mpd_song *song;
             while ((song = mpd_recv_song(mympd_worker_state->partition_state->conn)) != NULL) {
-                // set initial song and disc count to 1
-                album_cache_set_song_count(song, 1);
-                if (mympd_worker_state->tag_disc_empty_is_first == true) {
-                    // handle empty disc tag as disc one
-                    album_cache_set_disc_count(song, 1);
-                }
                 // construct the key
-                key = album_cache_get_key(key, song, &mympd_worker_state->config->albums);
+                key = album_cache_get_key_from_song(key, song, &mympd_worker_state->config->albums);
                 if (sdslen(key) > 0) {
-                    if (mympd_worker_state->partition_state->mpd_state->tag_albumartist == MPD_TAG_ALBUM_ARTIST &&
-                        mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0) == NULL)
-                    {
-                        // Copy Artist tag to AlbumArtist tag
-                        // for filters mpd falls back from AlbumArtist to Artist if AlbumArtist does not exist
-                        album_cache_copy_tags(song, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
-                    }
-                    void *old_data;
-                    if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
+                    void *data;
+                    if (raxFind(album_cache, (unsigned char *)key, sdslen(key), &data) == 1) {
                         // existing album: append song data
-                        struct mpd_song *album = (struct mpd_song *) old_data;
+                        struct t_album *album = (struct t_album*) data;
                         // append tags
-                        album_cache_append_tags(album, song, &mympd_worker_state->partition_state->mpd_state->tags_mympd);
+                        album_append_tags(album, song, &mympd_worker_state->mpd_state->tags_album);
                         // set album data
-                        album_cache_set_last_modified(album, song); // use latest last_modified
-                        album_cache_inc_total_time(album, song);    // sum duration
-                        album_cache_set_discs(album, song);         // use max disc value
-                        album_cache_inc_song_count(album);          // inc song count by one
-                        // free song data
-                        mpd_song_free(song);
+                        album_set_last_modified(album, mpd_song_get_last_modified(song));  // use latest last_modified
+                        album_set_added(album, mpd_song_get_added(song));                  // use oldest added
+                        album_inc_total_time(album, mpd_song_get_duration(song));          // sum duration
+                        album_set_discs(album, mpd_song_get_tag(song, MPD_TAG_DISC, 0));   // use max disc value
+                        album_inc_song_count(album);                                       // inc song count by one
                     }
                     else {
-                        // new album: use song data as initial album data
-                        album_count++;
+                        struct t_album *album = album_new_from_song(song, &mympd_worker_state->mpd_state->tags_album);
+                        if (mympd_worker_state->tag_disc_empty_is_first == true) {
+                            // handle empty disc tag as disc one
+                            album_set_disc_count(album, 1);
+                        }
+                        if (mympd_worker_state->partition_state->mpd_state->tag_albumartist == MPD_TAG_ALBUM_ARTIST &&
+                            album_get_tag(album, MPD_TAG_ALBUM_ARTIST, 0) == NULL)
+                        {
+                            // Copy Artist tag to AlbumArtist tag
+                            // for filters mpd falls back from AlbumArtist to Artist if AlbumArtist does not exist
+                            album_copy_tags(album, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
+                        }
+                        if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)album, NULL) == 0) {
+                            MYMPD_LOG_ERROR(NULL, "Duplicate album id for AlbumArtist: \"%s\", Album: \"%s\"", album_get_tag(album, MPD_TAG_ALBUM_ARTIST, 0), album_get_tag(album, MPD_TAG_ALBUM, 0));
+                            album_free(album);
+                            skip_count++;
+                        }
+                        else {
+                            album_count++;
+                        }
                     }
                 }
                 else {
                     skip_count++;
-                    mpd_song_free(song);
                 }
+                mpd_song_free(song);
                 i++;
             }
         }
@@ -255,18 +258,19 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
     unsigned i = 0;
     int album_count = 0;
     int skip_count = 0;
+    enum mpd_tag_type tag_albumartist = mympd_worker_state->partition_state->mpd_state->tag_albumartist;
 
     //check for required tags
-    if (mympd_client_tag_exists(&mympd_worker_state->mpd_state->tags_mympd, MPD_TAG_ARTIST) == false ||
-        mympd_client_tag_exists(&mympd_worker_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) == false)
+    if (mympd_client_tag_exists(&mympd_worker_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) == false ||
+        mympd_client_tag_exists(&mympd_worker_state->mpd_state->tags_mympd, tag_albumartist) == false)
     {
-        MYMPD_LOG_ERROR("default", "Required tags for album cache creation are not enabled: Artist, Album");
+        MYMPD_LOG_ERROR("default", "Required tags for album cache creation are not enabled: AlbumArtist, Album");
         return false;
     }
     if (mympd_worker_state->config->albums.group_tag != MPD_TAG_UNKNOWN) {
         if (mympd_client_tag_exists(&mympd_worker_state->mpd_state->tags_mympd, mympd_worker_state->config->albums.group_tag) == false) {
             MYMPD_LOG_ERROR("default", "Required tag for album cache creation is not enabled: %s", mpd_tag_name(mympd_worker_state->config->albums.group_tag));
-        return false;
+            return false;
         }
     }
 
@@ -276,12 +280,16 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
         MEASURE_START
     #endif
     sds key = sdsempty();
-    sds album = sdsempty();
+    sds album_name = sdsempty();
     sds artist = sdsempty();
     sds group_tag = sdsempty();
+
+    const char *tag_name_album = mpd_tag_name(MPD_TAG_ALBUM);
+    const char *tag_name_albumartist = mpd_tag_name(tag_albumartist);
+    const char *tag_name_group = mpd_tag_name(mympd_worker_state->config->albums.group_tag);
     do {
         if (mpd_search_db_tags(mympd_worker_state->partition_state->conn, MPD_TAG_ALBUM) == false ||
-            mpd_search_add_group_tag(mympd_worker_state->partition_state->conn, MPD_TAG_ALBUM_ARTIST) == false ||
+            mpd_search_add_group_tag(mympd_worker_state->partition_state->conn, tag_albumartist) == false ||
             mympd_client_add_search_group_param(mympd_worker_state->partition_state->conn, mympd_worker_state->config->albums.group_tag) == false ||
             mympd_client_add_search_window_param_mpd_025(mympd_worker_state->partition_state, start, end) == false)
         {
@@ -292,36 +300,42 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
         if (mpd_search_commit(mympd_worker_state->partition_state->conn)) {
             struct mpd_pair *pair;
             while ((pair = mpd_recv_pair(mympd_worker_state->partition_state->conn)) != NULL) {
-                if (strcmp(pair->name, mpd_tag_name(MPD_TAG_ALBUM)) == 0) {
-                    album = sds_replace(album, pair->value);
-                    if (sdslen(album) > 0 &&
+                if (strcmp(pair->name, tag_name_album) == 0) {
+                    album_name = sds_replace(album_name, pair->value);
+                    if (sdslen(album_name) > 0 &&
                         sdslen(artist) > 0)
                     {
                         // we do not fetch the uri for performance reasons.
                         // the real song uri will be set after first call of mympd_api_albumart_getcover_by_album_id.
-                        struct mpd_song *song = mpd_song_new("albumid");
-                        mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ARTIST, artist);
-                        mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM_ARTIST, artist);
-                        mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM, album);
+                        struct t_album *album = album_new();
+                        album_append_tag(album, MPD_TAG_ARTIST, artist);
+                        album_append_tag(album, MPD_TAG_ALBUM_ARTIST, artist);
+                        album_append_tag(album, MPD_TAG_ALBUM, album_name);
                         if (sdslen(group_tag) > 0) {
-                            mympd_mpd_song_add_tag_dedup(song, mympd_worker_state->config->albums.group_tag, group_tag);
+                            album_append_tag(album, mympd_worker_state->config->albums.group_tag, group_tag);
                         }
                         // insert album into cache
-                        key = album_cache_get_key(key, song, &mympd_worker_state->config->albums);
-                        raxInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, NULL);
-                        album_count++;
+                        key = album_cache_get_key_from_album(key, album, &mympd_worker_state->config->albums);
+                        if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)album, NULL) == 0) {
+                            MYMPD_LOG_ERROR(NULL, "Duplicate album id for AlbumArtist: \"%s\", Album: \"%s\"", artist, album_name);
+                            album_free(album);
+                            skip_count++;
+                        }
+                        else {
+                            album_count++;
+                        }
                         sdsclear(artist);
-                        sdsclear(album);
+                        sdsclear(album_name);
                         sdsclear(group_tag);
                     }
                     else {
                         skip_count++;
                     }
                 }
-                else if (strcmp(pair->name, mpd_tag_name(MPD_TAG_ALBUM_ARTIST)) == 0) {
+                else if (strcmp(pair->name, tag_name_albumartist) == 0) {
                     artist = sds_replace(artist, pair->value);
                 }
-                else if (strcmp(pair->name, mpd_tag_name(mympd_worker_state->config->albums.group_tag)) == 0) {
+                else if (strcmp(pair->name, tag_name_group) == 0) {
                     group_tag = sds_replace(group_tag, pair->value);
                 }
                 mpd_return_pair(mympd_worker_state->partition_state->conn, pair);
@@ -337,7 +351,7 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
     } while (i >= start);
 
     FREE_SDS(key);
-    FREE_SDS(album);
+    FREE_SDS(album_name);
     FREE_SDS(artist);
     FREE_SDS(group_tag);
     #ifdef MYMPD_DEBUG

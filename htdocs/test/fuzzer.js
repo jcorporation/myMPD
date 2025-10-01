@@ -100,6 +100,7 @@ async function sendAPI(id) {
         cmds = defineCmds();
     }
     const request = cmds[id];
+    document.getElementsByTagName('h5')[0].textContent = request.method;
     let sleep = 0;
     const uri = subdir + '/api/default';
     const response = await fetch(uri, {
@@ -125,7 +126,7 @@ async function sendAPI(id) {
             if (obj.error &&
                 obj.error.message === 'MPD disconnected')
             {
-                sleep = 3000;
+                sleep = 1000;
                 document.getElementsByTagName('h5')[0].textContent = 'Sleeping...';
             }
             setTest(request, JSON.stringify(obj));

@@ -9,9 +9,14 @@ cmake_policy(SET CMP0003 NEW)
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd
-  VERSION 22.0.4
+  VERSION 22.1.0
   LANGUAGES C
 )
+
+# Dependency versions
+set(LIBMPDCLIENT_MIN_VERSION "2.24.0")
+set(OPENSSL_MIN_VERSION "1.1.0")
+set(LUA_MIN_VERSION "5.3.0")
 
 # output binaries in bin directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -47,6 +52,7 @@ option(MYMPD_BUILD_TESTING "Enables building of unit tests, default OFF" "OFF")
 option(MYMPD_DOC "Installs documentation, default ON" "ON")
 option(MYMPD_DOC_HTML "Creates and installs the html documentation, default OFF" "OFF")
 option(MYMPD_EMBEDDED_ASSETS "Embed assets in binary, default ON, OFF for Debug" "ON")
+option(MYMPD_EMBEDDED_LIBMPDCLIENT "Use embedded libmpdclient, default OFF" "OFF")
 option(MYMPD_ENABLE_EXPERIMENTAL "Enable experimental features, default OFF" "OFF")
 option(MYMPD_ENABLE_FLAC "Enables flac support, default ON" "ON")
 option(MYMPD_ENABLE_IPV6 "Enables IPv6, default ON" "ON")
@@ -88,9 +94,35 @@ find_package(PCRE2 REQUIRED)
 find_library(MATH_LIB m REQUIRED)
 find_package(OpenSSL REQUIRED)
 
+if(MYMPD_EMBEDDED_LIBMPDCLIENT STREQUAL "ON")
+  message("Using embedded libmpdclient")
+else()
+  find_package(LIBMPDCLIENT)
+  if(LIBMPDCLIENT_FOUND)
+    if(LIBMPDCLIENT_VERSION VERSION_LESS "${LIBMPDCLIENT_MIN_VERSION}")
+      message(WARNING "libmpdclient ${LIBMPDCLIENT_VERSION} is too old, minimum version is ${LIBMPDCLIENT_MIN_VERSION}")
+      message("Using embedded libmpdclient")
+      set(MYMPD_EMBEDDED_LIBMPDCLIENT "ON")
+    else()
+      message("Using shared libmpdclient ${LIBMPDCLIENT_VERSION}")
+      set(MYMPD_EMBEDDED_LIBMPDCLIENT "OFF")
+    endif()
+  else()
+    message("libmpdclient not found, using embedded libmpdclient")
+    set(MYMPD_EMBEDDED_LIBMPDCLIENT "ON")
+  endif()
+endif()
+
+# set myMPD specific debug define
+if(MYMPD_EMBEDDED_LIBMPDCLIENT)
+  add_compile_options(
+    "-DMYMPD_EMBEDDED_LIBMPDCLIENT=1"
+  )
+endif()
+
 # check dependencies versions
-if(OPENSSL_VERSION VERSION_LESS "1.1.0")
-  message(FATAL_ERROR "myMPD requires an OpenSSL version greater or equal 1.1.0")
+if(OPENSSL_VERSION VERSION_LESS "${OPENSSL_MIN_VERSION}")
+  message(FATAL_ERROR "myMPD requires an OpenSSL version greater or equal ${OPENSSL_MIN_VERSION}")
 endif()
 
 # optional dependencies
@@ -98,7 +130,7 @@ if(MYMPD_ENABLE_LIBID3TAG)
   message("Searching for libid3tag")
   find_package(LIBID3TAG)
   if(NOT LIBID3TAG_FOUND)
-    message("Libid3tag is disabled because it was not found")
+    message(WARNING "Libid3tag is disabled because it was not found")
     set(MYMPD_ENABLE_LIBID3TAG "OFF")
   endif()
 else()
@@ -109,7 +141,7 @@ if(MYMPD_ENABLE_FLAC)
   message("Searching for flac")
   find_package(FLAC)
   if(NOT FLAC_FOUND)
-    message("Flac is disabled because it was not found")
+    message(WARNING "Flac is disabled because it was not found")
     set(MYMPD_ENABLE_FLAC "OFF")
   endif()
 else()
@@ -123,13 +155,13 @@ if(MYMPD_ENABLE_LUA)
   message("Searching for lua")
   find_package(Lua)
   if(LUA_FOUND)
-    if(NOT LUA_VERSION_STRING VERSION_GREATER_EQUAL "5.3.0")
-      message("Lua is disabled because a version lower than 5.3.0 was found")
+    if(NOT LUA_VERSION_STRING VERSION_GREATER_EQUAL "${LUA_MIN_VERSION}")
+      message(WARNING "Lua is disabled because a version lower than ${LUA_MIN_VERSION} was found")
       set(MYMPD_ENABLE_LUA "OFF")
       set(MYMPD_ENABLE_MYGPIOD "OFF")
     endif()
   else()
-    message("Lua is disabled because it was not found")
+    message(WARNING "Lua is disabled because it was not found")
     set(MYMPD_ENABLE_LUA "OFF")
     set(MYMPD_ENABLE_MYGPIOD "OFF")
   endif()
@@ -277,6 +309,7 @@ add_compile_options(
   "-DMPACK_HAS_CONFIG=1"
   "-DMG_MAX_HTTP_HEADERS=50"
 )
+
 # set myMPD specific debug define
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options(
@@ -445,7 +478,6 @@ add_subdirectory("cli_tools")
 
 # link all together
 target_link_libraries(mympd
-  mympdclient
   mpack
   mongoose
   rax
@@ -472,6 +504,11 @@ if(MYMPD_ENABLE_MYGPIOD)
   else()
     target_link_libraries(mympd ${LIBMYGPIO_LIBRARIES})
   endif()
+endif()
+if(MYMPD_EMBEDDED_LIBMPDCLIENT)
+  target_link_libraries(mympd mpdclient)
+else()
+  target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARIES})
 endif()
 
 # install

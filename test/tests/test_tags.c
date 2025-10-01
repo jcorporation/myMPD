@@ -9,16 +9,16 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
-#include "dist/libmympdclient/src/isong.h"
+#include "src/lib/mpdclient.h"
 #include "src/mympd_client/tags.h"
 
-#include <mpd/client.h>
+
 
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
 
 UTEST(tags, test_mympd_mpd_song_add_tag_dedup) {
-    struct mpd_song *song = new_song();
+    struct mpd_song *song = new_test_song();
     ASSERT_STREQ("Einstürzende Neubauten", mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
     ASSERT_STREQ("Blixa Bargeld", mpd_song_get_tag(song, MPD_TAG_ARTIST, 1));
     bool b = mpd_song_get_tag(song, MPD_TAG_ARTIST, 2) == NULL ? true : false;
@@ -48,7 +48,7 @@ UTEST(tags, test_get_sort_tag) {
 }
 
 UTEST(tags, test_mympd_client_get_tag_value_string) {
-    struct mpd_song *song = new_song();
+    struct mpd_song *song = new_test_song();
     sds s = mympd_client_get_tag_value_string(song, MPD_TAG_ARTIST, sdsempty());
     ASSERT_STREQ("Einstürzende Neubauten, Blixa Bargeld", s);
     sdsclear(s);
@@ -59,7 +59,7 @@ UTEST(tags, test_mympd_client_get_tag_value_string) {
 }
 
 UTEST(tags, test_mympd_client_get_tag_values) {
-    struct mpd_song *song = new_song();
+    struct mpd_song *song = new_test_song();
     sds s = mympd_client_get_tag_values(song, MPD_TAG_ARTIST, sdsempty());
     ASSERT_STREQ("[\"Einstürzende Neubauten\",\"Blixa Bargeld\"]", s);
     sdsclear(s);

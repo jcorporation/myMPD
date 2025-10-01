@@ -11,7 +11,7 @@
 #define MPD_VERSION_H
 
 #define LIBMPDCLIENT_MAJOR_VERSION 2
-#define LIBMPDCLIENT_MINOR_VERSION 24
+#define LIBMPDCLIENT_MINOR_VERSION 25
 #define LIBMPDCLIENT_PATCH_VERSION 0
 
 /**
@@ -29,24 +29,5 @@
 	  ((minor) < LIBMPDCLIENT_MINOR_VERSION || \
 	   ((minor) == LIBMPDCLIENT_MINOR_VERSION && \
 	    (patch) <= LIBMPDCLIENT_PATCH_VERSION))))
-
-#define LIBMYMPDCLIENT_MAJOR_VERSION 1
-#define LIBMYMPDCLIENT_MINOR_VERSION 0
-#define LIBMYMPDCLIENT_PATCH_VERSION 34
-
-/**
- * Preprocessor macro which allows you to check which version of
- * libmympdclient you are compiling with. It can be used in
- * preprocessor directives.
- *
- * @return true if this libmympdclient version equals or is newer than
- * the specified version number
- */
-#define LIBMYMPDCLIENT_CHECK_VERSION(major, minor, patch) \
-	((major) < LIBMYMPDCLIENT_MAJOR_VERSION || \
-	 ((major) == LIBMYMPDCLIENT_MAJOR_VERSION && \
-	  ((minor) < LIBMYMPDCLIENT_MINOR_VERSION || \
-	   ((minor) == LIBMYMPDCLIENT_MINOR_VERSION && \
-	    (patch) <= LIBMYMPDCLIENT_PATCH_VERSION))))
 
 #endif

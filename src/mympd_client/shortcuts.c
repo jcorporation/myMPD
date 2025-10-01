@@ -9,13 +9,13 @@
  */
 
 #include "compile_time.h"
-#include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/shortcuts.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
+
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
+#include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/search.h"
 
 /**
@@ -88,7 +88,7 @@ bool mympd_client_add_uris_to_queue(struct t_partition_state *partition_state, s
 bool mympd_client_add_album_to_queue(struct t_partition_state *partition_state, struct t_cache *album_cache,
     sds album_id, unsigned to, unsigned whence, sds *error)
 {
-    struct mpd_song *mpd_album = album_cache_get_album(album_cache, album_id);
+    struct t_album *mpd_album = album_cache_get_album(album_cache, album_id);
     if (mpd_album == NULL) {
         *error = sdscat(*error, "Album not found");
         return false;

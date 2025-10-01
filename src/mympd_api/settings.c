@@ -202,6 +202,19 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, en
             enable_set_conn_options(mympd_state);
         }
     }
+    else if (strcmp(key, "mpdStringnormalization") == 0) {
+        if (vtype != JSON_TOK_TRUE && vtype != JSON_TOK_FALSE) {
+            set_invalid_value(error, path, key, value, "Must be a boolean value");
+            return false;
+        }
+        bool stringnormalization = vtype == JSON_TOK_TRUE
+            ? true
+            : false;
+        if (stringnormalization != mympd_state->mpd_state->mpd_stringnormalization) {
+            mympd_state->mpd_state->mpd_stringnormalization = stringnormalization;
+            enable_set_conn_options(mympd_state);
+        }
+    }
     else if (strcmp(key, "musicDirectory") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilepath(value) == false) {
             set_invalid_value(error, path, key, value, "Must be none, auto or an absolute path");
@@ -845,6 +858,7 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->mpd_state->mpd_binarylimit = state_file_rw_uint(workdir, DIR_WORK_STATE, "mpd_binarylimit", mympd_state->mpd_state->mpd_binarylimit, MPD_BINARY_CHUNK_SIZE_MIN, MPD_BINARY_CHUNK_SIZE_MAX, true);
     mympd_state->mpd_state->mpd_timeout = state_file_rw_uint(workdir, DIR_WORK_STATE, "mpd_timeout", mympd_state->mpd_state->mpd_timeout, MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX, true);
     mympd_state->mpd_state->mpd_keepalive = state_file_rw_bool(workdir, DIR_WORK_STATE, "mpd_keepalive", mympd_state->mpd_state->mpd_keepalive, true);
+    mympd_state->mpd_state->mpd_stringnormalization = state_file_rw_bool(workdir, DIR_WORK_STATE, "mpd_stringnormalization", mympd_state->mpd_state->mpd_stringnormalization, true);
     // stickerdb connection, use mpd connection settings as default
     mympd_state->stickerdb->mpd_state->mpd_host = sds_replace(mympd_state->stickerdb->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
     mympd_state->stickerdb->mpd_state->mpd_pass = sds_replace(mympd_state->stickerdb->mpd_state->mpd_pass, mympd_state->mpd_state->mpd_pass);
@@ -945,6 +959,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_uint(buffer, "mpdTimeout", partition_state->mpd_state->mpd_timeout, true);
     buffer = tojson_bool(buffer, "mpdKeepalive", partition_state->mpd_state->mpd_keepalive, true);
     buffer = tojson_uint(buffer, "mpdBinarylimit", partition_state->mpd_state->mpd_binarylimit, true);
+    buffer = tojson_bool(buffer, "mpdStringnormalization", partition_state->mpd_state->mpd_stringnormalization, true);
     // stickerdb connection
     buffer = tojson_sds(buffer, "stickerdbMpdHost", mympd_state->stickerdb->mpd_state->mpd_host, true);
     buffer = tojson_uint(buffer, "stickerdbMpdPort", mympd_state->stickerdb->mpd_state->mpd_port, true);
@@ -1085,6 +1100,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat.starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat.pcre, true);
         buffer = tojson_bool(buffer, "featDbAdded", partition_state->mpd_state->feat.db_added, true);
+        buffer = tojson_bool(buffer, "featStringnormalization", partition_state->mpd_state->feat.mpd_0_25_0, true);
     }
     // compile time options
     #ifdef MYMPD_ENABLE_MYGPIOD

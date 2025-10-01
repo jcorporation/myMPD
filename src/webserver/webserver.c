@@ -105,7 +105,10 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
         return false;
     }
 
-    //init monogoose mgr
+    //init mongoose mgr
+    mg_log_set(1);    //set mongoose loglevel to error
+    //mg_log_set(4);  //set mongoose loglevel to debug
+    mg_log_set_fn(mongoose_log, NULL);
     mg_mgr_init(mgr);
     mgr->userdata = mg_user_data;
     mgr->product_name = "myMPD "MYMPD_VERSION;
@@ -116,7 +119,7 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
 
     //bind to http_port
     if (config->http == true) {
-        struct mg_connection *nc_http = NULL;
+        struct mg_connection *nc_http;
         sds http_url = sdscatfmt(sdsempty(), "http://%S:%i", config->http_host, config->http_port);
         if (config->ssl == true) {
             nc_http = mg_http_listen(mgr, http_url, ev_handler_redirect, NULL);
@@ -141,12 +144,19 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
             return false;
         }
         MYMPD_LOG_NOTICE(NULL, "Listening on https://%s:%d", config->http_host, config->ssl_port);
+        MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
+        MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
     }
     else if (config->http == false) {
         MYMPD_LOG_ERROR(NULL, "Not listening on any port.");
         return false;
     }
     MYMPD_LOG_NOTICE(NULL, "Serving files from \"%s\"", MYMPD_DOC_ROOT);
+    // Initialize the wakeup scheme
+    if (mg_wakeup_init(mgr) == false) {
+        MYMPD_LOG_EMERG(NULL, "Failure initializing webserver wakeup scheme");
+        return false;
+    }
     return true;
 }
 
@@ -167,27 +177,17 @@ void webserver_free(struct mg_mgr *mgr) {
  * @return NULL
  */
 void *webserver_loop(void *arg_mgr) {
-    thread_logname = sds_replace(thread_logname, "webserver");
+    thread_logname = sdsnew("webserver");
     set_threadname(thread_logname);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
-
-    //set mongoose loglevel to error
-    mg_log_set(1);
-    //debug logging
-    //mg_log_set(4);
-    mg_log_set_fn(mongoose_log, NULL);
-    // Initialise wakeup socket pair
-    mg_wakeup_init(mgr);
-    if (mg_user_data->config->ssl == true) {
-        MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
-        MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
-    }
+    MYMPD_LOG_DEBUG(NULL, "Webserver thread is ready");
+    // Initially read the queue
+    read_queue(mgr);
+    // Webserver polling
     while (s_signal_received == 0) {
-        //webserver polling
         mg_mgr_poll(mgr, -1);
     }
-    MYMPD_LOG_DEBUG(NULL, "Stopping webserver thread");
+    MYMPD_LOG_DEBUG(NULL, "Webserver thread stopped");
     FREE_SDS(thread_logname);
     return NULL;
 }
@@ -226,7 +226,8 @@ static bool read_certs(struct t_mg_user_data *mg_user_data, struct t_config *con
 }
 
 /**
- * Reads and processes all messages from the queue
+ * Reads and processes all messages from the webserver queue.
+ * This function does not block and returns immediately if the queue is empty.
  * @param mgr pointer to mongoose mgr
  */
 static void read_queue(struct mg_mgr *mgr) {
@@ -587,6 +588,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_OPEN: {
             if (nc->is_listening) {
+                MYMPD_LOG_DEBUG(NULL, "Listening connection opened");
                 nc->fn_data = NULL;
                 webserver_queue->mg_conn_id = nc->id;
                 webserver_queue->mg_mgr = nc->mgr;

@@ -8,6 +8,7 @@
 #define TEST_UTILITY_H
 
 #include "dist/sds/sds.h"
+#include "mpd_song.h"
 
 #include <stdbool.h>
 
@@ -28,6 +29,8 @@ struct t_input_result {
 void init_testenv(void);
 void clean_testenv(void);
 bool create_testfile(void);
-struct mpd_song *new_song(void);
+bool song_append_tag(struct mpd_song *song, enum mpd_tag_type type, const char *value);
+struct t_album *new_test_album(void);
+struct mpd_song *new_test_song(void);
 
 #endif

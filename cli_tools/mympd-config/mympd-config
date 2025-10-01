@@ -95,7 +95,7 @@ read_config() {
     [ -f "${CONFIG_DIR}/cache_misc_keep_days" ] && read -r MYMPD_CACHE_MISC_KEEP_DAYS < "${CONFIG_DIR}/cache_misc_keep_days"
     [ -f "${CONFIG_DIR}/cache_thumbs_keep_days" ] && read -r MYMPD_CACHE_THUMBS_KEEP_DAYS < "${CONFIG_DIR}/cache_thumbs_keep_days"
     [ -f "${CONFIG_DIR}/loglevel" ] && read -r MYMPD_LOGLEVEL < "${CONFIG_DIR}/loglevel"
-    [ -f "${CONFIG_DIR}/mympd_uri" ] && read -r MYMPD_URI < "${CONFIG_DIR}/mympd_uri"
+    [ -f "${CONFIG_DIR}/mympd_uri" ] && read -r MYMPD_MYMPD_URI < "${CONFIG_DIR}/mympd_uri"
     [ -f "${CONFIG_DIR}/save_caches" ] && read -r MYMPD_SAVE_CACHES < "${CONFIG_DIR}/save_caches"
     [ -f "${CONFIG_DIR}/scriptacl" ] && read -r MYMPD_SCRIPTACL < "${CONFIG_DIR}/scriptacl"
     [ -f "${CONFIG_DIR}/scripts_external" ] && read -r MYMPD_SCRIPTS_EXTERNAL < "${CONFIG_DIR}/scripts_external"
@@ -128,7 +128,7 @@ apply_config() {
             -E MYMPD_CACHE_MISC_KEEP_DAYS="$MYMPD_CACHE_MISC_KEEP_DAYS" \
             -E MYMPD_CACHE_THUMBS_KEEP_DAYS="$MYMPD_CACHE_THUMBS_KEEP_DAYS" \
             -E MYMPD_LOGLEVEL="$MYMPD_LOGLEVEL" \
-            -E MYMPD_URI="$MYMPD_URI" \
+            -E MYMPD_MYMPD_URI="$MYMPD_MYMPD_URI" \
             -E MYMPD_SAVE_CACHES="$MYMPD_SAVE_CACHES" \
             -E MYMPD_SCRIPTACL="$MYMPD_SCRIPTACL" \
             -E MYMPD_SCRIPTS_EXTERNAL="$MYMPD_SCRIPTS_EXTERNAL" \
@@ -157,7 +157,7 @@ apply_config() {
         export MYMPD_CACHE_MISC_KEEP_DAYS
         export MYMPD_CACHE_THUMBS_KEEP_DAYS
         export MYMPD_LOGLEVEL
-        export MYMPD_URI
+        export MYMPD_MYMPD_URI
         export MYMPD_SAVE_CACHES
         export MYMPD_SCRIPTACL
         export MYMPD_SCRIPTS_EXTERNAL
@@ -288,7 +288,7 @@ menu_misc() {
         "Misc cache" "$MYMPD_CACHE_MISC_KEEP_DAYS" \
         "Thumbs cache" "$MYMPD_CACHE_THUMBS_KEEP_DAYS" \
         "Loglevel" "$MYMPD_LOGLEVEL" \
-        "myMPD URI" "$MYMPD_URI" \
+        "myMPD URI" "$MYMPD_MYMPD_URI" \
         "Save Caches" "$MYMPD_SAVE_CACHES" \
         "Enable stickers" "$MYMPD_STICKERS" \
         "Enable sticker padding" "$MYMPD_STICKERS_PAD_INT" \
@@ -305,7 +305,7 @@ menu_misc() {
         "Misc cache") MYMPD_CACHE_MISC_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_MISC_KEEP_DAYS") ;;
         "Thumbs cache") MYMPD_CACHE_THUMBS_KEEP_DAYS=$(get_input "$SELECT" "$MYMPD_CACHE_THUMBS_KEEP_DAYS") ;;
         "Loglevel") MYMPD_LOGLEVEL=$(select_loglevel "$MYMPD_LOGLEVEL") ;;
-        "myMPD URI") MYMPD_URI=$(get_input "$SELECT" "$MYMPD_URI") ;;
+        "myMPD URI") MYMPD_MYMPD_URI=$(get_input "$SELECT" "$MYMPD_MYMPD_URI") ;;
         "Save Caches") MYMPD_SAVE_CACHES=$(toggle_bool "$MYMPD_SAVE_CACHES") ;;
         "Enable stickers") MYMPD_STICKERS=$(toggle_bool "$MYMPD_STICKERS") ;;
         "Enable sticker padding") MYMPD_STICKERS_PAD_INT=$(toggle_bool "$MYMPD_STICKERS_PAD_INT") ;;
@@ -349,7 +349,7 @@ parse_options() {
             MYMPD_CACHE_MISC_KEEP_DAYS) MYMPD_CACHE_MISC_KEEP_DAYS="$2" ;;
             MYMPD_CACHE_THUMBS_KEEP_DAYS) MYMPD_CACHE_THUMBS_KEEP_DAYS="$2" ;;
             MYMPD_LOGLEVEL) MYMPD_LOGLEVEL="$2" ;;
-            MYMPD_URI) MYMPD_URI="$2" ;;
+            MYMPD_MYMPD_URI) MYMPD_MYMPD_URI="$2" ;;
             MYMPD_SAVE_CACHES) MYMPD_SAVE_CACHES="$2" ;;
             MYMPD_SCRIPTACL) MYMPD_SCRIPTACL="$2" ;;
             MYMPD_SCRIPTS_EXTERNAL) MYMPD_SCRIPTS_EXTERNAL="$2" ;;

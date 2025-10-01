@@ -66,7 +66,6 @@ bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_
 bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata,
     validate_callback vcb_key, validate_callback vcb_value, int max_elements, struct t_json_parse_error *error);
 bool json_get_fields(sds s, const char *path, struct t_fields *tags, int max_elements, struct t_json_parse_error *error);
-bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validate_callback vcb, int max_elements, struct t_json_parse_error *error);
 
 bool json_find_key(sds s, const char *path);
 sds json_get_key_as_sds(sds s, const char *path);

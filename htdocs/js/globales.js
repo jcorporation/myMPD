@@ -198,7 +198,7 @@ const webradioFields = [
 
 /** @type {object} */
 const albumFields = [
-    'Discs',
+    'DiscCount',
     'SongCount',
     'Duration',
     'Last-Modified'
@@ -1028,6 +1028,14 @@ const settingsConnectionFields = {
         "help": "helpConnectionBinaryLimit",
         "unit": "kB",
         "class": ["alwaysEnabled"]
+    },
+    "mpdStringnormalization": {
+        "defaultValue": defaults["MYMPD_MPD_STRINGNORMALIZATION"],
+        "inputType": "checkbox",
+        "title": "String normalization",
+        "form": "modalConnectionAdvFrm2",
+        "help": "helpConnectionStringnormalization",
+        "class": ["alwaysEnabled", "featStringnormalization"]
     },
     "stickerdbMpdHost": {
         "defaultValue": defaults["MYMPD_MPD_HOST"],

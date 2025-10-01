@@ -36,9 +36,7 @@ None
 
 #### Cause
 
-The mpd client library libmpclient uses a fixed buffer of 4096 bytes to get response lines from MPD. If a response line is larger than this limit, this error occurs. Most of the time the response line is to large, because of a tag that length exceeds this limit.
-
-myMPD uses a fork of libmpdclient (libmympdclient) that uses a fixed buffer size of 8192 bytes.
+The mpd client library [libmpclient](https://github.com/MusicPlayerDaemon/libmpdclient#) uses a fixed buffer of 4096 bytes to get response lines from MPD. If a response line is larger than this limit, this error occurs. Most of the time the response line is to large, because of a tag that length exceeds this limit.
 
 #### Workaround
 

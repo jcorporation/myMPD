@@ -11,7 +11,6 @@
 #include "compile_time.h"
 #include "src/mympd_client/features.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
@@ -367,7 +366,7 @@ static sds set_directory(const char *desc, sds directory, sds value) {
     if (sdslen(value) > 0 &&
         testdir(desc, value, false, true) != DIR_EXISTS)
     {
-        MYMPD_LOG_WARN(NULL, "MPD %s directory %s not accessible", desc, value);
+        MYMPD_LOG_WARN(NULL, "MPD %s directory \"%s\" not accessible", desc, value);
         sdsclear(value);
     }
     if (sdslen(value) == 0) {

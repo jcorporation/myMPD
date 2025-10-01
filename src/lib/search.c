@@ -11,7 +11,6 @@
 #include "compile_time.h"
 #include "src/lib/search.h"
 
-#include "dist/libmympdclient/src/iaf.h"
 #include "dist/utf8/utf8.h"
 #include "src/lib/convert.h"
 #include "src/lib/datetime.h"
@@ -218,6 +217,97 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
                 unsigned j = 0;
                 const char *value = NULL;
                 while ((value = mpd_song_get_tag(song, tags->tags[i], j)) != NULL) {
+                    j++;
+                    if ((expr->op == SEARCH_OP_CONTAINS && utf8casestr(value, expr->value) == NULL) ||
+                        (expr->op == SEARCH_OP_STARTS_WITH && utf8ncasecmp(expr->value, value, sdslen(expr->value)) != 0) ||
+                        (expr->op == SEARCH_OP_EQUAL && utf8casecmp(value, expr->value) != 0) ||
+                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value) == false))
+                    {
+                        //expression does not match
+                        rc = false;
+                    }
+                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && utf8casecmp(value, expr->value) == 0) ||
+                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value) == true))
+                    {
+                        //negated match operator - exit instantly
+                        rc = false;
+                        break;
+                    }
+                    else {
+                        //tag value matched
+                        rc = true;
+                        if (expr->op != SEARCH_OP_NOT_EQUAL &&
+                            expr->op != SEARCH_OP_NOT_REGEX)
+                        {
+                            //exit only for positive match operators
+                            break;
+                        }
+                    }
+                }
+                if (j == 0) {
+                    //no tag value found
+                    rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
+                        ? true
+                        : false;
+                }
+                if (rc == true) {
+                    //exit on first tag value match
+                    break;
+                }
+            }
+            if (rc == false) {
+                //exit on first expression mismatch
+                return false;
+            }
+        }
+        current = current->next;
+    }
+    //complete expression has matched
+    return true;
+}
+
+/**
+ * Implements search expressions for albums.
+ * @param album pointer to album struct
+ * @param expr_list expression list returned by parse_search_expression
+ * @param any_tag_types tags for special "any" tag in expression
+ * @return expression result
+ */
+bool search_expression_album(const struct t_album *album, const struct t_list *expr_list, const struct t_mympd_mpd_tags *any_tag_types) {
+    struct t_mympd_mpd_tags one_tag;
+    one_tag.len = 1;
+    struct t_list_node *current = expr_list->head;
+    while (current != NULL) {
+        struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
+        if (expr->tag == SEARCH_FILTER_MODIFIED_SINCE) {
+            if (expr->value_i > album_get_last_modified(album)) {
+                return false;
+            }
+        }
+        else if (expr->tag == SEARCH_FILTER_ADDED_SINCE) {
+            if (expr->value_i > album_get_added(album)) {
+                return false;
+            }
+        }
+        else if (expr->tag == SEARCH_FILTER_FILE ||
+                 expr->tag == SEARCH_FILTER_BASE ||
+                 expr->tag == SEARCH_FILTER_PRIO ||
+                 expr->tag == SEARCH_FILTER_AUDIO_FORMAT)
+        {
+            // Not implemented
+        }
+        else {
+            one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
+            const struct t_mympd_mpd_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
+                ? any_tag_types  //any - use provided tags
+                : &one_tag;      //use only selected tag
+
+            bool rc = false;
+            for (size_t i = 0; i < tags->len; i++) {
+                rc = true;
+                unsigned j = 0;
+                const char *value = NULL;
+                while ((value = album_get_tag(album, tags->tags[i], j)) != NULL) {
                     j++;
                     if ((expr->op == SEARCH_OP_CONTAINS && utf8casestr(value, expr->value) == NULL) ||
                         (expr->op == SEARCH_OP_STARTS_WITH && utf8ncasecmp(expr->value, value, sdslen(expr->value)) != 0) ||

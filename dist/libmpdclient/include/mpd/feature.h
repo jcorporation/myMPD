@@ -5,7 +5,7 @@
 #define LIBMPDCLIENT_FEATURE_H
 
 /**
- * @since libmpdclient 2.23 added support for #MPD_TAG_SHOWMOVEMENT.
+ * @since libmpdclient 2.23
  */
 enum mpd_protocol_feature
 {
@@ -17,7 +17,7 @@ enum mpd_protocol_feature
 
 	MPD_FEATURE_HIDE_PLAYLISTS_IN_ROOT,
 
-	/* IMPORTANT: the ordering of tag types above must be
+	/* IMPORTANT: the ordering above must be
 	   retained, or else the libmpdclient ABI breaks */
 
 	MPD_FEATURE_COUNT
@@ -30,6 +30,8 @@ extern "C" {
 /**
  * Looks up the name of the specified protocol feature.
  *
+ * @since libmpdclient 2.23
+ *
  * @return the name, or NULL if the tag type is not valid
  */
 const char *
@@ -37,6 +39,8 @@ mpd_feature_name(enum mpd_protocol_feature feature);
 
 /**
  * Parses a protocol feature name, and returns its #mpd_protocol_feature value.
+ *
+ * @since libmpdclient 2.23
  *
  * @return a #mpd_protocol_feature value, or MPD_FEATURE_UNKNOWN if the name was
  * not recognized

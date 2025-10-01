@@ -103,7 +103,6 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
         mympd_worker_state_free(mympd_worker_state);
         return false;
     }
-    mympd_worker_threads++;
     return true;
 }
 
@@ -117,8 +116,10 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
  * @return NULL
  */
 static void *mympd_worker_run(void *arg) {
-    thread_logname = sds_replace(thread_logname, "worker");
+    mympd_worker_threads++;
+    thread_logname = sdscatprintf(sdsempty(), "worker%02d", mympd_worker_threads);
     set_threadname(thread_logname);
+
     struct t_mympd_worker_state *mympd_worker_state = (struct t_mympd_worker_state *) arg;
     if (mympd_worker_state->mympd_only == true) {
         //call api handler

@@ -83,7 +83,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     // current song
     if (partition_state->song != NULL) {
         lua_mympd_state_set_mpd_song(lua_partition_state, "current_song", partition_state->song);
-        sds album_id = album_cache_get_key(sdsempty(), partition_state->song, &partition_state->config->albums);
+        sds album_id = album_cache_get_key_from_song(sdsempty(), partition_state->song, &partition_state->config->albums);
         lua_mympd_state_set_p(lua_partition_state, "current_album", album_id);
         FREE_SDS(album_id);
     }

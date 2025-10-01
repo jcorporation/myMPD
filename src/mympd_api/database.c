@@ -11,8 +11,8 @@
 #include "compile_time.h"
 #include "src/mympd_api/database.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/json/json_rpc.h"
+#include "src/lib/mpdclient.h"
 #include "src/mympd_api/status.h"
 #include "src/mympd_client/errorhandler.h"
 

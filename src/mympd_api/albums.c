@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/albums.h"
 
+#include "src/lib/album.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/fields.h"
 #include "src/lib/json/json_print.h"
@@ -30,7 +31,8 @@
 #include <string.h>
 
 // private definitions
-
+static sds get_sort_key_album(sds key, enum sort_by_type sort_by,
+        enum mpd_tag_type sort_tag, const struct t_album *album);
 static bool check_album_sort_tag(enum sort_by_type sort_by, enum mpd_tag_type sort_tag,
         struct t_albums_config *album_config);
 
@@ -57,7 +59,7 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
         return buffer;
     }
 
-    struct mpd_song *mpd_album = album_cache_get_album(&mympd_state->album_cache, albumid);
+    struct t_album *mpd_album = album_cache_get_album(&mympd_state->album_cache, albumid);
     if (mpd_album == NULL) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album not found");
@@ -84,9 +86,9 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
     unsigned last_played_song_pos = 0;
     if (partition_state->config->albums.mode == ALBUM_MODE_SIMPLE) {
         // reset album values for simple album mode
-        album_cache_set_total_time(mpd_album, 0);
-        album_cache_set_disc_count(mpd_album, 0);
-        album_cache_set_song_count(mpd_album, 0);
+        album_set_total_time(mpd_album, 0);
+        album_set_disc_count(mpd_album, 0);
+        album_set_song_count(mpd_album, 0);
     }
     bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
     if (print_stickers == true) {
@@ -122,9 +124,9 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
             buffer = sdscatlen(buffer, "}", 1);
             if (partition_state->config->albums.mode == ALBUM_MODE_SIMPLE) {
                 // calculate some album values for simple album mode
-                album_cache_inc_total_time(mpd_album, song);
-                album_cache_set_discs(mpd_album, song);
-                album_cache_inc_song_count(mpd_album);
+                album_inc_total_time(mpd_album, mpd_song_get_duration(song));
+                album_set_discs(mpd_album, mpd_song_get_tag(song, MPD_TAG_DISC, 0));
+                album_inc_song_count(mpd_album);
             }
             mpd_song_free(song);
         }
@@ -146,7 +148,7 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_uint(buffer, "offset", 0, true);
     buffer = tojson_uint(buffer, "limit", MPD_RESULTS_MAX, true);
     buffer = tojson_sds(buffer, "AlbumId", albumid, true);
-    buffer = print_album_tags(buffer, partition_state->mpd_state, &partition_state->mpd_state->tags_album, mpd_album);
+    buffer = print_album_tags(buffer, &partition_state->mpd_state->config->albums, &partition_state->mpd_state->tags_album, mpd_album);
     buffer = sdscat(buffer, ",\"lastPlayedSong\":{");
     buffer = tojson_time(buffer, "time", last_played_max, true);
     buffer = tojson_uint(buffer, "pos", last_played_song_pos, true);
@@ -246,11 +248,11 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
     raxSeek(&iter, "^", NULL, 0);
     sds key = sdsempty();
     while (raxNext(&iter)) {
-        struct mpd_song *album = (struct mpd_song *)iter.data;
+        struct t_album *album = (struct t_album *)iter.data;
         if (expr_list->length == 0 ||
-            search_expression_song(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
+            search_expression_album(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
-            key = get_sort_key(key, sort_by, sort_tag, album);
+            key = get_sort_key_album(key, sort_by, sort_tag, album);
             rax_insert_no_dup(albums, key, iter.data);
             sdsclear(key);
         }
@@ -282,11 +284,11 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
-            struct mpd_song *album = (struct mpd_song *)iter.data;
+            struct t_album *album = (struct t_album *)iter.data;
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
-            buffer = print_album_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, album);
+            buffer = print_album_tags(buffer, &partition_state->mpd_state->config->albums, &tagcols->mpd_tags, album);
             buffer = sdscatlen(buffer, ",", 1);
-            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), false);
+            buffer = tojson_char(buffer, "FirstSongUri", album_get_uri(album), false);
             if (print_stickers == true) {
                 buffer = sdscatlen(buffer, ",", 1);
                 album_exp = get_search_expression_album(album_exp, mympd_state->mpd_state->tag_albumartist, album, &mympd_state->config->albums);
@@ -319,6 +321,36 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
 }
 
 // private functions
+
+/**
+ * Gets an alphanumeric string for sorting
+ * @param key already allocated sds string to append
+ * @param sort_by enum sort_by
+ * @param sort_tag mpd tag to sort by
+ * @param album pointer to t_album
+ * @return pointer to key
+ */
+static sds get_sort_key_album(sds key, enum sort_by_type sort_by, enum mpd_tag_type sort_tag, const struct t_album *album) {
+    if (sort_by == SORT_BY_LAST_MODIFIED) {
+        key = sds_pad_int((int64_t)album_get_last_modified(album), key);
+    }
+    else if (sort_by == SORT_BY_ADDED) {
+        key = sds_pad_int((int64_t)album_get_added(album), key);
+    }
+    else if (is_numeric_tag(sort_tag) == true) {
+        key = album_get_tag_value_padded(album, sort_tag, '0', PADDING_LENGTH, key);
+    }
+    else if (sort_tag > MPD_TAG_UNKNOWN) {
+        key = album_get_tag_value_string(album, sort_tag, key);
+        if (sdslen(key) == 0) {
+            key = sdscatlen(key, "zzzzzzzzzz", 10);
+        }
+    }
+    key = sdscatfmt(key, "::%s", album_get_uri(album));
+    sds_utf8_tolower(key);
+    return key;
+}
+
 
 /**
  * Validates the album sort tag

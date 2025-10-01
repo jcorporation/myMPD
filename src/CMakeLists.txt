@@ -37,10 +37,14 @@ if(MYMPD_ENABLE_MYGPIOD)
     target_include_directories(mympd SYSTEM PRIVATE ${LIBMYGPIO_INCLUDE_DIRS})
   endif()
 endif()
+if(NOT MYMPD_EMBEDDED_LIBMPDCLIENT)
+  target_include_directories(mympd SYSTEM PRIVATE ${LIBMPDCLIENT_INCLUDE_DIRS})
+endif()
 
 target_sources(mympd
   PRIVATE
     main.c
+    lib/album.c
     lib/api.c
     lib/cacertstore.c
     lib/cache/cache_disk_images.c
@@ -62,6 +66,7 @@ target_sources(mympd
     lib/json/json_print.c
     lib/json/json_query.c
     lib/json/json_rpc.c
+    lib/jukebox.c
     lib/last_played.c
     lib/list.c
     lib/log.c
@@ -85,6 +90,7 @@ target_sources(mympd
     lib/validate.c
     lib/webradio.c
     mympd_client/autoconf.c
+    mympd_client/compat.c
     mympd_client/connection.c
     mympd_client/errorhandler.c
     mympd_client/features.c

@@ -331,6 +331,13 @@ function parseMPDSettings() {
         clearBackgroundImage(domCache.body);
     }
 
+    if (settings.partition.mixrampDb === null) {
+        settings.partition.mixrampDb = 0;
+    }
+    if (settings.partition.mixrampDelay === null) {
+        settings.partition.mixrampDelay = 0;
+    }
+
     populateTriggerEvents();
 
     settings.tagList.sort();

@@ -177,7 +177,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
             const els = [];
             els.push(elCreateEmpty('img', {"loading": "lazy", "src": obj.result.data[i].Thumbnail}));
             if (badgeText !== null) {
-                els.push(elCreateText('span', {"class": ["badge", "text-bg-secondary", "listThumbnailBadge"]}, badgeText));
+                els.push(elCreateText('span', {"class": ["badge", "text-bg-secondary", "listThumbnailBadge"], 'data-col': 'Pos'}, badgeText));
             }
             row.appendChild(
                 elCreateNodes('div', {"class": ["col", "list-image"]}, els)
@@ -251,6 +251,16 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
  */
 function createListBody(body, data, list) {
     let i = 0;
+    const fieldCount = settings['view' + list].fields.length;
+    if (fieldCount === 1) {
+        const tag = settings['view' + list].fields[0];
+        body.appendChild(
+            elCreateNode('div', {"data-col": tag},
+                printValue(tag, data[tag], data)
+            )
+        );
+        return;
+    }
     for (const tag of settings['view' + list].fields) {
         if (tag === 'Thumbnail' ||
             getBadgeText(data)[1] === tag)

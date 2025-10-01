@@ -2,18 +2,18 @@
 # myMPD (c) 2018-2025 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
-add_library(mympdclient "")
+add_library(mpdclient "")
 
-target_include_directories(mympdclient PUBLIC include)
+target_include_directories(mpdclient PUBLIC include)
 
 if(CMAKE_BUILD_TYPE MATCHES "(Release|RelWithDebInfo|MinSizeRel)")
-  target_compile_options(mympdclient
+  target_compile_options(mpdclient
     PRIVATE
       "-DNDEBUG"
   )
 endif()
 
-target_sources(mympdclient
+target_sources(mpdclient
   PRIVATE
     src/albumart.c
     src/async.c
@@ -74,4 +74,5 @@ target_sources(mympdclient
     src/sticker.c
     src/sync.c
     src/tag.c
+    src/stringnormalization.c
 )

@@ -29,7 +29,7 @@ Dumps default config and exits
 Print all valid options and exits
 .TP
 \fB\-v\fR, \fB\-\-version\fR
-Print all valid options and exits
+Displays version information
 .TP
 \fB\-p\fR, \fB\-\-pin
 Sets a pin for myMPD settings

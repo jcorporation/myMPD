@@ -405,6 +405,10 @@ th,
   color: inherit;
 }
 
+.queue-playing {
+  border: 2px solid var(--mympd-highlightcolor);
+}
+
 [data-col="Pos"],
 [data-col="Track"] {
   max-width: 5rem;

@@ -57,6 +57,7 @@
 #include "stats.h"
 #include "status.h"
 #include "sticker.h"
+#include "stringnormalization.h"
 
 /* this is a generated header and may be installed in a different
    filesystem tree, therefore we can't use just "version.h" */

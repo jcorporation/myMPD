@@ -11,12 +11,11 @@
 #include "compile_time.h"
 #include "src/mympd_client/tags.h"
 
-#include "dist/libmympdclient/src/isong.h"
+#include "src/lib/album.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/convert.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mympd_client/errorhandler.h"
@@ -54,60 +53,6 @@ time_t mympd_client_get_db_mtime(struct t_partition_state *partition_state) {
         mtime = 0;
     }
     return mtime;
-}
-
-/**
- * Adds a tag value to the album if value does not already exists
- * @param song pointer to a mpd_song struct
- * @param type mpd tag type
- * @param value tag value to add
- * @return true if tag is added or already there,
- *         false if the tag could not be added
- */
-bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
-        enum mpd_tag_type type, const char *value)
-{
-    struct mpd_tag_value *tag = &song->tags[type];
-
-    if ((int)type < 0 ||
-        type >= MPD_TAG_COUNT)
-    {
-        return false;
-    }
-
-    if (tag->value == NULL) {
-        tag->next = NULL;
-        tag->value = strdup(value);
-        if (tag->value == NULL) {
-            return false;
-        }
-    }
-    else {
-        while (tag->next != NULL) {
-            if (strcmp(tag->value, value) == 0) {
-                //do not add duplicate values
-                return true;
-            }
-            tag = tag->next;
-        }
-        if (strcmp(tag->value, value) == 0) {
-            //do not add duplicate values
-            return true;
-        }
-        struct mpd_tag_value *prev = tag;
-        tag = malloc_assert(sizeof(*tag));
-
-        tag->value = strdup(value);
-        if (tag->value == NULL) {
-            FREE_PTR(tag);
-            return false;
-        }
-
-        tag->next = NULL;
-        prev->next = tag;
-    }
-
-    return true;
 }
 
 /**
@@ -407,7 +352,7 @@ sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struc
             buffer = sdscatlen(buffer, ",", 1);
         }
         if (is_streamuri(uri) == false) {
-            sds albumid = album_cache_get_key(sdsempty(), song, &mpd_state->config->albums);
+            sds albumid = album_cache_get_key_from_song(sdsempty(), song, &mpd_state->config->albums);
             buffer = tojson_sds(buffer, "AlbumId", albumid, true);
             FREE_SDS(albumid);
         }
@@ -423,24 +368,6 @@ sds print_song_tags(sds buffer, const struct t_mpd_state *mpd_state, const struc
         buffer = tojson_time(buffer, "Added", mpd_song_get_added(song), true);
     }
     buffer = tojson_char(buffer, "uri", uri, false);
-    return buffer;
-}
-
-/**
- * Prints the tag values for an album as json string
- * @param buffer already allocated sds string to append the values
- * @param mpd_state pointer to mpd_state
- * @param tagcols pointer to t_tags struct (tags to retrieve)
- * @param album pointer to a mpd_song struct representing the album
- * @return new sds pointer to buffer
- */
-sds print_album_tags(sds buffer, const struct t_mpd_state *mpd_state, const struct t_mympd_mpd_tags *tagcols,
-        const struct mpd_song *album)
-{
-    buffer = print_song_tags(buffer, mpd_state, tagcols, album);
-    buffer = sdscatlen(buffer, ",", 1);
-    buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
-    buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), false);
     return buffer;
 }
 

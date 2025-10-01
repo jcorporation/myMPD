@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/albumart.h"
 
+#include "src/lib/album.h"
 #include "src/lib/api.h"
 #include "src/lib/cache/cache_disk.h"
 #include "src/lib/cache/cache_disk_images.h"
@@ -46,16 +47,16 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
         return buffer;
     }
 
-    struct mpd_song *album = album_cache_get_album(album_cache, albumid);
+    struct t_album *album = album_cache_get_album(album_cache, albumid);
     if (album == NULL) {
         return jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }
 
     // check album cache for uri
-    if (strcmp(mpd_song_get_uri(album), "albumid") != 0) {
+    if (strcmp(album_get_uri(album), "albumid") != 0) {
         // uri is cached - send redirect to albumart by uri
         buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_ALBUMID, request_id);
-        buffer = tojson_char(buffer, "uri", mpd_song_get_uri(album), true);
+        buffer = tojson_char(buffer, "uri", album_get_uri(album), true);
         buffer = tojson_uint(buffer, "size", size, false);
         buffer = jsonrpc_end(buffer);
         return buffer;
@@ -84,7 +85,7 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
         buffer = tojson_uint(buffer, "size", size, false);
         buffer = jsonrpc_end(buffer);
         // update album cache with uri
-        album_cache_set_uri(album, mpd_song_get_uri(song));
+        album_set_uri(album, mpd_song_get_uri(song));
         mpd_song_free(song);
         mympd_check_error_and_recover(partition_state, NULL, "mpd_search_db_songs");
         FREE_SDS(expression);

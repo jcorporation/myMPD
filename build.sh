@@ -884,29 +884,29 @@ installdeps() {
   fi
 }
 
-updatelibmympdclient() {
+updatelibmpdclient() {
   check_cmd git meson
 
-  cd dist/libmympdclient || exit 1
+  cd dist/libmpdclient || exit 1
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  git clone --depth=1 -b libmympdclient https://github.com/jcorporation/libmympdclient.git
-  cd libmympdclient || exit 1
-  meson setup . output -Dbuffer_size=8192
+  git clone --depth=1 -b master https://github.com/MusicPlayerDaemon/libmpdclient.git
+  cd libmpdclient || exit 1
+  meson setup . output
 
-  cd "$STARTPATH/dist/libmympdclient" || exit 1
+  cd "$STARTPATH/dist/libmpdclient" || exit 1
   install -d src
   install -d include/mpd
   install -d LICENSES
 
-  rsync -av --delete "$TMPDIR/libmympdclient/src/" ./src/
-  rsync -av --delete "$TMPDIR/libmympdclient/include/mpd/" ./include/mpd/
+  rsync -av --delete "$TMPDIR/libmpdclient/src/" ./src/
+  rsync -av --delete "$TMPDIR/libmpdclient/include/mpd/" ./include/mpd/
 
-  rsync -av "$TMPDIR/libmympdclient/output/include/mpd/version.h" include/mpd/version.h
-  rsync -av "$TMPDIR/libmympdclient/output/config.h" include/config.h
+  rsync -av "$TMPDIR/libmpdclient/output/include/mpd/version.h" include/mpd/version.h
+  rsync -av "$TMPDIR/libmpdclient/output/config.h" include/config.h
 
-  rsync -av "$TMPDIR/libmympdclient/LICENSES/" LICENSES/
+  rsync -av "$TMPDIR/libmpdclient/LICENSES/" LICENSES/
 
   rm -rf "$TMPDIR"
 }
@@ -1240,7 +1240,7 @@ run_tsc() {
   then
     return 1
   fi
-  echo "Running typscript compiler for validation"
+  echo "Running typescript compiler for validation"
   if ! npx tsc -p htdocs/js/jsconfig.json
   then
     return 1
@@ -1557,8 +1557,8 @@ case "$ACTION" in
   addmympduser)
     addmympduser
   ;;
-  libmympdclient)
-    updatelibmympdclient
+  libmpdclient)
+    updatelibmpdclient
   ;;
   bootstrapnative)
     updatebootstrapnative
@@ -1783,7 +1783,7 @@ case "$ACTION" in
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"
     echo "  bootstrapnative:  updates bootstrap.native"
-    echo "  libmympdclient:   updates libmympdclient (fork of libmpdclient)"
+    echo "  libmpdclient:     updates libmpdclient"
     echo "  materialicons:    updates the materialicons json"
     echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
     echo ""

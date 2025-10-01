@@ -11,9 +11,9 @@
 #include "compile_time.h"
 #include "src/lib/validate.h"
 
-#include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/utf8/utf8.h"
 #include "src/lib/log.h"
+#include "src/lib/mpdclient.h"
 #include "src/lib/search.h"
 #include "src/lib/sticker.h"
 #include "src/lib/webradio.h"
@@ -62,7 +62,7 @@ static const char *mympd_fields[]={
     "Country", "Region", "Description", "Genres", "Homepage", "Languages", "Name", "StreamUri",
     "Codec", "Bitrate",
     // Columns for albums
-    "Discs", "SongCount",
+    "DiscCount", "SongCount",
     // End
     0};
 

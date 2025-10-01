@@ -25,11 +25,91 @@
 
 #include <assert.h>
 #include <dirent.h>
-#include <errno.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+
+/**
+ * Config items
+ */
+enum config_item {
+    CI_ACL = 0,
+    CI_ALBUM_GROUP_TAG,
+    CI_ALBUM_MODE,
+    CI_CA_CERT_STORE,
+    CI_CACHE_COVER_KEEP_DAYS,
+    CI_CACHE_HTTP_KEEP_DAYS,
+    CI_CACHE_LYRICS_KEEP_DAYS,
+    CI_CACHE_MISC_KEEP_DAYS,
+    CI_CACHE_THUMBS_KEEP_DAYS,
+    CI_CERT_CHECK,
+    CI_CUSTOM_CERT,
+    CI_CUSTOM_CSS,
+    CI_CUSTOM_JS,
+    CI_HTTP,
+    CI_HTTP_HOST,
+    CI_HTTP_PORT,
+    CI_LOGLEVEL,
+    CI_MYMPD_URI,
+    CI_PIN_HASH,
+    CI_SAVE_CACHES,
+    CI_SCRIPTACL,
+    CI_SCRIPTS_EXTERNAL,
+    CI_SSL,
+    CI_SSL_CERT,
+    CI_SSL_KEY,
+    CI_SSL_PORT,
+    CI_SSL_SAN,
+    CI_STICKERS,
+    CI_STICKERS_PAD_INT,
+    CI_WEBRADIODB,
+    CI_COUNT
+};
+
+/**
+ * Config item types
+ */
+enum config_item_type {
+    CIT_B,  //!< Bool
+    CIT_I,  //!< Integer
+    CIT_S   //!< SDS string
+};
+
+/**
+ * Default config values
+ */
+struct t_config_value_default {
+    enum config_item_type t;  //!< Config item type
+    union {
+        const char *s;        //!< SDS string
+        int i;                //!< Integer
+        bool b;               //!< Bool
+    };
+};
+
+/**
+ * Config values
+ */
+struct t_config_value {
+    enum config_item_type t;  //!< Config item type
+    union {
+        sds s;                //!< SDS string
+        int i;                //!< Integer
+        bool b;               //!< Bool
+    };
+};
+
+/**
+ * Config defaults
+ */
+struct t_config_default {
+    const char *file;                     //!< Config filename
+    struct t_config_value_default value;  //!< Default config value 
+    int min;                              //!< Minimum value for integer
+    int max;                              //!< Maximum value for integer
+    validate_callback vcb;                //!< Validation callback for strings
+};
 
 /**
  * Default config definition
@@ -38,7 +118,7 @@ static const struct t_config_default config_default[] = {
     [CI_ACL]                    = {"acl",                    {.t = CIT_S, .s = ""},             0, 0, vcb_isname},
     [CI_ALBUM_MODE]             = {"album_mode",             {.t = CIT_S, .s = "adv"},          0, 0, vcb_isalnum},
     [CI_ALBUM_GROUP_TAG]        = {"album_group_tag",        {.t = CIT_S, .s = "Date"},         0, 0, vcb_isalnum},
-    [CI_CA_CERT_STORE]          = { "ca_cert_store",         {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
+    [CI_CA_CERT_STORE]          = {"ca_cert_store",          {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
     [CI_CACHE_COVER_KEEP_DAYS]  = {"cache_cover_keep_days",  {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
     [CI_CACHE_HTTP_KEEP_DAYS]   = {"cache_http_keep_days",   {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
     [CI_CACHE_LYRICS_KEEP_DAYS] = {"cache_lyrics_keep_days", {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
@@ -356,36 +436,6 @@ bool mympd_config_read(struct t_config *config) {
     FREE_SDS(config->album_mode);
     FREE_SDS(config->album_group_tag);
 
-    return true;
-}
-
-/**
- * Removes all files from the config directory
- * @param config pointer to config struct
- * @return bool true on success, else false
- */
-bool mympd_config_rm(struct t_config *config) {
-    errno = 0;
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_CONFIG);
-    DIR *config_dir = opendir(filepath);
-    if (config_dir == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Error opening directory \"%s\"", filepath);
-        MYMPD_LOG_ERRNO(NULL, errno);
-        FREE_SDS(filepath);
-        return false;
-    }
-
-    struct dirent *next_file;
-    while ((next_file = readdir(config_dir)) != NULL ) {
-        if (next_file->d_type != DT_REG) {
-            continue;
-        }
-        sdsclear(filepath);
-        filepath = sdscatfmt(filepath, "%S/%s/%s", config->workdir, DIR_WORK_CONFIG, next_file->d_name);
-        rm_file(filepath);
-    }
-    closedir(config_dir);
-    FREE_SDS(filepath);
     return true;
 }
 

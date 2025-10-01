@@ -8,6 +8,7 @@ configure_file(utility.h.in "${PROJECT_BINARY_DIR}/test/utility.h")
 set(TEST_SOURCES
   main.c
   utility.c
+  ../src/lib/album.c
   ../src/lib/api.c
   ../src/lib/cacertstore.c
   ../src/lib/cache/cache_disk_lyrics.c
@@ -26,6 +27,7 @@ set(TEST_SOURCES
   ../src/lib/json/json_print.c
   ../src/lib/json/json_query.c
   ../src/lib/json/json_rpc.c
+  ../src/lib/jukebox.c
   ../src/lib/last_played.c
   ../src/lib/list.c
   ../src/lib/log.c
@@ -45,6 +47,7 @@ set(TEST_SOURCES
   ../src/lib/utility.c
   ../src/lib/validate.c
   ../src/lib/webradio.c
+  ../src/mympd_client/compat.c
   ../src/mympd_client/connection.c
   ../src/mympd_client/errorhandler.c
   ../src/mympd_client/features.c
@@ -85,7 +88,8 @@ set(TEST_SOURCES
   tests/test_filehandler.c
   tests/test_http_client.c
   tests/test_http_client_cache.c
-  tests/test_jsonrpc.c
+  tests/test_jsonprint.c
+  tests/test_jsonquery.c
   tests/test_list.c
   tests/test_mimetype.c
   tests/test_mympd_queue.c
@@ -125,6 +129,7 @@ target_include_directories(unit_test
     ${PROJECT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/test
     ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/test
 )
 
 target_compile_options(unit_test
@@ -135,7 +140,6 @@ target_compile_options(unit_test
 )
 
 target_link_libraries(unit_test
-  mympdclient
   mpack
   mongoose
   rax
@@ -145,6 +149,12 @@ target_link_libraries(unit_test
   ${OPENSSL_LIBRARIES}
   ${PCRE2_LIBRARIES}
 )
+
+if(MYMPD_EMBEDDED_LIBMPDCLIENT)
+  target_link_libraries(unit_test mpdclient)
+else()
+  target_link_libraries(unit_test ${LIBMPDCLIENT_LIBRARIES})
+endif()
 
 # link optional dependencies
 if(LIBID3TAG_FOUND)
@@ -168,7 +178,8 @@ list(APPEND test_categories
   "env"
   "filehandler"
   "http_client"
-  "jsonrpc"
+  "jsonprint"
+  "jsonquery"
   "list"
   "m3u"
   "mimetype"
