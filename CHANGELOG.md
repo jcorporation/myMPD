@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v22.1.0 (not yet released)
+## myMPD v22.1.0 (2025-10-01)
 
 This is the first release that supports a system-wide installed libmpdclient library. If the library was not found or is too old, the build process falls back to the embedded libmpdclient.
 
