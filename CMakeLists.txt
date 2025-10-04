@@ -113,7 +113,7 @@ else()
   endif()
 endif()
 
-# set myMPD specific debug define
+# set global libmpdclient mode
 if(MYMPD_EMBEDDED_LIBMPDCLIENT)
   add_compile_options(
     "-DMYMPD_EMBEDDED_LIBMPDCLIENT=1"
