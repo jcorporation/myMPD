@@ -311,9 +311,7 @@ function parseCmdFromJSON(event, str) {
  * @returns {void}
  */
 function parseCmd(event, cmd) {
-    if (event !== null &&
-        event !== undefined)
-    {
+    if (isDefined(event) === true) {
         event.preventDefault();
     }
     const func = getFunctionByName(cmd.cmd);
@@ -616,4 +614,15 @@ function parseDateFromText(value) {
         return Date.parse(value) / 1000;
     }
     return NaN;
+}
+
+/**
+ * Check for defined variable
+ * @param {*} x Variable to check
+ * @returns {boolean} true if variables is not null and not undefined, else false
+ */
+function isDefined(x) {
+    return x === null || x === undefined
+        ? false
+        : true;
 }

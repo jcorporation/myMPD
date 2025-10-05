@@ -86,9 +86,8 @@ function setIsInvalid(el) {
  * @returns {boolean} true = valid uri, else false
  */
 function isValidUri(uri) {
-    if (uri === '' ||
-        uri === undefined ||
-        uri === null ||
+    if (isDefined(uri) === false ||
+        uri === '' ||
         uri.match(/^\s*$/) !== null)
     {
         return false;
@@ -102,10 +101,9 @@ function isValidUri(uri) {
  * @returns {boolean} true = stream uri, else false
  */
 function isStreamUri(uri) {
-    if (uri === undefined) {
-        return false;
-    }
-    if (uri.indexOf('://') > -1) {
+    if (isDefined(uri) === true &&
+        uri.indexOf('://') > -1)
+    {
         return true;
     }
     return false;

@@ -202,7 +202,7 @@ function checkAPIresponse(obj, callback, onerror) {
         setJsonRpcError(0, "MYMPD_API_UNKNOWN", tn("Invalid response"));
         obj = jsonRpcError;
     }
-    if (callback !== undefined &&
+    if (isDefined(callback) === true &&
         typeof(callback) === 'function')
     {
         if (obj.result !== undefined ||

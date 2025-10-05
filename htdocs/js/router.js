@@ -110,12 +110,12 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
     }
 
     //set options to default, if not defined
-    if (offset === null || offset === undefined) { offset = ptr.offset; }
-    if (limit === null || limit === undefined)   { limit = ptr.limit; }
-    if (filter === null || filter === undefined) { filter = ptr.filter; }
-    if (sort === null || sort === undefined)     { sort = ptr.sort; }
-    if (tag === null || tag === undefined)       { tag = ptr.tag; }
-    if (search === null || search === undefined) { search = ptr.search; }
+    if (isDefined(offset) === false) { offset = ptr.offset; }
+    if (isDefined(limit) === false)  { limit = ptr.limit; }
+    if (isDefined(filter) === false) { filter = ptr.filter; }
+    if (isDefined(sort) === false)   { sort = ptr.sort; }
+    if (isDefined(tag) === false)    { tag = ptr.tag; }
+    if (isDefined(search) === false) { search = ptr.search; }
     //enforce number type
     offset = Number(offset);
     limit = Number(limit);
@@ -223,7 +223,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search, app
         appInitStart();
         return;
     }
-    if (card === undefined || card === null) {
+    if (isDefined(card) === false) {
         const hash = location.hash.match(/^#(.*)$/);
         let jsonHash = null;
         if (hash !== null) {
