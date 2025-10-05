@@ -406,7 +406,7 @@ th,
 }
 
 .queue-playing {
-  border: 2px solid var(--mympd-highlightcolor);
+  border: 2px solid var(--mympd-highlightcolor) !important;
 }
 
 [data-col="Pos"],

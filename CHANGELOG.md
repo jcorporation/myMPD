@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Now playing indicator in Queue View
+
 ***
 
 ## myMPD v22.1.0 (2025-10-01)

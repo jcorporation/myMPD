@@ -128,6 +128,7 @@ function parseQueue(obj) {
     }, function(card, data) {
         createListBody(card, data, app.id);
     });
+    queueSetCurrentSong();
 }
 
 /**
@@ -255,25 +256,28 @@ function resetSongPos(playingRow) {
  * @returns {void}
  */
 function setQueueCounter(playingRow, counterText) {
-    if (userAgentData.isSafari === false) {
-        //safari does not support gradient backgrounds at row level
-        //calc percent with two decimals after comma
-        const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0
-            ? 100
-            : Math.ceil((100 / currentState.totalTime) * currentState.elapsedTime * 100) / 100;
-        let targetRow = playingRow;
-        if (targetRow.getAttribute('id') === null) {
-            targetRow = elGetById('queueSongId' + currentState.currentSongId);
-        }
-        if (targetRow !== null) {
-            targetRow.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
-                progressPrct + '%, transparent ' + progressPrct + '%, transparent 100%)';
-        }
-    }
-    //counter in queue card
+    //counter in current queue view
     const durationTd = playingRow.querySelector('[data-col=Duration]');
     if (durationTd) {
         durationTd.textContent = counterText;
+    }
+    //safari does not support gradient backgrounds at row level
+    if (userAgentData.isSafari === true &&
+        settings['view' + app.id].mode === 'table')
+    {
+        return;
+    }
+    //calc percent with two decimals after comma
+    const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0
+        ? 100
+        : Math.ceil((100 / currentState.totalTime) * currentState.elapsedTime * 100) / 100;
+    let targetRow = playingRow;
+    if (targetRow.getAttribute('id') === null) {
+        targetRow = elGetById('queueSongId' + currentState.currentSongId);
+    }
+    if (targetRow !== null) {
+        targetRow.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
+            progressPrct + '%, transparent ' + progressPrct + '%, transparent 100%)';
     }
 }
 
