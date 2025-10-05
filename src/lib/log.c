@@ -103,9 +103,7 @@ void log_init(void) {
         log_type = LOG_TO_TTY;
     }
     else if (getenv_check("INVOCATION_ID") != NULL) {
-        #ifdef MYMPD_ENABLE_SYSTEMD
-            log_type = LOG_TO_SYSTEMD;
-        #endif
+        log_type = LOG_TO_SYSTEMD;
     }
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
