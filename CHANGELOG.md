@@ -10,6 +10,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Logging improvements
 - Fix: Now playing indicator in Queue View
 
 ***

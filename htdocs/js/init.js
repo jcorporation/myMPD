@@ -112,7 +112,7 @@ function appInitStart() {
 
     //set loglevel
     if (debugMode === true) {
-        settings.loglevel = 4;
+        settings.loglevel = 7;
     }
 
     //serviceworker handling
@@ -428,9 +428,10 @@ function getAssets() {
  * @returns {boolean} false
  */
 window.onerror = function(msg, url, line, col) {
-    if (settings.loglevel >= 4) {
+    if (settings.loglevel >= 3) {
         showNotification(tn('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ':' + col + ')', 'general', 'error');
     }
+    logError(tn('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ':' + col + ')');
     //show error also in the console
     return false;
 };

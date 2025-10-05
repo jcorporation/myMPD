@@ -88,7 +88,10 @@ function showLogs() {
         overview.insertBefore(
             elCreateNodes('tr', {}, [
                 elCreateText('td', {}, fmtTime(log.timestamp)),
-                elCreateText('td', {}, tn(severityNames[log.severity])),
+                elCreateNodes('td', {}, [
+                    createSeverityIconList(log.severity),
+                    document.createTextNode(tn(severityNames[log.severity]))
+                ]),
                 elCreateText('td', {}, log.message)
             ]),
             overview.firstElementChild);
