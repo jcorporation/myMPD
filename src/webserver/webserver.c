@@ -168,11 +168,11 @@ static void read_queue(struct mg_mgr *mgr) {
             case RESPONSE_TYPE_SCRIPT_DIALOG:
             case RESPONSE_TYPE_NOTIFY_CLIENT:
                 //websocket notify for specific clients
-                send_ws_notify_client(mgr, response);
+                websocket_send_notify_client(mgr, response);
                 break;
             case RESPONSE_TYPE_NOTIFY_PARTITION:
                 //websocket notify for all clients
-                send_ws_notify(mgr, response);
+                websocket_send_notify(mgr, response);
                 break;
             case RESPONSE_TYPE_PUSH_CONFIG:
                 //internal message

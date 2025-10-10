@@ -19,7 +19,7 @@
  * @param mgr mongoose mgr
  * @param response jsonrpc notification
  */
-void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response) {
+void websocket_send_notify(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
     time_t last_ping = time(NULL) - WS_PING_TIMEOUT;
@@ -52,7 +52,7 @@ void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response) {
  * @param mgr mongoose mgr
  * @param response jsonrpc notification
  */
-void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response) {
+void websocket_send_notify_client(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
     const unsigned client_id = response->id / 1000;

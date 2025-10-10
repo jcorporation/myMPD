@@ -15,7 +15,7 @@
 #include "dist/mongoose/mongoose.h"
 #include "src/lib/api.h"
 
-void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
-void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
+void websocket_send_notify(struct mg_mgr *mgr, struct t_work_response *response);
+void websocket_send_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
 
 #endif
