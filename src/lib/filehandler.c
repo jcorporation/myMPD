@@ -175,6 +175,9 @@ sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *n
  * @return true on success, else false
  */
 bool testfile_read(const char *filename) {
+    if (filename[0] == '\0') {
+        return false;
+    }
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
