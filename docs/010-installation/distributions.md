@@ -9,6 +9,7 @@ myMPD is available in the following distributions:
 - [DietPi](https://dietpi.com/)
 - [GentooPlayer](http://gentooplayer.com/)
 - [Guix](https://guix.gnu.org/)
+- [IPFire](https://www.ipfire.org/docs/addons/mympd)
 - [MusicLounge Audiophile Distro](https://linuxaudiofoundation.org)
 - [MX Linux](https://mxlinux.org/)
 - [NixOS](https://nixos.org/)
