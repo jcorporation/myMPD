@@ -20,11 +20,12 @@
  * Paths to check for the ca cert store
  */
 const char *check_ca_cert_paths[] = {
-    "/etc/ssl/ca-bundle.pem",
-    "/etc/ssl/certs/ca-certificates.crt",
+    "/var/lib/ca-certificates/ca-bundle.pem",  // openSUSE
+    "/etc/ssl/ca-bundle.pem",  // openSUSE
+    "/etc/ssl/certs/ca-certificates.crt",  // Debian
     "/etc/ssl/certs/ca-bundle.crt",
-    "/etc/pki/tls/certs/ca-bundle.crt",
-    "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
+    "/etc/pki/tls/certs/ca-bundle.crt",  // Fedora
+    "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", // Fedora
     NULL
 };
 
@@ -34,12 +35,6 @@ const char *check_ca_cert_paths[] = {
  * @return const char* or NULL if not found
  */
 const char *find_ca_cert_store(bool silent) {
-    const char *file = X509_get_default_cert_file();
-    if (testfile_read(file) == true) {
-        return file;
-    }
-    MYMPD_LOG_DEBUG(NULL, "Default CA cert store not accessible, try out some standard locations");
-    // Fallback to manual detection
     const char **p = check_ca_cert_paths;
     while (*p != NULL) {
         if (testfile_read(*p) == true) {
@@ -47,8 +42,13 @@ const char *find_ca_cert_store(bool silent) {
         }
         p++;
     }
+    MYMPD_LOG_DEBUG(NULL, "No system specific CA cert store found, using OpenSSL default");
+    const char *file = X509_get_default_cert_file();
+    if (testfile_read(file) == true) {
+        return file;
+    }
     if (silent == false) {
-        MYMPD_LOG_ERROR(NULL, "CA cert store not found.");
+        MYMPD_LOG_EMERG(NULL, "CA cert store not found.");
     }
     return NULL;
 }
