@@ -14,6 +14,7 @@ set(TEST_SOURCES
   ../src/lib/cache/cache_disk_lyrics.c
   ../src/lib/cache/cache_rax_album.c
   ../src/lib/cache/cache_rax.c
+  ../src/lib/cacertstore.h
   ../src/lib/cert.c
   ../src/lib/config.c
   ../src/lib/convert.c
@@ -81,6 +82,7 @@ set(TEST_SOURCES
   ../src/webserver/mg_user_data.c
   tests/test_album_cache.c
   tests/test_api.c
+  tests/test_cacertstore.c
   tests/test_cert.c
   tests/test_convert.c
   tests/test_datetime.c
@@ -172,6 +174,7 @@ add_custom_command(TARGET unit_test PRE_BUILD
 list(APPEND test_categories
   "album_cache"
   "api"
+  "cacertstore"
   "cert"
   "convert"
   "datetime"
