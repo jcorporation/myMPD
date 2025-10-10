@@ -448,7 +448,9 @@ bool mympd_read_ca_certificates(struct t_config *config) {
     if (config->cert_check == false) {
         return true;
     }
-    if (sdslen(config->ca_cert_store) == 0) {
+    if (config->ca_cert_store == NULL ||
+        sdslen(config->ca_cert_store) == 0)
+    {
         MYMPD_LOG_EMERG(NULL, "System certificate store not found.");
         return false;
     }

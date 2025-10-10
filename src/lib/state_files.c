@@ -103,6 +103,11 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
             MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\"", cfg_file);
             MYMPD_LOG_ERRNO(NULL, errno);
         }
+        if (def_value == NULL) {
+            FREE_SDS(cfg_file);
+            FREE_SDS(result);
+            return NULL;
+        }
         if (write == true) {
             //file does not exist, create it with default value and return
             state_file_write(workdir, dir, name, def_value);
@@ -127,8 +132,14 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
     }
     if (nread <= 0) {
         //error reading state file, use default
-        sdsclear(result);
-        result = sdscat(result, def_value);
+        if (def_value != NULL) {
+            sdsclear(result);
+            result = sdscat(result, def_value);
+        }
+        else {
+            FREE_SDS(result);
+            return NULL;
+        }
     }
     MYMPD_LOG_DEBUG(NULL, "State %s: %s", name, result);
     return result;
