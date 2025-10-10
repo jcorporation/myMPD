@@ -25,6 +25,8 @@
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 #include "src/webserver/placeholder.h"
+#include "src/webserver/response.h"
+#include "src/webserver/utility.h"
 #include "src/webserver/webradio.h"
 
 #include <libgen.h>

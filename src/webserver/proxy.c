@@ -19,6 +19,7 @@
 #include "src/lib/mimetype.h"
 #include "src/lib/sds_extras.h"
 #include "src/webserver/placeholder.h"
+#include "src/webserver/response.h"
 #include "src/webserver/utility.h"
 
 /**

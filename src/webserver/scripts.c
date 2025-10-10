@@ -19,6 +19,7 @@
 #include "src/lib/validate.h"
 #include "src/mympd_api/requests.h"
 #include "src/scripts/events.h"
+#include "src/webserver/response.h"
 #include "src/webserver/utility.h"
 
 #include <lauxlib.h>

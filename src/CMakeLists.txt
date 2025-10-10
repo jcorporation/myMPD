@@ -156,14 +156,16 @@ target_sources(mympd
     webserver/albumart.c
     webserver/folderart.c
     webserver/mg_user_data.c
-    webserver/request_handler.c
     webserver/placeholder.c
     webserver/proxy.c
     webserver/sessions.c
     webserver/playlistart.c
+    webserver/request_handler.c
+    webserver/response.c
     webserver/tagart.c
     webserver/utility.c
     webserver/webradio.c
+    webserver/websocket.c
 )
 
 if(MYMPD_ENABLE_LUA)

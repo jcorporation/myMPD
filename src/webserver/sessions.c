@@ -18,7 +18,7 @@
 #include "src/lib/pin.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"
-#include "src/webserver/utility.h"
+#include "src/webserver/response.h"
 
 #include <openssl/rand.h>
 #include <string.h>

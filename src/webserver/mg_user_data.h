@@ -48,7 +48,7 @@ struct t_mg_user_data {
     struct mg_str cert;                      //!< pointer to ssl cert_content
     struct mg_str key;                       //!< pointer to ssl key_content
     struct t_webradios *webradiodb;          //!< Pointer to WebradioDB in mympd_api thread
-    struct t_webradios *webradio_favorites;  //!< Pointer to webradio favorits in mympd_api thread
+    struct t_webradios *webradio_favorites;  //!< Pointer to webradio favorites in mympd_api thread
 };
 
 void mg_user_data_free(struct t_mg_user_data *mg_user_data);

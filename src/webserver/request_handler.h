@@ -12,7 +12,7 @@
 #define MYMPD_WEB_SERVER_REQUEST_HANDLER_H
 
 #include "dist/mongoose/mongoose.h"
-#include "src/webserver/utility.h"
+#include "src/webserver/mg_user_data.h"
 
 bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth_header,
         struct t_mg_user_data *mg_user_data);

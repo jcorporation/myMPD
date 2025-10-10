@@ -19,6 +19,8 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"
 #include "src/webserver/placeholder.h"
+#include "src/webserver/response.h"
+#include "src/webserver/utility.h"
 
 /**
  * Serves the first image in a folder

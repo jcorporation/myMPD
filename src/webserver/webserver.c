@@ -26,7 +26,9 @@
 #include "src/webserver/playlistart.h"
 #include "src/webserver/proxy.h"
 #include "src/webserver/request_handler.h"
+#include "src/webserver/response.h"
 #include "src/webserver/tagart.h"
+#include "src/webserver/websocket.h"
 
 #ifdef MYMPD_ENABLE_LUA
     #include "src/webserver/scripts.h"
@@ -38,19 +40,10 @@
 /**
  * Private definitions
  */
-
 static void read_queue(struct mg_mgr *mgr);
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
-static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
-static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
-static struct mg_connection *get_nc_by_id(struct mg_mgr *mgr, unsigned long id);
-static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *response);
-static void send_redirect(struct mg_mgr *mgr, struct t_work_response *response);
-static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
-static bool enforce_acl(struct mg_connection *nc, sds acl);
-static bool enforce_conn_limit(struct mg_connection *nc, int connection_count);
 static void mongoose_log(char ch, void *param);
 
 /**
@@ -197,15 +190,15 @@ static void read_queue(struct mg_mgr *mgr) {
             case RESPONSE_TYPE_DEFAULT:
                 //api response
                 MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lu\"", response->conn_id);
-                send_api_response(mgr, response);
+                webserver_send_api_response(mgr, response);
                 break;
             case RESPONSE_TYPE_RAW:
                 MYMPD_LOG_DEBUG(response->partition, "Got raw response for id \"%lu\" with %lu bytes", response->conn_id, (unsigned long)sdslen(response->data));
-                send_raw_response(mgr, response);
+                webserver_send_raw_response(mgr, response);
                 break;
             case RESPONSE_TYPE_REDIRECT:
                 MYMPD_LOG_DEBUG(response->partition, "Got redirect for id \"%lu\" to %s", response->conn_id, response->data);
-                send_redirect(mgr, response);
+                webserver_send_redirect(mgr, response);
                 break;
             case RESPONSE_TYPE_SCRIPT:
             case RESPONSE_TYPE_DISCARD:
@@ -308,204 +301,6 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
 }
 
 /**
- * Broadcasts a message through all websocket connections for a specific or all partitions
- * @param mgr mongoose mgr
- * @param response jsonrpc notification
- */
-static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response) {
-    struct mg_connection *nc = mgr->conns;
-    int send_count = 0;
-    time_t last_ping = time(NULL) - WS_PING_TIMEOUT;
-    while (nc != NULL) {
-        if (nc->is_websocket == 1U) {
-            struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
-            if (frontend_nc_data->last_ws_ping < last_ping) {
-                MYMPD_LOG_INFO(NULL, "Closing stale websocket connection \"%lu\"", nc->id);
-                nc->is_closing = 1;
-            }
-            else if (strcmp(response->partition, frontend_nc_data->partition) == 0 ||
-                strcmp(response->partition, MPD_PARTITION_ALL) == 0)
-            {
-                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id \"%lu\": %s", nc->id, response->data);
-                mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
-                send_count++;
-            }
-        }
-        nc = nc->next;
-    }
-    if (send_count == 0) {
-        MYMPD_LOG_DEBUG(NULL, "No websocket client connected, discarding message: %s", response->data);
-    }
-    free_response(response);
-}
-
-/**
- * Sends a message through the websocket to a specific client
- * We use the jsonprc id to identify the websocket connection
- * @param mgr mongoose mgr
- * @param response jsonrpc notification
- */
-static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response) {
-    struct mg_connection *nc = mgr->conns;
-    int send_count = 0;
-    const unsigned client_id = response->id / 1000;
-    //const unsigned request_id = response->id % 1000;
-    while (nc != NULL) {
-        if (nc->is_websocket == 1U) {
-            struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
-            if (client_id == frontend_nc_data->id) {
-                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id \"%lu\", jsonrpc client id %u: %s", nc->id, client_id, response->data);
-                mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
-                send_count++;
-                break;
-            }
-        }
-        nc = nc->next;
-    }
-    if (send_count == 0) {
-        MYMPD_LOG_DEBUG(NULL, "No websocket client with id %u connected, discarding message: %s", client_id, response->data);
-    }
-    free_response(response);
-}
-
-/**
- * Returns the mongoose connection by id
- * @param mgr mongoose mgr
- * @param id connection id
- * @return struct mg_connection* or NULL if not found
- */
-static struct mg_connection *get_nc_by_id(struct mg_mgr *mgr, unsigned long id) {
-    struct mg_connection *nc = mgr->conns;
-    while (nc != NULL) {
-        if (nc->id == id) {
-            return nc;
-        }
-        nc = nc->next;
-    }
-    return NULL;
-}
-
-/**
- * Sends a raw http response message
- * @param mgr mongoose mgr
- * @param response jsonrpc response
- */
-static void send_raw_response(struct mg_mgr *mgr, struct t_work_response *response) {
-    struct mg_connection *nc = get_nc_by_id(mgr, response->conn_id);
-    if (nc != NULL) {
-        webserver_send_raw(nc, response->data, sdslen(response->data));
-    }
-    free_response(response);
-}
-
-/**
- * Sends a redirect http response message
- * @param mgr mongoose mgr
- * @param response jsonrpc response
- */
-static void send_redirect(struct mg_mgr *mgr, struct t_work_response *response) {
-    struct mg_connection *nc = get_nc_by_id(mgr, response->conn_id);
-    if (nc != NULL) {
-        webserver_send_header_redirect(nc, response->data, NULL);
-    }
-    else {
-        MYMPD_LOG_ERROR(NULL, "Connection for id \"%lu\" not found", response->conn_id);
-    }
-    free_response(response);
-}
-
-/**
- * Sends an api response
- * @param mgr mongoose mgr
- * @param response jsonrpc response
- */
-static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response) {
-    struct mg_connection *nc = get_nc_by_id(mgr, response->conn_id);
-    if (nc != NULL) {
-        switch(response->cmd_id) {
-            case INTERNAL_API_ALBUMART_BY_URI:
-                webserver_send_albumart(nc, response->data, response->extra);
-                break;
-            case INTERNAL_API_ALBUMART_BY_ALBUMID:
-                webserver_send_albumart_redirect(nc, response->data);
-                break;
-            case INTERNAL_API_FOLDERART:
-                webserver_redirect_placeholder_image(nc, PLACEHOLDER_FOLDER);
-                break;
-            case INTERNAL_API_TAGART:
-                webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
-                break;
-            case INTERNAL_API_PLAYLISTART:
-                if (strcmp(response->data, "smartpls") == 0) {
-                    webserver_redirect_placeholder_image(nc, PLACEHOLDER_SMARTPLS);
-                }
-                else {
-                    webserver_redirect_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
-                }
-                break;
-            default:
-                MYMPD_LOG_DEBUG(response->partition, "Sending response to conn_id \"%lu\" (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
-                webserver_send_data(nc, response->data, sdslen(response->data), EXTRA_HEADERS_JSON_CONTENT);
-        }
-    }
-    else {
-        MYMPD_LOG_ERROR(NULL, "Connection for id \"%lu\" not found", response->conn_id);
-    }
-    free_response(response);
-}
-
-/**
- * Matches the acl against the client ip and
- * sends an error response / drains the connection if acl is not matched
- * @param nc mongoose connection
- * @param acl acl string to check
- * @return true if acl matches, else false
- */
-static bool enforce_acl(struct mg_connection *nc, sds acl) {
-    if (sdslen(acl) == 0) {
-        return true;
-    }
-    if (nc->rem.is_ip6 == true) {
-        //acls for ipv6 is not implemented in mongoose
-        return true;
-    }
-    int acl_result = mg_check_ip_acl(mg_str(acl), &nc->rem);
-    MYMPD_LOG_DEBUG(NULL, "Check against acl \"%s\": %d", acl, acl_result);
-    if (acl_result == 1) {
-        return true;
-    }
-    if (acl_result < 0) {
-        MYMPD_LOG_ERROR(NULL, "Malformed acl \"%s\"", acl);
-        return false;
-    }
-
-    sds ip = print_ip(sdsempty(), &nc->rem);
-    MYMPD_LOG_ERROR(NULL, "Connection from \"%s\" blocked by ACL", ip);
-    webserver_send_error(nc, 403, "Request blocked by ACL");
-    nc->is_draining = 1;
-    FREE_SDS(ip);
-
-    return false;
-}
-
-/**
- * Enforces the connection limit
- * @param nc mongoose connection
- * @param connection_count connection count
- * @return true if connection count is not exceeded, else false
- */
-static bool enforce_conn_limit(struct mg_connection *nc, int connection_count) {
-    if (connection_count > HTTP_CONNECTIONS_MAX) {
-        MYMPD_LOG_DEBUG(NULL, "Connections: %d", connection_count);
-        MYMPD_LOG_ERROR(NULL, "Concurrent connections limit exceeded: %d", connection_count);
-        webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
-        nc->is_draining = 1;
-        return false;
-    }
-    return true;
-}
-
-/**
  * Central webserver event handler
  * nc->label usage
  * 0 - connection type: F = frontend connection, B = backend connection
@@ -575,11 +370,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 mg_tls_init(nc, &tls_opts);
             }
             //enforce connection limit
-            if (enforce_conn_limit(nc, mg_user_data->connection_count) == false) {
+            if (webserver_enforce_conn_limit(nc, mg_user_data->connection_count) == false) {
                 break;
             }
             //enforce acl
-            if (enforce_acl(nc, config->acl) == false) {
+            if (webserver_enforce_acl(nc, config->acl) == false) {
                 break;
             }
             break;
@@ -772,7 +567,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "External scripts are disabled");
                 }
                 //enforce script acl
-                if (enforce_acl(nc, config->scriptacl) == false) {
+                if (webserver_enforce_acl(nc, config->scriptacl) == false) {
                     break;
                 }
                 //check partition
@@ -904,11 +699,11 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             break;
         case MG_EV_ACCEPT:
             //enforce connection limit
-            if (enforce_conn_limit(nc, mg_user_data->connection_count) == false) {
+            if (webserver_enforce_conn_limit(nc, mg_user_data->connection_count) == false) {
                 break;
             }
             //enforce acl
-            if (enforce_acl(nc, config->acl) == false) {
+            if (webserver_enforce_acl(nc, config->acl) == false) {
                 break;
             }
             break;

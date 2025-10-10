@@ -18,6 +18,7 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/webserver/proxy.h"
+#include "src/webserver/response.h"
 #include "src/webserver/sessions.h"
 #include "src/webserver/utility.h"
 #include "src/webserver/webradio.h"
