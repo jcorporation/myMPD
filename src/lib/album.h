@@ -12,6 +12,7 @@
 #define MYMPD_ALBUM_H
 
 #include "src/lib/fields.h"
+#include "src/lib/mpdclient.h"
 
 #include <stdbool.h>
 

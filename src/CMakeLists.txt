@@ -39,6 +39,8 @@ if(MYMPD_ENABLE_MYGPIOD)
 endif()
 if(NOT MYMPD_EMBEDDED_LIBMPDCLIENT)
   target_include_directories(mympd SYSTEM PRIVATE ${LIBMPDCLIENT_INCLUDE_DIRS})
+else()
+  target_include_directories(mympd SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/dist/libmpdclient/include")
 endif()
 
 target_sources(mympd
