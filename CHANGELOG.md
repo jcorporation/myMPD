@@ -12,6 +12,8 @@ This is a small bug fix release.
 
 - Upd: Logging improvements
 - Fix: Now playing indicator in Queue View
+- Fix: Detection of ca cert store #1469
+- Fix: Ending newline detection in build script #1470
 
 ***
 
