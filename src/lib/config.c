@@ -16,7 +16,6 @@
 #include "src/lib/config_def.h"
 #include "src/lib/env.h"
 #include "src/lib/filehandler.h"
-#include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
@@ -436,36 +435,6 @@ bool mympd_config_read(struct t_config *config) {
     FREE_SDS(config->album_mode);
     FREE_SDS(config->album_group_tag);
 
-    return true;
-}
-
-/**
- * Reads the ca certificates
- * @param config Pointer to central config
- * @return true on success or disabled certificate checking, else false
- */
-bool mympd_read_ca_certificates(struct t_config *config) {
-    if (config->cert_check == false) {
-        return true;
-    }
-    if (config->ca_cert_store == NULL ||
-        sdslen(config->ca_cert_store) == 0)
-    {
-        MYMPD_LOG_EMERG(NULL, "System certificate store not found.");
-        return false;
-    }
-    MYMPD_LOG_INFO(NULL, "Reading ca certificates from %s", config->ca_cert_store);
-    config->ca_certs = sdsempty();
-    int nread;
-    config->ca_certs = sds_getfile(config->ca_certs, config->ca_cert_store, CACERT_STORE_SIZE_MAX, false, true, &nread);
-    if (nread == FILE_TO_BIG) {
-        MYMPD_LOG_EMERG(NULL, "System certificate store too big.");
-        return false;
-    }
-    if (nread <= FILE_IS_EMPTY) {
-        MYMPD_LOG_EMERG(NULL, "System certificate store not found or empty.");
-        return false;
-    }
     return true;
 }
 

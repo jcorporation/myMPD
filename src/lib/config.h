@@ -18,7 +18,6 @@
 void mympd_config_defaults_initial(struct t_config *config);
 bool mympd_config_read(struct t_config *config);
 void mympd_config_free(struct t_config *config);
-bool mympd_read_ca_certificates(struct t_config *config);
 void mympd_config_dump_default(void);
 
 #endif

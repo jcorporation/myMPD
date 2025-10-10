@@ -20,12 +20,12 @@
  * Paths to check for the ca cert store
  */
 const char *check_ca_cert_paths[] = {
-    "/var/lib/ca-certificates/ca-bundle.pem",  // openSUSE
     "/etc/ssl/ca-bundle.pem",  // openSUSE
-    "/etc/ssl/certs/ca-certificates.crt",  // Debian
-    "/etc/ssl/certs/ca-bundle.crt",
-    "/etc/pki/tls/certs/ca-bundle.crt",  // Fedora
     "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", // Fedora
+    "/etc/pki/tls/certs/ca-bundle.crt",  // Fedora
+    "/etc/ssl/certs/ca-bundle.crt",
+    "/etc/ssl/certs/ca-certificates.crt",  // Debian
+    "/var/lib/ca-certificates/ca-bundle.pem",  // openSUSE
     NULL
 };
 
@@ -51,4 +51,34 @@ const char *find_ca_cert_store(bool silent) {
         MYMPD_LOG_EMERG(NULL, "CA cert store not found.");
     }
     return NULL;
+}
+
+/**
+ * Reads the ca certificates
+ * @param config Pointer to central config
+ * @return true on success or disabled certificate checking, else false
+ */
+bool mympd_read_ca_certificates(struct t_config *config) {
+    if (config->cert_check == false) {
+        return true;
+    }
+    if (config->ca_cert_store == NULL ||
+        sdslen(config->ca_cert_store) == 0)
+    {
+        MYMPD_LOG_EMERG(NULL, "System certificate store not found.");
+        return false;
+    }
+    MYMPD_LOG_INFO(NULL, "Reading ca certificates from %s", config->ca_cert_store);
+    config->ca_certs = sdsempty();
+    int nread;
+    config->ca_certs = sds_getfile(config->ca_certs, config->ca_cert_store, CACERT_STORE_SIZE_MAX, false, true, &nread);
+    if (nread == FILE_TO_BIG) {
+        MYMPD_LOG_EMERG(NULL, "System certificate store too big.");
+        return false;
+    }
+    if (nread <= FILE_IS_EMPTY) {
+        MYMPD_LOG_EMERG(NULL, "System certificate store not found or empty.");
+        return false;
+    }
+    return true;
 }

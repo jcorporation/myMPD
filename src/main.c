@@ -9,6 +9,7 @@
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
 
+#include "src/lib/cacertstore.h"
 #include "src/lib/cert.h"
 #include "src/lib/config.h"
 #include "src/lib/config_def.h"
