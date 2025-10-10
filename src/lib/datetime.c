@@ -14,7 +14,6 @@
 #include "src/lib/datetime.h"
 #include "src/lib/log.h"
 
-#include <stdio.h>
 #include <string.h>
 
 /**
@@ -33,7 +32,7 @@ time_t parse_date(const char *str) {
 }
 
 /**
- * Appends a formated time to the buffer
+ * Appends a formatted time to the buffer
  * @param buf already allocated sds string
  * @param timestamp timestamp to display
  */

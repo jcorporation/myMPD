@@ -12,7 +12,7 @@
 #define MYMPD_LIB_CONFIG_DEF_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/cache/cache_rax_album.h"
+#include "src/lib/album.h"
 
 #include <stdbool.h>
 
@@ -26,7 +26,6 @@ struct t_config {
     bool log_to_syslog;             //!< enable syslog logging
     sds cachedir;                   //!< cache directory
     sds workdir;                    //!< working directory
-
     // Configuration
     bool cert_check;                //!< enable certificate checking for outbound http connections
     bool custom_cert;               //!< false if myMPD uses the self generated certificates
@@ -35,7 +34,7 @@ struct t_config {
     bool ssl;                       //!< enable listening on ssl_port
     bool stickers;                  //!< enable sticker support
     bool stickers_pad_int;          //!< enable the padding of integer sticker values
-    bool webradiodb;                //!< enable webradiodb support
+    bool webradiodb;                //!< enable WebradioDB support
     bool scripts_external;          //!< allow execution of external scripts
     int cache_cover_keep_days;      //!< expiration time for cover cache files in days
     int cache_http_keep_days;       //!< expiration time for HTTP cache files in days
