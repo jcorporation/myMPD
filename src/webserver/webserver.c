@@ -12,8 +12,6 @@
 #include "src/webserver/webserver.h"
 
 #include "src/lib/api.h"
-#include "src/lib/cert.h"
-#include "src/lib/filehandler.h"
 #include "src/lib/http_client.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
@@ -41,7 +39,6 @@
  * Private definitions
  */
 
-static bool read_certs(struct t_mg_user_data *mg_user_data, struct t_config *config);
 static void read_queue(struct mg_mgr *mgr);
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
@@ -62,53 +59,16 @@ static void mongoose_log(char ch, void *param);
 
 /**
  * Initializes the webserver
- * @param mgr mongoose mgr
  * @param config pointer to myMPD config
  * @param mg_user_data already allocated t_mg_user_data to populate
- * @return true on success, else false
+ * @return struct mg_mgr* or NULL on error
  */
-bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
-    //initialize mgr user_data, malloced in main.c
-    mg_user_data->config = config;
-    mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_EMPTY);
-    mg_user_data->music_directory = sdsempty();
-    mg_user_data->placeholder_booklet = sdsempty();
-    mg_user_data->placeholder_mympd = sdsempty();
-    mg_user_data->placeholder_na = sdsempty();
-    mg_user_data->placeholder_stream = sdsempty();
-    mg_user_data->placeholder_playlist = sdsempty();
-    mg_user_data->placeholder_smartpls = sdsempty();
-    mg_user_data->placeholder_folder = sdsempty();
-    mg_user_data->placeholder_transparent = sdsempty();
-    sds default_coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
-    mg_user_data->coverimage_names= sds_split_comma_trim(default_coverimage_names, &mg_user_data->coverimage_names_len);
-    FREE_SDS(default_coverimage_names);
-    sds default_thumbnail_names = sdsnew(MYMPD_THUMBNAIL_NAMES);
-    mg_user_data->thumbnail_names= sds_split_comma_trim(default_thumbnail_names, &mg_user_data->thumbnail_names_len);
-    FREE_SDS(default_thumbnail_names);
-    mg_user_data->publish_music = false;
-    mg_user_data->publish_playlists = false;
-    mg_user_data->connection_count = 2; // listening + wakeup
-    list_init(&mg_user_data->stream_uris);
-    list_init(&mg_user_data->session_list);
-    mg_user_data->mympd_api_started = false;
-    mg_user_data->webradiodb = NULL;
-    mg_user_data->webradio_favorites = NULL;
-
-    mg_user_data->cert_content = sdsempty();
-    mg_user_data->cert = mg_str("");
-    mg_user_data->key_content = sdsempty();
-    mg_user_data->key = mg_str("");
-    if (config->ssl == true &&
-        read_certs(mg_user_data, config) == false)
-    {
-        return false;
-    }
-
+struct mg_mgr *webserver_init_mgr(struct t_config *config, struct t_mg_user_data *mg_user_data) {
     //init mongoose mgr
     mg_log_set(1);    //set mongoose loglevel to error
     //mg_log_set(4);  //set mongoose loglevel to debug
     mg_log_set_fn(mongoose_log, NULL);
+    struct mg_mgr *mgr = malloc_assert(sizeof(struct mg_mgr));
     mg_mgr_init(mgr);
     mgr->userdata = mg_user_data;
     mgr->product_name = "myMPD "MYMPD_VERSION;
@@ -130,7 +90,8 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
         FREE_SDS(http_url);
         if (nc_http == NULL) {
             MYMPD_LOG_EMERG(NULL, "Can't bind to http://%s:%d", config->http_host, config->http_port);
-            return false;
+            webserver_free(mgr);
+            return NULL;
         }
         MYMPD_LOG_NOTICE(NULL, "Listening on http://%s:%d", config->http_host, config->http_port);
     }
@@ -141,23 +102,26 @@ bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_use
         FREE_SDS(https_url);
         if (nc_https == NULL) {
             MYMPD_LOG_ERROR(NULL, "Can't bind to https://%s:%d", config->http_host, config->ssl_port);
-            return false;
+            webserver_free(mgr);
+            return NULL;
         }
         MYMPD_LOG_NOTICE(NULL, "Listening on https://%s:%d", config->http_host, config->ssl_port);
-        MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
-        MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
+        MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", config->ssl_cert);
+        MYMPD_LOG_DEBUG(NULL, "Using private key: %s", config->ssl_key);
     }
     else if (config->http == false) {
         MYMPD_LOG_ERROR(NULL, "Not listening on any port.");
-        return false;
+        webserver_free(mgr);
+        return NULL;
     }
     MYMPD_LOG_NOTICE(NULL, "Serving files from \"%s\"", MYMPD_DOC_ROOT);
     // Initialize the wakeup scheme
     if (mg_wakeup_init(mgr) == false) {
         MYMPD_LOG_EMERG(NULL, "Failure initializing webserver wakeup scheme");
-        return false;
+        webserver_free(mgr);
+        return NULL;
     }
-    return true;
+    return mgr;
 }
 
 /**
@@ -197,35 +161,6 @@ void *webserver_loop(void *arg_mgr) {
 /**
  * Private functions
  */
-
-/**
- * Reads the ssl key and certificate from disc
- * @param mg_user_data pointer to mongoose user data
- * @param config pointer to myMPD config
- * @return true on success, else false
- */
-static bool read_certs(struct t_mg_user_data *mg_user_data, struct t_config *config) {
-    int nread = 0;
-    mg_user_data->cert_content = sds_getfile(mg_user_data->cert_content, config->ssl_cert, SSL_FILE_MAX, false, true, &nread);
-    if (nread <= 0) {
-        MYMPD_LOG_ERROR(NULL, "Failure reading ssl certificate from disc");
-        return false;
-    }
-    nread = 0;
-    mg_user_data->key_content = sds_getfile(mg_user_data->key_content, config->ssl_key, SSL_FILE_MAX, false, true, &nread);
-    if (nread <= 0) {
-        MYMPD_LOG_ERROR(NULL, "Failure reading ssl key from disc");
-        return false;
-    }
-    sds cert_details = certificate_get_detail(mg_user_data->cert_content);
-    if (sdslen(cert_details) > 0) {
-        MYMPD_LOG_INFO(NULL, "Certificate: %s", cert_details);
-    }
-    FREE_SDS(cert_details);
-    mg_user_data->cert = mg_str(mg_user_data->cert_content);
-    mg_user_data->key = mg_str(mg_user_data->key_content);
-    return true;
-}
 
 /**
  * Reads and processes all messages from the webserver queue.

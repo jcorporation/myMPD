@@ -336,10 +336,9 @@ int main(int argc, char **argv) {
     }
 
     // Init webserver
-    mgr = malloc_assert(sizeof(struct mg_mgr));
-    mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
     if (create_certificates(config) == false ||
-        webserver_init(mgr, config, mg_user_data) == false ||
+        (mg_user_data = webserver_init_mg_user_data(config)) == NULL ||
+        (mgr = webserver_init_mgr(config, mg_user_data)) == NULL ||
         mympd_read_ca_certificates(config) == false)
     {
         goto cleanup;

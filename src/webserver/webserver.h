@@ -17,7 +17,8 @@
 #include <stdbool.h>
 
 void *webserver_loop(void *arg_mgr);
-bool webserver_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data);
+struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config);
+struct mg_mgr *webserver_init_mgr(struct t_config *config, struct t_mg_user_data *mg_user_data);
 void webserver_free(struct mg_mgr *mgr);
 
 #endif
