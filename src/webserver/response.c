@@ -15,13 +15,9 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/webserver/albumart.h"
+#include "src/webserver/mg_user_data.h"
 #include "src/webserver/placeholder.h"
 #include "src/webserver/utility.h"
-
-#ifdef MYMPD_EMBEDDED_ASSETS
-    //embedded files for release build
-    #include "embedded_files.c"
-#endif
 
 /**
  * Sends a raw http response message
@@ -251,19 +247,6 @@ void webserver_send_cors_reply(struct mg_connection *nc) {
     webserver_handle_connection_close(nc);
 }
 
-#ifdef MYMPD_EMBEDDED_ASSETS
-/**
- * Struct holding embedded file information
- */
-struct embedded_file {
-    const char *uri;
-    const char *mimetype;
-    bool compressed;
-    bool cache;
-    const unsigned char *data;
-    const unsigned size;
-};
-
 /**
  * Serves the embedded files
  * @param nc mongoose connection
@@ -271,76 +254,6 @@ struct embedded_file {
  * @return true on success, else false
  */
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
-    const struct embedded_file embedded_files[] = {
-        {"/", "text/html; charset=utf-8", true, false, index_html_data, index_html_size},
-        {"/css/combined.css", "text/css; charset=utf-8", true, false, combined_css_data, combined_css_size},
-        {"/js/combined.js", "application/javascript; charset=utf-8", true, false, combined_js_data, combined_js_size},
-        {"/sw.js", "application/javascript; charset=utf-8", true, false, sw_js_data, sw_js_size},
-        {"/mympd.webmanifest", "application/manifest+json", true, false, mympd_webmanifest_data, mympd_webmanifest_size},
-        {"/assets/coverimage-notavailable.svg", "image/svg+xml", true, true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
-        {"/assets/MaterialIcons-Regular.woff2", "font/woff2", false, true, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
-        {"/assets/coverimage-stream.svg", "image/svg+xml", true, true, coverimage_stream_svg_data, coverimage_stream_svg_size},
-        {"/assets/coverimage-booklet.svg", "image/svg+xml", true, true, coverimage_booklet_svg_data, coverimage_booklet_svg_size},
-        {"/assets/coverimage-mympd.svg", "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
-        {"/assets/coverimage-playlist.svg", "image/svg+xml", true, true, coverimage_playlist_svg_data, coverimage_playlist_svg_size},
-        {"/assets/coverimage-smartpls.svg", "image/svg+xml", true, true, coverimage_smartpls_svg_data, coverimage_smartpls_svg_size},
-        {"/assets/coverimage-transparent.svg", "image/svg+xml", true, true, coverimage_transparent_svg_data, coverimage_transparent_svg_size},
-        {"/assets/coverimage-folder.svg", "image/svg+xml", true, true, coverimage_folder_svg_data, coverimage_folder_svg_size},
-        {"/assets/mympd-background-dark.svg", "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
-        {"/assets/mympd-background-light.svg", "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},
-        {"/assets/appicon-192.png", "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
-        {"/assets/appicon-512.png", "image/png", false, true, appicon_512_png_data, appicon_512_png_size},
-        {"/assets/ligatures.json", "application/json", true, true, ligatures_json_data, ligatures_json_size},
-        #ifdef I18N_bg_BG
-            {"/assets/i18n/bg-BG.json", "application/json", true, true, i18n_bg_BG_json_data, i18n_bg_BG_json_size},
-        #endif
-        #ifdef I18N_de_DE
-            {"/assets/i18n/de-DE.json", "application/json", true, true, i18n_de_DE_json_data, i18n_de_DE_json_size},
-        #endif
-        #ifdef I18N_en_US
-        {"/assets/i18n/en-US.json", "application/json", true, true, i18n_en_US_json_data, i18n_en_US_json_size},
-        #endif
-        #ifdef I18N_es_AR
-        {"/assets/i18n/es-AR.json", "application/json", true, true, i18n_es_AR_json_data, i18n_es_AR_json_size},
-        #endif
-        #ifdef I18N_es_ES
-        {"/assets/i18n/es-ES.json", "application/json", true, true, i18n_es_ES_json_data, i18n_es_ES_json_size},
-        #endif
-        #ifdef I18N_es_VE
-        {"/assets/i18n/es-VE.json", "application/json", true, true, i18n_es_VE_json_data, i18n_es_VE_json_size},
-        #endif
-        #ifdef I18N_fi_FI
-        {"/assets/i18n/fi-FI.json", "application/json", true, true, i18n_fi_FI_json_data, i18n_fi_FI_json_size},
-        #endif
-        #ifdef I18N_fr_FR
-        {"/assets/i18n/fr-FR.json", "application/json", true, true, i18n_fr_FR_json_data, i18n_fr_FR_json_size},
-        #endif
-        #ifdef I18N_it_IT
-        {"/assets/i18n/it-IT.json", "application/json", true, true, i18n_it_IT_json_data, i18n_it_IT_json_size},
-        #endif
-        #ifdef I18N_ja_JP
-        {"/assets/i18n/ja-JP.json", "application/json", true, true, i18n_ja_JP_json_data, i18n_ja_JP_json_size},
-        #endif
-        #ifdef I18N_ko_KR
-        {"/assets/i18n/ko-KR.json", "application/json", true, true, i18n_ko_KR_json_data, i18n_ko_KR_json_size},
-        #endif
-        #ifdef I18N_nl_NL
-        {"/assets/i18n/nl-NL.json", "application/json", true, true, i18n_nl_NL_json_data, i18n_nl_NL_json_size},
-        #endif
-        #ifdef I18N_pl_PL
-        {"/assets/i18n/pl-PL.json", "application/json", true, true, i18n_pl_PL_json_data, i18n_pl_PL_json_size},
-        #endif
-        #ifdef I18N_ru_RU
-        {"/assets/i18n/ru-RU.json", "application/json", true, true, i18n_ru_RU_json_data, i18n_ru_RU_json_size},
-        #endif
-        #ifdef I18N_zh_Hans
-        {"/assets/i18n/zh-Hans.json", "application/json", true, true, i18n_zh_Hans_json_data, i18n_zh_Hans_json_size},
-        #endif
-        #ifdef I18N_zh_Hant
-        {"/assets/i18n/zh-Hant.json", "application/json", true, true, i18n_zh_Hant_json_data, i18n_zh_Hant_json_size},
-        #endif
-        {NULL, NULL, false, false, NULL, 0}
-    };
     //decode uri
     sds uri_decoded = sds_urldecode(sdsempty(), uri, sdslen(uri), false);
     if (sdslen(uri_decoded) == 0) {
@@ -349,8 +262,9 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         return false;
     }
     //find fileinfo
-    const struct embedded_file *p = NULL;
-    for (p = embedded_files; p->uri != NULL; p++) {
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)nc->mgr->userdata;
+    const struct t_embedded_file *p = NULL;
+    for (p = mg_user_data->embedded_files; p->uri != NULL; p++) {
         if (strcmp(p->uri, uri_decoded) == 0){
             break;
         }
@@ -381,4 +295,3 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
     FREE_SDS(uri_decoded);
     return false;
 }
-#endif

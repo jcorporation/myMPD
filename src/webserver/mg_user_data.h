@@ -18,6 +18,20 @@
 
 #include <stdbool.h>
 
+#define MAX_EMBEDDED_FILES 50  //!< Array size for embedded files
+
+/**
+ * Struct holding embedded file information
+ */
+struct t_embedded_file {
+    const char *uri;            //!< URI
+    const char *mimetype;       //!< Mime type
+    bool compressed;            //!< Data is compressed
+    bool cache;                 //!< Add cache header in response
+    const unsigned char *data;  //!< The data
+    unsigned size;              //!< Size of the data
+};
+
 /**
  * Struct for mg_mgr userdata
  */
@@ -49,6 +63,8 @@ struct t_mg_user_data {
     struct mg_str key;                       //!< pointer to ssl key_content
     struct t_webradios *webradiodb;          //!< Pointer to WebradioDB in mympd_api thread
     struct t_webradios *webradio_favorites;  //!< Pointer to webradio favorites in mympd_api thread
+    struct t_embedded_file embedded_files[MAX_EMBEDDED_FILES];  //!< Embedded files
+    unsigned embedded_file_index;            //!< Index of last embedded_file
 };
 
 void mg_user_data_free(struct t_mg_user_data *mg_user_data);
