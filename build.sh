@@ -217,7 +217,7 @@ createassets() {
     [ "$F" = "js/long-press-event.js" ] && continue
     [ "$F" = "js/version.js" ] && continue
     JSSRCFILES="$JSSRCFILES htdocs/$F"
-    if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
+    if [ -n "$(tail -c 1 "htdocs/$F")" ]
     then
       echo_error "$F don't end with newline character"
       exit 1
@@ -241,7 +241,7 @@ createassets() {
   JSFILES="$JSFILES $MYMPD_BUILDDIR/htdocs/js/*.min.js"
   for F in $JSFILES
   do
-    if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
+    if [ -n "$(tail -c 1 "$F")" ]
     then
       echo_error "$F don't end with newline character"
       exit 1
