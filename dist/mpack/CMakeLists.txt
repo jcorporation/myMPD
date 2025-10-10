@@ -17,3 +17,10 @@ target_include_directories(mpack
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_BINARY_DIR}
 )
+
+if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
+  target_compile_options(mpack
+    PRIVATE
+      "-Wno-format-nonliteral"
+  )
+endif()

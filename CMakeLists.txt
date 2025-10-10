@@ -343,6 +343,7 @@ if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
     "-Wextra"
     "-Wformat=2"
     "-Wformat-security"
+    "-Wformat-nonliteral"
     "-Winit-self"
     "-Wmissing-include-dirs"
     "-Wnested-externs"
