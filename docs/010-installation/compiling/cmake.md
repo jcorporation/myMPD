@@ -31,7 +31,6 @@ sudo make -C build install
 | MYMPD_ENABLE_LIBID3TAG | ON | Enables libid3tag support |
 | MYMPD_ENABLE_LUA | ON | Enables lua support |
 | MYMPD_ENABLE_MYGPIOD | ON | Enables myGPIOd support |
-| MYMPD_ENABLE_SYSTEMD | ON | Enables systemd support |
 | MYMPD_ENABLE_TSAN | OFF | Enables build with thread san |
 | MYMPD_ENABLE_UBSAN | OFF | Enables build with undefined behavior sanitizer |
 | MYMPD_MANPAGES | ON | Creates and installs manpages |
