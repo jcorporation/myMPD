@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v22.1.2 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Initialize mg_user_data in debug build
+
+***
+
 ## myMPD v22.1.1 (2025-10-11)
 
 This is a small bug fix release.
