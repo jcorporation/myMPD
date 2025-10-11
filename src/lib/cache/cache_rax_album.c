@@ -31,7 +31,11 @@
  * Private definitions
  */
 
-static struct t_album *album_from_mpack_node(mpack_node_t album_node, const struct t_mympd_mpd_tags *tags, sds *key);
+// Internal album cache version
+#define ALBUM_CACHE_VERSION 1
+
+static struct t_album *album_from_mpack_node(mpack_node_t album_node, const struct t_mympd_mpd_tags *tags,
+        sds *key, const struct t_albums_config *album_config);
 
 /**
  * Public functions
@@ -105,6 +109,15 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
     mpack_tree_parse(&tree);
     mpack_node_t root = mpack_tree_root(&tree);
 
+    // check for expected cache version
+    int album_cache_version = mpack_node_int(mpack_node_map_cstr(root, "cacheVersion"));
+    if (album_cache_version != ALBUM_CACHE_VERSION) {
+        mpack_tree_destroy(&tree);
+        MYMPD_LOG_WARN(NULL, "Unexpected cache version");
+        album_cache_remove(workdir);
+        return NULL;
+    }
+
     // check for expected album_mode
     enum album_modes album_mode = (enum album_modes)mpack_node_int(mpack_node_map_cstr(root, "albumMode"));
     if (album_mode != album_config->mode) {
@@ -119,6 +132,15 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
     if (group_tag != album_config->group_tag) {
         mpack_tree_destroy(&tree);
         MYMPD_LOG_WARN(NULL, "Unexpected album group tag, discarding cache");
+        album_cache_remove(workdir);
+        return NULL;
+    }
+
+    // check for expected album_unknown setting
+    bool album_unknown = mpack_node_bool(mpack_node_map_cstr(root, "albumUnknown"));
+    if (album_unknown != album_config->unknown) {
+        mpack_tree_destroy(&tree);
+        MYMPD_LOG_WARN(NULL, "Unexpected album_unknown setting, discarding cache");
         album_cache_remove(workdir);
         return NULL;
     }
@@ -154,7 +176,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
 
     for (size_t i = 0; i < len; i++) {
         mpack_node_t album_node = mpack_node_array_at(albums_node, i);
-        struct t_album *album = album_from_mpack_node(album_node, album_tags, &key);
+        struct t_album *album = album_from_mpack_node(album_node, album_tags, &key, album_config);
         if (album != NULL) {
             if (raxTryInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL) == 0) {
                 MYMPD_LOG_ERROR(NULL, "Duplicate key in album cache file found: %s", key);
@@ -193,7 +215,9 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_mympd_mpd_tags *album_tags, const struct t_albums_config *album_config, bool free_data) {
+bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_mympd_mpd_tags *album_tags,
+        const struct t_albums_config *album_config, bool free_data)
+{
     if (album_cache->cache == NULL) {
         MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not saving anything");
         return true;
@@ -210,8 +234,10 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
     mpack_writer_init_stdfile(&writer, fp, true);
     mpack_writer_set_error_handler(&writer, log_mpack_write_error);
     mpack_build_map(&writer);
+    mpack_write_kv(&writer, "cacheVersion", ALBUM_CACHE_VERSION);
     mpack_write_kv(&writer, "albumMode", album_config->mode);
     mpack_write_kv(&writer, "albumGroupTag", album_config->group_tag);
+    mpack_write_kv(&writer, "albumUnknown", album_config->unknown);
     mpack_write_cstr(&writer, "tags");
     mpack_start_array(&writer, (uint32_t)album_tags->len);
     for (unsigned tagnr = 0; tagnr < album_tags->len; ++tagnr) {
@@ -227,7 +253,9 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
         const struct t_album *album = (struct t_album *)iter.data;
         mpack_build_map(&writer);
         mpack_write_kv(&writer, "uri", album_get_uri(album));
-        mpack_write_kv(&writer, "Unknown", album_get_unknown(album));
+        if (album_config->unknown == true) {
+            mpack_write_kv(&writer, "Unknown", album_get_unknown(album));
+        }
         mpack_write_kv(&writer, "Discs", album_get_disc_count(album));
         mpack_write_kv(&writer, "Songs", album_get_song_count(album));
         mpack_write_kv(&writer, "Duration", album_get_total_time(album));
@@ -472,16 +500,21 @@ void album_cache_free_rt_void(void *album_cache_rt) {
  * @param album_node mpack node to parse
  * @param tags tags to read
  * @param key already allocated sds string to set the album key
+ * @param album_config album configuration
  * @return struct mpd_song* allocated mpd_song struct
  */
-static struct t_album *album_from_mpack_node(mpack_node_t album_node, const struct t_mympd_mpd_tags *tags, sds *key) {
+static struct t_album *album_from_mpack_node(mpack_node_t album_node,
+        const struct t_mympd_mpd_tags *tags, sds *key, const struct t_albums_config *album_config)
+{
     struct t_album *album = NULL;
     sdsclear(*key);
     char *uri = mpack_node_cstr_alloc(mpack_node_map_cstr(album_node, "uri"), JSONRPC_STR_MAX);
     if (uri != NULL) {
         album = album_new_uri(uri);
         *key = mpackstr_sdscat(*key, album_node, "AlbumId");
-        album_set_unknown(album, mpack_node_bool(mpack_node_map_cstr(album_node, "Unknown")));
+        if (album_config->unknown == true) {
+            album_set_unknown(album, mpack_node_bool(mpack_node_map_cstr(album_node, "Unknown")));
+        }
         album_set_disc_count(album, mpack_node_uint(mpack_node_map_cstr(album_node, "Discs")));
         album_set_song_count(album, mpack_node_uint(mpack_node_map_cstr(album_node, "Songs")));
         album_set_total_time(album, mpack_node_uint(mpack_node_map_cstr(album_node, "Duration")));
