@@ -8,7 +8,7 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
-****
+***
 
 ## myMPD v22.1.2 (not yet released)
 
