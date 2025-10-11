@@ -31,8 +31,7 @@
  * Private definitions
  */
 
-// Internal album cache version
-#define ALBUM_CACHE_VERSION 1
+enum { ALBUM_CACHE_VERSION = 1 }; //!< Internal album cache version
 
 static struct t_album *album_from_mpack_node(mpack_node_t album_node, const struct t_mympd_mpd_tags *tags,
         sds *key, const struct t_albums_config *album_config);
