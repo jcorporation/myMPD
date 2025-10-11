@@ -316,9 +316,6 @@ sds album_cache_get_key_from_song(sds albumkey, const struct mpd_song *song, con
     albumkey = mympd_client_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, albumkey);
     if (sdslen(albumkey) == 0) {
         // AlbumArtist tag is empty, fallback to Artist tag
-        #ifdef MYMPD_DEBUG
-            MYMPD_LOG_DEBUG(NULL, "AlbumArtist for uri \"%s\" is empty, falling back to Artist", mpd_song_get_uri(song));
-        #endif
         albumkey = mympd_client_get_tag_value_string(song, MPD_TAG_ARTIST, albumkey);
     }
     if (sdslen(albumkey) == 0) {
@@ -330,7 +327,6 @@ sds album_cache_get_key_from_song(sds albumkey, const struct mpd_song *song, con
     if (album_name == NULL) {
         // album tag is empty
         if (album_config->unknown == true) {
-            MYMPD_LOG_DEBUG(NULL, "Using \"%s\" for Album for uri \"%s\", tag Album is empty", UNKNOWN_ALBUM, mpd_song_get_uri(song));
             album_name = UNKNOWN_ALBUM;
         }
         else {

@@ -194,6 +194,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
                         if (mympd_worker_state->config->albums.unknown == true &&
                             album_get_unknown(album) == true)
                         {
+                            MYMPD_LOG_DEBUG(NULL, "Using \"%s\" for Album for uri \"%s\", tag Album is empty", UNKNOWN_ALBUM, mpd_song_get_uri(song));
                             album_append_tag(album, MPD_TAG_ALBUM, UNKNOWN_ALBUM);
                         }
                         if (mympd_worker_state->tag_disc_empty_is_first == true) {
