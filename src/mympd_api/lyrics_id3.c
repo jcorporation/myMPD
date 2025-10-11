@@ -326,9 +326,9 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
         if (i + 3 < binary_length) {
             int ms = (binary_data[i] << 24) | (binary_data[i + 1] << 16) | (binary_data[i + 2] << 8) | binary_data[i + 3];
             int min = ms / 60000;
-            ms = ms - min * 60000;
+            ms = ms - (min * 60000);
             int sec = ms / 1000;
-            ms = ms - sec * 1000;
+            ms = ms - (sec * 1000);
             sylt_text = sdscatprintf(sylt_text, "[%02d:%02d.%02d]%s\\n", min, sec, ms, text_buf);
             sdsclear(text_buf);
             i = i + 4;
