@@ -363,6 +363,39 @@ function getData(el, attribute) {
 }
 
 /**
+ * Gets the attributes value from the element or it's parent elements
+ * @param {string} id element id
+ * @param {string} attribute Attribute name
+ * @param {number} depth Search depth
+ * @returns {object} Attribute value or undefined
+ */
+//eslint-disable-next-line no-unused-vars
+function findDataId(id, attribute, depth) {
+    return findData(elGetById(id), attribute, depth);
+}
+
+/**
+ * Gets the attributes value from the element or it's parent elements
+ * @param {Element | EventTarget} el Element
+ * @param {string} attribute Attribute name
+ * @param {number} depth Search depth
+ * @returns {object} Attribute value or undefined
+ */
+function findData(el, attribute, depth) {
+    let value = getData(el, attribute);
+    let i = 0;
+    while (value === undefined) {
+        el = el.parentNode;
+        if (el === null || i === depth) {
+            return undefined;
+        }
+        value = getData(el, attribute);
+        i++;
+    }
+    return value;
+}
+
+/**
  * Gets the value of the selected option of a select element
  * @param {string} id element id
  * @returns {string} selected option value
