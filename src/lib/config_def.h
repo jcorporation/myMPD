@@ -45,8 +45,6 @@ struct t_config {
     int loglevel;                   //!< loglevel
     int ssl_port;                   //!< https port to listen
     sds acl;                        //!< IPv4 ACL string
-    sds album_mode;                 //!< Album mode
-    sds album_group_tag;            //!< Album group tag
     sds ca_certs;                   //!< System CA certificates
     sds ca_cert_store;              //!< System CA certificate store file
     sds custom_css;                 //!< User defined CSS

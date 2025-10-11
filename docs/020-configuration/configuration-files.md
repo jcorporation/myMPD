@@ -30,6 +30,7 @@ You can configure myMPD in different ways:
 | acl | string | MYMPD_ACL | | ACL to access the myMPD webserver: [ACL](acl.md), allows all hosts in the default configuration |
 | album_group_tag | string | MYMPD_ALBUM_GROUP_TAG | `Date` | Additional tag to group albums |
 | album_mode | string | MYMPD_ALBUM_MODE | `adv` | Set the album mode: `adv` or `simple` |
+| album_unknown | boolean | MYMPD_ALBUM_UNKNOWN | `false` | Groups songs with empty album tag in a special `Unknown Album` album. |
 | cache_cover_keep_days | number | MYMPD_CACHE_COVER_KEEP_DAYS | `31` | How long to keep images in the cover cache; 0 to disable the cache; -1 to disable pruning of the cache. |
 | cache_http_keep_days | number | MYMPD_CACHE_HTTP_KEEP_DAYS | `31` | How long to keep successful responses in the http client cache; 0 to disable the cache; -1 to disable pruning of the cache. |
 | cache_lyrics_keep_days | number | MYMPD_CACHE_LYRICS_KEEP_DAYS | `31` | How long to keep lyrics in the lyrics cache; 0 to disable the cache; -1 to disable pruning of the cache. |

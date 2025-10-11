@@ -35,8 +35,9 @@ enum album_modes {
  * Holds config for the album cache
  */
 struct t_albums_config {
-    enum album_modes mode;        //!< enable advanced albums
-    enum mpd_tag_type group_tag;  //!< additional group tag for albums
+    enum album_modes mode;        //!< Album cache mode
+    enum mpd_tag_type group_tag;  //!< Additional group tag for albums
+    bool unknown;                 //!< Enables grouping of songs with no album tag
 };
 
 struct t_album *album_new(void);
@@ -50,6 +51,7 @@ time_t album_get_added(const struct t_album *album);
 unsigned album_get_disc_count(const struct t_album *album);
 unsigned album_get_total_time(const struct t_album *album);
 unsigned album_get_song_count(const struct t_album *album);
+bool album_get_unknown(const struct t_album *album);
 const char *album_get_tag(const struct t_album *album, enum mpd_tag_type type, unsigned idx);
 
 void album_set_discs(struct t_album *album, const char *disc);
@@ -64,6 +66,7 @@ bool album_append_tag(struct t_album *song, enum mpd_tag_type type, const char *
 bool album_append_tags(struct t_album *album, const struct mpd_song *song, const struct t_mympd_mpd_tags *tags);
 bool album_copy_tags(struct t_album *song, enum mpd_tag_type src, enum mpd_tag_type dst);
 void album_set_uri(struct t_album *album, const char *uri);
+void album_set_unknown(struct t_album *album, bool unknown);
 sds album_get_tag_value_string(const struct t_album *album, enum mpd_tag_type tag, sds tag_values);
 sds album_get_tag_values(const struct t_album *album, enum mpd_tag_type tag, sds tag_values);
 sds album_get_tag_value_padded(const struct t_album *album, enum mpd_tag_type tag, char pad, size_t len, sds tag_values);

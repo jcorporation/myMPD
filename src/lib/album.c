@@ -51,6 +51,7 @@ struct t_album {
     unsigned song_count;                            //!< Number of songs
     time_t last_modified;                           //!< Latest last-modified time of all songs in this album
     time_t added;                                   //!< Earliest added time of all songs in this album
+    bool unknown;                                   //!< Marker for unknown album
 };
 
 // Public functions
@@ -82,6 +83,7 @@ struct t_album *album_new_uri(const char *uri) {
     album->song_count = 0;
     album->last_modified = 0;
     album->added = 0;
+    album->unknown = false;
     return album;
 }
 
@@ -112,11 +114,15 @@ struct t_album *album_new_from_song(const struct mpd_song *song, const struct t_
         }
     }
 
+    album->unknown = mpd_song_get_tag(song, MPD_TAG_ALBUM, 0) == NULL
+        ? true
+        : false;
     album->total_time = mpd_song_get_duration(song);
     album->disc_count = 0;
     album->song_count = 1;
     album->last_modified = mpd_song_get_last_modified(song);
     album->added = mpd_song_get_added(song);
+    
     return album;
 }
 
@@ -224,6 +230,24 @@ const char *album_get_tag(const struct t_album *album, enum mpd_tag_type type, u
         }
     }
     return tag->value;
+}
+
+/**
+ * Gets the unknown marker for an album
+ * @param album t_album struct representing the album
+ * @return bool true if it is a unknown album, else false
+ */
+bool album_get_unknown(const struct t_album *album) {
+    return album->unknown;
+}
+
+/**
+ * Sets the unknown marker for an album
+ * @param album t_album struct representing the album
+ * @param unknown true if it is a unknown album, else false
+ */
+void album_set_unknown(struct t_album *album, bool unknown) {
+    album->unknown = unknown;
 }
 
 /**

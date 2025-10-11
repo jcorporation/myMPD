@@ -280,7 +280,14 @@ static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, str
         count++;
     }
     //and for album
-    value = album_get_tag(album, MPD_TAG_ALBUM, 0);
+    if (album_config->unknown == true &&
+        album_get_unknown(album) == true)
+    {
+        value = NULL;
+    }
+    else {
+        value = album_get_tag(album, MPD_TAG_ALBUM, 0);
+    }
     if (value != NULL) {
         expression = escape_mpd_search_expression(expression, "Album", "==", value);
     }

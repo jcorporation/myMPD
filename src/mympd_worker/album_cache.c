@@ -158,9 +158,12 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
         MEASURE_START
     #endif
     sds key = sdsempty();
+    const char *search_expression = mympd_worker_state->config->albums.unknown == true
+        ? "((AlbumArtist != ''))"
+        : "((Album != '') AND (AlbumArtist != ''))";
     do {
         if (mpd_search_db_songs(mympd_worker_state->partition_state->conn, false) == false ||
-            mpd_search_add_expression(mympd_worker_state->partition_state->conn, "((Album != '') AND (AlbumArtist != ''))") == false ||
+            mpd_search_add_expression(mympd_worker_state->partition_state->conn, search_expression) == false ||
             mpd_search_add_window(mympd_worker_state->partition_state->conn, start, end) == false)
         {
             MYMPD_LOG_ERROR("default", "Cache update failed");
@@ -188,6 +191,11 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
                     }
                     else {
                         struct t_album *album = album_new_from_song(song, &mympd_worker_state->mpd_state->tags_album);
+                        if (mympd_worker_state->config->albums.unknown == true &&
+                            album_get_unknown(album) == true)
+                        {
+                            album_append_tag(album, MPD_TAG_ALBUM, UNKNOWN_ALBUM);
+                        }
                         if (mympd_worker_state->tag_disc_empty_is_first == true) {
                             // handle empty disc tag as disc one
                             album_set_disc_count(album, 1);

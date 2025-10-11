@@ -255,17 +255,31 @@ function parseAlbumDetails(obj) {
     const colspan = settings.viewBrowseDatabaseAlbumDetail.fields.length;
     const infoEl = elGetById('viewDatabaseAlbumDetailInfoTags');
 
-    if (checkResultId(obj, 'BrowseDatabaseAlbumDetailList', 'grid') === false) {
+    if (obj.error) {
         elClear(infoEl);
+        infoEl.appendChild(errorMsgEl(obj, 0, 'grid'));
+        elCreateText('h1', {}, obj.result.Album);
+        // Handle song list
+        checkResultId(obj, 'BrowseDatabaseAlbumDetailList', 'table');
         return;
     }
 
     const coverEl = elGetById('viewDatabaseAlbumDetailCover');
-    coverEl.style.backgroundImage = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[0].uri));
-    setData(coverEl, 'images', obj.result.images);
-    setData(coverEl, 'embeddedImageCount', obj.result.embeddedImageCount);
-    setData(coverEl, 'uri', obj.result.data[0].uri);
-    setData(coverEl, 'AlbumId', obj.result.AlbumId);
+    if (obj.result.data.length === 0) {
+        coverEl.style.backgroundImage = getCssImageUri('/assets/coverimage-notavailable.svg');
+        setData(coverEl, 'images', []);
+        setData(coverEl, 'embeddedImageCount', 0);
+        setData(coverEl, 'uri', '');
+        setData(coverEl, 'AlbumId', obj.result.AlbumId);
+    }
+    else {
+        coverEl.style.backgroundImage = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[0].uri));
+        setData(coverEl, 'images', obj.result.images);
+        setData(coverEl, 'embeddedImageCount', obj.result.embeddedImageCount);
+        setData(coverEl, 'uri', obj.result.data[0].uri);
+        setData(coverEl, 'AlbumId', obj.result.AlbumId);
+    }
+
     if (features.featStickers === true) {
         const feedbackGrp = elGetById('BrowseDatabaseAlbumDetailFeedback').firstElementChild;
         setData(feedbackGrp, 'uri', obj.result.AlbumId);
@@ -333,6 +347,10 @@ function parseAlbumDetails(obj) {
                 ])
             ])
         );
+    }
+
+    if (checkResultId(obj, 'BrowseDatabaseAlbumDetailList', 'table') === false) {
+        return;
     }
 
     const rowTitle = tn(settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong]);

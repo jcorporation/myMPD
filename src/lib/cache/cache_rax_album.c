@@ -227,6 +227,7 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
         const struct t_album *album = (struct t_album *)iter.data;
         mpack_build_map(&writer);
         mpack_write_kv(&writer, "uri", album_get_uri(album));
+        mpack_write_kv(&writer, "Unknown", album_get_unknown(album));
         mpack_write_kv(&writer, "Discs", album_get_disc_count(album));
         mpack_write_kv(&writer, "Songs", album_get_song_count(album));
         mpack_write_kv(&writer, "Duration", album_get_total_time(album));
@@ -328,9 +329,15 @@ sds album_cache_get_key_from_song(sds albumkey, const struct mpd_song *song, con
     const char *album_name = mpd_song_get_tag(song, MPD_TAG_ALBUM, 0);
     if (album_name == NULL) {
         // album tag is empty
-        MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tag Album is empty", mpd_song_get_uri(song));
-        sdsclear(albumkey);
-        return albumkey;
+        if (album_config->unknown == true) {
+            MYMPD_LOG_DEBUG(NULL, "Using \"%s\" for Album for uri \"%s\", tag Album is empty", UNKNOWN_ALBUM, mpd_song_get_uri(song));
+            album_name = UNKNOWN_ALBUM;
+        }
+        else {
+            MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tag Album is empty", mpd_song_get_uri(song));
+            sdsclear(albumkey);
+            return albumkey;
+        }
     }
     // append album
     albumkey = sdscatfmt(albumkey, "::%s", album_name);
@@ -382,9 +389,15 @@ sds album_cache_get_key_from_album(sds albumkey, const struct t_album *album, co
     const char *album_name = album_get_tag(album, MPD_TAG_ALBUM, 0);
     if (album_name == NULL) {
         // album tag is empty
-        MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tag Album is empty", album_get_uri(album));
-        sdsclear(albumkey);
-        return albumkey;
+        if (album_config->unknown == true) {
+            MYMPD_LOG_DEBUG(NULL, "Using \"%s\" for Album for uri \"%s\", tag Album is empty", UNKNOWN_ALBUM, album_get_uri(album));
+            album_name = UNKNOWN_ALBUM;
+        }
+        else {
+            MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tag Album is empty", album_get_uri(album));
+            sdsclear(albumkey);
+            return albumkey;
+        }
     }
     // append album
     albumkey = sdscatfmt(albumkey, "::%s", album_name);
@@ -472,7 +485,7 @@ static struct t_album *album_from_mpack_node(mpack_node_t album_node, const stru
     if (uri != NULL) {
         album = album_new_uri(uri);
         *key = mpackstr_sdscat(*key, album_node, "AlbumId");
-
+        album_set_unknown(album, mpack_node_bool(mpack_node_map_cstr(album_node, "Unknown")));
         album_set_disc_count(album, mpack_node_uint(mpack_node_map_cstr(album_node, "Discs")));
         album_set_song_count(album, mpack_node_uint(mpack_node_map_cstr(album_node, "Songs")));
         album_set_total_time(album, mpack_node_uint(mpack_node_map_cstr(album_node, "Duration")));

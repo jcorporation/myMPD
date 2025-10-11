@@ -88,10 +88,7 @@ function checkResultId(obj, parentid, mode) {
     if (mode === undefined) {
         mode = settings['view' + app.id].mode;
     }
-    if (mode === 'grid') {
-        return checkResult(obj, document.querySelector('#' + parentid), mode);
-    }
-    return checkResult(obj, document.querySelector('#' + parentid + ' > tbody'), mode);
+    return checkResult(obj, document.querySelector('#' + parentid), mode);
 }
 
 /**

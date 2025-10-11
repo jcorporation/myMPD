@@ -101,6 +101,8 @@
 #define DIR_WORK_STATE_DEFAULT DIR_WORK_STATE"/default"
 #define DIR_WORK_TAGS "tags"
 
+#define UNKNOWN_ALBUM "Unknown Album"
+
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"
 #define MPD_PARTITION_ALL "!all!"

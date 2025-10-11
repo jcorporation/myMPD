@@ -36,6 +36,7 @@ enum config_item {
     CI_ACL = 0,
     CI_ALBUM_GROUP_TAG,
     CI_ALBUM_MODE,
+    CI_ALBUM_UNKNOWN,
     CI_CA_CERT_STORE,
     CI_CACHE_COVER_KEEP_DAYS,
     CI_CACHE_HTTP_KEEP_DAYS,
@@ -117,6 +118,7 @@ static const struct t_config_default config_default[] = {
     [CI_ACL]                    = {"acl",                    {.t = CIT_S, .s = ""},             0, 0, vcb_isname},
     [CI_ALBUM_MODE]             = {"album_mode",             {.t = CIT_S, .s = "adv"},          0, 0, vcb_isalnum},
     [CI_ALBUM_GROUP_TAG]        = {"album_group_tag",        {.t = CIT_S, .s = "Date"},         0, 0, vcb_isalnum},
+    [CI_ALBUM_UNKNOWN]          = {"album_unknown",          {.t = CIT_B, .b = false},           0, 0, NULL},
     [CI_CA_CERT_STORE]          = {"ca_cert_store",          {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
     [CI_CACHE_COVER_KEEP_DAYS]  = {"cache_cover_keep_days",  {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
     [CI_CACHE_HTTP_KEEP_DAYS]   = {"cache_http_keep_days",   {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
@@ -162,8 +164,6 @@ void mympd_config_free(struct t_config *config) {
     FREE_SDS(config->workdir);
     // Configuration
     FREE_SDS(config->acl);
-    FREE_SDS(config->album_mode);
-    FREE_SDS(config->album_group_tag);
     FREE_SDS(config->ca_certs);
     FREE_SDS(config->ca_cert_store);
     FREE_SDS(config->custom_css);
@@ -194,8 +194,6 @@ void mympd_config_defaults_initial(struct t_config *config) {
     config->startup_time = time(NULL);
     //set all other sds strings to NULL
     config->acl = NULL;
-    config->album_mode = NULL;
-    config->album_group_tag = NULL;
     config->ca_certs = NULL;
     config->ca_cert_store = NULL;
     config->custom_css = NULL;
@@ -287,11 +285,17 @@ static void set_config(struct t_config *config, enum config_item ci, struct t_co
             break;
         case CI_ALBUM_MODE:
             assert(value->t == CIT_S);
-            config->album_mode = value->s;
+            config->albums.mode = parse_album_mode(value->s);
+            FREE_SDS(value->s);
             break;
         case CI_ALBUM_GROUP_TAG:
             assert(value->t == CIT_S);
-            config->album_group_tag = value->s;
+            config->albums.group_tag = mpd_tag_name_iparse(value->s);
+            FREE_SDS(value->s);
+            break;
+        case CI_ALBUM_UNKNOWN:
+            assert(value->t == CIT_B);
+            config->albums.unknown = value->b;
             break;
         case CI_HTTP_HOST:
             assert(value->t == CIT_S);
@@ -428,13 +432,6 @@ bool mympd_config_read(struct t_config *config) {
         config->ssl_cert = sdscatfmt(sdsempty(), "%S/%s/server.pem", config->workdir, DIR_WORK_SSL);
         config->ssl_key = sdscatfmt(sdsempty(), "%S/%s/server.key", config->workdir, DIR_WORK_SSL);
     }
-
-    // Parse album configuration
-    config->albums.mode = parse_album_mode(config->album_mode);
-    config->albums.group_tag = mpd_tag_name_iparse(config->album_group_tag);
-    FREE_SDS(config->album_mode);
-    FREE_SDS(config->album_group_tag);
-
     return true;
 }
 
