@@ -72,8 +72,8 @@ struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
     mg_user_data->mympd_api_started = false;
     mg_user_data->webradiodb = NULL;
     mg_user_data->webradio_favorites = NULL;
+    mg_user_data->embedded_file_index = 0;
     #ifdef MYMPD_EMBEDDED_ASSETS
-        mg_user_data->embedded_file_index = 0;
         add_file(mg_user_data, "/", "text/html; charset=utf-8", true, false, index_html_data, index_html_size);
         add_file(mg_user_data, "/css/combined.css", "text/css; charset=utf-8", true, false, combined_css_data, combined_css_size);
         add_file(mg_user_data, "/js/combined.js", "application/javascript; charset=utf-8", true, false, combined_js_data, combined_js_size);
