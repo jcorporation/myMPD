@@ -87,16 +87,18 @@ function viewBrowseDatabaseTagListListClickHandler(event, target) {
     event.stopPropagation();
     app.current.search = '';
     const tag = getData(target, 'tag');
-    if (settings.tagListAlbum.includes(tag)) {
+    if (settings.webuiSettings.clickBrowseTag === 'song' ||
+        settings.tagListAlbum.includes(tag) === false)
+    {
+        elGetById('SearchSearchStr').value = '';
+        const value = findData(event.target, 'name', 5);
+        gotoSearch(tag, value);
+    }
+    else {
         elGetById('BrowseDatabaseTagSearchStr').value = '';
         // clear album search input
         elGetById('BrowseDatabaseAlbumListSearchStr').value = '';
         gotoBrowse(event);
-    }
-    else {
-        elGetById('SearchSearchStr').value = '';
-        const value = getData(event.target.parentNode, 'name');
-        gotoSearch(tag, value);
     }
 }
 

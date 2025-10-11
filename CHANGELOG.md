@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Feat: Add option for default behavior on click on tag in browse view #1472
+
 ***
 
 ## myMPD v22.1.2 (not yet released)

@@ -582,6 +582,17 @@ const settingsWebuiFields = {
         "title": "Click filesystem playlist",
         "form": "modalSettingsDefaultActionsFrm"
     },
+    "clickBrowseTag": {
+        "defaultValue": "auto",
+        "validValues": {
+            "auto": "Auto",
+            "song": "Show songs",
+            "album": "Show albums"
+        },
+        "inputType": "select",
+        "title": "Click tag",
+        "form": "modalSettingsDefaultActionsFrm"
+    },
     "clickQuickPlay": {
         "defaultValue": "replacePlay",
         "validValues": {

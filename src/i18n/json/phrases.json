@@ -140,6 +140,7 @@
 {"term":"Click quick play button"},
 {"term":"Click song"},
 {"term":"Click song in queue"},
+{"term":"Click tag"},
 {"term":"Click webradio"},
 {"term":"Click webradio favorite"},
 {"term":"Close"},
