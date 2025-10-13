@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Initialize mg_user_data in debug build
+- Fix: Listing songs from Artists List view fails #1474
 
 ***
 
