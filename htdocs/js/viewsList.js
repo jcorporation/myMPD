@@ -167,9 +167,9 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
         if (perCardCallback !== undefined &&
             typeof(perCardCallback) === 'function')
         {
-            perCardCallback(card, obj.result.data[i], obj.result);
+            perCardCallback(row, obj.result.data[i], obj.result);
         }
-        setEntryData(card, obj.result.data[i]);
+        setEntryData(row, obj.result.data[i]);
         if (settings['view' + app.id].fields.includes('Thumbnail') &&
             obj.result.data[i].Thumbnail !== undefined)
         {
