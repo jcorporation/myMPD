@@ -100,6 +100,10 @@ UTEST(api, test_acl_invalid) {
 }
 
 UTEST(api, test_acl_invalid_cmd_id) {
+    for (unsigned i = 0; i < TOTAL_API_COUNT; i++) {
+        check_cmd_acl(i, 0);
+    }
+
     bool rc = check_cmd_acl(TOTAL_API_COUNT + 1, API_INVALID);
     ASSERT_FALSE(rc);
 
