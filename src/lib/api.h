@@ -340,8 +340,9 @@ struct t_work_response {
 struct set_mg_user_data_request {
     sds music_directory;                     //!< detected mpd music directory
     sds playlist_directory;                  //!< configured mpd playlist directory
-    sds coverimage_names;                    //!< comma separated list of coverimage names
-    sds thumbnail_names;                     //!< comma separated list of coverimage thumbnail names
+    sds image_names_sm;                      //!< comma separated list of small coverimage names
+    sds image_names_md;                      //!< comma separated list of medium coverimage names
+    sds image_names_lg;                      //!< comma separated list of large coverimage names
     sds mpd_host;                            //!< configured mpd host
     struct t_list partitions;                //!< partition specific settings
     struct t_webradios *webradiodb;          //!< Pointer to webradiodb

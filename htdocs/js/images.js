@@ -91,7 +91,7 @@ function filterImageSelect(elId, searchstr) {
     const filename = basename(uri, true);
     const fileparts = splitFilename(filename);
 
-    const coverimageNames = [...settings.coverimageNames.split(','), ...settings.thumbnailNames.split(',')];
+    const coverimageNames = [...settings.imageNamesSm.split(','), ...settings.imageNamesMd.split(','), ...settings.imageNamesLg.split(',')];
     for (let i = 0, j = coverimageNames.length; i < j; i++) {
         const name = coverimageNames[i].trim();
         if (filename === name) {
@@ -115,9 +115,9 @@ function isThumbnailfile(uri) {
     const filename = basename(uri, true);
     const fileparts = splitFilename(filename);
 
-    const coverimageNames = settings.thumbnailNames.split(',');
-    for (let i = 0, j = coverimageNames.length; i < j; i++) {
-        const name = coverimageNames[i].trim();
+    const imageNamesSm = settings.imageNamesSm.split(',');
+    for (let i = 0, j = imageNamesSm.length; i < j; i++) {
+        const name = imageNamesSm[i].trim();
         if (filename === name) {
             return true;
         }
@@ -163,7 +163,7 @@ function zoomPicture(el) {
         const uri = getData(el, 'uri');
         const imgEl = elGetById('modalPictureImg');
         imgEl.style.paddingTop = 0;
-        createImgCarousel(imgEl, 'picsCarousel', uri, images, embeddedImageCount);
+        createImgCarousel(imgEl, 'picsCarousel', uri, images, embeddedImageCount, true);
         elHideId('modalPictureOpenInNewWindowBtn');
         uiElements.modalPicture.show();
         return;
@@ -173,7 +173,7 @@ function zoomPicture(el) {
         const imgEl = elGetById('modalPictureImg');
         elClear(imgEl);
         imgEl.style.paddingTop = '100%';
-        imgEl.style.backgroundImage = el.style.backgroundImage;
+        imgEl.style.backgroundImage = el.style.backgroundImage.replace("/albumart", "/albumart-large");
         elShowId('modalPictureOpenInNewWindowBtn');
         uiElements.modalPicture.show();
     }
@@ -185,7 +185,7 @@ function zoomPicture(el) {
  */
 //eslint-disable-next-line no-unused-vars
 function openPictureWindow() {
-    window.open(elGetById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
+    window.open(elGetById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1].replace("/albumart", "/albumart-large"));
 }
 
 /**
@@ -195,9 +195,10 @@ function openPictureWindow() {
  * @param {string} uri uri of the image
  * @param {object} images array of additional images
  * @param {number} embeddedImageCount number of embedded images
+ * @param {boolean} large show large images
  * @returns {void}
  */
-function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
+function createImgCarousel(imgEl, name, uri, images, embeddedImageCount, large) {
     //embedded albumart
     if (embeddedImageCount === 0) {
         //enforce first coverimage
@@ -205,7 +206,12 @@ function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
     }
     const aImages = [];
     for (let i = 0; i < embeddedImageCount; i++) {
-        aImages.push(subdir + '/albumart?offset=' + i + '&uri=' + myEncodeURIComponent(uri));
+        if (large === true) {
+            aImages.push(subdir + '/albumart-large?offset=' + i + '&uri=' + myEncodeURIComponent(uri));
+        }
+        else {
+            aImages.push(subdir + '/albumart?offset=' + i + '&uri=' + myEncodeURIComponent(uri));
+        }
     }
     //add all but coverfiles to image list
     for (let i = 0, j = images.length; i < j; i++) {

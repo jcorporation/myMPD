@@ -49,8 +49,9 @@ bool request_handler_folderart(struct mg_connection *nc, struct mg_http_message 
         return false;
     }
     sds coverfile = sdsempty();
-    bool found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len) ||
-        find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
+    bool found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_sm, mg_user_data->image_names_sm_len) ||
+        find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_md, mg_user_data->image_names_md_len) ||
+        find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_lg, mg_user_data->image_names_lg_len);
 
     if (found == true) {
         webserver_serve_file(nc, hm, EXTRA_HEADERS_IMAGE, coverfile);

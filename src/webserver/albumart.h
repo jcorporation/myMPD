@@ -19,8 +19,9 @@
  * Albumart types
  */
 enum albumart_sizes {
-    ALBUMART_THUMBNAIL,
-    ALBUMART_FULL
+    ALBUMART_SM,
+    ALBUMART_MD,
+    ALBUMART_LG
 };
 
 void webserver_send_albumart_redirect(struct mg_connection *nc, sds data);

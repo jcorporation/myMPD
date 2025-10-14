@@ -67,10 +67,10 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->music_directory = sdsnew(MYMPD_MUSIC_DIRECTORY);
     //configured mpd playlist directory
     mympd_state->playlist_directory = sdsnew(MYMPD_PLAYLIST_DIRECTORY);
-    //comma separated list of albumart names - normal size
-    mympd_state->coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
-    //comma separated list of albumart names - thumbnails
-    mympd_state->thumbnail_names = sdsnew(MYMPD_THUMBNAIL_NAMES);
+    //comma separated list of image names
+    mympd_state->image_names_sm = sdsnew(MYMPD_IMAGE_NAMES_SM);
+    mympd_state->image_names_md = sdsnew(MYMPD_IMAGE_NAMES_MD);
+    mympd_state->image_names_lg = sdsnew(MYMPD_IMAGE_NAMES_LG);
     mympd_state->tag_list_search = sdsnew(MYMPD_TAG_LIST_SEARCH);
     mympd_state->tag_list_browse = sdsnew(MYMPD_TAG_LIST_BROWSE);
     mympd_state->smartpls_generate_tag_list = sdsnew(MYMPD_SMARTPLS_GENERATE_TAG_LIST);
@@ -184,8 +184,9 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->view_queue_jukebox_album);
     FREE_SDS(mympd_state->view_browse_radio_webradiodb);
     FREE_SDS(mympd_state->view_browse_radio_favorites);
-    FREE_SDS(mympd_state->coverimage_names);
-    FREE_SDS(mympd_state->thumbnail_names);
+    FREE_SDS(mympd_state->image_names_sm);
+    FREE_SDS(mympd_state->image_names_md);
+    FREE_SDS(mympd_state->image_names_lg);
     FREE_SDS(mympd_state->music_directory);
     FREE_SDS(mympd_state->smartpls_sort);
     FREE_SDS(mympd_state->smartpls_prefix);

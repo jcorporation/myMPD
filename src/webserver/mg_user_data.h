@@ -39,10 +39,12 @@ struct t_mg_user_data {
     struct t_config *config;                 //!< Pointer to myMPD configuration
     sds browse_directory;                    //!< document root
     sds music_directory;                     //!< mpd music directory
-    sds *coverimage_names;                   //!< sds array of coverimage names
-    int coverimage_names_len;                //!< length of coverimage_names array
-    sds *thumbnail_names;                    //!< sds array of coverimage thumbnail names
-    int thumbnail_names_len;                 //!< length of thumbnail_names array
+    sds *image_names_sm;                     //!< sds array of small image names
+    int image_names_sm_len;                  //!< length of small image_names array
+    sds *image_names_md;                     //!< sds array of medium image names
+    int image_names_md_len;                  //!< length of medium image_names array
+    sds *image_names_lg;                     //!< sds array of large image names
+    int image_names_lg_len;                  //!< length of large image_names array
     bool publish_playlists;                  //!< true if mpd playlist directory is configured
     bool publish_music;                      //!< true if mpd music directory is accessible
     int connection_count;                    //!< number of http connections

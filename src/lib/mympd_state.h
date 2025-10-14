@@ -246,8 +246,9 @@ struct t_mympd_state {
     sds music_directory;                            //!< mpd music directory setting (real value is in mpd_state)
     sds playlist_directory;                         //!< mpd playlist directory (real value is in mpd_state)
     sds navbar_icons;                               //!< json string of navigation bar icons
-    sds coverimage_names;                           //!< comma separated string of coverimage names
-    sds thumbnail_names;                            //!< comma separated string of coverimage thumbnail names
+    sds image_names_sm;                             //!< comma separated string of small coverimage names
+    sds image_names_md;                             //!< comma separated string of medium coverimage names
+    sds image_names_lg;                             //!< comma separated string of large coverimage names
     unsigned volume_min;                            //!< minimum mpd volume
     unsigned volume_max;                            //!< maximum mpd volume
     unsigned volume_step;                           //!< volume step for +/- buttons

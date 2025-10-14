@@ -251,13 +251,17 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         mg_user_data->webradio_favorites = new_mg_user_data->webradio_favorites;
 
         //coverimage names
-        sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
-        mg_user_data->coverimage_names = sds_split_comma_trim(new_mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
-        FREE_SDS(new_mg_user_data->coverimage_names);
+        sdsfreesplitres(mg_user_data->image_names_sm, mg_user_data->image_names_sm_len);
+        mg_user_data->image_names_sm = sds_split_comma_trim(new_mg_user_data->image_names_sm, &mg_user_data->image_names_sm_len);
+        FREE_SDS(new_mg_user_data->image_names_sm);
 
-        sdsfreesplitres(mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
-        mg_user_data->thumbnail_names = sds_split_comma_trim(new_mg_user_data->thumbnail_names, &mg_user_data->thumbnail_names_len);
-        FREE_SDS(new_mg_user_data->thumbnail_names);
+        sdsfreesplitres(mg_user_data->image_names_md, mg_user_data->image_names_md_len);
+        mg_user_data->image_names_md = sds_split_comma_trim(new_mg_user_data->image_names_md, &mg_user_data->image_names_md_len);
+        FREE_SDS(new_mg_user_data->image_names_md);
+
+        sdsfreesplitres(mg_user_data->image_names_lg, mg_user_data->image_names_lg_len);
+        mg_user_data->image_names_lg = sds_split_comma_trim(new_mg_user_data->image_names_lg, &mg_user_data->image_names_lg_len);
+        FREE_SDS(new_mg_user_data->image_names_lg);
 
         //set per partition stream uris
         list_clear(&mg_user_data->stream_uris);
@@ -498,17 +502,23 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Invalid API request");
                 }
             }
+            else if (mg_match(hm->uri, mg_str("/albumart-large/*"), NULL)) {
+                request_handler_albumart_by_album_id(hm, nc->id, ALBUMART_LG);
+            }
             else if (mg_match(hm->uri, mg_str("/albumart-thumb/*"), NULL)) {
-                request_handler_albumart_by_album_id(hm, nc->id, ALBUMART_THUMBNAIL);
+                request_handler_albumart_by_album_id(hm, nc->id, ALBUMART_SM);
             }
             else if (mg_match(hm->uri, mg_str("/albumart/*"), NULL)) {
-                request_handler_albumart_by_album_id(hm, nc->id, ALBUMART_FULL);
+                request_handler_albumart_by_album_id(hm, nc->id, ALBUMART_MD);
+            }
+            else if (mg_match(hm->uri, mg_str("/albumart-large"), NULL)) {
+                request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_LG);
             }
             else if (mg_match(hm->uri, mg_str("/albumart-thumb"), NULL)) {
-                request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_THUMBNAIL);
+                request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_SM);
             }
             else if (mg_match(hm->uri, mg_str("/albumart"), NULL)) {
-                request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_FULL);
+                request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_MD);
             }
             else if (mg_match(hm->uri, mg_str("/folderart"), NULL)) {
                 request_handler_folderart(nc, hm, mg_user_data);

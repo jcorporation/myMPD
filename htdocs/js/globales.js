@@ -441,21 +441,29 @@ const settingsFields = {
         "form": "modalSettingsAlbumInfoFrm",
         "help": "helpSettingsInfoTxtName"
     },
-    "coverimageNames": {
-        "defaultValue": defaults["MYMPD_COVERIMAGE_NAMES"],
+    "imageNamesSm": {
+        "defaultValue": defaults["MYMPD_IMAGE_NAMES_SM"],
         "inputType": "text",
-        "title": "Filenames",
+        "title": "Filenames Small",
         "form": "modalSettingsAlbumartFrm",
-        "help": "helpSettingsCoverimageNames",
+        "help": "helpSettingsImageNames",
         "cssClass": ["featLibrary"]
     },
-    "thumbnailNames": {
-        "defaultValue": defaults["MYMPD_THUMBNAIL_NAMES"],
+    "imageNamesMd": {
+        "defaultValue": defaults["MYMPD_IMAGE_NAMES_MD"],
         "inputType": "text",
-        "title": "Thumbnail names",
+        "title": "Filenames Medium",
         "form": "modalSettingsAlbumartFrm",
-        "help": "helpSettingsThumbnailNames",
-        "cssClass": ["featLibrary"],
+        "help": "helpSettingsImageNames",
+        "cssClass": ["featLibrary"]
+    },
+    "imageNamesLg": {
+        "defaultValue": defaults["MYMPD_IMAGE_NAMES_LG"],
+        "inputType": "text",
+        "title": "Filenames Large",
+        "form": "modalSettingsAlbumartFrm",
+        "help": "helpSettingsImageNames",
+        "cssClass": ["featLibrary"]
     },
     "smartpls": {
         "defaultValue": defaults["MYMPD_SMARTPLS"],

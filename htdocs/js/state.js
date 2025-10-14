@@ -312,7 +312,7 @@ function setBackgroundImage(el, url) {
     }
     const bgImageUrl = el.tagName === 'BODY' && settings.webuiSettings.dynamicBackground === 'trigger'
         ? subdir + '/bgimage/' + localSettings.partition + '?uri=' + myEncodeURIComponent(url) + '&hash=' + window.location.hash.substring(1)
-        : subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url);
+        : subdir + '/albumart-large?offset=0&uri=' + myEncodeURIComponent(url);
     const old = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
     //do not update if url is the same
     if (old[0] &&

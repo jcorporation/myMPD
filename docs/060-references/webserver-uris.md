@@ -9,8 +9,10 @@ Reference of all webserver uris.
 | `/` | Document root `/var/lib/mympd/empty` in release, `<src tree>/htdocs` for debug |
 | `/albumart/<albumid>` | Returns the albumart for simple album mode. |
 | `/albumart-thumb/<albumid>` | Returns the albumart thumbnail for simple album mode |
+| `/albumart-large/<albumid>` | Returns the large albumart for simple album mode |
 | `/albumart?offset=<nr>&uri=<songuri>` | Returns the albumart, offset should be 0 and is only relevant to retrieve more than the first embedded image. |
 | `/albumart-thumb?offset=<nr>&uri=<songuri>` | Returns the albumart thumbnail, offset should be 0 |
+| `/albumart-large?offset=<nr>&uri=<songuri>` | Returns the large albumart, offset should be 0 |
 | `/api/<partition>` | jsonrpc api endpoint |
 | `/browse/` | Prints the list of [published directories](published-directories.md) |
 | `/ca.crt` | Returns the myMPD CA certificate |

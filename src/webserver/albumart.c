@@ -60,9 +60,18 @@ void webserver_send_albumart_redirect(struct mg_connection *nc, sds data) {
     if (json_get_string_max(data, "$.result.uri", &uri, vcb_isuri, NULL) == true &&
         json_get_uint(data, "$.result.size", 0, 1, &size, NULL) == true)
     {
-        sds redirect_uri = size == ALBUMART_THUMBNAIL
-            ? sdscatfmt(sdsempty(),"/albumart-thumb?offset=0&uri=")
-            : sdscatfmt(sdsempty(),"/albumart?offset=0&uri=");
+        sds redirect_uri;
+        switch(size) {
+            case ALBUMART_SM:
+                redirect_uri = sdscatfmt(sdsempty(),"/albumart-thumb?offset=0&uri=");
+                break;
+            case ALBUMART_MD:
+                redirect_uri = sdscatfmt(sdsempty(),"/albumart?offset=0&uri=");
+                break;
+            default:
+                redirect_uri = sdscatfmt(sdsempty(),"/albumart-large?offset=0&uri=");
+                break;
+        }
         redirect_uri = sds_urlencode(redirect_uri, uri, sdslen(uri));
         MYMPD_LOG_DEBUG(NULL, "Sending redirect to: %s", redirect_uri);
         webserver_send_header_found(nc, redirect_uri, "");
@@ -101,7 +110,7 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
 }
 
 /**
- * Request handler for /albumart/albumid and /albumart-thumb/albumid.
+ * Request handler for /albumart/albumid, /albumart-thumb/albumid and /albumart-large/albumid.
  * Sends the request to the mympd_api thread.
  * @param hm http message
  * @param conn_id connection id
@@ -120,7 +129,7 @@ void request_handler_albumart_by_album_id(struct mg_http_message *hm, unsigned l
 }
 
 /**
- * Request handler for /albumart and /albumart-thumb
+ * Request handler for /albumart, /albumart-thumb and /albumart-large
  * @param nc mongoose connection
  * @param hm http message
  * @param mg_user_data pointer to mongoose configuration
@@ -204,7 +213,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         sds mediafile = sdscatfmt(sdsempty(), "%S/%S", mg_user_data->music_directory, uri);
         MYMPD_LOG_DEBUG(NULL, "Absolut media_file: %s", mediafile);
         //try image in folder under music_directory
-        if (mg_user_data->coverimage_names_len > 0 &&
+        if (mg_user_data->image_names_md_len > 0 &&
             offset == 0)
         {
             sds path = sdsdup(uri);
@@ -215,11 +224,22 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
             }
             bool found = false;
             sds coverfile = sdsempty();
-            if (size == ALBUMART_THUMBNAIL) {
-                found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
-            }
-            if (found == false) {
-                found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
+            switch(size) {
+                case ALBUMART_SM:
+                    found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_sm, mg_user_data->image_names_sm_len) ||
+                        find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_md, mg_user_data->image_names_md_len) ||
+                        find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_lg, mg_user_data->image_names_lg_len);
+                    break;
+                case ALBUMART_MD:
+                    found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_md, mg_user_data->image_names_md_len) ||
+                        find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_lg, mg_user_data->image_names_lg_len) ||
+                        find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_sm, mg_user_data->image_names_sm_len);
+                    break;
+                case ALBUMART_LG:
+                    found = find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_lg, mg_user_data->image_names_lg_len) ||
+                        find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_md, mg_user_data->image_names_md_len) ||
+                        find_image_in_folder(&coverfile, mg_user_data->music_directory, path, mg_user_data->image_names_sm, mg_user_data->image_names_sm_len);
+                    break;
             }
             if (found == true) {
                 webserver_serve_file(nc, hm, EXTRA_HEADERS_IMAGE, coverfile);

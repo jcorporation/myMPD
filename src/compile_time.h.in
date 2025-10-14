@@ -141,8 +141,9 @@
 #define MYMPD_JUKEBOX_IGNORE_HATED false
 #define MYMPD_JUKEBOX_MIN_SONG_DURATION 0
 #define MYMPD_JUKEBOX_MAX_SONG_DURATION 0
-#define MYMPD_COVERIMAGE_NAMES "cover,folder"
-#define MYMPD_THUMBNAIL_NAMES "cover-sm,folder-sm"
+#define MYMPD_IMAGE_NAMES_SM "cover-sm,folder-sm"
+#define MYMPD_IMAGE_NAMES_MD "cover,folder"
+#define MYMPD_IMAGE_NAMES_LG "cover-lg,folder-lg"
 #define MYMPD_TAG_LIST_SEARCH "Album,AlbumArtist,Artist,Genre,Title"
 #define MYMPD_TAG_LIST_BROWSE "Album,AlbumArtist,Artist,Genre"
 #define MYMPD_SMARTPLS_GENERATE_TAG_LIST ""

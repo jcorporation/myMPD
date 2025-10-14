@@ -26,7 +26,7 @@
 
 sds sds_basename(sds s);
 sds sds_dirname(sds s);
-sds *sds_split_comma_trim(sds s, int *count);
+sds *sds_split_comma_trim(const char *p, int *count);
 void sds_utf8_tolower(sds s);
 sds sds_catjson_plain(sds s, const char *p, size_t len);
 sds sds_catjson(sds s, const char *p, size_t len);

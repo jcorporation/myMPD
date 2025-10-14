@@ -57,8 +57,9 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
     struct set_mg_user_data_request *extra = malloc_assert(sizeof(struct set_mg_user_data_request));
     extra->music_directory = sdsdup(mympd_state->mpd_state->music_directory_value);
     extra->playlist_directory = sdsdup(mympd_state->mpd_state->playlist_directory_value);
-    extra->coverimage_names = sdsdup(mympd_state->coverimage_names);
-    extra->thumbnail_names = sdsdup(mympd_state->thumbnail_names);
+    extra->image_names_sm = sdsdup(mympd_state->image_names_sm);
+    extra->image_names_md = sdsdup(mympd_state->image_names_md);
+    extra->image_names_lg = sdsdup(mympd_state->image_names_lg);
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
     extra->webradiodb = mympd_state->webradiodb;
     extra->webradio_favorites = mympd_state->webradio_favorites;
@@ -339,18 +340,27 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, enum json_vtyp
 
     MYMPD_LOG_DEBUG(NULL, "Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
 
-    if (strcmp(key, "coverimageNames") == 0 && vtype == JSON_TOK_STRING) {
+    if (strcmp(key, "imageNamesSm") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilename(value) == true) {
-            mympd_state->coverimage_names = sds_replace(mympd_state->coverimage_names, value);
+            mympd_state->image_names_sm = sds_replace(mympd_state->image_names_sm, value);
         }
         else {
             set_invalid_value(error, path, key, value, "Only filenames allowed");
             return false;
         }
     }
-    else if (strcmp(key, "thumbnailNames") == 0 && vtype == JSON_TOK_STRING) {
+    else if (strcmp(key, "imageNamesMd") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilename(value) == true) {
-            mympd_state->thumbnail_names = sds_replace(mympd_state->thumbnail_names, value);
+            mympd_state->image_names_md = sds_replace(mympd_state->image_names_md, value);
+        }
+        else {
+            set_invalid_value(error, path, key, value, "Only filenames allowed");
+            return false;
+        }
+    }
+    else if (strcmp(key, "imageNamesLg") == 0 && vtype == JSON_TOK_STRING) {
+        if (vcb_isfilename(value) == true) {
+            mympd_state->image_names_lg = sds_replace(mympd_state->image_names_lg, value);
         }
         else {
             set_invalid_value(error, path, key, value, "Only filenames allowed");
@@ -895,8 +905,9 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->view_queue_jukebox_album = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_queue_jukebox_album", mympd_state->view_queue_jukebox_album, vcb_isname, true);
     mympd_state->view_browse_radio_webradiodb = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_radio_webradiodb", mympd_state->view_browse_radio_webradiodb, vcb_isname, true);
     mympd_state->view_browse_radio_favorites = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "view_browse_radio_favorites", mympd_state->view_browse_radio_favorites, vcb_isname, true);
-    mympd_state->coverimage_names = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "coverimage_names", mympd_state->coverimage_names, vcb_isfilename, true);
-    mympd_state->thumbnail_names = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "thumbnail_names", mympd_state->thumbnail_names, vcb_isfilename, true);
+    mympd_state->image_names_sm = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "image_names_sm", mympd_state->image_names_sm, vcb_isfilename, true);
+    mympd_state->image_names_md = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "image_names_md", mympd_state->image_names_md, vcb_isfilename, true);
+    mympd_state->image_names_lg = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "image_names_lg", mympd_state->image_names_lg, vcb_isfilename, true);
     mympd_state->music_directory = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "music_directory", mympd_state->music_directory, vcb_isfilepath, true);
     mympd_state->playlist_directory = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "playlist_directory", mympd_state->playlist_directory, vcb_isfilepath, true);
     mympd_state->volume_min = state_file_rw_uint(workdir, DIR_WORK_STATE, "volume_min", mympd_state->volume_min, VOLUME_MIN, VOLUME_MAX, true);
@@ -977,8 +988,9 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_char(buffer, "scriptsUri", SCRIPTS_URI_RELEASE, true);
         buffer = tojson_char(buffer, "scriptsImportUri", SCRIPTS_IMPORT_URI_RELEASE, true);
     #endif
-    buffer = tojson_sds(buffer, "coverimageNames", mympd_state->coverimage_names, true);
-    buffer = tojson_sds(buffer, "thumbnailNames", mympd_state->thumbnail_names, true);
+    buffer = tojson_sds(buffer, "imageNamesSm", mympd_state->image_names_sm, true);
+    buffer = tojson_sds(buffer, "imageNamesMd", mympd_state->image_names_md, true);
+    buffer = tojson_sds(buffer, "imageNamesLg", mympd_state->image_names_lg, true);
     buffer = tojson_int(buffer, "loglevel", loglevel, true);
     buffer = tojson_bool(buffer, "smartpls", mympd_state->smartpls, true);
     buffer = tojson_sds(buffer, "smartplsSort", mympd_state->smartpls_sort, true);

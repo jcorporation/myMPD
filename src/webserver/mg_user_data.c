@@ -58,12 +58,9 @@ struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
     mg_user_data->placeholder_smartpls = sdsempty();
     mg_user_data->placeholder_folder = sdsempty();
     mg_user_data->placeholder_transparent = sdsempty();
-    sds default_coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
-    mg_user_data->coverimage_names= sds_split_comma_trim(default_coverimage_names, &mg_user_data->coverimage_names_len);
-    FREE_SDS(default_coverimage_names);
-    sds default_thumbnail_names = sdsnew(MYMPD_THUMBNAIL_NAMES);
-    mg_user_data->thumbnail_names= sds_split_comma_trim(default_thumbnail_names, &mg_user_data->thumbnail_names_len);
-    FREE_SDS(default_thumbnail_names);
+    mg_user_data->image_names_sm = sds_split_comma_trim(MYMPD_IMAGE_NAMES_SM, &mg_user_data->image_names_sm_len);
+    mg_user_data->image_names_md = sds_split_comma_trim(MYMPD_IMAGE_NAMES_MD, &mg_user_data->image_names_md_len);
+    mg_user_data->image_names_lg = sds_split_comma_trim(MYMPD_IMAGE_NAMES_LG, &mg_user_data->image_names_lg_len);
     mg_user_data->publish_music = false;
     mg_user_data->publish_playlists = false;
     mg_user_data->connection_count = 2; // listening + wakeup
@@ -160,8 +157,9 @@ struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
 void mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->browse_directory);
     FREE_SDS(mg_user_data->music_directory);
-    sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
-    sdsfreesplitres(mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
+    sdsfreesplitres(mg_user_data->image_names_sm, mg_user_data->image_names_sm_len);
+    sdsfreesplitres(mg_user_data->image_names_md, mg_user_data->image_names_md_len);
+    sdsfreesplitres(mg_user_data->image_names_lg, mg_user_data->image_names_lg_len);
     list_clear(&mg_user_data->stream_uris);
     list_clear(&mg_user_data->session_list);
     FREE_SDS(mg_user_data->placeholder_booklet);

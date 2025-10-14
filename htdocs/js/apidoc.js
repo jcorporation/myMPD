@@ -1470,15 +1470,20 @@ const APImethods = {
         "desc": "Sets myMPD settings.",
         "protected": true,
         "params": {
-            "coverimageNames": {
+            "imageNamesSM": {
+                "type": APItypes.string,
+                "example": "folder-sm,cover-sm",
+                "desc": "Comma separated list of coverimages, basenames or full names."
+            },
+            "imageNamesMD": {
                 "type": APItypes.string,
                 "example": "folder,cover",
                 "desc": "Comma separated list of coverimages, basenames or full names."
             },
-            "thumbnailNames": {
+            "imageNamesLG": {
                 "type": APItypes.string,
-                "example": "folder-sm,cover-sm",
-                "desc": "Comma separated list of coverimage thumbnails, basenames or full names."
+                "example": "folder-lg,cover-lg",
+                "desc": "Comma separated list of coverimages, basenames or full names."
             },
             "lastPlayedCount": {
                 "type": APItypes.uint,

@@ -325,7 +325,7 @@ function parseSongDetails(obj) {
     }
     getComments(obj.result.uri);
     const imgEl = elGetById('modalSongDetailsTabPics');
-    createImgCarousel(imgEl, 'modalSongDetailsPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
+    createImgCarousel(imgEl, 'modalSongDetailsPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount, true);
 }
 
 /**

@@ -95,9 +95,9 @@ sds sds_dirname(sds s) {
  * @param count pointer to int representing the count of values
  * @return array of sds strings
  */
-sds *sds_split_comma_trim(sds s, int *count) {
+sds *sds_split_comma_trim(const char *p, int *count) {
     *count = 0;
-    sds *values = sdssplitlen(s, (ssize_t)sdslen(s), ",", 1, count);
+    sds *values = sdssplitlen(p, (ssize_t)strlen(p), ",", 1, count);
     for (int i = 0; i < *count; i++) {
         sdstrim(values[i], " ");
     }
