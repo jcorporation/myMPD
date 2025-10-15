@@ -432,6 +432,23 @@ function setScrollViewHeight(container) {
 }
 
 /**
+ * Restores the scrolling position
+ * @param {number} offset List offset
+ * @param {Element|ParentNode} container Scrolling container
+ * @param {number} scrollPos Scrolling position to restore
+ * @returns {void}
+ */
+function restoreScrollPos(offset, container, scrollPos) {
+    if (app.id === 'BrowseFilesystem') {
+        if (features.featPagination === true ||
+            offset === 0)
+        {
+            scrollToPosY(container, scrollPos);
+        }
+    }
+}
+
+/**
  * Enables the mobile view for specific user agents
  * @returns {void}
  */

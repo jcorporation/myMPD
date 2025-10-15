@@ -106,7 +106,7 @@ function webSocketConnect() {
                 if (app.id === 'QueueCurrent' &&
                     obj.method === 'update_queue')
                 {
-                    execSearchExpression(elGetById('QueueCurrentSearchStr').value);
+                    execSearchExpression(elGetById('QueueCurrentSearchStr').value, app.current.offset);
                 }
                 parseState(obj);
                 break;

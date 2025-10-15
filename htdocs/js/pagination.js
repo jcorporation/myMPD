@@ -48,6 +48,10 @@ function gotoPage(offset, limit) {
     }
     appGoto(app.current.card, app.current.tab, app.current.view,
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
+
+    // Reset scrollpos
+    const container = elGetById(app.id + 'Container');
+    scrollToPosY(container, 0);
 }
 
 /**

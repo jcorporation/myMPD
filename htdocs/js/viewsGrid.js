@@ -234,11 +234,7 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
     unsetUpdateView(grid);
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     setScrollViewHeight(grid);
-    if (features.featPagination === true ||
-        obj.result.offset === 0)
-    {
-        scrollToPosY(grid.parentNode, app.current.scrollPos);
-    }
+    restoreScrollPos(obj.result.offset, grid.parentNode, app.current.scrollPos);
 }
 
 /**

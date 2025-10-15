@@ -320,7 +320,7 @@ function onShow(eventName) {
         websocketKeepAlive();
         getState();
         if (app.id === 'QueueCurrent') {
-            execSearchExpression(elGetById('QueueCurrentSearchStr').value);
+            execSearchExpression(elGetById('QueueCurrentSearchStr').value, 0);
         }
     }
 }

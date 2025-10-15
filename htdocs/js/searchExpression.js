@@ -109,7 +109,7 @@ function initSearchExpression(appid) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getData(event.target, 'tag');
             selectSearchMatch(appid);
-            execSearchExpression(elGetById(appid + 'SearchStr').value);
+            execSearchExpression(elGetById(appid + 'SearchStr').value, 0);
         }
     }, false);
 
@@ -127,7 +127,7 @@ function initSearchExpression(appid) {
             elShow(crumbEl);
             event.target.value = '';
         }
-        execSearchExpression('');
+        execSearchExpression('', 0);
     }, false);
 
     // Android does not support search on type
@@ -146,7 +146,7 @@ function initSearchExpression(appid) {
             }
             clearSearchTimer();
             searchTimer = setTimeout(function() {
-                execSearchExpression(value);
+                execSearchExpression(value, 0);
             }, searchTimerTimeout);
         }, false);
     }
@@ -157,7 +157,7 @@ function initSearchExpression(appid) {
             event.preventDefault();
             event.stopPropagation();
             event.target.parentNode.remove();
-            execSearchExpression('');
+            execSearchExpression('', 0);
             elGetById(appid + 'SearchStr').updateBtn();
         }
         else if (event.target.classList.contains('btn')) {
@@ -170,7 +170,7 @@ function initSearchExpression(appid) {
             elGetById(appid + 'SearchMatch').value = getData(event.target, 'filter-op');
             event.target.remove();
             app.current.filter = getData(event.target,'filter-tag');
-            execSearchExpression(searchStrEl.value);
+            execSearchExpression(searchStrEl.value, 0);
             if (elGetById(appid + 'SearchCrumb').childElementCount === 0) {
                 elHideId(appid + 'SearchCrumb');
             }
@@ -179,7 +179,7 @@ function initSearchExpression(appid) {
     }, false);
 
     elGetById(appid + 'SearchMatch').addEventListener('change', function() {
-        execSearchExpression(elGetById(appid + 'SearchStr').value);
+        execSearchExpression(elGetById(appid + 'SearchStr').value, 0);
     }, false);
     setSearchExpressionPlaceholder(appid);
 }
@@ -187,11 +187,12 @@ function initSearchExpression(appid) {
 /**
  * Executes the search expression for the current displayed view
  * @param {string} value search value
+ * @param {number} offset list offset
  * @returns {void}
  */
-function execSearchExpression(value) {
+function execSearchExpression(value, offset) {
     const expression = createSearchExpression(elGetById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
-    appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
+    appGoto(app.current.card, app.current.tab, app.current.view, offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }
 
 /**

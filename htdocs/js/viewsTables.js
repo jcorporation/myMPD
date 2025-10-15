@@ -348,11 +348,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     unsetUpdateView(table);
     setScrollViewHeight(table);
-    if (features.featPagination === true ||
-        obj.result.offset === 0)
-    {
-        scrollToPosY(table.parentNode, app.current.scrollPos);
-    }
+    restoreScrollPos(obj.result.offset, table.parentNode, app.current.scrollPos);
 }
 
 /**
