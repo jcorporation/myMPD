@@ -107,17 +107,17 @@ function filterImageSelect(elId, searchstr) {
 }
 
 /**
- * Checks if the uri is defined as an albumart thumbnail file
+ * Checks if the uri is defined as an albumart thumbnail or large file
  * @param {string} uri uri to check
- * @returns {boolean} true if it is albumart thumbnail file, else false
+ * @returns {boolean} true if it is albumart thumbnail or large file, else false
  */
 function isThumbnailfile(uri) {
     const filename = basename(uri, true);
     const fileparts = splitFilename(filename);
 
-    const imageNamesSm = settings.imageNamesSm.split(',');
-    for (let i = 0, j = imageNamesSm.length; i < j; i++) {
-        const name = imageNamesSm[i].trim();
+    const coverimageNames = [...settings.imageNamesSm.split(','), ...settings.imageNamesLg.split(',')];
+    for (let i = 0, j = coverimageNames.length; i < j; i++) {
+        const name = coverimageNames[i].trim();
         if (filename === name) {
             return true;
         }
