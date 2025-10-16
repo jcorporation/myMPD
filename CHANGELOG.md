@@ -13,6 +13,7 @@ https://github.com/jcorporation/myMPD/
 - Feat: Support large images
 - Feat: Add implicit secondary sort tag to album view
 - Fix: Do not reset scrolling position on update of lists #1478
+- Fix: Try to keep select if list is refreshed because of an event #1479
 
 ***
 
