@@ -346,7 +346,10 @@ static sds get_sort_key_album(sds key, enum sort_by_type sort_by, enum mpd_tag_t
             key = sdscatlen(key, "zzzzzzzzzz", 10);
         }
     }
-    key = sdscatfmt(key, "::%s", album_get_uri(album));
+    enum mpd_tag_type secondary_sort_tag = sort_tag == MPD_TAG_ALBUM
+        ? MPD_TAG_ALBUM_ARTIST
+        : MPD_TAG_ALBUM;
+    key = sdscatfmt(key, "::%s::%s", album_get_tag(album, secondary_sort_tag, 0), album_get_uri(album));
     sds_utf8_tolower(key);
     return key;
 }
