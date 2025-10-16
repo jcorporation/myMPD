@@ -100,25 +100,48 @@ function dragAndDropList(listId) {
 
 /**
  * Replaces a list item and tries to keep the selection state
- * @param {boolean} mode the selection mode
+ * @param {boolean} inSelectMode the selection mode
  * @param {HTMLElement} item item to replace
  * @param {HTMLElement} el replacement col
  * @returns {void}
  */
-function replaceListItem(mode, item, el) {
-    if (getData(item, 'uri') === getData(el, 'uri')) {
-        if (mode === true &&
-            item.firstElementChild.lastElementChild.lastElementChild.textContent === ligatures.checked)
-        {
-            el.firstElementChild.lastElementChild.lastElementChild.textContent = ligatures.checked;
-            el.classList.add('selected');
+function replaceListItem(inSelectMode, item, el) {
+    if (inSelectMode === true) {
+        const prevItem = item.previousElementSibling;
+        const prevUri = prevItem !== null
+            ? getData(prevItem, 'uri')
+            : null;
+
+        const nextItem = item.nextElementSibling;
+        const nextUri = nextItem !== null
+            ? getData(nextItem, 'uri')
+            : null;
+
+        const newUri = getData(el, 'uri');
+        if (getData(item, 'uri') === newUri) {
+            copyListSelection(item, el);
         }
-        if (item.classList.contains('queue-playing')) {
-            el.classList.add('queue-playing');
-            el.style.background = item.style.background;
+        else if (nextUri === newUri) {
+            copyListSelection(nextItem, el);
+        }
+        else if (prevUri === newUri) {
+            copyListSelection(prevItem, el);
         }
     }
     item.replaceWith(el);
+}
+
+/**
+ * Copy the selection state
+ * @param {HTMLElement} item item to replace
+ * @param {HTMLElement} el replacement col
+ * @returns {void}
+ */
+function copyListSelection(item, el) {
+    if (item.firstElementChild.lastElementChild.lastElementChild.textContent === ligatures.checked) {
+        el.firstElementChild.lastElementChild.lastElementChild.textContent = ligatures.checked;
+        el.classList.add('selected');
+    }
 }
 
 /**

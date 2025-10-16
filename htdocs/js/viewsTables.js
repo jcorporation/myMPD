@@ -129,25 +129,48 @@ function setCols(tableName) {
 
 /**
  * Replaces a table row and tries to keep the selection state
- * @param {boolean} mode the selection mode
+ * @param {boolean} inSelectMode the selection mode
  * @param {HTMLElement} row row to replace
  * @param {HTMLElement} el replacement row
  * @returns {void}
  */
-function replaceTblRow(mode, row, el) {
-    if (getData(row, 'uri') === getData(el, 'uri')) {
-        if (mode === true &&
-            row.lastElementChild.lastElementChild.textContent === ligatures.checked)
-        {
-            el.lastElementChild.lastElementChild.textContent = ligatures.checked;
-            el.classList.add('selected');
+function replaceTblRow(inSelectMode, row, el) {
+    if (inSelectMode === true) {
+        const prevRow = row.previousElementSibling;
+        const prevUri = prevRow !== null
+            ? getData(prevRow, 'uri')
+            : null;
+
+        const nextRow = row.nextElementSibling;
+        const nextUri = nextRow !== null
+            ? getData(nextRow, 'uri')
+            : null;
+
+        const newUri = getData(el, 'uri');
+        if (getData(row, 'uri') === newUri) {
+            copyRowSelection(row, el);
         }
-        if (row.classList.contains('queue-playing')) {
-            el.classList.add('queue-playing');
-            el.style.background = row.style.background;
+        else if (nextUri === newUri) {
+            copyRowSelection(nextRow, el);
+        }
+        else if (prevUri === newUri) {
+            copyRowSelection(prevRow, el);
         }
     }
     row.replaceWith(el);
+}
+
+/**
+ * Copy the selection state
+ * @param {HTMLElement} row row to replace
+ * @param {HTMLElement} el replacement row
+ * @returns {void}
+ */
+function copyRowSelection(row, el) {
+    if (row.lastElementChild.lastElementChild.textContent === ligatures.checked) {
+        el.lastElementChild.lastElementChild.textContent = ligatures.checked;
+        el.classList.add('selected');
+    }
 }
 
 /**

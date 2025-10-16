@@ -122,27 +122,51 @@ function dragAndDropGrid(gridId) {
 
 /**
  * Replaces a grid col and tries to keep the selection state
- * @param {boolean} mode the selection mode
+ * @param {boolean} inSelectMode the selection mode
  * @param {HTMLElement} col col to replace
  * @param {HTMLElement} el replacement col
  * @returns {void}
  */
-function replaceGridCol(mode, col, el) {
-    const colCard = col.firstElementChild;
-    const elCard = el.firstElementChild;
-    if (getData(colCard, 'uri') === getData(elCard, 'uri')) {
-        if (mode === true &&
-            colCard.lastElementChild.lastElementChild.textContent === ligatures.checked)
-        {
-            elCard.lastElementChild.lastElementChild.textContent = ligatures.checked;
-            elCard.classList.add('selected');
+function replaceGridCol(inSelectMode, col, el) {
+    if (inSelectMode === true) {
+        const colCard = col.firstElementChild;
+        const elCard = el.firstElementChild;
+
+        const prevCol = col.previousElementSibling;
+        const prevUri = prevCol !== null
+            ? getData(prevCol.firstElementChild, 'uri')
+            : null;
+
+        const nextCol = col.nextElementSibling;
+        const nextUri = nextCol !== null
+            ? getData(nextCol.firstElementChild, 'uri')
+            : null;
+
+        const newUri = getData(elCard, 'uri');
+        if (getData(colCard, 'uri') === newUri) {
+            copyGridSelection(colCard, elCard);
         }
-        if (colCard.classList.contains('queue-playing')) {
-            elCard.classList.add('queue-playing');
-            elCard.style.background = colCard.style.background;
+        else if (nextUri === newUri) {
+            copyGridSelection(nextCol.firstElementChild, elCard);
+        }
+        else if (prevUri === newUri) {
+            copyGridSelection(prevCol.firstElementChild, elCard);
         }
     }
     col.replaceWith(el);
+}
+
+/**
+ * Copy the selection state
+ * @param {HTMLElement} colCard card to replace
+ * @param {HTMLElement} elCard replacement card
+ * @returns {void}
+ */
+function copyGridSelection(colCard, elCard) {
+    if (colCard.lastElementChild.lastElementChild.textContent === ligatures.checked) {
+        elCard.lastElementChild.lastElementChild.textContent = ligatures.checked;
+        elCard.classList.add('selected');
+    }
 }
 
 /**
