@@ -91,7 +91,7 @@ sds sds_dirname(sds s) {
 
 /**
  * Splits a comma separated string and trims whitespaces from single values
- * @param s string to split
+ * @param p string to split
  * @param count pointer to int representing the count of values
  * @return array of sds strings
  */
