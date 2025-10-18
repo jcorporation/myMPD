@@ -1875,6 +1875,11 @@ const APImethods = {
                 "example": true,
                 "desc": "Ignores hated songs."
             },
+            "jukeboxAutostart": {
+                "type": APItypes.bool,
+                "example": true,
+                "desc": "Starts the jukebox after connection to MPD is established."
+            },
             "jukeboxFilterInclude": APIparams.expression,
             "jukeboxFilterExclude": APIparams.expression,
             "jukeboxMinSongDuration": {
