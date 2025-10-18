@@ -8,6 +8,7 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Feat: Add option for Jukebox Autostart #1482
 - Feat: Add option for default behavior on click on tag in browse view #1472
 - Feat: Optionally group songs with empty album tag in a special `Unknown Album` album #1472
 - Feat: Support large images

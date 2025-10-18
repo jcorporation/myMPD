@@ -428,6 +428,7 @@ void jukebox_state_default(struct t_jukebox_state *jukebox_state) {
     jukebox_state->max_song_duration = MYMPD_JUKEBOX_MAX_SONG_DURATION;
     jukebox_state->filling = false;
     jukebox_state->last_error = sdsempty();
+    jukebox_state->autostart = true;
 }
 
 /**

@@ -1166,6 +1166,13 @@ const settingsPlaybackFields = {
         "help": "helpJukeboxQueueLength",
         "class": ["jukeboxSongOnly"]
     },
+    "jukeboxAutostart": {
+        "inputType": "checkbox",
+        "defaultValue": defaults["MYMPD_JUKEBOX_AUTOSTART"],
+        "title": "Autostart",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxAutostart"
+    },
     "jukeboxUniqTag": {
         "inputType": "select",
         "defaultValue": defaults["MYMPD_JUKEBOX_UNIQ_TAG"],

@@ -139,6 +139,7 @@
 #define MYMPD_JUKEBOX_LAST_PLAYED 24 // hours
 #define MYMPD_JUKEBOX_QUEUE_LENGTH 1 // minimum length of MPD queue
 #define MYMPD_JUKEBOX_IGNORE_HATED false
+#define MYMPD_JUKEBOX_AUTOSTART true
 #define MYMPD_JUKEBOX_MIN_SONG_DURATION 0
 #define MYMPD_JUKEBOX_MAX_SONG_DURATION 0
 #define MYMPD_IMAGE_NAMES_SM "cover-sm,folder-sm"

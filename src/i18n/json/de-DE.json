@@ -1102,6 +1102,7 @@
     "helpJukeboxPlaylist": "Fügt Lieder oder Alben von gewählter Wiedergabeliste hinzu.",
     "helpJukeboxQueueLength": "Anzahl der Lieder in der Warteschlange bevor die Jukebox neue Lieder hinzufügt.",
     "helpJukeboxUniqueTag": "Erzwingt Eindeutigkeit des gewählten Tags über die Warteschlange und den zuletzt 50 gespielten Lieder hinweg.",
+    "helpJukeboxAutostart": "Started die Jukebox nachdem die MPD Verbindung hergestellt wurde.",
     "helpMountsMountPoint": "Pfad auf dem die URI gemountet werden soll, z.B. music",
     "helpMountsUrl": "Die zu mountende URI, z.B. nfs://192.168.1.4/export/music",
     "helpQueueAutoPlay": "Startet die Wiedergabe sobald die Warteschlange geändert wurde.",

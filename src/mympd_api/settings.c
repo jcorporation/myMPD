@@ -697,6 +697,16 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, en
             jukebox_changed = true;
         }
     }
+    else if (strcmp(key, "jukeboxAutostart") == 0) {
+        if (vtype != JSON_TOK_TRUE && vtype != JSON_TOK_FALSE) {
+            set_invalid_value(error, path, key, value, "Must be a boolean value");
+            return false;
+        }
+        bool bool_buf = vtype == JSON_TOK_TRUE ? true : false;
+        if (bool_buf != partition_state->jukebox.autostart) {
+            partition_state->jukebox.autostart = bool_buf;
+        }
+    }
     else if (strcmp(key, "jukeboxIgnoreHated") == 0) {
         if (vtype != JSON_TOK_TRUE && vtype != JSON_TOK_FALSE) {
             set_invalid_value(error, path, key, value, "Must be a boolean value");
@@ -940,6 +950,7 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
     partition_state->jukebox.last_played = state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_last_played", partition_state->jukebox.last_played, JUKEBOX_LAST_PLAYED_MIN, JUKEBOX_LAST_PLAYED_MAX, true);
     partition_state->jukebox.uniq_tag.tags[0] = state_file_rw_tag(workdir, partition_state->state_dir, "jukebox_uniq_tag", partition_state->jukebox.uniq_tag.tags[0], true);
     partition_state->jukebox.ignore_hated = state_file_rw_bool(workdir, partition_state->state_dir, "jukebox_ignore_hated", MYMPD_JUKEBOX_IGNORE_HATED, true);
+    partition_state->jukebox.autostart = state_file_rw_bool(workdir, partition_state->state_dir, "jukebox_autostart", MYMPD_JUKEBOX_AUTOSTART, true);
     partition_state->jukebox.filter_include = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_include", partition_state->jukebox.filter_include, vcb_issearchexpression_song, true);
     partition_state->jukebox.filter_exclude = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_filter_exclude", partition_state->jukebox.filter_exclude, vcb_issearchexpression_song, true);
     partition_state->jukebox.min_song_duration= state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_min_song_duration", partition_state->jukebox.min_song_duration, 0, JUKEBOX_MIN_SONG_DURATION_MAX, true);
@@ -1038,6 +1049,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_char(buffer, "jukeboxUniqTag", mpd_tag_name(partition_state->jukebox.uniq_tag.tags[0]), true);
     buffer = tojson_uint(buffer, "jukeboxLastPlayed", partition_state->jukebox.last_played, true);
     buffer = tojson_bool(buffer, "jukeboxIgnoreHated", partition_state->jukebox.ignore_hated, true);
+    buffer = tojson_bool(buffer, "jukeboxAutostart", partition_state->jukebox.autostart, true);
     buffer = tojson_char(buffer, "jukeboxFilterInclude", partition_state->jukebox.filter_include, true);
     buffer = tojson_char(buffer, "jukeboxFilterExclude", partition_state->jukebox.filter_exclude, true);
     buffer = tojson_uint(buffer, "jukeboxMinSongDuration", partition_state->jukebox.min_song_duration, true);

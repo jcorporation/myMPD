@@ -40,6 +40,7 @@
     "helpJukeboxPlaylist": "Add songs or albums from selected playlist.",
     "helpJukeboxQueueLength": "Number of songs in the queue before the jukebox add's more songs.",
     "helpJukeboxUniqueTag": "Forces the selected tag to be unique within the queue and the last 50 songs played.",
+    "helpJukeboxAutostart": "Starts the jukebox after connection to MPD is established.",
     "helpQueueAutoPlay": "Starts playback as soon as the queue has been changed.",
     "helpQueueConsume": "Removes the song from the queue after it has been played.",
     "helpQueueCrossfade": "Sets crossfading between songs.",

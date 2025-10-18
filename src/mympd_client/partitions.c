@@ -85,7 +85,8 @@ bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_st
     mympd_timer_set(partition_state->timer_fd_mpd_connect, 0, 0);
 
     // jukebox
-    if (partition_state->jukebox.mode != JUKEBOX_OFF &&
+    if (partition_state->jukebox.autostart == true &&
+        partition_state->jukebox.mode != JUKEBOX_OFF &&
         partition_state->queue_length == 0)
     {
         MYMPD_LOG_INFO(partition_state->name, "MPD queue is empty and jukebox is enabled, starting it");

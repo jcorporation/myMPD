@@ -105,6 +105,7 @@ struct t_jukebox_state {
     unsigned max_song_duration;    //!< maximum song duration
     bool filling;                  //!< indication flag for filling jukebox thread
     sds last_error;                //!< last jukebox error message
+    bool autostart;                //!< Run jukebox after MPD connection is established
 };
 
 /**
