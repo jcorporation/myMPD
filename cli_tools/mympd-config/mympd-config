@@ -114,6 +114,10 @@ read_config() {
     [ -f "${CONFIG_DIR}/webradiodb" ] && read -r MYMPD_WEBRADIODB < "${CONFIG_DIR}/webradiodb"
     [ -f "${CONFIG_DIR}/cert_check" ] && read -r MYMPD_CERT_CHECK < "${CONFIG_DIR}/cert_check"
     [ -f "${CONFIG_DIR}/ca_cert_store" ] && read -r MYMPD_CA_CERT_STORE < "${CONFIG_DIR}/ca_cert_store"
+    [ -f "${CONFIG_DIR}/jukebox_queue_length_album" ] && read -r MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM < "${CONFIG_DIR}/jukebox_queue_length_album"
+    [ -f "${CONFIG_DIR}/jukebox_queue_length_album_min" ] && read -r MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN < "${CONFIG_DIR}/jukebox_queue_length_album_min"
+    [ -f "${CONFIG_DIR}/jukebox_queue_length_song" ] && read -r MYMPD_JUKEBOX_QUEUE_LENGTH_SONG < "${CONFIG_DIR}/jukebox_queue_length_song"
+    [ -f "${CONFIG_DIR}/jukebox_queue_length_song_min" ] && read -r MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN < "${CONFIG_DIR}/jukebox_queue_length_song_min"
 }
 
 apply_config() {
@@ -148,6 +152,10 @@ apply_config() {
             -E MYMPD_WEBRADIODB="$MYMPD_WEBRADIODB" \
             -E MYMPD_CERT_CHECK="$MYMPD_CERT_CHECK" \
             -E MYMPD_CA_CERT_STORE="$MYMPD_CA_CERT_STORE" \
+            -E MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM="$MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM" \
+            -E MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN="$MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN" \
+            -E MYMPD_JUKEBOX_QUEUE_LENGTH_SONG="$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG" \
+            -E MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN="$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN" \
             $MYMPD_BIN -c
     else
         export MYMPD_ACL
@@ -178,6 +186,10 @@ apply_config() {
         export MYMPD_WEBRADIODB
         export MYMPD_CERT_CHECK
         export MYMPD_CA_CERT_STORE
+        export MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM
+        export MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN
+        export MYMPD_JUKEBOX_QUEUE_LENGTH_SONG
+        export MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN
         $MYMPD_BIN -c
     fi
 }
@@ -225,6 +237,8 @@ menu_webserver() {
         "Custom certificate" "$MYMPD_CUSTOM_CERT" \
         "Certificate file" "$MYMPD_SSL_CERT" \
         "Private key file" "$MYMPD_SSL_KEY" \
+        "Enable cert check" "$MYMPD_CERT_CHECK" \
+        "CA certificate store" "$MYMPD_CA_CERT_STORE" \
         3>&1 1>&2 2>&3)
     case "$SELECT" in
         "Listening IP") MYMPD_HTTP_HOST=$(get_input "$SELECT" "$MYMPD_HTTP_HOST") ;;
@@ -239,6 +253,8 @@ menu_webserver() {
         "Custom certificate") MYMPD_CUSTOM_CERT=$(get_input "$SELECT" "$MYMPD_CUSTOM_CERT") ;;
         "Certificate file") MYMPD_SSL_CERT=$(get_input "$SELECT" "$MYMPD_SSL_CERT") ;;
         "Private key file") MYMPD_SSL_KEY=$(get_input "$SELECT" "$MYMPD_SSL_KEY") ;;
+        "Enable cert check") MYMPD_CERT_CHECK=$(toggle_bool "$MYMPD_CERT_CHECK") ;;
+        "CA certificate store") MYMPD_CA_CERT_STORE=$(get_input "$SELECT" "$MYMPD_CA_CERT_STORE") ;;
         "") return ;;
     esac
     menu_webserver
@@ -297,8 +313,10 @@ menu_misc() {
         "Enable stickers" "$MYMPD_STICKERS" \
         "Enable sticker padding" "$MYMPD_STICKERS_PAD_INT" \
         "Enable WebradioDB" "$MYMPD_WEBRADIODB" \
-        "Enable cert check" "$MYMPD_CERT_CHECK" \
-        "CA certificate store" "$MYMPD_CA_CERT_STORE" \
+        "Jukebox album queue length" "$MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM" \
+        "Jukebox album min. queue length" "$MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN" \
+        "Jukebox song queue length" "$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG" \
+        "Jukebox song min. queue length" "$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN" \
         3>&1 1>&2 2>&3)
     case "$SELECT" in
         "Album group tag") MYMPD_ALBUM_GROUP_TAG=$(get_input "$SELECT" "$MYMPD_ALBUM_GROUP_TAG") ;;
@@ -315,8 +333,10 @@ menu_misc() {
         "Enable stickers") MYMPD_STICKERS=$(toggle_bool "$MYMPD_STICKERS") ;;
         "Enable sticker padding") MYMPD_STICKERS_PAD_INT=$(toggle_bool "$MYMPD_STICKERS_PAD_INT") ;;
         "Enable WebradioDB") MYMPD_WEBRADIODB=$(toggle_bool "$MYMPD_WEBRADIODB") ;;
-        "Enable cert check") MYMPD_CERT_CHECK=$(toggle_bool "$MYMPD_CERT_CHECK") ;;
-        "CA certificate store") MYMPD_CA_CERT_STORE=$(get_input "$SELECT" "$MYMPD_CA_CERT_STORE") ;;
+        "Jukebox album queue length") MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM=$(get_input "$SELECT" "$MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM") ;;
+        "Jukebox album min. queue length") MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN=$(get_input "$SELECT" "$MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN") ;;
+        "Jukebox song queue length") MYMPD_JUKEBOX_QUEUE_LENGTH_SONG=$(get_input "$SELECT" "$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG") ;;
+        "Jukebox song min. queue length") MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN=$(get_input "$SELECT" "$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN") ;;
         "") return ;;
     esac
     menu_misc
@@ -373,6 +393,10 @@ parse_options() {
             MYMPD_WEBRADIODB) MYMPD_WEBRADIODB="$2" ;;
             MYMPD_CERT_CHECK) MYMPD_CERT_CHECK="$2" ;;
             MYMPD_CA_CERT_STORE) MYMPD_CA_CERT_STORE="$2" ;;
+            MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM) MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM="$2" ;;
+            MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN) MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN="$2" ;;
+            MYMPD_JUKEBOX_QUEUE_LENGTH_SONG) MYMPD_JUKEBOX_QUEUE_LENGTH_SONG="$2" ;;
+            MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN) MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN="$2" ;;
             *)
                 echo "Invalid configuration setting"
                 exit 1

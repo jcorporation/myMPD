@@ -64,6 +64,10 @@ enum config_item {
     CI_STICKERS,
     CI_STICKERS_PAD_INT,
     CI_WEBRADIODB,
+    CI_JUKEBOX_QUEUE_LENGTH_SONG,
+    CI_JUKEBOX_QUEUE_LENGTH_SONG_MIN,
+    CI_JUKEBOX_QUEUE_LENGTH_ALBUM,
+    CI_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN,
     CI_COUNT
 };
 
@@ -132,6 +136,10 @@ static const struct t_config_default config_default[] = {
     [CI_HTTP]                   = {"http",                   {.t = CIT_B, .b = true},           0, 0, NULL},
     [CI_HTTP_HOST]              = {"http_host",              {.t = CIT_S, .s = ""},             0, 0, vcb_isname}, 
     [CI_HTTP_PORT]              = {"http_port",              {.t = CIT_I, .i = 8080},           0, MPD_PORT_MAX, NULL},
+    [CI_JUKEBOX_QUEUE_LENGTH_ALBUM]     = {"jukebox_queue_length_album",     {.t = CIT_I, .i = 25},  5,  250, NULL},
+    [CI_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN] = {"jukebox_queue_length_album_min", {.t = CIT_I, .i = 5},   5, 125, NULL},
+    [CI_JUKEBOX_QUEUE_LENGTH_SONG]      = {"jukebox_queue_length_song",      {.t = CIT_I, .i = 100}, 10, 1000, NULL},
+    [CI_JUKEBOX_QUEUE_LENGTH_SONG_MIN]  = {"jukebox_queue_length_song_min",  {.t = CIT_I, .i = 10},  10, 500, NULL},
     [CI_LOGLEVEL]               = {"loglevel",               {.t = CIT_I, .i = CFG_MYMPD_LOGLEVEL},  LOGLEVEL_MIN, LOGLEVEL_MAX, NULL},
     [CI_MYMPD_URI]              = {"mympd_uri",              {.t = CIT_S, .s = "auto"},         0, 0, vcb_isname},
     [CI_PIN_HASH]               = {"pin_hash",               {.t = CIT_S, .s = ""},             0, 0, vcb_isalnum},
@@ -341,6 +349,22 @@ static void set_config(struct t_config *config, enum config_item ci, struct t_co
             assert(value->t == CIT_S);
             config->custom_js = value->s;
             break;
+        case CI_JUKEBOX_QUEUE_LENGTH_SONG:
+            assert(value->t == CIT_I);
+            config->jukebox_queue_length_song = (unsigned)value->i;
+            break;
+        case CI_JUKEBOX_QUEUE_LENGTH_SONG_MIN:
+            assert(value->t == CIT_I);
+            config->jukebox_queue_length_song_min = (unsigned)value->i;
+            break;
+        case CI_JUKEBOX_QUEUE_LENGTH_ALBUM:
+            assert(value->t == CIT_I);
+            config->jukebox_queue_length_album = (unsigned)value->i;
+            break;
+        case CI_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN:
+            assert(value->t == CIT_I);
+            config->jukebox_queue_length_song = (unsigned)value->i;
+            break;
         case CI_COUNT:
             assert(NULL);
             // This should not occur
@@ -432,6 +456,17 @@ bool mympd_config_read(struct t_config *config) {
         config->ssl_cert = sdscatfmt(sdsempty(), "%S/%s/server.pem", config->workdir, DIR_WORK_SSL);
         config->ssl_key = sdscatfmt(sdsempty(), "%S/%s/server.key", config->workdir, DIR_WORK_SSL);
     }
+
+    // Enforce jukebox queue length's
+    if (config->jukebox_queue_length_album <= config->jukebox_queue_length_album_min) {
+        MYMPD_LOG_ERROR(NULL, "Jukebox album queue length must be greater than minimum");
+        config->jukebox_queue_length_album_min = config->jukebox_queue_length_album / 2;
+    }
+    if (config->jukebox_queue_length_song <= config->jukebox_queue_length_song_min) {
+        MYMPD_LOG_ERROR(NULL, "Jukebox song queue length must be greater than minimum");
+        config->jukebox_queue_length_album_min = config->jukebox_queue_length_album / 2;
+    }
+
     return true;
 }
 

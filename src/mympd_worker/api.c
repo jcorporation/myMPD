@@ -52,8 +52,14 @@ void mympd_worker_api(struct t_mympd_worker_state *mympd_worker_state) {
     struct t_partition_state *partition_state = mympd_worker_state->partition_state;
 
     switch(request->cmd_id) {
-        case INTERNAL_API_JUKEBOX_REFILL: {
-            free_response(response);
+        case MYMPD_API_JUKEBOX_REFILL: {
+            if (request->type != REQUEST_TYPE_DISCARD) {
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_QUEUE);
+                push_response(response);
+            }
+            else {
+                free_response(response);
+            }
             struct t_list *queue_list = (struct t_list *)request->extra;
             rc = mympd_worker_jukebox_queue_fill(mympd_worker_state, queue_list, 0, &error);
             if (rc == true) {
@@ -67,8 +73,14 @@ void mympd_worker_api(struct t_mympd_worker_state *mympd_worker_state) {
             async = true;
             break;
         }
-        case INTERNAL_API_JUKEBOX_REFILL_ADD: {
-            free_response(response);
+        case MYMPD_API_JUKEBOX_REFILL_ADD: {
+            if (request->type != REQUEST_TYPE_DISCARD) {
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_QUEUE);
+                push_response(response);
+            }
+            else {
+                free_response(response);
+            }
             struct t_list *queue_list = (struct t_list *)request->extra;
             if (json_get_uint(request->data, "$.params.addSongs", 1, JUKEBOX_ADD_SONG_MAX, &uint_buf1, &parse_error) == true ) {
                 rc = mympd_worker_jukebox_queue_fill_add(mympd_worker_state, queue_list, uint_buf1, &error);

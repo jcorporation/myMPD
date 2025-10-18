@@ -157,6 +157,15 @@ function clearJukeboxQueue() {
 }
 
 /**
+ * Refills the jukebox queue
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function refillJukeboxQueue() {
+    sendAPI("MYMPD_API_JUKEBOX_REFILL", {}, null, false);
+}
+
+/**
  * Removes a song / album from the jukebox queue
  * @param {Array} pos position
  * @returns {void}

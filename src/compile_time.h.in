@@ -350,10 +350,6 @@
 #define JUKEBOX_ADD_SONG_MAX 99
 #define JUKEBOX_MIN_SONG_DURATION_MAX INT_MAX
 #define JUKEBOX_MAX_SONG_DURATION_MAX INT_MAX
-#define JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH 100 // length of the internal jukebox queue for songs
-#define JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH 25 // length of the internal jukebox queue for albums
-#define JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH_MIN 10 // Minimum length of the internal jukebox queue for songs
-#define JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH_MIN 5 // Minimum length of the internal jukebox queue for albums
 #define JUKEBOX_ADD_SONG_OFFSET 10 // add new song 10 seconds before current song ends
 #define SCROBBLE_TIME_MIN 10 //minimum song length in seconds for the scrobble event
 #define SCROBBLE_TIME_MAX 240 //maximum elapsed seconds before scrobble event occurs

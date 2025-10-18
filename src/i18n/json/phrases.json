@@ -738,6 +738,7 @@
 {"term":"Rating"},
 {"term":"Read an ascii file."},
 {"term":"Reconnect"},
+{"term":"Refill jukebox queue"},
 {"term":"Refresh"},
 {"term":"Refresh interval"},
 {"term":"Region"},

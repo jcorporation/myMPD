@@ -57,6 +57,10 @@ struct t_config {
     sds ssl_key;                    //!< filename of the private key
     sds ssl_san;                    //!< additional names for SAN of the self generated certificate
     struct t_albums_config albums;  //!< album specific config
+    unsigned jukebox_queue_length_song;       //!< Length of the internal jukebox queue for songs
+    unsigned jukebox_queue_length_song_min;   //!< Minimum length of the internal jukebox queue for songs
+    unsigned jukebox_queue_length_album;      //!< Length of the internal jukebox queue for albums
+    unsigned jukebox_queue_length_album_min;  //!< Minimum length of the internal jukebox queue for albums
 };
 
 #endif

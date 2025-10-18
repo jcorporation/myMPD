@@ -75,7 +75,7 @@ bool mympd_worker_jukebox_queue_fill(struct t_mympd_worker_state *mympd_worker_s
     unsigned expected_length;
     unsigned new_length = 0;
     if (mympd_worker_state->partition_state->jukebox.mode == JUKEBOX_ADD_ALBUM) {
-        expected_length = JUKEBOX_INTERNAL_ALBUM_QUEUE_LENGTH + add_songs;
+        expected_length = mympd_worker_state->config->jukebox_queue_length_album + add_songs;
         if (cache_get_read_lock(mympd_worker_state->album_cache) == true) {
             new_length = random_select_albums(mympd_worker_state->partition_state, mympd_worker_state->stickerdb, mympd_worker_state->album_cache,
                 expected_length, queue_list, mympd_worker_state->partition_state->jukebox.queue, &constraints);
@@ -87,7 +87,7 @@ bool mympd_worker_jukebox_queue_fill(struct t_mympd_worker_state *mympd_worker_s
         }
     }
     else if (mympd_worker_state->partition_state->jukebox.mode == JUKEBOX_ADD_SONG) {
-        expected_length = JUKEBOX_INTERNAL_SONG_QUEUE_LENGTH + add_songs;
+        expected_length = mympd_worker_state->config->jukebox_queue_length_song + add_songs;
         new_length = random_select_songs(mympd_worker_state->partition_state, mympd_worker_state->stickerdb, expected_length,
             mympd_worker_state->partition_state->jukebox.playlist, queue_list, mympd_worker_state->partition_state->jukebox.queue, &constraints);
     }

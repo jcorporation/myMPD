@@ -2529,6 +2529,20 @@ const APImethods = {
         "desc": "Restarts the jukebox.",
         "params": {}
     },
+    "MYMPD_API_JUKEBOX_REFILL": {
+        "desc": "Refills the jukebox queue.",
+        "params": {}
+    },
+    "MYMPD_API_JUKEBOX_REFILL_ADD": {
+        "desc": "Refills the jukebox queue and adds songs to the MPD queue.",
+        "params": {
+            "addSongs": {
+                "type": APItypes.uint,
+                "example": "5",
+                "desc": "Number of songs to add."
+            }
+        }
+    },
     "MYMPD_API_LYRICS_GET": {
         "desc": "Gets all lyrics from uri.",
         "params": {

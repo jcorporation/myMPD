@@ -124,12 +124,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
 
     switch(request->cmd_id) {
     // methods that are delegated to a new worker thread
-        case INTERNAL_API_JUKEBOX_REFILL:
-        case INTERNAL_API_JUKEBOX_REFILL_ADD:
         case MYMPD_API_CACHE_DISK_CROP:
         case MYMPD_API_CACHE_DISK_CLEAR:
         case MYMPD_API_CACHES_CREATE:
         case MYMPD_API_DATABASE_LIST_RANDOM:
+        case MYMPD_API_JUKEBOX_REFILL:
+        case MYMPD_API_JUKEBOX_REFILL_ADD:
         case MYMPD_API_PLAYLIST_CONTENT_ENUMERATE:
         case MYMPD_API_PLAYLIST_CONTENT_DEDUP:
         case MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL:
@@ -170,6 +170,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (request->cmd_id == MYMPD_API_SMARTPLS_UPDATE_ALL) {
                 // Trigger for smart playlist scripts
                 mympd_api_request_trigger_event_emit(TRIGGER_MYMPD_SMARTPLS, partition_state->name, NULL, 0);
+            }
+            if (request->cmd_id == MYMPD_API_JUKEBOX_REFILL ||
+                request->cmd_id == MYMPD_API_JUKEBOX_REFILL_ADD)
+            {
+                if (partition_state->jukebox.mode != JUKEBOX_ADD_ALBUM &&
+                    partition_state->jukebox.mode != JUKEBOX_ADD_SONG)
+                {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_WARN, "Jukebox is disabled");
+                    break;
+                }
             }
             async = mympd_worker_start(mympd_state, partition_state, request);
             if (async == false) {

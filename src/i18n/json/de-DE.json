@@ -1285,5 +1285,7 @@
     "userDefinedSticker": "Benutzerdefinierte Sticker",
     "votes": "Stimmen",
     "warn": "Warnung",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Autostart": "Autostart",
+    "Refill jukebox queue": "Jukebox Warteschlange auffüllen"
 }
