@@ -88,6 +88,7 @@ bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_st
     if (partition_state->jukebox.mode != JUKEBOX_OFF &&
         partition_state->queue_length == 0)
     {
+        MYMPD_LOG_INFO(partition_state->name, "MPD queue is empty and jukebox is enabled, starting it");
         jukebox_run(mympd_state, partition_state, &mympd_state->album_cache);
     }
 

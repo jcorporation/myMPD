@@ -23,6 +23,7 @@ enum timer_ids {
     TIMER_ID_WEBRADIODB_UPDATE = 4
 };
 
+const char *get_timer_name(unsigned timer_id);
 void timer_handler_by_id(unsigned timer_id, struct t_timer_definition *definition);
 void timer_handler_select(unsigned timer_id, struct t_timer_definition *definition);
 bool mympd_api_timer_startplay(struct t_partition_state *partition_state,

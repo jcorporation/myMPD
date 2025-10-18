@@ -219,7 +219,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, int timeout, int interval, time
         time_t now = time(NULL);
         char fmt_time[32];
         readable_time(fmt_time, now + timeout);
-        MYMPD_LOG_DEBUG(NULL, "Added timer with id %u, start time %s", timer_id, fmt_time);
+        MYMPD_LOG_DEBUG(NULL, "Added timer %s, start time %s", get_timer_name(timer_id), fmt_time);
     #endif
     return true;
 }

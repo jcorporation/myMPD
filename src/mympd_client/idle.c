@@ -181,6 +181,7 @@ static void mympd_client_idle_partition(struct t_mympd_state *mympd_state, struc
     }
     // run jukebox
     if (partition_state->waiting_events & PFD_TYPE_TIMER_JUKEBOX) {
+        MYMPD_LOG_DEBUG(partition_state->name, "Jukebox event triggered");
         jukebox_run(mympd_state, partition_state, &mympd_state->album_cache);
     }
     // an api request is there

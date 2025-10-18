@@ -44,6 +44,25 @@ static void timer_handler_webradiodb_update(void);
  * Public functions
  */
 
+ /**
+  * Return the timer name for a timer_id
+  * @param timer_id Timer ID
+  * @return const char* Timer name
+  */
+const char *get_timer_name(unsigned timer_id) {
+    switch(timer_id) {
+        case TIMER_ID_DISK_CACHE_CROP:
+            return "TIMER_ID_DISK_CACHE_CROP";
+        case TIMER_ID_SMARTPLS_UPDATE:
+            return "TIMER_ID_SMARTPLS_UPDATE";
+        case TIMER_ID_CACHES_CREATE:
+            return "TIMER_ID_CACHES_CREATE";
+        case TIMER_ID_WEBRADIODB_UPDATE:
+            return "TIMER_ID_WEBRADIODB_UPDATE";
+    }
+    return "TIMER_ID_USER_DEFINED";
+}
+
 /**
  * Handles timer by timer_id, this is only used for internal timers
  * @param timer_id the internal timer_id from enum timer_ids
