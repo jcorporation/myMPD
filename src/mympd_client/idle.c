@@ -165,32 +165,50 @@ static void mympd_client_idle_partition(struct t_mympd_state *mympd_state, struc
         return;
     }
     if (partition_state->waiting_events & PFD_TYPE_PARTITION) {
-        // handle idle events
+        // Handle MPD idle events
         MYMPD_LOG_DEBUG(partition_state->name, "Checking for idle events");
         enum mpd_idle idle_bitmask = mpd_recv_idle(partition_state->conn, false);
         mympd_client_parse_idle(mympd_state, partition_state, idle_bitmask);
+        partition_state->waiting_events &= ~(unsigned)PFD_TYPE_PARTITION;
     }
     else {
         mympd_check_error_and_recover(partition_state, NULL, "mpd_send_noidle");
     }
-    // set mpd connection options
-    if (partition_state->set_conn_options == true &&
+    // Set mpd connection options
+    if (partition_state->conn_state == MPD_CONNECTED &&
+        partition_state->set_conn_options == true &&
         mympd_client_set_connection_options(partition_state) == true)
     {
         partition_state->set_conn_options = false;
     }
-    // run jukebox
-    if (partition_state->waiting_events & PFD_TYPE_TIMER_JUKEBOX) {
+    // Run jukebox
+    if (partition_state->conn_state == MPD_CONNECTED &&
+        partition_state->waiting_events & PFD_TYPE_TIMER_JUKEBOX)
+    {
         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox event triggered");
         jukebox_run(mympd_state, partition_state, &mympd_state->album_cache);
+        partition_state->waiting_events &= ~(unsigned)PFD_TYPE_TIMER_JUKEBOX;
     }
-    // an api request is there
+    // An api request is there
     if (request != NULL) {
         //Handle request
         MYMPD_LOG_DEBUG(partition_state->name, "Handle API request \"%s\"", get_cmd_id_method_name(request->cmd_id));
-        mympd_api_handler(mympd_state, partition_state, request);
+        if (partition_state->conn_state == MPD_CONNECTED ||
+            check_cmd_acl(request->cmd_id, API_MYMPD_ONLY) == true)
+        {
+            mympd_api_handler(mympd_state, partition_state, request);
+        }
+        else {
+            MYMPD_LOG_ERROR(partition_state->name, "Not connected to MPD, discarding request");
+            struct t_work_response *response = create_response(request);
+            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "MPD disconnected");
+            push_response(response);
+            free_request(request);
+        }
+        partition_state->waiting_events &= ~(unsigned)PFD_TYPE_QUEUE;
     }
-    // re-enter idle mode
+    // Re-enter idle mode
     if (partition_state->conn_state == MPD_CONNECTED) {
         MYMPD_LOG_DEBUG(partition_state->name, "Entering mpd idle mode");
         if (mpd_send_idle_mask(partition_state->conn, partition_state->idle_mask) == false) {
