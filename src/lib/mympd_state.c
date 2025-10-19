@@ -44,6 +44,7 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
     while (partition_state != NULL) {
         last_played_file_save(partition_state);
         preset_list_save(partition_state);
+        jukebox_file_save(partition_state);
         partition_state = partition_state->next;
     }
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);

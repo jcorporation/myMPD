@@ -78,6 +78,7 @@
 #define FILENAME_WEBRADIODB "webradiodb.mpack"
 #define FILENAME_WEBRADIO_FAVORITES "webradio_favorites.mpack"
 #define FILENAME_SCRIPTVARS "scriptvars_list"
+#define FILENAME_JUKEBOX "jukebox_list.mpack"
 
 #define FILENAME_CUSTOM_CSS "custom.css"
 #define FILENAME_CUSTOM_JS "custom.js"

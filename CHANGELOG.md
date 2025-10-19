@@ -6,8 +6,11 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v23.0.0 (not yet released)
 
+This versions enhances the jukebox implementation and the album handling.
+
 ### Changelog
 
+- Feat: Keep jukebox queue between myMPD restarts #1485
 - Feat: Add option for Jukebox Autostart #1482
 - Feat: Manually trigger refill of the jukebox queue #1483
 - Feat: Configurable jukebox queue lengths #1484

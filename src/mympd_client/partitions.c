@@ -218,6 +218,7 @@ void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
     //read partition specific state from disc
     mympd_api_settings_statefiles_partition_read(partition_state->next);
     last_played_file_read(partition_state->next);
+    jukebox_file_read(partition_state->next);
     //set connect timer
     mympd_timer_set(partition_state->next->timer_fd_mpd_connect, 0, 5);
     //push settings to webserver_queue

@@ -71,6 +71,8 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_settings_statefiles_partition_read(mympd_state->partition_state);
     // last played for default partition
     last_played_file_read(mympd_state->partition_state);
+    // jukebox queue for default partition
+    jukebox_file_read(mympd_state->partition_state);
     // home icons
     mympd_api_home_file_read(&mympd_state->home_list, mympd_state->config->workdir);
     // timer
