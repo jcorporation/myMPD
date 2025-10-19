@@ -53,7 +53,6 @@ enum config_item {
     CI_LOGLEVEL,
     CI_MYMPD_URI,
     CI_PIN_HASH,
-    CI_SAVE_CACHES,
     CI_SCRIPTACL,
     CI_SCRIPTS_EXTERNAL,
     CI_SSL,
@@ -143,7 +142,6 @@ static const struct t_config_default config_default[] = {
     [CI_LOGLEVEL]               = {"loglevel",               {.t = CIT_I, .i = CFG_MYMPD_LOGLEVEL},  LOGLEVEL_MIN, LOGLEVEL_MAX, NULL},
     [CI_MYMPD_URI]              = {"mympd_uri",              {.t = CIT_S, .s = "auto"},         0, 0, vcb_isname},
     [CI_PIN_HASH]               = {"pin_hash",               {.t = CIT_S, .s = ""},             0, 0, vcb_isalnum},
-    [CI_SAVE_CACHES]            = {"save_caches",            {.t = CIT_B, .b = true},           0, 0, NULL},
     [CI_SCRIPTACL]              = {"scriptacl",              {.t = CIT_S, .s = "+127.0.0.0/8"}, 0, 0, vcb_isname},
     [CI_SCRIPTS_EXTERNAL]       = {"scripts_external",       {.t = CIT_B, .b = false},          0, 0, NULL},
     [CI_SSL]                    = {"ssl",                    {.t = CIT_B, .b = true},           0, 0, NULL},
@@ -230,10 +228,6 @@ static void set_config(struct t_config *config, enum config_item ci, struct t_co
         case CI_HTTP:
             assert(value->t == CIT_B);
             config->http = value->b;
-            break;
-        case CI_SAVE_CACHES:
-            assert(value->t == CIT_B);
-            config->save_caches = value->b;
             break;
         case CI_SSL:
             assert(value->t == CIT_B);

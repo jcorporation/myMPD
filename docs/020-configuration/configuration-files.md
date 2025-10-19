@@ -48,7 +48,6 @@ You can configure myMPD in different ways:
 | loglevel | number | MYMPD_LOGLEVEL | `5` | [Logging](logging.md) - this environment variable is always used |
 | mympd_uri | string | MYMPD_MYMPD_URI | `auto` | `auto` or uri to myMPD listening port, e.g. `https://192.168.1.1/mympd` |
 | pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |
-| save_caches | boolean | MYMPD_SAVE_CACHES | `true` | `true` = saves caches between restart, `false` = create caches on startup |
 | scriptacl | string | MYMPD_SCRIPTACL | `+127.0.0.1` | ACL to access the myMPD script backend: [ACL](acl.md), allows only local connections in the default configuration. The acl above must also grant access. |
 | scripts_external | boolean | MYMPD_SCRIPTS_EXTERNAL | `false` | Allow myMPD to execute external scripts vie the `/script-api`-Endpoint. |
 | stickers | boolean | MYMPD_STICKERS | `true` | Enables the support for MPD stickers. |

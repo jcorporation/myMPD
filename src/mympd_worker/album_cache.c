@@ -84,10 +84,8 @@ bool mympd_worker_album_cache_create(struct t_mympd_worker_state *mympd_worker_s
             request->extra_free = album_cache_free_rt_void;
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
-            if (mympd_worker_state->config->save_caches == true) {
-                album_cache_write(&album_cache, mympd_worker_state->config->workdir,
-                    &mympd_worker_state->mpd_state->tags_album, &mympd_worker_state->config->albums, false);
-            }
+            album_cache_write(&album_cache, mympd_worker_state->config->workdir,
+                &mympd_worker_state->mpd_state->tags_album, &mympd_worker_state->config->albums, false);
         }
         else {
             album_cache_free(&album_cache);

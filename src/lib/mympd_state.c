@@ -34,9 +34,7 @@
 void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
     // write album cache to disc
     // only for simple mode to save the cached uris
-    if (mympd_state->config->save_caches == true &&
-        mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE)
-    {
+    if (mympd_state->config->albums.mode == ALBUM_MODE_SIMPLE) {
         album_cache_write(&mympd_state->album_cache, mympd_state->config->workdir,
             &mympd_state->mpd_state->tags_album, &mympd_state->config->albums, true);
     }

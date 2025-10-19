@@ -30,7 +30,6 @@ struct t_config {
     bool cert_check;                //!< enable certificate checking for outbound http connections
     bool custom_cert;               //!< false if myMPD uses the self generated certificates
     bool http;                      //!< enable listening on plain http_port
-    bool save_caches;               //!< true = save caches between restart
     bool ssl;                       //!< enable listening on ssl_port
     bool stickers;                  //!< enable sticker support
     bool stickers_pad_int;          //!< enable the padding of integer sticker values

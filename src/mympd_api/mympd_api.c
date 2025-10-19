@@ -79,11 +79,8 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_timer_file_read(&mympd_state->timer_list, mympd_state->config->workdir);
     // trigger
     mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
-    // caches
-    if (mympd_state->config->save_caches == true) {
-        // album cache
-        album_cache_read(&mympd_state->album_cache, mympd_state->config->workdir, &mympd_state->config->albums);
-    }
+    // album cache
+    album_cache_read(&mympd_state->album_cache, mympd_state->config->workdir, &mympd_state->config->albums);
     //webradiodb
     if (mympd_state->config->webradiodb == true) {
         webradios_read_from_disk(mympd_state->config, mympd_state->webradiodb, FILENAME_WEBRADIODB, WEBRADIO_WEBRADIODB);
