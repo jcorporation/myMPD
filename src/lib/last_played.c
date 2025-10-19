@@ -84,9 +84,15 @@ bool last_played_file_save(struct t_partition_state *partition_state) {
 bool last_played_file_read(struct t_partition_state *partition_state) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s",
         partition_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
+    if (testfile_read(filepath) == false) {
+        FREE_SDS(filepath);
+        return false;
+    }
+
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);
     mpack_tree_set_error_handler(&tree, log_mpack_node_error);
+    FREE_SDS(filepath);
     mpack_tree_parse(&tree);
     mpack_node_t root = mpack_tree_root(&tree);
     size_t len = mpack_node_array_length(root);
@@ -103,6 +109,5 @@ bool last_played_file_read(struct t_partition_state *partition_state) {
         ? false
         : true;
     MYMPD_LOG_INFO(NULL, "Read %u last_played entries from disc", partition_state->last_played.length);
-    FREE_SDS(filepath);
     return rc;
 }
