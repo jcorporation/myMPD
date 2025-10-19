@@ -24,7 +24,7 @@ This versions enhances the jukebox implementation and the album handling.
 
 ***
 
-## myMPD v22.1.2 (not yet released)
+## myMPD v22.1.2 (2025-10-19)
 
 This is a small bug fix release.
 
