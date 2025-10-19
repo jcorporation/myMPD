@@ -237,8 +237,8 @@ function handleViewActionClick(event) {
             break;
         case 'showSongsByTag': {
             elGetById('SearchSearchStr').value = '';
-            const tag = getData(event.target.parentNode.parentNode, 'tag');
-            const value = getData(event.target.parentNode.parentNode, 'name');
+            const tag = findData(event.target, 'tag', 3);
+            const value = findData(event.target, 'name', 3);
             gotoSearch(tag, value);
             break;
         }
@@ -249,8 +249,8 @@ function handleViewActionClick(event) {
             gotoBrowse(event);
             break;
         case 'showStickersByTag': {
-            const tag = getData(event.target.parentNode.parentNode, 'tag');
-            const value = getData(event.target.parentNode.parentNode, 'name');
+            const tag = findData(event.target, 'tag', 3);
+            const value = findData(event.target, 'name', 3);
             showStickerModal(value, tag);
             break;
         }

@@ -4,6 +4,19 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v22.1.2 (2025-10-19)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Upd: Translations
+- Fix: Initialize mg_user_data in debug build
+- Fix: Listing songs from Artists List view fails #1474
+- Fix: Random select if only one entry must be added #1480
+
+***
+
 ## myMPD v22.1.1 (2025-10-11)
 
 This is a small bug fix release.
