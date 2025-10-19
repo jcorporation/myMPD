@@ -13,6 +13,7 @@ This is a small bug fix release.
 - Upd: Translations
 - Fix: Initialize mg_user_data in debug build
 - Fix: Listing songs from Artists List view fails #1474
+- Fix: Random select if only one entry must be added #1480
 
 ***
 
