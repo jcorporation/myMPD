@@ -464,7 +464,7 @@ bool mympd_config_read(struct t_config *config) {
     }
     if (config->jukebox_queue_length_song <= config->jukebox_queue_length_song_min) {
         MYMPD_LOG_ERROR(NULL, "Jukebox song queue length must be greater than minimum");
-        config->jukebox_queue_length_album_min = config->jukebox_queue_length_album / 2;
+        config->jukebox_queue_length_song_min = config->jukebox_queue_length_song / 2;
     }
 
     return true;
