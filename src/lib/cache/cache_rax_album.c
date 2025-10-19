@@ -114,7 +114,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         mpack_tree_destroy(&tree);
         MYMPD_LOG_WARN(NULL, "Unexpected cache version");
         album_cache_remove(workdir);
-        return NULL;
+        return false;
     }
 
     // check for expected album_mode
@@ -123,7 +123,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         mpack_tree_destroy(&tree);
         MYMPD_LOG_WARN(NULL, "Unexpected album mode, discarding cache");
         album_cache_remove(workdir);
-        return NULL;
+        return false;
     }
 
     // check for expected album_group_tag
@@ -132,7 +132,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         mpack_tree_destroy(&tree);
         MYMPD_LOG_WARN(NULL, "Unexpected album group tag, discarding cache");
         album_cache_remove(workdir);
-        return NULL;
+        return false;
     }
 
     // check for expected album_unknown setting
@@ -141,7 +141,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         mpack_tree_destroy(&tree);
         MYMPD_LOG_WARN(NULL, "Unexpected album_unknown setting, discarding cache");
         album_cache_remove(workdir);
-        return NULL;
+        return false;
     }
 
     // read tags array
