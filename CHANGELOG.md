@@ -21,7 +21,6 @@ This versions enhances the jukebox implementation and the album handling.
 - Upd: Remove obsolete config variable save_caches
 - Fix: Do not reset scrolling position on update of lists #1478
 - Fix: Try to keep select if list is refreshed because of an event #1479
-- Fix: Random select if only one entry must be added #1480
 
 ***
 
