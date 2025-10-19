@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/jukebox.h"
 
+#include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
@@ -107,6 +108,7 @@ bool mympd_api_jukebox_append_uris(struct t_partition_state *partition_state,
  * Prints the jukebox queue as an jsonrpc response
  * @param partition_state pointer to myMPD partition state
  * @param stickerdb pointer to stickerdb state
+ * @param album_cache Pointer to album cache
  * @param buffer already allocated sds string to append the result
  * @param cmd_id jsonrpc method
  * @param request_id jsonrpc request id
@@ -117,7 +119,8 @@ bool mympd_api_jukebox_append_uris(struct t_partition_state *partition_state,
  * @return pointer to buffer
  */
 sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
-        sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id, unsigned offset, unsigned limit, sds expression, const struct t_fields *tagcols)
+        struct t_cache *album_cache, sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id,
+        unsigned offset, unsigned limit, sds expression, const struct t_fields *tagcols)
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
@@ -173,8 +176,10 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
         struct t_list_node *current = partition_state->jukebox.queue->head;
         sds album_exp = sdsempty();
         while (current != NULL) {
-            struct t_album *album = (struct t_album *)current->user_data;
-            if (search_expression_album(album, expr_list, &tagcols->mpd_tags) == true) {
+            struct t_album *album = album_cache_get_album(album_cache, current->key);
+            if (album != NULL &&
+                search_expression_album(album, expr_list, &tagcols->mpd_tags) == true)
+            {
                 if (entities_found >= offset &&
                     entities_found < real_limit)
                 {

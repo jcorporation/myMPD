@@ -107,7 +107,7 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
     raxStart(&iter, album_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
-        struct t_album *album= (struct t_album *)iter.data;
+        struct t_album *album = (struct t_album *)iter.data;
         sdsclear(albumid);
         albumid = sdscatlen(albumid, (char *)iter.key, iter.key_len);
         sdsclear(tag_value);
@@ -122,7 +122,7 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
             if (randrange(0, lineno) < add_albums) {
                 if (add_list->length < add_list_expected_len) {
                     // append to fill the queue
-                    if (list_push(add_list, albumid, lineno, tag_value, album) == false) {
+                    if (list_push(add_list, albumid, lineno, tag_value, NULL) == false) {
                         MYMPD_LOG_ERROR(partition_state->name, "Can't push element to list");
                     }
                 }
@@ -132,7 +132,7 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
                     unsigned pos = add_albums > 1
                         ? initial_length + randrange(0, add_albums)
                         : 0;
-                    if (list_replace(add_list, pos, albumid, lineno, tag_value, album) == false) {
+                    if (list_replace(add_list, pos, albumid, lineno, tag_value, NULL) == false) {
                         MYMPD_LOG_ERROR(partition_state->name, "Can't replace list element pos %u", pos);
                     }
                 }
