@@ -363,7 +363,7 @@ static void set_config(struct t_config *config, enum config_item ci, struct t_co
             break;
         case CI_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN:
             assert(value->t == CIT_I);
-            config->jukebox_queue_length_song = (unsigned)value->i;
+            config->jukebox_queue_length_album_min = (unsigned)value->i;
             break;
         case CI_COUNT:
             assert(NULL);
