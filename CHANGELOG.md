@@ -21,18 +21,19 @@ This versions enhances the jukebox implementation and the album handling.
 - Upd: Remove obsolete config variable save_caches
 - Fix: Do not reset scrolling position on update of lists #1478
 - Fix: Try to keep select if list is refreshed because of an event #1479
-- Fix: Random select if only one entry must be added #1480
 
 ***
 
-## myMPD v22.1.2 (not yet released)
+## myMPD v22.1.2 (2025-10-19)
 
 This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Translations
 - Fix: Initialize mg_user_data in debug build
 - Fix: Listing songs from Artists List view fails #1474
+- Fix: Random select if only one entry must be added #1480
 
 ***
 
