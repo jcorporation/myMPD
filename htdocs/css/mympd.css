@@ -45,6 +45,7 @@ body.mobile > footer > nav {
   --mympd-card-footer-white-space: nowrap;
   --mympd-show-help: block;
   --mympd-show-help-btn: unset;
+  --mympd-quickaction-size: 1.4rem;
   --bs-dropdown-divider-margin-y: 0.5rem;
   --bs-nav-link-padding-y: 0.5rem;
   --bs-nav-link-padding-x: 1rem;
@@ -435,6 +436,12 @@ th,
   text-align: right;
   word-break: keep-all;
   padding: 0.25rem !important;
+}
+
+[data-col="Action"] a.mi,
+.card-footer a.mi,
+.list-actions a.mi {
+  font-size: var(--mympd-quickaction-size);
 }
 
 table[data-rw="false"] [data-col="Action"] a[data-action="quickRemove"] {

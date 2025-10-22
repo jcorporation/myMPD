@@ -1287,5 +1287,7 @@
     "warn": "Warnung",
     "wasapi": "Windows Audio Session API",
     "Autostart": "Autostart",
-    "Refill jukebox queue": "Jukebox Warteschlange auffüllen"
+    "Refill jukebox queue": "Jukebox Warteschlange auffüllen",
+    "REM": "REM",
+    "Quick Action Icon Size": "Größe der Aktionen-Buttons"
 }

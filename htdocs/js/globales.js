@@ -798,6 +798,19 @@ const settingsWebuiFields = {
         "form": "modalSettingsListsFrm",
         "help": "helpSettingsViewTitles"
     },
+    "quickActionSize": {
+        "defaultValue": 1.4,
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Quick Action Icon Size",
+        "form": "modalSettingsListsFrm",
+        "invalid": "Must be a number and greater than zero",
+        "validate": {
+            "cmd": "validateFloatEl",
+            "options": []
+        },
+        "unit": "REM"
+    },
     "showBackButton": {
         "defaultValue": false,
         "inputType": "checkbox",

@@ -18,6 +18,7 @@ This versions enhances the jukebox implementation and the album handling.
 - Feat: Optionally group songs with empty album tag in a special `Unknown Album` album #1472
 - Feat: Support large images
 - Feat: Add implicit secondary sort tag to album view
+- Feat: Add option to increase the size of action icons in lists #1489
 - Upd: Remove obsolete config variable save_caches
 - Fix: Do not reset scrolling position on update of lists #1478
 - Fix: Try to keep select if list is refreshed because of an event #1479

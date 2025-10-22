@@ -72,6 +72,8 @@ function parseSettings(obj) {
     }
     document.querySelector('html').setAttribute('data-bs-theme', setTheme);
 
+    document.documentElement.style.setProperty('--mympd-quickaction-size', settings.webuiSettings.quickActionSize + 'rem');
+
     //compact grids
     if (settings.webuiSettings.compactGrids === true) {
         document.documentElement.style.setProperty('--mympd-card-footer-word-wrap', 'nowrap');
