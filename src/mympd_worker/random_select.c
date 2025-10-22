@@ -13,6 +13,7 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/cache/cache_rax.h"
+#include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
@@ -129,14 +130,16 @@ sds mympd_worker_list_random(struct t_mympd_worker_state *mympd_worker_state, sd
             buffer = sdscat(buffer, "\"data\":[");
             struct t_list_node *current = add_list.head;
             while (current != NULL) {
-                buffer = sdscat(buffer, "{\"Type\":\"album\",");
-                struct t_album *album = (struct t_album *)current->user_data;
-                buffer = print_album_tags(buffer, &mympd_worker_state->partition_state->mpd_state->config->albums,
-                    &mympd_worker_state->partition_state->mpd_state->tags_album, album);
-                buffer = sdscatlen(buffer, "}", 1);
-                current = current->next;
-                if (current != NULL) {
-                    buffer = sdscatlen(buffer, ",", 1);
+                struct t_album *album = album_cache_get_album(mympd_worker_state->album_cache, current->key);
+                if (album != NULL) {
+                    buffer = sdscat(buffer, "{\"Type\":\"album\",");
+                    buffer = print_album_tags(buffer, &mympd_worker_state->partition_state->mpd_state->config->albums,
+                        &mympd_worker_state->partition_state->mpd_state->tags_album, album);
+                    buffer = sdscatlen(buffer, "}", 1);
+                    current = current->next;
+                    if (current != NULL) {
+                        buffer = sdscatlen(buffer, ",", 1);
+                    }
                 }
             }
             buffer = sdscatlen(buffer, "],", 2);
