@@ -109,7 +109,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct
             }
             sdsclear(obj);
             entities_found++;
-            if (entities_returned == real_limit) {
+            if (entities_found == real_limit) {
                 break;
             }
         }
@@ -120,13 +120,20 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct
     if (print_stickers == true) {
         stickerdb_enter_idle(stickerdb);
     }
-    free_search_expression_list(expr_list);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_int(buffer, "totalEntities", -1, true);
+    if (expr_list->length == 0) {
+        buffer = tojson_uint(buffer, "totalEntities", partition_state->last_played.length, true);
+    }
+    else if (limit > entities_found) {
+        buffer = tojson_uint(buffer, "totalEntities", entities_found, true);
+    }
+    else {
+        buffer = tojson_int(buffer, "totalEntities", -1, true);
+    }
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end(buffer);
-
+    free_search_expression_list(expr_list);
     return buffer;
 }
 

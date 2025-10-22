@@ -56,9 +56,11 @@ function parseLastPlayed(obj) {
         updateTable(obj, app.id, function(row, data) {
             parseLastPlayedUpdate(row, data);
         });
-        addTblFooter(tfoot,
-            elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities)
-        );
+        if (obj.result.totalEntities > 0) {
+            addTblFooter(tfoot,
+                elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities)
+            );
+        }
         return;
     }
     if (settings['view' + app.id].mode === 'grid') {
