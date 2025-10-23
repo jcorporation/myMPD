@@ -174,13 +174,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (request->cmd_id == MYMPD_API_JUKEBOX_REFILL ||
                 request->cmd_id == MYMPD_API_JUKEBOX_REFILL_ADD)
             {
-                if (partition_state->jukebox.mode != JUKEBOX_ADD_ALBUM &&
-                    partition_state->jukebox.mode != JUKEBOX_ADD_SONG)
-                {
+                if (partition_state->jukebox.mode == JUKEBOX_SCRIPT) {
+                    jukebox_trigger_script(mympd_state, partition_state, false);
+                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
+                    break;
+                }
+                if (partition_state->jukebox.mode == JUKEBOX_OFF) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_WARN, "Jukebox is disabled");
                     break;
                 }
+                // JUKEBOX_ADD_SONG and JUKEBOX_ADD_ALBUM is handled in worker thread
             }
             async = mympd_worker_start(mympd_state, partition_state, request);
             if (async == false) {

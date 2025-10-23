@@ -104,13 +104,13 @@ function parseJukeboxList(obj) {
         appGoto('Queue', 'Jukebox', view);
     }
 
-    if (app.id === 'QueueJukeboxSong' &&
-        settings.partition.jukeboxMode === 'song')
-    {
-        elEnableId('QueueJukeboxSongRefillBtn');
+    if (settings.partition.jukeboxMode === 'off') {
+        elDisableId('QueueJukeboxAlbumRefillBtn');
+        elDisableId('QueueJukeboxSongRefillBtn');
     }
     else {
-        elDisableId('QueueJukeboxSongRefillBtn');
+        elEnableId('QueueJukeboxAlbumRefillBtn');
+        elEnableId('QueueJukeboxSongRefillBtn');
     }
 
     const table = elGetById(app.id + 'List');
