@@ -197,9 +197,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case INTERNAL_API_ALBUMCACHE_CREATED:
             mympd_state->album_cache.building = false;
             if (request->extra != NULL) {
-                //first clear the jukebox queues - it has references to the album cache
-                MYMPD_LOG_INFO(partition_state->name, "Clearing jukebox queues");
-                jukebox_clear_all(mympd_state);
                 //free the old album cache and replace it with the freshly generated one
                 if (cache_get_write_lock(&mympd_state->album_cache) == false) {
                     album_cache_free_rt(request->extra);
