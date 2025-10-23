@@ -355,7 +355,7 @@
               <button data-title-phrase="Clear jukebox queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearJukeboxQueue", "options": []}'>clear_all</button>
             </div>
             <div class="btn-group me-2 featTags">
-              <button data-title-phrase="Refill jukebox queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "refillJukeboxQueue", "options": []}'>format_list_bulleted_add</button>
+              <button id="QueueJukeboxSongRefillBtn" data-title-phrase="Refill jukebox queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "refillJukeboxQueue", "options": []}'>format_list_bulleted_add</button>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Select" id="QueueJukeboxSongSelectModeBtn" data-href='{"cmd": "switchListMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
@@ -377,7 +377,7 @@
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxSongSearchCrumb"></div>
           <h1 data-phrase="Jukebox" class="viewTitle"></h1>
-          <div id="QueueJukeboxSongDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
+          <div id="QueueJukeboxSongStatus"></div>
           <div id="QueueJukeboxSongContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="QueueJukeboxSongButtonsBottom"></div>
         </div>
@@ -439,7 +439,7 @@
           </div>
           <div class="breadcrumb p-2 rounded-2 d-none" id="QueueJukeboxAlbumSearchCrumb"></div>
           <h1 data-phrase="Jukebox" class="viewTitle"></h1>
-          <div id="QueueJukeboxAlbumDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
+          <div id="QueueJukeboxAlbumStatus"></div>
           <div  id="QueueJukeboxAlbumContainer"></div>
           <div class="btn-toolbar d-none justify-content-between" id="QueueJukeboxAlbumButtonsBottom"></div>
         </div>

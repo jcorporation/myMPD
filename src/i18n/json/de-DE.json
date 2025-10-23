@@ -1289,5 +1289,6 @@
     "Autostart": "Autostart",
     "Refill jukebox queue": "Jukebox Warteschlange auffüllen",
     "REM": "REM",
-    "Quick Action Icon Size": "Größe der Aktionen-Buttons"
+    "Quick Action Icon Size": "Größe der Aktionen-Buttons",
+    "The jukebox list will be filled on demand.": "Die Jukebox Liste wird bei Bedarf aufgefüllt."
 }

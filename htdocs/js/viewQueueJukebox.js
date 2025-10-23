@@ -66,12 +66,23 @@ function viewQueueJukeboxListClickHandler(event, target) {
 function getJukeboxList(view) {
     if (settings.partition.jukeboxMode === 'off') {
         elHideId(view + 'List');
-        elShowId(view + 'Disabled');
     }
     else {
         elShowId(view + 'List');
-        elHideId(view + 'Disabled');
     }
+    elClearId(view + 'Status');
+    const modeLink = elCreateTextTn('a', {'href': '#'}, settings.partition.jukeboxMode);
+    elGetById(view + 'Status').appendChild(
+        elCreateNodes('p', {}, [
+            elCreateTextTn('span', {}, 'Mode'),
+            elCreateText('span', {}, ': '),
+            modeLink
+        ])
+    );
+    modeLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        openModal('modalPlayback');
+    }, false);
     sendAPI("MYMPD_API_JUKEBOX_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
@@ -87,17 +98,35 @@ function getJukeboxList(view) {
  */
 function parseJukeboxList(obj) {
     const view = settings.partition.jukeboxMode === 'album'
-        ? 'QueueJukeboxAlbum'
-        : 'QueueJukeboxSong';
-    const table = elGetById(view + 'List');
+        ? 'Album'
+        : 'Song';
+    if (app.id !== 'QueueJukebox' + view) {
+        appGoto('Queue', 'Jukebox', view);
+    }
+
+    if (app.id === 'QueueJukeboxSong' &&
+        settings.partition.jukeboxMode === 'song')
+    {
+        elEnableId('QueueJukeboxSongRefillBtn');
+    }
+    else {
+        elDisableId('QueueJukeboxSongRefillBtn');
+    }
+
+    const table = elGetById(app.id + 'List');
     if (checkResult(obj, table, undefined) === false) {
+        const alertBox = table.querySelector('.alert-secondary');
+        if (alertBox) {
+            alertBox.setAttribute('data-phrase', 'The jukebox list will be filled on demand.');
+            alertBox.textContent = tn(alertBox.getAttribute('data-phrase'));
+        }
         return;
     }
 
     if (settings['view' + app.id].mode === 'table') {
         const tfoot = table.querySelector('tfoot');
         elClear(tfoot);
-        updateTable(obj, view, function(row, data) {
+        updateTable(obj, app.id, function(row, data) {
             parseJukeboxListUpdate(row, data);
         });
         if (obj.result.totalEntities > 0) {
