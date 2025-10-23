@@ -142,11 +142,13 @@ bool jukebox_run(struct t_mympd_state *mympd_state, struct t_partition_state *pa
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: MPD queue length: %u", partition_state->queue_length);
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: min queue length: %u", partition_state->jukebox.queue_length);
 
+    // Check if we should add songs to the MPD queue
     if (partition_state->queue_length > partition_state->jukebox.queue_length) {
         MYMPD_LOG_DEBUG(partition_state->name, "Jukebox: MPD queue length > %u", partition_state->jukebox.queue_length);
         return true;
     }
 
+    // Calculate number of songs to add
     unsigned add_songs = partition_state->jukebox.queue_length > partition_state->queue_length
         ? partition_state->jukebox.queue_length - partition_state->queue_length
         : 1;
@@ -156,16 +158,16 @@ bool jukebox_run(struct t_mympd_state *mympd_state, struct t_partition_state *pa
         add_songs = JUKEBOX_ADD_SONG_MAX;
     }
 
-    // check if jukebox queue is long enough
+    // Check if jukebox queue is long enough
     if (add_songs > partition_state->jukebox.queue->length) {
         if (partition_state->jukebox.mode == JUKEBOX_SCRIPT) {
             return jukebox_trigger_script(mympd_state, partition_state, true);
         }
-        // start mpd worker thread
+        // Start mympd worker thread
         return jukebox_request_worker(partition_state, MYMPD_API_JUKEBOX_REFILL_ADD, add_songs);
     }
     
-    // add from jukebox queue to mpd queue
+    // Add from jukebox queue to MPD queue
     sds error = sdsempty();
     bool rc = jukebox_add_to_queue(partition_state, album_cache, add_songs, &error);
     if (rc == false) {
@@ -176,10 +178,11 @@ bool jukebox_run(struct t_mympd_state *mympd_state, struct t_partition_state *pa
     }
     FREE_SDS(error);
 
-    //Refill jukebox queue if required
+    // Refill jukebox queue if required
     if ((partition_state->jukebox.mode == JUKEBOX_ADD_SONG && partition_state->jukebox.queue->length < mympd_state->config->jukebox_queue_length_song_min) ||
         (partition_state->jukebox.mode == JUKEBOX_ADD_ALBUM && partition_state->jukebox.queue->length < mympd_state->config->jukebox_queue_length_album_min))
     {
+        // Start mympd worker thread
         return jukebox_request_worker(partition_state, MYMPD_API_JUKEBOX_REFILL, add_songs);
     }
     if (partition_state->jukebox.mode == JUKEBOX_SCRIPT &&
