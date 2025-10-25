@@ -199,16 +199,6 @@ function addDiscRow(disc, albumId, albumName, colspan) {
 }
 
 /**
- * Determines whether works shoud be shown for the current view.
- * @param {string} view table name
- * @returns {boolean} true if work row should be shown, else false
- */
-function showWorkRow(view) {
-    return view === 'BrowseDatabaseAlbumDetail' &&
-        settings.webuiSettings.showWorkTagAlbumDetail;
-}
-
-/**
  * Adds a row with the work to the table.
  * @param {string} work The work name
  * @param {string} albumId the albumid
@@ -266,64 +256,40 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
     //disc handling for album view
     let z = 0;
-    let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined
-        ? Number(obj.result.data[0].Disc)
-        : 0;
-    let lastWork = obj.result.data.length > 0 && obj.result.data[0].Work !== undefined ?
-    obj.result.data[0].Work : '';
-
-    if (obj.result.Discs !== undefined &&
-        obj.result.Discs > 1)
-    {
-        const row = addDiscRow(1, obj.result.AlbumId, obj.result.Album, colspan);
-        if (z < tr.length) {
-            replaceTblRow(mode, tr[z], row);
-        }
-        else {
-            tbody.append(row);
-        }
-        z++;
-    }
-
-    if (showWorkRow(list) && lastWork !== '') {
-        const row = addWorkRow(lastWork, obj.result.AlbumId, obj.result.Album, colspan);
-        if (z < tr.length) {
-            replaceTblRow(mode, tr[z], row);
-        }
-        else {
-            tbody.append(row);
-        }
-        z++;
-    }
+    let lastDisc = 0;
+    let lastWork = '';
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        //disc handling for album view
-        if (obj.result.data[0].Disc !== undefined &&
-            lastDisc < Number(obj.result.data[i].Disc))
-        {
-            const row = addDiscRow(obj.result.data[i].Disc, obj.result.AlbumId, obj.result.Album, colspan);
-            if (i + z < tr.length) {
-                replaceTblRow(mode, tr[i + z], row);
+        if (list === 'BrowseDatabaseAlbumDetail') {
+            // Disc divider
+            if (obj.result.DiscCount > 1 &&
+                obj.result.data[0].Disc !== undefined &&
+                lastDisc < Number(obj.result.data[i].Disc))
+            {
+                const row = addDiscRow(obj.result.data[i].Disc, obj.result.AlbumId, obj.result.Album, colspan);
+                if (i + z < tr.length) {
+                    replaceTblRow(mode, tr[i + z], row);
+                }
+                else {
+                    tbody.append(row);
+                }
+                z++;
+                lastDisc = obj.result.data[i].Disc;
             }
-            else {
-                tbody.append(row);
+            // Work divider
+            if (settings.webuiSettings.showWorkTagAlbumDetail === true &&
+                obj.result.data[0].Work !== undefined &&
+                lastWork !== obj.result.data[i].Work)
+            {
+                const row = addWorkRow(obj.result.data[i].Work, obj.result.AlbumId, obj.result.Album, colspan);
+                if (i + z < tr.length) {
+                    replaceTblRow(mode, tr[i + z], row);
+                } else {
+                    tbody.append(row);
+                }
+                z++;
+                lastWork = obj.result.data[i].Work;
             }
-            z++;
-            lastDisc = obj.result.data[i].Disc;
-        }
-
-        if (showWorkRow(list) &&
-            obj.result.data[0].Work !== undefined &&
-            lastWork !== obj.result.data[i].Work)
-        {
-            const row = addWorkRow(obj.result.data[i].Work, obj.result.AlbumId, obj.result.Album, colspan);
-            if (i + z < tr.length) {
-                replaceTblRow(mode, tr[i + z], row);
-            } else {
-                tbody.append(row);
-            }
-            z++;
-            lastWork = obj.result.data[i].Work;
         }
 
         const row = elCreateEmpty('tr', {});
