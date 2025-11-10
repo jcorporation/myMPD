@@ -4,6 +4,14 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v23.0.1 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+***
+
 ## myMPD v23.0.0 (2025-11-09)
 
 This versions enhances the jukebox implementation and the album handling.
