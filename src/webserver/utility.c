@@ -201,8 +201,6 @@ bool check_imagescache(struct mg_connection *nc, struct mg_http_message *hm,
     sds imagescachefile = cache_disk_images_get_basename(mg_user_data->config->cachedir, type, uri_decoded, offset);
     imagescachefile = webserver_find_image_file(imagescachefile);
     if (sdslen(imagescachefile) > 0) {
-        const char *mime_type = get_mime_type_by_ext(imagescachefile);
-        MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", imagescachefile, mime_type);
         webserver_serve_file(nc, hm, EXTRA_HEADERS_IMAGE, imagescachefile);
         FREE_SDS(imagescachefile);
         return true;
