@@ -727,7 +727,8 @@ static sds print_plist_entry(sds buffer, struct mpd_song *song, unsigned pos, bo
             *last_played_max = (time_t)sticker.mympd[STICKER_LAST_PLAYED];
             *last_played_pos = pos;
             *last_played_song_uri = sds_replace(*last_played_song_uri, uri);
-            *last_played_song_title = sds_replace(*last_played_song_title, mpd_song_get_tag(song, MPD_TAG_TITLE, 0));
+            sdsclear(*last_played_song_title);
+            *last_played_song_title = mympd_client_get_tag_value_string(song, MPD_TAG_TITLE, *last_played_song_title);
         }
         sticker_struct_clear(&sticker);
     }
