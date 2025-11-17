@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Segvault in Album view if song title tag not exists
+
 ***
 
 ## myMPD v23.0.0 (2025-11-09)
