@@ -116,7 +116,9 @@ export default [
             "no-useless-concat": "off",
             "no-var": "error",
             "prefer-const": "error",
-            "jsdoc/require-jsdoc": "off"
+            "jsdoc/require-jsdoc": "off",
+            "jsdoc/reject-function-type": "off",
+            "jsdoc/reject-any-type": "off"
         }
     }
 ];
