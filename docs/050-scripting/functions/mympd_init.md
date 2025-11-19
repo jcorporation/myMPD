@@ -21,7 +21,7 @@ No parameters required.
 
 The lua table mympd_state is populated with following fields.
 
-### mympd_state
+## mympd_state
 
 | KEY | TYPE | DESCRIPTION |
 | --- | ---- | ----------- |
