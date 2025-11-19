@@ -44,7 +44,7 @@ You can configure myMPD in different ways:
 | jukebox_queue_length_album | number | MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM | `25` | Length of the internal jukebox queue for albums (5 - 250). |
 | jukebox_queue_length_album_min | number | MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN | `5` | Minimum length of the internal jukebox queue for albums (5 - 125). |
 | jukebox_queue_length_song | number | MYMPD_JUKEBOX_QUEUE_LENGTH_SONG | `100` | Length of the internal jukebox queue for songs (10 - 1000). |
-| jukebox_queue_length_song_min| number | MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN | `10` | Minimum length of the internal jukebox queue for songs (10 - 500). |
+| jukebox_queue_length_song_min | number | MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN | `10` | Minimum length of the internal jukebox queue for songs (10 - 500). |
 | loglevel | number | MYMPD_LOGLEVEL | `5` | [Logging](logging.md) - this environment variable is always used |
 | mympd_uri | string | MYMPD_MYMPD_URI | `auto` | `auto` or uri to myMPD listening port, e.g. `https://192.168.1.1/mympd` |
 | pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |

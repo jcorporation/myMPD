@@ -2,43 +2,43 @@
 title: Known issues
 ---
 
-### myMPD startup is slow and MPD runs with 100% cpu usage
+## myMPD startup is slow and MPD runs with 100% cpu usage
 
-#### Cause
+### Cause
 
 myMPD creates on first startup and on each database refresh the album cache. It searches through the whole MPD database and this could cause heavy cpu usage on very huge databases.
 
-#### Workaround
+### Workaround
 
 You can switch to simple album mode, but you lose some album browsing functionality.
 
 - [Albums](060-references/tags.md#albums)
 - [Configuration](020-configuration/configuration-files.md)
 
-### Accept-Encoding not honored
+## Accept-Encoding not honored
 
 - myMPD issue: [#738](https://github.com/jcorporation/myMPD/issues/738)
 
-#### Cause
+### Cause
 
 Parsing this header and inflating the embedded compressed assets is not implemented.
 
-#### Workaround
+### Workaround
 
 None
 
 ***
 
-### Response line too large
+## Response line too large
 
 - myMPD issue: [#524](https://github.com/jcorporation/myMPD/issues/524)
 - libmpdclient issue: [#69](https://github.com/MusicPlayerDaemon/libmpdclient/issues/69)
 
-#### Cause
+### Cause
 
 The mpd client library [libmpclient](https://github.com/MusicPlayerDaemon/libmpdclient#) uses a fixed buffer of 4096 bytes to get response lines from MPD. If a response line is larger than this limit, this error occurs. Most of the time the response line is to large, because of a tag that length exceeds this limit.
 
-#### Workaround
+### Workaround
 
 - Disable the tag in mpd.conf or in myMPD if you do not use it
 - Crop the tag value

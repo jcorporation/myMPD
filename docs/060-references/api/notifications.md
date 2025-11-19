@@ -9,7 +9,7 @@ The websocket is also used to notify the user about the status of asynchronous o
 **Websocket endpoint:** `/ws/<partition>`
 
 | MPD IDLE EVENT | MYMPD NOTIFY | DESCRIPTION |
-|----------------|--------------| ----------- |
+| -------------- | ------------ | ----------- |
 | MPD_IDLE_DATABASE | update_database | MPD database was updated |
 | MPD_IDLE_STORED_PLAYLIST | update_stored_playlist | MPD playlist was updated |
 | MPD_IDLE_QUEUE | update_queue | MPD queue has changed |
