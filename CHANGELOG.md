@@ -10,7 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
-- Upd: translations
+- Upd: Translations
+- Upd: Mongoose 7.20
 - Fix: Segvault in album view if song title tag not exists
 - Fix: Segvault in playlist view if song title tag not exists
 
