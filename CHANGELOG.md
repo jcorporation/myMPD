@@ -10,6 +10,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: translations
 - Fix: Segvault in album view if song title tag not exists
 - Fix: Segvault in playlist view if song title tag not exists
 

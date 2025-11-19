@@ -300,3 +300,4 @@ debug
 URI
 #
 newWindow
+The jukebox list will be filled on demand.
