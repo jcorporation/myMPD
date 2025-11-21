@@ -807,26 +807,31 @@ pkgosc() {
   cd "$STARTPATH" || exit 1
   pkgrpm taronly
 
-  cd "$STARTPATH" || exit 1
-  cp "package/build/mympd-${VERSION}.tar.gz" "osc/$OSC_REPO/"
-
-  if [ -f /etc/debian_version ]
-  then
-    pkgdebian
-  else
-    pkgalpine taronly
-    rm -f "$OSC_REPO"/debian.*
-  fi
-
   cd "$STARTPATH/osc" || exit 1
-  cp "../package/mympd_${VERSION}.orig.tar.gz" "$OSC_REPO/"
-  if [ -f /etc/debian_version ]
-  then
-    cp "../package/mympd_${VERSION}-1.dsc" "$OSC_REPO/"
-    cp "../package/mympd_${VERSION}-1.debian.tar.xz" "$OSC_REPO/"
-  fi
+  cp "../package/build/mympd-${VERSION}.tar.gz" "$OSC_REPO/"
   cp ../contrib/packaging/rpm/mympd.spec "$OSC_REPO/"
   cp ../contrib/packaging/arch/PKGBUILD "$OSC_REPO/"
+
+  cp ../contrib/packaging/debian/changelog "$OSC_REPO/debian.changelog"
+  cp ../contrib/packaging/debian/control "$OSC_REPO/debian.control"
+  cp ../contrib/packaging/debian/rules "$OSC_REPO/debian.rules"
+
+  cat > "$OSC_REPO/mympd.dsc" << EOL
+Format: 3.0 (quilt)
+Source: mympd
+Binary: mympd
+Architecture: any
+Version: ${VERSION}-1
+Maintainer: Juergen Mang <mail@jcgames.de>
+Homepage: https://jcorporation.github.io/myMPD/
+Standards-Version: 4.1.2
+Build-Depends: debhelper (>= 10), cmake, debhelper-compat (= 13), perl, gzip, jq, libssl-dev, libid3tag0-dev, libflac-dev, liblua5.4-dev | liblua5.3-dev, lua5.4 | lua5.3, libpcre2-dev
+Package-List:
+ mympd deb sound optional arch=any
+Files:
+ 27e176a3ca9abaad8c3889b46979d5f7 2461866 mympd-${VERSION}.tar.gz
+ 5156b27693879e37f5008d032263ed1e 1780 mympd-${VERSION}-1.diff.tar.gz
+EOL
 
   cd "$OSC_REPO" || exit 1
   $OSC_BIN addremove

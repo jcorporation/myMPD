@@ -9,7 +9,7 @@ url="https://jcorporation.github.io/myMPD/"
 license=(GPL3)
 depends=('flac' 'libid3tag' 'lua' 'openssl' 'pcre2' 'libnewt')
 makedepends=('cmake' 'gzip' 'jq' 'perl')
-source=("${pkgname}_${pkgver}.orig.tar.gz")
+source=("${pkgname}-${pkgver}.tar.gz")
 sha256sums=('SKIP')
 options=(debug strip)
 
