@@ -305,6 +305,24 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
 }
 
 /**
+ * Handles the data from the MG_EV_WAKEUP event
+ * @param nc Mongoose connection
+ * @param data Received data
+ */
+static void handle_wakeup(struct mg_connection *nc, struct mg_str *data) {
+    switch(data->buf[0]) {
+        case 'Q':
+            read_queue(nc->mgr);
+            break;
+        case 'X':
+            MYMPD_LOG_DEBUG(NULL, "Wakeup mongoose polling");
+            break;
+        default:
+            MYMPD_LOG_ERROR(NULL, "Unhandled wakeup data received");
+    }
+}
+
+/**
  * Central webserver event handler
  * nc->label usage
  * 0 - connection type: F = frontend connection, B = backend connection
@@ -324,7 +342,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_OPEN: {
             if (nc->is_listening) {
-                MYMPD_LOG_DEBUG(NULL, "Listening connection opened");
+                MYMPD_LOG_DEBUG(NULL, "Main listening connection opened");
                 nc->fn_data = NULL;
                 webserver_queue->mg_conn_id = nc->id;
                 webserver_queue->mg_mgr = nc->mgr;
@@ -347,16 +365,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_WAKEUP: {
             struct mg_str *data = (struct mg_str *) ev_data;
-            switch(data->buf[0]) {
-                case 'Q':
-                    read_queue(nc->mgr);
-                    break;
-                case 'X':
-                    MYMPD_LOG_DEBUG(NULL, "Wakeup mongoose polling");
-                    break;
-                default:
-                    MYMPD_LOG_ERROR(NULL, "Unhandled wakeup data received");
-            }
+            handle_wakeup(nc, data);
             break;
         }
         case MG_EV_ACCEPT:
@@ -706,6 +715,9 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 
     switch(ev) {
         case MG_EV_OPEN:
+            if (nc->is_listening) {
+                MYMPD_LOG_DEBUG(NULL, "Redirect listening connection opened");
+            }
             mg_user_data->connection_count++;
             break;
         case MG_EV_ACCEPT:
