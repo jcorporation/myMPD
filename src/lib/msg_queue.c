@@ -116,7 +116,7 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id) {
         event_eventfd_write(queue->event_fd);
     }
     else if (queue->mg_mgr != NULL) {
-        mg_wakeup(queue->mg_mgr, queue->mg_conn_id, "Q", 1);
+        mympd_mg_wakeup_send("Q");
     }
     return true;
 }
@@ -251,6 +251,19 @@ int mympd_queue_expire_age(struct t_mympd_queue *queue, time_t max_age_s) {
 
     unlock_mutex(&queue->mutex);
     return expired_count;
+}
+
+/**
+ * Sends data to the mongoose thread and wake it up
+ * @param data Data to send
+ * @return true on success, else false
+ */
+bool mympd_mg_wakeup_send(const void *data) {
+    bool rc = mg_wakeup(webserver_queue->mg_mgr, webserver_queue->mg_conn_id, data, sizeof(data));
+    if (rc == false) {
+        MYMPD_LOG_ERROR(NULL, "Failure waking up mongoose thread");
+    }
+    return rc;
 }
 
 //privat functions

@@ -66,7 +66,7 @@ static void mympd_signal_handler(int sig_num) {
             pthread_cond_signal(&webserver_queue->wakeup);
             event_eventfd_write(mympd_api_queue->event_fd);
             if (webserver_queue->mg_mgr != NULL) {
-                mg_wakeup(webserver_queue->mg_mgr, webserver_queue->mg_conn_id, "X", 1);
+                mympd_mg_wakeup_send("X");
             }
             break;
         }

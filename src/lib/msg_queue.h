@@ -64,4 +64,6 @@ void *mympd_queue_free(struct t_mympd_queue *queue);
 bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id);
 void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout_ms, unsigned id);
 int mympd_queue_expire_age(struct t_mympd_queue *queue, time_t max_age_s);
+bool mympd_mg_wakeup_send(const void *data);
+
 #endif
