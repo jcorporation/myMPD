@@ -53,6 +53,7 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i);
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sdsnew("api");
     set_threadname(thread_logname);
+    thread_logline = sdsempty();
 
     // create initial mympd_state struct and set defaults
     struct t_mympd_state *mympd_state = malloc_assert(sizeof(struct t_mympd_state));
@@ -154,6 +155,7 @@ void *mympd_api_loop(void *arg_config) {
     mympd_state_save(mympd_state, true);
 
     FREE_SDS(thread_logname);
+    FREE_SDS(thread_logline);
     return NULL;
 }
 

@@ -138,6 +138,8 @@ void webserver_free(struct mg_mgr *mgr) {
 void *webserver_loop(void *arg_mgr) {
     thread_logname = sdsnew("webserver");
     set_threadname(thread_logname);
+    thread_logline = sdsempty();
+
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     MYMPD_LOG_DEBUG(NULL, "Webserver thread is ready");
     // Initially read the queue
@@ -148,6 +150,7 @@ void *webserver_loop(void *arg_mgr) {
     }
     MYMPD_LOG_DEBUG(NULL, "Webserver thread stopped");
     FREE_SDS(thread_logname);
+    FREE_SDS(thread_logline);
     return NULL;
 }
 

@@ -31,6 +31,7 @@
 void *scripts_loop(void *arg_config) {
     thread_logname = sdsnew("scripts");
     set_threadname(thread_logname);
+    thread_logline = sdsempty();
 
     // create initial scripts_state struct and set defaults
     struct t_scripts_state *scripts_state = malloc_assert(sizeof(struct t_scripts_state));
@@ -50,5 +51,6 @@ void *scripts_loop(void *arg_config) {
     // save and free states
     scripts_state_save(scripts_state, true);
     FREE_SDS(thread_logname);
+    FREE_SDS(thread_logline);
     return NULL;
 }

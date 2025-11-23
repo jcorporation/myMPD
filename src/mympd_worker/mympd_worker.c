@@ -119,6 +119,7 @@ static void *mympd_worker_run(void *arg) {
     mympd_worker_threads++;
     thread_logname = sdscatprintf(sdsempty(), "worker%02d", mympd_worker_threads);
     set_threadname(thread_logname);
+    thread_logline = sdsempty();
 
     struct t_mympd_worker_state *mympd_worker_state = (struct t_mympd_worker_state *) arg;
     if (mympd_worker_state->mympd_only == true) {
@@ -150,5 +151,6 @@ static void *mympd_worker_run(void *arg) {
     mympd_worker_state_free(mympd_worker_state);
     mympd_worker_threads--;
     FREE_SDS(thread_logname);
+    FREE_SDS(thread_logline);
     return NULL;
 }

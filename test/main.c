@@ -19,6 +19,7 @@ sds workdir;
 
 int main(int argc, const char *const argv[]) {
     thread_logname = sdsempty();
+    thread_logline = sdsempty();
     set_loglevel(7);
     log_type = LOG_TO_STDOUT;
     workdir = sdsnew("/tmp/mympd-test");
@@ -28,6 +29,7 @@ int main(int argc, const char *const argv[]) {
 
     //cleanup
     FREE_SDS(thread_logname);
+    FREE_SDS(thread_logline);
     sdsfree(workdir);
     return rc;
 }

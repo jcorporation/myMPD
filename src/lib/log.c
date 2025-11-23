@@ -11,10 +11,11 @@
 #include "compile_time.h"
 #include "src/lib/log.h"
 
+#include "dist/sds/sds.h"
 #include "src/lib/env.h"
-#include "src/lib/sds_extras.h"
 
 #include <pthread.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -26,6 +27,7 @@
  * Thread name
  */
 _Thread_local sds thread_logname;
+_Thread_local sds thread_logline;
 
 /**
  * Loglevel
@@ -162,48 +164,45 @@ void mympd_log(int level, const char *file, int line, const char *partition, con
         return;
     }
 
-    sds logline = sdsempty();
-    //preallocate some space for the logline to avoid continuous reallocations
-    logline = sdsMakeRoomFor(logline, 512);
     if (log_type == LOG_TO_TTY) {
-        logline = sdscat(logline, loglevel_colors[level]);
+        thread_logline = sdscat(thread_logline, loglevel_colors[level]);
         time_t now = time(NULL);
         struct tm timeinfo;
         if (localtime_r(&now, &timeinfo) != NULL) {
-            logline = sdscatprintf(logline, "%02d:%02d:%02d ", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+            thread_logline = sdscatprintf(thread_logline, "%02d:%02d:%02d ", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
         }
     }
     else if (log_type == LOG_TO_SYSTEMD) {
-        logline = sdscatfmt(logline, "<%i>", level);
+        thread_logline = sdscatfmt(thread_logline, "<%i>", level);
     }
-    logline = sdscatprintf(logline, "%-8s %-11s", loglevel_names[level], thread_logname);
+    thread_logline = sdscatprintf(thread_logline, "%-8s %-11s", loglevel_names[level], thread_logname);
     #ifdef MYMPD_DEBUG
-        logline = sdscatfmt(logline, "%s:%i: ", file, line);
+        thread_logline = sdscatfmt(thread_logline, "%s:%i: ", file, line);
     #else
         (void)file;
         (void)line;
     #endif
     if (partition != NULL) {
-        logline = sdscatfmt(logline, "\"%s\": ", partition);
+        thread_logline = sdscatfmt(thread_logline, "\"%s\": ", partition);
     }
 
     va_list args;
     va_start(args, fmt);
-    logline = sdscatvprintf(logline, fmt, args);
+    thread_logline = sdscatvprintf(thread_logline, fmt, args);
     va_end(args);
 
-    if (sdslen(logline) > 1023) {
-        sdsrange(logline, 0, 1020);
-        logline = sdscatlen(logline, "...", 3);
+    if (sdslen(thread_logline) > 1023) {
+        sdsrange(thread_logline, 0, 1020);
+        thread_logline = sdscatlen(thread_logline, "...", 3);
     }
 
     if (log_type == LOG_TO_TTY) {
-        logline = sdscat(logline, "\033[0m\n");
+        thread_logline = sdscat(thread_logline, "\033[0m\n");
     }
     else {
-        logline = sdscatlen(logline, "\n", 1);
+        thread_logline = sdscatlen(thread_logline, "\n", 1);
     }
 
-    (void) fputs(logline, stdout);
-    FREE_SDS(logline);
+    (void) fputs(thread_logline, stdout);
+    sdsclear(thread_logline);
 }

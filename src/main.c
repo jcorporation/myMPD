@@ -185,6 +185,7 @@ static bool create_certificates(struct t_config *config) {
 int main(int argc, char **argv) {
     // Set initial states
     thread_logname = sdsnew("mympd");
+    thread_logline = sdsempty();
     log_init();
 
     mympd_worker_threads = 0;
@@ -440,5 +441,6 @@ int main(int argc, char **argv) {
     }
 
     FREE_SDS(thread_logname);
+    FREE_SDS(thread_logline);
     return rc;
 }

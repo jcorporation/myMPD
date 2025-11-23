@@ -27,6 +27,7 @@ void *script_run(void *script_thread_arg) {
     script_worker_threads++;
     thread_logname = sdscatprintf(sdsempty(), "runscript%02d", mympd_worker_threads);
     set_threadname(thread_logname);
+    thread_logline = sdsempty();
 
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
 
@@ -81,5 +82,6 @@ void *script_run(void *script_thread_arg) {
     free_t_script_thread_arg(script_arg);
     script_worker_threads--;
     FREE_SDS(thread_logname);
+    FREE_SDS(thread_logline);
     return NULL;
 }
