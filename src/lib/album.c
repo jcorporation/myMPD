@@ -539,7 +539,7 @@ sds print_album_tags(sds buffer, const struct t_albums_config *album_config, con
     buffer = tojson_time(buffer, "Added", album_get_added(album), true);
     buffer = tojson_char(buffer, "uri", album_get_uri(album), true);
     buffer = tojson_uint(buffer, "DiscCount", album_get_disc_count(album), true);
-    buffer = tojson_uint(buffer, "TotalTime", album_get_total_time(album), true);
+    buffer = tojson_uint(buffer, "Duration", album_get_total_time(album), true);
     buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), false);
     return buffer;
 }
