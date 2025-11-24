@@ -58,8 +58,7 @@ static void mongoose_log(char ch, void *param);
  */
 struct mg_mgr *webserver_init_mgr(struct t_config *config, struct t_mg_user_data *mg_user_data) {
     //init mongoose mgr
-    mg_log_set(1);    //set mongoose loglevel to error
-    //mg_log_set(4);  //set mongoose loglevel to debug
+    mg_log_set(MG_LL_ERROR);
     mg_log_set_fn(mongoose_log, NULL);
     struct mg_mgr *mgr = malloc_assert(sizeof(struct mg_mgr));
     mg_mgr_init(mgr);
