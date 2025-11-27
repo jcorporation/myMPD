@@ -23,8 +23,8 @@ Use `docker pull ghcr.io/jcorporation/mympd/mympd:latest` to use the latest stab
 Starts the myMPD docker container:
 
 - Runs the docker container with uid/gid 1000
-- Disables SSL
-- Listen on port 8080
+- myMPD can not find the correct IP address if it is behind a docker proxy, set `MYMPD_SSL_SAN` to `IP:<host ip>`.
+- Set `MYMPD_MYMPD_URI` to `http://<host fqdn>:<host port>`.
 
 ### Volumes
 
@@ -50,11 +50,12 @@ services:
     container_name: mympd
     ports:
       - 8080:8080
+      - 8443:8443
     user: 1000:1000
     environment:
-      - UMASK_SET=022
-      - MYMPD_SSL=false
-      - MYMPD_HTTP_PORT=8080
+      TZ: Europe/Berlin
+      MYMPD_SSL_SAN: "DNS:<host fqdn>"
+      MYMPD_MYMPD_URI: http://<host fqdn>:8080
     volumes:
       - /run/mpd:/run/mpd
       ## Optional for myGPIOd support
@@ -74,10 +75,11 @@ Setup: `docker-compose up -d`
 docker run -d \
   --name=mympd \
   -p 8080:8080 \
+  -p 8443:8443 \
   -u 1000:1000 \
-  -e UMASK_SET=022 \
-  -e MYMPD_SSL=false \
-  -e MYMPD_HTTP_PORT=8080 \
+  -e "TZ=Europe/Berlin" \
+  -e "MYMPD_SSL_SAN=DNS:<host fqdn>" \
+  -e "MYMPD_MYMPD_URI=http://<host fqdn>:8080" \
   -v /run/mpd:/run/mpd \
   ## Optional for myGPIOd support
   ## -v /run/mygpiod:/run/mygpiod \
