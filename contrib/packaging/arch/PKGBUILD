@@ -16,7 +16,7 @@ options=(debug strip)
 build() {
   local cmake_options=(
     -B build
-    -S "${srcdir}"
+    -S "${srcdir}/${pkgname}-${pkgver}"
     -DCMAKE_BUILD_TYPE=RelWithDebInfo
     -DCMAKE_INSTALL_PREFIX=/usr
     -Wno-dev
