@@ -781,11 +781,13 @@ pkgarch() {
 }
 
 pkgosc() {
-  [ -z "${OSC_BIN+x}" ] && OSC_BIN="$HOME/python-venv/bin/osc"
-  if [ ! -x "$OSC_BIN" ]
-  then
-    echo_error "Command osc not found: $HOME/python-venv/bin/osc"
-    exit 1
+  if [ -z "${OSC_BIN+x}" ]
+  then 
+    if ! OSC_BIN=$(command -v osc)
+    then
+      echo_error "Command osc not found"
+      exit 1
+    fi
   fi
   cleanup
   cleanuposc
