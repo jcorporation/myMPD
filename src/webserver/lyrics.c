@@ -114,6 +114,7 @@ bool webserver_lyrics_get(struct mg_connection *nc, unsigned request_id, sds bod
         buffer = tojson_uint(buffer, "returnedEntities", entity_count, false);
         buffer = jsonrpc_end(buffer);
         webserver_send_data(nc, buffer, sdslen(buffer), EXTRA_HEADERS_JSON_CONTENT);
+        FREE_SDS(buffer);
         return true;
     }
     // No lyrics found
