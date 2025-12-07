@@ -106,6 +106,7 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
     get_sticker_types(stickerdb);
     mympd_api_request_sticker_features(stickerdb->mpd_state->feat.stickers,
         stickerdb->mpd_state->feat.advsticker);
+    *stickerdb->repopulate_pfds = true;
     MYMPD_LOG_DEBUG("stickerdb", "MPD connected and waiting for commands");
     return true;
 }
@@ -121,6 +122,7 @@ void stickerdb_disconnect(struct t_stickerdb_state *stickerdb) {
     }
     stickerdb->conn = NULL;
     stickerdb->conn_state = MPD_DISCONNECTED;
+    *stickerdb->repopulate_pfds = true;
 }
 
 /**

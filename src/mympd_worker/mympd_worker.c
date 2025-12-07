@@ -69,6 +69,7 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
     mympd_worker_state->tag_disc_empty_is_first = mympd_state->tag_disc_empty_is_first;
     mympd_mpd_tags_clone(&mympd_state->smartpls_generate_tag_types, &mympd_worker_state->smartpls_generate_tag_types);
     mympd_worker_state->album_cache = &mympd_state->album_cache;
+    mympd_worker_state->repopulate_pfds = false;
 
     if (mympd_worker_state->mympd_only == true) {
         mympd_worker_state->mpd_state = NULL;
@@ -84,6 +85,7 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
         mympd_worker_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
         partition_state_default(mympd_worker_state->partition_state, partition_state->name,
                 mympd_worker_state->mpd_state, mympd_worker_state->config);
+        mympd_worker_state->partition_state->repopulate_pfds = &mympd_worker_state->repopulate_pfds;
         // copy jukebox settings
         jukebox_state_copy(&partition_state->jukebox, &mympd_worker_state->partition_state->jukebox);
         // use mpd state from worker

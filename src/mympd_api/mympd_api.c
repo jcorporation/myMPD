@@ -120,7 +120,9 @@ void *mympd_api_loop(void *arg_config) {
     // thread loop
     MYMPD_LOG_DEBUG(NULL, "mympd_api thread is ready");
     while (s_signal_received == 0) {
-        populate_pfds(mympd_state);
+        if (mympd_state->pfds.repopulate == true) {
+            populate_pfds(mympd_state);
+        }
         errno = 0;
         int cnt = poll(mympd_state->pfds.fds, mympd_state->pfds.len, -1);
         if (cnt < 0) {
@@ -249,6 +251,7 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i) {
             MYMPD_LOG_DEBUG(NULL, "Closing socket");
             event_fd_close(mympd_state->pfds.fds[i].fd);
     }
+    mympd_state->pfds.repopulate = true;
 }
 
 /**
@@ -257,6 +260,7 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i) {
  * @param mympd_state pointer to mympd state
  */
 static void populate_pfds(struct t_mympd_state *mympd_state) {
+    mympd_state->pfds.repopulate = false;
     mympd_state->pfds.len = 0;
     // Connections for MPD partitions
     struct t_partition_state *partition_state = mympd_state->partition_state;

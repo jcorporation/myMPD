@@ -111,10 +111,12 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mympd_state->partition_state, MPD_PARTITION_DEFAULT, mympd_state->mpd_state, config);
+    mympd_state->partition_state->repopulate_pfds = &mympd_state->pfds.repopulate;
     // stickerdb
     // use the partition struct to store the mpd connection for the stickerdb
     mympd_state->stickerdb = malloc_assert(sizeof(struct t_stickerdb_state));
     stickerdb_state_default(mympd_state->stickerdb, config);
+    mympd_state->stickerdb->repopulate_pfds = &mympd_state->pfds.repopulate;
     // do not use the shared mpd_state - we can connect to another mpd server for stickers
     mympd_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
     mympd_mpd_state_default(mympd_state->stickerdb->mpd_state, config);
@@ -124,6 +126,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     list_init(&mympd_state->home_list);
     //timer
     mympd_api_timer_timerlist_init(&mympd_state->timer_list);
+    mympd_state->timer_list.repopulate_pfds = &mympd_state->pfds.repopulate;
     //album cache
     cache_init(&mympd_state->album_cache);
     //init last played songs list

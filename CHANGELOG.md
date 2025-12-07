@@ -9,6 +9,7 @@ https://github.com/jcorporation/myMPD/
 ### Changelog
 
 - Upd: Move lyrics handling from mympd_api to webserver thread
+- Upd: Performance improvements for mympd_api polling
 
 ***
 

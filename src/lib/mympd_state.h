@@ -159,6 +159,7 @@ struct t_partition_state {
     int timer_fd_mpd_connect;              //!< Timerfd for mpd reconnection
     //events
     enum pfd_type waiting_events;          //!< Bitmask for events
+    bool *repopulate_pfds;                 //!< Pointer to repopulate state in mympd_state struct
 };
 
 /**
@@ -171,6 +172,7 @@ struct t_stickerdb_state {
     struct mpd_connection *conn;           //!< mpd connection object from libmpdclient
     enum mpd_conn_states conn_state;       //!< mpd connection state
     sds name;                              //!< name for logging
+    bool *repopulate_pfds;                 //!< Pointer to repopulate state in mympd_state struct
 };
 
 /**
@@ -198,6 +200,7 @@ struct t_timer_list {
     unsigned last_id;                   //!< highest timer id in the list
     int active;                         //!< number of enabled timers
     struct t_list list;                 //!< timer definition
+    bool *repopulate_pfds;              //!< Pointer to repopulate state in mympd_state struct
 };
 
 /**

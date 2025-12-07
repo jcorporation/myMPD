@@ -30,6 +30,7 @@ struct t_mympd_worker_state {
     struct t_stickerdb_state *stickerdb;          //!< pointer to the stickerdb state
     bool mympd_only;                              //!< true = no mpd connection required
     struct t_cache *album_cache;                  //!< the album cache, use it only with a read lock
+    bool repopulate_pfds;                         //!< Repopulate the pollfd struct - this is not used in the mympd_worker thread
 };
 
 void mympd_worker_state_free(struct t_mympd_worker_state *mympd_worker_state);

@@ -187,6 +187,7 @@ bool mympd_api_timer_replace(struct t_timer_list *l, int timeout, int interval, 
 bool mympd_api_timer_add(struct t_timer_list *l, int timeout, int interval, timer_handler handler,
         unsigned timer_id, struct t_timer_definition *definition)
 {
+    *l->repopulate_pfds = true;
     struct t_timer_node *new_node = malloc_assert(sizeof(struct t_timer_node));
     new_node->callback = handler;
     new_node->definition = definition;
@@ -231,6 +232,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, int timeout, int interval, time
  * @return true on success, else false
  */
 bool mympd_api_timer_remove(struct t_timer_list *l, unsigned timer_id) {
+    *l->repopulate_pfds = true;
     struct t_list_node *current = l->list.head;
     unsigned idx = 0;
     while (current != NULL) {

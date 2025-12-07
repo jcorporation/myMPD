@@ -41,6 +41,7 @@ void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char
     assert(errormessage);
     MYMPD_LOG_ERROR(partition_state->name, "%s", errormessage);
     mympd_client_disconnect(partition_state);
+    *partition_state->repopulate_pfds = true;
     mympd_timer_set(partition_state->timer_fd_mpd_connect, 0, 5);
 }
 
