@@ -47,6 +47,9 @@ sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer,
             return buffer;
         }
     #else
+        (void)mympd_state;
+        (void)uri;
+        (void)partition;
         (void)conn_id;
     #endif
     // no trigger
