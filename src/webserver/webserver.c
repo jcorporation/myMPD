@@ -265,6 +265,16 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         mg_user_data->image_names_lg = sds_split_comma_trim(new_mg_user_data->image_names_lg, &mg_user_data->image_names_lg_len);
         FREE_SDS(new_mg_user_data->image_names_lg);
 
+        // Lyrics
+        mg_user_data->lyrics.uslt_ext = sds_replace(mg_user_data->lyrics.uslt_ext, new_mg_user_data->lyrics.uslt_ext);
+        FREE_SDS(new_mg_user_data->lyrics.uslt_ext);
+        mg_user_data->lyrics.sylt_ext = sds_replace(mg_user_data->lyrics.sylt_ext, new_mg_user_data->lyrics.sylt_ext);
+        FREE_SDS(new_mg_user_data->lyrics.sylt_ext);
+        mg_user_data->lyrics.vorbis_uslt = sds_replace(mg_user_data->lyrics.vorbis_uslt, new_mg_user_data->lyrics.vorbis_uslt);
+        FREE_SDS(new_mg_user_data->lyrics.vorbis_uslt);
+        mg_user_data->lyrics.vorbis_sylt = sds_replace(mg_user_data->lyrics.vorbis_sylt, new_mg_user_data->lyrics.vorbis_sylt);
+        FREE_SDS(new_mg_user_data->lyrics.vorbis_sylt);
+
         //set per partition stream uris
         list_clear(&mg_user_data->stream_uris);
         struct t_list_node *current = new_mg_user_data->partitions.head;
@@ -524,22 +534,22 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 request_handler_albumart_by_album_id(hm, nc->id, ALBUMART_MD);
             }
             else if (mg_match(hm->uri, mg_str("/albumart-large"), NULL)) {
-                request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_LG);
+                request_handler_albumart_by_uri(nc, hm, ALBUMART_LG);
             }
             else if (mg_match(hm->uri, mg_str("/albumart-thumb"), NULL)) {
-                request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_SM);
+                request_handler_albumart_by_uri(nc, hm, ALBUMART_SM);
             }
             else if (mg_match(hm->uri, mg_str("/albumart"), NULL)) {
-                request_handler_albumart_by_uri(nc, hm, mg_user_data, nc->id, ALBUMART_MD);
+                request_handler_albumart_by_uri(nc, hm, ALBUMART_MD);
             }
             else if (mg_match(hm->uri, mg_str("/folderart"), NULL)) {
-                request_handler_folderart(nc, hm, mg_user_data);
+                request_handler_folderart(nc, hm);
             }
             else if (mg_match(hm->uri, mg_str("/tagart"), NULL)) {
-                request_handler_tagart(nc, hm, mg_user_data);
+                request_handler_tagart(nc, hm);
             }
             else if (mg_match(hm->uri, mg_str("/playlistart"), NULL)) {
-                request_handler_playlistart(nc, hm, mg_user_data);
+                request_handler_playlistart(nc, hm);
             }
             else if (mg_match(hm->uri, mg_str("/browse/#"), NULL)) {
                 request_handler_browse(nc, hm, mg_user_data);

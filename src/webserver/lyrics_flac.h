@@ -8,8 +8,8 @@
  * \brief Read lyrics from vorbis comments
  */
 
-#ifndef MYMPD_API_LYRICS_FLAC_H
-#define MYMPD_API_LYRICS_FLAC_H
+#ifndef MYMPD_WEB_SERVER_LYRICS_FLAC_H
+#define MYMPD_WEB_SERVER_LYRICS_FLAC_H
 
 #include "src/lib/list.h"
 

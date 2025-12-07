@@ -68,7 +68,6 @@ set(TEST_SOURCES
   ../src/mympd_api/last_played.c
   ../src/mympd_api/jukebox.c
   ../src/mympd_api/lua_mympd_state.c
-  ../src/mympd_api/lyrics.c
   ../src/mympd_api/requests.c
   ../src/mympd_api/settings.c
   ../src/mympd_api/status.c
@@ -109,13 +108,13 @@ set(TEST_SOURCES
 
 if(LIBID3TAG_FOUND)
   set(TEST_SOURCES_LIBID3TAG
-    ../src/mympd_api/lyrics_id3.c
+    ../src/webserver/lyrics_id3.c
     tests/test_lyrics_id3.c
   )
 endif()
 if(FLAC_FOUND)
   set(TEST_SOURCES_FLAC
-  ../src/mympd_api/lyrics_flac.c
+  ../src/webserver/lyrics_flac.c
     tests/test_lyrics_flac.c
   )
 endif()

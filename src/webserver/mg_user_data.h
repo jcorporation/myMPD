@@ -15,6 +15,7 @@
 #include "dist/sds/sds.h"
 #include "src/lib/config_def.h"
 #include "src/lib/list.h"
+#include "src/lib/lyrics.h"
 
 #include <stdbool.h>
 
@@ -67,6 +68,7 @@ struct t_mg_user_data {
     struct t_webradios *webradio_favorites;  //!< Pointer to webradio favorites in mympd_api thread
     struct t_embedded_file embedded_files[MAX_EMBEDDED_FILES];  //!< Embedded files
     unsigned embedded_file_index;            //!< Index of last embedded_file
+    struct t_lyrics lyrics;                  //!< lyrics settings
 };
 
 void mg_user_data_free(struct t_mg_user_data *mg_user_data);

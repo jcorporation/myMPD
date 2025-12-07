@@ -18,6 +18,7 @@
 #include "src/lib/fields.h"
 #include "src/lib/jukebox.h"
 #include "src/lib/list.h"
+#include "src/lib/lyrics.h"
 #include "src/lib/webradio.h"
 
 #include <time.h>
@@ -197,16 +198,6 @@ struct t_timer_list {
     unsigned last_id;                   //!< highest timer id in the list
     int active;                         //!< number of enabled timers
     struct t_list list;                 //!< timer definition
-};
-
-/**
- * Lyrics settings
- */
-struct t_lyrics {
-    sds uslt_ext;     //!< file extension for unsynced lyrics
-    sds sylt_ext;     //!< file extension for synced lyrics
-    sds vorbis_uslt;  //!< vorbis comment for unsynced lyrics
-    sds vorbis_sylt;  //!< vorbis comment for synced lyrics
 };
 
 /**

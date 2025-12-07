@@ -61,6 +61,10 @@ struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
     mg_user_data->image_names_sm = sds_split_comma_trim(MYMPD_IMAGE_NAMES_SM, &mg_user_data->image_names_sm_len);
     mg_user_data->image_names_md = sds_split_comma_trim(MYMPD_IMAGE_NAMES_MD, &mg_user_data->image_names_md_len);
     mg_user_data->image_names_lg = sds_split_comma_trim(MYMPD_IMAGE_NAMES_LG, &mg_user_data->image_names_lg_len);
+    mg_user_data->lyrics.uslt_ext = sdsempty();
+    mg_user_data->lyrics.sylt_ext = sdsempty();
+    mg_user_data->lyrics.vorbis_uslt = sdsempty();
+    mg_user_data->lyrics.vorbis_sylt = sdsempty();
     mg_user_data->publish_music = false;
     mg_user_data->publish_playlists = false;
     mg_user_data->connection_count = 2; // listening + wakeup
@@ -172,6 +176,10 @@ void mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->placeholder_transparent);
     FREE_SDS(mg_user_data->cert_content);
     FREE_SDS(mg_user_data->key_content);
+    FREE_SDS(mg_user_data->lyrics.uslt_ext);
+    FREE_SDS(mg_user_data->lyrics.sylt_ext);
+    FREE_SDS(mg_user_data->lyrics.vorbis_uslt);
+    FREE_SDS(mg_user_data->lyrics.vorbis_sylt);
     FREE_PTR(mg_user_data);
 }
 

@@ -8,8 +8,8 @@
  * \brief Read lyrics from ID3 tags
  */
 
-#ifndef MYMPD_API_LYRICS_ID3_H
-#define MYMPD_API_LYRICS_ID3_H
+#ifndef MYMPD_WEB_SERVER_LYRICS_ID3_H
+#define MYMPD_WEB_SERVER_LYRICS_ID3_H
 
 #include "src/lib/list.h"
 

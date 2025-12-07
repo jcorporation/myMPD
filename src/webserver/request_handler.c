@@ -17,6 +17,7 @@
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
+#include "src/webserver/lyrics.h"
 #include "src/webserver/proxy.h"
 #include "src/webserver/response.h"
 #include "src/webserver/sessions.h"
@@ -112,8 +113,13 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         case MYMPD_API_SESSION_VALIDATE:
             webserver_session_api(nc, cmd_id, body, request_id, session, mg_user_data);
             break;
+        case MYMPD_API_LYRICS_GET:
+            if (webserver_lyrics_get(nc, request_id, body) == true) {
+                break;
+            }
+            // Fall through
         default: {
-            //forward API request to another thread
+            // Forward API request to another thread
             struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
             if (push_request(request, 0) == false) {
                 MYMPD_LOG_ERROR(frontend_nc_data->partition, "Failure pushing request to api handler for %s", cmd);

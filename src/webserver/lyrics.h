@@ -5,17 +5,14 @@
 */
 
 /*! \file
- * \brief Playlistart functions
+ * \brief Lyrics functions
  */
 
-#ifndef MYMPD_WEB_SERVER_PLAYLISTART_H
-#define MYMPD_WEB_SERVER_PLAYLISTART_H
+#ifndef MYMPD_WEB_SERVER_LYRICS_H
+#define MYMPD_WEB_SERVER_LYRICS_H
 
 #include "dist/mongoose/mongoose.h"
 #include "src/webserver/mg_user_data.h"
 
-#include <stdbool.h>
-
-bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_message *hm);
-
+bool webserver_lyrics_get(struct mg_connection *nc, unsigned request_id, sds body);
 #endif

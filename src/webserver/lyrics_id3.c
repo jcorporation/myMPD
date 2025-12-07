@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/mympd_api/lyrics_id3.h"
+#include "src/webserver/lyrics_id3.h"
 
 #include "src/lib/json/json_print.h"
 #include "src/lib/log.h"

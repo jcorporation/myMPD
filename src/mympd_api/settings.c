@@ -63,6 +63,10 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
     extra->webradiodb = mympd_state->webradiodb;
     extra->webradio_favorites = mympd_state->webradio_favorites;
+    extra->lyrics.uslt_ext = sdsdup(mympd_state->lyrics.uslt_ext);
+    extra->lyrics.sylt_ext = sdsdup(mympd_state->lyrics.sylt_ext);
+    extra->lyrics.vorbis_uslt = sdsdup(mympd_state->lyrics.vorbis_uslt);
+    extra->lyrics.vorbis_sylt = sdsdup(mympd_state->lyrics.vorbis_sylt);
     list_init(&extra->partitions);
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {

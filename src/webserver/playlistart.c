@@ -31,9 +31,8 @@
  * @param mg_user_data webserver configuration
  * @return true on success, else false
  */
-bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data)
-{
+bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_message *hm) {
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
     sds name = get_uri_param(&hm->query, "playlist=");
     sds type = get_uri_param(&hm->query, "type=");

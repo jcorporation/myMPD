@@ -157,6 +157,7 @@ target_sources(mympd
     webserver/webserver.c
     webserver/albumart.c
     webserver/folderart.c
+    webserver/lyrics.c
     webserver/mg_user_data.c
     webserver/placeholder.c
     webserver/proxy.c
@@ -196,16 +197,16 @@ endif()
 if(MYMPD_ENABLE_FLAC)
   target_sources(mympd
     PRIVATE
-      mympd_api/lyrics_flac.c
       webserver/albumart_flac.c
+      webserver/lyrics_flac.c
   )
 endif()
 
 if(MYMPD_ENABLE_LIBID3TAG)
   target_sources(mympd
     PRIVATE
-      mympd_api/lyrics_id3.c
       webserver/albumart_id3.c
+      webserver/lyrics_id3.c
   )
 endif()
 

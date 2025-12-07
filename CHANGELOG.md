@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Upd: Move lyrics handling from mympd_api to webserver thread
+
 ***
 
 ## myMPD v23.0.2 (not yet released)

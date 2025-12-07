@@ -133,14 +133,14 @@ void request_handler_albumart_by_album_id(struct mg_http_message *hm, unsigned l
  * @param nc mongoose connection
  * @param hm http message
  * @param mg_user_data pointer to mongoose configuration
- * @param conn_id connection id
  * @param size albumart size
  * @return true: an image was served,
  *         false: request was sent to the mympd_api thread to get the image by MPD
  */
 bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, unsigned long conn_id, enum albumart_sizes size)
+        enum albumart_sizes size)
 {
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
 
     sds offset_s = get_uri_param(&hm->query, "offset=");
@@ -273,7 +273,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
     //ask mpd - mpd can read only first image
     if (offset == 0) {
         MYMPD_LOG_DEBUG(NULL, "Sending INTERNAL_API_ALBUMART_BY_URI to mympdapi_queue");
-        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, 0, INTERNAL_API_ALBUMART_BY_URI, NULL, MPD_PARTITION_DEFAULT);
+        struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_ALBUMART_BY_URI, NULL, MPD_PARTITION_DEFAULT);
         request->data = tojson_sds(request->data, "uri", uri, false);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
