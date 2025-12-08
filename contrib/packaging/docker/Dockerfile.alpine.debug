@@ -7,9 +7,13 @@ FROM alpine:latest
 
 COPY . /myMPD/
 WORKDIR /myMPD
-RUN ./build.sh installdeps
-RUN ./build.sh debug
-RUN adduser -D -H -h /var/lib/mympd -s /sbin/nologin -g myMPD -u 1000 mympd
+RUN << EOF
+apk update
+apk upgrade
+./build.sh installdeps
+./build.sh debug
+adduser -D -H -h /var/lib/mympd -s /sbin/nologin -g myMPD -u 1000 mympd
+EOF
 
 USER mympd
 ENTRYPOINT ["/myMPD/debug/mympd"]
