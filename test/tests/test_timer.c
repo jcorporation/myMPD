@@ -14,8 +14,10 @@
 #include <sys/stat.h>
 
 UTEST(timer, test_timer_add_replace_remove) {
+    bool repopulate = false;
     struct t_timer_list l;
     mympd_api_timer_timerlist_init(&l);
+    l.repopulate_pfds = &repopulate;
     ASSERT_EQ((unsigned)USER_TIMER_ID_START, l.last_id);
 
     bool rc = mympd_api_timer_add(&l, 10, 0, timer_handler_by_id, TIMER_ID_DISK_CACHE_CROP, NULL);
@@ -38,8 +40,10 @@ UTEST(timer, test_timer_add_replace_remove) {
 }
 
 UTEST(timer, test_timer_parse_definition) {
+    bool repopulate = false;
     struct t_timer_list l;
     mympd_api_timer_timerlist_init(&l);
+    l.repopulate_pfds = &repopulate;
     sds e = sdsempty();
     sds s1 = sdsnew("{\"params\":{\"partition\":\"default\",\"timerid\":103,\"name\":\"example timer1\",\"interval\":86400,\"enabled\":true,\"startHour\":7,\"startMinute\":0,\"action\":\"player\",\"subaction\":\"startplay\",\"playlist\":\"test\",\"volume\":50,\"preset\":\"\",\"weekdays\":[false,false,false,false,false,true,true],\"arguments\": {\"arg1\":\"value1\"}}}");
     struct t_json_parse_error parse_error;
@@ -74,9 +78,10 @@ UTEST(timer, test_timer_parse_definition) {
 
 UTEST(timer, test_timer_write_read) {
     init_testenv();
-
+    bool repopulate = false;
     struct t_timer_list l;
     mympd_api_timer_timerlist_init(&l);
+    l.repopulate_pfds = &repopulate;
     sds s1 = sdsnew("{\"params\":{\"partition\":\"default\",\"timerid\":103,\"name\":\"example timer1\",\"interval\":86400,\"enabled\":true,\"startHour\":7,\"startMinute\":0,\"action\":\"player\",\"subaction\":\"startplay\",\"playlist\":\"\",\"volume\":50,\"preset\":\"test-preset\",\"weekdays\":[false,false,false,false,false,true,true],\"arguments\": {\"arg1\":\"value1\"}}}");
     struct t_json_parse_error parse_error;
     json_parse_error_init(&parse_error);
