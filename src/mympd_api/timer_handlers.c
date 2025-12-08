@@ -142,7 +142,7 @@ void timer_handler_select(unsigned timer_id, struct t_timer_definition *definiti
 bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         unsigned volume, sds playlist, sds preset)
 {
-    //disable jukebox to prevent adding songs to queue from old jukebox queue list
+    // Temporary disable jukebox to prevent adding songs to queue from old jukebox queue list
     enum jukebox_modes old_jukebox_mode = partition_state->jukebox.mode;
     partition_state->jukebox.mode = JUKEBOX_OFF;
 
@@ -162,8 +162,14 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
     }
 
     if (mpd_command_list_begin(partition_state->conn, false)) {
-        if (mpd_send_stop(partition_state->conn) == false) {
-            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_stop");
+        if (jukebox_mode != JUKEBOX_OFF ||
+            sdslen(preset) > 0 ||
+            sdslen(playlist) > 0)
+        {
+            // Stop playing if we should change the play queue
+            if (mpd_send_stop(partition_state->conn) == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_stop");
+            }
         }
         if (old_volume != -1) {
             if (mpd_send_set_volume(partition_state->conn, volume) == false) {
@@ -174,7 +180,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         if (sdslen(playlist) > 0 &&
             jukebox_mode == JUKEBOX_OFF)
         {
-            //load selected playlist if in preset jukebox is disabled
+            // Load selected playlist if the jukebox is disabled in selected preset
             if (mpd_send_clear(partition_state->conn) == false ||
                 mpd_send_load(partition_state->conn, playlist) == false ||
                 mpd_send_play(partition_state->conn) == false)
@@ -184,18 +190,28 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         }
 
         if (jukebox_mode != JUKEBOX_OFF) {
-            //clear the queue if jukebox is enabled through preset
+            // Clear the queue if jukebox is enabled through preset
             if (mpd_send_clear(partition_state->conn) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_clear");
             }
         }
+
+        if (jukebox_mode == JUKEBOX_OFF &&
+            sdslen(preset) == 0 &&
+            sdslen(playlist) == 0)
+        {
+            // Simply start playing if no playlist and no preset is selected
+            if (mpd_send_play(partition_state->conn) == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_play");
+            }
+        }
         mympd_client_command_list_end_check(partition_state);
     }
-    //restore old jukebox mode
+    // Restore old jukebox mode
     partition_state->jukebox.mode = old_jukebox_mode;
 
     if (sdslen(preset) > 0) {
-        //load the preset
+        // Load the preset
         struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_PRESET_APPLY, NULL, partition_state->name);
         request->data = tojson_sds(request->data, "name", preset, false);
         request->data = jsonrpc_end(request->data);
