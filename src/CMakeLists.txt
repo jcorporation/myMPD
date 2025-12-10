@@ -88,6 +88,7 @@ target_sources(mympd
     lib/state_files.c
     lib/thread.c
     lib/timer.c
+    lib/utf8_wrapper.c
     lib/utility.c
     lib/validate.c
     lib/webradio.c

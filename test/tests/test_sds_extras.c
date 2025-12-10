@@ -108,12 +108,12 @@ UTEST(sds_extras, test_sds_hash_sha256_sds) {
 
 UTEST(sds_extras, test_sds_utf8_tolower) {
     sds test_input= sdsnew("EINSTÜRZENDE NEUBAUTEN");
-    sds_utf8_tolower(test_input);
+    test_input = sds_utf8_tolower(test_input);
     ASSERT_STREQ("einstürzende neubauten", test_input);
     sdsclear(test_input);
     test_input = sdscat(test_input, "sdfßSdf");
-    sds_utf8_tolower(test_input);
-    ASSERT_STREQ("sdfßsdf", test_input);
+    test_input = sds_utf8_tolower(test_input);
+    ASSERT_STREQ("sdfsssdf", test_input);
     sdsfree(test_input);
 }
 

@@ -13,7 +13,7 @@
 
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
-#include "dist/utf8/utf8.h"
+#include "src/lib/utf8_wrapper.h"
 
 #include <ctype.h>
 #include <openssl/buffer.h>
@@ -175,23 +175,14 @@ sds sds_hash_sha256_sds(sds s) {
 /**
  * Makes the string lower case (utf8 aware)
  * @param s sds string to modify in place
+ * @return pointer to s
  */
-void sds_utf8_tolower(sds s) {
-    utf8_int32_t cp;
-
-    void *pn = utf8codepoint(s, &cp);
-    while (cp != 0) {
-        const size_t size = utf8codepointsize(cp);
-        const utf8_int32_t lwr_cp = utf8lwrcodepoint(cp);
-        const size_t lwr_size = utf8codepointsize(lwr_cp);
-
-        if (lwr_cp != cp && lwr_size == size) {
-            utf8catcodepoint(s, lwr_cp, lwr_size);
-        }
-
-        s = pn;
-        pn = utf8codepoint(s, &cp);
-    }
+sds sds_utf8_tolower(sds s) {
+    char *fold_str = utf8_wrap_normalize(s, sdslen(s));
+    sdsclear(s);
+    s = sdscat(s, fold_str);
+    free(fold_str);
+    return s;
 }
 
 /**

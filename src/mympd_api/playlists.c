@@ -11,7 +11,6 @@
 #include "compile_time.h"
 #include "src/mympd_api/playlists.h"
 
-#include "dist/utf8/utf8.h"
 #include "src/lib/api.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/filehandler.h"
@@ -24,6 +23,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/search.h"
 #include "src/lib/smartpls.h"
+#include "src/lib/utf8_wrapper.h"
 #include "src/lib/utility.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_client/errorhandler.h"
@@ -557,12 +557,15 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
             : false;
     }
 
+    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr));
+
     if (mpd_send_list_playlists(partition_state->conn)) {
         struct mpd_playlist *pl;
         while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
+            char *value_utf8 = utf8_wrap_normalize(plpath, strlen(plpath));
             bool smartpls = is_smartpls(partition_state->config->workdir, plpath);
-            if ((search_len == 0 || utf8casestr(plpath, searchstr) != NULL) &&
+            if ((search_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) &&
                 (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
             {
                 struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
@@ -576,10 +579,11 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                     key = sds_pad_int(data->last_modified, key);
                 }
                 key = sdscatsds(key, data->name);
-                sds_utf8_tolower(key);
+                key = sds_utf8_tolower(key);
                 rax_insert_no_dup(entity_list, key, data);
             }
             mpd_playlist_free(pl);
+            FREE_PTR(value_utf8);
         }
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlists") == false) {
@@ -598,9 +602,11 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
         if (smartpls_dir != NULL) {
             struct dirent *next_file;
             while ((next_file = readdir(smartpls_dir)) != NULL ) {
-                if (next_file->d_type == DT_REG &&
-                    (search_len == 0 || utf8casestr(next_file->d_name, searchstr) != NULL)
-                ) {
+                if (next_file->d_type != DT_REG) {
+                    continue;
+                }
+                char *value_utf8 = utf8_wrap_normalize(next_file->d_name, strlen(next_file->d_name));
+                if (search_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) {
                     struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
                     data->last_modified = smartpls_get_mtime(partition_state->config->workdir, next_file->d_name);
                     data->type = PLTYPE_SMARTPLS_ONLY;
@@ -610,13 +616,14 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                         key = sds_pad_int(data->last_modified, key);
                     }
                     key = sdscat(key, next_file->d_name);
-                    sds_utf8_tolower(key);
+                    key = sds_utf8_tolower(key);
                     if (raxTryInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
                         //smart playlist already added
                         FREE_SDS(data->name);
                         FREE_PTR(data);
                     }
                 }
+                FREE_PTR(value_utf8);
             }
             closedir(smartpls_dir);
         }
@@ -627,6 +634,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
         FREE_SDS(smartpls_path);
     }
     FREE_SDS(key);
+    FREE_PTR(searchstr_utf8);
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 

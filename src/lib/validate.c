@@ -11,11 +11,11 @@
 #include "compile_time.h"
 #include "src/lib/validate.h"
 
-#include "dist/utf8/utf8.h"
 #include "src/lib/log.h"
 #include "src/lib/mpdclient.h"
 #include "src/lib/search.h"
 #include "src/lib/sticker.h"
+#include "src/lib/utf8_wrapper.h"
 #include "src/lib/webradio.h"
 #include "src/mympd_client/playlists.h"
 
@@ -488,7 +488,7 @@ bool vcb_issearchexpression_song(sds data) {
         return true;
     }
     //check if it is valid utf8
-    if (utf8valid(data) != 0) {
+    if (utf8_wrap_validate(data, sdslen(data)) == false) {
         MYMPD_LOG_ERROR(NULL, "String is not valid utf8");
         return false;
     }
@@ -517,7 +517,7 @@ bool vcb_issearchexpression_webradio(sds data) {
         return true;
     }
     //check if it is valid utf8
-    if (utf8valid(data) != 0) {
+    if (utf8_wrap_validate(data, sdslen(data)) == false) {
         MYMPD_LOG_ERROR(NULL, "String is not valid utf8");
         return false;
     }
@@ -571,7 +571,7 @@ static bool check_for_invalid_chars(sds data, const char *invalid_chars) {
 static bool validate_json(sds data, char start, char end) {
     size_t len = sdslen(data);
     //check if it is valid utf8
-    if (utf8valid(data) != 0) {
+    if (utf8_wrap_validate(data, sdslen(data)) == false) {
         MYMPD_LOG_ERROR(NULL, "String is not valid utf8");
         return false;
     }

@@ -152,7 +152,7 @@ sds get_sort_key(sds key, enum sort_by_type sort_by, enum mpd_tag_type sort_tag,
         }
     }
     key = sdscatfmt(key, "::%s", mpd_song_get_uri(song));
-    sds_utf8_tolower(key);
+    key = sds_utf8_tolower(key);
     return key;
 }
 

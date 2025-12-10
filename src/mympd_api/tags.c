@@ -11,15 +11,18 @@
 #include "compile_time.h"
 #include "src/mympd_api/tags.h"
 
-#include "dist/utf8/utf8.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
+#include "src/lib/mem.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/utf8_wrapper.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/search.h"
+
+#include <string.h>
 
 // private definitions
 
@@ -82,26 +85,29 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
     unsigned real_limit = offset + limit;
     rax *taglist = raxNew();
     sds key = sdsempty();
+    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr));
 
     if (mpd_search_commit(partition_state->conn)) {
         struct mpd_pair *pair;
         //filter and sort
         while ((pair = mpd_recv_pair_tag(partition_state->conn, mpdtag)) != NULL) {
+            char *value_utf8 = utf8_wrap_normalize(pair->value, strlen(pair->value));
             if (pair->value[0] == '\0') {
                 MYMPD_LOG_DEBUG(partition_state->name, "Value is empty, skipping");
             }
             else if (searchstr_len == 0 ||
-                (searchstr_len <= 2 && utf8ncasecmp(searchstr, pair->value, searchstr_len) == 0) ||
-                (searchstr_len > 2 && utf8casestr(pair->value, searchstr) != NULL))
+                (searchstr_len <= 2 && strcmp(searchstr_utf8, value_utf8) == 0) ||
+                (searchstr_len > 2 && strstr(value_utf8, searchstr_utf8) != NULL))
             {
                 key = sdscat(key, pair->value);
                 //handle tags case insensitive
-                sds_utf8_tolower(key);
+                key = sds_utf8_tolower(key);
                 sds data = sdsnew(pair->value);
                 rax_insert_no_dup(taglist, key, data);
                 sdsclear(key);
             }
             mpd_return_pair(partition_state->conn, pair);
+            FREE_PTR(value_utf8);
         }
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_tags") == false) {
@@ -109,6 +115,7 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
         return buffer;
     }
     FREE_SDS(key);
+    FREE_PTR(searchstr_utf8);
 
     //print list
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);

@@ -45,6 +45,7 @@ set(TEST_SOURCES
   ../src/lib/state_files.c
   ../src/lib/sticker.c
   ../src/lib/timer.c
+  ../src/lib/utf8_wrapper.c
   ../src/lib/utility.c
   ../src/lib/validate.c
   ../src/lib/webradio.c
@@ -145,6 +146,7 @@ target_link_libraries(unit_test
   mongoose
   rax
   sds
+  ${UTF8PROC_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${MATH_LIB}
   ${OPENSSL_LIBRARIES}

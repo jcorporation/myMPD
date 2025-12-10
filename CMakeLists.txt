@@ -89,10 +89,11 @@ include(GNUInstallDirs)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
 # required dependencies
+find_library(MATH_LIB m REQUIRED)
 find_package(Threads REQUIRED)
 find_package(PCRE2 REQUIRED)
-find_library(MATH_LIB m REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(UTF8PROC REQUIRED)
 
 if(MYMPD_EMBEDDED_LIBMPDCLIENT STREQUAL "ON")
   message("Using embedded libmpdclient")
@@ -483,6 +484,7 @@ target_link_libraries(mympd
   mongoose
   rax
   sds
+  ${UTF8PROC_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${MATH_LIB}
   ${PCRE2_LIBRARIES}

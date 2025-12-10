@@ -11,12 +11,12 @@
 #include "compile_time.h"
 #include "src/lib/search.h"
 
-#include "dist/utf8/utf8.h"
 #include "src/lib/convert.h"
 #include "src/lib/datetime.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/utf8_wrapper.h"
 
 #include <ctype.h>
 #include <inttypes.h>
@@ -65,11 +65,13 @@ enum search_filters {
  * Struct to hold a parsed search expression triple
  */
 struct t_search_expression {
-    int tag;                               //!< Tag to search in
-    enum search_operators op;              //!< Search operator
-    sds value;                             //!< Value to match
-    int64_t value_i;                       //!< Integer value to match
-    pcre2_code *re_compiled;               //!< Compiled regex if operator is a regex
+    int tag;                    //!< Tag to search in
+    enum search_operators op;   //!< Search operator
+    sds value;                  //!< Value
+    char *value_utf8;           //!< Normalized utf8 value to match
+    size_t value_utf8_len;      //!< Length of value_utf8
+    int64_t value_i;            //!< Integer value to match
+    pcre2_code *re_compiled;    //!< Compiled regex if operator is a regex
 };
 
 static int expr_get_tag_song(const char *p, size_t *len);
@@ -79,7 +81,7 @@ static sds expr_get_value(const char *p, const char *end, int tag, sds buf, bool
 static bool expr_parse_value(struct t_search_expression *expr);
 static void *free_search_expression(struct t_search_expression *expr);
 static void free_search_expression_node(struct t_list_node *current);
-static pcre2_code *compile_regex(char *regex_str);
+static pcre2_code *compile_regex(sds regex_str);
 static bool cmp_regex(pcre2_code *re_compiled, const char *value);
 
 /**
@@ -145,7 +147,8 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
             expr_list = NULL;
             break;
         }
-
+        expr->value_utf8 = utf8_wrap_normalize(expr->value, sdslen(expr->value));
+        expr->value_utf8_len = strlen(expr->value_utf8);
         list_push(expr_list, "", 0, NULL, expr);
         MYMPD_LOG_DEBUG(NULL, "Parsed expression tag: \"%d\", op: \"%d\", value:\"%s\"", expr->tag, expr->op, expr->value);
     }
@@ -216,18 +219,20 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
                 rc = true;
                 unsigned j = 0;
                 const char *value = NULL;
+                char *value_utf8 = NULL;
                 while ((value = mpd_song_get_tag(song, tags->tags[i], j)) != NULL) {
+                    value_utf8 = utf8_wrap_normalize(value, strlen(value));
                     j++;
-                    if ((expr->op == SEARCH_OP_CONTAINS && utf8casestr(value, expr->value) == NULL) ||
-                        (expr->op == SEARCH_OP_STARTS_WITH && utf8ncasecmp(expr->value, value, sdslen(expr->value)) != 0) ||
-                        (expr->op == SEARCH_OP_EQUAL && utf8casecmp(value, expr->value) != 0) ||
-                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value) == false))
+                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value) == NULL) ||
+                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value, value_utf8, expr->value_utf8_len) != 0) ||
+                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value) != 0) ||
+                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false))
                     {
                         //expression does not match
                         rc = false;
                     }
-                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && utf8casecmp(value, expr->value) == 0) ||
-                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value) == true))
+                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value) == 0) ||
+                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value_utf8) == true))
                     {
                         //negated match operator - exit instantly
                         rc = false;
@@ -243,7 +248,9 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
                             break;
                         }
                     }
+                    FREE_PTR(value_utf8);
                 }
+                FREE_PTR(value_utf8);
                 if (j == 0) {
                     //no tag value found
                     rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
@@ -307,18 +314,20 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
                 rc = true;
                 unsigned j = 0;
                 const char *value = NULL;
+                char *value_utf8 = NULL;
                 while ((value = album_get_tag(album, tags->tags[i], j)) != NULL) {
+                    value_utf8 = utf8_wrap_normalize(value, strlen(value));
                     j++;
-                    if ((expr->op == SEARCH_OP_CONTAINS && utf8casestr(value, expr->value) == NULL) ||
-                        (expr->op == SEARCH_OP_STARTS_WITH && utf8ncasecmp(expr->value, value, sdslen(expr->value)) != 0) ||
-                        (expr->op == SEARCH_OP_EQUAL && utf8casecmp(value, expr->value) != 0) ||
-                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value) == false))
+                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value) == NULL) ||
+                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value, value_utf8, expr->value_utf8_len) != 0) ||
+                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value) != 0) ||
+                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false))
                     {
                         //expression does not match
                         rc = false;
                     }
-                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && utf8casecmp(value, expr->value) == 0) ||
-                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value) == true))
+                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value) == 0) ||
+                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value_utf8) == true))
                     {
                         //negated match operator - exit instantly
                         rc = false;
@@ -334,7 +343,9 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
                             break;
                         }
                     }
+                    FREE_PTR(value_utf8);
                 }
+                FREE_PTR(value_utf8);
                 if (j == 0) {
                     //no tag value found
                     rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
@@ -395,18 +406,20 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
                 rc = true;
                 unsigned j = 0;
                 const char *value = NULL;
+                char *value_utf8 = NULL;
                 while ((value = webradio_get_tag(webradio, tags->tags[i], j)) != NULL) {
+                    value_utf8 = utf8_wrap_normalize(value, strlen(value));
                     j++;
-                    if ((expr->op == SEARCH_OP_CONTAINS && utf8casestr(value, expr->value) == NULL) ||
-                        (expr->op == SEARCH_OP_STARTS_WITH && utf8ncasecmp(expr->value, value, sdslen(expr->value)) != 0) ||
-                        (expr->op == SEARCH_OP_EQUAL && utf8casecmp(value, expr->value) != 0) ||
-                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value) == false))
+                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value) == NULL) ||
+                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value, value_utf8, expr->value_utf8_len) != 0) ||
+                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value) != 0) ||
+                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false))
                     {
                         //expression does not match
                         rc = false;
                     }
-                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && utf8casecmp(value, expr->value) == 0) ||
-                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value) == true))
+                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value) == 0) ||
+                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value_utf8) == true))
                     {
                         //negated match operator - exit instantly
                         rc = false;
@@ -422,7 +435,9 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
                             break;
                         }
                     }
+                    FREE_PTR(value_utf8);
                 }
+                FREE_PTR(value_utf8);
                 if (j == 0) {
                     //no tag value found
                     rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
@@ -689,6 +704,7 @@ static bool expr_parse_value(struct t_search_expression *expr) {
  */
 static void *free_search_expression(struct t_search_expression *expr) {
     FREE_SDS(expr->value);
+    FREE_PTR(expr->value_utf8);
     FREE_PTR(expr->re_compiled);
     FREE_PTR(expr);
     return NULL;
@@ -708,9 +724,9 @@ static void free_search_expression_node(struct t_list_node *current) {
  * @param regex_str regex string
  * @return regex code
  */
-static pcre2_code *compile_regex(char *regex_str) {
+static pcre2_code *compile_regex(sds regex_str) {
     MYMPD_LOG_DEBUG(NULL, "Compiling regex: \"%s\"", regex_str);
-    utf8lwr(regex_str);
+    regex_str = sds_utf8_tolower(regex_str);
     PCRE2_SIZE erroroffset;
     int rc;
     pcre2_code *re_compiled = pcre2_compile(
@@ -740,12 +756,10 @@ static bool cmp_regex(pcre2_code *re_compiled, const char *value) {
     if (re_compiled == NULL) {
         return false;
     }
-    char *lower = strdup(value);
-    utf8lwr(lower);
     pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(re_compiled, NULL);
     int rc = pcre2_match(
         re_compiled,          /* the compiled pattern */
-        (PCRE2_SPTR)lower,    /* the subject string */
+        (PCRE2_SPTR)value,    /* the subject string */
         strlen(value),        /* the length of the subject */
         0,                    /* start at offset 0 in the subject */
         0,                    /* default options */
@@ -753,7 +767,6 @@ static bool cmp_regex(pcre2_code *re_compiled, const char *value) {
         NULL                  /* use default match context */
     );
     pcre2_match_data_free(match_data);
-    FREE_PTR(lower);
     if (rc >= 0) {
         return true;
     }
