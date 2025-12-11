@@ -19,7 +19,7 @@ FROM alpine:latest
 RUN << EOF
 apk update
 apk upgrade
-apk add --no-cache openssl libid3tag flac lua5.4 pcre2 newt ca-certificates
+apk add --no-cache openssl libid3tag flac lua5.4 pcre2 newt ca-certificates utf8proc
 adduser -D -H -h /var/lib/mympd -s /sbin/nologin -g myMPD -u 1000 mympd
 EOF
 COPY --from=build /myMPD/release/bin/mympd /usr/bin/

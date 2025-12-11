@@ -827,7 +827,19 @@ Version: ${VERSION}-1
 Maintainer: Juergen Mang <mail@jcgames.de>
 Homepage: https://jcorporation.github.io/myMPD/
 Standards-Version: 4.1.2
-Build-Depends: debhelper (>= 10), cmake, debhelper-compat (= 13), perl, gzip, jq, libssl-dev, libid3tag0-dev, libflac-dev, liblua5.4-dev | liblua5.3-dev, lua5.4 | lua5.3, libpcre2-dev
+Build-Depends: debhelper (>= 10),
+               cmake,
+               debhelper-compat (= 13),
+               perl,
+               gzip,
+               jq,
+               libssl-dev,
+               libid3tag0-dev,
+               libflac-dev,
+               liblua5.4-dev | liblua5.3-dev,
+               lua5.4 | lua5.3,
+               libpcre2-dev,
+               libutf8proc-dev
 Package-List:
  mympd deb sound optional arch=any
 Files:
@@ -854,26 +866,27 @@ installdeps() {
     fi
     apt-get install -y --no-install-recommends \
       gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-      build-essential pkg-config libpcre2-dev gzip jq whiptail
+      build-essential pkg-config libpcre2-dev gzip jq whiptail \
+      utf8proc-dev
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq libnewt
+    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq libnewt libutf8proc
   elif [ -f /etc/alpine-release ]
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev lua5.4 \
-      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq newt ca-certificates
+      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq newt ca-certificates utf8proc-dev
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-      lua-devel unzip pcre2-devel gzip jq whiptail
+      lua-devel unzip pcre2-devel gzip jq whiptail utf8proc-devel
   elif [ -f /etc/redhat-release ]
   then
     #fedora
-    yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-      lua-devel unzip pcre2-devel gzip jq whiptail
+    dnf install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
+      lua-devel unzip pcre2-devel gzip jq whiptail utf8proc-devel
   else
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
@@ -888,6 +901,7 @@ installdeps() {
     echo "  - libid3tag (devel)"
     echo "  - liblua5.4 or liblua5.3 (devel)"
     echo "  - libpcre2 (devel)"
+    echo "  - utf8proc (devel)"
   fi
 }
 

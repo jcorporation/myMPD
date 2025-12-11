@@ -24,6 +24,7 @@ BuildRequires:  pcre2-devel
 BuildRequires:  perl
 BuildRequires:  pkgconfig
 BuildRequires:  unzip
+BuildRequires:  utf8proc-devel
 Requires: newt
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 

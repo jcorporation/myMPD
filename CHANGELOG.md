@@ -8,6 +8,7 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Feat: Replace utf8 implementation with utf8proc library
 - Upd: Move lyrics handling from mympd_api to webserver thread
 - Upd: Performance improvements for mympd_api polling
 

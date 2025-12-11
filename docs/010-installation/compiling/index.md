@@ -34,6 +34,7 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 - Devel packages:
     - pcre2 - for pcre support
     - OpenSSL >= 1.1.0 - for https support
+    - utf8proc
     - Optional:
         - libid3tag - to extract embedded coverimages and lyrics
         - flac - to extract embedded coverimages and lyrics
@@ -43,7 +44,7 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 - Documentation:
     - Doxygen
     - JSDoc
-    - LuaDoc
+    - Ldoc
     - mkdocs
 
 You can type `./build.sh installdeps` as root to install the dependencies (works only for supported distributions). For all other distributions you must install the packages manually.
