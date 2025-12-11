@@ -103,6 +103,8 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
         MYMPD_LOG_DEBUG(NULL, "Parsing expression: %s", tokens[j]);
         struct t_search_expression *expr = malloc_assert(sizeof(struct t_search_expression));
         expr->value = sdsempty();
+        expr->value_utf8 = NULL;
+        expr->value_utf8_len = 0;
         expr->re_compiled = NULL;
         char *p = tokens[j];
         char *end = p + sdslen(tokens[j]) - 1;
