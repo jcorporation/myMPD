@@ -83,6 +83,7 @@ local loglevel_names = {
 --                 5 = LOG_NOTICE = Notice
 --                 6 = LOG_INFO = Info
 --                 7 = LOG_DEBUG = Debug
+-- @param message Message to log
 function mympd.log(loglevel, message)
   if type(loglevel) == "string" then
     loglevel = loglevel_names[loglevel]

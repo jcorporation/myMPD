@@ -159,7 +159,7 @@ function mympd.http_serve_file_from_cache(file)
 end
 
 --- Sends a JSONRPC 2.0 response.
--- @param result jsonrpc result object
+-- @param obj jsonrpc result object
 -- @return HTTP response
 function mympd.http_jsonrpc_response(obj)
   local response = json.encode({

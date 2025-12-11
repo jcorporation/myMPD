@@ -1372,22 +1372,22 @@ run_doxygen() {
 }
 
 run_jsdoc() {
-  if ! check_cmd jsdoc
+  if ! check_cmd npx
   then
     return 1
   fi
   echo "Running jsdoc"
-  jsdoc htdocs/js/ -c jsdoc.json -d docs/jsdoc/
+  npx jsdoc htdocs/js/ -c jsdoc.json -d docs/jsdoc/
 }
 
 run_luadoc() {
-  if ! check_cmd luadoc
+  if ! check_cmd ldoc
   then
     return 1
   fi
-  echo "Running luadoc"
+  echo "Running ldoc"
   lualibs
-  luadoc --noindexpage -d docs/luadoc/ release/contrib/lualibs/mympd.lua
+  ldoc -d docs/luadoc/ release/contrib/lualibs/mympd.lua
 }
 
 create_doc() {
