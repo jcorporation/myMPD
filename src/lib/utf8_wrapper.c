@@ -17,7 +17,7 @@
 /**
  Normalization flags to use
  */
-static int utf8_wrap_normalize_flags = UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_STRIPMARK | UTF8PROC_CASEFOLD | UTF8PROC_LUMP | UTF8PROC_STRIPNA;
+static utf8proc_option_t utf8_wrap_normalize_flags = UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_STRIPMARK | UTF8PROC_CASEFOLD | UTF8PROC_LUMP | UTF8PROC_STRIPNA;
 
 /**
  * Checks if string is valid utf8
