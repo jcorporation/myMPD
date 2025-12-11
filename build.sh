@@ -867,7 +867,7 @@ installdeps() {
     apt-get install -y --no-install-recommends \
       gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
       build-essential pkg-config libpcre2-dev gzip jq whiptail \
-      utf8proc-dev
+      libutf8proc-dev
   elif [ -f /etc/arch-release ]
   then
     #arch
