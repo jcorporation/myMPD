@@ -225,15 +225,15 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
                 while ((value = mpd_song_get_tag(song, tags->tags[i], j)) != NULL) {
                     value_utf8 = utf8_wrap_normalize(value, strlen(value));
                     j++;
-                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value) == NULL) ||
-                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value, value_utf8, expr->value_utf8_len) != 0) ||
-                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value) != 0) ||
+                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value_utf8) == NULL) ||
+                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value_utf8, value_utf8, expr->value_utf8_len) != 0) ||
+                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value_utf8) != 0) ||
                         (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false))
                     {
                         //expression does not match
                         rc = false;
                     }
-                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value) == 0) ||
+                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value_utf8) == 0) ||
                             (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value_utf8) == true))
                     {
                         //negated match operator - exit instantly
@@ -320,15 +320,15 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
                 while ((value = album_get_tag(album, tags->tags[i], j)) != NULL) {
                     value_utf8 = utf8_wrap_normalize(value, strlen(value));
                     j++;
-                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value) == NULL) ||
-                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value, value_utf8, expr->value_utf8_len) != 0) ||
-                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value) != 0) ||
+                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value_utf8) == NULL) ||
+                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value_utf8, value_utf8, expr->value_utf8_len) != 0) ||
+                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value_utf8) != 0) ||
                         (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false))
                     {
                         //expression does not match
                         rc = false;
                     }
-                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value) == 0) ||
+                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value_utf8) == 0) ||
                             (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value_utf8) == true))
                     {
                         //negated match operator - exit instantly
@@ -412,15 +412,15 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
                 while ((value = webradio_get_tag(webradio, tags->tags[i], j)) != NULL) {
                     value_utf8 = utf8_wrap_normalize(value, strlen(value));
                     j++;
-                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value) == NULL) ||
-                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value, value_utf8, expr->value_utf8_len) != 0) ||
-                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value) != 0) ||
+                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value_utf8) == NULL) ||
+                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value_utf8, value_utf8, expr->value_utf8_len) != 0) ||
+                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value_utf8) != 0) ||
                         (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false))
                     {
                         //expression does not match
                         rc = false;
                     }
-                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value) == 0) ||
+                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value_utf8) == 0) ||
                             (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value_utf8) == true))
                     {
                         //negated match operator - exit instantly
