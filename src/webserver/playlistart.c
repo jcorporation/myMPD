@@ -28,7 +28,6 @@
  * Request handler for /playlistart
  * @param nc mongoose connection
  * @param hm http message
- * @param mg_user_data webserver configuration
  * @return true on success, else false
  */
 bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_message *hm) {

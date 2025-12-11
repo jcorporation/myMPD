@@ -132,7 +132,6 @@ void request_handler_albumart_by_album_id(struct mg_http_message *hm, unsigned l
  * Request handler for /albumart, /albumart-thumb and /albumart-large
  * @param nc mongoose connection
  * @param hm http message
- * @param mg_user_data pointer to mongoose configuration
  * @param size albumart size
  * @return true: an image was served,
  *         false: request was sent to the mympd_api thread to get the image by MPD

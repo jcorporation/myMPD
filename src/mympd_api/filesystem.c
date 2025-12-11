@@ -227,11 +227,12 @@ static void free_t_dir_entry(void *data) {
 
 /**
  * Search the entry for searchstr and add matches to the rax tree
- * @param rt rax tree to insert
- * @param key key to insert
- * @param entity_name displayname of the entity
- * @param entity pointer to mpd entity
- * @param searchstr string to search in entity_name
+ * @param rt Rax tree to insert
+ * @param key Key to insert
+ * @param entity_name Displayname of the entity
+ * @param entity Pointer to mpd entity
+ * @param searchstr String to search in entity_name
+ * @param searchstr_len Length of searchstr
  * @return true on match, else false
  */
 static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity,

@@ -45,7 +45,7 @@ static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char 
  * Gets synced and unsynced lyrics from filesystem and embedded
  * @param nc Mongoose connection
  * @param request_id Jsonrpc id
- * @param uri Song uri 
+ * @param body Request body
  * @return true if a response was send, else false
  */
 bool webserver_lyrics_get(struct mg_connection *nc, unsigned request_id, sds body) {

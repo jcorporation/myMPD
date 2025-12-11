@@ -20,19 +20,17 @@
 #include <unistd.h>
 
 /**
+ * Thread specific variables
+ */
+
+_Thread_local sds thread_logname;  //!< Thread name
+_Thread_local sds thread_logline;  //!< Thread specific log buffer
+
+/**
  * Global variables
  */
 
-/**
- * Thread name
- */
-_Thread_local sds thread_logname;
-_Thread_local sds thread_logline;
-
-/**
- * Loglevel
- */
-_Atomic int loglevel;
+_Atomic int loglevel;  //!< Loglevel
 
 /**
  * Type of logging system
