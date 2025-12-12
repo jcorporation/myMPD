@@ -45,7 +45,7 @@ bool mympd_client_search_add_to_plist_window(struct t_partition_state *partition
     if (mpd_search_add_db_songs_to_playlist(partition_state->conn, plist) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
         mympd_client_add_search_sort_param(partition_state, sort, sortdesc) == false ||
-        mpd_search_add_window(partition_state->conn, start, end) == false ||
+        mympd_client_add_search_window(partition_state->conn, start, end) == false ||
         add_search_whence_param(partition_state, to, MPD_POSITION_ABSOLUTE) == false)
     {
         mpd_search_cancel(partition_state->conn);
@@ -129,7 +129,7 @@ bool mympd_client_search_add_to_queue_window(struct t_partition_state *partition
     if (mpd_search_add_db_songs(partition_state->conn, false) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
         mympd_client_add_search_sort_param(partition_state, sort, sortdesc) == false ||
-        mpd_search_add_window(partition_state->conn, start, end) == false ||
+        mympd_client_add_search_window(partition_state->conn, start, end) == false ||
         add_search_whence_param(partition_state, to, whence) == false)
     {
         mpd_search_cancel(partition_state->conn);
@@ -232,6 +232,21 @@ bool mympd_client_add_search_sort_param(struct t_partition_state *partition_stat
 }
 
 /**
+ * Adds the window paramter to the search command.
+ * It returns false for start <= end
+ * @param conn mpd connection
+ * @param start the start offset (including)
+ * @param end the end offset (not including)
+ * @return true on success, false on error
+ */
+bool mympd_client_add_search_window(struct mpd_connection *conn, unsigned start, unsigned end) {
+    if (start > end) {
+        return false;
+    }
+    return mpd_search_add_window(conn, start, end);
+}
+
+/**
  * Adds the group parameter to the search command.
  * Ignores MPD_TAG_UNKNOWN.
  * @param conn mpd connection
@@ -254,7 +269,7 @@ bool mympd_client_add_search_group_param(struct mpd_connection *conn, enum mpd_t
  */
 bool mympd_client_add_search_window_param_mpd_025(struct t_partition_state *partition_state, unsigned start, unsigned end) {
     return partition_state->mpd_state->feat.mpd_0_25_0 == true
-        ? mpd_search_add_window(partition_state->conn, start, end)
+        ? mympd_client_add_search_window(partition_state->conn, start, end)
         : true;
 }
 

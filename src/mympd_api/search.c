@@ -47,7 +47,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
     if (mpd_search_db_songs(partition_state->conn, false) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
         mympd_client_add_search_sort_param(partition_state, sort, sortdesc) == false ||
-        mpd_search_add_window(partition_state->conn, offset, real_limit) == false)
+        mympd_client_add_search_window(partition_state->conn, offset, real_limit) == false)
     {
         mpd_search_cancel(partition_state->conn);
         *result = false;

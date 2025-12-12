@@ -18,6 +18,7 @@
 #include "src/lib/search.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/playlists.h"
+#include "src/mympd_client/search.h"
 #include "src/mympd_client/stickerdb.h"
 #include "src/mympd_client/tags.h"
 
@@ -226,7 +227,7 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
         if (from_database == true) {
             if (mpd_search_db_songs(partition_state->conn, false) == false ||
                 add_uri_constraint_or_expression(constraints->filter_include, partition_state) == false ||
-                mpd_search_add_window(partition_state->conn, start, end) == false)
+                mympd_client_add_search_window(partition_state->conn, start, end) == false)
             {
                 MYMPD_LOG_ERROR(partition_state->name, "Error creating MPD db search command");
                 mpd_search_cancel(partition_state->conn);
@@ -239,7 +240,7 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
                  constraints->filter_include[0] != '\0')
         {
             if (mpd_playlist_search_begin(partition_state->conn, playlist, constraints->filter_include) == false ||
-                mpd_search_add_window(partition_state->conn, start, end) == false)
+                mympd_client_add_search_window(partition_state->conn, start, end) == false)
             {
                 MYMPD_LOG_ERROR(partition_state->name, "Error creating MPD playlist search command");
                 mpd_search_cancel(partition_state->conn);

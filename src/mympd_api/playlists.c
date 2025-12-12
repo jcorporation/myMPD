@@ -796,7 +796,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
         }
         else {
             if (mpd_playlist_search_begin(partition_state->conn, plist, expression) == false ||
-                mpd_search_add_window(partition_state->conn, offset, real_limit) == false)
+                mympd_client_add_search_window(partition_state->conn, offset, real_limit) == false)
             {
                 mpd_search_cancel(partition_state->conn);
                 FREE_SDS(last_played_song_uri);

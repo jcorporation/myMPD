@@ -162,7 +162,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
     do {
         if (mpd_search_db_songs(mympd_worker_state->partition_state->conn, false) == false ||
             mpd_search_add_expression(mympd_worker_state->partition_state->conn, search_expression) == false ||
-            mpd_search_add_window(mympd_worker_state->partition_state->conn, start, end) == false)
+            mympd_client_add_search_window(mympd_worker_state->partition_state->conn, start, end) == false)
         {
             MYMPD_LOG_ERROR("default", "Cache update failed");
             mpd_search_cancel(mympd_worker_state->partition_state->conn);

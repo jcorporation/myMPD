@@ -197,7 +197,7 @@ static sds tag_list_mpd025(struct t_partition_state *partition_state, sds buffer
 
     if (mpd_search_db_tags(partition_state->conn, mpdtag) == false ||
         mpd_search_add_expression(partition_state->conn, expr) == false ||
-        mpd_search_add_window(partition_state->conn, offset, real_limit) == false)
+        mympd_client_add_search_window(partition_state->conn, offset, real_limit) == false)
     {
         mpd_search_cancel(partition_state->conn);
         FREE_SDS(expr);

@@ -68,7 +68,7 @@ sds mympd_api_albumart_getcover_by_album_id(struct t_partition_state *partition_
 
     if (mpd_search_db_songs(partition_state->conn, false) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
-        mpd_search_add_window(partition_state->conn, 0, 1) == false)
+        mympd_client_add_search_window(partition_state->conn, 0, 1) == false)
     {
         mpd_search_cancel(partition_state->conn);
         FREE_SDS(expression);

@@ -71,7 +71,7 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
     if (mpd_search_db_songs(partition_state->conn, true) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
         mpd_search_add_sort_tag(partition_state->conn, MPD_TAG_DISC, false) == false ||
-        mpd_search_add_window(partition_state->conn, 0, MPD_RESULTS_MAX) == false)
+        mympd_client_add_search_window(partition_state->conn, 0, MPD_RESULTS_MAX) == false)
     {
         mpd_search_cancel(partition_state->conn);
         FREE_SDS(expression);
