@@ -215,7 +215,7 @@ void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
     partition_state->next = malloc_assert(sizeof(struct t_partition_state));
     //set default partition state
     partition_state_default(partition_state->next, name, mympd_state->mpd_state, mympd_state->config);
-    mympd_state->partition_state->repopulate_pfds = &mympd_state->pfds.repopulate;
+    partition_state->next->repopulate_pfds = &mympd_state->pfds.repopulate;
     //read partition specific state from disc
     mympd_api_settings_statefiles_partition_read(partition_state->next);
     last_played_file_read(partition_state->next);
