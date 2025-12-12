@@ -12,6 +12,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/utf8_wrapper.h"
 
+#include <assert.h>
 #include <string.h>
 #include <utf8proc.h>
 
@@ -37,6 +38,7 @@ static utf8proc_option_t normalize_flags =
  * @return true if string is valid, else false
  */
 bool utf8_wrap_validate(const char *str, size_t len) {
+    assert(str);
     utf8proc_uint8_t *fold_str;
     utf8proc_ssize_t rc = utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, UTF8PROC_REJECTNA);
     FREE_PTR(fold_str);
@@ -50,8 +52,10 @@ bool utf8_wrap_validate(const char *str, size_t len) {
  * @return Newly allocated char, caller must free it.
  */
 char *utf8_wrap_casefold(const char *str, size_t len) {
+    assert(str);
     utf8proc_uint8_t *fold_str;
     utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, UTF8PROC_CASEFOLD);
+    assert(fold_str);
     return (char *)fold_str;
 }
 
@@ -62,8 +66,10 @@ char *utf8_wrap_casefold(const char *str, size_t len) {
  * @return Newly allocated char, caller must free it.
  */
 char *utf8_wrap_normalize(const char *str, size_t len) {
+    assert(str);
     utf8proc_uint8_t *fold_str;
     utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, normalize_flags);
+    assert(fold_str);
     return (char *)fold_str;
 }
 
@@ -76,11 +82,15 @@ char *utf8_wrap_normalize(const char *str, size_t len) {
  * @return Same as strcmp
  */
 int utf8_wrap_casecmp(const char *str1, size_t str1_len, const char *str2, size_t str2_len) {
+    assert(str1);
+    assert(str2);
     utf8proc_uint8_t *fold_str1;
     utf8proc_map((utf8proc_uint8_t *)str1, (utf8proc_ssize_t)str1_len, &fold_str1, normalize_flags);
+    assert(fold_str1);
 
     utf8proc_uint8_t *fold_str2;
     utf8proc_map((utf8proc_uint8_t *)str2, (utf8proc_ssize_t)str2_len, &fold_str2, normalize_flags);
+    assert(fold_str2);
 
     int rc = strcmp((const char *)fold_str1, (const char *)fold_str2);
 
