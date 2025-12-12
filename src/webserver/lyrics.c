@@ -58,6 +58,7 @@ bool webserver_lyrics_get(struct mg_connection *nc, unsigned request_id, sds bod
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, parse_error.message, 2, "path", parse_error.path);
         webserver_send_data(nc, buffer, sdslen(buffer), EXTRA_HEADERS_JSON_CONTENT);
         json_parse_error_clear(&parse_error);
+        FREE_SDS(buffer);
         return true;
     }
     json_parse_error_clear(&parse_error);
