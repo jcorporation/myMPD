@@ -115,10 +115,14 @@ int64_t mympd_client_playlist_dedup_all(struct t_partition_state *partition_stat
     struct t_list_node *current;
     while ((current = list_shift_first(&plists)) != NULL) {
         int64_t rc = mympd_client_playlist_dedup(partition_state, current->key, remove, error);
+        list_node_free(current);
         if (rc > -1) {
             result += rc;
         }
-        list_node_free(current);
+        else {
+            result = -1;
+            break;
+        }
     }
     list_clear(&plists);
     return result;
@@ -200,10 +204,14 @@ int mympd_client_playlist_validate_all(struct t_partition_state *partition_state
     struct t_list_node *current;
     while ((current = list_shift_first(&plists)) != NULL) {
         int rc = mympd_client_playlist_validate(partition_state, current->key, remove, error);
+        list_node_free(current);
         if (rc > -1) {
             result += rc;
         }
-        list_node_free(current);
+        else {
+            result = -1;
+            break;
+        }
     }
     list_clear(&plists);
     return result;
