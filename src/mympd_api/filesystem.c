@@ -248,9 +248,11 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
         entry_data->entity = entity;
         key = sds_utf8_normalize(key);
         rax_insert_no_dup(rt, key, entry_data);
+        FREE_PTR(value_utf8);
         return true;
     }
     mpd_entity_free(entity);
     FREE_SDS(entity_name);
+    FREE_PTR(value_utf8);
     return false;
 }
