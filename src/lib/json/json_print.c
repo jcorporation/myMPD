@@ -47,7 +47,8 @@ sds json_comma(sds buffer) {
  * @return pointer to buffer
  */
 sds tojson_raw(sds buffer, const char *key, const char *value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":%s", key, value);
+    buffer = sds_catjson(buffer, key, strlen(key));
+    buffer = sdscatfmt(buffer, ":%s", value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
@@ -84,7 +85,7 @@ sds tojson_sds(sds buffer, const char *key, sds value, bool comma) {
 
 /**
  * Prints a json key/value pair for not 0-terminated values
- * value is encoded as json
+ * Key and value is encoded as json
  * @param buffer sds string to append
  * @param key json key
  * @param value as sds string to encode as json
@@ -93,7 +94,8 @@ sds tojson_sds(sds buffer, const char *key, sds value, bool comma) {
  * @return pointer to buffer
  */
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":", key);
+    buffer = sds_catjson(buffer, key, strlen(key));
+    buffer = sdscatlen(buffer, ":", 1);
     if (value != NULL) {
         buffer = sds_catjson(buffer, value, len);
     }
@@ -115,7 +117,8 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
  * @return pointer to buffer
  */
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":%s", key, value == true ? "true" : "false");
+    buffer = sds_catjson(buffer, key, strlen(key));
+    buffer = sdscatfmt(buffer, ":%s", value == true ? "true" : "false");
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
@@ -131,7 +134,8 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
  * @return pointer to buffer
  */
 sds tojson_int(sds buffer, const char *key, int value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":%i", key, value);
+    buffer = sds_catjson(buffer, key, strlen(key));
+    buffer = sdscatfmt(buffer, ":%i", value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
@@ -147,7 +151,8 @@ sds tojson_int(sds buffer, const char *key, int value, bool comma) {
  * @return pointer to buffer
  */
 sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":%u", key, value);
+    buffer = sds_catjson(buffer, key, strlen(key));
+    buffer = sdscatfmt(buffer, ":%u", key, value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
@@ -175,13 +180,14 @@ sds tojson_time(sds buffer, const char *key, time_t value, bool comma) {
  * @return pointer to buffer
  */
 sds tojson_float(sds buffer, const char *key, float value, bool comma) {
+    buffer = sds_catjson(buffer, key, strlen(key));
     if (isfinite(value) == false ||
         isnan(value) == true)
     {
-        buffer = sdscatprintf(buffer, "\"%s\":null", key);
+        buffer = sdscat(buffer, ":null");
     }
     else {
-        buffer = sdscatprintf(buffer, "\"%s\":%.2f", key, value);
+        buffer = sdscatprintf(buffer, ":%.2f", value);
     }
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
@@ -198,7 +204,8 @@ sds tojson_float(sds buffer, const char *key, float value, bool comma) {
  * @return pointer to buffer
  */
 sds tojson_int64(sds buffer, const char *key, int64_t value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":%I", key, value);
+    buffer = sds_catjson(buffer, key, strlen(key));
+    buffer = sdscatfmt(buffer, ":%I", value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
@@ -214,7 +221,8 @@ sds tojson_int64(sds buffer, const char *key, int64_t value, bool comma) {
  * @return pointer to buffer
  */
 sds tojson_uint64(sds buffer, const char *key, uint64_t value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":%U", key, value);
+    buffer = sds_catjson(buffer, key, strlen(key));
+    buffer = sdscatfmt(buffer, ":%U", value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
