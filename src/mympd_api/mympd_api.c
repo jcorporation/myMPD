@@ -180,6 +180,11 @@ static void handle_socket_pollin(struct t_mympd_state *mympd_state, nfds_t i, st
             break;
         case PFD_TYPE_STICKERDB:
             MYMPD_LOG_DEBUG("stickerdb", "Stickerdb event");
+            if (mympd_state->stickerdb->conn_state == MPD_FAILURE) {
+                MYMPD_LOG_WARN("stickerdb", "MPD connection in failure state");
+                stickerdb_disconnect(mympd_state->stickerdb);
+                break;
+            }
             stickerdb_idle(mympd_state->stickerdb);
             break;
         case PFD_TYPE_QUEUE:
