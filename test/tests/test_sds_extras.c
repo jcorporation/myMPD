@@ -106,13 +106,24 @@ UTEST(sds_extras, test_sds_hash_sha256_sds) {
     sdsfree(hash);
 }
 
-UTEST(sds_extras, test_sds_utf8_tolower) {
+UTEST(sds_extras, test_sds_utf8_normalize) {
     sds test_input= sdsnew("EINSTÜRZENDE NEUBAUTEN");
-    test_input = sds_utf8_tolower(test_input);
+    test_input = sds_utf8_normalize(test_input);
     ASSERT_STREQ("einsturzende neubauten", test_input);
     sdsclear(test_input);
     test_input = sdscat(test_input, "sdfßSdf");
-    test_input = sds_utf8_tolower(test_input);
+    test_input = sds_utf8_normalize(test_input);
+    ASSERT_STREQ("sdfsssdf", test_input);
+    sdsfree(test_input);
+}
+
+UTEST(sds_extras, test_sds_utf8_casefold) {
+    sds test_input= sdsnew("EINSTÜRZENDE NEUBAUTEN");
+    test_input = sds_utf8_casefold(test_input);
+    ASSERT_STREQ("einstürzende neubauten", test_input);
+    sdsclear(test_input);
+    test_input = sdscat(test_input, "sdfßSdf");
+    test_input = sds_utf8_casefold(test_input);
     ASSERT_STREQ("sdfsssdf", test_input);
     sdsfree(test_input);
 }

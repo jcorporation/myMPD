@@ -351,7 +351,7 @@ static sds get_sort_key_album(sds key, enum sort_by_type sort_by, enum mpd_tag_t
         ? MPD_TAG_ALBUM_ARTIST
         : MPD_TAG_ALBUM;
     key = sdscatfmt(key, "::%s::%s", album_get_tag(album, secondary_sort_tag, 0), album_get_uri(album));
-    key = sds_utf8_tolower(key);
+    key = sds_utf8_normalize(key);
     return key;
 }
 

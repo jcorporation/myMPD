@@ -27,9 +27,21 @@ static utf8proc_option_t utf8_wrap_normalize_flags = UTF8PROC_STABLE | UTF8PROC_
  */
 bool utf8_wrap_validate(const char *str, size_t len) {
     utf8proc_uint8_t *fold_str;
-    utf8proc_ssize_t rc = utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, UTF8PROC_NULLTERM | UTF8PROC_REJECTNA);
+    utf8proc_ssize_t rc = utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, UTF8PROC_REJECTNA);
     free(fold_str);
     return rc >= 0;
+}
+
+/**
+ * Casefolds a string
+ * @param str String to normalize
+ * @param len String length
+ * @return Newly allocated char, caller must free it.
+ */
+char *utf8_wrap_casefold(const char *str, size_t len) {
+    utf8proc_uint8_t *fold_str;
+    utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, UTF8PROC_CASEFOLD);
+    return (char *)fold_str;
 }
 
 /**

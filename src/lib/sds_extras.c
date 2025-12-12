@@ -173,11 +173,24 @@ sds sds_hash_sha256_sds(sds s) {
 }
 
 /**
- * Makes the string lower case (utf8 aware)
+ * Casefolds the sds string
  * @param s sds string to modify in place
  * @return pointer to s
  */
-sds sds_utf8_tolower(sds s) {
+sds sds_utf8_casefold(sds s) {
+    char *fold_str = utf8_wrap_casefold(s, sdslen(s));
+    sdsclear(s);
+    s = sdscat(s, fold_str);
+    free(fold_str);
+    return s;
+}
+
+/**
+ * Normalizes the sds string
+ * @param s sds string to modify in place
+ * @return pointer to s
+ */
+sds sds_utf8_normalize(sds s) {
     char *fold_str = utf8_wrap_normalize(s, sdslen(s));
     sdsclear(s);
     s = sdscat(s, fold_str);

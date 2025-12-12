@@ -100,8 +100,7 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
                 (searchstr_len > 2 && strstr(value_utf8, searchstr_utf8) != NULL))
             {
                 key = sdscat(key, pair->value);
-                //handle tags case insensitive
-                key = sds_utf8_tolower(key);
+                key = sds_utf8_normalize(key);
                 sds data = sdsnew(pair->value);
                 rax_insert_no_dup(taglist, key, data);
                 sdsclear(key);

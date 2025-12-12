@@ -16,6 +16,7 @@
 #include <stdint.h>
 
 bool utf8_wrap_validate(const char *str, size_t len);
+char *utf8_wrap_casefold(const char *str, size_t len);
 char *utf8_wrap_normalize(const char *str, size_t len);
 int utf8_wrap_casecmp(const char *str1, size_t str1_len, const char *str2, size_t str2_len);
 

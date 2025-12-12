@@ -728,11 +728,11 @@ static void free_search_expression_node(struct t_list_node *current) {
  */
 static pcre2_code *compile_regex(sds regex_str) {
     MYMPD_LOG_DEBUG(NULL, "Compiling regex: \"%s\"", regex_str);
-    regex_str = sds_utf8_tolower(regex_str);
+    char *regex_utf8 = utf8_wrap_casefold(regex_str, sdslen(regex_str));
     PCRE2_SIZE erroroffset;
     int rc;
     pcre2_code *re_compiled = pcre2_compile(
-        (PCRE2_SPTR)regex_str, /* the pattern */
+        (PCRE2_SPTR)regex_utf8, /* the pattern */
         PCRE2_ZERO_TERMINATED, /* indicates pattern is zero-terminated */
         0,                     /* default options */
         &rc,		           /* for error number */
@@ -745,6 +745,7 @@ static pcre2_code *compile_regex(sds regex_str) {
         pcre2_get_error_message(rc, buffer, sizeof(buffer));
         MYMPD_LOG_ERROR(NULL, "PCRE2 compilation failed at offset %lu: \"%s\"", (unsigned long)erroroffset, buffer);
     }
+    FREE_PTR(regex_utf8);
     return re_compiled;
 }
 

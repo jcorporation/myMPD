@@ -579,7 +579,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                     key = sds_pad_int(data->last_modified, key);
                 }
                 key = sdscatsds(key, data->name);
-                key = sds_utf8_tolower(key);
+                key = sds_utf8_normalize(key);
                 rax_insert_no_dup(entity_list, key, data);
             }
             mpd_playlist_free(pl);
@@ -616,7 +616,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                         key = sds_pad_int(data->last_modified, key);
                     }
                     key = sdscat(key, next_file->d_name);
-                    key = sds_utf8_tolower(key);
+                    key = sds_utf8_normalize(key);
                     if (raxTryInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
                         //smart playlist already added
                         FREE_SDS(data->name);

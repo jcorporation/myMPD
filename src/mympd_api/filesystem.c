@@ -246,7 +246,7 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
         struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
         entry_data->name = entity_name;
         entry_data->entity = entity;
-        key = sds_utf8_tolower(key);
+        key = sds_utf8_normalize(key);
         rax_insert_no_dup(rt, key, entry_data);
         return true;
     }
