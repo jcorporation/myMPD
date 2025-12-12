@@ -94,6 +94,7 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
         // stickerdb
         mympd_worker_state->stickerdb = malloc_assert(sizeof(struct t_partition_state));
         stickerdb_state_default(mympd_worker_state->stickerdb, mympd_worker_state->config);
+        mympd_worker_state->stickerdb->repopulate_pfds = &mympd_worker_state->repopulate_pfds;
         // do not use the shared mpd_state - we can connect to another mpd server for stickers
         mympd_worker_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
         mympd_mpd_state_copy(mympd_state->stickerdb->mpd_state, mympd_worker_state->stickerdb->mpd_state);
