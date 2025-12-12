@@ -670,7 +670,6 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
             buffer = tojson_time(buffer, "Last-Modified", data->last_modified, true);
             buffer = tojson_bool(buffer, "smartplsOnly", data->type == PLTYPE_SMARTPLS_ONLY ? true : false, false);
             if (print_stickers == true) {
-                buffer = sdscatlen(buffer, ",", 1);
                 buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_PLAYLIST, data->name, &tagcols->stickers);
             }
             buffer = sdscatlen(buffer, "}", 1);

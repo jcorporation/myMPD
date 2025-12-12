@@ -190,7 +190,6 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
                     buffer = tojson_uint(buffer, "Pos", entity_count, true);
                     buffer = print_album_tags(buffer, &partition_state->mpd_state->config->albums, &partition_state->mpd_state->tags_album, album);
                     if (print_stickers == true) {
-                        buffer = sdscatlen(buffer, ",", 1);
                         album_exp = get_search_expression_album(album_exp, partition_state->mpd_state->tag_albumartist, album, &partition_state->config->albums);
                         buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_FILTER, album_exp, &tagcols->stickers);
                     }
