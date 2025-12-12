@@ -15,9 +15,19 @@
 #include <utf8proc.h>
 
 /**
- Normalization flags to use
+ * Normalization flags to use
+ * https://juliastrings.github.io/utf8proc/doc/utf8proc_8h.html#a0a18a541ba5bedeb5c3e150024063c2d
  */
-static utf8proc_option_t utf8_wrap_normalize_flags = UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_COMPAT | UTF8PROC_STRIPMARK | UTF8PROC_CASEFOLD | UTF8PROC_LUMP | UTF8PROC_STRIPNA;
+static utf8proc_option_t utf8_wrap_normalize_flags =
+    UTF8PROC_STABLE |
+    UTF8PROC_COMPAT |
+    UTF8PROC_COMPOSE |
+    UTF8PROC_IGNORE |
+    UTF8PROC_STRIPCC |
+    UTF8PROC_CASEFOLD |
+    UTF8PROC_LUMP |
+    UTF8PROC_STRIPMARK |
+    UTF8PROC_STRIPNA;
 
 /**
  * Checks if string is valid utf8
