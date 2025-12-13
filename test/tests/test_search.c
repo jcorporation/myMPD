@@ -121,3 +121,12 @@ UTEST(search_local, test_parse_expression) {
     ASSERT_EQ(0, try_parse("((added-since == 'asdf"));
     ASSERT_EQ(0, try_parse("((added-since 'asdf"));
 }
+
+UTEST(search_local, test_mympd_search_fuzzy_match) {
+    bool rc = mympd_search_fuzzy_match("einsturzende", "einst");
+    ASSERT_TRUE(rc);
+    rc = mympd_search_fuzzy_match("einsturzende", "einsd");
+    ASSERT_TRUE(rc);
+    rc = mympd_search_fuzzy_match("einsturzende", "zwei");
+    ASSERT_FALSE(rc);
+}

@@ -44,7 +44,8 @@ enum search_operators {
     SEARCH_OP_REGEX,
     SEARCH_OP_NOT_REGEX,
     SEARCH_OP_GREATER,
-    SEARCH_OP_GREATER_EQUAL
+    SEARCH_OP_GREATER_EQUAL,
+    SEARCH_OP_FUZZY
 };
 
 /**
@@ -83,6 +84,7 @@ static void *free_search_expression(struct t_search_expression *expr);
 static void free_search_expression_node(struct t_list_node *current);
 static pcre2_code *compile_regex(sds regex_str);
 static bool cmp_regex(pcre2_code *re_compiled, const char *value);
+static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_len, size_t *cache);
 
 /**
  * Public functions
@@ -228,7 +230,8 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
                     if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value_utf8) == NULL) ||
                         (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value_utf8, value_utf8, expr->value_utf8_len) != 0) ||
                         (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value_utf8) != 0) ||
-                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false))
+                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false) ||
+                        (expr->op == SEARCH_OP_FUZZY && mympd_search_fuzzy_match(value_utf8, expr->value_utf8) == false))
                     {
                         //expression does not match
                         rc = false;
@@ -323,7 +326,8 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
                     if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value_utf8) == NULL) ||
                         (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value_utf8, value_utf8, expr->value_utf8_len) != 0) ||
                         (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value_utf8) != 0) ||
-                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false))
+                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false) ||
+                        (expr->op == SEARCH_OP_FUZZY && mympd_search_fuzzy_match(value_utf8, expr->value_utf8) == false))
                     {
                         //expression does not match
                         rc = false;
@@ -415,7 +419,8 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
                     if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value_utf8) == NULL) ||
                         (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value_utf8, value_utf8, expr->value_utf8_len) != 0) ||
                         (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value_utf8) != 0) ||
-                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false))
+                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false) ||
+                        (expr->op == SEARCH_OP_FUZZY && mympd_search_fuzzy_match(value_utf8, expr->value_utf8) == false))
                     {
                         //expression does not match
                         rc = false;
@@ -594,6 +599,7 @@ static int expr_get_op(const char *p, int tag, size_t *len) {
     else if (strcmp(op_str, "!=") == 0) { op = SEARCH_OP_NOT_EQUAL; }
     else if (strcmp(op_str, "=~") == 0) { op = SEARCH_OP_REGEX; }
     else if (strcmp(op_str, "!~") == 0) { op = SEARCH_OP_NOT_REGEX; }
+    else if (strcmp(op_str, "~~") == 0) { op = SEARCH_OP_FUZZY; }
     else if (tag == SEARCH_FILTER_PRIO && strcmp(op_str, ">=") == 0) { op = SEARCH_OP_GREATER_EQUAL; }
     FREE_SDS(op_str);
     while (*p == ' ') {
@@ -784,4 +790,86 @@ static bool cmp_regex(pcre2_code *re_compiled, const char *value) {
         }
     }
     return false;
+}
+
+/**
+ * Fuzzy substring matching using the levenshtein distance
+ * @param haystack Haystack
+ * @param needle Needle
+ * @return true on match, else false
+ */
+bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
+    const size_t needle_len = strlen(needle);
+    if (needle_len <= 1) {
+        return true;
+    }
+    size_t haystack_len = strlen(haystack);
+    if (haystack_len <= 1) {
+        return true;
+    }
+    const size_t max_distance = needle_len >  10
+        ? (needle_len / 100) * 25
+        : needle_len > 4
+            ? 2
+            : 1;
+    size_t *cache = calloc(haystack_len, sizeof(size_t));
+    const char *p = haystack;
+    while (*p != '\0' &&
+           haystack_len >= needle_len)
+    {
+        if (levenshtein(p, needle_len, needle, needle_len, cache) <= max_distance) {
+            free(cache);
+            return true;
+        }
+        p++;
+        haystack_len--;
+    }
+    free(cache);
+    return false;
+}
+
+/**
+ * Calculate the levenshtein distance
+ * @param a String 1
+ * @param a_len Length of a
+ * @param b String 2
+ * @param b_len Length of b
+ * @param cache Matrix cache
+ * @return Calculated distance
+ */
+static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_len, size_t *cache) {
+    size_t a_index = 0;
+    size_t b_index = 0;
+    size_t distance;
+    size_t b_distance;
+    size_t result = 0;
+    char code;
+
+    // Initialize the vector
+    while (a_index < a_len) {
+        cache[a_index] = a_index + 1;
+        a_index++;
+    }
+
+    while (b_index < b_len) {
+        code = b[b_index];
+        result = distance = b_index++;
+        a_index = SIZE_MAX;
+
+        while (++a_index < a_len) {
+            b_distance = code == a[a_index]
+                ? distance
+                : distance + 1;
+            distance = cache[a_index];
+
+            cache[a_index] = result = distance > result
+                ? b_distance > result
+                    ? result + 1
+                    : b_distance
+                : b_distance > distance
+                    ? distance + 1
+                    : b_distance;
+        }
+    }
+    return result;
 }
