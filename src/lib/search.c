@@ -807,7 +807,13 @@ bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
     if (haystack_len <= 1) {
         return true;
     }
-    const size_t max_distance = needle_len >  10
+    if (needle_len > haystack_len) {
+        return false;
+    }
+    if (strstr(haystack, needle) != NULL) {
+        return true;
+    }
+    const size_t max_distance = needle_len > 10
         ? (needle_len / 100) * 25
         : needle_len > 4
             ? 2

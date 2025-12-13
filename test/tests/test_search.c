@@ -127,6 +127,11 @@ UTEST(search_local, test_mympd_search_fuzzy_match) {
     ASSERT_TRUE(rc);
     rc = mympd_search_fuzzy_match("einsturzende", "einsd");
     ASSERT_TRUE(rc);
+    rc = mympd_search_fuzzy_match("e", "f");
+    ASSERT_TRUE(rc);
+
     rc = mympd_search_fuzzy_match("einsturzende", "zwei");
+    ASSERT_FALSE(rc);
+    rc = mympd_search_fuzzy_match("ein", "einstuerzende");
     ASSERT_FALSE(rc);
 }
