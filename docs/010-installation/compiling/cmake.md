@@ -33,6 +33,7 @@ sudo make -C build install
 | MYMPD_ENABLE_MYGPIOD | ON | Enables myGPIOd support |
 | MYMPD_ENABLE_TSAN | OFF | Enables build with thread san |
 | MYMPD_ENABLE_UBSAN | OFF | Enables build with undefined behavior sanitizer |
+| MYMPD_ENABLE_UTF8 | ON | Enables utf8 support with utf8proc |
 | MYMPD_MANPAGES | ON | Creates and installs manpages |
 | MYMPD_MINIMAL | OFF | Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags |
 | MYMPD_STARTUP_SCRIPT | ON | Installs the startup script, valid values: ON, OFF, SYSTEMD, OPENRC, SYSVINIT, FREEBSD |

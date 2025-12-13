@@ -21,6 +21,9 @@ target_include_directories(mympd
 
 target_include_directories(mympd SYSTEM PRIVATE ${PCRE2_INCLUDE_DIRS})
 
+if(MYMPD_ENABLE_UTF8)
+  target_include_directories(mympd SYSTEM PRIVATE ${UTF8PROC_INCLUDE_DIRS})
+endif()
 if(MYMPD_ENABLE_LIBID3TAG)
   target_include_directories(mympd SYSTEM PRIVATE ${LIBID3TAG_INCLUDE_DIRS})
 endif()

@@ -20,7 +20,6 @@ myMPD is opensource and build on top off other great opensource software.
 - [rax](https://github.com/jcorporation/rax) (radix tree implementation)
 - [sds](https://github.com/jcorporation/sds) (dynamic string handling)
 - [utest](https://github.com/sheredom/utest.h) (unit tests)
-- [utf8](https://github.com/sheredom/utf8.h) (utf8 handling)
 
 ## Documentation
 
