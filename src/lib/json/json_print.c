@@ -152,7 +152,7 @@ sds tojson_int(sds buffer, const char *key, int value, bool comma) {
  */
 sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma) {
     buffer = sds_catjson(buffer, key, strlen(key));
-    buffer = sdscatfmt(buffer, ":%u", key, value);
+    buffer = sdscatfmt(buffer, ":%u", value);
     if (comma) {
         buffer = sdscatlen(buffer, ",", 1);
     }
