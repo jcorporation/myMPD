@@ -84,7 +84,8 @@ static void *free_search_expression(struct t_search_expression *expr);
 static void free_search_expression_node(struct t_list_node *current);
 static pcre2_code *compile_regex(sds regex_str);
 static bool cmp_regex(pcre2_code *re_compiled, const char *value);
-static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_len, size_t *cache);
+static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_len,
+        size_t *cache, size_t max_distance);
 
 /**
  * Public functions
@@ -813,17 +814,15 @@ bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
     if (strstr(haystack, needle) != NULL) {
         return true;
     }
-    const size_t max_distance = needle_len > 10
-        ? (needle_len / 100) * 25
-        : needle_len > 4
-            ? 2
-            : 1;
-    size_t *cache = calloc(haystack_len, sizeof(size_t));
+    const size_t max_distance = needle_len < 10
+        ? 1
+        : (needle_len / 10) + 1;
+    size_t *cache = calloc(haystack_len + 1, sizeof(size_t));
     const char *p = haystack;
     while (*p != '\0' &&
            haystack_len >= needle_len)
     {
-        if (levenshtein(p, needle_len, needle, needle_len, cache) <= max_distance) {
+        if (levenshtein(p, needle_len, needle, needle_len, cache, max_distance) <= max_distance) {
             free(cache);
             return true;
         }
@@ -834,8 +833,11 @@ bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
     return false;
 }
 
+#define MIN3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
+
 /**
  * Calculate the levenshtein distance
+ * https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#C
  * @param a String 1
  * @param a_len Length of a
  * @param b String 2
@@ -843,39 +845,27 @@ bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
  * @param cache Matrix cache
  * @return Calculated distance
  */
-static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_len, size_t *cache) {
-    size_t a_index = 0;
-    size_t b_index = 0;
-    size_t distance;
-    size_t b_distance;
-    size_t result = 0;
-    char code;
-
-    // Initialize the vector
-    while (a_index < a_len) {
-        cache[a_index] = a_index + 1;
-        a_index++;
+static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_len,
+        size_t *cache, size_t max_distance)
+{
+    size_t x;
+    size_t y;
+    size_t lastdiag;
+    size_t olddiag;
+    for (y = 1; y <= a_len; y++) {
+        cache[y] = y;
     }
-
-    while (b_index < b_len) {
-        code = b[b_index];
-        result = distance = b_index++;
-        a_index = SIZE_MAX;
-
-        while (++a_index < a_len) {
-            b_distance = code == a[a_index]
-                ? distance
-                : distance + 1;
-            distance = cache[a_index];
-
-            cache[a_index] = result = distance > result
-                ? b_distance > result
-                    ? result + 1
-                    : b_distance
-                : b_distance > distance
-                    ? distance + 1
-                    : b_distance;
+    for (x = 1; x <= b_len; x++) {
+        cache[0] = x;
+        for (y = 1, lastdiag = x - 1; y <= a_len; y++) {
+            olddiag = cache[y];
+            cache[y] = MIN3(cache[y] + 1, cache[y - 1] + 1, lastdiag + (a[y-1] == b[x - 1] ? 0 : 1));
+            lastdiag = olddiag;
+        }
+        // This is good enough
+        if (cache[a_len] <= max_distance) {
+            return cache[a_len];
         }
     }
-    return result;
+    return cache[a_len];
 }
