@@ -1290,5 +1290,10 @@
     "userDefinedSticker": "Benutzerdefinierte Sticker",
     "votes": "Stimmen",
     "warn": "Warnung",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Equal (==)": "Gleich (==)",
+    "Regular expression (=~)": "Regulärer Ausrduck (=~)",
+    "Fuzzy match (~~)": "Ungefähre Übereinstimmung",
+    "Default search operator": "Standard-Suchoperator",
+    "helpSettingssearchOperatorDefault": "Standardmäßig ausgewählter Suchoperator."
 }

@@ -64,6 +64,8 @@ function parseSettings(obj) {
     //locales
     setLocale(settings.webuiSettings.locale);
 
+    setSearchOperators(settings.webuiSettings.searchOperatorDefault);
+
     //theme
     let setTheme = settings.webuiSettings.theme;
     if (setTheme === 'auto') {
@@ -588,5 +590,34 @@ function setNavbarIcons() {
 function resetLocalSettings() {
     for (const key in localSettings) {
         localStorage.removeItem(key);
+    }
+}
+
+/**
+ * Sets the default search operator
+ * @param {string} op Operator value to set
+ */
+function setSearchOperators(op) {
+    if (appInited === true) {
+        return;
+    }
+    const selectElIds = ["QueueCurrentSearchMatch",
+        "QueueLastPlayedSearchMatch",
+        "QueueJukeboxSongSearchMatch",
+        "QueueJukeboxAlbumSearchMatch",
+        "BrowsePlaylistDetailSearchMatch",
+        "BrowseDatabaseAlbumListSearchMatch",
+        "BrowseRadioFavoritesSearchMatch",
+        "BrowseRadioWebradiodbSearchMatch",
+        "SearchSearchMatch"];
+    for (const id of selectElIds) {
+        const selectEl = elGetById(id);
+        if (selectElHasOptionValue(selectEl, op) === true) {
+            selectEl.value = op;
+        }
+        else {
+            // Fallback to contains
+            selectEl.value = "contains";
+        }
     }
 }

@@ -1006,6 +1006,20 @@ const settingsWebuiFields = {
         "title": "Show work in album detail",
         "form": "modalSettingsTagsFrm",
         "help": "helpSettingsShowWorkTagAlbumDetail"
+    },
+    "searchOperatorDefault": {
+        "defaultValue": "contains",
+        "validValues": {
+            "contains": "Contains",
+            "starts_with": "Starts with",
+            "==": "Equal (==)",
+            "=~": "Regular expression (=~)",
+            "~~": "Fuzzy match (~~)"
+        },
+        "inputType": "select",
+        "title": "Default search operator",
+        "form": "modalSettingsTagsFrm",
+        "help": "helpSettingssearchOperatorDefault"
     }
 };
 

@@ -8,9 +8,10 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
-- Feat: Fuzzy substring matching using the levenshtein distance for albums and webradios
+- Feat: Fuzzy substring matching using the levenshtein distance
 - Feat: String normalization for album and webradio search
 - Feat: Replace utf8 implementation with utf8proc library
+- Feat: Add setting for default search operator
 - Upd: Move lyrics handling from mympd_api to webserver thread
 - Upd: Performance improvements for mympd_api polling
 - Upd: Stability improvements in MPD connection handling

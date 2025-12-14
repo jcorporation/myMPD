@@ -113,6 +113,7 @@
     "helpHomeWidgetRefresh": "Set to 0 to disable widget refresh.",
     "helpSettingsViewTitles": "Shows a title on top of all views.",
     "helpEndlessScroll": "Switches from pagination to endless scrolling.",
+    "helpSettingssearchOperatorDefault": "Default selected search operator.",
     "icon-all": "All",
     "icon-action": "Action",
     "icon-alert": "Alert",
