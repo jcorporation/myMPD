@@ -596,6 +596,7 @@ function resetLocalSettings() {
 /**
  * Sets the default search operator
  * @param {string} op Operator value to set
+ * @returns {void}
  */
 function setSearchOperators(op) {
     if (appInited === true) {

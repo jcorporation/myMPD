@@ -992,20 +992,20 @@ const settingsWebuiFields = {
         "defaultValue": "like",
         "inputType": "none"
     },
-    "browseDatabaseAlbumListSort": {
-        "defaultValue": tagAlbumArtist,
-        "validValues": {},
-        "inputType": "select",
-        "title": "Album list sort",
-        "form": "modalSettingsSortFrm",
-        "help": "helpSettingsAlbumListSort"
-    },
     "showWorkTagAlbumDetail": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Show work in album detail",
         "form": "modalSettingsTagsFrm",
         "help": "helpSettingsShowWorkTagAlbumDetail"
+    },
+    "browseDatabaseAlbumListSort": {
+        "defaultValue": tagAlbumArtist,
+        "validValues": {},
+        "inputType": "select",
+        "title": "Album list sort",
+        "form": "modalSettingsTagsFrm",
+        "help": "helpSettingsAlbumListSort"
     },
     "searchOperatorDefault": {
         "defaultValue": "contains",
