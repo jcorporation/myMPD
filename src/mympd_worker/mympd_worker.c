@@ -14,6 +14,7 @@
 #include "dist/sds/sds.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
+#include "src/lib/msg_queue.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
@@ -148,7 +149,18 @@ static void *mympd_worker_run(void *arg) {
         }
     }
     else {
-        MYMPD_LOG_ERROR(NULL, "Running mympd_worker failed");
+        const char *method = get_cmd_id_method_name(mympd_worker_state->request->cmd_id);
+        MYMPD_LOG_ERROR(NULL, "Running mympd_worker failed for %s", method);
+        // Notify mympd_api thread
+        switch (mympd_worker_state->request->cmd_id) {
+            case MYMPD_API_CACHES_CREATE: {
+                struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_ERROR, "", MPD_PARTITION_DEFAULT);
+                mympd_queue_push(mympd_api_queue, request, 0);
+                break;
+            }
+            default:
+                break;
+        }
     }
     MYMPD_LOG_NOTICE(NULL, "Stopping mympd_worker thread");
     mympd_worker_state_free(mympd_worker_state);
