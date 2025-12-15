@@ -6,6 +6,8 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v24.0.0 (not yet released)
 
+This release improves the integrated search by using string normalization and adding a fuzzy search option. Furthermore the mpd connection handling was improved.
+
 ### Changelog
 
 - Feat: Fuzzy substring matching using the levenshtein distance
