@@ -867,6 +867,7 @@ static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_l
         }
         // This is good enough
         if (cache[a_len] <= max_distance) {
+            //MYMPD_LOG_DEBUG(NULL, "levenshtein return early %lu/%lu: %.*s - %.*s", x, b_len, (int)a_len, a, (int)b_len, b);
             return cache[a_len];
         }
     }

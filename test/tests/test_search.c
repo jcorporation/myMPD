@@ -151,11 +151,17 @@ UTEST(search_local, test_mympd_search_fuzzy_match) {
     ASSERT_TRUE(rc);
     rc = mympd_search_fuzzy_match("einstuerzende neubauten", "einstuersende naubauden");
     ASSERT_TRUE(rc);
+    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "einstuerzende neubauxxx");
+    ASSERT_TRUE(rc);
 
     rc = mympd_search_fuzzy_match("einsturzende", "zwei");
     ASSERT_FALSE(rc);
     rc = mympd_search_fuzzy_match("ein", "einstuerzende");
     ASSERT_FALSE(rc);
     rc = mympd_search_fuzzy_match("einstuerzende neubauten", "elnstuersende naubauden");
+    ASSERT_FALSE(rc);
+    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "einstuerzende neubaxxxx");
+    ASSERT_FALSE(rc);
+    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "xinstuerzende neubauxxx");
     ASSERT_FALSE(rc);
 }
