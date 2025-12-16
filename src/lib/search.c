@@ -361,7 +361,9 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
                         ? true
                         : false;
                 }
-                if (rc == true) {
+                if (rc == true &&
+                    expr->tag != SEARCH_FILTER_ANY_TAG)
+                {
                     //exit on first tag value match
                     break;
                 }
@@ -454,7 +456,9 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
                         ? true
                         : false;
                 }
-                if (rc == true) {
+                if (rc == true &&
+                    expr->tag != SEARCH_FILTER_ANY_TAG)
+                {
                     //exit on first tag value match
                     break;
                 }
