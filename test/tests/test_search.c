@@ -45,9 +45,11 @@ UTEST(search_local, test_search_mpd_song_expression) {
     ASSERT_TRUE(search_by_expression("((Album starts_with 'TABULA'))")); //starting string
     ASSERT_TRUE(search_by_expression("((Album == 'Tabula Rasa'))"));     //exact match
     ASSERT_TRUE(search_by_expression("((Album =~ 'Tab.*'))"));           //regex match
+    ASSERT_TRUE(search_by_expression("((Album ~~ 'Tap'))"));             //fuzzy match
 
     ASSERT_FALSE(search_by_expression("((Album != 'Tabula Rasa'))"));    //not exact match
     ASSERT_FALSE(search_by_expression("((Album !~ 'Tabula.*'))"));       //regex mismatch
+    ASSERT_FALSE(search_by_expression("((Album ~~ 'Ubp'))"));            //fuzzy mismatch
 
     //double quote
     ASSERT_TRUE(search_by_expression("((Artist contains \"XA\"))"));       //containing string
@@ -57,14 +59,22 @@ UTEST(search_local, test_search_mpd_song_expression) {
     ASSERT_TRUE(search_by_expression("((Artist starts_with 'bl'))"));    //starting string
     ASSERT_TRUE(search_by_expression("((Artist == 'Blixa Bargeld'))"));  //exact match
     ASSERT_TRUE(search_by_expression("((Artist =~ 'Blixa.*'))"));        //regex match
+    ASSERT_TRUE(search_by_expression("((Artist ~~ 'Plixa'))"));          //fuzzy match
+
     ASSERT_FALSE(search_by_expression("((Artist != 'Blixa Bargeld'))")); //not exact match
     ASSERT_FALSE(search_by_expression("((Artist !~ 'Blixa.*'))"));       //regex mismatch
+    ASSERT_FALSE(search_by_expression("((Artist ~~ 'Pmjza'))"));         //fuzzy mismatch
 
     //special any tag
     ASSERT_TRUE(search_by_expression("((any contains 'XA'))"));       //containing string
     ASSERT_TRUE(search_by_expression("((any starts_with 'bl'))"));    //starting string
     ASSERT_TRUE(search_by_expression("((any == 'Blixa Bargeld'))"));  //exact match
     ASSERT_TRUE(search_by_expression("((any =~ 'Blixa.*'))"));        //regex match
+    ASSERT_TRUE(search_by_expression("((any ~~ 'Blixb'))"));          //fuzzy match
+
+    ASSERT_FALSE(search_by_expression("((any != 'Blixa Bargeld'))")); //not exact match
+    ASSERT_FALSE(search_by_expression("((any !~ 'Blixa.*'))"));       //regex mismatch
+    ASSERT_FALSE(search_by_expression("((any ~~ 'Pmjza'))"));         //fuzzy mismatch
 
     //prio
     ASSERT_TRUE(search_by_expression("((prio >= 5))"));
@@ -116,6 +126,8 @@ UTEST(search_local, test_parse_expression) {
     ASSERT_EQ(0, try_parse("((asdf == 'asdf"));
     ASSERT_EQ(0, try_parse("((Artist == '"));
     ASSERT_EQ(0, try_parse("((Artist == 'asdf"));
+    ASSERT_EQ(0, try_parse("((Artist =~ 'asdf"));
+    ASSERT_EQ(0, try_parse("((Artist ~~ 'asdf"));
     ASSERT_EQ(0, try_parse("((modified-since == 'asdf"));
     ASSERT_EQ(0, try_parse("((modified-since 'asdf"));
     ASSERT_EQ(0, try_parse("((added-since == 'asdf"));
