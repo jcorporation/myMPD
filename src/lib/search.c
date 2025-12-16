@@ -805,9 +805,6 @@ bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
         return true;
     }
     size_t haystack_len = strlen(haystack);
-    if (haystack_len <= 1) {
-        return true;
-    }
     if (needle_len > haystack_len) {
         return false;
     }
