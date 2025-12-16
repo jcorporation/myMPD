@@ -851,18 +851,18 @@ bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
 static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_len,
         size_t *cache, size_t max_distance)
 {
-    size_t x;
-    size_t y;
+    size_t a_idx;
+    size_t b_idx;
     size_t lastdiag;
     size_t olddiag;
-    for (y = 1; y <= a_len; y++) {
-        cache[y] = y;
+    for (a_idx = 1; a_idx <= a_len; a_idx++) {
+        cache[a_idx] = a_idx;
     }
-    for (x = 1; x <= b_len; x++) {
-        cache[0] = x;
-        for (y = 1, lastdiag = x - 1; y <= a_len; y++) {
-            olddiag = cache[y];
-            cache[y] = MIN3(cache[y] + 1, cache[y - 1] + 1, lastdiag + (a[y-1] == b[x - 1] ? 0 : 1));
+    for (b_idx = 1; b_idx <= b_len; b_idx++) {
+        cache[0] = b_idx;
+        for (a_idx = 1, lastdiag = b_idx - 1; a_idx <= a_len; a_idx++) {
+            olddiag = cache[a_idx];
+            cache[a_idx] = MIN3(cache[a_idx] + 1, cache[a_idx - 1] + 1, lastdiag + (a[a_idx - 1] == b[b_idx - 1] ? 0 : 1));
             lastdiag = olddiag;
         }
         // This is good enough
