@@ -263,7 +263,9 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
                         ? true
                         : false;
                 }
-                if (rc == true) {
+                if (rc == true &&
+                    expr->tag != SEARCH_FILTER_ANY_TAG)
+                {
                     //exit on first tag value match
                     break;
                 }
