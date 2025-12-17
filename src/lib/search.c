@@ -807,6 +807,9 @@ bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
     return false;
 }
 
+/**
+ * Return the minimum of 3 integers
+ */
 #define MIN3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
 
 /**
@@ -817,6 +820,7 @@ bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
  * @param b String 2
  * @param b_len Length of b
  * @param cache Matrix cache
+ * @param max_distance Return as soon as the calculated distance is smaller than this value
  * @return Calculated distance
  */
 static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_len,
