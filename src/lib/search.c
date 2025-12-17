@@ -226,68 +226,70 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
     struct t_list_node *current = expr_list->head;
     while (current != NULL) {
         struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
-        if (expr->tag == SEARCH_FILTER_MODIFIED_SINCE) {
-            if (expr->value_i > mpd_song_get_last_modified(song)) {
-                return false;
-            }
-        }
-        else if (expr->tag == SEARCH_FILTER_ADDED_SINCE) {
-            if (expr->value_i > mpd_song_get_added(song)) {
-                return false;
-            }
-        }
-        else if (expr->tag == SEARCH_FILTER_FILE) {
-            if (strcmp(mpd_song_get_uri(song), expr->value) != 0) {
-                return false;
-            }
-        }
-        else if (expr->tag == SEARCH_FILTER_BASE) {
-            if (strncmp(expr->value, mpd_song_get_uri(song), sdslen(expr->value)) != 0) {
-                return false;
-            }
-        }
-        else if (expr->tag == SEARCH_FILTER_PRIO) {
-            if (expr->value_i > mpd_song_get_prio(song)) {
-                return false;
-            }
-        }
-        else if (expr->tag == SEARCH_FILTER_AUDIO_FORMAT) {
-            // Not implemented
-        }
-        else {
-            one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
-            const struct t_mympd_mpd_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
-                ? any_tag_types  //any - use provided tags
-                : &one_tag;      //use only selected tag
-            bool rc = false;
-            for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
-                rc = false;
-                unsigned value_count = 0;
-                const char *value = NULL;
-                char *value_utf8 = NULL;
-                while ((value = mpd_song_get_tag(song, tags->tags[tag_count], value_count)) != NULL) {
-                    value_utf8 = utf8_wrap_normalize(value, strlen(value));
-                    value_count++;
-                    rc = match_tag(value_utf8, expr);
-                    if (exit_search_loop(rc, expr) == true) {
+        switch (expr->tag) {
+            case SEARCH_FILTER_MODIFIED_SINCE:
+                if (expr->value_i > mpd_song_get_last_modified(song)) {
+                    return false;
+                }
+                break;
+            case SEARCH_FILTER_ADDED_SINCE:
+                if (expr->value_i > mpd_song_get_added(song)) {
+                    return false;
+                }
+                break;
+            case SEARCH_FILTER_FILE:
+                if (strcmp(mpd_song_get_uri(song), expr->value) != 0) {
+                    return false;
+                }
+                break;
+            case SEARCH_FILTER_BASE:
+                if (strncmp(expr->value, mpd_song_get_uri(song), sdslen(expr->value)) != 0) {
+                    return false;
+                }
+                break;
+            case SEARCH_FILTER_PRIO:
+                if (expr->value_i > mpd_song_get_prio(song)) {
+                    return false;
+                }
+                break;
+            case SEARCH_FILTER_AUDIO_FORMAT:
+                // Not implemented
+                break;
+            default: {
+                one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
+                const struct t_mympd_mpd_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
+                    ? any_tag_types  //any - use provided tags
+                    : &one_tag;      //use only selected tag
+                bool rc = false;
+                for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
+                    rc = false;
+                    unsigned value_count = 0;
+                    const char *value = NULL;
+                    char *value_utf8 = NULL;
+                    while ((value = mpd_song_get_tag(song, tags->tags[tag_count], value_count)) != NULL) {
+                        value_utf8 = utf8_wrap_normalize(value, strlen(value));
+                        value_count++;
+                        rc = match_tag(value_utf8, expr);
+                        if (exit_search_loop(rc, expr) == true) {
+                            FREE_PTR(value_utf8);
+                            break;
+                        }
                         FREE_PTR(value_utf8);
+                    }
+                    if (value_count == 0) {
+                        //no tag value found
+                        rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
+                            ? true
+                            : false;
+                    }
+                    if (exit_search_loop(rc, expr) == true) {
                         break;
                     }
-                    FREE_PTR(value_utf8);
                 }
-                if (value_count == 0) {
-                    //no tag value found
-                    rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
-                        ? true
-                        : false;
+                if (rc == false) {
+                    //exit on first expression mismatch
+                    return false;
                 }
-                if (exit_search_loop(rc, expr) == true) {
-                    break;
-                }
-            }
-            if (rc == false) {
-                //exit on first expression mismatch
-                return false;
             }
         }
         current = current->next;
@@ -309,58 +311,59 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
     struct t_list_node *current = expr_list->head;
     while (current != NULL) {
         struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
-        if (expr->tag == SEARCH_FILTER_MODIFIED_SINCE) {
-            if (expr->value_i > album_get_last_modified(album)) {
-                return false;
-            }
-        }
-        else if (expr->tag == SEARCH_FILTER_ADDED_SINCE) {
-            if (expr->value_i > album_get_added(album)) {
-                return false;
-            }
-        }
-        else if (expr->tag == SEARCH_FILTER_FILE ||
-                 expr->tag == SEARCH_FILTER_BASE ||
-                 expr->tag == SEARCH_FILTER_PRIO ||
-                 expr->tag == SEARCH_FILTER_AUDIO_FORMAT)
-        {
-            // Not implemented
-        }
-        else {
-            one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
-            const struct t_mympd_mpd_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
-                ? any_tag_types  //any - use provided tags
-                : &one_tag;      //use only selected tag
+        switch (expr->tag) {
+            case SEARCH_FILTER_MODIFIED_SINCE:
+                if (expr->value_i > album_get_last_modified(album)) {
+                    return false;
+                }
+                break;
+            case SEARCH_FILTER_ADDED_SINCE:
+                if (expr->value_i > album_get_added(album)) {
+                    return false;
+                }
+                break;
+            case SEARCH_FILTER_FILE:
+            case SEARCH_FILTER_BASE:
+            case SEARCH_FILTER_PRIO:
+            case SEARCH_FILTER_AUDIO_FORMAT:
+                // Not implemented
+                break;
+            default: {
+                one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
+                const struct t_mympd_mpd_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
+                    ? any_tag_types  //any - use provided tags
+                    : &one_tag;      //use only selected tag
 
-            bool rc = false;
-            for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
-                rc = false;
-                unsigned value_count = 0;
-                const char *value = NULL;
-                char *value_utf8 = NULL;
-                while ((value = album_get_tag(album, tags->tags[tag_count], value_count)) != NULL) {
-                    value_utf8 = utf8_wrap_normalize(value, strlen(value));
-                    value_count++;
-                    rc = match_tag(value_utf8, expr);
-                    if (exit_search_loop(rc, expr) == true) {
+                bool rc = false;
+                for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
+                    rc = false;
+                    unsigned value_count = 0;
+                    const char *value = NULL;
+                    char *value_utf8 = NULL;
+                    while ((value = album_get_tag(album, tags->tags[tag_count], value_count)) != NULL) {
+                        value_utf8 = utf8_wrap_normalize(value, strlen(value));
+                        value_count++;
+                        rc = match_tag(value_utf8, expr);
+                        if (exit_search_loop(rc, expr) == true) {
+                            FREE_PTR(value_utf8);
+                            break;
+                        }
                         FREE_PTR(value_utf8);
+                    }
+                    if (value_count == 0) {
+                        //no tag value found
+                        rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
+                            ? true
+                            : false;
+                    }
+                    if (exit_search_loop(rc, expr) == true) {
                         break;
                     }
-                    FREE_PTR(value_utf8);
                 }
-                if (value_count == 0) {
-                    //no tag value found
-                    rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
-                        ? true
-                        : false;
+                if (rc == false) {
+                    //exit on first expression mismatch
+                    return false;
                 }
-                if (exit_search_loop(rc, expr) == true) {
-                    break;
-                }
-            }
-            if (rc == false) {
-                //exit on first expression mismatch
-                return false;
             }
         }
         current = current->next;
@@ -382,55 +385,58 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
     struct t_list_node *current = expr_list->head;
     while (current != NULL) {
         struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
-        if (expr->tag == SEARCH_FILTER_BITRATE) {
-            struct t_list_node *uris = webradio->uris.head;
-            bool rc = false;
-            while (uris != NULL) {
-                if (expr->value_i > uris->value_i) {
-                    rc = true;
-                    break;
-                }
-                uris = uris->next;
-            }
-            if (rc == false) {
-                return false;
-            }
-        }
-        else {
-            one_tag.tags[0] = (enum webradio_tag_type)expr->tag;
-            const struct t_webradio_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
-                ? any_tag_types  //any - use provided tags
-                : &one_tag;      //use only selected tag
-
-            bool rc = false;
-            for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
-                rc = false;
-                unsigned value_count = 0;
-                const char *value = NULL;
-                char *value_utf8 = NULL;
-                while ((value = webradio_get_tag(webradio, tags->tags[tag_count], value_count)) != NULL) {
-                    value_utf8 = utf8_wrap_normalize(value, strlen(value));
-                    value_count++;
-                    rc = match_tag(value_utf8, expr);
-                    if (exit_search_loop(rc, expr) == true) {
-                        FREE_PTR(value_utf8);
+        switch (expr->tag) {
+            case SEARCH_FILTER_BITRATE: {
+                struct t_list_node *uris = webradio->uris.head;
+                bool rc = false;
+                while (uris != NULL) {
+                    if (expr->value_i > uris->value_i) {
+                        rc = true;
                         break;
                     }
-                    FREE_PTR(value_utf8);
+                    uris = uris->next;
                 }
-                if (value_count == 0) {
-                    //no tag value found
-                    rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
-                        ? true
-                        : false;
+                if (rc == false) {
+                    return false;
                 }
-                if (exit_search_loop(rc, expr) == true) {
-                    break;
-                }
+                break;
             }
-            if (rc == false) {
-                //exit on first expression mismatch
-                return false;
+            default: {
+                one_tag.tags[0] = (enum webradio_tag_type)expr->tag;
+                const struct t_webradio_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
+                    ? any_tag_types  //any - use provided tags
+                    : &one_tag;      //use only selected tag
+
+                bool rc = false;
+                for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
+                    rc = false;
+                    unsigned value_count = 0;
+                    const char *value = NULL;
+                    char *value_utf8 = NULL;
+                    while ((value = webradio_get_tag(webradio, tags->tags[tag_count], value_count)) != NULL) {
+                        value_utf8 = utf8_wrap_normalize(value, strlen(value));
+                        value_count++;
+                        rc = match_tag(value_utf8, expr);
+                        if (exit_search_loop(rc, expr) == true) {
+                            FREE_PTR(value_utf8);
+                            break;
+                        }
+                        FREE_PTR(value_utf8);
+                    }
+                    if (value_count == 0) {
+                        //no tag value found
+                        rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
+                            ? true
+                            : false;
+                    }
+                    if (exit_search_loop(rc, expr) == true) {
+                        break;
+                    }
+                }
+                if (rc == false) {
+                    //exit on first expression mismatch
+                    return false;
+                }
             }
         }
         current = current->next;
