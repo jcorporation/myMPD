@@ -106,6 +106,7 @@ UTEST(sds_extras, test_sds_hash_sha256_sds) {
     sdsfree(hash);
 }
 
+#ifdef MYMPD_ENABLE_UTF8
 UTEST(sds_extras, test_sds_utf8_normalize) {
     sds test_input= sdsnew("EINSTÜRZENDE NEUBAUTEN");
     test_input = sds_utf8_normalize(test_input);
@@ -127,6 +128,7 @@ UTEST(sds_extras, test_sds_utf8_casefold) {
     ASSERT_STREQ("sdfsssdf", test_input);
     sdsfree(test_input);
 }
+#endif
 
 UTEST(sds_extras, test_sds_catjson_plain) {
     sds s = sdsempty();

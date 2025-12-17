@@ -130,7 +130,7 @@ endif()
 # optional dependencies
 if(MYMPD_ENABLE_UTF8)
   message("Searching for utf8proc")
-  find_package(UTF8PROC REQUIRED)
+  find_package(UTF8PROC)
   if(NOT UTF8PROC_FOUND)
     message(WARNING "Utf8proc is disabled because it was not found")
     set(MYMPD_ENABLE_UTF8 "OFF")
