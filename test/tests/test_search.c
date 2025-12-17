@@ -67,13 +67,19 @@ UTEST(search_local, test_search_mpd_song_expression) {
 
     //special any tag
     ASSERT_TRUE(search_by_expression("((any contains 'XA'))"));       //containing string
+    ASSERT_TRUE(search_by_expression("((any contains 'Tabula'))"));   //containing string
     ASSERT_TRUE(search_by_expression("((any starts_with 'bl'))"));    //starting string
     ASSERT_TRUE(search_by_expression("((any == 'Blixa Bargeld'))"));  //exact match
+    ASSERT_TRUE(search_by_expression("((any == 'Tabula Rasa'))"));    //exact match
     ASSERT_TRUE(search_by_expression("((any =~ 'Blixa.*'))"));        //regex match
+    ASSERT_TRUE(search_by_expression("((any =~ 'Tabula.*'))"));       //regex match
     ASSERT_TRUE(search_by_expression("((any ~~ 'Blixb'))"));          //fuzzy match
+    ASSERT_TRUE(search_by_expression("((any ~~ 'Tabulb'))"));         //fuzzy match
 
     ASSERT_FALSE(search_by_expression("((any != 'Blixa Bargeld'))")); //not exact match
+    ASSERT_FALSE(search_by_expression("((any != 'Tabula Rasa'))"));   //not exact match
     ASSERT_FALSE(search_by_expression("((any !~ 'Blixa.*'))"));       //regex mismatch
+    ASSERT_FALSE(search_by_expression("((any !~ 'Tabula.*'))"));      //regex mismatch
     ASSERT_FALSE(search_by_expression("((any ~~ 'Pmjza'))"));         //fuzzy mismatch
 
     //prio

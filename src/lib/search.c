@@ -172,6 +172,19 @@ void free_search_expression_list(struct t_list *expr_list) {
     list_free_user_data(expr_list, free_search_expression_node);
 }
 
+static bool match_tag(const char *value_utf8, struct t_search_expression *expr) {
+    switch (expr->op) {
+        case SEARCH_OP_CONTAINS:    return strstr(value_utf8, expr->value_utf8) != NULL;
+        case SEARCH_OP_STARTS_WITH: return strncmp(expr->value_utf8, expr->value_utf8, expr->value_utf8_len) == 0;
+        case SEARCH_OP_EQUAL:       return strcmp(value_utf8, expr->value_utf8) == 0;
+        case SEARCH_OP_REGEX:       return cmp_regex(expr->re_compiled, value_utf8);
+        case SEARCH_OP_FUZZY:       return mympd_search_fuzzy_match(value_utf8, expr->value_utf8);
+        case SEARCH_OP_NOT_EQUAL:   return strcmp(value_utf8, expr->value_utf8) != 0;
+        case SEARCH_OP_NOT_REGEX:   return cmp_regex(expr->re_compiled, value_utf8) == false;
+        default:                    return false;
+    }
+}
+
 /**
  * Implements search expressions for mpd songs.
  * @param song pointer to mpd song struct
@@ -218,55 +231,56 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
             const struct t_mympd_mpd_tags *tags = expr->tag == SEARCH_FILTER_ANY_TAG
                 ? any_tag_types  //any - use provided tags
                 : &one_tag;      //use only selected tag
-
             bool rc = false;
-            for (size_t i = 0; i < tags->len; i++) {
-                rc = true;
-                unsigned j = 0;
+            for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
+                rc = false;
+                unsigned value_count = 0;
                 const char *value = NULL;
                 char *value_utf8 = NULL;
-                while ((value = mpd_song_get_tag(song, tags->tags[i], j)) != NULL) {
+                while ((value = mpd_song_get_tag(song, tags->tags[tag_count], value_count)) != NULL) {
                     value_utf8 = utf8_wrap_normalize(value, strlen(value));
-                    j++;
-                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value_utf8) == NULL) ||
-                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value_utf8, value_utf8, expr->value_utf8_len) != 0) ||
-                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value_utf8) != 0) ||
-                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false) ||
-                        (expr->op == SEARCH_OP_FUZZY && mympd_search_fuzzy_match(value_utf8, expr->value_utf8) == false))
-                    {
-                        //expression does not match
-                        rc = false;
-                    }
-                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value_utf8) == 0) ||
-                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value_utf8) == true))
-                    {
-                        //negated match operator - exit instantly
-                        rc = false;
-                        break;
-                    }
-                    else {
-                        //tag value matched
+                    value_count++;
+                    if (match_tag(value_utf8, expr) == true) {
+                        // expression matches
                         rc = true;
                         if (expr->op != SEARCH_OP_NOT_EQUAL &&
                             expr->op != SEARCH_OP_NOT_REGEX)
                         {
-                            //exit only for positive match operators
+                            // exit on first match
+                            FREE_PTR(value_utf8);
+                            break;
+                        }
+                    }
+                    else {
+                        //expression does not match
+                        rc = false;
+                        if (expr->op == SEARCH_OP_NOT_EQUAL ||
+                            expr->op == SEARCH_OP_NOT_REGEX)
+                        {
+                            // exit on first mismatch
+                            FREE_PTR(value_utf8);
                             break;
                         }
                     }
                     FREE_PTR(value_utf8);
                 }
-                FREE_PTR(value_utf8);
-                if (j == 0) {
+
+                if (value_count == 0) {
                     //no tag value found
                     rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
                         ? true
                         : false;
                 }
-                if (rc == true &&
-                    expr->tag != SEARCH_FILTER_ANY_TAG)
+                if (expr->op != SEARCH_OP_NOT_EQUAL &&
+                    expr->op != SEARCH_OP_NOT_REGEX)
                 {
-                    //exit on first tag value match
+                    //exit on first match
+                    if (rc == true) {
+                        break;
+                    }
+                }
+                else if (rc == false) {
+                    //exit on first mismatch
                     break;
                 }
             }
@@ -318,53 +332,55 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
                 : &one_tag;      //use only selected tag
 
             bool rc = false;
-            for (size_t i = 0; i < tags->len; i++) {
-                rc = true;
-                unsigned j = 0;
+            for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
+                rc = false;
+                unsigned value_count = 0;
                 const char *value = NULL;
                 char *value_utf8 = NULL;
-                while ((value = album_get_tag(album, tags->tags[i], j)) != NULL) {
+                while ((value = album_get_tag(album, tags->tags[tag_count], value_count)) != NULL) {
                     value_utf8 = utf8_wrap_normalize(value, strlen(value));
-                    j++;
-                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value_utf8) == NULL) ||
-                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value_utf8, value_utf8, expr->value_utf8_len) != 0) ||
-                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value_utf8) != 0) ||
-                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false) ||
-                        (expr->op == SEARCH_OP_FUZZY && mympd_search_fuzzy_match(value_utf8, expr->value_utf8) == false))
-                    {
-                        //expression does not match
-                        rc = false;
-                    }
-                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value_utf8) == 0) ||
-                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value_utf8) == true))
-                    {
-                        //negated match operator - exit instantly
-                        rc = false;
-                        break;
-                    }
-                    else {
-                        //tag value matched
+                    value_count++;
+                    if (match_tag(value_utf8, expr) == true) {
+                        // expression matches
                         rc = true;
                         if (expr->op != SEARCH_OP_NOT_EQUAL &&
                             expr->op != SEARCH_OP_NOT_REGEX)
                         {
-                            //exit only for positive match operators
+                            // exit on first match
+                            FREE_PTR(value_utf8);
+                            break;
+                        }
+                    }
+                    else {
+                        //expression does not match
+                        rc = false;
+                        if (expr->op == SEARCH_OP_NOT_EQUAL ||
+                            expr->op == SEARCH_OP_NOT_REGEX)
+                        {
+                            // exit on first mismatch
+                            FREE_PTR(value_utf8);
                             break;
                         }
                     }
                     FREE_PTR(value_utf8);
                 }
-                FREE_PTR(value_utf8);
-                if (j == 0) {
+
+                if (value_count == 0) {
                     //no tag value found
                     rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
                         ? true
                         : false;
                 }
-                if (rc == true &&
-                    expr->tag != SEARCH_FILTER_ANY_TAG)
+                if (expr->op != SEARCH_OP_NOT_EQUAL &&
+                    expr->op != SEARCH_OP_NOT_REGEX)
                 {
-                    //exit on first tag value match
+                    //exit on first match
+                    if (rc == true) {
+                        break;
+                    }
+                }
+                else if (rc == false) {
+                    //exit on first mismatch
                     break;
                 }
             }
@@ -413,53 +429,55 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
                 : &one_tag;      //use only selected tag
 
             bool rc = false;
-            for (size_t i = 0; i < tags->len; i++) {
-                rc = true;
-                unsigned j = 0;
+            for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
+                rc = false;
+                unsigned value_count = 0;
                 const char *value = NULL;
                 char *value_utf8 = NULL;
-                while ((value = webradio_get_tag(webradio, tags->tags[i], j)) != NULL) {
+                while ((value = webradio_get_tag(webradio, tags->tags[tag_count], value_count)) != NULL) {
                     value_utf8 = utf8_wrap_normalize(value, strlen(value));
-                    j++;
-                    if ((expr->op == SEARCH_OP_CONTAINS && strstr(value_utf8, expr->value_utf8) == NULL) ||
-                        (expr->op == SEARCH_OP_STARTS_WITH && strncmp(expr->value_utf8, value_utf8, expr->value_utf8_len) != 0) ||
-                        (expr->op == SEARCH_OP_EQUAL && strcmp(value_utf8, expr->value_utf8) != 0) ||
-                        (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value_utf8) == false) ||
-                        (expr->op == SEARCH_OP_FUZZY && mympd_search_fuzzy_match(value_utf8, expr->value_utf8) == false))
-                    {
-                        //expression does not match
-                        rc = false;
-                    }
-                    else if ((expr->op == SEARCH_OP_NOT_EQUAL && strcmp(value_utf8, expr->value_utf8) == 0) ||
-                            (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value_utf8) == true))
-                    {
-                        //negated match operator - exit instantly
-                        rc = false;
-                        break;
-                    }
-                    else {
-                        //tag value matched
+                    value_count++;
+                    if (match_tag(value_utf8, expr) == true) {
+                        // expression matches
                         rc = true;
                         if (expr->op != SEARCH_OP_NOT_EQUAL &&
                             expr->op != SEARCH_OP_NOT_REGEX)
                         {
-                            //exit only for positive match operators
+                            // exit on first match
+                            FREE_PTR(value_utf8);
+                            break;
+                        }
+                    }
+                    else {
+                        //expression does not match
+                        rc = false;
+                        if (expr->op == SEARCH_OP_NOT_EQUAL ||
+                            expr->op == SEARCH_OP_NOT_REGEX)
+                        {
+                            // exit on first mismatch
+                            FREE_PTR(value_utf8);
                             break;
                         }
                     }
                     FREE_PTR(value_utf8);
                 }
-                FREE_PTR(value_utf8);
-                if (j == 0) {
+
+                if (value_count == 0) {
                     //no tag value found
                     rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
                         ? true
                         : false;
                 }
-                if (rc == true &&
-                    expr->tag != SEARCH_FILTER_ANY_TAG)
+                if (expr->op != SEARCH_OP_NOT_EQUAL &&
+                    expr->op != SEARCH_OP_NOT_REGEX)
                 {
-                    //exit on first tag value match
+                    //exit on first match
+                    if (rc == true) {
+                        break;
+                    }
+                }
+                else if (rc == false) {
+                    //exit on first mismatch
                     break;
                 }
             }
