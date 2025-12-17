@@ -172,6 +172,12 @@ void free_search_expression_list(struct t_list *expr_list) {
     list_free_user_data(expr_list, free_search_expression_node);
 }
 
+/**
+ * Search expression matching against a tag value
+ * @param value_utf8 Value to match search expression against
+ * @param expr Search expression
+ * @return true if search expression matches, else false
+ */
 static bool match_tag(const char *value_utf8, struct t_search_expression *expr) {
     switch (expr->op) {
         case SEARCH_OP_CONTAINS:    return strstr(value_utf8, expr->value_utf8) != NULL;
@@ -183,6 +189,28 @@ static bool match_tag(const char *value_utf8, struct t_search_expression *expr) 
         case SEARCH_OP_NOT_REGEX:   return cmp_regex(expr->re_compiled, value_utf8) == false;
         default:                    return false;
     }
+}
+
+/**
+ * Determines if the search loop can end
+ * @param rc Result of match_tag function
+ * @param expr Search expression
+ * @return true if search loop can be prematurely exited, else false
+ */
+static bool exit_search_loop(bool rc, struct t_search_expression *expr) {
+    if (expr->op != SEARCH_OP_NOT_EQUAL &&
+        expr->op != SEARCH_OP_NOT_REGEX)
+    {
+        //exit on first match
+        if (rc == true) {
+            return true;
+        }
+    }
+    else if (rc == false) {
+        //exit on first mismatch
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -240,47 +268,20 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
                 while ((value = mpd_song_get_tag(song, tags->tags[tag_count], value_count)) != NULL) {
                     value_utf8 = utf8_wrap_normalize(value, strlen(value));
                     value_count++;
-                    if (match_tag(value_utf8, expr) == true) {
-                        // expression matches
-                        rc = true;
-                        if (expr->op != SEARCH_OP_NOT_EQUAL &&
-                            expr->op != SEARCH_OP_NOT_REGEX)
-                        {
-                            // exit on first match
-                            FREE_PTR(value_utf8);
-                            break;
-                        }
-                    }
-                    else {
-                        //expression does not match
-                        rc = false;
-                        if (expr->op == SEARCH_OP_NOT_EQUAL ||
-                            expr->op == SEARCH_OP_NOT_REGEX)
-                        {
-                            // exit on first mismatch
-                            FREE_PTR(value_utf8);
-                            break;
-                        }
+                    rc = match_tag(value_utf8, expr);
+                    if (exit_search_loop(rc, expr) == true) {
+                        FREE_PTR(value_utf8);
+                        break;
                     }
                     FREE_PTR(value_utf8);
                 }
-
                 if (value_count == 0) {
                     //no tag value found
                     rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
                         ? true
                         : false;
                 }
-                if (expr->op != SEARCH_OP_NOT_EQUAL &&
-                    expr->op != SEARCH_OP_NOT_REGEX)
-                {
-                    //exit on first match
-                    if (rc == true) {
-                        break;
-                    }
-                }
-                else if (rc == false) {
-                    //exit on first mismatch
+                if (exit_search_loop(rc, expr) == true) {
                     break;
                 }
             }
@@ -340,47 +341,20 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
                 while ((value = album_get_tag(album, tags->tags[tag_count], value_count)) != NULL) {
                     value_utf8 = utf8_wrap_normalize(value, strlen(value));
                     value_count++;
-                    if (match_tag(value_utf8, expr) == true) {
-                        // expression matches
-                        rc = true;
-                        if (expr->op != SEARCH_OP_NOT_EQUAL &&
-                            expr->op != SEARCH_OP_NOT_REGEX)
-                        {
-                            // exit on first match
-                            FREE_PTR(value_utf8);
-                            break;
-                        }
-                    }
-                    else {
-                        //expression does not match
-                        rc = false;
-                        if (expr->op == SEARCH_OP_NOT_EQUAL ||
-                            expr->op == SEARCH_OP_NOT_REGEX)
-                        {
-                            // exit on first mismatch
-                            FREE_PTR(value_utf8);
-                            break;
-                        }
+                    rc = match_tag(value_utf8, expr);
+                    if (exit_search_loop(rc, expr) == true) {
+                        FREE_PTR(value_utf8);
+                        break;
                     }
                     FREE_PTR(value_utf8);
                 }
-
                 if (value_count == 0) {
                     //no tag value found
                     rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
                         ? true
                         : false;
                 }
-                if (expr->op != SEARCH_OP_NOT_EQUAL &&
-                    expr->op != SEARCH_OP_NOT_REGEX)
-                {
-                    //exit on first match
-                    if (rc == true) {
-                        break;
-                    }
-                }
-                else if (rc == false) {
-                    //exit on first mismatch
+                if (exit_search_loop(rc, expr) == true) {
                     break;
                 }
             }
@@ -437,47 +411,20 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
                 while ((value = webradio_get_tag(webradio, tags->tags[tag_count], value_count)) != NULL) {
                     value_utf8 = utf8_wrap_normalize(value, strlen(value));
                     value_count++;
-                    if (match_tag(value_utf8, expr) == true) {
-                        // expression matches
-                        rc = true;
-                        if (expr->op != SEARCH_OP_NOT_EQUAL &&
-                            expr->op != SEARCH_OP_NOT_REGEX)
-                        {
-                            // exit on first match
-                            FREE_PTR(value_utf8);
-                            break;
-                        }
-                    }
-                    else {
-                        //expression does not match
-                        rc = false;
-                        if (expr->op == SEARCH_OP_NOT_EQUAL ||
-                            expr->op == SEARCH_OP_NOT_REGEX)
-                        {
-                            // exit on first mismatch
-                            FREE_PTR(value_utf8);
-                            break;
-                        }
+                    rc = match_tag(value_utf8, expr);
+                    if (exit_search_loop(rc, expr) == true) {
+                        FREE_PTR(value_utf8);
+                        break;
                     }
                     FREE_PTR(value_utf8);
                 }
-
                 if (value_count == 0) {
                     //no tag value found
                     rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
                         ? true
                         : false;
                 }
-                if (expr->op != SEARCH_OP_NOT_EQUAL &&
-                    expr->op != SEARCH_OP_NOT_REGEX)
-                {
-                    //exit on first match
-                    if (rc == true) {
-                        break;
-                    }
-                }
-                else if (rc == false) {
-                    //exit on first mismatch
+                if (exit_search_loop(rc, expr) == true) {
                     break;
                 }
             }
