@@ -20,14 +20,6 @@ This release improves the integrated search by using string normalization and ad
 
 ***
 
-## myMPD v23.0.2 (not yet released)
-
-This is a small bug fix release.
-
-### Changelog
-
-***
-
 ## myMPD v23.0.1 (2025-11-27)
 
 This is a small bug fix release.
