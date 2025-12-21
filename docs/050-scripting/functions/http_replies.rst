@@ -1,0 +1,92 @@
+HTTP Replies
+============
+
+.. _http-replies-1:
+
+HTTP replies
+------------
+
+This functions are creating raw http response for usage in scripts
+called by http requests.
+
+Such scripts can be called by the URI ``/script/<partition>/<script>``.
+
+.. code:: lua
+
+   -- Return a complete http reply
+   local status = 200
+   local headers ="Content-type: text/plain\r\n"
+   local body = "testbody"
+   return mympd.http_reply(status, headers, body)
+
+   -- Return a 302 FOUND response (temporary redirect) to /test
+   local location = "/test"
+   return mympd.http_redirect(location)
+
+   -- Serve a file from the cache
+   local file = mympd_env.cachedir_misc .. "/test.png"
+   return mympd.http_serve_file(file)
+
+   -- Serve a file from the cache and remove it afterwards
+   local file = mympd_env.cachedir_misc .. "/test.png"
+   return mympd.http_serve_file_rm(file)
+
+   -- Download a file and serve it from the http client cache
+   local rc, code, headers, filename = mympd.http_download(uri, extra_headers, "", true)
+   if rc == 0 then
+     return mympd.http_serve_file_from_cache(filename)
+   end
+
+**Parameters:**
+
++--------------------------+-----------+--------------------------------+
+| PARAMETER                | TYPE      | DESCRIPTION                    |
++==========================+===========+================================+
+| status                   | integer   | HTTP status code, e.g. 200     |
++--------------------------+-----------+--------------------------------+
+| headers                  | string    | HTTP headers to append,        |
+|                          |           | terminate each header with     |
+|                          |           | ``\r\n``. ``Status``,          |
+|                          |           | ``Connection`` and             |
+|                          |           | ``Content-Length`` headers are |
+|                          |           | added automatically.           |
++--------------------------+-----------+--------------------------------+
+| body                     | string    | Response body                  |
++--------------------------+-----------+--------------------------------+
+
+JSONRPC
+-------
+
+Send a JSONRPC 2.0 result
+-------------------------
+
+.. code:: lua
+
+   local result = {
+     data = [{
+       synced = false,
+       lang = "",
+       desc = "",
+       text = "Script generated lyrics"
+     }],
+     totalEntities = 1,
+     returnedEntities = 1
+   }
+   return mympd.http_jsonrpc_response(result)
+
+Send a JSONRPC 2.0 error or warning
+-----------------------------------
+
+.. code:: lua
+
+   return mympd.http_jsonrpc_error(method, msg)
+   return mympd.http_jsonrpc_warn(method, msg)
+
+**Parameters:**
+
+========= ======= ================
+PARAMETER TYPE    DESCRIPTION
+========= ======= ================
+method    integer myMPD API method
+msg       string  Error message
+========= ======= ================

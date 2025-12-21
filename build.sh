@@ -113,7 +113,7 @@ setversion() {
       "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild"
   fi
 
-  printf "%s" "${VERSION}" > docs/_includes/version
+  printf "%s" "This documentation is for myMPD version ${VERSION}." > docs/_includes/version
 
   echo "const myMPDversion = '${VERSION}';" > htdocs/js/version.js
   echo "const myMPDbuild = '';" >> htdocs/js/version.js
@@ -488,8 +488,6 @@ cleanup() {
 
   #generated documentation
   rm -rf _site
-  rm -rf docs/doxygen
-  rm -rf docs/jsdoc
 
   #compilation database
   rm -f src/compile_commands.json
@@ -1377,31 +1375,37 @@ run_markdownlint() {
 }
 
 run_doxygen() {
+  DOC_DEST=$1
   if ! check_cmd doxygen
   then
     return 1
   fi
   echo "Running doxygen"
-  doxygen
+  install -d "$DOC_DEST/html/doxygen"
+  ( cat Doxyfile ; echo "OUTPUT_DIRECTORY  = $DOC_DEST/html/doxygen" ) | doxygen -
 }
 
 run_jsdoc() {
+  DOC_DEST=$1
   if ! check_cmd npx
   then
     return 1
   fi
   echo "Running jsdoc"
-  npx jsdoc htdocs/js/ -c jsdoc.json -d docs/jsdoc/
+  install -d "$DOC_DEST/html/jsdoc"
+  npx jsdoc htdocs/js/ -c jsdoc.json -d "$DOC_DEST/html/jsdoc/"
 }
 
 run_luadoc() {
+  DOC_DEST=$1
   if ! check_cmd ldoc
   then
     return 1
   fi
   echo "Running ldoc"
   lualibs
-  ldoc -d docs/luadoc/ release/contrib/lualibs/mympd.lua
+  install -d "$DOC_DEST/html/luadoc"
+  ldoc -d "$DOC_DEST/html/luadoc/" release/contrib/lualibs/mympd.lua
 }
 
 create_doc() {
@@ -1412,11 +1416,17 @@ create_doc() {
     echo "Python3 not installed, can not create documentation"
     return 1
   fi
-  ./build.sh api_doc
-  python3 -m venv ~/python-venv/
-  ~/python-venv/bin/pip install mkdocs mkdocs-material \
-      mkdocs-include-markdown-plugin mkdocs-awesome-pages-plugin
-  ~/python-venv/bin/mkdocs build -d "$DOC_DEST"
+  ./build.sh api_doc "$DOC_DEST"
+  python3 -m venv /tmp/python-venv/
+  /tmp/python-venv/bin/python3 -m pip install --upgrade pip
+  /tmp/python-venv/bin/pip install sphinx sphinx-book-theme sphinx-copybutton
+  /tmp/python-venv/bin/sphinx-build -M html docs "$DOC_DEST"
+}
+
+serve_doc() {
+  DOC_DEST=$1
+  /tmp/python-venv/bin/pip install sphinx-autobuild
+  /tmp/python-venv/bin/sphinx-autobuild -M html docs "$DOC_DEST"
 }
 
 translation_import() {
@@ -1670,22 +1680,29 @@ case "$ACTION" in
     luascript_index
   ;;
   api_doc)
-    if ! run_doxygen
+    if [ -z "${2+x}" ]
+    then
+      echo "Usage: $0 $1 <destination folder>"
+      exit 1
+    fi
+    install -d "$2/html/assets/"
+    if ! run_doxygen "$2"
     then
       echo "Could not create backend api documentation"
       exit 1
     fi
-    if ! run_jsdoc
+    if ! run_jsdoc "$2"
     then
       echo "Could not create frontend api documentation"
       exit 1
     fi
-    if ! run_luadoc
+    if ! run_luadoc "$2"
     then
       echo "Could not create lua api documentation"
       exit 1
     fi
-    cp -v htdocs/js/apidoc.js docs/assets/apidoc.js
+    cp -v htdocs/js/apidoc.js "$2/html/assets/apidoc.js"
+    cp -v docs/assets/create-apidoc.js "$2/html/assets/"
   ;;
   doc)
     if [ -z "${2+x}" ]
@@ -1694,6 +1711,18 @@ case "$ACTION" in
       exit 1
     fi
     create_doc "$2"
+    ;;
+  serve_doc)
+    if [ -z "${2+x}" ]
+    then
+      echo "Usage: $0 $1 <destination folder>"
+      exit 1
+    fi
+    if [ ! -d "$2" ]
+    then
+      create_doc "$2"
+    fi
+    serve_doc "$2"
     ;;
   cloc)
     cloc --exclude-dir=dist .
@@ -1799,6 +1828,7 @@ case "$ACTION" in
     echo "  luascript_index:  creates the json index of lua scripts"
     echo "  api_doc:          generates the api documentation"
     echo "  doc:              generates the html documentation"
+    echo "  serve_doc:        generates the html documentation and runs a development server"
     echo "  cloc:             runs cloc (count lines of code)"
     echo ""
     echo "Source update options:"

@@ -33,6 +33,8 @@ jobs:
           ./build.sh doc _site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site/html/
 
   # Deployment job
   deploy:

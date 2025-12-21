@@ -34,17 +34,14 @@
 /htdocs/js/long-press-event.js
 /htdocs/sw.js
 
-#private configuration
-/.vscode/
-
-#documentation (github pages)
+#documentation
 /docs/doxygen/
 /docs/jsdoc/
 /docs/assets/apidoc.js
 /docs/scripting/scripts/index.json
-/docs/.jekyll-cache/
 /docs/luadoc/
 _site/
 
 #private files
+/.vscode/
 .secrets

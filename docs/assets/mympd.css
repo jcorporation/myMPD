@@ -1,0 +1,11 @@
+html[data-theme="light"],
+html[data-theme="dark"] {
+    --pst-color-primary: #28a745;
+    --pst-color-secondary: #007211;
+    --pst-color-inline-code: #28a745;
+    --pst-color-table-row-hover-bg: rgba(0,0,0,0.1);
+}
+
+.bd-page-width {
+    max-width: unset;
+}
