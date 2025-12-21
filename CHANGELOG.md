@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 This release improves the integrated search by using string normalization and adding a fuzzy search option. Furthermore the mpd connection handling was improved.
 
+The documentation site was migrated from Mkdocs to Sphinx, because of the deprecation of Material for MKdocs.
+
 ### Changelog
 
 - Feat: Fuzzy substring matching using the levenshtein distance
