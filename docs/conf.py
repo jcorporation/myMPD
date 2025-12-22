@@ -8,7 +8,6 @@
 
 project = 'myMPD'
 copyright = '2018-2025, Juergen Mang'
-author = 'Juergen Mang'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -31,3 +30,15 @@ html_favicon = 'assets/favicon.ico'
 html_css_files = [
     'mympd.css',
 ]
+html_theme_options = {
+    "repository_url": "https://github.com/jcorporation/myMPD",
+    "repository_branch": "master",
+    "path_to_docs": "docs/",
+    "use_source_button": True,
+    "use_repository_button": True,
+    "home_page_in_toc": True,
+    "logo": {
+        "image_light": "assets/logo-light.svg",
+        "image_dark": "assets/logo-dark.svg",
+    },
+}

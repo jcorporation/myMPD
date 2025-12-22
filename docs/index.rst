@@ -3,7 +3,7 @@ myMPD Documentation
 
 myMPD is a standalone and mobile friendly web-based MPD client with a tiny footprint and advanced features.
 
-- `GitHub repository <https://github.com/jcorporation/myMPD>`__
+- :icon:`fa-solid fa-folder` `GitHub repository <https://github.com/jcorporation/myMPD>`__
 - `Help to improve myMPD <https://github.com/jcorporation/myMPD/issues/167>`__
 - `Q&A <https://github.com/jcorporation/myMPD/discussions/categories/q-a>`__
 
@@ -24,3 +24,8 @@ To use all myMPD functions you should use the latest stable MPD version.
    070-additional-topics/index.rst
    080-known-issues.rst
    090-security.rst
+
+Screenshots
+-----------
+
+.. image:: assets/myMPDv10.2.0.gif

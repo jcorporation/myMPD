@@ -1717,10 +1717,7 @@ case "$ACTION" in
       echo "Usage: $0 $1 <destination folder>"
       exit 1
     fi
-    if [ ! -d "$2" ]
-    then
-      create_doc "$2"
-    fi
+    create_doc "$2"
     serve_doc "$2"
     ;;
   cloc)
