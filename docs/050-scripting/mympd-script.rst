@@ -15,7 +15,7 @@ standard ``/api/<partition>`` API endpoint.
 
 .. code:: sh
 
-   mympd-script https://localhost default test key1=value1 
+   mympd-script https://localhost default test key1=value1
 
 Script from STDIN
 -----------------

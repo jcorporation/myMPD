@@ -157,8 +157,8 @@ comment as json object.
 
 .. code-block:: lua
 
-  -- {"name": "scriptname", "file": "category/scriptname.lua", "version": 1, "desc": "short description", "order":1,"arguments":["testarg1", "testarg2"]} 
-  
+  -- {"name": "scriptname", "file": "category/scriptname.lua", "version": 1, "desc": "short description", "order":1,"arguments":["testarg1", "testarg2"]}
+
   return("Arguments are:" .. mympd_arguments.testarg1 .. mympd_arguments.testarg2)
 
 Metadata

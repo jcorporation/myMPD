@@ -1,11 +1,7 @@
 Debian and Ubuntu Installation
 ==============================
 
-When installing on Debian or Ubuntu, the easiest way is to configure
-your package manager to securely download from the official myMPD
-repository. It allows you to use apt’s native update mechanism to
-upgrade myMPD instead of having to manually download the deb package for
-each new release.
+When installing on Debian or Ubuntu, the easiest way is to configure your package manager to securely download from the official myMPD repository. It allows you to use apt’s native update mechanism to upgrade myMPD instead of having to manually download the deb package for each new release.
 
 .. tip:: Simply replace ``Debian`` with ``xUbuntu`` for Ubuntu installation.
 
@@ -22,7 +18,7 @@ each new release.
    # Debian Trixie
    curl http://download.opensuse.org/repositories/home:/jcorporation/Debian_$VERSION_ID/Release.key | gpg --dearmor --output /usr/share/keyrings/jcorporation.github.io.gpg
 
-   # ⚠️ VERIFY the fingerprint of the downloaded key (A37A ADC4 0A1C C6BE FB75  372F AA09 B8CC E895 BD7D - home:jcorporation OBS Project <home:jcorporation@build.opensuse.org>) 
+   # ⚠️ VERIFY the fingerprint of the downloaded key (A37A ADC4 0A1C C6BE FB75  372F AA09 B8CC E895 BD7D - home:jcorporation OBS Project <home:jcorporation@build.opensuse.org>)
    gpg --no-default-keyring --keyring /usr/share/keyrings/jcorporation.github.io.gpg --fingerprint
 
    # Make the imported keyring world-readable

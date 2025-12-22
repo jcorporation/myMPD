@@ -46,7 +46,7 @@ Add the following to a existing or a new virtual host:
 
 .. code:: text
 
-   ProxyRequests Off 
+   ProxyRequests Off
    ProxyPreserveHost on
    ProxyVia On
 
@@ -103,7 +103,7 @@ location directive adjusting for your own network:
 
 .. code:: text
 
-   Require host localhost 
+   Require host localhost
    Require ip <ipaddress>
    Require ip <ip range/netmask> # ex 192.168.1.0/24
 

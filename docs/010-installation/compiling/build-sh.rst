@@ -9,7 +9,7 @@ Compiling and installing
 The ``build.sh`` script provides three compile targets for myMPD.
 
 .. hint ::
-   
+
    If compilation fails and you are building on top of an old version, try to run ``./build.sh cleanup`` before.
 
 Release

@@ -4,7 +4,7 @@ References
 .. toctree::
    :glob:
    :titlesonly:
-   
+
    api/index.rst
    *
 

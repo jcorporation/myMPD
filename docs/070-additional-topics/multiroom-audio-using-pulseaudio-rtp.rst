@@ -311,7 +311,7 @@ appear under the audio interface that’s outputting them.
    *MPD RTP Multicast Sink                               100 -┌ ████████████     ┐-
                                                              -└ ████████████     ┘-
 
-    RTP MultimediaRoom                                   100  ┌ ████████████     ┐ 
+    RTP MultimediaRoom                                   100  ┌ ████████████     ┐
                                                               └ ████████████     ┘
 
     RTP Saloon                                           100  ┌ ████████████     ┐
