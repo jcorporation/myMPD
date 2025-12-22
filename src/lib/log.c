@@ -98,7 +98,6 @@ void set_loglevel(int level) {
  * Initializes the logging sub-system
  */
 void log_init(void) {
-    log_type = LOG_TO_STDOUT;
     if (isatty(fileno(stdout)) == true) {
         log_type = LOG_TO_TTY;
     }
@@ -107,6 +106,9 @@ void log_init(void) {
     }
     else if (getenv_check("MYMPD_LOG_TS") != NULL) {
         log_type = LOG_WITH_TS;
+    }
+    else {
+        log_type = LOG_TO_STDOUT;
     }
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
