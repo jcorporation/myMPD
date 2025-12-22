@@ -335,6 +335,74 @@ static void handle_wakeup(struct mg_connection *nc, struct mg_str *data) {
 }
 
 /**
+ * Validates the request
+ * @param nc Mongoose conncection
+ * @param hm HTTP Request
+ * @return true on valid request, else false
+ */
+static bool check_request(struct mg_connection *nc, struct mg_http_message *hm) {
+    //limit protocol
+    if (mg_strcmp(hm->proto, mg_str("HTTP/1.1")) == 0) {
+        nc->data[2] = 'K';
+    }
+    else if (mg_strcmp(hm->proto, mg_str("HTTP/1.0")) == 0) {
+        nc->data[2] = 'C';
+    }
+    else {
+        MYMPD_LOG_ERROR(NULL, "Invalid http protocol \"%.*s\" (%lu)", (int)hm->proto.len, hm->proto.buf, nc->id);
+        webserver_send_error(nc, 405, "Invalid http protocol");
+        nc->is_draining = 1;
+        return false;
+    }
+    //limit allowed http methods
+    if (mg_strcmp(hm->method, mg_str("GET")) == 0) {
+        nc->data[1] = 'G';
+    }
+    else if (mg_strcmp(hm->method, mg_str("HEAD")) == 0) {
+        nc->data[1] = 'H';
+    }
+    else if (mg_strcmp(hm->method, mg_str("POST")) == 0) {
+        nc->data[1] = 'P';
+    }
+    else if (mg_strcmp(hm->method, mg_str("OPTIONS")) == 0) {
+        nc->data[1] = 'O';
+        webserver_send_cors_reply(nc);
+        return false;
+    }
+    else {
+        MYMPD_LOG_ERROR(NULL, "Invalid http method \"%.*s\" (%lu)", (int)hm->method.len, hm->method.buf, nc->id);
+        webserver_send_error(nc, 405, "Invalid http method");
+        //nc->is_draining = 1;
+        return false;
+    }
+    //check uri length
+    if (hm->uri.len > URI_LENGTH_MAX) {
+        MYMPD_LOG_ERROR(NULL, "Uri is too long, length is %lu, maximum length is %d (%lu)", (unsigned long)hm->uri.len, URI_LENGTH_MAX, nc->id);
+        webserver_send_error(nc, 414, "Uri is too long");
+        //nc->is_draining = 1;
+        return false;
+    }
+    //check post requests length
+    if (nc->data[1] == 'P' && (hm->body.len == 0 || hm->body.len > BODY_SIZE_MAX)) {
+        MYMPD_LOG_ERROR(NULL, "POST request with body of size %lu is out of bounds (%lu)", (unsigned long)hm->body.len, nc->id);
+        webserver_send_error(nc, 413, "Post request is too large");
+        //nc->is_draining = 1;
+        return false;
+    }
+    //respect connection close header
+    struct mg_str *connection_hdr = mg_http_get_header(hm, "Connection");
+    if (connection_hdr != NULL) {
+        if (mg_strcasecmp(*connection_hdr, mg_str("close")) == 0) {
+            nc->data[2] = 'C';
+        }
+        else {
+            nc->data[2] = 'K';
+        }
+    }
+    return true;
+}
+
+/**
  * Central webserver event handler
  * nc->label usage
  * 0 - connection type: F = frontend connection, B = backend connection
@@ -371,7 +439,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 //set labels
                 nc->data[0] = 'F'; // connection type
                 nc->data[1] = '-'; // http method
-                nc->data[2] = 'C'; // connection header
+                nc->data[2] = '-'; // connection header
             }
             break;
         }
@@ -453,50 +521,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.buf,
                     (int)hm->uri.len, hm->uri.buf);
             }
-            //limit allowed http methods
-            if (mg_strcmp(hm->method, mg_str("GET")) == 0) {
-                nc->data[1] = 'G';
-            }
-            else if (mg_strcmp(hm->method, mg_str("HEAD")) == 0) {
-                nc->data[1] = 'H';
-            }
-            else if (mg_strcmp(hm->method, mg_str("POST")) == 0) {
-                nc->data[1] = 'P';
-            }
-            else if (mg_strcmp(hm->method, mg_str("OPTIONS")) == 0) {
-                nc->data[1] = 'O';
-                webserver_send_cors_reply(nc);
-                return;
-            }
-            else {
-                MYMPD_LOG_ERROR(NULL, "Invalid http method \"%.*s\" (%lu)", (int)hm->method.len, hm->method.buf, nc->id);
-                webserver_send_error(nc, 405, "Invalid http method");
-                nc->is_draining = 1;
-                return;
-            }
-            //check uri length
-            if (hm->uri.len > URI_LENGTH_MAX) {
-                MYMPD_LOG_ERROR(NULL, "Uri is too long, length is %lu, maximum length is %d (%lu)", (unsigned long)hm->uri.len, URI_LENGTH_MAX, nc->id);
-                webserver_send_error(nc, 414, "Uri is too long");
-                nc->is_draining = 1;
-                return;
-            }
-            //check post requests length
-            if (nc->data[1] == 'P' && (hm->body.len == 0 || hm->body.len > BODY_SIZE_MAX)) {
-                MYMPD_LOG_ERROR(NULL, "POST request with body of size %lu is out of bounds (%lu)", (unsigned long)hm->body.len, nc->id);
-                webserver_send_error(nc, 413, "Post request is too large");
-                nc->is_draining = 1;
-                return;
-            }
-            //respect connection close header
-            struct mg_str *connection_hdr = mg_http_get_header(hm, "Connection");
-            if (connection_hdr != NULL) {
-                if (mg_strcasecmp(*connection_hdr, mg_str("close")) == 0) {
-                    nc->data[2] = 'C';
-                }
-                else {
-                    nc->data[2] = 'K';
-                }
+            if (check_request(nc, hm) == false) {
+                break;
             }
             //handle uris
             if (mg_match(hm->uri, mg_str("/api/*"), NULL)) {
@@ -576,7 +602,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 struct t_list_node *node = list_get_node(&mg_user_data->stream_uris, frontend_nc_data->partition);
                 if (node == NULL) {
                     webserver_send_error(nc, 404, "Stream uri not configured");
-                    nc->is_draining = 1;
+                    //nc->is_draining = 1;
                     break;
                 }
                 create_backend_connection(nc, frontend_nc_data->backend_nc, node->value_p, forward_backend_to_frontend_stream, true);
@@ -731,6 +757,10 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
                 MYMPD_LOG_DEBUG(NULL, "Redirect listening connection opened");
             }
             mg_user_data->connection_count++;
+            //set labels
+            nc->data[0] = 'F'; // connection type
+            nc->data[1] = '-'; // http method
+            nc->data[2] = '-'; // connection header
             break;
         case MG_EV_ACCEPT:
             //enforce connection limit
@@ -744,6 +774,9 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             break;
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+            if (check_request(nc, hm) == false) {
+                break;
+            }
             // Serve some directories without ssl
             if (mg_match(hm->uri, mg_str("/webradio"), NULL)) {
                 request_handler_extm3u(nc, hm, mg_user_data);
@@ -759,7 +792,8 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
             if (host_hdr == NULL) {
                 MYMPD_LOG_ERROR(NULL, "No host header found, closing connection");
-                nc->is_closing = 1;
+                webserver_send_error(nc, 405, "No host header found");
+                //nc->is_closing = 1;
                 break;
             }
 
@@ -772,7 +806,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             }
             MYMPD_LOG_INFO(NULL, "Redirecting to %s", s_redirect);
             webserver_send_header_found(nc, s_redirect, "");
-            nc->is_draining = 1;
+            //nc->is_draining = 1;
             sdsfreesplitres(tokens, count);
             FREE_SDS(host_header);
             FREE_SDS(s_redirect);
