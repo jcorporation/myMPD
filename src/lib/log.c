@@ -105,6 +105,9 @@ void log_init(void) {
     else if (getenv_check("INVOCATION_ID") != NULL) {
         log_type = LOG_TO_SYSTEMD;
     }
+    else if (getenv_check("MYMPD_LOG_TS") != NULL) {
+        log_type = LOG_WITH_TS;
+    }
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
     #else
@@ -164,6 +167,13 @@ void mympd_log(int level, const char *file, int line, const char *partition, con
 
     if (log_type == LOG_TO_TTY) {
         thread_logline = sdscat(thread_logline, loglevel_colors[level]);
+        time_t now = time(NULL);
+        struct tm timeinfo;
+        if (localtime_r(&now, &timeinfo) != NULL) {
+            thread_logline = sdscatprintf(thread_logline, "%02d:%02d:%02d ", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+        }
+    }
+    else if (log_type == LOG_WITH_TS) {
         time_t now = time(NULL);
         struct tm timeinfo;
         if (localtime_r(&now, &timeinfo) != NULL) {
