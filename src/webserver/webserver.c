@@ -352,7 +352,7 @@ static bool check_request(struct mg_connection *nc, struct mg_http_message *hm) 
         );
     }
     else {
-        MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s  %.*s",
+        MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s %.*s",
             nc->id,
             (int)hm->method.len, hm->method.buf,
             (int)hm->uri.len, hm->uri.buf,
