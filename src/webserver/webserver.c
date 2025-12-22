@@ -341,6 +341,24 @@ static void handle_wakeup(struct mg_connection *nc, struct mg_str *data) {
  * @return true on valid request, else false
  */
 static bool check_request(struct mg_connection *nc, struct mg_http_message *hm) {
+    // First log it
+    if (hm->query.len > 0) {
+        MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s?%.*s %.*s",
+            nc->id,
+            (int)hm->method.len, hm->method.buf,
+            (int)hm->uri.len, hm->uri.buf,
+            (int)hm->query.len, hm->query.buf,
+            (int)hm->proto.len, hm->proto.buf
+        );
+    }
+    else {
+        MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s  %.*s",
+            nc->id,
+            (int)hm->method.len, hm->method.buf,
+            (int)hm->uri.len, hm->uri.buf,
+            (int)hm->proto.len, hm->proto.buf
+        );
+    }
     //limit protocol
     if (mg_strcmp(hm->proto, mg_str("HTTP/1.1")) == 0) {
         nc->data[2] = 'K';
@@ -513,14 +531,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_HTTP_MSG: {
             nc->is_resp = 1;
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-            if (hm->query.len > 0) {
-                MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s?%.*s", nc->id, (int)hm->method.len, hm->method.buf,
-                    (int)hm->uri.len, hm->uri.buf, (int)hm->query.len, hm->query.buf);
-            }
-            else {
-                MYMPD_LOG_INFO(NULL, "HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.buf,
-                    (int)hm->uri.len, hm->uri.buf);
-            }
             if (check_request(nc, hm) == false) {
                 break;
             }
