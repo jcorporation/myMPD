@@ -1361,16 +1361,15 @@ run_luacheck() {
   return 0
 }
 
-run_markdownlint() {
-  if ! check_cmd npx
+run_doclint() {
+  # https://github.com/sphinx-contrib/sphinx-lint
+  if [ ! -x /tmp/python-venv/bin/sphinx-lint ]
   then
-    return 1
+    python3 -m venv /tmp/python-venv/ > /dev/null
+    /tmp/python-venv/bin/pip install sphinx-lint  > /dev/null
   fi
-  echo "Linting docs markdown"
-  if ! npx markdownlint-cli -i "./docs/_includes/*" ./docs/**
-  then
-    return 1
-  fi
+  echo "Running sphin-lint"
+  /tmp/python-venv/bin/sphinx-lint docs || return 1
   return 0
 }
 
@@ -1659,7 +1658,7 @@ case "$ACTION" in
     run_tsc
     run_checkjs
     run_luacheck
-    run_markdownlint
+    run_doclint
   ;;
   eslint)
     run_eslint
@@ -1670,8 +1669,8 @@ case "$ACTION" in
   htmlhint)
     run_htmlhint
   ;;
-  markdownlint)
-    run_markdownlint
+  doclint)
+    run_doclint
   ;;
   luacheck)
     run_luacheck
@@ -1766,8 +1765,8 @@ case "$ACTION" in
     echo "  check_file:       same as check, but for one file, second arg must be the file"
     echo "  check_docs        checks the documentation for missing API methods"
     echo "  check_includes:   checks for valid include paths"
-    echo "  lint:             runs linters for javascript, css, html and markdown"
-    echo "  markdownlint:     check for valid markdown in the docs folder"
+    echo "  lint:             runs linters for javascript, css, html and documentation"
+    echo "  doclint:          check for valid reStructuredText in the docs folder"
     echo "  eslint:           combines javascript files and runs eslint"
     echo "  stylelint:        runs stylelint (lints css files)"
     echo "  htmlhint:         runs htmlhint (lints html files)"
