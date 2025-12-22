@@ -6,10 +6,8 @@ Overview
 
 On startup myMPD does the following:
 
-- Check for writeable ``cachedir`` (``/var/cache/mympd``) and
-  ``workdir`` (``/var/lib/mympd``) directories.
-- Reads environment and configuration files. Environment variables are
-  overriding configuration settings.
+- Check for writeable ``cachedir`` (``/var/cache/mympd``) and ``workdir`` (``/var/lib/mympd``) directories.
+- Reads environment and configuration files. Environment variables are overriding configuration settings.
 - Binds to the configured http (8080) and ssl port (8443).
 - Check and create the directories inside ``cachedir`` and ``workdir``.
 
@@ -67,7 +65,7 @@ If you use a distribution with systemd (without a static mympd user):
 
    systemd-run -t -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd /usr/bin/mympd
 
-Description of `Commandline-Options <020-configuration/index.rst>`__.
+Description of :doc:`Commandline-Options <020-configuration/index>`.
 
 Docker
 ------
@@ -79,4 +77,4 @@ myMPD configuration
 
 You can configure some basic options of myMPD via startup options or environment variables.
 
-- `Configuration <020-configuration/index.rst>`__
+- :doc:`Configuration <020-configuration/index>`

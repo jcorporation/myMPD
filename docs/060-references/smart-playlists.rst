@@ -31,7 +31,7 @@ Smart playlists are saved in the folder ``/var/lib/mympd/smartpls`` (one JSON fi
 +------------+--------------------+--------------------------------------------------------------------------+
 | expression | search             | MPD filter expression                                                    |
 +------------+--------------------+--------------------------------------------------------------------------+
-| sort       | newest, expression | Tag to sort (e.g. ``Artist``), ``shuffle`` or empty string               |
+| sort       | newest, expression | Tag to sort (e.g. ``Artist``), ``shuffle`` or empty string               |
 +------------+--------------------+--------------------------------------------------------------------------+
 | sort       | sticker            | Tag to sort ``uri``, ``value``, ``value_int`` (MPD 0.24)                 |
 +------------+--------------------+--------------------------------------------------------------------------+
