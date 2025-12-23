@@ -98,6 +98,7 @@ target_sources(mympd
     mympd_client/autoconf.c
     mympd_client/compat.c
     mympd_client/connection.c
+    mympd_client/database.c
     mympd_client/errorhandler.c
     mympd_client/features.c
     mympd_client/idle.c

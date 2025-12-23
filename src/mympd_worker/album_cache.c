@@ -20,6 +20,7 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
+#include "src/mympd_client/database.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/search.h"
 #include "src/mympd_client/tags.h"

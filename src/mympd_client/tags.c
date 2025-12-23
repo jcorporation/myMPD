@@ -38,24 +38,6 @@ static sds get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag,
  */
 
 /**
- * Returns the mpd database last modification time
- * @param partition_state pointer to partition specific states
- * @return last modification time
- */
-time_t mympd_client_get_db_mtime(struct t_partition_state *partition_state) {
-    time_t mtime = 0;
-    struct mpd_stats *stats = mpd_run_stats(partition_state->conn);
-    if (stats != NULL) {
-        mtime = (time_t)mpd_stats_get_db_update_time(stats);
-        mpd_stats_free(stats);
-    }
-    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_stats") == false) {
-        mtime = 0;
-    }
-    return mtime;
-}
-
-/**
  * Checks if tag is a multivalue tag
  * @param tag mpd tag type
  * @return true if it is a multivalue tag, else false
