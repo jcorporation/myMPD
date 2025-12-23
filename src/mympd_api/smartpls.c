@@ -53,7 +53,7 @@ sds mympd_api_smartpls_get(sds workdir, sds buffer, unsigned request_id, const c
         buffer = tojson_char(buffer, "plist", playlist, true);
         buffer = tojson_char(buffer, "type", smartpltype, true);
         unsigned max_entries = 0;
-        json_get_uint(content, "$.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &max_entries, NULL);
+        json_get_uint(content, "$.maxentries", 0, MPD_PLIST_LENGTH_MAX, &max_entries, NULL);
         buffer = tojson_uint(buffer, "maxentries", max_entries, true);
         bool rc = true;
         if (strcmp(smartpltype, "sticker") == 0) {

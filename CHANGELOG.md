@@ -20,6 +20,7 @@ The documentation site was migrated from Mkdocs to Sphinx, because of the deprec
 - Upd: Move lyrics handling from mympd_api to webserver thread
 - Upd: Performance improvements for mympd_api polling
 - Upd: Stability improvements in MPD connection handling
+- Upd: Limit length of smart playlists #1505
 - Fix: Handling of HTTP connections #1503
 
 ***

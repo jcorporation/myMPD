@@ -8,7 +8,8 @@ Playlist rule
 
 myMPD can generate smart playlists per tag value, e.g.one playlist for each genre. You can configure the rule in the settings dialog under ``General -> Smart playlists``.
 
-.. _smart-playlists-1:
+- myMPD creates only smart playlists per tag value if there are more then `smartpls_per_tag_value` different tag values.
+- The max number of playlist entries is `plist_len_max`.
 
 Smart playlists
 ---------------

@@ -392,7 +392,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, enum json_vtyp
     else if (strcmp(key, "lastPlayedCount") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned last_played_count;
         enum str2int_errno rc = str2uint(&last_played_count, value);
-        if (rc != STR2INT_SUCCESS || last_played_count > MPD_PLAYLIST_LENGTH_MAX) {
+        if (rc != STR2INT_SUCCESS || last_played_count > MPD_PLIST_LENGTH_MAX) {
             set_invalid_value(error, path, key, value, "Must be zero or a positive number");
             return false;
         }
@@ -894,7 +894,7 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->stickerdb->mpd_state->mpd_keepalive = state_file_rw_bool(workdir, DIR_WORK_STATE, "stickerdb_mpd_keepalive", mympd_state->mpd_state->mpd_keepalive, true);
     // other settings
     mympd_state->mpd_state->tag_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "tag_list", mympd_state->mpd_state->tag_list, vcb_istaglist, true);
-    mympd_state->last_played_count = state_file_rw_uint(workdir, DIR_WORK_STATE, "last_played_count", mympd_state->last_played_count, 0, MPD_PLAYLIST_LENGTH_MAX, true);
+    mympd_state->last_played_count = state_file_rw_uint(workdir, DIR_WORK_STATE, "last_played_count", mympd_state->last_played_count, 0, MPD_PLIST_LENGTH_MAX, true);
     mympd_state->booklet_name = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "booklet_name", mympd_state->booklet_name, vcb_isfilename, true);
     mympd_state->info_txt_name = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "info_txt_name", mympd_state->info_txt_name, vcb_isfilename, true);
     mympd_state->tag_list_search = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "tag_list_search", mympd_state->tag_list_search, vcb_istaglist, true);

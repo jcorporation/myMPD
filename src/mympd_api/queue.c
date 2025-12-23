@@ -999,7 +999,7 @@ static bool add_queue_search_adv_params(struct t_partition_state *partition_stat
         MYMPD_LOG_WARN(partition_state->name, "Unknown sort tag: %s", sort);
     }
 
-    unsigned real_limit = limit == 0 ? offset + MPD_PLAYLIST_LENGTH_MAX : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MPD_QUEUE_LENGTH_MAX : offset + limit;
     if (mympd_client_add_search_window(partition_state->conn, offset, real_limit) == false) {
         return false;
     }

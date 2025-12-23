@@ -60,6 +60,8 @@ struct t_config {
     unsigned jukebox_queue_length_song_min;   //!< Minimum length of the internal jukebox queue for songs
     unsigned jukebox_queue_length_album;      //!< Length of the internal jukebox queue for albums
     unsigned jukebox_queue_length_album_min;  //!< Minimum length of the internal jukebox queue for albums
+    unsigned plist_len_max;                   //!< Max. length of a playlist
+    unsigned smartpls_per_tag_value_max;      //!< Max. number of tag values to create a smart playlist for
 };
 
 #endif

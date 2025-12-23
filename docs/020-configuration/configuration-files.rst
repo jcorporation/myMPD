@@ -30,92 +30,98 @@ You can configure myMPD in different ways:
 General options
 ---------------
 
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-| FILE / ENVIRONMENT                    | TYPE    | DEFAULT        | DESCRIPTION                                          |
-+=======================================+=========+================+======================================================+
-|| acl                                  | string  |                | ACL to access the myMPD webserver: :doc:`ACL <acl>`, |
-|| MYMPD_ACL                            |         |                | allows all hosts in the default configuration.       |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| album_group_tag                      | string  |  ``Date``      | Additional tag to group albums                       |
-|| MYMPD_ALBUM_GROUP_TAG                |         |                |                                                      |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| album_mode                           | string  |  ``adv``       | Set the album mode: `adv` or `simple`                |
-|| MYMPD_ALBUM_MODE                     |         |                |                                                      |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| album_unknown                        | boolean | ``false``      | Groups songs with empty album tag in a special       |
-|| MYMPD_ALBUM_UNKNOWN                  |         |                | `Unknown Album` album.                               |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| cache_cover_keep_days                | number  | ``31``         || How long to keep images in the cover cache:         |
-|| MYMPD_CACHE_COVER_KEEP_DAYS          |         |                || 0 = disable the cache                               |
-|                                       |         |                || -1 =o disable pruning of the cache                  |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| cache_http_keep_days                 | number  | ``31``         || How long to keep successful responses in the http   |
-|| MYMPD_CACHE_HTTP_KEEP_DAYS           |         |                || client cache:                                       |
-|                                       |         |                || 0 = disable the cache                               |
-|                                       |         |                || -1 = disable pruning of the cache.                  |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| cache_lyrics_keep_days               | number  | ``31``         || How long to keep lyrics in the lyrics cache:        |
-|| MYMPD_CACHE_LYRICS_KEEP_DAYS         |         |                || 0 = disable the cache                               |
-|                                       |         |                || -1 = disable pruning of thecache                    |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| cache_misc_keep_days                 | number  | ``1``          | How long to keep files in the misc cache.            |
-|| MYMPD_CACHE_MISC_KEEP_DAYS           |         |                |                                                      |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| cache_thumbs_keep_days               | number  | ``31``         || How long to keep images in the thumbnail cache:     |
-|| MYMPD_CACHE_THUMBS_KEEP_DAYS         |         |                || 0 = disable the cache                               |
-|                                       |         |                || -1 = disable pruning of the cache                   |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| ca_cert_store                        | string  | [2]_           | Path to the system CA certificate store.             |
-|| MYMPD_CA_CERT_STORE                  |         |                |                                                      |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| cert_check                           | boolean | ``true``       | Enable certificate checking for outgoing https       |
-|| MYMPD_CERT_CHECK                     |         |                | connections.                                         |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| http                                 | boolean | ``true``       | `true` = Enable listening on http_port               |
-|| MYMPD_HTTP                           |         |                |                                                      |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| http_host                            | string  | ``[::]``       | IP address to listen on, use ``[::]`` to listen on   |
-|| MYMPD_HTTP_HOST                      |         |                | IPv6 and IPv4.                                       |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| http_port                            | number  | ``8080``       | Port to listen for plain http requests. Redirects to |
-|| MYMPD_HTTP_PORT                      |         |                | ``ssl_port`` if ``ssl`` is set to ``true``. [1]_     |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| jukebox_queue_length_album           | number  | ``25``         | Length of the internal jukebox queue for albums      |
-|| MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM     |         |                | (5 - 250).                                           |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| jukebox_queue_length_album_min       | number  | ``5``          | Minimum length of the internal jukebox queue for     |
-|| MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN |         |                | albums (5 - 125).                                    |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| jukebox_queue_length_song            | number  | ``100``        | Desired Length of the internal jukebox queue for     |
-|| MYMPD_JUKEBOX_QUEUE_LENGTH_SONG      |         |                | songs (10 - 1000).                                   |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| jukebox_queue_length_song_min        | number  | ``10``         | Minimum length of the internal jukebox queue for     |
-|| MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN  |         |                | songs (10 - 500).                                    |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| loglevel                             | number  | ``5``          | :doc:`Logging <logging>`                             |
-|| MYMPD_LOGLEVEL                       |         |                |                                                      |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| mympd_uri                            | string  | ``auto``       | ``auto`` or uri to myMPD listening port,             |
-|| MYMPD_MYMPD_URI                      |         |                | e.g. ``https://192.168.1.1/mympd``                   |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| pin_hash                             | string  |                | SHA256 hash of pin, create it with ``mympd -p``      |
-|| N/A                                  |         |                |                                                      |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| scriptacl                            | string  | ``+127.0.0.1`` | ACL for the myMPD script backend: :doc:`ACL <acl>`,  |
-|| MYMPD_SCRIPTACL                      |         |                | The acl above must also grant access.                |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| scripts_external                     | boolean | ``false``      | Allow myMPD to execute external scripts vie the      |
-|| MYMPD_SCRIPTS_EXTERNAL               |         |                | `/script-api`-Endpoint.                              |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| stickers                             | boolean | ``true``       | Enables the support for MPD stickers.                |
-|| MYMPD_STICKERS                       |         |                |                                                      |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| stickers_pad_int                     | boolean | ``false``      | Enables the padding of integer sticker values        |
-|| MYMPD_STICKERS_PAD_INT               |         |                | (12 digits).                                         |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
-|| webradiodb                           | boolean | ``true``       | Enables the WebradioDB integration.                  |
-|| MYMPD_WEBRADIODB                     |         |                |                                                      |
-+---------------------------------------+---------+----------------+------------------------------------------------------+
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+| FILE / ENVIRONMENT                    | TYPE     | DEFAULT         | DESCRIPTION                                           |
++=======================================+==========+=================+=======================================================+
+|| acl                                  || string  ||                || ACL to access the myMPD webserver: :doc:`ACL <acl>`, |
+|| MYMPD_ACL                            ||         ||                || allows all hosts in the default configuration.       |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| album_group_tag                      || string  || ``Date``       || Additional tag to group albums                       |
+|| MYMPD_ALBUM_GROUP_TAG                ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| album_mode                           || string  || ``adv``        || Set the album mode: `adv` or `simple`                |
+|| MYMPD_ALBUM_MODE                     ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| album_unknown                        || boolean || ``false``      || Groups songs with empty album tag in a special       |
+|| MYMPD_ALBUM_UNKNOWN                  ||         ||                || `Unknown Album` album.                               |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| cache_cover_keep_days                || number  || ``31``         || How long to keep images in the cover cache:          |
+|| MYMPD_CACHE_COVER_KEEP_DAYS          ||         ||                || 0 = disable the cache                                |
+||                                      ||         ||                || -1 =o disable pruning of the cache                   |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| cache_http_keep_days                 || number  || ``31``         || How long to keep successful responses in the http    |
+|| MYMPD_CACHE_HTTP_KEEP_DAYS           ||         ||                || client cache:                                        |
+||                                      ||         ||                || 0 = disable the cache                                |
+||                                      ||         ||                || -1 = disable pruning of the cache.                   |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| cache_lyrics_keep_days               || number  || ``31``         || How long to keep lyrics in the lyrics cache:         |
+|| MYMPD_CACHE_LYRICS_KEEP_DAYS         ||         ||                || 0 = disable the cache                                |
+||                                      ||         ||                || -1 = disable pruning of thecache                     |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| cache_misc_keep_days                 || number  || ``1``          || How long to keep files in the misc cache.            |
+|| MYMPD_CACHE_MISC_KEEP_DAYS           ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| cache_thumbs_keep_days               || number  || ``31``         || How long to keep images in the thumbnail cache:      |
+|| MYMPD_CACHE_THUMBS_KEEP_DAYS         ||         ||                || 0 = disable the cache                                |
+||                                      ||         ||                || -1 = disable pruning of the cache                    |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| ca_cert_store                        || string  || [2]_           || Path to the system CA certificate store.             |
+|| MYMPD_CA_CERT_STORE                  ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| cert_check                           || boolean || ``true``       || Enable certificate checking for outgoing https       |
+|| MYMPD_CERT_CHECK                     ||         ||                || connections.                                         |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| http                                 || boolean || ``true``       || `true` = Enable listening on http_port               |
+|| MYMPD_HTTP                           ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| http_host                            || string  || ``[::]``       || IP address to listen on, use ``[::]`` to listen on   |
+|| MYMPD_HTTP_HOST                      ||         ||                || IPv6 and IPv4.                                       |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| http_port                            || number  || ``8080``       || Port to listen for plain http requests. Redirects to |
+|| MYMPD_HTTP_PORT                      ||         ||                || ``ssl_port`` if ``ssl`` is set to ``true``. [1]_     |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| jukebox_queue_length_album           || number  || ``25``         || Length of the internal jukebox queue for albums      |
+|| MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM     ||         ||                || (5 - 250).                                           |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| jukebox_queue_length_album_min       || number  || ``5``          || Minimum length of the internal jukebox queue for     |
+|| MYMPD_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN ||         ||                || albums (5 - 125).                                    |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| jukebox_queue_length_song            || number  || ``100``        || Desired Length of the internal jukebox queue for     |
+|| MYMPD_JUKEBOX_QUEUE_LENGTH_SONG      ||         ||                || songs (10 - 1000).                                   |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| jukebox_queue_length_song_min        || number  || ``10``         || Minimum length of the internal jukebox queue for     |
+|| MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN  ||         ||                || songs (10 - 500).                                    |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| loglevel                             || number  || ``5``          || :doc:`Logging <logging>`                             |
+|| MYMPD_LOGLEVEL                       ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| mympd_uri                            || string  || ``auto``       || ``auto`` or uri to myMPD listening port,             |
+|| MYMPD_MYMPD_URI                      ||         ||                || e.g. ``https://192.168.1.1/mympd``                   |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| pin_hash                             || string  ||                || SHA256 hash of pin, create it with ``mympd -p``      |
+|| N/A                                  ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| plist_len_max                        || number  || ``16384``      || Maximum playlist length.                             |
+|| MYMPD_PLIST_LEN_MAX                  ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| scriptacl                            || string  || ``+127.0.0.1`` || ACL for the myMPD script backend: :doc:`ACL <acl>`,  |
+|| MYMPD_SCRIPTACL                      ||         ||                || The acl above must also grant access.                |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| scripts_external                     || boolean || ``false``      || Allow myMPD to execute external scripts vie the      |
+|| MYMPD_SCRIPTS_EXTERNAL               ||         ||                || `/script-api`-Endpoint.                              |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| smartpls_per_tag_value_max           || number  || ``1000``       || Maximum number of tag values for automatic           |
+|| MYMPD_SMARTPLS_PER_TAG_VALUE_MAX     ||         ||                || smartpls creation.                                   |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| stickers                             || boolean || ``true``       || Enables the support for MPD stickers.                |
+|| MYMPD_STICKERS                       ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| stickers_pad_int                     || boolean || ``false``      || Enables the padding of integer sticker values        |
+|| MYMPD_STICKERS_PAD_INT               ||         ||                || (12 digits).                                         |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| webradiodb                           || boolean || ``true``       || Enables the WebradioDB integration.                  |
+|| MYMPD_WEBRADIODB                     ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
 
 .. [1] If http_port is disabled: The MPD curl plugin must trust the myMPD CA or certificate checking must be disabled. MPD fetches webradio playlists with http(s) from myMPD webserver.
 

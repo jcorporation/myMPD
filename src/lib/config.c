@@ -50,11 +50,17 @@ enum config_item {
     CI_HTTP,
     CI_HTTP_HOST,
     CI_HTTP_PORT,
+    CI_JUKEBOX_QUEUE_LENGTH_ALBUM,
+    CI_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN,
+    CI_JUKEBOX_QUEUE_LENGTH_SONG,
+    CI_JUKEBOX_QUEUE_LENGTH_SONG_MIN,
     CI_LOGLEVEL,
     CI_MYMPD_URI,
     CI_PIN_HASH,
+    CI_PLIST_LEN_MAX,
     CI_SCRIPTACL,
     CI_SCRIPTS_EXTERNAL,
+    CI_SMARTPLS_PER_TAG_VALUE_MAX,
     CI_SSL,
     CI_SSL_CERT,
     CI_SSL_KEY,
@@ -63,10 +69,6 @@ enum config_item {
     CI_STICKERS,
     CI_STICKERS_PAD_INT,
     CI_WEBRADIODB,
-    CI_JUKEBOX_QUEUE_LENGTH_SONG,
-    CI_JUKEBOX_QUEUE_LENGTH_SONG_MIN,
-    CI_JUKEBOX_QUEUE_LENGTH_ALBUM,
-    CI_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN,
     CI_COUNT
 };
 
@@ -118,40 +120,42 @@ struct t_config_default {
  * Default config definition
  */
 static const struct t_config_default config_default[] = {
-    [CI_ACL]                    = {"acl",                    {.t = CIT_S, .s = ""},             0, 0, vcb_isname},
-    [CI_ALBUM_MODE]             = {"album_mode",             {.t = CIT_S, .s = "adv"},          0, 0, vcb_isalnum},
-    [CI_ALBUM_GROUP_TAG]        = {"album_group_tag",        {.t = CIT_S, .s = "Date"},         0, 0, vcb_isalnum},
-    [CI_ALBUM_UNKNOWN]          = {"album_unknown",          {.t = CIT_B, .b = false},           0, 0, NULL},
-    [CI_CA_CERT_STORE]          = {"ca_cert_store",          {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
-    [CI_CACHE_COVER_KEEP_DAYS]  = {"cache_cover_keep_days",  {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
-    [CI_CACHE_HTTP_KEEP_DAYS]   = {"cache_http_keep_days",   {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
-    [CI_CACHE_LYRICS_KEEP_DAYS] = {"cache_lyrics_keep_days", {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
-    [CI_CACHE_MISC_KEEP_DAYS]   = {"cache_misc_keep_days",   {.t = CIT_I, .i = 1},              1, CACHE_AGE_MAX, NULL},
-    [CI_CACHE_THUMBS_KEEP_DAYS] = {"cache_thumbs_keep_days", {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
-    [CI_CERT_CHECK]             = {"cert_check",             {.t = CIT_B, .b = true},           0, 0, NULL},
-    [CI_CUSTOM_CERT]            = {"custom_cert",            {.t = CIT_B, .b = false},          0, 0, NULL},
-    [CI_CUSTOM_CSS]             = {"custom_css",             {.t = CIT_S, .s = ""},             0, 0, vcb_istext},
-    [CI_CUSTOM_JS]              = {"custom_js",              {.t = CIT_S, .s = ""},             0, 0, vcb_istext},
-    [CI_HTTP]                   = {"http",                   {.t = CIT_B, .b = true},           0, 0, NULL},
-    [CI_HTTP_HOST]              = {"http_host",              {.t = CIT_S, .s = ""},             0, 0, vcb_isname}, 
-    [CI_HTTP_PORT]              = {"http_port",              {.t = CIT_I, .i = 8080},           0, MPD_PORT_MAX, NULL},
-    [CI_JUKEBOX_QUEUE_LENGTH_ALBUM]     = {"jukebox_queue_length_album",     {.t = CIT_I, .i = 25},  5,  250, NULL},
-    [CI_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN] = {"jukebox_queue_length_album_min", {.t = CIT_I, .i = 5},   5, 125, NULL},
-    [CI_JUKEBOX_QUEUE_LENGTH_SONG]      = {"jukebox_queue_length_song",      {.t = CIT_I, .i = 100}, 10, 1000, NULL},
-    [CI_JUKEBOX_QUEUE_LENGTH_SONG_MIN]  = {"jukebox_queue_length_song_min",  {.t = CIT_I, .i = 10},  10, 500, NULL},
-    [CI_LOGLEVEL]               = {"loglevel",               {.t = CIT_I, .i = CFG_MYMPD_LOGLEVEL},  LOGLEVEL_MIN, LOGLEVEL_MAX, NULL},
-    [CI_MYMPD_URI]              = {"mympd_uri",              {.t = CIT_S, .s = "auto"},         0, 0, vcb_isname},
-    [CI_PIN_HASH]               = {"pin_hash",               {.t = CIT_S, .s = ""},             0, 0, vcb_isalnum},
-    [CI_SCRIPTACL]              = {"scriptacl",              {.t = CIT_S, .s = "+127.0.0.0/8"}, 0, 0, vcb_isname},
-    [CI_SCRIPTS_EXTERNAL]       = {"scripts_external",       {.t = CIT_B, .b = false},          0, 0, NULL},
-    [CI_SSL]                    = {"ssl",                    {.t = CIT_B, .b = true},           0, 0, NULL},
-    [CI_SSL_CERT]               = {"ssl_cert",               {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
-    [CI_SSL_KEY]                = {"ssl_key",                {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
-    [CI_SSL_PORT]               = {"ssl_port",               {.t = CIT_I, .i = 8443},           0, MPD_PORT_MAX, NULL},
-    [CI_SSL_SAN]                = {"ssl_san",                {.t = CIT_S, .s = ""},             0, 0, vcb_isname},
-    [CI_STICKERS]               = {"stickers",               {.t = CIT_B, .b = true},           0, 0, NULL},
-    [CI_STICKERS_PAD_INT]       = {"stickers_pad_int",       {.t = CIT_B, .b = false},          0, 0, NULL},
-    [CI_WEBRADIODB]             = {"webradiodb",             {.t = CIT_B, .b = true},           0, 0, NULL}
+    [CI_ACL]                            = {"acl",                            {.t = CIT_S, .s = ""},             0, 0, vcb_isname},
+    [CI_ALBUM_MODE]                     = {"album_mode",                     {.t = CIT_S, .s = "adv"},          0, 0, vcb_isalnum},
+    [CI_ALBUM_GROUP_TAG]                = {"album_group_tag",                {.t = CIT_S, .s = "Date"},         0, 0, vcb_isalnum},
+    [CI_ALBUM_UNKNOWN]                  = {"album_unknown",                  {.t = CIT_B, .b = false},           0, 0, NULL},
+    [CI_CA_CERT_STORE]                  = {"ca_cert_store",                  {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
+    [CI_CACHE_COVER_KEEP_DAYS]          = {"cache_cover_keep_days",          {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
+    [CI_CACHE_HTTP_KEEP_DAYS]           = {"cache_http_keep_days",           {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
+    [CI_CACHE_LYRICS_KEEP_DAYS]         = {"cache_lyrics_keep_days",         {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
+    [CI_CACHE_MISC_KEEP_DAYS]           = {"cache_misc_keep_days",           {.t = CIT_I, .i = 1},              1, CACHE_AGE_MAX, NULL},
+    [CI_CACHE_THUMBS_KEEP_DAYS]         = {"cache_thumbs_keep_days",         {.t = CIT_I, .i = 31},             CACHE_AGE_MIN, CACHE_AGE_MAX, NULL},
+    [CI_CERT_CHECK]                     = {"cert_check",                     {.t = CIT_B, .b = true},           0, 0, NULL},
+    [CI_CUSTOM_CERT]                    = {"custom_cert",                    {.t = CIT_B, .b = false},          0, 0, NULL},
+    [CI_CUSTOM_CSS]                     = {"custom_css",                     {.t = CIT_S, .s = ""},             0, 0, vcb_istext},
+    [CI_CUSTOM_JS]                      = {"custom_js",                      {.t = CIT_S, .s = ""},             0, 0, vcb_istext},
+    [CI_HTTP]                           = {"http",                           {.t = CIT_B, .b = true},           0, 0, NULL},
+    [CI_HTTP_HOST]                      = {"http_host",                      {.t = CIT_S, .s = ""},             0, 0, vcb_isname}, 
+    [CI_HTTP_PORT]                      = {"http_port",                      {.t = CIT_I, .i = 8080},           0, MPD_PORT_MAX, NULL},
+    [CI_JUKEBOX_QUEUE_LENGTH_ALBUM]     = {"jukebox_queue_length_album",     {.t = CIT_I, .i = 25},             5, 250, NULL},
+    [CI_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN] = {"jukebox_queue_length_album_min", {.t = CIT_I, .i = 5},              5, 125, NULL},
+    [CI_JUKEBOX_QUEUE_LENGTH_SONG]      = {"jukebox_queue_length_song",      {.t = CIT_I, .i = 100},            10, 1000, NULL},
+    [CI_JUKEBOX_QUEUE_LENGTH_SONG_MIN]  = {"jukebox_queue_length_song_min",  {.t = CIT_I, .i = 10},             10, 500, NULL},
+    [CI_LOGLEVEL]                       = {"loglevel",                       {.t = CIT_I, .i = CFG_MYMPD_LOGLEVEL},  LOGLEVEL_MIN, LOGLEVEL_MAX, NULL},
+    [CI_MYMPD_URI]                      = {"mympd_uri",                      {.t = CIT_S, .s = "auto"},         0, 0, vcb_isname},
+    [CI_PIN_HASH]                       = {"pin_hash",                       {.t = CIT_S, .s = ""},             0, 0, vcb_isalnum},
+    [CI_PLIST_LEN_MAX]                  = {"plist_len_max",                  {.t = CIT_I, .i = MPD_PLIST_LENGTH}, 0, MPD_PLIST_LENGTH_MAX, NULL},
+    [CI_SCRIPTACL]                      = {"scriptacl",                      {.t = CIT_S, .s = "+127.0.0.0/8"}, 0, 0, vcb_isname},
+    [CI_SCRIPTS_EXTERNAL]               = {"scripts_external",               {.t = CIT_B, .b = false},          0, 0, NULL},
+    [CI_SMARTPLS_PER_TAG_VALUE_MAX]     = {"smartpls_per_tag_value_max",     {.t = CIT_I, .i = CFG_SMARTPLS_TAG}, 0, CFG_SMARTPLS_TAG_MAX, NULL},
+    [CI_SSL]                            = {"ssl",                            {.t = CIT_B, .b = true},           0, 0, NULL},
+    [CI_SSL_CERT]                       = {"ssl_cert",                       {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
+    [CI_SSL_KEY]                        = {"ssl_key",                        {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
+    [CI_SSL_PORT]                       = {"ssl_port",                       {.t = CIT_I, .i = 8443},           0, MPD_PORT_MAX, NULL},
+    [CI_SSL_SAN]                        = {"ssl_san",                        {.t = CIT_S, .s = ""},             0, 0, vcb_isname},
+    [CI_STICKERS]                       = {"stickers",                       {.t = CIT_B, .b = true},           0, 0, NULL},
+    [CI_STICKERS_PAD_INT]               = {"stickers_pad_int",               {.t = CIT_B, .b = false},          0, 0, NULL},
+    [CI_WEBRADIODB]                     = {"webradiodb",                     {.t = CIT_B, .b = true},           0, 0, NULL}
 };
 
 /**
@@ -221,33 +225,27 @@ void mympd_config_defaults_initial(struct t_config *config) {
  */
 static void set_config(struct t_config *config, enum config_item ci, struct t_config_value *value) {
     switch (ci) {
-        case CI_CUSTOM_CERT:
-            assert(value->t == CIT_B);
-            config->custom_cert = value->b;
+        case CI_ACL:
+            assert(value->t == CIT_S);
+            config->acl = value->s;
             break;
-        case CI_HTTP:
-            assert(value->t == CIT_B);
-            config->http = value->b;
+        case CI_ALBUM_MODE:
+            assert(value->t == CIT_S);
+            config->albums.mode = parse_album_mode(value->s);
+            FREE_SDS(value->s);
             break;
-        case CI_SSL:
-            assert(value->t == CIT_B);
-            config->ssl = value->b;
+        case CI_ALBUM_GROUP_TAG:
+            assert(value->t == CIT_S);
+            config->albums.group_tag = mpd_tag_name_iparse(value->s);
+            FREE_SDS(value->s);
             break;
-        case CI_STICKERS:
+        case CI_ALBUM_UNKNOWN:
             assert(value->t == CIT_B);
-            config->stickers = value->b;
+            config->albums.unknown = value->b;
             break;
-        case CI_STICKERS_PAD_INT:
-            assert(value->t == CIT_B);
-            config->stickers_pad_int = value->b;
-            break;
-        case CI_WEBRADIODB:
-            assert(value->t == CIT_B);
-            config->webradiodb = value->b;
-            break;
-        case CI_CERT_CHECK:
-            assert(value->t == CIT_B);
-            config->cert_check = value->b;
+        case CI_CA_CERT_STORE:
+            assert(value->t == CIT_S);
+            config->ca_cert_store = value->s;
             break;
         case CI_CACHE_COVER_KEEP_DAYS:
             assert(value->t == CIT_I);
@@ -269,71 +267,13 @@ static void set_config(struct t_config *config, enum config_item ci, struct t_co
             assert(value->t == CIT_I);
             config->cache_http_keep_days = value->i;
             break;
-        case CI_HTTP_PORT:
-            assert(value->t == CIT_I);
-            config->http_port = value->i;
-            break;
-        case CI_LOGLEVEL:
-            assert(value->t == CIT_I);
-            config->loglevel = value->i;
-            break;
-        case CI_SSL_PORT:
-            assert(value->t == CIT_I);
-            config->ssl_port = value->i;
-            break;
-        case CI_ACL:
-            assert(value->t == CIT_S);
-            config->acl = value->s;
-            break;
-        case CI_ALBUM_MODE:
-            assert(value->t == CIT_S);
-            config->albums.mode = parse_album_mode(value->s);
-            FREE_SDS(value->s);
-            break;
-        case CI_ALBUM_GROUP_TAG:
-            assert(value->t == CIT_S);
-            config->albums.group_tag = mpd_tag_name_iparse(value->s);
-            FREE_SDS(value->s);
-            break;
-        case CI_ALBUM_UNKNOWN:
+        case CI_CERT_CHECK:
             assert(value->t == CIT_B);
-            config->albums.unknown = value->b;
+            config->cert_check = value->b;
             break;
-        case CI_HTTP_HOST:
-            assert(value->t == CIT_S);
-            config->http_host = value->s;
-            break;
-        case CI_MYMPD_URI:
-            assert(value->t == CIT_S);
-            config->mympd_uri = value->s;
-            break;
-        case CI_PIN_HASH:
-            assert(value->t == CIT_S);
-            config->pin_hash = value->s;
-            break;
-        case CI_SCRIPTACL:
-            assert(value->t == CIT_S);
-            config->scriptacl = value->s;
-            break;
-        case CI_SCRIPTS_EXTERNAL:
+        case CI_CUSTOM_CERT:
             assert(value->t == CIT_B);
-            config->scripts_external = value->b;
-            break;
-        case CI_SSL_CERT:
-            assert(value->t == CIT_S);
-            config->ssl_cert = value->s;
-            break;
-        case CI_SSL_KEY:
-            assert(value->t == CIT_S);
-            config->ssl_key = value->s;
-            break;
-        case CI_SSL_SAN:
-            assert(value->t == CIT_S);
-            config->ssl_san = value->s;
-            break;
-        case CI_CA_CERT_STORE:
-            assert(value->t == CIT_S);
-            config->ca_cert_store = value->s;
+            config->custom_cert = value->b;
             break;
         case CI_CUSTOM_CSS:
             assert(value->t == CIT_S);
@@ -343,13 +283,17 @@ static void set_config(struct t_config *config, enum config_item ci, struct t_co
             assert(value->t == CIT_S);
             config->custom_js = value->s;
             break;
-        case CI_JUKEBOX_QUEUE_LENGTH_SONG:
-            assert(value->t == CIT_I);
-            config->jukebox_queue_length_song = (unsigned)value->i;
+        case CI_HTTP:
+            assert(value->t == CIT_B);
+            config->http = value->b;
             break;
-        case CI_JUKEBOX_QUEUE_LENGTH_SONG_MIN:
+        case CI_HTTP_HOST:
+            assert(value->t == CIT_S);
+            config->http_host = value->s;
+            break;
+        case CI_HTTP_PORT:
             assert(value->t == CIT_I);
-            config->jukebox_queue_length_song_min = (unsigned)value->i;
+            config->http_port = value->i;
             break;
         case CI_JUKEBOX_QUEUE_LENGTH_ALBUM:
             assert(value->t == CIT_I);
@@ -358,6 +302,74 @@ static void set_config(struct t_config *config, enum config_item ci, struct t_co
         case CI_JUKEBOX_QUEUE_LENGTH_ALBUM_MIN:
             assert(value->t == CIT_I);
             config->jukebox_queue_length_album_min = (unsigned)value->i;
+            break;
+        case CI_JUKEBOX_QUEUE_LENGTH_SONG:
+            assert(value->t == CIT_I);
+            config->jukebox_queue_length_song = (unsigned)value->i;
+            break;
+        case CI_JUKEBOX_QUEUE_LENGTH_SONG_MIN:
+            assert(value->t == CIT_I);
+            config->jukebox_queue_length_song_min = (unsigned)value->i;
+            break;
+        case CI_LOGLEVEL:
+            assert(value->t == CIT_I);
+            config->loglevel = value->i;
+            break;
+        case CI_MYMPD_URI:
+            assert(value->t == CIT_S);
+            config->mympd_uri = value->s;
+            break;
+        case CI_PIN_HASH:
+            assert(value->t == CIT_S);
+            config->pin_hash = value->s;
+            break;
+        case CI_PLIST_LEN_MAX:
+            assert(value->t == CIT_I);
+            config->plist_len_max = (unsigned)value->i;
+            break;
+        case CI_SCRIPTACL:
+            assert(value->t == CIT_S);
+            config->scriptacl = value->s;
+            break;
+        case CI_SCRIPTS_EXTERNAL:
+            assert(value->t == CIT_B);
+            config->scripts_external = value->b;
+            break;
+        case CI_SMARTPLS_PER_TAG_VALUE_MAX:
+            assert(value->t == CIT_I);
+            config->smartpls_per_tag_value_max = (unsigned)value->i;
+            break;
+        case CI_SSL:
+            assert(value->t == CIT_B);
+            config->ssl = value->b;
+            break;
+        case CI_SSL_KEY:
+            assert(value->t == CIT_S);
+            config->ssl_key = value->s;
+            break;
+        case CI_SSL_CERT:
+            assert(value->t == CIT_S);
+            config->ssl_cert = value->s;
+            break;
+        case CI_SSL_PORT:
+            assert(value->t == CIT_I);
+            config->ssl_port = value->i;
+            break;
+        case CI_SSL_SAN:
+            assert(value->t == CIT_S);
+            config->ssl_san = value->s;
+            break;
+        case CI_STICKERS:
+            assert(value->t == CIT_B);
+            config->stickers = value->b;
+            break;
+        case CI_STICKERS_PAD_INT:
+            assert(value->t == CIT_B);
+            config->stickers_pad_int = value->b;
+            break;
+        case CI_WEBRADIODB:
+            assert(value->t == CIT_B);
+            config->webradiodb = value->b;
             break;
         case CI_COUNT:
             assert(NULL);

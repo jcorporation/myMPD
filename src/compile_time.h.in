@@ -115,6 +115,9 @@
 #define CFG_MYMPD_LOG_TO_SYSLOG false
 #define CFG_MYMPD_LOGLEVEL 5
 
+#define CFG_SMARTPLS_TAG 1000       // max. number of tag values for automatic smartpls creation
+#define CFG_SMARTPLS_TAG_MAX 10000  // max. number of tag values for automatic smartpls creation
+
 //default partition state settings
 #define PARTITION_HIGHLIGHT_COLOR "#28a745"
 #define PARTITION_HIGHLIGHT_COLOR_CONTRAST "#f8f9fa"
@@ -310,7 +313,9 @@
 #define MPD_RESULTS_MIN 1 // minimum mpd results to request
 #define MPD_RESULTS_MAX 10000 // maximum mpd results to request
 #define MPD_COMMANDS_MAX 10000 // maximum number of commands for mpd command lists
-#define MPD_PLAYLIST_LENGTH_MAX INT_MAX // max mpd queue or playlist length
+#define MPD_PLIST_LENGTH 16384 // default mpd max playlist length
+#define MPD_PLIST_LENGTH_MAX INT_MAX // max mpd playlist length
+#define MPD_QUEUE_LENGTH_MAX INT_MAX // max mpd queue length
 #define MPD_BINARY_CHUNK_SIZE_MIN 4096 // 4 kB is the mpd default
 #define MPD_BINARY_CHUNK_SIZE_MAX 5242880 // 5 MB
 #define MPD_BINARY_SIZE_MAX 10485760 // 10 MB
@@ -364,7 +369,7 @@
 #define STICKER_LIKE_MAX 2
 #define STICKER_RATING_MIN 0
 #define STICKER_RATING_MAX 10
-#define STICKER_OP_LEN_MAX 20 // max length of sticker operators
+#define STICKER_OP_LEN_MAX 20 // max. length of sticker operators
 #define SORT_LEN_MAX 100
 
 //limits for lists
