@@ -296,6 +296,8 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
             const char *tag_name = mpd_tag_name(mympd_worker_state->smartpls_generate_tag_types.tags[k]);
             MYMPD_LOG_WARN(NULL, "Too many values found for tag %s, maximum is %d",
                 tag_name, mympd_worker_state->config->smartpls_per_tag_value_max);
+            list_clear(&tag_list);
+            continue;
         }
 
         struct t_list_node *current;
