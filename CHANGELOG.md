@@ -16,9 +16,11 @@ The documentation site was migrated from Mkdocs to Sphinx, because of the deprec
 - Feat: String normalization for album and webradio search
 - Feat: Replace utf8 implementation with utf8proc library
 - Feat: Add setting for default search operator
+- Upd: Migrate documentation to Sphinx with Sphin Book Theme #1495
 - Upd: Move lyrics handling from mympd_api to webserver thread
 - Upd: Performance improvements for mympd_api polling
 - Upd: Stability improvements in MPD connection handling
+- Fix: Handling of HTTP connections #1503
 
 ***
 
