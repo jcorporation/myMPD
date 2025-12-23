@@ -487,16 +487,7 @@ static bool mympd_worker_smartpls_update_sticker(struct t_mympd_worker_state *my
 static bool mympd_worker_smartpls_update_newest(struct t_mympd_worker_state *mympd_worker_state,
         const char *playlist, unsigned timerange, const char *sort, bool sortdesc, unsigned max_entries)
 {
-    unsigned long value_max = 0;
-    struct mpd_stats *stats = mpd_run_stats(mympd_worker_state->partition_state->conn);
-    if (stats != NULL) {
-        value_max = mpd_stats_get_db_update_time(stats);
-        mpd_stats_free(stats);
-    }
-    if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_run_stats") == false) {
-        return false;
-    }
-
+    time_t value_max = mympd_client_get_db_mtime(mympd_worker_state->partition_state);
     //prevent overflow
     if (timerange > value_max) {
         return false;
