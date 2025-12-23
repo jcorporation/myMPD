@@ -265,11 +265,11 @@ bool mympd_worker_smartpls_update(struct t_mympd_worker_state *mympd_worker_stat
  * @return true on success, else false
  */
 static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_worker_state) {
+    struct t_list tag_list;
+    list_init(&tag_list);
     for (unsigned k = 0; k < mympd_worker_state->smartpls_generate_tag_types.len; k++) {
         enum mpd_tag_type tag = mympd_worker_state->smartpls_generate_tag_types.tags[k];
-        struct t_list tag_list;
-        list_init(&tag_list);
-
+        list_clear(&tag_list);
         if (mpd_search_db_tags(mympd_worker_state->partition_state->conn, tag) == false ||
             mympd_client_add_search_window_param_mpd_025(mympd_worker_state->partition_state, 0, mympd_worker_state->config->smartpls_per_tag_value_max + 1) == false)
         {
@@ -296,7 +296,6 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
             const char *tag_name = mpd_tag_name(mympd_worker_state->smartpls_generate_tag_types.tags[k]);
             MYMPD_LOG_WARN(NULL, "Too many values found for tag %s, maximum is %d",
                 tag_name, mympd_worker_state->config->smartpls_per_tag_value_max);
-            list_clear(&tag_list);
             continue;
         }
 
@@ -327,6 +326,7 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
             list_node_free(current);
         }
     }
+    list_clear(&tag_list);
     return true;
 }
 
