@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_client/database.h"
 
+#include "src/lib/utility.h"
 #include "src/mympd_client/errorhandler.h"
 
 /**
@@ -29,4 +30,24 @@ time_t mympd_client_get_db_mtime(struct t_partition_state *partition_state) {
         mtime = 0;
     }
     return mtime;
+}
+
+/**
+ * Checks for a song in the database
+ * @param partition_state Pointer to partition state
+ * @param uri Song uri to check
+ * @return true on success or uri is a stream, else false
+ */
+bool mympd_client_song_exists(struct t_partition_state *partition_state, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
+    if (mpd_send_list_all(partition_state->conn, uri) == true &&
+        mpd_response_finish(partition_state->conn) == true)
+    {
+        return true;
+    }
+    // Song does not exist
+    mympd_clear_finish(partition_state);
+    return false;
 }

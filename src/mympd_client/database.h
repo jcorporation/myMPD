@@ -14,5 +14,6 @@
 #include "src/lib/mympd_state.h"
 
 time_t mympd_client_get_db_mtime(struct t_partition_state *partition_state);
+bool mympd_client_song_exists(struct t_partition_state *partition_state, const char *uri);
 
 #endif
