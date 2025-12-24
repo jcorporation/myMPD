@@ -33,6 +33,7 @@ enum playlist_sort_types {
 };
 
 bool mympd_client_playlist_exists(struct t_partition_state *partition_state, const char *plist);
+bool mympd_client_playlist_delete_if_exists(struct t_partition_state *partition_state, const char *plist);
 bool mympd_client_get_all_playlists(struct t_partition_state *partition_state, struct t_list *l, bool smartpls, sds *error);
 time_t mympd_client_get_playlist_mtime(struct t_partition_state *partition_state, const char *playlist);
 bool mympd_client_playlist_crop(struct t_partition_state *partition_state, const char *plist, unsigned num_entries);

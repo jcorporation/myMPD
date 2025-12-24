@@ -72,6 +72,22 @@ bool mympd_client_playlist_exists(struct t_partition_state *partition_state, con
 }
 
 /**
+ * Deletes playlists if it exists
+ * @param partition_state Pointer to partition state
+ * @param plist Playlist to delete
+ * @return true on success, else false
+ */
+bool mympd_client_playlist_delete_if_exists(struct t_partition_state *partition_state, const char *plist) {
+
+    bool exists = mympd_client_playlist_exists(partition_state, plist);
+    if (exists == true) {
+        mpd_run_rm(partition_state->conn, plist);
+        return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_rm");
+    }
+    return true;
+}
+
+/**
  * Gets all playlists.
  * @param partition_state pointer to partition state
  * @param l pointer to list to populate

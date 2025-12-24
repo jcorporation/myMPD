@@ -37,8 +37,6 @@
  * Private definitions
  */
 static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_worker_state);
-static bool mympd_worker_smartpls_delete(struct t_mympd_worker_state *mympd_worker_state,
-        const char *playlist);
 static bool mympd_worker_smartpls_update_search(struct t_mympd_worker_state *mympd_worker_state,
         const char *playlist, const char *expression, const char *sort, bool sortdesc, unsigned max_entries);
 static bool mympd_worker_smartpls_update_sticker(struct t_mympd_worker_state *mympd_worker_state,
@@ -177,7 +175,7 @@ bool mympd_worker_smartpls_update(struct t_mympd_worker_state *mympd_worker_stat
     json_get_uint(content, "$.maxentries", 0, MPD_PLIST_LENGTH_MAX, &max_entries, NULL);
 
     // delete the playlist
-    mympd_worker_smartpls_delete(mympd_worker_state, playlist);
+    mympd_client_playlist_delete_if_exists(mympd_worker_state->partition_state, playlist);
 
     // recreate the playlist
     if (strcmp(smartpltype, "sticker") == 0 &&
@@ -333,22 +331,6 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
         }
     }
     list_clear(&tag_list);
-    return true;
-}
-
-/**
- * Deletes playlists if it exists
- * @param mympd_worker_state pointer to the t_mympd_worker_state struct
- * @param playlist playlist to update
- * @return true on success, else false
- */
-static bool mympd_worker_smartpls_delete(struct t_mympd_worker_state *mympd_worker_state, const char *playlist) {
-
-    bool exists = mympd_client_playlist_exists(mympd_worker_state->partition_state, playlist);
-    if (exists == true) {
-        mpd_run_rm(mympd_worker_state->partition_state->conn, playlist);
-        return mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_run_rm");
-    }
     return true;
 }
 
