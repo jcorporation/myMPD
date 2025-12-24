@@ -5,7 +5,7 @@
 */
 
 /*! \file
- * \brief MPD tags helper functions
+ * \brief MPD database helper functions
  */
 
 #include "compile_time.h"
