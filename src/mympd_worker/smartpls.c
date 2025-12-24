@@ -267,11 +267,12 @@ bool mympd_worker_smartpls_update(struct t_mympd_worker_state *mympd_worker_stat
 static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_worker_state) {
     struct t_list tag_list;
     list_init(&tag_list);
+    const unsigned real_limit = mympd_worker_state->config->smartpls_per_tag_value_max + 1;
     for (unsigned k = 0; k < mympd_worker_state->smartpls_generate_tag_types.len; k++) {
         enum mpd_tag_type tag = mympd_worker_state->smartpls_generate_tag_types.tags[k];
         list_clear(&tag_list);
         if (mpd_search_db_tags(mympd_worker_state->partition_state->conn, tag) == false ||
-            mympd_client_add_search_window_param_mpd_025(mympd_worker_state->partition_state, 0, mympd_worker_state->config->smartpls_per_tag_value_max + 1) == false)
+            mympd_client_add_search_window_param_mpd_025(mympd_worker_state->partition_state, 0, real_limit) == false)
         {
             mpd_search_cancel(mympd_worker_state->partition_state->conn);
             MYMPD_LOG_ERROR(NULL, "Error creating MPD search command");
@@ -286,12 +287,17 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
                 }
                 mpd_return_pair(mympd_worker_state->partition_state->conn, pair);
                 i++;
+                if (i == real_limit) {
+                    // MPD < 0.25 does not support window param
+                    break;
+                }
             }
         }
         if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_db_tags") == false) {
             list_clear(&tag_list);
             return false;
         }
+        // Do not create smart playlists for tags with too much values
         if (i > mympd_worker_state->config->smartpls_per_tag_value_max) {
             const char *tag_name = mpd_tag_name(mympd_worker_state->smartpls_generate_tag_types.tags[k]);
             MYMPD_LOG_WARN(NULL, "Too many values found for tag %s, maximum is %d",
