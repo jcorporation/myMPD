@@ -718,7 +718,7 @@ static bool playlist_replace(struct t_partition_state *partition_state, const ch
         FREE_SDS(backup_pl);
         return false;
     }
-    //rename new playlist to orginal playlist
+    //rename new playlist to original playlist
     mpd_run_rename(partition_state->conn, new_pl, to_replace_pl);
     if (mympd_check_error_and_recover(partition_state, error, "mpd_run_rename") == false) {
         //restore original playlist
