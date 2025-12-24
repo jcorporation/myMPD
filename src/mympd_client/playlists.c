@@ -32,11 +32,11 @@
  */
 
 static bool playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr, bool sortdesc, sds *error);
-static bool replace_playlist(struct t_partition_state *partition_state, const char *new_pl,
+static bool playlist_replace(struct t_partition_state *partition_state, const char *new_pl,
         const char *to_replace_pl, sds *error);
-static bool mympd_worker_playlist_content_enumerate_mpd(struct t_partition_state *partition_state, const char *plist,
+static bool playlist_content_enumerate_mpd(struct t_partition_state *partition_state, const char *plist,
         unsigned *count, unsigned *duration, sds *error);
-static bool mympd_worker_playlist_content_enumerate_manual(struct t_partition_state *partition_state, const char *plist,
+static bool playlist_content_enumerate_manual(struct t_partition_state *partition_state, const char *plist,
         unsigned *count, unsigned *duration, sds *error);
 
 /**
@@ -350,7 +350,7 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
     }
     list_free(plist);
     if (rc == true) {
-        rc = replace_playlist(partition_state, playlist_tmp, playlist, error);
+        rc = playlist_replace(partition_state, playlist_tmp, playlist, error);
     }
     FREE_SDS(playlist_tmp);
     return rc;
@@ -385,8 +385,8 @@ bool mympd_client_enum_playlist(struct t_partition_state *partition_state, const
         unsigned *count, unsigned *duration, sds *error)
 {
     return partition_state->mpd_state->feat.mpd_0_24_0 == true
-        ? mympd_worker_playlist_content_enumerate_mpd(partition_state, plist, count, duration, error)
-        : mympd_worker_playlist_content_enumerate_manual(partition_state, plist, count, duration, error);
+        ? playlist_content_enumerate_mpd(partition_state, plist, count, duration, error)
+        : playlist_content_enumerate_manual(partition_state, plist, count, duration, error);
 }
 
 /**
@@ -399,7 +399,7 @@ bool mympd_client_enum_playlist(struct t_partition_state *partition_state, const
  * @param error pointer to an already allocated sds string for the error message
  * @return pointer to buffer 
  */
-static bool mympd_worker_playlist_content_enumerate_mpd(struct t_partition_state *partition_state, const char *plist,
+static bool playlist_content_enumerate_mpd(struct t_partition_state *partition_state, const char *plist,
         unsigned *count, unsigned *duration, sds *error)
 {
     *count = 0;
@@ -430,7 +430,7 @@ static bool mympd_worker_playlist_content_enumerate_mpd(struct t_partition_state
  * @param error pointer to an already allocated sds string for the error message
  * @return pointer to buffer 
  */
-static bool mympd_worker_playlist_content_enumerate_manual(struct t_partition_state *partition_state, const char *plist,
+static bool playlist_content_enumerate_manual(struct t_partition_state *partition_state, const char *plist,
         unsigned *count, unsigned *duration, sds *error)
 {
     unsigned entity_count = 0;
@@ -694,7 +694,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     raxStop(&iter);
     rax_free_sds_data(plist);
     if (rc == true) {
-        rc = replace_playlist(partition_state, playlist_tmp, playlist, error);
+        rc = playlist_replace(partition_state, playlist_tmp, playlist, error);
     }
     FREE_SDS(playlist_tmp);
     return rc;
@@ -708,7 +708,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-static bool replace_playlist(struct t_partition_state *partition_state, const char *new_pl,
+static bool playlist_replace(struct t_partition_state *partition_state, const char *new_pl,
     const char *to_replace_pl, sds *error)
 {
     sds backup_pl = sdscatfmt(sdsempty(), "%s.bak", new_pl);
