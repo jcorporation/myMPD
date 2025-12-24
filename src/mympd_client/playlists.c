@@ -45,6 +45,33 @@ static bool song_exists(struct t_partition_state *partition_state, const char *u
  */
 
 /**
+ * Check if playlist exists
+ * @param partition_state Pointer to partition state
+ * @param plist Playlist name
+ * @return true if exists, else false
+ */
+bool mympd_client_playlist_exists(struct t_partition_state *partition_state, const char *plist) {
+    struct mpd_playlist *pl;
+    bool exists = false;
+    if (mpd_send_list_playlists(partition_state->conn)) {
+        while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
+            const char *plpath = mpd_playlist_get_path(pl);
+            if (strcmp(plist, plpath) == 0) {
+                exists = true;
+            }
+            mpd_playlist_free(pl);
+            if (exists == true) {
+                break;
+            }
+        }
+    }
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlists") == false) {
+        return false;
+    }
+    return exists;
+}
+
+/**
  * Gets all playlists.
  * @param partition_state pointer to partition state
  * @param l pointer to list to populate

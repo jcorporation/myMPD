@@ -343,27 +343,8 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
  * @return true on success, else false
  */
 static bool mympd_worker_smartpls_delete(struct t_mympd_worker_state *mympd_worker_state, const char *playlist) {
-    struct mpd_playlist *pl;
-    bool exists = false;
 
-    //first check if playlist exists
-    if (mpd_send_list_playlists(mympd_worker_state->partition_state->conn)) {
-        while ((pl = mpd_recv_playlist(mympd_worker_state->partition_state->conn)) != NULL) {
-            const char *plpath = mpd_playlist_get_path(pl);
-            if (strcmp(playlist, plpath) == 0) {
-                exists = true;
-            }
-            mpd_playlist_free(pl);
-            if (exists == true) {
-                break;
-            }
-        }
-    }
-    if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_send_list_playlists") == false) {
-        return false;
-    }
-
-    //delete playlist if exists
+    bool exists = mympd_client_playlist_exists(mympd_worker_state->partition_state, playlist);
     if (exists == true) {
         mpd_run_rm(mympd_worker_state->partition_state->conn, playlist);
         return mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_run_rm");
