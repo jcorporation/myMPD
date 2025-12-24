@@ -357,7 +357,7 @@ struct t_sticker *stickerdb_get_all(struct t_stickerdb_state *stickerdb, enum my
  * @return newly allocated radix tree or NULL on error
  */
 rax *stickerdb_find_stickers_by_name(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *name) {
-    return stickerdb_find_stickers_by_name_value(stickerdb, type, name, MPD_STICKER_OP_UNKOWN, NULL);
+    return stickerdb_find_stickers_by_name_value(stickerdb, type, name, MPD_STICKER_OP_UNKNOWN, NULL);
 }
 
 /**
@@ -755,7 +755,7 @@ static bool sticker_search_add_value_constraint(struct t_stickerdb_state *sticke
  */
 static bool sticker_search_add_sort(struct t_stickerdb_state *stickerdb, enum mpd_sticker_sort sort, bool desc) {
     if (stickerdb->mpd_state->feat.advsticker == true &&
-        sort != MPD_STICKER_SORT_UNKOWN)
+        sort != MPD_STICKER_SORT_UNKNOWN)
     {
         return mpd_sticker_search_add_sort(stickerdb->conn, sort, desc);
     }

@@ -443,7 +443,7 @@ bool vcb_iswebradiosort(sds data) {
  * @return true on success else false
  */
 bool vcb_isstickersort(sds data) {
-    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKOWN) {
+    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKNOWN) {
         MYMPD_LOG_WARN(NULL, "Unknown compare operator: %s", data);
         return false;
     }
@@ -456,7 +456,7 @@ bool vcb_isstickersort(sds data) {
  * @return bool true on success else false
  */
 bool vcb_ismpd_sticker_sort(sds data) {
-    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKOWN &&
+    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKNOWN &&
         vcb_ismpdsort(data) == false)
     {
         return false;
@@ -470,7 +470,7 @@ bool vcb_ismpd_sticker_sort(sds data) {
  * @return true on success else false
  */
 bool vcb_isstickerop(sds data) {
-    if (sticker_oper_parse(data) == MPD_STICKER_OP_UNKOWN) {
+    if (sticker_oper_parse(data) == MPD_STICKER_OP_UNKNOWN) {
         MYMPD_LOG_WARN(NULL, "Unknown compare operator: %s", data);
         return false;
     }

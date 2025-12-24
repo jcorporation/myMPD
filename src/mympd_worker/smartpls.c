@@ -19,6 +19,7 @@
 #include "src/lib/smartpls.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
+#include "src/mympd_client/compat.h"
 #include "src/mympd_client/database.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/playlists.h"
@@ -228,7 +229,7 @@ bool mympd_worker_smartpls_update(struct t_mympd_worker_state *mympd_worker_stat
             rc = mympd_client_playlist_shuffle(mympd_worker_state->partition_state, playlist, NULL);
         }
         else if (strcmp(smartpltype, "sticker") == 0 &&
-                 sticker_sort_parse(sort) == MPD_STICKER_SORT_UNKOWN)
+                 sticker_sort_parse(sort) == MPD_STICKER_SORT_UNKNOWN)
         {
             // resort sticker based smart playlists by sort tag
             rc = mympd_client_playlist_sort(mympd_worker_state->partition_state, playlist, sort, sortdesc, NULL);
@@ -385,21 +386,21 @@ static bool mympd_worker_smartpls_update_sticker(struct t_mympd_worker_state *my
         const char *sort, bool sort_desc, unsigned max_entries)
 {
     enum mpd_sticker_operator oper = sticker_oper_parse(op);
-    if (oper == MPD_STICKER_OP_UNKOWN) {
+    if (oper == MPD_STICKER_OP_UNKNOWN) {
         MYMPD_LOG_ERROR(NULL, "Invalid sticker compare operator");
         return false;
     }
 
     enum mpd_sticker_sort sort_op = sticker_sort_parse(sort);
 
-    if (sort_op == MPD_STICKER_SORT_UNKOWN ||
+    if (sort_op == MPD_STICKER_SORT_UNKNOWN ||
         max_entries == 0)
     {
         // we must get all entries
         max_entries = mympd_worker_state->config->plist_len_max;;
     }
 
-    if (sort_op == MPD_STICKER_SORT_UNKOWN) {
+    if (sort_op == MPD_STICKER_SORT_UNKNOWN) {
         sort_op = MPD_STICKER_SORT_URI;
     }
 

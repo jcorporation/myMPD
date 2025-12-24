@@ -11,7 +11,10 @@
 #ifndef MYMPD_MPD_CLIENT_COMPAT_H
 #define MYMPD_MPD_CLIENT_COMPAT_H
 
-#include "src/lib/mympd_state.h"
-
+/**
+ * Fix for typo in libmpdclient < 2.25
+ */
+#define MPD_STICKER_OP_UNKNOWN -1
+#define	MPD_STICKER_SORT_UNKNOWN -1
 
 #endif

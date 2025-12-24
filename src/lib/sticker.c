@@ -139,7 +139,7 @@ enum mpd_sticker_operator sticker_oper_parse(const char *str) {
     if (strcmp(str, "lt") == 0) { return MPD_STICKER_OP_LT_INT; }
     if (strcmp(str, "contains") == 0) { return MPD_STICKER_OP_CONTAINS; }
     if (strcmp(str, "starts_with") == 0) { return MPD_STICKER_OP_STARTS_WITH; }
-    return MPD_STICKER_OP_UNKOWN;
+    return MPD_STICKER_OP_UNKNOWN;
 }
 
 /**
@@ -151,5 +151,5 @@ enum mpd_sticker_sort sticker_sort_parse(const char *str) {
     if (strcmp(str, "uri") == 0) { return MPD_STICKER_SORT_URI; }
     if (strcmp(str, "value") == 0) { return MPD_STICKER_SORT_VALUE; }
     if (strcmp(str, "value_int") == 0) { return MPD_STICKER_SORT_VALUE_INT; }
-    return MPD_STICKER_SORT_UNKOWN;
+    return MPD_STICKER_SORT_UNKNOWN;
 }
