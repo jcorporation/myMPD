@@ -8,12 +8,12 @@ https://github.com/jcorporation/myMPD/
 
 This release improves the integrated search by using string normalization and adding a fuzzy search option. Furthermore the mpd connection handling was improved.
 
-The documentation site was migrated from Mkdocs to Sphinx, because of the deprecation of Material for MKdocs.
+The documentation site was migrated from Mkdocs to Sphinx, because of the deprecation of Material for Mkdocs.
 
 ### Changelog
 
 - Feat: Fuzzy substring matching using the levenshtein distance
-- Feat: String normalization for album and webradio search
+- Feat: String normalization for album, webradio, playlists and filesystem search
 - Feat: Replace utf8 implementation with utf8proc library
 - Feat: Add setting for default search operator
 - Upd: Migrate documentation to Sphinx with Sphin Book Theme #1495
