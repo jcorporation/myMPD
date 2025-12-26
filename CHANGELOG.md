@@ -22,6 +22,7 @@ The documentation site was migrated from Mkdocs to Sphinx, because of the deprec
 - Upd: Stability improvements in MPD connection handling
 - Upd: Limit length of smart playlists #1505
 - Fix: Handling of HTTP connections #1503
+- Fix: Endless scrolling in mobile view #1504
 
 ***
 
