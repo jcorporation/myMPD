@@ -9,16 +9,16 @@
  */
 
 #include "compile_time.h"
-#include "src/lib/config.h"
+#include "src/lib/config/config.h"
 
-#include "src/lib/cacertstore.h"
 #include "src/lib/cache/cache_rax_album.h"
-#include "src/lib/config_def.h"
-#include "src/lib/env.h"
+#include "src/lib/config/cacertstore.h"
+#include "src/lib/config/config_def.h"
+#include "src/lib/config/env.h"
+#include "src/lib/config/state_files.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/state_files.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 

@@ -10,21 +10,22 @@ set(TEST_SOURCES
   utility.c
   ../src/lib/album.c
   ../src/lib/api.c
-  ../src/lib/cacertstore.c
   ../src/lib/cache/cache_disk_lyrics.c
   ../src/lib/cache/cache_rax_album.c
   ../src/lib/cache/cache_rax.c
-  ../src/lib/cacertstore.h
-  ../src/lib/cert.c
-  ../src/lib/config.c
+  ../src/lib/config/cacertstore.c
+  ../src/lib/config/cert.c
+  ../src/lib/config/config.c
+  ../src/lib/config/env.c
+  ../src/lib/config/mympd_state.c
+  ../src/lib/config/state_files.c
   ../src/lib/convert.c
   ../src/lib/datetime.c
   ../src/lib/event.c
-  ../src/lib/env.c
   ../src/lib/fields.c
   ../src/lib/filehandler.c
-  ../src/lib/http_client.c
-  ../src/lib/http_client_cache.c
+  ../src/lib/http_client/http_client.c
+  ../src/lib/http_client/http_client_cache.c
   ../src/lib/json/json_print.c
   ../src/lib/json/json_query.c
   ../src/lib/json/json_rpc.c
@@ -35,14 +36,13 @@ set(TEST_SOURCES
   ../src/lib/mimetype.c
   ../src/lib/mpack.c
   ../src/lib/msg_queue.c
-  ../src/lib/mympd_state.c
-  ../src/lib/passwd.c
   ../src/lib/random.c
   ../src/lib/rax_extras.c
   ../src/lib/sds_extras.c
-  ../src/lib/search.c
+  ../src/lib/search/search_fuzzy.c
+  ../src/lib/search/search_pcre.c
+  ../src/lib/search/search.c
   ../src/lib/smartpls.c
-  ../src/lib/state_files.c
   ../src/lib/sticker.c
   ../src/lib/timer.c
   ../src/lib/utf8_wrapper.c

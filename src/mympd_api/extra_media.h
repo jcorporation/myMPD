@@ -11,7 +11,7 @@
 #ifndef MYMPD_API_EXTRA_MEDIA_H
 #define MYMPD_API_EXTRA_MEDIA_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 sds mympd_api_get_extra_media(sds buffer, struct t_mpd_state *mpd_state, sds booklet_name, sds info_txt_name, const char *uri, bool is_dirname);
 

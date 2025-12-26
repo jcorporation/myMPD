@@ -12,7 +12,7 @@
 #define MYMPD_API_JUKEBOX_H
 
 #include "src/lib/api.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 void mympd_api_jukebox_clear(struct t_list *list, sds partition_name);
 bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions, sds partition_name, sds *error);

@@ -9,11 +9,11 @@
  */
 
 #include "compile_time.h"
-#include "src/lib/pin.h"
+#include "src/lib/config/pin.h"
 
+#include "src/lib/config/state_files.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/state_files.h"
 
 #include <openssl/evp.h>
 #include <string.h>

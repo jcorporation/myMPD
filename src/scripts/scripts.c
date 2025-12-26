@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/scripts/scripts.h"
 
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"

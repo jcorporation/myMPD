@@ -11,7 +11,7 @@
 #ifndef MYMPD_MPD_CLIENT_PARTITIONS_H
 #define MYMPD_MPD_CLIENT_PARTITIONS_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state);
 struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_state, const char *name);

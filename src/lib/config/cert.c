@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/lib/cert.h"
+#include "src/lib/config/cert.h"
 
 #include "src/lib/filehandler.h"
 #include "src/lib/list.h"

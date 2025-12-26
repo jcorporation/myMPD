@@ -15,7 +15,7 @@
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 #include "src/lib/utility.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_client/errorhandler.h"
@@ -83,7 +83,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct
     sds obj = sdsempty();
 
     unsigned real_limit = offset + limit;
-    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
+    struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_SONG);
     if (expr_list == NULL) {
         FREE_SDS(obj);
         sdsclear(buffer);
@@ -133,7 +133,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end(buffer);
-    free_search_expression_list(expr_list);
+    search_expression_free(expr_list);
     return buffer;
 }
 

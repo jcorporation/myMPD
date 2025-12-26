@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/webserver/mg_user_data.h"
 
-#include "src/lib/cert.h"
+#include "src/lib/config/cert.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"

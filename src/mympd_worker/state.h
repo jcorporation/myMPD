@@ -12,7 +12,7 @@
 #define MYMPD_MPD_WORKER_UTILITY_H
 
 #include "src/lib/api.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 /**
  * State struct for the mympd_worker thread

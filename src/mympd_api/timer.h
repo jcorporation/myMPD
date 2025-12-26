@@ -12,8 +12,8 @@
 #define MYMPD_API_TIMER_H
 
 #include "dist/sds/sds.h"
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/json/json_query.h"
-#include "src/lib/mympd_state.h"
 
 /**
  * Timer interval types

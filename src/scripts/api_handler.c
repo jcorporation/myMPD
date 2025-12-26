@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/scripts/api_handler.h"
 
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "src/lib/json/json_query.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"

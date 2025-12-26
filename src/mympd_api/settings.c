@@ -13,6 +13,7 @@
 
 #include "src/lib/api.h"
 #include "src/lib/cache/cache_rax_album.h"
+#include "src/lib/config/state_files.h"
 #include "src/lib/convert.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_query.h"
@@ -22,7 +23,6 @@
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/state_files.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 #include "src/mympd_api/jukebox.h"

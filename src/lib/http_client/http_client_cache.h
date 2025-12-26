@@ -11,7 +11,7 @@
 #ifndef MYMPD_HTTP_CLIENT_CACHE_H
 #define MYMPD_HTTP_CLIENT_CACHE_H
 
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 
 struct mg_client_response_t *http_client_cache_check(struct t_config *config, const char *uri);
 struct mg_client_response_t *http_client_cache_read(const char *filepath);

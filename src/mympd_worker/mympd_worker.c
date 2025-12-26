@@ -12,10 +12,10 @@
 #include "src/mympd_worker/mympd_worker.h"
 
 #include "dist/sds/sds.h"
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
 #include "src/mympd_client/connection.h"

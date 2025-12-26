@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/event.h"

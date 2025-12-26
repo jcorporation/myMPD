@@ -9,7 +9,7 @@
 
 #include "dist/sds/sds.h"
 #include "dist/utest/utest.h"
-#include "src/lib/cert.h"
+#include "src/lib/config/cert.h"
 
 #include <sys/stat.h>
 #include <unistd.h>

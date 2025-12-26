@@ -8,9 +8,9 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
-#include "src/lib/config.h"
+#include "src/lib/config/config.h"
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/json/json_query.h"
-#include "src/lib/mympd_state.h"
 #include "src/webserver/lyrics_id3.h"
 
 UTEST(lyrics_id3, test_lyricsextract_unsynced_id3) {

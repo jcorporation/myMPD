@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/lib/http_client.h"
+#include "src/lib/http_client/http_client.h"
 
 #include "dist/mongoose/mongoose.h"
 #include "src/lib/filehandler.h"

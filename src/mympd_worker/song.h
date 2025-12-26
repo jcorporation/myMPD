@@ -11,7 +11,7 @@
 #ifndef MPD_WORKER_SONG_H
 #define MPD_WORKER_SONG_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 sds mympd_worker_song_fingerprint(struct t_partition_state *partition_state, sds buffer, unsigned request_id, const char *uri);
 #endif

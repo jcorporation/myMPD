@@ -12,7 +12,7 @@
 #define MYMPD_MPD_CLIENT_SEARCH_H
 
 #include "src/lib/album.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool mympd_client_search_add_to_plist(struct t_partition_state *partition_state, const char *expression,
         const char *plist, unsigned to, const char *sort, bool sortdesc, sds *error);

@@ -21,7 +21,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/utf8_wrapper.h"
 #include "src/lib/utility.h"
@@ -822,7 +822,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
     }
     else {
         // Manual window and search implementation for MPD < 0.24
-        struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
+        struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_SONG);
         if (expr_list == NULL) {
             FREE_SDS(last_played_song_uri);
             FREE_SDS(last_played_song_title);
@@ -851,7 +851,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
                 entity_count++;
                 mpd_song_free(song);
             }
-            free_search_expression_list(expr_list);
+            search_expression_free(expr_list);
         }
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlist_meta") == false) {

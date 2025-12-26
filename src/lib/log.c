@@ -12,7 +12,7 @@
 #include "src/lib/log.h"
 
 #include "dist/sds/sds.h"
-#include "src/lib/env.h"
+#include "src/lib/config/env.h"
 
 #include <pthread.h>
 #include <stdio.h>

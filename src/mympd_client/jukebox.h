@@ -11,7 +11,7 @@
 #ifndef MYMPD_MPDCLIENT_JUKEBOX_H
 #define MYMPD_MPDCLIENT_JUKEBOX_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 void jukebox_clear_all(struct t_mympd_state *mympd_state);
 void jukebox_disable(struct t_partition_state *partition_state);

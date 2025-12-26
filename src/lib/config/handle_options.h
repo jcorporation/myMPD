@@ -11,7 +11,7 @@
 #ifndef MYMPD_HANDLE_OPTIONS_H
 #define MYMPD_HANDLE_OPTIONS_H
 
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 
 #include <stdbool.h>
 

@@ -11,7 +11,7 @@
 #ifndef MYMPD_WEB_SERVER_H
 #define MYMPD_WEB_SERVER_H
 
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "src/webserver/mg_user_data.h"
 
 #include <stdbool.h>

@@ -12,7 +12,7 @@
 #define MYMPD_MPD_WORKER_H
 
 #include "src/lib/api.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         struct t_work_request *request);

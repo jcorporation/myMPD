@@ -11,7 +11,7 @@
 #ifndef MYMPD_CACHE_DISK_H
 #define MYMPD_CACHE_DISK_H
 
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 
 #include <stdbool.h>
 

@@ -9,7 +9,7 @@
  */
 
 #include "compile_time.h"
-#include "src/lib/state_files.h"
+#include "src/lib/config/state_files.h"
 
 #include "src/lib/convert.h"
 #include "src/lib/filehandler.h"

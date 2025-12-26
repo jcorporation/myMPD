@@ -14,12 +14,11 @@ target_sources(mympd-script
   PRIVATE
     mympd-script.c
     ../log.c
-    ../../src/lib/cacertstore.c
+    ../../src/lib/config/cacertstore.c
     ../../src/lib/convert.c
     ../../src/lib/filehandler.c
-    ../../src/lib/http_client.c
+    ../../src/lib/http_client/http_client.c
     ../../src/lib/list.c
-    ../../src/lib/passwd.c
     ../../src/lib/random.c
     ../../src/lib/sds_extras.c
     ../../src/lib/utf8_wrapper.c

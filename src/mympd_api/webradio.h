@@ -13,7 +13,7 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/api.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigned request_id,
     enum mympd_cmd_ids cmd_id, unsigned offset, unsigned limit, sds expression, sds sort, bool sortdesc);

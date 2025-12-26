@@ -12,10 +12,10 @@
 #include "src/mympd_client/stickerdb.h"
 
 #include "dist/rax/rax.h"
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/convert.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker.h"
 #include "src/lib/utility.h"

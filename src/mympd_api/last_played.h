@@ -11,7 +11,7 @@
 #ifndef MYMPD_API_LAST_PLAYED_H
 #define MYMPD_API_LAST_PLAYED_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, unsigned last_played_count);
 sds mympd_api_last_played_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,

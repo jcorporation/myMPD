@@ -11,10 +11,10 @@
 #include "compile_time.h"
 #include "src/mympd_client/partitions.h"
 
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/last_played.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/signal.h"
 #include "src/lib/timer.h"

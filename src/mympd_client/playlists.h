@@ -11,7 +11,7 @@
 #ifndef MYMPD_MPD_CLIENT_PLAYLISTS_H
 #define MYMPD_MPD_CLIENT_PLAYLISTS_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 /**
  * Playlist types

@@ -12,7 +12,7 @@
 #define MYMPD_MPD_CLIENT_TAGS_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool is_multivalue_tag(enum mpd_tag_type tag);
 bool is_numeric_tag(enum mpd_tag_type tag);

@@ -13,7 +13,7 @@
 
 #include "src/lib/log.h"
 #include "src/lib/mpdclient.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 #include "src/lib/sticker.h"
 #include "src/lib/utf8_wrapper.h"
 #include "src/lib/webradio.h"
@@ -525,11 +525,11 @@ bool vcb_issearchexpression_webradio(sds data) {
         return false;
     }
 
-    struct t_list *expr = parse_search_expression_to_list(data, SEARCH_TYPE_WEBRADIO);
+    struct t_list *expr = search_expression_parse(data, SEARCH_TYPE_WEBRADIO);
     if (expr == NULL) {
         return false;
     }
-    free_search_expression_list(expr);
+    search_expression_free(expr);
     return true;
 }
 

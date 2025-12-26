@@ -9,7 +9,7 @@
 
 #include "src/lib/album.h"
 #include "src/lib/cache/cache_rax_album.h"
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "src/lib/mpdclient.h"
 #include "utility.h"
 

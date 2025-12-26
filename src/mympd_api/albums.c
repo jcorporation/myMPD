@@ -19,7 +19,7 @@
 #include "src/lib/log.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 #include "src/lib/sticker.h"
 #include "src/mympd_api/extra_media.h"
 #include "src/mympd_api/sticker.h"
@@ -234,7 +234,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
     }
 
     //parse mpd search expression
-    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
+    struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_SONG);
     if (expr_list == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Invalid search expression");
@@ -259,7 +259,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
         }
     }
     raxStop(&iter);
-    free_search_expression_list(expr_list);
+    search_expression_free(expr_list);
     FREE_SDS(key);
 
     //print album list

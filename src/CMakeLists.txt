@@ -51,23 +51,26 @@ target_sources(mympd
     main.c
     lib/album.c
     lib/api.c
-    lib/cacertstore.c
     lib/cache/cache_disk_images.c
     lib/cache/cache_disk_lyrics.c
     lib/cache/cache_disk.c
     lib/cache/cache_rax_album.c
     lib/cache/cache_rax.c
-    lib/cert.c
-    lib/config.c
+    lib/config/cacertstore.c
+    lib/config/cert.c
+    lib/config/config.c
+    lib/config/env.c
+    lib/config/handle_options.c
+    lib/config/mympd_state.c
+    lib/config/pin.c
+    lib/config/state_files.c
     lib/convert.c
     lib/datetime.c
-    lib/env.c
     lib/event.c
     lib/fields.c
     lib/filehandler.c
-    lib/handle_options.c
-    lib/http_client.c
-    lib/http_client_cache.c
+    lib/http_client/http_client.c
+    lib/http_client/http_client_cache.c
     lib/json/json_print.c
     lib/json/json_query.c
     lib/json/json_rpc.c
@@ -77,18 +80,16 @@ target_sources(mympd
     lib/log.c
     lib/mimetype.c
     lib/mpack.c
-    lib/passwd.c
-    lib/pin.c
     lib/msg_queue.c
-    lib/mympd_state.c
     lib/random.c
     lib/rax_extras.c
-    lib/search.c
+    lib/search/search_fuzzy.c
+    lib/search/search_pcre.c
+    lib/search/search.c
     lib/sds_extras.c
     lib/signal.c
     lib/smartpls.c
     lib/sticker.c
-    lib/state_files.c
     lib/thread.c
     lib/timer.c
     lib/utf8_wrapper.c

@@ -11,7 +11,7 @@
 #ifndef MYMPD_MPD_CLIENT_SHORTCUTS_H
 #define MYMPD_MPD_CLIENT_SHORTCUTS_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool mympd_client_command_list_end_check(struct t_partition_state *partition_state);
 bool mympd_client_add_uris_to_queue(struct t_partition_state *partition_state, struct t_list *uris,

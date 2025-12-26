@@ -12,16 +12,15 @@
 #include "src/mympd_api/timer_handlers.h"
 
 #include "src/lib/api.h"
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_query.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/mympd_api/requests.h"
 #include "src/mympd_client/errorhandler.h"
-#include "src/mympd_client/jukebox.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/volume.h"
 

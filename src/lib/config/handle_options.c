@@ -9,11 +9,11 @@
  */
 
 #include "compile_time.h"
-#include "src/lib/handle_options.h"
+#include "src/lib/config/handle_options.h"
 
-#include "src/lib/config.h"
-#include "src/lib/config_def.h"
-#include "src/lib/pin.h"
+#include "src/lib/config/config.h"
+#include "src/lib/config/config_def.h"
+#include "src/lib/config/pin.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 

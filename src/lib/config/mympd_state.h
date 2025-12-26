@@ -13,7 +13,7 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/cache/cache_rax.h"
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "src/lib/event.h"
 #include "src/lib/fields.h"
 #include "src/lib/jukebox.h"

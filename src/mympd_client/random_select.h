@@ -11,7 +11,7 @@
 #ifndef MYMPD_RANDOM_ADD_H
 #define MYMPD_RANDOM_ADD_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 /**
  * Jukebox constraints for song/album selection

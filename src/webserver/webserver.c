@@ -12,7 +12,7 @@
 #include "src/webserver/webserver.h"
 
 #include "src/lib/api.h"
-#include "src/lib/http_client.h"
+#include "src/lib/http_client/http_client.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"

@@ -14,6 +14,7 @@
 #include "src/mympd_api/trigger.h"
 
 #include "src/lib/api.h"
+#include "src/lib/config/state_files.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_query.h"
@@ -21,7 +22,6 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/state_files.h"
 
 #include "src/scripts/events.h"
 

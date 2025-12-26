@@ -9,23 +9,20 @@
  */
 
 #include "compile_time.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 
 #include "src/lib/convert.h"
 #include "src/lib/datetime.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/search/search_fuzzy.h"
+#include "src/lib/search/search_pcre.h"
 #include "src/lib/utf8_wrapper.h"
 
 #include <ctype.h>
 #include <inttypes.h>
 
-/**
- * PCRE for UTF-8
- */
-#define PCRE2_CODE_UNIT_WIDTH 8
-#include <pcre2.h>
 #include <string.h>
 
 /**
@@ -80,24 +77,20 @@ static int expr_get_tag_webradio(const char *p, size_t *len);
 static int expr_get_op(const char *p, int tag, size_t *len);
 static sds expr_get_value(const char *p, const char *end, int tag, sds buf, bool *rc);
 static bool expr_parse_value(struct t_search_expression *expr);
-static void *free_search_expression(struct t_search_expression *expr);
+static void *free_search_expression_struct(struct t_search_expression *expr);
 static void free_search_expression_node(struct t_list_node *current);
-static pcre2_code *compile_regex(sds regex_str);
-static bool cmp_regex(pcre2_code *re_compiled, const char *value);
-static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_len,
-        size_t *cache, size_t max_distance);
 
 /**
  * Public functions
  */
 
 /**
- * Parses a mpd search expression
+ * Parses a mpd search expression string to a list
  * @param expression mpd search expression
  * @param type type of struct for the search expression
  * @return list of the expression or NULL on error
  */
-struct t_list *parse_search_expression_to_list(const char *expression, enum search_type type) {
+struct t_list *search_expression_parse(const char *expression, enum search_type type) {
     struct t_list *expr_list = list_new();
     int count = 0;
     sds *tokens = sdssplitlen(expression, (ssize_t)strlen(expression), ") AND (", 7, &count);
@@ -121,8 +114,8 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
             p > end)
         {
             MYMPD_LOG_ERROR(NULL, "Can not parse search expression, tag: %d, skip: %lu", expr->tag, (unsigned long)skip);
-            free_search_expression(expr);
-            free_search_expression_list(expr_list);
+            free_search_expression_struct(expr);
+            search_expression_free(expr_list);
             expr_list = NULL;
             break;
         }
@@ -134,8 +127,8 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
             p > end)
         {
             MYMPD_LOG_ERROR(NULL, "Can not parse search expression, tag: %d, op: %d, skip: %lu", expr->tag, expr->op, (unsigned long)skip);
-            free_search_expression(expr);
-            free_search_expression_list(expr_list);
+            free_search_expression_struct(expr);
+            search_expression_free(expr_list);
             expr_list = NULL;
             break;
         }
@@ -147,8 +140,8 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
             expr_parse_value(expr) == false)
         {
             MYMPD_LOG_ERROR(NULL, "Can not parse search expression, tag: %d, op: %d, value: \"%s\"", expr->tag, expr->op, expr->value);
-            free_search_expression(expr);
-            free_search_expression_list(expr_list);
+            free_search_expression_struct(expr);
+            search_expression_free(expr_list);
             expr_list = NULL;
             break;
         }
@@ -165,7 +158,7 @@ struct t_list *parse_search_expression_to_list(const char *expression, enum sear
  * Frees the search expression list
  * @param expr_list pointer to the list
  */
-void free_search_expression_list(struct t_list *expr_list) {
+void search_expression_free(struct t_list *expr_list) {
     if (expr_list == NULL) {
         return;
     }
@@ -183,10 +176,10 @@ static bool match_tag(const char *value_utf8, struct t_search_expression *expr) 
         case SEARCH_OP_CONTAINS:    return strstr(value_utf8, expr->value_utf8) != NULL;
         case SEARCH_OP_STARTS_WITH: return strncmp(expr->value_utf8, expr->value_utf8, expr->value_utf8_len) == 0;
         case SEARCH_OP_EQUAL:       return strcmp(value_utf8, expr->value_utf8) == 0;
-        case SEARCH_OP_REGEX:       return cmp_regex(expr->re_compiled, value_utf8);
+        case SEARCH_OP_REGEX:       return mympd_search_pcre_match(expr->re_compiled, value_utf8);
         case SEARCH_OP_FUZZY:       return mympd_search_fuzzy_match(value_utf8, expr->value_utf8);
         case SEARCH_OP_NOT_EQUAL:   return strcmp(value_utf8, expr->value_utf8) != 0;
-        case SEARCH_OP_NOT_REGEX:   return cmp_regex(expr->re_compiled, value_utf8) == false;
+        case SEARCH_OP_NOT_REGEX:   return mympd_search_pcre_match(expr->re_compiled, value_utf8) == false;
         default:                    return false;
     }
 }
@@ -675,7 +668,7 @@ static bool expr_parse_value(struct t_search_expression *expr) {
              expr->op == SEARCH_OP_NOT_REGEX)
     {
         // Compile regex
-        expr->re_compiled = compile_regex(expr->value);
+        expr->re_compiled = mympd_search_pcre_compile(expr->value);
         if (expr->re_compiled == NULL) {
             return false;
         }
@@ -688,7 +681,7 @@ static bool expr_parse_value(struct t_search_expression *expr) {
  * @param expr pointer to t_search_expression struct
  * @return NULL
  */
-static void *free_search_expression(struct t_search_expression *expr) {
+static void *free_search_expression_struct(struct t_search_expression *expr) {
     FREE_SDS(expr->value);
     FREE_PTR(expr->value_utf8);
     FREE_PTR(expr->re_compiled);
@@ -702,149 +695,5 @@ static void *free_search_expression(struct t_search_expression *expr) {
  */
 static void free_search_expression_node(struct t_list_node *current) {
     struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
-    free_search_expression(expr);
-}
-
-/**
- * Compiles a string to regex code
- * @param regex_str regex string
- * @return regex code
- */
-static pcre2_code *compile_regex(sds regex_str) {
-    MYMPD_LOG_DEBUG(NULL, "Compiling regex: \"%s\"", regex_str);
-    char *regex_utf8 = utf8_wrap_casefold(regex_str, sdslen(regex_str));
-    PCRE2_SIZE erroroffset;
-    int rc;
-    pcre2_code *re_compiled = pcre2_compile(
-        (PCRE2_SPTR)regex_utf8, /* the pattern */
-        PCRE2_ZERO_TERMINATED, /* indicates pattern is zero-terminated */
-        0,                     /* default options */
-        &rc,		           /* for error number */
-        &erroroffset,          /* for error offset */
-        NULL                   /* use default compile context */
-    );
-    if (re_compiled == NULL){
-        //Compilation failed
-        PCRE2_UCHAR buffer[256];
-        pcre2_get_error_message(rc, buffer, sizeof(buffer));
-        MYMPD_LOG_ERROR(NULL, "PCRE2 compilation failed at offset %lu: \"%s\"", (unsigned long)erroroffset, buffer);
-    }
-    FREE_PTR(regex_utf8);
-    return re_compiled;
-}
-
-/**
- * Matches the regex against a string
- * @param re_compiled the compiled regex from compile_regex
- * @param value string to match against
- * @return true if regex matches else false
- */
-static bool cmp_regex(pcre2_code *re_compiled, const char *value) {
-    if (re_compiled == NULL) {
-        return false;
-    }
-    pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(re_compiled, NULL);
-    int rc = pcre2_match(
-        re_compiled,          /* the compiled pattern */
-        (PCRE2_SPTR)value,    /* the subject string */
-        strlen(value),        /* the length of the subject */
-        0,                    /* start at offset 0 in the subject */
-        0,                    /* default options */
-        match_data,           /* block for storing the result */
-        NULL                  /* use default match context */
-    );
-    pcre2_match_data_free(match_data);
-    if (rc >= 0) {
-        return true;
-    }
-    //Matching failed: handle error cases
-    switch(rc) {
-        case PCRE2_ERROR_NOMATCH: 
-            break;
-        default: {
-            PCRE2_UCHAR buffer[256];
-            pcre2_get_error_message(rc, buffer, sizeof(buffer));
-            MYMPD_LOG_ERROR(NULL, "PCRE2 matching error %d: \"%s\"", rc, buffer);
-        }
-    }
-    return false;
-}
-
-/**
- * Fuzzy substring matching using the levenshtein distance
- * @param haystack Haystack
- * @param needle Needle
- * @return true on match, else false
- */
-bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
-    const size_t needle_len = strlen(needle);
-    if (needle_len <= 1) {
-        return true;
-    }
-    size_t haystack_len = strlen(haystack);
-    if (needle_len > haystack_len) {
-        return false;
-    }
-    if (strstr(haystack, needle) != NULL) {
-        return true;
-    }
-    const size_t max_distance = needle_len < 10
-        ? 1
-        : (needle_len / 10) + 1;
-    size_t *cache = calloc(haystack_len + 1, sizeof(size_t));
-    const char *p = haystack;
-    while (*p != '\0' &&
-           haystack_len >= needle_len)
-    {
-        if (levenshtein(p, needle_len, needle, needle_len, cache, max_distance) <= max_distance) {
-            free(cache);
-            return true;
-        }
-        p++;
-        haystack_len--;
-    }
-    free(cache);
-    return false;
-}
-
-/**
- * Return the minimum of 3 integers
- */
-#define MIN3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
-
-/**
- * Calculate the levenshtein distance
- * https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#C
- * @param a String 1
- * @param a_len Length of a
- * @param b String 2
- * @param b_len Length of b
- * @param cache Matrix cache
- * @param max_distance Return as soon as the calculated distance is smaller than this value
- * @return Calculated distance
- */
-static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_len,
-        size_t *cache, size_t max_distance)
-{
-    size_t a_idx;
-    size_t b_idx;
-    size_t lastdiag;
-    size_t olddiag;
-    for (a_idx = 1; a_idx <= a_len; a_idx++) {
-        cache[a_idx] = a_idx;
-    }
-    for (b_idx = 1; b_idx <= b_len; b_idx++) {
-        cache[0] = b_idx;
-        for (a_idx = 1, lastdiag = b_idx - 1; a_idx <= a_len; a_idx++) {
-            olddiag = cache[a_idx];
-            cache[a_idx] = MIN3(cache[a_idx] + 1, cache[a_idx - 1] + 1, lastdiag + (a[a_idx - 1] == b[b_idx - 1] ? 0 : 1));
-            lastdiag = olddiag;
-        }
-        // This is good enough
-        if (cache[a_len] <= max_distance) {
-            //MYMPD_LOG_DEBUG(NULL, "levenshtein return early %lu/%lu: %.*s - %.*s", x, b_len, (int)a_len, a, (int)b_len, b);
-            return cache[a_len];
-        }
-    }
-    return cache[a_len];
+    free_search_expression_struct(expr);
 }

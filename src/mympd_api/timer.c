@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_api/timer.h"
 
+#include "src/lib/config/state_files.h"
 #include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_print.h"
@@ -20,7 +21,6 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/state_files.h"
 #include "src/lib/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 

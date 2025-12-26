@@ -5,12 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "utility.h"
 
 #include "dist/utest/utest.h"
 #include "src/lib/mpdclient.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search_fuzzy.h"
+#include "src/lib/search/search.h"
 
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
@@ -27,14 +28,14 @@ bool search_by_expression(const char *expr_string) {
     tags.tags[1] = MPD_TAG_ARTIST;
 
     sds expression = sdsnew(expr_string);
-    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
+    struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_SONG);
     sdsfree(expression);
     if (expr_list == NULL) {
         mpd_song_free(song);
         return false;
     }
     bool rc = search_expression_song(song, expr_list, &tags);
-    free_search_expression_list(expr_list);
+    search_expression_free(expr_list);
     mpd_song_free(song);
     return rc;
 }
@@ -111,13 +112,13 @@ UTEST(search_local, test_search_mpd_song_expression) {
 
 long try_parse(const char *expr) {
     sds expression = sdsnew(expr);
-    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
+    struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_SONG);
     sdsfree(expression);
     if (expr_list == NULL) {
         return 0;
     }
     long len = expr_list->length;
-    free_search_expression_list(expr_list);
+    search_expression_free(expr_list);
     return len;
 }
 

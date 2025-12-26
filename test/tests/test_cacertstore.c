@@ -8,7 +8,7 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
-#include "src/lib/cacertstore.h"
+#include "src/lib/config/cacertstore.h"
 
 UTEST(cacertstore, test_find_ca_cert_store) {
     const char *cabundle = find_ca_cert_store(false);

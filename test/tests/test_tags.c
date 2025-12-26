@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "utility.h"
 
 #include "dist/utest/utest.h"
