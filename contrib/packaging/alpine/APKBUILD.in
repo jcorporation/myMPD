@@ -25,6 +25,7 @@ makedepends="
 	openssl-dev
 	pcre2-dev
 	perl
+	samurai
 	utf8proc-dev
 	"
 install="$pkgname.pre-install"
