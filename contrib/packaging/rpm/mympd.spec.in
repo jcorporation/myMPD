@@ -38,10 +38,10 @@ Therefore myMPD is ideal for raspberry pis and similar devices.
 
 %build
 cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo .
-make -C release
+cmake --build release
 
 %install
-make -C release install DESTDIR=%{buildroot}
+DESTDIR=%{buildroot} cmake --install release
 if [ "%{_defaultdocdir}" == "/usr/share/doc/packages" ]
 then
   install -d "%{buildroot}%{_defaultdocdir}"

@@ -11,7 +11,7 @@ WORKDIR /myMPD
 RUN << EOF
 ./build.sh installdeps
 cmake -B "release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MANPAGES=OFF -DMYMPD_DOC=OFF .
-make -j4 -C "release"
+cmake --build release
 EOF
 
 # Stage 2

@@ -46,7 +46,7 @@ src_compile() {
     cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release \
         -DMYMPD_ENABLE_LIBID3TAG=$MYMPD_ENABLE_LIBID3TAG \
         -DMYMPD_ENABLE_FLAC=$MYMPD_ENABLE_FLAC -DMYMPD_ENABLE_LUA=$MYMPD_ENABLE_LUA .
-    make -C release || die
+    cmake --build release || die
 }
 
 src_install() {

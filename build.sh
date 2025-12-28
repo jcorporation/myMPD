@@ -348,7 +348,7 @@ buildrelease() {
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     .
-  make -j4 -C release
+  cmake --build release
 }
 
 addmympduser() {
@@ -387,9 +387,8 @@ addmympduser() {
 
 installrelease() {
   echo "Installing myMPD"
-  cd release || exit 1
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
-  make install DESTDIR="$DESTDIR"
+  DESTDIR="$DESTDIR" cmake --install release
   if [ ! -f /usr/lib/systemd/system/mympd.service ] &&
      [ ! -f /usr/systemd/system/mympd.service ]
   then
@@ -443,7 +442,8 @@ builddebug() {
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     $CMAKE_SANITIZER_OPTIONS \
     .
-  make -j4 -C debug VERBOSE=1
+  VERBOSE=1 cmake --build debug
+
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
     -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
@@ -451,7 +451,7 @@ builddebug() {
 }
 
 buildtest() {
-  echo "Compiling and running unit tests"
+  echo "Compiling with unit tests"
   cmake -B debug \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
     -DCMAKE_BUILD_TYPE=Debug \
@@ -459,12 +459,14 @@ buildtest() {
     -DMYMPD_ENABLE_ASAN=ON \
     -DMYMPD_BUILD_TESTING=ON \
     .
-  make -j4 -C debug
-  make -j4 -C debug test
+  VERBOSE=1 cmake --build debug
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
     -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
     debug/compile_commands.json > test/compile_commands.json
+
+  echo "Running tests"
+  ctest --test-dir debug
 }
 
 cleanup() {
@@ -874,7 +876,8 @@ installdeps() {
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev lua5.4 \
-      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq newt ca-certificates utf8proc-dev
+      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq newt ca-certificates utf8proc-dev \
+      samurai
   elif [ -f /etc/SuSE-release ]
   then
     #suse

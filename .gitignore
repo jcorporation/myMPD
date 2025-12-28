@@ -6,6 +6,7 @@
 /src/compile_commands.json
 /test/compile_commands.json
 /valgrind.out
+/test/Testing/
 
 #npm
 /node_modules
