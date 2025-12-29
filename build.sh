@@ -759,8 +759,7 @@ pkgrpm() {
 
 pkgarch() {
   check_cmd makepkg
-  prepare
-  tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
+  pkgrpm "taronly"
   cp contrib/packaging/arch/* .
   makepkg
   if [ -n "${SIGN+x}" ] && [ "$SIGN" = "TRUE" ]
