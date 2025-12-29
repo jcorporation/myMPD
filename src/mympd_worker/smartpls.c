@@ -459,7 +459,7 @@ static bool mympd_worker_smartpls_update_newest(struct t_mympd_worker_state *mym
 {
     time_t value_max = mympd_client_get_db_mtime(mympd_worker_state->partition_state);
     //prevent overflow
-    if (timerange > value_max) {
+    if ((time_t)timerange > value_max) {
         return false;
     }
     value_max = value_max - timerange;
