@@ -43,11 +43,11 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, struct t_s
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
 
-    unsigned real_limit = limit == 0 ? offset + MPD_PLAYLIST_LENGTH_MAX : offset + limit;
+    unsigned real_limit = limit == 0 ? offset + MPD_PLIST_LENGTH_MAX : offset + limit;
     if (mpd_search_db_songs(partition_state->conn, false) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
         mympd_client_add_search_sort_param(partition_state, sort, sortdesc) == false ||
-        mpd_search_add_window(partition_state->conn, offset, real_limit) == false)
+        mympd_client_add_search_window(partition_state->conn, offset, real_limit) == false)
     {
         mpd_search_cancel(partition_state->conn);
         *result = false;

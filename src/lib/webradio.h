@@ -13,7 +13,7 @@
 
 #include "dist/rax/rax.h"
 #include "dist/sds/sds.h"
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "src/lib/list.h"
 
 /**

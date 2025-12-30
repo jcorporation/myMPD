@@ -12,10 +12,10 @@
 #include "src/scripts/interface_http.h"
 
 #include "src/lib/cache/cache_disk.h"
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "src/lib/filehandler.h"
-#include "src/lib/http_client.h"
-#include "src/lib/http_client_cache.h"
+#include "src/lib/http_client/http_client.h"
+#include "src/lib/http_client/http_client_cache.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/mimetype.h"

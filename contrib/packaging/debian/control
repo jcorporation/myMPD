@@ -13,7 +13,8 @@ Build-Depends: debhelper (>= 10),
                libflac-dev,
                liblua5.4-dev | liblua5.3-dev,
                lua5.4 | lua5.3,
-               libpcre2-dev
+               libpcre2-dev,
+               libutf8proc-dev
 Standards-Version: 4.1.2
 Homepage: https://jcorporation.github.io/myMPD/
 

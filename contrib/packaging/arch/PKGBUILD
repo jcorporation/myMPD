@@ -1,13 +1,13 @@
 # Maintainer: Juergen Mang <mail@jcgames.de>
 
 pkgname=mympd
-pkgver=23.0.1
+pkgver=24.0.0
 pkgrel=1
 pkgdesc="A standalone and mobile friendly web-based MPD client."
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 url="https://jcorporation.github.io/myMPD/"
 license=(GPL3)
-depends=('flac' 'libid3tag' 'lua' 'openssl' 'pcre2' 'libnewt')
+depends=('flac' 'libid3tag' 'lua' 'openssl' 'pcre2' 'libnewt' 'libutf8proc')
 makedepends=('cmake' 'gzip' 'jq' 'perl')
 source=("${pkgname}-${pkgver}.tar.gz")
 sha256sums=('SKIP')

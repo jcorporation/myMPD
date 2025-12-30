@@ -12,7 +12,7 @@
 #define MYMPD_LUA_MYMPD_STATE_H
 
 #include "src/lib/list.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 #include <stdbool.h>
 

@@ -11,12 +11,12 @@
 #include "compile_time.h"
 #include "src/lib/list.h"
 
-#include "dist/utf8/utf8.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
+#include <src/lib/utf8_wrapper.h>
 
 #include <string.h>
 
@@ -740,7 +740,7 @@ static bool list_sort_cmp_value_i(struct t_list_node *current, struct t_list_nod
  * @return true if current is greater than next
  */
 static bool list_sort_cmp_value_p(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
-    int result = utf8casecmp(current->value_p, next->value_p);
+    int result = utf8_wrap_casecmp(current->value_p, sdslen(current->value_p), next->value_p, sdslen(next->value_p));
     if ((direction == LIST_SORT_ASC && result > 0) ||
         (direction == LIST_SORT_DESC && result < 0))
     {
@@ -757,7 +757,7 @@ static bool list_sort_cmp_value_p(struct t_list_node *current, struct t_list_nod
  * @return true if current is greater than next
  */
 static bool list_sort_cmp_key(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
-    int result = utf8casecmp(current->key, next->key);
+    int result = utf8_wrap_casecmp(current->key, sdslen(current->key), next->key, sdslen(next->key));
     if ((direction == LIST_SORT_ASC && result > 0) ||
         (direction == LIST_SORT_DESC && result < 0))
     {

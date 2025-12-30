@@ -4,6 +4,28 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v24.0.0 (2025-12-30)
+
+This release improves the integrated search by using string normalization and adding a fuzzy search option. Furthermore the mpd connection handling was improved.
+
+The documentation site was migrated from Mkdocs to Sphinx, because of the deprecation of Material for Mkdocs.
+
+### Changelog
+
+- Feat: Fuzzy substring matching using the levenshtein distance
+- Feat: String normalization for album, webradio, playlists and filesystem search
+- Feat: Replace utf8 implementation with utf8proc library
+- Feat: Add setting for default search operator
+- Upd: Migrate documentation to Sphinx with Sphin Book Theme #1495
+- Upd: Move lyrics handling from mympd_api to webserver thread
+- Upd: Performance improvements for mympd_api polling
+- Upd: Stability improvements in MPD connection handling
+- Upd: Limit length of smart playlists #1505
+- Fix: Handling of HTTP connections #1503
+- Fix: Endless scrolling in mobile view #1504
+
+***
+
 ## myMPD v23.0.1 (2025-11-27)
 
 This is a small bug fix release.

@@ -12,7 +12,7 @@
 #define MYMPD_MPD_CLIENT_SEARCH_H
 
 #include "src/lib/album.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool mympd_client_search_add_to_plist(struct t_partition_state *partition_state, const char *expression,
         const char *plist, unsigned to, const char *sort, bool sortdesc, sds *error);
@@ -25,6 +25,7 @@ bool mympd_client_search_add_to_queue_window(struct t_partition_state *partition
         unsigned start, unsigned end, sds *error);
 
 bool mympd_client_add_search_sort_param(struct t_partition_state *partition_state, const char *sort, bool sortdesc);
+bool mympd_client_add_search_window(struct mpd_connection *conn, unsigned start, unsigned end);
 bool mympd_client_add_search_group_param(struct mpd_connection *conn, enum mpd_tag_type tag);
 bool mympd_client_add_search_window_param_mpd_025(struct t_partition_state *partition_state, unsigned start, unsigned end);
 sds get_search_expression_album(sds buffer, enum mpd_tag_type tag_albumartist, struct t_album *album,

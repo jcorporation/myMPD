@@ -11,14 +11,17 @@
 #include "compile_time.h"
 #include "src/mympd_api/sticker.h"
 
-#include "dist/utf8/utf8.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
+#include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/utf8_wrapper.h"
 #include "src/mympd_api/trigger.h"
 #include "src/mympd_client/search.h"
 #include "src/mympd_client/stickerdb.h"
+
+#include <string.h>
 
 /**
  * Gets a sticker value
@@ -127,7 +130,7 @@ sds mympd_api_sticker_list(struct t_stickerdb_state *stickerdb, sds buffer, unsi
     stickers_enable_all(&stickers, type);
     buffer = jsonrpc_respond_start(buffer, MYMPD_API_STICKER_LIST, request_id);
     buffer = tojson_char(buffer, "type", mympd_sticker_type_name_lookup(type), true);
-    buffer = tojson_sds(buffer, "uri", uri, true);
+    buffer = tojson_sds(buffer, "uri", uri, false);
     buffer = mympd_api_sticker_get_print(buffer, stickerdb, type, uri, &stickers);
     buffer = jsonrpc_end(buffer);
     return buffer;
@@ -296,18 +299,22 @@ sds mympd_api_sticker_names(struct t_stickerdb_state *stickerdb, sds buffer, uns
     buffer = sdscat(buffer,"\"data\":[");
     struct t_list_node *current = sticker_names.head;
     unsigned entities_returned = 0;
+    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr));
     while (current != NULL) {
+        char *value_utf8 = utf8_wrap_normalize(current->key, sdslen(current->key));
         if (sticker_name_parse(current->key) == STICKER_UNKNOWN &&
             (sdslen(searchstr) == 0 ||
-             utf8casestr(current->key, searchstr) != NULL))
+             strstr(value_utf8, searchstr_utf8) != NULL))
         {
             if (entities_returned++) {
                 buffer= sdscatlen(buffer, ",", 1);
             }
             buffer = sds_catjson(buffer, current->key, sdslen(current->key));
         }
+        FREE_PTR(value_utf8);
         current = current->next;
     }
+    FREE_PTR(searchstr_utf8);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_uint(buffer, "totalEntities", entities_returned, false);

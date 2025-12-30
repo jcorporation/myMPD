@@ -41,11 +41,12 @@ void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char
     assert(errormessage);
     MYMPD_LOG_ERROR(partition_state->name, "%s", errormessage);
     mympd_client_disconnect(partition_state);
+    *partition_state->repopulate_pfds = true;
     mympd_timer_set(partition_state->timer_fd_mpd_connect, 0, 5);
 }
 
 /**
- * Checks for mpd protocol error and tries to recover it
+ * Calls mpd_response_finish, checks for mpd protocol error and tries to recover it
  * @param partition_state pointer to partition specific states
  * @param error pointer to an already allocated sds string for the error message or NULL
  * @param command last mpd command
@@ -56,7 +57,7 @@ bool mympd_check_error_and_recover(struct t_partition_state *partition_state, sd
 }
 
 /**
- * Checks for mpd protocol error and tries to recover it.
+ * Calls mpd_response_finish, checks for mpd protocol error and tries to recover it.
  * Creates a jsonrpc response on error.
  * @param partition_state pointer to partition specific states
  * @param buffer pointer to an already allocated sds string for the jsonrpc response or NULL
@@ -72,7 +73,7 @@ bool mympd_check_error_and_recover_respond(struct t_partition_state *partition_s
 }
 
 /**
- * Checks for mpd protocol error and tries to recover it.
+ * Calls mpd_response_finish, checks for mpd protocol error and tries to recover it.
  * Creates a jsonrpc notification on error.
  * @param partition_state pointer to partition specific states
  * @param buffer already allocated sds string for the jsonrpc response or NULL
@@ -84,7 +85,7 @@ bool mympd_check_error_and_recover_notify(struct t_partition_state *partition_st
 }
 
 /**
- * Checks for mpd protocol error and tries to recover it.
+ * Calls mpd_response_finish, checks for mpd protocol error and tries to recover it.
  * Returns the plain mpd error message.
  * @param partition_state pointer to partition specific states
  * @param buffer already allocated sds string for the mpd error message or NULL
@@ -96,7 +97,7 @@ bool mympd_check_error_and_recover_plain(struct t_partition_state *partition_sta
 }
 
 /**
- * Checks for mpd protocol error and return code of last mpd command and tries to recover it.
+ * Calls mpd_response_finish, checks for mpd protocol error and return code of last mpd command and tries to recover it.
  * Creates always a jsonrpc response.
  * Shortcut for mympd_check_rc_error_and_recover and jsonrpc_respond_ok
  * @param partition_state pointer to partition specific states

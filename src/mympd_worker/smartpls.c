@@ -19,25 +19,25 @@
 #include "src/lib/smartpls.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
+#include "src/mympd_client/compat.h"
+#include "src/mympd_client/database.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/playlists.h"
 #include "src/mympd_client/search.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/stickerdb.h"
-#include "src/mympd_client/tags.h"
 
 #include <dirent.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <mpd/tag.h>
 #include <string.h>
 
 /**
  * Private definitions
  */
 static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_worker_state);
-static bool mympd_worker_smartpls_delete(struct t_mympd_worker_state *mympd_worker_state,
-        const char *playlist);
 static bool mympd_worker_smartpls_update_search(struct t_mympd_worker_state *mympd_worker_state,
         const char *playlist, const char *expression, const char *sort, bool sortdesc, unsigned max_entries);
 static bool mympd_worker_smartpls_update_sticker(struct t_mympd_worker_state *mympd_worker_state,
@@ -173,10 +173,10 @@ bool mympd_worker_smartpls_update(struct t_mympd_worker_state *mympd_worker_stat
     }
 
     // get max entries
-    json_get_uint(content, "$.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &max_entries, NULL);
+    json_get_uint(content, "$.maxentries", 0, MPD_PLIST_LENGTH_MAX, &max_entries, NULL);
 
     // delete the playlist
-    mympd_worker_smartpls_delete(mympd_worker_state, playlist);
+    mympd_client_playlist_delete_if_exists(mympd_worker_state->partition_state, playlist);
 
     // recreate the playlist
     if (strcmp(smartpltype, "sticker") == 0 &&
@@ -229,7 +229,7 @@ bool mympd_worker_smartpls_update(struct t_mympd_worker_state *mympd_worker_stat
             rc = mympd_client_playlist_shuffle(mympd_worker_state->partition_state, playlist, NULL);
         }
         else if (strcmp(smartpltype, "sticker") == 0 &&
-                 sticker_sort_parse(sort) == MPD_STICKER_SORT_UNKOWN)
+                 sticker_sort_parse(sort) == MPD_STICKER_SORT_UNKNOWN)
         {
             // resort sticker based smart playlists by sort tag
             rc = mympd_client_playlist_sort(mympd_worker_state->partition_state, playlist, sort, sortdesc, NULL);
@@ -264,38 +264,45 @@ bool mympd_worker_smartpls_update(struct t_mympd_worker_state *mympd_worker_stat
  * @return true on success, else false
  */
 static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_worker_state) {
+    struct t_list tag_list;
+    list_init(&tag_list);
+    const unsigned real_limit = mympd_worker_state->config->smartpls_per_tag_value_max + 1;
     for (unsigned k = 0; k < mympd_worker_state->smartpls_generate_tag_types.len; k++) {
         enum mpd_tag_type tag = mympd_worker_state->smartpls_generate_tag_types.tags[k];
-        struct t_list tag_list;
-        list_init(&tag_list);
-        unsigned start = 0;
-        unsigned end = start + MPD_RESULTS_MAX;
+        list_clear(&tag_list);
+        if (mpd_search_db_tags(mympd_worker_state->partition_state->conn, tag) == false ||
+            mympd_client_add_search_window_param_mpd_025(mympd_worker_state->partition_state, 0, real_limit) == false)
+        {
+            mpd_search_cancel(mympd_worker_state->partition_state->conn);
+            MYMPD_LOG_ERROR(NULL, "Error creating MPD search command");
+            return false;
+        }
         unsigned i = 0;
-        do {
-            if (mpd_search_db_tags(mympd_worker_state->partition_state->conn, tag) == false ||
-                mympd_client_add_search_window_param_mpd_025(mympd_worker_state->partition_state, start, end) == false)
-            {
-                mpd_search_cancel(mympd_worker_state->partition_state->conn);
-                MYMPD_LOG_ERROR(NULL, "Error creating MPD search command");
-                return false;
-            }
-            if (mpd_search_commit(mympd_worker_state->partition_state->conn)) {
-                struct mpd_pair *pair;
-                while ((pair = mpd_recv_pair_tag(mympd_worker_state->partition_state->conn, tag)) != NULL) {
-                    if (strlen(pair->value) > 0) {
-                        list_push(&tag_list, pair->value, 0, NULL, NULL);
-                    }
-                    mpd_return_pair(mympd_worker_state->partition_state->conn, pair);
-                    i++;
+        if (mpd_search_commit(mympd_worker_state->partition_state->conn)) {
+            struct mpd_pair *pair;
+            while ((pair = mpd_recv_pair_tag(mympd_worker_state->partition_state->conn, tag)) != NULL) {
+                if (strlen(pair->value) > 0) {
+                    list_push(&tag_list, pair->value, 0, NULL, NULL);
+                }
+                mpd_return_pair(mympd_worker_state->partition_state->conn, pair);
+                i++;
+                if (i == real_limit) {
+                    // MPD < 0.25 does not support window param
+                    break;
                 }
             }
-            if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_db_tags") == false) {
-                list_clear(&tag_list);
-                return false;
-            }
-            start = end;
-            end = end + MPD_RESULTS_MAX;
-        } while (i >= start);
+        }
+        if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_db_tags") == false) {
+            list_clear(&tag_list);
+            return false;
+        }
+        // Do not create smart playlists for tags with too much values
+        if (i > mympd_worker_state->config->smartpls_per_tag_value_max) {
+            const char *tag_name = mpd_tag_name(mympd_worker_state->smartpls_generate_tag_types.tags[k]);
+            MYMPD_LOG_WARN(NULL, "Too many values found for tag %s, maximum is %d",
+                tag_name, mympd_worker_state->config->smartpls_per_tag_value_max);
+            continue;
+        }
 
         struct t_list_node *current;
         while ((current = list_shift_first(&tag_list)) != NULL) {
@@ -324,41 +331,7 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
             list_node_free(current);
         }
     }
-    return true;
-}
-
-/**
- * Deletes playlists if it exists
- * @param mympd_worker_state pointer to the t_mympd_worker_state struct
- * @param playlist playlist to update
- * @return true on success, else false
- */
-static bool mympd_worker_smartpls_delete(struct t_mympd_worker_state *mympd_worker_state, const char *playlist) {
-    struct mpd_playlist *pl;
-    bool exists = false;
-
-    //first check if playlist exists
-    if (mpd_send_list_playlists(mympd_worker_state->partition_state->conn)) {
-        while ((pl = mpd_recv_playlist(mympd_worker_state->partition_state->conn)) != NULL) {
-            const char *plpath = mpd_playlist_get_path(pl);
-            if (strcmp(playlist, plpath) == 0) {
-                exists = true;
-            }
-            mpd_playlist_free(pl);
-            if (exists == true) {
-                break;
-            }
-        }
-    }
-    if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_send_list_playlists") == false) {
-        return false;
-    }
-
-    //delete playlist if exists
-    if (exists == true) {
-        mpd_run_rm(mympd_worker_state->partition_state->conn, playlist);
-        return mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_run_rm");
-    }
+    list_clear(&tag_list);
     return true;
 }
 
@@ -382,7 +355,7 @@ static bool mympd_worker_smartpls_update_search(struct t_mympd_worker_state *mym
     if (strcmp(sort, "shuffle") == 0 ||
         max_entries == 0)
     {
-        max_entries = UINT_MAX;
+        max_entries = mympd_worker_state->config->plist_len_max;
     }
     bool rc = mympd_client_search_add_to_plist_window(mympd_worker_state->partition_state,
         expression, playlist, UINT_MAX, r_sort, sortdesc, 0, max_entries, &error);
@@ -413,21 +386,21 @@ static bool mympd_worker_smartpls_update_sticker(struct t_mympd_worker_state *my
         const char *sort, bool sort_desc, unsigned max_entries)
 {
     enum mpd_sticker_operator oper = sticker_oper_parse(op);
-    if (oper == MPD_STICKER_OP_UNKOWN) {
+    if (oper == MPD_STICKER_OP_UNKNOWN) {
         MYMPD_LOG_ERROR(NULL, "Invalid sticker compare operator");
         return false;
     }
 
     enum mpd_sticker_sort sort_op = sticker_sort_parse(sort);
 
-    if (sort_op == MPD_STICKER_SORT_UNKOWN ||
+    if (sort_op == MPD_STICKER_SORT_UNKNOWN ||
         max_entries == 0)
     {
         // we must get all entries
-        max_entries = UINT_MAX;
+        max_entries = mympd_worker_state->config->plist_len_max;;
     }
 
-    if (sort_op == MPD_STICKER_SORT_UNKOWN) {
+    if (sort_op == MPD_STICKER_SORT_UNKNOWN) {
         sort_op = MPD_STICKER_SORT_URI;
     }
 
@@ -484,18 +457,9 @@ static bool mympd_worker_smartpls_update_sticker(struct t_mympd_worker_state *my
 static bool mympd_worker_smartpls_update_newest(struct t_mympd_worker_state *mympd_worker_state,
         const char *playlist, unsigned timerange, const char *sort, bool sortdesc, unsigned max_entries)
 {
-    unsigned long value_max = 0;
-    struct mpd_stats *stats = mpd_run_stats(mympd_worker_state->partition_state->conn);
-    if (stats != NULL) {
-        value_max = mpd_stats_get_db_update_time(stats);
-        mpd_stats_free(stats);
-    }
-    if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_run_stats") == false) {
-        return false;
-    }
-
+    time_t value_max = mympd_client_get_db_mtime(mympd_worker_state->partition_state);
     //prevent overflow
-    if (timerange > value_max) {
+    if ((time_t)timerange > value_max) {
         return false;
     }
     value_max = value_max - timerange;
@@ -503,7 +467,7 @@ static bool mympd_worker_smartpls_update_newest(struct t_mympd_worker_state *mym
     if (strcmp(sort, "shuffle") == 0 ||
         max_entries == 0)
     {
-        max_entries = UINT_MAX;
+        max_entries = mympd_worker_state->config->plist_len_max;;
     }
 
     sds error = sdsempty();

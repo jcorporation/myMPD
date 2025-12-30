@@ -13,7 +13,7 @@
 
 #include "src/lib/cache/cache_disk.h"
 #include "src/lib/cache/cache_disk_images.h"
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/mimetype.h"

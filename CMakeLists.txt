@@ -9,7 +9,7 @@ cmake_policy(SET CMP0003 NEW)
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd
-  VERSION 23.0.1
+  VERSION 24.0.0
   LANGUAGES C
 )
 
@@ -59,6 +59,7 @@ option(MYMPD_ENABLE_IPV6 "Enables IPv6, default ON" "ON")
 option(MYMPD_ENABLE_LIBID3TAG "Enables libid3tag support, default ON" "ON")
 option(MYMPD_ENABLE_LUA "Enables lua support, default ON" "ON")
 option(MYMPD_ENABLE_MYGPIOD "Enables myGPIOd support, default ON" "ON")
+option(MYMPD_ENABLE_UTF8 "Enables utf8 support with utf8proc, default ON" "ON")
 option(MYMPD_MANPAGES "Creates and installs manpages, default ON" "ON")
 option(MYMPD_MINIMAL "Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags, default OFF" "OFF")
 option(MYMPD_STARTUP_SCRIPT "Installs the startup script, default ON" "ON")
@@ -73,6 +74,7 @@ if(MYMPD_MINIMAL)
   set(MYMPD_ENABLE_LUA "OFF")
   set(MYMPD_ENABLE_LIBID3TAG "OFF")
   set(MYMPD_ENABLE_MYGPIOD "OFF")
+  set(MYMPD_ENABLE_UTF8 "OFF")
 endif()
 
 if(MYMPD_ENABLE_EXPERIMENTAL)
@@ -89,9 +91,9 @@ include(GNUInstallDirs)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
 # required dependencies
+find_library(MATH_LIB m REQUIRED)
 find_package(Threads REQUIRED)
 find_package(PCRE2 REQUIRED)
-find_library(MATH_LIB m REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 if(MYMPD_EMBEDDED_LIBMPDCLIENT STREQUAL "ON")
@@ -126,6 +128,17 @@ if(OPENSSL_VERSION VERSION_LESS "${OPENSSL_MIN_VERSION}")
 endif()
 
 # optional dependencies
+if(MYMPD_ENABLE_UTF8)
+  message("Searching for utf8proc")
+  find_package(UTF8PROC)
+  if(NOT UTF8PROC_FOUND)
+    message(WARNING "Utf8proc is disabled because it was not found")
+    set(MYMPD_ENABLE_UTF8 "OFF")
+  endif()
+else()
+  message("Utf8proc is disabled by user")
+endif()
+
 if(MYMPD_ENABLE_LIBID3TAG)
   message("Searching for libid3tag")
   find_package(LIBID3TAG)
@@ -490,6 +503,9 @@ target_link_libraries(mympd
 )
 
 # link optional dependencies
+if(MYMPD_ENABLE_UTF8)
+  target_link_libraries(mympd ${UTF8PROC_LIBRARIES})
+endif()
 if(MYMPD_ENABLE_LIBID3TAG)
   target_link_libraries(mympd ${LIBID3TAG_LIBRARIES})
 endif()

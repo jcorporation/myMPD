@@ -11,7 +11,7 @@
 #ifndef MYMPD_API_LYRICS_H
 #define MYMPD_API_LYRICS_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer,
         sds uri, sds partition, unsigned long conn_id, unsigned request_id);

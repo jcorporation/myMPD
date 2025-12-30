@@ -11,7 +11,7 @@
 #ifndef MYMPD_API_OUTPUTS_H
 #define MYMPD_API_OUTPUTS_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool mympd_api_output_toggle(struct t_partition_state *partition_state, unsigned output_id, bool enabled, sds *error);
 sds mympd_api_output_get(struct t_partition_state *partition_state, sds buffer, unsigned request_id, sds output_name);

@@ -27,14 +27,14 @@ local jsonrpc_severity_names = {
 
 --- Sends a notification to the client that started this script.
 -- @param severity Severity
---                 0 = SEVERITY_EMERG = Emergency
---                 1 = SEVERITY_ALERT = Alert
---                 2 = SEVERITY_CRIT = Critical
---                 3 = SEVERITY_ERR = Error
---                 4 = SEVERITY_WARNING = Warning
---                 5 = SEVERITY_NOTICE = Notice
---                 6 = SEVERITY_INFO = Info
---                 7 = SEVERITY_DEBUG = Debug
+--                 0 - SEVERITY_EMERG = Emergency
+--                 1 - SEVERITY_ALERT = Alert
+--                 2 - SEVERITY_CRIT = Critical
+--                 3 - SEVERITY_ERR = Error
+--                 4 - SEVERITY_WARNING = Warning
+--                 5 - SEVERITY_NOTICE = Notice
+--                 6 - SEVERITY_INFO = Info
+--                 7 - SEVERITY_DEBUG = Debug
 -- @param message Jsonrpc message to send
 function mympd.notify_client(severity, message)
   if type(severity) == "string" then
@@ -45,14 +45,14 @@ end
 
 --- Sends a notification to all clients in the current partition.
 -- @param severity Severity
---                 0 = SEVERITY_EMERG = Emergency
---                 1 = SEVERITY_ALERT = Alert
---                 2 = SEVERITY_CRIT = Critical
---                 3 = SEVERITY_ERR = Error
---                 4 = SEVERITY_WARNING = Warning
---                 5 = SEVERITY_NOTICE = Notice
---                 6 = SEVERITY_INFO = Info
---                 7 = SEVERITY_DEBUG = Debug
+--                 0 - SEVERITY_EMERG = Emergency
+--                 1 - SEVERITY_ALERT = Alert
+--                 2 - SEVERITY_CRIT = Critical
+--                 3 - SEVERITY_ERR = Error
+--                 4 - SEVERITY_WARNING = Warning
+--                 5 - SEVERITY_NOTICE = Notice
+--                 6 - SEVERITY_INFO = Info
+--                 7 - SEVERITY_DEBUG = Debug
 -- @param message Jsonrpc message to send
 function mympd.notify_partition(severity, message)
   if type(severity) == "string" then
@@ -75,14 +75,15 @@ local loglevel_names = {
 
 --- Logs to the myMPD log.
 -- @param loglevel Syslog loglevel
---                 0 = LOG_EMERG = Emergency
---                 1 = LOG_ALERT = Alert
---                 2 = LOG_CRIT = Critical
---                 3 = LOG_ERR = Error
---                 4 = LOG_WARNING = Warning
---                 5 = LOG_NOTICE = Notice
---                 6 = LOG_INFO = Info
---                 7 = LOG_DEBUG = Debug
+--                 0 - LOG_EMERG = Emergency
+--                 1 - LOG_ALERT = Alert
+--                 2 - LOG_CRIT = Critical
+--                 3 - LOG_ERR = Error
+--                 4 - LOG_WARNING = Warning
+--                 5 - LOG_NOTICE = Notice
+--                 6 - LOG_INFO = Info
+--                 7 - LOG_DEBUG = Debug
+-- @param message Message to log
 function mympd.log(loglevel, message)
   if type(loglevel) == "string" then
     loglevel = loglevel_names[loglevel]
@@ -92,14 +93,14 @@ end
 
 --- Creates a JSONRPC 2.0 notification.
 -- @param severity Severity
---                 0 = SEVERITY_EMERG = Emergency
---                 1 = SEVERITY_ALERT = Alert
---                 2 = SEVERITY_CRIT = Critical
---                 3 = SEVERITY_ERR = Error
---                 4 = SEVERITY_WARNING = Warning
---                 5 = SEVERITY_NOTICE = Notice
---                 6 = SEVERITY_INFO = Info
---                 7 = SEVERITY_DEBUG = Debug
+--                 0 - SEVERITY_EMERG = Emergency
+--                 1 - SEVERITY_ALERT = Alert
+--                 2 - SEVERITY_CRIT = Critical
+--                 3 - SEVERITY_ERR = Error
+--                 4 - SEVERITY_WARNING = Warning
+--                 5 - SEVERITY_NOTICE = Notice
+--                 6 - SEVERITY_INFO = Info
+--                 7 - SEVERITY_DEBUG = Debug
 -- @param msg Error message
 -- @return HTTP response
 function mympd.jsonrpc_notification(severity, msg)

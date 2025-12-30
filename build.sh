@@ -113,7 +113,7 @@ setversion() {
       "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild"
   fi
 
-  printf "%s" "${VERSION}" > docs/_includes/version
+  printf "%s" "This documentation is for myMPD version ${VERSION}." > docs/_includes/version
 
   echo "const myMPDversion = '${VERSION}';" > htdocs/js/version.js
   echo "const myMPDbuild = '';" >> htdocs/js/version.js
@@ -348,7 +348,7 @@ buildrelease() {
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
     .
-  make -j4 -C release
+  cmake --build release
 }
 
 addmympduser() {
@@ -387,9 +387,8 @@ addmympduser() {
 
 installrelease() {
   echo "Installing myMPD"
-  cd release || exit 1
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
-  make install DESTDIR="$DESTDIR"
+  DESTDIR="$DESTDIR" cmake --install release
   if [ ! -f /usr/lib/systemd/system/mympd.service ] &&
      [ ! -f /usr/systemd/system/mympd.service ]
   then
@@ -443,7 +442,8 @@ builddebug() {
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     $CMAKE_SANITIZER_OPTIONS \
     .
-  make -j4 -C debug VERBOSE=1
+  VERBOSE=1 cmake --build debug
+
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
     -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
@@ -451,7 +451,7 @@ builddebug() {
 }
 
 buildtest() {
-  echo "Compiling and running unit tests"
+  echo "Compiling with unit tests"
   cmake -B debug \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
     -DCMAKE_BUILD_TYPE=Debug \
@@ -459,12 +459,14 @@ buildtest() {
     -DMYMPD_ENABLE_ASAN=ON \
     -DMYMPD_BUILD_TESTING=ON \
     .
-  make -j4 -C debug
-  make -j4 -C debug test
+  VERBOSE=1 cmake --build debug
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
     -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
     debug/compile_commands.json > test/compile_commands.json
+
+  echo "Running tests"
+  ctest --test-dir debug
 }
 
 cleanup() {
@@ -488,8 +490,6 @@ cleanup() {
 
   #generated documentation
   rm -rf _site
-  rm -rf docs/doxygen
-  rm -rf docs/jsdoc
 
   #compilation database
   rm -f src/compile_commands.json
@@ -759,8 +759,7 @@ pkgrpm() {
 
 pkgarch() {
   check_cmd makepkg
-  prepare
-  tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
+  pkgrpm "taronly"
   cp contrib/packaging/arch/* .
   makepkg
   if [ -n "${SIGN+x}" ] && [ "$SIGN" = "TRUE" ]
@@ -781,11 +780,13 @@ pkgarch() {
 }
 
 pkgosc() {
-  [ -z "${OSC_BIN+x}" ] && OSC_BIN="$HOME/python-venv/bin/osc"
-  if [ ! -x "$OSC_BIN" ]
-  then
-    echo_error "Command osc not found: $HOME/python-venv/bin/osc"
-    exit 1
+  if [ -z "${OSC_BIN+x}" ]
+  then 
+    if ! OSC_BIN=$(command -v osc)
+    then
+      echo_error "Command osc not found"
+      exit 1
+    fi
   fi
   cleanup
   cleanuposc
@@ -825,7 +826,19 @@ Version: ${VERSION}-1
 Maintainer: Juergen Mang <mail@jcgames.de>
 Homepage: https://jcorporation.github.io/myMPD/
 Standards-Version: 4.1.2
-Build-Depends: debhelper (>= 10), cmake, debhelper-compat (= 13), perl, gzip, jq, libssl-dev, libid3tag0-dev, libflac-dev, liblua5.4-dev | liblua5.3-dev, lua5.4 | lua5.3, libpcre2-dev
+Build-Depends: debhelper (>= 10),
+               cmake,
+               debhelper-compat (= 13),
+               perl,
+               gzip,
+               jq,
+               libssl-dev,
+               libid3tag0-dev,
+               libflac-dev,
+               liblua5.4-dev | liblua5.3-dev,
+               lua5.4 | lua5.3,
+               libpcre2-dev,
+               libutf8proc-dev
 Package-List:
  mympd deb sound optional arch=any
 Files:
@@ -852,26 +865,28 @@ installdeps() {
     fi
     apt-get install -y --no-install-recommends \
       gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-      build-essential pkg-config libpcre2-dev gzip jq whiptail
+      build-essential pkg-config libpcre2-dev gzip jq whiptail \
+      libutf8proc-dev
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq libnewt
+    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq libnewt libutf8proc
   elif [ -f /etc/alpine-release ]
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev lua5.4 \
-      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq newt ca-certificates
+      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq newt ca-certificates utf8proc-dev \
+      samurai
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-      lua-devel unzip pcre2-devel gzip jq whiptail
+      lua-devel unzip pcre2-devel gzip jq whiptail utf8proc-devel
   elif [ -f /etc/redhat-release ]
   then
     #fedora
-    yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-      lua-devel unzip pcre2-devel gzip jq whiptail
+    dnf install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
+      lua-devel unzip pcre2-devel gzip jq whiptail utf8proc-devel
   else
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
@@ -886,6 +901,7 @@ installdeps() {
     echo "  - libid3tag (devel)"
     echo "  - liblua5.4 or liblua5.3 (devel)"
     echo "  - libpcre2 (devel)"
+    echo "  - utf8proc (devel)"
   fi
 }
 
@@ -1347,45 +1363,50 @@ run_luacheck() {
   return 0
 }
 
-run_markdownlint() {
-  if ! check_cmd npx
+run_doclint() {
+  # https://github.com/sphinx-contrib/sphinx-lint
+  if [ ! -x /tmp/python-venv/bin/sphinx-lint ]
   then
-    return 1
+    python3 -m venv /tmp/python-venv/ > /dev/null
+    /tmp/python-venv/bin/pip install sphinx-lint  > /dev/null
   fi
-  echo "Linting docs markdown"
-  if ! npx markdownlint-cli -i "./docs/_includes/*" ./docs/**
-  then
-    return 1
-  fi
+  echo "Running sphin-lint"
+  /tmp/python-venv/bin/sphinx-lint docs || return 1
   return 0
 }
 
 run_doxygen() {
+  DOC_DEST=$1
   if ! check_cmd doxygen
   then
     return 1
   fi
   echo "Running doxygen"
-  doxygen
+  install -d "$DOC_DEST/html/doxygen"
+  ( cat Doxyfile ; echo "OUTPUT_DIRECTORY  = $DOC_DEST/html/doxygen" ) | doxygen -
 }
 
 run_jsdoc() {
-  if ! check_cmd jsdoc
+  DOC_DEST=$1
+  if ! check_cmd npx
   then
     return 1
   fi
   echo "Running jsdoc"
-  jsdoc htdocs/js/ -c jsdoc.json -d docs/jsdoc/
+  install -d "$DOC_DEST/html/jsdoc"
+  npx jsdoc htdocs/js/ -c jsdoc.json -d "$DOC_DEST/html/jsdoc/"
 }
 
 run_luadoc() {
-  if ! check_cmd luadoc
+  DOC_DEST=$1
+  if ! check_cmd ldoc
   then
     return 1
   fi
-  echo "Running luadoc"
+  echo "Running ldoc"
   lualibs
-  luadoc --noindexpage -d docs/luadoc/ release/contrib/lualibs/mympd.lua
+  install -d "$DOC_DEST/html/luadoc"
+  ldoc -d "$DOC_DEST/html/luadoc/" release/contrib/lualibs/mympd.lua
 }
 
 create_doc() {
@@ -1396,11 +1417,17 @@ create_doc() {
     echo "Python3 not installed, can not create documentation"
     return 1
   fi
-  ./build.sh api_doc
-  python3 -m venv ~/python-venv/
-  ~/python-venv/bin/pip install mkdocs mkdocs-material \
-      mkdocs-include-markdown-plugin mkdocs-awesome-pages-plugin
-  ~/python-venv/bin/mkdocs build -d "$DOC_DEST"
+  ./build.sh api_doc "$DOC_DEST"
+  python3 -m venv /tmp/python-venv/
+  /tmp/python-venv/bin/python3 -m pip install --upgrade pip
+  /tmp/python-venv/bin/pip install sphinx sphinx-book-theme sphinx-copybutton
+  /tmp/python-venv/bin/sphinx-build -M html docs "$DOC_DEST"
+}
+
+serve_doc() {
+  DOC_DEST=$1
+  /tmp/python-venv/bin/pip install sphinx-autobuild
+  /tmp/python-venv/bin/sphinx-autobuild -M html docs "$DOC_DEST"
 }
 
 translation_import() {
@@ -1633,7 +1660,7 @@ case "$ACTION" in
     run_tsc
     run_checkjs
     run_luacheck
-    run_markdownlint
+    run_doclint
   ;;
   eslint)
     run_eslint
@@ -1644,8 +1671,8 @@ case "$ACTION" in
   htmlhint)
     run_htmlhint
   ;;
-  markdownlint)
-    run_markdownlint
+  doclint)
+    run_doclint
   ;;
   luacheck)
     run_luacheck
@@ -1654,22 +1681,29 @@ case "$ACTION" in
     luascript_index
   ;;
   api_doc)
-    if ! run_doxygen
+    if [ -z "${2+x}" ]
+    then
+      echo "Usage: $0 $1 <destination folder>"
+      exit 1
+    fi
+    install -d "$2/html/assets/"
+    if ! run_doxygen "$2"
     then
       echo "Could not create backend api documentation"
       exit 1
     fi
-    if ! run_jsdoc
+    if ! run_jsdoc "$2"
     then
       echo "Could not create frontend api documentation"
       exit 1
     fi
-    if ! run_luadoc
+    if ! run_luadoc "$2"
     then
       echo "Could not create lua api documentation"
       exit 1
     fi
-    cp -v htdocs/js/apidoc.js docs/assets/apidoc.js
+    cp -v htdocs/js/apidoc.js "$2/html/assets/apidoc.js"
+    cp -v docs/assets/create-apidoc.js "$2/html/assets/"
   ;;
   doc)
     if [ -z "${2+x}" ]
@@ -1678,6 +1712,15 @@ case "$ACTION" in
       exit 1
     fi
     create_doc "$2"
+    ;;
+  serve_doc)
+    if [ -z "${2+x}" ]
+    then
+      echo "Usage: $0 $1 <destination folder>"
+      exit 1
+    fi
+    create_doc "$2"
+    serve_doc "$2"
     ;;
   cloc)
     cloc --exclude-dir=dist .
@@ -1721,8 +1764,8 @@ case "$ACTION" in
     echo "  check_file:       same as check, but for one file, second arg must be the file"
     echo "  check_docs        checks the documentation for missing API methods"
     echo "  check_includes:   checks for valid include paths"
-    echo "  lint:             runs linters for javascript, css, html and markdown"
-    echo "  markdownlint:     check for valid markdown in the docs folder"
+    echo "  lint:             runs linters for javascript, css, html and documentation"
+    echo "  doclint:          check for valid reStructuredText in the docs folder"
     echo "  eslint:           combines javascript files and runs eslint"
     echo "  stylelint:        runs stylelint (lints css files)"
     echo "  htmlhint:         runs htmlhint (lints html files)"
@@ -1783,6 +1826,7 @@ case "$ACTION" in
     echo "  luascript_index:  creates the json index of lua scripts"
     echo "  api_doc:          generates the api documentation"
     echo "  doc:              generates the html documentation"
+    echo "  serve_doc:        generates the html documentation and runs a development server"
     echo "  cloc:             runs cloc (count lines of code)"
     echo ""
     echo "Source update options:"

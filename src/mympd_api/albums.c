@@ -19,7 +19,7 @@
 #include "src/lib/log.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 #include "src/lib/sticker.h"
 #include "src/mympd_api/extra_media.h"
 #include "src/mympd_api/sticker.h"
@@ -71,7 +71,7 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
     if (mpd_search_db_songs(partition_state->conn, true) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
         mpd_search_add_sort_tag(partition_state->conn, MPD_TAG_DISC, false) == false ||
-        mpd_search_add_window(partition_state->conn, 0, MPD_RESULTS_MAX) == false)
+        mympd_client_add_search_window(partition_state->conn, 0, MPD_RESULTS_MAX) == false)
     {
         mpd_search_cancel(partition_state->conn);
         FREE_SDS(expression);
@@ -234,7 +234,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
     }
 
     //parse mpd search expression
-    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
+    struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_SONG);
     if (expr_list == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Invalid search expression");
@@ -259,7 +259,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
         }
     }
     raxStop(&iter);
-    free_search_expression_list(expr_list);
+    search_expression_free(expr_list);
     FREE_SDS(key);
 
     //print album list
@@ -351,7 +351,7 @@ static sds get_sort_key_album(sds key, enum sort_by_type sort_by, enum mpd_tag_t
         ? MPD_TAG_ALBUM_ARTIST
         : MPD_TAG_ALBUM;
     key = sdscatfmt(key, "::%s::%s", album_get_tag(album, secondary_sort_tag, 0), album_get_uri(album));
-    sds_utf8_tolower(key);
+    key = sds_utf8_normalize(key);
     return key;
 }
 

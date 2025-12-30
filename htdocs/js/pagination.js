@@ -60,9 +60,12 @@ function gotoPage(offset, limit) {
  */
 function setEndlessScroll() {
     const obEl = elGetById(app.id + 'List').lastElementChild;
+    const rootEl = userAgentData.isMobile === true
+        ? null
+        : elGetById(app.id + 'Container');
     if (obEl) {
         const options = {
-            root: elGetById(app.id + 'Container'),
+            root: rootEl,
             rootMargin: "0px",
             threshold: 0.25,
         };

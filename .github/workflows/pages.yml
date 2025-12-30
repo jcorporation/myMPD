@@ -28,11 +28,13 @@ jobs:
         uses: actions/checkout@v6
       - name: Generate api documentation
         run: |
-          sudo apt-get install -y doxygen graphviz luadoc
+          sudo apt-get install -y doxygen graphviz lua-ldoc
           sudo npm install --location=global jsdoc
           ./build.sh doc _site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site/html/
 
   # Deployment job
   deploy:

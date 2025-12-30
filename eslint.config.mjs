@@ -53,6 +53,8 @@ export default [
             "no-var": "error",
             "prefer-const": "error",
             "jsdoc/check-syntax": 1,
+            "jsdoc/reject-function-type": 0,
+            "jsdoc/reject-any-type": 0,
             "jsdoc/newline-after-description": "off",
             "jsdoc/no-blank-block-descriptions": 1,
             "jsdoc/no-defaults": 1,

@@ -12,7 +12,7 @@
 #include "src/lib/log.h"
 
 #include "dist/sds/sds.h"
-#include "src/lib/env.h"
+#include "src/lib/config/env.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -20,19 +20,17 @@
 #include <unistd.h>
 
 /**
+ * Thread specific variables
+ */
+
+_Thread_local sds thread_logname;  //!< Thread name
+_Thread_local sds thread_logline;  //!< Thread specific log buffer
+
+/**
  * Global variables
  */
 
-/**
- * Thread name
- */
-_Thread_local sds thread_logname;
-_Thread_local sds thread_logline;
-
-/**
- * Loglevel
- */
-_Atomic int loglevel;
+_Atomic int loglevel;  //!< Loglevel
 
 /**
  * Type of logging system
@@ -100,12 +98,17 @@ void set_loglevel(int level) {
  * Initializes the logging sub-system
  */
 void log_init(void) {
-    log_type = LOG_TO_STDOUT;
     if (isatty(fileno(stdout)) == true) {
         log_type = LOG_TO_TTY;
     }
     else if (getenv_check("INVOCATION_ID") != NULL) {
         log_type = LOG_TO_SYSTEMD;
+    }
+    else if (getenv_check("MYMPD_LOG_TS") != NULL) {
+        log_type = LOG_WITH_TS;
+    }
+    else {
+        log_type = LOG_TO_STDOUT;
     }
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
@@ -166,6 +169,13 @@ void mympd_log(int level, const char *file, int line, const char *partition, con
 
     if (log_type == LOG_TO_TTY) {
         thread_logline = sdscat(thread_logline, loglevel_colors[level]);
+        time_t now = time(NULL);
+        struct tm timeinfo;
+        if (localtime_r(&now, &timeinfo) != NULL) {
+            thread_logline = sdscatprintf(thread_logline, "%02d:%02d:%02d ", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+        }
+    }
+    else if (log_type == LOG_WITH_TS) {
         time_t now = time(NULL);
         struct tm timeinfo;
         if (localtime_r(&now, &timeinfo) != NULL) {

@@ -12,7 +12,7 @@
 #define MYMPD_API_QUEUE_H
 
 #include "src/lib/api.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool mympd_api_queue_save(struct t_partition_state *partition_state, sds name, sds mode, sds *error);
 sds mympd_api_queue_list(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,

@@ -11,7 +11,7 @@
 #ifndef MYMPD_API_STICKER_H
 #define MYMPD_API_STICKER_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 sds mympd_api_sticker_get(struct t_stickerdb_state *stickerdb, sds buffer, unsigned request_id,
         sds uri, enum mympd_sticker_type type, sds name);

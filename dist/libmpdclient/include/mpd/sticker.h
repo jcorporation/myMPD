@@ -23,7 +23,8 @@ struct mpd_connection;
  * Comparison operators for sticker search api
  */
 enum mpd_sticker_operator {
-	MPD_STICKER_OP_UNKOWN = -1,
+	MPD_STICKER_OP_UNKOWN = -1,   // Keep typo, else we break the abi
+	MPD_STICKER_OP_UNKNOWN = -1,
 	MPD_STICKER_OP_EQ,
 	MPD_STICKER_OP_GT,
 	MPD_STICKER_OP_LT,
@@ -38,7 +39,8 @@ enum mpd_sticker_operator {
  * Sort by settings for sticker search api
  */
 enum mpd_sticker_sort {
-	MPD_STICKER_SORT_UNKOWN = -1,
+	MPD_STICKER_SORT_UNKOWN = -1,   // Keep typo, else we break the abi
+	MPD_STICKER_SORT_UNKNOWN = -1,
 	MPD_STICKER_SORT_URI,
 	MPD_STICKER_SORT_VALUE,
 	MPD_STICKER_SORT_VALUE_INT,

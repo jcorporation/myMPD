@@ -15,9 +15,10 @@
 #include "src/lib/log.h"
 #include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/playlists.h"
+#include "src/mympd_client/search.h"
 #include "src/mympd_client/stickerdb.h"
 #include "src/mympd_client/tags.h"
 
@@ -96,10 +97,10 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
     //parse mpd search expression
     //invalid search expressions are ignored
     struct t_list *include_expr_list = constraints->filter_include != NULL && constraints->filter_include[0] != '\0'
-        ? parse_search_expression_to_list(constraints->filter_include, SEARCH_TYPE_SONG)
+        ? search_expression_parse(constraints->filter_include, SEARCH_TYPE_SONG)
         : NULL;
     struct t_list *exclude_expr_list = constraints->filter_exclude != NULL && constraints->filter_exclude[0] != '\0'
-        ? parse_search_expression_to_list(constraints->filter_exclude, SEARCH_TYPE_SONG)
+        ? search_expression_parse(constraints->filter_exclude, SEARCH_TYPE_SONG)
         : NULL;
 
     sds tag_value = sdsempty();
@@ -146,8 +147,8 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
     FREE_SDS(albumid);
     FREE_SDS(tag_value);
     raxStop(&iter);
-    free_search_expression_list(include_expr_list);
-    free_search_expression_list(exclude_expr_list);
+    search_expression_free(include_expr_list);
+    search_expression_free(exclude_expr_list);
     if (stickers_last_played != NULL) {
         stickerdb_free_find_result(stickers_last_played);
     }
@@ -204,10 +205,10 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
     //parse mpd search expression
     //invalid search expressions are ignored
     struct t_list *include_expr_list = constraints->filter_include != NULL && constraints->filter_include[0] != '\0'
-        ? parse_search_expression_to_list(constraints->filter_include, SEARCH_TYPE_SONG)
+        ? search_expression_parse(constraints->filter_include, SEARCH_TYPE_SONG)
         : NULL;
     struct t_list *exclude_expr_list = constraints->filter_exclude != NULL && constraints->filter_exclude[0] != '\0'
-        ? parse_search_expression_to_list(constraints->filter_exclude, SEARCH_TYPE_SONG)
+        ? search_expression_parse(constraints->filter_exclude, SEARCH_TYPE_SONG)
         : NULL;
 
     if (include_expr_list == NULL) {
@@ -226,7 +227,7 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
         if (from_database == true) {
             if (mpd_search_db_songs(partition_state->conn, false) == false ||
                 add_uri_constraint_or_expression(constraints->filter_include, partition_state) == false ||
-                mpd_search_add_window(partition_state->conn, start, end) == false)
+                mympd_client_add_search_window(partition_state->conn, start, end) == false)
             {
                 MYMPD_LOG_ERROR(partition_state->name, "Error creating MPD db search command");
                 mpd_search_cancel(partition_state->conn);
@@ -239,7 +240,7 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
                  constraints->filter_include[0] != '\0')
         {
             if (mpd_playlist_search_begin(partition_state->conn, playlist, constraints->filter_include) == false ||
-                mpd_search_add_window(partition_state->conn, start, end) == false)
+                mympd_client_add_search_window(partition_state->conn, start, end) == false)
             {
                 MYMPD_LOG_ERROR(partition_state->name, "Error creating MPD playlist search command");
                 mpd_search_cancel(partition_state->conn);
@@ -300,8 +301,8 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
     } while (iterate == true && lineno + skipno > start);
     stickerdb_free_find_result(stickers_last_played);
     stickerdb_free_find_result(stickers_like);
-    free_search_expression_list(include_expr_list);
-    free_search_expression_list(exclude_expr_list);
+    search_expression_free(include_expr_list);
+    search_expression_free(exclude_expr_list);
     FREE_SDS(tag_value);
     MYMPD_LOG_DEBUG(partition_state->name, "Iterated through %u songs, skipped %u", lineno, skipno);
     return add_list->length;

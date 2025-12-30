@@ -13,6 +13,7 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/list.h"
+#include "src/lib/lyrics.h"
 #include "src/lib/webradio.h"
 
 #include <stdbool.h>
@@ -338,15 +339,16 @@ struct t_work_response {
  * Config data sent to webserver thread
  */
 struct set_mg_user_data_request {
-    sds music_directory;                     //!< detected mpd music directory
-    sds playlist_directory;                  //!< configured mpd playlist directory
-    sds image_names_sm;                      //!< comma separated list of small coverimage names
-    sds image_names_md;                      //!< comma separated list of medium coverimage names
-    sds image_names_lg;                      //!< comma separated list of large coverimage names
-    sds mpd_host;                            //!< configured mpd host
-    struct t_list partitions;                //!< partition specific settings
+    sds music_directory;                     //!< Detected mpd music directory
+    sds playlist_directory;                  //!< Configured mpd playlist directory
+    sds image_names_sm;                      //!< Comma separated list of small coverimage names
+    sds image_names_md;                      //!< Comma separated list of medium coverimage names
+    sds image_names_lg;                      //!< Comma separated list of large coverimage names
+    sds mpd_host;                            //!< Configured mpd host
+    struct t_list partitions;                //!< Partition specific settings
     struct t_webradios *webradiodb;          //!< Pointer to webradiodb
     struct t_webradios *webradio_favorites;  //!< Pointer to webradio favorites
+    struct t_lyrics lyrics;                  //!< Lyrics settings
 };
 
 /**

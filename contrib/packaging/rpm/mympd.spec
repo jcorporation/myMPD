@@ -4,7 +4,7 @@
 # (c) 2018-2025 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        23.0.1
+Version:        24.0.0
 Release:        0
 License:        GPL-3.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
@@ -24,6 +24,7 @@ BuildRequires:  pcre2-devel
 BuildRequires:  perl
 BuildRequires:  pkgconfig
 BuildRequires:  unzip
+BuildRequires:  utf8proc-devel
 Requires: newt
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
@@ -37,10 +38,10 @@ Therefore myMPD is ideal for raspberry pis and similar devices.
 
 %build
 cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo .
-make -C release
+cmake --build release
 
 %install
-make -C release install DESTDIR=%{buildroot}
+DESTDIR=%{buildroot} cmake --install release
 if [ "%{_defaultdocdir}" == "/usr/share/doc/packages" ]
 then
   install -d "%{buildroot}%{_defaultdocdir}"
@@ -65,5 +66,5 @@ fi
 %license LICENSE.md
 
 %changelog
-* Thu Nov 27 2025 Juergen Mang <mail@jcgames.de> 23.0.1-0
+* Mon Dec 29 2025 Juergen Mang <mail@jcgames.de> 24.0.0-0
 - Version from master

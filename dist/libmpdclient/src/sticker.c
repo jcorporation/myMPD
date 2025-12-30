@@ -251,7 +251,7 @@ static const char *get_sticker_oper_str(enum mpd_sticker_operator oper) {
 	case MPD_STICKER_OP_LT_INT:      return "lt";
 	case MPD_STICKER_OP_CONTAINS:    return "contains";
 	case MPD_STICKER_OP_STARTS_WITH: return "starts_with";
-	case MPD_STICKER_OP_UNKOWN:      return NULL;
+	case MPD_STICKER_OP_UNKNOWN:     return NULL;
 	}
 	return NULL;
 }
@@ -293,7 +293,7 @@ static const char *get_sticker_sort_name(enum mpd_sticker_sort sort) {
 	case MPD_STICKER_SORT_URI:       return "uri";
 	case MPD_STICKER_SORT_VALUE:     return "value";
 	case MPD_STICKER_SORT_VALUE_INT: return "value_int";
-	case MPD_STICKER_SORT_UNKOWN:    return NULL;
+	case MPD_STICKER_SORT_UNKNOWN:   return NULL;
 	}
 	return NULL;
 }

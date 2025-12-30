@@ -11,7 +11,7 @@
 #ifndef MYMPD_MPD_CLIENT_STICKERDB_H
 #define MYMPD_MPD_CLIENT_STICKERDB_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool stickerdb_connect(struct t_stickerdb_state *stickerdb);
 void stickerdb_disconnect(struct t_stickerdb_state *stickerdb);

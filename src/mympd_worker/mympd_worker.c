@@ -12,9 +12,10 @@
 #include "src/mympd_worker/mympd_worker.h"
 
 #include "dist/sds/sds.h"
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/thread.h"
 #include "src/mympd_client/connection.h"
@@ -69,6 +70,7 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
     mympd_worker_state->tag_disc_empty_is_first = mympd_state->tag_disc_empty_is_first;
     mympd_mpd_tags_clone(&mympd_state->smartpls_generate_tag_types, &mympd_worker_state->smartpls_generate_tag_types);
     mympd_worker_state->album_cache = &mympd_state->album_cache;
+    mympd_worker_state->repopulate_pfds = false;
 
     if (mympd_worker_state->mympd_only == true) {
         mympd_worker_state->mpd_state = NULL;
@@ -84,6 +86,7 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
         mympd_worker_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
         partition_state_default(mympd_worker_state->partition_state, partition_state->name,
                 mympd_worker_state->mpd_state, mympd_worker_state->config);
+        mympd_worker_state->partition_state->repopulate_pfds = &mympd_worker_state->repopulate_pfds;
         // copy jukebox settings
         jukebox_state_copy(&partition_state->jukebox, &mympd_worker_state->partition_state->jukebox);
         // use mpd state from worker
@@ -92,6 +95,7 @@ bool mympd_worker_start(struct t_mympd_state *mympd_state, struct t_partition_st
         // stickerdb
         mympd_worker_state->stickerdb = malloc_assert(sizeof(struct t_partition_state));
         stickerdb_state_default(mympd_worker_state->stickerdb, mympd_worker_state->config);
+        mympd_worker_state->stickerdb->repopulate_pfds = &mympd_worker_state->repopulate_pfds;
         // do not use the shared mpd_state - we can connect to another mpd server for stickers
         mympd_worker_state->stickerdb->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
         mympd_mpd_state_copy(mympd_state->stickerdb->mpd_state, mympd_worker_state->stickerdb->mpd_state);
@@ -145,7 +149,18 @@ static void *mympd_worker_run(void *arg) {
         }
     }
     else {
-        MYMPD_LOG_ERROR(NULL, "Running mympd_worker failed");
+        const char *method = get_cmd_id_method_name(mympd_worker_state->request->cmd_id);
+        MYMPD_LOG_ERROR(NULL, "Running mympd_worker failed for %s", method);
+        // Notify mympd_api thread
+        switch (mympd_worker_state->request->cmd_id) {
+            case MYMPD_API_CACHES_CREATE: {
+                struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_ERROR, "", MPD_PARTITION_DEFAULT);
+                mympd_queue_push(mympd_api_queue, request, 0);
+                break;
+            }
+            default:
+                break;
+        }
     }
     MYMPD_LOG_NOTICE(NULL, "Stopping mympd_worker thread");
     mympd_worker_state_free(mympd_worker_state);

@@ -11,7 +11,7 @@
 #ifndef MYMPD_MPD_CLIENT_CONNECTION_H
 #define MYMPD_MPD_CLIENT_CONNECTION_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool mympd_client_connect(struct t_partition_state *partition_state);
 bool mympd_client_set_connection_options(struct t_partition_state *partition_state);

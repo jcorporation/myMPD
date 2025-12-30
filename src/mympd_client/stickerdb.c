@@ -12,10 +12,10 @@
 #include "src/mympd_client/stickerdb.h"
 
 #include "dist/rax/rax.h"
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/convert.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker.h"
 #include "src/lib/utility.h"
@@ -106,6 +106,7 @@ bool stickerdb_connect(struct t_stickerdb_state *stickerdb) {
     get_sticker_types(stickerdb);
     mympd_api_request_sticker_features(stickerdb->mpd_state->feat.stickers,
         stickerdb->mpd_state->feat.advsticker);
+    *stickerdb->repopulate_pfds = true;
     MYMPD_LOG_DEBUG("stickerdb", "MPD connected and waiting for commands");
     return true;
 }
@@ -121,6 +122,7 @@ void stickerdb_disconnect(struct t_stickerdb_state *stickerdb) {
     }
     stickerdb->conn = NULL;
     stickerdb->conn_state = MPD_DISCONNECTED;
+    *stickerdb->repopulate_pfds = true;
 }
 
 /**
@@ -355,7 +357,7 @@ struct t_sticker *stickerdb_get_all(struct t_stickerdb_state *stickerdb, enum my
  * @return newly allocated radix tree or NULL on error
  */
 rax *stickerdb_find_stickers_by_name(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *name) {
-    return stickerdb_find_stickers_by_name_value(stickerdb, type, name, MPD_STICKER_OP_UNKOWN, NULL);
+    return stickerdb_find_stickers_by_name_value(stickerdb, type, name, MPD_STICKER_OP_UNKNOWN, NULL);
 }
 
 /**
@@ -753,7 +755,7 @@ static bool sticker_search_add_value_constraint(struct t_stickerdb_state *sticke
  */
 static bool sticker_search_add_sort(struct t_stickerdb_state *stickerdb, enum mpd_sticker_sort sort, bool desc) {
     if (stickerdb->mpd_state->feat.advsticker == true &&
-        sort != MPD_STICKER_SORT_UNKOWN)
+        sort != MPD_STICKER_SORT_UNKNOWN)
     {
         return mpd_sticker_search_add_sort(stickerdb->conn, sort, desc);
     }

@@ -11,7 +11,7 @@
 #ifndef MYMPD_API_PARTITIONS_H
 #define MYMPD_API_PARTITIONS_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, unsigned request_id);
 bool mympd_api_partition_new(struct t_partition_state *partition_state, sds partition, sds *error);

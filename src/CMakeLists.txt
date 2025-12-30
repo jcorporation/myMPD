@@ -21,6 +21,9 @@ target_include_directories(mympd
 
 target_include_directories(mympd SYSTEM PRIVATE ${PCRE2_INCLUDE_DIRS})
 
+if(MYMPD_ENABLE_UTF8)
+  target_include_directories(mympd SYSTEM PRIVATE ${UTF8PROC_INCLUDE_DIRS})
+endif()
 if(MYMPD_ENABLE_LIBID3TAG)
   target_include_directories(mympd SYSTEM PRIVATE ${LIBID3TAG_INCLUDE_DIRS})
 endif()
@@ -48,23 +51,26 @@ target_sources(mympd
     main.c
     lib/album.c
     lib/api.c
-    lib/cacertstore.c
     lib/cache/cache_disk_images.c
     lib/cache/cache_disk_lyrics.c
     lib/cache/cache_disk.c
     lib/cache/cache_rax_album.c
     lib/cache/cache_rax.c
-    lib/cert.c
-    lib/config.c
+    lib/config/cacertstore.c
+    lib/config/cert.c
+    lib/config/config.c
+    lib/config/env.c
+    lib/config/handle_options.c
+    lib/config/mympd_state.c
+    lib/config/pin.c
+    lib/config/state_files.c
     lib/convert.c
     lib/datetime.c
-    lib/env.c
     lib/event.c
     lib/fields.c
     lib/filehandler.c
-    lib/handle_options.c
-    lib/http_client.c
-    lib/http_client_cache.c
+    lib/http_client/http_client.c
+    lib/http_client/http_client_cache.c
     lib/json/json_print.c
     lib/json/json_query.c
     lib/json/json_rpc.c
@@ -74,26 +80,26 @@ target_sources(mympd
     lib/log.c
     lib/mimetype.c
     lib/mpack.c
-    lib/passwd.c
-    lib/pin.c
     lib/msg_queue.c
-    lib/mympd_state.c
     lib/random.c
     lib/rax_extras.c
-    lib/search.c
+    lib/search/search_fuzzy.c
+    lib/search/search_pcre.c
+    lib/search/search.c
     lib/sds_extras.c
     lib/signal.c
     lib/smartpls.c
     lib/sticker.c
-    lib/state_files.c
     lib/thread.c
     lib/timer.c
+    lib/utf8_wrapper.c
     lib/utility.c
     lib/validate.c
     lib/webradio.c
     mympd_client/autoconf.c
     mympd_client/compat.c
     mympd_client/connection.c
+    mympd_client/database.c
     mympd_client/errorhandler.c
     mympd_client/features.c
     mympd_client/idle.c
@@ -157,6 +163,7 @@ target_sources(mympd
     webserver/webserver.c
     webserver/albumart.c
     webserver/folderart.c
+    webserver/lyrics.c
     webserver/mg_user_data.c
     webserver/placeholder.c
     webserver/proxy.c
@@ -196,16 +203,16 @@ endif()
 if(MYMPD_ENABLE_FLAC)
   target_sources(mympd
     PRIVATE
-      mympd_api/lyrics_flac.c
       webserver/albumart_flac.c
+      webserver/lyrics_flac.c
   )
 endif()
 
 if(MYMPD_ENABLE_LIBID3TAG)
   target_sources(mympd
     PRIVATE
-      mympd_api/lyrics_id3.c
       webserver/albumart_id3.c
+      webserver/lyrics_id3.c
   )
 endif()
 

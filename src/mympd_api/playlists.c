@@ -11,7 +11,6 @@
 #include "compile_time.h"
 #include "src/mympd_api/playlists.h"
 
-#include "dist/utf8/utf8.h"
 #include "src/lib/api.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/filehandler.h"
@@ -22,8 +21,9 @@
 #include "src/lib/mem.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 #include "src/lib/smartpls.h"
+#include "src/lib/utf8_wrapper.h"
 #include "src/lib/utility.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_client/errorhandler.h"
@@ -557,12 +557,15 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
             : false;
     }
 
+    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr));
+
     if (mpd_send_list_playlists(partition_state->conn)) {
         struct mpd_playlist *pl;
         while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
+            char *value_utf8 = utf8_wrap_normalize(plpath, strlen(plpath));
             bool smartpls = is_smartpls(partition_state->config->workdir, plpath);
-            if ((search_len == 0 || utf8casestr(plpath, searchstr) != NULL) &&
+            if ((search_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) &&
                 (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
             {
                 struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
@@ -576,10 +579,11 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                     key = sds_pad_int(data->last_modified, key);
                 }
                 key = sdscatsds(key, data->name);
-                sds_utf8_tolower(key);
+                key = sds_utf8_normalize(key);
                 rax_insert_no_dup(entity_list, key, data);
             }
             mpd_playlist_free(pl);
+            FREE_PTR(value_utf8);
         }
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlists") == false) {
@@ -598,9 +602,11 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
         if (smartpls_dir != NULL) {
             struct dirent *next_file;
             while ((next_file = readdir(smartpls_dir)) != NULL ) {
-                if (next_file->d_type == DT_REG &&
-                    (search_len == 0 || utf8casestr(next_file->d_name, searchstr) != NULL)
-                ) {
+                if (next_file->d_type != DT_REG) {
+                    continue;
+                }
+                char *value_utf8 = utf8_wrap_normalize(next_file->d_name, strlen(next_file->d_name));
+                if (search_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) {
                     struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
                     data->last_modified = smartpls_get_mtime(partition_state->config->workdir, next_file->d_name);
                     data->type = PLTYPE_SMARTPLS_ONLY;
@@ -610,13 +616,14 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                         key = sds_pad_int(data->last_modified, key);
                     }
                     key = sdscat(key, next_file->d_name);
-                    sds_utf8_tolower(key);
+                    key = sds_utf8_normalize(key);
                     if (raxTryInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
                         //smart playlist already added
                         FREE_SDS(data->name);
                         FREE_PTR(data);
                     }
                 }
+                FREE_PTR(value_utf8);
             }
             closedir(smartpls_dir);
         }
@@ -627,6 +634,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
         FREE_SDS(smartpls_path);
     }
     FREE_SDS(key);
+    FREE_PTR(searchstr_utf8);
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
@@ -662,7 +670,6 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
             buffer = tojson_time(buffer, "Last-Modified", data->last_modified, true);
             buffer = tojson_bool(buffer, "smartplsOnly", data->type == PLTYPE_SMARTPLS_ONLY ? true : false, false);
             if (print_stickers == true) {
-                buffer = sdscatlen(buffer, ",", 1);
                 buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_PLAYLIST, data->name, &tagcols->stickers);
             }
             buffer = sdscatlen(buffer, "}", 1);
@@ -789,7 +796,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
         }
         else {
             if (mpd_playlist_search_begin(partition_state->conn, plist, expression) == false ||
-                mpd_search_add_window(partition_state->conn, offset, real_limit) == false)
+                mympd_client_add_search_window(partition_state->conn, offset, real_limit) == false)
             {
                 mpd_search_cancel(partition_state->conn);
                 FREE_SDS(last_played_song_uri);
@@ -815,7 +822,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
     }
     else {
         // Manual window and search implementation for MPD < 0.24
-        struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
+        struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_SONG);
         if (expr_list == NULL) {
             FREE_SDS(last_played_song_uri);
             FREE_SDS(last_played_song_title);
@@ -844,7 +851,7 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
                 entity_count++;
                 mpd_song_free(song);
             }
-            free_search_expression_list(expr_list);
+            search_expression_free(expr_list);
         }
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlist_meta") == false) {

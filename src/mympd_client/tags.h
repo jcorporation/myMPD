@@ -12,9 +12,8 @@
 #define MYMPD_MPD_CLIENT_TAGS_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
-time_t mympd_client_get_db_mtime(struct t_partition_state *partition_state);
 bool is_multivalue_tag(enum mpd_tag_type tag);
 bool is_numeric_tag(enum mpd_tag_type tag);
 sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat);

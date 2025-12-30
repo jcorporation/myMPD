@@ -13,6 +13,7 @@
 
 #include "src/lib/api.h"
 #include "src/lib/cache/cache_rax_album.h"
+#include "src/lib/config/state_files.h"
 #include "src/lib/convert.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_query.h"
@@ -22,7 +23,6 @@
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/state_files.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 #include "src/mympd_api/jukebox.h"
@@ -63,6 +63,10 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
     extra->webradiodb = mympd_state->webradiodb;
     extra->webradio_favorites = mympd_state->webradio_favorites;
+    extra->lyrics.uslt_ext = sdsdup(mympd_state->lyrics.uslt_ext);
+    extra->lyrics.sylt_ext = sdsdup(mympd_state->lyrics.sylt_ext);
+    extra->lyrics.vorbis_uslt = sdsdup(mympd_state->lyrics.vorbis_uslt);
+    extra->lyrics.vorbis_sylt = sdsdup(mympd_state->lyrics.vorbis_sylt);
     list_init(&extra->partitions);
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
@@ -388,7 +392,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, enum json_vtyp
     else if (strcmp(key, "lastPlayedCount") == 0 && vtype == JSON_TOK_NUMBER) {
         unsigned last_played_count;
         enum str2int_errno rc = str2uint(&last_played_count, value);
-        if (rc != STR2INT_SUCCESS || last_played_count > MPD_PLAYLIST_LENGTH_MAX) {
+        if (rc != STR2INT_SUCCESS || last_played_count > MPD_PLIST_LENGTH_MAX) {
             set_invalid_value(error, path, key, value, "Must be zero or a positive number");
             return false;
         }
@@ -890,7 +894,7 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->stickerdb->mpd_state->mpd_keepalive = state_file_rw_bool(workdir, DIR_WORK_STATE, "stickerdb_mpd_keepalive", mympd_state->mpd_state->mpd_keepalive, true);
     // other settings
     mympd_state->mpd_state->tag_list = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "tag_list", mympd_state->mpd_state->tag_list, vcb_istaglist, true);
-    mympd_state->last_played_count = state_file_rw_uint(workdir, DIR_WORK_STATE, "last_played_count", mympd_state->last_played_count, 0, MPD_PLAYLIST_LENGTH_MAX, true);
+    mympd_state->last_played_count = state_file_rw_uint(workdir, DIR_WORK_STATE, "last_played_count", mympd_state->last_played_count, 0, MPD_PLIST_LENGTH_MAX, true);
     mympd_state->booklet_name = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "booklet_name", mympd_state->booklet_name, vcb_isfilename, true);
     mympd_state->info_txt_name = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "info_txt_name", mympd_state->info_txt_name, vcb_isfilename, true);
     mympd_state->tag_list_search = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "tag_list_search", mympd_state->tag_list_search, vcb_istaglist, true);

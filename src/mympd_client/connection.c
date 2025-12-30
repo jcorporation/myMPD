@@ -75,6 +75,7 @@ bool mympd_client_connect(struct t_partition_state *partition_state) {
 
     MYMPD_LOG_NOTICE(partition_state->name, "Connected to MPD");
     partition_state->conn_state = MPD_CONNECTED;
+    *partition_state->repopulate_pfds = true;
     //set connection options
     mympd_client_set_connection_options(partition_state);
     return true;
@@ -185,6 +186,7 @@ void mympd_client_disconnect_silent(struct t_partition_state *partition_state) {
         MYMPD_LOG_WARN(partition_state->name, "Clear pending mpd idle events");
         partition_state->waiting_events &= ~(enum pfd_type)PFD_TYPE_PARTITION;
     }
+    *partition_state->repopulate_pfds = true;
 }
 
 /**

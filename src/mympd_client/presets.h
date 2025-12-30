@@ -11,8 +11,8 @@
 #ifndef MYMPD_MPD_CLIENT_PRESETS_H
 #define MYMPD_MPD_CLIENT_PRESETS_H
 
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/list.h"
-#include "src/lib/mympd_state.h"
 
 bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sds *error);
 sds presets_list(struct t_list *preset_list, sds buffer);

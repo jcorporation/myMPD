@@ -11,7 +11,7 @@
 #ifndef MYMPD_API_TAGS_H
 #define MYMPD_API_TAGS_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 sds mympd_api_tag_list(struct t_partition_state *partition_state, sds buffer,
         unsigned request_id, sds searchstr, sds tag, unsigned offset, unsigned limit, bool sortdesc);

@@ -16,7 +16,8 @@ enum log_types {
     LOG_TO_SYSLOG,
     LOG_TO_TTY,
     LOG_TO_SYSTEMD,
-    LOG_TO_STDOUT
+    LOG_TO_STDOUT,
+    LOG_WITH_TS
 };
 
 /**

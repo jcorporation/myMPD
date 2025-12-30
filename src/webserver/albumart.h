@@ -27,6 +27,5 @@ enum albumart_sizes {
 void webserver_send_albumart_redirect(struct mg_connection *nc, sds data);
 void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary);
 void request_handler_albumart_by_album_id(struct mg_http_message *hm, unsigned long conn_id, enum albumart_sizes size);
-bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_message *hm,
-    struct t_mg_user_data *mg_user_data, unsigned long conn_id, enum albumart_sizes size);
+bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_message *hm, enum albumart_sizes size);
 #endif

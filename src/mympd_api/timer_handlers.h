@@ -11,7 +11,7 @@
 #ifndef MYMPD_API_TIMER_HANDLERS_H
 #define MYMPD_API_TIMER_HANDLERS_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 /**
  * Internal timer ids

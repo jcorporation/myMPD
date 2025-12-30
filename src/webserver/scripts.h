@@ -12,7 +12,7 @@
 #define MYMPD_WEB_SERVER_SCRIPTS_H
 
 #include "dist/mongoose/mongoose.h"
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 
 #include <stdbool.h>
 

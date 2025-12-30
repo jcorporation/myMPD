@@ -12,13 +12,13 @@
 #include "src/mympd_api/mympd_api.h"
 
 #include "src/lib/cache/cache_rax_album.h"
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/event.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/last_played.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/signal.h"
 #include "src/lib/thread.h"
@@ -120,7 +120,9 @@ void *mympd_api_loop(void *arg_config) {
     // thread loop
     MYMPD_LOG_DEBUG(NULL, "mympd_api thread is ready");
     while (s_signal_received == 0) {
-        populate_pfds(mympd_state);
+        if (mympd_state->pfds.repopulate == true) {
+            populate_pfds(mympd_state);
+        }
         errno = 0;
         int cnt = poll(mympd_state->pfds.fds, mympd_state->pfds.len, -1);
         if (cnt < 0) {
@@ -178,6 +180,11 @@ static void handle_socket_pollin(struct t_mympd_state *mympd_state, nfds_t i, st
             break;
         case PFD_TYPE_STICKERDB:
             MYMPD_LOG_DEBUG("stickerdb", "Stickerdb event");
+            if (mympd_state->stickerdb->conn_state == MPD_FAILURE) {
+                MYMPD_LOG_WARN("stickerdb", "MPD connection in failure state");
+                stickerdb_disconnect(mympd_state->stickerdb);
+                break;
+            }
             stickerdb_idle(mympd_state->stickerdb);
             break;
         case PFD_TYPE_QUEUE:
@@ -249,6 +256,7 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i) {
             MYMPD_LOG_DEBUG(NULL, "Closing socket");
             event_fd_close(mympd_state->pfds.fds[i].fd);
     }
+    mympd_state->pfds.repopulate = true;
 }
 
 /**
@@ -257,6 +265,7 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i) {
  * @param mympd_state pointer to mympd state
  */
 static void populate_pfds(struct t_mympd_state *mympd_state) {
+    mympd_state->pfds.repopulate = false;
     mympd_state->pfds.len = 0;
     // Connections for MPD partitions
     struct t_partition_state *partition_state = mympd_state->partition_state;

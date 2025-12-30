@@ -16,7 +16,7 @@
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/jukebox.h"
@@ -126,7 +126,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
     unsigned entities_returned = 0;
     unsigned entities_found = 0;
     unsigned real_limit = offset + limit;
-    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_SONG);
+    struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_SONG);
     if (expr_list == NULL) {
         sdsclear(buffer);
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
@@ -190,7 +190,6 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
                     buffer = tojson_uint(buffer, "Pos", entity_count, true);
                     buffer = print_album_tags(buffer, &partition_state->mpd_state->config->albums, &partition_state->mpd_state->tags_album, album);
                     if (print_stickers == true) {
-                        buffer = sdscatlen(buffer, ",", 1);
                         album_exp = get_search_expression_album(album_exp, partition_state->mpd_state->tag_albumartist, album, &partition_state->config->albums);
                         buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_FILTER, album_exp, &tagcols->stickers);
                     }
@@ -206,7 +205,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, struct t_s
     if (print_stickers == true) {
         stickerdb_enter_idle(stickerdb);
     }
-    free_search_expression_list(expr_list);
+    search_expression_free(expr_list);
     buffer = sdscatlen(buffer, "],", 2);
     const char *jukebox_mode_str = jukebox_mode_lookup(partition_state->jukebox.mode);
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);

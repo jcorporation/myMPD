@@ -9,7 +9,7 @@
 
 #include "dist/utest/utest.h"
 #include "dist/sds/sds.h"
-#include "src/lib/http_client.h"
+#include "src/lib/http_client/http_client.h"
 
 UTEST(http_client, test_http_client) {
     struct mg_client_request_t request = {

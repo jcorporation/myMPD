@@ -12,7 +12,7 @@
 #define MYMPD_LIB_UTILITY_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 
 #include <stdbool.h>
 #include <time.h>

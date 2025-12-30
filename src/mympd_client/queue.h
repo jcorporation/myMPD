@@ -11,7 +11,7 @@
 #ifndef MYMPD_MPD_CLIENT_QUEUE_H
 #define MYMPD_MPD_CLIENT_QUEUE_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 bool mympd_client_queue_play_newly_inserted(struct t_partition_state *partition_state, sds *error);
 bool mympd_client_queue_check_start_play(struct t_partition_state *partition_state, bool play, sds *error);

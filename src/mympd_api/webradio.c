@@ -17,7 +17,7 @@
 #include "src/lib/log.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 #include "src/lib/utility.h"
 
 #include <string.h>
@@ -43,7 +43,7 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     unsigned real_limit = offset + limit;
     struct t_webradio_tags webradio_tags;
     webradio_tags_search(&webradio_tags);
-    struct t_list *expr_list = parse_search_expression_to_list(expression, SEARCH_TYPE_WEBRADIO);
+    struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_WEBRADIO);
     if (expr_list == NULL) {
         sdsclear(buffer);
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
@@ -130,7 +130,7 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     }
     raxStop(&iter);
     raxFree(sorted);
-    free_search_expression_list(expr_list);
+    search_expression_free(expr_list);
 
     buffer = sdscatlen(buffer, "],", 2);
     if (entities_found == real_limit) {

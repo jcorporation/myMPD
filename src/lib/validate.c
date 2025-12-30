@@ -11,11 +11,11 @@
 #include "compile_time.h"
 #include "src/lib/validate.h"
 
-#include "dist/utf8/utf8.h"
 #include "src/lib/log.h"
 #include "src/lib/mpdclient.h"
-#include "src/lib/search.h"
+#include "src/lib/search/search.h"
 #include "src/lib/sticker.h"
+#include "src/lib/utf8_wrapper.h"
 #include "src/lib/webradio.h"
 #include "src/mympd_client/playlists.h"
 
@@ -443,7 +443,7 @@ bool vcb_iswebradiosort(sds data) {
  * @return true on success else false
  */
 bool vcb_isstickersort(sds data) {
-    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKOWN) {
+    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKNOWN) {
         MYMPD_LOG_WARN(NULL, "Unknown compare operator: %s", data);
         return false;
     }
@@ -456,7 +456,7 @@ bool vcb_isstickersort(sds data) {
  * @return bool true on success else false
  */
 bool vcb_ismpd_sticker_sort(sds data) {
-    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKOWN &&
+    if (sticker_sort_parse(data) == MPD_STICKER_SORT_UNKNOWN &&
         vcb_ismpdsort(data) == false)
     {
         return false;
@@ -470,7 +470,7 @@ bool vcb_ismpd_sticker_sort(sds data) {
  * @return true on success else false
  */
 bool vcb_isstickerop(sds data) {
-    if (sticker_oper_parse(data) == MPD_STICKER_OP_UNKOWN) {
+    if (sticker_oper_parse(data) == MPD_STICKER_OP_UNKNOWN) {
         MYMPD_LOG_WARN(NULL, "Unknown compare operator: %s", data);
         return false;
     }
@@ -488,7 +488,7 @@ bool vcb_issearchexpression_song(sds data) {
         return true;
     }
     //check if it is valid utf8
-    if (utf8valid(data) != 0) {
+    if (utf8_wrap_validate(data, sdslen(data)) == false) {
         MYMPD_LOG_ERROR(NULL, "String is not valid utf8");
         return false;
     }
@@ -517,7 +517,7 @@ bool vcb_issearchexpression_webradio(sds data) {
         return true;
     }
     //check if it is valid utf8
-    if (utf8valid(data) != 0) {
+    if (utf8_wrap_validate(data, sdslen(data)) == false) {
         MYMPD_LOG_ERROR(NULL, "String is not valid utf8");
         return false;
     }
@@ -525,11 +525,11 @@ bool vcb_issearchexpression_webradio(sds data) {
         return false;
     }
 
-    struct t_list *expr = parse_search_expression_to_list(data, SEARCH_TYPE_WEBRADIO);
+    struct t_list *expr = search_expression_parse(data, SEARCH_TYPE_WEBRADIO);
     if (expr == NULL) {
         return false;
     }
-    free_search_expression_list(expr);
+    search_expression_free(expr);
     return true;
 }
 
@@ -571,7 +571,7 @@ static bool check_for_invalid_chars(sds data, const char *invalid_chars) {
 static bool validate_json(sds data, char start, char end) {
     size_t len = sdslen(data);
     //check if it is valid utf8
-    if (utf8valid(data) != 0) {
+    if (utf8_wrap_validate(data, sdslen(data)) == false) {
         MYMPD_LOG_ERROR(NULL, "String is not valid utf8");
         return false;
     }

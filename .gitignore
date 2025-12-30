@@ -6,6 +6,12 @@
 /src/compile_commands.json
 /test/compile_commands.json
 /valgrind.out
+/test/Testing/
+
+#npm
+/node_modules
+/package.json
+/package-lock.json
 
 #build dirs
 /build/
@@ -29,17 +35,14 @@
 /htdocs/js/long-press-event.js
 /htdocs/sw.js
 
-#private configuration
-/.vscode/
-
-#documentation (github pages)
+#documentation
 /docs/doxygen/
 /docs/jsdoc/
 /docs/assets/apidoc.js
 /docs/scripting/scripts/index.json
-/docs/.jekyll-cache/
 /docs/luadoc/
 _site/
 
 #private files
+/.vscode/
 .secrets

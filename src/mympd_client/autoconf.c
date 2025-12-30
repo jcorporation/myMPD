@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_client/autoconf.h"
 
-#include "src/lib/env.h"
+#include "src/lib/config/env.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"

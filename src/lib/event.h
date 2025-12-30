@@ -43,6 +43,7 @@ struct mympd_pfds {
     enum pfd_type fd_types[POLL_FDS_MAX];                      //!< fd types
     nfds_t len;                                                //!< number of mpd connection fds
     struct t_partition_state *partition_states[POLL_FDS_MAX];  //!< pointer to partition_state
+    bool repopulate;                                           //!< Repopulate the pollfd struct
 };
 
 void event_pfd_init(struct mympd_pfds *pfds);

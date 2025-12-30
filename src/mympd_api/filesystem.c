@@ -11,13 +11,13 @@
 #include "compile_time.h"
 #include "src/mympd_api/filesystem.h"
 
-#include "dist/utf8/utf8.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/mem.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"
+#include "src/lib/utf8_wrapper.h"
 #include "src/lib/utility.h"
 #include "src/mympd_api/extra_media.h"
 #include "src/mympd_api/sticker.h"
@@ -41,7 +41,8 @@ struct t_dir_entry {
 };
 
 static void free_t_dir_entry(void *data);
-static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity, sds searchstr);
+static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity,
+        const char *searchstr, size_t searchstr_len);
 
 /**
  * Public functions
@@ -68,6 +69,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
     sds key = sdsempty();
     rax *entity_list = raxNew();
     unsigned real_limit = offset + limit;
+    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr));
+    size_t searchstr_len = strlen(searchstr_utf8);
 
     if (mpd_send_list_meta(partition_state->conn, path)) {
         struct mpd_entity *entity;
@@ -77,7 +80,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     const struct mpd_song *song = mpd_entity_get_song(entity);
                     sds entity_name =  mympd_client_get_tag_value_string(song, MPD_TAG_TITLE, sdsempty());
                     key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
-                    search_dir_entry(entity_list, key, entity_name, entity, searchstr);
+                    search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len);
                     break;
                 }
                 case MPD_ENTITY_TYPE_DIRECTORY: {
@@ -85,7 +88,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     sds entity_name = sdsnew(mpd_directory_get_path(dir));
                     basename_uri(entity_name);
                     key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
-                    search_dir_entry(entity_list, key, entity_name, entity, searchstr);
+                    search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len);
                     break;
                 }
                 case MPD_ENTITY_TYPE_PLAYLIST: {
@@ -107,7 +110,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     sds entity_name = sdsnew(pl_path);
                     basename_uri(entity_name);
                     key = sdscatfmt(key, "1%s", pl_path);
-                    search_dir_entry(entity_list, key, entity_name, entity, searchstr);
+                    search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len);
                     break;
                 }
                 default: {
@@ -118,6 +121,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
         }
         FREE_SDS(key);
     }
+    FREE_PTR(searchstr_utf8);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_meta") == false) {
         //free result
         rax_free_data(entity_list, free_t_dir_entry);
@@ -223,25 +227,32 @@ static void free_t_dir_entry(void *data) {
 
 /**
  * Search the entry for searchstr and add matches to the rax tree
- * @param rt rax tree to insert
- * @param key key to insert
- * @param entity_name displayname of the entity
- * @param entity pointer to mpd entity
- * @param searchstr string to search in entity_name
+ * @param rt Rax tree to insert
+ * @param key Key to insert
+ * @param entity_name Displayname of the entity
+ * @param entity Pointer to mpd entity
+ * @param searchstr String to search in entity_name
+ * @param searchstr_len Length of searchstr
  * @return true on match, else false
  */
-static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity, sds searchstr) {
-    if (sdslen(searchstr) == 0 ||
-        utf8casestr(entity_name, searchstr) != NULL)
+static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity,
+        const char *searchstr, size_t searchstr_len)
+{
+    char *value_utf8 = utf8_wrap_normalize(entity_name, sdslen(entity_name));
+
+    if (searchstr_len == 0 ||
+        strstr(value_utf8, searchstr) != NULL)
     {
         struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
         entry_data->name = entity_name;
         entry_data->entity = entity;
-        sds_utf8_tolower(key);
+        key = sds_utf8_normalize(key);
         rax_insert_no_dup(rt, key, entry_data);
+        FREE_PTR(value_utf8);
         return true;
     }
     mpd_entity_free(entity);
     FREE_SDS(entity_name);
+    FREE_PTR(value_utf8);
     return false;
 }

@@ -10,21 +10,22 @@ set(TEST_SOURCES
   utility.c
   ../src/lib/album.c
   ../src/lib/api.c
-  ../src/lib/cacertstore.c
   ../src/lib/cache/cache_disk_lyrics.c
   ../src/lib/cache/cache_rax_album.c
   ../src/lib/cache/cache_rax.c
-  ../src/lib/cacertstore.h
-  ../src/lib/cert.c
-  ../src/lib/config.c
+  ../src/lib/config/cacertstore.c
+  ../src/lib/config/cert.c
+  ../src/lib/config/config.c
+  ../src/lib/config/env.c
+  ../src/lib/config/mympd_state.c
+  ../src/lib/config/state_files.c
   ../src/lib/convert.c
   ../src/lib/datetime.c
   ../src/lib/event.c
-  ../src/lib/env.c
   ../src/lib/fields.c
   ../src/lib/filehandler.c
-  ../src/lib/http_client.c
-  ../src/lib/http_client_cache.c
+  ../src/lib/http_client/http_client.c
+  ../src/lib/http_client/http_client_cache.c
   ../src/lib/json/json_print.c
   ../src/lib/json/json_query.c
   ../src/lib/json/json_rpc.c
@@ -35,21 +36,22 @@ set(TEST_SOURCES
   ../src/lib/mimetype.c
   ../src/lib/mpack.c
   ../src/lib/msg_queue.c
-  ../src/lib/mympd_state.c
-  ../src/lib/passwd.c
   ../src/lib/random.c
   ../src/lib/rax_extras.c
   ../src/lib/sds_extras.c
-  ../src/lib/search.c
+  ../src/lib/search/search_fuzzy.c
+  ../src/lib/search/search_pcre.c
+  ../src/lib/search/search.c
   ../src/lib/smartpls.c
-  ../src/lib/state_files.c
   ../src/lib/sticker.c
   ../src/lib/timer.c
+  ../src/lib/utf8_wrapper.c
   ../src/lib/utility.c
   ../src/lib/validate.c
   ../src/lib/webradio.c
   ../src/mympd_client/compat.c
   ../src/mympd_client/connection.c
+  ../src/mympd_client/database.c
   ../src/mympd_client/errorhandler.c
   ../src/mympd_client/features.c
   ../src/mympd_client/jukebox.c
@@ -68,7 +70,6 @@ set(TEST_SOURCES
   ../src/mympd_api/last_played.c
   ../src/mympd_api/jukebox.c
   ../src/mympd_api/lua_mympd_state.c
-  ../src/mympd_api/lyrics.c
   ../src/mympd_api/requests.c
   ../src/mympd_api/settings.c
   ../src/mympd_api/status.c
@@ -109,13 +110,13 @@ set(TEST_SOURCES
 
 if(LIBID3TAG_FOUND)
   set(TEST_SOURCES_LIBID3TAG
-    ../src/mympd_api/lyrics_id3.c
+    ../src/webserver/lyrics_id3.c
     tests/test_lyrics_id3.c
   )
 endif()
 if(FLAC_FOUND)
   set(TEST_SOURCES_FLAC
-  ../src/mympd_api/lyrics_flac.c
+  ../src/webserver/lyrics_flac.c
     tests/test_lyrics_flac.c
   )
 endif()
@@ -146,6 +147,7 @@ target_link_libraries(unit_test
   mongoose
   rax
   sds
+  ${UTF8PROC_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${MATH_LIB}
   ${OPENSSL_LIBRARIES}

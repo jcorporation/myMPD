@@ -16,6 +16,5 @@
 
 #include <stdbool.h>
 
-bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data);
+bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm);
 #endif

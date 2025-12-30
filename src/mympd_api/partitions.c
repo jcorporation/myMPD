@@ -12,10 +12,10 @@
 #include "src/mympd_api/partitions.h"
 
 #include "src/lib/api.h"
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mympd_client/connection.h"

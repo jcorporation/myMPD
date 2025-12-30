@@ -255,11 +255,11 @@ int mympd_queue_expire_age(struct t_mympd_queue *queue, time_t max_age_s) {
 
 /**
  * Sends data to the mongoose thread and wake it up
- * @param data Data to send
+ * @param data Data to send - max. one character
  * @return true on success, else false
  */
 bool mympd_mg_wakeup_send(const void *data) {
-    bool rc = mg_wakeup(webserver_queue->mg_mgr, webserver_queue->mg_conn_id, data, sizeof(data));
+    bool rc = mg_wakeup(webserver_queue->mg_mgr, webserver_queue->mg_conn_id, data, 1);
     if (rc == false) {
         MYMPD_LOG_ERROR(NULL, "Failure waking up mongoose thread");
     }

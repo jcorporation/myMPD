@@ -11,7 +11,7 @@
 #ifndef MYMPD_MPD_CLIENT_VOLUME_H
 #define MYMPD_MPD_CLIENT_VOLUME_H
 
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 int mympd_client_get_volume(struct t_partition_state *partition_state);
 #endif

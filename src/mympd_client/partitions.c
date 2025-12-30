@@ -11,10 +11,10 @@
 #include "compile_time.h"
 #include "src/mympd_client/partitions.h"
 
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/last_played.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/signal.h"
 #include "src/lib/timer.h"
@@ -215,6 +215,7 @@ void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
     partition_state->next = malloc_assert(sizeof(struct t_partition_state));
     //set default partition state
     partition_state_default(partition_state->next, name, mympd_state->mpd_state, mympd_state->config);
+    partition_state->next->repopulate_pfds = &mympd_state->pfds.repopulate;
     //read partition specific state from disc
     mympd_api_settings_statefiles_partition_read(partition_state->next);
     last_played_file_read(partition_state->next);

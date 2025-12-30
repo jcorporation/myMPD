@@ -13,7 +13,7 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/api.h"
-#include "src/lib/mympd_state.h"
+#include "src/lib/config/mympd_state.h"
 
 #include <stdbool.h>
 

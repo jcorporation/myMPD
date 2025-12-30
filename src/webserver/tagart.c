@@ -12,7 +12,7 @@
 #include "src/webserver/tagart.h"
 
 #include "src/lib/api.h"
-#include "src/lib/config_def.h"
+#include "src/lib/config/config_def.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
@@ -27,12 +27,10 @@
  * Request handler for /tagart
  * @param nc mongoose connection
  * @param hm http message
- * @param mg_user_data webserver configuration
  * @return true on success, else false
  */
-bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data)
-{
+bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm) {
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
     sds tag = get_uri_param(&hm->query, "tag=");
     sds value = get_uri_param(&hm->query, "value=");

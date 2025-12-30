@@ -11,12 +11,12 @@
 #include "compile_time.h"
 #include "src/mympd_client/idle.h"
 
+#include "src/lib/config/mympd_state.h"
 #include "src/lib/datetime.h"
 #include "src/lib/event.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
-#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/mympd_api/last_played.h"
 #include "src/mympd_api/mympd_api_handler.h"
@@ -287,7 +287,8 @@ static void mympd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_
                 case MPD_IDLE_PLAYER:
                     //player status has changed - partition specific event
                     if (partition_state->mpd_state->feat.stickers == true &&
-                        partition_state->song_id > -1)
+                        partition_state->song_id > -1 &&
+                        partition_state->song != NULL)
                     {
                         //set song elapsed sticker
                         time_t now = time(NULL);
@@ -311,7 +312,8 @@ static void mympd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_
                         //check if last song was skipped
                         time_t last_song_elapsed = partition_state->song_start_time - partition_state->last_song_start_time;
                         if (partition_state->last_song_start_time + last_song_elapsed < partition_state->last_song_end_time - SCROBBLE_TIME_MIN &&
-                            partition_state->last_song_start_time > 0)
+                            partition_state->last_song_start_time > 0 &&
+                            partition_state->song != NULL)
                         {
                             MYMPD_LOG_DEBUG(partition_state->name, "Song \"%s\" skipped", mpd_song_get_uri(partition_state->last_song));
                             if (partition_state->mpd_state->feat.stickers == true) {
