@@ -3,7 +3,7 @@ myMPD Documentation
 
 myMPD is a standalone and mobile friendly web-based MPD client with a tiny footprint and advanced features.
 
-- :icon:`fa-solid fa-folder` `GitHub repository <https://github.com/jcorporation/myMPD>`__
+- `GitHub repository <https://github.com/jcorporation/myMPD>`__
 - `Help to improve myMPD <https://github.com/jcorporation/myMPD/issues/167>`__
 - `Q&A <https://github.com/jcorporation/myMPD/discussions/categories/q-a>`__
 
