@@ -30,12 +30,8 @@ _Thread_local sds thread_logline;  //!< Thread specific log buffer
  * Global variables
  */
 
-_Atomic int loglevel;  //!< Loglevel
-
-/**
- * Type of logging system
- */
-enum log_types log_type;
+_Atomic int loglevel;     //!< Loglevel
+enum log_types log_type;  //!< Type of logging system
 
 /**
  * Maps loglevels to names
@@ -142,7 +138,7 @@ void mympd_log_errno(const char *file, int line, const char *partition, int errn
 }
 
 /**
- * Logs the errno string
+ * Logging function
  * This function should be called by the suitable macro
  * @param level loglevel of the message
  * @param file filename for debug logging
