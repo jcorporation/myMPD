@@ -4,6 +4,14 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v25.0.0 (not yet released)
+
+## Changelog
+
+- Feat: Use myGPIOd REST-API #1510
+
+***
+
 ## myMPD v24.0.0 (2025-12-30)
 
 This release improves the integrated search by using string normalization and adding a fuzzy search option. Furthermore the mpd connection handling was improved.

@@ -215,10 +215,3 @@ if(MYMPD_ENABLE_LIBID3TAG)
       webserver/lyrics_id3.c
   )
 endif()
-
-if(MYMPD_ENABLE_MYGPIOD)
-  target_sources(mympd
-    PRIVATE
-      scripts/interface_mygpio.c
-  )
-endif()

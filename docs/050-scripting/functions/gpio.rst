@@ -1,27 +1,23 @@
 GPIO
 ====
 
-The GPIO interface requires a configured
-`myGPIOd <https://github.com/jcorporation/myGPIOd>`__.
+The GPIO interface requires a configured `myGPIOd <https://github.com/jcorporation/myGPIOd>`__.
 
-All functions are connecting to the socket ``/run/mygpiod/socket``,
-issues the command and disconnects.
+All functions are using the integrated http client to connect to the REST-API of myGPIOd.
 
 .. code:: lua
 
-   -- Set non default socket for myGPIOd connection
-   mympd.mygpiod_socket = "/run/mygpiod/socket.debug"
+   -- Set non default uri for myGPIOd connection
+   mympd.mygpiod_uri = "http://localhost:8081/api"
 
    -- Blink a GPIO at given timeout and interval
    local rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)
 
    -- Get the active state of a GPIO
-   -- 0 = inactive, 1 = active
    local state = mympd.gpio_get(gpio)
 
    -- Sets the active state of a GPIO
-   -- 0 = inactive, 1 = active
-   local rc = mympd.gpio_set(gpio, state)
+   local rc = mympd.gpio_set(gpio, "<active|inactive>")
 
    -- Toggles the active state of a GPIO
    local rc = mympd.gpio_toggle(gpio)
