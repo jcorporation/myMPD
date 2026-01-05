@@ -466,7 +466,7 @@ buildtest() {
     debug/compile_commands.json > test/compile_commands.json
 
   echo "Running tests"
-  ctest --test-dir debug
+  ctest --rerun-failed --output-on-failure --test-dir debug 
 }
 
 cleanup() {

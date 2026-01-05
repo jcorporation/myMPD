@@ -34,6 +34,7 @@ set(TEST_SOURCES
   ../src/lib/list.c
   ../src/lib/log.c
   ../src/lib/mimetype.c
+  ../src/lib/mem.c
   ../src/lib/mpack.c
   ../src/lib/msg_queue.c
   ../src/lib/random.c
@@ -104,6 +105,7 @@ set(TEST_SOURCES
   tests/test_state_files.c
   tests/test_tags.c
   tests/test_timer.c
+  tests/test_utf8wrap.c
   tests/test_utility.c
   tests/test_validate.c
 )
@@ -198,6 +200,7 @@ list(APPEND test_categories
   "state_files"
   "tags"
   "timer"
+  "utf8wrap"
   "utility"
   "validate"
 )

@@ -79,6 +79,7 @@ target_sources(mympd
     lib/list.c
     lib/log.c
     lib/mimetype.c
+    lib/mem.c
     lib/mpack.c
     lib/msg_queue.c
     lib/random.c

@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ## Changelog
 
+- Fix: Handle invalid unicode strings #1511
+
 ***
 
 ## myMPD v24.0.0 (2025-12-30)

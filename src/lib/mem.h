@@ -11,6 +11,8 @@
 
 #include <stdlib.h>
 
+char *my_strdup(const char *str, size_t len);
+
 /**
  * Calls malloc and abort if it fails
  * @param size bytes to malloc
