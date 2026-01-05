@@ -12,6 +12,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v24.0.1 (not yet released)
+
+This is a small bug fix release.
+
+## Changelog
+
+- Fix: Handle invalid unicode strings #1511
+
+***
+
 ## myMPD v24.0.0 (2025-12-30)
 
 This release improves the integrated search by using string normalization and adding a fuzzy search option. Furthermore the mpd connection handling was improved.

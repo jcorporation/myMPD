@@ -67,7 +67,10 @@ char *utf8_wrap_casefold(const char *str, size_t len) {
     #ifdef MYMPD_ENABLE_UTF8
         utf8proc_uint8_t *fold_str;
         utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, UTF8PROC_CASEFOLD);
-        assert(fold_str);
+        if (fold_str == NULL) {
+            MYMPD_LOG_WARN(NULL, "Failure in unicode processing of: \"%s\"", str);
+            return my_strdup(str, len);
+        }
         return (char *)fold_str;
     #else
         char *lower = malloc_assert(len + 1);
@@ -90,7 +93,10 @@ char *utf8_wrap_normalize(const char *str, size_t len) {
     #ifdef MYMPD_ENABLE_UTF8
         utf8proc_uint8_t *fold_str;
         utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, normalize_flags);
-        assert(fold_str);
+        if (fold_str == NULL) {
+            MYMPD_LOG_WARN(NULL, "Failure in unicode processing of: \"%s\"", str);
+            return my_strdup(str, len);
+        }
         return (char *)fold_str;
     #else
         return utf8_wrap_casefold(str, len);
@@ -110,11 +116,19 @@ int utf8_wrap_casecmp(const char *str1, size_t str1_len, const char *str2, size_
     assert(str2);
     #ifdef MYMPD_ENABLE_UTF8
         utf8proc_uint8_t *fold_str1;
-        utf8proc_map((utf8proc_uint8_t *)str1, (utf8proc_ssize_t)str1_len, &fold_str1, normalize_flags);
+        utf8proc_map((utf8proc_uint8_t *)str1, (utf8proc_ssize_t)str1_len, &fold_str1, UTF8PROC_CASEFOLD);
+        if (fold_str1 == NULL) {
+            MYMPD_LOG_WARN(NULL, "Failure in unicode processing of: \"%s\"", str1);
+            fold_str1 = (utf8proc_uint8_t *)my_strdup(str1, str1_len);
+        }
         assert(fold_str1);
 
         utf8proc_uint8_t *fold_str2;
-        utf8proc_map((utf8proc_uint8_t *)str2, (utf8proc_ssize_t)str2_len, &fold_str2, normalize_flags);
+        utf8proc_map((utf8proc_uint8_t *)str2, (utf8proc_ssize_t)str2_len, &fold_str2, UTF8PROC_CASEFOLD);
+        if (fold_str2 == NULL) {
+            MYMPD_LOG_WARN(NULL, "Failure in unicode processing of: \"%s\"", str2);
+            fold_str2 = (utf8proc_uint8_t *)my_strdup(str2, str2_len);
+        }
         assert(fold_str2);
 
         int rc = strcmp((const char *)fold_str1, (const char *)fold_str2);
