@@ -1368,7 +1368,7 @@ run_doclint() {
     python3 -m venv /tmp/python-venv/ > /dev/null
     /tmp/python-venv/bin/pip install sphinx-lint  > /dev/null
   fi
-  echo "Running sphin-lint"
+  echo "Running sphinx-lint"
   /tmp/python-venv/bin/sphinx-lint docs || return 1
   return 0
 }
