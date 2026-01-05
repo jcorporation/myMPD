@@ -50,3 +50,15 @@ function mympd.gpio_toggle(gpio)
   local rc, code, headers, body = mympd.http_client("PATCH", uri , "", "", false)
   return rc
 end
+
+--- Gets temp, clock, volts and throttled mask from /dev/vcio
+-- @return Lua table
+function mympd.vcio_get()
+  local uri = mympd.mygpiod_uri .. "vcio"
+  local rc, code, headers, body = mympd.http_client("GET", uri , "", "", false)
+  if rc == 0 then
+    local decoded = json.decode(body)
+    return decoded.values
+  end
+  return nil
+end
