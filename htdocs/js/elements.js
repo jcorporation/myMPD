@@ -444,7 +444,7 @@ function getSelectedOptionData(el, attribute) {
  * Checks if html select element has an option with specified value.
  * @param {HTMLSelectElement | HTMLElement} el Select element
  * @param {string} value Value to search for
- * @returns true on success, else false
+ * @returns {boolean} true on success, else false
  */
 function selectElHasOptionValue(el, value) {
     for (let i = 0; i < el.options.length; i++) {
