@@ -6,7 +6,7 @@
 -- luacheck: no unused
 
 -- Default myGPIOd uri
-mympd.mygpiod_uri = "http://localhost:8081/api"
+mympd.mygpiod_uri = "http://localhost:8081/api/"
 
 --- Returns the active state of a GPIO
 -- @param gpio GPIO number
@@ -16,6 +16,9 @@ function mympd.gpio_get(gpio)
   local rc, code, headers, body = mympd.http_client("GET", uri , "", "", false)
   if rc == 0 then
     local decoded = json.decode(body)
+    if decoded == nil then
+      return nil
+    end
     return decoded.value
   end
   return nil
@@ -58,6 +61,9 @@ function mympd.vcio_get()
   local rc, code, headers, body = mympd.http_client("GET", uri , "", "", false)
   if rc == 0 then
     local decoded = json.decode(body)
+    if decoded == nil then
+      return nil
+    end
     return decoded.values
   end
   return nil

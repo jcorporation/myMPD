@@ -8,7 +8,7 @@ All functions are using the integrated http client to connect to the REST-API of
 .. code:: lua
 
    -- Set non default uri for myGPIOd connection
-   mympd.mygpiod_uri = "http://localhost:8081/api"
+   mympd.mygpiod_uri = "http://localhost:8081/api/"
 
    -- Blink a GPIO at given timeout and interval
    local rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)

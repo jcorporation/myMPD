@@ -30,13 +30,13 @@ List of myMPD specific Lua functions.
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
 | :doc:`mympd.dialog <mympd_dialog>`                | Returns an Jsonrpc response for a script dialog.                                  |
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
-| :doc:`mympd.gpio_blink <gpio>`                    | Connects to myGPIOd and blinks a GPIO with given timeout and interval.            |
+| :doc:`mympd.gpio_blink <mygpiod>`                 | Connects to myGPIOd and blinks a GPIO with given timeout and interval.            |
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
-| :doc:`mympd.gpio_get <gpio>`                      | Connects to myGPIOd and returns the active state of a GPIO.                       |
+| :doc:`mympd.gpio_get <mygpiod>`                   | Connects to myGPIOd and returns the active state of a GPIO.                       |
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
-| :doc:`mympd.gpio_set <gpio>`                      | Connects to myGPIOd and sets the active value of a GPIO.                          |
+| :doc:`mympd.gpio_set <mygpiod>`                   | Connects to myGPIOd and sets the active value of a GPIO.                          |
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
-| :doc:`mympd.gpio_toggle <gpio>`                   | Connects to myGPIOd and toggles the active value of a GPIO.                       |
+| :doc:`mympd.gpio_toggle <mygpiod>`                | Connects to myGPIOd and toggles the active value of a GPIO.                       |
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
 | :doc:`mympd.hash_md5 <util>`                      | MD5 hash of string.                                                               |
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
@@ -110,7 +110,7 @@ List of myMPD specific Lua functions.
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
 | :doc:`mympd.urlencode <util>`                     | URL encodes a string.                                                             |
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
-| :doc:`mympd.vcio_get <gpio>`                      | Connects to myGPIOd and gets temp, clock, volts and throttled mask from /dev/vcio |
+| :doc:`mympd.vcio_get <mygpiod>`                   | Connects to myGPIOd and gets temp, clock, volts and throttled mask from /dev/vcio |
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
 
 - `LuaDoc <../../luadoc/files/release/contrib/lualibs/mympd.html>`__
