@@ -3,6 +3,8 @@
 --- This functions requires a running myGPIOd REST-API service.
 ---
 
+-- luacheck: no unused
+
 -- Default myGPIOd uri
 mympd.mygpiod_uri = "http://localhost:8081/api"
 
