@@ -114,31 +114,10 @@ char *utf8_wrap_normalize(const char *str, size_t len) {
 int utf8_wrap_casecmp(const char *str1, size_t str1_len, const char *str2, size_t str2_len) {
     assert(str1);
     assert(str2);
-    #ifdef MYMPD_ENABLE_UTF8
-        utf8proc_uint8_t *fold_str1;
-        utf8proc_map((utf8proc_uint8_t *)str1, (utf8proc_ssize_t)str1_len, &fold_str1, UTF8PROC_CASEFOLD);
-        if (fold_str1 == NULL) {
-            MYMPD_LOG_WARN(NULL, "Failure in unicode processing of: \"%s\"", str1);
-            fold_str1 = (utf8proc_uint8_t *)my_strdup(str1, str1_len);
-        }
-        assert(fold_str1);
-
-        utf8proc_uint8_t *fold_str2;
-        utf8proc_map((utf8proc_uint8_t *)str2, (utf8proc_ssize_t)str2_len, &fold_str2, UTF8PROC_CASEFOLD);
-        if (fold_str2 == NULL) {
-            MYMPD_LOG_WARN(NULL, "Failure in unicode processing of: \"%s\"", str2);
-            fold_str2 = (utf8proc_uint8_t *)my_strdup(str2, str2_len);
-        }
-        assert(fold_str2);
-
-        int rc = strcmp((const char *)fold_str1, (const char *)fold_str2);
-
-        FREE_PTR(fold_str1);
-        FREE_PTR(fold_str2);
-    #else
-        (void) str1_len;
-        (void) str2_len;
-        int rc = strcasecmp(str1, str2);
-    #endif
+    char *fold_str1 = utf8_wrap_casefold(str1, str1_len);
+    char *fold_str2 = utf8_wrap_casefold(str2, str2_len);
+    int rc = strcmp(fold_str1, fold_str2);
+    FREE_PTR(fold_str1);
+    FREE_PTR(fold_str2);
     return rc;
 }
