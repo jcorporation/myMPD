@@ -274,8 +274,6 @@ void mympd_mpd_state_features_default(struct t_mpd_features *feat) {
     feat->fingerprint = false;
     feat->mount = false;
     feat->neighbor = false;
-    feat->playlist_rm_range = false;
-    feat->whence = false;
     feat->advqueue = false;
     feat->consume_oneshot = false;
     feat->playlist_dir_auto = false;

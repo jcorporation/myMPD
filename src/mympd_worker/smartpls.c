@@ -238,8 +238,7 @@ bool mympd_worker_smartpls_update(struct t_mympd_worker_state *mympd_worker_stat
 
     // enforce max entries
     if (rc == true &&
-        max_entries > 0 &&
-        mympd_worker_state->mpd_state->feat.playlist_rm_range == true)
+        max_entries > 0)
     {
         mympd_client_playlist_crop(mympd_worker_state->partition_state, playlist, max_entries);
     }

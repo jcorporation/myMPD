@@ -20,21 +20,6 @@ function initModalSettings() {
     // initialize myMPD custom elements
     initElements(elGetById('modalSettings'));
 
-    //set featWhence feature detection for default actions
-    for (const sel of ['modalSettingsClickQuickPlayInput', 'modalSettingsClickFilesystemPlaylistInput',
-        'modalSettingsClickPlaylistInput', 'modalSettingsClickSongInput',
-        'modalSettingsClickRadioFavoritesInput'])
-    {
-        const options = document.querySelectorAll('#' + sel + ' > option');
-        for (const opt of options) {
-            if (opt.value === 'insert' ||
-                opt.value === 'play')
-            {
-                opt.classList.add('featWhence');
-            }
-        }
-    }
-
     elGetById('modalSettings').addEventListener('show.bs.modal', function () {
         getSettings(function(obj) {
             if (parseSettings(obj) === true) {

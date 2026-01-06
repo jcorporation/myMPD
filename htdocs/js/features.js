@@ -65,8 +65,6 @@ function setFeatures() {
         features.featStickers = settings.features.featStickers;
         features.featTags = settings.features.featTags;
         features.featFingerprint = settings.features.featFingerprint;
-        features.featPlaylistRmRange = settings.features.featPlaylistRmRange;
-        features.featWhence = settings.features.featWhence;
         features.featAdvqueue = settings.features.featAdvqueue;
         features.featConsumeOneshot = settings.features.featConsumeOneshot;
         features.featPlaylistDirAuto = settings.features.featPlaylistDirAuto;

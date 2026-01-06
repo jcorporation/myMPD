@@ -207,12 +207,6 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state, sds plist, struct t_list *uris, unsigned to, sds *error) {
-    if (to != UINT_MAX &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     if (uris->length == 0) {
         *error = sdscat(*error, "No uris provided");
         return false;
@@ -276,12 +270,6 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
 bool mympd_api_playlist_content_insert_search(struct t_partition_state *partition_state, sds expression, sds plist,
         unsigned to, const char *sort, bool sort_desc, sds *error)
 {
-    if (to != UINT_MAX &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     return mympd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sort_desc, error);
 }
 
@@ -330,12 +318,6 @@ bool mympd_api_playlist_content_replace_search(struct t_partition_state *partiti
  */
 bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds plist, struct t_list *albumids, unsigned to, sds *error) {
-    if (to != UINT_MAX &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     if (albumids->length == 0) {
         *error = sdscat(*error, "No album ids provided");
         return false;
@@ -406,12 +388,6 @@ bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partiti
 bool mympd_api_playlist_content_insert_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds plist, sds albumid, enum mpd_tag_type tag, sds value, unsigned to, sds *error)
 {
-    if (to != UINT_MAX &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     struct t_album *mpd_album = album_cache_get_album(album_cache, albumid);
     if (mpd_album == NULL) {
         *error = sdscat(*error, "Album not found");
@@ -485,10 +461,6 @@ bool mympd_api_playlist_content_move(struct t_partition_state *partition_state, 
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_rm_range(struct t_partition_state *partition_state, sds plist, unsigned start, int end, sds *error) {
-    if (partition_state->mpd_state->feat.playlist_rm_range == false) {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     //map -1 to UINT_MAX for open ended range
     unsigned end_u = end < 0
         ? UINT_MAX

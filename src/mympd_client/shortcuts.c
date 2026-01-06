@@ -45,12 +45,6 @@ bool mympd_client_command_list_end_check(struct t_partition_state *partition_sta
 bool mympd_client_add_uris_to_queue(struct t_partition_state *partition_state, struct t_list *uris,
         unsigned to, unsigned whence, sds *error)
 {
-    if (whence != MPD_POSITION_ABSOLUTE &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     if (uris->length == 0) {
         *error = sdscat(*error, "No uris provided");
         return false;
@@ -115,12 +109,6 @@ bool mympd_client_add_album_to_queue(struct t_partition_state *partition_state, 
 bool mympd_client_add_albums_to_queue(struct t_partition_state *partition_state, struct t_cache *album_cache,
     struct t_list *albumids, unsigned to, unsigned whence, sds *error)
 {
-    if (whence != MPD_POSITION_ABSOLUTE &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     if (albumids->length == 0) {
         *error = sdscat(*error, "No album ids provided");
         return false;

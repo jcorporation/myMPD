@@ -1120,8 +1120,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featFingerprint", partition_state->mpd_state->feat.fingerprint, true);
         buffer = tojson_bool(buffer, "featMounts", partition_state->mpd_state->feat.mount, true);
         buffer = tojson_bool(buffer, "featNeighbors", partition_state->mpd_state->feat.neighbor, true);
-        buffer = tojson_bool(buffer, "featPlaylistRmRange", partition_state->mpd_state->feat.playlist_rm_range, true);
-        buffer = tojson_bool(buffer, "featWhence", partition_state->mpd_state->feat.whence, true);
         buffer = tojson_bool(buffer, "featAdvqueue", partition_state->mpd_state->feat.advqueue, true);
         buffer = tojson_bool(buffer, "featConsumeOneshot", partition_state->mpd_state->feat.consume_oneshot, true);
         buffer = tojson_bool(buffer, "featPlaylistDirAuto", partition_state->mpd_state->feat.playlist_dir_auto, true);

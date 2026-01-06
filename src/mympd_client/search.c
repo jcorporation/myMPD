@@ -21,7 +21,6 @@
 //private definitions
 static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, struct t_album *album,
         const struct t_albums_config *album_config, sds expression);
-static bool add_search_whence_param(struct t_partition_state *partition_state, unsigned to, unsigned whence);
 
 //public functions
 
@@ -46,7 +45,7 @@ bool mympd_client_search_add_to_plist_window(struct t_partition_state *partition
         mpd_search_add_expression(partition_state->conn, expression) == false ||
         mympd_client_add_search_sort_param(partition_state, sort, sortdesc) == false ||
         mympd_client_add_search_window(partition_state->conn, start, end) == false ||
-        add_search_whence_param(partition_state, to, MPD_POSITION_ABSOLUTE) == false)
+        mpd_search_add_position(partition_state->conn, to, MPD_POSITION_ABSOLUTE) == false)
     {
         mpd_search_cancel(partition_state->conn);
         *error = sdscat(*error, "Error creating MPD search command");
@@ -95,7 +94,7 @@ bool mympd_client_search_add_to_queue(struct t_partition_state *partition_state,
     if (mpd_search_add_db_songs(partition_state->conn, false) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
         mympd_client_add_search_sort_param(partition_state, sort, sortdesc) == false ||
-        add_search_whence_param(partition_state, to, whence) == false)
+        mpd_search_add_position(partition_state->conn, to, whence) == false)
     {
         mpd_search_cancel(partition_state->conn);
         *error = sdscat(*error, "Error creating MPD search command");
@@ -130,7 +129,7 @@ bool mympd_client_search_add_to_queue_window(struct t_partition_state *partition
         mpd_search_add_expression(partition_state->conn, expression) == false ||
         mympd_client_add_search_sort_param(partition_state, sort, sortdesc) == false ||
         mympd_client_add_search_window(partition_state->conn, start, end) == false ||
-        add_search_whence_param(partition_state, to, whence) == false)
+        mpd_search_add_position(partition_state->conn, to, whence) == false)
     {
         mpd_search_cancel(partition_state->conn);
         *error = sdscat(*error, "Error creating MPD search command");
@@ -319,23 +318,4 @@ static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, str
         }
     }
     return expression;
-}
-
-/**
- * Adds the position parameter to the search command
- * @param partition_state pointer to partition state
- * @param to position to insert the songs, UINT_MAX to append
- * @param whence enum mpd_position_whence:
- *               0 = MPD_POSITION_ABSOLUTE
- *               1 = MPD_POSITION_AFTER_CURRENT
- *               2 = MPD_POSITION_BEFORE_CURRENT
- * @return true on success, else false
- */
-static bool add_search_whence_param(struct t_partition_state *partition_state, unsigned to, unsigned whence) {
-    if (partition_state->mpd_state->feat.whence == true &&
-        to < UINT_MAX) //to = UINT_MAX is append
-    {
-        return mpd_search_add_position(partition_state->conn, to, whence);
-    }
-    return true;
 }

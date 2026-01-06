@@ -55,9 +55,6 @@ struct t_mpd_features {
     bool listplaylist_range;       //!< mpd supports the listplaylist with range parameter (MPD 0.24)
     bool playlist_dir_auto;        //!< mpd supports autodetection of playlist directory (MPD 0.24)
     bool starts_with;              //!< mpd supports starts_with filter expression (MPD 0.24)
-    // MPD 0.23 features
-    bool whence;                   //!< mpd supports the whence feature (relative position in queue) (MPD 0.23.5)
-    bool playlist_rm_range;        //!< mpd supports the playlist rm range command (MPD 0.23.3)
 };
 
 /**
