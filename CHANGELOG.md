@@ -16,6 +16,16 @@ This is the first release that supports only MPD 0.23.5 and higher.
 
 ***
 
+## myMPD v24.0.2 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: utf8 test failures #1514
+
+***
+
 ## myMPD v24.0.1 (2026-01-06)
 
 This is a small bug fix release.
