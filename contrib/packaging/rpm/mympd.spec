@@ -1,7 +1,7 @@
 #
 # spec file for package myMPD
 #
-# (c) 2018-2025 Juergen Mang <mail@jcgames.de>
+# (c) 2018-2026 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
 Version:        25.0.0
@@ -66,5 +66,5 @@ fi
 %license LICENSE.md
 
 %changelog
-* Mon Jan 05 2026 Juergen Mang <mail@jcgames.de> 25.0.0-0
+* Tue Jan 06 2026 Juergen Mang <mail@jcgames.de> 25.0.0-0
 - Version from master
