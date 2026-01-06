@@ -8,7 +8,7 @@ https://github.com/jcorporation/myMPD/
 
 This is a small bug fix release.
 
-## Changelog
+### Changelog
 
 - Fix: Handle invalid unicode strings #1511
 
