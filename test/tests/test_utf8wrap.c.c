@@ -18,9 +18,11 @@ UTEST(utf8wrap, test_utf8_wrap_validate) {
     bool rc = utf8_wrap_validate(utf8_str_valid, len);
     ASSERT_TRUE(rc);
 
-    len = strlen(utf8_str_invalid);
-    rc = utf8_wrap_validate(utf8_str_invalid, len);
-    ASSERT_FALSE(rc);
+    #ifdef MYMPD_ENABLE_UTF8
+        len = strlen(utf8_str_invalid);
+        rc = utf8_wrap_validate(utf8_str_invalid, len);
+        ASSERT_FALSE(rc);
+    #endif
 }
 
 UTEST(utf8wrap, utf8_wrap_casefold) {
@@ -52,13 +54,13 @@ UTEST(utf8wrap, utf8_wrap_casecmp) {
     int rc = utf8_wrap_casecmp(utf8_str_valid, len, "abc123", len);
     ASSERT_EQ(rc, 0);
 
-    rc = utf8_wrap_casecmp(utf8_str_valid, len, "abc", len);
+    rc = utf8_wrap_casecmp(utf8_str_valid, len, "abc", 3);
     ASSERT_EQ(rc, 1);
 
     len = strlen(utf8_str_invalid);
     rc = utf8_wrap_casecmp(utf8_str_invalid, len, utf8_str_invalid, len);
     ASSERT_EQ(rc, 0);
 
-    rc = utf8_wrap_casecmp(utf8_str_invalid, len, "abc", len);
+    rc = utf8_wrap_casecmp(utf8_str_invalid, len, "abc", 3);
     ASSERT_EQ(rc, 1);
 }

@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: utf8 test failures #1514
+
 ***
 
 ## myMPD v24.0.1 (2026-01-06)
