@@ -6,7 +6,11 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v25.0.0 (not yet released)
 
-## Changelog
+### Notes
+
+This is the first release that supports only MPD 0.23.5 and higher.
+
+### Changelog
 
 - Feat: Use myGPIOd REST-API #1510
 
@@ -16,7 +20,7 @@ https://github.com/jcorporation/myMPD/
 
 This is a small bug fix release.
 
-## Changelog
+### Changelog
 
 - Fix: Handle invalid unicode strings #1511
 
