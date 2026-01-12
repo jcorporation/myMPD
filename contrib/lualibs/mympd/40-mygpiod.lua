@@ -6,7 +6,7 @@
 -- luacheck: no unused
 
 -- Default myGPIOd uri
-mympd.mygpiod_uri = "http://localhost:8081/api/"
+mympd.mygpiod_uri = "http://localhost:8081/api/v1/"
 
 --- Returns the active state of a GPIO
 -- @param gpio GPIO number
