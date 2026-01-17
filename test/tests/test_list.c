@@ -8,6 +8,7 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
+#include "src/lib/random.h"
 #include "src/lib/list/list.h"
 #include "src/lib/list/shuffle.h"
 #include "src/lib/list/sort.h"
@@ -20,6 +21,16 @@ static long populate_list(struct t_list *l) {
     list_push(l, "key4", 4, "value4", NULL);
     list_push(l, "key5", 5, "value5", NULL);
     list_insert(l, "key0", 0, "value0", NULL);
+    return l->length;
+}
+
+static long populate_large_list(struct t_list *l) {
+    list_init(l);
+    char buffer[21];
+    for (int i = 0; i < 10000; i++) {
+        randstring(buffer, 21);
+        list_push(l, buffer, 1, buffer, NULL);
+    }
     return l->length;
 }
 
@@ -423,6 +434,18 @@ UTEST(list, test_list_sort_by_key) {
     ASSERT_STREQ("key5", test_list.tail->key);
 
     ASSERT_EQ(6U, test_list.length);
+
+    list_clear(&test_list);
+}
+
+UTEST(list, test_list_sort_large) {
+    struct t_list test_list;
+    populate_large_list(&test_list);
+
+    list_sort_by_key(&test_list, LIST_SORT_DESC);
+    list_sort_by_key(&test_list, LIST_SORT_ASC);
+
+    ASSERT_EQ(10000U, test_list.length);
 
     list_clear(&test_list);
 }
