@@ -8,7 +8,9 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
+#include "src/lib/list/shuffle.h"
+#include "src/lib/list/sort.h"
 
 static long populate_list(struct t_list *l) {
     list_init(l);

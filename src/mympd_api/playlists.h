@@ -11,7 +11,7 @@
 #ifndef MYMPD_API_PLAYLISTS_H
 #define MYMPD_API_PLAYLISTS_H
 
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/config/mympd_state.h"
 #include "src/mympd_client/playlists.h"
 

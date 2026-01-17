@@ -11,7 +11,7 @@
 #ifndef MYMPD_SCRIPTS_EVENTS_H
 #define MYMPD_SCRIPTS_EVENTS_H
 
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 
 /**
  * Script start events

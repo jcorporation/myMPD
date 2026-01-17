@@ -12,7 +12,7 @@
 #define MYMPD_API_HOME_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 
 #include <stdbool.h>
 

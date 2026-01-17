@@ -9,12 +9,11 @@
  */
 
 #include "compile_time.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
 #include <src/lib/utf8_wrapper.h>
 
@@ -275,56 +274,6 @@ bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to) {
 
     l->length++;
 
-    return true;
-}
-
-/**
- * Swaps two list nodes values.
- * @param n1 first node
- * @param n2 second node
- * @return true on success, else false
- */
-bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2) {
-    if (n1 == n2 ||
-        n1 == NULL ||
-        n2 == NULL)
-    {
-        return false;
-    }
-
-    sds key = n2->key;
-    int64_t value_i = n2->value_i;
-    sds value_p = n2->value_p;
-    void *user_data = n2->user_data;
-
-    n2->key = n1->key;
-    n2->value_i = n1->value_i;
-    n2->value_p = n1->value_p;
-    n2->user_data = n1->user_data;
-
-    n1->key = key;
-    n1->value_i = value_i;
-    n1->value_p = value_p;
-    n1->user_data = user_data;
-
-    return true;
-}
-
-/**
- * Shuffles the list.
- * @param l list
- * @return true on success, else false
- */
-bool list_shuffle(struct t_list *l) {
-    if (l->length < 2) {
-        return false;
-    }
-    struct t_list_node *current = l->head;
-    while (current != NULL) {
-        unsigned pos = randrange(0, l->length);
-        list_swap_item(current, list_node_at(l, pos));
-        current = current->next;
-    }
     return true;
 }
 
@@ -714,116 +663,4 @@ void list_crop(struct t_list *l, unsigned length, user_data_callback free_cb) {
     l->length = length;
     last->next = NULL;
     l->tail = last;
-}
-
-/**
- * Internal compare function to sort by value_i
- * @param current current list node
- * @param next next list node
- * @param direction sort direction
- * @return true if current is greater than next
- */
-static bool list_sort_cmp_value_i(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
-    if ((direction == LIST_SORT_ASC && current->value_i > next->value_i) ||
-        (direction == LIST_SORT_DESC && current->value_i < next->value_i))
-    {
-        return true;
-    }
-    return false;
-}
-
-/**
- * Internal compare function to sort by value_p
- * @param current current list node
- * @param next next list node
- * @param direction sort direction
- * @return true if current is greater than next
- */
-static bool list_sort_cmp_value_p(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
-    int result = utf8_wrap_casecmp(current->value_p, sdslen(current->value_p), next->value_p, sdslen(next->value_p));
-    if ((direction == LIST_SORT_ASC && result > 0) ||
-        (direction == LIST_SORT_DESC && result < 0))
-    {
-        return true;
-    }
-    return false;
-}
-
-/**
- * Internal compare function to sort by key
- * @param current current list node
- * @param next next list node
- * @param direction sort direction
- * @return true if current is greater than next
- */
-static bool list_sort_cmp_key(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
-    int result = utf8_wrap_casecmp(current->key, sdslen(current->key), next->key, sdslen(next->key));
-    if ((direction == LIST_SORT_ASC && result > 0) ||
-        (direction == LIST_SORT_DESC && result < 0))
-    {
-        return true;
-    }
-    return false;
-}
-
-/**
- * The list sorting function.
- * Note that the sort is not very efficient, use it only for short lists.
- * @param l pointer to list to sort
- * @param direction sort direction
- * @param sort_cb compare function
- * @return true on success, else false
- */
-bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction, list_sort_callback sort_cb) {
-    int swapped;
-    struct t_list_node *ptr1;
-    struct t_list_node *lptr = NULL;
-
-    if (l->head == NULL) {
-        return false;
-    }
-
-    do {
-        swapped = 0;
-        ptr1 = l->head;
-        while (ptr1->next != lptr) {
-            if (sort_cb(ptr1, ptr1->next, direction) == true) {
-                list_swap_item(ptr1, ptr1->next);
-                swapped = 1;
-            }
-            ptr1 = ptr1->next;
-        }
-        lptr = ptr1;
-    } while (swapped);
-    return true;
-}
-
-/**
- * Sorts the list by value_i
- * @param l pointer to list to sort
- * @param direction sort direction
- * @return true on success, else false
- */
-bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) {
-    return list_sort_by_callback(l, direction, list_sort_cmp_value_i);
-}
-
-/**
- * Sorts the list by value_p
- * @param l pointer to list to sort
- * @param direction sort direction
- * @return true on success, else false
- */
-bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction) {
-    return list_sort_by_callback(l, direction, list_sort_cmp_value_p);
-}
-
-/**
- * Sorts the list by key
- * @param l pointer to list to sort
- * @param direction sort direction
- * @return true on success, else false
- */
-bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction) {
-    return list_sort_by_callback(l, direction, list_sort_cmp_key);
 }

@@ -11,7 +11,7 @@
 #ifndef MYMPD_WEB_SERVER_LYRICS_FLAC_H
 #define MYMPD_WEB_SERVER_LYRICS_FLAC_H
 
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 
 void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is_ogg, const char *comment_name, bool synced);
 

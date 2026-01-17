@@ -14,6 +14,7 @@
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
+#include "src/lib/list/sort.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/search/search.h"

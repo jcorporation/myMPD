@@ -13,7 +13,6 @@
 
 #include "src/lib/api.h"
 #include "src/lib/config/config_def.h"
-#include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"

@@ -13,7 +13,7 @@
 
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/webserver/mg_user_data.h"
 
 #include <stdbool.h>

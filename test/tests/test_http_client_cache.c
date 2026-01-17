@@ -11,7 +11,7 @@
 #include "dist/utest/utest.h"
 #include "src/lib/http_client/http_client.h"
 #include "src/lib/http_client/http_client_cache.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 
 #include <assert.h>
 

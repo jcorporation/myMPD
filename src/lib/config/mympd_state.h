@@ -17,7 +17,7 @@
 #include "src/lib/event.h"
 #include "src/lib/fields.h"
 #include "src/lib/jukebox.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/lyrics.h"
 #include "src/lib/webradio.h"
 

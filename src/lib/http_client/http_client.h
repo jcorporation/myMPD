@@ -12,7 +12,7 @@
 #define MYMPD_HTTP_CLIENT_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 
 /**
  * Defines a http request

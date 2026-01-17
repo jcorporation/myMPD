@@ -76,7 +76,9 @@ target_sources(mympd
     lib/json/json_rpc.c
     lib/jukebox.c
     lib/last_played.c
-    lib/list.c
+    lib/list/list.c
+    lib/list/shuffle.c
+    lib/list/sort.c
     lib/log.c
     lib/mimetype.c
     lib/mem.c

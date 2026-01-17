@@ -12,7 +12,7 @@
 #define MYMPD_API_TRIGGER_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/sticker.h"
 
 /**

@@ -10,7 +10,7 @@
 #include "src/lib/config/cacertstore.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/http_client/http_client.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/sds_extras.h"
 #include "cli_tools/log.h"
 

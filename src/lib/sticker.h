@@ -12,7 +12,7 @@
 #define MYMPD_STICKER_H
 
 #include "src/lib/mpdclient.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 
 /**
  * MPD sticker types

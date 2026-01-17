@@ -13,6 +13,7 @@ This is the first release that supports only MPD 0.23.5 and higher.
 ### Changelog
 
 - Feat: Use myGPIOd REST-API #1510
+- Feat: Implement merge sort for linked lists
 
 ***
 

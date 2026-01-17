@@ -9,7 +9,7 @@
 
 #include "dist/utest/utest.h"
 #include "src/lib/json/json_query.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/sds_extras.h"
 
 UTEST(jsonquery, test_json_get_bool) {

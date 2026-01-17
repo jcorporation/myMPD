@@ -31,7 +31,9 @@ set(TEST_SOURCES
   ../src/lib/json/json_rpc.c
   ../src/lib/jukebox.c
   ../src/lib/last_played.c
-  ../src/lib/list.c
+  ../src/lib/list/list.c
+  ../src/lib/list/shuffle.c
+  ../src/lib/list/sort.c
   ../src/lib/log.c
   ../src/lib/mimetype.c
   ../src/lib/mem.c

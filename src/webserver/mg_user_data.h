@@ -14,7 +14,7 @@
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
 #include "src/lib/config/config_def.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/lyrics.h"
 
 #include <stdbool.h>

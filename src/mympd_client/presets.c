@@ -13,7 +13,7 @@
 
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_query.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/mympd_api/requests.h"

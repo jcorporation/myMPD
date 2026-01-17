@@ -11,7 +11,7 @@
 #include "compile_time.h"
 #include "src/lib/json/json_print.h"
 
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/sds_extras.h"
 
 #include <math.h>

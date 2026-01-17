@@ -12,7 +12,7 @@
 #define MYMPD_SCRIPTS_SCRIPTS_API_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/scripts/util.h"
 
 #include <stdbool.h>
