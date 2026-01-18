@@ -16,9 +16,9 @@
 #include "src/lib/utf8_wrapper.h"
 
 // Private definitions
-static bool sort_cmp_value_i(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction);
-static bool sort_cmp_value_p(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction);
-static bool sort_cmp_key(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction);
+static bool sort_cb_value_i(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction);
+static bool sort_cb_value_p(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction);
+static bool sort_cb_key(struct t_list_node *fist, struct t_list_node *second, enum list_sort_direction direction);
 static struct t_list_node* merge(struct t_list_node* first, struct t_list_node* second,
         enum list_sort_direction direction, list_sort_callback sort_cb);
 static void split_list_half(struct t_list_node* source, struct t_list_node** front, struct t_list_node** back);
@@ -31,16 +31,18 @@ static void merge_sort(struct t_list_node** head_ref, enum list_sort_direction d
  * @param l pointer to list to sort
  * @param direction sort direction
  * @param sort_cb compare function
- * @return true on success, else false
+ * @return Always true
  */
 bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction, list_sort_callback sort_cb) {
     merge_sort(&l->head, direction, sort_cb);
     // Fix tail
-    struct t_list_node *current = l->head;
-    while (current->next != NULL) {
-        current = current->next;
+    if (l->tail->next != NULL) {
+        struct t_list_node *current = l->head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        l->tail = current;
     }
-    l->tail = current;
     return true;
 }
 
@@ -48,44 +50,44 @@ bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction,
  * Sorts the list by value_i. It uses the merge sort algorithm.
  * @param l pointer to list to sort
  * @param direction sort direction
- * @return true on success, else false
+ * @return Always true
  */
 bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) {
-    return list_sort_by_callback(l, direction, sort_cmp_value_i);
+    return list_sort_by_callback(l, direction, sort_cb_value_i);
 }
 
 /**
  * Sorts the list by value_p. It uses the merge sort algorithm.
  * @param l pointer to list to sort
  * @param direction sort direction
- * @return true on success, else false
+ * @return Always true
  */
 bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction) {
-    return list_sort_by_callback(l, direction, sort_cmp_value_p);
+    return list_sort_by_callback(l, direction, sort_cb_value_p);
 }
 
 /**
  * Sorts the list by key. It uses the merge sort algorithm.
  * @param l pointer to list to sort
  * @param direction sort direction
- * @return true on success, else false
+ * @return Always true
  */
 bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction) {
-    return list_sort_by_callback(l, direction, sort_cmp_key);
+    return list_sort_by_callback(l, direction, sort_cb_key);
 }
 
 // Internal functions
 
 /**
- * Internal compare function to sort by value_i
- * @param current current list node
- * @param next next list node
+ * Compare callback to sort by value_i
+ * @param first first list node
+ * @param second second list node
  * @param direction sort direction
- * @return true if current is greater than next
+ * @return true if first is greater than second
  */
-static bool sort_cmp_value_i(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
-    if ((direction == LIST_SORT_ASC && current->value_i > next->value_i) ||
-        (direction == LIST_SORT_DESC && current->value_i < next->value_i))
+static bool sort_cb_value_i(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction) {
+    if ((direction == LIST_SORT_ASC && first->value_i > second->value_i) ||
+        (direction == LIST_SORT_DESC && first->value_i < second->value_i))
     {
         return true;
     }
@@ -93,14 +95,14 @@ static bool sort_cmp_value_i(struct t_list_node *current, struct t_list_node *ne
 }
 
 /**
- * Internal compare function to sort by value_p
- * @param current current list node
- * @param next next list node
+ * Compare callback to sort by value_p
+ * @param first first list node
+ * @param second second list node
  * @param direction sort direction
- * @return true if current is greater than next
+ * @return true if first is greater than second
  */
-static bool sort_cmp_value_p(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
-    int result = utf8_wrap_casecmp(current->value_p, sdslen(current->value_p), next->value_p, sdslen(next->value_p));
+static bool sort_cb_value_p(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction) {
+    int result = utf8_wrap_casecmp(first->value_p, sdslen(first->value_p), second->value_p, sdslen(second->value_p));
     if ((direction == LIST_SORT_ASC && result > 0) ||
         (direction == LIST_SORT_DESC && result < 0))
     {
@@ -110,14 +112,14 @@ static bool sort_cmp_value_p(struct t_list_node *current, struct t_list_node *ne
 }
 
 /**
- * Internal compare function to sort by key
- * @param current current list node
- * @param next next list node
+ * Compare callback to sort by key
+ * @param first first list node
+ * @param second second list node
  * @param direction sort direction
- * @return true if current is greater than next
+ * @return true if first is greater than second
  */
-static bool sort_cmp_key(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
-    int result = utf8_wrap_casecmp(current->key, sdslen(current->key), next->key, sdslen(next->key));
+static bool sort_cb_key(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction) {
+    int result = utf8_wrap_casecmp(first->key, sdslen(first->key), second->key, sdslen(second->key));
     if ((direction == LIST_SORT_ASC && result > 0) ||
         (direction == LIST_SORT_DESC && result < 0))
     {
