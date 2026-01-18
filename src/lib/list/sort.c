@@ -18,7 +18,7 @@
 // Private definitions
 static bool sort_cb_value_i(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction);
 static bool sort_cb_value_p(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction);
-static bool sort_cb_key(struct t_list_node *fist, struct t_list_node *second, enum list_sort_direction direction);
+static bool sort_cb_key(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction);
 static struct t_list_node* merge(struct t_list_node* first, struct t_list_node* second,
         enum list_sort_direction direction, list_sort_callback sort_cb);
 static void split_list_half(struct t_list_node* source, struct t_list_node** front, struct t_list_node** back);
