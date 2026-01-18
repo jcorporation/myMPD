@@ -163,9 +163,9 @@ UTEST(list, test_list_replace) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_shuffle) {
+UTEST(list, test_list_large_shuffle) {
     struct t_list test_list;
-    populate_list(&test_list);
+    populate_large_list(&test_list);
     struct t_list_node *current;
 
     list_shuffle(&test_list);
@@ -178,7 +178,7 @@ UTEST(list, test_list_shuffle) {
     }
     ASSERT_TRUE(shuffled);
 
-    ASSERT_EQ(6U, test_list.length);
+    ASSERT_EQ(10000U, test_list.length);
     list_clear(&test_list);
 }
 
