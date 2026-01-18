@@ -134,11 +134,9 @@ static bool sort_cmp_key(struct t_list_node *current, struct t_list_node *next, 
  * @param sort_cb Sort callback
  * @return struct t_list_node* Head pointer to merged list
  */
-static struct t_list_node* merge(struct t_list_node* first, struct t_list_node* second,
+static struct t_list_node *merge(struct t_list_node *first, struct t_list_node *second,
         enum list_sort_direction direction, list_sort_callback sort_cb)
 {
-    struct t_list_node* result = NULL;
-
     // Base cases
     if (first == NULL) {
         return second;
@@ -147,6 +145,7 @@ static struct t_list_node* merge(struct t_list_node* first, struct t_list_node* 
         return first;
     }
 
+    struct t_list_node *result = NULL;
     if (sort_cb(first, second, direction) == false) {
         result = first;
         result->next = merge(first->next, second, direction, sort_cb);
@@ -165,10 +164,8 @@ static struct t_list_node* merge(struct t_list_node* first, struct t_list_node* 
  * @param back  Head pointer for the second half
  */
 static void split_list_half(struct t_list_node* source, struct t_list_node** front, struct t_list_node** back) {
-    struct t_list_node* fast;
-    struct t_list_node* slow;
-    slow = source;
-    fast = source->next;
+    struct t_list_node *slow = source;
+    struct t_list_node *fast = source->next;
 
     // Iterate through the linked list until the fast pointer reaches the end
     while (fast != NULL) {
@@ -191,12 +188,12 @@ static void split_list_half(struct t_list_node* source, struct t_list_node** fro
  * @param sort_cb Sort callback
  */
 static void merge_sort(struct t_list_node** head_ref, enum list_sort_direction direction, list_sort_callback sort_cb) {
-    struct t_list_node* head = *head_ref;
-    struct t_list_node* first_half;
-    struct t_list_node* second_half;
+    struct t_list_node *head = *head_ref;
+    struct t_list_node *first_half;
+    struct t_list_node *second_half;
 
     // Base case
-    if (head == NULL || 
+    if (head == NULL ||
         head->next == NULL)
     {
         return;
