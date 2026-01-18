@@ -179,9 +179,9 @@ static void split_list_half(struct t_list_node* source, struct t_list_node** fro
         }
     }
 
-    *front = source;  // First half
+    *front = source;     // First half
     *back = slow->next;  // Second half
-    slow->next = NULL; // Split the list into two halves
+    slow->next = NULL;   // Split the list into two halves
 }
 
 /**
@@ -195,12 +195,14 @@ static void merge_sort(struct t_list_node** head_ref, enum list_sort_direction d
     struct t_list_node* first_half;
     struct t_list_node* second_half;
 
-    // Base case: if head is NULL or only one node
-    if (!head || !head->next) {
+    // Base case
+    if (head == NULL || 
+        head->next == NULL)
+    {
         return;
     }
 
-    // Split the list into 'a' and 'b' sublists
+    // Split the list into first and second half sublists
     split_list_half(head, &first_half, &second_half);
 
     // Recursively sort the sublists
