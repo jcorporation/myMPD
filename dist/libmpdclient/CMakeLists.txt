@@ -6,13 +6,6 @@ add_library(mpdclient "")
 
 target_include_directories(mpdclient SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/dist/libmpdclient/include")
 
-if(CMAKE_BUILD_TYPE MATCHES "(Release|RelWithDebInfo|MinSizeRel)")
-  target_compile_options(mpdclient
-    PRIVATE
-      "-DNDEBUG"
-  )
-endif()
-
 target_sources(mpdclient
   PRIVATE
     src/albumart.c
