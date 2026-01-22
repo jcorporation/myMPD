@@ -10,6 +10,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Define NDEBUG for all release types but Debug #1515
 - Fix: utf8 test failures #1514
 
 ***
