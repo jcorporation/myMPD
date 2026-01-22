@@ -300,19 +300,24 @@ configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.s
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 configure_file(contrib/initscripts/mympd.freebsdrc.in contrib/initscripts/mympd.freebsdrc @ONLY)
 
-# global compile options
-add_compile_options(
-  "-DMPACK_HAS_CONFIG=1"
-  "-DMG_MAX_HTTP_HEADERS=50"
+# global compile definitions
+add_compile_definitions(
+  "MPACK_HAS_CONFIG=1"
+  "MG_MAX_HTTP_HEADERS=50"
 )
 
-# set myMPD specific debug define
+# Debug defines
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  add_compile_options(
-    "-DMYMPD_DEBUG=ON"
+  add_compile_definitions(
+    "MYMPD_DEBUG=ON"
+  )
+else()
+  add_compile_definitions(
+    "NDEBUG"
   )
 endif()
 
+# global compile options
 if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
   set(C_OPTS
     "-D_GLIBCXX_ASSERTIONS"
