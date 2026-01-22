@@ -34,9 +34,7 @@ static void merge_sort(struct t_list_node** head_ref, enum list_sort_direction d
  * @return Always true
  */
 bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction, list_sort_callback sort_cb) {
-    if (l->head == NULL ||
-        l->head->next == NULL)
-    {
+    if (l->length < 2) {
         return true;
     }
     merge_sort(&l->head, direction, sort_cb);
