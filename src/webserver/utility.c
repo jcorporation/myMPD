@@ -129,11 +129,11 @@ struct t_list *webserver_parse_arguments(struct mg_http_message *hm) {
 sds print_ip(sds s, struct mg_addr *addr) {
     if (addr->is_ip6 == false) {
         //IPv4
-        uint8_t *p = (uint8_t *)&addr->ip;
+        uint8_t *p = (uint8_t *)&addr->addr;
         return sdscatprintf(s, "%d.%d.%d.%d", (int) p[0], (int) p[1], (int) p[2], (int) p[3]);
     }
     //IPv6
-    uint16_t *p = (uint16_t *)&addr->ip;
+    uint16_t *p = (uint16_t *)&addr->addr;
     return sdscatprintf(s, "[%x:%x:%x:%x:%x:%x:%x:%x]",
             mg_ntohs(p[0]), mg_ntohs(p[1]), mg_ntohs(p[2]), mg_ntohs(p[3]),
             mg_ntohs(p[4]), mg_ntohs(p[5]), mg_ntohs(p[6]), mg_ntohs(p[7]));
