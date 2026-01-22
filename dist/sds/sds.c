@@ -337,7 +337,7 @@ void sdsclear(sds s) {
 sds sdsMakeRoomFor(sds s, size_t addlen) {
     void *sh, *newsh;
     size_t avail = sdsavail(s);
-    size_t len, newlen, reqlen;
+    size_t len, newlen;
     char type, oldtype = s[-1] & SDS_TYPE_MASK;
     int hdrlen;
 
@@ -346,7 +346,10 @@ sds sdsMakeRoomFor(sds s, size_t addlen) {
 
     len = sdslen(s);
     sh = (char*)s-sdsHdrSize(oldtype);
-    reqlen = newlen = (len+addlen);
+    newlen = (len+addlen);
+    #ifndef NDEBUG
+        size_t reqlen = newlen = (len+addlen);
+    #endif
     if (newlen < SDS_MAX_PREALLOC)
         newlen *= 2;
     else
