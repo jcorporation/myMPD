@@ -834,8 +834,8 @@ Build-Depends: debhelper (>= 10),
                libssl-dev,
                libid3tag0-dev,
                libflac-dev,
-               liblua5.4-dev | liblua5.3-dev,
-               lua5.4 | lua5.3,
+               liblua5.4-dev,
+               lua5.4,
                libpcre2-dev,
                libutf8proc-dev
 Package-List:

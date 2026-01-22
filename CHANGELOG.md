@@ -8,12 +8,13 @@ https://github.com/jcorporation/myMPD/
 
 ### Notes
 
-This is the first release that supports only MPD 0.23.5 and higher.
+This is the first release that supports only MPD 0.23.5 and higher and Lua 5.4.x
 
 ### Changelog
 
 - Feat: Use myGPIOd REST-API #1510
 - Feat: Implement merge sort for linked lists
+- Feat: Bump requirement for MPD and Lua versions
 
 ***
 

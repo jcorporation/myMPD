@@ -16,7 +16,7 @@ project(mympd
 # Dependency versions
 set(LIBMPDCLIENT_MIN_VERSION "2.24.0")
 set(OPENSSL_MIN_VERSION "1.1.0")
-set(LUA_MIN_VERSION "5.3.0")
+set(LUA_MIN_VERSION "5.4.0")
 
 # output binaries in bin directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
