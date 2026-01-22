@@ -17,7 +17,7 @@ This is the first release that supports only MPD 0.23.5 and higher.
 
 ***
 
-## myMPD v24.0.2 (not yet released)
+## myMPD v24.0.2 (2026-01-22)
 
 This is a small bug fix release.
 
