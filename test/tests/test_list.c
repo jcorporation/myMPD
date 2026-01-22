@@ -645,3 +645,17 @@ UTEST(list, test_list_sort_large_by_value_i_desc) {
 
     list_free(test_list);
 }
+
+UTEST(list, test_list_sort_empty) {
+    struct t_list test_list;
+    list_init(&test_list);
+
+    list_sort_by_value_i(&test_list, LIST_SORT_DESC);
+    ASSERT_EQ(check_list_integrity(&test_list, 0), true);
+
+    list_push(&test_list, "test", 0, NULL, NULL);
+    list_sort_by_value_i(&test_list, LIST_SORT_DESC);
+    ASSERT_EQ(check_list_integrity(&test_list, 1), true);
+
+    list_clear(&test_list);
+}
