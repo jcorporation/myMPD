@@ -228,7 +228,8 @@ sds sdsnewlen(const void *init, size_t initlen) {
     int hdrlen = sdsHdrSize(type);
     unsigned char *fp; /* flags pointer. */
 
-    assert(initlen + hdrlen + 1 > initlen); /* Catch size_t overflow */
+    if (initlen + hdrlen + 1 <= initlen) /* Catch size_t overflow */
+        abort();
     newsh = s_malloc(hdrlen+initlen+1);
     if (newsh == NULL) return NULL;
     if (init==SDS_NOINIT)
@@ -337,7 +338,7 @@ void sdsclear(sds s) {
 sds sdsMakeRoomFor(sds s, size_t addlen) {
     void *sh, *newsh;
     size_t avail = sdsavail(s);
-    size_t len, newlen;
+    size_t len, newlen, reqlen;
     char type, oldtype = s[-1] & SDS_TYPE_MASK;
     int hdrlen;
 
@@ -346,10 +347,7 @@ sds sdsMakeRoomFor(sds s, size_t addlen) {
 
     len = sdslen(s);
     sh = (char*)s-sdsHdrSize(oldtype);
-    newlen = (len+addlen);
-    #ifndef NDEBUG
-        size_t reqlen = newlen = (len+addlen);
-    #endif
+    reqlen = newlen = (len+addlen);
     if (newlen < SDS_MAX_PREALLOC)
         newlen *= 2;
     else
@@ -363,7 +361,8 @@ sds sdsMakeRoomFor(sds s, size_t addlen) {
     if (type == SDS_TYPE_5) type = SDS_TYPE_8;
 
     hdrlen = sdsHdrSize(type);
-    assert(hdrlen + newlen + 1 > reqlen); /* Catch size_t overflow */
+    if (hdrlen + newlen + 1 <= reqlen) /* Catch size_t overflow */
+        abort();
     if (oldtype==type) {
         newsh = s_realloc(sh, hdrlen+newlen+1);
         if (newsh == NULL) return NULL;
