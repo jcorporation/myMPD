@@ -99,14 +99,14 @@ void mympd_client_scrobble(struct t_mympd_state *mympd_state, struct t_partition
         readable_time(fmt_time, time(NULL));
         MYMPD_LOG_DEBUG(partition_state->name, "Song scrobble time reached: %s", fmt_time);
     #endif
-    //add song to the last_played list
+    // Add song to the last_played list
     mympd_api_last_played_add_song(partition_state, mympd_state->last_played_count);
     // set stickers
     if (partition_state->mpd_state->feat.stickers == true) {
         stickerdb_inc_play_count(mympd_state->stickerdb, STICKER_TYPE_SONG,
             mpd_song_get_uri(partition_state->song), partition_state->song_start_time);
     }
-    // scrobble event
+    // Scrobble event
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE, partition_state->name, NULL);
 }
 
