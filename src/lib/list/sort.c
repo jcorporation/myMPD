@@ -188,7 +188,7 @@ static void split_list_half(struct t_list_node* source, struct t_list_node** fro
 
 /**
  * Merge Sort function
- * @param headRef Reference to head pointer
+ * @param head_ref Reference to head pointer
  * @param direction Sort direction
  * @param sort_cb Sort callback
  */
