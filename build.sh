@@ -324,7 +324,7 @@ lualibs() {
   cat contrib/lualibs/mympd/80-tmpvar.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/99-end.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   echo "Compiling lua libraries"
-  LUAC=$(command -v luac5.4 2> /dev/null || command -v luac5.3 2> /dev/null || command -v luac 2> /dev/null || true)
+  LUAC=$(command -v luac5.4 2> /dev/null || command -v luac 2> /dev/null || true)
   if [ -z "$LUAC" ]
   then
     echo_error "luac not found"
@@ -856,20 +856,15 @@ installdeps() {
   echo "Platform: $(uname -m)"
   if [ -f /etc/debian_version ]
   then
-    apt-get update
-    if ! apt-get install -y --no-install-recommends liblua5.4-dev lua5.4
-    then
-      #fallback to lua 5.3 for older debian versions
-      apt-get install -y --no-install-recommends liblua5.3-dev lua5.3
-    fi
     apt-get install -y --no-install-recommends \
-      gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
+      gcc cmake perl libssl-dev libid3tag0-dev libflac-dev liblua5.4-dev lua5.4 \
       build-essential pkg-config libpcre2-dev gzip jq whiptail \
       libutf8proc-dev
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq libnewt libutf8proc
+    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 \
+      gzip jq libnewt libutf8proc
   elif [ -f /etc/alpine-release ]
   then
     #alpine
@@ -891,14 +886,15 @@ installdeps() {
     echo "You should manually install:"
     echo "  - gcc or clang"
     echo "  - cmake"
+    echo "  - pkgconfig"
     echo "  - perl"
     echo "  - gzip"
     echo "  - jq"
-    echo "  - whiptail"
+    echo "  - whiptail / newt"
     echo "  - openssl (devel)"
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
-    echo "  - liblua5.4 or liblua5.3 (devel)"
+    echo "  - liblua5.4 (devel)"
     echo "  - libpcre2 (devel)"
     echo "  - utf8proc (devel)"
   fi
