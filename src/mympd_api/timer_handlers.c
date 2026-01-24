@@ -18,6 +18,7 @@
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/list/list.h"
 #include "src/lib/log.h"
+#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/mympd_api/requests.h"
 #include "src/mympd_client/errorhandler.h"
@@ -38,6 +39,7 @@ static void timer_handler_cache_disk_crop(void);
 static void timer_handler_smartpls_update(void);
 static void timer_handler_caches_create(void);
 static void timer_handler_webradiodb_update(void);
+static void timer_handler_state_save(struct t_mympd_state *mympd_state);
 
 /**
  * Public functions
@@ -58,6 +60,8 @@ const char *get_timer_name(unsigned timer_id) {
             return "TIMER_ID_CACHES_CREATE";
         case TIMER_ID_WEBRADIODB_UPDATE:
             return "TIMER_ID_WEBRADIODB_UPDATE";
+        case TIMER_ID_STATE_SAVE:
+            return "TIMER_ID_STATE_SAVE";
     }
     return "TIMER_ID_USER_DEFINED";
 }
@@ -66,8 +70,9 @@ const char *get_timer_name(unsigned timer_id) {
  * Handles timer by timer_id, this is only used for internal timers
  * @param timer_id the internal timer_id from enum timer_ids
  * @param definition the timer definition - not used
+ * @param mympd_state Pointer to mympd_state
  */
-void timer_handler_by_id(unsigned timer_id, struct t_timer_definition *definition) {
+void timer_handler_by_id(enum timer_ids timer_id, struct t_timer_definition *definition, struct t_mympd_state *mympd_state) {
     (void) definition; // not used
     switch(timer_id) {
         case TIMER_ID_DISK_CACHE_CROP:
@@ -82,8 +87,9 @@ void timer_handler_by_id(unsigned timer_id, struct t_timer_definition *definitio
         case TIMER_ID_WEBRADIODB_UPDATE:
             timer_handler_webradiodb_update();
             break;
-        default:
-            MYMPD_LOG_WARN(NULL, "Unhandled timer_id");
+        case TIMER_ID_STATE_SAVE:
+            timer_handler_state_save(mympd_state);
+            break;
     }
 }
 
@@ -91,8 +97,10 @@ void timer_handler_by_id(unsigned timer_id, struct t_timer_definition *definitio
  * Handles user defined timers
  * @param timer_id the timer id
  * @param definition the timer definition
+ * @param mympd_state Pointer to mympd_state
  */
-void timer_handler_select(unsigned timer_id, struct t_timer_definition *definition) {
+void timer_handler_select(unsigned timer_id, struct t_timer_definition *definition, struct t_mympd_state *mympd_state) {
+    (void) mympd_state;
     MYMPD_LOG_INFO(definition->partition, "Start timer_handler_select for timer \"%s\" (%u)", definition->name, timer_id);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
         struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_PLAYER_STOP, "", definition->partition);
@@ -260,4 +268,17 @@ static void timer_handler_webradiodb_update(void) {
     request->data = sdscat(request->data, "\"force\":false}}"); //only update if webradiodb is older than one day
     request->data = jsonrpc_end(request->data);
     push_request(request, 0);
+}
+
+/**
+ * Timer handler for timer_id TIMER_ID_STATE_SAVE
+ * @param mympd_state Pointer to mympd_state
+ */
+static void timer_handler_state_save(struct t_mympd_state *mympd_state) {
+    MYMPD_LOG_INFO(NULL, "Start timer_handler_state_save");
+    mympd_state_save(mympd_state, false);
+    #ifdef MYMPD_ENABLE_LUA
+        struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, "", MPD_PARTITION_DEFAULT);
+        mympd_queue_push(script_queue, request, 0);
+    #endif
 }

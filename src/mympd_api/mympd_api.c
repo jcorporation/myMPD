@@ -140,7 +140,11 @@ void *mympd_api_loop(void *arg_config) {
             }
         }
         // Iterate through mpd partitions and handle the events
-        mympd_client_idle(mympd_state, request);
+        if (mympd_client_idle(mympd_state, request) == true) {
+            // myMPD is active - add an uniq timer to save the state
+            mympd_api_timer_add_uniq(&mympd_state->timer_list, TIMER_DISK_STATE_SAVE_OFFSET, -1,
+                timer_handler_by_id, TIMER_ID_STATE_SAVE, NULL);
+        }
     }
     MYMPD_LOG_DEBUG(NULL, "Stopping mympd_api thread");
 
@@ -175,7 +179,7 @@ static void handle_socket_pollin(struct t_mympd_state *mympd_state, nfds_t i, st
             // generic myMPD timer
             MYMPD_LOG_DEBUG(NULL, "Timer event");
             if (mympd_timer_read(mympd_state->pfds.fds[i].fd) == true) {
-                mympd_api_timer_check(mympd_state->pfds.fds[i].fd, &mympd_state->timer_list);
+                mympd_api_timer_check(mympd_state->pfds.fds[i].fd, &mympd_state->timer_list, mympd_state);
             }
             break;
         case PFD_TYPE_STICKERDB:

@@ -55,9 +55,10 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
  * Checks the timer event and executes the callback function
  * @param fd fd with POLLIN event
  * @param timer_list timer list
+ * @param mympd_state Pointer to mympd_state
  * @return true on success, else false
  */
-bool mympd_api_timer_check(int fd, struct t_timer_list *timer_list) {
+bool mympd_api_timer_check(int fd, struct t_timer_list *timer_list, struct t_mympd_state *mympd_state) {
     struct t_list_node *current = get_timer_from_fd(timer_list, fd);
     if (current == NULL) {
         MYMPD_LOG_ERROR(NULL, "Could not get timer from fd");
@@ -67,7 +68,7 @@ bool mympd_api_timer_check(int fd, struct t_timer_list *timer_list) {
     if (current_timer->definition != NULL) {
         //user defined timers
         if (current_timer->definition->enabled == false) {
-            MYMPD_LOG_DEBUG(NULL, "Skipping timer with id %" PRId64 ", not enabled", current->value_i);
+            MYMPD_LOG_DEBUG(NULL, "Skipping timer TIMER_ID_USER_DEFINED with id %" PRId64 ", not enabled", current->value_i);
             return false;
         }
         time_t t = time(NULL);
@@ -79,26 +80,26 @@ bool mympd_api_timer_check(int fd, struct t_timer_list *timer_list) {
         int wday = now.tm_wday;
         wday = wday > 0 ? wday - 1 : 6;
         if (current_timer->definition->weekdays[wday] == false) {
-            MYMPD_LOG_DEBUG(NULL, "Skipping timer with id %" PRId64 ", not enabled on this weekday", current->value_i);
+            MYMPD_LOG_DEBUG(NULL, "Skipping timer TIMER_ID_USER_DEFINED with id %" PRId64 ", not enabled on this weekday", current->value_i);
             return false;
         }
     }
     //execute callback function
-    MYMPD_LOG_DEBUG(NULL, "Timer with id %" PRId64 " triggered", current->value_i);
+    MYMPD_LOG_DEBUG(NULL, "Timer %s with id %" PRId64 " triggered", get_timer_name((unsigned)current->value_i), current->value_i);
     if (current_timer->callback) {
-        current_timer->callback((unsigned)current->value_i, current_timer->definition);
+        current_timer->callback((unsigned)current->value_i, current_timer->definition, mympd_state);
     }
     //handle one shot timers
     if (current_timer->interval == TIMER_ONE_SHOT_DISABLE &&
         current_timer->definition != NULL)
     {
         //user defined "one shot and disable" timers
-        MYMPD_LOG_DEBUG(NULL, "One shot timer disabled: %" PRId64, current->value_i);
+        MYMPD_LOG_DEBUG(NULL, "One shot timer %s with id %" PRId64 " is now disabled", get_timer_name((unsigned)current->value_i), current->value_i);
         current_timer->definition->enabled = false;
     }
     else if (current_timer->interval <= TIMER_ONE_SHOT_REMOVE) {
         //"one shot and remove" timers
-        MYMPD_LOG_DEBUG(NULL, "One shot timer removed: %" PRId64, current->value_i);
+        MYMPD_LOG_DEBUG(NULL, "One shot timer %s with id %" PRId64 " is now removed", get_timer_name((unsigned)current->value_i), current->value_i);
         mympd_api_timer_remove(timer_list, (unsigned)current->value_i);
     }
     return true;
@@ -173,6 +174,31 @@ bool mympd_api_timer_replace(struct t_timer_list *l, int timeout, int interval, 
     mympd_api_timer_remove(l, timer_id);
     return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition) &&
         list_sort_by_key(&l->list, LIST_SORT_ASC);
+}
+
+/**
+ * Adds a timer with given timer_id only if timer_id is not already added
+ * @param l timer list
+ * @param timeout seconds when timer will run (offset from now)
+ * @param interval reschedule timer interval
+ * @param handler timer callback function
+ * @param timer_id id of the timer
+ * @param definition pointer to timer definition (GUI) or NULL
+ * @return true on success, else false
+ */
+bool mympd_api_timer_add_uniq(struct t_timer_list *l, int timeout, int interval, timer_handler handler,
+        unsigned timer_id, struct t_timer_definition *definition)
+{
+    struct t_list_node *current = l->list.head;
+    while (current != NULL) {
+        if (current->value_i == timer_id) {
+            MYMPD_LOG_DEBUG(NULL, "Timer %s with id %u already added", get_timer_name(timer_id), timer_id);
+            return true;
+        }
+        current = current->next;
+    }
+    MYMPD_LOG_DEBUG(NULL, "Adding timer %s with id %u", get_timer_name(timer_id), timer_id);
+    return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition);
 }
 
 /**
