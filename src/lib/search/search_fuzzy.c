@@ -46,7 +46,7 @@ bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
     const size_t max_distance = needle_len < 10
         ? 1
         : (needle_len / 10) + 1;
-    size_t *cache = calloc(haystack_len + 1, sizeof(size_t));
+    size_t *cache = calloc(needle_len + 1, sizeof(size_t));
     const char *p = haystack;
     while (*p != '\0' &&
            haystack_len >= needle_len)
