@@ -119,6 +119,7 @@ read_config() {
     [ -f "${CONFIG_DIR}/jukebox_queue_length_song_min" ] && read -r MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN < "${CONFIG_DIR}/jukebox_queue_length_song_min"
     [ -f "${CONFIG_DIR}/plist_len_max" ] && read -r MYMPD_PLIST_LEN_MAX < "${CONFIG_DIR}/plist_len_max"
     [ -f "${CONFIG_DIR}/smartpls_per_tag_value_max" ] && read -r MYMPD_SMARTPLS_PER_TAG_VALUE_MAX < "${CONFIG_DIR}/smartpls_per_tag_value_max"
+    [ -f "${CONFIG_DIR}/state_save" ] && read -r MYMPD_STATE_SAVE < "${CONFIG_DIR}/state_save"
 }
 
 apply_config() {
@@ -158,6 +159,7 @@ apply_config() {
             -E MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN="$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN" \
             -E MYMPD_PLIST_LEN_MAX="$MYMPD_PLIST_LEN_MAX" \
             -E MYMPD_SMARTPLS_PER_TAG_VALUE_MAX="$MYMPD_SMARTPLS_PER_TAG_VALUE_MAX" \
+            -E MYMPD_STATE_SAVE="$MYMPD_STATE_SAVE" \
             $MYMPD_BIN -c
     else
         export MYMPD_ACL
@@ -193,6 +195,7 @@ apply_config() {
         export MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN
         export MYMPD_PLIST_LEN_MAX
         export MYMPD_SMARTPLS_PER_TAG_VALUE_MAX
+        export MYMPD_STATE_SAVE
         $MYMPD_BIN -c
     fi
 }
@@ -321,6 +324,7 @@ menu_misc() {
         "Jukebox song min. queue length" "$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN" \
         "MPD max. playlist length" "$MYMPD_PLIST_LEN_MAX" \
         "Max. number of tag values for automatic smartpls creation" "$MYMPD_SMARTPLS_PER_TAG_VALUE_MAX" \
+        "Save myMPD state regularly" "$MYMPD_STATE_SAVE" \
         3>&1 1>&2 2>&3)
     case "$SELECT" in
         "Album group tag") MYMPD_ALBUM_GROUP_TAG=$(get_input "$SELECT" "$MYMPD_ALBUM_GROUP_TAG") ;;
@@ -342,6 +346,7 @@ menu_misc() {
         "Jukebox song min. queue length") MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN=$(get_input "$SELECT" "$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN") ;;
         "MPD max. playlist length") MYMPD_PLIST_LEN_MAX=$(get_input "$SELECT" "$MYMPD_PLIST_LEN_MAX") ;;
         "Max. number of tag values for automatic smartpls creation") MYMPD_SMARTPLS_PER_TAG_VALUE_MAX=$(get_input "$SELECT" "$MYMPD_SMARTPLS_PER_TAG_VALUE_MAX") ;;
+        "Save myMPD state regularly") MYMPD_STATE_SAVE=$(toggle_bool "$MYMPD_STATE_SAVE") ;;
         "") return ;;
     esac
     menu_misc
@@ -403,6 +408,7 @@ parse_options() {
             MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN) MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN="$2" ;;
             MYMPD_PLIST_LEN_MAX) MYMPD_PLIST_LEN_MAX="$2" ;;
             MYMPD_SMARTPLS_PER_TAG_VALUE_MAX) MYMPD_SMARTPLS_PER_TAG_VALUE_MAX="$2" ;;
+            MYMPD_STATE_SAVE) MYMPD_STATE_SAVE="$2" ;;
             *)
                 echo "Invalid configuration setting"
                 exit 1
