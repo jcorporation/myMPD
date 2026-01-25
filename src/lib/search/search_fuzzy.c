@@ -98,8 +98,12 @@ static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_l
             olddiag = cache[a_idx];
             cache[a_idx] = MIN3(cache[a_idx] + 1, cache[a_idx - 1] + 1, lastdiag + (a[a_idx - 1] == b[b_idx - 1] ? 0 : 1));
             lastdiag = olddiag;
+            // Check if distance is too high to become lower equal the max distance value in the remaining iterations
+            if (cache[a_idx] > a_len - a_idx + max_distance) {
+                break;
+            }
         }
-        // This is good enough
+        // We do not require the minimum distance, a distance lower equal the max distance is good enough
         if (cache[a_len] <= max_distance) {
             //MYMPD_LOG_DEBUG(NULL, "levenshtein return early %lu/%lu: %.*s - %.*s", x, b_len, (int)a_len, a, (int)b_len, b);
             return cache[a_len];
