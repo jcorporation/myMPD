@@ -24,7 +24,8 @@
  */
 pcre2_code *mympd_search_pcre_compile(sds regex_str) {
     MYMPD_LOG_DEBUG(NULL, "Compiling regex: \"%s\"", regex_str);
-    char *regex_utf8 = utf8_wrap_casefold(regex_str, sdslen(regex_str));
+    size_t new_len;
+    char *regex_utf8 = utf8_wrap_casefold(regex_str, sdslen(regex_str), &new_len);
     PCRE2_SIZE erroroffset;
     int rc;
     pcre2_code *re_compiled = pcre2_compile(
@@ -48,10 +49,11 @@ pcre2_code *mympd_search_pcre_compile(sds regex_str) {
 /**
  * Matches the regex against a string
  * @param re_compiled the compiled regex from compile_regex
- * @param value string to match against
+ * @param value String value to match against
+ * @param value_len Value length
  * @return true if regex matches else false
  */
-bool mympd_search_pcre_match(pcre2_code *re_compiled, const char *value) {
+bool mympd_search_pcre_match(const char *value, size_t value_len, pcre2_code *re_compiled) {
     if (re_compiled == NULL) {
         return false;
     }
@@ -59,7 +61,7 @@ bool mympd_search_pcre_match(pcre2_code *re_compiled, const char *value) {
     int rc = pcre2_match(
         re_compiled,          /* the compiled pattern */
         (PCRE2_SPTR)value,    /* the subject string */
-        strlen(value),        /* the length of the subject */
+        value_len,            /* the length of the subject */
         0,                    /* start at offset 0 in the subject */
         0,                    /* default options */
         match_data,           /* block for storing the result */

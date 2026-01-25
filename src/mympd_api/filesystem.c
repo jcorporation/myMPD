@@ -69,8 +69,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
     sds key = sdsempty();
     rax *entity_list = raxNew();
     unsigned real_limit = offset + limit;
-    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr));
-    size_t searchstr_len = strlen(searchstr_utf8);
+    size_t searchstr_len;
+    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr), &searchstr_len);
 
     if (mpd_send_list_meta(partition_state->conn, path)) {
         struct mpd_entity *entity;
@@ -238,7 +238,8 @@ static void free_t_dir_entry(void *data) {
 static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity,
         const char *searchstr, size_t searchstr_len)
 {
-    char *value_utf8 = utf8_wrap_normalize(entity_name, sdslen(entity_name));
+    size_t newlen;
+    char *value_utf8 = utf8_wrap_normalize(entity_name, sdslen(entity_name), &newlen);
 
     if (searchstr_len == 0 ||
         strstr(value_utf8, searchstr) != NULL)

@@ -299,11 +299,13 @@ sds mympd_api_sticker_names(struct t_stickerdb_state *stickerdb, sds buffer, uns
     buffer = sdscat(buffer,"\"data\":[");
     struct t_list_node *current = sticker_names.head;
     unsigned entities_returned = 0;
-    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr));
+    size_t searchstr_len;
+    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr), &searchstr_len);
     while (current != NULL) {
-        char *value_utf8 = utf8_wrap_normalize(current->key, sdslen(current->key));
+        size_t value_len;
+        char *value_utf8 = utf8_wrap_normalize(current->key, sdslen(current->key), &value_len);
         if (sticker_name_parse(current->key) == STICKER_UNKNOWN &&
-            (sdslen(searchstr) == 0 ||
+            (searchstr_len == 0 ||
              strstr(value_utf8, searchstr_utf8) != NULL))
         {
             if (entities_returned++) {

@@ -79,6 +79,8 @@ static sds expr_get_value(const char *p, const char *end, int tag, sds buf, bool
 static bool expr_parse_value(struct t_search_expression *expr);
 static void *free_search_expression_struct(struct t_search_expression *expr);
 static void free_search_expression_node(struct t_list_node *current);
+static bool match_tag(const char *value, size_t value_len, struct t_search_expression *expr);
+static bool exit_search_loop(bool rc, struct t_search_expression *expr);
 
 /**
  * Public functions
@@ -145,8 +147,7 @@ struct t_list *search_expression_parse(const char *expression, enum search_type 
             expr_list = NULL;
             break;
         }
-        expr->value_utf8 = utf8_wrap_normalize(expr->value, sdslen(expr->value));
-        expr->value_utf8_len = strlen(expr->value_utf8);
+        expr->value_utf8 = utf8_wrap_normalize(expr->value, sdslen(expr->value), &expr->value_utf8_len);
         list_push(expr_list, "", 0, NULL, expr);
         MYMPD_LOG_DEBUG(NULL, "Parsed expression tag: \"%d\", op: \"%d\", value:\"%s\"", expr->tag, expr->op, expr->value);
     }
@@ -163,47 +164,6 @@ void search_expression_free(struct t_list *expr_list) {
         return;
     }
     list_free_user_data(expr_list, free_search_expression_node);
-}
-
-/**
- * Search expression matching against a tag value
- * @param value_utf8 Value to match search expression against
- * @param expr Search expression
- * @return true if search expression matches, else false
- */
-static bool match_tag(const char *value_utf8, struct t_search_expression *expr) {
-    switch (expr->op) {
-        case SEARCH_OP_CONTAINS:    return strstr(value_utf8, expr->value_utf8) != NULL;
-        case SEARCH_OP_STARTS_WITH: return strncmp(expr->value_utf8, expr->value_utf8, expr->value_utf8_len) == 0;
-        case SEARCH_OP_EQUAL:       return strcmp(value_utf8, expr->value_utf8) == 0;
-        case SEARCH_OP_REGEX:       return mympd_search_pcre_match(expr->re_compiled, value_utf8);
-        case SEARCH_OP_FUZZY:       return mympd_search_fuzzy_match(value_utf8, expr->value_utf8);
-        case SEARCH_OP_NOT_EQUAL:   return strcmp(value_utf8, expr->value_utf8) != 0;
-        case SEARCH_OP_NOT_REGEX:   return mympd_search_pcre_match(expr->re_compiled, value_utf8) == false;
-        default:                    return false;
-    }
-}
-
-/**
- * Determines if the search loop can end
- * @param rc Result of match_tag function
- * @param expr Search expression
- * @return true if search loop can be prematurely exited, else false
- */
-static bool exit_search_loop(bool rc, struct t_search_expression *expr) {
-    if (expr->op != SEARCH_OP_NOT_EQUAL &&
-        expr->op != SEARCH_OP_NOT_REGEX)
-    {
-        //exit on first match
-        if (rc == true) {
-            return true;
-        }
-    }
-    else if (rc == false) {
-        //exit on first mismatch
-        return true;
-    }
-    return false;
 }
 
 /**
@@ -259,10 +219,11 @@ bool search_expression_song(const struct mpd_song *song, const struct t_list *ex
                     unsigned value_count = 0;
                     const char *value = NULL;
                     char *value_utf8 = NULL;
+                    size_t value_utf8_len;
                     while ((value = mpd_song_get_tag(song, tags->tags[tag_count], value_count)) != NULL) {
-                        value_utf8 = utf8_wrap_normalize(value, strlen(value));
+                        value_utf8 = utf8_wrap_normalize(value, strlen(value), &value_utf8_len);
                         value_count++;
-                        rc = match_tag(value_utf8, expr);
+                        rc = match_tag(value_utf8, value_utf8_len, expr);
                         if (exit_search_loop(rc, expr) == true) {
                             FREE_PTR(value_utf8);
                             break;
@@ -333,10 +294,11 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
                     unsigned value_count = 0;
                     const char *value = NULL;
                     char *value_utf8 = NULL;
+                    size_t value_utf8_len;
                     while ((value = album_get_tag(album, tags->tags[tag_count], value_count)) != NULL) {
-                        value_utf8 = utf8_wrap_normalize(value, strlen(value));
+                        value_utf8 = utf8_wrap_normalize(value, strlen(value), &value_utf8_len);
                         value_count++;
-                        rc = match_tag(value_utf8, expr);
+                        rc = match_tag(value_utf8, value_utf8_len, expr);
                         if (exit_search_loop(rc, expr) == true) {
                             FREE_PTR(value_utf8);
                             break;
@@ -406,10 +368,11 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
                     unsigned value_count = 0;
                     const char *value = NULL;
                     char *value_utf8 = NULL;
+                    size_t value_utf8_len;
                     while ((value = webradio_get_tag(webradio, tags->tags[tag_count], value_count)) != NULL) {
-                        value_utf8 = utf8_wrap_normalize(value, strlen(value));
+                        value_utf8 = utf8_wrap_normalize(value, strlen(value), &value_utf8_len);
                         value_count++;
-                        rc = match_tag(value_utf8, expr);
+                        rc = match_tag(value_utf8, value_utf8_len, expr);
                         if (exit_search_loop(rc, expr) == true) {
                             FREE_PTR(value_utf8);
                             break;
@@ -441,6 +404,48 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
 /**
  * Private functions
  */
+
+/**
+ * Search expression matching against a tag value
+ * @param value Value to match search expression against
+ * @param value_len Value length
+ * @param expr Search expression
+ * @return true if search expression matches, else false
+ */
+static bool match_tag(const char *value, size_t value_len, struct t_search_expression *expr) {
+    switch (expr->op) {
+        case SEARCH_OP_CONTAINS:    return strstr(value, expr->value_utf8) != NULL;
+        case SEARCH_OP_STARTS_WITH: return strncmp(value, expr->value_utf8, expr->value_utf8_len) == 0;
+        case SEARCH_OP_EQUAL:       return strcmp(value, expr->value_utf8) == 0;
+        case SEARCH_OP_REGEX:       return mympd_search_pcre_match(value, value_len, expr->re_compiled);
+        case SEARCH_OP_FUZZY:       return mympd_search_fuzzy_match(value, value_len, expr->value_utf8, expr->value_utf8_len);
+        case SEARCH_OP_NOT_EQUAL:   return strcmp(value, expr->value_utf8) != 0;
+        case SEARCH_OP_NOT_REGEX:   return mympd_search_pcre_match(value, value_len, expr->re_compiled) == false;
+        default:                    return false;
+    }
+}
+
+/**
+ * Determines if the search loop can end
+ * @param rc Result of match_tag function
+ * @param expr Search expression
+ * @return true if search loop can be prematurely exited, else false
+ */
+static bool exit_search_loop(bool rc, struct t_search_expression *expr) {
+    if (expr->op != SEARCH_OP_NOT_EQUAL &&
+        expr->op != SEARCH_OP_NOT_REGEX)
+    {
+        //exit on first match
+        if (rc == true) {
+            return true;
+        }
+    }
+    else if (rc == false) {
+        //exit on first mismatch
+        return true;
+    }
+    return false;
+}
 
 /**
  * Extracts the tag from a song search expression

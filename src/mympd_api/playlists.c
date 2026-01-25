@@ -520,7 +520,6 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_LIST;
     rax *entity_list = raxNew();
-    size_t search_len = sdslen(searchstr);
     unsigned real_limit = offset + limit;
     sds key = sdsempty();
 
@@ -530,15 +529,17 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
             : false;
     }
 
-    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr));
+    size_t searchstr_len;
+    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr), &searchstr_len);
 
     if (mpd_send_list_playlists(partition_state->conn)) {
         struct mpd_playlist *pl;
         while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
-            char *value_utf8 = utf8_wrap_normalize(plpath, strlen(plpath));
+            size_t value_len;
+            char *value_utf8 = utf8_wrap_normalize(plpath, strlen(plpath), &value_len);
             bool smartpls = is_smartpls(partition_state->config->workdir, plpath);
-            if ((search_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) &&
+            if ((searchstr_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) &&
                 (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
             {
                 struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
@@ -578,8 +579,9 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                 if (next_file->d_type != DT_REG) {
                     continue;
                 }
-                char *value_utf8 = utf8_wrap_normalize(next_file->d_name, strlen(next_file->d_name));
-                if (search_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) {
+                size_t value_len;
+                char *value_utf8 = utf8_wrap_normalize(next_file->d_name, strlen(next_file->d_name), &value_len);
+                if (searchstr_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) {
                     struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
                     data->last_modified = smartpls_get_mtime(partition_state->config->workdir, next_file->d_name);
                     data->type = PLTYPE_SMARTPLS_ONLY;

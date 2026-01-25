@@ -28,15 +28,17 @@
 /**
  * Fuzzy substring matching using the levenshtein distance
  * @param haystack Haystack
+ * @param haystack_len Haystack length
  * @param needle Needle
+ * @param needle_len Needle length
  * @return true on match, else false
  */
-bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
-    const size_t needle_len = strlen(needle);
+bool mympd_search_fuzzy_match(const char *haystack, size_t haystack_len,
+        const char *needle, size_t needle_len)
+{
     if (needle_len <= 1) {
         return true;
     }
-    size_t haystack_len = strlen(haystack);
     if (needle_len > haystack_len) {
         return false;
     }
