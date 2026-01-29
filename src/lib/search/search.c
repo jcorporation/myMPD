@@ -56,7 +56,7 @@ enum search_filters {
     SEARCH_FILTER_BITRATE = -6,
     SEARCH_FILTER_BASE = -7,
     SEARCH_FILTER_PRIO = -8,
-    SEARCH_FILTER_AUDIO_FORMAT = -9
+    SEARCH_FILTER_AUDIO_FORMAT = -9,
 };
 
 /**
