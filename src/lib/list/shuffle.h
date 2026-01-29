@@ -16,5 +16,6 @@
 struct t_list;
 
 bool list_shuffle(struct t_list *l);
+bool list_shuffle2(struct t_list *l);
 
 #endif

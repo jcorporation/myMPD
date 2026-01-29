@@ -14,6 +14,7 @@ This is the first release that supports only MPD 0.23.5 and higher and Lua 5.4.x
 
 - Feat: Use myGPIOd REST-API #1510
 - Feat: Implement merge sort for linked lists
+- Feat: Use a faster algorithm for shuffling linked lists
 - Feat: Regularly save the myMPD state if myMPD is active
 - Upd: Bump requirement for MPD and Lua versions
 - Upd: Search and utf8 handling improvements

@@ -12,13 +12,8 @@
 #include "src/lib/list/shuffle.h"
 
 #include "src/lib/list/list.h"
+#include "src/lib/mem.h"
 #include "src/lib/random.h"
-
-// Private definitions
-
-static bool swap_nodes(struct t_list_node *n1, struct t_list_node *n2);
-
-// Public functions
 
 /**
  * Shuffles the list.
@@ -27,48 +22,39 @@ static bool swap_nodes(struct t_list_node *n1, struct t_list_node *n2);
  */
 bool list_shuffle(struct t_list *l) {
     if (l->length < 2) {
-        return false;
+        return true;
     }
+    // Convert linked list to array for faster shuffling
+    struct t_list_node **node_array = (struct t_list_node **)malloc_assert(l->length * sizeof(struct t_list_node *));
     struct t_list_node *current = l->head;
-    while (current != NULL) {
-        unsigned pos = randrange(0, l->length);
-        swap_nodes(current, list_node_at(l, pos));
+    for (unsigned i = 0; i < l->length; i++) {
+        node_array[i] = current;
         current = current->next;
     }
-    return true;
-}
 
+    // Fisher-Yates shuffle
+    for (unsigned i = l->length - 1; i > 0; i--) {
+        // Generate a random number between 0 and i (inclusive)
+        unsigned j = randrange(0, i + 1);
 
-// Private functions
-
-/**
- * Swaps two list nodes values.
- * @param n1 first node
- * @param n2 second node
- * @return true on success, else false
- */
-static bool swap_nodes(struct t_list_node *n1, struct t_list_node *n2) {
-    if (n1 == n2 ||
-        n1 == NULL ||
-        n2 == NULL)
-    {
-        return false;
+        // Swap nodes
+        struct t_list_node *temp = node_array[i];
+        node_array[i] = node_array[j];
+        node_array[j] = temp;
     }
 
-    sds key = n2->key;
-    int64_t value_i = n2->value_i;
-    sds value_p = n2->value_p;
-    void *user_data = n2->user_data;
+    // Reconstruct the linked list
+    for (unsigned i = 0; i < l->length - 1; i++) {
+        node_array[i]->next = node_array[i + 1];
+    }
 
-    n2->key = n1->key;
-    n2->value_i = n1->value_i;
-    n2->value_p = n1->value_p;
-    n2->user_data = n1->user_data;
+    // Update head and tail
+    l->head = node_array[0];
+    l->tail = node_array[l->length - 1];
+    l->tail->next = NULL;
 
-    n1->key = key;
-    n1->value_i = value_i;
-    n1->value_p = value_p;
-    n1->user_data = user_data;
+    // Free temporary array
+    free(node_array);
 
     return true;
 }
