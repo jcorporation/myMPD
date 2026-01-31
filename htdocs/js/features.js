@@ -23,7 +23,6 @@ function setFeatures() {
     features.featFooterNotifications = settings.webuiSettings.footerNotifications;
     features.featSession = settings.pin;
     features.featFooterAudioFormat = settings.webuiSettings.footerAudioFormat;
-    features.featMygpiod = settings.features.featMygpiod;
     features.featWebradioDB = settings.features.featWebradioDB;
     features.viewTitle = settings.webuiSettings.viewTitles;
     //stickers config value

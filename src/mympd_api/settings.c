@@ -1110,8 +1110,15 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_bool(buffer, "featStickersEnabled", mympd_state->config->stickers, true);
     buffer = tojson_bool(buffer, "featWebradioDB", partition_state->config->webradiodb, true);
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
+    // compile time options
+    #ifdef MYMPD_ENABLE_LUA
+        buffer = tojson_bool(buffer, "featScripting", true, false);
+    #else
+        buffer = tojson_bool(buffer, "featScripting", false, false);
+    #endif
+    // MPD feature detection
     if (partition_state->conn_state == MPD_CONNECTED) {
-        // feature detection
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = tojson_bool(buffer, "featPlaylists", partition_state->mpd_state->feat.playlists, true);
         buffer = tojson_bool(buffer, "featTags", partition_state->mpd_state->feat.tags, true);
         buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat.library, true);
@@ -1128,17 +1135,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featDbAdded", partition_state->mpd_state->feat.db_added, true);
         buffer = tojson_bool(buffer, "featStringnormalization", partition_state->mpd_state->feat.mpd_0_25_0, true);
     }
-    // compile time options
-    #ifdef MYMPD_ENABLE_MYGPIOD
-        buffer = tojson_bool(buffer, "featMygpiod", true, true);
-    #else
-        buffer = tojson_bool(buffer, "featMygpiod", false, true);
-    #endif
-    #ifdef MYMPD_ENABLE_LUA
-        buffer = tojson_bool(buffer, "featScripting", true, false);
-    #else
-        buffer = tojson_bool(buffer, "featScripting", false, false);
-    #endif
     buffer = sdscatlen(buffer, "}", 1);
     if (partition_state->conn_state == MPD_CONNECTED) {
         buffer = sdscatlen(buffer, ",", 1);
