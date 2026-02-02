@@ -20,7 +20,8 @@
 #include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 

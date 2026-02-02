@@ -17,7 +17,7 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/mimetype.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/webserver/placeholder.h"
 #include "src/webserver/response.h"
 #include "src/webserver/utility.h"

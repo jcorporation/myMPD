@@ -13,7 +13,8 @@
 
 #include "src/lib/api.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_url.h"
 #include "src/webserver/albumart.h"
 #include "src/webserver/mg_user_data.h"
 #include "src/webserver/placeholder.h"

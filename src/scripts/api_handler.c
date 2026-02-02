@@ -15,7 +15,7 @@
 #include "src/lib/json/json_query.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/scripts/api_scripts.h"
 #include "src/scripts/api_tmp.h"
 #include "src/scripts/api_vars.h"

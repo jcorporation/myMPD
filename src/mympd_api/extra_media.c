@@ -14,7 +14,9 @@
 #include "src/lib/json/json_print.h"
 #include "src/lib/log.h"
 #include "src/lib/mimetype.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
+#include "src/lib/sds/sds_json.h"
 #include "src/lib/utility.h"
 
 #include <dirent.h>

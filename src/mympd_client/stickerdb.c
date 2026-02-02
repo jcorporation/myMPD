@@ -16,7 +16,7 @@
 #include "src/lib/convert.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/lib/sticker.h"
 #include "src/lib/utility.h"
 #include "src/mympd_api/requests.h"

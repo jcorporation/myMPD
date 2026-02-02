@@ -14,7 +14,9 @@
 #include "src/lib/api.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_hash.h"
+#include "src/lib/sds/sds_url.h"
 #include "src/lib/utility.h"
 
 #include <string.h>

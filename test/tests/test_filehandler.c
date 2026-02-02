@@ -9,6 +9,7 @@
 
 #include "dist/utest/utest.h"
 #include "src/lib/filehandler.h"
+#include "src/lib/sds/sds_file.h"
 
 UTEST(filehandler, test_cleanup_rm_directory) {
     init_testenv();

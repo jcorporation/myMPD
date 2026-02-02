@@ -15,7 +15,8 @@
 #include "src/lib/config/config_def.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_url.h"
 #include "src/lib/utility.h"
 #include "src/webserver/response.h"
 

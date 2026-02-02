@@ -12,9 +12,9 @@
 #include "src/lib/http_client/http_client.h"
 
 #include "dist/mongoose/mongoose.h"
-#include "src/lib/filehandler.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 
 #include <errno.h>
 #include <inttypes.h>

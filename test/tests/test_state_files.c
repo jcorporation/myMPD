@@ -10,7 +10,7 @@
 #include "dist/utest/utest.h"
 #include "src/lib/config/state_files.h"
 #include "src/lib/filehandler.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 
 
 #include <sys/stat.h>

@@ -12,7 +12,7 @@
 #include "src/mympd_client/search.h"
 
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/tags.h"
 

@@ -13,7 +13,7 @@
 
 #include "src/lib/json/json_print.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 
 #include <FLAC/metadata.h>
 #include <assert.h>

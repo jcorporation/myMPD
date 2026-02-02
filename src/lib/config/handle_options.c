@@ -14,7 +14,7 @@
 #include "src/lib/config/config.h"
 #include "src/lib/config/config_def.h"
 #include "src/lib/config/pin.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/lib/utility.h"
 
 #include <getopt.h>

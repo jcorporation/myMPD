@@ -19,7 +19,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/mpdclient.h"
 #include "src/lib/msg_queue.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/lib/signal.h"
 #include "src/lib/thread.h"
 #include "src/mympd_api/mympd_api.h"
