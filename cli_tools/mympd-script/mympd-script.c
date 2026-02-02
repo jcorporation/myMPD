@@ -11,7 +11,9 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/http_client/http_client.h"
 #include "src/lib/list/list.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
+#include "src/lib/sds/sds_json.h"
 #include "cli_tools/log.h"
 
 #include <stdbool.h>

@@ -41,7 +41,12 @@ set(TEST_SOURCES
   ../src/lib/msg_queue.c
   ../src/lib/random.c
   ../src/lib/rax_extras.c
-  ../src/lib/sds_extras.c
+  ../src/lib/sds/sds_extras.c
+  ../src/lib/sds/sds_file.c
+  ../src/lib/sds/sds_hash.c
+  ../src/lib/sds/sds_json.c
+  ../src/lib/sds/sds_url.c
+  ../src/lib/sds/sds_utf8.c
   ../src/lib/search/search_fuzzy.c
   ../src/lib/search/search_pcre.c
   ../src/lib/search/search.c
@@ -194,10 +199,14 @@ list(APPEND test_categories
   "mimetype"
   "mympd_queue"
   "mympd_state"
-  "passwd"
   "radix_sort"
   "random"
   "sds_extras"
+  "sds_file"
+  "sds_hash"
+  "sds_json"
+  "sds_url"
+  "sds_utf8"
   "search_local"
   "state_files"
   "tags"

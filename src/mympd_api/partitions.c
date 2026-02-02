@@ -16,7 +16,7 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mympd_client/connection.h"
 #include "src/mympd_client/errorhandler.h"

@@ -14,7 +14,7 @@
 #include "src/lib/config/env.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/lib/validate.h"
 
 #include <inttypes.h>

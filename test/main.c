@@ -8,7 +8,7 @@
 
 #include "dist/utest/utest.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 
 #include <sys/stat.h>
 #include <unistd.h>

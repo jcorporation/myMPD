@@ -21,15 +21,29 @@ target_sources(mympd-script
     ../../src/lib/list/list.c
     ../../src/lib/mem.c
     ../../src/lib/random.c
-    ../../src/lib/sds_extras.c
+    ../../src/lib/sds/sds_extras.c
+    ../../src/lib/sds/sds_file.c
+    ../../src/lib/sds/sds_json.c
     ../../src/lib/utf8_wrapper.c
 )
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  target_sources(mympd-script
+    PRIVATE
+      ../../src/lib/utf8_wrapper.c
+  )
+endif()
 
 target_link_libraries(mympd-script
   sds
   mongoose
   ${OPENSSL_LIBRARIES}
-  ${UTF8PROC_LIBRARIES}
 )
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  target_link_libraries(mympd-script
+    ${UTF8PROC_LIBRARIES}
+  )
+endif()
 
 install(TARGETS mympd-script DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})

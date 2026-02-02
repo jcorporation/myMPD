@@ -12,7 +12,7 @@
 #include "src/lib/json/json_print.h"
 
 #include "src/lib/list/list.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_json.h"
 
 #include <math.h>
 #include <string.h>

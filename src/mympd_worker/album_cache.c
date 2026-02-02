@@ -18,7 +18,7 @@
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mympd_client/database.h"
 #include "src/mympd_client/errorhandler.h"

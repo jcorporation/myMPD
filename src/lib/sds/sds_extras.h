@@ -24,26 +24,11 @@
     SDS_PTR = NULL; \
 } while (0)
 
-sds sds_basename(sds s);
-sds sds_dirname(sds s);
 sds *sds_split_comma_trim(const char *p, int *count);
-sds sds_utf8_casefold(sds s);
-sds sds_utf8_normalize(sds s);
-sds sds_catjson_plain(sds s, const char *p, size_t len);
-sds sds_catjson(sds s, const char *p, size_t len);
-sds sds_catjsonchar(sds s, const char c);
 sds sds_catchar(sds s, const char c);
-bool sds_json_unescape(const char *src, size_t slen, sds *dst);
-sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded);
-sds sds_urlencode(sds s, const char *p, size_t len);
 sds sds_replacelen(sds s, const char *p, size_t len);
 sds sds_replace(sds s, const char *p);
 sds sds_catbool(sds s, bool v);
-sds sds_hash_md5(const char *p);
-sds sds_hash_sha1(const char *p);
-sds sds_hash_sha1_sds(sds s);
-sds sds_hash_sha256(const char *p);
-sds sds_hash_sha256_sds(sds s);
 sds sds_pad_int(int64_t value, sds buffer);
 void sds_free_void(void *p);
 

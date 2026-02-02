@@ -15,7 +15,7 @@
 #include "src/lib/datetime.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/lib/search/search_fuzzy.h"
 #include "src/lib/search/search_pcre.h"
 #include "src/lib/utf8_wrapper.h"

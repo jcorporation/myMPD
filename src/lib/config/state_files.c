@@ -14,7 +14,8 @@
 #include "src/lib/convert.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 

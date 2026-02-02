@@ -12,7 +12,7 @@
 #include "src/mympd_worker/state.h"
 
 #include "src/lib/mem.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 
 /**
  * Frees the mympd_worker_state struct

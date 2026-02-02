@@ -15,7 +15,7 @@
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mympd_api/sticker.h"
 #include "src/mympd_api/webradio.h"

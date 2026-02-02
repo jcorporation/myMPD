@@ -11,8 +11,9 @@
 #include "compile_time.h"
 #include "src/lib/filehandler.h"
 
+#include "dist/sds/sds.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -59,114 +60,6 @@ time_t get_mtime(const char *filepath) {
         return 0;
     }
     return status.st_mtime;
-}
-
-/**
- * Getline function that trims whitespace characters
- * @param s an already allocated sds string
- * @param fp a file descriptor to read from
- * @param max max line length to read
- * @param nread Number of bytes read,
-                -1 on EOF
- * @return Pointer to s
- */
-sds sds_getline(sds s, FILE *fp, size_t max, int *nread) {
-    sdsclear(s);
-    s = sdsMakeRoomFor(s, max + 1);
-    for (size_t i = 0; i < max; i++) {
-        int c = fgetc(fp);
-        if (c == EOF ||
-            c == '\n')
-        {
-            s[i] = '\0';
-            sdstrim(s, "\r \t");
-            *nread = c == EOF
-                ? -1
-                : (int)sdslen(s);
-            return s;
-        }
-        s[i] = (char)c;
-        sdsinclen(s, 1);
-    }
-    MYMPD_LOG_ERROR(NULL, "Line is too long, max length is %lu", (unsigned long)max);
-    s[max] = '\0';
-    sdstrim(s, "\r \t");
-
-    *nread = (int)sdslen(s);
-    return s;
-}
-
-/**
- * Reads a whole file in the sds string s from *fp
- * Removes whitespace characters from start and end
- * @param s an already allocated sds string that should hold the file content
- * @param file_path filename to read
- * @param max maximum bytes to read
- * @param remove_newline removes CR/LF if true
- * @param warn log an error if file does not exist
- * @param nread Number of bytes read,
- *              -1 error reading file,
- *              -2 file is too big
- * @return pointer to s
- */
-sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, bool warn, int *nread) {
-    errno = 0;
-    FILE *fp = fopen(file_path, OPEN_FLAGS_READ);
-    if (fp == NULL) {
-        if (warn == false &&
-            errno == ENOENT)
-        {
-            MYMPD_LOG_DEBUG(NULL, "File \"%s\" does not exist", file_path);
-        }
-        else {
-            MYMPD_LOG_ERROR(NULL, "Error opening file \"%s\"", file_path);
-            MYMPD_LOG_ERRNO(NULL, errno);
-        }
-        *nread = FILE_NOT_EXISTS;
-        return s;
-    }
-    s = sds_getfile_from_fp(s, fp, max, remove_newline, nread);
-    (void) fclose(fp);
-    return s;
-}
-
-/**
- * Reads a whole file in the sds string s from *fp
- * Removes whitespace characters from start and end
- * @param s an already allocated sds string that should hold the file content
- * @param fp FILE pointer to read
- * @param max maximum bytes to read
- * @param remove_newline removes CR/LF if true
- * @param nread Number of bytes read,
- *              -2 if file is too big
- * @return pointer to s
- */
-sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *nread) {
-    sdsclear(s);
-    s = sdsMakeRoomFor(s, max + 1);
-    int c;
-    size_t i = 0;
-    while ((c = fgetc(fp)) != EOF) {
-        if (i > max) {
-            s[max] = '\0';
-            sdstrim(s, "\r \t\n");
-            MYMPD_LOG_ERROR(NULL, "File is too big, max size is %lu", (unsigned long)max);
-            *nread = FILE_TO_BIG;
-            return s;
-        }
-        if (remove_newline == true &&
-            (c == '\n' || c == '\r'))
-        {
-            continue;
-        }
-        s[i] = (char)c;
-        sdsinclen(s, 1);
-        i++;
-    }
-    s[i] = '\0';
-    sdstrim(s, "\r \t\n");
-    *nread = (int)sdslen(s);
-    return s;
 }
 
 /**

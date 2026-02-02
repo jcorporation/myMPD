@@ -13,7 +13,8 @@
 
 #include "src/lib/config/state_files.h"
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_hash.h"
 
 #include <openssl/evp.h>
 #include <string.h>

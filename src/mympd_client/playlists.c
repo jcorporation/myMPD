@@ -18,7 +18,7 @@
 #include "src/lib/log.h"
 #include "src/lib/random.h"
 #include "src/lib/rax_extras.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/lib/smartpls.h"
 #include "src/mympd_client/database.h"
 #include "src/mympd_client/errorhandler.h"

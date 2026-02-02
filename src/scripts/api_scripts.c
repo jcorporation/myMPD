@@ -19,7 +19,8 @@
 #include "src/lib/list/sort.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/utility.h"
 #include "src/scripts/util.h"
 

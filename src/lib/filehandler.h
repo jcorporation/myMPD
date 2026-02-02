@@ -35,21 +35,8 @@ enum try_rm_file_status {
     RM_FILE_ERROR = 2
 };
 
-/**
- * Status of sds_getfile functions
- */
-enum getfile_status {
-    FILE_IS_EMPTY = 0,
-    FILE_NOT_EXISTS = -1,
-    FILE_TO_BIG = -2
-};
-
 bool update_mtime(const char *filename);
 time_t get_mtime(const char *filepath);
-
-sds sds_getline(sds s, FILE *fp, size_t max, int *nread);
-sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, bool warn, int *nread);
-sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *nread);
 
 bool create_tmp_file(const char *filepath);
 FILE *open_tmp_file(sds filepath);

@@ -19,7 +19,9 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/mimetype.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
+#include "src/lib/sds/sds_hash.h"
 #include "src/lib/validate.h"
 #include "src/scripts/interface.h"
 #include <string.h>

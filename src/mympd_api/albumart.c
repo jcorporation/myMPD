@@ -21,7 +21,7 @@
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/mimetype.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/mympd_api/trigger.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/search.h"

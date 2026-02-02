@@ -14,7 +14,7 @@
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/mem.h"
-#include "src/lib/sds_extras.h"
+#include "src/lib/sds/sds_extras.h"
 #include "src/scripts/util.h"
 
 #include <errno.h>

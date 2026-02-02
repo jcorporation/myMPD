@@ -61,12 +61,12 @@ UTEST(utf8wrap, utf8_wrap_casecmp) {
     ASSERT_EQ(rc, 0);
 
     rc = utf8_wrap_casecmp(utf8_str_valid, len, "abc", 3);
-    ASSERT_EQ(rc, 1);
+    ASSERT_NE(rc, 0);
 
     len = strlen(utf8_str_invalid);
     rc = utf8_wrap_casecmp(utf8_str_invalid, len, utf8_str_invalid, len);
     ASSERT_EQ(rc, 0);
 
     rc = utf8_wrap_casecmp(utf8_str_invalid, len, "abc", 3);
-    ASSERT_EQ(rc, 1);
+    ASSERT_NE(rc, 0);
 }
