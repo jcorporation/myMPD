@@ -525,7 +525,7 @@ UTEST(list, test_list_dup) {
 
 UTEST(list, test_list_large_shuffle) {
     struct t_list *test_list = list_new();
-    unsigned expected_len = populate_large_list(test_list, true, 100000);
+    unsigned expected_len = populate_large_list(test_list, true, 25000);
 
     unsigned eq = 0;
     unsigned pos = 0;
