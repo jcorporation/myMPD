@@ -12,7 +12,6 @@
 #include "src/webserver/mg_user_data.h"
 
 #include "src/lib/config/cert.h"
-#include "src/lib/filehandler.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_file.h"

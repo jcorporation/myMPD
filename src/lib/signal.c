@@ -11,7 +11,6 @@
 #include "compile_time.h"
 #include "src/lib/signal.h"
 
-#include "dist/mongoose/mongoose.h"
 #include "src/lib/api.h"
 #include "src/lib/event.h"
 #include "src/lib/log.h"
