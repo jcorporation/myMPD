@@ -12,8 +12,8 @@
 #include "src/lib/config/cacertstore.h"
 
 #include "src/lib/filehandler.h"
-#include "src/lib/sds/sds_file.h"
 #include "src/lib/log.h"
+#include "src/lib/sds/sds_file.h"
 
 #include <openssl/x509.h>
 
