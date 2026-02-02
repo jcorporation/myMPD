@@ -30,6 +30,7 @@ target_link_libraries(mympd-script
   sds
   mongoose
   ${OPENSSL_LIBRARIES}
+  ${UTF8PROC_LIBRARIES}
 )
 
 install(TARGETS mympd-script DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
