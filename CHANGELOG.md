@@ -4,6 +4,14 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v24.0.3 (npt yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+***
+
 ## myMPD v24.0.2 (2026-01-22)
 
 This is a small bug fix release.
