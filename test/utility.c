@@ -136,7 +136,7 @@ struct mpd_song *new_test_song(void) {
     return song;
 }
 
-long populate_list(struct t_list *l) {
+unsigned populate_list(struct t_list *l) {
     list_init(l);
     list_push(l, "key1", 1, "value1", NULL);
     list_push(l, "key2", 2, "value2", NULL);
@@ -147,7 +147,7 @@ long populate_list(struct t_list *l) {
     return l->length;
 }
 
-long populate_large_list(struct t_list *l, bool shuffled, int count) {
+unsigned populate_large_list(struct t_list *l, bool shuffled, int count) {
     list_init(l);
     char buffer1[101];
     char buffer2[201];
