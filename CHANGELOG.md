@@ -27,6 +27,10 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Split sds_extras compile unit
+- Fix: test_utf8wrap still fails #1519
+- Fix: libutf8proc is an unused shared library in mympd-script #1520
+
 ***
 
 ## myMPD v24.0.2 (2026-01-22)
