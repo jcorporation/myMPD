@@ -27,23 +27,11 @@ target_sources(mympd-script
     ../../src/lib/utf8_wrapper.c
 )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  target_sources(mympd-script
-    PRIVATE
-      ../../src/lib/utf8_wrapper.c
-  )
-endif()
-
 target_link_libraries(mympd-script
   sds
   mongoose
   ${OPENSSL_LIBRARIES}
+  ${UTF8PROC_LIBRARIES}
 )
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  target_link_libraries(mympd-script
-    ${UTF8PROC_LIBRARIES}
-  )
-endif()
 
 install(TARGETS mympd-script DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
