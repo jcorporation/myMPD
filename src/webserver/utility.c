@@ -16,8 +16,8 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/sds/sds_url.h"
-#include "src/lib/utility.h"
 #include "src/webserver/response.h"
 
 /**
@@ -172,7 +172,7 @@ sds get_uri_param(struct mg_str *query, const char *name) {
  */
 bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data) {
     sds partition = sds_urldecode(sdsempty(), hm->uri.buf, hm->uri.len, false);
-    basename_uri(partition);
+    sds_basename_uri(partition);
     FREE_SDS(frontend_nc_data->partition);
     frontend_nc_data->partition = partition;
     if (sdslen(partition) == 0) {

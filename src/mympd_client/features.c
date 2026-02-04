@@ -14,6 +14,7 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/utility.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_client/errorhandler.h"
@@ -346,7 +347,7 @@ static sds set_directory(const char *desc, sds directory, sds value) {
         MYMPD_LOG_ERROR(NULL, "Invalid %s directory value: \"%s\"", desc, directory);
         return value;
     }
-    strip_slash(value);
+    sds_strip_slash(value);
     if (sdslen(value) > 0 &&
         testdir(desc, value, false, true) != DIR_EXISTS)
     {

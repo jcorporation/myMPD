@@ -18,7 +18,6 @@
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_file.h"
 #include "src/lib/smartpls.h"
-#include "src/lib/utility.h"
 #include "src/lib/validate.h"
 #include "src/mympd_client/compat.h"
 #include "src/mympd_client/database.h"
@@ -308,7 +307,7 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
         while ((current = list_shift_first(&tag_list)) != NULL) {
             const char *tagstr = mpd_tag_name(tag);
             sds filename = sdsdup(current->key);
-            sanitize_filename(filename);
+            sds_sanitize_filename(filename);
             sds playlist = sdscatfmt(sdsempty(), "%S%s%s-%s", mympd_worker_state->smartpls_prefix, (sdslen(mympd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, filename);
             sds plpath = sdscatfmt(sdsempty(), "%S/%s/%s", mympd_worker_state->config->workdir, DIR_WORK_SMARTPLS, playlist);
             if (testfile_read(plpath) == false) {

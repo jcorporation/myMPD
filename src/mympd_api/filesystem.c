@@ -16,6 +16,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/sds/sds_utf8.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/utf8_wrapper.h"
@@ -87,7 +88,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                 case MPD_ENTITY_TYPE_DIRECTORY: {
                     const struct mpd_directory *dir = mpd_entity_get_directory(entity);
                     sds entity_name = sdsnew(mpd_directory_get_path(dir));
-                    basename_uri(entity_name);
+                    sds_basename_uri(entity_name);
                     key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
                     search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len);
                     break;
@@ -109,7 +110,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                         }
                     }
                     sds entity_name = sdsnew(pl_path);
-                    basename_uri(entity_name);
+                    sds_basename_uri(entity_name);
                     key = sdscatfmt(key, "1%s", pl_path);
                     search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len);
                     break;
@@ -158,7 +159,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, song);
                     buffer = sdscatlen(buffer, ",", 1);
                     sds filename = sdsnew(mpd_song_get_uri(song));
-                    basename_uri(filename);
+                    sds_basename_uri(filename);
                     buffer = tojson_sds(buffer, "Filename", filename, false);
                     FREE_SDS(filename);
                     if (print_stickers == true) {

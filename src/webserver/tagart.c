@@ -18,7 +18,7 @@
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds/sds_extras.h"
-#include "src/lib/utility.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/validate.h"
 #include "src/webserver/placeholder.h"
 #include "src/webserver/response.h"
@@ -57,7 +57,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
     }
 
     //create absolute filepath
-    sanitize_filename2(value);
+    sds_sanitize_filename2(value);
     sds mediafile = sdscatfmt(sdsempty(), "%S/%s/%S/%S", config->workdir, DIR_WORK_PICS, tag, value);
     MYMPD_LOG_DEBUG(NULL, "Absolut media_file: %s", mediafile);
     mediafile = webserver_find_image_file(mediafile);

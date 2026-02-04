@@ -35,7 +35,7 @@ static sds get_local_ip(void);
  */
 
 /**
- * Sleep function that is interuptable
+ * Sleep function that is interruptible
  * @param msec milliseconds to sleep
  */
 void my_msleep(int msec) {
@@ -102,132 +102,6 @@ const char *get_extension_from_filename(const char *filename) {
         }
     }
     return ext;
-}
-
-/**
- * Calculates the basename for files and uris
- * - for files the path is removed
- * - for uris the query string and hash is removed
- * @param uri sds string to modify in place
- */
-void basename_uri(sds uri) {
-    size_t len = sdslen(uri);
-    if (len == 0) {
-        return;
-    }
-
-    if (strstr(uri, "://") == NULL) {
-        //filename, remove path
-        for (int i = (int)len - 1; i >= 0; i--) {
-            if (uri[i] == '/') {
-                sdsrange(uri, i + 1, -1);
-                break;
-            }
-        }
-        return;
-    }
-
-    //uri, remove query and hash
-    for (size_t i = 0; i < len; i++) {
-        if (uri[i] == '#' ||
-            uri[i] == '?')
-        {
-            sdssubstr(uri, 0, i);
-            break;
-        }
-    }
-}
-
-/**
- * Strips all slashes from the end
- * @param dirname sds string to strip
- */
-void strip_slash(sds dirname) {
-    char *sp = dirname;
-    char *ep = dirname + sdslen(dirname) - 1;
-    while(ep >= sp &&
-          *ep == '/')
-    {
-        ep--;
-    }
-    size_t len = (size_t)(ep-sp)+1;
-    dirname[len] = '\0';
-    sdssetlen(dirname, len);
-}
-
-/**
- * Removes the file extension
- * @param filename sds string to remove the extension
- */
-void strip_file_extension(sds filename) {
-    char *sp = filename;
-    char *ep = filename + sdslen(filename) - 1;
-    while (ep >= sp) {
-        if (*ep == '.') {
-            size_t len = (size_t)(ep-sp);
-            filename[len] = '\0';
-            sdssetlen(filename, len);
-            break;
-        }
-        ep --;
-    }
-}
-
-/**
- * Replaces the file extension
- * @param filename sds string to replace the extension
- * @param ext new file extension
- * @return newly allocated sds string with new file extension
- */
-sds replace_file_extension(sds filename, const char *ext) {
-    sds newname = sdsdup(filename);
-    strip_file_extension(newname);
-    if (sdslen(newname) == 0) {
-        return newname;
-    }
-    newname = sdscatfmt(newname, ".%s", ext);
-    return newname;
-}
-
-/**
- * Invalid and uncommon characters for filenames.
- */
-static const char *invalid_filename_chars = "<>/.:?&$%!#=;\a\b\f\n\r\t\v\\|";
-
-/**
- * Replaces invalid and uncommon filename characters with "_"
- * @param filename sds string to sanitize
- */
-void sanitize_filename(sds filename) {
-    const size_t len = strlen(invalid_filename_chars);
-    for (size_t i = 0; i < len; i++) {
-        for (size_t j = 0; j < sdslen(filename); j++) {
-            if (filename[j] == invalid_filename_chars[i]) {
-                filename[j] = '_';
-            }
-        }
-    }
-}
-
-/**
- * Invalid characters for filenames.
- */
-static const char *invalid_filename_chars2 = "\a\b\f\n\r\t\v/\\";
-
-/**
- * Replaces invalid filename characters with "_",
- * same chars as vcb_isfilename
- * @param filename sds string to sanitize
- */
-void sanitize_filename2(sds filename) {
-    const size_t len = strlen(invalid_filename_chars2);
-    for (size_t i = 0; i < len; i++) {
-        for (size_t j = 0; j < sdslen(filename); j++) {
-            if (filename[j] == invalid_filename_chars2[i]) {
-                filename[j] = '_';
-            }
-        }
-    }
 }
 
 /**

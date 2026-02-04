@@ -83,7 +83,7 @@ bool scripts_file_read(struct t_scripts_state *scripts_state) {
             continue;
         }
         scriptname = sdscat(scriptname, next_file->d_name);
-        strip_file_extension(scriptname);
+        sds_strip_file_extension(scriptname);
         scriptfilename = sdscatfmt(scriptfilename, "%S/%s", scriptdirname, next_file->d_name);
         int order = 0;
         sds content = sdsempty();

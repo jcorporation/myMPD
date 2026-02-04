@@ -16,8 +16,8 @@
 #include "src/lib/last_played.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/timer.h"
-#include "src/lib/utility.h"
 #include "src/lib/webradio.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/timer.h"
@@ -322,7 +322,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->highlight_color = sdsnew(PARTITION_HIGHLIGHT_COLOR);
     partition_state->highlight_color_contrast = sdsnew(PARTITION_HIGHLIGHT_COLOR_CONTRAST);
     sds partition_dir = sdsnew(name);
-    sanitize_filename(partition_dir);
+    sds_sanitize_filename(partition_dir);
     partition_state->state_dir = sdscatfmt(sdsempty(), "%s/%S", DIR_WORK_STATE, partition_dir);
     FREE_SDS(partition_dir);
     partition_state->conn = NULL;

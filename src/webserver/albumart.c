@@ -120,7 +120,7 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
  */
 void request_handler_albumart_by_album_id(struct mg_http_message *hm, unsigned long conn_id, enum albumart_sizes size) {
     sds albumid = sdsnewlen(hm->uri.buf, hm->uri.len);
-    basename_uri(albumid);
+    sds_basename_uri(albumid);
     MYMPD_LOG_DEBUG(NULL, "Sending getalbumart to mympd_client_queue");
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, 0, INTERNAL_API_ALBUMART_BY_ALBUMID, NULL, MPD_PARTITION_DEFAULT);
     request->data = tojson_sds(request->data, "albumid", albumid, true);
@@ -188,7 +188,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         }
 
         sds sanitized_uri = sdsdup(uri);
-        sanitize_filename(sanitized_uri);
+        sds_sanitize_filename(sanitized_uri);
         sds coverfile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, sanitized_uri);
         FREE_SDS(sanitized_uri);
         MYMPD_LOG_DEBUG(NULL, "Check for stream cover \"%s\"", coverfile);
