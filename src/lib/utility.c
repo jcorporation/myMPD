@@ -18,7 +18,6 @@
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <pwd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
