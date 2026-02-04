@@ -1132,7 +1132,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat.starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat.pcre, true);
         buffer = tojson_bool(buffer, "featDbAdded", partition_state->mpd_state->feat.db_added, true);
-        buffer = tojson_bool(buffer, "featStringnormalization", partition_state->mpd_state->feat.mpd_0_25_0, true);
+        buffer = tojson_bool(buffer, "featStringnormalization", partition_state->mpd_state->feat.mpd_0_25_0, false);
     }
     buffer = sdscatlen(buffer, "}", 1);
     if (partition_state->conn_state == MPD_CONNECTED) {
