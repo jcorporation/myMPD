@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Upd: Split sds_extras compile unit
 - Fix: test_utf8wrap still fails #1519
+- Fix: Reset scrolling position on search
 
 ***
 
