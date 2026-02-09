@@ -68,4 +68,7 @@ function initSearchSimpleInput(el, cb) {
 function execSearchSimple(value) {
     appGoto(app.current.card, app.current.tab, app.current.view,
         0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, value);
+    // Reset scrollpos
+    const container = elGetById(app.id + 'Container');
+    scrollToPosY(container, 0);
 }
