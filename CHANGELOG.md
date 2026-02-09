@@ -18,6 +18,7 @@ This is the first release that supports only MPD 0.23.5 and higher and Lua 5.4.x
 - Feat: Regularly save the myMPD state if myMPD is active
 - Upd: Bump requirement for MPD and Lua versions
 - Upd: Search and utf8 handling improvements
+- Upd: Add connection header to responses
 - Fix: libutf8proc is an unused shared library in mympd-script #1520
 
 ***

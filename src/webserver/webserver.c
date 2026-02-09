@@ -707,7 +707,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                         s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                     }
                     else {
-                        s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE;
+                        s_http_server_opts.extra_headers = nc->data[2] == 'C'
+                            ? EXTRA_HEADERS_SAFE_CLOSE
+                            : EXTRA_HEADERS_SAFE_KEEP_ALIVE;
                     }
                     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
