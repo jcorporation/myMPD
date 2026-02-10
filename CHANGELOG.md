@@ -23,7 +23,7 @@ This is the first release that supports only MPD 0.23.5 and higher and Lua 5.4.x
 
 ***
 
-## myMPD v24.0.3 (not yet released)
+## myMPD v24.0.3 (2026-02-10)
 
 This is a small bug fix release.
 
