@@ -19,6 +19,8 @@ This is the first release that supports only MPD 0.23.5 and higher and Lua 5.4.x
 - Upd: Bump requirement for MPD and Lua versions
 - Upd: Search and utf8 handling improvements
 - Upd: Add connection header to responses
+- Upd: Improve HTTP session handling
+- Fix: Check for minimum string length in json payload
 - Fix: libutf8proc is an unused shared library in mympd-script #1520
 
 ***
