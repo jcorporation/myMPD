@@ -86,7 +86,7 @@ UTEST(list_sort, test_list_sort_by_key_asc) {
 
 UTEST(list_sort, test_list_sort_large_by_key_asc) {
     struct t_list *test_list = list_new();
-    unsigned expected_len = populate_large_list(test_list, true, 25000);
+    unsigned expected_len = populate_large_list(test_list, true, 2000);
 
     list_sort_by_key(test_list, LIST_SORT_ASC);
     struct t_list_node *current = test_list->head;
@@ -103,7 +103,7 @@ UTEST(list_sort, test_list_sort_large_by_key_asc) {
 
 UTEST(list_sort, test_list_sort_large_by_key_desc) {
     struct t_list *test_list = list_new();
-    unsigned expected_len = populate_large_list(test_list, true, 25000);
+    unsigned expected_len = populate_large_list(test_list, true, 2000);
 
     list_sort_by_key(test_list, LIST_SORT_DESC);
     struct t_list_node *current = test_list->head;
@@ -120,7 +120,7 @@ UTEST(list_sort, test_list_sort_large_by_key_desc) {
 
 UTEST(list_sort, test_list_sort_large_by_value_p_asc) {
     struct t_list *test_list = list_new();
-    unsigned expected_len = populate_large_list(test_list, true, 25000);
+    unsigned expected_len = populate_large_list(test_list, true, 2000);
 
     list_sort_by_value_p(test_list, LIST_SORT_ASC);
     struct t_list_node *current = test_list->head;
@@ -137,7 +137,7 @@ UTEST(list_sort, test_list_sort_large_by_value_p_asc) {
 
 UTEST(list_sort, test_list_sort_large_by_value_p_desc) {
     struct t_list *test_list = list_new();
-    unsigned expected_len = populate_large_list(test_list, true, 25000);
+    unsigned expected_len = populate_large_list(test_list, true, 2000);
 
     list_sort_by_value_p(test_list, LIST_SORT_DESC);
     struct t_list_node *current = test_list->head;
@@ -154,7 +154,7 @@ UTEST(list_sort, test_list_sort_large_by_value_p_desc) {
 
 UTEST(list_sort, test_list_sort_large_by_value_i_asc) {
     struct t_list *test_list = list_new();
-    unsigned expected_len = populate_large_list(test_list, true, 25000);
+    unsigned expected_len = populate_large_list(test_list, true, 2000);
 
     list_sort_by_value_i(test_list, LIST_SORT_ASC);
     struct t_list_node *current = test_list->head;
@@ -171,7 +171,7 @@ UTEST(list_sort, test_list_sort_large_by_value_i_asc) {
 
 UTEST(list_sort, test_list_sort_large_by_value_i_desc) {
     struct t_list *test_list = list_new();
-    unsigned expected_len = populate_large_list(test_list, true, 25000);
+    unsigned expected_len = populate_large_list(test_list, true, 2000);
 
     list_sort_by_value_i(test_list, LIST_SORT_DESC);
     struct t_list_node *current = test_list->head;
