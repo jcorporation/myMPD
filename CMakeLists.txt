@@ -433,8 +433,13 @@ elseif(CMAKE_BUILD_TYPE MATCHES "(Release|RelWithDebInfo|MinSizeRel)")
     add_compile_options("-g")
   endif()
   # IPO/LTO support
-  check_ipo_supported()
-  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_OUTPUT)
+  if(IPO_SUPPORTED)
+    message(STATUS "IPO is supported: ${IPO_OUTPUT}")
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  else()
+    message(STATUS "IPO is not supported: ${IPO_OUTPUT}")
+  endif()
 else()
   # if CMAKE_BUILD_TYPE is not Debug, Release, RelWithDebInfo or MinSizeRel
   # do not alter compile options
