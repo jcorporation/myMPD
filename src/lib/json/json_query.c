@@ -708,11 +708,7 @@ static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t
     *result = sdsnew(str);
     size_t n = sdslen(*result);
     FREE_PTR(str);
-    if (n == 0) {
-        //empty string
-        if (min == 0) {
-            return true;
-        }
+    if (n < min) {
         set_parse_error(error, path, "", "Value length for JSON path \"%s\" is too short", path);
         FREE_SDS(*result);
         return false;
