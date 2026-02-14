@@ -302,6 +302,8 @@
 #define WS_PING_TIMEOUT 300 // seconds
 
 //session limits
+#define SHA256_HASH_LEN 64
+#define HTTP_SESSION_STR_LEN 20 // Length of session identifier
 #define HTTP_SESSIONS_MAX 10
 #define HTTP_SESSION_TIMEOUT 1800 //seconds
 

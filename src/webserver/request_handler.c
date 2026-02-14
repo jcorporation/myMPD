@@ -80,7 +80,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
     {
         bool rc = false;
         if (auth_header != NULL &&
-            auth_header->len == 20)
+            auth_header->len == HTTP_SESSION_STR_LEN)
         {
             session = sdscatlen(session, auth_header->buf, auth_header->len);
             rc = webserver_session_validate(&mg_user_data->session_list, session);
