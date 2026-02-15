@@ -719,7 +719,9 @@ static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t
         return false;
     }
 
-    if (vcb != NULL) {
+    if (vcb != NULL &&
+        n > 0)
+    {
         if (vcb(*result) == false) {
             set_parse_error(error, path, "", "Validation of value for JSON path \"%s\" has failed", path);
             FREE_SDS(*result);
