@@ -62,6 +62,7 @@ struct t_config {
     sds ssl_cert;                   //!< filename of the certificate
     sds ssl_key;                    //!< filename of the private key
     sds ssl_san;                    //!< additional names for SAN of the self generated certificate
+    bool ssl_send_chain;            //!< Send server and ca certificate
     struct t_albums_config albums;  //!< album specific config
 };
 
