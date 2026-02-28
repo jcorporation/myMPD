@@ -61,10 +61,10 @@ Match table values against a comma separated list
 
 Checks a Lua table of tags against a comma separated list.
 
-local list_str = “Speech, Podcast, Audio Book” local tbl = { “Speech”,
-“Soundtrack” }
-
 .. code:: lua
+
+   local list_str = "Speech, Podcast, Audio Book"
+   local tbl = { "Speech", "Soundtrack" }
 
    if mympd.tblvalue_in_list(list_str, tbl) == true then
        -- Handle match
@@ -77,4 +77,21 @@ PARAMETER TYPE   DESCRIPTION
 ========= ====== =============================================
 list_str  string Comma separated list values
 tbl       table  Lua table of values to check against the list
+========= ====== =============================================
+
+Return the first table value if it exists
+-----------------------------------------
+
+Return the first table value if it exists, else it returns an empty string.
+
+.. code:: lua
+
+   local value = mympd.firstTableValue(tbl);
+
+**Parameters:**
+
+========= ====== =============================================
+PARAMETER TYPE   DESCRIPTION
+========= ====== =============================================
+tbl       table  Lua table to get the first value from
 ========= ====== =============================================

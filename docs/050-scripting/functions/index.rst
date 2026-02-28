@@ -30,6 +30,8 @@ List of myMPD specific Lua functions.
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
 | :doc:`mympd.dialog <mympd_dialog>`                | Returns an Jsonrpc response for a script dialog.                                  |
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
+| :doc:`mympd.firstTableValue <string>`             | Return the first table value if it exists.                                        |
++---------------------------------------------------+-----------------------------------------------------------------------------------+
 | :doc:`mympd.gpio_blink <mygpiod>`                 | Connects to myGPIOd and blinks a GPIO with given timeout and interval.            |
 +---------------------------------------------------+-----------------------------------------------------------------------------------+
 | :doc:`mympd.gpio_get <mygpiod>`                   | Connects to myGPIOd and returns the active state of a GPIO.                       |

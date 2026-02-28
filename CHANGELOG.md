@@ -16,6 +16,7 @@ This is the first release that supports only MPD 0.23.5 and higher and Lua 5.4.x
 - Feat: Implement merge sort for linked lists
 - Feat: Use a faster algorithm for shuffling linked lists
 - Feat: Regularly save the myMPD state if myMPD is active
+- Feat: Scripting - Add custom Lua function `mympd.firstTableValue`
 - Upd: Bump requirement for MPD and Lua versions
 - Upd: Search and utf8 handling improvements
 - Upd: Add connection header to responses
