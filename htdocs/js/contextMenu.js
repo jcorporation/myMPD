@@ -757,8 +757,8 @@ function createMenuHomeIcon(target, contextMenuTitle, contextMenuBody) {
     if (href === undefined) {
         return false;
     }
-    let type = '';
-    let actionDesc = '';
+    let type;
+    let actionDesc;
     switch(href.cmd) {
         case 'appGoto':
             type = 'view';

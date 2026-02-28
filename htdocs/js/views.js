@@ -78,7 +78,7 @@ function viewClickHandler(event) {
     if (selectEntry(event) === true) {
         return;
     }
-    let target = null;
+    let target;
     const mode = settings['view' + app.id].mode;
     if (mode === 'table') {
         // Links
