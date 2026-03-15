@@ -47,6 +47,7 @@ bool vcb_isplaylistsort(sds data);
 bool vcb_iswebradiosort(sds data);
 bool vcb_issearchexpression_song(sds data);
 bool vcb_issearchexpression_webradio(sds data);
+bool vcb_issearchexpression_mympd(sds data);
 
 bool vcb_isstickersort(sds data);
 bool vcb_isstickerop(sds data);

@@ -722,7 +722,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, en
         }
     }
     else if (strcmp(key, "jukeboxFilterInclude") == 0 && vtype == JSON_TOK_STRING) {
-        if (vcb_issearchexpression_song(value) == false) {
+        if (vcb_issearchexpression_mympd(value) == false) {
             set_invalid_value(error, path, key, value, "Invalid MPD search expression");
             return false;
         }
@@ -732,7 +732,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, en
         }
     }
     else if (strcmp(key, "jukeboxFilterExclude") == 0 && vtype == JSON_TOK_STRING) {
-        if (vcb_issearchexpression_song(value) == false) {
+        if (vcb_issearchexpression_mympd(value) == false) {
             set_invalid_value(error, path, key, value, "Invalid MPD search expression");
             return false;
         }
