@@ -474,12 +474,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             //ssl support
             if (config->ssl == true) {
-                MYMPD_LOG_DEBUG(NULL, "Init tls with cert \"%s\" and key \"%s\" for connection \"%lu\"", config->ssl_cert, config->ssl_key, nc->id);
-                struct mg_tls_opts tls_opts = {
-                    .cert = mg_user_data->cert,
-                    .key = mg_user_data->key
-                };
-                mg_tls_init(nc, &tls_opts);
+                mg_tls_init(nc, &mg_user_data->tls_opts);
             }
             //enforce connection limit
             if (webserver_enforce_conn_limit(nc, mg_user_data->connection_count) == false) {
@@ -707,7 +702,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                         s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                     }
                     else {
-                        s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE;
+                        s_http_server_opts.extra_headers = nc->data[2] == 'C'
+                            ? EXTRA_HEADERS_SAFE_CLOSE
+                            : EXTRA_HEADERS_SAFE_KEEP_ALIVE;
                     }
                     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);

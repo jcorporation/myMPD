@@ -4,7 +4,7 @@
 
 --- Trims a string
 -- @param str String to trim
--- @return Trimed string
+-- @return Trimmed string
 function mympd.trim(str)
   return (string.gsub(str, "^%s*(.-)%s*$", "%1"))
 end
@@ -15,8 +15,7 @@ end
 function mympd.splitlines(str)
   local lines = {}
   for line in string.gmatch(str, "[^\n]+") do
-    line = mympd.trim(line)
-    table.insert(lines, line)
+    table.insert(lines, mympd.trim(line))
   end
   return lines
 end
@@ -31,7 +30,7 @@ end
 --- Checks a Lua table of tags against a comma separated list
 -- @param list_str Comma separated list values
 -- @param tbl Lua table of values to check against the list
--- @return true if
+-- @return true for match, else false
 function mympd.tblvalue_in_list(list_str, tbl)
   if mympd.isnilorempty(list_str) or
      mympd.isnilorempty(tbl)
@@ -49,4 +48,11 @@ function mympd.tblvalue_in_list(list_str, tbl)
     end
   end
   return false
+end
+
+--- Return the first table value if it exists.
+-- @param tbl Lua table to get the first value from
+-- @return First value of the table or an empty string
+function mympd.firstTableValue(tbl)
+  return (tbl and tbl[1]) or ""
 end

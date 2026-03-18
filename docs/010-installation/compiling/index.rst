@@ -46,7 +46,7 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
     - Optional:
         - libid3tag - to extract embedded coverimages and lyrics
         - flac - to extract embedded coverimages and lyrics
-        - liblua >= 5.3.0 - for myMPD scripting
+        - liblua >= 5.4.0 - for myMPD scripting
         - libmygpio - for GPIO scripting functions
         - libmpdclient - embedded libmpdclient is used if it was not found or is too old.
         - utf8proc - for utf8 support

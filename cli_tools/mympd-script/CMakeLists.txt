@@ -18,20 +18,18 @@ target_sources(mympd-script
     ../../src/lib/convert.c
     ../../src/lib/filehandler.c
     ../../src/lib/http_client/http_client.c
-    ../../src/lib/list.c
+    ../../src/lib/list/list.c
     ../../src/lib/mem.c
     ../../src/lib/random.c
     ../../src/lib/sds/sds_extras.c
     ../../src/lib/sds/sds_file.c
     ../../src/lib/sds/sds_json.c
-    ../../src/lib/utf8_wrapper.c
 )
 
 target_link_libraries(mympd-script
   sds
   mongoose
   ${OPENSSL_LIBRARIES}
-  ${UTF8PROC_LIBRARIES}
 )
 
 install(TARGETS mympd-script DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})

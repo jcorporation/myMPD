@@ -18,7 +18,7 @@
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds/sds_extras.h"
-#include "src/lib/utility.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/validate.h"
 #include "src/webserver/placeholder.h"
 #include "src/webserver/response.h"
@@ -48,8 +48,8 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
         FREE_SDS(type);
         return false;
     }
-    strip_file_extension(name);
-    sanitize_filename2(name);
+    sds_strip_file_extension(name);
+    sds_sanitize_filename2(name);
 
     MYMPD_LOG_DEBUG(NULL, "Handle playlistart for \"%s\"", name);
     //create absolute filepath

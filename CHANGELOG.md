@@ -4,6 +4,28 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v25.0.0 (not yet released)
+
+### Notes
+
+This is the first release that supports only MPD 0.23.5 and higher and Lua 5.4.x and higher.
+
+### Changelog
+
+- Feat: Use myGPIOd REST-API #1510
+- Feat: Implement merge sort for linked lists
+- Feat: Use a faster algorithm for shuffling linked lists
+- Feat: Regularly save the myMPD state if myMPD is active
+- Feat: Scripting - Add custom Lua function `mympd.firstTableValue`
+- Upd: Bump requirement for MPD and Lua versions
+- Upd: Search and utf8 handling improvements
+- Upd: Add connection header to responses
+- Upd: Improve HTTP session handling
+- Fix: Check for minimum string length in json payload
+- Fix: libutf8proc is an unused shared library in mympd-script #1520
+
+***
+
 ## myMPD v24.0.3 (2026-02-10)
 
 This is a small bug fix release.
@@ -49,7 +71,7 @@ The documentation site was migrated from Mkdocs to Sphinx, because of the deprec
 - Feat: String normalization for album, webradio, playlists and filesystem search
 - Feat: Replace utf8 implementation with utf8proc library
 - Feat: Add setting for default search operator
-- Upd: Migrate documentation to Sphinx with Sphin Book Theme #1495
+- Upd: Migrate documentation to Sphinx with Sphinx Book Theme #1495
 - Upd: Move lyrics handling from mympd_api to webserver thread
 - Upd: Performance improvements for mympd_api polling
 - Upd: Stability improvements in MPD connection handling

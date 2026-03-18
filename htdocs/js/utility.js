@@ -472,7 +472,7 @@ function setMobileView() {
  * @returns {Promise<void>}
  */
 async function httpGet(uri, callback, json) {
-    let response = null;
+    let response;
     try {
         response = await fetch(uri, {
             method: 'GET',

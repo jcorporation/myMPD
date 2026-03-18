@@ -16,8 +16,8 @@
 #include "src/lib/json/json_print.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/sds/sds_json.h"
-#include "src/lib/utility.h"
 #include "src/mympd_client/tags.h"
 
 #include <assert.h>
@@ -464,7 +464,7 @@ sds album_get_tag_value_string(const struct t_album *album, enum mpd_tag_type ta
             if (value_count == 0) {
                 //title fallback to filename
                 tag_values = sdscat(tag_values, album_get_uri(album));
-                basename_uri(tag_values);
+                sds_basename_uri(tag_values);
             }
         }
     }

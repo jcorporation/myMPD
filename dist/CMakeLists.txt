@@ -10,7 +10,3 @@ add_subdirectory(sds)
 if(MYMPD_EMBEDDED_LIBMPDCLIENT)
     add_subdirectory(libmpdclient)
 endif()
-
-if(MYMPD_ENABLE_MYGPIOD_STATIC)
-    add_subdirectory(myGPIOd)
-endif()

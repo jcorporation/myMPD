@@ -15,7 +15,7 @@
 #include "src/lib/config/config_def.h"
 #include "src/lib/config/pin.h"
 #include "src/lib/sds/sds_extras.h"
-#include "src/lib/utility.h"
+#include "src/lib/sds/sds_file.h"
 
 #include <getopt.h>
 
@@ -114,7 +114,7 @@ enum handle_options_rc handle_options(struct t_config *config, int argc, char **
         switch(n) {
             case 'a':
                 config->cachedir = sds_replace(config->cachedir, optarg);
-                strip_slash(config->cachedir);
+                sds_strip_slash(config->cachedir);
                 break;
             case 'c':
                 config->bootstrap = true;
@@ -137,7 +137,7 @@ enum handle_options_rc handle_options(struct t_config *config, int argc, char **
                 return OPTIONS_RC_EXIT;
             case 'w':
                 config->workdir = sds_replace(config->workdir, optarg);
-                strip_slash(config->workdir);
+                sds_strip_slash(config->workdir);
                 break;
             default:
                 print_usage(config, argv[0]);

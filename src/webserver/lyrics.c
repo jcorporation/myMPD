@@ -184,7 +184,7 @@ static void lyrics_get(struct t_lyrics *lyrics, struct t_list *extracted,
  */
 static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char *ext, bool synced) {
     //try file in folder in the music directory
-    sds lyricsfile = replace_file_extension(mediafile, ext);
+    sds lyricsfile = sds_replace_file_extension(mediafile, ext);
     MYMPD_LOG_DEBUG(NULL, "Trying to open lyrics file: %s", lyricsfile);
     int nread = 0;
     sds text = sds_getfile(sdsempty(), lyricsfile, LYRICS_SIZE_MAX, false, false, &nread);

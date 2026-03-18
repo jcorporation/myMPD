@@ -24,6 +24,16 @@ skipCount   How often the song was skipped
 
 - The song has been played for at least 10 seconds
 
+Album sticker
+-------------
+
+myMPD uses a filter expression for album stickers and NOT the album tag. The filter is:
+
+``((AlbumArtist == "<AlbumArtist>") AND (Album == "<Album>") AND (Date == "<Date>"))``
+
+- AlbumArtist falls back to Album
+- Date is optional, but recommended
+
 Padding of sticker values
 -------------------------
 

@@ -13,7 +13,7 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/fields.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/validate.h"
 
 #include <stdbool.h>

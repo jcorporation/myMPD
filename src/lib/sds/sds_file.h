@@ -32,4 +32,11 @@ sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *n
 sds sds_basename(sds s);
 sds sds_dirname(sds s);
 
+void sds_basename_uri(sds uri);
+void sds_strip_file_extension(sds filename);
+sds sds_replace_file_extension(sds filename, const char *ext);
+void sds_strip_slash(sds dirname);
+void sds_sanitize_filename(sds filename);
+void sds_sanitize_filename2(sds filename);
+
 #endif

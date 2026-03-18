@@ -35,6 +35,7 @@ struct t_config {
     bool stickers_pad_int;          //!< enable the padding of integer sticker values
     bool webradiodb;                //!< enable WebradioDB support
     bool scripts_external;          //!< allow execution of external scripts
+    bool state_save;                //!< Save the myMPD state files regularly
     int cache_cover_keep_days;      //!< expiration time for cover cache files in days
     int cache_http_keep_days;       //!< expiration time for HTTP cache files in days
     int cache_lyrics_keep_days;     //!< expiration time for lyrics cache files in days
@@ -43,6 +44,12 @@ struct t_config {
     int http_port;                  //!< http port to listen
     int loglevel;                   //!< loglevel
     int ssl_port;                   //!< https port to listen
+    unsigned jukebox_queue_length_song;       //!< Length of the internal jukebox queue for songs
+    unsigned jukebox_queue_length_song_min;   //!< Minimum length of the internal jukebox queue for songs
+    unsigned jukebox_queue_length_album;      //!< Length of the internal jukebox queue for albums
+    unsigned jukebox_queue_length_album_min;  //!< Minimum length of the internal jukebox queue for albums
+    unsigned plist_len_max;                   //!< Max. length of a playlist
+    unsigned smartpls_per_tag_value_max;      //!< Max. number of tag values to create a smart playlist for
     sds acl;                        //!< IPv4 ACL string
     sds ca_certs;                   //!< System CA certificates
     sds ca_cert_store;              //!< System CA certificate store file
@@ -55,13 +62,8 @@ struct t_config {
     sds ssl_cert;                   //!< filename of the certificate
     sds ssl_key;                    //!< filename of the private key
     sds ssl_san;                    //!< additional names for SAN of the self generated certificate
+    bool ssl_send_chain;            //!< Send server and ca certificate
     struct t_albums_config albums;  //!< album specific config
-    unsigned jukebox_queue_length_song;       //!< Length of the internal jukebox queue for songs
-    unsigned jukebox_queue_length_song_min;   //!< Minimum length of the internal jukebox queue for songs
-    unsigned jukebox_queue_length_album;      //!< Length of the internal jukebox queue for albums
-    unsigned jukebox_queue_length_album_min;  //!< Minimum length of the internal jukebox queue for albums
-    unsigned plist_len_max;                   //!< Max. length of a playlist
-    unsigned smartpls_per_tag_value_max;      //!< Max. number of tag values to create a smart playlist for
 };
 
 #endif

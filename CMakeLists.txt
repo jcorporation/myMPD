@@ -9,14 +9,14 @@ cmake_policy(SET CMP0003 NEW)
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd
-  VERSION 24.0.3
+  VERSION 25.0.0
   LANGUAGES C
 )
 
 # Dependency versions
 set(LIBMPDCLIENT_MIN_VERSION "2.24.0")
 set(OPENSSL_MIN_VERSION "1.1.0")
-set(LUA_MIN_VERSION "5.3.0")
+set(LUA_MIN_VERSION "5.4.0")
 
 # output binaries in bin directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -58,7 +58,6 @@ option(MYMPD_ENABLE_FLAC "Enables flac support, default ON" "ON")
 option(MYMPD_ENABLE_IPV6 "Enables IPv6, default ON" "ON")
 option(MYMPD_ENABLE_LIBID3TAG "Enables libid3tag support, default ON" "ON")
 option(MYMPD_ENABLE_LUA "Enables lua support, default ON" "ON")
-option(MYMPD_ENABLE_MYGPIOD "Enables myGPIOd support, default ON" "ON")
 option(MYMPD_ENABLE_UTF8 "Enables utf8 support with utf8proc, default ON" "ON")
 option(MYMPD_MANPAGES "Creates and installs manpages, default ON" "ON")
 option(MYMPD_MINIMAL "Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags, default OFF" "OFF")
@@ -73,7 +72,6 @@ if(MYMPD_MINIMAL)
   set(MYMPD_ENABLE_IPV6 "OFF")
   set(MYMPD_ENABLE_LUA "OFF")
   set(MYMPD_ENABLE_LIBID3TAG "OFF")
-  set(MYMPD_ENABLE_MYGPIOD "OFF")
   set(MYMPD_ENABLE_UTF8 "OFF")
 endif()
 
@@ -171,27 +169,13 @@ if(MYMPD_ENABLE_LUA)
     if(NOT LUA_VERSION_STRING VERSION_GREATER_EQUAL "${LUA_MIN_VERSION}")
       message(WARNING "Lua is disabled because a version lower than ${LUA_MIN_VERSION} was found")
       set(MYMPD_ENABLE_LUA "OFF")
-      set(MYMPD_ENABLE_MYGPIOD "OFF")
     endif()
   else()
     message(WARNING "Lua is disabled because it was not found")
     set(MYMPD_ENABLE_LUA "OFF")
-    set(MYMPD_ENABLE_MYGPIOD "OFF")
   endif()
 else()
   message("Lua is disabled by user")
-  set(MYMPD_ENABLE_MYGPIOD "OFF")
-endif()
-
-if(MYMPD_ENABLE_MYGPIOD)
-  message("Searching for libmygpio")
-  find_package(LIBMYGPIO)
-  if(NOT LIBMYGPIO_FOUND)
-    message("Compiling static version of libmygpio")
-    set(MYMPD_ENABLE_MYGPIOD_STATIC "ON")
-  endif()
-else()
-  message("myGPIO support is disabled by user")
 endif()
 
 # calculate paths
@@ -221,7 +205,6 @@ message("Cachedir: ${MYMPD_CACHE_DIR}")
 
 # create assets and set doc root
 set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
-set(ENV{MYMPD_ENABLE_MYGPIOD} "${MYMPD_ENABLE_MYGPIOD}")
 set(ENV{MYMPD_ENABLE_LUA} "${MYMPD_ENABLE_LUA}")
 
 if(MYMPD_EMBEDDED_ASSETS)
@@ -450,8 +433,13 @@ elseif(CMAKE_BUILD_TYPE MATCHES "(Release|RelWithDebInfo|MinSizeRel)")
     add_compile_options("-g")
   endif()
   # IPO/LTO support
-  check_ipo_supported()
-  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_OUTPUT)
+  if(IPO_SUPPORTED)
+    message(STATUS "IPO is supported: ${IPO_OUTPUT}")
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  else()
+    message(STATUS "IPO is not supported: ${IPO_OUTPUT}")
+  endif()
 else()
   # if CMAKE_BUILD_TYPE is not Debug, Release, RelWithDebInfo or MinSizeRel
   # do not alter compile options
@@ -519,13 +507,6 @@ if(MYMPD_ENABLE_FLAC)
 endif()
 if(MYMPD_ENABLE_LUA)
   target_link_libraries(mympd ${LUA_LIBRARIES})
-endif()
-if(MYMPD_ENABLE_MYGPIOD)
-  if(MYMPD_ENABLE_MYGPIOD_STATIC)
-    target_link_libraries(mympd mygpio)
-  else()
-    target_link_libraries(mympd ${LIBMYGPIO_LIBRARIES})
-  endif()
 endif()
 if(MYMPD_EMBEDDED_LIBMPDCLIENT)
   target_link_libraries(mympd mpdclient)

@@ -12,7 +12,7 @@
 #include "src/mympd_client/presets.h"
 
 #include "src/lib/json/json_query.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_file.h"

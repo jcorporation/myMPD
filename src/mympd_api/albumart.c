@@ -118,6 +118,7 @@ sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct
     void *binary_buffer = malloc_assert(partition_state->mpd_state->mpd_binarylimit);
     int recv_len = 0;
 
+    // Get by MPD albumart command
     MYMPD_LOG_DEBUG(partition_state->name, "Try mpd command albumart for \"%s\"", uri);
     while ((recv_len = mpd_run_albumart(partition_state->conn, uri, offset, binary_buffer, partition_state->mpd_state->mpd_binarylimit)) > 0) {
         MYMPD_LOG_DEBUG(partition_state->name, "Received %d bytes from mpd albumart command", recv_len);
@@ -134,6 +135,7 @@ sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct
         MYMPD_LOG_DEBUG(partition_state->name, "MPD returned -1 for albumart command for uri \"%s\"", uri);
     }
 
+    // Get by MPD readpicture command
     if (offset == 0) {
         //silently clear the error if no albumart is found
         mympd_clear_finish(partition_state);
@@ -153,14 +155,14 @@ sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct
             MYMPD_LOG_DEBUG(partition_state->name, "MPD returned -1 for readpicture command for uri \"%s\"", uri);
         }
     }
-
-    if (offset == 0) {
-        //silently clear the error if no albumart is found
-        mympd_clear_finish(partition_state);
-    }
     FREE_PTR(binary_buffer);
 
-    if (offset > 0) {
+    if (offset == 0) {
+        // Silently clear the error if no albumart was found
+        mympd_clear_finish(partition_state);
+    }
+    else {
+        // Return albumart
         MYMPD_LOG_DEBUG(partition_state->name, "Albumart found by mpd for uri \"%s\" (%lu bytes)", uri, (unsigned long)sdslen(*binary));
         const char *mime_type = get_mime_type_by_magic_stream(*binary);
         buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id);
@@ -173,30 +175,33 @@ sds mympd_api_albumart_getcover_by_uri(struct t_mympd_state *mympd_state, struct
         else {
             MYMPD_LOG_DEBUG(partition_state->name, "Covercache is disabled");
         }
+        return buffer;
     }
-    else {
-        #ifdef MYMPD_ENABLE_LUA
-            // no albumart found, check if there is a trigger to fetch albumart
-            struct t_list arguments;
-            list_init(&arguments);
-            list_push(&arguments, "uri", 0, uri, NULL);
-            int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_ALBUMART,
-                    partition_state->name, conn_id, request_id, &arguments);
-            list_clear(&arguments);
-            if (n > 0) {
-                // return empty buffer, response must be send by triggered script
-                if (n > 1) {
-                    MYMPD_LOG_WARN(partition_state->name, "More than one script triggered for albumart.");
-                }
-                return buffer;
+
+    // Albumart by script
+    #ifdef MYMPD_ENABLE_LUA
+        // no albumart found, check if there is a trigger to fetch albumart
+        struct t_list arguments;
+        list_init(&arguments);
+        list_push(&arguments, "uri", 0, uri, NULL);
+        int n = mympd_api_trigger_execute_http(&mympd_state->trigger_list, TRIGGER_MYMPD_ALBUMART,
+                partition_state->name, conn_id, request_id, &arguments);
+        list_clear(&arguments);
+        if (n > 0) {
+            // Return empty buffer, response must be send by triggered script
+            if (n > 1) {
+                MYMPD_LOG_WARN(partition_state->name, "More than one script triggered for albumart.");
             }
-        #else
-            (void)mympd_state;
-            (void)conn_id;
-        #endif
-        MYMPD_LOG_INFO(partition_state->name, "No albumart found by mpd for uri \"%s\"", uri);
-        buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id,
-                JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
-    }
+            return buffer;
+        }
+    #else
+        (void)mympd_state;
+        (void)conn_id;
+    #endif
+
+    // No albumart found
+    MYMPD_LOG_INFO(partition_state->name, "No albumart found by mpd for uri \"%s\"", uri);
+    buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART_BY_URI, request_id,
+            JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     return buffer;
 }

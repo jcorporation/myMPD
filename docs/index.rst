@@ -11,6 +11,8 @@ To use all myMPD functions you should use the latest stable MPD version.
 
 .. include:: _includes/version
 
+.. include:: _includes/mpd-compat.rst
+
 .. toctree::
    :glob:
    :hidden:

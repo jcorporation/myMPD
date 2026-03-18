@@ -50,8 +50,10 @@ static void mympd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_
  * It is called from the mympd_api thread.
  * @param mympd_state pointer to the mympd state struct
  * @param request work request from the mympd_api queue
+ * @return true if an event was handled
  */
-void mympd_client_idle(struct t_mympd_state *mympd_state, struct t_work_request *request) {
+bool mympd_client_idle(struct t_mympd_state *mympd_state, struct t_work_request *request) {
+    bool event_handled = false;
     // iterate through all partitions
     struct t_partition_state *partition_state = mympd_state->partition_state;
     do {
@@ -66,6 +68,7 @@ void mympd_client_idle(struct t_mympd_state *mympd_state, struct t_work_request 
                 mympd_client_idle_partition(mympd_state, partition_state, NULL);
             }
             partition_state->waiting_events = 0;
+            event_handled = true;
         }
     } while ((partition_state = partition_state->next) != NULL);
     // cleanup
@@ -81,6 +84,7 @@ void mympd_client_idle(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         free_request(request);
     }
+    return event_handled;
 }
 
 /**
@@ -95,14 +99,14 @@ void mympd_client_scrobble(struct t_mympd_state *mympd_state, struct t_partition
         readable_time(fmt_time, time(NULL));
         MYMPD_LOG_DEBUG(partition_state->name, "Song scrobble time reached: %s", fmt_time);
     #endif
-    //add song to the last_played list
+    // Add song to the last_played list
     mympd_api_last_played_add_song(partition_state, mympd_state->last_played_count);
     // set stickers
     if (partition_state->mpd_state->feat.stickers == true) {
         stickerdb_inc_play_count(mympd_state->stickerdb, STICKER_TYPE_SONG,
             mpd_song_get_uri(partition_state->song), partition_state->song_start_time);
     }
-    // scrobble event
+    // Scrobble event
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE, partition_state->name, NULL);
 }
 

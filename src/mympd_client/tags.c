@@ -11,12 +11,12 @@
 #include "compile_time.h"
 #include "src/mympd_client/tags.h"
 
-#include "src/lib/album.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/convert.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/sds/sds_json.h"
 #include "src/lib/sds/sds_utf8.h"
 #include "src/lib/utility.h"
@@ -276,7 +276,7 @@ sds mympd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_
             if (value_count == 0) {
                 //title fallback to filename
                 tag_values = sdscat(tag_values, mpd_song_get_uri(song));
-                basename_uri(tag_values);
+                sds_basename_uri(tag_values);
             }
         }
     }
@@ -301,7 +301,7 @@ sds mympd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type t
             if (value_count == 0) {
                 //title fallback to filename
                 sds filename = sdsnew(mpd_song_get_uri(song));
-                basename_uri(filename);
+                sds_basename_uri(filename);
                 tag_values = sds_catjson(tag_values, filename, sdslen(filename));
                 FREE_SDS(filename);
                 value_count++;

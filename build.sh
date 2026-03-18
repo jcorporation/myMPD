@@ -309,7 +309,6 @@ createassets() {
 }
 
 lualibs() {
-  [ -z "${MYMPD_ENABLE_MYGPIOD+x}" ] && MYMPD_ENABLE_MYGPIOD="OFF"
   [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
   echo "Copy integrated lua libraries"
   mkdir -p "$MYMPD_BUILDDIR/contrib/lualibs"
@@ -318,14 +317,14 @@ lualibs() {
   cat contrib/lualibs/mympd/10-mympd.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/20-http.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/30-execute.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
-  [ "$MYMPD_ENABLE_MYGPIOD" = "ON" ] && cat contrib/lualibs/mympd/40-mygpiod.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
+  cat contrib/lualibs/mympd/40-mygpiod.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/50-util.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/60-caches.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/70-string.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/80-tmpvar.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   cat contrib/lualibs/mympd/99-end.lua >> "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
   echo "Compiling lua libraries"
-  LUAC=$(command -v luac5.4 2> /dev/null || command -v luac5.3 2> /dev/null || command -v luac 2> /dev/null || true)
+  LUAC=$(command -v luac5.4 2> /dev/null || command -v luac 2> /dev/null || true)
   if [ -z "$LUAC" ]
   then
     echo_error "luac not found"
@@ -835,8 +834,8 @@ Build-Depends: debhelper (>= 10),
                libssl-dev,
                libid3tag0-dev,
                libflac-dev,
-               liblua5.4-dev | liblua5.3-dev,
-               lua5.4 | lua5.3,
+               liblua5.4-dev,
+               lua5.4,
                libpcre2-dev,
                libutf8proc-dev
 Package-List:
@@ -857,20 +856,15 @@ installdeps() {
   echo "Platform: $(uname -m)"
   if [ -f /etc/debian_version ]
   then
-    apt-get update
-    if ! apt-get install -y --no-install-recommends liblua5.4-dev lua5.4
-    then
-      #fallback to lua 5.3 for older debian versions
-      apt-get install -y --no-install-recommends liblua5.3-dev lua5.3
-    fi
     apt-get install -y --no-install-recommends \
-      gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
+      gcc cmake perl libssl-dev libid3tag0-dev libflac-dev liblua5.4-dev lua5.4 \
       build-essential pkg-config libpcre2-dev gzip jq whiptail \
       libutf8proc-dev
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq libnewt libutf8proc
+    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 \
+      gzip jq libnewt libutf8proc
   elif [ -f /etc/alpine-release ]
   then
     #alpine
@@ -892,14 +886,15 @@ installdeps() {
     echo "You should manually install:"
     echo "  - gcc or clang"
     echo "  - cmake"
+    echo "  - pkgconfig"
     echo "  - perl"
     echo "  - gzip"
     echo "  - jq"
-    echo "  - whiptail"
+    echo "  - whiptail / newt"
     echo "  - openssl (devel)"
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
-    echo "  - liblua5.4 or liblua5.3 (devel)"
+    echo "  - liblua5.4 (devel)"
     echo "  - libpcre2 (devel)"
     echo "  - utf8proc (devel)"
   fi
@@ -1354,7 +1349,6 @@ run_htmlhint() {
 }
 
 run_luacheck() {
-  export MYMPD_ENABLE_MYGPIOD="ON"
   lualibs
   if ! luacheck release/contrib/lualibs/
   then
@@ -1370,7 +1364,7 @@ run_doclint() {
     python3 -m venv /tmp/python-venv/ > /dev/null
     /tmp/python-venv/bin/pip install sphinx-lint  > /dev/null
   fi
-  echo "Running sphin-lint"
+  echo "Running sphinx-lint"
   /tmp/python-venv/bin/sphinx-lint docs || return 1
   return 0
 }
@@ -1824,10 +1818,12 @@ case "$ACTION" in
     echo "Misc options:"
     echo "  addmympduser:     adds mympd group and user"
     echo "  luascript_index:  creates the json index of lua scripts"
+    echo "  cloc:             runs cloc (count lines of code)"
+    echo ""
+    echo "Documentation options"
     echo "  api_doc:          generates the api documentation"
     echo "  doc:              generates the html documentation"
     echo "  serve_doc:        generates the html documentation and runs a development server"
-    echo "  cloc:             runs cloc (count lines of code)"
     echo ""
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"

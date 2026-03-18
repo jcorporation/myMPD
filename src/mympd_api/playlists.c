@@ -16,7 +16,8 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
+#include "src/lib/list/sort.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/rax_extras.h"
@@ -208,12 +209,6 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state, sds plist, struct t_list *uris, unsigned to, sds *error) {
-    if (to != UINT_MAX &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     if (uris->length == 0) {
         *error = sdscat(*error, "No uris provided");
         return false;
@@ -277,12 +272,6 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
 bool mympd_api_playlist_content_insert_search(struct t_partition_state *partition_state, sds expression, sds plist,
         unsigned to, const char *sort, bool sort_desc, sds *error)
 {
-    if (to != UINT_MAX &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     return mympd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sort_desc, error);
 }
 
@@ -331,12 +320,6 @@ bool mympd_api_playlist_content_replace_search(struct t_partition_state *partiti
  */
 bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds plist, struct t_list *albumids, unsigned to, sds *error) {
-    if (to != UINT_MAX &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     if (albumids->length == 0) {
         *error = sdscat(*error, "No album ids provided");
         return false;
@@ -407,12 +390,6 @@ bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partiti
 bool mympd_api_playlist_content_insert_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds plist, sds albumid, enum mpd_tag_type tag, sds value, unsigned to, sds *error)
 {
-    if (to != UINT_MAX &&
-        partition_state->mpd_state->feat.whence == false)
-    {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     struct t_album *mpd_album = album_cache_get_album(album_cache, albumid);
     if (mpd_album == NULL) {
         *error = sdscat(*error, "Album not found");
@@ -486,10 +463,6 @@ bool mympd_api_playlist_content_move(struct t_partition_state *partition_state, 
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_rm_range(struct t_partition_state *partition_state, sds plist, unsigned start, int end, sds *error) {
-    if (partition_state->mpd_state->feat.playlist_rm_range == false) {
-        *error = sdscat(*error, "Method not supported");
-        return false;
-    }
     //map -1 to UINT_MAX for open ended range
     unsigned end_u = end < 0
         ? UINT_MAX
@@ -548,7 +521,6 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_LIST;
     rax *entity_list = raxNew();
-    size_t search_len = sdslen(searchstr);
     unsigned real_limit = offset + limit;
     sds key = sdsempty();
 
@@ -558,15 +530,17 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
             : false;
     }
 
-    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr));
+    size_t searchstr_len;
+    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr), &searchstr_len);
 
     if (mpd_send_list_playlists(partition_state->conn)) {
         struct mpd_playlist *pl;
         while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
-            char *value_utf8 = utf8_wrap_normalize(plpath, strlen(plpath));
+            size_t value_len;
+            char *value_utf8 = utf8_wrap_normalize(plpath, strlen(plpath), &value_len);
             bool smartpls = is_smartpls(partition_state->config->workdir, plpath);
-            if ((search_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) &&
+            if ((searchstr_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) &&
                 (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
             {
                 struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
@@ -606,8 +580,9 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                 if (next_file->d_type != DT_REG) {
                     continue;
                 }
-                char *value_utf8 = utf8_wrap_normalize(next_file->d_name, strlen(next_file->d_name));
-                if (search_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) {
+                size_t value_len;
+                char *value_utf8 = utf8_wrap_normalize(next_file->d_name, strlen(next_file->d_name), &value_len);
+                if (searchstr_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) {
                     struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
                     data->last_modified = smartpls_get_mtime(partition_state->config->workdir, next_file->d_name);
                     data->type = PLTYPE_SMARTPLS_ONLY;

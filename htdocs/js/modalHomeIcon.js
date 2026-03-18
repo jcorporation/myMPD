@@ -342,12 +342,10 @@ function populateHomeIconCmdSelect(cmd, type) {
                 elCreateTextTn('option', {"value": "replacePlayQueue"}, 'Replace queue and play')
             );
             setData(modalHomeIconCmdInput.lastChild, 'options', {"options": options});
-            if (features.featWhence === true) {
-                modalHomeIconCmdInput.appendChild(
-                    elCreateTextTn('option', {"value": "insertAfterCurrentQueue"}, 'Insert after current playing song')
-                );
-                setData(modalHomeIconCmdInput.lastChild, 'options', {"options": options});
-            }
+            modalHomeIconCmdInput.appendChild(
+                elCreateTextTn('option', {"value": "insertAfterCurrentQueue"}, 'Insert after current playing song')
+            );
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": options});
             modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "appendQueue"}, 'Append to queue')
             );

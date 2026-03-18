@@ -12,7 +12,7 @@
 #define MYMPD_API_H
 
 #include "dist/sds/sds.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/lyrics.h"
 #include "src/lib/webradio.h"
 

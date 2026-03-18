@@ -72,7 +72,7 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
     // generate uniq id for this request
     const id = generateJsonrpcId();
     // fetch response
-    let response = null;
+    let response;
     try {
         response = await fetch(uri, {
             method: 'POST',

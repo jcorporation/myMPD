@@ -10,14 +10,12 @@ You can configure myMPD in different ways:
 
 2. Use ``mympd-config``
 
-   1. Type ``mympd-config`` to configure myMPD with a ncurses based
-      interface.
+   1. Type ``mympd-config`` to configure myMPD with a ncurses based interface.
    2. Start myMPD.
 
 3. Use ``mympd -c``
 
-   1. Type ``mympd -c`` to create the initial configuration in the
-      ``/var/lib/mympd/config/`` directory.
+   1. Type ``mympd -c`` to create the initial configuration in the ``/var/lib/mympd/config/`` directory.
    2. Edit the files and start myMPD.
 
 .. hint::
@@ -119,11 +117,15 @@ General options
 || stickers_pad_int                     || boolean || ``false``      || Enables the padding of integer sticker values        |
 || MYMPD_STICKERS_PAD_INT               ||         ||                || (12 digits).                                         |
 +---------------------------------------+----------+-----------------+-------------------------------------------------------+
+|| state_save                           || boolean || ``true``       || Save myMPD state regularly?                          |
+|| MYMPD_STATE_SAVE                     ||         ||                ||                                                      |
++---------------------------------------+----------+-----------------+-------------------------------------------------------+
 || webradiodb                           || boolean || ``true``       || Enables the WebradioDB integration.                  |
 || MYMPD_WEBRADIODB                     ||         ||                ||                                                      |
 +---------------------------------------+----------+-----------------+-------------------------------------------------------+
 
-.. [1] If http_port is disabled: The MPD curl plugin must trust the myMPD CA or certificate checking must be disabled. MPD fetches webradio playlists with http(s) from myMPD webserver.
+.. [1] If http_port is disabled: The MPD curl plugin must trust the myMPD CA or certificate checking must be disabled.
+       MPD fetches webradio playlists with http(s) from myMPD webserver.
 
 .. [2] myMPD checks following locations for the ca cert store file:
 

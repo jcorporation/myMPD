@@ -22,9 +22,10 @@
  * @return pointer to s
  */
 sds sds_utf8_casefold(sds s) {
-    char *fold_str = utf8_wrap_casefold(s, sdslen(s));
+    size_t newlen;
+    char *fold_str = utf8_wrap_casefold(s, sdslen(s), &newlen);
     sdsclear(s);
-    s = sdscat(s, fold_str);
+    s = sdscatlen(s, fold_str, newlen);
     free(fold_str);
     return s;
 }
@@ -35,9 +36,10 @@ sds sds_utf8_casefold(sds s) {
  * @return pointer to s
  */
 sds sds_utf8_normalize(sds s) {
-    char *fold_str = utf8_wrap_normalize(s, sdslen(s));
+    size_t newlen;
+    char *fold_str = utf8_wrap_normalize(s, sdslen(s), &newlen);
     sdsclear(s);
-    s = sdscat(s, fold_str);
+    s = sdscatlen(s, fold_str, newlen);
     free(fold_str);
     return s;
 }

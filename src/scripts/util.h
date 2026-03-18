@@ -13,7 +13,7 @@
 
 #include "dist/rax/rax.h"
 #include "dist/sds/sds.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/scripts/events.h"
 
 #include <lauxlib.h>

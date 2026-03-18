@@ -534,6 +534,33 @@ bool vcb_issearchexpression_webradio(sds data) {
 }
 
 /**
+ * Checks if string is a valid song search expression supported by myMPD
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_issearchexpression_mympd(sds data) {
+    size_t len = sdslen(data);
+    if (len == 0) {
+        return true;
+    }
+    //check if it is valid utf8
+    if (utf8_wrap_validate(data, sdslen(data)) == false) {
+        MYMPD_LOG_ERROR(NULL, "String is not valid utf8");
+        return false;
+    }
+    if (check_for_invalid_chars(data, invalid_name_chars) == false) {
+        return false;
+    }
+
+    struct t_list *expr = search_expression_parse(data, SEARCH_TYPE_SONG);
+    if (expr == NULL) {
+        return false;
+    }
+    search_expression_free(expr);
+    return true;
+}
+
+/**
  * Private functions
  */
 

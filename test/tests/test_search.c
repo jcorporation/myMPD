@@ -141,34 +141,38 @@ UTEST(search_local, test_parse_expression) {
     ASSERT_EQ(0, try_parse("((added-since 'asdf"));
 }
 
+bool search_fuzzy_match(const char *a, const char *b) {
+    return mympd_search_fuzzy_match(a, strlen(a), b, strlen(b));
+}
+
 UTEST(search_local, test_mympd_search_fuzzy_match) {
-    bool rc = mympd_search_fuzzy_match("einsturzende", "einst");
+    bool rc = search_fuzzy_match("einsturzende", "einst");
     ASSERT_TRUE(rc);
-    rc = mympd_search_fuzzy_match("einsturzende", "einsd");
+    rc = search_fuzzy_match("einsturzende", "einsd");
     ASSERT_TRUE(rc);
-    rc = mympd_search_fuzzy_match("e", "f");
+    rc = search_fuzzy_match("e", "f");
     ASSERT_TRUE(rc);
-    rc = mympd_search_fuzzy_match("einstuerzende", "f");
+    rc = search_fuzzy_match("einstuerzende", "f");
     ASSERT_TRUE(rc);
-    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "bauten");
+    rc = search_fuzzy_match("einstuerzende neubauten", "bauten");
     ASSERT_TRUE(rc);
-    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "bauden");
+    rc = search_fuzzy_match("einstuerzende neubauten", "bauden");
     ASSERT_TRUE(rc);
-    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "einstuersende naubauten");
+    rc = search_fuzzy_match("einstuerzende neubauten", "einstuersende naubauten");
     ASSERT_TRUE(rc);
-    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "einstuersende naubauden");
+    rc = search_fuzzy_match("einstuerzende neubauten", "einstuersende naubauden");
     ASSERT_TRUE(rc);
-    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "einstuerzende neubauxxx");
+    rc = search_fuzzy_match("einstuerzende neubauten", "einstuerzende neubauxxx");
     ASSERT_TRUE(rc);
 
-    rc = mympd_search_fuzzy_match("einsturzende", "zwei");
+    rc = search_fuzzy_match("einsturzende", "zwei");
     ASSERT_FALSE(rc);
-    rc = mympd_search_fuzzy_match("ein", "einstuerzende");
+    rc = search_fuzzy_match("ein", "einstuerzende");
     ASSERT_FALSE(rc);
-    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "elnstuersende naubauden");
+    rc = search_fuzzy_match("einstuerzende neubauten", "elnstuersende naubauden");
     ASSERT_FALSE(rc);
-    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "einstuerzende neubaxxxx");
+    rc = search_fuzzy_match("einstuerzende neubauten", "einstuerzende neubaxxxx");
     ASSERT_FALSE(rc);
-    rc = mympd_search_fuzzy_match("einstuerzende neubauten", "xinstuerzende neubauxxx");
+    rc = search_fuzzy_match("einstuerzende neubauten", "xinstuerzende neubauxxx");
     ASSERT_FALSE(rc);
 }
