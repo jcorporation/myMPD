@@ -15,8 +15,7 @@ end
 function mympd.splitlines(str)
   local lines = {}
   for line in string.gmatch(str, "[^\n]+") do
-    line = mympd.trim(line)
-    table.insert(lines, line)
+    table.insert(lines, mympd.trim(line))
   end
   return lines
 end
