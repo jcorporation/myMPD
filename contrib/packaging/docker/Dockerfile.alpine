@@ -9,7 +9,7 @@ FROM alpine:latest AS build
 COPY . /myMPD/
 WORKDIR /myMPD
 RUN <<EOF
-set +ex
+set -ex
 ./build.sh installdeps
 cmake -B "release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MANPAGES=OFF -DMYMPD_DOC=OFF .
 cmake --build release

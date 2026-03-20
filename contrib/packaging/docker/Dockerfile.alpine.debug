@@ -8,7 +8,7 @@ FROM alpine:latest
 COPY . /myMPD/
 WORKDIR /myMPD
 RUN <<EOF
-set +ex
+set -ex
 apk update
 apk upgrade
 ./build.sh installdeps
