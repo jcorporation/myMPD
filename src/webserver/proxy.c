@@ -265,8 +265,11 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                 //send to frontend
                 sds headers = sdscatfmt(sdsempty(), "%s"
                     "Content-Type: %s\r\n",
+                    "Connection: %s\r\n"
                     EXTRA_HEADERS_IMAGE,
-                    mime_type);
+                    mime_type,
+                    (backend_nc_data->frontend_nc->data[2] == 'C' ? "close" : "keep-alive")
+                );
                 webserver_send_data(backend_nc_data->frontend_nc, hm->body.buf, hm->body.len, headers);
                 FREE_SDS(headers);
             }

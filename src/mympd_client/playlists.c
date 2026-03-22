@@ -14,6 +14,7 @@
 #include "dist/rax/rax.h"
 #include "src/lib/convert.h"
 #include "src/lib/fields.h"
+#include "src/lib/list/shuffle.h"
 #include "src/lib/log.h"
 #include "src/lib/random.h"
 #include "src/lib/rax_extras.h"

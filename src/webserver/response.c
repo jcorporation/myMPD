@@ -96,7 +96,9 @@ void webserver_send_api_response(struct mg_mgr *mgr, struct t_work_response *res
  * @param msg the error message
  */
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
-    mg_http_reply(nc, code, "Content-Type: text/html\r\n",
+    mg_http_reply(nc, code,
+        "Content-Type: text/html\r\n"
+        "Connection: %s\r\n",
         "<!DOCTYPE html>"
         "<html lang=\"en\">"
           "<head>"
@@ -108,6 +110,7 @@ void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
             "<p>%s</p>"
           "</body>"
         "</html>",
+        (nc->data[2] == 'C' ? "close" : "keep-alive"),
         msg);
     if (code >= 400) {
         MYMPD_LOG_ERROR(NULL, "HTTP %d: %s", code, msg);
@@ -124,8 +127,13 @@ void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
 void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *headers) {
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
         "%s"
-        "Content-Length: %lu\r\n\r\n",
-        headers, (unsigned long)len);
+        "Content-Length: %lu\r\n"
+        "Connection: %s\r\n"
+        "\r\n",
+        headers,
+        (unsigned long)len,
+        (nc->data[2] == 'C' ? "close" : "keep-alive")
+    );
 }
 
 /**
@@ -186,10 +194,15 @@ void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm,
 {
     MYMPD_LOG_DEBUG(NULL, "Serving file %s", file);
     static struct mg_http_serve_opts s_http_server_opts;
-    s_http_server_opts.extra_headers = headers;
+    sds send_headers = sdsnew(headers);
+    send_headers = sdscatfmt(send_headers, "Connection: %s\r\n",
+        (nc->data[2] == 'C' ? "close" : "keep-alive")
+    );
+    s_http_server_opts.extra_headers = send_headers;
     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
     mg_http_serve_file(nc, hm, file, &s_http_server_opts);
     webserver_handle_connection_close(nc);
+    sdsfree(send_headers);
 }
 
 /**
@@ -205,10 +218,13 @@ void webserver_send_header_redirect(struct mg_connection *nc, const char *locati
     mg_printf(nc, "HTTP/1.1 301 Moved Permanently\r\n"
         "Location: %s\r\n"
         "Content-Length: 0\r\n"
+        "Connection: %s\r\n"
         EXTRA_HEADERS_CACHE
         "%s"
         "\r\n",
-        location, headers);
+        location,
+        (nc->data[2] == 'C' ? "close" : "keep-alive"),
+        headers);
     webserver_handle_connection_close(nc);
 }
 
@@ -225,9 +241,12 @@ void webserver_send_header_found(struct mg_connection *nc, const char *location,
     mg_printf(nc, "HTTP/1.1 302 Found\r\n"
         "Location: %s\r\n"
         "Content-Length: 0\r\n"
+        "Connection: %s\r\n"
         "%s"
         "\r\n",
-        location, headers);
+        location,
+        (nc->data[2] == 'C' ? "close" : "keep-alive"),
+        headers);
     webserver_handle_connection_close(nc);
 }
 
@@ -243,8 +262,11 @@ void webserver_send_cors_reply(struct mg_connection *nc) {
         "Access-Control-Allow-Credentials: true\r\n"
         "Access-Control-Allow-Headers: *\r\n"
         "Access-Control-Expose-Headers: *\r\n"
+        "Connection: %s\r\n"
         EXTRA_HEADERS_CACHE
-        "\r\n");
+        "\r\n",
+        (nc->data[2] == 'C' ? "close" : "keep-alive")
+    );
     webserver_handle_connection_close(nc);
 }
 
@@ -278,10 +300,12 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
             "%s"
             "Content-Length: %d\r\n"
             "Content-Type: %s\r\n"
+            "Connection: %s\r\n"
             "%s\r\n",
             (p->cache == true ? EXTRA_HEADERS_CACHE : ""),
             p->size,
             p->mimetype,
+            (nc->data[2] == 'C' ? "close" : "keep-alive"),
             (p->compressed == true ? EXTRA_HEADER_CONTENT_ENCODING : "")
         );
         //send data

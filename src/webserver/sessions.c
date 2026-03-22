@@ -16,11 +16,11 @@
 #include "src/lib/json/json_query.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
+#include "src/lib/random.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/validate.h"
 #include "src/webserver/response.h"
 
-#include <openssl/rand.h>
 #include <string.h>
 #include <time.h>
 
@@ -101,14 +101,9 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
  * @return newly allocated sds string with the session hash or NULL on error
  */
 sds webserver_session_new(struct t_list *session_list) {
-    unsigned char buf[10];
-    if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) != 1) {
-        return NULL;
-    }
-    sds session = sdsempty();
-    for (int i = 0; i < 10; i++) {
-        session = sdscatprintf(session, "%02x", buf[i]);
-    }
+    // Create random string
+    sds session = sdsnewlen(SDS_NOINIT, 20);
+    randstring(session, 21);
     //timeout old sessions
     webserver_session_validate(session_list, NULL);
     //add new session with 30 min timeout
@@ -140,7 +135,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
             current = next;
         }
         else {
-            //validate session
+            // Validate session
             if (session != NULL &&
                 strcmp(current->key, session) == 0)
             {
@@ -148,7 +143,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
                 current->value_i = time(NULL) + 1800;
                 return true;
             }
-            //skip to next entrie
+            // Skip to next entry
             i++;
             current = current->next;
         }
@@ -160,7 +155,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
 }
 
 /**
- * 
+ * Removes a session
  * @param session_list the session list
  * @param session session hash to remove
  * @return true on success, else false

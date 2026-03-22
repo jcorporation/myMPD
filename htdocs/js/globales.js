@@ -1860,22 +1860,22 @@ const LUAfunctions = {
     "mympd.gpio_blink": {
         "desc": "Blinks a GPIO with given timeout and interval.",
         "func": "local rc = mympd.gpio_blink(gpio, timeout_ms, interval_ms)",
-        "feat": "featMygpiod"
+        "feat": ""
     },
     "mympd.gpio_get": {
         "desc": "Returns the active state of a GPIO.",
         "func": "local rc = mympd.gpio_get(gpio)",
-        "feat": "featMygpiod"
+        "feat": ""
     },
     "mympd.gpio_set": {
         "desc": "Sets the active state of a GPIO.",
         "func": "local rc = mygpio_gpio_set(mympd.mygpiod_socket, gpio, value)",
-        "feat": "featMygpiod"
+        "feat": ""
     },
     "mympd.gpio_toggle": {
         "desc": "Toggles the active state of a GPIO.",
         "func": "local rc = mygpio_gpio_toggle(mympd.mygpiod_socket, gpio)",
-        "feat": "featMygpiod"
+        "feat": ""
     },
     "mympd.notify_client": {
         "desc": "Sends a notification to the client that started this script.",

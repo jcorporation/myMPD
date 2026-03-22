@@ -14,6 +14,7 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/utility.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_client/errorhandler.h"
@@ -59,22 +60,6 @@ void mympd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_parti
     partition_state->mpd_state->feat.advsticker = mympd_state->stickerdb->mpd_state->feat.advsticker;
 
     // Set features by MPD protocol version
-    if (mpd_connection_cmp_server_version(partition_state->conn, 0, 23, 3) >= 0 ) {
-        partition_state->mpd_state->feat.playlist_rm_range = true;
-        MYMPD_LOG_INFO(partition_state->name, "Enabling delete playlist range feature");
-    }
-    else {
-        MYMPD_LOG_WARN(partition_state->name, "Disabling delete playlist range feature, depends on mpd >= 0.23.3");
-    }
-
-    if (mpd_connection_cmp_server_version(partition_state->conn, 0, 23, 5) >= 0 ) {
-        partition_state->mpd_state->feat.whence = true;
-        MYMPD_LOG_INFO(partition_state->name, "Enabling position whence feature");
-    }
-    else {
-        MYMPD_LOG_WARN(partition_state->name, "Disabling position whence feature, depends on mpd >= 0.23.5");
-    }
-
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 25, 0) >= 0 ) {
         partition_state->mpd_state->feat.mpd_0_25_0 = true;
     }
@@ -362,7 +347,7 @@ static sds set_directory(const char *desc, sds directory, sds value) {
         MYMPD_LOG_ERROR(NULL, "Invalid %s directory value: \"%s\"", desc, directory);
         return value;
     }
-    strip_slash(value);
+    sds_strip_slash(value);
     if (sdslen(value) > 0 &&
         testdir(desc, value, false, true) != DIR_EXISTS)
     {

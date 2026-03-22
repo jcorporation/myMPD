@@ -62,3 +62,126 @@ UTEST(sds_file, test_sds_basename) {
         p++;
     }
 }
+
+UTEST(sds_file, test_basename_uri) {
+    struct t_input_result testcases[] = {
+        {"http://host:80/verz/verz/test?safsaf#798234",   "http://host:80/verz/verz/test" },
+        {"https://host:443/verz/verz/test?safsaf#798234", "https://host:443/verz/verz/test" },
+        {"https://host/verz/verz/test",                   "https://host/verz/verz/test" },
+        {"",                                              "" },
+        {"/test/test.mp3",                                "test.mp3" },
+        {NULL,                                            NULL}
+    };
+    struct t_input_result *p = testcases;
+    sds test_input = sdsempty();
+    while (p->input != NULL) {
+        test_input = sdscatfmt(test_input, "%s", p->input);
+        sds_basename_uri(test_input);
+        ASSERT_STREQ(p->result, test_input);
+        sdsclear(test_input);
+        p++;
+    }
+    sdsfree(test_input);
+}
+
+UTEST(sds_file, test_strip_slash) {
+    struct t_input_result testcases[] = {
+        {"//",           ""},
+        {"/test/woext/", "/test/woext"},
+        {"",             ""},
+        {"sdf/",         "sdf"},
+        {"/",            ""},
+        {NULL,           NULL}
+    };
+    struct t_input_result *p = testcases;
+    sds testfilename = sdsempty();
+    while (p->input != NULL) {
+        testfilename = sdscatfmt(testfilename, "%s", *p);
+        sds_strip_slash(testfilename);
+        ASSERT_STREQ(p->result, testfilename);
+        sdsclear(testfilename);
+        p++;
+    }
+    sdsfree(testfilename);
+}
+
+UTEST(sds_file, test_strip_file_extension) {
+    struct t_input_result testcases[] = {
+        {"/test/test.mp3",   "/test/test"},
+        {"/test/woext",      "/test/woext"},
+        {"",                 ""},
+        {"/tes/tet.mp3.mp3", "/tes/tet.mp3"},
+        {NULL,               NULL}
+    };
+    struct t_input_result *p = testcases;
+    sds test_input = sdsempty();
+    while (p->input != NULL) {
+        test_input = sdscatfmt(test_input, "%s", p->input);
+        sds_strip_file_extension(test_input);
+        ASSERT_STREQ(p->result, test_input);
+        sdsclear(test_input);
+        p++;
+    }
+    sdsfree(test_input);
+}
+
+UTEST(sds_file, test_replace_file_extension) {
+    struct t_input_result testcases[] = {
+        {"/test/test.mp3",   "/test/test.lrc"},
+        {"/test/woext",      "/test/woext.lrc"},
+        {"",                 ""},
+        {"/tes/tet.mp3.mp3", "/tes/tet.mp3.lrc"},
+        {NULL,               NULL}
+    };
+    struct t_input_result *p = testcases;
+    sds test_input = sdsempty();
+    while (p->input != NULL) {
+        test_input = sdscatfmt(test_input, "%s", p->input);
+        sds test_output = sds_replace_file_extension(test_input, "lrc");
+        ASSERT_STREQ(p->result, test_output);
+        sdsclear(test_input);
+        sdsfree(test_output);
+        p++;
+    }
+    sdsfree(test_input);
+}
+
+UTEST(sds_file, test_sanitize_filename) {
+    struct t_input_result testcases[] = {
+        {"http://host:80/verz/verz/test?safsaf#798234",   "http___host_80_verz_verz_test_safsaf_798234" },
+        {"https://host:443/verz/verz/test?safsaf#798234", "https___host_443_verz_verz_test_safsaf_798234" },
+        {"https://host/verz/verz/test",                   "https___host_verz_verz_test" },
+        {"",                                              "" },
+        {"/test/test.mp3.mp3",                            "_test_test_mp3_mp3" },
+        {NULL,                                            NULL}
+    };
+    struct t_input_result *p = testcases;
+    sds test_input = sdsempty();
+    while (p->input != NULL) {
+        test_input = sdscatfmt(test_input, "%s", p->input);
+        sds_sanitize_filename(test_input);
+        ASSERT_STREQ(p->result, test_input);
+        sdsclear(test_input);
+        p++;
+    }
+    sdsfree(test_input);
+}
+
+UTEST(sds_file, test_sanitize_filename2) {
+    struct t_input_result testcases[] = {
+        {"http://host:80/verz/verz/test?safsaf#798234",   "http:__host:80_verz_verz_test?safsaf#798234" },
+        {"",                                              "" },
+        {"/test/test.mp3.mp3",                            "_test_test.mp3.mp3" },
+        {NULL,                                            NULL}
+    };
+    struct t_input_result *p = testcases;
+    sds test_input = sdsempty();
+    while (p->input != NULL) {
+        test_input = sdscatfmt(test_input, "%s", p->input);
+        sds_sanitize_filename2(test_input);
+        ASSERT_STREQ(p->result, test_input);
+        sdsclear(test_input);
+        p++;
+    }
+    sdsfree(test_input);
+}

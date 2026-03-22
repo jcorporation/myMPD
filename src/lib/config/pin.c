@@ -16,6 +16,7 @@
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_hash.h"
 
+#include <assert.h>
 #include <openssl/evp.h>
 #include <string.h>
 #include <termios.h>
@@ -91,9 +92,14 @@ bool pin_validate(const char *pin, const char *hash) {
         MYMPD_LOG_ERROR(NULL, "No pin is set");
         return false;
     }
+    if (strlen(hash) != SHA256_HASH_LEN) {
+        MYMPD_LOG_ERROR(NULL, "Invalid pin hash in configuration");
+        return false;
+    }
     sds test_hash = sds_hash_sha256(pin);
     bool rc = false;
-    if (strcmp(test_hash, hash) == 0) {
+    assert(sdslen(test_hash) == SHA256_HASH_LEN);
+    if (CRYPTO_memcmp(test_hash, hash, SHA256_HASH_LEN) == 0) {
         MYMPD_LOG_INFO(NULL, "Valid pin entered");
         rc = true;
     }

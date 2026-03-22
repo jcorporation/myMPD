@@ -18,14 +18,15 @@
  */
 enum timer_ids {
     TIMER_ID_DISK_CACHE_CROP = 1,
-    TIMER_ID_SMARTPLS_UPDATE = 2,
-    TIMER_ID_CACHES_CREATE = 3,
-    TIMER_ID_WEBRADIODB_UPDATE = 4
+    TIMER_ID_SMARTPLS_UPDATE,
+    TIMER_ID_CACHES_CREATE,
+    TIMER_ID_WEBRADIODB_UPDATE,
+    TIMER_ID_STATE_SAVE,
 };
 
 const char *get_timer_name(unsigned timer_id);
-void timer_handler_by_id(unsigned timer_id, struct t_timer_definition *definition);
-void timer_handler_select(unsigned timer_id, struct t_timer_definition *definition);
+void timer_handler_by_id(enum timer_ids timer_id, struct t_timer_definition *definition, struct t_mympd_state *mympd_state);
+void timer_handler_select(unsigned timer_id, struct t_timer_definition *definition, struct t_mympd_state *mympd_state);
 bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         unsigned volume, sds playlist, sds preset);
 #endif

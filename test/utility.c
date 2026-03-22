@@ -8,6 +8,8 @@
 
 #include "src/lib/album.h"
 #include "src/lib/filehandler.h"
+#include "src/lib/list/shuffle.h"
+#include "src/lib/random.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -132,4 +134,69 @@ struct mpd_song *new_test_song(void) {
 #endif
 
     return song;
+}
+
+unsigned populate_list(struct t_list *l) {
+    list_init(l);
+    list_push(l, "key1", 1, "value1", NULL);
+    list_push(l, "key2", 2, "value2", NULL);
+    list_push(l, "key3", 3, "value3", NULL);
+    list_push(l, "key4", 4, "value4", NULL);
+    list_push(l, "key5", 5, "value5", NULL);
+    list_insert(l, "key0", 0, "value0", NULL);
+    return l->length;
+}
+
+unsigned populate_large_list(struct t_list *l, bool shuffled, int count) {
+    list_init(l);
+    char buffer1[101];
+    char buffer2[201];
+    for (int i = 0; i < count; i++) {
+        randstring(buffer1, 100);
+        randstring(buffer2, 100);
+        list_push(l, buffer1, i, buffer2, NULL);
+    }
+    if (shuffled == true) {
+        list_shuffle(l);
+    }
+    return l->length;
+}
+
+bool check_list_integrity(struct t_list *l, unsigned expected_len) {
+    struct t_list_node *current = l->head;
+    unsigned len = 0;
+    // Iterate through the list
+    while (current != NULL) {
+        len++;
+        if (current->next == NULL) {
+            break;
+        }
+        current = current->next;
+    }
+    if (len != expected_len) {
+        return false;
+    }
+    // Empty list
+    if (current == NULL &&
+        l->tail == NULL &&
+        len == 0)
+    {
+        return true;
+    }
+    // current is now the last node in the list -> tail
+    if (current != l->tail) {
+        return false;
+    }
+    // Check length
+    if (len != l->length) {
+        return false;
+    }
+    // Tails next must be NULL
+    if (current->next != NULL) {
+        return false;
+    }
+    if (l->tail->next != NULL) {
+        return false;
+    }
+    return true;
 }

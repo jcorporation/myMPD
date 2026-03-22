@@ -33,13 +33,6 @@ endif()
 if(MYMPD_ENABLE_LUA)
   target_include_directories(mympd SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
 endif()
-if(MYMPD_ENABLE_MYGPIOD)
-  if(MYMPD_ENABLE_MYGPIOD_STATIC)
-    target_include_directories(mympd SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/dist/myGPIOd/libmygpio/include")
-  else()
-    target_include_directories(mympd SYSTEM PRIVATE ${LIBMYGPIO_INCLUDE_DIRS})
-  endif()
-endif()
 if(NOT MYMPD_EMBEDDED_LIBMPDCLIENT)
   target_include_directories(mympd SYSTEM PRIVATE ${LIBMPDCLIENT_INCLUDE_DIRS})
 else()
@@ -76,7 +69,9 @@ target_sources(mympd
     lib/json/json_rpc.c
     lib/jukebox.c
     lib/last_played.c
-    lib/list.c
+    lib/list/list.c
+    lib/list/shuffle.c
+    lib/list/sort.c
     lib/log.c
     lib/mimetype.c
     lib/mem.c
@@ -219,12 +214,5 @@ if(MYMPD_ENABLE_LIBID3TAG)
     PRIVATE
       webserver/albumart_id3.c
       webserver/lyrics_id3.c
-  )
-endif()
-
-if(MYMPD_ENABLE_MYGPIOD)
-  target_sources(mympd
-    PRIVATE
-      scripts/interface_mygpio.c
   )
 endif()

@@ -66,6 +66,8 @@ enum config_item {
     CI_SSL_KEY,
     CI_SSL_PORT,
     CI_SSL_SAN,
+    CI_SSL_SEND_CHAIN,
+    CI_STATE_SAVE,
     CI_STICKERS,
     CI_STICKERS_PAD_INT,
     CI_WEBRADIODB,
@@ -153,6 +155,8 @@ static const struct t_config_default config_default[] = {
     [CI_SSL_KEY]                        = {"ssl_key",                        {.t = CIT_S, .s = ""},             0, 0, vcb_isfilepath},
     [CI_SSL_PORT]                       = {"ssl_port",                       {.t = CIT_I, .i = 8443},           0, MPD_PORT_MAX, NULL},
     [CI_SSL_SAN]                        = {"ssl_san",                        {.t = CIT_S, .s = ""},             0, 0, vcb_isname},
+    [CI_SSL_SEND_CHAIN]                 = {"ssl_send_chain",                 {.t = CIT_B, .b = false},          0, 0, NULL},
+    [CI_STATE_SAVE]                     = {"state_save",                     {.t = CIT_B, .b = true},           0, 0, NULL},
     [CI_STICKERS]                       = {"stickers",                       {.t = CIT_B, .b = true},           0, 0, NULL},
     [CI_STICKERS_PAD_INT]               = {"stickers_pad_int",               {.t = CIT_B, .b = false},          0, 0, NULL},
     [CI_WEBRADIODB]                     = {"webradiodb",                     {.t = CIT_B, .b = true},           0, 0, NULL}
@@ -358,6 +362,14 @@ static void set_config(struct t_config *config, enum config_item ci, struct t_co
         case CI_SSL_SAN:
             assert(value->t == CIT_S);
             config->ssl_san = value->s;
+            break;
+        case CI_SSL_SEND_CHAIN:
+            assert(value->t == CIT_B);
+            config->ssl_send_chain = value->b;
+            break;
+        case CI_STATE_SAVE:
+            assert(value->t == CIT_B);
+            config->state_save = value->b;
             break;
         case CI_STICKERS:
             assert(value->t == CIT_B);

@@ -28,15 +28,17 @@
 /**
  * Fuzzy substring matching using the levenshtein distance
  * @param haystack Haystack
+ * @param haystack_len Haystack length
  * @param needle Needle
+ * @param needle_len Needle length
  * @return true on match, else false
  */
-bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
-    const size_t needle_len = strlen(needle);
+bool mympd_search_fuzzy_match(const char *haystack, size_t haystack_len,
+        const char *needle, size_t needle_len)
+{
     if (needle_len <= 1) {
         return true;
     }
-    size_t haystack_len = strlen(haystack);
     if (needle_len > haystack_len) {
         return false;
     }
@@ -46,7 +48,7 @@ bool mympd_search_fuzzy_match(const char *haystack, const char *needle) {
     const size_t max_distance = needle_len < 10
         ? 1
         : (needle_len / 10) + 1;
-    size_t *cache = calloc(haystack_len + 1, sizeof(size_t));
+    size_t *cache = calloc(needle_len + 1, sizeof(size_t));
     const char *p = haystack;
     while (*p != '\0' &&
            haystack_len >= needle_len)
@@ -98,8 +100,12 @@ static size_t levenshtein(const char *a, size_t a_len, const char *b, size_t b_l
             olddiag = cache[a_idx];
             cache[a_idx] = MIN3(cache[a_idx] + 1, cache[a_idx - 1] + 1, lastdiag + (a[a_idx - 1] == b[b_idx - 1] ? 0 : 1));
             lastdiag = olddiag;
+            // Check if distance is too high to become lower equal the max distance value in the remaining iterations
+            if (cache[a_idx] > a_len - a_idx + max_distance) {
+                break;
+            }
         }
-        // This is good enough
+        // We do not require the minimum distance, a distance lower equal the max distance is good enough
         if (cache[a_len] <= max_distance) {
             //MYMPD_LOG_DEBUG(NULL, "levenshtein return early %lu/%lu: %.*s - %.*s", x, b_len, (int)a_len, a, (int)b_len, b);
             return cache[a_len];

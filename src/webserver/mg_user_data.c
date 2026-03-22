@@ -11,8 +11,8 @@
 #include "compile_time.h"
 #include "src/webserver/mg_user_data.h"
 
+#include "dist/mongoose/mongoose.h"
 #include "src/lib/config/cert.h"
-#include "src/lib/filehandler.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_file.h"
@@ -38,9 +38,7 @@ static bool read_certs(struct t_mg_user_data *mg_user_data, struct t_config *con
 struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
     struct t_mg_user_data *mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
     mg_user_data->cert_content = NULL;
-    mg_user_data->cert = mg_str("");
     mg_user_data->key_content = NULL;
-    mg_user_data->key = mg_str("");
     if (config->ssl == true &&
         read_certs(mg_user_data, config) == false)
     {
@@ -246,7 +244,23 @@ static bool read_certs(struct t_mg_user_data *mg_user_data, struct t_config *con
         MYMPD_LOG_INFO(NULL, "Certificate: %s", cert_details);
     }
     FREE_SDS(cert_details);
-    mg_user_data->cert = mg_str(mg_user_data->cert_content);
-    mg_user_data->key = mg_str(mg_user_data->key_content);
+    if (config->custom_cert == false &&
+        config->ssl_send_chain == true)
+    {
+        nread = 0;
+        sds ca_filename = sdscatfmt(sdsempty(), "%S/%s/ca.pem", config->workdir, DIR_WORK_SSL);
+        sds ca_content = sds_getfile(sdsempty(), ca_filename, SSL_FILE_MAX, false, true, &nread);
+        if (nread <= 0) {
+            MYMPD_LOG_ERROR(NULL, "Failure reading ssl ca certificate from disc");
+            return false;
+        }
+        // Build the chain for mongoose
+        mg_user_data->cert_content = sdscatfmt(mg_user_data->cert_content, "\n%S\n", ca_content);
+        FREE_SDS(ca_filename);
+        FREE_SDS(ca_content);
+    }
+    memset(&mg_user_data->tls_opts, 0, sizeof(mg_user_data->tls_opts));
+    mg_user_data->tls_opts.cert = mg_str(mg_user_data->cert_content);
+    mg_user_data->tls_opts.key = mg_str(mg_user_data->key_content);
     return true;
 }

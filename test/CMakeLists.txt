@@ -31,7 +31,9 @@ set(TEST_SOURCES
   ../src/lib/json/json_rpc.c
   ../src/lib/jukebox.c
   ../src/lib/last_played.c
-  ../src/lib/list.c
+  ../src/lib/list/list.c
+  ../src/lib/list/shuffle.c
+  ../src/lib/list/sort.c
   ../src/lib/log.c
   ../src/lib/mimetype.c
   ../src/lib/mem.c
@@ -100,6 +102,8 @@ set(TEST_SOURCES
   tests/test_jsonprint.c
   tests/test_jsonquery.c
   tests/test_list.c
+  tests/test_list_sort.c
+  tests/test_list_shuffle.c
   tests/test_mimetype.c
   tests/test_mympd_queue.c
   tests/test_mympd_state.c
@@ -193,6 +197,8 @@ list(APPEND test_categories
   "jsonprint"
   "jsonquery"
   "list"
+  "list_sort"
+  "list_shuffle"
   "m3u"
   "mimetype"
   "mympd_queue"

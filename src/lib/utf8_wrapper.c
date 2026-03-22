@@ -60,17 +60,23 @@ bool utf8_wrap_validate(const char *str, size_t len) {
  * Casefolds a string
  * @param str String to normalize
  * @param len String length
+ * @param newlen Pointer to size_t for the new string length
  * @return Newly allocated char, caller must free it.
  */
-char *utf8_wrap_casefold(const char *str, size_t len) {
+char *utf8_wrap_casefold(const char *str, size_t len, size_t *newlen) {
     assert(str);
     #ifdef MYMPD_ENABLE_UTF8
         utf8proc_uint8_t *fold_str;
-        utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, UTF8PROC_CASEFOLD);
-        if (fold_str == NULL) {
+        ssize_t return_len = utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, UTF8PROC_CASEFOLD);
+        if (fold_str == NULL ||
+            return_len < 0)
+        {
             MYMPD_LOG_WARN(NULL, "Failure in unicode processing of: \"%s\"", str);
+            *newlen = len;
+            FREE_PTR(fold_str);
             return my_strdup(str, len);
         }
+        *newlen = (size_t)return_len;
         return (char *)fold_str;
     #else
         char *lower = malloc_assert(len + 1);
@@ -78,6 +84,7 @@ char *utf8_wrap_casefold(const char *str, size_t len) {
             lower[i] = (char)tolower(str[i]);
         }
         lower[len] = '\0';
+        *newlen = len;
         return lower;
     #endif
 }
@@ -86,20 +93,26 @@ char *utf8_wrap_casefold(const char *str, size_t len) {
  * Normalizes a string
  * @param str String to normalize
  * @param len String length
+ * @param newlen Pointer to size_t for the new string length
  * @return Newly allocated char, caller must free it.
  */
-char *utf8_wrap_normalize(const char *str, size_t len) {
+char *utf8_wrap_normalize(const char *str, size_t len, size_t *newlen) {
     assert(str);
     #ifdef MYMPD_ENABLE_UTF8
         utf8proc_uint8_t *fold_str;
-        utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, normalize_flags);
-        if (fold_str == NULL) {
+        ssize_t return_len = utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, normalize_flags);
+        if (fold_str == NULL ||
+            return_len < 0)
+        {
             MYMPD_LOG_WARN(NULL, "Failure in unicode processing of: \"%s\"", str);
+            *newlen = len;
+            FREE_PTR(fold_str);
             return my_strdup(str, len);
         }
+        *newlen = (size_t)return_len;
         return (char *)fold_str;
     #else
-        return utf8_wrap_casefold(str, len);
+        return utf8_wrap_casefold(str, len, newlen);
     #endif
 }
 
@@ -114,8 +127,10 @@ char *utf8_wrap_normalize(const char *str, size_t len) {
 int utf8_wrap_casecmp(const char *str1, size_t str1_len, const char *str2, size_t str2_len) {
     assert(str1);
     assert(str2);
-    char *fold_str1 = utf8_wrap_casefold(str1, str1_len);
-    char *fold_str2 = utf8_wrap_casefold(str2, str2_len);
+    size_t str1_newlen;
+    size_t str2_newlen;
+    char *fold_str1 = utf8_wrap_casefold(str1, str1_len, &str1_newlen);
+    char *fold_str2 = utf8_wrap_casefold(str2, str2_len, &str2_newlen);
     int rc = strcmp(fold_str1, fold_str2);
     FREE_PTR(fold_str1);
     FREE_PTR(fold_str2);

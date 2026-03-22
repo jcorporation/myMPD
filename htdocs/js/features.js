@@ -23,7 +23,6 @@ function setFeatures() {
     features.featFooterNotifications = settings.webuiSettings.footerNotifications;
     features.featSession = settings.pin;
     features.featFooterAudioFormat = settings.webuiSettings.footerAudioFormat;
-    features.featMygpiod = settings.features.featMygpiod;
     features.featWebradioDB = settings.features.featWebradioDB;
     features.viewTitle = settings.webuiSettings.viewTitles;
     //stickers config value
@@ -65,8 +64,6 @@ function setFeatures() {
         features.featStickers = settings.features.featStickers;
         features.featTags = settings.features.featTags;
         features.featFingerprint = settings.features.featFingerprint;
-        features.featPlaylistRmRange = settings.features.featPlaylistRmRange;
-        features.featWhence = settings.features.featWhence;
         features.featAdvqueue = settings.features.featAdvqueue;
         features.featConsumeOneshot = settings.features.featConsumeOneshot;
         features.featPlaylistDirAuto = settings.features.featPlaylistDirAuto;

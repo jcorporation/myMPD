@@ -17,9 +17,9 @@
 #include "src/lib/log.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds/sds_extras.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/sds/sds_json.h"
 #include "src/lib/search/search.h"
-#include "src/lib/utility.h"
 
 #include <string.h>
 
@@ -211,7 +211,7 @@ sds mympd_api_webradio_print(struct t_webradio_data *webradio, sds buffer, const
                 buffer = sdscatlen(buffer, ",", 1);
             }
             key = sdscatsds(key, current->key);
-            sanitize_filename(key);
+            sds_sanitize_filename(key);
             buffer = sds_catjson(buffer, key, sdslen(key));
             sdsclear(key);
             buffer = sdscatlen(buffer, ":{", 2);

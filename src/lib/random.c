@@ -54,7 +54,7 @@ char randchar(void) {
 /**
  * Fills the buffer with random ascii chars and NULL-terminates it.
  * @param buffer buffer to fill
- * @param len length of buffer
+ * @param len length of buffer including NULL-term
  */
 void randstring(char *buffer, size_t len) {
     size_t max = len - 1;

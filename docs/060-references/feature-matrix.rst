@@ -3,7 +3,7 @@ Feature matrix
 
 Certain myMPD features are only available with new MPD versions. To use all myMPD functions you should use the latest stable MPD version.
 
-.. hint:: myMPD support only MPD 0.22.4 and above.
+.. include:: _includes/mpd-compat.rst
 
 +------------------------------------------+-------------+------------------------------------------------------+
 | MYMPD FEATURE                            | MPD VERSION | DESCRIPTION                                          |
@@ -25,13 +25,4 @@ Certain myMPD features are only available with new MPD versions. To use all myMP
 |                                          |             | append to playlist.                                  |
 +------------------------------------------+-------------+------------------------------------------------------+
 | Queue sorting                            | 0.24.0      | Queue sorting and priority filter.                   |
-+------------------------------------------+-------------+------------------------------------------------------+
-| Add after current song (position/whence  | 0.23.5      | Adds items to the queue after current playing song.  |
-| arg for load/searchadd)                  |             |                                                      |
-+------------------------------------------+-------------+------------------------------------------------------+
-| Insert into playlist (position arg for   | 0.23.5      | Inserts songs into a playlist.                       |
-| playlistadd)                             |             |                                                      |
-+------------------------------------------+-------------+------------------------------------------------------+
-| Remove range in playlist (range arg for  | 0.23.3      | Removes a range of songs in a playlist.              |
-| playlistdelete)                          |             |                                                      |
 +------------------------------------------+-------------+------------------------------------------------------+

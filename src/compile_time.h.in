@@ -30,7 +30,6 @@
 #cmakedefine MYMPD_ENABLE_IPV6
 #cmakedefine MYMPD_ENABLE_LIBID3TAG
 #cmakedefine MYMPD_ENABLE_LUA
-#cmakedefine MYMPD_ENABLE_MYGPIOD
 #cmakedefine MYMPD_ENABLE_UTF8
 
 //translation files
@@ -59,9 +58,9 @@
 
 //minimum mpd version
 #define MPD_VERSION_MIN_MAJOR 0
-#define MPD_VERSION_MIN_MINOR 22
-#define MPD_VERSION_MIN_PATCH 4
-#define MPD_TOO_OLD_MSG "MPD version too old, myMPD supports only MPD version >= 0.22.4"
+#define MPD_VERSION_MIN_MINOR 23
+#define MPD_VERSION_MIN_PATCH 5
+#define MPD_TOO_OLD_MSG "MPD version too old, myMPD supports only MPD version >= 0.23.5"
 
 //default paths from cmake
 #define MYMPD_DOC_ROOT "${MYMPD_DOC_ROOT}"
@@ -218,6 +217,14 @@
     EXTRA_HEADERS_PERMISSIONS_POLICY\
     EXTRA_HEADERS_MISC
 
+#define EXTRA_HEADERS_SAFE_CLOSE \
+    EXTRA_HEADERS_SAFE\
+    "Connection: close\r\n"
+
+#define EXTRA_HEADERS_SAFE_KEEP_ALIVE \
+    EXTRA_HEADERS_SAFE\
+    "Connection: keep-alive\r\n"
+
 #define EXTRA_HEADERS_SAFE_CACHE EXTRA_HEADERS_SAFE\
     EXTRA_HEADERS_CACHE
 
@@ -295,6 +302,8 @@
 #define WS_PING_TIMEOUT 300 // seconds
 
 //session limits
+#define SHA256_HASH_LEN 64
+#define HTTP_SESSION_STR_LEN 20 // Length of session identifier
 #define HTTP_SESSIONS_MAX 10
 #define HTTP_SESSION_TIMEOUT 1800 //seconds
 
@@ -338,12 +347,13 @@
 
 //timer
 #define TIMER_WEBRADIODB_UPDATE_OFFSET 20 //seconds
-#define TIMER_WEBRADIODB_UPDATE_INTERVAL 86400 //seconds
-#define TIMER_DISK_CACHE_CLEANUP_OFFSET 240 //seconds
-#define TIMER_DISK_CACHE_CLEANUP_INTERVAL 86400 //seconds
+#define TIMER_WEBRADIODB_UPDATE_INTERVAL 86400 //seconds - one day
+#define TIMER_DISK_CACHE_CLEANUP_OFFSET 240 //seconds - 4 minutes
+#define TIMER_DISK_CACHE_CLEANUP_INTERVAL 86400 //seconds - one day
 #define TIMER_SMARTPLS_UPDATE_OFFSET 30 //seconds
+#define TIMER_DISK_STATE_SAVE_OFFSET 300 //seconds - 5 minutes
 #define TIMER_INTERVAL_MIN 0 //seconds
-#define TIMER_INTERVAL_MAX 7257600 //12 weeks
+#define TIMER_INTERVAL_MAX 7257600 //seconds - 12 weeks
 
 //some other limits
 #define CACHE_AGE_MIN -1 //days

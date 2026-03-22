@@ -26,7 +26,7 @@ enum timer_intervals {
 /**
  * Callback functions for timers
  */
-typedef void (*timer_handler)(unsigned timer_id, struct t_timer_definition *definition);
+typedef void (*timer_handler)(unsigned timer_id, struct t_timer_definition *definition, struct t_mympd_state *mympd_state);
 
 /**
  * Timer node
@@ -41,11 +41,13 @@ struct t_timer_node {
 
 void mympd_api_timer_timerlist_init(struct t_timer_list *l);
 void mympd_api_timer_timerlist_clear(struct t_timer_list *l);
-bool mympd_api_timer_check(int fd, struct t_timer_list *timer_list);
+bool mympd_api_timer_check(int fd, struct t_timer_list *timer_list, struct t_mympd_state *mympd_state);
 bool mympd_api_timer_save(struct t_partition_state *partition_state, struct t_timer_list *timer_list, int interval, unsigned timerid,
         struct t_timer_definition *timer_def, sds *error);
 bool mympd_api_timer_add(struct t_timer_list *l, int timeout, int interval,
         timer_handler handler, unsigned timer_id, struct t_timer_definition *definition);
+bool mympd_api_timer_add_uniq(struct t_timer_list *l, int timeout, int interval, timer_handler handler,
+        unsigned timer_id, struct t_timer_definition *definition);
 bool mympd_api_timer_replace(struct t_timer_list *l, int timeout, int interval,
         timer_handler handler, unsigned timer_id, struct t_timer_definition *definition);
 bool mympd_api_timer_remove(struct t_timer_list *l, unsigned timer_id);

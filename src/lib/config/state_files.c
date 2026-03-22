@@ -16,7 +16,6 @@
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_file.h"
-#include "src/lib/utility.h"
 #include "src/lib/validate.h"
 
 #include <ctype.h>
@@ -33,7 +32,7 @@
  */
 bool check_partition_state_dir(sds workdir, sds partition) {
     sds partition_dir = sdsdup(partition);
-    sanitize_filename(partition_dir);
+    sds_sanitize_filename(partition_dir);
     sds state_dir_name = sdscatfmt(sdsempty(), "%S/%s/%S", workdir, DIR_WORK_STATE, partition_dir);
     DIR *state_dir = opendir(state_dir_name);
     FREE_SDS(partition_dir);

@@ -13,7 +13,6 @@
 
 #include "src/lib/api.h"
 #include "src/lib/config/config_def.h"
-#include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds/sds_extras.h"
@@ -172,10 +171,6 @@ static const char *lua_err_to_str(int rc) {
             return "Syntax error during precompilation";
         case LUA_ERRMEM:
             return "Memory allocation error";
-        #if LUA_VERSION_NUM >= 503 && LUA_VERSION_NUM < 504
-        case LUA_ERRGCMM:
-            return "Error in garbage collector";
-        #endif
         case LUA_ERRFILE:
             return "Can not open or read script file";
         case LUA_ERRRUN:

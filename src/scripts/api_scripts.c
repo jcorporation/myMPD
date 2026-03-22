@@ -16,6 +16,7 @@
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_query.h"
 #include "src/lib/json/json_rpc.h"
+#include "src/lib/list/sort.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds/sds_extras.h"
@@ -82,7 +83,7 @@ bool scripts_file_read(struct t_scripts_state *scripts_state) {
             continue;
         }
         scriptname = sdscat(scriptname, next_file->d_name);
-        strip_file_extension(scriptname);
+        sds_strip_file_extension(scriptname);
         scriptfilename = sdscatfmt(scriptfilename, "%S/%s", scriptdirname, next_file->d_name);
         int order = 0;
         sds content = sdsempty();

@@ -119,6 +119,8 @@ read_config() {
     [ -f "${CONFIG_DIR}/jukebox_queue_length_song_min" ] && read -r MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN < "${CONFIG_DIR}/jukebox_queue_length_song_min"
     [ -f "${CONFIG_DIR}/plist_len_max" ] && read -r MYMPD_PLIST_LEN_MAX < "${CONFIG_DIR}/plist_len_max"
     [ -f "${CONFIG_DIR}/smartpls_per_tag_value_max" ] && read -r MYMPD_SMARTPLS_PER_TAG_VALUE_MAX < "${CONFIG_DIR}/smartpls_per_tag_value_max"
+    [ -f "${CONFIG_DIR}/state_save" ] && read -r MYMPD_STATE_SAVE < "${CONFIG_DIR}/state_save"
+    [ -f "${CONFIG_DIR}/ssl_send_chain" ] && read -r MYMPD_SSL_SEND_CHAIN < "${CONFIG_DIR}/ssl_send_chain"
 }
 
 apply_config() {
@@ -158,6 +160,8 @@ apply_config() {
             -E MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN="$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN" \
             -E MYMPD_PLIST_LEN_MAX="$MYMPD_PLIST_LEN_MAX" \
             -E MYMPD_SMARTPLS_PER_TAG_VALUE_MAX="$MYMPD_SMARTPLS_PER_TAG_VALUE_MAX" \
+            -E MYMPD_STATE_SAVE="$MYMPD_STATE_SAVE" \
+            -E MYMPD_SSL_SEND_CHAIN="$MYMPD_SSL_SEND_CHAIN" \
             $MYMPD_BIN -c
     else
         export MYMPD_ACL
@@ -193,6 +197,8 @@ apply_config() {
         export MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN
         export MYMPD_PLIST_LEN_MAX
         export MYMPD_SMARTPLS_PER_TAG_VALUE_MAX
+        export MYMPD_STATE_SAVE
+        export MYMPD_SSL_SEND_CHAIN
         $MYMPD_BIN -c
     fi
 }
@@ -237,6 +243,7 @@ menu_webserver() {
         "SSL" "$MYMPD_SSL" \
         "SSL Port" "$MYMPD_SSL_PORT" \
         "SAN" "$MYMPD_SSL_SAN" \
+        "Send chain" "$MYMPD_SSL_SEND_CHAIN" \
         "Custom certificate" "$MYMPD_CUSTOM_CERT" \
         "Certificate file" "$MYMPD_SSL_CERT" \
         "Private key file" "$MYMPD_SSL_KEY" \
@@ -253,6 +260,7 @@ menu_webserver() {
         "SSL") MYMPD_SSL=$(toggle_bool "$MYMPD_SSL") ;;
         "SSL Port") MYMPD_SSL_PORT=$(get_input "$SELECT" "$MYMPD_SSL_PORT") ;;
         "SAN") MYMPD_SSL_SAN=$(get_input "$SELECT" "$MYMPD_SSL_SAN") ;;
+        "Send chain") MYMPD_SSL_SEND_CHAIN=$(toggle_bool "$MYMPD_SSL_SEND_CHAIN") ;;
         "Custom certificate") MYMPD_CUSTOM_CERT=$(get_input "$SELECT" "$MYMPD_CUSTOM_CERT") ;;
         "Certificate file") MYMPD_SSL_CERT=$(get_input "$SELECT" "$MYMPD_SSL_CERT") ;;
         "Private key file") MYMPD_SSL_KEY=$(get_input "$SELECT" "$MYMPD_SSL_KEY") ;;
@@ -321,6 +329,7 @@ menu_misc() {
         "Jukebox song min. queue length" "$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN" \
         "MPD max. playlist length" "$MYMPD_PLIST_LEN_MAX" \
         "Max. number of tag values for automatic smartpls creation" "$MYMPD_SMARTPLS_PER_TAG_VALUE_MAX" \
+        "Save myMPD state regularly" "$MYMPD_STATE_SAVE" \
         3>&1 1>&2 2>&3)
     case "$SELECT" in
         "Album group tag") MYMPD_ALBUM_GROUP_TAG=$(get_input "$SELECT" "$MYMPD_ALBUM_GROUP_TAG") ;;
@@ -342,6 +351,7 @@ menu_misc() {
         "Jukebox song min. queue length") MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN=$(get_input "$SELECT" "$MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN") ;;
         "MPD max. playlist length") MYMPD_PLIST_LEN_MAX=$(get_input "$SELECT" "$MYMPD_PLIST_LEN_MAX") ;;
         "Max. number of tag values for automatic smartpls creation") MYMPD_SMARTPLS_PER_TAG_VALUE_MAX=$(get_input "$SELECT" "$MYMPD_SMARTPLS_PER_TAG_VALUE_MAX") ;;
+        "Save myMPD state regularly") MYMPD_STATE_SAVE=$(toggle_bool "$MYMPD_STATE_SAVE") ;;
         "") return ;;
     esac
     menu_misc
@@ -403,6 +413,8 @@ parse_options() {
             MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN) MYMPD_JUKEBOX_QUEUE_LENGTH_SONG_MIN="$2" ;;
             MYMPD_PLIST_LEN_MAX) MYMPD_PLIST_LEN_MAX="$2" ;;
             MYMPD_SMARTPLS_PER_TAG_VALUE_MAX) MYMPD_SMARTPLS_PER_TAG_VALUE_MAX="$2" ;;
+            MYMPD_STATE_SAVE) MYMPD_STATE_SAVE="$2" ;;
+            MYMPD_SSL_SEND_CHAIN) MYMPD_SSL_SEND_CHAIN="$2" ;;
             *)
                 echo "Invalid configuration setting"
                 exit 1

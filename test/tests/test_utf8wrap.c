@@ -26,25 +26,31 @@ UTEST(utf8wrap, test_utf8_wrap_validate) {
 }
 
 UTEST(utf8wrap, utf8_wrap_casefold) {
+    size_t newlen;
     size_t len = strlen(utf8_str_valid);
-    char *lower = utf8_wrap_casefold(utf8_str_valid, len);
+    char *lower = utf8_wrap_casefold(utf8_str_valid, len, &newlen);
+    ASSERT_EQ(len, newlen);
     ASSERT_STREQ(lower, "abc123");
     free(lower);
 
     len = strlen(utf8_str_invalid);
-    lower = utf8_wrap_casefold(utf8_str_invalid, len);
+    lower = utf8_wrap_casefold(utf8_str_invalid, len, &newlen);
+    ASSERT_EQ(len, newlen);
     ASSERT_STREQ(lower, utf8_str_invalid);
     free(lower);
 }
 
 UTEST(utf8wrap, utf8_wrap_normalize) {
+    size_t newlen;
     size_t len = strlen(utf8_str_valid);
-    char *lower = utf8_wrap_normalize(utf8_str_valid, len);
+    char *lower = utf8_wrap_normalize(utf8_str_valid, len, &newlen);
+    ASSERT_EQ(len, newlen);
     ASSERT_STREQ(lower, "abc123");
     free(lower);
 
     len = strlen(utf8_str_invalid);
-    lower = utf8_wrap_normalize(utf8_str_invalid, len);
+    lower = utf8_wrap_normalize(utf8_str_invalid, len, &newlen);
+    ASSERT_EQ(len, newlen);
     ASSERT_STREQ(lower, utf8_str_invalid);
     free(lower);
 }

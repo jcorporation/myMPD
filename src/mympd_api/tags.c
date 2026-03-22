@@ -73,7 +73,6 @@ sds mympd_api_tag_list(struct t_partition_state *partition_state, sds buffer, un
 static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer, unsigned request_id,
         sds searchstr, sds tag, unsigned offset, unsigned limit, bool sortdesc)
 {
-    size_t searchstr_len = sdslen(searchstr);
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_TAG_LIST;
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
 
@@ -86,13 +85,15 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
     unsigned real_limit = offset + limit;
     rax *taglist = raxNew();
     sds key = sdsempty();
-    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr));
+    size_t searchstr_len;
+    char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr), &searchstr_len);
 
     if (mpd_search_commit(partition_state->conn)) {
         struct mpd_pair *pair;
         //filter and sort
         while ((pair = mpd_recv_pair_tag(partition_state->conn, mpdtag)) != NULL) {
-            char *value_utf8 = utf8_wrap_normalize(pair->value, strlen(pair->value));
+            size_t value_len;
+            char *value_utf8 = utf8_wrap_normalize(pair->value, strlen(pair->value), &value_len);
             if (pair->value[0] == '\0') {
                 MYMPD_LOG_DEBUG(partition_state->name, "Value is empty, skipping");
             }

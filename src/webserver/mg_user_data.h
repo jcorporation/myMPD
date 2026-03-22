@@ -14,7 +14,7 @@
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
 #include "src/lib/config/config_def.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/lyrics.h"
 
 #include <stdbool.h>
@@ -62,8 +62,7 @@ struct t_mg_user_data {
     bool mympd_api_started;                  //!< true if the mympd_api thread is ready, else false
     sds cert_content;                        //!< the server certificate
     sds key_content;                         //!< the server key
-    struct mg_str cert;                      //!< pointer to ssl cert_content
-    struct mg_str key;                       //!< pointer to ssl key_content
+    struct mg_tls_opts tls_opts;             //!< Server side tls
     struct t_webradios *webradiodb;          //!< Pointer to WebradioDB in mympd_api thread
     struct t_webradios *webradio_favorites;  //!< Pointer to webradio favorites in mympd_api thread
     struct t_embedded_file embedded_files[MAX_EMBEDDED_FILES];  //!< Embedded files

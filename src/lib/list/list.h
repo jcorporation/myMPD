@@ -36,14 +36,6 @@ struct t_list {
 };
 
 /**
- * Sort direction
- */
-enum list_sort_direction {
-    LIST_SORT_ASC = 0,
-    LIST_SORT_DESC = 1
-};
-
-/**
  * Definition of user data callback
  */
 typedef void (*user_data_callback) (struct t_list_node *current);
@@ -52,11 +44,6 @@ typedef void (*user_data_callback) (struct t_list_node *current);
  * Definition of list to line callback
  */
 typedef sds (*list_node_to_line_callback) (sds buffer, struct t_list_node *current, bool newline);
-
-/**
- * Definition of sort callback
- */
-typedef bool (*list_sort_callback) (struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction);
 
 struct t_list *list_new(void);
 struct t_list *list_dup(struct t_list *l);
@@ -91,8 +78,6 @@ bool list_replace_len_user_data(struct t_list *l, unsigned idx, const char *key,
 
 void list_crop(struct t_list *l, unsigned length, user_data_callback free_cb);
 
-bool list_shuffle(struct t_list *l);
-bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2);
 bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to);
 
 unsigned list_get_node_idx(const struct t_list *l, const char *key);
@@ -108,10 +93,5 @@ bool list_remove_node_by_key(struct t_list *l, const char *key);
 bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, user_data_callback free_cb);
 
 bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callback node_to_line_cb);
-
-bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction, list_sort_callback sort_cb);
-bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction);
-bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction);
-bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction);
 
 #endif

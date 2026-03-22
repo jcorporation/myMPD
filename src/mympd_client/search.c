@@ -322,7 +322,7 @@ static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, str
 }
 
 /**
- * Adds the position parameter to the search command
+ * Adds the position parameter to the search command if required
  * @param partition_state pointer to partition state
  * @param to position to insert the songs, UINT_MAX to append
  * @param whence enum mpd_position_whence:
@@ -332,9 +332,8 @@ static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, str
  * @return true on success, else false
  */
 static bool add_search_whence_param(struct t_partition_state *partition_state, unsigned to, unsigned whence) {
-    if (partition_state->mpd_state->feat.whence == true &&
-        to < UINT_MAX) //to = UINT_MAX is append
-    {
+    // to = UINT_MAX is append
+    if (to < UINT_MAX) {
         return mpd_search_add_position(partition_state->conn, to, whence);
     }
     return true;

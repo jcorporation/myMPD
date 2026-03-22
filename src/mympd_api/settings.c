@@ -18,12 +18,12 @@
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_query.h"
 #include "src/lib/json/json_rpc.h"
-#include "src/lib/list.h"
+#include "src/lib/list/list.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds/sds_extras.h"
-#include "src/lib/utility.h"
+#include "src/lib/sds/sds_file.h"
 #include "src/lib/validate.h"
 #include "src/mympd_api/jukebox.h"
 #include "src/mympd_api/sticker.h"
@@ -31,7 +31,6 @@
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
 #include "src/mympd_client/errorhandler.h"
-#include "src/mympd_client/jukebox.h"
 #include "src/mympd_client/presets.h"
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/tags.h"
@@ -226,7 +225,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, en
             return false;
         }
         mympd_state->music_directory = sds_replace(mympd_state->music_directory, value);
-        strip_slash(mympd_state->music_directory);
+        sds_strip_slash(mympd_state->music_directory);
     }
     else if (strcmp(key, "playlistDirectory") == 0 && vtype == JSON_TOK_STRING) {
         if (vcb_isfilepath(value) == false) {
@@ -234,7 +233,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, en
             return false;
         }
         mympd_state->playlist_directory = sds_replace(mympd_state->playlist_directory, value);
-        strip_slash(mympd_state->playlist_directory);
+        sds_strip_slash(mympd_state->playlist_directory);
     }
     else {
         set_invalid_field(error, path, key);
@@ -723,7 +722,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, en
         }
     }
     else if (strcmp(key, "jukeboxFilterInclude") == 0 && vtype == JSON_TOK_STRING) {
-        if (vcb_issearchexpression_song(value) == false) {
+        if (vcb_issearchexpression_mympd(value) == false) {
             set_invalid_value(error, path, key, value, "Invalid MPD search expression");
             return false;
         }
@@ -733,7 +732,7 @@ bool mympd_api_settings_mpd_options_set(const char *path, sds key, sds value, en
         }
     }
     else if (strcmp(key, "jukeboxFilterExclude") == 0 && vtype == JSON_TOK_STRING) {
-        if (vcb_issearchexpression_song(value) == false) {
+        if (vcb_issearchexpression_mympd(value) == false) {
             set_invalid_value(error, path, key, value, "Invalid MPD search expression");
             return false;
         }
@@ -935,8 +934,8 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->navbar_icons = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "navbar_icons", mympd_state->navbar_icons, validate_json_array, true);
     mympd_state->tag_disc_empty_is_first = state_file_rw_bool(workdir, DIR_WORK_STATE, "tag_disc_empty_is_first", mympd_state->tag_disc_empty_is_first, true);
 
-    strip_slash(mympd_state->music_directory);
-    strip_slash(mympd_state->playlist_directory);
+    sds_strip_slash(mympd_state->music_directory);
+    sds_strip_slash(mympd_state->playlist_directory);
 }
 
 /**
@@ -1110,8 +1109,15 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
     buffer = tojson_bool(buffer, "featStickersEnabled", mympd_state->config->stickers, true);
     buffer = tojson_bool(buffer, "featWebradioDB", partition_state->config->webradiodb, true);
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
+    // compile time options
+    #ifdef MYMPD_ENABLE_LUA
+        buffer = tojson_bool(buffer, "featScripting", true, false);
+    #else
+        buffer = tojson_bool(buffer, "featScripting", false, false);
+    #endif
+    // MPD feature detection
     if (partition_state->conn_state == MPD_CONNECTED) {
-        // feature detection
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = tojson_bool(buffer, "featPlaylists", partition_state->mpd_state->feat.playlists, true);
         buffer = tojson_bool(buffer, "featTags", partition_state->mpd_state->feat.tags, true);
         buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat.library, true);
@@ -1120,27 +1126,14 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "featFingerprint", partition_state->mpd_state->feat.fingerprint, true);
         buffer = tojson_bool(buffer, "featMounts", partition_state->mpd_state->feat.mount, true);
         buffer = tojson_bool(buffer, "featNeighbors", partition_state->mpd_state->feat.neighbor, true);
-        buffer = tojson_bool(buffer, "featPlaylistRmRange", partition_state->mpd_state->feat.playlist_rm_range, true);
-        buffer = tojson_bool(buffer, "featWhence", partition_state->mpd_state->feat.whence, true);
         buffer = tojson_bool(buffer, "featAdvqueue", partition_state->mpd_state->feat.advqueue, true);
         buffer = tojson_bool(buffer, "featConsumeOneshot", partition_state->mpd_state->feat.consume_oneshot, true);
         buffer = tojson_bool(buffer, "featPlaylistDirAuto", partition_state->mpd_state->feat.playlist_dir_auto, true);
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat.starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat.pcre, true);
         buffer = tojson_bool(buffer, "featDbAdded", partition_state->mpd_state->feat.db_added, true);
-        buffer = tojson_bool(buffer, "featStringnormalization", partition_state->mpd_state->feat.mpd_0_25_0, true);
+        buffer = tojson_bool(buffer, "featStringnormalization", partition_state->mpd_state->feat.mpd_0_25_0, false);
     }
-    // compile time options
-    #ifdef MYMPD_ENABLE_MYGPIOD
-        buffer = tojson_bool(buffer, "featMygpiod", true, true);
-    #else
-        buffer = tojson_bool(buffer, "featMygpiod", false, true);
-    #endif
-    #ifdef MYMPD_ENABLE_LUA
-        buffer = tojson_bool(buffer, "featScripting", true, false);
-    #else
-        buffer = tojson_bool(buffer, "featScripting", false, false);
-    #endif
     buffer = sdscatlen(buffer, "}", 1);
     if (partition_state->conn_state == MPD_CONNECTED) {
         buffer = sdscatlen(buffer, ",", 1);

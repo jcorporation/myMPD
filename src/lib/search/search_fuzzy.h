@@ -12,7 +12,9 @@
 #define MYMPD_LIB_SEARCH_FUZZY_H
 
 #include <stdbool.h>
+#include <stddef.h>
 
-bool mympd_search_fuzzy_match(const char *haystack, const char *needle);
+bool mympd_search_fuzzy_match(const char *haystack, size_t haystack_len,
+        const char *needle, size_t needle_len);
 
 #endif
