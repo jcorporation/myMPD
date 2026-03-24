@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Polish translation #1527
+
 ***
 
 ## myMPD v25.0.0 (2025-03-22)
