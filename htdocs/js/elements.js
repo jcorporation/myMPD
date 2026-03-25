@@ -23,7 +23,7 @@ function elCreateTextTnNr(tagName, attributes, text, smartCount) {
  * @param {string} tagName name of the tag to create
  * @param {object} attributes tag attributes
  * @param {string} text text phrase to translate
- * @param {object} data object to resolve variables from the phrase
+ * @param {object} [data] object to resolve variables from the phrase
  * @returns {HTMLElement} created dom node
  */
 function elCreateTextTn(tagName, attributes, text, data) {
