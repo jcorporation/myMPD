@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Polish translation #1527
+- Fix: Compile error with libmpdclient 2.24 #1528
 
 ***
 

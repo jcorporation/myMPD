@@ -9,4 +9,4 @@
  */
 
 #include "compile_time.h"
-#include "src/mympd_client/compat.h"
+#include "src/lib/mpdclient_compat.h"

@@ -55,4 +55,6 @@
     #include <mpd/client.h>
 #endif
 
+#include "src/lib/mpdclient_compat.h"
+
 #endif

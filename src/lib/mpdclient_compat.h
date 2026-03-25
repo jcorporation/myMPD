@@ -12,13 +12,13 @@
 #define MYMPD_MPD_CLIENT_COMPAT_H
 
 /**
- * Fix for typo in libmpdclient < 2.25
- */
+* Fix for typo in libmpdclient < 2.25
+*/
 #define MPD_STICKER_OP_UNKNOWN -1
 
 /**
- * Fix for typo in libmpdclient < 2.25
- */
+* Fix for typo in libmpdclient < 2.25
+*/
 #define	MPD_STICKER_SORT_UNKNOWN -1
 
 #endif

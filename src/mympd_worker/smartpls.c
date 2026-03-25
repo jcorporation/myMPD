@@ -19,7 +19,6 @@
 #include "src/lib/sds/sds_file.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/validate.h"
-#include "src/mympd_client/compat.h"
 #include "src/mympd_client/database.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/playlists.h"

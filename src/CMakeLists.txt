@@ -76,6 +76,7 @@ target_sources(mympd
     lib/mimetype.c
     lib/mem.c
     lib/mpack.c
+    lib/mpdclient_compat.c
     lib/msg_queue.c
     lib/random.c
     lib/rax_extras.c
@@ -98,7 +99,6 @@ target_sources(mympd
     lib/validate.c
     lib/webradio.c
     mympd_client/autoconf.c
-    mympd_client/compat.c
     mympd_client/connection.c
     mympd_client/database.c
     mympd_client/errorhandler.c
