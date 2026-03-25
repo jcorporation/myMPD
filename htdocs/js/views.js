@@ -264,7 +264,7 @@ function handleViewActionClick(event) {
 
 /**
  * Return an array of pre-generated action links
- * @param {*} userData custom user data
+ * @param {*} [userData] custom user data
  * @returns {Array} array of dom nodes
  */
 function getActionLinks(userData) {
@@ -303,7 +303,7 @@ function getActionLinks(userData) {
 /**
  * Appends action links as child nodes by app.id
  * @param {Element} container container to append the action links as child nodes
- * @param {*} userData custom user data
+ * @param {*} [userData] custom user data
  * @returns {void}
  */
 function addActionLinks(container, userData) {

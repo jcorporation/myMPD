@@ -1,7 +1,8 @@
 {
     "compilerOptions": {
       "checkJs": true,
-      "target": "ES2015"
+      "target": "ES2015",
+      "noImplicitAny": false
     },
     "include": [
       "*.js",

@@ -93,11 +93,16 @@ function logCrit(message) {
 
 /**
  * Logs an error message
- * @param {string} message message to log
+ * @param {string | Error} message message to log
  * @returns {void}
  */
 function logError(message) {
-    logLog(3, message);
+    if (message instanceof Error) {
+        logLog(3, message.message);
+    }
+    else {
+        logLog(3, message);
+    }
 }
 
 /**
