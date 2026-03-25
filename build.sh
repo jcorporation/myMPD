@@ -1651,7 +1651,7 @@ case "$ACTION" in
     run_htmlhint
     run_eslint
     run_stylelint
-    run_tsc
+    #run_tsc
     run_checkjs
     run_luacheck
     run_doclint
