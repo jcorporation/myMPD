@@ -38,6 +38,7 @@ set(TEST_SOURCES
   ../src/lib/mimetype.c
   ../src/lib/mem.c
   ../src/lib/mpack.c
+  ../src/lib/mpdclient_compat.c
   ../src/lib/msg_queue.c
   ../src/lib/random.c
   ../src/lib/rax_extras.c
@@ -57,7 +58,6 @@ set(TEST_SOURCES
   ../src/lib/utility.c
   ../src/lib/validate.c
   ../src/lib/webradio.c
-  ../src/mympd_client/compat.c
   ../src/mympd_client/connection.c
   ../src/mympd_client/database.c
   ../src/mympd_client/errorhandler.c
