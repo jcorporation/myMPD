@@ -752,6 +752,7 @@
     "Remove": "Supprimer",
     "Remove all downwards": "Supprimer vers le bas",
     "Remove all upwards": "Supprimer vers le haut",
+    "Remove current song after playback": "",
     "Removed %{count1} invalid and %{count2} duplicate entries from playlist %{plist}": "%{count1} entrée(s) invalides et %{count2} entrée(s) en doublon retirées de la liste de lecture %{plist}",
     "Removed %{count1} invalid and %{count2} duplicate entries from playlists": "%{count1} entrée(s) invalide(s) et %{count2} entrée(s) en doublon retirées des listes de lecture",
     "Removed %{count} entries from playlist %{plist}": "%{count} entrées retirées de la liste de lecture %{plist}",

@@ -752,6 +752,7 @@
     "Remove": "Verwijder",
     "Remove all downwards": "Verwijder alle hieronder",
     "Remove all upwards": "Verwijder alle hierboven",
+    "Remove current song after playback": "",
     "Removed %{count1} invalid and %{count2} duplicate entries from playlist %{plist}": "%{count1} ongeldig(e) item(s) en %{count2} dubbele item(s) verwijderd uit %{plist} afspeellijst",
     "Removed %{count1} invalid and %{count2} duplicate entries from playlists": "%{count1} ongeldig(e) item(s) en %{count2} dubbele item(s) verwijderd uit afspeellijsten",
     "Removed %{count} entries from playlist %{plist}": "%{count} items verwijderd uit %{plist} afspeellijst",

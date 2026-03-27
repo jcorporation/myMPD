@@ -752,6 +752,7 @@
     "Remove": "移除",
     "Remove all downwards": "移除下面全部",
     "Remove all upwards": "移除上面全部",
+    "Remove current song after playback": "",
     "Removed %{count1} invalid and %{count2} duplicate entries from playlist %{plist}": "移除播放列表%{plist}中無效的%{count1}資料以及重複的%{count2}資料",
     "Removed %{count1} invalid and %{count2} duplicate entries from playlists": "移除播放列表中無效的%{count1}資料以及重複的%{count2}資料",
     "Removed %{count} entries from playlist %{plist}": "移除播放列表%{plist}內的%{count}資料",

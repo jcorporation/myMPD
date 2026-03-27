@@ -304,3 +304,4 @@ The jukebox list will be filled on demand.
 Equal (==)
 Regular expression (=~)
 Fuzzy match (~~)
+Remove current song after playback
