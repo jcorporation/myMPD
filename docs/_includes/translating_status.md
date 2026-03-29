@@ -6,9 +6,9 @@
 - fr-FR: 1 missing phrases
 - it-IT: 1 missing phrases
 - ja-JP: 71 missing phrases
-- ko-KR: 1 missing phrases
+- ko-KR: fully translated
 - nl-NL: 1 missing phrases
 - pl-PL: 8 missing phrases
 - ru-RU: 82 missing phrases
-- zh-Hans: 1 missing phrases
+- zh-Hans: fully translated
 - zh-Hant: 6 missing phrases

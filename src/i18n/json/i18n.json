@@ -6,10 +6,10 @@
     "fr-FR": {"desc":"Français (fr-FR)", "missingPhrases": 1},
     "it-IT": {"desc":"Italiano (it-IT)", "missingPhrases": 1},
     "ja-JP": {"desc":"日本語 (ja-JP)", "missingPhrases": 71},
-    "ko-KR": {"desc":"한국어 (ko-KR)", "missingPhrases": 1},
+    "ko-KR": {"desc":"한국어 (ko-KR)", "missingPhrases": 0},
     "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 1},
     "pl-PL": {"desc":"Polish (pl-PL)", "missingPhrases": 8},
     "ru-RU": {"desc":"Russian (ru-RU)", "missingPhrases": 82},
-    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 1},
+    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 0},
     "zh-Hant": {"desc":"简体中文 (zh-Hant)", "missingPhrases": 6}
 }
