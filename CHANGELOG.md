@@ -4,13 +4,13 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v25.0.1 (not yet released)
+## myMPD v25.0.1 (2025-03-29)
 
 This is a small bug fix release.
 
 ### Changelog
 
-- Upd: Polish translation #1527
+- Upd: Translation #1527 #1529
 - Fix: Compile error with libmpdclient 2.24 #1528
 
 ***
