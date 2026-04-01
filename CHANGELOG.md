@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Mongoose 7.21 #1532
+
 ***
 
 ## myMPD v25.0.1 (2025-03-29)

@@ -20,7 +20,7 @@
 #ifndef MONGOOSE_H
 #define MONGOOSE_H
 
-#define MG_VERSION "7.20"
+#define MG_VERSION "7.21"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1658,10 +1658,8 @@ enum {
   MG_EV_MQTT_OPEN,  // MQTT CONNACK received        int *connack_status_code
   MG_EV_SNTP_TIME,  // SNTP time received           uint64_t *epoch_millis
   MG_EV_WAKEUP,     // mg_wakeup() data received    struct mg_str *data
-  MG_EV_MDNS_A,     // mDNS A record request        struct mg_mdns_req *
-  MG_EV_MDNS_PTR,   // mDNS PTR record request      struct mg_mdns_req *
-  MG_EV_MDNS_SRV,   // mDNS SRV record request      struct mg_mdns_req *
-  MG_EV_MDNS_TXT,   // mDNS TXT record request      struct mg_mdns_req *
+  MG_EV_MDNS_REQ,   // mDNS request                 struct mg_mdns_req *
+  MG_EV_MDNS_RESP,  // mDNS response                struct mg_mdns_resp *
   MG_EV_USER        // Starting ID for user events
 };
 
@@ -1965,7 +1963,9 @@ int mg_aes_gcm_encrypt(unsigned char *output, const unsigned char *input,
 int mg_aes_gcm_decrypt(unsigned char *output, const unsigned char *input,
                        size_t input_length, const unsigned char *key,
                        const size_t key_len, const unsigned char *iv,
-                       const size_t iv_len);
+                       const size_t iv_len, unsigned char *aead,
+                       size_t aead_len, const unsigned char *tag,
+                       const size_t tag_len);
 
 #endif /* TLS_AES128_H */
 
@@ -2731,6 +2731,7 @@ PORTABLE_8439_DECL size_t mg_chacha20_poly1305_encrypt(
 PORTABLE_8439_DECL size_t mg_chacha20_poly1305_decrypt(
     uint8_t *restrict plain_text, const uint8_t key[RFC_8439_KEY_SIZE],
     const uint8_t nonce[RFC_8439_NONCE_SIZE],
+    const uint8_t *restrict ad, size_t ad_size,
     const uint8_t *restrict cipher_text, size_t cipher_text_size);
 #if defined(__cplusplus)
 }
@@ -2954,6 +2955,12 @@ size_t mg_mqtt_next_prop(struct mg_mqtt_message *, struct mg_mqtt_prop *,
 
 
 
+#define MG_DNS_RTYPE_A 1
+#define MG_DNS_RTYPE_PTR 12
+#define MG_DNS_RTYPE_TXT 16
+#define MG_DNS_RTYPE_AAAA 28
+#define MG_DNS_RTYPE_SRV 33
+
 // Mongoose sends DNS queries that contain only one question:
 // either A (IPv4) or AAAA (IPv6) address lookup.
 // Therefore, we expect zero or one answer.
@@ -2989,16 +2996,24 @@ struct mg_dnssd_record {
   uint16_t port;            // SRV record port
 };
 
-// mDNS request
+// mDNS request and response data structs passed to event handlers
 struct mg_mdns_req {
   struct mg_dns_rr *rr;
   struct mg_dnssd_record *r;
   struct mg_str reqname;   // requested name in RR
-  struct mg_str respname;  // actual name in response
-  struct mg_addr addr;
+  struct mg_str respname;  // actual name to use in response
+  struct mg_addr *addr;    // actual address to use in response
   bool is_listing;
   bool is_resp;
   bool is_unicast;
+};
+
+struct mg_mdns_resp {
+  struct mg_dns_rr *rr;
+  // TODO(scaprile )struct mg_str srvcproto; struct mg_str txt; uint16_t port; ?
+  struct mg_str name;
+  struct mg_addr addr;
+  // TODO(scaprile); bool has_A; bool has_PTR; bool has_SRV; bool has_TXT; ?
 };
 
 void mg_resolve(struct mg_connection *, const char *url);
@@ -3009,6 +3024,7 @@ size_t mg_dns_parse_rr(const uint8_t *buf, size_t len, size_t ofs,
 
 struct mg_connection *mg_mdns_listen(struct mg_mgr *mgr, mg_event_handler_t fn,
                                      void *fn_data);
+bool mg_mdns_query(struct mg_connection *, const char *, unsigned int);
 
 
 
@@ -3153,11 +3169,16 @@ struct mg_wifi_scan_bss_data {
 #define MG_WIFI_SECURITY_WPA MG_BIT(1)
 #define MG_WIFI_SECURITY_WPA2 MG_BIT(2)
 #define MG_WIFI_SECURITY_WPA3 MG_BIT(3)
+#define MG_WIFI_SECURITY_WPA_ENTERPRISE MG_BIT(4)
+#define MG_WIFI_SECURITY_WPA2_ENTERPRISE MG_BIT(5)
+#define MG_WIFI_SECURITY_WPA3_ENTERPRISE MG_BIT(6)
   uint8_t channel;
   unsigned band : 2;
 #define MG_WIFI_BAND_2G 0
 #define MG_WIFI_BAND_5G 1
   unsigned has_n : 1;
+  unsigned has_ac : 1;
+  unsigned has_ax : 1;
 };
 
 bool mg_wifi_scan(void);
@@ -3338,6 +3359,7 @@ extern struct mg_tcpip_driver mg_tcpip_driver_pico_w;
 extern struct mg_tcpip_driver mg_tcpip_driver_rw612;
 extern struct mg_tcpip_driver mg_tcpip_driver_cyw;
 extern struct mg_tcpip_driver mg_tcpip_driver_nxp_wifi;
+extern struct mg_tcpip_driver mg_tcpip_driver_st67w6;
 
 // Drivers that require SPI, can use this SPI abstraction
 struct mg_tcpip_spi {
@@ -3741,6 +3763,43 @@ bool mg_sdio_set_blksz(struct mg_tcpip_sdio *sdio, unsigned int f,
 // - Transfers of > 1 byte --> (uint32_t *) data. 1-byte --> (uint8_t *) data
 bool mg_sdio_transfer(struct mg_tcpip_sdio *sdio, bool write, unsigned int f,
                       uint32_t addr, void *data, uint32_t len);
+
+#endif
+
+
+#if MG_ENABLE_TCPIP && defined(MG_ENABLE_DRIVER_ST67W6) && \
+    MG_ENABLE_DRIVER_ST67W6
+
+struct mg_tcpip_spi_ {
+  void *spi;              // Opaque SPI bus descriptor
+  void (*begin)(void *);  // SPI begin: slave select low
+  void (*end)(void *);    // SPI end: slave select high
+  void (*txn)(void *, uint8_t *, uint8_t *,
+              size_t len);  // SPI transaction: write-read len bytes
+};
+
+struct mg_tcpip_driver_st67w6_data {
+  struct mg_wifi_data wifi;
+  void *spi;
+  bool (*is_ready)(void);     // return state of module RDY pin
+  struct mg_queue send_queue; // decouple tx calls from module polls
+};
+
+#define MG_TCPIP_DRIVER_INIT(mgr)                                 \
+  do {                                                            \
+    static struct mg_tcpip_driver_st67w6_data driver_data_;       \
+    static struct mg_tcpip_if mif_;                               \
+    MG_SET_WIFI_CONFIG(&driver_data_);                            \
+    mif_.ip = MG_TCPIP_IP;                                        \
+    mif_.mask = MG_TCPIP_MASK;                                    \
+    mif_.gw = MG_TCPIP_GW;                                        \
+    mif_.driver = &mg_tcpip_driver_st67w6;                        \
+    mif_.driver_data = &driver_data_;                             \
+    mif_.recv_queue.size = 8192;                                  \
+    mif_.mac[0] = 2; /* MAC read from OTP at driver init */       \
+    mg_tcpip_init(mgr, &mif_);                                    \
+    MG_INFO(("Driver: st67w6, MAC: %M", mg_print_mac, mif_.mac)); \
+  } while (0)
 
 #endif
 
