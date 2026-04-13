@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Mongoose 7.21 #1532
+- Fix: Restore scroll positions #1534
 
 ***
 
