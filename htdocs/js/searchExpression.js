@@ -119,7 +119,7 @@ function initSearchExpression(appid) {
             return;
         }
         clearSearchTimer();
-        const value = event.target.value;
+        const value = event.target.value.trim();
         if (value !== '') {
             const op = getSelectValueId(appid + 'SearchMatch');
             const crumbEl = elGetById(appid + 'SearchCrumb');
@@ -136,7 +136,7 @@ function initSearchExpression(appid) {
             if (ignoreKeys(event) === true) {
                 return;
             }
-            const value = event.target.value;
+            const value = event.target.value.trim();
             //@ts-ignore
             if (searchTagsTimestamp.includes(app.current.filter) &&
                 isNaN(parseDateFromText(value)) === true)
