@@ -13,5 +13,5 @@ API Methods
    <tbody>
    </tbody>
    </table>
-   <script src="/assets/apidoc.js"></script>
-   <script src="/assets/create-apidoc.js"></script>
+   <script src="../../assets/apidoc.js"></script>
+   <script src="../../assets/create-apidoc.js"></script>
