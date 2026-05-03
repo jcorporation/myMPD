@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v25.0.2 (not yet released)
+## myMPD v25.0.2 (2026-05-03)
 
 This is a small bug fix release.
 
@@ -17,7 +17,7 @@ This is a small bug fix release.
 
 ***
 
-## myMPD v25.0.1 (2025-03-29)
+## myMPD v25.0.1 (2026-03-29)
 
 This is a small bug fix release.
 
@@ -28,7 +28,7 @@ This is a small bug fix release.
 
 ***
 
-## myMPD v25.0.0 (2025-03-22)
+## myMPD v25.0.0 (2026-03-22)
 
 This is the first release that supports only MPD 0.23.5 and higher and Lua 5.4.x and higher.
 
