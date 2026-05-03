@@ -439,12 +439,10 @@ function setScrollViewHeight(container) {
  * @returns {void}
  */
 function restoreScrollPos(offset, container, scrollPos) {
-    if (app.id === 'BrowseFilesystem') {
-        if (features.featPagination === true ||
-            offset === 0)
-        {
-            scrollToPosY(container, scrollPos);
-        }
+    if (features.featPagination === true ||
+        offset === 0)
+    {
+        scrollToPosY(container, scrollPos);
     }
 }
 

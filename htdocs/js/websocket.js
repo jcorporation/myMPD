@@ -89,6 +89,10 @@ function webSocketConnect() {
             return;
         }
 
+        // Save scrollpos to restore it after the refresh of a view
+        // Fix issues: 1478, 1534
+        app.current.scrollPos = getScrollPosY();
+
         // notification
         switch (obj.method) {
             case 'welcome':

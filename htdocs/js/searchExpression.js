@@ -119,7 +119,7 @@ function initSearchExpression(appid) {
             return;
         }
         clearSearchTimer();
-        const value = event.target.value;
+        const value = event.target.value.trim();
         if (value !== '') {
             const op = getSelectValueId(appid + 'SearchMatch');
             const crumbEl = elGetById(appid + 'SearchCrumb');
@@ -136,7 +136,7 @@ function initSearchExpression(appid) {
             if (ignoreKeys(event) === true) {
                 return;
             }
-            const value = event.target.value;
+            const value = event.target.value.trim();
             //@ts-ignore
             if (searchTagsTimestamp.includes(app.current.filter) &&
                 isNaN(parseDateFromText(value)) === true)
@@ -193,9 +193,6 @@ function initSearchExpression(appid) {
 function execSearchExpression(value, offset) {
     const expression = createSearchExpression(elGetById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
     appGoto(app.current.card, app.current.tab, app.current.view, offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
-    // Reset scrollpos
-    const container = elGetById(app.id + 'Container');
-    scrollToPosY(container, 0);
 }
 
 /**

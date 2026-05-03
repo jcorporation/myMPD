@@ -42,7 +42,7 @@ function initSearchSimpleInput(el, cb) {
             return;
         }
         clearSearchTimer();
-        cb(event.target.value);
+        cb(event.target.value.trim());
     }, false);
 
     // Android does not support search on type
@@ -52,7 +52,7 @@ function initSearchSimpleInput(el, cb) {
                 return;
             }
             clearSearchTimer();
-            const value = event.target.value;
+            const value = event.target.value.trim();
             searchTimer = setTimeout(function() {
                 cb(value);
             }, searchTimerTimeout);

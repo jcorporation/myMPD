@@ -2584,7 +2584,7 @@ const APImethods = {
             "loglevel": {
                 "type": APItypes.uint,
                 "example": 7,
-                "desc": "https://jcorporation.github.io/myMPD/configuration/logging"
+                "desc": "https://jcorporation.github.io/myMPD/020-configuration/logging.html"
             }
         }
     },
