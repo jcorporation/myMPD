@@ -214,8 +214,8 @@ bool check_imagescache(struct mg_connection *nc, struct mg_http_message *hm,
  * Image file extensions to detect
  */
 static const char *image_file_extensions[] = {
-    "webp", "jpg", "jpeg", "png", "svg", "avif",
-    "WEBP", "JPG", "JPEG", "PNG", "SVG", "AVIF",
+    "webp", "jpg", "jpeg", "png", "svg", "avif", "jxl",
+    "WEBP", "JPG", "JPEG", "PNG", "SVG", "AVIF", "JXL",
     NULL};
 
 /**

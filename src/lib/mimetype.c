@@ -28,6 +28,8 @@ struct t_mime_type_entry {
     const char *mime_type;    //!< mime type
 };
 
+#define MAGIC_BYTES_LEN 24
+
 /**
  * Magic bytes to extension and mime type handling
  */
@@ -44,6 +46,8 @@ const struct t_mime_type_entry mime_entries[] = {
     {0, "4F676753",         "opus", "audio/ogg"},
     {0, "4F676753",        "spx",  "audio/ogg"},
     {0, "",                "svg",  "image/svg+xml"},
+    {0, "FF0A", "jxl", "image/jxl"},
+    {0, "0000000C4A584C200D0A870A", "jxl", "image/jxl"},
     // must be last entry
     {0, NULL,              NULL,   "application/octet-stream"}
 };
@@ -92,7 +96,7 @@ const char *get_ext_by_mime_type(const char *mime_type) {
  */
 const char *get_mime_type_by_magic_stream(sds stream) {
     sds hex_buffer = sdsempty();
-    size_t stream_len = sdslen(stream) < 12 ? sdslen(stream) : 12;
+    size_t stream_len = sdslen(stream) < MAGIC_BYTES_LEN ? sdslen(stream) : MAGIC_BYTES_LEN;
     for (size_t i = 0; i < stream_len; i++) {
         hex_buffer = sdscatprintf(hex_buffer, "%02X", (unsigned char) stream[i]);
     }
@@ -134,14 +138,14 @@ const char *get_mime_type_by_magic_file(const char *filename) {
         return NULL;
     }
     sds bytes = sdsempty();
-    bytes = sdsMakeRoomFor(bytes, 12);
-    size_t n = fread(bytes, 1, 12, fp);
-    if (n != 12) {
+    bytes = sdsMakeRoomFor(bytes, MAGIC_BYTES_LEN);
+    size_t n = fread(bytes, 1, MAGIC_BYTES_LEN, fp);
+    if (n != MAGIC_BYTES_LEN) {
         (void)fclose(fp);
         FREE_SDS(bytes);
         return NULL;
     }
-    sdssetlen(bytes, 12);
+    sdssetlen(bytes, MAGIC_BYTES_LEN);
     (void)fclose(fp);
     const char *mime_type = get_mime_type_by_magic_stream(bytes);
     FREE_SDS(bytes);
@@ -158,6 +162,7 @@ const char *image_extensions[] = {
     "png",
     "avif",
     "svg",
+    "jxl",
     NULL
 };
 
