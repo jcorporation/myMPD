@@ -28,12 +28,17 @@ struct t_mime_type_entry {
     const char *mime_type;    //!< mime type
 };
 
-#define MAGIC_BYTES_LEN 24
+/**
+ * Number of bytes to read to determine the magic
+ */
+enum magic_bytes {
+    MAGIC_BYTES_LEN = 24,
+};
 
 /**
  * Magic bytes to extension and mime type handling
  */
-const struct t_mime_type_entry mime_entries[] = {
+static const struct t_mime_type_entry mime_entries[] = {
     {0, "89504E470D0A1A0A", "png",  "image/png"},
     {0, "FFD8FF",           "jpg",  "image/jpeg"},
     {0, "FFD8FF",           "jpeg", "image/jpeg"},
