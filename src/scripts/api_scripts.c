@@ -39,7 +39,7 @@
  * Private definitions
  */
 
-bool parse_script(sds scriptfilename, sds *metadata, sds *content, int *order);
+static bool parse_script(sds scriptfilename, sds *metadata, sds *content, int *order);
 
 /**
  * Public functions
@@ -252,7 +252,7 @@ sds script_get(struct t_list *script_list, sds buffer, unsigned request_id, sds 
  * @param order Pointer to int to populate with order
  * @return true on success, else false
  */
-bool parse_script(sds scriptfilename, sds *metadata, sds *content, int *order) {
+static bool parse_script(sds scriptfilename, sds *metadata, sds *content, int *order) {
     errno = 0;
     FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp == NULL) {

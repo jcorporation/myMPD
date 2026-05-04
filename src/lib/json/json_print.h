@@ -12,6 +12,7 @@
 #define MYMPD_JSON_PRINT_H
 
 #include "dist/sds/sds.h"
+#include "src/lib/list/list.h"
 
 #include <stdbool.h>
 
@@ -27,5 +28,6 @@ sds tojson_time(sds buffer, const char *key, time_t value, bool comma);
 sds tojson_float(sds buffer, const char *key, float value, bool comma);
 sds tojson_int64(sds buffer, const char *key, int64_t value, bool comma);
 sds tojson_uint64(sds buffer, const char *key, uint64_t value, bool comma);
+sds list_to_json_array(sds s, struct t_list *l);
 
 #endif

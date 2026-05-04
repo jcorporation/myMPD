@@ -20,7 +20,7 @@
 /**
  * Paths to check for the ca cert store
  */
-const char *check_ca_cert_paths[] = {
+static const char *check_ca_cert_paths[] = {
     "/etc/ssl/ca-bundle.pem",  // openSUSE
     "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", // Fedora
     "/etc/pki/tls/certs/ca-bundle.crt",  // Fedora

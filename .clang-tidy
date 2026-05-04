@@ -21,9 +21,11 @@ Checks: '*,
          -readability-function-size,
          -readability-magic-numbers,
          -readability-non-const-parameter,
-         -google-readability-todo'
+         -google-readability-todo,
+         -readability-implicit-bool-conversion'
 WarningsAsErrors:  ''
 HeaderFilterRegex: ''
 FormatStyle:       none
 CheckOptions:
-  bugprone-reserved-identifier.AllowedIdentifiers: '_XOPEN_SOURCE'
+  - key: bugprone-reserved-identifier.AllowedIdentifiers
+    value: _XOPEN_SOURCE

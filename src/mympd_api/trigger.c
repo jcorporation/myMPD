@@ -35,7 +35,7 @@
 
 static void list_free_cb_trigger_data(struct t_list_node *current);
 static sds trigger_to_line_cb(sds buffer, struct t_list_node *current, bool newline);
-void trigger_execute(sds script, enum script_start_events script_event, struct t_list *arguments, const char *partition,
+static void trigger_execute(sds script, enum script_start_events script_event, struct t_list *arguments, const char *partition,
         unsigned long conn_id, unsigned request_id);
 
 /**
@@ -579,7 +579,7 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current, bool newl
  * @param conn_id mongoose connection id
  * @param request_id jsonprc id
  */
-void trigger_execute(sds script, enum script_start_events script_event, struct t_list *arguments, const char *partition,
+static void trigger_execute(sds script, enum script_start_events script_event, struct t_list *arguments, const char *partition,
         unsigned long conn_id, unsigned request_id)
 {
     #ifdef MYMPD_ENABLE_LUA

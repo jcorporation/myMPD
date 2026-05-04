@@ -13,6 +13,7 @@
 
 #include "dist/mongoose/mongoose.h"
 #include "src/lib/convert.h"
+#include "src/lib/json/json_print.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds/sds_extras.h"
@@ -752,7 +753,7 @@ static enum json_vtype get_vtype(char p) {
         case 'N':
             return JSON_TOK_NULL;
         default:
-            if (p == '-' || ((p >= '0' && p <= '9'))) {
+            if (p == '-' || (p >= '0' && p <= '9')) {
                 return JSON_TOK_NUMBER;
             }
     }

@@ -114,7 +114,7 @@ struct t_mympd_uris {
 /**
  * Struct for mapping the special mympd:// uris
  */
-const struct t_mympd_uris mympd_uris[] = {
+static const struct t_mympd_uris mympd_uris[] = {
     {"mympd://webradio/", "/webradio?uri=" },
     {"mympd://",          "/"},
     {NULL,                NULL}

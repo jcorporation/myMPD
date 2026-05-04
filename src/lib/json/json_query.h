@@ -71,7 +71,6 @@ bool json_find_key(sds s, const char *path);
 sds json_get_key_as_sds(sds s, const char *path);
 
 const char *get_mjson_toktype_name(enum json_vtype vtype);
-sds list_to_json_array(sds s, struct t_list *l);
 bool json_get_fields_as_string(sds s, sds *fields, struct t_json_parse_error *error);
 
 #endif

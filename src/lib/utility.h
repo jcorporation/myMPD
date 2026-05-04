@@ -46,6 +46,6 @@ bool get_ipv6_support(void);
  * Print measurement result
  */
 #define MEASURE_PRINT(PART, X) MYMPD_LOG_DEBUG(PART, "Execution time for %s: %" PRId64 " ms", X, \
-    (int64_t)((toc.tv_sec * 1000 + toc.tv_nsec / 1000000) - (tic.tv_sec * 1000 + tic.tv_nsec / 1000000)));
+    (int64_t)(((toc.tv_sec * 1000) + (toc.tv_nsec / 1000000)) - ((tic.tv_sec * 1000) + (tic.tv_nsec / 1000000))));
 
 #endif

@@ -270,53 +270,55 @@ void webserver_send_cors_reply(struct mg_connection *nc) {
     webserver_handle_connection_close(nc);
 }
 
-/**
- * Serves the embedded files
- * @param nc mongoose connection
- * @param uri uri to server
- * @return true on success, else false
- */
-bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
-    //decode uri
-    sds uri_decoded = sds_urldecode(sdsempty(), uri, sdslen(uri), false);
-    if (sdslen(uri_decoded) == 0) {
-        webserver_send_error(nc, 500, "Failed to decode uri");
+#ifdef MYMPD_EMBEDDED_ASSETS
+    /**
+    * Serves the embedded files
+    * @param nc mongoose connection
+    * @param uri uri to server
+    * @return true on success, else false
+    */
+    bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
+        //decode uri
+        sds uri_decoded = sds_urldecode(sdsempty(), uri, sdslen(uri), false);
+        if (sdslen(uri_decoded) == 0) {
+            webserver_send_error(nc, 500, "Failed to decode uri");
+            FREE_SDS(uri_decoded);
+            return false;
+        }
+        //find fileinfo
+        struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)nc->mgr->userdata;
+        const struct t_embedded_file *p = NULL;
+        for (p = mg_user_data->embedded_files; p->uri != NULL; p++) {
+            if (strcmp(p->uri, uri_decoded) == 0){
+                break;
+            }
+        }
+
+        if (p->uri != NULL) {
+            //send header
+            mg_printf(nc, "HTTP/1.1 200 OK\r\n"
+                EXTRA_HEADERS_SAFE
+                "%s"
+                "Content-Length: %d\r\n"
+                "Content-Type: %s\r\n"
+                "Connection: %s\r\n"
+                "%s\r\n",
+                (p->cache == true ? EXTRA_HEADERS_CACHE : ""),
+                p->size,
+                p->mimetype,
+                (nc->data[2] == 'C' ? "close" : "keep-alive"),
+                (p->compressed == true ? EXTRA_HEADER_CONTENT_ENCODING : "")
+            );
+            //send data
+            mg_send(nc, p->data, p->size);
+            webserver_handle_connection_close(nc);
+            FREE_SDS(uri_decoded);
+            return true;
+        }
+        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%S\" not found", uri_decoded);
+        webserver_send_error(nc, 404, errormsg);
+        FREE_SDS(errormsg);
         FREE_SDS(uri_decoded);
         return false;
     }
-    //find fileinfo
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)nc->mgr->userdata;
-    const struct t_embedded_file *p = NULL;
-    for (p = mg_user_data->embedded_files; p->uri != NULL; p++) {
-        if (strcmp(p->uri, uri_decoded) == 0){
-            break;
-        }
-    }
-
-    if (p->uri != NULL) {
-        //send header
-        mg_printf(nc, "HTTP/1.1 200 OK\r\n"
-            EXTRA_HEADERS_SAFE
-            "%s"
-            "Content-Length: %d\r\n"
-            "Content-Type: %s\r\n"
-            "Connection: %s\r\n"
-            "%s\r\n",
-            (p->cache == true ? EXTRA_HEADERS_CACHE : ""),
-            p->size,
-            p->mimetype,
-            (nc->data[2] == 'C' ? "close" : "keep-alive"),
-            (p->compressed == true ? EXTRA_HEADER_CONTENT_ENCODING : "")
-        );
-        //send data
-        mg_send(nc, p->data, p->size);
-        webserver_handle_connection_close(nc);
-        FREE_SDS(uri_decoded);
-        return true;
-    }
-    sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%S\" not found", uri_decoded);
-    webserver_send_error(nc, 404, errormsg);
-    FREE_SDS(errormsg);
-    FREE_SDS(uri_decoded);
-    return false;
-}
+#endif

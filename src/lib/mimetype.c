@@ -160,7 +160,7 @@ const char *get_mime_type_by_magic_file(const char *filename) {
 /**
  * List of image type extensions
  */
-const char *image_extensions[] = {
+static const char *image_extensions[] = {
     "webp",
     "jpg",
     "jpeg",

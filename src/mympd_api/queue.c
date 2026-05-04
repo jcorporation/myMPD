@@ -34,7 +34,7 @@
  */
 static bool add_queue_search_adv_params(struct t_partition_state *partition_state,
         sds sort, bool sortdesc, unsigned offset, unsigned limit);
-sds print_queue_entry(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+static sds print_queue_entry(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         sds buffer, const struct t_fields *tagcols, bool print_stickers, struct mpd_song *song);
 
 /**
@@ -980,7 +980,7 @@ static bool add_queue_search_adv_params(struct t_partition_state *partition_stat
  * @param song pointer to mpd song struct
  * @return pointer to buffer
  */
-sds print_queue_entry(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+static sds print_queue_entry(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         sds buffer, const struct t_fields *tagcols, bool print_stickers, struct mpd_song *song)
 {
     buffer = sdscatlen(buffer, "{", 1);

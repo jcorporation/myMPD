@@ -19,7 +19,7 @@
 /**
  * Placeholder image names
  */
-const char *placeholder_image_names[] = {
+static const char *placeholder_image_names[] = {
     [PLACEHOLDER_BOOKLET] = "coverimage-booklet",
     [PLACEHOLDER_FOLDER] = "coverimage-folder",
     [PLACEHOLDER_MYMPD] = "coverimage-mympd",

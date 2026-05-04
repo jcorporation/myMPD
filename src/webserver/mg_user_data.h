@@ -70,6 +70,7 @@ struct t_mg_user_data {
     struct t_lyrics lyrics;                  //!< lyrics settings
 };
 
+struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config);
 void mg_user_data_free(struct t_mg_user_data *mg_user_data);
 void mg_user_data_free_void(void *mg_user_data);
 
