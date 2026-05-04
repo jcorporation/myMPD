@@ -8,6 +8,7 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
+#include "src/lib/json/json_print.h"
 #include "src/lib/json/json_query.h"
 #include "src/lib/list/list.h"
 #include "src/lib/sds/sds_extras.h"
