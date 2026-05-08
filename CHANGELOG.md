@@ -6,6 +6,8 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v25.1.0 (not yet released)
 
+This is a small feature release.
+
 ### Changelog
 
 - Feat: Add .jxl support for images #1540
