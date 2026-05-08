@@ -21,6 +21,7 @@
  * @since libmpdclient 2.21 added support for #MPD_TAG_MOOD,
  *                                            #MPD_TAG_TITLE_SORT.
  * @since libmpdclient 2.23 added support for #MPD_TAG_SHOWMOVEMENT.
+ * @since libmpdclient 2.25 added support for #MPD_TAG_DISCSUBTITLE.
  */
 enum mpd_tag_type
 {
@@ -71,6 +72,7 @@ enum mpd_tag_type
 	MPD_TAG_TITLE_SORT,
 	MPD_TAG_MUSICBRAINZ_RELEASEGROUPID,
 	MPD_TAG_SHOWMOVEMENT,
+	MPD_TAG_DISCSUBTITLE,
 
 	/* IMPORTANT: the ordering of tag types above must be
 	   retained, or else the libmpdclient ABI breaks */

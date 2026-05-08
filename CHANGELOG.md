@@ -9,6 +9,7 @@ https://github.com/jcorporation/myMPD/
 ### Changelog
 
 - Feat: Add .jxl support for images #1540
+- Upd: Embedded libmpdclient to current master
 
 ***
 
