@@ -12,6 +12,7 @@ This is a small feature release.
 
 - Feat: Add .jxl support for images #1540
 - Upd: Embedded libmpdclient to current master
+- Upd: Mongoose to current master for TLS chain support
 
 ***
 
