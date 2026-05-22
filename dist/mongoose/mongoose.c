@@ -150,19 +150,22 @@ static struct mg_str trimq(struct mg_str s) {  // Trim double quotes
   return s;
 }
 
-static void mg_dash_broadcast(struct mg_mgr *mgr, const char *fmt, ...) {
+static void mg_dash_broadcast(struct mg_mgr *mgr, int level, const char *fmt,
+                              ...) {
   struct mg_connection *c;
   va_list ap;
   for (c = mgr->conns; c != NULL; c = c->next) {
+    int user_level = *(int *) c->data;
     if (!c->is_websocket) continue;
+    if (level > 0 && user_level < level) continue;
     if (c->send.len > MG_DASH_MAX_SEND_BUF_SIZE) {
-      MG_ERROR(("%lu buffered data %lu > MG_DASH_MAX_SEND_BUF_SIZE, throttled",
-                c->id, c->send.len));
-      continue;
+      mg_error(c, "%lu buffered data %lu > MG_DASH_MAX_SEND_BUF_SIZE", c->id,
+               c->send.len);
+    } else {
+      va_start(ap, fmt);
+      mg_ws_vprintf(c, WEBSOCKET_OP_TEXT, fmt, &ap);
+      va_end(ap);
     }
-    va_start(ap, fmt);
-    mg_ws_vprintf(c, WEBSOCKET_OP_TEXT, fmt, &ap);
-    va_end(ap);
   }
 }
 
@@ -246,6 +249,7 @@ static size_t mg_print_field_set(mg_pfn_t fn, void *arg, va_list *ap) {
 static size_t mg_dash_print_name(mg_pfn_t fn, void *arg, va_list *ap) {
   struct mg_dash *dash = va_arg(*ap, struct mg_dash *);
   struct mg_str *name = va_arg(*ap, struct mg_str *);
+  int level = va_arg(*ap, int);
   struct mg_field_set *set = mg_dash_find_field_set(dash, *name);
   size_t n = 0;
   if (name->len == 0) {
@@ -253,6 +257,7 @@ static size_t mg_dash_print_name(mg_pfn_t fn, void *arg, va_list *ap) {
     const char *comma = "";
     n += mg_xprintf(fn, arg, "{");
     for (fs = dash->sets; fs != NULL; fs = fs->next) {
+      if (fs->read_level > 0 && level < fs->read_level) continue;
       if (fs->reader) fs->reader();
       n += mg_xprintf(fn, arg, comma);
       n += mg_xprintf(fn, arg, "%m:", MG_ESC(fs->name));
@@ -260,7 +265,8 @@ static size_t mg_dash_print_name(mg_pfn_t fn, void *arg, va_list *ap) {
       comma = ",";
     }
     n += mg_xprintf(fn, arg, "}");
-  } else if (set != NULL) {
+  } else if (set != NULL &&
+             (set->read_level <= 0 || level >= set->read_level)) {
     if (set->reader) set->reader();
     n += mg_xprintf(fn, arg, "%M", mg_print_field_set, set);
   } else {
@@ -272,15 +278,16 @@ static size_t mg_dash_print_name(mg_pfn_t fn, void *arg, va_list *ap) {
 static size_t mg_dash_print(mg_pfn_t fn, void *arg, va_list *ap) {
   struct mg_str *req = va_arg(*ap, struct mg_str *);
   struct mg_dash *dash = va_arg(*ap, struct mg_dash *);
+  int level = va_arg(*ap, int);
   struct mg_str name = trimq(mg_json_get_tok(*req, "$.params"));
-  return mg_xprintf(fn, arg, "%M", mg_dash_print_name, dash, &name);
+  return mg_xprintf(fn, arg, "%M", mg_dash_print_name, dash, &name, level);
 }
 
 void mg_dash_send_change(struct mg_mgr *mgr, struct mg_field_set *set) {
   if (set->reader) set->reader();
-  mg_dash_broadcast(mgr, "{%m:%m,%m:{%m:%M}}", MG_ESC("method"),
-                    MG_ESC("change"), MG_ESC("params"), MG_ESC(set->name),
-                    mg_print_field_set, set);
+  mg_dash_broadcast(mgr, set->read_level, "{%m:%m,%m:{%m:%M}}",
+                    MG_ESC("method"), MG_ESC("change"), MG_ESC("params"),
+                    MG_ESC(set->name), mg_print_field_set, set);
 }
 
 static int mg_dash_parse_field(struct mg_str json, struct mg_field *f) {
@@ -288,18 +295,21 @@ static int mg_dash_parse_field(struct mg_str json, struct mg_field *f) {
   bool ok = false;
   mg_snprintf(json_path, sizeof(json_path), "$.%s", f->name);
   if (f->type == MG_VAL_BOOL) {
-    ok = mg_json_get_bool(json, json_path, (bool *) f->value);
+    ok = f->value_size == sizeof(bool) &&
+         mg_json_get_bool(json, json_path, (bool *) f->value);
   } else if (f->type == MG_VAL_INT) {
     double d;
-    if (mg_json_get_num(json, json_path, &d) && d == (int) d) {
+    if (f->value_size == sizeof(int) && mg_json_get_num(json, json_path, &d) &&
+        d == (int) d) {
       *(int *) f->value = (int) d;
       ok = true;
     }
   } else if (f->type == MG_VAL_DBL) {
-    ok = mg_json_get_num(json, json_path, (double *) f->value);
-  } else if (f->type == MG_VAL_STR) {
+    ok = f->value_size == sizeof(double) &&
+         mg_json_get_num(json, json_path, (double *) f->value);
+  } else if (f->type == MG_VAL_STR && f->value_size > 0) {
     ok = mg_json_unescape(json, json_path, (char *) f->value, f->value_size);
-  } else if (f->type == MG_VAL_RAW) {
+  } else if (f->type == MG_VAL_RAW && f->value_size > 0) {
     ok = mg_snprintf((char *) f->value, f->value_size, "%.*s", json.len,
                      json.buf) == json.len;
   }
@@ -307,14 +317,14 @@ static int mg_dash_parse_field(struct mg_str json, struct mg_field *f) {
 }
 
 static int mg_dash_apply(struct mg_connection *c, struct mg_dash *dash,
-                         struct mg_str json) {
+                         struct mg_str json, int level) {
   struct mg_str key, val;
   size_t ofs = 0;
   int total_count = 0;
   while ((ofs = mg_json_next(json, ofs, &key, &val)) > 0) {
     struct mg_field_set *set = mg_dash_find_field_set(dash, trimq(key));
     int count = 0;
-    if (set != NULL) {
+    if (set != NULL && (set->write_level <= 0 || level >= set->write_level)) {
       size_t i;
       for (i = 0; set->fields[i].name != NULL; i++) {
         if (mg_dash_parse_field(val, &set->fields[i])) count++;
@@ -324,7 +334,7 @@ static int mg_dash_apply(struct mg_connection *c, struct mg_dash *dash,
         mg_dash_send_change(c->mgr, set);
         total_count += count;
       }
-    } else {
+    } else if (set == NULL) {
       MG_ERROR(("UNKNOWN SET: [%.*s]", key.len, key.buf));
     }
   }
@@ -336,11 +346,12 @@ static void mg_dash_process_msg(struct mg_connection *c,
                                 struct mg_dash *dash) {
   struct mg_str req = wm->data;
   struct mg_str method = trimq(mg_json_get_tok(req, "$.method"));
+  int level = *(int *) c->data;
   if (mg_match(method, mg_str("get"), NULL)) {
-    mg_dash_success(c, req, "%M", mg_dash_print, &req, dash);
+    mg_dash_success(c, req, "%M", mg_dash_print, &req, dash, level);
   } else if (mg_match(method, mg_str("set"), NULL)) {
     struct mg_str params = trimq(mg_json_get_tok(req, "$.params"));
-    int count = mg_dash_apply(c, dash, params);
+    int count = mg_dash_apply(c, dash, params, level);
     mg_dash_success(c, req, "%d", count);
   } else {
     mg_dash_error(c, req, "%s", "unknown method");
@@ -629,7 +640,8 @@ void mg_dash_ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     c->is_resp = 0;
   } else if (ev == MG_EV_HTTP_MSG && c->data[0] == '\0') {
     struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-    // struct mg_dash_user *u = mg_dash_authenticate(hm, dash);
+    struct mg_dash_user *u = mg_dash_authenticate(hm, dash);
+    int level = u == NULL ? 0 : u->level;
     struct mg_str parts[5];
     memset(parts, 0, sizeof(parts));
 
@@ -640,6 +652,7 @@ void mg_dash_ev_handler(struct mg_connection *c, int ev, void *ev_data) {
       mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%m}", MG_ESC("method"),
                    MG_ESC("logout"));
     } else if (mg_match(hm->uri, mg_str("/api/websocket"), NULL)) {
+      *(int *) c->data = level;
       mg_ws_upgrade(c, hm, NULL);
     } else if (mg_match(hm->uri, mg_str("/fs/#"), NULL)) {
       struct mg_str name = mg_dash_file_name(hm);
@@ -657,9 +670,9 @@ void mg_dash_ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     } else if (mg_match(hm->uri, mg_str("/api/get/#"), parts) ||
                mg_match(hm->uri, mg_str("/api/get"), NULL)) {
       mg_http_reply(c, 200, MG_JSON_HEADERS, "%M\n", mg_dash_print_name, dash,
-                    &parts[0]);
+                    &parts[0], level);
     } else if (mg_match(hm->uri, mg_str("/api/set"), NULL)) {
-      int count = mg_dash_apply(c, dash, hm->body);
+      int count = mg_dash_apply(c, dash, hm->body, level);
       mg_http_reply(c, 200, MG_JSON_HEADERS, "%d\n", count);
     } else if (mg_match(hm->uri, mg_str("/"), NULL)) {
       struct mg_http_serve_opts opts;
@@ -683,7 +696,7 @@ void mg_dash_ev_handler(struct mg_connection *c, int ev, void *ev_data) {
     for (fs = dash->sets; fs != NULL; fs = fs->next) {
       mg_dash_send_change(c->mgr, fs);
     }
-    mg_dash_broadcast(c->mgr, "{%m:%m}", MG_ESC("method"), MG_ESC("ready"));
+    mg_dash_broadcast(c->mgr, 0, "{%m:%m}", MG_ESC("method"), MG_ESC("ready"));
   } else if (ev == MG_EV_WS_MSG) {
     // Add this to automatically handle "get" and "set" JSON-RPC calls
     struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
@@ -3954,13 +3967,9 @@ size_t mg_json_unescape(struct mg_str json, const char *path, char *to,
 char *mg_json_get_str(struct mg_str json, const char *path) {
   char *result = NULL;
   int len = 0, off = mg_json_get(json, path, &len);
-  if (off >= 0 && len == 2 && json.buf[off] == '"') {
-    if ((result = (char *) mg_calloc(1, 1)) != NULL) {
-      result[0] = '\0';
-    }
-  } else if (off >= 0 && len > 2 && json.buf[off] == '"') {
+  if (off >= 0 && len >= 2 && json.buf[off] == '"') {
     if ((result = (char *) mg_calloc(1, (size_t) len)) != NULL &&
-        mg_json_unescape(json, path, result, (size_t) len) == 0) {
+        len > 2 && mg_json_unescape(json, path, result, (size_t) len) == 0) {
       mg_free(result);
       result = NULL;
     }
@@ -4469,7 +4478,7 @@ struct pppoe {  // RFC-2516, "A Method for Transmitting PPP Over Ethernet
 
 #define PDIFF(a, b) ((size_t) (((char *) (b)) - ((char *) (a))))
 
-static bool s_link = false;  // ************ THESE SHOULD MOVE TO A struct
+static bool s_lcpup = false;  // ************ THESE SHOULD MOVE TO A struct
                              // mg_l2data *******************************
 static uint8_t s_state = MG_PPPoE_ST_DISC;
 static uint16_t s_id;
@@ -4488,8 +4497,8 @@ void mg_l2_pppoe_init(struct mg_tcpip_if *ifp) {
 }
 
 bool mg_l2_ppp_poll(struct mg_tcpip_if *ifp, bool expired_1000ms) {
-  if (expired_1000ms && ifp->state == MG_TCPIP_STATE_DOWN) s_link = false;
-  return s_link;
+  if (expired_1000ms && ifp->state == MG_TCPIP_STATE_DOWN) s_lcpup = false;
+  return s_lcpup;
 }
 
 static uint8_t *hdlc_header(uint8_t *p) {
@@ -4633,13 +4642,13 @@ static void ppp_handle_lcp(struct mg_tcpip_if *ifp, uint8_t *lcpp,
       }
     } break;
     case MG_PPP_LCP_CFG_ACK:
-      s_link = true;
+      s_lcpup = true;
       break;
     case MG_PPP_LCP_CFG_TERM_REQ: {
       uint8_t ack[4] = {MG_PPP_LCP_CFG_TERM_ACK, id, 0, 4};
       MG_DEBUG(("LCP termination request, acknowledging..."));
       ppp_tx_frame(ifp, MG_PPP_PROTO_LCP, ack, sizeof(ack));
-      s_link = false;
+      s_lcpup = false;
     } break;
     case MG_PPP_LCP_ECHO_REQ:  // RFC-1661 5.8: must respond
       MG_DEBUG(("LCP echo request of %d bytes, replying...", len));
@@ -4801,19 +4810,19 @@ static bool ppp_rx(struct mg_tcpip_if *ifp, enum mg_l2proto *proto,
       ppp_handle_lcp(ifp, (uint8_t *) pay->buf, pay->len);
       return false;
     case MG_PPP_PROTO_IPCP:
-      if (s_link) ppp_handle_ipcp(ifp, (uint8_t *) pay->buf, pay->len);
+      if (s_lcpup) ppp_handle_ipcp(ifp, (uint8_t *) pay->buf, pay->len);
       return false;
     case MG_PPP_PROTO_IP:
-      if (!s_link) return false;
+      if (!s_lcpup) return false;
       MG_VERBOSE(("got IP packet of %d bytes", pay->len));
       *proto = MG_TCPIP_L2PROTO_IPV4;
       break;
 #if MG_ENABLE_IPV6
     case MG_PPP_PROTO_IPV6CP:
-      if (s_link) ppp_handle_ipv6cp(ifp, (uint8_t *) pay->buf, pay->len);
+      if (s_lcpup) ppp_handle_ipv6cp(ifp, (uint8_t *) pay->buf, pay->len);
       return false;
     case MG_PPP_PROTO_IPV6:
-      if (!s_link) return false;
+      if (!s_lcpup) return false;
       MG_VERBOSE(("got IPv6 packet of %d bytes", pay->len));
       *proto = MG_TCPIP_L2PROTO_IPV6;
       break;
@@ -4825,7 +4834,7 @@ static bool ppp_rx(struct mg_tcpip_if *ifp, enum mg_l2proto *proto,
       MG_DEBUG(("unknown %u-byte PPP frame with proto 0x%04x:",
                 pay->len + sizeof(*ppp), mg_ntohs(ppp->proto)));
       if (mg_log_level >= MG_LL_DEBUG) mg_hexdump(ppp, sizeof(*ppp) + 20);
-      if (!s_link) return false;  // RFC-1661 5.7: must reject on link up
+      if (!s_lcpup) return false;  // RFC-1661 5.7: must reject on link up
       if (pay->len > (size_t) (ifp->mtu - 20))
         pay->len = (size_t) (ifp->mtu - 20);  // truncate to some safe limit
       rej.code = MG_PPP_LCP_REJECT;
@@ -4979,7 +4988,7 @@ bool mg_l2_pppoe_rx(struct mg_tcpip_if *ifp, enum mg_l2proto *proto,
                pppoe->id == s_id) {
       MG_ERROR(("Got PADT"));
       s_id = 0;
-      s_link = false;
+      s_lcpup = false;
       s_state = MG_PPPoE_ST_DISC;
     }
   } else if (eth_proto == MG_TCPIP_L2PROTO_PPPoE_SESS &&
@@ -6476,7 +6485,6 @@ struct connstate {
 #define MIP_TTYPE_SYN 3        // SYN sent, waiting for response
 #define MIP_TTYPE_FIN 4  // FIN sent, waiting until terminating the connection
   uint8_t tmiss;         // Number of keep-alive misses
-  struct mg_iobuf raw;   // For TLS only. Incoming raw data
   bool fin_rcvd;         // We have received FIN from the peer
   bool twclosure;        // 3-way closure done
 };
@@ -6654,14 +6662,15 @@ uint8_t mg_l2_ip6put(enum mg_l2type type, uint8_t *addr, uint8_t *opts);
 bool mg_l2_poll(struct mg_tcpip_if *ifp, bool expired_1000ms);
 
 static void mg_tcpip_call(struct mg_tcpip_if *ifp, int ev, void *ev_data) {
-#if MG_ENABLE_PROFILE
+#if 0 && MG_ENABLE_PROFILE
   const char *names[] = {"TCPIP_EV_ST_CHG",        "TCPIP_EV_DHCP_DNS",
                          "TCPIP_EV_DHCP_SNTP",     "TCPIP_EV_ARP",
                          "TCPIP_EV_TIMER_1S",      "TCPIP_EV_WIFI_SCAN_RESULT",
                          "TCPIP_EV_WIFI_SCAN_END", "TCPIP_EV_WIFI_CONNECT_ERR",
-                         "TCPIP_EV_DRIVER",        "TCPIP_EV_USER"};
-  if (ev != MG_TCPIP_EV_POLL && ev < (int) (sizeof(names) / sizeof(names[0]))) {
-    MG_PROF_ADD(c, names[ev]);
+                         "TCPIP_EV_DRIVER",        "MG_TCPIP_EV_ST6_CHG",
+                         "TCPIP_EV_USER"};
+  if (ev != MG_TCPIP_EV_TIMER_1S && ev < (int) (sizeof(names) / sizeof(names[0]))) {
+    MG_PROF_ADD(ifp, names[ev]); // TODO(): call MG_PROF_DUMP() MG_PROF_FREE()
   }
 #endif
   // Fire protocol handler first, user handler second. See #2559
@@ -8610,8 +8619,8 @@ static void init_closure(struct mg_connection *c) {
 
 static void close_conn(struct mg_connection *c) {
   struct connstate *s = (struct connstate *) (c + 1);
-  mg_iobuf_free(&s->raw);  // For TLS connections, release raw data
   mg_close_conn(c);
+  (void) s;
 }
 
 static bool can_write(struct mg_connection *c) {
@@ -14954,6 +14963,23 @@ static bool mg_tls_encrypt(struct mg_connection *c, const uint8_t *msg,
   return true;
 }
 
+static void verbose_alert(uint8_t *buf) {
+  uint8_t level = buf[0], desc = buf[1];
+  MG_INFO(("TLS ALERT received: level=%d, desc=%d (%s)", level, desc,
+           desc == 0    ? "close_notify"
+           : desc == 10 ? "unexpected_message"
+           : desc == 20 ? "bad_record_mac"
+           : desc == 21 ? "decryption_failed"
+           : desc == 40 ? "handshake_failure"
+           : desc == 42 ? "bad_certificate"
+           : desc == 43 ? "unsupported_certificate"
+           : desc == 44 ? "certificate_revoked"
+           : desc == 45 ? "certificate_expired"
+           : desc == 46 ? "certificate_unknown"
+           : desc == 48 ? "unknown_ca"
+                        : "unknown"));
+}
+
 // read an encrypted record, decrypt it in place
 static int mg_tls_recv_record(struct mg_connection *c) {
   struct tls_data *tls = (struct tls_data *) c->tls;
@@ -14982,16 +15008,7 @@ static int mg_tls_recv_record(struct mg_connection *c) {
       mg_tls_drop_record(c);
     } else if (rio->buf[0] == MG_TLS_ALERT) {  // Skip Alerts
       if (rio->len >= 7) {
-        uint8_t level = rio->buf[5], desc = rio->buf[6];
-        MG_INFO(("TLS ALERT received: level=%d, desc=%d (%s)", level, desc,
-                 desc == 0    ? "close_notify"
-                 : desc == 10 ? "unexpected_message"
-                 : desc == 20 ? "bad_record_mac"
-                 : desc == 21 ? "decryption_failed"
-                 : desc == 40 ? "handshake_failure"
-                 : desc == 42 ? "bad_certificate"
-                 : desc == 43 ? "unsupported_certificate"
-                              : "unknown"));
+        verbose_alert(&rio->buf[5]);
       } else {
         MG_INFO(("TLS ALERT packet received (short)"));
       }
@@ -15052,6 +15069,16 @@ static int mg_tls_recv_record(struct mg_connection *c) {
 
   r = msgsz - 16 - 1;
   tls->content_type = msg[msgsz - 16 - 1];
+  if (tls->content_type == MG_TLS_ALERT) {  // Process Alerts
+    verbose_alert(msg);
+    if (msg[0] == 2) {
+      mg_error(c, "TLS Fatal alert");
+      return -1;
+    } else {
+      mg_tls_drop_record(c);
+      return MG_IO_WAIT;
+    }
+  }
   tls->recv_offset = (size_t) msg - (size_t) rio->buf;
   tls->recv_len = (size_t) msgsz - 16 - 1;
   c->is_client ? tls->enc.sseq++ : tls->enc.cseq++;
@@ -15714,7 +15741,8 @@ static int mg_tls_client_recv_hello(struct mg_connection *c) {
   }
   if (rio->buf[0] != MG_TLS_HANDSHAKE || rio->buf[5] != MG_TLS_SERVER_HELLO) {
     if (rio->buf[0] == MG_TLS_ALERT && rio->len >= 7) {
-      mg_error(c, "tls alert %d", rio->buf[6]);
+      verbose_alert(&rio->buf[5]);
+      mg_error(c, "TLS error alert");
       return -1;
     }
     MG_INFO(("got packet type 0x%02x/0x%02x", rio->buf[0], rio->buf[5]));
@@ -24442,15 +24470,8 @@ bool mg_path_is_sane(const struct mg_str path) {
 #if MG_ENABLE_CUSTOM_MILLIS
 #else
 uint64_t mg_millis(void) {
-#if MG_ARCH == MG_ARCH_WIN32
-  return GetTickCount();
-#elif MG_ARCH == MG_ARCH_PICOSDK
-  return time_us_64() / 1000;
-#elif MG_ARCH == MG_ARCH_ESP8266 || MG_ARCH == MG_ARCH_ESP32 || \
-    MG_ARCH == MG_ARCH_FREERTOS
+#if MG_ARCH == MG_ARCH_ESP8266 || MG_ARCH == MG_ARCH_ESP32 || MG_ENABLE_FREERTOS
   return xTaskGetTickCount() * portTICK_PERIOD_MS;
-#elif MG_ARCH == MG_ARCH_CUBE
-  return (uint64_t) HAL_GetTick();
 #elif MG_ARCH == MG_ARCH_THREADX
   return tx_time_get() * (1000 /* MS per SEC */ / TX_TIMER_TICKS_PER_SECOND);
 #elif MG_ARCH == MG_ARCH_TIRTOS
@@ -24463,6 +24484,12 @@ uint64_t mg_millis(void) {
   return (uint64_t) ((osKernelGetTickCount() * 1000) / osKernelGetTickFreq());
 #elif MG_ARCH == MG_ARCH_RTTHREAD
   return (uint64_t) ((rt_tick_get() * 1000) / RT_TICK_PER_SECOND);
+#elif MG_ARCH == MG_ARCH_WIN32
+  return GetTickCount();
+#elif MG_ARCH == MG_ARCH_PICOSDK
+  return time_us_64() / 1000;
+#elif MG_ARCH == MG_ARCH_CUBE
+  return (uint64_t) HAL_GetTick();
 #elif MG_ARCH == MG_ARCH_UNIX && defined(__APPLE__)
   // Apple CLOCK_MONOTONIC_RAW is equivalent to CLOCK_BOOTTIME on linux
   // Apple CLOCK_UPTIME_RAW is equivalent to CLOCK_MONOTONIC_RAW on linux
