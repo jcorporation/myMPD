@@ -40,35 +40,36 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
  */
 
 /**
- * Creates the album cache and returns it to mympd_api thread
+ * Creates the album cache and returns it to the mympd_api thread
  * @param mympd_worker_state pointer to mympd_worker_state struct
- * @param force true=force update, false=update only if mpd database is newer then the caches
+ * @param force true=force update, false=update only if mpd database is newer then the cache
  * @return true on success else false
  */
 bool mympd_worker_album_cache_create(struct t_mympd_worker_state *mympd_worker_state, bool force) {
-    time_t db_mtime = mympd_client_get_db_mtime(mympd_worker_state->partition_state);
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", mympd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE);
-    time_t album_cache_mtime = get_mtime(filepath);
-    #ifdef MYMPD_DEBUG
-        char fmt_time_db[32];
-        readable_time(fmt_time_db, db_mtime);
-        char fmt_time_album_cache[32];
-        readable_time(fmt_time_album_cache, album_cache_mtime);
-        MYMPD_LOG_DEBUG("default", "Database mtime: %s", fmt_time_db);
-        MYMPD_LOG_DEBUG("default", "Album cache mtime: %s", fmt_time_album_cache);
-    #endif
-    FREE_SDS(filepath);
-
-    if (force == false &&
-        db_mtime < album_cache_mtime)
-    {
-        MYMPD_LOG_INFO("default", "Caches are up-to-date");
-        send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Caches are up-to-date");
-        if (mympd_worker_state->partition_state->mpd_state->feat.tags == true) {
-            struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, "", mympd_worker_state->partition_state->name);
-            mympd_queue_push(mympd_api_queue, request, 0);
+    if (force == false) {
+        // Update cache only if database mtime is newer then album cache mtime
+        time_t db_mtime = mympd_client_get_db_mtime(mympd_worker_state->partition_state);
+        sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", mympd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE);
+        time_t album_cache_mtime = get_mtime(filepath);
+        FREE_SDS(filepath);
+        if (loglevel == LOG_DEBUG) {
+            char fmt_time_db[32];
+            readable_time(fmt_time_db, db_mtime);
+            char fmt_time_album_cache[32];
+            readable_time(fmt_time_album_cache, album_cache_mtime);
+            MYMPD_LOG_DEBUG("default", "Database mtime: %s", fmt_time_db);
+            MYMPD_LOG_DEBUG("default", "Album cache mtime: %s", fmt_time_album_cache);
         }
-        return true;
+
+        if (db_mtime < album_cache_mtime) {
+            MYMPD_LOG_INFO("default", "Caches are up-to-date");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Caches are up-to-date");
+            if (mympd_worker_state->partition_state->mpd_state->feat.tags == true) {
+                struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, "", mympd_worker_state->partition_state->name);
+                mympd_queue_push(mympd_api_queue, request, 0);
+            }
+            return true;
+        }
     }
     send_jsonrpc_event(JSONRPC_EVENT_UPDATE_CACHE_STARTED, MPD_PARTITION_ALL);
 

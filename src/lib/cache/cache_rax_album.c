@@ -101,6 +101,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         FREE_SDS(filepath);
         return false;
     }
+    album_cache->mtime = get_mtime(filepath);
 
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);

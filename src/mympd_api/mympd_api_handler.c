@@ -210,6 +210,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 }
                 album_cache_free(&mympd_state->album_cache);
                 mympd_state->album_cache.cache = (rax *) request->extra;
+                mympd_state->album_cache.mtime = time(NULL);
                 cache_release_lock(&mympd_state->album_cache);
                 request->extra = NULL;
                 MYMPD_LOG_INFO(partition_state->name, "Album cache was replaced");
