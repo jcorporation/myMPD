@@ -15,6 +15,7 @@ This is a small feature release.
 - Feat: Add support for MPD_IDLE_NEIGHBOR and MPD_IDLE_MOUNT events
 - Upd: Embedded libmpdclient to current master
 - Upd: Mongoose to current master for TLS chain support
+- Upd: Map locale zh-Hant to zh-Hans
 - Fix: Build album cache also if database mtime has not changed for MPD mounts support #1545
 - Fix: Keyboard navigation shortcut for "Show Playlists" #1548
 
