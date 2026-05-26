@@ -143,6 +143,9 @@ function parseQueueBody(card, data) {
         if (currentState.state === 'play') {
             setQueueCounter(card, getCounterText());
         }
+        if (data.AudioFormat && currentState.AudioFormat) {
+            data.AudioFormat = currentState.AudioFormat;
+        }
     }
 }
 
