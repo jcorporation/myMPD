@@ -173,9 +173,11 @@ function parseState(obj) {
         for (let i = 0, j = pb.length; i < j; i++) {
             elClear(pb[i]);
         }
+        // Audioformat in footer
         elClearId('footerAudioFormat');
     }
     else {
+        // Audioformat in Playback card
         const cff = elGetById('currentAudioFormat');
         if (cff) {
             elReplaceChild(
@@ -183,6 +185,7 @@ function parseState(obj) {
                 printValue('AudioFormat', obj.result.AudioFormat)
             );
         }
+        // Audioformat in footer
         elReplaceChildId('footerAudioFormat', printValue('AudioFormat', obj.result.AudioFormat));
     }
 
