@@ -16,6 +16,7 @@ This is a small feature release.
 - Upd: Embedded libmpdclient to current master
 - Upd: Mongoose to current master for TLS chain support
 - Fix: Build album cache also if database mtime has not changed for MPD mounts support #1545
+- Fix: Keyboard navigation shortcut for "Show Playlists" #1548
 
 ***
 

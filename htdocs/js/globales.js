@@ -1669,7 +1669,7 @@ const keymap = {
         "3": {"order": 304, "cmd": "appGoto", "options": ["Queue", "LastPlayed"], "desc": "Show last played"},
         "4": {"order": 305, "cmd": "gotoJukebox", "options": [], "desc": "Show jukebox queue"},
         "5": {"order": 306, "cmd": "appGoto", "options": ["Browse", "Database"], "desc": "Show browse database", "feature": "featTags"},
-        "6": {"order": 307, "cmd": "appGoto", "options": ["Browse", "Playlists"], "desc": "Show browse playlists", "feature": "featPlaylists"},
+        "6": {"order": 307, "cmd": "appGoto", "options": ["Browse", "Playlist"], "desc": "Show browse playlists", "feature": "featPlaylists"},
         "7": {"order": 308, "cmd": "appGoto", "options": ["Browse", "Filesystem"], "desc": "Show browse filesystem"},
         "8": {"order": 308, "cmd": "appGoto", "options": ["Browse", "Radio"], "desc": "Show browse webradio"},
         "9": {"order": 309, "cmd": "appGoto", "options": ["Search"], "desc": "Show search"},
