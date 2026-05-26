@@ -11,8 +11,11 @@ This is a small feature release.
 ### Changelog
 
 - Feat: Add .jxl support for images #1540
+- Feat: Show AudioFormat of streams in queue view #1547
+- Feat: Add support for MPD_IDLE_NEIGHBOR and MPD_IDLE_MOUNT events
 - Upd: Embedded libmpdclient to current master
 - Upd: Mongoose to current master for TLS chain support
+- Fix: Build album cache also if database mtime has not changed for MPD mounts support #1545
 
 ***
 
