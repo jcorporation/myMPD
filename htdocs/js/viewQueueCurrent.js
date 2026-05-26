@@ -143,6 +143,8 @@ function parseQueueBody(card, data) {
         if (currentState.state === 'play') {
             setQueueCounter(card, getCounterText());
         }
+        // Set AudioFormat from currentState
+        // The playlist response does not include an AudioFormat for streams
         if (data.AudioFormat && currentState.AudioFormat) {
             data.AudioFormat = currentState.AudioFormat;
         }
