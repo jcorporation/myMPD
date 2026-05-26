@@ -62,7 +62,7 @@ bool mympd_client_queue_check_start_play(struct t_partition_state *partition_sta
 }
 
 /**
- * Prints the queue status and updates internal state
+ * Updates internal queue state
  * @param partition_state pointer to partition state
  */
 void mympd_client_queue_status_update(struct t_partition_state *partition_state) {
