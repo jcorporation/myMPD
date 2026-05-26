@@ -31,6 +31,7 @@
 #include "src/mympd_client/queue.h"
 #include "src/mympd_client/stickerdb.h"
 
+#include <mpd/idle.h>
 #include <string.h>
 
 /**
@@ -341,6 +342,14 @@ static void mympd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_
                     mympd_client_queue_status_update(partition_state);
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OPTIONS);
                     break;
+                case MPD_IDLE_NEIGHBOR:
+                    //a neighbor was found or lost
+                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_NEIGHBOR);
+                    break;
+                case MPD_IDLE_MOUNT:
+                    //the mount list has changed 
+                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_MOUNT);
+                    break;
                 default: {
                     //other idle events not used
                 }
@@ -354,6 +363,8 @@ static void mympd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_
                     case MPD_IDLE_PARTITION:
                     case MPD_IDLE_STORED_PLAYLIST:
                     case MPD_IDLE_UPDATE:
+                    case MPD_IDLE_NEIGHBOR:
+                    case MPD_IDLE_MOUNT:
                         //broadcast to all partitions
                         ws_notify(buffer, MPD_PARTITION_ALL);
                         break;

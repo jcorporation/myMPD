@@ -218,6 +218,12 @@ function webSocketConnect() {
             case 'script_dialog': 
                 showScriptDialog(obj.params);
                 break;
+            case 'update_neighbor':
+                // Do nothing
+                break;
+            case 'update_mount':
+                // Do nothing
+                break;
             default:
                 logDebug('Unknown websocket notification: ' + obj.method);
                 break;
