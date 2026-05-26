@@ -138,9 +138,6 @@ struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
         #ifdef I18N_zh_Hans
             add_file(mg_user_data, "/assets/i18n/zh-Hans.json", "application/json", true, true, i18n_zh_Hans_json_data, i18n_zh_Hans_json_size);
         #endif
-        #ifdef I18N_zh_Hant
-            add_file(mg_user_data, "/assets/i18n/zh-Hant.json", "application/json", true, true, i18n_zh_Hant_json_data, i18n_zh_Hant_json_size);
-        #endif
     #endif
     add_file(mg_user_data, NULL, NULL, false, false, NULL, 0);
     // Enforce last entry to be NULL

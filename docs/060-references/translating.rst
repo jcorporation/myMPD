@@ -81,6 +81,6 @@ Adding a new translation
 Add the file to:
 
 - ``src/web_server/embedded_files.c``
-- the struct ``embedded_files`` in ``src/web_server/utility.c``
+- ``#ifdef MYMPD_EMBEDDED_ASSETS`` block in ``src/web_server/mg_user_data.c``
 - ``CMakeLists.txt``
 - ``src/compile_time.h.in``
