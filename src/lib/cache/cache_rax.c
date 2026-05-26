@@ -21,6 +21,7 @@
 bool cache_init(struct t_cache *cache) {
     cache->building = false;
     cache->cache = NULL;
+    cache->mtime = 0;
     int rc = pthread_rwlock_init(&cache->rwlock, NULL);
     if (rc == 0) {
         return true;

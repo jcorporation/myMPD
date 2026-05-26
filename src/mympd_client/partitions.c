@@ -24,6 +24,7 @@
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
 #include "src/mympd_client/connection.h"
+#include "src/mympd_client/database.h"
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/features.h"
 #include "src/mympd_client/jukebox.h"
@@ -53,8 +54,15 @@ bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_st
         mympd_client_mpd_features(mympd_state, partition_state);
         // initiate cache updates
         if (mympd_state->mpd_state->feat.tags == true) {
-            mympd_api_timer_replace(&mympd_state->timer_list, 2, TIMER_ONE_SHOT_REMOVE,
-                timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
+            time_t db_mtime = mympd_client_get_db_mtime(partition_state);
+            // If album cache is older than the MPD database, update the cache
+            if (db_mtime > mympd_state->album_cache.mtime) {
+                mympd_api_timer_replace(&mympd_state->timer_list, 2, TIMER_ONE_SHOT_REMOVE,
+                    timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
+            }
+            else {
+                MYMPD_LOG_INFO(partition_state->name, "Album cache is up-to-date");
+            }
         }
         // set timer for smart playlist update
         if (mympd_state->smartpls_interval > 0) {

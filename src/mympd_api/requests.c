@@ -21,7 +21,7 @@
  */
 bool mympd_api_request_caches_create(void) {
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, MYMPD_API_CACHES_CREATE, NULL, MPD_PARTITION_DEFAULT);
-    request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
+    request->data = sdscat(request->data, "\"force\":true}}"); // Always update
     return push_request(request, 0);
 }
 
