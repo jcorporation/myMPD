@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Add all mpd idle events to myMPD event list
+
 ***
 
 ## myMPD v25.1.0 (2026-05-31)

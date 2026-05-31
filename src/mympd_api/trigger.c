@@ -60,25 +60,6 @@ static const char *const mpd_event_names[] = {
 };
 
 /**
- * MPD idle events for triggers
- * This events are enabled by the idle bitmask
- */
-static const char *const trigger_event_names[] = {
-    "mpd_database",
-    "mpd_stored_playlist",
-    "mpd_queue",
-    "mpd_player",
-    "mpd_mixer",
-    "mpd_output",
-    "mpd_options",
-    "mpd_partition",
-    "mpd_sticker",           // triggered through stickerdb connection
-    "mpd_subscription",
-    "mpd_message",
-    NULL
-};
-
-/**
  * myMPD events for triggers
  */
 static const char *const mympd_event_names[] = {
@@ -136,11 +117,11 @@ sds mympd_api_trigger_print_event_list(sds buffer) {
         buffer = tojson_int(buffer, mympd_event_names[i], (-1 - i), true);
     }
 
-    for (int i = 0; trigger_event_names[i] != NULL; ++i) {
+    for (int i = 0; mpd_event_names[i] != NULL; ++i) {
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = tojson_int(buffer, trigger_event_names[i], (1 << i), false);
+        buffer = tojson_int(buffer, mpd_event_names[i], (1 << i), false);
     }
     return buffer;
 }
