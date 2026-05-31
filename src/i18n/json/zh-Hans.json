@@ -717,6 +717,7 @@
     "mpd_sticker": "贴签改变 (mpd_sticker)",
     "mpd_stored_playlist": "已存储播放列表 (mpd_stored_playlist)",
     "mpd_subscription": "订阅改变 (mpd_subscription)",
+    "mpd_update": "",
     "MPEG-1 Audio Layer III": "MP3",
     "MPEG-4": "MPEG-4",
     "Musepack": "Musepack",

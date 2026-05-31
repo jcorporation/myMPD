@@ -163,6 +163,7 @@ mpd_queue
 mpd_sticker
 mpd_stored_playlist
 mpd_subscription
+mpd_update
 MUSICBRAINZ_ALBUMARTISTID
 MUSICBRAINZ_ALBUMID
 MUSICBRAINZ_ARTISTID

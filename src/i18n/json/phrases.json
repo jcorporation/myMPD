@@ -1237,6 +1237,7 @@
 {"term":"mpd_sticker"},
 {"term":"mpd_stored_playlist"},
 {"term":"mpd_subscription"},
+{"term":"mpd_update"},
 {"term":"myMPD CA"},
 {"term":"myMPD connection closed"},
 {"term":"myMPD connection failed, trying to reconnect"},

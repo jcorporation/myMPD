@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Add all mpd idle events to myMPD event list
+- Upd: Translations
 
 ***
 

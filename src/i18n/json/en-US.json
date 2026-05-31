@@ -146,6 +146,7 @@
     "mpd_sticker": "Sticker (mpd_sticker)",
     "mpd_stored_playlist": "Playlist (mpd_stored_playlist",
     "mpd_subscription": "Subscription (mpd_subscription)",
+    "mpd_update": "Database update has started or finished (mpd_update)",
     "modalConnection": "Connection",
     "modalSettings": "Settings",
     "modalMaintenance": "Maintenance",

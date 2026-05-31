@@ -717,6 +717,7 @@
     "mpd_sticker": "Sticker (mpd_sticker)",
     "mpd_stored_playlist": "Wiedergabeliste (mpd_stored_playlist)",
     "mpd_subscription": "Subscription (mpd_subscription)",
+    "mpd_update": "Database gestartet or beendet (mpd_update)",
     "MPEG-1 Audio Layer III": "MPEG-1 Audio Layer III",
     "MPEG-4": "MPEG-4",
     "Musepack": "Musepack",
