@@ -6,14 +6,17 @@
 mympd-config \- mympd configuration tool
 
 .SH SYNOPSIS
-mympd-config [-b </usr/bin/mympd>] [-c </var/lib/mympd/config>] [-s <0|1>] [SETTING VALUE ...]
+mympd-config [options...] [SETTING VALUE ...]
 
 .SH DESCRIPTION
 mympd-config is a small commandline tool to configure basic myMPD settings.
 
 .SH OPTIONS
 .TP
-\fB-b <//usr/bin/mympd>\fR
+\fB-a </var/cache/mympd>\fR
+Set's the path to the myMPD cache directory
+.TP
+\fB-b </usr/bin/mympd>\fR
 Set's the path to the myMPD executable.
 .TP
 \fB-c </var/lib/mympd/config>\fR
@@ -21,12 +24,15 @@ Set's the path to the myMPD config directory.
 .TP
 \fB-s <0|1>\fR
 0 = myMPD runs with normal linux user account
-1 = myMPD ist started with systemd private user
+1 = myMPD is started with systemd private user
+.TP
+\fB-a </var/lib/mympd>\fR
+Set's the path to the myMPD working directory
 .TP
 \fBSETTING VALUE\fR
 Valid settings are the environment variables respected by "mympd -c".
 
-Reference: https://jcorporation.github.io/myMPD/configuration/configuration-files
+Reference: https://jcorporation.github.io/myMPD/020-configuration/configuration-files
 
 .SH AUTHOR
 Juergen Mang (mail@jcgames.de)
