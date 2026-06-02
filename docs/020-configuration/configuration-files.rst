@@ -13,17 +13,22 @@ You can configure myMPD in different ways:
    1. Type ``mympd-config`` to configure myMPD with a ncurses based interface.
    2. Start myMPD.
 
+   .. hint::
+
+      Start ``mympd-config`` with the user myMPD is running if myMPD is not run with a systemd dynamic user.
+
 3. Use ``mympd -c``
 
    1. Type ``mympd -c`` to create the initial configuration in the ``/var/lib/mympd/config/`` directory.
    2. Edit the files and start myMPD.
 
-.. hint::
-   Use :doc:`systemd-run </030-running>`, if you use a distribution with systemd, e.g.:
+   .. hint::
 
-   .. code-block:: lua
+      Use :doc:`systemd-run </030-running>`, if you use a distribution with systemd, e.g.:
 
-      systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -E MYMPD_LOGLEVEL=4 -E MYMPD_HTTP=false -E MYMPD_SSL_PORT=1333 mympd -c
+      .. code-block:: lua
+
+         systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -E MYMPD_LOGLEVEL=4 -E MYMPD_HTTP=false -E MYMPD_SSL_PORT=1333 mympd -c
 
 General options
 ---------------
