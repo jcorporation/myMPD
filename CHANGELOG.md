@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Upd: Add all mpd idle events to myMPD event list
 - Upd: Translations
+- Upd: Improve `mympd-config` script
 
 ***
 

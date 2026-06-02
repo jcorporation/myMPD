@@ -4,31 +4,46 @@
 # myMPD (c) 2018-2026 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
-CONFIG_DIR="/var/lib/mympd/config"
-MYMPD_BIN="$(command -v mympd)"
+# Exit on undefined variable
+set -u
 
-while getopts ':c:s:b:' OPTION
+CACHE_DIR="/var/cache/mympd"
+WORK_DIR="/var/lib/mympd"
+CONFIG_DIR=""
+MYMPD_BIN="$(command -v mympd || true)"
+MYMPD_SYSTEMD=""
+
+while getopts ':a:b:c:s:w:' OPTION
 do
     case "$OPTION" in
+        a) CACHE_DIR="$OPTARG" ;;
         b) MYMPD_BIN="$OPTARG" ;;
         c) CONFIG_DIR="$OPTARG" ;;
         s) MYMPD_SYSTEMD="$OPTARG" ;;
+        w) WORK_DIR="$OPTARG" ;;
         *)
-            echo "Usage: $(basename "$0") [-b </usr/bin/mympd>] [-c </var/lib/mympd/config>] [-s <0|1>] [SETTING VALUE ...]"
+            echo "Usage: $(basename "$0") [options...] [SETTING VALUE ...]"
             echo "Options"
-            echo "  -b Path to myMPD binary"
-            echo "  -c Path to myMPD config directory, default: /var/lib/mympd/config"
-            echo "  -s 0 = myMPD runs with normal linux user account"
-            echo "     1 = myMPD is started with systemd private user"
+            echo "  -a <folder>      Path to myMPD cache directory, default: /var/cache/mympd"
+            echo "  -b <executable>  Path to myMPD binary, default: /usr/bin/mympd"
+            echo "  -c <folder>      Path to myMPD config directory, default: /var/lib/mympd/config"
+            echo "  -s <0|1>         0 = myMPD runs with normal linux user account"
+            echo "                   1 = myMPD is started with systemd private user"
+            echo "  -w <folder>      Path to myMPD work directory, default: /var/lib/mympd"
             exit 1
             ;;
     esac
 done
 shift "$((OPTIND - 1))"
 
+if [ -z "$CONFIG_DIR" ]
+then
+    CONFIG_DIR="$WORK_DIR/config"
+fi
+
 if [ -z "$MYMPD_BIN" ] || [ ! -x "$MYMPD_BIN" ]
 then
-    echo "mympd not found"
+    echo "myMPD executable "mympd" not found."
     exit 1
 fi
 
@@ -36,8 +51,10 @@ if [ -z "$MYMPD_SYSTEMD" ]
 then
     if grep "DynamicUser=yes" "/usr/lib/systemd/system/mympd.service" > /dev/null 2>&1
     then
+        echo "myMPD is started with Systemd private user"
         MYMPD_SYSTEMD=1
     else
+        echo "myMPD is running as standard user"
         MYMPD_SYSTEMD=0
     fi
 fi
@@ -86,6 +103,12 @@ set_default() {
 }
 
 read_config() {
+    if [ ! -d "${CONFIG_DIR}" ]
+    then
+        echo "Config directory not found, using defaults"
+    else
+        echo "Reading configuration from $CONFIG_DIR"
+    fi
     [ -f "${CONFIG_DIR}/acl" ] && read -r MYMPD_ACL < "${CONFIG_DIR}/acl"
     [ -f "${CONFIG_DIR}/album_group_tag" ] && read -r MYMPD_ALBUM_GROUP_TAG < "${CONFIG_DIR}/album_group_tag"
     [ -f "${CONFIG_DIR}/album_mode" ] && read -r MYMPD_ALBUM_MODE < "${CONFIG_DIR}/album_mode"
@@ -199,7 +222,7 @@ apply_config() {
         export MYMPD_SMARTPLS_PER_TAG_VALUE_MAX
         export MYMPD_STATE_SAVE
         export MYMPD_SSL_SEND_CHAIN
-        $MYMPD_BIN -c
+        $MYMPD_BIN -a "$CACHE_DIR" -w "$WORK_DIR" -c
     fi
 }
 
@@ -209,7 +232,7 @@ set_pin() {
         systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd \
             mympd -p
     else
-        mympd -p
+        mympd  -a "$CACHE_DIR" -w "$WORK_DIR" -p
     fi
 }
 
