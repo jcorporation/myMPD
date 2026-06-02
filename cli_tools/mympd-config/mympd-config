@@ -68,7 +68,7 @@ set_default() {
         eval "MYMPD_$KEY=$VALUE"
     done < /tmp/mympd_defaults
     rm /tmp/mympd_defaults
-    if ! MYMPD_CA_CERT_STORE=$(curl-config --ca)
+    if ! MYMPD_CA_CERT_STORE=$(curl-config --ca 2>/dev/null)
     then
         MYMPD_CA_CERT_STORE_PATHS="/etc/ssl/certs/ca-certificates.crt \
             /etc/ssl/certs/ca-bundle.crt \
