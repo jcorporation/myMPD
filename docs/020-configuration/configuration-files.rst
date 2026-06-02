@@ -158,5 +158,8 @@ SSL options
 || ssl_key                             | string  |           | Path to custom ssl key file.                           |
 || MYMPD_SSL_KEY                       |         |           |                                                        |
 +--------------------------------------+---------+-----------+--------------------------------------------------------+
+|| ssl_send_chain                      | string  |           | Send CA and server certificate in the SSL handshake.   |
+|| MYMPD_SSL_SEND_CHAIN                |         |           |                                                        |
++--------------------------------------+---------+-----------+--------------------------------------------------------+
 
 - More details on :doc:`SSL <ssl>`

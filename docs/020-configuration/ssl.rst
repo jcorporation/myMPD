@@ -1,28 +1,19 @@
 SSL
 ===
 
-In the default configuration myMPD encrypts traffic on port 8443, set
-``/var/lib/mympd/config/ssl`` to ``false`` to disable encryption. If ssl
-is enabled, myMPD redirects the http port 8080 to 8443. If you want to
-install myMPD as an app in chrome you need ssl.
+In the default configuration myMPD encrypts traffic on port 8443, set ``/var/lib/mympd/config/ssl`` to ``false`` to disable encryption. If ssl is enabled, myMPD redirects the http port 8080 to 8443. If you want to install myMPD as an app in chrome you need ssl.
 
 Default certificate
 -------------------
 
-Certificates are checked at startup and if necessary created or renewed.
-myMPD maintains a CA certificate and a server certificate signed with
-this ca.
+Certificates are checked at startup and if necessary created or renewed. myMPD maintains a CA certificate and a server certificate signed with this CA.
 
 - Lifetime of the CA certificate: approximately 10 years
 - Lifetime of the server certificate: 1 year
 
-The validity of the server certificate is so short because browsers no
-longer trust certificates with long durations, even if they are
-self-signed. On startup myMPD checks the expiration date of the
-certificate and renews it if necessary.
+The validity of the server certificate is so short because browsers no longer trust certificates with long durations, even if they are self-signed. On startup myMPD checks the expiration date of the certificate and renews it if necessary.
 
-The default certificates are saved in the directory
-``/var/lib/mympd/ssl/``.
+The default certificates are saved in the directory ``/var/lib/mympd/ssl/``.
 
 ========== ==========================
 FILE       DESCRIPTION
@@ -45,26 +36,19 @@ The server certificate SAN is:
 - IP:``<ip of resolved hostname>``
 - IP:``all interface ips``
 
-You can set the environment variable ``MYMPD_SSL_SAN`` before starting
-myMPD to add additional names or ip addresses to the certificate,
-e.g. ``export MYMPD_SSL_SAN="DNS:jukebox.local"``.
+You can set the environment variable ``MYMPD_SSL_SAN`` before starting myMPD to add additional names or ip addresses to the certificate, e.g. ``export MYMPD_SSL_SAN="DNS:jukebox.local"``.
 
-To regenerate the server certificate stop myMPD, and remove the
-``/var/lib/mympd/ssl/server.crt`` and ``/var/lib/mympd/ssl/server.key``
-files.
+To regenerate the server certificate stop myMPD, and remove the ``/var/lib/mympd/ssl/server.crt`` and ``/var/lib/mympd/ssl/server.key`` files.
 
 Default CA
 ----------
 
-You can download the CA certificate in the About dialog and import it in
-your operatingsystem or browser to avoid ugly ssl warnings and trust
-this ca. Do not import the server certificate.
+You can download the CA certificate in the About dialog and import it in your operating system or browser to avoid ugly ssl warnings and trust this ca. Do not import the server certificate.
 
 Custom certificate
 ------------------
 
-You can of course use your own certificate, e.g. from `Let’s
-Encrypt <https://letsencrypt.org/>`__.
+You can of course use your own certificate, e.g. from `Let’s Encrypt <https://letsencrypt.org/>`__ or your custom internal CA.
 
 =========== ==============================
 FILE        CONTENT
@@ -74,3 +58,8 @@ custom_cert true
 ssl_key     path to custom ssl key
 ssl_cert    path to custom ssl certificate
 =========== ==============================
+
+Custom CA
+---------
+
+You can sign the myMPD CA certificate with your own internal CA or replace it with a custom intermediate CA. myMPD signs the server certificate with this CA and your trust chain keeps intact without adding the myMPD CA to your CA trust store. In this case myMPD should send the intermediate CA certificate with the server certificate in the SSL handshake, set ``ssl_send_chain`` to ``1`` to enable this.
