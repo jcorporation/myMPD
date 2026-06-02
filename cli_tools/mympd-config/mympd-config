@@ -19,7 +19,7 @@ do
             echo "  -b Path to myMPD binary"
             echo "  -c Path to myMPD config directory, default: /var/lib/mympd/config"
             echo "  -s 0 = myMPD runs with normal linux user account"
-            echo "     1 = myMPD ist started with systemd private user"
+            echo "     1 = myMPD is started with systemd private user"
             exit 1
             ;;
     esac
