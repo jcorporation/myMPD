@@ -26,5 +26,6 @@ WarningsAsErrors:  ''
 HeaderFilterRegex: ''
 FormatStyle:       none
 CheckOptions:
-  - key: bugprone-reserved-identifier.AllowedIdentifiers
-    value: _XOPEN_SOURCE
+  bugprone-reserved-identifier.AllowedIdentifiers: _XOPEN_SOURCE;__asan_default_options
+  cert-dcl37-c.AllowedIdentifiers: _XOPEN_SOURCE;__asan_default_options
+  cert-dcl51-cpp.AllowedIdentifiers: _XOPEN_SOURCE;__asan_default_options
