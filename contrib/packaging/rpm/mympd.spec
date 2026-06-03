@@ -66,5 +66,5 @@ fi
 %license LICENSE.md
 
 %changelog
-* Sun May 31 2026 Juergen Mang <mail@jcgames.de> 25.1.1-0
+* Wed Jun 03 2026 Juergen Mang <mail@jcgames.de> 25.1.1-0
 - Version from master
