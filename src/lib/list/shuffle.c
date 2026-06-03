@@ -54,7 +54,7 @@ bool list_shuffle(struct t_list *l) {
     l->tail->next = NULL;
 
     // Free temporary array
-    free(node_array);
+    free((void *)node_array);
 
     return true;
 }
