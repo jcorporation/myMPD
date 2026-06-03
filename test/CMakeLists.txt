@@ -17,8 +17,12 @@ set(TEST_SOURCES
   ../src/lib/config/cert.c
   ../src/lib/config/config.c
   ../src/lib/config/env.c
+  ../src/lib/config/jukebox_state.c
+  ../src/lib/config/mympd_mpd_state.c
   ../src/lib/config/mympd_state.c
+  ../src/lib/config/partition_state.c
   ../src/lib/config/state_files.c
+  ../src/lib/config/stickerdb_state.c
   ../src/lib/convert.c
   ../src/lib/datetime.c
   ../src/lib/event.c

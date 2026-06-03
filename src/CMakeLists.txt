@@ -54,9 +54,13 @@ target_sources(mympd
     lib/config/config.c
     lib/config/env.c
     lib/config/handle_options.c
+    lib/config/jukebox_state.c
+    lib/config/mympd_mpd_state.c
     lib/config/mympd_state.c
+    lib/config/partition_state.c
     lib/config/pin.c
     lib/config/state_files.c
+    lib/config/stickerdb_state.c
     lib/convert.c
     lib/datetime.c
     lib/event.c
