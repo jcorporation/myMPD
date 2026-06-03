@@ -374,6 +374,10 @@ sds album_cache_get_key_from_song(sds albumkey, const struct mpd_song *song, con
         if (group_tag_value != NULL) {
             albumkey = sdscatfmt(albumkey, "::%s::%s", album_name, group_tag_value);
         }
+        else {
+            // Append only the album
+            albumkey = sdscatfmt(albumkey, "::%s", album_name);
+        }
     }
     // return the hash
     return sds_hash_sha1_sds(albumkey);
@@ -436,6 +440,10 @@ sds album_cache_get_key_from_album(sds albumkey, const struct t_album *album, co
         const char *group_tag_value = album_get_tag(album, album_config->group_tag, 0);
         if (group_tag_value != NULL) {
             albumkey = sdscatfmt(albumkey, "::%s::%s", album_name, group_tag_value);
+        }
+        else {
+            // Append only the album
+            albumkey = sdscatfmt(albumkey, "::%s", album_name);
         }
     }
     // return the hash
