@@ -58,6 +58,7 @@ bool mympd_timer_read(int fd) {
 
 /**
  * Sets the relative timeout and interval for a timer fd.
+ * Closes it on error.
  * @param timer_fd timer fd
  * @param timeout relative timeout in seconds
  * @param interval interval in seconds
