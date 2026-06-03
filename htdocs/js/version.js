@@ -1,2 +1,2 @@
-const myMPDversion = '25.1.1';
+const myMPDversion = '25.1.2';
 const myMPDbuild = '';
