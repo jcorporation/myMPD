@@ -364,13 +364,15 @@ sds album_cache_get_key_from_song(sds albumkey, const struct mpd_song *song, con
             return albumkey;
         }
     }
-    // append album
-    albumkey = sdscatfmt(albumkey, "::%s", album_name);
-    // optionally append group tag
-    if (album_config->group_tag != MPD_TAG_UNKNOWN) {
+    if (album_config->group_tag == MPD_TAG_UNKNOWN) {
+        // Append only the album
+        albumkey = sdscatfmt(albumkey, "::%s", album_name);
+    }
+    else {
+        // Append album and group tag
         const char *group_tag_value = mpd_song_get_tag(song, album_config->group_tag, 0);
         if (group_tag_value != NULL) {
-            albumkey = sdscatfmt(albumkey, "::%s", group_tag_value);
+            albumkey = sdscatfmt(albumkey, "::%s::%s", album_name, group_tag_value);
         }
     }
     // return the hash
@@ -424,13 +426,16 @@ sds album_cache_get_key_from_album(sds albumkey, const struct t_album *album, co
             return albumkey;
         }
     }
-    // append album
-    albumkey = sdscatfmt(albumkey, "::%s", album_name);
-    // optionally append group tag
-    if (album_config->group_tag != MPD_TAG_UNKNOWN) {
+
+    if (album_config->group_tag == MPD_TAG_UNKNOWN) {
+        // Append album only
+        albumkey = sdscatfmt(albumkey, "::%s", album_name);
+    }
+    else {
+        // Append album and group tag
         const char *group_tag_value = album_get_tag(album, album_config->group_tag, 0);
         if (group_tag_value != NULL) {
-            albumkey = sdscatfmt(albumkey, "::%s", group_tag_value);
+            albumkey = sdscatfmt(albumkey, "::%s::%s", album_name, group_tag_value);
         }
     }
     // return the hash
