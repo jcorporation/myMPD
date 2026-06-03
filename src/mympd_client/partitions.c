@@ -190,6 +190,8 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
             mympd_api_timer_remove_by_fd(&mympd_state->timer_list, current->timer_fd_jukebox);
             mympd_api_timer_remove_by_fd(&mympd_state->timer_list, current->timer_fd_scrobble);
             mympd_api_timer_remove_partition(&mympd_state->timer_list, current->name);
+            // Remove all triggers that are associated with this partition  from the central trigger list
+            mympd_api_trigger_delete_partition(&mympd_state->trigger_list, current->name);
             // Free partition state
             partition_state_free(current);
             // Partition was removed from mpd

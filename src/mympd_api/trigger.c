@@ -272,8 +272,34 @@ bool mympd_api_trigger_delete(struct t_list *trigger_list, unsigned idx, sds *er
         return true;
     }
     MYMPD_LOG_ERROR(NULL, "Trigger with id %u not found", idx);
-    *error = sdscat(*error, "Could not delete trigger");
+    if (error != NULL && *error != NULL) {
+        *error = sdscat(*error, "Could not delete trigger");
+    }
     return false;
+}
+
+/**
+ * Removes all triggers for specified partition
+ * @param trigger_list Timer list
+ * @param partition Partition name
+ * @return Number of removed timers or -1 on error
+ */
+int mympd_api_trigger_delete_partition(struct t_list *trigger_list, sds partition) {
+    int64_t trigger_idx[LIST_TRIGGER_MAX];
+    int count = 0;
+    // First get all trigger idx to remove
+    struct t_list_node *current = trigger_list->head;
+    while (current != NULL) {
+        if (strcmp(partition, current->value_p) == 0) {
+            trigger_idx[count] = count;
+            count++;
+        }
+        current = current->next;
+    }
+    for (int i = count - 1; i >= 0; i--) {
+        mympd_api_trigger_delete(trigger_list, (unsigned)trigger_idx[i], NULL);
+    }
+    return count;
 }
 
 /**

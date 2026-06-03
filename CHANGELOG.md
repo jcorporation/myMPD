@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Remove timers before removing partition
+- Fix: Remove triggers before removing partition
 
 ***
 

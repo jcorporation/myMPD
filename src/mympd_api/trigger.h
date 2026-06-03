@@ -82,6 +82,7 @@ int mympd_api_trigger_execute_http(struct t_list *trigger_list, enum trigger_eve
 int mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri,
         enum mympd_feedback_type type, int value, const char *partition);
 bool mympd_api_trigger_delete(struct t_list *trigger_list, unsigned idx, sds *error);
+int mympd_api_trigger_delete_partition(struct t_list *trigger_list, sds partition);
 const char *mympd_api_event_name(int event);
 sds mympd_api_trigger_print_event_list(sds buffer);
 
