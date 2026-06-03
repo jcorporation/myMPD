@@ -51,6 +51,8 @@ bool mympd_api_timer_add_uniq(struct t_timer_list *l, int timeout, int interval,
 bool mympd_api_timer_replace(struct t_timer_list *l, int timeout, int interval,
         timer_handler handler, unsigned timer_id, struct t_timer_definition *definition);
 bool mympd_api_timer_remove(struct t_timer_list *l, unsigned timer_id);
+bool mympd_api_timer_remove_by_fd(struct t_timer_list *l, int fd);
+int mympd_api_timer_remove_partition(struct t_timer_list *l, sds partition);
 bool mympd_api_timer_toggle(struct t_timer_list *l, unsigned timer_id, sds *error);
 void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def);
 struct t_timer_definition *mympd_api_timer_parse(sds str, const char *partition, struct t_json_parse_error *error);
@@ -59,4 +61,5 @@ sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, unsigned r
 sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, unsigned request_id, unsigned timer_id);
 bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir);
 bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir);
+
 #endif

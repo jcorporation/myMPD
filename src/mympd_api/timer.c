@@ -284,6 +284,64 @@ bool mympd_api_timer_remove(struct t_timer_list *l, unsigned timer_id) {
 }
 
 /**
+ * Removes a timer with given fd
+ * @param l Timer list
+ * @param fd Timer fd to remove
+ * @return true on success, else false
+ */
+bool mympd_api_timer_remove_by_fd(struct t_timer_list *l, int fd) {
+    *l->repopulate_pfds = true;
+    struct t_list_node *current = l->list.head;
+    unsigned idx = 0;
+    while (current != NULL) {
+        struct t_timer_node *current_timer = (struct t_timer_node *)current->user_data;
+        if (current_timer->fd == fd) {
+            break;
+        }
+        idx++;
+        current = current->next;
+    }
+    if (current != NULL) {
+        struct t_timer_node *timer_node = (struct t_timer_node *)current->user_data;
+        if (timer_node->definition == NULL ||
+            timer_node->definition->enabled == true)
+        {
+            l->active--;
+        }
+        list_remove_node_user_data(&l->list, idx, mympd_api_timer_free_node);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Removes all user defines timers for specified partition
+ * @param l Timer list
+ * @param partition Partition name
+ * @return Number of removed timers or -1 on error
+ */
+int mympd_api_timer_remove_partition(struct t_timer_list *l, sds partition) {
+    int64_t timer_ids[LIST_TIMER_MAX];
+    int count = 0;
+    // First get all timer ids to remove
+    struct t_list_node *current = l->list.head;
+    while (current != NULL) {
+        struct t_timer_node *current_timer = (struct t_timer_node *)current->user_data;
+        if (current_timer->definition != NULL &&
+            strcmp(current_timer->definition->partition, partition) == 0)
+        {
+            timer_ids[count] = current->value_i;
+            count++;
+        }
+        current = current->next;
+    }
+    for (int i = 0; i < count; i++) {
+        mympd_api_timer_remove(l, (unsigned)timer_ids[i]);
+    }
+    return count;
+}
+
+/**
  * Toggles the enabled state of a timer
  * @param l timer list
  * @param timer_id timer id to toggle

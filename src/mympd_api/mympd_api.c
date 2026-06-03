@@ -255,11 +255,12 @@ static void handle_socket_error(struct t_mympd_state *mympd_state, nfds_t i) {
             stickerdb_disconnect(mympd_state->stickerdb);
             break;
         case PFD_TYPE_QUEUE:
+            MYMPD_LOG_DEBUG(NULL, "Closing socket %d", mympd_state->pfds.fds[i].fd);
             event_fd_close(mympd_state->pfds.fds[i].fd);
             mympd_api_queue->event_fd = event_eventfd_create();
             break;
         default:
-            MYMPD_LOG_DEBUG(NULL, "Closing socket");
+            MYMPD_LOG_DEBUG(NULL, "Closing socket %d", mympd_state->pfds.fds[i].fd);
             event_fd_close(mympd_state->pfds.fds[i].fd);
     }
     mympd_state->pfds.repopulate = true;

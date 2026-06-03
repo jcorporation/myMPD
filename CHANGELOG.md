@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Remove timers before removing partition
+
 ***
 
 ## myMPD v25.1.1 (2026-06-03)

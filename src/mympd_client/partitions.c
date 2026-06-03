@@ -12,6 +12,7 @@
 #include "src/mympd_client/partitions.h"
 
 #include "src/lib/config/mympd_state.h"
+#include "src/lib/config/partition_state.h"
 #include "src/lib/last_played.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -30,6 +31,12 @@
 #include "src/mympd_client/jukebox.h"
 
 #include <string.h>
+
+// Private definitions
+static bool partitions_check(struct t_mympd_state *mympd_state, const char *name);
+static void partitions_add(struct t_mympd_state *mympd_state, const char *name);
+
+// Public functions
 
 /**
  * Connects to MPD and switches to the defined partition
@@ -153,7 +160,7 @@ void partitions_list_clear(struct t_mympd_state *mympd_state) {
 bool partitions_populate(struct t_mympd_state *mympd_state) {
     struct t_list mpd_partitions;
     list_init(&mpd_partitions);
-    //first add all missing partitions to the list
+    // First add all missing partitions to the list
     if (mpd_send_listpartitions(mympd_state->partition_state->conn)) {
         struct mpd_pair *partition;
         while ((partition = mpd_recv_partition_pair(mympd_state->partition_state->conn)) != NULL) {
@@ -170,19 +177,24 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
         list_clear(&mpd_partitions);
         return false;
     }
-    //remove obsolete partitions
-    //skip default partition (first entry)
+    // Remove obsolete partitions
+    // Skip default partition (first entry)
     struct t_partition_state *current = mympd_state->partition_state->next;
     struct t_partition_state *previous = mympd_state->partition_state;
     for (; current != NULL; previous = current, current = current->next) {
         if (list_get_node(&mpd_partitions, current->name) == NULL) {
             MYMPD_LOG_INFO(NULL, "Removing partition \"%s\" from the partition list", current->name);
             struct t_partition_state *next = current->next;
-            //free partition state
+            // Remove all timers that are associated with this partition from the central timer list
+            mympd_api_timer_remove_by_fd(&mympd_state->timer_list, current->timer_fd_mpd_connect);
+            mympd_api_timer_remove_by_fd(&mympd_state->timer_list, current->timer_fd_jukebox);
+            mympd_api_timer_remove_by_fd(&mympd_state->timer_list, current->timer_fd_scrobble);
+            mympd_api_timer_remove_partition(&mympd_state->timer_list, current->name);
+            // Free partition state
             partition_state_free(current);
-            //partition was removed from mpd
+            // Partition was removed from mpd
             previous->next = next;
-            //go back to previous node
+            // Go back to previous node
             current = previous;
         }
     }
@@ -190,13 +202,15 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
     return true;
 }
 
+// Private functions
+
 /**
  * Checks if the partition is already in the list
  * @param mympd_state pointer to t_mympd_state struct
  * @param name partition name
  * @return true if partition is in the list, else false
  */
-bool partitions_check(struct t_mympd_state *mympd_state, const char *name) {
+static bool partitions_check(struct t_mympd_state *mympd_state, const char *name) {
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
         if (strcmp(partition_state->name, name) == 0) {
@@ -212,7 +226,7 @@ bool partitions_check(struct t_mympd_state *mympd_state, const char *name) {
  * @param mympd_state pointer to t_mympd_state struct
  * @param name partition name
  */
-void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
+static void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
     struct t_partition_state *partition_state = mympd_state->partition_state;
     //goto end
     while (partition_state->next != NULL) {
