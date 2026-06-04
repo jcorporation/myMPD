@@ -21,7 +21,6 @@
 /**
  * Helper structure for bottom-up merge sort
  */
-
 struct t_merge_result {
     struct t_list_node *head;  //!< Head pointer
     struct t_list_node *tail;  //!< Tail pointer
@@ -251,7 +250,7 @@ static void merge(struct t_list_node *first, struct t_list_node *first_end,
     // by eliminating special-case handling for the first node.
     struct t_list_node *current = &dummy;
 
-    // Iterative merge - single pass, no recursion overhead
+    // Iterative merge
     while (first != NULL &&
            second != NULL)
     {
@@ -270,7 +269,7 @@ static void merge(struct t_list_node *first, struct t_list_node *first_end,
         current = current->next;
     }
 
-    // Attach remaining elements (at most one list has remaining)
+    // Attach remaining elements
     if (first != NULL) {
         current->next = first;
         first->prev = current;
