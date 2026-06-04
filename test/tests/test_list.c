@@ -381,3 +381,110 @@ UTEST(list, test_list_dup) {
     list_clear(&src);
     list_free(new);
 }
+
+UTEST(list, test_list_get_node_idx) {
+    struct t_list test_list;
+    populate_list(&test_list);
+
+    unsigned idx = list_get_node_idx(&test_list, "key4");
+    ASSERT_EQ(idx, 4U);
+
+    list_clear(&test_list);
+}
+
+UTEST(list, test_list_get_node) {
+    struct t_list test_list;
+    populate_list(&test_list);
+
+    struct t_list_node *node = list_get_node(&test_list, "key4");
+    ASSERT_EQ(node->value_i, 4U);
+
+    list_clear(&test_list);
+}
+
+UTEST(list, test_list_node_at) {
+    struct t_list test_list;
+    populate_list(&test_list);
+
+    struct t_list_node *node = list_node_at(&test_list, 4);
+    ASSERT_EQ(node->value_i, 4U);
+
+    list_clear(&test_list);
+}
+
+UTEST(list, test_list_shift_first) {
+    struct t_list test_list;
+    populate_list(&test_list);
+
+    struct t_list_node *node;
+    int i = 0;
+    while ((node = list_shift_first(&test_list)) != NULL) {
+        ASSERT_EQ(node->value_i, i);
+        i++;
+        list_node_free(node);
+    }
+    ASSERT_EQ(test_list.length, 0U);
+
+    list_clear(&test_list);
+}
+
+UTEST(list, test_list_node_extract_at) {
+    struct t_list test_list;
+    unsigned expected_len = populate_list(&test_list);
+
+    // Extract first node
+    struct t_list_node *node = list_node_extract_at(&test_list, 0);
+    ASSERT_FALSE(node == NULL);
+    list_node_free(node);
+    expected_len--;
+    ASSERT_EQ(check_list_integrity(&test_list, expected_len), true);
+    
+
+    // Extract last node
+    node = list_node_extract_at(&test_list, expected_len -1);
+    ASSERT_FALSE(node == NULL);
+    list_node_free(node);
+    expected_len--;
+    ASSERT_EQ(check_list_integrity(&test_list, expected_len), true);
+
+    // Extracted middle node
+    node = list_node_extract_at(&test_list, 2);
+    ASSERT_FALSE(node == NULL);
+    list_node_free(node);
+    expected_len--;
+    ASSERT_EQ(check_list_integrity(&test_list, expected_len), true);
+
+    list_clear(&test_list);
+}
+
+UTEST(list, test_list_node_extract) {
+    struct t_list test_list;
+    unsigned expected_len = populate_list(&test_list);
+
+    // Extract first node
+    struct t_list_node *node = list_node_extract(&test_list, test_list.head);
+    ASSERT_FALSE(node == NULL);
+    list_node_free(node);
+    expected_len--;
+    ASSERT_EQ(check_list_integrity(&test_list, expected_len), true);
+    
+
+    // Extract last node
+    node = list_node_extract(&test_list, test_list.tail);
+    ASSERT_FALSE(node == NULL);
+    list_node_free(node);
+    expected_len--;
+    ASSERT_EQ(check_list_integrity(&test_list, expected_len), true);
+
+    // Extracted middle node
+    struct t_list_node *get = list_node_at(&test_list, 2);
+
+    node = list_node_extract(&test_list, get);
+    ASSERT_FALSE(node == NULL);
+    ASSERT_TRUE(node == get);
+    list_node_free(node);
+    expected_len--;
+    ASSERT_EQ(check_list_integrity(&test_list, expected_len), true);
+
+    list_clear(&test_list);
+}
