@@ -21,10 +21,10 @@
 struct t_list_node {
     sds key;                   //!< key string
     sds value_p;               //!< string value
-    int64_t value_i;           //!< unsigned unsigned value
-    void *user_data;           //!< custom data
+    int64_t value_i;           //!< int64 value
+    void *user_data;           //!< custom data pointer
     struct t_list_node *next;  //!< pointer to next node
-    struct t_list_node *prev;  //!< pointer to previous node (doubly-linked)
+    struct t_list_node *prev;  //!< pointer to previous node
 };
 
 /**
@@ -79,7 +79,7 @@ bool list_replace_len_user_data(struct t_list *l, unsigned idx, const char *key,
 
 void list_crop(struct t_list *l, unsigned length, user_data_callback free_cb);
 
-bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to);
+bool list_move_node(struct t_list *l, unsigned from, unsigned to);
 
 unsigned list_get_node_idx(const struct t_list *l, const char *key);
 struct t_list_node *list_get_node(const struct t_list *l, const char *key);

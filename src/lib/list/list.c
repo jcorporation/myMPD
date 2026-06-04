@@ -293,7 +293,7 @@ struct t_list_node *list_node_at(const struct t_list *l, unsigned idx) {
  * @param to to pos
  * @return true on success, else false
  */
-bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to) {
+bool list_move_node(struct t_list *l, unsigned from, unsigned to) {
     if (l == NULL || from >= l->length || to >= l->length || from == to) {
         return false;
     }

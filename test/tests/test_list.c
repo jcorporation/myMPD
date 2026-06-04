@@ -122,12 +122,12 @@ UTEST(list, test_list_replace) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_move_item_pos_4_2) {
+UTEST(list, test_list_move_node_4_2) {
     struct t_list test_list;
     unsigned expected_len = populate_list(&test_list);
     struct t_list_node *current;
 
-    list_move_item_pos(&test_list, 4, 2);
+    list_move_node(&test_list, 4, 2);
     current = list_node_at(&test_list, 2);
     ASSERT_STREQ("key4", current->key);
 
@@ -138,12 +138,12 @@ UTEST(list, test_list_move_item_pos_4_2) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_move_item_pos_4_3) {
+UTEST(list, test_list_move_node_4_3) {
     struct t_list test_list;
     unsigned expected_len = populate_list(&test_list);
     struct t_list_node *current;
 
-    list_move_item_pos(&test_list, 4, 3);
+    list_move_node(&test_list, 4, 3);
     current = list_node_at(&test_list, 3);
     ASSERT_STREQ("key4", current->key);
 
@@ -154,12 +154,12 @@ UTEST(list, test_list_move_item_pos_4_3) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_move_item_pos_2_4) {
+UTEST(list, test_list_move_node_2_4) {
     struct t_list test_list;
     unsigned expected_len = populate_list(&test_list);
     struct t_list_node *current;
 
-    list_move_item_pos(&test_list, 2, 4);
+    list_move_node(&test_list, 2, 4);
     current = list_node_at(&test_list, 4);
     ASSERT_STREQ("key2", current->key);
 
@@ -170,12 +170,12 @@ UTEST(list, test_list_move_item_pos_2_4) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_move_item_pos_2_3) {
+UTEST(list, test_list_move_node_2_3) {
     struct t_list test_list;
     unsigned expected_len = populate_list(&test_list);
     struct t_list_node *current;
 
-    list_move_item_pos(&test_list, 2, 3);
+    list_move_node(&test_list, 2, 3);
     current = list_node_at(&test_list, 3);
     ASSERT_STREQ("key2", current->key);
 
@@ -186,12 +186,12 @@ UTEST(list, test_list_move_item_pos_2_3) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_move_item_pos_to_start) {
+UTEST(list, test_list_move_node_to_start) {
     struct t_list test_list;
     unsigned expected_len = populate_list(&test_list);
     struct t_list_node *current;
 
-    list_move_item_pos(&test_list, 1, 0);
+    list_move_node(&test_list, 1, 0);
     current = list_node_at(&test_list, 0);
     ASSERT_STREQ("key1", current->key);
     ASSERT_STREQ("key1", test_list.head->key);
@@ -203,13 +203,13 @@ UTEST(list, test_list_move_item_pos_to_start) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_move_item_pos_to_end) {
+UTEST(list, test_list_move_node_to_end) {
     struct t_list test_list;
     unsigned expected_len = populate_list(&test_list);
     struct t_list_node *current;
 
     const long last_idx = test_list.length - 1;
-    list_move_item_pos(&test_list, 1, last_idx);
+    list_move_node(&test_list, 1, last_idx);
     current = list_node_at(&test_list, last_idx);
     ASSERT_STREQ("key1", current->key);
     ASSERT_STREQ("key1", test_list.tail->key);
@@ -218,12 +218,12 @@ UTEST(list, test_list_move_item_pos_to_end) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_move_item_pos_from_start) {
+UTEST(list, test_list_move_node_from_start) {
     struct t_list test_list;
     unsigned expected_len = populate_list(&test_list);
     struct t_list_node *current;
 
-    list_move_item_pos(&test_list, 0, 2);
+    list_move_node(&test_list, 0, 2);
     current = list_node_at(&test_list, 0);
     ASSERT_STREQ("key1", current->key);
     ASSERT_STREQ("key1", test_list.head->key);
@@ -235,13 +235,13 @@ UTEST(list, test_list_move_item_pos_from_start) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_move_item_pos_from_end) {
+UTEST(list, test_list_move_node_from_end) {
     struct t_list test_list;
     unsigned expected_len = populate_list(&test_list);
     struct t_list_node *current;
 
     const long last_idx = test_list.length - 1;
-    list_move_item_pos(&test_list, last_idx, 1);
+    list_move_node(&test_list, last_idx, 1);
     current = list_node_at(&test_list, last_idx);
     ASSERT_STREQ("key4", current->key);
     ASSERT_STREQ("key4", test_list.tail->key);
@@ -253,13 +253,13 @@ UTEST(list, test_list_move_item_pos_from_end) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_move_item_pos_from_start_to_end) {
+UTEST(list, test_list_move_node_from_start_to_end) {
     struct t_list test_list;
     unsigned expected_len = populate_list(&test_list);
     struct t_list_node *current;
 
     const long last_idx = test_list.length - 1;
-    list_move_item_pos(&test_list, 0, last_idx);
+    list_move_node(&test_list, 0, last_idx);
     current = list_node_at(&test_list, last_idx);
     ASSERT_STREQ("key0", current->key);
     ASSERT_STREQ("key0", test_list.tail->key);
@@ -272,13 +272,13 @@ UTEST(list, test_list_move_item_pos_from_start_to_end) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_move_item_pos_from_end_to_start) {
+UTEST(list, test_list_move_node_from_end_to_start) {
     struct t_list test_list;
     unsigned expected_len = populate_list(&test_list);
     struct t_list_node *current;
 
     const long last_idx = test_list.length - 1;
-    list_move_item_pos(&test_list, last_idx, 0);
+    list_move_node(&test_list, last_idx, 0);
     current = list_node_at(&test_list, last_idx);
     ASSERT_STREQ("key4", current->key);
     ASSERT_STREQ("key4", test_list.tail->key);
