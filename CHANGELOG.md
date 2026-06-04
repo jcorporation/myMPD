@@ -6,11 +6,21 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v25.2.0 (not yet released)
 
-This is a small bug fix release.
+This is a small feature release.
 
 ### Changelog
 
 - Feat: Rework linked list implementation, it is now a double linked list
+- Upd: Test framework
+
+***
+
+## myMPD v25.1.2 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
 - Fix: Remove timers before removing partition
 - Fix: Remove triggers before removing partition
 
