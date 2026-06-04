@@ -13,21 +13,29 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/list/list.h"
+#include "src/lib/mem.h"
 #include "src/lib/utf8_wrapper.h"
 
 // Private definitions
+
+// Helper structure for bottom-up merge sort
+struct t_merge_result {
+    struct t_list_node *head;
+    struct t_list_node *tail;
+};
+
 static bool sort_cb_value_i(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction);
 static bool sort_cb_value_p(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction);
 static bool sort_cb_key(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction);
-static struct t_list_node* merge(struct t_list_node* first, struct t_list_node* second,
-        enum list_sort_direction direction, list_sort_callback sort_cb);
-static void split_list_half(struct t_list_node* source, struct t_list_node** front, struct t_list_node** back);
-static void merge_sort(struct t_list_node** head_ref, enum list_sort_direction direction, list_sort_callback sort_cb);
+static void merge(struct t_list_node *first, struct t_list_node *first_end,
+        struct t_list_node *second, struct t_list_node *second_end,
+        enum list_sort_direction direction, list_sort_callback sort_cb,
+        struct t_merge_result *result);
 
 // Public functions
 
 /**
- * The list sorting function. It uses the merge sort algorithm.
+ * The list sorting function. Uses bottom-up merge sort algorithm.
  * @param l pointer to list to sort
  * @param direction sort direction
  * @param sort_cb compare function
@@ -37,15 +45,87 @@ bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction,
     if (l->length < 2) {
         return true;
     }
-    merge_sort(&l->head, direction, sort_cb);
-    // Fix tail
-    if (l->tail->next != NULL) {
-        struct t_list_node *current = l->head;
-        while (current->next != NULL) {
-            current = current->next;
+
+    struct t_list_node *head = l->head;
+    struct t_list_node *tail = l->tail;
+
+    // Pre-allocate result struct once for reuse
+    struct t_merge_result *merged_result = malloc_assert(sizeof(struct t_merge_result));
+
+    // Bottom-up merge sort: start with segment_size = 1, double each iteration
+    for (unsigned segment_size = 1; segment_size < l->length; segment_size *= 2) {
+        struct t_list_node *current = head;
+        struct t_list_node *new_head = NULL;
+        struct t_list_node *merged_tail = NULL;
+
+        while (current != NULL) {
+            // Get first segment of size segment_size
+            struct t_list_node *first = current;
+            struct t_list_node *first_end = first;
+            unsigned count = 1;
+            while (count < segment_size &&
+                first_end->next != NULL)
+            {
+                first_end = first_end->next;
+                count++;
+            }
+
+            // Get second segment of size segment_size
+            struct t_list_node *second = first_end->next;
+            struct t_list_node *second_end = second;
+            if (second != NULL) {
+                count = 1;
+                while (count < segment_size &&
+                    second_end->next != NULL)
+                {
+                    second_end = second_end->next;
+                    count++;
+                }
+            }
+
+            // Save next segment start
+            struct t_list_node *next_segment = second_end != NULL
+                ? second_end->next
+                : NULL;
+
+            // Break links to isolate runs
+            first_end->next = NULL;
+            if (second != NULL) {
+                second->prev = NULL;
+                second_end->next = NULL;
+            }
+
+            // Skip merge if only one run exists
+            if (second == NULL) {
+                // Only first run - no merge needed
+                merged_result->head = first;
+                merged_result->tail = first_end;
+            } else {
+                // Merge the two runs
+                merge(first, first_end, second, second_end, direction, sort_cb, merged_result);
+            }
+
+            // Link merged result to overall result
+            if (new_head == NULL) {
+                new_head = merged_result->head;
+                merged_result->head->prev = NULL;
+            } else {
+                merged_tail->next = merged_result->head;
+                merged_result->head->prev = merged_tail;
+            }
+
+            merged_tail = merged_result->tail;
+            current = next_segment;
         }
-        l->tail = current;
+
+        head = new_head;
+        tail = merged_tail;
     }
+
+    l->head = head;
+    l->tail = tail;
+
+    free(merged_result);
     return true;
 }
 
@@ -132,85 +212,71 @@ static bool sort_cb_key(struct t_list_node *first, struct t_list_node *second, e
 }
 
 /**
- * Function to merge two sorted linked lists
+ * Function to merge two sorted linked lists (ITERATIVE)
  * @param first Head pointer to first list
  * @param second Head pointer to second list
  * @param direction Sort direction
  * @param sort_cb Sort callback
- * @return struct t_list_node* Head pointer to merged list
+ * @return merge_result with head and tail pointers
  */
-static struct t_list_node *merge(struct t_list_node *first, struct t_list_node *second,
-        enum list_sort_direction direction, list_sort_callback sort_cb)
+static void merge(struct t_list_node *first, struct t_list_node *first_end,
+        struct t_list_node *second, struct t_list_node *second_end,
+        enum list_sort_direction direction, list_sort_callback sort_cb,
+        struct t_merge_result *result)
 {
-    // Base cases
     if (first == NULL) {
-        return second;
+        result->head = second;
+        result->tail = second_end;
+        return;
     }
     if (second == NULL) {
-        return first;
-    }
-
-    struct t_list_node *result = NULL;
-    if (sort_cb(first, second, direction) == false) {
-        result = first;
-        result->next = merge(first->next, second, direction, sort_cb);
-    }
-    else {
-        result = second;
-        result->next = merge(first, second->next, direction, sort_cb);
-    }
-    return result;
-}
-
-/**
- * Function to split the linked list into two halves
- * @param source Head pointer to list that should be split
- * @param front Head pointer for the first half
- * @param back  Head pointer for the second half
- */
-static void split_list_half(struct t_list_node* source, struct t_list_node** front, struct t_list_node** back) {
-    struct t_list_node *slow = source;
-    struct t_list_node *fast = source->next;
-
-    // Iterate through the linked list until the fast pointer reaches the end
-    while (fast != NULL) {
-        fast = fast->next;
-        if (fast != NULL) {
-            slow = slow->next;
-            fast = fast->next;
-        }
-    }
-
-    *front = source;     // First half
-    *back = slow->next;  // Second half
-    slow->next = NULL;   // Split the list into two halves
-}
-
-/**
- * Merge Sort function
- * @param head_ref Reference to head pointer
- * @param direction Sort direction
- * @param sort_cb Sort callback
- */
-static void merge_sort(struct t_list_node** head_ref, enum list_sort_direction direction, list_sort_callback sort_cb) {
-    struct t_list_node *head = *head_ref;
-    struct t_list_node *first_half;
-    struct t_list_node *second_half;
-
-    // Base case
-    if (head == NULL ||
-        head->next == NULL)
-    {
+        result->head = first;
+        result->tail = first_end;
         return;
     }
 
-    // Split the list into first and second half sublists
-    split_list_half(head, &first_half, &second_half);
+    // Use stack-allocated dummy to simplify linking
+    struct t_list_node dummy;
+    dummy.next = NULL;
+    dummy.prev = NULL;
 
-    // Recursively sort the sublists
-    merge_sort(&first_half, direction, sort_cb);
-    merge_sort(&second_half, direction, sort_cb);
+    // The dummy node is a sentinel that simplifies the merge logic
+    // by eliminating special-case handling for the first node.
+    struct t_list_node *current = &dummy;
 
-    // Merge the sorted lists
-    *head_ref = merge(first_half, second_half, direction, sort_cb);
+    // Iterative merge - single pass, no recursion overhead
+    while (first != NULL &&
+           second != NULL)
+    {
+        if (sort_cb(first, second, direction) == false) {
+            // first <= second, take from first
+            current->next = first;
+            first->prev = current;
+            first = first->next;
+        } else {
+            // second < first, take from second
+            current->next = second;
+            second->prev = current;
+            second = second->next;
+        }
+        current = current->next;
+    }
+
+    // Attach remaining elements (at most one list has remaining)
+    if (first != NULL) {
+        current->next = first;
+        first->prev = current;
+        current = first_end;
+    } else if (second != NULL) {
+        current->next = second;
+        second->prev = current;
+        current = second_end;
+    }
+
+    // Set results (skip dummy node)
+    result->head = dummy.next;
+    if (result->head != NULL) {
+        result->head->prev = NULL;   // Head has no previous
+        result->tail = current;      // current is now at tail
+    }
 }

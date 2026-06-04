@@ -53,9 +53,25 @@ struct t_list *list_dup(struct t_list *l) {
 bool list_append(struct t_list *dst, struct t_list *src) {
     struct t_list_node *current = src->head;
     while (current != NULL) {
-        if (list_push(dst, current->key, current->value_i, current->value_p, current->user_data) == false) {
-            return false;
+        struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
+        n->key = sdsdup(current->key);
+        n->value_i = current->value_i;
+        n->value_p = current->value_p != NULL
+            ? sdsdup(current->value_p)
+            : NULL;
+        n->user_data = current->user_data;
+        n->next = NULL;
+
+        if (dst->head == NULL) {
+            n->prev = NULL;
+            dst->head = n;
+        } else {
+            n->prev = dst->tail;
+            dst->tail->next = n;
         }
+        dst->tail = n;
+        dst->length++;
+
         current = current->next;
     }
     return true;
@@ -159,15 +175,39 @@ void list_free_cb_ptr_user_data(struct t_list_node *current) {
  * @return int index of the key, UINT_MAX if not found
  */
 unsigned list_get_node_idx(const struct t_list *l, const char *key) {
-    struct t_list_node *current = l->head;
-    unsigned i = 0;
-    while (current != NULL) {
-        if (strcmp(current->key, key) == 0) {
+    if (l->head == NULL) {
+        return UINT_MAX;
+    }
+
+    size_t key_len = strlen(key);
+    struct t_list_node *forward = l->head;
+    struct t_list_node *backward = l->tail;
+
+    // Search from both ends simultaneously, meeting in the middle
+    for (unsigned i = 0, j = l->length / 2; i <= j; i++) {
+        // Check forward pointer
+        if (sdslen(forward->key) == key_len &&
+            strncmp(forward->key, key, key_len) == 0)
+        {
             return i;
         }
-        current = current->next;
-        i++;
+
+        // Check backward pointer (avoid duplicate check if single element)
+        unsigned back_idx = l->length - 1 - i;
+        if (i != back_idx &&
+            sdslen(backward->key) == key_len &&
+            strncmp(backward->key, key, key_len) == 0)
+        {
+            return back_idx;
+        }
+
+        // Move pointers for next iteration
+        if (i < j) {
+            forward = forward->next;
+            backward = backward->prev;
+        }
     }
+
     return UINT_MAX;
 }
 
@@ -178,49 +218,72 @@ unsigned list_get_node_idx(const struct t_list *l, const char *key) {
  * @return pointer to list node
  */
 struct t_list_node *list_get_node(const struct t_list *l, const char *key) {
-    struct t_list_node *current = l->head;
-    while (current != NULL) {
-        if (strcmp(current->key, key) == 0) {
-            break;
-        }
-        current = current->next;
+    if (l->head == NULL) {
+        return NULL;
     }
-    return current;
+
+    size_t key_len = strlen(key);
+    struct t_list_node *forward = l->head;
+    struct t_list_node *backward = l->tail;
+
+    // Search from both ends simultaneously, meeting in the middle
+    for (unsigned i = 0, j = l->length / 2; i <= j; i++) {
+        // Check forward pointer
+        if (sdslen(forward->key) == key_len &&
+            strncmp(forward->key, key, key_len) == 0)
+        {
+            return forward;
+        }
+
+        // Check backward pointer (avoid duplicate check if single element)
+        if (i != l->length - 1 - i &&
+            sdslen(backward->key) == key_len &&
+            strncmp(backward->key, key, key_len) == 0)
+        {
+            return backward;
+        }
+
+        // Move pointers for next iteration
+        if (i < j) {
+            forward = forward->next;
+            backward = backward->prev;
+        }
+    }
+
+    return NULL;
 }
 
 /**
  * Gets the list node at idx and its previous node.
  * @param l list
  * @param idx node index to get
- * @param previous pointer to previous node
- * @return pointer to list node
- */
-struct t_list_node *list_node_prev_at(const struct t_list *l, unsigned idx, struct t_list_node **previous) {
-    //if there's no data in the list, fail
-    if (l->head == NULL) {
-        return NULL;
-    }
-    if (idx >= l->length) {
-        return NULL;
-    }
-    struct t_list_node *current = l->head;
-    *previous = NULL;
-    for (; idx > 0; idx--) {
-        *previous = current;
-        current = current->next;
-    }
-    return current;
-}
-
-/**
- * Gets the list node at idx
- * @param l list
- * @param idx node index to get
  * @return pointer to list node
  */
 struct t_list_node *list_node_at(const struct t_list *l, unsigned idx) {
-    struct t_list_node *previous = NULL;
-    return list_node_prev_at(l, idx, &previous);
+    if (l->head == NULL ||
+        idx >= l->length)
+    {
+        return NULL;
+    }
+
+    struct t_list_node *current;
+
+    // Traverse from the closer end
+    if (idx > l->length / 2) {
+        // Traverse backward from tail
+        current = l->tail;
+        unsigned steps_from_end = l->length - 1 - idx;
+        for (unsigned i = 0; i < steps_from_end; i++) {
+            current = current->prev;
+        }
+    } else {
+        // Traverse forward from head
+        current = l->head;
+        for (unsigned i = 0; i < idx; i++) {
+            current = current->next;
+        }
+    }
+    return current;
 }
 
 /**
@@ -231,48 +294,46 @@ struct t_list_node *list_node_at(const struct t_list *l, unsigned idx) {
  * @return true on success, else false
  */
 bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to) {
-    if (from >= l->length ||
-        to >= l->length)
-    {
-        return false;
-    }
-    if (from == to) {
-        return true;
-    }
-
-    bool after = from < to
-        ? true
-        : false;
-
-    //get new position
-    struct t_list_node *previous = NULL;
-    struct t_list_node *current = list_node_prev_at(l, to, &previous);
-
-    //extract node from position;
-    struct t_list_node *node = list_node_extract(l, from);
-    if (node == NULL) {
+    if (l == NULL || from >= l->length || to >= l->length || from == to) {
         return false;
     }
 
-    if (after == true) {
-        node->next = current->next;
-        current->next = node;
-        if (l->tail == current) {
-            l->tail = node;
-        }
-    }
-    else {
-        node->next = current;
-        if (l->head == current) {
-            l->head = node;
-        }
-        else {
-            previous->next = node;
-        }
+    struct t_list_node *old = list_node_at(l, from);
+    struct t_list_node *new = list_node_at(l, to);
+    
+    if (!old || !new) {
+        return false;
     }
 
+    // Extract the node
+    struct t_list_node *extracted = list_node_extract(l, old);
+
+    // Insert before 'new' or after, depending on direction
+    struct t_list_node *insert_after = from < to
+        ? new
+        : new->prev;
+    
+    if (insert_after != NULL) {
+        extracted->prev = insert_after;
+        extracted->next = insert_after->next;
+        if (insert_after->next) {
+            insert_after->next->prev = extracted;
+        }
+        insert_after->next = extracted;
+    } else {
+        // Insert at head
+        extracted->prev = NULL;
+        extracted->next = l->head;
+        if (l->head != NULL) {
+            l->head->prev = extracted;
+        }
+        l->head = extracted;
+    }
+
+    if (extracted->next == NULL) {
+        l->tail = extracted;
+    }
     l->length++;
-
     return true;
 }
 
@@ -317,10 +378,12 @@ bool list_push_len(struct t_list *l, const char *key, size_t key_len, int64_t va
 
     if (l->head == NULL) {
         //first entry in the list
+        n->prev = NULL;
         l->head = n;
     }
     else {
         //append to the list
+        n->prev = l->tail;
         l->tail->next = n;
     }
     //set tail and increase length
@@ -347,9 +410,13 @@ bool list_insert(struct t_list *l, const char *key, int64_t value_i,
     n->value_i = value_i;
     n->value_p = value_p != NULL ? sdsnew(value_p) : NULL;
     n->user_data = user_data;
+    n->prev = NULL;
 
     //switch head pointer
     n->next = l->head;
+    if (l->head != NULL) {
+        l->head->prev = n;
+    }
     l->head = n;
     if (l->tail == NULL) {
         //set tail if this is the first node in the list
@@ -443,12 +510,14 @@ bool list_replace_len_user_data(struct t_list *l, unsigned idx, const char *key,
 
     current->key = sds_replacelen(current->key, key, key_len);
     current->value_i = value_i;
+
     if (value_p != NULL) {
         current->value_p = sds_replacelen(current->value_p, value_p, value_len);
     }
     else if (current->value_p != NULL) {
         FREE_SDS(current->value_p);
     }
+
     if (current->user_data != NULL &&
         free_cb != NULL)
     {
@@ -513,7 +582,7 @@ bool list_remove_node(struct t_list *l, unsigned idx) {
  * @return true on success, else false
  */
 bool list_remove_node_user_data(struct t_list *l, unsigned idx, user_data_callback free_cb) {
-    struct t_list_node *extracted = list_node_extract(l, idx);
+    struct t_list_node *extracted = list_node_extract_at(l, idx);
     if (extracted == NULL) {
         return false;
     }
@@ -541,12 +610,19 @@ bool list_remove_node_by_key(struct t_list *l, const char *key) {
  */
 bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, user_data_callback free_cb) {
     struct t_list_node *current = l->head;
-    unsigned i = 0;
+    size_t key_len = strlen(key);
+
     while (current != NULL) {
-        if (strcmp(current->key, key) == 0) {
-            return list_remove_node_user_data(l, i, free_cb);
+        if (sdslen(current->key) == key_len &&
+            strncmp(current->key, key, key_len) == 0)
+        {
+            struct t_list_node *extracted = list_node_extract(l, current);
+            if (extracted != NULL) {
+                list_node_free_user_data(extracted, free_cb);
+                return true;
+            }
+            return false;
         }
-        i++;
         current = current->next;
     }
     return false;
@@ -559,7 +635,7 @@ bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, user_d
  * @return pointer to list node
  */
 struct t_list_node *list_shift_first(struct t_list *l) {
-    return list_node_extract(l, 0);
+    return list_node_extract(l, l->head);
 }
 
 /**
@@ -568,40 +644,57 @@ struct t_list_node *list_shift_first(struct t_list *l) {
  * @param idx node index to remove
  * @return pointer to list node
  */
-struct t_list_node *list_node_extract(struct t_list *l, unsigned idx) {
+struct t_list_node *list_node_extract_at(struct t_list *l, unsigned idx) {
     if (l->head == NULL ||
-        idx >= l->length) {
+        idx >= l->length)
+    {
         return NULL;
     }
 
     //get the node at idx and the previous node
-    struct t_list_node *previous = NULL;
-    struct t_list_node *current = list_node_prev_at(l, idx, &previous);
+    struct t_list_node *current = list_node_at(l, idx);
+    return list_node_extract(l, current);
+}
 
-    if (current == NULL) {
+/**
+ * Removes a node directly from the list
+ * @param l list
+ * @param node node to remove
+ * @return pointer to extracted node
+ */
+struct t_list_node *list_node_extract(struct t_list *l, struct t_list_node *node) {
+    if (node == NULL) {
         return NULL;
     }
 
+    struct t_list_node *previous = node->prev;
+
     if (previous == NULL) {
-        //Fix head
-        l->head = current->next;
+        // Fix head
+        l->head = node->next;
     }
     else {
-        //Fix previous nodes next to skip over the removed node
-        previous->next = current->next;
+        // Fix previous nodes next to skip over the removed node
+        previous->next = node->next;
+    }
+
+    // Fix next node's prev pointer
+    if (node->next != NULL) {
+        node->next->prev = previous;
     }
 
     //Fix tail
-    if (l->tail == current) {
+    if (l->tail == node) {
         l->tail = previous;
     }
     l->length--;
 
-    //null out this node's next value since it's not part of a list anymore
-    current->next = NULL;
+    // Null out this node's pointers since it's not part of a list anymore
+    node->next = NULL;
+    node->prev = NULL;
 
-    //return the node
-    return current;
+    // Return the node
+    return node;
 }
 
 /**
@@ -651,14 +744,18 @@ void list_crop(struct t_list *l, unsigned length, user_data_callback free_cb) {
         list_clear(l);
         return;
     }
+    // Find the new last node
     unsigned idx = length - 1;
     struct t_list_node *last = list_node_at(l, idx);
+
+    // Free all nodes after the new last
     struct t_list_node *current = last->next;
     while (current != NULL) {
         struct t_list_node *next = current->next;
         list_node_free_user_data(current, free_cb);
         current = next;
     }
+
     l->length = length;
     last->next = NULL;
     l->tail = last;

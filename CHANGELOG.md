@@ -10,6 +10,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Feat: Rework linked list implementation, it is now a double linked list
 - Fix: Remove timers before removing partition
 - Fix: Remove triggers before removing partition
 
