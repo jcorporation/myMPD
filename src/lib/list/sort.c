@@ -18,10 +18,13 @@
 
 // Private definitions
 
-// Helper structure for bottom-up merge sort
+/**
+ * Helper structure for bottom-up merge sort
+ */
+
 struct t_merge_result {
-    struct t_list_node *head;
-    struct t_list_node *tail;
+    struct t_list_node *head;  //!< Head pointer
+    struct t_list_node *tail;  //!< Tail pointer
 };
 
 static bool sort_cb_value_i(struct t_list_node *first, struct t_list_node *second, enum list_sort_direction direction);
@@ -100,7 +103,8 @@ bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction,
                 // Only first run - no merge needed
                 merged_result->head = first;
                 merged_result->tail = first_end;
-            } else {
+            }
+            else {
                 // Merge the two runs
                 merge(first, first_end, second, second_end, direction, sort_cb, merged_result);
             }
@@ -109,7 +113,8 @@ bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction,
             if (new_head == NULL) {
                 new_head = merged_result->head;
                 merged_result->head->prev = NULL;
-            } else {
+            }
+            else {
                 merged_tail->next = merged_result->head;
                 merged_result->head->prev = merged_tail;
             }
@@ -214,10 +219,12 @@ static bool sort_cb_key(struct t_list_node *first, struct t_list_node *second, e
 /**
  * Function to merge two sorted linked lists (ITERATIVE)
  * @param first Head pointer to first list
+ * @param first_end Tail pointer to first list
  * @param second Head pointer to second list
+ * @param second_end Tail pointer to second list
  * @param direction Sort direction
  * @param sort_cb Sort callback
- * @return merge_result with head and tail pointers
+ * @param result Merge result
  */
 static void merge(struct t_list_node *first, struct t_list_node *first_end,
         struct t_list_node *second, struct t_list_node *second_end,
@@ -253,7 +260,8 @@ static void merge(struct t_list_node *first, struct t_list_node *first_end,
             current->next = first;
             first->prev = current;
             first = first->next;
-        } else {
+        }
+        else {
             // second < first, take from second
             current->next = second;
             second->prev = current;
@@ -267,7 +275,8 @@ static void merge(struct t_list_node *first, struct t_list_node *first_end,
         current->next = first;
         first->prev = current;
         current = first_end;
-    } else if (second != NULL) {
+    }
+    else if (second != NULL) {
         current->next = second;
         second->prev = current;
         current = second_end;
