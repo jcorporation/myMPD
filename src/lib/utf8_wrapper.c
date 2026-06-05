@@ -13,10 +13,14 @@
 #include "src/lib/utf8_wrapper.h"
 
 #include <assert.h>
-#include <errno.h>
+#include <stdbool.h>
 #include <string.h>
 
+
+// Private definitions
+
 #ifdef MYMPD_ENABLE_UTF8
+    #include <errno.h>
     #include <utf8proc.h>
 
     /**
@@ -33,9 +37,18 @@
         UTF8PROC_LUMP |
         UTF8PROC_STRIPMARK |
         UTF8PROC_STRIPNA;
+    static utf8proc_option_t casefold_flags = UTF8PROC_CASEFOLD;
 #else
     #include <ctype.h>
+
+    typedef int utf8proc_option_t;
+    static utf8proc_option_t normalize_flags = 0;
+    static utf8proc_option_t casefold_flags = 0;
 #endif
+
+static char *normalize(const char *str, size_t len, size_t *newlen, utf8proc_option_t flags);
+
+// Public functions
 
 /**
  * Checks if string is valid utf8
@@ -75,29 +88,11 @@ bool utf8_wrap_validate(const char *str, size_t str_len) {
  * @return Newly allocated char, caller must free it.
  */
 char *utf8_wrap_casefold(const char *str, size_t len, size_t *newlen) {
-    assert(str);
-    #ifdef MYMPD_ENABLE_UTF8
-        utf8proc_uint8_t *fold_str;
-        ssize_t return_len = utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, UTF8PROC_CASEFOLD);
-        if (fold_str == NULL ||
-            return_len < 0)
-        {
-            MYMPD_LOG_WARN(NULL, "Failure in unicode processing of: \"%s\"", str);
-            *newlen = len;
-            FREE_PTR(fold_str);
-            return my_strdup(str, len);
-        }
-        *newlen = (size_t)return_len;
-        return (char *)fold_str;
-    #else
-        char *lower = malloc_assert(len + 1);
-        for (size_t i = 0; i < len; i++) {
-            lower[i] = (char)tolower(str[i]);
-        }
-        lower[len] = '\0';
-        *newlen = len;
-        return lower;
-    #endif
+    return normalize(str, len, newlen, casefold_flags);
+}
+
+char *utf8_wrap_normalize(const char *str, size_t len, size_t *newlen) {
+    return normalize(str, len, newlen, normalize_flags);
 }
 
 /**
@@ -105,13 +100,14 @@ char *utf8_wrap_casefold(const char *str, size_t len, size_t *newlen) {
  * @param str String to normalize
  * @param len String length
  * @param newlen Pointer to size_t for the new string length
+ * @param flags Normalization flags
  * @return Newly allocated char, caller must free it.
  */
-char *utf8_wrap_normalize(const char *str, size_t len, size_t *newlen) {
+static char *normalize(const char *str, size_t len, size_t *newlen, utf8proc_option_t flags) {
     assert(str);
     #ifdef MYMPD_ENABLE_UTF8
         utf8proc_uint8_t *fold_str;
-        ssize_t return_len = utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, normalize_flags);
+        ssize_t return_len = utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, flags);
         if (fold_str == NULL ||
             return_len < 0)
         {
@@ -123,7 +119,14 @@ char *utf8_wrap_normalize(const char *str, size_t len, size_t *newlen) {
         *newlen = (size_t)return_len;
         return (char *)fold_str;
     #else
-        return utf8_wrap_casefold(str, len, newlen);
+        (void) flags;
+        char *lower = malloc_assert(len + 1);
+        for (size_t i = 0; i < len; i++) {
+            lower[i] = (char)tolower(str[i]);
+        }
+        lower[len] = '\0';
+        *newlen = len;
+        return lower;
     #endif
 }
 
@@ -192,7 +195,9 @@ int utf8_wrap_casecmp(const char *str1, size_t str1_len, const char *str2, size_
             }
         }
     #else
-        int rc = strcasecmp(str1, str2);
+        (void) str1_len;
+        (void) str2_len;
+        return strcasecmp(str1, str2);
     #endif
 
     return 0;

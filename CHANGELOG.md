@@ -11,6 +11,7 @@ This is a small feature release.
 ### Changelog
 
 - Feat: Rework linked list implementation, it is now a double linked list
+- Feat: Improve utf8 validation and handling
 - Upd: Test framework
 
 ***
