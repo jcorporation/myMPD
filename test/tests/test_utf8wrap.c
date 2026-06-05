@@ -56,17 +56,25 @@ UTEST(utf8wrap, utf8_wrap_normalize) {
 }
 
 UTEST(utf8wrap, utf8_wrap_casecmp) {
+    errno = 0;
     size_t len = strlen(utf8_str_valid);
     int rc = utf8_wrap_casecmp(utf8_str_valid, len, "abc123", len);
     ASSERT_EQ(rc, 0);
+    ASSERT_EQ(errno, 0);
 
+    errno = 0;
     rc = utf8_wrap_casecmp(utf8_str_valid, len, "abc", 3);
     ASSERT_NE(rc, 0);
+    ASSERT_EQ(errno, 0);
 
+    errno = 0;
     len = strlen(utf8_str_invalid);
-    rc = utf8_wrap_casecmp(utf8_str_invalid, len, utf8_str_invalid, len);
+    rc = utf8_wrap_casecmp("abc", 3, utf8_str_invalid, len);
     ASSERT_EQ(rc, 0);
+    ASSERT_EQ(errno, EINVAL);
 
+    errno = 0;
     rc = utf8_wrap_casecmp(utf8_str_invalid, len, "abc", 3);
-    ASSERT_NE(rc, 0);
+    ASSERT_EQ(rc, 0);
+    ASSERT_EQ(errno, EINVAL);
 }

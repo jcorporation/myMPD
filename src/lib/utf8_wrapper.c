@@ -13,6 +13,7 @@
 #include "src/lib/utf8_wrapper.h"
 
 #include <assert.h>
+#include <errno.h>
 #include <string.h>
 
 #ifdef MYMPD_ENABLE_UTF8
@@ -117,22 +118,72 @@ char *utf8_wrap_normalize(const char *str, size_t len, size_t *newlen) {
 }
 
 /**
- * Compares two strings that are normalized before.
+ * Compares two strings case insensitive.
+ * Set's errno to EINVAL if one string is invalid utf8.
  * @param str1 String1
  * @param str1_len String1 length
  * @param str2 String2
  * @param str2_len String2 length
- * @return Same as strcmp
+ * @return Same as strcasecmp
  */
 int utf8_wrap_casecmp(const char *str1, size_t str1_len, const char *str2, size_t str2_len) {
     assert(str1);
     assert(str2);
-    size_t str1_newlen;
-    size_t str2_newlen;
-    char *fold_str1 = utf8_wrap_casefold(str1, str1_len, &str1_newlen);
-    char *fold_str2 = utf8_wrap_casefold(str2, str2_len, &str2_newlen);
-    int rc = strcmp(fold_str1, fold_str2);
-    FREE_PTR(fold_str1);
-    FREE_PTR(fold_str2);
-    return rc;
+    assert(str1_len < INT_MAX);
+    assert(str2_len < INT_MAX);
+    #ifdef MYMPD_ENABLE_UTF8
+        const utf8proc_uint8_t *utf8_str1 = (const utf8proc_uint8_t *)str1;
+        const utf8proc_uint8_t *utf8_str2 = (const utf8proc_uint8_t *)str2;
+        const utf8proc_ssize_t len1 = (utf8proc_ssize_t)str1_len;
+        const utf8proc_ssize_t len2 = (utf8proc_ssize_t)str2_len;
+
+        utf8proc_ssize_t pos1 = 0;
+        utf8proc_ssize_t pos2 = 0;
+
+        utf8proc_int32_t codepoint1;
+        utf8proc_int32_t codepoint2;
+
+        while (pos1 < len1 || pos2 < len2) {
+            // Decode codepoint from utf8_str1
+            if (pos1 < len1) {
+                pos1 += utf8proc_iterate(&utf8_str1[pos1], len1 - pos1, &codepoint1);
+                if (codepoint1 < 0) {
+                    // Invalid UTF-8
+                    errno = EINVAL;
+                    return 0;
+                }
+                codepoint1 = utf8proc_tolower(codepoint1);
+            }
+
+            // Decode codepoint from utf8_str2
+            if (pos2 < len2) {
+                pos2 += utf8proc_iterate(&utf8_str2[pos2], len2 - pos2, &codepoint2);
+                if (codepoint2 < 0) {
+                    // Invalid UTF-8
+                    errno = EINVAL;
+                    return 0;
+                }
+                codepoint2 = utf8proc_tolower(codepoint2);
+            }
+
+            // Compare codepoints
+            if (codepoint1 != codepoint2) {
+                return codepoint1 - codepoint2;
+            }
+
+            // Both strings exhausted
+            if (pos1 >= len1 && pos2 >= len2) {
+                break;
+            }
+
+            // One string is shorter
+            if (pos1 >= len1 || pos2 >= len2) {
+                return (pos1 >= len1) ? -1 : 1;
+            }
+        }
+    #else
+        int rc = strcasecmp(str1, str2);
+    #endif
+
+    return 0;
 }
