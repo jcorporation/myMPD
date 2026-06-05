@@ -183,7 +183,7 @@ void mympd_client_disconnect_silent(struct t_partition_state *partition_state) {
     partition_state->conn_state = MPD_DISCONNECTED;
     if (partition_state->waiting_events & PFD_TYPE_PARTITION) {
         MYMPD_LOG_WARN(partition_state->name, "Clear pending mpd idle events");
-        partition_state->waiting_events &= ~(enum pfd_type)PFD_TYPE_PARTITION;
+        partition_state->waiting_events &= ~(unsigned)PFD_TYPE_PARTITION;
     }
     *partition_state->repopulate_pfds = true;
 }
