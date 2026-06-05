@@ -156,49 +156,36 @@ int utf8_wrap_casecmp(const char *str1, size_t str1_len, const char *str2, size_
         utf8proc_int32_t codepoint1;
         utf8proc_int32_t codepoint2;
 
-        while (pos1 < len1 || pos2 < len2) {
-            // Decode codepoint from utf8_str1
-            if (pos1 < len1) {
-                pos1 += utf8proc_iterate(&utf8_str1[pos1], len1 - pos1, &codepoint1);
-                if (codepoint1 < 0) {
-                    // Invalid UTF-8
-                    errno = EINVAL;
-                    return 0;
-                }
-                codepoint1 = utf8proc_tolower(codepoint1);
+        while (pos1 < len1 && pos2 < len2) {
+            pos1 += utf8proc_iterate(&utf8_str1[pos1], len1 - pos1, &codepoint1);
+            if (codepoint1 < 0) {
+                errno = EINVAL;
+                return 0;
             }
 
-            // Decode codepoint from utf8_str2
-            if (pos2 < len2) {
-                pos2 += utf8proc_iterate(&utf8_str2[pos2], len2 - pos2, &codepoint2);
-                if (codepoint2 < 0) {
-                    // Invalid UTF-8
-                    errno = EINVAL;
-                    return 0;
-                }
-                codepoint2 = utf8proc_tolower(codepoint2);
+            pos2 += utf8proc_iterate(&utf8_str2[pos2], len2 - pos2, &codepoint2);
+            if (codepoint2 < 0) {
+                errno = EINVAL;
+                return 0;
             }
 
-            // Compare codepoints
+            codepoint1 = utf8proc_tolower(codepoint1);
+            codepoint2 = utf8proc_tolower(codepoint2);
             if (codepoint1 != codepoint2) {
                 return codepoint1 - codepoint2;
             }
-
-            // Both strings exhausted
-            if (pos1 >= len1 && pos2 >= len2) {
-                break;
-            }
-
-            // One string is shorter
-            if (pos1 >= len1 || pos2 >= len2) {
-                return (pos1 >= len1) ? -1 : 1;
-            }
         }
+
+        if (pos1 < len1) {
+            return 1;
+        }
+        if (pos2 < len2) {
+            return -1;
+        }
+        return 0;
     #else
         (void) str1_len;
         (void) str2_len;
         return strcasecmp(str1, str2);
     #endif
-
-    return 0;
 }
