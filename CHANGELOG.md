@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Fix: Remove timers before removing partition
 - Fix: Remove triggers before removing partition
+- Fix: Harden MPD connection handling
 
 ***
 
