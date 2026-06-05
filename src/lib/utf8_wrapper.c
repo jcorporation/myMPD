@@ -40,19 +40,29 @@
 /**
  * Checks if string is valid utf8
  * @param str String to validate
- * @param len String length
+ * @param str_len String length
  * @return true if string is valid, else false
  */
-bool utf8_wrap_validate(const char *str, size_t len) {
+bool utf8_wrap_validate(const char *str, size_t str_len) {
     assert(str);
+    assert(str_len < INT_MAX);
     #ifdef MYMPD_ENABLE_UTF8
-        utf8proc_uint8_t *fold_str;
-        utf8proc_ssize_t rc = utf8proc_map((utf8proc_uint8_t *)str, (utf8proc_ssize_t)len, &fold_str, UTF8PROC_REJECTNA);
-        FREE_PTR(fold_str);
-        return rc >= 0;
+        const utf8proc_uint8_t *utf8_str = (const utf8proc_uint8_t *)str;
+        const utf8proc_ssize_t len = (utf8proc_ssize_t)str_len;
+        utf8proc_ssize_t pos = 0;
+        utf8proc_int32_t codepoint;
+        while (pos < len) {
+            // Decode codepoint from utf8_str
+            pos += utf8proc_iterate(&utf8_str[pos], len - pos, &codepoint);
+            if (codepoint < 0) {
+                // Invalid UTF-8
+                return false;
+            }
+        }
+        return true;
     #else
         (void) str;
-        (void) len;
+        (void) str_len;
         return true;
     #endif
 }
