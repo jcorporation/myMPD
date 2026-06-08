@@ -40,13 +40,14 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
 {
     // MPD state
     if (mpd_command_list_begin(partition_state->conn, true)) {
-        if (mpd_send_status(partition_state->conn) == false) {
-            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status");
+        if (mpd_send_status(partition_state->conn) == false ||
+            mpd_send_replay_gain_status(partition_state->conn) == false)
+        {
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status, mpd_send_replay_gain_status");
         }
-        if (mpd_send_replay_gain_status(partition_state->conn) == false) {
-            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_replay_gain_status");
+        if (mympd_client_command_list_end_check(partition_state) == false) {
+            return false;
         }
-        mympd_client_command_list_end_check(partition_state);
     }
     struct mpd_status *status = mpd_recv_status(partition_state->conn);
     enum mpd_replay_gain_mode replay_gain_mode = MPD_REPLAY_UNKNOWN;

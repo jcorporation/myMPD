@@ -342,9 +342,6 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
             mympd_client_command_list_end_check(partition_state);
         }
         if (mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add") == false) {
-            //error adding songs to tmp playlist - delete it
-            mpd_run_rm(partition_state->conn, playlist_tmp);
-            mympd_check_error_and_recover(partition_state, error, "mpd_run_rm");
             rc = false;
             break;
         }
@@ -352,6 +349,11 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
     list_free(plist);
     if (rc == true) {
         rc = playlist_replace(partition_state, playlist_tmp, playlist, error);
+    }
+    else if (partition_state->conn_state == MPD_CONNECTED) {
+        //error adding songs to tmp playlist - delete it
+        mpd_run_rm(partition_state->conn, playlist_tmp);
+        mympd_check_error_and_recover(partition_state, error, "mpd_run_rm");
     }
     FREE_SDS(playlist_tmp);
     return rc;
@@ -685,9 +687,6 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
             mympd_client_command_list_end_check(partition_state);
         }
         if (mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add") == false) {
-            //error adding songs to tmp playlist - delete it
-            mpd_run_rm(partition_state->conn, playlist_tmp);
-            mympd_check_error_and_recover(partition_state, error, "mpd_run_rm");
             rc = false;
             break;
         }
@@ -696,6 +695,11 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     rax_free_sds_data(plist);
     if (rc == true) {
         rc = playlist_replace(partition_state, playlist_tmp, playlist, error);
+    }
+    else if (partition_state->conn_state == MPD_CONNECTED) {
+        //error adding songs to tmp playlist - delete it
+        mpd_run_rm(partition_state->conn, playlist_tmp);
+        mympd_check_error_and_recover(partition_state, error, "mpd_run_rm");
     }
     FREE_SDS(playlist_tmp);
     return rc;
