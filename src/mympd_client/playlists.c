@@ -117,7 +117,7 @@ bool mympd_client_get_all_playlists(struct t_partition_state *partition_state, s
  * Returns the playlists last modification time
  * @param partition_state pointer to partition specific states
  * @param playlist name of the playlist to check
- * @return last modification time
+ * @return last modification time or 0 on error
  */
 time_t mympd_client_get_playlist_mtime(struct t_partition_state *partition_state, const char *playlist) {
     time_t mtime = 0;
@@ -157,6 +157,10 @@ int64_t mympd_client_playlist_dedup_all(struct t_partition_state *partition_stat
     int64_t result = 0;
     struct t_list_node *current;
     while ((current = list_shift_first(&plists)) != NULL) {
+        if (partition_state->conn_state != MPD_CONNECTED) {
+            MYMPD_LOG_ERROR(NULL, "Canceling playlist deduplication, MPD is disconnected.");
+            break;
+        }
         int64_t rc = mympd_client_playlist_dedup(partition_state, current->key, remove, error);
         list_node_free(current);
         if (rc > -1) {
@@ -246,6 +250,10 @@ int mympd_client_playlist_validate_all(struct t_partition_state *partition_state
     int result = 0;
     struct t_list_node *current;
     while ((current = list_shift_first(&plists)) != NULL) {
+        if (partition_state->conn_state != MPD_CONNECTED) {
+            MYMPD_LOG_ERROR(NULL, "Canceling playlist validation, MPD is disconnected.");
+            break;
+        }
         int rc = mympd_client_playlist_validate(partition_state, current->key, remove, error);
         list_node_free(current);
         if (rc > -1) {

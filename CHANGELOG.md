@@ -13,6 +13,7 @@ This is a small feature release.
 - Feat: Rework linked list implementation, it is now a double linked list
 - Feat: Improve utf8 validation and handling
 - Upd: Test framework
+- Fix: Handle unexpected MPD disconnects
 
 ***
 
