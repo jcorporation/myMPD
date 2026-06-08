@@ -8,7 +8,6 @@
  * \brief myMPD webradio favorites API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/webradio_favorites.h"
 
 #include "dist/rax/rax.h"

@@ -8,7 +8,6 @@
  * \brief Add random functions
  */
 
-#include "compile_time.h"
 #include "src/mympd_worker/random_select.h"
 
 #include "dist/sds/sds.h"

@@ -8,7 +8,6 @@
  * \brief Read lyrics from ID3 tags
  */
 
-#include "compile_time.h"
 #include "src/webserver/lyrics_id3.h"
 
 #include "src/lib/json/json_print.h"

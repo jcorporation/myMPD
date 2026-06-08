@@ -16,9 +16,7 @@
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_hash.h"
 
-#include <dirent.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <time.h>
 
 /**

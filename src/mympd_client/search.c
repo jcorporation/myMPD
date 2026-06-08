@@ -8,7 +8,6 @@
  * \brief Helper functions for MPD search
  */
 
-#include "compile_time.h"
 #include "src/mympd_client/search.h"
 
 #include "src/lib/log.h"

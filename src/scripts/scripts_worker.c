@@ -8,7 +8,6 @@
  * \brief Script worker
  */
 
-#include "compile_time.h"
 #include "src/scripts/scripts_worker.h"
 
 #include "src/lib/api.h"

@@ -8,7 +8,6 @@
  * \brief myMPD database API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/database.h"
 
 #include "src/lib/json/json_rpc.h"

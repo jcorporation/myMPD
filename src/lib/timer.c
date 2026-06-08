@@ -8,7 +8,6 @@
  * \brief Timerfd helpers
  */
 
-#include "compile_time.h"
 #include "src/lib/timer.h"
 
 #include "src/lib/datetime.h"

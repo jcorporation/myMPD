@@ -8,7 +8,6 @@
  * \brief UTF8 wrapper functions
  */
 
-#include "compile_time.h"
 #include "src/lib/mem.h"
 #include "src/lib/utf8_wrapper.h"
 

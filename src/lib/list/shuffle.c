@@ -8,7 +8,6 @@
  * \brief Linked list implementation
  */
 
-#include "compile_time.h"
 #include "src/lib/list/shuffle.h"
 
 #include "src/lib/list/list.h"

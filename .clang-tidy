@@ -3,7 +3,6 @@ Checks: '*,
          -clang-analyzer-optin.core.EnumCastOutOfRange,
          -readability-avoid-nested-conditional-operator,
          -bugprone-switch-missing-default-case,
-         -misc-include-cleaner,
          -altera-*,
          -clang-analyzer-optin.performance.Padding,
          -bugprone-easily-swappable-parameters,
@@ -28,3 +27,5 @@ CheckOptions:
   bugprone-reserved-identifier.AllowedIdentifiers: _XOPEN_SOURCE;__asan_default_options
   cert-dcl37-c.AllowedIdentifiers: _XOPEN_SOURCE;__asan_default_options
   cert-dcl51-cpp.AllowedIdentifiers: _XOPEN_SOURCE;__asan_default_options
+  misc-include-cleaner.MissingIncludes: false 
+  misc-include-cleaner.IgnoreHeaders: mpdclient.h; getopt.h

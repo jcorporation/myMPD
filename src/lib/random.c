@@ -8,7 +8,6 @@
  * \brief Random number generator functions based on OpenSSL
  */
 
-#include "compile_time.h"
 #include "src/lib/random.h"
 
 #include "src/lib/log.h"

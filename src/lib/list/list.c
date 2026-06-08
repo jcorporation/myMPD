@@ -8,7 +8,6 @@
  * \brief Linked list implementation
  */
 
-#include "compile_time.h"
 #include "src/lib/list/list.h"
 
 #include "src/lib/filehandler.h"
@@ -16,6 +15,7 @@
 #include "src/lib/mem.h"
 #include "src/lib/sds/sds_extras.h"
 
+#include <limits.h>
 #include <string.h>
 
 /**

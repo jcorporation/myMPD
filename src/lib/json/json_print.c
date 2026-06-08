@@ -8,7 +8,6 @@
  * \brief Json print implementation for sds
  */
 
-#include "compile_time.h"
 #include "src/lib/json/json_print.h"
 
 #include "src/lib/sds/sds_json.h"

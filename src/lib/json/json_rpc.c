@@ -8,7 +8,6 @@
  * \brief Jsonrpc implementation
  */
 
-#include "compile_time.h"
 #include "src/lib/json/json_rpc.h"
 
 #include "src/lib/api.h"

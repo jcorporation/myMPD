@@ -8,7 +8,6 @@
  * \brief MPD queue functions.
  */
 
-#include "compile_time.h"
 #include "src/mympd_client/queue.h"
 
 #include "src/lib/json/json_rpc.h"

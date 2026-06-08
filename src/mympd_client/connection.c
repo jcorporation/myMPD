@@ -8,7 +8,6 @@
  * \brief MPD connection handling
  */
 
-#include "compile_time.h"
 #include "src/mympd_client/connection.h"
 
 #include "src/lib/api.h"

@@ -8,7 +8,6 @@
  * \brief myMPD state for Lua scripts
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/lua_mympd_state.h"
 
 #include "src/lib/cache/cache_rax_album.h"

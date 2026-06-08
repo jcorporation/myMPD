@@ -8,7 +8,6 @@
  * \brief Type conversion functions
  */
 
-#include "compile_time.h"
 #include "src/lib/convert.h"
 
 #include "src/lib/log.h"

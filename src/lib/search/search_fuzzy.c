@@ -8,7 +8,6 @@
  * \brief Fuzzy search implementation
  */
 
-#include "compile_time.h"
 #include "src/lib/search/search_fuzzy.h"
 
 #include <stdlib.h>

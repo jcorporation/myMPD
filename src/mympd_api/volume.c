@@ -8,7 +8,6 @@
  * \brief myMPD volume API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/volume.h"
 
 #include "src/lib/api.h"

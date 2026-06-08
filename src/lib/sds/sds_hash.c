@@ -8,14 +8,11 @@
  * \brief Hash functions for sds strings
  */
 
-#include "compile_time.h"
 #include "src/lib/sds/sds_hash.h"
 
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
 
-#include <openssl/buffer.h>
-#include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <string.h>
 

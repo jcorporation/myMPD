@@ -14,11 +14,14 @@
 #include "src/lib/api.h"
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
-#include "src/lib/sds/sds_url.h"
 #include "src/webserver/albumart.h"
-#include "src/webserver/mg_user_data.h"
 #include "src/webserver/placeholder.h"
 #include "src/webserver/utility.h"
+
+#ifdef MYMPD_EMBEDDED_ASSETS
+    #include "src/lib/sds/sds_url.h"
+    #include "src/webserver/mg_user_data.h"
+#endif
 
 /**
  * Sends a raw http response message

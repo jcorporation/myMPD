@@ -8,11 +8,11 @@
  * \brief Extra functions for sds strings
  */
 
-#include "compile_time.h"
 #include "src/lib/sds/sds_extras.h"
 
 #include "dist/sds/sds.h"
 
+#include <inttypes.h>
 #include <string.h>
 
 /**

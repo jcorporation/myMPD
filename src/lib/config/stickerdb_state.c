@@ -8,7 +8,6 @@
  * \brief Central myMPD state for the mympd_api thread
  */
 
-#include "compile_time.h"
 #include "src/lib/config/stickerdb_state.h"
 
 #include "src/lib/mem.h"

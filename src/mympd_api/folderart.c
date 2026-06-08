@@ -8,7 +8,6 @@
  * \brief myMPD folderart API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/folderart.h"
 
 #include "src/lib/api.h"

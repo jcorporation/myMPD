@@ -8,7 +8,6 @@
  * \brief Lua interface for myMPD API
  */
 
-#include "compile_time.h"
 #include "src/scripts/interface_mympd_api.h"
 
 #include "src/lib/api.h"

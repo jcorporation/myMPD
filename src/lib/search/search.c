@@ -8,7 +8,6 @@
  * \brief Search implementation
  */
 
-#include "compile_time.h"
 #include "src/lib/search/search.h"
 
 #include "src/lib/convert.h"

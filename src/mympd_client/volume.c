@@ -8,7 +8,6 @@
  * \brief MPD volume wrapper
  */
 
-#include "compile_time.h"
 #include "src/mympd_client/volume.h"
 
 #include "src/mympd_client/errorhandler.h"

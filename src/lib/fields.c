@@ -8,7 +8,6 @@
  * \brief Fields handling
  */
 
-#include "compile_time.h"
 #include "src/lib/fields.h"
 
 #include <string.h>

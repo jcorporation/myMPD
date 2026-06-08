@@ -8,7 +8,6 @@
  * \brief MPD song functions
  */
 
-#include "compile_time.h"
 #include "src/mympd_worker/song.h"
 
 #include "src/lib/json/json_print.h"

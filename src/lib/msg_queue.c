@@ -8,7 +8,6 @@
  * \brief Message queue implementation
  */
 
-#include "compile_time.h"
 #include "src/lib/msg_queue.h"
 
 #include "dist/mongoose/mongoose.h"

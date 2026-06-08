@@ -8,7 +8,6 @@
  * \brief myMPD mounts API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/mounts.h"
 
 #include "src/lib/json/json_print.h"

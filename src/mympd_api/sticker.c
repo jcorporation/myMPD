@@ -8,7 +8,6 @@
  * \brief myMPD sticker API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/sticker.h"
 
 #include "src/lib/cache/cache_rax_album.h"

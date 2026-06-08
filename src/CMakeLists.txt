@@ -80,7 +80,6 @@ target_sources(mympd
     lib/mimetype.c
     lib/mem.c
     lib/mpack.c
-    lib/mpdclient_compat.c
     lib/msg_queue.c
     lib/random.c
     lib/rax_extras.c

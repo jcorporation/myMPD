@@ -8,7 +8,6 @@
  * \brief JSON functions for sds strings
  */
 
-#include "compile_time.h"
 #include "src/lib/sds/sds_json.h"
 
 #include "dist/sds/sds.h"

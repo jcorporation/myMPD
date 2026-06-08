@@ -8,7 +8,6 @@
  * \brief Search implementation
  */
 
-#include "compile_time.h"
 #include "src/lib/search/search_pcre.h"
 
 #include "src/lib/log.h"

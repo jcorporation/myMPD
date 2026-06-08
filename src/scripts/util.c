@@ -8,7 +8,6 @@
  * \brief Script thread utility functions
  */
 
-#include "compile_time.h"
 #include "src/scripts/util.h"
 
 #include "src/lib/api.h"

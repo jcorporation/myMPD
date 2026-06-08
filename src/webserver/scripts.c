@@ -24,11 +24,6 @@
 #include "src/webserver/response.h"
 #include "src/webserver/utility.h"
 
-#include <lauxlib.h>
-#include <lua.h>
-#include <lualib.h>
-#include <pthread.h>
-
 /**
  * Executes the script as request handler.
  * @param nc mongoose connection

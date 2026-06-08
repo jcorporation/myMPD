@@ -35,7 +35,6 @@
 #endif
 
 #include <inttypes.h>
-#include <libgen.h>
 
 /**
  * Private definitions
