@@ -2998,14 +2998,15 @@
         </div>
         <div class="modal-body">
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" data-phrase="Database"></label>
+            <label class="col-sm-4 col-form-label" data-phrase="MPD Database"></label>
             <div class="col-sm-8">
               <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateDB", "options": ["", false, "target"]}' data-phrase="Update"></button>
               <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateDB", "options": ["", true, "target"]}' data-phrase="Rescan"></button>
             </div>
           </div>
+          <hr/>
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" data-phrase="Caches"></label>
+            <label class="col-sm-4 col-form-label" data-phrase="myMPD Caches"></label>
             <div class="col-sm-8">
               <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateCaches", "options": [false, "target"]}' data-phrase="Update"></button>
               <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [true, "target"]}' data-phrase="Force update"></button>
@@ -3016,6 +3017,14 @@
             <div class="col-sm-8">
               <button type="button" class="btn btn-secondary btnCleanup me-2 protected" data-href='{"cmd": "cropDiskcache", "options": ["target"]}' data-phrase="Crop"></button>
               <button type="button" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearDiskcache", "options": ["target"]}' data-phrase="Clear"></button>
+            </div>
+          </div>
+          <hr/>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" data-phrase="WebradioDB"></label>
+            <div class="col-sm-8">
+              <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateWebradioDB", "options": [false, "target"]}' data-phrase="Update"></button>
+              <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateWebradioDB", "options": [true, "target"]}' data-phrase="Force update"></button>
             </div>
           </div>
           <hr/>

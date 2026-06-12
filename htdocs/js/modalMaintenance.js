@@ -183,6 +183,26 @@ function updateCaches(force, target) {
 }
 
 /**
+ * Updates the WebradioDB
+ * @param {boolean} force true=forces an update
+ * @param {Node} target triggering element
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function updateWebradioDB(force, target) {
+    if (target) {
+        btnWaiting(target, true);
+    }
+    sendAPI("MYMPD_API_WEBRADIODB_UPDATE", {
+        "force": force
+    }, function() {
+        if (target) {
+            btnWaiting(target, false);
+        }
+    }, true);
+}
+
+/**
  * Updates or rescans the database
  * @param {string} uri baseuri
  * @param {boolean} rescan true = rescan, false = update
