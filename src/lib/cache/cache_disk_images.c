@@ -8,7 +8,6 @@
  * \brief Image cache handling
  */
 
-#include "compile_time.h"
 #include "src/lib/cache/cache_disk_images.h"
 
 #include "src/lib/filehandler.h"
@@ -17,8 +16,6 @@
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_hash.h"
 
-#include <dirent.h>
-#include <sys/stat.h>
 #include <time.h>
 
 /**

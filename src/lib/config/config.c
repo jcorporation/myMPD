@@ -23,7 +23,6 @@
 #include "src/lib/validate.h"
 
 #include <assert.h>
-#include <dirent.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <string.h>

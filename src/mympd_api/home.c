@@ -35,7 +35,7 @@ static const char *home_type_name(enum home_type type);
  * @return true on success, else false
  */
 bool mympd_api_home_icon_move(struct t_list *home_list, unsigned from, unsigned to) {
-    return list_move_item_pos(home_list, from, to);
+    return list_move_node(home_list, from, to);
 }
 
 /**

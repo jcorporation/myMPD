@@ -18,7 +18,6 @@
 
 #include <dirent.h>
 #include <errno.h>
-#include <sys/stat.h>
 #include <time.h>
 
 // private definitions

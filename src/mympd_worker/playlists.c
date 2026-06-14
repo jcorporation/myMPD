@@ -8,7 +8,6 @@
  * \brief Enumeration of MPD playlists
  */
 
-#include "compile_time.h"
 #include "src/mympd_worker/playlists.h"
 
 #include "src/lib/json/json_print.h"

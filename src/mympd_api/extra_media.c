@@ -8,7 +8,6 @@
  * \brief Extra media files
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/extra_media.h"
 
 #include "src/lib/json/json_print.h"
@@ -21,7 +20,6 @@
 
 #include <dirent.h>
 #include <errno.h>
-#include <libgen.h>
 #include <string.h>
 
 //optional includes

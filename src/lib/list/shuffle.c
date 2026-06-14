@@ -8,7 +8,6 @@
  * \brief Linked list implementation
  */
 
-#include "compile_time.h"
 #include "src/lib/list/shuffle.h"
 
 #include "src/lib/list/list.h"
@@ -16,7 +15,8 @@
 #include "src/lib/random.h"
 
 /**
- * Shuffles the list.
+ * Shuffles the list using Fisher-Yates algorithm.
+ * Optimized for doubly-linked list: reconstructs both next and prev pointers
  * @param l list
  * @return true on success, else false
  */
@@ -43,15 +43,15 @@ bool list_shuffle(struct t_list *l) {
         node_array[j] = temp;
     }
 
-    // Reconstruct the linked list
-    for (unsigned i = 0; i < l->length - 1; i++) {
-        node_array[i]->next = node_array[i + 1];
+    // Reconstruct the doubly-linked list with both next and prev pointers
+    for (unsigned i = 0; i < l->length; i++) {
+        node_array[i]->next = (i < l->length - 1) ? node_array[i + 1] : NULL;
+        node_array[i]->prev = (i > 0) ? node_array[i - 1] : NULL;
     }
 
     // Update head and tail
     l->head = node_array[0];
     l->tail = node_array[l->length - 1];
-    l->tail->next = NULL;
 
     // Free temporary array
     free((void *)node_array);

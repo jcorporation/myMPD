@@ -8,7 +8,6 @@
  * \brief myMPD tagart API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/tagart.h"
 
 #include "src/lib/api.h"

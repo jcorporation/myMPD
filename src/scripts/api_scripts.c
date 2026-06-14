@@ -27,13 +27,8 @@
 #include <dirent.h>
 #include <errno.h>
 #include <limits.h>
-#include <pthread.h>
 #include <string.h>
 #include <unistd.h>
-
-#include <lauxlib.h>
-#include <lua.h>
-#include <lualib.h>
 
 /**
  * Private definitions

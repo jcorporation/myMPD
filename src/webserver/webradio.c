@@ -8,7 +8,6 @@
  * \brief Webradio functions
  */
 
-#include "compile_time.h"
 #include "src/webserver/webradio.h"
 
 /**

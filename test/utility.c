@@ -165,7 +165,7 @@ unsigned populate_large_list(struct t_list *l, bool shuffled, int count) {
 bool check_list_integrity(struct t_list *l, unsigned expected_len) {
     struct t_list_node *current = l->head;
     unsigned len = 0;
-    // Iterate through the list
+    // Iterate through the list forward
     while (current != NULL) {
         len++;
         if (current->next == NULL) {
@@ -191,12 +191,44 @@ bool check_list_integrity(struct t_list *l, unsigned expected_len) {
     if (len != l->length) {
         return false;
     }
-    // Tails next must be NULL
+    // currents next must be NULL
     if (current->next != NULL) {
         return false;
     }
+    // Tails next must be NULL
     if (l->tail->next != NULL) {
         return false;
     }
+
+    // Iterate through the list reverse
+    len = 0;
+    current = l->tail;
+    while (current != NULL) {
+        len++;
+        if (current->prev == NULL) {
+            break;
+        }
+        current = current->prev;
+    }
+    if (len != expected_len) {
+        return false;
+    }
+    // current is now the first node in the list -> head
+    if (current != l->head) {
+        return false;
+    }
+    // Check length
+    if (len != l->length) {
+        return false;
+    }
+    // currents prev must be NULL
+    if (current->prev != NULL) {
+        return false;
+    }
+    // Heads prev must be NULL
+    if (l->head->prev != NULL) {
+        return false;
+    }
+
     return true;
 }

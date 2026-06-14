@@ -8,7 +8,6 @@
  * \brief Lua interface helpers
  */
 
-#include "compile_time.h"
 #include "src/scripts/interface.h"
 
 #include "src/mympd_api/lua_mympd_state.h"

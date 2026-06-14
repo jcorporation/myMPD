@@ -8,7 +8,6 @@
  * \brief Script thread implementation
  */
 
-#include "compile_time.h"
 #include "src/scripts/scripts.h"
 
 #include "src/lib/config/config_def.h"

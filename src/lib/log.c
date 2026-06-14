@@ -14,9 +14,9 @@
 #include "dist/sds/sds.h"
 #include "src/lib/config/env.h"
 
-#include <pthread.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 /**

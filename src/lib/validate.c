@@ -8,7 +8,6 @@
  * \brief String validation functions
  */
 
-#include "compile_time.h"
 #include "src/lib/validate.h"
 
 #include "src/lib/log.h"

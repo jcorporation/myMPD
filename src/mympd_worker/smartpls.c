@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/mympd_worker/smartpls.h"
 
+#include "src/lib/config/mympd_mpd_state.h"
 #include "src/lib/datetime.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_query.h"
@@ -86,6 +87,10 @@ bool mympd_worker_smartpls_update_all(struct t_mympd_worker_state *mympd_worker_
     while ((next_file = readdir(dir)) != NULL) {
         if (next_file->d_type != DT_REG) {
             continue;
+        }
+        if (mympd_worker_state->partition_state->conn_state != MPD_CONNECTED) {
+            MYMPD_LOG_ERROR(NULL, "Canceling smart playlist update, MPD is disconnected.");
+            break;
         }
         time_t playlist_mtime = mympd_client_get_playlist_mtime(mympd_worker_state->partition_state, next_file->d_name);
         time_t smartpls_mtime = smartpls_get_mtime(mympd_worker_state->config->workdir, next_file->d_name);

@@ -8,7 +8,6 @@
  * \brief MPD error handling
  */
 
-#include "compile_time.h"
 #include "src/mympd_client/errorhandler.h"
 
 #include "src/lib/json/json_rpc.h"

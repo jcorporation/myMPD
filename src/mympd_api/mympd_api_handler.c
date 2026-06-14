@@ -1947,6 +1947,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 new->idx_uris = NULL;
                 webradios_free(new);
                 webradios_release_lock(mympd_state->webradiodb);
+                send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "WebradioDB updated");
             }
             break;
         case MYMPD_API_WEBRADIODB_RADIO_GET_BY_NAME:

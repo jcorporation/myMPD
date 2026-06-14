@@ -8,7 +8,6 @@
  * \brief Memory allocation related functions
  */
 
-#include "compile_time.h"
 #include "src/lib/mem.h"
 
 #include <string.h>

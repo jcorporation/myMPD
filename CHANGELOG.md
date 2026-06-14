@@ -4,6 +4,20 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v25.2.0 (not yet released)
+
+This is a small feature release.
+
+### Changelog
+
+- Feat: Rework linked list implementation, it is now a double linked list
+- Feat: Improve utf8 validation and handling
+- Feat: Add WebradioDB update buttons to maintenance modal
+- Upd: Test framework
+- Fix: Handle unexpected MPD disconnects
+
+***
+
 ## myMPD v25.1.2 (not yet released)
 
 This is a small bug fix release.

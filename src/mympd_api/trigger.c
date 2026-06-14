@@ -266,7 +266,7 @@ bool mympd_api_trigger_save(struct t_list *trigger_list, sds name, int trigger_i
  * @return true on success, else false
  */
 bool mympd_api_trigger_delete(struct t_list *trigger_list, unsigned idx, sds *error) {
-    struct t_list_node *to_remove = list_node_extract(trigger_list, idx);
+    struct t_list_node *to_remove = list_node_extract_at(trigger_list, idx);
     if (to_remove != NULL) {
         list_node_free_user_data(to_remove, list_free_cb_trigger_data);
         return true;

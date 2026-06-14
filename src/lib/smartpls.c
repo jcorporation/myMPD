@@ -19,7 +19,6 @@
 #include "src/lib/sds/sds_extras.h"
 
 #include <string.h>
-#include <sys/stat.h>
 
 //privat definitions
 static bool smartpls_save(sds workdir, const char *smartpltype, const char *playlist,

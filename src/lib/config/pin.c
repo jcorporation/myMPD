@@ -17,7 +17,7 @@
 #include "src/lib/sds/sds_hash.h"
 
 #include <assert.h>
-#include <openssl/evp.h>
+#include <openssl/crypto.h>
 #include <string.h>
 #include <termios.h>
 

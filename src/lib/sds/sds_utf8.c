@@ -8,7 +8,6 @@
  * \brief UTF8 functions for sds strings
  */
 
-#include "compile_time.h"
 #include "src/lib/sds/sds_utf8.h"
 
 #include "dist/sds/sds.h"

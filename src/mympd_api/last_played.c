@@ -8,7 +8,6 @@
  * \brief myMPD last played API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/last_played.h"
 
 #include "dist/sds/sds.h"

@@ -176,11 +176,13 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
             // Stop playing if we should change the play queue
             if (mpd_send_stop(partition_state->conn) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_stop");
+                return false;
             }
         }
         if (old_volume != -1) {
             if (mpd_send_set_volume(partition_state->conn, volume) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_set_volume");
+                return false;
             }
         }
 
@@ -193,6 +195,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
                 mpd_send_play(partition_state->conn) == false)
             {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list");
+                return false;
             }
         }
 
@@ -200,6 +203,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
             // Clear the queue if jukebox is enabled through preset
             if (mpd_send_clear(partition_state->conn) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_clear");
+                return false;
             }
         }
 
@@ -210,6 +214,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
             // Simply start playing if no playlist and no preset is selected
             if (mpd_send_play(partition_state->conn) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_play");
+                return false;
             }
         }
         mympd_client_command_list_end_check(partition_state);

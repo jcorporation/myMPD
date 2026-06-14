@@ -8,7 +8,6 @@
  * \brief myMPD song API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/song.h"
 
 #include "src/lib/json/json_print.h"

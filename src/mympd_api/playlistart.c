@@ -8,7 +8,6 @@
  * \brief myMPD playlistart API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/playlistart.h"
 
 #include "src/lib/log.h"

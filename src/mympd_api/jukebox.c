@@ -8,7 +8,6 @@
  * \brief myMPD jukebox API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/jukebox.h"
 
 #include "src/lib/cache/cache_rax_album.h"

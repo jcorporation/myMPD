@@ -31,8 +31,6 @@
 #include "src/webserver/utility.h"
 #include "src/webserver/webradio.h"
 
-#include <libgen.h>
-
 //optional includes
 #ifdef MYMPD_ENABLE_LIBID3TAG
     #include "src/webserver/albumart_id3.h"

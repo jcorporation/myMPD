@@ -8,7 +8,6 @@
  * \brief Variables API functions
  */
 
-#include "compile_time.h"
 #include "src/scripts/api_tmp.h"
 
 #include "src/lib/json/json_print.h"

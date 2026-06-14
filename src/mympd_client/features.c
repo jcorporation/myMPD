@@ -8,7 +8,6 @@
  * \brief MPD feature detection
  */
 
-#include "compile_time.h"
 #include "src/mympd_client/features.h"
 
 #include "src/lib/filehandler.h"

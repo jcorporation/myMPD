@@ -8,7 +8,6 @@
  * \brief myMPD outputs API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/outputs.h"
 
 #include "src/lib/json/json_print.h"

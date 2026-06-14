@@ -42,7 +42,6 @@ set(TEST_SOURCES
   ../src/lib/mimetype.c
   ../src/lib/mem.c
   ../src/lib/mpack.c
-  ../src/lib/mpdclient_compat.c
   ../src/lib/msg_queue.c
   ../src/lib/random.c
   ../src/lib/rax_extras.c

@@ -8,7 +8,6 @@
  * \brief URL functions for sds strings
  */
 
-#include "compile_time.h"
 #include "src/lib/sds/sds_url.h"
 
 #include "dist/sds/sds.h"

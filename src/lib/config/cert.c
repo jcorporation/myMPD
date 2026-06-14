@@ -16,15 +16,12 @@
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
 
-#include <arpa/inet.h>
 #include <errno.h>
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <openssl/bn.h>
-#include <openssl/conf.h>
 #include <openssl/ec.h>
-#include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
 #include <openssl/pem.h>

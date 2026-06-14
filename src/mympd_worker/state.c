@@ -8,7 +8,6 @@
  * \brief MPD worker state functions
  */
 
-#include "compile_time.h"
 #include "src/mympd_worker/state.h"
 
 #include "src/lib/mem.h"

@@ -8,7 +8,6 @@
  * \brief Functions to populate the jukebox queue
  */
 
-#include "compile_time.h"
 #include "src/mympd_worker/jukebox.h"
 
 #include "src/lib/json/json_print.h"

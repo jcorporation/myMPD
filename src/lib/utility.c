@@ -8,7 +8,6 @@
  * \brief Utility functions
  */
 
-#include "compile_time.h"
 #include "src/lib/utility.h"
 
 #include "src/lib/log.h"

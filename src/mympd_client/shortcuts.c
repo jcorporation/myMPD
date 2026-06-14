@@ -8,7 +8,6 @@
  * \brief Some MPD shortcuts
  */
 
-#include "compile_time.h"
 #include "src/mympd_client/shortcuts.h"
 
 

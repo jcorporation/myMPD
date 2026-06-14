@@ -8,7 +8,6 @@
  * \brief Lua interface for caches
  */
 
-#include "compile_time.h"
 #include "src/scripts/interface_caches.h"
 
 #include "src/lib/cache/cache_disk_images.h"

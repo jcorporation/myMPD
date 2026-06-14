@@ -9,7 +9,7 @@ cmake_policy(SET CMP0003 NEW)
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd
-  VERSION 25.1.2
+  VERSION 25.2.0
   LANGUAGES C
 )
 
@@ -77,6 +77,7 @@ endif()
 
 if(MYMPD_ENABLE_EXPERIMENTAL)
   message("Experimental features enabled")
+  add_compile_definitions("-DMYMPD_ENABLE_EXPERIMENTAL=ON")
 endif()
 
 # cmake modules
@@ -103,6 +104,7 @@ else()
       message(WARNING "libmpdclient ${LIBMPDCLIENT_VERSION} is too old, minimum version is ${LIBMPDCLIENT_MIN_VERSION}")
       message("Using embedded libmpdclient")
       set(MYMPD_EMBEDDED_LIBMPDCLIENT "ON")
+      add_compile_definitions("-DMYMPD_EMBEDDED_LIBMPDCLIENT=ON")
     else()
       message("Using shared libmpdclient ${LIBMPDCLIENT_VERSION}")
       set(MYMPD_EMBEDDED_LIBMPDCLIENT "OFF")
@@ -110,14 +112,8 @@ else()
   else()
     message("libmpdclient not found, using embedded libmpdclient")
     set(MYMPD_EMBEDDED_LIBMPDCLIENT "ON")
+    add_compile_definitions("-DMYMPD_EMBEDDED_LIBMPDCLIENT=ON")
   endif()
-endif()
-
-# set global libmpdclient mode
-if(MYMPD_EMBEDDED_LIBMPDCLIENT)
-  add_compile_options(
-    "-DMYMPD_EMBEDDED_LIBMPDCLIENT=1"
-  )
 endif()
 
 # check dependencies versions
@@ -132,6 +128,8 @@ if(MYMPD_ENABLE_UTF8)
   if(NOT UTF8PROC_FOUND)
     message(WARNING "Utf8proc is disabled because it was not found")
     set(MYMPD_ENABLE_UTF8 "OFF")
+  else()
+    add_compile_definitions("-DMYMPD_ENABLE_UTF8=ON")
   endif()
 else()
   message("Utf8proc is disabled by user")
@@ -143,6 +141,8 @@ if(MYMPD_ENABLE_LIBID3TAG)
   if(NOT LIBID3TAG_FOUND)
     message(WARNING "Libid3tag is disabled because it was not found")
     set(MYMPD_ENABLE_LIBID3TAG "OFF")
+  else()
+    add_compile_definitions("-DMYMPD_ENABLE_LIBID3TAG=ON")
   endif()
 else()
   message("Libid3tag is disabled by user")
@@ -154,6 +154,8 @@ if(MYMPD_ENABLE_FLAC)
   if(NOT FLAC_FOUND)
     message(WARNING "Flac is disabled because it was not found")
     set(MYMPD_ENABLE_FLAC "OFF")
+  else()
+    add_compile_definitions("-DMYMPD_ENABLE_FLAC=ON")
   endif()
 else()
   message("Flac is disabled by user")
@@ -169,6 +171,8 @@ if(MYMPD_ENABLE_LUA)
     if(NOT LUA_VERSION_STRING VERSION_GREATER_EQUAL "${LUA_MIN_VERSION}")
       message(WARNING "Lua is disabled because a version lower than ${LUA_MIN_VERSION} was found")
       set(MYMPD_ENABLE_LUA "OFF")
+    else()
+      add_compile_definitions("-DMYMPD_ENABLE_LUA=ON")
     endif()
   else()
     message(WARNING "Lua is disabled because it was not found")
@@ -215,6 +219,7 @@ if(MYMPD_EMBEDDED_ASSETS)
   # remove object files with embedded assets
   file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/webserver/mg_user_data.c.o")
   file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/mympd_api/scripts.c.o")
+  add_compile_definitions("-DMYMPD_EMBEDDED_ASSETS=ON")
 else()
   message("Serving assets from filesystem")
   set(MYMPD_DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")
@@ -297,21 +302,21 @@ configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.s
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 configure_file(contrib/initscripts/mympd.freebsdrc.in contrib/initscripts/mympd.freebsdrc @ONLY)
 
-# global compile definitions
+# Global compile definitions
 add_compile_definitions(
   "MPACK_HAS_CONFIG=1"
   "MG_MAX_HTTP_HEADERS=50"
 )
 
+if(MYMPD_ENABLE_IPV6)
+  add_compile_definitions("-DMYMPD_ENABLE_IPV6=ON")
+endif()
+
 # Debug defines
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  add_compile_definitions(
-    "MYMPD_DEBUG=ON"
-  )
+  add_compile_definitions("MYMPD_DEBUG=ON")
 else()
-  add_compile_definitions(
-    "NDEBUG"
-  )
+  add_compile_definitions("NDEBUG")
 endif()
 
 # global compile options
@@ -400,18 +405,21 @@ if(MYMPD_ENABLE_ASAN)
     ${ASAN_FLAGS}
     "-fno-omit-frame-pointer"
   )
+  add_compile_definitions("-DMYMPD_ENABLE_ASAN=ON")
 elseif(MYMPD_ENABLE_UBSAN)
   message("Compiling with undefined behavior sanitizer")
   add_compile_options(
     ${UBSAN_FLAGS}
     "-fno-omit-frame-pointer"
   )
+  add_compile_definitions("-DMYMPD_ENABLE_UBSAN=ON")
 elseif(MYMPD_ENABLE_TSAN)
   message("Compiling with thread sanitizer")
   add_compile_options(
     ${TSAN_FLAGS}
     "-fno-omit-frame-pointer"
   )
+  add_compile_definitions("-DMYMPD_ENABLE_TSAN=ON")
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

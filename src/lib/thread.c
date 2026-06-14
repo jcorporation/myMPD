@@ -8,7 +8,6 @@
  * \brief Posix thread helpers
  */
 
-#include "compile_time.h"
 #include "src/lib/thread.h"
 
 _Atomic int mympd_worker_threads;  //!< Count of running worker threads

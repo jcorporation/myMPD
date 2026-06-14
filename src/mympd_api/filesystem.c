@@ -8,7 +8,6 @@
  * \brief myMPD filesystem API
  */
 
-#include "compile_time.h"
 #include "src/mympd_api/filesystem.h"
 
 #include "src/lib/json/json_print.h"
@@ -27,7 +26,6 @@
 #include "src/mympd_client/stickerdb.h"
 #include "src/mympd_client/tags.h"
 
-#include <libgen.h>
 #include <string.h>
 
 /**

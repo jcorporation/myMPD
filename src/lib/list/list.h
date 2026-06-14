@@ -21,9 +21,10 @@
 struct t_list_node {
     sds key;                   //!< key string
     sds value_p;               //!< string value
-    int64_t value_i;           //!< unsigned unsigned value
-    void *user_data;           //!< custom data
+    int64_t value_i;           //!< int64 value
+    void *user_data;           //!< custom data pointer
     struct t_list_node *next;  //!< pointer to next node
+    struct t_list_node *prev;  //!< pointer to previous node
 };
 
 /**
@@ -78,14 +79,14 @@ bool list_replace_len_user_data(struct t_list *l, unsigned idx, const char *key,
 
 void list_crop(struct t_list *l, unsigned length, user_data_callback free_cb);
 
-bool list_move_item_pos(struct t_list *l, unsigned from, unsigned to);
+bool list_move_node(struct t_list *l, unsigned from, unsigned to);
 
 unsigned list_get_node_idx(const struct t_list *l, const char *key);
 struct t_list_node *list_get_node(const struct t_list *l, const char *key);
 struct t_list_node *list_node_at(const struct t_list *l, unsigned idx);
-struct t_list_node *list_node_prev_at(const struct t_list *l, unsigned idx, struct t_list_node **previous);
 struct t_list_node *list_shift_first(struct t_list *l);
-struct t_list_node *list_node_extract(struct t_list *l, unsigned idx);
+struct t_list_node *list_node_extract_at(struct t_list *l, unsigned idx);
+struct t_list_node *list_node_extract(struct t_list *l, struct t_list_node *node);
 
 bool list_remove_node(struct t_list *l, unsigned idx);
 bool list_remove_node_user_data(struct t_list *l, unsigned idx, user_data_callback free_cb);

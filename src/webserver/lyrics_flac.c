@@ -8,7 +8,6 @@
  * \brief Read lyrics from vorbis comments
  */
 
-#include "compile_time.h"
 #include "src/webserver/lyrics_flac.h"
 
 #include "src/lib/json/json_print.h"

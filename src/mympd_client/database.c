@@ -8,7 +8,6 @@
  * \brief MPD database helper functions
  */
 
-#include "compile_time.h"
 #include "src/mympd_client/database.h"
 
 #include "src/lib/utility.h"

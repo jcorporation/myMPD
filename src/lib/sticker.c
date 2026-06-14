@@ -8,7 +8,6 @@
  * \brief MPD sticker helpers
  */
 
-#include "compile_time.h"
 #include "src/lib/sticker.h"
 
 #include <string.h>
