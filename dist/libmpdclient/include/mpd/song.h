@@ -72,6 +72,17 @@ mpd_song_get_tag(const struct mpd_song *song,
 		 enum mpd_tag_type type, unsigned idx);
 
 /**
+ * Returns the "real" URI of the song, the one to be used for opening
+ * the resource. If this attribute is nullptr, then #mpd_song_get_uri
+ * shall be used.
+ *
+ * @since libmpdclient 2.25
+ */
+mpd_pure
+const char *
+mpd_song_get_real_uri(const struct mpd_song *song);
+
+/**
  * Returns the duration of this song in seconds.  0 means the duration
  * is unknown.
  */
@@ -100,6 +111,16 @@ unsigned
 mpd_song_get_start(const struct mpd_song *song);
 
 /**
+ * Returns the start of the virtual song within the physical file in
+ * milliseconds.
+ *
+ * @since libmpdclient 2.25
+ */
+mpd_pure
+unsigned
+mpd_song_get_start_ms(const struct mpd_song *song);
+
+/**
  * Returns the end of the virtual song within the physical file in
  * seconds. 0 means that the physical song file is played to the end.
  *
@@ -108,6 +129,16 @@ mpd_song_get_start(const struct mpd_song *song);
 mpd_pure
 unsigned
 mpd_song_get_end(const struct mpd_song *song);
+
+/**
+ * Returns the end of the virtual song within the physical file in
+ * milliseconds. 0 means that the physical song file is played to the end.
+ *
+ * @since libmpdclient 2.25
+ */
+mpd_pure
+unsigned
+mpd_song_get_end_ms(const struct mpd_song *song);
 
 /**
  * @return the POSIX UTC time stamp of the last modification, or 0 if

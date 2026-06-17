@@ -142,11 +142,18 @@ mpd_parse_sticker(const char *input, size_t *name_length_r)
 	return eq + 1;
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+/* to allow casting the "const" away (see code comment inside
+   mpd_recv_sticker()) */
+#pragma GCC diagnostic ignored "-Wcast-qual"
+#endif
+
 struct mpd_pair *
 mpd_recv_sticker(struct mpd_connection *connection)
 {
 	struct mpd_pair *pair;
-	char *eq;
+	const char *eq;
 
 	pair = mpd_recv_pair_named(connection, "sticker");
 	if (pair == NULL)
@@ -159,7 +166,7 @@ mpd_recv_sticker(struct mpd_connection *connection)
 		/* we shouldn't modify a const string, but in this
 		   case, we know that this points to the writable
 		   input buffer */
-		*eq = 0;
+		*(char *)eq = 0;
 		pair->value = eq + 1;
 	} else
 		/* malformed response?  what to do now?  pretend
@@ -168,6 +175,10 @@ mpd_recv_sticker(struct mpd_connection *connection)
 
 	return pair;
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 void
 mpd_return_sticker(struct mpd_connection *connection, struct mpd_pair *pair)

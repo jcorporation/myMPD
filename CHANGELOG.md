@@ -14,6 +14,7 @@ This is a small feature release.
 - Feat: Improve utf8 validation and handling
 - Feat: Add WebradioDB update buttons to maintenance modal
 - Upd: Test framework
+- Upd: Embedded libmpdclient to current master
 - Fix: Handle unexpected MPD disconnects
 - Fix: Remove timers before removing partition
 - Fix: Remove triggers before removing partition

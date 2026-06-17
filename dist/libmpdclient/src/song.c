@@ -27,6 +27,13 @@ struct mpd_song {
 	struct mpd_tag_value tags[MPD_TAG_COUNT];
 
 	/**
+	 * The "real" URI, the one to be used for opening the
+	 * resource.  If this attribute is nullptr, then #uri
+	 * shall be used.
+	 */
+	char *real_uri;
+
+	/**
 	 * Duration of the song in seconds, or 0 for unknown.
 	 */
 	unsigned duration;
@@ -43,11 +50,24 @@ struct mpd_song {
 	unsigned start;
 
 	/**
+	 * Start of the virtual song within the physical file in
+	 * milliseconds.
+	 */
+	unsigned start_ms;
+
+	/**
 	 * End of the virtual song within the physical file in
 	 * seconds.  Zero means that the physical song file is
 	 * played to the end.
 	 */
 	unsigned end;
+
+	/**
+	 * End of the virtual song within the physical file in
+	 * milliseconds.  Zero means that the physical song
+	 * file is played to the end.
+	 */
+	unsigned end_ms;
 
 	/**
 	 * The POSIX UTC time stamp of the last modification, or 0 if
@@ -113,10 +133,13 @@ mpd_song_new(const char *uri)
 	for (unsigned i = 0; i < MPD_TAG_COUNT; ++i)
 		song->tags[i].value = NULL;
 
+	song->real_uri = NULL;
 	song->duration = 0;
 	song->duration_ms = 0;
 	song->start = 0;
+	song->start_ms = 0;
 	song->end = 0;
+	song->end_ms = 0;
 	song->last_modified = 0;
 	song->added = 0;
 	song->pos = 0;
@@ -157,6 +180,8 @@ void mpd_song_free(struct mpd_song *song) {
 		}
 	}
 
+	free(song->real_uri);
+
 	free(song);
 }
 
@@ -194,10 +219,13 @@ mpd_song_dup(const struct mpd_song *song)
 		} while (src_tag != NULL);
 	}
 
+	ret->real_uri = strdup(song->real_uri);
 	ret->duration = song->duration;
 	ret->duration_ms = song->duration_ms;
 	ret->start = song->start;
+	ret->start_ms = song->start_ms;
 	ret->end = song->end;
+	ret->end_ms = song->end_ms;
 	ret->last_modified = song->last_modified;
 	ret->added = song->added;
 	ret->pos = song->pos;
@@ -311,6 +339,20 @@ mpd_song_get_tag(const struct mpd_song *song,
 }
 
 static void
+mpd_song_set_real_uri(struct mpd_song *song, char *real_uri)
+{
+	song->real_uri = real_uri;
+}
+
+const char *
+mpd_song_get_real_uri(const struct mpd_song *song)
+{
+	assert(song != NULL);
+
+	return song->real_uri;
+}
+
+static void
 mpd_song_set_duration(struct mpd_song *song, unsigned duration)
 {
 	song->duration = duration;
@@ -351,11 +393,27 @@ mpd_song_get_start(const struct mpd_song *song)
 }
 
 unsigned
+mpd_song_get_start_ms(const struct mpd_song *song)
+{
+	assert(song != NULL);
+
+	return song->start_ms;
+}
+
+unsigned
 mpd_song_get_end(const struct mpd_song *song)
 {
 	assert(song != NULL);
 
 	return song->end;
+}
+
+unsigned
+mpd_song_get_end_ms(const struct mpd_song *song)
+{
+	assert(song != NULL);
+
+	return song->end_ms;
 }
 
 static void
@@ -476,15 +534,19 @@ mpd_song_parse_range(struct mpd_song *song, const char *value)
 	}
 
 	song->start = start > 0.0 ? (unsigned)start : 0;
+	song->start_ms = start > 0.0 ? (unsigned)(start * 1000) : 0;
 
 	if (end > 0.0) {
 		song->end = (unsigned)end;
+		song->end_ms = (unsigned)(end * 1000);
 		if (song->end == 0)
 			/* round up, because the caller must sees that
 			   there's an upper limit */
 			song->end = 1;
-	} else
+	} else {
 		song->end = 0;
+		song->end_ms = 0;
+	}
 }
 
 static void
@@ -541,6 +603,8 @@ mpd_song_feed(struct mpd_song *song, const struct mpd_pair *pair)
 		mpd_song_set_prio(song, strtoul(pair->value, NULL, 10));
 	else if (strcmp(pair->name, "Format") == 0)
 		mpd_song_parse_audio_format(song, pair->value);
+	else if (strcmp(pair->name, "RealUri") == 0)
+		mpd_song_set_real_uri(song, strdup(pair->value));
 
 	return true;
 }
