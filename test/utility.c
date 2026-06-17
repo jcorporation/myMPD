@@ -115,10 +115,13 @@ struct mpd_song *new_test_song(void) {
     song_append_tag(song, MPD_TAG_TRACK, "01");
     song_append_tag(song, MPD_TAG_DISC, "01");
 
+    song->real_uri = NULL;
     song->duration = 10;
     song->duration_ms = 10000;
     song->start = 0;
+    song->start_ms = 0;
     song->end = 0;
+    song->end_ms = 0;
     song->last_modified = 1699304451;
     song->added = 1699304451;
     song->pos = 0;
@@ -128,6 +131,8 @@ struct mpd_song *new_test_song(void) {
     song->audio_format.sample_rate = 44100;
     song->audio_format.bits = 24;
     song->audio_format.channels = 2;
+
+    memset(&song->audio_format, 0, sizeof(song->audio_format));
 
 #ifndef NDEBUG
     song->finished = false;
