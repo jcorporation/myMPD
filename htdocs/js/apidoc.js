@@ -1470,17 +1470,17 @@ const APImethods = {
         "desc": "Sets myMPD settings.",
         "protected": true,
         "params": {
-            "imageNamesSM": {
+            "imageNamesSm": {
                 "type": APItypes.string,
                 "example": "folder-sm,cover-sm",
                 "desc": "Comma separated list of coverimages, basenames or full names."
             },
-            "imageNamesMD": {
+            "imageNamesMd": {
                 "type": APItypes.string,
                 "example": "folder,cover",
                 "desc": "Comma separated list of coverimages, basenames or full names."
             },
-            "imageNamesLG": {
+            "imageNamesLg": {
                 "type": APItypes.string,
                 "example": "folder-lg,cover-lg",
                 "desc": "Comma separated list of coverimages, basenames or full names."
@@ -2284,7 +2284,11 @@ const APImethods = {
         "desc": "Saves a trigger",
         "protected": true,
         "params": {
-            "id": APIparams.triggerId,
+            "id": {
+                "type": APItypes.int,
+                "example": -1,
+                "desc": "-1 for a new trigger, else id of the trigger to update."
+            },
             "name": {
                 "type": APItypes.string,
                 "example": "test trigger",
