@@ -549,7 +549,8 @@ static X509_REQ *generate_request(EVP_PKEY *pkey) {
     time_t now = time(NULL);
     sds cn = sdscatfmt(sdsempty(), "myMPD Server Certificate %I", (int64_t)now);
 
-    X509_NAME *name = X509_REQ_get_subject_name(req);
+    X509_NAME *name = (X509_NAME *)X509_REQ_get_subject_name(req);
+
     X509_NAME_add_entry_by_txt(name, "C",  MBSTRING_ASC, (unsigned char *)"DE", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "O",  MBSTRING_ASC, (unsigned char *)"myMPD", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)cn, -1, -1, 0);
@@ -715,7 +716,7 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     X509_set_pubkey(cert, pkey);
 
     //We want to copy the subject name to the issuer name.
-    X509_NAME *name = X509_get_subject_name(cert);
+    X509_NAME *name = (X509_NAME *)X509_get_subject_name(cert);
 
     //Set the DN
     time_t now = time(NULL);
