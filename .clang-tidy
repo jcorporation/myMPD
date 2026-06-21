@@ -21,6 +21,7 @@ Checks: '*,
          -readability-implicit-bool-conversion,
          -readability-magic-numbers,
          -readability-non-const-parameter,
+         -readability-redundant-casting,
         '
 WarningsAsErrors:  ''
 HeaderFilterRegex: ''
