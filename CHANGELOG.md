@@ -4,6 +4,18 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v25.2.1 (2026-06-21)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Upd: Mongoose to current master
+- Fix: OpenSSL 4.0 compatibility
+- Fix: Invalid compile definitions
+
+***
+
 ## myMPD v25.2.0 (2026-06-21)
 
 This is a small feature release.
