@@ -4,9 +4,9 @@
 - es-VE: 1008 missing phrases
 - fi-FI: 1005 missing phrases
 - fr-FR: 3 missing phrases
-- it-IT: 4 missing phrases
+- it-IT: fully translated
 - ja-JP: 75 missing phrases
-- ko-KR: 3 missing phrases
+- ko-KR: fully translated
 - nl-NL: 3 missing phrases
 - pl-PL: 12 missing phrases
 - ru-RU: 86 missing phrases
