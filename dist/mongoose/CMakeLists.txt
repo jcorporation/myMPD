@@ -22,6 +22,7 @@ if(CMAKE_BUILD_TYPE MATCHES "(Debug|Release|RelWithDebInfo|MinSizeRel)")
   target_compile_options(mongoose
     PRIVATE
       "-Wno-unused-parameter"
+      "-Wno-deprecated-declarations" # OpenSSL 4.0 compatibility
   )
 endif()
 
