@@ -9,7 +9,7 @@ cmake_policy(SET CMP0003 NEW)
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd
-  VERSION 25.2.0
+  VERSION 25.2.1
   LANGUAGES C
 )
 
@@ -77,7 +77,7 @@ endif()
 
 if(MYMPD_ENABLE_EXPERIMENTAL)
   message("Experimental features enabled")
-  add_compile_definitions("-DMYMPD_ENABLE_EXPERIMENTAL=ON")
+  add_compile_definitions("MYMPD_ENABLE_EXPERIMENTAL=ON")
 endif()
 
 # cmake modules
@@ -104,7 +104,7 @@ else()
       message(WARNING "libmpdclient ${LIBMPDCLIENT_VERSION} is too old, minimum version is ${LIBMPDCLIENT_MIN_VERSION}")
       message("Using embedded libmpdclient")
       set(MYMPD_EMBEDDED_LIBMPDCLIENT "ON")
-      add_compile_definitions("-DMYMPD_EMBEDDED_LIBMPDCLIENT=ON")
+      add_compile_definitions("MYMPD_EMBEDDED_LIBMPDCLIENT=ON")
     else()
       message("Using shared libmpdclient ${LIBMPDCLIENT_VERSION}")
       set(MYMPD_EMBEDDED_LIBMPDCLIENT "OFF")
@@ -112,7 +112,7 @@ else()
   else()
     message("libmpdclient not found, using embedded libmpdclient")
     set(MYMPD_EMBEDDED_LIBMPDCLIENT "ON")
-    add_compile_definitions("-DMYMPD_EMBEDDED_LIBMPDCLIENT=ON")
+    add_compile_definitions("MYMPD_EMBEDDED_LIBMPDCLIENT=ON")
   endif()
 endif()
 
@@ -129,7 +129,7 @@ if(MYMPD_ENABLE_UTF8)
     message(WARNING "Utf8proc is disabled because it was not found")
     set(MYMPD_ENABLE_UTF8 "OFF")
   else()
-    add_compile_definitions("-DMYMPD_ENABLE_UTF8=ON")
+    add_compile_definitions("MYMPD_ENABLE_UTF8=ON")
   endif()
 else()
   message("Utf8proc is disabled by user")
@@ -142,7 +142,7 @@ if(MYMPD_ENABLE_LIBID3TAG)
     message(WARNING "Libid3tag is disabled because it was not found")
     set(MYMPD_ENABLE_LIBID3TAG "OFF")
   else()
-    add_compile_definitions("-DMYMPD_ENABLE_LIBID3TAG=ON")
+    add_compile_definitions("MYMPD_ENABLE_LIBID3TAG=ON")
   endif()
 else()
   message("Libid3tag is disabled by user")
@@ -155,7 +155,7 @@ if(MYMPD_ENABLE_FLAC)
     message(WARNING "Flac is disabled because it was not found")
     set(MYMPD_ENABLE_FLAC "OFF")
   else()
-    add_compile_definitions("-DMYMPD_ENABLE_FLAC=ON")
+    add_compile_definitions("MYMPD_ENABLE_FLAC=ON")
   endif()
 else()
   message("Flac is disabled by user")
@@ -172,7 +172,7 @@ if(MYMPD_ENABLE_LUA)
       message(WARNING "Lua is disabled because a version lower than ${LUA_MIN_VERSION} was found")
       set(MYMPD_ENABLE_LUA "OFF")
     else()
-      add_compile_definitions("-DMYMPD_ENABLE_LUA=ON")
+      add_compile_definitions("MYMPD_ENABLE_LUA=ON")
     endif()
   else()
     message(WARNING "Lua is disabled because it was not found")
@@ -219,7 +219,7 @@ if(MYMPD_EMBEDDED_ASSETS)
   # remove object files with embedded assets
   file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/webserver/mg_user_data.c.o")
   file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/mympd_api/scripts.c.o")
-  add_compile_definitions("-DMYMPD_EMBEDDED_ASSETS=ON")
+  add_compile_definitions("MYMPD_EMBEDDED_ASSETS=ON")
 else()
   message("Serving assets from filesystem")
   set(MYMPD_DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")
@@ -309,7 +309,7 @@ add_compile_definitions(
 )
 
 if(MYMPD_ENABLE_IPV6)
-  add_compile_definitions("-DMYMPD_ENABLE_IPV6=ON")
+  add_compile_definitions("MYMPD_ENABLE_IPV6=ON")
 endif()
 
 # Debug defines
@@ -405,21 +405,21 @@ if(MYMPD_ENABLE_ASAN)
     ${ASAN_FLAGS}
     "-fno-omit-frame-pointer"
   )
-  add_compile_definitions("-DMYMPD_ENABLE_ASAN=ON")
+  add_compile_definitions("MYMPD_ENABLE_ASAN=ON")
 elseif(MYMPD_ENABLE_UBSAN)
   message("Compiling with undefined behavior sanitizer")
   add_compile_options(
     ${UBSAN_FLAGS}
     "-fno-omit-frame-pointer"
   )
-  add_compile_definitions("-DMYMPD_ENABLE_UBSAN=ON")
+  add_compile_definitions("MYMPD_ENABLE_UBSAN=ON")
 elseif(MYMPD_ENABLE_TSAN)
   message("Compiling with thread sanitizer")
   add_compile_options(
     ${TSAN_FLAGS}
     "-fno-omit-frame-pointer"
   )
-  add_compile_definitions("-DMYMPD_ENABLE_TSAN=ON")
+  add_compile_definitions("MYMPD_ENABLE_TSAN=ON")
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
