@@ -117,6 +117,621 @@ fail:
 }
 
 #ifdef MG_ENABLE_LINES
+#line 1 "src/bsd.c"
+#endif
+
+
+#if MG_ENABLE_BSD_SOCKETS
+
+struct mg_bsd_sock {
+  void *t;                  // opaque transport handle
+  int fd;
+  int domain, type, proto;
+  bool nonblock;
+  struct sockaddr_in addr;  // bind address
+  struct sockaddr_in peer;  // peer address (after accept/connect)
+  struct mg_bsd_sock *next;
+};
+
+#define MG_BSD_FD_BASE 17777
+
+// static struct mg_mgr *s_mgr;
+static struct mg_bsd_sock *s_socks;
+
+static struct mg_bsd_sock *get(int fd) {
+  if (fd < MG_BSD_FD_BASE) return NULL;
+  for (struct mg_bsd_sock *s = s_socks; s; s = s->next)
+    if (s->fd == fd) return s;
+  return NULL;
+}
+
+static int alloc_sock(struct mg_bsd_sock *s) {
+  for (int fd = MG_BSD_FD_BASE; ; fd++) {
+    if (get(fd) == NULL) { s->fd = fd; break; }
+  }
+  s->next = s_socks;
+  s_socks = s;
+  return s->fd;
+}
+
+static void release_sock(int fd) {
+  struct mg_bsd_sock **p = &s_socks;
+  while (*p && (*p)->fd != fd) p = &(*p)->next;
+  if (*p) *p = (*p)->next;
+}
+
+
+int socket(int domain, int type, int proto) {
+  struct mg_bsd_sock *s = (struct mg_bsd_sock *) calloc(1, sizeof(*s));
+  if (!s) { errno = ENOMEM; return -1; }
+  s->t = mg_bsd_transport_new(domain, type, proto);
+  if (!s->t || alloc_sock(s) < 0) { free(s); errno = ENOMEM; return -1; }
+  s->domain = domain; s->type = type; s->proto = proto;
+  return s->fd;
+}
+
+int bind(int fd, const struct sockaddr *addr, socklen_t len) {
+  struct mg_bsd_sock *s = get(fd);
+  if (!s) return -1;
+  memcpy(&s->addr, addr, len < sizeof(s->addr) ? len : sizeof(s->addr));
+  return 0;
+}
+
+int listen(int fd, int backlog) {
+  struct mg_bsd_sock *s = get(fd);
+  if (!s) return -1;
+  (void) backlog;
+  return mg_bsd_transport_listen(s->t, &s->addr);
+}
+
+int accept(int fd, struct sockaddr *addr, socklen_t *addrlen) {
+  struct mg_bsd_sock *ls = get(fd);
+  if (!ls) return -1;
+  struct sockaddr_in peer = {0};
+  void *t = mg_bsd_transport_accept(ls->t, &peer, ls->nonblock);
+  if (!t) { if (ls->nonblock) errno = EAGAIN; return -1; }
+  struct mg_bsd_sock *ns = (struct mg_bsd_sock *) calloc(1, sizeof(*ns));
+  if (!ns || alloc_sock(ns) < 0) { mg_bsd_transport_free(t); free(ns); errno = ENOMEM; return -1; }
+  ns->t = t; ns->domain = ls->domain; ns->type = ls->type; ns->peer = peer;
+  if (addr && addrlen) {
+    size_t sz = sizeof(peer) < *addrlen ? sizeof(peer) : *addrlen;
+    memcpy(addr, &peer, sz);
+    *addrlen = (socklen_t) sizeof(peer);
+  }
+  return ns->fd;
+}
+
+int connect(int fd, const struct sockaddr *addr, socklen_t len) {
+  struct mg_bsd_sock *s = get(fd);
+  if (!s) return -1;
+  (void) len;
+  return mg_bsd_transport_connect(s->t, (const struct sockaddr_in *) addr, s->nonblock);
+}
+
+ssize_t send(int fd, const void *buf, size_t len, int flags) {
+  struct mg_bsd_sock *s = get(fd);
+  if (!s) return -1;
+  return mg_bsd_transport_send(s->t, buf, len, s->nonblock || (flags & MSG_DONTWAIT));
+}
+
+ssize_t recv(int fd, void *buf, size_t len, int flags) {
+  struct mg_bsd_sock *s = get(fd);
+  if (!s) return -1;
+  return mg_bsd_transport_recv(s->t, buf, len, s->nonblock || (flags & MSG_DONTWAIT));
+}
+
+ssize_t sendto(int fd, const void *buf, size_t len, int flags,
+                      const struct sockaddr *dest, socklen_t addrlen) {
+  (void) dest; (void) addrlen;
+  return send(fd, buf, len, flags);
+}
+
+ssize_t recvfrom(int fd, void *buf, size_t len, int flags,
+                        struct sockaddr *src, socklen_t *addrlen) {
+  ssize_t n = recv(fd, buf, len, flags);
+  if (n > 0 && src && addrlen) {
+    struct mg_bsd_sock *s = get(fd);
+    if (s) {
+      size_t sz = sizeof(s->peer) < *addrlen ? sizeof(s->peer) : *addrlen;
+      memcpy(src, &s->peer, sz);
+      *addrlen = (socklen_t) sizeof(s->peer);
+    }
+  }
+  return n;
+}
+
+ssize_t write(int fd, const void *buf, size_t len) { return send(fd, buf, len, 0); }
+ssize_t read(int fd, void *buf, size_t len) { return recv(fd, buf, len, 0); }
+
+int close(int fd) {
+  struct mg_bsd_sock *s = get(fd);
+  if (!s) return -1;
+  mg_bsd_transport_close(s->t);
+  release_sock(fd);
+  free(s);
+  return 0;
+}
+
+int shutdown(int fd, int how) { (void) how; return close(fd); }
+
+int fcntl(int fd, int cmd, int arg) {
+  struct mg_bsd_sock *s = get(fd);
+  if (!s) return -1;
+  if (cmd == F_GETFL) return s->nonblock ? O_NONBLOCK : 0;
+  if (cmd == F_SETFL) { s->nonblock = (arg & O_NONBLOCK) != 0; return 0; }
+  return -1;
+}
+
+int setsockopt(int fd, int level, int optname, const void *optval, socklen_t optlen) {
+  (void) fd; (void) level; (void) optname; (void) optval; (void) optlen;
+  return 0;
+}
+
+int getsockopt(int fd, int level, int optname, void *optval, socklen_t *optlen) {
+  (void) fd; (void) level; (void) optname;
+  if (optval && optlen && *optlen >= sizeof(int)) { *(int *) optval = 0; *optlen = sizeof(int); }
+  return 0;
+}
+
+int getsockname(int fd, struct sockaddr *addr, socklen_t *addrlen) {
+  struct mg_bsd_sock *s = get(fd);
+  if (!s) return -1;
+  size_t sz = sizeof(s->addr) < *addrlen ? sizeof(s->addr) : *addrlen;
+  memcpy(addr, &s->addr, sz);
+  *addrlen = (socklen_t) sz;
+  return 0;
+}
+
+int getpeername(int fd, struct sockaddr *addr, socklen_t *addrlen) {
+  struct mg_bsd_sock *s = get(fd);
+  if (!s) { errno = ENOTCONN; return -1; }
+  size_t sz = sizeof(s->peer) < *addrlen ? sizeof(s->peer) : *addrlen;
+  memcpy(addr, &s->peer, sz);
+  *addrlen = (socklen_t) sz;
+  return 0;
+}
+
+// select/poll: not implemented for queue-based backend
+int select(int nfds, fd_set *r, fd_set *w, fd_set *e, struct timeval *tv) {
+  (void) nfds; (void) r; (void) w; (void) e; (void) tv;
+  return 0;
+}
+
+int poll(struct pollfd *fds, unsigned int nfds, int timeout) {
+  (void) fds; (void) nfds; (void) timeout;
+  return 0;
+}
+
+// DNS stubs (overridden in the FreeRTOS backend below)
+#if !MG_ENABLE_FREERTOS
+struct hostent *gethostbyname(const char *name) { (void) name; return NULL; }
+int getaddrinfo(const char *node, const char *service,
+                       const struct addrinfo *hints, struct addrinfo **res) {
+  (void) node; (void) service; (void) hints; (void) res;
+  return -1;
+}
+void freeaddrinfo(struct addrinfo *res) { (void) res; }
+#endif
+
+int inet_pton(int af, const char *src, void *dst) {
+  struct mg_addr a = {0};
+  if (af == AF_INET && mg_aton(mg_str_s(src), &a)) { memcpy(dst, &a.addr.ip4, 4); return 1; }
+  return 0;
+}
+
+const char *inet_ntop(int af, const void *src, char *dst, socklen_t size) {
+  if (af == AF_INET && size >= 16) {
+    const uint8_t *ip = (const uint8_t *) src;
+    snprintf(dst, size, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+    return dst;
+  }
+  return NULL;
+}
+
+in_addr_t inet_addr(const char *cp) {
+  struct mg_addr a = {0};
+  return mg_aton(mg_str_s(cp), &a) ? a.addr.ip4 : (in_addr_t) -1;
+}
+
+static char s_ntoa_buf[16];
+char *inet_ntoa(struct in_addr in) {
+  const uint8_t *ip = (const uint8_t *) &in.s_addr;
+  snprintf(s_ntoa_buf, sizeof(s_ntoa_buf), "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+  return s_ntoa_buf;
+}
+
+#ifdef MG_ENABLE_BSD_PROTOTYPES
+uint16_t htons(uint16_t n) { return mg_htons(n); }
+uint16_t ntohs(uint16_t n) { return mg_htons(n); }
+uint32_t htonl(uint32_t n) { return mg_htonl(n); }
+uint32_t ntohl(uint32_t n) { return mg_htonl(n); }
+#endif
+
+// ============================================================
+// FreeRTOS + Mongoose transport backend
+// ============================================================
+#if MG_ENABLE_FREERTOS
+
+#include <queue.h>
+
+#ifndef MG_BSD_CHUNK_SIZE
+#define MG_BSD_CHUNK_SIZE 256
+#endif
+#ifndef MG_BSD_Q_DEPTH
+#define MG_BSD_Q_DEPTH 4
+#endif
+
+struct mg_bsd_chunk { uint8_t data[MG_BSD_CHUNK_SIZE]; uint16_t len; };
+
+struct mg_xport {
+  struct mg_connection *c;  // Mongoose connection, task1-only
+  QueueHandle_t recv_q;     // task1 writes on MG_EV_READ, task2 reads in recv()
+  QueueHandle_t send_q;     // task2 writes in send(), task1 drains on MG_EV_POLL
+  QueueHandle_t accept_q;   // task1 writes on MG_EV_ACCEPT, task2 reads in accept()
+  struct sockaddr_in peer;
+  bool closed;
+  TaskHandle_t connect_waiter;  // task blocked in connect(), woken by MG_EV_CONNECT
+  int *connect_result;          // where to store 0/−1 connect outcome
+};
+
+enum mg_bsd_cmd_op { BSD_CMD_LISTEN, BSD_CMD_CLOSE, BSD_CMD_CONNECT, BSD_CMD_RESOLVE };
+struct mg_bsd_cmd {
+  enum mg_bsd_cmd_op type;
+  struct mg_xport *x;
+  char url[64];
+  TaskHandle_t caller;
+  int *result;
+};
+
+static QueueHandle_t s_cmd_q;
+
+// Single-slot DNS resolve state (not reentrant, sufficient for demos)
+static struct { struct mg_addr addr; bool done, error; TaskHandle_t caller; } s_resolve;
+
+static void resolve_cb(struct mg_connection *c, int ev, void *ev_data) {
+  if (ev == MG_EV_RESOLVE) { s_resolve.addr = c->rem; s_resolve.done = true; c->is_closing = 1; }
+  else if ((ev == MG_EV_ERROR || ev == MG_EV_CLOSE) && !s_resolve.done) s_resolve.error = true;
+  if ((s_resolve.done || s_resolve.error) && s_resolve.caller) {
+    TaskHandle_t h = s_resolve.caller;
+    s_resolve.caller = NULL;  // prevent double-notify on subsequent MG_EV_CLOSE
+    xTaskNotifyGive(h);
+  }
+  (void) ev_data;
+}
+
+// Allocate transport for an accepted connection (recv+send queues only)
+static struct mg_xport *xport_alloc(void) {
+  struct mg_xport *x = (struct mg_xport *) calloc(1, sizeof(*x));
+  if (!x) return NULL;
+  x->recv_q = xQueueCreate(MG_BSD_Q_DEPTH, sizeof(struct mg_bsd_chunk));
+  x->send_q = xQueueCreate(MG_BSD_Q_DEPTH, sizeof(struct mg_bsd_chunk));
+  if (!x->recv_q || !x->send_q) { mg_bsd_transport_free(x); return NULL; }
+  return x;
+}
+
+static void xport_ev(struct mg_connection *c, int ev, void *ev_data) {
+  struct mg_xport *x = (struct mg_xport *) c->fn_data;
+  if (!x) return;
+
+  if (ev == MG_EV_ACCEPT) {
+    // c is the new accepted connection; x is the listening transport
+    struct mg_xport *nx = xport_alloc();
+    if (!nx) { c->is_closing = 1; return; }
+    nx->c = c;
+    nx->peer.sin_family = AF_INET;
+    nx->peer.sin_port = c->rem.port;
+    memcpy(&nx->peer.sin_addr, &c->rem.addr.ip4, 4);
+    c->fn_data = nx;
+    xQueueSend(x->accept_q, &nx, 0);
+  } else if (ev == MG_EV_READ && x->recv_q) {
+    // Drain c->recv into recv_q in fixed-size chunks; task1 owns c->recv
+    size_t off = 0;
+    while (off < c->recv.len) {
+      struct mg_bsd_chunk chunk;
+      size_t n = c->recv.len - off;
+      if (n > MG_BSD_CHUNK_SIZE) n = MG_BSD_CHUNK_SIZE;
+      memcpy(chunk.data, c->recv.buf + off, n);
+      chunk.len = (uint16_t) n;
+      xQueueSend(x->recv_q, &chunk, portMAX_DELAY);
+      off += n;
+    }
+    mg_iobuf_del(&c->recv, 0, c->recv.len);
+  } else if (ev == MG_EV_POLL && x->send_q) {
+    // Drain send_q → mg_send(); task1 owns c
+    struct mg_bsd_chunk chunk;
+    while (xQueueReceive(x->send_q, &chunk, 0) == pdTRUE)
+      mg_send(c, chunk.data, chunk.len);
+  } else if (ev == MG_EV_CONNECT) {
+    // Outgoing connection established: wake the task blocked in connect()
+    if (x->connect_waiter) {
+      if (x->connect_result) *x->connect_result = 0;
+      TaskHandle_t h = x->connect_waiter;
+      x->connect_waiter = NULL; x->connect_result = NULL;
+      xTaskNotifyGive(h);
+    }
+  } else if (ev == MG_EV_CLOSE) {
+    x->c = NULL; x->closed = true; c->fn_data = NULL;
+    // If connect() is still waiting, signal failure
+    if (x->connect_waiter) {
+      if (x->connect_result) *x->connect_result = -1;
+      TaskHandle_t h = x->connect_waiter;
+      x->connect_waiter = NULL; x->connect_result = NULL;
+      xTaskNotifyGive(h);
+    }
+    if (x->recv_q) { struct mg_bsd_chunk eof = {.len = 0}; xQueueSend(x->recv_q, &eof, 0); }
+    if (x->accept_q) { struct mg_xport *nil = NULL; xQueueSend(x->accept_q, &nil, 0); }
+  }
+  (void) ev_data;
+}
+
+void mg_bsd_init(void) {
+  s_cmd_q = xQueueCreate(8, sizeof(struct mg_bsd_cmd));
+}
+
+void mg_bsd_poll(struct mg_mgr *mgr) {
+  struct mg_bsd_cmd cmd;
+  if (s_cmd_q == NULL) return;
+  while (xQueueReceive(s_cmd_q, &cmd, 0) == pdTRUE) {
+    bool notify = true;
+    if (cmd.type == BSD_CMD_LISTEN) {
+      struct mg_connection *c = mg_listen(mgr, cmd.url, xport_ev, cmd.x);
+      cmd.x->c = c;
+      *cmd.result = c ? 0 : -1;
+    } else if (cmd.type == BSD_CMD_CLOSE) {
+      if (cmd.x->c) {
+        cmd.x->c->fn_data = NULL;
+        cmd.x->c->is_draining = 1;
+      }
+      *cmd.result = 0;
+    } else if (cmd.type == BSD_CMD_CONNECT) {
+      cmd.x->connect_waiter = cmd.caller;
+      cmd.x->connect_result = cmd.result;
+      struct mg_connection *c = mg_connect(mgr, cmd.url, xport_ev, cmd.x);
+      cmd.x->c = c;
+      if (!c) { *cmd.result = -1; cmd.x->connect_waiter = NULL; cmd.x->connect_result = NULL; }
+      else notify = false;  // xport_ev notifies when connected or on error
+    } else if (cmd.type == BSD_CMD_RESOLVE) {
+      s_resolve.done = s_resolve.error = false;
+      s_resolve.caller = cmd.caller;
+      char url[80];
+      snprintf(url, sizeof(url), "tcp://%s:0", cmd.url);
+      if (!mg_connect(mgr, url, resolve_cb, NULL)) s_resolve.error = true;
+      else notify = false;  // resolve_cb notifies when done
+    }
+    if (notify) xTaskNotifyGive(cmd.caller);
+  }
+}
+
+void *mg_bsd_transport_new(int domain, int type, int proto) {
+  (void) domain; (void) type; (void) proto;
+  // For socket() calls: allocate accept_q only; recv/send added when needed
+  struct mg_xport *x = (struct mg_xport *) calloc(1, sizeof(*x));
+  if (!x) return NULL;
+  x->accept_q = xQueueCreate(MG_BSD_BACKLOG, sizeof(struct mg_xport *));
+  if (!x->accept_q) { free(x); return NULL; }
+  return x;
+}
+
+void mg_bsd_transport_free(void *t) {
+  struct mg_xport *x = (struct mg_xport *) t;
+  if (!x) return;
+  if (x->recv_q) vQueueDelete(x->recv_q);
+  if (x->send_q) vQueueDelete(x->send_q);
+  if (x->accept_q) vQueueDelete(x->accept_q);
+  free(x);
+}
+
+int mg_bsd_transport_listen(void *t, const struct sockaddr_in *addr) {
+  struct mg_xport *x = (struct mg_xport *) t;
+  int result = -1;
+  struct mg_bsd_cmd cmd = {BSD_CMD_LISTEN, x, {0}, xTaskGetCurrentTaskHandle(), &result};
+  snprintf(cmd.url, sizeof(cmd.url), "tcp://0.0.0.0:%d", mg_ntohs(addr->sin_port));
+  xQueueSend(s_cmd_q, &cmd, portMAX_DELAY);
+  ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+  return result;
+}
+
+void *mg_bsd_transport_accept(void *t, struct sockaddr_in *peer, bool nonblock) {
+  struct mg_xport *x = (struct mg_xport *) t;
+  struct mg_xport *nx = NULL;
+  TickType_t ticks = nonblock ? 0 : portMAX_DELAY;
+  if (xQueueReceive(x->accept_q, &nx, ticks) != pdTRUE || !nx) return NULL;
+  if (peer) *peer = nx->peer;
+  return nx;
+}
+
+ssize_t mg_bsd_transport_recv(void *t, void *buf, size_t len, bool nonblock) {
+  struct mg_xport *x = (struct mg_xport *) t;
+  struct mg_bsd_chunk chunk;
+  TickType_t ticks = nonblock ? 0 : portMAX_DELAY;
+  if (xQueueReceive(x->recv_q, &chunk, ticks) != pdTRUE) {
+    errno = EAGAIN;
+    return -1;
+  }
+  if (chunk.len == 0) return 0;  // EOF
+  size_t n = chunk.len < len ? chunk.len : len;
+  memcpy(buf, chunk.data, n);
+  return (ssize_t) n;
+}
+
+ssize_t mg_bsd_transport_send(void *t, const void *buf, size_t len, bool nonblock) {
+  struct mg_xport *x = (struct mg_xport *) t;
+  if (x->closed) return -1;
+  size_t sent = 0;
+  TickType_t ticks = nonblock ? 0 : portMAX_DELAY;
+  while (sent < len) {
+    struct mg_bsd_chunk chunk;
+    size_t n = len - sent;
+    if (n > MG_BSD_CHUNK_SIZE) n = MG_BSD_CHUNK_SIZE;
+    memcpy(chunk.data, (const uint8_t *) buf + sent, n);
+    chunk.len = (uint16_t) n;
+    if (xQueueSend(x->send_q, &chunk, ticks) != pdTRUE) break;
+    sent += n;
+  }
+  return sent > 0 ? (ssize_t) sent : (errno = EAGAIN, -1);
+}
+
+int mg_bsd_transport_connect(void *t, const struct sockaddr_in *addr, bool nonblock) {
+  struct mg_xport *x = (struct mg_xport *) t;
+  (void) nonblock;
+  if (!x->recv_q) x->recv_q = xQueueCreate(MG_BSD_Q_DEPTH, sizeof(struct mg_bsd_chunk));
+  if (!x->send_q) x->send_q = xQueueCreate(MG_BSD_Q_DEPTH, sizeof(struct mg_bsd_chunk));
+  if (!x->recv_q || !x->send_q) { errno = ENOMEM; return -1; }
+  int result = -1;
+  struct mg_bsd_cmd cmd = {BSD_CMD_CONNECT, x, {0}, xTaskGetCurrentTaskHandle(), &result};
+  uint8_t *ip = (uint8_t *) &addr->sin_addr.s_addr;
+  snprintf(cmd.url, sizeof(cmd.url), "tcp://%d.%d.%d.%d:%d",
+           ip[0], ip[1], ip[2], ip[3], mg_ntohs(addr->sin_port));
+  xQueueSend(s_cmd_q, &cmd, portMAX_DELAY);
+  ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+  return result;
+}
+
+// gethostbyname: resolve via Mongoose DNS (not reentrant)
+static struct hostent s_hostent;
+static char *s_h_aliases[1];
+static char *s_h_addr_list[2];
+static uint32_t s_h_addr;
+static char s_h_name[64];
+
+struct hostent *gethostbyname(const char *name) {
+  struct mg_bsd_cmd cmd = {BSD_CMD_RESOLVE, NULL, {0}, xTaskGetCurrentTaskHandle(), NULL};
+  snprintf(cmd.url, sizeof(cmd.url), "%s", name);
+  xQueueSend(s_cmd_q, &cmd, portMAX_DELAY);
+  ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+  if (s_resolve.error) return NULL;
+  s_h_addr = s_resolve.addr.addr.ip4;
+  s_h_addr_list[0] = (char *) &s_h_addr;
+  s_h_addr_list[1] = NULL;
+  s_h_aliases[0] = NULL;
+  snprintf(s_h_name, sizeof(s_h_name), "%s", name);
+  s_hostent.h_name = s_h_name;
+  s_hostent.h_aliases = s_h_aliases;
+  s_hostent.h_addrtype = AF_INET;
+  s_hostent.h_length = 4;
+  s_hostent.h_addr_list = s_h_addr_list;
+  return &s_hostent;
+}
+
+int getaddrinfo(const char *node, const char *service,
+                const struct addrinfo *hints, struct addrinfo **res) {
+  struct hostent *h = gethostbyname(node);
+  if (!h) return -1;
+  struct addrinfo *ai = (struct addrinfo *) calloc(1, sizeof(*ai));
+  struct sockaddr_in *sa = (struct sockaddr_in *) calloc(1, sizeof(*sa));
+  if (!ai || !sa) { free(ai); free(sa); return -1; }
+  sa->sin_family = AF_INET;
+  memcpy(&sa->sin_addr, h->h_addr, 4);
+  if (service) sa->sin_port = htons((uint16_t) atoi(service));
+  ai->ai_family = AF_INET;
+  ai->ai_socktype = hints ? hints->ai_socktype : SOCK_STREAM;
+  ai->ai_addrlen = sizeof(*sa);
+  ai->ai_addr = (struct sockaddr *) sa;
+  *res = ai;
+  return 0;
+}
+
+void freeaddrinfo(struct addrinfo *res) {
+  while (res) {
+    struct addrinfo *next = res->ai_next;
+    free(res->ai_addr);
+    free(res);
+    res = next;
+  }
+}
+
+void mg_bsd_transport_close(void *t) {
+  struct mg_xport *x = (struct mg_xport *) t;
+  if (!x->closed && x->c) {
+    int result = 0;
+    struct mg_bsd_cmd cmd = {BSD_CMD_CLOSE, x, {0}, xTaskGetCurrentTaskHandle(), &result};
+    xQueueSend(s_cmd_q, &cmd, portMAX_DELAY);
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+  }
+  mg_bsd_transport_free(x);
+}
+
+#ifndef MG_WAKEUP_QUEUE_DEPTH
+#define MG_WAKEUP_QUEUE_DEPTH 4
+#endif
+
+
+struct wumsg {
+  unsigned long id;
+  size_t len;
+  uint8_t data[];
+};
+
+static void wufn(struct mg_connection *c, int ev, void *ev_data) {
+  QueueHandle_t q = (QueueHandle_t) c->mgr->pipe.q;
+  if (ev == MG_EV_POLL) {
+    struct wumsg *m;
+    if (xQueueReceive(q, &m, 0) == pdTRUE) {
+      struct mg_connection *t;
+      for (t = c->mgr->conns; t != NULL; t = t->next) {
+        if (t->id == m->id) {
+          struct mg_str data = mg_str_n((char *) m->data, m->len);
+          mg_call(t, MG_EV_WAKEUP, &data);
+          break;
+        }
+      }
+      free(m);
+    }
+  } else if (ev == MG_EV_CLOSE) {
+    struct wumsg *m;
+    while (xQueueReceive(q, &m, 0) == pdTRUE) free(m);
+    vQueueDelete(q);
+    c->mgr->pipe.q = NULL;
+  }
+  (void) ev_data;
+}
+
+bool mg_wakeup_init(struct mg_mgr *mgr) {
+  struct mg_connection *c;
+  if (mgr->pipe.q != NULL) return true;
+  mgr->pipe.q = xQueueCreate(MG_WAKEUP_QUEUE_DEPTH, sizeof(void *));
+  if (mgr->pipe.q == NULL) {
+      MG_ERROR(("Cannot create queue"));
+      return false;
+  }
+  c = mg_alloc_conn(mgr);
+  if (c == NULL) {
+    vQueueDelete((QueueHandle_t) mgr->pipe.q);
+    mgr->pipe.q = NULL;
+    return false;
+  }
+  c->fd = (void *) (size_t) MG_INVALID_SOCKET;
+  c->fn = wufn;
+  LIST_ADD_HEAD(struct mg_connection, &mgr->conns, c);
+  MG_DEBUG(("%lu queue %p", c->id, mgr->pipe.q));
+  mg_call(c, MG_EV_OPEN, NULL);
+  return true;
+}
+
+bool mg_wakeup(struct mg_mgr *mgr, unsigned long conn_id, const void *buf,
+               size_t len) {
+  struct wumsg *m;
+  if (mgr->pipe.q == NULL || conn_id == 0) return false;
+  m = (struct wumsg *) calloc(1, sizeof(*m) + len);
+  if (m == NULL) {
+    MG_ERROR("OOM");
+    return false;
+  }
+  m->id = conn_id;
+  m->len = len;
+  memcpy(m->data, buf, len);
+  if (xQueueSend((QueueHandle_t) mgr->pipe.q, &m, 0) != pdTRUE) {
+    free(m);
+    MG_ERROR("xQueueSend");
+    return false;
+  }
+  return true;
+}
+
+#endif  // MG_ENABLE_FREERTOS
+#endif  // MG_ENABLE_BSD_SOCKETS
+
+#ifdef MG_ENABLE_LINES
 #line 1 "src/dash.c"
 #endif
 
@@ -126,74 +741,20 @@ fail:
 #define MG_NO_CACHE_HEADERS "Cache-Control: no-cache\r\n"
 #define MG_JSON_HEADERS "Content-Type: application/json\r\n" MG_NO_CACHE_HEADERS
 
-struct mg_dash_user {
-  struct mg_dash_user *next;
-  char name[32];    // User name
-  char token[21];   // Login token
-  int level;        // Access level
-  uint64_t expire;  // Expiration timestamp
-};
-
-struct mg_upload_state {
-  char marker;      // Tells that we're a file upload connection
-  size_t expected;  // POST data length, bytes
-  size_t received;  // Already received bytes
-  void *ctx;        // OTA context
-};
-
-#define CONN_OTA 'O'
-#define CONN_UPLOAD 'F'
 #define CONN_HANDLED 'Z'
+
+struct mg_dash_cdata {
+  char marker;
+  struct mg_dash_user *u;
+  struct mg_dash *dash;
+};
+
+static struct mg_dash_user s_guest;
+static struct mg_dash_user *s_users;  // List of authenticated users
 
 static struct mg_str trimq(struct mg_str s) {  // Trim double quotes
   if (s.len > 1 && s.buf[0] == '"') s.len -= 2, s.buf++;
   return s;
-}
-
-static void mg_dash_broadcast(struct mg_mgr *mgr, int level, const char *fmt,
-                              ...) {
-  struct mg_connection *c;
-  va_list ap;
-  for (c = mgr->conns; c != NULL; c = c->next) {
-    int user_level = *(int *) c->data;
-    if (!c->is_websocket) continue;
-    if (level > 0 && user_level < level) continue;
-    if (c->send.len > MG_DASH_MAX_SEND_BUF_SIZE) {
-      mg_error(c, "%lu buffered data %lu > MG_DASH_MAX_SEND_BUF_SIZE", c->id,
-               c->send.len);
-    } else {
-      va_start(ap, fmt);
-      mg_ws_vprintf(c, WEBSOCKET_OP_TEXT, fmt, &ap);
-      va_end(ap);
-    }
-  }
-}
-
-static size_t mg_print_fmt(mg_pfn_t out, void *param, va_list *ap) {
-  const char *fmt = va_arg(*ap, const char *);
-  ap = va_arg(*ap, va_list *);
-  return mg_vxprintf(out, param, fmt, ap);
-}
-
-static void mg_dash_success(struct mg_connection *c, struct mg_str req,
-                            const char *fmt, ...) {
-  struct mg_str id = mg_json_get_tok(req, "$.id");
-  va_list ap;
-  va_start(ap, fmt);
-  mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%.*s,%m:%M}", MG_ESC("id"), id.len,
-               id.buf, MG_ESC("result"), mg_print_fmt, fmt, &ap);
-  va_end(ap);
-}
-
-static void mg_dash_error(struct mg_connection *c, struct mg_str req,
-                          const char *fmt, ...) {
-  struct mg_str id = mg_json_get_tok(req, "$.id");
-  va_list ap;
-  va_start(ap, fmt);
-  mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%.*s,%m:{%m:%d,%m:%m}}", MG_ESC("id"),
-               id.len, id.buf, MG_ESC("error"), MG_ESC("code"), -1,
-               MG_ESC("message"), mg_print_fmt, fmt, &ap);
-  va_end(ap);
 }
 
 static struct mg_field_set *mg_dash_find_field_set(struct mg_dash *dash,
@@ -222,6 +783,8 @@ static size_t mg_print_field(mg_pfn_t fn, void *arg, va_list *ap) {
     n += mg_xprintf(fn, arg, "%s", *(bool *) f->value ? "true" : "false");
   } else if (f->type == MG_VAL_INT) {
     n += mg_xprintf(fn, arg, "%d", *(int *) f->value);
+  } else if (f->type == MG_VAL_UINT64) {
+    n += mg_xprintf(fn, arg, "%llu", (uint64_t) *(uint64_t *) f->value);
   } else if (f->type == MG_VAL_DBL) {
     n += mg_xprintf(fn, arg, "%.2f", *(double *) f->value);
   } else if (f->type == MG_VAL_STR) {
@@ -246,10 +809,56 @@ static size_t mg_print_field_set(mg_pfn_t fn, void *arg, va_list *ap) {
   return n;
 }
 
-static size_t mg_dash_print_name(mg_pfn_t fn, void *arg, va_list *ap) {
+static int mg_dash_array_size(struct mg_field_set *set,
+                              struct mg_dash_user *u) {
+  int saved = *set->index, sz = -1;
+  *set->index = -1;
+  if (set->fn) {
+    if (set->fn(MG_DASH_READ, u)) sz = *set->index;
+  } else if (set->get_dir) {
+    mg_dash_dir_read(set, u);
+    sz = *set->index;
+  }
+  *set->index = saved;
+  return sz;
+}
+
+static size_t mg_dash_print_array(mg_pfn_t fn, void *arg, va_list *ap) {
+  struct mg_field_set *set = va_arg(*ap, struct mg_field_set *);
+  int from = va_arg(*ap, int);
+  int to = va_arg(*ap, int);
+  struct mg_dash_user *u = va_arg(*ap, struct mg_dash_user *);
+  bool started = false;
+  int saved = *set->index;
+  size_t n = 0;
+  *set->index = from;
+  n += mg_xprintf(fn, arg, "[");
+  for (;;) {
+    bool done = to >= 0 && *set->index > to;
+    if (!done) {
+      if (set->fn)
+        set->fn(MG_DASH_READ, u);
+      else if (set->get_dir)
+        mg_dash_dir_read(set, u);
+      done = *set->index < 0;
+    }
+    if (done) break;
+    n += mg_xprintf(fn, arg, "%s%M", started ? "," : "", mg_print_field_set,
+                    set);
+    started = true;
+    (*set->index)++;
+  }
+  n += mg_xprintf(fn, arg, "]");
+  *set->index = saved;
+  return n;
+}
+
+static size_t mg_dash_print_endpoint(mg_pfn_t fn, void *arg, va_list *ap) {
   struct mg_dash *dash = va_arg(*ap, struct mg_dash *);
+  struct mg_dash_user *u = va_arg(*ap, struct mg_dash_user *);
   struct mg_str *name = va_arg(*ap, struct mg_str *);
-  int level = va_arg(*ap, int);
+  struct mg_str *from_str = va_arg(*ap, struct mg_str *);
+  struct mg_str *to_str = va_arg(*ap, struct mg_str *);
   struct mg_field_set *set = mg_dash_find_field_set(dash, *name);
   size_t n = 0;
   if (name->len == 0) {
@@ -257,37 +866,74 @@ static size_t mg_dash_print_name(mg_pfn_t fn, void *arg, va_list *ap) {
     const char *comma = "";
     n += mg_xprintf(fn, arg, "{");
     for (fs = dash->sets; fs != NULL; fs = fs->next) {
-      if (fs->read_level > 0 && level < fs->read_level) continue;
-      if (fs->reader) fs->reader();
-      n += mg_xprintf(fn, arg, comma);
-      n += mg_xprintf(fn, arg, "%m:", MG_ESC(fs->name));
-      n += mg_xprintf(fn, arg, "%M", mg_print_field_set, fs);
+      if (fs->index != NULL) {
+        int sz = mg_dash_array_size(fs, u);
+        if (sz < 0) continue;
+        n += mg_xprintf(fn, arg, comma);
+        n += mg_xprintf(fn, arg, "%m:%d", MG_ESC(fs->name), sz);
+      } else {
+        if (fs->fn && !fs->fn(MG_DASH_READ, u)) continue;
+        n += mg_xprintf(fn, arg, comma);
+        n += mg_xprintf(fn, arg, "%m:%M", MG_ESC(fs->name), mg_print_field_set,
+                        fs);
+      }
       comma = ",";
     }
     n += mg_xprintf(fn, arg, "}");
-  } else if (set != NULL &&
-             (set->read_level <= 0 || level >= set->read_level)) {
-    if (set->reader) set->reader();
-    n += mg_xprintf(fn, arg, "%M", mg_print_field_set, set);
+  } else if (set != NULL && (set->fn == NULL || set->fn(MG_DASH_READ, u))) {
+    if (set->index != NULL && from_str != NULL && from_str->len > 0) {
+      int from = 0, to = 0;
+      mg_str_to_num(*from_str, 10, &from, sizeof(from));
+      to = from;
+      if (to_str != NULL && to_str->len > 0) {
+        mg_str_to_num(*to_str, 10, &to, sizeof(to));
+      }
+      n += mg_xprintf(fn, arg, "%M", mg_dash_print_array, set, from, to, u);
+    } else if (set->index != NULL) {
+      n += mg_xprintf(fn, arg, "%d", mg_dash_array_size(set, u));
+    } else {
+      n += mg_xprintf(fn, arg, "%M", mg_print_field_set, set);
+    }
   } else {
     n += mg_xprintf(fn, arg, "null");
   }
   return n;
 }
 
-static size_t mg_dash_print(mg_pfn_t fn, void *arg, va_list *ap) {
-  struct mg_str *req = va_arg(*ap, struct mg_str *);
-  struct mg_dash *dash = va_arg(*ap, struct mg_dash *);
-  int level = va_arg(*ap, int);
-  struct mg_str name = trimq(mg_json_get_tok(*req, "$.params"));
-  return mg_xprintf(fn, arg, "%M", mg_dash_print_name, dash, &name, level);
-}
-
 void mg_dash_send_change(struct mg_mgr *mgr, struct mg_field_set *set) {
-  if (set->reader) set->reader();
-  mg_dash_broadcast(mgr, set->read_level, "{%m:%m,%m:{%m:%M}}",
-                    MG_ESC("method"), MG_ESC("change"), MG_ESC("params"),
-                    MG_ESC(set->name), mg_print_field_set, set);
+  struct mg_connection *c;
+  for (c = mgr->conns; c != NULL; c = c->next) {
+    struct mg_dash_cdata *d = (struct mg_dash_cdata *) c->data;
+    struct mg_dash_user *u = d->u;
+    if (!c->is_websocket) continue;
+    if (u == NULL) continue;
+    if (set->index != NULL && *set->index < 0) {
+      int sz = mg_dash_array_size(set, u);
+      if (sz < 0) continue;
+      mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%m,%m:{%m:%d}}", MG_ESC("method"),
+                   MG_ESC("change"), MG_ESC("params"), MG_ESC(set->name), sz);
+    } else {
+      int saved_idx = set->index != NULL ? *set->index : 0;
+      bool ok = set->fn ? set->fn(MG_DASH_READ, u)
+                        : (set->get_dir ? mg_dash_dir_read(set, u) : true);
+      if (!ok) {
+        if (set->index != NULL) *set->index = saved_idx;
+        continue;
+      }
+      if (set->index != NULL) {
+        char key[64];
+        mg_snprintf(key, sizeof(key), "%s/%d", set->name, *set->index);
+        mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%m,%m:{%m:%M}}",
+                     MG_ESC("method"), MG_ESC("change"), MG_ESC("params"),
+                     MG_ESC(key), mg_print_field_set, set);
+        *set->index = saved_idx;
+      } else {
+        mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%m,%m:{%m:%M}}",
+                     MG_ESC("method"), MG_ESC("change"), MG_ESC("params"),
+                     MG_ESC(set->name), mg_print_field_set, set);
+      }
+    }
+  }
 }
 
 static int mg_dash_parse_field(struct mg_str json, struct mg_field *f) {
@@ -304,11 +950,21 @@ static int mg_dash_parse_field(struct mg_str json, struct mg_field *f) {
       *(int *) f->value = (int) d;
       ok = true;
     }
+  } else if (f->type == MG_VAL_UINT64) {
+    double d;
+    if (f->value_size == sizeof(uint64_t) &&
+        mg_json_get_num(json, json_path, &d) && d == (double) (int64_t) d) {
+      *(uint64_t *) f->value = (uint64_t) d;
+      ok = true;
+    }
   } else if (f->type == MG_VAL_DBL) {
     ok = f->value_size == sizeof(double) &&
          mg_json_get_num(json, json_path, (double *) f->value);
   } else if (f->type == MG_VAL_STR && f->value_size > 0) {
-    ok = mg_json_unescape(json, json_path, (char *) f->value, f->value_size);
+    struct mg_str tok = mg_json_get_tok(json, json_path);
+    ok = tok.len >= 2 && tok.buf[0] == '"' &&
+         tok.buf[tok.len - 1] == '"';
+    if (ok) mg_json_unescape(json, json_path, (char *) f->value, f->value_size);
   } else if (f->type == MG_VAL_RAW && f->value_size > 0) {
     ok = mg_snprintf((char *) f->value, f->value_size, "%.*s", json.len,
                      json.buf) == json.len;
@@ -317,97 +973,99 @@ static int mg_dash_parse_field(struct mg_str json, struct mg_field *f) {
 }
 
 static int mg_dash_apply(struct mg_connection *c, struct mg_dash *dash,
-                         struct mg_str json, int level) {
+                         struct mg_str json, struct mg_dash_user *u) {
   struct mg_str key, val;
   size_t ofs = 0;
   int total_count = 0;
   while ((ofs = mg_json_next(json, ofs, &key, &val)) > 0) {
     struct mg_field_set *set = mg_dash_find_field_set(dash, trimq(key));
     int count = 0;
-    if (set != NULL && (set->write_level <= 0 || level >= set->write_level)) {
+    if (set == NULL) {
+      MG_ERROR(("UNKNOWN SET: [%.*s]", key.len, key.buf));
+      continue;
+    }
+    if (set->fn != NULL && !set->fn(MG_DASH_WRITE, u)) continue;  // auth check
+    {
       size_t i;
       for (i = 0; set->fields[i].name != NULL; i++) {
         if (mg_dash_parse_field(val, &set->fields[i])) count++;
       }
-      if (count) {
-        if (set->writer) set->writer();
-        mg_dash_send_change(c->mgr, set);
-        total_count += count;
-      }
-    } else if (set == NULL) {
-      MG_ERROR(("UNKNOWN SET: [%.*s]", key.len, key.buf));
+    }
+    if (count) {
+      if (set->fn) set->fn(MG_DASH_WRITE, u);  // apply side effects
+      mg_dash_send_change(c->mgr, set);
+      total_count += count;
     }
   }
   return total_count;
 }
 
-static void mg_dash_process_msg(struct mg_connection *c,
-                                struct mg_ws_message *wm,
-                                struct mg_dash *dash) {
-  struct mg_str req = wm->data;
-  struct mg_str method = trimq(mg_json_get_tok(req, "$.method"));
-  int level = *(int *) c->data;
-  if (mg_match(method, mg_str("get"), NULL)) {
-    mg_dash_success(c, req, "%M", mg_dash_print, &req, dash, level);
-  } else if (mg_match(method, mg_str("set"), NULL)) {
-    struct mg_str params = trimq(mg_json_get_tok(req, "$.params"));
-    int count = mg_dash_apply(c, dash, params, level);
-    mg_dash_success(c, req, "%d", count);
-  } else {
-    mg_dash_error(c, req, "%s", "unknown method");
+bool mg_dash_dir_read(struct mg_field_set *set, struct mg_dash_user *u) {
+  char dir[256], fname[128] = "";
+  struct mg_fs *fs = u->dash->upload_fs ? u->dash->upload_fs : &mg_fs_posix;
+  struct mg_field *name_field = NULL, *size_field = NULL;
+  size_t i;
+
+  if (!set->get_dir(u, dir, sizeof(dir))) return false;
+
+  for (i = 0; set->fields[i].name != NULL; i++) {
+    if (name_field == NULL && set->fields[i].type == MG_VAL_STR &&
+        strcmp(set->fields[i].name, "name") == 0)
+      name_field = &set->fields[i];
+    if (size_field == NULL && strcmp(set->fields[i].name, "size") == 0)
+      size_field = &set->fields[i];
+  }
+  if (name_field == NULL) return false;
+
+  if (*set->index == -1) {  // Size query: count all files
+    int count = 0;
+    while (mg_fs_ls(fs, dir, fname, sizeof(fname))) count++;
+    *set->index = count;
+    return true;
+  }
+
+  {  // Regular read: scan to *set->index
+    int target = *set->index, cur = 0;
+    while (mg_fs_ls(fs, dir, fname, sizeof(fname))) {
+      if (cur++ == target) {
+        mg_snprintf((char *) name_field->value, name_field->value_size, "%s",
+                    fname);
+        if (size_field != NULL) {
+          char path[512];
+          size_t sz = 0;
+          mg_snprintf(path, sizeof(path), "%s/%s", dir, fname);
+          fs->st(path, &sz, NULL);
+          if (size_field->type == MG_VAL_UINT64)
+            *(uint64_t *) size_field->value = (uint64_t) sz;
+          else if (size_field->type == MG_VAL_INT)
+            *(int *) size_field->value = (int) sz;
+        }
+        return true;
+      }
+    }
+    *set->index = -1;  // No more entries
+    return true;
   }
 }
 
-void mg_dash_file_add(struct mg_str name, size_t size) {
-  struct mg_dash_file *f = (struct mg_dash_file *) mg_calloc(1, sizeof(*f));
-  f->name = mg_strdup(name).buf;
-  f->size = size;
-  f->next = mg_dash_files;
-  mg_dash_files = f;
-}
-
-void mg_dash_file_del(struct mg_str name) {
-  struct mg_dash_file **head, *f;
-  for (head = &mg_dash_files, f = *head; f; head = &(*head)->next, f = *head) {
-    if (mg_strcmp(mg_str(f->name), name) == 0) {
-      MG_INFO(("Deleting %s", f->name));
-      *head = f->next;
-      mg_free(f->name);
-      mg_free(f);
-      return;
+static bool mg_dash_set_file_name(struct mg_field_set *set,
+                                  struct mg_str name) {
+  size_t i;
+  for (i = 0; set->fields[i].name != NULL; i++) {
+    struct mg_field *f = &set->fields[i];
+    if (f->type == MG_VAL_STR && strcmp(f->name, "name") == 0) {
+      mg_snprintf((char *) f->value, f->value_size, "%.*s", (int) name.len,
+                  name.buf);
+      return true;
     }
   }
+  return false;
 }
-
-// Files array: [{"name": "foo.txt", "size": 1234}]
-struct mg_dash_file *mg_dash_files;
-static char s_files[1024];
-
-static void read_files(void) {
-  size_t len = 0;
-  struct mg_dash_file *f;
-  len += mg_snprintf(s_files + len, sizeof(s_files) - len, "[");
-  for (f = mg_dash_files; f; f = f->next) {
-    len += mg_snprintf(s_files + len, sizeof(s_files) - len, "%s{%m:%m,%m:%u}",
-                       len > 1 ? "," : "", MG_ESC("name"), MG_ESC(f->name),
-                       MG_ESC("size"), f->size);
-  }
-  len += mg_snprintf(s_files + len, sizeof(s_files) - len, "]");
-}
-
-static struct mg_field fields_files[] = {
-    {"data", MG_VAL_RAW, s_files, sizeof(s_files)},
-    {NULL, MG_VAL_INT, NULL, 0},
-};
-
-static struct mg_field_set set_files = {
-    "files", fields_files, read_files, NULL, 0, 0, NULL,
-};
 
 static inline void mg_log_http_req(struct mg_connection *c,
                                    struct mg_http_message *hm) {
   int len = 0;
-  size_t n, spaces = 0;
+  size_t n, spaces = 0, body_n = hm->body.len;
   struct mg_http_message tmp;
   memset(&tmp, 0, sizeof(tmp));
   len = mg_http_parse((char *) c->send.buf, c->send.len, &tmp);
@@ -416,96 +1074,51 @@ static inline void mg_log_http_req(struct mg_connection *c,
          (c->send.buf[c->send.len - spaces - 1] == '\r' ||
           c->send.buf[c->send.len - spaces - 1] == '\n'))
     spaces++;
-  MG_DEBUG(("%lu %.*s %.*s %.*s: %lu %.*s -> %lu %.*s", c->id, hm->method.len,
-            hm->method.buf, hm->uri.len, hm->uri.buf, c->send.len > 15 ? 3 : 0,
-            &c->send.buf[9], hm->body.len, hm->body.len, hm->body.buf,
-            c->send.len - n, c->send.len - n - spaces, c->send.buf + n));
-}
-
-static struct mg_str mg_dash_file_name(struct mg_http_message *hm) {
-  struct mg_str name = mg_str_n(hm->uri.buf + 4, hm->uri.len - 4);  // - /fs/
-  // Decode file name in-place - directly into the request buffer
-  int len = mg_url_decode(name.buf, name.len, name.buf, name.len + 1, 0);
-  if (len > 0 && (size_t) len <= name.len) name.len = (size_t) len;
-  return name;
-}
-
-static void upload_ev_handler(struct mg_connection *c, int ev, void *ev_data) {
-  // struct mg_dash *dash = (struct mg_dash *) c->fn_data;
-  struct mg_upload_state *us = (struct mg_upload_state *) c->data;
-  if (ev == MG_EV_HTTP_HDRS) {
-    struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-    struct mg_str name = mg_dash_file_name(hm);
-    if (sizeof(*us) > sizeof(c->data)) {
-      MG_ERROR(
-          ("FAIL: sizeof(c->data) == %lu, need %lu."
-           " Set #define MG_DATA_SIZE XXX",
-           sizeof(c->data), sizeof(*us)));
-      mg_http_reply(c, 500, NULL, ":(\n");
-      c->is_draining = 1;
-    } else if (mg_path_is_sane(name) == false) {
-      // Bad file name, return error. Protect from traversal, etc
-      mg_http_reply(c, 400, NULL, "Bad name");
-      c->is_draining = 1;
+  // hm->body.len comes from Content-Length and can be larger than the bytes
+  // actually buffered so far (e.g. mid-stream uploads); cap the preview to
+  // what's actually present in c->recv, or we'd read past its end
+  {
+    char *recv_end = (char *) c->recv.buf + c->recv.len;
+    if (hm->body.buf >= (char *) c->recv.buf && hm->body.buf <= recv_end) {
+      size_t avail = (size_t) (recv_end - hm->body.buf);
+      if (body_n > avail) body_n = avail;
     } else {
-      bool ok = false;
-      if (us->marker == CONN_UPLOAD) {
-        char path[128];
-        mg_snprintf(path, sizeof(path), "/tmp/%.*s", (int) name.len, name.buf);
-        us->ctx = fopen(path, "wb+");
-        if (us->ctx == NULL) MG_ERROR(("open(%s): %d", path, errno));
-        if (us->ctx != NULL) ok = true;
-      } else {
-        ok = mg_ota_begin(hm->body.len);
-      }
-      if (ok == false) {
-        mg_http_reply(c, 500, NULL, "Upload failed to start\n");
-        c->is_draining = 1;
-      } else {
-        if (us->marker == CONN_UPLOAD) mg_dash_file_add(name, hm->body.len);
-        us->expected = hm->body.len;
-        us->received = 0;
-        mg_iobuf_del(&c->recv, 0, hm->head.len);
-        mg_call(c, MG_EV_READ, &c->recv.len);
-      }
-    }
-  } else if (ev == MG_EV_READ && us->expected > 0 && c->recv.len > 0) {
-    // Write uploaded data
-
-    size_t alignment = 512;  // Maximum flash write granularity (iMXRT, Pico)
-    size_t left = us->expected > us->received ? us->expected - us->received : 0;
-    size_t aligned = c->recv.len < left ? MG_ROUND_DOWN(c->recv.len, alignment)
-                                        : c->recv.len;
-    bool ok = true, is_ota = us->marker == CONN_OTA;
-    if (aligned > 0 && !is_ota) {
-      ok = (fwrite(c->recv.buf, 1, aligned, (FILE *) us->ctx) == aligned);
-    } else if (aligned > 0 && is_ota) {
-      ok = mg_ota_write(c->recv.buf, aligned);
-    }
-
-    us->received += aligned;
-    // MG_DEBUG(("%lu chunk: %lu/%lu, %lu/%lu, ok: %d", c->id, aligned,
-    //           c->recv.len, us->received, us->expected, ok));
-    mg_iobuf_del(&c->recv, 0, aligned);  // Delete received data
-
-    if (ok == false) {
-      // Some sort of failure - send error response and cleanup
-      mg_http_reply(c, 400, "", "Upload error\n");
-      c->is_draining = 1;  // Close connection when response it sent
-      if (is_ota) mg_ota_end();
-      if (!is_ota && us->ctx != NULL) (void) fclose((FILE *) us->ctx);
-      memset(us, 0, sizeof(*us));
-    } else if (us->received >= us->expected) {
-      // Uploaded everything. Send success response and cleanup
-      mg_http_reply(c, 200, NULL, "%lu ok\n", us->received);
-      c->is_draining = 1;  // Close connection when response it sent
-      MG_INFO(("%lu done, %lu bytes", c->id, us->received));
-      if (is_ota) mg_ota_end();
-      if (!is_ota && us->ctx != NULL) (void) fclose((FILE *) us->ctx);
-      if (!is_ota) mg_dash_send_change(c->mgr, &set_files);
-      memset(us, 0, sizeof(*us));
+      body_n = 0;
     }
   }
+  MG_DEBUG(("%lu %.*s %.*s%s%.*s %.*s: %lu %.*s -> %lu %.*s", c->id,
+            hm->method.len, hm->method.buf, hm->uri.len, hm->uri.buf,
+            hm->query.len > 0 ? "?" : "", hm->query.len, hm->query.buf,
+            c->send.len > 15 ? 3 : 0, &c->send.buf[9], hm->body.len, body_n,
+            hm->body.buf, c->send.len - n, c->send.len - n - spaces,
+            c->send.buf + n));
+}
+
+static void mg_dash_ota_cb(struct mg_connection *c, const char *errmsg) {
+  mg_http_reply(c, errmsg ? 500 : 200, NULL, errmsg ? errmsg : "ok\n");
+  c->is_draining = 1;
+}
+
+static void mg_dash_upload_cb(struct mg_connection *c, const char *errmsg) {
+  if (errmsg) {
+    mg_http_reply(c, 500, NULL, "%s\n", errmsg);
+  } else {
+    // mg_http_start_upload() repurposes c->data for its own bookkeeping,
+    // so the field set can't be cached there. Re-derive the dashboard from
+    // c->fn_data instead, and notify every file-backed array: the upload
+    // could belong to any of them, and re-querying get_dir() per recipient
+    // is what mg_dash_send_change() does anyway (directories can be
+    // user-specific)
+    struct mg_dash *dash = (struct mg_dash *) c->fn_data;
+    struct mg_field_set *fs;
+    mg_http_reply(c, 200, NULL, "ok\n");
+    for (fs = dash->sets; fs != NULL; fs = fs->next) {
+      if (fs->get_dir == NULL) continue;
+      *fs->index = -1;  // Signal mg_dash_send_change() to broadcast new size
+      mg_dash_send_change(c->mgr, fs);
+    }
+  }
+  c->is_draining = 1;
 }
 
 static uint64_t mg_dash_make_expiration_time(struct mg_dash *dash) {
@@ -514,16 +1127,91 @@ static uint64_t mg_dash_make_expiration_time(struct mg_dash *dash) {
   return mg_millis() + t * 1000;
 }
 
-// Parse HTTP requests, return authenticated user or NULL
-static struct mg_dash_user *mg_dash_authenticate(struct mg_http_message *hm,
-                                                 struct mg_dash *dash) {
-  static struct mg_dash_user *s_users;  // List of authenticated users
-  char user[100], pass[100];
-  static struct mg_dash_user admin = {NULL, "admin", "admin", 9, (uint64_t) -1};
-  struct mg_dash_user *u, *tmp, *result = NULL;
+static struct mg_dash_user *mg_dash_add_user(struct mg_dash_user **users,
+                                             struct mg_dash *dash,
+                                             const char *name,
+                                             const char *token, int level) {
+  struct mg_dash_user *u = (struct mg_dash_user *) mg_calloc(1, sizeof(*u));
+  if (u != NULL) {
+    mg_snprintf(u->name, sizeof(u->name), "%s", name);
+    if (token == NULL) {
+      mg_random_str(u->token, sizeof(u->token) - 1);
+    } else {
+      mg_snprintf(u->token, sizeof(u->token), "%s", token);
+    }
+    u->level = level;
+    u->expire = mg_dash_make_expiration_time(dash);
+    u->dash = dash;
+    u->next = *users;
+    *users = u;
+  }
+  return u;
+}
 
-  if (dash->authenticate == NULL) return &admin;
+static struct mg_dash_user *mg_dash_find_user(struct mg_dash_user *users,
+                                              struct mg_dash *dash,
+                                              const char *name) {
+  struct mg_dash_user *u;
+  for (u = users; u != NULL; u = u->next) {
+    if (u->dash == dash && strcmp(u->name, name) == 0) return u;
+  }
+  return NULL;
+}
+
+static struct mg_dash_user *mg_dash_find_token(struct mg_dash_user *users,
+                                               struct mg_dash *dash,
+                                               const char *token) {
+  struct mg_dash_user *u;
+  for (u = users; u != NULL; u = u->next) {
+    if (u->dash == dash && strcmp(u->token, token) == 0) return u;
+  }
+  return NULL;
+}
+
+static void mg_dash_refresh_user(struct mg_dash *dash,
+                                 struct mg_dash_user *user) {
+  user->expire = mg_dash_make_expiration_time(dash);
+}
+
+static void mg_dash_delete_user(struct mg_mgr *mgr, struct mg_dash_user *u) {
+  struct mg_connection *conn;
+  for (conn = mgr->conns; conn != NULL; conn = conn->next) {
+    struct mg_dash_cdata *d = (struct mg_dash_cdata *) conn->data;
+    if (conn->is_websocket && d->dash == u->dash && d->u == u) {
+      d->u = NULL;
+      conn->is_closing = 1;
+    }
+  }
+  LIST_DELETE(struct mg_dash_user, &s_users, u);
+  mg_free(u);
+}
+
+static void mg_dash_delete_users(struct mg_mgr *mgr, struct mg_dash *dash) {
+  struct mg_dash_user *u, *tmp;
+  for (u = s_users; u != NULL; u = tmp) {
+    tmp = u->next;
+    if (u->dash == dash) mg_dash_delete_user(mgr, u);
+  }
+}
+
+// Parse HTTP requests, return authenticated user or NULL
+static struct mg_dash_user *mg_dash_authenticate(struct mg_connection *c,
+                                                 struct mg_http_message *hm,
+                                                 struct mg_dash *dash) {
+  char user[100], pass[100];
+  struct mg_dash_user *u, *tmp;
+  struct mg_str *ah;
+  int level = 0, num_users = 0;
+
+  if (dash->authenticate == NULL) {
+    mg_snprintf(s_guest.name, sizeof(s_guest.name), "%s", "guest");
+    s_guest.level = 9;
+    s_guest.dash = dash;
+    dash->guest = &s_guest;
+    return dash->guest;
+  }
   mg_http_creds(hm, user, sizeof(user), pass, sizeof(pass));
+  ah = mg_http_get_header(hm, "Authorization");
   // MG_DEBUG(("user [%s], pass: [%s], h: %.*s", user, pass, hm->head.len,
   // hm->head.buf));
 
@@ -533,44 +1221,39 @@ static struct mg_dash_user *mg_dash_authenticate(struct mg_http_message *hm,
     if (u->expire < mg_millis()) {
       MG_DEBUG(("Deleting expired auth %s/%d %llu %u", u->name, u->level,
                 u->expire, mg_millis() - u->expire));
-      LIST_DELETE(struct mg_dash_user, &s_users, u);
+      mg_dash_delete_user(c->mgr, u);
     }
   }
 
-  if (pass[0] != '\0') {
-    struct mg_str *ah = mg_http_get_header(hm, "Authorization");
-    if (ah != NULL) {
-      // Auth header and password are set, auth by user/password via glue API
-      int num_users = 0, level = dash->authenticate(user, pass);
-      MG_DEBUG(("user %s, level: %d", user, level));
-      if (level > 0) {  // Proceed only if the firmware authenticated us
-        for (u = s_users; u != NULL && result == NULL;
-             u = u->next, num_users++) {
-          if (strcmp(user, u->name) == 0) {
-            u->expire = mg_dash_make_expiration_time(dash);
-            result = u;
-          }
-        }
-        // Not yet authenticated, add to the list
-        if (result == NULL && num_users < 10) {
-          result = (struct mg_dash_user *) mg_calloc(1, sizeof(*result));
-          mg_snprintf(result->name, sizeof(result->name), "%s", user);
-          mg_random_str(result->token, sizeof(result->token) - 1);
-          result->level = level, result->next = s_users, s_users = result;
-          result->expire = mg_dash_make_expiration_time(dash);
-        }
-      }
-    } else if (ah == NULL) {
-      for (u = s_users; u != NULL && result == NULL; u = u->next) {
-        if (strcmp(u->token, pass) == 0) {
-          u->expire = mg_dash_make_expiration_time(dash);
-          result = u;
-        }
-      }
+  if (pass[0] == '\0') return NULL;
+
+  for (u = s_users; u != NULL; u = u->next) {
+    if (u->dash == dash) num_users++;
+  }
+  if (ah == NULL) {
+    u = mg_dash_find_token(s_users, dash, pass);
+    if (u != NULL) {
+      mg_dash_refresh_user(dash, u);
+      return u;
     }
   }
+
+  level = dash->authenticate(user, sizeof(user), pass);
+  MG_DEBUG(("user %s, level: %d", user, level));
+  if (level <= 0) return NULL;
+
+  u = mg_dash_find_user(s_users, dash, user);
+  if (u != NULL) {
+    if (ah == NULL) mg_snprintf(u->token, sizeof(u->token), "%s", pass);
+    mg_dash_refresh_user(dash, u);
+    return u;
+  }
+
+  if (num_users < 10)
+    return mg_dash_add_user(&s_users, dash, user, ah == NULL ? pass : NULL,
+                            level);
   // MG_DEBUG(("[%s/%s] -> %s", user, pass, result ? "OK" : "FAIL"));
-  return result;
+  return NULL;
 }
 
 static void mg_handle_login(struct mg_connection *c, struct mg_dash_user *u) {
@@ -595,53 +1278,159 @@ static void mg_handle_logout(struct mg_connection *c) {
   mg_http_reply(c, 401, cookie, "Unauthorized\n");
 }
 
+static void mg_dash_handle_del(struct mg_connection *c, struct mg_dash *dash,
+                               struct mg_dash_user *u, struct mg_str *parts) {
+  struct mg_field_set *set = mg_dash_find_field_set(dash, parts[0]);
+  if (set == NULL || set->index == NULL) {
+    mg_http_reply(c, 404, MG_JSON_HEADERS, "null\n");
+  } else {
+    int from = 0, to = 0, count = 0;
+    if (parts[1].len) mg_str_to_num(parts[1], 10, &from, sizeof(from));
+    to = parts[2].len ? 0 : from;
+    if (parts[2].len) mg_str_to_num(parts[2], 10, &to, sizeof(to));
+    for (*set->index = from; *set->index <= to; (*set->index)++) {
+      if (set->fn && set->fn(MG_DASH_DELETE, u))
+        count++;
+      else
+        break;
+    }
+    if (count) {
+      *set->index = -1;
+      mg_dash_send_change(c->mgr, set);
+      mg_http_reply(c, 200, MG_JSON_HEADERS, "%d\n", count);
+    } else {
+      mg_http_reply(c, 403, MG_JSON_HEADERS, "false\n");
+    }
+  }
+}
+
+// Handle "POST /api/get/<set>/<index>": modify one array element. Loads the
+// element at <index> first - that doubles as a read-access check and as a
+// pre-fill, so that JSON keys absent from the body keep their old values -
+// then overlays the values from the body and asks fn to persist them
+static void mg_dash_handle_mod(struct mg_connection *c, struct mg_dash *dash,
+                               struct mg_dash_user *u, struct mg_str *parts,
+                               struct mg_str body) {
+  struct mg_field_set *set = mg_dash_find_field_set(dash, parts[0]);
+  int index = 0, count = 0;
+  size_t i;
+  if (set == NULL || set->index == NULL || set->fn == NULL) {
+    mg_http_reply(c, 404, MG_JSON_HEADERS, "null\n");
+    return;
+  }
+  mg_str_to_num(parts[1], 10, &index, sizeof(index));
+  *set->index = index;
+  if (!set->fn(MG_DASH_READ, u) || *set->index != index) {
+    mg_http_reply(c, 404, MG_JSON_HEADERS, "null\n");
+    return;
+  }
+  for (i = 0; set->fields[i].name != NULL; i++) {
+    if (mg_dash_parse_field(body, &set->fields[i])) count++;
+  }
+  if (count && set->fn(MG_DASH_WRITE, u)) {
+    mg_dash_send_change(c->mgr, set);
+    mg_http_reply(c, 200, MG_JSON_HEADERS, "%d\n", count);
+  } else {
+    mg_http_reply(c, 403, MG_JSON_HEADERS, "false\n");
+  }
+}
+
+// Handle "POST /api/add/<set>": append a new array element. Parses the body
+// straight into the bound fields, then asks fn to accept and persist them as
+// a new element - fn returns false to reject, e.g. when a cap is reached
+static void mg_dash_handle_add(struct mg_connection *c, struct mg_dash *dash,
+                               struct mg_dash_user *u, struct mg_str *parts,
+                               struct mg_str body) {
+  struct mg_field_set *set = mg_dash_find_field_set(dash, parts[0]);
+  int count = 0;
+  size_t i;
+  if (set == NULL || set->index == NULL || set->fn == NULL) {
+    mg_http_reply(c, 404, MG_JSON_HEADERS, "null\n");
+    return;
+  }
+  for (i = 0; set->fields[i].name != NULL; i++) {
+    if (mg_dash_parse_field(body, &set->fields[i])) count++;
+  }
+  if (count && set->fn(MG_DASH_ADD, u)) {
+    *set->index = -1;  // Signal mg_dash_send_change() to send new size
+    mg_dash_send_change(c->mgr, set);
+    mg_http_reply(c, 200, MG_JSON_HEADERS, "true\n");
+  } else {
+    mg_http_reply(c, 403, MG_JSON_HEADERS, "false\n");
+  }
+}
+
 void mg_dash_ev_handler(struct mg_connection *c, int ev, void *ev_data) {
   struct mg_dash *dash = (struct mg_dash *) c->fn_data;
+  struct mg_dash_cdata *d = (struct mg_dash_cdata *) c->data;
 
   if (ev == MG_EV_OPEN) {
-    if (mg_dash_find_field_set(dash, mg_str("files")) == NULL) {
-      MG_DASH_ADD_FIELD_SET(dash, &set_files);
-    }
+    d->dash = dash;
     // c->is_hexdumping = 1;
-  } else if (ev == MG_EV_HTTP_HDRS && c->data[0] == 0) {
+  } else if (ev == MG_EV_CLOSE && c->is_listening) {
+    mg_dash_delete_users(c->mgr, dash);
+  } else if (ev == MG_EV_HTTP_HDRS && d->marker == 0) {
     // Received headers - check authentication and possibly start uploads/ota
     struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-    struct mg_dash_user *u = mg_dash_authenticate(hm, dash);
+    struct mg_dash_user *u = mg_dash_authenticate(c, hm, dash);
+    struct mg_str parts[3];
+    memset(parts, 0, sizeof(parts));
 
     if (mg_match(hm->uri, mg_str("/api/hi"), NULL) ||
         mg_match(hm->uri, mg_str("/api/logout"), NULL)) {
       // Do nothing, handle them MG_EV_HTTP_MSG. We bypass auth for those
     } else if (u == NULL && mg_match(hm->uri, mg_str("/api/#"), NULL)) {
       mg_http_reply(c, 403, MG_JSON_HEADERS, "Not Authorised\n");
-      c->data[0] = CONN_HANDLED;
+      d->marker = CONN_HANDLED;
     } else if (mg_match(hm->uri, mg_str("/api/login"), NULL) && u != NULL) {
       mg_handle_login(c, u);
-      c->data[0] = CONN_HANDLED;
+      d->marker = CONN_HANDLED;
     } else if (mg_match(hm->uri, mg_str("/api/ota"), NULL)) {
-      // Start OTA - in a separate handler function
-      c->data[0] = CONN_OTA;
-      c->fn = upload_ev_handler;
-      c->pfn = NULL;
-      mg_call(c, ev, ev_data);
-    } else if (mg_match(hm->uri, mg_str("/fs/#"), NULL) &&
+      mg_http_start_ota(c, hm, mg_dash_ota_cb);
+    } else if (mg_match(hm->uri, mg_str("/fs/*/*"), parts) &&
                (mg_strcasecmp(hm->method, mg_str("POST")) == 0 ||
                 mg_strcasecmp(hm->method, mg_str("PUT")) == 0)) {
-      // Start file upload - in a separate function
-      c->data[0] = CONN_UPLOAD;
-      c->fn = upload_ev_handler;
-      c->pfn = NULL;
-      mg_call(c, ev, ev_data);
+      struct mg_field_set *set = mg_dash_find_field_set(dash, parts[0]);
+      struct mg_str name = parts[1];
+      int len =
+          mg_url_decode(name.buf, name.len, (char *) name.buf, name.len + 1, 0);
+      if (len > 0 && (size_t) len <= name.len) name.len = (size_t) len;
+      if (set == NULL || set->get_dir == NULL) {
+        mg_http_reply(c, 404, MG_JSON_HEADERS, "Not Found\n");
+        d->marker = CONN_HANDLED;
+      } else if (u == NULL) {
+        mg_http_reply(c, 403, MG_JSON_HEADERS, "Not Authorised\n");
+        d->marker = CONN_HANDLED;
+      } else if (!mg_path_is_sane(name)) {
+        mg_http_reply(c, 400, MG_JSON_HEADERS, "Bad file name\n");
+        d->marker = CONN_HANDLED;
+      } else {
+        mg_dash_set_file_name(set, name);
+        if (set->fn != NULL && !set->fn(MG_DASH_WRITE, u)) {
+          mg_http_reply(c, 403, MG_JSON_HEADERS, "Not Authorised\n");
+          d->marker = CONN_HANDLED;
+        } else {
+          char dir[256];
+          struct mg_fs *fs = dash->upload_fs ? dash->upload_fs : &mg_fs_posix;
+          if (!set->get_dir(u, dir, sizeof(dir))) {
+            mg_http_reply(c, 500, MG_JSON_HEADERS, "Upload dir error\n");
+            d->marker = CONN_HANDLED;
+          } else {
+            mg_http_start_upload(c, hm, name, mg_str(dir), fs,
+                                 mg_dash_upload_cb);
+          }
+        }
+      }
     }
-    if (c->data[0] != '\0') mg_log_http_req(c, hm);
-  } else if (ev == MG_EV_HTTP_MSG && c->data[0] != '\0') {
+    if (d->marker != '\0') mg_log_http_req(c, hm);
+  } else if (ev == MG_EV_HTTP_MSG && d->marker != '\0') {
     // The response has been send in EV_HDRS path, so we're not reponding
-    // anything but clearing the c->data[0] flag for the next request.
-    c->data[0] = 0;
+    // anything but clearing the marker for the next request.
+    d->marker = 0;
     c->is_resp = 0;
-  } else if (ev == MG_EV_HTTP_MSG && c->data[0] == '\0') {
+  } else if (ev == MG_EV_HTTP_MSG && d->marker == '\0') {
     struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-    struct mg_dash_user *u = mg_dash_authenticate(hm, dash);
-    int level = u == NULL ? 0 : u->level;
+    struct mg_dash_user *u = mg_dash_authenticate(c, hm, dash);
     struct mg_str parts[5];
     memset(parts, 0, sizeof(parts));
 
@@ -652,27 +1441,60 @@ void mg_dash_ev_handler(struct mg_connection *c, int ev, void *ev_data) {
       mg_ws_printf(c, WEBSOCKET_OP_TEXT, "{%m:%m}", MG_ESC("method"),
                    MG_ESC("logout"));
     } else if (mg_match(hm->uri, mg_str("/api/websocket"), NULL)) {
-      *(int *) c->data = level;
+      d->u = u;
       mg_ws_upgrade(c, hm, NULL);
-    } else if (mg_match(hm->uri, mg_str("/fs/#"), NULL)) {
-      struct mg_str name = mg_dash_file_name(hm);
-      char path[128];
-      mg_snprintf(path, sizeof(path), "/tmp/%.*s", name.len, name.buf);
-      if (mg_strcasecmp(hm->method, mg_str("DELETE")) == 0) {
-        // Delete file
-        mg_dash_file_del(name);
-        mg_dash_send_change(c->mgr, &set_files);
-        mg_http_reply(c, 200, NULL, "true");
+    } else if (mg_match(hm->uri, mg_str("/fs/*/*"), parts)) {
+      struct mg_field_set *set = mg_dash_find_field_set(dash, parts[0]);
+      if (set == NULL || set->get_dir == NULL) {
+        mg_http_reply(c, 404, MG_JSON_HEADERS, "Not Found");
+      } else if (u == NULL) {
+        mg_http_reply(c, 403, MG_JSON_HEADERS, "Not Authorised\n");
       } else {
-        // Serve file
-        mg_http_serve_file(c, hm, path, NULL);
+        char dir[256], path[512];
+        struct mg_fs *fs = dash->upload_fs ? dash->upload_fs : &mg_fs_posix;
+        struct mg_str name = parts[1];
+        int len = mg_url_decode(name.buf, name.len, (char *) name.buf,
+                                name.len + 1, 0);
+        if (len > 0 && (size_t) len <= name.len) name.len = (size_t) len;
+        if (!mg_path_is_sane(name)) {
+          mg_http_reply(c, 400, MG_JSON_HEADERS, "Bad file name\n");
+          return;
+        }
+        if (!set->get_dir(u, dir, sizeof(dir))) {
+          mg_http_reply(c, 500, MG_JSON_HEADERS, "Upload dir error\n");
+          return;
+        }
+        mg_snprintf(path, sizeof(path), "%s/%.*s", dir, name.len, name.buf);
+        if (mg_strcasecmp(hm->method, mg_str("DELETE")) == 0) {
+          mg_dash_set_file_name(set, name);
+          if (set->fn != NULL && !set->fn(MG_DASH_DELETE, u)) {
+            mg_http_reply(c, 403, MG_JSON_HEADERS, "Not Authorised\n");
+          } else {
+            fs->rm(path);
+            *set->index = -1;  // Signal mg_dash_send_change() to send new size
+            mg_dash_send_change(c->mgr, set);
+            mg_http_reply(c, 200, NULL, "true");
+          }
+        } else {
+          mg_http_serve_file(c, hm, path, NULL);
+        }
       }
-    } else if (mg_match(hm->uri, mg_str("/api/get/#"), parts) ||
+    } else if (mg_match(hm->uri, mg_str("/api/del/*/*/*"), parts) ||
+               mg_match(hm->uri, mg_str("/api/del/*/*"), parts)) {
+      mg_dash_handle_del(c, dash, u, parts);
+    } else if (mg_match(hm->uri, mg_str("/api/add/*"), parts)) {
+      mg_dash_handle_add(c, dash, u, parts, hm->body);
+    } else if (mg_match(hm->uri, mg_str("/api/get/*/*"), parts) &&
+               mg_strcasecmp(hm->method, mg_str("POST")) == 0) {
+      mg_dash_handle_mod(c, dash, u, parts, hm->body);
+    } else if (mg_match(hm->uri, mg_str("/api/get/*/*/*"), parts) ||
+               mg_match(hm->uri, mg_str("/api/get/*/*"), parts) ||
+               mg_match(hm->uri, mg_str("/api/get/*"), parts) ||
                mg_match(hm->uri, mg_str("/api/get"), NULL)) {
-      mg_http_reply(c, 200, MG_JSON_HEADERS, "%M\n", mg_dash_print_name, dash,
-                    &parts[0], level);
+      mg_http_reply(c, 200, MG_JSON_HEADERS, "%M\n", mg_dash_print_endpoint,
+                    dash, u, &parts[0], &parts[1], &parts[2]);
     } else if (mg_match(hm->uri, mg_str("/api/set"), NULL)) {
-      int count = mg_dash_apply(c, dash, hm->body, level);
+      int count = mg_dash_apply(c, dash, hm->body, u);
       mg_http_reply(c, 200, MG_JSON_HEADERS, "%d\n", count);
     } else if (mg_match(hm->uri, mg_str("/"), NULL)) {
       struct mg_http_serve_opts opts;
@@ -689,21 +1511,6 @@ void mg_dash_ev_handler(struct mg_connection *c, int ev, void *ev_data) {
       }
       if (ch == NULL) mg_http_reply(c, 404, MG_JSON_HEADERS, "Not Found");
       mg_log_http_req(c, hm);
-    }
-  } else if (ev == MG_EV_WS_OPEN) {
-    // WS connection established, send change notifications for all data
-    struct mg_field_set *fs;
-    for (fs = dash->sets; fs != NULL; fs = fs->next) {
-      mg_dash_send_change(c->mgr, fs);
-    }
-    mg_dash_broadcast(c->mgr, 0, "{%m:%m}", MG_ESC("method"), MG_ESC("ready"));
-  } else if (ev == MG_EV_WS_MSG) {
-    // Add this to automatically handle "get" and "set" JSON-RPC calls
-    struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
-    if (dash == NULL) {
-      mg_dash_error(c, wm->data, "%s", "no dash defined");
-    } else {
-      mg_dash_process_msg(c, wm, dash);
     }
   }
 }
@@ -1476,6 +2283,10 @@ void mg_error(struct mg_connection *c, const char *fmt, ...) {
 
 
 
+#ifdef MG_OTA_PUBLIC_KEY
+
+
+#endif
 
 #if MG_OTA != MG_OTA_NONE && MG_OTA != MG_OTA_CUSTOM
 
@@ -1497,7 +2308,7 @@ bool mg_ota_flash_begin(size_t new_firmware_size, struct mg_flash *flash) {
       s_size = new_firmware_size;
       MG_INFO(("Starting OTA, firmware size %lu", s_size));
     } else {
-      MG_ERROR(("Firmware %lu is too big to fit %lu", new_firmware_size, half));
+      MG_ERROR(("Firmware %lu is too big to fit %lu", new_firmware_size, half - flash->align));
     }
   }
   return ok;
@@ -1527,14 +2338,36 @@ bool mg_ota_flash_write(const void *buf, size_t len, struct mg_flash *flash) {
 bool mg_ota_flash_end(struct mg_flash *flash) {
   char *base = (char *) flash->start + flash->size / 2;
   bool ok = false;
+  int prev_state = MG_OTA_STATE_GET();
   if (s_size) {
     size_t size = (size_t) (s_addr - base);
     uint32_t crc32 = mg_crc32(0, base, s_size);
     if (size == s_size && crc32 == s_crc32) ok = true;
     MG_DEBUG(("CRC: %x/%x, size: %lu/%lu, status: %s", s_crc32, crc32, s_size,
               size, ok ? "ok" : "fail"));
+#ifdef MG_OTA_PUBLIC_KEY
+    if (ok) {
+      bool signed_fw = s_size > 68 &&
+                       memcmp((uint8_t *) base + s_size - 4, "MGSG", 4) == 0;
+      if (signed_fw) {
+        static const uint8_t s_pubkey[] = MG_OTA_PUBLIC_KEY;
+        uint8_t hash[32];
+        size_t fw_size = s_size - 68;  // strip 64-byte sig + 4-byte magic
+        mg_sha256(hash, (uint8_t *) base, fw_size);
+        ok = mg_uecc_verify(s_pubkey, hash, sizeof(hash),
+                            (uint8_t *) base + fw_size,
+                            mg_uecc_secp256r1()) == 1;
+        MG_INFO(("Signature: %s", ok ? "ok" : "fail"));
+      } else {
+        ok = false;
+        MG_ERROR(("Unsigned firmware rejected"));
+      }
+    }
+#endif
     s_size = 0;
+    if (ok) MG_OTA_STATE_SET(MG_OTA_TESTING);
     if (ok) ok = flash->swap_fn();
+    if (!ok) MG_OTA_STATE_SET(prev_state); // undo state in case of failure
   }
   MG_INFO(("Finishing OTA: %s", ok ? "ok" : "fail"));
   return ok;
@@ -2413,6 +3246,7 @@ struct mg_fs mg_fs_posix = {p_stat,  p_list, p_open,   p_close,  p_read,
 #ifdef MG_ENABLE_LINES
 #line 1 "src/http.c"
 #endif
+
 
 
 
@@ -3407,6 +4241,98 @@ int mg_http_status(const struct mg_http_message *hm) {
   return atoi(hm->uri.buf);
 }
 
+struct mg_upload_priv {
+  size_t expected;
+  size_t received;
+  struct mg_fd *fd;  // non-NULL: file upload; NULL: OTA
+  void (*fn)(struct mg_connection *, const char *);
+};
+
+static void mg_upload_handler(struct mg_connection *c, int ev, void *ev_data) {
+  struct mg_upload_priv *p = (struct mg_upload_priv *) c->data;
+  if (p->fn == NULL) return;
+  if (ev == MG_EV_READ && c->recv.len > 0) {
+    size_t alignment = 512;
+    size_t left = p->expected > p->received ? p->expected - p->received : 0;
+    size_t aligned = c->recv.len < left ? MG_ROUND_DOWN(c->recv.len, alignment)
+                                        : c->recv.len;
+    bool ok = true;
+    if (aligned > 0) {
+      if (p->fd != NULL) {
+        ok = p->fd->fs->wr(p->fd->fd, c->recv.buf, aligned) == aligned;
+      } else {
+        ok = mg_ota_write(c->recv.buf, aligned);
+      }
+    }
+    p->received += aligned;
+    mg_iobuf_del(&c->recv, 0, aligned);
+    if (!ok) {
+      if (p->fd != NULL) { mg_fs_close(p->fd); p->fd = NULL; }
+      else mg_ota_end();
+      p->fn(c, "write error");
+      mg_free(c->pfn_data); c->pfn_data = NULL; p->fn = NULL;
+    } else if (p->received >= p->expected) {
+      const char *errmsg = NULL;
+      if (p->fd != NULL) { mg_fs_close(p->fd); p->fd = NULL; }
+      else if (!mg_ota_end()) errmsg = "OTA finalize failed";
+      p->fn(c, errmsg);
+      mg_free(c->pfn_data); c->pfn_data = NULL; p->fn = NULL;
+    }
+  } else if (ev == MG_EV_ERROR || ev == MG_EV_CLOSE) {
+    if (p->fd != NULL) { mg_fs_close(p->fd); p->fd = NULL; }
+    else mg_ota_end();
+    p->fn(c, ev == MG_EV_ERROR ? (const char *) ev_data : "connection closed");
+    mg_free(c->pfn_data); c->pfn_data = NULL; p->fn = NULL;
+  }
+  (void) ev_data;
+}
+
+static void mg_upload_default_cb(struct mg_connection *c, const char *status) {
+  MG_INFO(("%lu %s", c->id, status ? status : "ok"));
+  mg_http_reply(c, status ? 500 : 200, "", "%s\n", status ? status : "ok");
+}
+
+void mg_http_start_upload(struct mg_connection *c, struct mg_http_message *hm,
+                          struct mg_str name, struct mg_str dir,
+                          struct mg_fs *fs,
+                          void (*fn)(struct mg_connection *, const char *)) {
+  struct mg_upload_priv *p = (struct mg_upload_priv *) c->data;
+  char path[MG_PATH_MAX];
+  struct mg_fd *fd;
+  if (fn == NULL) fn = mg_upload_default_cb;
+  if (sizeof(*p) > sizeof(c->data)) { fn(c, "data too small"); return; }
+  if (!mg_path_is_sane(name)) { fn(c, "bad name"); return; }
+  mg_snprintf(path, sizeof(path), "%.*s%c%.*s", (int) dir.len, dir.buf,
+              MG_DIRSEP, (int) name.len, name.buf);
+  fd = mg_fs_open(fs, path, MG_FS_WRITE);
+  if (fd == NULL) { fn(c, "open failed"); return; }
+  p->expected = hm->body.len;
+  p->received = 0;
+  p->fd = fd;
+  p->fn = fn;
+  c->fn = mg_upload_handler;
+  c->pfn_data = strdup(path);
+  c->pfn = NULL;
+  mg_iobuf_del(&c->recv, 0, hm->head.len);
+  mg_call(c, MG_EV_READ, &c->recv.len);
+}
+
+void mg_http_start_ota(struct mg_connection *c, struct mg_http_message *hm,
+                       void (*fn)(struct mg_connection *, const char *)) {
+  struct mg_upload_priv *p = (struct mg_upload_priv *) c->data;
+  if (fn == NULL) fn = mg_upload_default_cb;
+  if (sizeof(*p) > sizeof(c->data)) { fn(c, "data too small"); return; }
+  if (!mg_ota_begin(hm->body.len)) { fn(c, "ota begin failed"); return; }
+  p->expected = hm->body.len;
+  p->received = 0;
+  p->fd = NULL;
+  p->fn = fn;
+  c->fn = mg_upload_handler;
+  c->pfn = NULL;
+  mg_iobuf_del(&c->recv, 0, hm->head.len);
+  mg_call(c, MG_EV_READ, &c->recv.len);
+}
+
 static bool is_hex_digit(int c) {
   return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
          (c >= 'A' && c <= 'F');
@@ -4248,7 +5174,7 @@ uint8_t *mg_l2_eth_header(struct mg_tcpip_if *ifp, enum mg_l2proto proto,
     qtag->tpid = mg_htons(0x8100);
     qtag->tci = mg_htons(d->vlan_id);  // PCP = default (best-effort)
     hlp += sizeof(*qtag);
-    *(uint16_t *) (qtag + 1) = mg_htons(eth_types[(unsigned int) proto]);
+    MG_STORE_BE16(qtag + 1, eth_types[(unsigned int) proto]);
   }
   return hlp;
 }
@@ -4282,7 +5208,7 @@ bool mg_l2_eth_rx(struct mg_tcpip_if *ifp, enum mg_l2proto *proto,
     if (qtag->tpid != mg_htons(0x8100)) return false;  // Untagged frame
     if (mg_ntohs(VLAN_ID(qtag->tci)) != VLAN_ID(d->vlan_id))
       return false;  // Not our VLAN
-    type = mg_ntohs(*(uint16_t *) (qtag + 1));
+    type = MG_LOAD_BE16(qtag + 1);
   }
   if (ifp->enable_mac_check &&
       memcmp(eth->dst, ifp->mac, sizeof(eth->dst)) != 0 &&
@@ -4998,6 +5924,284 @@ bool mg_l2_pppoe_rx(struct mg_tcpip_if *ifp, enum mg_l2proto *proto,
     return ppp_rx(ifp, proto, pay, raw);
   }
   return false;
+}
+
+#endif
+
+#ifdef MG_ENABLE_LINES
+#line 1 "src/lfs.c"
+#endif
+// Copyright (c) 2023 Cesanta Software Limited
+// SPDX-License-Identifier: GPL-2.0-only or commercial
+
+
+
+
+#if MG_ENABLE_LFS
+
+#include <fcntl.h>
+#include <littlefs/lfs.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#ifndef LFS_USE_RAM
+#define LFS_USE_RAM 0  // If 1, use RAM FS. If 0, use flash
+#endif
+
+#ifndef MG_LFS_BUF_SIZE
+#define MG_LFS_BUF_SIZE 64  // Buffer size used for reads, writes, and cache
+#endif
+
+#ifndef MG_LFS_FD_BASE
+#define MG_LFS_FD_BASE 12000  // Starting file descriptor number
+#endif
+
+#if LFS_USE_RAM && !defined(MG_LFS_BLOCK_SIZE)
+#define MG_LFS_BLOCK_SIZE 8192
+#endif
+
+#ifndef DT_DIR
+#define DT_DIR 4
+#endif
+#ifndef DT_REG
+#define DT_REG 8
+#endif
+
+typedef struct mg_lfs_fd DIR;
+struct dirent {
+  char d_name[LFS_NAME_MAX + 1];
+  unsigned char d_type;
+};
+
+struct mg_lfs_fd {
+  struct mg_lfs_fd *next;
+  bool isopen;
+  lfs_file_t file;
+  lfs_dir_t dir;
+  int fd;
+};
+
+static lfs_t s_lfs;
+static struct mg_lfs_fd *s_fds;
+static uint8_t *s_fs;
+static int s_next_fd = MG_LFS_FD_BASE;
+static bool s_lfs_ready;
+#if LFS_USE_RAM
+static uint8_t *s_ram_fs;
+#endif
+
+static int lfs_driver_read(const struct lfs_config *cfg, lfs_block_t block,
+                           lfs_off_t off, void *buf, lfs_size_t len);
+static int lfs_driver_prog(const struct lfs_config *cfg, lfs_block_t block,
+                           lfs_off_t off, const void *buf, lfs_size_t len);
+static int lfs_driver_erase(const struct lfs_config *cfg, lfs_block_t block);
+static int lfs_driver_sync(const struct lfs_config *cfg);
+
+static struct lfs_config s_cfg = {
+    .read = lfs_driver_read,
+    .prog = lfs_driver_prog,
+    .erase = lfs_driver_erase,
+    .sync = lfs_driver_sync,
+    .block_cycles = 200,
+    .cache_size = MG_LFS_BUF_SIZE,
+    .read_size = MG_LFS_BUF_SIZE,
+    .prog_size = MG_LFS_BUF_SIZE,
+    .lookahead_size = MG_LFS_BUF_SIZE / 8,
+};
+
+static bool flash_write_buf(void *addr, const void *buf, size_t len) {
+#if LFS_USE_RAM
+  memmove(addr, buf, len);
+  return true;
+#else
+  return mg_flash != NULL && mg_flash->write_fn(addr, buf, len);
+#endif
+}
+
+static int lfs_driver_read(const struct lfs_config *cfg, lfs_block_t block,
+                           lfs_off_t off, void *buf, lfs_size_t len) {
+  memmove(buf, &s_fs[block * cfg->block_size + off], len);
+  return 0;
+}
+
+static int lfs_driver_prog(const struct lfs_config *cfg, lfs_block_t block,
+                           lfs_off_t off, const void *buf, lfs_size_t len) {
+  uint8_t *dst = &s_fs[block * cfg->block_size + off];
+  if (!flash_write_buf(dst, buf, len)) return LFS_ERR_IO;
+  return 0;
+}
+
+static int lfs_driver_erase(const struct lfs_config *cfg, lfs_block_t block) {
+  (void) cfg, (void) block;
+  return 0;
+}
+
+static int lfs_driver_sync(const struct lfs_config *cfg) {
+  (void) cfg;
+  return 0;
+}
+
+bool mg_lfs_init(size_t size) {
+  int result = 0;
+  if (s_lfs_ready) return true;
+  if (size == 0) return false;
+#if LFS_USE_RAM
+  s_cfg.block_size = MG_LFS_BLOCK_SIZE;
+  if (s_ram_fs == NULL) s_ram_fs = (uint8_t *) mg_calloc(1, size);
+  s_fs = s_ram_fs;
+#else
+  if (mg_flash == NULL || mg_flash->secsz == 0 || mg_flash->size < size) return false;
+  if (mg_flash->write_fn == NULL) return false;
+  s_cfg.block_size = mg_flash->secsz;
+  s_fs = (uint8_t *) mg_flash->start + mg_flash->size - size;
+#endif
+  if (s_fs == NULL || s_cfg.block_size == 0 || size % s_cfg.block_size != 0) {
+    return false;
+  }
+  s_cfg.block_count = (lfs_size_t) (size / s_cfg.block_size);
+  if (s_cfg.block_count == 0) return false;
+  if (lfs_mount(&s_lfs, &s_cfg) != 0) {
+    lfs_format(&s_lfs, &s_cfg);
+    if (lfs_mount(&s_lfs, &s_cfg) != 0) result = -1;
+  }
+  s_lfs_ready = result == 0;
+  return s_lfs_ready;
+}
+
+static struct mg_lfs_fd *find_fd(int fd) {
+  struct mg_lfs_fd *f;
+  for (f = s_fds; f != NULL; f = f->next) {
+    if (f->isopen && f->fd == fd) return f;
+  }
+  return NULL;
+}
+
+static struct mg_lfs_fd *open_fd(void) {
+  struct mg_lfs_fd *f = NULL;
+  if (s_lfs_ready) {
+    f = (struct mg_lfs_fd *) mg_calloc(1, sizeof(*f));
+    if (f != NULL) {
+      f->isopen = true;
+      f->fd = s_next_fd++;
+      f->next = s_fds;
+      s_fds = f;
+      if (s_next_fd < MG_LFS_FD_BASE) s_next_fd = MG_LFS_FD_BASE;
+    }
+  }
+  return f;
+}
+
+static int close_fd(struct mg_lfs_fd *fd) {
+  struct mg_lfs_fd **f = &s_fds;
+  while (*f != NULL && *f != fd) f = &(*f)->next;
+  if (*f == NULL) return -1;
+  *f = fd->next;
+  fd->isopen = false;
+  mg_free(fd);
+  return 0;
+}
+
+int _open(const char *path, int flags, mode_t mode) {
+  int err, lfs_flags = 0, fd = -1;
+  struct mg_lfs_fd *f = open_fd();
+  (void) mode;
+  if (f == NULL) return -1;
+  fd = f->fd;
+  if ((flags & 3) == O_RDONLY) lfs_flags |= LFS_O_RDONLY;
+  if ((flags & 3) == O_WRONLY) lfs_flags |= LFS_O_WRONLY;
+  if ((flags & 3) == O_RDWR) lfs_flags |= LFS_O_RDWR;
+  if (flags & O_CREAT) lfs_flags |= LFS_O_CREAT;
+  if (flags & O_TRUNC) lfs_flags |= LFS_O_TRUNC;
+  if (flags & O_APPEND) lfs_flags |= LFS_O_APPEND;
+  err = lfs_file_open(&s_lfs, &f->file, path, lfs_flags);
+  if (err < 0) close_fd(f), fd = -1;
+  return fd;
+}
+
+int _close(int fd) {
+  struct mg_lfs_fd *f = find_fd(fd);
+  if (fd < 3) return 0;
+  if (f == NULL) return -1;
+  lfs_file_close(&s_lfs, &f->file);
+  close_fd(f);
+  return 0;
+}
+
+int _write(int fd, char *ptr, int len) {
+  struct mg_lfs_fd *f = find_fd(fd);
+  return fd < 3 ? len
+                : f == NULL ? -1 : lfs_file_write(&s_lfs, &f->file, ptr, len);
+}
+
+int _read(int fd, char *ptr, int len) {
+  struct mg_lfs_fd *f = find_fd(fd);
+  return fd < 3 ? 0 : f == NULL ? -1 : lfs_file_read(&s_lfs, &f->file, ptr, len);
+}
+
+int _lseek(int fd, int offset, int whence) {
+  struct mg_lfs_fd *f = find_fd(fd);
+  return fd < 3 ? 0
+                : f == NULL ? -1 : lfs_file_seek(&s_lfs, &f->file, offset,
+                                                  whence);
+}
+
+int _rename(const char *oldname, const char *newname) {
+  return s_lfs_ready ? lfs_rename(&s_lfs, oldname, newname) : -1;
+}
+
+int _unlink_r(void *r, const char *a) {
+  (void) r;
+  return s_lfs_ready ? lfs_remove(&s_lfs, a) : -1;
+}
+
+DIR *opendir(const char *name) {
+  struct mg_lfs_fd *f = open_fd();
+  if (f == NULL) return NULL;
+  if (lfs_dir_open(&s_lfs, &f->dir, name) != 0) {
+    close_fd(f);
+    return NULL;
+  }
+  return (DIR *) f;
+}
+
+int closedir(DIR *dir) {
+  struct mg_lfs_fd *f = (struct mg_lfs_fd *) dir;
+  if (f == NULL || find_fd(f->fd) != f) return -1;
+  lfs_dir_close(&s_lfs, &f->dir);
+  return close_fd(f);
+}
+
+struct dirent *readdir(DIR *dir) {
+  static struct dirent dirent;
+  struct mg_lfs_fd *f = (struct mg_lfs_fd *) dir;
+  struct lfs_info info;
+  if (f == NULL || !f->isopen) return NULL;
+  if (lfs_dir_read(&s_lfs, &f->dir, &info) < 1) return NULL;
+  memset(&dirent, 0, sizeof(dirent));
+  strncpy(dirent.d_name, info.name, sizeof(dirent.d_name) - 1);
+  if (info.type == LFS_TYPE_DIR) dirent.d_type |= DT_DIR;
+  if (info.type == LFS_TYPE_REG) dirent.d_type |= DT_REG;
+  return &dirent;
+}
+
+int _stat(const char *path, struct stat *st) {
+  struct lfs_info info;
+  if (!s_lfs_ready || lfs_stat(&s_lfs, path, &info) != 0) return -1;
+  st->st_mode = info.type == LFS_TYPE_DIR ? S_IFDIR : S_IFREG;
+  st->st_size = info.size;
+  return 0;
+}
+
+int _fstat(int fd, struct stat *st) {
+  if (fd >= 3 && find_fd(fd) == NULL) return -1;
+  st->st_mode = S_IFCHR;
+  return 0;
+}
+
+int mkdir(const char *path, mode_t mode) {
+  (void) mode;
+  return s_lfs_ready ? lfs_mkdir(&s_lfs, path) : -1;
 }
 
 #endif
@@ -6134,6 +7338,7 @@ struct mg_connection *mg_mqtt_listen(struct mg_mgr *mgr, const char *url,
 
 
 
+
 size_t mg_vprintf(struct mg_connection *c, const char *fmt, va_list *ap) {
   size_t old = c->send.len;
   size_t expected = mg_vxprintf(mg_pfn_iobuf, &c->send, fmt, ap);
@@ -6424,7 +7629,11 @@ void mg_mgr_init(struct mg_mgr *mgr) {
 #elif MG_ENABLE_TCPIP_DRIVER_INIT && defined(MG_TCPIP_DRIVER_INIT)
   MG_TCPIP_DRIVER_INIT(mgr);
 #endif
-  mgr->pipe = MG_INVALID_SOCKET;
+#if MG_ENABLE_BSD_SOCKETS
+  mgr->pipe.q = NULL;
+#else
+  mgr->pipe.fd = MG_INVALID_SOCKET;
+#endif
   mgr->dnstimeout = 3000;
   mgr->dns4.url = "udp://8.8.8.8:53";
   mgr->dns6.url = "udp://[2001:4860:4860::8888]:53";
@@ -6476,6 +7685,8 @@ struct connstate {
   uint64_t timer;                         // TCP timer (see 'ttype' below)
   uint32_t acked;                         // Last ACK-ed number
   size_t unacked;                         // Not acked bytes
+  uint32_t maxseq;                        // Max send seq (ack + window)
+  uint16_t win;                           // destination current window size
   uint16_t dmss;                          // destination MSS (from TCP opts)
   uint8_t mac[sizeof(struct mg_l2addr)];  // Peer hw address
   uint8_t ttype;                          // Timer type:
@@ -6663,11 +7874,11 @@ bool mg_l2_poll(struct mg_tcpip_if *ifp, bool expired_1000ms);
 
 static void mg_tcpip_call(struct mg_tcpip_if *ifp, int ev, void *ev_data) {
 #if 0 && MG_ENABLE_PROFILE
-  const char *names[] = {"TCPIP_EV_ST_CHG",        "TCPIP_EV_DHCP_DNS",
+  const char *names[] = {"TCPIP_EV_STATE_CHANGE",  "TCPIP_EV_DHCP_DNS",
                          "TCPIP_EV_DHCP_SNTP",     "TCPIP_EV_ARP",
                          "TCPIP_EV_TIMER_1S",      "TCPIP_EV_WIFI_SCAN_RESULT",
                          "TCPIP_EV_WIFI_SCAN_END", "TCPIP_EV_WIFI_CONNECT_ERR",
-                         "TCPIP_EV_DRIVER",        "MG_TCPIP_EV_ST6_CHG",
+                         "TCPIP_EV_DRIVER",        "TCPIP_EV_STATE6_CHANGE",
                          "TCPIP_EV_USER"};
   if (ev != MG_TCPIP_EV_TIMER_1S && ev < (int) (sizeof(names) / sizeof(names[0]))) {
     MG_PROF_ADD(ifp, names[ev]); // TODO(): call MG_PROF_DUMP() MG_PROF_FREE()
@@ -6844,6 +8055,13 @@ static void onstatechange(struct mg_tcpip_if *ifp) {
       MG_INFO(("      MAC: %M", mg_print_mac, ifp->mac));
     if (ifp->l2type == MG_TCPIP_L2_ETH)
       mg_tcpip_arp_request(ifp, ifp->ip, ifp->mac);  // gratuitous ARP annc
+    if (ifp->is_ip_changed) {
+      struct mg_connection *c;
+      for (c = ifp->mgr->conns; c != NULL; c = c->next) {
+        if (!c->is_listening && !c->is_udp) c->is_closing = 1;
+      }
+      ifp->is_ip_changed = false;
+    }
   } else if (ifp->state == MG_TCPIP_STATE_IP) {
     if (ifp->gw != 0 && ifp->l2type == MG_TCPIP_L2_ETH)
       mg_tcpip_arp_request(ifp, ifp->gw, NULL);  // unsolicited GW ARP request
@@ -6852,7 +8070,7 @@ static void onstatechange(struct mg_tcpip_if *ifp) {
   } else if (ifp->state == MG_TCPIP_STATE_DOWN) {
     MG_ERROR(("Link down"));
   }
-  mg_tcpip_call(ifp, MG_TCPIP_EV_ST_CHG, &ifp->state);
+  mg_tcpip_call(ifp, MG_TCPIP_EV_STATE_CHANGE, &ifp->state);
 }
 
 static struct ip *tx_ip(struct mg_tcpip_if *ifp, uint8_t *l2_dst, uint8_t proto,
@@ -7153,6 +8371,7 @@ static void rx_dhcp_client(struct mg_tcpip_if *ifp, struct pkt *pkt) {
       // assume DHCP server = router until ARP resolves
       memcpy(ifp->gwmac, mg_l2_getaddr(ifp, pkt->l2), sizeof(ifp->gwmac));
       ifp->gw_ready = true;  // NOTE(): actual gw ARP won't retry now
+      if (ifp->ip != ip) ifp->is_ip_changed = true;
       ifp->ip = ip, ifp->gw = gw, ifp->mask = mask;
       ifp->state = MG_TCPIP_STATE_IP;  // BOUND state
       mg_random(&rand, sizeof(rand));
@@ -7291,7 +8510,7 @@ static void rx_ndp_na(struct mg_tcpip_if *ifp, struct pkt *pkt) {
       uint8_t len = *opts++;  // check valid hwaddr and get it
       if (!mg_l2_ip6get(ifp->l2type, s->mac, opts, len)) return;
       MG_DEBUG(("%lu NDP resolved %M -> %M", c->id, mg_print_ip6,
-                &c->rem.addr.ip6, mg_print_mac, ifp->l2type, s->mac));
+                &c->rem.addr.ip6, mg_print_l2addr, ifp->l2type, s->mac));
       c->is_arplooking = 0;
       l2addr_resolved(c);
     }
@@ -7408,7 +8627,7 @@ static void rx_ndp_ra(struct mg_tcpip_if *ifp, struct pkt *pkt) {
   struct ndp_ra *ra = (struct ndp_ra *) (pkt->icmp6 + 1);
   uint8_t *opts = (uint8_t *) (ra + 1);
   size_t opt_left = pkt->pay.len - 12;
-  bool gotl2addr = false, gotprefix = false;
+  bool gotl2addr = false, gotprefix = false, changed = false;
   uint8_t l2[sizeof(struct mg_l2addr)];
   uint32_t mtu = 0;
   uint8_t *prefix, prefix_len;
@@ -7426,12 +8645,12 @@ static void rx_ndp_ra(struct mg_tcpip_if *ifp, struct pkt *pkt) {
         gotl2addr = true;
       } else if (type == 5 && length >= 8) {
         // process MTU if available
-        mtu = mg_ntohl(*(uint32_t *) (opts + 4));
+        mtu = MG_LOAD_BE32(opts + 4);
       } else if (type == 3 && length >= 32) {
         // process prefix, 4.6.2
         uint8_t pfx_flags = opts[3];  // L=0x80, A=0x40
-        uint32_t valid = mg_ntohl(*(uint32_t *) (opts + 4));
-        uint32_t pref_lifetime = mg_ntohl(*(uint32_t *) (opts + 8));
+        uint32_t valid = MG_LOAD_BE32(opts + 4);
+        uint32_t pref_lifetime = MG_LOAD_BE32(opts + 8);
         prefix_len = opts[2];
         prefix = opts + 16;
 
@@ -7441,6 +8660,8 @@ static void rx_ndp_ra(struct mg_tcpip_if *ifp, struct pkt *pkt) {
         (void) pref_lifetime;
 
         gotprefix = true;
+        if (prefix_len != ifp->prefix_len || !match_prefix(prefix, ifp->prefix, ifp->prefix_len))
+          changed = true;
       }
       opts += length;
       opt_left -= length;
@@ -7448,6 +8669,7 @@ static void rx_ndp_ra(struct mg_tcpip_if *ifp, struct pkt *pkt) {
 
     // fill prefix and global
     if (gotprefix && !fill_global(ifp, prefix, prefix_len)) return;
+    if (changed) ifp->is_ip6_changed = true;
     ifp->gw6[0] = pkt->ip6->src[0], ifp->gw6[1] = pkt->ip6->src[1];
     if (gotl2addr) memcpy(ifp->gw6mac, l2, sizeof(ifp->gw6mac));
     if (gotl2addr || ifp->l2type == MG_TCPIP_L2_PPP || ifp->l2type == MG_TCPIP_L2_PPPoE) {
@@ -7527,6 +8749,13 @@ static void onstate6change(struct mg_tcpip_if *ifp) {
                   ifp->ip6, (uint64_t *) ip6_allrouters.addr.ip6, false,
                   ifp->mac);
     }
+    if (ifp->is_ip6_changed) {
+      struct mg_connection *c;
+      for (c = ifp->mgr->conns; c != NULL; c = c->next) {
+        if (!c->is_listening && !c->is_udp) c->is_closing = 1;
+      }
+      ifp->is_ip6_changed = false;
+    }
   } else if (ifp->state6 == MG_TCPIP_STATE_IP) {
     if ((ifp->gw6[0] != 0 || ifp->gw6[1] != 0) && (ifp->l2type != MG_TCPIP_L2_PPP && ifp->l2type != MG_TCPIP_L2_PPPoE))
       tx_ndp_ns(ifp, ifp->gw6, NULL);  // unsolicited GW hwaddr resolution
@@ -7534,7 +8763,7 @@ static void onstate6change(struct mg_tcpip_if *ifp) {
     MG_INFO(("IP: %M", mg_print_ip6, &ifp->ip6ll));
   }
   if (ifp->state6 > MG_TCPIP_STATE_UP)
-    mg_tcpip_call(ifp, MG_TCPIP_EV_ST6_CHG, &ifp->state6);
+    mg_tcpip_call(ifp, MG_TCPIP_EV_STATE6_CHANGE, &ifp->state6);
 }
 #endif
 
@@ -7721,6 +8950,7 @@ static struct mg_connection *accept_conn(struct mg_connection *lsn,
   s = (struct connstate *) (c + 1);
   s->dmss = mss;  // from options in client SYN
   s->seq = mg_ntohl(pkt->tcp->ack), s->ack = mg_ntohl(pkt->tcp->seq);
+  s->win = mg_ntohs(pkt->tcp->win), s->maxseq = (uint32_t)(s->seq + s->win);
 #if MG_ENABLE_IPV6
   if (lsn->loc.is_ip6) {
     c->rem.addr.ip6[0] = pkt->ip6->src[0],
@@ -7813,10 +9043,13 @@ long mg_io_send(struct mg_connection *c, const void *buf, size_t len) {
   len = trim_len(c, len);
   if (c->is_udp) {
     if (!udp_send(c, buf, len)) return MG_IO_WAIT;
-  } else {  // TCP, cap to peer's MSS
+  } else {  // TCP, cap to peer's MSS and check window
     struct mg_tcpip_if *ifp = c->mgr->ifp;
     size_t sent;
+    uint32_t room = s->maxseq - s->seq;
+    if (room == 0) return MG_IO_WAIT;
     if (len > s->dmss) len = s->dmss;  // RFC-6691: reduce if sending opts
+    if ((uint32_t) len > room) len = room;
     sent = tx_tcp(ifp, s->mac, &c->loc, &c->rem, TH_PUSH | TH_ACK,
                   mg_htonl(s->seq), mg_htonl(s->ack), buf, len);
     if (sent == 0) {
@@ -7832,13 +9065,16 @@ long mg_io_send(struct mg_connection *c, const void *buf, size_t len) {
 }
 
 static void handle_tls_recv(struct mg_connection *c) {
-  size_t avail = mg_tls_pending(c);
+  size_t avail = mg_tls_pending(c); // will change after mg_tls_recv()
   size_t min = avail > MG_MAX_RECV_SIZE ? MG_MAX_RECV_SIZE : avail;
-  struct mg_iobuf *io = &c->recv;
+  struct mg_iobuf *io = &c->recv; // allocated on first avail > 0
   if (io->size - io->len < min && !mg_iobuf_resize(io, io->len + min)) {
     mg_error(c, "oom");
   } else {
-    // Decrypt data directly into c->recv
+    // Decrypt data directly into c->recv. If io->buf = NULL or
+    // io->len = io->size (no room), there can be outstanding data that can't be
+    // moved (mg_tls_pending() > 0 after mg_tls_recv() returns). So mg_tls_recv()
+    // takes care of returning 0 in this case (commented as "MIP")
     long n = mg_tls_recv(c, io->buf != NULL ? &io->buf[io->len] : io->buf,
                          io->size - io->len);
     if (n == MG_IO_ERR) {
@@ -7849,6 +9085,12 @@ static void handle_tls_recv(struct mg_connection *c) {
       mg_call(c, MG_EV_READ, &n);
     }  // else n < 0: outstanding data to be moved to c->recv
   }
+}
+
+static void handle_ack(struct connstate *s, uint32_t ackno, uint16_t win) {
+  if (ackno < (s->seq - s->win) || ackno > s->seq) return;
+  s->maxseq = (uint32_t)(ackno + win);
+  s->win = win;
 }
 
 static void read_conn(struct mg_connection *c, struct pkt *pkt) {
@@ -7876,9 +9118,10 @@ static void read_conn(struct mg_connection *c, struct pkt *pkt) {
       }
       s->twclosure = true;
     } else {
-      flags |= TH_FIN;
+      // Peer closed first: send ACK only, enter CLOSE_WAIT.
+      // The connection loop will call init_closure after pending send data
+      // is flushed, then send our FIN.
       c->is_draining = 1;
-      settmout(c, MIP_TTYPE_FIN);
     }
     tx_tcp(c->mgr->ifp, s->mac, &c->loc, &c->rem, flags, mg_htonl(s->seq),
            mg_htonl(s->ack), "", 0);
@@ -7890,6 +9133,8 @@ static void read_conn(struct mg_connection *c, struct pkt *pkt) {
            mg_htonl(s->ack), NULL, 0);
     return;                        // no data to process
   } else if (pkt->pay.len == 0) {  // this is an ACK
+    if (pkt->tcp->flags & TH_ACK)
+      handle_ack(s, mg_ntohl(pkt->tcp->ack), mg_ntohs(pkt->tcp->win));
     if (s->fin_rcvd && s->ttype == MIP_TTYPE_FIN) s->twclosure = true;
     return;  // no data to process
   } else if (seq != s->ack) {
@@ -7907,6 +9152,8 @@ static void read_conn(struct mg_connection *c, struct pkt *pkt) {
     mg_error(c, "oom");
     return;  // drop it
   }
+    if (pkt->tcp->flags & TH_ACK)
+      handle_ack(s, mg_ntohl(pkt->tcp->ack), mg_ntohs(pkt->tcp->win));
   // Copy TCP payload into the IO buffer. If the connection is plain text,
   // we copy to c->recv. If the connection is TLS, this data is encrypted,
   // therefore we copy that encrypted data to the c->rtls iobuffer instead,
@@ -8025,6 +9272,7 @@ static void rx_tcp(struct mg_tcpip_if *ifp, struct pkt *pkt) {
     if (!handle_opt(s, pkt->tcp, pkt->ip6 != NULL))
       return;  // process options (MSS)
     s->seq = mg_ntohl(pkt->tcp->ack), s->ack = mg_ntohl(pkt->tcp->seq) + 1;
+    s->win = mg_ntohs(pkt->tcp->win), s->maxseq = (uint32_t)(s->seq + s->win);
     tx_tcp_ctrlresp(ifp, pkt, TH_ACK, pkt->tcp->ack);
     c->is_connecting = 0;  // Client connected
     settmout(c, MIP_TTYPE_KEEPALIVE);
@@ -8533,7 +9781,11 @@ void mg_connect_resolved(struct mg_connection *c) {
   c->loc.port = mg_htons(ifp->eport++);
 #if MG_ENABLE_IPV6
   if (c->rem.is_ip6) {
-    c->loc.addr.ip6[0] = ifp->ip6[0], c->loc.addr.ip6[1] = ifp->ip6[1],
+    if(c->rem.addr.ip6[0] == ifp->ip6ll[0]) { // same local LAN, use ll
+      c->loc.addr.ip6[0] = ifp->ip6ll[0], c->loc.addr.ip6[1] = ifp->ip6ll[1];
+    } else { // use global address
+      c->loc.addr.ip6[0] = ifp->ip6[0], c->loc.addr.ip6[1] = ifp->ip6[1];
+    }
     c->loc.is_ip6 = true;
   } else
 #endif
@@ -8632,6 +9884,7 @@ void mg_mgr_poll(struct mg_mgr *mgr, int ms) {
   struct mg_connection *c, *tmp;
   uint64_t now = mg_millis();
   mg_timer_poll(&mgr->timers, now);
+  mg_ota_poll(mgr);
   if (mgr->ifp == NULL || mgr->ifp->driver == NULL) return;
   mg_tcpip_poll(mgr->ifp, now);
   for (c = mgr->conns; c != NULL; c = tmp) {
@@ -8722,204 +9975,207 @@ void mg_tcpip_mapip(struct mg_connection *c, struct mg_addr *ip) {
 
 
 
-#if MG_OTA != MG_OTA_NONE
 
-enum { MG_OTA_STATUS_WAITING, MG_OTA_STATUS_SUCCESS, MG_OTA_STATUS_FAIL };
-static int s_version_status;
-static int s_ota_status;
-static uint64_t s_start_time;
 
-static struct mg_ota_metadata {
-  char *version;
-  char *url;
+
+
+#ifndef MG_OTA_MAX_URL_LEN
+#define MG_OTA_MAX_URL_LEN 256
+#endif
+
+// Scannable version tag embedded in every firmware binary, for server-side
+// version extraction. The version string starts after the "MG_VERSION:" prefix.
+static const char s_fw_version[] = "MG_VERSION:" MG_OTA_FIRMWARE_VERSION;
+
+static bool s_autocommit_ok;  // True after OTA server confirms "same version"
+
+static struct mg_ota_state {
+  char json_url[MG_OTA_MAX_URL_LEN];
+  char url[MG_OTA_MAX_URL_LEN];
   size_t size;
   uint8_t sha256[32];
-} s_ota_metadata;
+  void (*fn)(const char *error_message);
+} *s_ota;
 
-static void free_ota_metadata(void) {
-  if (s_ota_metadata.version) mg_free(s_ota_metadata.version);
-  if (s_ota_metadata.url) mg_free(s_ota_metadata.url);
-  memset(&s_ota_metadata, 0, sizeof(s_ota_metadata));
-}
+static void s_firmware_fn(struct mg_connection *c, int ev, void *ev_data);
 
-static int fetch_ota_metadata(struct mg_http_message *response) {
-  double result;
-  if (mg_http_status(response) != 200) goto fetch_failed;
-  if (mg_json_get(response->body, "$", NULL) != 0) goto fetch_failed;
-  free_ota_metadata();
-  s_ota_metadata.version = mg_json_get_str(response->body, "$.version");
-  if (s_ota_metadata.version == NULL) goto fetch_failed;
-  s_ota_metadata.url = mg_json_get_str(response->body, "$.url");
-  if (s_ota_metadata.url == NULL) goto fetch_failed;
-  if (!mg_json_get_num(response->body, "$.size", &result) || result <= 0)
-    goto fetch_failed;
-  s_ota_metadata.size = (size_t) result;
-  // TODO (robertc2000): parse and validate sha256
-  MG_DEBUG(("Firmware version: %s, url: %s, size: %ld", s_ota_metadata.version,
-            s_ota_metadata.url, s_ota_metadata.size));
-  return MG_OTA_STATUS_SUCCESS;
-fetch_failed:
-  free_ota_metadata();
-  return MG_OTA_STATUS_FAIL;
+#if MG_ENABLE_CUSTOM_DEVICE_ID
+#else
+void mg_ota_device_id(char *buf, size_t len) {
+#if defined(UID_BASE) &&                                               \
+    (defined(__SYSTEM_STM32F4XX_H) || defined(__SYSTEM_STM32F7XX_H) || \
+     defined(SYSTEM_STM32H5XX_H) || defined(SYSTEM_STM32H7XX_H) ||     \
+     defined(SYSTEM_STM32N6XX_H) || defined(SYSTEM_STM32U5XX_H))
+  uint32_t *p = (uint32_t *) UID_BASE;
+  mg_snprintf(buf, len, "stm32_%08x%08x%08x", p[0], p[1], p[2]);
+#elif MG_ARCH == MG_ARCH_PICOSDK
+  pico_unique_board_id_t x = {0};
+  pico_get_unique_board_id(&x);
+  mg_snprintf(buf, len, "rp_%02x%02x%02x%02x%02x%02x%02x%02x", x.id[0], x.id[1],
+              x.id[2], x.id[3], x.id[4], x.id[5], x.id[6], x.id[7]);
+#elif defined(OCOTP_BASE) && OCOTP_BASE == 0x401F4000u
+  mg_snprintf(buf, len, "rt10xx_%08x%08x", OCOTP->CFG0, OCOTP->CFG1);
+#elif defined(OCOTP_BASE) && OCOTP_BASE == 0x40CAC000u
+  mg_snprintf(buf, len, "rt11xx_%08x%08x", OCOTP->FUSEN[16].FUSE,
+              OCOTP->FUSEN[17].FUSE);
+#elif MG_ARCH == MG_ARCH_ESP32
+  uint8_t mac[6] = {0};
+  esp_efuse_mac_get_default(mac);
+  mg_snprintf(buf, len, "esp32_%02x%02x%02x%02x%02x%02x", mac[0], mac[1],
+              mac[2], mac[3], mac[4], mac[5]);
+#else
+  mg_snprintf(buf, len, "%d", 0);
+#endif
 }
+#endif
 
 static void s_version_fn(struct mg_connection *c, int ev, void *ev_data) {
-  struct mg_str host = mg_url_host((char *) c->fn_data);
-  struct mg_http_message *hm;
-  static int fetch_status;
-
+  uint64_t expiration = *(uint64_t *) c->data;
   if (ev == MG_EV_POLL) {
-    if (s_start_time + 5 * 1000 < mg_millis()) {
-      mg_error(c, "Connection timeout");
-    }
+    if (mg_millis() > expiration) mg_error(c, "Metadata timeout");
   } else if (ev == MG_EV_CONNECT) {
-    mg_printf(c,
-              "GET %s HTTP/1.1\r\n"
-              "Host: %.*s\r\n"
-              "Connection: close\r\n\r\n",
-              mg_url_uri((char *) c->fn_data), (int) host.len, host.buf);
-    fetch_status = MG_OTA_STATUS_WAITING;
+    char id[40];
+    struct mg_str host = mg_url_host(s_ota->json_url);
+    const char *uri = mg_url_uri(s_ota->json_url);
+    const char *sep = strchr(uri, '?') == NULL ? "?" : "&";
+    mg_ota_device_id(id, sizeof(id));
+    id[sizeof(id) - 1] = '\0';
+    mg_printf(
+        c,
+        "GET %s%sarch=%d&version=%s&id=%s&interval=%d&boot=%d HTTP/1.1\r\n"
+        "Host: %.*s\r\n"
+        "Connection: close\r\n\r\n",
+        uri, sep, MG_ARCH, s_fw_version + 11, id, MG_OTA_PULL_INTERVAL_SECONDS,
+        MG_OTA_STATE_GET(), host.len, host.buf);
   } else if (ev == MG_EV_HTTP_MSG) {
-    hm = (struct mg_http_message *) ev_data;
-    fetch_status = fetch_ota_metadata(hm);
+    struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+    char version[MG_OTA_MAX_VERSION_LEN];
+    double result;
+    MG_DEBUG(("Got metadata: %.*s", hm->body.len, hm->body.buf));
+    if (mg_http_status(hm) != 200 || mg_json_get(hm->body, "$", NULL) != 0 ||
+        !mg_json_unescape(hm->body, "$.version", version, sizeof(version)) ||
+        !mg_json_unescape(hm->body, "$.url", s_ota->url, sizeof(s_ota->url)) ||
+        !mg_json_get_num(hm->body, "$.size", &result) || result <= 0) {
+      char buf[100];
+      mg_snprintf(buf, sizeof(buf), "Bad metadata: %.*s", hm->body.len,
+                  hm->body.buf);
+      s_ota->fn(buf);
+      mg_free(s_ota);
+      s_ota = NULL;
+    } else if (strcmp(version, s_fw_version + 11) == 0) {
+      s_autocommit_ok = true;
+      s_ota->fn("Same version");
+      mg_free(s_ota);
+      s_ota = NULL;
+    } else {
+      struct mg_connection *fc;
+      s_ota->size = (size_t) result;
+      // TODO (robertc2000): parse and validate sha256
+      MG_DEBUG(("Firmware version: %s, url: %s, size: %ld", version, s_ota->url,
+                s_ota->size));
+      fc = mg_http_connect(c->mgr, s_ota->url, s_firmware_fn, NULL);
+      if (fc == NULL) {
+        s_ota->fn("Failed to connect");
+        mg_free(s_ota);
+        s_ota = NULL;
+      } else {
+        *(uint64_t *) fc->data = mg_millis() + 5 * 1000;  // Set expiration
+      }
+    }
+    c->is_closing = 1;
   } else if (ev == MG_EV_ERROR) {
-    MG_ERROR(("%lu Connection error", c->id));
-    s_version_status = MG_OTA_STATUS_FAIL;
-  } else if (ev == MG_EV_CLOSE) {
-    MG_DEBUG(("%lu Connection closed %lu", c->id, mg_millis() - s_start_time));
-    s_version_status = fetch_status;
+    s_ota->fn((char *) ev_data);
+    mg_free(s_ota);
+    s_ota = NULL;
   }
+}
+
+static void status_fn(const char *errmsg) {
+  if (errmsg) MG_ERROR(("OTA failed: %s", errmsg));
+}
+
+static void status_fn_2(struct mg_connection *c, const char *errmsg) {
+  if (s_ota) s_ota->fn(errmsg);
+  mg_free(s_ota);
+  s_ota = NULL;
+  mg_http_reply(c, errmsg ? 500 : 200, "", "%s\n", errmsg ? errmsg : "ok");
 }
 
 static void s_firmware_fn(struct mg_connection *c, int ev, void *ev_data) {
-  struct mg_str host = mg_url_host(s_ota_metadata.url);
-  struct mg_http_message hm;
-  static size_t ofs = 0;
-  static bool ota_begun = false;
-  size_t alignment = 512, drop, len;
-  int n, status;
-  char *buf;
-  (void) ev_data;
-
+  uint64_t expiration = *(uint64_t *) c->data;
   if (ev == MG_EV_POLL) {
-    if (s_start_time + 120 * 1000 < mg_millis()) {
-      mg_error(c, "Connection timeout");
-    }
+    if (mg_millis() > expiration) mg_error(c, "OTA timeout");
   } else if (ev == MG_EV_CONNECT) {
+    struct mg_str host = mg_url_host(s_ota->url);
     mg_printf(c,
               "GET %s HTTP/1.1\r\n"
               "Host: %.*s\r\n"
               "Connection: close\r\n\r\n",
-              mg_url_uri(s_ota_metadata.url), (int) host.len, host.buf);
-    ofs = 0;
-    ota_begun = false;
-  } else if (ev == MG_EV_READ) {
-    if (s_ota_status == MG_OTA_STATUS_FAIL) return;
-    if (!ota_begun) {  // First chunk, parse headers, OTA begin
-      n = mg_http_parse((char *) c->recv.buf, c->recv.len, &hm);
-      if (n < 0) {
-        mg_error(c, "Bad HTTP response");
-        return;
-      }
-      if (n == 0) return;
-      status = mg_http_status(&hm);
-      if (status != 200 || hm.body.len != s_ota_metadata.size) {
-        mg_error(c, "Bad HTTP response (%d), body length: %lu", status,
-                 hm.body.len);
-        return;
-      }
-      MG_DEBUG(("Beginning OTA (%ld bytes)", s_ota_metadata.size));
-      if (!mg_ota_begin(s_ota_metadata.size)) {
-        s_ota_status = MG_OTA_STATUS_FAIL;
-        mg_error(c, "mg_ota_begin(%lu) failed",
-                 (unsigned long) s_ota_metadata.size);
-        return;
-      }
-      ota_begun = true;
-      len = c->recv.len - (size_t) n;
-      buf = (char *) c->recv.buf + n;
-      drop = (size_t) n;
-    } else {  // Header parsed, incoming chunks
-      len = c->recv.len;
-      buf = (char *) c->recv.buf;
-      drop = 0;
+              mg_url_uri(s_ota->url), (int) host.len, host.buf);
+    *(uint64_t *) c->data = mg_millis() + 300 * 1000;  // Set expiration
+  } else if (ev == MG_EV_HTTP_HDRS) {
+    struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+    int status = mg_http_status(hm);
+    if (status != 200 || hm->body.len != s_ota->size) {
+      mg_error(c, "Bad HTTP response: status %d, size %lu vs %lu", status,
+               (unsigned long) hm->body.len, (unsigned long) s_ota->size);
+    } else {
+      MG_DEBUG(("Beginning OTA (%lu bytes)", (unsigned long) s_ota->size));
+      mg_http_start_ota(c, hm, status_fn_2);
     }
-    // OTA write
-    size_t aligned = (ofs + len < s_ota_metadata.size)
-                         ? aligned = MG_ROUND_DOWN(len, alignment)
-                         : len;
-    if (aligned == 0) return;
-    if (!mg_ota_write(buf, aligned)) {
-      mg_error(c, "mg_ota_write(%lu) @%lu failed", (unsigned long) aligned,
-               (unsigned long) ofs);
-      return;
-    }
-    ofs += aligned;
-    mg_iobuf_del(&c->recv, 0, aligned + drop);
-    MG_DEBUG(("Wrote %lu/%lu bytes", (unsigned long) ofs,
-              (unsigned long) s_ota_metadata.size));
   } else if (ev == MG_EV_ERROR) {
-    MG_ERROR(("%lu Connection error", c->id));
-    s_ota_status = MG_OTA_STATUS_FAIL;
-  } else if (ev == MG_EV_CLOSE) {  // OTA end
-    MG_DEBUG(("Connection closing, downloaded %ld/%ld bytes", ofs,
-              s_ota_metadata.size));
-    if (s_ota_status != MG_OTA_STATUS_FAIL && ota_begun) {
-      if (ofs != s_ota_metadata.size) {
-        s_ota_status = MG_OTA_STATUS_FAIL;
-        MG_ERROR(("Firmware size mismatch: got %lu expected %lu",
-                  (unsigned long) ofs, (unsigned long) s_ota_metadata.size));
-      } else if (!mg_ota_end()) {
-        s_ota_status = MG_OTA_STATUS_FAIL;
-        MG_ERROR(("mg_ota_end() failed"));
-      } else {
-        MG_DEBUG(("mg_ota_end() successful"));
-        s_ota_status = MG_OTA_STATUS_SUCCESS;
-      }
-    }
-    ota_begun = false;
-    ofs = 0;
+    s_ota->fn((char *) ev_data);
+    mg_free(s_ota);
+    s_ota = NULL;
   }
 }
 
-void mg_ota_url_check(struct mg_mgr *mgr, const char *current_version,
-                      const char *metadata_url,
-                      void (*fn)(const char *status)) {
-  s_version_status = MG_OTA_STATUS_WAITING;
-  s_ota_status = MG_OTA_STATUS_WAITING;
-  s_start_time = mg_millis();
-  MG_DEBUG(("Connecting to %s to retrieve metadata", metadata_url));
-  if (!mg_http_connect(mgr, metadata_url, s_version_fn,
-                       (void *) metadata_url)) {
-    if (fn) fn("Failed to connect");
-    return;
-  }
-  while (s_version_status == MG_OTA_STATUS_WAITING) mg_mgr_poll(mgr, 10);
-  if (s_version_status == MG_OTA_STATUS_SUCCESS) {
-    if (strcmp(s_ota_metadata.version, current_version) == 0) {
-      if (fn) fn("Same version");
-      free_ota_metadata();
-      return;
-    }
+void mg_ota_url_check(struct mg_mgr *mgr, const char *json_url,
+                      void (*fn)(const char *error_message)) {
+  if (fn == NULL) fn = status_fn;
+  if (s_ota != NULL) {
+    fn("OTA already in progress");
+  } else if ((s_ota = (struct mg_ota_state *) mg_calloc(1, sizeof(*s_ota))) ==
+             NULL) {
+    fn("Out of memory");
   } else {
-    if (fn) fn("Version retrieving error");
-    free_ota_metadata();
-    return;
+    struct mg_connection *c;
+    mg_snprintf(s_ota->json_url, sizeof(s_ota->json_url), "%s", json_url);
+    MG_DEBUG(("Connecting to %s", json_url));
+    c = mg_http_connect(mgr, s_ota->json_url, s_version_fn, NULL);
+    if (c == NULL) {
+      mg_free(s_ota);
+      s_ota = NULL;
+      fn("Failed to connect");
+    } else {
+      s_ota->fn = fn;
+      *(uint64_t *) c->data = mg_millis() + 5 * 1000;  // Set expiration
+    }
   }
-  if (fn) fn("Pulling firmware");
-  s_start_time = mg_millis();
-  MG_DEBUG(("Connecting to %s to download firmware", s_ota_metadata.url));
-  if (!mg_connect(mgr, s_ota_metadata.url, s_firmware_fn, NULL)) {
-    if (fn) fn("Failed to connect");
-    free_ota_metadata();
-    return;
-  }
-  while (s_ota_status == MG_OTA_STATUS_WAITING) mg_mgr_poll(mgr, 10);
-  if (s_ota_status == MG_OTA_STATUS_FAIL && fn) fn("OTA fail");
-  free_ota_metadata();
 }
 
-#endif
+void mg_ota_poll(struct mg_mgr *mgr) {
+  static uint64_t t = 5000;  // Fire first time 5 sec after boot
+
+  static uint64_t feed_timer;  // Advances 500ms per tick; tracks elapsed time
+  if (MG_OTA_STATE_GET() == MG_OTA_TESTING &&
+      mg_timer_expired(&feed_timer, 500, mg_millis())) {
+    if (feed_timer < (uint64_t) MG_OTA_ROLLBACK_TIMEOUT_SECONDS * 1000) {
+      MG_OTA_ROLLBACK_TIMER_FEED();  // Feed watchdog every 500ms
+    } else if (s_autocommit_ok) {
+      MG_INFO(("Auto-committing firmware"));
+      MG_OTA_STATE_SET(MG_OTA_CONFIRMED);  // Stop feeding → IWDG resets cleanly
+    } else {
+      MG_INFO(("No commit confirmation, rolling back"));
+      // Stop feeding → IWDG fires → resets into MG_OTA_FAILED → rollback
+    }
+  }
+
+  if (MG_OTA_URL != NULL &&
+      mg_timer_expired(&t, MG_OTA_PULL_INTERVAL_SECONDS * 1000, mg_millis())) {
+    mg_ota_url_check(mgr, MG_OTA_URL, MG_OTA_STATUS_FN);
+  }
+}
 
 #ifdef MG_ENABLE_LINES
 #line 1 "src/ota_ch32v307.c"
@@ -9035,6 +10291,7 @@ bool mg_ota_end(void) {
   }
   return false;
 }
+struct mg_flash *mg_flash = &s_mg_flash_ch32v307;
 #endif
 
 #ifdef MG_ENABLE_LINES
@@ -9707,7 +10964,7 @@ bool mg_ota_end(void) {
   }
   return false;
 }
-
+struct mg_flash *mg_flash = &s_mg_flash_imxrt;
 #endif
 
 #ifdef MG_ENABLE_LINES
@@ -9921,6 +11178,7 @@ bool mg_ota_end(void) {
   }
   return false;
 }
+struct mg_flash *mg_flash = &s_mg_flash_mcxn;
 #endif
 
 #ifdef MG_ENABLE_LINES
@@ -9974,11 +11232,6 @@ static bool __no_inline_not_in_flash_func(flash_erase)(void *addr) {
   return true;
 }
 
-static bool __no_inline_not_in_flash_func(mg_picosdk_swap)(void) {
-  // TODO(): RP2350 might have some A/B functionality (DS 5.1)
-  return true;
-}
-
 static bool s_flash_irq_disabled;
 
 static bool __no_inline_not_in_flash_func(mg_picosdk_write)(void *addr,
@@ -10028,12 +11281,14 @@ static bool __no_inline_not_in_flash_func(mg_picosdk_write)(void *addr,
 static void __no_inline_not_in_flash_func(single_bank_swap)(char *p1, char *p2,
                                                             size_t s,
                                                             size_t ss) {
-  char *tmp = mg_calloc(1, ss);
-  if (tmp == NULL) return;
+  char *tmp_1 = mg_calloc(1, ss); // copy from 1st partition
+  if (tmp_1 == NULL) return;
+  char *tmp_2 = mg_calloc(1, ss); // copy from 2nd partition
+  if (tmp_2 == NULL) return;
 #if PICO_RP2040
   uint32_t xip[256 / sizeof(uint32_t)];
-  void *dst = (void *) ((char *) p1 - (char *) s_mg_flash_picosdk.start);
-  size_t count = MG_ROUND_UP(s, ss);
+  void *dst_1 = (void *) ((char *) p1 - (char *) s_mg_flash_picosdk.start);
+  void *dst_2 = (void *) ((char *) p2- (char *) s_mg_flash_picosdk.start);
   // use SDK function calls to get BootROM function pointers
   rom_connect_internal_flash_fn connect = (rom_connect_internal_flash_fn) rom_func_lookup(ROM_FUNC_CONNECT_INTERNAL_FLASH);
   rom_flash_exit_xip_fn xit = (rom_flash_exit_xip_fn) rom_func_lookup(ROM_FUNC_FLASH_EXIT_XIP);
@@ -10044,14 +11299,19 @@ static void __no_inline_not_in_flash_func(single_bank_swap)(char *p1, char *p2,
   // 2nd bootloader (XIP) is in flash, SDK functions copy it to RAM on entry
   for (size_t i = 0; i < 256 / sizeof(uint32_t); i++)
     xip[i] = ((uint32_t *) (s_mg_flash_picosdk.start))[i];
-  flash_range_erase((uint32_t) dst, count);
   // flash has been erased, no XIP to copy. Only BootROM calls possible
   for (uint32_t ofs = 0; ofs < s; ofs += ss) {
-    for (size_t i = 0; i < ss; i++) tmp[i] = p2[ofs + i];
+    for (size_t i = 0; i < ss; i++) {
+      tmp_1[i] = p1[ofs + i];
+      tmp_2[i] = p2[ofs + i];
+    }
+    flash_range_erase((uint32_t) dst_1 + ofs, ss);
+    flash_range_erase((uint32_t) dst_2 + ofs, ss);
     __compiler_memory_barrier();
     connect();
     xit();
-    program((uint32_t) dst + ofs, tmp, ss);
+    program((uint32_t) dst_1 + ofs, tmp_2, ss);
+    program((uint32_t) dst_2 + ofs, tmp_1, ss);
     flush();
     ((void (*)(void))((intptr_t) xip + 1))(); // enter XIP again
   }
@@ -10061,11 +11321,32 @@ static void __no_inline_not_in_flash_func(single_bank_swap)(char *p1, char *p2,
   // It might also be able to take advantage of partition swapping
   rom_reboot_fn reboot = (rom_reboot_fn) rom_func_lookup(ROM_FUNC_REBOOT);
   for (size_t ofs = 0; ofs < s; ofs += ss) {
-    for (size_t i = 0; i < ss; i++) tmp[i] = p2[ofs + i];
-    mg_picosdk_write(p1 + ofs, tmp, ss);
+    for (size_t i = 0; i < ss; i++) {
+      tmp_1[i] = p1[ofs + i];
+      tmp_2[i] = p2[ofs + i];
+    }
+    mg_picosdk_write(p1 + ofs, tmp_2, ss);
+    mg_picosdk_write(p2 + ofs, tmp_1, ss);
   }
   reboot(BOOT_TYPE_NORMAL | 0x100, 1, 0, 0); // 0x100: NO_RETURN_ON_SUCCESS
 #endif
+}
+
+static bool __no_inline_not_in_flash_func(mg_picosdk_swap)(void) {
+  // TODO(): RP2350 might have some A/B functionality (DS 5.1)
+  // Swap partitions. Pray power does not go away
+  MG_INFO(("Swapping partitions, size %u (%u sectors)",
+            s_mg_flash_picosdk.size,
+            s_mg_flash_picosdk.size / s_mg_flash_picosdk.secsz));
+  MG_INFO(("Do NOT power off..."));
+  mg_log_level = MG_LL_NONE;
+  s_flash_irq_disabled = true;
+  // Runs in RAM, will reset when finished or return on failure
+  single_bank_swap(
+      (char *) s_mg_flash_picosdk.start,
+      (char *) s_mg_flash_picosdk.start + s_mg_flash_picosdk.size / 2,
+      s_mg_flash_picosdk.size / 2, s_mg_flash_picosdk.secsz);
+  return false;
 }
 
 bool mg_ota_begin(size_t new_firmware_size) {
@@ -10077,22 +11358,10 @@ bool mg_ota_write(const void *buf, size_t len) {
 }
 
 bool mg_ota_end(void) {
-  if (mg_ota_flash_end(&s_mg_flash_picosdk)) {
-    // Swap partitions. Pray power does not go away
-    MG_INFO(("Swapping partitions, size %u (%u sectors)",
-             s_mg_flash_picosdk.size,
-             s_mg_flash_picosdk.size / s_mg_flash_picosdk.secsz));
-    MG_INFO(("Do NOT power off..."));
-    mg_log_level = MG_LL_NONE;
-    s_flash_irq_disabled = true;
-    // Runs in RAM, will reset when finished or return on failure
-    single_bank_swap(
-        (char *) s_mg_flash_picosdk.start,
-        (char *) s_mg_flash_picosdk.start + s_mg_flash_picosdk.size / 2,
-        s_mg_flash_picosdk.size / 2, s_mg_flash_picosdk.secsz);
-  }
+  if (mg_ota_flash_end(&s_mg_flash_picosdk));
   return false;
 }
+struct mg_flash *mg_flash = &s_mg_flash_picosdk;
 #endif
 
 #ifdef MG_ENABLE_LINES
@@ -10460,7 +11729,7 @@ bool mg_ota_end(void) {
   }
   return false;
 }
-
+struct mg_flash *mg_flash = &s_mg_flash_frdm;
 #endif
 
 #ifdef MG_ENABLE_LINES
@@ -10501,6 +11770,10 @@ static struct mg_flash s_mg_flash_stm32f = {
 
 static size_t flash_size(void) {
   return (MG_REG(MG_FLASH_SIZE_REG_LOCATION) & 0xFFFF) * 1024;
+}
+
+MG_IRAM static size_t last_sector_size(void) {
+  return (STM_DEV_ID >= 0x449 ? 256 : 128) * 1024;
 }
 
 MG_IRAM static int is_dualbank(void) {
@@ -10620,12 +11893,7 @@ MG_IRAM static bool mg_stm32f_erase(void *addr) {
   return ok;
 }
 
-MG_IRAM static bool mg_stm32f_swap(void) {
-  // STM32 F42x/F43x support dual bank, however, the memory mapping
-  // change will not be carried through a hard reset. Therefore, we will use
-  // the single bank approach for this family as well.
-  return true;
-}
+MG_IRAM static void single_bank_swap(char *p1, char *p2, size_t s, size_t ss);
 
 static bool s_flash_irq_disabled;
 
@@ -10659,19 +11927,54 @@ MG_IRAM static bool mg_stm32f_write(void *addr, const void *buf, size_t len) {
   return ok;
 }
 
-// just overwrite instead of swap
-MG_IRAM void single_bank_swap(char *p1, char *p2, size_t size) {
-  // no stdlib calls here
-  mg_stm32f_write(p1, p2, size);
-  *(volatile unsigned long *) 0xe000ed0c = 0x5fa0004;
+MG_IRAM static bool mg_stm32f_swap(void) {
+  // STM32 F42x/F43x support dual bank, however, the memory mapping
+  // change will not be carried through a hard reset. Therefore, we use
+  // the single-bank scratch-sector swap for this family as well.
+  size_t ss = last_sector_size();
+  char *p1 = (char *) s_mg_flash_stm32f.start;
+  char *p2;
+  size_t s;
+  s_mg_flash_stm32f.size = flash_size();
+  p2 = p1 + s_mg_flash_stm32f.size / 2;
+  s = s_mg_flash_stm32f.size / 2 - ss;
+  MG_INFO(("Swapping partitions, %u bytes", s));
+  MG_INFO(("Do NOT power off..."));
+  MG_OTA_ROLLBACK_TIMER_FEED();
+  mg_log_level = MG_LL_NONE;
+  s_flash_irq_disabled = true;
+  single_bank_swap(p1, p2, s, ss);
+  return true;  // unreachable
+}
+
+// True exchange between first half [p1..p1+s) and second half [p2..p2+s),
+// using the last sector of the second half as scratch. Runs from RAM and resets.
+MG_IRAM static void single_bank_swap(char *p1, char *p2, size_t s, size_t ss) {
+  char *scratch = p2 + s;
+  for (size_t ofs = 0; ofs < s; ofs += ss) {
+    MG_OTA_ROLLBACK_TIMER_FEED();
+    mg_stm32f_write(scratch, p1 + ofs, ss);
+    MG_OTA_ROLLBACK_TIMER_FEED();
+    mg_stm32f_write(p1 + ofs, p2 + ofs, ss);
+    MG_OTA_ROLLBACK_TIMER_FEED();
+    mg_stm32f_write(p2 + ofs, scratch, ss);
+  }
+  *(volatile uint32_t *) 0xe000ed0cU = 0x5fa0004U;  // NVIC_SystemReset()
 }
 
 bool mg_ota_begin(size_t new_firmware_size) {
+  size_t max;
   s_mg_flash_stm32f.size = flash_size();
 #ifdef __ZEPHYR__
   *((uint32_t *)0xE000ED94) = 0;
   MG_DEBUG(("Jailbreak %s", *((uint32_t *)0xE000ED94) == 0 ? "successful" : "failed"));
 #endif
+  max = s_mg_flash_stm32f.size / 2 - last_sector_size();
+  if (new_firmware_size > max) {
+    MG_ERROR(("Firmware %lu too big for single-bank OTA, max %lu",
+              new_firmware_size, max));
+    return false;
+  }
   return mg_ota_flash_begin(new_firmware_size, &s_mg_flash_stm32f);
 }
 
@@ -10680,21 +11983,10 @@ bool mg_ota_write(const void *buf, size_t len) {
 }
 
 bool mg_ota_end(void) {
-  if (mg_ota_flash_end(&s_mg_flash_stm32f)) {
-    // Swap partitions. Pray power does not go away
-    MG_INFO(("Swapping partitions, size %u (%u sectors)",
-             s_mg_flash_stm32f.size, STM_DEV_ID == 0x449 ? 8 : 12));
-    MG_INFO(("Do NOT power off..."));
-    mg_log_level = MG_LL_NONE;
-    s_flash_irq_disabled = true;
-    char *p1 = (char *) s_mg_flash_stm32f.start;
-    char *p2 = p1 + s_mg_flash_stm32f.size / 2;
-    size_t size = s_mg_flash_stm32f.size / 2;
-    // Runs in RAM, will reset when finished
-    single_bank_swap(p1, p2, size);
-  }
+  mg_ota_flash_end(&s_mg_flash_stm32f);
   return false;
 }
+struct mg_flash *mg_flash = &s_mg_flash_stm32f;
 #endif
 
 #ifdef MG_ENABLE_LINES
@@ -10711,7 +12003,7 @@ static bool mg_stm32h5_swap(void);
 
 static struct mg_flash s_mg_flash_stm32h5 = {
     (void *) 0x08000000,  // Start
-    2 * 1024 * 1024,      // Size, 2Mb
+    0,                    // Size, FLASHSIZE_BASE
     8 * 1024,             // Sector size, 8k
     16,                   // Align, 128 bit
     mg_stm32h5_write,
@@ -10727,6 +12019,18 @@ static struct mg_flash s_mg_flash_stm32h5 = {
 #define FLASH_NSCCR (MG_FLASH_BASE + 0x30)
 #define FLASH_OPTSR_CUR (MG_FLASH_BASE + 0x50)
 #define FLASH_OPTSR_PRG (MG_FLASH_BASE + 0x54)
+#ifndef FLASHSIZE_BASE
+#define FLASHSIZE_BASE 0x08FFF80CUL
+#endif
+
+static size_t flash_size(void) {
+  uint32_t kb = MG_REG(FLASHSIZE_BASE) & 0xFFFF;
+  return (kb == 0 || kb == 0xFFFF) ? 2 * 1024 * 1024 : kb * 1024;
+}
+
+static uint32_t sectors_per_bank(void) {
+  return (uint32_t) (s_mg_flash_stm32h5.size / 2 / s_mg_flash_stm32h5.secsz);
+}
 
 static void flash_unlock(void) {
   static bool unlocked = false;
@@ -10773,15 +12077,16 @@ static bool mg_stm32h5_erase(void *location) {
   } else {
     uintptr_t diff = (char *) location - (char *) s_mg_flash_stm32h5.start;
     uint32_t sector = diff / s_mg_flash_stm32h5.secsz;
+    uint32_t bank_sectors = sectors_per_bank();
     uint32_t saved_cr = MG_REG(FLASH_NSCR);  // Save CR value
     flash_unlock();
     flash_clear_err();
     MG_REG(FLASH_NSCR) = 0;
-    if ((sector < 128 && flash_bank_is_swapped()) ||
-        (sector > 127 && !flash_bank_is_swapped())) {
+    if ((sector < bank_sectors && flash_bank_is_swapped()) ||
+        (sector >= bank_sectors && !flash_bank_is_swapped())) {
       MG_REG(FLASH_NSCR) |= MG_BIT(31);  // Set FLASH_CR_BKSEL
     }
-    if (sector > 127) sector -= 128;
+    if (sector >= bank_sectors) sector -= bank_sectors;
     MG_REG(FLASH_NSCR) |= MG_BIT(2) | (sector << 6);  // Erase | sector_num
     MG_REG(FLASH_NSCR) |= MG_BIT(5);                  // Start erasing
     flash_wait();
@@ -10798,10 +12103,8 @@ static bool mg_stm32h5_swap(void) {
   uint32_t desired = flash_bank_is_swapped() ? 0 : MG_BIT(31);
   flash_unlock();
   flash_clear_err();
-  // printf("OPTSR_PRG 1 %#lx\n", FLASH->OPTSR_PRG);
   MG_SET_BITS(MG_REG(FLASH_OPTSR_PRG), MG_BIT(31), desired);
-  // printf("OPTSR_PRG 2 %#lx\n", FLASH->OPTSR_PRG);
-  MG_REG(FLASH_OPTCR) |= MG_BIT(1);  // OPTSTART
+  MG_REG(FLASH_OPTCR) |= MG_BIT(1);  // OPTSTART; triggers auto-reset on H5
   while ((MG_REG(FLASH_OPTSR_CUR) & MG_BIT(31)) != desired) (void) 0;
   return true;
 }
@@ -10837,6 +12140,7 @@ static bool mg_stm32h5_write(void *addr, const void *buf, size_t len) {
 }
 
 bool mg_ota_begin(size_t new_firmware_size) {
+  s_mg_flash_stm32h5.size = flash_size();
 #ifdef __ZEPHYR__
   *((uint32_t *)0xE000ED94) = 0;
   MG_DEBUG(("Jailbreak %s", *((uint32_t *)0xE000ED94) == 0 ? "successful" : "failed"));
@@ -10848,12 +12152,13 @@ bool mg_ota_write(const void *buf, size_t len) {
   return mg_ota_flash_write(buf, len, &s_mg_flash_stm32h5);
 }
 
-// Actual bank swap is deferred until reset, it is safe to execute in flash
 bool mg_ota_end(void) {
-  if(!mg_ota_flash_end(&s_mg_flash_stm32h5)) return false;
-  *(volatile unsigned long *) 0xe000ed0c = 0x5fa0004;
+  if (!mg_ota_flash_end(&s_mg_flash_stm32h5)) return false;
+  *(volatile uint32_t *) 0xe000ed0c = 0x5fa0004U;  // NVIC_SystemReset()
   return true;
 }
+
+struct mg_flash *mg_flash = &s_mg_flash_stm32h5;
 #endif
 
 #ifdef MG_ENABLE_LINES
@@ -10897,6 +12202,11 @@ static struct mg_flash s_mg_flash_stm32h7 = {
 #define FLASH_SIZE_REG 0x1ff1e880
 
 #define IS_DUALCORE() (MG_OTA == MG_OTA_STM32H7_DUAL_CORE)
+
+MG_IRAM static size_t flash_size(void) {
+  size_t size = MG_REG(FLASH_SIZE_REG) * 1024;
+  return IS_DUALCORE() ? size / 2 : size;
+}
 
 MG_IRAM static bool is_dualbank(void) {
   if (IS_DUALCORE()) {
@@ -10973,6 +12283,7 @@ MG_IRAM static bool mg_stm32h7_erase(void *addr) {
     MG_REG(bank + FLASH_CR) |= (sector & 7U) << 8U;  // Sector to erase
     MG_REG(bank + FLASH_CR) |= MG_BIT(2);            // Sector erase bit
     MG_REG(bank + FLASH_CR) |= MG_BIT(7);            // Start erasing
+    flash_wait(bank);
     ok = !flash_is_err(bank);
     MG_DEBUG(("Erase sector %lu @ %p %s. CR %#lx SR %#lx", sector, addr,
               ok ? "ok" : "fail", MG_REG(bank + FLASH_CR),
@@ -10982,21 +12293,36 @@ MG_IRAM static bool mg_stm32h7_erase(void *addr) {
   return ok;
 }
 
+MG_IRAM static void single_bank_swap(char *p1, char *p2, size_t s, size_t ss);
+
+static bool s_flash_irq_disabled;
+
 MG_IRAM static bool mg_stm32h7_swap(void) {
-  if (!is_dualbank()) return true;
+  s_mg_flash_stm32h7.size = flash_size();
+  if (!is_dualbank()) {
+    // True sector-by-sector swap using the last sector of the second half as
+    // scratch. Resets inside single_bank_swap, never returns.
+    size_t ss = s_mg_flash_stm32h7.secsz;
+    char *p1 = (char *) s_mg_flash_stm32h7.start;
+    char *p2 = p1 + s_mg_flash_stm32h7.size / 2;
+    size_t s = s_mg_flash_stm32h7.size / 2 - ss;
+    MG_INFO(("Swapping partitions, %u bytes (%u sectors)", s, s / ss));
+    MG_INFO(("Do NOT power off..."));
+    MG_OTA_ROLLBACK_TIMER_FEED();
+    mg_log_level = MG_LL_NONE;
+    s_flash_irq_disabled = true;
+    single_bank_swap(p1, p2, s, ss);
+    return true;  // unreachable
+  }
   uint32_t bank = FLASH_BASE1;
   uint32_t desired = flash_bank_is_swapped(bank) ? 0 : MG_BIT(31);
   flash_unlock();
   flash_clear_err(bank);
-  // printf("OPTSR_PRG 1 %#lx\n", FLASH->OPTSR_PRG);
   MG_SET_BITS(MG_REG(bank + FLASH_OPTSR_PRG), MG_BIT(31), desired);
-  // printf("OPTSR_PRG 2 %#lx\n", FLASH->OPTSR_PRG);
   MG_REG(bank + FLASH_OPTCR) |= MG_BIT(1);  // OPTSTART
   while ((MG_REG(bank + FLASH_OPTSR_CUR) & MG_BIT(31)) != desired) (void) 0;
   return true;
 }
-
-static bool s_flash_irq_disabled;
 
 MG_IRAM static bool mg_stm32h7_write(void *addr, const void *buf, size_t len) {
   if ((len % s_mg_flash_stm32h7.align) != 0) {
@@ -11023,32 +12349,43 @@ MG_IRAM static bool mg_stm32h7_write(void *addr, const void *buf, size_t len) {
     if (flash_is_err(bank)) ok = false;
   }
   if (!s_flash_irq_disabled) MG_ARM_ENABLE_IRQ();
-  MG_DEBUG(("Flash write %lu bytes @ %p: %s. CR %#lx SR %#lx", len, dst,
+  MG_DEBUG(("Flash write %lu bytes @ %p: %s. CR %#lx SR %#lx", len, addr,
             ok ? "ok" : "fail", MG_REG(bank + FLASH_CR),
             MG_REG(bank + FLASH_SR)));
   MG_REG(bank + FLASH_CR) &= ~MG_BIT(1);  // Clear programming flag
   return ok;
 }
 
-// just overwrite instead of swap
+// True sector-by-sector exchange between first half [p1..p1+s) and second half
+// [p2..p2+s), using the sector at p2+s as scratch. Runs from RAM. Resets on
+// completion. Symmetric: calling twice returns flash to original state.
 MG_IRAM static void single_bank_swap(char *p1, char *p2, size_t s, size_t ss) {
-  // no stdlib calls here
+  char *scratch = p2 + s;  // Last sector of second half, reserved as scratch
   for (size_t ofs = 0; ofs < s; ofs += ss) {
-    mg_stm32h7_write(p1 + ofs, p2 + ofs, ss);
+    MG_OTA_ROLLBACK_TIMER_FEED();
+    mg_stm32h7_write(scratch, p1 + ofs, ss);   // Save p1[i] to scratch
+    MG_OTA_ROLLBACK_TIMER_FEED();
+    mg_stm32h7_write(p1 + ofs, p2 + ofs, ss);  // Copy p2[i] to p1[i]
+    MG_OTA_ROLLBACK_TIMER_FEED();
+    mg_stm32h7_write(p2 + ofs, scratch, ss);   // Copy scratch to p2[i]
   }
-  *(volatile unsigned long *) 0xe000ed0c = 0x5fa0004;
+  *(volatile uint32_t *) 0xe000ed0cU = 0x5fa0004U;  // NVIC_SystemReset()
 }
 
 bool mg_ota_begin(size_t new_firmware_size) {
-  s_mg_flash_stm32h7.size = MG_REG(FLASH_SIZE_REG) * 1024;
-  if (IS_DUALCORE()) {
-    // Using only the 1st bank (mapped to CM7)
-    s_mg_flash_stm32h7.size /= 2;
-  }
+  s_mg_flash_stm32h7.size = flash_size();
 #ifdef __ZEPHYR__
-  *((uint32_t *)0xE000ED94) = 0;
-  MG_DEBUG(("Jailbreak %s", *((uint32_t *)0xE000ED94) == 0 ? "successful" : "failed"));
+  *((uint32_t *) 0xE000ED94) = 0;
+  MG_DEBUG(("Jailbreak %s", *((uint32_t *) 0xE000ED94) == 0 ? "ok" : "failed"));
 #endif
+  if (!is_dualbank()) {
+    // Last sector of the second half is reserved as swap scratch; enforce limit.
+    size_t max = s_mg_flash_stm32h7.size / 2 - s_mg_flash_stm32h7.secsz;
+    if (new_firmware_size > max) {
+      MG_ERROR(("Firmware %lu too big for single-bank OTA, max %lu", new_firmware_size, max));
+      return false;
+    }
+  }
   return mg_ota_flash_begin(new_firmware_size, &s_mg_flash_stm32h7);
 }
 
@@ -11060,24 +12397,13 @@ bool mg_ota_end(void) {
   if (mg_ota_flash_end(&s_mg_flash_stm32h7)) {
     if (is_dualbank()) {
       // Bank swap is deferred until reset, been executing in flash, reset
-      *(volatile unsigned long *) 0xe000ed0c = 0x5fa0004;
-    } else {
-      // Swap partitions. Pray power does not go away
-      MG_INFO(("Swapping partitions, size %u (%u sectors)",
-               s_mg_flash_stm32h7.size,
-               s_mg_flash_stm32h7.size / s_mg_flash_stm32h7.secsz));
-      MG_INFO(("Do NOT power off..."));
-      mg_log_level = MG_LL_NONE;
-      s_flash_irq_disabled = true;
-      // Runs in RAM, will reset when finished
-      single_bank_swap(
-          (char *) s_mg_flash_stm32h7.start,
-          (char *) s_mg_flash_stm32h7.start + s_mg_flash_stm32h7.size / 2,
-          s_mg_flash_stm32h7.size / 2, s_mg_flash_stm32h7.secsz);
+      *(volatile uint32_t *) 0xe000ed0cU = 0x5fa0004U;  // NVIC_SystemReset()
     }
   }
   return false;
 }
+
+struct mg_flash *mg_flash = &s_mg_flash_stm32h7;
 #endif
 
 #ifdef MG_ENABLE_LINES
@@ -12095,10 +13421,10 @@ void mg_sha384(uint8_t dst[48], uint8_t *data, size_t datasz) {
 #define SNTP_TIME_OFFSET 2208988800U  // (1970 - 1900) in seconds
 #define SNTP_MAX_FRAC 4294967295.0    // 2 ** 32 - 1
 
-static uint64_t s_boot_timestamp = 0;  // Updated by SNTP
+uint64_t mg_boot_timestamp_ms = 0;  // Updated by SNTP
 
 uint64_t mg_now(void) {
-  return mg_millis() + s_boot_timestamp;
+  return mg_millis() + mg_boot_timestamp_ms;
 }
 
 static int64_t gettimestamp(const uint32_t *data) {
@@ -12125,7 +13451,7 @@ int64_t mg_sntp_parse(const unsigned char *buf, size_t len) {
     int64_t now = (int64_t) mg_millis();
     int64_t latency = (now - origin_time) - (transmit_time - receive_time);
     epoch_milliseconds = transmit_time + latency / 2;
-    s_boot_timestamp = (uint64_t) (epoch_milliseconds - now);
+    mg_boot_timestamp_ms = (uint64_t) (epoch_milliseconds - now);
   } else {
     MG_ERROR(("unexpected version: %d", version));
   }
@@ -12141,7 +13467,7 @@ static void sntp_cb(struct mg_connection *c, int ev, void *ev_data) {
   } else if (ev == MG_EV_READ) {
     int64_t milliseconds = mg_sntp_parse(c->recv.buf, c->recv.len);
     if (milliseconds > 0) {
-      s_boot_timestamp = (uint64_t) milliseconds - mg_millis();
+      mg_boot_timestamp_ms = (uint64_t) milliseconds - mg_millis();
       mg_call(c, MG_EV_SNTP_TIME, (uint64_t *) &milliseconds);
       MG_DEBUG(("%lu got time: %lld ms from epoch", c->id, milliseconds));
     }
@@ -12175,9 +13501,11 @@ struct mg_connection *mg_sntp_connect(struct mg_mgr *mgr, const char *url,
   return mg_connect_svc(mgr, url, fn, fn_data, sntp_cb, NULL);
 }
 
+
 #ifdef MG_ENABLE_LINES
 #line 1 "src/sock.c"
 #endif
+
 
 
 
@@ -12274,7 +13602,8 @@ static void setlocaddr(MG_SOCKET_TYPE fd, struct mg_addr *addr) {
 }
 
 // Get the local 'addr' the stack will use to connect to 'to'
-void mg_getlocaddr(struct mg_connection *c, struct mg_addr *to, struct mg_addr *addr) {
+void mg_getlocaddr(struct mg_connection *c, struct mg_addr *to,
+                   struct mg_addr *addr) {
   union usa usa;
   socklen_t slen;
   MG_SOCKET_TYPE fd;
@@ -12293,7 +13622,6 @@ void mg_getlocaddr(struct mg_connection *c, struct mg_addr *to, struct mg_addr *
   setlocaddr(fd, addr);
   closesocket(fd);
 }
-
 
 static void iolog(struct mg_connection *c, char *buf, long n, bool r) {
   if (n == MG_IO_WAIT) {
@@ -12332,7 +13660,7 @@ long mg_io_send(struct mg_connection *c, const void *buf, size_t len) {
   }
   MG_VERBOSE(("%lu %ld %d", c->id, n, MG_SOCK_ERR(n)));
   if (MG_SOCK_PENDING(n)) return MG_IO_WAIT;
-  if (MG_SOCK_RESET(n)) return MG_IO_RESET;  // MbedTLS, see #1507
+  if (MG_SOCK_RESET(n)) return MG_IO_ERR;  // See #1507, #3031
   if (n <= 0) return MG_IO_ERR;
   return n;
 }
@@ -12481,7 +13809,7 @@ static long recv_raw(struct mg_connection *c, void *buf, size_t len) {
   }
   MG_VERBOSE(("%lu %ld %d", c->id, n, MG_SOCK_ERR(n)));
   if (MG_SOCK_PENDING(n)) return MG_IO_WAIT;
-  if (MG_SOCK_RESET(n)) return MG_IO_RESET;  // MbedTLS, see #1507
+  if (MG_SOCK_RESET(n)) return MG_IO_ERR;  // See #1507, #3031
   if (n <= 0) return MG_IO_ERR;
   return n;
 }
@@ -12502,42 +13830,40 @@ static bool ioalloc(struct mg_connection *c, struct mg_iobuf *io) {
 // NOTE(lsm): do only one iteration of reads, cause some systems
 // (e.g. FreeRTOS stack) return 0 instead of -1/EWOULDBLOCK when no data
 static void read_conn(struct mg_connection *c) {
-  if (ioalloc(c, &c->recv)) {
-    char *buf = (char *) &c->recv.buf[c->recv.len];
-    size_t len = c->recv.size - c->recv.len;
-    long n = -1;
-    if (c->is_tls) {
-      // Do not read to the raw TLS buffer if it already has enough.
-      // This is to prevent overflowing c->rtls if our reads are slow
-      long m;
-      if (c->rtls.len < 16 * 1024 + 40) {  // TLS record, header, MAC, padding
-        if (!ioalloc(c, &c->rtls)) return;
-        n = recv_raw(c, (char *) &c->rtls.buf[c->rtls.len],
-                     c->rtls.size - c->rtls.len);
-        if (n > 0) c->rtls.len += (size_t) n;
-      }
-      // there can still be > 16K from last iteration, always mg_tls_recv()
-      m = c->is_tls_hs ? (long) MG_IO_WAIT : mg_tls_recv(c, buf, len);
-      if (n == MG_IO_ERR || n == MG_IO_RESET) {  // Windows, see #3031
-        if (c->rtls.len == 0 || m < 0) {
-          // Close only when we have fully drained both rtls and TLS buffers
-          c->is_closing = 1;         // or there's nothing we can do about it.
-          if (m < 0) m = MG_IO_ERR;  // but return last record data, see #3104
-        } else {                     // see #2885
-          // TLS buffer is capped to max record size, even though, there can
-          // be more than one record, give TLS a chance to process them.
-        }
-      } else if (c->is_tls_hs) {
+  long n = MG_IO_WAIT;
+  if (ioalloc(c, &c->recv) == false) return;  // Oopsie poopsie, OOM
+  if (c->is_tls) {
+    size_t rtls = c->rtls.len, pending = mg_tls_pending(c);
+    long m = MG_IO_WAIT;
+    if (c->rtls.len < 16 * 1024 + 40) {  // TLS record, header, MAC, padding
+      if (!ioalloc(c, &c->rtls)) return;
+      n = recv_raw(c, (char *) &c->rtls.buf[c->rtls.len],
+                   c->rtls.size - c->rtls.len);
+      if (n > 0) c->rtls.len += (size_t) n;
+    }
+    // There can still be > 16K from last iteration, always mg_tls_recv()
+    if (c->is_tls_hs) {
+      if (n != MG_IO_ERR || c->rtls.len > 0 || pending > 0) {
         mg_tls_handshake(c);
       }
-      n = m;
     } else {
-      n = recv_raw(c, buf, len);
+      m = mg_tls_recv(c, &c->recv.buf[c->recv.len], c->recv.size - c->recv.len);
     }
-    MG_DEBUG(("%lu %ld %lu:%lu:%lu %ld err %d", c->id, c->fd, c->send.len,
-              c->recv.len, c->rtls.len, n, MG_SOCK_ERR(n)));
-    iolog(c, buf, n, true);
+    if (n == MG_IO_ERR &&
+        (m == MG_IO_ERR || (c->rtls.len == 0 && mg_tls_pending(c) == 0) ||
+         (c->is_tls_hs && c->rtls.len == rtls &&
+          mg_tls_pending(c) == pending))) {
+      // Close only when we have fully drained both rtls and TLS buffers
+      c->is_closing = 1;         // or there's nothing we can do about it.
+      if (m < 0) m = MG_IO_ERR;  // but return last record data, see #3104
+    }
+    n = m;
+  } else {
+    n = recv_raw(c, &c->recv.buf[c->recv.len], c->recv.size - c->recv.len);
   }
+  MG_DEBUG(("%lu %ld %lu:%lu:%lu %ld err %d", c->id, c->fd, c->send.len,
+            c->recv.len, c->rtls.len, n, MG_SOCK_ERR(n)));
+  iolog(c, (char *) &c->recv.buf[c->recv.len], n, true);
 }
 
 static void write_conn(struct mg_connection *c) {
@@ -12678,7 +14004,7 @@ static void accept_conn(struct mg_mgr *mgr, struct mg_connection *lsn) {
     setsockopts(c);
     c->is_accepted = 1;
     c->is_hexdumping = lsn->is_hexdumping;
-    setlocaddr(fd, &c->loc); // set local addr to where the client connected to
+    setlocaddr(fd, &c->loc);  // set local addr to where the client connected to
     c->pfn = lsn->pfn;
     c->pfn_data = lsn->pfn_data;
     c->fn = lsn->fn;
@@ -12889,15 +14215,15 @@ static void wufn(struct mg_connection *c, int ev, void *ev_data) {
     }
     c->recv.len = 0;  // Consume received data
   } else if (ev == MG_EV_CLOSE) {
-    closesocket(c->mgr->pipe);         // When we're closing, close the other
-    c->mgr->pipe = MG_INVALID_SOCKET;  // side of the socketpair, too
+    closesocket(c->mgr->pipe.fd);        // When we're closing, close the other
+    c->mgr->pipe.fd = MG_INVALID_SOCKET; // side of the socketpair, too
   }
   (void) ev_data;
 }
 
 bool mg_wakeup_init(struct mg_mgr *mgr) {
   bool ok = false;
-  if (mgr->pipe == MG_INVALID_SOCKET) {
+  if (mgr->pipe.fd == MG_INVALID_SOCKET) {
     union usa usa[2];
     MG_SOCKET_TYPE sp[2] = {MG_INVALID_SOCKET, MG_INVALID_SOCKET};
     struct mg_connection *c = NULL;
@@ -12909,8 +14235,8 @@ bool mg_wakeup_init(struct mg_mgr *mgr) {
       sp[0] = sp[1] = MG_INVALID_SOCKET;
     } else {
       tomgaddr(&usa[0], &c->rem, false);
-      MG_DEBUG(("%lu %p pipe %lu", c->id, c->fd, (unsigned long) sp[0]));
-      mgr->pipe = sp[0];
+      MG_DEBUG(("%lu %ld pipe %ld", c->id, c->fd, (long) sp[0]));
+      mgr->pipe.fd = sp[0];
       ok = true;
     }
   }
@@ -12919,11 +14245,11 @@ bool mg_wakeup_init(struct mg_mgr *mgr) {
 
 bool mg_wakeup(struct mg_mgr *mgr, unsigned long conn_id, const void *buf,
                size_t len) {
-  if (mgr->pipe != MG_INVALID_SOCKET && conn_id > 0) {
+  if (mgr->pipe.fd != MG_INVALID_SOCKET && conn_id > 0) {
     char *extended_buf = (char *) alloca(len + sizeof(conn_id));
     memcpy(extended_buf, &conn_id, sizeof(conn_id));
     memcpy(extended_buf + sizeof(conn_id), buf, len);
-    send(mgr->pipe, extended_buf, len + sizeof(conn_id), MSG_NONBLOCKING);
+    send(mgr->pipe.fd, extended_buf, len + sizeof(conn_id), MSG_NONBLOCKING);
     return true;
   }
   return false;
@@ -12936,6 +14262,7 @@ void mg_mgr_poll(struct mg_mgr *mgr, int ms) {
   mg_iotest(mgr, ms);
   now = mg_millis();
   mg_timer_poll(&mgr->timers, now);
+  mg_ota_poll(mgr);
 
   for (c = mgr->conns; c != NULL; c = tmp) {
     bool is_resp = c->is_resp;
@@ -14579,7 +15906,9 @@ struct tls_data {
   bool cert_requested;       // client received a CertificateRequest
   bool is_twoway;            // server is configured to authenticate clients
   struct mg_str cert_der;    // certificate in DER format
-  struct mg_str ca_der;      // CA certificate
+  struct mg_str ca_der;      // current CA certificate
+  struct mg_str *ca_bundle_der; // bundle of CA certificates
+  size_t ca_bundle_len;         // number of certificates in bundle
   struct mg_str *chain_der;  // certificate chain (intermediate certs)
   size_t chain_len;          // number of certificates in chain
   uint8_t ec_key[32];        // EC private key
@@ -14587,7 +15916,7 @@ struct tls_data {
   struct mg_str rsa_key_der;  // RSA private key in DER format
   char hostname[254];         // matching hostname
 
-  bool is_ec_pubkey;         // EC or RSA
+  bool is_ec_pubkey;         // EC or RSA. TODO(): currently unused
   uint8_t pubkey[512 + 16];  // server EC (64) or RSA (512+exp) public key to
                              // verify cert
   size_t pubkeysz;           // size of the server public key
@@ -15281,33 +16610,36 @@ static bool mg_tls_send_cert(struct mg_connection *c, bool is_client) {
   cert = (uint8_t *) mg_calloc(1, 13 + total_size);
   if (cert == NULL) return res;
   cert[0] = MG_TLS_CERTIFICATE;  // handshake header
+  if (is_client && tls->cert_der.len == 0) total_size = 0; // empty list
   MG_STORE_BE24(cert + 1, total_size + 4);
   cert[4] = 0;                          // request context
   MG_STORE_BE24(cert + 5, total_size);  // 3 bytes: cert (s) length
   offset = 8;
-  MG_STORE_BE24(cert + offset, tls->cert_der.len);  // 3 bytes: first cert len
-  offset += 3;
-  // bytes 11+ are certificate in DER format
-  memmove(cert + offset, tls->cert_der.buf, tls->cert_der.len);
-  offset += tls->cert_der.len;
-  MG_STORE_BE16(cert + offset, 0);  // certificate extensions (none)
-  offset += 2;
-  for (i = 1; i < tls->chain_len; i++) {
-    MG_STORE_BE24(cert + offset, tls->chain_der[i].len);
+  if (total_size > 0) { // handle empty list, RFC-8446 4.4.2
+    MG_STORE_BE24(cert + offset, tls->cert_der.len);  // 3 bytes: 1st cert len
     offset += 3;
-    memmove(cert + offset, tls->chain_der[i].buf, tls->chain_der[i].len);
-    offset += tls->chain_der[i].len;
+    // bytes 11+ are certificate in DER format
+    memmove(cert + offset, tls->cert_der.buf, tls->cert_der.len);
+    offset += tls->cert_der.len;
     MG_STORE_BE16(cert + offset, 0);  // certificate extensions (none)
     offset += 2;
-  }
-  if (send_ca) {
-    MG_STORE_BE24(cert + offset, tls->ca_der.len);  // 3 bytes: CA cert length
-    offset += 3;
-    memmove(cert + offset, tls->ca_der.buf,
-            tls->ca_der.len);  // CA cert data
-    offset += tls->ca_der.len;
-    MG_STORE_BE16(cert + offset, 0);  // certificate extensions (none)
-    offset += 2;
+    for (i = 1; i < tls->chain_len; i++) {
+      MG_STORE_BE24(cert + offset, tls->chain_der[i].len);
+      offset += 3;
+      memmove(cert + offset, tls->chain_der[i].buf, tls->chain_der[i].len);
+      offset += tls->chain_der[i].len;
+      MG_STORE_BE16(cert + offset, 0);  // certificate extensions (none)
+      offset += 2;
+    }
+    if (send_ca) {
+      MG_STORE_BE24(cert + offset, tls->ca_der.len);  // 3 bytes: CA cert length
+      offset += 3;
+      memmove(cert + offset, tls->ca_der.buf,
+              tls->ca_der.len);  // CA cert data
+      offset += tls->ca_der.len;
+      MG_STORE_BE16(cert + offset, 0);  // certificate extensions (none)
+      offset += 2;
+    }
   }
   mg_sha256_update(&tls->sha256, cert, offset);
   res = mg_tls_encrypt(c, cert, offset, MG_TLS_HANDSHAKE);
@@ -15447,8 +16779,11 @@ static bool mg_tls_pss_encode(const uint8_t *hash, size_t hashlen,
 
 static bool mg_tls_rsa_sign(struct tls_data *tls, const uint8_t *em,
                             size_t emlen, uint8_t *sig) {
-  size_t nlen;
+  const uint8_t *n = (const uint8_t *) tls->rsa.n.buf;
+  size_t nlen = tls->rsa.n.len;
   int crt_result;
+  while (nlen > 0 && *n == 0) n++, nlen--;
+  if (emlen != nlen) return false;
 #if MG_TLS_RSA_USE_CRT
   // RSA CRT (Chinese Remainder Theorem) optimization:
   // s1 = em^dP mod p
@@ -15464,8 +16799,6 @@ static bool mg_tls_rsa_sign(struct tls_data *tls, const uint8_t *em,
 
   MG_VERBOSE(("Using RSA-CRT optimization"));
 
-  nlen = tls->rsa.n.len;
-
   crt_result = mg_rsa_crt_sign(
       em, emlen, (const uint8_t *) tls->rsa.dP.buf, tls->rsa.dP.len,
       (const uint8_t *) tls->rsa.dQ.buf, tls->rsa.dQ.len,
@@ -15474,6 +16807,20 @@ static bool mg_tls_rsa_sign(struct tls_data *tls, const uint8_t *em,
       (const uint8_t *) tls->rsa.qInv.buf, tls->rsa.qInv.len, sig, nlen);
 
   if (crt_result == 0) {
+    uint8_t check[512];
+    bool verified;
+    if (nlen > sizeof(check) ||
+        mg_rsa_mod_pow(n, nlen, (const uint8_t *) tls->rsa.e.buf,
+                       tls->rsa.e.len, sig, nlen, check, nlen) != 0) {
+      MG_ERROR(("CRT signature verification failed"));
+      return false;
+    }
+    verified = memcmp(check, em, emlen) == 0;
+    mg_bzero(check, sizeof(check));
+    if (!verified) {
+      MG_ERROR(("CRT signature verification failed"));
+      return false;
+    }
     MG_VERBOSE(("CRT signature successful (first 4 bytes): %02x %02x %02x %02x",
                 sig[0], sig[1], sig[2], sig[3]));
     MG_VERBOSE(("CRT signature successful (last 4 bytes): %02x %02x %02x %02x",
@@ -15486,19 +16833,22 @@ static bool mg_tls_rsa_sign(struct tls_data *tls, const uint8_t *em,
 #else
   int ret;
   // Standard RSA: s = em^d mod n
-  memset(sig, 0, tls->rsa.n.len);
-  ret = mg_rsa_mod_pow((const uint8_t *) tls->rsa.n.buf, tls->rsa.n.len,
-                       (const uint8_t *) tls->rsa.d.buf, tls->rsa.d.len, em,
-                       emlen, sig, tls->rsa.n.len);
+  memset(sig, 0, nlen);
+  ret = mg_rsa_mod_pow(n, nlen, (const uint8_t *) tls->rsa.d.buf,
+                       tls->rsa.d.len, em, emlen, sig, nlen);
   if (ret == 0) {
     MG_VERBOSE(("RSA signature first 4 bytes: %02x %02x %02x %02x", sig[0],
                 sig[1], sig[2], sig[3]));
     MG_VERBOSE(("RSA signature last 4 bytes: %02x %02x %02x %02x",
-                sig[tls->rsa.n.len - 4], sig[tls->rsa.n.len - 3],
-                sig[tls->rsa.n.len - 2], sig[tls->rsa.n.len - 1]));
+                sig[nlen - 4], sig[nlen - 3], sig[nlen - 2], sig[nlen - 1]));
   }
   return ret == 0;
 #endif
+}
+
+static size_t mg_rsa_trim_len(const uint8_t **p, size_t n) {
+  while (n > 0 && **p == 0) (*p)++, n--;
+  return n;
 }
 
 static bool mg_tls_send_cert_verify(struct mg_connection *c, bool is_client) {
@@ -15509,10 +16859,16 @@ static bool mg_tls_send_cert_verify(struct mg_connection *c, bool is_client) {
 
   if (tls->rsa.n.len > 0 && tls->rsa.d.len > 0) {
     // RSA certificate verify packet
-    size_t emlen = tls->rsa.n.len;
-    size_t verifysz = 8U + emlen;
+    const uint8_t *n = (const uint8_t *) tls->rsa.n.buf;
+    size_t nlen = tls->rsa.n.len;
+    struct mg_str rn;
+    size_t emlen, verifysz;
     uint8_t em[512];      // Max for 4096-bit RSA
     uint8_t verify[520];  // 8 + 512 max
+    nlen = mg_rsa_trim_len(&n, nlen);
+    rn = mg_str_n((char *) n, nlen);
+    emlen = nlen;
+    verifysz = 8U + emlen;
 
     // Check bounds
     if (emlen > sizeof(em) || verifysz > sizeof(verify)) {
@@ -15520,7 +16876,7 @@ static bool mg_tls_send_cert_verify(struct mg_connection *c, bool is_client) {
       return false;
     }
 
-    if (!mg_tls_pss_encode(hash, sizeof(hash), &tls->rsa.n, em)) {
+    if (!mg_tls_pss_encode(hash, sizeof(hash), &rn, em)) {
       MG_ERROR(("Failed PSS encode"));
       return false;
     }
@@ -15807,18 +17163,20 @@ static int mg_tls_client_recv_ext(struct mg_connection *c) {
 }
 
 struct mg_tls_cert {
-  int is_ec_pubkey;
+  bool is_ec_pubkey;
   struct mg_str sn;
   struct mg_str pubkey;
+  struct mg_der_tlv issuer;
   struct mg_der_tlv subj;
   struct mg_str sig;    // signature
-  uint8_t tbshash[48];  // 32b for sha256/secp256, 48b for sha384/secp384
+  uint8_t tbshash[48];  // 32B for sha256/secp256, 48B for sha384/secp384
   size_t tbshashsz;     // actual TBS hash size
 };
 
 static void mg_der_debug_cert_name(const char *name, struct mg_der_tlv *tlv) {
   struct mg_der_tlv v;
   struct mg_str cn, c, o, ou;
+  if (mg_log_level < MG_LL_VERBOSE) return; // skip recursive computations
   cn = c = o = ou = mg_str("");
   if (mg_der_find_oid(tlv, (uint8_t *) "\x55\x04\x03", 3, &v))
     cn = mg_str_n((const char *) v.value, v.len);
@@ -15898,6 +17256,7 @@ static int mg_tls_parse_cert_der(void *buf, size_t dersz,
 
   // issuer
   if (mg_der_next(&tbs_cert, &field) <= 0 || field.type != 0x30) return -1;
+  cert->issuer = field;
   mg_der_debug_cert_name("issuer", &field);
 
   // validity dates (before/after)
@@ -15929,21 +17288,21 @@ static int mg_tls_parse_cert_der(void *buf, size_t dersz,
   MG_VERBOSE(("pk algo (oid): %M", mg_print_hex, pki_algo.len, pki_algo.value));
   if (pki_algo.len == 8 &&
       memcmp(pki_algo.value, "\x2A\x86\x48\xCE\x3D\x03\x01\x07", 8) == 0) {
-    cert->is_ec_pubkey = 1;
+    cert->is_ec_pubkey = true;
     MG_VERBOSE(("pk algo: ECDSA secp256r1"));
   } else if (pki_algo.len == 8 &&
              memcmp(pki_algo.value, "\x2A\x86\x48\xCE\x3D\x03\x01\x08", 8) ==
                  0) {
-    cert->is_ec_pubkey = 1;
+    cert->is_ec_pubkey = true;
     MG_VERBOSE(("pk algo: ECDSA secp384r1"));
   } else if (pki_algo.len == 7 &&
              memcmp(pki_algo.value, "\x2A\x86\x48\xCE\x3D\x02\x01", 7) == 0) {
-    cert->is_ec_pubkey = 1;
+    cert->is_ec_pubkey = true;
     MG_VERBOSE(("pk algo: EC public key"));
   } else if (pki_algo.len == 9 &&
              memcmp(pki_algo.value, "\x2A\x86\x48\x86\xF7\x0D\x01\x01\x01",
                     9) == 0) {
-    cert->is_ec_pubkey = 0;
+    cert->is_ec_pubkey = false;
     MG_VERBOSE(("pk algo: RSA"));
   } else {
     MG_ERROR(("unsupported pk algo: %M", mg_print_hex, pki_algo.len,
@@ -16024,6 +17383,7 @@ static int mg_tls_verify_cert_signature(const struct mg_tls_cert *cert,
       MG_ERROR(("cert verification error"));
       return 0;
     }
+#if MG_UECC_SUPPORTS_secp256r1
     if (issuer->pubkey.len == 64) {
       const uint32_t N = 32;
       if (a.len > N) a.value += (a.len - N), a.len = N;
@@ -16033,16 +17393,29 @@ static int mg_tls_verify_cert_signature(const struct mg_tls_cert *cert,
       return mg_uecc_verify((uint8_t *) issuer->pubkey.buf, cert->tbshash,
                             (unsigned) cert->tbshashsz, sig,
                             mg_uecc_secp256r1());
-    } else if (issuer->pubkey.len == 96) {
-      MG_ERROR(("reject secp386 for now"));
-      return 0;
-    } else {
+    } else
+#endif
+#if MG_UECC_SUPPORTS_secp384r1
+    if (issuer->pubkey.len == 96) {
+      const uint32_t N = 48;
+      if (a.len > N) a.value += (a.len - N), a.len = N;
+      if (b.len > N) b.value += (b.len - N), b.len = N;
+      memmove(sig, a.value, N);
+      memmove(sig + N, b.value, N);
+      return mg_uecc_verify((uint8_t *) issuer->pubkey.buf, cert->tbshash,
+                            (unsigned) cert->tbshashsz, sig,
+                            mg_uecc_secp384r1());
+    } else
+#endif
+    {
       MG_ERROR(("unsupported public key length: %d", issuer->pubkey.len));
       return 0;
     }
   } else {
     int r;
-    uint8_t sig2[256];  // 2048 bits
+    const uint8_t *n;
+    size_t nlen;
+    uint8_t sig2[512];  // 4096 bits
     struct mg_der_tlv seq, modulus, exponent;
     if (mg_der_parse((uint8_t *) issuer->pubkey.buf, issuer->pubkey.len,
                      &seq) <= 0 ||
@@ -16050,12 +17423,15 @@ static int mg_tls_verify_cert_signature(const struct mg_tls_cert *cert,
         mg_der_next(&seq, &exponent) <= 0 || exponent.type != 2) {
       return -1;
     }
-    mg_rsa_mod_pow(modulus.value, modulus.len, exponent.value, exponent.len,
-                   (uint8_t *) cert->sig.buf, cert->sig.len, sig2,
-                   sizeof(sig2));
+    n = modulus.value, nlen = mg_rsa_trim_len(&n, modulus.len);
+    if (nlen > sizeof(sig2) || cert->tbshashsz > nlen ||
+        mg_rsa_mod_pow(modulus.value, modulus.len, exponent.value,
+                       exponent.len, (uint8_t *) cert->sig.buf, cert->sig.len,
+                       sig2, nlen) != 0) {
+      return 0;
+    }
 
-    r = memcmp(sig2 + sizeof(sig2) - cert->tbshashsz, cert->tbshash,
-               cert->tbshashsz);
+    r = memcmp(sig2 + nlen - cert->tbshashsz, cert->tbshash, cert->tbshashsz);
     return r == 0;
   }
 }
@@ -16068,6 +17444,27 @@ static int mg_tls_verify_cert_cn(struct mg_der_tlv *subj, const char *host) {
     matched = mg_match(mg_str(host), mg_str_n((char *) v.value, v.len), NULL);
   }
   return matched;
+}
+
+static int tls_bundle_find(struct tls_data *tls, struct mg_der_tlv *name,
+                           struct mg_tls_cert *cert) {
+  size_t i;
+  struct mg_der_tlv v;
+  struct mg_str *p = tls->ca_bundle_der, tgt;
+  if (!mg_der_find_oid(name, (uint8_t *) "\x55\x04\x03", 3, &v)) return false;
+  tgt = mg_str_n((const char *) v.value, v.len);
+  for (i = 0; i < tls->ca_bundle_len; i++, p++) {
+    struct mg_str subj;
+    if (mg_tls_parse_cert_der(p->buf, p->len, cert) < 0 ||
+        !mg_der_find_oid(&cert->subj, (uint8_t *) "\x55\x04\x03", 3, &v)) {
+      MG_ERROR(("failed to parse certificate #%u in bundle", i + 1));
+      continue; // skip this certificate but don't halt the process
+    }
+    subj = mg_str_n((const char *) v.value, v.len);
+    MG_VERBOSE(("#%u: %.*s (%.*s)", i + 1, subj.len, subj.buf, tgt.len, tgt.buf));
+    if (mg_strcasecmp(subj, tgt) == 0) return 1;
+  }
+  return 0;
 }
 
 static int mg_tls_recv_cert(struct mg_connection *c, bool is_client) {
@@ -16119,7 +17516,7 @@ static int mg_tls_recv_cert(struct mg_connection *c, bool is_client) {
     memset(certs, 0, sizeof(certs));
     memset(&ca, 0, sizeof(ca));
 
-    if (tls->ca_der.len > 0) {
+    if (tls->ca_der.len > 0) { // single cert or server
       if (mg_tls_parse_cert_der(tls->ca_der.buf, tls->ca_der.len, &ca) < 0) {
         mg_error(c, "failed to parse CA certificate");
         return -1;
@@ -16153,10 +17550,6 @@ static int mg_tls_recv_cert(struct mg_connection *c, bool is_client) {
           return -1;
         }
         if (ci->pubkey.len > sizeof(tls->pubkey)) {
-          mg_error(c, "invalid certificate length");
-          return -1;
-        }
-        if (ci->pubkey.len > sizeof(tls->pubkey)) {
           mg_error(c, "peer public key too large");
           return -1;
         }
@@ -16169,10 +17562,19 @@ static int mg_tls_recv_cert(struct mg_connection *c, bool is_client) {
         }
       }
 
-      if (ca.pubkey.len == ci->pubkey.len &&
-          memcmp(ca.pubkey.buf, ci->pubkey.buf, ca.pubkey.len) == 0) {
-        found_ca = true;
-        break;
+      if (tls->ca_bundle_len > 0) {  // bundle, find subject and compare keys
+        int r;
+        MG_VERBOSE(("Search current cert in bundle"));
+        r = tls_bundle_find(tls, &ci->subj, &ca);  // find current cert ci
+        if (r < 0) {
+          mg_error(c, "failed to parse CA bundle");
+          return -1;
+        } else if (r > 0 && ca.pubkey.len == ci->pubkey.len &&
+                   memcmp(ca.pubkey.buf, ci->pubkey.buf, ca.pubkey.len) == 0) {
+          found_ca = true;
+          MG_VERBOSE(("CA serial: %M", mg_print_hex, ca.sn.len, ca.sn.buf));
+          break;
+        }  // else either r = 0 => subj not found or pubkey not matching
       }
 
       if (certnum == sizeof(certs) / sizeof(certs[0]) - 1) {
@@ -16181,15 +17583,24 @@ static int mg_tls_recv_cert(struct mg_connection *c, bool is_client) {
       }
     }
 
-    if (!found_ca && tls->ca_der.len > 0) {
+    if (!found_ca && certnum > 0 && tls->ca_bundle_len > 0) {  // bundle
+      int r;
+      MG_VERBOSE(("Search bundle for issuer of last cert in chain"));
+      r = tls_bundle_find(tls, &certs[certnum - 1].issuer, &ca);
+      if (r <= 0) {
+        mg_error(c, r < 0 ? "failed to parse CA bundle"
+                          : "failed to find issuing CA in bundle");
+        return -1;
+      }  // else r > 0 => issuer found
+      MG_VERBOSE(("CA serial: %M", mg_print_hex, ca.sn.len, ca.sn.buf));
+    }
+    if (!found_ca && tls->ca_der.len > 0) {  // single cert or server
       if (certnum < 1 ||
           !mg_tls_verify_cert_signature(&certs[certnum - 1], &ca)) {
         mg_error(c, "failed to verify CA");
         return -1;
       } else if (is_client) {
-        MG_VERBOSE(
-            ("CA was not in the chain, but verification with builtin CA "
-             "passed"));
+        MG_VERBOSE(("no CA in chain; verification with builtin CA passed"));
       }
     }
   }
@@ -16236,6 +17647,8 @@ static int mg_tls_recv_cert_verify(struct mg_connection *c) {
 
     if (sigalg == 0x0804) {  // rsa_pss_rsae_sha256
       uint8_t sig2[512];     // 2048 or 4096 bits
+      const uint8_t *n;
+      size_t nlen;
       struct mg_der_tlv seq, modulus, exponent;
 
       if (mg_der_parse(tls->pubkey, tls->pubkeysz, &seq) <= 0 ||
@@ -16245,10 +17658,15 @@ static int mg_tls_recv_cert_verify(struct mg_connection *c) {
         return -1;
       }
 
-      mg_rsa_mod_pow(modulus.value, modulus.len, exponent.value, exponent.len,
-                     sigbuf, siglen, sig2, sizeof(sig2));
+      n = modulus.value, nlen = mg_rsa_trim_len(&n, modulus.len);
+      if (nlen > sizeof(sig2) ||
+          mg_rsa_mod_pow(modulus.value, modulus.len, exponent.value,
+                         exponent.len, sigbuf, siglen, sig2, nlen) != 0) {
+        mg_error(c, "failed to verify RSA certificate (certverify)");
+        return -1;
+      }
 
-      if (sig2[sizeof(sig2) - 1] != 0xbc) {
+      if (sig2[nlen - 1] != 0xbc) {
         mg_error(c, "failed to verify RSA certificate (certverify)");
         return -1;
       }
@@ -16880,12 +18298,26 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
     strncpy((char *) tls->hostname, opts->name.buf, sizeof(tls->hostname) - 1);
     tls->hostname[opts->name.len] = 0;
   }
-  // server CA certificate, store serial number
-  if (opts->ca.len > 0) {
-    if (mg_parse_pem(opts->ca, mg_str_s("CERTIFICATE"), &tls->ca_der) < 0) {
-      MG_ERROR(("Failed to load certificate"));
-      return;
-    }
+
+  // server CA certificate; parse PEM [bundle] or DER
+  if (opts->ca.len > 0)  {
+    struct mg_str *all_certs = NULL;
+    int cert_count = mg_parse_pem_certs(opts->ca, &all_certs);
+
+    if (cert_count > 1 && c->is_client) { // use bundle for clients only
+      tls->ca_bundle_len = (size_t) cert_count;
+      tls->ca_bundle_der = all_certs;
+      MG_VERBOSE(("%d-cert bundle", cert_count));
+    } else if (cert_count > 0) {
+      tls->ca_der.buf = all_certs[0].buf;
+      tls->ca_der.len = all_certs[0].len;
+      mg_free(all_certs);
+    } else { // parse again for a possible DER (or a truncated begin string)
+      if (mg_parse_pem(opts->ca, mg_str_s("CERTIFICATE"), &tls->ca_der) < 0) {
+        MG_ERROR(("Failed to load CA certificate"));
+        return;
+      }
+    } // ca_bundle_len != 0 && ca_der.len = 0 => bundle
     if (!c->is_client) tls->is_twoway = true;  // server + CA: two-way auth
   }
 
@@ -16908,7 +18340,7 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
       } else {
         mg_free(all_certs);
       }
-    } else {
+    } else { // parse again for a possible DER (or a truncated begin string)
       if (mg_parse_pem(opts->cert, mg_str_s("CERTIFICATE"), &tls->cert_der) <
           0) {
         MG_ERROR(("Failed to load certificate"));
@@ -16999,6 +18431,12 @@ void mg_tls_free(struct mg_connection *c) {
       mg_free(tls->chain_der);
     } else {
       mg_free((void *) tls->cert_der.buf);
+    }
+    if (tls->ca_bundle_der != NULL) {
+      for (i = 0; i < tls->ca_bundle_len; i++) {
+        mg_free((void *) tls->ca_bundle_der[i].buf);
+      }
+      mg_free(tls->ca_bundle_der);
     }
     mg_free((void *) tls->ca_der.buf);
     mg_free((void *) tls->rsa_key_der.buf);
@@ -18555,7 +19993,7 @@ static int mg_net_send(void *ctx, const unsigned char *buf, size_t len) {
   long n = mg_io_send((struct mg_connection *) ctx, buf, len);
   MG_VERBOSE(("%lu n=%ld e=%d", ((struct mg_connection *) ctx)->id, n, errno));
   if (n == MG_IO_WAIT) return MBEDTLS_ERR_SSL_WANT_WRITE;
-  if (n == MG_IO_RESET) return MBEDTLS_ERR_NET_CONN_RESET;
+  // if (n == MG_IO_RESET) return MBEDTLS_ERR_NET_CONN_RESET;
   if (n == MG_IO_ERR) return MBEDTLS_ERR_NET_SEND_FAILED;
   return (int) n;
 }
@@ -18563,8 +20001,8 @@ static int mg_net_send(void *ctx, const unsigned char *buf, size_t len) {
 static int mg_net_recv(void *ctx, unsigned char *buf, size_t len) {
   long n = mg_io_recv((struct mg_connection *) ctx, buf, len);
   MG_VERBOSE(("%lu n=%ld", ((struct mg_connection *) ctx)->id, n));
-  if (n == MG_IO_WAIT) return MBEDTLS_ERR_SSL_WANT_WRITE;
-  if (n == MG_IO_RESET) return MBEDTLS_ERR_NET_CONN_RESET;
+  if (n == MG_IO_WAIT) return MBEDTLS_ERR_SSL_WANT_READ;
+  // if (n == MG_IO_RESET) return MBEDTLS_ERR_NET_CONN_RESET;
   if (n == MG_IO_ERR) return MBEDTLS_ERR_NET_RECV_FAILED;
   return (int) n;
 }
@@ -18602,11 +20040,6 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
   if (c->is_listening) goto fail;
   MG_DEBUG(("%lu Setting TLS", c->id));
   MG_PROF_ADD(c, "mbedtls_init_start");
-#if defined(MBEDTLS_VERSION_NUMBER) && MBEDTLS_VERSION_NUMBER >= 0x03000000 && \
-    defined(MBEDTLS_PSA_CRYPTO_C)
-  psa_crypto_init();  // https://github.com/Mbed-TLS/mbedtls/issues/9072#issuecomment-2084845711
-  // this initializes global resources and then just returns when called again
-#endif
   mbedtls_ssl_init(&tls->ssl);
   mbedtls_ssl_config_init(&tls->conf);
   mbedtls_x509_crt_init(&tls->ca);
@@ -18658,9 +20091,11 @@ void mg_tls_init(struct mg_connection *c, const struct mg_tls_opts *opts) {
   }
 
 #ifdef MBEDTLS_SSL_SESSION_TICKETS
-  mbedtls_ssl_conf_session_tickets_cb(
-      &tls->conf, mbedtls_ssl_ticket_write, mbedtls_ssl_ticket_parse,
-      &((struct mg_tls_ctx *) c->mgr->tls_ctx)->tickets);
+  if (!c->is_client && c->mgr->tls_ctx != NULL) {
+    mbedtls_ssl_conf_session_tickets_cb(
+        &tls->conf, mbedtls_ssl_ticket_write, mbedtls_ssl_ticket_parse,
+        &((struct mg_tls_ctx *) c->mgr->tls_ctx)->tickets);
+  }
 #endif
 
   if ((rc = mbedtls_ssl_setup(&tls->ssl, &tls->conf)) != 0) {
@@ -18684,7 +20119,7 @@ size_t mg_tls_pending(struct mg_connection *c) {
 long mg_tls_recv(struct mg_connection *c, void *buf, size_t len) {
   struct mg_tls *tls = (struct mg_tls *) c->tls;
   long n = mbedtls_ssl_read(&tls->ssl, (unsigned char *) buf, len);
-  if (!c->is_tls_hs && buf == NULL && n == 0) return 0;  // TODO(): MIP
+  if (!c->is_tls_hs && (buf == NULL || len == 0) && n == 0) return 0;  // MIP
   if (n == MBEDTLS_ERR_SSL_WANT_READ || n == MBEDTLS_ERR_SSL_WANT_WRITE)
     return MG_IO_WAIT;
 #if defined(MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET)
@@ -18704,50 +20139,68 @@ long mg_tls_send(struct mg_connection *c, const void *buf, size_t len) {
                                         tls->throttled_len) /* flush old data */
                     : mbedtls_ssl_write(&tls->ssl, (unsigned char *) buf,
                                         len);  // encrypt current data
+#if defined(MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET)
+  if (n == MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET)
+    return MG_IO_WAIT;
+#endif
   c->is_tls_throttled =
       (n == MBEDTLS_ERR_SSL_WANT_READ || n == MBEDTLS_ERR_SSL_WANT_WRITE);
-  if (was_throttled) return MG_IO_WAIT;  // flushed throttled data instead
+  if (was_throttled && c->is_tls_throttled) return MG_IO_WAIT;  // no changes
   if (c->is_tls_throttled) {
     tls->throttled_buf =
         (unsigned char *) buf;  // MbedTLS code actually ignores
-    tls->throttled_len = len;   //  these, but let's play API rules
-    return (long) len;          // already encripted that when throttled
-  }  // if last chunk fails to be sent, it needs to be flushed
+    tls->throttled_len = len;   // these, but let's play API rules
+    return MG_IO_WAIT;
+  }
   if (n <= 0) return MG_IO_ERR;
   return n;
 }
 
 void mg_tls_flush(struct mg_connection *c) {
   struct mg_tls *tls = (struct mg_tls *) c->tls;
-  if (c->is_tls_throttled) {
+  if (c->is_tls_throttled && c->is_draining) {
     long n =
         mbedtls_ssl_write(&tls->ssl, tls->throttled_buf, tls->throttled_len);
+#if defined(MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET)
+    if (n == MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET) return;
+#endif
     c->is_tls_throttled =
         (n == MBEDTLS_ERR_SSL_WANT_READ || n == MBEDTLS_ERR_SSL_WANT_WRITE);
   }
 }
 
 void mg_tls_ctx_init(struct mg_mgr *mgr) {
-  struct mg_tls_ctx *ctx = (struct mg_tls_ctx *) mg_calloc(1, sizeof(*ctx));
-  if (ctx == NULL) {
-    MG_ERROR(("TLS context init OOM"));
-  } else {
+#if defined(MBEDTLS_VERSION_NUMBER) && MBEDTLS_VERSION_NUMBER >= 0x03000000 && \
+    defined(MBEDTLS_PSA_CRYPTO_C)
+  psa_crypto_init();  // Initializes global PSA resources, no-op if already done
+#endif
 #ifdef MBEDTLS_SSL_SESSION_TICKETS
-    int rc;
-    mbedtls_ssl_ticket_init(&ctx->tickets);
+  {
+    struct mg_tls_ctx *ctx = (struct mg_tls_ctx *) mg_calloc(1, sizeof(*ctx));
+    if (ctx == NULL) {
+      MG_ERROR(("TLS context init OOM"));
+    } else {
+      int rc;
+      mbedtls_ssl_ticket_init(&ctx->tickets);
 #if defined(MBEDTLS_VERSION_NUMBER) && MBEDTLS_VERSION_NUMBER >= 0x04000000
-    if ((rc = mbedtls_ssl_ticket_setup(&ctx->tickets, PSA_ALG_GCM,
-                                       PSA_KEY_TYPE_AES, 128, 86400))
+      rc = mbedtls_ssl_ticket_setup(&ctx->tickets, PSA_ALG_GCM,
+                                    PSA_KEY_TYPE_AES, 128, 86400);
 #else
-    if ((rc = mbedtls_ssl_ticket_setup(&ctx->tickets, mg_mbed_rng, NULL,
-                                       MBEDTLS_CIPHER_AES_128_GCM, 86400))
+      rc = mbedtls_ssl_ticket_setup(&ctx->tickets, mg_mbed_rng, NULL,
+                                         MBEDTLS_CIPHER_AES_128_GCM, 86400);
 #endif
-        != 0) {
-      MG_ERROR((" mbedtls_ssl_ticket_setup %#x", -rc));
+      if (rc != 0) {
+        MG_ERROR((" mbedtls_ssl_ticket_setup %#x", -rc));
+        mbedtls_ssl_ticket_free(&ctx->tickets);
+        mg_free(ctx);
+      } else {
+        mgr->tls_ctx = ctx;
+      }
     }
-#endif
-    mgr->tls_ctx = ctx;
   }
+#else
+  (void) mgr;
+#endif
 }
 
 void mg_tls_ctx_free(struct mg_mgr *mgr) {
@@ -19060,7 +20513,7 @@ size_t mg_tls_pending(struct mg_connection *c) {
 long mg_tls_recv(struct mg_connection *c, void *buf, size_t len) {
   struct mg_tls *tls = (struct mg_tls *) c->tls;
   int n = SSL_read(tls->ssl, buf, (int) len);
-  if (!c->is_tls_hs && buf == NULL && n == 0) return 0;  // TODO(): MIP
+  if (!c->is_tls_hs && (buf == NULL || len == 0) && n == 0) return 0;  // MIP
   if (n < 0 && mg_tls_err(c, tls, n) == 0) return MG_IO_WAIT;
   if (n <= 0) return MG_IO_ERR;
   return n;
@@ -19096,1587 +20549,802 @@ void mg_tls_ctx_free(struct mg_mgr *mgr) {
 
 #if MG_TLS == MG_TLS_BUILTIN
 
-#define NS_INTERNAL static
-typedef struct _bigint bigint; /**< An alias for _bigint */
-
 /*
- * Copyright (c) 2007, Cameron Rich
+ * The RSA bigint backend below is derived from BearSSL's i31 RSA code.
  *
- * All rights reserved.
+ * Copyright (c) 2016 Thomas Pornin <pornin@bolet.org>
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
  *
- * * Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- * * Neither the name of the axTLS project nor the names of its contributors
- *   may be used to endorse or promote products derived from this software
- *   without specific prior written permission.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-/* Maintain a number of precomputed variables when doing reduction */
-#define BIGINT_M_OFFSET 0 /**< Normal modulo offset. */
-#define BIGINT_P_OFFSET 1 /**< p modulo offset. */
-#define BIGINT_Q_OFFSET 2 /**< q module offset. */
-#define BIGINT_NUM_MODS 3 /**< The number of modulus constants used. */
+#define BR_MAX_RSA_SIZE 4096
+#define BR_MAX_RSA_FACTOR ((BR_MAX_RSA_SIZE + 64) >> 1)
+#define BR_I31_WORDS(bits) (2 + (((bits) + 30) / 31))
+#define BR_RSA_WORDS BR_I31_WORDS(BR_MAX_RSA_SIZE)
+#define BR_RSA_FACTOR_WORDS BR_I31_WORDS(BR_MAX_RSA_FACTOR)
+#define BR_64 1
+#define MUL31(x, y) ((uint64_t) (x) * (uint64_t) (y))
+#define MUL31_lo(x, y) (((uint32_t) (x) * (uint32_t) (y)) & 0x7fffffffU)
+#define CCOPY br_ccopy
 
-/* Architecture specific functions for big ints */
-#if defined(CONFIG_INTEGER_8BIT)
-#define COMP_RADIX 256U     /**< Max component + 1 */
-#define COMP_MAX 0xFFFFU    /**< (Max dbl comp -1) */
-#define COMP_BIT_SIZE 8     /**< Number of bits in a component. */
-#define COMP_BYTE_SIZE 1    /**< Number of bytes in a component. */
-#define COMP_NUM_NIBBLES 2  /**< Used For diagnostics only. */
-typedef uint8_t comp;       /**< A single precision component. */
-typedef uint16_t long_comp; /**< A double precision component. */
-typedef int16_t slong_comp; /**< A signed double precision component. */
-#elif defined(CONFIG_INTEGER_16BIT)
-#define COMP_RADIX 65536U    /**< Max component + 1 */
-#define COMP_MAX 0xFFFFFFFFU /**< (Max dbl comp -1) */
-#define COMP_BIT_SIZE 16     /**< Number of bits in a component. */
-#define COMP_BYTE_SIZE 2     /**< Number of bytes in a component. */
-#define COMP_NUM_NIBBLES 4   /**< Used For diagnostics only. */
-typedef uint16_t comp;            /**< A single precision component. */
-typedef uint32_t long_comp;       /**< A double precision component. */
-typedef int32_t slong_comp;       /**< A signed double precision component. */
-#else                        /* regular 32 bit */
-#ifdef _MSC_VER
-#define COMP_RADIX 4294967296i64
-#define COMP_MAX 0xFFFFFFFFFFFFFFFFui64
-#else
-#define COMP_RADIX 4294967296       /**< Max component + 1 */
-#define COMP_MAX 0xFFFFFFFFFFFFFFFF /**< (Max dbl comp -1) */
-#endif
-#define COMP_BIT_SIZE 32   /**< Number of bits in a component. */
-#define COMP_BYTE_SIZE 4   /**< Number of bytes in a component. */
-#define COMP_NUM_NIBBLES 8 /**< Used For diagnostics only. */
-typedef uint32_t comp;      /**< A single precision component. */
-typedef uint64_t long_comp; /**< A double precision component. */
-typedef int64_t slong_comp; /**< A signed double precision component. */
-#endif
-
-/**
- * @struct  _bigint
- * @brief A big integer basic object
- */
-struct _bigint {
-  struct _bigint *next; /**< The next bigint in the cache. */
-  short size;           /**< The number of components in this bigint. */
-  short max_comps;      /**< The heapsize allocated for this bigint */
-  int refs;             /**< An internal reference count. */
-  comp *comps;          /**< A ptr to the actual component data */
-};
-
-/**
- * Maintains the state of the cache, and a number of variables used in
- * reduction.
- */
-struct _BI_CTX /**< A big integer "session" context. */
-    {
-  bigint *active_list;             /**< Bigints currently used. */
-  bigint *free_list;               /**< Bigints not used. */
-  bigint *bi_radix;                /**< The radix used. */
-  bigint *bi_mod[BIGINT_NUM_MODS]; /**< modulus */
-
-#if defined(CONFIG_BIGINT_MONTGOMERY)
-  bigint *bi_RR_mod_m[BIGINT_NUM_MODS]; /**< R^2 mod m */
-  bigint *bi_R_mod_m[BIGINT_NUM_MODS];  /**< R mod m */
-  comp N0_dash[BIGINT_NUM_MODS];
-#elif defined(CONFIG_BIGINT_BARRETT)
-  bigint *bi_mu[BIGINT_NUM_MODS]; /**< Storage for mu */
-#endif
-  bigint *bi_normalised_mod[BIGINT_NUM_MODS]; /**< Normalised mod storage. */
-  bigint **g;                                 /**< Used by sliding-window. */
-  int window;       /**< The size of the sliding window */
-  int active_count; /**< Number of active bigints. */
-  int free_count;   /**< Number of free bigints. */
-
-#ifdef CONFIG_BIGINT_MONTGOMERY
-  uint8_t use_classical; /**< Use classical reduction. */
-#endif
-  uint8_t mod_offset; /**< The mod offset we are using */
-};
-typedef struct _BI_CTX BI_CTX;
-
-#if !defined(MAX)
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b)  ((a) < (b) ? (a) : (b))
-#endif
-
-#define PERMANENT 0x7FFF55AA /**< A magic number for permanents. */
-
-/*
- * Copyright (c) 2007, Cameron Rich
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * * Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- * * Neither the name of the axTLS project nor the names of its contributors
- *   may be used to endorse or promote products derived from this software
- *   without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-NS_INTERNAL BI_CTX *bi_initialize(void);
-NS_INTERNAL void bi_terminate(BI_CTX *ctx);
-NS_INTERNAL void bi_permanent(bigint *bi);
-NS_INTERNAL void bi_depermanent(bigint *bi);
-NS_INTERNAL void bi_clear_cache(BI_CTX *ctx);
-NS_INTERNAL void bi_free(BI_CTX *ctx, bigint *bi);
-NS_INTERNAL bigint *bi_copy(bigint *bi);
-NS_INTERNAL bigint *bi_clone(BI_CTX *ctx, const bigint *bi);
-NS_INTERNAL void bi_export(BI_CTX *ctx, bigint *bi, uint8_t *data, int size);
-NS_INTERNAL bigint *bi_import(BI_CTX *ctx, const uint8_t *data, int len);
-NS_INTERNAL bigint *int_to_bi(BI_CTX *ctx, comp i);
-
-/* the functions that actually do something interesting */
-NS_INTERNAL bigint *bi_add(BI_CTX *ctx, bigint *bia, bigint *bib);
-NS_INTERNAL bigint *bi_subtract(BI_CTX *ctx, bigint *bia, bigint *bib,
-                                int *is_negative);
-NS_INTERNAL bigint *bi_divide(BI_CTX *ctx, bigint *bia, bigint *bim,
-                              int is_mod);
-NS_INTERNAL bigint *bi_multiply(BI_CTX *ctx, bigint *bia, bigint *bib);
-NS_INTERNAL bigint *bi_mod_power(BI_CTX *ctx, bigint *bi, bigint *biexp);
-#if 0
-NS_INTERNAL bigint *bi_mod_power2(BI_CTX *ctx, bigint *bi,
-			bigint *bim, bigint *biexp);
-#endif
-NS_INTERNAL int bi_compare(bigint *bia, bigint *bib);
-NS_INTERNAL void bi_set_mod(BI_CTX *ctx, bigint *bim, int mod_offset);
-NS_INTERNAL void bi_free_mod(BI_CTX *ctx, int mod_offset);
-
-#ifdef CONFIG_SSL_FULL_MODE
-NS_INTERNAL void bi_print(const char *label, bigint *bi);
-NS_INTERNAL bigint *bi_str_import(BI_CTX *ctx, const char *data);
-#endif
-
-/**
- * @def bi_mod
- * Find the residue of B. bi_set_mod() must be called before hand.
- */
-#define bi_mod(A, B) bi_divide(A, B, ctx->bi_mod[ctx->mod_offset], 1)
-
-/**
- * bi_residue() is technically the same as bi_mod(), but it uses the
- * appropriate reduction technique (which is bi_mod() when doing classical
- * reduction).
- */
-#if defined(CONFIG_BIGINT_MONTGOMERY)
-#define bi_residue(A, B) bi_mont(A, B)
-NS_INTERNAL bigint *bi_mont(BI_CTX *ctx, bigint *bixy);
-#elif defined(CONFIG_BIGINT_BARRETT)
-#define bi_residue(A, B) bi_barrett(A, B)
-NS_INTERNAL bigint *bi_barrett(BI_CTX *ctx, bigint *bi);
-#else /* if defined(CONFIG_BIGINT_CLASSICAL) */
-#define bi_residue(A, B) bi_mod(A, B)
-#endif
-
-#ifdef CONFIG_BIGINT_SQUARE
-NS_INTERNAL bigint *bi_square(BI_CTX *ctx, bigint *bi);
-#else
-#define bi_square(A, B) bi_multiply(A, bi_copy(B), B)
-#endif
-
-//NS_INTERNAL bigint *bi_crt(BI_CTX *ctx, bigint *bi, bigint *dP, bigint *dQ,
-//                           bigint *p, bigint *q, bigint *qInv);
-
-/*
- * Copyright (c) 2007, Cameron Rich
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * * Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- * * Neither the name of the axTLS project nor the names of its contributors
- *   may be used to endorse or promote products derived from this software
- *   without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-/**
- * @defgroup bigint_api Big Integer API
- * @brief The bigint implementation as used by the axTLS project.
- *
- * The bigint library is for RSA encryption/decryption as well as signing.
- * This code tries to minimise use of malloc/free by maintaining a small
- * cache. A bigint context may maintain state by being made "permanent".
- * It be be later released with a bi_depermanent() and bi_free() call.
- *
- * It supports the following reduction techniques:
- * - Classical
- * - Barrett
- * - Montgomery
- *
- * It also implements the following:
- * - Karatsuba multiplication
- * - Squaring
- * - Sliding window exponentiation
- * - Chinese Remainder Theorem (implemented in rsa.c).
- *
- * All the algorithms used are pretty standard, and designed for different
- * data bus sizes. Negative numbers are not dealt with at all, so a subtraction
- * may need to be tested for negativity.
- *
- * This library steals some ideas from Jef Poskanzer
- * <http://cs.marlboro.edu/term/cs-fall02/algorithms/crypto/RSA/bigint>
- * and GMP <http://www.swox.com/gmp>. It gets most of its implementation
- * detail from "The Handbook of Applied Cryptography"
- * <http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf>
- * @{
- */
-
-#define V1 v->comps[v->size - 1]                     /**< v1 for division */
-#define V2 v->comps[v->size - 2]                     /**< v2 for division */
-#define U(j) tmp_u->comps[tmp_u->size - j - 1]       /**< uj for division */
-#define Q(j) quotient->comps[quotient->size - j - 1] /**< qj for division */
-
-static bigint *bi_int_multiply(BI_CTX *ctx, bigint *bi, comp i);
-static bigint *bi_int_divide(BI_CTX *ctx, bigint *biR, comp denom);
-static bigint *alloc(BI_CTX *ctx, int size);
-static bigint *trim(bigint *bi);
-static void more_comps(bigint *bi, int n);
-#if defined(CONFIG_BIGINT_KARATSUBA) || defined(CONFIG_BIGINT_BARRETT) || \
-    defined(CONFIG_BIGINT_MONTGOMERY)
-static bigint *comp_right_shift(bigint *biR, int num_shifts);
-static bigint *comp_left_shift(bigint *biR, int num_shifts);
-#endif
-
-#ifdef CONFIG_BIGINT_CHECK_ON
-static void check(const bigint *bi);
-#else
-#define check(A) /**< disappears in normal production mode */
-#endif
-
-/**
- * @brief Start a new bigint context.
- * @return A bigint context.
- */
-NS_INTERNAL BI_CTX *bi_initialize(void) {
-  /* mg_calloc() sets everything to zero */
-  BI_CTX *ctx = (BI_CTX *) mg_calloc(1, sizeof(BI_CTX));
-
-  /* the radix */
-  ctx->bi_radix = alloc(ctx, 2);
-  ctx->bi_radix->comps[0] = 0;
-  ctx->bi_radix->comps[1] = 1;
-  bi_permanent(ctx->bi_radix);
-  return ctx;
+static uint32_t NOT(uint32_t ctl) { return ctl ^ 1; }
+static uint32_t MUX(uint32_t ctl, uint32_t x, uint32_t y) {
+  return y ^ (-ctl & (x ^ y));
 }
-
-/**
- * @brief Close the bigint context and free any resources.
- *
- * Free up any used memory - a check is done if all objects were not
- * properly freed.
- * @param ctx [in]   The bigint session context.
- */
-NS_INTERNAL void bi_terminate(BI_CTX *ctx) {
-  bi_depermanent(ctx->bi_radix);
-  bi_free(ctx, ctx->bi_radix);
-
-  if (ctx->active_count != 0) {
-#ifdef CONFIG_SSL_FULL_MODE
-    printf("bi_terminate: there were %d un-freed bigints\n", ctx->active_count);
-#endif
-    abort();
-  }
-
-  bi_clear_cache(ctx);
-  mg_free(ctx);
+static uint32_t EQ(uint32_t x, uint32_t y) {
+  uint32_t q = x ^ y;
+  return NOT((q | -q) >> 31);
 }
-
-/**
- *@brief Clear the memory cache.
- */
-NS_INTERNAL void bi_clear_cache(BI_CTX *ctx) {
-  bigint *p, *pn;
-
-  if (ctx->free_list == NULL) return;
-
-  for (p = ctx->free_list; p != NULL; p = pn) {
-    pn = p->next;
-    mg_free(p->comps);
-    mg_free(p);
-  }
-
-  ctx->free_count = 0;
-  ctx->free_list = NULL;
+static uint32_t NEQ(uint32_t x, uint32_t y) {
+  uint32_t q = x ^ y;
+  return (q | -q) >> 31;
 }
-
-/**
- * @brief Increment the number of references to this object.
- * It does not do a full copy.
- * @param bi [in]   The bigint to copy.
- * @return A reference to the same bigint.
- */
-NS_INTERNAL bigint *bi_copy(bigint *bi) {
-  check(bi);
-  if (bi->refs != PERMANENT) bi->refs++;
-  return bi;
+static uint32_t GT(uint32_t x, uint32_t y) {
+  uint32_t z = y - x;
+  return (z ^ ((x ^ y) & (x ^ z))) >> 31;
 }
-
-/**
- * @brief Simply make a bigint object "unfreeable" if bi_free() is called on it.
- *
- * For this object to be freed, bi_depermanent() must be called.
- * @param bi [in]   The bigint to be made permanent.
- */
-NS_INTERNAL void bi_permanent(bigint *bi) {
-  check(bi);
-  if (bi->refs != 1) {
-#ifdef CONFIG_SSL_FULL_MODE
-    printf("bi_permanent: refs was not 1\n");
-#endif
-    abort();
-  }
-
-  bi->refs = PERMANENT;
+#define GE(x, y) NOT(GT(y, x))
+#define LT(x, y) GT(y, x)
+static uint32_t BIT_LENGTH(uint32_t x) {
+  uint32_t k, c;
+  k = NEQ(x, 0);
+  c = GT(x, 0xffff); x = MUX(c, x >> 16, x); k += c << 4;
+  c = GT(x, 0x00ff); x = MUX(c, x >> 8, x); k += c << 3;
+  c = GT(x, 0x000f); x = MUX(c, x >> 4, x); k += c << 2;
+  c = GT(x, 0x0003); x = MUX(c, x >> 2, x); k += c << 1;
+  k += GT(x, 0x0001);
+  return k;
 }
-
-/**
- * @brief Take a permanent object and make it eligible for freedom.
- * @param bi [in]   The bigint to be made back to temporary.
- */
-NS_INTERNAL void bi_depermanent(bigint *bi) {
-  check(bi);
-  if (bi->refs != PERMANENT) {
-#ifdef CONFIG_SSL_FULL_MODE
-    printf("bi_depermanent: bigint was not permanent\n");
-#endif
-    abort();
-  }
-
-  bi->refs = 1;
+static void br_enc32be(void *dst, uint32_t x) {
+  unsigned char *buf = (unsigned char *) dst;
+  buf[0] = (unsigned char) (x >> 24);
+  buf[1] = (unsigned char) (x >> 16);
+  buf[2] = (unsigned char) (x >> 8);
+  buf[3] = (unsigned char) x;
 }
-
-/**
- * @brief Free a bigint object so it can be used again.
- *
- * The memory itself it not actually freed, just tagged as being available
- * @param ctx [in]   The bigint session context.
- * @param bi [in]    The bigint to be freed.
- */
-NS_INTERNAL void bi_free(BI_CTX *ctx, bigint *bi) {
-  check(bi);
-  if (bi->refs == PERMANENT) {
-    return;
-  }
-
-  if (--bi->refs > 0) {
-    return;
-  }
-
-  bi->next = ctx->free_list;
-  ctx->free_list = bi;
-  ctx->free_count++;
-
-  if (--ctx->active_count < 0) {
-#ifdef CONFIG_SSL_FULL_MODE
-    printf(
-        "bi_free: active_count went negative "
-        "- double-freed bigint?\n");
-#endif
-    abort();
+static void br_ccopy(uint32_t ctl, void *dst, const void *src, size_t len) {
+  unsigned char *d = (unsigned char *) dst;
+  const unsigned char *s = (const unsigned char *) src;
+  while (len-- > 0) {
+    uint32_t x = *s++, y = *d;
+    *d++ = (unsigned char) MUX(ctl, x, y);
   }
 }
 
-/**
- * @brief Convert an (unsigned) integer into a bigint.
- * @param ctx [in]   The bigint session context.
- * @param i [in]     The (unsigned) integer to be converted.
- *
- */
-NS_INTERNAL bigint *int_to_bi(BI_CTX *ctx, comp i) {
-  bigint *biR = alloc(ctx, 1);
-  biR->comps[0] = i;
-  return biR;
+static uint32_t br_i31_add(uint32_t *, const uint32_t *, uint32_t);
+static uint32_t br_i31_sub(uint32_t *, const uint32_t *, uint32_t);
+static uint32_t br_i31_bit_length(uint32_t *, size_t);
+static void br_i31_decode(uint32_t *, const void *, size_t);
+static void br_i31_encode(void *, size_t, const uint32_t *);
+static uint32_t br_i31_ninv31(uint32_t);
+static uint32_t br_divrem(uint32_t, uint32_t, uint32_t, uint32_t *);
+static void br_i31_muladd_small(uint32_t *, uint32_t, const uint32_t *);
+static void br_i31_reduce(uint32_t *, const uint32_t *, const uint32_t *);
+static void br_i31_rshift(uint32_t *, int);
+static void br_i31_decode_reduce(uint32_t *, const void *, size_t, const uint32_t *);
+static void br_i31_mulacc(uint32_t *, const uint32_t *, const uint32_t *);
+static void br_i31_montymul(uint32_t *, const uint32_t *, const uint32_t *, const uint32_t *, uint32_t);
+static void br_i31_to_monty(uint32_t *, const uint32_t *);
+static void br_i31_modpow(uint32_t *, const unsigned char *, size_t, const uint32_t *, uint32_t, uint32_t *, uint32_t *);
+static void br_i31_zero(uint32_t *x, uint32_t bit_len) {
+  *x++ = bit_len;
+  memset(x, 0, ((bit_len + 31) >> 5) * sizeof *x);
 }
-
-/**
- * @brief Do a full copy of the bigint object.
- * @param ctx [in]   The bigint session context.
- * @param bi  [in]   The bigint object to be copied.
- */
-NS_INTERNAL bigint *bi_clone(BI_CTX *ctx, const bigint *bi) {
-  bigint *biR = alloc(ctx, bi->size);
-  check(bi);
-  memcpy(biR->comps, bi->comps, (size_t) bi->size * COMP_BYTE_SIZE);
-  return biR;
-}
-
-/**
- * @brief Perform an addition operation between two bigints.
- * @param ctx [in]  The bigint session context.
- * @param bia [in]  A bigint.
- * @param bib [in]  Another bigint.
- * @return The result of the addition.
- */
-NS_INTERNAL bigint *bi_add(BI_CTX *ctx, bigint *bia, bigint *bib) {
-  int n;
-  comp carry = 0;
-  comp *pa, *pb;
-
-  check(bia);
-  check(bib);
-
-  n = MAX(bia->size, bib->size);
-  more_comps(bia, n + 1);
-  more_comps(bib, n);
-  pa = bia->comps;
-  pb = bib->comps;
-
-  do {
-    comp sl, rl, cy1;
-    sl = *pa + *pb++;
-    rl = sl + carry;
-    cy1 = sl < *pa;
-    carry = cy1 | (rl < sl);
-    *pa++ = rl;
-  } while (--n != 0);
-
-  *pa = carry; /* do overflow */
-  bi_free(ctx, bib);
-  return trim(bia);
-}
-
-/**
- * @brief Perform a subtraction operation between two bigints.
- * @param ctx [in]  The bigint session context.
- * @param bia [in]  A bigint.
- * @param bib [in]  Another bigint.
- * @param is_negative [out] If defined, indicates that the result was negative.
- * is_negative may be null.
- * @return The result of the subtraction. The result is always positive.
- */
-NS_INTERNAL bigint *bi_subtract(BI_CTX *ctx, bigint *bia, bigint *bib,
-                                int *is_negative) {
-  int n = bia->size;
-  comp *pa, *pb, carry = 0;
-
-  check(bia);
-  check(bib);
-
-  more_comps(bib, n);
-  pa = bia->comps;
-  pb = bib->comps;
-
-  do {
-    comp sl, rl, cy1;
-    sl = *pa - *pb++;
-    rl = sl - carry;
-    cy1 = sl > *pa;
-    carry = cy1 | (rl > sl);
-    *pa++ = rl;
-  } while (--n != 0);
-
-  if (is_negative) /* indicate a negative result */
-  {
-    *is_negative = (int) carry;
-  }
-
-  bi_free(ctx, trim(bib)); /* put bib back to the way it was */
-  return trim(bia);
-}
-
-/**
- * Perform a multiply between a bigint an an (unsigned) integer
- */
-static bigint *bi_int_multiply(BI_CTX *ctx, bigint *bia, comp b) {
-  int j = 0, n = bia->size;
-  bigint *biR = alloc(ctx, n + 1);
-  comp carry = 0;
-  comp *r = biR->comps;
-  comp *a = bia->comps;
-
-  check(bia);
-
-  /* clear things to start with */
-  memset(r, 0, (size_t) ((n + 1) * COMP_BYTE_SIZE));
-
-  do {
-    long_comp tmp = *r + (long_comp) a[j] * b + carry;
-    *r++ = (comp) tmp; /* downsize */
-    carry = (comp)(tmp >> COMP_BIT_SIZE);
-  } while (++j < n);
-
-  *r = carry;
-  bi_free(ctx, bia);
-  return trim(biR);
-}
-
-/**
- * @brief Does both division and modulo calculations.
- *
- * Used extensively when doing classical reduction.
- * @param ctx [in]  The bigint session context.
- * @param u [in]    A bigint which is the numerator.
- * @param v [in]    Either the denominator or the modulus depending on the mode.
- * @param is_mod [n] Determines if this is a normal division (0) or a reduction
- * (1).
- * @return  The result of the division/reduction.
- */
-NS_INTERNAL bigint *bi_divide(BI_CTX *ctx, bigint *u, bigint *v, int is_mod) {
-  int n = v->size, m = u->size - n;
-  int j = 0, orig_u_size = u->size;
-  uint8_t mod_offset = ctx->mod_offset;
-  comp d;
-  bigint *quotient, *tmp_u;
-  comp q_dash;
-
-  check(u);
-  check(v);
-
-  /* if doing reduction and we are < mod, then return mod */
-  if (is_mod && bi_compare(v, u) > 0) {
-    bi_free(ctx, v);
-    return u;
-  }
-
-  quotient = alloc(ctx, m + 1);
-  tmp_u = alloc(ctx, n + 1);
-  v = trim(v); /* make sure we have no leading 0's */
-  d = (comp)((long_comp) COMP_RADIX / (V1 + 1));
-
-  /* clear things to start with */
-  memset(quotient->comps, 0, (size_t) ((quotient->size) * COMP_BYTE_SIZE));
-
-  /* normalise */
-  if (d > 1) {
-    u = bi_int_multiply(ctx, u, d);
-
-    if (is_mod) {
-      v = ctx->bi_normalised_mod[mod_offset];
-    } else {
-      v = bi_int_multiply(ctx, v, d);
-    }
-  }
-
-  if (orig_u_size == u->size) /* new digit position u0 */
-  {
-    more_comps(u, orig_u_size + 1);
-  }
-
-  do {
-    /* get a temporary short version of u */
-    memcpy(tmp_u->comps, &u->comps[u->size - n - 1 - j],
-           (size_t) (n + 1) * COMP_BYTE_SIZE);
-
-    /* calculate q' */
-    if (U(0) == V1) {
-      q_dash = COMP_RADIX - 1;
-    } else {
-      q_dash = (comp)(((long_comp) U(0) * COMP_RADIX + U(1)) / V1);
-
-      if (v->size > 1 && V2) {
-        /* we are implementing the following:
-        if (V2*q_dash > (((U(0)*COMP_RADIX + U(1) -
-                q_dash*V1)*COMP_RADIX) + U(2))) ... */
-        comp inner = (comp)((long_comp) COMP_RADIX * U(0) + U(1) -
-                            (long_comp) q_dash * V1);
-        if ((long_comp) V2 * q_dash > (long_comp) inner * COMP_RADIX + U(2)) {
-          q_dash--;
-        }
-      }
-    }
-
-    /* multiply and subtract */
-    if (q_dash) {
-      int is_negative;
-      tmp_u = bi_subtract(ctx, tmp_u, bi_int_multiply(ctx, bi_copy(v), q_dash),
-                          &is_negative);
-      more_comps(tmp_u, n + 1);
-
-      Q(j) = q_dash;
-
-      /* add back */
-      if (is_negative) {
-        Q(j)--;
-        tmp_u = bi_add(ctx, tmp_u, bi_copy(v));
-
-        /* lop off the carry */
-        tmp_u->size--;
-        v->size--;
-      }
-    } else {
-      Q(j) = 0;
-    }
-
-    /* copy back to u */
-    memcpy(&u->comps[u->size - n - 1 - j], tmp_u->comps,
-           (size_t) (n + 1) * COMP_BYTE_SIZE);
-  } while (++j <= m);
-
-  bi_free(ctx, tmp_u);
-  bi_free(ctx, v);
-
-  if (is_mod) /* get the remainder */
-  {
-    bi_free(ctx, quotient);
-    return bi_int_divide(ctx, trim(u), d);
-  } else /* get the quotient */
-  {
-    bi_free(ctx, u);
-    return trim(quotient);
-  }
-}
-
-/*
- * Perform an integer divide on a bigint.
- */
-static bigint *bi_int_divide(BI_CTX *ctx, bigint *biR, comp denom) {
-  int i = biR->size - 1;
-  long_comp r = 0;
-
-  (void) ctx;
-  check(biR);
-
-  do {
-    r = (r << COMP_BIT_SIZE) + biR->comps[i];
-    biR->comps[i] = (comp)(r / denom);
-    r %= denom;
-  } while (--i >= 0);
-
-  return trim(biR);
-}
-
-#ifdef CONFIG_BIGINT_MONTGOMERY
-/**
- * There is a need for the value of integer N' such that B^-1(B-1)-N^-1N'=1,
- * where B^-1(B-1) mod N=1. Actually, only the least significant part of
- * N' is needed, hence the definition N0'=N' mod b. We reproduce below the
- * simple algorithm from an article by Dusse and Kaliski to efficiently
- * find N0' from N0 and b */
-static comp modular_inverse(bigint *bim) {
-  int i;
-  comp t = 1;
-  comp two_2_i_minus_1 = 2; /* 2^(i-1) */
-  long_comp two_2_i = 4;    /* 2^i */
-  comp N = bim->comps[0];
-
-  for (i = 2; i <= COMP_BIT_SIZE; i++) {
-    if ((long_comp) N * t % two_2_i >= two_2_i_minus_1) {
-      t += two_2_i_minus_1;
-    }
-
-    two_2_i_minus_1 <<= 1;
-    two_2_i <<= 1;
-  }
-
-  return (comp)(COMP_RADIX - t);
-}
-#endif
-
-#if defined(CONFIG_BIGINT_KARATSUBA) || defined(CONFIG_BIGINT_BARRETT) || \
-    defined(CONFIG_BIGINT_MONTGOMERY)
-/**
- * Take each component and shift down (in terms of components)
- */
-static bigint *comp_right_shift(bigint *biR, int num_shifts) {
-  int i = biR->size - num_shifts;
-  comp *x = biR->comps;
-  comp *y = &biR->comps[num_shifts];
-
-  check(biR);
-
-  if (i <= 0) /* have we completely right shifted? */
-  {
-    biR->comps[0] = 0; /* return 0 */
-    biR->size = 1;
-    return biR;
-  }
-
-  do {
-    *x++ = *y++;
-  } while (--i > 0);
-
-  biR->size -= num_shifts;
-  return biR;
-}
-
-/**
- * Take each component and shift it up (in terms of components)
- */
-static bigint *comp_left_shift(bigint *biR, int num_shifts) {
-  int i = biR->size - 1;
-  comp *x, *y;
-
-  check(biR);
-
-  if (num_shifts <= 0) {
-    return biR;
-  }
-
-  more_comps(biR, biR->size + num_shifts);
-
-  x = &biR->comps[i + num_shifts];
-  y = &biR->comps[i];
-
-  do {
-    *x-- = *y--;
-  } while (i--);
-
-  memset(biR->comps, 0, (size_t) (num_shifts * COMP_BYTE_SIZE)); /* zero LS comps */
-  return biR;
-}
-#endif
-
-/**
- * @brief Allow a binary sequence to be imported as a bigint.
- * @param ctx [in]  The bigint session context.
- * @param data [in] The data to be converted.
- * @param size [in] The number of bytes of data.
- * @return A bigint representing this data.
- */
-NS_INTERNAL bigint *bi_import(BI_CTX *ctx, const uint8_t *data, int size) {
-  bigint *biR = alloc(ctx, (size + COMP_BYTE_SIZE - 1) / COMP_BYTE_SIZE);
-  int i, j = 0, offset = 0;
-
-  memset(biR->comps, 0, (size_t) (biR->size * COMP_BYTE_SIZE));
-
-  for (i = size - 1; i >= 0; i--) {
-    biR->comps[offset] += (comp) data[i] << (j * 8);
-
-    if (++j == COMP_BYTE_SIZE) {
-      j = 0;
-      offset++;
-    }
-  }
-
-  return trim(biR);
-}
-
-#ifdef CONFIG_SSL_FULL_MODE
-/**
- * @brief The testharness uses this code to import text hex-streams and
- * convert them into bigints.
- * @param ctx [in]  The bigint session context.
- * @param data [in] A string consisting of hex characters. The characters must
- * be in upper case.
- * @return A bigint representing this data.
- */
-NS_INTERNAL bigint *bi_str_import(BI_CTX *ctx, const char *data) {
-  int size = strlen(data);
-  bigint *biR = alloc(ctx, (size + COMP_NUM_NIBBLES - 1) / COMP_NUM_NIBBLES);
-  int i, j = 0, offset = 0;
-  memset(biR->comps, 0, (size_t) (biR->size * COMP_BYTE_SIZE));
-
-  for (i = size - 1; i >= 0; i--) {
-    int num = (data[i] <= '9') ? (data[i] - '0') : (data[i] - 'A' + 10);
-    biR->comps[offset] += num << (j * 4);
-
-    if (++j == COMP_NUM_NIBBLES) {
-      j = 0;
-      offset++;
-    }
-  }
-
-  return biR;
-}
-
-NS_INTERNAL void bi_print(const char *label, bigint *x) {
-  int i, j;
-
-  if (x == NULL) {
-    printf("%s: (null)\n", label);
-    return;
-  }
-
-  printf("%s: (size %d)\n", label, x->size);
-  for (i = x->size - 1; i >= 0; i--) {
-    for (j = COMP_NUM_NIBBLES - 1; j >= 0; j--) {
-      comp mask = 0x0f << (j * 4);
-      comp num = (x->comps[i] & mask) >> (j * 4);
-      putc((num <= 9) ? (num + '0') : (num + 'A' - 10), stdout);
-    }
-  }
-
-  printf("\n");
-}
-#endif
-
-/**
- * @brief Take a bigint and convert it into a byte sequence.
- *
- * This is useful after a decrypt operation.
- * @param ctx [in]  The bigint session context.
- * @param x [in]  The bigint to be converted.
- * @param data [out] The converted data as a byte stream.
- * @param size [in] The maximum size of the byte stream. Unused bytes will be
- * zeroed.
- */
-NS_INTERNAL void bi_export(BI_CTX *ctx, bigint *x, uint8_t *data, int size) {
-  int i, j, k = size - 1;
-
-  check(x);
-  memset(data, 0, (size_t) size); /* ensure all leading 0's are cleared */
-
-  for (i = 0; i < x->size; i++) {
-    for (j = 0; j < COMP_BYTE_SIZE; j++) {
-      comp mask = (comp) 0xff << (j * 8);
-      int num = (int) (x->comps[i] & mask) >> (j * 8);
-      data[k--] = (uint8_t) num;
-
-      if (k < 0) {
-        goto buf_done;
-      }
-    }
-  }
-buf_done:
-
-  bi_free(ctx, x);
-}
-
-/**
- * @brief Pre-calculate some of the expensive steps in reduction.
- *
- * This function should only be called once (normally when a session starts).
- * When the session is over, bi_free_mod() should be called. bi_mod_power()
- * relies on this function being called.
- * @param ctx [in]  The bigint session context.
- * @param bim [in]  The bigint modulus that will be used.
- * @param mod_offset [in] There are three moduluii that can be stored - the
- * standard modulus, and its two primes p and q. This offset refers to which
- * modulus we are referring to.
- * @see bi_free_mod(), bi_mod_power().
- */
-NS_INTERNAL void bi_set_mod(BI_CTX *ctx, bigint *bim, int mod_offset) {
-  int k = bim->size;
-  comp d = (comp)((long_comp) COMP_RADIX / (bim->comps[k - 1] + 1));
-#ifdef CONFIG_BIGINT_MONTGOMERY
-  bigint *R, *R2;
-#endif
-
-  ctx->bi_mod[mod_offset] = bim;
-  bi_permanent(ctx->bi_mod[mod_offset]);
-  ctx->bi_normalised_mod[mod_offset] = bi_int_multiply(ctx, bim, d);
-  bi_permanent(ctx->bi_normalised_mod[mod_offset]);
-
-#if defined(CONFIG_BIGINT_MONTGOMERY)
-  /* set montgomery variables */
-  R = comp_left_shift(bi_clone(ctx, ctx->bi_radix), k - 1);      /* R */
-  R2 = comp_left_shift(bi_clone(ctx, ctx->bi_radix), k * 2 - 1); /* R^2 */
-  ctx->bi_RR_mod_m[mod_offset] = bi_mod(ctx, R2);                /* R^2 mod m */
-  ctx->bi_R_mod_m[mod_offset] = bi_mod(ctx, R);                  /* R mod m */
-
-  bi_permanent(ctx->bi_RR_mod_m[mod_offset]);
-  bi_permanent(ctx->bi_R_mod_m[mod_offset]);
-
-  ctx->N0_dash[mod_offset] = modular_inverse(ctx->bi_mod[mod_offset]);
-
-#elif defined(CONFIG_BIGINT_BARRETT)
-  ctx->bi_mu[mod_offset] =
-      bi_divide(ctx, comp_left_shift(bi_clone(ctx, ctx->bi_radix), k * 2 - 1),
-                ctx->bi_mod[mod_offset], 0);
-  bi_permanent(ctx->bi_mu[mod_offset]);
-#endif
-}
-
-/**
- * @brief Used when cleaning various bigints at the end of a session.
- * @param ctx [in]  The bigint session context.
- * @param mod_offset [in] The offset to use.
- * @see bi_set_mod().
- */
-void bi_free_mod(BI_CTX *ctx, int mod_offset) {
-  bi_depermanent(ctx->bi_mod[mod_offset]);
-  bi_free(ctx, ctx->bi_mod[mod_offset]);
-#if defined(CONFIG_BIGINT_MONTGOMERY)
-  bi_depermanent(ctx->bi_RR_mod_m[mod_offset]);
-  bi_depermanent(ctx->bi_R_mod_m[mod_offset]);
-  bi_free(ctx, ctx->bi_RR_mod_m[mod_offset]);
-  bi_free(ctx, ctx->bi_R_mod_m[mod_offset]);
-#elif defined(CONFIG_BIGINT_BARRETT)
-  bi_depermanent(ctx->bi_mu[mod_offset]);
-  bi_free(ctx, ctx->bi_mu[mod_offset]);
-#endif
-  bi_depermanent(ctx->bi_normalised_mod[mod_offset]);
-  bi_free(ctx, ctx->bi_normalised_mod[mod_offset]);
-}
-
-/**
- * Perform a standard multiplication between two bigints.
- *
- * Barrett reduction has no need for some parts of the product, so ignore bits
- * of the multiply. This routine gives Barrett its big performance
- * improvements over Classical/Montgomery reduction methods.
- */
-static bigint *regular_multiply(BI_CTX *ctx, bigint *bia, bigint *bib,
-                                int inner_partial, int outer_partial) {
-  int i = 0, j;
-  int n = bia->size;
-  int t = bib->size;
-  bigint *biR = alloc(ctx, n + t);
-  comp *sr = biR->comps;
-  comp *sa = bia->comps;
-  comp *sb = bib->comps;
-
-  check(bia);
-  check(bib);
-
-  /* clear things to start with */
-  memset(biR->comps, 0, (size_t) ((n + t) * COMP_BYTE_SIZE));
-
-  do {
-    long_comp tmp;
-    comp carry = 0;
-    int r_index = i;
-    j = 0;
-
-    if (outer_partial && outer_partial - i > 0 && outer_partial < n) {
-      r_index = outer_partial - 1;
-      j = outer_partial - i - 1;
-    }
-
-    do {
-      if (inner_partial && r_index >= inner_partial) {
-        break;
-      }
-
-      tmp = sr[r_index] + ((long_comp) sa[j]) * sb[i] + carry;
-      sr[r_index++] = (comp) tmp; /* downsize */
-      carry = (comp) (tmp >> COMP_BIT_SIZE);
-    } while (++j < n);
-
-    sr[r_index] = carry;
-  } while (++i < t);
-
-  bi_free(ctx, bia);
-  bi_free(ctx, bib);
-  return trim(biR);
-}
-
-#ifdef CONFIG_BIGINT_KARATSUBA
-/*
- * Karatsuba improves on regular multiplication due to only 3 multiplications
- * being done instead of 4. The additional additions/subtractions are O(N)
- * rather than O(N^2) and so for big numbers it saves on a few operations
- */
-static bigint *karatsuba(BI_CTX *ctx, bigint *bia, bigint *bib, int is_square) {
-  bigint *x0, *x1;
-  bigint *p0, *p1, *p2;
-  int m;
-
-  if (is_square) {
-    m = (bia->size + 1) / 2;
-  } else {
-    m = (MAX(bia->size, bib->size) + 1) / 2;
-  }
-
-  x0 = bi_clone(ctx, bia);
-  x0->size = m;
-  x1 = bi_clone(ctx, bia);
-  comp_right_shift(x1, m);
-  bi_free(ctx, bia);
-
-  /* work out the 3 partial products */
-  if (is_square) {
-    p0 = bi_square(ctx, bi_copy(x0));
-    p2 = bi_square(ctx, bi_copy(x1));
-    p1 = bi_square(ctx, bi_add(ctx, x0, x1));
-  } else /* normal multiply */
-  {
-    bigint *y0, *y1;
-    y0 = bi_clone(ctx, bib);
-    y0->size = m;
-    y1 = bi_clone(ctx, bib);
-    comp_right_shift(y1, m);
-    bi_free(ctx, bib);
-
-    p0 = bi_multiply(ctx, bi_copy(x0), bi_copy(y0));
-    p2 = bi_multiply(ctx, bi_copy(x1), bi_copy(y1));
-    p1 = bi_multiply(ctx, bi_add(ctx, x0, x1), bi_add(ctx, y0, y1));
-  }
-
-  p1 = bi_subtract(ctx, bi_subtract(ctx, p1, bi_copy(p2), NULL), bi_copy(p0),
-                   NULL);
-
-  comp_left_shift(p1, m);
-  comp_left_shift(p2, 2 * m);
-  return bi_add(ctx, p1, bi_add(ctx, p0, p2));
-}
-#endif
-
-/**
- * @brief Perform a multiplication operation between two bigints.
- * @param ctx [in]  The bigint session context.
- * @param bia [in]  A bigint.
- * @param bib [in]  Another bigint.
- * @return The result of the multiplication.
- */
-NS_INTERNAL bigint *bi_multiply(BI_CTX *ctx, bigint *bia, bigint *bib) {
-  check(bia);
-  check(bib);
-
-#ifdef CONFIG_BIGINT_KARATSUBA
-  if (MIN(bia->size, bib->size) < MUL_KARATSUBA_THRESH) {
-    return regular_multiply(ctx, bia, bib, 0, 0);
-  }
-
-  return karatsuba(ctx, bia, bib, 0);
-#else
-  return regular_multiply(ctx, bia, bib, 0, 0);
-#endif
-}
-
-#ifdef CONFIG_BIGINT_SQUARE
-/*
- * Perform the actual square operion. It takes into account overflow.
- */
-static bigint *regular_square(BI_CTX *ctx, bigint *bi) {
-  int t = bi->size;
-  int i = 0, j;
-  bigint *biR = alloc(ctx, t * 2 + 1);
-  comp *w = biR->comps;
-  comp *x = bi->comps;
-  long_comp carry;
-  memset(w, 0, biR->size * COMP_BYTE_SIZE);
-
-  do {
-    long_comp tmp = w[2 * i] + (long_comp) x[i] * x[i];
-    w[2 * i] = (comp) tmp;
-    carry = tmp >> COMP_BIT_SIZE;
-
-    for (j = i + 1; j < t; j++) {
-      uint8_t c = 0;
-      long_comp xx = (long_comp) x[i] * x[j];
-      if ((COMP_MAX - xx) < xx) c = 1;
-
-      tmp = (xx << 1);
-
-      if ((COMP_MAX - tmp) < w[i + j]) c = 1;
-
-      tmp += w[i + j];
-
-      if ((COMP_MAX - tmp) < carry) c = 1;
-
-      tmp += carry;
-      w[i + j] = (comp) tmp;
-      carry = tmp >> COMP_BIT_SIZE;
-
-      if (c) carry += COMP_RADIX;
-    }
-
-    tmp = w[i + t] + carry;
-    w[i + t] = (comp) tmp;
-    w[i + t + 1] = tmp >> COMP_BIT_SIZE;
-  } while (++i < t);
-
-  bi_free(ctx, bi);
-  return trim(biR);
-}
-
-/**
- * @brief Perform a square operation on a bigint.
- * @param ctx [in]  The bigint session context.
- * @param bia [in]  A bigint.
- * @return The result of the multiplication.
- */
-NS_INTERNAL bigint *bi_square(BI_CTX *ctx, bigint *bia) {
-  check(bia);
-
-#ifdef CONFIG_BIGINT_KARATSUBA
-  if (bia->size < SQU_KARATSUBA_THRESH) {
-    return regular_square(ctx, bia);
-  }
-
-  return karatsuba(ctx, bia, NULL, 1);
-#else
-  return regular_square(ctx, bia);
-#endif
-}
-#endif
-
-/**
- * @brief Compare two bigints.
- * @param bia [in]  A bigint.
- * @param bib [in]  Another bigint.
- * @return -1 if smaller, 1 if larger and 0 if equal.
- */
-NS_INTERNAL int bi_compare(bigint *bia, bigint *bib) {
-  int r, i;
-
-  check(bia);
-  check(bib);
-
-  if (bia->size > bib->size)
-    r = 1;
-  else if (bia->size < bib->size)
-    r = -1;
-  else {
-    comp *a = bia->comps;
-    comp *b = bib->comps;
-
-    /* Same number of components.  Compare starting from the high end
-     * and working down. */
-    r = 0;
-    i = bia->size - 1;
-
-    do {
-      if (a[i] > b[i]) {
-        r = 1;
-        break;
-      } else if (a[i] < b[i]) {
-        r = -1;
-        break;
-      }
-    } while (--i >= 0);
-  }
-
+static uint32_t br_rem(uint32_t hi, uint32_t lo, uint32_t d) {
+  uint32_t r;
+  br_divrem(hi, lo, d, &r);
   return r;
 }
-
-/*
- * Allocate and zero more components.  Does not consume bi.
- */
-static void more_comps(bigint *bi, int n) {
-  if (n > bi->max_comps) {
-    int max = MAX(bi->max_comps * 2, n);
-    void *p = mg_calloc(1, (size_t) max * COMP_BYTE_SIZE);
-    if (p != NULL && bi->size > 0) memcpy(p, bi->comps, (size_t) bi->max_comps * COMP_BYTE_SIZE);
-    mg_free(bi->comps);
-    bi->max_comps = (short) max;
-    bi->comps = (comp *) p;
-  }
-
-  if (n > bi->size) {
-    memset(&bi->comps[bi->size], 0, (size_t) (n - bi->size) * COMP_BYTE_SIZE);
-  }
-
-  bi->size = (short) n;
+static uint32_t br_div(uint32_t hi, uint32_t lo, uint32_t d) {
+  uint32_t r;
+  return br_divrem(hi, lo, d, &r);
 }
+static uint32_t
+br_i31_add(uint32_t *a, const uint32_t *b, uint32_t ctl)
+{
+	uint32_t cc;
+	size_t u, m;
 
-/*
- * Make a new empty bigint. It may just use an old one if one is available.
- * Otherwise get one off the heap.
- */
-static bigint *alloc(BI_CTX *ctx, int size) {
-  bigint *biR;
+	cc = 0;
+	m = (a[0] + 63) >> 5;
+	for (u = 1; u < m; u ++) {
+		uint32_t aw, bw, naw;
 
-  /* Can we recycle an old bigint? */
-  if (ctx->free_list != NULL) {
-    biR = ctx->free_list;
-    ctx->free_list = biR->next;
-    ctx->free_count--;
+		aw = a[u];
+		bw = b[u];
+		naw = aw + bw + cc;
+		cc = naw >> 31;
+		a[u] = MUX(ctl, naw & (uint32_t)0x7FFFFFFF, aw);
+	}
+	return cc;
+}
+static uint32_t
+br_i31_sub(uint32_t *a, const uint32_t *b, uint32_t ctl)
+{
+	uint32_t cc;
+	size_t u, m;
 
-    if (biR->refs != 0) {
-#ifdef CONFIG_SSL_FULL_MODE
-      printf("alloc: refs was not 0\n");
+	cc = 0;
+	m = (a[0] + 63) >> 5;
+	for (u = 1; u < m; u ++) {
+		uint32_t aw, bw, naw;
+
+		aw = a[u];
+		bw = b[u];
+		naw = aw - bw - cc;
+		cc = naw >> 31;
+		a[u] = MUX(ctl, naw & 0x7FFFFFFF, aw);
+	}
+	return cc;
+}
+static uint32_t
+br_i31_bit_length(uint32_t *x, size_t xlen)
+{
+	uint32_t tw, twk;
+
+	tw = 0;
+	twk = 0;
+	while (xlen -- > 0) {
+		uint32_t w, c;
+
+		c = EQ(tw, 0);
+		w = x[xlen];
+		tw = MUX(c, w, tw);
+		twk = MUX(c, (uint32_t)xlen, twk);
+	}
+	return (twk << 5) + BIT_LENGTH(tw);
+}
+static void
+br_i31_decode(uint32_t *x, const void *src, size_t len)
+{
+	const unsigned char *buf;
+	size_t u, v;
+	uint32_t acc;
+	int acc_len;
+
+	buf = (const unsigned char *) src;
+	u = len;
+	v = 1;
+	acc = 0;
+	acc_len = 0;
+	while (u -- > 0) {
+		uint32_t b;
+
+		b = buf[u];
+		acc |= (b << acc_len);
+		acc_len += 8;
+		if (acc_len >= 31) {
+			x[v ++] = acc & (uint32_t)0x7FFFFFFF;
+			acc_len -= 31;
+			acc = b >> (8 - acc_len);
+		}
+	}
+	if (acc_len != 0) {
+		x[v ++] = acc;
+	}
+	x[0] = br_i31_bit_length(x + 1, v - 1);
+}
+static void
+br_i31_encode(void *dst, size_t len, const uint32_t *x)
+{
+	unsigned char *buf;
+	size_t k, xlen;
+	uint32_t acc;
+	int acc_len;
+
+	xlen = (x[0] + 31) >> 5;
+	if (xlen == 0) {
+		memset(dst, 0, len);
+		return;
+	}
+	buf = (unsigned char *)dst + len;
+	k = 1;
+	acc = 0;
+	acc_len = 0;
+	while (len != 0) {
+		uint32_t w;
+
+		w = (k <= xlen) ? x[k] : 0;
+		k ++;
+		if (acc_len == 0) {
+			acc = w;
+			acc_len = 31;
+		} else {
+			uint32_t z;
+
+			z = acc | (w << acc_len);
+			acc_len --;
+			acc = w >> (31 - acc_len);
+			if (len >= 4) {
+				buf -= 4;
+				len -= 4;
+				br_enc32be(buf, z);
+			} else {
+				switch (len) {
+				case 3:
+					buf[-3] = (unsigned char)(z >> 16);
+					/* fall through */
+				case 2:
+					buf[-2] = (unsigned char)(z >> 8);
+					/* fall through */
+				case 1:
+					buf[-1] = (unsigned char)z;
+					break;
+				}
+				return;
+			}
+		}
+	}
+}
+static uint32_t
+br_i31_ninv31(uint32_t x)
+{
+	uint32_t y;
+
+	y = 2 - x;
+	y *= 2 - y * x;
+	y *= 2 - y * x;
+	y *= 2 - y * x;
+	y *= 2 - y * x;
+	return MUX(x & 1, -y, 0) & 0x7FFFFFFF;
+}
+static uint32_t
+br_divrem(uint32_t hi, uint32_t lo, uint32_t d, uint32_t *r)
+{
+	/* TODO: optimize this */
+	uint32_t q;
+	uint32_t ch, cf;
+	int k;
+
+	q = 0;
+	ch = EQ(hi, d);
+	hi = MUX(ch, 0, hi);
+	for (k = 31; k > 0; k --) {
+		int j;
+		uint32_t w, ctl, hi2, lo2;
+
+		j = 32 - k;
+		w = (hi << j) | (lo >> k);
+		ctl = GE(w, d) | (hi >> k);
+		hi2 = (w - d) >> j;
+		lo2 = lo - (d << k);
+		hi = MUX(ctl, hi2, hi);
+		lo = MUX(ctl, lo2, lo);
+		q |= ctl << k;
+	}
+	cf = GE(lo, d) | hi;
+	q |= cf;
+	*r = MUX(cf, lo - d, lo);
+	return q;
+}
+static void
+br_i31_muladd_small(uint32_t *x, uint32_t z, const uint32_t *m)
+{
+	uint32_t m_bitlen;
+	unsigned mblr;
+	size_t u, mlen;
+	uint32_t a0, a1, b0, hi, g, q, tb;
+	uint32_t under, over;
+	uint32_t cc;
+
+	/*
+	 * We can test on the modulus bit length since we accept to
+	 * leak that length.
+	 */
+	m_bitlen = m[0];
+	if (m_bitlen == 0) {
+		return;
+	}
+	if (m_bitlen <= 31) {
+		uint32_t lo;
+
+		hi = x[1] >> 1;
+		lo = (x[1] << 31) | z;
+		x[1] = br_rem(hi, lo, m[1]);
+		return;
+	}
+	mlen = (m_bitlen + 31) >> 5;
+	mblr = (unsigned)m_bitlen & 31;
+
+	/*
+	 * Principle: we estimate the quotient (x*2^31+z)/m by
+	 * doing a 64/32 division with the high words.
+	 *
+	 * Let:
+	 *   w = 2^31
+	 *   a = (w*a0 + a1) * w^N + a2
+	 *   b = b0 * w^N + b2
+	 * such that:
+	 *   0 <= a0 < w
+	 *   0 <= a1 < w
+	 *   0 <= a2 < w^N
+	 *   w/2 <= b0 < w
+	 *   0 <= b2 < w^N
+	 *   a < w*b
+	 * I.e. the two top words of a are a0:a1, the top word of b is
+	 * b0, we ensured that b0 is "full" (high bit set), and a is
+	 * such that the quotient q = a/b fits on one word (0 <= q < w).
+	 *
+	 * If a = b*q + r (with 0 <= r < q), we can estimate q by
+	 * doing an Euclidean division on the top words:
+	 *   a0*w+a1 = b0*u + v  (with 0 <= v < b0)
+	 * Then the following holds:
+	 *   0 <= u <= w
+	 *   u-2 <= q <= u
+	 */
+	hi = x[mlen];
+	if (mblr == 0) {
+		a0 = x[mlen];
+		memmove(x + 2, x + 1, (mlen - 1) * sizeof *x);
+		x[1] = z;
+		a1 = x[mlen];
+		b0 = m[mlen];
+	} else {
+		a0 = ((x[mlen] << (31 - mblr)) | (x[mlen - 1] >> mblr))
+			& 0x7FFFFFFF;
+		memmove(x + 2, x + 1, (mlen - 1) * sizeof *x);
+		x[1] = z;
+		a1 = ((x[mlen] << (31 - mblr)) | (x[mlen - 1] >> mblr))
+			& 0x7FFFFFFF;
+		b0 = ((m[mlen] << (31 - mblr)) | (m[mlen - 1] >> mblr))
+			& 0x7FFFFFFF;
+	}
+
+	/*
+	 * We estimate a divisor q. If the quotient returned by br_div()
+	 * is g:
+	 * -- If a0 == b0 then g == 0; we want q = 0x7FFFFFFF.
+	 * -- Otherwise:
+	 *    -- if g == 0 then we set q = 0;
+	 *    -- otherwise, we set q = g - 1.
+	 * The properties described above then ensure that the true
+	 * quotient is q-1, q or q+1.
+	 *
+	 * Take care that a0, a1 and b0 are 31-bit words, not 32-bit. We
+	 * must adjust the parameters to br_div() accordingly.
+	 */
+	g = br_div(a0 >> 1, a1 | (a0 << 31), b0);
+	q = MUX(EQ(a0, b0), 0x7FFFFFFF, MUX(EQ(g, 0), 0, g - 1));
+
+	/*
+	 * We subtract q*m from x (with the extra high word of value 'hi').
+	 * Since q may be off by 1 (in either direction), we may have to
+	 * add or subtract m afterwards.
+	 *
+	 * The 'tb' flag will be true (1) at the end of the loop if the
+	 * result is greater than or equal to the modulus (not counting
+	 * 'hi' or the carry).
+	 */
+	cc = 0;
+	tb = 1;
+	for (u = 1; u <= mlen; u ++) {
+		uint32_t mw, zw, xw, nxw;
+		uint64_t zl;
+
+		mw = m[u];
+		zl = MUL31(mw, q) + cc;
+		cc = (uint32_t)(zl >> 31);
+		zw = (uint32_t)zl & (uint32_t)0x7FFFFFFF;
+		xw = x[u];
+		nxw = xw - zw;
+		cc += nxw >> 31;
+		nxw &= 0x7FFFFFFF;
+		x[u] = nxw;
+		tb = MUX(EQ(nxw, mw), tb, GT(nxw, mw));
+	}
+
+	/*
+	 * If we underestimated q, then either cc < hi (one extra bit
+	 * beyond the top array word), or cc == hi and tb is true (no
+	 * extra bit, but the result is not lower than the modulus). In
+	 * these cases we must subtract m once.
+	 *
+	 * Otherwise, we may have overestimated, which will show as
+	 * cc > hi (thus a negative result). Correction is adding m once.
+	 */
+	over = GT(cc, hi);
+	under = ~over & (tb | LT(cc, hi));
+	br_i31_add(x, m, over);
+	br_i31_sub(x, m, under);
+}
+static void
+br_i31_reduce(uint32_t *x, const uint32_t *a, const uint32_t *m)
+{
+	uint32_t m_bitlen, a_bitlen;
+	size_t mlen, alen, u;
+
+	m_bitlen = m[0];
+	mlen = (m_bitlen + 31) >> 5;
+
+	x[0] = m_bitlen;
+	if (m_bitlen == 0) {
+		return;
+	}
+
+	/*
+	 * If the source is shorter, then simply copy all words from a[]
+	 * and zero out the upper words.
+	 */
+	a_bitlen = a[0];
+	alen = (a_bitlen + 31) >> 5;
+	if (a_bitlen < m_bitlen) {
+		memcpy(x + 1, a + 1, alen * sizeof *a);
+		for (u = alen; u < mlen; u ++) {
+			x[u + 1] = 0;
+		}
+		return;
+	}
+
+	/*
+	 * The source length is at least equal to that of the modulus.
+	 * We must thus copy N-1 words, and input the remaining words
+	 * one by one.
+	 */
+	memcpy(x + 1, a + 2 + (alen - mlen), (mlen - 1) * sizeof *a);
+	x[mlen] = 0;
+	for (u = 1 + alen - mlen; u > 0; u --) {
+		br_i31_muladd_small(x, a[u], m);
+	}
+}
+static void
+br_i31_rshift(uint32_t *x, int count)
+{
+	size_t u, len;
+	uint32_t r;
+
+	len = (x[0] + 31) >> 5;
+	if (len == 0) {
+		return;
+	}
+	r = x[1] >> count;
+	for (u = 2; u <= len; u ++) {
+		uint32_t w;
+
+		w = x[u];
+		x[u - 1] = ((w << (31 - count)) | r) & 0x7FFFFFFF;
+		r = w >> count;
+	}
+	x[len] = r;
+}
+static void
+br_i31_decode_reduce(uint32_t *x,
+	const void *src, size_t len, const uint32_t *m)
+{
+	uint32_t m_ebitlen, m_rbitlen;
+	size_t mblen, k;
+	const unsigned char *buf;
+	uint32_t acc;
+	int acc_len;
+
+	/*
+	 * Get the encoded bit length.
+	 */
+	m_ebitlen = m[0];
+
+	/*
+	 * Special case for an invalid (null) modulus.
+	 */
+	if (m_ebitlen == 0) {
+		x[0] = 0;
+		return;
+	}
+
+	/*
+	 * Clear the destination.
+	 */
+	br_i31_zero(x, m_ebitlen);
+
+	/*
+	 * First decode directly as many bytes as possible. This requires
+	 * computing the actual bit length.
+	 */
+	m_rbitlen = m_ebitlen >> 5;
+	m_rbitlen = (m_ebitlen & 31) + (m_rbitlen << 5) - m_rbitlen;
+	mblen = (m_rbitlen + 7) >> 3;
+	k = mblen - 1;
+	if (k >= len) {
+		br_i31_decode(x, src, len);
+		x[0] = m_ebitlen;
+		return;
+	}
+	buf = (const unsigned char *) src;
+	br_i31_decode(x, buf, k);
+	x[0] = m_ebitlen;
+
+	/*
+	 * Input remaining bytes, using 31-bit words.
+	 */
+	acc = 0;
+	acc_len = 0;
+	while (k < len) {
+		uint32_t v;
+
+		v = buf[k ++];
+		if (acc_len >= 23) {
+			acc_len -= 23;
+			acc <<= (8 - acc_len);
+			acc |= v >> acc_len;
+			br_i31_muladd_small(x, acc, m);
+			acc = v & (0xFF >> (8 - acc_len));
+		} else {
+			acc = (acc << 8) | v;
+			acc_len += 8;
+		}
+	}
+
+	/*
+	 * We may have some bits accumulated. We then perform a shift to
+	 * be able to inject these bits as a full 31-bit word.
+	 */
+	if (acc_len != 0) {
+		acc = (acc | (x[1] << acc_len)) & 0x7FFFFFFF;
+		br_i31_rshift(x, 31 - acc_len);
+		br_i31_muladd_small(x, acc, m);
+	}
+}
+static void
+br_i31_mulacc(uint32_t *d, const uint32_t *a, const uint32_t *b)
+{
+	size_t alen, blen, u;
+	uint32_t dl, dh;
+
+	alen = (a[0] + 31) >> 5;
+	blen = (b[0] + 31) >> 5;
+
+	/*
+	 * We want to add the two bit lengths, but these are encoded,
+	 * which requires some extra care.
+	 */
+	dl = (a[0] & 31) + (b[0] & 31);
+	dh = (a[0] >> 5) + (b[0] >> 5);
+	d[0] = (dh << 5) + dl + (~(uint32_t)(dl - 31) >> 31);
+
+	for (u = 0; u < blen; u ++) {
+		uint32_t f;
+		size_t v;
+
+		/*
+		 * Carry always fits on 31 bits; we want to keep it in a
+		 * 32-bit register on 32-bit architectures (on a 64-bit
+		 * architecture, cast down from 64 to 32 bits means
+		 * clearing the high bits, which is not free; on a 32-bit
+		 * architecture, the same operation really means ignoring
+		 * the top register, which has negative or zero cost).
+		 */
+#if BR_64
+		uint64_t cc;
+#else
+		uint32_t cc;
 #endif
-      abort(); /* create a stack trace from a core dump */
-    }
 
-    more_comps(biR, size);
-  } else {
-    /* No free bigints available - create a new one. */
-    biR = (bigint *) mg_calloc(1, sizeof(bigint));
-    biR->comps = (comp *) mg_calloc(1, (size_t) size * COMP_BYTE_SIZE);
-    biR->max_comps = (short) size; /* give some space to spare */
-  }
+		f = b[1 + u];
+		cc = 0;
+		for (v = 0; v < alen; v ++) {
+			uint64_t z;
 
-  biR->size = (short) size;
-  biR->refs = 1;
-  biR->next = NULL;
-  ctx->active_count++;
-  return biR;
+			z = (uint64_t)d[1 + u + v] + MUL31(f, a[1 + v]) + cc;
+			cc = z >> 31;
+			d[1 + u + v] = (uint32_t)z & 0x7FFFFFFF;
+		}
+		d[1 + u + alen] = (uint32_t)cc;
+	}
 }
+static void
+br_i31_montymul(uint32_t *d, const uint32_t *x, const uint32_t *y,
+	const uint32_t *m, uint32_t m0i)
+{
+	/*
+	 * Each outer loop iteration computes:
+	 *   d <- (d + xu*y + f*m) / 2^31
+	 * We have xu <= 2^31-1 and f <= 2^31-1.
+	 * Thus, if d <= 2*m-1 on input, then:
+	 *   2*m-1 + 2*(2^31-1)*m <= (2^32)*m-1
+	 * and the new d value is less than 2*m.
+	 *
+	 * We represent d over 31-bit words, with an extra word 'dh'
+	 * which can thus be only 0 or 1.
+	 */
+	size_t len, len4, u, v;
+	uint32_t dh;
 
-/*
- * Work out the highest '1' bit in an exponent. Used when doing sliding-window
- * exponentiation.
- */
-static int find_max_exp_index(bigint *biexp) {
-  int i = COMP_BIT_SIZE - 1;
-  comp shift = COMP_RADIX / 2;
-  comp test = biexp->comps[biexp->size - 1]; /* assume no leading zeroes */
-
-  check(biexp);
-
-  do {
-    if (test & shift) {
-      return i + (biexp->size - 1) * COMP_BIT_SIZE;
-    }
-
-    shift >>= 1;
-  } while (i-- != 0);
-
-  return -1; /* error - must have been a leading 0 */
-}
-
-/*
- * Is a particular bit is an exponent 1 or 0? Used when doing sliding-window
- * exponentiation.
- */
-static int exp_bit_is_one(bigint *biexp, int offset) {
-  comp test = biexp->comps[offset / COMP_BIT_SIZE];
-  int num_shifts = offset % COMP_BIT_SIZE;
-  comp shift = 1;
-  int i;
-
-  check(biexp);
-
-  for (i = 0; i < num_shifts; i++) {
-    shift <<= 1;
-  }
-
-  return (test & shift) != 0;
-}
-
-#ifdef CONFIG_BIGINT_CHECK_ON
-/*
- * Perform a sanity check on bi.
- */
-static void check(const bigint *bi) {
-  if (bi->refs <= 0) {
-    printf("check: zero or negative refs in bigint\n");
-    abort();
-  }
-
-  if (bi->next != NULL) {
-    printf(
-        "check: attempt to use a bigint from "
-        "the free list\n");
-    abort();
-  }
-}
+	len = (m[0] + 31) >> 5;
+	len4 = len & ~(size_t)3;
+	br_i31_zero(d, m[0]);
+	dh = 0;
+	for (u = 0; u < len; u ++) {
+		/*
+		 * The carry for each operation fits on 32 bits:
+		 *   d[v+1] <= 2^31-1
+		 *   xu*y[v+1] <= (2^31-1)*(2^31-1)
+		 *   f*m[v+1] <= (2^31-1)*(2^31-1)
+		 *   r <= 2^32-1
+		 *   (2^31-1) + 2*(2^31-1)*(2^31-1) + (2^32-1) = 2^63 - 2^31
+		 * After division by 2^31, the new r is then at most 2^32-1
+		 *
+		 * Using a 32-bit carry has performance benefits on 32-bit
+		 * systems; however, on 64-bit architectures, we prefer to
+		 * keep the carry (r) in a 64-bit register, thus avoiding some
+		 * "clear high bits" operations.
+		 */
+		uint32_t f, xu;
+#if BR_64
+		uint64_t r;
+#else
+		uint32_t r;
 #endif
 
-/*
- * Delete any leading 0's (and allow for 0).
- */
-static bigint *trim(bigint *bi) {
-  check(bi);
+		xu = x[u + 1];
+		f = MUL31_lo((d[1] + MUL31_lo(x[u + 1], y[1])), m0i);
 
-  while (bi->comps[bi->size - 1] == 0 && bi->size > 1) {
-    bi->size--;
-  }
+		r = 0;
+		for (v = 0; v < len4; v += 4) {
+			uint64_t z;
 
-  return bi;
+			z = (uint64_t)d[v + 1] + MUL31(xu, y[v + 1])
+				+ MUL31(f, m[v + 1]) + r;
+			r = z >> 31;
+			d[v + 0] = (uint32_t)z & 0x7FFFFFFF;
+			z = (uint64_t)d[v + 2] + MUL31(xu, y[v + 2])
+				+ MUL31(f, m[v + 2]) + r;
+			r = z >> 31;
+			d[v + 1] = (uint32_t)z & 0x7FFFFFFF;
+			z = (uint64_t)d[v + 3] + MUL31(xu, y[v + 3])
+				+ MUL31(f, m[v + 3]) + r;
+			r = z >> 31;
+			d[v + 2] = (uint32_t)z & 0x7FFFFFFF;
+			z = (uint64_t)d[v + 4] + MUL31(xu, y[v + 4])
+				+ MUL31(f, m[v + 4]) + r;
+			r = z >> 31;
+			d[v + 3] = (uint32_t)z & 0x7FFFFFFF;
+		}
+		for (; v < len; v ++) {
+			uint64_t z;
+
+			z = (uint64_t)d[v + 1] + MUL31(xu, y[v + 1])
+				+ MUL31(f, m[v + 1]) + r;
+			r = z >> 31;
+			d[v] = (uint32_t)z & 0x7FFFFFFF;
+		}
+
+		/*
+		 * Since the new dh can only be 0 or 1, the addition of
+		 * the old dh with the carry MUST fit on 32 bits, and
+		 * thus can be done into dh itself.
+		 */
+		dh += (uint32_t) r;
+		d[len] = dh & 0x7FFFFFFF;
+		dh >>= 31;
+	}
+
+	/*
+	 * We must write back the bit length because it was overwritten in
+	 * the loop (not overwriting it would require a test in the loop,
+	 * which would yield bigger and slower code).
+	 */
+	d[0] = m[0];
+
+	/*
+	 * d[] may still be greater than m[] at that point; notably, the
+	 * 'dh' word may be non-zero.
+	 */
+	br_i31_sub(d, m, NEQ(dh, 0) | NOT(br_i31_sub(d, m, 0)));
+}
+static void
+br_i31_to_monty(uint32_t *x, const uint32_t *m)
+{
+	uint32_t k;
+
+	for (k = (m[0] + 31) >> 5; k > 0; k --) {
+		br_i31_muladd_small(x, 0, m);
+	}
+}
+static void
+br_i31_modpow(uint32_t *x,
+	const unsigned char *e, size_t elen,
+	const uint32_t *m, uint32_t m0i, uint32_t *t1, uint32_t *t2)
+{
+	size_t mlen;
+	uint32_t k;
+
+	/*
+	 * 'mlen' is the length of m[] expressed in bytes (including
+	 * the "bit length" first field).
+	 */
+	mlen = ((m[0] + 63) >> 5) * sizeof m[0];
+
+	/*
+	 * Throughout the algorithm:
+	 * -- t1[] is in Montgomery representation; it contains x, x^2,
+	 * x^4, x^8...
+	 * -- The result is accumulated, in normal representation, in
+	 * the x[] array.
+	 * -- t2[] is used as destination buffer for each multiplication.
+	 *
+	 * Note that there is no need to call br_i32_from_monty().
+	 */
+	memcpy(t1, x, mlen);
+	br_i31_to_monty(t1, m);
+	br_i31_zero(x, m[0]);
+	x[1] = 1;
+	for (k = 0; k < ((uint32_t)elen << 3); k ++) {
+		uint32_t ctl;
+
+		ctl = (e[elen - 1 - (k >> 3)] >> (k & 7)) & 1;
+		br_i31_montymul(t2, x, t1, m, m0i);
+		CCOPY(ctl, x, t2, mlen);
+		br_i31_montymul(t2, t1, t1, m, m0i);
+		memcpy(t1, t2, mlen);
+	}
 }
 
-#if defined(CONFIG_BIGINT_MONTGOMERY)
-/**
- * @brief Perform a single montgomery reduction.
- * @param ctx [in]  The bigint session context.
- * @param bixy [in]  A bigint.
- * @return The result of the montgomery reduction.
- */
-NS_INTERNAL bigint *bi_mont(BI_CTX *ctx, bigint *bixy) {
-  int i = 0, n;
-  uint8_t mod_offset = ctx->mod_offset;
-  bigint *bim = ctx->bi_mod[mod_offset];
-  comp mod_inv = ctx->N0_dash[mod_offset];
-
-  check(bixy);
-
-  if (ctx->use_classical) /* just use classical instead */
-  {
-    return bi_mod(ctx, bixy);
-  }
-
-  n = bim->size;
-
-  do {
-    bixy = bi_add(ctx, bixy,
-                  comp_left_shift(
-                      bi_int_multiply(ctx, bim, bixy->comps[i] * mod_inv), i));
-  } while (++i < n);
-
-  comp_right_shift(bixy, n);
-
-  if (bi_compare(bixy, bim) >= 0) {
-    bixy = bi_subtract(ctx, bixy, bim, NULL);
-  }
-
-  return bixy;
+static size_t rsa_trim(const uint8_t **p, size_t n) {
+  while (n > 0 && **p == 0) (*p)++, n--;
+  return n;
 }
 
-#elif defined(CONFIG_BIGINT_BARRETT)
-/*
- * Stomp on the most significant components to give the illusion of a "mod base
- * radix" operation
- */
-static bigint *comp_mod(bigint *bi, int mod) {
-  check(bi);
-
-  if (bi->size > mod) {
-    bi->size = mod;
-  }
-
-  return bi;
+static int rsa_i31_len(size_t nbytes) {
+  int z = (int) (nbytes * 8U);
+  int n = 1;
+  while (z > 0) z -= 31, n++;
+  return n + (n & 1);
 }
 
-/**
- * @brief Perform a single Barrett reduction.
- * @param ctx [in]  The bigint session context.
- * @param bi [in]  A bigint.
- * @return The result of the Barrett reduction.
- */
-NS_INTERNAL bigint *bi_barrett(BI_CTX *ctx, bigint *bi) {
-  bigint *q1, *q2, *q3, *r1, *r2, *r;
-  uint8_t mod_offset = ctx->mod_offset;
-  bigint *bim = ctx->bi_mod[mod_offset];
-  int k = bim->size;
-
-  check(bi);
-  check(bim);
-
-  /* use Classical method instead  - Barrett cannot help here */
-  if (bi->size > k * 2) {
-    return bi_mod(ctx, bi);
-  }
-
-  q1 = comp_right_shift(bi_clone(ctx, bi), k - 1);
-
-  /* do outer partial multiply */
-  q2 = regular_multiply(ctx, q1, ctx->bi_mu[mod_offset], 0, k - 1);
-  q3 = comp_right_shift(q2, k + 1);
-  r1 = comp_mod(bi, k + 1);
-
-  /* do inner partial multiply */
-  r2 = comp_mod(regular_multiply(ctx, q3, bim, k + 1, 0), k + 1);
-  r = bi_subtract(ctx, r1, r2, NULL);
-
-  /* if (r >= m) r = r - m; */
-  if (bi_compare(r, bim) >= 0) {
-    r = bi_subtract(ctx, r, bim, NULL);
-  }
-
-  return r;
-}
-#endif /* CONFIG_BIGINT_BARRETT */
-
-#ifdef CONFIG_BIGINT_SLIDING_WINDOW
-/*
- * Work out g1, g3, g5, g7... etc for the sliding-window algorithm
- */
-static void precompute_slide_window(BI_CTX *ctx, int window, bigint *g1) {
-  int k = 1, i;
-  bigint *g2;
-
-  for (i = 0; i < window - 1; i++) /* compute 2^(window-1) */
-  {
-    k <<= 1;
-  }
-
-  ctx->g = (bigint **) mg_calloc(1, k * sizeof(bigint *));
-  ctx->g[0] = bi_clone(ctx, g1);
-  bi_permanent(ctx->g[0]);
-  g2 = bi_residue(ctx, bi_square(ctx, ctx->g[0])); /* g^2 */
-
-  for (i = 1; i < k; i++) {
-    ctx->g[i] = bi_residue(ctx, bi_multiply(ctx, ctx->g[i - 1], bi_copy(g2)));
-    bi_permanent(ctx->g[i]);
-  }
-
-  bi_free(ctx, g2);
-  ctx->window = k;
-}
-#endif
-
-/**
- * @brief Perform a modular exponentiation.
- *
- * This function requires bi_set_mod() to have been called previously. This is
- * one of the optimisations used for performance.
- * @param ctx [in]  The bigint session context.
- * @param bi  [in]  The bigint on which to perform the mod power operation.
- * @param biexp [in] The bigint exponent.
- * @return The result of the mod exponentiation operation
- * @see bi_set_mod().
- */
-NS_INTERNAL bigint *bi_mod_power(BI_CTX *ctx, bigint *bi, bigint *biexp) {
-  int i = find_max_exp_index(biexp), j, window_size = 1;
-  bigint *biR = int_to_bi(ctx, 1);
-
-#if defined(CONFIG_BIGINT_MONTGOMERY)
-  uint8_t mod_offset = ctx->mod_offset;
-  if (!ctx->use_classical) {
-    /* preconvert */
-    bi = bi_mont(ctx,
-                 bi_multiply(ctx, bi, ctx->bi_RR_mod_m[mod_offset])); /* x' */
-    bi_free(ctx, biR);
-    biR = ctx->bi_R_mod_m[mod_offset]; /* A */
-  }
-#endif
-
-  check(bi);
-  check(biexp);
-
-#ifdef CONFIG_BIGINT_SLIDING_WINDOW
-  for (j = i; j > 32; j /= 5) /* work out an optimum size */
-    window_size++;
-
-  /* work out the slide constants */
-  precompute_slide_window(ctx, window_size, bi);
-#else /* just one constant */
-  ctx->g = (bigint **) mg_calloc(1, sizeof(bigint *));
-  ctx->g[0] = bi_clone(ctx, bi);
-  ctx->window = 1;
-  bi_permanent(ctx->g[0]);
-#endif
-
-  /* if sliding-window is off, then only one bit will be done at a time and
-   * will reduce to standard left-to-right exponentiation */
-  do {
-    if (exp_bit_is_one(biexp, i)) {
-      int l = i - window_size + 1;
-      int part_exp = 0;
-
-      if (l < 0) /* LSB of exponent will always be 1 */
-        l = 0;
-      else {
-        while (exp_bit_is_one(biexp, l) == 0) l++; /* go back up */
-      }
-
-      /* build up the section of the exponent */
-      for (j = i; j >= l; j--) {
-        biR = bi_residue(ctx, bi_square(ctx, biR));
-        if (exp_bit_is_one(biexp, j)) part_exp++;
-
-        if (j != l) part_exp <<= 1;
-      }
-
-      part_exp = (part_exp - 1) / 2; /* adjust for array */
-      biR = bi_residue(ctx, bi_multiply(ctx, biR, ctx->g[part_exp]));
-      i = l - 1;
-    } else /* square it */
-    {
-      biR = bi_residue(ctx, bi_square(ctx, biR));
-      i--;
-    }
-  } while (i >= 0);
-
-  /* cleanup */
-  for (i = 0; i < ctx->window; i++) {
-    bi_depermanent(ctx->g[i]);
-    bi_free(ctx, ctx->g[i]);
-  }
-
-  mg_free(ctx->g);
-  bi_free(ctx, bi);
-  bi_free(ctx, biexp);
-#if defined CONFIG_BIGINT_MONTGOMERY
-  return ctx->use_classical ? biR : bi_mont(ctx, biR); /* convert back */
-#else /* CONFIG_BIGINT_CLASSICAL or CONFIG_BIGINT_BARRETT */
-  return biR;
-#endif
+static int rsa_fail(uint8_t *out, size_t outsz) {
+  mg_bzero(out, outsz);
+  return -1;
 }
 
-/**
- * @brief Use the Chinese Remainder Theorem to quickly perform RSA decrypts.
- *
- * @param ctx [in]  The bigint session context.
- * @param bi  [in]  The bigint to perform the exp/mod.
- * @param dP [in] CRT's dP bigint
- * @param dQ [in] CRT's dQ bigint
- * @param p [in] CRT's p bigint
- * @param q [in] CRT's q bigint
- * @param qInv [in] CRT's qInv bigint
- * @return The result of the CRT operation
- */
-#if 1
-NS_INTERNAL bigint *bi_crt(BI_CTX *ctx, bigint *bi, bigint *dP, bigint *dQ,
-                           bigint *p, bigint *q, bigint *qInv) {
-  bigint *m1, *m2, *h;
-
-/* Montgomery has a condition the 0 < x, y < m and these products violate
- * that condition. So disable Montgomery when using CRT */
-#if defined(CONFIG_BIGINT_MONTGOMERY)
-  ctx->use_classical = 1;
-#endif
-  ctx->mod_offset = BIGINT_P_OFFSET;
-  m1 = bi_mod_power(ctx, bi_copy(bi), dP);
-
-  ctx->mod_offset = BIGINT_Q_OFFSET;
-  m2 = bi_mod_power(ctx, bi, dQ);
-
-  h = bi_subtract(ctx, bi_add(ctx, m1, p), bi_copy(m2), NULL);
-  h = bi_multiply(ctx, h, qInv);
-  ctx->mod_offset = BIGINT_P_OFFSET;
-  h = bi_residue(ctx, h);
-#if defined(CONFIG_BIGINT_MONTGOMERY)
-  ctx->use_classical = 0; /* reset for any further operation */
-#endif
-  return bi_add(ctx, m2, bi_multiply(ctx, q, h));
+static int rsa_i31_eq(const uint32_t *a, const uint32_t *b) {
+  uint32_t r = a[0] ^ b[0];
+  size_t u, n = (a[0] + 31) >> 5;
+  for (u = 1; u <= n; u++) r |= a[u] ^ b[u];
+  return r == 0;
 }
-#endif
 
-// Proper lib usage:
-// - BI_CTX *c = bi_initialize()
-// - allocate bigints (e.g.: calling bi_import(), int_to_bi(), ...)
-// - function calls, allocate bigints, etc.
-// - bigint *n = bi_import(c, indata, insize)
-//   - bi_set_mod(c, n, x)
-//   - mod function calls
-//   - bigint *nn = bi_mod_pwr(c, m, e) <-- frees m, e
-//   - bi_free_mod(c, x)                <-- frees n
-// - bi_export(c, nn, outdata, outsize) <-- frees nn
-// - function calls
-// - free bigints calling bi_free()
-// - bi_terminate(c)                    <-- frees c
-
-int mg_rsa_mod_pow(const uint8_t *mod, size_t modsz, const uint8_t *exp, size_t expsz, const uint8_t *msg, size_t msgsz, uint8_t *out, size_t outsz) {
-	BI_CTX *bi_ctx = bi_initialize();
-	bigint *m1;
-	bigint *n = bi_import(bi_ctx, mod, (int) modsz);
-	bigint *e = bi_import(bi_ctx, exp, (int) expsz);
-	bigint *h = bi_import(bi_ctx, msg, (int) msgsz);
-	bi_set_mod(bi_ctx, n, 0);
-	m1 = bi_mod_power(bi_ctx, h, e);
-	bi_free_mod(bi_ctx, 0);
-	bi_export(bi_ctx, m1, out, (int) outsz);
-	bi_terminate(bi_ctx);
-	return 0;
+int mg_rsa_mod_pow(const uint8_t *mod, size_t modsz, const uint8_t *exp,
+                   size_t expsz, const uint8_t *msg, size_t msgsz,
+                   uint8_t *out, size_t outsz) {
+  uint32_t tmp[4 * BR_RSA_WORDS], *m = tmp, *x, *t1, *t2, m0i;
+  int fwlen;
+  if (out == NULL) return -1;
+  mg_bzero(out, outsz);
+  if (mod == NULL || exp == NULL || msg == NULL) return -1;
+  modsz = rsa_trim(&mod, modsz);
+  expsz = rsa_trim(&exp, expsz);
+  if (modsz < 256 || modsz > (BR_MAX_RSA_SIZE >> 3) || expsz == 0 ||
+      expsz > modsz || outsz != modsz || msgsz != modsz) {
+    return -1;
+  }
+  if (memcmp(msg, mod, modsz) >= 0) return -1;
+  fwlen = rsa_i31_len(modsz);
+  if (4 * (size_t) fwlen > sizeof(tmp) / sizeof(tmp[0])) return -1;
+  x = m + fwlen, t1 = x + fwlen, t2 = t1 + fwlen;
+  br_i31_decode(m, mod, modsz);
+  m0i = br_i31_ninv31(m[1]);
+  if ((m0i & 1) == 0) return rsa_fail((uint8_t *) tmp, sizeof(tmp));
+  br_i31_decode_reduce(x, msg, msgsz, m);
+  br_i31_modpow(x, exp, expsz, m, m0i, t1, t2);
+  br_i31_encode(out, outsz, x);
+  mg_bzero((uint8_t *) tmp, sizeof(tmp));
+  return 0;
 }
 
 int mg_rsa_crt_sign(const uint8_t *em, size_t em_len,
@@ -20686,41 +21354,80 @@ int mg_rsa_crt_sign(const uint8_t *em, size_t em_len,
                     const uint8_t *q, size_t q_len,
                     const uint8_t *qInv, size_t qInv_len,
                     uint8_t *signature, size_t sig_len) {
-  BI_CTX *ctx;
-  bigint *em_bi, *dP_bi, *dQ_bi, *p_bi, *q_bi, *qInv_bi, *result_bi;
-  int ret = -1;
-
-  ctx = bi_initialize();
-  if (ctx == NULL) {
+  uint32_t tmp[8 * BR_RSA_FACTOR_WORDS], *mq = tmp, *s2, *mp, *s1, *t1, *t2;
+  uint32_t *c1, *c2;
+  uint32_t p0i, q0i;
+  size_t plen, qlen, xlen = sig_len, u;
+  int fwlen, ok = 0;
+  uint8_t x[BR_MAX_RSA_SIZE >> 3];
+  if (signature == NULL) return -1;
+  mg_bzero(signature, sig_len);
+  if (em == NULL || dP == NULL || dQ == NULL || p == NULL || q == NULL ||
+      qInv == NULL) {
     return -1;
   }
-
-  em_bi = bi_import(ctx, em, (int) em_len);
-  dP_bi = bi_import(ctx, dP, (int) dP_len);
-  dQ_bi = bi_import(ctx, dQ, (int) dQ_len);
-  p_bi = bi_import(ctx, p, (int) p_len);
-  q_bi = bi_import(ctx, q, (int) q_len);
-  qInv_bi = bi_import(ctx, qInv, (int) qInv_len);
-
-  if (em_bi == NULL || dP_bi == NULL || dQ_bi == NULL ||
-      p_bi == NULL || q_bi == NULL || qInv_bi == NULL) {
-    goto cleanup;
+  p_len = rsa_trim(&p, p_len);
+  q_len = rsa_trim(&q, q_len);
+  dP_len = rsa_trim(&dP, dP_len);
+  dQ_len = rsa_trim(&dQ, dQ_len);
+  qInv_len = rsa_trim(&qInv, qInv_len);
+  if (p_len < 128 || q_len < 128 || p_len > (BR_MAX_RSA_FACTOR >> 3) ||
+      q_len > (BR_MAX_RSA_FACTOR >> 3) || dP_len == 0 || dQ_len == 0 ||
+      qInv_len == 0 || dP_len > p_len || dQ_len > q_len ||
+      qInv_len > p_len || xlen > sizeof(x) || em_len == 0 ||
+      em_len > xlen) {
+    return -1;
   }
-
-  bi_set_mod(ctx, bi_clone(ctx, p_bi), BIGINT_P_OFFSET);
-  bi_set_mod(ctx, bi_clone(ctx, q_bi), BIGINT_Q_OFFSET);
-
-  result_bi = bi_crt(ctx, em_bi, dP_bi, dQ_bi, p_bi, q_bi, qInv_bi);
-  if (result_bi == NULL) {
-    goto cleanup;
+  plen = p_len, qlen = q_len;
+  fwlen = rsa_i31_len(plen > qlen ? plen : qlen);
+  if (8 * fwlen > (int) (sizeof(tmp) / sizeof(tmp[0]))) return -1;
+  s2 = mq + fwlen, mp = mq + 2 * fwlen, s1 = mq + 3 * fwlen;
+  t1 = mq + 4 * fwlen, t2 = mq + 5 * fwlen;
+  c1 = mq + 6 * fwlen, c2 = mq + 7 * fwlen;
+  memset(x, 0, xlen - em_len);
+  memcpy(x + xlen - em_len, em, em_len);
+  br_i31_decode(mq, q, qlen);
+  br_i31_decode(mp, p, plen);
+  q0i = br_i31_ninv31(mq[1]);
+  p0i = br_i31_ninv31(mp[1]);
+  if (((p0i & q0i) & 1) == 0) goto done;
+  memset(t2, 0, 2 * (size_t) fwlen * sizeof(*t2));
+  t2[0] = mq[0];
+  br_i31_mulacc(t2, mq, mp);
+  if (xlen != ((t2[0] + 7) >> 3)) goto done;
+  br_i31_encode(signature, xlen, t2);
+  for (u = xlen, ok = 0; u > 0; u--) {
+    uint32_t wn = signature[u - 1], wx = x[u - 1];
+    ok = (int) (((wx - (wn + (uint32_t) ok)) >> 8) & 1);
   }
-  bi_export(ctx, result_bi, signature, (int) sig_len);
-  ret = 0;  // Success!
-cleanup:
-  bi_free_mod(ctx, BIGINT_P_OFFSET);  // cloned p_bi stored in mod context
-  bi_free_mod(ctx, BIGINT_Q_OFFSET);  // cloned q_bi stored in mod context
-  bi_terminate(ctx);
-  return ret;
+  if (!ok) goto done;
+  ok = 0;
+  br_i31_decode_reduce(s2, x, xlen, mq);
+  br_i31_modpow(s2, dQ, dQ_len, mq, q0i, t1, t2);
+  br_i31_decode_reduce(s1, x, xlen, mp);
+  br_i31_modpow(s1, dP, dP_len, mp, p0i, t1, t2);
+  memcpy(c1, s1, (size_t) fwlen * sizeof(*s1));
+  memcpy(c2, s2, (size_t) fwlen * sizeof(*s2));
+  br_i31_reduce(t2, s2, mp);
+  br_i31_add(s1, mp, br_i31_sub(s1, t2, 1));
+  br_i31_to_monty(s1, mp);
+  br_i31_decode_reduce(t1, qInv, qInv_len, mp);
+  br_i31_montymul(t2, s1, t1, mp, p0i);
+  br_i31_mulacc(s2, mq, t2);
+  br_i31_reduce(t1, s2, mq);
+  ok = rsa_i31_eq(t1, c2);
+  br_i31_decode(mp, p, plen);
+  br_i31_reduce(t1, s2, mp);
+  ok &= rsa_i31_eq(t1, c1);
+  if (!ok) goto done;
+  ok = 0;
+  br_i31_encode(signature, sig_len, s2);
+  ok = 1;
+done:
+  mg_bzero((uint8_t *) tmp, sizeof(tmp));
+  mg_bzero(x, sizeof(x));
+  if (!ok) return rsa_fail(signature, sig_len);
+  return 0;
 }
 
 #endif /* MG_TLS == MG_TLS_BUILTIN */
@@ -20733,7 +21440,7 @@ cleanup:
 
 
 
-#if MG_TLS == MG_TLS_BUILTIN
+#if MG_TLS == MG_TLS_BUILTIN || defined(MG_OTA_PUBLIC_KEY)
 
 #ifndef MG_UECC_RNG_MAX_TRIES
 #define MG_UECC_RNG_MAX_TRIES 64
@@ -20836,6 +21543,10 @@ cleanup:
 #undef MG_UECC_MAX_WORDS
 #define MG_UECC_MAX_WORDS 32
 #endif
+#if MG_UECC_SUPPORTS_secp384r1
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 48
+#endif
 #elif (MG_UECC_WORD_SIZE == 4)
 #if MG_UECC_SUPPORTS_secp160r1
 #define MG_UECC_MAX_WORDS 6 /* Due to the size of curve_n. */
@@ -20852,6 +21563,10 @@ cleanup:
 #undef MG_UECC_MAX_WORDS
 #define MG_UECC_MAX_WORDS 8
 #endif
+#if MG_UECC_SUPPORTS_secp384r1
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 12
+#endif
 #elif (MG_UECC_WORD_SIZE == 8)
 #if MG_UECC_SUPPORTS_secp160r1
 #define MG_UECC_MAX_WORDS 3
@@ -20867,6 +21582,10 @@ cleanup:
 #if (MG_UECC_SUPPORTS_secp256r1 || MG_UECC_SUPPORTS_secp256k1)
 #undef MG_UECC_MAX_WORDS
 #define MG_UECC_MAX_WORDS 4
+#endif
+#if MG_UECC_SUPPORTS_secp384r1
+#undef MG_UECC_MAX_WORDS
+#define MG_UECC_MAX_WORDS 6
 #endif
 #endif /* MG_UECC_WORD_SIZE */
 
@@ -21513,6 +22232,7 @@ MG_UECC_VLI_API void mg_uecc_vli_modInv(mg_uecc_word_t *result,
 #define num_bytes_secp224r1 28
 #define num_bytes_secp256r1 32
 #define num_bytes_secp256k1 32
+#define num_bytes_secp384r1 48
 
 #if (MG_UECC_WORD_SIZE == 1)
 
@@ -21521,6 +22241,7 @@ MG_UECC_VLI_API void mg_uecc_vli_modInv(mg_uecc_word_t *result,
 #define num_words_secp224r1 28
 #define num_words_secp256r1 32
 #define num_words_secp256k1 32
+#define num_words_secp384r1 48
 
 #define BYTES_TO_WORDS_8(a, b, c, d, e, f, g, h) \
   0x##a, 0x##b, 0x##c, 0x##d, 0x##e, 0x##f, 0x##g, 0x##h
@@ -21533,6 +22254,7 @@ MG_UECC_VLI_API void mg_uecc_vli_modInv(mg_uecc_word_t *result,
 #define num_words_secp224r1 7
 #define num_words_secp256r1 8
 #define num_words_secp256k1 8
+#define num_words_secp384r1 12
 
 #define BYTES_TO_WORDS_8(a, b, c, d, e, f, g, h) 0x##d##c##b##a, 0x##h##g##f##e
 #define BYTES_TO_WORDS_4(a, b, c, d) 0x##d##c##b##a
@@ -21544,6 +22266,7 @@ MG_UECC_VLI_API void mg_uecc_vli_modInv(mg_uecc_word_t *result,
 #define num_words_secp224r1 4
 #define num_words_secp256r1 4
 #define num_words_secp256k1 4
+#define num_words_secp384r1 6
 
 #define BYTES_TO_WORDS_8(a, b, c, d, e, f, g, h) 0x##h##g##f##e##d##c##b##a##U
 #define BYTES_TO_WORDS_4(a, b, c, d) 0x##d##c##b##a##U
@@ -21551,7 +22274,8 @@ MG_UECC_VLI_API void mg_uecc_vli_modInv(mg_uecc_word_t *result,
 #endif /* MG_UECC_WORD_SIZE */
 
 #if MG_UECC_SUPPORTS_secp160r1 || MG_UECC_SUPPORTS_secp192r1 || \
-    MG_UECC_SUPPORTS_secp224r1 || MG_UECC_SUPPORTS_secp256r1
+    MG_UECC_SUPPORTS_secp224r1 || MG_UECC_SUPPORTS_secp256r1 || \
+    MG_UECC_SUPPORTS_secp384r1
 static void double_jacobian_default(mg_uecc_word_t *X1, mg_uecc_word_t *Y1,
                                     mg_uecc_word_t *Z1, MG_UECC_Curve curve) {
   /* t1 = X, t2 = Y, t3 = Z */
@@ -21616,7 +22340,8 @@ static void x_side_default(mg_uecc_word_t *result, const mg_uecc_word_t *x,
 
 #if MG_UECC_SUPPORT_COMPRESSED_POINT
 #if MG_UECC_SUPPORTS_secp160r1 || MG_UECC_SUPPORTS_secp192r1 || \
-    MG_UECC_SUPPORTS_secp256r1 || MG_UECC_SUPPORTS_secp256k1
+    MG_UECC_SUPPORTS_secp256r1 || MG_UECC_SUPPORTS_secp256k1 || \
+    MG_UECC_SUPPORTS_secp384r1
 /* Compute a = sqrt(a) (mod curve_p). */
 static void mod_sqrt_default(mg_uecc_word_t *a, MG_UECC_Curve curve) {
   bitcount_t i;
@@ -23022,6 +23747,75 @@ static void omega_mult_secp256k1(uint64_t *result, const uint64_t *right) {
 
 #endif /* MG_UECC_SUPPORTS_secp256k1 */
 
+#if MG_UECC_SUPPORTS_secp384r1
+
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
+static void vli_mmod_fast_secp384r1(mg_uecc_word_t *result,
+                                    mg_uecc_word_t *product);
+#endif
+
+static const struct MG_UECC_Curve_t curve_secp384r1 = {
+    num_words_secp384r1,
+    num_bytes_secp384r1,
+    384, /* num_n_bits */
+    /* p */
+    {BYTES_TO_WORDS_8(FF, FF, FF, FF, 00, 00, 00, 00),
+     BYTES_TO_WORDS_8(00, 00, 00, 00, FF, FF, FF, FF),
+     BYTES_TO_WORDS_8(FE, FF, FF, FF, FF, FF, FF, FF),
+     BYTES_TO_WORDS_8(FF, FF, FF, FF, FF, FF, FF, FF),
+     BYTES_TO_WORDS_8(FF, FF, FF, FF, FF, FF, FF, FF),
+     BYTES_TO_WORDS_8(FF, FF, FF, FF, FF, FF, FF, FF)},
+    /* n */
+    {BYTES_TO_WORDS_8(73, 29, C5, CC, 6A, 19, EC, EC),
+     BYTES_TO_WORDS_8(7A, A7, B0, 48, B2, 0D, 1A, 58),
+     BYTES_TO_WORDS_8(DF, 2D, 37, F4, 81, 4D, 63, C7),
+     BYTES_TO_WORDS_8(FF, FF, FF, FF, FF, FF, FF, FF),
+     BYTES_TO_WORDS_8(FF, FF, FF, FF, FF, FF, FF, FF),
+     BYTES_TO_WORDS_8(FF, FF, FF, FF, FF, FF, FF, FF)},
+    /* G = (Gx || Gy) little-endian */
+    {BYTES_TO_WORDS_8(B7, 0A, 76, 72, 38, 5E, 54, 3A),
+     BYTES_TO_WORDS_8(6C, 29, 55, BF, 5D, F2, 02, 55),
+     BYTES_TO_WORDS_8(38, 2A, 54, 82, E0, 41, F7, 59),
+     BYTES_TO_WORDS_8(98, 9B, A7, 8B, 62, 3B, 1D, 6E),
+     BYTES_TO_WORDS_8(74, AD, 20, F3, 1E, C7, B1, 8E),
+     BYTES_TO_WORDS_8(37, 05, 8B, BE, 22, CA, 87, AA),
+
+     BYTES_TO_WORDS_8(5F, 0E, EA, 90, 7C, 1D, 43, 7A),
+     BYTES_TO_WORDS_8(9D, 81, 7E, 1D, CE, B1, 60, 0A),
+     BYTES_TO_WORDS_8(C0, B8, F0, B5, 13, 31, DA, E9),
+     BYTES_TO_WORDS_8(7C, 14, 9A, 28, BD, 1D, F4, F8),
+     BYTES_TO_WORDS_8(29, DC, 92, 92, BF, 98, 9E, 5D),
+     BYTES_TO_WORDS_8(6F, 2C, 26, 96, 4A, DE, 17, 36)},
+    /* b */
+    {BYTES_TO_WORDS_8(EF, 2A, EC, D3, ED, C8, 85, 2A),
+     BYTES_TO_WORDS_8(9D, D1, 2E, 8A, 8D, 39, 56, C6),
+     BYTES_TO_WORDS_8(5A, 87, 13, 50, 8F, 08, 14, 03),
+     BYTES_TO_WORDS_8(12, 41, 81, FE, 6E, 9C, 1D, 18),
+     BYTES_TO_WORDS_8(19, 2D, F8, E3, 6B, 05, 8E, 98),
+     BYTES_TO_WORDS_8(E4, E7, 3E, E2, A7, 2F, 31, B3)},
+    &double_jacobian_default,
+#if MG_UECC_SUPPORT_COMPRESSED_POINT
+    &mod_sqrt_default,
+#endif
+    &x_side_default,
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
+    &vli_mmod_fast_secp384r1
+#endif
+};
+
+MG_UECC_Curve mg_uecc_secp384r1(void) {
+  return &curve_secp384r1;
+}
+
+#if (MG_UECC_OPTIMIZATION_LEVEL > 0)
+static void vli_mmod_fast_secp384r1(mg_uecc_word_t *result,
+                                    mg_uecc_word_t *product) {
+  mg_uecc_vli_mmod(result, product, curve_secp384r1.p, num_words_secp384r1);
+}
+#endif
+
+#endif /* MG_UECC_SUPPORTS_secp384r1 */
+
 #endif /* _UECC_CURVE_SPECIFIC_H_ */
 
 /* Returns 1 if 'point' is the point at infinity, 0 otherwise. */
@@ -24229,7 +25023,7 @@ struct url {
   size_t key, user, pass, host, port, uri, end;
 };
 
-int mg_url_is_ssl(const char *url) {
+bool mg_url_is_ssl(const char *url) {
   return strncmp(url, "wss:", 4) == 0 || strncmp(url, "https:", 6) == 0 ||
          strncmp(url, "mqtts:", 6) == 0 || strncmp(url, "ssl:", 4) == 0 ||
          strncmp(url, "tls:", 4) == 0 || strncmp(url, "tcps:", 5) == 0;
@@ -25200,7 +25994,7 @@ static bool s_link, s_auth, s_join;
 
 static void wifi_cb(struct mg_tcpip_if *ifp, int ev, void *ev_data) {
   struct mg_wifi_data *wifi = &((struct mg_tcpip_driver_cyw_data *) ifp->driver_data)->wifi;
-  if (wifi->apmode && ev == MG_TCPIP_EV_ST_CHG && *(uint8_t *) ev_data == MG_TCPIP_STATE_UP) {
+  if (wifi->apmode && ev == MG_TCPIP_EV_STATE_CHANGE && *(uint8_t *) ev_data == MG_TCPIP_STATE_UP) {
     MG_DEBUG(("Access Point started"));
     s_ip = ifp->ip, ifp->ip = wifi->apip;
     s_mask = ifp->mask, ifp->mask = wifi->apmask;
@@ -26861,7 +27655,7 @@ static uint32_t s_ip, s_mask;
 static void wifi_cb(struct mg_tcpip_if *ifp, int ev, void *ev_data) {
   struct mg_wifi_data *wifi =
       &((struct mg_tcpip_driver_nxp_wifi_data *) ifp->driver_data)->wifi;
-  if (wifi->apmode && ev == MG_TCPIP_EV_ST_CHG &&
+  if (wifi->apmode && ev == MG_TCPIP_EV_STATE_CHANGE &&
       *(uint8_t *) ev_data == MG_TCPIP_STATE_UP) {
     MG_DEBUG(("Access Point started"));
     s_ip = ifp->ip, ifp->ip = wifi->apip;
@@ -27114,7 +27908,7 @@ static bool s_stalink = false, s_connecting = false;
 static void wifi_cb(struct mg_tcpip_if *ifp, int ev, void *ev_data) {
   struct mg_wifi_data *wifi =
       &((struct mg_tcpip_driver_pico_w_data *) ifp->driver_data)->wifi;
-  if (wifi->apmode && ev == MG_TCPIP_EV_ST_CHG &&
+  if (wifi->apmode && ev == MG_TCPIP_EV_STATE_CHANGE &&
       *(uint8_t *) ev_data == MG_TCPIP_STATE_UP) {
     MG_DEBUG(("Access Point started"));
     s_ip = ifp->ip, ifp->ip = wifi->apip;
@@ -28197,7 +28991,7 @@ static bool s_link = false, s_connecting = false;
 static void wifi_cb(struct mg_tcpip_if *ifp, int ev, void *ev_data) {
   struct mg_wifi_data *wifi =
       &((struct mg_tcpip_driver_st67w6_data *) ifp->driver_data)->wifi;
-  if (wifi->apmode && ev == MG_TCPIP_EV_ST_CHG &&
+  if (wifi->apmode && ev == MG_TCPIP_EV_STATE_CHANGE &&
       *(uint8_t *) ev_data == MG_TCPIP_STATE_UP) {
     MG_DEBUG(("Access Point started"));
     s_ip = ifp->ip, ifp->ip = wifi->apip;
