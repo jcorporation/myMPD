@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Initialize placeholder images with default values
+- Fix: libmpdclient bug
 
 ***
 
