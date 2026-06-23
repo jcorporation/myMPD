@@ -7,4 +7,5 @@ If you want to donate: https://juergenmang.de/donate
 Here are the sponsors we are allowed to mention in alphabetical order:
 
 - john
+- Kurt Lawrence <kurtlawrence.info>
 - matejdro
