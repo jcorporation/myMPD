@@ -219,7 +219,10 @@ mpd_song_dup(const struct mpd_song *song)
 		} while (src_tag != NULL);
 	}
 
-	ret->real_uri = strdup(song->real_uri);
+	if (song->real_uri != NULL) {
+		ret->real_uri = strdup(song->real_uri);
+	}
+
 	ret->duration = song->duration;
 	ret->duration_ms = song->duration_ms;
 	ret->start = song->start;

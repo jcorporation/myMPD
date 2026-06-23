@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPDv25.2.2 (2026-06-23)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Initialize placeholder images with default values
+
+***
+
 ## myMPD v25.2.1 (2026-06-21)
 
 This is a small bug fix release.
