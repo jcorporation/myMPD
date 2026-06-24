@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Translations
+
 ***
 
 ## myMPD v25.2.2 (2026-06-23)

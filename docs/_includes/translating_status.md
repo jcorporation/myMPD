@@ -9,5 +9,5 @@
 - ko-KR: fully translated
 - nl-NL: 3 missing phrases
 - pl-PL: 12 missing phrases
-- ru-RU: 86 missing phrases
+- ru-RU: 14 missing phrases
 - zh-Hans: 3 missing phrases
