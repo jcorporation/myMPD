@@ -14,7 +14,7 @@ project(mympd
 )
 
 # Dependency versions
-set(LIBMPDCLIENT_MIN_VERSION "2.24.0")
+set(LIBMPDCLIENT_MIN_VERSION "2.26.0")
 set(OPENSSL_MIN_VERSION "1.1.0")
 set(LUA_MIN_VERSION "5.4.0")
 

@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Translations
+- Fix: Set libmpdclient min. version to 2.26.0
 
 ***
 
