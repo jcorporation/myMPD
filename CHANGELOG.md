@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Upd: Translations
 - Fix: Set libmpdclient min. version to 2.26.0
+- Fix: Do not reset scrollposition on queue refresh
 
 ***
 
