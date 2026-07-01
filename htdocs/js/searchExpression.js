@@ -192,7 +192,8 @@ function initSearchExpression(appid) {
  */
 function execSearchExpression(value, offset) {
     const expression = createSearchExpression(elGetById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
-    appGoto(app.current.card, app.current.tab, app.current.view, offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
+    appGoto(app.current.card, app.current.tab, app.current.view,
+        offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }
 
 /**
