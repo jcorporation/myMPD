@@ -85,8 +85,8 @@ function addWebRadiodbToHome(uri, type, name, image) {
 
 /**
  * Adds a directory to the homescreen
- * @param {string} uri directory uri
- * @param {string} name name for the home icon
+ * @param {string|undefined} uri directory uri
+ * @param {string|undefined} name name for the home icon
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars

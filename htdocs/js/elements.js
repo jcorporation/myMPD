@@ -345,7 +345,7 @@ function getDataId(id, attribute) {
 
 /**
  * Gets the attributes value from the element
- * @param {Element | EventTarget} el element
+ * @param {Element | EventTarget | ChildNode} el element
  * @param {string} attribute attribute name
  * @returns {object} attribute value or undefined
  */
@@ -398,7 +398,7 @@ function findData(el, attribute, depth) {
 /**
  * Gets the value of the selected option of a select element
  * @param {string} id element id
- * @returns {string} selected option value
+ * @returns {string|undefined} selected option value
  */
 function getSelectValueId(id) {
     return getSelectValue(elGetById(id));
@@ -408,7 +408,7 @@ function getSelectValueId(id) {
  * Gets the value of the selected option of a select element
  * or undefined if no option is selected
  * @param {Element | EventTarget} el element
- * @returns {string} selected option value
+ * @returns {string|undefined} selected option value
  */
 function getSelectValue(el) {
     if (el && el.selectedIndex >= 0) {
@@ -467,7 +467,7 @@ function getRadioBoxValueId(id) {
 /**
  * Gets the value of the checked radio box
  * @param {Element} el element
- * @returns {string} radio box value
+ * @returns {string|null} radio box value
  */
 function getRadioBoxValue(el) {
     const radiobuttons = el.querySelectorAll('.form-check-input');
