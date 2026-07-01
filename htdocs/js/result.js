@@ -81,7 +81,7 @@ function warningMsgEl(message, colspan, mode) {
  * Wrapper for checkResult with id selector
  * @param {object} obj jsonrpc object to check
  * @param {string} parentid parent id of element to add the result message
- * @param {string} mode table or grid
+ * @param {string|undefined} mode table or grid
  * @returns {boolean} true = result is not an error, else false
  */
 function checkResultId(obj, parentid, mode) {
@@ -96,11 +96,12 @@ function checkResultId(obj, parentid, mode) {
  * and displays the error in the table body.
  * @param {object} obj jsonrpc object to check
  * @param {HTMLElement} parent element to add the result message
- * @param {string} mode One off table, grid, list or modalTable
+ * @param {string|undefined} mode One off table, grid, list or modalTable
  * @returns {boolean} false = result is  empty or an error, else true
  */
 function checkResult(obj, parent, mode) {
     if (mode === undefined) {
+        /** @type {string} */
         mode = settings['view' + app.id].mode;
     }
     //remove old alert

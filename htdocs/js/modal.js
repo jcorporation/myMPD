@@ -168,9 +168,7 @@ function cleanupModal(el) {
     elGetById('modalConfirmText').textContent = text;
     const yesBtn = elCreateText('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
     yesBtn.addEventListener('click', function() {
-        if (callback !== undefined &&
-            typeof(callback) === 'function')
-        {
+        if (isFunction(callback) === true) {
             callback();
         }
         uiElements.modalConfirm.hide();
@@ -202,9 +200,7 @@ function showConfirmInline(el, text, btnText, callback) {
     const yesBtn = elCreateText('button', {"class": ["btn", "btn-danger", "float-end"]}, btnText);
     yesBtn.addEventListener('click', function(event) {
         event.stopPropagation();
-        if (callback !== undefined &&
-            typeof(callback) === 'function')
-        {
+        if (isFunction(callback) === true) {
             callback();
         }
         this.parentNode.remove();

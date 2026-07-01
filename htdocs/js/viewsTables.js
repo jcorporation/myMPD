@@ -293,16 +293,12 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         }
 
         const row = elCreateEmpty('tr', {});
-        if (perRowCallback !== undefined &&
-            typeof(perRowCallback) === 'function')
-        {
+        if (isFunction(perRowCallback) === true) {
             perRowCallback(row, obj.result.data[i], obj.result);
         }
         //data row
         setEntryData(row, obj.result.data[i]);
-        if (createRowCellsCallback !== undefined &&
-            typeof(createRowCellsCallback) === 'function')
-        {
+        if (isFunction(createRowCellsCallback) === true) {
             //custom row content
             createRowCellsCallback(row, obj.result.data[i], obj.result);
         }

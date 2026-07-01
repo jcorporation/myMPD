@@ -105,9 +105,7 @@ function createContextMenuOffcanvas(target, contextMenuEl, type, contentCallback
     const contextMenuBody = contextMenuEl.querySelector('.offcanvas-body');
     const contextMenuTitle = contextMenuEl.querySelector('.offcanvas-title');
     contentCallback1(target, contextMenuTitle, contextMenuBody);
-    if (contentCallback2 !== undefined &&
-        typeof contentCallback2 === 'function')
-    {
+    if (isFunction(contentCallback2) === true) {
         contextMenuBody.appendChild(
             elCreateEmpty('div', {"class": ["dropdown-divider2"]})
         );

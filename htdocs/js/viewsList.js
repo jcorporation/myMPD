@@ -187,9 +187,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const card = elCreateEmpty('div', {"class": ["list-group-item", "list-group-item-action", "clickable", "viewListItem"]});
         const row = elCreateEmpty('div', {'class': ['row', 'p-1']});
-        if (perCardCallback !== undefined &&
-            typeof(perCardCallback) === 'function')
-        {
+        if (isFunction(perCardCallback) === true) {
             perCardCallback(card, obj.result.data[i], obj.result);
         }
         setEntryData(card, obj.result.data[i]);
@@ -207,9 +205,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
             );
         }
         const body = elCreateEmpty('div', {"class": ["col", "ps-3"]});
-        if (createCardBodyCallback !== undefined &&
-            typeof(createCardBodyCallback) === 'function')
-        {
+        if (isFunction(createCardBodyCallback) === true) {
             //custom body content
             createCardBodyCallback(body, obj.result.data[i], obj.result);
         }
@@ -218,9 +214,7 @@ function updateList(obj, list, perCardCallback, createCardBodyCallback, createCa
             createListBody(body, obj.result.data[i], list);
         }
         row.appendChild(body);
-        if (createCardActionsCallback !== undefined &&
-            typeof(createCardActionsCallback) === 'function')
-        {
+        if (isFunction(createCardActionsCallback) === true) {
             //custom footer content
             const customFooter = elCreateEmpty('div', {"class": ["list-actions", "col", "col-auto", "text-end", "px-0"]});
             createCardActionsCallback(customFooter, obj.result.data[i], obj.result);

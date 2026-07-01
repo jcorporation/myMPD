@@ -315,7 +315,7 @@ function parseCmd(event, cmd) {
         event.preventDefault();
     }
     const func = getFunctionByName(cmd.cmd);
-    if (typeof func === 'function') {
+    if (isFunction(func) === true) {
         if (cmd.cmd === 'sendAPI') {
             sendAPI(cmd.options[0].cmd, {}, null, false);
         }
@@ -640,4 +640,15 @@ function isDefined(x) {
     return x === null || x === undefined
         ? false
         : true;
+}
+
+/**
+ * Check if variable is a function
+ * @param {*} x Variable to check
+ * @returns {boolean} true if variables is a function
+ */
+function isFunction(x) {
+    return x === null || x === undefined
+        ? false
+        : typeof(x) === 'function';
 }

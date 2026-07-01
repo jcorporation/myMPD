@@ -12,7 +12,7 @@
 //eslint-disable-next-line no-unused-vars
 function loginOrLogout() {
     if (session.token === '') {
-        enterPin(undefined, undefined, undefined, false);
+        enterPin(undefined, undefined, null, false);
     }
     else {
         removeSession();
@@ -45,9 +45,9 @@ function loginOrLogout() {
 /**
  * Creates the enter pin footer and sends the original api request after the session is created.
  * @param {NodeList} footers modal footers to hide
- * @param {string} method jsonrpc method of the original api request
+ * @param {string|undefined} method jsonrpc method of the original api request
  * @param {object} params json object of the original api request
- * @param {Function} callback callback function of the original api request
+ * @param {Function|null} callback callback function of the original api request
  * @param {boolean} onerror true = execute callback also on error
  * @returns {void}
  */
@@ -113,9 +113,9 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
 
 /**
  * Shows the enter pin dialog in a new model or if a modal is already opened in the footer of this modal.
- * @param {string} method jsonrpc method of the original api request
+ * @param {string|undefined} method jsonrpc method of the original api request
  * @param {object} params json object of the original api request
- * @param {Function} callback callback function of the original api request
+ * @param {Function|null} callback callback function of the original api request
  * @param {boolean} onerror true = execute callback also on error
  * @returns {void}
  */

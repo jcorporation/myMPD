@@ -19,7 +19,7 @@ const ignoreMessages = [
  * Sends a JSON-RPC API request to the selected partition and handles the response.
  * @param {string} method jsonrpc api method
  * @param {object} params jsonrpc parameters
- * @param {Function} callback callback function
+ * @param {Function|null} callback callback function
  * @param {boolean} onerror true = execute callback also on error
  * @returns {void}
  */
@@ -45,7 +45,7 @@ function setJsonRpcError(id, method, error) {
  * @param {string} partition partition endpoint
  * @param {string} method jsonrpc api method
  * @param {object} params jsonrpc parameters
- * @param {Function} callback callback function
+ * @param {Function|null} callback callback function
  * @param {boolean} onerror true = execute callback also on error
  * @returns {Promise<void>}
  */
@@ -95,7 +95,9 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
         logError(error);
         if (onerror === true) {
             setJsonRpcError(id, method, tn("Error posting to %{uri}", {"uri": uri}));
-            callback(jsonRpcError);
+            if (isFunction(callback) === true) {
+                callback(jsonRpcError);
+            }
         }
         return;
     }
@@ -122,7 +124,9 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
         logError('Error accessing ' + uri + ', code ' + response.status + ' - ' + response.statusText);
         if (onerror === true) {
             setJsonRpcError(id, method, tn("Response error: %{status}", response.status + ' - ' + response.statusText));
-            callback(jsonRpcError);
+            if (isFunction(callback) === true) {
+                callback(jsonRpcError);
+            }
         }
         return;
     }
@@ -151,7 +155,9 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
         logError(error);
         if (onerror === true) {
             setJsonRpcError(id, method, tn("Failed to parse response from %{uri}", {"uri": uri}));
-            callback(jsonRpcError);
+            if (isFunction(callback) === true) {
+                callback(jsonRpcError);
+            }
         }
         return;
     }
@@ -161,7 +167,7 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
 /**
  * Validates the JSON-RPC API response and calls the callback function
  * @param {object} obj parsed json rpc response object
- * @param {Function} callback callback function
+ * @param {Function|null} callback callback function
  * @param {boolean} onerror true = execute callback also on error
  * @returns {void}
  */
@@ -202,9 +208,7 @@ function checkAPIresponse(obj, callback, onerror) {
         setJsonRpcError(0, "MYMPD_API_UNKNOWN", tn("Invalid response"));
         obj = jsonRpcError;
     }
-    if (isDefined(callback) === true &&
-        typeof(callback) === 'function')
-    {
+    if (isFunction(callback) === true) {
         if (obj.result !== undefined ||
             onerror === true)
         {
@@ -221,7 +225,7 @@ function checkAPIresponse(obj, callback, onerror) {
  * Gets the callback for an jsonrpc method.
  * Used for async jsonrpc responses.
  * @param {string} method jsonrpc method
- * @returns {Function} the function that can parse the response, or null
+ * @returns {Function|null} the function that can parse the response, or null
  */
 function getResponseCallback(method) {
     switch(method) {

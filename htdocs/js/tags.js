@@ -8,7 +8,7 @@
 /**
  * Marks a tag from a tag dropdown as active and sets the element with descId to its phrase
  * @param {string} containerId container id (dropdown)
- * @param {string} descId id of the descriptive element
+ * @param {string|undefined} descId id of the descriptive element
  * @param {string} setTo tag to select
  * @returns {void}
  */

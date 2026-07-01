@@ -190,9 +190,7 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const card = elCreateEmpty('div', {"class": ["card", "card-grid", "clickable", "h-100"]});
-        if (perCardCallback !== undefined &&
-            typeof(perCardCallback) === 'function')
-        {
+        if (isFunction(perCardCallback) === true) {
             perCardCallback(card, obj.result.data[i], obj.result);
         }
         setEntryData(card, obj.result.data[i]);
@@ -207,9 +205,7 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
             );
         }
         const body = elCreateEmpty('div', {"class": ["card-body", "card-body-grid", "p-2"]});
-        if (createCardBodyCallback !== undefined &&
-            typeof(createCardBodyCallback) === 'function')
-        {
+        if (isFunction(createCardBodyCallback) === true) {
             //custom body content
             createCardBodyCallback(body, obj.result.data[i], obj.result);
         }
@@ -218,9 +214,7 @@ function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCa
             createGridBody(body, obj.result.data[i], list);
         }
         card.appendChild(body);
-        if (createCardActionsCallback !== undefined &&
-            typeof(createCardActionsCallback) === 'function')
-        {
+        if (isFunction(createCardActionsCallback) === true) {
             //custom footer content
             const customFooter = elCreateEmpty('div', {"class": ["card-footer", "card-footer-grid", "p-0", "d-flex", "justify-content-center"]});
             createCardActionsCallback(customFooter, obj.result.data[i], obj.result);
