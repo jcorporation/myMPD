@@ -97,44 +97,24 @@ sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, b
 sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *nread) {
     sdsclear(s);
     s = sdsMakeRoomFor(s, max + 1);
+    int c;
     size_t i = 0;
-
-    // Fast branch for files that do not need to remove newlines
-    if (remove_newline == false) {
-        size_t toread = max + 1;
-        size_t r = fread(s, 1, toread, fp);
-        if (r > max) {
+    while ((c = fgetc(fp)) != EOF) {
+        if (i > max) {
             s[max] = '\0';
+            sdssetlen(s, max);
             sdstrim(s, "\r \t\n");
             MYMPD_LOG_ERROR(NULL, "File is too big, max size is %lu", (unsigned long)max);
             *nread = FILE_TO_BIG;
             return s;
         }
-        s[r] = '\0';
-        sdssetlen(s, r);
-        sdstrim(s, "\r \t\n");
-        *nread = (int)sdslen(s);
-        return s;
-    }
-
-    // Slow branch for files that need to remove newlines
-    char buf[4096];
-    size_t r;
-    while ((r = fread(buf, 1, sizeof buf, fp)) > 0) {
-        for (size_t j = 0; j < r; j++) {
-            unsigned char c = (unsigned char)buf[j];
-            if (c == '\n' || c == '\r') {
-                continue;
-            }
-            if (i > max) {
-                s[max] = '\0';
-                sdstrim(s, "\r \t\n");
-                MYMPD_LOG_ERROR(NULL, "File is too big, max size is %lu", (unsigned long)max);
-                *nread = FILE_TO_BIG;
-                return s;
-            }
-            s[i++] = (char)c;
+        if (remove_newline == true &&
+            (c == '\n' || c == '\r'))
+        {
+            continue;
         }
+        s[i] = (char)c;
+        i++;
     }
     s[i] = '\0';
     sdssetlen(s, i);
