@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Translations
+- Upd: Performance improvements for file reading functions
 - Fix: Set libmpdclient min. version to 2.26.0
 - Fix: Do not reset scrollposition on queue refresh
 
