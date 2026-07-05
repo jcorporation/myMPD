@@ -16,6 +16,23 @@
 #include <string.h>
 
 /**
+ * Removes newline characters from a string in-place.
+ * @param s String to merge the lines
+ */
+void sds_merge_lines(sds s) {
+    size_t k = 0;
+    for (size_t i = 0, j = sdslen(s); i < j; i++) {
+        if (s[i] == '\n' || s[i] == '\r') {
+            continue;
+        }
+        s[k] = s[i];
+        k++;
+    }
+    sdssetlen(s, k);
+    s[k] = '\0';
+}
+
+/**
  * Splits a comma separated string and trims whitespaces from single values
  * @param p string to split
  * @param count pointer to int representing the count of values

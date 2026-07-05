@@ -24,6 +24,7 @@
     SDS_PTR = NULL; \
 } while (0)
 
+void sds_merge_lines(sds s);
 sds *sds_split_comma_trim(const char *p, int *count);
 sds sds_catchar(sds s, const char c);
 sds sds_replacelen(sds s, const char *p, size_t len);

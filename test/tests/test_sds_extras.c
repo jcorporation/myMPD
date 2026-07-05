@@ -53,3 +53,23 @@ UTEST(sds_extras, test_sds_catbool) {
     ASSERT_STREQ("true", s);
     sdsfree(s);
 }
+
+UTEST(sds_extras, test_sds_merge_lines) {
+    sds s = sdsnew("\r\ntest\rtest\ntest\n");
+    sds_merge_lines(s);
+    ASSERT_STREQ("testtesttest", s);
+    ASSERT_EQ(sdslen(s), 12U);
+    sdsfree(s);
+
+    s = sdsnew("test\rtest\ntest\n");
+    sds_merge_lines(s);
+    ASSERT_STREQ("testtesttest", s);
+    ASSERT_EQ(sdslen(s), 12U);
+    sdsfree(s);
+
+    s = sdsempty();
+    sds_merge_lines(s);
+    ASSERT_STREQ("", s);
+    ASSERT_EQ(sdslen(s), 0U);
+    sdsfree(s);
+}
