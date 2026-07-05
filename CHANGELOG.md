@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v25.3.0 (not yet released)
 
-This is a small bug fix release.
+This is a maintenance release.
 
 ### Changelog
 
@@ -14,6 +14,8 @@ This is a small bug fix release.
 - Upd: Performance improvements for file reading functions
 - Fix: Set libmpdclient min. version to 2.26.0
 - Fix: Do not reset scrollposition on queue refresh
+- Fix: Path traversal checks
+- Fix: Do not leak fd on create_tmp_file failure
 
 ***
 
