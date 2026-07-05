@@ -146,7 +146,7 @@ bool is_dir(const char *dir_name) {
  */
 bool create_tmp_file(const char *filepath) {
     errno = 0;
-    int fd = open(filepath, O_CREAT | O_EXCL | O_CLOEXEC, S_IRWXU);
+    int fd = open(filepath, O_CREAT | O_EXCL | O_CLOEXEC | O_NOFOLLOW, S_IRWXU);
     if (fd < 0) {
         MYMPD_LOG_ERROR(NULL, "Can not open file descriptor \"%s\" for write", filepath);
         MYMPD_LOG_ERRNO(NULL, errno);
@@ -175,6 +175,7 @@ FILE *open_tmp_file(sds filepath) {
     if (fp == NULL) {
         MYMPD_LOG_ERROR(NULL, "Can not open tmp file \"%s\" for write", filepath);
         MYMPD_LOG_ERRNO(NULL, errno);
+        close(fd);
     }
     return fp;
 }
