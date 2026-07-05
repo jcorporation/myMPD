@@ -22,7 +22,8 @@
 enum getfile_status {
     FILE_IS_EMPTY = 0,
     FILE_NOT_EXISTS = -1,
-    FILE_TO_BIG = -2
+    FILE_TO_BIG = -2,
+    FILE_ERROR = -3,
 };
 
 sds sds_getline(sds s, FILE *fp, size_t max, int *nread);

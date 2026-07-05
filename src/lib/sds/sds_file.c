@@ -13,7 +13,9 @@
 
 #include "dist/sds/sds.h"
 #include "src/lib/log.h"
+#include "src/lib/sds/sds_extras.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <string.h>
 
@@ -97,29 +99,21 @@ sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, b
 sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *nread) {
     sdsclear(s);
     s = sdsMakeRoomFor(s, max + 1);
-    int c;
-    size_t i = 0;
-    while ((c = fgetc(fp)) != EOF) {
-        if (i > max) {
-            s[max] = '\0';
-            sdssetlen(s, max);
-            sdstrim(s, "\r \t\n");
-            MYMPD_LOG_ERROR(NULL, "File is too big, max size is %lu", (unsigned long)max);
-            *nread = FILE_TO_BIG;
-            return s;
-        }
-        if (remove_newline == true &&
-            (c == '\n' || c == '\r'))
-        {
-            continue;
-        }
-        s[i] = (char)c;
-        i++;
+    size_t nr_read = fread(s, sizeof(char), max, fp);
+    if (nr_read > max) {
+        nr_read = max;
     }
-    s[i] = '\0';
-    sdssetlen(s, i);
-    sdstrim(s, "\r \t\n");
-    *nread = (int)sdslen(s);
+    s[nr_read] = '\0';
+    sdssetlen(s, nr_read);
+
+    if (remove_newline == true) {
+        sds_merge_lines(s);
+    } else {
+        sdstrim(s, "\r \t\n");
+    }
+    *nread = feof(fp) == 0
+        ? FILE_TO_BIG
+        : (int)sdslen(s);
     return s;
 }
 
