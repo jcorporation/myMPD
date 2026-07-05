@@ -56,9 +56,6 @@ sds *sds_split_comma_trim(const char *p, int *count) {
 sds sds_catchar(sds s, const char c) {
     // Make sure there is always space for at least 1 char.
     s = sdsMakeRoomFor(s, 1);
-    if (s == NULL) {
-        return NULL;
-    }
     size_t i = sdslen(s);
     s[i++] = c;
     sdsinclen(s, 1);
