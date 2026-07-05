@@ -141,9 +141,7 @@ int lua_http_download(lua_State *lua_vm) {
         return luaL_error(lua_vm, "out is NULL");
     }
     if (out[0] != '\0') {
-        if (strncmp(out, config->cachedir, sdslen(config->cachedir)) != 0 ||
-            check_dir_traversal(out) == false)
-        {
+        if (path_in_folder(config->cachedir, out) == false) {
             MYMPD_LOG_ERROR(NULL, "Lua - http_download: invalid filename");
             lua_pop(lua_vm, n);
             return luaL_error(lua_vm, "invalid filename");
@@ -234,10 +232,7 @@ int lua_http_serve_file(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "filename is NULL");
     }
-
-    if (strncmp(filename, config->cachedir, sdslen(config->cachedir)) != 0 ||
-        check_dir_traversal(filename) == false)
-    {
+    if (path_in_folder(config->cachedir, filename) == false) {
         MYMPD_LOG_ERROR(NULL, "Lua - http_serve_file: invalid filename");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "invalid filename");
@@ -294,10 +289,7 @@ int lua_http_serve_http_cache_file(lua_State *lua_vm) {
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "filename is NULL");
     }
-
-    if (strncmp(filename, config->cachedir, sdslen(config->cachedir)) != 0 ||
-        check_dir_traversal(filename) == false)
-    {
+    if (path_in_folder(config->cachedir, filename) == false) {
         MYMPD_LOG_ERROR(NULL, "Lua - http_serve_cache_file: invalid filename");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "invalid filename");
@@ -305,7 +297,7 @@ int lua_http_serve_http_cache_file(lua_State *lua_vm) {
 
     struct mg_client_response_t *response = http_client_cache_read(filename);
     if (response == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Lua - http_serve_file: error reading file");
+        MYMPD_LOG_ERROR(NULL, "Lua - http_serve_cache_file: error reading file");
         lua_pop(lua_vm, n);
         return luaL_error(lua_vm, "Error reading file");
     }
@@ -318,7 +310,7 @@ int lua_http_serve_http_cache_file(lua_State *lua_vm) {
         "\r\n"
         "%S",
         sdslen(response->body),
-        (mime_type == NULL ? "application/octet-stream" : mime_type), 
+        (mime_type == NULL ? "application/octet-stream" : mime_type),
         response->body);
     http_client_response_clear(response);
     FREE_PTR(response);
