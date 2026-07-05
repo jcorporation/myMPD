@@ -234,3 +234,27 @@ UTEST(validate, test_validate_ismpdsort) {
     ASSERT_FALSE(vcb_ismpdsort(data));
     sdsfree(data);
 }
+
+UTEST(validate, test_check_dir_traversal) {
+    //valid
+    ASSERT_TRUE(check_dir_traversal("dir/dir2/file"));
+    ASSERT_TRUE(check_dir_traversal("/dir/dir2/file.txt"));
+    ASSERT_TRUE(check_dir_traversal("dir/dir2/file.txt.gz"));
+    //invalid
+    ASSERT_FALSE(check_dir_traversal("../dir/dir2/file"));
+    ASSERT_FALSE(check_dir_traversal("dir/../file"));
+    ASSERT_FALSE(check_dir_traversal("dir/./file"));
+    ASSERT_FALSE(check_dir_traversal("dir//file"));
+    ASSERT_FALSE(check_dir_traversal("/dir/file/.."));
+}
+
+UTEST(validate, test_path_in_folder) {
+    //valid
+    ASSERT_TRUE(path_in_folder("/dir/dir2", "/dir/dir2/file.txt"));
+    ASSERT_TRUE(path_in_folder("/dir/dir2", "/dir/dir2/subdir/file.txt"));
+    //invalid
+    ASSERT_FALSE(path_in_folder("/dir/dir2", "/dir/dir3/file.txt"));
+    ASSERT_FALSE(path_in_folder("/dir/dir2", "/dir/dir2/../file.txt"));
+    ASSERT_FALSE(path_in_folder("/dir/dir2", "/dir/dir2/subdir/../../file.txt"));
+    ASSERT_FALSE(path_in_folder("/dir/dir2", "/otherdir/file.txt"));
+}

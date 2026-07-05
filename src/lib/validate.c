@@ -258,22 +258,6 @@ bool vcb_isfilename(sds data) {
 }
 
 /**
- * Checks for dir traversal attempts in string
- * @param str string to check
- * @return true if filepath is sane, else false
- */
-bool check_dir_traversal(const char *str) {
-    if (strncmp(str, "../", 3) == 0 ||
-        strncmp(str, "//", 2) == 0 ||
-        strstr(str, "/../") != NULL ||
-        strstr(str, "/./") != NULL)
-    {
-        return false;
-    }
-    return true;
-}
-
-/**
  * Checks if string is a valid filename with path or path only
  * @param data sds string to check
  * @return true on success else false
@@ -618,12 +602,52 @@ static bool validate_json(sds data, char start, char end) {
  * @return true on success else false
  */
 static bool is_mympd_field(sds token) {
-    const char** ptr = mympd_fields;
+    const char **ptr = mympd_fields;
     while (*ptr != 0) {
-        if (strncmp(token, *ptr, sdslen(token)) == 0) {
+        if (strcmp(token, *ptr) == 0) {
             return true;
         }
         ++ptr;
     }
     return false;
+}
+
+/**
+ * Checks for dir traversal attempts in string
+ * @param str string to check
+ * @return true if filepath is sane, else false
+ */
+bool check_dir_traversal(const char *str) {
+    size_t len = strlen(str);
+    if (strncmp(str, "../", 3) == 0 ||
+        strstr(str, "//") != NULL ||
+        strstr(str, "/../") != NULL ||
+        strstr(str, "/./") != NULL ||
+        (len >= 3 && strcmp(str + len - 3, "/..") == 0))
+    {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if a child path is within a parent folder
+ * @param parent parent folder path
+ * @param child child path to check
+ * @return true if child is within parent, else false
+ */
+bool path_in_folder(const char *parent, const char *child) {
+    size_t parent_len = strlen(parent);
+    size_t child_len = strlen(child);
+
+    if (parent_len == 0 ||
+        child_len == 0 ||
+        child_len <= parent_len ||
+        strncmp(parent, child, parent_len) != 0 ||
+        child[parent_len] != '/' ||
+        check_dir_traversal(child) == false)
+    {
+        return false;
+    }
+    return true;
 }

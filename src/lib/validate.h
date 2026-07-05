@@ -32,7 +32,6 @@ bool vcb_isstickername(sds data);
 bool vcb_istext(sds data);
 bool vcb_isfilename_silent(sds data);
 bool vcb_isfilename(sds data);
-bool check_dir_traversal(const char *str);
 bool vcb_isfilepath(sds data);
 bool vcb_ispathfilename(sds data);
 bool vcb_isuri(sds data);
@@ -53,5 +52,8 @@ bool vcb_isstickersort(sds data);
 bool vcb_isstickerop(sds data);
 
 bool vcb_ismpd_sticker_sort(sds data);
+
+bool check_dir_traversal(const char *str);
+bool path_in_folder(const char *parent, const char *child);
 
 #endif
