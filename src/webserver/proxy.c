@@ -136,7 +136,7 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
         else {
             MYMPD_LOG_INFO(NULL, "Creating new stream backend connection to \"%s\"", uri);
         }
-        struct t_backend_nc_data *backend_nc_data = malloc(sizeof(struct t_backend_nc_data));
+        struct t_backend_nc_data *backend_nc_data = malloc_assert(sizeof(struct t_backend_nc_data));
         backend_nc_data->uri = sdsdup(uri);
         backend_nc_data->frontend_nc = nc;
         backend_nc = stream == false

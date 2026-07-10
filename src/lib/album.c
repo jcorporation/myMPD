@@ -71,8 +71,8 @@ struct t_album *album_new(void) {
  */
 struct t_album *album_new_uri(const char *uri) {
     assert(uri);
-    struct t_album *album = malloc(sizeof(struct t_album));
-    album->uri = strdup(uri);
+    struct t_album *album = malloc_assert(sizeof(struct t_album));
+    album->uri = my_strdup(uri, strlen(uri));
 
     for (unsigned i = 0; i < MPD_TAG_COUNT; ++i) {
         album->tags[i].value = NULL;
@@ -94,8 +94,9 @@ struct t_album *album_new_uri(const char *uri) {
  * @return struct t_album* or NULL on error
  */
 struct t_album *album_new_from_song(const struct mpd_song *song, const struct t_mympd_mpd_tags *album_tags) {
-    struct t_album *album = malloc(sizeof(struct t_album));
-    album->uri = strdup(mpd_song_get_uri(song));
+    struct t_album *album = malloc_assert(sizeof(struct t_album));
+    const char *song_uri = mpd_song_get_uri(song);
+    album->uri = my_strdup(song_uri, strlen(song_uri));
 
     for (unsigned i = 0; i < MPD_TAG_COUNT; ++i) {
         album->tags[i].value = NULL;
@@ -382,7 +383,7 @@ bool album_append_tag(struct t_album *album, enum mpd_tag_type type, const char 
 
     if (tag->value == NULL) {
         tag->next = NULL;
-        tag->value = strdup(value);
+        tag->value = my_strdup(value, strlen(value));
         if (tag->value == NULL) {
             return false;
         }
@@ -402,7 +403,7 @@ bool album_append_tag(struct t_album *album, enum mpd_tag_type type, const char 
         struct t_album_tag_value *prev = tag;
         tag = malloc_assert(sizeof(*tag));
 
-        tag->value = strdup(value);
+        tag->value = my_strdup(value, strlen(value));
         if (tag->value == NULL) {
             FREE_PTR(tag);
             return false;
