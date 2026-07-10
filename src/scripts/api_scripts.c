@@ -267,11 +267,15 @@ static bool parse_script(sds scriptfilename, sds *metadata, sds *content, int *o
         }
         else {
             MYMPD_LOG_WARN(NULL, "Invalid metadata for script %s", scriptfilename);
+            FREE_SDS(line);
+            (void) fclose(fp);
             return false;
         }
     }
     else {
         MYMPD_LOG_WARN(NULL, "Invalid metadata for script %s", scriptfilename);
+        FREE_SDS(line);
+        (void) fclose(fp);
         return false;
     }
     FREE_SDS(line);
