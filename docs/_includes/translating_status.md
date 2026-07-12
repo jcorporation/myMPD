@@ -10,4 +10,4 @@
 - nl-NL: fully translated
 - pl-PL: 12 missing phrases
 - ru-RU: 14 missing phrases
-- zh-Hans: 3 missing phrases
+- zh-Hans: fully translated
