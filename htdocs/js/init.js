@@ -377,14 +377,6 @@ function initNavs() {
         }
         showContextMenu(event);
     }, false);
-    navbarMain.addEventListener('long-press', function(event) {
-        if (event.target.getAttribute('data-contextmenu') === null &&
-            event.target.parentNode.getAttribute('data-contextmenu') === null)
-        {
-            return;
-        }
-        showContextMenu(event);
-    }, false);
 
     elGetById('scripts').addEventListener('click', function(event) {
         event.preventDefault();
@@ -399,9 +391,6 @@ function initNavs() {
     }, false);
 
     domCache.footer.addEventListener('contextmenu', function(event) {
-        toggleAdvPlaycontrolsPopover(event);
-    }, false);
-    domCache.footer.addEventListener('long-press', function(event) {
         toggleAdvPlaycontrolsPopover(event);
     }, false);
 }

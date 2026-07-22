@@ -214,7 +214,6 @@ createassets() {
   do
     [ "$F" = "js/bootstrap-native.js" ] && continue
     [ "$F" = "js/i18n.js" ] && continue
-    [ "$F" = "js/long-press-event.js" ] && continue
     [ "$F" = "js/version.js" ] && continue
     JSSRCFILES="$JSSRCFILES htdocs/$F"
     if [ -n "$(tail -c 1 "htdocs/$F")" ]
@@ -234,9 +233,9 @@ createassets() {
   echo "//${COPYRIGHT}" > "$MYMPD_BUILDDIR/htdocs/js/copyright.min.js"
   if [ "$MYMPD_MINIFY_JS" = "0" ]
   then
-    JSFILES="dist/bootstrap-native/bootstrap-native.js dist/long-press-event/long-press-event.js"
+    JSFILES="dist/bootstrap-native/bootstrap-native.js"
   else
-    JSFILES="dist/bootstrap-native/bootstrap-native.min.js dist/long-press-event/long-press-event.min.js"
+    JSFILES="dist/bootstrap-native/bootstrap-native.min.js"
   fi
   JSFILES="$JSFILES $MYMPD_BUILDDIR/htdocs/js/*.min.js"
   for F in $JSFILES
@@ -404,7 +403,6 @@ copyassets() {
 
   cp -v "$STARTPATH/dist/bootstrap/compiled/custom.css" "$STARTPATH/htdocs/css/bootstrap.css"
   cp -v "$STARTPATH/dist/bootstrap-native/bootstrap-native.js" "$STARTPATH/htdocs/js/bootstrap-native.js"
-  cp -v "$STARTPATH/dist/long-press-event/long-press-event.js" "$STARTPATH/htdocs/js/long-press-event.js"
   cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
   cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
 
@@ -480,7 +478,6 @@ cleanup() {
   #htdocs
   rm -f htdocs/sw.js
   rm -f htdocs/js/bootstrap-native.js
-  rm -f htdocs/js/long-press-event.js
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
   rm -f htdocs/assets/MaterialIcons-Regular.woff2

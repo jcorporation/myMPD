@@ -39,9 +39,6 @@ function setView(viewName) {
     newContainer.firstElementChild.addEventListener('contextmenu', function(event) {
         viewRightClickHandler(event);
     }, false);
-    newContainer.firstElementChild.addEventListener('long-press', function(event) {
-        viewRightClickHandler(event);
-    }, false);
     
     //init drag and drop
     switch(viewName) {

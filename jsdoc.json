@@ -3,7 +3,7 @@
     "recurseDepth": 10,
     "source": {
         "includePattern": ".+\\.js$",
-        "excludePattern": "(bootstrap-native.js|long-press-event.js)"
+        "excludePattern": "(bootstrap-native.js)"
     },
     "sourceType": "script",
     "tags": {

@@ -44,7 +44,6 @@ for my $dirname (@dirs) {
     opendir my $dir, $dirname or die "Can't open directory \"$dirname\": $!";
     while (my $entry = readdir $dir) {
         next if $entry eq "bootstrap-native.js";
-        next if $entry eq "long-press-event.js";
         next if $entry eq "i18n.js";
         next if $entry eq "apidoc.js";
         push @files, $dirname.$1 if $entry =~ /^([\w-]+\.(c|js))$/;

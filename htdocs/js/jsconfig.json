@@ -10,7 +10,6 @@
     ],
     "exclude": [
       "bootstrap-native.js",
-      "i18n.js",
-      "long-press-event.js"
+      "i18n.js"
     ]
 }

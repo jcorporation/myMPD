@@ -8,7 +8,6 @@ Frontend
 
 - `Bootstrap <https://getbootstrap.com>`__ (only the css part)
 - `Bootstrap Native <http://thednp.github.io/bootstrap.native/>`__ (replaces the javascript for bootstrap)
-- `long-press-event <https://github.com/john-doherty/long-press-event>`__ (support of long touch events)
 - `Material Design Icons <https://fonts.google.com/icons?selected=Material+Icons>`__ (Icons)
 
 Backend
