@@ -4,7 +4,7 @@
 # (c) 2018-2026 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        25.3.1
+Version:        26.0.0
 Release:        0
 License:        GPL-3.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
@@ -66,5 +66,5 @@ fi
 %license LICENSE.md
 
 %changelog
-* Mon Jul 20 2026 Juergen Mang <mail@jcgames.de> 25.3.1-0
+* Wed Jul 22 2026 Juergen Mang <mail@jcgames.de> 26.0.0-0
 - Version from master
