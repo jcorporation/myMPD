@@ -33,10 +33,13 @@ function homeMoveIcon(oldPos, newPos) {
  * @returns {void}
  */
 function viewHomeClickHandler(event, target) {
-    if (event.target.classList.contains('card-body')) {
+    if (event.target.classList.contains('card-title') ||
+        event.target.classList.contains('card-footer'))
+    {
         showContextMenu(event);
         return;
     }
+    // card-body
     const href = getData(target, 'href');
     if (href !== undefined) {
         parseCmd(event, href);
@@ -258,7 +261,7 @@ function createHomeIcon(data, pos) {
     }
 
     const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0", "float-start"]});
-    const card = elCreateEmpty('div', {"data-contextmenu": "homeIcon", "class": ["card", "home-icons"], "draggable": "true",
+    const card = elCreateEmpty('div', {"data-contextmenu": "homeIcon", "class": ["card", "home-icons", "py-0"], "draggable": "true",
         "title": tn(homeType) + ':' + smallSpace + data.name +
         '\n' + tn(actionType)});
     //decode json options
@@ -274,21 +277,21 @@ function createHomeIcon(data, pos) {
     setData(card, 'name', data.name);
     setData(card, 'href', {"cmd": data.cmd, "options": data.options});
     setData(card, 'pos', pos);
-    const cardTitle = elCreateText('div', {"class": ["card-title", "mi", "rounded", "clickable"]}, data.ligature);
+    const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, data.ligature);
     if (data.image !== '') {
-        cardTitle.style.backgroundImage = getCssImageUri(data.image);
+        cardBody.style.backgroundImage = getCssImageUri(data.image);
     }
     if (data.bgcolor !== '') {
-        cardTitle.style.backgroundColor = data.bgcolor;
+        cardBody.style.backgroundColor = data.bgcolor;
     }
     if (data.color !== '' &&
         data.color !== undefined)
     {
-        cardTitle.style.color = data.color;
+        cardBody.style.color = data.color;
     }
-    card.appendChild(cardTitle);
+    card.appendChild(cardBody);
     card.appendChild(
-        elCreateText('div', {"class": ["card-body", "card-body-grid", "p-2", "clickable"]}, data.name)
+        elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, data.name)
     );
     col.appendChild(card);
     return col;

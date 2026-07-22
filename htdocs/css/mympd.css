@@ -545,10 +545,10 @@ div#homeActions {
   border-radius: 0;
 }
 
-.home-icons .card-title {
-  font-size: 2rem;
+.home-icons .card-body {
+  font-size: 3rem;
   height: 4rem;
-  width: 4rem;
+  width: 6rem;
   padding: 1rem 0 0 0;
   background-size: cover;
   background-position: center center;
@@ -558,7 +558,7 @@ div#homeActions {
   text-align: center;
 }
 
-.home-icons .card-body {
+.home-icons .card-footer {
   border-top: none;
   background-color: transparent;
 }
@@ -572,7 +572,8 @@ div#homeActions {
   background-color: var(--bs-card-cap-bg);
 }
 
-.card-body-grid {
+.card-body-grid,
+.card-footer-grid {
   white-space: var(--mympd-card-footer-white-space);
   font-size: 0.9rem;
 }
