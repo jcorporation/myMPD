@@ -5,7 +5,7 @@
 */
 
 /*! \file
- * \brief Configuration handling
+ * \brief Signal handling
  */
 
 #include "compile_time.h"
@@ -18,45 +18,71 @@
 
 #include <pthread.h>
 #include <signal.h>
+#include <sys/signalfd.h>
+#include <unistd.h>
 
+// Global variables
 sig_atomic_t s_signal_received;  //!< Signal received indicator
 
 // Private definitions
-static void mympd_signal_handler(int sig_num);
+static const char *signal_name(unsigned signo);
 
 // Public functions
 
 /**
- * Sets the mympd_signal_handler for the given signal
- * @param sig_num signal to handle
- * @return true on success, else false
+ * Initializes the signalfd and blocks the signals for the process.
+ * @return the signalfd on success, else -1
  */
-bool set_signal_handler(int sig_num) {
-    struct sigaction sa;
-    sa.sa_handler = mympd_signal_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART; // Restart functions if interrupted by handler
-    if (sigaction(sig_num, &sa, NULL) == -1) {
+int signalfd_init(void) {
+    sigset_t mask;
+    if (sigemptyset(&mask) == -1) {
+        MYMPD_LOG_ERROR(NULL, "sigemptyset failed");
         return false;
     }
-    return true;
+    if (sigaddset(&mask, SIGTERM) == -1 ||
+        sigaddset(&mask, SIGINT) == -1 ||
+        sigaddset(&mask, SIGHUP) == -1)
+    {
+        MYMPD_LOG_ERROR(NULL, "sigaddset failed");
+        return false;
+    }
+    // Block signals for the process so they are delivered to signalfd
+    if (pthread_sigmask(SIG_BLOCK, &mask, NULL) != 0) {
+        MYMPD_LOG_ERROR(NULL, "pthread_sigmask failed");
+        return false;
+    }
+    return signalfd(-1, &mask, SFD_CLOEXEC | SFD_NONBLOCK);
 }
 
-// Private functions
+/**
+ * Closes the signalfd it is open
+ * @param fd signalfd to close
+ */
+void signalfd_close(int fd) {
+    if (fd > -1) {
+        close(fd);
+    }
+}
 
 /**
- * Signal handler that stops myMPD on SIGTERM and SIGINT and saves
- * states on SIGHUP
- * @param sig_num the signal to handle
+ * Handles the signalfd event
+ * @param fd signalfd to read
+ * @return false if the parent loop should exit, else true
  */
-static void mympd_signal_handler(int sig_num) {
-    switch(sig_num) {
+bool signalfd_handler(int fd) {
+    struct signalfd_siginfo fdsi;
+    ssize_t s = read(fd, &fdsi, sizeof(fdsi));
+    if (s != sizeof(fdsi)) {
+        MYMPD_LOG_EMERG(NULL, "Failed to read signalfd");
+        return false;
+    }
+    switch (fdsi.ssi_signo) {
         case SIGTERM:
-        case SIGINT: {
-            MYMPD_LOG_NOTICE(NULL, "Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
-            //Set loop end condition for threads
-            s_signal_received = sig_num;
-            //Wakeup queue loops
+        case SIGINT:
+            MYMPD_LOG_NOTICE(NULL, "Signal %s received, exiting", signal_name(fdsi.ssi_signo));
+            // Set loop break condition
+            s_signal_received = 1;
+            // Wakeup threads
             pthread_cond_signal(&mympd_api_queue->wakeup);
             #ifdef MYMPD_ENABLE_LUA
                 pthread_cond_signal(&script_queue->wakeup);
@@ -67,9 +93,8 @@ static void mympd_signal_handler(int sig_num) {
             if (webserver_queue->mg_mgr != NULL) {
                 mympd_mg_wakeup_send("X");
             }
-            break;
-        }
-        case SIGHUP: {
+            return false;
+        case SIGHUP:
             MYMPD_LOG_NOTICE(NULL, "Signal SIGHUP received, saving states");
             struct t_work_request *request1 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, "", MPD_PARTITION_DEFAULT);
             mympd_queue_push(mympd_api_queue, request1, 0);
@@ -77,10 +102,26 @@ static void mympd_signal_handler(int sig_num) {
                 struct t_work_request *request2 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, "", MPD_PARTITION_DEFAULT);
                 mympd_queue_push(script_queue, request2, 0);
             #endif
-            break;
-        }
-        default: {
-            //Other signals are not handled
-        }
+            return true;
+        default:
+            // Ignore other signals
+            MYMPD_LOG_DEBUG(NULL, "Ignoring signal %d", fdsi.ssi_signo);
+            return true;
+    }
+}
+
+// Private functions
+
+/**
+ * Looks up the name of a signal number
+ * @param signo signal number
+ * @return signal name as string literal
+ */
+static const char *signal_name(unsigned signo) {
+    switch(signo) {
+        case SIGTERM: return "SIGTERM";
+        case SIGINT:  return "SIGINT";
+        case SIGHUP:  return "SIGHUP";
+        default:      return "UNKNOWN";
     }
 }

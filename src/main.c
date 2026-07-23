@@ -40,7 +40,9 @@
 #endif
 
 #include <openssl/opensslv.h>
+#include <poll.h>
 #include <pthread.h>
+#include <sys/signalfd.h>
 
 // Sanitizers
 
@@ -187,7 +189,7 @@ int main(int argc, char **argv) {
     thread_logname = sdsnew("mympd");
     thread_logline = sdsempty();
     log_init();
-
+    int signal_fd = -1;
     mympd_worker_threads = 0;
     #ifdef MYMPD_ENABLE_LUA
         script_worker_threads = 0;
@@ -320,12 +322,10 @@ int main(int argc, char **argv) {
         MYMPD_LOG_INFO(NULL, "Experimental features are enabled");
     #endif
 
-    // Set signal handler
-    if (set_signal_handler(SIGTERM) == false ||
-        set_signal_handler(SIGINT) == false ||
-        set_signal_handler(SIGHUP) == false)
-    {
-        MYMPD_LOG_EMERG(NULL, "Could not set signal handler for SIGTERM, SIGINT and SIGUP");
+    // Initialize signalfd to handle signals in the event loop
+    signal_fd = signalfd_init();
+    if (signal_fd == -1) {
+        MYMPD_LOG_EMERG(NULL, "Could not initialize signalfd for SIGTERM, SIGINT and SIGHUP");
         goto cleanup;
     }
 
@@ -380,6 +380,24 @@ int main(int argc, char **argv) {
     MYMPD_LOG_NOTICE(NULL, "myMPD is ready");
     rc = EXIT_SUCCESS;
 
+    // Signal handling
+    struct pollfd fds[1];
+    fds[0].fd = signal_fd;
+    fds[0].events = POLLIN | POLLPRI;
+
+    while (s_signal_received == 0) {
+        int cnt = poll(fds, 1, -1);
+        if (cnt < 0) {
+            MYMPD_LOG_EMERG(NULL, "Failure polling fds");
+            rc = EXIT_FAILURE;
+            break;
+        }
+        // Handle signal
+        if (signalfd_handler(fds[0].fd) == false) {
+            break;
+        }
+    }
+
     // Try to cleanup all
     cleanup:
 
@@ -431,6 +449,11 @@ int main(int argc, char **argv) {
     if (mg_user_data != NULL) {
         mg_user_data_free(mg_user_data);
     }
+
+    // Close signalfd if initialized
+    signalfd_close(signal_fd);
+
+    // Exit message
     if (options_rc == OPTIONS_RC_OK) {
         if (rc == EXIT_SUCCESS) {
             MYMPD_LOG_NOTICE(NULL, "Exiting gracefully, thank you for using myMPD");
@@ -440,6 +463,7 @@ int main(int argc, char **argv) {
         }
     }
 
+    // Final cleanup
     FREE_SDS(thread_logname);
     FREE_SDS(thread_logline);
     return rc;

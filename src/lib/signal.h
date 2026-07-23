@@ -5,7 +5,7 @@
 */
 
 /*! \file
- * \brief Search implementation
+ * \brief Signal handling
  */
 
 #ifndef MYMPD_LIB_SIGNAL_H
@@ -16,6 +16,8 @@
 
 extern sig_atomic_t s_signal_received;
 
-bool set_signal_handler(int sig_num);
+int signalfd_init(void);
+void signalfd_close(int fd);
+bool signalfd_handler(int fd);
 
 #endif
