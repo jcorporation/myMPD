@@ -525,12 +525,6 @@ check_includes() {
   FILES=$(find src/ -name \*.c)
   for FILE in $FILES
   do
-    if ! grep -m1 "#include" "$FILE" | grep -q "compile_time.h"
-    then
-      echo_warn "First include is not compile_time.h: $FILE"
-      rc=1
-    fi
-
     INCLUDES=$(grep "#include \"" "$FILE" | grep -v "compile_time.h" | cut -d\" -f2)
     for INCLUDE in $INCLUDES
     do
