@@ -53,8 +53,8 @@ struct t_mympd_queue *mympd_queue_create(const char *name, enum mympd_queue_type
     queue->length = 0;
     queue->name = name;
     queue->type = type;
-    queue->mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
-    queue->wakeup = (pthread_cond_t)PTHREAD_COND_INITIALIZER;
+    pthread_mutex_init(&queue->mutex, NULL);
+    pthread_cond_init(&queue->wakeup, NULL);
     queue->event_fd = event == true
         ? event_eventfd_create()
         : -1;
