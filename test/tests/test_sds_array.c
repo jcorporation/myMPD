@@ -31,6 +31,8 @@ UTEST(sds_array, test_sds_array_push) {
     sds_array_clear(array);
     ASSERT_EQ(array->length, 0U);
     ASSERT_GE(array->capacity, array->length);
+
+    sds_array_push(array, sdsnew("test"));
     sds_array_free(array);
 }
 
@@ -41,7 +43,8 @@ UTEST(sds_array, test_sds_array_shuffle) {
         sds s = sdscatprintf(sdsempty(), "test-%u", i);
         sds_array_push(array, s);
     }
-    sds_array_shuffle(array);
+    bool rc = sds_array_shuffle(array);
+    ASSERT_TRUE(rc);
     unsigned eq = 0;
     for (unsigned i = 0; i < len; i++) {
         sds s = sdscatprintf(sdsempty(), "test-%u", i);
@@ -54,5 +57,10 @@ UTEST(sds_array, test_sds_array_shuffle) {
 
     ASSERT_EQ(array->length, len);
     ASSERT_GE(array->capacity, array->length);
+
+    sds_array_clear(array);
+    rc = sds_array_shuffle(array);
+    ASSERT_TRUE(rc);
+
     sds_array_free(array);
 }
