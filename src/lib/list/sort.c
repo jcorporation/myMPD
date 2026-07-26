@@ -144,6 +144,7 @@ bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) 
 
 /**
  * Sorts the list by value_p. It uses the merge sort algorithm.
+ * Sorting is utf8 aware and case insensitive.
  * @param l pointer to list to sort
  * @param direction sort direction
  * @return Always true
@@ -154,6 +155,7 @@ bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction) 
 
 /**
  * Sorts the list by key. It uses the merge sort algorithm.
+ * Sorting is utf8 aware and case insensitive.
  * @param l pointer to list to sort
  * @param direction sort direction
  * @return Always true
