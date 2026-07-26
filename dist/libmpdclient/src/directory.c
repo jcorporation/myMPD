@@ -67,6 +67,9 @@ mpd_directory_dup(const struct mpd_directory *directory)
 	assert(directory->path != NULL);
 
 	struct mpd_directory *copy = mpd_directory_new(directory->path);
+	if (copy == NULL)
+		return NULL;
+
 	copy->last_modified = directory->last_modified;
 	return copy;
 }

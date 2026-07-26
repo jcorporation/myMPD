@@ -63,6 +63,9 @@ mpd_playlist_dup(const struct mpd_playlist *playlist)
 	assert(playlist->path != NULL);
 
 	struct mpd_playlist *copy = mpd_playlist_new(playlist->path);
+	if (copy == NULL)
+		return NULL;
+
 	copy->last_modified = playlist->last_modified;
 	return copy;
 }

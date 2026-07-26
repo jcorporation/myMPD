@@ -282,8 +282,10 @@ mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
 	}
 
 	const char *oper_str = get_sticker_oper_str(oper);
-	if (oper_str == NULL)
+	if (oper_str == NULL) {
+		free(arg);
 		return false;
+	}
 
 	const size_t size = 1 + strlen(oper_str) + 2 + strlen(arg) + 2;
 	char *dest = mpd_request_prepare_append(connection, size);
@@ -314,6 +316,9 @@ mpd_sticker_search_add_sort(struct mpd_connection *connection,
 			    enum mpd_sticker_sort sort, bool descending)
 {
 	const char *sort_str = get_sticker_sort_name(sort);
+	if (sort_str == NULL)
+		return false;
+
 	return mpd_request_add_sort(connection, sort_str, descending);
 }
 

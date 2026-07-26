@@ -9,11 +9,18 @@
 #include "iso8601.h"
 #include "uri.h"
 #include "iaf.h"
+#include "config.h" // for HAVE_USELOCALE
 
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+
+#ifdef HAVE_USELOCALE
+#include <locale.h>
+#endif
+
+#define MAX_DURATION_S 1000000
 
 struct mpd_tag_value {
 	struct mpd_tag_value *next;
@@ -110,6 +117,25 @@ struct mpd_song {
 	 */
 	struct mpd_audio_format audio_format;
 };
+
+static double
+my_strtod(const char *src, char **endptr)
+{
+#ifdef HAVE_USELOCALE
+	// use the POSIX locale to format floating point numbers
+	const locale_t my_locale = newlocale(LC_NUMERIC_MASK, "C", NULL);
+	const locale_t old_locale = uselocale(my_locale);
+#endif
+
+	const double result = strtod(src, endptr);
+
+#ifdef HAVE_USELOCALE
+	uselocale(old_locale);
+	freelocale(my_locale);
+#endif
+
+	return result;
+}
 
 static struct mpd_song *
 mpd_song_new(const char *uri)
@@ -261,10 +287,10 @@ static bool
 mpd_song_add_tag(struct mpd_song *song,
 		 enum mpd_tag_type type, const char *value)
 {
-	struct mpd_tag_value *tag = &song->tags[type], *prev;
-
 	if ((int)type < 0 || type >= MPD_TAG_COUNT)
 		return false;
+
+	struct mpd_tag_value *tag = &song->tags[type], *prev;
 
 	if (tag->value == NULL) {
 		tag->next = NULL;
@@ -300,10 +326,10 @@ mpd_song_add_tag(struct mpd_song *song,
 static void
 mpd_song_clear_tag(struct mpd_song *song, enum mpd_tag_type type)
 {
-	struct mpd_tag_value *tag = &song->tags[type];
-
-	if ((unsigned)type >= MPD_TAG_COUNT)
+	if ((int)type < 0 || (unsigned)type >= MPD_TAG_COUNT)
 		return;
+
+	struct mpd_tag_value *tag = &song->tags[type];
 
 	if (tag->value == NULL)
 		/* this tag type is empty */
@@ -324,10 +350,10 @@ const char *
 mpd_song_get_tag(const struct mpd_song *song,
 		 enum mpd_tag_type type, unsigned idx)
 {
-	const struct mpd_tag_value *tag = &song->tags[type];
-
-	if ((int)type < 0)
+	if ((int)type < 0 || (unsigned)type >= MPD_TAG_COUNT)
 		return NULL;
+
+	const struct mpd_tag_value *tag = &song->tags[type];
 
 	if (tag->value == NULL)
 		return NULL;
@@ -344,6 +370,7 @@ mpd_song_get_tag(const struct mpd_song *song,
 static void
 mpd_song_set_real_uri(struct mpd_song *song, char *real_uri)
 {
+	free(song->real_uri);
 	song->real_uri = real_uri;
 }
 
@@ -527,13 +554,13 @@ mpd_song_parse_range(struct mpd_song *song, const char *value)
 
 	if (*value == '-') {
 		start = 0.0;
-		end = strtod(value + 1, NULL);
+		end = my_strtod(value + 1, NULL);
 	} else {
-		start = strtod(value, &endptr);
+		start = my_strtod(value, &endptr);
 		if (*endptr != '-')
 			return;
 
-		end = strtod(endptr + 1, NULL);
+		end = my_strtod(endptr + 1, NULL);
 	}
 
 	song->start = start > 0.0 ? (unsigned)start : 0;
@@ -543,7 +570,7 @@ mpd_song_parse_range(struct mpd_song *song, const char *value)
 		song->end = (unsigned)end;
 		song->end_ms = (unsigned)(end * 1000);
 		if (song->end == 0)
-			/* round up, because the caller must sees that
+			/* round up, because the caller must see that
 			   there's an upper limit */
 			song->end = 1;
 	} else {
@@ -559,6 +586,24 @@ mpd_song_parse_audio_format(struct mpd_song *song, const char *value)
 	assert(value != NULL);
 
 	mpd_parse_audio_format(&song->audio_format, value);
+}
+
+mpd_pure
+static unsigned
+parse_duration_ms(const char *s)
+{
+	char *endptr;
+	const double d = my_strtod(s, &endptr);
+	if (endptr == s || *endptr != '\0')
+		/* garbage */
+		return 0;
+
+	if (d < 0 || d > MAX_DURATION_S)
+		/* out of range, cast to integer may be UB */
+		return 0;
+
+	/* poor man's lrint() (because we want to avoid linking -lm) */
+	return (unsigned)(1000 * d + 0.5);
 }
 
 bool
@@ -591,7 +636,7 @@ mpd_song_feed(struct mpd_song *song, const struct mpd_pair *pair)
 	if (strcmp(pair->name, "Time") == 0)
 		mpd_song_set_duration(song, strtoul(pair->value, NULL, 10));
 	else if (strcmp(pair->name, "duration") == 0)
-		mpd_song_set_duration_ms(song, 1000 * atof(pair->value));
+		mpd_song_set_duration_ms(song, parse_duration_ms(pair->value));
 	else if (strcmp(pair->name, "Range") == 0)
 		mpd_song_parse_range(song, pair->value);
 	else if (strcmp(pair->name, "Last-Modified") == 0)

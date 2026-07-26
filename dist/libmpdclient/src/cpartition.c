@@ -70,6 +70,9 @@ mpd_recv_partition(struct mpd_connection *connection)
 		return NULL;
 
 	struct mpd_partition *partition = mpd_partition_new(pair);
+	if (partition == NULL)
+		mpd_error_code(&connection->error, MPD_ERROR_OOM);
+
 	mpd_return_pair(connection, pair);
 	return partition;
 }

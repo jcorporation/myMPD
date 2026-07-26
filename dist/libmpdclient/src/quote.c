@@ -22,6 +22,10 @@ escape(char *dest, char *end, const char *value)
 
 			if (dest >= end)
 				return NULL;
+		} else if (ch == '\n' || ch == '\r') {
+			/* these characters cannot be represented in
+			   the MPD protocol - bail out */
+			return NULL;
 		}
 
 		*dest++ = ch;

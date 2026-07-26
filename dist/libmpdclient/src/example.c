@@ -354,7 +354,7 @@ int main(int argc, char ** argv) {
 			mpd_partition_free(part);
 		}
 		if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
-			handle_error(conn);
+			return handle_error(conn);
 	} else if (argc == 2 && strcmp(argv[1], "idle_partition") == 0) {
 		while (mpd_run_idle_mask(conn, MPD_IDLE_PARTITION) != 0) {
 			struct mpd_pair *pair;
@@ -374,10 +374,10 @@ int main(int argc, char ** argv) {
 				mpd_partition_free(part);
 			}
 			if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
-				handle_error(conn);
+				return handle_error(conn);
 		}
 		if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
-			handle_error(conn);
+			return handle_error(conn);
 	} else if (argc == 3 && strcmp(argv[1], "switchpartition") == 0) {
 		if (!mpd_run_switch_partition(conn, argv[2]))
 			return handle_error(conn);

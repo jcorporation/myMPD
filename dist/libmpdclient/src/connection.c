@@ -82,6 +82,9 @@ mpd_connection_new(const char *host, unsigned port, unsigned timeout_ms)
 		return NULL;
 	}
 
+	/* just in case receiving the greeting fails */
+	memset(connection->version, 0, sizeof(connection->version));
+
 	const struct mpd_settings *settings;
 	connection->initial_settings = initial_settings;
 	connection->settings = settings = initial_settings;
@@ -231,7 +234,7 @@ mpd_connection_set_timeout(struct mpd_connection *connection,
 	assert(timeout_ms > 0);
 
 	connection->timeout.tv_sec = timeout_ms / 1000;
-	connection->timeout.tv_usec = timeout_ms % 1000;
+	connection->timeout.tv_usec = (timeout_ms % 1000) * 1000;
 }
 
 int

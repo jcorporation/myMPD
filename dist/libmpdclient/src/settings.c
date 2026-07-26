@@ -190,8 +190,7 @@ mpd_settings_new(const char *host, unsigned port, unsigned timeout_ms,
 	if (settings->password == NULL && password != NULL) {
 		settings->password = strdup(password);
 		if (settings->password == NULL) {
-			free(settings->host);
-			free(settings);
+			mpd_settings_free(settings);
 			return NULL;
 		}
 	}
@@ -216,8 +215,7 @@ mpd_settings_new(const char *host, unsigned port, unsigned timeout_ms,
 			settings->host = strdup(DEFAULT_HOST);
 
 		if (settings->host == NULL) {
-			free(settings->password);
-			free(settings);
+			mpd_settings_free(settings);
 			return NULL;
 		}
 	}

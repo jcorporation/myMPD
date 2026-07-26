@@ -125,8 +125,6 @@ mpd_recv_queue_change_brief(struct mpd_connection *connection,
 
 	pair = mpd_recv_pair_named(connection, "Id");
 	if (pair == NULL) {
-		mpd_return_pair(connection, pair);
-
 		if (!mpd_error_is_defined(&connection->error)) {
 			mpd_error_code(&connection->error,
 				       MPD_ERROR_MALFORMED);

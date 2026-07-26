@@ -25,6 +25,8 @@ mpd_sync_poll(struct mpd_async *async, struct timeval *tv)
 	enum mpd_async_event events;
 
 	fd = mpd_async_get_fd(async);
+	if (fd >= FD_SETSIZE)
+		return 0;
 
 	while (1) {
 		events = mpd_async_events(async);

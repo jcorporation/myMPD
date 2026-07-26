@@ -30,6 +30,11 @@ mpd_message_begin(const struct mpd_pair *pair)
 		return NULL;
 
 	output->channel = strdup(pair->value);
+	if (output->channel == NULL) {
+		free(output);
+		return NULL;
+	}
+
 	output->text = NULL;
 
 	return output;

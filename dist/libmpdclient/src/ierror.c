@@ -122,6 +122,12 @@ mpd_error_copy(struct mpd_error_info *dest, const struct mpd_error_info *src)
 	} else if (src->code == MPD_ERROR_SYSTEM)
 		dest->system = src->system;
 
-	dest->message = src->message != NULL ? strdup(src->message) : NULL;
+	if (src->message != NULL) {
+		dest->message = strdup(src->message);
+		if (dest->message == NULL)
+			dest->code = MPD_ERROR_OOM;
+	} else
+		dest->message = NULL;
+
 	return false;
 }

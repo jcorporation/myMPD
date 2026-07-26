@@ -56,6 +56,9 @@ mpd_socket_global_init(struct mpd_error_info *error)
 static int
 mpd_socket_wait_writable(int fd, struct timeval *tv)
 {
+	if (fd >= FD_SETSIZE)
+		return -1;
+
 	fd_set fds;
 	int ret;
 

@@ -75,7 +75,7 @@ mpd_parser_feed(struct mpd_parser *parser, char *line)
 	} else if (strcmp(line, "list_OK") == 0) {
 		parser->u.discrete = true;
 		return set_result(parser, MPD_PARSER_SUCCESS);
-	} else if (memcmp(line, "ACK", 3) == 0) {
+	} else if (strncmp(line, "ACK", 3) == 0) {
 		char *p, *q;
 
 		parser->u.error.server = MPD_SERVER_ERROR_UNK;

@@ -59,7 +59,13 @@ mpd_send_tag_types_v(struct mpd_connection *connection,
 
 	for (unsigned i = 0; i < n; ++i) {
 		const char *t = mpd_tag_name(types[i]);
-		assert(t != NULL);
+		if (t == NULL) {
+			mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
+			mpd_error_message(&connection->error,
+					  "invalid type specified");
+			return false;
+		}
+
 		size_t t_length = strlen(t);
 
 		if (length + 1 + t_length + 1 > sizeof(buffer)) {
