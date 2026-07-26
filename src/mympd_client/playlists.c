@@ -26,6 +26,7 @@
 #include "src/mympd_client/tags.h"
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -323,43 +324,50 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
         list_free(plist);
         return false;
     }
-    list_shuffle(plist);
-
-    //add shuffled songs to tmp playlist
-    //uses command list to add MPD_COMMANDS_MAX songs at once
+    if (plist->length <= 2) {
+        return true;
+    }
+    struct t_list_node **plist_array = list_shuffle_to_array(plist);
+    // Add shuffled songs to tmp playlist
     char rand_str[10];
     randstring(rand_str, 10);
     sds playlist_tmp = sdscatfmt(sdsempty(), "%s-tmp-%s", rand_str, playlist);
     bool rc = true;
-    while (plist->length > 0) {
-        if (mpd_command_list_begin(partition_state->conn, false) == true) {
-            unsigned j = 0;
-            struct t_list_node *current;
-            while ((current = list_shift_first(plist)) != NULL) {
-                j++;
-                rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, current->key);
-                list_node_free(current);
-                if (rc == false) {
-                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
-                    break;
-                }
-                if (j == MPD_COMMANDS_MAX) {
-                    break;
-                }
-            }
-            mympd_client_command_list_end_check(partition_state);
+
+    // Use command list to add MPD_COMMANDS_MAX songs at once
+    for (size_t i = 0; i < plist->length; i += MPD_COMMANDS_MAX) {
+        if (mpd_command_list_begin(partition_state->conn, false) != true) {
+            rc = false;
+            break;
         }
-        if (mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add") == false) {
+
+        size_t batch_end = i + MPD_COMMANDS_MAX < plist->length
+            ? i + MPD_COMMANDS_MAX 
+            : plist->length;
+        
+        for (size_t j = i; j < batch_end; j++) {
+            rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist_array[j]->key);
+            if (rc == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
+                break;
+            }
+        }
+
+        mympd_client_command_list_end_check(partition_state);
+        if (mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add") == false ||
+            rc == false) {
             rc = false;
             break;
         }
     }
+
     list_free(plist);
+    free((void *)plist_array);
     if (rc == true) {
         rc = playlist_replace(partition_state, playlist_tmp, playlist, error);
     }
     else if (partition_state->conn_state == MPD_CONNECTED) {
-        //error adding songs to tmp playlist - delete it
+        // Failure adding songs to tmp playlist - delete it
         mpd_run_rm(partition_state->conn, playlist_tmp);
         mympd_check_error_and_recover(partition_state, error, "mpd_run_rm");
     }

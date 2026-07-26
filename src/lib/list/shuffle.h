@@ -16,5 +16,6 @@
 struct t_list;
 
 bool list_shuffle(struct t_list *l);
+struct t_list_node **list_shuffle_to_array(struct t_list *l);
 
 #endif

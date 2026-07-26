@@ -24,24 +24,8 @@ bool list_shuffle(struct t_list *l) {
     if (l->length < 2) {
         return true;
     }
-    // Convert linked list to array for faster shuffling
-    struct t_list_node **node_array = (struct t_list_node **)malloc_assert(l->length * sizeof(struct t_list_node *));
-    struct t_list_node *current = l->head;
-    for (unsigned i = 0; i < l->length; i++) {
-        node_array[i] = current;
-        current = current->next;
-    }
-
-    // Fisher-Yates shuffle
-    for (unsigned i = l->length - 1; i > 0; i--) {
-        // Generate a random number between 0 and i (inclusive)
-        unsigned j = randrange(0, i + 1);
-
-        // Swap nodes
-        struct t_list_node *temp = node_array[i];
-        node_array[i] = node_array[j];
-        node_array[j] = temp;
-    }
+    // Convert linked list to array and shuffle
+    struct t_list_node **node_array = list_shuffle_to_array(l);
 
     // Reconstruct the doubly-linked list with both next and prev pointers
     for (unsigned i = 0; i < l->length; i++) {
@@ -57,4 +41,37 @@ bool list_shuffle(struct t_list *l) {
     free((void *)node_array);
 
     return true;
+}
+
+/**
+ * Shuffles the list using Fisher-Yates algorithm.
+ * Optimized for doubly-linked list: reconstructs both next and prev pointers
+ * @param l list
+ * @return Array of shuffled list nodes
+ */
+struct t_list_node **list_shuffle_to_array(struct t_list *l) {
+    // Convert linked list to array for faster shuffling
+    struct t_list_node **node_array = (struct t_list_node **)malloc_assert(l->length * sizeof(struct t_list_node *));
+    struct t_list_node *current = l->head;
+    for (unsigned i = 0; i < l->length; i++) {
+        node_array[i] = current;
+        current = current->next;
+    }
+
+    if (l->length < 2) {
+        return node_array;
+    }
+
+    // Fisher-Yates shuffle
+    for (unsigned i = l->length - 1; i > 0; i--) {
+        // Generate a random number between 0 and i (inclusive)
+        unsigned j = randrange(0, i + 1);
+
+        // Swap nodes
+        struct t_list_node *temp = node_array[i];
+        node_array[i] = node_array[j];
+        node_array[j] = temp;
+    }
+
+    return node_array;
 }

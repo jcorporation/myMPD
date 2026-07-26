@@ -10,6 +10,7 @@ This release removes the long-press event handling completely. It seems it can n
 
 ### Changelog
 
+- Feat: Improve playlist shuffle performance
 - Upd: Use signalfd
 - Fix: Remove long-press events #1556
 
