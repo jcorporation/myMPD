@@ -15,10 +15,13 @@
 
 #include <stdbool.h>
 
+/**
+ * Struct representing a dynamic array of sds strings
+ */
 struct t_sds_array {
-    unsigned length;
-    unsigned capacity;
-    sds *items;
+    unsigned length;     //!< Current number of elements in the array
+    unsigned capacity;   //!< Maximum number of elements the array can hold before resizing
+    sds *items;          //!< Pointer to the array of sds strings
 };
 
 enum {
@@ -31,5 +34,6 @@ void sds_array_clear(struct t_sds_array *array);
 void sds_array_free(struct t_sds_array *array);
 bool sds_array_push(struct t_sds_array *array, sds s);
 bool sds_array_shuffle(struct t_sds_array *array);
+bool sds_array_sort(struct t_sds_array *array, bool desc);
 
 #endif
