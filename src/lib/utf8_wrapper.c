@@ -40,9 +40,9 @@
 #else
     #include <ctype.h>
 
-    typedef int utf8proc_option_t;
-    static utf8proc_option_t normalize_flags = 0;
-    static utf8proc_option_t casefold_flags = 0;
+    typedef int utf8proc_option_t;                 //!< Typedef for utf8proc_option_t when UTF-8 support is disabled
+    static utf8proc_option_t normalize_flags = 0;  //!< Normalization flags to use when UTF-8 support is disabled
+    static utf8proc_option_t casefold_flags = 0;   //!< Typedef for casefold flags to use when UTF-8 support is disabled
 #endif
 
 static char *normalize(const char *str, size_t len, size_t *newlen, utf8proc_option_t flags);
@@ -90,6 +90,13 @@ char *utf8_wrap_casefold(const char *str, size_t len, size_t *newlen) {
     return normalize(str, len, newlen, casefold_flags);
 }
 
+/**
+ * Normalizes a string
+ * @param str String to normalize
+ * @param len String length
+ * @param newlen Pointer to size_t for the new string length
+ * @return Newly allocated char, caller must free it.
+ */
 char *utf8_wrap_normalize(const char *str, size_t len, size_t *newlen) {
     return normalize(str, len, newlen, normalize_flags);
 }
