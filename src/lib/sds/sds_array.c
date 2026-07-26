@@ -14,8 +14,6 @@
 #include "dist/sds/sds.h"
 #include "src/lib/random.h"
 
-#include <inttypes.h>
-
 /**
  * Creates and initializes a new sds array
  * @return struct t_sds_array* 
@@ -65,7 +63,7 @@ bool sds_array_push(struct t_sds_array *array, sds s) {
     if (array->length == array->capacity) {
         // Array is too small, resize
         array->capacity = 8 + ((array->capacity / 2) * 3);
-        array->items = (sds *)realloc_assert((sds *)array->items, array->capacity * sizeof(sds));
+        array->items = (sds *)realloc_assert((void *)array->items, array->capacity * sizeof(sds));
     }
     array->items[array->length++] = s;
     return true;
