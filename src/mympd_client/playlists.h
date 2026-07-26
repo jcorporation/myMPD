@@ -40,6 +40,8 @@ bool mympd_client_playlist_crop(struct t_partition_state *partition_state, const
 bool mympd_client_playlist_clear(struct t_partition_state *partition_state, const char *plist, sds *error);
 bool mympd_client_playlist_get(struct t_partition_state *partition_state,
     const char *plist, bool reverse, struct t_list *l, sds *error);
+struct t_sds_array *mympd_client_playlist_get_array(struct t_partition_state *partition_state,
+        const char *plist, sds *error);
 bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, const char *uri, sds *error);
 bool mympd_client_playlist_sort(struct t_partition_state *partition_state, const char *uri, const char *tagstr, bool sortdesc, sds *error);
 bool mympd_client_enum_playlist(struct t_partition_state *partition_state, const char *plist,

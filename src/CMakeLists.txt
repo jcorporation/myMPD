@@ -86,6 +86,7 @@ target_sources(mympd
     lib/search/search_fuzzy.c
     lib/search/search_pcre.c
     lib/search/search.c
+    lib/sds/sds_array.c
     lib/sds/sds_extras.c
     lib/sds/sds_file.c
     lib/sds/sds_hash.c

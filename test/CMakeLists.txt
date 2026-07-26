@@ -45,6 +45,7 @@ set(TEST_SOURCES
   ../src/lib/msg_queue.c
   ../src/lib/random.c
   ../src/lib/rax_extras.c
+  ../src/lib/sds/sds_array.c
   ../src/lib/sds/sds_extras.c
   ../src/lib/sds/sds_file.c
   ../src/lib/sds/sds_hash.c
@@ -113,6 +114,7 @@ set(TEST_SOURCES
   tests/test_radix_sort.c
   tests/test_random.c
   tests/test_sds_extras.c
+  tests/test_sds_array.c
   tests/test_search.c
   tests/test_state_files.c
   tests/test_tags.c
@@ -208,6 +210,7 @@ list(APPEND test_categories
   "mympd_state"
   "radix_sort"
   "random"
+  "sds_array"
   "sds_extras"
   "sds_file"
   "sds_hash"

@@ -18,6 +18,7 @@
 #include "src/lib/log.h"
 #include "src/lib/random.h"
 #include "src/lib/rax_extras.h"
+#include "src/lib/sds/sds_array.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/smartpls.h"
 #include "src/mympd_client/database.h"
@@ -279,13 +280,13 @@ int mympd_client_playlist_validate_all(struct t_partition_state *partition_state
  */
 int mympd_client_playlist_validate(struct t_partition_state *partition_state, const char *playlist, bool remove, sds *error) {
     MYMPD_LOG_INFO(partition_state->name, "Validating playlist %s", playlist);
-    //get the whole playlist
+    // Get the whole playlist in reverse order
     struct t_list *plist = list_new();
     if (mympd_client_playlist_get(partition_state, playlist, true, plist, error) == false) {
         list_free(plist);
         return -1;
     }
-    //check each entry
+    // Check each entry
     struct t_list_node *current = plist->head;
     int rc = 0;
     while (current != NULL) {
@@ -318,16 +319,16 @@ int mympd_client_playlist_validate(struct t_partition_state *partition_state, co
  */
 bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, const char *playlist, sds *error) {
     MYMPD_LOG_INFO(partition_state->name, "Shuffling playlist %s", playlist);
-    //get the whole playlist and shuffle it
-    struct t_list *plist = list_new();
-    if (mympd_client_playlist_get(partition_state, playlist, true, plist, error) == false) {
-        list_free(plist);
+    // Get the whole playlist as array
+    struct t_sds_array *plist_array = mympd_client_playlist_get_array(partition_state, playlist, error);
+    if (plist_array == NULL) {
         return false;
     }
-    if (plist->length <= 2) {
+    if (plist_array->length <= 2) {
         return true;
     }
-    struct t_list_node **plist_array = list_shuffle_to_array(plist);
+    // Shuffle the playlist
+    sds_array_shuffle(plist_array);
     // Add shuffled songs to tmp playlist
     char rand_str[10];
     randstring(rand_str, 10);
@@ -335,18 +336,18 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
     bool rc = true;
 
     // Use command list to add MPD_COMMANDS_MAX songs at once
-    for (size_t i = 0; i < plist->length; i += MPD_COMMANDS_MAX) {
+    for (size_t i = 0; i < plist_array->length; i += MPD_COMMANDS_MAX) {
         if (mpd_command_list_begin(partition_state->conn, false) != true) {
             rc = false;
             break;
         }
 
-        size_t batch_end = i + MPD_COMMANDS_MAX < plist->length
+        size_t batch_end = i + MPD_COMMANDS_MAX < plist_array->length
             ? i + MPD_COMMANDS_MAX 
-            : plist->length;
+            : plist_array->length;
         
         for (size_t j = i; j < batch_end; j++) {
-            rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist_array[j]->key);
+            rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist_array->items[j]);
             if (rc == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                 break;
@@ -355,14 +356,14 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
 
         mympd_client_command_list_end_check(partition_state);
         if (mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add") == false ||
-            rc == false) {
+            rc == false)
+        {
             rc = false;
             break;
         }
     }
 
-    list_free(plist);
-    free((void *)plist_array);
+    sds_array_free(plist_array);
     if (rc == true) {
         rc = playlist_replace(partition_state, playlist_tmp, playlist, error);
     }
@@ -575,6 +576,42 @@ bool mympd_client_playlist_get(struct t_partition_state *partition_state,
         end = end + MPD_RESULTS_MAX;
     } while (pos >= start);
     return true;
+}
+
+/**
+ * Gets the contents of a playlist as sds_array.
+ * Uses the range feature for MPD 0.24+
+ * @param partition_state Pointer to partition specific states
+ * @param plist Playlist name
+ * @param error Pointer to an already allocated sds string for the error message
+ * @return struct t_sds_array or NULL on error
+ */
+struct t_sds_array *mympd_client_playlist_get_array(struct t_partition_state *partition_state,
+        const char *plist, sds *error)
+{
+    struct t_sds_array *plist_array = sds_array_new();
+    unsigned start = 0;
+    unsigned end = start + MPD_RESULTS_MAX;
+    unsigned pos = 0;
+    
+    do {       
+        if (mympd_send_list_playlist_range(partition_state, plist, start, end) == true) {
+            struct mpd_song *song;
+            while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+                sds_array_push(plist_array, sdsnew(mpd_song_get_uri(song)));
+                mpd_song_free(song);
+                pos++;
+            }
+        }
+        if (mympd_check_error_and_recover(partition_state, error, "mympd_send_list_playlist_range") == false) {
+            // Cleanup on error
+            sds_array_free(plist_array);
+            return NULL;
+        }
+        start = end;
+        end = end + MPD_RESULTS_MAX;
+    } while (pos >= start);
+    return plist_array;
 }
 
 /**
