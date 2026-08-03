@@ -49,8 +49,24 @@ function webSocketConnect() {
         logError(error);
     }
 
+    if (websocketConnectTimer !== null) {
+        clearTimeout(websocketConnectTimer);
+    }
+    websocketConnectTimer = setTimeout(function() {
+        if (socket !== null &&
+            socket.readyState === WebSocket.CONNECTING)
+        {
+            logError('Websocket connect timeout, forcing reconnect');
+            websocketReconnect();
+        }
+    }, websocketConnectTimeout);
+
     socket.onopen = function() {
         logDebug('Websocket is connected');
+        if (websocketConnectTimer !== null) {
+            clearTimeout(websocketConnectTimer);
+            websocketConnectTimer = null;
+        }
         socket.send('id:' + jsonrpcClientId);
         websocketLastPong = getTimestamp();
     };
@@ -232,6 +248,10 @@ function webSocketConnect() {
 
     socket.onclose = function() {
         logError('Websocket connection closed');
+        if (websocketConnectTimer !== null) {
+            clearTimeout(websocketConnectTimer);
+            websocketConnectTimer = null;
+        }
         if (appInited === true) {
             toggleUI();
             if (progressTimer) {
@@ -247,6 +267,10 @@ function webSocketConnect() {
 
     socket.onerror = function() {
         logError('Websocket error occurred, closing connection');
+        if (websocketConnectTimer !== null) {
+            clearTimeout(websocketConnectTimer);
+            websocketConnectTimer = null;
+        }
         if (socket !== null) {
             try {
                 socket.close();
@@ -265,6 +289,10 @@ function webSocketConnect() {
  */
 function webSocketClose() {
     logDebug('Closing websocket');
+    if (websocketConnectTimer !== null) {
+        clearTimeout(websocketConnectTimer);
+        websocketConnectTimer = null;
+    }
     if (websocketKeepAliveTimer !== null) {
         clearInterval(websocketKeepAliveTimer);
         websocketKeepAliveTimer = null;
