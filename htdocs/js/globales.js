@@ -35,6 +35,10 @@ let websocketConnectTimer = null;
 const websocketConnectTimeout = 3000;
 
 let websocketReconnectTimer = null;
+const websocketReconnectDelayMin = 100;
+const websocketReconnectDelayMax = 3000;
+let websocketReconnectDelay = websocketReconnectDelayMin;
+
 let websocketKeepAliveTimer = null;
 let websocketLastPong = null;
 

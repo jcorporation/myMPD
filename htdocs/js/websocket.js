@@ -23,10 +23,6 @@ function getWebsocketState() {
  * @returns {void}
  */
 function webSocketConnect() {
-    if (websocketKeepAliveTimer === null) {
-        websocketKeepAliveTimer = setInterval(websocketKeepAlive, 5000);
-    }
-
     if (getWebsocketState() === true) {
         logDebug('Socket already connected');
         return;
@@ -66,6 +62,10 @@ function webSocketConnect() {
         if (websocketConnectTimer !== null) {
             clearTimeout(websocketConnectTimer);
             websocketConnectTimer = null;
+        }
+        websocketReconnectDelay = websocketReconnectDelayMin;
+        if (websocketKeepAliveTimer === null) {
+            websocketKeepAliveTimer = setInterval(websocketKeepAlive, 5000);
         }
         socket.send('id:' + jsonrpcClientId);
         websocketLastPong = getTimestamp();
@@ -263,6 +263,7 @@ function webSocketConnect() {
             showAppInitAlert(tn('myMPD connection closed'));
         }
         socket = null;
+        websocketReconnect();
     };
 
     socket.onerror = function() {
@@ -280,6 +281,8 @@ function webSocketConnect() {
                 logError(error);
             }
         }
+        socket = null;
+        websocketReconnect();
     };
 }
 
@@ -313,7 +316,7 @@ function webSocketClose() {
 
 /**
  * Reconnects to the websocket.
- * We use a timer with 100 ms delay to prevent concurrent connections attempts.
+ * We use a timer with a increasing delay to prevent concurrent connections attempts.
  * @returns {void}
  */
 function websocketReconnect() {
@@ -325,7 +328,8 @@ function websocketReconnect() {
     websocketReconnectTimer = setTimeout(function() {
         webSocketConnect();
         websocketReconnectTimer = null;
-    }, 100);
+    }, websocketReconnectDelay);
+    websocketReconnectDelay = Math.min(websocketReconnectDelay * 2, websocketReconnectDelayMax);
 }
 
 /**
