@@ -37,19 +37,19 @@ int signalfd_init(void) {
     sigset_t mask;
     if (sigemptyset(&mask) == -1) {
         MYMPD_LOG_ERROR(NULL, "sigemptyset failed");
-        return false;
+        return -1;
     }
     if (sigaddset(&mask, SIGTERM) == -1 ||
         sigaddset(&mask, SIGINT) == -1 ||
         sigaddset(&mask, SIGHUP) == -1)
     {
         MYMPD_LOG_ERROR(NULL, "sigaddset failed");
-        return false;
+        return -1;
     }
     // Block signals for the process so they are delivered to signalfd
     if (pthread_sigmask(SIG_BLOCK, &mask, NULL) != 0) {
         MYMPD_LOG_ERROR(NULL, "pthread_sigmask failed");
-        return false;
+        return -1;
     }
     return signalfd(-1, &mask, SFD_CLOEXEC | SFD_NONBLOCK);
 }
