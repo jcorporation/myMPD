@@ -86,14 +86,14 @@ function parseCurrentSong(obj) {
              isEmptyTag(obj.result.Name) === false)
     {
         footerAlbumEl.textContent = obj.result.Name;
-        footerAlbumEl.setAttribute('data-tag', 'undefined');
+        footerAlbumEl.setAttribute('data-tag', 'none');
         footerDividerEl.classList.add('d-none');
     }
     else {
         elClear(footerAlbumEl);
         setData(footerAlbumEl, 'name', '');
         setData(footerAlbumEl, 'AlbumId', '');
-        footerAlbumEl.setAttribute('data-tag', 'undefined');
+        footerAlbumEl.setAttribute('data-tag', 'none');
         footerDividerEl.classList.add('d-none');
     }
 

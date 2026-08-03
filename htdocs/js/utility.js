@@ -332,6 +332,9 @@ function parseCmd(event, cmd) {
                 else if (options[i] === 'undefined') {
                     options[i] = undefined;
                 }
+                else if (options[i] === 'null') {
+                    options[i] = null;
+                }
             }
             // @ts-ignore
             func(... options);
