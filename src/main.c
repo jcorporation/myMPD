@@ -42,7 +42,6 @@
 #include <openssl/opensslv.h>
 #include <poll.h>
 #include <pthread.h>
-#include <sys/signalfd.h>
 
 // Sanitizers
 
