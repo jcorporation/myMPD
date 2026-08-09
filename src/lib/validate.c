@@ -623,6 +623,7 @@ bool check_dir_traversal(const char *str) {
         strstr(str, "//") != NULL ||
         strstr(str, "/../") != NULL ||
         strstr(str, "/./") != NULL ||
+        strcmp(str, "..") == 0 ||
         (len >= 3 && strcmp(str + len - 3, "/..") == 0))
     {
         return false;
