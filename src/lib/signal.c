@@ -41,7 +41,8 @@ int signalfd_init(void) {
     }
     if (sigaddset(&mask, SIGTERM) == -1 ||
         sigaddset(&mask, SIGINT) == -1 ||
-        sigaddset(&mask, SIGHUP) == -1)
+        sigaddset(&mask, SIGHUP) == -1 ||
+        sigaddset(&mask, SIGPIPE) == -1)
     {
         MYMPD_LOG_ERROR(NULL, "sigaddset failed");
         return -1;

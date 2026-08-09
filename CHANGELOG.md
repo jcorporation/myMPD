@@ -14,6 +14,7 @@ This release removes the long-press event handling completely. It seems it can n
 - Upd: Use signalfd
 - Upd: Improve websocket hanlding
 - Fix: Remove long-press events #1556
+- Fix: Ignore SIGPIPE
 
 ***
 
