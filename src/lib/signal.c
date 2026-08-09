@@ -82,7 +82,6 @@ int signal_eventfd_get(void) {
 
 /**
  * Handles the signal_eventfd event.
- * @param fd eventfd to read
  * @return false if the parent loop should exit, else true
  */
 bool signal_eventfd_handler(void) {
@@ -141,7 +140,6 @@ static void signal_handler(int signo) {
 
 /**
  * Closes the eventfd and sets it to -1.
- * @param fd signal_eventfd to close
  */
 void signal_eventfd_close(void) {
     event_fd_close(signal_eventfd);
