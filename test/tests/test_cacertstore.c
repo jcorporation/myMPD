@@ -8,6 +8,8 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
+
+#include "src/lib/config/cacertstore_find.h"
 #include "src/lib/config/cacertstore.h"
 
 UTEST(cacertstore, test_find_ca_cert_store) {

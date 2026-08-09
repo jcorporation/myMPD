@@ -13,6 +13,7 @@ set(TEST_SOURCES
   ../src/lib/cache/cache_disk_lyrics.c
   ../src/lib/cache/cache_rax_album.c
   ../src/lib/cache/cache_rax.c
+  ../src/lib/config/cacertstore_find.c
   ../src/lib/config/cacertstore.c
   ../src/lib/config/cert.c
   ../src/lib/config/config.c
