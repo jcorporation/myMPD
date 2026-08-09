@@ -1349,14 +1349,12 @@ run_luacheck() {
 }
 
 run_doclint() {
-  # https://github.com/sphinx-contrib/sphinx-lint
-  if [ ! -x /tmp/python-venv/bin/sphinx-lint ]
+  if ! check_cmd sphinx-lint
   then
-    python3 -m venv /tmp/python-venv/ > /dev/null
-    /tmp/python-venv/bin/pip install sphinx-lint  > /dev/null
+    return 1
   fi
   echo "Running sphinx-lint"
-  /tmp/python-venv/bin/sphinx-lint docs || return 1
+  sphinx-lint docs || return 1
   return 0
 }
 
@@ -1397,22 +1395,24 @@ run_luadoc() {
 create_doc() {
   DOC_DEST=$1
   install -d "$DOC_DEST" || return 1
-  if ! check_cmd python3
+  if ! check_cmd sphinx-build
   then
-    echo "Python3 not installed, can not create documentation"
+    echo "Sphinx not installed, can not create documentation"
     return 1
   fi
   ./build.sh api_doc "$DOC_DEST"
-  python3 -m venv /tmp/python-venv/
-  /tmp/python-venv/bin/python3 -m pip install --upgrade pip
-  /tmp/python-venv/bin/pip install sphinx sphinx-book-theme sphinx-copybutton
-  /tmp/python-venv/bin/sphinx-build -M html docs "$DOC_DEST"
+
+  sphinx-build -M html docs "$DOC_DEST"
 }
 
 serve_doc() {
   DOC_DEST=$1
-  /tmp/python-venv/bin/pip install sphinx-autobuild
-  /tmp/python-venv/bin/sphinx-autobuild -M html docs "$DOC_DEST"
+  if ! check_cmd sphinx-build
+  then
+    echo "Sphinx not installed, can not create documentation"
+    return 1
+  fi
+  sphinx-autobuild -M html docs "$DOC_DEST"
 }
 
 translation_import() {
