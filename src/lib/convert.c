@@ -136,7 +136,7 @@ enum str2int_errno str2int64(int64_t *out, const char *s) {
         MYMPD_LOG_ERROR(NULL, "Inconvertible string: %s", s);
         return STR2INT_INCONVERTIBLE;
     }
-    *out = (int)l;
+    *out = (int64_t)l;
     return STR2INT_SUCCESS;
 }
 
