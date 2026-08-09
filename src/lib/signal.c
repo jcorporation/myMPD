@@ -52,24 +52,19 @@ bool signal_eventfd_init(void) {
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART; // Restart functions if interrupted by handler
 
-    if (sigaction(SIGTERM, &sa, NULL) == -1 ||
-        sigaction(SIGINT, &sa, NULL) == -1 ||
-        sigaction(SIGHUP, &sa, NULL) == -1)
-    {
-        MYMPD_LOG_ERROR(NULL, "sigaction failed");
-        signal_eventfd_close();
-        return false;
-    }
-
     // Ignore SIGPIPE to prevent termination when writing to closed sockets
     struct sigaction sa_ignore;
     memset(&sa_ignore, 0, sizeof(sa_ignore));
     sa_ignore.sa_handler = SIG_IGN;
     sigemptyset(&sa_ignore.sa_mask);
-    sa_ignore.sa_flags = SA_RESTART;
+    sa_ignore.sa_flags = SA_RESTART; // Restart functions if interrupted by handler
 
-    if (sigaction(SIGPIPE, &sa_ignore, NULL) == -1) {
-        MYMPD_LOG_ERROR(NULL, "sigaction(SIGPIPE) failed");
+    if (sigaction(SIGTERM, &sa, NULL) == -1 ||
+        sigaction(SIGINT, &sa, NULL) == -1 ||
+        sigaction(SIGHUP, &sa, NULL) == -1 ||
+        sigaction(SIGPIPE, &sa_ignore, NULL) == -1)
+    {
+        MYMPD_LOG_ERROR(NULL, "sigaction failed");
         signal_eventfd_close();
         return false;
     }

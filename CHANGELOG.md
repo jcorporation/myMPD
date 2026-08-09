@@ -11,12 +11,12 @@ This release removes the long-press event handling completely. It seems it can n
 ### Changelog
 
 - Feat: Improve playlist shuffle performance
-- Upd: Use signalfd
 - Upd: Improve websocket handling
 - Upd: Embedded libmdpclient to 2.28 (master branch)
 - Fix: Remove long-press events #1556
 - Fix: Ignore SIGPIPE
 - Fix: Remove unnecessary dependency in mympd-script for libmpdclient #1559
+- Fix: Implement minimal signal save handler
 
 ***
 

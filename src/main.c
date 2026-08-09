@@ -320,7 +320,7 @@ int main(int argc, char **argv) {
         MYMPD_LOG_INFO(NULL, "Experimental features are enabled");
     #endif
 
-    // Initialize signalfd to handle signals in the event loop
+    // Initialize signal_eventfd to handle signals in the event loop
     if (signal_eventfd_init() == false) {
         MYMPD_LOG_EMERG(NULL, "Could not initialize signal_eventfd for SIGTERM, SIGINT and SIGHUP");
         goto cleanup;
