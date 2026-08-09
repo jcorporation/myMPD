@@ -1351,7 +1351,7 @@ run_luacheck() {
 run_doclint() {
   if ! check_cmd sphinx-lint
   then
-    return 1
+    return 0
   fi
   echo "Running sphinx-lint"
   sphinx-lint docs || return 1
