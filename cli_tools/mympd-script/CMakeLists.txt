@@ -14,7 +14,7 @@ target_sources(mympd-script
   PRIVATE
     mympd-script.c
     ../log.c
-    ../../src/lib/config/cacertstore.c
+    ../../src/lib/config/cacertstore_find.c
     ../../src/lib/convert.c
     ../../src/lib/filehandler.c
     ../../src/lib/http_client/http_client.c

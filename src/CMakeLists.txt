@@ -50,6 +50,7 @@ target_sources(mympd
     lib/cache/cache_rax_album.c
     lib/cache/cache_rax.c
     lib/config/cacertstore.c
+    lib/config/cacertstore_find.c
     lib/config/cert.c
     lib/config/config.c
     lib/config/env.c

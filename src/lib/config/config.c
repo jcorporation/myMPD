@@ -13,6 +13,7 @@
 
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/config/cacertstore.h"
+#include "src/lib/config/cacertstore_find.h"
 #include "src/lib/config/config_def.h"
 #include "src/lib/config/env.h"
 #include "src/lib/config/state_files.h"
@@ -25,7 +26,6 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdbool.h>
-#include <string.h>
 #include <time.h>
 
 /**

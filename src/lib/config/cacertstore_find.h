@@ -8,13 +8,11 @@
  * \brief CA cert store handling
  */
 
-#ifndef MYMPD_CACERTSTORE_H
-#define MYMPD_CACERTSTORE_H
-
-#include "src/lib/config/config_def.h"
+#ifndef MYMPD_CACERTSTORE_FIND_H
+#define MYMPD_CACERTSTORE_FIND_H
 
 #include <stdbool.h>
 
-bool mympd_read_ca_certificates(struct t_config *config);
+const char *find_ca_cert_store(bool silent);
 
 #endif

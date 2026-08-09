@@ -7,7 +7,7 @@
 #include "compile_time.h"
 
 #include "dist/sds/sds.h"
-#include "src/lib/config/cacertstore.h"
+#include "src/lib/config/cacertstore_find.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/http_client/http_client.h"
 #include "src/lib/list/list.h"
