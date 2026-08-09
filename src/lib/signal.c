@@ -131,7 +131,6 @@ bool signal_eventfd_handler(void) {
  */
 static void signal_handler(int signo) {
     if (signal_eventfd > -1) {
-        // Store the signal number in a volatile variable to be processed later
         if (eventfd_write(signal_eventfd, (eventfd_t)signo) != 0) {
             // Do nothing, we are in a signal handler and cannot log errors
         }
