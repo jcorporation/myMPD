@@ -32,4 +32,8 @@ target_link_libraries(mympd-script
   ${OPENSSL_LIBRARIES}
 )
 
+if(NOT MYMPD_EMBEDDED_LIBMPDCLIENT)
+  target_include_directories(mympd-script SYSTEM PRIVATE ${LIBMPDCLIENT_INCLUDE_DIRS})
+endif()
+
 install(TARGETS mympd-script DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
