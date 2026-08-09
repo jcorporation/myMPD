@@ -8,8 +8,7 @@
  * \brief CA cert store handling
  */
 
-#include "compile_time.h"
-#include "src/lib/config/cacertstore.h"
+#include "src/lib/config/cacertstore_find.h"
 
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"

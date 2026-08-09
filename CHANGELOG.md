@@ -16,6 +16,7 @@ This release removes the long-press event handling completely. It seems it can n
 - Upd: Embedded libmdpclient to 2.28 (master branch)
 - Fix: Remove long-press events #1556
 - Fix: Ignore SIGPIPE
+- Fix: Remove unnecessary dependency in mympd-script for libmpdclient #1559
 
 ***
 
