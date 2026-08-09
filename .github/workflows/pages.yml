@@ -22,10 +22,14 @@ concurrency:
 jobs:
   # Build job
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+      - name: Install sphinx
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-sphinx python3-sphinx-book-theme python3-sphinx-copybutton
       - name: Generate api documentation
         run: |
           sudo apt-get install -y doxygen graphviz lua-ldoc
@@ -41,7 +45,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: build
     steps:
       - name: Deploy to GitHub Pages
