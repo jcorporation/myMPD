@@ -7,7 +7,9 @@
 #include <mpd/recv.h>
 #include "internal.h"
 #include "request.h"
+#include "quote.h"
 #include "iso8601.h"
+#include "check_tag.h"
 
 #include <assert.h>
 #include <limits.h>
@@ -47,13 +49,9 @@ mpd_search_db_tags(struct mpd_connection *connection, enum mpd_tag_type type)
 	if (!mpd_request_begin(connection)) 
 		return false;
 
-	const char *strtype = mpd_tag_name(type);
-	if (strtype == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
-		mpd_error_message(&connection->error,
-				  "invalid type specified");
+	const char *strtype = mpd_check_tag_name(type, &connection->error);
+	if (strtype == NULL)
 		return false;
-	}
 
 	const size_t len = 5 + strlen(strtype) + 1;
 	connection->request = malloc(len);
@@ -95,25 +93,39 @@ mpd_search_add_constraint(struct mpd_connection *connection,
 	assert(name != NULL);
 	assert(value != NULL);
 
-	char *arg = mpd_sanitize_arg(value);
-	if (arg == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_OOM);
+	const size_t name_length = strlen(name);
+
+	/* worst-case allocation */
+	const size_t size = 1 + name_length + 2 + strlen(value) * 2 + 2;
+	char *const start = mpd_request_prepare_append(connection, size);
+	if (start == NULL)
+		return false;
+
+	char *p = start;
+	char *const end = start + size - 1;
+
+	*p++ = ' ';
+
+	memcpy(p, name, name_length);
+	p += name_length;
+
+	*p++ = ' ';
+
+	p = quote(p, end, value);
+	if (p == NULL) {
+		/* undo this partial append: the null terminator of
+		   the previous request was overwritten above */
+		*start = '\0';
+
+		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
+		mpd_error_message(&connection->error, "bad string");
 		return false;
 	}
 
-	const size_t add_length = 1 + strlen(name) + 2 + strlen(arg) + 1;
-
-	char *dest = mpd_request_prepare_append(connection, add_length);
-	if (dest == NULL) {
-		free(arg);
-		return false;
-	}
-
-	sprintf(dest, " %s \"%s\"", name, arg);
-
-	free(arg);
+	*p = '\0';
 	return true;
 }
+
 bool
 mpd_search_add_base_constraint(struct mpd_connection *connection,
 			       enum mpd_operator oper,
@@ -138,13 +150,9 @@ mpd_search_add_tag_constraint(struct mpd_connection *connection,
 	assert(connection != NULL);
 	assert(value != NULL);
 
-	const char *strtype = mpd_tag_name(type);
-	if (strtype == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
-		mpd_error_message(&connection->error,
-				  "invalid type specified");
+	const char *strtype = mpd_check_tag_name(type, &connection->error);
+	if (strtype == NULL)
 		return false;
-	}
 
 	return mpd_search_add_constraint(connection, oper, strtype, value);
 }
@@ -198,23 +206,29 @@ mpd_search_add_expression(struct mpd_connection *connection,
 	assert(connection != NULL);
 	assert(expression != NULL);
 
-	char *arg = mpd_sanitize_arg(expression);
-	if (arg == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_OOM);
+	/* worst-case allocation */
+	const size_t size = 2 + strlen(expression) * 2 + 2;
+	char *const start = mpd_request_prepare_append(connection, size);
+	if (start == NULL)
+		return false;
+
+	char *p = start;
+	char *const end = start + size - 1;
+
+	*p++ = ' ';
+
+	p = quote(p, end, expression);
+	if (p == NULL) {
+		/* undo this partial append: the null terminator of
+		   the previous request was overwritten above */
+		*start = '\0';
+
+		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
+		mpd_error_message(&connection->error, "bad string");
 		return false;
 	}
 
-	const size_t add_length = 2 + strlen(arg) + 1;
-
-	char *dest = mpd_request_prepare_append(connection, add_length);
-	if (dest == NULL) {
-		free(arg);
-		return false;
-	}
-
-	sprintf(dest, " \"%s\"", arg);
-
-	free(arg);
+	*p = '\0';
 	return true;
 }
 
@@ -224,7 +238,7 @@ mpd_search_add_group_tag(struct mpd_connection *connection,
 {
 	assert(connection != NULL);
 
-	const char *tag_name = mpd_tag_name(type);
+	const char *tag_name = mpd_check_tag_name(type, &connection->error);
 	if (tag_name == NULL)
 		return false;
 
@@ -248,9 +262,11 @@ bool
 mpd_search_add_sort_tag(struct mpd_connection *connection,
 			enum mpd_tag_type type, bool descending)
 {
-	return mpd_search_add_sort_name(connection,
-					mpd_tag_name(type),
-					descending);
+	const char *tag_name = mpd_check_tag_name(type, &connection->error);
+	if (tag_name == NULL)
+		return false;
+
+	return mpd_search_add_sort_name(connection, tag_name, descending);
 }
 
 bool
@@ -294,7 +310,7 @@ mpd_recv_pair_tag(struct mpd_connection *connection, enum mpd_tag_type type)
 {
 	assert(connection != NULL);
 
-	const char *name = mpd_tag_name(type);
+	const char *name = mpd_check_tag_name(type, &connection->error);
 	if (name == NULL)
 		return NULL;
 
@@ -311,22 +327,31 @@ mpd_search_add_db_songs_to_playlist(struct mpd_connection *connection,
 	if (!mpd_request_begin(connection)) 
 		return false;
 
-	char *arg = mpd_sanitize_arg(playlist_name);
-	if (arg == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_OOM);
-		return false;
-	}
+	static const char *const prefix = "searchaddpl ";
+	const size_t prefix_length = strlen(prefix);
 
-	const size_t len = 15 + strlen(arg) + 2;
-	connection->request = malloc(len);
+	/* worst-case allocation */
+	const size_t size = prefix_length + 1 + strlen(playlist_name) * 2 + 3;
+	char *p = connection->request = malloc(size);
 	if (connection->request == NULL) {
-		free(arg);
 		mpd_error_code(&connection->error, MPD_ERROR_OOM);
 		return false;
 	}
 
-	snprintf(connection->request, len, "searchaddpl \"%s\" ", arg);
+	char *const end = p + size - 1;
 
-	free(arg);
+	memcpy(p, prefix, prefix_length);
+	p += prefix_length;
+
+	p = quote(p, end, playlist_name);
+	if (p == NULL) {
+		mpd_request_cancel(connection);
+		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
+		mpd_error_message(&connection->error, "bad string");
+		return false;
+	}
+
+	*p++ = ' ';
+	*p = '\0';
 	return true;
 }

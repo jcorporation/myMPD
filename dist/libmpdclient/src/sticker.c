@@ -11,6 +11,7 @@
 #include "isend.h"
 #include "request.h"
 #include "run.h"
+#include "quote.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -214,6 +215,7 @@ bool
 mpd_sticker_search_begin(struct mpd_connection *connection, const char *type,
 			 const char *base_uri, const char *name)
 {
+	assert(type != NULL);
 	assert(name != NULL);
 
 	if (!mpd_request_begin(connection)) 
@@ -222,33 +224,48 @@ mpd_sticker_search_begin(struct mpd_connection *connection, const char *type,
 	if (base_uri == NULL)
 		base_uri = "";
 
-	char *arg_base_uri = mpd_sanitize_arg(base_uri);
-	if (arg_base_uri == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_OOM);
-		return false;
-	}
+	static const char *const prefix = "sticker find ";
+	const size_t prefix_length = strlen(prefix);
 
-	char *arg_name = mpd_sanitize_arg(name);
-	if (arg_name == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_OOM);
-		free(arg_base_uri);
-		return false;
-	}
+	const size_t type_length = strlen(type);
 
-	const size_t size = 13 + strlen(type) + 2 + strlen(arg_base_uri) + 3 + strlen(arg_name) + 2;
-	connection->request = malloc(size);
+	/* worst-case allocation */
+	const size_t size = prefix_length + type_length + 2 + strlen(base_uri) * 2 + 3 + strlen(name) * 2 + 2;
+	char *p = connection->request = malloc(size);
 	if (connection->request == NULL) {
 		mpd_error_code(&connection->error, MPD_ERROR_OOM);
-		free(arg_base_uri);
-		free(arg_name);
 		return false;
 	}
 
-	snprintf(connection->request, size, "sticker find %s \"%s\" \"%s\"",
-		type, arg_base_uri, arg_name);
+	char *const end = p + size - 1;
 
-	free(arg_base_uri);
-	free(arg_name);
+	memcpy(p, prefix, prefix_length);
+	p += prefix_length;
+
+	memcpy(p, type, type_length);
+	p += type_length;
+
+	*p++ = ' ';
+
+	p = quote(p, end, base_uri);
+	if (p == NULL) {
+		mpd_request_cancel(connection);
+		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
+		mpd_error_message(&connection->error, "bad string");
+		return false;
+	}
+
+	*p++ = ' ';
+
+	p = quote(p, end, name);
+	if (p == NULL) {
+		mpd_request_cancel(connection);
+		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
+		mpd_error_message(&connection->error, "bad string");
+		return false;
+	}
+
+	*p = '\0';
 	return true;
 }
 
@@ -275,29 +292,40 @@ mpd_sticker_search_add_value_constraint(struct mpd_connection *connection,
 	assert(connection != NULL);
 	assert(value != NULL);
 
-	char *arg = mpd_sanitize_arg(value);
-	if (arg == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_OOM);
-		return false;
-	}
-
 	const char *oper_str = get_sticker_oper_str(oper);
-	if (oper_str == NULL) {
-		free(arg);
+	if (oper_str == NULL)
+		return false;
+
+	const size_t oper_str_length = strlen(oper_str);
+
+	/* worst-case allocation */
+	const size_t size = 1 + oper_str_length + 2 + strlen(value) * 2 + 2;
+	char *const start = mpd_request_prepare_append(connection, size);
+	if (start == NULL)
+		return false;
+
+	char *p = start;
+	char *const end = start + size - 1;
+
+	*p++ = ' ';
+
+	memcpy(p, oper_str, oper_str_length);
+	p += oper_str_length;
+
+	*p++ = ' ';
+
+	p = quote(p, end, value);
+	if (p == NULL) {
+		/* undo this partial append: the null terminator of
+		   the previous request was overwritten above */
+		*start = '\0';
+
+		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
+		mpd_error_message(&connection->error, "bad string");
 		return false;
 	}
 
-	const size_t size = 1 + strlen(oper_str) + 2 + strlen(arg) + 2;
-	char *dest = mpd_request_prepare_append(connection, size);
-	if (dest == NULL) {
-		free(arg);
-		return false;
-	}
-
-	snprintf(dest, size, " %s \"%s\"",
-		 oper_str,
-		 arg);
-	free(arg);
+	*p = '\0';
 	return true;
 }
 

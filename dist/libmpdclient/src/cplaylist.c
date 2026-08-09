@@ -10,6 +10,7 @@
 #include "isend.h"
 #include "request.h"
 #include "run.h"
+#include "quote.h"
 
 #include <assert.h>
 #include <limits.h>
@@ -334,33 +335,41 @@ mpd_playlist_search_begin(struct mpd_connection *connection, const char *name,
 	if (!mpd_request_begin(connection))
 		return false;
 
-	char *arg_name = mpd_sanitize_arg(name);
-	if (arg_name == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_OOM);
-		return false;
-	}
+	static const char *const prefix = "searchplaylist ";
+	const size_t prefix_length = strlen(prefix);
 
-	char *arg_expression = mpd_sanitize_arg(expression);
-	if (arg_expression == NULL) {
-		mpd_error_code(&connection->error, MPD_ERROR_OOM);
-		free(arg_name);
-		return false;
-	}
-
-	const size_t size = 17 + strlen(arg_name) + 3 + strlen(arg_expression) + 2;
-	connection->request = malloc(size);
+	/* worst-case allocation */
+	const size_t size = prefix_length + 1 + strlen(name) * 2 + 3 + strlen(expression) * 2 + 2;
+	char *p = connection->request = malloc(size);
 	if (connection->request == NULL) {
 		mpd_error_code(&connection->error, MPD_ERROR_OOM);
-		free(arg_name);
-		free(arg_expression);
 		return false;
 	}
 
-	snprintf(connection->request, size, "searchplaylist \"%s\" \"%s\"",
-		arg_name, arg_expression);
+	char *const end = p + size - 1;
 
-	free(arg_name);
-	free(arg_expression);
+	memcpy(p, prefix, prefix_length);
+	p += prefix_length;
+
+	p = quote(p, end, name);
+	if (p == NULL) {
+		mpd_request_cancel(connection);
+		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
+		mpd_error_message(&connection->error, "bad string");
+		return false;
+	}
+
+	*p++ = ' ';
+
+	p = quote(p, end, expression);
+	if (p == NULL) {
+		mpd_request_cancel(connection);
+		mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
+		mpd_error_message(&connection->error, "bad string");
+		return false;
+	}
+
+	*p = '\0';
 	return true;
 }
 

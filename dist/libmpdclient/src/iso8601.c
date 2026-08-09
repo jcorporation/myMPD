@@ -84,17 +84,17 @@ iso8601_datetime_parse(const char *input)
 
 	input = endptr + 1;
 	hour = strtoimax(input, &endptr, 10);
-	if (endptr == input || hour >= 24 || *endptr != ':')
+	if (endptr == input || hour < 0 || hour >= 24 || *endptr != ':')
 		return 0;
 
 	input = endptr + 1;
 	minute = strtoimax(input, &endptr, 10);
-	if (endptr == input || minute >= 60 || *endptr != ':')
+	if (endptr == input || minute < 0 || minute >= 60 || *endptr != ':')
 		return 0;
 
 	input = endptr + 1;
 	second = strtoimax(input, &endptr, 10);
-	if (endptr == input || second >= 60 ||
+	if (endptr == input || second < 0 || second >= 60 ||
 	    (*endptr != 0 && *endptr != 'Z'))
 		return 0;
 

@@ -1,0 +1,18 @@
+name: release_libmpdclient_embedded
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+    - name: installdeps
+      run: sudo ./build.sh installdeps
+    - name: build
+      run: |
+        cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_EMBEDDED_LIBMPDCLIENT=ON .
+        make -C release
+    - name: install
+      run: sudo make -C release install

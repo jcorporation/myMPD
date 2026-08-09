@@ -119,7 +119,7 @@ bool
 mpd_send_idle_mask(struct mpd_connection *connection, enum mpd_idle mask)
 {
 	/* this buffer is large enough even for the full mask */
-	char buffer[128] = "idle";
+	char buffer[256] = "idle";
 
 	assert(mask != 0);
 

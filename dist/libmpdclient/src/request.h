@@ -9,9 +9,6 @@
 
 struct mpd_connection;
 
-char *
-mpd_sanitize_arg(const char *src);
-
 bool
 mpd_request_begin(struct mpd_connection *connection);
 

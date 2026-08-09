@@ -13,6 +13,7 @@ target_sources(mpdclient
     src/audio_format.c
     src/binary.c
     src/capabilities.c
+    src/check_tag.c
     src/cmessage.c
     src/cmount.c
     src/cneighbor.c

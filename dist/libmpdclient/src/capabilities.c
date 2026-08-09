@@ -6,6 +6,7 @@
 #include <mpd/recv.h>
 #include <mpd/response.h>
 #include "internal.h"
+#include "check_tag.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -58,13 +59,9 @@ mpd_send_tag_types_v(struct mpd_connection *connection,
 	size_t length = strlen(buffer);
 
 	for (unsigned i = 0; i < n; ++i) {
-		const char *t = mpd_tag_name(types[i]);
-		if (t == NULL) {
-			mpd_error_code(&connection->error, MPD_ERROR_ARGUMENT);
-			mpd_error_message(&connection->error,
-					  "invalid type specified");
+		const char *t = mpd_check_tag_name(types[i], &connection->error);
+		if (t == NULL)
 			return false;
-		}
 
 		size_t t_length = strlen(t);
 

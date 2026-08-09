@@ -13,30 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *
-mpd_sanitize_arg(const char *src)
-{
-	assert(src != NULL);
-
-	/* instead of counting in that loop above, just
-	 * use a bit more memory and half running time
-	 */
-	char *result = malloc(strlen(src) * 2 + 1);
-	if (result == NULL)
-		return NULL;
-
-	char *dest = result;
-	char ch;
-	do {
-		ch = *src++;
-		if (ch == '"' || ch == '\\')
-			*dest++ = '\\';
-		*dest++ = ch;
-	} while (ch != 0);
-
-	return result;
-}
-
 bool
 mpd_request_begin(struct mpd_connection *connection)
 {
