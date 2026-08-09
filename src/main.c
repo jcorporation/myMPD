@@ -188,7 +188,6 @@ int main(int argc, char **argv) {
     thread_logname = sdsnew("mympd");
     thread_logline = sdsempty();
     log_init();
-    int signal_fd = -1;
     mympd_worker_threads = 0;
     #ifdef MYMPD_ENABLE_LUA
         script_worker_threads = 0;
@@ -322,9 +321,8 @@ int main(int argc, char **argv) {
     #endif
 
     // Initialize signalfd to handle signals in the event loop
-    signal_fd = signalfd_init();
-    if (signal_fd == -1) {
-        MYMPD_LOG_EMERG(NULL, "Could not initialize signalfd for SIGTERM, SIGINT and SIGHUP");
+    if (signal_eventfd_init() == false) {
+        MYMPD_LOG_EMERG(NULL, "Could not initialize signal_eventfd for SIGTERM, SIGINT and SIGHUP");
         goto cleanup;
     }
 
@@ -381,18 +379,21 @@ int main(int argc, char **argv) {
 
     // Signal handling
     struct pollfd fds[1];
-    fds[0].fd = signal_fd;
+    fds[0].fd = signal_eventfd_get();
     fds[0].events = POLLIN | POLLPRI;
 
     while (s_signal_received == 0) {
         int cnt = poll(fds, 1, -1);
         if (cnt < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
             MYMPD_LOG_EMERG(NULL, "Failure polling fds");
             rc = EXIT_FAILURE;
             break;
         }
         // Handle signal
-        if (signalfd_handler(fds[0].fd) == false) {
+        if (signal_eventfd_handler() == false) {
             break;
         }
     }
@@ -449,8 +450,8 @@ int main(int argc, char **argv) {
         mg_user_data_free(mg_user_data);
     }
 
-    // Close signalfd if initialized
-    signalfd_close(signal_fd);
+    // Close signal eventfd if initialized
+    signal_eventfd_close();
 
     // Exit message
     if (options_rc == OPTIONS_RC_OK) {

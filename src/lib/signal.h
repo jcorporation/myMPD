@@ -16,8 +16,9 @@
 
 extern sig_atomic_t s_signal_received;
 
-int signalfd_init(void);
-void signalfd_close(int fd);
-bool signalfd_handler(int fd);
+bool signal_eventfd_init(void);
+int signal_eventfd_get(void);
+void signal_eventfd_close(void);
+bool signal_eventfd_handler(void);
 
 #endif

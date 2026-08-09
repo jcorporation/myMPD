@@ -15,7 +15,6 @@
 
 #include <errno.h>
 #include <string.h>
-#include <sys/eventfd.h>
 #include <unistd.h>
 
 /**
@@ -51,12 +50,26 @@ bool event_pfd_add_fd(struct mympd_pfds *pfds, int fd, enum pfd_type type, struc
 }
 
 /**
- * Creates an eventfd
+ * Creates an eventfd with semaphore semantics
  * @return the eventfd
  */
 int event_eventfd_create(void) {
     errno = 0;
     int fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK | EFD_SEMAPHORE);
+    if (fd == -1) {
+        MYMPD_LOG_ERROR(NULL, "Unable to create eventfd");
+        MYMPD_LOG_ERRNO(NULL, errno);
+    }
+    return fd;
+}
+
+/**
+ * Creates an eventfd
+ * @return the eventfd
+ */
+int event_eventfd_create_simple(void) {
+    errno = 0;
+    int fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
     if (fd == -1) {
         MYMPD_LOG_ERROR(NULL, "Unable to create eventfd");
         MYMPD_LOG_ERRNO(NULL, errno);
@@ -93,6 +106,23 @@ bool event_eventfd_read(int fd) {
         return false;
     }
     return true;
+}
+
+/**
+ * Reads from an eventfd and returns the number read.
+ * Sets errno to 0 on success, else sets errno to the error code.
+ * @param fd read from this fd
+ * @return the number read from the eventfd
+ */
+eventfd_t event_eventfd_read_number(int fd) {
+    eventfd_t exp;
+    errno = 0;
+    if (eventfd_read(fd, &exp) != 0) {
+        MYMPD_LOG_ERROR(NULL, "Unable to read from eventfd");
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return 0;
+    }
+    return exp;
 }
 
 /**
