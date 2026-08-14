@@ -20,7 +20,7 @@
 #ifndef MONGOOSE_H
 #define MONGOOSE_H
 
-#define MG_VERSION "7.21"
+#define MG_VERSION "7.23"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,6 +46,7 @@ extern "C" {
 #define MG_ARCH_RTTHREAD 14     // RT-Thread RTOS
 #define MG_ARCH_ARMCGT 15       // Texas Semi ARM-CGT
 #define MG_ARCH_CUBE 16	        // STM32Cube environment
+#define MG_ARCH_MCUXPRESSO 17   // MCUXpresso environment
 
 #define MG_ARCH_NEWLIB MG_ARCH_ARMGCC  // Alias, deprecate in 2025
 
@@ -314,6 +315,11 @@ extern "C" {
 #include <esp_timer.h>     // amalgamation ditching them
 #include <esp_system.h>
 #include <esp_mac.h>
+#include <esp_idf_version.h>
+#include <esp_ota_ops.h>
+#include <esp_task_wdt.h>
+#include <soc/soc.h>
+#include <soc/rtc_cntl_reg.h>
 
 #define MG_PATH_MAX 128
 
@@ -323,6 +329,57 @@ extern "C" {
 
 #ifndef MG_ENABLE_DIRLIST
 #define MG_ENABLE_DIRLIST 1
+#endif
+
+#ifndef MG_OTA_ESP32_WDT_TIMEOUT_MS
+#define MG_OTA_ESP32_WDT_TIMEOUT_MS 10000U
+#endif
+
+static inline void mg_ota_esp32_timer_start(void) {
+#if ESP_IDF_VERSION_MAJOR >= 5
+  esp_task_wdt_config_t cfg = {0};
+  esp_err_t err;
+
+  cfg.timeout_ms = MG_OTA_ESP32_WDT_TIMEOUT_MS;
+  cfg.idle_core_mask = 0;
+  cfg.trigger_panic = true;
+
+  err = esp_task_wdt_init(&cfg);
+  if (err == ESP_ERR_INVALID_STATE) esp_task_wdt_reconfigure(&cfg);
+#else
+  esp_task_wdt_init(MG_OTA_ESP32_WDT_TIMEOUT_MS / 1000U, true);
+#endif
+  esp_task_wdt_add(NULL);
+  esp_task_wdt_reset();
+}
+
+static inline uint32_t mg_ota_esp32_state_set(uint32_t state) {
+  if (state == 0) esp_ota_mark_app_valid_cancel_rollback();
+  REG_WRITE(RTC_CNTL_STORE0_REG, state);
+  return REG_READ(RTC_CNTL_STORE0_REG);
+}
+
+#define MG_OTA_STATE_GET() \
+  REG_READ(RTC_CNTL_STORE0_REG)
+
+#define MG_OTA_STATE_SET(v) mg_ota_esp32_state_set((uint32_t) (v))
+
+#ifndef MG_OTA_ROLLBACK_TIMER_START
+#define MG_OTA_ROLLBACK_TIMER_START() mg_ota_esp32_timer_start()
+#endif
+
+#ifndef MG_OTA_ROLLBACK_TIMER_FEED
+#define MG_OTA_ROLLBACK_TIMER_FEED() \
+  do {                               \
+    (void) esp_task_wdt_reset();     \
+  } while (0)
+#endif
+
+#ifndef MG_OTA_ROLLBACK
+#define MG_OTA_ROLLBACK()                                  \
+  do {                                                     \
+    (void) esp_ota_mark_app_invalid_rollback_and_reboot(); \
+  } while (0)
 #endif
 
 #endif
@@ -350,6 +407,158 @@ extern "C" {
 #include <esp_system.h>
 
 #define MG_PATH_MAX 128
+
+#endif
+
+
+#if MG_ARCH == MG_ARCH_MCUXPRESSO
+#define _POSIX_TIMERS
+
+#include <ctype.h>
+#if !defined(MG_ENABLE_LWIP) || !MG_ENABLE_LWIP
+#include <errno.h>
+#endif
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
+
+// MCUXpresso-generated header, includes the SoC peripheral definitions.
+// NOTE: use angle brackets to prevent amalgamator ditching it
+#include <fsl_device_registers.h>
+
+#ifndef MG_PATH_MAX
+#define MG_PATH_MAX 100
+#endif
+
+#ifndef MG_ENABLE_DIRLIST
+#define MG_ENABLE_DIRLIST 0
+#endif
+
+#ifndef MG_ENABLE_TCPIP
+#define MG_ENABLE_TCPIP 1  // Enable built-in TCP/IP stack
+#endif
+
+#if MG_ENABLE_TCPIP && !defined(MG_ENABLE_DRIVER_IMXRT10) && \
+    !defined(MG_ENABLE_DRIVER_IMXRT11)
+#if defined(CPU_MIMXRT1021DAG5A) || defined(CPU_MIMXRT1024DAG5A) ||         \
+    defined(CPU_MIMXRT1042XJM5B) || defined(CPU_MIMXRT1052DVL6B) ||         \
+    defined(CPU_MIMXRT1062DVL6B) || defined(CPU_MIMXRT1064DVL6B) ||         \
+    defined(CPU_MIMXRT1062DVL6A) || defined(CPU_MIMXRT1064DVL6A) ||         \
+    defined(CPU_MIMXRT1062DVMAA_cm7) || defined(CPU_MIMXRT1062DVL6A_cm7) || \
+    defined(CPU_MIMXRT1062DVL6B_cm7) || defined(_MIMXRT1021_H_) ||          \
+    defined(_MIMXRT1024_H_) || defined(_MIMXRT1042_H_) ||                   \
+    defined(_MIMXRT1052_H_) || defined(_MIMXRT1062_H_) ||                   \
+    defined(_MIMXRT1064_H_)
+#define MG_ENABLE_DRIVER_IMXRT10 1
+#elif defined(CPU_MIMXRT1176DVMAA_cm7) || defined(CPU_MIMXRT1176DVMAA_cm4) || \
+    defined(_MIMXRT1176_cm7_H_) || defined(_MIMXRT1176_cm4_H_) ||             \
+    defined(_MIMXRT1176_H_)
+#define MG_ENABLE_DRIVER_IMXRT11 1
+#else
+#error Select an Ethernet driver in mongoose_config.h
+#endif
+#endif
+
+#ifndef MG_TLS
+#define MG_TLS MG_TLS_BUILTIN
+#endif
+
+#if !defined(MG_OTA) &&                                              \
+    (defined(CPU_MIMXRT1021DAG5A) || defined(CPU_MIMXRT1024DAG5A) || \
+     defined(_MIMXRT1021_H_) || defined(_MIMXRT1024_H_))
+#define MG_OTA MG_OTA_RT1020
+#elif !defined(MG_OTA) && \
+    (defined(CPU_MIMXRT1052DVL6B) || defined(_MIMXRT1052_H_))
+#define MG_OTA MG_OTA_RT1050
+#elif !defined(MG_OTA) &&                                                    \
+    (defined(CPU_MIMXRT1062DVL6B) || defined(CPU_MIMXRT1062DVL6A) ||         \
+     defined(CPU_MIMXRT1042XJM5B) || defined(_MIMXRT1042_H_) ||              \
+     defined(CPU_MIMXRT1062DVMAA_cm7) || defined(CPU_MIMXRT1062DVL6A_cm7) || \
+     defined(CPU_MIMXRT1062DVL6B_cm7) || defined(_MIMXRT1062_H_))
+#define MG_OTA MG_OTA_RT1060
+#elif !defined(MG_OTA) &&                                            \
+    (defined(CPU_MIMXRT1064DVL6B) || defined(CPU_MIMXRT1064DVL6A) || \
+     defined(_MIMXRT1064_H_))
+#define MG_OTA MG_OTA_RT1064
+#elif !defined(MG_OTA) &&                                                    \
+    (defined(CPU_MIMXRT1176DVMAA_cm7) || defined(CPU_MIMXRT1176DVMAA_cm4) || \
+     defined(_MIMXRT1176_cm7_H_) || defined(_MIMXRT1176_cm4_H_) ||           \
+     defined(_MIMXRT1176_H_))
+#define MG_OTA MG_OTA_RT1170
+#endif
+
+#ifndef MG_IRAM
+#define MG_IRAM __attribute__((noinline, section(".data_RAM2")))
+#endif
+
+#ifndef MG_SET_MAC_ADDRESS
+#if defined(MG_ENABLE_DRIVER_IMXRT11) && MG_ENABLE_DRIVER_IMXRT11
+#define MG_OCOTP_FUSES ((volatile uint32_t *) 0x40cac900)
+#else
+#define MG_OCOTP_FUSES ((volatile uint32_t *) 0x401f4410)
+#endif
+#define MG_SET_MAC_ADDRESS(mac)                                             \
+  do {                                                                      \
+    mac[0] = 2;                                                             \
+    mac[1] = (MG_OCOTP_FUSES[0] >> 0) & 255;                                \
+    mac[2] = (MG_OCOTP_FUSES[0] >> 10) & 255;                               \
+    mac[3] = ((MG_OCOTP_FUSES[0] >> 19) ^ (MG_OCOTP_FUSES[4] >> 19)) & 255; \
+    mac[4] = (MG_OCOTP_FUSES[4] >> 10) & 255;                               \
+    mac[5] = (MG_OCOTP_FUSES[4] >> 0) & 255;                                \
+  } while (0)
+#endif
+
+#ifndef MG_IMXRT_WDOG1_TIMEOUT_MS
+#define MG_IMXRT_WDOG1_TIMEOUT_MS 10000
+#endif
+
+#define MG_IMXRT_WDOG1_FEED() \
+  do {                        \
+    WDOG1->WSR = 0x5555;      \
+    WDOG1->WSR = 0xaaaa;      \
+  } while (0)
+
+#ifndef MG_OTA_ROLLBACK_TIMER_START
+#define MG_OTA_ROLLBACK_TIMER_START()                                     \
+  do {                                                                    \
+    uint16_t wt_ = (uint16_t) ((MG_IMXRT_WDOG1_TIMEOUT_MS / 500) - 1);    \
+    if ((WDOG1->WCR & WDOG_WCR_WDE_MASK) == 0) {                          \
+      WDOG1->WMCR = 0;                                                    \
+      WDOG1->WCR = (uint16_t) (WDOG_WCR_WDZST_MASK | WDOG_WCR_WDBG_MASK | \
+                               WDOG_WCR_WDE_MASK | WDOG_WCR_WDT_MASK |    \
+                               WDOG_WCR_SRS_MASK | WDOG_WCR_WDW_MASK |    \
+                               WDOG_WCR_WT(wt_));                         \
+    }                                                                     \
+    MG_IMXRT_WDOG1_FEED();                                                \
+  } while (0)
+#endif
+
+#ifndef MG_OTA_ROLLBACK_TIMER_FEED
+#define MG_OTA_ROLLBACK_TIMER_FEED() MG_IMXRT_WDOG1_FEED()
+#endif
+
+#ifndef MG_OTA_STATE_GET
+#define MG_OTA_STATE_GET() SNVS->LPGPR[0]
+#endif
+
+#ifndef MG_OTA_STATE_SET
+#define MG_OTA_STATE_SET(v)          \
+  do {                               \
+    if (SNVS->LPSR & (1u << 3)) {    \
+      SNVS->LPLVDR = 0x41736166u;    \
+      SNVS->LPSR = 1u << 3;          \
+    }                                \
+    SNVS->LPGPR[0] = (uint32_t) (v); \
+  } while (0)
+#endif
 
 #endif
 
@@ -778,6 +987,7 @@ typedef int socklen_t;
 #define realpath(a, b) _fullpath((b), (a), MG_PATH_MAX)
 #define sleep(x) Sleep((x) *1000)
 #define mkdir(a, b) _mkdir(a)
+#define rmdir(a) _rmdir(a)
 #define timegm(x) _mkgmtime(x)
 
 #ifndef S_ISDIR
@@ -896,7 +1106,8 @@ static inline void *mg_calloc(size_t cnt, size_t size) {
   ((errcode) == -pdFREERTOS_ERRNO_EWOULDBLOCK || \
    (errcode) == -pdFREERTOS_ERRNO_EISCONN ||     \
    (errcode) == -pdFREERTOS_ERRNO_EINPROGRESS || \
-   (errcode) == -pdFREERTOS_ERRNO_EAGAIN)
+   (errcode) == -pdFREERTOS_ERRNO_EAGAIN ||      \
+   (errcode) == -pdFREERTOS_ERRNO_ENOSPC)
 
 #define MG_SOCK_RESET(errcode) ((errcode) == -pdFREERTOS_ERRNO_ENOTCONN)
 
@@ -1520,7 +1731,7 @@ size_t mg_queue_printf(struct mg_queue *, const char *fmt, ...);
 
 // Built-in %M/%m printer functions. Each reads its argument(s) from ap.
 size_t mg_print_base64(mg_pfn_t, void *arg, va_list *ap);   // expects: const void *buf, size_t len
-size_t mg_print_esc(mg_pfn_t, void *arg, va_list *ap);      // expects: int quote, const char *str -- use MG_ESC()
+size_t mg_print_esc(mg_pfn_t, void *arg, va_list *ap);      // expects: int len, const char *str -- use MG_ESC()
 size_t mg_print_hex(mg_pfn_t, void *arg, va_list *ap);      // expects: const void *buf, size_t len
 size_t mg_print_ip(mg_pfn_t, void *arg, va_list *ap);       // expects: const struct mg_addr *
 size_t mg_print_ip_port(mg_pfn_t, void *arg, va_list *ap);  // expects: const struct mg_addr *
@@ -1529,6 +1740,8 @@ size_t mg_print_ip6(mg_pfn_t, void *arg, va_list *ap);      // expects: uint8_t[
 size_t mg_print_mac(mg_pfn_t, void *arg, va_list *ap);      // expects: uint8_t[6] mac
 size_t mg_print_ieee64(mg_pfn_t, void *arg, va_list *ap);   // expects: uint64_t
 size_t mg_print_l2addr(mg_pfn_t, void *arg, va_list *ap);   // expects: uint8_t l2, uint8_t[n] n-byte l2-dependent address
+size_t mg_print_html_esc(mg_pfn_t, void *arg, va_list *ap); // expects: int len, const char *str -- use MG_ESC()
+
 
 // Output functions for use as the fn argument to mg_xprintf/mg_vxprintf.
 void mg_pfn_iobuf(char ch, void *param);           // param: struct mg_iobuf * (resizes as needed)
@@ -1632,7 +1845,7 @@ void mg_timer_poll(struct mg_timer **head, uint64_t new_ms);
 
 
 // Flags returned by mg_fs.st() and passed to mg_fs.open().
-enum { MG_FS_READ = 1, MG_FS_WRITE = 2, MG_FS_DIR = 4 };
+enum { MG_FS_READ = 1, MG_FS_WRITE = 2, MG_FS_DIR = 4, MG_FS_EXCL = 8 };
 
 // Filesystem abstraction. Implement all function pointers to plug in a custom
 // filesystem. Short UNIX-style names are used deliberately to avoid conflicts
@@ -1729,6 +1942,9 @@ void mg_free(void *ptr);
 // sensitive data (keys, passwords).
 void mg_bzero(volatile unsigned char *buf, size_t len);
 
+// Fixed-length constant-time byte equality. Use for MACs, tags, signatures.
+bool mg_memeq(const void *a, const void *b, size_t n);
+
 // Fills buf with len cryptographically random bytes. Uses the best available
 // hardware or OS source (hardware RNG, /dev/urandom, CryptGenRandom, etc.).
 // Falls back to rand() with an error log if no strong source is available.
@@ -1744,6 +1960,10 @@ char *mg_random_str(char *buf, size_t len);
 // a new checksum; pass the result of a prior call to extend over more data.
 uint32_t mg_crc32(uint32_t crc, const char *buf, size_t len);
 
+// Computes CRC16 (HDLC, polynomial 0x8408) over buf/len. Pass crc=0 to start
+// a new checksum; pass the result of a prior call to extend over more data.
+uint16_t mg_crc16(uint16_t crc, const char *buf, size_t len);
+
 // Returns true if path is safe to serve from the filesystem. Rejects paths
 // that start with '~' or '..', or contain a '/../' component, to prevent
 // directory traversal attacks.
@@ -1752,6 +1972,9 @@ bool mg_path_is_sane(const struct mg_str path);
 // Busy-waits for at least ms milliseconds using mg_millis(). Blocks the
 // calling context; avoid in event handlers.
 void mg_delayms(unsigned int ms);
+
+uint64_t mg_timegm(unsigned int year, unsigned int month, unsigned int day,
+                   unsigned int hour, unsigned int min, unsigned int sec);
 
 // Packs four byte values into a uint32_t in big-endian order.
 // MG_U32(1, 2, 3, 4) == 0x01020304
@@ -1973,6 +2196,9 @@ size_t mg_base64_update(unsigned char input_byte, char *buf, size_t len);
 size_t mg_base64_final(char *buf, size_t len);
 size_t mg_base64_encode(const unsigned char *p, size_t n, char *buf, size_t);
 size_t mg_base64_decode(const char *src, size_t n, char *dst, size_t);
+size_t mg_base64url_encode(const unsigned char *p, size_t n, char *buf,
+                           size_t);
+size_t mg_base64url_decode(const char *src, size_t n, char *dst, size_t);
 
 
 
@@ -2158,6 +2384,10 @@ struct mg_connection {
   void *pfn_data;                 // Protocol-level handler argument
   char data[MG_DATA_SIZE];        // Scratch space for protocol state; freely readable
   void *tls;                      // TLS state (internal)
+  unsigned dscp : 6;              // Differentiated Services Code Point
+#define MG_DSCP_CS(class_) ((class_) << 3)
+#define MG_DSCP_AF(class_, drop_) (((class_) << 3) | ((drop_) << 1))
+#define MG_DSCP_EF 46
   unsigned is_listening : 1;      // Listening connection; accepts inbound connections
   unsigned is_client : 1;         // Outbound connection created by mg_connect()
   unsigned is_accepted : 1;       // Inbound connection accepted from a listener
@@ -2237,6 +2467,11 @@ struct mg_connection *mg_connect(struct mg_mgr *, const char *url,
 // Useful for integrating pre-opened sockets (e.g. stdin, accept() fd).
 struct mg_connection *mg_wrapfd(struct mg_mgr *mgr, int fd,
                                 mg_event_handler_t fn, void *fn_data);
+
+// Sets the 6-bit Differentiated Services Code Point for outgoing datagrams.
+// Call on MG_EV_OPEN for UDP listeners, MG_EV_CONNECT for clients, or
+// MG_EV_ACCEPT for TCP servers, before sending application data.
+bool mg_dscp(struct mg_connection *, uint8_t dscp);
 
 // Called internally after DNS resolution completes to create the OS socket
 // and initiate the TCP/IP connect. Normally not called by user code.
@@ -2608,6 +2843,12 @@ void mg_tls_ctx_init(struct mg_mgr *);
 void mg_tls_ctx_free(struct mg_mgr *);
 #define MG_IS_DER(buf) (((uint8_t *) (buf))[0] == 0x30)  // DER begins with 0x30
 
+#if MG_TLS == MG_TLS_BUILTIN
+// Extracts a 32-byte P-256 private scalar from EC PRIVATE KEY or PKCS#8 PRIVATE
+// KEY input. Accepts PEM or DER. Returns key size, or 0 on error.
+size_t mg_uecc_parse_private_key(struct mg_str key, uint8_t *buf, size_t len);
+#endif
+
 // Low-level IO primitives used by TLS layer
 enum { MG_IO_ERR = -1, MG_IO_WAIT = -2 };
 long mg_io_send(struct mg_connection *c, const void *buf, size_t len);
@@ -2808,28 +3049,28 @@ if 'dest' was filled with random data, or 0 if the random data could not be
 generated. The filled-in values should be either truly random, or from a
 cryptographically-secure PRNG.
 
-A correctly functioning RNG function must be set (using mg_uecc_set_rng())
-before calling mg_uecc_make_key() or mg_uecc_sign().
+A correctly functioning RNG is required before calling mg_uecc_make_key() or
+mg_uecc_sign().
 
 Setting a correctly functioning RNG function improves the resistance to
 side-channel attacks for mg_uecc_shared_secret() and
 mg_uecc_sign_deterministic().
-
-A correct RNG function is set by default when building for Windows, Linux, or OS
-X. If you are building on another POSIX-compliant system that supports
-/dev/random or /dev/urandom, you can define MG_UECC_POSIX to use the predefined
-RNG. For embedded platforms there is no predefined RNG function; you must
-provide your own.
 */
 typedef int (*MG_UECC_RNG_Function)(uint8_t *dest, unsigned size);
+
+// Mongoose: mg_uecc_make_key() and mg_uecc_sign() use mg_random() when no
+// explicit uECC RNG is installed. If mg_random() cannot provide a strong source,
+// those operations fail. Deterministic signing works without RNG, but only an
+// explicit uECC RNG enables its optional side-channel blinding.
 
 /* mg_uecc_set_rng() function.
 Set the function that will be used to generate random bytes. The RNG function
 should return 1 if the random data was generated, or 0 if the random data could
 not be generated.
 
-On platforms where there is no predefined RNG function (eg embedded platforms),
-this must be called before mg_uecc_make_key() or mg_uecc_sign() are used.
+Mongoose: this overrides the default mg_random() fallback used by
+mg_uecc_make_key() and mg_uecc_sign(). Do not call mg_uecc_set_rng() unless the
+application must provide its own cryptographic RNG.
 
 Inputs:
     rng_function - The function that will be used to generate random bytes.
@@ -3362,7 +3603,7 @@ int mg_uecc_generate_random_int(mg_uecc_word_t *random,
 
 
 
-#if MG_TLS == MG_TLS_BUILTIN
+#if MG_TLS == MG_TLS_BUILTIN && MG_ENABLE_CHACHA20
 #ifndef __PORTABLE_8439_H
 #define __PORTABLE_8439_H
 #if defined(__cplusplus)
@@ -3478,6 +3719,9 @@ int mg_rsa_crt_sign(const uint8_t *em, size_t em_len,
                     const uint8_t *q, size_t q_len,
                     const uint8_t *qInv, size_t qInv_len,
                     uint8_t *signature, size_t sig_len);
+bool mg_rsa_pkcs_verify(const uint8_t *em, size_t nlen, const uint8_t *hash,
+                        size_t hashlen);
+bool mg_rsa_verify(const uint8_t *em, size_t nlen, const uint8_t *mhash);
 #endif // TLS_RSA_H
 
 
@@ -3505,13 +3749,14 @@ struct mg_tls {
   mbedtls_x509_crt cert;    // Parsed certificate
   mbedtls_pk_context pk;    // Private key context
   mbedtls_ssl_context ssl;  // SSL/TLS context
-  mbedtls_ssl_config conf;  // SSL-TLS config
+  mbedtls_ssl_config conf;  // SSL/TLS config
 #ifdef MBEDTLS_SSL_SESSION_TICKETS
   mbedtls_ssl_ticket_context ticket;  // Session tickets context
 #endif
   // https://github.com/Mbed-TLS/mbedtls/blob/3b3c652d/include/mbedtls/ssl.h#L5071C18-L5076C29
   unsigned char *throttled_buf;  // see #3074
   size_t throttled_len;
+  bool check_name;  // set when hostname was set, but no CA certificate given
 };
 #endif
 
@@ -3520,11 +3765,14 @@ struct mg_tls {
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <openssl/x509v3.h>
 
 struct mg_tls {
   BIO_METHOD *bm;
   SSL_CTX *ctx;
   SSL *ssl;
+  char *name;       // matching hostname
+  bool check_name;  // set when hostname was set, but no CA certificate given
 };
 #endif
 
@@ -3953,11 +4201,12 @@ struct mg_mdns_req {
   bool is_unicast;  // True if the client requested a unicast (QU) response
 };
 
-// ev_data for MG_EV_MDNS_RESP, carrying the resolved address from an mDNS response.
+// ev_data for MG_EV_MDNS_RESP, carrying address/data from a mDNS response
 struct mg_mdns_resp {
-  struct mg_dns_rr *rr;  // Resource record from the response
+  struct mg_dns_rr *rr;  // Resource record from the response (1st in chain)
   struct mg_str name;    // Resolved hostname, without the .local suffix
   struct mg_addr addr;   // Resolved IP address
+  struct mg_dnssd_record sd; // Service Discovery data
 };
 
 // Parses a DNS query or response from buf/len into dm. Returns true on success.
@@ -3974,6 +4223,7 @@ size_t mg_dns_parse_rr(const uint8_t *buf, size_t len, size_t ofs,
 // Creates an mDNS listener on UDP multicast 224.0.0.251:5353. Registers it as
 // the manager's mDNS resolver (mgr->mdns). Fires MG_EV_MDNS_REQ for incoming
 // queries and MG_EV_MDNS_RESP for incoming responses. Returns NULL on error.
+// fn_data is a NUL-terminated server name, or NULL to pass all requests to fn.
 struct mg_connection *mg_mdns_listen(struct mg_mgr *mgr, mg_event_handler_t fn,
                                      void *fn_data);
 
@@ -4096,7 +4346,7 @@ char *mg_json_get_str(struct mg_str json, const char *path);
 
 // Decodes a hex-encoded JSON string at path into a heap-allocated byte array.
 // Sets *len to the decoded byte count. Caller must mg_free() the result.
-// Returns NULL if not found or not a string.
+// Returns NULL if not found, not a string, or not valid hexadecimal.
 char *mg_json_get_hex(struct mg_str json, const char *path, int *len);
 
 // Decodes a base64-encoded JSON string at path into a heap-allocated byte
@@ -4128,6 +4378,33 @@ size_t mg_json_unescape(struct mg_str json, const char *path, char *, size_t);
 // quoted key (e.g. "\"name\""). *val is the raw unparsed token.
 size_t mg_json_next(struct mg_str obj, size_t ofs, struct mg_str *key,
                     struct mg_str *val);
+
+
+
+
+
+
+struct mg_jwt_opts {
+  struct mg_str claims;  // JSON payload
+  struct mg_str header;  // Extra header members, no braces; alg/typ are set
+  struct mg_str kid;     // Key ID protected header
+  struct mg_str secret;  // HS256 secret
+  const uint8_t *private_key;  // ES256 private key (MG_TLS_BUILTIN only)
+  const uint8_t *public_key;   // ES256 public key (MG_TLS_BUILTIN only)
+};
+
+// Signs JSON claims as a compact JWT. Returns JWT length, or 0 on error.
+size_t mg_jwt_sign_hs256(const struct mg_jwt_opts *opts, char *buf,
+                         size_t len);
+
+// Verifies JWT and decodes JSON claims into buf. Returns claims length, or 0.
+size_t mg_jwt_verify_hs256(struct mg_str jwt, const struct mg_jwt_opts *opts,
+                           char *buf, size_t len);
+
+size_t mg_jwt_sign_es256(const struct mg_jwt_opts *opts, char *buf,
+                         size_t len);
+size_t mg_jwt_verify_es256(struct mg_str jwt, const struct mg_jwt_opts *opts,
+                           char *buf, size_t len);
 
 
 
@@ -4353,7 +4630,7 @@ extern void mg_mqtt_poll(struct mg_mgr *);
 //
 // This is a low-level OTA API, not intended to be called directly by users.
 // Users are provided with a higher-level API:
-// - defining MG_OTA_URL enables HTTP pull-based updates
+// - defining MG_OTA_URL enables HTTP or HTTPS pull-based updates
 // - mg_http_start_ota() enables push-based updates
 //
 // However, it is possible to use the mg_ota_* API directly. Below is the
@@ -4500,8 +4777,10 @@ enum {
     }                                                              \
   } while (0)
 
-// Pull-based OTA over HTTP. Fetches metadata_url, which must return a JSON
-// object like: { "version": "1.2.3", "url": "FIRMWARE_URL", "size": 324645 }
+// Pull-based OTA over HTTP or HTTPS. If it's HTTPS, MG_OTA_TLS_CA
+// needs to be defined. Fetches metadata_url, which must
+// return a JSON object like:
+// { "version": "1.2.3", "url": "FIRMWARE_URL", "size": 324645 }
 // If the server version differs from MG_OTA_FIRMWARE_VERSION, downloads
 // FIRMWARE_URL and performs the OTA update. fn is called on every outcome:
 // NULL on successful flash, "Same version" when already up to date, or an
@@ -4511,10 +4790,16 @@ void mg_ota_url_check(struct mg_mgr *mgr, const char *metadata_url,
                       void (*fn)(const char *error_message));
 
 // Firmware info URL for mg_ota_poll() which calls mg_ota_url_check().
-// Example:  "http://mongoose.ws/ota/u/0/ota.json". See http://mongoose.ws/ota/
+// Example: "http://mongoose.ws/ota/u/0/ota.json". See http://mongoose.ws/ota/
 // Settable in mongoose_config.h
 #ifndef MG_OTA_URL
 #define MG_OTA_URL NULL
+#endif
+
+// PEM or DER CA certificate used to authenticate an HTTPS OTA server. Set to
+// NULL to use HTTP. Set in mongoose_config.h.
+#ifndef MG_OTA_TLS_CA
+#define MG_OTA_TLS_CA NULL
 #endif
 
 // OTA status callback function for mg_ota_poll()
@@ -4546,8 +4831,9 @@ void mg_ota_url_check(struct mg_mgr *mgr, const char *metadata_url,
 // E.g. on STM32, uses the 96-bit MCU UID converted to a hex string.
 void mg_ota_device_id(char *buf, size_t len);
 
-// Checks for a firmware update over HTTP. Called automatically by mg_mgr_poll()
-// when MG_OTA_URL is set in mongoose_config.h. Do not call directly.
+// Checks for a firmware update over HTTP or HTTPS. Called automatically by
+// mg_mgr_poll() when MG_OTA_URL is set in mongoose_config.h. Do not call
+// directly.
 void mg_ota_poll(struct mg_mgr *);
 
 
@@ -4623,7 +4909,7 @@ bool mg_wifi_ap_stop(void);
 #if MG_ENABLE_TCPIP
 
 // no config defaults to 0 => Ethernet
-enum mg_l2type { MG_TCPIP_L2_ETH = 0, MG_TCPIP_L2_PPP, MG_TCPIP_L2_PPPoE };
+enum mg_l2type { MG_TCPIP_L2_ETH = 0, MG_TCPIP_L2_PPP, MG_TCPIP_L2_PPPoE, MG_TCPIP_L2_USER };
 
 #if defined(__DCC__)
 #pragma pack(1)
@@ -4745,6 +5031,7 @@ struct mg_tcpip_if {
   char dhcp_name[MG_TCPIP_DHCPNAME_SIZE]; // Hostname sent in DHCP requests; defaults to "mip"
   uint16_t mtu;                           // IP MTU (max payload size at the IP layer)
   uint16_t framesize;                     // Maximum L2 frame size in bytes
+  uint16_t l2mtu;                 	  // L2 frame payload, default net MTU
 
 #if MG_ENABLE_IPV6
   uint64_t ip6ll[2], ip6[2];  // IPv6 link-local and global addresses
@@ -4901,7 +5188,6 @@ struct mg_tcpip_spi {
 #else
 #include <errno.h>
 typedef unsigned int socklen_t;
-typedef int ssize_t;
 typedef uint32_t in_addr_t;
 struct in_addr { in_addr_t s_addr; };
 struct in6_addr { uint8_t s6_addr[16]; };
