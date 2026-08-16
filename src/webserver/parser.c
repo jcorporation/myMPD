@@ -79,7 +79,6 @@ struct t_list *webserver_parse_arguments(struct mg_str *query) {
     return arguments;
 }
 
-
 /**
  * Gets and decodes an url parameter.
  * The key will not be url decoded before matching.
