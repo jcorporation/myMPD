@@ -98,9 +98,9 @@ sds sds_catjson(sds s, const char *p, size_t len) {
     /* To avoid continuous reallocations, let's start with a buffer that
      * can hold at least stringlength + 10 chars. */
     s = sdsMakeRoomFor(s, len + 10);
-    s = sdscatlen(s, "\"", 1);
+    s = sds_catchar(s, '"');
     s = sds_catjson_plain(s, p, len);
-    return sdscatlen(s, "\"", 1);
+    return sds_catchar(s, '"');
 }
 
 /**
