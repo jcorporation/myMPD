@@ -81,6 +81,11 @@ UTEST(webserver_parser, test_get_uri_param_special_cases) {
 
     value4 = get_uri_param(&query, "param5=");
     ASSERT_TRUE(value4 == NULL);
+
+    query = mg_str("param4=value4");
+    value4 = get_uri_param(&query, "param4=");
+    ASSERT_STREQ(value4, "value4");
+    sdsfree(value4);
 }
 
 UTEST(webserver_parser, test_webserver_parse_arguments) {
@@ -142,5 +147,19 @@ UTEST(webserver_parser, test_webserver_parse_arguments_empty_query) {
     struct t_list *args = webserver_parse_arguments(&query);
 
     ASSERT_EQ(args->length, 0U);
+    list_free(args);
+}
+
+UTEST(webserver_parser, test_webserver_parse_arguments_special_cases) {
+    // One param with no empty value
+    struct mg_str query = mg_str("param4=");
+    struct t_list *args = webserver_parse_arguments(&query);
+    ASSERT_EQ(args->length, 1U);
+    list_free(args);
+
+    // One param with value
+    query = mg_str("param4=value4");
+    args = webserver_parse_arguments(&query);
+    ASSERT_EQ(args->length, 1U);
     list_free(args);
 }
