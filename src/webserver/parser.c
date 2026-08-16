@@ -11,6 +11,7 @@
 #include "compile_time.h"
 #include "src/webserver/parser.h"
 
+#include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_url.h"
 
@@ -30,27 +31,54 @@ struct t_list *webserver_parse_arguments(struct mg_str *query) {
     if (query->len == 0) {
         return arguments;
     }
+
     sds decoded_key = sdsempty();
     sds decoded_value = sdsempty();
-    int params_count;
-    sds *params = sdssplitlen(query->buf, (ssize_t)query->len, "&", 1, &params_count);
-    for (int i = 0; i < params_count; i++) {
-        int kv_count;
-        sds *kv = sdssplitlen(params[i], (ssize_t)sdslen(params[i]), "=", 1, &kv_count);
-        if (kv_count == 2) {
-            decoded_key = sds_urldecode(decoded_key, kv[0], sdslen(kv[0]), false);
-            decoded_value = sds_urldecode(decoded_value, kv[1], sdslen(kv[1]), false);
-            list_push(arguments, decoded_key, 0, decoded_value, NULL);
-            sdsclear(decoded_key);
-            sdsclear(decoded_value);
+
+    const char *pos = query->buf;
+    const char *end = query->buf + query->len;
+
+    while (pos < end) {
+        // Find key boundaries
+        const char *key_start = pos;
+        const char *key_end = memchr(pos, '=', (size_t)(end - pos));
+        if (key_end == NULL) {
+            // No '=' found, skip malformed parameter
+            MYMPD_LOG_WARN(NULL, "Malformed query parameter: '%.*s'", (int)(end - pos), pos);
+            break;
         }
-        sdsfreesplitres(kv, kv_count);
+
+        // Find value boundaries
+        const char *val_start = key_end + 1;
+        const char *val_end = memchr(val_start, '&', (size_t)(end - val_start));
+        if (val_end == NULL) {
+            // Last query parameter
+            val_end = end;
+        }
+
+        // Decode key and value only if they're not empty
+        size_t key_len = (size_t)(key_end - key_start);
+        if (key_len > 0) {
+            decoded_key = sds_urldecode(decoded_key, key_start, key_len, false);
+            size_t val_len = (size_t)(val_end - val_start);
+            decoded_value = sds_urldecode(decoded_value, val_start, val_len, false);
+            list_push(arguments, decoded_key, 0, decoded_value, NULL);
+        }
+        else {
+            MYMPD_LOG_WARN(NULL, "Empty key in query parameter: '%.*s'", (int)(val_end - key_start), key_start);
+        }
+        sdsclear(decoded_key);
+        sdsclear(decoded_value);
+
+        // Move to next parameter
+        pos = val_end + 1;
     }
-    sdsfreesplitres(params, params_count);
+
     FREE_SDS(decoded_key);
     FREE_SDS(decoded_value);
     return arguments;
 }
+
 
 /**
  * Gets and decodes an url parameter.
