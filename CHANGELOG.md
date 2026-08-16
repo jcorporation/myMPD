@@ -11,6 +11,7 @@ This release removes the long-press event handling completely. It seems it can n
 ### Changelog
 
 - Feat: Improve playlist shuffle performance
+- Feat: Improve query parsing and add tests
 - Upd: Mongoose 7.23
 - Upd: Improve websocket handling
 - Upd: Embedded libmdpclient to 2.28 (master branch)
@@ -18,6 +19,8 @@ This release removes the long-press event handling completely. It seems it can n
 - Fix: Ignore SIGPIPE
 - Fix: Remove unnecessary dependency in mympd-script for libmpdclient #1559
 - Fix: Implement minimal signal save handler
+- Fix: Path traversal checks
+- Fix: Do not truncate 64bit integers
 
 ***
 
