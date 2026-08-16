@@ -43,12 +43,21 @@ static bool is_url_safe(char c) {
  * @return modified sds string
  */
 sds sds_urlencode(sds s, const char *p, size_t len) {
+    // Pre-allocate memory
+    s = sdsMakeRoomFor(s, len + (len / 2));
+
     for (size_t i = 0; i < len; i++) {
         if (is_url_safe(p[i])) {
             s = sds_catchar(s, p[i]);
         }
         else {
-            s = sdscatprintf(s, "%%%hhX", p[i]);
+            unsigned char c = (unsigned char)p[i];
+            char hex[3] = {
+                '%',
+                "0123456789ABCDEF"[c >> 4],
+                "0123456789ABCDEF"[c & 0x0F]
+            };
+            s = sdscatlen(s, hex, 3);
         }
     }
     return s;
@@ -66,6 +75,9 @@ sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
     size_t i;
     int a;
     int b;
+
+    // Pre-allocate memory
+    s = sdsMakeRoomFor(s, len);
 
     for (i = 0; i < len; i++) {
         switch(*p) {
@@ -87,12 +99,12 @@ sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
                 break;
             case '+':
                 if (is_form_url_encoded == true) {
-                    s = sdscatlen(s, " ", 1);
+                    s = sds_catchar(s, ' ');
                     break;
                 }
                 //fall through
             default:
-                s = sdscatlen(s, p, 1);
+                s = sds_catchar(s, *p);
         }
         p++;
     }
