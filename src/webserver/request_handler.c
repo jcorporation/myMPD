@@ -18,6 +18,7 @@
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/webserver/lyrics.h"
+#include "src/webserver/parser.h"
 #include "src/webserver/proxy.h"
 #include "src/webserver/response.h"
 #include "src/webserver/sessions.h"

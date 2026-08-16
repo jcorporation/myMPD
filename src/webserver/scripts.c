@@ -21,6 +21,7 @@
 #include "src/lib/validate.h"
 #include "src/mympd_api/requests.h"
 #include "src/scripts/events.h"
+#include "src/webserver/parser.h"
 #include "src/webserver/response.h"
 #include "src/webserver/utility.h"
 
@@ -53,7 +54,7 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
         return false;
     }
 
-    struct t_list *arguments = webserver_parse_arguments(hm);
+    struct t_list *arguments = webserver_parse_arguments(&hm->query);
 
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_SCRIPT_EXECUTE, "", partition);
     struct t_script_execute_data *extra = script_execute_data_new(script, SCRIPT_START_HTTP);
@@ -74,7 +75,7 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
 bool script_execute_bgimage(struct mg_connection *nc, struct mg_http_message *hm) {
     sds partition = sds_urldecode(sdsempty(), hm->uri.buf, hm->uri.len, false);
     partition = sds_basename(partition);
-    struct t_list *arguments = webserver_parse_arguments(hm);
+    struct t_list *arguments = webserver_parse_arguments(&hm->query);
     bool rc = mympd_api_request_trigger_event_emit(TRIGGER_MYMPD_BGIMAGE, partition, arguments, nc->id);
     FREE_SDS(partition);
     return rc;

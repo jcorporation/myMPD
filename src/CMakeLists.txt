@@ -174,6 +174,7 @@ target_sources(mympd
     webserver/placeholder.c
     webserver/proxy.c
     webserver/sessions.c
+    webserver/parser.c
     webserver/playlistart.c
     webserver/request_handler.c
     webserver/response.c

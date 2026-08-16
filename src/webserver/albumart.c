@@ -26,6 +26,7 @@
 #include "src/lib/sds/sds_url.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
+#include "src/webserver/parser.h"
 #include "src/webserver/placeholder.h"
 #include "src/webserver/response.h"
 #include "src/webserver/utility.h"

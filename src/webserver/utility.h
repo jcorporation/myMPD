@@ -32,7 +32,6 @@ struct t_frontend_nc_data {
 bool webserver_enforce_acl(struct mg_connection *nc, sds acl);
 bool webserver_enforce_conn_limit(struct mg_connection *nc, int connection_count);
 struct mg_connection *get_nc_by_id(struct mg_mgr *mgr, unsigned long id);
-sds get_uri_param(struct mg_str *query, const char *name);
 sds print_ip(sds s, struct mg_addr *addr);
 bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data);
 bool check_imagescache(struct mg_connection *nc, struct mg_http_message *hm,
@@ -40,6 +39,5 @@ bool check_imagescache(struct mg_connection *nc, struct mg_http_message *hm,
 sds webserver_find_image_file(sds basefilename);
 bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *names, int names_len);
 void webserver_handle_connection_close(struct mg_connection *nc);
-struct t_list *webserver_parse_arguments(struct mg_http_message *hm);
 
 #endif

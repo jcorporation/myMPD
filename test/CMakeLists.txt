@@ -94,6 +94,7 @@ set(TEST_SOURCES
   ../src/mympd_api/webradio.c
   ../src/scripts/events.c
   ../src/webserver/mg_user_data.c
+  ../src/webserver/parser.c
   tests/test_album_cache.c
   tests/test_api.c
   tests/test_cacertstore.c
@@ -123,6 +124,7 @@ set(TEST_SOURCES
   tests/test_utf8wrap.c
   tests/test_utility.c
   tests/test_validate.c
+  tests/test_webserver_parser.c
 )
 
 if(LIBID3TAG_FOUND)
@@ -225,6 +227,7 @@ list(APPEND test_categories
   "utf8wrap"
   "utility"
   "validate"
+  "webserver_parser"
 )
 
 if(LIBID3TAG_FOUND)
