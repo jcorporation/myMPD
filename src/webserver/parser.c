@@ -102,19 +102,19 @@ sds get_uri_param(struct mg_str *query, const char *name) {
         }
         return sds_urldecode(sdsempty(), query->buf + name_len, value_end - name_len, false);
     }
-    
+
     // Check for parameter after '&' separators
     const char *pos = query->buf;
     const char *end = query->buf + query->len;
-    
+
     while ((pos = memchr(pos, '&', (size_t)(end - pos))) != NULL) {
         pos++;  // Move past the '&'
-        
+
         // Check if enough space remains for name
         if ((size_t)(end - pos) < name_len) {
             return NULL;
         }
-        
+
         // Check if name matches at this position
         if (memcmp(pos, name, name_len) == 0) {
             size_t value_start = (size_t)(pos - query->buf) + name_len;
