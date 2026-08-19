@@ -284,6 +284,55 @@ sds sdsempty(void) {
     return sdsnewlen("",0);
 }
 
+/**
+ *  Creates a new empty sds string with a given capacity
+ * @param capacity the capacity of the new sds string
+ * @return the new sds string
+ */
+sds sdsemptyroom(size_t capacity) {
+    char type = sdsReqType(capacity);
+    int hdrlen = sdsHdrSize(type);
+
+    void *newsh = s_malloc(hdrlen + capacity + 1);
+    if (newsh == NULL) return NULL;
+
+    memset(newsh, 0, hdrlen + capacity + 1);
+
+    sds s = (char*)newsh + hdrlen;
+    unsigned char *fp = ((unsigned char*)s) - 1;
+    *fp = type;
+
+    switch(type) {
+        case SDS_TYPE_8: {
+            SDS_HDR_VAR(8,s);
+            sh->len = 0;
+            sh->alloc = capacity;
+            break;
+        }
+        case SDS_TYPE_16: {
+            SDS_HDR_VAR(16,s);
+            sh->len = 0;
+            sh->alloc = capacity;
+            break;
+        }
+        case SDS_TYPE_32: {
+            SDS_HDR_VAR(32,s);
+            sh->len = 0;
+            sh->alloc = capacity;
+            break;
+        }
+        case SDS_TYPE_64: {
+            SDS_HDR_VAR(64,s);
+            sh->len = 0;
+            sh->alloc = capacity;
+            break;
+        }
+    }
+
+    s[0] = '\0';
+    return s;
+}
+
 /* Create a new sds string starting from a null terminated C string. */
 sds sdsnew(const char *init) {
     size_t initlen = (init == NULL) ? 0 : strlen(init);
