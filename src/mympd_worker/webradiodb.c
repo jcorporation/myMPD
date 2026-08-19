@@ -137,7 +137,7 @@ static bool icb_webradio_alternate(const char *path, sds key, sds value, enum js
     struct t_webradio_data *data = (struct t_webradio_data *)userdata;
     sds uri = NULL;
     sds codec = NULL;
-    uint bitrate;
+    unsigned bitrate;
     if (vtype != JSON_TOK_OBJECT) {
         MYMPD_LOG_ERROR(NULL, "Invalid value for path %s", path);
         return false;
@@ -164,7 +164,7 @@ static struct t_webradio_data *parse_webradiodb_data(sds str) {
     json_parse_error_init(&parse_error);
     sds uri = NULL;
     sds codec = NULL;
-    uint bitrate;
+    unsigned bitrate;
     if (json_get_string(str, "$.Name", 1, URI_LENGTH_MAX, &data->name, vcb_isname, &parse_error) == false ||
         json_get_string(str, "$.Image", 1, URI_LENGTH_MAX, &data->image, vcb_isname, &parse_error) == false ||
         json_get_string(str, "$.Homepage", 0, URI_LENGTH_MAX, &data->homepage, vcb_isuri, &parse_error) == false ||
@@ -180,6 +180,8 @@ static struct t_webradio_data *parse_webradiodb_data(sds str) {
         json_get_time_max(str, "$.Last-Modified", &data->last_modified, &parse_error) == false)
     {
         webradio_data_free(data);
+        FREE_SDS(uri);
+        FREE_SDS(codec);
         json_parse_error_clear(&parse_error);
         return NULL;
     }
