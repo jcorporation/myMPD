@@ -849,6 +849,13 @@ button.active > a {
   overflow-y: scroll;
 }
 
+.homeIconBadge {
+  position: absolute;
+  bottom: 2.0rem;
+  right: 0;
+  height: 1.8rem;
+}
+
 .form-check {
   padding-left: 0;
 }

@@ -34,7 +34,8 @@ function homeMoveIcon(oldPos, newPos) {
  */
 function viewHomeClickHandler(event, target) {
     if (event.target.classList.contains('card-title') ||
-        event.target.classList.contains('card-footer'))
+        event.target.classList.contains('card-footer') ||
+        event.target.classList.contains('badge'))
     {
         showContextMenu(event);
         return;
@@ -289,6 +290,9 @@ function createHomeIcon(data, pos) {
     {
         cardBody.style.color = data.color;
     }
+    const badge = elCreateText('div', {"class": ["badge", "bg-dark", "mi", "mi-sm", "clickable", "homeIconBadge"],
+        "data-title": "Edit", "title": tn('Edit')}, actionLigatures[data.cmd]);
+    cardBody.appendChild(badge);
     card.appendChild(cardBody);
     card.appendChild(
         elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, data.name)

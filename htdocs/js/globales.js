@@ -2001,6 +2001,24 @@ const friendlyActions = {
     'replaceQueue': 'Replace queue'
 };
 
+const actionLigatures = {
+    'appendPlayQueueAlbum': 'playlist_add',
+    'appendPlayQueue': 'playlist_add',
+    'appendQueueAlbum': 'playlist_add',
+    'appendQueue': 'playlist_add',
+    'appGoto': 'remove_red_eye',
+    'execScriptFromOptions': 'play_for_work',
+    'homeIconGoto': 'remove_red_eye',
+    'insertAfterCurrentQueueAlbum': 'playlist_add_check',
+    'insertAfterCurrentQueue': 'playlist_add_check',
+    'openExternalLink': 'open_in_new',
+    'openModal': 'open_in_new',
+    'replacePlayQueueAlbum': 'playlist_remove',
+    'replacePlayQueue': 'playlist_remove',
+    'replaceQueueAlbum': 'playlist_remove',
+    'replaceQueue': 'playlist_remove'
+};
+
 const bgImageValues = [
     {"value": "", "text": "None"},
     {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},

@@ -10,6 +10,7 @@ This release removes the long-press event handling completely. It seems it can n
 
 ### Changelog
 
+- Feat: Add home icon action badge
 - Feat: Improve playlist shuffle performance
 - Feat: Improve query parsing and add tests
 - Upd: Improve url-encoding and -decoding
