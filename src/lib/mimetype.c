@@ -142,8 +142,7 @@ const char *get_mime_type_by_magic_file(const char *filename) {
         MYMPD_LOG_ERRNO(NULL, errno);
         return NULL;
     }
-    sds bytes = sdsempty();
-    bytes = sdsMakeRoomFor(bytes, MAGIC_BYTES_LEN);
+    sds bytes = sdsemptyroom(MAGIC_BYTES_LEN);
     size_t n = fread(bytes, 1, MAGIC_BYTES_LEN, fp);
     if (n != MAGIC_BYTES_LEN) {
         (void)fclose(fp);

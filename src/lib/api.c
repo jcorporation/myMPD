@@ -369,7 +369,7 @@ struct t_work_response *create_response_new(enum work_response_types type, unsig
     response->conn_id = conn_id;
     response->id = request_id;
     response->cmd_id = cmd_id;
-    response->data = sdsempty();
+    response->data = sdsemptyroom(1024);
     response->partition = sdsnew(partition);
     response->extra = NULL;
     response->extra_free = NULL;

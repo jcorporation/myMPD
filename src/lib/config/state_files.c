@@ -51,8 +51,7 @@ bool check_partition_state_dir(sds workdir, sds partition) {
  */
 sds camel_to_snake(sds text) {
     //pre-allocate buffer to avoid continuous reallocations 
-    sds buffer = sdsempty();
-    buffer = sdsMakeRoomFor(buffer, sdslen(text) + 5);
+    sds buffer = sdsemptyroom(sdslen(text) + 5);
     for (size_t i = 0; i < sdslen(text); i++) {
         if (isupper(text[i]) > 0) {
             buffer = sdscatfmt(buffer, "_%c", tolower((unsigned char)text[i]));
