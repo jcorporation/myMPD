@@ -18,19 +18,11 @@ This release removes the long-press event handling completely. It seems it can n
 - Upd: Improve websocket handling
 - Upd: Embedded libmdpclient to 2.28 (master branch)
 - Fix: Remove long-press events #1556
+- Fix: Implement minimal signal save signal handler
 - Fix: Ignore SIGPIPE
 - Fix: Remove unnecessary dependency in mympd-script for libmpdclient #1559
-- Fix: Implement minimal signal save handler
 - Fix: Path traversal checks
 - Fix: Do not truncate 64bit integers
-
-***
-
-## myMPD v25.3.1 (not yet released)
-
-This is a small bug fix release.
-
-### Changelog
 
 ***
 
