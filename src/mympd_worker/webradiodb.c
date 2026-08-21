@@ -179,6 +179,7 @@ static struct t_webradio_data *parse_webradiodb_data(sds str) {
         json_get_time_max(str, "$.Added", &data->added, &parse_error) == false ||
         json_get_time_max(str, "$.Last-Modified", &data->last_modified, &parse_error) == false)
     {
+        MYMPD_LOG_WARN(NULL, "Failure parsing webradiodb entry: %s", str);
         webradio_data_free(data);
         FREE_SDS(uri);
         FREE_SDS(codec);
