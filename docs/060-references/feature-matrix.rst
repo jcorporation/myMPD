@@ -3,7 +3,7 @@ Feature matrix
 
 Certain myMPD features are only available with new MPD versions. To use all myMPD functions you should use the latest stable MPD version.
 
-.. include:: _includes/mpd-compat.rst
+.. include:: /_includes/mpd-compat.rst
 
 +------------------------------------------+-------------+------------------------------------------------------+
 | MYMPD FEATURE                            | MPD VERSION | DESCRIPTION                                          |
