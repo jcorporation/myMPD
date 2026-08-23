@@ -690,8 +690,24 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/ca.crt"), NULL)) {
                 request_handler_ca(nc, hm, mg_user_data);
             }
+            else if (mg_match(hm->uri, mg_str("/doc"), NULL)) {
+                webserver_send_header_redirect(nc, "/doc/", "");
+            }
+            else if (mg_match(hm->uri, mg_str("/doc/#"), NULL)) {
+                #ifdef MYMPD_DOC_HTML
+                    // Serve local documentation
+                    static struct mg_http_serve_opts s_http_server_opts;
+                    s_http_server_opts.root_dir = MYMPD_HTML_DOCDIR;
+                    s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+                    s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
+                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                #else
+                    // Redirect to documentation site
+                    webserver_send_header_redirect(nc, "https://jcorporation.github.io/myMPD/", "");
+                #endif
+            }
             else {
-                //all other uris
+                // All other uris
                 #ifndef MYMPD_EMBEDDED_ASSETS
                     //serve all files from filesystem
                     static struct mg_http_serve_opts s_http_server_opts;

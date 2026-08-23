@@ -13,6 +13,7 @@ This release removes the long-press event handling completely. It seems it can n
 - Feat: Add home icon action badge
 - Feat: Improve playlist shuffle performance
 - Feat: Improve query parsing and add tests
+- Feat: Serve locally installed documentation
 - Upd: Improve url-encoding and -decoding
 - Upd: Mongoose 7.23
 - Upd: Improve websocket handling

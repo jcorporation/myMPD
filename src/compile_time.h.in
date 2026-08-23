@@ -33,6 +33,11 @@
 #cmakedefine I18N_ru_RU
 #cmakedefine I18N_zh_Hans
 
+#cmakedefine MYMPD_DOC_HTML
+#ifdef MYMPD_DOC_HTML
+    #define MYMPD_HTML_DOCDIR "/doc=${CMAKE_INSTALL_FULL_DOCDIR}/html"
+#endif
+
 //myMPD version from cmake
 #define MYMPD_VERSION "${PROJECT_VERSION}"
 
