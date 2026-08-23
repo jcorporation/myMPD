@@ -47,14 +47,15 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
         - libid3tag - to extract embedded coverimages and lyrics
         - flac - to extract embedded coverimages and lyrics
         - liblua >= 5.4.0 - for myMPD scripting
-        - libmygpio - for GPIO scripting functions
         - libmpdclient - embedded libmpdclient is used if it was not found or is too old.
         - utf8proc - for utf8 support
 - Documentation:
     - Doxygen
     - JSDoc
     - Ldoc
-    - mkdocs
+    - Sphinx
+        - sphinx_book_theme
+        - sphinx_copybutton
 
 You can type ``./build.sh installdeps`` as root to install the dependencies (works only for supported distributions). For all other distributions you must install the packages manually.
 
