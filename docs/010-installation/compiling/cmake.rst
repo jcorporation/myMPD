@@ -3,16 +3,16 @@ Compiling with cmake
 
 myMPD uses cmake as build system.
 
-Example: run cmake, build myMPD in the directory ``build`` and install the binaries in /usr/bin.
+Example: run cmake, build myMPD in the directory ``build`` and install the binaries in ``/usr/bin``.
 
 .. code:: sh
 
    # Build as user
    cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .
    # binaries are placed in build/bin
-   make -C build
+   cmake --build build
    # Run install as root
-   sudo make -C build install
+   sudo cmake --install build
 
 myMPD specific cmake options
 ----------------------------
