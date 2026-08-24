@@ -50,7 +50,7 @@ endif()
 # available options
 option(MYMPD_BUILD_TESTING "Enables building of unit tests, default OFF" "OFF")
 option(MYMPD_DOC "Installs documentation, default ON" "ON")
-option(MYMPD_DOC_HTML "Creates and installs the html documentation, default OFF" "OFF")
+option(MYMPD_DOC_HTML "Creates and installs the html documentation, default ON" "ON")
 option(MYMPD_EMBEDDED_ASSETS "Embed assets in binary, default ON, OFF for Debug" "ON")
 option(MYMPD_EMBEDDED_LIBMPDCLIENT "Use embedded libmpdclient, default OFF" "OFF")
 option(MYMPD_ENABLE_EXPERIMENTAL "Enable experimental features, default OFF" "OFF")
@@ -180,6 +180,31 @@ if(MYMPD_ENABLE_LUA)
   endif()
 else()
   message("Lua is disabled by user")
+endif()
+
+# HTML documentation created with Sphinx
+if(MYMPD_DOC_HTML)
+  message("Searching for Sphinx")
+  find_package(SPHINX)
+  if(SPHINX_FOUND)
+    set(ENV{SPHINX_EXECUTABLE} "${SPHINX_EXECUTABLE}")
+    # run python to see if Sphinx modules are installed
+    execute_process(COMMAND python3 -c "import sphinx_copybutton; import sphinx_book_theme;"
+                    OUTPUT_VARIABLE SPHINX_MODULES_OUT
+                    ERROR_VARIABLE SPHINX_MODULES_ERR
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    ERROR_STRIP_TRAILING_WHITESPACE
+    )
+    if(SPHINX_MODULES_ERR)
+      message(WARNING "HTML documentation is disabled because a Sphinx module was not found. Required modules: sphinx_book_theme, sphinx_copybutton")
+      set(MYMPD_DOC_HTML "OFF")
+    endif()
+  else()
+    message(WARNING "HTML documentation is disabled because Sphinx was not found")
+    set(MYMPD_DOC_HTML "OFF")
+  endif()
+else()
+  message("HTML documentation is disabled by user")
 endif()
 
 # calculate paths

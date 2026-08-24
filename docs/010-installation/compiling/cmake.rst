@@ -24,7 +24,7 @@ myMPD specific cmake options
 +-----------------------------+---------+-----------------------------------------------------------+
 | MYMPD_DOC                   | ON      | Installs documentation                                    |
 +-----------------------------+---------+-----------------------------------------------------------+
-| MYMPD_DOC_HTML              | OFF     | Creates and installs the html documentation               |
+| MYMPD_DOC_HTML              | ON      | Creates and installs the html documentation               |
 +-----------------------------+---------+-----------------------------------------------------------+
 | MYMPD_EMBEDDED_ASSETS       | ON      | Embed assets in binary, default ON, OFF for Debug         |
 +-----------------------------+---------+-----------------------------------------------------------+

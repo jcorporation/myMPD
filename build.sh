@@ -888,6 +888,10 @@ installdeps() {
     echo "  - liblua5.4 (devel)"
     echo "  - libpcre2 (devel)"
     echo "  - utf8proc (devel)"
+    echo "For local html documentation:"
+    echo "  - Sphinx"
+    echo "  - Sphinx Book Theme"
+    echo "  - Sphinx Copy Button"
   fi
 }
 
@@ -1395,14 +1399,21 @@ run_luadoc() {
 create_doc() {
   DOC_DEST=$1
   install -d "$DOC_DEST" || return 1
-  if ! check_cmd sphinx-build
+  if [ -z "${SPHINX_EXECUTABLE:-}" ]
   then
-    echo "Sphinx not installed, can not create documentation"
-    return 1
+    if ! check_cmd sphinx-build
+    then
+      echo "Sphinx not installed, can not create documentation"
+      return 1
+    fi
+    SPHINX_EXECUTABLE="sphinx-build"
+  else
+    # Sphinx executable was discovered by cmake
+    echo "Using Sphinx: $SPHINX_EXECUTABLE"
   fi
   ./build.sh api_doc "$DOC_DEST"
 
-  sphinx-build -M html docs "$DOC_DEST"
+  $SPHINX_EXECUTABLE -M html docs "$DOC_DEST"
 }
 
 serve_doc() {
