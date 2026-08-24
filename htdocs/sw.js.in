@@ -28,6 +28,7 @@ const urlsToCache = [
 
 const ignoreRequests = new RegExp(subdir + '/(' + [
     'api/.*',
+    'doc/.*',
     'script-api',
     'serverinfo',
     'ca.crt',
