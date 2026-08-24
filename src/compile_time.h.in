@@ -387,7 +387,7 @@
 #define HOME_WIDGET_REFRESH_MAX 360
 
 // timer + mpd connections + stickerdb + eventfd (mympd api queue)
-#define POLL_FDS_MAX LIST_TIMER_MAX + (MPD_CONNECTION_MAX * 4) + 1 + 1
+#define POLL_FDS_MAX (LIST_TIMER_MAX + (MPD_CONNECTION_MAX * 4) + 1 + 1)
 
 //filesystem limits
 #define FILENAME_LEN_MAX 200
@@ -400,8 +400,8 @@
 #define SSL_FILE_MAX 8192 // 8 kb
 
 //limits for stickers
-#define STICKER_PLAY_COUNT_MAX INT_MAX / 2
-#define STICKER_SKIP_COUNT_MAX INT_MAX / 2
+#define STICKER_PLAY_COUNT_MAX (INT_MAX / 2)
+#define STICKER_SKIP_COUNT_MAX (INT_MAX / 2)
 
 #define PADDING_LENGTH 12
 
