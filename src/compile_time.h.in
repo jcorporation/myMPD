@@ -35,7 +35,7 @@
 
 #cmakedefine MYMPD_DOC_HTML
 #ifdef MYMPD_DOC_HTML
-    #define MYMPD_HTML_DOCDIR "/doc=${CMAKE_INSTALL_FULL_DOCDIR}/html"
+    #define MYMPD_HTML_DOCDIR "${CMAKE_INSTALL_FULL_DOCDIR}/html"
 #endif
 
 //myMPD version from cmake

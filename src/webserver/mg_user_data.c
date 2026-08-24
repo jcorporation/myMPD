@@ -13,6 +13,7 @@
 
 #include "dist/mongoose/mongoose.h"
 #include "src/lib/config/cert.h"
+#include "src/lib/filehandler.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_file.h"
@@ -73,6 +74,11 @@ struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
     mg_user_data->webradiodb = NULL;
     mg_user_data->webradio_favorites = NULL;
     mg_user_data->embedded_file_index = 0;
+    #ifdef MYMPD_DOC_HTML
+        mg_user_data->doc_local = testdir("Local documentation", MYMPD_HTML_DOCDIR, false, false) == DIR_EXISTS;
+    #else
+        mg_user_data->doc_local = false;
+    #endif
     #ifdef MYMPD_EMBEDDED_ASSETS
         add_file(mg_user_data, "/", "text/html; charset=utf-8", true, false, index_html_data, index_html_size);
         add_file(mg_user_data, "/css/combined.css", "text/css; charset=utf-8", true, false, combined_css_data, combined_css_size);

@@ -695,12 +695,17 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             else if (mg_match(hm->uri, mg_str("/doc/#"), NULL)) {
                 #ifdef MYMPD_DOC_HTML
-                    // Serve local documentation
-                    static struct mg_http_serve_opts s_http_server_opts;
-                    s_http_server_opts.root_dir = MYMPD_HTML_DOCDIR;
-                    s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-                    s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                    if (mg_user_data->doc_local == true) {
+                        // Serve local documentation
+                        static struct mg_http_serve_opts s_http_server_opts;
+                        s_http_server_opts.root_dir = "/doc="MYMPD_HTML_DOCDIR;
+                        s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+                        s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
+                        mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                    }
+                    else {
+                        webserver_send_header_redirect(nc, "https://jcorporation.github.io/myMPD/", "");
+                    }
                 #else
                     // Redirect to documentation site
                     webserver_send_header_redirect(nc, "https://jcorporation.github.io/myMPD/", "");

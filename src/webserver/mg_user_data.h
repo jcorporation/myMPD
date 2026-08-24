@@ -68,6 +68,7 @@ struct t_mg_user_data {
     struct t_embedded_file embedded_files[MAX_EMBEDDED_FILES];  //!< Embedded files
     unsigned embedded_file_index;            //!< Index of last embedded_file
     struct t_lyrics lyrics;                  //!< lyrics settings
+    bool doc_local;                          //!< Documentation is locally installed
 };
 
 struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config);
