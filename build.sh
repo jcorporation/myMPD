@@ -1393,7 +1393,7 @@ run_luadoc() {
   echo "Running ldoc"
   lualibs
   install -d "$DOC_DEST/html/luadoc"
-  ldoc -d "$DOC_DEST/html/luadoc/" release/contrib/lualibs/mympd.lua
+  ldoc -d "$DOC_DEST/html/luadoc/" "$MYMPD_BUILDDIR/contrib/lualibs/mympd.lua"
 }
 
 create_doc() {
