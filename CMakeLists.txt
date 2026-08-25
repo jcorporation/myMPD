@@ -187,9 +187,10 @@ if(MYMPD_DOC_HTML)
   message("Searching for Sphinx")
   find_package(SPHINX)
   if(SPHINX_FOUND)
+    message("Using Python: ${SPHINX_PYTHON_EXECUTABLE}")
     set(ENV{SPHINX_EXECUTABLE} "${SPHINX_EXECUTABLE}")
-    # run python to see if Sphinx modules are installed
-    execute_process(COMMAND python3 -c "import sphinx_copybutton; import sphinx_book_theme;"
+    # Run python to see if Sphinx modules are installed
+    execute_process(COMMAND "${SPHINX_PYTHON_EXECUTABLE}" -c "import sphinx_copybutton; import sphinx_book_theme;"
                     OUTPUT_VARIABLE SPHINX_MODULES_OUT
                     ERROR_VARIABLE SPHINX_MODULES_ERR
                     OUTPUT_STRIP_TRAILING_WHITESPACE

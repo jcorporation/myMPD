@@ -9,7 +9,18 @@
 
 include(FindPackageHandleStandardArgs)
 
-find_program(SPHINX_EXECUTABLE NAMES sphinx-build)
+if(SPHINX_DIR)
+    find_program(SPHINX_EXECUTABLE
+        NAMES         sphinx-build
+        HINTS         "${SPHINX_DIR}"
+        PATH_SUFFIXES bin
+        NO_DEFAULT_PATH
+    )
+else()
+    find_program(SPHINX_EXECUTABLE
+        NAMES sphinx-build
+    )
+endif()
 mark_as_advanced(SPHINX_EXECUTABLE)
 
 if(SPHINX_EXECUTABLE)
@@ -21,6 +32,15 @@ if(SPHINX_EXECUTABLE)
 
     if (_version MATCHES " ([0-9]+\\.[0-9]+\\.[0-9]+)$")
         set(SPHINX_VERSION "${CMAKE_MATCH_1}")
+    endif()
+endif()
+
+# Set Python executable used by Sphinx
+if(SPHINX_EXECUTABLE)
+    set(SPHINX_PYTHON_EXECUTABLE "python3")
+    file(STRINGS "${SPHINX_EXECUTABLE}" FIRST_LINE LIMIT_COUNT 1)
+    if(FIRST_LINE MATCHES "^#! *(.*/python.*) *")
+        set(SPHINX_PYTHON_EXECUTABLE "${CMAKE_MATCH_1}")
     endif()
 endif()
 
