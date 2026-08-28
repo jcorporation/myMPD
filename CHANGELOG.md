@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v26.0.0 (not yet released)
+## myMPD v26.0.0 (2026-08-28)
 
 This release removes the long-press event handling completely. It seems it can not be handled correctly in JavaScript for all mobile plattforms and produces more headache than improving the user experience.
 
