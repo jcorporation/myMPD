@@ -39,6 +39,10 @@
     #include <FLAC/export.h>
 #endif
 
+#ifdef MYMPD_ENABLE_UTF8
+    #include <utf8proc.h>
+#endif
+
 #include <openssl/opensslv.h>
 #include <poll.h>
 #include <pthread.h>
@@ -243,6 +247,14 @@ int main(int argc, char **argv) {
         log_type = LOG_TO_SYSLOG;
     }
 
+    // Set output buffers
+    if (setvbuf(stdout, NULL, _IOLBF, 0) != 0 ||
+        setvbuf(stderr, NULL, _IOLBF, 0) != 0)
+    {
+        MYMPD_LOG_EMERG(NULL, "Could not set stdout and stderr buffer");
+        goto cleanup;
+    }
+
     // Check initial directories
     if (check_dirs(config) == false) {
         goto cleanup;
@@ -290,13 +302,13 @@ int main(int argc, char **argv) {
         MYMPD_LOG_WARN(NULL, "Debug build is running");
     #endif
     #ifdef MYMPD_ENABLE_ASAN
-        MYMPD_LOG_NOTICE(NULL, "Running with address sanitizer");
+        MYMPD_LOG_WARN(NULL, "Running with address sanitizer");
     #endif
     #ifdef MYMPD_ENABLE_UBSAN
-        MYMPD_LOG_NOTICE(NULL, "Running with undefined behavior sanitizer");
+        MYMPD_LOG_WARN(NULL, "Running with undefined behavior sanitizer");
     #endif
     #ifdef MYMPD_ENABLE_TSAN
-        MYMPD_LOG_NOTICE(NULL, "Running with thread sanitizer");
+        MYMPD_LOG_WARN(NULL, "Running with thread sanitizer");
     #endif
     #ifdef MYMPD_EMBEDDED_LIBMPDCLIENT
         MYMPD_LOG_INFO(NULL, "Libmpdclient %i.%i.%i (embedded)",
@@ -316,23 +328,12 @@ int main(int argc, char **argv) {
     #ifdef MYMPD_ENABLE_FLAC
         MYMPD_LOG_INFO(NULL, "FLAC %d.%d.%d", FLAC_API_VERSION_CURRENT, FLAC_API_VERSION_REVISION, FLAC_API_VERSION_AGE);
     #endif
+    #ifdef MYMPD_ENABLE_UTF8
+        MYMPD_LOG_INFO(NULL, "Utf8proc %d.%d.%d", UTF8PROC_VERSION_MAJOR, UTF8PROC_VERSION_MINOR, UTF8PROC_VERSION_PATCH);
+    #endif
     #ifdef MYMPD_ENABLE_EXPERIMENTAL
         MYMPD_LOG_INFO(NULL, "Experimental features are enabled");
     #endif
-
-    // Initialize signal_eventfd to handle signals in the event loop
-    if (signal_eventfd_init() == false) {
-        MYMPD_LOG_EMERG(NULL, "Could not initialize signal_eventfd for SIGTERM, SIGINT and SIGHUP");
-        goto cleanup;
-    }
-
-    // Set output buffers
-    if (setvbuf(stdout, NULL, _IOLBF, 0) != 0 ||
-        setvbuf(stderr, NULL, _IOLBF, 0) != 0)
-    {
-        MYMPD_LOG_EMERG(NULL, "Could not set stdout and stderr buffer");
-        goto cleanup;
-    }
 
     // Init webserver
     if (create_certificates(config) == false ||
@@ -378,6 +379,10 @@ int main(int argc, char **argv) {
     rc = EXIT_SUCCESS;
 
     // Signal handling
+    if (signal_eventfd_init() == false) {
+        MYMPD_LOG_EMERG(NULL, "Could not initialize signal_eventfd for SIGTERM, SIGINT and SIGHUP");
+        goto cleanup;
+    }
     struct pollfd fds[1];
     fds[0].fd = signal_eventfd_get();
     fds[0].events = POLLIN | POLLPRI;
