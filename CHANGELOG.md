@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Embedded libmdpclient to 2.28 (master branch)
+
 ***
 
 ## myMPD v26.0.0 (2026-08-28)
