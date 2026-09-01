@@ -61,7 +61,7 @@ void *mympd_api_loop(void *arg_config) {
 
     // start auto configuration, if mpd_host does not exist
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/mpd_host", mympd_state->config->workdir, DIR_WORK_STATE);
-    if (testfile_read(filepath) == false) {
+    if (is_file_silent(filepath) == false) {
         mympd_client_autoconf(mympd_state);
     }
     FREE_SDS(filepath);

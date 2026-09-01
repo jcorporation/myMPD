@@ -255,7 +255,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
             FREE_SDS(path);
         }
 
-        if (testfile_read(mediafile) == true) {
+        if (is_file_silent(mediafile) == true) {
             //try to extract albumart from media file
             bool covercache = mg_user_data->config->cache_cover_keep_days != CACHE_DISK_DISABLED
                 ? true

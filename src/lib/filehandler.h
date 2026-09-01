@@ -47,9 +47,10 @@ int try_rm_file(const char *filepath);
 
 bool rename_file(const char *src, const char *dst);
 
-bool testfile_read(const char *filename);
 int testdir(const char *desc, const char *dir_name, bool create, bool silent);
 bool is_dir(const char *dir_name);
+bool is_file(const char *file_name);
+bool is_file_silent(const char *file_name);
 bool clean_directory(const char *dir_name);
 bool rm_directory(const char *dir_name);
 bool clean_rm_directory(const char *dir_name);

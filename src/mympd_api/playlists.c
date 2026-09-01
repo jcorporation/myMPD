@@ -903,7 +903,7 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
     sds old_pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, old_playlist);
     sds new_pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, new_playlist);
     //link old name to new name
-    if (testfile_read(old_pl_file) == true) {
+    if (is_file_silent(old_pl_file) == true) {
         //smart playlist file exists
         errno = 0;
         if (link(old_pl_file, new_pl_file) == -1) {
@@ -1064,15 +1064,16 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         struct dirent *next_file;
         sds smartpls_file = sdsempty();
         while ((next_file = readdir(smartpls_dir)) != NULL ) {
-            if (next_file->d_type == DT_REG) {
-                if (list_get_node(&playlists, next_file->d_name) == NULL) {
-                    smartpls_file = sdscatfmt(smartpls_file, "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
-                    if (rm_file(smartpls_file) == true) {
-                        MYMPD_LOG_INFO(partition_state->name, "Removed orphaned smartpls file \"%s\"", smartpls_file);
-                        delete_count++;
-                    }
-                    sdsclear(smartpls_file);
+            if (next_file->d_type != DT_REG) {
+                continue;
+            }
+            if (list_get_node(&playlists, next_file->d_name) == NULL) {
+                smartpls_file = sdscatfmt(smartpls_file, "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
+                if (rm_file(smartpls_file) == true) {
+                    MYMPD_LOG_INFO(partition_state->name, "Removed orphaned smartpls file \"%s\"", smartpls_file);
+                    delete_count++;
                 }
+                sdsclear(smartpls_file);
             }
         }
         FREE_SDS(smartpls_file);
@@ -1100,7 +1101,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         struct t_list_node *current;
         while ((current = list_shift_first(&playlists)) != NULL) {
             sds smartpls_file = sdscatfmt(sdsempty(), "%S/%s/%S", partition_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
-            bool is_smartpls = testfile_read(smartpls_file);
+            bool is_smartpls = is_file_silent(smartpls_file);
 
             if (criteria == PLAYLIST_DELETE_ALL ||
                 (criteria == PLAYLIST_DELETE_SMARTPLS && is_smartpls == true) ||

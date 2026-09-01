@@ -36,14 +36,14 @@ static const char *check_ca_cert_paths[] = {
 const char *find_ca_cert_store(bool silent) {
     const char **p = check_ca_cert_paths;
     while (*p != NULL) {
-        if (testfile_read(*p) == true) {
+        if (is_file_silent(*p) == true) {
             return *p;
         }
         p++;
     }
     MYMPD_LOG_DEBUG(NULL, "No system specific CA cert store found, using OpenSSL default");
     const char *file = X509_get_default_cert_file();
-    if (testfile_read(file) == true) {
+    if (is_file_silent(file) == true) {
         return file;
     }
     if (silent == false) {
