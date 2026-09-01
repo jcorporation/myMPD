@@ -152,7 +152,8 @@ function checkResult(obj, parent, mode) {
             unsetUpdateView(parent);
         }
         setPagination(0, 0);
-        return false;
+        // Return false only if is an error
+        return obj.error ? false : true;
     }
     return true;
 }

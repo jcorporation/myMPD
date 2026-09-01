@@ -160,9 +160,7 @@ function parsePlaylistDetail(obj) {
     elClear(stickerEl);
     elClearId('BrowsePlaylistDetailInfo');
 
-    if (checkResult(obj, table, undefined) === false &&
-        obj.result === undefined)
-    {
+    if (checkResult(obj, table, undefined) === false){
         return;
     }
 
