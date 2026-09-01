@@ -679,9 +679,12 @@ function setFieldsStickers(tags, stickers) {
  * @returns {void}
  */
 function setEntryData(entry, data) {
-    //set AlbumId
+    //set album info
     if (data.AlbumId !== undefined) {
         setData(entry, 'AlbumId', data.AlbumId);
+    }
+    if (data.Album !== undefined) {
+        setData(entry, 'Album', data.Album);
     }
     //and browse tags
     for (const tag of settings.tagListBrowse) {

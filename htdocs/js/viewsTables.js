@@ -193,6 +193,7 @@ function addDiscRow(disc, albumId, albumName, colspan) {
     ]);
     setData(row, 'Disc', disc);
     setData(row, 'AlbumId', albumId);
+    setData(row, 'Album', albumName);
     setData(row, 'type', 'disc');
     setData(row, 'name', albumName + ' (' + tn('Disc') + ' ' + disc + ')');
     return row;
@@ -218,6 +219,7 @@ function addWorkRow(work, albumId, albumName, colspan) {
     ]);
     setData(row, 'Work', work);
     setData(row, 'AlbumId', albumId);
+    setData(row, 'Album', albumName);
     setData(row, 'type', 'work');
     setData(row, 'name', albumName + ' (' + work + ')');
     return row;

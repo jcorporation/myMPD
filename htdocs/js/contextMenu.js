@@ -208,7 +208,14 @@ function addMenuItemsAlbumTagActions(target, contextMenuTitle, contextMenuBody) 
     const type = getData(dataNode, 'type');
     const value = getData(dataNode, ucFirst(type));
     const albumId = getData(dataNode, 'AlbumId');
-    const albumName = getData(dataNode, 'name');
+    const albumNames = [];
+    const albumName = getData(dataNode, 'Album');
+    if (albumName === undefined) {
+        albumNames.push(albumId)
+    }
+    else {
+        albumNames.push(albumName);
+    }
 
     addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": [type, [albumId, value]]}, 'Append to queue');
     addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": [type, [albumId, value]]}, 'Append to queue and play');
@@ -219,7 +226,7 @@ function addMenuItemsAlbumTagActions(target, contextMenuTitle, contextMenuBody) 
     addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": [type, [albumId, value]]}, 'Replace queue and play');
     if (features.featPlaylists === true) {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [type, [albumId, value], [albumName]]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [type, [albumId, value], albumNames]}, 'Add to playlist');
     }
 }
 
@@ -274,14 +281,17 @@ function addMenuItemsConsumeActions(contextMenuBody) {
  * @returns {void}
  */
 function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, albumId) {
-    const albumName = [];
+    const albumNames = [];
     if (dataNode !== null) {
         if (albumId === undefined) {
             albumId = getData(dataNode, 'AlbumId');
         }
-        const name = getData(dataNode, 'name');
-        if (name !== null) {
-            albumName.push(name);
+        const albumName = getData(dataNode, 'Album');
+        if (albumName === undefined) {
+            albumNames.push(albumId)
+        }
+        else {
+            albumNames.push(albumName);
         }
     }
     if (contextMenuTitle !== null) {
@@ -298,7 +308,7 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
     }
     if (features.featPlaylists === true) {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": ["album", [albumId], albumName]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": ["album", [albumId], albumNames]}, 'Add to playlist');
     }
     addDivider(contextMenuBody);
     if (app.id !== 'BrowseDatabaseAlbumDetail') {
