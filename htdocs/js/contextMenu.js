@@ -211,10 +211,10 @@ function addMenuItemsAlbumTagActions(target, contextMenuTitle, contextMenuBody) 
     const albumNames = [];
     const albumName = getData(dataNode, 'Album');
     if (albumName === undefined) {
-        albumNames.push(albumId)
+        albumNames.push(tn('Album') + ': ' + albumId)
     }
     else {
-        albumNames.push(albumName);
+        albumNames.push(tn('Album') + ': ' + albumName);
     }
 
     addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": [type, [albumId, value]]}, 'Append to queue');
@@ -288,10 +288,10 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
         }
         const albumName = getData(dataNode, 'Album');
         if (albumName === undefined) {
-            albumNames.push(albumId)
+            albumNames.push(tn('Album') + ': ' + albumId)
         }
         else {
-            albumNames.push(albumName);
+            albumNames.push(tn('Album') + ': ' + albumName);
         }
     }
     if (contextMenuTitle !== null) {
