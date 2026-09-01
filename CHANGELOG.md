@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Embedded libmdpclient to 2.28 (master branch)
+- Upd: Move playlist length info to top
 
 ***
 

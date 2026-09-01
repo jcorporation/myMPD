@@ -261,7 +261,7 @@ function parsePlaylistDetail(obj) {
             }
             parsePlaylistDetailUpdate(row, data);
         });
-        setPlaylistDetailListFooter(obj.result.totalEntities, obj.result.totalTime);
+        setPlaylistDetailListInfo(obj.result.totalEntities, obj.result.totalTime);
         return;
     }
     if (settings['view' + app.id].mode === 'grid') {
@@ -272,6 +272,7 @@ function parsePlaylistDetail(obj) {
             }
             parsePlaylistDetailUpdate(card, data);
         });
+        setPlaylistDetailListInfo(obj.result.totalEntities, obj.result.totalTime);
         return;
     }
     updateList(obj, app.id, function(card, data) {
@@ -280,6 +281,7 @@ function parsePlaylistDetail(obj) {
             card.setAttribute('tabindex', '0');
         }
         parsePlaylistDetailUpdate(card, data);
+        setPlaylistDetailListInfo(obj.result.totalEntities, obj.result.totalTime);
     });
 }
 
@@ -300,13 +302,13 @@ function parsePlaylistDetailUpdate(card, data) {
 }
 
 /**
- * Sets the footer text for the playlist content view
+ * Sets the info text for the playlist content view
  * @param {number} entities entity count
  * @param {number} playtime total playtime
  * @returns {void}
  */
-function setPlaylistDetailListFooter(entities, playtime) {
-    const footerEl = entities === -1
+function setPlaylistDetailListInfo(entities, playtime) {
+    const playlistLengthEl = entities === -1
         ? elCreateNode('small', {},
               elCreateText('button', {"data-title-phrase": "Enumerate", "title": "Enumerate", "id": "BrowsePlaylistDetailEnumerateBtn", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'insights')
           )
@@ -315,17 +317,10 @@ function setPlaylistDetailListFooter(entities, playtime) {
               elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(playtime))
           ]);
 
-    const tfoot = elGetById('BrowsePlaylistDetailList').querySelector('tfoot');
-    const colspan = settings.viewBrowsePlaylistDetail.fields.length + 1;
-
-    elReplaceChild(tfoot,
-        elCreateNode('tr', {"class": ["not-clickable"]},
-            elCreateNode('td', {"colspan": colspan}, footerEl)
-        )
-    );
+    elReplaceChildId('BrowsePlaylistDetailInfo', playlistLengthEl);
 
     if (entities === -1) {
-        footerEl.addEventListener('click', function() {
+        playlistLengthEl.addEventListener('click', function() {
             currentPlaylistEnumerate();
         }, false);
     }
@@ -341,10 +336,10 @@ function currentPlaylistEnumerate() {
         "plist": getDataId('BrowsePlaylistDetailList', 'uri')
     }, function(obj) {
         if (obj.result) {
-            setPlaylistDetailListFooter(obj.result.entities, obj.result.playtime);
+            setPlaylistDetailListInfo(obj.result.entities, obj.result.playtime);
         }
         else {
-            setPlaylistDetailListFooter(-1, 0);
+            setPlaylistDetailListInfo(-1, 0);
         }
     }, true);
 }
