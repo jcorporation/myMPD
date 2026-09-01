@@ -158,8 +158,11 @@ function parsePlaylistDetail(obj) {
     const stickerEl = elGetById('BrowsePlaylistDetailSticker');
     elClear(imageEl);
     elClear(stickerEl);
+    elClearId('BrowsePlaylistDetailInfo');
 
-    if (checkResult(obj, table, undefined) === false) {
+    if (checkResult(obj, table, undefined) === false &&
+        obj.result === undefined)
+    {
         return;
     }
 
