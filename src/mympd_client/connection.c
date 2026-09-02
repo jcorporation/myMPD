@@ -20,6 +20,8 @@
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/tags.h"
 
+#include <assert.h>
+
 /**
  * Connects to mpd and sets initial connection settings
  * @param partition_state pointer to partition state
@@ -63,6 +65,9 @@ bool mympd_client_connect(struct t_partition_state *partition_state) {
                 "error", mpd_connection_get_error_message(partition_state->conn));
             ws_notify(buffer, partition_state->name);
             FREE_SDS(buffer);
+            mpd_connection_free(partition_state->conn);
+            partition_state->conn = NULL;
+            partition_state->conn_state = MPD_FAILURE;
             return false;
         }
         MYMPD_LOG_INFO(partition_state->name, "Successfully authenticated to MPD");
@@ -73,6 +78,7 @@ bool mympd_client_connect(struct t_partition_state *partition_state) {
 
     MYMPD_LOG_NOTICE(partition_state->name, "Connected to MPD");
     partition_state->conn_state = MPD_CONNECTED;
+    assert(partition_state->repopulate_pfds);
     *partition_state->repopulate_pfds = true;
     //set connection options
     mympd_client_set_connection_options(partition_state);
@@ -144,6 +150,9 @@ static bool mympd_client_set_protocol_options(struct t_partition_state *partitio
             FREE_SDS(message);
         }
     }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+    }
     return mympd_check_error_and_recover(partition_state, NULL, "protocol options");
 }
 
@@ -184,6 +193,7 @@ void mympd_client_disconnect_silent(struct t_partition_state *partition_state) {
         MYMPD_LOG_WARN(partition_state->name, "Clear pending mpd idle events");
         partition_state->waiting_events &= ~(unsigned)PFD_TYPE_PARTITION;
     }
+    assert(partition_state->repopulate_pfds);
     *partition_state->repopulate_pfds = true;
 }
 
