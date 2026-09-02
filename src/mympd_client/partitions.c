@@ -30,6 +30,7 @@
 #include "src/mympd_client/features.h"
 #include "src/mympd_client/jukebox.h"
 
+#include <assert.h>
 #include <string.h>
 
 // Private definitions
@@ -141,6 +142,8 @@ struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_sta
  * @param mympd_state pointer to central myMPD state
  */
 void partitions_list_clear(struct t_mympd_state *mympd_state) {
+    assert(mympd_state->partition_state);
+
     struct t_partition_state *current = mympd_state->partition_state->next;
     while (current != NULL) {
         MYMPD_LOG_INFO(MPD_PARTITION_DEFAULT, "Removing partition \"%s\" from the partition list", current->name);
@@ -158,6 +161,8 @@ void partitions_list_clear(struct t_mympd_state *mympd_state) {
  * @return true on success, else false
  */
 bool partitions_populate(struct t_mympd_state *mympd_state) {
+    assert(mympd_state->partition_state);
+
     struct t_list mpd_partitions;
     list_init(&mpd_partitions);
     // First add all missing partitions to the list
@@ -229,6 +234,8 @@ static bool partitions_check(struct t_mympd_state *mympd_state, const char *name
  * @param name partition name
  */
 static void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
+    assert(mympd_state->partition_state);
+
     struct t_partition_state *partition_state = mympd_state->partition_state;
     //goto end
     while (partition_state->next != NULL) {
