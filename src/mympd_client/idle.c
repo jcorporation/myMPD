@@ -16,6 +16,7 @@
 #include "src/lib/event.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
+#include "src/lib/mpdclient.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/mympd_api/last_played.h"
@@ -31,7 +32,7 @@
 #include "src/mympd_client/queue.h"
 #include "src/mympd_client/stickerdb.h"
 
-#include <mpd/idle.h>
+#include <assert.h>
 #include <string.h>
 
 /**
@@ -62,13 +63,18 @@ bool mympd_client_idle(struct t_mympd_state *mympd_state, struct t_work_request 
             partition_state->set_conn_options == true)
         {
             if (partition_state->waiting_events & PFD_TYPE_QUEUE) {
+                // Request is for this partition, handle it
                 mympd_client_idle_partition(mympd_state, partition_state, request);
                 request = NULL;
             }
             else {
                 mympd_client_idle_partition(mympd_state, partition_state, NULL);
             }
-            partition_state->waiting_events = 0;
+            // All events for this partition are now handled
+            if (partition_state->waiting_events > 0) {
+                MYMPD_LOG_WARN(partition_state->name, "Some events for this partition were not handled: %d", partition_state->waiting_events);
+                partition_state->waiting_events = 0;
+            }
             event_handled = true;
         }
     } while ((partition_state = partition_state->next) != NULL);
@@ -159,8 +165,10 @@ static void mympd_client_idle_partition(struct t_mympd_state *mympd_state, struc
         }
     }
 
-    // Check if we need to exit the idle mode
-    if (partition_state->waiting_events == 0) {
+    // Check if we need to exit the idle mode (but still allow set_conn_options)
+    if (partition_state->waiting_events == 0 &&
+        partition_state->set_conn_options == false)
+    {
         return;
     }
 
