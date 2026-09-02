@@ -32,7 +32,7 @@ bool mympd_api_output_toggle(struct t_partition_state *partition_state, unsigned
         return mympd_check_error_and_recover(partition_state, error, "mpd_run_enable_output");
     }
     mpd_run_disable_output(partition_state->conn, output_id);
-    return mympd_check_error_and_recover(partition_state, error, "mpd_run_enable_output");
+    return mympd_check_error_and_recover(partition_state, error, "mpd_run_disable_output");
 }
 
 /**
