@@ -211,7 +211,7 @@ function addMenuItemsAlbumTagActions(target, contextMenuTitle, contextMenuBody) 
     const albumNames = [];
     const albumName = getData(dataNode, 'Album');
     if (albumName === undefined) {
-        albumNames.push(tn('Album') + ': ' + albumId)
+        albumNames.push(tn('Album') + ': ' + albumId);
     }
     else {
         albumNames.push(tn('Album') + ': ' + albumName);
@@ -288,7 +288,7 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
         }
         const albumName = getData(dataNode, 'Album');
         if (albumName === undefined) {
-            albumNames.push(tn('Album') + ': ' + albumId)
+            albumNames.push(tn('Album') + ': ' + albumId);
         }
         else {
             albumNames.push(tn('Album') + ': ' + albumName);
