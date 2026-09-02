@@ -435,6 +435,9 @@ static bool mympd_worker_smartpls_update_sticker(struct t_mympd_worker_state *my
             }
             mympd_client_command_list_end_check(mympd_worker_state->partition_state);
         }
+        else {
+            MYMPD_LOG_ERROR(mympd_worker_state->partition_state->name, "Failure starting command list mpd_command_list_begin");
+        }
         if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_send_playlist_add") == false) {
             rc = false;
             break;

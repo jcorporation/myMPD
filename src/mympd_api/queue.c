@@ -88,6 +88,9 @@ bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, stru
         }
         mympd_client_command_list_end_check(partition_state);
     }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+    }
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_delete_id");
 }
 
@@ -116,6 +119,9 @@ bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct 
             }
         }
         mympd_client_command_list_end_check(partition_state);
+    }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
     }
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_prio_id");
 }
@@ -193,6 +199,9 @@ bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, st
         }
         mympd_client_command_list_end_check(partition_state);
     }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+    }
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_move_id_whence");
 }
 
@@ -231,6 +240,9 @@ bool mympd_api_queue_insert_uri_tags(struct t_partition_state *partition_state, 
             to++;
         }
         mympd_client_command_list_end_check(partition_state);
+    }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
     }
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_add_tag_id");
 }
@@ -290,6 +302,9 @@ bool mympd_api_queue_insert_uri_resume(struct t_partition_state *partition_state
             mpd_send_seek_id(partition_state->conn, (unsigned)id, (unsigned)elapsed);
         }
         mympd_client_command_list_end_check(partition_state);
+    }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
     }
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_seek_id");
 }
@@ -666,6 +681,9 @@ bool mympd_api_queue_insert_plists(struct t_partition_state *partition_state, st
         }
         mympd_client_command_list_end_check(partition_state);
     }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+    }
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_load_range_to");
 }
 
@@ -733,6 +751,9 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
                 }
             }
             mympd_client_command_list_end_check(partition_state);
+        }
+        else {
+            MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
         }
         if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_delete_range") == false) {
             return buffer;

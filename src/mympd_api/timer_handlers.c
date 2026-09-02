@@ -219,6 +219,9 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         }
         mympd_client_command_list_end_check(partition_state);
     }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+    }
     // Restore old jukebox mode
     partition_state->jukebox.mode = old_jukebox_mode;
 

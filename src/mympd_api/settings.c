@@ -1080,6 +1080,9 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
                     "Failure querying MPD status.");
             }
         }
+        else {
+            MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+        }
         struct mpd_status *status = mpd_recv_status(partition_state->conn);
         enum mpd_replay_gain_mode replay_gain_mode = MPD_REPLAY_UNKNOWN;
         if (mpd_response_next(partition_state->conn)) {

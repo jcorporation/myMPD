@@ -118,6 +118,9 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         }
         mympd_client_command_list_end_check(partition_state);
     }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+    }
     list_free(src);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
 }
@@ -184,6 +187,9 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
             }
             mympd_client_command_list_end_check(partition_state);
         }
+        else {
+            MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+        }
         rc = mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
         if (rc == false) {
             break;
@@ -229,6 +235,9 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
             }
         }
         mympd_client_command_list_end_check(partition_state);
+    }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
     }
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add_to");
 }
@@ -496,6 +505,9 @@ bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition
             }
         }
         mympd_client_command_list_end_check(partition_state);
+    }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
     }
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_delete");
 }
@@ -995,6 +1007,9 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
         }
         mympd_client_command_list_end_check(partition_state);
     }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+    }
     FREE_SDS(pl_file);
     if (mpd_plists == 0) {
         // send update event manually if only smart playlists definitions are deleted
@@ -1125,6 +1140,9 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
             list_node_free(current);
         }
         mympd_client_command_list_end_check(partition_state);
+    }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
     }
     list_clear(&playlists);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_rm") == false) {
