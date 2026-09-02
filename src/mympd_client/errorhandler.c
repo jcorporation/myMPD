@@ -17,7 +17,6 @@
 #include "src/mympd_client/tags.h"
 
 #include <assert.h>
-#include <string.h>
 
 /**
  * Private definitions
@@ -123,6 +122,7 @@ sds mympd_respond_with_error_or_ok(struct t_partition_state *partition_state, sd
  * @return true on success, else false
  */
 bool mympd_clear_finish(struct t_partition_state *partition_state) {
+    assert(partition_state->conn);
     return mpd_connection_clear_error(partition_state->conn) &&
         mpd_response_finish(partition_state->conn);
 }
