@@ -10,8 +10,8 @@
 
 #include "src/lib/utility.h"
 
-#include "src/lib/log.h"
 #include "src/lib/filehandler.h"
+#include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
 
 #include <errno.h>
