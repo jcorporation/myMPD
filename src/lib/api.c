@@ -16,6 +16,7 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds/sds_extras.h"
 
+#include <assert.h>
 #include <string.h>
 
 /**
@@ -390,6 +391,7 @@ struct t_work_response *create_response_new(enum work_response_types type, unsig
 struct t_work_request *create_request(enum work_request_types type, unsigned long conn_id,
         unsigned request_id, enum mympd_cmd_ids cmd_id, const char *data, const char *partition)
 {
+    assert(partition);
     struct t_work_request *request = malloc_assert(sizeof(struct t_work_request));
     request->type = type;
     request->conn_id = conn_id;
