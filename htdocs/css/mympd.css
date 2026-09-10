@@ -854,7 +854,7 @@ button.active > a {
 .homeIconBadge {
   position: absolute;
   bottom: 2.0rem;
-  right: 0;
+  right: 0.5rem;
   height: 1.8rem;
 }
 
@@ -1160,7 +1160,7 @@ div#alertUpdateCacheState::before {
 }
 
 input.innerButton {
-  padding-right: calc(1.5em + 0.75rem);
+  padding-right: 2rem !important;
 }
 
 .btn-group2 {
