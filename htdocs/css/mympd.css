@@ -537,7 +537,7 @@ div#homeActions {
   width: 8rem;
   height: 8rem;
   min-height: 0 !important;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.25rem !important;
   overflow: hidden;
   max-width: 100%;
   text-align: center;
@@ -545,11 +545,11 @@ div#homeActions {
   border-radius: 0;
 }
 
-.home-icons .card-body {
+.home-icons .cardIcon {
   font-size: 3rem;
-  height: 4rem;
-  width: 6rem;
-  padding: 1rem 0 0 0;
+  height: 4.5rem;
+  width: 4.5rem;
+  padding: 0.5rem 0 0 0;
   background-size: cover;
   background-position: center center;
   background-color: var(--mympd-highlightcolor);
@@ -561,6 +561,8 @@ div#homeActions {
 .home-icons .card-footer {
   border-top: none;
   background-color: transparent;
+  padding-top: 0 !important;
+  word-break: break-all;
 }
 
 .card-grid {
