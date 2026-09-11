@@ -29,10 +29,18 @@ function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
         const tag = getData(event.target, 'tag');
         if (tag === 'Playlist' ||
-            tag === 'Filesystem' ||
-            tag === 'Radio')
+            tag === 'Filesystem')
         {
             appGoto('Browse', tag, undefined);
+            return;
+        }
+
+        if (tag === 'RadioFavorites') {
+            appGoto('Browse', 'Radio', 'Favorites');
+            return;
+        }
+        if (tag === 'RadioWebradiodb') {
+            appGoto('Browse', 'Radio', 'Webradiodb');
             return;
         }
 

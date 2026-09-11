@@ -13,6 +13,7 @@ This is a small bug fix release.
 - Upd: Embedded libmdpclient to 2.28 (master branch)
 - Upd: Move playlist length info to top
 - Upd: Optimize home icon layout
+- Upd: Improve toolbar layout
 - Fix: Show header for empty playlists
 
 ***

@@ -121,11 +121,15 @@ function addTagList(elId, list) {
             }
         }
         stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, 'Webradios')
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "RadioFavorites"}, 'Webradio favorites')
         );
-        if (elId === 'BrowseRadioFavoritesNavDropdown' ||
-            elId === 'BrowseRadioWebradiodbNavDropdown')
-        {
+        if (elId === 'BrowseRadioFavoritesNavDropdown') {
+            stack.lastChild.classList.add('active');
+        }
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "RadioWebradiodb"}, 'WebradioDB')
+        );
+        if (elId === 'BrowseRadioWebradiodbNavDropdown') {
             stack.lastChild.classList.add('active');
         }
     }
