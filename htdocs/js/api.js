@@ -124,7 +124,7 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
         );
         logError('Error accessing ' + uri + ', code ' + response.status + ' - ' + response.statusText);
         if (onerror === true) {
-            setJsonRpcError(id, method, tn("Response error: %{status}", response.status + ' - ' + response.statusText));
+            setJsonRpcError(id, method, tn("Response error: %{status}", {"status": response.status + ' - ' + response.statusText}));
             if (isFunction(callback) === true) {
                 callback(jsonRpcError);
             }
