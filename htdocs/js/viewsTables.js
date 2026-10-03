@@ -234,6 +234,9 @@ function addWorkRow(work, albumId, albumName, colspan) {
  * @returns {void}
  */
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
+    if (obj.result.returnedEntities === 0) {
+        return;
+    }
     const table = elGetById(list + 'List');
     const mode = table.getAttribute('data-mode') === 'select' 
         ? true

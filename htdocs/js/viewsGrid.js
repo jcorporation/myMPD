@@ -179,6 +179,9 @@ function copyGridSelection(colCard, elCard) {
  * @returns {void}
  */
 function updateGrid(obj, list, perCardCallback, createCardBodyCallback, createCardActionsCallback) {
+    if (obj.result.returnedEntities === 0) {
+        return;
+    }
     const grid = elGetById(list + 'List');
     let cols = grid.querySelectorAll('.col');
     const mode = grid.getAttribute('data-mode') === 'select'
