@@ -43,6 +43,7 @@ function webSocketConnect() {
     catch(error) {
         // @ts-ignore
         logError(error);
+        return;
     }
 
     if (websocketConnectTimer !== null) {
