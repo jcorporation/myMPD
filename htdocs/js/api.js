@@ -52,6 +52,7 @@ function setJsonRpcError(id, method, error) {
 async function sendAPIpartition(partition, method, params, callback, onerror) {
     if (APImethods[method] === undefined) {
         logError('Method "' + method + '" is not defined');
+        return;
     }
     if (settings.pin === true &&
         session.token === '' &&
