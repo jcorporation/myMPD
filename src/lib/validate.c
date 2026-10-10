@@ -318,6 +318,12 @@ bool vcb_isfield(sds data) {
  * @return true on success else false
  */
 bool vcb_istaglist(sds data) {
+    size_t data_len = sdslen(data);
+    if (data_len > (size_t)SSIZE_MAX) {
+        MYMPD_LOG_WARN(NULL, "Tag list too long");
+        return false;
+    }
+
     int tokens_count = 0;
     sds *tokens = sdssplitlen(data, (ssize_t)sdslen(data), ",", 1, &tokens_count);
     for (int i = 0; i < tokens_count; i++) {
