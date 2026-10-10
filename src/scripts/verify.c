@@ -117,12 +117,16 @@ static int b64_decode(sds b64message, unsigned char **buffer) {
  */
 static size_t calc_b64_decode_len(sds b64input) {
     size_t len = sdslen(b64input);
+    if (len == 0) {
+        return 0;
+    }
+
     size_t padding = 0;
-  
-    if (b64input[len-1] == '=' && b64input[len-2] == '=') {
+
+    if (b64input[len - 1] == '=' && b64input[len-2] == '=') {
         padding = 2;
     }
-    else if (b64input[len-1] == '=') {
+    else if (b64input[len - 1] == '=') {
         padding = 1;
     }
     return ((len * 3) / 4) - padding;
