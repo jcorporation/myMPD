@@ -15,6 +15,7 @@ This is a small bug fix release.
 - Upd: Optimize home icon layout
 - Upd: Improve toolbar layout
 - Fix: Show header for empty playlists
+- Fix: Prevent interger overflows in memory allocation code
 
 ***
 

@@ -51,7 +51,7 @@ bool list_shuffle(struct t_list *l) {
  */
 struct t_list_node **list_shuffle_to_array(struct t_list *l) {
     // Convert linked list to array for faster shuffling
-    struct t_list_node **node_array = (struct t_list_node **)malloc_assert(l->length * sizeof(struct t_list_node *));
+    struct t_list_node **node_array = (struct t_list_node **)malloc_assert_count(l->length, sizeof(struct t_list_node *));
     struct t_list_node *current = l->head;
     for (unsigned i = 0; i < l->length; i++) {
         node_array[i] = current;
