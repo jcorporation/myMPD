@@ -101,10 +101,11 @@ sds script_get_result(lua_State *lua_vm, int rc) {
         //success
         if (lua_type(lua_vm, 1) == LUA_TLIGHTUSERDATA) {
             sds script_return_binary = (sds)lua_touserdata(lua_vm, 1);
+            if (script_return_binary == NULL) {
+                script_return_binary = sdsempty();
+            }
             MYMPD_LOG_DEBUG(NULL, "Got binary data from script with %lu bytes", (unsigned long)sdslen(script_return_binary));
-            return script_return_binary == NULL
-                ? sdsempty()
-                : script_return_binary;
+            return script_return_binary;
         }
         // Script has returned a string
         const char *script_return_text = lua_tostring(lua_vm, 1);
