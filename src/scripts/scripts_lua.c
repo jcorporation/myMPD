@@ -262,6 +262,10 @@ static bool script_load_bytecode(struct t_script_thread_arg *script_arg, sds byt
  */
 static int dump_cb(lua_State *lua_vm, const void* p, size_t sz, void* ud) {
     (void)lua_vm;
+    // Lua 5.5 signals the end of a dump with a NULL, zero-length block.
+    if (sz == 0) {
+        return 0;
+    }
     struct t_script_list_data *data = (struct t_script_list_data *)ud;
     data->bytecode = sdscatlen(data->bytecode, p, sz);
     return 0;
