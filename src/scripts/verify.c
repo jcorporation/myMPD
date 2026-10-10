@@ -60,9 +60,14 @@ bool script_sig_verify(sds script, sds signature_base64) {
     if (EVP_DigestVerifyInit(verify_ctx, NULL, EVP_sha256(), NULL, pub_key) == 1 &&
         EVP_DigestVerifyUpdate(verify_ctx, script, sdslen(script)) == 1)
     {
-        unsigned char *signature;
+        unsigned char *signature = NULL;
         int signature_len = b64_decode(signature_base64, &signature);
-        verify_status = EVP_DigestVerifyFinal(verify_ctx, signature, (size_t)signature_len);
+        if (signature_len > 0 && signature != NULL) {
+            verify_status = EVP_DigestVerifyFinal(verify_ctx, signature, (size_t)signature_len);
+        }
+        else {
+            MYMPD_LOG_ERROR(NULL, "Failure decoding signature");
+        }
         FREE_PTR(signature);
     }
     else {
@@ -97,6 +102,14 @@ static int b64_decode(sds b64message, unsigned char **buffer) {
     BIO *bio;
     BIO *b64;
   
+    if (b64message == NULL ||
+        sdslen(b64message) == 0 ||
+        sdslen(b64message) > (size_t)INT_MAX)
+    {
+        *buffer = NULL;
+        return -1;
+    }
+
     size_t decode_len = calc_b64_decode_len(b64message);
     *buffer = malloc_assert(decode_len + 1);
     (*buffer)[decode_len] = '\0';
