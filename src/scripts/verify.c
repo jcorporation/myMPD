@@ -136,10 +136,10 @@ static size_t calc_b64_decode_len(sds b64input) {
 
     size_t padding = 0;
 
-    if (b64input[len - 1] == '=' && b64input[len-2] == '=') {
+    if (len >= 2 && b64input[len - 1] == '=' && b64input[len - 2] == '=') {
         padding = 2;
     }
-    else if (b64input[len - 1] == '=') {
+    else if (len >= 1 && b64input[len - 1] == '=') {
         padding = 1;
     }
     return ((len * 3) / 4) - padding;
