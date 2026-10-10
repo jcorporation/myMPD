@@ -96,22 +96,17 @@ sds script_get_result(lua_State *lua_vm, int rc) {
     int nr_return = lua_gettop(lua_vm);
     MYMPD_LOG_DEBUG(NULL, "Lua script returns %d values", nr_return);
     if (rc == 0 &&
-        lua_gettop(lua_vm) == 1)
+        nr_return == 1)
     {
         //success
-        if (lua_type(lua_vm, 1) == LUA_TLIGHTUSERDATA) {
-            sds script_return_binary = (sds)lua_touserdata(lua_vm, 1);
-            if (script_return_binary == NULL) {
-                script_return_binary = sdsempty();
-            }
-            MYMPD_LOG_DEBUG(NULL, "Got binary data from script with %lu bytes", (unsigned long)sdslen(script_return_binary));
-            return script_return_binary;
+        sds script_return_data = lua_type(lua_vm, 1) == LUA_TLIGHTUSERDATA
+            ? (sds)lua_touserdata(lua_vm, 1)
+            : sdsnew(lua_tostring(lua_vm, 1));
+        if (script_return_data == NULL) {
+            script_return_data = sdsempty();
         }
-        // Script has returned a string
-        const char *script_return_text = lua_tostring(lua_vm, 1);
-        return script_return_text == NULL
-            ? sdsempty()
-            : sdsnew(script_return_text);
+        MYMPD_LOG_DEBUG(NULL, "Got return data from script with %lu bytes", (unsigned long)sdslen(script_return_data));
+        return script_return_data;
     }
     //error
     const char *error_text = lua_tostring(lua_vm, 1);
