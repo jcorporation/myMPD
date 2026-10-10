@@ -20,6 +20,10 @@ char *my_strdup(const char *str, size_t len);
  */
 __attribute__((malloc))
 static inline void *malloc_assert(size_t size) {
+    if (size == 0) {
+        MYMPD_LOG_EMERG(NULL, "Allocation zero bytes it not allowed");
+        abort();
+    }
     void *p = malloc(size);
     if (p == NULL) {
         MYMPD_LOG_EMERG(NULL, "Failure allocating %lu bytes of memory", (unsigned long) size);
@@ -36,7 +40,13 @@ static inline void *malloc_assert(size_t size) {
  */
 __attribute__((malloc))
 static inline void *malloc_assert_count(size_t count, size_t size) {
-    if (count != 0 && size > SIZE_MAX / count) {
+    if (count == 0 ||
+        size == 0)
+    {
+        MYMPD_LOG_EMERG(NULL, "Allocation zero bytes it not allowed");
+        abort();
+    }
+    if (size > SIZE_MAX / count) {
         MYMPD_LOG_EMERG(NULL, "Overflow in allocating call for %lu x %lu", (unsigned long) count, (unsigned long) size);
         abort();
     }
@@ -56,7 +66,13 @@ static inline void *malloc_assert_count(size_t count, size_t size) {
  */
 __attribute__((malloc))
 static inline void *calloc_assert(size_t count, size_t size) {
-    if (count != 0 && size > SIZE_MAX / count) {
+    if (count == 0 ||
+        size == 0)
+    {
+        MYMPD_LOG_EMERG(NULL, "Allocation zero bytes it not allowed");
+        abort();
+    }
+    if (size > SIZE_MAX / count) {
         MYMPD_LOG_EMERG(NULL, "Overflow in allocating call for %lu x %lu", (unsigned long) count, (unsigned long) size);
         abort();
     }
@@ -76,6 +92,10 @@ static inline void *calloc_assert(size_t count, size_t size) {
  */
 __attribute__((malloc))
 static inline void *realloc_assert(void *ptr, size_t size) {
+    if (size == 0) {
+        MYMPD_LOG_EMERG(NULL, "Allocation zero bytes it not allowed");
+        abort();
+    }
     void *p = realloc(ptr, size);
     if (p == NULL) {
         MYMPD_LOG_EMERG(NULL, "Failure allocating %lu bytes of memory", (unsigned long) size);
@@ -93,7 +113,13 @@ static inline void *realloc_assert(void *ptr, size_t size) {
  */
 __attribute__((malloc))
 static inline void *realloc_assert_count(void *ptr, size_t count, size_t size) {
-    if (count != 0 && size > SIZE_MAX / count) {
+    if (count == 0 ||
+        size == 0)
+    {
+        MYMPD_LOG_EMERG(NULL, "Allocation zero bytes it not allowed");
+        abort();
+    }
+    if (size > SIZE_MAX / count) {
         MYMPD_LOG_EMERG(NULL, "Overflow in re-allocating call for %lu x %lu", (unsigned long) count, (unsigned long) size);
         abort();
     }
