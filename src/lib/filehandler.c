@@ -46,41 +46,22 @@ bool update_mtime(const char *filename) {
  * @return time_t modification time
  */
 time_t get_mtime(const char *filepath) {
-    struct stat status;
+    // Verify with lstat() to prevent TOCTTOU attacks and symlink following
+    struct stat sb;
     errno = 0;
-    if (stat(filepath, &status) != 0) {
-        if (errno != ENOENT) {
-            MYMPD_LOG_ERROR(NULL, "Error getting mtime for \"%s\"", filepath);
-            MYMPD_LOG_ERRNO(NULL, errno);
-        }
-        else {
-            MYMPD_LOG_DEBUG(NULL, "File \"%s\" does not exist", filepath);
-        }
+    if (lstat(filepath, &sb) != 0) {
+        // File disappeared or is inaccessible, skip it
+        MYMPD_LOG_ERROR(NULL, "Error getting mtime for \"%s\", file not accessible", filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return 0;
     }
-    return status.st_mtime;
-}
-
-/**
- * Checks if a filename can be opened read-only
- * @param filename filename to check
- * @return true on success, else false
- */
-bool testfile_read(const char *filename) {
-    if (filename[0] == '\0') {
-        return false;
+    if (S_ISREG(sb.st_mode) == false) {
+        // File type changed or is a symlink/directory, skip it
+        MYMPD_LOG_ERROR(NULL, "Error getting mtime for \"%s\", file is not a regular file", filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return 0;
     }
-    errno = 0;
-    FILE *fp = fopen(filename, OPEN_FLAGS_READ);
-    if (fp == NULL) {
-        if (errno != ENOENT) {
-            MYMPD_LOG_ERROR(NULL, "Error opening file ro \"%s\"", filename);
-            MYMPD_LOG_ERRNO(NULL, errno);
-        }
-        return false;
-    }
-    (void) fclose(fp);
-    return true;
+    return sb.st_mtime;
 }
 
 /**
@@ -137,6 +118,37 @@ bool is_dir(const char *dir_name) {
         return false;
     }
     return S_ISDIR(status.st_mode);
+}
+
+/**
+ * Checks if a path is a regular file
+ * @param file_name file path to check
+ * @return true if it is a regular file, else false
+ */
+bool is_file(const char *file_name) {
+    struct stat status;
+    errno = 0;
+    if (lstat(file_name, &status) != 0) {
+        MYMPD_LOG_ERROR(NULL, "Error getting status for \"%s\"", file_name);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    return S_ISREG(status.st_mode);
+}
+
+/**
+ * Checks if a path is a regular file
+ * Logs no errors, just returns false if file does not exist or is not a regular file
+ * @param file_name file path to check
+ * @return true if it is a regular file, else false
+ */
+bool is_file_silent(const char *file_name) {
+    struct stat status;
+    errno = 0;
+    if (lstat(file_name, &status) != 0) {
+        return false;
+    }
+    return S_ISREG(status.st_mode);
 }
 
 /**
@@ -200,6 +212,9 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
     errno = 0;
     //filepath is tmp_file without .XXXXXX suffix
     sds filepath = sdscatlen(sdsempty(), tmp_file, sdslen(tmp_file) - 7);
+    if (is_file(tmp_file) == false) {
+        return false;
+    }
     if (rename(tmp_file, filepath) == -1) {
         MYMPD_LOG_ERROR(NULL, "Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
         MYMPD_LOG_ERRNO(NULL, errno);
@@ -218,6 +233,9 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
  * @return true on success, else false
  */
 bool rename_file(const char *src, const char *dst) {
+    if (is_file(src) == false) {
+        return false;
+    }
     if (rename(src, dst) == -1) {
         MYMPD_LOG_ERROR(NULL, "Rename file from \"%s\" to \"%s\" failed", src, dst);
         MYMPD_LOG_ERRNO(NULL, errno);
@@ -232,6 +250,9 @@ bool rename_file(const char *src, const char *dst) {
  * @return true on success else false
  */
 bool rm_file(const char *filepath) {
+    if (is_file(filepath) == false) {
+        return false;
+    }
     errno = 0;
     if (unlink(filepath) != 0) {
         MYMPD_LOG_ERROR(NULL, "Error removing file \"%s\"", filepath);
@@ -249,6 +270,9 @@ bool rm_file(const char *filepath) {
  *         RM_FILE_OK file was removed
  */
 int try_rm_file(const char *filepath) {
+    if (is_file(filepath) == false) {
+        return RM_FILE_ENOENT;
+    }
     errno = 0;
     if (unlink(filepath) != 0) {
         if (errno == ENOENT) {
@@ -300,11 +324,12 @@ bool clean_directory(const char *dir_name) {
     struct dirent *next_file;
     sds filepath = sdsempty();
     while ((next_file = readdir(directory)) != NULL ) {
-        if (next_file->d_type != DT_REG) {
-            continue;
-        }
         sdsclear(filepath);
         filepath = sdscatfmt(filepath, "%s/%s", dir_name, next_file->d_name);
+        // Verify file is a regular file (prevents TOCTTOU and symlink attacks)
+        if (is_file(filepath) == false) {
+            continue;
+        }
         bool rc = rm_file(filepath);
         if (rc == false) {
             FREE_SDS(filepath);

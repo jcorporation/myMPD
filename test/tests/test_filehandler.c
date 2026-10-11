@@ -50,18 +50,36 @@ UTEST(filehandler, test_write_data_to_file) {
     clean_testenv();
 }
 
-UTEST(filehandler, test_testfile_read) {
+UTEST(filehandler, test_is_file) {
     init_testenv();
 
     create_testfile();
 
     sds file  = sdsnew("/tmp/mympd-test/state/test");
-    bool rc = testfile_read(file);
+    bool rc = is_file(file);
     ASSERT_TRUE(rc);
     sdsclear(file);
 
     file = sdscat(file, "/tmp/mympd-test/state/test-notexist");
-    rc = testfile_read(file);
+    rc = is_file(file);
+    ASSERT_FALSE(rc);
+    sdsfree(file);
+
+    clean_testenv();
+}
+
+UTEST(filehandler, test_is_file_silent) {
+    init_testenv();
+
+    create_testfile();
+
+    sds file  = sdsnew("/tmp/mympd-test/state/test");
+    bool rc = is_file_silent(file);
+    ASSERT_TRUE(rc);
+    sdsclear(file);
+
+    file = sdscat(file, "/tmp/mympd-test/state/test-notexist");
+    rc = is_file_silent(file);
     ASSERT_FALSE(rc);
     sdsfree(file);
 

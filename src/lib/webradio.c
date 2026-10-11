@@ -492,7 +492,7 @@ bool webradios_save_to_disk(struct t_config *config, struct t_webradios *webradi
  */
 bool webradios_read_from_disk(struct t_config *config, struct t_webradios *webradios, const char *filename, enum webradio_type type) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", config->workdir, DIR_WORK_TAGS, filename);
-    if (testfile_read(filepath) == false) {
+    if (is_file_silent(filepath) == false) {
         FREE_SDS(filepath);
         webradios_clear(webradios, true);
         return false;

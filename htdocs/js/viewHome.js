@@ -278,21 +278,24 @@ function createHomeIcon(data, pos) {
     setData(card, 'name', data.name);
     setData(card, 'href', {"cmd": data.cmd, "options": data.options});
     setData(card, 'pos', pos);
-    const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, data.ligature);
+    const cardBody = elCreateEmpty('div', {"class": ["card-body", "clickable"]});
+    const cardIcon = elCreateText('div', {"class": ["mi", "rounded", "clickable", "cardIcon"]}, data.ligature);
     if (data.image !== '') {
-        cardBody.style.backgroundImage = getCssImageUri(data.image);
+        cardIcon.style.backgroundImage = getCssImageUri(data.image);
     }
     if (data.bgcolor !== '') {
-        cardBody.style.backgroundColor = data.bgcolor;
+        cardIcon.style.backgroundColor = data.bgcolor;
     }
     if (data.color !== '' &&
         data.color !== undefined)
     {
-        cardBody.style.color = data.color;
+        cardIcon.style.color = data.color;
     }
-    const badge = elCreateText('div', {"class": ["badge", "bg-dark", "mi", "mi-sm", "clickable", "homeIconBadge"],
-        "data-title": "Edit", "title": tn('Edit')}, actionLigatures[data.cmd]);
-    cardBody.appendChild(badge);
+    cardBody.appendChild(cardIcon);
+    cardBody.appendChild(
+        elCreateText('div', {"class": ["badge", "bg-dark", "mi", "mi-sm", "clickable", "homeIconBadge"],
+            "data-title": "Edit", "title": tn('Edit')}, actionLigatures[data.cmd])
+    );
     card.appendChild(cardBody);
     card.appendChild(
         elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, data.name)

@@ -38,7 +38,7 @@ struct t_sds_array *sds_array_new(void) {
 void sds_array_init(struct t_sds_array *array) {
     array->length = 0;
     array->capacity = SDS_ARRAY_START_CAPACITY;
-    array->items = (sds *)malloc_assert(array->capacity * sizeof(sds));
+    array->items = (sds *)malloc_assert_count(array->capacity, sizeof(sds));
 }
 
 /**
@@ -72,7 +72,7 @@ bool sds_array_push(struct t_sds_array *array, sds s) {
     if (array->length == array->capacity) {
         // Array is too small, resize
         array->capacity = 8 + ((array->capacity / 2) * 3);
-        array->items = (sds *)realloc_assert((void *)array->items, array->capacity * sizeof(sds));
+        array->items = (sds *)realloc_assert_count((void *)array->items, array->capacity, sizeof(sds));
     }
     array->items[array->length++] = s;
     return true;

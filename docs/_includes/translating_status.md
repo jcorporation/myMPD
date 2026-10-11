@@ -1,8 +1,8 @@
-- bg-BG: 1161 missing phrases
+- bg-BG: 1160 missing phrases
 - es-AR: fully translated
-- es-ES: 1029 missing phrases
-- es-VE: 1008 missing phrases
-- fi-FI: 1005 missing phrases
+- es-ES: 1028 missing phrases
+- es-VE: 1006 missing phrases
+- fi-FI: 1003 missing phrases
 - fr-FR: fully translated
 - it-IT: fully translated
 - ja-JP: 75 missing phrases

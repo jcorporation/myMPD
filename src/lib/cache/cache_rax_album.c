@@ -97,7 +97,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         MEASURE_START
     #endif
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE);
-    if (testfile_read(filepath) == false) {
+    if (is_file(filepath) == false) {
         FREE_SDS(filepath);
         return false;
     }

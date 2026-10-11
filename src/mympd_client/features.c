@@ -19,6 +19,7 @@
 #include "src/mympd_client/errorhandler.h"
 #include "src/mympd_client/tags.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -32,7 +33,7 @@ static void features_tags(struct t_mympd_state *mympd_state, struct t_partition_
 static void set_simple_album_tags(struct t_partition_state *partition_state);
 static void set_album_tags(struct t_partition_state *partition_state);
 static void features_config(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state);
-static sds set_directory(const char *desc, sds directory, sds value);
+static sds set_directory(const char *partition_name, const char *desc, sds directory, sds value);
 
 /**
  * Public functions
@@ -55,6 +56,7 @@ void mympd_client_mpd_features(struct t_mympd_state *mympd_state, struct t_parti
     mympd_mpd_state_features_default(&partition_state->mpd_state->feat);
 
     // copy sticker feature flags from stickerdb connection
+    assert(mympd_state->stickerdb);
     partition_state->mpd_state->feat.stickers = mympd_state->stickerdb->mpd_state->feat.stickers;
     partition_state->mpd_state->feat.advsticker = mympd_state->stickerdb->mpd_state->feat.advsticker;
 
@@ -282,12 +284,12 @@ static void features_config(struct t_mympd_state *mympd_state, struct t_partitio
             while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0 &&
                     is_streamuri(pair->value) == false &&
-                    strncmp(mympd_state->music_directory, "auto", 4) == 0)
+                    strcmp(mympd_state->music_directory, "auto") == 0)
                 {
                     partition_state->mpd_state->music_directory_value = sds_replace(partition_state->mpd_state->music_directory_value, pair->value);
                 }
                 else if (strcmp(pair->name, "playlist_directory") == 0 &&
-                    strncmp(mympd_state->playlist_directory, "auto", 4) == 0)
+                    strcmp(mympd_state->playlist_directory, "auto") == 0)
                 {
                     //supported since MPD 0.24
                     partition_state->mpd_state->playlist_directory_value = sds_replace(partition_state->mpd_state->playlist_directory_value, pair->value);
@@ -309,9 +311,9 @@ static void features_config(struct t_mympd_state *mympd_state, struct t_partitio
         mympd_check_error_and_recover(partition_state, NULL, "config");
     }
 
-    partition_state->mpd_state->music_directory_value = set_directory("music", mympd_state->music_directory,
+    partition_state->mpd_state->music_directory_value = set_directory(partition_state->name, "music", mympd_state->music_directory,
         partition_state->mpd_state->music_directory_value);
-    partition_state->mpd_state->playlist_directory_value = set_directory("playlist", mympd_state->playlist_directory,
+    partition_state->mpd_state->playlist_directory_value = set_directory(partition_state->name, "playlist", mympd_state->playlist_directory,
         partition_state->mpd_state->playlist_directory_value);
 
     //set feat_library
@@ -326,38 +328,39 @@ static void features_config(struct t_mympd_state *mympd_state, struct t_partitio
 
 /**
  * Checks and sets a mpd directory
+ * @param partition_name name of the partition
  * @param desc descriptive name
  * @param directory directory setting (auto, none or a directory)
  * @param value already allocated sds string to set
  * @return pointer to value
  */
-static sds set_directory(const char *desc, sds directory, sds value) {
-    if (strncmp(directory, "auto", 4) == 0) {
+static sds set_directory(const char *partition_name, const char *desc, sds directory, sds value) {
+    if (strcmp(directory, "auto") == 0) {
         //valid
     }
     else if (directory[0] == '/') {
         value = sds_replace(value, directory);
     }
-    else if (strncmp(directory, "none", 4) == 0) {
+    else if (strcmp(directory, "none") == 0) {
         //empty playlist_directory
         return value;
     }
     else {
-        MYMPD_LOG_ERROR(NULL, "Invalid %s directory value: \"%s\"", desc, directory);
+        MYMPD_LOG_ERROR(partition_name, "Invalid %s directory value: \"%s\"", desc, directory);
         return value;
     }
     sds_strip_slash(value);
     if (sdslen(value) > 0 &&
         testdir(desc, value, false, true) != DIR_EXISTS)
     {
-        MYMPD_LOG_WARN(NULL, "MPD %s directory \"%s\" not accessible", desc, value);
+        MYMPD_LOG_WARN(partition_name, "MPD %s directory \"%s\" not accessible", desc, value);
         sdsclear(value);
     }
     if (sdslen(value) == 0) {
-        MYMPD_LOG_WARN(NULL, "MPD %s directory is not set", desc);
+        MYMPD_LOG_WARN(partition_name, "MPD %s directory is not set", desc);
     }
     else {
-        MYMPD_LOG_NOTICE(NULL, "MPD %s directory is \"%s\"", desc, value);
+        MYMPD_LOG_NOTICE(partition_name, "MPD %s directory is \"%s\"", desc, value);
     }
     return value;
 }

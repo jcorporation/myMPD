@@ -175,6 +175,9 @@ function getBadgeText(data) {
  * @returns {void}
  */
 function updateList(obj, list, perCardCallback, createCardBodyCallback, createCardActionsCallback) {
+    if (obj.result.returnedEntities === 0) {
+        return;
+    }
     const grid = elGetById(list + 'List');
     let cols = grid.querySelectorAll('.list-group-item');
     const mode = grid.getAttribute('data-mode') === 'select'

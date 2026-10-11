@@ -45,7 +45,7 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
         return false;
     }
     sds script_fullpath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", config->workdir, DIR_WORK_SCRIPTS, script);
-    bool script_exists = testfile_read(script_fullpath);
+    bool script_exists = is_file_silent(script_fullpath);
     FREE_SDS(script_fullpath);
     if (script_exists == false) {
         FREE_SDS(script);

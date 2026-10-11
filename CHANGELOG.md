@@ -4,6 +4,21 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v26.1.0 (2026-10-11)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Upd: Embedded libmdpclient to 2.28 (master branch)
+- Upd: Move playlist length info to top
+- Upd: Optimize home icon layout
+- Upd: Improve toolbar layout
+- Fix: Show header for empty playlists
+- Fix: Prevent integer overflows in memory allocation code
+
+***
+
 ## myMPD v26.0.0 (2026-08-28)
 
 This release removes the long-press event handling completely. It seems it can not be handled correctly in JavaScript for all mobile platforms and produces more headache than improving the user experience.

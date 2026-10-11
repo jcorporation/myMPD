@@ -30,6 +30,7 @@
 #include "src/mympd_client/features.h"
 #include "src/mympd_client/jukebox.h"
 
+#include <assert.h>
 #include <string.h>
 
 // Private definitions
@@ -73,7 +74,7 @@ bool partitions_connect(struct t_mympd_state *mympd_state, struct t_partition_st
         }
         // set timer for smart playlist update
         if (mympd_state->smartpls_interval > 0) {
-            MYMPD_LOG_DEBUG(NULL, "Adding timer to update the smart playlists");
+            MYMPD_LOG_DEBUG(partition_state->name, "Adding timer to update the smart playlists");
             mympd_api_timer_replace(&mympd_state->timer_list, TIMER_SMARTPLS_UPDATE_OFFSET, mympd_state->smartpls_interval,
                 timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
         }
@@ -141,9 +142,11 @@ struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_sta
  * @param mympd_state pointer to central myMPD state
  */
 void partitions_list_clear(struct t_mympd_state *mympd_state) {
+    assert(mympd_state->partition_state);
+
     struct t_partition_state *current = mympd_state->partition_state->next;
     while (current != NULL) {
-        MYMPD_LOG_INFO(NULL, "Removing partition \"%s\" from the partition list", current->name);
+        MYMPD_LOG_INFO(MPD_PARTITION_DEFAULT, "Removing partition \"%s\" from the partition list", current->name);
         struct t_partition_state *next = current->next;
         //free partition state
         partition_state_free(current);
@@ -158,6 +161,8 @@ void partitions_list_clear(struct t_mympd_state *mympd_state) {
  * @return true on success, else false
  */
 bool partitions_populate(struct t_mympd_state *mympd_state) {
+    assert(mympd_state->partition_state);
+
     struct t_list mpd_partitions;
     list_init(&mpd_partitions);
     // First add all missing partitions to the list
@@ -166,7 +171,7 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
         while ((partition = mpd_recv_partition_pair(mympd_state->partition_state->conn)) != NULL) {
             const char *name = partition->value;
             if (partitions_check(mympd_state, name) == false) {
-                MYMPD_LOG_INFO(NULL, "Adding partition \"%s\" to the partition list", name);
+                MYMPD_LOG_INFO(MPD_PARTITION_DEFAULT, "Adding partition \"%s\" to the partition list", name);
                 partitions_add(mympd_state, name);
             }
             list_push(&mpd_partitions, name, 0, NULL, NULL);
@@ -183,7 +188,7 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
     struct t_partition_state *previous = mympd_state->partition_state;
     for (; current != NULL; previous = current, current = current->next) {
         if (list_get_node(&mpd_partitions, current->name) == NULL) {
-            MYMPD_LOG_INFO(NULL, "Removing partition \"%s\" from the partition list", current->name);
+            MYMPD_LOG_INFO(MPD_PARTITION_DEFAULT, "Removing partition \"%s\" from the partition list", current->name);
             struct t_partition_state *next = current->next;
             // Remove all timers that are associated with this partition from the central timer list
             mympd_api_timer_remove_by_fd(&mympd_state->timer_list, current->timer_fd_mpd_connect);
@@ -229,6 +234,8 @@ static bool partitions_check(struct t_mympd_state *mympd_state, const char *name
  * @param name partition name
  */
 static void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
+    assert(mympd_state->partition_state);
+
     struct t_partition_state *partition_state = mympd_state->partition_state;
     //goto end
     while (partition_state->next != NULL) {

@@ -84,7 +84,7 @@ bool last_played_file_save(struct t_partition_state *partition_state) {
 bool last_played_file_read(struct t_partition_state *partition_state) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s",
         partition_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
-    if (testfile_read(filepath) == false) {
+    if (is_file_silent(filepath) == false) {
         FREE_SDS(filepath);
         return false;
     }

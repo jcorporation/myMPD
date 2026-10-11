@@ -177,7 +177,7 @@ sds webserver_find_image_file(sds basefilename) {
     sds testfilename = sdsempty();
     while (*p != NULL) {
         testfilename = sdscatfmt(testfilename, "%S.%s", basefilename, *p);
-        if (testfile_read(testfilename) == true) {
+        if (is_file_silent(testfilename) == true) {
             break;
         }
         sdsclear(testfilename);
@@ -210,7 +210,7 @@ bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *na
             *coverfile = webserver_find_image_file(*coverfile);
         }
         if (sdslen(*coverfile) > 0 &&
-            testfile_read(*coverfile) == true)
+            is_file_silent(*coverfile) == true)
         {
             return true;
         }

@@ -91,7 +91,9 @@ void webserver_send_albumart_redirect(struct mg_connection *nc, sds data) {
  * @param binary the image
  */
 void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
-    size_t len = sdslen(binary);
+    size_t len = binary == NULL
+        ? 0
+        : sdslen(binary);
     sds mime_type = NULL;
     if (len > 0 &&
         json_get_string(data, "$.result.mime_type", 1, 200, &mime_type, vcb_isname, NULL) == true &&
@@ -107,7 +109,6 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
         webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
     }
     FREE_SDS(mime_type);
-    //FREE_SDS(binary);
 }
 
 /**
@@ -255,7 +256,7 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
             FREE_SDS(path);
         }
 
-        if (testfile_read(mediafile) == true) {
+        if (is_file_silent(mediafile) == true) {
             //try to extract albumart from media file
             bool covercache = mg_user_data->config->cache_cover_keep_days != CACHE_DISK_DISABLED
                 ? true

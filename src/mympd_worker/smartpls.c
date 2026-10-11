@@ -314,7 +314,7 @@ static bool mympd_worker_smartpls_per_tag(struct t_mympd_worker_state *mympd_wor
             sds_sanitize_filename(filename);
             sds playlist = sdscatfmt(sdsempty(), "%S%s%s-%s", mympd_worker_state->smartpls_prefix, (sdslen(mympd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, filename);
             sds plpath = sdscatfmt(sdsempty(), "%S/%s/%s", mympd_worker_state->config->workdir, DIR_WORK_SMARTPLS, playlist);
-            if (testfile_read(plpath) == false) {
+            if (is_file_silent(plpath) == false) {
                 //file does not exist, create it
                 sds expression = sdsnewlen("(", 1);
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
@@ -434,6 +434,9 @@ static bool mympd_worker_smartpls_update_sticker(struct t_mympd_worker_state *my
                 }
             }
             mympd_client_command_list_end_check(mympd_worker_state->partition_state);
+        }
+        else {
+            MYMPD_LOG_ERROR(mympd_worker_state->partition_state->name, "Failure starting command list mpd_command_list_begin");
         }
         if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_send_playlist_add") == false) {
             rc = false;

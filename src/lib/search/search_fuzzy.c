@@ -10,6 +10,8 @@
 
 #include "src/lib/search/search_fuzzy.h"
 
+#include "src/lib/mem.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -47,7 +49,11 @@ bool mympd_search_fuzzy_match(const char *haystack, size_t haystack_len,
     const size_t max_distance = needle_len < 10
         ? 1
         : (needle_len / 10) + 1;
-    size_t *cache = calloc(needle_len + 1, sizeof(size_t));
+    size_t *cache = calloc_assert(needle_len + 1, sizeof(size_t));
+    if (cache == NULL) {
+        MYMPD_LOG_EMERG(NULL, "Failure allocating %lu bytes of memory", (unsigned long) (needle_len + 1) * sizeof(size_t));
+        abort();
+    }
     const char *p = haystack;
     while (*p != '\0' &&
            haystack_len >= needle_len)

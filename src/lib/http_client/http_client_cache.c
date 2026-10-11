@@ -38,7 +38,7 @@ struct mg_client_response_t *http_client_cache_check(struct t_config *config, co
     sds hash = sds_hash_sha256(uri);
     sds filepath = sdscatfmt(sdsempty(), "%s/%s/%s", config->cachedir, DIR_CACHE_HTTP, hash);
     FREE_SDS(hash);
-    if (testfile_read(filepath) == false) {
+    if (is_file_silent(filepath) == false) {
         FREE_SDS(filepath);
         return NULL;
     }

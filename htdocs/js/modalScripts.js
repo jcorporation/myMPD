@@ -738,7 +738,7 @@ function populateScriptImportList(text) {
     }
     for (const key in obj) {
         const script = obj[key];
-        const clickable = elGetById('modalScriptsList').querySelector('[data-file="' + key + '"') === null
+        const clickable = elGetById('modalScriptsList').querySelector('[data-file="' + key + '"]') === null
             ? 'clickable'
             : 'disabled';
         list.appendChild(

@@ -564,11 +564,11 @@ mpd_song_parse_range(struct mpd_song *song, const char *value)
 	}
 
 	song->start = start > 0.0 ? (unsigned)start : 0;
-	song->start_ms = start > 0.0 ? (unsigned)(start * 1000) : 0;
+	song->start_ms = start > 0.0 ? (unsigned)(start * 1000 + 0.5) : 0;
 
 	if (end > 0.0) {
 		song->end = (unsigned)end;
-		song->end_ms = (unsigned)(end * 1000);
+		song->end_ms = (unsigned)(end * 1000 + 0.5);
 		if (song->end == 0)
 			/* round up, because the caller must see that
 			   there's an upper limit */

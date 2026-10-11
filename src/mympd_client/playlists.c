@@ -26,6 +26,7 @@
 #include "src/mympd_client/shortcuts.h"
 #include "src/mympd_client/tags.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -292,7 +293,7 @@ int mympd_client_playlist_validate(struct t_partition_state *partition_state, co
     while (current != NULL) {
         if (mympd_client_song_exists(partition_state, current->key) == false) {
             if (remove == true) {
-                mpd_send_playlist_delete(partition_state->conn, playlist, (unsigned)current->value_i);
+                mpd_run_playlist_delete(partition_state->conn, playlist, (unsigned)current->value_i);
                 if (mympd_check_error_and_recover(partition_state, error, "mpd_run_playlist_delete") == false) {
                     rc = -1;
                     break;
@@ -325,6 +326,7 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
         return false;
     }
     if (plist_array->length <= 2) {
+        sds_array_free(plist_array);
         return true;
     }
     // Shuffle the playlist
@@ -338,6 +340,7 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
     // Use command list to add MPD_COMMANDS_MAX songs at once
     for (size_t i = 0; i < plist_array->length; i += MPD_COMMANDS_MAX) {
         if (mpd_command_list_begin(partition_state->conn, false) != true) {
+            MYMPD_LOG_ERROR(partition_state->name, "Error starting command list mpd_command_list_begin");
             rc = false;
             break;
         }
@@ -393,13 +396,14 @@ bool mympd_client_playlist_sort(struct t_partition_state *partition_state, const
 }
 
 /**
- * Counts the number of songs in the playlist
+ * Enumerates the playlist and set the song count and playlist duration.
+ * This function is a wrapper for playlist_content_enumerate_mpd and playlist_content_enumerate_manual.
  * @param partition_state pointer to partition specific states
  * @param plist playlist to enumerate
  * @param count pointer to unsigned for entity count
  * @param duration pointer to unsigned for total playtime
  * @param error pointer to an already allocated sds string for the error message
- * @return number of songs or -1 on error
+ * @return true on success, else false
  */
 bool mympd_client_enum_playlist(struct t_partition_state *partition_state, const char *plist,
         unsigned *count, unsigned *duration, sds *error)
@@ -410,14 +414,14 @@ bool mympd_client_enum_playlist(struct t_partition_state *partition_state, const
 }
 
 /**
- * Enumerates the playlist and returns the count and total length
+ * Enumerates the playlist and set the song count and playlist duration.
  * This functions uses the playlistlength command of MPD 0.24
  * @param partition_state pointer to partition state
  * @param plist playlist name to enumerate
  * @param count pointer to unsigned for entity count
  * @param duration pointer to unsigned for total playtime
  * @param error pointer to an already allocated sds string for the error message
- * @return pointer to buffer 
+ * @return true on success, else false
  */
 static bool playlist_content_enumerate_mpd(struct t_partition_state *partition_state, const char *plist,
         unsigned *count, unsigned *duration, sds *error)
@@ -440,7 +444,7 @@ static bool playlist_content_enumerate_mpd(struct t_partition_state *partition_s
 }
 
 /**
- * Enumerates the playlist and returns the count and total length.
+ * Enumerates the playlist and set the song count and playlist duration.
  * For MPD versions < 0.24.
  * This functions retrieves the complete playlist.
  * @param partition_state pointer to partition state
@@ -448,7 +452,7 @@ static bool playlist_content_enumerate_mpd(struct t_partition_state *partition_s
  * @param count pointer to unsigned for entity count
  * @param duration pointer to unsigned for total playtime
  * @param error pointer to an already allocated sds string for the error message
- * @return pointer to buffer 
+ * @return true on success, else false
  */
 static bool playlist_content_enumerate_manual(struct t_partition_state *partition_state, const char *plist,
         unsigned *count, unsigned *duration, sds *error)
@@ -549,9 +553,7 @@ bool mympd_send_list_playlist_range_meta(struct t_partition_state *partition_sta
 bool mympd_client_playlist_get(struct t_partition_state *partition_state,
         const char *plist, bool reverse, struct t_list *l, sds *error)
 {
-    if (l == NULL) {
-        l = list_new();
-    }
+    assert(l);
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
     unsigned pos = 0;
@@ -645,19 +647,23 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
         .tags[0] = mpd_tag_name_parse(tagstr)
     };
     bool (*list_command)(struct t_partition_state *partition_state, const char *plist, unsigned start, unsigned end);
+    const char *list_command_name;
 
     enum sort_by_type sort_by = SORT_BY_TAG;
     bool rc = false;
     if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
         enable_mpd_tags(partition_state, &sort_tags);
         list_command = mympd_send_list_playlist_range_meta;
+        list_command_name = "mympd_send_list_playlist_range_meta";
     }
     else if (strcmp(tagstr, "filename") == 0) {
         list_command = mympd_send_list_playlist_range;
+        list_command_name = "mympd_send_list_playlist_range";
         sort_by = SORT_BY_FILENAME;
     }
     else if (strcmp(tagstr, "Last-Modified") == 0) {
         list_command = mympd_send_list_playlist_range;
+        list_command_name = "mympd_send_list_playlist_range";
         sort_by = SORT_BY_LAST_MODIFIED;
         //swap sort direction
         sortdesc = sortdesc == true
@@ -666,6 +672,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     }
     else if (strcmp(tagstr, "Added") == 0) {
         list_command = mympd_send_list_playlist_range;
+        list_command_name = "mympd_send_list_playlist_range";
         sort_by = SORT_BY_ADDED;
         //swap sort direction
         sortdesc = sortdesc == true
@@ -695,7 +702,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
             }
             FREE_SDS(key);
         }
-        if (mympd_check_error_and_recover(partition_state, error, "mpd_send_list_playlist") == false) {
+        if (mympd_check_error_and_recover(partition_state, error, list_command_name) == false) {
             //free data
             rax_free_sds_data(plist);
             return false;
@@ -724,21 +731,24 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     }
     rc = true;
     while (i < plist->numele) {
-        if (mpd_command_list_begin(partition_state->conn, false)) {
-            unsigned j = 0;
-            while (iterator(&iter)) {
-                i++;
-                j++;
-                if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, iter.data) == false) {
-                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
-                    break;
-                }
-                if (j == MPD_COMMANDS_MAX) {
-                    break;
-                }
-            }
-            mympd_client_command_list_end_check(partition_state);
+        if (mpd_command_list_begin(partition_state->conn, false) == false) {
+            MYMPD_LOG_ERROR(partition_state->name, "Error starting command list mpd_command_list_begin");
+            rc = false;
+            break;
         }
+        unsigned j = 0;
+        while (iterator(&iter)) {
+            i++;
+            j++;
+            if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, iter.data) == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
+                break;
+            }
+            if (j == MPD_COMMANDS_MAX) {
+                break;
+            }
+        }
+        mympd_client_command_list_end_check(partition_state);
         if (mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add") == false) {
             rc = false;
             break;
@@ -788,5 +798,5 @@ static bool playlist_replace(struct t_partition_state *partition_state, const ch
     //delete old playlist
     mpd_run_rm(partition_state->conn, backup_pl);
     FREE_SDS(backup_pl);
-    return mympd_check_error_and_recover(partition_state, error, "mpd_run_rename");
+    return mympd_check_error_and_recover(partition_state, error, "mpd_run_rm");
 }

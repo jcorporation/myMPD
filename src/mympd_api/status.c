@@ -381,6 +381,9 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, struct t_pa
             }
         }
     }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+    }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_current_song") == false) {
         return buffer;
     }

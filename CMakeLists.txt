@@ -9,7 +9,7 @@ cmake_policy(SET CMP0003 NEW)
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd
-  VERSION 26.0.0
+  VERSION 26.1.0
   LANGUAGES C
 )
 
@@ -163,7 +163,12 @@ endif()
 
 if(MYMPD_ENABLE_LUA)
   if(EXISTS "/etc/alpine-release")
-    set(ENV{LUA_DIR} "/usr/lib/lua5.4")
+    if(EXISTS "/usr/lib/lua5.4")
+      set(ENV{LUA_DIR} "/usr/lib/lua5.4")
+    endif()
+    if(EXISTS "/usr/lib/lua5.5")
+      set(ENV{LUA_DIR} "/usr/lib/lua5.5")
+    endif()
   endif()
   message("Searching for lua")
   find_package(Lua)

@@ -37,7 +37,7 @@
 void mympd_client_autoconf(struct t_mympd_state *mympd_state) {
     //skip autoconfiguration if mpd_host state file is configured
     sds state_file = sdscatfmt(sdsempty(), "%S/%s/mpd_host", mympd_state->config->workdir, DIR_WORK_STATE);
-    if (testfile_read(state_file) == true) {
+    if (is_file_silent(state_file) == true) {
         MYMPD_LOG_NOTICE(NULL, "Skipping myMPD autoconfiguration");
         FREE_SDS(state_file);
         return;

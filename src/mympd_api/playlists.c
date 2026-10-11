@@ -118,6 +118,9 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         }
         mympd_client_command_list_end_check(partition_state);
     }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+    }
     list_free(src);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
 }
@@ -184,6 +187,9 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
             }
             mympd_client_command_list_end_check(partition_state);
         }
+        else {
+            MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+        }
         rc = mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
         if (rc == false) {
             break;
@@ -229,6 +235,9 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
             }
         }
         mympd_client_command_list_end_check(partition_state);
+    }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
     }
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add_to");
 }
@@ -496,6 +505,9 @@ bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition
             }
         }
         mympd_client_command_list_end_check(partition_state);
+    }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
     }
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_delete");
 }
@@ -903,7 +915,7 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
     sds old_pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, old_playlist);
     sds new_pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, new_playlist);
     //link old name to new name
-    if (testfile_read(old_pl_file) == true) {
+    if (is_file_silent(old_pl_file) == true) {
         //smart playlist file exists
         errno = 0;
         if (link(old_pl_file, new_pl_file) == -1) {
@@ -995,6 +1007,9 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
         }
         mympd_client_command_list_end_check(partition_state);
     }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+    }
     FREE_SDS(pl_file);
     if (mpd_plists == 0) {
         // send update event manually if only smart playlists definitions are deleted
@@ -1064,15 +1079,16 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         struct dirent *next_file;
         sds smartpls_file = sdsempty();
         while ((next_file = readdir(smartpls_dir)) != NULL ) {
-            if (next_file->d_type == DT_REG) {
-                if (list_get_node(&playlists, next_file->d_name) == NULL) {
-                    smartpls_file = sdscatfmt(smartpls_file, "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
-                    if (rm_file(smartpls_file) == true) {
-                        MYMPD_LOG_INFO(partition_state->name, "Removed orphaned smartpls file \"%s\"", smartpls_file);
-                        delete_count++;
-                    }
-                    sdsclear(smartpls_file);
+            if (next_file->d_type != DT_REG) {
+                continue;
+            }
+            if (list_get_node(&playlists, next_file->d_name) == NULL) {
+                smartpls_file = sdscatfmt(smartpls_file, "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
+                if (rm_file(smartpls_file) == true) {
+                    MYMPD_LOG_INFO(partition_state->name, "Removed orphaned smartpls file \"%s\"", smartpls_file);
+                    delete_count++;
                 }
+                sdsclear(smartpls_file);
             }
         }
         FREE_SDS(smartpls_file);
@@ -1100,7 +1116,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         struct t_list_node *current;
         while ((current = list_shift_first(&playlists)) != NULL) {
             sds smartpls_file = sdscatfmt(sdsempty(), "%S/%s/%S", partition_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
-            bool is_smartpls = testfile_read(smartpls_file);
+            bool is_smartpls = is_file_silent(smartpls_file);
 
             if (criteria == PLAYLIST_DELETE_ALL ||
                 (criteria == PLAYLIST_DELETE_SMARTPLS && is_smartpls == true) ||
@@ -1124,6 +1140,9 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
             list_node_free(current);
         }
         mympd_client_command_list_end_check(partition_state);
+    }
+    else {
+        MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
     }
     list_clear(&playlists);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_rm") == false) {

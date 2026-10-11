@@ -239,7 +239,7 @@ function parseExpression(expression) {
  */
 function createSearchCrumbs(searchStr, searchEl, crumbEl) {
     elClear(crumbEl);
-    const elements = searchStr.substring(1, app.current.search.length - 1).split(' AND ');
+    const elements = searchStr.substring(1, searchStr.length - 1).split(' AND ');
     //add all but last element to crumbs
     for (let i = 0, j = elements.length - 1; i < j; i++) {
         const fields = parseExpression(elements[i]);
