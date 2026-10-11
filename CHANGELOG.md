@@ -8,6 +8,10 @@ https://github.com/jcorporation/myMPD/
 
 This is a small bug fix release.
 
+### Changelog
+
+- Upd: Improve search for Lua package
+
 ***
 
 ## myMPD v26.1.0 (2026-10-11)
