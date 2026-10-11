@@ -32,8 +32,7 @@ install="$pkgname.pre-install"
 subpackages="$pkgname-dbg $pkgname-doc"
 source="mympd_$pkgver.orig.tar.gz"
 builddir="$srcdir"
-options="!check"
-#no test suite
+options="!check" #no test suite
 
 build() {
 	cmake -B "$builddir/release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo "$builddir"
