@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v26.1.0 (2026-10-11)
 
-This is a small bug fix release.
+This is a small maintenance release.
 
 ### Changelog
 
