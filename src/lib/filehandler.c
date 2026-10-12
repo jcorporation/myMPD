@@ -107,12 +107,16 @@ int testdir(const char *desc, const char *dir_name, bool create, bool silent) {
 /**
  * Checks if dir_name is really a directory entry
  * @param dir_name directory path to check
+ * @param follow_symlink Follow symlinks?
  * @return true if it is a directory, else false
  */
-bool is_dir(const char *dir_name) {
-    struct stat status;
+bool is_dir(const char *dir_name, bool follow_symlink) {
     errno = 0;
-    if (lstat(dir_name, &status) != 0) {
+    struct stat status;
+    int rc = follow_symlink == true
+        ? stat(dir_name, &status)
+        : lstat(dir_name, &status);
+    if (rc != 0) {
         MYMPD_LOG_ERROR(NULL, "Error getting status for \"%s\"", dir_name);
         MYMPD_LOG_ERRNO(NULL, errno);
         return false;
@@ -121,14 +125,18 @@ bool is_dir(const char *dir_name) {
 }
 
 /**
- * Checks if a path is a regular file
+ * Checks if file_name is a regular file
  * @param file_name file path to check
+ * @param follow_symlink Follow symlinks?
  * @return true if it is a regular file, else false
  */
-bool is_file(const char *file_name) {
-    struct stat status;
+bool is_file(const char *file_name, bool follow_symlink) {
     errno = 0;
-    if (lstat(file_name, &status) != 0) {
+    struct stat status;
+    int rc = follow_symlink == true
+        ? stat(file_name, &status)
+        : lstat(file_name, &status);
+    if (rc != 0) {
         MYMPD_LOG_ERROR(NULL, "Error getting status for \"%s\"", file_name);
         MYMPD_LOG_ERRNO(NULL, errno);
         return false;
@@ -137,18 +145,18 @@ bool is_file(const char *file_name) {
 }
 
 /**
- * Checks if a path is a regular file
+ * Checks if file_name is a regular file
  * Logs no errors, just returns false if file does not exist or is not a regular file
  * @param file_name file path to check
+ * @param follow_symlink Follow symlinks?
  * @return true if it is a regular file, else false
  */
-bool is_file_silent(const char *file_name) {
+bool is_file_silent(const char *file_name, bool follow_symlink) {
     struct stat status;
-    errno = 0;
-    if (lstat(file_name, &status) != 0) {
-        return false;
-    }
-    return S_ISREG(status.st_mode);
+    int rc = follow_symlink == true
+        ? stat(file_name, &status)
+        : lstat(file_name, &status);
+    return rc == 0 && S_ISREG(status.st_mode);
 }
 
 /**
@@ -212,7 +220,7 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
     errno = 0;
     //filepath is tmp_file without .XXXXXX suffix
     sds filepath = sdscatlen(sdsempty(), tmp_file, sdslen(tmp_file) - 7);
-    if (is_file(tmp_file) == false) {
+    if (is_file(tmp_file, false) == false) {
         return false;
     }
     if (rename(tmp_file, filepath) == -1) {
@@ -233,7 +241,7 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
  * @return true on success, else false
  */
 bool rename_file(const char *src, const char *dst) {
-    if (is_file(src) == false) {
+    if (is_file(src, false) == false) {
         return false;
     }
     if (rename(src, dst) == -1) {
@@ -250,7 +258,7 @@ bool rename_file(const char *src, const char *dst) {
  * @return true on success else false
  */
 bool rm_file(const char *filepath) {
-    if (is_file(filepath) == false) {
+    if (is_file(filepath, false) == false) {
         return false;
     }
     errno = 0;
@@ -270,7 +278,7 @@ bool rm_file(const char *filepath) {
  *         RM_FILE_OK file was removed
  */
 int try_rm_file(const char *filepath) {
-    if (is_file(filepath) == false) {
+    if (is_file(filepath, false) == false) {
         return RM_FILE_ENOENT;
     }
     errno = 0;
@@ -327,7 +335,7 @@ bool clean_directory(const char *dir_name) {
         sdsclear(filepath);
         filepath = sdscatfmt(filepath, "%s/%s", dir_name, next_file->d_name);
         // Verify file is a regular file (prevents TOCTTOU and symlink attacks)
-        if (is_file(filepath) == false) {
+        if (is_file(filepath, false) == false) {
             continue;
         }
         bool rc = rm_file(filepath);

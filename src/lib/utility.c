@@ -54,7 +54,7 @@ void my_msleep(int msec) {
  */
 bool is_virtual_cuedir(sds music_directory, sds filename) {
     sds full_path = sdscatfmt(sdsempty(), "%S/%S", music_directory, filename);
-    bool is_cue_file = is_file_silent(full_path);
+    bool is_cue_file = is_file_silent(full_path, false);
     if (is_cue_file == true) {
         MYMPD_LOG_DEBUG(NULL, "Path \"%s\" is a virtual cuesheet directory", filename);
     }
