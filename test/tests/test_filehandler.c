@@ -56,15 +56,31 @@ UTEST(filehandler, test_is_file) {
     create_testfile();
 
     sds file  = sdsnew("/tmp/mympd-test/state/test");
-    bool rc = is_file(file);
+    bool rc = is_file(file, false);
     ASSERT_TRUE(rc);
     sdsclear(file);
 
     file = sdscat(file, "/tmp/mympd-test/state/test-notexist");
-    rc = is_file(file);
+    rc = is_file(file, false);
     ASSERT_FALSE(rc);
-    sdsfree(file);
+    sdsclear(file);
 
+    symlink("/tmp/mympd-test/state/test", "/tmp/mympd-test/state/test-link");
+    file = sdscat(file, "/tmp/mympd-test/state/test-link");
+    rc = is_file(file, false);
+    ASSERT_FALSE(rc);
+
+    rc = is_file(file, true);
+    ASSERT_TRUE(rc);
+
+    file = sdscat(file, "/tmp/mympd-test/state");
+    rc = is_file(file, false);
+    ASSERT_FALSE(rc);
+
+    rc = is_file(file, true);
+    ASSERT_FALSE(rc);
+
+    sdsfree(file);
     clean_testenv();
 }
 
@@ -74,15 +90,67 @@ UTEST(filehandler, test_is_file_silent) {
     create_testfile();
 
     sds file  = sdsnew("/tmp/mympd-test/state/test");
-    bool rc = is_file_silent(file);
+    bool rc = is_file_silent(file, false);
     ASSERT_TRUE(rc);
     sdsclear(file);
 
     file = sdscat(file, "/tmp/mympd-test/state/test-notexist");
-    rc = is_file_silent(file);
+    rc = is_file_silent(file, false);
     ASSERT_FALSE(rc);
-    sdsfree(file);
+    sdsclear(file);
 
+    symlink("/tmp/mympd-test/state/test", "/tmp/mympd-test/state/test-link");
+    file = sdscat(file, "/tmp/mympd-test/state/test-link");
+    rc = is_file_silent(file, false);
+    ASSERT_FALSE(rc);
+
+    rc = is_file_silent(file, true);
+    ASSERT_TRUE(rc);
+    sdsclear(file);
+
+    file = sdscat(file, "/tmp/mympd-test/state");
+    rc = is_file_silent(file, false);
+    ASSERT_FALSE(rc);
+
+    rc = is_file_silent(file, true);
+    ASSERT_FALSE(rc);
+
+    sdsfree(file);
+    clean_testenv();
+}
+
+UTEST(filehandler, test_is_dir) {
+    init_testenv();
+
+    create_testfile();
+
+    sds file  = sdsnew("/tmp/mympd-test/state");
+    bool rc = is_dir(file, false);
+    ASSERT_TRUE(rc);
+    sdsclear(file);
+
+    file = sdscat(file, "/tmp/mympd-test/state/test-notexist");
+    rc = is_dir(file, false);
+    ASSERT_FALSE(rc);
+    sdsclear(file);
+
+    symlink("/tmp/mympd-test/state", "/tmp/mympd-test/state-link");
+    file = sdscat(file, "/tmp/mympd-test/state-link");
+    rc = is_dir(file, false);
+    ASSERT_FALSE(rc);
+
+    rc = is_dir(file, true);
+    ASSERT_TRUE(rc);
+    sdsclear(file);
+
+    file = sdscat(file, "/tmp/mympd-test/state/test");
+    rc = is_dir(file, false);
+    ASSERT_FALSE(rc);
+
+    rc = is_dir(file, true);
+    ASSERT_FALSE(rc);
+
+    sdsfree(file);
     clean_testenv();
 }
 
