@@ -10,10 +10,10 @@
 
 #include "src/lib/config/cacertstore_find.h"
 
-#include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 
 #include <openssl/x509.h>
+#include <sys/stat.h>
 
 /**
  * Paths to check for the ca cert store
@@ -34,16 +34,17 @@ static const char *check_ca_cert_paths[] = {
  * @return const char* or NULL if not found
  */
 const char *find_ca_cert_store(bool silent) {
+    struct stat status;
     const char **p = check_ca_cert_paths;
     while (*p != NULL) {
-        if (is_file_silent(*p) == true) {
+        if (stat(*p, &status) == 0 && S_ISREG(status.st_mode)) {
             return *p;
         }
         p++;
     }
     MYMPD_LOG_DEBUG(NULL, "No system specific CA cert store found, using OpenSSL default");
     const char *file = X509_get_default_cert_file();
-    if (is_file_silent(file) == true) {
+    if (stat(file, &status) == 0 && S_ISREG(status.st_mode)) {
         return file;
     }
     if (silent == false) {
