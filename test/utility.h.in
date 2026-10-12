@@ -29,6 +29,7 @@ struct t_input_result {
 
 void init_testenv(void);
 void clean_testenv(void);
+bool create_symlink(const char *src, const char *target);
 bool create_testfile(void);
 bool song_append_tag(struct mpd_song *song, enum mpd_tag_type type, const char *value);
 struct t_album *new_test_album(void);

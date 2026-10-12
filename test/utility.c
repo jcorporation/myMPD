@@ -11,10 +11,12 @@
 #include "src/lib/list/shuffle.h"
 #include "src/lib/random.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 void init_testenv(void) {
     mkdir("/tmp/mympd-test", 0770);
@@ -30,6 +32,15 @@ void clean_testenv(void) {
         printf("Failure cleaning /tmp/mympd-test\n");
     }
     unsetenv("TESTVAR");
+}
+
+bool create_symlink(const char *src, const char *target) {
+    errno = 0;
+    if (symlink(src, target) != 0) {
+        printf("Failure linking %s to %s\n", src, target);
+        return false;
+    }
+    return true;
 }
 
 bool create_testfile(void) {

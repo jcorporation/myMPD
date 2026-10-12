@@ -65,7 +65,7 @@ UTEST(filehandler, test_is_file) {
     ASSERT_FALSE(rc);
     sdsclear(file);
 
-    (void)symlink("/tmp/mympd-test/state/test", "/tmp/mympd-test/state/test-link");
+    create_symlink("/tmp/mympd-test/state/test", "/tmp/mympd-test/state/test-link");
     file = sdscat(file, "/tmp/mympd-test/state/test-link");
     rc = is_file(file, false);
     ASSERT_FALSE(rc);
@@ -99,7 +99,7 @@ UTEST(filehandler, test_is_file_silent) {
     ASSERT_FALSE(rc);
     sdsclear(file);
 
-    (void)symlink("/tmp/mympd-test/state/test", "/tmp/mympd-test/state/test-link");
+    create_symlink("/tmp/mympd-test/state/test", "/tmp/mympd-test/state/test-link");
     file = sdscat(file, "/tmp/mympd-test/state/test-link");
     rc = is_file_silent(file, false);
     ASSERT_FALSE(rc);
@@ -134,7 +134,7 @@ UTEST(filehandler, test_is_dir) {
     ASSERT_FALSE(rc);
     sdsclear(file);
 
-    (void)symlink("/tmp/mympd-test/state", "/tmp/mympd-test/state-link");
+    create_symlink("/tmp/mympd-test/state", "/tmp/mympd-test/state-link");
     file = sdscat(file, "/tmp/mympd-test/state-link");
     rc = is_dir(file, false);
     ASSERT_FALSE(rc);
