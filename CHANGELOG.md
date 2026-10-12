@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Improve search for Lua package
+- Fix: Follow symlinks when locating CA certificate bundles #1576
 
 ***
 
