@@ -196,6 +196,7 @@ FILE *open_tmp_file(sds filepath) {
         MYMPD_LOG_ERROR(NULL, "Can not open tmp file \"%s\" for write", filepath);
         MYMPD_LOG_ERRNO(NULL, errno);
         close(fd);
+        rm_file(filepath);
     }
     return fp;
 }
@@ -221,6 +222,7 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
     //filepath is tmp_file without .XXXXXX suffix
     sds filepath = sdscatlen(sdsempty(), tmp_file, sdslen(tmp_file) - 7);
     if (is_file(tmp_file, false) == false) {
+        FREE_SDS(filepath);
         return false;
     }
     if (rename(tmp_file, filepath) == -1) {
