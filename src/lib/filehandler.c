@@ -332,12 +332,11 @@ bool clean_directory(const char *dir_name) {
     struct dirent *next_file;
     sds filepath = sdsempty();
     while ((next_file = readdir(directory)) != NULL ) {
-        sdsclear(filepath);
-        filepath = sdscatfmt(filepath, "%s/%s", dir_name, next_file->d_name);
-        // Verify file is a regular file (prevents TOCTTOU and symlink attacks)
-        if (is_file(filepath, false) == false) {
+        if (next_file->d_type != DT_REG) {
             continue;
         }
+        sdsclear(filepath);
+        filepath = sdscatfmt(filepath, "%s/%s", dir_name, next_file->d_name);
         bool rc = rm_file(filepath);
         if (rc == false) {
             FREE_SDS(filepath);
