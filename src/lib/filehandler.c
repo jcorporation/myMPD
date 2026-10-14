@@ -364,9 +364,6 @@ bool rm_directory(const char *dir_name) {
  * @return true on success, else false
  */
 bool clean_rm_directory(const char *dir_name) {
-    bool rc = clean_directory(dir_name);
-    if (rc == true) {
-        rc = rm_directory(dir_name);
-    }
-    return rc;
+    return clean_directory(dir_name) && \
+           rm_directory(dir_name);
 }
