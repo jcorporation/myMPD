@@ -26,6 +26,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <string.h>
 #include <unistd.h>
@@ -34,7 +35,7 @@
  * Private definitions
  */
 
-static bool parse_script(sds scriptfilename, sds *metadata, sds *content, int *order);
+static bool parse_script(int dir_fd, const char *scriptfilename, sds *metadata, sds *content, int *order);
 
 /**
  * Public functions
@@ -65,11 +66,19 @@ bool scripts_file_read(struct t_scripts_state *scripts_state) {
         FREE_SDS(scriptdirname);
         return false;
     }
+    errno = 0;
+    int script_dir_fd = dirfd(script_dir);
+    if (script_dir_fd == -1) {
+        MYMPD_LOG_ERROR(NULL, "Error getting directory file descriptor for \"%s\"", scriptdirname);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        closedir(script_dir);
+        FREE_SDS(scriptdirname);
+        return false;
+    }
 
     struct dirent *next_file;
     sds metadata = sdsempty();
     sds scriptname = sdsempty();
-    sds scriptfilename = sdsempty();
     while ((next_file = readdir(script_dir)) != NULL ) {
         const char *ext = get_extension_from_filename(next_file->d_name);
         if (ext == NULL ||
@@ -79,10 +88,9 @@ bool scripts_file_read(struct t_scripts_state *scripts_state) {
         }
         scriptname = sdscat(scriptname, next_file->d_name);
         sds_strip_file_extension(scriptname);
-        scriptfilename = sdscatfmt(scriptfilename, "%S/%s", scriptdirname, next_file->d_name);
         int order = 0;
         sds content = sdsempty();
-        bool rc = parse_script(scriptfilename, &metadata, &content, &order);
+        bool rc = parse_script(script_dir_fd, next_file->d_name, &metadata, &content, &order);
         if (rc == true) {
             struct t_script_list_data *user_data = malloc_assert(sizeof(struct t_script_list_data));
             user_data->bytecode = NULL;
@@ -91,11 +99,9 @@ bool scripts_file_read(struct t_scripts_state *scripts_state) {
         }
         sdsclear(metadata);
         sdsclear(scriptname);
-        sdsclear(scriptfilename);
     }
     closedir(script_dir);
     FREE_SDS(scriptname);
-    FREE_SDS(scriptfilename);
     FREE_SDS(metadata);
     FREE_SDS(scriptdirname);
     list_sort_by_key(&scripts_state->script_list, LIST_SORT_ASC);
@@ -241,15 +247,23 @@ sds script_get(struct t_list *script_list, sds buffer, unsigned request_id, sds 
 /**
  * Parses the script file.
  * The metadata line is the first line of the scriptfile.
+ * @param dir_fd Directory file descriptor
  * @param scriptfilename File to read
  * @param metadata Pointer to sds string to populate the metadata
  * @param content Pointer to sds string to populate with the script content
  * @param order Pointer to int to populate with order
  * @return true on success, else false
  */
-static bool parse_script(sds scriptfilename, sds *metadata, sds *content, int *order) {
+static bool parse_script(int dir_fd, const char *scriptfilename, sds *metadata, sds *content, int *order) {
     errno = 0;
-    FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
+    int fd = openat(dir_fd, scriptfilename, O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
+    if (fd < 0) {
+        MYMPD_LOG_ERROR(NULL, "Can not open file descriptor \"%s\" for read", scriptfilename);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    errno = 0;
+    FILE *fp = fdopen(fd, OPEN_FLAGS_READ);
     if (fp == NULL) {
         MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\"", scriptfilename);
         MYMPD_LOG_ERRNO(NULL, errno);

@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Improve some file utility wrappers
+
 ***
 
 ## myMPD v26.1.1 (2026-10-14)
