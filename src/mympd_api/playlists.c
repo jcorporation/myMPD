@@ -587,31 +587,39 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
         errno = 0;
         DIR *smartpls_dir = opendir(smartpls_path);
         if (smartpls_dir != NULL) {
-            struct dirent *next_file;
-            while ((next_file = readdir(smartpls_dir)) != NULL ) {
-                if (next_file->d_type != DT_REG) {
-                    continue;
-                }
-                size_t value_len;
-                char *value_utf8 = utf8_wrap_normalize(next_file->d_name, strlen(next_file->d_name), &value_len);
-                if (searchstr_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) {
-                    struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
-                    data->last_modified = smartpls_get_mtime(partition_state->config->workdir, next_file->d_name);
-                    data->type = PLTYPE_SMARTPLS_ONLY;
-                    data->name = sdsnew(next_file->d_name);
-                    sdsclear(key);
-                    if (sort == PLSORT_LAST_MODIFIED) {
-                        key = sds_pad_int(data->last_modified, key);
+            errno = 0;
+            int smartpls_dir_fd = dirfd(smartpls_dir);
+            if (smartpls_dir_fd == -1) {
+                MYMPD_LOG_ERROR(partition_state->name, "Can not get dirfd for smartpls dir \"%s\"", smartpls_path);
+                MYMPD_LOG_ERRNO(partition_state->name, errno);
+            }
+            else {
+                struct dirent *next_file;
+                while ((next_file = readdir(smartpls_dir)) != NULL ) {
+                    if (next_file->d_type != DT_REG) {
+                        continue;
                     }
-                    key = sdscat(key, next_file->d_name);
-                    key = sds_utf8_normalize(key);
-                    if (raxTryInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
-                        //smart playlist already added
-                        FREE_SDS(data->name);
-                        FREE_PTR(data);
+                    size_t value_len;
+                    char *value_utf8 = utf8_wrap_normalize(next_file->d_name, strlen(next_file->d_name), &value_len);
+                    if (searchstr_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) {
+                        struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
+                        data->last_modified = get_mtime_at(smartpls_dir_fd, next_file->d_name);
+                        data->type = PLTYPE_SMARTPLS_ONLY;
+                        data->name = sdsnew(next_file->d_name);
+                        sdsclear(key);
+                        if (sort == PLSORT_LAST_MODIFIED) {
+                            key = sds_pad_int(data->last_modified, key);
+                        }
+                        key = sdscat(key, next_file->d_name);
+                        key = sds_utf8_normalize(key);
+                        if (raxTryInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+                            //smart playlist already added
+                            FREE_SDS(data->name);
+                            FREE_PTR(data);
+                        }
                     }
+                    FREE_PTR(value_utf8);
                 }
-                FREE_PTR(value_utf8);
             }
             closedir(smartpls_dir);
         }
@@ -1077,21 +1085,17 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
     DIR *smartpls_dir = opendir(smartpls_path);
     if (smartpls_dir != NULL) {
         struct dirent *next_file;
-        sds smartpls_file = sdsempty();
         while ((next_file = readdir(smartpls_dir)) != NULL ) {
             if (next_file->d_type != DT_REG) {
                 continue;
             }
             if (list_get_node(&playlists, next_file->d_name) == NULL) {
-                smartpls_file = sdscatfmt(smartpls_file, "%S/%s/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
-                if (rm_file(smartpls_file) == true) {
-                    MYMPD_LOG_INFO(partition_state->name, "Removed orphaned smartpls file \"%s\"", smartpls_file);
+                if (rm_file_at(dirfd(smartpls_dir), next_file->d_name) == true) {
+                    MYMPD_LOG_INFO(partition_state->name, "Removed orphaned smartpls file \"%s/%s\"", smartpls_path, next_file->d_name);
                     delete_count++;
                 }
-                sdsclear(smartpls_file);
             }
         }
-        FREE_SDS(smartpls_file);
         closedir(smartpls_dir);
     }
     else {

@@ -105,19 +105,6 @@ bool is_smartpls(sds workdir, const char *playlist) {
 }
 
 /**
- * Returns the smart playlist last modification time
- * @param workdir myMPD working directory
- * @param playlist name of the playlist to check
- * @return last modification time
- */
-time_t smartpls_get_mtime(sds workdir, const char *playlist) {
-    sds plpath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_SMARTPLS, playlist);
-    time_t mtime = get_mtime(plpath);
-    FREE_SDS(plpath);
-    return mtime;
-}
-
-/**
  * Sends a request to the mympd_api_queue to update a smart playlist
  * @param playlist smart playlist to update
  * @param conn_id mongoose connection id

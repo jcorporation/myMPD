@@ -19,6 +19,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <time.h>
+#include <unistd.h>
 
 // private definitions
 
@@ -82,26 +83,30 @@ static int crop_dir(sds cache_basedir, const char *type, int keepdays) {
         FREE_SDS(cache_path);
         return -1;
     }
+    errno = 0;
+    int dir_fd = dirfd(cache_dir);
+    if (dir_fd == -1) {
+        MYMPD_LOG_ERROR(NULL, "Error getting directory file descriptor for \"%s\"", cache_path);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        closedir(cache_dir);
+        FREE_SDS(cache_path);
+        return -1;
+    }
 
     struct dirent *next_file;
-    sds filepath = sdsempty();
     while ((next_file = readdir(cache_dir)) != NULL ) {
         if (next_file->d_type != DT_REG) {
             continue;
         }
-        sdsclear(filepath);
-        filepath = sdscatfmt(filepath, "%S/%s", cache_path, next_file->d_name);
-        time_t mtime = get_mtime(filepath);
+        time_t mtime = get_mtime_at(dir_fd, next_file->d_name);
         if (mtime < expire_time) {
-            MYMPD_LOG_DEBUG(NULL, "Deleting \"%s\"", filepath);
-            rc = rm_file(filepath);
-            if (rc == true) {
+            MYMPD_LOG_DEBUG(NULL, "Deleting \"%s/%s\"", cache_path, next_file->d_name);
+            if (rm_file_at(dir_fd, next_file->d_name) == true) {
                 num_deleted++;
             }
         }
     }
     closedir(cache_dir);
-    FREE_SDS(filepath);
 
     MYMPD_LOG_NOTICE(NULL, "Deleted %d files from %s cache", num_deleted, type);
     FREE_SDS(cache_path);

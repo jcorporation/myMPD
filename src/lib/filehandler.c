@@ -65,6 +65,27 @@ time_t get_mtime(const char *filepath) {
 }
 
 /**
+ * Returns the modification time of a regular file relative to a directory fd
+ * @param dir_fd directory file descriptor
+ * @param filename filename relative to dir_fd
+ * @return time_t modification time, or 0 on error
+ */
+time_t get_mtime_at(int dir_fd, const char *filename) {
+    struct stat sb;
+    errno = 0;
+    if (fstatat(dir_fd, filename, &sb, AT_SYMLINK_NOFOLLOW) != 0) {
+        MYMPD_LOG_ERROR(NULL, "Error getting mtime for \"%s\", file not accessible", filename);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return 0;
+    }
+    if (S_ISREG(sb.st_mode) == false) {
+        MYMPD_LOG_ERROR(NULL, "Error getting mtime for \"%s\", file is not a regular file", filename);
+        return 0;
+    }
+    return sb.st_mtime;
+}
+
+/**
  * Checks if dir exists
  * @param desc descriptive name
  * @param dir_name directory path to check
@@ -255,6 +276,22 @@ bool rename_file(const char *src, const char *dst) {
 }
 
 /**
+ * Removes a file relative to a directory file descriptor and reports errors
+ * @param dir_fd directory file descriptor
+ * @param filepath filepath relative to dir_fd to remove
+ * @return true on success, else false
+ */
+bool rm_file_at(int dir_fd, const char *filepath) {
+    errno = 0;
+    if (unlinkat(dir_fd, filepath, 0) != 0) {
+        MYMPD_LOG_ERROR(NULL, "Error removing file \"%s\"", filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    return true;
+}
+
+/**
  * Removes a file and reports all errors
  * @param filepath filepath to remove
  * @return true on success else false
@@ -324,24 +361,26 @@ bool clean_directory(const char *dir_name) {
         MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }
-
     struct dirent *next_file;
-    sds filepath = sdsempty();
+    errno = 0;
+    int dir_fd = dirfd(directory);
+    if (dir_fd == -1) {
+        MYMPD_LOG_ERROR(NULL, "Error getting directory file descriptor for \"%s\"", dir_name);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        closedir(directory);
+        return false;
+    }
     while ((next_file = readdir(directory)) != NULL ) {
         if (next_file->d_type != DT_REG) {
             continue;
         }
-        sdsclear(filepath);
-        filepath = sdscatfmt(filepath, "%s/%s", dir_name, next_file->d_name);
-        bool rc = rm_file(filepath);
-        if (rc == false) {
-            FREE_SDS(filepath);
-            closedir(directory);
-            return false;
+        errno = 0;
+        if (unlinkat(dir_fd, next_file->d_name, 0) != 0) {
+            MYMPD_LOG_ERROR(NULL, "Error removing file \"%s/%s\"", dir_name, next_file->d_name);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
     }
     closedir(directory);
-    FREE_SDS(filepath);
     return true;
 }
 

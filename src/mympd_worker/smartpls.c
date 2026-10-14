@@ -33,6 +33,7 @@
 #include <limits.h>
 #include <mpd/tag.h>
 #include <string.h>
+#include <unistd.h>
 
 /**
  * Private definitions
@@ -72,19 +73,28 @@ bool mympd_worker_smartpls_update_all(struct t_mympd_worker_state *mympd_worker_
         MYMPD_LOG_DEBUG(NULL, "Database mtime: %s", fmt_db_mtime);
     #endif
 
-    sds dirname = sdscatfmt(sdsempty(), "%S/%s", mympd_worker_state->config->workdir, DIR_WORK_SMARTPLS);
+    sds smartpls_path = sdscatfmt(sdsempty(), "%S/%s", mympd_worker_state->config->workdir, DIR_WORK_SMARTPLS);
     errno = 0;
-    DIR *dir = opendir (dirname);
-    if (dir == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Can't open smart playlist directory \"%s\"", dirname);
+    DIR *smartpls_dir = opendir(smartpls_path);
+    if (smartpls_dir == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Can't open smart playlist directory \"%s\"", smartpls_path);
         MYMPD_LOG_ERRNO(NULL, errno);
-        FREE_SDS(dirname);
+        FREE_SDS(smartpls_path);
+        return false;
+    }
+    errno = 0;
+    int smartpls_dir_fd = dirfd(smartpls_dir);
+    if (smartpls_dir_fd == -1) {
+        MYMPD_LOG_ERROR(NULL, "Can not get dirfd for smartpls dir \"%s\"", smartpls_path);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        FREE_SDS(smartpls_path);
+        closedir(smartpls_dir);
         return false;
     }
     struct dirent *next_file;
     int updated = 0;
     int skipped = 0;
-    while ((next_file = readdir(dir)) != NULL) {
+    while ((next_file = readdir(smartpls_dir)) != NULL) {
         if (next_file->d_type != DT_REG) {
             continue;
         }
@@ -93,7 +103,7 @@ bool mympd_worker_smartpls_update_all(struct t_mympd_worker_state *mympd_worker_
             break;
         }
         time_t playlist_mtime = mympd_client_get_playlist_mtime(mympd_worker_state->partition_state, next_file->d_name);
-        time_t smartpls_mtime = smartpls_get_mtime(mympd_worker_state->config->workdir, next_file->d_name);
+        time_t smartpls_mtime = get_mtime_at(smartpls_dir_fd, next_file->d_name);
         #ifdef MYMPD_DEBUG
             char fmt_time_playlist[32];
             readable_time(fmt_time_playlist, playlist_mtime);
@@ -111,9 +121,7 @@ bool mympd_worker_smartpls_update_all(struct t_mympd_worker_state *mympd_worker_
             }
             else {
                 MYMPD_LOG_WARN(NULL, "Removing invalid smart playlist %s", next_file->d_name);
-                sds filename = sdscatfmt(sdsempty(), "%S/%s/%s", mympd_worker_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
-                rm_file(filename);
-                FREE_SDS(filename);
+                rm_file_at(smartpls_dir_fd, next_file->d_name);
             }
         }
         else {
@@ -121,8 +129,8 @@ bool mympd_worker_smartpls_update_all(struct t_mympd_worker_state *mympd_worker_
             skipped++;
         }
     }
-    closedir (dir);
-    FREE_SDS(dirname);
+    closedir (smartpls_dir);
+    FREE_SDS(smartpls_path);
     MYMPD_LOG_NOTICE(NULL, "%d smart playlists updated, %d already up-to-date", updated, skipped);
     return true;
 }

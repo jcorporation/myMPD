@@ -26,5 +26,5 @@ bool smartpls_update(const char *playlist, unsigned long conn_id, unsigned int r
 bool smartpls_update_all(bool force);
 
 bool is_smartpls(sds workdir, const char *playlist);
-time_t smartpls_get_mtime(sds workdir, const char *playlist);
+
 #endif

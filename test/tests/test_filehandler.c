@@ -7,6 +7,10 @@
 #include "compile_time.h"
 #include "utility.h"
 
+#include <dirent.h>
+#include <stdio.h>
+#include <sys/types.h>
+
 #include "dist/utest/utest.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/sds/sds_file.h"
@@ -154,6 +158,21 @@ UTEST(filehandler, test_is_dir) {
     clean_testenv();
 }
 
+UTEST(filehandler, test_get_mtime_at) {
+    init_testenv();
+    create_testfile();
+
+    DIR *dir = opendir("/tmp/mympd-test/state");
+    ASSERT_TRUE(dir != NULL);
+    ASSERT_GT(get_mtime_at(dirfd(dir), "test"), 0);
+
+    create_symlink("/tmp/mympd-test/state/test", "/tmp/mympd-test/state/test-link");
+    ASSERT_EQ(get_mtime_at(dirfd(dir), "test-link"), 0);
+
+    closedir(dir);
+    clean_testenv();
+}
+
 UTEST(filehandler, test_sds_getfile_from_fp) {
     init_testenv();
 
@@ -223,6 +242,26 @@ UTEST(filehandler, test_sds_getline) {
     fclose(fp);
     ASSERT_EQ(nread, 5);
     sdsfree(line);
+
+    clean_testenv();
+}
+
+UTEST(filehandler, test_clean_directory) {
+    init_testenv();
+    create_testfile();
+    clean_directory("/tmp/mympd-test/state");
+
+    DIR *dir = opendir("/tmp/mympd-test/state");
+    struct dirent *next_file;
+    int found = 0;
+    while ((next_file = readdir(dir)) != NULL ) {
+        if (next_file->d_type != DT_REG) {
+            continue;
+        }
+        found++;
+    }
+    closedir(dir);
+    ASSERT_EQ(found, 0);
 
     clean_testenv();
 }
