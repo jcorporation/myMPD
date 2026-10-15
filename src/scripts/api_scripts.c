@@ -97,6 +97,9 @@ bool scripts_file_read(struct t_scripts_state *scripts_state) {
             user_data->script = content;
             list_push(&scripts_state->script_list, scriptname, order, metadata, user_data);
         }
+        else {
+            FREE_SDS(content);
+        }
         sdsclear(metadata);
         sdsclear(scriptname);
     }
@@ -267,6 +270,7 @@ static bool parse_script(int dir_fd, const char *scriptfilename, sds *metadata, 
     if (fp == NULL) {
         MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\"", scriptfilename);
         MYMPD_LOG_ERRNO(NULL, errno);
+        close(fd);
         return false;
     }
 

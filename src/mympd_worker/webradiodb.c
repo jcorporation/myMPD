@@ -76,7 +76,11 @@ bool mympd_worker_webradiodb_update(struct t_mympd_worker_state *mympd_worker_st
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_WEBRADIODB_CREATED, "", "default");
     request->extra = (void *) webradiodb;
     request->extra_free = webradios_free_void;
-    mympd_queue_push(mympd_api_queue, request, 0);
+    if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+        free_request(request);
+        return false;
+    }
     return true;
 }
 

@@ -21,15 +21,17 @@
  * @param r rax tree to insert
  * @param key key to insert
  * @param data data to insert
+ * @return the key that was inserted (may be different from the original key if it was a duplicate)
  */
-void rax_insert_no_dup(rax *r, sds key, void *data) {
+sds rax_insert_no_dup(rax *r, sds key, void *data) {
     if (raxTryInsert(r, (unsigned char*)key, sdslen(key), data, NULL) == 1) {
-        return;
+        return key;
     }
     //duplicate - add random chars until it is uniq
     while (raxTryInsert(r, (unsigned char*)key, sdslen(key), data, NULL) == 0) {
         key = sds_catchar(key, randchar());
     }
+    return key;
 }
 
 /**

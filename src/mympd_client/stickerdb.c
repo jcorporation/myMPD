@@ -382,7 +382,6 @@ rax *stickerdb_find_stickers_by_name_value(struct t_stickerdb_state *stickerdb, 
     rax *stickers = raxNew();
     struct mpd_pair *pair;
     ssize_t name_len = (ssize_t)strlen(name) + 1;
-    sds file = sdsempty();
     if (mpd_sticker_search_begin(stickerdb->conn, type_name, NULL, name) == false ||
         sticker_search_add_value_constraint(stickerdb, op, value) == false)
     {
@@ -390,6 +389,7 @@ rax *stickerdb_find_stickers_by_name_value(struct t_stickerdb_state *stickerdb, 
         stickerdb_free_find_result(stickers);
         return NULL;
     }
+    sds file = sdsempty();
     if (mpd_sticker_search_commit(stickerdb->conn) == true) {
         while ((pair = mpd_recv_pair(stickerdb->conn)) != NULL) {
             if (strcmp(pair->name, "file") == 0) {
@@ -441,19 +441,18 @@ struct t_list *stickerdb_find_stickers_sorted(struct t_stickerdb_state *stickerd
     if (type_name == NULL) {
         return NULL;
     }
-    struct t_list *stickers = list_new();
     struct mpd_pair *pair;
     ssize_t name_len = (ssize_t)strlen(name) + 1;
-    sds key = sdsempty();
     if (mpd_sticker_search_begin(stickerdb->conn, type_name, baseuri, name) == false ||
         sticker_search_add_value_constraint(stickerdb, op, value) == false ||
         sticker_search_add_sort(stickerdb, sort, sort_desc) == false ||
         sticker_search_add_window(stickerdb, start, end) == false)
     {
         mpd_sticker_search_cancel(stickerdb->conn);
-        list_free(stickers);
         return NULL;
     }
+    struct t_list *stickers = list_new();
+    sds key = sdsempty();
     if (mpd_sticker_search_commit(stickerdb->conn) == true) {
         while ((pair = mpd_recv_pair(stickerdb->conn)) != NULL) {
             if (strcmp(pair->name, "sticker") == 0) {

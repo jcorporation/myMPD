@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Improve some file utility wrappers
+- Fix: Memory and fd leaks in error paths
 
 ***
 

@@ -133,13 +133,15 @@ sds mympd_api_album_detail(struct t_mympd_state *mympd_state, struct t_partition
             mpd_song_free(song);
         }
     }
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
-        FREE_SDS(first_song_uri);
-        FREE_SDS(last_played_song_uri);
-        return buffer;
-    }
     if (print_stickers == true) {
         stickerdb_enter_idle(mympd_state->stickerdb);
+    }
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
+        FREE_SDS(expression);
+        FREE_SDS(first_song_uri);
+        FREE_SDS(last_played_song_uri);
+        FREE_SDS(last_played_song_title);
+        return buffer;
     }
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -255,7 +257,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
             search_expression_album(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
             key = get_sort_key_album(key, sort_by, sort_tag, album);
-            rax_insert_no_dup(albums, key, iter.data);
+            key = rax_insert_no_dup(albums, key, iter.data);
             sdsclear(key);
         }
     }

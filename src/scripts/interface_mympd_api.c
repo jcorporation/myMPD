@@ -79,7 +79,10 @@ int lua_mympd_api(lua_State *lua_vm) {
         request->data = sdscat(request->data, params);
     }
     request->data = sdscatlen(request->data, "}", 1);
-    push_request(request, request_id);
+    if (push_request(request, request_id) == false) {
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "Failed to push request");
+    }
     lua_pop(lua_vm, n);
     int i = 0;
     while (s_signal_received == 0 && i < 60) {

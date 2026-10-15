@@ -19,7 +19,7 @@
  */
 typedef void (*rax_free_data_callback) (void *data);
 
-void rax_insert_no_dup(rax *r, sds key, void *data);
+sds rax_insert_no_dup(rax *r, sds key, void *data);
 void rax_free_data(rax *r, rax_free_data_callback free_cb);
 void rax_free_sds_data(rax *r);
 

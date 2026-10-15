@@ -32,7 +32,12 @@ bool mympd_worker_jukebox_push(struct t_mympd_worker_state *mympd_worker_state) 
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_CREATED, "", mympd_worker_state->partition_state->name);
     request->extra = (void *)jukebox_queue;
     request->extra_free = list_free_void;
-    return mympd_queue_push(mympd_api_queue, request, 0);
+    if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+        free_request(request);
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -46,7 +51,12 @@ bool mympd_worker_jukebox_error(struct t_mympd_worker_state *mympd_worker_state,
     struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_JUKEBOX_ERROR, NULL, mympd_worker_state->partition_state->name);
     request->data = tojson_sds(request->data, "error", error, false);
     request->data = jsonrpc_end(request->data);
-    return mympd_queue_push(mympd_api_queue, request, 0);
+    if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+        free_request(request);
+        return false;
+    }
+    return true;
 }
 
 /**

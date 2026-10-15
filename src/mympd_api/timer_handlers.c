@@ -287,6 +287,8 @@ static void timer_handler_state_save(struct t_mympd_state *mympd_state) {
     mympd_state_save(mympd_state, false);
     #ifdef MYMPD_ENABLE_LUA
         struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, "", MPD_PARTITION_DEFAULT);
-        mympd_queue_push(script_queue, request, 0);
+        if (mympd_queue_push(script_queue, request, 0) == false) {
+            free_request(request);
+        }
     #endif
 }

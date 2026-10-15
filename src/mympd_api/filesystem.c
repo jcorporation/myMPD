@@ -41,7 +41,7 @@ struct t_dir_entry {
 };
 
 static void free_t_dir_entry(void *data);
-static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity,
+static bool search_dir_entry(rax *rt, sds *key, sds entity_name, struct mpd_entity *entity,
         const char *searchstr, size_t searchstr_len);
 
 /**
@@ -80,7 +80,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     const struct mpd_song *song = mpd_entity_get_song(entity);
                     sds entity_name =  mympd_client_get_tag_value_string(song, MPD_TAG_TITLE, sdsempty());
                     key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
-                    search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len);
+                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len);
                     break;
                 }
                 case MPD_ENTITY_TYPE_DIRECTORY: {
@@ -88,7 +88,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     sds entity_name = sdsnew(mpd_directory_get_path(dir));
                     sds_basename_uri(entity_name);
                     key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
-                    search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len);
+                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len);
                     break;
                 }
                 case MPD_ENTITY_TYPE_PLAYLIST: {
@@ -110,7 +110,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     sds entity_name = sdsnew(pl_path);
                     sds_basename_uri(entity_name);
                     key = sdscatfmt(key, "1%s", pl_path);
-                    search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len);
+                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len);
                     break;
                 }
                 default: {
@@ -119,8 +119,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
             }
             sdsclear(key);
         }
-        FREE_SDS(key);
     }
+    FREE_SDS(key);
     FREE_PTR(searchstr_utf8);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_meta") == false) {
         //free result
@@ -235,7 +235,7 @@ static void free_t_dir_entry(void *data) {
  * @param searchstr_len Length of searchstr
  * @return true on match, else false
  */
-static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity,
+static bool search_dir_entry(rax *rt, sds *key, sds entity_name, struct mpd_entity *entity,
         const char *searchstr, size_t searchstr_len)
 {
     size_t newlen;
@@ -247,8 +247,8 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
         struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
         entry_data->name = entity_name;
         entry_data->entity = entity;
-        key = sds_utf8_normalize(key);
-        rax_insert_no_dup(rt, key, entry_data);
+        *key = sds_utf8_normalize(*key);
+        *key = rax_insert_no_dup(rt, *key, entry_data);
         FREE_PTR(value_utf8);
         return true;
     }

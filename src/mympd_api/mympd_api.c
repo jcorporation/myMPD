@@ -105,7 +105,10 @@ void *mympd_api_loop(void *arg_config) {
     // push ready state to webserver
     MYMPD_LOG_DEBUG(NULL, "Sending ready state to webserver");
     struct t_work_response *webserver_response = create_response_new(RESPONSE_TYPE_PUSH_CONFIG, 0, 0, INTERNAL_API_WEBSERVER_READY, MPD_PARTITION_DEFAULT);
-    mympd_queue_push(webserver_queue, webserver_response, 0);
+    if (mympd_queue_push(webserver_queue, webserver_response, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push websocket notify to queue");
+        free_response(webserver_response);
+    }
 
     // connect to stickerdb
     if (mympd_state->config->stickers == true) {

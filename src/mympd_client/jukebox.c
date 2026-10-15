@@ -115,7 +115,12 @@ static bool jukebox_request_worker(struct t_partition_state *partition_state,
 
     struct t_list *queue_list = jukebox_get_last_played(partition_state, partition_state->jukebox.mode);
     request->extra = queue_list;
-    return mympd_queue_push(mympd_api_queue, request, 0);
+    if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+        free_request(request);
+        return false;
+    }
+    return true;
 }
 
 /**

@@ -444,6 +444,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
             }
             else {
                 MYMPD_LOG_WARN(NULL, "Skipping trigger definition for unknown partition \"%s\"", partition);
+                mympd_api_trigger_data_free(trigger_data);
             }
         }
         else {

@@ -196,6 +196,7 @@ static int get_embedded_covers_count_id3(const char *media_file) {
     struct id3_tag *tags = id3_file_tag(file_struct);
     if (tags == NULL) {
         MYMPD_LOG_ERROR(NULL, "Can't read id3 tags from file: %s", media_file);
+        id3_file_close(file_struct);
         return 0;
     }
     struct id3_frame *frame;

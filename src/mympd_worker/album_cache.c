@@ -66,7 +66,10 @@ bool mympd_worker_album_cache_create(struct t_mympd_worker_state *mympd_worker_s
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Caches are up-to-date");
             if (mympd_worker_state->partition_state->mpd_state->feat.tags == true) {
                 struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, "", mympd_worker_state->partition_state->name);
-                mympd_queue_push(mympd_api_queue, request, 0);
+                if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+                    MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+                    free_request(request);
+                }
             }
             return true;
         }
@@ -84,7 +87,12 @@ bool mympd_worker_album_cache_create(struct t_mympd_worker_state *mympd_worker_s
             struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_CREATED, "", mympd_worker_state->partition_state->name);
             request->extra = (void *) album_cache.cache;
             request->extra_free = album_cache_free_rt_void;
-            mympd_queue_push(mympd_api_queue, request, 0);
+            if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+                MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+                free_request(request);
+                album_cache_free(&album_cache);
+                return false;
+            }
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
             album_cache_write(&album_cache, mympd_worker_state->config->workdir,
                 &mympd_worker_state->mpd_state->tags_album, &mympd_worker_state->config->albums, false);
@@ -93,13 +101,19 @@ bool mympd_worker_album_cache_create(struct t_mympd_worker_state *mympd_worker_s
             album_cache_free(&album_cache);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Update of album cache failed");
             struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_ERROR, "", mympd_worker_state->partition_state->name);
-            mympd_queue_push(mympd_api_queue, request, 0);
+            if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+                MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+                free_request(request);
+            }
         }
     }
     else {
         MYMPD_LOG_INFO("default", "Skipped album cache creation, tags are disabled");
         struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, "", mympd_worker_state->partition_state->name);
-        mympd_queue_push(mympd_api_queue, request, 0);
+        if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+            MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+            free_request(request);
+        }
     }
 
     send_jsonrpc_event(JSONRPC_EVENT_UPDATE_CACHE_FINISHED, MPD_PARTITION_ALL);
@@ -168,6 +182,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
         {
             MYMPD_LOG_ERROR("default", "Cache update failed");
             mpd_search_cancel(mympd_worker_state->partition_state->conn);
+            FREE_SDS(key);
             return false;
         }
         if (mpd_search_commit(mympd_worker_state->partition_state->conn)) {
@@ -227,6 +242,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
         }
         if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_commit") == false) {
             MYMPD_LOG_ERROR("default", "Cache update failed");
+            FREE_SDS(key);
             return false;
         }
         start = end;
@@ -304,6 +320,10 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
         {
             MYMPD_LOG_ERROR("default", "Cache update failed");
             mpd_search_cancel(mympd_worker_state->partition_state->conn);
+            FREE_SDS(key);
+            FREE_SDS(album_name);
+            FREE_SDS(artist);
+            FREE_SDS(group_tag);
             return false;
         }
         if (mpd_search_commit(mympd_worker_state->partition_state->conn)) {
@@ -353,6 +373,10 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
         }
         if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_db_tags") == false) {
             MYMPD_LOG_ERROR("default", "Cache update failed");
+            FREE_SDS(key);
+            FREE_SDS(album_name);
+            FREE_SDS(artist);
+            FREE_SDS(group_tag);
             return false;
         }
         start = end;

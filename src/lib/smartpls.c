@@ -15,6 +15,7 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
+#include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds/sds_extras.h"
 
@@ -115,7 +116,12 @@ bool smartpls_update(const char *playlist, unsigned long conn_id, unsigned int r
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, conn_id, request_id, MYMPD_API_SMARTPLS_UPDATE, NULL, MPD_PARTITION_DEFAULT);
     request->data = tojson_char(request->data, "plist", playlist, false);
     request->data = jsonrpc_end(request->data);
-    return mympd_queue_push(mympd_api_queue, request, 0);
+    if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+        free_request(request);
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -127,7 +133,12 @@ bool smartpls_update_all(bool force) {
     struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, 0, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL, MPD_PARTITION_DEFAULT);
     request->data = tojson_bool(request->data, "force", force, false);
     request->data = jsonrpc_end(request->data);
-    return mympd_queue_push(mympd_api_queue, request, 0);
+    if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+        free_request(request);
+        return false;
+    }
+    return true;
 }
 
 //privat functions

@@ -43,6 +43,8 @@ struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
     if (config->ssl == true &&
         read_certs(mg_user_data, config) == false)
     {
+        FREE_SDS(mg_user_data->cert_content);
+        FREE_SDS(mg_user_data->key_content);
         FREE_PTR(mg_user_data);
         return NULL;
     }
@@ -255,6 +257,8 @@ static bool read_certs(struct t_mg_user_data *mg_user_data, struct t_config *con
         sds ca_content = sds_getfile(sdsempty(), ca_filename, SSL_FILE_MAX, false, true, &nread);
         if (nread <= 0) {
             MYMPD_LOG_ERROR(NULL, "Failure reading ssl ca certificate from disc");
+            FREE_SDS(ca_filename);
+            FREE_SDS(ca_content);
             return false;
         }
         // Build the chain for mongoose

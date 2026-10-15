@@ -78,7 +78,12 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
     struct t_work_response *webserver_response = create_response_new(RESPONSE_TYPE_PUSH_CONFIG, 0, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
     webserver_response->extra = extra;
     webserver_response->extra_free = mg_user_data_free_void;
-    return mympd_queue_push(webserver_queue, webserver_response, 0);
+    if (mympd_queue_push(webserver_queue, webserver_response, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push request to webserver_queue");
+        free_response(webserver_response);
+        return false;
+    }
+    return true;
 }
 
 /**

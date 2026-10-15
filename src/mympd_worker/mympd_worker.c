@@ -155,7 +155,10 @@ static void *mympd_worker_run(void *arg) {
         switch (mympd_worker_state->request->cmd_id) {
             case MYMPD_API_CACHES_CREATE: {
                 struct t_work_request *request = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_ALBUMCACHE_ERROR, "", MPD_PARTITION_DEFAULT);
-                mympd_queue_push(mympd_api_queue, request, 0);
+                if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+                    MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+                    free_request(request);
+                }
                 break;
             }
             default:

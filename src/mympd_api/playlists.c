@@ -567,7 +567,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                 }
                 key = sdscatsds(key, data->name);
                 key = sds_utf8_normalize(key);
-                rax_insert_no_dup(entity_list, key, data);
+                key = rax_insert_no_dup(entity_list, key, data);
             }
             mpd_playlist_free(pl);
             FREE_PTR(value_utf8);
@@ -577,6 +577,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
         //free result
         rax_free_data(entity_list, free_t_pl_data);
         FREE_SDS(key);
+        FREE_PTR(searchstr_utf8);
         //return error message
         return buffer;
     }
@@ -847,8 +848,8 @@ sds mympd_api_playlist_content_search(struct t_partition_state *partition_state,
                 entity_count++;
                 mpd_song_free(song);
             }
-            search_expression_free(expr_list);
         }
+        search_expression_free(expr_list);
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlist_meta") == false) {
         FREE_SDS(last_played_song_uri);
