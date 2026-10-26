@@ -319,9 +319,17 @@ static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_
 
     *ca_cert = generate_selfsigned_cert(*ca_key);
     if (*ca_cert == NULL) {
+        EVP_PKEY_free(*ca_key);
+        *ca_key = NULL;
         return false;
     }
     bool rc_ca = write_to_disk(cakey_file, *ca_key, cacert_file, *ca_cert);
+    if (rc_ca == false) {
+        EVP_PKEY_free(*ca_key);
+        *ca_key = NULL;
+        X509_free(*ca_cert);
+        *ca_cert = NULL;
+    }
     return rc_ca;
 }
 
@@ -347,6 +355,8 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
     }
     X509_REQ *server_req = generate_request(*server_key);
     if (server_req == NULL) {
+        EVP_PKEY_free(*server_key);
+        *server_key = NULL;
         return false;
     }
     //get subject alternative names
@@ -359,12 +369,19 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
     MYMPD_LOG_NOTICE(NULL, "Set server certificate san to: %s", san);
     *server_cert = sign_certificate_request(*ca_key, *ca_cert, server_req, san);
     X509_REQ_free(server_req);
+    FREE_SDS(san);
     if (*server_cert == NULL) {
-        FREE_SDS(san);
+        EVP_PKEY_free(*server_key);
+        *server_key = NULL;
         return false;
     }
-    FREE_SDS(san);
     bool rc_cert = write_to_disk(serverkey_file, *server_key, servercert_file, *server_cert);
+    if (rc_cert == false) {
+        EVP_PKEY_free(*server_key);
+        *server_key = NULL;
+        X509_free(*server_cert);
+        *server_cert = NULL;
+    }
     return rc_cert;
 }
 
@@ -607,9 +624,8 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
     X509_set_issuer_name(cert, X509_get_subject_name(ca_cert));
 
     /* This certificate is valid from now until one year from now. */
-    int lifetime = CERT_LIFETIME * 24 * 60 * 60;
     X509_gmtime_adj(X509_getm_notBefore(cert), 0);
-    X509_gmtime_adj(X509_getm_notAfter(cert), lifetime);
+    X509_time_adj_ex(X509_getm_notAfter(cert), CERT_LIFETIME, 0, NULL);
 
     /* Get the request's subject and just use it (we don't bother checking it since we generated
      * it ourself). Also take the request's public key. */
@@ -708,9 +724,8 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     }
 
     //This certificate is valid from now until ten years from now.
-    int lifetime = CA_LIFETIME * 24 * 60 * 60;
     X509_gmtime_adj(X509_getm_notBefore(cert), 0);
-    X509_gmtime_adj(X509_getm_notAfter(cert), lifetime);
+    X509_time_adj_ex(X509_getm_notAfter(cert), CA_LIFETIME, 0, NULL);
 
     //Set the public key for our certificate.
     X509_set_pubkey(cert, pkey);

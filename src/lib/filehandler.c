@@ -146,6 +146,27 @@ bool is_dir(const char *dir_name, bool follow_symlink) {
 }
 
 /**
+ * Checks if file_name is a regular file relative to a directory fd
+ * @param dir_fd directory file descriptor
+ * @param file_name file path to check relative to dir_fd
+ * @param follow_symlink Follow symlinks?
+ * @return true if it is a regular file, else false
+ */
+bool is_file_at(int dir_fd, const char *file_name, bool follow_symlink) {
+    errno = 0;
+    struct stat status;
+    int rc = follow_symlink == true
+        ? fstatat(dir_fd, file_name, &status, 0)
+        : fstatat(dir_fd, file_name, &status, AT_SYMLINK_NOFOLLOW);
+    if (rc != 0) {
+        MYMPD_LOG_ERROR(NULL, "Error getting status for \"%s\"", file_name);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    return S_ISREG(status.st_mode);
+}
+
+/**
  * Checks if file_name is a regular file
  * @param file_name file path to check
  * @param follow_symlink Follow symlinks?
@@ -371,10 +392,9 @@ bool clean_directory(const char *dir_name) {
         return false;
     }
     while ((next_file = readdir(directory)) != NULL ) {
-        if (next_file->d_type != DT_REG) {
+        if (is_file_at(dir_fd, next_file->d_name, false) == false) {
             continue;
         }
-        errno = 0;
         if (unlinkat(dir_fd, next_file->d_name, 0) != 0) {
             MYMPD_LOG_ERROR(NULL, "Error removing file \"%s/%s\"", dir_name, next_file->d_name);
             MYMPD_LOG_ERRNO(NULL, errno);

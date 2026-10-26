@@ -52,6 +52,7 @@ bool rename_file(const char *src, const char *dst);
 int testdir(const char *desc, const char *dir_name, bool create, bool silent);
 bool is_dir(const char *dir_name, bool follow_symlink);
 bool is_file(const char *file_name, bool follow_symlink);
+bool is_file_at(int dir_fd, const char *file_name, bool follow_symlink);
 bool is_file_silent(const char *file_name, bool follow_symlink);
 bool clean_directory(const char *dir_name);
 bool rm_directory(const char *dir_name);

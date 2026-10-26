@@ -16,8 +16,11 @@
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
 
+#include <assert.h>
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -67,9 +70,11 @@ void cache_disk_crop(struct t_config *config) {
  * @return deleted file count on success, else -1
  */
 static int crop_dir(sds cache_basedir, const char *type, int keepdays) {
+    assert(keepdays >= 0);
     int num_deleted = 0;
     bool rc = true;
-    time_t expire_time = time(NULL) - (time_t)(keepdays * 24 * 60 * 60);
+    const time_t now = time(NULL);
+    const time_t expire_time = now - ((time_t)keepdays * 24LL * 60LL * 60LL);
 
     sds cache_path = sdscatfmt(sdsempty(), "%S/%s", cache_basedir, type);
     char fmt_time[32];
@@ -95,10 +100,14 @@ static int crop_dir(sds cache_basedir, const char *type, int keepdays) {
 
     struct dirent *next_file;
     while ((next_file = readdir(cache_dir)) != NULL ) {
-        if (next_file->d_type != DT_REG) {
+        struct stat st;
+        if (fstatat(dir_fd, next_file->d_name, &st, AT_SYMLINK_NOFOLLOW) != 0) {
             continue;
         }
-        time_t mtime = get_mtime_at(dir_fd, next_file->d_name);
+        if (S_ISREG(st.st_mode) == false) {
+            continue;
+        }
+        time_t mtime = st.st_mtime;
         if (mtime < expire_time) {
             MYMPD_LOG_DEBUG(NULL, "Deleting \"%s/%s\"", cache_path, next_file->d_name);
             if (rm_file_at(dir_fd, next_file->d_name) == true) {

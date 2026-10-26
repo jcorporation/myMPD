@@ -597,7 +597,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
             else {
                 struct dirent *next_file;
                 while ((next_file = readdir(smartpls_dir)) != NULL ) {
-                    if (next_file->d_type != DT_REG) {
+                    if (is_file_at(smartpls_dir_fd, next_file->d_name, false) == false) {
                         continue;
                     }
                     size_t value_len;
@@ -1080,18 +1080,31 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         return buffer;
     }
     int delete_count = 0;
+
     //delete each smart playlist file that have no corresponding mpd playlist file
     sds smartpls_path = sdscatfmt(sdsempty(), "%S/%s", partition_state->config->workdir, DIR_WORK_SMARTPLS);
     errno = 0;
     DIR *smartpls_dir = opendir(smartpls_path);
+    int smartpls_dir_fd = -1;
+    if (smartpls_dir != NULL) {
+        errno = 0;
+        smartpls_dir_fd = dirfd(smartpls_dir);
+        if (smartpls_dir_fd == -1) {
+            MYMPD_LOG_ERROR(NULL, "Can not get dirfd for smartpls dir \"%s\"", smartpls_path);
+            MYMPD_LOG_ERRNO(NULL, errno);
+            closedir(smartpls_dir);
+            smartpls_dir = NULL;
+        }
+    }
+
     if (smartpls_dir != NULL) {
         struct dirent *next_file;
         while ((next_file = readdir(smartpls_dir)) != NULL ) {
-            if (next_file->d_type != DT_REG) {
+            if (is_file_at(smartpls_dir_fd, next_file->d_name, false) == false) {
                 continue;
             }
             if (list_get_node(&playlists, next_file->d_name) == NULL) {
-                if (rm_file_at(dirfd(smartpls_dir), next_file->d_name) == true) {
+                if (rm_file_at(smartpls_dir_fd, next_file->d_name) == true) {
                     MYMPD_LOG_INFO(partition_state->name, "Removed orphaned smartpls file \"%s/%s\"", smartpls_path, next_file->d_name);
                     delete_count++;
                 }

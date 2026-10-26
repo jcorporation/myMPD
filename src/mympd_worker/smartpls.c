@@ -95,7 +95,7 @@ bool mympd_worker_smartpls_update_all(struct t_mympd_worker_state *mympd_worker_
     int updated = 0;
     int skipped = 0;
     while ((next_file = readdir(smartpls_dir)) != NULL) {
-        if (next_file->d_type != DT_REG) {
+        if (is_file_at(smartpls_dir_fd, next_file->d_name, false) == false) {
             continue;
         }
         if (mympd_worker_state->partition_state->conn_state != MPD_CONNECTED) {
@@ -129,7 +129,7 @@ bool mympd_worker_smartpls_update_all(struct t_mympd_worker_state *mympd_worker_
             skipped++;
         }
     }
-    closedir (smartpls_dir);
+    closedir(smartpls_dir);
     FREE_SDS(smartpls_path);
     MYMPD_LOG_NOTICE(NULL, "%d smart playlists updated, %d already up-to-date", updated, skipped);
     return true;
