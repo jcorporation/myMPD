@@ -27,8 +27,11 @@
  * @return Indicates if the operation succeeded, or why it failed.
  */
 enum str2int_errno str2int(int *out, const char *s) {
-    if (s == NULL ||
-        s[0] == '\0' ||
+    if (s == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Inconvertible string: NULL");
+        return STR2INT_INCONVERTIBLE;
+    }
+    if (s[0] == '\0' ||
         isspace(s[0]))
     {
         MYMPD_LOG_ERROR(NULL, "Inconvertible string: %s", s);
@@ -67,8 +70,11 @@ enum str2int_errno str2int(int *out, const char *s) {
  * @return Indicates if the operation succeeded, or why it failed.
  */
 enum str2int_errno str2uint(unsigned *out, const char *s) {
-    if (s == NULL ||
-        s[0] == '\0' ||
+    if (s == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Inconvertible string: NULL");
+        return STR2INT_INCONVERTIBLE;
+    }
+    if (s[0] == '\0' ||
         isspace(s[0]))
     {
         MYMPD_LOG_ERROR(NULL, "Inconvertible string: %s", s);
@@ -109,8 +115,11 @@ enum str2int_errno str2uint(unsigned *out, const char *s) {
  * @return Indicates if the operation succeeded, or why it failed.
  */
 enum str2int_errno str2int64(int64_t *out, const char *s) {
-    if (s == NULL ||
-        s[0] == '\0' ||
+    if (s == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Inconvertible string: NULL");
+        return STR2INT_INCONVERTIBLE;
+    }
+    if (s[0] == '\0' ||
         isspace(s[0]))
     {
         MYMPD_LOG_ERROR(NULL, "Inconvertible string: %s", s);
@@ -149,8 +158,11 @@ enum str2int_errno str2int64(int64_t *out, const char *s) {
  * @return Indicates if the operation succeeded, or why it failed.
  */
 enum str2int_errno str2float(float *out, const char *s) {
-    if (s == NULL ||
-        s[0] == '\0' ||
+    if (s == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Inconvertible string: NULL");
+        return STR2INT_INCONVERTIBLE;
+    }
+    if (s[0] == '\0' ||
         isspace(s[0]))
     {
         MYMPD_LOG_ERROR(NULL, "Inconvertible string: %s", s);
