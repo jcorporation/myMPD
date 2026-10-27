@@ -627,6 +627,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 if (config->scripts_external == false) {
                     MYMPD_LOG_ERROR(frontend_nc_data->partition, "External scripts are disabled");
                     webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "External scripts are disabled");
+                    break;
                 }
                 //enforce script acl
                 if (webserver_enforce_acl(nc, config->scriptacl) == false) {
