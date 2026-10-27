@@ -131,7 +131,7 @@ bool vcb_isdigit(sds data) {
  */
 bool vcb_isprint(sds data) {
     for (size_t i = 0; i < sdslen(data); i++) {
-        if (isprint(data[i]) == 0) {
+        if (isprint((unsigned char)data[i]) == 0) {
             MYMPD_LOG_WARN(NULL, "Found none printable character in string");
             return false;
         }
@@ -149,7 +149,7 @@ bool vcb_ishexcolor(sds data) {
         return false;
     }
     for (size_t i = 1; i < sdslen(data); i++) {
-        if (isxdigit(data[i]) == 0) {
+        if (isxdigit((unsigned char)data[i]) == 0) {
             MYMPD_LOG_WARN(NULL, "Found none hex character in string");
             return false;
         }

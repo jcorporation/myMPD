@@ -48,14 +48,14 @@ sds get_dnsserver(void) {
     while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
         if (sdslen(line) > 10 &&
             strncmp(line, "nameserver", 10) == 0 &&
-            isspace(line[10]))
+            isspace((unsigned char)line[10]))
         {
             char *p;
             char *z;
-            for (p = line + 11; isspace(*p); p++) {
+            for (p = line + 11; isspace((unsigned char)*p); p++) {
                 //skip blank chars
             }
-            for (z = p; *z != '\0' && (isdigit(*z) || *z == '.'); z++) {
+            for (z = p; *z != '\0' && (isdigit((unsigned char)*z) || *z == '.'); z++) {
                 nameserver = sds_catchar(nameserver, *z);
             }
             struct sockaddr_in sa;

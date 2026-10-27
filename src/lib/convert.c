@@ -32,7 +32,7 @@ enum str2int_errno str2int(int *out, const char *s) {
         return STR2INT_INCONVERTIBLE;
     }
     if (s[0] == '\0' ||
-        isspace(s[0]))
+        isspace((unsigned char)s[0]))
     {
         MYMPD_LOG_ERROR(NULL, "Inconvertible string: %s", s);
         return STR2INT_INCONVERTIBLE;
@@ -75,7 +75,7 @@ enum str2int_errno str2uint(unsigned *out, const char *s) {
         return STR2INT_INCONVERTIBLE;
     }
     if (s[0] == '\0' ||
-        isspace(s[0]))
+        isspace((unsigned char)s[0]))
     {
         MYMPD_LOG_ERROR(NULL, "Inconvertible string: %s", s);
         return STR2INT_INCONVERTIBLE;
@@ -120,7 +120,7 @@ enum str2int_errno str2int64(int64_t *out, const char *s) {
         return STR2INT_INCONVERTIBLE;
     }
     if (s[0] == '\0' ||
-        isspace(s[0]))
+        isspace((unsigned char)s[0]))
     {
         MYMPD_LOG_ERROR(NULL, "Inconvertible string: %s", s);
         return STR2INT_INCONVERTIBLE;
@@ -163,7 +163,7 @@ enum str2int_errno str2float(float *out, const char *s) {
         return STR2INT_INCONVERTIBLE;
     }
     if (s[0] == '\0' ||
-        isspace(s[0]))
+        isspace((unsigned char)s[0]))
     {
         MYMPD_LOG_ERROR(NULL, "Inconvertible string: %s", s);
         return STR2INT_INCONVERTIBLE;
