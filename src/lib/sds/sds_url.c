@@ -25,7 +25,7 @@
  * @param c char to check
  * @return true if char is url safe else false
  */
-static bool is_url_safe(char c) {
+static bool is_url_safe(unsigned char c) {
     if (isalnum(c) ||
         c == '/' || c == '-' || c == '.' ||
         c == '_')
@@ -47,7 +47,7 @@ sds sds_urlencode(sds s, const char *p, size_t len) {
     s = sdsMakeRoomFor(s, len + (len / 2));
 
     for (size_t i = 0; i < len; i++) {
-        if (is_url_safe(p[i])) {
+        if (is_url_safe((unsigned char)p[i])) {
             s = sds_catchar(s, p[i]);
         }
         else {
