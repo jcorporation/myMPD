@@ -936,7 +936,12 @@ static bool dec_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_
         return stickerdb_check_error_and_recover(stickerdb, "mpd_run_sticker_dec");
     }
     // MPD < 0.24
-    int64_t new_value = get_sticker_int64(stickerdb, type, uri, name) - value;
+    int64_t cur_value = get_sticker_int64(stickerdb, type, uri, name);
+    if (INT64_MIN + value > cur_value) {
+        MYMPD_LOG_ERROR(stickerdb->name, "Decrementing sticker would underflow: %" PRId64 " - %u", cur_value, value);
+        return set_sticker_int64(stickerdb, type, uri, name, INT64_MIN);
+    }
+    int64_t new_value = cur_value - value;
     return set_sticker_int64(stickerdb, type, uri, name, new_value);
 }
 
@@ -959,7 +964,12 @@ static bool inc_sticker(struct t_stickerdb_state *stickerdb, enum mympd_sticker_
         return stickerdb_check_error_and_recover(stickerdb, "mpd_run_sticker_inc");
     }
     // MPD < 0.24
-    int64_t new_value = get_sticker_int64(stickerdb, type, uri, name) + value;
+    int64_t cur_value = get_sticker_int64(stickerdb, type, uri, name);
+    if (cur_value > INT64_MAX - value) {
+        MYMPD_LOG_ERROR(stickerdb->name, "Incrementing sticker would overflow: %" PRId64 " + %u", cur_value, value);
+        return set_sticker_int64(stickerdb, type, uri, name, INT64_MAX);
+    }
+    int64_t new_value = cur_value + value;
     return set_sticker_int64(stickerdb, type, uri, name, new_value);
 }
 
