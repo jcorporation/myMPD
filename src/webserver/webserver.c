@@ -852,19 +852,17 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
  * @param param
  */
 static void mongoose_log(char ch, void *param) {
-    static char buf[256];
-    static size_t len;
-    buf[len++] = ch;
-    if (ch == '\n' ||
-        len >= sizeof(buf))
-    {
-        if (ch == '\n') {
-            //Remove newline
-            len--;
-        }
+    static _Thread_local sds webserver_log_buf = NULL;
+    if (webserver_log_buf == NULL) {
+        webserver_log_buf = sdsempty();
+    }
+    if (ch != '\n') {
+        webserver_log_buf = sds_catchar(webserver_log_buf, ch);
+    }
+    else {
         //we log only mongoose errors
-        MYMPD_LOG_ERROR(NULL, "%.*s", (int) len, buf); //Send logs
-        len = 0;
+        MYMPD_LOG_ERROR(NULL, "%s", webserver_log_buf); //Send logs
+        FREE_SDS(webserver_log_buf);
     }
     (void)param;
 }
