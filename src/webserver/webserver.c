@@ -850,7 +850,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 /**
  * Mongoose logging function
  * @param ch character to log
- * @param param
+ * @param param Not used
  */
 static void mongoose_log(char ch, void *param) {
     static _Thread_local char webserver_log_buf[256];
