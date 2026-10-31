@@ -601,7 +601,7 @@ static sds expr_get_value(const char *p, const char *end, int tag, sds buf, bool
     if (tag == SEARCH_FILTER_PRIO) {
         // Value is not in quotes and must be a number
         while (*p != '\0') {
-            if (isdigit(*p) == 0) {
+            if (isdigit((unsigned char)*p) == 0) {
                 *rc = false;
                 return buf;
             }

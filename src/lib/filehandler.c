@@ -65,6 +65,27 @@ time_t get_mtime(const char *filepath) {
 }
 
 /**
+ * Returns the modification time of a regular file relative to a directory fd
+ * @param dir_fd directory file descriptor
+ * @param filename filename relative to dir_fd
+ * @return time_t modification time, or 0 on error
+ */
+time_t get_mtime_at(int dir_fd, const char *filename) {
+    struct stat sb;
+    errno = 0;
+    if (fstatat(dir_fd, filename, &sb, AT_SYMLINK_NOFOLLOW) != 0) {
+        MYMPD_LOG_ERROR(NULL, "Error getting mtime for \"%s\", file not accessible", filename);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return 0;
+    }
+    if (S_ISREG(sb.st_mode) == false) {
+        MYMPD_LOG_ERROR(NULL, "Error getting mtime for \"%s\", file is not a regular file", filename);
+        return 0;
+    }
+    return sb.st_mtime;
+}
+
+/**
  * Checks if dir exists
  * @param desc descriptive name
  * @param dir_name directory path to check
@@ -122,6 +143,27 @@ bool is_dir(const char *dir_name, bool follow_symlink) {
         return false;
     }
     return S_ISDIR(status.st_mode);
+}
+
+/**
+ * Checks if file_name is a regular file relative to a directory fd
+ * @param dir_fd directory file descriptor
+ * @param file_name file path to check relative to dir_fd
+ * @param follow_symlink Follow symlinks?
+ * @return true if it is a regular file, else false
+ */
+bool is_file_at(int dir_fd, const char *file_name, bool follow_symlink) {
+    errno = 0;
+    struct stat status;
+    int rc = follow_symlink == true
+        ? fstatat(dir_fd, file_name, &status, 0)
+        : fstatat(dir_fd, file_name, &status, AT_SYMLINK_NOFOLLOW);
+    if (rc != 0) {
+        MYMPD_LOG_ERROR(NULL, "Error getting status for \"%s\"", file_name);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    return S_ISREG(status.st_mode);
 }
 
 /**
@@ -196,6 +238,7 @@ FILE *open_tmp_file(sds filepath) {
         MYMPD_LOG_ERROR(NULL, "Can not open tmp file \"%s\" for write", filepath);
         MYMPD_LOG_ERRNO(NULL, errno);
         close(fd);
+        rm_file(filepath);
     }
     return fp;
 }
@@ -221,6 +264,7 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
     //filepath is tmp_file without .XXXXXX suffix
     sds filepath = sdscatlen(sdsempty(), tmp_file, sdslen(tmp_file) - 7);
     if (is_file(tmp_file, false) == false) {
+        FREE_SDS(filepath);
         return false;
     }
     if (rename(tmp_file, filepath) == -1) {
@@ -253,14 +297,27 @@ bool rename_file(const char *src, const char *dst) {
 }
 
 /**
+ * Removes a file relative to a directory file descriptor and reports errors
+ * @param dir_fd directory file descriptor
+ * @param filepath filepath relative to dir_fd to remove
+ * @return true on success, else false
+ */
+bool rm_file_at(int dir_fd, const char *filepath) {
+    errno = 0;
+    if (unlinkat(dir_fd, filepath, 0) != 0) {
+        MYMPD_LOG_ERROR(NULL, "Error removing file \"%s\"", filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        return false;
+    }
+    return true;
+}
+
+/**
  * Removes a file and reports all errors
  * @param filepath filepath to remove
  * @return true on success else false
  */
 bool rm_file(const char *filepath) {
-    if (is_file(filepath, false) == false) {
-        return false;
-    }
     errno = 0;
     if (unlink(filepath) != 0) {
         MYMPD_LOG_ERROR(NULL, "Error removing file \"%s\"", filepath);
@@ -278,9 +335,6 @@ bool rm_file(const char *filepath) {
  *         RM_FILE_OK file was removed
  */
 int try_rm_file(const char *filepath) {
-    if (is_file(filepath, false) == false) {
-        return RM_FILE_ENOENT;
-    }
     errno = 0;
     if (unlink(filepath) != 0) {
         if (errno == ENOENT) {
@@ -328,24 +382,25 @@ bool clean_directory(const char *dir_name) {
         MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }
-
     struct dirent *next_file;
-    sds filepath = sdsempty();
+    errno = 0;
+    int dir_fd = dirfd(directory);
+    if (dir_fd == -1) {
+        MYMPD_LOG_ERROR(NULL, "Error getting directory file descriptor for \"%s\"", dir_name);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        closedir(directory);
+        return false;
+    }
     while ((next_file = readdir(directory)) != NULL ) {
-        if (next_file->d_type != DT_REG) {
+        if (is_file_at(dir_fd, next_file->d_name, false) == false) {
             continue;
         }
-        sdsclear(filepath);
-        filepath = sdscatfmt(filepath, "%s/%s", dir_name, next_file->d_name);
-        bool rc = rm_file(filepath);
-        if (rc == false) {
-            FREE_SDS(filepath);
-            closedir(directory);
-            return false;
+        if (unlinkat(dir_fd, next_file->d_name, 0) != 0) {
+            MYMPD_LOG_ERROR(NULL, "Error removing file \"%s/%s\"", dir_name, next_file->d_name);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
     }
     closedir(directory);
-    FREE_SDS(filepath);
     return true;
 }
 
@@ -370,9 +425,6 @@ bool rm_directory(const char *dir_name) {
  * @return true on success, else false
  */
 bool clean_rm_directory(const char *dir_name) {
-    bool rc = clean_directory(dir_name);
-    if (rc == true) {
-        rc = rm_directory(dir_name);
-    }
-    return rc;
+    return clean_directory(dir_name) && \
+           rm_directory(dir_name);
 }

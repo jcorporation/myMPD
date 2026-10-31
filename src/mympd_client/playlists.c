@@ -695,7 +695,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
             while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                 key = get_sort_key(key, sort_by, sort_tags.tags[0], song);
                 sds data = sdsnew(mpd_song_get_uri(song));
-                rax_insert_no_dup(plist, key, data);
+                key = rax_insert_no_dup(plist, key, data);
                 mpd_song_free(song);
                 sdsclear(key);
                 pos++;

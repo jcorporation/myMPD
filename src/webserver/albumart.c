@@ -126,7 +126,10 @@ void request_handler_albumart_by_album_id(struct mg_http_message *hm, unsigned l
     request->data = tojson_sds(request->data, "albumid", albumid, true);
     request->data = tojson_uint(request->data, "size", size, false);
     request->data = jsonrpc_end(request->data);
-    mympd_queue_push(mympd_api_queue, request, 0);
+    if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+        free_request(request);
+    }
     FREE_SDS(albumid);
 }
 
@@ -277,7 +280,11 @@ bool request_handler_albumart_by_uri(struct mg_connection *nc, struct mg_http_me
         struct t_work_request *request = create_request(REQUEST_TYPE_DEFAULT, nc->id, 0, INTERNAL_API_ALBUMART_BY_URI, NULL, MPD_PARTITION_DEFAULT);
         request->data = tojson_sds(request->data, "uri", uri, false);
         request->data = jsonrpc_end(request->data);
-        mympd_queue_push(mympd_api_queue, request, 0);
+        if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+            MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+            free_request(request);
+            webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
+        }
         FREE_SDS(uri);
         return false;
     }

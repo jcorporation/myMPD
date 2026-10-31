@@ -4,6 +4,18 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v26.1.2 (2026-10-31)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Upd: Improve some file utility wrappers
+- Fix: Memory and fd leaks in error paths
+- Fix: Enforce disabling external scripts
+
+***
+
 ## myMPD v26.1.1 (2026-10-14)
 
 This is a small bug fix release.

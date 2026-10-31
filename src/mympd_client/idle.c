@@ -87,7 +87,10 @@ bool mympd_client_idle(struct t_mympd_state *mympd_state, struct t_work_request 
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                 JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Unknown partition");
             MYMPD_LOG_DEBUG(NULL, "Send http response to connection %lu: %s", request->conn_id, response->data);
-            mympd_queue_push(webserver_queue, response, 0);
+            if (mympd_queue_push(webserver_queue, response, 0) == false) {
+                MYMPD_LOG_ERROR(NULL, "Failed to push response to webserver queue");
+                free_response(response);
+            }
         }
         free_request(request);
     }

@@ -42,6 +42,7 @@ bool handle_coverextract_id3(sds cachedir, const char *uri, const char *media_fi
     struct id3_tag *tags = id3_file_tag(file_struct);
     if (tags == NULL) {
         MYMPD_LOG_ERROR(NULL, "Can't read id3 tags from file: %s", media_file);
+        id3_file_close(file_struct);
         return false;
     }
     struct id3_frame *frame = id3_tag_findframe(tags, "APIC", (unsigned)offset);

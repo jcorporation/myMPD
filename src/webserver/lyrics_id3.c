@@ -18,6 +18,8 @@
 
 #include <assert.h>
 #include <id3tag.h>
+#include <inttypes.h>
+#include <stdint.h>
 
 // private definitions
 
@@ -253,17 +255,25 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
                     text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
                 }
                 else {
-                    unsigned c = (unsigned)((binary_data[i + 1] << 8) | binary_data[i]);
+                    uint32_t c = ((uint32_t)binary_data[i + 1] << 8) | (uint32_t)binary_data[i];
                     if (c <= 0xd7ff || c >= 0xe000) {
-                        text_buf = sdscatprintf(text_buf, "\\u%04x", c);
+                        text_buf = sdscatprintf(text_buf, "\\u%04" PRIx32, c);
+                    }
+                    else if (i + 4 < binary_length) {
+                        //surrogate pair
+                        c = ((uint32_t)binary_data[i + 1] << 24) |
+                            ((uint32_t)binary_data[i] << 16) |
+                            ((uint32_t)binary_data[i + 3] << 8) |
+                            (uint32_t)binary_data[i + 2];
+                        c -= UINT32_C(0x10000);
+                        if (c <= 0x10ffff) {
+                            text_buf = sdscatprintf(text_buf, "\\u%04" PRIx32 "%04" PRIx32,
+                                UINT32_C(0xd800) + (c >> 10), UINT32_C(0xdc00) + (c & UINT32_C(0x3ff)));
+                        }
                     }
                     else {
-                        //surrogate pair
-                        c = (unsigned)((binary_data[i + 1] << 24) | (binary_data[i] << 16) | (binary_data[i + 3] << 8) | binary_data[i + 2]);
-                        c = c - 0x10000;
-                        if (c <= 0x10ffff) {
-                            text_buf = sdscatprintf(text_buf, "\\u%04x%04x", 0xd800 + (c >> 10), 0xdc00 + (c & 0x3ff));
-                        }
+                        MYMPD_LOG_ERROR(NULL, "Premature end of data");
+                        break;
                     }
                 }
                 i = i + 2;
@@ -277,16 +287,20 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
                     text_buf = sds_catjsonchar(text_buf, (char)binary_data[i + 1]);
                 }
                 else {
-                    unsigned c = (unsigned)((binary_data[i] << 8) | binary_data[i + 1]);
+                    uint32_t c = ((uint32_t)binary_data[i] << 8) | (uint32_t)binary_data[i + 1];
                     if (c <= 0xd7ff || c >= 0xe000) {
-                        text_buf = sdscatprintf(text_buf, "\\u%04x", c);
+                        text_buf = sdscatprintf(text_buf, "\\u%04" PRIx32, c);
                     }
                     else if (i + 4 < binary_length) {
                         //surrogate pair
-                        c = (unsigned)((binary_data[i] << 24) | (binary_data[i + 1] << 16) | (binary_data[i + 2] << 8) | binary_data[i + 3]);
-                        c = c - 0x10000;
+                        c = ((uint32_t)binary_data[i] << 24) |
+                            ((uint32_t)binary_data[i + 1] << 16) |
+                            ((uint32_t)binary_data[i + 2] << 8) |
+                            (uint32_t)binary_data[i + 3];
+                        c -= UINT32_C(0x10000);
                         if (c <= 0x10ffff) {
-                            text_buf = sdscatprintf(text_buf, "\\u%04x%04x", 0xd800 + (c >> 10), 0xdc00 + (c & 0x3ff));
+                            text_buf = sdscatprintf(text_buf, "\\u%04" PRIx32 "%04" PRIx32,
+                                UINT32_C(0xd800) + (c >> 10), UINT32_C(0xdc00) + (c & UINT32_C(0x3ff)));
                         }
                     }
                     else {
@@ -324,12 +338,15 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
         }
         //read timestamp - 4 bytes
         if (i + 3 < binary_length) {
-            int ms = (binary_data[i] << 24) | (binary_data[i + 1] << 16) | (binary_data[i + 2] << 8) | binary_data[i + 3];
-            int min = ms / 60000;
-            ms = ms - (min * 60000);
-            int sec = ms / 1000;
-            ms = ms - (sec * 1000);
-            sylt_text = sdscatprintf(sylt_text, "[%02d:%02d.%02d]%s\\n", min, sec, ms, text_buf);
+            uint32_t ms = ((uint32_t)binary_data[i] << 24) |
+                          ((uint32_t)binary_data[i + 1] << 16) |
+                          ((uint32_t)binary_data[i + 2] << 8) |
+                          (uint32_t)binary_data[i + 3];
+            uint32_t min = ms / 60000U;
+            ms %= 60000U;
+            uint32_t sec = ms / 1000U;
+            ms %= 1000U;
+            sylt_text = sdscatprintf(sylt_text, "[%02" PRIu32 ":%02" PRIu32 ".%02" PRIu32 "]%s\\n", min, sec, ms, text_buf);
             sdsclear(text_buf);
             i = i + 4;
         }

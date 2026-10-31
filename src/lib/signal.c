@@ -112,10 +112,18 @@ bool signal_eventfd_handler(void) {
         case SIGHUP:
             MYMPD_LOG_NOTICE(NULL, "Signal SIGHUP received, saving states");
             struct t_work_request *request1 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, "", MPD_PARTITION_DEFAULT);
-            mympd_queue_push(mympd_api_queue, request1, 0);
+            if (mympd_queue_push(mympd_api_queue, request1, 0) == false) {
+                MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+                free_request(request1);
+                return false;
+            }
             #ifdef MYMPD_ENABLE_LUA
                 struct t_work_request *request2 = create_request(REQUEST_TYPE_DISCARD, 0, 0, INTERNAL_API_STATE_SAVE, "", MPD_PARTITION_DEFAULT);
-                mympd_queue_push(script_queue, request2, 0);
+                if (mympd_queue_push(script_queue, request2, 0) == false) {
+                    MYMPD_LOG_ERROR(NULL, "Failed to push request to script_queue");
+                    free_request(request2);
+                    return false;
+                }
             #endif
             return true;
         default:

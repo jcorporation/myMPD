@@ -78,7 +78,14 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
         request->data = tojson_sds(request->data, "tag", tag, true);
         request->data = tojson_sds(request->data, "value", value, false);
         request->data = jsonrpc_end(request->data);
-        mympd_queue_push(mympd_api_queue, request, 0);
+        if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+            MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+            free_request(request);
+            webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
+            FREE_SDS(tag);
+            FREE_SDS(value);
+            return false;
+        }
         FREE_SDS(tag);
         FREE_SDS(value);
         return false;

@@ -96,7 +96,7 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
             if (sort_tag != WEBRADIO_TAG_NAME) {
                 key = sdscat(key, webradio_data->name);
             }
-            rax_insert_no_dup(sorted, key, iter.data);
+            key = rax_insert_no_dup(sorted, key, iter.data);
             sdsclear(key);
         }
     }

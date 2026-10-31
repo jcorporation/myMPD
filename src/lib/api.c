@@ -309,7 +309,10 @@ void ws_notify(sds message, const char *partition) {
     MYMPD_LOG_DEBUG(partition, "Push websocket notify to queue: \"%s\"", message);
     struct t_work_response *response = create_response_new(RESPONSE_TYPE_NOTIFY_PARTITION, 0, 0, INTERNAL_API_WEBSERVER_NOTIFY, partition);
     response->data = sds_replace(response->data, message);
-    mympd_queue_push(webserver_queue, response, 0);
+    if (mympd_queue_push(webserver_queue, response, 0) == false) {
+        MYMPD_LOG_ERROR(partition, "Failed to push websocket notify to queue: \"%s\"", message);
+        free_response(response);
+    }
 }
 
 /**
@@ -321,7 +324,10 @@ void ws_notify_client(sds message, unsigned request_id) {
     MYMPD_LOG_DEBUG(NULL, "Push websocket notify to queue: \"%s\"", message);
     struct t_work_response *response = create_response_new(RESPONSE_TYPE_NOTIFY_CLIENT, 0, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);
     response->data = sds_replace(response->data, message);
-    mympd_queue_push(webserver_queue, response, 0);
+    if (mympd_queue_push(webserver_queue, response, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push websocket notify to queue: \"%s\"", message);
+        free_response(response);
+    }
 }
 
 /**
@@ -333,7 +339,10 @@ void ws_script_dialog(sds message, unsigned request_id) {
     MYMPD_LOG_DEBUG(NULL, "Push websocket notify to queue: \"%s\"", message);
     struct t_work_response *response = create_response_new(RESPONSE_TYPE_SCRIPT_DIALOG, 0, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);
     response->data = sds_replace(response->data, message);
-    mympd_queue_push(webserver_queue, response, 0);
+    if (mympd_queue_push(webserver_queue, response, 0) == false) {
+        MYMPD_LOG_ERROR(NULL, "Failed to push websocket notify to queue: \"%s\"", message);
+        free_response(response);
+    }
 }
 
 /**
@@ -468,14 +477,26 @@ bool push_response(struct t_work_response *response) {
         case RESPONSE_TYPE_SCRIPT_DIALOG:
         case RESPONSE_TYPE_REDIRECT:
             MYMPD_LOG_DEBUG(NULL, "Push response to webserver queue for connection %lu: %s", response->conn_id, response->data);
-            return mympd_queue_push(webserver_queue, response, 0);
+            if (mympd_queue_push(webserver_queue, response, 0) == false) {
+                free_response(response);
+                return false;
+            }
+            return true;
         case RESPONSE_TYPE_RAW:
             MYMPD_LOG_DEBUG(NULL, "Push raw response to webserver queue for connection %lu with %lu bytes", response->conn_id, (unsigned long)sdslen(response->data));
-            return mympd_queue_push(webserver_queue, response, 0);
+            if (mympd_queue_push(webserver_queue, response, 0) == false) {
+                free_response(response);
+                return false;
+            }
+            return true;
         case RESPONSE_TYPE_SCRIPT:
             #ifdef MYMPD_ENABLE_LUA
                 MYMPD_LOG_DEBUG(NULL, "Push response to script_worker_queue for thread %u: %s", response->id, response->data);
-                return mympd_queue_push(script_worker_queue, response, response->id);
+                if (mympd_queue_push(script_worker_queue, response, response->id) == false) {
+                    free_response(response);
+                    return false;
+                }
+                return true;
             #endif
         case RESPONSE_TYPE_DISCARD:
             // discard response
@@ -490,6 +511,7 @@ bool push_response(struct t_work_response *response) {
 
 /**
  * Pushes the request to a queue
+ * Frees the request on error
  * @param request pointer to request struct to push
  * @param id request id
  * @return true on success, else false
@@ -498,13 +520,22 @@ bool push_request(struct t_work_request *request, unsigned id) {
     if (check_cmd_acl(request->cmd_id, API_SCRIPT_THREAD) == true) {
         #ifdef MYMPD_ENABLE_LUA
             //forward API request to script thread
-            return mympd_queue_push(script_queue, request, id);
+            if (mympd_queue_push(script_queue, request, id) == false) {
+                free_request(request);
+                return false;
+            }
+            return true;
         #else
+            free_request(request);
             return false;
         #endif
     }
     else {
         //forward API request to mympd_api thread
-        return mympd_queue_push(mympd_api_queue, request, id);
+        if (mympd_queue_push(mympd_api_queue, request, id) == false) {
+            free_request(request);
+            return false;
+        }
+        return true;
     }
 }

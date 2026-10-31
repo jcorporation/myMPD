@@ -627,6 +627,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 if (config->scripts_external == false) {
                     MYMPD_LOG_ERROR(frontend_nc_data->partition, "External scripts are disabled");
                     webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "External scripts are disabled");
+                    break;
                 }
                 //enforce script acl
                 if (webserver_enforce_acl(nc, config->scriptacl) == false) {
@@ -849,22 +850,24 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 /**
  * Mongoose logging function
  * @param ch character to log
- * @param param
+ * @param param Not used
  */
 static void mongoose_log(char ch, void *param) {
-    static char buf[256];
-    static size_t len;
-    buf[len++] = ch;
+    static _Thread_local char webserver_log_buf[256];
+    static _Thread_local size_t webserver_log_len;
+    webserver_log_buf[webserver_log_len++] = ch;
     if (ch == '\n' ||
-        len >= sizeof(buf))
+        webserver_log_len >= sizeof(webserver_log_buf))
     {
         if (ch == '\n') {
             //Remove newline
-            len--;
+            webserver_log_len--;
         }
-        //we log only mongoose errors
-        MYMPD_LOG_ERROR(NULL, "%.*s", (int) len, buf); //Send logs
-        len = 0;
+        // We log only mongoose errors
+        if (webserver_log_len > 0) {
+            MYMPD_LOG_ERROR(NULL, "%.*s", (int) webserver_log_len, webserver_log_buf);
+            webserver_log_len = 0;
+        }
     }
     (void)param;
 }

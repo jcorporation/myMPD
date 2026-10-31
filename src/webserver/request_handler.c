@@ -127,7 +127,6 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
                 FREE_SDS(session);
                 FREE_SDS(cmd);
                 FREE_SDS(jsonrpc);
-                free_request(request);
                 return false;
             }
         }
@@ -182,7 +181,6 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
         MYMPD_LOG_ERROR(frontend_nc_data->partition, "Failure pushing request to script api handler for %s", cmd);
         FREE_SDS(cmd);
         FREE_SDS(jsonrpc);
-        free_request(request);
         return false;
     }
 

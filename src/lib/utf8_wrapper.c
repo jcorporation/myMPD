@@ -128,7 +128,7 @@ static char *normalize(const char *str, size_t len, size_t *newlen, utf8proc_opt
         (void) flags;
         char *lower = malloc_assert(len + 1);
         for (size_t i = 0; i < len; i++) {
-            lower[i] = (char)tolower(str[i]);
+            lower[i] = (char)tolower((unsigned char)str[i]);
         }
         lower[len] = '\0';
         *newlen = len;

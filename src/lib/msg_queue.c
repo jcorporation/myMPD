@@ -104,12 +104,14 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, unsigned id) {
         queue->tail = new_node;
     }
     if (unlock_mutex(&queue->mutex) != 0) {
-        return false;
+        // Return true, because data was pushed to the queue
+        return true;
     }
     rc = pthread_cond_signal(&queue->wakeup);
     if (rc != 0) {
         MYMPD_LOG_ERROR(NULL, "Error in pthread_cond_signal: %d", rc);
-        return 0;
+        // Return true, because data was pushed to the queue
+        return true;
     }
     if (queue->event_fd > -1) {
         event_eventfd_write(queue->event_fd);

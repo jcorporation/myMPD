@@ -20,7 +20,7 @@ struct t_random_add_constraints {
     const char *filter_include;  //!< mpd search filter to include songs / albums
     const char *filter_exclude;  //!< mpd search filter to exclude songs / albums
     enum mpd_tag_type uniq_tag;  //!< single tag for the jukebox uniq constraint
-    unsigned last_played;        //!< only add songs with last_played state older than seconds from now
+    unsigned last_played;        //!< only add songs with last_played state older than hours from now
     bool ignore_hated;           //!< ignores hated songs for the jukebox mode
     unsigned min_song_duration;  //!< minimum song duration
     unsigned max_song_duration;  //!< maximum song duration

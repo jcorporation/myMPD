@@ -73,7 +73,11 @@ bool request_handler_playlistart(struct mg_connection *nc, struct mg_http_messag
         request->data = tojson_sds(request->data, "name", name, true);
         request->data = tojson_sds(request->data, "type", type, false);
         request->data = jsonrpc_end(request->data);
-        mympd_queue_push(mympd_api_queue, request, 0);
+        if (mympd_queue_push(mympd_api_queue, request, 0) == false) {
+            MYMPD_LOG_ERROR(NULL, "Failed to push request to mympd_api_queue");
+            free_request(request);
+            webserver_redirect_placeholder_image(nc, PLACEHOLDER_PLAYLIST);
+        }
         FREE_SDS(name);
         FREE_SDS(type);
         return false;

@@ -12,6 +12,7 @@
 #include "src/mympd_api/pictures.h"
 
 #include "src/lib/api.h"
+#include "src/lib/filehandler.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
@@ -44,19 +45,28 @@ sds mympd_api_settings_picture_list(sds workdir, sds buffer, unsigned request_id
         FREE_SDS(pic_dirname);
         return buffer;
     }
+    int pic_dir_fd = dirfd(pic_dir);
+    if (pic_dir_fd == -1) {
+        MYMPD_LOG_ERROR(NULL, "Can not get dirfd for pics directory \"%s\"", pic_dirname);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        closedir(pic_dir);
+        FREE_SDS(pic_dirname);
+        return buffer;
+    }
 
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     unsigned returned_entities = 0;
     struct dirent *next_file;
     while ((next_file = readdir(pic_dir)) != NULL ) {
-        if (next_file->d_type == DT_REG) {
-            if (is_image(next_file->d_name) == true) {
-                if (returned_entities++) {
-                    buffer = sdscatlen(buffer, ",", 1);
-                }
-                buffer = sds_catjson(buffer, next_file->d_name, strlen(next_file->d_name));
+        if (is_file_at(pic_dir_fd, next_file->d_name, false) == false) {
+            continue;
+        }
+        if (is_image(next_file->d_name) == true) {
+            if (returned_entities++) {
+                buffer = sdscatlen(buffer, ",", 1);
             }
+            buffer = sds_catjson(buffer, next_file->d_name, strlen(next_file->d_name));
         }
     }
     closedir(pic_dir);

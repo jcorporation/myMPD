@@ -125,12 +125,12 @@ sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition
         return buffer;
     }
     //get assigned outputs
-    struct t_list outputs;
-    list_init(&outputs);
     mpd_send_noidle(partition_to_remove->conn);
     if (mympd_check_error_and_recover_respond(partition_to_remove, &buffer, cmd_id, request_id, "mpd_send_noidle") == false) {
         return buffer;
     }
+    struct t_list outputs;
+    list_init(&outputs);
     if (mpd_send_outputs(partition_to_remove->conn)) {
         struct mpd_output *output;
         while ((output = mpd_recv_output(partition_to_remove->conn)) != NULL) {
@@ -139,6 +139,7 @@ sds mympd_api_partition_rm(struct t_mympd_state *mympd_state, struct t_partition
         }
     }
     if (mympd_check_error_and_recover_respond(partition_to_remove, &buffer, cmd_id, request_id, "mpd_send_outputs") == false) {
+        list_clear(&outputs);
         return buffer;
     }
     //disconnect partition

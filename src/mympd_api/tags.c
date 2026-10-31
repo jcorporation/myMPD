@@ -104,19 +104,19 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
                 key = sdscat(key, pair->value);
                 key = sds_utf8_normalize(key);
                 sds data = sdsnew(pair->value);
-                rax_insert_no_dup(taglist, key, data);
+                key = rax_insert_no_dup(taglist, key, data);
                 sdsclear(key);
             }
             mpd_return_pair(partition_state->conn, pair);
             FREE_PTR(value_utf8);
         }
     }
+    FREE_SDS(key);
+    FREE_PTR(searchstr_utf8);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_tags") == false) {
         rax_free_sds_data(taglist);
         return buffer;
     }
-    FREE_SDS(key);
-    FREE_PTR(searchstr_utf8);
 
     //print list
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);

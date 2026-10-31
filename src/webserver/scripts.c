@@ -63,7 +63,11 @@ bool script_execute_http(struct mg_connection *nc, struct mg_http_message *hm, s
     request->extra_free = script_execute_data_free_void;
     FREE_SDS(partition);
     FREE_SDS(script);
-    return push_request(request, 0);
+    if (push_request(request, 0) == false) {
+        webserver_send_error(nc, 500, "Failed to push request");
+        return false;
+    }
+    return true;
 }
 
 /**

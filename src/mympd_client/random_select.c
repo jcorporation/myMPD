@@ -84,8 +84,8 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
 
     unsigned skipno = 0;
     unsigned lineno = 1;
-    time_t since = time(NULL);
-    since = since - (time_t)(constraints->last_played * 3600);
+    time_t now = time(NULL);
+    time_t since = now - ((time_t)constraints->last_played * 3600LL);
     sds albumid = sdsempty();
     rax *stickers_last_played = NULL;
     if (partition_state->config->albums.mode == ALBUM_MODE_ADV &&
@@ -185,7 +185,8 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
     unsigned end = start + MPD_RESULTS_MAX;
     unsigned skipno = 0;
     unsigned lineno = 1;
-    time_t since = time(NULL) - (time_t)(constraints->last_played * 3600);
+    time_t now = time(NULL);
+    time_t since = now - ((time_t)constraints->last_played * 3600LL);
 
     bool from_database = strcmp(playlist, "Database") == 0
         ? true
