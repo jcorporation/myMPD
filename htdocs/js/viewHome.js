@@ -206,7 +206,7 @@ function updateHomeWidgetScript(card, data) {
                 if (event.target.nodeName === 'A' &&
                     event.target.getAttribute('href') !== null)
                 {
-                    return
+                    return;
                 }
                 event.preventDefault();
                 event.stopPropagation();
