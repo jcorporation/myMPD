@@ -204,7 +204,7 @@ function updateHomeWidgetScript(card, data) {
             body.appendChild(... html.body.childNodes);
             body.addEventListener('click', function(event) {
                 if (event.target.nodeName === 'A' &&
-                    event.target.getAttribute('href') != null)
+                    event.target.getAttribute('href') !== null)
                 {
                     return
                 }
