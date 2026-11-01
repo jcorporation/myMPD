@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Home Widgets - Allow html links
+
 ***
 
 ## myMPD v26.1.2 (2026-10-31)

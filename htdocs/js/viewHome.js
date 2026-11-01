@@ -203,6 +203,11 @@ function updateHomeWidgetScript(card, data) {
             const html = parser.parseFromString(response, "text/html");
             body.appendChild(... html.body.childNodes);
             body.addEventListener('click', function(event) {
+                if (event.target.nodeName === 'A' &&
+                    event.target.getAttribute('href') != null)
+                {
+                    return
+                }
                 event.preventDefault();
                 event.stopPropagation();
                 const href = getData(event.target, 'href');
