@@ -25,7 +25,7 @@ function checkSmartCount(number) {
  * @returns {string} translated phrase
  */
 function tn(phrase, data) {
-    // @ts-ignore
+    // @ts-expect-error
     if (isNaN(phrase) === false) {
         //do not translate numbers
         return phrase;

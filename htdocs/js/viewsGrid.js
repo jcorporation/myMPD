@@ -21,7 +21,7 @@ function dragAndDropGrid(gridId) {
             return false;
         }
         event.target.classList.add('opacity05');
-        // @ts-ignore
+        // @ts-expect-error
         event.dataTransfer.setDragImage(event.target, 0, 0);
         event.dataTransfer.effectAllowed = 'move';
         dragEl = target;

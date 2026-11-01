@@ -15,7 +15,7 @@ function dragAndDropTable(tableId) {
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
             event.target.classList.add('opacity05');
-            // @ts-ignore
+            // @ts-expect-error
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             dragEl = event.target;

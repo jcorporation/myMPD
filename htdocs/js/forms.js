@@ -114,7 +114,7 @@ function createForm(defaultFields, prefix, forms) {
             if (defaultFields[key].onClick !== undefined) {
                 // custom click handler
                 btn.addEventListener('click', function(event) {
-                    // @ts-ignore
+                    // @ts-expect-error
                     window[defaultFields[key].onClick](event);
                 }, false);
             }
@@ -203,7 +203,7 @@ function createForm(defaultFields, prefix, forms) {
         if (defaultFields[key].onChange !== undefined) {
             const id = prefix + ucFirst(key) + 'Input';
             elGetById(id).addEventListener('change', function(event) {
-                // @ts-ignore
+                // @ts-expect-error
                 window[defaultFields[key].onChange](event);
             }, false);
         }

@@ -129,7 +129,7 @@ function createPopoverInit(target, title, bodyTemplate) {
         case 'NavbarPlayback':
         case 'NavbarQueue':
         case 'NavbarBrowse':
-            // @ts-ignore
+            // @ts-expect-error
             options.placement = getXpos(target) < 100
                 ? 'right'
                 : 'bottom';

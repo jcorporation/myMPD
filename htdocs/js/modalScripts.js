@@ -399,7 +399,7 @@ function addScriptArgument() {
  */
 function removeScriptArgument(ev) {
     const el = elGetById('modalScriptsAddArgumentInput');
-    // @ts-ignore
+    // @ts-expect-error
     el.value = ev.target.text;
     ev.target.remove();
     setFocus(el);

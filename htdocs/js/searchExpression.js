@@ -63,7 +63,7 @@ function handleSearchExpression(appid) {
  */
 function selectSearchMatch(appid) {
     const searchMatchEl = elGetById(appid + 'SearchMatch');
-    //@ts-ignore
+    //@ts-expect-error
     if (searchTagsNoOp.includes(app.current.filter)) {
         elDisable(searchMatchEl);
         searchMatchEl.value = '';
@@ -137,7 +137,7 @@ function initSearchExpression(appid) {
                 return;
             }
             const value = event.target.value.trim();
-            //@ts-ignore
+            //@ts-expect-error
             if (searchTagsTimestamp.includes(app.current.filter) &&
                 isNaN(parseDateFromText(value)) === true)
             {
@@ -305,7 +305,7 @@ function createSearchExpressionComponent(tag, op, value) {
             op = 'contains';
         }
     }
-    //@ts-ignore
+    //@ts-expect-error
     if (searchTagsNoOp.includes(tag)) {
         //this tags needs no operator
         return '(' + tag + ' \'' + escapeMPD(value) + '\')';

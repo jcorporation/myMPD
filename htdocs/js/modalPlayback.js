@@ -36,7 +36,7 @@ function initModalSettingsPlayback() {
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
             if (event.target.parentNode.classList.contains('not-clickable') === false) {
-                // @ts-ignore
+                // @ts-expect-error
                 btnWaiting(event.target, true);
                 applyPreset(getData(event.target.parentNode, 'name'));
             }

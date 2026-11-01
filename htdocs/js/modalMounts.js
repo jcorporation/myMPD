@@ -17,7 +17,7 @@ function initModalMounts() {
             const action = event.target.getAttribute('data-action');
             const mountPoint = getData(event.target.parentNode.parentNode, 'point');
             if (action === 'unmount') {
-                // @ts-ignore
+                // @ts-expect-error
                 unmountMount(mountPoint, event.target);
             }
             else if (action === 'update') {
@@ -120,7 +120,7 @@ function mountMountCheckError(obj) {
  */
 //eslint-disable-next-line no-unused-vars
 function updateMount(el, uri) {
-    // @ts-ignore
+    // @ts-expect-error
     updateDB(uri, false, el);
 }
 

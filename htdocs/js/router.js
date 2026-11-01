@@ -247,7 +247,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search, app
         if (jsonHash === null) {
             appPrepare();
             const path = startupView();
-            // @ts-ignore
+            // @ts-expect-error
             appGoto(...path);
             return;
         }
@@ -315,7 +315,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search, app
         case 'Search':                    handleSearch(); break;
         default: {
             const path = startupView();
-            // @ts-ignore
+            // @ts-expect-error
             appGoto(...path);
         }
     }

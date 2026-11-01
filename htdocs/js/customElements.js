@@ -303,7 +303,7 @@ function setSelectSearch(el) {
     el.filterInput.addEventListener('keyup', function(event) {
         const cb = getData(el, 'cb-filter');
         const cbOptions = getData(el, 'cb-filter-options');
-        // @ts-ignore
+        // @ts-expect-error
         window[cb](... cbOptions, event.target.value);
     }, false);
     el.filterInput.addEventListener('click', function(event) {

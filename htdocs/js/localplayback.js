@@ -13,7 +13,7 @@ function initLocalPlayback() {
     elGetById('localPlaybackVolumeBar').addEventListener('change', function(event) {
         setLocalPlaybackVolume(Number(event.target.value));
     }, false);
-    // @ts-ignore
+    // @ts-expect-error
     elGetById('localPlayer').volume = 0.5;
 
     if (features.featLocalPlaybackOutput === true) {
@@ -74,7 +74,7 @@ function localPlaybackVolumeStep(dir) {
  * @returns {void}
  */
 function setLocalPlaybackVolume(volume) {
-    // @ts-ignore
+    // @ts-expect-error
     elGetById('localPlayer').volume = volume;
 }
 
@@ -130,22 +130,22 @@ function createLocalPlaybackEl(createEvent) {
     //stop playback off old audio element
     const curAudioEl = elGetById('localPlayer');
     curAudioEl.setAttribute('disabled', 'disabled');
-    // @ts-ignore
+    // @ts-expect-error
     curAudioEl.pause();
-    // @ts-ignore
+    // @ts-expect-error
     curAudioEl.src = '';
     // remember current settings
     const oldSinkId = features.featLocalPlaybackOutput === true
         ? curAudioEl.sinkId
         : 0;
-    // @ts-ignore
+    // @ts-expect-error
     const oldVolume = curAudioEl.volume;
 
     //replace old audio element
     const parent = curAudioEl.parentNode;
     curAudioEl.remove();
     /** @type {HTMLAudioElement} */
-    // @ts-ignore
+    // @ts-expect-error
     const localPlayer = elCreateEmpty('audio', {"class": ["mx-4"], "preload": "none", "id": "localPlayer"});
     localPlayer.volume = oldVolume;
     if (features.featLocalPlaybackOutput === true) {
@@ -163,19 +163,19 @@ function createLocalPlaybackEl(createEvent) {
         );
     });
     localPlayer.addEventListener('timeupdate', function(event) {
-        // @ts-ignore
+        // @ts-expect-error
         if (isNaN(event.target.currentTime)) {
             return;
         }
-        // @ts-ignore
+        // @ts-expect-error
         domCache.localPlayerProgress.textContent = fmtSongDuration(event.target.currentTime);
     });
     if (features.featLocalPlaybackVolume === true) {
         localPlayer.addEventListener('volumechange', function(event) {
-            // @ts-ignore
+            // @ts-expect-error
             elGetById('localPlaybackVolumeBar').value = elGetById('localPlayer').volume;
             elGetById('localPlaybackVolume').textContent = Math.floor(
-                // @ts-ignore
+                // @ts-expect-error
                 event.target.volume * 100) + ' %';
         });
     }
@@ -185,9 +185,9 @@ function createLocalPlaybackEl(createEvent) {
                 //ignore error while removing audio element
                 return;
             }
-            // @ts-ignore
+            // @ts-expect-error
             if (event.target.error &&
-                // @ts-ignore
+                // @ts-expect-error
                 event.target.error.code === 3)
             {
                 //ignore NS_ERROR_DOM_MEDIA_MEDIASINK_ERR

@@ -15,7 +15,7 @@ function dragAndDropList(listId) {
     listBody.addEventListener('dragstart', function(event) {
         if (event.target.classList.contains('list-group-item')) {
             event.target.classList.add('opacity05');
-            // @ts-ignore
+            // @ts-expect-error
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             dragEl = event.target;

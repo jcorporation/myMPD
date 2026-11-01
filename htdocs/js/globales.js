@@ -1283,7 +1283,7 @@ function parseString(str) {
         ? true
         : str === 'false'
             ? false
-            // @ts-ignore
+            // @ts-expect-error
             : isNaN(str)
                 ? str
                 : Number(str);

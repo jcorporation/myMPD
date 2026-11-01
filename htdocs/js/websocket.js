@@ -41,7 +41,7 @@ function webSocketConnect() {
         socket = new WebSocket(wsUrl);
     }
     catch(error) {
-        // @ts-ignore
+        // @ts-expect-error
         logError(error);
         return;
     }
@@ -90,7 +90,7 @@ function webSocketConnect() {
         }
         catch(error) {
             logError('Invalid websocket notification received: ' + msg.data);
-            // @ts-ignore
+            // @ts-expect-error
             logError(error);
             return;
         }
@@ -278,7 +278,7 @@ function webSocketConnect() {
                 socket.close();
             }
             catch(error) {
-                // @ts-ignore
+                // @ts-expect-error
                 logError(error);
             }
         }
@@ -308,7 +308,7 @@ function webSocketClose() {
             socket.close();
         }
         catch(error) {
-            // @ts-ignore
+            // @ts-expect-error
             logError(error);
         }
     }
@@ -354,7 +354,7 @@ function websocketKeepAlive() {
         }
         catch(error) {
             toggleAlert('alertMympdState', true, tn('myMPD connection failed, trying to reconnect'));
-            // @ts-ignore
+            // @ts-expect-error
             logError(error);
             websocketReconnect();
             return;

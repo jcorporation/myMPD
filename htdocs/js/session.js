@@ -80,7 +80,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
     footers[0].parentNode.appendChild(newFooter);
     setFocus(input);
     btn.addEventListener('click', function(event) {
-        //@ts-ignore
+        //@ts-expect-error
         btnWaiting(event.target, true);
         const alert = newFooter.querySelector('.alert');
         if (alert !== null) {
@@ -135,7 +135,7 @@ function enterPin(method, params, callback, onerror) {
         // replace enter button to inherit the enterPin options
         const enterBtn = elCreateTextTn('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, 'Enter');
         enterBtn.addEventListener('click', function(event) {
-            //@ts-ignore
+            //@ts-expect-error
             btnWaiting(event.target, true);
             sendAPI('MYMPD_API_SESSION_LOGIN', {
                 "pin": elGetById('modalEnterPinPinInput').value},

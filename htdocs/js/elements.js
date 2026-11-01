@@ -574,7 +574,7 @@ function toggleBtnGroupValue(btngrp, value) {
     const btns = btngrp.querySelectorAll('button');
     //first button
     let b = btns[0];
-    // @ts-ignore
+    // @ts-expect-error
     const valuestr = isNaN(value) ? value : value.toString();
 
     for (let i = 0, j = btns.length; i < j; i++) {

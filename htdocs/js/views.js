@@ -464,7 +464,7 @@ function dragFieldList(list) {
             : event.target.closest('li');
         if (target.nodeName === 'LI') {
             target.classList.add('opacity05');
-            // @ts-ignore
+            // @ts-expect-error
             event.dataTransfer.setDragImage(target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             dragEl = target;

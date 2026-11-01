@@ -19,7 +19,7 @@ function ignoreKeys(event) {
         case 'Unidentified':
             return true;
         case 'Escape':
-            // @ts-ignore
+            // @ts-expect-error
             event.target.blur();
             return true;
         case 'Backspace':
@@ -336,7 +336,7 @@ function parseCmd(event, cmd) {
                     options[i] = null;
                 }
             }
-            // @ts-ignore
+            // @ts-expect-error
             func(... options);
         }
     }
