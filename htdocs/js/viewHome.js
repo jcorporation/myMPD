@@ -148,7 +148,7 @@ function updateHomeWidget(card) {
     switch(data.type) {
         case 'widget':
         case 'widget_script':
-            return updateHomeWidgetScript(card, data);
+            return updateScriptWidget(card, data);
         case 'widget_iframe':
             return updateHomeWidgetIframe(card, data);
         // no default
@@ -174,50 +174,6 @@ function updateHomeWidgetIframe(card, data) {
     else {
         body.appendChild(elCreateEmpty('iframe', {'src': data.uri, 'class': ['widgetIframe']}));
     }
-}
-
-/**
- * Updates the script widget
- * @param {HTMLElement | ChildNode} card Widget to refresh
- * @param {object} data Widget data
- * @returns {void}
- */
-function updateHomeWidgetScript(card, data) {
-    const query = [];
-    for (const key in data.arguments) {
-        query.push(myEncodeURIComponent(key) + '=' + myEncodeURIComponent(data.arguments[key]));
-    }
-    setData(card, 'lastUpdate', getTimestamp());
-    httpGet(getMyMPDuri('http') + '/script/' +  localSettings.partition + '/' + myEncodeURIComponent(data.script) + '?' + query.join('&'),
-        function(response) {
-            setTimeout(function() {
-                card.querySelector('.card-title a').textContent = 'refresh';
-            }, 200);
-            const body = card.querySelector('.card-body');
-            elClear(body);
-            if (response === null) {
-                body.appendChild(elCreateTextTn('div', {'class': ['alert', 'alert-danger', 'm-3']}, 'Error executing script'));
-                return;
-            }
-            const parser = new DOMParser();
-            const html = parser.parseFromString(response, "text/html");
-            body.appendChild(... html.body.childNodes);
-            body.addEventListener('click', function(event) {
-                if (event.target.nodeName === 'A' &&
-                    event.target.getAttribute('href') !== null)
-                {
-                    return;
-                }
-                event.preventDefault();
-                event.stopPropagation();
-                const href = getData(event.target, 'href');
-                if (href === undefined) {
-                    return;
-                }
-                parseCmd(event, JSON.parse(href));
-            }, false);
-        },
-        false);
 }
 
 /**

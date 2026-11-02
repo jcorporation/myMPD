@@ -113,6 +113,7 @@
     "helpHomeWidgetRefresh": "Set to 0 to disable widget refresh.",
     "helpSettingsViewTitles": "Shows a title on top of all views.",
     "helpEndlessScroll": "Switches from pagination to endless scrolling.",
+    "helpSettingsScriptWidgets": "Script widgets can display script generated content in views. The scripts must return HTML content like the home widgets.",
     "helpSettingssearchOperatorDefault": "Default selected search operator.",
     "icon-all": "All",
     "icon-action": "Action",

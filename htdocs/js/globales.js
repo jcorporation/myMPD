@@ -1032,6 +1032,20 @@ const settingsWebuiFields = {
         "title": "Default search operator",
         "form": "modalSettingsTagsFrm",
         "help": "helpSettingssearchOperatorDefault"
+    },
+    "scriptWidgetAlbumDetail": {
+        "defaultValue": "",
+        "validValues": {},
+        "inputType": "select",
+        "title": "Album view",
+        "form": "modalSettingsScriptWidgetsFrm"
+    },
+    "scriptWidgetPlayback": {
+        "defaultValue": "",
+        "validValues": {},
+        "inputType": "select",
+        "title": "Playback view",
+        "form": "modalSettingsScriptWidgetsFrm"
     }
 };
 

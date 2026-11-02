@@ -371,6 +371,23 @@ function parseAlbumDetails(obj) {
             )
         )
     );
+
+    // Handle widget for playback
+    if (settings.webuiSettings.scriptWidgetAlbumDetail === '') {
+        elClearId('AlbumDetailScriptOutput');
+        elHideId('AlbumDetailScriptOutput');
+    }
+    else {
+        elShowId('AlbumDetailScriptOutput');
+        updateScriptWidget(document.querySelector('#AlbumDetailScriptOutput'), {
+            'script': settings.webuiSettings.scriptWidgetAlbumDetail,
+            'arguments': {
+                'AlbumId': obj.result.AlbumId,
+                'Album': obj.result.Album,
+                'AlbumArtist': obj.result[tagAlbumArtist]
+            }
+        });
+    }
 }
 
 /**

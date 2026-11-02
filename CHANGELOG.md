@@ -10,6 +10,8 @@ This is a maintenance release.
 
 ### Changelog
 
+- Feat: Add setting to define script widgets for playback and album detail views.
+
 ***
 
 ## myMPD v26.1.3 (not yet released)

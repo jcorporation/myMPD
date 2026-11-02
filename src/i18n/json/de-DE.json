@@ -486,6 +486,7 @@
     "helpSettingsVorbisUslt": "Vorbis Kommentarname für einfache Liedtexte (Einfacher Text).",
     "helpTimerPlaylist": "Wiedergabeliste wird ignoriert, wenn die Voreinstellung die Jukebox aktiviert",
     "helpTimerPreset": "Voreinstellungen werden in den Wiedergabeeinstellungen verwaltet.",
+    "helpSettingsScriptWidgets": "Skript-Widgets können in Ansichten Skript generierte Inhalte anzeigen. Die Skripte müssen HTML-Inhalte zurückgeben, genau wie die Startseiten-Widgets.",
     "Help to improve myMPD": "Hilf mit myMPD zu verbessern",
     "Highlight color": "Highlight Farbe",
     "Highlight contrast color": "Highlight Kontrast-Farbe",
@@ -1297,5 +1298,8 @@
     "Write the lyrics entry object to the lyrics cache.": "Schreibt das Lyrics-Objekt in then Lyrics Cache.",
     "Yes, clear it": "Ja, leeren",
     "Yes, delete it": "Ja, löschen",
-    "Yes, do it": "Ja, tu es"
+    "Yes, do it": "Ja, tu es",
+    "Album view": "Album Ansicht",
+    "Playback view": "Wiedergabe Ansicht",
+    "Script widgets": "Skript Widgets"
 }

@@ -335,6 +335,18 @@ function setPlaybackCardTags(songObj) {
             );
         }
     }
+    // Handle widget for playback
+    if (settings.webuiSettings.scriptWidgetPlayback === '') {
+        elClearId('PlaybackScriptOutput');
+        elHideId('PlaybackScriptOutput');
+    }
+    else {
+        elShowId('PlaybackScriptOutput');
+        updateScriptWidget(document.querySelector('#PlaybackScriptOutput'), {
+            'script': settings.webuiSettings.scriptWidgetPlayback,
+            'arguments':{}
+        });
+    }
 }
 
 /**

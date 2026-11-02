@@ -587,6 +587,16 @@ function parseScriptList(obj) {
     elClear(triggerScripts);
     const widgetScripts = elGetById('modalHomeWidgetScriptInput');
     elClear(widgetScripts);
+    const settingsScriptWidgetPlayback = elGetById('modalSettingsScriptWidgetPlaybackInput');
+    elClear(settingsScriptWidgetPlayback);
+    settingsScriptWidgetPlayback.appendChild(
+        elCreateEmpty('option', {'value': ''})
+    );
+    const settingsScriptWidgetAlbumDetail = elGetById('modalSettingsScriptWidgetAlbumDetailInput');
+    elClear(settingsScriptWidgetAlbumDetail);
+    settingsScriptWidgetAlbumDetail.appendChild(
+        elCreateEmpty('option', {'value': ''})
+    );
 
     if (checkResult(obj, table, 'modalTable') === false) {
         return;
@@ -624,11 +634,13 @@ function parseScriptList(obj) {
             setData(tr, 'href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
             tbodyScripts.appendChild(tr);
 
-            //script list select for timers, triggers and home widgets
+            //script list select for timers, triggers, home widgets and settings
             const option = elCreateText('option', {"value": obj.result.data[i].name}, obj.result.data[i].name);
             addOptionToScriptSelect(timerActions, option, obj.result.data[i].metadata.arguments);
             addOptionToScriptSelect(triggerScripts, option, obj.result.data[i].metadata.arguments);
             addOptionToScriptSelect(widgetScripts, option, obj.result.data[i].metadata.arguments);
+            addOptionToScriptSelect(settingsScriptWidgetPlayback, option, obj.result.data[i].metadata.arguments);
+            addOptionToScriptSelect(settingsScriptWidgetAlbumDetail, option, obj.result.data[i].metadata.arguments);
         }
     }
 
