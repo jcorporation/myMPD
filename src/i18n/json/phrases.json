@@ -713,6 +713,7 @@
 {"term":"Playlist successfully moved"},
 {"term":"Playlist successfully replaced"},
 {"term":"Playlist updated"},
+{"term":"Playlist view"},
 {"term":"Playlists"},
 {"term":"Playlists deduplication started"},
 {"term":"Playlists to copy"},

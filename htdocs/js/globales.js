@@ -1046,6 +1046,13 @@ const settingsWebuiFields = {
         "inputType": "select",
         "title": "Playback view",
         "form": "modalSettingsScriptWidgetsFrm"
+    },
+    "scriptWidgetPlaylistDetail": {
+        "defaultValue": "",
+        "validValues": {},
+        "inputType": "select",
+        "title": "Playlist view",
+        "form": "modalSettingsScriptWidgetsFrm"
     }
 };
 

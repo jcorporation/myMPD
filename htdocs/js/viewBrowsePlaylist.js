@@ -159,6 +159,7 @@ function parsePlaylistDetail(obj) {
     elClear(imageEl);
     elClear(stickerEl);
     elClearId('BrowsePlaylistDetailInfo');
+    elClearId('PlaylistDetailScriptOutput');
 
     if (checkResult(obj, table, undefined) === false){
         return;
@@ -250,6 +251,21 @@ function parsePlaylistDetail(obj) {
         const feedbackGrp = elGetById('BrowsePlaylistDetailFeedback').firstElementChild;
         setData(feedbackGrp, 'uri', obj.result.plist);
         setFeedback(feedbackGrp, obj.result.like, obj.result.rating);
+    }
+
+    // Handle widget for playlist detail view
+    if (settings.webuiSettings.scriptWidgetPlaylistDetail === '') {
+        elHideId('PlaylistDetailScriptOutput');
+    }
+    else {
+        elShowId('PlaylistDetailScriptOutput');
+        updateScriptWidget(document.querySelector('#PlaylistDetailScriptOutput'), {
+            'script': settings.webuiSettings.scriptWidgetPlaylistDetail,
+            'arguments': {
+                'plist': obj.result.plist,
+                'smartpls': obj.result.smartpls
+            }
+        });
     }
 
     if (settings['view' + app.id].mode === 'table') {

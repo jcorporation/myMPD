@@ -10,7 +10,7 @@ This is a maintenance release.
 
 ### Changelog
 
-- Feat: Add setting to define script widgets for playback and album detail views.
+- Feat: Add setting to define script widgets for playback, album and playlist detail views.
 
 ***
 

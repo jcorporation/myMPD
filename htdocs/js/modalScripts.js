@@ -597,6 +597,11 @@ function parseScriptList(obj) {
     settingsScriptWidgetAlbumDetail.appendChild(
         elCreateEmpty('option', {'value': ''})
     );
+    const settingsScriptWidgetPlaylistDetail = elGetById('modalSettingsScriptWidgetPlaylistDetailInput');
+    elClear(settingsScriptWidgetPlaylistDetail);
+    settingsScriptWidgetPlaylistDetail.appendChild(
+        elCreateEmpty('option', {'value': ''})
+    );
 
     if (checkResult(obj, table, 'modalTable') === false) {
         return;
@@ -641,6 +646,7 @@ function parseScriptList(obj) {
             addOptionToScriptSelect(widgetScripts, option, obj.result.data[i].metadata.arguments);
             addOptionToScriptSelect(settingsScriptWidgetPlayback, option, obj.result.data[i].metadata.arguments);
             addOptionToScriptSelect(settingsScriptWidgetAlbumDetail, option, obj.result.data[i].metadata.arguments);
+            addOptionToScriptSelect(settingsScriptWidgetPlaylistDetail, option, obj.result.data[i].metadata.arguments);
         }
     }
 
