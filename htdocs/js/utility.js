@@ -321,7 +321,7 @@ function parseCmd(event, cmd) {
         }
         else {
             // copy - we do not want to modify the original object
-            const options = cmd.options.slice();
+            const options = structuredClone(cmd.options);
             for (let i = 0, j = options.length; i < j; i++) {
                 if (options[i] === 'event') {
                     options[i] = event;
@@ -336,7 +336,6 @@ function parseCmd(event, cmd) {
                     options[i] = null;
                 }
             }
-            // @ts-expect-error
             func(... options);
         }
     }
