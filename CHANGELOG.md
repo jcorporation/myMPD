@@ -21,6 +21,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Home Widgets - Allow html links
+- Fix: Webradio home icon breaks on the second click #1581
 
 ***
 
