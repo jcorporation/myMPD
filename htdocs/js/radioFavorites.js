@@ -23,10 +23,7 @@ function getRadioFavoriteUri(filename) {
  * @returns {Array} modified array with uris
  */
 function getRadioFavoriteUris(uris) {
-    for (let i = 0, j = uris.length; i < j; i++) {
-        uris[i] = getRadioFavoriteUri(uris[i]);
-    }
-    return uris;
+    return uris.map(getRadioFavoriteUri);
 }
 
 /**
