@@ -254,17 +254,24 @@ function parseAlbumDetails(obj) {
     const tfoot = table.querySelector('tfoot');
     const colspan = settings.viewBrowseDatabaseAlbumDetail.fields.length;
     const infoEl = elGetById('viewDatabaseAlbumDetailInfoTags');
+    const coverEl = elGetById('viewDatabaseAlbumDetailCover');
+
+    elClear(infoEl);
+    elClearId('AlbumDetailScriptOutput');
 
     if (obj.error) {
-        elClear(infoEl);
         infoEl.appendChild(errorMsgEl(obj, 0, 'grid'));
-        elCreateText('h1', {}, obj.result.Album);
+        elCreateText('h1', {}, tn('Error'));
+        coverEl.style.backgroundImage = getCssImageUri('/assets/coverimage-notavailable.svg');
+        setData(coverEl, 'images', []);
+        setData(coverEl, 'embeddedImageCount', 0);
+        setData(coverEl, 'uri', '');
+        setData(coverEl, 'AlbumId', '');
         // Handle song list
         checkResultId(obj, 'BrowseDatabaseAlbumDetailList', 'table');
         return;
     }
 
-    const coverEl = elGetById('viewDatabaseAlbumDetailCover');
     if (obj.result.data.length === 0) {
         coverEl.style.backgroundImage = getCssImageUri('/assets/coverimage-notavailable.svg');
         setData(coverEl, 'images', []);
@@ -286,7 +293,6 @@ function parseAlbumDetails(obj) {
         setFeedback(feedbackGrp, obj.result.like, obj.result.rating);
     }
 
-    elClear(infoEl);
     infoEl.appendChild(
         elCreateText('h1', {}, obj.result.Album)
     );
@@ -372,9 +378,8 @@ function parseAlbumDetails(obj) {
         )
     );
 
-    // Handle widget for playback
+    // Handle widget for album detail view
     if (settings.webuiSettings.scriptWidgetAlbumDetail === '') {
-        elClearId('AlbumDetailScriptOutput');
         elHideId('AlbumDetailScriptOutput');
     }
     else {
