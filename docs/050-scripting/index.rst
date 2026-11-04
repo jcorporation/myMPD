@@ -105,6 +105,30 @@ Lua manual
 
 - `Lua manual <https://www.lua.org/manual/5.4/>`__
 
+Error handling and return value
+-------------------------------
+
+Lua errors are catched by myMPD, logged and displayed in the web interface. Use ``pcall`` to handle the errors yourself.
+
+Return value handling:
+
+- If the script does not return any value a generic ``executed successfully`` message is displayed (LOG_INFO severity).
+- If the script returns a string, the string is displayed (LOG_INFO severity).
+- The script return string must not start with a curly brace ``{``.
+- If the script return string starts with a curly brace ``{`` it is interpreted as a JSON-RPC response message. This messages can be created with ``mympd.jsonrpc_error`` for example.
+
+.. code-block:: lua
+
+   -- Return JSON-RPC error
+   return mympd.jsonrpc_error("Error message")
+
+   -- Return JSON-RPC warn
+   return mympd.jsonrpc_error("Error message")
+
+   -- Return info message
+   return "Info message"
+
+
 Examples
 --------
 
@@ -146,7 +170,8 @@ Error handling
    if rc == 0
        return "Current song title:" .. result.Title
    else
-       return "Error message:" .. result.message end
+       return "Error message:" .. result.message
+   end
 
 Script file format
 ------------------

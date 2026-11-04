@@ -1,9 +1,15 @@
-Home screen widgets
-===================
+Widgets
+=======
 
-Scripts for home screen widges must return a valid http response. The response body will be inserted in the widget body.
+Scripts for widgets must return a valid http response. The response body will be inserted in the widget body.
 
-You can style the widget with all `Bootstrap classes <https://getbootstrap.com/>`__, inline css is forbidden.
+Widgets can be displayed:
+
+- In the home screen
+- In the playback view
+- In the album and playlist details view
+
+You can style widgets with all `Bootstrap classes <https://getbootstrap.com/>`__, inline css is forbidden.
 
 Inline JavaScript is also forbidden, but you can call all available `functions <../jsdoc/index.html>`__.
 
