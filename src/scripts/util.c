@@ -115,6 +115,7 @@ sds script_get_result(lua_State *lua_vm, int rc) {
     if (error_text != NULL) {
         result = sdscatfmt(result, ": %s", error_text);
     }
+    lua_pop(lua_vm, nr_return);
     return result;
 }
 
