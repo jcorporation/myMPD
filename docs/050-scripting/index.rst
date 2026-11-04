@@ -122,8 +122,8 @@ Return value handling:
    -- Return JSON-RPC error
    return mympd.jsonrpc_error("Error message")
 
-   -- Return JSON-RPC warn
-   return mympd.jsonrpc_error("Error message")
+   -- Return JSON-RPC warnning
+   return mympd.jsonrpc_warn("Warning message")
 
    -- Return info message
    return "Info message"
