@@ -272,15 +272,15 @@ sds mympd_client_get_tag_value_padded(const struct mpd_song *song, enum mpd_tag_
 sds mympd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values) {
     unsigned value_count = 0;
     tag_values = get_tag_value_string(song, tag, tag_values, &value_count);
-    if (value_count == 0) {
-        if (tag == MPD_TAG_TITLE) {
-            //title fallback to name
-            tag_values = get_tag_value_string(song, MPD_TAG_NAME, tag_values, &value_count);
-            if (value_count == 0) {
-                //title fallback to filename
-                tag_values = sdscat(tag_values, mpd_song_get_uri(song));
-                sds_basename_uri(tag_values);
-            }
+    if (value_count == 0 &&
+        tag == MPD_TAG_TITLE)
+    {
+        //title fallback to name
+        tag_values = get_tag_value_string(song, MPD_TAG_NAME, tag_values, &value_count);
+        if (value_count == 0) {
+            //title fallback to filename
+            tag_values = sdscat(tag_values, mpd_song_get_uri(song));
+            sds_basename_uri(tag_values);
         }
     }
     return tag_values;
