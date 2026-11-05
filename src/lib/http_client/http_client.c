@@ -59,7 +59,7 @@ sds get_dnsserver(void) {
                 nameserver = sds_catchar(nameserver, *z);
             }
             struct sockaddr_in sa;
-            if (inet_pton(AF_INET, nameserver, &(sa.sin_addr)) == 1) {
+            if (inet_pton(AF_INET, nameserver, &sa.sin_addr) == 1) {
                 //valid ipv4 address
                 break;
             }

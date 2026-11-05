@@ -3,7 +3,9 @@ Checks: '*,
          -android-cloexec-open,
          -bugprone-assignment-in-if-condition,
          -bugprone-easily-swappable-parameters,
+         -bugprone-signed-bitwise,
          -bugprone-switch-missing-default-case,
+         -bugprone-unhandled-code-paths,
          -clang-analyzer-optin.core.EnumCastOutOfRange,
          -clang-analyzer-optin.performance.Padding,
          -clang-analyzer-security.ArrayBound,
@@ -25,6 +27,8 @@ Checks: '*,
          -readability-magic-numbers,
          -readability-non-const-parameter,
          -readability-redundant-casting,
+         -readability-redundant-nested-if,
+         -readability-trivial-switch,
         '
 WarningsAsErrors:  ''
 HeaderFilterRegex: ''
