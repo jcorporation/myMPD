@@ -218,7 +218,7 @@ sds mympd_api_sticker_get_print_batch(sds buffer, struct t_stickerdb_state *stic
         return buffer;
     }
     struct t_sticker sticker;
-    if ((stickerdb_get_all_batch(stickerdb, type, uri, &sticker, stickers->user_defined)) != NULL) {
+    if (stickerdb_get_all_batch(stickerdb, type, uri, &sticker, stickers->user_defined) != NULL) {
         buffer = mympd_api_sticker_print(buffer, &sticker, stickers);
         sticker_struct_clear(&sticker);
     }
