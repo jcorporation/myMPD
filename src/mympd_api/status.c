@@ -41,7 +41,7 @@ static const char *playstate_names[] = {
     [MPD_STATE_UNKNOWN] = "unknown",
     [MPD_STATE_STOP] = "stop",
     [MPD_STATE_PLAY] = "play",
-    [MPD_STATE_PAUSE] = "pause"
+    [MPD_STATE_PAUSE] = "pause",
 };
 
 /**

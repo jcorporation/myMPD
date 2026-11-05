@@ -44,7 +44,7 @@ static struct option long_options[] = {
     {"pin",       no_argument,       0, 'p'},
     {"syslog",    no_argument,       0, 's'},
     {"version",   no_argument,       0, 'v'},
-    {"workdir",   required_argument, 0, 'w'}
+    {"workdir",   required_argument, 0, 'w'},
 };
 
 /**

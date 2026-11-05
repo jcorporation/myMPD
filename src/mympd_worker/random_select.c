@@ -46,7 +46,7 @@ bool mympd_worker_add_random_to_queue(struct t_mympd_worker_state *mympd_worker_
         .last_played = 0,
         .ignore_hated = false,
         .min_song_duration = 0,
-        .max_song_duration = UINT_MAX
+        .max_song_duration = UINT_MAX,
     };
 
     struct t_list add_list;
@@ -114,7 +114,7 @@ sds mympd_worker_list_random(struct t_mympd_worker_state *mympd_worker_state, sd
         .last_played = 0,
         .ignore_hated = false,
         .min_song_duration = 0,
-        .max_song_duration = UINT_MAX
+        .max_song_duration = UINT_MAX,
     };
 
     struct t_list add_list;

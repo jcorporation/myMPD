@@ -12,7 +12,6 @@
 #include "src/lib/config/config.h"
 
 #include "src/lib/cache/cache_rax_album.h"
-#include "src/lib/config/cacertstore.h"
 #include "src/lib/config/cacertstore_find.h"
 #include "src/lib/config/config_def.h"
 #include "src/lib/config/env.h"
@@ -70,7 +69,7 @@ enum config_item {
     CI_STICKERS,
     CI_STICKERS_PAD_INT,
     CI_WEBRADIODB,
-    CI_COUNT
+    CI_COUNT,
 };
 
 /**
@@ -79,7 +78,7 @@ enum config_item {
 enum config_item_type {
     CIT_B,  //!< Bool
     CIT_I,  //!< Integer
-    CIT_S   //!< SDS string
+    CIT_S,  //!< SDS string
 };
 
 /**
@@ -158,7 +157,7 @@ static const struct t_config_default config_default[] = {
     [CI_STATE_SAVE]                     = {"state_save",                     {.t = CIT_B, .b = true},           0, 0, NULL},
     [CI_STICKERS]                       = {"stickers",                       {.t = CIT_B, .b = true},           0, 0, NULL},
     [CI_STICKERS_PAD_INT]               = {"stickers_pad_int",               {.t = CIT_B, .b = false},          0, 0, NULL},
-    [CI_WEBRADIODB]                     = {"webradiodb",                     {.t = CIT_B, .b = true},           0, 0, NULL}
+    [CI_WEBRADIODB]                     = {"webradiodb",                     {.t = CIT_B, .b = true},           0, 0, NULL},
 };
 
 /**

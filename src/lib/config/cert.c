@@ -59,7 +59,7 @@ static bool certificates_cleanup(sds dir, const char *name);
 enum expire_check_rcs {
     CERT_EXPIRE_ERROR = -1,  //!< Error condition
     CERT_EXPIRE_OK = 0,      //!< Certificate is valid
-    CERT_EXPIRE_RENEW = 1    //!< Certificate should be renewed
+    CERT_EXPIRE_RENEW = 1,   //!< Certificate should be renewed
 };
 
 /**

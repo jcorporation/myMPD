@@ -55,7 +55,7 @@ bool mympd_worker_webradiodb_update(struct t_mympd_worker_state *mympd_worker_st
         .extra_headers = NULL,
         .post_data = NULL,
         .cert_check = mympd_worker_state->config->cert_check,
-        .ca_certs = mympd_worker_state->config->ca_certs
+        .ca_certs = mympd_worker_state->config->ca_certs,
     };
     struct mg_client_response_t http_response;
     http_client_response_init(&http_response);

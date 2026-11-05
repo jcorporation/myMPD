@@ -40,7 +40,7 @@ static sds get_local_ip(void);
 void my_msleep(int msec) {
     struct timespec ts = {
         .tv_sec = (time_t)(msec / 1000),
-        .tv_nsec = (msec % 1000L) * 1000000L
+        .tv_nsec = (msec % 1000L) * 1000000L,
     };
     nanosleep(&ts, NULL);
 }
@@ -110,7 +110,7 @@ struct t_mympd_uris {
 static const struct t_mympd_uris mympd_uris[] = {
     {"mympd://webradio/", "/webradio?uri=" },
     {"mympd://",          "/"},
-    {NULL,                NULL}
+    {NULL,                NULL},
 };
 
 /**

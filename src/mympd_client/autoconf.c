@@ -106,7 +106,7 @@ void mympd_client_autoconf(struct t_mympd_state *mympd_state) {
         "/run/mpd/socket",
         "/var/run/mpd/socket",
         "/var/lib/mpd/socket", //Gentoo default
-        NULL
+        NULL,
     };
 
     const char **p = test_sockets;

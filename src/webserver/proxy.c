@@ -30,7 +30,7 @@ static const char *allowed_proxy_hosts[] = {
     "raw.githubusercontent.com",
     "musicbrainz.org",
     "listenbrainz.org",
-    NULL
+    NULL,
 };
 
 /**
@@ -97,7 +97,7 @@ void send_backend_request(struct mg_connection *nc) {
     MYMPD_LOG_INFO(NULL, "Backend connection \"%lu\" established, host \"%.*s\"", nc->id, (int)host.len, host.buf);
     if (mg_url_is_ssl(backend_nc_data->uri)) {
         struct mg_tls_opts tls_opts = {
-            .name = host
+            .name = host,
         };
         if (mg_user_data->config->cert_check == true) {
             tls_opts.ca = mg_str(mg_user_data->config->ca_certs);

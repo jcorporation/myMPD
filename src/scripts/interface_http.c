@@ -81,7 +81,7 @@ int lua_http_client(lua_State *lua_vm) {
             .extra_headers = extra_headers,
             .post_data = post_data,
             .cert_check = config->cert_check,
-            .ca_certs = config->ca_certs
+            .ca_certs = config->ca_certs,
         };
         mg_client_response = malloc_assert(sizeof(struct mg_client_response_t));
         http_client_response_init(mg_client_response);
@@ -164,7 +164,7 @@ int lua_http_download(lua_State *lua_vm) {
             .method = "GET",
             .uri = uri,
             .extra_headers = extra_headers,
-            .post_data = ""
+            .post_data = "",
         };
         http_client_request(&mg_client_request, mg_client_response);
         rc = 1;

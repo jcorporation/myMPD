@@ -25,7 +25,7 @@ static const char *check_ca_cert_paths[] = {
     "/etc/ssl/certs/ca-bundle.crt",
     "/etc/ssl/certs/ca-certificates.crt",  // Debian
     "/var/lib/ca-certificates/ca-bundle.pem",  // openSUSE
-    NULL
+    NULL,
 };
 
 /**

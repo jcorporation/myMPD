@@ -63,7 +63,8 @@ static const char *mympd_fields[]={
     // Columns for albums
     "DiscCount", "SongCount",
     // End
-    0};
+    0,
+};
 
 static bool check_for_invalid_chars(sds data, const char *invalid_chars);
 static bool validate_json(sds data, char start, char end);

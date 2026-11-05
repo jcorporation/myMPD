@@ -54,7 +54,7 @@ static const struct t_mime_type_entry mime_entries[] = {
     {0, "FF0A", "jxl", "image/jxl"},
     {0, "0000000C4A584C200D0A870A", "jxl", "image/jxl"},
     // must be last entry
-    {0, NULL,              NULL,   "application/octet-stream"}
+    {0, NULL,              NULL,   "application/octet-stream"},
 };
 
 /**
@@ -167,7 +167,7 @@ static const char *image_extensions[] = {
     "avif",
     "svg",
     "jxl",
-    NULL
+    NULL,
 };
 
 /**

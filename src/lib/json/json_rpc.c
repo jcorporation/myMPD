@@ -40,7 +40,7 @@ static const char *jsonrpc_severity_names[JSONRPC_SEVERITY_MAX] = {
     [JSONRPC_SEVERITY_WARN] = "warn",
     [JSONRPC_SEVERITY_NOTICE] = "notice",
     [JSONRPC_SEVERITY_INFO] = "info",
-    [JSONRPC_SEVERITY_DEBUG] = "debug"
+    [JSONRPC_SEVERITY_DEBUG] = "debug",
 };
 
 /**
@@ -60,7 +60,7 @@ static const char *jsonrpc_facility_names[JSONRPC_FACILITY_MAX] = {
     [JSONRPC_FACILITY_SCRIPT] = "script",
     [JSONRPC_FACILITY_STICKER] = "sticker",
     [JSONRPC_FACILITY_TIMER] = "timer",
-    [JSONRPC_FACILITY_TRIGGER] = "trigger"
+    [JSONRPC_FACILITY_TRIGGER] = "trigger",
 };
 
 /**

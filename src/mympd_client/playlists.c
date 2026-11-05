@@ -644,7 +644,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by tag \"%s\"", playlist, tagstr);
     struct t_mympd_mpd_tags sort_tags = {
         .len = 1,
-        .tags[0] = mpd_tag_name_parse(tagstr)
+        .tags[0] = mpd_tag_name_parse(tagstr),
     };
     bool (*list_command)(struct t_partition_state *partition_state, const char *plist, unsigned start, unsigned end);
     const char *list_command_name;

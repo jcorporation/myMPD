@@ -159,7 +159,7 @@ static const char *webradio_tag_types_names[WEBRADIO_TAG_COUNT] = {
     [WEBRADIO_TAG_GENRES] = "Genres",
     [WEBRADIO_TAG_LANGUAGES] = "Languages",
     [WEBRADIO_TAG_ADDED] = "Added",
-    [WEBRADIO_TAG_LASTMODIFIED] = "Last-Modified"
+    [WEBRADIO_TAG_LASTMODIFIED] = "Last-Modified",
 };
 
 /**

@@ -45,7 +45,7 @@ static bool add_uri_constraint_or_expression(const char *include_expression, str
  */
 enum random_add_uniq_result {
     RANDOM_ADD_UNIQ_IN_QUEUE = -2,
-    RANDOM_ADD_UNIQ_IS_UNIQ = -1
+    RANDOM_ADD_UNIQ_IS_UNIQ = -1,
 };
 
 /*

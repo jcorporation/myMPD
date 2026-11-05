@@ -27,7 +27,7 @@ static const char *placeholder_image_names[] = {
     [PLACEHOLDER_PLAYLIST] = "coverimage-playlist",
     [PLACEHOLDER_SMARTPLS] = "coverimage-smartpls",
     [PLACEHOLDER_STREAM] = "coverimage-stream",
-    [PLACEHOLDER_TRANSPARENT] = "coverimage-transparent"
+    [PLACEHOLDER_TRANSPARENT] = "coverimage-transparent",
 };
 
 /**

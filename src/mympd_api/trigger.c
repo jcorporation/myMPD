@@ -56,7 +56,7 @@ static const char *const mpd_event_names[] = {
     "mpd_partition",
     "mpd_neighbor",
     "mpd_mount",
-    NULL
+    NULL,
 };
 
 /**
@@ -78,7 +78,7 @@ static const char *const mympd_event_names[] = {
     "mympd_bgimage",
     "mympd_playlistart",
     "mympd_folderart",
-    NULL
+    NULL,
 };
 
 /**

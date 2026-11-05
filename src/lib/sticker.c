@@ -31,7 +31,7 @@ static const char *const mpd_sticker_types_names[STICKER_TYPE_COUNT] = {
     [STICKER_TYPE_TAG_WORK] = "Work",
     [STICKER_TYPE_TAG_ENSEMBLE] = "Ensemble",
     [STICKER_TYPE_TAG_LOCATION] = "Location",
-    [STICKER_TYPE_TAG_LABEL] = "Label"
+    [STICKER_TYPE_TAG_LABEL] = "Label",
 };
 
 /**
@@ -73,7 +73,7 @@ static const char *const mympd_sticker_names[STICKER_COUNT] = {
     [STICKER_LAST_PLAYED] = "lastPlayed",
     [STICKER_LAST_SKIPPED] = "lastSkipped",
     [STICKER_ELAPSED] = "elapsed",
-    [STICKER_RATING] = "rating"
+    [STICKER_RATING] = "rating",
 };
 
 /**

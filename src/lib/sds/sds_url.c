@@ -55,7 +55,7 @@ sds sds_urlencode(sds s, const char *p, size_t len) {
             char hex[3] = {
                 '%',
                 "0123456789ABCDEF"[c >> 4],
-                "0123456789ABCDEF"[c & 0x0F]
+                "0123456789ABCDEF"[c & 0x0F],
             };
             s = sdscatlen(s, hex, 3);
         }

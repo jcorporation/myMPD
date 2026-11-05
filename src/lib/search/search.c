@@ -41,7 +41,7 @@ enum search_operators {
     SEARCH_OP_NOT_REGEX,
     SEARCH_OP_GREATER,
     SEARCH_OP_GREATER_EQUAL,
-    SEARCH_OP_FUZZY
+    SEARCH_OP_FUZZY,
 };
 
 /**

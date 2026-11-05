@@ -78,7 +78,7 @@ bool mympd_worker_jukebox_queue_fill(struct t_mympd_worker_state *mympd_worker_s
         .last_played = mympd_worker_state->partition_state->jukebox.last_played,
         .ignore_hated = mympd_worker_state->partition_state->jukebox.ignore_hated,
         .min_song_duration = mympd_worker_state->partition_state->jukebox.min_song_duration,
-        .max_song_duration = mympd_worker_state->partition_state->jukebox.max_song_duration
+        .max_song_duration = mympd_worker_state->partition_state->jukebox.max_song_duration,
     };
 
     unsigned expected_length;
