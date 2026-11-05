@@ -333,7 +333,7 @@ static int unlock_mutex(pthread_mutex_t *mutex) {
 enum {
     MSEC_NSEC = 1000000,
     SEC_NSEC = 1000000000,
-    NSEC_MAX = 999999999
+    NSEC_MAX = 999999999,
 };
 
 /**
