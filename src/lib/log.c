@@ -181,7 +181,7 @@ void mympd_log(int level, const char *file, int line, const char *partition, con
     else if (log_type == LOG_TO_SYSTEMD) {
         thread_logline = sdscatfmt(thread_logline, "<%i>", level);
     }
-    thread_logline = sdscatprintf(thread_logline, "%-8s %-11s", loglevel_names[level], thread_logname);
+    thread_logline = sdscatprintf(thread_logline, "%-8s %-12s", loglevel_names[level], thread_logname);
     #ifdef MYMPD_DEBUG
         thread_logline = sdscatfmt(thread_logline, "%s:%i: ", file, line);
     #else
