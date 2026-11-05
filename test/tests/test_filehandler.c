@@ -230,7 +230,8 @@ UTEST(filehandler, test_sds_getline) {
 
     FILE *fp = fopen("/tmp/mympd-test/state/test", "re");
     int nread = 0;
-    sds line = sds_getline(sdsempty(), fp, 1000, &nread);
+    sds line = sdsempty();
+    nread = sds_getline(fp, 1000, &line);
     fclose(fp);
     ASSERT_GT(nread, 0);
     ASSERT_STREQ(line, "asdfjlkasdfjklsafd");
@@ -238,7 +239,7 @@ UTEST(filehandler, test_sds_getline) {
     // read 5 chars
     fp = fopen("/tmp/mympd-test/state/test", "re");
     nread = 0;
-    line = sds_getline(line, fp, 5, &nread);
+    nread = sds_getline(fp, 5, &line);
     fclose(fp);
     ASSERT_EQ(nread, 5);
     sdsfree(line);

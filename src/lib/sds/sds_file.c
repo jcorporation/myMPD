@@ -21,34 +21,35 @@
 
 /**
  * Getline function that trims whitespace characters
- * @param s an already allocated sds string
  * @param fp a file descriptor to read from
  * @param max max line length to read
- * @param nread Number of bytes read,
-                -1 on EOF
- * @return Pointer to s
+ * @param line pointer to sds string that will hold the line read
+ * @return Number of bytes read, -1 on EOF, -2 on read error
  */
-sds sds_getline(sds s, FILE *fp, size_t max, int *nread) {
-    sdsclear(s);
-    s = sdsMakeRoomFor(s, max + 1);
+int sds_getline(FILE *fp, size_t max, sds *line) {
+    sdsclear(*line);
+    *line = sdsMakeRoomFor(*line, max + 1);
 
     size_t i = 0;
     int c = '\0';
     while (i < max && (c = fgetc(fp)) != EOF && c != '\n') {
-        s[i++] = (char)c;
+        (*line)[i++] = (char)c;
     }
 
     // Add null terminator and trim whitespace characters
-    s[i] = '\0';
-    sdssetlen(s, i);
-    sdstrim(s, "\r \t");
+    (*line)[i] = '\0';
+    sdssetlen(*line, i);
+    sdstrim(*line, "\r \t");
 
-    if (c == EOF && i == 0) {
-        *nread = -1;
-    } else {
-        *nread = (int)sdslen(s);
+    if (c == EOF) {
+        if (ferror(fp)) {
+            return -2;
+        }
+        if (i == 0) {
+            return -1;
+        }
     }
-    return s;
+    return (int)sdslen(*line);
 }
 
 /**

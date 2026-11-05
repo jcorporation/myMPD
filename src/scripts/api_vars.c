@@ -78,12 +78,11 @@ bool scripts_vars_file_read(struct t_list *script_var_list, sds workdir) {
     }
 
     sds line = sdsempty();
-    int nread = 0;
     struct t_json_parse_error parse_error;
     json_parse_error_init(&parse_error);
     sds key = NULL;
     sds value = NULL;
-    while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
+    while (sds_getline(fp, LINE_LENGTH_MAX, &line) >= 0) {
         if (json_get_string_max(line, "$.key", &key, vcb_isname, &parse_error) == true &&
             json_get_string_max(line, "$.value", &value, vcb_isname, &parse_error) == true)
         {

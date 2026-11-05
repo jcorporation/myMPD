@@ -26,7 +26,7 @@ enum getfile_status {
     FILE_ERROR = -3,
 };
 
-sds sds_getline(sds s, FILE *fp, size_t max, int *nread);
+int sds_getline(FILE *fp, size_t max, sds *line);
 sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, bool warn, int *nread);
 sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *nread);
 

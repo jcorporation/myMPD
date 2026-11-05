@@ -274,8 +274,8 @@ static bool parse_script(int dir_fd, const char *scriptfilename, sds *metadata, 
         return false;
     }
 
-    int nread = 0;
-    sds line = sds_getline(sdsempty(), fp, LINE_LENGTH_MAX, &nread);
+    sds line = sdsempty();
+    int nread = sds_getline(fp, LINE_LENGTH_MAX, &line);
     if (nread >= 0 &&
         strncmp(line, "-- ", 3) == 0)
     {

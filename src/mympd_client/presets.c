@@ -143,8 +143,7 @@ bool preset_list_load(struct t_partition_state *partition_state) {
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp != NULL) {
         sds line = sdsempty();
-        int nread = 0;
-        while ((line = sds_getline(line, fp, LINE_LENGTH_MAX, &nread)) && nread >= 0) {
+        while (sds_getline(fp, LINE_LENGTH_MAX, &line) >= 0) {
             sds name = NULL;
             if (json_get_string_max(line, "$.name", &name, vcb_isname, NULL) == true) {
                 list_push(&partition_state->preset_list, name, 0, line, NULL);
