@@ -297,7 +297,7 @@ bool check_cmd_acl(enum mympd_cmd_ids cmd_id, enum mympd_cmd_acl_entity ace) {
     if ((unsigned)cmd_id > TOTAL_API_COUNT) {
         return false;
     }
-    return mympd_cmd_acl[cmd_id] & ace;
+    return (mympd_cmd_acl[cmd_id] & ace) != 0;
 }
 
 /**
