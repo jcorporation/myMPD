@@ -33,6 +33,7 @@
 #include "src/mympd_client/stickerdb.h"
 
 #include <assert.h>
+#include <mpd/song.h>
 #include <string.h>
 
 /**
@@ -325,11 +326,12 @@ static void mympd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_
                         partition_state->last_skipped_id != partition_state->last_song_id &&
                         partition_state->last_song != NULL)
                     {
-                        //check if last song was skipped
+                        // Check whether the last song was skipped. A song counts as skipped if it was played for less than half of its total duration.
                         time_t last_song_elapsed = partition_state->song_start_time - partition_state->last_song_start_time;
-                        if (partition_state->last_song_start_time + last_song_elapsed < partition_state->last_song_end_time - SCROBBLE_TIME_MIN &&
-                            partition_state->last_song_start_time > 0 &&
-                            partition_state->song != NULL)
+                        time_t last_song_duration = mpd_song_get_duration(partition_state->last_song);
+                        if (last_song_elapsed < last_song_duration / 2 &&
+                            partition_state->last_song_start_time > 0 &&    // We know the last songs start time
+                            partition_state->song != NULL)                  // There is a current playing song
                         {
                             MYMPD_LOG_DEBUG(partition_state->name, "Song \"%s\" skipped", mpd_song_get_uri(partition_state->last_song));
                             if (partition_state->mpd_state->feat.stickers == true) {

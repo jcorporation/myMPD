@@ -13,6 +13,8 @@ This is a maintenance release.
 - Feat: Add setting to define script widgets for playback, album and playlist detail views.
 - Upd: Improve JSON-RPC response handling for scripts
 - Upd: Improve documentation for script error and response handling
+- Upd: Improve song skip detection: A song counts as skipped if it was played for less than half of its total duration.
+- Fix: Linter warnings
 
 ***
 

@@ -18,11 +18,11 @@ skipCount   How often the song was skipped
 **playCount is updated:**
 
 - The song must be longer than 10 seconds
-- And the song has been played for at least half its duration, or for 4 minutes (whichever occurs earlier)
+- And the song has been played for at least half of its duration, or for 4 minutes (whichever occurs earlier)
 
 **skipCount is updated:**
 
-- The song has been played for at least 10 seconds
+- A song counts as skipped if it was played for less than half of its total duration.
 
 Album sticker
 -------------
