@@ -1,9 +1,7 @@
 Accessing the myMPD API
 =======================
 
-Calls the myMPD API, look at
-`API <../../060-references/api/index.rst>`__ for detailed API
-description.
+Calls the myMPD API, look at `API <../../060-references/api/index.rst>`__ for detailed API description.
 
 .. code:: lua
 

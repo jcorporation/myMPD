@@ -10,11 +10,11 @@ Scripting
 
 myMPD integrates `Lua <http://www.lua.org>`__ for scripting purposes. Scripts are executed asynchronously and can not block the main thread of myMPD. There are two types of scripts.
 
-The first type of scripts are executed by triggers, timers or manual through the web ui. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition.
+The first type of scripts are executed by triggers, timers or manual through the web ui. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition. This scripts should return a plain string or an JSON-RPC response.
 
 - :doc:`Triggers </060-references/trigger>`
 
-The second type of script are called by http requests (``/script/<partition>/<script>``), special triggers and home screen widgets. This scripts should return a valid http response including status code, headers and body.
+The second type of script are called by http requests (``/script/<partition>/<script>``), special triggers and widgets. This scripts should return a valid http response including status code, headers and body.
 
 - :doc:`Widgets <widgets>`
 
@@ -114,7 +114,6 @@ Return value handling:
 
 - If the script does not return any value a generic ``executed successfully`` message is displayed (LOG_INFO severity).
 - If the script returns a string, the string is displayed (LOG_INFO severity).
-- The script return string must not start with a curly brace ``{``.
 - If the script return string starts with a curly brace ``{`` it is interpreted as a JSON-RPC response message. This messages can be created with ``mympd.jsonrpc_error`` for example.
 
 .. code-block:: lua
@@ -128,50 +127,30 @@ Return value handling:
    -- Return info message
    return "Info message"
 
+Example
+-------
 
-Examples
---------
-
-Here can you find some simple examples.
+Below is a simple example. This script must be called with an argument named playlist.
 
 Complete scripts that can be imported are in the `mympd-scripts repository <https://github.com/jcorporation/mympd-scripts>`__.
 
-Simple
-~~~~~~
-
 .. code-block:: lua
 
-   -- load a playlist
-   mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {plist = "NonPop"})
-   -- start playing
-   mympd.api("MYMPD_API_PLAYER_PLAY")
-
-With arguments
-~~~~~~~~~~~~~~
-
-Script should be called with an argument named playlist.
-
-.. code-block:: lua
-
-   -- load a playlist
-   mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {plist = mympd_arguments.playlist})
-   -- start playing
-   mympd.api("MYMPD_API_PLAYER_PLAY")
-   -- broadcast message to all connected myMPD clients
-   return("Loaded playlist:" .. mympd_arguments.playlist)
-
-Error handling
-~~~~~~~~~~~~~~
-
-.. code-block:: lua
-
-   -- get current playing song
-   rc, result = mympd.api("MYMPD_API_PLAYER_CURRENT_SONG", {})
-   if rc == 0
-       return "Current song title:" .. result.Title
-   else
-       return "Error message:" .. result.message
+   -- check for the required argument
+   local rc, msg = mympd.check_arguments({playlist = "notempty"})
+   if rc == false then
+      return mympd.jsonrpc_error(msg)
    end
+
+   -- load a playlist
+   rc, result = mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {play = false, plists = { mympd_arguments.playlist }}
+   if rc == 0 then
+      -- start playing
+      mympd.api("MYMPD_API_PLAYER_PLAY")
+      -- broadcast message to all connected myMPD clients
+      return("Loaded playlist: " .. mympd_arguments.playlist)
+   end
+   return mympd.jsonrpc_error("Loading playlist failed: " .. result.message)
 
 Script file format
 ------------------
