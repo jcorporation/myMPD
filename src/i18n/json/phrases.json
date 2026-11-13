@@ -969,6 +969,7 @@
 {"term":"Timer with given id not found"},
 {"term":"Timerange (days)"},
 {"term":"Timestamp"},
+{"term":"Timezone"},
 {"term":"Title"},
 {"term":"To"},
 {"term":"To top"},
