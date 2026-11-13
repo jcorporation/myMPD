@@ -10,6 +10,7 @@ This is a maintenance release.
 
 ### Changelog
 
+- Feat: Add 'Mark as played' and 'Reset playback stickers' to context menu of songs
 - Feat: Add setting to define script widgets for playback, album and playlist detail views.
 - Upd: Improve JSON-RPC response handling for scripts
 - Upd: Improve documentation for script error and response handling

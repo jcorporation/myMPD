@@ -378,6 +378,8 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
         addMenuItem(contextMenuBody, {"cmd": "songDetails", "options": [uri]}, 'Song details');
         if (features.featStickerAdv === true) {
             addMenuItem(contextMenuBody, {"cmd": "showStickerModal", "options": [uri, type]}, 'Sticker');
+            addMenuItem(contextMenuBody, {"cmd": "setStickerPlayed", "options": [uri]}, 'Mark as played');
+            addMenuItem(contextMenuBody, {"cmd": "resetStickerPlayed", "options": [uri]}, 'Reset playback stickers');
         }
     }
     if (features.featHome === true &&

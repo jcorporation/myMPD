@@ -23,6 +23,7 @@
 
 #include <inttypes.h>
 #include <limits.h>
+#include <mpd/song.h>
 #include <poll.h>
 #include <stdlib.h>
 #include <string.h>
@@ -628,6 +629,73 @@ bool stickerdb_inc_set(struct t_stickerdb_state *stickerdb, enum mympd_sticker_t
  */
 bool stickerdb_inc_play_count(struct t_stickerdb_state *stickerdb, enum mympd_sticker_type type, const char *uri, time_t timestamp) {
     return stickerdb_inc_set(stickerdb, type, uri, STICKER_PLAY_COUNT, STICKER_LAST_PLAYED, timestamp);
+}
+
+/**
+ * Removes a sticker
+ * @param stickerdb pointer to the stickerdb state
+ * @param uri sticker uri
+ * @return bool true on success, else false
+ */
+bool stickerdb_set_played(struct t_stickerdb_state *stickerdb, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
+    if (stickerdb_connect(stickerdb) == false) {
+        return false;
+    }
+
+    time_t duration = 0;
+    if (mpd_send_list_meta(stickerdb->conn, uri)) {
+        struct mpd_song *song;
+        if ((song = mpd_recv_song(stickerdb->conn)) != NULL) {
+            duration = mpd_song_get_duration(song);
+            mpd_song_free(song);
+        }
+    }
+    if (stickerdb_check_error_and_recover(stickerdb, "mpd_send_list_meta") == false) {
+        return false;
+    }
+
+    time_t now = time(NULL);
+    bool rc = set_sticker_int64(stickerdb, STICKER_TYPE_SONG, uri, sticker_name_lookup(STICKER_LAST_PLAYED), (int64_t)now) &&
+        inc_sticker(stickerdb, STICKER_TYPE_SONG, uri, sticker_name_lookup(STICKER_PLAY_COUNT), 1) &&
+        set_sticker_int64(stickerdb, STICKER_TYPE_SONG, uri, sticker_name_lookup(STICKER_ELAPSED), (int64_t)duration);
+
+    stickerdb_enter_idle(stickerdb);
+    return rc;
+}
+
+/**
+ * Removes a sticker
+ * @param stickerdb pointer to the stickerdb state
+ * @param uri sticker uri
+ * @return bool true on success, else false
+ */
+bool stickerdb_reset_played(struct t_stickerdb_state *stickerdb, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
+    if (stickerdb_connect(stickerdb) == false) {
+        return false;
+    }
+    enum mympd_sticker_names names[] = {
+        STICKER_PLAY_COUNT,
+        STICKER_SKIP_COUNT,
+        STICKER_LAST_PLAYED,
+        STICKER_LAST_SKIPPED,
+        STICKER_ELAPSED,
+        STICKER_UNKNOWN,  // Must be the last
+    };
+    for (unsigned i = 0; i < STICKER_COUNT; i++) {
+        if (names[i] == STICKER_UNKNOWN) {
+            break;
+        }
+        // Errors can be ignored
+        remove_sticker(stickerdb, STICKER_TYPE_SONG, uri, sticker_name_lookup(names[i]));
+    }
+    bool rc = stickerdb_enter_idle(stickerdb);
+    return rc;
 }
 
 /**

@@ -1,6 +1,8 @@
+#
 AlbumArtistSort
 Album details
 AlbumSort
+alert
 alsa
 any
 ao
@@ -32,9 +34,11 @@ ComposerSort
 Conductor
 Context menu
 country
+crit
 CSS filter
 Dark
 Date
+debug
 Default
 Default image
 Default image dark
@@ -49,6 +53,7 @@ Disable repeat
 Disable single mode
 Disable single oneshot
 Disc
+DiscCount
 Display tags in rows for small displays
 Duplicate home icon
 Duplicate widget
@@ -61,6 +66,7 @@ Edit playlist
 Edit script
 elapsed
 Elapsed
+emerg
 Enable consume mode
 Enable consume oneshot
 Enable random
@@ -68,6 +74,8 @@ Enable repeat
 Enable single mode
 Enable single oneshot
 Ensemble
+Equal (==)
+error
 Error
 Error executing script %{script}
 Error executing script %{script}: Can not open or read script file
@@ -81,6 +89,7 @@ fifo
 Fileformat
 Filetype
 Fingerprint
+Fuzzy match (~~)
 Goto artist
 Grouping
 History back button
@@ -106,6 +115,7 @@ icon-search
 icon-social
 icon-toggle
 Image
+info
 Info
 Invalid json value type: MJSON_TOK_INVALID
 Invalid json value type: MJSON_TOK_NULL
@@ -135,6 +145,7 @@ Loglevel set to INFO
 Loglevel set to NOTICE
 Loglevel set to WARN
 Lua is not compiled in
+Mark as played
 Media session
 Modal
 modalAbout
@@ -172,22 +183,24 @@ MUSICBRAINZ_RELEASETRACKID
 MUSICBRAINZ_TRACKID
 MUSICBRAINZ_WORKID
 mympd_albumart
+mympd_bgimage
 mympd_connected
 mympd_disconnected
 mympd_feedback
+mympd_folderart
 mympd_jukebox
 mympd_lyrics
+mympd_playlistart
 mympd_scrobble
 mympd_skipped
 mympd_smartpls
 mympd_start
 mympd_stop
 mympd_tagart
-mympd_bgimage
-mympd_playlistart
-mympd_folderart
 name
 newest
+newWindow
+notice
 Notification icon
 null
 Number is out of valid range
@@ -221,13 +234,16 @@ Quick remove button
 rating
 Rating
 recorder
+Regular expression (=~)
 Remove all downwards
 Remove all upwards
+Remove current song after playback
 Repeat current song
 Repeat current song once
 Replace queue with playlist
 Rescan database
 Rescan directory
+Reset playback stickers
 Scripting
 Script is up-to-date.
 Script successfully updated.
@@ -254,7 +270,6 @@ sndio
 solaris
 Song change
 SongCount
-DiscCount
 Sortdesc
 Startup view
 state
@@ -266,6 +281,7 @@ Synced lyrics extension
 Synced lyrics vorbis comment
 Tab
 tags
+The jukebox list will be filled on demand.
 Thumbnail
 Title
 Too many results, list is cropped
@@ -274,6 +290,7 @@ Unsynced lyrics extension
 Unsynced lyrics vorbis comment
 Update database
 Update directory
+URI
 url_resolved
 userDefinedSticker
 Value length for JSON path \"$.params.newName\" is too short
@@ -286,23 +303,8 @@ Volume max.
 Volume min.
 Volume step
 votes
+warn
 Warning
 wasapi
 Web notifications
 Work
-emerg
-alert
-crit
-error
-warn
-notice
-info
-debug
-URI
-#
-newWindow
-The jukebox list will be filled on demand.
-Equal (==)
-Regular expression (=~)
-Fuzzy match (~~)
-Remove current song after playback

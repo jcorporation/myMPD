@@ -1346,6 +1346,18 @@ const APImethods = {
             "type": APIparams.stickerType
         }
     },
+    "MYMPD_API_STICKER_SET_PLAYED": {
+        "desc": "Increments playCount and sets lastPlayed to now.",
+        "params": {
+            "uri": APIparams.uri
+        }
+    },
+    "MYMPD_API_STICKER_RESET_PLAYED": {
+        "desc": "Removes all playback related stickers.",
+        "params": {
+            "uri": APIparams.uri
+        }
+    },
     "MYMPD_API_MOUNT_LIST": {
         "desc": "Lists the MPD mounts.",
         "params": {}

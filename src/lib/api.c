@@ -233,6 +233,7 @@ static enum mympd_cmd_acl_entity mympd_cmd_acl[] = {
     [MYMPD_API_STICKER_INC] = API_PUBLIC | API_MYMPD_ONLY,  // Stickers are handled by a different MPD connection
     [MYMPD_API_STICKER_DEC] = API_PUBLIC | API_MYMPD_ONLY,  // Stickers are handled by a different MPD connection
     [MYMPD_API_STICKER_PLAYCOUNT] = API_PUBLIC | API_MYMPD_ONLY,  // Stickers are handled by a different MPD connection
+    [MYMPD_API_STICKER_SET_PLAYED] = API_PUBLIC | API_MYMPD_ONLY,  // Stickers are handled by a different MPD connection
     [MYMPD_API_TIMER_GET] = API_PUBLIC | API_MYMPD_ONLY,
     [MYMPD_API_TIMER_LIST] = API_PUBLIC | API_MYMPD_ONLY,
     [MYMPD_API_TIMER_RM] = API_PUBLIC | API_MYMPD_ONLY | API_PROTECTED,

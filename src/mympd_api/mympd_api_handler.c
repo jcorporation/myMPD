@@ -1025,6 +1025,20 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                         JSONRPC_FACILITY_STICKER, error);
             }
             break;
+        case MYMPD_API_STICKER_RESET_PLAYED:
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
+                rc = stickerdb_reset_played(mympd_state->stickerdb, sds_buf1);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_STICKER, error);
+            }
+            break;
+        case MYMPD_API_STICKER_SET_PLAYED:
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
+                rc = stickerdb_set_played(mympd_state->stickerdb, sds_buf1);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_STICKER, error);
+            }
+            break;
         case MYMPD_API_STICKER_NAMES:
             if (mympd_state->mpd_state->feat.advsticker == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
