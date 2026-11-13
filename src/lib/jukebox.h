@@ -23,7 +23,7 @@ enum jukebox_modes {
     JUKEBOX_ADD_SONG,   //!< jukebox adds single songs
     JUKEBOX_ADD_ALBUM,  //!< jukebox adds whole albums
     JUKEBOX_SCRIPT,     //!< jukebox queue is filled by a script
-    JUKEBOX_UNKNOWN     //!< jukebox mode is unknown
+    JUKEBOX_UNKNOWN,    //!< jukebox mode is unknown
 };
 
 enum jukebox_modes jukebox_mode_parse(const char *str);
