@@ -248,6 +248,16 @@ const imageExtensions = ['webp', 'png', 'jpg', 'jxl', 'jpeg', 'svg', 'avif'];
 /** @type {string} */
 let locale = navigator.language || navigator.userLanguage;
 
+
+/** @type {array} */
+const allTimeZones = Intl.supportedValuesOf('timeZone');
+
+/** @type {string} */
+let browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+if (allTimeZones.includes(browserTimeZone) === false) {
+    browserTimeZone = 'UTC';
+}
+
 const localeMap = {
     'de': 'de-DE',
     'es': 'es-ES',
@@ -947,6 +957,13 @@ const settingsWebuiFields = {
         "title": "Locale",
         "form": "modalSettingsLocaleFrm",
         "onChange": "eventChangeLocale"
+    },
+    "timezone": {
+        "defaultValue": browserTimeZone,
+        "inputType": "select",
+        "title": "Timezone",
+        "form": "modalSettingsLocaleFrm",
+        "validValues": allTimeZones
     },
     "startupView": {
         "defaultValue": "Home",

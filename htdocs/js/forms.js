@@ -86,10 +86,19 @@ function createForm(defaultFields, prefix, forms) {
             // simple select
             const cssClass = concatArrays(["form-select"], defaultFields[key].class);
             const select = elCreateEmpty('select', {"class": cssClass, "id": id});
-            for (const value in defaultFields[key].validValues) {
-                select.appendChild(
-                    elCreateTextTn('option', {"value": value}, defaultFields[key].validValues[value])
-                );
+            if (Array.isArray(defaultFields[key].validValues)) {
+                for (const value of defaultFields[key].validValues) {
+                    select.appendChild(
+                        elCreateTextTn('option', {"value": value}, value)
+                    );
+                }
+            }
+            else {
+                for (const value in defaultFields[key].validValues) {
+                    select.appendChild(
+                        elCreateTextTn('option', {"value": value}, defaultFields[key].validValues[value])
+                    );
+                }
             }
             col.firstChild.firstChild.appendChild(select);
         }

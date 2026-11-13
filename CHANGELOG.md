@@ -10,10 +10,11 @@ This is a maintenance release.
 
 ### Changelog
 
-- Feat: Add 'Mark as played' and 'Reset playback stickers' to context menu of songs
+- Feat: Add option to configure timezone.
+- Feat: Add 'Mark as played' and 'Reset playback stickers' to context menu of songs.
 - Feat: Add setting to define script widgets for playback, album and playlist detail views.
-- Upd: Improve JSON-RPC response handling for scripts
-- Upd: Improve documentation for script error and response handling
+- Upd: Improve JSON-RPC response handling for scripts.
+- Upd: Improve documentation for script error and response handling.
 - Upd: Improve song skip detection: A song counts as skipped if it was played for less than half of its total duration.
 - Fix: Linter warnings
 
