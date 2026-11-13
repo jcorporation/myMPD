@@ -243,7 +243,7 @@ const messagesMax = 100;
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 
 /** @type {object} */
-const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
+const imageExtensions = ['webp', 'png', 'jpg', 'jxl', 'jpeg', 'svg', 'avif'];
 
 /** @type {string} */
 let locale = navigator.language || navigator.userLanguage;
