@@ -249,7 +249,7 @@ const imageExtensions = ['webp', 'png', 'jpg', 'jxl', 'jpeg', 'svg', 'avif'];
 let locale = navigator.language || navigator.userLanguage;
 
 
-/** @type {array} */
+/** @type {Array} */
 const allTimeZones = Intl.supportedValuesOf('timeZone');
 
 /** @type {string} */

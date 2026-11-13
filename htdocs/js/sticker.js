@@ -10,6 +10,7 @@
  * @param {string} uri Song uri
  * @returns {void}
  */
+//eslint-disable-next-line no-unused-vars
 function resetStickerPlayed(uri) {
     sendAPI("MYMPD_API_STICKER_RESET_PLAYED", {
         "uri": uri
@@ -21,6 +22,7 @@ function resetStickerPlayed(uri) {
  * @param {string} uri Song uri
  * @returns {void}
  */
+//eslint-disable-next-line no-unused-vars
 function setStickerPlayed(uri) {
     sendAPI("MYMPD_API_STICKER_SET_PLAYED", {
         "uri": uri
