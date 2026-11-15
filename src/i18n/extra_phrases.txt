@@ -54,6 +54,7 @@ Disable single mode
 Disable single oneshot
 Disc
 DiscCount
+DiscSubtitle
 Display tags in rows for small displays
 Duplicate home icon
 Duplicate widget
@@ -156,6 +157,7 @@ modalScripts
 modalSettings
 modalTimer
 modalTrigger
+Mood
 Movement
 MovementNumber
 MPD
@@ -235,6 +237,7 @@ rating
 Rating
 recorder
 Regular expression (=~)
+ReleaseType
 Remove all downwards
 Remove all upwards
 Remove current song after playback
@@ -308,6 +311,3 @@ Warning
 wasapi
 Web notifications
 Work
-DiscSubtitle
-ReleaseType
-Mood
