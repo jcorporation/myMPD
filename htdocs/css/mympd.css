@@ -460,6 +460,7 @@ div.card {
 
 .album-cover {
   background-size: cover;
+  background-position: center center;
   border: 1px solid var(--bs-black);
   border-radius: 5px;
   overflow: hidden;
