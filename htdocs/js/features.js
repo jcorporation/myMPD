@@ -100,6 +100,14 @@ function applyFeatures() {
             el.style.display = displayValue;
         }
     }
+
+    if (features.featScripting === false &&
+        features.featTimer === false)
+    {
+        elHideId('mainMenuDividerFeatures');
+    } else {
+        elShowId('mainMenuDividerFeatures');
+    }
 }
 
 /**
