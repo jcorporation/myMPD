@@ -20,6 +20,7 @@
 #include "src/mympd_client/tags.h"
 
 #include <assert.h>
+#include <mpd/tag.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -178,6 +179,7 @@ static void set_album_tags(struct t_partition_state *partition_state) {
             case MPD_TAG_DISC:
             case MPD_TAG_TITLE_SORT:
             case MPD_TAG_TRACK:
+            case MPD_TAG_DISCSUBTITLE:
                 //ignore this tags for albums
                 break;
             default:
