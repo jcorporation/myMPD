@@ -308,3 +308,6 @@ Warning
 wasapi
 Web notifications
 Work
+DiscSubtitle
+ReleaseType
+Mood
