@@ -20,7 +20,6 @@
 #include "src/mympd_client/tags.h"
 
 #include <assert.h>
-#include <mpd/tag.h>
 #include <stdbool.h>
 #include <string.h>
 
