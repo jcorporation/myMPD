@@ -49,6 +49,7 @@ static const char *const mpd_tag_type_names[MPD_TAG_COUNT] =
 	[MPD_TAG_MUSICBRAINZ_RELEASEGROUPID] = "MUSICBRAINZ_RELEASEGROUPID",
 	[MPD_TAG_SHOWMOVEMENT] = "ShowMovement",
 	[MPD_TAG_DISCSUBTITLE] = "DiscSubtitle",
+	[MPD_TAG_RELEASETYPE] = "ReleaseType",
 };
 
 const char *

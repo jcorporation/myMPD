@@ -16,6 +16,7 @@ This is a maintenance release.
 - Upd: Improve JSON-RPC response handling for scripts.
 - Upd: Improve documentation for script error and response handling.
 - Upd: Improve song skip detection: A song counts as skipped if it was played for less than half of its total duration.
+- Upd: libmpdclient to current master
 - Fix: Linter warnings
 
 ***
