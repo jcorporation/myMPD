@@ -1308,5 +1308,6 @@
     "Timezone": "Zeitzone",
     "DiscSubtitle": "Disk Titel",
     "ReleaseType": "Release Typ",
-    "Mood": "Stimmung"
+    "Mood": "Stimmung",
+    "Libmpdclient version": "Libmpdclient Version"
 }

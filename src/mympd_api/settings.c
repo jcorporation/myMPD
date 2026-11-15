@@ -982,6 +982,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
 
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
+    buffer = sdscatfmt(buffer, "\"libmpdclientVersion\": \"%i.%i.%i\",", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
     // mpd connection
     buffer = tojson_sds(buffer, "mpdHost", partition_state->mpd_state->mpd_host, true);
     buffer = tojson_uint(buffer, "mpdPort", partition_state->mpd_state->mpd_port, true);

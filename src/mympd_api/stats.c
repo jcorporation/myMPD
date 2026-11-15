@@ -44,6 +44,7 @@ sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, u
         buffer = tojson_uint64(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
         buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
         buffer = tojson_char(buffer, "mpdProtocolVersion", mpd_protocol_version, true);
+        buffer = sdscatfmt(buffer, "\"libmpdclientVersion\": \"%i.%i.%i\",", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
         buffer = tojson_char(buffer, "myMPDuri", mympd_uri,false);
         buffer = jsonrpc_end(buffer);
 

@@ -79,7 +79,9 @@ function tn(phrase, data) {
  * @returns {string} formatted date
  */
 function fmtDate(secs) {
-    return new Date(secs * 1000).toLocaleString(locale, {timeZone: settings.webuiSettings.timezone});
+    return new Date(secs * 1000).toLocaleString(locale, {
+        timeZone: settings.webuiSettings.timezone
+    });
 }
 
 /**
@@ -88,7 +90,12 @@ function fmtDate(secs) {
  * @returns {string} formatted date
  */
 function fmtTime(secs) {
-    return new Date(secs * 1000).toLocaleTimeString(locale, {hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: settings.webuiSettings.timezone});
+    return new Date(secs * 1000).toLocaleTimeString(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZone: settings.webuiSettings.timezone
+    });
 }
 
 /**

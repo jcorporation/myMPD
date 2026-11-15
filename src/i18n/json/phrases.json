@@ -465,6 +465,7 @@
 {"term":"Last skipped"},
 {"term":"Last-Modified"},
 {"term":"LastPlayed"},
+{"term":"Libmpdclient version"},
 {"term":"License"},
 {"term":"Ligature"},
 {"term":"Light"},
