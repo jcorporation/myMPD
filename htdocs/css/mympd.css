@@ -819,7 +819,8 @@ div.key {
   padding: 0.2rem 1.5rem;
 }
 
-.form-control:focus {
+.form-control:focus,
+.form-check-input:focus {
   border-color: var(--mympd-highlightcolor) !important;
 }
 
