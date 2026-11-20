@@ -13,7 +13,6 @@ target_sources(mongoose
 
 target_compile_options(mongoose
   PRIVATE
-    "-DMG_ENABLE_DIRLIST=1"
     "-DMG_ENABLE_SSI=0"
     "-DMG_TLS=MG_TLS_OPENSSL"
 )

@@ -62,8 +62,6 @@ struct mg_mgr *webserver_init_mgr(struct t_config *config, struct t_mg_user_data
     struct mg_mgr *mgr = malloc_assert(sizeof(struct mg_mgr));
     mg_mgr_init(mgr);
     mgr->userdata = mg_user_data;
-    mgr->product_name = "myMPD "MYMPD_VERSION;
-    mgr->directory_listing_css = DIRECTORY_LISTING_CSS;
     //set dns server
     mgr->dns4.url = get_dnsserver();
     MYMPD_LOG_DEBUG(NULL, "Setting dns server to %s", mgr->dns4.url);
@@ -367,8 +365,8 @@ static bool check_request(struct mg_connection *nc, struct mg_http_message *hm) 
     }
     else {
         MYMPD_LOG_ERROR(NULL, "Invalid http protocol \"%.*s\" (%lu)", (int)hm->proto.len, hm->proto.buf, nc->id);
+        nc->data[2] = 'C';
         webserver_send_error(nc, 405, "Invalid http protocol");
-        nc->is_draining = 1;
         return false;
     }
     //limit allowed http methods
@@ -388,22 +386,22 @@ static bool check_request(struct mg_connection *nc, struct mg_http_message *hm) 
     }
     else {
         MYMPD_LOG_ERROR(NULL, "Invalid http method \"%.*s\" (%lu)", (int)hm->method.len, hm->method.buf, nc->id);
+        nc->data[2] = 'C';
         webserver_send_error(nc, 405, "Invalid http method");
-        //nc->is_draining = 1;
         return false;
     }
     //check uri length
     if (hm->uri.len > URI_LENGTH_MAX) {
         MYMPD_LOG_ERROR(NULL, "Uri is too long, length is %lu, maximum length is %d (%lu)", (unsigned long)hm->uri.len, URI_LENGTH_MAX, nc->id);
+        nc->data[2] = 'C';
         webserver_send_error(nc, 414, "Uri is too long");
-        //nc->is_draining = 1;
         return false;
     }
     //check post requests length
     if (nc->data[1] == 'P' && (hm->body.len == 0 || hm->body.len > BODY_SIZE_MAX)) {
         MYMPD_LOG_ERROR(NULL, "POST request with body of size %lu is out of bounds (%lu)", (unsigned long)hm->body.len, nc->id);
+        nc->data[2] = 'C';
         webserver_send_error(nc, 413, "Post request is too large");
-        //nc->is_draining = 1;
         return false;
     }
     //respect connection close header
@@ -485,7 +483,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             break;
         case MG_EV_WS_OPEN: {
-            nc->is_resp = 1;
             break;
         }
         case MG_EV_WS_MSG: {
@@ -523,7 +520,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_HTTP_MSG: {
-            nc->is_resp = 1;
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             if (check_request(nc, hm) == false) {
                 break;
@@ -605,8 +601,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
                 struct t_list_node *node = list_get_node(&mg_user_data->stream_uris, frontend_nc_data->partition);
                 if (node == NULL) {
+                    nc->data[2] = 'C';
                     webserver_send_error(nc, 404, "Stream uri not configured");
-                    //nc->is_draining = 1;
                     break;
                 }
                 create_backend_connection(nc, frontend_nc_data->backend_nc, node->value_p, forward_backend_to_frontend_stream, true);
@@ -834,7 +830,6 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             }
             MYMPD_LOG_INFO(NULL, "Redirecting to %s", s_redirect);
             webserver_send_header_found(nc, s_redirect, "");
-            //nc->is_draining = 1;
             sdsfreesplitres(tokens, count);
             FREE_SDS(host_header);
             FREE_SDS(s_redirect);

@@ -51,8 +51,8 @@ bool webserver_enforce_acl(struct mg_connection *nc, sds acl) {
 
     sds ip = print_ip(sdsempty(), &nc->rem);
     MYMPD_LOG_ERROR(NULL, "Connection from \"%s\" blocked by ACL", ip);
+    nc->data[2] = 'C';
     webserver_send_error(nc, 403, "Request blocked by ACL");
-    nc->is_draining = 1;
     FREE_SDS(ip);
 
     return false;
@@ -68,8 +68,8 @@ bool webserver_enforce_conn_limit(struct mg_connection *nc, int connection_count
     if (connection_count > HTTP_CONNECTIONS_MAX) {
         MYMPD_LOG_DEBUG(NULL, "Connections: %d", connection_count);
         MYMPD_LOG_ERROR(NULL, "Concurrent connections limit exceeded: %d", connection_count);
+        nc->data[2] = 'C';
         webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
-        nc->is_draining = 1;
         return false;
     }
     return true;
@@ -125,8 +125,8 @@ bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm
     frontend_nc_data->partition = partition;
     if (sdslen(partition) == 0) {
         //no partition identifier - close connection
+        nc->data[2] = 'C';
         webserver_send_error(nc, 400, "No partition identifier");
-        nc->is_draining = 1;
         return false;
     }
     return true;
@@ -225,9 +225,11 @@ bool find_image_in_folder(sds *coverfile, sds music_directory, sds path, sds *na
  * @param nc mongoose connection
  */
 void webserver_handle_connection_close(struct mg_connection *nc) {
+    if (nc->pfn_data == nc) {
+        nc->pfn_data = NULL;  // Response done
+    }
     if (nc->data[2] == 'C') {
         MYMPD_LOG_DEBUG(NULL, "Set connection %lu to is_draining", nc->id);
         nc->is_draining = 1;
     }
-    nc->is_resp = 0;
 }

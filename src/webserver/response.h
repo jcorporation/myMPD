@@ -20,7 +20,6 @@ void webserver_send_api_response(struct mg_mgr *mgr, struct t_work_response *res
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
 void webserver_serve_file(struct mg_connection *nc, struct mg_http_message *hm,
         const char *headers, const char *file);
-void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *headers);
 void webserver_send_header_redirect(struct mg_connection *nc, const char *location, const char *headers);
 void webserver_send_header_found(struct mg_connection *nc, const char *location, const char *headers);
 void webserver_send_cors_reply(struct mg_connection *nc);

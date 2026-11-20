@@ -215,7 +215,7 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
             "<html><head>"
             "<meta charset=\"utf-8\">"
             "<title>Index of /browse/</title>"
-            "<style>%s</style></style></head>"
+            "<style>%s</style></head>"
             "<body>"
             "<h1>Index of /browse/</h1>"
             "<table cellpadding=\"0\"><thead>"
@@ -223,16 +223,16 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
             "</thead>"
             "<tbody id=\"tb\">%s</tbody>"
             "</table>"
-            "<address>%s</address>"
+            "<address>myMPD</address>"
             "</body></html>",
-            nc->mgr->directory_listing_css,
-            dirs,
-            nc->mgr->product_name
+            DIRECTORY_LISTING_CSS,
+            dirs
         );
         FREE_SDS(dirs);
     }
     else {
         s_http_server_opts.root_dir = mg_user_data->browse_directory;
+        s_http_server_opts.enable_dir_listing = true;
         MYMPD_LOG_INFO(NULL, "Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.buf);
         mg_http_serve_dir(nc, hm, &s_http_server_opts);
     }

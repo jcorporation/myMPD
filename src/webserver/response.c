@@ -122,12 +122,14 @@ void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
 }
 
 /**
- * Sends a http OK reply with content-length header
+ * Sends binary data
  * @param nc mongoose connection
- * @param len length for the content-length header
+ * @param data data to send
+ * @param len length of the data to send
  * @param headers extra headers to add
  */
-void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *headers) {
+void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers) {
+    MYMPD_LOG_DEBUG(NULL, "Sending %lu bytes to %lu", (unsigned long)len, nc->id);
     mg_printf(nc, "HTTP/1.1 200 OK\r\n"
         "%s"
         "Content-Length: %lu\r\n"
@@ -137,18 +139,6 @@ void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *
         (unsigned long)len,
         (nc->data[2] == 'C' ? "close" : "keep-alive")
     );
-}
-
-/**
- * Sends binary data
- * @param nc mongoose connection
- * @param data data to send
- * @param len length of the data to send
- * @param headers extra headers to add
- */
-void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers) {
-    MYMPD_LOG_DEBUG(NULL, "Sending %lu bytes to %lu", (unsigned long)len, nc->id);
-    webserver_send_header_ok(nc, len, headers);
     mg_send(nc, data, len);
     webserver_handle_connection_close(nc);
 }
