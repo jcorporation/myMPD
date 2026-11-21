@@ -296,7 +296,7 @@ enum work_response_types {
     RESPONSE_TYPE_DISCARD,           //!< Response will be discarded
     RESPONSE_TYPE_RAW,               //!< Raw http message
     RESPONSE_TYPE_SCRIPT_DIALOG,     //!< Script dialog
-    RESPONSE_TYPE_REDIRECT           //!< Send a redirect
+    RESPONSE_TYPE_REDIRECT,          //!< Send a redirect
 };
 
 /**
@@ -306,7 +306,7 @@ enum work_request_types {
     REQUEST_TYPE_DEFAULT = 0,       //!< Request is from a mongoose connection
     REQUEST_TYPE_SCRIPT,            //!< Request is from the script thread
     REQUEST_TYPE_NOTIFY_PARTITION,  //!< Send message to all clients in a specific partition
-    REQUEST_TYPE_DISCARD            //!< Response will be discarded
+    REQUEST_TYPE_DISCARD,           //!< Response will be discarded
 };
 
 /**
