@@ -28,6 +28,7 @@
 #include "src/webserver/request_handler.h"
 #include "src/webserver/response.h"
 #include "src/webserver/tagart.h"
+#include "src/webserver/utility.h"
 #include "src/webserver/websocket.h"
 
 #ifdef MYMPD_ENABLE_LUA
@@ -220,30 +221,11 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         struct set_mg_user_data_request *new_mg_user_data = (struct set_mg_user_data_request *)response->extra;
         struct t_config *config = mg_user_data->config;
 
-        sdsclear(mg_user_data->browse_directory);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, "%S/%s", config->workdir, DIR_WORK_EMPTY);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/pics=%S/%s", config->workdir, DIR_WORK_PICS);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/smartplaylists=%S/%s", config->workdir, DIR_WORK_SMARTPLS);
-        if (sdslen(new_mg_user_data->playlist_directory) > 0) {
-            mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/playlists=%S", new_mg_user_data->playlist_directory);
-            mg_user_data->publish_playlists = true;
-        }
-        else {
-            mg_user_data->publish_playlists = false;
-        }
+        mg_user_data->playlist_directory = sds_replace(mg_user_data->playlist_directory, new_mg_user_data->playlist_directory);
         FREE_SDS(new_mg_user_data->playlist_directory);
 
-        if (sdslen(new_mg_user_data->music_directory) > 0)
-        {
-            mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/music=%S", new_mg_user_data->music_directory);
-            mg_user_data->publish_music = true;
-        }
-        else {
-            mg_user_data->publish_music = false;
-        }
         mg_user_data->music_directory = sds_replace(mg_user_data->music_directory, new_mg_user_data->music_directory);
         FREE_SDS(new_mg_user_data->music_directory);
-        MYMPD_LOG_DEBUG(NULL, "Document root: \"%s\"", mg_user_data->browse_directory);
 
         //webradios
         mg_user_data->webradiodb = new_mg_user_data->webradiodb;
@@ -577,9 +559,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/playlistart"), NULL)) {
                 request_handler_playlistart(nc, hm);
             }
-            else if (mg_match(hm->uri, mg_str("/browse/#"), NULL)) {
-                request_handler_browse(nc, hm, mg_user_data);
-            }
             else if (mg_match(hm->uri, mg_str("/webradio"), NULL)) {
                 request_handler_extm3u(nc, hm, mg_user_data);
             }
@@ -618,36 +597,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_match(hm->uri, mg_str("/serverinfo"), NULL)) {
                 request_handler_serverinfo(nc);
             }
-        #ifdef MYMPD_ENABLE_LUA
-            else if (mg_match(hm->uri, mg_str("/script-api/*"), NULL)) {
-                if (config->scripts_external == false) {
-                    MYMPD_LOG_ERROR(frontend_nc_data->partition, "External scripts are disabled");
-                    webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "External scripts are disabled");
-                    break;
-                }
-                //enforce script acl
-                if (webserver_enforce_acl(nc, config->scriptacl) == false) {
-                    break;
-                }
-                //check partition
-                if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
-                    break;
-                }
-                sds body = sdsnewlen(hm->body.buf, hm->body.len);
-                bool rc = request_handler_script_api(nc, body);
-                FREE_SDS(body);
-                if (rc == false) {
-                    MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid script API request");
-                    webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script API request");
-                }
-            }
-            else if (mg_match(hm->uri, mg_str("/script/*/*"), NULL)) {
-                script_execute_http(nc, hm, config);
-            }
-            else if (mg_match(hm->uri, mg_str("/bgimage/*"), NULL)) {
-                script_execute_bgimage(nc, hm);
-            }
-        #endif
             else if (mg_match(hm->uri, mg_str("/assets/coverimage-booklet"), NULL)) {
                 webserver_serve_placeholder_image(nc, hm, mg_user_data->placeholder_booklet);
             }
@@ -708,6 +657,45 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     webserver_send_header_redirect(nc, "https://jcorporation.github.io/myMPD/", "");
                 #endif
             }
+            else if (mg_match(hm->uri, mg_str("/pics/#"), NULL)) {
+                // Serve pictures
+                static struct mg_http_serve_opts s_http_server_opts;
+                s_http_server_opts.root_dir = mg_user_data->pics_root_directory;
+                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+                s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
+                mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                webserver_handle_connection_close(nc);
+            }
+        #ifdef MYMPD_ENABLE_LUA
+            else if (mg_match(hm->uri, mg_str("/script-api/*"), NULL)) {
+                if (config->scripts_external == false) {
+                    MYMPD_LOG_ERROR(frontend_nc_data->partition, "External scripts are disabled");
+                    webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "External scripts are disabled");
+                    break;
+                }
+                //enforce script acl
+                if (webserver_enforce_acl(nc, config->scriptacl) == false) {
+                    break;
+                }
+                //check partition
+                if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
+                    break;
+                }
+                sds body = sdsnewlen(hm->body.buf, hm->body.len);
+                bool rc = request_handler_script_api(nc, body);
+                FREE_SDS(body);
+                if (rc == false) {
+                    MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid script API request");
+                    webserver_send_jsonrpc_response(nc, GENERAL_API_UNKNOWN, 0, JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script API request");
+                }
+            }
+            else if (mg_match(hm->uri, mg_str("/script/*/*"), NULL)) {
+                script_execute_http(nc, hm, config);
+            }
+            else if (mg_match(hm->uri, mg_str("/bgimage/*"), NULL)) {
+                script_execute_bgimage(nc, hm);
+            }
+        #endif
             else {
                 // All other uris
                 #ifndef MYMPD_EMBEDDED_ASSETS
@@ -725,6 +713,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     }
                     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                     mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                    webserver_handle_connection_close(nc);
                 #else
                     //serve embedded files
                     sds uri = sdsnewlen(hm->uri.buf, hm->uri.len);

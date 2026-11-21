@@ -190,55 +190,6 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
 }
 
 /**
- * Request handler for /browse
- * @param nc mongoose connection
- * @param hm http message
- * @param mg_user_data webserver configuration
- */
-void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data)
-{
-    static struct mg_http_serve_opts s_http_server_opts;
-    s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
-    s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-    if (mg_match(hm->uri, mg_str("/browse/"), NULL)) {
-        sds dirs = sdsempty();
-        if (mg_user_data->publish_music == true) {
-            dirs = sdscat(dirs, "<tr><td><a href=\"music/\">music/</a></td><td>MPD music directory</td><td></td></tr>");
-        }
-        dirs = sdscat(dirs, "<tr><td><a href=\"pics/\">pics/</a></td><td>myMPD pics directory</td><td></td></tr>");
-        if (mg_user_data->publish_playlists == true) {
-            dirs = sdscat(dirs, "<tr><td><a href=\"playlists/\">playlists/</a></td><td>MPD playlists directory</td><td></td></tr>");
-        }
-        dirs = sdscat(dirs, "<tr><td><a href=\"smartplaylists/\">smartplaylists/</a></td><td>myMPD smart playlists directory</td><td></td></tr>");
-        mg_http_reply(nc, 200, "Content-Type: text/html\r\n"EXTRA_HEADERS_UNSAFE, "<!DOCTYPE html>"
-            "<html><head>"
-            "<meta charset=\"utf-8\">"
-            "<title>Index of /browse/</title>"
-            "<style>%s</style></head>"
-            "<body>"
-            "<h1>Index of /browse/</h1>"
-            "<table cellpadding=\"0\"><thead>"
-            "<tr><th>Name</th><th>Description</th><th></th></tr>"
-            "</thead>"
-            "<tbody id=\"tb\">%s</tbody>"
-            "</table>"
-            "<address>myMPD</address>"
-            "</body></html>",
-            DIRECTORY_LISTING_CSS,
-            dirs
-        );
-        FREE_SDS(dirs);
-    }
-    else {
-        s_http_server_opts.root_dir = mg_user_data->browse_directory;
-        s_http_server_opts.enable_dir_listing = true;
-        MYMPD_LOG_INFO(NULL, "Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.buf);
-        mg_http_serve_dir(nc, hm, &s_http_server_opts);
-    }
-}
-
-/**
  * Request handler for proxy connections /proxy
  * @param nc mongoose connection
  * @param hm http body

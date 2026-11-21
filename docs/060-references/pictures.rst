@@ -109,7 +109,7 @@ Supported file extensions
 
 myMPD recognizes following file extensions:
 
-- webp, png, jpg, jpeg, svg, avif
+- webp, png, jpg, jpeg, jxl, svg, avif
 
 Custom placeholder images
 -------------------------

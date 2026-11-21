@@ -19,7 +19,7 @@ const APItypes = {
     "uint": "Unsigned integer"
 };
 
-/** 
+/**
  * API parameters
  * @type {object}
  */
@@ -2410,7 +2410,7 @@ const APImethods = {
             "image": {
                 "type": APItypes.string,
                 "example": "home-icon-1.png",
-                "desc": "Relative path for an image (/browse/pics/ is the root)."
+                "desc": "Relative path for an image (/pics/ is the root)."
             },
             "cmd": {
                 "type": APItypes.string,

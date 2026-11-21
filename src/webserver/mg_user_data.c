@@ -50,8 +50,9 @@ struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
     }
 
     mg_user_data->config = config;
-    mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_EMPTY);
+    mg_user_data->pics_root_directory = sdscatfmt(sdsempty(), "/pics=%S/%s", config->workdir, DIR_WORK_PICS);
     mg_user_data->music_directory = sdsempty();
+    mg_user_data->playlist_directory = sdsempty();
     mg_user_data->placeholder_booklet = sdsnew("/assets/coverimage-booklet.svg");
     mg_user_data->placeholder_mympd = sdsnew("/assets/coverimage-mympd.svg");
     mg_user_data->placeholder_na = sdsnew("/assets/coverimage-notavailable.svg");
@@ -67,8 +68,6 @@ struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
     mg_user_data->lyrics.sylt_ext = sdsempty();
     mg_user_data->lyrics.vorbis_uslt = sdsempty();
     mg_user_data->lyrics.vorbis_sylt = sdsempty();
-    mg_user_data->publish_music = false;
-    mg_user_data->publish_playlists = false;
     mg_user_data->connection_count = 2; // listening + wakeup
     list_init(&mg_user_data->stream_uris);
     list_init(&mg_user_data->session_list);
@@ -163,8 +162,9 @@ struct t_mg_user_data *webserver_init_mg_user_data(struct t_config *config) {
  * @param mg_user_data pointer to mg_user_data struct
  */
 void mg_user_data_free(struct t_mg_user_data *mg_user_data) {
-    FREE_SDS(mg_user_data->browse_directory);
+    FREE_SDS(mg_user_data->pics_root_directory);
     FREE_SDS(mg_user_data->music_directory);
+    FREE_SDS(mg_user_data->playlist_directory);
     sdsfreesplitres(mg_user_data->image_names_sm, mg_user_data->image_names_sm_len);
     sdsfreesplitres(mg_user_data->image_names_md, mg_user_data->image_names_md_len);
     sdsfreesplitres(mg_user_data->image_names_lg, mg_user_data->image_names_lg_len);
@@ -200,14 +200,14 @@ void mg_user_data_free_void(void *mg_user_data) {
  */
 
 /**
- * Adds a file to the 
- * @param mg_user_data 
- * @param uri 
- * @param mimetype 
- * @param compressed 
- * @param cache 
- * @param data 
- * @param size 
+ * Adds a file to the embedded_files field of mg_user_data
+ * @param mg_user_data Pointer to t_mg_user_data struct
+ * @param uri File path
+ * @param mimetype Mime type
+ * @param compressed Is file pre-compressed?
+ * @param cache Shoud the file cached by the browser?
+ * @param data File data
+ * @param size File size
  */
 static void add_file(struct t_mg_user_data *mg_user_data, const char *uri, const char *mimetype,
         bool compressed, bool cache, const unsigned char *data, unsigned size)

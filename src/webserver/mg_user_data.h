@@ -38,16 +38,15 @@ struct t_embedded_file {
  */
 struct t_mg_user_data {
     struct t_config *config;                 //!< Pointer to myMPD configuration
-    sds browse_directory;                    //!< document root
+    sds pics_root_directory;                 //!< Pictures folder
     sds music_directory;                     //!< mpd music directory
+    sds playlist_directory;                  //!< mpd playlist directory
     sds *image_names_sm;                     //!< sds array of small image names
     int image_names_sm_len;                  //!< length of small image_names array
     sds *image_names_md;                     //!< sds array of medium image names
     int image_names_md_len;                  //!< length of medium image_names array
     sds *image_names_lg;                     //!< sds array of large image names
     int image_names_lg_len;                  //!< length of large image_names array
-    bool publish_playlists;                  //!< true if mpd playlist directory is configured
-    bool publish_music;                      //!< true if mpd music directory is accessible
     int connection_count;                    //!< number of http connections
     struct t_list stream_uris;               //!< uri for the mpd stream reverse proxy
     struct t_list session_list;              //!< list of myMPD sessions (pin protection mode)

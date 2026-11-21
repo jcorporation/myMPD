@@ -23,8 +23,6 @@ Reference of all webserver uris.
 +-----------------------------------------------------------------+----------------------------------------------------------------------------------------+
 | ``/api/<partition>``                                            | jsonrpc api endpoint                                                                   |
 +-----------------------------------------------------------------+----------------------------------------------------------------------------------------+
-| ``/browse/``                                                    | Prints the list of :doc:`published directories <published-directories>`                |
-+-----------------------------------------------------------------+----------------------------------------------------------------------------------------+
 | ``/ca.crt``                                                     | Returns the myMPD CA certificate                                                       |
 +-----------------------------------------------------------------+----------------------------------------------------------------------------------------+
 | ``/doc/``                                                       | Locally installed documentation, same as https://jcorporation.github.io/myMPD/         |
@@ -32,6 +30,8 @@ Reference of all webserver uris.
 | ``/folderart?path=<path>``                                      | Returns the folderart thumbnail.                                                       |
 +-----------------------------------------------------------------+----------------------------------------------------------------------------------------+
 | ``/playlistart?type=<plist,smartpls>&playlist=<playlist name>`` | Returns the playlistart thumbnail or a redirect to the placeholder image if not found. |
++-----------------------------------------------------------------+----------------------------------------------------------------------------------------+
+| ``/pics/``                                                      | Serves files from the ``<work_dir>/pics`` folder.                                      |
 +-----------------------------------------------------------------+----------------------------------------------------------------------------------------+
 | ``/proxy?uri=<uri>``                                            | Fetches the response from the uri (GET), allowed hosts: ``jcorporation.github.io``,    |
 |                                                                 | ``musicbrainz.org``, ``listenbrainz.org``                                              |

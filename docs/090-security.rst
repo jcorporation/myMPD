@@ -14,7 +14,6 @@ Restrict access
 
 myMPD should not be directly accessible from the internet. It is designed to run inside a relatively secure intranet.
 
-- myMPD publishes several :doc:`directories <060-references/published-directories>`
 - The pin setting only secures some :doc:`api calls <060-references/api/methods>`
 
 If you want to access myMPD from the internet, you should add a reverse proxy with authentication and ssl encryption in front of it.

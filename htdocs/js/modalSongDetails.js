@@ -179,20 +179,13 @@ function parseSongDetails(obj) {
     const openFolderBtn = elCreateText('button', {"id": "gotoContainingFolder", "class": ["btn", "btn-secondary", "mi"],
         "data-title-phrase": "Open folder"}, 'folder_open');
     setData(openFolderBtn, 'folder', dirname(obj.result.uri));
-    let downloadBtn = null;
-    if (features.featLibrary === true) {
-        downloadBtn = elCreateText('button', {"id": "downloadSong","class": ["btn", "btn-secondary", "mi"],
-            "data-title-phrase": "Download"}, 'file_download');
-        setData(downloadBtn, 'href', myEncodeURI(subdir + '/browse/music/' + rUri));
-    }
     tbody.appendChild(
         songDetailsRow('Filename',
             elCreateNodes('div', {}, [
                 elCreateText('p', {"class": ["text-break", "mb-1"], "title": rUri}, shortName),
                 elCreateNodes('div', {"class": ["input-group", "mb-1"]}, [
                     elCreateEmpty('input', {"class": ["form-control"], "value": rUri}),
-                    openFolderBtn,
-                    downloadBtn
+                    openFolderBtn
                 ])
             ])
         )

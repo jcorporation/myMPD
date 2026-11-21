@@ -103,7 +103,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, en
 
     MYMPD_LOG_DEBUG(NULL, "Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
 
-    if ((strcmp(key, "mpdHost") == 0 || strcmp(key, "stickerdbMpdHost") == 0) && 
+    if ((strcmp(key, "mpdHost") == 0 || strcmp(key, "stickerdbMpdHost") == 0) &&
         vtype == JSON_TOK_STRING)
     {
         if (vcb_isfilepath(value) == false) {

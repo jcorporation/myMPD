@@ -86,7 +86,6 @@
 {"term":"Booklet"},
 {"term":"Booklet filename"},
 {"term":"Browse"},
-{"term":"Browse directories"},
 {"term":"Browser default"},
 {"term":"Browser has no MediaSession support"},
 {"term":"Browser specific setting"},

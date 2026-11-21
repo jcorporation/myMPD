@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v26.2.0 (not yet released)
 
-This is a maintenance release.
+This is a maintenance release. It removes the `/browse` endpoint, because mongoose has removed the html dir listing support. Pictures are now handled by the `/pics/` endpoint.
 
 ### Changelog
 
@@ -17,6 +17,7 @@ This is a maintenance release.
 - Upd: Improve documentation for script error and response handling.
 - Upd: Improve song skip detection: A song counts as skipped if it was played for less than half of its total duration.
 - Upd: libmpdclient to current master
+- Upd: Mongoose to 7.24
 - Fix: Linter warnings
 
 ***

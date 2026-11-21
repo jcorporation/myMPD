@@ -15,7 +15,7 @@ function getImageUri(uri) {
         ? subdir + '/proxy-covercache?uri=' + myEncodeURIComponent(uri)
         : uri.charAt(0) === '/'
             ? subdir + uri
-            : subdir + '/browse/pics/thumbs/' + myEncodeURI(uri);
+            : subdir + '/pics/thumbs/' + myEncodeURI(uri);
 }
 
 /**
