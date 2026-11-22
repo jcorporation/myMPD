@@ -168,7 +168,7 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
 
 /**
  * Appends entries to a playlist
- * @param {string} type one of song, stream, dir, search, album, disc, searchdir
+ * @param {string} type one of song, stream, webradio, dir, search, album, disc, searchdir
  * @param {Array} uris uris to add
  * @param {string} plist playlist to append the uri
  * @param {Function} callback response handling callback
@@ -186,6 +186,7 @@ function appendPlaylist(type, uris, plist, callback) {
             break;
         case 'song':
         case 'stream':
+        case 'webradio':
         case 'dir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_URIS", {
                 "uris": uris,
@@ -222,7 +223,7 @@ function appendPlaylist(type, uris, plist, callback) {
 
 /**
  * Inserts entries into a playlist
- * @param {string} type one of song, stream, dir, search, album, disc, searchdir
+ * @param {string} type one of song, stream, webradio, dir, search, album, disc, searchdir
  * @param {Array} uris uris to add
  * @param {string} plist playlist to insert the uri
  * @param {number} to position to insert
@@ -241,6 +242,7 @@ function insertPlaylist(type, uris, plist, to, callback) {
             break;
         case 'song':
         case 'stream':
+        case 'webradio':
         case 'dir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_URIS", {
                 "uris": uris,
@@ -281,7 +283,7 @@ function insertPlaylist(type, uris, plist, to, callback) {
 
 /**
  * Replaces a playlist
- * @param {string} type one of song, stream, dir, search, album, disc, searchdir
+ * @param {string} type one of song, stream, webradio, dir, search, album, disc, searchdir
  * @param {Array} uris uris to add
  * @param {string} plist playlist to replace
  * @param {Function} callback response handling callback
@@ -299,6 +301,7 @@ function replacePlaylist(type, uris, plist, callback) {
             break;
         case 'song':
         case 'stream':
+        case 'webradio':
         case 'dir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_URIS", {
                 "uris": uris,
