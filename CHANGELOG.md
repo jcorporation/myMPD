@@ -18,6 +18,7 @@ This is a maintenance release. It removes the `/browse` endpoint, because mongoo
 - Upd: Improve song skip detection: A song counts as skipped if it was played for less than half of its total duration.
 - Upd: libmpdclient to current master
 - Upd: Mongoose to 7.24
+- Fix: Add WebradioDB entry to playlist.
 - Fix: Linter warnings
 
 ***
