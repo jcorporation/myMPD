@@ -16200,6 +16200,8 @@ static void setlocaddr(MG_SOCKET_TYPE fd, struct mg_addr *addr) {
 
 // Get the local 'addr' the stack will use to connect to 'to'
 void mg_getlocaddr(struct mg_connection *c, struct mg_addr *to,
+                   struct mg_addr *addr);
+void mg_getlocaddr(struct mg_connection *c, struct mg_addr *to,
                    struct mg_addr *addr) {
   union usa usa;
   socklen_t slen;
@@ -16309,6 +16311,7 @@ static void mg_set_non_blocking_mode(MG_SOCKET_TYPE fd) {
 #endif
 }
 
+void mg_multicast_add(struct mg_connection *c, char *ip);
 void mg_multicast_add(struct mg_connection *c, char *ip) {
 #if MG_ENABLE_RL
   MG_ERROR(("unsupported"));
