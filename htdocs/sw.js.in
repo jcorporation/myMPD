@@ -40,7 +40,7 @@ const ignoreRequests = new RegExp(subdir + '/(' + [
     'playlistart.*',
     'webradio.*',
     'proxy.*',
-    'browse/.*'].join('|') + ')$');
+    'pics/.*'].join('|') + ')$');
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
