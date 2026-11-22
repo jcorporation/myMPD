@@ -36,16 +36,17 @@ bool request_handler_mpd_music_directory(struct mg_connection *nc, struct mg_htt
     }
 
     sds file_path = sds_urldecode(sdsempty(), hm->uri.buf, hm->uri.len, false);
-    sdsrange(file_path, 6, -1); // Strip /music prefix
     if (sdslen(file_path) == 0) {
         MYMPD_LOG_ERROR(NULL, "Failure decoding file path \"%.*s\".", (int)hm->uri.len, hm->uri.buf);
         FREE_SDS(file_path);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
+        return true;
     }
+    sdsrange(file_path, 6, -1); // Strip /music prefix
     sds coverfile = sdscatfmt(sdsempty(), "%S%S", mg_user_data->music_directory, file_path);
     FREE_SDS(file_path);
 
-    if (sdslen(file_path) > 0 &&
-        vcb_isfilepath(coverfile) == true &&
+    if (vcb_isfilepath(coverfile) == true &&
         is_file(coverfile, false) == true)
     {
         MYMPD_LOG_DEBUG(NULL, "Attempt to serve file \"%s\".", coverfile);
@@ -55,7 +56,7 @@ bool request_handler_mpd_music_directory(struct mg_connection *nc, struct mg_htt
     }
     MYMPD_LOG_ERROR(NULL, "Picture \"%s\" not found.", coverfile);
     if (is_image(coverfile) == true) {
-        webserver_redirect_placeholder_image(nc, PLACEHOLDER_FOLDER);
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
     }
     else {
         webserver_send_error(nc, 404, "File not found.");
