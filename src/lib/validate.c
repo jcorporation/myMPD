@@ -259,7 +259,8 @@ bool vcb_isfilename(sds data) {
 }
 
 /**
- * Checks if string is a valid filename with path or path only
+ * Checks if string is a valid filename with path or path only.
+ * Checks also for dir traversal.
  * @param data sds string to check
  * @return true on success else false
  */
