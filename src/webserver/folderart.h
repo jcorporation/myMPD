@@ -12,9 +12,9 @@
 #define MYMPD_WEB_SERVER_FOLDERART_H
 
 #include "dist/mongoose/mongoose.h"
-#include "src/webserver/mg_user_data.h"
 
 #include <stdbool.h>
 
 bool request_handler_folderart(struct mg_connection *nc, struct mg_http_message *hm);
+
 #endif
