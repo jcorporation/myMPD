@@ -39,19 +39,19 @@ enum magic_bytes {
  * Magic bytes to extension and mime type handling
  */
 static const struct t_mime_type_entry mime_entries[] = {
-    {0, "89504E470D0A1A0A", "png",  "image/png"},
-    {0, "FFD8FF",           "jpg",  "image/jpeg"},
-    {0, "FFD8FF",           "jpeg", "image/jpeg"},
-    {0, "52494646",         "webp", "image/webp"},
-    {4, "667479706d696631", "avif", "image/avif"},
-    {0, "494433",           "mp3",  "audio/mpeg"},
-    {0, "664C6143",         "flac", "audio/flac"},
-    {0, "4F676753",         "oga",  "audio/ogg"},
-    {0, "4F676753",         "ogg",  "audio/ogg"},
-    {0, "4F676753",         "opus", "audio/ogg"},
-    {0, "4F676753",        "spx",  "audio/ogg"},
-    {0, "",                "svg",  "image/svg+xml"},
-    {0, "FF0A", "jxl", "image/jxl"},
+    {0, "89504E470D0A1A0A",         "png",  "image/png"},
+    {0, "FFD8FF",                   "jpg",  "image/jpeg"},
+    {0, "FFD8FF",                   "jpeg", "image/jpeg"},
+    {0, "52494646",                 "webp", "image/webp"},
+    {4, "667479706d696631",         "avif", "image/avif"},
+    {0, "494433",                   "mp3",  "audio/mpeg"},
+    {0, "664C6143",                 "flac", "audio/flac"},
+    {0, "4F676753",                 "oga",  "audio/ogg"},
+    {0, "4F676753",                 "ogg",  "audio/ogg"},
+    {0, "4F676753",                 "opus", "audio/ogg"},
+    {0, "4F676753",                 "spx",  "audio/ogg"},
+    {0, "",                         "svg",  "image/svg+xml"},
+    {0, "FF0A",                     "jxl",  "image/jxl"},
     {0, "0000000C4A584C200D0A870A", "jxl", "image/jxl"},
     // must be last entry
     {0, NULL,              NULL,   "application/octet-stream"},
@@ -78,7 +78,7 @@ const char *get_mime_type_by_ext(const char *filename) {
 
 /**
  * Gets the extension by mime type
- * @param mime_type 
+ * @param mime_type Mime type to get the extension for
  * @return the extension
  */
 const char *get_ext_by_mime_type(const char *mime_type) {
@@ -131,7 +131,7 @@ const char *get_mime_type_by_magic_stream(sds stream) {
 
 /**
  * Gets the mime type by magic numbers in binary file
- * @param filename 
+ * @param filename
  * @return the mime type or generic application/octet-stream
  */
 const char *get_mime_type_by_magic_file(const char *filename) {
@@ -172,7 +172,7 @@ static const char *image_extensions[] = {
 
 /**
  * Checks the filetype by extension
- * @param filename 
+ * @param filename
  * @return true if it is a image extension else false
  */
 bool is_image(const char *filename) {
