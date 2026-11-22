@@ -14,6 +14,7 @@
 #include "dist/sds/sds.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
+#include "src/lib/mimetype.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_url.h"
 #include "src/lib/validate.h"
@@ -53,7 +54,12 @@ bool request_handler_mpd_music_directory(struct mg_connection *nc, struct mg_htt
         return true;
     }
     MYMPD_LOG_ERROR(NULL, "Picture \"%s\" not found.", coverfile);
+    if (is_image(coverfile) == true) {
+        webserver_redirect_placeholder_image(nc, PLACEHOLDER_FOLDER);
+    }
+    else {
+        webserver_send_error(nc, 404, "File not found.");
+    }
     FREE_SDS(coverfile);
-    webserver_redirect_placeholder_image(nc, PLACEHOLDER_FOLDER);
     return true;
 }
