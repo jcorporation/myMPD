@@ -1,0 +1,6 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+Language: C
+ColumnLimit: 120
+BreakBeforeBinaryOperators: None
+BreakBinaryOperations: OnePerLine
