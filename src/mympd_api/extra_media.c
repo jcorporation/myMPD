@@ -32,7 +32,7 @@
 #endif
 
 /**
- * Private definitons
+ * Private definitions
  */
 
 static void get_extra_files(sds music_directory, sds booklet_name, sds info_txt_name, const char *uri,
@@ -130,14 +130,14 @@ static void get_extra_files(sds music_directory, sds booklet_name, sds info_txt_
         while ((next_file = readdir(album_dir)) != NULL) {
             if (strcmp(next_file->d_name, booklet_name) == 0) {
                 MYMPD_LOG_DEBUG(NULL, "Found booklet for uri %s", uri);
-                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, booklet_name);
+                *booklet_path = sdscatfmt(*booklet_path, "/music/%S/%S", path, booklet_name);
             }
             else if (strcmp(next_file->d_name, info_txt_name) == 0) {
                 MYMPD_LOG_DEBUG(NULL, "Found info txt for uri %s", uri);
-                *info_txt_path = sdscatfmt(*info_txt_path, "/browse/music/%S/%S", path, info_txt_name);
+                *info_txt_path = sdscatfmt(*info_txt_path, "/music/%S/%S", path, info_txt_name);
             }
             else if (is_image(next_file->d_name) == true) {
-                fullpath = sdscatfmt(fullpath, "/browse/music/%S/%s", path, next_file->d_name);
+                fullpath = sdscatfmt(fullpath, "/music/%S/%s", path, next_file->d_name);
                 list_push(images, fullpath, 0, NULL, NULL);
                 sdsclear(fullpath);
             }

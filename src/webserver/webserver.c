@@ -22,6 +22,7 @@
 #include "src/lib/thread.h"
 #include "src/webserver/albumart.h"
 #include "src/webserver/folderart.h"
+#include "src/webserver/mpd_music_dir.h"
 #include "src/webserver/placeholder.h"
 #include "src/webserver/playlistart.h"
 #include "src/webserver/proxy.h"
@@ -552,6 +553,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             else if (mg_match(hm->uri, mg_str("/folderart"), NULL)) {
                 request_handler_folderart(nc, hm);
+            }
+            else if (mg_match(hm->uri, mg_str("/music/#"), NULL)) {
+                request_handler_mpd_music_directory(nc, hm);
             }
             else if (mg_match(hm->uri, mg_str("/tagart"), NULL)) {
                 request_handler_tagart(nc, hm);

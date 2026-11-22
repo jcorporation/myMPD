@@ -69,7 +69,7 @@ sds sds_urlencode(sds s, const char *p, size_t len) {
  * @param p string to url decode
  * @param len string length to url decode
  * @param is_form_url_encoded true decodes + chars to spaces
- * @return modified sds string
+ * @return modified sds string, or empty string on error
  */
 sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
     size_t i;

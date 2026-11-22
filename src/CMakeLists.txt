@@ -13,7 +13,7 @@ if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
 endif()
 
 target_include_directories(mympd
-  PRIVATE 
+  PRIVATE
     ${PROJECT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}
     ${OPENSSL_INCLUDE_DIR}
@@ -171,6 +171,7 @@ target_sources(mympd
     webserver/folderart.c
     webserver/lyrics.c
     webserver/mg_user_data.c
+    webserver/mpd_music_dir.c
     webserver/placeholder.c
     webserver/proxy.c
     webserver/sessions.c
