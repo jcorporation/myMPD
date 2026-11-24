@@ -204,6 +204,43 @@ UTEST(list_sort, test_list_sort_odd_length) {
     list_clear(&test_list);
 }
 
+UTEST(list_sort, test_list_sort_duplicates) {
+    struct t_list test_list;
+    list_init(&test_list);
+
+    list_push(&test_list, "b", 2, NULL, NULL);
+    list_push(&test_list, "a", 1, NULL, NULL);
+    list_push(&test_list, "c", 2, NULL, NULL);
+    list_push(&test_list, "d", 2, NULL, NULL);
+
+    ASSERT_TRUE(list_sort_by_value_i(&test_list, LIST_SORT_ASC));
+    ASSERT_EQ(test_list.head->value_i, 1);
+    ASSERT_EQ(test_list.tail->value_i, 2);
+    ASSERT_EQ(check_list_integrity(&test_list, 4), true);
+
+    list_clear(&test_list);
+}
+
+UTEST(list_sort, test_list_sort_two_and_sorted) {
+    struct t_list test_list;
+    list_init(&test_list);
+
+    list_push(&test_list, "2", 2, NULL, NULL);
+    list_push(&test_list, "1", 1, NULL, NULL);
+    ASSERT_TRUE(list_sort_by_value_i(&test_list, LIST_SORT_ASC));
+    ASSERT_EQ(test_list.head->value_i, 1);
+    ASSERT_EQ(test_list.tail->value_i, 2);
+    ASSERT_EQ(check_list_integrity(&test_list, 2), true);
+
+    list_clear(&test_list);
+    list_push(&test_list, "1", 1, NULL, NULL);
+    list_push(&test_list, "2", 2, NULL, NULL);
+    ASSERT_TRUE(list_sort_by_value_i(&test_list, LIST_SORT_ASC));
+    ASSERT_EQ(check_list_integrity(&test_list, 2), true);
+
+    list_clear(&test_list);
+}
+
 UTEST(list_sort, test_list_sort_empty) {
     struct t_list test_list;
     list_init(&test_list);
