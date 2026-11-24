@@ -27,6 +27,7 @@
 #include "src/mympd_client/tags.h"
 
 #include <assert.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -330,10 +331,20 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
         return true;
     }
     // Shuffle the playlist
-    sds_array_shuffle(plist_array);
+    if (sds_array_shuffle(plist_array) == false) {
+        sds_array_free(plist_array);
+        *error = sdscat(*error, "Can not shuffle playlist");
+        return false;
+    }
     // Add shuffled songs to tmp playlist
     char rand_str[10];
+    errno = 0;
     randstring(rand_str, 10);
+    if (errno != 0) {
+        sds_array_free(plist_array);
+        *error = sdscat(*error, "Can not generate random playlist name");
+        return false;
+    }
     sds playlist_tmp = sdscatfmt(sdsempty(), "%s-tmp-%s", rand_str, playlist);
     bool rc = true;
 
@@ -712,7 +723,14 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     } while (pos >= start);
 
     char rand_str[10];
+    errno = 0;
     randstring(rand_str, 10);
+    if (errno != 0) {
+        rax_free_sds_data(plist);
+        raxFree(plist);
+        *error = sdscat(*error, "Can not generate random playlist name");
+        return false;
+    }
     sds playlist_tmp = sdscatfmt(sdsempty(), "%s-tmp-%s", rand_str, playlist);
 
     //add sorted songs to tmp playlist

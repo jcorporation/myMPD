@@ -103,7 +103,12 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
 sds webserver_session_new(struct t_list *session_list) {
     // Create random string
     sds session = sdsnewlen(SDS_NOINIT, 20);
+    errno = 0;
     randstring(session, 21);
+    if (errno != 0) {
+        sdsfree(session);
+        return NULL;
+    }
     //timeout old sessions
     webserver_session_validate(session_list, NULL);
     //add new session with 30 min timeout

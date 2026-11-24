@@ -14,6 +14,8 @@
 #include "src/lib/mem.h"
 #include "src/lib/random.h"
 
+#include <errno.h>
+
 /**
  * Shuffles the list using Fisher-Yates algorithm.
  * Optimized for doubly-linked list: reconstructs both next and prev pointers
@@ -26,6 +28,10 @@ bool list_shuffle(struct t_list *l) {
     }
     // Convert linked list to array and shuffle
     struct t_list_node **node_array = list_shuffle_to_array(l);
+    if (node_array == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Error creating temporary array for shuffling the list");
+        return false;
+    }
 
     // Reconstruct the doubly-linked list with both next and prev pointers
     for (unsigned i = 0; i < l->length; i++) {
@@ -63,10 +69,14 @@ struct t_list_node **list_shuffle_to_array(struct t_list *l) {
     }
 
     // Fisher-Yates shuffle
+    errno = 0;
     for (unsigned i = l->length - 1; i > 0; i--) {
         // Generate a random number between 0 and i (inclusive)
         unsigned j = randrange(0, i + 1);
-
+        if (errno != 0) {
+            FREE_PTR(node_array);
+            return NULL;
+        }
         // Swap nodes
         struct t_list_node *temp = node_array[i];
         node_array[i] = node_array[j];

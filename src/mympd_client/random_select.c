@@ -22,6 +22,7 @@
 #include "src/mympd_client/stickerdb.h"
 #include "src/mympd_client/tags.h"
 
+#include <errno.h>
 #include <string.h>
 
 /*
@@ -120,7 +121,17 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
             check_expression_album(album, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
             check_uniq_tag(albumid, tag_value, queue_list, add_list) == RANDOM_ADD_UNIQ_IS_UNIQ)
         {
-            if (randrange(0, lineno) < add_albums) {
+            if (lineno == 0 || add_albums == 0) {
+                lineno++;
+                continue;
+            }
+            errno = 0;
+            unsigned random_album = randrange(0, lineno);
+            if (errno != 0) {
+                MYMPD_LOG_ERROR(partition_state->name, "Can not generate random album index");
+                break;
+            }
+            if (random_album < add_albums) {
                 if (add_list->length < add_list_expected_len) {
                     // append to fill the queue
                     if (list_push(add_list, albumid, lineno, tag_value, NULL) == false) {
@@ -130,9 +141,16 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
                 else {
                     // replace at initial_length + random position
                     // existing entries should not be touched
-                    unsigned pos = add_albums > 1
-                        ? initial_length + randrange(0, add_albums)
-                        : initial_length;
+                    unsigned pos = initial_length;
+                    if (add_albums > 1) {
+                        errno = 0;
+                        unsigned random_pos = randrange(0, add_albums);
+                        if (errno != 0) {
+                            MYMPD_LOG_ERROR(partition_state->name, "Can not generate random album position");
+                            break;
+                        }
+                        pos += random_pos;
+                    }
                     if (list_replace(add_list, pos, albumid, lineno, tag_value, NULL) == false) {
                         MYMPD_LOG_ERROR(partition_state->name, "Can't replace list element pos %u", pos);
                     }
@@ -269,7 +287,17 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
                 check_expression_song(song, &partition_state->mpd_state->tags_mpd, include_expr_list, exclude_expr_list) == true &&
                 check_uniq_tag(uri, tag_value, queue_list, add_list) == RANDOM_ADD_UNIQ_IS_UNIQ)
             {
-                if (randrange(0, lineno) < add_songs) {
+                if (lineno == 0 || add_songs == 0) {
+                    lineno++;
+                    continue;
+                }
+                errno = 0;
+                unsigned random_song = randrange(0, lineno);
+                if (errno != 0) {
+                    MYMPD_LOG_ERROR(partition_state->name, "Can not generate random song index");
+                    break;
+                }
+                if (random_song < add_songs) {
                     if (add_list->length < add_list_expected_len) {
                         // append to fill the queue
                         if (list_push(add_list, uri, lineno, tag_value, NULL) == false) {
@@ -279,9 +307,16 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
                     else {
                         // replace at initial_length + random position
                         // existing entries should not be touched
-                        unsigned pos = add_songs > 1
-                            ? initial_length + randrange(0, add_songs)
-                            : initial_length;
+                        unsigned pos = initial_length;
+                        if (add_songs > 1) {
+                            errno = 0;
+                            unsigned random_pos = randrange(0, add_songs);
+                            if (errno != 0) {
+                                MYMPD_LOG_ERROR(partition_state->name, "Can not generate random song position");
+                                break;
+                            }
+                            pos += random_pos;
+                        }
                         if (list_replace(add_list, pos, uri, lineno, tag_value, NULL) == false) {
                             MYMPD_LOG_ERROR(partition_state->name, "Can't replace list element pos %u", pos);
                         }

@@ -19,6 +19,8 @@
 #include "src/mympd_api/lua_mympd_state.h"
 #include "src/scripts/interface.h"
 
+#include <errno.h>
+
 /**
  * Function that implements mympd_api lua function
  * @param lua_vm lua instance
@@ -66,7 +68,13 @@ int lua_mympd_api(lua_State *lua_vm) {
         return luaL_error(lua_vm, "params is NULL");
     }
     //generate a request id
+    errno = 0;
     unsigned request_id = randrange(0, UINT_MAX);
+    if (errno != 0) {
+        MYMPD_LOG_ERROR(partition, "Can not generate random API request id");
+        lua_pop(lua_vm, n);
+        return luaL_error(lua_vm, "Can not generate random API request id");
+    }
     MYMPD_LOG_DEBUG(NULL, "Creating API request with id %u for %s", request_id, method);
     //create the request
     struct t_work_request *request = create_request(REQUEST_TYPE_SCRIPT, 0, request_id, cmd_id, NULL, partition);

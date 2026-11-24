@@ -20,6 +20,7 @@
 #include "src/lib/sds/sds_extras.h"
 #include "src/scripts/interface.h"
 
+#include <errno.h>
 #include <string.h>
 
 /**
@@ -30,7 +31,12 @@
 int lua_caches_tmp_file(lua_State *lua_vm) {
     struct t_config *config = get_lua_global_config(lua_vm);
     char filename[21];
+    errno = 0;
     randstring(filename, 21);
+    if (errno != 0) {
+        lua_pushnil(lua_vm);
+        return 1;
+    }
     sds filepath = sdscatfmt(sdsempty(), "%S/misc/%s.tmp", config->cachedir, filename);
     if (create_tmp_file(filepath) == true) {
         lua_pushstring(lua_vm, filepath);

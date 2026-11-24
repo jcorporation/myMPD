@@ -15,6 +15,8 @@
 #include "src/lib/random.h"
 #include "src/lib/utf8_wrapper.h"
 
+#include <errno.h>
+
 // Private definitions
 static int sort_compare_asc(const void* a, const void* b);
 static int sort_compare_desc(const void* a, const void* b);
@@ -89,9 +91,13 @@ bool sds_array_shuffle(struct t_sds_array *array) {
         return true;
     }
     // Fisher-Yates shuffle
+    errno = 0;
     for (unsigned i = array->length - 1; i > 0; i--) {
         // Generate a random number between 0 and i (inclusive)
         unsigned j = randrange(0, i + 1);
+        if (errno != 0) {
+            return false;
+        }
 
         // Swap nodes
         sds temp = array->items[i];
