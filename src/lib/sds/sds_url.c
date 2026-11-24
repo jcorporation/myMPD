@@ -14,6 +14,7 @@
 #include "src/lib/sds/sds_extras.h"
 
 #include <ctype.h>
+#include <stdint.h>
 
 /**
  * Converts hex to integer
@@ -43,8 +44,14 @@ static bool is_url_safe(unsigned char c) {
  * @return modified sds string
  */
 sds sds_urlencode(sds s, const char *p, size_t len) {
-    // Pre-allocate memory
-    s = sdsMakeRoomFor(s, len + (len / 2));
+    if (p == NULL || len > SIZE_MAX / 3 ||
+        (len * 3) > SIZE_MAX - sdslen(s) - 1)
+    {
+        sdsclear(s);
+        return s;
+    }
+    // Pre-allocate memory for the worst case: each byte becomes %XX
+    s = sdsMakeRoomFor(s, len * 3);
 
     for (size_t i = 0; i < len; i++) {
         if (is_url_safe((unsigned char)p[i])) {
@@ -72,6 +79,10 @@ sds sds_urlencode(sds s, const char *p, size_t len) {
  * @return modified sds string, or empty string on error
  */
 sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
+    if (p == NULL || len > SIZE_MAX - sdslen(s) - 1) {
+        sdsclear(s);
+        return s;
+    }
     size_t i;
     int a;
     int b;
@@ -82,7 +93,7 @@ sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
     for (i = 0; i < len; i++) {
         switch(*p) {
             case '%':
-                if (i < len - 2 && isxdigit(*(const unsigned char *) (p + 1)) &&
+                if (len - i >= 3 && isxdigit(*(const unsigned char *) (p + 1)) &&
                     isxdigit(*(const unsigned char *) (p + 2)))
                 {
                     a = tolower(*(const unsigned char *) (p + 1));
