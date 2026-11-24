@@ -257,14 +257,10 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
         return false;
     }
     size_t tmp_len = sdslen(tmp_file);
-    if (tmp_len < 7) {
-        MYMPD_LOG_ERROR(NULL, "Temporary file path is too short: \"%s\"", tmp_file);
-        fclose(fp);
-        rm_file(tmp_file);
-        return false;
-    }
+    assert(tmp_len > 7 && strcmp(tmp_file + tmp_len - 7, ".XXXXXX") == 0);
     if (fclose(fp) != 0 ||
-        write_rc == false)
+        write_rc == false ||
+        tmp_len < 7)
     {
         MYMPD_LOG_ERROR(NULL, "Error writing data to file \"%s\"", tmp_file);
         rm_file(tmp_file);
