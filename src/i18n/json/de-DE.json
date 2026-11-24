@@ -1309,5 +1309,7 @@
     "Write the lyrics entry object to the lyrics cache.": "Schreibt das Lyrics-Objekt in then Lyrics Cache.",
     "Yes, clear it": "Ja, leeren",
     "Yes, delete it": "Ja, löschen",
-    "Yes, do it": "Ja, tu es"
+    "Yes, do it": "Ja, tu es",
+    "Can not generate random playlist name": "Zufälliger Wiedergabelistenname konnte ncht generiert werden",
+    "Can not shuffle playlist": "Wiedergabeliste kann nicht gemischt werden"
 }
