@@ -91,7 +91,6 @@
     "Booklet": "Booklet",
     "Booklet filename": "Booklet Dateiname",
     "Browse": "Durchsuchen",
-    "Browse directories": "Verzeichnisse anzeigen",
     "Browser default": "Browsereinstellung",
     "Browser has no MediaSession support": "Browser unterstützt keine MediaSession",
     "Browser specific setting": "Browserspezifische Einstellung",
@@ -110,6 +109,7 @@
     "Can not crop the queue": "Die Warteschlange konnte nicht abgeschnitten werden",
     "Can not delete home icon": "Icon konnte nicht gelöscht werden",
     "Can not find script in repository.": "Skript konnte im Repository nicht gefunden werden.",
+    "Can not generate random playlist name": "Zufälliger Wiedergabelistenname konnte ncht generiert werden",
     "Can not get home icon": "Konnte Homeicon nicht abrufen",
     "Can not get lock for album cache": "Reservierung des Album Caches fehlgeschlagen",
     "Can not move home icon": "Homeicon konnte nicht verschoben werden",
@@ -123,6 +123,7 @@
     "Can not read smart playlist file": "Intelligente Wiedergabeliste konnte nicht eingelesen werden",
     "Can not save home icon": "Icon konnte nicht gespeichert werden",
     "Can not save widget": "Widget konnte nicht gespeichert werden.",
+    "Can not shuffle playlist": "Wiedergabeliste kann nicht gemischt werden",
     "Checks a Lua table of tags against a comma separated list.": "Prüft eine Lua Tabelle gegen eine kommaseparierte Liste.",
     "Checks arguments from the mympd_arguments global variable.": "Prüft Argumente der mympd_arguments Lua Table.",
     "Checks for empty string or nil.": "Prüft ob der String leer oder nil ist.",
@@ -1309,7 +1310,5 @@
     "Write the lyrics entry object to the lyrics cache.": "Schreibt das Lyrics-Objekt in then Lyrics Cache.",
     "Yes, clear it": "Ja, leeren",
     "Yes, delete it": "Ja, löschen",
-    "Yes, do it": "Ja, tu es",
-    "Can not generate random playlist name": "Zufälliger Wiedergabelistenname konnte ncht generiert werden",
-    "Can not shuffle playlist": "Wiedergabeliste kann nicht gemischt werden"
+    "Yes, do it": "Ja, tu es"
 }
