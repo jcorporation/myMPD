@@ -15,10 +15,12 @@
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
 
+#include <assert.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
