@@ -186,6 +186,24 @@ UTEST(list_sort, test_list_sort_large_by_value_i_desc) {
     list_free(test_list);
 }
 
+UTEST(list_sort, test_list_sort_odd_length) {
+    struct t_list test_list;
+    list_init(&test_list);
+
+    list_push(&test_list, "5", 5, NULL, NULL);
+    list_push(&test_list, "1", 1, NULL, NULL);
+    list_push(&test_list, "4", 4, NULL, NULL);
+    list_push(&test_list, "2", 2, NULL, NULL);
+    list_push(&test_list, "3", 3, NULL, NULL);
+
+    ASSERT_TRUE(list_sort_by_value_i(&test_list, LIST_SORT_ASC));
+    ASSERT_STREQ(list_node_at(&test_list, 0)->key, "1");
+    ASSERT_STREQ(list_node_at(&test_list, 4)->key, "5");
+    ASSERT_EQ(check_list_integrity(&test_list, 5), true);
+
+    list_clear(&test_list);
+}
+
 UTEST(list_sort, test_list_sort_empty) {
     struct t_list test_list;
     list_init(&test_list);

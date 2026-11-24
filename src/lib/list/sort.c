@@ -15,6 +15,8 @@
 #include "src/lib/mem.h"
 #include "src/lib/utf8_wrapper.h"
 
+#include <stdint.h>
+
 // Private definitions
 
 /**
@@ -54,7 +56,7 @@ bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction,
     struct t_merge_result *merged_result = malloc_assert(sizeof(struct t_merge_result));
 
     // Bottom-up merge sort: start with segment_size = 1, double each iteration
-    for (unsigned segment_size = 1; segment_size < l->length; segment_size *= 2) {
+    for (uint64_t segment_size = 1; segment_size < (uint64_t)l->length; segment_size *= 2) {
         struct t_list_node *current = head;
         struct t_list_node *new_head = NULL;
         struct t_list_node *merged_tail = NULL;
@@ -63,7 +65,7 @@ bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction,
             // Get first segment of size segment_size
             struct t_list_node *first = current;
             struct t_list_node *first_end = first;
-            unsigned count = 1;
+            uint64_t count = 1;
             while (count < segment_size &&
                 first_end->next != NULL)
             {
@@ -123,6 +125,7 @@ bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction,
 
         head = new_head;
         tail = merged_tail;
+
     }
 
     l->head = head;
