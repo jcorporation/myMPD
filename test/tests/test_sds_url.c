@@ -21,6 +21,27 @@ UTEST(sds_url, test_sds_urldecode) {
     sdsfree(s);
 }
 
+UTEST(sds_url, test_sds_urldecode_malformed) {
+    sds test_input = sdsnew("%");
+    sds s = sds_urldecode(sdsempty(), test_input, sdslen(test_input), false);
+    ASSERT_EQ(sdslen(s), 0U);
+    sdsfree(test_input);
+
+    test_input = sdsnew("x%20y");
+    s = sds_urldecode(sdsempty(), test_input, sdslen(test_input), false);
+    ASSERT_STREQ("x y", s);
+    sdsfree(test_input);
+    sdsfree(s);
+}
+
+UTEST(sds_url, test_sds_urlencode_invalid_length) {
+    sds test_input = sdsnew("test");
+    sds s = sds_urlencode(sdsempty(), test_input, SIZE_MAX);
+    ASSERT_EQ(sdslen(s), 0U);
+    sdsfree(test_input);
+    sdsfree(s);
+}
+
 UTEST(sds_url, test_sds_urlencode) {
     sds test_input = sdsnew("/Musict/Led Zeppelin/1975 - Physical Graffiti [1994, Atlantic, 7567-92442-2]/CD 1/folder.jpg");
     sds s = sds_urlencode(sdsempty(), test_input, sdslen(test_input));

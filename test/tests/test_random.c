@@ -93,6 +93,13 @@ UTEST(random, test_random_larg) {
     ASSERT_LE(x, 30000);
 }
 
+UTEST(random, test_randstring_zero_length) {
+    char buffer = 'x';
+    randstring(&buffer, 0);
+    ASSERT_EQ(buffer, 'x');
+    randstring(NULL, 10);
+}
+
 UTEST(random, test_random_max) {
     int s = 0;
     int m = 0;

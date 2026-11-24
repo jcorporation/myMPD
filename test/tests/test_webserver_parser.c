@@ -150,6 +150,18 @@ UTEST(webserver_parser, test_webserver_parse_arguments_empty_query) {
     list_free(args);
 }
 
+UTEST(webserver_parser, test_webserver_parse_arguments_trailing_separator) {
+    struct mg_str query = mg_str("param1=value1&");
+    struct t_list *args = webserver_parse_arguments(&query);
+
+    ASSERT_EQ(args->length, 1U);
+    struct t_list_node *node = list_shift_first(args);
+    ASSERT_STREQ(node->key, "param1");
+    ASSERT_STREQ(node->value_p, "value1");
+    list_node_free(node);
+    list_free(args);
+}
+
 UTEST(webserver_parser, test_webserver_parse_arguments_special_cases) {
     // One param with no empty value
     struct mg_str query = mg_str("param4=");
