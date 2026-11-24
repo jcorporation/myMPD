@@ -724,9 +724,16 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
     unsigned length = 0;
     int playing_song_pos = 0;
     if (status != NULL) {
-        length = mpd_status_get_queue_length(status) - 1;
+        length = mpd_status_get_queue_length(status);
         playing_song_pos = mpd_status_get_song_pos(status);
         mpd_status_free(status);
+        if (length == 0) {
+            buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+                JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Can not crop the queue");
+            MYMPD_LOG_ERROR(partition_state->name, "Can not crop the queue");
+            return buffer;
+        }
+        length = length - 1; //length is used for the last index, not the count
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
         return buffer;
