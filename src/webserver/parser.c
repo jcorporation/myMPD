@@ -71,7 +71,9 @@ struct t_list *webserver_parse_arguments(struct mg_str *query) {
         sdsclear(decoded_value);
 
         // Move to next parameter
-        pos = val_end + 1;
+        pos = val_end == end
+            ? end
+            : val_end + 1;
     }
 
     FREE_SDS(decoded_key);
