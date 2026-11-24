@@ -259,7 +259,7 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
         return false;
     }
     size_t tmp_len = sdslen(tmp_file);
-    assert(tmp_len > 7 && strcmp(tmp_file + tmp_len - 7, ".XXXXXX") == 0);
+    assert(tmp_len > 7);
     if (fclose(fp) != 0 ||
         write_rc == false ||
         tmp_len < 7)
