@@ -53,7 +53,7 @@ bool list_shuffle(struct t_list *l) {
  * Shuffles the list using Fisher-Yates algorithm.
  * Optimized for doubly-linked list: reconstructs both next and prev pointers
  * @param l list
- * @return Array of shuffled list nodes
+ * @return Array of shuffled list nodes or NULL on error.
  */
 struct t_list_node **list_shuffle_to_array(struct t_list *l) {
     // Convert linked list to array for faster shuffling
@@ -74,7 +74,7 @@ struct t_list_node **list_shuffle_to_array(struct t_list *l) {
         // Generate a random number between 0 and i (inclusive)
         unsigned j = randrange(0, i + 1);
         if (errno != 0) {
-            FREE_PTR(node_array);
+            free((void *)node_array);
             return NULL;
         }
         // Swap nodes
