@@ -253,6 +253,16 @@ FILE *open_tmp_file(sds filepath) {
  * @return true on success else false
  */
 bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
+    if (fp == NULL || tmp_file == NULL) {
+        return false;
+    }
+    size_t tmp_len = sdslen(tmp_file);
+    if (tmp_len < 7) {
+        MYMPD_LOG_ERROR(NULL, "Temporary file path is too short: \"%s\"", tmp_file);
+        fclose(fp);
+        rm_file(tmp_file);
+        return false;
+    }
     if (fclose(fp) != 0 ||
         write_rc == false)
     {
@@ -262,7 +272,7 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
     }
     errno = 0;
     //filepath is tmp_file without .XXXXXX suffix
-    sds filepath = sdscatlen(sdsempty(), tmp_file, sdslen(tmp_file) - 7);
+    sds filepath = sdscatlen(sdsempty(), tmp_file, tmp_len - 7);
     if (is_file(tmp_file, false) == false) {
         FREE_SDS(filepath);
         return false;
