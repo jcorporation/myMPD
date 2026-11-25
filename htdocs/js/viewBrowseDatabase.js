@@ -389,7 +389,9 @@ function parseAlbumDetails(obj) {
             'arguments': {
                 'AlbumId': obj.result.AlbumId,
                 'Album': obj.result.Album,
-                'AlbumArtist': obj.result[tagAlbumArtist]
+                'AlbumArtist': obj.result[tagAlbumArtist],
+                'MUSICBRAINZ_RELEASEGROUPID': obj.result.MUSICBRAINZ_RELEASEGROUPID,
+                'MUSICBRAINZ_ALBUMID': obj.result.MUSICBRAINZ_ALBUMID
             }
         });
     }
