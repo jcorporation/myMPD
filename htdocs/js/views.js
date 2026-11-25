@@ -19,7 +19,7 @@ function setView(viewName) {
     }
     const newContainer = mode === 'table'
         ? pEl.viewTable.cloneNode(true)
-        : mode === 'grid' 
+        : mode === 'grid'
             ? pEl.viewGrid.cloneNode(true)
             : pEl.viewList.cloneNode(true);
     if (viewName === 'Home') {
@@ -39,7 +39,7 @@ function setView(viewName) {
     newContainer.firstElementChild.addEventListener('contextmenu', function(event) {
         viewRightClickHandler(event);
     }, false);
-    
+
     //init drag and drop
     switch(viewName) {
         case 'Home':
@@ -640,7 +640,7 @@ function setFields(tableName) {
             break;
         // No Default
     }
-    //sort tags 
+    //sort tags
     tags.sort();
     //append stickers
     setFieldsStickers(tags, stickerListSongs);
@@ -715,7 +715,7 @@ function setEntryData(entry, data) {
         case 'webradio':
             data.Thumbnail = getImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(data.uri));
             break;
-        case 'dir': 
+        case 'dir':
             data.Thumbnail = getImageUri('/folderart?path=' + myEncodeURIComponent(data.uri));
             break;
         case 'plist':
@@ -766,6 +766,13 @@ function updateScriptWidget(card, data) {
             }
             const parser = new DOMParser();
             const html = parser.parseFromString(response, "text/html");
+            html.querySelectorAll('a').forEach(el => {
+                const href = el.getAttribute('href');
+                if (href !== null && href.indexOf('http') === 0) {
+                    el.setAttribute('target', '_blank');
+                    el.classList.add('external', 'text-success');
+                }
+            });
             body.appendChild(... html.body.childNodes);
             body.addEventListener('click', function(event) {
                 if (event.target.nodeName === 'A' &&
