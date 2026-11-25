@@ -422,7 +422,7 @@ function setViewport() {
  * @returns {void}
  */
 function setScrollViewHeight(container) {
-    const scrollContainer = container.closest('.scrollContainer')
+    const scrollContainer = container.closest('.scrollContainer');
     if (scrollContainer === null) {
         return;
     }
