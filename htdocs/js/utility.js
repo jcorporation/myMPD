@@ -422,15 +422,19 @@ function setViewport() {
  * @returns {void}
  */
 function setScrollViewHeight(container) {
+    const scrollContainer = container.closest('.scrollContainer')
+    if (scrollContainer === null) {
+        return;
+    }
     if (userAgentData.isMobile === true) {
         //no scrolling container in the mobile view
-        container.parentNode.style.maxHeight = '';
+        scrollContainer.style.maxHeight = '';
         return;
     }
     const footerHeight = domCache.footer.offsetHeight;
-    const tpos = getYpos(container.parentNode);
+    const tpos = getYpos(scrollContainer);
     const maxHeight = window.innerHeight - tpos - footerHeight;
-    container.parentNode.style.maxHeight = maxHeight + 'px';
+    scrollContainer.style.maxHeight = maxHeight + 'px';
 }
 
 /**
