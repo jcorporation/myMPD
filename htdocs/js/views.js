@@ -748,13 +748,13 @@ function updateScriptWidget(card, data) {
     }
     setData(card, 'lastUpdate', getTimestamp());
     httpGet(getMyMPDuri('http') + '/script/' +  localSettings.partition + '/' + myEncodeURIComponent(data.script) + '?' + query.join('&'),
-        function(response) {
-            setTimeout(function() {
-                const refreshLink = card.querySelector('.card-title a');
-                if (refreshLink !== null) {
+        function (response) {
+            const refreshLink = card.querySelector('.card-title a');
+            if (refreshLink !== null) {
+                setTimeout(function () {
                     refreshLink.textContent = 'refresh';
-                }
-            }, 200);
+                }, 200);
+            }
             let body = card.querySelector('.card-body');
             if (body === null) {
                 body = card;
