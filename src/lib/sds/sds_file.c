@@ -17,6 +17,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <string.h>
 
 /**
@@ -27,6 +28,9 @@
  * @return Number of bytes read, -1 on EOF, -2 on read error
  */
 int sds_getline(FILE *fp, size_t max, sds *line) {
+    if (max == INT_MAX) {
+        return -2;
+    }
     sdsclear(*line);
     *line = sdsMakeRoomFor(*line, max + 1);
 
@@ -66,6 +70,10 @@ int sds_getline(FILE *fp, size_t max, sds *line) {
  * @return pointer to s
  */
 sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, bool warn, int *nread) {
+    if (max == INT_MAX) {
+        *nread =  -2;
+        return s;
+    }
     errno = 0;
     FILE *fp = fopen(file_path, OPEN_FLAGS_READ);
     if (fp == NULL) {
