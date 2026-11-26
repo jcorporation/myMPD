@@ -28,7 +28,7 @@
  * @return Number of bytes read, -1 on EOF, -2 on read error
  */
 int sds_getline(FILE *fp, size_t max, sds *line) {
-    if (max == INT_MAX) {
+    if (max >= (size_t)INT_MAX) {
         return -2;
     }
     sdsclear(*line);
@@ -70,7 +70,7 @@ int sds_getline(FILE *fp, size_t max, sds *line) {
  * @return pointer to s
  */
 sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, bool warn, int *nread) {
-    if (max == INT_MAX) {
+    if (max >= (size_t)INT_MAX) {
         *nread =  -2;
         return s;
     }
@@ -106,6 +106,10 @@ sds sds_getfile(sds s, const char *file_path, size_t max, bool remove_newline, b
  * @return pointer to s
  */
 sds sds_getfile_from_fp(sds s, FILE *fp, size_t max, bool remove_newline, int *nread) {
+    if (max >= (size_t)INT_MAX) {
+        *nread =  -2;
+        return s;
+    }
     sdsclear(s);
     s = sdsMakeRoomFor(s, max + 1);
     size_t nr_read = fread(s, sizeof(char), max, fp);
