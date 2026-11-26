@@ -14,9 +14,8 @@
 
 #include <errno.h>
 #include <limits.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <openssl/rand.h>
+#include <stdint.h>
 
 #include "src/lib/random_xoshiro256.h"
 
@@ -47,7 +46,6 @@ unsigned randrange(unsigned lower, unsigned upper) {
         }
     } while ((uint64_t)buf >= limit);
 
-    errno = 0;
     return lower + (unsigned)((uint64_t)buf % range);
 }
 
@@ -66,17 +64,14 @@ unsigned randrange_fast(unsigned lower, unsigned upper) {
     }
 
     const uint64_t range = (uint64_t)upper - lower;
-    const uint64_t threshold = (UINT64_MAX - range + 1) % range;
+    const uint64_t threshold = (UINT64_C(0) - range) % range;
     uint64_t sample;
-    uint64_t product;
 
     do {
-        sample = fast_random64() >> 32;
-        product = sample * range;
-    } while (product < threshold);
+        sample = fast_random64();
+    } while (sample < threshold);
 
-    errno = 0;
-    return lower + (unsigned)(product >> 32);
+    return lower + (unsigned)(sample % range);
 }
 
 /**
@@ -89,11 +84,11 @@ static const char *dict = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1
 static unsigned dict_len = 62;
 
 /**
- * Returns a random ascii char
+ * Returns a random ascii char using the thread-local non-cryptographic PRNG.
  * @return random char
  */
 char randchar(void) {
-    return dict[randrange(0, dict_len)];
+    return dict[randrange_fast(0, dict_len)];
 }
 
 /**
@@ -108,15 +103,31 @@ void randstring(char *buffer, size_t len) {
         errno = EINVAL;
         return;
     }
+
     size_t max = len - 1;
-    for (size_t i = 0; i < max; i++) {
-        buffer[i] = randchar();
-        if (errno != 0) {
-            buffer[i] = '\0';
+    unsigned char random_bytes[256];
+    size_t written = 0;
+
+    while (written < max) {
+        size_t requested = max - written;
+        if (requested > sizeof(random_bytes)) {
+            requested = sizeof(random_bytes);
+        }
+
+        if (RAND_bytes(random_bytes, (int)requested) != 1) {
+            MYMPD_LOG_ERROR(NULL, "Error generating random string");
+            buffer[written] = '\0';
             buffer[max] = '\0';
+            errno = EINVAL;
             return;
         }
+
+        for (size_t i = 0; i < requested && written < max; i++) {
+            if (random_bytes[i] < 248) {
+                buffer[written++] = dict[random_bytes[i] % dict_len];
+            }
+        }
     }
+
     buffer[max] = '\0';
-    errno = 0;
 }
