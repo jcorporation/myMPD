@@ -100,8 +100,10 @@ void webserver_send_api_response(struct mg_mgr *mgr, struct t_work_response *res
  */
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
     mg_http_reply(nc, code,
-        "Content-Type: text/html\r\n"
-        "Connection: %s\r\n",
+        (nc->data[2] == 'C'
+            ? "Content-Type: text/html; charset=utf-8\r\n"EXTRA_HEADERS_SAFE_CLOSE
+            : "Content-Type: text/html; charset=utf-8\r\n"EXTRA_HEADERS_SAFE_KEEP_ALIVE
+        ),
         "<!DOCTYPE html>"
         "<html lang=\"en\">"
           "<head>"
@@ -113,7 +115,6 @@ void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
             "<p>%s</p>"
           "</body>"
         "</html>",
-        (nc->data[2] == 'C' ? "close" : "keep-alive"),
         msg);
     if (code >= 400) {
         MYMPD_LOG_ERROR(NULL, "HTTP %d: %s", code, msg);
