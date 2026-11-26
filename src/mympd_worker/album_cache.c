@@ -140,8 +140,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
     }
 
     unsigned start = 0;
-    unsigned end = start + MPD_RESULTS_MAX;
-    unsigned i = 0;
+    unsigned received;
     int album_count = 0;
     int skip_count = 0;
 
@@ -176,6 +175,8 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
         ? "((AlbumArtist != ''))"
         : "((Album != '') AND (AlbumArtist != ''))";
     do {
+        unsigned end = start + MPD_RESULTS_MAX;
+        received = 0;
         if (mpd_search_db_songs(mympd_worker_state->partition_state->conn, false) == false ||
             mpd_search_add_expression(mympd_worker_state->partition_state->conn, search_expression) == false ||
             mympd_client_add_search_window(mympd_worker_state->partition_state->conn, start, end) == false)
@@ -237,7 +238,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
                     skip_count++;
                 }
                 mpd_song_free(song);
-                i++;
+                received++;
             }
         }
         if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_commit") == false) {
@@ -246,8 +247,7 @@ static bool album_cache_create(struct t_mympd_worker_state *mympd_worker_state, 
             return false;
         }
         start = end;
-        end = end + MPD_RESULTS_MAX;
-    } while (i >= start);
+    } while (received == MPD_RESULTS_MAX);
     FREE_SDS(key);
     #ifdef MYMPD_DEBUG
         MEASURE_END
@@ -279,8 +279,7 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
         MYMPD_LOG_DEBUG("default", "Additional group tag: None");
     }
     unsigned start = 0;
-    unsigned end = start + MPD_RESULTS_MAX;
-    unsigned i = 0;
+    unsigned received_albums;
     int album_count = 0;
     int skip_count = 0;
     enum mpd_tag_type tag_albumartist = mympd_worker_state->partition_state->mpd_state->tag_albumartist;
@@ -313,6 +312,8 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
     const char *tag_name_albumartist = mpd_tag_name(tag_albumartist);
     const char *tag_name_group = mpd_tag_name(mympd_worker_state->config->albums.group_tag);
     do {
+        unsigned end = start + MPD_RESULTS_MAX;
+        received_albums = 0;
         if (mpd_search_db_tags(mympd_worker_state->partition_state->conn, MPD_TAG_ALBUM) == false ||
             mpd_search_add_group_tag(mympd_worker_state->partition_state->conn, tag_albumartist) == false ||
             mympd_client_add_search_group_param(mympd_worker_state->partition_state->conn, mympd_worker_state->config->albums.group_tag) == false ||
@@ -330,6 +331,7 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
             struct mpd_pair *pair;
             while ((pair = mpd_recv_pair(mympd_worker_state->partition_state->conn)) != NULL) {
                 if (strcmp(pair->name, tag_name_album) == 0) {
+                    received_albums++;
                     album_name = sds_replace(album_name, pair->value);
                     if (sdslen(album_name) > 0 &&
                         sdslen(artist) > 0)
@@ -368,7 +370,6 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
                     group_tag = sds_replace(group_tag, pair->value);
                 }
                 mpd_return_pair(mympd_worker_state->partition_state->conn, pair);
-                i++;
             }
         }
         if (mympd_check_error_and_recover(mympd_worker_state->partition_state, NULL, "mpd_search_db_tags") == false) {
@@ -380,8 +381,8 @@ static bool album_cache_create_simple(struct t_mympd_worker_state *mympd_worker_
             return false;
         }
         start = end;
-        end = end + MPD_RESULTS_MAX;
-    } while (i >= start);
+    } while (mympd_worker_state->partition_state->mpd_state->feat.mpd_0_25_0 == true &&
+             received_albums == MPD_RESULTS_MAX);
 
     FREE_SDS(key);
     FREE_SDS(album_name);
