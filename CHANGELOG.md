@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v26.2.0 (not yet released)
 
-This is a maintenance release. It removes the `/browse` endpoint, because mongoose has removed the html dir listing support. Pictures are now handled by the `/pics/` endpoint.
+This is a maintenance release. It removes the `/browse` endpoint, because mongoose has removed the html dir listing support. Pictures are now handled by the `/pics/` endpoint. The files in the MPD music directory are now served by the `/music/` endpoint.
 
 ### Changelog
 
