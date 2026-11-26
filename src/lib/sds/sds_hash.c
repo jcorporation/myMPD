@@ -17,6 +17,20 @@
 #include <string.h>
 
 /**
+ * Converts a hash to a hexadecimal string
+ * @param output pointer to the output buffer (must be at least length*2+1 bytes long)
+ * @param hash pointer to the hash
+ * @param length length of the hash in bytes
+ */
+static void hash_to_hex(char *output, const unsigned char *hash, size_t length) {
+    static const char hex[] = "0123456789abcdef";
+    for (size_t i = 0; i < length; i++) {
+        output[i * 2] = hex[hash[i] >> 4];
+        output[i * 2 + 1] = hex[hash[i] & 0xf];
+    }
+}
+
+/**
  * Hashes a string with md5
  * @param p string to hash
  * @return the hash as a newly allocated sds string
@@ -27,10 +41,9 @@ sds sds_hash_md5(const char *p) {
     mg_md5_update(&ctx, (unsigned char *)p, strlen(p));
     unsigned char hash[16];
     mg_md5_final(&ctx, hash);
-    sds hex_hash = sdsempty();
-    for (unsigned i = 0; i < 16; i++) {
-        hex_hash = sdscatprintf(hex_hash, "%02x", hash[i]);
-    }
+    sds hex_hash = sdsMakeRoomFor(sdsempty(), sizeof(hash) * 2);
+    hash_to_hex(hex_hash, hash, sizeof(hash));
+    sdsIncrLen(hex_hash, sizeof(hash) * 2);
     return hex_hash;
 }
 
@@ -51,11 +64,12 @@ sds sds_hash_sha1(const char *p) {
  */
 sds sds_hash_sha1_sds(sds s) {
     unsigned char hash[SHA_DIGEST_LENGTH];
+
     SHA1((unsigned char *)s, sdslen(s), hash);
     sdsclear(s);
-    for (unsigned i = 0; i < SHA_DIGEST_LENGTH; i++) {
-        s = sdscatprintf(s, "%02x", hash[i]);
-    }
+    s = sdsMakeRoomFor(s, SHA_DIGEST_LENGTH * 2);
+    hash_to_hex(s, hash, SHA_DIGEST_LENGTH);
+    sdsIncrLen(s, SHA_DIGEST_LENGTH * 2);
     return s;
 }
 
@@ -78,8 +92,8 @@ sds sds_hash_sha256_sds(sds s) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256((unsigned char *)s, sdslen(s), hash);
     sdsclear(s);
-    for (unsigned i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        s = sdscatprintf(s, "%02x", hash[i]);
-    }
+    s = sdsMakeRoomFor(s, SHA256_DIGEST_LENGTH * 2);
+    hash_to_hex(s, hash, SHA256_DIGEST_LENGTH);
+    sdsIncrLen(s, SHA256_DIGEST_LENGTH * 2);
     return s;
 }
