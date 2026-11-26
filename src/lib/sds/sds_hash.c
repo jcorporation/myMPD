@@ -26,7 +26,7 @@ static void hash_to_hex(char *output, const unsigned char *hash, size_t length) 
     static const char hex[] = "0123456789abcdef";
     for (size_t i = 0; i < length; i++) {
         output[i * 2] = hex[hash[i] >> 4];
-        output[i * 2 + 1] = hex[hash[i] & 0xf];
+        output[(i * 2) + 1] = hex[hash[i] & 0xf];
     }
 }
 
