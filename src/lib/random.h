@@ -11,7 +11,6 @@
 #ifndef MYMPD_RANDOM_H
 #define MYMPD_RANDOM_H
 
-#include <inttypes.h>
 #include <stddef.h>
 
 /**
