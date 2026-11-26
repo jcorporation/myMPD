@@ -126,7 +126,7 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
                 continue;
             }
             errno = 0;
-            unsigned random_album = randrange(0, lineno);
+            unsigned random_album = randrange_fast(0, lineno);
             if (errno != 0) {
                 MYMPD_LOG_ERROR(partition_state->name, "Can not generate random album index");
                 break;
@@ -144,7 +144,7 @@ unsigned random_select_albums(struct t_partition_state *partition_state, struct 
                     unsigned pos = initial_length;
                     if (add_albums > 1) {
                         errno = 0;
-                        unsigned random_pos = randrange(0, add_albums);
+                        unsigned random_pos = randrange_fast(0, add_albums);
                         if (errno != 0) {
                             MYMPD_LOG_ERROR(partition_state->name, "Can not generate random album position");
                             break;
@@ -292,7 +292,7 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
                     continue;
                 }
                 errno = 0;
-                unsigned random_song = randrange(0, lineno);
+                unsigned random_song = randrange_fast(0, lineno);
                 if (errno != 0) {
                     MYMPD_LOG_ERROR(partition_state->name, "Can not generate random song index");
                     break;
@@ -310,7 +310,7 @@ unsigned random_select_songs(struct t_partition_state *partition_state, struct t
                         unsigned pos = initial_length;
                         if (add_songs > 1) {
                             errno = 0;
-                            unsigned random_pos = randrange(0, add_songs);
+                            unsigned random_pos = randrange_fast(0, add_songs);
                             if (errno != 0) {
                                 MYMPD_LOG_ERROR(partition_state->name, "Can not generate random song position");
                                 break;

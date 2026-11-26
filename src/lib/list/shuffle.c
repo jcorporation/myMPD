@@ -72,7 +72,7 @@ struct t_list_node **list_shuffle_to_array(struct t_list *l) {
     errno = 0;
     for (unsigned i = l->length - 1; i > 0; i--) {
         // Generate a random number between 0 and i (inclusive)
-        unsigned j = randrange(0, i + 1);
+        unsigned j = randrange_fast(0, i + 1);
         if (errno != 0) {
             free((void *)node_array);
             return NULL;

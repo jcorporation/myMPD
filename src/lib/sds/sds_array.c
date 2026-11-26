@@ -94,7 +94,7 @@ bool sds_array_shuffle(struct t_sds_array *array) {
     errno = 0;
     for (unsigned i = array->length - 1; i > 0; i--) {
         // Generate a random number between 0 and i (inclusive)
-        unsigned j = randrange(0, i + 1);
+        unsigned j = randrange_fast(0, i + 1);
         if (errno != 0) {
             return false;
         }
