@@ -12,7 +12,6 @@
 #define MYMPD_RANDOM__XOSHIRO256H
 
 #include <inttypes.h>
-#include <stddef.h>
 
 /**
  * Returns the next 64-bit value from the thread-local xoshiro256** PRNG.
