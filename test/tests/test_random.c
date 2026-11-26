@@ -10,10 +10,18 @@
 #include "dist/utest/utest.h"
 #include "src/lib/random.h"
 
-UTEST(random, test_random_char) {
+#include <string.h>
+
+UTEST(random, test_randstring) {
     char buffer[25];
-    randstring(buffer, 25);
-    ASSERT_STRNE(buffer, "");
+    randstring(buffer, sizeof(buffer));
+    ASSERT_EQ(errno, 0);
+    ASSERT_EQ(buffer[sizeof(buffer) - 1], '\0');
+
+    static const char alphabet[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    for (size_t i = 0; i < sizeof(buffer) - 1; i++) {
+        ASSERT_TRUE(strchr(alphabet, buffer[i]) != NULL);
+    }
     printf("Random chars: %s", buffer);
 }
 
@@ -105,6 +113,14 @@ UTEST(random, test_random_fast) {
         unsigned r = randrange_fast(20, 40);
         ASSERT_GE(r, 20U);
         ASSERT_LT(r, 40U);
+    }
+
+    ASSERT_EQ(randrange_fast(123, 124), 123U);
+
+    errno = 0;
+    for (int i = 0; i < 1000; i++) {
+        unsigned r = randrange_fast(0, UINT_MAX);
+        ASSERT_LT(r, UINT_MAX);
     }
 
     errno = 0;
