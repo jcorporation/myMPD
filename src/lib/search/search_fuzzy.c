@@ -12,6 +12,7 @@
 
 #include "src/lib/mem.h"
 
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,6 +38,10 @@
 bool mympd_search_fuzzy_match(const char *haystack, size_t haystack_len,
         const char *needle, size_t needle_len)
 {
+    if (needle_len == SIZE_MAX) {
+        MYMPD_LOG_ERROR(NULL, "Invalid needle length: %lu", (unsigned long)needle_len);
+        return false;
+    }
     if (needle_len <= 1) {
         return true;
     }
