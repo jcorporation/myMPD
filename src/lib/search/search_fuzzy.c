@@ -38,7 +38,7 @@
 bool mympd_search_fuzzy_match(const char *haystack, size_t haystack_len,
         const char *needle, size_t needle_len)
 {
-    if (needle_len == SIZE_MAX) {
+    if (needle_len >= SIZE_MAX) {
         MYMPD_LOG_ERROR(NULL, "Invalid needle length: %lu", (unsigned long)needle_len);
         return false;
     }
