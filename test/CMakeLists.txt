@@ -44,6 +44,7 @@ set(TEST_SOURCES
   ../src/lib/mem.c
   ../src/lib/mpack.c
   ../src/lib/msg_queue.c
+  ../src/lib/random_xoshiro256.c
   ../src/lib/random.c
   ../src/lib/rax_extras.c
   ../src/lib/sds/sds_array.c

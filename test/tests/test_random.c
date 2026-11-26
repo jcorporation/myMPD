@@ -100,6 +100,18 @@ UTEST(random, test_randstring_zero_length) {
     randstring(NULL, 10);
 }
 
+UTEST(random, test_random_fast) {
+    for (int i = 0; i < 100000; i++) {
+        unsigned r = randrange_fast(20, 40);
+        ASSERT_GE(r, 20U);
+        ASSERT_LT(r, 40U);
+    }
+
+    errno = 0;
+    ASSERT_EQ(randrange_fast(10, 10), 0U);
+    ASSERT_EQ(errno, EINVAL);
+}
+
 UTEST(random, test_random_max) {
     int s = 0;
     int m = 0;

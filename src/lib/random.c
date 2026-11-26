@@ -5,7 +5,7 @@
 */
 
 /*! \file
- * \brief Random number generator functions based on OpenSSL
+ * \brief Cryptographic and fast random number generator functions
  */
 
 #include "src/lib/random.h"
@@ -14,7 +14,11 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <openssl/rand.h>
+
+#include "src/lib/random_xoshiro256.h"
 
 /**
  * Generates an unsigned type random number in range (inclusive lower and exclusive upper bound)
@@ -29,15 +33,45 @@ unsigned randrange(unsigned lower, unsigned upper) {
         errno = EINVAL;
         return 0;
     }
-    unsigned buf;
-    if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) == 1) {
-        errno = 0;
-        return lower + (unsigned) ((upper - lower) * (buf / (UINT_MAX + 1.0)));
+    const uint64_t space = (uint64_t)UINT_MAX + 1;
+    const uint64_t range = (uint64_t)upper - lower;
+    const uint64_t limit = space - (space % range);
+
+    uint32_t buf;
+    do {
+        if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) != 1) {
+            MYMPD_LOG_ERROR(NULL, "Error generating random number in range");
+            errno = EINVAL;
+            return 0;
+        }
+    } while ((uint64_t)buf >= limit);
+
+    errno = 0;
+    return lower + (unsigned)((uint64_t)buf % range);
+}
+
+/**
+ * Generates a uniformly distributed unsigned random number in the
+ * [lower, upper) range using a thread-local non-cryptographic PRNG.
+ */
+unsigned randrange_fast(unsigned lower, unsigned upper) {
+    if (lower >= upper) {
+        errno = EINVAL;
+        return 0;
     }
 
-    MYMPD_LOG_ERROR(NULL, "Error generating random number in range");
-    errno = EINVAL;
-    return 0;
+    const uint64_t range = (uint64_t)upper - lower;
+    const uint64_t threshold = (UINT64_MAX - range + 1) % range;
+    uint64_t sample;
+    uint64_t product;
+
+    do {
+        sample = fast_random64() >> 32;
+        product = sample * range;
+    } while (product < threshold);
+
+    errno = 0;
+    return lower + (unsigned)(product >> 32);
 }
 
 /**

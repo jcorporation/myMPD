@@ -82,6 +82,7 @@ target_sources(mympd
     lib/mem.c
     lib/mpack.c
     lib/msg_queue.c
+    lib/random_xoshiro256.c
     lib/random.c
     lib/rax_extras.c
     lib/search/search_fuzzy.c

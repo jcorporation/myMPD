@@ -21,6 +21,7 @@ target_sources(mympd-script
     ../../src/lib/list/list.c
     ../../src/lib/mem.c
     ../../src/lib/random.c
+    ../../src/lib/random_xoshiro256.c
     ../../src/lib/sds/sds_extras.c
     ../../src/lib/sds/sds_file.c
     ../../src/lib/sds/sds_json.c
