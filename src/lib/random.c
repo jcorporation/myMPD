@@ -22,6 +22,7 @@
 
 /**
  * Generates an unsigned type random number in range (inclusive lower and exclusive upper bound)
+ * using openSSL cryptographic random number generator.
  * Sets errno to EINVAL if lower >= upper
  * @param lower lower boundary
  * @param upper upper boundary
@@ -51,8 +52,12 @@ unsigned randrange(unsigned lower, unsigned upper) {
 }
 
 /**
- * Generates a uniformly distributed unsigned random number in the
- * [lower, upper) range using a thread-local non-cryptographic PRNG.
+ * Generates an unsigned type random number in range (inclusive lower and exclusive upper bound)
+ * using a thread-local non-cryptographic PRNG.
+ * Sets errno to EINVAL if lower >= upper
+ * @param lower lower boundary
+ * @param upper upper boundary
+ * @return random number
  */
 unsigned randrange_fast(unsigned lower, unsigned upper) {
     if (lower >= upper) {
