@@ -79,7 +79,9 @@ sds sds_urlencode(sds s, const char *p, size_t len) {
  * @return modified sds string, or empty string on error
  */
 sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
-    if (p == NULL || len > SIZE_MAX - sdslen(s) - 1) {
+    if (p == NULL ||
+        len > SIZE_MAX - sdslen(s) - 1)
+    {
         sdsclear(s);
         return s;
     }
