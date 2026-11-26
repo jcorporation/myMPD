@@ -12,11 +12,10 @@
 
 #include "src/lib/log.h"
 
-#include <errno.h>
-#include <limits.h>
 #include <openssl/rand.h>
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <time.h>
 
 // Private definitions
 
@@ -85,11 +84,20 @@ static uint64_t fast_random_rotl(uint64_t value, unsigned shift) {
  */
 static void fast_random_seed(void) {
     uint64_t seed[4];
-    if (RAND_bytes((unsigned char *)seed, sizeof(seed)) != 1) {
-        seed[0] = UINT64_C(0x9E3779B97F4A7C15);
-        seed[1] = UINT64_C(0x3C6EF372FE94F82A);
-        seed[2] = UINT64_C(0xA075B461C67C5C4D);
-        seed[3] = UINT64_C(0xE65F4AAB391D1F0A);
+    if (RAND_bytes((unsigned char *)seed, (int)sizeof(seed)) != 1) {
+        MYMPD_LOG_ERROR(NULL, "Cannot seed the fast random generator with OpenSSL randomness");
+
+        uint64_t fallback_seed = (uint64_t)time(NULL);
+        struct timespec ts;
+        if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
+            fallback_seed ^= (uint64_t)ts.tv_sec;
+            fallback_seed ^= (uint64_t)ts.tv_nsec << 32;
+        }
+        fallback_seed ^= (uint64_t)(uintptr_t)&fast_random_state;
+
+        for (unsigned i = 0; i < 4; i++) {
+            seed[i] = fast_random_splitmix64(&fallback_seed);
+        }
     }
 
     uint64_t splitmix_state = seed[0];
