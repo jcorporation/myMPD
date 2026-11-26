@@ -43,6 +43,9 @@ static const char *escape_char(char c) {
  * @return modified sds string
  */
 sds sds_catjson_plain(sds s, const char *p, size_t len) {
+    if (len > SIZE_MAX - 10) {
+        return s;
+    }
     /* To avoid continuous reallocations, let's start with a buffer that
      * can hold at least stringlength + 10 chars. */
     s = sdsMakeRoomFor(s, len + 10);
