@@ -55,6 +55,13 @@ bool request_handler_mpd_music_directory(struct mg_connection *nc, struct mg_htt
         return true;
     }
 
+    if (is_dir(mg_user_data->music_directory, false) == true) {
+        MYMPD_LOG_DEBUG(NULL, "Attempt to serve directory listing for \"%s\".", mg_user_data->music_directory);
+        webserver_send_error(nc, 403, "Directory listing is not allowed.");
+        FREE_SDS(music_dir_file);
+        return true;
+    }
+
     MYMPD_LOG_ERROR(NULL, "File \"%s\" not found.", music_dir_file);
     if (is_image(music_dir_file) == true) {
         webserver_redirect_placeholder_image(nc, PLACEHOLDER_NA);
