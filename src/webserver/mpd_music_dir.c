@@ -46,9 +46,14 @@ bool request_handler_mpd_music_directory(struct mg_connection *nc, struct mg_htt
     sds music_dir_file = sdscatfmt(sdsempty(), "%S%S", mg_user_data->music_directory, file_path);
     FREE_SDS(file_path);
 
-    if (vcb_isfilepath(music_dir_file) == true &&
-        is_file(music_dir_file, false) == true)
-    {
+    if (vcb_isfilepath(music_dir_file) == false) {
+        MYMPD_LOG_ERROR(NULL, "Invalid file path \"%s\".", music_dir_file);
+        FREE_SDS(music_dir_file);
+        webserver_send_error(nc, 400, "Invalid file path.");
+        return true;
+    }
+
+    if (is_file(music_dir_file, false) == true) {
         MYMPD_LOG_DEBUG(NULL, "Attempt to serve file \"%s\".", music_dir_file);
         webserver_serve_file(nc, hm, EXTRA_HEADERS_IMAGE, music_dir_file);
         FREE_SDS(music_dir_file);
