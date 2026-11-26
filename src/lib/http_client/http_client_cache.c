@@ -109,6 +109,9 @@ bool http_client_cache_write(struct t_config *config, const char *uri, struct mg
         MYMPD_LOG_DEBUG(NULL, "HTTP client cache disabled");
         return true;
     }
+    if (mg_client_response->header.length > UINT32_MAX / 2) {
+        return false;
+    }
     sds hash = sds_hash_sha256(uri);
     sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", config->cachedir, DIR_CACHE_HTTP, hash);
     FREE_SDS(hash);
