@@ -502,9 +502,6 @@ static int expr_get_tag_song(const char *p, size_t *len) {
     }
     FREE_SDS(tag_str);
     while (*p == ' ') {
-        if (*p == '\0') {
-            return MPD_TAG_UNKNOWN;
-        }
         tag_len++;
         p++;
     }
@@ -537,9 +534,6 @@ static int expr_get_tag_webradio(const char *p, size_t *len) {
     }
     FREE_SDS(tag_str);
     while (*p == ' ') {
-        if (*p == '\0') {
-            return WEBRADIO_TAG_UNKNOWN;
-        }
         tag_len++;
         p++;
     }
@@ -587,9 +581,6 @@ static int expr_get_op(const char *p, int tag, size_t *len) {
     else if (tag == SEARCH_FILTER_PRIO && strcmp(op_str, ">=") == 0) { op = SEARCH_OP_GREATER_EQUAL; }
     FREE_SDS(op_str);
     while (*p == ' ') {
-        if (*p == '\0') {
-            return SEARCH_OP_UNKNOWN;
-        }
         op_len++;
         p++;
     }
