@@ -160,7 +160,11 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir, const struct t_a
         }
         enum mpd_tag_type tag = mpd_tag_name_parse(value);
         if (tag != MPD_TAG_UNKNOWN) {
-            album_tags->tags[album_tags->len++] = tag;
+            if (album_tags->len >= MPD_TAG_COUNT) {
+                MYMPD_LOG_ERROR(NULL, "Excessive tag count");
+            } else {
+                album_tags->tags[album_tags->len++] = tag;
+            }
         }
         else {
             MYMPD_LOG_ERROR(NULL, "Unkown MPD tag type: \"%s\"", value);
