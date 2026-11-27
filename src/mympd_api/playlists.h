@@ -12,7 +12,7 @@
 #define MYMPD_API_PLAYLISTS_H
 
 #include "src/lib/list/list.h"
-#include "src/lib/config/mympd_state.h"
+#include "src/lib/config/partition_state.h"
 #include "src/mympd_client/playlists.h"
 
 /**
@@ -38,7 +38,7 @@ enum plist_copy_modes {
 
 enum plist_delete_criterias parse_plist_delete_criteria(const char *str);
 
-sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb, 
+sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
         sds buffer, unsigned request_id, unsigned offset, unsigned limit, sds searchstr, enum playlist_types type,
         enum playlist_sort_types sort, bool sortdesc, const struct t_fields *tagcols);
 sds mympd_api_playlist_content_search(struct t_partition_state *partition_state, struct t_stickerdb_state *stickerdb,
@@ -59,7 +59,7 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
         sds plist, struct t_list *albumids, unsigned to, sds *error);
 bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds plist, struct t_list *albumids, sds *error);
-bool mympd_api_playlist_content_append_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache, 
+bool mympd_api_playlist_content_append_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds plist, sds albumid, enum mpd_tag_type tag, sds value, sds *error);
 bool mympd_api_playlist_content_insert_album_tag(struct t_partition_state *partition_state, struct t_cache *album_cache,
         sds plist, sds albumid, enum mpd_tag_type tag, sds value, unsigned to, sds *error);

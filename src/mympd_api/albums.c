@@ -20,7 +20,6 @@
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds/sds_extras.h"
-#include "src/lib/sds/sds_utf8.h"
 #include "src/lib/search/search.h"
 #include "src/lib/sticker.h"
 #include "src/mympd_api/extra_media.h"
