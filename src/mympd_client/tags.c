@@ -24,7 +24,6 @@
 #include "src/mympd_client/shortcuts.h"
 
 #include <inttypes.h>
-#include <mpd/tag.h>
 #include <string.h>
 
 /**
