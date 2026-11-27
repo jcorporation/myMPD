@@ -37,6 +37,10 @@ bool handle_coverextract_flac(sds cachedir, const char *uri, const char *media_f
     FLAC__StreamMetadata *metadata = NULL;
 
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
+    if (chain == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Error creating FLAC__Metadata_Chain");
+        return false;
+    }
 
     if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
         MYMPD_LOG_ERROR(NULL, "Error reading metadata from \"%s\"", media_file);
