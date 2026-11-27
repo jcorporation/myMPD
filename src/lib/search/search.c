@@ -97,6 +97,13 @@ struct t_list *search_expression_parse(const char *expression, enum search_type 
     sds *tokens = sdssplitlen(expression, (ssize_t)strlen(expression), ") AND (", 7, &count);
     for (int j = 0; j < count; j++) {
         sdstrim(tokens[j], "() ");
+        size_t token_len = sdslen(tokens[j]);
+        if (token_len == 0) {
+            MYMPD_LOG_ERROR(NULL, "Can not parse empty search expression token");
+            search_expression_free(expr_list);
+            expr_list = NULL;
+            break;
+        }
         MYMPD_LOG_DEBUG(NULL, "Parsing expression: %s", tokens[j]);
         struct t_search_expression *expr = malloc_assert(sizeof(struct t_search_expression));
         expr->value = sdsempty();
@@ -104,7 +111,7 @@ struct t_list *search_expression_parse(const char *expression, enum search_type 
         expr->value_utf8_len = 0;
         expr->re_compiled = NULL;
         char *p = tokens[j];
-        char *end = p + sdslen(tokens[j]) - 1;
+        char *end = p + token_len - 1;
         // Tag
         size_t skip;
         expr->tag = type == SEARCH_TYPE_SONG

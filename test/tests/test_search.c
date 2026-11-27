@@ -139,6 +139,7 @@ UTEST(search_local, test_parse_expression) {
     ASSERT_EQ(0, try_parse("((modified-since 'asdf"));
     ASSERT_EQ(0, try_parse("((added-since == 'asdf"));
     ASSERT_EQ(0, try_parse("((added-since 'asdf"));
+    ASSERT_EQ(0, try_parse(") AND ("));
 }
 
 bool search_fuzzy_match(const char *a, const char *b) {
