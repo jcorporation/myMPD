@@ -1790,7 +1790,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 }
             }
             if (parse_error.message == NULL) {
-                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc, 
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                     JSONRPC_FACILITY_PLAYLIST, "Smart playlist saved successfully", "Saving smart playlist failed");
             }
             if (rc == true) {
@@ -1911,7 +1911,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case MYMPD_API_PARTITION_OUTPUT_MOVE: {
             struct t_list outputs;
-            list_init(&outputs); 
+            list_init(&outputs);
             if (json_get_array_string(request->data, "$.params.outputs", &outputs, vcb_isname, 10, &parse_error) == true) {
                 rc = mympd_api_partition_outputs_move(partition_state, &outputs, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc, JSONRPC_FACILITY_MPD, error);
@@ -2026,9 +2026,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     json_get_string(request->data, "$.params.region", 0, CONTENT_LEN_MAX, &webradio->region, vcb_isname, &parse_error) == true)
                 {
                     list_push(&webradio->uris, sds_buf1, int_buf1, sds_buf3, NULL);
-                    rc = mympd_api_webradio_favorite_save(mympd_state->webradio_favorites, webradio, sds_buf2);
+                    rc = mympd_api_webradio_favorite_save(mympd_state->webradio_favorites, webradio, sds_buf2, &error);
                     response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                            JSONRPC_FACILITY_DATABASE, "Webradio favorite successfully saved", "Could not save webradio favorite");
+                            JSONRPC_FACILITY_DATABASE, "Webradio favorite successfully saved", error);
                     if (rc == false) {
                         webradio_data_free(webradio);
                     }

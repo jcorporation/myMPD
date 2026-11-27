@@ -13,6 +13,7 @@
 #include "dist/rax/rax.h"
 #include "src/lib/log.h"
 
+#include <string.h>
 #include <time.h>
 
 /**
@@ -20,11 +21,25 @@
  * @param webradio_favorites Webradio favorites struct
  * @param webradio webradio struct to save
  * @param old_name old webradio name
+ * @param error Pointer to sds string for error message
  * @return true on success, else false
  */
-bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, struct t_webradio_data *webradio, sds old_name) {
+bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, struct t_webradio_data *webradio, sds old_name, sds *error) {
     if (webradio->uris.head == NULL) {
+        *error = sdscat(*error, "Could not save webradio favorite");
         return false;
+    }
+
+    void *existing_uri_idx;
+    if (raxFind(webradio_favorites->idx_uris, (unsigned char *)webradio->uris.head->key, sdslen(webradio->uris.head->key), &existing_uri_idx) == 1) {
+        struct t_webradio_data *existing_webradio = (struct t_webradio_data *)existing_uri_idx;
+        if (sdslen(old_name) == 0 ||
+            strcmp(existing_webradio->name, old_name) != 0)
+        {
+            *error = sdscat(*error, "URI is already saved as webradio favorite");
+            MYMPD_LOG_ERROR(NULL, "URI is already saved as webradio favorite");
+            return false;
+        }
     }
 
     struct t_list old_names;
@@ -32,7 +47,7 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
     if (sdslen(old_name) > 0) {
         list_push(&old_names, old_name, 0, NULL, NULL);
         void *data;
-        if (raxFind(webradio_favorites->idx_uris, (unsigned char *)old_name, sdslen(old_name), &data) == 1) {
+        if (raxFind(webradio_favorites->db, (unsigned char *)old_name, sdslen(old_name), &data) == 1) {
             // preserve added timestamp
             struct t_webradio_data *old_radio = (struct t_webradio_data *)data;
             webradio->added = old_radio->added;
@@ -50,10 +65,16 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
 
     if (raxTryInsert(webradio_favorites->db, (unsigned char *)webradio->name, sdslen(webradio->name), webradio, NULL) == 1) {
         // write uri index
-        raxTryInsert(webradio_favorites->idx_uris, (unsigned char *)webradio->uris.head->key, sdslen(webradio->uris.head->key), webradio, NULL);
+        if (raxTryInsert(webradio_favorites->idx_uris, (unsigned char *)webradio->uris.head->key, sdslen(webradio->uris.head->key), webradio, NULL) == 0) {
+            raxRemove(webradio_favorites->db, (unsigned char *)webradio->name, sdslen(webradio->name), NULL);
+            MYMPD_LOG_ERROR("NULL", "Failure updating webradio favorites index");
+            *error = sdscat(*error, "Failure updating webradio favorites index");
+            return false;
+        }
         return true;
     }
     MYMPD_LOG_ERROR("NULL", "Failure saving webradio favorite");
+    *error = sdscat(*error, "Could not save webradio favorite");
     return false;
 }
 
