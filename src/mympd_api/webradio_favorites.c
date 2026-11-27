@@ -54,7 +54,6 @@ bool mympd_api_webradio_favorite_save(struct t_webradios *webradio_favorites, st
         return true;
     }
     MYMPD_LOG_ERROR("NULL", "Failure saving webradio favorite");
-    webradio_data_free(webradio);
     return false;
 }
 
