@@ -167,6 +167,14 @@ static bool sort_cb_value_i(struct t_array_node *first, struct t_array_node *sec
 static bool sort_cb_value_p(struct t_array_node *first, struct t_array_node *second,
         enum array_sort_direction direction)
 {
+    if (first->value_p == NULL || second->value_p == NULL) {
+        if (first->value_p == second->value_p) {
+            return false; // both NULL
+        }
+        return direction == ARRAY_SORT_ASC
+            ? first->value_p == NULL
+            : second->value_p == NULL;
+    }
     int result = utf8_wrap_casecmp(first->value_p, sdslen(first->value_p),
         second->value_p, sdslen(second->value_p));
     return direction == ARRAY_SORT_ASC
@@ -184,6 +192,14 @@ static bool sort_cb_value_p(struct t_array_node *first, struct t_array_node *sec
 static bool sort_cb_key(struct t_array_node *first, struct t_array_node *second,
         enum array_sort_direction direction)
 {
+    if (first->key == NULL || second->key == NULL) {
+        if (first->key == second->key) {
+            return false; // both NULL
+        }
+        return direction == ARRAY_SORT_ASC
+            ? first->key == NULL
+            : second->key == NULL;
+    }
     int result = utf8_wrap_casecmp(first->key, sdslen(first->key),
         second->key, sdslen(second->key));
     return direction == ARRAY_SORT_ASC
@@ -192,7 +208,7 @@ static bool sort_cb_key(struct t_array_node *first, struct t_array_node *second,
 }
 
 /**
- * Comparison callback for sorting by integer value, then by key and value.
+ * Comparison callback for sorting by integer value, then by key and then by value.
  * @param first Pointer to the first array node
  * @param second Pointer to the second array node
  * @param direction Sort direction
@@ -201,12 +217,15 @@ static bool sort_cb_key(struct t_array_node *first, struct t_array_node *second,
 static bool sort_cb_value_i_key_value_p(struct t_array_node *first, struct t_array_node *second,
         enum array_sort_direction direction)
 {
-    int64_t result = first->value_i - second->value_i;
+    int64_t result = (first->value_i > second->value_i) - (first->value_i < second->value_i);
     if (result == 0 && first->key != NULL && second->key != NULL) {
         result = utf8_wrap_casecmp(first->key, sdslen(first->key), second->key, sdslen(second->key));
-        if (result == 0 && first->value_p != NULL && second->value_p != NULL) {
-            result = utf8_wrap_casecmp(first->value_p, sdslen(first->value_p), second->value_p, sdslen(second->value_p));
-        }
+        return direction == ARRAY_SORT_ASC
+            ? result > 0
+            : result < 0;
+    }
+    if (result == 0 && first->value_p != NULL && second->value_p != NULL) {
+        result = utf8_wrap_casecmp(first->value_p, sdslen(first->value_p), second->value_p, sdslen(second->value_p));
         return direction == ARRAY_SORT_ASC
             ? result > 0
             : result < 0;
@@ -218,7 +237,7 @@ static bool sort_cb_value_i_key_value_p(struct t_array_node *first, struct t_arr
 }
 
 /**
- * Comparison callback for sorting by key, then by value and integer value.
+ * Comparison callback for sorting by key, then by value and then by integer value.
  * @param first Pointer to the first array node
  * @param second Pointer to the second array node
  * @param direction Sort direction
@@ -232,7 +251,7 @@ static bool sort_cb_key_value_p_value_i(struct t_array_node *first, struct t_arr
         result = utf8_wrap_casecmp(first->value_p, sdslen(first->value_p), second->value_p, sdslen(second->value_p));
     }
     if (result == 0) {
-        result = first->value_i - second->value_i;
+        result = (first->value_i > second->value_i) - (first->value_i < second->value_i);
         // Reverse the result for descending order, because we want the newest first by default
         return direction == ARRAY_SORT_DESC
             ? result > 0
