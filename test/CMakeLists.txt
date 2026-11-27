@@ -118,6 +118,7 @@ set(TEST_SOURCES
   tests/test_random.c
   tests/test_sds_extras.c
   tests/test_sds_array.c
+  tests/test_sds_file.c
   tests/test_search.c
   tests/test_state_files.c
   tests/test_tags.c
