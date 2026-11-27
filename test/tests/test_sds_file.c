@@ -87,6 +87,7 @@ UTEST(sds_file, test_basename_uri) {
 UTEST(sds_file, test_strip_slash) {
     struct t_input_result testcases[] = {
         {"//",           ""},
+        {"///",          ""},
         {"/test/woext/", "/test/woext"},
         {"",             ""},
         {"sdf/",         "sdf"},
@@ -109,6 +110,7 @@ UTEST(sds_file, test_strip_file_extension) {
     struct t_input_result testcases[] = {
         {"/test/test.mp3",   "/test/test"},
         {"/test/woext",      "/test/woext"},
+        {"filename",         "filename"},
         {"",                 ""},
         {"/tes/tet.mp3.mp3", "/tes/tet.mp3"},
         {NULL,               NULL}

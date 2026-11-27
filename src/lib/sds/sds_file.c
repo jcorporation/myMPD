@@ -232,14 +232,10 @@ void sds_basename_uri(sds uri) {
  * @param dirname sds string to strip
  */
 void sds_strip_slash(sds dirname) {
-    char *sp = dirname;
-    char *ep = dirname + sdslen(dirname) - 1;
-    while(ep >= sp &&
-          *ep == '/')
-    {
-        ep--;
+    size_t len = sdslen(dirname);
+    while (len > 0 && dirname[len - 1] == '/') {
+        len--;
     }
-    size_t len = (size_t)(ep-sp)+1;
     dirname[len] = '\0';
     sdssetlen(dirname, len);
 }
@@ -249,16 +245,15 @@ void sds_strip_slash(sds dirname) {
  * @param filename sds string to remove the extension
  */
 void sds_strip_file_extension(sds filename) {
-    char *sp = filename;
-    char *ep = filename + sdslen(filename) - 1;
-    while (ep >= sp) {
-        if (*ep == '.') {
-            size_t len = (size_t)(ep-sp);
+    size_t len = sdslen(filename);
+    while (len > 0) {
+        if (filename[len - 1] == '.') {
+            len--;
             filename[len] = '\0';
             sdssetlen(filename, len);
             break;
         }
-        ep --;
+        len--;
     }
 }
 
