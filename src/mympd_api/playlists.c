@@ -68,12 +68,13 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
     if (src == NULL) {
         return false;
     }
-    list_sort_by_value_i(positions, LIST_SORT_DESC);
+    list_sort_by_value_i(positions, LIST_SORT_ASC);
     if (mpd_command_list_begin(partition_state->conn, false)) {
-        struct t_list_node *current;
+        struct t_list_node *current = positions->head;
         unsigned i = 0;
         bool rc = true;
-        while ((current = list_shift_first(positions)) != NULL) {
+
+        while (current != NULL) {
             const char *uri = NULL;
             if (current->value_i >= 0 &&
                 (uint64_t)current->value_i < src->length)
@@ -83,27 +84,32 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
             }
             if (uri == NULL) {
                 MYMPD_LOG_WARN(partition_state->name, "Song at pos %u not found in src playlist %s", (unsigned)current->value_i, src_plist);
-                list_node_free(current);
+                mympd_set_mpd_failure(partition_state, "Can not find source song");
+                break;
             }
-            else {
-                rc = mode == 0
-                    ? mpd_send_playlist_add(partition_state->conn, dst_plist, uri)
-                    : mpd_send_playlist_add_to(partition_state->conn, dst_plist, uri, i);
-                if (rc == false) {
-                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
-                    list_node_free(current);
-                    break;
-                }
-                if (mpd_send_playlist_delete(partition_state->conn, src_plist, (unsigned)current->value_i) == false) {
-                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_delete");
-                    list_node_free(current);
-                    break;
-                }
-                i++;
-                list_node_free(current);
+
+            rc = mode == 0
+                ? mpd_send_playlist_add(partition_state->conn, dst_plist, uri)
+                : mpd_send_playlist_add_to(partition_state->conn, dst_plist, uri, i);
+            if (rc == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
+                break;
             }
+            i++;
+            current = current->next;
+        }
+        // Remove songs in reverse order
+        current = positions->tail;
+        while (current != NULL) {
+            if (mpd_send_playlist_delete(partition_state->conn, src_plist, (unsigned)current->value_i) == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_delete");
+                list_node_free(current);
+                break;
+            }
+            current = current->prev;
         }
         mympd_client_command_list_end_check(partition_state);
+        list_free(positions);
     }
     else {
         MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
