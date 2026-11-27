@@ -81,6 +81,16 @@ struct t_webradio_data {
     time_t last_modified;       //!< Last modified timestamp
 };
 
+/**
+ * Iterator for sequential webradio tag access
+ */
+struct t_webradio_tag_iterator {
+    const struct t_webradio_data *webradio;
+    const void *current;
+    enum webradio_tag_type tag_type;
+    bool scalar_pending;
+};
+
 struct t_webradio_data *webradio_by_uri(struct t_webradios *webradio_favorites, struct t_webradios *webradiodb,
         const char *uri);
 sds webradio_get_extm3u(struct t_webradios *webradio_favorites, struct t_webradios *webradiodb, sds buffer, sds uri);
@@ -91,6 +101,9 @@ enum webradio_tag_type webradio_tag_name_parse(const char *name);
 void webradio_tags_search(struct t_webradio_tags *tags);
 const char *webradio_type_name(enum webradio_type type);
 const char *webradio_get_tag(const struct t_webradio_data *webradio, enum webradio_tag_type tag_type, unsigned int idx);
+void webradio_tag_iterator_init(struct t_webradio_tag_iterator *iterator, const struct t_webradio_data *webradio,
+    enum webradio_tag_type tag_type);
+const char *webradio_tag_iterator_next(struct t_webradio_tag_iterator *iterator);
 sds webradio_to_extm3u(const struct t_webradio_data *webradio, sds buffer, const char *uri);
 
 struct t_webradios *webradios_new(void);

@@ -110,6 +110,29 @@ UTEST(search_local, test_search_mpd_song_expression) {
     ASSERT_FALSE(search_by_expression("((file 'abc/abc.mp3'))"));
 }
 
+UTEST(search_local, test_search_webradio_multivalue_tags) {
+    struct t_webradio_data *favorite = webradio_data_new(WEBRADIO_FAVORITE);
+    struct t_webradio_data *database_station = webradio_data_new(WEBRADIO_WEBRADIODB);
+    ASSERT_TRUE(list_push(&favorite->genres, "Jazz", 0, NULL, NULL));
+    ASSERT_TRUE(list_push(&favorite->genres, "Rock", 0, NULL, NULL));
+    ASSERT_TRUE(list_push(&database_station->genres, "Classical", 0, NULL, NULL));
+    ASSERT_TRUE(list_push(&database_station->genres, "Rock", 0, NULL, NULL));
+
+    struct t_webradio_tags tags;
+    webradio_tags_search(&tags);
+    sds expression = sdsnew("((Genres == 'Rock'))");
+    struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_WEBRADIO);
+    sdsfree(expression);
+    ASSERT_TRUE(expr_list != NULL);
+    if (expr_list != NULL) {
+        ASSERT_TRUE(search_expression_webradio(favorite, expr_list, &tags));
+        ASSERT_TRUE(search_expression_webradio(database_station, expr_list, &tags));
+        search_expression_free(expr_list);
+    }
+    webradio_data_free(favorite);
+    webradio_data_free(database_station);
+}
+
 long try_parse(const char *expr) {
     sds expression = sdsnew(expr);
     struct t_list *expr_list = search_expression_parse(expression, SEARCH_TYPE_SONG);

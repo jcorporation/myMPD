@@ -243,6 +243,61 @@ const char *webradio_get_tag(const struct t_webradio_data *webradio, enum webrad
 }
 
 /**
+ * Initializes an iterator for sequential webradio tag access
+ * @param iterator iterator to initialize
+ * @param webradio webradio to read
+ * @param tag_type webradio tag type
+ */
+void webradio_tag_iterator_init(struct t_webradio_tag_iterator *iterator,
+        const struct t_webradio_data *webradio, enum webradio_tag_type tag_type)
+{
+    iterator->webradio = webradio;
+    iterator->current = NULL;
+    iterator->tag_type = tag_type;
+    iterator->scalar_pending = false;
+
+    switch (tag_type) {
+        case WEBRADIO_TAG_URIS:
+        case WEBRADIO_TAG_CODEC:
+            iterator->current = webradio->uris.head;
+            break;
+        case WEBRADIO_TAG_GENRES:
+            iterator->current = webradio->genres.head;
+            break;
+        case WEBRADIO_TAG_LANGUAGES:
+            iterator->current = webradio->languages.head;
+            break;
+        default:
+            iterator->scalar_pending = true;
+            break;
+    }
+}
+
+/**
+ * Gets the next webradio tag value
+ * @param iterator initialized iterator
+ * @return next value or NULL when all values have been read
+ */
+const char *webradio_tag_iterator_next(struct t_webradio_tag_iterator *iterator) {
+    if (iterator->current != NULL) {
+        const struct t_list_node *node = iterator->current;
+        iterator->current = node->next;
+        const char *value = iterator->tag_type == WEBRADIO_TAG_CODEC
+            ? node->value_p
+            : node->key;
+        if (value == NULL) {
+            iterator->current = NULL;
+        }
+        return value;
+    }
+    if (iterator->scalar_pending == true) {
+        iterator->scalar_pending = false;
+        return webradio_get_tag(iterator->webradio, iterator->tag_type, 0);
+    }
+    return NULL;
+}
+
+/**
  * Returns an extm3u for a webradio
  * @param webradio Pointer to webradio struct
  * @param buffer Already allocated buffer to append the extm3u

@@ -371,13 +371,15 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
                 bool rc = false;
                 for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
                     rc = false;
-                    unsigned value_count = 0;
+                    bool has_value = false;
                     const char *value = NULL;
                     char *value_utf8 = NULL;
                     size_t value_utf8_len;
-                    while ((value = webradio_get_tag(webradio, tags->tags[tag_count], value_count)) != NULL) {
+                    struct t_webradio_tag_iterator tag_iterator;
+                    webradio_tag_iterator_init(&tag_iterator, webradio, tags->tags[tag_count]);
+                    while ((value = webradio_tag_iterator_next(&tag_iterator)) != NULL) {
                         value_utf8 = utf8_wrap_normalize(value, strlen(value), &value_utf8_len);
-                        value_count++;
+                        has_value = true;
                         rc = match_tag(value_utf8, value_utf8_len, expr);
                         if (exit_search_loop(rc, expr) == true) {
                             FREE_PTR(value_utf8);
@@ -385,7 +387,7 @@ bool search_expression_webradio(const struct t_webradio_data *webradio, const st
                         }
                         FREE_PTR(value_utf8);
                     }
-                    if (value_count == 0) {
+                    if (has_value == false) {
                         //no tag value found
                         rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
                             ? true
