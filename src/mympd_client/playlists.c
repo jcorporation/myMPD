@@ -14,6 +14,7 @@
 #include "dist/rax/rax.h"
 #include "src/lib/array/array.h"
 #include "src/lib/array/array_shuffle.h"
+#include "src/lib/array/array_sort.h"
 #include "src/lib/convert.h"
 #include "src/lib/fields.h"
 #include "src/lib/log.h"
@@ -710,39 +711,52 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
         return false;
     }
 
-    rax *plist = raxNew();
+    struct t_array *plist = array_new();
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
     unsigned pos = 0;
+    bool array_error = false;
     do {
         if (list_command(partition_state, playlist, start, end) == true) {
-            sds key = sdsempty();
             struct mpd_song *song;
             while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-                key = get_sort_key(key, sort_by, sort_tags.tags[0], song);
-                sds data = sdsnew(mpd_song_get_uri(song));
-                key = rax_insert_no_dup(plist, key, data);
+                if (array_error == false) {
+                    sds key = get_sort_key(sdsempty(), sort_by, sort_tags.tags[0], song);
+                    sds uri = sdsnew(mpd_song_get_uri(song));
+                    if (array_push(plist, key, uri, 0, NULL) == false) {
+                        FREE_SDS(key);
+                        FREE_SDS(uri);
+                        array_error = true;
+                    }
+                }
                 mpd_song_free(song);
-                sdsclear(key);
                 pos++;
             }
-            FREE_SDS(key);
         }
         if (mympd_check_error_and_recover(partition_state, error, list_command_name) == false) {
-            //free data
-            rax_free_sds_data(plist);
+            array_free(plist, NULL);
+            return false;
+        }
+        if (array_error == true) {
+            *error = sdscat(*error, "Could not build playlist sort array");
+            array_free(plist, NULL);
             return false;
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
     } while (pos >= start);
 
+    if (array_sort_by_key(plist, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false) {
+        array_free(plist, NULL);
+        *error = sdscat(*error, "Could not sort playlist array");
+        return false;
+    }
+
     char rand_str[10];
     errno = 0;
     randstring(rand_str, 10);
     if (errno != 0) {
-        rax_free_sds_data(plist);
-        raxFree(plist);
+        array_free(plist, NULL);
         *error = sdscat(*error, "Can not generate random playlist name");
         return false;
     }
@@ -751,32 +765,21 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     //add sorted songs to tmp playlist
     //uses command list to add MPD_COMMANDS_MAX songs at once
     unsigned i = 0;
-    raxIterator iter;
-    raxStart(&iter, plist);
-    int (*iterator)(struct raxIterator *iter);
-    if (sortdesc == false) {
-        raxSeek(&iter, "^", NULL, 0);
-        iterator = &raxNext;
-    }
-    else {
-        raxSeek(&iter, "$", NULL, 0);
-        iterator = &raxPrev;
-    }
     rc = true;
-    while (i < plist->numele) {
+    while (i < plist->length) {
         if (mpd_command_list_begin(partition_state->conn, false) == false) {
             MYMPD_LOG_ERROR(partition_state->name, "Error starting command list mpd_command_list_begin");
             rc = false;
             break;
         }
         unsigned j = 0;
-        while (iterator(&iter)) {
-            i++;
+        while (i < plist->length) {
             j++;
-            if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, iter.data) == false) {
+            if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist->nodes[i]->value_p) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                 break;
             }
+            i++;
             if (j == MPD_COMMANDS_MAX) {
                 break;
             }
@@ -787,8 +790,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
             break;
         }
     }
-    raxStop(&iter);
-    rax_free_sds_data(plist);
+    array_free(plist, NULL);
     if (rc == true) {
         rc = playlist_replace(partition_state, playlist_tmp, playlist, error);
     }

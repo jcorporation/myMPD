@@ -54,6 +54,21 @@ UTEST(array_sort, sort_by_key_and_value_p) {
     array_free(array, NULL);
 }
 
+#ifdef MYMPD_ENABLE_UTF8
+UTEST(array_sort, sort_utf8_keys) {
+    struct t_array *array = array_new();
+    ASSERT_TRUE(array_push(array, sdsnew("\xC3\x84pfel"), NULL, 0, NULL));
+    ASSERT_TRUE(array_push(array, sdsnew("\xC3\xA4pfel"), NULL, 0, NULL));
+    ASSERT_TRUE(array_push(array, sdsnew("Zebra"), NULL, 0, NULL));
+
+    ASSERT_TRUE(array_sort_by_key(array, ARRAY_SORT_ASC));
+    ASSERT_STREQ("Zebra", array->nodes[0]->key);
+    ASSERT_STREQ("\xC3\x84pfel", array->nodes[1]->key);
+    ASSERT_STREQ("\xC3\xA4pfel", array->nodes[2]->key);
+    array_free(array, NULL);
+}
+#endif
+
 UTEST(array_sort, empty_single_and_invalid_callback) {
     struct t_array *array = array_new();
     ASSERT_TRUE(array_sort_by_value_i(array, ARRAY_SORT_ASC));

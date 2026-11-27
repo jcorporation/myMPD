@@ -16,25 +16,6 @@
 #include <stdlib.h>
 
 /**
- * Inserts the key into the radix tree.
- * Appends random chars to the key until it is uniq.
- * @param r rax tree to insert
- * @param key key to insert
- * @param data data to insert
- * @return the key that was inserted (may be different from the original key if it was a duplicate)
- */
-sds rax_insert_no_dup(rax *r, sds key, void *data) {
-    if (raxTryInsert(r, (unsigned char*)key, sdslen(key), data, NULL) == 1) {
-        return key;
-    }
-    //duplicate - add random chars until it is uniq
-    while (raxTryInsert(r, (unsigned char*)key, sdslen(key), data, NULL) == 0) {
-        key = sds_catchar(key, randchar());
-    }
-    return key;
-}
-
-/**
  * Frees a rax tree and its data with a free_cb
  * @param r rax tree to free
  * @param free_cb callback to free data or NULL to free a pointer

@@ -11,10 +11,11 @@
 #include "compile_time.h"
 #include "src/mympd_api/webradio.h"
 
+#include "src/lib/array/array.h"
+#include "src/lib/array/array_sort.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
-#include "src/lib/rax_extras.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_file.h"
 #include "src/lib/sds/sds_json.h"
@@ -69,15 +70,18 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
-    sds key = sdsempty();
     raxIterator iter;
-    rax *sorted = raxNew();
+    struct t_array *sorted = array_new();
+    bool array_error = false;
     raxStart(&iter, webradios->db);
     raxSeek(&iter, "^", NULL, 0);
     // Search and sort
     while (raxNext(&iter)) {
         struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
-        if (search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true) {
+        if (array_error == false &&
+            search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true)
+        {
+            sds key = sdsempty();
             switch(sort_tag) {
                 case WEBRADIO_TAG_BITRATE:
                     key = sds_pad_int(webradio_data->uris.head->value_i, key);
@@ -96,25 +100,25 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
             if (sort_tag != WEBRADIO_TAG_NAME) {
                 key = sdscat(key, webradio_data->name);
             }
-            key = rax_insert_no_dup(sorted, key, iter.data);
-            sdsclear(key);
+            if (array_push(sorted, key, NULL, 0, webradio_data) == false) {
+                FREE_SDS(key);
+                array_error = true;
+            }
         }
     }
-    FREE_SDS(key);
     raxStop(&iter);
+    if (array_error == true ||
+        array_sort_by_key(sorted, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false)
+    {
+        array_free(sorted, NULL);
+        search_expression_free(expr_list);
+        sdsclear(buffer);
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
+            JSONRPC_SEVERITY_ERROR, "Could not sort webradio results");
+    }
     // Print the result
-    raxStart(&iter, sorted);
-    int (*iterator)(struct raxIterator *iter);
-    if (sortdesc == false) {
-        raxSeek(&iter, "^", NULL, 0);
-        iterator = &raxNext;
-    }
-    else {
-        raxSeek(&iter, "$", NULL, 0);
-        iterator = &raxPrev;
-    }
-    while (iterator(&iter)) {
-        struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
+    while (entities_found < sorted->length) {
+        struct t_webradio_data *webradio_data = (struct t_webradio_data *)sorted->nodes[entities_found]->user_data;
         if (entities_found >= offset) {
             if (entities_returned++) {
                 buffer= sdscatlen(buffer, ",", 1);
@@ -128,8 +132,7 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
             break;
         }
     }
-    raxStop(&iter);
-    raxFree(sorted);
+    array_free(sorted, NULL);
     search_expression_free(expr_list);
 
     buffer = sdscatlen(buffer, "],", 2);

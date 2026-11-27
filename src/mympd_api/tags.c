@@ -11,6 +11,8 @@
 #include "compile_time.h"
 #include "src/mympd_api/tags.h"
 
+#include "src/lib/array/array.h"
+#include "src/lib/array/array_sort.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
@@ -83,8 +85,8 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
     }
 
     unsigned real_limit = offset + limit;
-    rax *taglist = raxNew();
-    sds key = sdsempty();
+    struct t_array *taglist = array_new();
+    bool array_error = false;
     size_t searchstr_len;
     char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr), &searchstr_len);
 
@@ -97,25 +99,37 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
             if (pair->value[0] == '\0') {
                 MYMPD_LOG_DEBUG(partition_state->name, "Value is empty, skipping");
             }
-            else if (searchstr_len == 0 ||
+            else if (array_error == false &&
+                (searchstr_len == 0 ||
                 (searchstr_len <= 2 && strcmp(searchstr_utf8, value_utf8) == 0) ||
-                (searchstr_len > 2 && strstr(value_utf8, searchstr_utf8) != NULL))
+                (searchstr_len > 2 && strstr(value_utf8, searchstr_utf8) != NULL)))
             {
-                key = sdscat(key, pair->value);
-                key = sds_utf8_normalize(key);
-                sds data = sdsnew(pair->value);
-                key = rax_insert_no_dup(taglist, key, data);
-                sdsclear(key);
+                sds sort_key = sds_utf8_normalize(sdsnew(pair->value));
+                sds value = sdsnew(pair->value);
+                if (array_push(taglist, sort_key, value, 0, NULL) == false) {
+                    FREE_SDS(sort_key);
+                    FREE_SDS(value);
+                    array_error = true;
+                }
             }
             mpd_return_pair(partition_state->conn, pair);
             FREE_PTR(value_utf8);
         }
     }
-    FREE_SDS(key);
     FREE_PTR(searchstr_utf8);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_tags") == false) {
-        rax_free_sds_data(taglist);
+        array_free(taglist, NULL);
         return buffer;
+    }
+    if (array_error == true) {
+        array_free(taglist, NULL);
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
+            JSONRPC_SEVERITY_ERROR, "Error sorting tag results");
+    }
+    if (array_sort_by_key(taglist, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false) {
+        array_free(taglist, NULL);
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
+            JSONRPC_SEVERITY_ERROR, "Error sorting tag results");
     }
 
     //print list
@@ -123,18 +137,7 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
     buffer = sdscat(buffer, "\"data\":[");
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    raxIterator iter;
-    raxStart(&iter, taglist);
-    int (*iterator)(struct raxIterator *iter);
-    if (sortdesc == false) {
-        raxSeek(&iter, "^", NULL, 0);
-        iterator = &raxNext;
-    }
-    else {
-        raxSeek(&iter, "$", NULL, 0);
-        iterator = &raxPrev;
-    }
-    while (iterator(&iter)) {
+    while (entity_count < taglist->length) {
         if (entity_count >= offset &&
             entity_count < real_limit)
         {
@@ -142,13 +145,11 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatlen(buffer, "{", 1);
-            buffer = tojson_sds(buffer, "Value", (sds)iter.data, false);
+            buffer = tojson_sds(buffer, "Value", taglist->nodes[entity_count]->value_p, false);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
-        FREE_SDS(iter.data);
     }
-    raxStop(&iter);
 
     //checks if this tag has a directory with pictures in /var/lib/mympd/pics
     sds pic_path = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->config->workdir, DIR_WORK_PICS, tag);
@@ -158,7 +159,7 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
     FREE_SDS(pic_path);
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_uint64(buffer, "totalEntities", taglist->numele, true);
+    buffer = tojson_uint(buffer, "totalEntities", taglist->length, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_uint(buffer, "limit", limit, true);
@@ -167,7 +168,7 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
     buffer = tojson_bool(buffer, "pics", pic, false);
     buffer = jsonrpc_end(buffer);
-    raxFree(taglist);
+    array_free(taglist, NULL);
     return buffer;
 }
 

@@ -12,6 +12,7 @@
 #include "src/lib/array/array.h"
 #include "src/lib/mem.h"
 
+#include <assert.h>
 #include <limits.h>
 #include <string.h>
 
@@ -74,12 +75,8 @@ void array_free(struct t_array *array, array_user_data_callback free_cb) {
  * @return bool true on success, false on failure
  */
 bool array_push(struct t_array *array, sds key, sds value_p, int64_t value_i, void *user_data) {
-    if (array == NULL) {
-        return false;
-    }
-    if (array->length > array->capacity) {
-        return false;
-    }
+    assert(array);
+    assert(array->length <= array->capacity);
     if (array->length == array->capacity) {
         if (array->capacity > UINT_MAX - array->capacity / 2 - 8) {
             return false;
@@ -99,11 +96,8 @@ bool array_push(struct t_array *array, sds key, sds value_p, int64_t value_i, vo
  * @return Pointer to the array node with the specified key, or NULL if not found
  */
 struct t_array_node *array_get_node(const struct t_array *array, const char *key) {
-    if (array == NULL ||
-        key == NULL)
-    {
-        return NULL;
-    }
+    assert(array);
+    assert(key);
     for (unsigned i = 0; i < array->length; i++) {
         if (array->nodes[i] != NULL &&
             array->nodes[i]->key != NULL &&
@@ -121,9 +115,8 @@ struct t_array_node *array_get_node(const struct t_array *array, const char *key
  * @return Pointer to the array node at the specified index, or NULL if the index is out of bounds
  */
 struct t_array_node *array_node_at(const struct t_array *array, unsigned idx) {
-    if (array == NULL ||
-        idx >= array->length)
-    {
+    assert(array);
+    if (idx >= array->length) {
         return NULL;
     }
     return array->nodes[idx];

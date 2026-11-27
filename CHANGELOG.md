@@ -10,6 +10,7 @@ This is a maintenance release. It removes the `/browse` endpoint, because mongoo
 
 ### Changelog
 
+- Feat: Always sort UTF-8 aware.
 - Feat: Add option to configure timezone.
 - Feat: Add 'Mark as played' and 'Reset playback stickers' to context menu of songs.
 - Feat: Add setting to define script widgets for playback, album and playlist detail views.

@@ -11,13 +11,14 @@
 #include "compile_time.h"
 #include "src/mympd_api/albums.h"
 
+#include "src/lib/array/array.h"
+#include "src/lib/array/array_sort.h"
 #include "src/lib/album.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/fields.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/log.h"
-#include "src/lib/rax_extras.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_utf8.h"
 #include "src/lib/search/search.h"
@@ -246,24 +247,33 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
     
     //search and sort albumlist
     unsigned real_limit = offset + limit;
-    rax *albums = raxNew();
+    struct t_array *albums = array_new();
     raxIterator iter;
     raxStart(&iter, mympd_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
-    sds key = sdsempty();
+    bool array_error = false;
     while (raxNext(&iter)) {
         struct t_album *album = (struct t_album *)iter.data;
         if (expr_list->length == 0 ||
             search_expression_album(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
-            key = get_sort_key_album(key, sort_by, sort_tag, album);
-            key = rax_insert_no_dup(albums, key, iter.data);
-            sdsclear(key);
+            sds key = get_sort_key_album(sdsempty(), sort_by, sort_tag, album);
+            if (array_push(albums, key, NULL, 0, album) == false) {
+                FREE_SDS(key);
+                array_error = true;
+                break;
+            }
         }
     }
     raxStop(&iter);
     search_expression_free(expr_list);
-    FREE_SDS(key);
+    if (array_error == true ||
+        array_sort_by_key(albums, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false)
+    {
+        array_free(albums, NULL);
+        return jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Could not sort album results");
+    }
 
     //print album list
     bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
@@ -272,23 +282,13 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
     }
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    raxStart(&iter, albums);
-    int (*iterator)(struct raxIterator *iter);
-    if (sortdesc == false) {
-        raxSeek(&iter, "^", NULL, 0);
-        iterator = &raxNext;
-    }
-    else {
-        raxSeek(&iter, "$", NULL, 0);
-        iterator = &raxPrev;
-    }
     sds album_exp = sdsempty();
-    while (iterator(&iter)) {
+    while (entity_count < albums->length) {
         if (entity_count >= offset) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
-            struct t_album *album = (struct t_album *)iter.data;
+            struct t_album *album = (struct t_album *)albums->nodes[entity_count]->user_data;
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
             buffer = print_album_tags(buffer, &partition_state->mpd_state->config->albums, &tagcols->mpd_tags, album);
             buffer = sdscatlen(buffer, ",", 1);
@@ -299,8 +299,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
                 buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, STICKER_TYPE_FILTER, album_exp, &tagcols->stickers);
                 
             }
-            buffer = sdscatlen(buffer, "}", 1);
-        }
+            }
         entity_count++;
         if (entity_count == real_limit) {
             break;
@@ -312,7 +311,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
         stickerdb_enter_idle(mympd_state->stickerdb);
     }
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_uint64(buffer, "totalEntities", albums->numele, true);
+    buffer = tojson_uint(buffer, "totalEntities", albums->length, true);
     buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "expression", expression, true);
@@ -320,7 +319,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
     buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
     buffer = tojson_char(buffer, "tag", "Album", false);
     buffer = jsonrpc_end(buffer);
-    raxFree(albums);
+    array_free(albums, NULL);
     return buffer;
 }
 

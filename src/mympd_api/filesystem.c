@@ -10,10 +10,11 @@
 
 #include "src/mympd_api/filesystem.h"
 
+#include "src/lib/array/array.h"
+#include "src/lib/array/array_sort.h"
 #include "src/lib/json/json_print.h"
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/mem.h"
-#include "src/lib/rax_extras.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/sds/sds_file.h"
 #include "src/lib/sds/sds_utf8.h"
@@ -41,8 +42,9 @@ struct t_dir_entry {
 };
 
 static void free_t_dir_entry(void *data);
-static bool search_dir_entry(rax *rt, sds *key, sds entity_name, struct mpd_entity *entity,
-        const char *searchstr, size_t searchstr_len);
+static void free_t_dir_entry_array_node(struct t_array_node *node);
+static bool search_dir_entry(struct t_array *array, sds *key, sds entity_name, struct mpd_entity *entity,
+    const char *searchstr, size_t searchstr_len, bool *array_error);
 
 /**
  * Public functions
@@ -67,7 +69,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_FILESYSTEM_LIST;
     sds key = sdsempty();
-    rax *entity_list = raxNew();
+    struct t_array *entity_list = array_new();
+    bool array_error = false;
     unsigned real_limit = offset + limit;
     size_t searchstr_len;
     char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr), &searchstr_len);
@@ -75,12 +78,16 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
     if (mpd_send_list_meta(partition_state->conn, path)) {
         struct mpd_entity *entity;
         while ((entity = mpd_recv_entity(partition_state->conn)) != NULL) {
+            if (array_error == true) {
+                mpd_entity_free(entity);
+                continue;
+            }
             switch (mpd_entity_get_type(entity)) {
                 case MPD_ENTITY_TYPE_SONG: {
                     const struct mpd_song *song = mpd_entity_get_song(entity);
                     sds entity_name =  mympd_client_get_tag_value_string(song, MPD_TAG_TITLE, sdsempty());
                     key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
-                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len);
+                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len, &array_error);
                     break;
                 }
                 case MPD_ENTITY_TYPE_DIRECTORY: {
@@ -88,7 +95,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     sds entity_name = sdsnew(mpd_directory_get_path(dir));
                     sds_basename_uri(entity_name);
                     key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
-                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len);
+                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len, &array_error);
                     break;
                 }
                 case MPD_ENTITY_TYPE_PLAYLIST: {
@@ -110,7 +117,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     sds entity_name = sdsnew(pl_path);
                     sds_basename_uri(entity_name);
                     key = sdscatfmt(key, "1%s", pl_path);
-                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len);
+                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len, &array_error);
                     break;
                 }
                 default: {
@@ -123,10 +130,16 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
     FREE_SDS(key);
     FREE_PTR(searchstr_utf8);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_meta") == false) {
-        //free result
-        rax_free_data(entity_list, free_t_dir_entry);
+        array_free(entity_list, free_t_dir_entry_array_node);
         //return error message
         return buffer;
+    }
+    if (array_error == true ||
+        array_sort_by_key(entity_list, ARRAY_SORT_ASC) == false)
+    {
+        array_free(entity_list, free_t_dir_entry_array_node);
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
+            JSONRPC_SEVERITY_ERROR, "Could not sort filesystem results");
     }
 
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -135,15 +148,12 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
 
-    raxIterator iter;
-    raxStart(&iter, entity_list);
-    raxSeek(&iter, "^", NULL, 0);
     bool print_stickers = check_get_sticker(partition_state->mpd_state->feat.stickers, &tagcols->stickers);
     if (print_stickers == true) {
         stickerdb_exit_idle(mympd_state->stickerdb);
     }
-    while (raxNext(&iter)) {
-        struct t_dir_entry *entry_data = (struct t_dir_entry *)iter.data;
+    while (entity_count < entity_list->length) {
+        struct t_dir_entry *entry_data = (struct t_dir_entry *)entity_list->nodes[entity_count]->user_data;
         if (entity_count >= offset &&
             entity_count < real_limit)
         {
@@ -189,12 +199,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     break;
             }
         }
-        mpd_entity_free(entry_data->entity);
-        FREE_SDS(entry_data->name);
-        FREE_PTR(iter.data);
         entity_count++;
     }
-    raxStop(&iter);
     if (print_stickers == true) {
         stickerdb_enter_idle(mympd_state->stickerdb);
     }
@@ -206,7 +212,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "search", searchstr, false);
     buffer = jsonrpc_end(buffer);
-    raxFree(entity_list);
+    array_free(entity_list, free_t_dir_entry_array_node);
     return buffer;
 }
 
@@ -225,6 +231,12 @@ static void free_t_dir_entry(void *data) {
     FREE_PTR(data);
 }
 
+static void free_t_dir_entry_array_node(struct t_array_node *node) {
+    if (node->user_data != NULL) {
+        free_t_dir_entry(node->user_data);
+    }
+}
+
 /**
  * Search the entry for searchstr and add matches to the rax tree
  * @param rt Rax tree to insert
@@ -235,8 +247,8 @@ static void free_t_dir_entry(void *data) {
  * @param searchstr_len Length of searchstr
  * @return true on match, else false
  */
-static bool search_dir_entry(rax *rt, sds *key, sds entity_name, struct mpd_entity *entity,
-        const char *searchstr, size_t searchstr_len)
+static bool search_dir_entry(struct t_array *array, sds *key, sds entity_name, struct mpd_entity *entity,
+    const char *searchstr, size_t searchstr_len, bool *array_error)
 {
     size_t newlen;
     char *value_utf8 = utf8_wrap_normalize(entity_name, sdslen(entity_name), &newlen);
@@ -248,7 +260,15 @@ static bool search_dir_entry(rax *rt, sds *key, sds entity_name, struct mpd_enti
         entry_data->name = entity_name;
         entry_data->entity = entity;
         *key = sds_utf8_normalize(*key);
-        *key = rax_insert_no_dup(rt, *key, entry_data);
+        if (array_push(array, *key, NULL, 0, entry_data) == false) {
+            free_t_dir_entry(entry_data);
+            FREE_SDS(*key);
+            *key = sdsempty();
+            *array_error = true;
+        }
+        else {
+            *key = sdsempty();
+        }
         FREE_PTR(value_utf8);
         return true;
     }
