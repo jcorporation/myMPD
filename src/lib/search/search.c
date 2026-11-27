@@ -297,13 +297,13 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
                 bool rc = false;
                 for (size_t tag_count = 0; tag_count < tags->len; tag_count++) {
                     rc = false;
-                    unsigned value_count = 0;
                     const char *value = NULL;
                     char *value_utf8 = NULL;
                     size_t value_utf8_len;
-                    while ((value = album_get_tag(album, tags->tags[tag_count], value_count)) != NULL) {
+                    struct t_album_tag_iterator tag_iterator;
+                    album_tag_iterator_init(&tag_iterator, album, tags->tags[tag_count]);
+                    while ((value = album_tag_iterator_next(&tag_iterator)) != NULL) {
                         value_utf8 = utf8_wrap_normalize(value, strlen(value), &value_utf8_len);
-                        value_count++;
                         rc = match_tag(value_utf8, value_utf8_len, expr);
                         if (exit_search_loop(rc, expr) == true) {
                             FREE_PTR(value_utf8);
@@ -311,7 +311,7 @@ bool search_expression_album(const struct t_album *album, const struct t_list *e
                         }
                         FREE_PTR(value_utf8);
                     }
-                    if (value_count == 0) {
+                    if (value == NULL) {
                         //no tag value found
                         rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
                             ? true

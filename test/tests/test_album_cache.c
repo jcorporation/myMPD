@@ -45,6 +45,23 @@ UTEST(album_cache, test_album_cache_copy_tags) {
     album_free(album);
 }
 
+UTEST(album_cache, test_album_tag_iterator) {
+    struct t_album *album = new_test_album();
+    struct t_album_tag_iterator iterator;
+    album_tag_iterator_init(&iterator, album, MPD_TAG_ARTIST);
+
+    ASSERT_STREQ("Einstürzende Neubauten", album_tag_iterator_next(&iterator));
+    ASSERT_STREQ("Blixa Bargeld", album_tag_iterator_next(&iterator));
+    ASSERT_TRUE(album_tag_iterator_next(&iterator) == NULL);
+
+    album_tag_iterator_init(&iterator, album, MPD_TAG_GENRE);
+    ASSERT_TRUE(album_tag_iterator_next(&iterator) == NULL);
+
+    album_tag_iterator_init(&iterator, album, MPD_TAG_COUNT);
+    ASSERT_TRUE(album_tag_iterator_next(&iterator) == NULL);
+    album_free(album);
+}
+
 UTEST(album_cache, test_album_cache_set_discs) {
     struct t_album *album = new_test_album();
 

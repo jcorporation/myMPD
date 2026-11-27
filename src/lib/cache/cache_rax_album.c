@@ -266,19 +266,19 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
         mpack_write_str(&writer, (char *)iter.key, (uint32_t)iter.key_len);
         for (unsigned tagnr = 0; tagnr < album_tags->len; ++tagnr) {
             enum mpd_tag_type tag = album_tags->tags[tagnr];
-            if (album_get_tag(album, tag, 0) == NULL) {
+            struct t_album_tag_iterator tag_iterator;
+            album_tag_iterator_init(&tag_iterator, album, tag);
+            const char *value = album_tag_iterator_next(&tag_iterator);
+            if (value == NULL) {
                 // do not write empty tags
                 continue;
             }
             if (is_multivalue_tag(tag) == true) {
-                const char *value;
-                unsigned count = 0;
                 mpack_write_cstr(&writer, mpd_tag_name(tag));
                 mpack_build_array(&writer);
-                while ((value = album_get_tag(album, tag, count)) != NULL) {
+                do {
                     mpack_write_cstr(&writer, value);
-                    count++;
-                }
+                } while ((value = album_tag_iterator_next(&tag_iterator)) != NULL);
                 mpack_complete_array(&writer);
             }
             else {

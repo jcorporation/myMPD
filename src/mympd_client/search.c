@@ -285,13 +285,13 @@ bool mympd_client_add_search_window_param_mpd_025(struct t_partition_state *part
 static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, struct t_album *album,
         const struct t_albums_config *album_config, sds expression)
 {
-    unsigned count = 0;
     const char *value;
+    struct t_album_tag_iterator iterator;
+    album_tag_iterator_init(&iterator, album, tag_albumartist);
     //search for all artists
-    while ((value = album_get_tag(album, tag_albumartist, count)) != NULL) {
+    while ((value = album_tag_iterator_next(&iterator)) != NULL) {
         expression = escape_mpd_search_expression(expression, mpd_tag_name(tag_albumartist), "==", value);
         expression = sdscat(expression, " AND ");
-        count++;
     }
     //and for album
     if (album_config->unknown == true &&

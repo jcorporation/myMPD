@@ -24,6 +24,13 @@
 struct t_album;
 
 /**
+ * Iterator for sequential album tag access
+ */
+struct t_album_tag_iterator {
+    const void *current;
+};
+
+/**
  * Modes for the album cache
  */
 enum album_modes {
@@ -53,6 +60,8 @@ unsigned album_get_total_time(const struct t_album *album);
 unsigned album_get_song_count(const struct t_album *album);
 bool album_get_unknown(const struct t_album *album);
 const char *album_get_tag(const struct t_album *album, enum mpd_tag_type type, unsigned idx);
+void album_tag_iterator_init(struct t_album_tag_iterator *iterator, const struct t_album *album, enum mpd_tag_type type);
+const char *album_tag_iterator_next(struct t_album_tag_iterator *iterator);
 
 void album_set_discs(struct t_album *album, const char *disc);
 void album_set_disc_count(struct t_album *album, unsigned count);

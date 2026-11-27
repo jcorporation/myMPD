@@ -234,6 +234,39 @@ const char *album_get_tag(const struct t_album *album, enum mpd_tag_type type, u
 }
 
 /**
+ * Initializes an iterator for sequential album tag access
+ * @param iterator iterator to initialize
+ * @param album album to read
+ * @param type MPD tag type
+ */
+void album_tag_iterator_init(struct t_album_tag_iterator *iterator, const struct t_album *album, enum mpd_tag_type type) {
+    iterator->current = NULL;
+    if ((int)type < 0 ||
+        type >= MPD_TAG_COUNT)
+    {
+        return;
+    }
+    const struct t_album_tag_value *tag = &album->tags[type];
+    if (tag->value != NULL) {
+        iterator->current = tag;
+    }
+}
+
+/**
+ * Gets the next album tag value
+ * @param iterator initialized iterator
+ * @return next value or NULL when all values have been read
+ */
+const char *album_tag_iterator_next(struct t_album_tag_iterator *iterator) {
+    const struct t_album_tag_value *tag = iterator->current;
+    if (tag == NULL) {
+        return NULL;
+    }
+    iterator->current = tag->next;
+    return tag->value;
+}
+
+/**
  * Gets the unknown marker for an album
  * @param album t_album struct representing the album
  * @return bool true if it is a unknown album, else false
@@ -425,12 +458,12 @@ bool album_append_tag(struct t_album *album, enum mpd_tag_type type, const char 
  */
 bool album_copy_tags(struct t_album *album, enum mpd_tag_type src, enum mpd_tag_type dst) {
     const char *value;
-    unsigned value_nr = 0;
-    while ((value = album_get_tag(album, src, value_nr)) != NULL) {
+    struct t_album_tag_iterator iterator;
+    album_tag_iterator_init(&iterator, album, src);
+    while ((value = album_tag_iterator_next(&iterator)) != NULL) {
         if (album_append_tag(album, dst, value) == false) {
             return false;
         }
-        value_nr++;
     }
     return true;
 }
@@ -560,12 +593,15 @@ static sds get_tag_value_string(const struct t_album *album, enum mpd_tag_type t
 {
     const char *value;
     unsigned count = 0;
+    const struct t_album_tag_value *tag_value = &album->tags[tag];
     //return comma separated tag list
-    while ((value = album_get_tag(album, tag, count)) != NULL) {
+    while (tag_value != NULL && tag_value->value != NULL) {
+        value = tag_value->value;
         if (count++) {
             tag_values = sdscatlen(tag_values, ", ", 2);
         }
         tag_values = sdscat(tag_values, value);
+        tag_value = tag_value->next;
     }
     *value_count = count;
     return tag_values;
@@ -608,11 +644,14 @@ static sds get_tag_values(const struct t_album *album, enum mpd_tag_type tag,
             sdsfreesplitres(tokens, token_count);
         }
         else {
-            while ((value = album_get_tag(album, tag, count)) != NULL) {
+            const struct t_album_tag_value *tag_value = &album->tags[tag];
+            while (tag_value != NULL && tag_value->value != NULL) {
+                value = tag_value->value;
                 if (count++) {
                     tag_values = sdscatlen(tag_values, ",", 1);
                 }
                 tag_values = sds_catjson(tag_values, value, strlen(value));
+                tag_value = tag_value->next;
             }
         }
         if (count > 0) {
@@ -625,11 +664,14 @@ static sds get_tag_values(const struct t_album *album, enum mpd_tag_type tag,
     else {
         //return json string
         tag_values = sdscatlen(tag_values, "\"", 1);
-        while ((value = album_get_tag(album, tag, count)) != NULL) {
+        const struct t_album_tag_value *tag_value = &album->tags[tag];
+        while (tag_value != NULL && tag_value->value != NULL) {
+            value = tag_value->value;
             if (count++) {
                 tag_values = sdscatlen(tag_values, ", ", 2);
             }
             tag_values = sds_catjson_plain(tag_values, value, strlen(value));
+            tag_value = tag_value->next;
         }
         if (count > 0) {
             tag_values = sdscatlen(tag_values, "\"", 1);
