@@ -445,7 +445,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             else {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Error getting mympd state for script execution");
-                FREE_PTR(lua_mympd_state);
+                lua_mympd_state_free(lua_mympd_state);
             }
             break;
         }
