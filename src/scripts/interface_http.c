@@ -165,6 +165,8 @@ int lua_http_download(lua_State *lua_vm) {
             .uri = uri,
             .extra_headers = extra_headers,
             .post_data = "",
+            .cert_check = config->cert_check,
+            .ca_certs = config->ca_certs,
         };
         http_client_request(&mg_client_request, mg_client_response);
         rc = 1;
