@@ -171,7 +171,7 @@ bool jukebox_run(struct t_mympd_state *mympd_state, struct t_partition_state *pa
         // Start mympd worker thread
         return jukebox_request_worker(partition_state, MYMPD_API_JUKEBOX_REFILL_ADD, add_songs);
     }
-    
+
     // Add from jukebox queue to MPD queue
     sds error = sdsempty();
     bool rc = jukebox_add_to_queue(partition_state, album_cache, add_songs, &error);
@@ -321,7 +321,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
         }
     }
     if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_queue_meta") == false) {
-        FREE_PTR(queue_list);
+        list_free(queue_list);
         return NULL;
     }
 
