@@ -164,6 +164,8 @@ int64_t mympd_client_playlist_dedup_all(struct t_partition_state *partition_stat
     while ((current = list_shift_first(&plists)) != NULL) {
         if (partition_state->conn_state != MPD_CONNECTED) {
             MYMPD_LOG_ERROR(NULL, "Canceling playlist deduplication, MPD is disconnected.");
+            result = -1;
+            list_node_free(current);
             break;
         }
         int64_t rc = mympd_client_playlist_dedup(partition_state, current->key, remove, error);
@@ -217,7 +219,7 @@ int64_t mympd_client_playlist_dedup(struct t_partition_state *partition_state, c
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
-    } while (pos >= start);
+    } while (partition_state->mpd_state->feat.listplaylist_range && pos >= start);
     raxFree(plist);
 
     int64_t rc = duplicates.length;
@@ -257,6 +259,8 @@ int mympd_client_playlist_validate_all(struct t_partition_state *partition_state
     while ((current = list_shift_first(&plists)) != NULL) {
         if (partition_state->conn_state != MPD_CONNECTED) {
             MYMPD_LOG_ERROR(NULL, "Canceling playlist validation, MPD is disconnected.");
+            result = -1;
+            list_node_free(current);
             break;
         }
         int rc = mympd_client_playlist_validate(partition_state, current->key, remove, error);
@@ -588,7 +592,7 @@ bool mympd_client_playlist_get(struct t_partition_state *partition_state,
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
-    } while (pos >= start);
+    } while (partition_state->mpd_state->feat.listplaylist_range && pos >= start);
     return true;
 }
 
@@ -630,7 +634,7 @@ struct t_array *mympd_client_playlist_get_array(struct t_partition_state *partit
             return NULL;
         }
         start = end;
-    } while (pos >= start);
+    } while (partition_state->mpd_state->feat.listplaylist_range == true && pos >= start);
 
     if (array_error == true) {
         if (error != NULL && *error != NULL) {
@@ -747,7 +751,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
-    } while (pos >= start);
+    } while (partition_state->mpd_state->feat.listplaylist_range && pos >= start);
     FREE_SDS(key);
 
     if (array_sort_by_key(plist, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false) {
