@@ -35,39 +35,28 @@ struct t_array *array_new(void) {
  */
 struct t_array *array_new_capacity(unsigned capacity) {
     struct t_array *array = malloc_assert(sizeof(struct t_array));
-    array_init(array, capacity);
-    return array;
-}
-
-/**
- * Initializes an existing array
- * @param array Pointer to the array to initialize
- * @param capacity Initial capacity of the array
- */
-void array_init(struct t_array *array, unsigned capacity) {
     array->length = 0;
     array->capacity = capacity > 0 ? capacity : ARRAY_START_CAPACITY;
     array->nodes = malloc_assert_count(array->capacity, sizeof(*array->nodes));
+    return array;
 }
 
 /**
  * Clears the array, freeing its nodes and values
  * @param array Pointer to the array to clear
- * @param free_cb Callback function to free user data
+ * @param free_cb Callback function to free user data, if NULL, user data will not be freed
  */
 void array_clear(struct t_array *array, array_user_data_callback free_cb) {
     for (unsigned i = 0; i < array->length; i++) {
         struct t_array_node *node = &array->nodes[i];
-        FREE_SDS(node->key);
-        FREE_SDS(node->value_p);
-        if (node->user_data != NULL) {
-            if (free_cb != NULL) {
-                free_cb(node);
-            } else {
-                free(node->user_data);
-            }
+        if (node->user_data != NULL &&
+            free_cb != NULL)
+        {
+            free_cb(node);
             node->user_data = NULL;
         }
+        FREE_SDS(node->key);
+        FREE_SDS(node->value_p);
         node->value_i = 0;
     }
     array->length = 0;
@@ -90,10 +79,10 @@ void array_free(struct t_array *array, array_user_data_callback free_cb) {
 /**
  * Pushes the sds string to the array
  * @param array Pointer to the sds array
- * @param key Key string for the array node
- * @param value_p String value for the array node
+ * @param key Key string for the array node, can be NULL
+ * @param value_p String value for the array node, can be NULL
  * @param value_i Integer value for the array node
- * @param user_data Custom data pointer for the array node
+ * @param user_data Custom data pointer for the array node, can be NULL
  * @return bool true on success, false on failure
  */
 bool array_push(struct t_array *array, const char *key, const char *value_p, int64_t value_i, void *user_data) {
@@ -108,8 +97,8 @@ bool array_push(struct t_array *array, const char *key, const char *value_p, int
         array->capacity = new_capacity;
     }
     struct t_array_node *node = &array->nodes[array->length++];
-    node->key = sdsnew(key);
-    node->value_p = sdsnew(value_p);
+    node->key = key == NULL ? NULL : sdsnew(key);
+    node->value_p = value_p == NULL ? NULL : sdsnew(value_p);
     node->value_i = value_i;
     node->user_data = user_data;
     return true;

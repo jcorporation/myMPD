@@ -36,7 +36,7 @@ struct t_array {
 };
 
 enum {
-    ARRAY_START_CAPACITY = 16
+    ARRAY_START_CAPACITY = 16,
 };
 
 /**
@@ -46,7 +46,6 @@ typedef void (*array_user_data_callback) (struct t_array_node *node);
 
 struct t_array *array_new(void);
 struct t_array *array_new_capacity(unsigned capacity);
-void array_init(struct t_array *array, unsigned capacity);
 void array_clear(struct t_array *array, array_user_data_callback free_cb);
 void array_free(struct t_array *array, array_user_data_callback free_cb);
 bool array_push(struct t_array *array, const char *key, const char *value_p, int64_t value_i, void *user_data);
