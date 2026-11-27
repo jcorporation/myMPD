@@ -24,6 +24,7 @@
 #include "src/mympd_client/shortcuts.h"
 
 #include <inttypes.h>
+#include <mpd/tag.h>
 #include <string.h>
 
 /**
@@ -374,7 +375,7 @@ sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
 }
 
 /**
- * Parses a taglist and adds valid values to tagtypes struct 
+ * Parses a taglist and adds valid values to tagtypes struct
  * @param taglist comma separated tags to check
  * @param taglistname descriptive name of taglist
  * @param tagtypes pointer to t_tags struct to add tags from taglist
@@ -394,6 +395,10 @@ void check_tags(sds taglist, const char *taglistname, struct t_mympd_mpd_tags *t
         }
         else {
             if (mympd_client_tag_exists(allowed_tag_types, tag) == true) {
+                if (tagtypes->len >= MPD_TAG_COUNT) {
+                    MYMPD_LOG_ERROR(NULL, "Excessive tag count");
+                    break;
+                }
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(tag));
                 tagtypes->tags[tagtypes->len++] = tag;
             }
