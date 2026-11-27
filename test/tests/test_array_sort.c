@@ -20,10 +20,10 @@ static bool compare_value_i_desc(struct t_array_node *first, struct t_array_node
 
 UTEST(array_sort, sort_by_value_i_and_callback) {
     struct t_array *array = array_new();
-    ASSERT_TRUE(array_push(array, sdsnew("four"), NULL, 4, NULL));
-    ASSERT_TRUE(array_push(array, sdsnew("one-a"), NULL, 1, NULL));
-    ASSERT_TRUE(array_push(array, sdsnew("one-b"), NULL, 1, NULL));
-    ASSERT_TRUE(array_push(array, sdsnew("two"), NULL, 2, NULL));
+    ASSERT_TRUE(array_push(array, "four", NULL, 4, NULL));
+    ASSERT_TRUE(array_push(array, "one-a", NULL, 1, NULL));
+    ASSERT_TRUE(array_push(array, "one-b", NULL, 1, NULL));
+    ASSERT_TRUE(array_push(array, "two", NULL, 2, NULL));
 
     ASSERT_TRUE(array_sort_by_value_i(array, ARRAY_SORT_ASC));
     ASSERT_EQ(1, array->nodes[0].value_i);
@@ -39,9 +39,9 @@ UTEST(array_sort, sort_by_value_i_and_callback) {
 
 UTEST(array_sort, sort_by_key_and_value_p) {
     struct t_array *array = array_new();
-    ASSERT_TRUE(array_push(array, sdsnew("b"), sdsnew("charlie"), 0, NULL));
-    ASSERT_TRUE(array_push(array, sdsnew("a"), sdsnew("alpha"), 0, NULL));
-    ASSERT_TRUE(array_push(array, sdsnew("c"), sdsnew("bravo"), 0, NULL));
+    ASSERT_TRUE(array_push(array, "b", "charlie", 0, NULL));
+    ASSERT_TRUE(array_push(array, "a", "alpha", 0, NULL));
+    ASSERT_TRUE(array_push(array, "c", "bravo", 0, NULL));
 
     ASSERT_TRUE(array_sort_by_key(array, ARRAY_SORT_ASC));
     ASSERT_STREQ("a", array->nodes[0].key);
@@ -57,9 +57,9 @@ UTEST(array_sort, sort_by_key_and_value_p) {
 #ifdef MYMPD_ENABLE_UTF8
 UTEST(array_sort, sort_utf8_keys) {
     struct t_array *array = array_new();
-    ASSERT_TRUE(array_push(array, sdsnew("\xC3\x84pfel"), NULL, 0, NULL));
-    ASSERT_TRUE(array_push(array, sdsnew("\xC3\xA4pfel"), NULL, 0, NULL));
-    ASSERT_TRUE(array_push(array, sdsnew("Zebra"), NULL, 0, NULL));
+    ASSERT_TRUE(array_push(array, "\xC3\x84pfel", NULL, 0, NULL));
+    ASSERT_TRUE(array_push(array, "\xC3\xA4pfel", NULL, 0, NULL));
+    ASSERT_TRUE(array_push(array, "Zebra", NULL, 0, NULL));
 
     ASSERT_TRUE(array_sort_by_key(array, ARRAY_SORT_ASC));
     ASSERT_STREQ("Zebra", array->nodes[0].key);
@@ -74,7 +74,7 @@ UTEST(array_sort, empty_single_and_invalid_callback) {
     ASSERT_TRUE(array_sort_by_value_i(array, ARRAY_SORT_ASC));
     ASSERT_TRUE(array_shuffle(array));
 
-    ASSERT_TRUE(array_push(array, sdsnew("seven"), NULL, 7, NULL));
+    ASSERT_TRUE(array_push(array, "seven", NULL, 7, NULL));
     ASSERT_TRUE(array_sort_by_callback(array, ARRAY_SORT_ASC, NULL));
     ASSERT_TRUE(array_shuffle(array));
     ASSERT_FALSE(array_sort_by_value_i(array, (enum array_sort_direction)2));
@@ -84,7 +84,7 @@ UTEST(array_sort, empty_single_and_invalid_callback) {
 UTEST(array, growth_clear_and_shuffle) {
     struct t_array *array = array_new();
     for (unsigned i = 0; i < 64; i++) {
-        ASSERT_TRUE(array_push(array, sdsnew("entry"), NULL, i, NULL));
+        ASSERT_TRUE(array_push(array, "entry", NULL, i, NULL));
     }
     ASSERT_EQ(64U, array->length);
     ASSERT_TRUE(array->capacity >= 64);
@@ -103,6 +103,6 @@ UTEST(array, growth_clear_and_shuffle) {
 
     array_clear(array, NULL);
     ASSERT_EQ(0U, array->length);
-    ASSERT_TRUE(array_push(array, sdsnew("reused"), NULL, 1, NULL));
+    ASSERT_TRUE(array_push(array, "reused", NULL, 1, NULL));
     array_free(array, NULL);
 }
