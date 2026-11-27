@@ -42,7 +42,7 @@ void scripts_tmp_delete(rax *scripts_tmp_list, sds key) {
  * @return true on success, else false
  */
 bool scripts_tmp_set(rax *scripts_tmp_list, sds key, sds value, int lifetime) {
-    void *old_data;
+    void *old_data = NULL;
     errno = 0;
     struct t_tmpvar_data *data = malloc_assert(sizeof(struct t_tmpvar_data));
     data->value = sdsdup(value);
@@ -53,11 +53,13 @@ bool scripts_tmp_set(rax *scripts_tmp_list, sds key, sds value, int lifetime) {
         data->expires = lifetime;
     }
     if (raxInsert(scripts_tmp_list, (unsigned char *)key, sdslen(key), data, &old_data) == 0) {
-        struct t_tmpvar_data *old_tmpvar = (struct t_tmpvar_data *)old_data;
-        FREE_SDS(old_tmpvar->value);
-        FREE_PTR(old_tmpvar);
+        if (old_data != NULL) {
+            struct t_tmpvar_data *old_tmpvar = (struct t_tmpvar_data *)old_data;
+            FREE_SDS(old_tmpvar->value);
+            FREE_PTR(old_tmpvar);
+        }
     }
-    return errno == 0 
+    return errno == 0
         ? true
         : false;
 }
