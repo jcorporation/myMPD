@@ -21,7 +21,7 @@ struct t_list;
  */
 enum list_sort_direction {
     LIST_SORT_ASC = 0,
-    LIST_SORT_DESC = 1
+    LIST_SORT_DESC = 1,
 };
 
 /**

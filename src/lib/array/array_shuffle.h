@@ -5,7 +5,7 @@
 */
 
 /*! \file
- * \brief Array functions for sds strings
+ * \brief Array shuffle
  */
 
 #ifndef MYMPD_ARRAY_SHUFFLE_H

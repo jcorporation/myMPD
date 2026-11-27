@@ -121,7 +121,7 @@ void list_free_void(void *l) {
  * @param l pointer to list
  * @param free_cb
  */
-void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
+void list_clear_user_data(struct t_list *l, list_free_user_data_callback free_cb) {
     struct t_list_node *current = l->head;
     struct t_list_node *tmp = NULL;
     while (current != NULL) {
@@ -138,7 +138,7 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
  * @param l pointer to list
  * @param free_cb Callback to free the user data
  */
-void list_free_user_data(struct t_list *l, user_data_callback free_cb) {
+void list_free_user_data(struct t_list *l, list_free_user_data_callback free_cb) {
     list_clear_user_data(l, free_cb);
     FREE_PTR(l);
 }
@@ -300,7 +300,7 @@ bool list_move_node(struct t_list *l, unsigned from, unsigned to) {
 
     struct t_list_node *old = list_node_at(l, from);
     struct t_list_node *new = list_node_at(l, to);
-    
+
     if (!old || !new) {
         return false;
     }
@@ -312,7 +312,7 @@ bool list_move_node(struct t_list *l, unsigned from, unsigned to) {
     struct t_list_node *insert_after = from < to
         ? new
         : new->prev;
-    
+
     if (insert_after != NULL) {
         extracted->prev = insert_after;
         extracted->next = insert_after->next;
@@ -480,7 +480,7 @@ bool list_replace_len(struct t_list *l, unsigned idx, const char *key, size_t ke
  * @return true on success, else false
  */
 bool list_replace_user_data(struct t_list *l, unsigned idx, const char *key, int64_t value_i,
-        const char *value_p, void *user_data, user_data_callback free_cb)
+        const char *value_p, void *user_data, list_free_user_data_callback free_cb)
 {
     return list_replace_len_user_data(l, idx, key, strlen(key), value_i,
         value_p, strlen(value_p), user_data, free_cb);
@@ -501,7 +501,7 @@ bool list_replace_user_data(struct t_list *l, unsigned idx, const char *key, int
  * @return true on success, else false
  */
 bool list_replace_len_user_data(struct t_list *l, unsigned idx, const char *key, size_t key_len, int64_t value_i,
-        const char *value_p, size_t value_len, void *user_data, user_data_callback free_cb)
+        const char *value_p, size_t value_len, void *user_data, list_free_user_data_callback free_cb)
 {
     if (idx >= l->length) {
         return false;
@@ -547,7 +547,7 @@ void *list_node_free(struct t_list_node *n) {
  * @param free_cb callback function to free user_data pointer
  * @return NULL
  */
-void *list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb) {
+void *list_node_free_user_data(struct t_list_node *n, list_free_user_data_callback free_cb) {
     FREE_SDS(n->key);
     FREE_SDS(n->value_p);
     if (n->user_data != NULL &&
@@ -581,7 +581,7 @@ bool list_remove_node(struct t_list *l, unsigned idx) {
  * @param free_cb callback function to free user_data pointer
  * @return true on success, else false
  */
-bool list_remove_node_user_data(struct t_list *l, unsigned idx, user_data_callback free_cb) {
+bool list_remove_node_user_data(struct t_list *l, unsigned idx, list_free_user_data_callback free_cb) {
     struct t_list_node *extracted = list_node_extract_at(l, idx);
     if (extracted == NULL) {
         return false;
@@ -608,7 +608,7 @@ bool list_remove_node_by_key(struct t_list *l, const char *key) {
  * @param free_cb Callback to free the user data
  * @return bool true on success, else false
  */
-bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, user_data_callback free_cb) {
+bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, list_free_user_data_callback free_cb) {
     struct t_list_node *current = l->head;
     size_t key_len = strlen(key);
 
@@ -736,7 +736,7 @@ bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callba
  * @param length max length
  * @param free_cb callback function to free user_data pointer
  */
-void list_crop(struct t_list *l, unsigned length, user_data_callback free_cb) {
+void list_crop(struct t_list *l, unsigned length, list_free_user_data_callback free_cb) {
     if (l->length <= length) {
         return;
     }

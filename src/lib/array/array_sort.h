@@ -5,7 +5,7 @@
 */
 
 /*! \file
- * \brief Array functions for sds strings
+ * \brief Array sort
  */
 
 #ifndef MYMPD_ARRAY_SORT_H
@@ -21,7 +21,7 @@ struct t_array_node;
  */
 enum array_sort_direction {
     ARRAY_SORT_ASC = 0,
-    ARRAY_SORT_DESC = 1
+    ARRAY_SORT_DESC = 1,
 };
 
 /**

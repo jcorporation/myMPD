@@ -5,7 +5,7 @@
 */
 
 /*! \file
- * \brief Array functions for sds strings
+ * \brief Array sort
  */
 
 #include "src/lib/array/array_sort.h"

@@ -46,7 +46,7 @@ struct t_array *array_new_capacity(unsigned capacity) {
  * @param array Pointer to the array to clear
  * @param free_cb Callback function to free user data, if NULL, user data will not be freed
  */
-void array_clear(struct t_array *array, array_user_data_callback free_cb) {
+void array_clear(struct t_array *array, array_free_user_data_callback free_cb) {
     for (unsigned i = 0; i < array->length; i++) {
         struct t_array_node *node = &array->nodes[i];
         if (node->user_data != NULL &&
@@ -67,7 +67,7 @@ void array_clear(struct t_array *array, array_user_data_callback free_cb) {
  * @param array Pointer to the array to free
  * @param free_cb Callback function to free user data
  */
-void array_free(struct t_array *array, array_user_data_callback free_cb) {
+void array_free(struct t_array *array, array_free_user_data_callback free_cb) {
     if (array == NULL) {
         return;
     }

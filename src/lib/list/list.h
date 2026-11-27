@@ -39,7 +39,7 @@ struct t_list {
 /**
  * Definition of user data callback
  */
-typedef void (*user_data_callback) (struct t_list_node *current);
+typedef void (*list_free_user_data_callback) (struct t_list_node *current);
 
 /**
  * Definition of list to line callback
@@ -53,12 +53,12 @@ void list_init(struct t_list *l);
 void list_clear(struct t_list *l);
 void list_free(struct t_list *l);
 void list_free_void(void *l);
-void list_clear_user_data(struct t_list *l, user_data_callback free_cb);
-void list_free_user_data(struct t_list *l, user_data_callback free_cb);
+void list_clear_user_data(struct t_list *l, list_free_user_data_callback free_cb);
+void list_free_user_data(struct t_list *l, list_free_user_data_callback free_cb);
 void list_free_cb_ignore_user_data(struct t_list_node *current);
 void list_free_cb_sds_user_data(struct t_list_node *current);
 void list_free_cb_ptr_user_data(struct t_list_node *current);
-void *list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb);
+void *list_node_free_user_data(struct t_list_node *n, list_free_user_data_callback free_cb);
 void *list_node_free(struct t_list_node *n);
 
 bool list_push(struct t_list *l, const char *key, int64_t value_i,
@@ -73,11 +73,11 @@ bool list_replace(struct t_list *l, unsigned idx, const char *key, int64_t value
 bool list_replace_len(struct t_list *l, unsigned idx, const char *key, size_t key_len, int64_t value_i,
         const char *value_p, size_t value_len, void *user_data);
 bool list_replace_user_data(struct t_list *l, unsigned idx, const char *key, int64_t value_i,
-        const char *value_p, void *user_data, user_data_callback free_cb);
+        const char *value_p, void *user_data, list_free_user_data_callback free_cb);
 bool list_replace_len_user_data(struct t_list *l, unsigned idx, const char *key, size_t key_len, int64_t value_i,
-        const char *value_p, size_t value_len, void *user_data, user_data_callback free_cb);
+        const char *value_p, size_t value_len, void *user_data, list_free_user_data_callback free_cb);
 
-void list_crop(struct t_list *l, unsigned length, user_data_callback free_cb);
+void list_crop(struct t_list *l, unsigned length, list_free_user_data_callback free_cb);
 
 bool list_move_node(struct t_list *l, unsigned from, unsigned to);
 
@@ -89,9 +89,9 @@ struct t_list_node *list_node_extract_at(struct t_list *l, unsigned idx);
 struct t_list_node *list_node_extract(struct t_list *l, struct t_list_node *node);
 
 bool list_remove_node(struct t_list *l, unsigned idx);
-bool list_remove_node_user_data(struct t_list *l, unsigned idx, user_data_callback free_cb);
+bool list_remove_node_user_data(struct t_list *l, unsigned idx, list_free_user_data_callback free_cb);
 bool list_remove_node_by_key(struct t_list *l, const char *key);
-bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, user_data_callback free_cb);
+bool list_remove_node_by_key_user_data(struct t_list *l, const char *key, list_free_user_data_callback free_cb);
 
 bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callback node_to_line_cb);
 
