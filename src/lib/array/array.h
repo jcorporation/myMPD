@@ -32,7 +32,7 @@ struct t_array_node {
 struct t_array {
     unsigned length;              //!< Current number of elements in the array
     unsigned capacity;            //!< Maximum number of elements the array can hold before resizing
-    struct t_array_node **nodes;  //!< Pointer to the array of array nodes
+    struct t_array_node *nodes;   //!< Packed array of nodes
 };
 
 enum {
@@ -45,15 +45,13 @@ enum {
 typedef void (*array_user_data_callback) (struct t_array_node *node);
 
 struct t_array *array_new(void);
-void array_init(struct t_array *array);
+struct t_array *array_new_capacity(unsigned capacity);
+void array_init(struct t_array *array, unsigned capacity);
 void array_clear(struct t_array *array, array_user_data_callback free_cb);
 void array_free(struct t_array *array, array_user_data_callback free_cb);
-bool array_push(struct t_array *array, sds key, sds value_p, int64_t value_i, void *user_data);
+bool array_push(struct t_array *array, const char *key, const char *value_p, int64_t value_i, void *user_data);
 
 struct t_array_node *array_get_node(const struct t_array *array, const char *key);
 struct t_array_node *array_node_at(const struct t_array *array, unsigned idx);
-
-struct t_array_node *array_node_new(sds key, sds value_p, int64_t value_i, void *user_data);
-void array_node_free(struct t_array_node *node, array_user_data_callback free_cb);
 
 #endif

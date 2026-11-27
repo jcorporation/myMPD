@@ -37,7 +37,7 @@ bool array_shuffle(struct t_array *array) {
         }
 
         // Swap nodes
-        struct t_array_node *temp = array->nodes[i];
+        struct t_array_node temp = array->nodes[i];
         array->nodes[i] = array->nodes[j];
         array->nodes[j] = temp;
     }

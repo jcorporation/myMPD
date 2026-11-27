@@ -76,12 +76,10 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     raxStart(&iter, webradios->db);
     raxSeek(&iter, "^", NULL, 0);
     // Search and sort
+    sds key = sdsempty();
     while (raxNext(&iter)) {
         struct t_webradio_data *webradio_data = (struct t_webradio_data *)iter.data;
-        if (array_error == false &&
-            search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true)
-        {
-            sds key = sdsempty();
+        if (search_expression_webradio(webradio_data, expr_list, &webradio_tags) == true) {
             switch(sort_tag) {
                 case WEBRADIO_TAG_BITRATE:
                     key = sds_pad_int(webradio_data->uris.head->value_i, key);
@@ -98,15 +96,18 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
                 }
             }
             if (sort_tag != WEBRADIO_TAG_NAME) {
+                // Add the name to the key as implicit secondary sort key
                 key = sdscat(key, webradio_data->name);
             }
             if (array_push(sorted, key, NULL, 0, webradio_data) == false) {
-                FREE_SDS(key);
                 array_error = true;
+                break;
             }
+            sdsclear(key);
         }
     }
     raxStop(&iter);
+    FREE_SDS(key);
     if (array_error == true ||
         array_sort_by_key(sorted, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false)
     {
@@ -118,7 +119,7 @@ sds mympd_api_webradio_search(struct t_webradios *webradios, sds buffer, unsigne
     }
     // Print the result
     while (entities_found < sorted->length) {
-        struct t_webradio_data *webradio_data = (struct t_webradio_data *)sorted->nodes[entities_found]->user_data;
+        struct t_webradio_data *webradio_data = (struct t_webradio_data *)sorted->nodes[entities_found].user_data;
         if (entities_found >= offset) {
             if (entities_returned++) {
                 buffer= sdscatlen(buffer, ",", 1);

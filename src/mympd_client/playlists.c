@@ -362,7 +362,7 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
             : plist_array->length;
         
         for (size_t j = i; j < batch_end; j++) {
-            rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist_array->nodes[j]->key);
+            rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist_array->nodes[j].key);
             if (rc == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                 break;
@@ -593,7 +593,7 @@ bool mympd_client_playlist_get(struct t_partition_state *partition_state,
 }
 
 /**
- * Gets the contents of a playlist as an array.
+ * Gets the song uris of a playlist as an array.
  * Uses the range feature for MPD 0.24+
  * @param partition_state Pointer to partition specific states
  * @param plist Playlist name
@@ -605,19 +605,19 @@ struct t_array *mympd_client_playlist_get_array(struct t_partition_state *partit
 {
     struct t_array *plist_array = array_new();
     unsigned start = 0;
-    unsigned end = start + MPD_RESULTS_MAX;
     unsigned pos = 0;
     bool array_error = false;
     
-    do {       
+    do {
+        unsigned end = start + MPD_RESULTS_MAX;
         if (mympd_send_list_playlist_range(partition_state, plist, start, end) == true) {
             struct mpd_song *song;
             while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                 if (array_error == false) {
-                    sds uri = sdsnew(mpd_song_get_uri(song));
-                    if (array_push(plist_array, uri, NULL, 0, NULL) == false) {
-                        FREE_SDS(uri);
+                    if (array_push(plist_array, mpd_song_get_uri(song), NULL, 0, NULL) == false) {
                         array_error = true;
+                        mpd_song_free(song);
+                        break;
                     }
                 }
                 mpd_song_free(song);
@@ -630,7 +630,6 @@ struct t_array *mympd_client_playlist_get_array(struct t_partition_state *partit
             return NULL;
         }
         start = end;
-        end = end + MPD_RESULTS_MAX;
     } while (pos >= start);
 
     if (array_error == true) {
@@ -775,7 +774,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
         unsigned j = 0;
         while (i < plist->length) {
             j++;
-            if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist->nodes[i]->value_p) == false) {
+            if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist->nodes[i].value_p) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                 break;
             }

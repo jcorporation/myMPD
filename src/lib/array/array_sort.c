@@ -16,12 +16,20 @@
 
 #include <string.h>
 
+// Private definitions
+
 static bool sort_cb_value_i(struct t_array_node *first, struct t_array_node *second,
         enum array_sort_direction direction);
 static bool sort_cb_value_p(struct t_array_node *first, struct t_array_node *second,
         enum array_sort_direction direction);
 static bool sort_cb_key(struct t_array_node *first, struct t_array_node *second,
         enum array_sort_direction direction);
+static bool sort_cb_value_i_key_value_p(struct t_array_node *first, struct t_array_node *second,
+        enum array_sort_direction direction);
+static bool sort_cb_key_value_p_value_i(struct t_array_node *first, struct t_array_node *second,
+        enum array_sort_direction direction);
+
+// Public functions
 
 /**
  * Sorts the array with a stable bottom-up merge sort.
@@ -43,7 +51,7 @@ bool array_sort_by_callback(struct t_array *array, enum array_sort_direction dir
     }
 
     size_t length = array->length;
-    struct t_array_node **buffer = malloc_assert_count(length, sizeof(*buffer));
+    struct t_array_node *buffer = malloc_assert_count(length, sizeof(*buffer));
     for (size_t width = 1; width < length;) {
         size_t left = 0;
         while (left < length) {
@@ -57,7 +65,7 @@ bool array_sort_by_callback(struct t_array *array, enum array_sort_direction dir
             size_t output = left;
 
             while (left < middle && right < end) {
-                if (sort_cb(array->nodes[left], array->nodes[right], direction)) {
+                if (sort_cb(&array->nodes[left], &array->nodes[right], direction)) {
                     buffer[output++] = array->nodes[right++];
                 }
                 else {
@@ -112,6 +120,35 @@ bool array_sort_by_key(struct t_array *array, enum array_sort_direction directio
     return array_sort_by_callback(array, direction, sort_cb_key);
 }
 
+/**
+ * Sorts the array by value and key, using a UTF-8-aware case-insensitive comparison.
+ * @param array Pointer to the array
+ * @param direction Sort direction
+ * @return true on success, false for invalid arguments
+ */
+bool array_sort_by_value_i_key_value_p(struct t_array *array, enum array_sort_direction direction) {
+    return array_sort_by_callback(array, direction, sort_cb_value_i_key_value_p);
+}
+
+/**
+ * Sorts the array by key and value, using a UTF-8-aware case-insensitive comparison.
+ * @param array Pointer to the array
+ * @param direction Sort direction
+ * @return true on success, false for invalid arguments
+ */
+bool array_sort_by_key_value_p_value_i(struct t_array *array, enum array_sort_direction direction) {
+    return array_sort_by_callback(array, direction, sort_cb_key_value_p_value_i);
+}
+
+// Private functions
+
+/**
+ * Comparison callback for sorting by integer value.
+ * @param first Pointer to the first array node
+ * @param second Pointer to the second array node
+ * @param direction Sort direction
+ * @return true if the first node should follow the second, false otherwise
+ */
 static bool sort_cb_value_i(struct t_array_node *first, struct t_array_node *second,
         enum array_sort_direction direction)
 {
@@ -120,6 +157,13 @@ static bool sort_cb_value_i(struct t_array_node *first, struct t_array_node *sec
         : first->value_i < second->value_i;
 }
 
+/**
+ * Comparison callback for sorting by string value.
+ * @param first Pointer to the first array node
+ * @param second Pointer to the second array node
+ * @param direction Sort direction
+ * @return true if the first node should follow the second, false otherwise
+ */
 static bool sort_cb_value_p(struct t_array_node *first, struct t_array_node *second,
         enum array_sort_direction direction)
 {
@@ -130,11 +174,70 @@ static bool sort_cb_value_p(struct t_array_node *first, struct t_array_node *sec
         : result < 0;
 }
 
+/**
+ * Comparison callback for sorting by key.
+ * @param first Pointer to the first array node
+ * @param second Pointer to the second array node
+ * @param direction Sort direction
+ * @return true if the first node should follow the second, false otherwise
+ */
 static bool sort_cb_key(struct t_array_node *first, struct t_array_node *second,
         enum array_sort_direction direction)
 {
     int result = utf8_wrap_casecmp(first->key, sdslen(first->key),
         second->key, sdslen(second->key));
+    return direction == ARRAY_SORT_ASC
+        ? result > 0
+        : result < 0;
+}
+
+/**
+ * Comparison callback for sorting by integer value, then by key and value.
+ * @param first Pointer to the first array node
+ * @param second Pointer to the second array node
+ * @param direction Sort direction
+ * @return true if the first node should follow the second, false otherwise
+ */
+static bool sort_cb_value_i_key_value_p(struct t_array_node *first, struct t_array_node *second,
+        enum array_sort_direction direction)
+{
+    int64_t result = first->value_i - second->value_i;
+    if (result == 0 && first->key != NULL && second->key != NULL) {
+        result = utf8_wrap_casecmp(first->key, sdslen(first->key), second->key, sdslen(second->key));
+        if (result == 0 && first->value_p != NULL && second->value_p != NULL) {
+            result = utf8_wrap_casecmp(first->value_p, sdslen(first->value_p), second->value_p, sdslen(second->value_p));
+        }
+        return direction == ARRAY_SORT_ASC
+            ? result > 0
+            : result < 0;
+    }
+    // Reverse the result for descending order, because we want the newest first by default
+    return direction == ARRAY_SORT_DESC
+        ? result > 0
+        : result < 0;
+}
+
+/**
+ * Comparison callback for sorting by key, then by value and integer value.
+ * @param first Pointer to the first array node
+ * @param second Pointer to the second array node
+ * @param direction Sort direction
+ * @return true if the first node should follow the second, false otherwise
+ */
+static bool sort_cb_key_value_p_value_i(struct t_array_node *first, struct t_array_node *second,
+        enum array_sort_direction direction)
+{
+    int64_t result = utf8_wrap_casecmp(first->key, sdslen(first->key), second->key, sdslen(second->key));
+    if (result == 0 && first->value_p != NULL && second->value_p != NULL) {
+        result = utf8_wrap_casecmp(first->value_p, sdslen(first->value_p), second->value_p, sdslen(second->value_p));
+    }
+    if (result == 0) {
+        result = first->value_i - second->value_i;
+        // Reverse the result for descending order, because we want the newest first by default
+        return direction == ARRAY_SORT_DESC
+            ? result > 0
+            : result < 0;
+    }
     return direction == ARRAY_SORT_ASC
         ? result > 0
         : result < 0;

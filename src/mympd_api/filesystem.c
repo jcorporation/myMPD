@@ -33,18 +33,9 @@
  * Private definitions
  */
 
-/**
- * Struct representing the entity in the rax tree
- */
-struct t_dir_entry {
-    sds name;                   //!< entity name (e.g. filename, playlistname, directory name)
-    struct mpd_entity *entity;  //!< pointer to the generic mpd entity struct
-};
-
-static void free_t_dir_entry(void *data);
-static void free_t_dir_entry_array_node(struct t_array_node *node);
-static bool search_dir_entry(struct t_array *array, sds *key, sds entity_name, struct mpd_entity *entity,
+static bool search_dir_entry(struct t_array *array, sds key, sds entity_name, struct mpd_entity *entity,
     const char *searchstr, size_t searchstr_len, bool *array_error);
+static void free_mpd_entity(struct t_array_node *node);
 
 /**
  * Public functions
@@ -69,6 +60,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_FILESYSTEM_LIST;
     sds key = sdsempty();
+    sds entity_name = sdsempty();
     struct t_array *entity_list = array_new();
     bool array_error = false;
     unsigned real_limit = offset + limit;
@@ -78,24 +70,20 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
     if (mpd_send_list_meta(partition_state->conn, path)) {
         struct mpd_entity *entity;
         while ((entity = mpd_recv_entity(partition_state->conn)) != NULL) {
-            if (array_error == true) {
-                mpd_entity_free(entity);
-                continue;
-            }
             switch (mpd_entity_get_type(entity)) {
                 case MPD_ENTITY_TYPE_SONG: {
                     const struct mpd_song *song = mpd_entity_get_song(entity);
-                    sds entity_name =  mympd_client_get_tag_value_string(song, MPD_TAG_TITLE, sdsempty());
+                    entity_name = mympd_client_get_tag_value_string(song, MPD_TAG_TITLE, sdsempty());
                     key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
-                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len, &array_error);
+                    search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len, &array_error);
                     break;
                 }
                 case MPD_ENTITY_TYPE_DIRECTORY: {
                     const struct mpd_directory *dir = mpd_entity_get_directory(entity);
-                    sds entity_name = sdsnew(mpd_directory_get_path(dir));
+                    entity_name = sdscat(entity_name, mpd_directory_get_path(dir));
                     sds_basename_uri(entity_name);
                     key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
-                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len, &array_error);
+                    search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len, &array_error);
                     break;
                 }
                 case MPD_ENTITY_TYPE_PLAYLIST: {
@@ -114,10 +102,10 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                             }
                         }
                     }
-                    sds entity_name = sdsnew(pl_path);
+                    entity_name = sdscat(entity_name, pl_path);
                     sds_basename_uri(entity_name);
                     key = sdscatfmt(key, "1%s", pl_path);
-                    search_dir_entry(entity_list, &key, entity_name, entity, searchstr_utf8, searchstr_len, &array_error);
+                    search_dir_entry(entity_list, key, entity_name, entity, searchstr_utf8, searchstr_len, &array_error);
                     break;
                 }
                 default: {
@@ -125,19 +113,24 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                 }
             }
             sdsclear(key);
+            sdsclear(entity_name);
+            if (array_error == true) {
+                break;
+            }
         }
     }
     FREE_SDS(key);
+    FREE_SDS(entity_name);
     FREE_PTR(searchstr_utf8);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_meta") == false) {
-        array_free(entity_list, free_t_dir_entry_array_node);
+        array_free(entity_list, free_mpd_entity);
         //return error message
         return buffer;
     }
     if (array_error == true ||
         array_sort_by_key(entity_list, ARRAY_SORT_ASC) == false)
     {
-        array_free(entity_list, free_t_dir_entry_array_node);
+        array_free(entity_list, free_mpd_entity);
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
             JSONRPC_SEVERITY_ERROR, "Could not sort filesystem results");
     }
@@ -153,16 +146,16 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
         stickerdb_exit_idle(mympd_state->stickerdb);
     }
     while (entity_count < entity_list->length) {
-        struct t_dir_entry *entry_data = (struct t_dir_entry *)entity_list->nodes[entity_count]->user_data;
         if (entity_count >= offset &&
             entity_count < real_limit)
         {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
-            switch (mpd_entity_get_type(entry_data->entity)) {
+            struct mpd_entity *entity = (struct mpd_entity *)entity_list->nodes[entity_count].user_data;
+            switch (mpd_entity_get_type(entity)) {
                 case MPD_ENTITY_TYPE_SONG: {
-                    const struct mpd_song *song = mpd_entity_get_song(entry_data->entity);
+                    const struct mpd_song *song = mpd_entity_get_song(entity);
                     buffer = sdscat(buffer, "{\"Type\":\"song\",");
                     buffer = print_song_tags(buffer, partition_state->mpd_state, &tagcols->mpd_tags, song);
                     buffer = sdscatlen(buffer, ",", 1);
@@ -177,21 +170,21 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
                     break;
                 }
                 case MPD_ENTITY_TYPE_DIRECTORY: {
-                    const struct mpd_directory *dir = mpd_entity_get_directory(entry_data->entity);
+                    const struct mpd_directory *dir = mpd_entity_get_directory(entity);
                     buffer = sdscat(buffer, "{\"Type\":\"dir\",");
                     buffer = tojson_char(buffer, "uri", mpd_directory_get_path(dir), true);
-                    buffer = tojson_sds(buffer, "name", entry_data->name, true);
-                    buffer = tojson_sds(buffer, "Filename", entry_data->name, false);
+                    buffer = tojson_sds(buffer, "name", entity_list->nodes[entity_count].value_p, true);
+                    buffer = tojson_sds(buffer, "Filename", entity_list->nodes[entity_count].value_p, false);
                     buffer = sdscatlen(buffer, "}", 1);
                     break;
                 }
                 case MPD_ENTITY_TYPE_PLAYLIST: {
-                    const struct mpd_playlist *pl = mpd_entity_get_playlist(entry_data->entity);
-                    bool smartpls = is_smartpls(partition_state->config->workdir, entry_data->name);
+                    const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
+                    bool smartpls = is_smartpls(partition_state->config->workdir, entity_list->nodes[entity_count].value_p);
                     buffer = sdscatfmt(buffer, "{\"Type\": \"%s\",", (smartpls == true ? "smartpls" : "plist"));
                     buffer = tojson_char(buffer, "uri", mpd_playlist_get_path(pl), true);
-                    buffer = tojson_sds(buffer, "name", entry_data->name, true);
-                    buffer = tojson_sds(buffer, "Filename", entry_data->name, false);
+                    buffer = tojson_sds(buffer, "name", entity_list->nodes[entity_count].value_p, true);
+                    buffer = tojson_sds(buffer, "Filename", entity_list->nodes[entity_count].value_p, false);
                     buffer = sdscatlen(buffer, "}", 1);
                     break;
                 }
@@ -212,7 +205,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "search", searchstr, false);
     buffer = jsonrpc_end(buffer);
-    array_free(entity_list, free_t_dir_entry_array_node);
+    array_free(entity_list, free_mpd_entity);
     return buffer;
 }
 
@@ -221,33 +214,17 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, struct t_part
  */
 
 /**
- * Frees the t_dir_entry struct used as callback for rax_free_data
- * @param data void pointer to a t_dir_entry struct
- */
-static void free_t_dir_entry(void *data) {
-    struct t_dir_entry *entry_data = (struct t_dir_entry *)data;
-    mpd_entity_free(entry_data->entity);
-    FREE_SDS(entry_data->name);
-    FREE_PTR(data);
-}
-
-static void free_t_dir_entry_array_node(struct t_array_node *node) {
-    if (node->user_data != NULL) {
-        free_t_dir_entry(node->user_data);
-    }
-}
-
-/**
  * Search the entry for searchstr and add matches to the rax tree
- * @param rt Rax tree to insert
- * @param key Key to insert
+ * @param array Pointer to the array to add the entry
+ * @param key Pointer to the key to insert
  * @param entity_name Displayname of the entity
  * @param entity Pointer to mpd entity
  * @param searchstr String to search in entity_name
  * @param searchstr_len Length of searchstr
+ * @param array_error Pointer to bool to signal error in array_push
  * @return true on match, else false
  */
-static bool search_dir_entry(struct t_array *array, sds *key, sds entity_name, struct mpd_entity *entity,
+static bool search_dir_entry(struct t_array *array, sds key, sds entity_name, struct mpd_entity *entity,
     const char *searchstr, size_t searchstr_len, bool *array_error)
 {
     size_t newlen;
@@ -256,24 +233,24 @@ static bool search_dir_entry(struct t_array *array, sds *key, sds entity_name, s
     if (searchstr_len == 0 ||
         strstr(value_utf8, searchstr) != NULL)
     {
-        struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
-        entry_data->name = entity_name;
-        entry_data->entity = entity;
-        *key = sds_utf8_normalize(*key);
-        if (array_push(array, *key, NULL, 0, entry_data) == false) {
-            free_t_dir_entry(entry_data);
-            FREE_SDS(*key);
-            *key = sdsempty();
+        if (array_push(array, key, entity_name, 0, entity) == false) {
             *array_error = true;
-        }
-        else {
-            *key = sdsempty();
         }
         FREE_PTR(value_utf8);
         return true;
     }
     mpd_entity_free(entity);
-    FREE_SDS(entity_name);
     FREE_PTR(value_utf8);
     return false;
+}
+
+/**
+ * Free the memory allocated for an MPD entity
+ * @param node Pointer to the array node containing the entity
+ */
+static void free_mpd_entity(struct t_array_node *node) {
+    struct mpd_entity *entity = (struct mpd_entity *)node->value_p;
+    if (entity != NULL) {
+        mpd_entity_free(entity);
+    }
 }

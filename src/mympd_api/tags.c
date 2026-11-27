@@ -99,17 +99,15 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
             if (pair->value[0] == '\0') {
                 MYMPD_LOG_DEBUG(partition_state->name, "Value is empty, skipping");
             }
-            else if (array_error == false &&
-                (searchstr_len == 0 ||
-                (searchstr_len <= 2 && strcmp(searchstr_utf8, value_utf8) == 0) ||
-                (searchstr_len > 2 && strstr(value_utf8, searchstr_utf8) != NULL)))
+            else if (searchstr_len == 0 ||
+                     (searchstr_len <= 2 && strcmp(searchstr_utf8, value_utf8) == 0) ||
+                     (searchstr_len > 2 && strstr(value_utf8, searchstr_utf8) != NULL))
             {
-                sds sort_key = sds_utf8_normalize(sdsnew(pair->value));
-                sds value = sdsnew(pair->value);
-                if (array_push(taglist, sort_key, value, 0, NULL) == false) {
-                    FREE_SDS(sort_key);
-                    FREE_SDS(value);
+                if (array_push(taglist, pair->value, NULL, 0, NULL) == false) {
                     array_error = true;
+                    FREE_PTR(value_utf8);
+                    mpd_return_pair(partition_state->conn, pair);
+                    break;
                 }
             }
             mpd_return_pair(partition_state->conn, pair);
@@ -121,12 +119,8 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
         array_free(taglist, NULL);
         return buffer;
     }
-    if (array_error == true) {
-        array_free(taglist, NULL);
-        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-            JSONRPC_SEVERITY_ERROR, "Error sorting tag results");
-    }
-    if (array_sort_by_key(taglist, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false) {
+    if (array_error == true ||
+        array_sort_by_key(taglist, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false) {
         array_free(taglist, NULL);
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
             JSONRPC_SEVERITY_ERROR, "Error sorting tag results");
@@ -145,7 +139,7 @@ static sds tag_list_legacy(struct t_partition_state *partition_state, sds buffer
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatlen(buffer, "{", 1);
-            buffer = tojson_sds(buffer, "Value", taglist->nodes[entity_count]->value_p, false);
+            buffer = tojson_sds(buffer, "Value", taglist->nodes[entity_count].key, false);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;

@@ -26,14 +26,14 @@ UTEST(array_sort, sort_by_value_i_and_callback) {
     ASSERT_TRUE(array_push(array, sdsnew("two"), NULL, 2, NULL));
 
     ASSERT_TRUE(array_sort_by_value_i(array, ARRAY_SORT_ASC));
-    ASSERT_EQ(1, array->nodes[0]->value_i);
-    ASSERT_STREQ("one-a", array->nodes[0]->key);
-    ASSERT_STREQ("one-b", array->nodes[1]->key);
-    ASSERT_EQ(4, array->nodes[3]->value_i);
+    ASSERT_EQ(1, array->nodes[0].value_i);
+    ASSERT_STREQ("one-a", array->nodes[0].key);
+    ASSERT_STREQ("one-b", array->nodes[1].key);
+    ASSERT_EQ(4, array->nodes[3].value_i);
 
     ASSERT_TRUE(array_sort_by_callback(array, ARRAY_SORT_DESC, compare_value_i_desc));
-    ASSERT_EQ(4, array->nodes[0]->value_i);
-    ASSERT_EQ(1, array->nodes[3]->value_i);
+    ASSERT_EQ(4, array->nodes[0].value_i);
+    ASSERT_EQ(1, array->nodes[3].value_i);
     array_free(array, NULL);
 }
 
@@ -44,12 +44,12 @@ UTEST(array_sort, sort_by_key_and_value_p) {
     ASSERT_TRUE(array_push(array, sdsnew("c"), sdsnew("bravo"), 0, NULL));
 
     ASSERT_TRUE(array_sort_by_key(array, ARRAY_SORT_ASC));
-    ASSERT_STREQ("a", array->nodes[0]->key);
-    ASSERT_STREQ("c", array->nodes[2]->key);
+    ASSERT_STREQ("a", array->nodes[0].key);
+    ASSERT_STREQ("c", array->nodes[2].key);
 
     ASSERT_TRUE(array_sort_by_value_p(array, ARRAY_SORT_DESC));
-    ASSERT_STREQ("charlie", array->nodes[0]->value_p);
-    ASSERT_STREQ("alpha", array->nodes[2]->value_p);
+    ASSERT_STREQ("charlie", array->nodes[0].value_p);
+    ASSERT_STREQ("alpha", array->nodes[2].value_p);
 
     array_free(array, NULL);
 }
@@ -62,9 +62,9 @@ UTEST(array_sort, sort_utf8_keys) {
     ASSERT_TRUE(array_push(array, sdsnew("Zebra"), NULL, 0, NULL));
 
     ASSERT_TRUE(array_sort_by_key(array, ARRAY_SORT_ASC));
-    ASSERT_STREQ("Zebra", array->nodes[0]->key);
-    ASSERT_STREQ("\xC3\x84pfel", array->nodes[1]->key);
-    ASSERT_STREQ("\xC3\xA4pfel", array->nodes[2]->key);
+    ASSERT_STREQ("Zebra", array->nodes[0].key);
+    ASSERT_STREQ("\xC3\x84pfel", array->nodes[1].key);
+    ASSERT_STREQ("\xC3\xA4pfel", array->nodes[2].key);
     array_free(array, NULL);
 }
 #endif
@@ -92,7 +92,7 @@ UTEST(array, growth_clear_and_shuffle) {
 
     bool seen[64] = {false};
     for (unsigned i = 0; i < array->length; i++) {
-        int64_t value = array->nodes[i]->value_i;
+        int64_t value = array->nodes[i].value_i;
         ASSERT_TRUE(value >= 0 && value < 64);
         ASSERT_FALSE(seen[value]);
         seen[value] = true;

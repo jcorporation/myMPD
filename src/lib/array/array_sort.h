@@ -34,5 +34,7 @@ bool array_sort_by_callback(struct t_array *l, enum array_sort_direction directi
 bool array_sort_by_value_i(struct t_array *l, enum array_sort_direction direction);
 bool array_sort_by_value_p(struct t_array *l, enum array_sort_direction direction);
 bool array_sort_by_key(struct t_array *l, enum array_sort_direction direction);
+bool array_sort_by_value_i_key_value_p(struct t_array *l, enum array_sort_direction direction);
+bool array_sort_by_key_value_p_value_i(struct t_array *l, enum array_sort_direction direction);
 
 #endif

@@ -27,7 +27,7 @@ struct t_album;
  * Iterator for sequential album tag access
  */
 struct t_album_tag_iterator {
-    const void *current;
+    const void *current;    //!< Current tag value
 };
 
 /**

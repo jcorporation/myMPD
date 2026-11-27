@@ -44,31 +44,6 @@
 #include <unistd.h>
 
 /**
- * Simple struct to save playlist data
- */
-struct t_pl_data {
-    time_t last_modified;      //!< last modified time
-    enum playlist_types type;  //!< playlist type (smartpls or not)
-    sds name;                  //!< playlistname
-};
-
-/**
- * Frees the t_pl_data struct used as callback for rax_free_data
- * @param data void pointer to a t_sticker_value struct
- */
-static void free_t_pl_data(void *data) {
-    struct t_pl_data *pl_data = (struct t_pl_data *)data;
-    FREE_SDS(pl_data->name);
-    FREE_PTR(pl_data);
-}
-
-static void free_t_pl_data_array_node(struct t_array_node *node) {
-    if (node->user_data != NULL) {
-        free_t_pl_data(node->user_data);
-    }
-}
-
-/**
  * Moves entries from one playlist to another.
  * @param partition_state pointer to partition state
  * @param src_plist source playlist
@@ -548,13 +523,6 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
     rax *seen_sort_keys = raxNew();
     bool array_error = false;
     unsigned real_limit = offset + limit;
-    sds key = sdsempty();
-
-    if (sort == PLSORT_LAST_MODIFIED) {
-        sortdesc = sortdesc == false
-            ? true
-            : false;
-    }
 
     size_t searchstr_len;
     char *searchstr_utf8 = utf8_wrap_normalize(searchstr, sdslen(searchstr), &searchstr_len);
@@ -566,42 +534,30 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
             size_t value_len;
             char *value_utf8 = utf8_wrap_normalize(plpath, strlen(plpath), &value_len);
             bool smartpls = is_smartpls(partition_state->config->workdir, plpath);
-            if (array_error == false &&
-                (searchstr_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) &&
+            if ((searchstr_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL) &&
                 (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
             {
-                struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
-                data->last_modified = mpd_playlist_get_last_modified(pl);
-                data->type = smartpls == true
-                    ? PLTYPE_SMART
-                    : PLTYPE_STATIC;
-                data->name = sdsnew(plpath);
-                sdsclear(key);
-                if (sort == PLSORT_LAST_MODIFIED) {
-                    key = sds_pad_int(data->last_modified, key);
-                }
-                key = sdscatsds(key, data->name);
-                key = sds_utf8_normalize(key);
-                if (raxTryInsert(seen_sort_keys, (unsigned char *)key, sdslen(key), NULL, NULL) < 0 ||
-                    array_push(entity_list, key, NULL, 0, data) == false)
+                const char *smartpls_str = smartpls == true
+                    ? "S"
+                    : "N";
+
+                if (raxTryInsert(seen_sort_keys, (unsigned char *)plpath, strlen(plpath), NULL, NULL) < 0 ||
+                    array_push(entity_list, plpath, smartpls_str, mpd_playlist_get_last_modified(pl), NULL) == false)
                 {
-                    FREE_SDS(key);
-                    free_t_pl_data(data);
                     array_error = true;
-                }
-                else {
-                    key = sdsempty();
+                    FREE_PTR(value_utf8);
+                    mpd_playlist_free(pl);
+                    break;
                 }
             }
-            mpd_playlist_free(pl);
             FREE_PTR(value_utf8);
+            mpd_playlist_free(pl);
         }
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlists") == false) {
         //free result
-        array_free(entity_list, free_t_pl_data_array_node);
+        array_free(entity_list, NULL);
         raxFree(seen_sort_keys);
-        FREE_SDS(key);
         FREE_PTR(searchstr_utf8);
         //return error message
         return buffer;
@@ -630,30 +586,16 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                     if (array_error == false &&
                         (searchstr_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL))
                     {
-                        struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
-                        data->last_modified = get_mtime_at(smartpls_dir_fd, next_file->d_name);
-                        data->type = PLTYPE_SMARTPLS_ONLY;
-                        data->name = sdsnew(next_file->d_name);
-                        sdsclear(key);
-                        if (sort == PLSORT_LAST_MODIFIED) {
-                            key = sds_pad_int(data->last_modified, key);
-                        }
-                        key = sdscat(key, next_file->d_name);
-                        key = sds_utf8_normalize(key);
-                        int insert_rc = raxTryInsert(seen_sort_keys, (unsigned char *)key, sdslen(key), NULL, NULL);
-                        if (insert_rc == 1 && array_push(entity_list, key, NULL, 0, data) == true) {
-                            key = sdsempty();
-                        }
-                        else {
-                            //smart playlist already added
-                            FREE_SDS(key);
-                            free_t_pl_data(data);
-                            if (insert_rc < 0 || insert_rc == 1) {
+                        if (raxTryInsert(seen_sort_keys, (unsigned char *)next_file->d_name, sdslen(next_file->d_name), NULL, NULL) == 1) {
+                            time_t last_modified = get_mtime_at(smartpls_dir_fd, next_file->d_name);
+                            if (array_push(entity_list, next_file->d_name, "O", last_modified, NULL) == false) {
                                 array_error = true;
+                                free(value_utf8);
+                                break;
                             }
                         }
                     }
-                    FREE_PTR(value_utf8);
+                    free(value_utf8);
                 }
             }
             closedir(smartpls_dir);
@@ -664,12 +606,16 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
         }
         FREE_SDS(smartpls_path);
     }
-    FREE_SDS(key);
     FREE_PTR(searchstr_utf8);
+
+    bool sort_rc = sort == PLSORT_LAST_MODIFIED
+        ? array_sort_by_value_i_key_value_p(entity_list, sortdesc == false ? ARRAY_SORT_DESC : ARRAY_SORT_ASC)
+        : array_sort_by_key_value_p_value_i(entity_list, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC);
+
     if (array_error == true ||
-        array_sort_by_key(entity_list, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false)
+        sort_rc == false)
     {
-        array_free(entity_list, free_t_pl_data_array_node);
+        array_free(entity_list, NULL);
         raxFree(seen_sort_keys);
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_PLAYLIST,
             JSONRPC_SEVERITY_ERROR, "Could not sort playlist results");
@@ -684,7 +630,6 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     while (entity_count < entity_list->length) {
-        struct t_pl_data *data = (struct t_pl_data *)entity_list->nodes[entity_count]->user_data;
         if (entity_count >= offset &&
             entity_count < real_limit)
         {
@@ -692,13 +637,13 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatlen(buffer, "{", 1);
-            buffer = tojson_char(buffer, "Type", (data->type == PLTYPE_STATIC ? "plist" : "smartpls"), true);
-            buffer = tojson_sds(buffer, "uri", data->name, true);
-            buffer = tojson_sds(buffer, "Name", data->name, true);
-            buffer = tojson_time(buffer, "Last-Modified", data->last_modified, true);
-            buffer = tojson_bool(buffer, "smartplsOnly", data->type == PLTYPE_SMARTPLS_ONLY ? true : false, false);
+            buffer = tojson_char(buffer, "Type", (entity_list->nodes[entity_count].value_p[0] == 'N' ? "plist" : "smartpls"), true);
+            buffer = tojson_sds(buffer, "uri", entity_list->nodes[entity_count].key, true);
+            buffer = tojson_sds(buffer, "Name", entity_list->nodes[entity_count].key, true);
+            buffer = tojson_int64(buffer, "Last-Modified", entity_list->nodes[entity_count].value_i, true);
+            buffer = tojson_bool(buffer, "smartplsOnly", entity_list->nodes[entity_count].value_p[0] == 'O' ? true : false, false);
             if (print_stickers == true) {
-                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_PLAYLIST, data->name, &tagcols->stickers);
+                buffer = mympd_api_sticker_get_print_batch(buffer, stickerdb, STICKER_TYPE_PLAYLIST, entity_list->nodes[entity_count].key, &tagcols->stickers);
             }
             buffer = sdscatlen(buffer, "}", 1);
         }
@@ -719,7 +664,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_bool(buffer, "pics", pic, false);
     buffer = jsonrpc_end(buffer);
-    array_free(entity_list, free_t_pl_data_array_node);
+    array_free(entity_list, NULL);
     raxFree(seen_sort_keys);
     return buffer;
 }

@@ -85,10 +85,10 @@ struct t_webradio_data {
  * Iterator for sequential webradio tag access
  */
 struct t_webradio_tag_iterator {
-    const struct t_webradio_data *webradio;
-    const void *current;
-    enum webradio_tag_type tag_type;
-    bool scalar_pending;
+    const struct t_webradio_data *webradio;  //!< Pointer to webradio struct
+    const void *current;                     //!< Current tag value
+    enum webradio_tag_type tag_type;         //!< Current tag type
+    bool scalar_pending;                     //!< true if a scalar value is pending to be returned
 };
 
 struct t_webradio_data *webradio_by_uri(struct t_webradios *webradio_favorites, struct t_webradios *webradiodb,

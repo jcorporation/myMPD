@@ -11,9 +11,9 @@
 #include "compile_time.h"
 #include "src/mympd_api/albums.h"
 
+#include "src/lib/album.h"
 #include "src/lib/array/array.h"
 #include "src/lib/array/array_sort.h"
-#include "src/lib/album.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/fields.h"
 #include "src/lib/json/json_print.h"
@@ -33,8 +33,6 @@
 #include <string.h>
 
 // private definitions
-static sds get_sort_key_album(sds key, enum sort_by_type sort_by,
-        enum mpd_tag_type sort_tag, const struct t_album *album);
 static bool check_album_sort_tag(enum sort_by_type sort_by, enum mpd_tag_type sort_tag,
         struct t_albums_config *album_config);
 
@@ -213,17 +211,9 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
         }
         else if (strcmp(sort, "Added") == 0) {
             sort_by = SORT_BY_ADDED;
-            //swap order
-            sortdesc = sortdesc == false
-                ? true
-                : false;
         }
         else if (strcmp(sort, "Last-Modified") == 0) {
             sort_by = SORT_BY_LAST_MODIFIED;
-            //swap order
-            sortdesc = sortdesc == false
-                ? true
-                : false;
         }
         else {
             MYMPD_LOG_WARN(partition_state->name, "Unknown sort tag: %s", sort);
@@ -244,7 +234,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Invalid search expression");
         return buffer;
     }
-    
+
     //search and sort albumlist
     unsigned real_limit = offset + limit;
     struct t_array *albums = array_new();
@@ -252,23 +242,52 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
     raxStart(&iter, mympd_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
     bool array_error = false;
+
+    sds key = sdsempty();
+    sds value = sdsempty();
     while (raxNext(&iter)) {
         struct t_album *album = (struct t_album *)iter.data;
         if (expr_list->length == 0 ||
             search_expression_album(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
-            sds key = get_sort_key_album(sdsempty(), sort_by, sort_tag, album);
-            if (array_push(albums, key, NULL, 0, album) == false) {
-                FREE_SDS(key);
+            time_t ts;
+            if (sort_by == SORT_BY_ADDED) {
+                ts = album_get_added(album);
+                key = album_get_tag_value_string(album, MPD_TAG_ALBUM, key);
+                value = album_get_tag_value_string(album, MPD_TAG_ALBUM_ARTIST, value);
+            }
+            else if (sort_by == SORT_BY_LAST_MODIFIED) {
+                ts = album_get_last_modified(album);
+                key = album_get_tag_value_string(album, MPD_TAG_ALBUM, key);
+                value = album_get_tag_value_string(album, MPD_TAG_ALBUM_ARTIST, value);
+            }
+            else {
+                ts = album_get_last_modified(album);
+                key = album_get_tag_value_string(album, sort_tag, key);
+                if (sort_tag != MPD_TAG_ALBUM) {
+                    value = album_get_tag_value_string(album, MPD_TAG_ALBUM, value);
+                }
+            }
+
+            if (array_push(albums, key, value, ts, album) == false) {
                 array_error = true;
                 break;
             }
+            sdsclear(key);
+            sdsclear(value);
         }
     }
     raxStop(&iter);
     search_expression_free(expr_list);
+    FREE_SDS(key);
+    FREE_SDS(value);
+
+    bool sort_rc = sort_by == SORT_BY_ADDED || sort_by == SORT_BY_LAST_MODIFIED
+        ? array_sort_by_value_i_key_value_p(albums, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC)
+        : array_sort_by_key_value_p_value_i(albums, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC);
+
     if (array_error == true ||
-        array_sort_by_key(albums, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false)
+        sort_rc == false)
     {
         array_free(albums, NULL);
         return jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
@@ -288,7 +307,7 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
-            struct t_album *album = (struct t_album *)albums->nodes[entity_count]->user_data;
+            struct t_album *album = (struct t_album *)albums->nodes[entity_count].user_data;
             buffer = sdscat(buffer, "{\"Type\": \"album\",");
             buffer = print_album_tags(buffer, &partition_state->mpd_state->config->albums, &tagcols->mpd_tags, album);
             buffer = sdscatlen(buffer, ",", 1);
@@ -297,9 +316,9 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
                 buffer = sdscatlen(buffer, ",", 1);
                 album_exp = get_search_expression_album(album_exp, mympd_state->mpd_state->tag_albumartist, album, &mympd_state->config->albums);
                 buffer = mympd_api_sticker_get_print_batch(buffer, mympd_state->stickerdb, STICKER_TYPE_FILTER, album_exp, &tagcols->stickers);
-                
             }
-            }
+            buffer = sds_catchar(buffer, '}');
+        }
         entity_count++;
         if (entity_count == real_limit) {
             break;
@@ -324,39 +343,6 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
 }
 
 // private functions
-
-/**
- * Gets an alphanumeric string for sorting
- * @param key already allocated sds string to append
- * @param sort_by enum sort_by
- * @param sort_tag mpd tag to sort by
- * @param album pointer to t_album
- * @return pointer to key
- */
-static sds get_sort_key_album(sds key, enum sort_by_type sort_by, enum mpd_tag_type sort_tag, const struct t_album *album) {
-    if (sort_by == SORT_BY_LAST_MODIFIED) {
-        key = sds_pad_int((int64_t)album_get_last_modified(album), key);
-    }
-    else if (sort_by == SORT_BY_ADDED) {
-        key = sds_pad_int((int64_t)album_get_added(album), key);
-    }
-    else if (is_numeric_tag(sort_tag) == true) {
-        key = album_get_tag_value_padded(album, sort_tag, '0', PADDING_LENGTH, key);
-    }
-    else if (sort_tag > MPD_TAG_UNKNOWN) {
-        key = album_get_tag_value_string(album, sort_tag, key);
-        if (sdslen(key) == 0) {
-            key = sdscatlen(key, "zzzzzzzzzz", 10);
-        }
-    }
-    enum mpd_tag_type secondary_sort_tag = sort_tag == MPD_TAG_ALBUM
-        ? MPD_TAG_ALBUM_ARTIST
-        : MPD_TAG_ALBUM;
-    key = sdscatfmt(key, "::%s::%s", album_get_tag(album, secondary_sort_tag, 0), album_get_uri(album));
-    key = sds_utf8_normalize(key);
-    return key;
-}
-
 
 /**
  * Validates the album sort tag

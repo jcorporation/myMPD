@@ -19,10 +19,10 @@ struct t_array;
  * Playlist types
  */
 enum playlist_types {
-    PLTYPE_ALL = 0,
-    PLTYPE_STATIC = 1,
-    PLTYPE_SMART = 2,
-    PLTYPE_SMARTPLS_ONLY = 3
+    PLTYPE_ALL = 0,           // char: 'A'
+    PLTYPE_STATIC = 1,        // char: 'N'
+    PLTYPE_SMART = 2,         // char: 'S'
+    PLTYPE_SMARTPLS_ONLY = 3  // char: 'O'
 };
 
 /**
