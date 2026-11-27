@@ -115,9 +115,18 @@ static bool parse_webradiodb(sds str, struct t_webradios *webradiodb) {
                 webradio_data_free(data);
             }
         }
+        else {
+            MYMPD_LOG_ERROR(NULL, "Invalid WebradioDB entry, skipping update.");
+            FREE_SDS(data_str);
+            return false;
+        }
         sdsclear(data_str);
     }
     FREE_SDS(data_str);
+    if (webradiodb->db->numele == 0) {
+        MYMPD_LOG_ERROR(NULL, "Found no entries in downloaded WebradioDB, skipping update.");
+        return false;
+    }
     MYMPD_LOG_INFO(NULL, "Added %" PRIu64 " webradios", webradiodb->db->numele);
     return true;
 }
@@ -160,7 +169,7 @@ static bool icb_webradio_alternate(const char *path, sds key, sds value, enum js
 /**
  * Parses a webradioDB entry
  * @param str string to parse
- * @return struct t_webradio_data* 
+ * @return struct t_webradio_data*
  */
 static struct t_webradio_data *parse_webradiodb_data(sds str) {
     struct t_webradio_data *data = webradio_data_new(WEBRADIO_WEBRADIODB);
