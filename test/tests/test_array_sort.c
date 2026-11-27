@@ -54,6 +54,65 @@ UTEST(array_sort, sort_by_key_and_value_p) {
     array_free(array, NULL);
 }
 
+UTEST(array_sort, sort_by_value_i_key_value_p_with_nullable_keys) {
+    struct t_array *array = array_new();
+    ASSERT_TRUE(array_push(array, NULL, "b", 10, NULL));
+    ASSERT_TRUE(array_push(array, "a", "c", 10, NULL));
+    ASSERT_TRUE(array_push(array, "b", "a", 10, NULL));
+    ASSERT_TRUE(array_push(array, NULL, "a", 10, NULL));
+    ASSERT_TRUE(array_push(array, "a", "a", 10, NULL));
+
+    ASSERT_TRUE(array_sort_by_value_i_key_value_p(array, ARRAY_SORT_ASC));
+    ASSERT_STREQ("a", array->nodes[0].key);
+    ASSERT_STREQ("a", array->nodes[0].value_p);
+    ASSERT_STREQ("a", array->nodes[1].key);
+    ASSERT_STREQ("c", array->nodes[1].value_p);
+    ASSERT_STREQ("b", array->nodes[2].key);
+    ASSERT_TRUE(array->nodes[3].key == NULL);
+    ASSERT_STREQ("a", array->nodes[3].value_p);
+    ASSERT_TRUE(array->nodes[4].key == NULL);
+    ASSERT_STREQ("b", array->nodes[4].value_p);
+
+    ASSERT_TRUE(array_sort_by_value_i_key_value_p(array, ARRAY_SORT_DESC));
+    ASSERT_TRUE(array->nodes[0].key == NULL);
+    ASSERT_STREQ("b", array->nodes[0].value_p);
+    ASSERT_TRUE(array->nodes[1].key == NULL);
+    ASSERT_STREQ("a", array->nodes[1].value_p);
+    ASSERT_STREQ("b", array->nodes[2].key);
+    ASSERT_STREQ("a", array->nodes[3].key);
+    ASSERT_STREQ("c", array->nodes[3].value_p);
+    ASSERT_STREQ("a", array->nodes[4].key);
+    ASSERT_STREQ("a", array->nodes[4].value_p);
+
+    array_free(array, NULL);
+}
+
+UTEST(array_sort, sort_by_key_value_p_value_i_with_null_keys) {
+    struct t_array *array = array_new();
+    ASSERT_TRUE(array_push(array, NULL, NULL, 0, NULL));
+    ASSERT_TRUE(array_push(array, "b", "value", 0, NULL));
+    ASSERT_TRUE(array_push(array, NULL, "first", 0, NULL));
+    ASSERT_TRUE(array_push(array, "a", "value", 0, NULL));
+
+    ASSERT_TRUE(array_sort_by_key_value_p_value_i(array, ARRAY_SORT_ASC));
+    ASSERT_STREQ("a", array->nodes[0].key);
+    ASSERT_STREQ("b", array->nodes[1].key);
+    ASSERT_TRUE(array->nodes[2].key == NULL);
+    ASSERT_STREQ("first", array->nodes[2].value_p);
+    ASSERT_TRUE(array->nodes[3].key == NULL);
+    ASSERT_TRUE(array->nodes[3].value_p == NULL);
+
+    ASSERT_TRUE(array_sort_by_key_value_p_value_i(array, ARRAY_SORT_DESC));
+    ASSERT_TRUE(array->nodes[0].key == NULL);
+    ASSERT_TRUE(array->nodes[0].value_p == NULL);
+    ASSERT_TRUE(array->nodes[1].key == NULL);
+    ASSERT_STREQ("first", array->nodes[1].value_p);
+    ASSERT_STREQ("b", array->nodes[2].key);
+    ASSERT_STREQ("a", array->nodes[3].key);
+
+    array_free(array, NULL);
+}
+
 #ifdef MYMPD_ENABLE_UTF8
 UTEST(array_sort, sort_utf8_keys) {
     struct t_array *array = array_new();

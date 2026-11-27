@@ -358,9 +358,9 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
         }
 
         size_t batch_end = i + MPD_COMMANDS_MAX < plist_array->length
-            ? i + MPD_COMMANDS_MAX 
+            ? i + MPD_COMMANDS_MAX
             : plist_array->length;
-        
+
         for (size_t j = i; j < batch_end; j++) {
             rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist_array->nodes[j].key);
             if (rc == false) {
@@ -607,7 +607,7 @@ struct t_array *mympd_client_playlist_get_array(struct t_partition_state *partit
     unsigned start = 0;
     unsigned pos = 0;
     bool array_error = false;
-    
+
     do {
         unsigned end = start + MPD_RESULTS_MAX;
         if (mympd_send_list_playlist_range(partition_state, plist, start, end) == true) {
@@ -715,35 +715,40 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     unsigned end = start + MPD_RESULTS_MAX;
     unsigned pos = 0;
     bool array_error = false;
+    sds key = sdsempty();
+
     do {
         if (list_command(partition_state, playlist, start, end) == true) {
             struct mpd_song *song;
             while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                 if (array_error == false) {
-                    sds key = get_sort_key(sdsempty(), sort_by, sort_tags.tags[0], song);
-                    sds uri = sdsnew(mpd_song_get_uri(song));
-                    if (array_push(plist, key, uri, 0, NULL) == false) {
-                        FREE_SDS(key);
-                        FREE_SDS(uri);
+                    key = get_sort_key(key, sort_by, sort_tags.tags[0], song);
+                    if (array_push(plist, key, mpd_song_get_uri(song), 0, NULL) == false) {
                         array_error = true;
+                        mpd_song_free(song);
+                        break;
                     }
                 }
                 mpd_song_free(song);
                 pos++;
+                sdsclear(key);
             }
         }
         if (mympd_check_error_and_recover(partition_state, error, list_command_name) == false) {
             array_free(plist, NULL);
+            FREE_SDS(key);
             return false;
         }
         if (array_error == true) {
             *error = sdscat(*error, "Could not build playlist sort array");
             array_free(plist, NULL);
+            FREE_SDS(key);
             return false;
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
     } while (pos >= start);
+    FREE_SDS(key);
 
     if (array_sort_by_key(plist, sortdesc == true ? ARRAY_SORT_DESC : ARRAY_SORT_ASC) == false) {
         array_free(plist, NULL);

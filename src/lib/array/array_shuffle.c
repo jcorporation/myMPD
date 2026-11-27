@@ -23,7 +23,7 @@ bool array_shuffle(struct t_array *array) {
     if (array == NULL) {
         return false;
     }
-    if (array->length <= 2) {
+    if (array->length < 2) {
         // Nothing to shuffle
         return true;
     }

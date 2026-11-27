@@ -582,11 +582,12 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, struct t_
                         continue;
                     }
                     size_t value_len;
-                    char *value_utf8 = utf8_wrap_normalize(next_file->d_name, strlen(next_file->d_name), &value_len);
+                    size_t filename_len = strlen(next_file->d_name);
+                    char *value_utf8 = utf8_wrap_normalize(next_file->d_name, filename_len, &value_len);
                     if (array_error == false &&
                         (searchstr_len == 0 || strstr(value_utf8, searchstr_utf8) != NULL))
                     {
-                        if (raxTryInsert(seen_sort_keys, (unsigned char *)next_file->d_name, sdslen(next_file->d_name), NULL, NULL) == 1) {
+                        if (raxTryInsert(seen_sort_keys, (unsigned char *)next_file->d_name, filename_len, NULL, NULL) == 1) {
                             time_t last_modified = get_mtime_at(smartpls_dir_fd, next_file->d_name);
                             if (array_push(entity_list, next_file->d_name, "O", last_modified, NULL) == false) {
                                 array_error = true;

@@ -235,6 +235,7 @@ static bool search_dir_entry(struct t_array *array, sds key, sds entity_name, st
     {
         if (array_push(array, key, entity_name, 0, entity) == false) {
             *array_error = true;
+            mpd_entity_free(entity);
         }
         FREE_PTR(value_utf8);
         return true;
@@ -249,7 +250,7 @@ static bool search_dir_entry(struct t_array *array, sds key, sds entity_name, st
  * @param node Pointer to the array node containing the entity
  */
 static void free_mpd_entity(struct t_array_node *node) {
-    struct mpd_entity *entity = (struct mpd_entity *)node->value_p;
+    struct mpd_entity *entity = (struct mpd_entity *)node->user_data;
     if (entity != NULL) {
         mpd_entity_free(entity);
     }
