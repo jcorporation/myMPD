@@ -489,7 +489,7 @@ static bool icb_json_get_array_int64(const char *path, sds key, sds value, enum 
         set_parse_error(error, path, "", "Validation of value \"%s\" has failed", value);
         return false;
     }
-    int64_t value_int64; 
+    int64_t value_int64;
     enum str2int_errno rc = str2int64(&value_int64, value);
     if (rc != STR2INT_SUCCESS) {
         return false;
@@ -644,6 +644,10 @@ static bool icb_json_get_field(const char *path, sds key, sds value, enum json_v
     }
     enum mympd_sticker_names sticker = sticker_name_parse(value);
     if (sticker != STICKER_UNKNOWN) {
+        if (fields->stickers.len >= STICKER_COUNT) {
+            set_parse_error(error, path, key, "Excessive sticker count", value);
+            return false;
+        }
         fields->stickers.stickers[fields->stickers.len++] = sticker;
         return true;
     }
@@ -736,7 +740,7 @@ static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t
 /**
  * Detects the json value type by first char of value
  * @param p First char of value
- * @return bool 
+ * @return bool
  */
 static enum json_vtype get_vtype(char p) {
     switch(p) {
