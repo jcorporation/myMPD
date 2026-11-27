@@ -62,13 +62,14 @@ enum search_filters {
  * Struct to hold a parsed search expression triple
  */
 struct t_search_expression {
-    int tag;                    //!< Tag to search in
-    enum search_operators op;   //!< Search operator
-    sds value;                  //!< Value
-    char *value_utf8;           //!< Normalized utf8 value to match
-    size_t value_utf8_len;      //!< Length of value_utf8
-    int64_t value_i;            //!< Integer value to match
-    pcre2_code *re_compiled;    //!< Compiled regex if operator is a regex
+    int tag;                      //!< Tag to search in
+    enum search_operators op;     //!< Search operator
+    sds value;                    //!< Value
+    char *value_utf8;             //!< Normalized utf8 value to match
+    size_t value_utf8_len;        //!< Length of value_utf8
+    int64_t value_i;              //!< Integer value to match
+    pcre2_code *re_compiled;      //!< Compiled regex if operator is a regex
+    pcre2_match_data *match_data; //!< Pcre match data to reuse
 };
 
 static int expr_get_tag_song(const char *p, size_t *len);
@@ -110,6 +111,7 @@ struct t_list *search_expression_parse(const char *expression, enum search_type 
         expr->value_utf8 = NULL;
         expr->value_utf8_len = 0;
         expr->re_compiled = NULL;
+        expr->match_data = NULL;
         char *p = tokens[j];
         char *end = p + token_len - 1;
         // Tag
@@ -425,10 +427,10 @@ static bool match_tag(const char *value, size_t value_len, struct t_search_expre
         case SEARCH_OP_CONTAINS:    return strstr(value, expr->value_utf8) != NULL;
         case SEARCH_OP_STARTS_WITH: return strncmp(value, expr->value_utf8, expr->value_utf8_len) == 0;
         case SEARCH_OP_EQUAL:       return strcmp(value, expr->value_utf8) == 0;
-        case SEARCH_OP_REGEX:       return mympd_search_pcre_match(value, value_len, expr->re_compiled);
+        case SEARCH_OP_REGEX:       return mympd_search_pcre_match(value, value_len, expr->re_compiled, expr->match_data);
         case SEARCH_OP_FUZZY:       return mympd_search_fuzzy_match(value, value_len, expr->value_utf8, expr->value_utf8_len);
         case SEARCH_OP_NOT_EQUAL:   return strcmp(value, expr->value_utf8) != 0;
-        case SEARCH_OP_NOT_REGEX:   return mympd_search_pcre_match(value, value_len, expr->re_compiled) == false;
+        case SEARCH_OP_NOT_REGEX:   return mympd_search_pcre_match(value, value_len, expr->re_compiled, expr->match_data) == false;
         default:                    return false;
     }
 }
@@ -676,6 +678,10 @@ static bool expr_parse_value(struct t_search_expression *expr) {
         if (expr->re_compiled == NULL) {
             return false;
         }
+        expr->match_data = pcre2_match_data_create_from_pattern(expr->re_compiled, NULL);
+        if (expr->match_data == NULL) {
+            return false;
+        }
     }
     return true;
 }
@@ -688,7 +694,8 @@ static bool expr_parse_value(struct t_search_expression *expr) {
 static void *free_search_expression_struct(struct t_search_expression *expr) {
     FREE_SDS(expr->value);
     FREE_PTR(expr->value_utf8);
-    FREE_PTR(expr->re_compiled);
+    pcre2_code_free(expr->re_compiled);
+    pcre2_match_data_free(expr->match_data);
     FREE_PTR(expr);
     return NULL;
 }

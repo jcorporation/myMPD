@@ -22,6 +22,7 @@
 #include <stdbool.h>
 
 pcre2_code *mympd_search_pcre_compile(sds regex_str);
-bool mympd_search_pcre_match(const char *value, size_t value_len, pcre2_code *re_compiled);
+bool mympd_search_pcre_match(const char *value, size_t value_len,
+        pcre2_code *re_compiled, pcre2_match_data *match_data);
 
 #endif

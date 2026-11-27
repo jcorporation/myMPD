@@ -52,11 +52,12 @@ pcre2_code *mympd_search_pcre_compile(sds regex_str) {
  * @param value_len Value length
  * @return true if regex matches else false
  */
-bool mympd_search_pcre_match(const char *value, size_t value_len, pcre2_code *re_compiled) {
+bool mympd_search_pcre_match(const char *value, size_t value_len,
+        pcre2_code *re_compiled, pcre2_match_data *match_data) {
     if (re_compiled == NULL) {
         return false;
     }
-    pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(re_compiled, NULL);
+
     int rc = pcre2_match(
         re_compiled,          /* the compiled pattern */
         (PCRE2_SPTR)value,    /* the subject string */
@@ -66,13 +67,13 @@ bool mympd_search_pcre_match(const char *value, size_t value_len, pcre2_code *re
         match_data,           /* block for storing the result */
         NULL                  /* use default match context */
     );
-    pcre2_match_data_free(match_data);
+
     if (rc >= 0) {
         return true;
     }
     //Matching failed: handle error cases
     switch(rc) {
-        case PCRE2_ERROR_NOMATCH: 
+        case PCRE2_ERROR_NOMATCH:
             break;
         default: {
             PCRE2_UCHAR buffer[256];
