@@ -74,6 +74,9 @@ target_sources(mympd
     lib/json/json_rpc.c
     lib/jukebox.c
     lib/last_played.c
+    lib/array/array.c
+    lib/array/array_shuffle.c
+    lib/array/array_sort.c
     lib/list/list.c
     lib/list/shuffle.c
     lib/list/sort.c
@@ -88,7 +91,6 @@ target_sources(mympd
     lib/search/search_fuzzy.c
     lib/search/search_pcre.c
     lib/search/search.c
-    lib/sds/sds_array.c
     lib/sds/sds_extras.c
     lib/sds/sds_file.c
     lib/sds/sds_hash.c

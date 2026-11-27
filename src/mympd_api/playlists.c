@@ -12,6 +12,7 @@
 #include "src/mympd_api/playlists.h"
 
 #include "src/lib/api.h"
+#include "src/lib/array/array.h"
 #include "src/lib/cache/cache_rax_album.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/json/json_print.h"
@@ -81,10 +82,8 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         *error = sdscat(*error, "Source and destination playlists are the same");
         return false;
     }
-    //get source playlist
-    struct t_list *src = list_new();
-    if (mympd_client_playlist_get(partition_state, src_plist, false, src, error) == false) {
-        list_free(src);
+    struct t_array *src = mympd_client_playlist_get_array(partition_state, src_plist, error);
+    if (src == NULL) {
         return false;
     }
     list_sort_by_value_i(positions, LIST_SORT_DESC);
@@ -93,15 +92,21 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         unsigned i = 0;
         bool rc = true;
         while ((current = list_shift_first(positions)) != NULL) {
-            struct t_list_node *n = list_node_at(src, (unsigned)current->value_i);
-            if (n == NULL) {
+            const char *uri = NULL;
+            if (current->value_i >= 0 &&
+                (uint64_t)current->value_i < src->length)
+            {
+                struct t_array_node *source_entry = array_node_at(src, (unsigned)current->value_i);
+                uri = source_entry != NULL ? source_entry->key : NULL;
+            }
+            if (uri == NULL) {
                 MYMPD_LOG_WARN(partition_state->name, "Song at pos %u not found in src playlist %s", (unsigned)current->value_i, src_plist);
                 list_node_free(current);
             }
             else {
                 rc = mode == 0
-                    ? mpd_send_playlist_add(partition_state->conn, dst_plist, n->key)
-                    : mpd_send_playlist_add_to(partition_state->conn, dst_plist, n->key, i);
+                    ? mpd_send_playlist_add(partition_state->conn, dst_plist, uri)
+                    : mpd_send_playlist_add_to(partition_state->conn, dst_plist, uri, i);
                 if (rc == false) {
                     mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                     list_node_free(current);
@@ -121,7 +126,7 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
     else {
         MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
     }
-    list_free(src);
+    array_free(src, NULL);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
 }
 

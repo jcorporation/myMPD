@@ -36,6 +36,9 @@ set(TEST_SOURCES
   ../src/lib/json/json_rpc.c
   ../src/lib/jukebox.c
   ../src/lib/last_played.c
+  ../src/lib/array/array.c
+  ../src/lib/array/array_shuffle.c
+  ../src/lib/array/array_sort.c
   ../src/lib/list/list.c
   ../src/lib/list/shuffle.c
   ../src/lib/list/sort.c
@@ -47,7 +50,6 @@ set(TEST_SOURCES
   ../src/lib/random_xoshiro256.c
   ../src/lib/random.c
   ../src/lib/rax_extras.c
-  ../src/lib/sds/sds_array.c
   ../src/lib/sds/sds_extras.c
   ../src/lib/sds/sds_file.c
   ../src/lib/sds/sds_hash.c
@@ -98,6 +100,7 @@ set(TEST_SOURCES
   ../src/webserver/parser.c
   tests/test_album_cache.c
   tests/test_api.c
+  tests/test_array_sort.c
   tests/test_cacertstore.c
   tests/test_cert.c
   tests/test_convert.c
@@ -117,7 +120,6 @@ set(TEST_SOURCES
   tests/test_radix_sort.c
   tests/test_random.c
   tests/test_sds_extras.c
-  tests/test_sds_array.c
   tests/test_sds_file.c
   tests/test_search.c
   tests/test_state_files.c

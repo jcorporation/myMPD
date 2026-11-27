@@ -12,13 +12,13 @@
 #include "src/mympd_client/playlists.h"
 
 #include "dist/rax/rax.h"
+#include "src/lib/array/array.h"
+#include "src/lib/array/array_shuffle.h"
 #include "src/lib/convert.h"
 #include "src/lib/fields.h"
-#include "src/lib/list/shuffle.h"
 #include "src/lib/log.h"
 #include "src/lib/random.h"
 #include "src/lib/rax_extras.h"
-#include "src/lib/sds/sds_array.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/smartpls.h"
 #include "src/mympd_client/database.h"
@@ -322,17 +322,17 @@ int mympd_client_playlist_validate(struct t_partition_state *partition_state, co
 bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, const char *playlist, sds *error) {
     MYMPD_LOG_INFO(partition_state->name, "Shuffling playlist %s", playlist);
     // Get the whole playlist as array
-    struct t_sds_array *plist_array = mympd_client_playlist_get_array(partition_state, playlist, error);
+    struct t_array *plist_array = mympd_client_playlist_get_array(partition_state, playlist, error);
     if (plist_array == NULL) {
         return false;
     }
     if (plist_array->length <= 2) {
-        sds_array_free(plist_array);
+        array_free(plist_array, NULL);
         return true;
     }
     // Shuffle the playlist
-    if (sds_array_shuffle(plist_array) == false) {
-        sds_array_free(plist_array);
+    if (array_shuffle(plist_array) == false) {
+        array_free(plist_array, NULL);
         *error = sdscat(*error, "Can not shuffle playlist");
         return false;
     }
@@ -341,7 +341,7 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
     errno = 0;
     randstring(rand_str, 10);
     if (errno != 0) {
-        sds_array_free(plist_array);
+        array_free(plist_array, NULL);
         *error = sdscat(*error, "Can not generate random playlist name");
         return false;
     }
@@ -361,7 +361,7 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
             : plist_array->length;
         
         for (size_t j = i; j < batch_end; j++) {
-            rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist_array->items[j]);
+            rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, plist_array->nodes[j]->key);
             if (rc == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                 break;
@@ -377,7 +377,7 @@ bool mympd_client_playlist_shuffle(struct t_partition_state *partition_state, co
         }
     }
 
-    sds_array_free(plist_array);
+    array_free(plist_array, NULL);
     if (rc == true) {
         rc = playlist_replace(partition_state, playlist_tmp, playlist, error);
     }
@@ -592,38 +592,53 @@ bool mympd_client_playlist_get(struct t_partition_state *partition_state,
 }
 
 /**
- * Gets the contents of a playlist as sds_array.
+ * Gets the contents of a playlist as an array.
  * Uses the range feature for MPD 0.24+
  * @param partition_state Pointer to partition specific states
  * @param plist Playlist name
  * @param error Pointer to an already allocated sds string for the error message
- * @return struct t_sds_array or NULL on error
+ * @return struct t_array or NULL on error
  */
-struct t_sds_array *mympd_client_playlist_get_array(struct t_partition_state *partition_state,
+struct t_array *mympd_client_playlist_get_array(struct t_partition_state *partition_state,
         const char *plist, sds *error)
 {
-    struct t_sds_array *plist_array = sds_array_new();
+    struct t_array *plist_array = array_new();
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
     unsigned pos = 0;
+    bool array_error = false;
     
     do {       
         if (mympd_send_list_playlist_range(partition_state, plist, start, end) == true) {
             struct mpd_song *song;
             while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-                sds_array_push(plist_array, sdsnew(mpd_song_get_uri(song)));
+                if (array_error == false) {
+                    sds uri = sdsnew(mpd_song_get_uri(song));
+                    if (array_push(plist_array, uri, NULL, 0, NULL) == false) {
+                        FREE_SDS(uri);
+                        array_error = true;
+                    }
+                }
                 mpd_song_free(song);
                 pos++;
             }
         }
         if (mympd_check_error_and_recover(partition_state, error, "mympd_send_list_playlist_range") == false) {
             // Cleanup on error
-            sds_array_free(plist_array);
+            array_free(plist_array, NULL);
             return NULL;
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
     } while (pos >= start);
+
+    if (array_error == true) {
+        if (error != NULL && *error != NULL) {
+            *error = sdscat(*error, "Could not grow playlist array");
+        }
+        array_free(plist_array, NULL);
+        return NULL;
+    }
     return plist_array;
 }
 
