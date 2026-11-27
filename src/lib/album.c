@@ -21,6 +21,7 @@
 
 #include <assert.h>
 #include <inttypes.h>
+#include <mpd/tag.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -123,7 +124,7 @@ struct t_album *album_new_from_song(const struct mpd_song *song, const struct t_
     album->song_count = 1;
     album->last_modified = mpd_song_get_last_modified(song);
     album->added = mpd_song_get_added(song);
-    
+
     return album;
 }
 
@@ -216,11 +217,14 @@ unsigned album_get_disc_count(const struct t_album *album) {
  * @return const char* tag value or NULL
  */
 const char *album_get_tag(const struct t_album *album, enum mpd_tag_type type, unsigned idx) {
-    const struct t_album_tag_value *tag = &album->tags[type];
-
     if ((int)type < 0 ||
-        tag->value == NULL)
+        type >= MPD_TAG_COUNT)
     {
+        return NULL;
+    }
+
+    const struct t_album_tag_value *tag = &album->tags[type];
+    if (tag->value == NULL) {
         return NULL;
     }
 
@@ -295,7 +299,7 @@ void album_set_discs(struct t_album *album, const char *disc) {
     }
     unsigned d;
     enum str2int_errno rc = str2uint(&d, disc);
-    if (rc == STR2INT_SUCCESS && 
+    if (rc == STR2INT_SUCCESS &&
         d > album->disc_count)
     {
         album->disc_count = d;
@@ -406,13 +410,13 @@ bool album_append_tags(struct t_album *album,
  *         false if the tag could not be added
  */
 bool album_append_tag(struct t_album *album, enum mpd_tag_type type, const char *value) {
-    struct t_album_tag_value *tag = &album->tags[type];
-
     if ((int)type < 0 ||
         type >= MPD_TAG_COUNT)
     {
         return false;
     }
+
+    struct t_album_tag_value *tag = &album->tags[type];
 
     if (tag->value == NULL) {
         tag->next = NULL;
@@ -591,6 +595,13 @@ sds print_album_tags(sds buffer, const struct t_albums_config *album_config, con
 static sds get_tag_value_string(const struct t_album *album, enum mpd_tag_type tag,
         sds tag_values, unsigned *value_count)
 {
+    if ((int)tag < 0 ||
+        tag >= MPD_TAG_COUNT)
+    {
+        *value_count = 0;
+        return tag_values;
+    }
+
     const char *value;
     unsigned count = 0;
     const struct t_album_tag_value *tag_value = &album->tags[tag];
@@ -620,6 +631,13 @@ static sds get_tag_value_string(const struct t_album *album, enum mpd_tag_type t
 static sds get_tag_values(const struct t_album *album, enum mpd_tag_type tag,
         sds tag_values, bool multi, unsigned *value_count)
 {
+    if ((int)tag < 0 ||
+        tag >= MPD_TAG_COUNT)
+    {
+        *value_count = 0;
+        return tag_values;
+    }
+
     const char *value;
     unsigned count = 0;
     size_t org_len = sdslen(tag_values);
