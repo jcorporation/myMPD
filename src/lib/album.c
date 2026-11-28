@@ -21,7 +21,6 @@
 
 #include <assert.h>
 #include <inttypes.h>
-#include <mpd/tag.h>
 #include <stdio.h>
 #include <string.h>
 
