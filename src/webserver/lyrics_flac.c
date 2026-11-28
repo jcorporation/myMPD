@@ -42,7 +42,11 @@ void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is_ogg, c
     }
 
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
-    assert(iterator);
+    if (iterator == NULL) {
+        MYMPD_LOG_ERROR(NULL, "Failure creating FLAC__Metadata_Iterator for \"%s\"", media_file);
+        FLAC__metadata_chain_delete(chain);
+        return;
+    }
     FLAC__metadata_iterator_init(iterator, chain);
     int found_lyrics = 0;
     sds buffer = sdsempty();

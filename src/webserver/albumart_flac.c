@@ -49,12 +49,12 @@ bool handle_coverextract_flac(sds cachedir, const char *uri, const char *media_f
     }
 
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
-    FLAC__metadata_iterator_init(iterator, chain);
     if (iterator == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Error initializing iterator for \"%s\"", media_file);
+        MYMPD_LOG_ERROR(NULL, "Failure creating FLAC__Metadata_Iterator for \"%s\"", media_file);
         FLAC__metadata_chain_delete(chain);
         return false;
     }
+    FLAC__metadata_iterator_init(iterator, chain);
     int i = 0;
     do {
         FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);

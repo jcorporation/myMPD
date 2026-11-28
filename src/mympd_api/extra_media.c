@@ -234,12 +234,12 @@ static int get_embedded_covers_count_flac(const char *media_file, bool is_ogg) {
         return 0;
     }
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
-    FLAC__metadata_iterator_init(iterator, chain);
     if (iterator == NULL) {
-        MYMPD_LOG_ERROR(NULL, "Error initializing iterator for \"%s\"", media_file);
+        MYMPD_LOG_ERROR(NULL, "Failure creating FLAC__Metadata_Iterator for \"%s\"", media_file);
         FLAC__metadata_chain_delete(chain);
-        return false;
+        return 0;
     }
+    FLAC__metadata_iterator_init(iterator, chain);
     do {
         FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
         if (block->type == FLAC__METADATA_TYPE_PICTURE) {
