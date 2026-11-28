@@ -280,24 +280,21 @@ bool mympd_api_trigger_delete(struct t_list *trigger_list, unsigned idx, sds *er
 
 /**
  * Removes all triggers for specified partition
- * @param trigger_list Timer list
+ * @param trigger_list Trigger list
  * @param partition Partition name
- * @return Number of removed timers or -1 on error
+ * @return Number of removed triggers
  */
 int mympd_api_trigger_delete_partition(struct t_list *trigger_list, sds partition) {
-    int64_t trigger_idx[LIST_TRIGGER_MAX];
     int count = 0;
-    // First get all trigger idx to remove
     struct t_list_node *current = trigger_list->head;
     while (current != NULL) {
+        struct t_list_node *next = current->next;
         if (strcmp(partition, current->value_p) == 0) {
-            trigger_idx[count] = count;
+            struct t_list_node *to_remove = list_node_extract(trigger_list, current);
+            list_node_free_user_data(to_remove, list_free_cb_trigger_data);
             count++;
         }
-        current = current->next;
-    }
-    for (int i = count - 1; i >= 0; i--) {
-        mympd_api_trigger_delete(trigger_list, (unsigned)trigger_idx[i], NULL);
+        current = next;
     }
     return count;
 }
