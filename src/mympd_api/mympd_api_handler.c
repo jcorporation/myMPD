@@ -652,7 +652,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_JUKEBOX_RM: {
             struct t_list positions;
             list_init(&positions);
-            if (json_get_array_int64(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &parse_error) == true)
+            if (json_get_array_uint(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &parse_error) == true)
             {
                 rc = mympd_api_jukebox_rm_entries(partition_state->jukebox.queue, &positions, partition_state->name, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
