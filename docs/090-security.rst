@@ -14,7 +14,10 @@ Restrict access
 
 myMPD should not be directly accessible from the internet. It is designed to run inside a relatively secure intranet.
 
-- The pin setting only secures some :doc:`api calls <060-references/api/methods>`
+- There is no ACL support for IPv6.
+- The pin setting only secures some :doc:`api calls <060-references/api/methods>`.
+- The MPD music directory is exposed via the ``/music`` endpoint.
+- The ``/proxy-covercache`` is not limited so specific hosts.
 
 If you want to access myMPD from the internet, you should add a reverse proxy with authentication and ssl encryption in front of it.
 
