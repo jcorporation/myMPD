@@ -1068,7 +1068,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_QUEUE_RM_IDS: {
             struct t_list song_ids;
             list_init(&song_ids);
-            if (json_get_array_int64(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &parse_error) == true) {
+            if (json_get_array_uint(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &parse_error) == true) {
                 rc = mympd_api_queue_rm_song_ids(partition_state, &song_ids, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, error);
@@ -1103,7 +1103,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_QUEUE_MOVE_RELATIVE: {
             struct t_list song_ids;
             list_init(&song_ids);
-            if (json_get_array_int64(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &parse_error) == true &&
+            if (json_get_array_uint(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_QUEUE_LENGTH_MAX, &uint_buf1, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &parse_error) == true)
             {
@@ -1117,7 +1117,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_QUEUE_PRIO_SET: {
             struct t_list song_ids;
             list_init(&song_ids);
-            if (json_get_array_int64(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &parse_error) == true &&
+            if (json_get_array_uint(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.priority", 0, MPD_QUEUE_PRIO_MAX, &uint_buf1, &parse_error) == true)
             {
                 rc = mympd_api_queue_prio_set(partition_state, &song_ids, uint_buf1, &error);
@@ -1130,7 +1130,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
         case MYMPD_API_QUEUE_PRIO_SET_HIGHEST: {
             struct t_list song_ids;
             list_init(&song_ids);
-            if (json_get_array_int64(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &parse_error) == true) {
+            if (json_get_array_uint(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &parse_error) == true) {
                 rc = mympd_api_queue_prio_set_highest(partition_state, &song_ids, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_QUEUE, error);
@@ -1689,7 +1689,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             list_init(&positions);
             if (json_get_string(request->data, "$.params.srcPlist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_string(request->data, "$.params.dstPlist", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &parse_error) == true &&
-                json_get_array_int64(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &parse_error) == true &&
+                json_get_array_uint(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 1, &uint_buf1, &parse_error) == true)
             {
                 rc = mympd_api_playlist_content_move_to_playlist(partition_state, sds_buf1, sds_buf2, &positions, uint_buf1, &error);
@@ -1703,7 +1703,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             struct t_list positions;
             list_init(&positions);
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
-                json_get_array_int64(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &parse_error) == true)
+                json_get_array_uint(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &parse_error) == true)
             {
                 rc = mympd_api_playlist_content_rm_positions(partition_state, sds_buf1, &positions, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
