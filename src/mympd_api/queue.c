@@ -722,7 +722,7 @@ bool mympd_api_queue_replace_plists(struct t_partition_state *partition_state, s
 sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, unsigned request_id, bool or_clear) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     unsigned length = 0;
-    int playing_song_pos = 0;
+    int playing_song_pos = -1;
     if (status != NULL) {
         length = mpd_status_get_queue_length(status);
         playing_song_pos = mpd_status_get_song_pos(status);
@@ -733,37 +733,36 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
             MYMPD_LOG_ERROR(partition_state->name, "Can not crop the queue");
             return buffer;
         }
-        length = length - 1; //length is used for the last index, not the count
     }
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
         return buffer;
     }
 
-    if (playing_song_pos > -1 &&
-        length > 1)
-    {
+    if (playing_song_pos >= 0) {
         //there is a current song, crop the queue
-        if (mpd_command_list_begin(partition_state->conn, false)) {
-            //remove all songs behind current song
-            unsigned pos_after = (unsigned)playing_song_pos + 1;
-            if (pos_after < length) {
-                if (mpd_send_delete_range(partition_state->conn, pos_after, UINT_MAX) == false) {
-                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_delete_range");
+        if (length > 1) {
+            if (mpd_command_list_begin(partition_state->conn, false)) {
+                //remove all songs behind current song
+                unsigned pos_after = (unsigned)playing_song_pos + 1;
+                if (pos_after < length) {
+                    if (mpd_send_delete_range(partition_state->conn, pos_after, UINT_MAX) == false) {
+                        mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_delete_range");
+                    }
                 }
-            }
-            //remove all songs before current song
-            if (playing_song_pos > 0) {
-                if (mpd_send_delete_range(partition_state->conn, 0, (unsigned)playing_song_pos) == false) {
-                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_delete_range");
+                //remove all songs before current song
+                if (playing_song_pos > 0) {
+                    if (mpd_send_delete_range(partition_state->conn, 0, (unsigned)playing_song_pos) == false) {
+                        mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_delete_range");
+                    }
                 }
+                mympd_client_command_list_end_check(partition_state);
             }
-            mympd_client_command_list_end_check(partition_state);
-        }
-        else {
-            MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
-        }
-        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_delete_range") == false) {
-            return buffer;
+            else {
+                MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
+            }
+            if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_delete_range") == false) {
+                return buffer;
+            }
         }
         buffer = jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_QUEUE);
     }
