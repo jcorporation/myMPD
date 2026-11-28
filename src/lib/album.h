@@ -35,7 +35,7 @@ struct t_album_tag_iterator {
  */
 enum album_modes {
     ALBUM_MODE_SIMPLE = 0,
-    ALBUM_MODE_ADV
+    ALBUM_MODE_ADV,
 };
 
 /**
