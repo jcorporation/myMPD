@@ -263,7 +263,10 @@ sds mympd_api_album_list(struct t_mympd_state *mympd_state, struct t_partition_s
             else {
                 ts = album_get_last_modified(album);
                 key = album_get_tag_value_string(album, sort_tag, key);
-                if (sort_tag != MPD_TAG_ALBUM) {
+                if (sort_tag == MPD_TAG_ALBUM) {
+                    value = album_get_tag_value_string(album, MPD_TAG_ALBUM_ARTIST, value);
+                }
+                else {
                     value = album_get_tag_value_string(album, MPD_TAG_ALBUM, value);
                 }
             }

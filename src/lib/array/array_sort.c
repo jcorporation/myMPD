@@ -209,6 +209,7 @@ static bool sort_cb_key(struct t_array_node *first, struct t_array_node *second,
 
 /**
  * Comparison callback for sorting by integer value, then by key and then by value.
+ * Integer value is sorted in reverse order.
  * @param first Pointer to the first array node
  * @param second Pointer to the second array node
  * @param direction Sort direction
@@ -219,7 +220,8 @@ static bool sort_cb_value_i_key_value_p(struct t_array_node *first, struct t_arr
 {
     int64_t result = (first->value_i > second->value_i) - (first->value_i < second->value_i);
     if (result != 0) {
-        return direction == ARRAY_SORT_ASC
+        // Reverse the result for descending order, because we want the newest first by default
+        return direction == ARRAY_SORT_DESC
             ? result > 0
             : result < 0;
     }
@@ -260,6 +262,7 @@ static bool sort_cb_value_i_key_value_p(struct t_array_node *first, struct t_arr
 
 /**
  * Comparison callback for sorting by key, then by value and then by integer value.
+ * Integer value is sorted in reverse order.
  * @param first Pointer to the first array node
  * @param second Pointer to the second array node
  * @param direction Sort direction
