@@ -514,6 +514,48 @@ bool json_get_array_int64(sds s, const char *path, struct t_list *l, int max_ele
 }
 
 /**
+ * Iteration callback to populate a list with json array of int64_t
+ * @param path json path
+ * @param key json key
+ * @param value json value
+ * @param vtype mjson value type
+ * @param vcb validation callback - not used
+ * @param userdata pointer to a t_list struct to populate
+ * @param error pointer to t_json_parse_error
+ * @return true on success, else false
+ */
+static bool icb_json_get_array_uint(const char *path, sds key, sds value, enum json_vtype vtype, validate_callback vcb, void *userdata, struct t_json_parse_error *error) {
+    (void)key;
+    (void)vcb;
+    if (vtype != JSON_TOK_NUMBER) {
+        set_parse_error(error, path, "", "Validation of value \"%s\" has failed", value);
+        return false;
+    }
+    unsigned value_uint;
+    enum str2int_errno rc = str2uint(&value_uint, value);
+    if (rc != STR2INT_SUCCESS) {
+        return false;
+    }
+    struct t_list *l = (struct t_list *)userdata;
+    list_push(l, "", value_uint, NULL, NULL);
+    return true;
+}
+
+/**
+ * Converts a json array of int64_t to a t_list struct
+ * Shortcut for json_iterate_object with icb_json_get_array_int64
+ * @param s json object to parse
+ * @param path mjson path expression
+ * @param l t_list struct to populate
+ * @param max_elements maximum of elements
+ * @param error pointer to t_json_parse_error
+ * @return true on success, else false
+ */
+bool json_get_array_uint(sds s, const char *path, struct t_list *l, int max_elements, struct t_json_parse_error *error) {
+    return json_iterate_object(s, path, icb_json_get_array_uint, l, NULL, NULL, max_elements, error);
+}
+
+/**
  * Iteration callback to populate a list with json object key/values
  * @param path json path
  * @param key json key
