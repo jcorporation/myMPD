@@ -322,6 +322,7 @@ bool mympd_api_settings_view_save(struct t_mympd_state *mympd_state, sds view, s
     }
     else {
         MYMPD_LOG_ERROR(NULL, "MYMPD_API_VIEW_SAVE: Unknown view \"%s\"", view);
+        FREE_SDS(def);
         return false;
     }
     sds view_name = camel_to_snake(view);
