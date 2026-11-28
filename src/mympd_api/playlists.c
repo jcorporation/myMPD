@@ -22,9 +22,7 @@
 #include "src/lib/list/sort.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
-#include "src/lib/rax_extras.h"
 #include "src/lib/sds/sds_extras.h"
-#include "src/lib/sds/sds_utf8.h"
 #include "src/lib/search/search.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/utf8_wrapper.h"
@@ -85,6 +83,7 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
             if (uri == NULL) {
                 MYMPD_LOG_WARN(partition_state->name, "Song at pos %u not found in src playlist %s", (unsigned)current->value_i, src_plist);
                 mympd_set_mpd_failure(partition_state, "Can not find source song");
+                rc = false;
                 break;
             }
 
@@ -99,17 +98,17 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
             current = current->next;
         }
         // Remove songs in reverse order
-        current = positions->tail;
-        while (current != NULL) {
-            if (mpd_send_playlist_delete(partition_state->conn, src_plist, (unsigned)current->value_i) == false) {
-                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_delete");
-                list_node_free(current);
-                break;
+        if (rc == true) {
+            current = positions->tail;
+            while (current != NULL) {
+                if (mpd_send_playlist_delete(partition_state->conn, src_plist, (unsigned)current->value_i) == false) {
+                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_delete");
+                    break;
+                }
+                current = current->prev;
             }
-            current = current->prev;
         }
         mympd_client_command_list_end_check(partition_state);
-        list_free(positions);
     }
     else {
         MYMPD_LOG_ERROR(partition_state->name, "Failure starting command list mpd_command_list_begin");
