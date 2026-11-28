@@ -17,7 +17,6 @@
 #include "src/lib/json/json_rpc.h"
 #include "src/lib/list/list.h"
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
 #include "src/lib/sds/sds_extras.h"
 #include "src/lib/smartpls.h"
 #include "src/lib/thread.h"
@@ -725,11 +724,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             break;
         case MYMPD_API_TRIGGER_SAVE: {
-            if (mympd_state->trigger_list.length > LIST_TRIGGER_MAX) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_TRIGGER, JSONRPC_SEVERITY_ERROR, "Too many triggers defined");
-                break;
-            }
             //malloc trigger_data - it is used in trigger list
             struct t_trigger_data *trigger_data = mympd_api_trigger_data_new();
 
@@ -740,12 +734,18 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_int_max(request->data, "$.params.event", &int_buf2, &parse_error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", &trigger_data->arguments, vcb_isname, vcb_isname, SCRIPT_ARGUMENTS_MAX, &parse_error) == true)
             {
-                rc = mympd_api_trigger_save(&mympd_state->trigger_list, sds_buf1, int_buf1, int_buf2, sds_buf2, trigger_data, &error);
-                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_TRIGGER, error);
-                if (rc == true) {
-                    //trigger_data is now referenced by the trigger list
-                    break;
+                if (int_buf1 == -1 && mympd_state->trigger_list.length > LIST_TRIGGER_MAX) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_TRIGGER, JSONRPC_SEVERITY_ERROR, "Too many triggers defined");
+                }
+                else {
+                    rc = mympd_api_trigger_save(&mympd_state->trigger_list, sds_buf1, int_buf1, int_buf2, sds_buf2, trigger_data, &error);
+                    response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                            JSONRPC_FACILITY_TRIGGER, error);
+                    if (rc == true) {
+                        //trigger_data is now referenced by the trigger list
+                        break;
+                    }
                 }
             }
             //free unused trigger data
