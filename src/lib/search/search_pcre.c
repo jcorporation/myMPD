@@ -47,9 +47,10 @@ pcre2_code *mympd_search_pcre_compile(sds regex_str) {
 
 /**
  * Matches the regex against a string
- * @param re_compiled the compiled regex from compile_regex
  * @param value String value to match against
  * @param value_len Value length
+ * @param re_compiled the compiled regex from compile_regex
+ * @param match_data pre allocated pcre2_match_data pointer
  * @return true if regex matches else false
  */
 bool mympd_search_pcre_match(const char *value, size_t value_len,
