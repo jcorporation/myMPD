@@ -119,14 +119,14 @@ bool mympd_api_timer_check(int fd, struct t_timer_list *timer_list, struct t_mym
 bool mympd_api_timer_save(struct t_partition_state *partition_state, struct t_timer_list *timer_list, int interval, unsigned timerid,
         struct t_timer_definition *timer_def, sds *error)
 {
-    if (timer_list->list.length > LIST_TIMER_MAX) {
+    bool new = timerid == 0;
+    if (new == true &&
+        (timer_list->list.length > LIST_TIMER_MAX ||
+         timer_list->last_id >= USER_TIMER_ID_MAX))
+    {
         *error = sdscat(*error, "Too many timers defined");
         return false;
     }
-
-    bool new = timerid == 0
-        ? true
-        : false;
     if (interval > 0 &&
         interval < TIMER_INTERVAL_MIN)
     {
@@ -321,7 +321,7 @@ bool mympd_api_timer_remove_by_fd(struct t_timer_list *l, int fd) {
  * @return Number of removed timers or -1 on error
  */
 int mympd_api_timer_remove_partition(struct t_timer_list *l, sds partition) {
-    int64_t timer_ids[LIST_TIMER_MAX];
+    int64_t timer_ids[LIST_TIMER_MAX + 1];
     int count = 0;
     // First get all timer ids to remove
     struct t_list_node *current = l->list.head;
@@ -578,7 +578,10 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
                     timer_list->last_id = timerid;
                 }
                 int start_in = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
-                mympd_api_timer_add(timer_list, start_in, interval, timer_handler_select, timerid, timer_def);
+                if (mympd_api_timer_add(timer_list, start_in, interval, timer_handler_select, timerid, timer_def) == false) {
+                    MYMPD_LOG_ERROR(NULL, "Could not add timer from file");
+                    mympd_api_timer_free_definition(timer_def);
+                }
             }
             else {
                 MYMPD_LOG_ERROR(NULL, "Invalid timer line");
