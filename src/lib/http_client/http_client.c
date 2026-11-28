@@ -18,11 +18,14 @@
 
 #include <errno.h>
 #include <inttypes.h>
+#include <string.h>
+#include <strings.h>
 
 /**
  * Private definitions
  */
 static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data);
+static sds resolve_redirect(sds connect_uri, sds redirect_uri);
 
 /**
  * Public functions
@@ -130,25 +133,7 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
             if (location == NULL) {
                 break;
             }
-            sds last_host = sdsdup(mg_client_request->connect_uri);
-            sdsclear(mg_client_request->connect_uri);
-            if (strncmp(location->value_p, "http://", 7) != 0 &&
-                strncmp(location->value_p, "https://", 8) != 0)
-            {
-                // redirect uri without host, keep last host part
-                int k = 0;
-                for (size_t j = 0; j < sdslen(last_host); j++) {
-                    if (last_host[j] == '/') {
-                        k++;
-                    }
-                    if (k == 3) {
-                        break;
-                    }
-                    mg_client_request->connect_uri = sds_catchar(mg_client_request->connect_uri, last_host[j]);
-                }
-            }
-            FREE_SDS(last_host);
-            mg_client_request->connect_uri = sdscatsds(mg_client_request->connect_uri, location->value_p);
+            mg_client_request->connect_uri = resolve_redirect(mg_client_request->connect_uri, location->value_p);
             list_clear(&mg_client_response->header);
             sdsclear(mg_client_response->body);
             mg_client_response->rc = -1;
@@ -161,6 +146,59 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
     FREE_SDS(dns_uri);
     FREE_SDS(mg_client_request->connect_uri);
     mg_mgr_free(&mgr_client);
+}
+
+/**
+ * Resolve the redirect uri
+ * @param connect_uri The original uri
+ * @param redirect_uri The uri from the location header
+ * @return Replaced connect_uri buffer
+ */
+static sds resolve_redirect(sds connect_uri, sds redirect_uri) {
+    if (strncasecmp(redirect_uri, "http://", 7) == 0 ||
+        strncasecmp(redirect_uri, "https://", 8) == 0)
+    {
+        //Full uri with scheme + host and path for the redirect
+        sdsclear(connect_uri);
+        return sdscat(connect_uri, redirect_uri);
+    }
+
+    // Get scheme and host from original uri
+    const char *scheme = strstr(connect_uri, "://");
+    if (scheme == NULL) {
+        return sdscat(connect_uri, redirect_uri);
+    }
+    const char *authority_end = strpbrk(scheme + 3, "/?#");
+    size_t origin_len = authority_end != NULL
+        ? (size_t)(authority_end - connect_uri)
+        : sdslen(connect_uri);
+
+    // Absolute redirect uri
+    if (redirect_uri[0] == '/') {
+        // cut of path
+        sdsrange(connect_uri, 0, (ssize_t)origin_len - 1);
+        // add absolute uri
+        return sdscat(connect_uri, redirect_uri);
+    }
+
+    if (authority_end == NULL || *authority_end != '/') {
+        // The original URI has no path; resolve the relative URI from the host root.
+        sdsrange(connect_uri, 0, (ssize_t)origin_len - 1);
+        connect_uri = sdscat(connect_uri, "/");
+    }
+    else {
+        // Keep the current directory and discard the filename and query.
+        const char *path_end = strpbrk(authority_end, "?#");
+        if (path_end == NULL) {
+            path_end = connect_uri + sdslen(connect_uri);
+        }
+        const char *directory_end = path_end;
+        while (directory_end > authority_end && directory_end[-1] != '/') {
+            directory_end--;
+        }
+        sdsrange(connect_uri, 0, (ssize_t)(directory_end - connect_uri) - 1);
+    }
+    return sdscat(connect_uri, redirect_uri);
 }
 
 /**
