@@ -27,7 +27,7 @@ struct t_array_node {
 };
 
 /**
- * Struct representing a dynamic array of sds strings
+ * Struct representing a dynamic array
  */
 struct t_array {
     unsigned length;              //!< Current number of elements in the array
